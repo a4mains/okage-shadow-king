@@ -1,0 +1,2 @@
+# Research oracles only; not linked into the native library or application.
+unicorn==1.0.2

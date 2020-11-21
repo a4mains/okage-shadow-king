@@ -1,0 +1,45 @@
+{
+  "date": "2020-11-21",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "native_binary_sha256": "4799203393f95b0a0695496008c3bbe5c79a2b92ad6fdbd07e2243f744a908ca",
+  "xpf": {
+    "archives": 741,
+    "members": 17524,
+    "decoded_bytes": 459694827,
+    "all_corpus": true,
+    "oracle": "Unicorn 1.0.2",
+    "routine": "0x001bd000"
+  },
+  "xim": {
+    "texture_count": 9584,
+    "formats": {
+      "psm=19,cpsm=0": 9066,
+      "psm=20,cpsm=0": 135,
+      "psm=1,cpsm=0": 375,
+      "psm=0,cpsm=0": 6,
+      "psm=19,cpsm=2": 2
+    },
+    "palette16_pixel_checks": 2,
+    "oracle": "Unicorn 1.0.2 MIPS64R2_GENERIC",
+    "limits": "All dimensions/formats compared to original accessors; image preview color checks are not in-game GS fidelity tests."
+  },
+  "source_sha256": {
+    "src/assets.cpp": "d372ed2e743d1e89a7adc84b9617d4a3805e03e7a5ca6880ac73909abdc83d9c",
+    "include/okage/assets.hpp": "3b505f379ff52a4036892f7a2b6a47b14ea1e14c8fd88fb0237bdd919863ce9b",
+    "tools/verify_xpf.py": "4a544555116061e49cbe36dc4d3ec5f8d6844c6e67b8f3189afbd3ebc4c59364",
+    "tools/verify_xim.py": "88cfb276828c221a15406fda7de70b43792d284cb8d76aac915de4219caabb31"
+  },
+  "local_report_sha256": {
+    "local/xpf-verification.json": "61a4963ab7033d7d698f88f44caeda2509c32c3c0308c66bd6b4f33c8e72275c",
+    "local/xim-verification.json": "aed88e018486c22ae692e8cf73a9827b25f9b4afc79cba3bef6b4b473d5baa96"
+  },
+  "viewer": {
+    "architecture": "arm64",
+    "ui_verified": [
+      "64x32 eye texture displayed",
+      "Next Texture changed to next file"
+    ],
+    "emulator_dependency": false
+  },
+  "game_playable": false
+}
