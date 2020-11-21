@@ -1,0 +1,18 @@
+# Original game data, generated code, and third-party research checkouts stay local.
+/local/
+/references/
+/build/
+/generated/
+__pycache__/
+*.pyc
+.DS_Store
+*.iso
+*.bin
+*.cue
+*.zip
+*.chd
+*.elf
+*.irx
+SCUS_*
+*.ps2
+*.card

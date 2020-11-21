@@ -1,0 +1,5210 @@
+{
+  "image": "Okage - Shadow King (USA).bin",
+  "image_size": 524481888,
+  "image_sha256": "08623a1400e2610aecd0247ae7440c97501495c6f819f675494e44de20b62d2a",
+  "sector_size": 2352,
+  "user_data_offset": 24,
+  "volume": "OKAGE",
+  "system_cnf": "BOOT2 = cdrom0:\\SCUS_971.29;1\nVER = 1.01\nVMODE = NTSC\n",
+  "boot_executable": "SCUS_971.29",
+  "elf": {
+    "size": 1374220,
+    "sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "type": 2,
+    "machine": 8,
+    "entry": "0x00100008",
+    "flags": "0x20924001",
+    "symbol_entries": 0,
+    "sections": [
+      {
+        "name": "",
+        "type": 0,
+        "address": "0x00000000",
+        "offset": 0,
+        "size": 0,
+        "flags": 0
+      },
+      {
+        "name": ".text",
+        "type": 1,
+        "address": "0x00100000",
+        "offset": 4096,
+        "size": 1016884,
+        "flags": 6
+      },
+      {
+        "name": ".vutext",
+        "type": 1,
+        "address": "0x001f8434",
+        "offset": 1020980,
+        "size": 0,
+        "flags": 6
+      },
+      {
+        "name": ".reginfo",
+        "type": 1879048198,
+        "address": "0x001f8434",
+        "offset": 1373548,
+        "size": 24,
+        "flags": 0
+      },
+      {
+        "name": ".data",
+        "type": 1,
+        "address": "0x001f8480",
+        "offset": 1021056,
+        "size": 119208,
+        "flags": 3
+      },
+      {
+        "name": ".vudata",
+        "type": 1,
+        "address": "0x00215700",
+        "offset": 1140480,
+        "size": 49408,
+        "flags": 3
+      },
+      {
+        "name": ".rodata",
+        "type": 1,
+        "address": "0x00221800",
+        "offset": 1189888,
+        "size": 183504,
+        "flags": 2
+      },
+      {
+        "name": ".sbss",
+        "type": 8,
+        "address": "0x0024e500",
+        "offset": 1373440,
+        "size": 20,
+        "flags": 268435459
+      },
+      {
+        "name": ".bss",
+        "type": 8,
+        "address": "0x0024e580",
+        "offset": 1373548,
+        "size": 1500548,
+        "flags": 3
+      },
+      {
+        "name": ".vubss",
+        "type": 8,
+        "address": "0x003bcb04",
+        "offset": 1373548,
+        "size": 0,
+        "flags": 3
+      },
+      {
+        "name": ".DVP.ovlytab",
+        "type": 2147480608,
+        "address": "0x003bcb04",
+        "offset": 1373572,
+        "size": 0,
+        "flags": 1
+      },
+      {
+        "name": ".DVP.ovlystrtab",
+        "type": 3,
+        "address": "0x003bcb04",
+        "offset": 1373572,
+        "size": 7,
+        "flags": 1
+      },
+      {
+        "name": ".shstrtab",
+        "type": 3,
+        "address": "0x00000000",
+        "offset": 1373579,
+        "size": 119,
+        "flags": 0
+      }
+    ],
+    "segments": [
+      {
+        "type": 1,
+        "offset": 4096,
+        "vaddr": "0x00100000",
+        "filesz": 1369296,
+        "memsz": 2870020,
+        "flags": 7
+      }
+    ]
+  },
+  "files": [
+    {
+      "path": "BTLDATA/ALPHA/EFFECT/BAG.XPF",
+      "lba": 112404,
+      "size": 16802
+    },
+    {
+      "path": "BTLDATA/ALPHA/EFFECT/BOX.XPF",
+      "lba": 112413,
+      "size": 11157
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/BEILY41.XPF",
+      "lba": 111526,
+      "size": 94211
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/B_BAD_A.XPF",
+      "lba": 110093,
+      "size": 305674
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/B_BAD_B.XPF",
+      "lba": 110243,
+      "size": 194869
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/B_BEACH.XPF",
+      "lba": 110339,
+      "size": 320175
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/B_DESERT.XPF",
+      "lba": 110496,
+      "size": 278751
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/B_FOREST.XPF",
+      "lba": 110633,
+      "size": 238647
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/B_ILAND.XPF",
+      "lba": 110750,
+      "size": 399456
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/B_MAZE.XPF",
+      "lba": 110946,
+      "size": 323484
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/B_PLANE.XPF",
+      "lba": 111104,
+      "size": 252548
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/B_ROOM0.XPF",
+      "lba": 111228,
+      "size": 21690
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/B_ROOM1.XPF",
+      "lba": 111239,
+      "size": 23262
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/B_ROOM2.XPF",
+      "lba": 111251,
+      "size": 19841
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/B_ROOM3.XPF",
+      "lba": 111261,
+      "size": 19127
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/B_SNOW.XPF",
+      "lba": 111271,
+      "size": 288669
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/B_SNOW2.XPF",
+      "lba": 111412,
+      "size": 232694
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/DNG0BTL.XPF",
+      "lba": 111573,
+      "size": 150878
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/DNG1BTL.XPF",
+      "lba": 111647,
+      "size": 142074
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/DNG2BTL.XPF",
+      "lba": 111717,
+      "size": 159243
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/DNG3BTL.XPF",
+      "lba": 111795,
+      "size": 160972
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/DNG4BTL.XPF",
+      "lba": 111874,
+      "size": 176937
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/DNG5BTL.XPF",
+      "lba": 111961,
+      "size": 179530
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/DNGGBTL.XPF",
+      "lba": 112049,
+      "size": 132961
+    },
+    {
+      "path": "BTLDATA/ALPHA/FIELD/LIB_S021.XPF",
+      "lba": 112114,
+      "size": 593576
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/AEPROS.XPF",
+      "lba": 102553,
+      "size": 496979
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/ARMOR01.XPF",
+      "lba": 102796,
+      "size": 159492
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/ARMOR02.XPF",
+      "lba": 102874,
+      "size": 157752
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/BABERN.XPF",
+      "lba": 102952,
+      "size": 193192
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/BALLY.XPF",
+      "lba": 103047,
+      "size": 149266
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/BAT01.XPF",
+      "lba": 103120,
+      "size": 113264
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/BAT02.XPF",
+      "lba": 103176,
+      "size": 117282
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/BEAR01.XPF",
+      "lba": 103234,
+      "size": 151622
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/BIGBULL.XPF",
+      "lba": 103309,
+      "size": 307767
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/BOAR01.XPF",
+      "lba": 103460,
+      "size": 78245
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/BUBBLE.XPF",
+      "lba": 103499,
+      "size": 383841
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/COCK01.XPF",
+      "lba": 103687,
+      "size": 163491
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/COND01.XPF",
+      "lba": 103767,
+      "size": 121134
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/CRAB01.XPF",
+      "lba": 103827,
+      "size": 141081
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/CRAB02.XPF",
+      "lba": 103896,
+      "size": 145603
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/CROW01.XPF",
+      "lba": 103968,
+      "size": 89454
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/CROW02.XPF",
+      "lba": 104012,
+      "size": 92137
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/DIN01.XPF",
+      "lba": 104057,
+      "size": 231389
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/DIN02.XPF",
+      "lba": 104170,
+      "size": 232657
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/ELEPH01.XPF",
+      "lba": 104284,
+      "size": 109488
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/ELEPH02.XPF",
+      "lba": 104338,
+      "size": 114724
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/FISH01.XPF",
+      "lba": 104395,
+      "size": 92865
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/FROG01.XPF",
+      "lba": 104441,
+      "size": 77948
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/FROG02.XPF",
+      "lba": 104480,
+      "size": 78722
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/GEAR01.XPF",
+      "lba": 104519,
+      "size": 29114
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/GEAR02.XPF",
+      "lba": 104534,
+      "size": 37778
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/GHOST01.XPF",
+      "lba": 104553,
+      "size": 104312
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/GHOST02.XPF",
+      "lba": 104604,
+      "size": 104256
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/GOAT01.XPF",
+      "lba": 104655,
+      "size": 153944
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/GOAT02.XPF",
+      "lba": 104731,
+      "size": 155012
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/GOLEM01.XPF",
+      "lba": 104807,
+      "size": 165782
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/GOLEM02.XPF",
+      "lba": 104888,
+      "size": 166256
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/HIP01.XPF",
+      "lba": 104970,
+      "size": 101398
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/HIP02.XPF",
+      "lba": 105020,
+      "size": 106007
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/KAITYO.XPF",
+      "lba": 105072,
+      "size": 269299
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/KISTLING.XPF",
+      "lba": 105204,
+      "size": 496460
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/KONB01.XPF",
+      "lba": 105447,
+      "size": 179929
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/KONB02.XPF",
+      "lba": 105535,
+      "size": 183380
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/LINDA.XPF",
+      "lba": 105625,
+      "size": 808216
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/LION01.XPF",
+      "lba": 106020,
+      "size": 164172
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/LUCAN.XPF",
+      "lba": 106101,
+      "size": 392810
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/LUCANB.XPF",
+      "lba": 106293,
+      "size": 395231
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/MAND01.XPF",
+      "lba": 106486,
+      "size": 101187
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/MAND02.XPF",
+      "lba": 106536,
+      "size": 102227
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/MASK01.XPF",
+      "lba": 106586,
+      "size": 43771
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/MOON01.XPF",
+      "lba": 106608,
+      "size": 42945
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/MUD01.XPF",
+      "lba": 106629,
+      "size": 175914
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/MUMMY01.XPF",
+      "lba": 106715,
+      "size": 209329
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/MUMMY02.XPF",
+      "lba": 106818,
+      "size": 213137
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/MUSH01.XPF",
+      "lba": 106923,
+      "size": 61873
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/ONI01.XPF",
+      "lba": 106954,
+      "size": 119512
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/ONI02.XPF",
+      "lba": 107013,
+      "size": 119751
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/OX01.XPF",
+      "lba": 107072,
+      "size": 117556
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/OX02.XPF",
+      "lba": 107130,
+      "size": 119363
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/PENG01.XPF",
+      "lba": 107189,
+      "size": 110412
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/PIC01.XPF",
+      "lba": 107243,
+      "size": 90576
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/POT01.XPF",
+      "lba": 107288,
+      "size": 70122
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/POT02.XPF",
+      "lba": 107323,
+      "size": 69069
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/POT03.XPF",
+      "lba": 107357,
+      "size": 68658
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/POT04.XPF",
+      "lba": 107391,
+      "size": 69711
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/POT05.XPF",
+      "lba": 107426,
+      "size": 71192
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/RAB01.XPF",
+      "lba": 107461,
+      "size": 89926
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/RAB02.XPF",
+      "lba": 107505,
+      "size": 91028
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/RAT01.XPF",
+      "lba": 107550,
+      "size": 95712
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/RAT02.XPF",
+      "lba": 107597,
+      "size": 98277
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/RATKING.XPF",
+      "lba": 107645,
+      "size": 255140
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/ROCK01.XPF",
+      "lba": 107770,
+      "size": 67566
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/ROCK02.XPF",
+      "lba": 107803,
+      "size": 67566
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/ROSALIE.XPF",
+      "lba": 107836,
+      "size": 545802
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/SABO01.XPF",
+      "lba": 108103,
+      "size": 94735
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/SAI01.XPF",
+      "lba": 108150,
+      "size": 108867
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/SAI02.XPF",
+      "lba": 108204,
+      "size": 110891
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/SCARE01.XPF",
+      "lba": 108259,
+      "size": 101680
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/SCARE02.XPF",
+      "lba": 108309,
+      "size": 102947
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/SCREW01.XPF",
+      "lba": 108360,
+      "size": 43478
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/SCREW02.XPF",
+      "lba": 108382,
+      "size": 43315
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/SEI01.XPF",
+      "lba": 108404,
+      "size": 83212
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/SLEEP01.XPF",
+      "lba": 108445,
+      "size": 109945
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/SNAKE01.XPF",
+      "lba": 108499,
+      "size": 90138
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/SNOW01.XPF",
+      "lba": 108544,
+      "size": 130205
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/SPI01.XPF",
+      "lba": 108608,
+      "size": 98316
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/SPI02.XPF",
+      "lba": 108657,
+      "size": 98924
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/STAN.XPF",
+      "lba": 108706,
+      "size": 160274
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/STING01.XPF",
+      "lba": 108785,
+      "size": 79803
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/STING02.XPF",
+      "lba": 108824,
+      "size": 82987
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/SUN01.XPF",
+      "lba": 108865,
+      "size": 65524
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/SWORD01.XPF",
+      "lba": 108897,
+      "size": 72640
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/TIGER01.XPF",
+      "lba": 108933,
+      "size": 154480
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/TREE01.XPF",
+      "lba": 109009,
+      "size": 182617
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/TREE02.XPF",
+      "lba": 109099,
+      "size": 183312
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/ULTIMA.XPF",
+      "lba": 109189,
+      "size": 486239
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/VAMP.XPF",
+      "lba": 109427,
+      "size": 263392
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/WANI01.XPF",
+      "lba": 109556,
+      "size": 228869
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/WANI02.XPF",
+      "lba": 109668,
+      "size": 231883
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/WHALE01.XPF",
+      "lba": 109782,
+      "size": 121774
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/WOLF01.XPF",
+      "lba": 109842,
+      "size": 161572
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/WYV01.XPF",
+      "lba": 109921,
+      "size": 211344
+    },
+    {
+      "path": "BTLDATA/ALPHA/UNIT/YETI01.XPF",
+      "lba": 110025,
+      "size": 138460
+    },
+    {
+      "path": "BTLDATA/BETA/EFFECT/BAG.XPF",
+      "lba": 102538,
+      "size": 16731
+    },
+    {
+      "path": "BTLDATA/BETA/EFFECT/BOX.XPF",
+      "lba": 102547,
+      "size": 11157
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/BEILY41.XPF",
+      "lba": 101712,
+      "size": 94215
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/B_BAD_A.XPF",
+      "lba": 100288,
+      "size": 305294
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/B_BAD_B.XPF",
+      "lba": 100438,
+      "size": 194478
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/B_BEACH.XPF",
+      "lba": 100533,
+      "size": 319694
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/B_DESERT.XPF",
+      "lba": 100690,
+      "size": 278320
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/B_FOREST.XPF",
+      "lba": 100826,
+      "size": 238673
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/B_ILAND.XPF",
+      "lba": 100943,
+      "size": 399042
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/B_MAZE.XPF",
+      "lba": 101138,
+      "size": 309959
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/B_PLANE.XPF",
+      "lba": 101290,
+      "size": 252574
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/B_ROOM0.XPF",
+      "lba": 101414,
+      "size": 21700
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/B_ROOM1.XPF",
+      "lba": 101425,
+      "size": 23294
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/B_ROOM2.XPF",
+      "lba": 101437,
+      "size": 19851
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/B_ROOM3.XPF",
+      "lba": 101447,
+      "size": 19140
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/B_SNOW.XPF",
+      "lba": 101457,
+      "size": 288220
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/B_SNOW2.XPF",
+      "lba": 101598,
+      "size": 232720
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/DNG0BTL.XPF",
+      "lba": 101759,
+      "size": 112789
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/DNG1BTL.XPF",
+      "lba": 101815,
+      "size": 102144
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/DNG2BTL.XPF",
+      "lba": 101865,
+      "size": 121309
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/DNG3BTL.XPF",
+      "lba": 101925,
+      "size": 123014
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/DNG4BTL.XPF",
+      "lba": 101986,
+      "size": 201477
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/DNG5BTL.XPF",
+      "lba": 102085,
+      "size": 195615
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/DNGGBTL.XPF",
+      "lba": 102181,
+      "size": 119677
+    },
+    {
+      "path": "BTLDATA/BETA/FIELD/LIB_S021.XPF",
+      "lba": 102240,
+      "size": 609128
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/AEPROS.XPF",
+      "lba": 92698,
+      "size": 496979
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/ARMOR01.XPF",
+      "lba": 92941,
+      "size": 159492
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/ARMOR02.XPF",
+      "lba": 93019,
+      "size": 157752
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/BABERN.XPF",
+      "lba": 93097,
+      "size": 193192
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/BALLY.XPF",
+      "lba": 93192,
+      "size": 149266
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/BAT01.XPF",
+      "lba": 93265,
+      "size": 113264
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/BAT02.XPF",
+      "lba": 93321,
+      "size": 117282
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/BEAR01.XPF",
+      "lba": 93379,
+      "size": 151622
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/BIGBULL.XPF",
+      "lba": 93454,
+      "size": 307767
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/BOAR01.XPF",
+      "lba": 93605,
+      "size": 78245
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/BUBBLE.XPF",
+      "lba": 93644,
+      "size": 379182
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/COCK01.XPF",
+      "lba": 93830,
+      "size": 163491
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/COND01.XPF",
+      "lba": 93910,
+      "size": 122567
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/CRAB01.XPF",
+      "lba": 93970,
+      "size": 141081
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/CRAB02.XPF",
+      "lba": 94039,
+      "size": 145603
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/CROW01.XPF",
+      "lba": 94111,
+      "size": 89454
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/CROW02.XPF",
+      "lba": 94155,
+      "size": 92137
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/DIN01.XPF",
+      "lba": 94200,
+      "size": 231389
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/DIN02.XPF",
+      "lba": 94313,
+      "size": 232657
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/ELEPH01.XPF",
+      "lba": 94427,
+      "size": 109488
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/ELEPH02.XPF",
+      "lba": 94481,
+      "size": 114724
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/FISH01.XPF",
+      "lba": 94538,
+      "size": 92865
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/FROG01.XPF",
+      "lba": 94584,
+      "size": 77948
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/FROG02.XPF",
+      "lba": 94623,
+      "size": 78722
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/GEAR01.XPF",
+      "lba": 94662,
+      "size": 29114
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/GEAR02.XPF",
+      "lba": 94677,
+      "size": 37778
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/GHOST01.XPF",
+      "lba": 94696,
+      "size": 104312
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/GHOST02.XPF",
+      "lba": 94747,
+      "size": 104256
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/GOAT01.XPF",
+      "lba": 94798,
+      "size": 153944
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/GOAT02.XPF",
+      "lba": 94874,
+      "size": 155012
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/GOLEM01.XPF",
+      "lba": 94950,
+      "size": 165782
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/GOLEM02.XPF",
+      "lba": 95031,
+      "size": 166256
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/HIP01.XPF",
+      "lba": 95113,
+      "size": 101398
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/HIP02.XPF",
+      "lba": 95163,
+      "size": 106007
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/KAITYO.XPF",
+      "lba": 95215,
+      "size": 269299
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/KISTLING.XPF",
+      "lba": 95347,
+      "size": 496460
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/KONB01.XPF",
+      "lba": 95590,
+      "size": 179929
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/KONB02.XPF",
+      "lba": 95678,
+      "size": 183380
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/LINDA.XPF",
+      "lba": 95768,
+      "size": 808617
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/LION01.XPF",
+      "lba": 96163,
+      "size": 164172
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/LUCAN.XPF",
+      "lba": 96244,
+      "size": 440282
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/LUCANB.XPF",
+      "lba": 96459,
+      "size": 442703
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/MAND01.XPF",
+      "lba": 96676,
+      "size": 101187
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/MAND02.XPF",
+      "lba": 96726,
+      "size": 102227
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/MASK01.XPF",
+      "lba": 96776,
+      "size": 43771
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/MOON01.XPF",
+      "lba": 96798,
+      "size": 42945
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/MUD01.XPF",
+      "lba": 96819,
+      "size": 175914
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/MUMMY01.XPF",
+      "lba": 96905,
+      "size": 209329
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/MUMMY02.XPF",
+      "lba": 97008,
+      "size": 213137
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/MUSH01.XPF",
+      "lba": 97113,
+      "size": 61873
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/ONI01.XPF",
+      "lba": 97144,
+      "size": 119512
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/ONI02.XPF",
+      "lba": 97203,
+      "size": 119751
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/OX01.XPF",
+      "lba": 97262,
+      "size": 117556
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/OX02.XPF",
+      "lba": 97320,
+      "size": 119363
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/PENG01.XPF",
+      "lba": 97379,
+      "size": 110412
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/PIC01.XPF",
+      "lba": 97433,
+      "size": 90576
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/POT01.XPF",
+      "lba": 97478,
+      "size": 70122
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/POT02.XPF",
+      "lba": 97513,
+      "size": 69069
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/POT03.XPF",
+      "lba": 97547,
+      "size": 68658
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/POT04.XPF",
+      "lba": 97581,
+      "size": 69711
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/POT05.XPF",
+      "lba": 97616,
+      "size": 71192
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/RAB01.XPF",
+      "lba": 97651,
+      "size": 89926
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/RAB02.XPF",
+      "lba": 97695,
+      "size": 91028
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/RAT01.XPF",
+      "lba": 97740,
+      "size": 95712
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/RAT02.XPF",
+      "lba": 97787,
+      "size": 98277
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/RATKING.XPF",
+      "lba": 97835,
+      "size": 255140
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/ROCK01.XPF",
+      "lba": 97960,
+      "size": 67566
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/ROCK02.XPF",
+      "lba": 97993,
+      "size": 67566
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/ROSALIE.XPF",
+      "lba": 98026,
+      "size": 545802
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/SABO01.XPF",
+      "lba": 98293,
+      "size": 94735
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/SAI01.XPF",
+      "lba": 98340,
+      "size": 108867
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/SAI02.XPF",
+      "lba": 98394,
+      "size": 110891
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/SCARE01.XPF",
+      "lba": 98449,
+      "size": 101680
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/SCARE02.XPF",
+      "lba": 98499,
+      "size": 102947
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/SCREW01.XPF",
+      "lba": 98550,
+      "size": 43478
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/SCREW02.XPF",
+      "lba": 98572,
+      "size": 43315
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/SEI01.XPF",
+      "lba": 98594,
+      "size": 83212
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/SLEEP01.XPF",
+      "lba": 98635,
+      "size": 109945
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/SNAKE01.XPF",
+      "lba": 98689,
+      "size": 90138
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/SNOW01.XPF",
+      "lba": 98734,
+      "size": 130205
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/SPI01.XPF",
+      "lba": 98798,
+      "size": 97839
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/SPI02.XPF",
+      "lba": 98846,
+      "size": 98447
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/STAN.XPF",
+      "lba": 98895,
+      "size": 160274
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/STING01.XPF",
+      "lba": 98974,
+      "size": 79803
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/STING02.XPF",
+      "lba": 99013,
+      "size": 82987
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/SUN01.XPF",
+      "lba": 99054,
+      "size": 65524
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/SWORD01.XPF",
+      "lba": 99086,
+      "size": 72640
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/TIGER01.XPF",
+      "lba": 99122,
+      "size": 154480
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/TREE01.XPF",
+      "lba": 99198,
+      "size": 182617
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/TREE02.XPF",
+      "lba": 99288,
+      "size": 183312
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/ULTIMA.XPF",
+      "lba": 99378,
+      "size": 486239
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/VAMP.XPF",
+      "lba": 99616,
+      "size": 263392
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/WANI01.XPF",
+      "lba": 99745,
+      "size": 234719
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/WANI02.XPF",
+      "lba": 99860,
+      "size": 237733
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/WHALE01.XPF",
+      "lba": 99977,
+      "size": 121774
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/WOLF01.XPF",
+      "lba": 100037,
+      "size": 161572
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/WYV01.XPF",
+      "lba": 100116,
+      "size": 211344
+    },
+    {
+      "path": "BTLDATA/BETA/UNIT/YETI01.XPF",
+      "lba": 100220,
+      "size": 138460
+    },
+    {
+      "path": "BTLDATA/BETA2/EFFECT/BAG.XPF",
+      "lba": 92683,
+      "size": 16731
+    },
+    {
+      "path": "BTLDATA/BETA2/EFFECT/BOX.XPF",
+      "lba": 92692,
+      "size": 11161
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/BEILY41.XPF",
+      "lba": 91869,
+      "size": 94216
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/B_BAD_A.XPF",
+      "lba": 90445,
+      "size": 305294
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/B_BAD_B.XPF",
+      "lba": 90595,
+      "size": 194478
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/B_BEACH.XPF",
+      "lba": 90690,
+      "size": 319694
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/B_DESERT.XPF",
+      "lba": 90847,
+      "size": 278320
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/B_FOREST.XPF",
+      "lba": 90983,
+      "size": 238673
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/B_ILAND.XPF",
+      "lba": 91100,
+      "size": 399042
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/B_MAZE.XPF",
+      "lba": 91295,
+      "size": 309959
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/B_PLANE.XPF",
+      "lba": 91447,
+      "size": 252574
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/B_ROOM0.XPF",
+      "lba": 91571,
+      "size": 21700
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/B_ROOM1.XPF",
+      "lba": 91582,
+      "size": 23294
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/B_ROOM2.XPF",
+      "lba": 91594,
+      "size": 19851
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/B_ROOM3.XPF",
+      "lba": 91604,
+      "size": 19140
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/B_SNOW.XPF",
+      "lba": 91614,
+      "size": 288220
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/B_SNOW2.XPF",
+      "lba": 91755,
+      "size": 232720
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/DNG0BTL.XPF",
+      "lba": 91916,
+      "size": 112789
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/DNG1BTL.XPF",
+      "lba": 91972,
+      "size": 102144
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/DNG2BTL.XPF",
+      "lba": 92022,
+      "size": 121309
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/DNG3BTL.XPF",
+      "lba": 92082,
+      "size": 123014
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/DNG4BTL.XPF",
+      "lba": 92143,
+      "size": 189555
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/DNG5BTL.XPF",
+      "lba": 92236,
+      "size": 183492
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/DNGGBTL.XPF",
+      "lba": 92326,
+      "size": 119677
+    },
+    {
+      "path": "BTLDATA/BETA2/FIELD/LIB_S021.XPF",
+      "lba": 92385,
+      "size": 609128
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/AEPROS.XPF",
+      "lba": 82856,
+      "size": 496979
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/ARMOR01.XPF",
+      "lba": 83099,
+      "size": 149433
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/ARMOR02.XPF",
+      "lba": 83172,
+      "size": 147693
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/BABERN.XPF",
+      "lba": 83245,
+      "size": 193192
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/BALLY.XPF",
+      "lba": 83340,
+      "size": 149266
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/BAT01.XPF",
+      "lba": 83413,
+      "size": 113264
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/BAT02.XPF",
+      "lba": 83469,
+      "size": 117282
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/BEAR01.XPF",
+      "lba": 83527,
+      "size": 151622
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/BIGBULL.XPF",
+      "lba": 83602,
+      "size": 307767
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/BOAR01.XPF",
+      "lba": 83753,
+      "size": 78245
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/BUBBLE.XPF",
+      "lba": 83792,
+      "size": 384541
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/COCK01.XPF",
+      "lba": 83980,
+      "size": 163491
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/COND01.XPF",
+      "lba": 84060,
+      "size": 122567
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/CRAB01.XPF",
+      "lba": 84120,
+      "size": 141081
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/CRAB02.XPF",
+      "lba": 84189,
+      "size": 145603
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/CROW01.XPF",
+      "lba": 84261,
+      "size": 89454
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/CROW02.XPF",
+      "lba": 84305,
+      "size": 92137
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/DIN01.XPF",
+      "lba": 84350,
+      "size": 231389
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/DIN02.XPF",
+      "lba": 84463,
+      "size": 232657
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/ELEPH01.XPF",
+      "lba": 84577,
+      "size": 109488
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/ELEPH02.XPF",
+      "lba": 84631,
+      "size": 114724
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/FISH01.XPF",
+      "lba": 84688,
+      "size": 92865
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/FROG01.XPF",
+      "lba": 84734,
+      "size": 77948
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/FROG02.XPF",
+      "lba": 84773,
+      "size": 78724
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/GEAR01.XPF",
+      "lba": 84812,
+      "size": 29114
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/GEAR02.XPF",
+      "lba": 84827,
+      "size": 37778
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/GHOST01.XPF",
+      "lba": 84846,
+      "size": 104312
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/GHOST02.XPF",
+      "lba": 84897,
+      "size": 104256
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/GOAT01.XPF",
+      "lba": 84948,
+      "size": 153944
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/GOAT02.XPF",
+      "lba": 85024,
+      "size": 155012
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/GOLEM01.XPF",
+      "lba": 85100,
+      "size": 165782
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/GOLEM02.XPF",
+      "lba": 85181,
+      "size": 166256
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/HIP01.XPF",
+      "lba": 85263,
+      "size": 101398
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/HIP02.XPF",
+      "lba": 85313,
+      "size": 106007
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/KAITYO.XPF",
+      "lba": 85365,
+      "size": 269299
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/KISTLING.XPF",
+      "lba": 85497,
+      "size": 493100
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/KONB01.XPF",
+      "lba": 85738,
+      "size": 179929
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/KONB02.XPF",
+      "lba": 85826,
+      "size": 183380
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/LINDA.XPF",
+      "lba": 85916,
+      "size": 816535
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/LION01.XPF",
+      "lba": 86315,
+      "size": 164172
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/LUCAN.XPF",
+      "lba": 86396,
+      "size": 439118
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/LUCANB.XPF",
+      "lba": 86611,
+      "size": 439951
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/MAND01.XPF",
+      "lba": 86826,
+      "size": 101187
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/MAND02.XPF",
+      "lba": 86876,
+      "size": 102227
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/MASK01.XPF",
+      "lba": 86926,
+      "size": 43771
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/MOON01.XPF",
+      "lba": 86948,
+      "size": 42945
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/MUD01.XPF",
+      "lba": 86969,
+      "size": 175914
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/MUMMY01.XPF",
+      "lba": 87055,
+      "size": 209329
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/MUMMY02.XPF",
+      "lba": 87158,
+      "size": 213137
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/MUSH01.XPF",
+      "lba": 87263,
+      "size": 61873
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/ONI01.XPF",
+      "lba": 87294,
+      "size": 119512
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/ONI02.XPF",
+      "lba": 87353,
+      "size": 119751
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/OX01.XPF",
+      "lba": 87412,
+      "size": 117556
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/OX02.XPF",
+      "lba": 87470,
+      "size": 119363
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/PENG01.XPF",
+      "lba": 87529,
+      "size": 110412
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/PIC01.XPF",
+      "lba": 87583,
+      "size": 90576
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/POT01.XPF",
+      "lba": 87628,
+      "size": 69236
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/POT02.XPF",
+      "lba": 87662,
+      "size": 68854
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/POT03.XPF",
+      "lba": 87696,
+      "size": 68740
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/POT04.XPF",
+      "lba": 87730,
+      "size": 69653
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/POT05.XPF",
+      "lba": 87765,
+      "size": 75571
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/RAB01.XPF",
+      "lba": 87802,
+      "size": 89926
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/RAB02.XPF",
+      "lba": 87846,
+      "size": 91028
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/RAT01.XPF",
+      "lba": 87891,
+      "size": 95712
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/RAT02.XPF",
+      "lba": 87938,
+      "size": 98277
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/RATKING.XPF",
+      "lba": 87986,
+      "size": 255140
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/ROCK01.XPF",
+      "lba": 88111,
+      "size": 67566
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/ROCK02.XPF",
+      "lba": 88144,
+      "size": 67566
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/ROSALIE.XPF",
+      "lba": 88177,
+      "size": 546029
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/SABO01.XPF",
+      "lba": 88444,
+      "size": 94735
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/SAI01.XPF",
+      "lba": 88491,
+      "size": 108867
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/SAI02.XPF",
+      "lba": 88545,
+      "size": 110891
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/SCARE01.XPF",
+      "lba": 88600,
+      "size": 101680
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/SCARE02.XPF",
+      "lba": 88650,
+      "size": 102947
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/SCREW01.XPF",
+      "lba": 88701,
+      "size": 43478
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/SCREW02.XPF",
+      "lba": 88723,
+      "size": 43315
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/SEI01.XPF",
+      "lba": 88745,
+      "size": 83212
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/SLEEP01.XPF",
+      "lba": 88786,
+      "size": 109945
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/SNAKE01.XPF",
+      "lba": 88840,
+      "size": 90138
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/SNOW01.XPF",
+      "lba": 88885,
+      "size": 130205
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/SPI01.XPF",
+      "lba": 88949,
+      "size": 97839
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/SPI02.XPF",
+      "lba": 88997,
+      "size": 98447
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/STAN.XPF",
+      "lba": 89046,
+      "size": 173495
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/STING01.XPF",
+      "lba": 89131,
+      "size": 79803
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/STING02.XPF",
+      "lba": 89170,
+      "size": 82987
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/SUN01.XPF",
+      "lba": 89211,
+      "size": 65524
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/SWORD01.XPF",
+      "lba": 89243,
+      "size": 72640
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/TIGER01.XPF",
+      "lba": 89279,
+      "size": 154480
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/TREE01.XPF",
+      "lba": 89355,
+      "size": 182617
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/TREE02.XPF",
+      "lba": 89445,
+      "size": 183312
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/ULTIMA.XPF",
+      "lba": 89535,
+      "size": 486239
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/VAMP.XPF",
+      "lba": 89773,
+      "size": 263392
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/WANI01.XPF",
+      "lba": 89902,
+      "size": 234719
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/WANI02.XPF",
+      "lba": 90017,
+      "size": 237733
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/WHALE01.XPF",
+      "lba": 90134,
+      "size": 121774
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/WOLF01.XPF",
+      "lba": 90194,
+      "size": 161572
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/WYV01.XPF",
+      "lba": 90273,
+      "size": 211344
+    },
+    {
+      "path": "BTLDATA/BETA2/UNIT/YETI01.XPF",
+      "lba": 90377,
+      "size": 138460
+    },
+    {
+      "path": "CMNDATA/2D/BKMO1.ICO",
+      "lba": 81384,
+      "size": 44376
+    },
+    {
+      "path": "CMNDATA/2D/BKMO2.ICO",
+      "lba": 81406,
+      "size": 44376
+    },
+    {
+      "path": "CMNDATA/2D/BKMO3.ICO",
+      "lba": 81428,
+      "size": 44376
+    },
+    {
+      "path": "CMNDATA/2D/BM_IF.XIM",
+      "lba": 81450,
+      "size": 82992
+    },
+    {
+      "path": "CMNDATA/2D/BM_LOG~1.XIM",
+      "lba": 81491,
+      "size": 11056
+    },
+    {
+      "path": "CMNDATA/2D/CHP_01.XIM",
+      "lba": 81497,
+      "size": 99376
+    },
+    {
+      "path": "CMNDATA/2D/CHP_02.XIM",
+      "lba": 81546,
+      "size": 99376
+    },
+    {
+      "path": "CMNDATA/2D/CHP_03.XIM",
+      "lba": 81595,
+      "size": 99376
+    },
+    {
+      "path": "CMNDATA/2D/CHP_04.XIM",
+      "lba": 81644,
+      "size": 99376
+    },
+    {
+      "path": "CMNDATA/2D/CHP_05.XIM",
+      "lba": 81693,
+      "size": 99376
+    },
+    {
+      "path": "CMNDATA/2D/CHP_06.XIM",
+      "lba": 81742,
+      "size": 99376
+    },
+    {
+      "path": "CMNDATA/2D/CHP_07.XIM",
+      "lba": 81791,
+      "size": 99376
+    },
+    {
+      "path": "CMNDATA/2D/ENV_TEX.XPF",
+      "lba": 81840,
+      "size": 85604
+    },
+    {
+      "path": "CMNDATA/2D/LOGO0A.XIM",
+      "lba": 81882,
+      "size": 82992
+    },
+    {
+      "path": "CMNDATA/2D/MAIN.XPF",
+      "lba": 81923,
+      "size": 95303
+    },
+    {
+      "path": "CMNDATA/2D/NIGHT_V.XPF",
+      "lba": 81970,
+      "size": 1164035
+    },
+    {
+      "path": "CMNDATA/2D/SCR.XPF",
+      "lba": 82539,
+      "size": 156526
+    },
+    {
+      "path": "CMNDATA/2D/STAFF.LKT",
+      "lba": 82852,
+      "size": 3159
+    },
+    {
+      "path": "CMNDATA/2D/STAFF.XPF",
+      "lba": 82809,
+      "size": 87338
+    },
+    {
+      "path": "CMNDATA/2D/STAFF_US.LKT",
+      "lba": 82854,
+      "size": 3785
+    },
+    {
+      "path": "CMNDATA/2D/TES.EFD",
+      "lba": 82616,
+      "size": 98972
+    },
+    {
+      "path": "CMNDATA/2D/TEXENV.XIM",
+      "lba": 82665,
+      "size": 5168
+    },
+    {
+      "path": "CMNDATA/2D/TTLMENU.XIM",
+      "lba": 82668,
+      "size": 287792
+    },
+    {
+      "path": "CMNDATA/FONT/BM.FNT",
+      "lba": 81344,
+      "size": 21752
+    },
+    {
+      "path": "CMNDATA/FONT/BMUI.FNT",
+      "lba": 81355,
+      "size": 29816
+    },
+    {
+      "path": "CMNDATA/FONT/IQ24.FNT",
+      "lba": 81370,
+      "size": 27368
+    },
+    {
+      "path": "CMNDATA/WIN/BTL.RUW",
+      "lba": 81291,
+      "size": 19596
+    },
+    {
+      "path": "CMNDATA/WIN/FLD.RUW",
+      "lba": 81301,
+      "size": 87228
+    },
+    {
+      "path": "CMNDATA/XDB/BKDATA.XDB",
+      "lba": 81244,
+      "size": 66278
+    },
+    {
+      "path": "CMNDATA/XDB/ITEM.XDB",
+      "lba": 81277,
+      "size": 27796
+    },
+    {
+      "path": "DUMMY.BIN",
+      "lba": 200344,
+      "size": 46080000
+    },
+    {
+      "path": "FLDDATA/EVENT/EVDATA.XPF",
+      "lba": 117,
+      "size": 319690
+    },
+    {
+      "path": "FLDDATA/EVENT/E_HOME1A.XMT",
+      "lba": 277,
+      "size": 232
+    },
+    {
+      "path": "FLDDATA/EVENT/E_SNIK1A.XMT",
+      "lba": 274,
+      "size": 632
+    },
+    {
+      "path": "FLDDATA/EVENT/E_VIL.XMT",
+      "lba": 275,
+      "size": 3680
+    },
+    {
+      "path": "FLDDATA/EVENT/HAT.XPF",
+      "lba": 278,
+      "size": 35919
+    },
+    {
+      "path": "FLDDATA/EVENT/HATCAM.XMT",
+      "lba": 296,
+      "size": 2224
+    },
+    {
+      "path": "FLDDATA/FLDSET.XDB",
+      "lba": 88,
+      "size": 59140
+    },
+    {
+      "path": "FLDDATA/MAP/CENCAM.XMT",
+      "lba": 298,
+      "size": 40128
+    },
+    {
+      "path": "FLDDATA/MAP/CENTER.XPF",
+      "lba": 318,
+      "size": 2038186
+    },
+    {
+      "path": "FLDDATA/MAP/DADAN/KMINA1A.XPF",
+      "lba": 1991,
+      "size": 249534
+    },
+    {
+      "path": "FLDDATA/MAP/DADAN/KRED1A.XPF",
+      "lba": 2113,
+      "size": 333883
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/BAG.XPF",
+      "lba": 2277,
+      "size": 16951
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/BEILY01.XPF",
+      "lba": 2286,
+      "size": 686928
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/BOX.XPF",
+      "lba": 2622,
+      "size": 29652
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG0-1.XPF",
+      "lba": 2637,
+      "size": 252637
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG1-1.XPF",
+      "lba": 2761,
+      "size": 194595
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG1-2.XPF",
+      "lba": 2857,
+      "size": 315481
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG1-3.XPF",
+      "lba": 3012,
+      "size": 161886
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG2-1.XPF",
+      "lba": 3092,
+      "size": 265277
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG2-2.XPF",
+      "lba": 3222,
+      "size": 246049
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG2-3.XPF",
+      "lba": 3343,
+      "size": 285795
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG2-4.XPF",
+      "lba": 3483,
+      "size": 148894
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG3-1.XPF",
+      "lba": 3556,
+      "size": 321823
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG3-2.XPF",
+      "lba": 3714,
+      "size": 313687
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG3-3.XPF",
+      "lba": 3868,
+      "size": 302736
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG3-4.XPF",
+      "lba": 4016,
+      "size": 278726
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG4-1.XPF",
+      "lba": 4153,
+      "size": 411973
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG4-2.XPF",
+      "lba": 4355,
+      "size": 132679
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG5-1.XPF",
+      "lba": 4420,
+      "size": 296920
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG5-2.XPF",
+      "lba": 4565,
+      "size": 280418
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG5-3.XPF",
+      "lba": 4702,
+      "size": 321889
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG5-4.XPF",
+      "lba": 4860,
+      "size": 298493
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG5-5.XPF",
+      "lba": 5006,
+      "size": 393847
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG5-6.XPF",
+      "lba": 5199,
+      "size": 379227
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG5-7.XPF",
+      "lba": 5385,
+      "size": 284746
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG5-8.XPF",
+      "lba": 5525,
+      "size": 328869
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNG5-9.XPF",
+      "lba": 5686,
+      "size": 135253
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNGG-A.XPF",
+      "lba": 5753,
+      "size": 180024
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNGG-B2.XPF",
+      "lba": 5841,
+      "size": 178226
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNGG-C.XPF",
+      "lba": 5929,
+      "size": 185101
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNGG-L.XPF",
+      "lba": 6020,
+      "size": 311256
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNGG-LB2.XPF",
+      "lba": 6172,
+      "size": 122138
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNGG-R.XPF",
+      "lba": 6232,
+      "size": 306872
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNGG-RB2.XPF",
+      "lba": 6382,
+      "size": 112672
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNGG-T.XPF",
+      "lba": 6438,
+      "size": 301828
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNGG-TB2.XPF",
+      "lba": 6586,
+      "size": 138665
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DNGGBTL.XPF",
+      "lba": 6654,
+      "size": 129857
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/DOKAN1.XPF",
+      "lba": 6718,
+      "size": 49397
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/GTOWER.XPF",
+      "lba": 6743,
+      "size": 392148
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/LIB_C11.XPF",
+      "lba": 6935,
+      "size": 1372501
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/LIB_L11.XPF",
+      "lba": 7606,
+      "size": 1040419
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/LIB_OUT2.XPF",
+      "lba": 8115,
+      "size": 2343762
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/LIB_R.XPF",
+      "lba": 9260,
+      "size": 1416750
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/LIB_R11.XPF",
+      "lba": 9952,
+      "size": 998730
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/LIB_S021.XPF",
+      "lba": 10440,
+      "size": 609128
+    },
+    {
+      "path": "FLDDATA/MAP/DNG/LIB_S11.XPF",
+      "lba": 10738,
+      "size": 593576
+    },
+    {
+      "path": "FLDDATA/MAP/ENDING/LIB_OUT2.XPF",
+      "lba": 11028,
+      "size": 2343762
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/F1_DEMO0.XPF",
+      "lba": 12173,
+      "size": 1150144
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD.XPF",
+      "lba": 12735,
+      "size": 2048727
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD4_M.XPF",
+      "lba": 13736,
+      "size": 2490612
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD4_N.XPF",
+      "lba": 14953,
+      "size": 2490605
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD4_T.XPF",
+      "lba": 16170,
+      "size": 2490603
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_05.XPF",
+      "lba": 17387,
+      "size": 2286501
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_07.XPF",
+      "lba": 18504,
+      "size": 1040738
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_1D.XPF",
+      "lba": 19013,
+      "size": 2096634
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_1M.XPF",
+      "lba": 20037,
+      "size": 2094011
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_1N.XPF",
+      "lba": 21060,
+      "size": 2081528
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_1T.XPF",
+      "lba": 22077,
+      "size": 2090975
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_2D.XPF",
+      "lba": 23098,
+      "size": 1988160
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_2M.XPF",
+      "lba": 24069,
+      "size": 1987750
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_2N.XPF",
+      "lba": 25040,
+      "size": 1984706
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_2T.XPF",
+      "lba": 26010,
+      "size": 1987964
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_4D.XPF",
+      "lba": 26981,
+      "size": 1957120
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_4M.XPF",
+      "lba": 27937,
+      "size": 1951799
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_4N.XPF",
+      "lba": 28891,
+      "size": 1951784
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_4T.XPF",
+      "lba": 29845,
+      "size": 1951780
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_5D.XPF",
+      "lba": 30799,
+      "size": 1956783
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_5M.XPF",
+      "lba": 31755,
+      "size": 1966735
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_5N.XPF",
+      "lba": 32716,
+      "size": 1953167
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_5T.XPF",
+      "lba": 33670,
+      "size": 1989254
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_5X.XPF",
+      "lba": 34642,
+      "size": 4703419
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_7D.XPF",
+      "lba": 36939,
+      "size": 1847809
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_7M.XPF",
+      "lba": 37842,
+      "size": 1842307
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_7N.XPF",
+      "lba": 38742,
+      "size": 1836584
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FIELD_7T.XPF",
+      "lba": 39639,
+      "size": 1846008
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FLD02.XPF",
+      "lba": 40541,
+      "size": 1960274
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FLD04.XPF",
+      "lba": 41499,
+      "size": 2490761
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FLD05.XPF",
+      "lba": 42716,
+      "size": 2286501
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/FLD07.XPF",
+      "lba": 43833,
+      "size": 1040738
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/LIB_OUT2.XPF",
+      "lba": 44342,
+      "size": 2343762
+    },
+    {
+      "path": "FLDDATA/MAP/FIELD/W_POINT.XPF",
+      "lba": 45487,
+      "size": 527025
+    },
+    {
+      "path": "FLDDATA/MAP/GVCAM.XMT",
+      "lba": 1314,
+      "size": 24124
+    },
+    {
+      "path": "FLDDATA/MAP/MADO/GEAR1A.XPF",
+      "lba": 45745,
+      "size": 1325045
+    },
+    {
+      "path": "FLDDATA/MAP/MADO/GEAR2A.XPF",
+      "lba": 46392,
+      "size": 1076118
+    },
+    {
+      "path": "FLDDATA/MAP/MADO/GEAR2PNK.XPF",
+      "lba": 46918,
+      "size": 1078792
+    },
+    {
+      "path": "FLDDATA/MAP/TRISTE/TRISTE.XPF",
+      "lba": 47445,
+      "size": 2122419
+    },
+    {
+      "path": "FLDDATA/MAP/VIL/VIL.XPF",
+      "lba": 48482,
+      "size": 1361146
+    },
+    {
+      "path": "FLDDATA/MAP/VIL/VSTART_D.XPF",
+      "lba": 49147,
+      "size": 1255736
+    },
+    {
+      "path": "FLDDATA/MAP/VIL/VSTART_M.XPF",
+      "lba": 49761,
+      "size": 1236507
+    },
+    {
+      "path": "FLDDATA/MAP/VIL/VSTART_N.XPF",
+      "lba": 50365,
+      "size": 1221604
+    },
+    {
+      "path": "FLDDATA/MAP/VIL/VSTART_T.XPF",
+      "lba": 50962,
+      "size": 1233479
+    },
+    {
+      "path": "FLDDATA/MAP/VI_HIGH/VHIGH_D.XPF",
+      "lba": 51565,
+      "size": 1483210
+    },
+    {
+      "path": "FLDDATA/MAP/VI_HIGH/VHIGH_M.XPF",
+      "lba": 52290,
+      "size": 1474891
+    },
+    {
+      "path": "FLDDATA/MAP/VI_HIGH/VHIGH_N.XPF",
+      "lba": 53011,
+      "size": 1472410
+    },
+    {
+      "path": "FLDDATA/MAP/VI_HIGH/VHIGH_T.XPF",
+      "lba": 53730,
+      "size": 1491205
+    },
+    {
+      "path": "FLDDATA/MAP/VI_HIGH/VI_HIGH.XPF",
+      "lba": 54459,
+      "size": 1397162
+    },
+    {
+      "path": "FLDDATA/MAP/VI_START.XPF",
+      "lba": 1326,
+      "size": 1361146
+    },
+    {
+      "path": "FLDDATA/MAP/VI_WATER/VI_WATER.XPF",
+      "lba": 55142,
+      "size": 1426515
+    },
+    {
+      "path": "FLDDATA/MAP/VI_WATER/VWATER_D.XPF",
+      "lba": 55839,
+      "size": 1217646
+    },
+    {
+      "path": "FLDDATA/MAP/VI_WATER/VWATER_M.XPF",
+      "lba": 56434,
+      "size": 1220227
+    },
+    {
+      "path": "FLDDATA/MAP/VI_WATER/VWATER_N.XPF",
+      "lba": 57030,
+      "size": 1212374
+    },
+    {
+      "path": "FLDDATA/MAP/VI_WATER/VWATER_T.XPF",
+      "lba": 57622,
+      "size": 1222849
+    },
+    {
+      "path": "FLDDATA/MES/F2.PME",
+      "lba": 67262,
+      "size": 169051
+    },
+    {
+      "path": "FLDDATA/MES/F3.PME",
+      "lba": 67021,
+      "size": 147288
+    },
+    {
+      "path": "FLDDATA/MES/F4.PME",
+      "lba": 66564,
+      "size": 102472
+    },
+    {
+      "path": "FLDDATA/MES/FIELD.PME",
+      "lba": 66615,
+      "size": 408628
+    },
+    {
+      "path": "FLDDATA/MES/FIRST001.PME",
+      "lba": 67712,
+      "size": 21447
+    },
+    {
+      "path": "FLDDATA/MES/HIGH.PME",
+      "lba": 66815,
+      "size": 131185
+    },
+    {
+      "path": "FLDDATA/MES/LIB.PME",
+      "lba": 66880,
+      "size": 142320
+    },
+    {
+      "path": "FLDDATA/MES/MADO_IN.PME",
+      "lba": 67345,
+      "size": 750501
+    },
+    {
+      "path": "FLDDATA/MES/RICHERO.PME",
+      "lba": 67093,
+      "size": 344252
+    },
+    {
+      "path": "FLDDATA/MES/TRISTE.PME",
+      "lba": 66950,
+      "size": 143463
+    },
+    {
+      "path": "FLDDATA/MES/VIL.PME",
+      "lba": 66398,
+      "size": 339596
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG1-1.XIM",
+      "lba": 66331,
+      "size": 432
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG1-2.XIM",
+      "lba": 66332,
+      "size": 1840
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG1-3.XIM",
+      "lba": 66333,
+      "size": 400
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG2-1.XIM",
+      "lba": 66334,
+      "size": 1552
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG2-2.XIM",
+      "lba": 66335,
+      "size": 1648
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG2-3.XIM",
+      "lba": 66336,
+      "size": 1648
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG2-4.XIM",
+      "lba": 66337,
+      "size": 432
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG3-1.XIM",
+      "lba": 66338,
+      "size": 2416
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG3-2.XIM",
+      "lba": 66340,
+      "size": 2416
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG3-3.XIM",
+      "lba": 66342,
+      "size": 2160
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG3-4.XIM",
+      "lba": 66344,
+      "size": 2160
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG4-1.XIM",
+      "lba": 66346,
+      "size": 2672
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG4-2.XIM",
+      "lba": 66348,
+      "size": 368
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG5-1.XIM",
+      "lba": 66349,
+      "size": 2352
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG5-2.XIM",
+      "lba": 66351,
+      "size": 2128
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG5-3.XIM",
+      "lba": 66353,
+      "size": 2704
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG5-4.XIM",
+      "lba": 66355,
+      "size": 2128
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG5-5.XIM",
+      "lba": 66357,
+      "size": 4688
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG5-6.XIM",
+      "lba": 66360,
+      "size": 4688
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG5-7.XIM",
+      "lba": 66363,
+      "size": 2128
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG5-8.XIM",
+      "lba": 66365,
+      "size": 2576
+    },
+    {
+      "path": "FLDDATA/NAVI/DNG5-9.XIM",
+      "lba": 66367,
+      "size": 432
+    },
+    {
+      "path": "FLDDATA/NAVI/DNGG-A.XIM",
+      "lba": 66368,
+      "size": 1264
+    },
+    {
+      "path": "FLDDATA/NAVI/DNGG-C.XIM",
+      "lba": 66369,
+      "size": 1264
+    },
+    {
+      "path": "FLDDATA/NAVI/DNGG-L.XIM",
+      "lba": 66370,
+      "size": 1264
+    },
+    {
+      "path": "FLDDATA/NAVI/DNGG-LB2.XIM",
+      "lba": 66371,
+      "size": 176
+    },
+    {
+      "path": "FLDDATA/NAVI/DNGG-R.XIM",
+      "lba": 66372,
+      "size": 1264
+    },
+    {
+      "path": "FLDDATA/NAVI/DNGG-RB2.XIM",
+      "lba": 66373,
+      "size": 176
+    },
+    {
+      "path": "FLDDATA/NAVI/DNGG-T.XIM",
+      "lba": 66374,
+      "size": 1264
+    },
+    {
+      "path": "FLDDATA/NAVI/DNGG-TB2.XIM",
+      "lba": 66375,
+      "size": 176
+    },
+    {
+      "path": "FLDDATA/NAVI/FIELD_1D.XIM",
+      "lba": 66376,
+      "size": 3248
+    },
+    {
+      "path": "FLDDATA/NAVI/FIELD_2D.XIM",
+      "lba": 66378,
+      "size": 2992
+    },
+    {
+      "path": "FLDDATA/NAVI/FIELD_4D.XIM",
+      "lba": 66380,
+      "size": 3024
+    },
+    {
+      "path": "FLDDATA/NAVI/FIELD_5D.XIM",
+      "lba": 66382,
+      "size": 4688
+    },
+    {
+      "path": "FLDDATA/NAVI/FIELD_5T.XIM",
+      "lba": 66385,
+      "size": 4688
+    },
+    {
+      "path": "FLDDATA/NAVI/LIB_C11.XIM",
+      "lba": 66388,
+      "size": 7280
+    },
+    {
+      "path": "FLDDATA/NAVI/LIB_L11.XIM",
+      "lba": 66392,
+      "size": 4720
+    },
+    {
+      "path": "FLDDATA/NAVI/LIB_R11.XIM",
+      "lba": 66395,
+      "size": 4720
+    },
+    {
+      "path": "FLDDATA/OBJ/BAB.XPF",
+      "lba": 58600,
+      "size": 175323
+    },
+    {
+      "path": "FLDDATA/OBJ/BAN.XPF",
+      "lba": 58686,
+      "size": 93794
+    },
+    {
+      "path": "FLDDATA/OBJ/BANA.XPF",
+      "lba": 64851,
+      "size": 92292
+    },
+    {
+      "path": "FLDDATA/OBJ/BANB.XPF",
+      "lba": 64897,
+      "size": 92385
+    },
+    {
+      "path": "FLDDATA/OBJ/BAY.XPF",
+      "lba": 62270,
+      "size": 217188
+    },
+    {
+      "path": "FLDDATA/OBJ/BEILY01.XPF",
+      "lba": 61920,
+      "size": 625374
+    },
+    {
+      "path": "FLDDATA/OBJ/BIR.XPF",
+      "lba": 58732,
+      "size": 72660
+    },
+    {
+      "path": "FLDDATA/OBJ/BIRA.XPF",
+      "lba": 64943,
+      "size": 73634
+    },
+    {
+      "path": "FLDDATA/OBJ/BKUMO.XPF",
+      "lba": 58220,
+      "size": 11144
+    },
+    {
+      "path": "FLDDATA/OBJ/BLK.XPF",
+      "lba": 58768,
+      "size": 102142
+    },
+    {
+      "path": "FLDDATA/OBJ/BOY.XPF",
+      "lba": 58818,
+      "size": 97799
+    },
+    {
+      "path": "FLDDATA/OBJ/BOYA.XPF",
+      "lba": 63896,
+      "size": 97558
+    },
+    {
+      "path": "FLDDATA/OBJ/BOYB.XPF",
+      "lba": 63944,
+      "size": 99592
+    },
+    {
+      "path": "FLDDATA/OBJ/BOYC.XPF",
+      "lba": 63993,
+      "size": 98245
+    },
+    {
+      "path": "FLDDATA/OBJ/BRN.XPF",
+      "lba": 62377,
+      "size": 116782
+    },
+    {
+      "path": "FLDDATA/OBJ/BUC.XPF",
+      "lba": 58866,
+      "size": 67612
+    },
+    {
+      "path": "FLDDATA/OBJ/CAR.XPF",
+      "lba": 58900,
+      "size": 110272
+    },
+    {
+      "path": "FLDDATA/OBJ/CAT.XPF",
+      "lba": 58954,
+      "size": 42490
+    },
+    {
+      "path": "FLDDATA/OBJ/CAT2.XPF",
+      "lba": 61887,
+      "size": 21479
+    },
+    {
+      "path": "FLDDATA/OBJ/DEV.XPF",
+      "lba": 58975,
+      "size": 51403
+    },
+    {
+      "path": "FLDDATA/OBJ/DEVA.XPF",
+      "lba": 64979,
+      "size": 51115
+    },
+    {
+      "path": "FLDDATA/OBJ/DEVB.XPF",
+      "lba": 65004,
+      "size": 51235
+    },
+    {
+      "path": "FLDDATA/OBJ/DEVC.XPF",
+      "lba": 65030,
+      "size": 51257
+    },
+    {
+      "path": "FLDDATA/OBJ/DEVD.XPF",
+      "lba": 65056,
+      "size": 50875
+    },
+    {
+      "path": "FLDDATA/OBJ/DOL.XPF",
+      "lba": 59001,
+      "size": 67889
+    },
+    {
+      "path": "FLDDATA/OBJ/DTG.XPF",
+      "lba": 59035,
+      "size": 169182
+    },
+    {
+      "path": "FLDDATA/OBJ/EPR.XPF",
+      "lba": 59118,
+      "size": 81104
+    },
+    {
+      "path": "FLDDATA/OBJ/EPRA.XPF",
+      "lba": 65081,
+      "size": 81728
+    },
+    {
+      "path": "FLDDATA/OBJ/EPRB.XPF",
+      "lba": 65121,
+      "size": 81744
+    },
+    {
+      "path": "FLDDATA/OBJ/EPRC.XPF",
+      "lba": 66167,
+      "size": 81212
+    },
+    {
+      "path": "FLDDATA/OBJ/EPRD.XPF",
+      "lba": 65161,
+      "size": 78222
+    },
+    {
+      "path": "FLDDATA/OBJ/EPRON.XPF",
+      "lba": 58226,
+      "size": 95788
+    },
+    {
+      "path": "FLDDATA/OBJ/FAT.XPF",
+      "lba": 58273,
+      "size": 63335
+    },
+    {
+      "path": "FLDDATA/OBJ/FATA.XPF",
+      "lba": 65200,
+      "size": 73786
+    },
+    {
+      "path": "FLDDATA/OBJ/FIG.XPF",
+      "lba": 59158,
+      "size": 88680
+    },
+    {
+      "path": "FLDDATA/OBJ/FIGA.XPF",
+      "lba": 64041,
+      "size": 90375
+    },
+    {
+      "path": "FLDDATA/OBJ/FIGB.XPF",
+      "lba": 64086,
+      "size": 89643
+    },
+    {
+      "path": "FLDDATA/OBJ/FIGC.XPF",
+      "lba": 65237,
+      "size": 86672
+    },
+    {
+      "path": "FLDDATA/OBJ/FUK.XPF",
+      "lba": 59202,
+      "size": 63577
+    },
+    {
+      "path": "FLDDATA/OBJ/F_BUB.XPF",
+      "lba": 62567,
+      "size": 287185
+    },
+    {
+      "path": "FLDDATA/OBJ/F_CYO.XPF",
+      "lba": 62840,
+      "size": 391895
+    },
+    {
+      "path": "FLDDATA/OBJ/F_KAI.XPF",
+      "lba": 63032,
+      "size": 166526
+    },
+    {
+      "path": "FLDDATA/OBJ/F_RAT.XPF",
+      "lba": 62708,
+      "size": 182497
+    },
+    {
+      "path": "FLDDATA/OBJ/F_VAM.XPF",
+      "lba": 63114,
+      "size": 159014
+    },
+    {
+      "path": "FLDDATA/OBJ/GAM.XPF",
+      "lba": 59234,
+      "size": 81019
+    },
+    {
+      "path": "FLDDATA/OBJ/GAMA.XPF",
+      "lba": 64130,
+      "size": 68566
+    },
+    {
+      "path": "FLDDATA/OBJ/GAR.XPF",
+      "lba": 59274,
+      "size": 71947
+    },
+    {
+      "path": "FLDDATA/OBJ/GARA.XPF",
+      "lba": 65280,
+      "size": 71767
+    },
+    {
+      "path": "FLDDATA/OBJ/GBB.XPF",
+      "lba": 61246,
+      "size": 91462
+    },
+    {
+      "path": "FLDDATA/OBJ/GEN.XPF",
+      "lba": 61291,
+      "size": 124530
+    },
+    {
+      "path": "FLDDATA/OBJ/GIR.XPF",
+      "lba": 59310,
+      "size": 80465
+    },
+    {
+      "path": "FLDDATA/OBJ/GIRA.XPF",
+      "lba": 64164,
+      "size": 80843
+    },
+    {
+      "path": "FLDDATA/OBJ/GIRB.XPF",
+      "lba": 64204,
+      "size": 80431
+    },
+    {
+      "path": "FLDDATA/OBJ/GRA.XPF",
+      "lba": 59350,
+      "size": 61189
+    },
+    {
+      "path": "FLDDATA/OBJ/GRAA.XPF",
+      "lba": 64244,
+      "size": 64363
+    },
+    {
+      "path": "FLDDATA/OBJ/GRM.XPF",
+      "lba": 63742,
+      "size": 79990
+    },
+    {
+      "path": "FLDDATA/OBJ/HAK.XPF",
+      "lba": 59380,
+      "size": 74283
+    },
+    {
+      "path": "FLDDATA/OBJ/HAKA.XPF",
+      "lba": 64276,
+      "size": 75854
+    },
+    {
+      "path": "FLDDATA/OBJ/HAKB.XPF",
+      "lba": 65316,
+      "size": 75566
+    },
+    {
+      "path": "FLDDATA/OBJ/HAKC.XPF",
+      "lba": 65353,
+      "size": 73378
+    },
+    {
+      "path": "FLDDATA/OBJ/HAKD.XPF",
+      "lba": 65389,
+      "size": 74321
+    },
+    {
+      "path": "FLDDATA/OBJ/HER.XPF",
+      "lba": 59417,
+      "size": 146801
+    },
+    {
+      "path": "FLDDATA/OBJ/HERO.XPF",
+      "lba": 60339,
+      "size": 332864
+    },
+    {
+      "path": "FLDDATA/OBJ/HIG.XPF",
+      "lba": 59489,
+      "size": 82505
+    },
+    {
+      "path": "FLDDATA/OBJ/HOS.XPF",
+      "lba": 59530,
+      "size": 69178
+    },
+    {
+      "path": "FLDDATA/OBJ/HOSA.XPF",
+      "lba": 64314,
+      "size": 70120
+    },
+    {
+      "path": "FLDDATA/OBJ/HOSO.XPF",
+      "lba": 58415,
+      "size": 98562
+    },
+    {
+      "path": "FLDDATA/OBJ/IMO.XPF",
+      "lba": 59564,
+      "size": 129512
+    },
+    {
+      "path": "FLDDATA/OBJ/JAM.XPF",
+      "lba": 63192,
+      "size": 148407
+    },
+    {
+      "path": "FLDDATA/OBJ/JIS.XPF",
+      "lba": 59628,
+      "size": 76146
+    },
+    {
+      "path": "FLDDATA/OBJ/JUR.XPF",
+      "lba": 59666,
+      "size": 107721
+    },
+    {
+      "path": "FLDDATA/OBJ/KAB.XPF",
+      "lba": 59719,
+      "size": 89005
+    },
+    {
+      "path": "FLDDATA/OBJ/KAK.XPF",
+      "lba": 59763,
+      "size": 72470
+    },
+    {
+      "path": "FLDDATA/OBJ/KIS.XPF",
+      "lba": 61352,
+      "size": 121416
+    },
+    {
+      "path": "FLDDATA/OBJ/LIO.XPF",
+      "lba": 59799,
+      "size": 55475
+    },
+    {
+      "path": "FLDDATA/OBJ/LIOA.XPF",
+      "lba": 65426,
+      "size": 55068
+    },
+    {
+      "path": "FLDDATA/OBJ/MA1.XPF",
+      "lba": 61412,
+      "size": 262272
+    },
+    {
+      "path": "FLDDATA/OBJ/MA2.XPF",
+      "lba": 61541,
+      "size": 142157
+    },
+    {
+      "path": "FLDDATA/OBJ/MA3.XPF",
+      "lba": 63522,
+      "size": 322621
+    },
+    {
+      "path": "FLDDATA/OBJ/MADOLL.XPF",
+      "lba": 62798,
+      "size": 84043
+    },
+    {
+      "path": "FLDDATA/OBJ/MAF.XPF",
+      "lba": 59827,
+      "size": 80186
+    },
+    {
+      "path": "FLDDATA/OBJ/MAFA.XPF",
+      "lba": 65453,
+      "size": 81730
+    },
+    {
+      "path": "FLDDATA/OBJ/MAM.XPF",
+      "lba": 59867,
+      "size": 83977
+    },
+    {
+      "path": "FLDDATA/OBJ/MAN.XPF",
+      "lba": 59909,
+      "size": 76277
+    },
+    {
+      "path": "FLDDATA/OBJ/MANA.XPF",
+      "lba": 64349,
+      "size": 67473
+    },
+    {
+      "path": "FLDDATA/OBJ/MANB.XPF",
+      "lba": 64382,
+      "size": 66880
+    },
+    {
+      "path": "FLDDATA/OBJ/MANC.XPF",
+      "lba": 64415,
+      "size": 69057
+    },
+    {
+      "path": "FLDDATA/OBJ/MAND.XPF",
+      "lba": 64449,
+      "size": 67930
+    },
+    {
+      "path": "FLDDATA/OBJ/MB.XPF",
+      "lba": 59947,
+      "size": 164425
+    },
+    {
+      "path": "FLDDATA/OBJ/MEG.XPF",
+      "lba": 60028,
+      "size": 88554
+    },
+    {
+      "path": "FLDDATA/OBJ/MEGA.XPF",
+      "lba": 64483,
+      "size": 89467
+    },
+    {
+      "path": "FLDDATA/OBJ/MEL.XPF",
+      "lba": 60072,
+      "size": 124173
+    },
+    {
+      "path": "FLDDATA/OBJ/MJ.XPF",
+      "lba": 60133,
+      "size": 79533
+    },
+    {
+      "path": "FLDDATA/OBJ/MON.XPF",
+      "lba": 60172,
+      "size": 59139
+    },
+    {
+      "path": "FLDDATA/OBJ/MUG.XPF",
+      "lba": 60201,
+      "size": 83933
+    },
+    {
+      "path": "FLDDATA/OBJ/MUGA.XPF",
+      "lba": 65493,
+      "size": 81062
+    },
+    {
+      "path": "FLDDATA/OBJ/OBA.XPF",
+      "lba": 63378,
+      "size": 88390
+    },
+    {
+      "path": "FLDDATA/OBJ/OLI.XPF",
+      "lba": 60242,
+      "size": 110127
+    },
+    {
+      "path": "FLDDATA/OBJ/OLIA.XPF",
+      "lba": 65533,
+      "size": 109199
+    },
+    {
+      "path": "FLDDATA/OBJ/ORGO.XPF",
+      "lba": 63713,
+      "size": 18355
+    },
+    {
+      "path": "FLDDATA/OBJ/OYA.XPF",
+      "lba": 60296,
+      "size": 87439
+    },
+    {
+      "path": "FLDDATA/OBJ/PAP.XPF",
+      "lba": 58304,
+      "size": 225393
+    },
+    {
+      "path": "FLDDATA/OBJ/PIE.XPF",
+      "lba": 62226,
+      "size": 88240
+    },
+    {
+      "path": "FLDDATA/OBJ/PIEA.XPF",
+      "lba": 65587,
+      "size": 88379
+    },
+    {
+      "path": "FLDDATA/OBJ/POP.XPF",
+      "lba": 60502,
+      "size": 68412
+    },
+    {
+      "path": "FLDDATA/OBJ/POPA.XPF",
+      "lba": 64527,
+      "size": 67848
+    },
+    {
+      "path": "FLDDATA/OBJ/POT.XPF",
+      "lba": 61898,
+      "size": 44394
+    },
+    {
+      "path": "FLDDATA/OBJ/POT_F_BK.XPF",
+      "lba": 66255,
+      "size": 49348
+    },
+    {
+      "path": "FLDDATA/OBJ/POT_F_BL.XPF",
+      "lba": 66231,
+      "size": 48670
+    },
+    {
+      "path": "FLDDATA/OBJ/POT_F_RE.XPF",
+      "lba": 66207,
+      "size": 48435
+    },
+    {
+      "path": "FLDDATA/OBJ/POT_F_WH.XPF",
+      "lba": 66280,
+      "size": 55266
+    },
+    {
+      "path": "FLDDATA/OBJ/POT_F_YE.XPF",
+      "lba": 66307,
+      "size": 48549
+    },
+    {
+      "path": "FLDDATA/OBJ/RAM.XPF",
+      "lba": 60536,
+      "size": 95675
+    },
+    {
+      "path": "FLDDATA/OBJ/RIN.XPF",
+      "lba": 61611,
+      "size": 239228
+    },
+    {
+      "path": "FLDDATA/OBJ/RKUMO.XPF",
+      "lba": 58464,
+      "size": 11013
+    },
+    {
+      "path": "FLDDATA/OBJ/ROX.XPF",
+      "lba": 62435,
+      "size": 170161
+    },
+    {
+      "path": "FLDDATA/OBJ/ROZ.XPF",
+      "lba": 61728,
+      "size": 325250
+    },
+    {
+      "path": "FLDDATA/OBJ/RPP.XPF",
+      "lba": 60583,
+      "size": 83795
+    },
+    {
+      "path": "FLDDATA/OBJ/RPPA.XPF",
+      "lba": 64561,
+      "size": 85534
+    },
+    {
+      "path": "FLDDATA/OBJ/RSA.XPF",
+      "lba": 60624,
+      "size": 61685
+    },
+    {
+      "path": "FLDDATA/OBJ/RSA2.XPF",
+      "lba": 60655,
+      "size": 86096
+    },
+    {
+      "path": "FLDDATA/OBJ/RSB.XPF",
+      "lba": 60698,
+      "size": 67869
+    },
+    {
+      "path": "FLDDATA/OBJ/RSB2.XPF",
+      "lba": 60732,
+      "size": 49496
+    },
+    {
+      "path": "FLDDATA/OBJ/RSC.XPF",
+      "lba": 63265,
+      "size": 71767
+    },
+    {
+      "path": "FLDDATA/OBJ/RSC2.XPF",
+      "lba": 60757,
+      "size": 54106
+    },
+    {
+      "path": "FLDDATA/OBJ/RSD.XPF",
+      "lba": 65631,
+      "size": 70201
+    },
+    {
+      "path": "FLDDATA/OBJ/RSE.XPF",
+      "lba": 65666,
+      "size": 70758
+    },
+    {
+      "path": "FLDDATA/OBJ/RSF.XPF",
+      "lba": 65701,
+      "size": 72013
+    },
+    {
+      "path": "FLDDATA/OBJ/SAM.XPF",
+      "lba": 60784,
+      "size": 68120
+    },
+    {
+      "path": "FLDDATA/OBJ/SAMA.XPF",
+      "lba": 65737,
+      "size": 69756
+    },
+    {
+      "path": "FLDDATA/OBJ/SCB.XPF",
+      "lba": 60818,
+      "size": 83477
+    },
+    {
+      "path": "FLDDATA/OBJ/SCBA.XPF",
+      "lba": 65772,
+      "size": 81083
+    },
+    {
+      "path": "FLDDATA/OBJ/SCG.XPF",
+      "lba": 60859,
+      "size": 86261
+    },
+    {
+      "path": "FLDDATA/OBJ/SIN.XPF",
+      "lba": 60902,
+      "size": 79135
+    },
+    {
+      "path": "FLDDATA/OBJ/SINA.XPF",
+      "lba": 64603,
+      "size": 79346
+    },
+    {
+      "path": "FLDDATA/OBJ/SINB.XPF",
+      "lba": 64642,
+      "size": 78080
+    },
+    {
+      "path": "FLDDATA/OBJ/SINC.XPF",
+      "lba": 65812,
+      "size": 78990
+    },
+    {
+      "path": "FLDDATA/OBJ/SIND.XPF",
+      "lba": 65851,
+      "size": 78729
+    },
+    {
+      "path": "FLDDATA/OBJ/SRM.XPF",
+      "lba": 60941,
+      "size": 67805
+    },
+    {
+      "path": "FLDDATA/OBJ/SRMA.XPF",
+      "lba": 64681,
+      "size": 68575
+    },
+    {
+      "path": "FLDDATA/OBJ/SRMB.XPF",
+      "lba": 64715,
+      "size": 69291
+    },
+    {
+      "path": "FLDDATA/OBJ/SST.XPF",
+      "lba": 62519,
+      "size": 98017
+    },
+    {
+      "path": "FLDDATA/OBJ/STA.XPF",
+      "lba": 60975,
+      "size": 60533
+    },
+    {
+      "path": "FLDDATA/OBJ/STAA.XPF",
+      "lba": 64749,
+      "size": 61872
+    },
+    {
+      "path": "FLDDATA/OBJ/STAN.XPF",
+      "lba": 63301,
+      "size": 156405
+    },
+    {
+      "path": "FLDDATA/OBJ/STUN.XPF",
+      "lba": 58470,
+      "size": 172827
+    },
+    {
+      "path": "FLDDATA/OBJ/STUN2.XPF",
+      "lba": 63436,
+      "size": 175040
+    },
+    {
+      "path": "FLDDATA/OBJ/STUN3.XPF",
+      "lba": 63816,
+      "size": 161885
+    },
+    {
+      "path": "FLDDATA/OBJ/SYAIN.XPF",
+      "lba": 63680,
+      "size": 66999
+    },
+    {
+      "path": "FLDDATA/OBJ/TAM.XPF",
+      "lba": 61005,
+      "size": 70439
+    },
+    {
+      "path": "FLDDATA/OBJ/TAMA.XPF",
+      "lba": 64780,
+      "size": 73467
+    },
+    {
+      "path": "FLDDATA/OBJ/TAMB.XPF",
+      "lba": 64816,
+      "size": 69957
+    },
+    {
+      "path": "FLDDATA/OBJ/TAMC.XPF",
+      "lba": 65890,
+      "size": 70813
+    },
+    {
+      "path": "FLDDATA/OBJ/TAMD.XPF",
+      "lba": 65925,
+      "size": 71052
+    },
+    {
+      "path": "FLDDATA/OBJ/TON.XPF",
+      "lba": 58555,
+      "size": 79313
+    },
+    {
+      "path": "FLDDATA/OBJ/TUBO.XPF",
+      "lba": 63722,
+      "size": 39403
+    },
+    {
+      "path": "FLDDATA/OBJ/UPA.XPF",
+      "lba": 61040,
+      "size": 110046
+    },
+    {
+      "path": "FLDDATA/OBJ/UPAA.XPF",
+      "lba": 65960,
+      "size": 109825
+    },
+    {
+      "path": "FLDDATA/OBJ/UPAB.XPF",
+      "lba": 66014,
+      "size": 111478
+    },
+    {
+      "path": "FLDDATA/OBJ/VOICE.XPF",
+      "lba": 63422,
+      "size": 26924
+    },
+    {
+      "path": "FLDDATA/OBJ/WHG1.XPF",
+      "lba": 61094,
+      "size": 65298
+    },
+    {
+      "path": "FLDDATA/OBJ/WHG2.XPF",
+      "lba": 61126,
+      "size": 64772
+    },
+    {
+      "path": "FLDDATA/OBJ/WKUMO.XPF",
+      "lba": 58594,
+      "size": 11000
+    },
+    {
+      "path": "FLDDATA/OBJ/WOM.XPF",
+      "lba": 61158,
+      "size": 96979
+    },
+    {
+      "path": "FLDDATA/OBJ/WOMA.XPF",
+      "lba": 66069,
+      "size": 99194
+    },
+    {
+      "path": "FLDDATA/OBJ/WOMB.XPF",
+      "lba": 66118,
+      "size": 99592
+    },
+    {
+      "path": "FLDDATA/OBJ/YOS.XPF",
+      "lba": 63782,
+      "size": 68160
+    },
+    {
+      "path": "FLDDATA/OBJ/ZAK.XPF",
+      "lba": 61206,
+      "size": 80535
+    },
+    {
+      "path": "FLDDATA/ROOM/DADAN/KMAK1A.XPF",
+      "lba": 67723,
+      "size": 163379
+    },
+    {
+      "path": "FLDDATA/ROOM/DADAN/KMINA1A.XPF",
+      "lba": 67803,
+      "size": 249436
+    },
+    {
+      "path": "FLDDATA/ROOM/DADAN/KRED1A.XPF",
+      "lba": 67925,
+      "size": 377630
+    },
+    {
+      "path": "FLDDATA/ROOM/DADAN/KSHP2A.LPF",
+      "lba": 68110,
+      "size": 543
+    },
+    {
+      "path": "FLDDATA/ROOM/DADAN/KSHP2A.XPF",
+      "lba": 68111,
+      "size": 297099
+    },
+    {
+      "path": "FLDDATA/ROOM/HOUSE/HOM1B.XPF",
+      "lba": 68257,
+      "size": 394996
+    },
+    {
+      "path": "FLDDATA/ROOM/HOUSE/HOME1A.XPF",
+      "lba": 68450,
+      "size": 565863
+    },
+    {
+      "path": "FLDDATA/ROOM/HOUSE/HOME1B.XPF",
+      "lba": 68727,
+      "size": 433945
+    },
+    {
+      "path": "FLDDATA/ROOM/HOUSE/HOME1C.XPF",
+      "lba": 68939,
+      "size": 442701
+    },
+    {
+      "path": "FLDDATA/ROOM/HOUSE/HOME2A.XPF",
+      "lba": 69156,
+      "size": 180262
+    },
+    {
+      "path": "FLDDATA/ROOM/HOUSE/HOME2B.XPF",
+      "lba": 69245,
+      "size": 339451
+    },
+    {
+      "path": "FLDDATA/ROOM/HOUSE/HOME2C.XPF",
+      "lba": 69411,
+      "size": 337963
+    },
+    {
+      "path": "FLDDATA/ROOM/HOUSE/HOME2D.XPF",
+      "lba": 69577,
+      "size": 180050
+    },
+    {
+      "path": "FLDDATA/ROOM/HOUSE/HOMEB1A.XPF",
+      "lba": 69665,
+      "size": 162580
+    },
+    {
+      "path": "FLDDATA/ROOM/HOUSE/HOMEB1B.XPF",
+      "lba": 69745,
+      "size": 346831
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/DOKAN1.XPF",
+      "lba": 69915,
+      "size": 49397
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GMINA1A.XPF",
+      "lba": 69940,
+      "size": 256646
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GMINB1A.XPF",
+      "lba": 70066,
+      "size": 257983
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GMINC1A.XPF",
+      "lba": 70192,
+      "size": 252956
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GMIND1A.XPF",
+      "lba": 70316,
+      "size": 226011
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GMINE1A.XPF",
+      "lba": 70427,
+      "size": 218385
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GMINF1A.XPF",
+      "lba": 70534,
+      "size": 275274
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GMING1A.XPF",
+      "lba": 70669,
+      "size": 265407
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GMMB1A.XPF",
+      "lba": 70799,
+      "size": 229134
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GMMB1B.XPF",
+      "lba": 70911,
+      "size": 140669
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GMMB2A.XPF",
+      "lba": 70980,
+      "size": 425437
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GMMB2B.XPF",
+      "lba": 71188,
+      "size": 140669
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GMMB3A.XPF",
+      "lba": 71257,
+      "size": 425437
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GMMB3B.XPF",
+      "lba": 71465,
+      "size": 140669
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GMMB4A.XPF",
+      "lba": 71534,
+      "size": 425437
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GMMB4B.XPF",
+      "lba": 71742,
+      "size": 140669
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GMMB5A.XPF",
+      "lba": 71811,
+      "size": 402390
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GMMB5B.XPF",
+      "lba": 72008,
+      "size": 140669
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GMSB.XPF",
+      "lba": 72077,
+      "size": 48798
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GMSB1A.XPF",
+      "lba": 72101,
+      "size": 377005
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GRABO.XPF",
+      "lba": 72286,
+      "size": 95785
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GRABO1A.XPF",
+      "lba": 72333,
+      "size": 533538
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GRES1A.XPF",
+      "lba": 72594,
+      "size": 528056
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GSHP1A.XPF",
+      "lba": 72852,
+      "size": 500187
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GSKO1A.XPF",
+      "lba": 73097,
+      "size": 242231
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GSKO1B.XPF",
+      "lba": 73216,
+      "size": 237420
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GSKO1C.XPF",
+      "lba": 73332,
+      "size": 247317
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GSKO1D.XPF",
+      "lba": 73453,
+      "size": 253524
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GTOWER.XPF",
+      "lba": 73577,
+      "size": 392148
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GYAD1A.XPF",
+      "lba": 73769,
+      "size": 288760
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GYAD1B.XPF",
+      "lba": 73910,
+      "size": 203957
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GYAD1C.XPF",
+      "lba": 74010,
+      "size": 231325
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GYAD1D.XPF",
+      "lba": 74123,
+      "size": 235010
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GYAK1A.XPF",
+      "lba": 74238,
+      "size": 552200
+    },
+    {
+      "path": "FLDDATA/ROOM/MADO/GYAK1B.XPF",
+      "lba": 74508,
+      "size": 562814
+    },
+    {
+      "path": "FLDDATA/ROOM/NEWROOM/HOMEB1A.XPF",
+      "lba": 74783,
+      "size": 162580
+    },
+    {
+      "path": "FLDDATA/ROOM/NEWROOM/KMINA1A.XPF",
+      "lba": 74863,
+      "size": 249436
+    },
+    {
+      "path": "FLDDATA/ROOM/NEWROOM/KRED1A.XPF",
+      "lba": 74985,
+      "size": 377630
+    },
+    {
+      "path": "FLDDATA/ROOM/TENTO/TNT1.XPF",
+      "lba": 75170,
+      "size": 253335
+    },
+    {
+      "path": "FLDDATA/ROOM/TENTO/TNT2.XPF",
+      "lba": 75294,
+      "size": 280616
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SKAJ1A.XPF",
+      "lba": 75432,
+      "size": 248266
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SMINA1A.XPF",
+      "lba": 75554,
+      "size": 210969
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SMINB1A.XPF",
+      "lba": 75658,
+      "size": 197317
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SNIK1A.XPF",
+      "lba": 75755,
+      "size": 303832
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SPAN1A.XPF",
+      "lba": 75904,
+      "size": 282708
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SRED1A.XPF",
+      "lba": 76043,
+      "size": 207507
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SRED1B.XPF",
+      "lba": 76145,
+      "size": 355899
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SRED1C.XPF",
+      "lba": 76319,
+      "size": 282643
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SRED2A.XPF",
+      "lba": 76458,
+      "size": 164886
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SRED2B.XPF",
+      "lba": 76539,
+      "size": 304288
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SRED2C.XPF",
+      "lba": 76688,
+      "size": 235805
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SSAK1A.XPF",
+      "lba": 76804,
+      "size": 498677
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SSAK2A.XPF",
+      "lba": 77048,
+      "size": 329357
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SYAD1A.XPF",
+      "lba": 77209,
+      "size": 277019
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SYAD1B.XPF",
+      "lba": 77345,
+      "size": 255350
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SYAD2A.XPF",
+      "lba": 77470,
+      "size": 191652
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SYAK1A.XPF",
+      "lba": 77564,
+      "size": 397672
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SYAK1B.XPF",
+      "lba": 77759,
+      "size": 418207
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SYAK1B2.XPF",
+      "lba": 77964,
+      "size": 174193
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SYAKB1A.XPF",
+      "lba": 78050,
+      "size": 229313
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SYAKB1B.XPF",
+      "lba": 78162,
+      "size": 190210
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SZAK1A.XPF",
+      "lba": 78255,
+      "size": 470324
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SZAK1B.XPF",
+      "lba": 78485,
+      "size": 383454
+    },
+    {
+      "path": "FLDDATA/ROOM/VIL/SZAK2A.XPF",
+      "lba": 78673,
+      "size": 396041
+    },
+    {
+      "path": "FLDDATA/ROOM/VI_HIGH/HKYU1A.XPF",
+      "lba": 78867,
+      "size": 482643
+    },
+    {
+      "path": "FLDDATA/ROOM/VI_HIGH/HMINA1A.XPF",
+      "lba": 79103,
+      "size": 312571
+    },
+    {
+      "path": "FLDDATA/ROOM/VI_HIGH/HMINB1A.XPF",
+      "lba": 79256,
+      "size": 301884
+    },
+    {
+      "path": "FLDDATA/ROOM/VI_HIGH/HNAZO1A.XPF",
+      "lba": 79404,
+      "size": 287236
+    },
+    {
+      "path": "FLDDATA/ROOM/VI_HIGH/HSHP1A.XPF",
+      "lba": 79545,
+      "size": 403557
+    },
+    {
+      "path": "FLDDATA/ROOM/VI_HIGH/HYAD1A.XPF",
+      "lba": 79743,
+      "size": 274516
+    },
+    {
+      "path": "FLDDATA/ROOM/VI_WATER/WMIN1A.XPF",
+      "lba": 79878,
+      "size": 190840
+    },
+    {
+      "path": "FLDDATA/ROOM/VI_WATER/WMINA1A.XPF",
+      "lba": 79972,
+      "size": 184281
+    },
+    {
+      "path": "FLDDATA/ROOM/VI_WATER/WMINB1A.XPF",
+      "lba": 80062,
+      "size": 173275
+    },
+    {
+      "path": "FLDDATA/ROOM/VI_WATER/WRED1A.XPF",
+      "lba": 80147,
+      "size": 353712
+    },
+    {
+      "path": "FLDDATA/ROOM/VI_WATER/WRHA1A.XPF",
+      "lba": 80320,
+      "size": 297223
+    },
+    {
+      "path": "FLDDATA/ROOM/VI_WATER/WSHK1A.XPF",
+      "lba": 80466,
+      "size": 456022
+    },
+    {
+      "path": "FLDDATA/ROOM/VI_WATER/WSHP1A.XPF",
+      "lba": 80689,
+      "size": 399183
+    },
+    {
+      "path": "FLDDATA/ROOM/VI_WATER/WYAD1A.XPF",
+      "lba": 80884,
+      "size": 230064
+    },
+    {
+      "path": "FLDDATA/ROOM/VI_WATER/WYAD1B.XPF",
+      "lba": 80997,
+      "size": 247211
+    },
+    {
+      "path": "FLDDATA/ROOM/VI_WATER/WYAD1C.XPF",
+      "lba": 81118,
+      "size": 256240
+    },
+    {
+      "path": "IOPCONF.CNF",
+      "lba": 199670,
+      "size": 139
+    },
+    {
+      "path": "MODULES/IOPRP214.IMG",
+      "lba": 112419,
+      "size": 140945
+    },
+    {
+      "path": "MODULES/LIBSD.IRX",
+      "lba": 112488,
+      "size": 25317
+    },
+    {
+      "path": "MODULES/MCMAN.IRX",
+      "lba": 112501,
+      "size": 86341
+    },
+    {
+      "path": "MODULES/MCSERV.IRX",
+      "lba": 112544,
+      "size": 6665
+    },
+    {
+      "path": "MODULES/PADMAN.IRX",
+      "lba": 112548,
+      "size": 43861
+    },
+    {
+      "path": "MODULES/RXSNDDRV.IRX",
+      "lba": 112574,
+      "size": 69045
+    },
+    {
+      "path": "MODULES/SIO2MAN.IRX",
+      "lba": 112570,
+      "size": 6161
+    },
+    {
+      "path": "SCUS_971.29",
+      "lba": 199671,
+      "size": 1374220
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_DDN.XSQ",
+      "lba": 182765,
+      "size": 48404
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_DDN0.XV",
+      "lba": 182789,
+      "size": 191456
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_DDN1.XV",
+      "lba": 182883,
+      "size": 281664
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_KOC.XSQ",
+      "lba": 183021,
+      "size": 28160
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_KOC0.XV",
+      "lba": 183035,
+      "size": 116896
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_KOC1.XV",
+      "lba": 183093,
+      "size": 380624
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_MDL.XSQ",
+      "lba": 183279,
+      "size": 33036
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_MDL0.XV",
+      "lba": 183296,
+      "size": 240960
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_MDL1.XV",
+      "lba": 183414,
+      "size": 265344
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_MGT.XSQ",
+      "lba": 183544,
+      "size": 54268
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_MGT0.XV",
+      "lba": 183571,
+      "size": 214640
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_MGT1.XV",
+      "lba": 183676,
+      "size": 324432
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_OHT.XSQ",
+      "lba": 183835,
+      "size": 42516
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_OHT0.XV",
+      "lba": 183856,
+      "size": 342112
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_RSL.XSQ",
+      "lba": 184024,
+      "size": 33320
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_RSL0.XV",
+      "lba": 184041,
+      "size": 323056
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_RSL1.XV",
+      "lba": 184199,
+      "size": 179008
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_TNB.XSQ",
+      "lba": 184287,
+      "size": 32088
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_TNB0.XV",
+      "lba": 184303,
+      "size": 380128
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_TNB1.XV",
+      "lba": 184489,
+      "size": 451536
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_TRS.XSQ",
+      "lba": 184710,
+      "size": 33732
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_TRS0.XV",
+      "lba": 184727,
+      "size": 274368
+    },
+    {
+      "path": "SNDDATA/BGM/CTY_TRS1.XV",
+      "lba": 184861,
+      "size": 422944
+    },
+    {
+      "path": "SNDDATA/BGM/DZN_FLW.XSQ",
+      "lba": 185068,
+      "size": 32528
+    },
+    {
+      "path": "SNDDATA/BGM/DZN_FLW0.XV",
+      "lba": 185084,
+      "size": 281104
+    },
+    {
+      "path": "SNDDATA/BGM/DZN_FLW1.XV",
+      "lba": 185222,
+      "size": 289712
+    },
+    {
+      "path": "SNDDATA/BGM/DZN_LIB.XSQ",
+      "lba": 192288,
+      "size": 7392
+    },
+    {
+      "path": "SNDDATA/BGM/DZN_LIB0.XV",
+      "lba": 192292,
+      "size": 266928
+    },
+    {
+      "path": "SNDDATA/BGM/DZN_LIB1.XV",
+      "lba": 192423,
+      "size": 252864
+    },
+    {
+      "path": "SNDDATA/BGM/DZN_MSA.XSQ",
+      "lba": 185364,
+      "size": 18164
+    },
+    {
+      "path": "SNDDATA/BGM/DZN_MSA0.XV",
+      "lba": 185373,
+      "size": 184272
+    },
+    {
+      "path": "SNDDATA/BGM/DZN_MSA1.XV",
+      "lba": 185463,
+      "size": 221488
+    },
+    {
+      "path": "SNDDATA/BGM/DZN_MSB.XSQ",
+      "lba": 185572,
+      "size": 8304
+    },
+    {
+      "path": "SNDDATA/BGM/DZN_MSB0.XV",
+      "lba": 185577,
+      "size": 184352
+    },
+    {
+      "path": "SNDDATA/BGM/DZN_MSB1.XV",
+      "lba": 185668,
+      "size": 221664
+    },
+    {
+      "path": "SNDDATA/BGM/DZN_MSC.XSQ",
+      "lba": 185777,
+      "size": 5372
+    },
+    {
+      "path": "SNDDATA/BGM/DZN_MSC0.XV",
+      "lba": 185780,
+      "size": 184352
+    },
+    {
+      "path": "SNDDATA/BGM/DZN_MSC1.XV",
+      "lba": 185871,
+      "size": 221664
+    },
+    {
+      "path": "SNDDATA/BGM/DZN_UND.XSQ",
+      "lba": 185980,
+      "size": 11100
+    },
+    {
+      "path": "SNDDATA/BGM/DZN_UND0.XV",
+      "lba": 185986,
+      "size": 112144
+    },
+    {
+      "path": "SNDDATA/BGM/DZN_UND1.XV",
+      "lba": 186041,
+      "size": 172544
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_ACM.XSQ",
+      "lba": 186126,
+      "size": 14316
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_ACM0.XV",
+      "lba": 186133,
+      "size": 424176
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_AES.XSQ",
+      "lba": 186341,
+      "size": 36648
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_AES0.XV",
+      "lba": 186359,
+      "size": 247552
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_AHD.XSQ",
+      "lba": 186480,
+      "size": 38300
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_AHD0.XV",
+      "lba": 186499,
+      "size": 240816
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_AOK.XSQ",
+      "lba": 186617,
+      "size": 9904
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_AOK0.XV",
+      "lba": 186622,
+      "size": 383888
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_APT.XSQ",
+      "lba": 186810,
+      "size": 8040
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_APT0.XV",
+      "lba": 186814,
+      "size": 143376
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_APT1.XV",
+      "lba": 186885,
+      "size": 336880
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_THL.XSQ",
+      "lba": 187050,
+      "size": 22096
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_THL0.XV",
+      "lba": 187061,
+      "size": 313200
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_THL1.XV",
+      "lba": 187214,
+      "size": 163104
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_TNM.XSQ",
+      "lba": 187294,
+      "size": 22820
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_TNM0.XV",
+      "lba": 187306,
+      "size": 321568
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_TQS.XSQ",
+      "lba": 187464,
+      "size": 13500
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_TQS0.XV",
+      "lba": 187471,
+      "size": 157392
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_TSD.XSQ",
+      "lba": 187548,
+      "size": 6524
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_TSD0.XV",
+      "lba": 187552,
+      "size": 95696
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_TSD1.XV",
+      "lba": 187599,
+      "size": 177792
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_TSP.XSQ",
+      "lba": 187686,
+      "size": 13208
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_TSP0.XV",
+      "lba": 187693,
+      "size": 288256
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_TSR.XSQ",
+      "lba": 187834,
+      "size": 18104
+    },
+    {
+      "path": "SNDDATA/BGM/EVN_TSR0.XV",
+      "lba": 187843,
+      "size": 295152
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_BMJ.XSQ",
+      "lba": 187988,
+      "size": 57660
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_BMJ0.XV",
+      "lba": 188017,
+      "size": 305408
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_BUP.XSQ",
+      "lba": 188167,
+      "size": 11200
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_BUP0.XV",
+      "lba": 188173,
+      "size": 218912
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_BUP1.XV",
+      "lba": 188280,
+      "size": 222896
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_DWD.XSQ",
+      "lba": 188389,
+      "size": 16780
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_DWD0.XV",
+      "lba": 188398,
+      "size": 94176
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_DWD1.XV",
+      "lba": 188444,
+      "size": 416864
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_GMT.XSQ",
+      "lba": 188648,
+      "size": 6708
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_GMT0.XV",
+      "lba": 188652,
+      "size": 338448
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_KMP.XSQ",
+      "lba": 188818,
+      "size": 5936
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_KMP0.XV",
+      "lba": 188821,
+      "size": 126416
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_LOV.XSQ",
+      "lba": 188883,
+      "size": 10824
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_LOV.XV",
+      "lba": 188889,
+      "size": 303856
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_MKI.XSQ",
+      "lba": 189038,
+      "size": 14452
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_MKI0.XV",
+      "lba": 189046,
+      "size": 467360
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_MOE.XSQ",
+      "lba": 189275,
+      "size": 22616
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_MOE0.XV",
+      "lba": 189287,
+      "size": 267088
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_MOE1.XV",
+      "lba": 189418,
+      "size": 28800
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_MPS.XSQ",
+      "lba": 189433,
+      "size": 5916
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_MPS0.XV",
+      "lba": 189436,
+      "size": 27024
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_MSH.XSQ",
+      "lba": 189450,
+      "size": 11032
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_MSH0.XV",
+      "lba": 189456,
+      "size": 298560
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_NRD.XSQ",
+      "lba": 189602,
+      "size": 5240
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_NRD0.XV",
+      "lba": 189605,
+      "size": 196896
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_RMC.XSQ",
+      "lba": 189702,
+      "size": 14532
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_RMC0.XV",
+      "lba": 189710,
+      "size": 183504
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_RMC1.XV",
+      "lba": 189800,
+      "size": 172624
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_STM.XSQ",
+      "lba": 189885,
+      "size": 35120
+    },
+    {
+      "path": "SNDDATA/BGM/EVS_STM0.XV",
+      "lba": 189903,
+      "size": 314768
+    },
+    {
+      "path": "SNDDATA/BGM/FLD_NMA.XSQ",
+      "lba": 190057,
+      "size": 38748
+    },
+    {
+      "path": "SNDDATA/BGM/FLD_NMA0.XV",
+      "lba": 190076,
+      "size": 294384
+    },
+    {
+      "path": "SNDDATA/BGM/FLD_NMA1.XV",
+      "lba": 190220,
+      "size": 217872
+    },
+    {
+      "path": "SNDDATA/BGM/FLD_NMB.XSQ",
+      "lba": 190327,
+      "size": 25492
+    },
+    {
+      "path": "SNDDATA/BGM/FLD_NMB0.XV",
+      "lba": 190340,
+      "size": 478080
+    },
+    {
+      "path": "SNDDATA/BGM/FLD_NMC.XSQ",
+      "lba": 190574,
+      "size": 23108
+    },
+    {
+      "path": "SNDDATA/BGM/FLD_NMC0.XV",
+      "lba": 190586,
+      "size": 416576
+    },
+    {
+      "path": "SNDDATA/BGM/JGL_BSC0.XV",
+      "lba": 190790,
+      "size": 77888
+    },
+    {
+      "path": "SNDDATA/BGM/JGL_FLG.XSQ",
+      "lba": 190829,
+      "size": 640
+    },
+    {
+      "path": "SNDDATA/BGM/JGL_FVC.XSQ",
+      "lba": 190830,
+      "size": 1848
+    },
+    {
+      "path": "SNDDATA/BGM/JGL_GET.XSQ",
+      "lba": 190831,
+      "size": 476
+    },
+    {
+      "path": "SNDDATA/BGM/JGL_LUP.XSQ",
+      "lba": 190832,
+      "size": 1732
+    },
+    {
+      "path": "SNDDATA/BGM/JGL_SNT0.XV",
+      "lba": 190833,
+      "size": 139088
+    },
+    {
+      "path": "SNDDATA/BGM/JGL_SPL.XSQ",
+      "lba": 190901,
+      "size": 288
+    },
+    {
+      "path": "SNDDATA/BGM/JGL_STN.XSQ",
+      "lba": 190902,
+      "size": 916
+    },
+    {
+      "path": "SNDDATA/BGM/SNT_DNM.XSQ",
+      "lba": 190903,
+      "size": 23120
+    },
+    {
+      "path": "SNDDATA/BGM/SNT_DNM0.XV",
+      "lba": 190915,
+      "size": 277328
+    },
+    {
+      "path": "SNDDATA/BGM/SNT_DNM1.XV",
+      "lba": 191051,
+      "size": 289360
+    },
+    {
+      "path": "SNDDATA/BGM/SNT_DNM2.XSQ",
+      "lba": 191193,
+      "size": 22460
+    },
+    {
+      "path": "SNDDATA/BGM/SNT_DPC.XSQ",
+      "lba": 191204,
+      "size": 22460
+    },
+    {
+      "path": "SNDDATA/BGM/SNT_FNM.XSQ",
+      "lba": 191215,
+      "size": 26144
+    },
+    {
+      "path": "SNDDATA/BGM/SNT_FNM0.XV",
+      "lba": 191228,
+      "size": 315184
+    },
+    {
+      "path": "SNDDATA/BGM/SNT_FNM1.XV",
+      "lba": 191382,
+      "size": 211136
+    },
+    {
+      "path": "SNDDATA/BGM/SNT_FNM2.XSQ",
+      "lba": 191486,
+      "size": 27556
+    },
+    {
+      "path": "SNDDATA/BGM/SNT_FPC.XSQ",
+      "lba": 191500,
+      "size": 25060
+    },
+    {
+      "path": "SNDDATA/BGM/SNT_LBA.XSQ",
+      "lba": 191513,
+      "size": 23692
+    },
+    {
+      "path": "SNDDATA/BGM/SNT_LBA0.XV",
+      "lba": 191525,
+      "size": 244496
+    },
+    {
+      "path": "SNDDATA/BGM/SNT_LBA1.XV",
+      "lba": 191645,
+      "size": 170656
+    },
+    {
+      "path": "SNDDATA/BGM/SNT_LBB.XSQ",
+      "lba": 191729,
+      "size": 34956
+    },
+    {
+      "path": "SNDDATA/BGM/SNT_LDF.XSQ",
+      "lba": 191747,
+      "size": 38128
+    },
+    {
+      "path": "SNDDATA/BGM/SNT_LDF0.XV",
+      "lba": 191766,
+      "size": 275056
+    },
+    {
+      "path": "SNDDATA/BGM/SNT_LDF1.XV",
+      "lba": 191901,
+      "size": 172288
+    },
+    {
+      "path": "SNDDATA/BGM/SNT_MOA.XSQ",
+      "lba": 191986,
+      "size": 27416
+    },
+    {
+      "path": "SNDDATA/BGM/SNT_MOA0.XV",
+      "lba": 192000,
+      "size": 306704
+    },
+    {
+      "path": "SNDDATA/BGM/SNT_MOA1.XV",
+      "lba": 192150,
+      "size": 250208
+    },
+    {
+      "path": "SNDDATA/BGM/SNT_MOB.XSQ",
+      "lba": 192273,
+      "size": 28140
+    },
+    {
+      "path": "SNDDATA/BGM/ZGL_ZUN.XSQ",
+      "lba": 192287,
+      "size": 372
+    },
+    {
+      "path": "SNDDATA/SE/ALL.XWS",
+      "lba": 192547,
+      "size": 1351504
+    },
+    {
+      "path": "SNDDATA/SE/SEF_BSC.XV",
+      "lba": 193207,
+      "size": 130768
+    },
+    {
+      "path": "SNDDATA/SE/SEF_EX0.XV",
+      "lba": 193271,
+      "size": 285952
+    },
+    {
+      "path": "SNDDATA/SE/SET1.XWS",
+      "lba": 193411,
+      "size": 698928
+    },
+    {
+      "path": "SNDDATA/SE/SET10.XWS",
+      "lba": 199420,
+      "size": 510624
+    },
+    {
+      "path": "SNDDATA/SE/SET11.XWS",
+      "lba": 196156,
+      "size": 166384
+    },
+    {
+      "path": "SNDDATA/SE/SET12.XWS",
+      "lba": 196238,
+      "size": 58656
+    },
+    {
+      "path": "SNDDATA/SE/SET13.XWS",
+      "lba": 196267,
+      "size": 178016
+    },
+    {
+      "path": "SNDDATA/SE/SET14.XWS",
+      "lba": 196354,
+      "size": 116000
+    },
+    {
+      "path": "SNDDATA/SE/SET15.XWS",
+      "lba": 196411,
+      "size": 159296
+    },
+    {
+      "path": "SNDDATA/SE/SET16.XWS",
+      "lba": 196489,
+      "size": 121840
+    },
+    {
+      "path": "SNDDATA/SE/SET17.XWS",
+      "lba": 196549,
+      "size": 116000
+    },
+    {
+      "path": "SNDDATA/SE/SET18.XWS",
+      "lba": 196606,
+      "size": 107584
+    },
+    {
+      "path": "SNDDATA/SE/SET19.XWS",
+      "lba": 196659,
+      "size": 429776
+    },
+    {
+      "path": "SNDDATA/SE/SET2.XWS",
+      "lba": 193753,
+      "size": 267360
+    },
+    {
+      "path": "SNDDATA/SE/SET20.XWS",
+      "lba": 196869,
+      "size": 271792
+    },
+    {
+      "path": "SNDDATA/SE/SET21.XWS",
+      "lba": 197002,
+      "size": 358192
+    },
+    {
+      "path": "SNDDATA/SE/SET22.XWS",
+      "lba": 197177,
+      "size": 142384
+    },
+    {
+      "path": "SNDDATA/SE/SET23.XWS",
+      "lba": 197247,
+      "size": 157024
+    },
+    {
+      "path": "SNDDATA/SE/SET24.XWS",
+      "lba": 197324,
+      "size": 218464
+    },
+    {
+      "path": "SNDDATA/SE/SET25.XWS",
+      "lba": 197431,
+      "size": 837952
+    },
+    {
+      "path": "SNDDATA/SE/SET26.XWS",
+      "lba": 197841,
+      "size": 563248
+    },
+    {
+      "path": "SNDDATA/SE/SET27.XWS",
+      "lba": 198117,
+      "size": 285824
+    },
+    {
+      "path": "SNDDATA/SE/SET28.XWS",
+      "lba": 198257,
+      "size": 414544
+    },
+    {
+      "path": "SNDDATA/SE/SET29.XWS",
+      "lba": 198460,
+      "size": 288176
+    },
+    {
+      "path": "SNDDATA/SE/SET3.XWS",
+      "lba": 193884,
+      "size": 639344
+    },
+    {
+      "path": "SNDDATA/SE/SET30.XWS",
+      "lba": 198601,
+      "size": 241360
+    },
+    {
+      "path": "SNDDATA/SE/SET31.XWS",
+      "lba": 198719,
+      "size": 120672
+    },
+    {
+      "path": "SNDDATA/SE/SET32.XWS",
+      "lba": 198778,
+      "size": 208512
+    },
+    {
+      "path": "SNDDATA/SE/SET33.XWS",
+      "lba": 198880,
+      "size": 159376
+    },
+    {
+      "path": "SNDDATA/SE/SET34.XWS",
+      "lba": 198958,
+      "size": 190976
+    },
+    {
+      "path": "SNDDATA/SE/SET35.XWS",
+      "lba": 199052,
+      "size": 304752
+    },
+    {
+      "path": "SNDDATA/SE/SET36.XWS",
+      "lba": 199201,
+      "size": 446848
+    },
+    {
+      "path": "SNDDATA/SE/SET4.XWS",
+      "lba": 194197,
+      "size": 653600
+    },
+    {
+      "path": "SNDDATA/SE/SET5.XWS",
+      "lba": 194517,
+      "size": 653600
+    },
+    {
+      "path": "SNDDATA/SE/SET6.XWS",
+      "lba": 194837,
+      "size": 653600
+    },
+    {
+      "path": "SNDDATA/SE/SET7.XWS",
+      "lba": 195157,
+      "size": 497888
+    },
+    {
+      "path": "SNDDATA/SE/SET8.XWS",
+      "lba": 195401,
+      "size": 739392
+    },
+    {
+      "path": "SNDDATA/SE/SET9.XWS",
+      "lba": 195763,
+      "size": 763968
+    },
+    {
+      "path": "SNDDATA/SE/SYS_SE.XV",
+      "lba": 196137,
+      "size": 38672
+    },
+    {
+      "path": "SNDDATA/STR/OP.PSS",
+      "lba": 112608,
+      "size": 104398852
+    },
+    {
+      "path": "SNDDATA/STR/THEMA_1.XWB",
+      "lba": 163586,
+      "size": 23186288
+    },
+    {
+      "path": "SNDDATA/STR/THEMA_1.XWH",
+      "lba": 163585,
+      "size": 112
+    },
+    {
+      "path": "SNDDATA/STR/THEMA_2.XWB",
+      "lba": 174908,
+      "size": 16088832
+    },
+    {
+      "path": "SNDDATA/STR/THEMA_2.XWH",
+      "lba": 182764,
+      "size": 96
+    },
+    {
+      "path": "SYSTEM.CNF",
+      "lba": 200343,
+      "size": 54
+    }
+  ],
+  "extracted": [
+    "IOPCONF.CNF",
+    "MODULES/IOPRP214.IMG",
+    "MODULES/LIBSD.IRX",
+    "MODULES/MCMAN.IRX",
+    "MODULES/MCSERV.IRX",
+    "MODULES/PADMAN.IRX",
+    "MODULES/RXSNDDRV.IRX",
+    "MODULES/SIO2MAN.IRX",
+    "SCUS_971.29",
+    "SYSTEM.CNF"
+  ],
+  "limits": "No EDC/ECC verification, external dump verification, asset decoding, or execution performed."
+}

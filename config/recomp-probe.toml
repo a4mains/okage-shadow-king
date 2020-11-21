@@ -1,0 +1,10 @@
+[general]
+input = "local/extracted/SCUS_971.29"
+ghidra_output = ""
+output = "generated/probe/"
+single_file_output = false
+patch_syscalls = false
+patch_cop0 = false
+patch_cache = false
+stubs = []
+skip = []
