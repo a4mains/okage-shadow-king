@@ -1,4 +1,5 @@
 #include "okage/assets.hpp"
+#include "okage/model.hpp"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
@@ -28,10 +29,41 @@ void write(const fs::path& path, okage::Bytes bytes) {
     if (!file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size()))
         throw std::runtime_error("Cannot write " + path.string());
 }
+void model_report(const fs::path& path) {
+    const auto model = okage::read_xmd(read(path));
+    std::cout << "file\t" << path.string() << '\t' << model.textures.size() << '\t' << model.models.size() << '\n';
+    for (const auto& part : model.models) {
+        std::cout << "model\t" << part.offset << '\t' << part.end << '\t' << part.bones.size() << '\t'
+                  << part.hierarchy.size() << '\t' << part.names.size() << '\t' << part.blocks.size() << '\n';
+        for (const auto& block : part.blocks) {
+            std::size_t triangles=0, quads=0;
+            for (const auto& polygon : block.polygons) (polygon.corners.size()==3 ? triangles : quads)++;
+            std::cout << "block\t" << block.offset << '\t' << block.end << '\t' << block.draw_offset << '\t'
+                      << block.texture_command << '\t' << block.material_command;
+            for (const auto value : block.attribute_extents) std::cout << '\t' << value;
+            std::cout << '\t' << block.commands.size() << '\t' << triangles << '\t' << quads << '\n';
+        }
+    }
+}
 int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if (command == "model" && argc == 3) { model_report(argv[2]); return 0; }
+        if (command == "model-check" && argc == 3) {
+            std::vector<fs::path> files;
+            for (const auto& entry : fs::recursive_directory_iterator(argv[2])) {
+                auto extension=entry.path().extension().string();
+                if (entry.is_regular_file() && (extension==".xmd" || extension==".XMD")) files.push_back(entry.path());
+            }
+            std::sort(files.begin(),files.end());
+            if (files.empty()) throw std::runtime_error("No XMD models found");
+            for (const auto& path : files) {
+                try { model_report(path); }
+                catch (const std::exception& e) { throw std::runtime_error(path.string()+": "+e.what()); }
+            }
+            return 0;
+        }
         if (command == "texture-check" && argc == 3) {
             std::vector<fs::path> files;
             for (const auto& entry : fs::recursive_directory_iterator(argv[2])) {

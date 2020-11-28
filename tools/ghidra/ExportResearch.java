@@ -25,8 +25,16 @@ public class ExportResearch extends GhidraScript {
         decompiler.openProgram(currentProgram);
         try {
             for (int i = 1; i < args.length; i++) {
-                var address = toAddr(args[i]);
+                // Opt in only for an entry supported by call/pointer evidence.
+                boolean define = args[i].startsWith("define:");
+                var address = toAddr(define ? args[i].substring(7) : args[i]);
                 Function f = fm.getFunctionAt(address);
+                if (f == null && define) {
+                    if (fm.getFunctionContaining(address) != null)
+                        throw new IOException("Entry lies in another function: " + address);
+                    disassemble(address);
+                    f = createFunction(address, null);
+                }
                 if (f == null) { println("No function at " + address); continue; }
                 DecompileResults r = decompiler.decompileFunction(f, 60, monitor);
                 if (!r.decompileCompleted()) throw new IOException(r.getErrorMessage());
