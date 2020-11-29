@@ -1,5 +1,6 @@
 #include "okage/assets.hpp"
 #include "okage/model.hpp"
+#include "okage/pose.hpp"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
@@ -49,6 +50,35 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if (command == "sine-table" && argc == 3) {
+            const auto table=okage::make_sine_table();
+            write(argv[2],okage::Bytes(reinterpret_cast<const std::uint8_t*>(table.data()),sizeof(table)));
+            return 0;
+        }
+        if (command == "pose" && argc == 4) {
+            const auto file=okage::read_xmd(read(argv[2]));
+            if (file.models.size()!=1) throw std::runtime_error("Pose dump expects one model");
+            const auto pose=okage::rest_pose(file.models[0],okage::make_sine_table());
+            write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(pose.data()),pose.size()*sizeof(okage::Matrix4)));
+            return 0;
+        }
+        if (command == "pose-corpus" && argc == 4) {
+            std::vector<fs::path> files;
+            for (const auto& entry : fs::recursive_directory_iterator(argv[2]))
+                if (entry.is_regular_file() && entry.path().extension()==".xmd") files.push_back(entry.path());
+            std::sort(files.begin(),files.end());
+            if (files.empty()) throw std::runtime_error("No XMD models found");
+            const auto sine=okage::make_sine_table();
+            for (const auto& path: files) {
+                const auto model=okage::read_xmd(read(path));
+                if (model.models.size()!=1) throw std::runtime_error("Pose corpus expects one model per file");
+                const auto pose=okage::rest_pose(model.models[0],sine);
+                auto output=fs::path(argv[3])/fs::relative(path,argv[2]); output.replace_extension(".pose");
+                write(output,okage::Bytes(reinterpret_cast<const std::uint8_t*>(pose.data()),pose.size()*sizeof(okage::Matrix4)));
+                std::cout<<path.string()<<'\t'<<output.string()<<'\t'<<pose.size()<<'\n';
+            }
+            return 0;
+        }
         if (command == "model" && argc == 3) { model_report(argv[2]); return 0; }
         if (command == "model-check" && argc == 3) {
             std::vector<fs::path> files;

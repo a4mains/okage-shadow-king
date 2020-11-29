@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_library(okage_assets src/assets.cpp src/model.cpp)
+add_library(okage_assets src/assets.cpp src/model.cpp src/pose.cpp)
 target_include_directories(okage_assets PUBLIC include)
 target_compile_options(okage_assets PRIVATE -Wall -Wextra -Wpedantic)
 add_executable(okage-assets src/assets_main.cpp)
@@ -18,6 +18,12 @@ if(APPLE)
     set_target_properties(okage-viewer PROPERTIES
         MACOSX_BUNDLE_BUNDLE_NAME "Okage Asset Viewer"
         MACOSX_BUNDLE_GUI_IDENTIFIER "local.okage.asset-viewer")
+    add_executable(okage-model-viewer MACOSX_BUNDLE src/model_viewer.mm)
+    target_compile_options(okage-model-viewer PRIVATE -fobjc-arc)
+    target_link_libraries(okage-model-viewer PRIVATE okage_assets "-framework AppKit")
+    set_target_properties(okage-model-viewer PROPERTIES
+        MACOSX_BUNDLE_BUNDLE_NAME "Okage Model Research"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "local.okage.model-viewer")
 endif()
 
 include(CTest)
@@ -28,4 +34,7 @@ if(BUILD_TESTING)
     add_executable(model-tests tests/model_tests.cpp)
     target_link_libraries(model-tests PRIVATE okage_assets)
     add_test(NAME model-tests COMMAND model-tests)
+    add_executable(pose-tests tests/pose_tests.cpp)
+    target_link_libraries(pose-tests PRIVATE okage_assets)
+    add_test(NAME pose-tests COMMAND pose-tests)
 endif()
