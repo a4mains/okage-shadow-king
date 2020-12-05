@@ -1,0 +1,142 @@
+{
+  "scope": "HERO XMT channel and animated-pose reference experiment",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "xmt_sha256": "631f1c7f31ab96917983d36a55a1865c29b9e38a2b23a47c94a0499d4a811c1c",
+  "xmd_sha256": "4e84368aa2241d7210d7e32b902358fc23ae9ac6b3f81e5c7f2e00bf615aecf9",
+  "native_sha256": "481bc898adfd7bf3db77be7c2bf8ff5bd5b8ef6520dbb54e8f175100a13ccedb",
+  "oracle_sha256": "980c9aa3e9d482fc275d14d086f0633743cd1b91276f81844e98b0e66d0dda27",
+  "channels": 228,
+  "hierarchy_nodes": 112,
+  "samples_per_entry": 601,
+  "channel_comparison": "bit exact",
+  "script_state_comparison": "exact",
+  "pose_tolerance": "abs(error) <= 2e-5 + 2e-6 * abs(reference)",
+  "entries": [
+    {
+      "state_mismatches": 0,
+      "channel_bit_mismatches": 0,
+      "pose_components": 1076992,
+      "pose_numerically_equal": 363809,
+      "pose_outside_tolerance": 0,
+      "pose_max_absolute_error": 3.337860107421875e-06,
+      "worst_pose": {
+        "frame": 21,
+        "component": 686,
+        "reference": 4.083198547363281,
+        "native": 4.083201885223389
+      },
+      "passed": true,
+      "entry": 3,
+      "reference_sha256": "8834dc847ca1fef4527724f34fa8673d3c7086be2c3ca70159e2c8013adc2373",
+      "native_sha256": "982179d483baaa04aa2059536085d576ecb51992e0b179a4f310bee3cd02ee39"
+    },
+    {
+      "state_mismatches": 0,
+      "channel_bit_mismatches": 0,
+      "pose_components": 1076992,
+      "pose_numerically_equal": 511003,
+      "pose_outside_tolerance": 0,
+      "pose_max_absolute_error": 2.3245811462402344e-06,
+      "worst_pose": {
+        "frame": 113,
+        "component": 637,
+        "reference": -0.038093626499176025,
+        "native": -0.038091301918029785
+      },
+      "passed": true,
+      "entry": 20,
+      "reference_sha256": "ffe29ee50e94c75c890132042a9fc62de4cec1065dc199ae0f69930f2343891c",
+      "native_sha256": "9fdd7c94c15273fe27c6d7a357b56eeb2d4119b81d4cd1a5fbf8991973acce01"
+    },
+    {
+      "state_mismatches": 0,
+      "channel_bit_mismatches": 0,
+      "pose_components": 1076992,
+      "pose_numerically_equal": 635072,
+      "pose_outside_tolerance": 0,
+      "pose_max_absolute_error": 1.6689300537109375e-06,
+      "worst_pose": {
+        "frame": 55,
+        "component": 1645,
+        "reference": -3.086854934692383,
+        "native": -3.086853265762329
+      },
+      "passed": true,
+      "entry": 21,
+      "reference_sha256": "9cabbdd66c12cce7344dac0fc45b92d42f36c2beee08c4298c71405140520e3c",
+      "native_sha256": "e313268417df47428615c8928ed4159f363a90f18f034f14ae9e960a189b1527"
+    }
+  ],
+  "passed": true,
+  "build_variants": [
+    {
+      "variant": "native",
+      "entry": 3,
+      "bit_identical_to_debug": true,
+      "binary_sha256": "481bc898adfd7bf3db77be7c2bf8ff5bd5b8ef6520dbb54e8f175100a13ccedb",
+      "dump_sha256": "982179d483baaa04aa2059536085d576ecb51992e0b179a4f310bee3cd02ee39"
+    },
+    {
+      "variant": "native",
+      "entry": 20,
+      "bit_identical_to_debug": true,
+      "binary_sha256": "481bc898adfd7bf3db77be7c2bf8ff5bd5b8ef6520dbb54e8f175100a13ccedb",
+      "dump_sha256": "9fdd7c94c15273fe27c6d7a357b56eeb2d4119b81d4cd1a5fbf8991973acce01"
+    },
+    {
+      "variant": "native",
+      "entry": 21,
+      "bit_identical_to_debug": true,
+      "binary_sha256": "481bc898adfd7bf3db77be7c2bf8ff5bd5b8ef6520dbb54e8f175100a13ccedb",
+      "dump_sha256": "e313268417df47428615c8928ed4159f363a90f18f034f14ae9e960a189b1527"
+    },
+    {
+      "variant": "native-release",
+      "entry": 3,
+      "bit_identical_to_debug": true,
+      "binary_sha256": "1cb340377c8dd8dc4ee00cc1f4abed22b767b2f20cc28b9a43fd41895e235ef6",
+      "dump_sha256": "982179d483baaa04aa2059536085d576ecb51992e0b179a4f310bee3cd02ee39"
+    },
+    {
+      "variant": "native-release",
+      "entry": 20,
+      "bit_identical_to_debug": true,
+      "binary_sha256": "1cb340377c8dd8dc4ee00cc1f4abed22b767b2f20cc28b9a43fd41895e235ef6",
+      "dump_sha256": "9fdd7c94c15273fe27c6d7a357b56eeb2d4119b81d4cd1a5fbf8991973acce01"
+    },
+    {
+      "variant": "native-release",
+      "entry": 21,
+      "bit_identical_to_debug": true,
+      "binary_sha256": "1cb340377c8dd8dc4ee00cc1f4abed22b767b2f20cc28b9a43fd41895e235ef6",
+      "dump_sha256": "e313268417df47428615c8928ed4159f363a90f18f034f14ae9e960a189b1527"
+    },
+    {
+      "variant": "model-sanitize",
+      "entry": 3,
+      "bit_identical_to_debug": true,
+      "binary_sha256": "8edcf3c565749d21a848f23b7d5499c89048d0e5baa6af84d72e94c37a115fba",
+      "dump_sha256": "982179d483baaa04aa2059536085d576ecb51992e0b179a4f310bee3cd02ee39"
+    },
+    {
+      "variant": "model-sanitize",
+      "entry": 20,
+      "bit_identical_to_debug": true,
+      "binary_sha256": "8edcf3c565749d21a848f23b7d5499c89048d0e5baa6af84d72e94c37a115fba",
+      "dump_sha256": "9fdd7c94c15273fe27c6d7a357b56eeb2d4119b81d4cd1a5fbf8991973acce01"
+    },
+    {
+      "variant": "model-sanitize",
+      "entry": 21,
+      "bit_identical_to_debug": true,
+      "binary_sha256": "8edcf3c565749d21a848f23b7d5499c89048d0e5baa6af84d72e94c37a115fba",
+      "dump_sha256": "e313268417df47428615c8928ed4159f363a90f18f034f14ae9e960a189b1527"
+    }
+  ],
+  "limits": [
+    "Three HERO entries only; no full game boot or animation corpus coverage",
+    "No retail wall-clock timing validation",
+    "Facial texture callbacks and other XMT operations remain incomplete",
+    "Animation viewer builds/launches but UI verification was blocked by cgWindowNotFound"
+  ]
+}

@@ -24,11 +24,11 @@ Float4 transform(const Matrix4& matrix,const Float4& vector) {
     }
     return result;
 }
-unsigned angle_index(float radians) {
+unsigned angle_index(float radians,bool already_turns=false) {
     // Retail NaN handling is in 0x1829c0; source infinities are not supported.
     if (std::isnan(radians)) radians=0;
     if (!std::isfinite(radians)) throw std::runtime_error("Non-finite bone rotation");
-    const float turns=(radians*0.5f)/3.1415927410125732421875f;
+    const float turns=already_turns ? radians : (radians*0.5f)/3.1415927410125732421875f;
     const float fixed=turns*32768.0f;
     if (fixed<=-2147483648.0f || fixed>=2147483648.0f)
         throw std::runtime_error("Bone rotation exceeds quantization range");
@@ -54,7 +54,7 @@ SineTable make_sine_table() {
     table[0]=0; table[4096]=1; table[8192]=0; table[12288]=-1;
     return table;
 }
-std::vector<Matrix4> rest_pose(const Model& model,const SineTable& sine) {
+static std::vector<Matrix4> build_pose(const Model& model,const SineTable& sine,bool turns) {
     Rounding rounding(FE_TOWARDZERO);
     std::vector<Matrix4> matrices;
     std::vector<Float4> scale;
@@ -73,9 +73,9 @@ std::vector<Matrix4> rest_pose(const Model& model,const SineTable& sine) {
             local[3][j]=bone.translation[j]*parent_scale[j];
         }
         scale.push_back(cumulative);
-        rotate(local,0,1,angle_index(bone.rotation[2]),sine);
-        rotate(local,2,0,angle_index(bone.rotation[1]),sine);
-        rotate(local,1,2,angle_index(bone.rotation[0]),sine);
+        rotate(local,0,1,angle_index(bone.rotation[2],turns),sine);
+        rotate(local,2,0,angle_index(bone.rotation[1],turns),sine);
+        rotate(local,1,2,angle_index(bone.rotation[0],turns),sine);
         if (node.parent>=0) {
             const auto& parent=matrices[node.parent];
             for (auto& column:local) column=transform(parent,column);
@@ -88,6 +88,22 @@ std::vector<Matrix4> rest_pose(const Model& model,const SineTable& sine) {
         for (unsigned column=0;column<3;++column)
             for (unsigned row=0;row<4;++row) matrices[i][column][row]*=scale[i][column];
     return matrices;
+}
+std::vector<Matrix4> rest_pose(const Model& model,const SineTable& sine) {
+    return build_pose(model,sine,false);
+}
+std::vector<Matrix4> animated_pose(const Model& model,std::span<const Float4> channels,
+                                 const SineTable& sine,bool scale_channels) {
+    const std::size_t stride=scale_channels ? 3 : 2;
+    if (channels.size()!=4+stride*model.bones.size()) throw std::runtime_error("Animation bone channel count mismatch");
+    Model posed; posed.bones=model.bones; posed.hierarchy=model.hierarchy;
+    for (std::size_t i=0;i<posed.bones.size();++i) {
+        auto at=4+i*stride;
+        if (scale_channels) posed.bones[i].scale=channels[at++];
+        posed.bones[i].rotation=channels[at++];
+        posed.bones[i].translation=channels[at];
+    }
+    return build_pose(posed,sine,true);
 }
 std::vector<Float4> posed_positions(const RenderBlock& block,std::span<const Matrix4> pose) {
     Rounding rounding(FE_TOWARDZERO);

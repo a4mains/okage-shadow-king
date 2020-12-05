@@ -1,6 +1,7 @@
 #include "okage/assets.hpp"
 #include "okage/model.hpp"
 #include "okage/pose.hpp"
+#include "okage/animation.hpp"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
@@ -50,6 +51,35 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if (command == "animation" && (argc == 7 || argc == 8)) {
+            const auto count=std::stoul(argv[3]), entry=std::stoul(argv[4]), frames=std::stoul(argv[5]);
+            if (count>5120 || frames>10000 || (frames+1)*(8+count*16)>32*1024*1024)
+                throw std::runtime_error("Animation dump exceeds bounds");
+            okage::Animation animation(read(argv[2]),count);
+            animation.start(0); animation.values(); animation.start(entry);
+            okage::ModelFile model;
+            const auto sine=okage::make_sine_table();
+            if (argc==8) {
+                model=okage::read_xmd(read(argv[7]));
+                if (model.models.size()!=1 || (frames+1)*(8+count*16+model.models[0].hierarchy.size()*64)>32*1024*1024)
+                    throw std::runtime_error("Animation pose dump exceeds bounds");
+            }
+            std::vector<std::uint8_t> dump;
+            auto append=[&](const void* data,std::size_t size) {
+                auto* p=static_cast<const std::uint8_t*>(data); dump.insert(dump.end(),p,p+size);
+            };
+            for (std::size_t frame=0;frame<=frames;++frame) {
+                if (frame) animation.tick();
+                const std::uint32_t state[]={animation.pc(),animation.script_state()};
+                append(state,sizeof(state));
+                const auto values=animation.values(); append(values.data(),values.size()*sizeof(okage::Float4));
+                if (argc==8) {
+                    const auto pose=okage::animated_pose(model.models[0],values,sine,animation.scale_channels());
+                    append(pose.data(),pose.size()*sizeof(okage::Matrix4));
+                }
+            }
+            write(argv[6],dump); return 0;
+        }
         if (command == "sine-table" && argc == 3) {
             const auto table=okage::make_sine_table();
             write(argv[2],okage::Bytes(reinterpret_cast<const std::uint8_t*>(table.data()),sizeof(table)));

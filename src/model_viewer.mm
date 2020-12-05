@@ -1,23 +1,44 @@
 #import <AppKit/AppKit.h>
 #include "okage/pose.hpp"
+#include "okage/animation.hpp"
 #include <algorithm>
 #include <cmath>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 
 struct Mesh {
     std::vector<okage::Float4> positions;
     std::vector<std::vector<std::uint32_t>> polygons;
 };
+static std::vector<std::uint8_t> readModelFile(const std::filesystem::path& path) {
+    auto size=std::filesystem::file_size(path);
+    if (size>128*1024*1024) throw std::runtime_error("Model input exceeds limit");
+    std::ifstream input(path,std::ios::binary);
+    std::vector<std::uint8_t> bytes(size);
+    if (!input.read(reinterpret_cast<char*>(bytes.data()),bytes.size())) throw std::runtime_error("Unable to read model input");
+    return bytes;
+}
 @interface MeshView : NSView {
     std::vector<Mesh> meshes;
     okage::Float4 center;
     double radius, yaw, pitch, zoom;
     NSPoint lastDrag;
+    okage::ModelFile modelFile;
+    okage::SineTable sine;
+    std::unique_ptr<okage::Animation> animation;
+    std::vector<std::uint8_t> animationBytes;
+    NSUInteger entry, frame;
+    BOOL playing;
+    NSTimer* timer;
 }
 @property(copy) NSString* caption;
 - (void)loadModel:(NSString*)path;
 - (void)resetCamera:(id)sender;
+- (void)loadAnimation:(NSString*)path entry:(NSUInteger)selected;
+- (void)stepAnimation:(id)sender;
+- (void)toggleAnimation:(id)sender;
+- (void)restartAnimation:(id)sender;
 @end
 @implementation MeshView
 - (BOOL)acceptsFirstResponder { return YES; }
@@ -26,13 +47,8 @@ struct Mesh {
 }
 - (void)loadModel:(NSString*)name {
     const std::filesystem::path path(name.fileSystemRepresentation);
-    auto size=std::filesystem::file_size(path);
-    if (size>128*1024*1024) throw std::runtime_error("Model exceeds input limit");
-    std::ifstream input(path,std::ios::binary);
-    std::vector<std::uint8_t> bytes(size);
-    if (!input.read(reinterpret_cast<char*>(bytes.data()),bytes.size())) throw std::runtime_error("Unable to read model");
-    const auto file=okage::read_xmd(bytes);
-    const auto sine=okage::make_sine_table();
+    auto file=okage::read_xmd(readModelFile(path));
+    sine=okage::make_sine_table();
     std::vector<Mesh> pending;
     okage::Float4 low{INFINITY,INFINITY,INFINITY,0},high{-INFINITY,-INFINITY,-INFINITY,0};
     std::size_t polygon_count=0,bone_count=0;
@@ -61,9 +77,63 @@ struct Mesh {
     for (unsigned j=0;j<3;++j) { center[j]=(low[j]+high[j])*0.5f; radius+=std::pow((high[j]-low[j])*0.5,2); }
     radius=std::max(std::sqrt(radius),0.001);
     meshes=std::move(pending);
+    modelFile=std::move(file); animation.reset(); animationBytes.clear(); playing=NO; [timer invalidate]; timer=nil;
     self.caption=[NSString stringWithFormat:@"%zu bones   ·   %zu polygons   ·   Rest pose / wireframe\nDrag to orbit   ·   Scroll to zoom   ·   ⌘R to reset",
         bone_count,polygon_count];
     [self resetCamera:nil];
+}
+- (void)updateAnimationGeometry {
+    const auto values=animation->values();
+    const auto pose=okage::animated_pose(modelFile.models[0],values,sine,animation->scale_channels());
+    for (std::size_t i=0;i<meshes.size();++i)
+        meshes[i].positions=okage::posed_positions(modelFile.models[0].blocks[i],pose);
+    self.caption=[NSString stringWithFormat:@"XMT entry %lu   ·   Tick %lu   ·   %@\nSpace: play/pause   ·   →: step   ·   ⌘B: restart   ·   Preview: 30 ticks/s (game timing unverified)",
+        (unsigned long)entry,(unsigned long)frame,playing ? @"Playing" : @"Paused"];
+    [self setNeedsDisplay:YES];
+}
+- (void)loadAnimation:(NSString*)path entry:(NSUInteger)selected {
+    if (modelFile.models.size()!=1) throw std::runtime_error("Animation inspection requires one model");
+    animationBytes=readModelFile(path.fileSystemRepresentation); entry=selected;
+    [self restartAnimation:nil];
+    [timer invalidate];
+    __weak MeshView* weakSelf=self;
+    timer=[NSTimer scheduledTimerWithTimeInterval:1.0/30.0 repeats:YES block:^(NSTimer* tick) {
+        (void)tick; MeshView* view=weakSelf;
+        if (view && view->playing) [view stepAnimation:nil];
+    }];
+}
+- (void)restartAnimation:(id)sender {
+    (void)sender;
+    if (animationBytes.empty()) return;
+    try {
+        // Header validation is owned by Animation; inspect only the channel-mode word here.
+        if (animationBytes.size()<32) throw std::runtime_error("Truncated XMT header");
+        bool scale=animationBytes[20] || animationBytes[21] || animationBytes[22] || animationBytes[23];
+        auto pending=std::make_unique<okage::Animation>(animationBytes,4+modelFile.models[0].bones.size()*(scale ? 3 : 2));
+        pending->start(0); pending->values(); pending->start(entry);
+        animation=std::move(pending); frame=0; playing=NO;
+        [self updateAnimationGeometry];
+    } catch (const std::exception& e) {
+        playing=NO; animation.reset();
+        self.caption=[NSString stringWithFormat:@"Animation stopped: %s",e.what()]; [self setNeedsDisplay:YES];
+    }
+}
+- (void)stepAnimation:(id)sender {
+    (void)sender; if (!animation) return;
+    try { animation->tick(); ++frame; [self updateAnimationGeometry]; }
+    catch (const std::exception& e) {
+        playing=NO; animation.reset();
+        self.caption=[NSString stringWithFormat:@"Animation stopped at tick %lu: %s",(unsigned long)frame,e.what()];
+        [self setNeedsDisplay:YES];
+    }
+}
+- (void)toggleAnimation:(id)sender {
+    (void)sender; if (!animation) return; playing=!playing; [self updateAnimationGeometry];
+}
+- (void)keyDown:(NSEvent*)event {
+    if (event.keyCode==124) [self stepAnimation:nil];
+    else if ([event.characters isEqualToString:@" "]) [self toggleAnimation:nil];
+    else [super keyDown:event];
 }
 - (void)mouseDown:(NSEvent*)event { lastDrag=[self convertPoint:event.locationInWindow fromView:nil]; }
 - (void)mouseDragged:(NSEvent*)event {
@@ -109,6 +179,8 @@ struct Mesh {
 @property(strong) NSWindow* window;
 @property(strong) MeshView* canvas;
 @property(copy) NSString* initialPath;
+@property(copy) NSString* animationPath;
+@property NSUInteger animationEntry;
 @end
 @implementation ModelViewer
 - (void)applicationDidFinishLaunching:(NSNotification*)notification {
@@ -122,6 +194,13 @@ struct Mesh {
     self.window.contentView=self.canvas;
     [self.window center]; [self.window makeKeyAndOrderFront:nil]; [NSApp activateIgnoringOtherApps:YES];
     if (self.initialPath) [self loadPath:self.initialPath];
+    if (self.animationPath) {
+        try { [self.canvas loadAnimation:self.animationPath entry:self.animationEntry]; }
+        catch (const std::exception& e) {
+            self.canvas.caption=[NSString stringWithFormat:@"Animation input error: %s",e.what()];
+        }
+    }
+    [self.window makeFirstResponder:self.canvas];
 }
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)app { (void)app; return YES; }
 - (void)loadPath:(NSString*)path {
@@ -140,6 +219,7 @@ struct Mesh {
     if ([panel runModal]==NSModalResponseOK) [self loadPath:panel.URL.path];
 }
 - (void)resetCamera:(id)sender { [self.canvas resetCamera:sender]; }
+- (void)restartAnimation:(id)sender { [self.canvas restartAnimation:sender]; }
 @end
 
 int main(int argc,const char** argv) {
@@ -147,10 +227,16 @@ int main(int argc,const char** argv) {
         NSApplication* app=[NSApplication sharedApplication]; [app setActivationPolicy:NSApplicationActivationPolicyRegular];
         ModelViewer* delegate=[ModelViewer new]; app.delegate=delegate;
         if (argc>1) delegate.initialPath=[NSString stringWithUTF8String:std::filesystem::absolute(argv[1]).c_str()];
+        if (argc>2) delegate.animationPath=[NSString stringWithUTF8String:std::filesystem::absolute(argv[2]).c_str()];
+        if (argc>3) {
+            try { delegate.animationEntry=std::stoul(argv[3]); }
+            catch (...) { fprintf(stderr,"Invalid animation entry\n"); return 1; }
+        }
         NSMenu* menu=[NSMenu new]; NSMenuItem* root=[NSMenuItem new]; [menu addItem:root];
         NSMenu* actions=[[NSMenu alloc] initWithTitle:@"Okage Model Research"]; root.submenu=actions;
         NSMenuItem* open=[actions addItemWithTitle:@"Open Model…" action:@selector(openModel:) keyEquivalent:@"o"]; open.target=delegate;
         NSMenuItem* reset=[actions addItemWithTitle:@"Reset Camera" action:@selector(resetCamera:) keyEquivalent:@"r"]; reset.target=delegate;
+        NSMenuItem* restart=[actions addItemWithTitle:@"Restart Animation" action:@selector(restartAnimation:) keyEquivalent:@"b"]; restart.target=delegate;
         [actions addItem:[NSMenuItem separatorItem]]; [actions addItemWithTitle:@"Quit" action:@selector(terminate:) keyEquivalent:@"q"];
         app.mainMenu=menu; [app run];
     }
