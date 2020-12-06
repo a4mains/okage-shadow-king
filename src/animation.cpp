@@ -64,6 +64,10 @@ void Animation::run() {
         if (op==0) { flags_&=~0x100; pc_=resume_pc; return; } // Retail stores PC only on yield.
         if (op==1) { pc_=relative(p); continue; }
         if (op==2) { wait_=static_cast<std::uint16_t>(b); pc_=p; return; }
+        if (op==0x34) {
+            if (b<0 || !texture_callback_) throw std::runtime_error("XMT texture callback requires a valid XTA binding");
+            texture_callback_(static_cast<std::size_t>(b),a); pc_=p; continue;
+        }
         const auto index=(op==0x30 ? b : static_cast<int>(a))>>2;
         if (index<0 || std::size_t(index)>=channels_.size()) throw std::runtime_error("XMT channel out of bounds");
         auto& ch=channels_[index];

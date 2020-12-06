@@ -2,10 +2,12 @@
 #include "okage/model.hpp"
 #include "okage/pose.hpp"
 #include "okage/animation.hpp"
+#include "okage/texture_animation.hpp"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 
 namespace fs = std::filesystem;
@@ -51,19 +53,41 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
-        if (command == "animation" && (argc == 7 || argc == 8)) {
+        if (command=="texture-callback" && argc==5) {
+            const auto model=okage::read_xmd(read(argv[2]));
+            const auto text=read(argv[3]);
+            okage::TextureBindings textures(model,okage::read_xta(std::string_view(reinterpret_cast<const char*>(text.data()),text.size())));
+            std::vector<std::int32_t> dump;
+            for (std::size_t group=0;group<textures.animation().groups.size();++group)
+                for (std::size_t variant=0;variant<=textures.animation().variants.size();++variant) {
+                    textures.restore(); textures.select(group,variant);
+                    dump.push_back(group); dump.push_back(variant);
+                    dump.insert(dump.end(),textures.images().begin(),textures.images().end());
+                }
+            write(argv[4],okage::Bytes(reinterpret_cast<const std::uint8_t*>(dump.data()),dump.size()*4)); return 0;
+        }
+        if (command == "animation" && (argc >= 7 && argc <= 9)) {
             const auto count=std::stoul(argv[3]), entry=std::stoul(argv[4]), frames=std::stoul(argv[5]);
             if (count>5120 || frames>10000 || (frames+1)*(8+count*16)>32*1024*1024)
                 throw std::runtime_error("Animation dump exceeds bounds");
             okage::Animation animation(read(argv[2]),count);
-            animation.start(0); animation.values(); animation.start(entry);
             okage::ModelFile model;
             const auto sine=okage::make_sine_table();
-            if (argc==8) {
+            if (argc>=8) {
                 model=okage::read_xmd(read(argv[7]));
                 if (model.models.size()!=1 || (frames+1)*(8+count*16+model.models[0].hierarchy.size()*64)>32*1024*1024)
                     throw std::runtime_error("Animation pose dump exceeds bounds");
             }
+            std::unique_ptr<okage::TextureBindings> textures;
+            if (argc==9) {
+                const auto text=read(argv[8]);
+                textures=std::make_unique<okage::TextureBindings>(model,okage::read_xta(
+                    std::string_view(reinterpret_cast<const char*>(text.data()),text.size())));
+                if ((frames+1)*(8+count*16+model.models[0].hierarchy.size()*64+textures->images().size()*4)>32*1024*1024)
+                    throw std::runtime_error("Texture animation dump exceeds bounds");
+                animation.set_texture_callback([&](std::size_t group,std::size_t variant) {textures->select(group,variant);});
+            }
+            animation.start(0); animation.values(); animation.start(entry);
             std::vector<std::uint8_t> dump;
             auto append=[&](const void* data,std::size_t size) {
                 auto* p=static_cast<const std::uint8_t*>(data); dump.insert(dump.end(),p,p+size);
@@ -73,10 +97,11 @@ int main(int argc, char** argv) {
                 const std::uint32_t state[]={animation.pc(),animation.script_state()};
                 append(state,sizeof(state));
                 const auto values=animation.values(); append(values.data(),values.size()*sizeof(okage::Float4));
-                if (argc==8) {
+                if (argc>=8) {
                     const auto pose=okage::animated_pose(model.models[0],values,sine,animation.scale_channels());
                     append(pose.data(),pose.size()*sizeof(okage::Matrix4));
                 }
+                if (textures) append(textures->images().data(),textures->images().size()*4);
             }
             write(argv[6],dump); return 0;
         }

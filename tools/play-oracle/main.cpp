@@ -7,6 +7,7 @@
 #include "Ps2Const.h"
 #include "FpUtils.h"
 #include "okage/model.hpp"
+#include "okage/texture_animation.hpp"
 #include <CommonCrypto/CommonDigest.h>
 #include <cfenv>
 #include <filesystem>
@@ -112,12 +113,99 @@ public:
     }
     uint32 get(uint32 address) const { uint32 v; std::memcpy(&v,ee->m_ram+address,4); return v; }
     void put(uint32 address,uint32 value) { std::memcpy(ee->m_ram+address,&value,4); }
+    void put64(uint32 address,uint64 value) { std::memcpy(ee->m_ram+address,&value,8); }
+    uint64 get64(uint32 address) const { uint64 value; std::memcpy(&value,ee->m_ram+address,8); return value; }
+    struct TextureFixture {
+        std::vector<uint32> packets;
+        std::vector<uint64> tex0;
+    };
+    TextureFixture textureFixture(const char* modelPath,const char* xtaPath) {
+        put(0x1fe2ac,0x820000);
+        const auto model=okage::read_xmd(readFile(modelPath));
+        const auto text=readFile(xtaPath);
+        const auto xta=okage::read_xta(std::string_view(reinterpret_cast<const char*>(text.data()),text.size()));
+        if (model.models.size()!=1 || model.models[0].blocks.size()>128) throw std::runtime_error("Texture fixture model bounds");
+        TextureFixture result;
+        auto names=model.textures; names.insert(names.end(),xta.variants.begin(),xta.variants.end());
+        if (names.size()>512 || xta.groups.size()>8) throw std::runtime_error("Texture fixture table bounds");
+        put(0x3a7b00,0x8c0000);
+        for (size_t i=0;i<names.size();++i) {
+            auto name=names[i]; if (std::filesystem::path(name).extension().empty()) name+=".xim";
+            const auto path=std::filesystem::path(modelPath).parent_path()/name;
+            const auto image=okage::decode_xim(readFile(path.c_str()));
+            // Real XIM dimensions/formats; isolated deterministic VRAM addresses.
+            const uint64 imageInfo=uint64(0x100+i*16)|(uint64((image.width+63)/64)<<14)|
+                (uint64(image.pixel_format|(image.width<<6)|(image.height<<18))<<32);
+            const uint64 paletteInfo=uint64(0x3000+i*4)|(uint64(image.palette_format)<<32);
+            uint16 index=i; std::memcpy(ee->m_ram+0x3a5b00+i*2,&index,2);
+            put64(0x8c0000+i*48,imageInfo); put64(0x8c0008+i*48,paletteInfo);
+            result.tex0.push_back((imageInfo&0x3fff)|((imageInfo>>14&63)<<14)|
+                ((imageInfo>>32&63)<<20)|((paletteInfo&0x3fff)<<37)|
+                ((paletteInfo>>32&63)<<51)|0x20000006a8000000ULL);
+        }
+        put(0x820008,0x860000); put(0x860000,model.models[0].blocks.size());
+        size_t state=0;
+        for (size_t b=0;b<model.models[0].blocks.size();++b) {
+            const auto& block=model.models[0].blocks[b];
+            const uint32 outer=0x861000+b*32;
+            put(0x860004+b*4,outer);
+            put(outer,7|(uint32(block.textures.size())<<16)); put(outer+12,0x870000+state*16); put(outer+16,1);
+            for (const auto& texture:block.textures) {
+                if (state>=240 || texture.texture<0 || size_t(texture.texture)>=model.textures.size() || texture.palette>0)
+                    throw std::runtime_error("Unvalidated texture fixture state");
+                const uint32 marker=0x870000+state*16, packet=0x880000+state*64;
+                put(marker,0x0001000d); put(marker+4,uint16(texture.texture)); put(marker+8,packet);
+                // Three register records, with TEX0 between two sentinel records.
+                // This is the recovered prepared-record layout, not a GS submission.
+                put(packet+4,3); put64(packet+16,0x1122334455667788ULL); put(packet+24,8);
+                put64(packet+28,result.tex0.at(texture.texture)); put(packet+36,6);
+                put64(packet+40,0xaabbccddeeff0011ULL); put(packet+48,0x42);
+                result.packets.push_back(packet); ++state;
+            }
+        }
+        put(0x213018,0x8f0000); put(0x8f0008,model.textures.size());
+        put(0x8f000c,xta.groups.size()); put(0x8f0010,0x8f0100);
+        for (size_t group=0;group<xta.groups.size();++group) {
+            const uint32 list=0x8e0000+group*0x1000;
+            put(0x8f0100+group*4,list); put(0x337b54,list);
+            call(0x1b72a8,{0,uint32(xta.groups[group])});
+            if (get(0x337b54)>list+0x1000) throw std::runtime_error("Texture fixture patch list overflow");
+        }
+        call(0x1b7e10); // Install the original callback, including opcode 0x34.
+        return result;
+    }
+    void textureCallbacks(const char* modelPath,const char* xtaPath,const char* output) {
+        const auto fixture=textureFixture(modelPath,xtaPath);
+        const auto model=okage::read_xmd(readFile(modelPath));
+        const auto variants=fixture.tex0.size()-model.textures.size();
+        std::vector<int32> dump;
+        for (uint32 group=0;group<get(0x8f000c);++group) for (uint32 variant=0;variant<=variants;++variant) {
+            call(0x1b7528,{0}); call(0x1b7610,{0,group,variant});
+            const auto selected=textureSelection(fixture);
+            dump.push_back(group); dump.push_back(variant); dump.insert(dump.end(),selected.begin(),selected.end());
+        }
+        writeFile(output,dump.data(),dump.size()*4);
+        std::cout<<"Validated original texture callback records and sentinel registers\n";
+    }
+    std::vector<int32> textureSelection(const TextureFixture& fixture) const {
+        std::vector<int32> result;
+        for (auto packet:fixture.packets) {
+            if (get64(packet+16)!=0x1122334455667788ULL || get(packet+24)!=8 || get(packet+36)!=6 ||
+                get64(packet+40)!=0xaabbccddeeff0011ULL || get(packet+48)!=0x42)
+                throw std::runtime_error("Texture callback altered unrelated register data");
+            const auto value=get64(packet+28);
+            const auto found=std::find(fixture.tex0.begin(),fixture.tex0.end(),value);
+            if (found==fixture.tex0.end()) throw std::runtime_error("Texture callback produced unexpected TEX0 bits");
+            result.push_back(std::distance(fixture.tex0.begin(),found));
+        }
+        return result;
+    }
     void loadMicro() {
         std::memcpy(ee->m_microMem0,ee->m_ram+0x21ab00,0x660);
         put(0x01ff0000,stop); put(0x01ff0004,0);
         call(0x1b1eb4);
     }
-    void animation(const std::vector<uint8>& bytes,unsigned channels,unsigned entry,unsigned frames,const char* output,const char* modelPath=nullptr) {
+    void animation(const std::vector<uint8>& bytes,unsigned channels,unsigned entry,unsigned frames,const char* output,const char* modelPath=nullptr,const char* xtaPath=nullptr) {
         if (bytes.size()<32 || bytes.size()>0x700000 || channels==0 || channels>5120 || frames>10000 ||
             (std::uint64_t(frames)+1)*(8+16*channels)>32*1024*1024)
             throw std::runtime_error("Invalid animation oracle bounds");
@@ -129,7 +217,6 @@ public:
         call(0x1b5d10,{channels,0,0,get(0x900018)!=0});
         call(0x1b5bd8,{0,0x900000});
         for (unsigned ch=0;ch<channels;++ch) call(0x1b43c0,{ch,0x1800000});
-        call(0x1b5dd0,{0,entry});
         uint32 bones=0,hierarchy=0,boneCount=0,nodeCount=0;
         if (modelPath) {
             const auto modelBytes=readFile(modelPath);
@@ -150,6 +237,14 @@ public:
             }
             call(0x1b1d88); loadMicro();
         }
+        TextureFixture textures;
+        if (xtaPath) {
+            if (!modelPath) throw std::runtime_error("Texture animation oracle needs XMD");
+            textures=textureFixture(modelPath,xtaPath);
+            if ((uint64(frames)+1)*(8+16*channels+64*nodeCount+textures.packets.size()*4)>32*1024*1024)
+                throw std::runtime_error("Texture animation dump exceeds bounds");
+        }
+        call(0x1b5dd0,{0,entry});
         std::vector<uint8> dump;
         auto append=[&](const void* p,size_t n) {
             const auto* data=static_cast<const uint8*>(p); dump.insert(dump.end(),data,data+n);
@@ -168,6 +263,9 @@ public:
                 call(0x1b4480,{4,boneCount,bones+16});
                 call(0x184a20,{hierarchy,bones+16,0x1800000,0});
                 append(ee->m_ram+0x1800000,nodeCount*64);
+            }
+            if (xtaPath) {
+                const auto selection=textureSelection(textures); append(selection.data(),selection.size()*4);
             }
         }
         writeFile(output,dump.data(),dump.size());
@@ -201,8 +299,10 @@ int main(int argc,char** argv) {
         if (argc<4) throw std::runtime_error("Usage: okage-pose-oracle sine ELF OUTPUT | vu-asm ELF OUTPUT | pose ELF XMD OUTPUT | pose-corpus ELF DIRECTORY OUTDIR");
         Reference reference(readFile(argv[2]));
         const std::string command=argv[1];
-        if (command=="animation" && (argc==8 || argc==9)) {
-            reference.animation(readFile(argv[3]),std::stoul(argv[4]),std::stoul(argv[5]),std::stoul(argv[6]),argv[7],argc==9 ? argv[8] : nullptr);
+        if (command=="texture-callback" && argc==6) {
+            reference.textureCallbacks(argv[3],argv[4],argv[5]);
+        } else if (command=="animation" && (argc>=8 && argc<=10)) {
+            reference.animation(readFile(argv[3]),std::stoul(argv[4]),std::stoul(argv[5]),std::stoul(argv[6]),argv[7],argc>=9 ? argv[8] : nullptr,argc==10 ? argv[9] : nullptr);
         } else if (command=="sine" && argc==4) {
             reference.call(0x001b1d88);
             writeFile(argv[3],reference.ee->m_ram+0x00202ee0,16384*4);

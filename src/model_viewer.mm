@@ -1,6 +1,7 @@
 #import <AppKit/AppKit.h>
 #include "okage/pose.hpp"
 #include "okage/animation.hpp"
+#include "okage/texture_animation.hpp"
 #include <algorithm>
 #include <cmath>
 #include <filesystem>
@@ -27,6 +28,7 @@ static std::vector<std::uint8_t> readModelFile(const std::filesystem::path& path
     okage::ModelFile modelFile;
     okage::SineTable sine;
     std::unique_ptr<okage::Animation> animation;
+    std::unique_ptr<okage::TextureBindings> textureBindings;
     std::vector<std::uint8_t> animationBytes;
     NSUInteger entry, frame;
     BOOL playing;
@@ -77,7 +79,7 @@ static std::vector<std::uint8_t> readModelFile(const std::filesystem::path& path
     for (unsigned j=0;j<3;++j) { center[j]=(low[j]+high[j])*0.5f; radius+=std::pow((high[j]-low[j])*0.5,2); }
     radius=std::max(std::sqrt(radius),0.001);
     meshes=std::move(pending);
-    modelFile=std::move(file); animation.reset(); animationBytes.clear(); playing=NO; [timer invalidate]; timer=nil;
+    modelFile=std::move(file); animation.reset(); textureBindings.reset(); animationBytes.clear(); playing=NO; [timer invalidate]; timer=nil;
     self.caption=[NSString stringWithFormat:@"%zu bones   ·   %zu polygons   ·   Rest pose / wireframe\nDrag to orbit   ·   Scroll to zoom   ·   ⌘R to reset",
         bone_count,polygon_count];
     [self resetCamera:nil];
@@ -87,13 +89,19 @@ static std::vector<std::uint8_t> readModelFile(const std::filesystem::path& path
     const auto pose=okage::animated_pose(modelFile.models[0],values,sine,animation->scale_channels());
     for (std::size_t i=0;i<meshes.size();++i)
         meshes[i].positions=okage::posed_positions(modelFile.models[0].blocks[i],pose);
-    self.caption=[NSString stringWithFormat:@"XMT entry %lu   ·   Tick %lu   ·   %@\nSpace: play/pause   ·   →: step   ·   ⌘B: restart   ·   Preview: 30 ticks/s (game timing unverified)",
+    self.caption=[NSString stringWithFormat:@"XMT entry %lu   ·   Tick %lu   ·   %@   ·   Wireframe\nSpace: play/pause   ·   →: step   ·   ⌘B: restart   ·   Preview: 30 ticks/s (game timing unverified)",
         (unsigned long)entry,(unsigned long)frame,playing ? @"Playing" : @"Paused"];
     [self setNeedsDisplay:YES];
 }
 - (void)loadAnimation:(NSString*)path entry:(NSUInteger)selected {
     if (modelFile.models.size()!=1) throw std::runtime_error("Animation inspection requires one model");
     animationBytes=readModelFile(path.fileSystemRepresentation); entry=selected;
+    auto xtaPath=std::filesystem::path(path.fileSystemRepresentation); xtaPath.replace_extension(".xta");
+    if (std::filesystem::exists(xtaPath)) {
+        const auto text=readModelFile(xtaPath);
+        textureBindings=std::make_unique<okage::TextureBindings>(modelFile,okage::read_xta(
+            std::string_view(reinterpret_cast<const char*>(text.data()),text.size())));
+    } else textureBindings.reset();
     [self restartAnimation:nil];
     [timer invalidate];
     __weak MeshView* weakSelf=self;
@@ -110,6 +118,10 @@ static std::vector<std::uint8_t> readModelFile(const std::filesystem::path& path
         if (animationBytes.size()<32) throw std::runtime_error("Truncated XMT header");
         bool scale=animationBytes[20] || animationBytes[21] || animationBytes[22] || animationBytes[23];
         auto pending=std::make_unique<okage::Animation>(animationBytes,4+modelFile.models[0].bones.size()*(scale ? 3 : 2));
+        if (textureBindings) {
+            textureBindings->restore();
+            pending->set_texture_callback([bindings=textureBindings.get()](auto group,auto variant) {bindings->select(group,variant);});
+        }
         pending->start(0); pending->values(); pending->start(entry);
         animation=std::move(pending); frame=0; playing=NO;
         [self updateAnimationGeometry];

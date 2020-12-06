@@ -10,6 +10,18 @@ verifier = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(verifier)
 
 class AnimationComparisonTests(unittest.TestCase):
+    def test_texture_selection_corruption_is_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            ref, native = Path(directory) / "ref", Path(directory) / "native"
+            original = struct.pack("<II20f2i", 32, 1, *([1.0] * 20), 1, 2)
+            ref.write_bytes(original)
+            changed = bytearray(original)
+            struct.pack_into("<i", changed, len(changed)-4, 3)
+            native.write_bytes(changed)
+            result = verifier.compare(ref, native, 1, 1, 0, 2)
+            self.assertFalse(result["passed"])
+            self.assertEqual(result["texture_binding_mismatches"], 1)
+
     def test_rejects_state_channel_pose_corruption_and_truncation(self):
         original = struct.pack("<II20f", 32, 1, *([1.0] * 20))
         with tempfile.TemporaryDirectory() as directory:

@@ -1,5 +1,7 @@
 #pragma once
 #include "okage/model.hpp"
+#include <functional>
+#include <utility>
 
 namespace okage {
 class Animation {
@@ -11,6 +13,9 @@ public:
     std::uint32_t pc() const { return pc_; }
     std::uint32_t script_state() const { return (std::uint32_t(wait_)<<16)|flags_; }
     bool scale_channels() const { return scale_channels_; }
+    void set_texture_callback(std::function<void(std::size_t,std::size_t)> callback) {
+        texture_callback_=std::move(callback);
+    }
 private:
     struct Channel {
         std::uint16_t flags=0x201, mode=2;
@@ -24,6 +29,7 @@ private:
     std::uint32_t code_=0, samples_=0, sample_end_=0, pc_=0;
     std::uint16_t flags_=1, wait_=0;
     bool wide_tracks_=false, scale_channels_=false;
+    std::function<void(std::size_t,std::size_t)> texture_callback_;
     std::uint32_t word(std::size_t offset) const;
     float number(std::size_t offset) const;
     float sample(std::uint64_t index) const;
