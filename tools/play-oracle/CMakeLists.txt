@@ -9,3 +9,7 @@ target_sources(okage-pose-oracle PRIVATE "${CMAKE_CURRENT_LIST_DIR}/../../src/mo
     "${CMAKE_CURRENT_LIST_DIR}/../../src/assets.cpp" "${CMAKE_CURRENT_LIST_DIR}/../../src/texture_animation.cpp")
 target_include_directories(okage-pose-oracle PRIVATE "${CMAKE_CURRENT_LIST_DIR}/../../include")
 set_target_properties(okage-pose-oracle PROPERTIES CXX_STANDARD 20)
+add_executable(okage-boot-oracle "${CMAKE_CURRENT_LIST_DIR}/boot.cpp")
+target_link_libraries(okage-boot-oracle PRIVATE PlayCore)
+target_compile_options(okage-boot-oracle PRIVATE -Wall -Wextra)
+set_target_properties(okage-boot-oracle PROPERTIES CXX_STANDARD 20 RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/okage-oracle")

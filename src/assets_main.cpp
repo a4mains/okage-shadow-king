@@ -3,7 +3,9 @@
 #include "okage/pose.hpp"
 #include "okage/animation.hpp"
 #include "okage/texture_animation.hpp"
+#include "okage/render.hpp"
 #include <algorithm>
+#include <bit>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -53,6 +55,72 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if (command=="uv-model-cases" && argc==4) {
+            const fs::path path=argv[2];
+            const auto file=okage::read_xmd(read(path));
+            std::vector<okage::Texture> images;
+            for (auto name:file.textures) {
+                if (fs::path(name).is_absolute() || fs::path(name).has_parent_path())
+                    throw std::runtime_error("Unsafe model texture path");
+                if (fs::path(name).extension().empty()) name+=".xim";
+                images.push_back(okage::decode_xim(read(path.parent_path()/name)));
+            }
+            std::vector<std::uint8_t> cases;
+            auto append=[&](std::uint32_t word) {for (unsigned i=0;i<4;++i) cases.push_back(word>>(i*8));};
+            for (const auto& model:file.models) for (const auto& block:model.blocks) {
+                std::vector<okage::Float4> coords(block.attribute_extents[3]);
+                std::vector<bool> defined(coords.size());
+                for (const auto& range:block.attributes) if (range.kind==8) {
+                    for (std::size_t i=0;i<range.values.size();++i) {
+                        if (defined.at(range.first+i)) throw std::runtime_error("Overlapping source UV ranges");
+                        coords.at(range.first+i)=range.values[i]; defined.at(range.first+i)=true;
+                    }
+                }
+                for (const auto& polygon:block.polygons) {
+                    if (polygon.texture_state<0) continue;
+                    const auto& state=block.textures.at(polygon.texture_state);
+                    if (state.texture<0) continue;
+                    const auto& image=images.at(state.texture);
+                    for (const auto& corner:polygon.corners) {
+                        if (corner[3]<0 || !defined.at(corner[3])) throw std::runtime_error("Missing polygon UV");
+                        append(image.width); append(image.height);
+                        append(std::uint32_t(std::int32_t(state.u_mode))); append(std::uint32_t(std::int32_t(state.v_mode)));
+                        for (float value:state.region) append(__builtin_bit_cast(std::uint32_t, (value)));
+                        append(__builtin_bit_cast(std::uint32_t, (coords.at(corner[3])[0])));
+                        append(__builtin_bit_cast(std::uint32_t, (coords.at(corner[3])[1])));
+                    }
+                }
+            }
+            write(argv[3],cases); return 0;
+        }
+        if ((command=="uv-cases" || command=="texture-clamp-cases") && argc==4) {
+            const auto cases=read(argv[2]);
+            if (cases.empty() || cases.size()%40 || cases.size()>40*65536)
+                throw std::runtime_error("Invalid UV fixture records");
+            auto word=[&](std::size_t at) {
+                return std::uint32_t(cases[at])|(std::uint32_t(cases[at+1])<<8)|
+                    (std::uint32_t(cases[at+2])<<16)|(std::uint32_t(cases[at+3])<<24);
+            };
+            std::vector<std::uint8_t> result;
+            for (std::size_t at=0;at<cases.size();at+=40) {
+                const auto u=__builtin_bit_cast(std::int32_t, (word(at+8))),v=__builtin_bit_cast(std::int32_t, (word(at+12)));
+                if (u<-32768 || u>32767 || v<-32768 || v>32767) throw std::runtime_error("UV fixture mode overflow");
+                okage::TextureState state{0,0,std::int16_t(u),std::int16_t(v),{}};
+                for (unsigned i=0;i<4;++i) state.region[i]=__builtin_bit_cast(float, (word(at+16+i*4)));
+                if (command=="texture-clamp-cases") {
+                    const auto bits=okage::texture_clamp(state,word(at),word(at+4));
+                    for (unsigned i=0;i<8;++i) result.push_back(bits>>(i*8));
+                    continue;
+                }
+                const auto uv=okage::texture_coordinates(state,word(at),word(at+4),
+                    {__builtin_bit_cast(float, (word(at+32))),__builtin_bit_cast(float, (word(at+36)))});
+                for (float value:uv) {
+                    auto bits=__builtin_bit_cast(std::uint32_t, (value));
+                    for (unsigned i=0;i<4;++i) result.push_back(bits>>(i*8));
+                }
+            }
+            write(argv[3],result); return 0;
+        }
         if (command=="texture-callback" && argc==5) {
             const auto model=okage::read_xmd(read(argv[2]));
             const auto text=read(argv[3]);

@@ -2,6 +2,7 @@
 #include "AppConfig.h"
 #include "ee/Ee_SubSystem.h"
 #include "ee/EeExecutor.h"
+#include "ee/Vif.h"
 #include "iop/Iop_SubSystem.h"
 #include "iop/IopBios.h"
 #include "Ps2Const.h"
@@ -205,6 +206,98 @@ public:
         put(0x01ff0000,stop); put(0x01ff0004,0);
         call(0x1b1eb4);
     }
+    void uv(const std::vector<uint8>& cases,const char* output,bool clamp=false) {
+        // Each fixture: width/height u32, U/V mode i32, region float4, UV float2.
+        if (cases.empty() || cases.size()%40 || cases.size()>40*65536)
+            throw std::runtime_error("Invalid UV fixture records");
+        put(0x3301a4,0x800000); put(0x330144,0x810000);
+        put(0x81000c,1); put(0x810010,0);
+        put(0x3a5b00,0); put(0x3a7b00,0x820000);
+        put(0x3309b0,1); put(0x3309b8,0);
+        // Existing UV packet context: original state selector can reuse it.
+        put(0x3321e0,clamp ? 13 : 10); put(0x3321e8,0); put(0x3321ec,0);
+        put(0x900000,(8U<<24)|20); put(0x900004,0); put(0x900008,1<<16);
+        std::vector<uint8> result;
+        for (size_t at=0;at<cases.size();at+=40) {
+            uint32 fields[4]; std::memcpy(fields,cases.data()+at,16);
+            if (!fields[0] || !fields[1] || fields[0]>4095 || fields[1]>4095 ||
+                int32(fields[2])<-32768 || int32(fields[2])>32767 ||
+                int32(fields[3])<-32768 || int32(fields[3])>32767)
+                throw std::runtime_error("UV fixture fields out of range");
+            put64(0x820000,uint64(19|(fields[0]<<6)|(fields[1]<<18))<<32);
+            put(0x800000,0); put(0x800004,(fields[2]&0xffff)|(fields[3]<<16));
+            std::memcpy(ee->m_ram+0x800008,cases.data()+at+16,16);
+            std::memcpy(ee->m_ram+0x90000c,cases.data()+at+32,8);
+            put(0x2138b4,0x1800010); put(0x333bf8,1); put(0x330164,0);
+            std::memset(ee->m_ram+0x1800000,0xcd,48);
+            if (clamp) {
+                call(0x1af978); // Original register accumulator initialization.
+                call(0x17be50,{0});
+                if (get(0x202dd8)!=2 || get64(0x333c10)!=6 || get64(0x333c20)!=8)
+                    throw std::runtime_error("Original texture register packet mismatch");
+                result.insert(result.end(),ee->m_ram+0x333c28,ee->m_ram+0x333c30);
+                continue;
+            }
+            call(0x17e8e0,{0x900000});
+            if (get(0x2138b4)!=0x180001c || get(0x1800010)!=0x740101aa || get(0x330164)!=1)
+                throw std::runtime_error("Original UV packet contract mismatch");
+            for (uint32 i=0;i<48;++i)
+                if ((i<16 || i>=28) && ee->m_ram[0x1800000+i]!=0xcd)
+                    throw std::runtime_error("Original UV output exceeded fixture");
+            result.insert(result.end(),ee->m_ram+0x1800014,ee->m_ram+0x180001c);
+        }
+        writeFile(output,result.data(),result.size());
+        std::cout<<"Executed original "<<(clamp ? "texture clamp" : "UV conversion")<<" for "<<cases.size()/40<<" records\n";
+    }
+    void primitive(unsigned count,bool textured,bool reverse,bool clipChecks,const char* output) {
+        if (count!=3 && count!=4) throw std::runtime_error("Primitive fixture requires 3 or 4 vertices");
+        std::memcpy(ee->m_microMem1,ee->m_ram+0x215900,0x3d98);
+        auto& cpu=ee->m_VU1;
+        const uint32 outputBase=0x300, qwords=count*3+1;
+        cpu.m_State.nCOP2VI[11]=clipChecks ? 1 : 0;
+        cpu.m_State.nCOP2VI[12]=0x3ff; cpu.m_State.nCOP2VI[13]=outputBase;
+        cpu.m_State.nCOP2VI[14]=0; // Select the positive signed-area branch.
+        auto vector=[&](unsigned reg,std::array<float,4> value) {std::memcpy(&cpu.m_State.nCOP2[reg],value.data(),16);};
+        vector(1,{1,1,1,1}); vector(22,{0,0,0,0}); vector(23,{0,0,0,1});
+        vector(24,{0,0,0,0}); vector(25,{0,0,100,0.5f});
+        const uint32 header[]={count,0x30004000|((textured ? 0x5dU : 0x4dU)<<15)|(textured ? 0x5dU : 0x4dU),textured ? 0x412U : 0x41fU,0};
+        std::memcpy(ee->m_vuMem1,header,16);
+        const std::array<std::array<float,4>,4> positions={{{16,32,0.25f,1},{80,32,0.5f,1},{80,96,1,1},{16,96,2,1}}};
+        for (unsigned i=0;i<count;++i) {
+            const unsigned index=reverse && i ? count-i : i;
+            const uint32 corner[]={index,index,index,index};
+            std::memcpy(ee->m_vuMem1+(i+1)*16,corner,16);
+            std::memcpy(ee->m_vuMem1+(0x87+i)*16,positions[i].data(),16);
+            const std::array<float,4> uv={float(i+1)*0.125f,float(i+2)*0.125f,1,0};
+            const std::array<float,4> color={float(i+1),float(i+2),float(i+3),float(i+4)};
+            const std::array<float,4> light={2,3,4,5};
+            std::memcpy(ee->m_vuMem1+(0x1aa+i)*16,uv.data(),16);
+            std::memcpy(ee->m_vuMem1+(0x149+i)*16,color.data(),16);
+            std::memcpy(ee->m_vuMem1+(0x20b+i)*16,light.data(),16);
+        }
+        std::memset(ee->m_vuMem1+(outputBase-1)*16,0xcd,(qwords+2)*16);
+        const uint32 after=count==3 ? (clipChecks ? 0x1df8 : 0x2100) : (clipChecks ? 0x28d0 : 0x2c50);
+        const uint32 entry=count==3 ? 0x3b6 : 0x511;
+        put(0x1900000,0x04000000|qwords); put(0x1900004,0x14000000|entry);
+        put(0x1900008,0); put(0x190000c,0);
+        ee->m_vpu1->GetVif().ReceiveDMA(0x1900000,1,1,false);
+        if (!ee->m_vpu1->IsVuReady() || cpu.m_State.nHasException!=MIPS_EXCEPTION_VU_EBIT || cpu.m_State.nPC!=after) {
+            std::ostringstream error;
+            error<<"Primitive fixture missed exit: pc=0x"<<std::hex<<cpu.m_State.nPC
+                 <<" exception="<<cpu.m_State.nHasException<<" VI10="<<cpu.m_State.nCOP2VI[10]
+                 <<" VI13="<<cpu.m_State.nCOP2VI[13]<<" ITOP="<<ee->m_vpu1->GetVif().GetITOP();
+            throw std::runtime_error(error.str());
+        }
+        const uint32 emitted=cpu.m_State.nCOP2VI[13]-outputBase;
+        if (emitted!=0 && emitted!=qwords) throw std::runtime_error("Unexpected primitive output size");
+        for (unsigned i=0;i<16;++i)
+            if (ee->m_vuMem1[(outputBase-1)*16+i]!=0xcd || ee->m_vuMem1[(outputBase+qwords)*16+i]!=0xcd)
+                throw std::runtime_error("Primitive output exceeded fixture");
+        std::vector<uint8> dump(4+qwords*16);
+        std::memcpy(dump.data(),&emitted,4); std::memcpy(dump.data()+4,ee->m_vuMem1+outputBase*16,qwords*16);
+        writeFile(output,dump.data(),dump.size());
+        std::cout<<"Original VU1 primitive emitted "<<emitted<<" qwords at exit PC 0x"<<std::hex<<after<<'\n';
+    }
     void animation(const std::vector<uint8>& bytes,unsigned channels,unsigned entry,unsigned frames,const char* output,const char* modelPath=nullptr,const char* xtaPath=nullptr) {
         if (bytes.size()<32 || bytes.size()>0x700000 || channels==0 || channels>5120 || frames>10000 ||
             (std::uint64_t(frames)+1)*(8+16*channels)>32*1024*1024)
@@ -299,7 +392,11 @@ int main(int argc,char** argv) {
         if (argc<4) throw std::runtime_error("Usage: okage-pose-oracle sine ELF OUTPUT | vu-asm ELF OUTPUT | pose ELF XMD OUTPUT | pose-corpus ELF DIRECTORY OUTDIR");
         Reference reference(readFile(argv[2]));
         const std::string command=argv[1];
-        if (command=="texture-callback" && argc==6) {
+        if ((command=="uv" || command=="texture-clamp") && argc==5) {
+            reference.uv(readFile(argv[3]),argv[4],command=="texture-clamp");
+        } else if (command=="primitive" && argc==8) {
+            reference.primitive(std::stoul(argv[3]),std::stoul(argv[4])!=0,std::stoul(argv[5])!=0,std::stoul(argv[6])!=0,argv[7]);
+        } else if (command=="texture-callback" && argc==6) {
             reference.textureCallbacks(argv[3],argv[4],argv[5]);
         } else if (command=="animation" && (argc>=8 && argc<=10)) {
             reference.animation(readFile(argv[3]),std::stoul(argv[4]),std::stoul(argv[5]),std::stoul(argv[6]),argv[7],argc>=9 ? argv[8] : nullptr,argc==10 ? argv[9] : nullptr);
@@ -307,12 +404,15 @@ int main(int argc,char** argv) {
             reference.call(0x001b1d88);
             writeFile(argv[3],reference.ee->m_ram+0x00202ee0,16384*4);
             std::cout<<"Executed retail sine initializer; wrote 16384 float entries\n";
-        } else if (command=="vu-asm" && argc==4) {
-            reference.loadMicro();
-            auto& cpu=reference.ee->m_VU0;
+        } else if ((command=="vu-asm" || command=="vu1-asm") && argc==4) {
+            const bool vu1=command=="vu1-asm";
+            if (vu1) std::memcpy(reference.ee->m_microMem1,reference.ee->m_ram+0x215900,0x3d98);
+            else reference.loadMicro();
+            auto& cpu=vu1 ? reference.ee->m_VU1 : reference.ee->m_VU0;
+            const auto* memory=vu1 ? reference.ee->m_microMem1 : reference.ee->m_microMem0;
             std::ostringstream listing;
-            for (uint32 at=0;at<0x660;at+=4) {
-                uint32 word; std::memcpy(&word,reference.ee->m_microMem0+at,4);
+            for (uint32 at=0;at<(vu1 ? 0x3d98 : 0x660);at+=4) {
+                uint32 word; std::memcpy(&word,memory+at,4);
                 char name[256]{},operands[256]{};
                 cpu.m_pArch->GetInstructionMnemonic(&cpu,at,word,name,sizeof(name));
                 cpu.m_pArch->GetInstructionOperands(&cpu,at,word,operands,sizeof(operands));

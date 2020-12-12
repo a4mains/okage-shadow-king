@@ -1,0 +1,31 @@
+{
+  "scope": "Headless original disc boot and VM-state resume; HLE OS, null GS, no controller or audio output.",
+  "play_revision": "9534ba7e59089b20086b94cb2c83596ef14fd9f7",
+  "disc_sha256": "08623a1400e2610aecd0247ae7440c97501495c6f819f675494e44de20b62d2a",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "current_oracle_sha256": "e2bb55fbefe2c447ee2eebd2e39f5dde0802ac04dabce094205febbaf5a7f76e",
+  "boot_trace_sha256": "a97db14d25b951aed336afcbe25cbb1500ad72c014dd45630582f8266b6ca310",
+  "boot": {
+    "vblanks": 600,
+    "exit_request": 0,
+    "gs_register_writes": 103920,
+    "gs_xyz2_xyzf2_writes": 68078,
+    "host_to_local_transfers": 76
+  },
+  "resume_trace_sha256": "98312e8abdea151ae3448d8a78746fc8e71431914ae9cca3dfa190adc7f77170",
+  "resume": {
+    "vblanks": 60,
+    "exit_request": 0,
+    "gs_register_writes": 13275,
+    "gs_xyz2_xyzf2_writes": 8732,
+    "host_to_local_transfers": 0
+  },
+  "state_bytes": 3241113,
+  "state_sha256": "9c4e7ed50b028d22989ef2460880bbaa5cc0183f56df5e4692107d94d186ab1c",
+  "state_zip_members": 78,
+  "state_compression_method": 93,
+  "state_crc_check": "Not tested: system Python lacks ZIP method 93; original VM successfully loaded and resumed it instead.",
+  "state_reload_verified": true,
+  "rendered_frame_verified": false,
+  "module_debug_list_after_reload": "Empty; runtime continuation and GS traffic observed, metadata restoration not established."
+}
