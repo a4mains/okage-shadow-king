@@ -1,0 +1,374 @@
+{
+  "scope": "Original game in research-only Play! HLE VM, offscreen Vulkan/MoltenVK, raw display layers, recorded input and PCM.",
+  "play_revision": "9534ba7e59089b20086b94cb2c83596ef14fd9f7",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "disc_sha256": "08623a1400e2610aecd0247ae7440c97501495c6f819f675494e44de20b62d2a",
+  "moltenvk_version": "1.4.2",
+  "moltenvk_archive_sha256": "f95765a6229cb7b915990a2890ce12ebe36a730b021545d3d52ae69ce4c4024e",
+  "boot_oracle_sha256": "74d3da9824f73644439eed0ade212816ea5c84af9fe76683e17a03685a0fc416",
+  "input_plans": {
+    "config/reference-confirm.input": "878eeb0e855f1be12c3aea82eddb787f5c942e86843414ec13cd45a5128e9266",
+    "config/reference-name-yes.input": "8f8ec5e0346bb7527bdaf068374f2a1277a0e744114e9f6ca5d16f3063a52b5f",
+    "config/reference-new-game.input": "a8104ff4c54a662067c55dcd9b4c9081bf042cf3cca63ed837490902ce6a6ff5",
+    "config/reference-start.input": "312a764cee6a4a8afc9571cb67c13f18d91ccb29703ced811625f5da29a1175b"
+  },
+  "captures": [
+    {
+      "prefix": "local/reference-vulkan-600",
+      "observed_screen": "Zener Works startup logo",
+      "visually_inspected": true,
+      "files": {
+        ".log": {
+          "bytes": 14214,
+          "sha256": "82f0e9548b723bbc3262d08ef0e8fc15493f0cf917111f550de986169e30b82e"
+        },
+        ".json": {
+          "bytes": 338,
+          "sha256": "34d044fc6494810b09c4b7eba0960121df7928f9c59faf20a24583c6948106b2"
+        },
+        ".layer0.png": {
+          "bytes": 84778,
+          "sha256": "ceca53bef701897b55bd5d453d7e5d1e228e430fe4ca50d1fa23c60908f51c73"
+        }
+      },
+      "run": {
+        "vblanks": 600,
+        "exit_request": 0,
+        "gs_register_writes": 103920,
+        "gs_vertex_writes": 68078,
+        "uploads": 76
+      }
+    },
+    {
+      "prefix": "local/reference-vulkan-1200",
+      "observed_screen": "Title, Press Start",
+      "visually_inspected": true,
+      "files": {
+        ".log": {
+          "bytes": 15143,
+          "sha256": "275a5f528ca32a5a4bcca5b308ec13437057dc4ddffac801c11c5ea3ff759e93"
+        },
+        ".json": {
+          "bytes": 338,
+          "sha256": "34d044fc6494810b09c4b7eba0960121df7928f9c59faf20a24583c6948106b2"
+        },
+        ".layer0.png": {
+          "bytes": 130880,
+          "sha256": "8cb3151553e2ad3f3555e2d3f5effa23fd86241f3e923d638629af2cd46c2a22"
+        },
+        ".state.zip": {
+          "bytes": 7118964,
+          "sha256": "c7c3224373cc09c45b22984e0f898686e66c7fa4e457524d84ceb8dccb4dab19"
+        }
+      },
+      "run": {
+        "vblanks": 1200,
+        "exit_request": 0,
+        "gs_register_writes": 40180792,
+        "gs_vertex_writes": 12338350,
+        "uploads": 159
+      }
+    },
+    {
+      "prefix": "local/reference-title-menu",
+      "observed_screen": "New Game / Restore Game menu",
+      "visually_inspected": true,
+      "files": {
+        ".log": {
+          "bytes": 12994,
+          "sha256": "3d471d7ee5a586652c628a4f6ae711a726f1a2d011881379f2399aab76aa9407"
+        },
+        ".json": {
+          "bytes": 338,
+          "sha256": "34d044fc6494810b09c4b7eba0960121df7928f9c59faf20a24583c6948106b2"
+        },
+        ".layer0.png": {
+          "bytes": 125245,
+          "sha256": "1249ba905d33f35f9dee55e2e1d603a4c9106e094d2c2df7497bbb818481ad82"
+        },
+        ".wav": {
+          "bytes": 342044,
+          "sha256": "6337b8826f8b3a41a7aab470739b174accd9766885653a507fcc5cf455fbf0ff"
+        },
+        ".state.zip": {
+          "bytes": 7071951,
+          "sha256": "28d457a064301f66b8eac7df5e32d9e25de431ee4376668b0ddda898f08a6bf5"
+        }
+      },
+      "run": {
+        "vblanks": 120,
+        "exit_request": 0,
+        "gs_register_writes": 12120446,
+        "gs_vertex_writes": 3709581,
+        "uploads": 0
+      },
+      "pcm": {
+        "stereo_frames": 85500,
+        "rate": 44100,
+        "peak": 30508,
+        "nonzero_samples": 170976
+      }
+    },
+    {
+      "prefix": "local/reference-new-game",
+      "observed_screen": "Default Ari name entry",
+      "visually_inspected": true,
+      "files": {
+        ".log": {
+          "bytes": 13465,
+          "sha256": "f7d2a4d2f88ba31b50b1b9c88f2b1a9809baab965f633032b8dc6ef64cc592b5"
+        },
+        ".json": {
+          "bytes": 338,
+          "sha256": "34d044fc6494810b09c4b7eba0960121df7928f9c59faf20a24583c6948106b2"
+        },
+        ".layer0.png": {
+          "bytes": 32212,
+          "sha256": "6f6cdecbbc7381c9d3bced888b08d79fb590a29e6832b655fabee6a213e32ff4"
+        },
+        ".wav": {
+          "bytes": 1044044,
+          "sha256": "eaa1ecec597e2b5114b0dfe77b744de11dde5696584f753e286acff06f04abce"
+        },
+        ".state.zip": {
+          "bytes": 6461997,
+          "sha256": "26a97d4975714b795219c9680575025304eff218599a9377a30791ba3123ebfb"
+        }
+      },
+      "run": {
+        "vblanks": 360,
+        "exit_request": 0,
+        "gs_register_writes": 18094583,
+        "gs_vertex_writes": 5480012,
+        "uploads": 2
+      },
+      "pcm": {
+        "stereo_frames": 261000,
+        "rate": 44100,
+        "peak": 28054,
+        "nonzero_samples": 426950
+      }
+    },
+    {
+      "prefix": "local/reference-name-ok",
+      "observed_screen": "Name entry with OK selected",
+      "visually_inspected": true,
+      "files": {
+        ".log": {
+          "bytes": 13771,
+          "sha256": "e7637fee494ba6816a2432cabf976ed9072d3488ee3bd5344dbd409f9e17bbda"
+        },
+        ".json": {
+          "bytes": 338,
+          "sha256": "34d044fc6494810b09c4b7eba0960121df7928f9c59faf20a24583c6948106b2"
+        },
+        ".layer0.png": {
+          "bytes": 32112,
+          "sha256": "8ac4fe0568d6a86f55a92f806f9d1eb3cda70cd3d60b05689b74ceb40efdc81e"
+        },
+        ".wav": {
+          "bytes": 1764044,
+          "sha256": "59a6466ca2844d2aab8e0fb04f5dc71cf1104f04b254cf2280db08a944560bf7"
+        },
+        ".state.zip": {
+          "bytes": 6437710,
+          "sha256": "e38228c4a77e5f491da5112c6cd34cebd0c04a27e5c708210d603588bded74d2"
+        }
+      },
+      "run": {
+        "vblanks": 600,
+        "exit_request": 0,
+        "gs_register_writes": 2824760,
+        "gs_vertex_writes": 691344,
+        "uploads": 0
+      },
+      "pcm": {
+        "stereo_frames": 441000,
+        "rate": 44100,
+        "peak": 0,
+        "nonzero_samples": 0
+      }
+    },
+    {
+      "prefix": "local/reference-opening",
+      "observed_screen": "Name confirmation, No selected; misleading legacy filename",
+      "visually_inspected": true,
+      "files": {
+        ".log": {
+          "bytes": 14199,
+          "sha256": "b2f41aa8bb07dce809c9ca4ed4e5755ce6944cfd65d08f89dc9475ce885cf3d0"
+        },
+        ".json": {
+          "bytes": 343,
+          "sha256": "966178a6183631d7879352fbcdc52d467ffbd262f6ede31e8d696bc0b286c3a3"
+        },
+        ".layer0.png": {
+          "bytes": 11042,
+          "sha256": "09522e7b262634ff66b11a2652456f19a7220ad121f8e39da7ca649e051d7154"
+        },
+        ".wav": {
+          "bytes": 2646044,
+          "sha256": "72d8c87265d57bb14e83277f6b866157dc6d58c16d3df035640692369daeb038"
+        },
+        ".state.zip": {
+          "bytes": 6379605,
+          "sha256": "e85f5dcd03591bca0b4381d1bc42ca9d12784ea1b4bdd57b9ff3f05156797df5"
+        }
+      },
+      "run": {
+        "vblanks": 900,
+        "exit_request": 0,
+        "gs_register_writes": 991037,
+        "gs_vertex_writes": 229728,
+        "uploads": 0
+      },
+      "pcm": {
+        "stereo_frames": 661500,
+        "rate": 44100,
+        "peak": 0,
+        "nonzero_samples": 0
+      }
+    },
+    {
+      "prefix": "local/reference-intro-1200",
+      "observed_screen": "Opening kitchen, woman and first dialogue",
+      "visually_inspected": true,
+      "files": {
+        ".log": {
+          "bytes": 23523,
+          "sha256": "d4b4c8991616598097db1194fc68d2808194c5024f5c999ca2b151b55b0457d4"
+        },
+        ".json": {
+          "bytes": 338,
+          "sha256": "34d044fc6494810b09c4b7eba0960121df7928f9c59faf20a24583c6948106b2"
+        },
+        ".layer0.png": {
+          "bytes": 242256,
+          "sha256": "0289ce1f2a2dc63e333a6984d1275ca2e16cc233190c95b8520bb431b87a21e2"
+        },
+        ".wav": {
+          "bytes": 3528044,
+          "sha256": "00f68d19e9e3c2ed3c65d2403f6cfc468fb1708139035f0223e595e7f1ae8e00"
+        },
+        ".state.zip": {
+          "bytes": 7601140,
+          "sha256": "34f6ad5da3984000118672a41906eabe7739417fd9a20d38bae3e3ca50ec84f0"
+        }
+      },
+      "run": {
+        "vblanks": 1200,
+        "exit_request": 0,
+        "gs_register_writes": 22363713,
+        "gs_vertex_writes": 6978807,
+        "uploads": 212
+      },
+      "pcm": {
+        "stereo_frames": 882000,
+        "rate": 44100,
+        "peak": 24024,
+        "nonzero_samples": 1158325
+      }
+    },
+    {
+      "prefix": "local/reference-intro-600-v2",
+      "observed_screen": "Opening scene at 600 relative vblanks",
+      "visually_inspected": true,
+      "files": {
+        ".log": {
+          "bytes": 24116,
+          "sha256": "0a3599ae1233f7b82f387934dfc1a3c8316e6895f7a49a4cc0ba3a49fedf3e5e"
+        },
+        ".json": {
+          "bytes": 338,
+          "sha256": "34d044fc6494810b09c4b7eba0960121df7928f9c59faf20a24583c6948106b2"
+        },
+        ".layer0.png": {
+          "bytes": 242347,
+          "sha256": "5072257f30b4fba65333cdf5191a923cc0f19c5755f968792c21dd2cae677e59"
+        },
+        ".wav": {
+          "bytes": 1764044,
+          "sha256": "3f3565d8f819d75d2a4ee818617de9c71546f38e5b5751448b6e9bc3abadbcf8"
+        },
+        ".state.zip": {
+          "bytes": 7600333,
+          "sha256": "6282f344f0c79d1b6a364bca6306ff1e4d5166c57f32111550c0305657f3816a"
+        }
+      },
+      "run": {
+        "vblanks": 600,
+        "exit_request": 0,
+        "gs_register_writes": 4457283,
+        "gs_vertex_writes": 1410135,
+        "uploads": 212
+      },
+      "pcm": {
+        "stereo_frames": 441000,
+        "rate": 44100,
+        "peak": 24024,
+        "nonzero_samples": 276473
+      }
+    },
+    {
+      "prefix": "local/reference-title-menu-replay",
+      "observed_screen": "Replay of title-menu input",
+      "visually_inspected": false,
+      "files": {
+        ".log": {
+          "bytes": 13001,
+          "sha256": "fe3d87e7cdde72f38f5105e937dfa61ccb38bfb0b5a6e3e5bf920e5bd9d697b1"
+        },
+        ".json": {
+          "bytes": 338,
+          "sha256": "34d044fc6494810b09c4b7eba0960121df7928f9c59faf20a24583c6948106b2"
+        },
+        ".layer0.png": {
+          "bytes": 125245,
+          "sha256": "1249ba905d33f35f9dee55e2e1d603a4c9106e094d2c2df7497bbb818481ad82"
+        },
+        ".wav": {
+          "bytes": 342044,
+          "sha256": "6337b8826f8b3a41a7aab470739b174accd9766885653a507fcc5cf455fbf0ff"
+        }
+      },
+      "run": {
+        "vblanks": 120,
+        "exit_request": 0,
+        "gs_register_writes": 12085137,
+        "gs_vertex_writes": 3698590,
+        "uploads": 0
+      },
+      "pcm": {
+        "stereo_frames": 85500,
+        "rate": 44100,
+        "peak": 30508,
+        "nonzero_samples": 170976
+      }
+    }
+  ],
+  "replay": {
+    "title_menu_png_equal": true,
+    "title_menu_wav_equal": true,
+    "title_menu_display_metadata_equal": true,
+    "opening_pcm_prefix_frames_equal": 441000,
+    "scope": "Two title runs and two opening runs only; no general determinism or hardware-fidelity claim"
+  },
+  "loader_observer": {
+    "elf_hash_checked": true,
+    "entries": [
+      "0x1bccf0",
+      "0x1babf8",
+      "0x1c2e68"
+    ],
+    "argument": "A0 at all three entries",
+    "corrected_trace": "local/reference-intro-600-v2.log",
+    "prior_error": "The first 1200-frame opening run read A3 for 0x1babf8. Its actor-name field is invalid; other two loader entries used A0 correctly."
+  },
+  "limitations": [
+    "Raw 640x224 layers before display composition/deinterlacing/aspect correction; PNG alpha forced opaque",
+    "Complete 44100-Hz stereo PCM blocks only; not listened to or compared with hardware",
+    "Ioman open tracing can miss direct CDVD/LBA access",
+    "Reference state resume is not native game save support",
+    "No native scene, audio, progression or full playthrough yet"
+  ]
+}

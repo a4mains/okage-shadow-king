@@ -105,7 +105,10 @@ public:
                 cpu.m_State.callMsEnabled=0;
             }
             if (executed && cpu.m_executor->MustBreak()) {
-                if (cpu.m_State.nPC!=stop) throw std::runtime_error("Unexpected oracle breakpoint");
+                if (cpu.m_State.nPC!=stop) {
+                    std::ostringstream error;error<<"Unexpected oracle breakpoint at "<<std::hex<<cpu.m_State.nPC
+                        <<", wanted "<<stop;throw std::runtime_error(error.str());
+                }
                 return;
             }
         }
@@ -116,6 +119,34 @@ public:
     void put(uint32 address,uint32 value) { std::memcpy(ee->m_ram+address,&value,4); }
     void put64(uint32 address,uint64 value) { std::memcpy(ee->m_ram+address,&value,8); }
     uint64 get64(uint32 address) const { uint64 value; std::memcpy(&value,ee->m_ram+address,8); return value; }
+    void mapTransforms(const std::vector<uint8>& bytes,const char* output) {
+        // Independent bounded reader: do not reuse the native XMP parser under test.
+        if(bytes.size()<64 || bytes.size()>4*1024*1024) throw std::runtime_error("Map oracle input bounds");
+        auto word=[&](size_t at){uint32 v;if(at>bytes.size()-4)throw std::runtime_error("Map oracle field bounds");
+            std::memcpy(&v,bytes.data()+at,4);return v;};
+        const uint32 objects=word(8),count=word(12),defs=word(40),defCount=word(44);
+        if(defCount>640 || uint64(objects)+uint64(count)*80>bytes.size() || uint64(defs)+uint64(defCount)*148>bytes.size())
+            throw std::runtime_error("Map oracle table bounds");
+        std::memcpy(ee->m_ram+0x900000,bytes.data(),bytes.size());
+        constexpr uint32 fragment=0x700000,size=0x1bbe40-0x1bbd28;
+        std::memcpy(ee->m_ram+fragment,ee->m_ram+0x1bbd28,size);
+        put(fragment+size,0x08000000|(stop>>2));put(fragment+size+4,0);
+        std::vector<uint8> result;
+        for(uint32 i=0;i<count;++i) {
+            if(word(objects+i*80+8)>=defCount) throw std::runtime_error("Map oracle definition bounds");
+            put(0x1ff1490,0x900000+defs);put(0x1ff1494,0x800000);
+            std::memset(ee->m_ram+0x800000,0,640*4);
+            auto& cpu=ee->m_EE.m_State;
+            cpu.nGPR[CMIPS::S2].nD0=0x900000+objects+i*80;
+            cpu.nGPR[CMIPS::S7].nD0=0;
+            cpu.nHI[0]=cpu.nHI[1]=0;
+            call(fragment);
+            result.insert(result.end(),ee->m_ram+0x1ff0040,ee->m_ram+0x1ff0070);
+            const auto flags=uint32(cpu.nGPR[CMIPS::A1].nD0);
+            for(unsigned j=0;j<4;++j)result.push_back(flags>>(j*8));
+        }
+        writeFile(output,result.data(),result.size());
+    }
     struct TextureFixture {
         std::vector<uint32> packets;
         std::vector<uint64> tex0;
@@ -392,7 +423,9 @@ int main(int argc,char** argv) {
         if (argc<4) throw std::runtime_error("Usage: okage-pose-oracle sine ELF OUTPUT | vu-asm ELF OUTPUT | pose ELF XMD OUTPUT | pose-corpus ELF DIRECTORY OUTDIR");
         Reference reference(readFile(argv[2]));
         const std::string command=argv[1];
-        if ((command=="uv" || command=="texture-clamp") && argc==5) {
+        if (command=="map-transforms" && argc==5) {
+            reference.mapTransforms(readFile(argv[3]),argv[4]);
+        } else if ((command=="uv" || command=="texture-clamp") && argc==5) {
             reference.uv(readFile(argv[3]),argv[4],command=="texture-clamp");
         } else if (command=="primitive" && argc==8) {
             reference.primitive(std::stoul(argv[3]),std::stoul(argv[4])!=0,std::stoul(argv[5])!=0,std::stoul(argv[6])!=0,argv[7]);

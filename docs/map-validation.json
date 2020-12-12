@@ -1,0 +1,66 @@
+{
+  "scope": "Inline XMP parsing and 12 transform floats plus merged flags; bit-exact comparison against relocated retail 0x1bbd28..0x1bbe3f fragment.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "native_sha256": "436efda80e24bf03ed7cf2acd748ba63f11d4683ac02583adaf76177daaf7b11",
+  "oracle_sha256": "d8d95d8aae7560df9a0d357cc81b94dcf18d5d38e67f737db5c5831638d54a30",
+  "archived_maps": 265,
+  "archived_placements": 19885,
+  "synthetic_placements": 168,
+  "exact_match": true,
+  "full_report": "local/map-validation/report.json",
+  "full_report_sha256": "071e07de8e80da887b991c89295dd6f948b9def8c264b63f38254b5bcfff89d8",
+  "additional_builds": {
+    "native-release": {
+      "binary_sha256": "f1f125279ddcfeb77d4a99ef04e904977338f84e3e5e76b583c632faaa5a419c",
+      "fixtures": 266,
+      "bit_identical_to_debug_and_retail": true
+    },
+    "model-sanitize": {
+      "binary_sha256": "b35bdedd4589420cbe271a5ccb49c8b003bb85482052c5ffdf262a1ec7802cfe",
+      "fixtures": 266,
+      "bit_identical_to_debug_and_retail": true
+    }
+  },
+  "native_ctests": 7,
+  "python_tests": 10,
+  "oracle_boundary": {
+    "retail_start": "0x1bbd28",
+    "retail_end_exclusive": "0x1bbe40",
+    "relocated_start": "0x700000",
+    "termination": "Synthetic jump appended after verbatim copied instructions; all internal branches are PC-relative",
+    "not_executed": [
+      "Definition loading",
+      "Model instantiation",
+      "Effect dispatch",
+      "Scene update or rendering"
+    ]
+  },
+  "opening_effect_table": {
+    "state": "local/reference-intro-600-v2.state.zip",
+    "state_sha256": "6282f344f0c79d1b6a364bca6306ff1e4d5166c57f32111550c0305657f3816a",
+    "member": "ram",
+    "size": 67108864,
+    "crc32_verified": true,
+    "ram_sha256": "a8eb6ac59d6de559db92d5c65653b944e05c9e2a0d3075c00b8696bd38b70369",
+    "table_address": "0x339290",
+    "handlers": [
+      "0x0",
+      "0x1018a0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0"
+    ],
+    "method": "Read ZIP local-header lengths and compressed extent for ram; decompress method 93 with /opt/homebrew/bin/zstd -d -c; verify uncompressed size and zlib.crc32 against ZipInfo before reading 16 little-endian u32 at 0x339290. This verifies the RAM member only."
+  }
+}

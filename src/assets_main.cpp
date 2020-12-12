@@ -4,6 +4,7 @@
 #include "okage/animation.hpp"
 #include "okage/texture_animation.hpp"
 #include "okage/render.hpp"
+#include "okage/map.hpp"
 #include <algorithm>
 #include <bit>
 #include <filesystem>
@@ -55,6 +56,28 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if ((command=="map" && argc==3) || (command=="map-transforms" && argc==4)) {
+            const auto map=okage::read_xmp(read(argv[2]));
+            if (command=="map") {
+                std::cout<<"map\t"<<map.definitions.size()<<'\t'<<map.placements.size()<<'\n';
+                for (std::size_t i=0;i<map.definitions.size();++i)
+                    std::cout<<"definition\t"<<i<<'\t'<<map.definitions[i].name<<'\t'<<map.definitions[i].flags()<<'\n';
+            }
+            std::vector<std::uint8_t> result;
+            auto append=[&](std::uint32_t word){for(unsigned i=0;i<4;++i) result.push_back(word>>(i*8));};
+            for (std::size_t i=0;i<map.placements.size();++i) {
+                const auto& p=map.placements[i];const auto t=okage::map_transform(p,map.definitions.at(p.definition()));
+                if (command=="map") {
+                    std::cout<<"placement\t"<<i<<'\t'<<p.definition()<<'\t'<<p.handler()<<'\t'<<t.flags;
+                    for (const auto& v:{t.position,t.rotation,t.scale}) for (auto x:v) std::cout<<'\t'<<x;
+                    std::cout<<'\n';
+                }
+                for (const auto& v:{t.position,t.rotation,t.scale}) for(auto x:v) append(__builtin_bit_cast(std::uint32_t, (x)));
+                append(t.flags);
+            }
+            if (command=="map-transforms") write(argv[3],result);
+            return 0;
+        }
         if (command=="uv-model-cases" && argc==4) {
             const fs::path path=argv[2];
             const auto file=okage::read_xmd(read(path));

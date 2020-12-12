@@ -1,0 +1,4 @@
+# Relative to the saved title state at cold-boot vblank 1200.
+# One-based vblank, control, value. All other inputs remain neutral.
+1 start 1
+5 start 0
