@@ -21,6 +21,14 @@ int main() {
         near(pose[1][3][0],1); near(pose[1][3][1],4); near(pose[1][3][2],3);
         near(pose[1][0][1],10); near(pose[1][1][0],-18); near(pose[1][2][2],28);
         require(std::fegetround()==FE_TONEAREST);
+        const auto instance=okage::instance_matrix({10,-4,2,1},{0,0,0.25f,0},{2,3,4,0},sine);
+        near(instance[0][0],0);near(instance[0][1],2);near(instance[1][0],-3);
+        near(instance[3][0],10);near(instance[3][1],-4);near(instance[3][2],2);
+        const auto placed=okage::compose_pose(instance,pose);
+        near(placed[0][3][0],4);near(placed[0][3][1],-2);near(placed[0][3][2],14);
+        const auto camera=okage::camera_matrix({1,2,3,1},{0,0,0.25f,0},{2,3,4,0},sine);
+        near(camera[3][0],-4);near(camera[3][1],3);near(camera[3][2],12);
+        require(std::fegetround()==FE_TONEAREST);
         okage::RenderBlock block{}; block.attribute_extents[0]=1;
         block.attributes.push_back({5,1,0,0,{{0.5f,0,0,0.25f}}});
         block.attributes.push_back({5,1,0,1,{{0,0,0,0.75f}}});
@@ -30,6 +38,10 @@ int main() {
         model.hierarchy[0].parent=0;
         bool rejected=false;
         try { okage::rest_pose(model,sine); } catch (const std::runtime_error&) { rejected=true; }
+        require(rejected && std::fegetround()==FE_TONEAREST);
+        rejected=false;
+        try {okage::instance_matrix({INFINITY,0,0,1},{0,0,0,0},{1,1,1,0},sine);}
+        catch(const std::runtime_error&){rejected=true;}
         require(rejected && std::fegetround()==FE_TONEAREST);
         std::cout<<"Native hierarchy, weighted position and rounding tests passed\n";
     } catch (const std::exception& e) { std::cerr<<e.what()<<'\n'; return 1; }

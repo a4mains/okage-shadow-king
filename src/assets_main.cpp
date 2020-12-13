@@ -7,6 +7,7 @@
 #include "okage/map.hpp"
 #include <algorithm>
 #include <bit>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -56,6 +57,40 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if(command=="snapshot-pose" && argc==5) {
+            const auto model=okage::read_xmd(read(argv[2]));
+            if(model.models.size()!=1)throw std::runtime_error("Snapshot requires one model");
+            const auto bones=read(std::string(argv[3])+".bones.bin");
+            const auto worldBytes=read(std::string(argv[3])+".world.bin"),viewBytes=read(std::string(argv[3])+".camera.bin");
+            if(bones.size()!=model.models[0].bones.size()*48 || worldBytes.size()!=64 || viewBytes.size()!=48)
+                throw std::runtime_error("Snapshot/model extent mismatch");
+            okage::Matrix4 world;std::memcpy(world.data(),worldBytes.data(),64);
+            okage::Float4 cameraPosition,cameraRotation,cameraScale;
+            std::memcpy(cameraPosition.data(),viewBytes.data(),16);std::memcpy(cameraRotation.data(),viewBytes.data()+16,16);
+            std::memcpy(cameraScale.data(),viewBytes.data()+32,16);
+            const auto sine=okage::make_sine_table();
+            const auto view=okage::camera_matrix(cameraPosition,cameraRotation,cameraScale,sine);
+            std::vector<okage::Float4> channels(4+3*model.models[0].bones.size());
+            std::memcpy(channels.data()+4,bones.data(),bones.size());
+            const auto local=okage::animated_pose(model.models[0],channels,sine,true);
+            const auto parent=okage::compose_pose(view,std::span(&world,1));
+            const auto result=okage::compose_pose(parent[0],local);
+            write(argv[4],okage::Bytes(reinterpret_cast<const std::uint8_t*>(result.data()),result.size()*64));return 0;
+        }
+        if ((command=="instance-matrices" || command=="camera-matrices") && argc==4) {
+            const auto bytes=read(argv[2]);
+            if(bytes.empty() || bytes.size()%48)throw std::runtime_error("Instance fixture requires 48-byte channel triples");
+            std::vector<std::uint8_t> output;const auto sine=okage::make_sine_table();
+            for(std::size_t at=0;at<bytes.size();at+=48) {
+                okage::Float4 position,rotation,scale;
+                std::memcpy(position.data(),bytes.data()+at,16);std::memcpy(rotation.data(),bytes.data()+at+16,16);
+                std::memcpy(scale.data(),bytes.data()+at+32,16);
+                const auto matrix=command=="camera-matrices" ? okage::camera_matrix(position,rotation,scale,sine) :
+                    okage::instance_matrix(position,rotation,scale,sine);
+                const auto* first=reinterpret_cast<const std::uint8_t*>(&matrix);output.insert(output.end(),first,first+64);
+            }
+            write(argv[3],output);return 0;
+        }
         if ((command=="map" && argc==3) || (command=="map-transforms" && argc==4)) {
             const auto map=okage::read_xmp(read(argv[2]));
             if (command=="map") {

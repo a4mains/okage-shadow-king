@@ -54,6 +54,37 @@ SineTable make_sine_table() {
     table[0]=0; table[4096]=1; table[8192]=0; table[12288]=-1;
     return table;
 }
+Matrix4 instance_matrix(const Float4& position,const Float4& rotation,const Float4& scale,const SineTable& sine) {
+    Rounding rounding(FE_TOWARDZERO);
+    for (const auto& values:{position,rotation,scale}) for(float v:values)
+        if(!std::isfinite(v)) throw std::runtime_error("Non-finite instance channel");
+    Matrix4 result{{{1,0,0,0},{0,1,0,0},{0,0,1,0},position}};
+    result[3][3]=1;
+    rotate(result,0,1,angle_index(rotation[2],true),sine);
+    rotate(result,2,0,angle_index(rotation[1],true),sine);
+    rotate(result,1,2,angle_index(rotation[0],true),sine);
+    for(unsigned column=0;column<3;++column)for(unsigned row=0;row<4;++row) result[column][row]*=scale[column];
+    return result;
+}
+std::vector<Matrix4> compose_pose(const Matrix4& parent,std::span<const Matrix4> pose) {
+    Rounding rounding(FE_TOWARDZERO);
+    for(const auto& column:parent)for(float v:column)
+        if(!std::isfinite(v))throw std::runtime_error("Non-finite parent matrix");
+    std::vector<Matrix4> result(pose.begin(),pose.end());
+    for(auto& matrix:result)for(auto& column:matrix)column=transform(parent,column);
+    return result;
+}
+Matrix4 camera_matrix(const Float4& position,const Float4& rotation,const Float4& scale,const SineTable& sine) {
+    Rounding rounding(FE_TOWARDZERO);
+    for(const auto& values:{position,rotation,scale})for(float v:values)
+        if(!std::isfinite(v))throw std::runtime_error("Non-finite camera channel");
+    Matrix4 result{{{scale[0],0,0,0},{0,scale[1],0,0},{0,0,scale[2],0},{0,0,0,1}}};
+    rotate(result,0,1,angle_index(rotation[2],true),sine);
+    rotate(result,1,2,angle_index(rotation[0],true),sine);
+    rotate(result,2,0,angle_index(rotation[1],true),sine);
+    result[3]=transform(result,{position[0],position[1],position[2],1});
+    return result;
+}
 static std::vector<Matrix4> build_pose(const Model& model,const SineTable& sine,bool turns) {
     Rounding rounding(FE_TOWARDZERO);
     std::vector<Matrix4> matrices;

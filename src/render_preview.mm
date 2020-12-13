@@ -4,6 +4,7 @@
 #include "okage/pose.hpp"
 #include "okage/animation.hpp"
 #include "okage/texture_animation.hpp"
+#include "okage/map.hpp"
 #include <algorithm>
 #include <cmath>
 #include <filesystem>
@@ -62,10 +63,44 @@ fragment float4 preview_fragment(Varying v [[stage_in]], texture2d<float> image 
 
 int main(int argc,const char** argv) {
     @autoreleasepool { try {
-        if (argc!=3 && argc!=6)
-            throw std::runtime_error("Usage: okage-render-preview XMD OUTPUT.png [XMT ENTRY TICKS]");
-        const fs::path path=argv[1];
-        auto model=okage::read_xmd(read(path));
+        const bool mapMode=argc==5 && std::string(argv[1])=="--map";
+        if (!mapMode && argc!=3 && argc!=6)
+            throw std::runtime_error("Usage: okage-render-preview XMD OUTPUT.png [XMT ENTRY TICKS] | --map XMP OUTPUT.png REFERENCE_DRAW_PREFIX");
+        const fs::path path=argv[mapMode ? 2 : 1];
+        const fs::path output=argv[mapMode ? 3 : 2];
+        const auto sine=okage::make_sine_table();
+        const okage::Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
+        struct Input {fs::path path;okage::ModelFile model;okage::Matrix4 world;};
+        std::vector<Input> inputs;
+        okage::Matrix4 view=identity;std::array<float,32> projection{};
+        std::size_t omittedEffects=0;
+        if(mapMode) {
+            const auto map=okage::read_xmp(read(path));
+            const auto v=read(std::string(argv[4])+".camera.bin"),p=read(std::string(argv[4])+".projection.bin");
+            if(v.size()!=48 || p.size()!=128)throw std::runtime_error("Invalid captured camera buffers");
+            okage::Float4 cameraPosition,cameraRotation,cameraScale;
+            std::memcpy(cameraPosition.data(),v.data(),16);std::memcpy(cameraRotation.data(),v.data()+16,16);
+            std::memcpy(cameraScale.data(),v.data()+32,16);std::memcpy(projection.data(),p.data(),128);
+            view=okage::camera_matrix(cameraPosition,cameraRotation,cameraScale,sine);
+            for(float x:projection)if(!std::isfinite(x))throw std::runtime_error("Non-finite captured projection");
+            if(projection[3]!=1 || projection[4]!=0 || projection[5]!=0 || projection[20]!=320 || projection[21]!=112)
+                throw std::runtime_error("Unsupported captured projection/viewport");
+            for(const auto& placement:map.placements) {
+                if(placement.handler()) {++omittedEffects;continue;}
+                const auto& definition=map.definitions.at(placement.definition());
+                if(definition.flags()&8)throw std::runtime_error("Map model animation needs recovered playback");
+                const auto file=path.parent_path()/definition.name;
+                const auto t=okage::map_transform(placement,definition);
+                if(t.flags&1)throw std::runtime_error("Camera-facing map placement unsupported");
+                if((t.flags&0x100000) && (t.scale[0]!=1 || t.scale[1]!=1 || t.scale[2]!=1))
+                    throw std::runtime_error("Optimized map instance scale path requires further recovery");
+                inputs.push_back({file,okage::read_xmd(read(file)),okage::instance_matrix(t.position,t.rotation,t.scale,sine)});
+            }
+            std::cout<<"Native map geometry: "<<inputs.size()<<" ordinary placements; "<<omittedEffects
+                     <<" special-effect placements NOT rendered; actors/events NOT executed\n";
+        } else inputs.push_back({path,okage::read_xmd(read(path)),identity});
+        if(inputs.empty())throw std::runtime_error("No ordinary geometry in preview");
+        auto& model=inputs.front().model;
         auto names=model.textures;
         std::unique_ptr<okage::TextureBindings> bindings;
         std::unique_ptr<okage::Animation> animation;
@@ -89,77 +124,97 @@ int main(int argc,const char** argv) {
             for (unsigned i=0;i<ticks;++i) animation->tick();
         }
         std::vector<okage::Texture> textures;
-        for (auto name:names) {
-            const fs::path relative=name;
-            if (relative.is_absolute() || relative.has_parent_path()) throw std::runtime_error("Unsafe model texture path");
-            if (relative.extension().empty()) name+=".xim";
-            textures.push_back(okage::decode_xim(read(path.parent_path()/name)));
+        std::vector<std::size_t> textureOffsets;
+        for(const auto& input:inputs) {
+            textureOffsets.push_back(textures.size());
+            for (auto name:mapMode ? input.model.textures : names) {
+                const fs::path relative=name;
+                if (relative.is_absolute() || relative.has_parent_path()) throw std::runtime_error("Unsafe model texture path");
+                if (relative.extension().empty()) name+=".xim";
+                textures.push_back(okage::decode_xim(read(input.path.parent_path()/name)));
+            }
         }
-        const auto sine=okage::make_sine_table();
         std::vector<Vertex> vertices;
         std::vector<Draw> draws;
         std::size_t textureBase=0, polygons=0;
         okage::Float4 low{INFINITY,INFINITY,INFINITY,0},high{-INFINITY,-INFINITY,-INFINITY,0};
-        for (const auto& part:model.models) {
-            const auto pose=animation ? okage::animated_pose(part,animation->values(),sine,animation->scale_channels()) : okage::rest_pose(part,sine);
-            for (const auto& block:part.blocks) {
-                const auto positions=okage::posed_positions(block,pose);
-                std::vector<okage::Float4> uv(block.attribute_extents[3]),colors(block.attribute_extents[2]);
-                std::vector<bool> uvDefined(uv.size()),colorDefined(colors.size());
-                for (const auto& attr:block.attributes) if (attr.kind==7 || attr.kind==8) {
-                    auto& values=attr.kind==7 ? colors : uv;
-                    auto& defined=attr.kind==7 ? colorDefined : uvDefined;
-                    for (std::size_t i=0;i<attr.values.size();++i) {
-                        if (defined.at(attr.first+i)) throw std::runtime_error("Overlapping preview color/UV ranges");
-                        values.at(attr.first+i)=attr.values[i]; defined.at(attr.first+i)=true;
-                    }
+        for(std::size_t inputIndex=0;inputIndex<inputs.size();++inputIndex) {
+            const auto& input=inputs[inputIndex];const auto textureOffset=textureOffsets[inputIndex];
+            textureBase=0;
+            for (const auto& part:input.model.models) {
+                auto pose=animation ? okage::animated_pose(part,animation->values(),sine,animation->scale_channels()) : okage::rest_pose(part,sine);
+                if(mapMode) {
+                    const auto viewWorld=okage::compose_pose(view,std::span(&input.world,1));
+                    pose=okage::compose_pose(viewWorld[0],pose);
                 }
-                for (const auto& polygon:block.polygons) {
-                    Draw draw{std::uint32_t(vertices.size()),0,-1,{}};
-                    const okage::TextureState* state=nullptr;
-                    if (polygon.texture_state>=0 && block.textures.at(polygon.texture_state).texture>=0) {
-                        state=&block.textures.at(polygon.texture_state);
-                        draw.image=bindings ? bindings->images().at(textureBase+polygon.texture_state) : state->texture;
-                        const auto& original=textures.at(state->texture);
-                        const auto clamp=okage::texture_clamp(*state,original.width,original.height);
-                        draw.state={std::uint32_t(clamp>>4)&1023,std::uint32_t(clamp>>14)&1023,
-                            std::uint32_t(clamp>>24)&1023,std::uint32_t(clamp>>34)&1023,
-                            std::uint32_t(clamp)&3,std::uint32_t(clamp>>2)&3,1,0};
-                    }
-                    for (auto triangle:okage::triangle_corners(polygon.corners.size())) for (auto index:triangle) {
-                        const auto& corner=polygon.corners.at(index);
-                        Vertex vertex{positions.at(corner[0]),{1,1,1,1},{0,0,0,0}};
-                        if (corner[2]>=0 && colorDefined.at(corner[2])) vertex.color=colors.at(corner[2]);
-                        else throw std::runtime_error("Missing preview source color");
-                        if (state) {
-                            if (corner[3]<0 || !uvDefined.at(corner[3])) throw std::runtime_error("Missing preview UV");
-                            const auto& original=textures.at(state->texture);
-                            const auto value=okage::texture_coordinates(*state,original.width,original.height,
-                                {uv.at(corner[3])[0],uv.at(corner[3])[1]});
-                            vertex.uv={value[0],value[1],0,0};
+                for (const auto& block:part.blocks) {
+                    const auto positions=okage::posed_positions(block,pose);
+                    std::vector<okage::Float4> uv(block.attribute_extents[3]),colors(block.attribute_extents[2]);
+                    std::vector<bool> uvDefined(uv.size()),colorDefined(colors.size());
+                    for (const auto& attr:block.attributes) if (attr.kind==7 || attr.kind==8) {
+                        auto& values=attr.kind==7 ? colors : uv;
+                        auto& defined=attr.kind==7 ? colorDefined : uvDefined;
+                        for (std::size_t i=0;i<attr.values.size();++i) {
+                            if (defined.at(attr.first+i)) throw std::runtime_error("Overlapping preview color/UV ranges");
+                            values.at(attr.first+i)=attr.values[i]; defined.at(attr.first+i)=true;
                         }
-                        for (unsigned axis=0;axis<3;++axis) {
-                            if (!std::isfinite(vertex.position[axis])) throw std::runtime_error("Non-finite preview position");
-                            low[axis]=std::min(low[axis],vertex.position[axis]); high[axis]=std::max(high[axis],vertex.position[axis]);
-                        }
-                        vertices.push_back(vertex); ++draw.count;
                     }
-                    draws.push_back(draw); ++polygons;
+                    for (const auto& polygon:block.polygons) {
+                        Draw draw{std::uint32_t(vertices.size()),0,-1,{}};
+                        const okage::TextureState* state=nullptr;
+                        if (polygon.texture_state>=0 && block.textures.at(polygon.texture_state).texture>=0) {
+                            state=&block.textures.at(polygon.texture_state);
+                            draw.image=textureOffset+(bindings ? bindings->images().at(textureBase+polygon.texture_state) : state->texture);
+                            const auto& original=textures.at(textureOffset+state->texture);
+                            const auto clamp=okage::texture_clamp(*state,original.width,original.height);
+                            draw.state={std::uint32_t(clamp>>4)&1023,std::uint32_t(clamp>>14)&1023,
+                                std::uint32_t(clamp>>24)&1023,std::uint32_t(clamp>>34)&1023,
+                                std::uint32_t(clamp)&3,std::uint32_t(clamp>>2)&3,1,0};
+                        }
+                        for (auto triangle:okage::triangle_corners(polygon.corners.size())) for (auto index:triangle) {
+                            const auto& corner=polygon.corners.at(index);
+                            Vertex vertex{positions.at(corner[0]),{1,1,1,1},{0,0,0,0}};
+                            if (corner[2]>=0 && colorDefined.at(corner[2])) vertex.color=colors.at(corner[2]);
+                            else throw std::runtime_error("Missing preview source color");
+                            if (state) {
+                                if (corner[3]<0 || !uvDefined.at(corner[3])) throw std::runtime_error("Missing preview UV");
+                                const auto& original=textures.at(textureOffset+state->texture);
+                                const auto value=okage::texture_coordinates(*state,original.width,original.height,
+                                    {uv.at(corner[3])[0],uv.at(corner[3])[1]});
+                                vertex.uv={value[0],value[1],0,0};
+                            }
+                            for (unsigned axis=0;axis<3;++axis) {
+                                if (!std::isfinite(vertex.position[axis])) throw std::runtime_error("Non-finite preview position");
+                                low[axis]=std::min(low[axis],vertex.position[axis]); high[axis]=std::max(high[axis],vertex.position[axis]);
+                            }
+                            vertices.push_back(vertex); ++draw.count;
+                        }
+                        draws.push_back(draw); ++polygons;
+                    }
+                    textureBase+=block.textures.size();
                 }
-                textureBase+=block.textures.size();
             }
         }
         if (vertices.empty()) throw std::runtime_error("Empty preview geometry");
-        double radius=0; okage::Float4 center{};
-        for (unsigned i=0;i<3;++i) { center[i]=(high[i]+low[i])*0.5f; radius+=std::pow((high[i]-low[i])*0.5,2); }
-        radius=std::max(std::sqrt(radius),.001);
-        for (auto& v:vertices) {
-            const auto p=v.position;
-            const double x=(p[0]-center[0])/radius,y=-(p[1]-center[1])/radius,z=(p[2]-center[2])/radius;
-            const double rx=x*std::cos(.45)+z*std::sin(.45),rz=-x*std::sin(.45)+z*std::cos(.45);
-            const double ry=y*std::cos(.12)-rz*std::sin(.12),depth=y*std::sin(.12)+rz*std::cos(.12);
-            v.position={float(rx*.86),float(ry*.86),float(.5+depth*.25),1};
+        if(mapMode) {
+            for(auto& v:vertices) {
+                const auto p=v.position;
+                v.position={p[0]*projection[0],-p[1]*projection[1],
+                    (p[2]*projection[2]+projection[6]+p[2])*0.5f,p[2]};
+            }
+        } else {
+            double radius=0; okage::Float4 center{};
+            for (unsigned i=0;i<3;++i) { center[i]=(high[i]+low[i])*0.5f; radius+=std::pow((high[i]-low[i])*0.5,2); }
+            radius=std::max(std::sqrt(radius),.001);
+            for (auto& v:vertices) {
+                const auto p=v.position;
+                const double x=(p[0]-center[0])/radius,y=-(p[1]-center[1])/radius,z=(p[2]-center[2])/radius;
+                const double rx=x*std::cos(.45)+z*std::sin(.45),rz=-x*std::sin(.45)+z*std::cos(.45);
+                const double ry=y*std::cos(.12)-rz*std::sin(.12),depth=y*std::sin(.12)+rz*std::cos(.12);
+                v.position={float(rx*.86),float(ry*.86),float(.5+depth*.25),1};
+            }
         }
+        const unsigned width=mapMode ? 640 : 1024,height=mapMode ? 224 : 1024;
         id<MTLDevice> device=MTLCreateSystemDefaultDevice();
         if (!device) throw std::runtime_error("No native Metal device");
         NSError* error=nil;
@@ -174,10 +229,10 @@ int main(int argc,const char** argv) {
         if (!pipeline) throw std::runtime_error(error.localizedDescription.UTF8String);
         auto depthState=[MTLDepthStencilDescriptor new]; depthState.depthCompareFunction=MTLCompareFunctionLess; depthState.depthWriteEnabled=YES;
         id<MTLDepthStencilState> depth=[device newDepthStencilStateWithDescriptor:depthState];
-        auto targetDesc=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:1024 height:1024 mipmapped:NO];
+        auto targetDesc=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:width height:height mipmapped:NO];
         targetDesc.usage=MTLTextureUsageRenderTarget; targetDesc.storageMode=MTLStorageModeShared;
         id<MTLTexture> target=[device newTextureWithDescriptor:targetDesc];
-        auto depthDesc=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatDepth32Float width:1024 height:1024 mipmapped:NO];
+        auto depthDesc=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatDepth32Float width:width height:height mipmapped:NO];
         depthDesc.usage=MTLTextureUsageRenderTarget; depthDesc.storageMode=MTLStorageModePrivate;
         id<MTLTexture> depthTarget=[device newTextureWithDescriptor:depthDesc];
         NSMutableArray<id<MTLTexture>>* gpuTextures=[NSMutableArray array];
@@ -207,11 +262,11 @@ int main(int argc,const char** argv) {
         }
         [encoder endEncoding]; [command commit]; [command waitUntilCompleted];
         if (command.status!=MTLCommandBufferStatusCompleted) throw std::runtime_error(command.error.localizedDescription.UTF8String);
-        auto bitmap=[[NSBitmapImageRep alloc] initWithBitmapDataPlanes:nullptr pixelsWide:1024 pixelsHigh:1024 bitsPerSample:8 samplesPerPixel:4
-            hasAlpha:YES isPlanar:NO colorSpaceName:NSDeviceRGBColorSpace bitmapFormat:NSBitmapFormatAlphaNonpremultiplied bytesPerRow:4096 bitsPerPixel:32];
-        [target getBytes:bitmap.bitmapData bytesPerRow:4096 fromRegion:MTLRegionMake2D(0,0,1024,1024) mipmapLevel:0];
-        save(argv[2],[bitmap representationUsingType:NSBitmapImageFileTypePNG properties:@{}]);
-        std::cout<<"Native Metal unlit preview: "<<polygons<<" polygons, "<<vertices.size()/3<<" triangles, "<<names.size()<<" images on "<<device.name.UTF8String<<"\n";
-        std::cout<<"Research camera/shading/filtering/alpha; no retail frame-fidelity claim\n";
+        auto bitmap=[[NSBitmapImageRep alloc] initWithBitmapDataPlanes:nullptr pixelsWide:width pixelsHigh:height bitsPerSample:8 samplesPerPixel:4
+            hasAlpha:YES isPlanar:NO colorSpaceName:NSDeviceRGBColorSpace bitmapFormat:NSBitmapFormatAlphaNonpremultiplied bytesPerRow:width*4 bitsPerPixel:32];
+        [target getBytes:bitmap.bitmapData bytesPerRow:width*4 fromRegion:MTLRegionMake2D(0,0,width,height) mipmapLevel:0];
+        save(output,[bitmap representationUsingType:NSBitmapImageFileTypePNG properties:@{}]);
+        std::cout<<"Native Metal unlit preview: "<<polygons<<" polygons, "<<vertices.size()/3<<" triangles, "<<textures.size()-1<<" images on "<<device.name.UTF8String<<"\n";
+        std::cout<<(mapMode ? "Captured reference camera; incomplete static room geometry, no native events/effects/audio\n" : "Research camera/shading/filtering/alpha; no retail frame-fidelity claim\n");
     } catch (const std::exception& e) {std::cerr<<e.what()<<'\n'; return 1;} }
 }

@@ -1,0 +1,382 @@
+{
+  "scope": "Instance matrices and selected model-to-view pose matrices for two captured opening frames.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "native_sha256": "491dfab75149c03c7c13454ad1a1a0a70198b0d4888aa7ebc82dda6c56b1547d",
+  "oracle_sha256": "7c70db96b06ab4c32bce5d5bfd924078c48b9c2e1b33f131970de55ce081c8ad",
+  "tolerance": "abs(retail-native) <= 2e-5 + 2e-6*abs(retail)",
+  "instances": {
+    "matrices": 20053,
+    "components": 320848,
+    "max_absolute_error": 9.5367431640625e-07,
+    "fixture_sha256": "99062d6fc1d8f51a85770b231a5eb7f46c12f2e61802f8f55b7d846fee8114d3",
+    "retail_sha256": "a7431a2d4aafe02f2b095128f73c852efb95e18e89a19be86df093fed33ad5b6",
+    "native_sha256": "7f51c4206f8f0b3964f6cb40a0b32107585789736f23bfe602408d421fd5fcc5"
+  },
+  "cameras": {
+    "matrices": 20069,
+    "components": 321104,
+    "max_absolute_error": 0.000244140625,
+    "fixture_sha256": "a97bcec9426dea2399becb045baddedff5a6d80aa54a73eed97e1845cf686615",
+    "retail_sha256": "c714cd621f4214ad52ed5eae22102180a2ed3d42bf9da025413043d66700379e",
+    "native_sha256": "d5c9c47640322c7bd80dadfd87a323921510179f4d900f5b449455cbda0c4133"
+  },
+  "snapshot": "local/reference-scene-602-v2",
+  "draws_sha256": "ac0aad122d76808bfa385385593c0f271e39229cecba05e0fa40e1dedca33a47",
+  "scene_matrices": 188,
+  "scene_max_absolute_error": 3.814697265625e-06,
+  "draws": [
+    {
+      "matrices": 8,
+      "components": 128,
+      "max_absolute_error": 1.9073486328125e-06,
+      "draw": 0,
+      "model": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/wal.xmd",
+      "model_sha256": "efdda7eb1c12131fcc7929f1772f969ab932504b5bb970948bdbed1248430ee0",
+      "native_sha256": "0f923157cafeef7605bd43186caab239658af48f6f4fd67a5842537a8581223a",
+      "retail_sha256": "38941a261dab174a99bacdd21868bf17b7b81a08eea1dd3443bbf88893b21a70",
+      "skipped_unrequested_nodes": 1,
+      "snapshot_sha256": {
+        ".world.bin": "5998e9d1dd9bf48af6af87a1ef8c7783b818ac8329637ada08cc5fb329042376",
+        ".view.bin": "2b2a7e14fa8572f07c5cdd07a1bb7dc89be4bdc2f856444b69a61831e740edf7",
+        ".camera.bin": "3d4090e34407665f89b464dbc753361d4eb8a69105444c9f3e8e3c78a876916a",
+        ".bones.bin": "8ec65445d2ef57ebdba2d2cc02a85992bb7b854e42e0c184f5cdde01fc9b867f",
+        ".hierarchy.bin": "558c9f3a32fad5975de4fcd8ceb84c4d1018cc10f7b09565ef25cbae01cb10ed",
+        ".projection.bin": "bb585c8cbb096dd9e6bcd9546c8b926866613329177440b58dfed4ea5a30a0f5"
+      }
+    },
+    {
+      "matrices": 1,
+      "components": 16,
+      "max_absolute_error": 9.5367431640625e-07,
+      "draw": 1,
+      "model": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/tubo.xmd",
+      "model_sha256": "455e601da11e7e471d690124a125ac3033a0356e91589f596f278717a107a814",
+      "native_sha256": "937d7a1b89171cdcc430410a738226b6478fb6bb10ff841f0e835146b876008e",
+      "retail_sha256": "2100f38dc91a72a405a1e54ee326d3d71f3819e84b0d5e03575c989e16bb8062",
+      "skipped_unrequested_nodes": 0,
+      "snapshot_sha256": {
+        ".world.bin": "6affd33a02582090e8a5aa7ba18ad8a35813275ec0203286b3cbe82027ba886c",
+        ".view.bin": "2b2a7e14fa8572f07c5cdd07a1bb7dc89be4bdc2f856444b69a61831e740edf7",
+        ".camera.bin": "3d4090e34407665f89b464dbc753361d4eb8a69105444c9f3e8e3c78a876916a",
+        ".bones.bin": "1941cb395a5ce31bc7bbba7a73fafd1defdfb1703e128a1a8c3c9e7a3bd35890",
+        ".hierarchy.bin": "1b30a68cbb6e6f2d7341d1cf8a6a91e9da49164976446d4e433eb41d50003fff",
+        ".projection.bin": "bb585c8cbb096dd9e6bcd9546c8b926866613329177440b58dfed4ea5a30a0f5"
+      }
+    },
+    {
+      "matrices": 24,
+      "components": 384,
+      "max_absolute_error": 2.1457672119140625e-06,
+      "draw": 2,
+      "model": "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+      "model_sha256": "c7d46694dd3dad1c7d12272b2b3cb2c3aa3fcfa281bfd7bbaeae1c3279f3e002",
+      "native_sha256": "bda0493a9c36cc285f666b83e219ad164e60c748031b83d4af73aad71c88f949",
+      "retail_sha256": "9e2740f6896ec60698331e233d6167b3fa530befc0ea73dffb433932e4b19912",
+      "skipped_unrequested_nodes": 55,
+      "snapshot_sha256": {
+        ".world.bin": "be43fd50f82da17f783deaedf0d2867afad24cc276adfb5fab02cf976a1034f1",
+        ".view.bin": "2b2a7e14fa8572f07c5cdd07a1bb7dc89be4bdc2f856444b69a61831e740edf7",
+        ".camera.bin": "3d4090e34407665f89b464dbc753361d4eb8a69105444c9f3e8e3c78a876916a",
+        ".bones.bin": "bab8ab50ccd55b445f381cf83bec7bcb87b7a70ae5fffc16cbb6f233082ac9c3",
+        ".hierarchy.bin": "aee049bfd67d70b507a35b21513e12f52e0d227d141d65c80586b38202e36d9e",
+        ".projection.bin": "bb585c8cbb096dd9e6bcd9546c8b926866613329177440b58dfed4ea5a30a0f5"
+      }
+    },
+    {
+      "matrices": 21,
+      "components": 336,
+      "max_absolute_error": 2.1457672119140625e-06,
+      "draw": 3,
+      "model": "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/shadow.xmd",
+      "model_sha256": "c91810dcfc789361d100247ec61677c48e8aa735ae2de1f4c860fa49cd49ac02",
+      "native_sha256": "bda0493a9c36cc285f666b83e219ad164e60c748031b83d4af73aad71c88f949",
+      "retail_sha256": "d408271e879494dc4ed6ce172c37b9d48d59c53c57091c224f467faeb6ce5877",
+      "skipped_unrequested_nodes": 58,
+      "snapshot_sha256": {
+        ".world.bin": "be43fd50f82da17f783deaedf0d2867afad24cc276adfb5fab02cf976a1034f1",
+        ".view.bin": "2b2a7e14fa8572f07c5cdd07a1bb7dc89be4bdc2f856444b69a61831e740edf7",
+        ".camera.bin": "3d4090e34407665f89b464dbc753361d4eb8a69105444c9f3e8e3c78a876916a",
+        ".bones.bin": "bab8ab50ccd55b445f381cf83bec7bcb87b7a70ae5fffc16cbb6f233082ac9c3",
+        ".hierarchy.bin": "9488f7fab79fd8c8ef429e4f23e6a14a35491d7b01cb7a1175d4bec860a039db",
+        ".projection.bin": "bb585c8cbb096dd9e6bcd9546c8b926866613329177440b58dfed4ea5a30a0f5"
+      }
+    },
+    {
+      "matrices": 31,
+      "components": 496,
+      "max_absolute_error": 1.9073486328125e-06,
+      "draw": 4,
+      "model": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/kag1.xmd",
+      "model_sha256": "a47d1652074670849eb97fc22e1f800f1a3179e0a5a7016cbac644d53198ae70",
+      "native_sha256": "cc95bd60f939afe725898f153de65fb9c2ef59ce43832935d1632e70264e0dac",
+      "retail_sha256": "080274383fce4f5234aeae0c52f69126587359bdaa0c2474afc2e1d4ea83824e",
+      "skipped_unrequested_nodes": 2,
+      "snapshot_sha256": {
+        ".world.bin": "5998e9d1dd9bf48af6af87a1ef8c7783b818ac8329637ada08cc5fb329042376",
+        ".view.bin": "2b2a7e14fa8572f07c5cdd07a1bb7dc89be4bdc2f856444b69a61831e740edf7",
+        ".camera.bin": "3d4090e34407665f89b464dbc753361d4eb8a69105444c9f3e8e3c78a876916a",
+        ".bones.bin": "e2e02195ce40ebb8fa9a27fdfea27955bd4498cdb6939fdc9727cfbebacb46cf",
+        ".hierarchy.bin": "850ae4e8d50effddcd7994a9c2490317b4264a36fc40a94a0edda371014d48d0",
+        ".projection.bin": "bb585c8cbb096dd9e6bcd9546c8b926866613329177440b58dfed4ea5a30a0f5"
+      }
+    },
+    {
+      "matrices": 4,
+      "components": 64,
+      "max_absolute_error": 1.9073486328125e-06,
+      "draw": 5,
+      "model": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/lmp.xmd",
+      "model_sha256": "504af330aa60c56f7cd22ffedf6524ade7b25b5d581ecb26a320fa1b79e4998a",
+      "native_sha256": "150768202af0d0f4412f22c47f6b83e621b94688d91afc502056a6e19a8c27e6",
+      "retail_sha256": "acb2a611e8b1fd9ddf204eca72631343de69f59f57b95364fff1c20d4c75729a",
+      "skipped_unrequested_nodes": 1,
+      "snapshot_sha256": {
+        ".world.bin": "5998e9d1dd9bf48af6af87a1ef8c7783b818ac8329637ada08cc5fb329042376",
+        ".view.bin": "2b2a7e14fa8572f07c5cdd07a1bb7dc89be4bdc2f856444b69a61831e740edf7",
+        ".camera.bin": "3d4090e34407665f89b464dbc753361d4eb8a69105444c9f3e8e3c78a876916a",
+        ".bones.bin": "b0e54bcbc65ee32ea0c3c57e3a7ff613e47da321fcec56e0d88ca7b4c26487e3",
+        ".hierarchy.bin": "50958c0e8721be6a9884cf1fa0b97973bcd3365533cf598c455d50468e02ba49",
+        ".projection.bin": "bb585c8cbb096dd9e6bcd9546c8b926866613329177440b58dfed4ea5a30a0f5"
+      }
+    },
+    {
+      "matrices": 3,
+      "components": 48,
+      "max_absolute_error": 1.9073486328125e-06,
+      "draw": 6,
+      "model": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/kum.xmd",
+      "model_sha256": "31d54f9fb55ca7e0287d7750b12bb128bf61ed58379aaf99081ae633ff564c8c",
+      "native_sha256": "f813d13961fab268078dc72b825fdb3cf2632539483aca79046323fd5410c62d",
+      "retail_sha256": "8efe8d5dfd6ded09899d439f773716dee37e8cba98c4ede91c85e7020cb45dc2",
+      "skipped_unrequested_nodes": 1,
+      "snapshot_sha256": {
+        ".world.bin": "5998e9d1dd9bf48af6af87a1ef8c7783b818ac8329637ada08cc5fb329042376",
+        ".view.bin": "2b2a7e14fa8572f07c5cdd07a1bb7dc89be4bdc2f856444b69a61831e740edf7",
+        ".camera.bin": "3d4090e34407665f89b464dbc753361d4eb8a69105444c9f3e8e3c78a876916a",
+        ".bones.bin": "9c00d483a0a3bc534ced63ff2fd0da1bff774c53b8f27d673ccd95ac75849b02",
+        ".hierarchy.bin": "44bedb43610937bf50c7eb218b5628437a2fa90a559f7a3e7cc9e0228ccf4e18",
+        ".projection.bin": "bb585c8cbb096dd9e6bcd9546c8b926866613329177440b58dfed4ea5a30a0f5"
+      }
+    },
+    {
+      "matrices": 2,
+      "components": 32,
+      "max_absolute_error": 1.9073486328125e-06,
+      "draw": 7,
+      "model": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/nun1.xmd",
+      "model_sha256": "6f0830587bedcbe8548b92329fedfceca6afcef97e09d58eb6a0f8fd8fcb72a3",
+      "native_sha256": "0a59f8b993ca2b4881e09ba6cc923428a66be0bf60f54c52e13916aa6ef2eea1",
+      "retail_sha256": "8efd37e4328ab951eaf582f3f004e00a13938129e54b6bda3c091cbd2d75a5dd",
+      "skipped_unrequested_nodes": 1,
+      "snapshot_sha256": {
+        ".world.bin": "5998e9d1dd9bf48af6af87a1ef8c7783b818ac8329637ada08cc5fb329042376",
+        ".view.bin": "2b2a7e14fa8572f07c5cdd07a1bb7dc89be4bdc2f856444b69a61831e740edf7",
+        ".camera.bin": "3d4090e34407665f89b464dbc753361d4eb8a69105444c9f3e8e3c78a876916a",
+        ".bones.bin": "715efe2e5df6f036f0ffae54975807b98936e86c16909466e3a971786e868523",
+        ".hierarchy.bin": "757bbce7f124990c719b5a18535976a9af6609961015af9a776ae492691c7019",
+        ".projection.bin": "bb585c8cbb096dd9e6bcd9546c8b926866613329177440b58dfed4ea5a30a0f5"
+      }
+    },
+    {
+      "matrices": 8,
+      "components": 128,
+      "max_absolute_error": 1.9073486328125e-06,
+      "draw": 8,
+      "model": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/wal.xmd",
+      "model_sha256": "efdda7eb1c12131fcc7929f1772f969ab932504b5bb970948bdbed1248430ee0",
+      "native_sha256": "0f923157cafeef7605bd43186caab239658af48f6f4fd67a5842537a8581223a",
+      "retail_sha256": "38941a261dab174a99bacdd21868bf17b7b81a08eea1dd3443bbf88893b21a70",
+      "skipped_unrequested_nodes": 1,
+      "snapshot_sha256": {
+        ".world.bin": "5998e9d1dd9bf48af6af87a1ef8c7783b818ac8329637ada08cc5fb329042376",
+        ".view.bin": "2b2a7e14fa8572f07c5cdd07a1bb7dc89be4bdc2f856444b69a61831e740edf7",
+        ".camera.bin": "3d4090e34407665f89b464dbc753361d4eb8a69105444c9f3e8e3c78a876916a",
+        ".bones.bin": "8ec65445d2ef57ebdba2d2cc02a85992bb7b854e42e0c184f5cdde01fc9b867f",
+        ".hierarchy.bin": "558c9f3a32fad5975de4fcd8ceb84c4d1018cc10f7b09565ef25cbae01cb10ed",
+        ".projection.bin": "bb585c8cbb096dd9e6bcd9546c8b926866613329177440b58dfed4ea5a30a0f5"
+      }
+    },
+    {
+      "matrices": 1,
+      "components": 16,
+      "max_absolute_error": 9.5367431640625e-07,
+      "draw": 9,
+      "model": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/tubo.xmd",
+      "model_sha256": "455e601da11e7e471d690124a125ac3033a0356e91589f596f278717a107a814",
+      "native_sha256": "937d7a1b89171cdcc430410a738226b6478fb6bb10ff841f0e835146b876008e",
+      "retail_sha256": "2100f38dc91a72a405a1e54ee326d3d71f3819e84b0d5e03575c989e16bb8062",
+      "skipped_unrequested_nodes": 0,
+      "snapshot_sha256": {
+        ".world.bin": "6affd33a02582090e8a5aa7ba18ad8a35813275ec0203286b3cbe82027ba886c",
+        ".view.bin": "2b2a7e14fa8572f07c5cdd07a1bb7dc89be4bdc2f856444b69a61831e740edf7",
+        ".camera.bin": "3d4090e34407665f89b464dbc753361d4eb8a69105444c9f3e8e3c78a876916a",
+        ".bones.bin": "1941cb395a5ce31bc7bbba7a73fafd1defdfb1703e128a1a8c3c9e7a3bd35890",
+        ".hierarchy.bin": "1b30a68cbb6e6f2d7341d1cf8a6a91e9da49164976446d4e433eb41d50003fff",
+        ".projection.bin": "bb585c8cbb096dd9e6bcd9546c8b926866613329177440b58dfed4ea5a30a0f5"
+      }
+    },
+    {
+      "matrices": 24,
+      "components": 384,
+      "max_absolute_error": 3.814697265625e-06,
+      "draw": 10,
+      "model": "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+      "model_sha256": "c7d46694dd3dad1c7d12272b2b3cb2c3aa3fcfa281bfd7bbaeae1c3279f3e002",
+      "native_sha256": "63f2d3c5850fb46e4b2936fe6cf9f333d185c71f4235ae11610e5bf9a05f92c5",
+      "retail_sha256": "d25f486a2fc1b2f63dfda3817b288c1600ddafe0310e760e6304f1b26d0f289d",
+      "skipped_unrequested_nodes": 55,
+      "snapshot_sha256": {
+        ".world.bin": "be43fd50f82da17f783deaedf0d2867afad24cc276adfb5fab02cf976a1034f1",
+        ".view.bin": "2b2a7e14fa8572f07c5cdd07a1bb7dc89be4bdc2f856444b69a61831e740edf7",
+        ".camera.bin": "3d4090e34407665f89b464dbc753361d4eb8a69105444c9f3e8e3c78a876916a",
+        ".bones.bin": "3771e4aa1239d6d63bbcf0fa6d07f1f10749882c89d5323ac1f088db281bf85c",
+        ".hierarchy.bin": "aee049bfd67d70b507a35b21513e12f52e0d227d141d65c80586b38202e36d9e",
+        ".projection.bin": "bb585c8cbb096dd9e6bcd9546c8b926866613329177440b58dfed4ea5a30a0f5"
+      }
+    },
+    {
+      "matrices": 21,
+      "components": 336,
+      "max_absolute_error": 3.814697265625e-06,
+      "draw": 11,
+      "model": "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/shadow.xmd",
+      "model_sha256": "c91810dcfc789361d100247ec61677c48e8aa735ae2de1f4c860fa49cd49ac02",
+      "native_sha256": "63f2d3c5850fb46e4b2936fe6cf9f333d185c71f4235ae11610e5bf9a05f92c5",
+      "retail_sha256": "9e85b678af49b12fd913f0bff100d43a8513bcc74a06f582846f33ecebbdb96f",
+      "skipped_unrequested_nodes": 58,
+      "snapshot_sha256": {
+        ".world.bin": "be43fd50f82da17f783deaedf0d2867afad24cc276adfb5fab02cf976a1034f1",
+        ".view.bin": "2b2a7e14fa8572f07c5cdd07a1bb7dc89be4bdc2f856444b69a61831e740edf7",
+        ".camera.bin": "3d4090e34407665f89b464dbc753361d4eb8a69105444c9f3e8e3c78a876916a",
+        ".bones.bin": "3771e4aa1239d6d63bbcf0fa6d07f1f10749882c89d5323ac1f088db281bf85c",
+        ".hierarchy.bin": "9488f7fab79fd8c8ef429e4f23e6a14a35491d7b01cb7a1175d4bec860a039db",
+        ".projection.bin": "bb585c8cbb096dd9e6bcd9546c8b926866613329177440b58dfed4ea5a30a0f5"
+      }
+    },
+    {
+      "matrices": 31,
+      "components": 496,
+      "max_absolute_error": 1.9073486328125e-06,
+      "draw": 12,
+      "model": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/kag1.xmd",
+      "model_sha256": "a47d1652074670849eb97fc22e1f800f1a3179e0a5a7016cbac644d53198ae70",
+      "native_sha256": "cc95bd60f939afe725898f153de65fb9c2ef59ce43832935d1632e70264e0dac",
+      "retail_sha256": "080274383fce4f5234aeae0c52f69126587359bdaa0c2474afc2e1d4ea83824e",
+      "skipped_unrequested_nodes": 2,
+      "snapshot_sha256": {
+        ".world.bin": "5998e9d1dd9bf48af6af87a1ef8c7783b818ac8329637ada08cc5fb329042376",
+        ".view.bin": "2b2a7e14fa8572f07c5cdd07a1bb7dc89be4bdc2f856444b69a61831e740edf7",
+        ".camera.bin": "3d4090e34407665f89b464dbc753361d4eb8a69105444c9f3e8e3c78a876916a",
+        ".bones.bin": "e2e02195ce40ebb8fa9a27fdfea27955bd4498cdb6939fdc9727cfbebacb46cf",
+        ".hierarchy.bin": "850ae4e8d50effddcd7994a9c2490317b4264a36fc40a94a0edda371014d48d0",
+        ".projection.bin": "bb585c8cbb096dd9e6bcd9546c8b926866613329177440b58dfed4ea5a30a0f5"
+      }
+    },
+    {
+      "matrices": 4,
+      "components": 64,
+      "max_absolute_error": 1.9073486328125e-06,
+      "draw": 13,
+      "model": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/lmp.xmd",
+      "model_sha256": "504af330aa60c56f7cd22ffedf6524ade7b25b5d581ecb26a320fa1b79e4998a",
+      "native_sha256": "150768202af0d0f4412f22c47f6b83e621b94688d91afc502056a6e19a8c27e6",
+      "retail_sha256": "acb2a611e8b1fd9ddf204eca72631343de69f59f57b95364fff1c20d4c75729a",
+      "skipped_unrequested_nodes": 1,
+      "snapshot_sha256": {
+        ".world.bin": "5998e9d1dd9bf48af6af87a1ef8c7783b818ac8329637ada08cc5fb329042376",
+        ".view.bin": "2b2a7e14fa8572f07c5cdd07a1bb7dc89be4bdc2f856444b69a61831e740edf7",
+        ".camera.bin": "3d4090e34407665f89b464dbc753361d4eb8a69105444c9f3e8e3c78a876916a",
+        ".bones.bin": "b0e54bcbc65ee32ea0c3c57e3a7ff613e47da321fcec56e0d88ca7b4c26487e3",
+        ".hierarchy.bin": "50958c0e8721be6a9884cf1fa0b97973bcd3365533cf598c455d50468e02ba49",
+        ".projection.bin": "bb585c8cbb096dd9e6bcd9546c8b926866613329177440b58dfed4ea5a30a0f5"
+      }
+    },
+    {
+      "matrices": 3,
+      "components": 48,
+      "max_absolute_error": 1.9073486328125e-06,
+      "draw": 14,
+      "model": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/kum.xmd",
+      "model_sha256": "31d54f9fb55ca7e0287d7750b12bb128bf61ed58379aaf99081ae633ff564c8c",
+      "native_sha256": "f813d13961fab268078dc72b825fdb3cf2632539483aca79046323fd5410c62d",
+      "retail_sha256": "8efe8d5dfd6ded09899d439f773716dee37e8cba98c4ede91c85e7020cb45dc2",
+      "skipped_unrequested_nodes": 1,
+      "snapshot_sha256": {
+        ".world.bin": "5998e9d1dd9bf48af6af87a1ef8c7783b818ac8329637ada08cc5fb329042376",
+        ".view.bin": "2b2a7e14fa8572f07c5cdd07a1bb7dc89be4bdc2f856444b69a61831e740edf7",
+        ".camera.bin": "3d4090e34407665f89b464dbc753361d4eb8a69105444c9f3e8e3c78a876916a",
+        ".bones.bin": "9c00d483a0a3bc534ced63ff2fd0da1bff774c53b8f27d673ccd95ac75849b02",
+        ".hierarchy.bin": "44bedb43610937bf50c7eb218b5628437a2fa90a559f7a3e7cc9e0228ccf4e18",
+        ".projection.bin": "bb585c8cbb096dd9e6bcd9546c8b926866613329177440b58dfed4ea5a30a0f5"
+      }
+    },
+    {
+      "matrices": 2,
+      "components": 32,
+      "max_absolute_error": 1.9073486328125e-06,
+      "draw": 15,
+      "model": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/nun1.xmd",
+      "model_sha256": "6f0830587bedcbe8548b92329fedfceca6afcef97e09d58eb6a0f8fd8fcb72a3",
+      "native_sha256": "0a59f8b993ca2b4881e09ba6cc923428a66be0bf60f54c52e13916aa6ef2eea1",
+      "retail_sha256": "8efd37e4328ab951eaf582f3f004e00a13938129e54b6bda3c091cbd2d75a5dd",
+      "skipped_unrequested_nodes": 1,
+      "snapshot_sha256": {
+        ".world.bin": "5998e9d1dd9bf48af6af87a1ef8c7783b818ac8329637ada08cc5fb329042376",
+        ".view.bin": "2b2a7e14fa8572f07c5cdd07a1bb7dc89be4bdc2f856444b69a61831e740edf7",
+        ".camera.bin": "3d4090e34407665f89b464dbc753361d4eb8a69105444c9f3e8e3c78a876916a",
+        ".bones.bin": "715efe2e5df6f036f0ffae54975807b98936e86c16909466e3a971786e868523",
+        ".hierarchy.bin": "757bbce7f124990c719b5a18535976a9af6609961015af9a776ae492691c7019",
+        ".projection.bin": "bb585c8cbb096dd9e6bcd9546c8b926866613329177440b58dfed4ea5a30a0f5"
+      }
+    }
+  ],
+  "additional_builds": {
+    "native-release": {
+      "binary_sha256": "58066981b6f3fb355dba040df8331777fc3c5f094d5189973476804924a3b7f9",
+      "instance_and_camera_and_scene_buffers_bit_identical_to_debug": true
+    },
+    "model-sanitize": {
+      "binary_sha256": "25f6f82fe61b8ef52b5866b20abfaf6eea8880737700c64f83e1da44c4b4299f",
+      "instance_and_camera_and_scene_buffers_bit_identical_to_debug": true
+    }
+  },
+  "native_ctests": 7,
+  "python_tests": 12,
+  "original_scene_observer": {
+    "state": "local/reference-intro-600-v2.state.zip",
+    "state_sha256": "6282f344f0c79d1b6a364bca6306ff1e4d5166c57f32111550c0305657f3816a",
+    "relative_vblanks": 2,
+    "boot_oracle_sha256": "fdc1d6cceff21af422ecfb71d3d69383671f814376828a1362e37b3baf4de7be",
+    "entry_points": [
+      "0x1856f8",
+      "0x185fb0",
+      "0x184bd8"
+    ],
+    "return_points": [
+      "0x18579c",
+      "0x186058"
+    ],
+    "scale_mode": 0,
+    "limitation": "Captured evaluated bone/camera channels do not validate native event/animation playback or the chosen camera trajectory."
+  },
+  "static_room_render": {
+    "placements": 6,
+    "omitted_effects": 26,
+    "polygons": 5387,
+    "triangles": 9472,
+    "image_bindings": 64,
+    "size": [
+      640,
+      224
+    ],
+    "png_sha256": {
+      "local/home1c-native-static-v3.png": "618b447f54c5ad0fc5fc59f677b79d7049724d0a090e073754001bb6c0c6ec07",
+      "local/home1c-native-static-release.png": "618b447f54c5ad0fc5fc59f677b79d7049724d0a090e073754001bb6c0c6ec07",
+      "local/home1c-native-static-sanitized.png": "618b447f54c5ad0fc5fc59f677b79d7049724d0a090e073754001bb6c0c6ec07"
+    },
+    "builds_bit_identical": true,
+    "visually_inspected": true,
+    "scope": "Static ordinary room geometry with native matrices, captured evaluated camera channels and captured projection descriptor."
+  },
+  "reference_frame_sha256": "38b25f40436306b85188be414b061f6a284ef5fbb2873cc3f51a50357bcdef51"
+}

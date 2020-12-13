@@ -147,6 +147,27 @@ public:
         }
         writeFile(output,result.data(),result.size());
     }
+    void instanceMatrices(const std::vector<uint8>& bytes,const char* output,bool camera=false) {
+        if(bytes.empty() || bytes.size()%48 || bytes.size()>48*65536)throw std::runtime_error("Invalid instance channel fixture");
+        call(0x1b1d88);loadMicro();
+        constexpr uint32 fragment=0x700000,size=0x1ba140-0x1b9ff8;
+        std::memcpy(ee->m_ram+fragment,ee->m_ram+0x1b9ff8,size);
+        put(fragment+size,0x08000000|(stop>>2));put(fragment+size+4,0);
+        std::vector<uint8> result;
+        for(size_t at=0;at<bytes.size();at+=48) {
+            if(camera) {
+                std::memcpy(ee->m_ram+0x3321f0,bytes.data()+at,48);put(0x3323a0,1);
+                call(0x183990);
+                result.insert(result.end(),ee->m_ram+0x3322a0,ee->m_ram+0x3322e0);continue;
+            }
+            std::memcpy(ee->m_ram+0x800000,bytes.data()+at,48);
+            std::memcpy(ee->m_ram+0x1ff0060,bytes.data()+at+16,16);
+            auto& cpu=ee->m_EE.m_State;cpu.nGPR[CMIPS::S1].nD0=0x800000;cpu.nGPR[CMIPS::S6].nD0=0x800020;
+            call(fragment);
+            result.insert(result.end(),ee->m_ram+0x1ff0070,ee->m_ram+0x1ff00b0);
+        }
+        writeFile(output,result.data(),result.size());
+    }
     struct TextureFixture {
         std::vector<uint32> packets;
         std::vector<uint64> tex0;
@@ -423,7 +444,9 @@ int main(int argc,char** argv) {
         if (argc<4) throw std::runtime_error("Usage: okage-pose-oracle sine ELF OUTPUT | vu-asm ELF OUTPUT | pose ELF XMD OUTPUT | pose-corpus ELF DIRECTORY OUTDIR");
         Reference reference(readFile(argv[2]));
         const std::string command=argv[1];
-        if (command=="map-transforms" && argc==5) {
+        if ((command=="instance-matrices" || command=="camera-matrices") && argc==5) {
+            reference.instanceMatrices(readFile(argv[3]),argv[4],command=="camera-matrices");
+        } else if (command=="map-transforms" && argc==5) {
             reference.mapTransforms(readFile(argv[3]),argv[4]);
         } else if ((command=="uv" || command=="texture-clamp") && argc==5) {
             reference.uv(readFile(argv[3]),argv[4],command=="texture-clamp");

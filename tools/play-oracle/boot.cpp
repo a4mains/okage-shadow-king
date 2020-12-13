@@ -5,6 +5,7 @@
 #include "reference_graphics.hpp"
 #include "reference_input.hpp"
 #include "reference_audio.hpp"
+#include "reference_scene.hpp"
 #include "iop/IopBios.h"
 #include "iop/ioman/OpticalMediaDevice.h"
 #include <atomic>
@@ -44,8 +45,8 @@ public:
 };
 int main(int argc,char** argv) {
     try {
-        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders]");
-        bool load=false,traceFiles=false,traceLoaders=false;std::string state,capture,pad,audio,saveState;
+        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY]");
+        bool load=false,traceFiles=false,traceLoaders=false;std::string state,capture,pad,audio,saveState,scene;
         for (int i=3;i<argc;++i) {
             const std::string arg=argv[i];
             if (arg=="--load") load=true;
@@ -55,6 +56,7 @@ int main(int argc,char** argv) {
             else if (arg=="--pad" && i+1<argc) pad=argv[++i];
             else if (arg=="--audio" && i+1<argc) audio=argv[++i];
             else if (arg=="--save" && i+1<argc) saveState=argv[++i];
+            else if (arg=="--scene" && i+1<argc) scene=argv[++i];
             else if (state.empty() && !arg.starts_with("--")) state=arg;
             else throw std::runtime_error("Unknown boot argument");
         }
@@ -76,6 +78,8 @@ int main(int argc,char** argv) {
             throw std::runtime_error("Refusing existing WAV output");
         if (load && !std::filesystem::is_regular_file(state)) throw std::runtime_error("State input missing");
         auto recordedPad=std::make_unique<RecordedPad>(pad,requested);
+        auto sceneTrace=scene.empty() ? nullptr : std::make_unique<SceneTrace>(scene);
+        const bool tracing=traceLoaders || bool(sceneTrace);
         RecordedAudio* recordedAudio=nullptr;
         Traffic traffic; std::atomic<unsigned> frames{0}; std::atomic<bool> exited{false};
         CPS2VM vm;
@@ -112,8 +116,11 @@ int main(int argc,char** argv) {
             if (!vm.LoadState(state).get()) throw std::runtime_error("Could not load reference state");
             std::cout<<"Loaded reference state "<<state<<std::endl;
         }
-        const std::array<uint32,3> loaders={0x1bccf0,0x1babf8,0x1c2e68};
-        if (traceLoaders) {
+        std::vector<uint32> loaders;
+        if(traceLoaders)loaders={0x1bccf0,0x1babf8,0x1c2e68};
+        const std::array<uint32,5> sceneBreakpoints={0x1856f8,0x185fb0,0x184bd8,0x18579c,0x186058};
+        if(sceneTrace)for(auto at:sceneBreakpoints)loaders.push_back(at);
+        if (tracing) {
             Iop::Ioman::COpticalMediaDevice reader(vm.m_cdrom0);
             std::unique_ptr<Framework::CStream> stream(reader.GetFile(1,"\\SCUS_971.29;1"));
             if (!stream || stream->GetLength()!=1374220) throw std::runtime_error("Loader tracing needs the pinned USA ELF");
@@ -132,11 +139,14 @@ int main(int argc,char** argv) {
         const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(std::max<unsigned long>(90,requested/30+30));
         unsigned tracedCalls=0;
         while (frames<requested && !exited && std::chrono::steady_clock::now()<deadline) {
-            if (traceLoaders && stateChanged.exchange(false) && vm.GetStatus()==CVirtualMachine::PAUSED && frames<requested) {
+            if (tracing && stateChanged.exchange(false) && vm.GetStatus()==CVirtualMachine::PAUSED && frames<requested) {
                 const auto& cpu=vm.m_ee->m_EE.m_State;
                 const auto pc=cpu.nPC;
                 if (std::find(loaders.begin(),loaders.end(),pc)==loaders.end()) throw std::runtime_error("Unexpected reference breakpoint");
                 if (++tracedCalls>10000) throw std::runtime_error("Loader trace limit exceeded");
+                if(sceneTrace && std::find(sceneBreakpoints.begin(),sceneBreakpoints.end(),pc)!=sceneBreakpoints.end()) {
+                    sceneTrace->observe(*vm.m_ee,frames);vm.Resume();continue;
+                }
                 const uint32 address=uint32(cpu.nGPR[CMIPS::A0].nD0)&0x1fffffff;
                 std::string path;
                 for (unsigned i=0;i<256 && address+i<PS2::EE_RAM_SIZE;++i) {
@@ -148,10 +158,10 @@ int main(int argc,char** argv) {
                          <<" argument=0x"<<address<<std::dec<<" text="<<path<<std::endl;
                 vm.Resume();
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(traceLoaders ? 1 : 50));
+            std::this_thread::sleep_for(std::chrono::milliseconds(tracing ? 1 : 50));
         }
         vm.Pause();
-        if (traceLoaders) for (auto address:loaders) vm.m_ee->m_EE.ToggleBreakpoint(address);
+        if (tracing) for (auto address:loaders) vm.m_ee->m_EE.ToggleBreakpoint(address);
         for (const auto& module:vm.m_iop->m_bios->GetModulesDebugInfo())
             std::cout<<"IOP module "<<module.name<<" at 0x"<<std::hex<<module.begin<<"..0x"<<module.end<<std::dec<<std::endl;
         std::cout<<"Stopped: vblanks="<<frames<<" exit_request="<<exited<<" gs_registers="<<traffic.registers
