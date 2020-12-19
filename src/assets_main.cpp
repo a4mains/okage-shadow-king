@@ -6,6 +6,7 @@
 #include "okage/render.hpp"
 #include "okage/map.hpp"
 #include "okage/event.hpp"
+#include "okage/audio.hpp"
 #include <algorithm>
 #include <bit>
 #include <cstring>
@@ -58,6 +59,31 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if(command=="spu-sample" && argc==4) {
+            const auto sample=okage::decode_spu_sample(read(argv[2]));
+            write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(sample.pcm.data()),sample.pcm.size()*2));
+            std::cout<<"Native SPU sample: "<<sample.pcm.size()<<" samples, "<<sample.consumed
+                     <<" bytes, end flags "<<unsigned(sample.end_flags)<<", loop sample "
+                     <<(sample.loop_sample ? std::to_string(*sample.loop_sample) : "none")<<'\n';return 0;
+        }
+        if(command=="dialogue-wait" && argc==4) {
+            const auto cases=read(argv[2]);
+            if(cases.empty() || cases.size()%48)throw std::runtime_error("Dialogue fixture record bounds");
+            std::vector<std::uint32_t> output;
+            for(std::size_t at=0;at<cases.size();at+=48) {
+                std::array<std::uint32_t,12> in;std::memcpy(in.data(),cases.data()+at,48);
+                if(in[8]>16 || (in[10]!=0 && in[10]!=0xffffffff) || in[6]>1)
+                    throw std::runtime_error("Dialogue fixture input bounds");
+                std::vector<std::uint32_t> layers;
+                for(unsigned i=0;i<in[8];++i)layers.push_back((in[9]&(1u<<i)) ? 0x40 : 0);
+                okage::DialogueWaitState state{in[1],in[2],in[3],in[4],in[5]};
+                const okage::DialogueObservation dialogue{in[6]!=0,__builtin_bit_cast(std::int32_t, (in[7])),layers,
+                    in[10]==0 ? __builtin_bit_cast(std::int32_t, (in[11])) : -1};
+                const auto result=okage::poll_dialogue_wait(state,__builtin_bit_cast(std::int32_t, (in[0])),dialogue);
+                output.insert(output.end(),{state.countdown,state.observed,state.accumulated,__builtin_bit_cast(std::uint32_t, (result))});
+            }
+            write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4));return 0;
+        }
         if(command=="event-setup" && argc==6) {
             const auto script=read(argv[2]),variables=read(argv[3]);auto state=read(argv[4]);
             const auto pcs=okage::run_event_setup(script,variables,state);

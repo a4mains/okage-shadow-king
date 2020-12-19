@@ -1,0 +1,40 @@
+{
+  "scope": "Dialogue wait callback and readiness getter, not native dialogue presentation",
+  "capture_sha256": "c8668226e4e003419f4f3cef9a44e962ce9255a48c07e76628945f10c72e6772",
+  "cases": [
+    {
+      "name": "opening",
+      "calls": 89,
+      "input_sha256": "975e76d65d71a2bcdb0b0f26885e9e9659995a0e45e0df4686b5141694b63b74",
+      "output_sha256": "917120b284256d70bb141364ab30a4139450c84e56782158b641368442409e5c",
+      "full_game_exact": true
+    },
+    {
+      "name": "synthetic",
+      "calls": 700,
+      "input_sha256": "0cccd0ceba65f5de3c377913b3934d68e73f6b18f03955d78fb9c3ecce556170",
+      "output_sha256": "31d5e556f6070064ff68588a91a77403ebae7cacd2445df93178070d40743709",
+      "full_game_exact": false
+    }
+  ],
+  "release_call_indices": [
+    88
+  ],
+  "native_sha256": "1f6ca016acfc2d1e812c0741c495fdab7ad68af32180c356171343438157ed0c",
+  "builds": {
+    "native-release": {
+      "binary_sha256": "bf631a41e948303d3a14a190bc25f61a9db8cb06794cbf22ea231ad77cb1075d",
+      "all_outputs_equal_debug": true
+    },
+    "model-sanitize": {
+      "binary_sha256": "83399785a3740fc3430c76db1bd57755a28e773576c28c10e7a2fad48da3a3f7",
+      "all_outputs_equal_debug": true
+    }
+  },
+  "tests": {
+    "native_ctests_passed": 9,
+    "python_tests_passed": 12,
+    "reference_input_tests_passed": 1,
+    "release_and_sanitized_focused_tests_passed": 2
+  }
+}

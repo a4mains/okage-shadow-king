@@ -40,6 +40,28 @@ std::int32_t event_variable(Bytes variables,std::uint32_t selector) {
     if(bank==4)return __builtin_bit_cast(std::int32_t, (word(variables,0x510+std::size_t(index)*4)));
     throw std::runtime_error("Unrecovered event variable bank "+std::to_string(bank));
 }
+std::int32_t poll_dialogue_wait(DialogueWaitState& state,std::int32_t request,
+                               const DialogueObservation& dialogue) {
+    if(state.countdown) {
+        --state.countdown;
+        return state.countdown ? -1 : 0;
+    }
+    if(request==-1)return state.mode==5 && state.active!=0 ? 0 : -1;
+    if(request==0) {
+        if(!dialogue.present || dialogue.status<0)state.countdown=2;
+        return -1;
+    }
+    if(!dialogue.present)throw std::runtime_error("Dialogue progress wait requires a message");
+    const bool ready=std::all_of(dialogue.layer_flags.begin(),dialogue.layer_flags.end(),
+                                  [](auto flags){return (flags&0x40)!=0;});
+    const auto progress=ready ? __builtin_bit_cast(std::uint32_t, (dialogue.text_progress)) : 0;
+    if(state.observed!=progress) {++state.observed;++state.accumulated;}
+    if(__builtin_bit_cast(std::int32_t, (state.accumulated))>=request) {
+        state.countdown=2;
+        state.accumulated-=__builtin_bit_cast(std::uint32_t, (request));
+    }
+    return 1;
+}
 std::vector<std::uint32_t> run_event_setup(Bytes script,Bytes variables,
                                          std::span<std::uint8_t> field_state) {
     if(word(script,0)!=0x544d58 || word(script,16)!=0xffffffff)

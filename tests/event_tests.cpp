@@ -42,6 +42,24 @@ int main() {
         rejects([&]{okage::run_event_setup(bad,variables,state);});require(state==previous);
         for(std::size_t n=0;n<script.size();++n)
             rejects([&]{okage::run_event_setup(okage::Bytes(script.data(),n),variables,state);});
+        okage::DialogueWaitState wait{5,1,0,0,0};
+        std::vector<std::uint32_t> layers{0x50,0x70};
+        okage::DialogueObservation dialogue{true,0,layers,4};
+        require(okage::poll_dialogue_wait(wait,2,dialogue)==1);
+        require(wait.observed==1 && wait.accumulated==1 && wait.countdown==0);
+        require(okage::poll_dialogue_wait(wait,2,dialogue)==1);
+        require(wait.observed==2 && wait.accumulated==0 && wait.countdown==2);
+        require(okage::poll_dialogue_wait(wait,2,dialogue)==-1 && wait.countdown==1);
+        require(okage::poll_dialogue_wait(wait,2,dialogue)==0 && wait.countdown==0);
+        require(okage::poll_dialogue_wait(wait,-1,dialogue)==0);
+        wait.active=0;require(okage::poll_dialogue_wait(wait,-1,dialogue)==-1);
+        wait={};layers[1]=0x10;
+        require(okage::poll_dialogue_wait(wait,1,dialogue)==1 && wait.observed==0);
+        dialogue.present=false;
+        rejects([&]{okage::poll_dialogue_wait(wait,1,dialogue);});
+        require(okage::poll_dialogue_wait(wait,0,dialogue)==-1 && wait.countdown==2);
+        require(okage::poll_dialogue_wait(wait,0,dialogue)==-1);
+        require(okage::poll_dialogue_wait(wait,0,dialogue)==0);
         std::cout<<"Event signed variables, branch paths, state writes and atomic failure passed\n";
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }

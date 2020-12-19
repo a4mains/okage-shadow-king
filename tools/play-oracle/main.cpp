@@ -5,6 +5,7 @@
 #include "ee/Vif.h"
 #include "iop/Iop_SubSystem.h"
 #include "iop/IopBios.h"
+#include "iop/Iop_SpuBase.h"
 #include "Ps2Const.h"
 #include "FpUtils.h"
 #include "okage/model.hpp"
@@ -119,6 +120,58 @@ public:
     void put(uint32 address,uint32 value) { std::memcpy(ee->m_ram+address,&value,4); }
     void put64(uint32 address,uint64 value) { std::memcpy(ee->m_ram+address,&value,8); }
     uint64 get64(uint32 address) const { uint64 value; std::memcpy(&value,ee->m_ram+address,8); return value; }
+    void spuSample(const std::vector<uint8>& blocks,const char* output) {
+        if(blocks.empty() || blocks.size()%16 || blocks.size()>1024*1024)
+            throw std::runtime_error("SPU sample fixture bounds");
+        std::vector<uint8> ram(2*1024*1024);
+        constexpr uint32 start=0x10000;
+        std::memcpy(ram.data()+start,blocks.data(),blocks.size());
+        Iop::CSpuSampleCache cache;Iop::CSpuIrqWatcher irq;
+        Iop::CSpuBase spu(ram.data(),ram.size(),&cache,&irq,0);
+        spu.SetReverbEnabled(false);spu.SetBaseSamplingRate(48000);spu.SetDestinationSamplingRate(48000);
+        auto& voice=spu.GetChannel(0);voice.address=start;voice.repeat=start;voice.pitch=0x1000;
+        spu.OnChannelPitchChanged(0);spu.SendKeyOn(1);
+        std::vector<int16> pcm;
+        int32 s1=0,s2=0;
+        for(uint32 at=0;at<blocks.size();at+=16) {
+            if((blocks[at]>>4)>=5)throw std::runtime_error("SPU reference predictor bounds");
+            const auto key=(blocks[at]>>4)==0 ? Iop::CSpuSampleCache::KEY{start+at,0,0} :
+                                              Iop::CSpuSampleCache::KEY{start+at,s1,s2};
+            const Iop::CSpuSampleCache::ITEM* item=cache.GetItem(key);
+            for(unsigned ticks=0;!item && ticks<100;++ticks) {
+                int16 stereo[2];spu.Render(stereo,2);item=cache.GetItem(key);
+            }
+            if(!item)throw std::runtime_error("Reference SPU did not decode expected sample block");
+            pcm.insert(pcm.end(),std::begin(item->samples),std::end(item->samples));
+            s1=item->outS1;s2=item->outS2;
+            if(blocks[at+1]&1) {writeFile(output,pcm.data(),pcm.size()*2);return;}
+        }
+        throw std::runtime_error("Reference SPU fixture lacks end block");
+    }
+    void dialogueWait(const std::vector<uint8>& cases,const char* output) {
+        if(cases.empty() || cases.size()%48)throw std::runtime_error("Dialogue fixture record bounds");
+        std::vector<uint32> results;
+        for(std::size_t at=0;at<cases.size();at+=48) {
+            std::array<uint32,12> in;std::memcpy(in.data(),cases.data()+at,48);
+            if(in[8]>16 || (in[10]!=0 && in[10]!=0xffffffff) || in[6]>1)
+                throw std::runtime_error("Dialogue fixture input bounds");
+            if(!in[6] && in[0]!=0 && in[0]!=0xffffffff && !in[3])
+                throw std::runtime_error("Original progress wait would dereference missing message");
+            std::memset(ee->m_ram+0x800000,0,0x800);
+            std::memset(ee->m_ram+0x900000,0,0x1000);
+            put(0x2d9bf4,0x800000);put(0x800048,in[1]);put(0x800030,in[2]);
+            put(0x800054,in[3]);put(0x800058,in[4]);put(0x80005c,in[5]);
+            put(0x800050,in[6] ? 0x900000 : 0);put(0x90001c,in[7]);put(0x900e40,in[8]);
+            for(unsigned i=0;i<in[8];++i)put(0x900090+i*0xe0,(in[9]&(1u<<i)) ? 0x40 : 0);
+            put(0x900120,in[10]);put(0x200688,0xa00000);put(0xa03d08,in[11]);
+            // Signed o32 argument: unlike an address, -1 must be sign-extended.
+            ee->m_EE.m_State.nGPR[CMIPS::A0].nD0=int64(int32(in[0]));
+            call(0x130458);
+            results.insert(results.end(),{get(0x800054),get(0x800058),get(0x80005c),
+                           uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0)});
+        }
+        writeFile(output,results.data(),results.size()*4);
+    }
     void eventSetup(const std::vector<uint8>& script,const std::vector<uint8>& variables,
                     const std::vector<uint8>& state,const char* output) {
         if(script.size()<36 || script.size()>0x100000 || variables.size()!=0x1000 || state.size()!=0x800)
@@ -459,7 +512,11 @@ int main(int argc,char** argv) {
         if (argc<4) throw std::runtime_error("Usage: okage-pose-oracle sine ELF OUTPUT | vu-asm ELF OUTPUT | pose ELF XMD OUTPUT | pose-corpus ELF DIRECTORY OUTDIR");
         Reference reference(readFile(argv[2]));
         const std::string command=argv[1];
-        if(command=="event-setup" && argc==7) {
+        if(command=="spu-sample" && argc==5) {
+            reference.spuSample(readFile(argv[3]),argv[4]);
+        } else if(command=="dialogue-wait" && argc==5) {
+            reference.dialogueWait(readFile(argv[3]),argv[4]);
+        } else if(command=="event-setup" && argc==7) {
             reference.eventSetup(readFile(argv[3]),readFile(argv[4]),readFile(argv[5]),argv[6]);
         } else if ((command=="instance-matrices" || command=="camera-matrices") && argc==5) {
             reference.instanceMatrices(readFile(argv[3]),argv[4],command=="camera-matrices");
