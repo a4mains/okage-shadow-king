@@ -1,0 +1,62 @@
+{
+  "scope": "HOME1C entry-zero setup, not opening event playback",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "native_sha256": "9268dda336b4823829e2e82204d20dc74de4f3e20707e45632b9824d38cb618a",
+  "oracle_sha256": "a20d0ff0432cd0a2ccd97979e55e58a4f2882e1a350ab00220d93025fa13fc93",
+  "cases": [
+    {
+      "name": "opening",
+      "script_sha256": "0fd868603f66f22ca93cfdd050a30b223f496e7c69ec0bf1995e9759441fcded",
+      "variables_sha256": "812b721026977253f4f9f1646974a7694966a94347e648f978c0e8df4320cb1c",
+      "initial_state_sha256": "73962ba54de5e90774ed5c9c943c6b5feb96a6d4cb12e14ec21551b98f493bb0",
+      "result_sha256": "4f532be672848b012259ef1074649b74df62920b2e0af5ed02b708f6d1d6db3e",
+      "exact_state_bytes": 2048,
+      "full_game_instruction_path": true
+    },
+    {
+      "name": "synthetic",
+      "script_sha256": "5cb8ad204c261c89024e10d9a2bddb73e292e338c90108f3618a5863d348d818",
+      "variables_sha256": "3c5c10fce4cc926dddaa0d57ab376048795a1d4a8838f9af36db7b6bb9179437",
+      "initial_state_sha256": "f512fdea9fe16a8a6f5a755499739b74ffb9691a4264a1b06b1fd42136dfdc73",
+      "result_sha256": "beefc8167bc4ef9a4757bdbfcca63122a90322d59c4f00333226078734f95d0a",
+      "exact_state_bytes": 2048,
+      "full_game_instruction_path": false
+    }
+  ],
+  "opening_instructions": 30,
+  "synthetic_conditions": 315,
+  "builds": {
+    "debug": {
+      "native_sha256": "9268dda336b4823829e2e82204d20dc74de4f3e20707e45632b9824d38cb618a",
+      "state_and_pc_buffers_identical_to_debug": true
+    },
+    "release": {
+      "native_sha256": "447db6fde19674c2de80482063724b7b7dc7af377474d6c6f01d035b248dba5b",
+      "state_and_pc_buffers_identical_to_debug": true
+    },
+    "asan_ubsan": {
+      "native_sha256": "6200925030b0c1ba2479d9034fda9e1999c5619327d6cd86826af943445a43bf",
+      "state_and_pc_buffers_identical_to_debug": true
+    }
+  },
+  "tests": {
+    "native_ctest": {
+      "passed": 8
+    },
+    "python_unittest": {
+      "passed": 12
+    },
+    "release_event_ctest": {
+      "passed": 1
+    },
+    "sanitized_event_ctest": {
+      "passed": 1
+    }
+  },
+  "full_game_capture": {
+    "directory": "local/reference-opening-events-400-v4",
+    "requested_vblanks": 400,
+    "completed_vblanks": 400,
+    "instructions_sha256": "1bf469690690a93f462d8ba0b37e5037ce4bb2898aa3d9e491a31da0b7b1b5e9"
+  }
+}

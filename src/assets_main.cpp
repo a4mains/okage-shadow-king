@@ -5,6 +5,7 @@
 #include "okage/texture_animation.hpp"
 #include "okage/render.hpp"
 #include "okage/map.hpp"
+#include "okage/event.hpp"
 #include <algorithm>
 #include <bit>
 #include <cstring>
@@ -57,6 +58,13 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if(command=="event-setup" && argc==6) {
+            const auto script=read(argv[2]),variables=read(argv[3]);auto state=read(argv[4]);
+            const auto pcs=okage::run_event_setup(script,variables,state);
+            write(std::string(argv[5])+".state.bin",state);
+            write(std::string(argv[5])+".pcs.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(pcs.data()),pcs.size()*4));
+            std::cout<<"Native event setup completed "<<pcs.size()<<" instructions\n";return 0;
+        }
         if(command=="snapshot-pose" && argc==5) {
             const auto model=okage::read_xmd(read(argv[2]));
             if(model.models.size()!=1)throw std::runtime_error("Snapshot requires one model");

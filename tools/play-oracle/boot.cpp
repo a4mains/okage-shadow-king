@@ -6,6 +6,7 @@
 #include "reference_input.hpp"
 #include "reference_audio.hpp"
 #include "reference_scene.hpp"
+#include "reference_events.hpp"
 #include "iop/IopBios.h"
 #include "iop/ioman/OpticalMediaDevice.h"
 #include <atomic>
@@ -45,8 +46,8 @@ public:
 };
 int main(int argc,char** argv) {
     try {
-        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY]");
-        bool load=false,traceFiles=false,traceLoaders=false;std::string state,capture,pad,audio,saveState,scene;
+        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY]");
+        bool load=false,traceFiles=false,traceLoaders=false;std::string state,capture,pad,audio,saveState,scene,events;
         for (int i=3;i<argc;++i) {
             const std::string arg=argv[i];
             if (arg=="--load") load=true;
@@ -57,6 +58,7 @@ int main(int argc,char** argv) {
             else if (arg=="--audio" && i+1<argc) audio=argv[++i];
             else if (arg=="--save" && i+1<argc) saveState=argv[++i];
             else if (arg=="--scene" && i+1<argc) scene=argv[++i];
+            else if (arg=="--events" && i+1<argc) events=argv[++i];
             else if (state.empty() && !arg.starts_with("--")) state=arg;
             else throw std::runtime_error("Unknown boot argument");
         }
@@ -79,7 +81,8 @@ int main(int argc,char** argv) {
         if (load && !std::filesystem::is_regular_file(state)) throw std::runtime_error("State input missing");
         auto recordedPad=std::make_unique<RecordedPad>(pad,requested);
         auto sceneTrace=scene.empty() ? nullptr : std::make_unique<SceneTrace>(scene);
-        const bool tracing=traceLoaders || bool(sceneTrace);
+        auto eventTrace=events.empty() ? nullptr : std::make_unique<EventTrace>(events);
+        const bool tracing=traceLoaders || bool(sceneTrace) || bool(eventTrace);
         RecordedAudio* recordedAudio=nullptr;
         Traffic traffic; std::atomic<unsigned> frames{0}; std::atomic<bool> exited{false};
         CPS2VM vm;
@@ -120,6 +123,7 @@ int main(int argc,char** argv) {
         if(traceLoaders)loaders={0x1bccf0,0x1babf8,0x1c2e68};
         const std::array<uint32,5> sceneBreakpoints={0x1856f8,0x185fb0,0x184bd8,0x18579c,0x186058};
         if(sceneTrace)for(auto at:sceneBreakpoints)loaders.push_back(at);
+        if(eventTrace) {loaders.push_back(0x1b5888);loaders.push_back(0x1b58ac);}
         if (tracing) {
             Iop::Ioman::COpticalMediaDevice reader(vm.m_cdrom0);
             std::unique_ptr<Framework::CStream> stream(reader.GetFile(1,"\\SCUS_971.29;1"));
@@ -142,8 +146,14 @@ int main(int argc,char** argv) {
             if (tracing && stateChanged.exchange(false) && vm.GetStatus()==CVirtualMachine::PAUSED && frames<requested) {
                 const auto& cpu=vm.m_ee->m_EE.m_State;
                 const auto pc=cpu.nPC;
-                if (std::find(loaders.begin(),loaders.end(),pc)==loaders.end()) throw std::runtime_error("Unexpected reference breakpoint");
-                if (++tracedCalls>10000) throw std::runtime_error("Loader trace limit exceeded");
+                if (std::find(loaders.begin(),loaders.end(),pc)==loaders.end()) {
+                    std::ostringstream error;error<<"Unexpected reference breakpoint at EE PC 0x"<<std::hex<<pc;
+                    throw std::runtime_error(error.str());
+                }
+                if (++tracedCalls>(eventTrace ? 200000u : 10000u)) throw std::runtime_error("Reference trace limit exceeded");
+                if(eventTrace && (pc==0x1b5888 || pc==0x1b58ac)) {
+                    eventTrace->observe(*vm.m_ee,frames);vm.Resume();continue;
+                }
                 if(sceneTrace && std::find(sceneBreakpoints.begin(),sceneBreakpoints.end(),pc)!=sceneBreakpoints.end()) {
                     sceneTrace->observe(*vm.m_ee,frames);vm.Resume();continue;
                 }

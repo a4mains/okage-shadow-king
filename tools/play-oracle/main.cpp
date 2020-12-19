@@ -119,6 +119,21 @@ public:
     void put(uint32 address,uint32 value) { std::memcpy(ee->m_ram+address,&value,4); }
     void put64(uint32 address,uint64 value) { std::memcpy(ee->m_ram+address,&value,8); }
     uint64 get64(uint32 address) const { uint64 value; std::memcpy(&value,ee->m_ram+address,8); return value; }
+    void eventSetup(const std::vector<uint8>& script,const std::vector<uint8>& variables,
+                    const std::vector<uint8>& state,const char* output) {
+        if(script.size()<36 || script.size()>0x100000 || variables.size()!=0x1000 || state.size()!=0x800)
+            throw std::runtime_error("Event setup fixture bounds");
+        std::memcpy(ee->m_ram+0x900000,script.data(),script.size());
+        std::memcpy(ee->m_ram+0xa00000,variables.data(),variables.size());
+        std::memcpy(ee->m_ram+0xb00000,state.data(),state.size());
+        std::memset(ee->m_ram+0x800000,0,192*24);
+        put(0x337614,0x800000);put(0x24f788,0xa00000);put(0x2d9bf4,0xb00000);
+        put(0x33793c,0x130378);put(0x212ef0+(0x50-0x20)*4,0x130bb8);
+        put(0x212ef0+(0x59-0x20)*4,0x131048);
+        call(0x1b5bd8,{0,0x900000});
+        if(get(0x800000)&0x100)throw std::runtime_error("Event setup did not terminate");
+        writeFile(output,ee->m_ram+0xb00000,state.size());
+    }
     void mapTransforms(const std::vector<uint8>& bytes,const char* output) {
         // Independent bounded reader: do not reuse the native XMP parser under test.
         if(bytes.size()<64 || bytes.size()>4*1024*1024) throw std::runtime_error("Map oracle input bounds");
@@ -444,7 +459,9 @@ int main(int argc,char** argv) {
         if (argc<4) throw std::runtime_error("Usage: okage-pose-oracle sine ELF OUTPUT | vu-asm ELF OUTPUT | pose ELF XMD OUTPUT | pose-corpus ELF DIRECTORY OUTDIR");
         Reference reference(readFile(argv[2]));
         const std::string command=argv[1];
-        if ((command=="instance-matrices" || command=="camera-matrices") && argc==5) {
+        if(command=="event-setup" && argc==7) {
+            reference.eventSetup(readFile(argv[3]),readFile(argv[4]),readFile(argv[5]),argv[6]);
+        } else if ((command=="instance-matrices" || command=="camera-matrices") && argc==5) {
             reference.instanceMatrices(readFile(argv[3]),argv[4],command=="camera-matrices");
         } else if (command=="map-transforms" && argc==5) {
             reference.mapTransforms(readFile(argv[3]),argv[4]);
