@@ -1,0 +1,71 @@
+{
+  "scope": "Text clock and 160-frame cursor/progress replay; native font layout, window controller and raw pad polling not included",
+  "capture_sha256": "c52d52461a2dcd0d6185f070f1b78c87f7d2bba7d1134f2a2f7ae519719d5511",
+  "native_sha256": "1271d3d6d2f0b9b9234fd86daeed10477f73663586c3cded28b80ae43a5de1e7",
+  "clock_cases": [
+    {
+      "name": "opening",
+      "calls": 160,
+      "exact": true,
+      "output_sha256": "2f7dcdc519a9b67809cba90f089f0af31a456c3d5ec94b5cd3b29c5ff848cb79"
+    },
+    {
+      "name": "synthetic",
+      "calls": 182,
+      "exact": true,
+      "output_sha256": "9d7954a3759fd0c04bb294dddd8f15c34aecfe0a7652384fa01a14ccda3e55a2"
+    }
+  ],
+  "frame_replay": {
+    "frames": 160,
+    "exact_words_per_frame": 11,
+    "seed": "One initial cursor/clock state plus observed resume/period API calls; no subsequent cursor/counter corrections",
+    "output_sha256": "2c71bbf8fb9e322de3466c5a09618e57f466bddd72d6e984483e88e5954ebbc5",
+    "progress_changes": [
+      [
+        0,
+        0
+      ],
+      [
+        6,
+        1
+      ],
+      [
+        85,
+        2
+      ]
+    ]
+  },
+  "event_wait": {
+    "calls": 89,
+    "exact": true,
+    "release_call_index": 88,
+    "native_progress_used": true,
+    "readiness": "Both initially ready layers remain ready in this capture",
+    "output_sha256": "917120b284256d70bb141364ab30a4139450c84e56782158b641368442409e5c"
+  },
+  "additional_builds": [
+    {
+      "build": "native-release",
+      "native_sha256": "8439879058f6b698e563fe12b150976615c764bc958b259735f5a855bd8f2d4f",
+      "clock_frame_wait_outputs_identical": true
+    },
+    {
+      "build": "model-sanitize",
+      "native_sha256": "0e6017822e64220d913655470dcc3c72d81862d11a71688a85a45e168093105b",
+      "clock_frame_wait_outputs_identical": true
+    }
+  ],
+  "tests": {
+    "native_ctest": 10,
+    "python_unittest": 12,
+    "release_focused_ctest": 2,
+    "asan_ubsan_focused_ctest": 2
+  },
+  "reference_capture": {
+    "completed_vblanks": 160,
+    "png_sha256": "80a015fede7148445536fa742ec01257cd3c28607bcb7bd70c921c751bec9a71",
+    "visually_inspected": true,
+    "native_render": false
+  }
+}

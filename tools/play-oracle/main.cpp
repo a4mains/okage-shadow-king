@@ -201,6 +201,22 @@ public:
         if(get(object+0x3e34)!=text.size())throw std::runtime_error("Text fixture did not finish");
         writeFile(output,result.data(),result.size());
     }
+    void textClock(const std::vector<uint8>& input,const char* output) {
+        if(input.empty() || input.size()%40)throw std::runtime_error("Text clock fixture bounds");
+        constexpr uint32 object=0xa00000;
+        std::vector<uint32> results;
+        for(std::size_t at=0;at<input.size();at+=40) {
+            std::array<uint32,10> r;std::memcpy(r.data(),input.data()+at,40);
+            std::memset(ee->m_ram+object,0,0x7000);
+            std::memset(ee->m_ram+0x200688,0,32);put(0x200688,object);put(0x2006b0,1);
+            put(object+0x1900,r[0]);put(object+0x25c,r[1]);put(object+0xcd0,r[2]);put(object+0xcd4,r[3]);
+            put(object+0xcd8,r[4]);put(object+0xce8,r[5]);put(object+0x260,r[6]);put(object+0x264,r[7]);
+            put(object+0x268,r[8]);put(object+0x26c,r[9]);
+            call(0x1980f8);
+            for(auto offset:{0x1900,0xcd0,0xcd4,0xcd8,0xce8,0x264})results.push_back(get(object+offset));
+        }
+        writeFile(output,results.data(),results.size()*4);
+    }
     void pmeMessage(const std::vector<uint8>& ram,int32 id,const char* output,bool indices=false) {
         if(ram.size()!=32*1024*1024)throw std::runtime_error("Message oracle requires 32 MiB EE snapshot");
         std::memcpy(ee->m_ram,ram.data(),ram.size());
@@ -571,7 +587,9 @@ int main(int argc,char** argv) {
         if (argc<4) throw std::runtime_error("Usage: okage-pose-oracle sine ELF OUTPUT | vu-asm ELF OUTPUT | pose ELF XMD OUTPUT | pose-corpus ELF DIRECTORY OUTDIR");
         Reference reference(readFile(argv[2]));
         const std::string command=argv[1];
-        if(command=="text-controls" && argc==5) {
+        if(command=="text-clock" && argc==5) {
+            reference.textClock(readFile(argv[3]),argv[4]);
+        } else if(command=="text-controls" && argc==5) {
             reference.textControls(readFile(argv[3]),argv[4]);
         } else if((command=="pme-message" || command=="pme-indices") && argc==6) {
             reference.pmeMessage(readFile(argv[3]),std::stoi(argv[4]),argv[5],command=="pme-indices");

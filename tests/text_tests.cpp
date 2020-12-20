@@ -2,6 +2,8 @@
 #include "okage/event.hpp"
 #include <array>
 #include <bit>
+#include <cfenv>
+#include <limits>
 #include <iostream>
 #include <stdexcept>
 
@@ -51,6 +53,31 @@ int main() {
         text.resume();require(page()==okage::TextStep::end && text.state.progress==2);
         require(poll()==1 && wait.countdown==2);require(poll()==-1);require(poll()==0);
         require(text.step()==okage::TextStep::end);
+        okage::DialogueText timed({"A B\\v\\e"});
+        timed.state.flags=0x8001;timed.state.period=1;
+        okage::TextClock clock;
+        timed.frame(clock);require(!timed.position().loaded && timed.state.phase==1);
+        timed.frame(clock);require(timed.position().loaded && timed.page.empty());
+        timed.frame(clock);timed.frame(clock);require(timed.page=="A" && timed.position().cursor==1);
+        timed.frame(clock);timed.frame(clock);require(timed.page=="A B" && timed.position().cursor==3);
+        timed.frame(clock);timed.frame(clock);require((timed.state.flags&0x910)==0x910);
+        const auto paused=timed.position();timed.frame(clock);require(timed.position().cursor==paused.cursor);
+        timed.confirm(1);require(!(timed.state.flags&0x910) && timed.state.phase==0 && timed.state.period==1);
+        timed.frame(clock);timed.frame(clock);require(timed.state.progress==1 && timed.position().fragment==1);
+        timed.frame(clock);require((timed.state.flags&0x22)==0x22);
+        okage::DialogueText quick({"ABCDEFGHIJ"});quick.state.flags=0x8001;quick.state.period=1;
+        quick.confirm(1);require(quick.state.period==0xfffffffc);
+        quick.frame(clock);require(quick.position().loaded && quick.page.empty());
+        quick.frame(clock);require(quick.page=="ABCD");
+        quick.state.delay=2;quick.confirm(1);require(quick.state.delay==2);
+        quick.frame(clock);require(quick.page=="ABCD" && quick.state.delay==1);
+        rejects([&]{quick.seek({2,0,false});});
+        rejects([&]{quick.seek({0,1,false});});
+        const auto rounding=std::fegetround();
+        clock.scroll_target=1;clock.scroll=0.1f;clock.scroll_step=0.2f;clock.scroll_base_step=1;
+        okage::tick_text_clock(quick.state,clock);require(std::fegetround()==rounding);
+        clock.scroll=std::numeric_limits<float>::infinity();
+        rejects([&]{okage::tick_text_clock(quick.state,clock);});require(std::fegetround()==rounding);
         std::cout<<"Text import, bounds, control and event integration tests passed\n";
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }

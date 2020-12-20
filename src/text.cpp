@@ -1,7 +1,12 @@
 #include "okage/text.hpp"
 #include <algorithm>
 #include <bit>
+#include <cfenv>
+#include <cmath>
 #include <stdexcept>
+
+#pragma STDC FENV_ACCESS ON
+#pragma STDC FP_CONTRACT OFF
 
 namespace okage {
 namespace {
@@ -130,12 +135,91 @@ unsigned consume_text_control(std::string_view text,std::size_t& cursor,TextStat
     }
     state=std::move(next);cursor=end;return result;
 }
+void tick_text_clock(TextState& state,TextClock& clock) {
+    if(!(state.flags&0x8000) || clock.display_modes==0)return;
+    if(!std::isfinite(clock.scroll) || !std::isfinite(clock.scroll_step) || !std::isfinite(clock.scroll_base_step))
+        throw std::runtime_error("Non-finite text scrolling state");
+    const auto original_rounding=std::fegetround();
+    if(std::fesetround(FE_TOWARDZERO))throw std::runtime_error("Unable to set text rounding");
+    if(!(state.flags&0x910)) {
+        const float target=static_cast<float>(clock.scroll_target);
+        if(clock.scroll<target && clock.scroll_step!=0 && clock.scroll_base_step!=0) {
+            clock.scroll+=clock.scroll_step;
+            if(clock.scroll>target)clock.scroll=target;
+            if(!(state.flags&0x20))state.flags|=1;
+        } else if(state.delay) {
+            --state.delay;
+        } else {
+            ++state.phase;
+            if(__builtin_bit_cast(std::int32_t, (state.phase))>__builtin_bit_cast(std::int32_t, (state.period))) {
+                state.phase=0;
+                clock.revealed+=__builtin_bit_cast(std::int32_t, (state.period))<0 ? 0u-state.period : 1;
+            }
+            if(!(state.flags&0x20))state.flags|=1;
+        }
+    }
+    state.flags&=~8u;
+    std::fesetround(original_rounding);
+}
+void DialogueText::seek(TextPosition p) {
+    if(p.fragment>fragments_.size() || (p.fragment==fragments_.size() && (p.cursor || p.loaded)) ||
+       (p.fragment<fragments_.size() && p.cursor>fragments_[p.fragment].size()) || (!p.loaded && p.cursor))
+        throw std::runtime_error("Invalid text position");
+    fragment_=p.fragment;cursor_=p.cursor;loaded_=p.loaded;page.clear();
+}
+void DialogueText::frame(TextClock& clock,bool visible) {
+    tick_text_clock(state,clock);
+    if(!(state.flags&0x8000) || !((clock.display_modes>>4)&3) || (state.flags&0x20) || !(state.flags&1))return;
+    if(visible) {
+        const auto phase=state.phase,period=state.period;
+        auto remaining=__builtin_bit_cast(std::int32_t, (period));
+        if(remaining<0)++remaining;
+        if(fragment_==fragments_.size()) {state.flags=(state.flags|0x22)&~1u;return;}
+        if(__builtin_bit_cast(std::int32_t, (phase))<1 && !state.delay) {
+            for(unsigned budget=0;;++budget) {
+                if(budget==100000)throw std::runtime_error("Text frame instruction limit");
+                if(fragment_==fragments_.size())break;
+                if(!loaded_) {loaded_=true;cursor_=0;break;}
+                const auto& text=fragments_[fragment_];
+                if(cursor_==text.size()) {++fragment_;cursor_=0;loaded_=false;continue;}
+                const auto old=cursor_;
+                const auto control=consume_text_control(text,cursor_,state);
+                if(control) {
+                    if(text[old]=='\\') {
+                        if(text[old+1]=='l') {page.clear();clock.revealed=0;clock.scroll=0;clock.scroll_target=0;}
+                        if(text[old+1]=='n')page+='\n';
+                    }
+                    if(cursor_==text.size()) {++fragment_;cursor_=0;loaded_=false;}
+                    if(control==2)break;
+                    continue;
+                }
+                unsigned glyph=static_cast<unsigned char>(text[cursor_]);
+                const unsigned width=glyph>=0x80 ? 2 : 1;
+                if(width>text.size()-cursor_)throw std::runtime_error("Truncated text glyph");
+                if(width==2)glyph=(glyph<<8)|static_cast<unsigned char>(text[cursor_+1]);
+                page.append(text,cursor_,width);cursor_+=width;
+                if(cursor_==text.size()) {++fragment_;cursor_=0;loaded_=false;}
+                if(remaining<0) {++remaining;continue;}
+                if((glyph==0x20 || glyph==0x8140) && !(clock.glyph_flags&0x20))continue;
+                break;
+            }
+        }
+        state.phase=phase;state.period=period;state.flags|=0x80;
+    }
+    state.flags&=~1u;
+}
+void DialogueText::confirm(std::int32_t normal_period) {
+    if(__builtin_bit_cast(std::int32_t, (state.delay))>0)return;
+    if(state.delay || (state.flags&0x910)) {resume();state.period=__builtin_bit_cast(std::uint32_t, (normal_period));}
+    else state.period=0xfffffffcu;
+}
 TextStep DialogueText::step() {
     if(state.flags&0x20)return TextStep::end;
     if(state.flags&0x910 || state.delay)return TextStep::pause;
     while(fragment_<fragments_.size()) {
         const auto& text=fragments_[fragment_];
-        if(cursor_==text.size()) {++fragment_;cursor_=0;continue;}
+        if(cursor_==text.size()) {++fragment_;cursor_=0;loaded_=false;continue;}
+        loaded_=true;
         const auto old=cursor_;
         const auto control=consume_text_control(text,cursor_,state);
         if(control) {

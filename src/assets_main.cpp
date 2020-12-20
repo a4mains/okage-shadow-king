@@ -60,6 +60,63 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if(command=="text-clock" && argc==4) {
+            const auto source=read(argv[2]);
+            if(source.empty() || source.size()%40)throw std::runtime_error("Text clock fixture size");
+            std::vector<std::uint32_t> output;
+            for(std::size_t at=0;at<source.size();at+=40) {
+                std::array<std::uint32_t,10> r;std::memcpy(r.data(),source.data()+at,40);
+                okage::TextState state;state.flags=r[0];state.phase=r[2];state.period=r[3];state.delay=r[4];
+                okage::TextClock clock;clock.display_modes=r[1];clock.revealed=r[5];
+                clock.scroll_target=__builtin_bit_cast(std::int32_t, (r[6]));clock.scroll=__builtin_bit_cast(float, (r[7]));
+                clock.scroll_step=__builtin_bit_cast(float, (r[8]));clock.scroll_base_step=__builtin_bit_cast(float, (r[9]));
+                okage::tick_text_clock(state,clock);
+                output.insert(output.end(),{state.flags,state.phase,state.period,state.delay,clock.revealed,__builtin_bit_cast(std::uint32_t, (clock.scroll))});
+            }
+            write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4));return 0;
+        }
+        if(command=="text-frame-replay" && (argc==6 || argc==8)) {
+            okage::DialogueText text(okage::read_pme(read(argv[2])).message(std::stoi(argv[3])));
+            const auto input=read(argv[4]);
+            if(input.empty() || input.size()%160)throw std::runtime_error("Text trace fixture size");
+            okage::TextClock clock;bool initialized=false;
+            std::vector<std::uint32_t> output;
+            okage::DialogueWaitState wait{5,1};
+            std::array<std::uint32_t,2> layers{};
+            std::vector<std::uint32_t> wait_output;
+            const auto request=argc==8 ? std::stoi(argv[6]) : 0;
+            if(argc==8 && request<=0)throw std::runtime_error("Text frame wait needs positive signal count");
+            bool released=false;
+            for(std::size_t at=0;at<input.size();at+=160) {
+                std::array<std::uint32_t,40> r;std::memcpy(r.data(),input.data()+at,160);
+                if(!initialized) {
+                    if(r[1]!=0x1980f8)throw std::runtime_error("Text replay must start at a clock entry");
+                    text.state.flags=r[10];text.state.progress=r[12];text.state.phase=r[16];text.state.period=r[17];text.state.delay=r[18];
+                    text.state.x=r[29];text.state.y=r[30];text.state.color=r[31];text.state.font=r[35];
+                    text.seek({r[13],r[14],r[15]!=0});
+                    clock.display_modes=r[11];clock.revealed=r[19];clock.scroll_target=__builtin_bit_cast(std::int32_t, (r[20]));
+                    clock.scroll=__builtin_bit_cast(float, (r[21]));clock.scroll_step=__builtin_bit_cast(float, (r[22]));clock.scroll_base_step=__builtin_bit_cast(float, (r[23]));
+                    clock.glyph_flags=r[32];initialized=true;
+                    layers={r[7],r[8]};
+                }
+                if(r[1]==0x1985c0)text.resume();
+                else if(r[1]==0x1a51a0)text.state.period=r[4];
+                else if(r[1]==0x1980f8) {
+                    if(argc==8 && !released) {
+                        const auto result=okage::poll_dialogue_wait(wait,request,{true,0,layers,__builtin_bit_cast(std::int32_t, (text.state.progress))});
+                        wait_output.insert(wait_output.end(),{wait.countdown,wait.observed,wait.accumulated,__builtin_bit_cast(std::uint32_t, (result))});
+                        released=result==0;
+                    }
+                    text.frame(clock,r[24]!=0 || r[25]!=0);
+                    const auto p=text.position();
+                    output.insert(output.end(),{text.state.flags,text.state.progress,std::uint32_t(p.fragment),std::uint32_t(p.cursor),p.loaded ? 1u : 0u,
+                        text.state.phase,text.state.period,text.state.delay,clock.revealed,__builtin_bit_cast(std::uint32_t, (clock.scroll_target)),__builtin_bit_cast(std::uint32_t, (clock.scroll))});
+                }
+            }
+            write(argv[5],okage::Bytes(reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4));
+            if(argc==8)write(argv[7],okage::Bytes(reinterpret_cast<const std::uint8_t*>(wait_output.data()),wait_output.size()*4));
+            return 0;
+        }
         if((command=="pme-message" || command=="pme-indices") && argc==5) {
             const auto bank=okage::read_pme(read(argv[2]));
             std::vector<std::uint8_t> output;

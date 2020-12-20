@@ -15,7 +15,7 @@ struct MessageBank {
 };
 MessageBank read_pme(Bytes bytes);
 
-// Logical text state recovered from 0x19d9a0. No font metrics, drawing or clock.
+// Logical text state recovered from 0x19d9a0. No font metrics or drawing.
 struct TextState {
     std::uint32_t flags=0, progress=0, color=0x80808080, previous_color=0;
     std::uint32_t x=0, y=0, line_origin=0, line_height=24, font=0;
@@ -24,15 +24,35 @@ struct TextState {
 };
 unsigned consume_text_control(std::string_view text, std::size_t& cursor, TextState& state);
 
+struct TextClock {
+    std::uint8_t display_modes=0x10;
+    std::uint32_t revealed=0;
+    std::int32_t scroll_target=0;
+    float scroll=0, scroll_step=1, scroll_base_step=1;
+    std::uint32_t glyph_flags=0; // Object +0x4f8; bit 0x20 makes spaces consume a tick.
+};
+// Text pacing portion of 0x1980f8, excluding window animation/color/opacity.
+void tick_text_clock(TextState& state, TextClock& clock);
+struct TextPosition { std::size_t fragment=0, cursor=0; bool loaded=false; };
+
 enum class TextStep { glyph, pause, end };
 class DialogueText {
     std::vector<std::string> fragments_;
     std::size_t fragment_=0, cursor_=0;
+    bool loaded_=false;
 public:
     explicit DialogueText(std::vector<std::string> fragments):fragments_(std::move(fragments)) {}
     TextState state;
     std::string page;
     TextStep step();
     void resume(); // Original 0x1985c0; caller owns input/readiness/timing policy.
+    TextPosition position() const {return {fragment_,cursor_,loaded_};}
+    void seek(TextPosition position);
+    // Pacing and cursor/progress update for simple text (0x19d0e8). visible is
+    // supplied by the window's opacity state. Does not lay out or draw glyphs.
+    void frame(TextClock& clock, bool visible=true);
+    // Normal dialogue confirmation from the case-5 path in 0x148dc8. Choice,
+    // window-command and controller-poll policy remain the caller's responsibility.
+    void confirm(std::int32_t normal_period);
 };
 }
