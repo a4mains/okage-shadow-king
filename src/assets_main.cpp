@@ -7,6 +7,7 @@
 #include "okage/map.hpp"
 #include "okage/event.hpp"
 #include "okage/audio.hpp"
+#include "okage/text.hpp"
 #include <algorithm>
 #include <bit>
 #include <cstring>
@@ -59,6 +60,65 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if((command=="pme-message" || command=="pme-indices") && argc==5) {
+            const auto bank=okage::read_pme(read(argv[2]));
+            std::vector<std::uint8_t> output;
+            for(auto index:bank.message_indices(std::stoi(argv[3]))) {
+                if(command=="pme-indices") {
+                    for(unsigned i=0;i<4;++i)output.push_back(index>>(8*i));
+                    continue;
+                }
+                const auto& text=bank.strings.at(index);
+                const std::uint32_t size=text.size();
+                for(unsigned i=0;i<4;++i)output.push_back(size>>(8*i));
+                output.insert(output.end(),text.begin(),text.end());
+            }
+            write(argv[4],output);return 0;
+        }
+        if(command=="pme-info" && argc==3) {
+            const auto bank=okage::read_pme(read(argv[2]));
+            std::cout<<bank.strings.size()<<" strings, "<<bank.nodes.size()<<" nodes\n";return 0;
+        }
+        if(command=="text-wait" && argc==6) {
+            okage::DialogueText text(okage::read_pme(read(argv[2])).message(std::stoi(argv[3])));
+            const auto request=std::stoi(argv[4]);
+            if(request<=0)throw std::runtime_error("Text wait diagnostic requires a positive signal count");
+            okage::DialogueWaitState wait{5,1};
+            const std::array<std::uint32_t,2> layers{0x40,0x40};
+            std::vector<std::uint32_t> output;
+            for(unsigned step=0;step<100000;++step) {
+                const auto kind=text.step();
+                const auto result=okage::poll_dialogue_wait(wait,request,{true,0,layers,__builtin_bit_cast(std::int32_t, (text.state.progress))});
+                output.insert(output.end(),{step,std::uint32_t(kind),text.state.progress,__builtin_bit_cast(std::uint32_t, (result)),
+                                            wait.countdown,wait.observed,wait.accumulated});
+                if(result==0) {
+                    write(argv[5],okage::Bytes(reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4));
+                    std::cout<<"Native text released event wait at semantic step "<<step<<" (not a frame count)\n";return 0;
+                }
+                if(kind==okage::TextStep::pause)text.resume();
+                if(kind==okage::TextStep::end && !wait.countdown && wait.observed==text.state.progress)
+                    throw std::runtime_error("Message ended before requested signal count");
+            }
+            throw std::runtime_error("Text wait diagnostic step limit");
+        }
+        if(command=="text-controls" && argc==4) {
+            const auto bytes=read(argv[2]);
+            const std::string text(bytes.begin(),bytes.end());
+            okage::TextState state;state.x=5;state.y=7;state.line_origin=3;
+            std::vector<std::uint8_t> output;
+            auto word=[&](std::uint32_t n){for(unsigned i=0;i<4;++i)output.push_back(n>>(8*i));};
+            std::size_t cursor=0;
+            while(cursor<text.size()) {
+                const auto result=okage::consume_text_control(text,cursor,state);
+                for(auto n:{std::uint32_t(cursor),state.flags,state.progress,state.color,state.previous_color,
+                    state.x,state.y,state.line_origin,state.line_height,state.font,state.period,state.phase,state.delay,result})word(n);
+                for(const auto* value:{&state.speaker,&state.window,&state.option,&state.replacement,&state.description}) {
+                    word(value->size());output.insert(output.end(),value->begin(),value->end());
+                }
+                if(!result)cursor+=static_cast<unsigned char>(text[cursor])>=0x80 ? 2 : 1;
+            }
+            write(argv[3],output);return 0;
+        }
         if(command=="spu-sample" && argc==4) {
             const auto sample=okage::decode_spu_sample(read(argv[2]));
             write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(sample.pcm.data()),sample.pcm.size()*2));

@@ -1,0 +1,136 @@
+{
+  "scope": "PME import, original message selection and text control semantics; no frame timing or font rendering",
+  "native_sha256": "ce41aa05ab7ad5f0f88a4b0d1c1c472a563f345859c47184e9651002d90e28eb",
+  "banks": [
+    {
+      "path": "FLDDATA/MES/F2.PME",
+      "sha256": "95867663190016af085d9f64ba206021eafd3be4be950a5fceaf6ac26ebb9de7",
+      "native_info": "3001 strings, 3119 nodes"
+    },
+    {
+      "path": "FLDDATA/MES/F3.PME",
+      "sha256": "e36be6ea42f9908cc622f31457bbc71ebd20e50a4edb317b474d60ae00e0f191",
+      "native_info": "2855 strings, 2959 nodes"
+    },
+    {
+      "path": "FLDDATA/MES/F4.PME",
+      "sha256": "dd41238fa57ef09525f83eb7c358e172aa27a9cebbe44ca4719926f9492afe3b",
+      "native_info": "2031 strings, 2127 nodes"
+    },
+    {
+      "path": "FLDDATA/MES/FIELD.PME",
+      "sha256": "8b19ec0074e962214ece631f97d4cc8497374e4dd23301df512ac4d978993de4",
+      "native_info": "7454 strings, 7730 nodes"
+    },
+    {
+      "path": "FLDDATA/MES/FIRST001.PME",
+      "sha256": "ff882288dfaae4fbe5195485cfb83ede0e76af037c32b16c9d9cc25ce1f1f9fa",
+      "native_info": "365 strings, 372 nodes"
+    },
+    {
+      "path": "FLDDATA/MES/HIGH.PME",
+      "sha256": "19dc826181d8cb9c277c7b5fede12d4a86a5e258034abc14a81deb3a617718d3",
+      "native_info": "2537 strings, 2624 nodes"
+    },
+    {
+      "path": "FLDDATA/MES/LIB.PME",
+      "sha256": "d3f5c0a3f3b37b427de69cd0cb1ebf606a62b58803a5631d94e02cfcc839f461",
+      "native_info": "2768 strings, 2873 nodes"
+    },
+    {
+      "path": "FLDDATA/MES/MADO_IN.PME",
+      "sha256": "be39cdc79a333e269f7ef801fabb25edac6eb591161e4c9af7997d0af6bce0fa",
+      "native_info": "12825 strings, 13023 nodes"
+    },
+    {
+      "path": "FLDDATA/MES/RICHERO.PME",
+      "sha256": "5afcab87fc2918a8b1173bb1e6e51015e9d078d74028873b18d290c4caec4fcd",
+      "native_info": "5956 strings, 6079 nodes"
+    },
+    {
+      "path": "FLDDATA/MES/TRISTE.PME",
+      "sha256": "104e5de5ae16235395857fc5fa5fffe6ae0ff8674a893514ed7c24bc32e5685e",
+      "native_info": "2594 strings, 2704 nodes"
+    },
+    {
+      "path": "FLDDATA/MES/VIL.PME",
+      "sha256": "8afa8edf2e3d1cba6b1a24b029422e835306d5afa768d41b1f71a2fde5e0faf0",
+      "native_info": "5806 strings, 6021 nodes"
+    }
+  ],
+  "messages": [
+    {
+      "id": 10100,
+      "fragments": 8,
+      "selection_exact": true,
+      "indices_sha256": "2c0fa9640a7bd86a369c09d40a91b2b2d7205fa1dc144ee491b4d4625afca689",
+      "static_strings_sha256": "961c61ba8ef99e1737092adaac8f1311f360538de52a38f833dad02a98a0e204",
+      "live_strings_exact": true
+    },
+    {
+      "id": 10101,
+      "fragments": 10,
+      "selection_exact": true,
+      "indices_sha256": "761ba38169dd35a655f703429da34dc072d23fce9d06d243c656902ef53e35c9",
+      "static_strings_sha256": "f27df45448bd03a69f54501876966817eeab51f0f06a7c9d37cf4962920ddd3c",
+      "live_strings_exact": false,
+      "live_difference": "One tagged player-name string is replaced at runtime; native name binding remains unimplemented."
+    },
+    {
+      "id": 10102,
+      "fragments": 13,
+      "selection_exact": true,
+      "indices_sha256": "a52c4d2d037dc9ee5a25edaf664bdf15ed5a9a0fae535d37da46347d6843e95a"
+    }
+  ],
+  "controls": [
+    {
+      "name": "10100",
+      "calls": 175,
+      "exact": true,
+      "input_sha256": "64ff76a9f4aca3c5601b11c9340c10bf1829c4de97771ef2d16c2373e2013240",
+      "output_sha256": "bf3ab83ea01caeb000e45d88a731661650da21b28ca9e841bda1709bffc375c4"
+    },
+    {
+      "name": "10101",
+      "calls": 233,
+      "exact": true,
+      "input_sha256": "20fc7cb5b749a0f174fbe518aed29dd8116cce4e37774b2106075076f17db1cb",
+      "output_sha256": "f0414d92ff1d993686391ae85e9acb2eb61523b0b1d232758f7a59aaa80ec8af"
+    },
+    {
+      "name": "synthetic",
+      "calls": 27,
+      "exact": true,
+      "input_sha256": "283377cbbf3fed9c19876c43c0627208b006afb3cba6f8440fcc14255b1312e2",
+      "output_sha256": "0eca96b0f7ffcce36e257ac81d61ba173ef9523ec1eb10a7a75e3ba868956540"
+    }
+  ],
+  "ram_sha256": "a8eb6ac59d6de559db92d5c65653b944e05c9e2a0d3075c00b8696bd38b70369",
+  "fallback_limit": "Missing-ID original path reaches a logging syscall unsupported by the isolated oracle (PC 0x1e4448). Fallback has static-analysis and native unit coverage only.",
+  "integration": {
+    "scope": "Unpaced native PME -> text commands -> event wait; pauses automatically resumed, layers assumed ready",
+    "steps": 74,
+    "signals_at_release": 2,
+    "output_sha256": "4a9e655a12ccf0333cbf2ae38e1e3c70502fb10d8f2b083793b2bae311907e62",
+    "retail_frame_timing_verified": false
+  },
+  "additional_builds": [
+    {
+      "build": "native-release",
+      "native_sha256": "28a8629c77ad6a35fcbfef2d464471f9ee0cee12d92981f527e137ae586d7e10",
+      "controls_message_selection_integration_identical": true
+    },
+    {
+      "build": "model-sanitize",
+      "native_sha256": "ea582fcf5b6a86510bd30c143c0be23798916c1ba567ecf1052d61983f688efe",
+      "controls_message_selection_integration_identical": true
+    }
+  ],
+  "tests": {
+    "native_ctest": 10,
+    "python_unittest": 12,
+    "release_focused_ctest": 2,
+    "asan_ubsan_focused_ctest": 2
+  }
+}

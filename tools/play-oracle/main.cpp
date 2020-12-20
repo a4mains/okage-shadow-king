@@ -172,6 +172,65 @@ public:
         }
         writeFile(output,results.data(),results.size()*4);
     }
+    void textControls(const std::vector<uint8>& text,const char* output) {
+        if(text.empty() || text.size()>0x10000)throw std::runtime_error("Text fixture bounds");
+        constexpr uint32 object=0xa00000,source=0xa10000;
+        std::memset(ee->m_ram+object,0,0x4000);
+        std::memcpy(ee->m_ram+source,text.data(),text.size());ee->m_ram[source+text.size()]=0;
+        put(object+0x3bf4,source);put(object+0x22c,0x80808080);
+        put(object+0xcb0,5);put(object+0xcb4,7);put(object+0x1968,3);
+        put(object+0x21c,24);put(object+0xcd4,2);
+        std::vector<uint8> result;
+        auto word=[&](uint32 n){for(unsigned i=0;i<4;++i)result.push_back(n>>(8*i));};
+        for(unsigned count=0;get(object+0x3e34)<text.size() && count<100000;++count) {
+            call(0x19d9a0,{object});
+            const uint32 status=ee->m_EE.m_State.nGPR[CMIPS::V0].nD0;
+            for(auto offset:{0x3e34,0x1900,0x3d08,0x22c,0x230,0xcb0,0xcb4,0x1968,0x21c,0x20c,0xcd4,0xcd0,0xcd8})word(get(object+offset));
+            word(status);
+            for(auto offset:{0x1a70,0x1c70,0x1970,0x1b70,0x1d70}) {
+                const auto* begin=ee->m_ram+object+offset;
+                const auto* end=std::find(begin,begin+256,0);
+                if(end==begin+256)throw std::runtime_error("Text fixture metadata bounds");
+                word(end-begin);result.insert(result.end(),begin,end);
+            }
+            if(!status) {
+                const auto cursor=get(object+0x3e34);
+                put(object+0x3e34,cursor+(text.at(cursor)>=0x80 ? 2 : 1));
+            }
+        }
+        if(get(object+0x3e34)!=text.size())throw std::runtime_error("Text fixture did not finish");
+        writeFile(output,result.data(),result.size());
+    }
+    void pmeMessage(const std::vector<uint8>& ram,int32 id,const char* output,bool indices=false) {
+        if(ram.size()!=32*1024*1024)throw std::runtime_error("Message oracle requires 32 MiB EE snapshot");
+        std::memcpy(ee->m_ram,ram.data(),ram.size());
+        put(stop,0x08000000|(stop>>2));put(stop+4,0);
+        // Existing live text handle 1 and bank 0 from the opening600 snapshot.
+        ee->m_EE.m_State.nGPR[CMIPS::A2].nD0=int64(id);
+        call(0x19a150,{1,0});
+        if(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0!=1)throw std::runtime_error("Original message selection failed");
+        const auto object=get(0x20068c);
+        std::vector<uint8> result;
+        for(unsigned i=0;i<=256;++i) {
+            const auto at=get(object+0x2ee0+i*4);
+            if(!at) {writeFile(output,result.data(),result.size());return;}
+            if(at>=ram.size())throw std::runtime_error("Message oracle string bounds");
+            if(indices) {
+                const auto bank=get(0x2005c8),table=get(bank+8),count=get(bank);
+                uint32 index=0;
+                for(;index<count;++index)if(get(table+index*20+8)==at)break;
+                if(index==count)throw std::runtime_error("Selected string missing from live bank");
+                for(unsigned j=0;j<4;++j)result.push_back(index>>(8*j));
+                continue;
+            }
+            auto end=std::find(ee->m_ram+at,ee->m_ram+ram.size(),0);
+            if(end==ee->m_ram+ram.size())throw std::runtime_error("Message oracle unterminated string");
+            const uint32 size=end-(ee->m_ram+at);
+            for(unsigned j=0;j<4;++j)result.push_back(size>>(8*j));
+            result.insert(result.end(),ee->m_ram+at,end);
+        }
+        throw std::runtime_error("Message oracle fragment limit");
+    }
     void eventSetup(const std::vector<uint8>& script,const std::vector<uint8>& variables,
                     const std::vector<uint8>& state,const char* output) {
         if(script.size()<36 || script.size()>0x100000 || variables.size()!=0x1000 || state.size()!=0x800)
@@ -512,7 +571,11 @@ int main(int argc,char** argv) {
         if (argc<4) throw std::runtime_error("Usage: okage-pose-oracle sine ELF OUTPUT | vu-asm ELF OUTPUT | pose ELF XMD OUTPUT | pose-corpus ELF DIRECTORY OUTDIR");
         Reference reference(readFile(argv[2]));
         const std::string command=argv[1];
-        if(command=="spu-sample" && argc==5) {
+        if(command=="text-controls" && argc==5) {
+            reference.textControls(readFile(argv[3]),argv[4]);
+        } else if((command=="pme-message" || command=="pme-indices") && argc==6) {
+            reference.pmeMessage(readFile(argv[3]),std::stoi(argv[4]),argv[5],command=="pme-indices");
+        } else if(command=="spu-sample" && argc==5) {
             reference.spuSample(readFile(argv[3]),argv[4]);
         } else if(command=="dialogue-wait" && argc==5) {
             reference.dialogueWait(readFile(argv[3]),argv[4]);
