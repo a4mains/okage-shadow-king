@@ -1,4 +1,5 @@
 #pragma once
+#include "okage/font.hpp"
 #include "okage/assets.hpp"
 #include <string>
 #include <string_view>
@@ -34,6 +35,10 @@ struct TextClock {
 // Text pacing portion of 0x1980f8, excluding window animation/color/opacity.
 void tick_text_clock(TextState& state, TextClock& clock);
 struct TextPosition { std::size_t fragment=0, cursor=0; bool loaded=false; };
+struct TextGlyph {
+    std::uint32_t code=0,font=0,color=0;
+    std::int32_t x=0,y=0,width=0,height=0;
+};
 
 enum class TextStep { glyph, pause, end };
 class DialogueText {
@@ -44,15 +49,18 @@ public:
     explicit DialogueText(std::vector<std::string> fragments):fragments_(std::move(fragments)) {}
     TextState state;
     std::string page;
+    // Caller owns fonts in retail handle order. Empty retains cursor-only mode.
+    std::span<const Font> fonts;
+    std::vector<TextGlyph> glyphs;
     TextStep step();
     void resume(); // Original 0x1985c0; caller owns input/readiness/timing policy.
     TextPosition position() const {return {fragment_,cursor_,loaded_};}
     void seek(TextPosition position);
-    // Pacing and cursor/progress update for simple text (0x19d0e8). visible is
-    // supplied by the window's opacity state. Does not lay out or draw glyphs.
     void frame(TextClock& clock, bool visible=true);
     // Normal dialogue confirmation from the case-5 path in 0x148dc8. Choice,
     // window-command and controller-poll policy remain the caller's responsibility.
     void confirm(std::int32_t normal_period);
 };
+Texture rasterize_text(std::span<const Font> fonts,std::span<const TextGlyph> glyphs,
+                       unsigned width,unsigned height);
 }

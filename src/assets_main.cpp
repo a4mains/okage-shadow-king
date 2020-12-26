@@ -8,6 +8,7 @@
 #include "okage/event.hpp"
 #include "okage/audio.hpp"
 #include "okage/text.hpp"
+#include "okage/font.hpp"
 #include <algorithm>
 #include <bit>
 #include <cstring>
@@ -60,6 +61,41 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if(command=="text-glyphs" && argc==5) {
+            std::vector<okage::Font> fonts;
+            for(const auto* name:{"IQ24.FNT","BMUI.FNT","BM.FNT"})fonts.push_back(okage::read_fnt(read(fs::path(argv[2])/name)));
+            const auto source=read(argv[3]);
+            if(source.empty() || source.size()%28)throw std::runtime_error("Glyph fixture bounds");
+            std::vector<float> out;
+            for(std::size_t at=0;at<source.size();at+=28) {
+                std::array<std::uint32_t,7> r;std::memcpy(r.data(),source.data()+at,28);
+                if(r[0]<32 || r[0]>=128)throw std::runtime_error("Glyph fixture encoding");
+                okage::DialogueText text({std::string(1,char(r[0]))});text.fonts=fonts;
+                text.state.flags=0x8001;text.state.period=0;text.state.font=r[1];text.state.color=r[2];text.state.x=r[3];text.state.y=r[4];
+                text.seek({0,0,true});okage::TextClock clock;text.frame(clock);
+                if(text.glyphs.size()!=1)throw std::runtime_error("Glyph fixture did not emit");
+                const auto& g=text.glyphs[0];
+                const auto c=g.color;
+                const auto packed=((c&255)>>2)+((c>>8&255)>>2)*64+((c>>16&255)>>2)*4096+(c>>26)*262144;
+                out.insert(out.end(),{float(g.x),float(g.y),float(packed),float(g.width),float(g.height),float(g.code),float(g.font)});
+            }
+            write(argv[4],okage::Bytes(reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4));return 0;
+        }
+        if((command=="font" || command=="font-metrics") && argc==4) {
+            const auto font=okage::read_fnt(read(argv[2]));
+            if(command=="font-metrics") {
+                std::vector<std::uint8_t> out;
+                for(const auto& g:font.glyphs)for(auto h:g.metrics) {out.push_back(h&255);out.push_back(h>>8);}
+                write(argv[3],out);
+            } else {
+                const auto& t=font.atlas;
+                const auto header="P7\nWIDTH "+std::to_string(t.width)+"\nHEIGHT "+std::to_string(t.height)+
+                    "\nDEPTH 4\nMAXVAL 255\nTUPLTYPE RGB_ALPHA\nENDHDR\n";
+                std::vector<std::uint8_t> out(header.begin(),header.end());out.insert(out.end(),t.rgba.begin(),t.rgba.end());
+                write(argv[3],out);
+            }
+            std::cout<<unsigned(font.first)<<'\t'<<unsigned(font.last)<<'\t'<<font.atlas.width<<'\t'<<font.atlas.height<<'\n';return 0;
+        }
         if(command=="text-clock" && argc==4) {
             const auto source=read(argv[2]);
             if(source.empty() || source.size()%40)throw std::runtime_error("Text clock fixture size");
@@ -75,8 +111,14 @@ int main(int argc, char** argv) {
             }
             write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4));return 0;
         }
-        if(command=="text-frame-replay" && (argc==6 || argc==8)) {
+        if((command=="text-frame-replay" && (argc==6 || argc==8)) || (command=="text-layout-replay" && argc==7)) {
+            const bool layout=command=="text-layout-replay";
             okage::DialogueText text(okage::read_pme(read(argv[2])).message(std::stoi(argv[3])));
+            std::vector<okage::Font> fonts;
+            if(layout) {
+                for(const auto* name:{"IQ24.FNT","BMUI.FNT","BM.FNT"})fonts.push_back(okage::read_fnt(read(fs::path(argv[5])/name)));
+                text.fonts=fonts;
+            }
             const auto input=read(argv[4]);
             if(input.empty() || input.size()%160)throw std::runtime_error("Text trace fixture size");
             okage::TextClock clock;bool initialized=false;
@@ -111,9 +153,20 @@ int main(int argc, char** argv) {
                     const auto p=text.position();
                     output.insert(output.end(),{text.state.flags,text.state.progress,std::uint32_t(p.fragment),std::uint32_t(p.cursor),p.loaded ? 1u : 0u,
                         text.state.phase,text.state.period,text.state.delay,clock.revealed,__builtin_bit_cast(std::uint32_t, (clock.scroll_target)),__builtin_bit_cast(std::uint32_t, (clock.scroll))});
+                    if(layout)output.insert(output.end(),{text.state.x,text.state.y});
                 }
             }
-            write(argv[5],okage::Bytes(reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4));
+            write(argv[layout ? 6 : 5],okage::Bytes(reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4));
+            if(layout) {
+                std::vector<std::uint32_t> glyphs;
+                for(const auto& g:text.glyphs)glyphs.insert(glyphs.end(),{g.code,g.font,g.color,
+                    __builtin_bit_cast(std::uint32_t, (g.x)),__builtin_bit_cast(std::uint32_t, (g.y)),std::uint32_t(g.width),std::uint32_t(g.height)});
+                write(std::string(argv[6])+".glyphs.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(glyphs.data()),glyphs.size()*4));
+                const auto t=okage::rasterize_text(fonts,text.glyphs,640,224);
+                const std::string header="P7\nWIDTH 640\nHEIGHT 224\nDEPTH 4\nMAXVAL 255\nTUPLTYPE RGB_ALPHA\nENDHDR\n";
+                std::vector<std::uint8_t> pam(header.begin(),header.end());pam.insert(pam.end(),t.rgba.begin(),t.rgba.end());
+                write(std::string(argv[6])+".pam",pam);
+            }
             if(argc==8)write(argv[7],okage::Bytes(reinterpret_cast<const std::uint8_t*>(wait_output.data()),wait_output.size()*4));
             return 0;
         }

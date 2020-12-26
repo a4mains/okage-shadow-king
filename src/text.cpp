@@ -165,7 +165,7 @@ void DialogueText::seek(TextPosition p) {
     if(p.fragment>fragments_.size() || (p.fragment==fragments_.size() && (p.cursor || p.loaded)) ||
        (p.fragment<fragments_.size() && p.cursor>fragments_[p.fragment].size()) || (!p.loaded && p.cursor))
         throw std::runtime_error("Invalid text position");
-    fragment_=p.fragment;cursor_=p.cursor;loaded_=p.loaded;page.clear();
+    fragment_=p.fragment;cursor_=p.cursor;loaded_=p.loaded;page.clear();glyphs.clear();
 }
 void DialogueText::frame(TextClock& clock,bool visible) {
     tick_text_clock(state,clock);
@@ -186,7 +186,7 @@ void DialogueText::frame(TextClock& clock,bool visible) {
                 const auto control=consume_text_control(text,cursor_,state);
                 if(control) {
                     if(text[old]=='\\') {
-                        if(text[old+1]=='l') {page.clear();clock.revealed=0;clock.scroll=0;clock.scroll_target=0;}
+                        if(text[old+1]=='l') {page.clear();glyphs.clear();clock.revealed=0;clock.scroll=0;clock.scroll_target=0;}
                         if(text[old+1]=='n')page+='\n';
                     }
                     if(cursor_==text.size()) {++fragment_;cursor_=0;loaded_=false;}
@@ -197,6 +197,29 @@ void DialogueText::frame(TextClock& clock,bool visible) {
                 const unsigned width=glyph>=0x80 ? 2 : 1;
                 if(width>text.size()-cursor_)throw std::runtime_error("Truncated text glyph");
                 if(width==2)glyph=(glyph<<8)|static_cast<unsigned char>(text[cursor_+1]);
+                if(!fonts.empty()) {
+                    if(width!=1 || (clock.glyph_flags&0x84) || clock.scroll!=0)
+                        throw std::runtime_error("Unrecovered text layout mode");
+                    if(state.font>=fonts.size())throw std::runtime_error("Unbound text font");
+                    const auto* found=fonts[state.font].find(glyph);
+                    if(!found)throw std::runtime_error("Missing text glyph");
+                    const auto& m=found->metrics;
+                    auto x=__builtin_bit_cast(std::int32_t, (state.x)),y=__builtin_bit_cast(std::int32_t, (state.y));
+                    const int glyph_width=glyph==32 ? 10 : m[8]/16;
+                    const int glyph_height=glyph==32 ? state.line_height : (m[9]>>2)/2;
+                    if((state.flags&0x40) && std::int64_t(x)+glyph_width>32*24) {
+                        x=0;y=__builtin_bit_cast(std::int32_t, (state.y+state.line_height));
+                    }
+                    // 0x19c568: normal unit-scale placement, including baseline
+                    // and left bearing. Space has no bearing or baseline offset.
+                    const int bearing=glyph==32 ? 0 : __builtin_bit_cast(std::int16_t, (m[2]))/16;
+                    const int baseline=glyph==32 ? 0 : __builtin_bit_cast(std::int16_t, (m[1]))/8;
+                    const auto px=std::int64_t(x)-bearing+24,py=std::int64_t(y)-baseline+36;
+                    if(px<INT32_MIN || px>INT32_MAX || py<INT32_MIN || py>INT32_MAX)
+                        throw std::runtime_error("Text layout coordinate overflow");
+                    glyphs.push_back({glyph,state.font,state.color,std::int32_t(px),std::int32_t(py),glyph_width,glyph_height});
+                    state.x=__builtin_bit_cast(std::uint32_t, (x))+1u+glyph_width;state.y=__builtin_bit_cast(std::uint32_t, (y));
+                }
                 page.append(text,cursor_,width);cursor_+=width;
                 if(cursor_==text.size()) {++fragment_;cursor_=0;loaded_=false;}
                 if(remaining<0) {++remaining;continue;}
@@ -212,6 +235,37 @@ void DialogueText::confirm(std::int32_t normal_period) {
     if(__builtin_bit_cast(std::int32_t, (state.delay))>0)return;
     if(state.delay || (state.flags&0x910)) {resume();state.period=__builtin_bit_cast(std::uint32_t, (normal_period));}
     else state.period=0xfffffffcu;
+}
+Texture rasterize_text(std::span<const Font> fonts,std::span<const TextGlyph> glyphs,unsigned width,unsigned height) {
+    if(!width || !height || width>4096 || height>4096)throw std::runtime_error("Text surface bounds");
+    Texture result{width,height,0,0,std::vector<std::uint8_t>(std::size_t(width)*height*4)};
+    for(const auto& g:glyphs) {
+        if(g.code==32 || !g.width || !g.height)continue;
+        if(g.font>=fonts.size() || g.width<0 || g.height<0)throw std::runtime_error("Text glyph render bounds");
+        const auto& f=fonts[g.font];const auto* metric=f.find(g.code);
+        if(!metric)throw std::runtime_error("Text glyph unavailable");
+        const auto& m=metric->metrics;
+        const int sx=m[4]/16,sy=m[5]/16,sw=(m[6]-m[4])/16,sh=(m[7]-m[5])/16;
+        if(sw<0 || sh<0 || std::uint64_t(sx)+sw>f.atlas.width || std::uint64_t(sy)+sh>f.atlas.height ||
+           f.atlas.rgba.size()!=std::uint64_t(f.atlas.width)*f.atlas.height*4)
+            throw std::runtime_error("Text glyph atlas bounds");
+        if(!sw || !sh)continue;
+        const int left=std::max<std::int64_t>(0,g.x),top=std::max<std::int64_t>(0,g.y);
+        const int right=std::min<std::int64_t>(width,std::int64_t(g.x)+g.width),bottom=std::min<std::int64_t>(height,std::int64_t(g.y)+g.height);
+        for(int y=top;y<bottom;++y)for(int x=left;x<right;++x) {
+            const auto tx=sx+(std::int64_t(x)-g.x)*sw/g.width,ty=sy+(std::int64_t(y)-g.y)*sh/g.height;
+            const unsigned alpha=std::min(255u,unsigned(f.atlas.rgba[(ty*f.atlas.width+tx)*4+3])*((g.color>>24)&0xfc)/128);
+            auto* dst=result.rgba.data()+(std::size_t(y)*width+x)*4;
+            const unsigned old=dst[3]*(255-alpha),total=alpha*255+old;
+            if(!total)continue;
+            for(unsigned c=0;c<3;++c) {
+                const unsigned color=std::min(255u,((g.color>>(8*c))&0xfc)*2);
+                dst[c]=(color*alpha*255+dst[c]*old+total/2)/total;
+            }
+            dst[3]=(total+127)/255;
+        }
+    }
+    return result;
 }
 TextStep DialogueText::step() {
     if(state.flags&0x20)return TextStep::end;

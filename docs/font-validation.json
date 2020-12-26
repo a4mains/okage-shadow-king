@@ -1,0 +1,88 @@
+{
+  "scope": "USA FNT import, glyph metrics, unit-scale normal-dialogue layout; flat rendering is a diagnostic, not faithful window/GS presentation",
+  "native_sha256": "93ff3fd51b4bccd1091c13c350b7c83449db4b0d38101fa6ae58ab1116dd9c4d",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "ram_sha256": "a8eb6ac59d6de559db92d5c65653b944e05c9e2a0d3075c00b8696bd38b70369",
+  "fonts": [
+    {
+      "name": "IQ24.FNT",
+      "input_sha256": "f38eb6266c02315dda5b6a4f97d1dab347ef67c7b262f23deb4a3575d4cadc7a",
+      "glyphs": 139,
+      "metrics_exact_original_loader_and_capture": true,
+      "metrics_sha256": "1d45806adc11420eba778b749068ddef4b31e57e99c732e64983c4d8e0f31582",
+      "width": 256,
+      "height": 192,
+      "packed_pixels_exact_capture": true,
+      "rgba_sha256": "7fe7390923347956f4683e471c0e8207a7d99c04cba147279280b32eddad9fb8"
+    },
+    {
+      "name": "BMUI.FNT",
+      "input_sha256": "ebf4eb1f157638baf3ad9002e9990acb24b3807f54653a8c34a8d4e2ef5df356",
+      "glyphs": 255,
+      "metrics_exact_original_loader_and_capture": true,
+      "metrics_sha256": "76f3060ae8fb7251e5a08025f9c8dd6234b5781339856c854409e7f2f35e6d00",
+      "width": 256,
+      "height": 193,
+      "packed_pixels_exact_capture": true,
+      "rgba_sha256": "e9eab6d02b95187239ae02e5a1a2eacf58738b6c9e023fb353bcf65c1b8a6bab"
+    },
+    {
+      "name": "BM.FNT",
+      "input_sha256": "7bc478129d2e46991cab24b563ff02af0e0c5b32294f70bb475cf5a31e5241fb",
+      "glyphs": 255,
+      "metrics_exact_original_loader_and_capture": true,
+      "metrics_sha256": "63a704c0bbd7ee6fc9ee114e94dff593fe42d5fdfce51f60856a58594843337d",
+      "width": 256,
+      "height": 130,
+      "packed_pixels_exact_capture": true,
+      "rgba_sha256": "e0a5bcfad1e9aa3b7f093d786a46b3f4aa0a9e8bc57a491bc88fea256c045722"
+    }
+  ],
+  "glyph_layout": {
+    "cases": 855,
+    "exact": true,
+    "output_sha256": "f85b4aca2a6f44dad650cd7b9a94ca98638682554705eea07d958b606f2cf1b1",
+    "scope": "Original 0x19c568, all supported printable single-byte glyphs in three fonts; unit scale, zero offsets, normal left bearing"
+  },
+  "continuous_replay": {
+    "frames": 160,
+    "exact_words_per_frame": 13,
+    "output_sha256": "8ca5c0fec8f9edce6b97b982e18e1dc698dab3a6f8311ac997ee786f0c9d25a3",
+    "scope": "Prior cursor/clock replay plus native x/y advancement; one captured initial state and observed public input calls"
+  },
+  "rendering_limit": "Atlas and final-page PNGs are native diagnostic outputs. Window geometry, placement, fades, filtering, clipping, shadows and full original pixels are not validated.",
+  "build_checks": {
+    "native-release": {
+      "sha256": "f26c14943598d917d9269012277d4535b134c547b8abd74b8cd2c46fcf5b5de6",
+      "font_metrics_atlases_glyphs_layout_render_exact_debug": true
+    },
+    "model-sanitize": {
+      "sha256": "a4359c42a9e12c2c3360c1dc1b3c3a524524c19edabd4974a6f0707ada1282c7",
+      "font_metrics_atlases_glyphs_layout_render_exact_debug": true
+    }
+  },
+  "tests": {
+    "native": 11,
+    "python": 12,
+    "release_font_text": 2,
+    "asan_ubsan_font_text": 2
+  },
+  "visual_inspection": {
+    "local/font-validation/BM.FNT.png": {
+      "sha256": "0edf6b8d1849b167f86f94eeb153dbc9c8d1dd00eacf23cd2693a9f4a7ac447e",
+      "inspected": true
+    },
+    "local/font-validation/BMUI.FNT.png": {
+      "sha256": "4a376329adc08bba6309320262339ce1c1d6d5598977f3e5a1019d4af13e520f",
+      "inspected": true
+    },
+    "local/font-validation/IQ24.FNT.png": {
+      "sha256": "2300fe3b0ab7be753ec7259de6a1c066fc292ddfb8a1fe05ba3725197cc3adf3",
+      "inspected": true
+    },
+    "local/font-validation/dialogue.png": {
+      "sha256": "5dbdf63487935630a151deb8b6fbbd4fd8f626ec5a288629bf10e66de3b4e80b",
+      "inspected": true
+    }
+  }
+}

@@ -201,6 +201,37 @@ public:
         if(get(object+0x3e34)!=text.size())throw std::runtime_error("Text fixture did not finish");
         writeFile(output,result.data(),result.size());
     }
+    void textGlyphs(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
+        if(ram.size()!=32*1024*1024 || input.empty() || input.size()%28)throw std::runtime_error("Glyph fixture bounds");
+        std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
+        constexpr uint32 object=0xa00000,positions=0xb00000,dimensions=0xb00100;
+        std::memset(ee->m_ram+object,0,0x7000);
+        put(object+0x650,positions);put(object+0x654,dimensions);
+        put(object+0x224,0x3f800000);put(object+0x228,0x3f800000);put(object+0x4f8,0x10);
+        std::vector<uint32> result;
+        for(std::size_t at=0;at<input.size();at+=28) {
+            std::array<uint32,7> r;std::memcpy(r.data(),input.data()+at,28);
+            if(r[0]<32 || r[0]>255 || r[1]>2)throw std::runtime_error("Unsupported glyph fixture");
+            put(object+0x20c,r[1]);put(object+0x22c,r[2]);
+            const float code=r[0];uint32 bits;std::memcpy(&bits,&code,4);put(dimensions+8,bits);
+            call(0x19c568,{object,0,0,r[3],r[4],r[5],r[6]});
+            for(auto p:{positions,positions+4,positions+12,dimensions,dimensions+4,dimensions+8,dimensions+12})result.push_back(get(p));
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
+    void fontMetrics(const std::vector<uint8>& input,const char* output) {
+        if(input.size()<8 || input.size()>0x100000 || input[4]>input[5])throw std::runtime_error("Font fixture bounds");
+        constexpr uint32 table=0xa00000,font=0xb00000;
+        const auto count=unsigned(input[5])-input[4]+1;
+        if(input.size()<8+count*20)throw std::runtime_error("Font fixture records");
+        std::memset(ee->m_ram+table,0,0x400);put(0x2003ec,table);
+        std::memcpy(ee->m_ram+font,input.data(),input.size());
+        // Original loader mode 0, flag 0x800: convert metrics without creating
+        // a GS texture. This is a real original option; no instructions patched.
+        call(0x1947a0,{0,font,0x800});
+        if(get(table+0xc)!=count || get(table+0x10)!=font+8)throw std::runtime_error("Original font result");
+        writeFile(output,ee->m_ram+font+8,count*20);
+    }
     void textClock(const std::vector<uint8>& input,const char* output) {
         if(input.empty() || input.size()%40)throw std::runtime_error("Text clock fixture bounds");
         constexpr uint32 object=0xa00000;
@@ -587,7 +618,11 @@ int main(int argc,char** argv) {
         if (argc<4) throw std::runtime_error("Usage: okage-pose-oracle sine ELF OUTPUT | vu-asm ELF OUTPUT | pose ELF XMD OUTPUT | pose-corpus ELF DIRECTORY OUTDIR");
         Reference reference(readFile(argv[2]));
         const std::string command=argv[1];
-        if(command=="text-clock" && argc==5) {
+        if(command=="text-glyphs" && argc==6) {
+            reference.textGlyphs(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="font-metrics" && argc==5) {
+            reference.fontMetrics(readFile(argv[3]),argv[4]);
+        } else if(command=="text-clock" && argc==5) {
             reference.textClock(readFile(argv[3]),argv[4]);
         } else if(command=="text-controls" && argc==5) {
             reference.textControls(readFile(argv[3]),argv[4]);
