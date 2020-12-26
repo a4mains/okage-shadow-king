@@ -9,6 +9,7 @@
 #include "reference_events.hpp"
 #include "reference_dialogue.hpp"
 #include "reference_text.hpp"
+#include "reference_controller.hpp"
 #include "iop/IopBios.h"
 #include "iop/ioman/OpticalMediaDevice.h"
 #include <atomic>
@@ -48,8 +49,8 @@ public:
 };
 int main(int argc,char** argv) {
     try {
-        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE]");
-        bool load=false,traceFiles=false,traceLoaders=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text;
+        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE]");
+        bool load=false,traceFiles=false,traceLoaders=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller;
         for (int i=3;i<argc;++i) {
             const std::string arg=argv[i];
             if (arg=="--load") load=true;
@@ -63,6 +64,7 @@ int main(int argc,char** argv) {
             else if (arg=="--events" && i+1<argc) events=argv[++i];
             else if (arg=="--dialogue" && i+1<argc) dialogue=argv[++i];
             else if (arg=="--text" && i+1<argc) text=argv[++i];
+            else if (arg=="--controller" && i+1<argc) controller=argv[++i];
             else if (state.empty() && !arg.starts_with("--")) state=arg;
             else throw std::runtime_error("Unknown boot argument");
         }
@@ -88,7 +90,8 @@ int main(int argc,char** argv) {
         auto eventTrace=events.empty() ? nullptr : std::make_unique<EventTrace>(events);
         auto dialogueTrace=dialogue.empty() ? nullptr : std::make_unique<DialogueTrace>(dialogue);
         auto textTrace=text.empty() ? nullptr : std::make_unique<TextTrace>(text);
-        const bool tracing=traceLoaders || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace);
+        auto controllerTrace=controller.empty() ? nullptr : std::make_unique<ControllerTrace>(controller);
+        const bool tracing=traceLoaders || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace);
         RecordedAudio* recordedAudio=nullptr;
         Traffic traffic; std::atomic<unsigned> frames{0}; std::atomic<bool> exited{false};
         CPS2VM vm;
@@ -132,6 +135,7 @@ int main(int argc,char** argv) {
         if(eventTrace) {loaders.push_back(0x1b5888);loaders.push_back(0x1b58ac);}
         if(dialogueTrace) {loaders.push_back(0x130458);loaders.push_back(0x1b59f0);}
         if(textTrace)for(auto at:TextTrace::breakpoints)loaders.push_back(at);
+        if(controllerTrace)for(auto at:ControllerTrace::breakpoints)loaders.push_back(at);
         if (tracing) {
             Iop::Ioman::COpticalMediaDevice reader(vm.m_cdrom0);
             std::unique_ptr<Framework::CStream> stream(reader.GetFile(1,"\\SCUS_971.29;1"));
@@ -148,7 +152,7 @@ int main(int argc,char** argv) {
         auto onState=vm.OnMachineStateChange.Connect([&](){stateChanged=true;});
         std::cout<<"Booting "<<vm.m_ee->m_os->GetExecutableName()<<" with research HLE services and "<<(capture.empty() ? "null" : "offscreen Vulkan")<<" GS"<<std::endl;
         vm.Resume();
-        const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(std::max<unsigned long>(90,requested/30+30));
+        const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(std::max<unsigned long>(90,tracing ? requested*2+30 : requested/30+30));
         unsigned tracedCalls=0;
         while (frames<requested && !exited && std::chrono::steady_clock::now()<deadline) {
             if (tracing && stateChanged.exchange(false) && vm.GetStatus()==CVirtualMachine::PAUSED && frames<requested) {
@@ -159,6 +163,9 @@ int main(int argc,char** argv) {
                     throw std::runtime_error(error.str());
                 }
                 if (++tracedCalls>(eventTrace ? 200000u : 10000u)) throw std::runtime_error("Reference trace limit exceeded");
+                if(controllerTrace && std::find(ControllerTrace::breakpoints.begin(),ControllerTrace::breakpoints.end(),pc)!=ControllerTrace::breakpoints.end()) {
+                    controllerTrace->observe(*vm.m_ee,frames);vm.Resume();continue;
+                }
                 if(textTrace && std::find(TextTrace::breakpoints.begin(),TextTrace::breakpoints.end(),pc)!=TextTrace::breakpoints.end()) {
                     textTrace->observe(*vm.m_ee,frames);vm.Resume();continue;
                 }

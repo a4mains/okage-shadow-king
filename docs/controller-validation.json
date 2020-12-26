@@ -1,0 +1,116 @@
+{
+  "scope": "Normal dialogue input/progression, frame cursor/layout and event wait; excludes full controller choices, audio/effects, field initialization and final window drawing",
+  "native_sha256": "0de6c02924e1830ee54a1eff665ab1ba9b7cc1831b564ce59ee0d56b2b3a6bc0",
+  "controller_capture_sha256": "d9cd2ba16ce676da4c87e292ce146417095e66ef37765aad6b576522019c8e23",
+  "text_capture_sha256": "c52d52461a2dcd0d6185f070f1b78c87f7d2bba7d1134f2a2f7ae519719d5511",
+  "frames": 160,
+  "exact_words_per_frame": 23,
+  "frames_sha256": "95372bf9b58d6a7e92bfa4abe944965e5cc8232d692d8656c5d1216165ca55fc",
+  "input": "One initial captured state plus held/pressed pad words; no public resume/period actions or later state corrections",
+  "pressed_frames": [
+    2,
+    41,
+    81,
+    121
+  ],
+  "native_advance_counts_after_presses": [
+    2,
+    2,
+    4,
+    4
+  ],
+  "event_wait_calls": 89,
+  "event_wait_exact": true,
+  "wait_sha256": "917120b284256d70bb141364ab30a4139450c84e56782158b641368442409e5c",
+  "opacity_cases": 96,
+  "opacity_exact": true,
+  "opacity_sha256": "6740f38aee740b2c79b556aeeae6c20fe34ce1735b0556024649d944b6281ff6",
+  "limits": "Pad words are observed at the game controller interface; raw device polling latency is not reproduced. Window layer readiness is seeded and remains constant in this interval. Opacity is independently validated, but constant in the full-game capture.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "build_checks": {
+    "native": {
+      "tool_sha256": "0de6c02924e1830ee54a1eff665ab1ba9b7cc1831b564ce59ee0d56b2b3a6bc0",
+      "controller_opacity_wait_outputs_exact_debug": true,
+      "headless_surface_and_state_exact_appkit_test": true,
+      "tested_app_sha256_before_help_update": "02d271d64fc2efd7963932dd88640e156e4e1f9d99c4d104b146237641456175",
+      "final_app_sha256": "bec76113d9cb39c0e99aec268b7a0eb54087ca3ac892c07b1ba4d3a15229800d",
+      "final_app_change": "Usage text only; rebuilt after the recorded cross-build comparison"
+    },
+    "native-release": {
+      "tool_sha256": "20aa93ff0b9cca0d7313346471a4dc94415d2d5dc34401176dfdfb6d02c22af8",
+      "controller_opacity_wait_outputs_exact_debug": true,
+      "headless_surface_and_state_exact_appkit_test": true,
+      "tested_app_sha256_before_help_update": "746da3928a7e3f6d98c1a7b7e75d482e9b3c604a92f9d0cb94d25c6fd0d61d00",
+      "final_app_sha256": "5db8912f53b3d2a00cfd23b7b45487c78d04072350786c4faafb3dca6de88d53",
+      "final_app_change": "Usage text only; rebuilt after the recorded cross-build comparison"
+    },
+    "model-sanitize": {
+      "tool_sha256": "e10fce0279240925ac7743160e3e0c2c9b587530688dca03ee9353872297cea2",
+      "controller_opacity_wait_outputs_exact_debug": true,
+      "headless_surface_and_state_exact_appkit_test": true,
+      "tested_app_sha256_before_help_update": "b091cbc986a62e86d5e4007e1ac83d215b303ff884a8aae2ced62e7a6ad18954",
+      "final_app_sha256": "3412a478dfb0302237b9b2889b2366f6e3eecfeb640da5beb43dab74b2992337",
+      "final_app_change": "Usage text only; rebuilt after the recorded cross-build comparison"
+    }
+  },
+  "tests": {
+    "native": 12,
+    "python": 12,
+    "release_dialogue_font_text": 3,
+    "asan_ubsan_dialogue_font_text": 3
+  },
+  "native_appkit_test": {
+    "frames": 220,
+    "return_key_down_events_received": 5,
+    "press_frames": [
+      40,
+      80,
+      120,
+      160,
+      200
+    ],
+    "state": {
+      "frames": 220,
+      "text_progress": 2,
+      "advance_count": 4,
+      "wait_release_frame": 167,
+      "controller_stage": 5,
+      "unimplemented_service_requests": 96
+    },
+    "input_path": "In-process NSEvent through NSWindow::sendEvent and NativeTextView::keyDown",
+    "view_visually_inspected": true,
+    "physical_keyboard_or_controller_verified": false,
+    "automation_limit": "The automation could not select the window; AppleScript reported missing assistive access; OS permissions unchanged",
+    "artifacts": {
+      "local/native-dialogue-ui-test-v1.png": "39f4c0ddd643a4de5cb675ef9107635523df88fc187d255b453ceeff6774569c",
+      "local/native-dialogue-ui-test-v1.png.json": "6c5f506b6ea6d8fd1da70364f575f6c81f066fd7a4b31b3eaa762ad9e828effa",
+      "local/native-dialogue-ui-test-v1.png.view.png": "c491c57361b9c4d64a7cf7ecad3454c6b0986bb59f32359474970c953ddc6c37",
+      "local/native-dialogue-ui-test-v1.log": "7dd838d154c856cd6be97704bae215a1bcc20363ca2a79e8a21651732d55a8b5"
+    }
+  },
+  "native_message_completion": {
+    "scope": "Headless dialogue component completion, not scene or game completion",
+    "press_frames": [
+      40,
+      80,
+      120,
+      160,
+      200,
+      240,
+      280,
+      320,
+      360
+    ],
+    "state": {
+      "frames": 400,
+      "text_progress": 4,
+      "advance_count": 8,
+      "wait_release_frame": 167,
+      "controller_stage": 6,
+      "unimplemented_service_requests": 157
+    },
+    "app_sha256": "bec76113d9cb39c0e99aec268b7a0eb54087ca3ac892c07b1ba4d3a15229800d",
+    "state_sha256": "88e8335c4dd8c62df93f0055e2b09df08a15f06e09aeac0cb634b744b129c273"
+  },
+  "shipping_dependencies_check": "otool -L: AppKit, Foundation, CoreFoundation, Objective-C, C++ and System; no emulator or guest CPU runtime"
+}

@@ -9,6 +9,7 @@
 #include "okage/audio.hpp"
 #include "okage/text.hpp"
 #include "okage/font.hpp"
+#include "okage/dialogue.hpp"
 #include <algorithm>
 #include <bit>
 #include <cstring>
@@ -61,6 +62,58 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if(command=="dialogue-replay" && argc==8) {
+            okage::DialogueText text(okage::read_pme(read(argv[2])).message(std::stoi(argv[3])));
+            std::vector<okage::Font> fonts;
+            for(const auto* name:{"IQ24.FNT","BMUI.FNT","BM.FNT"})fonts.push_back(okage::read_fnt(read(fs::path(argv[4])/name)));
+            text.fonts=fonts;
+            const auto trace=read(argv[5]),control=read(argv[6]);
+            if(trace.empty() || trace.size()%160 || control.empty() || control.size()%512)throw std::runtime_error("Dialogue replay record bounds");
+            std::array<std::uint32_t,40> r;std::memcpy(r.data(),trace.data(),160);
+            if(r[1]!=0x1980f8)throw std::runtime_error("Dialogue replay initial text state");
+            text.state.flags=r[10];text.state.progress=r[12];text.state.phase=r[16];text.state.period=r[17];text.state.delay=r[18];
+            text.state.x=r[29];text.state.y=r[30];text.state.color=r[31];text.state.font=r[35];text.seek({r[13],r[14],r[15]!=0});
+            okage::TextClock clock;clock.display_modes=r[11];clock.revealed=r[19];clock.scroll_target=__builtin_bit_cast(std::int32_t, (r[20]));
+            clock.scroll=__builtin_bit_cast(float, (r[21]));clock.scroll_step=__builtin_bit_cast(float, (r[22]));clock.scroll_base_step=__builtin_bit_cast(float, (r[23]));clock.glyph_flags=r[32];
+            std::array<std::uint32_t,64> c;std::memcpy(c.data(),control.data(),256);
+            okage::DialogueController controller;controller.stage=c[7];controller.normal_period=__builtin_bit_cast(std::int32_t, (c[12]));
+            controller.automatic=c[13]!=0;controller.window_type=__builtin_bit_cast(std::int32_t, (c[15]));
+            controller.advance_count=c[16];controller.layer_flags=c[17];controller.layer_advance=c[21];
+            if(c[18] || c[62])throw std::runtime_error("Dialogue replay choices outside scope");
+            if((c[63]&255)==255)text.state.window.assign(1,char(255));
+            else if(c[63]&255)throw std::runtime_error("Dialogue initial window command outside scope");
+            okage::DialogueOpacity opacity;opacity.set(__builtin_bit_cast(float, (c[40])),__builtin_bit_cast(float, (c[43])),__builtin_bit_cast(float, (c[42])),__builtin_bit_cast(float, (c[41])));
+            okage::DialogueWaitState wait{5,1};std::array<std::uint32_t,2> layers={c[22],c[23]};bool released=false;
+            std::vector<std::uint32_t> result,wait_result;
+            for(std::size_t at=0;at<control.size();at+=512) {
+                std::memcpy(c.data(),control.data()+at,256);
+                if(c[0]!=at/512 || c[1]!=0x148dc8)throw std::runtime_error("Dialogue input sequence mismatch");
+                if(!released) {
+                    const auto value=okage::poll_dialogue_wait(wait,2,{true,0,layers,__builtin_bit_cast(std::int32_t, (text.state.progress))});
+                    wait_result.insert(wait_result.end(),{wait.countdown,wait.observed,wait.accumulated,__builtin_bit_cast(std::uint32_t, (value))});released=value==0;
+                }
+                opacity.tick();text.frame(clock,opacity.visible());
+                const auto pos=text.position();
+                result.insert(result.end(),{text.state.flags,text.state.progress,std::uint32_t(pos.fragment),std::uint32_t(pos.cursor),pos.loaded?1u:0u,
+                    text.state.phase,text.state.period,text.state.delay,clock.revealed,__builtin_bit_cast(std::uint32_t, (clock.scroll_target)),__builtin_bit_cast(std::uint32_t, (clock.scroll)),text.state.x,text.state.y});
+                const auto effects=controller.update(text,{std::uint16_t(c[8]),std::uint16_t(c[9])});
+                if(effects.close)opacity.set(128,-4);
+                result.insert(result.end(),{text.state.flags,text.state.phase,text.state.period,text.state.delay,text.state.progress,
+                    controller.advance_count,controller.layer_advance,controller.layer_flags,controller.stage,__builtin_bit_cast(std::uint32_t, (opacity.delta))});
+            }
+            write(fs::path(argv[7])/"frames.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(result.data()),result.size()*4));
+            write(fs::path(argv[7])/"wait.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(wait_result.data()),wait_result.size()*4));return 0;
+        }
+        if(command=="dialogue-opacity" && argc==4) {
+            const auto input=read(argv[2]);if(input.empty() || input.size()%16)throw std::runtime_error("Opacity fixture bounds");
+            std::vector<float> out;
+            for(std::size_t at=0;at<input.size();at+=16) {
+                std::array<float,4> row;std::memcpy(row.data(),input.data()+at,16);
+                okage::DialogueOpacity opacity;opacity.set(row[0],row[3],row[2],row[1]);opacity.tick();
+                out.insert(out.end(),{opacity.value,opacity.upper,opacity.lower,opacity.delta});
+            }
+            write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4));return 0;
+        }
         if(command=="text-glyphs" && argc==5) {
             std::vector<okage::Font> fonts;
             for(const auto* name:{"IQ24.FNT","BMUI.FNT","BM.FNT"})fonts.push_back(okage::read_fnt(read(fs::path(argv[2])/name)));
