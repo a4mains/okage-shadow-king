@@ -51,8 +51,12 @@ Animation::Animation(Bytes bytes,std::size_t count):bytes_(bytes.begin(),bytes.e
 void Animation::start(std::size_t entry) {
     const auto at=std::uint64_t(code_)+entry*8;
     if (entry>(samples_-code_)/8 || at+8>samples_) throw std::runtime_error("XMT entry out of bounds");
-    pc_=at; wait_=0; flags_|=0x100;
-    Rounding rounding; run();
+    start_at(static_cast<std::uint32_t>(at));
+}
+void Animation::start_at(std::uint32_t at) {
+    if(at<code_ || at+4ull>samples_ || (at&3))throw std::runtime_error("XMT start PC bounds");
+    pc_=at;wait_=0;flags_|=0x100;
+    Rounding rounding;run();
 }
 void Animation::run() {
     const auto resume_pc=pc_;
@@ -67,6 +71,12 @@ void Animation::run() {
         if (op==0x34) {
             if (b<0 || !texture_callback_) throw std::runtime_error("XMT texture callback requires a valid XTA binding");
             texture_callback_(static_cast<std::size_t>(b),a); pc_=p; continue;
+        }
+        if(op!=0x30 && op!=0x33 && op!=0x42 && op!=0x27 && service_) {
+            const auto result=service_(op,a,b,pc_);
+            if(result.next_pc<code_ || result.next_pc+4ull>samples_ || (result.next_pc&3))
+                throw std::runtime_error("XMT service continuation bounds");
+            pc_=result.next_pc;if(result.yield)return;continue;
         }
         const auto index=(op==0x30 ? b : static_cast<int>(a))>>2;
         if (index<0 || std::size_t(index)>=channels_.size()) throw std::runtime_error("XMT channel out of bounds");
@@ -161,11 +171,9 @@ void Animation::evaluate(Channel& ch) {
     }
     ch.flags&=~0x200;
 }
-void Animation::tick() {
-    Rounding rounding;
-    for (auto& ch:channels_) advance(ch);
-    if (flags_&0x100) { if (wait_) --wait_; else run(); }
-}
+void Animation::tick_channels() {Rounding rounding;for(auto& ch:channels_)advance(ch);}
+void Animation::tick_script() {Rounding rounding;if(flags_&0x100){if(wait_)--wait_;else run();}}
+void Animation::tick() {tick_channels();tick_script();}
 std::vector<Float4> Animation::values() {
     Rounding rounding;
     std::vector<Float4> result; result.reserve(channels_.size());

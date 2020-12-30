@@ -10,6 +10,7 @@
 #include "reference_dialogue.hpp"
 #include "reference_text.hpp"
 #include "reference_controller.hpp"
+#include "reference_camera.hpp"
 #include "iop/IopBios.h"
 #include "iop/ioman/OpticalMediaDevice.h"
 #include <atomic>
@@ -49,8 +50,8 @@ public:
 };
 int main(int argc,char** argv) {
     try {
-        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE]");
-        bool load=false,traceFiles=false,traceLoaders=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller;
+        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE]");
+        bool load=false,traceFiles=false,traceLoaders=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera;
         for (int i=3;i<argc;++i) {
             const std::string arg=argv[i];
             if (arg=="--load") load=true;
@@ -64,6 +65,7 @@ int main(int argc,char** argv) {
             else if (arg=="--events" && i+1<argc) events=argv[++i];
             else if (arg=="--dialogue" && i+1<argc) dialogue=argv[++i];
             else if (arg=="--text" && i+1<argc) text=argv[++i];
+            else if (arg=="--camera" && i+1<argc) camera=argv[++i];
             else if (arg=="--controller" && i+1<argc) controller=argv[++i];
             else if (state.empty() && !arg.starts_with("--")) state=arg;
             else throw std::runtime_error("Unknown boot argument");
@@ -91,7 +93,8 @@ int main(int argc,char** argv) {
         auto dialogueTrace=dialogue.empty() ? nullptr : std::make_unique<DialogueTrace>(dialogue);
         auto textTrace=text.empty() ? nullptr : std::make_unique<TextTrace>(text);
         auto controllerTrace=controller.empty() ? nullptr : std::make_unique<ControllerTrace>(controller);
-        const bool tracing=traceLoaders || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace);
+        auto cameraTrace=camera.empty() ? nullptr : std::make_unique<CameraTrace>(camera);
+        const bool tracing=traceLoaders || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace) || bool(cameraTrace);
         RecordedAudio* recordedAudio=nullptr;
         Traffic traffic; std::atomic<unsigned> frames{0}; std::atomic<bool> exited{false};
         CPS2VM vm;
@@ -136,6 +139,7 @@ int main(int argc,char** argv) {
         if(dialogueTrace) {loaders.push_back(0x130458);loaders.push_back(0x1b59f0);}
         if(textTrace)for(auto at:TextTrace::breakpoints)loaders.push_back(at);
         if(controllerTrace)for(auto at:ControllerTrace::breakpoints)loaders.push_back(at);
+        if(cameraTrace)for(auto at:CameraTrace::breakpoints)loaders.push_back(at);
         if (tracing) {
             Iop::Ioman::COpticalMediaDevice reader(vm.m_cdrom0);
             std::unique_ptr<Framework::CStream> stream(reader.GetFile(1,"\\SCUS_971.29;1"));
@@ -163,6 +167,9 @@ int main(int argc,char** argv) {
                     throw std::runtime_error(error.str());
                 }
                 if (++tracedCalls>(eventTrace ? 200000u : 10000u)) throw std::runtime_error("Reference trace limit exceeded");
+                if(cameraTrace && std::find(CameraTrace::breakpoints.begin(),CameraTrace::breakpoints.end(),pc)!=CameraTrace::breakpoints.end()) {
+                    cameraTrace->observe(*vm.m_ee,frames);vm.Resume();continue;
+                }
                 if(controllerTrace && std::find(ControllerTrace::breakpoints.begin(),ControllerTrace::breakpoints.end(),pc)!=ControllerTrace::breakpoints.end()) {
                     controllerTrace->observe(*vm.m_ee,frames);vm.Resume();continue;
                 }

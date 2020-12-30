@@ -1,6 +1,9 @@
 #import <AppKit/AppKit.h>
 #include "okage/dialogue.hpp"
 #include "okage/event.hpp"
+#include "okage/field.hpp"
+#include "okage/scene_renderer.hpp"
+#include <bit>
 #include <algorithm>
 #include <array>
 #include <filesystem>
@@ -23,6 +26,11 @@ struct Session {
     okage::DialogueOpacity opacity;
     okage::DialogueWaitState wait{5,1};
     unsigned frame=0,release_frame=0;
+    bool dialogue_active=true;
+    std::unique_ptr<okage::OpeningField> field;
+    std::unique_ptr<okage::SceneRenderer> renderer;
+    okage::Float4 projection{};
+    std::vector<std::uint32_t> scene_trace;
     std::uint64_t service_request_count=0;
     Session(const fs::path& directory,const fs::path& pme):
         fonts{okage::read_fnt(readData(directory/"IQ24.FNT")),okage::read_fnt(readData(directory/"BMUI.FNT")),okage::read_fnt(readData(directory/"BM.FNT"))},
@@ -30,18 +38,51 @@ struct Session {
         text.fonts=fonts;text.state.flags=0x8041;text.state.font=2;text.state.period=1;
         clock.glyph_flags=0x10;opacity.set(1,8);
     }
+    void load_scene(const fs::path& map,const fs::path& event) {
+        renderer=std::make_unique<okage::SceneRenderer>(map);
+        auto stg=map;stg.replace_extension(".stg");projection=okage::field_projection(readData(stg));
+        dialogue_active=false;
+        field=std::make_unique<okage::OpeningField>(readData(event),[this](int id){
+            if(id!=10100 || dialogue_active)throw std::runtime_error("Additional field dialogue not yet implemented");
+            dialogue_active=true;
+        },[this](int request){
+            if(!dialogue_active)throw std::runtime_error("Field wait before dialogue initialization");
+            const std::array<std::uint32_t,2> layers={0x50,controller.layer_flags};
+            const bool released=okage::poll_dialogue_wait(wait,request,{true,0,layers,std::int32_t(text.state.progress)})==0;
+            if(released && !release_frame)release_frame=frame;return released;
+        });
+        std::cout<<"Native room: "<<renderer->placements()<<" placements; "<<renderer->omitted_effects()
+            <<" effects omitted; actors/audio unavailable; diagnostic dialogue panel; event starts at 0xb88\n";
+    }
     void tick(okage::DialogueButtons input) {
         ++frame;
         const std::array<std::uint32_t,2> layers={0x50,controller.layer_flags};
-        if(!release_frame && okage::poll_dialogue_wait(wait,2,{true,0,layers,std::int32_t(text.state.progress)})==0)release_frame=frame;
-        opacity.tick();text.frame(clock,opacity.visible());
-        if(controller.stage==5) {
+        if(field)field->tick();
+        if(!field && !release_frame && okage::poll_dialogue_wait(wait,2,{true,0,layers,std::int32_t(text.state.progress)})==0)release_frame=frame;
+        if(dialogue_active) {opacity.tick();text.frame(clock,opacity.visible());}
+        if(dialogue_active && controller.stage==5) {
             const auto effects=controller.update(text,input);
             if(effects.close)opacity.set(128,-4);
             if(effects.cue>=0 || effects.stop_voice || effects.stop_effect)++service_request_count;
         }
+        if(field) {
+            scene_trace.insert(scene_trace.end(),{frame,field->pc(),field->pending_opcode,release_frame});
+            for(const auto& values:{field->position,field->target,field->rotation})
+                for(float v:values)scene_trace.push_back(__builtin_bit_cast(std::uint32_t, (v)));
+        }
     }
-    okage::Texture surface() const {return okage::rasterize_text(fonts,text.glyphs,640,224);}
+    okage::Texture surface() const {
+        auto text_image=okage::rasterize_text(fonts,text.glyphs,640,224);
+        if(!renderer)return text_image;
+        auto image=renderer->render(field->view(),projection);
+        image.height=448;image.rgba.resize(640*448*4);
+        for(std::size_t i=0;i<text_image.rgba.size();i+=4) {
+            const float a=dialogue_active ? (text_image.rgba[i+3]/255.f)*std::clamp(opacity.value/128.f,0.f,1.f) : 0;
+            for(unsigned c=0;c<3;++c)image.rgba[640*224*4+i+c]=std::uint8_t(text_image.rgba[i+c]*a+16.f*(1-a));
+            image.rgba[640*224*4+i+3]=255;
+        }
+        return image;
+    }
 };
 static NSBitmapImageRep* bitmap(const okage::Texture& image) {
     NSBitmapImageRep* rep=[[NSBitmapImageRep alloc] initWithBitmapDataPlanes:nullptr pixelsWide:image.width pixelsHigh:image.height
@@ -61,6 +102,14 @@ static void capture(const Session& session,const fs::path& path) {
          <<",\n  \"advance_count\": "<<session.controller.advance_count<<",\n  \"wait_release_frame\": "<<session.release_frame
          <<",\n  \"controller_stage\": "<<session.controller.stage<<",\n  \"unimplemented_service_requests\": "<<session.service_request_count<<"\n}\n";
     if(!state)throw std::runtime_error("Cannot write native capture state");
+    if(session.field) {
+        const auto tracePath=fs::path(path.string()+".camera.bin");
+        if(fs::exists(tracePath)||fs::is_symlink(tracePath))throw std::runtime_error("Refusing existing camera trace");
+        std::ofstream trace(tracePath,std::ios::binary);
+        if(!trace.write(reinterpret_cast<const char*>(session.scene_trace.data()),session.scene_trace.size()*4))throw std::runtime_error("Cannot save native camera trace");
+        std::cout<<"Field PC=0x"<<std::hex<<session.field->pc()<<" pending opcode=0x"<<session.field->pending_opcode<<std::dec
+            <<" actor="<<session.field->pending_actor<<" animation="<<session.field->pending_animation<<'\n';
+    }
 }
 
 @interface NativeTextView : NSView
@@ -92,6 +141,7 @@ static void capture(const Session& session,const fs::path& path) {
 @interface NativeApp : NSObject<NSApplicationDelegate,NSWindowDelegate> {
 @public std::unique_ptr<Session> session;
 @public unsigned testFrames;
+@public int failureStatus;
 @public std::vector<unsigned> testPresses;
 @public fs::path testCapture;
 }
@@ -104,7 +154,7 @@ static void capture(const Session& session,const fs::path& path) {
 @implementation NativeApp
 - (void)applicationDidFinishLaunching:(NSNotification*)notification {
     (void)notification;
-    self.window=[[NSWindow alloc] initWithContentRect:NSMakeRect(0,0,960,336)
+    self.window=[[NSWindow alloc] initWithContentRect:NSMakeRect(0,0,960,session->field ? 672 : 336)
         styleMask:NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|NSWindowStyleMaskResizable|NSWindowStyleMaskMiniaturizable backing:NSBackingStoreBuffered defer:NO];
     self.window.delegate=self;
     self.view=[[NativeTextView alloc] initWithFrame:self.window.contentView.bounds];self.view.autoresizingMask=NSViewWidthSizable|NSViewHeightSizable;
@@ -135,10 +185,12 @@ static void capture(const Session& session,const fs::path& path) {
             if(testFrames && session->frame==testFrames)break;
         }
         if(!changed)return;
-        NSImage* image=[[NSImage alloc] initWithSize:NSMakeSize(640,224)];[image addRepresentation:bitmap(session->surface())];
-        self.view.image=image;self.view.opacity=session->opacity.value;self.view.needsDisplay=YES;
+        NSImage* image=[[NSImage alloc] initWithSize:NSMakeSize(640,session->field ? 448 : 224)];[image addRepresentation:bitmap(session->surface())];
+        self.view.image=image;self.view.opacity=session->field ? 128 : session->opacity.value;self.view.needsDisplay=YES;
         self.window.title=[NSString stringWithFormat:@"Okage native dialogue — Return/Space — progress %u — event %@",
             session->text.state.progress,session->release_frame ? @"released" : @"waiting"];
+        if(session->field && session->field->pending_opcode)
+            self.window.title=[self.window.title stringByAppendingString:@" — actor service pending (partial scene)"];
         if(testFrames && session->frame==testFrames) {
             [self.timer invalidate];capture(*session,testCapture);
             [self.view display];
@@ -154,6 +206,7 @@ static void capture(const Session& session,const fs::path& path) {
         }
     }catch(const std::exception& e) {
         [self.timer invalidate];self.window.title=[NSString stringWithUTF8String:e.what()];std::cerr<<e.what()<<'\n';
+        if(testFrames){failureStatus=1;[NSApp stop:nil];}
     }
 }
 - (void)windowDidResignKey:(NSNotification*)notification {(void)notification;self.view.held=0;self.view.pressed=0;}
@@ -161,26 +214,29 @@ static void capture(const Session& session,const fs::path& path) {
 @end
 int main(int argc,const char** argv) {
     @autoreleasepool {try {
-        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames N] [--press FRAME,FRAME --capture FILE.png]");
-        unsigned frames=0,uiFrames=0;std::vector<unsigned> presses;fs::path output;
+        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames N] [--press FRAME,FRAME --capture FILE.png] [--scene MAP.xmp --event EVENT.xmt]");
+        unsigned frames=0,uiFrames=0;std::vector<unsigned> presses;fs::path output,map,event;
         for(int i=3;i<argc;++i) {
             const std::string arg=argv[i];if(++i==argc)throw std::runtime_error("Missing native runtime option value");
             if(arg=="--frames")frames=std::stoul(argv[i]);
             else if(arg=="--ui-test-frames")uiFrames=std::stoul(argv[i]);
             else if(arg=="--capture")output=argv[i];
+            else if(arg=="--scene")map=argv[i];
+            else if(arg=="--event")event=argv[i];
             else if(arg=="--press") {std::istringstream in(argv[i]);std::string n;while(std::getline(in,n,','))presses.push_back(std::stoul(n));}
             else throw std::runtime_error("Unknown native runtime option");
         }
+        if(map.empty()!=event.empty())throw std::runtime_error("Scene requires both map and event assets");
         if(frames>36000 || uiFrames>36000 || (frames && uiFrames) || (uiFrames && output.empty()))throw std::runtime_error("Native diagnostic frame/capture bounds");
         if(frames) {
-            Session session(argv[1],argv[2]);
+            Session session(argv[1],argv[2]);if(!map.empty())session.load_scene(map,event);
             for(unsigned i=1;i<=frames;++i) {const std::uint16_t mask=std::find(presses.begin(),presses.end(),i)!=presses.end()?0x40:0;session.tick({mask,mask});}
             if(!output.empty())capture(session,output);
             std::cout<<"Native frames="<<session.frame<<" progress="<<session.text.state.progress<<" wait_release="<<session.release_frame<<'\n';return 0;
         }
         [NSApplication sharedApplication];[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
-        NativeApp* app=[NativeApp new];app->session=std::make_unique<Session>(argv[1],argv[2]);
+        NativeApp* app=[NativeApp new];app->session=std::make_unique<Session>(argv[1],argv[2]);if(!map.empty())app->session->load_scene(map,event);
         app->testFrames=uiFrames;app->testPresses=presses;app->testCapture=output;
-        [NSApp setDelegate:app];[NSApp run];
+        [NSApp setDelegate:app];[NSApp run];return app->failureStatus;
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
 }

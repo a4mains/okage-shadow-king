@@ -201,6 +201,17 @@ public:
         if(get(object+0x3e34)!=text.size())throw std::runtime_error("Text fixture did not finish");
         writeFile(output,result.data(),result.size());
     }
+    void cameraLookAt(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
+        if(ram.size()!=32*1024*1024 || input.empty() || input.size()%32)throw std::runtime_error("Camera fixture bounds");
+        std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
+        loadMicro();std::vector<uint8> result;
+        for(std::size_t at=0;at<input.size();at+=32) {
+            std::memcpy(ee->m_ram+0x1800000,input.data()+at,32);
+            call(0x1b9440,{0x1800000,0x1800040,0x1800010});
+            result.insert(result.end(),ee->m_ram+0x1800040,ee->m_ram+0x1800050);
+        }
+        writeFile(output,result.data(),result.size());
+    }
     void dialogueOpacity(const std::vector<uint8>& input,const char* output) {
         if(input.empty() || input.size()%16)throw std::runtime_error("Opacity fixture bounds");
         constexpr uint32 object=0xa00000;std::vector<uint32> result;
@@ -628,7 +639,11 @@ int main(int argc,char** argv) {
         if (argc<4) throw std::runtime_error("Usage: okage-pose-oracle sine ELF OUTPUT | vu-asm ELF OUTPUT | pose ELF XMD OUTPUT | pose-corpus ELF DIRECTORY OUTDIR");
         Reference reference(readFile(argv[2]));
         const std::string command=argv[1];
-        if(command=="dialogue-opacity" && argc==5) {
+        if(command=="camera-angles" && argc==4) {
+            reference.call(0x1b1ed0);writeFile(argv[3],reference.ee->m_ram+0x335490,8192);
+        } else if(command=="camera-look-at" && argc==6) {
+            reference.cameraLookAt(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="dialogue-opacity" && argc==5) {
             reference.dialogueOpacity(readFile(argv[3]),argv[4]);
         } else if(command=="text-glyphs" && argc==6) {
             reference.textGlyphs(readFile(argv[3]),readFile(argv[4]),argv[5]);

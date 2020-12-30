@@ -1,0 +1,85 @@
+{
+  "scope": "Native HOME1C segment 0xb88 through dialogue-gated camera move; event remains pending at actor opcode 0x36, not a playable scene or cold boot",
+  "native_tool_sha256": "54318596ffda2673b5d2897fa00097eb37660c4ae18b3082eaa126743d549ed2",
+  "native_app_sha256": "548bc91382ae8193d88e1b473865a0a262b3517e9bc8645150d49bc4c1248ec6",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "script_sha256": "0fd868603f66f22ca93cfdd050a30b223f496e7c69ec0bf1995e9759441fcded",
+  "stg_sha256": "af9be367c8e1d2f9b9ec1ae6c0b84478e5632656b4c90d2bf5402482f3eb4803",
+  "angle_table_entries": 4096,
+  "angle_table_exact": true,
+  "angle_table_sha256": "09f97c887293518f5b646fc0b5c581d3bce795281644616e48e931b2e61528b7",
+  "look_at_cases": 129,
+  "look_at_exact": true,
+  "look_at_sha256": "db3fea2040128f1916c30c2b524ba32177d0406b6f27703b7ef17396848cad73",
+  "projection_coefficients_exact_capture": true,
+  "projection_sha256": "4edbd0c24de474e0c56860fa3d54cf7ece277047ab380f231473f133d578961c",
+  "continuous_camera": {
+    "frames": 200,
+    "exact_words_per_frame": 8,
+    "reference_release_frame": 88,
+    "native_release_frame": 227,
+    "native_row_offset": 138,
+    "position_rotation_exact": true,
+    "capture_sha256": "13fe218160db5d3a82b6d35fd5b7ac18e1df8babb506157f8efe6370193b40fd",
+    "native_trace_sha256": "e685dced648084eb63d055786f6a6281103d69ac942a6ab40188614e3a059dd9"
+  },
+  "native_state": {
+    "frames": 360,
+    "text_progress": 3,
+    "advance_count": 6,
+    "wait_release_frame": 227,
+    "controller_stage": 5,
+    "unimplemented_service_requests": 136
+  },
+  "limits": [
+    "Harness starts at the recovered camera segment, not full game startup",
+    "Ready dialogue layers are assumed; flat text panel is diagnostic",
+    "Actor animation service remains pending at 0xbe4; no opcode is skipped",
+    "26 effects, actors, faithful lighting/window presentation, audio, battle and saves remain open",
+    "Full-game camera reference is emulator research; no reference state feeds the native app"
+  ],
+  "build_checks": {
+    "native-release": {
+      "app_sha256": "824717103f8e2234725d296ed634e63463119bbd45095fab470dcd6b719959df",
+      "tool_sha256": "1dd09ea675e99a9f625d8abab99ebcf32e87e1dc23562f619477d2f0a03e5209",
+      "camera_projection_trace_render_and_state_exact_debug": true
+    },
+    "model-sanitize": {
+      "app_sha256": "2affd66475631c017000d9e06df6db39fcb2c689b5035b3e2a53d04a4dfa5df2",
+      "tool_sha256": "2a248b0c93169d1ceb97022b37ca4d0217d6ae25294a2232153b2e09f7a05937",
+      "camera_projection_trace_render_and_state_exact_debug": true
+    }
+  },
+  "appkit": {
+    "events": 7,
+    "headless_surface_state_camera_exact": true,
+    "view_visually_inspected": true,
+    "view_v2_exact_inspected_v1": true,
+    "physical_keyboard_verified": false,
+    "log": "Native room: 6 placements; 26 effects omitted; actors/audio unavailable; diagnostic dialogue panel; event starts at 0xb88\nField PC=0xbe4 pending opcode=0x36 actor=-8 animation=2\nAppKit keyDown events=7 native progress=3 wait_release=227\nreal 6.28\nuser 5.80\nsys 0.13\n",
+    "artifacts": {
+      "local/native-field-ui-360-v2.png": "58908a019bbffec583c5ebf6b3f4e380968ac795356e64f38858791f9044e825",
+      "local/native-field-ui-360-v2.png.view.png": "ecbe5526c0e56f88f4f36721303b2997bf8c0f32b935f7e730c821ccf4d02ff1",
+      "local/native-field-ui-360-v2.png.camera.bin": "e685dced648084eb63d055786f6a6281103d69ac942a6ab40188614e3a059dd9"
+    }
+  },
+  "renderer_regression": {
+    "initial_scene_pixels": 143360,
+    "exact_previous_native_static_renderer": true,
+    "comparison": "Decoded RGBA NSBitmapImageRep components, local/compare-field.swift; 0 differing pixels",
+    "prior_static_sha256": "618b447f54c5ad0fc5fc59f677b79d7049724d0a090e073754001bb6c0c6ec07",
+    "new_initial_sha256": "d67c3b731e881197e6cc938849e5f6c42024ab61df0f8d7fbcbf7d34b5d5e240",
+    "offscreen_preview_prior_png_unchanged": true
+  },
+  "tests": {
+    "native": 13,
+    "python": 12,
+    "release_field_dialogue_animation": 4,
+    "asan_ubsan_field_dialogue_animation": 4
+  },
+  "dependencies": "AppKit, Metal, CoreFoundation, Foundation, Objective-C, C++, System; no emulator or guest CPU runtime",
+  "oracle_sha256": "0ab83dc87ef39601853d97caf5a25c38a9c378bc70f757e9dcc383d55cea95ac",
+  "oracle_ram_fixture_sha256": "dd826c9c361f0101cd4241272bd8b78fade95409327f62f55375cef10cc5999c",
+  "map_sha256": "90ff53dcd83e5e5e15608ecb971e6f92c5c09d88db19e5d8a083ada65434562c",
+  "reference_revision": "9534ba7e59089b20086b94cb2c83596ef14fd9f7"
+}

@@ -8,7 +8,14 @@ class Animation {
 public:
     Animation(Bytes bytes, std::size_t channel_count);
     void start(std::size_t entry);
+    // Start a recovered script segment. This is not a whole-scene initializer.
+    void start_at(std::uint32_t offset);
+    struct ServiceResult {std::uint32_t next_pc;bool yield=false;};
+    using Service=std::function<ServiceResult(unsigned,unsigned,std::int32_t,std::uint32_t)>;
+    void set_service_callback(Service service){service_=std::move(service);}
     void tick();
+    void tick_script();
+    void tick_channels();
     std::vector<Float4> values();
     std::uint32_t pc() const { return pc_; }
     std::uint32_t script_state() const { return (std::uint32_t(wait_)<<16)|flags_; }
@@ -30,6 +37,7 @@ private:
     std::uint16_t flags_=1, wait_=0;
     bool wide_tracks_=false, scale_channels_=false;
     std::function<void(std::size_t,std::size_t)> texture_callback_;
+    Service service_;
     std::uint32_t word(std::size_t offset) const;
     float number(std::size_t offset) const;
     float sample(std::uint64_t index) const;

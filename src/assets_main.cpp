@@ -10,6 +10,8 @@
 #include "okage/text.hpp"
 #include "okage/font.hpp"
 #include "okage/dialogue.hpp"
+#include "okage/camera.hpp"
+#include "okage/field.hpp"
 #include <algorithm>
 #include <bit>
 #include <cstring>
@@ -62,6 +64,22 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if(command=="field-projection" && argc==4) {
+            const auto p=okage::field_projection(read(argv[2]));
+            write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(p.data()),sizeof(p)));return 0;
+        }
+        if(command=="camera-angles" && argc==3) {
+            const auto table=okage::make_atan_table();write(argv[2],okage::Bytes(reinterpret_cast<const std::uint8_t*>(table.data()),sizeof(table)));return 0;
+        }
+        if(command=="camera-look-at" && argc==4) {
+            const auto input=read(argv[2]);if(input.empty() || input.size()%32)throw std::runtime_error("Look-at fixture bounds");
+            const auto table=okage::make_atan_table();const auto sine=okage::make_sine_table();std::vector<okage::Float4> out;
+            for(std::size_t at=0;at<input.size();at+=32) {
+                okage::Float4 p,t;std::memcpy(p.data(),input.data()+at,16);std::memcpy(t.data(),input.data()+at+16,16);
+                out.push_back(okage::camera_look_at(p,t,table,sine));
+            }
+            write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*16));return 0;
+        }
         if(command=="dialogue-replay" && argc==8) {
             okage::DialogueText text(okage::read_pme(read(argv[2])).message(std::stoi(argv[3])));
             std::vector<okage::Font> fonts;
