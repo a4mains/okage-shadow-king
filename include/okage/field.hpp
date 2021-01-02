@@ -1,11 +1,12 @@
 #pragma once
 #include "okage/animation.hpp"
 #include "okage/camera.hpp"
+#include "okage/actor.hpp"
 namespace okage {
 class OpeningField {
 public:
     OpeningField(Bytes script,std::function<void(int)> start_dialogue,
-                 std::function<bool(int)> wait_dialogue);
+                 std::function<bool(int)> wait_dialogue,FieldActor* woman=nullptr);
     void tick();
     Float4 position{},target{},rotation{};
     CameraBlend blend;
@@ -19,6 +20,8 @@ private:
     SineTable sine_=make_sine_table();
     AtanTable angles_=make_atan_table();
     Float4 requested_target_{};
+    FieldActor* woman_=nullptr;
+    int group_=-2;
     std::function<void(int)> start_dialogue_;
     std::function<bool(int)> wait_dialogue_;
     Animation::ServiceResult service(unsigned,unsigned,std::int32_t,std::uint32_t);

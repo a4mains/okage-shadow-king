@@ -27,10 +27,11 @@ struct Session {
     okage::DialogueWaitState wait{5,1};
     unsigned frame=0,release_frame=0;
     bool dialogue_active=true;
+    std::unique_ptr<okage::FieldActor> woman;
     std::unique_ptr<okage::OpeningField> field;
     std::unique_ptr<okage::SceneRenderer> renderer;
     okage::Float4 projection{};
-    std::vector<std::uint32_t> scene_trace;
+    std::vector<std::uint32_t> scene_trace,actor_trace;
     std::uint64_t service_request_count=0;
     Session(const fs::path& directory,const fs::path& pme):
         fonts{okage::read_fnt(readData(directory/"IQ24.FNT")),okage::read_fnt(readData(directory/"BMUI.FNT")),okage::read_fnt(readData(directory/"BM.FNT"))},
@@ -38,8 +39,14 @@ struct Session {
         text.fonts=fonts;text.state.flags=0x8041;text.state.font=2;text.state.period=1;
         clock.glyph_flags=0x10;opacity.set(1,8);
     }
-    void load_scene(const fs::path& map,const fs::path& event) {
-        renderer=std::make_unique<okage::SceneRenderer>(map);
+    void load_scene(const fs::path& map,const fs::path& event,const fs::path& actor={}) {
+        if(!actor.empty()) {
+            auto motion=actor,xta=actor;motion.replace_extension(".xmt");xta.replace_extension(".xta");
+            const auto text=readData(xta);
+            woman=std::make_unique<okage::FieldActor>(okage::read_xmd(readData(actor)),readData(motion),
+                okage::read_xta(std::string_view(reinterpret_cast<const char*>(text.data()),text.size())));
+        }
+        renderer=std::make_unique<okage::SceneRenderer>(map,woman.get(),actor.parent_path());
         auto stg=map;stg.replace_extension(".stg");projection=okage::field_projection(readData(stg));
         dialogue_active=false;
         field=std::make_unique<okage::OpeningField>(readData(event),[this](int id){
@@ -50,9 +57,9 @@ struct Session {
             const std::array<std::uint32_t,2> layers={0x50,controller.layer_flags};
             const bool released=okage::poll_dialogue_wait(wait,request,{true,0,layers,std::int32_t(text.state.progress)})==0;
             if(released && !release_frame)release_frame=frame;return released;
-        });
+        },woman.get());
         std::cout<<"Native room: "<<renderer->placements()<<" placements; "<<renderer->omitted_effects()
-            <<" effects omitted; actors/audio unavailable; diagnostic dialogue panel; event starts at 0xb88\n";
+            <<" effects omitted; "<<renderer->actors()<<" native actors; audio/shadows unavailable; diagnostic dialogue panel\n";
     }
     void tick(okage::DialogueButtons input) {
         ++frame;
@@ -69,6 +76,12 @@ struct Session {
             scene_trace.insert(scene_trace.end(),{frame,field->pc(),field->pending_opcode,release_frame});
             for(const auto& values:{field->position,field->target,field->rotation})
                 for(float v:values)scene_trace.push_back(__builtin_bit_cast(std::uint32_t, (v)));
+        }
+        if(woman) {
+            actor_trace.insert(actor_trace.end(),{frame,field->pc(),woman->animation().pc(),woman->animation().script_state(),
+                woman->motion(),std::uint32_t(woman->channels().size()),std::uint32_t(woman->textures().images().size()),0});
+            for(const auto& channel:woman->channels())for(float v:channel)actor_trace.push_back(__builtin_bit_cast(std::uint32_t, (v)));
+            for(auto image:woman->textures().images())actor_trace.push_back(__builtin_bit_cast(std::uint32_t, (image)));
         }
     }
     okage::Texture surface() const {
@@ -102,6 +115,12 @@ static void capture(const Session& session,const fs::path& path) {
          <<",\n  \"advance_count\": "<<session.controller.advance_count<<",\n  \"wait_release_frame\": "<<session.release_frame
          <<",\n  \"controller_stage\": "<<session.controller.stage<<",\n  \"unimplemented_service_requests\": "<<session.service_request_count<<"\n}\n";
     if(!state)throw std::runtime_error("Cannot write native capture state");
+    if(session.woman) {
+        const auto actorPath=fs::path(path.string()+".actor.bin");
+        if(fs::exists(actorPath)||fs::is_symlink(actorPath))throw std::runtime_error("Refusing existing actor trace");
+        std::ofstream out(actorPath,std::ios::binary);
+        if(!out.write(reinterpret_cast<const char*>(session.actor_trace.data()),session.actor_trace.size()*4))throw std::runtime_error("Cannot save actor trace");
+    }
     if(session.field) {
         const auto tracePath=fs::path(path.string()+".camera.bin");
         if(fs::exists(tracePath)||fs::is_symlink(tracePath))throw std::runtime_error("Refusing existing camera trace");
@@ -214,8 +233,8 @@ static void capture(const Session& session,const fs::path& path) {
 @end
 int main(int argc,const char** argv) {
     @autoreleasepool {try {
-        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames N] [--press FRAME,FRAME --capture FILE.png] [--scene MAP.xmp --event EVENT.xmt]");
-        unsigned frames=0,uiFrames=0;std::vector<unsigned> presses;fs::path output,map,event;
+        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames N] [--press FRAME,FRAME --capture FILE.png] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd]");
+        unsigned frames=0,uiFrames=0;std::vector<unsigned> presses;fs::path output,map,event,actor;
         for(int i=3;i<argc;++i) {
             const std::string arg=argv[i];if(++i==argc)throw std::runtime_error("Missing native runtime option value");
             if(arg=="--frames")frames=std::stoul(argv[i]);
@@ -223,19 +242,20 @@ int main(int argc,const char** argv) {
             else if(arg=="--capture")output=argv[i];
             else if(arg=="--scene")map=argv[i];
             else if(arg=="--event")event=argv[i];
+            else if(arg=="--actor")actor=argv[i];
             else if(arg=="--press") {std::istringstream in(argv[i]);std::string n;while(std::getline(in,n,','))presses.push_back(std::stoul(n));}
             else throw std::runtime_error("Unknown native runtime option");
         }
-        if(map.empty()!=event.empty())throw std::runtime_error("Scene requires both map and event assets");
+        if(map.empty()!=event.empty() || (!actor.empty() && map.empty()))throw std::runtime_error("Scene requires both map and event assets");
         if(frames>36000 || uiFrames>36000 || (frames && uiFrames) || (uiFrames && output.empty()))throw std::runtime_error("Native diagnostic frame/capture bounds");
         if(frames) {
-            Session session(argv[1],argv[2]);if(!map.empty())session.load_scene(map,event);
+            Session session(argv[1],argv[2]);if(!map.empty())session.load_scene(map,event,actor);
             for(unsigned i=1;i<=frames;++i) {const std::uint16_t mask=std::find(presses.begin(),presses.end(),i)!=presses.end()?0x40:0;session.tick({mask,mask});}
             if(!output.empty())capture(session,output);
             std::cout<<"Native frames="<<session.frame<<" progress="<<session.text.state.progress<<" wait_release="<<session.release_frame<<'\n';return 0;
         }
         [NSApplication sharedApplication];[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
-        NativeApp* app=[NativeApp new];app->session=std::make_unique<Session>(argv[1],argv[2]);if(!map.empty())app->session->load_scene(map,event);
+        NativeApp* app=[NativeApp new];app->session=std::make_unique<Session>(argv[1],argv[2]);if(!map.empty())app->session->load_scene(map,event,actor);
         app->testFrames=uiFrames;app->testPresses=presses;app->testCapture=output;
         [NSApp setDelegate:app];[NSApp run];return app->failureStatus;
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

@@ -32,3 +32,7 @@ if(OKAGE_REFERENCE_VULKAN)
     add_custom_command(TARGET okage-boot-oracle POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${Vulkan_LIBRARY}" "$<TARGET_FILE_DIR:okage-boot-oracle>/libMoltenVK.dylib")
 endif()
+
+add_executable(okage-pixel-tests "${CMAKE_CURRENT_LIST_DIR}/pixel_tests.cpp")
+set_target_properties(okage-pixel-tests PROPERTIES CXX_STANDARD 20)
+add_test(NAME okage-pixel-tests COMMAND okage-pixel-tests)

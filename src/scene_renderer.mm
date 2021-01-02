@@ -17,19 +17,19 @@ struct Vertex {Float4 position,color,uv;};
 struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;};
 }
 struct SceneRenderer::Impl {
-    struct Input {fs::path path;ModelFile model;Matrix4 world;};
+    struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;};
     SineTable sine=make_sine_table();
     std::vector<Input> inputs;
     std::vector<Texture> textures;
     std::vector<std::size_t> textureOffsets;
-    std::size_t omittedEffects=0;
+    std::size_t omittedEffects=0,actorCount=0;
     id<MTLDevice> device;
     id<MTLRenderPipelineState> pipeline;
     id<MTLDepthStencilState> depth;
     id<MTLTexture> target,depthTarget;
     NSMutableArray<id<MTLTexture>>* gpuTextures;
     id<MTLCommandQueue> queue;
-    explicit Impl(const fs::path& path) {
+    explicit Impl(const fs::path& path,const FieldActor* actor,const fs::path& directory) {
         const auto map=read_xmp(read(path));
         for(const auto& placement:map.placements) {
             if(placement.handler()) {++omittedEffects;continue;}
@@ -43,9 +43,13 @@ struct SceneRenderer::Impl {
             inputs.push_back({file,read_xmd(read(file)),instance_matrix(transform.position,transform.rotation,transform.scale,sine)});
         }
         if(inputs.empty())throw std::runtime_error("Empty field map");
+        if(actor) {
+            if(directory.empty())throw std::runtime_error("Actor texture directory required");
+            inputs.push_back({directory/"a.xmd",actor->model(),{},actor});++actorCount;
+        }
         for(const auto& input:inputs) {
             textureOffsets.push_back(textures.size());
-            for(auto name:input.model.textures) {
+            for(auto name:input.actor ? input.actor->textures().names() : input.model.textures) {
                 const fs::path relative=name;
                 if(relative.is_absolute() || relative.has_parent_path())throw std::runtime_error("Unsafe scene texture path");
                 if(relative.extension().empty())name+=".xim";
@@ -91,10 +95,12 @@ struct SceneRenderer::Impl {
         okage::Float4 low{INFINITY,INFINITY,INFINITY,0},high{-INFINITY,-INFINITY,-INFINITY,0};
         for(std::size_t inputIndex=0;inputIndex<inputs.size();++inputIndex) {
             const auto& input=inputs[inputIndex];const auto textureOffset=textureOffsets[inputIndex];
+            std::size_t textureBase=0;
+            const auto world=input.actor ? input.actor->world(sine) : input.world;
             for (const auto& part:input.model.models) {
-                auto pose=okage::rest_pose(part,sine);
+                auto pose=input.actor ? okage::animated_pose(part,input.actor->channels(),sine,input.actor->animation().scale_channels()) : okage::rest_pose(part,sine);
                 {
-                    const auto viewWorld=okage::compose_pose(view,std::span(&input.world,1));
+                    const auto viewWorld=okage::compose_pose(view,std::span(&world,1));
                     pose=okage::compose_pose(viewWorld[0],pose);
                 }
                 for (const auto& block:part.blocks) {
@@ -114,7 +120,7 @@ struct SceneRenderer::Impl {
                         const okage::TextureState* state=nullptr;
                         if (polygon.texture_state>=0 && block.textures.at(polygon.texture_state).texture>=0) {
                             state=&block.textures.at(polygon.texture_state);
-                            draw.image=textureOffset+state->texture;
+                            draw.image=textureOffset+(input.actor ? input.actor->textures().images().at(textureBase+polygon.texture_state) : state->texture);
                             const auto& original=textures.at(textureOffset+state->texture);
                             const auto clamp=okage::texture_clamp(*state,original.width,original.height);
                             draw.state={std::uint32_t(clamp>>4)&1023,std::uint32_t(clamp>>14)&1023,
@@ -141,6 +147,7 @@ struct SceneRenderer::Impl {
                         }
                         draws.push_back(draw);
                     }
+                    textureBase+=block.textures.size();
                 }
             }
         }
@@ -171,9 +178,10 @@ struct SceneRenderer::Impl {
         return image;
     }
 };
-SceneRenderer::SceneRenderer(const fs::path& map):impl_(std::make_unique<Impl>(map)){}
+SceneRenderer::SceneRenderer(const fs::path& map,const FieldActor* actor,const fs::path& directory):impl_(std::make_unique<Impl>(map,actor,directory)){}
 SceneRenderer::~SceneRenderer()=default;
 Texture SceneRenderer::render(const Matrix4& view,const Float4& projection){return impl_->render(view,projection);}
-std::size_t SceneRenderer::placements() const{return impl_->inputs.size();}
+std::size_t SceneRenderer::placements() const{return impl_->inputs.size()-impl_->actorCount;}
+std::size_t SceneRenderer::actors() const{return impl_->actorCount;}
 std::size_t SceneRenderer::omitted_effects() const{return impl_->omittedEffects;}
 }

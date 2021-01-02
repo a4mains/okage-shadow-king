@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_library(okage_assets src/assets.cpp src/model.cpp src/pose.cpp src/animation.cpp src/texture_animation.cpp src/render.cpp src/map.cpp src/event.cpp src/audio.cpp src/text.cpp src/font.cpp src/dialogue.cpp src/camera.cpp src/field.cpp)
+add_library(okage_assets src/assets.cpp src/model.cpp src/pose.cpp src/animation.cpp src/texture_animation.cpp src/render.cpp src/map.cpp src/event.cpp src/audio.cpp src/text.cpp src/font.cpp src/dialogue.cpp src/camera.cpp src/field.cpp src/actor.cpp)
 target_include_directories(okage_assets PUBLIC include)
 target_compile_options(okage_assets PRIVATE -Wall -Wextra -Wpedantic)
 add_executable(okage-assets src/assets_main.cpp)

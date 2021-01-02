@@ -1,6 +1,7 @@
 // Research-only adapter to the pinned emulator's offscreen renderer.
 #import <AppKit/AppKit.h>
 #include "reference_graphics.hpp"
+#include "reference_pixel.hpp"
 #include "gs/GSH_Vulkan/GSH_Vulkan.h"
 #include <fstream>
 #include <iostream>
@@ -53,8 +54,10 @@ void captureReference(CGSHandler* base,const std::filesystem::path& prefix) {
                 bytesPerRow:layer.width*4 bitsPerPixel:32];
             if (!png) throw std::runtime_error("Cannot allocate reference PNG");
             for (unsigned y=0;y<layer.height;++y) for (unsigned x=0;x<layer.width;++x) {
-                const auto color=bitmap.GetPixel(x,y);auto* pixel=png.bitmapData+(y*layer.width+x)*4;
-                pixel[0]=color.r;pixel[1]=color.g;pixel[2]=color.b;pixel[3]=255;
+                if(bitmap.GetBitsPerPixel()!=32)throw std::runtime_error("Unsupported Vulkan bitmap format");
+                const auto rgba=reference_rgba(bitmap.GetPixels()+y*bitmap.GetPitch()+x*4);
+                auto* pixel=png.bitmapData+(y*layer.width+x)*4;
+                std::copy(rgba.begin(),rgba.end(),pixel);
             }
             const auto path=prefix.string()+".layer"+std::to_string(i)+".png";
             auto data=[png representationUsingType:NSBitmapImageFileTypePNG properties:@{}];
@@ -69,6 +72,6 @@ void captureReference(CGSHandler* base,const std::filesystem::path& prefix) {
                <<", \"use_constant_alpha\": "<<(layer.useConstantAlpha ? "true" : "false")<<"}";
             std::cout<<"Captured rendered reference layer "<<i<<": "<<layer.width<<"x"<<layer.height<<" to "<<path<<std::endl;
         }
-        out<<"\n  ],\n  \"scope\": \"Rendered framebuffer layers before display compositing/deinterlacing; PNG alpha made opaque\"\n}\n";
+        out<<"\n  ],\n  \"scope\": \"Rendered framebuffer layers before display compositing/deinterlacing; BGRA framebuffer converted to RGBA; PNG alpha made opaque\"\n}\n";
     }
 }

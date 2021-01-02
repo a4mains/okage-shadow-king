@@ -8,6 +8,12 @@ class Animation {
 public:
     Animation(Bytes bytes, std::size_t channel_count);
     void start(std::size_t entry);
+    void select(std::size_t entry); // Select for the next script dispatch (0x1b4da8).
+    void set_channel(std::size_t index,const Float4& value);
+    void set_component(std::size_t index,unsigned component,float value);
+    void turn_component(std::size_t index,unsigned component,float target,int duration);
+    bool moving(std::size_t index,unsigned component) const;
+    void set_channel_target(Animation* target){channel_target_=target;}
     // Start a recovered script segment. This is not a whole-scene initializer.
     void start_at(std::uint32_t offset);
     struct ServiceResult {std::uint32_t next_pc;bool yield=false;};
@@ -38,6 +44,7 @@ private:
     bool wide_tracks_=false, scale_channels_=false;
     std::function<void(std::size_t,std::size_t)> texture_callback_;
     Service service_;
+    Animation* channel_target_=nullptr;
     std::uint32_t word(std::size_t offset) const;
     float number(std::size_t offset) const;
     float sample(std::uint64_t index) const;

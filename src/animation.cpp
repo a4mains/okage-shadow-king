@@ -48,10 +48,11 @@ Animation::Animation(Bytes bytes,std::size_t count):bytes_(bytes.begin(),bytes.e
     scale_channels_=word(20)!=0;
     channels_.resize(count);
 }
-void Animation::start(std::size_t entry) {
+void Animation::start(std::size_t entry) {select(entry);Rounding rounding;run();}
+void Animation::select(std::size_t entry) {
     const auto at=std::uint64_t(code_)+entry*8;
     if (entry>(samples_-code_)/8 || at+8>samples_) throw std::runtime_error("XMT entry out of bounds");
-    start_at(static_cast<std::uint32_t>(at));
+    pc_=static_cast<std::uint32_t>(at);wait_=0;flags_|=0x100;
 }
 void Animation::start_at(std::uint32_t at) {
     if(at<code_ || at+4ull>samples_ || (at&3))throw std::runtime_error("XMT start PC bounds");
@@ -72,15 +73,21 @@ void Animation::run() {
             if (b<0 || !texture_callback_) throw std::runtime_error("XMT texture callback requires a valid XTA binding");
             texture_callback_(static_cast<std::size_t>(b),a); pc_=p; continue;
         }
-        if(op!=0x30 && op!=0x33 && op!=0x42 && op!=0x27 && service_) {
+        if(op!=0x2e && op!=0x30 && op!=0x33 && op!=0x40 && op!=0x42 && op!=0x27 && op!=8 && service_) {
             const auto result=service_(op,a,b,pc_);
             if(result.next_pc<code_ || result.next_pc+4ull>samples_ || (result.next_pc&3))
                 throw std::runtime_error("XMT service continuation bounds");
             pc_=result.next_pc;if(result.yield)return;continue;
         }
-        const auto index=(op==0x30 ? b : static_cast<int>(a))>>2;
-        if (index<0 || std::size_t(index)>=channels_.size()) throw std::runtime_error("XMT channel out of bounds");
-        auto& ch=channels_[index];
+        const auto index=(op==0x30 || op==0x2e || op==8 ? b : static_cast<int>(a))>>2;
+        auto& target=channel_target_ ? *channel_target_ : *this;
+        if(index<0 || std::size_t(index)>=target.channels_.size())throw std::runtime_error("XMT channel out of bounds");
+        auto& ch=target.channels_[index];
+        if(op==8) {if(target.moving(index,b&3))return;pc_=p;continue;}
+        if((op==0x2e || op==0x40) && p+4ull>samples_)throw std::runtime_error("Truncated scalar instruction");
+        if(op==0x2e) {target.set_component(index,b&3,number(p));pc_=p+4;continue;}
+        if(op==0x40) {target.turn_component(index,a&3,number(p),b);pc_=p+4;continue;}
+        if(op==0x27 && channel_target_ && channel_target_!=this)throw std::runtime_error("Cross-script sampled tracks unsupported");
         unsigned payload=0;
         if (op==0x30 || op==0x33 || op==0x42) payload=12;
         else if (op==0x27) payload=4;
@@ -121,6 +128,27 @@ void Animation::run() {
         pc_=p+payload;
     }
     throw std::runtime_error("XMT instruction budget exhausted");
+}
+void Animation::set_channel(std::size_t index,const Float4& value) {
+    for(float v:value)if(!std::isfinite(v))throw std::runtime_error("Non-finite channel value");
+    auto& ch=channels_.at(index);ch.a=value;ch.step={};ch.flags=0x201;
+}
+void Animation::set_component(std::size_t index,unsigned component,float value) {
+    if(component>=4 || !std::isfinite(value))throw std::runtime_error("Invalid channel component");
+    auto& ch=channels_.at(index);ch.a[component]=value;ch.flags=0x201;
+}
+void Animation::turn_component(std::size_t index,unsigned component,float value,int duration) {
+    Rounding rounding;
+    if(component>=4 || !std::isfinite(value) || duration<=0)throw std::runtime_error("Invalid turn transition");
+    auto& ch=channels_.at(index);auto& from=ch.a[component];
+    if(value<from){if((value+1.f)-from<from-value)from-=1.f;}
+    else if((from+1.f)-value<value-from)from+=1.f;
+    ch.b[component]=value;ch.step[component]=1.f/float(duration);ch.c[component]=value;ch.next_step[component]=1;
+    ch.component[component]&=~0x400;ch.flags=ch.mode|0x100;
+}
+bool Animation::moving(std::size_t index,unsigned component) const {
+    if(component>=4)throw std::runtime_error("Invalid channel component");
+    return channels_.at(index).step[component]!=0;
 }
 void Animation::read_track(Channel& ch) {
     for (unsigned instructions=0;instructions<100000;++instructions) {

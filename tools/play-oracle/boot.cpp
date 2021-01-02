@@ -11,6 +11,7 @@
 #include "reference_text.hpp"
 #include "reference_controller.hpp"
 #include "reference_camera.hpp"
+#include "reference_actor.hpp"
 #include "iop/IopBios.h"
 #include "iop/ioman/OpticalMediaDevice.h"
 #include <atomic>
@@ -50,8 +51,8 @@ public:
 };
 int main(int argc,char** argv) {
     try {
-        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE]");
-        bool load=false,traceFiles=false,traceLoaders=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera;
+        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--actor FILE]");
+        bool load=false,traceFiles=false,traceLoaders=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor;
         for (int i=3;i<argc;++i) {
             const std::string arg=argv[i];
             if (arg=="--load") load=true;
@@ -65,6 +66,7 @@ int main(int argc,char** argv) {
             else if (arg=="--events" && i+1<argc) events=argv[++i];
             else if (arg=="--dialogue" && i+1<argc) dialogue=argv[++i];
             else if (arg=="--text" && i+1<argc) text=argv[++i];
+            else if (arg=="--actor" && i+1<argc) actor=argv[++i];
             else if (arg=="--camera" && i+1<argc) camera=argv[++i];
             else if (arg=="--controller" && i+1<argc) controller=argv[++i];
             else if (state.empty() && !arg.starts_with("--")) state=arg;
@@ -94,7 +96,8 @@ int main(int argc,char** argv) {
         auto textTrace=text.empty() ? nullptr : std::make_unique<TextTrace>(text);
         auto controllerTrace=controller.empty() ? nullptr : std::make_unique<ControllerTrace>(controller);
         auto cameraTrace=camera.empty() ? nullptr : std::make_unique<CameraTrace>(camera);
-        const bool tracing=traceLoaders || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace) || bool(cameraTrace);
+        auto actorTrace=actor.empty() ? nullptr : std::make_unique<ActorTrace>(actor);
+        const bool tracing=traceLoaders || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace) || bool(cameraTrace) || bool(actorTrace);
         RecordedAudio* recordedAudio=nullptr;
         Traffic traffic; std::atomic<unsigned> frames{0}; std::atomic<bool> exited{false};
         CPS2VM vm;
@@ -140,6 +143,7 @@ int main(int argc,char** argv) {
         if(textTrace)for(auto at:TextTrace::breakpoints)loaders.push_back(at);
         if(controllerTrace)for(auto at:ControllerTrace::breakpoints)loaders.push_back(at);
         if(cameraTrace)for(auto at:CameraTrace::breakpoints)loaders.push_back(at);
+        if(actorTrace)for(auto at:ActorTrace::breakpoints)loaders.push_back(at);
         if (tracing) {
             Iop::Ioman::COpticalMediaDevice reader(vm.m_cdrom0);
             std::unique_ptr<Framework::CStream> stream(reader.GetFile(1,"\\SCUS_971.29;1"));
@@ -167,6 +171,11 @@ int main(int argc,char** argv) {
                     throw std::runtime_error(error.str());
                 }
                 if (++tracedCalls>(eventTrace ? 200000u : 10000u)) throw std::runtime_error("Reference trace limit exceeded");
+                // Actor and scene observers share a model-render boundary.
+                if(actorTrace && std::find(ActorTrace::breakpoints.begin(),ActorTrace::breakpoints.end(),pc)!=ActorTrace::breakpoints.end()) {
+                    actorTrace->observe(*vm.m_ee,frames);
+                    if(!sceneTrace){vm.Resume();continue;}
+                }
                 if(cameraTrace && std::find(CameraTrace::breakpoints.begin(),CameraTrace::breakpoints.end(),pc)!=CameraTrace::breakpoints.end()) {
                     cameraTrace->observe(*vm.m_ee,frames);vm.Resume();continue;
                 }
@@ -204,6 +213,7 @@ int main(int argc,char** argv) {
             std::cout<<"IOP module "<<module.name<<" at 0x"<<std::hex<<module.begin<<"..0x"<<module.end<<std::dec<<std::endl;
         std::cout<<"Stopped: vblanks="<<frames<<" exit_request="<<exited<<" gs_registers="<<traffic.registers
                  <<" gs_vertices="<<traffic.vertices<<" uploads="<<traffic.uploads<<std::endl;
+        if(actorTrace)actorTrace->finish();
         if (frames<requested) throw std::runtime_error("Reference boot ended or timed out before requested vblanks");
         if (!saveState.empty() && !vm.SaveState(saveState).get()) throw std::runtime_error("Could not save reference state");
         if (recordedAudio) recordedAudio->finish(audio);

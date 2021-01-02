@@ -1,0 +1,508 @@
+{
+  "scope": "Native HOME1C diagnostic actor -8 segment; not cold startup or a playable opening",
+  "native_tool_sha256": "5c68dbba0fb451dd3578c846166497048754b55568e565c13ee6133c959d2274",
+  "native_app_sha256": "245c911140f71ce0a5805028ad3c9a1b11c978b241547653ccc88f4a79520a04",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "script_sha256": "0fd868603f66f22ca93cfdd050a30b223f496e7c69ec0bf1995e9759441fcded",
+  "actor_assets": {
+    "a.xmd": "c7d46694dd3dad1c7d12272b2b3cb2c3aa3fcfa281bfd7bbaeae1c3279f3e002",
+    "a.xmt": "4b255d4fed23200fe9ac6df7ac7c1b25b2e4cb22899d9e61be4ee73926d0bb93",
+    "a.xta": "81c7b7d748a3ed51fa2c5395ca92ca8702811d388de89559ebba30334c90e1f1"
+  },
+  "isolated_clips": [
+    {
+      "state_mismatches": 0,
+      "channel_bit_mismatches": 0,
+      "pose_components": 228784,
+      "pose_numerically_equal": 118691,
+      "pose_outside_tolerance": 0,
+      "pose_max_absolute_error": 9.5367431640625e-07,
+      "texture_binding_mismatches": 0,
+      "worst_pose": {
+        "frame": 2,
+        "component": 1021,
+        "reference": -7.935512065887451,
+        "native": -7.935513019561768
+      },
+      "distinct_texture_configurations": 2,
+      "passed": true,
+      "entry": 1,
+      "native_sha256": "fa72f020b4f1193172ec6c43424c4dad0cec28253203e034844444da89c67c17",
+      "reference_sha256": "bf300e4afc572edea373b077f66f19380fc5df765a083116cef9118f44f7b75b"
+    },
+    {
+      "state_mismatches": 0,
+      "channel_bit_mismatches": 0,
+      "pose_components": 228784,
+      "pose_numerically_equal": 85117,
+      "pose_outside_tolerance": 0,
+      "pose_max_absolute_error": 1.6689300537109375e-06,
+      "texture_binding_mismatches": 0,
+      "worst_pose": {
+        "frame": 34,
+        "component": 1261,
+        "reference": -3.3383562564849854,
+        "native": -3.3383545875549316
+      },
+      "distinct_texture_configurations": 1,
+      "passed": true,
+      "entry": 2,
+      "native_sha256": "3ec34bc0d66cbaf677cdb8e03ced40f36c8efd2e5af08d9ec26c67ab51c3e837",
+      "reference_sha256": "0e77a8519dc51da0ca31a9ebaf41bc91d197c20d7c78db2457ecfa018c605f04"
+    }
+  ],
+  "integration": {
+    "reference_frames": 220,
+    "native_frames": 360,
+    "reference_release_frame": 88,
+    "native_release_frame": 227,
+    "native_row_offset": 138,
+    "event_pc_exact_frames": 220,
+    "root_transform_exact_frames": 220,
+    "root_words_per_frame": 12,
+    "actor_script_exact_from_reference_frame": 88,
+    "all_648_channel_words_exact_from_reference_frame": 97,
+    "exact_channel_frames": 123,
+    "earlier_channel_mismatches": [
+      {
+        "reference_frame": 0,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 1,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 2,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 3,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 4,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 5,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 6,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 7,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 8,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 9,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 10,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 11,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 12,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 13,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 14,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 15,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 16,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 17,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 18,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 19,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 20,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 21,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 22,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 23,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 24,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 25,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 26,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 27,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 28,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 29,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 30,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 31,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 32,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 33,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 34,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 35,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 36,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 37,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 38,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 39,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 40,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 41,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 42,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 43,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 44,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 45,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 46,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 47,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 48,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 49,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 50,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 51,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 52,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 53,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 54,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 55,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 56,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 57,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 58,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 59,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 60,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 61,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 62,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 63,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 64,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 65,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 66,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 67,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 68,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 69,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 70,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 71,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 72,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 73,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 74,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 75,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 76,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 77,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 78,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 79,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 80,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 81,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 82,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 83,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 84,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 85,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 86,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 87,
+        "different_channel_words": 15
+      },
+      {
+        "reference_frame": 88,
+        "different_channel_words": 10
+      },
+      {
+        "reference_frame": 89,
+        "different_channel_words": 11
+      },
+      {
+        "reference_frame": 90,
+        "different_channel_words": 11
+      },
+      {
+        "reference_frame": 91,
+        "different_channel_words": 11
+      },
+      {
+        "reference_frame": 92,
+        "different_channel_words": 11
+      },
+      {
+        "reference_frame": 93,
+        "different_channel_words": 11
+      },
+      {
+        "reference_frame": 94,
+        "different_channel_words": 11
+      },
+      {
+        "reference_frame": 95,
+        "different_channel_words": 11
+      },
+      {
+        "reference_frame": 96,
+        "different_channel_words": 11
+      }
+    ],
+    "full_trace_equivalent": false,
+    "reference_sha256": "802b0bcfa435f648b0310b23ee19449f3d7710336e1bb9f3bb869391ed58d094",
+    "native_sha256": "2e572fe296f50f98dedccf5f4e93b995d045bdf0729aeac0f58ad571e6b33ffb"
+  },
+  "native_state": {
+    "frames": 360,
+    "text_progress": 3,
+    "advance_count": 6,
+    "wait_release_frame": 227,
+    "controller_stage": 5,
+    "unimplemented_service_requests": 136
+  },
+  "bounded_checks_passed": true,
+  "limits": [
+    "Earlier idle phase and first nine walking-transition frames differ; full trace equivalence is false",
+    "Initial actor binding and scene start are explicit harness assumptions",
+    "Full-game trace does not observe texture selection; isolated clips do",
+    "Dialogue-close wait at 0xc48 remains pending; no message-absent flag is forced",
+    "No native audio, other actors, shadows, effects, faithful lighting/windows, battles or saves"
+  ],
+  "release": {
+    "native_app_sha256": "6d546a0cc436e0515a8dee6a7f2e046bf902e9b7db8de8f644bb596b8ad0468d",
+    "native_tool_sha256": "61c1ebeb48361ac7a90b5ce83c5641baaf7e31e89008715717b68cee0a32ab3e",
+    "clip_buffers_png_state_and_traces_byte_equal_debug": true,
+    "relevant_ctests_passed": 4
+  },
+  "sanitize": {
+    "native_app_sha256": "7878e835db9c7c7161b4b6bce1d3211db3b4c9c4a0012324dca0add9d726a1df",
+    "native_tool_sha256": "7a9d48764dba3546aa59ef678c7cc7a828f1735ee12f7961f3e7300af345d918",
+    "clip_buffers_png_state_and_traces_byte_equal_debug": true,
+    "relevant_ctests_passed": 4
+  },
+  "appkit": {
+    "command": "--ui-test-frames 360 --press 100,140,180,220,260,300,340 with the same scene/event/actor inputs",
+    "capture": "local/native-actor-ui-360-v1.png",
+    "key_down_events": 7,
+    "png_state_actor_camera_traces_equal_headless": true,
+    "view_visually_inspected": true,
+    "physical_keyboard_verified": false
+  },
+  "checks": {
+    "debug_ctests_passed": 13,
+    "python_tests_passed": 12,
+    "research_pixel_test_passed": true
+  },
+  "reference_capture": {
+    "command": "build/play-research/okage-oracle/okage-boot-oracle 'local/disc/Okage - Shadow King (USA).cue' 220 local/reference-intro-600-v2.state.zip --load --pad config/reference-kitchen-dialogue.input --actor local/reference-actor-820-v2.bin --capture local/reference-actor-820-v2 --save local/reference-actor-820-v2.state.zip",
+    "completed_vblanks": 220,
+    "corrected_BGRA_to_RGBA": true,
+    "layer_visually_inspected": true,
+    "layer_sha256": "d8c9c2fe6929dced14ea3a38f867d0305ce2b8113c77f38e73f3a84545786e89"
+  }
+}
