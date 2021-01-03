@@ -24,8 +24,9 @@ struct Session {
     okage::TextClock clock;
     okage::DialogueController controller;
     okage::DialogueOpacity opacity;
+    okage::DialogueClosure closure;
     okage::DialogueWaitState wait{5,1};
-    unsigned frame=0,release_frame=0;
+    unsigned frame=0,release_frame=0,close_frame=0,close_release_frame=0;
     bool dialogue_active=true;
     std::unique_ptr<okage::FieldActor> woman;
     std::unique_ptr<okage::OpeningField> field;
@@ -55,8 +56,11 @@ struct Session {
         },[this](int request){
             if(!dialogue_active)throw std::runtime_error("Field wait before dialogue initialization");
             const std::array<std::uint32_t,2> layers={0x50,controller.layer_flags};
-            const bool released=okage::poll_dialogue_wait(wait,request,{true,0,layers,std::int32_t(text.state.progress)})==0;
-            if(released && !release_frame)release_frame=frame;return released;
+            const bool released=okage::poll_dialogue_wait(wait,request,
+                {true,__builtin_bit_cast(std::int32_t, (closure.message_flags)),layers,std::int32_t(text.state.progress)})==0;
+            if(released && !release_frame)release_frame=frame;
+            if(released && request==0 && !close_release_frame)close_release_frame=frame;
+            return released;
         },woman.get());
         std::cout<<"Native room: "<<renderer->placements()<<" placements; "<<renderer->omitted_effects()
             <<" effects omitted; "<<renderer->actors()<<" native actors; audio/shadows unavailable; diagnostic dialogue panel\n";
@@ -66,12 +70,16 @@ struct Session {
         const std::array<std::uint32_t,2> layers={0x50,controller.layer_flags};
         if(field)field->tick();
         if(!field && !release_frame && okage::poll_dialogue_wait(wait,2,{true,0,layers,std::int32_t(text.state.progress)})==0)release_frame=frame;
-        if(dialogue_active) {opacity.tick();text.frame(clock,opacity.visible());}
-        if(dialogue_active && controller.stage==5) {
+        if(dialogue_active && !closure.finished()) {
+            opacity.tick();closure.decoration.tick();text.frame(clock,opacity.visible());
+        }
+        if(dialogue_active && !closure.finished() && controller.stage>=6)closure.update(controller.stage);
+        else if(dialogue_active && controller.stage==5) {
             const auto effects=controller.update(text,input);
             if(effects.close)opacity.set(128,-4);
             if(effects.cue>=0 || effects.stop_voice || effects.stop_effect)++service_request_count;
         }
+        if(closure.finished() && !close_frame)close_frame=frame;
         if(field) {
             scene_trace.insert(scene_trace.end(),{frame,field->pc(),field->pending_opcode,release_frame});
             for(const auto& values:{field->position,field->target,field->rotation})
@@ -113,7 +121,9 @@ static void capture(const Session& session,const fs::path& path) {
     std::ofstream state(statePath);
     state<<"{\n  \"frames\": "<<session.frame<<",\n  \"text_progress\": "<<session.text.state.progress
          <<",\n  \"advance_count\": "<<session.controller.advance_count<<",\n  \"wait_release_frame\": "<<session.release_frame
-         <<",\n  \"controller_stage\": "<<session.controller.stage<<",\n  \"unimplemented_service_requests\": "<<session.service_request_count<<"\n}\n";
+         <<",\n  \"controller_stage\": "<<session.controller.stage<<",\n  \"unimplemented_service_requests\": "<<session.service_request_count
+         <<",\n  \"message_flags\": "<<session.closure.message_flags
+         <<",\n  \"close_frame\": "<<session.close_frame<<",\n  \"close_wait_release_frame\": "<<session.close_release_frame<<"\n}\n";
     if(!state)throw std::runtime_error("Cannot write native capture state");
     if(session.woman) {
         const auto actorPath=fs::path(path.string()+".actor.bin");

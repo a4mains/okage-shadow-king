@@ -23,4 +23,10 @@ struct DialogueOpacity {
     void tick(); // Original 0x1998a8; strict comparisons at the end points.
     bool visible() const {return value!=0 || delta!=0;}
 };
+struct DialogueClosure {
+    DialogueOpacity decoration;
+    std::uint32_t message_flags=0;
+    void update(unsigned& shared_stage); // Call after both layers' opacity ticks.
+    bool finished() const {return (message_flags&0x80000000u)!=0;}
+};
 }

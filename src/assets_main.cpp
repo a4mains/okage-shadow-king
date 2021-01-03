@@ -122,6 +122,23 @@ int main(int argc, char** argv) {
             write(fs::path(argv[7])/"frames.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(result.data()),result.size()*4));
             write(fs::path(argv[7])/"wait.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(wait_result.data()),wait_result.size()*4));return 0;
         }
+        if(command=="dialogue-close" && argc==5) {
+            const auto input=read(argv[2]);
+            if(input.size()!=40)throw std::runtime_error("Dialogue closing fixture requires ten words");
+            std::array<std::uint32_t,10> row;std::memcpy(row.data(),input.data(),40);
+            unsigned stage=row[0];okage::DialogueClosure closure;closure.message_flags=row[1];
+            auto seed=[&](okage::DialogueOpacity& o,unsigned at){o.set(__builtin_bit_cast(float, (row[at])),__builtin_bit_cast(float, (row[at+3])),__builtin_bit_cast(float, (row[at+2])),__builtin_bit_cast(float, (row[at+1])));};
+            seed(closure.decoration,2);okage::DialogueOpacity body;seed(body,6);
+            const auto frames=std::stoul(argv[3]);if(frames>10000)throw std::runtime_error("Dialogue close frame limit");
+            std::vector<std::uint32_t> output;
+            for(unsigned frame=0;frame<=frames;++frame) {
+                output.insert(output.end(),{stage,closure.message_flags});
+                for(const auto& opacity:{closure.decoration,body})
+                    for(float v:{opacity.value,opacity.upper,opacity.lower,opacity.delta})output.push_back(__builtin_bit_cast(std::uint32_t, (v)));
+                if(frame<frames){closure.decoration.tick();body.tick();closure.update(stage);}
+            }
+            write(argv[4],okage::Bytes(reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4));return 0;
+        }
         if(command=="dialogue-opacity" && argc==4) {
             const auto input=read(argv[2]);if(input.empty() || input.size()%16)throw std::runtime_error("Opacity fixture bounds");
             std::vector<float> out;

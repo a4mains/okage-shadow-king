@@ -66,4 +66,14 @@ void DialogueOpacity::tick() {
     else if(delta<0 && value<lower) {delta=0;value=lower;}
     std::fesetround(rounding);
 }
+void DialogueClosure::update(unsigned& stage) {
+    if(stage<6 || stage>9)throw std::runtime_error("Dialogue closure stage outside recovered scope");
+    // Decoration controller 0x148958 does not advance the stage-slot index;
+    // body controller 0x148dc8 therefore reads the same, possibly changed word.
+    if(stage==6) {decoration.set(128,-4);++stage;}
+    else if(stage==7 && decoration.value==0)++stage;
+    // Body stages 6/7 are passive. 8 advances, 9 marks the message for removal.
+    if(stage==8)++stage;
+    else if(stage==9)message_flags|=0x80000000u;
+}
 }

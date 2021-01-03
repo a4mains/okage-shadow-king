@@ -33,5 +33,13 @@ int main() {try {
     opacity.tick();require(opacity.value==0 && !opacity.visible());
     const auto round=std::fegetround();opacity.set(.1f,.2f);opacity.tick();require(std::fegetround()==round);
     rejects([&]{opacity.set(0,1,128,0);});
+    okage::DialogueClosure closure;unsigned stage=6;
+    closure.update(stage);require(stage==7 && closure.decoration.value==128 && !closure.finished());
+    for(unsigned i=0;i<31;++i){closure.decoration.tick();closure.update(stage);require(stage==7 && !closure.finished());}
+    closure.decoration.tick();closure.update(stage);
+    require(stage==9 && closure.decoration.value==0 && closure.decoration.delta==-4 && !closure.finished());
+    closure.decoration.tick();closure.update(stage);require(stage==9 && closure.finished());
+    // At zero the shared stage advances before the strict-bound fade stops.
+    stage=5;rejects([&]{closure.update(stage);});
     std::cout<<"Dialogue input, pause/print/end transitions and opacity passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

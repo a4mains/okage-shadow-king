@@ -1,0 +1,81 @@
+{
+  "scope": "Two-layer closing scheduler from initial stage 6 plus native opening integration; not full window lifecycle or cold startup",
+  "native_tool_sha256": "06bd0960faf94537a27cc221a804bda98a9173e8db3c3bfe9d05fbbbaad10c42",
+  "native_app_sha256": "b8a98fd869e8a9a8e7fd91b32b7334ea855f9a08a739ee9693a8c5fd2b5c3f6c",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "reference_sha256": "827e4ac76182929936fff9ac078c3725a2f20b421b2197517bd9819a60f64dfd",
+  "reference_wait_sha256": "24d6ab80025808db1edad8cb783947b426950bd49a088d1cf28c0a56c3a76f82",
+  "reference_first_frame": 87,
+  "reference_last_frame": 121,
+  "initial_state_samples": 1,
+  "simulated_frames": 34,
+  "exact_words_per_frame": 10,
+  "native_closure_sha256": "7a44f0871c2c4eb8f8f872245868549c8176a08529b47febc117f128f31d5662",
+  "comparison": "Bit-exact shared stage, message flags and both layers opacity value/bounds/delta",
+  "reference_wait_tail": [
+    [
+      2,
+      4294967295
+    ],
+    [
+      1,
+      4294967295
+    ],
+    [
+      0,
+      0
+    ]
+  ],
+  "native_state": {
+    "frames": 520,
+    "text_progress": 4,
+    "advance_count": 8,
+    "wait_release_frame": 227,
+    "controller_stage": 9,
+    "unimplemented_service_requests": 157,
+    "message_flags": 2147483648,
+    "close_frame": 419,
+    "close_wait_release_frame": 422
+  },
+  "native_event_pc": "0xc4c",
+  "pending_opcode": "0x3b",
+  "pending_actor": -9,
+  "limits": [
+    "The comparison seeds one stage-6 state; full text/input timing is not compared by this experiment",
+    "Native integrated start/input schedule differs from retail; frame counts are not retail boot frames",
+    "Negative completion status releases the original wait; general resource teardown/recreation remains unported",
+    "Actor -9 visibility and subsequent message are explicitly pending",
+    "No faithful windows, cold start, audio, battles, transitions or native saves"
+  ],
+  "release": {
+    "native_tool_sha256": "648714031ba3b22fbcef0cadc45873783f53a3b4c7bf2b00f701a705e0a13e9c",
+    "native_app_sha256": "273a79b2481f15beaa967a446ad3a3b57d05ad931d6f780756be1ae19e9ec0fb",
+    "closure_png_state_actor_camera_traces_byte_equal_debug": true,
+    "relevant_ctests_passed": 3
+  },
+  "sanitize": {
+    "native_tool_sha256": "ed3bcb12b939b9a13487027cd645b079272a694b2c090118dcdf9a63c324be4e",
+    "native_app_sha256": "8e46b1f7a38badd962a6ae18ec1f1237ac01738218ad22b929518943b8e5d38c",
+    "closure_png_state_actor_camera_traces_byte_equal_debug": true,
+    "relevant_ctests_passed": 3
+  },
+  "appkit": {
+    "capture": "local/native-close-ui-520-v1.png",
+    "key_down_events": 11,
+    "png_state_actor_camera_traces_equal_headless": true,
+    "view_visually_inspected": true,
+    "physical_keyboard_verified": false
+  },
+  "checks": {
+    "debug_ctests_passed": 13,
+    "python_tests_passed": 12
+  },
+  "reference": {
+    "completed_vblanks": 320,
+    "scheduler_records": 512,
+    "source_state": "local/reference-actor-820-v2.state.zip",
+    "prefix": "local/reference-close-1140-v1",
+    "input": "config/reference-kitchen-close.input",
+    "raw_controller_trace": "local/reference-close-controller-1140-v1.bin"
+  }
+}

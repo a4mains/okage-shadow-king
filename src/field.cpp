@@ -57,6 +57,8 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
         case 10:return wait_dialogue_(b) ? Animation::ServiceResult{pc+4} : Animation::ServiceResult{pc,true};
         case 0x36:
             if(b==-8 && woman_ && a<0x800) {woman_->select_motion(a);return {pc+4};}
+            [[fallthrough]];
+        case 0x3b:
             pending_opcode=op;pending_actor=b;pending_animation=a;
             return {pc,true};
         case 0x5b: {
