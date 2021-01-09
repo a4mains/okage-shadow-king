@@ -81,6 +81,18 @@ std::vector<std::string> MessageBank::message(std::int32_t id) const {
     for(auto index:message_indices(id))result.push_back(strings.at(index));
     return result;
 }
+bool MessageBank::bind(std::string_view tag,std::string_view value) {
+    if(tag.size()>250 || value.size()>4096 || tag.find('\0')!=tag.npos || value.find('\0')!=value.npos)
+        throw std::runtime_error("Invalid PME binding string");
+    if(nodes.empty())return false;
+    const auto prefix=std::string("\\r[")+std::string(tag)+"]";
+    for(std::size_t i=1;i<nodes.size() && nodes[i].depth>nodes[0].depth;++i) {
+        if(nodes[i].depth!=nodes[0].depth+1)continue;
+        auto& text=strings.at(nodes[i].string_index);
+        if(text.starts_with(prefix)) {text=prefix+std::string(value);return true;}
+    }
+    return false;
+}
 unsigned consume_text_control(std::string_view text,std::size_t& cursor,TextState& state) {
     if(cursor>=text.size())throw std::runtime_error("Text cursor outside fragment");
     const auto c=static_cast<unsigned char>(text[cursor]);

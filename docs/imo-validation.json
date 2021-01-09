@@ -1,0 +1,244 @@
+{
+  "scope": "Two-actor HOME1C segment and second message; diagnostic initial actor/window state, not cold boot or playable game",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "native_tool_sha256": "7228169a68475d64ab1d64a4f7db782489c5b7de2468f73cf9c3f57e1ceda951",
+  "native_app_sha256": "6fe001144b8ebe4dc7bc8268a6ec22e8161edf26092daa7de4f6f263ff68fda9",
+  "actor_assets": {
+    "a.xmd": "63009446c4634a0b945d9cd39aeafda70b9ba8977374efeb74f9a5a4c49ea6da",
+    "a.xmt": "966fb537f94be0f3e5f245414739b2a16ef1943235e23012250deba40b270386",
+    "a.xta": "a4616d68c0306fef43fe7d8421230fbff36fc818c6148310bd145e98af03edb5"
+  },
+  "clips": [
+    {
+      "state_mismatches": 0,
+      "channel_bit_mismatches": 0,
+      "pose_components": 246160,
+      "pose_numerically_equal": 102900,
+      "pose_outside_tolerance": 0,
+      "pose_max_absolute_error": 1.9073486328125e-06,
+      "texture_binding_mismatches": 0,
+      "worst_pose": {
+        "frame": 2,
+        "component": 685,
+        "reference": -4.589425563812256,
+        "native": -4.589423656463623
+      },
+      "distinct_texture_configurations": 2,
+      "passed": true,
+      "entry": 1,
+      "native_sha256": "7cc70f4cb58e0d37f7fc95d95227098ccc440f697c7c9c06d0b69df02340ee14",
+      "reference_sha256": "53c03976b9d9607e7d65b1a50d9ea10a1507462e58005e0332173c734a9f694f"
+    },
+    {
+      "state_mismatches": 0,
+      "channel_bit_mismatches": 0,
+      "pose_components": 246160,
+      "pose_numerically_equal": 132756,
+      "pose_outside_tolerance": 0,
+      "pose_max_absolute_error": 1.9073486328125e-06,
+      "texture_binding_mismatches": 0,
+      "worst_pose": {
+        "frame": 10,
+        "component": 541,
+        "reference": -4.605729579925537,
+        "native": -4.605727672576904
+      },
+      "distinct_texture_configurations": 2,
+      "passed": true,
+      "entry": 2,
+      "native_sha256": "50bc60a0b8f9a5fe183ffcf56fa8a292efd059079bab68ecc71e78f68c715b4f",
+      "reference_sha256": "52d31f5acac2c60ef68787c6733fb7b1c42f4ed23389068a8e9b3b2b3b3c59df"
+    },
+    {
+      "state_mismatches": 0,
+      "channel_bit_mismatches": 0,
+      "pose_components": 246160,
+      "pose_numerically_equal": 104026,
+      "pose_outside_tolerance": 0,
+      "pose_max_absolute_error": 2.384185791015625e-06,
+      "texture_binding_mismatches": 0,
+      "worst_pose": {
+        "frame": 85,
+        "component": 541,
+        "reference": -4.624927997589111,
+        "native": -4.62492561340332
+      },
+      "distinct_texture_configurations": 4,
+      "passed": true,
+      "entry": 3,
+      "native_sha256": "21530cacb4924ff9998abe1b48c0a0d47115d30570443d6abeabba51fc73346f",
+      "reference_sha256": "501373c8749aaffe31f876282698dd4bee4e2817877cea1b4ac6bcbcfb3810d9"
+    }
+  ],
+  "names": [
+    {
+      "name": "Ari",
+      "bytes_exact": true,
+      "sha256": "5cc1c14c74552c427225f3d73fd8fbdb8f28daa2a274257f2f7ad94424ebc798"
+    },
+    {
+      "name": "Stan",
+      "bytes_exact": true,
+      "sha256": "cc94e00c2e1cf4b8b36cffd03771b062a73034edf1a13e03dc4003b727122052"
+    },
+    {
+      "name": "A B",
+      "bytes_exact": true,
+      "sha256": "1241ef0a5ad87e74971992bc973db8785336965ab1a490dfb2557a7e51770eef"
+    },
+    {
+      "name": "ABCDEFGHIJKL",
+      "bytes_exact": true,
+      "sha256": "662b4d2938b27f182da0a2e845ff471532e273e9843f7bc44e2cc2c1da78675e"
+    }
+  ],
+  "native_state": {
+    "frames": 1100,
+    "message_id": 10101,
+    "messages_started": 2,
+    "text_progress": 5,
+    "advance_count": 10,
+    "wait_release_frame": 227,
+    "controller_stage": 9,
+    "unimplemented_service_requests": 279,
+    "message_flags": 2147483648,
+    "close_frame": 419,
+    "close_wait_release_frame": 422
+  },
+  "native_final_pc": "0xd24",
+  "pending_actor": -1,
+  "pending_opcode": 7,
+  "reference_sha256": "53d0b8fa12c24dc90f71da36adf296667c4f78cb441a67d53ed0e93766f50376",
+  "controller_sha256": "9383697006028438ad88ad08e87f100a991518221c9758c7df594c5aa07f4d4e",
+  "integration": {
+    "exact_event_script_root_frames": 196,
+    "root_words_per_frame": 12,
+    "reference_first_visible_frame": 124,
+    "native_first_visible_frame": 422,
+    "native_frame_offset": 298,
+    "observed_pressed_frames": [
+      201,
+      242,
+      281
+    ],
+    "all_696_channel_words_exact_from_reference_frame": 133,
+    "exact_channel_frames": 187,
+    "earlier_channel_mismatches": [
+      {
+        "reference_frame": 124,
+        "different_channel_words": 31
+      },
+      {
+        "reference_frame": 125,
+        "different_channel_words": 31
+      },
+      {
+        "reference_frame": 126,
+        "different_channel_words": 31
+      },
+      {
+        "reference_frame": 127,
+        "different_channel_words": 31
+      },
+      {
+        "reference_frame": 128,
+        "different_channel_words": 31
+      },
+      {
+        "reference_frame": 129,
+        "different_channel_words": 31
+      },
+      {
+        "reference_frame": 130,
+        "different_channel_words": 31
+      },
+      {
+        "reference_frame": 131,
+        "different_channel_words": 31
+      },
+      {
+        "reference_frame": 132,
+        "different_channel_words": 31
+      }
+    ],
+    "full_channel_trace_equivalent": false,
+    "native_trace_sha256": "be95d0b8e039cb46d568d9fdf75bbc10ebd11c4e4248a0ee451dc246b297e329"
+  },
+  "limits": [
+    "First nine walking-transition frames retain the unverified initial idle phase",
+    "Actor assets/aliases and ready window layers remain explicit diagnostic bindings",
+    "Message state resets and names are native; full constructor/presentation/choice behavior remains open",
+    "Full-scene trace does not observe texture bindings; isolated clips do",
+    "No native player control, audio, shadows, effects, battles, scene transitions or saves"
+  ],
+  "configuration_comparisons": {
+    "release": {
+      "byte_identical_files": [
+        "frame-1100.png",
+        "frame-1100.png.json",
+        "frame-1100.png.camera.bin",
+        "frame-1100.png.actor.bin",
+        "frame-1100.png.actor-9.bin",
+        "frame-1100.png.dialogue.bin",
+        "aligned.png",
+        "aligned.png.json",
+        "aligned.png.camera.bin",
+        "aligned.png.actor.bin",
+        "aligned.png.actor-9.bin",
+        "aligned.png.dialogue.bin"
+      ]
+    },
+    "sanitizer": {
+      "byte_identical_files": [
+        "frame-1100.png",
+        "frame-1100.png.json",
+        "frame-1100.png.camera.bin",
+        "frame-1100.png.actor.bin",
+        "frame-1100.png.actor-9.bin",
+        "frame-1100.png.dialogue.bin",
+        "aligned.png",
+        "aligned.png.json",
+        "aligned.png.camera.bin",
+        "aligned.png.actor.bin",
+        "aligned.png.actor-9.bin",
+        "aligned.png.dialogue.bin"
+      ]
+    }
+  },
+  "appkit_headless_comparison": {
+    "frames": 760,
+    "files": [
+      {
+        "suffix": ".png",
+        "sha256": "5ab0ad4e9e3012ceb3a6a11bae13e212f5ae19d0aa2198f18817b83730fe84d6"
+      },
+      {
+        "suffix": ".png.json",
+        "sha256": "d56377b0b7f70072a18c8913163fe06d982d7fef38e0df41597e1af882943bac"
+      },
+      {
+        "suffix": ".png.camera.bin",
+        "sha256": "ef60e5d0d4a0ab1da13bef5ffb79924aeed1e21e514be28c60d01965ce94bd92"
+      },
+      {
+        "suffix": ".png.actor.bin",
+        "sha256": "bb63a9af4ef0f21d6c64c1353a50f268d0c343b388af16c2415fd8297eeec036"
+      },
+      {
+        "suffix": ".png.actor-9.bin",
+        "sha256": "fee226d112d1e7af1cfbd1016f5ced199eae769c8559874065909450673b3940"
+      },
+      {
+        "suffix": ".png.dialogue.bin",
+        "sha256": "3c19c740723ade4eb95d7906399d20362708b455e973aa06f42dea9f2f56d6f3"
+      }
+    ],
+    "physical_input_verified": false
+  },
+  "tests": {
+    "native_debug": 13,
+    "python": 12,
+    "relevant_release": 5,
+    "relevant_sanitizer": 5
+  }
+}

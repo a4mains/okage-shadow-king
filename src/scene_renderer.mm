@@ -29,7 +29,7 @@ struct SceneRenderer::Impl {
     id<MTLTexture> target,depthTarget;
     NSMutableArray<id<MTLTexture>>* gpuTextures;
     id<MTLCommandQueue> queue;
-    explicit Impl(const fs::path& path,const FieldActor* actor,const fs::path& directory) {
+    explicit Impl(const fs::path& path,std::span<const SceneActor> actors) {
         const auto map=read_xmp(read(path));
         for(const auto& placement:map.placements) {
             if(placement.handler()) {++omittedEffects;continue;}
@@ -43,9 +43,9 @@ struct SceneRenderer::Impl {
             inputs.push_back({file,read_xmd(read(file)),instance_matrix(transform.position,transform.rotation,transform.scale,sine)});
         }
         if(inputs.empty())throw std::runtime_error("Empty field map");
-        if(actor) {
-            if(directory.empty())throw std::runtime_error("Actor texture directory required");
-            inputs.push_back({directory/"a.xmd",actor->model(),{},actor});++actorCount;
+        for(const auto& binding:actors) {
+            if(!binding.actor || binding.model_path.empty())throw std::runtime_error("Actor and model path required");
+            inputs.push_back({binding.model_path,binding.actor->model(),{},binding.actor});++actorCount;
         }
         for(const auto& input:inputs) {
             textureOffsets.push_back(textures.size());
@@ -95,6 +95,7 @@ struct SceneRenderer::Impl {
         okage::Float4 low{INFINITY,INFINITY,INFINITY,0},high{-INFINITY,-INFINITY,-INFINITY,0};
         for(std::size_t inputIndex=0;inputIndex<inputs.size();++inputIndex) {
             const auto& input=inputs[inputIndex];const auto textureOffset=textureOffsets[inputIndex];
+            if(input.actor && !input.actor->visible)continue;
             std::size_t textureBase=0;
             const auto world=input.actor ? input.actor->world(sine) : input.world;
             for (const auto& part:input.model.models) {
@@ -178,7 +179,7 @@ struct SceneRenderer::Impl {
         return image;
     }
 };
-SceneRenderer::SceneRenderer(const fs::path& map,const FieldActor* actor,const fs::path& directory):impl_(std::make_unique<Impl>(map,actor,directory)){}
+SceneRenderer::SceneRenderer(const fs::path& map,std::span<const SceneActor> actors):impl_(std::make_unique<Impl>(map,actors)){}
 SceneRenderer::~SceneRenderer()=default;
 Texture SceneRenderer::render(const Matrix4& view,const Float4& projection){return impl_->render(view,projection);}
 std::size_t SceneRenderer::placements() const{return impl_->inputs.size()-impl_->actorCount;}

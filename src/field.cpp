@@ -21,28 +21,41 @@ std::uint32_t OpeningField::word(std::size_t at) const{return get(bytes_,at);}
 Float4 OpeningField::point(std::size_t at) const {
     Float4 p{0,0,0,1};for(unsigned i=0;i<3;++i){p[i]=__builtin_bit_cast(float, (word(at+4*i)));if(!std::isfinite(p[i]))throw std::runtime_error("Invalid field point");}return p;
 }
-OpeningField::OpeningField(Bytes bytes,std::function<void(int)> start,std::function<bool(int)> wait,FieldActor* woman):
+OpeningField::OpeningField(Bytes bytes,std::function<void(int)> start,std::function<bool(int)> wait,std::span<const ActorBinding> actors):
     bytes_(bytes.begin(),bytes.end()),script_(bytes,3),start_dialogue_(std::move(start)),wait_dialogue_(std::move(wait)) {
-    woman_=woman;
+    actors_.assign(actors.begin(),actors.end());
+    for(std::size_t i=0;i<actors_.size();++i) {
+        const auto& binding=actors_[i];
+        if(binding.alias>=0 || binding.alias < -2048 || binding.alias==-2 || !binding.actor)throw std::runtime_error("Invalid actor binding");
+        for(std::size_t j=0;j<i;++j)if(actors_[j].alias==binding.alias || actors_[j].actor==binding.actor)throw std::runtime_error("Duplicate actor binding");
+        binding.actor->select_motion(1); // Original field actor construction 0x138220.
+    }
     if(!start_dialogue_ || !wait_dialogue_)throw std::runtime_error("Field requires dialogue services");
+    if(!actors_.empty() && !actor(-8))throw std::runtime_error("Opening actor diagnostic requires MAM alias -8");
     // This diagnostic entry is tied to the documented USA HOME1C script.
     if(word(0xb88)!=0xffe00007 || word(0xb8c)!=0x30 || word(0xbb8)!=0x20000a)
         throw std::runtime_error("Unsupported opening event layout");
     script_.set_service_callback([this](auto op,auto a,auto b,auto pc){return service(op,a,b,pc);});
-    if(woman_) {
+    if(actor(-8)) {
         if(word(0xb6c)!=0xff800007 || word(0xb70)!=0x400030 || word(0xb80)!=0x10002e)
             throw std::runtime_error("Unsupported opening actor setup layout");
-        woman_->select_motion(1); // Original field actor construction 0x138220.
-        script_.start_at(0xb6c);woman_->evaluate();
+        if(actor(-9) && word(0xb68)!=0xff71003b)throw std::runtime_error("Unsupported opening visibility layout");
+        script_.start_at(actor(-9) ? 0xb68 : 0xb6c);
+        for(const auto& binding:actors_)binding.actor->evaluate();
     } else script_.start_at(0xb88);
     evaluate();
 }
+FieldActor* OpeningField::actor(int alias) const {
+    for(const auto& binding:actors_)if(binding.alias==alias)return binding.actor;
+    return nullptr;
+}
 Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32_t b,std::uint32_t pc) {
+    auto pending=[&] {pending_opcode=op;pending_actor=b;pending_animation=a;return Animation::ServiceResult{pc,true};};
     switch(op) {
         case 7:
             if(b==-2)script_.set_channel_target(nullptr);
-            else if(b==-8 && woman_)script_.set_channel_target(&woman_->animation());
-            else throw std::runtime_error("Field actor channel group not yet implemented");
+            else if(auto* target=actor(b))script_.set_channel_target(&target->animation());
+            else return pending();
             group_=b;return {pc+4};
         case 0x4b:
             if(b!=1)throw std::runtime_error("Field camera target mode not yet implemented");
@@ -56,18 +69,23 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             start_dialogue_(__builtin_bit_cast(std::int32_t, (word(pc+4))));return {pc+8};
         case 10:return wait_dialogue_(b) ? Animation::ServiceResult{pc+4} : Animation::ServiceResult{pc,true};
         case 0x36:
-            if(b==-8 && woman_ && a<0x800) {woman_->select_motion(a);return {pc+4};}
-            [[fallthrough]];
+            if(auto* target=actor(b);target && a<0x800) {target->select_motion(a);return {pc+4};}
+            return pending();
         case 0x3b:
-            pending_opcode=op;pending_actor=b;pending_animation=a;
-            return {pc,true};
+            if(auto* target=actor(b);target && (a&0x100)) {target->visible=(a&255)!=0;return {pc+4};}
+            return pending();
+        case 0x5a:
         case 0x5b: {
-            if(group_!=-8 || !woman_)throw std::runtime_error("Unsupported actor facing group");
-            Rounding rounding;const auto destination=point(pc+4),position=woman_->animation().values().at(1);
+            auto* moving=actor(group_);auto* facing=op==0x5a ? actor(b) : nullptr;
+            if(!moving || (op==0x5a && !facing))return pending();
+            Rounding rounding;
+            const auto destination=facing ? facing->animation().values().at(1) : point(pc+4);
+            const auto position=moving->animation().values().at(1);
             const float angle=camera_angle(-(destination[0]+(-position[0])),-(destination[2]+(-position[2])),angles_);
-            if(b==0)woman_->animation().set_component(0,1,angle);
-            else woman_->animation().turn_component(0,1,angle,b);
-            return {pc+16};
+            const auto duration=op==0x5a ? int(a) : b;
+            if(duration==0)moving->animation().set_component(0,1,angle);
+            else moving->animation().turn_component(0,1,angle,duration);
+            return {pc+(op==0x5a ? 4u : 16u)};
         }
         default:throw std::runtime_error("Unrecovered field service "+std::to_string(op));
     }
@@ -78,9 +96,9 @@ void OpeningField::evaluate() {
 }
 void OpeningField::tick() {
     script_.tick_script();
-    if(woman_)woman_->tick_script();
+    for(const auto& binding:actors_)binding.actor->tick_script();
     script_.tick_channels();evaluate();
-    if(woman_){woman_->tick_channels();woman_->evaluate();}
+    for(const auto& binding:actors_){binding.actor->tick_channels();binding.actor->evaluate();}
 }
 Matrix4 OpeningField::view() const {
     Float4 p=position,r=rotation;for(unsigned i=0;i<3;++i){p[i]=-p[i];r[i]=-r[i];}p[3]=1;r[3]=0;

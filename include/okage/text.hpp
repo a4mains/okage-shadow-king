@@ -13,6 +13,9 @@ struct MessageBank {
     // Original message-ID lookup and positional fallback (0x19a150).
     std::vector<std::uint32_t> message_indices(std::int32_t id) const;
     std::vector<std::string> message(std::int32_t id) const;
+    // Original 0x19a5c8 replaces the first matching tagged system child.
+    // Shared string indices make the binding visible to every referring message.
+    bool bind(std::string_view tag,std::string_view value);
 };
 MessageBank read_pme(Bytes bytes);
 

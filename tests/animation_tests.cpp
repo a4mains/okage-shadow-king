@@ -64,6 +64,13 @@ int main() {
         require(event.values()[0][1]==1);
         rejects([&]{actor.turn_component(0,1,0,0);});
         rejects([&]{actor.set_component(0,4,0);});
+        // Scalar linear movement must not take the shortest circular path.
+        // This operation shares the queued-target behavior of vector op0x33.
+        put(route,40,0x00400131);
+        okage::Animation scalar(route,1);scalar.start(0);scalar.tick_channels();
+        require(scalar.values()[0][1]==.59375f);
+        for(unsigned i=0;i<3;++i)scalar.tick_channels();
+        require(scalar.values()[0][1]==.125f);
         okage::Model model;
         model.bones.push_back({{1,1,1,0},{0,0,0,0},{0,0,0,0}}); model.hierarchy={{0,-1}};
         std::vector<okage::Float4> channels(6); channels[4]={0,0,0.25f,0}; channels[5]={2,3,4,1};

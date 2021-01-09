@@ -6,7 +6,7 @@ namespace okage {
 class OpeningField {
 public:
     OpeningField(Bytes script,std::function<void(int)> start_dialogue,
-                 std::function<bool(int)> wait_dialogue,FieldActor* woman=nullptr);
+                 std::function<bool(int)> wait_dialogue,std::span<const ActorBinding> actors={});
     void tick();
     Float4 position{},target{},rotation{};
     CameraBlend blend;
@@ -20,7 +20,8 @@ private:
     SineTable sine_=make_sine_table();
     AtanTable angles_=make_atan_table();
     Float4 requested_target_{};
-    FieldActor* woman_=nullptr;
+    std::vector<ActorBinding> actors_;
+    FieldActor* actor(int alias) const;
     int group_=-2;
     std::function<void(int)> start_dialogue_;
     std::function<bool(int)> wait_dialogue_;

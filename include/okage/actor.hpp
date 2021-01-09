@@ -19,6 +19,7 @@ public:
     Animation& animation(){return animation_;}
     const Animation& animation() const{return animation_;}
     unsigned motion() const{return motion_;}
+    bool visible=true; // Instance flag0x800; independent of motion advancement.
 private:
     ModelFile model_;
     TextureBindings textures_;
@@ -26,4 +27,5 @@ private:
     std::vector<Float4> channels_;
     unsigned motion_=0;
 };
+struct ActorBinding {int alias;FieldActor* actor;};
 }

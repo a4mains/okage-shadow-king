@@ -20,6 +20,14 @@ int main() {
         word(b,4);for(auto n:{0u,0u,0u,1u,1u,2u,2u,3u})word(b,n);
         for(const auto& s:strings){b.insert(b.end(),s.begin(),s.end());b.push_back(0);}
         const auto bank=okage::read_pme(b);
+        okage::MessageBank tagged;
+        tagged.strings={"system", "\\r[name]old\r\n", "\\r[name]second", "42", "\\r[deep]nested"};
+        tagged.nodes={{0,0},{1,1},{2,4},{1,2},{0,3},{1,1},{1,2}};
+        require(tagged.bind("name","Ari") && tagged.strings[1]=="\\r[name]Ari");
+        require(tagged.strings[2]=="\\r[name]second" && tagged.message(42)[0]=="\\r[name]Ari");
+        require(!tagged.bind("deep","ignored") && !tagged.bind("nam","ignored"));
+        require(tagged.bind("name","Stan") && tagged.message(42)[0]=="\\r[name]Stan");
+        rejects([&]{tagged.bind("name",std::string("A\0B",3));});
         require(bank.message(42)==std::vector<std::string>({strings[2],strings[3]}));
         require(bank.message(-1)==bank.message(42) && bank.message(999)==bank.message(42));
         auto branched=bank;

@@ -73,7 +73,7 @@ void Animation::run() {
             if (b<0 || !texture_callback_) throw std::runtime_error("XMT texture callback requires a valid XTA binding");
             texture_callback_(static_cast<std::size_t>(b),a); pc_=p; continue;
         }
-        if(op!=0x2e && op!=0x30 && op!=0x33 && op!=0x40 && op!=0x42 && op!=0x27 && op!=8 && service_) {
+        if(op!=0x2e && op!=0x30 && op!=0x31 && op!=0x33 && op!=0x40 && op!=0x42 && op!=0x27 && op!=8 && service_) {
             const auto result=service_(op,a,b,pc_);
             if(result.next_pc<code_ || result.next_pc+4ull>samples_ || (result.next_pc&3))
                 throw std::runtime_error("XMT service continuation bounds");
@@ -84,13 +84,13 @@ void Animation::run() {
         if(index<0 || std::size_t(index)>=target.channels_.size())throw std::runtime_error("XMT channel out of bounds");
         auto& ch=target.channels_[index];
         if(op==8) {if(target.moving(index,b&3))return;pc_=p;continue;}
-        if((op==0x2e || op==0x40) && p+4ull>samples_)throw std::runtime_error("Truncated scalar instruction");
+        if((op==0x2e || op==0x31 || op==0x40) && p+4ull>samples_)throw std::runtime_error("Truncated scalar instruction");
         if(op==0x2e) {target.set_component(index,b&3,number(p));pc_=p+4;continue;}
         if(op==0x40) {target.turn_component(index,a&3,number(p),b);pc_=p+4;continue;}
         if(op==0x27 && channel_target_ && channel_target_!=this)throw std::runtime_error("Cross-script sampled tracks unsupported");
         unsigned payload=0;
         if (op==0x30 || op==0x33 || op==0x42) payload=12;
-        else if (op==0x27) payload=4;
+        else if (op==0x27 || op==0x31) payload=4;
         else throw std::runtime_error("Unrecovered XMT opcode "+std::to_string(op)+" at "+std::to_string(pc_));
         if (std::uint64_t(p)+payload>samples_) throw std::runtime_error("Truncated XMT instruction payload");
         if (op==0x30) {
@@ -109,7 +109,7 @@ void Animation::run() {
         } else {
             if (b<=0) throw std::runtime_error("Unsupported nonpositive XMT transition duration");
             const float rate=1.0f/static_cast<float>(b);
-            const unsigned first=op==0x33 ? 0 : a&3, count=op==0x33 ? 4 : 3;
+            const unsigned first=op==0x33 ? 0 : a&3, count=op==0x33 ? 4 : (op==0x31 ? 1 : 3);
             if (first+count>4) throw std::runtime_error("XMT component out of bounds");
             for (unsigned j=0;j<count;++j) {
                 const auto i=first+j;

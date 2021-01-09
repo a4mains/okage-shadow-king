@@ -269,10 +269,17 @@ public:
         }
         writeFile(output,results.data(),results.size()*4);
     }
-    void pmeMessage(const std::vector<uint8>& ram,int32 id,const char* output,bool indices=false) {
+    void pmeMessage(const std::vector<uint8>& ram,int32 id,const char* output,bool indices=false,const char* name=nullptr) {
         if(ram.size()!=32*1024*1024)throw std::runtime_error("Message oracle requires 32 MiB EE snapshot");
         std::memcpy(ee->m_ram,ram.data(),ram.size());
         put(stop,0x08000000|(stop>>2));put(stop+4,0);
+        if(name) {
+            if(std::strlen(name)>12)throw std::runtime_error("Name oracle fixture exceeds reserved name capacity");
+            constexpr uint32 tag=0x7fd000,value=0x7fd100;
+            std::memcpy(ee->m_ram+tag,"############",13);
+            std::memcpy(ee->m_ram+value,name,std::strlen(name)+1);
+            call(0x19a5c8,{1,tag,value});
+        }
         // Existing live text handle 1 and bank 0 from the opening600 snapshot.
         ee->m_EE.m_State.nGPR[CMIPS::A2].nD0=int64(id);
         call(0x19a150,{1,0});
@@ -653,6 +660,8 @@ int main(int argc,char** argv) {
             reference.textClock(readFile(argv[3]),argv[4]);
         } else if(command=="text-controls" && argc==5) {
             reference.textControls(readFile(argv[3]),argv[4]);
+        } else if(command=="pme-name" && argc==7) {
+            reference.pmeMessage(readFile(argv[3]),std::stoi(argv[4]),argv[6],false,argv[5]);
         } else if((command=="pme-message" || command=="pme-indices") && argc==6) {
             reference.pmeMessage(readFile(argv[3]),std::stoi(argv[4]),argv[5],command=="pme-indices");
         } else if(command=="spu-sample" && argc==5) {

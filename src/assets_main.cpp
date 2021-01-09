@@ -258,8 +258,9 @@ int main(int argc, char** argv) {
             if(argc==8)write(argv[7],okage::Bytes(reinterpret_cast<const std::uint8_t*>(wait_output.data()),wait_output.size()*4));
             return 0;
         }
-        if((command=="pme-message" || command=="pme-indices") && argc==5) {
-            const auto bank=okage::read_pme(read(argv[2]));
+        if(((command=="pme-message" || command=="pme-indices") && argc==5) || (command=="pme-name" && argc==6)) {
+            auto bank=okage::read_pme(read(argv[2]));
+            if(command=="pme-name" && !bank.bind("############",argv[4]))throw std::runtime_error("Missing player-name tag");
             std::vector<std::uint8_t> output;
             for(auto index:bank.message_indices(std::stoi(argv[3]))) {
                 if(command=="pme-indices") {
@@ -271,7 +272,7 @@ int main(int argc, char** argv) {
                 for(unsigned i=0;i<4;++i)output.push_back(size>>(8*i));
                 output.insert(output.end(),text.begin(),text.end());
             }
-            write(argv[4],output);return 0;
+            write(argv[command=="pme-name" ? 5 : 4],output);return 0;
         }
         if(command=="pme-info" && argc==3) {
             const auto bank=okage::read_pme(read(argv[2]));

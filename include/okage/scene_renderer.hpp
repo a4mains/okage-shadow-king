@@ -4,10 +4,10 @@
 #include <filesystem>
 #include <memory>
 namespace okage {
+struct SceneActor {const FieldActor* actor;std::filesystem::path model_path;};
 class SceneRenderer {
 public:
-    explicit SceneRenderer(const std::filesystem::path& map,const FieldActor* actor=nullptr,
-                           const std::filesystem::path& actor_directory={});
+    explicit SceneRenderer(const std::filesystem::path& map,std::span<const SceneActor> actors={});
     ~SceneRenderer();
     Texture render(const Matrix4& view,const Float4& projection);
     std::size_t placements() const;
