@@ -1,8 +1,8 @@
 {
   "scope": "Two-actor HOME1C segment and second message; diagnostic initial actor/window state, not cold boot or playable game",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
-  "native_tool_sha256": "7228169a68475d64ab1d64a4f7db782489c5b7de2468f73cf9c3f57e1ceda951",
-  "native_app_sha256": "6fe001144b8ebe4dc7bc8268a6ec22e8161edf26092daa7de4f6f263ff68fda9",
+  "native_tool_sha256": "2cca4d1401e7321c7e2282d464eb1a76e0a2b489c87efee8d19e4e4b8ed3a662",
+  "native_app_sha256": "951caacf2ab85421173fea1e2939df0c1cc9f77d0a145c9754b88aa9ab3db11a",
   "actor_assets": {
     "a.xmd": "63009446c4634a0b945d9cd39aeafda70b9ba8977374efeb74f9a5a4c49ea6da",
     "a.xmt": "966fb537f94be0f3e5f245414739b2a16ef1943235e23012250deba40b270386",
@@ -121,51 +121,13 @@
       242,
       281
     ],
-    "all_696_channel_words_exact_from_reference_frame": 133,
-    "exact_channel_frames": 187,
-    "earlier_channel_mismatches": [
-      {
-        "reference_frame": 124,
-        "different_channel_words": 31
-      },
-      {
-        "reference_frame": 125,
-        "different_channel_words": 31
-      },
-      {
-        "reference_frame": 126,
-        "different_channel_words": 31
-      },
-      {
-        "reference_frame": 127,
-        "different_channel_words": 31
-      },
-      {
-        "reference_frame": 128,
-        "different_channel_words": 31
-      },
-      {
-        "reference_frame": 129,
-        "different_channel_words": 31
-      },
-      {
-        "reference_frame": 130,
-        "different_channel_words": 31
-      },
-      {
-        "reference_frame": 131,
-        "different_channel_words": 31
-      },
-      {
-        "reference_frame": 132,
-        "different_channel_words": 31
-      }
-    ],
-    "full_channel_trace_equivalent": false,
-    "native_trace_sha256": "be95d0b8e039cb46d568d9fdf75bbc10ebd11c4e4248a0ee451dc246b297e329"
+    "all_696_channel_words_exact_from_reference_frame": 124,
+    "exact_channel_frames": 196,
+    "full_channel_trace_equivalent": true,
+    "native_trace_sha256": "717832ded5860f11166e5cdfb06066e3a6a4a4146d2d9b7cc3e4d2e9f2a303a7"
   },
   "limits": [
-    "First nine walking-transition frames retain the unverified initial idle phase",
+    "Hidden channel advancement is corrected; this does not prove cold actor initialization",
     "Actor assets/aliases and ready window layers remain explicit diagnostic bindings",
     "Message state resets and names are native; full constructor/presentation/choice behavior remains open",
     "Full-scene trace does not observe texture bindings; isolated clips do",
@@ -188,7 +150,7 @@
         "aligned.png.dialogue.bin"
       ]
     },
-    "sanitizer": {
+    "sanitize": {
       "byte_identical_files": [
         "frame-1100.png",
         "frame-1100.png.json",
@@ -205,40 +167,5 @@
       ]
     }
   },
-  "appkit_headless_comparison": {
-    "frames": 760,
-    "files": [
-      {
-        "suffix": ".png",
-        "sha256": "5ab0ad4e9e3012ceb3a6a11bae13e212f5ae19d0aa2198f18817b83730fe84d6"
-      },
-      {
-        "suffix": ".png.json",
-        "sha256": "d56377b0b7f70072a18c8913163fe06d982d7fef38e0df41597e1af882943bac"
-      },
-      {
-        "suffix": ".png.camera.bin",
-        "sha256": "ef60e5d0d4a0ab1da13bef5ffb79924aeed1e21e514be28c60d01965ce94bd92"
-      },
-      {
-        "suffix": ".png.actor.bin",
-        "sha256": "bb63a9af4ef0f21d6c64c1353a50f268d0c343b388af16c2415fd8297eeec036"
-      },
-      {
-        "suffix": ".png.actor-9.bin",
-        "sha256": "fee226d112d1e7af1cfbd1016f5ced199eae769c8559874065909450673b3940"
-      },
-      {
-        "suffix": ".png.dialogue.bin",
-        "sha256": "3c19c740723ade4eb95d7906399d20362708b455e973aa06f42dea9f2f56d6f3"
-      }
-    ],
-    "physical_input_verified": false
-  },
-  "tests": {
-    "native_debug": 13,
-    "python": 12,
-    "relevant_release": 5,
-    "relevant_sanitizer": 5
-  }
+  "appkit_validation": "Current three-actor UI comparison recorded in docs/player-validation.json; historical two-actor run recorded in native-imo.md"
 }

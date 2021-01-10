@@ -19,7 +19,7 @@ public:
     Animation& animation(){return animation_;}
     const Animation& animation() const{return animation_;}
     unsigned motion() const{return motion_;}
-    bool visible=true; // Instance flag0x800; independent of motion advancement.
+    bool visible=true; // Instance flag0x800; scene gates channel ticks, scripts keep running.
 private:
     ModelFile model_;
     TextureBindings textures_;

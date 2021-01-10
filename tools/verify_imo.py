@@ -78,18 +78,14 @@ def main():
     aligned = args.output/'aligned.png'
     app_run(app, retail[-1][0]+offset, presses, aligned)
     observed_native = rows(Path(str(aligned)+'.actor-9.bin'), 726)
-    early = []
     for r in retail:
         n = observed_native[r[0]+offset-1]
         if r[5] != 174 or n[5:8] != (174, 22, 1):
             raise ValueError('Actor layout/visibility mismatch')
         if r[1:4] != n[1:4] or r[8:20] != n[8:20]:
             raise ValueError('Original IMO event/script/root mismatch at frame %d' % r[0])
-        different = sum(x != y for x, y in zip(r[8:], n[8:704]))
-        if different:
-            early.append(dict(reference_frame=r[0], different_channel_words=different))
-            if r[0] >= retail[0][0]+9:
-                raise ValueError('Original IMO channels differ after initial transition at frame %d' % r[0])
+        if r[8:] != n[8:704]:
+            raise ValueError('Original IMO channels differ at frame %d' % r[0])
     report = {
         'scope': "Two-actor HOME1C segment and second message; diagnostic initial actor/window state, not cold boot or playable game",
         'elf_sha256': sha(Path('local/extracted/SCUS_971.29')),
@@ -101,11 +97,11 @@ def main():
         'integration': {'exact_event_script_root_frames': len(retail), 'root_words_per_frame': 12,
                         'reference_first_visible_frame': retail[0][0], 'native_first_visible_frame': visible,
                         'native_frame_offset': offset, 'observed_pressed_frames': observed,
-                        'all_696_channel_words_exact_from_reference_frame': 133,
-                        'exact_channel_frames': 187, 'earlier_channel_mismatches': early,
-                        'full_channel_trace_equivalent': not early,
+                        'all_696_channel_words_exact_from_reference_frame': retail[0][0],
+                        'exact_channel_frames': len(retail),
+                        'full_channel_trace_equivalent': True,
                         'native_trace_sha256': sha(Path(str(aligned)+'.actor-9.bin'))},
-        'limits': ['First nine walking-transition frames retain the unverified initial idle phase',
+        'limits': ['Hidden channel advancement is corrected; this does not prove cold actor initialization',
                    'Actor assets/aliases and ready window layers remain explicit diagnostic bindings',
                    'Message state resets and names are native; full constructor/presentation/choice behavior remains open',
                    'Full-scene trace does not observe texture bindings; isolated clips do',

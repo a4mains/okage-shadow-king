@@ -1,0 +1,123 @@
+{
+  "scope": "Scripted HERO entrance and close-up before native audio; diagnostic startup, not player control",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "native_app_sha256": "951caacf2ab85421173fea1e2939df0c1cc9f77d0a145c9754b88aa9ab3db11a",
+  "reference_sha256": "533f74f7dba578347bc19d8eed89627ff059250a20625cb3b99c49dc06be0e5f",
+  "controller_sha256": "7194e58e0a24d465487dc008eb2981df1cc1f579935a19d2a887a3674fc6174f",
+  "native_state": {
+    "frames": 1100,
+    "message_id": 10101,
+    "messages_started": 2,
+    "text_progress": 5,
+    "advance_count": 10,
+    "wait_release_frame": 227,
+    "controller_stage": 9,
+    "unimplemented_service_requests": 279,
+    "message_flags": 2147483648,
+    "close_frame": 419,
+    "close_wait_release_frame": 422
+  },
+  "reference_visible_frame": 127,
+  "native_visible_frame": 745,
+  "native_frame_offset": 618,
+  "observed_pressed_frames": [
+    161,
+    281
+  ],
+  "event_script_root_exact_frames": 76,
+  "all_912_channel_words_exact_from_reference_frame": 127,
+  "channel_exact_frames": 76,
+  "full_observed_channel_equivalence": true,
+  "audio_boundary": {
+    "reference_frame": 203,
+    "original_pc": "0xdb4",
+    "native_pc": "0xda8",
+    "native_pending_opcode": "0x45",
+    "actor_channels_and_script_exact": true
+  },
+  "native_trace_sha256": "ffbcaa9985b3eaf6de57c715ec03273c68578ecf25ebc896315ff4b8b2617ac1",
+  "limits": [
+    "Explicit assets/aliases and diagnostic window/idle initialization",
+    "No player controls, collision, shadows, effects, faithful lighting or native audio",
+    "Original proceeds into audio services beyond the bounded matched event interval",
+    "Full-game observer does not capture texture selection; prior HERO clip tests cover isolated motions"
+  ],
+  "configuration_comparisons": {
+    "release": {
+      "byte_identical_files": [
+        "frame-1100.png",
+        "frame-1100.png.json",
+        "frame-1100.png.camera.bin",
+        "frame-1100.png.actor.bin",
+        "frame-1100.png.actor-9.bin",
+        "frame-1100.png.actor-1.bin",
+        "frame-1100.png.dialogue.bin",
+        "aligned.png",
+        "aligned.png.json",
+        "aligned.png.camera.bin",
+        "aligned.png.actor.bin",
+        "aligned.png.actor-9.bin",
+        "aligned.png.actor-1.bin",
+        "aligned.png.dialogue.bin"
+      ]
+    },
+    "sanitize": {
+      "byte_identical_files": [
+        "frame-1100.png",
+        "frame-1100.png.json",
+        "frame-1100.png.camera.bin",
+        "frame-1100.png.actor.bin",
+        "frame-1100.png.actor-9.bin",
+        "frame-1100.png.actor-1.bin",
+        "frame-1100.png.dialogue.bin",
+        "aligned.png",
+        "aligned.png.json",
+        "aligned.png.camera.bin",
+        "aligned.png.actor.bin",
+        "aligned.png.actor-9.bin",
+        "aligned.png.actor-1.bin",
+        "aligned.png.dialogue.bin"
+      ]
+    }
+  },
+  "appkit_headless_comparison": {
+    "frames": 800,
+    "files": [
+      {
+        "suffix": ".png",
+        "sha256": "f55fa56ee91cdd9c6fce1aeadb48a506f1b0b2a36321f5a96bfd74f488105384"
+      },
+      {
+        "suffix": ".png.json",
+        "sha256": "c84231d93cd385a3e8fbe8a8e3178347cb9623abda3e961b119d54534022656b"
+      },
+      {
+        "suffix": ".png.camera.bin",
+        "sha256": "bf3f1b7edeb434b4c364001c4e44b467937d0728ebdee0831f68b1675e56df87"
+      },
+      {
+        "suffix": ".png.actor.bin",
+        "sha256": "8e4783f92f1bfaf8e18be89a28f430a8c4c14d3d0e1e9fa6b873d203b279ee84"
+      },
+      {
+        "suffix": ".png.actor-9.bin",
+        "sha256": "d626c3da870b9ffdfed8584783493e7ff3066ede866bcd9ddb9165a1b1744d20"
+      },
+      {
+        "suffix": ".png.actor-1.bin",
+        "sha256": "6599c1db52f88f8a8b63b721f15276bd365b6329ef1265f80562eccb435f0ee7"
+      },
+      {
+        "suffix": ".png.dialogue.bin",
+        "sha256": "f87a20a2056467760343b7a8fc7639d568f845ec9f14c9e8d36583436fe779e7"
+      }
+    ],
+    "physical_input_verified": false
+  },
+  "tests": {
+    "native_debug": 13,
+    "python": 12,
+    "relevant_release": 3,
+    "relevant_sanitizer": 3
+  }
+}

@@ -32,6 +32,7 @@ OpeningField::OpeningField(Bytes bytes,std::function<void(int)> start,std::funct
     }
     if(!start_dialogue_ || !wait_dialogue_)throw std::runtime_error("Field requires dialogue services");
     if(!actors_.empty() && !actor(-8))throw std::runtime_error("Opening actor diagnostic requires MAM alias -8");
+    if(actor(-1) && !actor(-9))throw std::runtime_error("Opening player diagnostic requires IMO alias -9");
     // This diagnostic entry is tied to the documented USA HOME1C script.
     if(word(0xb88)!=0xffe00007 || word(0xb8c)!=0x30 || word(0xbb8)!=0x20000a)
         throw std::runtime_error("Unsupported opening event layout");
@@ -40,7 +41,8 @@ OpeningField::OpeningField(Bytes bytes,std::function<void(int)> start,std::funct
         if(word(0xb6c)!=0xff800007 || word(0xb70)!=0x400030 || word(0xb80)!=0x10002e)
             throw std::runtime_error("Unsupported opening actor setup layout");
         if(actor(-9) && word(0xb68)!=0xff71003b)throw std::runtime_error("Unsupported opening visibility layout");
-        script_.start_at(actor(-9) ? 0xb68 : 0xb6c);
+        if(actor(-1) && word(0xb64)!=0xfff1003b)throw std::runtime_error("Unsupported opening player visibility layout");
+        script_.start_at(actor(-1) ? 0xb64 : (actor(-9) ? 0xb68 : 0xb6c));
         for(const auto& binding:actors_)binding.actor->evaluate();
     } else script_.start_at(0xb88);
     evaluate();
@@ -74,6 +76,7 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
         case 0x3b:
             if(auto* target=actor(b);target && (a&0x100)) {target->visible=(a&255)!=0;return {pc+4};}
             return pending();
+        case 0x45:return pending();
         case 0x5a:
         case 0x5b: {
             auto* moving=actor(group_);auto* facing=op==0x5a ? actor(b) : nullptr;
@@ -98,7 +101,9 @@ void OpeningField::tick() {
     script_.tick_script();
     for(const auto& binding:actors_)binding.actor->tick_script();
     script_.tick_channels();evaluate();
-    for(const auto& binding:actors_){binding.actor->tick_channels();binding.actor->evaluate();}
+    // Actor groups have flag1 (not global-advance flag2). Original 0x1b9be0
+    // calls 0x1b70a0 only for visible instances; hidden motion scripts still run.
+    for(const auto& binding:actors_)if(binding.actor->visible){binding.actor->tick_channels();binding.actor->evaluate();}
 }
 Matrix4 OpeningField::view() const {
     Float4 p=position,r=rotation;for(unsigned i=0;i<3;++i){p[i]=-p[i];r[i]=-r[i];}p[3]=1;r[3]=0;
