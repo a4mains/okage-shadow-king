@@ -7,6 +7,8 @@
 #include "okage/map.hpp"
 #include "okage/event.hpp"
 #include "okage/audio.hpp"
+#include "okage/sequence.hpp"
+#include "okage/bank.hpp"
 #include "okage/text.hpp"
 #include "okage/font.hpp"
 #include "okage/dialogue.hpp"
@@ -64,6 +66,42 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if(command=="music-pitch" && argc==4) {
+            const auto input=read(argv[2]);if(input.empty() || input.size()%16)throw std::runtime_error("Pitch fixture extent");
+            std::vector<std::uint32_t> out;
+            for(std::size_t at=0;at<input.size();at+=16){std::array<std::uint32_t,4> p;std::memcpy(p.data(),input.data()+at,16);out.push_back(okage::music_note_pitch(p[0],p[1],p[2],p[3]));}
+            write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4));return 0;
+        }
+        if(command=="music-tone" && argc==5) {
+            const auto bank=okage::read_music_bank(read(argv[2]));const auto input=read(argv[3]);
+            if(input.empty() || input.size()%64)throw std::runtime_error("Tone fixture extent");std::vector<std::uint32_t> out;
+            for(std::size_t at=0;at<input.size();at+=64){
+                std::array<std::uint32_t,16> row;std::memcpy(row.data(),input.data()+at,64);
+                okage::MusicChannel c;const auto* b=input.data()+at+16;
+                c.volume=b[2];c.pan=b[3];c.expression=b[8];c.pitch=b[10];c.left=b[20]|(b[21]<<8);c.right=b[22]|(b[23]<<8);
+                const auto& t=bank.programs.at(row[0]).at(row[1]);const auto p=okage::music_tone_parameters(bank,t,row[2],row[3],c,row[14],row[15]);
+                const auto pitch=std::uint16_t((okage::music_note_pitch(p.center,p.fine,p.key,p.key_fine)*std::int32_t(p.pitch_scale))>>12);
+                for(auto v:{t.sample_offset,std::uint32_t(t.adsr1),std::uint32_t(t.adsr2),std::uint32_t(std::uint16_t(p.left)),std::uint32_t(std::uint16_t(p.right)),std::uint32_t(pitch)})out.push_back(v);
+            }
+            write(argv[4],okage::Bytes(reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4));return 0;
+        }
+        if(command=="music-bank" && argc==3) {
+            const auto bank=okage::read_music_bank(read(argv[2]));
+            for(unsigned i=0;i<bank.programs.size();++i)for(const auto& t:bank.programs[i])
+                std::cout<<i<<'\t'<<unsigned(t.key_low)<<'\t'<<unsigned(t.key_high)<<'\t'<<t.sample_offset<<'\t'<<t.adsr1<<'\t'<<t.adsr2<<'\t'<<unsigned(t.center)<<'\t'<<unsigned(t.fine)<<'\t'<<t.pitch_scale<<'\n';
+            return 0;
+        }
+        if(command=="music-sequence" && argc==5) {
+            const auto ticks=std::stoul(argv[3]);if(!ticks || ticks>12000)throw std::runtime_error("Music tick budget");
+            okage::MusicSequence sequence(read(argv[2]));std::vector<std::uint32_t> output;
+            for(unsigned tick=1;tick<=ticks && !sequence.ended();++tick)sequence.tick([&](unsigned phase,const auto& s){
+                const std::array<std::uint32_t,10> row={tick,phase,s.cursor(),__builtin_bit_cast(std::uint32_t, (s.remaining())),
+                    s.tempo(),s.delta_scale(),s.clock_step(),s.status(),phase==1 ? s.next_status() : 0u,std::uint32_t(s.ended())};
+                output.insert(output.end(),row.begin(),row.end());
+                for(const auto& channel:s.channels){const auto words=channel.words();output.insert(output.end(),words.begin(),words.end());}
+            });
+            write(argv[4],okage::Bytes(reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4));return 0;
+        }
         if(command=="field-projection" && argc==4) {
             const auto p=okage::field_projection(read(argv[2]));
             write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(p.data()),sizeof(p)));return 0;

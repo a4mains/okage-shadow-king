@@ -1,0 +1,63 @@
+{
+  "scope": "Tone/sample/envelope/volume/pitch parameters for observed active voices; given original note/channel inputs, not a native scheduler or mixer",
+  "bank_sha256": "1c0428b3fcaba0f822da47ff6374ac0bd1e5d90cec1bd2f3dadc567cd95c3654",
+  "iop_ram_sha256": "dd83523beefe015f01ffb6f15259626a38cc14f6837397e6d97cc826f83a6c4f",
+  "reference_trace_sha256": "668446ff84d4fde1203ddae80e318ee9c0946525ccd5421902298063686620a6",
+  "fixture_sha256": "083a55748dcb521590280eba1942132a3bb4b7ffa32a0e12060e2f4811c733d4",
+  "output_sha256": "4cb8f794f5244078dcf712124396b3c50ce91dedc4c5718a72d2820d37137c50",
+  "cases": [
+    {
+      "program": 0,
+      "tone": 0,
+      "key": 41,
+      "velocity": 117,
+      "voice": 0,
+      "sample_offset": 0,
+      "adsr1": 33279,
+      "adsr2": 24525,
+      "left": 30,
+      "right": 27,
+      "pitch": 3176
+    },
+    {
+      "program": 7,
+      "tone": 0,
+      "key": 55,
+      "velocity": 90,
+      "voice": 47,
+      "sample_offset": 228896,
+      "adsr1": 33279,
+      "adsr2": 24524,
+      "left": 23,
+      "right": 14,
+      "pitch": 1582
+    },
+    {
+      "program": 7,
+      "tone": 1,
+      "key": 76,
+      "velocity": 90,
+      "voice": 45,
+      "sample_offset": 251056,
+      "adsr1": 33279,
+      "adsr2": 24524,
+      "left": 23,
+      "right": 14,
+      "pitch": 3551
+    },
+    {
+      "program": 2,
+      "tone": 0,
+      "key": 67,
+      "velocity": 90,
+      "voice": 13,
+      "sample_offset": 56608,
+      "adsr1": 33535,
+      "adsr2": 24521,
+      "left": 23,
+      "right": 23,
+      "pitch": 3155
+    }
+  ],
+  "exact": true
+}

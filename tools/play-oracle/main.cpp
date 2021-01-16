@@ -644,6 +644,29 @@ public:
 int main(int argc,char** argv) {
     try {
         if (argc<4) throw std::runtime_error("Usage: okage-pose-oracle sine ELF OUTPUT | vu-asm ELF OUTPUT | pose ELF XMD OUTPUT | pose-corpus ELF DIRECTORY OUTDIR");
+        if(std::string(argv[1])=="iop-pitch" && argc==5) {
+            const auto lib=readFile(argv[2]),input=readFile(argv[3]);
+            if(hash(lib)!="71596ef4029f672205e1523dedbd8dacfe5dfa50132c8a747b81289cd24f1db6" || input.empty() || input.size()%16)
+                throw std::runtime_error("Pitch reference input/hash");
+            auto iop=std::make_unique<Iop::CSubSystem>(true);iop->Reset();
+            // Isolated function at original module address0, tables included, no external calls.
+            uint32 loadSize;std::memcpy(&loadSize,lib.data()+100,4);
+            if(loadSize>lib.size()-176)throw std::runtime_error("LIBSD LOAD extent");
+            std::memcpy(iop->m_ram,lib.data()+176,loadSize);
+            constexpr uint32 stop=0x1ff000;const uint32 jump=0x08000000|(stop>>2);
+            std::memcpy(iop->m_ram+stop,&jump,4);std::memset(iop->m_ram+stop+4,0,4);
+            auto& cpu=iop->m_cpu;cpu.ToggleBreakpoint(stop);std::vector<uint32> output;
+            for(std::size_t at=0;at<input.size();at+=16){
+                cpu.m_State.nPC=0x33a0;cpu.m_State.nHasException=0;cpu.m_State.nDelayedJumpAddr=MIPS_INVALID_PC;
+                cpu.m_State.nGPR[CMIPS::RA].nD0=stop;cpu.m_State.nGPR[CMIPS::SP].nD0=0x1fe000;
+                for(unsigned n=0;n<4;++n){uint32 value;std::memcpy(&value,input.data()+at+4*n,4);cpu.m_State.nGPR[CMIPS::A0+n].nD0=value;}
+                bool done=false;
+                for(unsigned step=0;step<100;++step){cpu.m_executor->Execute(1000);if(cpu.m_executor->MustBreak()){done=true;break;}if(cpu.m_State.nHasException)throw std::runtime_error("IOP pitch exception");}
+                if(!done || cpu.m_State.nPC!=stop)throw std::runtime_error("IOP pitch did not return");
+                output.push_back(cpu.m_State.nGPR[CMIPS::V0].nD0);
+            }
+            writeFile(argv[4],output.data(),output.size()*4);return 0;
+        }
         Reference reference(readFile(argv[2]));
         const std::string command=argv[1];
         if(command=="camera-angles" && argc==4) {

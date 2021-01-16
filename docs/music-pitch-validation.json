@@ -1,0 +1,9 @@
+{
+  "scope": "LIBSD0x33a0 nonnegative fine/key-fine inputs, 128 centers x128 keys x4 fines x4 fractions; no voice playback claim",
+  "libsd_sha256": "71596ef4029f672205e1523dedbd8dacfe5dfa50132c8a747b81289cd24f1db6",
+  "fixture_sha256": "eb7715c3fd3d8a6142c35953c94fb062c666b788509c4f37ffeb4ae4b46b00f2",
+  "output_sha256": "7724655242d6f7e538e8e3905bda04bd46124b5fef30dd10983a4f9c01d7557c",
+  "cases": 262144,
+  "exact": true,
+  "harness": "Original module loaded at address0, no external calls; synthetic return breakpoint only"
+}
