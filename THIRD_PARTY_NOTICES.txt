@@ -27,3 +27,13 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGE.
+
+Native voice signal processing is independently expressed from documented and
+compared numerical behavior. The mathematical Gaussian construction in
+src/voice.cpp is credited to Near, nocash and Ryphecha by PCSX2's pinned
+interpolate_table.h (revision 3143a46e4deffa59832a517915a39d610dcb8564).
+No extracted coefficient table or PCSX2 source is compiled into the native app.
+tools/build_voice_reference.py extracts pinned GPL-licensed PCSX2 DSP kernels
+into ignored local research files for differential testing. Its generated
+reference executable is not a native-app dependency or shipped component.
+Reference source/license locations and validation limits.

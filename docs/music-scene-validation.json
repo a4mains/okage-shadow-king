@@ -1,0 +1,65 @@
+{
+  "scope": "900-frame diagnostic scene; native AppKit vs headless, not original whole-game audio equivalence",
+  "headless": "local/native-music-handoff-900-v1.png",
+  "appkit": "local/native-music-ui-900-v1.png",
+  "matching_artifacts": {
+    "PNG": {
+      "bytes": 175217,
+      "sha256": "08b981994c30b3a73dc1b8fb5ebc0743cee23b79e1ad723df303894ccdf05a0b"
+    },
+    ".json": {
+      "bytes": 296,
+      "sha256": "ed8ed35f41886abf7db3e9d30807344dc1c4ab4453837998939b7971714cb507"
+    },
+    ".audio.pcm": {
+      "bytes": 2880000,
+      "sha256": "9eba0797fea4707bd3ead3198d1ccf909b3d0c4b27db2e1ba9c910d7c603da01"
+    },
+    ".music.bin": {
+      "bytes": 18000,
+      "sha256": "283bd736052c2c91740b548cbe343230bd9e394fa8295e7ba8355ab6c2813c7a"
+    },
+    ".dialogue.bin": {
+      "bytes": 43200,
+      "sha256": "ec4b23707226f1323e9f731e939185ffd718dad5cc362e11f891386f0c076067"
+    },
+    ".actor.bin": {
+      "bytes": 2415600,
+      "sha256": "8d67672a53b5cea2d2a32ac73fef08c96c5a5078d4b03739e9533f89970ba862"
+    },
+    ".actor-1.bin": {
+      "bytes": 3405600,
+      "sha256": "662b3d4fb2651bd892b0f9a6bbe5ad14882eb4ba4c0dbd049c26636172f538e3"
+    },
+    ".actor-9.bin": {
+      "bytes": 2613600,
+      "sha256": "8d29dfeb05db14c40af93ce987730f6fb7351aaeb98f2af8711feead68f4c484"
+    }
+  },
+  "device": {
+    "dry_output": true,
+    "frames": 720000,
+    "rate": 48000,
+    "volume": 80,
+    "peak_voices": 6,
+    "device_frames_enqueued": 719200,
+    "device_underrun_frames": 0
+  },
+  "fade_frames": [
+    822,
+    833
+  ],
+  "pending_pc": "0xdb4",
+  "pending_opcode": "0x45",
+  "pending_operation": 1,
+  "pending_argument": 10,
+  "view_png_inspected": true,
+  "listening_verified": false,
+  "limits": [
+    "No full-mix reference comparison",
+    "No reverb/SFX",
+    "Diagnostic startup, not authentic music phase",
+    "Device counters measure enqueue, not physical playback",
+    "Full game remains unplayable"
+  ]
+}

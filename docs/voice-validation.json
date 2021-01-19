@@ -1,0 +1,218 @@
+{
+  "scope": "Pinned PCSX2 DSP kernels with direct voice start and fixed gains; no whole-device, reverb or hardware fidelity claim",
+  "reference_revision": "3143a46e4deffa59832a517915a39d610dcb8564",
+  "reference_source_hashes": {
+    "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
+    "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
+    "defs.h": "c99bb3de5ed27243abdaf18384f2d3cf6ce7578fb01fd2b6616da2d99c418960",
+    "interpolate_table.h": "3c2f96bdb8aee61a6f988ed508d45811ea8f5bd1f8dac8825c59552bbd2c865a"
+  },
+  "cases": [
+    {
+      "name": "gaussian-table",
+      "bytes": 2048,
+      "sha256": "8c6eae12a42efeba4cc2d46bfdc4aa82ee9a044de48144cf46d01c1ce3707ea0",
+      "exact": true
+    },
+    {
+      "name": "tone-00",
+      "bytes": 400000,
+      "sha256": "efef3adbbc44977d6c805d8583cdaf8515f68cfc67a119851d0dec3b6365e10c",
+      "exact": true
+    },
+    {
+      "name": "tone-01",
+      "bytes": 400000,
+      "sha256": "d9fd06435e82510c83dbd7da3abea401f91e5b069b57dc6ede2068b2d552a2b5",
+      "exact": true
+    },
+    {
+      "name": "tone-02",
+      "bytes": 400000,
+      "sha256": "7a05d582f8b8c16f73af706a8aa8912573a60a56fd17941989d1e932b4ec587e",
+      "exact": true
+    },
+    {
+      "name": "tone-03",
+      "bytes": 400000,
+      "sha256": "3898a4ff25ccb570966156b11141d88d8aa0fb615dacfa14e5049bf09e124389",
+      "exact": true
+    },
+    {
+      "name": "tone-04",
+      "bytes": 400000,
+      "sha256": "b317709f4e96265eac88f709760cd7feb9e69a760f37f727dda2f9532b43748d",
+      "exact": true
+    },
+    {
+      "name": "tone-05",
+      "bytes": 400000,
+      "sha256": "8c54a6cb618ab132dd973112f5fb5ef3c2f07fea2a10c9b909e285a09049e81d",
+      "exact": true
+    },
+    {
+      "name": "tone-06",
+      "bytes": 400000,
+      "sha256": "fb94702572bd231afe8c8909f806356f58fb7a4c4f8d1785b072e75d565aa3a4",
+      "exact": true
+    },
+    {
+      "name": "tone-07",
+      "bytes": 400000,
+      "sha256": "cf68ddf529e0541e58faaebc2cbc05110a6af29a2ccd285e8dbdc66c9aba4cef",
+      "exact": true
+    },
+    {
+      "name": "tone-08",
+      "bytes": 400000,
+      "sha256": "5a0d8eec557695f945e631983da33baba06385ebfac4a063cdbbd219b55f4d73",
+      "exact": true
+    },
+    {
+      "name": "tone-09",
+      "bytes": 400000,
+      "sha256": "f139c473414ed859419dc9ffc210cd03de4b9105115511787a446e4e1f7aab42",
+      "exact": true
+    },
+    {
+      "name": "tone-10",
+      "bytes": 400000,
+      "sha256": "7e9d26bdb4ac7c78a35ffc5d2ebcb29c52e558ce3a164fdb158f0d3013559014",
+      "exact": true
+    },
+    {
+      "name": "tone-11",
+      "bytes": 400000,
+      "sha256": "0e963ad74382aba91ddf3bff773e30d5b61dff8dd53a7428ea99961770cdb4a0",
+      "exact": true
+    },
+    {
+      "name": "tone-12",
+      "bytes": 400000,
+      "sha256": "ba7e5e2f3c006b2a3cc0a0110290d3dee5519954c3c95a622e2c6902b3730665",
+      "exact": true
+    },
+    {
+      "name": "tone-13",
+      "bytes": 400000,
+      "sha256": "2f9295c7accbc612b7ace0c7e6f675e82aa06d37cd2b9bbc2f54f85263bf0a65",
+      "exact": true
+    },
+    {
+      "name": "tone-14",
+      "bytes": 400000,
+      "sha256": "9bac69c3fb0be5ec6a5e533096443470a8fecd0980e595480f0fd943adf00eaf",
+      "exact": true
+    },
+    {
+      "name": "tone-15",
+      "bytes": 400000,
+      "sha256": "976a86670c81ba47984d9c124544a4c88736fde279959cc982c1dfddbe3a7a08",
+      "exact": true
+    },
+    {
+      "name": "tone-16",
+      "bytes": 400000,
+      "sha256": "4fb788de6a15c6f31274165acbbf859344a4a48c1b9b6ae955c86de1b0ae08d1",
+      "exact": true
+    },
+    {
+      "name": "tone-17",
+      "bytes": 400000,
+      "sha256": "2f9295c7accbc612b7ace0c7e6f675e82aa06d37cd2b9bbc2f54f85263bf0a65",
+      "exact": true
+    },
+    {
+      "name": "loop-0",
+      "bytes": 240000,
+      "sha256": "97172fa456ec9169c5cb5051f22aafc644c89ff4402505dd38585b4dd7b9d88b",
+      "exact": true
+    },
+    {
+      "name": "loop-1",
+      "bytes": 240000,
+      "sha256": "a55e17a4d16da67cf5e2369d1c8e2616b09345c34a4e866e10f67f7338163ef9",
+      "exact": true
+    },
+    {
+      "name": "loop-4096",
+      "bytes": 240000,
+      "sha256": "672e1158f69ea7703cc51c2444c86be0f420ae65eccc12f9e509f590bcd90d24",
+      "exact": true
+    },
+    {
+      "name": "loop-16383",
+      "bytes": 240000,
+      "sha256": "e16df8e2c77f98e5fd115357e718d6817217e50f1930fa7bb0af6eec915f6bf1",
+      "exact": true
+    },
+    {
+      "name": "one-shot",
+      "bytes": 240000,
+      "sha256": "1218eafd2474d03a53c2f6136e8d915b84149e50c1581202acceed721adbde04",
+      "exact": true
+    },
+    {
+      "name": "envelope-0",
+      "bytes": 1200000,
+      "sha256": "87f7306b4cd2849ea55d10a6775844604666cae0346313ad65b8ba9f09cd9a92",
+      "exact": true
+    },
+    {
+      "name": "envelope-1",
+      "bytes": 1200000,
+      "sha256": "9f56ed0bccc3379704f0fd96cdd053337c19290776e50a0fbb0663cabbacba85",
+      "exact": true
+    },
+    {
+      "name": "envelope-2",
+      "bytes": 1200000,
+      "sha256": "af9370ee3b509b35c995f8f955eeba1cdc8cf9ea0a6ea769358cb58b1523c432",
+      "exact": true
+    },
+    {
+      "name": "envelope-3",
+      "bytes": 1200000,
+      "sha256": "16f7ec7d5f2e4a1c5e30e448b912f40973fbd2b5d28b5126f21cb0e1a2e9f10d",
+      "exact": true
+    },
+    {
+      "name": "envelope-4",
+      "bytes": 1200000,
+      "sha256": "48cbb2b62934d7204c2c95f21ccee0bd126c6141250945029527875338850461",
+      "exact": true
+    },
+    {
+      "name": "envelope-5",
+      "bytes": 1200000,
+      "sha256": "f55ebae46b7b579286072b3cb3ea4b64409a74c7c917fb07c3fa875b870eee69",
+      "exact": true
+    },
+    {
+      "name": "envelope-6",
+      "bytes": 1200000,
+      "sha256": "0557eeec2a77a4446679fb18d82b4d6499505c5d3a0d9ea0048fde39529cdb41",
+      "exact": true
+    },
+    {
+      "name": "envelope-7",
+      "bytes": 1200000,
+      "sha256": "a309b7f147afd337a5c7cec0a853d213762cfb9a6732df70af98196c1450f884",
+      "exact": true
+    }
+  ],
+  "dry_music": {
+    "frames": 3430400,
+    "rate": 48000,
+    "sha256": "bc99818dc6c24c8b728d10c818353c8892d9b2101d5d922d7490774b96a0e208",
+    "peak": 23198,
+    "clipped_samples": 0,
+    "log": "Native dry music: ticks=4288 peak_voices=18 stolen=0 sample_loops=1259; reverb/SFX/device pending",
+    "comparison": "No whole-mix reference comparison; reverb/SFX absent, listening unverified"
+  },
+  "configurations": [
+    "Debug",
+    "Release",
+    "ASan/UBSan"
+  ]
+}

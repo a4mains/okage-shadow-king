@@ -9,6 +9,7 @@
 #include "okage/audio.hpp"
 #include "okage/sequence.hpp"
 #include "okage/bank.hpp"
+#include "okage/music.hpp"
 #include "okage/text.hpp"
 #include "okage/font.hpp"
 #include "okage/dialogue.hpp"
@@ -66,6 +67,43 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if(command=="music-fade" && argc==4) {
+            const auto input=read(argv[2]);if(input.empty() || input.size()%16)throw std::runtime_error("Music fade fixture bounds");
+            std::vector<std::uint32_t> out;
+            for(std::size_t at=0;at<input.size();at+=16){
+                std::array<std::uint32_t,4> r;std::memcpy(r.data(),input.data()+at,16);
+                if(r[0]>0x800000 || r[3]>10000)throw std::runtime_error("Music fade fixture range");
+                okage::MusicVolumeRamp ramp;ramp.current=r[0];ramp.request(r[1],r[2]);
+                for(unsigned i=0;i<r[3];++i){
+                    const bool send=ramp.current!=ramp.target;ramp.tick();const auto gain=send?ramp.level():0xffffffffu;
+                    out.insert(out.end(),{unsigned(ramp.current),unsigned(ramp.target),unsigned(ramp.step),unsigned(ramp.stopped),unsigned(send),gain,gain});
+                }
+            }
+            write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4));return 0;
+        }
+        if(command=="music-dry" && argc==6) {
+            const auto ticks=std::stoul(argv[4]);if(!ticks || ticks>12000)throw std::runtime_error("Dry music tick budget");
+            okage::DryMusicPlayer player(read(argv[2]),okage::read_music_bank(read(argv[3])));
+            std::vector<std::int16_t> pcm(ticks*800*2);player.render(pcm);
+            write(argv[5],okage::Bytes(reinterpret_cast<const std::uint8_t*>(pcm.data()),pcm.size()*2));
+            std::cout<<"Native dry music: ticks="<<player.driver_ticks()<<" peak_voices="<<player.peak_voices()<<" stolen="<<player.stolen_voices()<<" sample_loops="<<player.sample_loops()<<"; reverb/SFX/device pending\n";return 0;
+        }
+        if(command=="voice-table" && argc==3) {
+            const auto& t=okage::gaussian_table();write(argv[2],okage::Bytes(reinterpret_cast<const std::uint8_t*>(t.data()),sizeof(t)));return 0;
+        }
+        if(command=="voice-envelope" && argc==7) {
+            okage::VoiceEnvelope e(std::stoul(argv[2],nullptr,0),std::stoul(argv[3],nullptr,0));
+            const auto release=std::stoul(argv[4]),count=std::stoul(argv[5]);if(count>480000)throw std::runtime_error("Envelope tick budget");std::vector<std::uint32_t> out;
+            for(unsigned i=0;i<count;++i){if(i==release)e.release();e.tick();out.insert(out.end(),{std::uint32_t(e.level()),std::uint32_t(e.phase()),e.counter()});}
+            write(argv[6],okage::Bytes(reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4));return 0;
+        }
+        if(command=="voice-sample" && argc==10) {
+            const auto b=read(argv[2]);okage::SampleVoice v(b,std::stoul(argv[3],nullptr,0),std::stoul(argv[4],nullptr,0));
+            v.parameters(std::stoul(argv[5]),std::stoi(argv[6]),std::stoi(argv[6]));
+            const auto release=std::stoul(argv[7]),count=std::stoul(argv[8]);if(count>480000)throw std::runtime_error("Voice sample budget");std::vector<std::int16_t> out;
+            for(unsigned i=0;i<count;++i){if(i==release)v.release();const auto p=v.tick();out.push_back(std::clamp(p[0],-32768,32767));out.push_back(std::clamp(p[1],-32768,32767));}
+            write(argv[9],okage::Bytes(reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*2));return 0;
+        }
         if(command=="music-pitch" && argc==4) {
             const auto input=read(argv[2]);if(input.empty() || input.size()%16)throw std::runtime_error("Pitch fixture extent");
             std::vector<std::uint32_t> out;

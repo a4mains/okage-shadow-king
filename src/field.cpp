@@ -76,7 +76,9 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
         case 0x3b:
             if(auto* target=actor(b);target && (a&0x100)) {target->visible=(a&255)!=0;return {pc+4};}
             return pending();
-        case 0x45:return pending();
+        case 0x45:
+            if(audio_service && audio_service(a,b)){pending_opcode=0;return {pc+4};}
+            return pending();
         case 0x5a:
         case 0x5b: {
             auto* moving=actor(group_);auto* facing=op==0x5a ? actor(b) : nullptr;

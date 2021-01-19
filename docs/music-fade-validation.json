@@ -1,0 +1,28 @@
+{
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "cases": 141,
+  "ticks": 6752,
+  "words_per_tick": 7,
+  "exact": true,
+  "sha256": "bb5061511afa0e5a777715a5463d89a5cf5336670f5a457feef056db02c4275f",
+  "fields": [
+    "current",
+    "target",
+    "step",
+    "stop_requested",
+    "gain_sent",
+    "left",
+    "right"
+  ],
+  "original_functions": [
+    "0x12d778",
+    "0x12ce20",
+    "0x12d470"
+  ],
+  "scope": "Original request/update/stop state with unrelated pending flags zero and active track3; research-only logging/RPC/load no-ops, main-thread predicate0 and recording driver gain/stop stubs.",
+  "configurations": [
+    "Debug",
+    "Release",
+    "ASan/UBSan"
+  ]
+}

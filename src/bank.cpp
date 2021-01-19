@@ -47,7 +47,11 @@ MusicBank read_music_bank(Bytes b){
             std::copy_n(b.begin()+at+24,12,t.modulation.begin());
             if(t.key_low>t.key_high || t.key_high>127 || t.center>127 || t.fine>127 || t.velocity_table>=bank.velocities.size() || t.pan_table>=bank.pans.size() ||
                 t.sample_offset>=b.size()-body || t.sample_offset%16)throw std::runtime_error("XVAB tone fields/sample pointer");
-            if(!bank.samples.contains(t.sample_offset))bank.samples.emplace(t.sample_offset,decode_spu_sample(b.subspan(body+t.sample_offset)));
+            if(!bank.samples.contains(t.sample_offset)){
+                auto sample=decode_spu_sample(b.subspan(body+t.sample_offset));
+                bank.sample_blocks.emplace(t.sample_offset,std::vector<std::uint8_t>(b.begin()+body+t.sample_offset,b.begin()+body+t.sample_offset+sample.consumed));
+                bank.samples.emplace(t.sample_offset,std::move(sample));
+            }
             tones.push_back(t);
         }
         bank.programs.push_back(std::move(tones));

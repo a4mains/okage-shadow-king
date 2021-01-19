@@ -212,6 +212,30 @@ public:
         }
         writeFile(output,result.data(),result.size());
     }
+    void musicFade(const std::vector<uint8>& input,const char* output) {
+        if(input.empty() || input.size()%16)throw std::runtime_error("Music fade fixture bounds");
+        for(auto address:{0x1c7910u,0x16ddc0u,0x174900u}){put(address,0x03e00008);put(address+4,0);}
+        // Original stop path requires the main-thread predicate to be zero.
+        put(0x178a60,0x03e00008);put(0x178a64,0x00001021);
+        constexpr uint32 record=0xa00000;
+        const std::array<uint32,5> stopCode={0x3c1a00a0,0x241b0001,0xaf5b0000,0x03e00008,0};
+        const std::array<uint32,7> gainCode={0x3c1a00a0,0x241b0001,0xaf5b0004,0xaf440008,0xaf45000c,0x03e00008,0};
+        std::memcpy(ee->m_ram+0x1709d8,stopCode.data(),sizeof(stopCode));
+        std::memcpy(ee->m_ram+0x170878,gainCode.data(),sizeof(gainCode));
+        std::vector<uint32> result;
+        for(std::size_t at=0;at<input.size();at+=16){
+            std::array<uint32,4> r;std::memcpy(r.data(),input.data()+at,16);
+            if(r[0]>0x800000 || r[1]>128 || r[2]>32767 || r[3]>10000)throw std::runtime_error("Music fade fixture range");
+            std::memset(ee->m_ram+0x2d9a00,0,0x100);put(0x2d9ac8,r[0]);put(0x2d9ab8,3);put(record,0);
+            call(0x12d778,{r[1],r[2]});
+            for(unsigned i=0;i<r[3];++i){
+                put(record+4,0);put(record+8,0xffffffff);put(record+12,0xffffffff);
+                call(0x12ce20);
+                for(auto address:{0x2d9ac8u,0x2d9accu,0x2d9ad0u,record,record+4,record+8,record+12})result.push_back(get(address));
+            }
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
     void dialogueOpacity(const std::vector<uint8>& input,const char* output) {
         if(input.empty() || input.size()%16)throw std::runtime_error("Opacity fixture bounds");
         constexpr uint32 object=0xa00000;std::vector<uint32> result;
@@ -673,6 +697,8 @@ int main(int argc,char** argv) {
             reference.call(0x1b1ed0);writeFile(argv[3],reference.ee->m_ram+0x335490,8192);
         } else if(command=="camera-look-at" && argc==6) {
             reference.cameraLookAt(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="music-fade" && argc==5) {
+            reference.musicFade(readFile(argv[3]),argv[4]);
         } else if(command=="dialogue-opacity" && argc==5) {
             reference.dialogueOpacity(readFile(argv[3]),argv[4]);
         } else if(command=="text-glyphs" && argc==6) {

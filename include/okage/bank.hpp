@@ -19,6 +19,7 @@ struct MusicBank {
     std::vector<std::array<std::uint8_t,128>> velocities;
     std::vector<std::array<std::uint8_t,256>> pans;
     std::map<std::uint32_t,DecodedSample> samples;
+    std::map<std::uint32_t,std::vector<std::uint8_t>> sample_blocks;
 };
 // Version0x101 XVAB in file-relative (unmapped) form. Does not register an IOP bank.
 MusicBank read_music_bank(Bytes bytes);
