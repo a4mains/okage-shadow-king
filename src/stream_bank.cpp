@@ -1,0 +1,77 @@
+#include "okage/stream_bank.hpp"
+#include <algorithm>
+#include <bit>
+#include <cmath>
+#include <stdexcept>
+
+namespace okage {
+namespace {
+std::uint32_t word(Bytes b,std::size_t at){
+    if(at>b.size() || b.size()-at<4)throw std::runtime_error("RXWS word bounds");
+    return unsigned(b[at])|(unsigned(b[at+1])<<8)|(unsigned(b[at+2])<<16)|(unsigned(b[at+3])<<24);
+}
+}
+Bytes StreamBank::record(int index) const{
+    if(index<0 || std::size_t(index)>=records.size())return {};
+    const auto at=records[index];return Bytes(bytes).subspan(at,bytes.at(at+1));
+}
+StreamBank read_stream_bank(Bytes b){
+    if(b.size()<16 || b.size()>128*1024*1024 || word(b,0)!=0x53575852 || word(b,4)!=b.size()-16 || word(b,8)!=0x200 || word(b,12))
+        throw std::runtime_error("Unsupported RXWS header/extent");
+    StreamBank result;std::uint32_t form_end=0;
+    constexpr std::array<std::uint32_t,5> tags={0x4d524f46,0x54585446,0x4b52414d,0x48435242,0x59444f42};
+    for(std::size_t at=16;at<b.size();){
+        if(b.size()-at<16)throw std::runtime_error("RXWS chunk header extent");
+        const auto tag=word(b,at),size=word(b,at+4);
+        if(size>b.size()-at-16 || word(b,at+8)!=0x100 || word(b,at+12))throw std::runtime_error("RXWS chunk version/extent");
+        const auto found=std::find(tags.begin(),tags.end(),tag);
+        if(found==tags.end())throw std::runtime_error("Unrecovered RXWS chunk");
+        const auto index=std::size_t(found-tags.begin());
+        if(result.chunks[index])throw std::runtime_error("Duplicate RXWS chunk");
+        result.chunks[index]=at+16;
+        if(index==0){if(size<4)throw std::runtime_error("RXWS FORM header");form_end=at+16+size;}
+        if(index==4)result.body_size=size;
+        at+=16+size;
+    }
+    if(!result.chunks[0] || !result.chunks[4])throw std::runtime_error("RXWS requires FORM and BODY");
+    auto at=result.chunks[0];const auto count=word(b,at);at+=4;
+    if(count>(form_end-at)/2)throw std::runtime_error("RXWS record count");
+    for(unsigned i=0;i<count;++i){
+        if(at>form_end || form_end-at<2 || b[at+1]<2 || b[at+1]>form_end-at)throw std::runtime_error("RXWS record extent");
+        result.records.push_back(at);at+=b[at+1];
+    }
+    if(at!=form_end)throw std::runtime_error("RXWS FORM trailing bytes");
+    result.bytes.assign(b.begin(),b.end());return result;
+}
+StreamTone stream_tone(const StreamBank& bank,int index,float speed,unsigned volume){
+    const auto r=bank.record(index);
+    if(r.size()!=28 || r[0]!=0 || r[2]!=2 || r[3] || r[6] || r[7] || r[8] || r[9]!=1 || word(r,12) || word(r,24)!=0xffffffff || bank.chunks[2] || bank.chunks[3])
+        throw std::runtime_error("Unrecovered RXWS codec/channels/loop/markers");
+    if(!std::isfinite(speed) || speed<0 || speed>=8 || volume>128)throw std::runtime_error("RXWS cue speed/volume range");
+    StreamTone t;t.offset=word(r,16);t.size=word(r,20);t.sample_rate=unsigned(r[10])|(unsigned(r[11])<<8);
+    if(!t.sample_rate || t.offset%16 || !t.size || t.size%16 || t.offset>bank.body_size || t.size>bank.body_size-t.offset)
+        throw std::runtime_error("RXWS sample payload bounds");
+    t.offset+=bank.chunks[4];
+    // EE0x172bf8 rate conversion, IOP0x9398 speed multiplication, and
+    // EE0x176738's staged gains with recovered default global gains128.
+    t.pitch=((t.sample_rate*4096/48000)*unsigned(speed*4096))>>12;
+    t.left=(int(volume)*__builtin_bit_cast(std::int8_t, (r[4])))>>7;
+    t.right=(int(volume)*__builtin_bit_cast(std::int8_t, (r[5])))>>7;
+    return t;
+}
+void StreamPlayer::play(int index,float speed,unsigned volume){
+    const auto tone=stream_tone(bank_,index,speed,volume);
+    const auto blocks=Bytes(bank_.bytes).subspan(tone.offset,tone.size);
+    const auto sample=decode_spu_sample(blocks);
+    if(sample.consumed!=tone.size || sample.end_flags!=1)throw std::runtime_error("RXWS mono end marker outside recovered scope");
+    std::erase_if(voices_,[](const auto& v){return v->ended();});
+    if(voices_.size()>=48)throw std::runtime_error("RXWS shared voice allocation not recovered");
+    auto voice=std::make_unique<SampleVoice>(blocks,StreamTone::adsr1,StreamTone::adsr2);
+    voice->parameters(tone.pitch,tone.left,tone.right);voices_.push_back(std::move(voice));
+}
+void StreamPlayer::mix(std::span<std::int32_t> stereo){
+    if(stereo.size()%2)throw std::runtime_error("RXWS stereo output extent");
+    for(std::size_t i=0;i<stereo.size();i+=2)for(auto& voice:voices_){const auto v=voice->tick();stereo[i]+=v[0];stereo[i+1]+=v[1];}
+    std::erase_if(voices_,[](const auto& v){return v->ended();});
+}
+}

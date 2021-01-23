@@ -1,0 +1,54 @@
+{
+  "scope": "Compare the five opening narration cues with pinned SPU voice kernels.",
+  "source_sha256": "84062be8c8b4d10d036e4c4ee4897a08cf875d57abe1bbd71748258ca887200a",
+  "reference_revision": "3143a46e4deffa59832a517915a39d610dcb8564",
+  "reference_source_hashes": {
+    "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
+    "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
+    "defs.h": "c99bb3de5ed27243abdaf18384f2d3cf6ce7578fb01fd2b6616da2d99c418960",
+    "interpolate_table.h": "3c2f96bdb8aee61a6f988ed508d45811ea8f5bd1f8dac8825c59552bbd2c865a"
+  },
+  "cases": [
+    {
+      "cue": 0,
+      "frames": 280000,
+      "exact": true,
+      "sha256": "8fe18a42862f654d4f48a254c5f66136cb015a5f99906de9d42917b12bfad63d",
+      "peak": 30400
+    },
+    {
+      "cue": 1,
+      "frames": 280000,
+      "exact": true,
+      "sha256": "c7eba21867c67b03d3a749a64d986129ba50d6dae30faf231d1d5eb995c8afd4",
+      "peak": 30496
+    },
+    {
+      "cue": 2,
+      "frames": 280000,
+      "exact": true,
+      "sha256": "229b47ca4733ce23165d64abbd0728fa2746a7feeffb7aab955757197b0b163d",
+      "peak": 30441
+    },
+    {
+      "cue": 3,
+      "frames": 280000,
+      "exact": true,
+      "sha256": "67297b802d82ff762aa46393ea413cbdc1f863a963df2b0bd2acf6eab1cff70e",
+      "peak": 30423
+    },
+    {
+      "cue": 4,
+      "frames": 280000,
+      "exact": true,
+      "sha256": "15b2026121d60f7e581aea34147f8782d483b6512c8a58048507ee553425c154",
+      "peak": 30390
+    }
+  ],
+  "parameter_evidence": "Original EE 0x176738/0x1769b0/0x172bf8 and IOP 0x9398/0x9770; first cue also observed in player1460 SPU core1/channel14",
+  "builds": [
+    "Debug",
+    "Release",
+    "ASan/UBSan"
+  ]
+}

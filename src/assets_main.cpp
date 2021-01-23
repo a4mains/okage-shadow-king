@@ -10,6 +10,7 @@
 #include "okage/sequence.hpp"
 #include "okage/bank.hpp"
 #include "okage/music.hpp"
+#include "okage/stream_bank.hpp"
 #include "okage/text.hpp"
 #include "okage/font.hpp"
 #include "okage/dialogue.hpp"
@@ -67,6 +68,24 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if(command=="stream-bank" && argc==4) {
+            const auto bank=okage::read_stream_bank(read(argv[2]));
+            std::vector<std::uint32_t> out(bank.chunks.begin(),bank.chunks.end());
+            out.push_back(bank.body_size);out.push_back(bank.records.size());
+            for(unsigned i=0;i<bank.records.size();++i){out.push_back(bank.records[i]);out.push_back(bank.record(i).size());}
+            out.push_back(bank.record(-1).size());out.push_back(bank.record(bank.records.size()).size());
+            write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4));return 0;
+        }
+        if(command=="stream-cue" && argc==8) {
+            const auto bank=okage::read_stream_bank(read(argv[2]));const auto index=std::stoi(argv[3]);
+            const auto speed=std::stof(argv[4]);const auto gain=std::stoul(argv[5]);const auto frames=std::stoul(argv[6]);
+            if(frames>480000 || gain>128)throw std::runtime_error("Stream cue render budget/gain");
+            const auto tone=okage::stream_tone(bank,index,speed,gain);okage::StreamPlayer player(bank);player.play(index,speed,gain);
+            std::vector<std::int32_t> mix(frames*2);player.mix(mix);std::vector<std::int16_t> pcm;
+            for(const auto value:mix)pcm.push_back(std::clamp(value,-32768,32767));
+            write(argv[7],okage::Bytes(reinterpret_cast<const std::uint8_t*>(pcm.data()),pcm.size()*2));
+            std::cout<<tone.offset<<' '<<tone.size<<' '<<tone.sample_rate<<' '<<tone.pitch<<' '<<tone.left<<' '<<tone.right<<' '<<tone.adsr1<<' '<<tone.adsr2<<' '<<player.active()<<'\n';return 0;
+        }
         if(command=="music-fade" && argc==4) {
             const auto input=read(argv[2]);if(input.empty() || input.size()%16)throw std::runtime_error("Music fade fixture bounds");
             std::vector<std::uint32_t> out;

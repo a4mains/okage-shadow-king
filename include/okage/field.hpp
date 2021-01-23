@@ -11,6 +11,7 @@ public:
     Float4 position{},target{},rotation{};
     CameraBlend blend;
     std::function<bool(unsigned,std::int32_t)> audio_service;
+    std::function<bool(unsigned,std::int32_t,float,unsigned)> sound_cue;
     unsigned pending_opcode=0;
     int pending_actor=0,pending_animation=0;
     std::uint32_t pc() const {return script_.pc();}

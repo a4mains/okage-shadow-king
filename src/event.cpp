@@ -40,6 +40,16 @@ std::int32_t event_variable(Bytes variables,std::uint32_t selector) {
     if(bank==4)return __builtin_bit_cast(std::int32_t, (word(variables,0x510+std::size_t(index)*4)));
     throw std::runtime_error("Unrecovered event variable bank "+std::to_string(bank));
 }
+void set_event_variable(std::span<std::uint8_t> variables,unsigned index,unsigned bank,std::int32_t value) {
+    if(index>0xffff || bank>4)throw std::runtime_error("Unrecovered event variable write bank/index");
+    // Validate the same backing extent as the reader before mutating it.
+    event_variable(variables,(bank<<16)|index);
+    if(bank<=1){
+        auto& byte=variables[0x10+bank*0x100+(index>>3)];const auto mask=0x80>>(index&7);
+        byte=value ? byte|mask : byte&~mask;
+    } else if(bank<=3)variables[0x210+(bank-2)*0x200+index]=std::uint8_t(value);
+    else for(unsigned i=0;i<4;++i)variables[0x510+index*4+i]=std::uint32_t(value)>>(i*8);
+}
 std::int32_t poll_dialogue_wait(DialogueWaitState& state,std::int32_t request,
                                const DialogueObservation& dialogue) {
     if(state.countdown) {

@@ -5,6 +5,7 @@
 
 namespace okage {
 std::int32_t event_variable(Bytes variables, std::uint32_t selector);
+void set_event_variable(std::span<std::uint8_t> variables,unsigned index,unsigned bank,std::int32_t value);
 
 struct DialogueWaitState {
     std::uint32_t mode=0, active=0, countdown=0, observed=0, accumulated=0;

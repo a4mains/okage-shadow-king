@@ -1,0 +1,15 @@
+{
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "input": "local/audio-input/SNDDATA/SE/SET10.XWS",
+  "input_sha256": "84062be8c8b4d10d036e4c4ee4897a08cf875d57abe1bbd71748258ca887200a",
+  "exact": true,
+  "compared_words": 19,
+  "sha256": "f97fd6cd50fd62578e11066d8575a373fe920e0da6c32651fae9ffebf012189f",
+  "scope": "FORM/FTXT/MARK/BRCH/BODY registration offsets, BODY extent, record count, all FORM lookups and two invalid indices.",
+  "oracle": "Original 0x174950/0x175038/0x174ff0/0x174be8/0x174f28; semaphore entry/exit no-ops, initially empty slots",
+  "builds": [
+    "Debug",
+    "Release",
+    "ASan/UBSan"
+  ]
+}

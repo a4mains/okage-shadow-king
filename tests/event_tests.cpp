@@ -21,6 +21,13 @@ int main() {
         rejects([&]{okage::event_variable(variables,0x800);});
         rejects([&]{okage::event_variable(variables,0x31000);});
         rejects([&]{okage::event_variable(variables,0x4ffff);});
+        okage::set_event_variable(variables,2,0,1);require(variables[0x10]==0xa1);
+        okage::set_event_variable(variables,2,0,0);require(variables[0x10]==0x81);
+        okage::set_event_variable(variables,2047,1,-1);require(variables[0x20f]==1);
+        okage::set_event_variable(variables,511,2,255);require(okage::event_variable(variables,0x201ff)==-1);
+        okage::set_event_variable(variables,1,4,-123);require(okage::event_variable(variables,0x40001)==-123);
+        rejects([&]{okage::set_event_variable(variables,65536,0,1);});
+        rejects([&]{okage::set_event_variable(variables,0,8,1);});
         put(script,0,0x544d58);put(script,4,32);put(script,16,0xffffffff);
         // Signed -128 < 0: take body. False branch skips to end at byte 60.
         put(script,32,(28u<<20)|(4u<<8)|11);put(script,36,0x20000);put(script,40,0);

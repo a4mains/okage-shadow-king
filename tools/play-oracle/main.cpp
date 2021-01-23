@@ -212,6 +212,24 @@ public:
         }
         writeFile(output,result.data(),result.size());
     }
+    void streamBank(const std::vector<uint8>& input,const char* output) {
+        constexpr uint32 source=0xa00000,slot=0x3092c0;
+        if(input.size()<16 || input.size()>0x800000)throw std::runtime_error("RXWS oracle extent");
+        std::memcpy(ee->m_ram+source,input.data(),input.size());
+        std::memset(ee->m_ram+slot,0,256*0xa4);
+        for(auto address:{0x178538u,0x178548u}){put(address,0x03e00008);put(address+4,0);}
+        call(0x174950,{0,source});
+        if(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0!=0)throw std::runtime_error("RXWS original registration failed");
+        std::vector<uint32> result;
+        for(auto offset:{8u,12u,16u,20u,24u}){const auto value=get(slot+offset);result.push_back(value ? value-source : 0);}
+        result.push_back(get(slot+28));
+        const auto count=get(get(slot+8));if(count>65536)throw std::runtime_error("RXWS original record count");result.push_back(count);
+        for(unsigned i=0;i<count;++i){call(0x174f28,{0,i});const auto address=ee->m_EE.m_State.nGPR[CMIPS::V0].nD0;
+            if(address<source || address-source+2>input.size())throw std::runtime_error("RXWS original record pointer");
+            result.push_back(address-source);result.push_back(ee->m_ram[address+1]);}
+        for(auto index:{0xffffffffu,count}){call(0x174f28,{0,index});result.push_back(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);}
+        writeFile(output,result.data(),result.size()*4);
+    }
     void musicFade(const std::vector<uint8>& input,const char* output) {
         if(input.empty() || input.size()%16)throw std::runtime_error("Music fade fixture bounds");
         for(auto address:{0x1c7910u,0x16ddc0u,0x174900u}){put(address,0x03e00008);put(address+4,0);}
@@ -697,6 +715,8 @@ int main(int argc,char** argv) {
             reference.call(0x1b1ed0);writeFile(argv[3],reference.ee->m_ram+0x335490,8192);
         } else if(command=="camera-look-at" && argc==6) {
             reference.cameraLookAt(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="stream-bank" && argc==5) {
+            reference.streamBank(readFile(argv[3]),argv[4]);
         } else if(command=="music-fade" && argc==5) {
             reference.musicFade(readFile(argv[3]),argv[4]);
         } else if(command=="dialogue-opacity" && argc==5) {

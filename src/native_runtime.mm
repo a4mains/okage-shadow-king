@@ -4,6 +4,7 @@
 #include "okage/field.hpp"
 #include "okage/music.hpp"
 #include "okage/audio_output.hpp"
+#include "okage/stream_bank.hpp"
 #include "okage/scene_renderer.hpp"
 #include <bit>
 #include <algorithm>
@@ -29,6 +30,9 @@ struct Session {
     okage::DialogueController controller;
     okage::DialogueOpacity opacity;
     okage::DialogueClosure closure;
+    okage::SceneFade scene_fade;
+    okage::Narration narration;
+    std::array<std::uint8_t,0x1000> variables{};
     okage::DialogueWaitState wait{5,1};
     unsigned frame=0,release_frame=0,close_frame=0,close_release_frame=0;
     std::unique_ptr<okage::DryMusicPlayer> music;
@@ -37,12 +41,32 @@ struct Session {
     std::vector<std::int16_t> audio_capture;
     std::vector<std::uint32_t> music_trace;
     bool record_audio=false;
-    void load_music(const fs::path& sequence,const fs::path& bank,bool record){
+    fs::path sound_directory;
+    std::map<unsigned,std::unique_ptr<okage::StreamPlayer>> sound_banks;
+    std::vector<std::uint32_t> sound_trace;
+    void load_music(const fs::path& sequence,const fs::path& bank,bool record,const fs::path& sounds){
         music=std::make_unique<okage::DryMusicPlayer>(readData(sequence),okage::read_music_bank(readData(bank)));
-        record_audio=record;
-        if(field)field->audio_service=[this](unsigned operation,int rate){
-            if(operation!=5 || rate<0)return false;
-            music_volume.request(0x50,unsigned(rate));return true;
+        record_audio=record;sound_directory=sounds;
+        if(field)field->audio_service=[this](unsigned operation,int argument){
+            if(operation==1 && !sound_directory.empty()){
+                if(argument<0 || argument>9999)throw std::runtime_error("Sound set number outside import scope");
+                wait.mode=15;wait.active=0;
+                const auto path=sound_directory/("SET"+std::to_string(argument)+".XWS");
+                auto bank=okage::read_stream_bank(readData(path));
+                const auto count=bank.records.size();sound_banks.insert_or_assign(1,std::make_unique<okage::StreamPlayer>(std::move(bank)));
+                // Native disk loading is synchronous. The actual owned bank must
+                // be registered before the subsequent -1 completion wait can pass.
+                wait.mode=5;wait.active=1;
+                std::cout<<"Native sound set "<<argument<<": "<<count<<" RXWS records loaded\n";return true;
+            }
+            if(operation==2){sound_banks.erase(1);return true;}
+            if((operation!=4 && operation!=5) || argument<0)return false;
+            music_volume.request(operation==4 ? 128 : 80,unsigned(argument));return true;
+        };
+        if(field)field->sound_cue=[this](unsigned bank,int index,float speed,unsigned volume){
+            auto found=sound_banks.find(bank);if(found==sound_banks.end())return false;
+            found->second->play(index,speed,volume);
+            sound_trace.insert(sound_trace.end(),{frame,bank,unsigned(index),__builtin_bit_cast(unsigned, (speed)),volume});return true;
         };
         std::cout<<"Native dry music enabled: original sequence/bank, reverb and SFX pending\n";
     }
@@ -66,6 +90,7 @@ struct Session {
         text=okage::DialogueText(messages.message(10100));
         text.fonts=fonts;text.state.flags=0x8041;text.state.font=2;text.state.period=1;
         clock.glyph_flags=0x10;opacity.set(1,8);
+        scene_fade.current=scene_fade.target=1; // Already lit diagnostic entry.
     }
     void load_scene(const fs::path& map,const fs::path& event,const std::vector<std::pair<int,fs::path>>& assets) {
         std::vector<okage::SceneActor> scene_actors;
@@ -82,15 +107,16 @@ struct Session {
         dialogue_active=false;
         field=std::make_unique<okage::OpeningField>(readData(event),[this](int id){
             if(dialogue_active && !closure.finished())throw std::runtime_error("Field replaces an unfinished message");
-            if(id!=10100 && id!=10101)throw std::runtime_error("Field message initialization outside recovered scope");
+            if(id!=10100 && id!=10101 && id!=10107)throw std::runtime_error("Field message initialization outside recovered scope");
             message_id=id;++messages_started;
             text=okage::DialogueText(messages.message(id));text.fonts=fonts;
             text.state.flags=0x8041;text.state.font=2;text.state.period=1;
             clock={};clock.glyph_flags=0x10;controller={};closure={};opacity.set(1,8);
+            controller.set_variable=[this](unsigned index,unsigned bank,std::int32_t value){okage::set_event_variable(variables,index,bank,value);};
             wait.countdown=wait.observed=wait.accumulated=0;
             dialogue_active=true;
         },[this](int request){
-            if(!dialogue_active)throw std::runtime_error("Field wait before dialogue initialization");
+            if(!dialogue_active && request!=-1)throw std::runtime_error("Field wait before dialogue initialization");
             const std::array<std::uint32_t,2> layers={0x50,controller.layer_flags};
             const bool released=okage::poll_dialogue_wait(wait,request,
                 {true,__builtin_bit_cast(std::int32_t, (closure.message_flags)),layers,std::int32_t(text.state.progress)})==0;
@@ -103,11 +129,15 @@ struct Session {
     }
     void tick(okage::DialogueButtons input) {
         ++frame;
+        scene_fade.tick();
         const std::array<std::uint32_t,2> layers={0x50,controller.layer_flags};
         if(field)field->tick();
         if(music){
             music_volume.tick();music->volume(music_volume.level(),music_volume.level());
             std::array<std::int16_t,1600> pcm{};music->render(pcm);
+            std::array<std::int32_t,1600> stream{};
+            for(auto& [bank,player]:sound_banks)player->mix(stream);
+            for(unsigned i=0;i<pcm.size();++i)pcm[i]=std::clamp(int(pcm[i])+stream[i],-32768,32767);
             if(audio_output)audio_output->submit(pcm);
             if(record_audio){audio_capture.insert(audio_capture.end(),pcm.begin(),pcm.end());
                 music_trace.insert(music_trace.end(),{frame,unsigned(music_volume.current),unsigned(music_volume.target),unsigned(music_volume.step),music->peak_voices()});}
@@ -119,10 +149,12 @@ struct Session {
         if(dialogue_active && !closure.finished() && controller.stage>=6)closure.update(controller.stage);
         else if(dialogue_active && controller.stage==5) {
             const auto effects=controller.update(text,input);
+            if(effects.scene_fade)scene_fade.request(*effects.scene_fade);
             if(effects.close)opacity.set(128,-4);
             if(effects.cue>=0 || effects.stop_voice || effects.stop_effect)++service_request_count;
         }
         if(closure.finished() && !close_frame)close_frame=frame;
+        narration.update(dialogue_active && !closure.finished() ? text.state.description : "",fonts[2]);
         dialogue_trace.insert(dialogue_trace.end(),{frame,std::uint32_t(message_id),text.state.flags,text.state.phase,
             text.state.period,text.state.delay,text.state.progress,controller.advance_count,controller.layer_advance,
             controller.layer_flags,controller.stage,__builtin_bit_cast(std::uint32_t, (opacity.delta))});
@@ -143,9 +175,16 @@ struct Session {
         auto text_image=okage::rasterize_text(fonts,text.glyphs,640,224);
         if(!renderer)return text_image;
         auto image=renderer->render(field->view(),projection);
+        const auto brightness=128-scene_fade.alpha();
+        for(std::size_t i=0;i<image.rgba.size();i+=4)for(unsigned c=0;c<3;++c)image.rgba[i+c]=unsigned(image.rgba[i+c])*brightness/128;
+        const auto overlay=okage::rasterize_text(fonts,narration.glyphs(fonts[2]),640,224);
+        for(std::size_t i=0;i<overlay.rgba.size();i+=4){
+            const unsigned alpha=overlay.rgba[i+3];
+            for(unsigned c=0;c<3;++c)image.rgba[i+c]=(unsigned(overlay.rgba[i+c])*alpha+unsigned(image.rgba[i+c])*(255-alpha)+127)/255;
+        }
         image.height=448;image.rgba.resize(640*448*4);
         for(std::size_t i=0;i<text_image.rgba.size();i+=4) {
-            const float a=dialogue_active ? (text_image.rgba[i+3]/255.f)*std::clamp(opacity.value/128.f,0.f,1.f) : 0;
+            const float a=dialogue_active && controller.window_type!=2 ? (text_image.rgba[i+3]/255.f)*std::clamp(opacity.value/128.f,0.f,1.f) : 0;
             for(unsigned c=0;c<3;++c)image.rgba[640*224*4+i+c]=std::uint8_t(text_image.rgba[i+c]*a+16.f*(1-a));
             image.rgba[640*224*4+i+3]=255;
         }
@@ -171,18 +210,23 @@ static void capture(const Session& session,const fs::path& path) {
          <<",\n  \"advance_count\": "<<session.controller.advance_count<<",\n  \"wait_release_frame\": "<<session.release_frame
          <<",\n  \"controller_stage\": "<<session.controller.stage<<",\n  \"unimplemented_service_requests\": "<<session.service_request_count
          <<",\n  \"message_flags\": "<<session.closure.message_flags
+         <<",\n  \"window_type\": "<<session.controller.window_type
+         <<",\n  \"scene_brightness\": "<<session.scene_fade.current
+         <<",\n  \"narration_cues\": "<<session.sound_trace.size()/5
+         <<",\n  \"progression_flag_2\": "<<okage::event_variable(session.variables,2)
          <<",\n  \"close_frame\": "<<session.close_frame<<",\n  \"close_wait_release_frame\": "<<session.close_release_frame<<"\n}\n";
     if(!state)throw std::runtime_error("Cannot write native capture state");
     if(session.music){
-        const auto pcmPath=path.string()+".audio.pcm",tracePath=path.string()+".music.bin",statsPath=path.string()+".audio.json";
-        for(const auto& p:{pcmPath,tracePath,statsPath})if(fs::exists(p)||fs::is_symlink(p))throw std::runtime_error("Refusing existing audio capture");
-        std::ofstream pcm(pcmPath,std::ios::binary),trace(tracePath,std::ios::binary),stats(statsPath);
+        const auto pcmPath=path.string()+".audio.pcm",tracePath=path.string()+".music.bin",statsPath=path.string()+".audio.json",soundPath=path.string()+".sound.bin";
+        for(const auto& p:{pcmPath,tracePath,statsPath,soundPath})if(fs::exists(p)||fs::is_symlink(p))throw std::runtime_error("Refusing existing audio capture");
+        std::ofstream pcm(pcmPath,std::ios::binary),trace(tracePath,std::ios::binary),stats(statsPath),sound(soundPath,std::ios::binary);
         pcm.write(reinterpret_cast<const char*>(session.audio_capture.data()),session.audio_capture.size()*2);
         trace.write(reinterpret_cast<const char*>(session.music_trace.data()),session.music_trace.size()*4);
+        sound.write(reinterpret_cast<const char*>(session.sound_trace.data()),session.sound_trace.size()*4);
         stats<<"{\n  \"dry_output\": true,\n  \"frames\": "<<session.audio_capture.size()/2<<",\n  \"rate\": 48000,\n  \"volume\": "<<session.music_volume.level()
              <<",\n  \"peak_voices\": "<<session.music->peak_voices()<<",\n  \"device_frames_enqueued\": "<<(session.audio_output ? session.audio_output->delivered_frames() : 0)
              <<",\n  \"device_underrun_frames\": "<<(session.audio_output ? session.audio_output->underrun_frames() : 0)<<"\n}\n";
-        if(!pcm || !trace || !stats)throw std::runtime_error("Cannot write native audio capture");
+        if(!pcm || !trace || !stats || !sound)throw std::runtime_error("Cannot write native audio capture");
     }
 
     const auto dialoguePath=fs::path(path.string()+".dialogue.bin");
@@ -308,8 +352,8 @@ static void capture(const Session& session,const fs::path& path) {
 @end
 int main(int argc,const char** argv) {
     @autoreleasepool {try {
-        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames N] [--press FRAME,FRAME --capture FILE.png] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv]");
-        unsigned frames=0,uiFrames=0;std::vector<unsigned> presses;fs::path output,map,event,musicSequence,musicBank;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
+        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames N] [--press FRAME,FRAME --capture FILE.png] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY]");
+        unsigned frames=0,uiFrames=0;std::vector<unsigned> presses;fs::path output,map,event,musicSequence,musicBank,soundDirectory;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         for(int i=3;i<argc;++i) {
             const std::string arg=argv[i];if(++i==argc)throw std::runtime_error("Missing native runtime option value");
             if(arg=="--frames")frames=std::stoul(argv[i]);
@@ -319,6 +363,7 @@ int main(int argc,const char** argv) {
             else if(arg=="--event")event=argv[i];
             else if(arg=="--music-dry")musicSequence=argv[i];
             else if(arg=="--music-bank")musicBank=argv[i];
+            else if(arg=="--sound-dir")soundDirectory=argv[i];
             else if(arg=="--actor")actors.push_back({-8,argv[i]});
             else if(arg=="--actor-bind") {
                 const std::string value=argv[i];const auto eq=value.find('=');std::size_t consumed=0;
@@ -332,18 +377,19 @@ int main(int argc,const char** argv) {
             else throw std::runtime_error("Unknown native runtime option");
         }
         if(musicSequence.empty()!=musicBank.empty())throw std::runtime_error("Music requires both sequence and bank");
+        if(!soundDirectory.empty() && musicSequence.empty())throw std::runtime_error("Sound directory requires native music setup");
         if(map.empty()!=event.empty() || (!actors.empty() && map.empty()))throw std::runtime_error("Scene requires both map and event assets");
         if(frames>36000 || uiFrames>36000 || (frames && uiFrames) || (uiFrames && output.empty()))throw std::runtime_error("Native diagnostic frame/capture bounds");
         if(frames) {
             Session session(argv[1],argv[2],playerName);if(!map.empty())session.load_scene(map,event,actors);
-            if(!musicSequence.empty())session.load_music(musicSequence,musicBank,!output.empty());
+            if(!musicSequence.empty())session.load_music(musicSequence,musicBank,!output.empty(),soundDirectory);
             for(unsigned i=1;i<=frames;++i) {const std::uint16_t mask=std::find(presses.begin(),presses.end(),i)!=presses.end()?0x40:0;session.tick({mask,mask});}
             if(!output.empty())capture(session,output);
             std::cout<<"Native frames="<<session.frame<<" progress="<<session.text.state.progress<<" wait_release="<<session.release_frame<<'\n';return 0;
         }
         [NSApplication sharedApplication];[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
         NativeApp* app=[NativeApp new];app->session=std::make_unique<Session>(argv[1],argv[2],playerName);if(!map.empty())app->session->load_scene(map,event,actors);
-        if(!musicSequence.empty())app->session->load_music(musicSequence,musicBank,!output.empty());
+        if(!musicSequence.empty())app->session->load_music(musicSequence,musicBank,!output.empty(),soundDirectory);
         app->testFrames=uiFrames;app->testPresses=presses;app->testCapture=output;
         [NSApp setDelegate:app];[NSApp run];return app->failureStatus;
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
