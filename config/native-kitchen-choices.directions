@@ -1,0 +1,10 @@
+# Native diagnostic frames; hexadecimal held up/down mask, zero releases.
+# First direction activates the cursor; the next selects the desired row.
+2600 4000
+2604 0
+2640 4000
+2644 0
+3611 4000
+3612 0
+3620 1000
+3621 0

@@ -348,6 +348,56 @@ public:
         }
         throw std::runtime_error("Message oracle fragment limit");
     }
+    void padRepeat(const std::vector<uint8>& input,const char* output) {
+        if(input.empty() || input.size()%4)throw std::runtime_error("Pad fixture requires held/pressed halfwords");
+        put(0x339594,2400u<<16);put(0x339598,480);std::vector<uint32> result;
+        for(std::size_t at=0;at<input.size();at+=4){
+            std::memcpy(ee->m_ram+0x33958c,input.data()+at,4);call(0x1bf7c8,{0,0});
+            result.insert(result.end(),{get(0x339590)>>16,get(0x339594)&0xffff,get(0x339598)>>16});
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
+    void choiceOptions(const std::vector<uint8>& ram,const char* output) {
+        if(ram.size()!=32*1024*1024)throw std::runtime_error("Option oracle requires EE snapshot");
+        std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
+        constexpr uint32 message=0x900000,command=0x902000;
+        std::memset(ee->m_ram+message,0,0x1000);put(message+0x40,1);
+        const auto object=get(0x20068c);std::vector<uint32> result;
+        for(auto option:{"CC","BC","BC=0","BC=1","BC!=0"})for(unsigned selection=0;selection<3;++selection){
+            std::strcpy(reinterpret_cast<char*>(ee->m_ram+command),option);put(object+0x1e70,selection);
+            call(0x148240,{message,command,1});result.push_back(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
+    void pmeChoice(const std::vector<uint8>& ram,int32 id,unsigned fragment,unsigned selection,const char* output) {
+        if(ram.size()!=32*1024*1024 || fragment>=256 || selection>=512)
+            throw std::runtime_error("Choice oracle fixture bounds");
+        std::memcpy(ee->m_ram,ram.data(),ram.size());
+        put(stop,0x08000000|(stop>>2));put(stop+4,0);
+        ee->m_EE.m_State.nGPR[CMIPS::A2].nD0=int64(id);
+        call(0x19a150,{1,0});
+        if(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0!=1)throw std::runtime_error("Original message selection failed");
+        const auto object=get(0x20068c),bank=get(0x2005c8),table=get(bank+8),count=get(bank);
+        if(!get(object+0x2ee0+fragment*4))throw std::runtime_error("Choice fragment absent");
+        put(object+0x269c,fragment);put(object+0x1e74,selection);
+        std::vector<uint32> result;
+        auto snapshot=[&]{
+            for(auto offset:{0x1900,0x3d08,0x1e70,0x1e74,0x269c,0x1968,0x196c,0xcd0,0xcd4,0xcd8,0x22c})
+                result.push_back(get(object+offset));
+            const auto sizeAt=result.size();result.push_back(0);
+            for(unsigned i=0;i<=256;++i){
+                const auto address=get(object+0x2ee0+i*4);if(!address)return;
+                if(i==256)throw std::runtime_error("Choice fragment capacity");
+                uint32 index=0;for(;index<count;++index)if(get(table+index*20+8)==address)break;
+                if(index==count)throw std::runtime_error("Choice string absent from bank");
+                result.push_back(index);result.push_back(get(object+0x32e0+i*4));++result[sizeAt];
+            }
+        };
+        snapshot();
+        // Execute the original selector and reset; no calls patched or stubbed.
+        call(0x19b448,{1,selection});snapshot();
+        writeFile(output,result.data(),result.size()*4);
+    }
     void eventSetup(const std::vector<uint8>& script,const std::vector<uint8>& variables,
                     const std::vector<uint8>& state,const char* output) {
         if(script.size()<36 || script.size()>0x100000 || variables.size()!=0x1000 || state.size()!=0x800)
@@ -729,6 +779,12 @@ int main(int argc,char** argv) {
             reference.textClock(readFile(argv[3]),argv[4]);
         } else if(command=="text-controls" && argc==5) {
             reference.textControls(readFile(argv[3]),argv[4]);
+        } else if(command=="pad-repeat" && argc==5) {
+            reference.padRepeat(readFile(argv[3]),argv[4]);
+        } else if(command=="choice-options" && argc==5) {
+            reference.choiceOptions(readFile(argv[3]),argv[4]);
+        } else if(command=="pme-choice" && argc==8) {
+            reference.pmeChoice(readFile(argv[3]),std::stoi(argv[4]),std::stoul(argv[5]),std::stoul(argv[6]),argv[7]);
         } else if(command=="pme-name" && argc==7) {
             reference.pmeMessage(readFile(argv[3]),std::stoi(argv[4]),argv[6],false,argv[5]);
         } else if((command=="pme-message" || command=="pme-indices") && argc==6) {

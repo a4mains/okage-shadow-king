@@ -1,0 +1,159 @@
+{
+  "scope": "Original branch stream/node rewriting and digital pad repeat; not a full-scene comparison",
+  "native_sha256": "0f585ea1545e78651bc003918bef876a520a69fc9497b3a924e7da79d13d75a8",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "reference_fixture_sha256": "dd826c9c361f0101cd4241272bd8b78fade95409327f62f55375cef10cc5999c",
+  "reference_directory": "local/choice-validation-v1",
+  "pme_sha256": "8b19ec0074e962214ece631f97d4cc8497374e4dd23301df512ac4d978993de4",
+  "branches": [
+    {
+      "message": 10102,
+      "fragment": 7,
+      "selection": 0,
+      "exact": true,
+      "sha256": "193b9e9db5ee8a31f1b89f455076bf51bd583281dc64ad57aa20d5f87f676906",
+      "reference_sha256": "3e75bd39ebe0bfd5024a54f100ff53be907547da0d894debe142cc9ee840b5eb"
+    },
+    {
+      "message": 10102,
+      "fragment": 7,
+      "selection": 1,
+      "exact": true,
+      "sha256": "ccf9b92649a381d22a4ac3c490fe9e340e9d241e7c0029d7bf8e9d8c343342c8",
+      "reference_sha256": "a22f8ad51d683ce430783726bbc4a8419f770b90beb739b6576a42a78ca5ec98"
+    },
+    {
+      "message": 10102,
+      "fragment": 7,
+      "selection": 2,
+      "exact": true,
+      "sha256": "6c6a650b77af26383342e1b6817d74742e695a4bf8dff597d52297f05bf3303c",
+      "reference_sha256": "76173fdfb976d59305288016e7f51a67f1fe4f4f4bc44de1d78be8619d9d273a"
+    },
+    {
+      "message": 10105,
+      "fragment": 5,
+      "selection": 0,
+      "exact": true,
+      "sha256": "667350cc745fe0f1a5ec868772807f72b81dc94ae8d4d57781461f25bd9c2464",
+      "reference_sha256": "820e2e03906b6596d941c0dd1ad6a1f6db0595861cf84213774e2d0f2887fa00"
+    },
+    {
+      "message": 10105,
+      "fragment": 5,
+      "selection": 1,
+      "exact": true,
+      "sha256": "6afc28cb6868560bc1c85a4c40de7b117b1e5aca5908da57920f40e30172ee4d",
+      "reference_sha256": "28b09776db980e1d2d25f8c8440c0bcca5c676e41798a25954df222eb2951462"
+    },
+    {
+      "message": 10105,
+      "fragment": 5,
+      "selection": 2,
+      "exact": true,
+      "sha256": "d2c1efa224f5e2336d3507481efbcd1f25a3cee84d944b01688973dea6acd34b",
+      "reference_sha256": "10530296e1e045d6c62c8ff0412565113936fc927eb53dcf5d513a9313524e2c"
+    },
+    {
+      "message": 10105,
+      "fragment": 8,
+      "selection": 0,
+      "exact": true,
+      "sha256": "cf146196dd0d06936991e811c04cfcca31a50cc9acac2d4b6fd76a370892fa21",
+      "reference_sha256": "51a388274dd5c84406bfff99f31a08e97d722ba55262ea49694614a2475dc860"
+    },
+    {
+      "message": 10105,
+      "fragment": 8,
+      "selection": 1,
+      "exact": true,
+      "sha256": "9b0e3a154d9f9b06288fb8c171ea96da47cf18819f14ebfbbf77ad07899e85e7",
+      "reference_sha256": "c063cf682819ccddb9f30cb6c68f1348b4de9de9619d7d710acea302aad23d6c"
+    },
+    {
+      "message": 10105,
+      "fragment": 8,
+      "selection": 2,
+      "exact": true,
+      "sha256": "ef3e1a8f38d2d6d58cdd605fb456b5e23de7f63bce5e1ee4d9816731e010b475",
+      "reference_sha256": "7c7eabba86fe55dcd794fe070799f8d16e4d9e347bf792c1b6f9bf321522dc6b"
+    },
+    {
+      "message": 10106,
+      "fragment": 11,
+      "selection": 0,
+      "exact": true,
+      "sha256": "5c2db714b8485c7f4417808f81a90aaf06a32b7d885e39b24e3e838c1b17850c",
+      "reference_sha256": "2d566acc49f8407447a90a56a24b05e33c9a173bb8a1af57040c4eecea1f53c3"
+    },
+    {
+      "message": 10106,
+      "fragment": 11,
+      "selection": 1,
+      "exact": true,
+      "sha256": "a288a22dc94ff18ffd1a6f3a3378a7b8ac7dd2dfb64fbea82237b6771f7ff5c3",
+      "reference_sha256": "12947abd241afeafaa4a2282c717755aeb98f669039c0aefc1ffbd1139f7000c"
+    },
+    {
+      "message": 10106,
+      "fragment": 11,
+      "selection": 2,
+      "exact": true,
+      "sha256": "e404be208667dcdafc7bee5111cd92f65e8908ca518f263393b5b0560340d8c8",
+      "reference_sha256": "20f81a4933260299100fdadfcdf08f54e629711ae6b68e476fb5de053fc2079c"
+    },
+    {
+      "message": 10106,
+      "fragment": 14,
+      "selection": 0,
+      "exact": true,
+      "sha256": "822e3ee2b81469e1808752773c420c19267115194cdd43829d48c31c228405cf",
+      "reference_sha256": "f2e254430ce6c565120b11bcc9f1ecbd2d2c5540e655eda4858053cac76f07e7"
+    },
+    {
+      "message": 10106,
+      "fragment": 14,
+      "selection": 1,
+      "exact": true,
+      "sha256": "b45b48c5c4756a7bb7b162c6dbb138203644ef521b53ecf8216eaa61c366c4a6",
+      "reference_sha256": "7d86c029f3910fd412ed6fa5d62486b55042fedf52ecb95ccb4c22d94c0d153f"
+    }
+  ],
+  "digital_repeat": {
+    "ticks": 188,
+    "exact": true,
+    "sha256": "4d172ae102f625b71a761f3791f91525578a77e9341287e29ec022810bc90c96"
+  },
+  "option_observations": {
+    "commands": [
+      "CC",
+      "BC",
+      "BC=0",
+      "BC=1",
+      "BC!=0"
+    ],
+    "last_results": [
+      0,
+      1,
+      2
+    ],
+    "return_words": [
+      1,
+      1,
+      1,
+      2,
+      65538,
+      131074,
+      2,
+      65538,
+      65538,
+      2,
+      65538,
+      65538,
+      65538,
+      2,
+      2
+    ],
+    "limit": "Native currently implements CC, BC and BC=0 only. Original BC=1 also compares against zero; do not generalize equality parsing."
+  }
+}

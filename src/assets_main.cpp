@@ -353,6 +353,22 @@ int main(int argc, char** argv) {
             if(argc==8)write(argv[7],okage::Bytes(reinterpret_cast<const std::uint8_t*>(wait_output.data()),wait_output.size()*4));
             return 0;
         }
+        if(command=="pad-repeat" && argc==4){
+            const auto input=read(argv[2]);if(input.empty() || input.size()%4)throw std::runtime_error("Pad fixture requires held/pressed halfwords");
+            okage::DialoguePadRepeat pad;std::vector<std::uint32_t> output;
+            for(std::size_t i=0;i<input.size();i+=4){
+                const auto repeat=pad.update(input[i]|(input[i+1]<<8),input[i+2]|(input[i+3]<<8));
+                output.insert(output.end(),{repeat,pad.previous,pad.ticks});
+            }
+            write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4));return 0;
+        }
+        if(command=="pme-branch" && argc==7) {
+            const auto bank=okage::read_pme(read(argv[2]));auto path=bank.message_path(std::stoi(argv[3]));
+            std::vector<std::uint32_t> output;
+            auto snapshot=[&]{output.push_back(path.strings.size());for(unsigned i=0;i<path.strings.size();++i){output.push_back(path.strings[i]);output.push_back(path.nodes[i]);}};
+            snapshot();bank.select_branch(path,std::stoul(argv[4]),std::stoul(argv[5]));snapshot();
+            write(argv[6],okage::Bytes(reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4));return 0;
+        }
         if(((command=="pme-message" || command=="pme-indices") && argc==5) || (command=="pme-name" && argc==6)) {
             auto bank=okage::read_pme(read(argv[2]));
             if(command=="pme-name" && !bank.bind("############",argv[4]))throw std::runtime_error("Missing player-name tag");

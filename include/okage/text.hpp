@@ -7,12 +7,20 @@
 
 namespace okage {
 struct MessageNode { std::uint32_t depth, string_index; };
+struct MessagePath {
+    std::uint32_t root=0;
+    std::vector<std::uint32_t> strings;
+    std::array<std::uint32_t,257> nodes{};
+};
 struct MessageBank {
     std::vector<std::string> strings;
     std::vector<MessageNode> nodes;
     // Original message-ID lookup and positional fallback (0x19a150).
     std::vector<std::uint32_t> message_indices(std::int32_t id) const;
     std::vector<std::string> message(std::int32_t id) const;
+    MessagePath message_path(std::int32_t id) const;
+    // True when a multi-child branch rewrites the remaining fragment stream.
+    bool select_branch(MessagePath&,std::size_t fragment,unsigned selection) const;
     // Original 0x19a5c8 replaces the first matching tagged system child.
     // Shared string indices make the binding visible to every referring message.
     bool bind(std::string_view tag,std::string_view value);
@@ -46,15 +54,24 @@ struct TextGlyph {
 enum class TextStep { glyph, pause, end };
 class DialogueText {
     std::vector<std::string> fragments_;
+    const MessageBank* bank_=nullptr;
+    MessagePath path_;
     std::size_t fragment_=0, cursor_=0;
     bool loaded_=false;
 public:
     explicit DialogueText(std::vector<std::string> fragments):fragments_(std::move(fragments)) {}
+    // Bank must outlive the dialogue, including any branch selections.
+    DialogueText(const MessageBank& bank,std::int32_t id);
+    DialogueText(MessageBank&&,std::int32_t)=delete;
     TextState state;
     std::string page;
     // Caller owns fonts in retail handle order. Empty retains cursor-only mode.
     std::span<const Font> fonts;
     std::vector<TextGlyph> glyphs;
+    int choice_cursor=0,choice_result=0;
+    void move_choice(int delta);
+    bool select_choice(unsigned selection); // 0x19b448; true resets the text clock.
+    const MessagePath& path() const {return path_;}
     TextStep step();
     void resume(); // Original 0x1985c0; caller owns input/readiness/timing policy.
     TextPosition position() const {return {fragment_,cursor_,loaded_};}

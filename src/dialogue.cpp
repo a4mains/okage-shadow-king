@@ -23,10 +23,21 @@ std::vector<int> arguments(std::string_view command,std::string_view name,unsign
     if(result.size()!=count)throw std::runtime_error("Dialogue argument count");return result;
 }
 }
+std::uint16_t DialoguePadRepeat::update(std::uint16_t held,std::uint16_t pressed) {
+    if(!pressed && held && previous==held){
+        ticks=std::uint16_t(ticks+100);
+        if(ticks>delay){ticks=std::uint16_t(ticks-interval);return previous;}
+        return 0;
+    }
+    previous=pressed?pressed:held;ticks=0;return pressed;
+}
 DialogueInputEffects DialogueController::update(DialogueText& text,DialogueButtons buttons) {
     if(stage!=5)throw std::runtime_error("Dialogue controller stage not implemented");
-    if(!text.state.option.empty())throw std::runtime_error("Dialogue choices not implemented");
     DialogueInputEffects effects;
+    choice_active=false;
+    const bool option=!text.state.option.empty() && static_cast<unsigned char>(text.state.option[0])!=255;
+    if(option && text.state.option!="CC" && text.state.option!="BC" && text.state.option!="BC=0")
+        throw std::runtime_error("Dialogue option outside recovered scope");
     auto resume=[&]{text.resume();text.state.period=__builtin_bit_cast(std::uint32_t, (normal_period));++effects.resume_calls;};
     auto& command=text.state.window;
     if(!command.empty() && static_cast<unsigned char>(command[0])!=255) {
@@ -60,7 +71,32 @@ DialogueInputEffects DialogueController::update(DialogueText& text,DialogueButto
     const unsigned status=delay>0 ? 3 : (delay<0 || (text.state.flags&0x910)) ? 2 : 1;
     if(status==2) {
         effects.stop_voice=true;
-        if(layer_flags&0x10) {
+        auto filtered=[](unsigned mask){
+            if((mask&0xa000)==0xa000)mask&=~0x8000u;
+            if((mask&0x5000)==0x5000)mask&=~0x1000u;
+            if(mask&0x60)mask&=~0xf000u;
+            if((mask&0x60)==0x60)mask&=~0x40u;
+            if(mask&0xc)mask&=~0x40u;
+            if((mask&0xc)==0xc)mask&=~8u;
+            return mask;
+        };
+        if(option && text.state.option=="CC") {
+            choice_active=true;
+            const auto repeat=filtered(buttons.repeat),pressed=filtered(buttons.pressed);
+            if(!choice_armed){if(repeat&0x5000)choice_armed=true;}
+            else {
+                if(repeat&0x1000)text.move_choice(-1);
+                if(repeat&0x4000)text.move_choice(1);
+            }
+            if(choice_armed && (layer_flags&0x10) && (pressed&0x40)){
+                effects.accepted_choice=text.choice_cursor;
+                effects.reset_text_clock=text.select_choice(text.choice_cursor);
+                choice_armed=false;resume();++advance_count;
+            }
+        } else if(option && (text.state.option=="BC" || text.state.option=="BC=0")) {
+            const auto branch=text.state.option=="BC"?text.choice_result:(text.choice_result==0?0:1);
+            effects.reset_text_clock=text.select_choice(branch);resume();
+        } else if(layer_flags&0x10) {
             if(buttons.pressed&0x40) {
                 resume();++advance_count;
                 resume();++advance_count;effects.stop_effect=true;
@@ -137,6 +173,41 @@ std::vector<TextGlyph> Narration::glyphs(const Font& font) const {
                 const int py=int(y-(__builtin_bit_cast(std::int16_t, (m[1]))>>2)*.75f)+36;
                 const int height=int((m[9]>>2)*.75f);
                 result.push_back({c,2,0x00ffffffu|(line.alpha<<24),px,py/2,int(m[8]*3/32),height/2});
+            }
+            x+=advance;
+        }
+    }
+    return result;
+}
+void ChoiceMenu::update(std::string_view replacement,int selection,bool armed) {
+    std::vector<std::string> parts;
+    if(!replacement.empty())for(;;){
+        const auto end=replacement.find("\\n");parts.emplace_back(replacement.substr(0,end));
+        if(end==replacement.npos)break;replacement.remove_prefix(end+2);
+    }
+    if(parts.size()==3){
+        if(!accepted){
+            for(unsigned i=0;i<3;++i)lines[i]=parts[i].empty()?" ":parts[i];
+            cursor=selection;highlighted=armed;alpha=std::min(128u,alpha+8);
+        }
+    } else {
+        highlighted=false;alpha=alpha<32?0:alpha-32;
+        if(!alpha)accepted=0;
+    }
+}
+std::vector<TextGlyph> ChoiceMenu::glyphs(const Font& font) const {
+    std::vector<TextGlyph> result;
+    for(unsigned i=0;i<3;++i){
+        int x=164-28,y=(352+26*i+(i==2))-27;
+        for(unsigned char c:lines[i]){
+            const auto* found=font.find(c);
+            if(c<32 || c>=127 || c=='\\' || !found)throw std::runtime_error("Unrecovered choice character");
+            const auto& m=found->metrics;
+            const int advance=c==' '?10:(c>='0' && c<='9')?14:m[8]/16;
+            if(c!=' '){
+                const int px=x-__builtin_bit_cast(std::int16_t, (m[2]))/16+24;
+                const int py=y-(__builtin_bit_cast(std::int16_t, (m[1]))>>2)/2+36;
+                result.push_back({c,2,0x00ffffffu|(alpha<<24),px,py/2,int(m[8]/16),int((m[9]>>2)/4)});
             }
             x+=advance;
         }

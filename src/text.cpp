@@ -53,7 +53,7 @@ MessageBank read_pme(Bytes b) {
     }
     return result;
 }
-std::vector<std::uint32_t> MessageBank::message_indices(std::int32_t id) const {
+MessagePath MessageBank::message_path(std::int32_t id) const {
     std::vector<std::size_t> roots;
     for(std::size_t i=1;i<nodes.size();++i)if(nodes[i].depth==0)roots.push_back(i);
     if(roots.empty())throw std::runtime_error("PME has no message roots");
@@ -63,23 +63,76 @@ std::vector<std::uint32_t> MessageBank::message_indices(std::int32_t id) const {
             root=candidate;break;
         }
     }
-    std::vector<std::uint32_t> result;
+    MessagePath result;result.root=root;
     for(std::size_t i=root+1;i<nodes.size() && nodes[i].depth>0;++i) {
         if(nodes[i].depth!=1)continue;
         // Original 0x19b9c8 selects immediate children. 0x19a150 follows only
         // the strictly increasing depth chain from each child, not every branch.
         for(auto j=i;;++j) {
-            if(result.size()==256)throw std::runtime_error("PME message exceeds original fragment capacity");
-            result.push_back(nodes[j].string_index);
+            if(result.strings.size()==256)throw std::runtime_error("PME message exceeds original fragment capacity");
+            result.nodes[result.strings.size()]=j;result.strings.push_back(nodes[j].string_index);
             if(j+1==nodes.size() || nodes[j+1].depth<=nodes[j].depth)break;
         }
     }
-    return result;
+    result.nodes[result.strings.size()]=0xffffffffu;return result;
+}
+std::vector<std::uint32_t> MessageBank::message_indices(std::int32_t id) const {
+    return message_path(id).strings;
 }
 std::vector<std::string> MessageBank::message(std::int32_t id) const {
     std::vector<std::string> result;
     for(auto index:message_indices(id))result.push_back(strings.at(index));
     return result;
+}
+bool MessageBank::select_branch(MessagePath& path,std::size_t fragment,unsigned selection) const {
+    if(fragment>=path.strings.size())throw std::runtime_error("Choice fragment outside message");
+    auto children=[&](std::uint32_t parent){
+        if(parent>=nodes.size())throw std::runtime_error("Choice node outside PME");
+        std::vector<std::uint32_t> result;const auto depth=nodes[parent].depth;
+        for(std::size_t i=parent+1;i<nodes.size() && nodes[i].depth>depth;++i)
+            if(nodes[i].depth==depth+1)result.push_back(i);
+        if(result.size()>512)throw std::runtime_error("Choice child table capacity");
+        return result;
+    };
+    const auto options=children(path.nodes[fragment]);
+    if(options.size()<2)return false;
+    if(selection>=options.size())throw std::runtime_error("Choice selection outside branches");
+    const auto selected=options[selection];const auto roots=children(path.root);
+    if(roots.empty())throw std::runtime_error("Choice message has no root children");
+    std::size_t rootIndex=0;
+    while(rootIndex+1<roots.size() && roots[rootIndex+1]<selected)++rootIndex;
+    auto next=path;next.strings.clear();
+    for(std::size_t i=rootIndex;i<roots.size();++i){
+        for(std::size_t node=i==rootIndex?selected:roots[i];node<nodes.size();++node){
+            const bool leaf=node+1==nodes.size() || nodes[node+1].depth<=nodes[node].depth;
+            if(next.strings.size()==256)throw std::runtime_error("Choice fragment capacity");
+            if(!leaf)next.nodes[next.strings.size()]=node;
+            next.strings.push_back(nodes[node].string_index);
+            if(leaf)break;
+        }
+    }
+    next.nodes[next.strings.size()]=0xffffffffu;path=std::move(next);return true;
+}
+DialogueText::DialogueText(const MessageBank& bank,std::int32_t id):bank_(&bank),path_(bank.message_path(id)) {
+    for(auto index:path_.strings)fragments_.push_back(bank.strings.at(index));
+}
+void DialogueText::move_choice(int delta) {
+    if(!delta)return;
+    int count=1;std::size_t at=0;
+    while((at=state.replacement.find("\\n",at))!=std::string::npos){++count;at+=2;}
+    const auto next=std::int64_t(choice_cursor)+delta;
+    choice_cursor=next<0 ? count-1 : next%count;
+}
+bool DialogueText::select_choice(unsigned selection) {
+    if(!bank_)throw std::runtime_error("Choice requires PME node context");
+    const bool changed=bank_->select_branch(path_,fragment_,selection);
+    choice_result=changed?int(selection):choice_cursor;choice_cursor=0;
+    if(!changed)return false;
+    fragments_.clear();for(auto index:path_.strings)fragments_.push_back(bank_->strings.at(index));
+    fragment_=cursor_=0;loaded_=false;page.clear();glyphs.clear();
+    state.flags=(state.flags&0xfffff6c5u)|1u;
+    state.color=0x80808080;state.phase=state.x=state.y=state.line_origin=0;
+    state.option.assign(1,char(255));return true;
 }
 bool MessageBank::bind(std::string_view tag,std::string_view value) {
     if(tag.size()>250 || value.size()>4096 || tag.find('\0')!=tag.npos || value.find('\0')!=value.npos)

@@ -1,0 +1,107 @@
+{
+  "scope": "Observed first-choice transitions and bounded native kitchen continuation; not complete window/startup fidelity",
+  "transitions": [
+    {
+      "original_frame": 10,
+      "native_frame": 2600,
+      "exact_words": [
+        7,
+        38,
+        0,
+        0,
+        1,
+        16384,
+        16384,
+        16384,
+        2,
+        4,
+        1
+      ],
+      "original_flags": "0x8dd4",
+      "native_flags": "0x89d0"
+    },
+    {
+      "original_frame": 51,
+      "native_frame": 2640,
+      "exact_words": [
+        7,
+        38,
+        1,
+        0,
+        1,
+        16384,
+        16384,
+        16384,
+        2,
+        4,
+        1
+      ],
+      "original_flags": "0x8dd4",
+      "native_flags": "0x89d0"
+    },
+    {
+      "original_frame": 130,
+      "native_frame": 2720,
+      "exact_words": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        64,
+        64,
+        64,
+        2,
+        5,
+        1
+      ],
+      "original_flags": "0x84c5",
+      "native_flags": "0x80c1"
+    }
+  ],
+  "transition_word_order": [
+    "fragment",
+    "cursor",
+    "choice_cursor",
+    "choice_result",
+    "armed",
+    "held",
+    "pressed",
+    "repeat",
+    "progress",
+    "advance",
+    "period"
+  ],
+  "flags_limit": "Observed flags differ by 0x404; this comparison does not establish flag equivalence. Native entry still uses diagnostic initialization. Input latch frames also vary between runs.",
+  "alternate_first_answers": [
+    0,
+    2
+  ],
+  "continuation": {
+    "frames": 4080,
+    "message": 10106,
+    "event_pc": "0xfb8",
+    "progress": 1,
+    "first_answer": 1,
+    "second_answer": 2,
+    "all_three_builds_exact": true,
+    "capture": "local/native-choice-third-4080-v1.png",
+    "next_unimplemented_opcode": "0x5e",
+    "next_event_pc": "0xfbc"
+  },
+  "appkit": {
+    "frames": 2645,
+    "headless_image_pcm_state_and_traces_exact": true,
+    "physical_input_or_listening_verified": false,
+    "device_frames_enqueued": 2115200,
+    "device_underrun_frames": 0,
+    "capture": "local/native-choice-ui-2645-v1.png"
+  },
+  "reference": "local/reference-choice-select-v1",
+  "hashes": {
+    "local/native-choice-third-4080-v1.png": "4ceaddd875d27242f2fad10c7f8ab5e739a52bd80527a764d008f4d6f13f6d16",
+    "local/native-choice-third-4080-v1.png.choices.bin": "1aad7b96b7aea8ae2c986f516155288089c1ec77753c0c8a57f13235afe1f114",
+    "local/native-choice-third-4080-v1.png.dialogue.bin": "cc97f5c3e3964b514e0f4fb5c645401d1a7f0c022b2b12e7f34a579ee19e83de",
+    "local/reference-choice-select-v1.controller.bin.choices.bin": "3f2f2be6a22b2daafc145c8a7e64c7e11565b8573571923833b6a26999466054"
+  }
+}

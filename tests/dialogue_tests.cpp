@@ -36,6 +36,36 @@ int main() {try {
     text.state.window="SET(2/0/)";rejects([&]{c.update(text,{});});
     text.state.window="WINTYPE(3)";rejects([&]{c.update(text,{});});
     text.state.window.clear();text.state.option="Choice";rejects([&]{c.update(text,{});});
+    okage::MessageBank bank;
+    bank.strings={"system","42","\\z[One\\nTwo\\nThree]\\o[CC]\\v","A\\e","B\\e","C\\e","After\\v"};
+    bank.nodes={{0,0},{0,1},{1,2},{2,3},{2,4},{2,5},{1,6}};
+    for(unsigned selected=0;selected<3;++selected){
+        okage::DialogueText choice(bank,42);okage::DialogueController controller;
+        choice.state.flags=0x8001;choice.state.progress=9;
+        require(choice.step()==okage::TextStep::pause);
+        auto e=controller.update(choice,{0x40,0x40,0x40});
+        require(e.resume_calls==0 && !controller.choice_armed && controller.choice_active);
+        e=controller.update(choice,{0x4000,0x4000,0x4000});
+        require(controller.choice_armed && choice.choice_cursor==0 && !e.resume_calls);
+        for(unsigned i=0;i<selected;++i)controller.update(choice,{0x4000,0x4000,0x4000});
+        e=controller.update(choice,{0x40,0x40,0x40});
+        require(e.resume_calls==1 && e.reset_text_clock && e.accepted_choice==int(selected));
+        require(controller.advance_count==1 && controller.layer_advance==1 && !controller.choice_armed);
+        require(choice.choice_result==int(selected) && choice.choice_cursor==0 && choice.state.progress==9);
+        require(choice.position().fragment==0 && !choice.position().loaded);
+        require(choice.step()==okage::TextStep::glyph && choice.page==std::string(1,'A'+selected));
+    }
+    okage::DialogueText wrap(bank,42);wrap.step();wrap.move_choice(-1);require(wrap.choice_cursor==2);
+    wrap.move_choice(1);require(wrap.choice_cursor==0);
+    okage::DialogueController gated;
+    gated.update(wrap,{0x4040,0x4040,0x4040});require(!gated.choice_armed); // Confirm filters direction.
+    gated.update(wrap,{0x5000,0x5000,0x5000});require(gated.choice_armed && wrap.choice_cursor==0);
+    gated.update(wrap,{0x5000,0x5000,0x5000});require(wrap.choice_cursor==1); // Down wins conflict.
+    gated.layer_flags&=~0x10u;require(!gated.update(wrap,{0x40,0x40,0x40}).resume_calls);
+    okage::DialoguePadRepeat pad;require(pad.update(0x1000,0x1000)==0x1000);
+    for(unsigned i=0;i<24;++i)require(pad.update(0x1000,0)==0);
+    require(pad.update(0x1000,0)==0x1000 && pad.ticks==2020);
+    require(pad.update(0,0)==0 && pad.ticks==0 && pad.previous==0);
     okage::DialogueOpacity opacity;opacity.set(120,8);opacity.tick();require(opacity.value==128 && opacity.delta==8);
     opacity.tick();require(opacity.value==128 && opacity.delta==0);
     opacity.set(4,-4);opacity.tick();require(opacity.value==0 && opacity.visible());

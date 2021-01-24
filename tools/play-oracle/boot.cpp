@@ -19,6 +19,7 @@
 #include "iop/ioman/OpticalMediaDevice.h"
 #include <atomic>
 #include <chrono>
+#include <charconv>
 #include <filesystem>
 #include <iostream>
 #include <CommonCrypto/CommonDigest.h>
@@ -54,7 +55,8 @@ public:
 };
 int main(int argc,char** argv) {
     try {
-        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--actor FILE --actor-alias -1|-8|-9] [--lifecycle FILE] [--order FILE] [--music FILE]");
+        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--actor FILE --actor-alias -1|-8|-9] [--lifecycle FILE] [--order FILE] [--music FILE] [--deadline-seconds 1..7200]");
+        unsigned deadlineSeconds=0;
         int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,music;
         for (int i=3;i<argc;++i) {
             const std::string arg=argv[i];
@@ -76,6 +78,13 @@ int main(int argc,char** argv) {
             else if (arg=="--music" && i+1<argc) music=argv[++i];
             else if (arg=="--camera" && i+1<argc) camera=argv[++i];
             else if (arg=="--controller" && i+1<argc) controller=argv[++i];
+            else if (arg=="--deadline-seconds" && i+1<argc) {
+                const std::string_view input=argv[++i];unsigned value=0;
+                const auto [end,error]=std::from_chars(input.data(),input.data()+input.size(),value);
+                if(error!=std::errc{} || end!=input.data()+input.size() || !value || value>7200)
+                    throw std::runtime_error("Research deadline requires 1..7200 seconds");
+                deadlineSeconds=value;
+            }
             else if (state.empty() && !arg.starts_with("--")) state=arg;
             else throw std::runtime_error("Unknown boot argument");
         }
@@ -175,7 +184,7 @@ int main(int argc,char** argv) {
         auto onState=vm.OnMachineStateChange.Connect([&](){stateChanged=true;});
         std::cout<<"Booting "<<vm.m_ee->m_os->GetExecutableName()<<" with research HLE services and "<<(capture.empty() ? "null" : "offscreen Vulkan")<<" GS"<<std::endl;
         vm.Resume();
-        const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(std::max<unsigned long>(90,tracing ? requested*2+30 : requested/30+30));
+        const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(deadlineSeconds ? deadlineSeconds : std::max<unsigned long>(90,tracing ? requested*2+30 : requested/30+30));
         unsigned tracedCalls=0;
         while (frames<requested && !exited && std::chrono::steady_clock::now()<deadline) {
             if (tracing && stateChanged.exchange(false) && vm.GetStatus()==CVirtualMachine::PAUSED && frames<requested) {

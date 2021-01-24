@@ -7,6 +7,7 @@
 // Research-only controller entry/return, pad state and window observations.
 class ControllerTrace {
     std::ofstream output;
+    std::ofstream choices;
     bool pending=false;
     uint32 message=0;
     unsigned count=0;
@@ -20,6 +21,9 @@ public:
     explicit ControllerTrace(const std::filesystem::path& path) {
         if(std::filesystem::exists(path)||std::filesystem::is_symlink(path))throw std::runtime_error("Refusing existing controller trace");
         output.open(path,std::ios::binary);if(!output)throw std::runtime_error("Cannot create controller trace");
+        const auto choicePath=path.string()+".choices.bin";
+        if(std::filesystem::exists(choicePath)||std::filesystem::is_symlink(choicePath))throw std::runtime_error("Refusing existing choice trace");
+        choices.open(choicePath,std::ios::binary);if(!choices)throw std::runtime_error("Cannot create choice trace");
     }
     void observe(Ee::CSubSystem& ee,unsigned frame) {
         const auto& cpu=ee.m_EE.m_State;
@@ -44,5 +48,9 @@ public:
             word(p+0x10),word(p+0x14),word(p+0x18),word(p+0x60)};
         for(unsigned i=0;i<textOffsets.size();++i)r[32+i]=word(object+textOffsets[i]);
         if(!output.write(reinterpret_cast<const char*>(r.data()),sizeof(r)))throw std::runtime_error("Cannot write controller trace");
+        const std::array<uint32,16> choice={frame,cpu.nPC,word(object+0x269c),word(object+0x3e34),
+            word(object+0x1e74),word(object+0x1e70),word(0x1fcb6c),word(0x1fcb68),r[8],r[9],r[11],word(object+0x1970),
+            word(object+0x3d08),word(message+0xed4),word(object+0xcd4),word(object+0x1900)};
+        if(!choices.write(reinterpret_cast<const char*>(choice.data()),sizeof(choice)))throw std::runtime_error("Cannot write choice state");
     }
 };

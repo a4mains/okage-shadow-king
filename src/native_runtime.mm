@@ -22,16 +22,37 @@ static std::vector<std::uint8_t> readData(const fs::path& path) {
     std::vector<std::uint8_t> b(n);std::ifstream in(path,std::ios::binary);
     if(!in.read(reinterpret_cast<char*>(b.data()),b.size()))throw std::runtime_error("Cannot read runtime input");return b;
 }
+struct DirectionReplay {
+    std::vector<std::pair<unsigned,std::uint16_t>> entries;
+    void load(const fs::path& path){
+        std::ifstream in(path);if(!in)throw std::runtime_error("Cannot read direction replay");
+        std::string line;unsigned previous=0;
+        while(std::getline(in,line)){
+            if(line.empty() || line[0]=='#')continue;
+            std::istringstream row(line);unsigned frame,mask;std::string extra;
+            if(!(row>>frame>>std::hex>>mask) || (row>>extra) || frame<=previous || frame>36000 || (mask&~0x5000u))
+                throw std::runtime_error("Direction replay requires increasing FRAME and hexadecimal up/down mask");
+            entries.push_back({frame,std::uint16_t(mask)});previous=frame;
+        }
+    }
+    std::uint16_t held(unsigned frame) const {
+        const auto found=std::upper_bound(entries.begin(),entries.end(),frame,[](unsigned f,const auto& entry){return f<entry.first;});
+        return found==entries.begin()?0:std::prev(found)->second;
+    }
+};
 struct Session {
     std::array<okage::Font,3> fonts;
     okage::MessageBank messages;
     okage::DialogueText text;
     okage::TextClock clock;
     okage::DialogueController controller;
+    okage::DialoguePadRepeat pad_repeat;
     okage::DialogueOpacity opacity;
     okage::DialogueClosure closure;
     okage::SceneFade scene_fade;
     okage::Narration narration;
+    okage::ChoiceMenu choices;
+    std::vector<std::uint32_t> choice_trace;
     std::array<std::uint8_t,0x1000> variables{};
     okage::DialogueWaitState wait{5,1};
     unsigned frame=0,release_frame=0,close_frame=0,close_release_frame=0;
@@ -87,7 +108,7 @@ struct Session {
         if(player_name.empty() || player_name.size()>12 || std::any_of(player_name.begin(),player_name.end(),[](unsigned char c){return c<32 || c>=127 || c=='\\';}))
             throw std::runtime_error("Diagnostic player name requires 1..12 printable ASCII characters without text escapes");
         if(!messages.bind("############",player_name))throw std::runtime_error("Player-name tag missing from FIELD.PME");
-        text=okage::DialogueText(messages.message(10100));
+        text=okage::DialogueText(messages,10100);
         text.fonts=fonts;text.state.flags=0x8041;text.state.font=2;text.state.period=1;
         clock.glyph_flags=0x10;opacity.set(1,8);
         scene_fade.current=scene_fade.target=1; // Already lit diagnostic entry.
@@ -107,9 +128,9 @@ struct Session {
         dialogue_active=false;
         field=std::make_unique<okage::OpeningField>(readData(event),[this](int id){
             if(dialogue_active && !closure.finished())throw std::runtime_error("Field replaces an unfinished message");
-            if(id!=10100 && id!=10101 && id!=10107)throw std::runtime_error("Field message initialization outside recovered scope");
+            if(id<10100 || id>10107)throw std::runtime_error("Field message initialization outside recovered scope");
             message_id=id;++messages_started;
-            text=okage::DialogueText(messages.message(id));text.fonts=fonts;
+            text=okage::DialogueText(messages,id);text.fonts=fonts;
             text.state.flags=0x8041;text.state.font=2;text.state.period=1;
             clock={};clock.glyph_flags=0x10;controller={};closure={};opacity.set(1,8);
             controller.set_variable=[this](unsigned index,unsigned bank,std::int32_t value){okage::set_event_variable(variables,index,bank,value);};
@@ -129,6 +150,7 @@ struct Session {
     }
     void tick(okage::DialogueButtons input) {
         ++frame;
+        input.repeat=pad_repeat.update(input.held,input.pressed);
         scene_fade.tick();
         const std::array<std::uint32_t,2> layers={0x50,controller.layer_flags};
         if(field)field->tick();
@@ -149,11 +171,17 @@ struct Session {
         if(dialogue_active && !closure.finished() && controller.stage>=6)closure.update(controller.stage);
         else if(dialogue_active && controller.stage==5) {
             const auto effects=controller.update(text,input);
+            if(effects.accepted_choice>=0)choices.accepted=effects.accepted_choice;
+            if(effects.reset_text_clock){clock.revealed=0;clock.scroll=0;clock.scroll_target=0;clock.scroll_step=clock.scroll_base_step;}
             if(effects.scene_fade)scene_fade.request(*effects.scene_fade);
             if(effects.close)opacity.set(128,-4);
             if(effects.cue>=0 || effects.stop_voice || effects.stop_effect)++service_request_count;
         }
         if(closure.finished() && !close_frame)close_frame=frame;
+        choices.update(dialogue_active && !closure.finished() ? text.state.replacement : "",text.choice_cursor,controller.choice_armed);
+        choice_trace.insert(choice_trace.end(),{frame,unsigned(message_id),unsigned(text.position().fragment),unsigned(text.position().cursor),
+            unsigned(text.choice_cursor),unsigned(text.choice_result),controller.choice_active?1u:0u,controller.choice_armed?1u:0u,
+            input.held,input.pressed,input.repeat,choices.alpha});
         narration.update(dialogue_active && !closure.finished() ? text.state.description : "",fonts[2]);
         dialogue_trace.insert(dialogue_trace.end(),{frame,std::uint32_t(message_id),text.state.flags,text.state.phase,
             text.state.period,text.state.delay,text.state.progress,controller.advance_count,controller.layer_advance,
@@ -177,7 +205,14 @@ struct Session {
         auto image=renderer->render(field->view(),projection);
         const auto brightness=128-scene_fade.alpha();
         for(std::size_t i=0;i<image.rgba.size();i+=4)for(unsigned c=0;c<3;++c)image.rgba[i+c]=unsigned(image.rgba[i+c])*brightness/128;
-        const auto overlay=okage::rasterize_text(fonts,narration.glyphs(fonts[2]),640,224);
+        if(choices.highlighted){
+            const int top=(336+27*choices.cursor)/2,bottom=(363+27*choices.cursor)/2;
+            for(int y=top;y<bottom;++y)for(int x=162;x<599;++x)for(unsigned c=0;c<3;++c){
+                auto& pixel=image.rgba[(y*640+x)*4+c];pixel=(255u*48+unsigned(pixel)*80)/128;
+            }
+        }
+        auto glyphs=narration.glyphs(fonts[2]);const auto choiceGlyphs=choices.glyphs(fonts[2]);glyphs.insert(glyphs.end(),choiceGlyphs.begin(),choiceGlyphs.end());
+        const auto overlay=okage::rasterize_text(fonts,glyphs,640,224);
         for(std::size_t i=0;i<overlay.rgba.size();i+=4){
             const unsigned alpha=overlay.rgba[i+3];
             for(unsigned c=0;c<3;++c)image.rgba[i+c]=(unsigned(overlay.rgba[i+c])*alpha+unsigned(image.rgba[i+c])*(255-alpha)+127)/255;
@@ -214,6 +249,11 @@ static void capture(const Session& session,const fs::path& path) {
          <<",\n  \"scene_brightness\": "<<session.scene_fade.current
          <<",\n  \"narration_cues\": "<<session.sound_trace.size()/5
          <<",\n  \"progression_flag_2\": "<<okage::event_variable(session.variables,2)
+         <<",\n  \"progression_flag_3\": "<<okage::event_variable(session.variables,3)
+         <<",\n  \"loaded_stream_banks\": "<<session.sound_banks.size()
+         <<",\n  \"choice_cursor\": "<<session.text.choice_cursor
+         <<",\n  \"choice_result\": "<<session.text.choice_result
+         <<",\n  \"choice_armed\": "<<(session.controller.choice_armed ? "true" : "false")
          <<",\n  \"close_frame\": "<<session.close_frame<<",\n  \"close_wait_release_frame\": "<<session.close_release_frame<<"\n}\n";
     if(!state)throw std::runtime_error("Cannot write native capture state");
     if(session.music){
@@ -229,6 +269,10 @@ static void capture(const Session& session,const fs::path& path) {
         if(!pcm || !trace || !stats || !sound)throw std::runtime_error("Cannot write native audio capture");
     }
 
+    const auto choicePath=fs::path(path.string()+".choices.bin");
+    if(fs::exists(choicePath)||fs::is_symlink(choicePath))throw std::runtime_error("Refusing existing choice trace");
+    std::ofstream choiceOut(choicePath,std::ios::binary);
+    if(!choiceOut.write(reinterpret_cast<const char*>(session.choice_trace.data()),session.choice_trace.size()*4))throw std::runtime_error("Cannot save choice trace");
     const auto dialoguePath=fs::path(path.string()+".dialogue.bin");
     if(fs::exists(dialoguePath)||fs::is_symlink(dialoguePath))throw std::runtime_error("Refusing existing dialogue trace");
     std::ofstream dialogueOut(dialoguePath,std::ios::binary);
@@ -261,11 +305,13 @@ static void capture(const Session& session,const fs::path& path) {
 - (BOOL)isFlipped {return YES;}
 - (void)keyDown:(NSEvent*)event {
     if(event.isARepeat)return;
-    if(event.keyCode==36 || event.keyCode==49) {self.pressed|=0x40;self.held|=0x40;++self.injectedKeyDowns;}
+    const unsigned mask=(event.keyCode==36 || event.keyCode==49)?0x40:event.keyCode==126?0x1000:event.keyCode==125?0x4000:0;
+    if(mask){self.pressed|=mask;self.held|=mask;++self.injectedKeyDowns;}
     else [super keyDown:event];
 }
 - (void)keyUp:(NSEvent*)event {
-    if(event.keyCode==36 || event.keyCode==49)self.held&=~0x40;
+    const unsigned mask=(event.keyCode==36 || event.keyCode==49)?0x40:event.keyCode==126?0x1000:event.keyCode==125?0x4000:0;
+    if(mask)self.held&=~mask;
     else [super keyUp:event];
 }
 - (void)drawRect:(NSRect)dirty {
@@ -280,6 +326,8 @@ static void capture(const Session& session,const fs::path& path) {
 @public unsigned testFrames;
 @public int failureStatus;
 @public std::vector<unsigned> testPresses;
+@public DirectionReplay directions;
+@public std::uint16_t replayDirections;
 @public fs::path testCapture;
 }
 @property(strong) NSWindow* window;
@@ -307,6 +355,19 @@ static void capture(const Session& session,const fs::path& path) {
         self.accumulator+=std::min(.25,now-self.previousTime);self.previousTime=now;
         bool changed=false;
         while(self.accumulator>=1./60) {
+            if(testFrames){
+                const auto next=directions.held(session->frame+1);
+                for(const auto [mask,code]:{std::pair<unsigned,unsigned>{0x1000,126},{0x4000,125}}){
+                    if((next^replayDirections)&mask){
+                        const auto type=(next&mask)?NSEventTypeKeyDown:NSEventTypeKeyUp;
+                        NSString* chars=[NSString stringWithFormat:@"%C",unichar(code==126?NSUpArrowFunctionKey:NSDownArrowFunctionKey)];
+                        NSEvent* event=[NSEvent keyEventWithType:type location:NSZeroPoint modifierFlags:0 timestamp:now
+                            windowNumber:self.window.windowNumber context:nil characters:chars charactersIgnoringModifiers:chars isARepeat:NO keyCode:code];
+                        [self.window sendEvent:event];
+                    }
+                }
+                replayDirections=next;
+            }
             const bool press=testFrames && std::find(testPresses.begin(),testPresses.end(),session->frame+1)!=testPresses.end();
             if(press) {
                 NSEvent* event=[NSEvent keyEventWithType:NSEventTypeKeyDown location:NSZeroPoint modifierFlags:0 timestamp:now
@@ -325,7 +386,7 @@ static void capture(const Session& session,const fs::path& path) {
         if(!changed)return;
         NSImage* image=[[NSImage alloc] initWithSize:NSMakeSize(640,session->field ? 448 : 224)];[image addRepresentation:bitmap(session->surface())];
         self.view.image=image;self.view.opacity=session->field ? 128 : session->opacity.value;self.view.needsDisplay=YES;
-        self.window.title=[NSString stringWithFormat:@"Okage native dialogue — Return/Space — progress %u — event %@",
+        self.window.title=[NSString stringWithFormat:@"Okage native dialogue — ↑/↓, Return/Space — progress %u — event %@",
             session->text.state.progress,session->release_frame ? @"released" : @"waiting"];
         if(session->field && session->field->pending_opcode)
             self.window.title=[self.window.title stringByAppendingString:@" — service pending (partial scene)"];
@@ -352,12 +413,13 @@ static void capture(const Session& session,const fs::path& path) {
 @end
 int main(int argc,const char** argv) {
     @autoreleasepool {try {
-        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames N] [--press FRAME,FRAME --capture FILE.png] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY]");
-        unsigned frames=0,uiFrames=0;std::vector<unsigned> presses;fs::path output,map,event,musicSequence,musicBank,soundDirectory;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
+        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames N] [--press FRAME,FRAME --directions INPUT --capture FILE.png] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY]");
+        unsigned frames=0,uiFrames=0;DirectionReplay directions;std::vector<unsigned> presses;fs::path output,map,event,musicSequence,musicBank,soundDirectory;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         for(int i=3;i<argc;++i) {
             const std::string arg=argv[i];if(++i==argc)throw std::runtime_error("Missing native runtime option value");
             if(arg=="--frames")frames=std::stoul(argv[i]);
             else if(arg=="--ui-test-frames")uiFrames=std::stoul(argv[i]);
+            else if(arg=="--directions")directions.load(argv[i]);
             else if(arg=="--capture")output=argv[i];
             else if(arg=="--scene")map=argv[i];
             else if(arg=="--event")event=argv[i];
@@ -383,14 +445,18 @@ int main(int argc,const char** argv) {
         if(frames) {
             Session session(argv[1],argv[2],playerName);if(!map.empty())session.load_scene(map,event,actors);
             if(!musicSequence.empty())session.load_music(musicSequence,musicBank,!output.empty(),soundDirectory);
-            for(unsigned i=1;i<=frames;++i) {const std::uint16_t mask=std::find(presses.begin(),presses.end(),i)!=presses.end()?0x40:0;session.tick({mask,mask});}
+            std::uint16_t previous=0;
+            for(unsigned i=1;i<=frames;++i) {
+                const std::uint16_t mask=std::find(presses.begin(),presses.end(),i)!=presses.end()?0x40:0;
+                const auto held=directions.held(i);session.tick({std::uint16_t(mask|held),std::uint16_t(mask|(held&~previous))});previous=held;
+            }
             if(!output.empty())capture(session,output);
             std::cout<<"Native frames="<<session.frame<<" progress="<<session.text.state.progress<<" wait_release="<<session.release_frame<<'\n';return 0;
         }
         [NSApplication sharedApplication];[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
         NativeApp* app=[NativeApp new];app->session=std::make_unique<Session>(argv[1],argv[2],playerName);if(!map.empty())app->session->load_scene(map,event,actors);
         if(!musicSequence.empty())app->session->load_music(musicSequence,musicBank,!output.empty(),soundDirectory);
-        app->testFrames=uiFrames;app->testPresses=presses;app->testCapture=output;
+        app->testFrames=uiFrames;app->testPresses=presses;app->directions=directions;app->testCapture=output;
         [NSApp setDelegate:app];[NSApp run];return app->failureStatus;
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
 }

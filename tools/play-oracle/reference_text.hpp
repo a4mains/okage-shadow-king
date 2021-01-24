@@ -27,7 +27,10 @@ public:
         };
         const auto& cpu=ee.m_EE.m_State;
         const uint32 object=word(0x20068c),a0=cpu.nGPR[CMIPS::A0].nD0;
-        if(!object)throw std::runtime_error("Text trace requires active opening handle 1");
+        if(!object){
+            if(drawing)throw std::runtime_error("Text object destroyed during observed draw");
+            return;
+        }
         if(cpu.nPC==0x19d0e8) {
             if(a0!=object)return;
             if(drawing)throw std::runtime_error("Nested text draw observation");
