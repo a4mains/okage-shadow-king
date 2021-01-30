@@ -1,6 +1,7 @@
 #pragma once
 #include "okage/pose.hpp"
 #include "okage/actor.hpp"
+#include "okage/effect.hpp"
 #include <filesystem>
 #include <memory>
 namespace okage {
@@ -9,7 +10,8 @@ class SceneRenderer {
 public:
     explicit SceneRenderer(const std::filesystem::path& map,std::span<const SceneActor> actors={});
     ~SceneRenderer();
-    Texture render(const Matrix4& view,const Float4& projection);
+    void load_effect_textures(const std::filesystem::path&);
+    Texture render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects=nullptr,const Float4& camera_rotation={});
     std::size_t placements() const;
     std::size_t omitted_effects() const;
     std::size_t actors() const;

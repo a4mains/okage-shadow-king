@@ -1,0 +1,15 @@
+# Native diagnostic frames. First direction arms each menu.
+# Third answer 2 requires confirmation at 4480, omitting presses 4400 and 4440.
+# The ordinary 40-frame confirmation sequence instead accepts answer 0 at 4400.
+2600 4000
+2604 0
+2640 4000
+2644 0
+3611 4000
+3612 0
+3620 1000
+3621 0
+4390 1000
+4394 0
+4430 1000
+4434 0

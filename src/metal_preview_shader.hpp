@@ -25,4 +25,13 @@ fragment float4 preview_fragment(Varying v [[stage_in]], texture2d<float> image 
     if (color.a<0.5f) discard_fragment();
     return float4(color.rgb,1);
 }
+fragment float4 effect_fragment(Varying v [[stage_in]], texture2d<float> image [[texture(0)]],
+                               constant State& state [[buffer(0)]]) {
+    int2 p=int2(floor(v.uv*1024.0f));
+    p=clamp(p,int2(state.region.x,state.region.z),int2(state.region.y,state.region.w));
+    p=clamp(p,int2(0),int2(image.get_width()-1,image.get_height()-1));
+    float4 color=image.read(uint2(p))*v.color*2.0f;
+    if(color.a<=0)discard_fragment();
+    return clamp(color,0.0f,1.0f);
+}
 )metal";

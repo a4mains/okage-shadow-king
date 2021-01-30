@@ -1,4 +1,5 @@
 #include "okage/field.hpp"
+#include <algorithm>
 #include <bit>
 #include <cmath>
 #include <cfenv>
@@ -51,6 +52,10 @@ FieldActor* OpeningField::actor(int alias) const {
     for(const auto& binding:actors_)if(binding.alias==alias)return binding.actor;
     return nullptr;
 }
+void OpeningField::load_effects(Bytes bytes) {
+    if(!effect_definitions_.empty())throw std::runtime_error("Field effects already loaded");
+    effect_definitions_=read_efd(bytes);
+}
 Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32_t b,std::uint32_t pc) {
     auto pending=[&] {pending_opcode=op;pending_actor=b;pending_animation=a;return Animation::ServiceResult{pc,true};};
     switch(op) {
@@ -82,6 +87,23 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
         case 0x68:
             if(sound_cue && sound_cue(a,b,__builtin_bit_cast(float, (word(pc+4))),word(pc+8))){pending_opcode=0;return {pc+12};}
             return pending();
+        case 0x5e: {
+            const auto definition=std::find_if(effect_definitions_.begin(),effect_definitions_.end(),[](const auto& d){return d.id==30;});
+            if(definition==effect_definitions_.end())throw std::runtime_error("Effect 0x5e requires owned TES.EFD and effect textures");
+            if(!actor(b))throw std::runtime_error("Unresolved effect attachment actor");
+            unsigned handle=0;while(handle<effects_.size()&&effects_[handle])++handle;
+            if(handle==effects_.size())throw std::runtime_error("Field effect capacity exhausted");
+            effects_[handle]=std::make_unique<AttachedEffect>(*definition,int(a),b);
+            effect_ring_[effect_ring_index_]=handle;effect_ring_index_=(effect_ring_index_+1)&15;
+            return {pc+4};
+        }
+        case 0x5c: {
+            if(a<0x100)throw std::runtime_error("Effect replacement template is unrecovered");
+            const auto handle=(b&0x100)?unsigned(b&255):effect_ring_[(effect_ring_index_-unsigned(b+1))&15];
+            if(handle>=effects_.size())throw std::runtime_error("Invalid effect removal handle");
+            if(effects_[handle])effects_[handle]->animation.request_removal();
+            return {pc+4};
+        }
         case 0x5a:
         case 0x5b: {
             auto* moving=actor(group_);auto* facing=op==0x5a ? actor(b) : nullptr;
@@ -109,6 +131,15 @@ void OpeningField::tick() {
     // Actor groups have flag1 (not global-advance flag2). Original 0x1b9be0
     // calls 0x1b70a0 only for visible instances; hidden motion scripts still run.
     for(const auto& binding:actors_)if(binding.actor->visible){binding.actor->tick_channels();binding.actor->evaluate();}
+    for(auto& effect:effects_)if(effect) {
+        auto& flags=effect->animation.flags;
+        if(flags&0x200){effect.reset();continue;}
+        if(flags&0x100){flags|=0x200;continue;}
+        Rounding rounding;
+        effect->position=actor(effect->actor_alias)->animation().values().at(1);
+        effect->position[1]-=8.5f;
+        effect->animation.tick({-rotation[0],-rotation[1],-rotation[2],0});
+    }
 }
 Matrix4 OpeningField::view() const {
     Float4 p=position,r=rotation;for(unsigned i=0;i<3;++i){p[i]=-p[i];r[i]=-r[i];}p[3]=1;r[3]=0;

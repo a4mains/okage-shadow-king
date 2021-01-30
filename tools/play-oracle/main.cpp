@@ -3,6 +3,7 @@
 #include "ee/Ee_SubSystem.h"
 #include "ee/EeExecutor.h"
 #include "ee/Vif.h"
+#include "ee/PS2OS.h"
 #include "iop/Iop_SubSystem.h"
 #include "iop/IopBios.h"
 #include "iop/Iop_SpuBase.h"
@@ -57,6 +58,7 @@ class Reference {
 public:
     std::unique_ptr<Iop::CSubSystem> iop;
     std::unique_ptr<Ee::CSubSystem> ee;
+    std::unique_ptr<CPS2OS> effectOs;
     static constexpr uint32 stop=0x007ff000;
     Reference(const std::vector<uint8>& elf) {
         if (hash(elf)!="2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5")
@@ -95,6 +97,21 @@ public:
             if (cpu.m_State.nHasException==MIPS_EXCEPTION_VU_CALLMS) {
                 ee->m_vpu0->ExecuteMicroProgram(cpu.m_State.callMsAddr);
                 cpu.m_State.nHasException=0;
+            } else if(effectOs && cpu.m_State.nHasException==MIPS_EXCEPTION_SYSCALL) {
+                auto function=cpu.m_State.nGPR[CMIPS::V1].nV[0];
+                if(function&0x80000000)function=0-function;
+                if(function!=0x2f&&function!=0x48&&function!=0x44&&function!=0x42&&function!=0x45)
+                    throw std::runtime_error("Unexpected effect OS syscall "+std::to_string(function));
+                if(function!=0x2f) {
+                    const auto id=cpu.m_State.nGPR[CMIPS::A0].nV[0];
+                    if(id>=256||!get(0xe000+id*24)||get(0xe000+id*24+12)||
+                       (function==0x44&&!get(0xe000+id*24+4)))
+                        throw std::runtime_error("Effect semaphore would need scheduling");
+                }
+                const auto pc=cpu.m_State.nPC,thread=get(0x4014);
+                effectOs->HandleSyscall();
+                if(cpu.m_State.nPC!=pc||get(0x4014)!=thread)
+                    throw std::runtime_error("Unexpected effect OS reschedule");
             } else if (cpu.m_State.nHasException) {
                 std::ostringstream error;
                 error<<"Unexpected oracle exception "<<cpu.m_State.nHasException<<" at PC "<<std::hex<<cpu.m_State.nPC;
@@ -200,6 +217,45 @@ public:
         }
         if(get(object+0x3e34)!=text.size())throw std::runtime_error("Text fixture did not finish");
         writeFile(output,result.data(),result.size());
+    }
+    void effectProbe(const std::vector<uint8>& ram,unsigned id,unsigned parameter,unsigned frames,const char* output) {
+        if(ram.size()!=32*1024*1024||id!=30||parameter>=32||frames>1000)
+            throw std::runtime_error("Effect probe fixture bounds");
+        std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
+        effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
+                                        ee->m_gs,ee->m_sif,*dynamic_cast<CIopBios*>(iop->m_bios.get()));
+        loadMicro();call(0x1842c8);
+        const auto camera=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+        if(camera+16>ram.size())throw std::runtime_error("Effect camera pointer bounds");
+        std::vector<uint32> result;
+        for(unsigned i=0;i<4;++i)result.push_back(get(camera+i*4));
+        call(0x101558,{id,0x10008,2});
+        const auto handle=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+        if(handle>=84)throw std::runtime_error("Effect allocation failed");
+        call(0x1016a8,{handle,parameter});
+        put(0x1f85a4,1);
+        for(unsigned frame=0;frame<=frames;++frame) {
+            if(frame)call(0x1131d0,{handle});
+            const auto object=get(get(0x1f849c)+handle*4);
+            if(object+128>ram.size()||get(object+8)!=2)throw std::runtime_error("Effect object bounds");
+            result.push_back(get(object+0x64));result.push_back(get(object+4));
+            for(unsigned i=0;i<2;++i) {
+                const auto element=get(object+12)+i*128,render=get(element+0x78);
+                if(element+128>ram.size()||render+96>ram.size())throw std::runtime_error("Effect element bounds");
+                for(unsigned offset:{0u,4u,8u,16u,20u,24u,32u,36u,40u,44u,48u,52u,56u,60u})result.push_back(get(render+offset));
+                result.push_back(get(element+0x2c));result.push_back(get(element+0x48));
+                result.push_back(get(element+0x60));
+                const auto texture=get(element+0x5c)&0xffff;
+                unsigned logical=0;
+                for(;logical<get(0x1f8498);++logical)if(get(get(0x24e780)+logical*4)==texture)break;
+                if(logical==get(0x1f8498))throw std::runtime_error("Effect texture mapping absent");
+                result.push_back(logical);result.push_back(get(element+0x68));result.push_back(get(element+0x6c));
+            }
+        }
+        call(0x101648,{handle});
+        const auto object=get(get(0x1f849c)+handle*4);
+        if(!(get(object+4)&0x100))throw std::runtime_error("Original removal request failed");
+        writeFile(output,result.data(),result.size()*4);
     }
     void cameraLookAt(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
         if(ram.size()!=32*1024*1024 || input.empty() || input.size()%32)throw std::runtime_error("Camera fixture bounds");
@@ -783,6 +839,8 @@ int main(int argc,char** argv) {
             reference.padRepeat(readFile(argv[3]),argv[4]);
         } else if(command=="choice-options" && argc==5) {
             reference.choiceOptions(readFile(argv[3]),argv[4]);
+        } else if(command=="effect-probe" && argc==8) {
+            reference.effectProbe(readFile(argv[3]),std::stoul(argv[4]),std::stoul(argv[5]),std::stoul(argv[6]),argv[7]);
         } else if(command=="pme-choice" && argc==8) {
             reference.pmeChoice(readFile(argv[3]),std::stoi(argv[4]),std::stoul(argv[5]),std::stoul(argv[6]),argv[7]);
         } else if(command=="pme-name" && argc==7) {

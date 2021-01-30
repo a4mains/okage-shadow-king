@@ -1,0 +1,73 @@
+{
+  "scope": "Native type-30 scene integration and consistency; not original whole-scene timing or pixel equivalence",
+  "frames": 5000,
+  "message": 10106,
+  "event_pc": "0xfdc",
+  "progress": 5,
+  "all_three_builds_exact": true,
+  "cross_build_suffixes": [
+    "",
+    ".json",
+    ".audio.pcm",
+    ".music.bin",
+    ".sound.bin",
+    ".camera.bin",
+    ".actor.bin",
+    ".actor-9.bin",
+    ".actor-1.bin",
+    ".dialogue.bin",
+    ".choices.bin",
+    ".effects.bin",
+    ".audio.json"
+  ],
+  "previous_4080_prefix_exact": [
+    ".audio.pcm",
+    ".music.bin",
+    ".sound.bin",
+    ".camera.bin",
+    ".actor.bin",
+    ".actor-9.bin",
+    ".actor-1.bin",
+    ".dialogue.bin",
+    ".choices.bin"
+  ],
+  "effect": {
+    "actor_alias": -8,
+    "slot": 0,
+    "first_visible_frame": 4127,
+    "last_visible_frame": 4206,
+    "removal_marked_frame": 4207,
+    "slot_freed_frame": 4208
+  },
+  "third_answers": [
+    {
+      "answer": 0,
+      "accepted_frame": 4400,
+      "capture": "local/native-third-answer-4600-v1.png",
+      "frames": 4600,
+      "event_pc": "0x1010",
+      "progress": 8
+    },
+    {
+      "answer": 2,
+      "accepted_frame": 4480,
+      "capture": "local/native-third-answer-two-4600-v1.png",
+      "frames": 4600,
+      "event_pc": "0xfe4",
+      "progress": 7
+    }
+  ],
+  "appkit": {
+    "frames": 4180,
+    "headless_image_pcm_state_and_traces_exact": true,
+    "device_frames_enqueued": 3344000,
+    "device_underrun_frames": 0,
+    "physical_input_or_listening_verified": false
+  },
+  "render_limits": "Bubble appearance/position inspected qualitatively. Exact GS filtering, color quantization and alpha equivalence unverified.",
+  "hashes": {
+    "local/native-effect-5000-v1.png": "19ac16e9f298c86da85f476a54166ffe8f243dfbd9af3eac8d773af7283ed5c7",
+    "local/native-effect-5000-v1.png.effects.bin": "70a7e44af6502f16614610d49e251c4fb4da380bf578f0b5177757af15aec9fd",
+    "local/native-effect-5000-v1.png.choices.bin": "5f1e232e01f924bfe2dfce79966bc4469df131ac28733c3b5836ff1a29bf079d"
+  }
+}

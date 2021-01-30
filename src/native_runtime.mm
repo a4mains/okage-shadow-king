@@ -99,6 +99,8 @@ struct Session {
     std::unique_ptr<okage::SceneRenderer> renderer;
     okage::Float4 projection{};
     std::vector<std::uint32_t> scene_trace,dialogue_trace;
+    std::vector<std::uint32_t> effect_trace;
+    bool effects_loaded=false;
     std::map<int,std::vector<std::uint32_t>> actor_traces;
     int message_id=10100;unsigned messages_started=0;
     std::uint64_t service_request_count=0;
@@ -148,6 +150,10 @@ struct Session {
         std::cout<<"Native room: "<<renderer->placements()<<" placements; "<<renderer->omitted_effects()
             <<" effects omitted; "<<renderer->actors()<<" native actors; shadows unavailable; diagnostic dialogue panel\n";
     }
+    void load_effects(const fs::path& data,const fs::path& textures) {
+        if(!field||!renderer)throw std::runtime_error("Effects require a loaded scene");
+        renderer->load_effect_textures(textures);field->load_effects(readData(data));effects_loaded=true;
+    }
     void tick(okage::DialogueButtons input) {
         ++frame;
         input.repeat=pad_repeat.update(input.held,input.pressed);
@@ -190,6 +196,18 @@ struct Session {
             scene_trace.insert(scene_trace.end(),{frame,field->pc(),field->pending_opcode,release_frame});
             for(const auto& values:{field->position,field->target,field->rotation})
                 for(float v:values)scene_trace.push_back(__builtin_bit_cast(std::uint32_t, (v)));
+            if(effects_loaded) {
+                const auto& all=field->effects();unsigned count=0;for(const auto& e:all)if(e)++count;
+                effect_trace.insert(effect_trace.end(),{frame,field->pc(),count});
+                for(unsigned i=0;i<all.size();++i)if(const auto& e=all[i]) {
+                    effect_trace.insert(effect_trace.end(),{i,unsigned(e->actor_alias),e->animation.phase,e->animation.flags});
+                    for(float f:e->position)effect_trace.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+                    for(const auto& s:e->animation.sprites) {
+                        for(const auto& v:{s.position,s.scale})for(float f:v)effect_trace.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+                        effect_trace.push_back(s.texture);effect_trace.push_back(s.uv[0]|(std::uint32_t(s.uv[1])<<16));effect_trace.push_back(s.uv[2]|(std::uint32_t(s.uv[3])<<16));
+                    }
+                }
+            }
         }
         for(const auto& binding:actor_bindings) {
             const auto* actor=binding.actor;auto& actor_trace=actor_traces[binding.alias];
@@ -202,7 +220,8 @@ struct Session {
     okage::Texture surface() const {
         auto text_image=okage::rasterize_text(fonts,text.glyphs,640,224);
         if(!renderer)return text_image;
-        auto image=renderer->render(field->view(),projection);
+        const auto& r=field->rotation;
+        auto image=renderer->render(field->view(),projection,effects_loaded?&field->effects():nullptr,{-r[0],-r[1],-r[2],0});
         const auto brightness=128-scene_fade.alpha();
         for(std::size_t i=0;i<image.rgba.size();i+=4)for(unsigned c=0;c<3;++c)image.rgba[i+c]=unsigned(image.rgba[i+c])*brightness/128;
         if(choices.highlighted){
@@ -240,6 +259,10 @@ static void capture(const Session& session,const fs::path& path) {
     const auto data=[bitmap(session.surface()) representationUsingType:NSBitmapImageFileTypePNG properties:@{}];
     std::ofstream out(path,std::ios::binary);if(!data || !out.write(static_cast<const char*>(data.bytes),data.length))throw std::runtime_error("Cannot write native capture");
     std::ofstream state(statePath);
+    if(session.effects_loaded) {
+        std::ofstream effects(path.string()+".effects.bin",std::ios::binary);
+        if(!effects.write(reinterpret_cast<const char*>(session.effect_trace.data()),session.effect_trace.size()*4))throw std::runtime_error("Cannot write effect trace");
+    }
     state<<"{\n  \"frames\": "<<session.frame<<",\n  \"message_id\": "<<session.message_id
          <<",\n  \"messages_started\": "<<session.messages_started<<",\n  \"text_progress\": "<<session.text.state.progress
          <<",\n  \"advance_count\": "<<session.controller.advance_count<<",\n  \"wait_release_frame\": "<<session.release_frame
@@ -413,8 +436,8 @@ static void capture(const Session& session,const fs::path& path) {
 @end
 int main(int argc,const char** argv) {
     @autoreleasepool {try {
-        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames N] [--press FRAME,FRAME --directions INPUT --capture FILE.png] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY]");
-        unsigned frames=0,uiFrames=0;DirectionReplay directions;std::vector<unsigned> presses;fs::path output,map,event,musicSequence,musicBank,soundDirectory;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
+        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames N] [--press FRAME,FRAME --directions INPUT --capture FILE.png] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY]");
+        unsigned frames=0,uiFrames=0;DirectionReplay directions;std::vector<unsigned> presses;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         for(int i=3;i<argc;++i) {
             const std::string arg=argv[i];if(++i==argc)throw std::runtime_error("Missing native runtime option value");
             if(arg=="--frames")frames=std::stoul(argv[i]);
@@ -426,6 +449,8 @@ int main(int argc,const char** argv) {
             else if(arg=="--music-dry")musicSequence=argv[i];
             else if(arg=="--music-bank")musicBank=argv[i];
             else if(arg=="--sound-dir")soundDirectory=argv[i];
+            else if(arg=="--effect-data")effectData=argv[i];
+            else if(arg=="--effect-textures")effectTextures=argv[i];
             else if(arg=="--actor")actors.push_back({-8,argv[i]});
             else if(arg=="--actor-bind") {
                 const std::string value=argv[i];const auto eq=value.find('=');std::size_t consumed=0;
@@ -440,11 +465,13 @@ int main(int argc,const char** argv) {
         }
         if(musicSequence.empty()!=musicBank.empty())throw std::runtime_error("Music requires both sequence and bank");
         if(!soundDirectory.empty() && musicSequence.empty())throw std::runtime_error("Sound directory requires native music setup");
+        if(effectData.empty()!=effectTextures.empty()||(!effectData.empty()&&map.empty()))throw std::runtime_error("Effects require data, texture directory and scene");
         if(map.empty()!=event.empty() || (!actors.empty() && map.empty()))throw std::runtime_error("Scene requires both map and event assets");
         if(frames>36000 || uiFrames>36000 || (frames && uiFrames) || (uiFrames && output.empty()))throw std::runtime_error("Native diagnostic frame/capture bounds");
         if(frames) {
             Session session(argv[1],argv[2],playerName);if(!map.empty())session.load_scene(map,event,actors);
             if(!musicSequence.empty())session.load_music(musicSequence,musicBank,!output.empty(),soundDirectory);
+            if(!effectData.empty())session.load_effects(effectData,effectTextures);
             std::uint16_t previous=0;
             for(unsigned i=1;i<=frames;++i) {
                 const std::uint16_t mask=std::find(presses.begin(),presses.end(),i)!=presses.end()?0x40:0;
@@ -456,6 +483,7 @@ int main(int argc,const char** argv) {
         [NSApplication sharedApplication];[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
         NativeApp* app=[NativeApp new];app->session=std::make_unique<Session>(argv[1],argv[2],playerName);if(!map.empty())app->session->load_scene(map,event,actors);
         if(!musicSequence.empty())app->session->load_music(musicSequence,musicBank,!output.empty(),soundDirectory);
+        if(!effectData.empty())app->session->load_effects(effectData,effectTextures);
         app->testFrames=uiFrames;app->testPresses=presses;app->directions=directions;app->testCapture=output;
         [NSApp setDelegate:app];[NSApp run];return app->failureStatus;
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

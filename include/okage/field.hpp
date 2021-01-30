@@ -2,12 +2,15 @@
 #include "okage/animation.hpp"
 #include "okage/camera.hpp"
 #include "okage/actor.hpp"
+#include "okage/effect.hpp"
 namespace okage {
 class OpeningField {
 public:
     OpeningField(Bytes script,std::function<void(int)> start_dialogue,
                  std::function<bool(int)> wait_dialogue,std::span<const ActorBinding> actors={});
     void tick();
+    void load_effects(Bytes);
+    const AttachedEffects& effects() const {return effects_;}
     Float4 position{},target{},rotation{};
     CameraBlend blend;
     std::function<bool(unsigned,std::int32_t)> audio_service;
@@ -25,6 +28,10 @@ private:
     std::vector<ActorBinding> actors_;
     FieldActor* actor(int alias) const;
     int group_=-2;
+    std::vector<EffectDefinition> effect_definitions_;
+    AttachedEffects effects_;
+    std::array<unsigned,16> effect_ring_{};
+    unsigned effect_ring_index_=0;
     std::function<void(int)> start_dialogue_;
     std::function<bool(int)> wait_dialogue_;
     Animation::ServiceResult service(unsigned,unsigned,std::int32_t,std::uint32_t);

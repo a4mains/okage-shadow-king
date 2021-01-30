@@ -16,6 +16,7 @@
 #include "okage/dialogue.hpp"
 #include "okage/camera.hpp"
 #include "okage/field.hpp"
+#include "okage/effect.hpp"
 #include <algorithm>
 #include <bit>
 #include <cstring>
@@ -68,6 +69,29 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if(command=="effect-probe"&&argc==7) {
+            const auto bank=okage::read_efd(read(argv[2]));const auto fixture=read(argv[3]);
+            if(fixture.size()!=16)throw std::runtime_error("Effect camera fixture requires float4");
+            okage::Float4 camera;std::memcpy(camera.data(),fixture.data(),16);
+            const auto found=std::find_if(bank.begin(),bank.end(),[](const auto& d){return d.id==30;});
+            if(found==bank.end())throw std::runtime_error("Missing speech-bubble definition");
+            okage::BubbleEffect effect(*found,std::stoi(argv[4]));const auto frames=std::stoul(argv[5]);
+            if(frames>1000)throw std::runtime_error("Effect probe frame bounds");
+            std::vector<std::uint32_t> out;
+            for(float f:camera)out.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+            for(unsigned frame=0;frame<=frames;++frame) {
+                if(frame)effect.tick(camera);
+                out.push_back(effect.phase);out.push_back(effect.flags);
+                for(const auto& s:effect.sprites) {
+                    for(const auto& v:{s.position,s.rotation})for(unsigned j=0;j<3;++j)out.push_back(__builtin_bit_cast(std::uint32_t, (v[j])));
+                    for(const auto& v:{s.scale,s.color})for(float f:v)out.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+                    out.push_back(__builtin_bit_cast(std::uint32_t, (s.damping)));out.push_back(__builtin_bit_cast(std::uint32_t, (s.previous_time)));
+                    out.push_back(s.program);out.push_back(s.texture);
+                    out.push_back(s.uv[0]|(std::uint32_t(s.uv[1])<<16));out.push_back(s.uv[2]|(std::uint32_t(s.uv[3])<<16));
+                }
+            }
+            write(argv[6],{reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4});return 0;
+        }
         if(command=="stream-bank" && argc==4) {
             const auto bank=okage::read_stream_bank(read(argv[2]));
             std::vector<std::uint32_t> out(bank.chunks.begin(),bank.chunks.end());
