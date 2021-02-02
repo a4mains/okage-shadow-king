@@ -15,9 +15,12 @@ public:
     CameraBlend blend;
     std::function<bool(unsigned,std::int32_t)> audio_service;
     std::function<bool(unsigned,std::int32_t,float,unsigned)> sound_cue;
+    std::function<void(unsigned,unsigned,std::int32_t)> set_variable;
     unsigned pending_opcode=0;
     int pending_actor=0,pending_animation=0;
     std::uint32_t pc() const {return script_.pc();}
+    bool event_running() const {return (script_.script_state()&0x100)!=0;}
+    unsigned camera_mode() const {return camera_mode_;}
     Matrix4 view() const;
 private:
     std::vector<std::uint8_t> bytes_;
@@ -28,6 +31,7 @@ private:
     std::vector<ActorBinding> actors_;
     FieldActor* actor(int alias) const;
     int group_=-2;
+    unsigned camera_mode_=2;
     std::vector<EffectDefinition> effect_definitions_;
     AttachedEffects effects_;
     std::array<unsigned,16> effect_ring_{};

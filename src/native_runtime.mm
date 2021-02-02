@@ -147,6 +147,7 @@ struct Session {
             if(released && request==0 && !close_release_frame)close_release_frame=frame;
             return released;
         },actor_bindings);
+        field->set_variable=[this](unsigned index,unsigned bank,std::int32_t value){okage::set_event_variable(variables,index,bank,value);};
         std::cout<<"Native room: "<<renderer->placements()<<" placements; "<<renderer->omitted_effects()
             <<" effects omitted; "<<renderer->actors()<<" native actors; shadows unavailable; diagnostic dialogue panel\n";
     }
@@ -273,6 +274,11 @@ static void capture(const Session& session,const fs::path& path) {
          <<",\n  \"narration_cues\": "<<session.sound_trace.size()/5
          <<",\n  \"progression_flag_2\": "<<okage::event_variable(session.variables,2)
          <<",\n  \"progression_flag_3\": "<<okage::event_variable(session.variables,3)
+         <<",\n  \"kitchen_flag_7\": "<<okage::event_variable(session.variables,0x10007)
+         <<",\n  \"progression_flag_4\": "<<okage::event_variable(session.variables,4)
+         <<",\n  \"progression_flag_5\": "<<okage::event_variable(session.variables,5)
+         <<",\n  \"field_event_running\": "<<(session.field&&session.field->event_running()?"true":"false")
+         <<",\n  \"field_camera_mode\": "<<(session.field?session.field->camera_mode():0)
          <<",\n  \"loaded_stream_banks\": "<<session.sound_banks.size()
          <<",\n  \"choice_cursor\": "<<session.text.choice_cursor
          <<",\n  \"choice_result\": "<<session.text.choice_result

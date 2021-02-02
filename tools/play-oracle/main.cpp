@@ -454,6 +454,30 @@ public:
         call(0x19b448,{1,selection});snapshot();
         writeFile(output,result.data(),result.size()*4);
     }
+    void eventWrite(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
+        if(ram.size()!=32*1024*1024 || input.empty() || input.size()%8 || input.size()>1024)throw std::runtime_error("Event write fixture bounds");
+        std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
+        effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
+                                        ee->m_gs,ee->m_sif,*dynamic_cast<CIopBios*>(iop->m_bios.get()));
+        std::memset(ee->m_ram+0xa00000,0xa5,0x1000);
+        std::memset(ee->m_ram+0xb00000,0x5a,0x800);
+        put(0x24f788,0xa00000);put(0x2d9bf4,0xb00000);
+        std::vector<uint8> result;
+        for(unsigned at=0;at<input.size();at+=8) {
+            uint32 selector,value;std::memcpy(&selector,input.data()+at,4);std::memcpy(&value,input.data()+at+4,4);
+            const auto bank=selector>>16,index=selector&0xffff;
+            if(bank>4 || (bank<2&&index>=0x800) || (bank==2&&index>=0x200) ||
+               (bank==3&&index>=0x100) || (bank==4&&(index>=0x200||index==6)))throw std::runtime_error("Unsupported event write fixture");
+            put(0x900000,selector);
+            // Original 0x47 handler, including its logging call, no patches.
+            call(0x130270,{0,0,value,0x900000});
+            const auto next=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0)-0x900000;
+            const auto* p=reinterpret_cast<const uint8*>(&next);result.insert(result.end(),p,p+4);
+            result.insert(result.end(),ee->m_ram+0xa00000,ee->m_ram+0xa01000);
+            for(unsigned i=0;i<0x800;++i)if(ee->m_ram[0xb00000+i]!=0x5a)throw std::runtime_error("Unexpected field-state mutation");
+        }
+        writeFile(output,result.data(),result.size());
+    }
     void eventSetup(const std::vector<uint8>& script,const std::vector<uint8>& variables,
                     const std::vector<uint8>& state,const char* output) {
         if(script.size()<36 || script.size()>0x100000 || variables.size()!=0x1000 || state.size()!=0x800)
@@ -839,6 +863,8 @@ int main(int argc,char** argv) {
             reference.padRepeat(readFile(argv[3]),argv[4]);
         } else if(command=="choice-options" && argc==5) {
             reference.choiceOptions(readFile(argv[3]),argv[4]);
+        } else if(command=="event-write" && argc==6) {
+            reference.eventWrite(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="effect-probe" && argc==8) {
             reference.effectProbe(readFile(argv[3]),std::stoul(argv[4]),std::stoul(argv[5]),std::stoul(argv[6]),argv[7]);
         } else if(command=="pme-choice" && argc==8) {

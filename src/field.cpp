@@ -65,8 +65,14 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             else return pending();
             group_=b;return {pc+4};
         case 0x4b:
+            if(b==0) {
+                // 0x130670 resets the automatic rate, begins a .01 blend and
+                // selects mode 0. Rotation retains the last evaluated channel.
+                blend.begin(0.01f,script_.values().at(0),requested_target_);
+                camera_mode_=0;return {pc+4};
+            }
             if(b!=1)throw std::runtime_error("Field camera target mode not yet implemented");
-            requested_target_=point(pc+4);return {pc+16};
+            requested_target_=point(pc+4);camera_mode_=2;return {pc+16};
         case 0x52: {
             Rounding rounding;const float rate=b ? 1.f/float(b) : 0.f;
             blend.begin(rate,script_.values().at(0),requested_target_);return {pc+4};
@@ -87,6 +93,12 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
         case 0x68:
             if(sound_cue && sound_cue(a,b,__builtin_bit_cast(float, (word(pc+4))),word(pc+8))){pending_opcode=0;return {pc+12};}
             return pending();
+        case 0x47: {
+            const auto selector=word(pc+4),index=selector&0xffff,bank=selector>>16;
+            if(bank>4 || (bank==4 && index==6))throw std::runtime_error("Unrecovered field variable storage or controller side effect");
+            if(!set_variable)return pending();
+            set_variable(index,bank,b);pending_opcode=0;return {pc+8};
+        }
         case 0x5e: {
             const auto definition=std::find_if(effect_definitions_.begin(),effect_definitions_.end(),[](const auto& d){return d.id==30;});
             if(definition==effect_definitions_.end())throw std::runtime_error("Effect 0x5e requires owned TES.EFD and effect textures");
@@ -122,7 +134,14 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
 }
 void OpeningField::evaluate() {
     position=script_.values().at(0);target=requested_target_;blend.apply(position,target);
-    rotation=camera_look_at(position,target,angles_,sine_);
+    if(camera_mode_==2) {
+        rotation=camera_look_at(position,target,angles_,sine_);
+        // Original look-at 0x1b9440 writes the result back into channel 1.
+        script_.set_channel(1,rotation);
+    } else {
+        rotation=script_.values().at(1);
+        requested_target_=target;
+    }
 }
 void OpeningField::tick() {
     script_.tick_script();

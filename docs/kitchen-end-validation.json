@@ -1,0 +1,53 @@
+{
+  "scope": "Native scripted kitchen event ends; no player control, collision, cold startup or full-game playability",
+  "end_state": {
+    "frames": 6000,
+    "message_id": 10106,
+    "controller_stage": 9,
+    "text_progress": 12,
+    "field_event_running": false,
+    "field_camera_mode": 0,
+    "kitchen_flag_7": 1,
+    "progression_flag_3": 1,
+    "progression_flag_4": 1,
+    "progression_flag_5": 1
+  },
+  "retained_event_pc": "0x106c",
+  "pc_note": "Original XMT semantics retain the last yielded PC when opcode 0 clears the running flag; not stuck at a wait",
+  "all_three_builds_exact": true,
+  "cross_build_suffixes": [
+    "",
+    ".json",
+    ".audio.json",
+    ".audio.pcm",
+    ".music.bin",
+    ".sound.bin",
+    ".camera.bin",
+    ".actor.bin",
+    ".actor-9.bin",
+    ".actor-1.bin",
+    ".dialogue.bin",
+    ".choices.bin",
+    ".effects.bin"
+  ],
+  "previous_4600_prefix_exact": [
+    ".audio.pcm",
+    ".music.bin",
+    ".sound.bin",
+    ".camera.bin",
+    ".actor.bin",
+    ".actor-9.bin",
+    ".actor-1.bin",
+    ".dialogue.bin",
+    ".choices.bin",
+    ".effects.bin"
+  ],
+  "camera_evidence": "Mode-0 handler/update reviewed in original assembly; native dispatch tested. Whole-game camera handoff comparison remains pending.",
+  "physical_input_or_listening_verified": false,
+  "hashes": {
+    "local/native-kitchen-end-6000-v1.png": "5a433e236bdd76927996c4a8a899c9d1797af54b8d9ff9b93df8b9287dc46635",
+    "local/native-kitchen-end-6000-v1.png.json": "dd4a9f692d9ab7b65085bd4a5f117187d5ec587d45fa8d61ebcc20c071268e20",
+    "local/native-kitchen-end-6000-v1.png.camera.bin": "05c2dd331453fb16d0b9052643d1afc516a5cc69c353f05719bbe43b9de4305f",
+    "local/native-kitchen-end-6000-v1.png.actor.bin": "fde992a77b5393c33bf69aa5e796387220b05aaa07fcec1f22e165189e4c18e0"
+  }
+}

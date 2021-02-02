@@ -1,4 +1,5 @@
 #include "okage/field.hpp"
+#include "okage/event.hpp"
 #include <bit>
 #include <cfenv>
 #include <iostream>
@@ -30,6 +31,32 @@ int main(){try {
     for(frame=1;frame<=180;++frame){field.tick();if(frame<70)require(field.position[0]==2);}
     require(starts==1 && polls==10 && field.pc()==0xbe4 && field.pending_opcode==0x36);
     require(field.pending_actor==-8 && field.pending_animation==2 && field.position[0]==8 && field.target[0]==1);
+    // A selector whose low byte is a valid group opcode must be consumed as
+    // data. Keep this write pending until storage is bound, then resume it.
+    word(0xbe4,0x100047);word(0xbe8,0x10007);word(0xbec,0xff800236);
+    okage::OpeningField writing(b,[](int){},[](int){return true;});
+    for(unsigned i=0;i<180;++i)writing.tick();
+    require(writing.pc()==0xbe4 && writing.pending_opcode==0x47);
+    std::array<std::uint8_t,0x1000> variables{};unsigned writes=0;
+    writing.set_variable=[&](unsigned index,unsigned bank,std::int32_t value){
+        require(index==7 && bank==1 && value==1);++writes;
+        okage::set_event_variable(variables,index,bank,value);
+    };
+    writing.tick();require(writes==1 && writing.pc()==0xbec && writing.pending_opcode==0x36);
+    require(okage::event_variable(variables,0x10007)==1 && variables[0x110]==1);
+    writing.tick();require(writes==1);
+    for(auto selector:{0x40006u,0x80000u}) {
+        word(0xbe8,selector);okage::OpeningField special(b,[](int){},[](int){return true;});
+        rejects([&]{for(unsigned i=0;i<180;++i)special.tick();});
+    }
+    word(0xbe4,0x4b);word(0xbe8,0xff800236);
+    okage::OpeningField cameraRelease(b,[](int){},[](int){return true;});
+    require(cameraRelease.camera_mode()==2 && cameraRelease.event_running());
+    cameraRelease.tick();
+    const auto before=cameraRelease.rotation;
+    for(unsigned i=0;i<180;++i)cameraRelease.tick();
+    require(cameraRelease.camera_mode()==0 && cameraRelease.pc()==0xbe8);
+    require(cameraRelease.rotation==before);
     word(0xb88,0);rejects([&]{okage::OpeningField bad(b,[](int){},[](int){return true;});});
     rejects([&]{okage::field_projection({});});
     std::cout<<"Camera look-at, blend, field dialogue gate and pending actor service passed\n";

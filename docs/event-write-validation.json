@@ -1,0 +1,73 @@
+{
+  "scope": "Ordinary-bank variable storage and original handler selector consumption; field dispatch integration separately exercised by field-tests",
+  "original_handler": "0x130270",
+  "storage_function": "0x125918",
+  "preconditions": "Captured EE state supplies the original logger. Synthetic variable/field buffers. Unpatched instructions; pinned Play BIOS allows only bounded queries/uncontended semaphore services and rejects rescheduling.",
+  "excluded": [
+    "bank 4/index 6 controller side effect",
+    "special banks with bit 8",
+    "cold initialization",
+    "persistence"
+  ],
+  "cases": [
+    {
+      "selector": "0x10007",
+      "value": 1
+    },
+    {
+      "selector": "0x10007",
+      "value": 0
+    },
+    {
+      "selector": "0x10007",
+      "value": -1
+    },
+    {
+      "selector": "0x0",
+      "value": 0
+    },
+    {
+      "selector": "0x7",
+      "value": 1
+    },
+    {
+      "selector": "0x107ff",
+      "value": -1
+    },
+    {
+      "selector": "0x20000",
+      "value": 255
+    },
+    {
+      "selector": "0x201ff",
+      "value": -128
+    },
+    {
+      "selector": "0x30000",
+      "value": 256
+    },
+    {
+      "selector": "0x300ff",
+      "value": -1
+    },
+    {
+      "selector": "0x40000",
+      "value": -2048
+    },
+    {
+      "selector": "0x40007",
+      "value": 2047
+    }
+  ],
+  "variable_bytes_compared_per_case": 4096,
+  "field_state_bytes_asserted_unchanged_per_case": 2048,
+  "original_selector_bytes_consumed": 4,
+  "exact": true,
+  "hashes": {
+    "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "local/text-validation-v4/opening600-ee.bin": "dd826c9c361f0101cd4241272bd8b78fade95409327f62f55375cef10cc5999c",
+    "local/event-write-validation-debug-v2/input.bin": "869366fe52b8fffcf2dcba7c350fdfd8a7c4e1db3eeb4c977491f2f2df29d281",
+    "local/event-write-validation-v1/retail.bin": "cb774c1c3650087b4df555a2d99cfbb0ee8ce591aaf59e49561ef2a43d1bdcb3",
+    "local/event-write-validation-debug-v2/native.bin": "cb774c1c3650087b4df555a2d99cfbb0ee8ce591aaf59e49561ef2a43d1bdcb3"
+  }
+}

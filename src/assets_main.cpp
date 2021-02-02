@@ -69,6 +69,19 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if(command=="event-write" && argc==4) {
+            const auto input=read(argv[2]);
+            if(input.empty()||input.size()%8||input.size()>1024)throw std::runtime_error("Event write fixture bounds");
+            std::vector<std::uint8_t> variables(0x1000,0xa5),out;
+            for(std::size_t at=0;at<input.size();at+=8) {
+                std::uint32_t selector;std::int32_t value;
+                std::memcpy(&selector,input.data()+at,4);std::memcpy(&value,input.data()+at+4,4);
+                if(selector==0x40006)throw std::runtime_error("Field controller side effect is unrecovered");
+                okage::set_event_variable(variables,selector&0xffff,selector>>16,value);
+                out.insert(out.end(),{4,0,0,0});out.insert(out.end(),variables.begin(),variables.end());
+            }
+            write(argv[3],out);return 0;
+        }
         if(command=="effect-probe"&&argc==7) {
             const auto bank=okage::read_efd(read(argv[2]));const auto fixture=read(argv[3]);
             if(fixture.size()!=16)throw std::runtime_error("Effect camera fixture requires float4");
