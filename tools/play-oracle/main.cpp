@@ -454,6 +454,25 @@ public:
         call(0x19b448,{1,selection});snapshot();
         writeFile(output,result.data(),result.size()*4);
     }
+    void xclProbe(const std::vector<uint8>& asset,const std::vector<uint8>& queries,const char* output) {
+        if(asset.size()<69||asset.size()>0x400000||queries.size()%28)throw std::runtime_error("XCL oracle fixture bounds");
+        constexpr uint32 base=0x900000;
+        std::memcpy(ee->m_ram+base,asset.data(),asset.size());
+        call(0x189028,{base,uint32(asset.size())});
+        const auto size=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+        if(size>asset.size()-4)throw std::runtime_error("XCL relocation result outside input");
+        std::vector<uint8> result;auto append=[&](uint32 v){const auto* p=reinterpret_cast<const uint8*>(&v);result.insert(result.end(),p,p+4);};
+        append(size);result.insert(result.end(),ee->m_ram+base,ee->m_ram+base+size);
+        call(0x188f90,{base});
+        for(unsigned at=0;at<queries.size();at+=28) {
+            for(unsigned i=0;i<6;++i)std::memcpy(&ee->m_EE.m_State.nCOP1[12+i],queries.data()+at+i*4,4);
+            uint32 mode;std::memcpy(&mode,queries.data()+at+24,4);if(mode>2)throw std::runtime_error("XCL oracle query mode");
+            call(0x189258,{mode});const auto count=get(0x1fec48);
+            if(count>64)throw std::runtime_error("Original XCL query overflow");append(count);
+            for(unsigned i=0;i<count;++i){const auto p=get(0x1feb48+i*4);if(p<base||p>=base+size)throw std::runtime_error("XCL query pointer bounds");append(p-base);}
+        }
+        writeFile(output,result.data(),result.size());
+    }
     void eventWrite(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
         if(ram.size()!=32*1024*1024 || input.empty() || input.size()%8 || input.size()>1024)throw std::runtime_error("Event write fixture bounds");
         std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
@@ -863,6 +882,8 @@ int main(int argc,char** argv) {
             reference.padRepeat(readFile(argv[3]),argv[4]);
         } else if(command=="choice-options" && argc==5) {
             reference.choiceOptions(readFile(argv[3]),argv[4]);
+        } else if(command=="xcl-probe" && argc==6) {
+            reference.xclProbe(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="event-write" && argc==6) {
             reference.eventWrite(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="effect-probe" && argc==8) {

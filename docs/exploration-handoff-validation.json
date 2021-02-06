@@ -1,0 +1,61 @@
+{
+  "scope": "Original post-introduction research state; not native movement or native save/load",
+  "failed_observed_run": {
+    "prefix": "local/reference-kitchen-end-700-v1",
+    "exit_code": 1,
+    "reason": "Reference trace limit exceeded (10000 aggregate breakpoint calls)",
+    "camera_rows": 666,
+    "last_camera_frame": 665,
+    "camera_mode_transitions": [
+      [
+        0,
+        2
+      ],
+      [
+        585,
+        0
+      ],
+      [
+        587,
+        2
+      ]
+    ],
+    "third_choice_result": 0,
+    "last_controller_frame": 490,
+    "last_text_progress": 12,
+    "save_written": false
+  },
+  "completed_rerun": {
+    "prefix": "local/reference-kitchen-end-700-v2",
+    "exit_code": 0,
+    "vblanks": 700,
+    "observers": false,
+    "field_mode": 0,
+    "movement_block_mask": 0,
+    "player_motion": 1,
+    "camera_mode": 2,
+    "camera_manager_state": 1,
+    "bank1_index7": 1,
+    "ordinary_flags_3_4_5": [
+      1,
+      1,
+      1
+    ],
+    "visually_inspected": "Dialogue absent, HERO and Mother visible in kitchen; exploration camera differs from scripted scene",
+    "exclusions": [
+      "No same-run controller/camera/actor timeline in v2",
+      "No movement input after dialogue",
+      "No direct event-running-flag audit"
+    ]
+  },
+  "hashes": {
+    "local/reference-kitchen-end-700-v1.log": "db47ba329a7268ca181a0e3bc41d9682acb296090415b404d99bcf7e3e808c9d",
+    "local/reference-kitchen-end-700-v1.input": "b8f139f2008790445253ad550a419def39cab083bcf36cf7850583b4702000c8",
+    "local/reference-kitchen-end-700-v1.camera.bin": "4c834269d50d085de99f7e48f92499e1106596fc3bc38299cfeee033aaf9f263",
+    "local/reference-kitchen-end-700-v1.controller.bin.choices.bin": "d0bde3cd94ecb93f70195d855255e3f8dd6c072220d1ac4895117c462835947c",
+    "local/reference-kitchen-end-700-v2.log": "5f5bea9552c610edf27a858e04e2cfb80f46527ea80e35ea296b477864a9e208",
+    "local/reference-kitchen-end-700-v2.state.zip": "918eb625fadcd66846c167d6a31cbeaf10fc65855117e4445c8000b7dfbe8fc9",
+    "local/reference-kitchen-end-700-v2.layer0.png": "42701bbe1f7c22685afb7991f85df03f464bb0b4c21771c9f0bdff8bd352d55b",
+    "local/research/kitchen-end700-v2-ee.bin": "d123959880ccb1eb13dd7c9a208bad1a6446775b2e18a47cdb6cd7b14f49d216"
+  }
+}

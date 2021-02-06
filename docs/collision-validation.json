@@ -1,0 +1,79 @@
+{
+  "scope": "HOME1C XCL relocation and sparse-grid candidate selection, not contact resolution or player movement",
+  "original_functions": [
+    "0x189028",
+    "0x188f90",
+    "0x189258"
+  ],
+  "preconditions": "Unpatched retail helpers run with owned XCL at synthetic base 0x900000; no captured RAM, OS or VU helpers. Six coordinates use f12..f17 and query mode uses a0.",
+  "payload_bytes_exact": 13972,
+  "query_cases_exact": 195,
+  "maximum_candidates": 51,
+  "candidate_order_exact": true,
+  "query_modes": [
+    0,
+    1,
+    2
+  ],
+  "random_seed": 731,
+  "excluded": [
+    "contact resolution",
+    "movement and interaction gating",
+    "camera control",
+    "scene integration"
+  ],
+  "hashes": {
+    "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xcl": "91cf084b00eb1779c050c3339cc7765b4f2f86e3fd01bbda2e82954ae6445099",
+    "local/collision-validation-v2/queries.bin": "05f2fabc2cd5f5c2829fac4f46d0012dfbc54b2e5622198d5434fe239dbad3aa",
+    "local/collision-validation-v2/retail.bin": "9f827b4bf91a6776d9d7e7bb3a48362f7ef68c4a40cece31dced9de34556f96e",
+    "local/collision-validation-v2/native.bin": "9f827b4bf91a6776d9d7e7bb3a48362f7ef68c4a40cece31dced9de34556f96e",
+    "build/native/okage-assets": "4b97655b403d671b875a0d21f61adba61acf4d759e165f6e608c6d4de1c3259f"
+  },
+  "oracle_sha256": "8236e8a2ff07656c315df6b09c53903f1cb4c9f4c5f07539389befa5f2d87dda",
+  "structural_imports": {
+    "count": 231,
+    "passed": 231,
+    "manifest_sha256": "33cde84502cc59dad495a5bbbde6dfda51b7ca2553a4fa3b6bd2bb6d67822459",
+    "full_manifest": "local/collision-validation-v2/report.json"
+  },
+  "cross_builds": {
+    "Debug": {
+      "report": "local/collision-validation-debug-v2/report.json",
+      "hashes": {
+        "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xcl": "91cf084b00eb1779c050c3339cc7765b4f2f86e3fd01bbda2e82954ae6445099",
+        "local/collision-validation-debug-v2/queries.bin": "05f2fabc2cd5f5c2829fac4f46d0012dfbc54b2e5622198d5434fe239dbad3aa",
+        "local/collision-validation-v2/retail.bin": "9f827b4bf91a6776d9d7e7bb3a48362f7ef68c4a40cece31dced9de34556f96e",
+        "local/collision-validation-debug-v2/native.bin": "9f827b4bf91a6776d9d7e7bb3a48362f7ef68c4a40cece31dced9de34556f96e",
+        "build/native/okage-assets": "fd158803db135370ffe63f3afcf63ec5038dba9ca4242acd26fdf74ebd53ae0b"
+      },
+      "ctests_passed": 19
+    },
+    "Release": {
+      "report": "local/collision-validation-release-v2/report.json",
+      "hashes": {
+        "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xcl": "91cf084b00eb1779c050c3339cc7765b4f2f86e3fd01bbda2e82954ae6445099",
+        "local/collision-validation-release-v2/queries.bin": "05f2fabc2cd5f5c2829fac4f46d0012dfbc54b2e5622198d5434fe239dbad3aa",
+        "local/collision-validation-v2/retail.bin": "9f827b4bf91a6776d9d7e7bb3a48362f7ef68c4a40cece31dced9de34556f96e",
+        "local/collision-validation-release-v2/native.bin": "9f827b4bf91a6776d9d7e7bb3a48362f7ef68c4a40cece31dced9de34556f96e",
+        "build/native-release/okage-assets": "5ddd610f96152bbfb1b1a724638d878cbccd55332ee87501b4968105eb3320ec"
+      },
+      "ctests_passed": 19
+    },
+    "ASan/UBSan": {
+      "report": "local/collision-validation-sanitize-v2/report.json",
+      "hashes": {
+        "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xcl": "91cf084b00eb1779c050c3339cc7765b4f2f86e3fd01bbda2e82954ae6445099",
+        "local/collision-validation-sanitize-v2/queries.bin": "05f2fabc2cd5f5c2829fac4f46d0012dfbc54b2e5622198d5434fe239dbad3aa",
+        "local/collision-validation-v2/retail.bin": "9f827b4bf91a6776d9d7e7bb3a48362f7ef68c4a40cece31dced9de34556f96e",
+        "local/collision-validation-sanitize-v2/native.bin": "9f827b4bf91a6776d9d7e7bb3a48362f7ef68c4a40cece31dced9de34556f96e",
+        "build/model-sanitize/okage-assets": "3592afa3252043d10ef3a8553627f03eb72bc81cd0b3a8596cecc7ade5f50a7e"
+      },
+      "ctests_passed": 19
+    }
+  },
+  "python_tests_passed": 12
+}

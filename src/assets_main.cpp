@@ -17,6 +17,7 @@
 #include "okage/camera.hpp"
 #include "okage/field.hpp"
 #include "okage/effect.hpp"
+#include "okage/collision.hpp"
 #include <algorithm>
 #include <bit>
 #include <cstring>
@@ -69,6 +70,26 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if(command=="xcl-probe"&&argc==5) {
+            const auto map=okage::read_xcl(read(argv[2]));const auto queries=read(argv[3]);
+            if(queries.size()%28)throw std::runtime_error("XCL query fixture extent");
+            std::vector<std::uint8_t> out;
+            auto append=[&](std::uint32_t n){for(unsigned i=0;i<4;++i)out.push_back(n>>(i*8));};
+            append(map.payload.size());auto payload=map.payload;
+            for(auto at:map.pointer_locations) {
+                std::uint32_t n;std::memcpy(&n,payload.data()+at,4);n+=0x900000;std::memcpy(payload.data()+at,&n,4);
+            }
+            out.insert(out.end(),payload.begin(),payload.end());
+            for(std::size_t at=0;at<queries.size();at+=28) {
+                okage::Float4 first{},second{};std::uint32_t mode;
+                std::memcpy(first.data(),queries.data()+at,12);std::memcpy(second.data(),queries.data()+at+12,12);std::memcpy(&mode,queries.data()+at+24,4);
+                const auto candidates=map.query(first,second,mode);append(candidates.size());
+                for(auto index:candidates)append(map.chunks[index].source_offset);
+            }
+            write(argv[4],out);
+            std::size_t vertices=0,polygons=0;for(const auto& c:map.chunks){vertices+=c.vertices.size();polygons+=c.polygons.size();}
+            std::cout<<"XCL chunks="<<map.chunks.size()<<" vertices="<<vertices<<" polygons="<<polygons<<" relocations="<<map.pointer_locations.size()<<'\n';return 0;
+        }
         if(command=="event-write" && argc==4) {
             const auto input=read(argv[2]);
             if(input.empty()||input.size()%8||input.size()>1024)throw std::runtime_error("Event write fixture bounds");
