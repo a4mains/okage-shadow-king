@@ -52,6 +52,23 @@ void CameraBlend::begin(float rate,const Float4& from_position,const Float4& fro
     if(!std::isfinite(rate))throw std::runtime_error("Invalid camera blend rate");
     if(rate!=0) {phase=0;step=rate;position=from_position;target=from_target;}
 }
+CameraPoints anchored_camera(const Float4& player,const AnchoredCamera& settings,
+                             const AtanTable& angles,const SineTable& sine) {
+    Rounding rounding;
+    for(float v:player)if(!std::isfinite(v))throw std::runtime_error("Non-finite camera player position");
+    for(float v:settings.anchor)if(!std::isfinite(v))throw std::runtime_error("Non-finite camera anchor");
+    for(float v:{settings.distance_offset,settings.distance_scale,settings.target_height})
+        if(!std::isfinite(v))throw std::runtime_error("Non-finite anchored-camera setting");
+    CameraPoints result;result.target=player;result.target[1]+=settings.target_height;
+    const float dx=result.target[0]-settings.anchor[0],dz=result.target[2]-settings.anchor[2];
+    const float distance=std::sqrt(dx*dx+dz*dz);
+    const float yaw=camera_angle(dx,dz,angles);
+    const auto index=(std::uint32_t(std::int32_t(yaw*32768.f))>>1)&0x3fff;
+    const float radius=settings.distance_offset+distance*settings.distance_scale;
+    const Float4 offset={sine[index]*radius,0,sine[(index+4096)&0x3fff]*radius,0};
+    for(unsigned i=0;i<4;++i)result.position[i]=settings.anchor[i]+offset[i];
+    return result;
+}
 void CameraBlend::apply(Float4& p,Float4& t) {
     Rounding rounding;
     if(phase==1)return;

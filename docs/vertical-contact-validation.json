@@ -1,0 +1,60 @@
+{
+  "scope": "Fresh floor/ceiling queries, correction, surface ID, normal XYZ and selected polygon metadata",
+  "functions": [
+    "0x18a0e0",
+    "0x18a640"
+  ],
+  "excluded": [
+    "cached/resumed queries",
+    "undefined normal W from retail stack",
+    "stale metadata when hit=false",
+    "wall/dynamic collision",
+    "app movement"
+  ],
+  "preconditions": "Synthetic object record, owned or synthetic map, unpatched helpers; no captured RAM or OS calls",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "native_sha256": "616a5ad7667988f27d6da667e3956bf47248743eb4c808e68eaf5d73bed72c8f",
+  "cases": [
+    {
+      "name": "home1c",
+      "count": 402,
+      "exact": true,
+      "floor_hits": 78,
+      "ceiling_hits": 0,
+      "hashes": {
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xcl": "91cf084b00eb1779c050c3339cc7765b4f2f86e3fd01bbda2e82954ae6445099",
+        "local/vertical-validation-v2/home1c.queries.bin": "afbf305d5c1bd3027f88584eb4e059ea320c5cd6d23b0df344e29daa3f49c19a",
+        "local/vertical-validation-v2/home1c.retail.bin": "19a23c634ef81ede71d260a1fa5640d546cb9f58d8ab6cfc06966424e376db71",
+        "local/vertical-validation-v2/home1c.native.bin": "19a23c634ef81ede71d260a1fa5640d546cb9f58d8ab6cfc06966424e376db71"
+      }
+    },
+    {
+      "name": "stacked",
+      "count": 100,
+      "exact": true,
+      "floor_hits": 30,
+      "ceiling_hits": 14,
+      "hashes": {
+        "local/vertical-validation-v2/stacked.xcl": "25589ba42cd080e49dcb2125bc0ce9ee131b56b21c04d3952a81fe890abd3f3b",
+        "local/vertical-validation-v2/stacked.queries.bin": "fcaf27a1e34d620782c6d9a567fee7eaed1b3966bed731d9bfec0ce877d816f3",
+        "local/vertical-validation-v2/stacked.retail.bin": "718f9f00a5b5024662d8dc3928d1947391ac3091ab725a6d8515c71dbf814461",
+        "local/vertical-validation-v2/stacked.native.bin": "718f9f00a5b5024662d8dc3928d1947391ac3091ab725a6d8515c71dbf814461"
+      }
+    }
+  ],
+  "oracle_sha256": "aa8b0830894596397766ec3eb2cf0d96be43d0909dcf2d23373561700666ace7",
+  "cross_builds": {
+    "release": {
+      "report": "local/vertical-validation-release-v2/report.json",
+      "native_sha256": "937fa103812fa2d4af0414907023e43a3c4d7dc2984b2fdb2f85591348043734",
+      "all_cases_exact": true
+    },
+    "sanitize": {
+      "report": "local/vertical-validation-sanitize-v2/report.json",
+      "native_sha256": "9a4a3755cabb6083d98771c9b58aa20cf9145fa3a6753775560bd7b6954450db",
+      "all_cases_exact": true
+    }
+  },
+  "ctests_per_configuration": 19,
+  "python_tests": 12
+}

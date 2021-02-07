@@ -90,6 +90,30 @@ int main(int argc, char** argv) {
             std::size_t vertices=0,polygons=0;for(const auto& c:map.chunks){vertices+=c.vertices.size();polygons+=c.polygons.size();}
             std::cout<<"XCL chunks="<<map.chunks.size()<<" vertices="<<vertices<<" polygons="<<polygons<<" relocations="<<map.pointer_locations.size()<<'\n';return 0;
         }
+        if(command=="xcl-vertical"&&argc==5) {
+            const auto map=okage::read_xcl(read(argv[2]));const auto queries=read(argv[3]);
+            if(queries.size()%48)throw std::runtime_error("XCL vertical fixture extent");
+            std::vector<std::uint8_t> out;
+            for(std::size_t at=0;at<queries.size();at+=48) {
+                okage::Float4 previous{},desired{};float reach;std::uint32_t threshold,mask,kind;
+                std::memcpy(previous.data(),queries.data()+at,16);std::memcpy(desired.data(),queries.data()+at+16,16);
+                std::memcpy(&reach,queries.data()+at+32,4);std::memcpy(&threshold,queries.data()+at+36,4);
+                std::memcpy(&mask,queries.data()+at+40,4);std::memcpy(&kind,queries.data()+at+44,4);
+                if(kind>1)throw std::runtime_error("XCL vertical fixture kind");
+                const auto contact=map.vertical_contact(previous,desired,kind,reach,threshold,mask);
+                std::array<std::uint32_t,16> row{};
+                row[0]=contact.hit;row[1]=contact.hit?(kind?2:1):0;
+                if(contact.hit) {
+                    const auto& chunk=map.chunks.at(contact.chunk);
+                    row[2]=contact.material;row[3]=chunk.source_offset;row[4]=contact.polygon;row[5]=contact.candidate;
+                    for(unsigned j=0;j<4;++j)row[6+j]=__builtin_bit_cast(std::uint32_t, (contact.correction[j]));
+                    for(unsigned j=0;j<3;++j)row[10+j]=__builtin_bit_cast(std::uint32_t, (contact.normal[j]));
+                    std::memcpy(&row[13],map.payload.data()+chunk.source_offset+4,8);row[15]=chunk.polygons.size();
+                }
+                for(auto n:row)for(unsigned j=0;j<4;++j)out.push_back(n>>(j*8));
+            }
+            write(argv[4],out);return 0;
+        }
         if(command=="event-write" && argc==4) {
             const auto input=read(argv[2]);
             if(input.empty()||input.size()%8||input.size()>1024)throw std::runtime_error("Event write fixture bounds");
@@ -223,6 +247,19 @@ int main(int argc, char** argv) {
         }
         if(command=="camera-angles" && argc==3) {
             const auto table=okage::make_atan_table();write(argv[2],okage::Bytes(reinterpret_cast<const std::uint8_t*>(table.data()),sizeof(table)));return 0;
+        }
+        if(command=="camera-anchored"&&argc==5) {
+            const auto settings=okage::field_anchored_camera(read(argv[2]));const auto input=read(argv[3]);
+            if(input.size()%16)throw std::runtime_error("Anchored camera position fixture extent");
+            const auto angles=okage::make_atan_table();const auto sine=okage::make_sine_table();
+            std::vector<okage::Float4> out;
+            for(std::size_t at=0;at<input.size();at+=16) {
+                okage::Float4 player;std::memcpy(player.data(),input.data()+at,16);
+                const auto points=okage::anchored_camera(player,settings,angles,sine);
+                out.push_back(points.position);out.push_back(points.target);
+                out.push_back(okage::camera_look_at(points.position,points.target,angles,sine));
+            }
+            write(argv[4],okage::Bytes(reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*16));return 0;
         }
         if(command=="camera-look-at" && argc==4) {
             const auto input=read(argv[2]);if(input.empty() || input.size()%32)throw std::runtime_error("Look-at fixture bounds");

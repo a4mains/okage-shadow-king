@@ -98,7 +98,7 @@ struct Session {
     std::unique_ptr<okage::OpeningField> field;
     std::unique_ptr<okage::SceneRenderer> renderer;
     okage::Float4 projection{};
-    std::vector<std::uint32_t> scene_trace,dialogue_trace;
+    std::vector<std::uint32_t> scene_trace,dialogue_trace,camera_state_trace;
     std::vector<std::uint32_t> effect_trace;
     bool effects_loaded=false;
     std::map<int,std::vector<std::uint32_t>> actor_traces;
@@ -148,6 +148,8 @@ struct Session {
             return released;
         },actor_bindings);
         field->set_variable=[this](unsigned index,unsigned bank,std::int32_t value){okage::set_event_variable(variables,index,bank,value);};
+        if(std::any_of(actor_bindings.begin(),actor_bindings.end(),[](const auto& a){return a.alias==-1;}))
+            field->load_exploration_camera(readData(stg));
         std::cout<<"Native room: "<<renderer->placements()<<" placements; "<<renderer->omitted_effects()
             <<" effects omitted; "<<renderer->actors()<<" native actors; shadows unavailable; diagnostic dialogue panel\n";
     }
@@ -194,6 +196,9 @@ struct Session {
             text.state.period,text.state.delay,text.state.progress,controller.advance_count,controller.layer_advance,
             controller.layer_flags,controller.stage,__builtin_bit_cast(std::uint32_t, (opacity.delta))});
         if(field) {
+            camera_state_trace.insert(camera_state_trace.end(),{frame,field->camera_mode(),
+                field->event_running()?1u:0u,__builtin_bit_cast(std::uint32_t, (field->blend.phase)),
+                __builtin_bit_cast(std::uint32_t, (field->blend.step))});
             scene_trace.insert(scene_trace.end(),{frame,field->pc(),field->pending_opcode,release_frame});
             for(const auto& values:{field->position,field->target,field->rotation})
                 for(float v:values)scene_trace.push_back(__builtin_bit_cast(std::uint32_t, (v)));
@@ -317,6 +322,11 @@ static void capture(const Session& session,const fs::path& path) {
         if(fs::exists(tracePath)||fs::is_symlink(tracePath))throw std::runtime_error("Refusing existing camera trace");
         std::ofstream trace(tracePath,std::ios::binary);
         if(!trace.write(reinterpret_cast<const char*>(session.scene_trace.data()),session.scene_trace.size()*4))throw std::runtime_error("Cannot save native camera trace");
+        const auto statePath=fs::path(path.string()+".camera-state.bin");
+        if(fs::exists(statePath)||fs::is_symlink(statePath))throw std::runtime_error("Refusing existing camera-state trace");
+        std::ofstream stateTrace(statePath,std::ios::binary);
+        if(!stateTrace.write(reinterpret_cast<const char*>(session.camera_state_trace.data()),session.camera_state_trace.size()*4))
+            throw std::runtime_error("Cannot save native camera-state trace");
         std::cout<<"Field PC=0x"<<std::hex<<session.field->pc()<<" pending opcode=0x"<<session.field->pending_opcode<<std::dec
             <<" actor="<<session.field->pending_actor<<" animation="<<session.field->pending_animation<<'\n';
     }

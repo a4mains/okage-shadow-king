@@ -93,7 +93,8 @@ CollisionMap read_xcl(Bytes bytes) {
                     }
                     for(unsigned i=0;i<np;++i) {
                         CollisionPolygon polygon;for(unsigned j=0;j<10;++j)polygon.words[j]=r.integer(ps+i*20+j*2,2);
-                        for(unsigned j=0;j<polygon.vertex_count();++j)require(polygon.words[5+j]<nv,"XCL polygon vertex outside chunk");
+                        // The edge loops also read the closing vertex index.
+                        for(unsigned j=0;j<=polygon.vertex_count();++j)require(polygon.words[5+j]<nv,"XCL polygon vertex outside chunk");
                         chunk.polygons.push_back(polygon);
                     }
                     const auto index=unsigned(result.chunks.size());result.chunks.push_back(std::move(chunk));
@@ -129,6 +130,55 @@ std::vector<std::uint32_t> CollisionMap::query(const Float4& first,const Float4&
             if(y==last)break;
         }
     }
+    return result;
+}
+SurfaceContact CollisionMap::vertical_contact(const Float4& previous,const Float4& desired,
+                                             bool ceiling,float reach,std::int32_t threshold,
+                                             std::uint32_t disabled_mask) const {
+    Rounding rounding;
+    require(std::isfinite(reach)&&reach>=0&&threshold>=0&&threshold<=16384,"Invalid XCL vertical-contact settings");
+    for(unsigned i=0;i<3;++i)require(std::isfinite(previous[i])&&std::isfinite(desired[i]),"Non-finite XCL contact position");
+    Float4 first=desired,second=desired;
+    first[1]=ceiling ? previous[1]+float(header[1]) : previous[1]-float(header[1]);
+    if(!ceiling)second[1]=desired[1]+reach;
+    const auto candidates=query(first,second,ceiling?1:0);
+    SurfaceContact result;float height=0;
+    for(unsigned ci=0;ci<candidates.size();++ci) {
+        const auto chunk_index=candidates[ci];const auto& chunk=chunks.at(chunk_index);
+        const int count=int(chunk.polygons.size()),step=ceiling?-1:1;
+        for(int pi=ceiling?count-1:0;pi>=0&&pi<count;pi+=step) {
+            const auto& polygon=chunk.polygons[pi];const auto& w=polygon.words;
+            const auto ny=__builtin_bit_cast(std::int16_t, (w[2]));
+            if(disabled_mask&(1u<<((w[0]&0x3e)>>1)))continue;
+            const bool opposite=result.hit;
+            if(ceiling ? (opposite?ny>=0:ny<=threshold)
+                       : (opposite?ny<=0:ny>=-threshold))continue;
+            bool inside=true;const Float4* vertex=nullptr;
+            for(unsigned i=0;i<polygon.vertex_count();++i) {
+                vertex=&chunk.vertices.at(w[5+i]);
+                const auto& next=chunk.vertices.at(w[6+i]);
+                const float ex=next[0]-(*vertex)[0],ez=next[2]-(*vertex)[2];
+                const float px=desired[0]-(*vertex)[0],pz=desired[2]-(*vertex)[2];
+                const float side=ex*(-pz)+ez*px;
+                const bool positive=ceiling!=opposite;
+                if(positive?side<0:side>0){inside=false;break;}
+            }
+            if(!inside)continue;
+            const Float4 normal={float(__builtin_bit_cast(std::int16_t, (w[3])))/16384.f,
+                                 float(ny)/16384.f,
+                                 float(__builtin_bit_cast(std::int16_t, (w[4])))/16384.f,0};
+            float y=normal[0]*((*vertex)[0]-desired[0]);
+            y=y+normal[1]*(*vertex)[1];
+            y=(y+normal[2]*((*vertex)[2]-desired[2]))/normal[1];
+            if(opposite) {
+                if(ceiling?desired[1]<=y:y<=desired[1]-0.01f)result.hit=false;
+            } else if(ceiling?desired[1]<=y:y<=desired[1]+reach) {
+                result.hit=true;result.material=w[1];result.normal=normal;
+                result.chunk=chunk_index;result.polygon=unsigned(pi);result.candidate=ci;height=y;
+            }
+        }
+    }
+    if(result.hit)result.correction={0,ceiling?(height-desired[1])+0.001f:(height-desired[1])-0.001f,0,1};
     return result;
 }
 }

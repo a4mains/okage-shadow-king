@@ -1,0 +1,77 @@
+{
+  "scope": "STG anchored camera and native post-event handoff; not native movement or full scene fidelity",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "native_sha256": "649580eeb76d808f17e2546fd69e8a7cf09416e4f6c9ff3049e4d18867e25853",
+  "original_functions": [
+    "0x138c98",
+    "0x138990",
+    "0x138a50",
+    "0x136aa8",
+    "0x133a98"
+  ],
+  "original_movement_frames": 180,
+  "target_and_rotation_exact": true,
+  "position_maximum_absolute_error": 1.9073486328125e-06,
+  "position_tolerance": 2e-05,
+  "float_limit": "Host sine/sqrt arithmetic; quantized rotation must still match exactly",
+  "handoff": {
+    "original_start_frame": 585,
+    "native_start_frame": 4934,
+    "frames_exact": 81,
+    "compared": [
+      "position",
+      "rotation",
+      "mode",
+      "blend phase"
+    ],
+    "target_note": "Original observer records the unblended global target; native trace records the effective blended target. Do not compare them during blending.",
+    "reference_limit": "v1 stopped at trace guard; only its complete camera rows are compared",
+    "settled_camera_exact": true
+  },
+  "native_scene": {
+    "frames": 6000,
+    "all_three_builds_exact": true,
+    "preserved_previous_traces": [
+      ".audio.pcm",
+      ".music.bin",
+      ".sound.bin",
+      ".actor.bin",
+      ".actor-9.bin",
+      ".actor-1.bin",
+      ".dialogue.bin",
+      ".choices.bin",
+      ".effects.bin"
+    ],
+    "physical_input_or_listening_verified": false
+  },
+  "hashes": {
+    "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.stg": "af9be367c8e1d2f9b9ec1ae6c0b84478e5632656b4c90d2bf5402482f3eb4803",
+    "local/reference-kitchen-movement-180-v1.actor.bin": "d6ef1a763cfaa0f80704e2c4904c166c785e8b1d975dc6c48c8643c253a609ac",
+    "local/reference-kitchen-movement-180-v1.camera.bin": "84a8a54294184b5020cabf881922381da20008385b5290ea2f4a3db7fbb4774b",
+    "local/reference-kitchen-end-700-v1.camera.bin": "4c834269d50d085de99f7e48f92499e1106596fc3bc38299cfeee033aaf9f263",
+    "local/exploration-camera-validation-final/positions.bin": "c100760c25f52f61b4ab870ee71caa2a86deeb15f16bc6d9094d7b4d4dc2dff9",
+    "local/exploration-camera-validation-final/native.bin": "e4b2c7ce6de00cdf0dd8308715cd6d7724c50f10c9618e1f976b140d324f2b22",
+    "local/native-exploration-camera-6000-debug-v2.png.camera.bin": "be8c3ac255d2ad32665d0ea04dc49dc9fe2c5c8bd0c1fbfa0d6dcc94eda567f1",
+    "local/native-exploration-camera-6000-debug-v2.png.camera-state.bin": "7f89ef4a4b7013301bcda36fe946ea53ed37d4d33e563afe9aeb847085dfd1d8",
+    "local/reference-kitchen-movement-180-v1.input": "b1192a9c4ebd5db3bb5b1fdcaa7fed878935304772f28f6811c9674bc69136e5",
+    "local/reference-kitchen-movement-180-v1.log": "4d3ebcb5a38e2724702381aba35288e38b2d8ddc74c118969a4d320a00d7d7d6",
+    "local/reference-kitchen-movement-180-v1.state.zip": "6cb2fb0618d7252cd779f8189474daa182d406c245741f5523bded45910f03ef",
+    "local/reference-kitchen-movement-180-v1.layer0.png": "77de4d488ca4f3512ad6058e52f32d6a100d5968a896bf02bcbdecfd07c8e2c0"
+  },
+  "cross_builds": {
+    "release": {
+      "report": "local/exploration-camera-validation-release-final/report.json",
+      "native_sha256": "937fa103812fa2d4af0414907023e43a3c4d7dc2984b2fdb2f85591348043734",
+      "position_maximum_absolute_error": 1.9073486328125e-06,
+      "target_and_rotation_exact": true
+    },
+    "sanitize": {
+      "report": "local/exploration-camera-validation-sanitize-final/report.json",
+      "native_sha256": "9a4a3755cabb6083d98771c9b58aa20cf9145fa3a6753775560bd7b6954450db",
+      "position_maximum_absolute_error": 1.9073486328125e-06,
+      "target_and_rotation_exact": true
+    }
+  },
+  "ctests_per_configuration": 19,
+  "python_tests": 12
+}

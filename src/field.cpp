@@ -56,6 +56,10 @@ void OpeningField::load_effects(Bytes bytes) {
     if(!effect_definitions_.empty())throw std::runtime_error("Field effects already loaded");
     effect_definitions_=read_efd(bytes);
 }
+void OpeningField::load_exploration_camera(Bytes stg) {
+    if(!actor(-1)||exploration_camera_)throw std::runtime_error("Exploration camera requires a player and one configuration");
+    exploration_camera_=field_anchored_camera(stg);
+}
 Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32_t b,std::uint32_t pc) {
     auto pending=[&] {pending_opcode=op;pending_actor=b;pending_animation=a;return Animation::ServiceResult{pc,true};};
     switch(op) {
@@ -144,6 +148,14 @@ void OpeningField::evaluate() {
     }
 }
 void OpeningField::tick() {
+    // Field manager 0x133a98 runs before the event pass. Case 5 detects the
+    // ended script and selects the room camera; case 0 updates it next frame.
+    if(exploration_camera_&&!event_running()) {
+        if(exploration_handoff_) {
+            const auto camera=anchored_camera(actor(-1)->animation().values().at(1),*exploration_camera_,angles_,sine_);
+            script_.set_channel(0,camera.position);requested_target_=camera.target;camera_mode_=2;
+        } else exploration_handoff_=true;
+    }
     script_.tick_script();
     for(const auto& binding:actors_)binding.actor->tick_script();
     script_.tick_channels();evaluate();
@@ -177,5 +189,26 @@ Float4 field_projection(Bytes stg) {
     if(!found || settings[0]<=0 || settings[1]<=0 || settings[2]<=0 || settings[3]>=10)throw std::runtime_error("Unsupported STG projection");
     return {(settings[2]*settings[0])/320.f,(settings[2]*settings[1])/112.f,
         (1024.f+3.f)/(1024.f-3.f),((1024.f*-2.f)*3.f)/(1024.f-3.f)};
+}
+AnchoredCamera field_anchored_camera(Bytes stg) {
+    if(get(stg,0)!=0x475453)throw std::runtime_error("Invalid STG magic");
+    const std::size_t begin=get(stg,16),count=get(stg,20),end=get(stg,24);
+    if(begin<32||begin%4||!count||count>30||end>stg.size()||begin+count*28>end||
+       (end-begin-count*28)%28||(end-begin-count*28)/28>30)
+        throw std::runtime_error("Invalid STG camera tables");
+    auto number=[&](std::size_t at) {
+        const auto v=__builtin_bit_cast(float, (get(stg,at)));
+        if(!std::isfinite(v))throw std::runtime_error("Non-finite STG camera setting");
+        return v;
+    };
+    AnchoredCamera result;result.anchor={number(begin+4),number(begin+8),number(begin+12),1};
+    for(auto at=begin+count*28;at<end;at+=28) {
+        // 0x138a50 selects the first settings record with signed ID zero.
+        if((get(stg,at)>>16)!=0)continue;
+        if(number(at+16)!=1)throw std::runtime_error("Unrecovered STG exploration camera mode");
+        result.distance_offset=number(at+4);result.distance_scale=number(at+8);
+        result.target_height=number(at+12);return result;
+    }
+    throw std::runtime_error("STG anchored camera has no default settings");
 }
 }

@@ -3,6 +3,7 @@
 #include "okage/camera.hpp"
 #include "okage/actor.hpp"
 #include "okage/effect.hpp"
+#include <optional>
 namespace okage {
 class OpeningField {
 public:
@@ -10,6 +11,7 @@ public:
                  std::function<bool(int)> wait_dialogue,std::span<const ActorBinding> actors={});
     void tick();
     void load_effects(Bytes);
+    void load_exploration_camera(Bytes stg);
     const AttachedEffects& effects() const {return effects_;}
     Float4 position{},target{},rotation{};
     CameraBlend blend;
@@ -32,6 +34,8 @@ private:
     FieldActor* actor(int alias) const;
     int group_=-2;
     unsigned camera_mode_=2;
+    std::optional<AnchoredCamera> exploration_camera_;
+    bool exploration_handoff_=false;
     std::vector<EffectDefinition> effect_definitions_;
     AttachedEffects effects_;
     std::array<unsigned,16> effect_ring_{};
@@ -46,4 +50,5 @@ private:
 // Clip-space projection coefficients x/y/z scale and z offset. Uses the STG
 // projection record and recovered 640x224 field near/far defaults (3,1024).
 Float4 field_projection(Bytes stg);
+AnchoredCamera field_anchored_camera(Bytes stg);
 }

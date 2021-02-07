@@ -473,6 +473,34 @@ public:
         }
         writeFile(output,result.data(),result.size());
     }
+    void xclVertical(const std::vector<uint8>& asset,const std::vector<uint8>& queries,const char* output) {
+        if(asset.size()<69||asset.size()>0x400000||queries.size()%48)throw std::runtime_error("XCL contact fixture bounds");
+        constexpr uint32 base=0x900000,record=0xe00000,previous=0xe00100,desired=0xe00110;
+        std::memcpy(ee->m_ram+base,asset.data(),asset.size());
+        call(0x189028,{base,uint32(asset.size())});call(0x188f90,{base});
+        put(0x1feb3c,0);std::vector<uint32> result;
+        for(unsigned at=0;at<queries.size();at+=48) {
+            std::memset(ee->m_ram+record,0,0xb0);
+            std::memcpy(ee->m_ram+previous,queries.data()+at,32);
+            std::memcpy(ee->m_ram+record,queries.data()+at+32,4);
+            uint32 threshold,mask,kind;
+            std::memcpy(&threshold,queries.data()+at+36,4);std::memcpy(&mask,queries.data()+at+40,4);std::memcpy(&kind,queries.data()+at+44,4);
+            if(threshold>16384||kind>1)throw std::runtime_error("XCL contact settings");
+            put(0x1feb34,threshold);put(0x1feb28,mask);
+            call(kind?0x18a640:0x18a0e0,{previous,desired,0,record});
+            std::array<uint32,16> row{};
+            row[0]=ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0];row[1]=get(record+0x28);
+            if(row[0]) {
+                row[2]=(get(record+0x40)>>(kind?16:0))&0xffff;
+                row[3]=get(record+0x8c)-base;row[4]=get(record+0x88);row[5]=get(record+0x84);
+                for(unsigned j=0;j<4;++j)row[6+j]=get(record+0x30+j*4);
+                for(unsigned j=0;j<3;++j)row[10+j]=get(record+(kind?0x60:0x50)+j*4);
+                row[13]=get(record+0x90)-base;row[14]=get(record+0x94)-base;row[15]=get(record+0x98);
+            }
+            result.insert(result.end(),row.begin(),row.end());
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
     void eventWrite(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
         if(ram.size()!=32*1024*1024 || input.empty() || input.size()%8 || input.size()>1024)throw std::runtime_error("Event write fixture bounds");
         std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
@@ -884,6 +912,8 @@ int main(int argc,char** argv) {
             reference.choiceOptions(readFile(argv[3]),argv[4]);
         } else if(command=="xcl-probe" && argc==6) {
             reference.xclProbe(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="xcl-vertical" && argc==6) {
+            reference.xclVertical(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="event-write" && argc==6) {
             reference.eventWrite(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="effect-probe" && argc==8) {

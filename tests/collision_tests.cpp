@@ -34,11 +34,26 @@ int main(){try {
     rejects([&]{m.query({__builtin_bit_cast(float, (0x7fc00000u)),0,0,0},{},0);});
     check(std::fegetround()==rounding);
     rejects([&]{m.query({}, {},3);});
+    auto triangle=b;put(triangle,112,__builtin_bit_cast(std::uint32_t, (4.f)));
+    put(triangle,136,__builtin_bit_cast(std::uint32_t, (4.f)));put(triangle,146,0x123,2);
+    const auto floor=okage::read_xcl(triangle);
+    const auto contact=floor.vertical_contact({1,0,1,1},{1,0,1,1},false,4,8190);
+    check(contact.hit&&contact.material==0x123&&contact.normal[1]==-1&&contact.correction[1]==-.001f);
+    check(!floor.vertical_contact({3,0,3,1},{3,0,3,1},false,4,8190).hit);
+    check(!floor.vertical_contact({1,0,1,1},{1,0,1,1},false,4,8190,1).hit);
+    check(!floor.vertical_contact({1,0,1,1},{1,0,1,1},false,4,16384).hit);
+    put(triangle,148,0x4000,2);put(triangle,156,2,2);put(triangle,158,1,2);
+    const auto ceiling=okage::read_xcl(triangle);
+    const auto above=ceiling.vertical_contact({1,-1,1,1},{1,-1,1,1},true,4,8190);
+    check(above.hit&&above.normal[1]==1&&above.correction[1]>1&&above.correction[1]<1.002f);
+    rejects([&]{floor.vertical_contact({},{},false,-1,8190);});
+    rejects([&]{floor.vertical_contact({},{},false,4,16385);});
     for(unsigned n=0;n<69;++n)rejects([&]{okage::read_xcl(okage::Bytes(b).first(n));});
     for(auto [at,value]:{std::pair{12u,31u},{48u,0xffffffffu},{80u,164u},{96u,0x7f800000u}}) {
         auto bad=b;put(bad,at,value);rejects([&]{okage::read_xcl(bad);});
     }
     auto bad=b;put(bad,158,3,2);rejects([&]{okage::read_xcl(bad);});
+    bad=b;put(bad,160,3,2);rejects([&]{okage::read_xcl(bad);});
     bad=b;put(bad,165,61);rejects([&]{okage::read_xcl(bad);});
     bad=b;put(bad,bad.size()-4,0xffffffff);rejects([&]{okage::read_xcl(bad);});
     bad=b;bad[164]=0;rejects([&]{okage::read_xcl(bad);});

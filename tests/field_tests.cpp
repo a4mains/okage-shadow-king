@@ -59,5 +59,16 @@ int main(){try {
     require(cameraRelease.rotation==before);
     word(0xb88,0);rejects([&]{okage::OpeningField bad(b,[](int){},[](int){return true;});});
     rejects([&]{okage::field_projection({});});
+    b.assign(88,0);word(0,0x475453);word(16,32);word(20,1);word(24,88);
+    point(36,{0,0,0,1});point(64,{10,.5f,-2,1});word(76,__builtin_bit_cast(std::uint32_t, (1.f)));
+    const auto settings=okage::field_anchored_camera(b);
+    const auto anchored=okage::anchored_camera({0,0,10,1},settings,angles,sine);
+    require(anchored.position==okage::Float4({0,0,15,1})&&anchored.target==okage::Float4({0,-2,10,1}));
+    require(std::fegetround()==rounding);
+    word(24,87);rejects([&]{okage::field_anchored_camera(b);});word(24,88);
+    word(20,31);rejects([&]{okage::field_anchored_camera(b);});word(20,1);
+    word(76,0);rejects([&]{okage::field_anchored_camera(b);});word(76,__builtin_bit_cast(std::uint32_t, (1.f)));
+    word(60,0x10000);rejects([&]{okage::field_anchored_camera(b);});word(60,0);
+    word(64,0x7fc00000);rejects([&]{okage::field_anchored_camera(b);});
     std::cout<<"Camera look-at, blend, field dialogue gate and pending actor service passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

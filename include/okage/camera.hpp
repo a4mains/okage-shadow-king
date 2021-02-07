@@ -8,6 +8,14 @@ float camera_angle(float y,float x,const AtanTable& table);
 // Original 0x1b9440 look-at, using the game's quantized turn angles.
 Float4 camera_look_at(const Float4& position,const Float4& target,
                       const AtanTable& angles,const SineTable& sine);
+struct AnchoredCamera {
+    Float4 anchor{};
+    float distance_offset=0,distance_scale=0,target_height=0;
+};
+struct CameraPoints {Float4 position{},target{};};
+// Original room-camera manager mode 1, 0x136aa8.
+CameraPoints anchored_camera(const Float4& player,const AnchoredCamera& settings,
+                             const AtanTable& angles,const SineTable& sine);
 // Original 0x1b9690 / 0x1b9590 blending. Position is the evaluated motion
 // channel; target is the newly requested look-at point. Both blend together.
 struct CameraBlend {
