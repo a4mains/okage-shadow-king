@@ -1,0 +1,435 @@
+{
+  "status": "validated native collision components; no native exploration integration",
+  "native_tests": {
+    "Debug": 19,
+    "Release": 19,
+    "ASan_UBSan": 19,
+    "python": 12
+  },
+  "wall_reference": "local/wall-validation-v1",
+  "wall_reference_oracle_binary_hash": "Not recorded by initial verifier; source and result/query hashes retained",
+  "map_reference": "local/map-contact-validation-v2",
+  "experiments": {
+    "wall_debug": {
+      "scope": "Fresh capsule-wall contacts: hit, flags, material, correction XYZW and normal XYZ",
+      "function": "0x18bb10",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "native_sha256": "92d43d586137bc5b3b40ee62d8bc435ef94b4d560ab51164c620f079fbdcc5e3",
+      "excluded": [
+        "undefined normal W",
+        "stale failure metadata",
+        "cached/resumed queries",
+        "dynamic actor contacts",
+        "collision composition",
+        "app movement"
+      ],
+      "preconditions": "Synthetic record and capsule; owned/synthetic XCL; original helpers without captured RAM or OS",
+      "cases": [
+        {
+          "name": "wall",
+          "count": 280,
+          "hits": 77,
+          "exact": true,
+          "hashes": {
+            "local/wall-debug-final-v1/wall.xcl": "3d23582095c33308ec4387359414e66a07d6ef83a3c4621a68d7124a5cd9b28d",
+            "local/wall-debug-final-v1/wall.queries.bin": "454b6920f71d2d59a6c3003bc565ddb716af767a80fe4dc8ee0ad29984acc365",
+            "local/wall-validation-v1/wall.retail.bin": "f15b11ce6175ceab6d90aee25193732164194000b33ed240548d91a0c60b39be",
+            "local/wall-debug-final-v1/wall.native.bin": "f15b11ce6175ceab6d90aee25193732164194000b33ed240548d91a0c60b39be"
+          }
+        },
+        {
+          "name": "home1c",
+          "count": 1120,
+          "hits": 486,
+          "exact": true,
+          "hashes": {
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xcl": "91cf084b00eb1779c050c3339cc7765b4f2f86e3fd01bbda2e82954ae6445099",
+            "local/wall-debug-final-v1/home1c.queries.bin": "9c78c855c6a9d83851a716f6fd9424965c5549742ff99b1ac573083cffda3a63",
+            "local/wall-validation-v1/home1c.retail.bin": "681f5b04c483eec0b37d72faa7e2f7504f7cf9605af7ebbeae1c5fcea40b8523",
+            "local/wall-debug-final-v1/home1c.native.bin": "681f5b04c483eec0b37d72faa7e2f7504f7cf9605af7ebbeae1c5fcea40b8523"
+          }
+        }
+      ]
+    },
+    "wall_release": {
+      "scope": "Fresh capsule-wall contacts: hit, flags, material, correction XYZW and normal XYZ",
+      "function": "0x18bb10",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "native_sha256": "d2bc3147cbaac1a3ea3902a57cf1bd97844905cac6016bed74964f25e99e5c5f",
+      "excluded": [
+        "undefined normal W",
+        "stale failure metadata",
+        "cached/resumed queries",
+        "dynamic actor contacts",
+        "collision composition",
+        "app movement"
+      ],
+      "preconditions": "Synthetic record and capsule; owned/synthetic XCL; original helpers without captured RAM or OS",
+      "cases": [
+        {
+          "name": "wall",
+          "count": 280,
+          "hits": 77,
+          "exact": true,
+          "hashes": {
+            "local/wall-release-v1/wall.xcl": "3d23582095c33308ec4387359414e66a07d6ef83a3c4621a68d7124a5cd9b28d",
+            "local/wall-release-v1/wall.queries.bin": "454b6920f71d2d59a6c3003bc565ddb716af767a80fe4dc8ee0ad29984acc365",
+            "local/wall-validation-v1/wall.retail.bin": "f15b11ce6175ceab6d90aee25193732164194000b33ed240548d91a0c60b39be",
+            "local/wall-release-v1/wall.native.bin": "f15b11ce6175ceab6d90aee25193732164194000b33ed240548d91a0c60b39be"
+          }
+        },
+        {
+          "name": "home1c",
+          "count": 1120,
+          "hits": 486,
+          "exact": true,
+          "hashes": {
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xcl": "91cf084b00eb1779c050c3339cc7765b4f2f86e3fd01bbda2e82954ae6445099",
+            "local/wall-release-v1/home1c.queries.bin": "9c78c855c6a9d83851a716f6fd9424965c5549742ff99b1ac573083cffda3a63",
+            "local/wall-validation-v1/home1c.retail.bin": "681f5b04c483eec0b37d72faa7e2f7504f7cf9605af7ebbeae1c5fcea40b8523",
+            "local/wall-release-v1/home1c.native.bin": "681f5b04c483eec0b37d72faa7e2f7504f7cf9605af7ebbeae1c5fcea40b8523"
+          }
+        }
+      ]
+    },
+    "wall_sanitize": {
+      "scope": "Fresh capsule-wall contacts: hit, flags, material, correction XYZW and normal XYZ",
+      "function": "0x18bb10",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "native_sha256": "2cff977ae2a9e1dfe2447bb9340ce5eecaea6b5dfa9653b78b941f0fd62afe8e",
+      "excluded": [
+        "undefined normal W",
+        "stale failure metadata",
+        "cached/resumed queries",
+        "dynamic actor contacts",
+        "collision composition",
+        "app movement"
+      ],
+      "preconditions": "Synthetic record and capsule; owned/synthetic XCL; original helpers without captured RAM or OS",
+      "cases": [
+        {
+          "name": "wall",
+          "count": 280,
+          "hits": 77,
+          "exact": true,
+          "hashes": {
+            "local/wall-sanitize-v1/wall.xcl": "3d23582095c33308ec4387359414e66a07d6ef83a3c4621a68d7124a5cd9b28d",
+            "local/wall-sanitize-v1/wall.queries.bin": "454b6920f71d2d59a6c3003bc565ddb716af767a80fe4dc8ee0ad29984acc365",
+            "local/wall-validation-v1/wall.retail.bin": "f15b11ce6175ceab6d90aee25193732164194000b33ed240548d91a0c60b39be",
+            "local/wall-sanitize-v1/wall.native.bin": "f15b11ce6175ceab6d90aee25193732164194000b33ed240548d91a0c60b39be"
+          }
+        },
+        {
+          "name": "home1c",
+          "count": 1120,
+          "hits": 486,
+          "exact": true,
+          "hashes": {
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xcl": "91cf084b00eb1779c050c3339cc7765b4f2f86e3fd01bbda2e82954ae6445099",
+            "local/wall-sanitize-v1/home1c.queries.bin": "9c78c855c6a9d83851a716f6fd9424965c5549742ff99b1ac573083cffda3a63",
+            "local/wall-validation-v1/home1c.retail.bin": "681f5b04c483eec0b37d72faa7e2f7504f7cf9605af7ebbeae1c5fcea40b8523",
+            "local/wall-sanitize-v1/home1c.native.bin": "681f5b04c483eec0b37d72faa7e2f7504f7cf9605af7ebbeae1c5fcea40b8523"
+          }
+        }
+      ]
+    },
+    "map_debug": {
+      "scope": "Point/capsule map contacts with movement subdivision, ordered correction, first material IDs and final normals",
+      "functions": [
+        "0x187270",
+        "0x187498"
+      ],
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "native_sha256": "92d43d586137bc5b3b40ee62d8bc435ef94b4d560ab51164c620f079fbdcc5e3",
+      "excluded": [
+        "other shape types",
+        "point wall contacts",
+        "cached/resumed queries",
+        "undefined normal W",
+        "dynamic actor contacts",
+        "outer registry resolution",
+        "app movement"
+      ],
+      "cases": [
+        {
+          "name": "wall",
+          "count": 408,
+          "exact": true,
+          "flags": {
+            "0": 295,
+            "4": 113
+          },
+          "hashes": {
+            "local/map-contact-validation-v2/wall.xcl": "3d23582095c33308ec4387359414e66a07d6ef83a3c4621a68d7124a5cd9b28d",
+            "local/map-contact-validation-v2/wall.queries.bin": "45af65e7c8d36a34475c701eb8b1c33807f0bb7e26f380cb40aafce75028b0e1",
+            "local/map-contact-validation-v2/wall.retail.bin": "153145621b3639bfff8c519d128a1597f579bf68b52ccd4f84b8fcf7319f75dc",
+            "local/map-contact-validation-v2/wall.native.bin": "153145621b3639bfff8c519d128a1597f579bf68b52ccd4f84b8fcf7319f75dc"
+          }
+        },
+        {
+          "name": "stacked",
+          "count": 408,
+          "exact": true,
+          "flags": {
+            "0": 196,
+            "1": 172,
+            "2": 12,
+            "3": 28
+          },
+          "hashes": {
+            "local/map-contact-validation-v2/stacked.xcl": "25589ba42cd080e49dcb2125bc0ce9ee131b56b21c04d3952a81fe890abd3f3b",
+            "local/map-contact-validation-v2/stacked.queries.bin": "45af65e7c8d36a34475c701eb8b1c33807f0bb7e26f380cb40aafce75028b0e1",
+            "local/map-contact-validation-v2/stacked.retail.bin": "8fbb32e56d1e4ac57822dc5a2a195397bbc467a410254df21312e5d11d3e4b42",
+            "local/map-contact-validation-v2/stacked.native.bin": "8fbb32e56d1e4ac57822dc5a2a195397bbc467a410254df21312e5d11d3e4b42"
+          }
+        },
+        {
+          "name": "home1c",
+          "count": 1248,
+          "exact": true,
+          "flags": {
+            "0": 138,
+            "1": 560,
+            "4": 48,
+            "5": 502
+          },
+          "hashes": {
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xcl": "91cf084b00eb1779c050c3339cc7765b4f2f86e3fd01bbda2e82954ae6445099",
+            "local/map-contact-validation-v2/home1c.queries.bin": "22d641df5ffbc5b83b8d66ffc4a95976520ffd8f073bda60d1a496699645a255",
+            "local/map-contact-validation-v2/home1c.retail.bin": "316c38bb5a03cfd5814d7aaabbe15c42e0f4f6eb9bc218b6c2efc56d2d62089c",
+            "local/map-contact-validation-v2/home1c.native.bin": "316c38bb5a03cfd5814d7aaabbe15c42e0f4f6eb9bc218b6c2efc56d2d62089c"
+          }
+        },
+        {
+          "name": "room",
+          "count": 2,
+          "exact": true,
+          "flags": {
+            "1": 1,
+            "5": 1
+          },
+          "hashes": {
+            "local/map-contact-validation-v2/room.xcl": "1926d62e7a8c704b45bba8f389ea7d07406efe605599721443973c923b03a849",
+            "local/map-contact-validation-v2/room.queries.bin": "c8a17a9591c41695023e19860afb8edd07d5c2895ae93569a0b5b9828b91d442",
+            "local/map-contact-validation-v2/room.retail.bin": "0d6cae808e998398a00a528cbc6246fd6f3724eb0be36593a273c9deebbbefd1",
+            "local/map-contact-validation-v2/room.native.bin": "0d6cae808e998398a00a528cbc6246fd6f3724eb0be36593a273c9deebbbefd1"
+          }
+        }
+      ],
+      "oracle_sha256": "14534ee4b653143ded680cad017212d6b0b1d12cc8a2a858970c68f4a9bce877"
+    },
+    "map_release": {
+      "scope": "Point/capsule map contacts with movement subdivision, ordered correction, first material IDs and final normals",
+      "functions": [
+        "0x187270",
+        "0x187498"
+      ],
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "native_sha256": "78b807ed14458973840de5c43295c36cdf07e02d498408ac0beb601750317403",
+      "excluded": [
+        "other shape types",
+        "point wall contacts",
+        "cached/resumed queries",
+        "undefined normal W",
+        "dynamic actor contacts",
+        "outer registry resolution",
+        "app movement"
+      ],
+      "cases": [
+        {
+          "name": "wall",
+          "count": 408,
+          "exact": true,
+          "flags": {
+            "0": 295,
+            "4": 113
+          },
+          "hashes": {
+            "local/map-contact-release-v2/wall.xcl": "3d23582095c33308ec4387359414e66a07d6ef83a3c4621a68d7124a5cd9b28d",
+            "local/map-contact-release-v2/wall.queries.bin": "45af65e7c8d36a34475c701eb8b1c33807f0bb7e26f380cb40aafce75028b0e1",
+            "local/map-contact-validation-v2/wall.retail.bin": "153145621b3639bfff8c519d128a1597f579bf68b52ccd4f84b8fcf7319f75dc",
+            "local/map-contact-release-v2/wall.native.bin": "153145621b3639bfff8c519d128a1597f579bf68b52ccd4f84b8fcf7319f75dc"
+          }
+        },
+        {
+          "name": "stacked",
+          "count": 408,
+          "exact": true,
+          "flags": {
+            "0": 196,
+            "1": 172,
+            "2": 12,
+            "3": 28
+          },
+          "hashes": {
+            "local/map-contact-release-v2/stacked.xcl": "25589ba42cd080e49dcb2125bc0ce9ee131b56b21c04d3952a81fe890abd3f3b",
+            "local/map-contact-release-v2/stacked.queries.bin": "45af65e7c8d36a34475c701eb8b1c33807f0bb7e26f380cb40aafce75028b0e1",
+            "local/map-contact-validation-v2/stacked.retail.bin": "8fbb32e56d1e4ac57822dc5a2a195397bbc467a410254df21312e5d11d3e4b42",
+            "local/map-contact-release-v2/stacked.native.bin": "8fbb32e56d1e4ac57822dc5a2a195397bbc467a410254df21312e5d11d3e4b42"
+          }
+        },
+        {
+          "name": "home1c",
+          "count": 1248,
+          "exact": true,
+          "flags": {
+            "0": 138,
+            "1": 560,
+            "4": 48,
+            "5": 502
+          },
+          "hashes": {
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xcl": "91cf084b00eb1779c050c3339cc7765b4f2f86e3fd01bbda2e82954ae6445099",
+            "local/map-contact-release-v2/home1c.queries.bin": "22d641df5ffbc5b83b8d66ffc4a95976520ffd8f073bda60d1a496699645a255",
+            "local/map-contact-validation-v2/home1c.retail.bin": "316c38bb5a03cfd5814d7aaabbe15c42e0f4f6eb9bc218b6c2efc56d2d62089c",
+            "local/map-contact-release-v2/home1c.native.bin": "316c38bb5a03cfd5814d7aaabbe15c42e0f4f6eb9bc218b6c2efc56d2d62089c"
+          }
+        },
+        {
+          "name": "room",
+          "count": 2,
+          "exact": true,
+          "flags": {
+            "1": 1,
+            "5": 1
+          },
+          "hashes": {
+            "local/map-contact-release-v2/room.xcl": "1926d62e7a8c704b45bba8f389ea7d07406efe605599721443973c923b03a849",
+            "local/map-contact-release-v2/room.queries.bin": "c8a17a9591c41695023e19860afb8edd07d5c2895ae93569a0b5b9828b91d442",
+            "local/map-contact-validation-v2/room.retail.bin": "0d6cae808e998398a00a528cbc6246fd6f3724eb0be36593a273c9deebbbefd1",
+            "local/map-contact-release-v2/room.native.bin": "0d6cae808e998398a00a528cbc6246fd6f3724eb0be36593a273c9deebbbefd1"
+          }
+        }
+      ]
+    },
+    "map_sanitize": {
+      "scope": "Point/capsule map contacts with movement subdivision, ordered correction, first material IDs and final normals",
+      "functions": [
+        "0x187270",
+        "0x187498"
+      ],
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "native_sha256": "a9285f321f34b89b2cb912d2db49cea7024ec668ccac147edcf09efd64743375",
+      "excluded": [
+        "other shape types",
+        "point wall contacts",
+        "cached/resumed queries",
+        "undefined normal W",
+        "dynamic actor contacts",
+        "outer registry resolution",
+        "app movement"
+      ],
+      "cases": [
+        {
+          "name": "wall",
+          "count": 408,
+          "exact": true,
+          "flags": {
+            "0": 295,
+            "4": 113
+          },
+          "hashes": {
+            "local/map-contact-sanitize-v2/wall.xcl": "3d23582095c33308ec4387359414e66a07d6ef83a3c4621a68d7124a5cd9b28d",
+            "local/map-contact-sanitize-v2/wall.queries.bin": "45af65e7c8d36a34475c701eb8b1c33807f0bb7e26f380cb40aafce75028b0e1",
+            "local/map-contact-validation-v2/wall.retail.bin": "153145621b3639bfff8c519d128a1597f579bf68b52ccd4f84b8fcf7319f75dc",
+            "local/map-contact-sanitize-v2/wall.native.bin": "153145621b3639bfff8c519d128a1597f579bf68b52ccd4f84b8fcf7319f75dc"
+          }
+        },
+        {
+          "name": "stacked",
+          "count": 408,
+          "exact": true,
+          "flags": {
+            "0": 196,
+            "1": 172,
+            "2": 12,
+            "3": 28
+          },
+          "hashes": {
+            "local/map-contact-sanitize-v2/stacked.xcl": "25589ba42cd080e49dcb2125bc0ce9ee131b56b21c04d3952a81fe890abd3f3b",
+            "local/map-contact-sanitize-v2/stacked.queries.bin": "45af65e7c8d36a34475c701eb8b1c33807f0bb7e26f380cb40aafce75028b0e1",
+            "local/map-contact-validation-v2/stacked.retail.bin": "8fbb32e56d1e4ac57822dc5a2a195397bbc467a410254df21312e5d11d3e4b42",
+            "local/map-contact-sanitize-v2/stacked.native.bin": "8fbb32e56d1e4ac57822dc5a2a195397bbc467a410254df21312e5d11d3e4b42"
+          }
+        },
+        {
+          "name": "home1c",
+          "count": 1248,
+          "exact": true,
+          "flags": {
+            "0": 138,
+            "1": 560,
+            "4": 48,
+            "5": 502
+          },
+          "hashes": {
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xcl": "91cf084b00eb1779c050c3339cc7765b4f2f86e3fd01bbda2e82954ae6445099",
+            "local/map-contact-sanitize-v2/home1c.queries.bin": "22d641df5ffbc5b83b8d66ffc4a95976520ffd8f073bda60d1a496699645a255",
+            "local/map-contact-validation-v2/home1c.retail.bin": "316c38bb5a03cfd5814d7aaabbe15c42e0f4f6eb9bc218b6c2efc56d2d62089c",
+            "local/map-contact-sanitize-v2/home1c.native.bin": "316c38bb5a03cfd5814d7aaabbe15c42e0f4f6eb9bc218b6c2efc56d2d62089c"
+          }
+        },
+        {
+          "name": "room",
+          "count": 2,
+          "exact": true,
+          "flags": {
+            "1": 1,
+            "5": 1
+          },
+          "hashes": {
+            "local/map-contact-sanitize-v2/room.xcl": "1926d62e7a8c704b45bba8f389ea7d07406efe605599721443973c923b03a849",
+            "local/map-contact-sanitize-v2/room.queries.bin": "c8a17a9591c41695023e19860afb8edd07d5c2895ae93569a0b5b9828b91d442",
+            "local/map-contact-validation-v2/room.retail.bin": "0d6cae808e998398a00a528cbc6246fd6f3724eb0be36593a273c9deebbbefd1",
+            "local/map-contact-sanitize-v2/room.native.bin": "0d6cae808e998398a00a528cbc6246fd6f3724eb0be36593a273c9deebbbefd1"
+          }
+        }
+      ]
+    },
+    "vertical_regression": {
+      "scope": "Fresh floor/ceiling queries, correction, surface ID, normal XYZ and selected polygon metadata",
+      "functions": [
+        "0x18a0e0",
+        "0x18a640"
+      ],
+      "excluded": [
+        "cached/resumed queries",
+        "undefined normal W from retail stack",
+        "stale metadata when hit=false",
+        "wall/dynamic collision",
+        "app movement"
+      ],
+      "preconditions": "Synthetic object record, owned or synthetic map, unpatched helpers; no captured RAM or OS calls",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "native_sha256": "92d43d586137bc5b3b40ee62d8bc435ef94b4d560ab51164c620f079fbdcc5e3",
+      "cases": [
+        {
+          "name": "home1c",
+          "count": 402,
+          "exact": true,
+          "floor_hits": 78,
+          "ceiling_hits": 0,
+          "hashes": {
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xcl": "91cf084b00eb1779c050c3339cc7765b4f2f86e3fd01bbda2e82954ae6445099",
+            "local/vertical-after-wall-v1/home1c.queries.bin": "afbf305d5c1bd3027f88584eb4e059ea320c5cd6d23b0df344e29daa3f49c19a",
+            "local/vertical-validation-v2/home1c.retail.bin": "19a23c634ef81ede71d260a1fa5640d546cb9f58d8ab6cfc06966424e376db71",
+            "local/vertical-after-wall-v1/home1c.native.bin": "19a23c634ef81ede71d260a1fa5640d546cb9f58d8ab6cfc06966424e376db71"
+          }
+        },
+        {
+          "name": "stacked",
+          "count": 100,
+          "exact": true,
+          "floor_hits": 30,
+          "ceiling_hits": 14,
+          "hashes": {
+            "local/vertical-after-wall-v1/stacked.xcl": "25589ba42cd080e49dcb2125bc0ce9ee131b56b21c04d3952a81fe890abd3f3b",
+            "local/vertical-after-wall-v1/stacked.queries.bin": "fcaf27a1e34d620782c6d9a567fee7eaed1b3966bed731d9bfec0ce877d816f3",
+            "local/vertical-validation-v2/stacked.retail.bin": "718f9f00a5b5024662d8dc3928d1947391ac3091ab725a6d8515c71dbf814461",
+            "local/vertical-after-wall-v1/stacked.native.bin": "718f9f00a5b5024662d8dc3928d1947391ac3091ab725a6d8515c71dbf814461"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -4,7 +4,9 @@
 #include <iostream>
 #include <stdexcept>
 using Data=std::vector<std::uint8_t>;
-void check(bool b){if(!b)throw std::runtime_error("Collision test failed");}
+void check(bool b,unsigned at=__builtin_LINE()){
+    if(!b)throw std::runtime_error("Collision test failed at line "+std::to_string(at));
+}
 void put(Data& b,unsigned at,std::uint32_t v,unsigned size=4){for(unsigned i=0;i<size;++i)b.at(at+i)=v>>(i*8);}
 template<class F>void rejects(F f){try{f();}catch(const std::runtime_error&){return;}throw std::runtime_error("Invalid XCL accepted");}
 int main(){try {
@@ -48,6 +50,43 @@ int main(){try {
     check(above.hit&&above.normal[1]==1&&above.correction[1]>1&&above.correction[1]<1.002f);
     rejects([&]{floor.vertical_contact({},{},false,-1,8190);});
     rejects([&]{floor.vertical_contact({},{},false,4,16385);});
+    auto wall=m;
+    wall.chunks[0].vertices={{4,0,0,1},{4,0,8,1},{4,8,8,1},{4,8,0,1}};
+    wall.chunks[0].polygons={{{3,11,0,0xc000,0,0,1,2,3,0}}};
+    const okage::CollisionCapsule capsule{{0,2.5f,0,1},{0,5,0,1},1.9f};
+    const auto face=wall.capsule_wall_contact({2,0,4,1},{2.5f,0,4,1},capsule,8190);
+    check(face.hit&&face.material==11&&face.correction[0]<-.4009f&&face.correction[0]>-.4011f);
+    check(face.correction[1]==0&&face.correction[2]==0&&face.correction[3]==0&&face.normal[0]==-1);
+    const auto edge=wall.capsule_wall_contact({2.5f,0,-1,1},{3,0,-1,1},capsule,8190);
+    check(edge.hit&&edge.correction[0]<0&&edge.correction[2]<0);
+    check(!wall.capsule_wall_contact({2.5f,0,4,1},{2.5f,0,4,1},capsule,8190).hit);
+    check(!wall.capsule_wall_contact({3,0,4,1},{2.5f,0,4,1},capsule,8190).hit);
+    check(!wall.capsule_wall_contact({2,0,4,1},{2.5f,0,4,1},capsule,8190,2).hit);
+    auto later=wall.chunks[0].polygons.front();later.words[1]=12;
+    wall.chunks[0].polygons.push_back(later);
+    check(wall.capsule_wall_contact({2,0,4,1},{2.5f,0,4,1},capsule,8190).material==11);
+    rejects([&]{wall.capsule_wall_contact({},{},{{},{},1},8190);});
+    rejects([&]{wall.capsule_wall_contact({},{},{{},{0,1,0,0},-1},8190);});
+    rejects([&]{wall.capsule_wall_contact({},{},capsule,16385);});
+    wall.chunks[0].vertices.insert(wall.chunks[0].vertices.end(),{{0,6,0,1},{8,6,0,1},{8,6,8,1},{0,6,8,1}});
+    wall.chunks[0].polygons.push_back({{1,13,0xc000,0,0,4,5,6,7,4}});
+    const std::array<okage::CollisionShape,2> shapes{{{8,{{0,0,0,1},{},0}},
+                                                   {0x72,{{0,-2.5f,0,1},{0,-5,0,1},1.9f}}}};
+    const auto move=wall.move_contact({2,6,4,1},{7,6,4,1},shapes,{});
+    check(move.hit&&move.flags==5&&move.materials[0]==13&&move.materials[2]==11);
+    check(move.correction[0]>-4.902f&&move.correction[0]<-4.900f&&move.correction[3]==1);
+    check(move.correction[1]<-.0009f&&move.correction[1]>-.0011f);
+    auto settings=okage::MapCollisionSettings{};settings.wall_iterations=0;
+    const auto no_wall=wall.move_contact({2,6,4,1},{7,6,4,1},shapes,settings);
+    // Original 0x187270 has normalization/accumulation drift even with walls
+    // disabled. Verified by the independent room fixture in verify_map_contacts.
+    check(no_wall.flags==1&&__builtin_bit_cast(std::uint32_t, (no_wall.correction[0]))==0xb6800000);
+    settings.step=0;rejects([&]{wall.move_contact({},{},shapes,settings);});
+    auto bad_shapes=shapes;bad_shapes[1].flags=1;
+    rejects([&]{wall.move_contact({},{},bad_shapes,{});});
+    bad_shapes=shapes;bad_shapes[0].flags=0x20;
+    rejects([&]{wall.move_contact({},{},bad_shapes,{});});
+    check(std::fegetround()==rounding);
     for(unsigned n=0;n<69;++n)rejects([&]{okage::read_xcl(okage::Bytes(b).first(n));});
     for(auto [at,value]:{std::pair{12u,31u},{48u,0xffffffffu},{80u,164u},{96u,0x7f800000u}}) {
         auto bad=b;put(bad,at,value);rejects([&]{okage::read_xcl(bad);});

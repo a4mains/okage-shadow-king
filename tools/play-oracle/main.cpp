@@ -501,6 +501,59 @@ public:
         }
         writeFile(output,result.data(),result.size()*4);
     }
+    void xclWall(const std::vector<uint8>& asset,const std::vector<uint8>& queries,const char* output) {
+        if(asset.size()<69||asset.size()>0x400000||queries.size()%76)throw std::runtime_error("XCL wall fixture bounds");
+        constexpr uint32 base=0x900000,record=0xe00000,previous=0xe00100,desired=0xe00110,capsule=0xe00200;
+        std::memcpy(ee->m_ram+base,asset.data(),asset.size());
+        call(0x189028,{base,uint32(asset.size())});call(0x188f90,{base});
+        put(0x1feb40,65536);put(0x1feb44,0xf00000);put(0x1feb3c,0);
+        std::vector<uint32> result;
+        for(unsigned at=0;at<queries.size();at+=76) {
+            std::memset(ee->m_ram+record,0,0xb0);
+            std::memcpy(ee->m_ram+previous,queries.data()+at,32);
+            std::memcpy(ee->m_ram+capsule,queries.data()+at+32,36);
+            uint32 threshold,mask;std::memcpy(&threshold,queries.data()+at+68,4);std::memcpy(&mask,queries.data()+at+72,4);
+            if(threshold>16384)throw std::runtime_error("XCL wall threshold");
+            put(0x1feb34,threshold);put(0x1feb28,mask);
+            call(0x18bb10,{previous,desired,capsule,record});
+            std::array<uint32,10> row{};row[0]=ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0];row[1]=get(record+0x28);
+            if(row[0]) {
+                row[2]=get(record+0x44)&0xffff;
+                for(unsigned j=0;j<4;++j)row[3+j]=get(record+0x30+j*4);
+                for(unsigned j=0;j<3;++j)row[7+j]=get(record+0x70+j*4);
+            }
+            result.insert(result.end(),row.begin(),row.end());
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
+    void xclMove(const std::vector<uint8>& asset,const std::vector<uint8>& queries,const char* output) {
+        if(asset.size()<69||asset.size()>0x400000||queries.size()%112)throw std::runtime_error("XCL movement fixture bounds");
+        constexpr uint32 base=0x900000,record=0xe00000,previous=0xe00100,desired=0xe00110,capsule=0xe00200,shapes=0xe00300,point=0xe00320;
+        std::memcpy(ee->m_ram+base,asset.data(),asset.size());
+        call(0x189028,{base,uint32(asset.size())});call(0x188f90,{base});
+        put(0x1feb40,65536);put(0x1feb44,0xf00000);put(0x1feb3c,0);
+        std::vector<uint32> result;
+        for(unsigned at=0;at<queries.size();at+=112) {
+            auto word=[&](unsigned offset){uint32 v;std::memcpy(&v,queries.data()+at+offset,4);return v;};
+            if(word(68)>16384||word(100)>64||(word(104)&7)!=0||(word(104)&0x20)||(word(108)&7)!=2)
+                throw std::runtime_error("XCL movement fixture settings");
+            std::memset(ee->m_ram+record,0,0xb0);
+            std::memcpy(ee->m_ram+previous,queries.data()+at,32);
+            std::memcpy(ee->m_ram+capsule,queries.data()+at+32,36);
+            std::memcpy(ee->m_ram+point,queries.data()+at+76,16);
+            put(record,word(92));put(record+4,2);put(record+8,shapes);
+            put(shapes,word(104));put(shapes+4,point);put(shapes+8,word(108));put(shapes+12,capsule);
+            put(0x1feb34,word(68));put(0x1feb28,word(72));put(0x1fe318,word(96));put(0x1fe320,word(100));
+            call(0x187270,{previous,desired,0,record});
+            std::array<uint32,18> row{};row[0]=ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0];row[1]=get(record+0x28);
+            row[2]=get(record+0x40)&0xffff;row[3]=get(record+0x40)>>16;row[4]=get(record+0x44)&0xffff;
+            if(row[0])for(unsigned j=0;j<4;++j)row[5+j]=get(record+0x30+j*4);
+            for(unsigned kind=0;kind<3;++kind)if(row[1]&(1u<<kind))
+                for(unsigned j=0;j<3;++j)row[9+kind*3+j]=get(record+0x50+kind*16+j*4);
+            result.insert(result.end(),row.begin(),row.end());
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
     void eventWrite(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
         if(ram.size()!=32*1024*1024 || input.empty() || input.size()%8 || input.size()>1024)throw std::runtime_error("Event write fixture bounds");
         std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
@@ -914,6 +967,10 @@ int main(int argc,char** argv) {
             reference.xclProbe(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="xcl-vertical" && argc==6) {
             reference.xclVertical(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="xcl-wall" && argc==6) {
+            reference.xclWall(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="xcl-move" && argc==6) {
+            reference.xclMove(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="event-write" && argc==6) {
             reference.eventWrite(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="effect-probe" && argc==8) {

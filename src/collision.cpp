@@ -1,4 +1,5 @@
 #include "okage/collision.hpp"
+#include "collision_geometry.hpp"
 #include <algorithm>
 #include <bit>
 #include <cfenv>
@@ -179,6 +180,167 @@ SurfaceContact CollisionMap::vertical_contact(const Float4& previous,const Float
         }
     }
     if(result.hit)result.correction={0,ceiling?(height-desired[1])+0.001f:(height-desired[1])-0.001f,0,1};
+    return result;
+}
+SurfaceContact CollisionMap::capsule_wall_contact(const Float4& previous,const Float4& desired,
+                                                 const CollisionCapsule& capsule,std::int32_t threshold,
+                                                 std::uint32_t disabled_mask) const {
+    using namespace collision_geometry;Rounding rounding;
+    require(std::isfinite(capsule.radius)&&capsule.radius>0&&threshold>=0&&threshold<=16384,"Invalid capsule wall settings");
+    for(const auto& v:{previous,desired,capsule.first,capsule.second})
+        for(unsigned i=0;i<3;++i)require(std::isfinite(v[i]),"Non-finite capsule wall point");
+    const auto first=add(desired,capsule.first),second=add(desired,capsule.second);
+    const auto old_first=add(previous,capsule.first),old_second=add(previous,capsule.second);
+    const auto movement=sub(first,old_first),axis=sub(second,first);
+    require(dot(axis,axis)>0,"Degenerate collision capsule");
+    if(movement[0]==0&&movement[1]==0&&movement[2]==0)return {};
+    Float4 low{},high{};
+    for(unsigned i=0;i<3;++i) {
+        low[i]=std::min(std::min(first[i],second[i]),std::min(old_first[i],old_second[i]))-capsule.radius;
+        high[i]=std::max(std::max(first[i],second[i]),std::max(old_first[i],old_second[i]))+capsule.radius;
+    }
+    const auto candidates=query(low,high,2);std::vector<std::vector<bool>> marked;
+    const float radius_squared=capsule.radius*capsule.radius;
+    auto normal=[](const CollisionPolygon& p) {
+        return Float4{float(__builtin_bit_cast(std::int16_t, (p.words[3])))/16384.f,
+                      float(__builtin_bit_cast(std::int16_t, (p.words[2])))/16384.f,
+                      float(__builtin_bit_cast(std::int16_t, (p.words[4])))/16384.f,0};
+    };
+    auto contact=[&](unsigned ci,unsigned pi,Float4 delta,float distance) {
+        SurfaceContact r;r.hit=true;r.chunk=candidates[ci];r.polygon=pi;r.candidate=ci;
+        const auto& p=chunks[r.chunk].polygons[pi];r.material=p.words[1];r.normal=normal(p);
+        delta[1]=0;const auto direction=normalized(delta);
+        const float amount=(capsule.radius-std::sqrt(distance))+0.001f;
+        for(unsigned i=0;i<4;++i)r.correction[i]=direction[i]*amount;
+        return r;
+    };
+    for(unsigned ci=0;ci<candidates.size();++ci) {
+        const auto& chunk=chunks[candidates[ci]];marked.emplace_back(chunk.polygons.size(),false);
+        for(unsigned pi=0;pi<chunk.polygons.size();++pi) {
+            const auto& polygon=chunk.polygons[pi];const auto& w=polygon.words;
+            const auto ny=__builtin_bit_cast(std::int16_t, (w[2]));
+            if(ny>threshold||ny< -threshold||(disabled_mask&(1u<<((w[0]&0x3e)>>1))))continue;
+            const auto n=normal(polygon);if(dot(movement,n)>0)continue;
+            const Plane plane{chunk.vertices.at(w[5]),n};
+            const float first_distance=plane_distance_squared(plane,first),second_distance=plane_distance_squared(plane,second);
+            if(first_distance>radius_squared&&second_distance>radius_squared)continue;
+            marked[ci][pi]=true;
+            if(dot(sub(old_first,plane.point),n)<0||dot(sub(old_second,plane.point),n)<0)continue;
+            bool inside=true;
+            for(unsigned edge=0;edge<polygon.vertex_count();++edge) {
+                const auto& a=chunk.vertices.at(w[5+edge]);const auto& b=chunk.vertices.at(w[6+edge]);
+                const auto edge_normal=cross(sub(b,a),n);
+                if(dot(edge_normal,sub(first,a))>0||dot(edge_normal,sub(second,a))>0){inside=false;break;}
+            }
+            if(!inside)continue;
+            const auto point=second_distance<=first_distance?second:first;
+            Line intersection;
+            if(!intersect_planes(plane,{point,axis},intersection))continue;
+            const auto projection=project_line(intersection,point);
+            if(projection.distance_squared<=radius_squared)
+                return contact(ci,pi,sub(point,projection.point),projection.distance_squared);
+        }
+    }
+    const Line capsule_line{first,axis};
+    for(unsigned ci=0;ci<candidates.size();++ci) {
+        const auto& chunk=chunks[candidates[ci]];
+        for(unsigned pi=0;pi<chunk.polygons.size();++pi)if(marked[ci][pi]) {
+            const auto& polygon=chunk.polygons[pi];const auto& w=polygon.words;
+            for(unsigned edge=0;edge<polygon.vertex_count();++edge) {
+                const auto& a=chunk.vertices.at(w[5+edge]);const auto& b=chunk.vertices.at(w[6+edge]);
+                const Line line{a,sub(b,a)};
+                if(parallel(line.direction,axis)) {
+                    const auto projection=project_line(line,first);
+                    if(projection.distance_squared>radius_squared)continue;
+                    const float second_parameter=project_line(line,second).parameter;
+                    if(projection.parameter<0&&second_parameter<0)continue;
+                    if(projection.parameter>1&&second_parameter>1)continue;
+                    return contact(ci,pi,sub(first,projection.point),projection.distance_squared);
+                }
+                const auto closest=closest_lines(line,capsule_line);
+                if(closest.distance_squared>radius_squared)continue;
+                const unsigned region=unsigned(in_segment(closest.first_parameter))|
+                                      (unsigned(in_segment(closest.second_parameter))<<1);
+                if(region==3)return contact(ci,pi,sub(closest.second,closest.first),closest.distance_squared);
+                if(region==2) {
+                    const auto point=closest.first_parameter<0?a:b;
+                    const auto projection=project_line(capsule_line,point);
+                    if(projection.distance_squared<=radius_squared&&in_segment(projection.parameter))
+                        return contact(ci,pi,sub(projection.point,point),projection.distance_squared);
+                } else if(region==0) {
+                    const auto point=closest.second_parameter<0?first:second;Float4 intersection;
+                    if(!intersect_line_plane({point,axis},line,intersection))continue;
+                    if(!in_segment(line_parameter(line,intersection)))continue;
+                    const float distance=distance_squared(intersection,point);
+                    if(distance<=radius_squared)return contact(ci,pi,sub(point,intersection),distance);
+                }
+            }
+        }
+    }
+    return {};
+}
+MapContact CollisionMap::move_contact(const Float4& previous,const Float4& desired,
+                                     std::span<const CollisionShape> shapes,const MapCollisionSettings& settings) const {
+    using namespace collision_geometry;Rounding rounding;
+    require(std::isfinite(settings.step)&&settings.step>0&&std::isfinite(settings.floor_reach)&&settings.floor_reach>=0,
+            "Invalid map contact distances");
+    require(settings.normal_threshold>=0&&settings.normal_threshold<=16384&&settings.wall_iterations<=64,
+            "Invalid map contact settings");
+    for(const auto& v:{previous,desired})for(unsigned i=0;i<3;++i)require(std::isfinite(v[i]),"Non-finite map contact point");
+    for(const auto& shape:shapes) {
+        const auto type=shape.flags&7;
+        require(type==0||type==2,"Unrecovered map contact shape");
+        require(!(type==0&&(shape.flags&0x20)),"Unrecovered point wall contact");
+        for(unsigned i=0;i<3;++i)require(std::isfinite(shape.geometry.first[i]),"Non-finite shape point");
+        if(type==2) {
+            for(unsigned i=0;i<3;++i)require(std::isfinite(shape.geometry.second[i]),"Non-finite shape endpoint");
+            require(std::isfinite(shape.geometry.radius)&&shape.geometry.radius>0&&
+                    dot(sub(shape.geometry.second,shape.geometry.first),sub(shape.geometry.second,shape.geometry.first))>0,
+                    "Invalid map capsule");
+        }
+    }
+    MapContact result;
+    auto single_step=[&](const Float4& start,const Float4& end) {
+        Float4 position=end;bool hit=false;
+        auto apply=[&](const SurfaceContact& contact,unsigned kind) {
+            if(!contact.hit)return false;
+            hit=true;result.hit=true;result.flags|=1u<<kind;
+            if(result.materials[kind]==0)result.materials[kind]=contact.material;
+            result.normals[kind]=contact.normal;position=add(position,contact.correction);return true;
+        };
+        // Original 0x187498 processes all walls, then ceilings, then floors.
+        for(const auto& shape:shapes)if(shape.flags&0x20)
+            for(unsigned i=0;i<settings.wall_iterations;++i)
+                if(!apply(capsule_wall_contact(start,position,shape.geometry,settings.normal_threshold,settings.disabled_mask),2))break;
+        for(unsigned kind:{1u,0u})for(const auto& shape:shapes)if(shape.flags&(kind?0x10:8)) {
+            auto offset=shape.geometry.first;
+            if((shape.flags&7)==2) {
+                const auto& second=shape.geometry.second;
+                if(kind?second[1]<=offset[1]:offset[1]<=second[1])offset=second;
+            }
+            apply(vertical_contact(add(start,offset),add(position,offset),kind,settings.floor_reach,
+                                   settings.normal_threshold,settings.disabled_mask),kind);
+        }
+        if(hit) {
+            auto correction=sub(position,end);correction[3]=1;position=add(end,correction);
+        }
+        return position;
+    };
+    const auto delta=sub(desired,previous);const float length=std::sqrt(dot(delta,delta));
+    require(std::isfinite(length)&&length/settings.step<=65536,"Map contact subdivision bound");
+    Float4 position;
+    if(length<=settings.step)position=single_step(previous,desired);
+    else {
+        auto increment=normalized(delta);for(auto& f:increment)f=f*settings.step;
+        position=previous;float distance=settings.step;
+        while(distance<length) {
+            position=single_step(position,add(position,increment));distance=distance+settings.step;
+        }
+        auto remainder=normalized(delta);const float amount=length-(distance-settings.step);
+        for(auto& f:remainder)f=f*amount;
+        position=single_step(position,add(position,remainder));
+    }
+    if(result.hit){result.correction=sub(position,desired);result.correction[3]=1;}
     return result;
 }
 }

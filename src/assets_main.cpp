@@ -114,6 +114,48 @@ int main(int argc, char** argv) {
             }
             write(argv[4],out);return 0;
         }
+        if(command=="xcl-wall"&&argc==5) {
+            const auto map=okage::read_xcl(read(argv[2]));const auto queries=read(argv[3]);
+            if(queries.size()%76)throw std::runtime_error("XCL wall fixture extent");
+            std::vector<std::uint8_t> out;
+            for(std::size_t at=0;at<queries.size();at+=76) {
+                okage::Float4 previous{},desired{};okage::CollisionCapsule capsule;std::uint32_t threshold,mask;
+                std::memcpy(previous.data(),queries.data()+at,16);std::memcpy(desired.data(),queries.data()+at+16,16);
+                std::memcpy(capsule.first.data(),queries.data()+at+32,16);std::memcpy(capsule.second.data(),queries.data()+at+48,16);
+                std::memcpy(&capsule.radius,queries.data()+at+64,4);std::memcpy(&threshold,queries.data()+at+68,4);std::memcpy(&mask,queries.data()+at+72,4);
+                if(threshold>16384)throw std::runtime_error("XCL wall threshold");
+                const auto contact=map.capsule_wall_contact(previous,desired,capsule,threshold,mask);
+                std::array<std::uint32_t,10> row{};row[0]=contact.hit;row[1]=contact.hit?4:0;
+                if(contact.hit) {
+                    row[2]=contact.material;
+                    for(unsigned j=0;j<4;++j)row[3+j]=__builtin_bit_cast(std::uint32_t, (contact.correction[j]));
+                    for(unsigned j=0;j<3;++j)row[7+j]=__builtin_bit_cast(std::uint32_t, (contact.normal[j]));
+                }
+                for(auto n:row)for(unsigned j=0;j<4;++j)out.push_back(n>>(j*8));
+            }
+            write(argv[4],out);return 0;
+        }
+        if(command=="xcl-move"&&argc==5) {
+            const auto map=okage::read_xcl(read(argv[2]));const auto queries=read(argv[3]);
+            if(queries.size()%112)throw std::runtime_error("XCL movement fixture extent");
+            std::vector<std::uint8_t> out;
+            for(std::size_t at=0;at<queries.size();at+=112) {
+                okage::Float4 previous{},desired{};std::array<okage::CollisionShape,2> shapes{};okage::MapCollisionSettings settings;
+                auto copy=[&](auto& value,unsigned offset,unsigned size){std::memcpy(&value,queries.data()+at+offset,size);};
+                copy(previous,0,16);copy(desired,16,16);copy(shapes[1].geometry.first,32,16);copy(shapes[1].geometry.second,48,16);
+                copy(shapes[1].geometry.radius,64,4);copy(settings.normal_threshold,68,4);copy(settings.disabled_mask,72,4);
+                copy(shapes[0].geometry.first,76,16);copy(settings.floor_reach,92,4);copy(settings.step,96,4);
+                copy(settings.wall_iterations,100,4);copy(shapes[0].flags,104,4);copy(shapes[1].flags,108,4);
+                const auto contact=map.move_contact(previous,desired,shapes,settings);
+                std::array<std::uint32_t,18> row{};row[0]=contact.hit;row[1]=contact.flags;
+                for(unsigned j=0;j<3;++j)row[2+j]=contact.materials[j];
+                if(contact.hit)for(unsigned j=0;j<4;++j)row[5+j]=__builtin_bit_cast(std::uint32_t, (contact.correction[j]));
+                for(unsigned kind=0;kind<3;++kind)if(contact.flags&(1u<<kind))
+                    for(unsigned j=0;j<3;++j)row[9+kind*3+j]=__builtin_bit_cast(std::uint32_t, (contact.normals[kind][j]));
+                for(auto n:row)for(unsigned j=0;j<4;++j)out.push_back(n>>(j*8));
+            }
+            write(argv[4],out);return 0;
+        }
         if(command=="event-write" && argc==4) {
             const auto input=read(argv[2]);
             if(input.empty()||input.size()%8||input.size()>1024)throw std::runtime_error("Event write fixture bounds");
