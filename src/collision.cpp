@@ -4,6 +4,7 @@
 #include <bit>
 #include <cfenv>
 #include <cmath>
+#include <functional>
 #include <map>
 #include <set>
 #include <stdexcept>
@@ -299,7 +300,7 @@ MapContact CollisionMap::move_contact(const Float4& previous,const Float4& desir
                     "Invalid map capsule");
         }
     }
-    MapContact result;
+    MapContact result;Float4 step_correction{};
     auto single_step=[&](const Float4& start,const Float4& end) {
         Float4 position=end;bool hit=false;
         auto apply=[&](const SurfaceContact& contact,unsigned kind) {
@@ -322,14 +323,18 @@ MapContact CollisionMap::move_contact(const Float4& previous,const Float4& desir
                                    settings.normal_threshold,settings.disabled_mask),kind);
         }
         if(hit) {
-            auto correction=sub(position,end);correction[3]=1;position=add(end,correction);
+            step_correction=sub(position,end);step_correction[3]=1;position=add(end,step_correction);
         }
         return position;
     };
     const auto delta=sub(desired,previous);const float length=std::sqrt(dot(delta,delta));
     require(std::isfinite(length)&&length/settings.step<=65536,"Map contact subdivision bound");
     Float4 position;
-    if(length<=settings.step)position=single_step(previous,desired);
+    if(length<=settings.step) {
+        single_step(previous,desired);
+        if(result.hit)result.correction=step_correction;
+        return result;
+    }
     else {
         auto increment=normalized(delta);for(auto& f:increment)f=f*settings.step;
         position=previous;float distance=settings.step;
@@ -342,5 +347,163 @@ MapContact CollisionMap::move_contact(const Float4& previous,const Float4& desir
     }
     if(result.hit){result.correction=sub(position,desired);result.correction[3]=1;}
     return result;
+}
+ActorContact capsule_pair_contact(const Float4& previous,const Float4& desired,
+                                  const CollisionCapsule& moving,const Float4& other_position,
+                                  const CollisionCapsule& other,float reach,float threshold) {
+    using namespace collision_geometry;Rounding rounding;
+    require(std::isfinite(reach)&&reach>=0&&std::isfinite(threshold)&&threshold>=0&&threshold<=1,"Invalid actor contact settings");
+    for(const auto& v:{previous,desired,other_position,moving.first,moving.second,other.first,other.second})
+        for(unsigned i=0;i<3;++i)require(std::isfinite(v[i]),"Non-finite actor contact point");
+    for(const auto& c:{moving,other})require(std::isfinite(c.radius)&&c.radius>0&&
+        dot(sub(c.second,c.first),sub(c.second,c.first))>0,"Invalid actor capsule");
+    const auto first=add(desired,moving.first),second=add(desired,moving.second);
+    const auto old_first=add(previous,moving.first),old_second=add(previous,moving.second);
+    const auto other_first=add(other_position,other.first),other_second=add(other_position,other.second);
+    // 0x18d098 tests each endpoint against the other capsule's end planes,
+    // using the other radius alone. The horizontal stage uses the radius sum.
+    auto endpoint=[&](const Float4& old,const Float4& point,const Plane& plane) {
+        ActorContact result;
+        if(dot(sub(old,plane.point),plane.normal)<0)return result;
+        Float4 intersection{};unsigned kind;
+        if(plane.normal[1]< -threshold) {
+            auto probe=point;probe[1]=probe[1]+reach;probe[3]=1;
+            if(dot(sub(probe,plane.point),plane.normal)>0)return result;
+            if(!intersect_line_plane(plane,{point,{0,1,0,0}},intersection)||
+                distance_squared(plane.point,intersection)>other.radius*other.radius)return result;
+            result.correction[1]=(intersection[1]-0.001f)-point[1];kind=0;
+        } else {
+            if(dot(sub(point,plane.point),plane.normal)>0)return result;
+            if(!intersect_line_plane(plane,{old,sub(point,old)},intersection)||
+                distance_squared(plane.point,intersection)>other.radius*other.radius)return result;
+            for(unsigned i=0;i<3;++i)result.correction[i]=(intersection[i]+plane.normal[i]*0.001f)-point[i];
+            kind=plane.normal[1]>threshold?1:2;
+        }
+        result.hit=true;result.flags=1u<<kind;result.normals[kind]=plane.normal;return result;
+    };
+    for(const auto& plane:{Plane{other_first,normalized(sub(other.first,other.second))},
+                          Plane{other_second,normalized(sub(other.second,other.first))}}) {
+        auto result=endpoint(old_first,first,plane);if(result.hit)return result;
+        result=endpoint(old_second,second,plane);if(result.hit)return result;
+    }
+    const float radius=moving.radius+other.radius,radius_squared=radius*radius;
+    const Line line{other_first,sub(other_second,other_first)},capsule{first,sub(second,first)};
+    auto horizontal=[&](Float4 delta,float distance) {
+        ActorContact result;result.hit=true;delta[1]=0;const auto direction=normalized(delta);
+        const float amount=(radius-std::sqrt(distance))+0.001f;
+        for(unsigned i=0;i<3;++i)result.correction[i]=direction[i]*amount;
+        return result;
+    };
+    if(parallel(line.direction,capsule.direction)) {
+        const auto projection=project_line(line,first);
+        if(projection.distance_squared>radius_squared)return {};
+        const float t=project_line(line,second).parameter;
+        if((projection.parameter<0&&t<0)||(projection.parameter>1&&t>1))return {};
+        return horizontal(sub(first,projection.point),projection.distance_squared);
+    }
+    const auto closest=closest_lines(line,capsule);
+    if(closest.distance_squared>radius_squared)return {};
+    const unsigned region=unsigned(in_segment(closest.first_parameter))|(unsigned(in_segment(closest.second_parameter))<<1);
+    if(region==3)return horizontal(sub(closest.second,closest.first),closest.distance_squared);
+    if(region==2) {
+        const auto point=closest.first_parameter<0?other_first:other_second;
+        const auto projection=project_line(capsule,point);
+        if(projection.distance_squared>radius_squared||!in_segment(projection.parameter))return {};
+        return horizontal(sub(projection.point,point),projection.distance_squared);
+    }
+    if(region==0) {
+        const auto point=closest.second_parameter<0?first:second;Float4 intersection{};
+        if(!intersect_line_plane({point,capsule.direction},line,intersection))return {};
+        const unsigned axis=std::fabs(double(line.direction[0]))>double(0.1f)?0:(std::fabs(double(line.direction[1]))>double(0.1f)?1:2);
+        require(line.direction[axis]!=0,"Degenerate actor contact parameter");
+        const float parameter=(intersection[axis]-line.point[axis])/line.direction[axis];
+        if(!in_segment(parameter))return {};
+        const float distance=distance_squared(intersection,point);
+        if(distance<=radius_squared)return horizontal(sub(point,intersection),distance);
+    }
+    return {};
+}
+bool resolve_collision(const CollisionMap& map,std::span<CollisionBody> bodies,std::size_t moving,
+                       Float4& desired,const MapCollisionSettings& settings,float actor_threshold,std::int32_t priority_bias) {
+    using namespace collision_geometry;Rounding rounding;
+    require(bodies.size()<=256&&moving<bodies.size(),"Invalid collision registry");
+    for(const auto& body:bodies) {
+        require(std::isfinite(body.broad_radius)&&body.broad_radius>=0,"Invalid collision broad radius");
+        for(const auto& v:{body.position,body.previous})for(unsigned i=0;i<3;++i)
+            require(std::isfinite(v[i]),"Non-finite collision body position");
+    }
+    std::function<bool(std::size_t,Float4&,unsigned)> resolve;
+    auto merge_map=[](MapContact& into,const MapContact& from) {
+        into.flags|=from.flags;
+        for(unsigned kind=0;kind<3;++kind) {
+            if(!into.materials[kind])into.materials[kind]=from.materials[kind];
+            if(from.flags&(1u<<kind))into.normals[kind]=from.normals[kind];
+        }
+        into.correction=from.correction;
+    };
+    auto pair=[&](std::size_t a,std::size_t b,const Float4& end) {
+        auto& body=bodies[a];const auto& other=bodies[b];Float4 position=end;bool hit=false;
+        for(const auto& shape:body.shapes)if(shape.flags&0x40)for(const auto& target:other.shapes) {
+            const auto type=shape.flags&7,other_type=target.flags&7;
+            // Original dispatch has no point target handler for these types.
+            if(other_type==0&&(type==0||type==1||type==2))continue;
+            require(type==2&&other_type==2,"Unrecovered dynamic shape pair");
+            const auto contact=capsule_pair_contact(body.previous,position,shape.geometry,other.position,
+                                                    target.geometry,body.floor_reach,actor_threshold);
+            if(!contact.hit)continue;
+            position=add(position,contact.correction);body.contact.flags|=contact.flags|8;
+            for(unsigned kind=0;kind<3;++kind)if(contact.flags&(1u<<kind))body.contact.normals[kind]=contact.normals[kind];
+            if(body.other_body<0)body.other_body=std::int32_t(b);hit=true;
+        }
+        if(hit){body.contact.correction=sub(position,end);body.contact.correction[3]=1;}
+        return hit;
+    };
+    auto dynamic=[&](std::size_t index,const Float4& end,unsigned depth) {
+        auto& body=bodies[index];bool hit=false;
+        if(body.flags&2)return hit;
+        for(std::size_t other_index=0;other_index<bodies.size();++other_index) {
+            auto& other=bodies[other_index];
+            if(!other.registered||other.id==body.id||(other.flags&2))continue;
+            const auto delta=sub(end,other.position);const float radius=body.broad_radius+other.broad_radius;
+            if(dot(delta,delta)>radius*radius||!pair(index,other_index,end))continue;
+            hit=true;
+            if(body.priority>=other.priority+std::uint32_t(priority_bias))continue;
+            const auto old_id=other.id;other.id=body.id;
+            auto push=body.contact.correction;for(unsigned i=0;i<3;++i)push[i]=-push[i];
+            auto destination=add(other.position,push);bool pushed_hit;
+            try {pushed_hit=resolve(other_index,destination,depth+1);}
+            catch(...){other.id=old_id;throw;}
+            const bool blocked=pushed_hit&&((other.contact.flags&0xc)||
+                ((other.contact.flags&1)&&((body.contact.flags&9)==9)));
+            if(!blocked) {
+                other.position=destination;
+                for(unsigned i=0;i<3;++i)body.contact.correction[i]=0;
+            }
+            other.id=old_id;
+        }
+        return hit;
+    };
+    resolve=[&](std::size_t index,Float4& end,unsigned depth) {
+        require(depth<=256,"Collision push recursion bound");auto& body=bodies[index];
+        body.other_body=-1;body.contact.flags&=~15u;body.contact.materials={};body.contact.hit=false;
+        auto position=end;bool hit=false;
+        for(unsigned pass=0;pass<2;++pass) {
+            if(!dynamic(index,position,depth))break;
+            hit=true;position=add(position,body.contact.correction);
+        }
+        auto map_settings=settings;map_settings.floor_reach=body.floor_reach;
+        for(unsigned pass=0;pass<2;++pass) {
+            const auto contact=map.move_contact(body.previous,position,body.shapes,map_settings);
+            if(!contact.hit)break;
+            hit=true;merge_map(body.contact,contact);position=add(position,body.contact.correction);
+        }
+        body.contact.hit=hit;
+        if(hit) {
+            body.contact.correction=sub(position,end);body.contact.correction[3]=1;
+            if(body.flags&1){end=position;end[3]=1;}
+        }
+        return hit;
+    };
+    return resolve(moving,desired,0);
 }
 }

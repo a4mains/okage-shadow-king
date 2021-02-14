@@ -86,6 +86,29 @@ int main(){try {
     rejects([&]{wall.move_contact({},{},bad_shapes,{});});
     bad_shapes=shapes;bad_shapes[0].flags=0x20;
     rejects([&]{wall.move_contact({},{},bad_shapes,{});});
+    const auto actor_capsule=shapes[1].geometry;
+    const auto side=okage::capsule_pair_contact({-4,0,0,1},{-3,0,0,1},actor_capsule,{0,0,0,1},actor_capsule,4,.5f);
+    check(side.hit&&side.flags==0&&side.correction[0]<-.8009f&&side.correction[0]>-.8011f);
+    check(!okage::capsule_pair_contact({-6,0,0,1},{-5,0,0,1},actor_capsule,{0,0,0,1},actor_capsule,4,.5f).hit);
+    rejects([&]{okage::capsule_pair_contact({},{},actor_capsule,{},actor_capsule,-1,.5f);});
+    auto empty=wall;empty.chunks[0].polygons.clear();
+    std::array<okage::CollisionBody,2> bodies;
+    for(unsigned i=0;i<2;++i) {
+        bodies[i].shapes.assign(shapes.begin(),shapes.end());bodies[i].id=i;
+        bodies[i].broad_radius=3.8f;bodies[i].priority=10;
+        bodies[i].previous=bodies[i].position={i==0?-4.f:0.f,0,0,1};
+    }
+    auto destination=okage::Float4{-3,0,0,1};
+    check(okage::resolve_collision(empty,bodies,0,destination,{},.5f));
+    check(bodies[0].contact.flags==8&&bodies[0].other_body==1&&destination[0]<-3.8f);
+    check(bodies[1].position[0]==0&&bodies[0].position[0]==-4);
+    bodies[1].priority=20;destination={-3,0,0,1};
+    check(okage::resolve_collision(empty,bodies,0,destination,{},.5f));
+    check(destination[0]==-3&&bodies[1].position[0]>.8009f&&bodies[1].position[0]<.8011f&&bodies[1].id==1);
+    bodies[1].flags|=2;destination={-3,0,0,1};
+    check(!okage::resolve_collision(empty,bodies,0,destination,{},.5f));
+    check(bodies[0].contact.flags==0&&bodies[0].other_body==-1);
+    rejects([&]{okage::resolve_collision(empty,bodies,2,destination,{},.5f);});
     check(std::fegetround()==rounding);
     for(unsigned n=0;n<69;++n)rejects([&]{okage::read_xcl(okage::Bytes(b).first(n));});
     for(auto [at,value]:{std::pair{12u,31u},{48u,0xffffffffu},{80u,164u},{96u,0x7f800000u}}) {

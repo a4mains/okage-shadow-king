@@ -554,6 +554,64 @@ public:
         }
         writeFile(output,result.data(),result.size()*4);
     }
+    void capsulePair(const std::vector<uint8>& queries,const char* output) {
+        if(queries.size()%128)throw std::runtime_error("Capsule pair fixture extent");
+        constexpr uint32 record=0xe00000,previous=0xe00100,desired=0xe00110,position=0xe00120,moving=0xe00200,other=0xe00300;
+        std::vector<uint32> result;
+        for(unsigned at=0;at<queries.size();at+=128) {
+            std::memset(ee->m_ram+record,0,0xb0);
+            std::memcpy(ee->m_ram+previous,queries.data()+at,48);
+            std::memcpy(ee->m_ram+moving,queries.data()+at+48,36);
+            std::memcpy(ee->m_ram+other,queries.data()+at+84,36);
+            std::memcpy(ee->m_ram+record,queries.data()+at+120,4);
+            std::memcpy(ee->m_ram+0x1feb30,queries.data()+at+124,4);
+            call(0x18dbf8,{previous,desired,moving,position,other,record});
+            std::array<uint32,14> row{};row[0]=ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0];row[1]=get(record+0x28);
+            if(row[0])for(unsigned j=0;j<3;++j)row[2+j]=get(record+0x30+j*4);
+            for(unsigned kind=0;kind<3;++kind)if(row[1]&(1u<<kind))
+                for(unsigned j=0;j<3;++j)row[5+kind*3+j]=get(record+0x50+kind*16+j*4);
+            result.insert(result.end(),row.begin(),row.end());
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
+    void collisionWorld(const std::vector<uint8>& asset,const std::vector<uint8>& queries,const char* output) {
+        if(asset.size()<69||asset.size()>0x400000||queries.size()%396)throw std::runtime_error("Collision world fixture bounds");
+        constexpr uint32 base=0x900000,records=0xe00000,desired=0xe01000;
+        std::memcpy(ee->m_ram+base,asset.data(),asset.size());call(0x189028,{base,uint32(asset.size())});call(0x188f90,{base});
+        put(0x1feb40,65536);put(0x1feb44,0xf00000);put(0x1feb3c,0);std::vector<uint32> result;
+        for(unsigned at=0;at<queries.size();at+=396) {
+            auto word=[&](unsigned off){uint32 v;std::memcpy(&v,queries.data()+at+off,4);return v;};
+            const auto moving=word(0);if(moving>=3||word(4)!=3)throw std::runtime_error("Collision world body count");
+            std::memset(ee->m_ram+records,0,0x1000);std::memset(ee->m_ram+0x1fe328,0,256*8);
+            put(0x1feb28,word(8));put(0x1feb34,word(12));put(0x1fe320,word(16));put(0x1fe31c,word(20));
+            put(0x1fe318,word(24));put(0x1feb30,word(28));std::memcpy(ee->m_ram+desired,queries.data()+at+32,16);
+            for(unsigned i=0;i<3;++i) {
+                const auto off=48+i*116,record=records+i*0x200,previous=record+0x100,position=record+0x110,
+                           point=record+0x120,capsule=record+0x130,shapes=record+0x160;
+                std::memcpy(ee->m_ram+previous,queries.data()+at+off,84);
+                put(record,word(off+88));put(record+4,2);put(record+8,shapes);put(record+0xc,word(off+92));
+                put(record+0x14,word(off+96));put(record+0x18,word(off+84));put(record+0x1c,previous);put(record+0x20,position);
+                put(record+0x9c,word(off+100));put(shapes,word(off+104));put(shapes+4,point);
+                put(shapes+8,word(off+108));put(shapes+12,capsule);
+                put(0x1fe328+i*8,word(off+112));put(0x1fe32c+i*8,record);
+            }
+            const auto record=records+moving*0x200;call(0x186fa0,{record+0x100,desired,0,record});
+            result.push_back(ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0]);
+            for(unsigned j=0;j<4;++j)result.push_back(get(desired+j*4));
+            for(unsigned i=0;i<3;++i) {
+                const auto r=records+i*0x200,flags=get(r+0x28);
+                for(unsigned j=0;j<4;++j)result.push_back(get(r+0x110+j*4));result.push_back(flags);
+                result.push_back(get(r+0x40)&0xffff);result.push_back(get(r+0x40)>>16);result.push_back(get(r+0x44)&0xffff);
+                const auto target=get(r+0x80);
+                if(target&&(target<records||target>=records+3*0x200||(target-records)%0x200))throw std::runtime_error("Collision target outside fixture");
+                result.push_back(target?(target-records)/0x200+1:0);
+                for(unsigned j=0;j<4;++j)result.push_back((flags&15)?get(r+0x30+j*4):0);
+                for(unsigned kind=0;kind<3;++kind)for(unsigned j=0;j<3;++j)
+                    result.push_back((flags&(1u<<kind))?get(r+0x50+kind*16+j*4):0);
+            }
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
     void eventWrite(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
         if(ram.size()!=32*1024*1024 || input.empty() || input.size()%8 || input.size()>1024)throw std::runtime_error("Event write fixture bounds");
         std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
@@ -971,6 +1029,10 @@ int main(int argc,char** argv) {
             reference.xclWall(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="xcl-move" && argc==6) {
             reference.xclMove(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="capsule-pair" && argc==5) {
+            reference.capsulePair(readFile(argv[3]),argv[4]);
+        } else if(command=="collision-world" && argc==6) {
+            reference.collisionWorld(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="event-write" && argc==6) {
             reference.eventWrite(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="effect-probe" && argc==8) {

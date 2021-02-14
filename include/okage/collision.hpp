@@ -31,6 +31,24 @@ struct MapContact {
     Float4 correction{};
     std::array<Float4,3> normals{};
 };
+struct ActorContact {
+    bool hit=false;
+    std::uint32_t flags=0;
+    Float4 correction{};
+    std::array<Float4,3> normals{};
+};
+ActorContact capsule_pair_contact(const Float4& previous,const Float4& desired,
+                                  const CollisionCapsule& moving,const Float4& other_position,
+                                  const CollisionCapsule& other,float floor_reach,float normal_threshold);
+struct CollisionBody {
+    std::vector<CollisionShape> shapes;
+    Float4 previous{},position{};
+    float floor_reach=4,broad_radius=0;
+    std::uint32_t flags=1,priority=0,id=0;
+    bool registered=true;
+    MapContact contact;
+    std::int32_t other_body=-1;
+};
 struct CollisionMap {
     std::array<std::int32_t,15> header{};
     std::vector<std::uint8_t> payload;
@@ -52,4 +70,7 @@ struct CollisionMap {
                             std::span<const CollisionShape> shapes,const MapCollisionSettings& settings) const;
 };
 CollisionMap read_xcl(Bytes bytes);
+bool resolve_collision(const CollisionMap& map,std::span<CollisionBody> bodies,std::size_t moving,
+                       Float4& desired,const MapCollisionSettings& settings,float actor_normal_threshold,
+                       std::int32_t priority_bias=0);
 }

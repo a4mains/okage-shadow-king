@@ -156,6 +156,58 @@ int main(int argc, char** argv) {
             }
             write(argv[4],out);return 0;
         }
+        if(command=="capsule-pair"&&argc==4) {
+            const auto queries=read(argv[2]);if(queries.size()%128)throw std::runtime_error("Capsule pair fixture extent");
+            std::vector<std::uint8_t> out;
+            for(std::size_t at=0;at<queries.size();at+=128) {
+                okage::Float4 previous{},desired{},other_position{};okage::CollisionCapsule moving,other;float reach,threshold;
+                auto copy=[&](auto& value,unsigned offset,unsigned size){std::memcpy(&value,queries.data()+at+offset,size);};
+                copy(previous,0,16);copy(desired,16,16);copy(other_position,32,16);
+                copy(moving.first,48,16);copy(moving.second,64,16);copy(moving.radius,80,4);
+                copy(other.first,84,16);copy(other.second,100,16);copy(other.radius,116,4);copy(reach,120,4);copy(threshold,124,4);
+                const auto contact=okage::capsule_pair_contact(previous,desired,moving,other_position,other,reach,threshold);
+                std::array<std::uint32_t,14> row{};row[0]=contact.hit;row[1]=contact.flags;
+                if(contact.hit)for(unsigned j=0;j<3;++j)row[2+j]=__builtin_bit_cast(std::uint32_t, (contact.correction[j]));
+                for(unsigned kind=0;kind<3;++kind)if(contact.flags&(1u<<kind))
+                    for(unsigned j=0;j<3;++j)row[5+kind*3+j]=__builtin_bit_cast(std::uint32_t, (contact.normals[kind][j]));
+                for(auto n:row)for(unsigned j=0;j<4;++j)out.push_back(n>>(j*8));
+            }
+            write(argv[3],out);return 0;
+        }
+        if(command=="collision-world"&&argc==5) {
+            const auto map=okage::read_xcl(read(argv[2]));const auto queries=read(argv[3]);
+            if(queries.size()%396)throw std::runtime_error("Collision world fixture extent");
+            std::vector<std::uint8_t> out;
+            for(std::size_t at=0;at<queries.size();at+=396) {
+                auto word=[&](unsigned off){std::uint32_t n;std::memcpy(&n,queries.data()+at+off,4);return n;};
+                auto scalar=[&](unsigned off){return __builtin_bit_cast(float, (word(off)));};
+                auto vector=[&](unsigned off){return okage::Float4{scalar(off),scalar(off+4),scalar(off+8),scalar(off+12)};};
+                if(word(4)!=3)throw std::runtime_error("Collision world body count");
+                okage::MapCollisionSettings settings;settings.disabled_mask=word(8);settings.normal_threshold=word(12);
+                settings.wall_iterations=word(16);settings.step=scalar(24);auto desired=vector(32);
+                std::array<okage::CollisionBody,3> bodies;
+                for(unsigned i=0;i<3;++i) {
+                    auto& b=bodies[i];const unsigned off=48+i*116;b.previous=vector(off);b.position=vector(off+16);
+                    b.shapes={{word(off+104),{vector(off+32),{},0}},
+                              {word(off+108),{vector(off+48),vector(off+64),scalar(off+80)}}};
+                    b.broad_radius=scalar(off+84);b.floor_reach=scalar(off+88);b.flags=word(off+92);
+                    b.priority=word(off+96);b.id=word(off+100);b.registered=word(off+112)!=0;
+                }
+                const auto hit=okage::resolve_collision(map,bodies,word(0),desired,settings,scalar(28),__builtin_bit_cast(std::int32_t, (word(20))));
+                std::vector<std::uint32_t> row{std::uint32_t(hit)};
+                auto floats=[&](const okage::Float4& v,unsigned count){for(unsigned j=0;j<count;++j)row.push_back(__builtin_bit_cast(std::uint32_t, (v[j])));};
+                floats(desired,4);
+                for(const auto& b:bodies) {
+                    floats(b.position,4);row.push_back(b.contact.flags);
+                    for(auto id:b.contact.materials)row.push_back(id);
+                    row.push_back(b.other_body+1);
+                    floats((b.contact.flags&15)?b.contact.correction:okage::Float4{},4);
+                    for(unsigned kind=0;kind<3;++kind)floats((b.contact.flags&(1u<<kind))?b.contact.normals[kind]:okage::Float4{},3);
+                }
+                for(auto n:row)for(unsigned j=0;j<4;++j)out.push_back(n>>(j*8));
+            }
+            write(argv[4],out);return 0;
+        }
         if(command=="event-write" && argc==4) {
             const auto input=read(argv[2]);
             if(input.empty()||input.size()%8||input.size()>1024)throw std::runtime_error("Event write fixture bounds");

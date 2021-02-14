@@ -1,0 +1,380 @@
+{
+  "status": "Native collision components validated; scene controls not integrated",
+  "native_tests": {
+    "Debug": 19,
+    "Release": 19,
+    "ASan_UBSan": 19,
+    "python": 12
+  },
+  "original_world_reference": "local/collision-world-validation-v1",
+  "initial_native_world_mismatches": {
+    "home1c_rows": [
+      323,
+      416
+    ],
+    "resolution": "Short displacement returns original step correction directly; no add/subtract round trip"
+  },
+  "experiments": {
+    "pair_debug": {
+      "scope": "Capsule-pair helper hit, flags, correction XYZ and defined contact normals",
+      "functions": [
+        "0x18dbf8",
+        "0x18d098"
+      ],
+      "cases": 1942,
+      "exact": true,
+      "hits_by_flags": {
+        "0": 159,
+        "1": 124,
+        "2": 8,
+        "4": 7
+      },
+      "excluded": [
+        "correction W and normal W",
+        "stale failure fields",
+        "shape dispatch/registry/pushing",
+        "app movement"
+      ],
+      "preconditions": "Synthetic capsule/record inputs; original helpers; no captured RAM, OS services or VU microprogram",
+      "hashes": {
+        "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "build/native/okage-assets": "eb17887a2eb0703c90b5fe724219eb448b6bc1d12501b5657dbc20d878801855",
+        "local/actor-contact-validation-v1/queries.bin": "3aa3b2c2d0008284cb9728c4a7246429463c485e77e0f9906d837978fabd42b8",
+        "local/actor-contact-validation-v1/retail.bin": "0d8ee38f6f525a08184b1d06b213d34546a42cb957ce481add96ab662175f248",
+        "local/actor-contact-validation-v1/native.bin": "0d8ee38f6f525a08184b1d06b213d34546a42cb957ce481add96ab662175f248"
+      },
+      "oracle_sha256": "372bb952aeb267ebc6d877af33858b9f1527c92dbc377e930f1e47a233939648"
+    },
+    "pair_release": {
+      "scope": "Capsule-pair helper hit, flags, correction XYZ and defined contact normals",
+      "functions": [
+        "0x18dbf8",
+        "0x18d098"
+      ],
+      "cases": 1942,
+      "exact": true,
+      "hits_by_flags": {
+        "0": 159,
+        "1": 124,
+        "2": 8,
+        "4": 7
+      },
+      "excluded": [
+        "correction W and normal W",
+        "stale failure fields",
+        "shape dispatch/registry/pushing",
+        "app movement"
+      ],
+      "preconditions": "Synthetic capsule/record inputs; original helpers; no captured RAM, OS services or VU microprogram",
+      "hashes": {
+        "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "build/native-release/okage-assets": "ffc3e55418e44e6499a476d1a38319e7b997e07d8a74820313204770cc6010cb",
+        "local/actor-contact-release-v1/queries.bin": "3aa3b2c2d0008284cb9728c4a7246429463c485e77e0f9906d837978fabd42b8",
+        "local/actor-contact-validation-v1/retail.bin": "0d8ee38f6f525a08184b1d06b213d34546a42cb957ce481add96ab662175f248",
+        "local/actor-contact-release-v1/native.bin": "0d8ee38f6f525a08184b1d06b213d34546a42cb957ce481add96ab662175f248"
+      }
+    },
+    "pair_sanitize": {
+      "scope": "Capsule-pair helper hit, flags, correction XYZ and defined contact normals",
+      "functions": [
+        "0x18dbf8",
+        "0x18d098"
+      ],
+      "cases": 1942,
+      "exact": true,
+      "hits_by_flags": {
+        "0": 159,
+        "1": 124,
+        "2": 8,
+        "4": 7
+      },
+      "excluded": [
+        "correction W and normal W",
+        "stale failure fields",
+        "shape dispatch/registry/pushing",
+        "app movement"
+      ],
+      "preconditions": "Synthetic capsule/record inputs; original helpers; no captured RAM, OS services or VU microprogram",
+      "hashes": {
+        "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "build/model-sanitize/okage-assets": "f6460fd5dbdb9921c35c063a05a6121dfb548eb924f3c077637bf0a69edc6f6e",
+        "local/actor-contact-sanitize-v1/queries.bin": "3aa3b2c2d0008284cb9728c4a7246429463c485e77e0f9906d837978fabd42b8",
+        "local/actor-contact-validation-v1/retail.bin": "0d8ee38f6f525a08184b1d06b213d34546a42cb957ce481add96ab662175f248",
+        "local/actor-contact-sanitize-v1/native.bin": "0d8ee38f6f525a08184b1d06b213d34546a42cb957ce481add96ab662175f248"
+      }
+    },
+    "world_debug": {
+      "scope": "Three-body registry, capsule dispatch, recursive pushing and outer map retries",
+      "functions": [
+        "0x186fa0",
+        "0x187c60",
+        "0x187ea8"
+      ],
+      "cases": [
+        {
+          "name": "room",
+          "count": 495,
+          "exact": true,
+          "other_body_position_changes": 51,
+          "body_flags": {
+            "0": 962,
+            "1": 166,
+            "4": 1,
+            "5": 77,
+            "8": 57,
+            "9": 81,
+            "10": 5,
+            "11": 71,
+            "12": 3,
+            "13": 62
+          },
+          "hashes": {
+            "local/collision-world-debug-v2/room.xcl": "1926d62e7a8c704b45bba8f389ea7d07406efe605599721443973c923b03a849",
+            "local/collision-world-debug-v2/room.queries.bin": "563fafbf1b8944582d3d0d42f0086e9cacf21396789681a45046e5c69ef2f758",
+            "local/collision-world-validation-v1/room.retail.bin": "0efbd8bd3ce5c75a4c0b9e89fc28569ed7f273510e9daa6ec10702ffc705cc01",
+            "local/collision-world-debug-v2/room.native.bin": "0efbd8bd3ce5c75a4c0b9e89fc28569ed7f273510e9daa6ec10702ffc705cc01"
+          }
+        },
+        {
+          "name": "home1c",
+          "count": 495,
+          "exact": true,
+          "other_body_position_changes": 39,
+          "body_flags": {
+            "0": 853,
+            "1": 166,
+            "5": 185,
+            "9": 83,
+            "11": 28,
+            "13": 120,
+            "15": 50
+          },
+          "hashes": {
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xcl": "91cf084b00eb1779c050c3339cc7765b4f2f86e3fd01bbda2e82954ae6445099",
+            "local/collision-world-debug-v2/home1c.queries.bin": "0df8beea95a086954df6f62b7b7c6435037971084e03addbf004fd390aa351fd",
+            "local/collision-world-validation-v1/home1c.retail.bin": "f988cf59569cc27cefff76adb9e7b714b4f12a58c9b07619799c4c1a9732b1c8",
+            "local/collision-world-debug-v2/home1c.native.bin": "f988cf59569cc27cefff76adb9e7b714b4f12a58c9b07619799c4c1a9732b1c8"
+          }
+        }
+      ],
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "native_sha256": "84983e861a96ddaa5d45787b32f3121d792289d603e43910d44278a3712fcb79",
+      "excluded": [
+        "other dynamic shape types",
+        "resource-driven registration",
+        "full original scene movement"
+      ],
+      "preconditions": "Fresh synthetic body records, owned/synthetic XCL; unpatched original helpers; no captured RAM"
+    },
+    "world_release": {
+      "scope": "Three-body registry, capsule dispatch, recursive pushing and outer map retries",
+      "functions": [
+        "0x186fa0",
+        "0x187c60",
+        "0x187ea8"
+      ],
+      "cases": [
+        {
+          "name": "room",
+          "count": 495,
+          "exact": true,
+          "other_body_position_changes": 51,
+          "body_flags": {
+            "0": 962,
+            "1": 166,
+            "4": 1,
+            "5": 77,
+            "8": 57,
+            "9": 81,
+            "10": 5,
+            "11": 71,
+            "12": 3,
+            "13": 62
+          },
+          "hashes": {
+            "local/collision-world-release-v2/room.xcl": "1926d62e7a8c704b45bba8f389ea7d07406efe605599721443973c923b03a849",
+            "local/collision-world-release-v2/room.queries.bin": "563fafbf1b8944582d3d0d42f0086e9cacf21396789681a45046e5c69ef2f758",
+            "local/collision-world-validation-v1/room.retail.bin": "0efbd8bd3ce5c75a4c0b9e89fc28569ed7f273510e9daa6ec10702ffc705cc01",
+            "local/collision-world-release-v2/room.native.bin": "0efbd8bd3ce5c75a4c0b9e89fc28569ed7f273510e9daa6ec10702ffc705cc01"
+          }
+        },
+        {
+          "name": "home1c",
+          "count": 495,
+          "exact": true,
+          "other_body_position_changes": 39,
+          "body_flags": {
+            "0": 853,
+            "1": 166,
+            "5": 185,
+            "9": 83,
+            "11": 28,
+            "13": 120,
+            "15": 50
+          },
+          "hashes": {
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xcl": "91cf084b00eb1779c050c3339cc7765b4f2f86e3fd01bbda2e82954ae6445099",
+            "local/collision-world-release-v2/home1c.queries.bin": "0df8beea95a086954df6f62b7b7c6435037971084e03addbf004fd390aa351fd",
+            "local/collision-world-validation-v1/home1c.retail.bin": "f988cf59569cc27cefff76adb9e7b714b4f12a58c9b07619799c4c1a9732b1c8",
+            "local/collision-world-release-v2/home1c.native.bin": "f988cf59569cc27cefff76adb9e7b714b4f12a58c9b07619799c4c1a9732b1c8"
+          }
+        }
+      ],
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "native_sha256": "ffc3e55418e44e6499a476d1a38319e7b997e07d8a74820313204770cc6010cb",
+      "excluded": [
+        "other dynamic shape types",
+        "resource-driven registration",
+        "full original scene movement"
+      ],
+      "preconditions": "Fresh synthetic body records, owned/synthetic XCL; unpatched original helpers; no captured RAM"
+    },
+    "world_sanitize": {
+      "scope": "Three-body registry, capsule dispatch, recursive pushing and outer map retries",
+      "functions": [
+        "0x186fa0",
+        "0x187c60",
+        "0x187ea8"
+      ],
+      "cases": [
+        {
+          "name": "room",
+          "count": 495,
+          "exact": true,
+          "other_body_position_changes": 51,
+          "body_flags": {
+            "0": 962,
+            "1": 166,
+            "4": 1,
+            "5": 77,
+            "8": 57,
+            "9": 81,
+            "10": 5,
+            "11": 71,
+            "12": 3,
+            "13": 62
+          },
+          "hashes": {
+            "local/collision-world-sanitize-v2/room.xcl": "1926d62e7a8c704b45bba8f389ea7d07406efe605599721443973c923b03a849",
+            "local/collision-world-sanitize-v2/room.queries.bin": "563fafbf1b8944582d3d0d42f0086e9cacf21396789681a45046e5c69ef2f758",
+            "local/collision-world-validation-v1/room.retail.bin": "0efbd8bd3ce5c75a4c0b9e89fc28569ed7f273510e9daa6ec10702ffc705cc01",
+            "local/collision-world-sanitize-v2/room.native.bin": "0efbd8bd3ce5c75a4c0b9e89fc28569ed7f273510e9daa6ec10702ffc705cc01"
+          }
+        },
+        {
+          "name": "home1c",
+          "count": 495,
+          "exact": true,
+          "other_body_position_changes": 39,
+          "body_flags": {
+            "0": 853,
+            "1": 166,
+            "5": 185,
+            "9": 83,
+            "11": 28,
+            "13": 120,
+            "15": 50
+          },
+          "hashes": {
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xcl": "91cf084b00eb1779c050c3339cc7765b4f2f86e3fd01bbda2e82954ae6445099",
+            "local/collision-world-sanitize-v2/home1c.queries.bin": "0df8beea95a086954df6f62b7b7c6435037971084e03addbf004fd390aa351fd",
+            "local/collision-world-validation-v1/home1c.retail.bin": "f988cf59569cc27cefff76adb9e7b714b4f12a58c9b07619799c4c1a9732b1c8",
+            "local/collision-world-sanitize-v2/home1c.native.bin": "f988cf59569cc27cefff76adb9e7b714b4f12a58c9b07619799c4c1a9732b1c8"
+          }
+        }
+      ],
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "native_sha256": "f6460fd5dbdb9921c35c063a05a6121dfb548eb924f3c077637bf0a69edc6f6e",
+      "excluded": [
+        "other dynamic shape types",
+        "resource-driven registration",
+        "full original scene movement"
+      ],
+      "preconditions": "Fresh synthetic body records, owned/synthetic XCL; unpatched original helpers; no captured RAM"
+    },
+    "map_regression": {
+      "scope": "Point/capsule map contacts with movement subdivision, ordered correction, first material IDs and final normals",
+      "functions": [
+        "0x187270",
+        "0x187498"
+      ],
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "native_sha256": "84983e861a96ddaa5d45787b32f3121d792289d603e43910d44278a3712fcb79",
+      "excluded": [
+        "other shape types",
+        "point wall contacts",
+        "cached/resumed queries",
+        "undefined normal W",
+        "dynamic actor contacts",
+        "outer registry resolution",
+        "app movement"
+      ],
+      "cases": [
+        {
+          "name": "wall",
+          "count": 408,
+          "exact": true,
+          "flags": {
+            "0": 295,
+            "4": 113
+          },
+          "hashes": {
+            "local/map-contact-after-world-v1/wall.xcl": "3d23582095c33308ec4387359414e66a07d6ef83a3c4621a68d7124a5cd9b28d",
+            "local/map-contact-after-world-v1/wall.queries.bin": "45af65e7c8d36a34475c701eb8b1c33807f0bb7e26f380cb40aafce75028b0e1",
+            "local/map-contact-validation-v2/wall.retail.bin": "153145621b3639bfff8c519d128a1597f579bf68b52ccd4f84b8fcf7319f75dc",
+            "local/map-contact-after-world-v1/wall.native.bin": "153145621b3639bfff8c519d128a1597f579bf68b52ccd4f84b8fcf7319f75dc"
+          }
+        },
+        {
+          "name": "stacked",
+          "count": 408,
+          "exact": true,
+          "flags": {
+            "0": 196,
+            "1": 172,
+            "2": 12,
+            "3": 28
+          },
+          "hashes": {
+            "local/map-contact-after-world-v1/stacked.xcl": "25589ba42cd080e49dcb2125bc0ce9ee131b56b21c04d3952a81fe890abd3f3b",
+            "local/map-contact-after-world-v1/stacked.queries.bin": "45af65e7c8d36a34475c701eb8b1c33807f0bb7e26f380cb40aafce75028b0e1",
+            "local/map-contact-validation-v2/stacked.retail.bin": "8fbb32e56d1e4ac57822dc5a2a195397bbc467a410254df21312e5d11d3e4b42",
+            "local/map-contact-after-world-v1/stacked.native.bin": "8fbb32e56d1e4ac57822dc5a2a195397bbc467a410254df21312e5d11d3e4b42"
+          }
+        },
+        {
+          "name": "home1c",
+          "count": 1248,
+          "exact": true,
+          "flags": {
+            "0": 138,
+            "1": 560,
+            "4": 48,
+            "5": 502
+          },
+          "hashes": {
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xcl": "91cf084b00eb1779c050c3339cc7765b4f2f86e3fd01bbda2e82954ae6445099",
+            "local/map-contact-after-world-v1/home1c.queries.bin": "22d641df5ffbc5b83b8d66ffc4a95976520ffd8f073bda60d1a496699645a255",
+            "local/map-contact-validation-v2/home1c.retail.bin": "316c38bb5a03cfd5814d7aaabbe15c42e0f4f6eb9bc218b6c2efc56d2d62089c",
+            "local/map-contact-after-world-v1/home1c.native.bin": "316c38bb5a03cfd5814d7aaabbe15c42e0f4f6eb9bc218b6c2efc56d2d62089c"
+          }
+        },
+        {
+          "name": "room",
+          "count": 2,
+          "exact": true,
+          "flags": {
+            "1": 1,
+            "5": 1
+          },
+          "hashes": {
+            "local/map-contact-after-world-v1/room.xcl": "1926d62e7a8c704b45bba8f389ea7d07406efe605599721443973c923b03a849",
+            "local/map-contact-after-world-v1/room.queries.bin": "c8a17a9591c41695023e19860afb8edd07d5c2895ae93569a0b5b9828b91d442",
+            "local/map-contact-validation-v2/room.retail.bin": "0d6cae808e998398a00a528cbc6246fd6f3724eb0be36593a273c9deebbbefd1",
+            "local/map-contact-after-world-v1/room.native.bin": "0d6cae808e998398a00a528cbc6246fd6f3724eb0be36593a273c9deebbbefd1"
+          }
+        }
+      ]
+    }
+  }
+}
