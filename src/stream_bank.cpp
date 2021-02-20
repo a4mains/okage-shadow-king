@@ -40,12 +40,18 @@ StreamBank read_stream_bank(Bytes b){
         if(at>form_end || form_end-at<2 || b[at+1]<2 || b[at+1]>form_end-at)throw std::runtime_error("RXWS record extent");
         result.records.push_back(at);at+=b[at+1];
     }
-    if(at!=form_end)throw std::runtime_error("RXWS FORM trailing bytes");
+    // 0x174f28 walks only the declared records. ALL.XWS pads FORM to a
+    // 16-byte boundary; admit that observed zero padding, not arbitrary tails.
+    if(at!=form_end && (form_end%16 || form_end-at>=16 ||
+       std::any_of(b.begin()+at,b.begin()+form_end,[](auto v){return v!=0;})))
+        throw std::runtime_error("RXWS FORM trailing bytes");
     result.bytes.assign(b.begin(),b.end());return result;
 }
 StreamTone stream_tone(const StreamBank& bank,int index,float speed,unsigned volume){
     const auto r=bank.record(index);
-    if(r.size()!=28 || r[0]!=0 || r[2]!=2 || r[3] || r[6] || r[7] || r[8] || r[9]!=1 || word(r,12) || word(r,24)!=0xffffffff || bank.chunks[2] || bank.chunks[3])
+    // Original 0x1769b0 ignores byte 3 when flags byte 2 has bit 1 set,
+    // passing -1 for voice selection. Footsteps use byte 3=0x80 here.
+    if(r.size()!=28 || r[0]!=0 || r[2]!=2 || r[6] || r[7] || r[8] || r[9]!=1 || word(r,12) || word(r,24)!=0xffffffff || bank.chunks[2] || bank.chunks[3])
         throw std::runtime_error("Unrecovered RXWS codec/channels/loop/markers");
     if(!std::isfinite(speed) || speed<0 || speed>=8 || volume>128)throw std::runtime_error("RXWS cue speed/volume range");
     StreamTone t;t.offset=word(r,16);t.size=word(r,20);t.sample_rate=unsigned(r[10])|(unsigned(r[11])<<8);
@@ -63,7 +69,11 @@ void StreamPlayer::play(int index,float speed,unsigned volume){
     const auto tone=stream_tone(bank_,index,speed,volume);
     const auto blocks=Bytes(bank_.bytes).subspan(tone.offset,tone.size);
     const auto sample=decode_spu_sample(blocks);
-    if(sample.consumed!=tone.size || sample.end_flags!=1)throw std::runtime_error("RXWS mono end marker outside recovered scope");
+    const auto tail=blocks.subspan(sample.consumed);
+    const bool stop_trailer=tail.size()==16 && tail[0]==0x0c && tail[1]==7 &&
+        std::all_of(tail.begin()+2,tail.end(),[](auto v){return v==0;});
+    if(sample.end_flags!=1 || (!tail.empty()&&!stop_trailer))
+        throw std::runtime_error("RXWS mono end marker outside recovered scope");
     std::erase_if(voices_,[](const auto& v){return v->ended();});
     if(voices_.size()>=48)throw std::runtime_error("RXWS shared voice allocation not recovered");
     auto voice=std::make_unique<SampleVoice>(blocks,StreamTone::adsr1,StreamTone::adsr2);

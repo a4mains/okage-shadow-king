@@ -1,4 +1,5 @@
 #include "okage/field.hpp"
+#include "okage/event.hpp"
 #include <algorithm>
 #include <bit>
 #include <cmath>
@@ -60,6 +61,114 @@ void OpeningField::load_exploration_camera(Bytes stg) {
     if(!actor(-1)||exploration_camera_)throw std::runtime_error("Exploration camera requires a player and one configuration");
     exploration_camera_=field_anchored_camera(stg);
 }
+void OpeningField::load_exploration_collision(Bytes xcl,Bytes variables) {
+    if(!actor(-1)||collision_||actors_.size()!=3 || actors_[0].alias!=-8 ||
+       actors_[1].alias!=-9 || actors_[2].alias!=-1)
+        throw std::runtime_error("Exploration currently requires HOME1C MAM/IMO/HERO construction order");
+    std::array<std::uint8_t,0x800> setup{};setup[0x42c]=33;
+    run_event_setup(bytes_,variables,setup);
+    player_.footstep_sound=get(setup,0x42c);player_.dust_effect=get(setup,0x414);
+    collision_=read_xcl(xcl);
+    Rounding rounding;
+    for(unsigned i=0;i<actors_.size();++i) {
+        CollisionBody body;body.id=i;body.priority=10;body.floor_reach=4;
+        const float radius=__builtin_bit_cast(float, (0x3ff33333u));body.broad_radius=radius+radius;
+        body.shapes={{8,{{0,0,0,1},{},0}},{0x72,{{0,-2.5f,0,1},{0,-5,0,1},radius}}};
+        body.position=body.previous=actors_[i].actor->animation().values().at(1);
+        if(i&&!actors_[i].actor->visible)body.flags|=2;
+        bodies_.push_back(std::move(body));
+    }
+}
+void OpeningField::remember_player() {
+    const auto position=actor(-1)->animation().values().at(1);
+    const auto& old=player_.history[player_.history_cursor];
+    if(old[0]!=position[0]||old[2]!=position[2]) {
+        player_.history_cursor=(player_.history_cursor+1)&31;
+        player_.history[player_.history_cursor]=position;
+    }
+}
+void OpeningField::move_player(ExplorationInput input) {
+    if(!collision_ || (player_.mask&1))return;
+    Rounding rounding;auto* hero=actor(-1);auto& state=player_;
+    int x=input.x,z=input.z;
+    if(input.held&0x8000)x=0;
+    if(input.held&0x2000)x=255;
+    if(input.held&0x1000)z=0;
+    if(input.held&0x4000)z=255;
+    x-=128;z-=128;
+    const float direction=(1.f-rotation[1])+camera_angle(float(x),float(z),angles_);
+    const float magnitude=std::sqrt(float(x)*float(x)+float(z)*float(z));
+    Float4 delta{0,0,0,1};std::int32_t motion=1;
+    const bool moving=magnitude>64;
+    if(moving) {
+        const float speed=magnitude>=120?.55f:.19f;motion=magnitude>=120?3:2;
+        const auto index=(std::uint32_t(std::int32_t(direction*32768.f))>>1)&0x3fff;
+        delta[0]=speed*sine_[index];delta[2]=(-speed)*sine_[(index+4096)&0x3fff];
+        auto facing=hero->animation().values().at(0);facing[1]=1.f-direction;
+        hero->animation().set_channel(0,facing); // 0x1b4220 also clears prior rates.
+    }
+    if(state.floor_contact<0)delta[1]=1;
+    if(moving||state.floor_contact<0) {
+        for(unsigned i=0;i<bodies_.size();++i)bodies_[i].position=actors_[i].actor->animation().values().at(1);
+        auto& body=bodies_.back();body.previous=body.position;Float4 desired;
+        for(unsigned i=0;i<4;++i)desired[i]=body.position[i]+delta[i];
+        MapCollisionSettings settings;settings.wall_iterations=3;
+        resolve_collision(*collision_,bodies_,bodies_.size()-1,desired,settings,__builtin_bit_cast(float, (0x3efff17du)));
+        body.position=desired;
+        // 0x1ba948 commits the mover and copies every current position to history.
+        // Pushed NPC positions are native animation channels, not detached copies.
+        for(unsigned i=0;i<bodies_.size();++i) {
+            if(i==bodies_.size()-1)actors_[i].actor->animation().set_channel(1,bodies_[i].position);
+            else actors_[i].actor->animation().write_channel_output(1,bodies_[i].position);
+            bodies_[i].previous=bodies_[i].position;
+        }
+        state.floor_contact=(body.contact.flags&1)?body.contact.materials[0]:-1;
+    }
+    if(state.floor_contact>=0) {
+        const auto contact=std::uint32_t(state.floor_contact),kind=contact&0x83;
+        state.upper_material=contact>>14;state.camera_area=(contact&0x38)>>3;
+        if(!kind) {if(state.trigger_index){state.trigger_kind=0;state.trigger_index=0;}}
+        else if(state.trigger_index!=(contact>>8)){state.trigger_kind=kind;state.trigger_index=(contact>>8)&0x3f;}
+        if(!kind||kind==0x81) {
+            if(state.contact_bubble) {
+                const auto handle=state.contact_bubble&0xfff;
+                if(handle>=effects_.size())throw std::runtime_error("Invalid contact effect handle");
+                if(effects_[handle])effects_[handle]->animation.request_removal();
+                state.contact_bubble=0;
+            }
+        } else if(!state.contact_bubble)
+            throw std::runtime_error("Player contact bubble instance transform is unrecovered");
+        if(state.camera_area || kind==0x81)
+            throw std::runtime_error("Field contact camera/scene transition is unrecovered");
+    }
+    if(motion==3) {
+        if(__builtin_bit_cast(std::int32_t, (state.run_delay))<24){if(state.motion>=0)motion=state.motion;++state.run_delay;}
+        else state.run_delay=0;
+    } else ++state.run_delay;
+    if(motion==state.motion) {
+        const auto counter=__builtin_bit_cast(std::int32_t, (state.effect_counter));
+        if((motion==2&&counter<0)||(motion==3)) {
+            if(state.dust_effect && ((motion==2&&!(state.effect_counter&3)) ||
+               (motion==3&&counter<40&&!(state.effect_counter&7))))
+                throw std::runtime_error("Player dust effect is unrecovered");
+            ++state.effect_counter;
+        }
+    } else {
+        hero->select_motion(unsigned(motion));state.motion=motion;state.effect_counter=0;
+        state.footstep_period=motion==3?15:0;
+        if(motion==3)state.footstep_clock=std::uint32_t(-10);
+    }
+    if(state.footstep_period && ++state.footstep_clock==state.footstep_period) {
+        state.footstep_clock=0;
+        // Retail 0x12df80 table entries 33..35: speed 1, gains 45/60/60.
+        // Other bank-0 cues need their own recovered table/driver contract.
+        if(state.footstep_sound<33||state.footstep_sound>35)
+            throw std::runtime_error("Unrecovered footstep sound parameters");
+        const unsigned gain=state.footstep_sound==33?45:60;
+        if(!sound_cue||!sound_cue(0,state.footstep_sound,1,gain))
+            throw std::runtime_error("Footsteps require the owned ALL sound bank");
+    }
+}
 Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32_t b,std::uint32_t pc) {
     auto pending=[&] {pending_opcode=op;pending_actor=b;pending_animation=a;return Animation::ServiceResult{pc,true};};
     switch(op) {
@@ -89,7 +198,13 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             if(auto* target=actor(b);target && a<0x800) {target->select_motion(a);return {pc+4};}
             return pending();
         case 0x3b:
-            if(auto* target=actor(b);target && (a&0x100)) {target->visible=(a&255)!=0;return {pc+4};}
+            if(auto* target=actor(b);target && (a&0x100)) {
+                target->visible=(a&255)!=0;
+                // Original 0x1baa60 excludes collision index zero.
+                for(unsigned i=1;i<bodies_.size();++i)if(actors_[i].actor==target)
+                    bodies_[i].flags=target->visible?(bodies_[i].flags&~2u):(bodies_[i].flags|2u);
+                return {pc+4};
+            }
             return pending();
         case 0x45:
             if(audio_service && audio_service(a,b)){pending_opcode=0;return {pc+4};}
@@ -147,15 +262,23 @@ void OpeningField::evaluate() {
         requested_target_=target;
     }
 }
-void OpeningField::tick() {
+void OpeningField::tick(ExplorationInput input) {
     // Field manager 0x133a98 runs before the event pass. Case 5 detects the
     // ended script and selects the room camera; case 0 updates it next frame.
     if(exploration_camera_&&!event_running()) {
         if(exploration_handoff_) {
+            move_player(input);
             const auto camera=anchored_camera(actor(-1)->animation().values().at(1),*exploration_camera_,angles_,sine_);
             script_.set_channel(0,camera.position);requested_target_=camera.target;camera_mode_=2;
-        } else exploration_handoff_=true;
+        } else {
+            exploration_handoff_=true;
+            // 0x132ca8 resets contact state, clears movement bit 0 and invalidates
+            // selected motion; 0x134c18 chooses it on the next player update.
+            player_.floor_contact=0;player_.trigger_kind=player_.trigger_index=0;
+            player_.mask&=~1u;player_.motion=-1;
+        }
     }
+    if(collision_)remember_player();
     script_.tick_script();
     for(const auto& binding:actors_)binding.actor->tick_script();
     script_.tick_channels();evaluate();

@@ -30,8 +30,8 @@ struct DirectionReplay {
         while(std::getline(in,line)){
             if(line.empty() || line[0]=='#')continue;
             std::istringstream row(line);unsigned frame,mask;std::string extra;
-            if(!(row>>frame>>std::hex>>mask) || (row>>extra) || frame<=previous || frame>36000 || (mask&~0x5000u))
-                throw std::runtime_error("Direction replay requires increasing FRAME and hexadecimal up/down mask");
+            if(!(row>>frame>>std::hex>>mask) || (row>>extra) || frame<=previous || frame>36000 || (mask&~0xf000u))
+                throw std::runtime_error("Direction replay requires increasing FRAME and hexadecimal directional mask");
             entries.push_back({frame,std::uint16_t(mask)});previous=frame;
         }
     }
@@ -68,6 +68,8 @@ struct Session {
     void load_music(const fs::path& sequence,const fs::path& bank,bool record,const fs::path& sounds){
         music=std::make_unique<okage::DryMusicPlayer>(readData(sequence),okage::read_music_bank(readData(bank)));
         record_audio=record;sound_directory=sounds;
+        if(!sound_directory.empty())sound_banks.emplace(0,std::make_unique<okage::StreamPlayer>(
+            okage::read_stream_bank(readData(sound_directory/"ALL.XWS"))));
         if(field)field->audio_service=[this](unsigned operation,int argument){
             if(operation==1 && !sound_directory.empty()){
                 if(argument<0 || argument>9999)throw std::runtime_error("Sound set number outside import scope");
@@ -98,7 +100,7 @@ struct Session {
     std::unique_ptr<okage::OpeningField> field;
     std::unique_ptr<okage::SceneRenderer> renderer;
     okage::Float4 projection{};
-    std::vector<std::uint32_t> scene_trace,dialogue_trace,camera_state_trace;
+    std::vector<std::uint32_t> scene_trace,dialogue_trace,camera_state_trace,movement_trace;
     std::vector<std::uint32_t> effect_trace;
     bool effects_loaded=false;
     std::map<int,std::vector<std::uint32_t>> actor_traces;
@@ -148,8 +150,10 @@ struct Session {
             return released;
         },actor_bindings);
         field->set_variable=[this](unsigned index,unsigned bank,std::int32_t value){okage::set_event_variable(variables,index,bank,value);};
-        if(std::any_of(actor_bindings.begin(),actor_bindings.end(),[](const auto& a){return a.alias==-1;}))
+        if(std::any_of(actor_bindings.begin(),actor_bindings.end(),[](const auto& a){return a.alias==-1;})) {
             field->load_exploration_camera(readData(stg));
+            auto xcl=map;xcl.replace_extension(".xcl");field->load_exploration_collision(readData(xcl),variables);
+        }
         std::cout<<"Native room: "<<renderer->placements()<<" placements; "<<renderer->omitted_effects()
             <<" effects omitted; "<<renderer->actors()<<" native actors; shadows unavailable; diagnostic dialogue panel\n";
     }
@@ -162,7 +166,7 @@ struct Session {
         input.repeat=pad_repeat.update(input.held,input.pressed);
         scene_fade.tick();
         const std::array<std::uint32_t,2> layers={0x50,controller.layer_flags};
-        if(field)field->tick();
+        if(field)field->tick({input.held});
         if(music){
             music_volume.tick();music->volume(music_volume.level(),music_volume.level());
             std::array<std::int16_t,1600> pcm{};music->render(pcm);
@@ -196,6 +200,11 @@ struct Session {
             text.state.period,text.state.delay,text.state.progress,controller.advance_count,controller.layer_advance,
             controller.layer_flags,controller.stage,__builtin_bit_cast(std::uint32_t, (opacity.delta))});
         if(field) {
+            const auto& m=field->player_movement();
+            movement_trace.insert(movement_trace.end(),{frame,input.held,m.mask,m.footstep_sound,
+                std::uint32_t(m.motion),std::uint32_t(m.floor_contact),m.trigger_kind,m.trigger_index,
+                m.camera_area,m.upper_material,m.effect_counter,m.run_delay,m.footstep_clock,
+                m.footstep_period,m.dust_effect,m.contact_bubble});
             camera_state_trace.insert(camera_state_trace.end(),{frame,field->camera_mode(),
                 field->event_running()?1u:0u,__builtin_bit_cast(std::uint32_t, (field->blend.phase)),
                 __builtin_bit_cast(std::uint32_t, (field->blend.step))});
@@ -327,6 +336,11 @@ static void capture(const Session& session,const fs::path& path) {
         std::ofstream stateTrace(statePath,std::ios::binary);
         if(!stateTrace.write(reinterpret_cast<const char*>(session.camera_state_trace.data()),session.camera_state_trace.size()*4))
             throw std::runtime_error("Cannot save native camera-state trace");
+        const auto movementPath=fs::path(path.string()+".movement.bin");
+        if(fs::exists(movementPath)||fs::is_symlink(movementPath))throw std::runtime_error("Refusing existing movement trace");
+        std::ofstream movementTrace(movementPath,std::ios::binary);
+        if(!movementTrace.write(reinterpret_cast<const char*>(session.movement_trace.data()),session.movement_trace.size()*4))
+            throw std::runtime_error("Cannot save native movement trace");
         std::cout<<"Field PC=0x"<<std::hex<<session.field->pc()<<" pending opcode=0x"<<session.field->pending_opcode<<std::dec
             <<" actor="<<session.field->pending_actor<<" animation="<<session.field->pending_animation<<'\n';
     }
@@ -344,12 +358,12 @@ static void capture(const Session& session,const fs::path& path) {
 - (BOOL)isFlipped {return YES;}
 - (void)keyDown:(NSEvent*)event {
     if(event.isARepeat)return;
-    const unsigned mask=(event.keyCode==36 || event.keyCode==49)?0x40:event.keyCode==126?0x1000:event.keyCode==125?0x4000:0;
+    const unsigned mask=(event.keyCode==36 || event.keyCode==49)?0x40:event.keyCode==126?0x1000:event.keyCode==125?0x4000:event.keyCode==123?0x8000:event.keyCode==124?0x2000:0;
     if(mask){self.pressed|=mask;self.held|=mask;++self.injectedKeyDowns;}
     else [super keyDown:event];
 }
 - (void)keyUp:(NSEvent*)event {
-    const unsigned mask=(event.keyCode==36 || event.keyCode==49)?0x40:event.keyCode==126?0x1000:event.keyCode==125?0x4000:0;
+    const unsigned mask=(event.keyCode==36 || event.keyCode==49)?0x40:event.keyCode==126?0x1000:event.keyCode==125?0x4000:event.keyCode==123?0x8000:event.keyCode==124?0x2000:0;
     if(mask)self.held&=~mask;
     else [super keyUp:event];
 }
@@ -396,10 +410,10 @@ static void capture(const Session& session,const fs::path& path) {
         while(self.accumulator>=1./60) {
             if(testFrames){
                 const auto next=directions.held(session->frame+1);
-                for(const auto [mask,code]:{std::pair<unsigned,unsigned>{0x1000,126},{0x4000,125}}){
+                for(const auto [mask,code]:{std::pair<unsigned,unsigned>{0x1000,126},{0x4000,125},{0x8000,123},{0x2000,124}}){
                     if((next^replayDirections)&mask){
                         const auto type=(next&mask)?NSEventTypeKeyDown:NSEventTypeKeyUp;
-                        NSString* chars=[NSString stringWithFormat:@"%C",unichar(code==126?NSUpArrowFunctionKey:NSDownArrowFunctionKey)];
+                        NSString* chars=[NSString stringWithFormat:@"%C",unichar(code==126?NSUpArrowFunctionKey:code==125?NSDownArrowFunctionKey:code==123?NSLeftArrowFunctionKey:NSRightArrowFunctionKey)];
                         NSEvent* event=[NSEvent keyEventWithType:type location:NSZeroPoint modifierFlags:0 timestamp:now
                             windowNumber:self.window.windowNumber context:nil characters:chars charactersIgnoringModifiers:chars isARepeat:NO keyCode:code];
                         [self.window sendEvent:event];
@@ -425,7 +439,7 @@ static void capture(const Session& session,const fs::path& path) {
         if(!changed)return;
         NSImage* image=[[NSImage alloc] initWithSize:NSMakeSize(640,session->field ? 448 : 224)];[image addRepresentation:bitmap(session->surface())];
         self.view.image=image;self.view.opacity=session->field ? 128 : session->opacity.value;self.view.needsDisplay=YES;
-        self.window.title=[NSString stringWithFormat:@"Okage native dialogue — ↑/↓, Return/Space — progress %u — event %@",
+        self.window.title=[NSString stringWithFormat:@"Okage native field — Arrow keys, Return/Space — progress %u — event %@",
             session->text.state.progress,session->release_frame ? @"released" : @"waiting"];
         if(session->field && session->field->pending_opcode)
             self.window.title=[self.window.title stringByAppendingString:@" — service pending (partial scene)"];

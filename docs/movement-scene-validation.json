@@ -1,0 +1,105 @@
+{
+  "scope": "Audit integrated native kitchen movement against paired original observations.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "original_frames": 180,
+  "native_frames": 6000,
+  "native_first_player_update": 4936,
+  "native_frame_for_original_callback_zero": 5050,
+  "phase_evidence": "Original rendered position at N equals post-player position at N-1 for every observed N>0.",
+  "player_state_input_exact": true,
+  "rendered_script_and_nonposition_channels_exact": true,
+  "rotation_exact": true,
+  "camera_rotation_exact": true,
+  "position_maximum_absolute_error": 9.5367431640625e-07,
+  "camera_position_maximum_absolute_error": 5.7220458984375e-06,
+  "camera_target_maximum_absolute_error": 9.5367431640625e-07,
+  "position_tolerance": 2e-05,
+  "float_limit": "Existing host sine/libm tolerance; the first divergent movement uses table entries differing by one float ULP.",
+  "footstep_calls_exact": [
+    [
+      5084,
+      0,
+      35,
+      1065353216,
+      60
+    ],
+    [
+      5099,
+      0,
+      35,
+      1065353216,
+      60
+    ],
+    [
+      5114,
+      0,
+      35,
+      1065353216,
+      60
+    ],
+    [
+      5129,
+      0,
+      35,
+      1065353216,
+      60
+    ],
+    [
+      5184,
+      0,
+      35,
+      1065353216,
+      60
+    ],
+    [
+      5199,
+      0,
+      35,
+      1065353216,
+      60
+    ]
+  ],
+  "matching_native_captures": [
+    "local/native-movement-6000-release-v4.png",
+    "local/native-movement-6000-sanitize-v4.png"
+  ],
+  "appkit": {
+    "capture": "local/native-movement-6000-ui-v3.png",
+    "headless_image_state_pcm_traces_exact": true,
+    "device_frames_enqueued": 4800000,
+    "device_underrun_frames": 6400,
+    "physical_input_or_listening_verified": false
+  },
+  "unverified": [
+    "general maps/analog controls",
+    "contact bubble and nonzero dust effect",
+    "whole-game initialization",
+    "collision-history initialization",
+    "physical controller/listening",
+    "original stream startup latency/wet routing",
+    "exact final scene presentation",
+    "interactions/transitions/battles/saves/full playthrough"
+  ],
+  "sha256": {
+    "local/reference-kitchen-movement-180-v2.movement.bin": "1f6f25a694d973bb6ac8860d42fefe39d27f5eb1133f057eac60638e28f17be8",
+    "local/reference-kitchen-movement-180-v2.actor.bin": "d6ef1a763cfaa0f80704e2c4904c166c785e8b1d975dc6c48c8643c253a609ac",
+    "local/reference-kitchen-movement-180-v2.camera.bin": "84a8a54294184b5020cabf881922381da20008385b5290ea2f4a3db7fbb4774b",
+    "local/reference-kitchen-movement-180-v2.log": "b068f48eeefce94e276bfff5ca212e0ce89b84599a7e5623af75d6b446d8f6da",
+    "local/reference-kitchen-movement-180-v2.state.zip": "6f857386feeba386d99355c86216508a95a70e701c0cad088ed2fe4e0f0efe93",
+    "local/native-movement-6000-debug-v4.png": "ffbd07d5ec2611630eaaa08148f033480990d599f3a28d783be29b96cf040663",
+    "local/native-movement-6000-debug-v4.png.json": "79b9660606a69788608f1444ec03c790b7b3d806db20eacd6087b60d3504a140",
+    "local/native-movement-6000-debug-v4.png.audio.json": "3a8142e572b610aeaeb8a52e784ed0402f2f5e800229dce5f332889de6c53d46",
+    "local/native-movement-6000-debug-v4.png.audio.pcm": "1a639f6bfe81b2dd4266e655ea5cbd37504b86ffeda66c52309ff8f4507a4756",
+    "local/native-movement-6000-debug-v4.png.music.bin": "794fc38171898dc4dbd68f22b6a695872cbaddd7336ea73c8cd76c29968fda99",
+    "local/native-movement-6000-debug-v4.png.sound.bin": "8a1395e821dc14c1c6f1d51366f98edd3acf972db3063dbbcda3963de2cb1580",
+    "local/native-movement-6000-debug-v4.png.camera.bin": "9ed56a0ae9c2351d3a5e24c91752657fe495069bdbdac34dd17c8d9f2e7c3821",
+    "local/native-movement-6000-debug-v4.png.camera-state.bin": "7f89ef4a4b7013301bcda36fe946ea53ed37d4d33e563afe9aeb847085dfd1d8",
+    "local/native-movement-6000-debug-v4.png.movement.bin": "7e8867f794af4e7884a592228f424bb28a3f0161ff6ca3f529e58e3de0c963e1",
+    "local/native-movement-6000-debug-v4.png.actor.bin": "fde992a77b5393c33bf69aa5e796387220b05aaa07fcec1f22e165189e4c18e0",
+    "local/native-movement-6000-debug-v4.png.actor-9.bin": "7385c5b3cd056bf78cec4e6d49d8956dfb66c8d93d0f7dfb541276e088239a1a",
+    "local/native-movement-6000-debug-v4.png.actor-1.bin": "2bf4834761b8588b72ed4ba00a08e4b4dbf6f3c39c11ea69af04316f580be32c",
+    "local/native-movement-6000-debug-v4.png.dialogue.bin": "038b1d16a75ef8975c04b48871d8e012375fa4dd2837a04fb5333abba84f87ba",
+    "local/native-movement-6000-debug-v4.png.choices.bin": "b63746642eb2e6de5763ffd8acb78e2d513598350440bbc2d869e3a95aad8e92",
+    "local/native-movement-6000-debug-v4.png.effects.bin": "5102720b67b228371a0a641873f753d39d17731415a7efe2c56c68d928de15b8"
+  }
+}

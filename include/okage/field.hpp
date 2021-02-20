@@ -3,15 +3,28 @@
 #include "okage/camera.hpp"
 #include "okage/actor.hpp"
 #include "okage/effect.hpp"
+#include "okage/collision.hpp"
 #include <optional>
 namespace okage {
+struct ExplorationInput {std::uint16_t held=0;std::uint8_t x=128,z=128;};
+struct PlayerMovement {
+    std::uint32_t mask=1,footstep_sound=33,dust_effect=0;
+    std::int32_t motion=-1,floor_contact=0;
+    std::uint32_t trigger_kind=0,trigger_index=0,camera_area=0,upper_material=0;
+    std::uint32_t effect_counter=0,run_delay=0,footstep_clock=0,footstep_period=0;
+    std::uint32_t contact_bubble=0,history_cursor=0;
+    std::array<Float4,32> history{};
+};
 class OpeningField {
 public:
     OpeningField(Bytes script,std::function<void(int)> start_dialogue,
                  std::function<bool(int)> wait_dialogue,std::span<const ActorBinding> actors={});
-    void tick();
+    void tick(ExplorationInput input={});
     void load_effects(Bytes);
     void load_exploration_camera(Bytes stg);
+    void load_exploration_collision(Bytes xcl,Bytes variables);
+    const PlayerMovement& player_movement() const {return player_;}
+    const std::vector<CollisionBody>& collision_bodies() const {return bodies_;}
     const AttachedEffects& effects() const {return effects_;}
     Float4 position{},target{},rotation{};
     CameraBlend blend;
@@ -36,6 +49,11 @@ private:
     unsigned camera_mode_=2;
     std::optional<AnchoredCamera> exploration_camera_;
     bool exploration_handoff_=false;
+    std::optional<CollisionMap> collision_;
+    std::vector<CollisionBody> bodies_;
+    PlayerMovement player_;
+    void move_player(ExplorationInput);
+    void remember_player();
     std::vector<EffectDefinition> effect_definitions_;
     AttachedEffects effects_;
     std::array<unsigned,16> effect_ring_{};

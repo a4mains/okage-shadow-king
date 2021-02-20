@@ -39,6 +39,13 @@ int main() {
         require(animation.script_state()==1 && animation.pc()==68);
         animation.tick(); require(animation.values()[0][0]==0.25f);
         require(std::fegetround()==FE_TONEAREST);
+        okage::Animation pushed(data,1);pushed.start(0);pushed.tick();
+        require(pushed.values()[0][0]==.125f && pushed.moving(0,0));
+        pushed.write_channel_output(0,{5,6,7,1});
+        require(pushed.values()[0]==okage::Float4({5,6,7,1}) && pushed.moving(0,0));
+        pushed.tick();require(pushed.values()[0][0]==.25f);
+        pushed.tick();pushed.values();pushed.write_channel_output(0,{5,6,7,1});
+        pushed.tick();require(pushed.values()[0]==okage::Float4({5,6,7,1}));
         rejects([&]{ animation.start(std::numeric_limits<std::size_t>::max()); });
         for (std::size_t length=0;length<data.size();++length)
             rejects([&]{okage::Animation truncated(okage::Bytes(data.data(),length),1);});

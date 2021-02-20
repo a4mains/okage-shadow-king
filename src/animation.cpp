@@ -133,6 +133,10 @@ void Animation::set_channel(std::size_t index,const Float4& value) {
     for(float v:value)if(!std::isfinite(v))throw std::runtime_error("Non-finite channel value");
     auto& ch=channels_.at(index);ch.a=value;ch.step={};ch.flags=0x201;
 }
+void Animation::write_channel_output(std::size_t index,const Float4& value) {
+    for(float v:value)if(!std::isfinite(v))throw std::runtime_error("Non-finite channel output");
+    channels_.at(index).output=value;
+}
 void Animation::set_component(std::size_t index,unsigned component,float value) {
     if(component>=4 || !std::isfinite(value))throw std::runtime_error("Invalid channel component");
     auto& ch=channels_.at(index);ch.a[component]=value;ch.flags=0x201;
