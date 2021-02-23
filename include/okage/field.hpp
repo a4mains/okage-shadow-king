@@ -6,7 +6,13 @@
 #include "okage/collision.hpp"
 #include <optional>
 namespace okage {
-struct ExplorationInput {std::uint16_t held=0;std::uint8_t x=128,z=128;};
+struct ExplorationInput {std::uint16_t held=0;std::uint8_t x=128,z=128;std::uint16_t pressed=0;};
+struct FieldNpcDefinition {
+    int alias=0;std::string model;std::int32_t state=0,talk=0,alternate_talk=0;
+    Float4 position{};float facing=0;
+};
+struct FieldDefinition {std::uint32_t type=0;std::string event;std::vector<FieldNpcDefinition> npcs;};
+FieldDefinition read_field_definition(Bytes database,const std::string& room);
 struct PlayerMovement {
     std::uint32_t mask=1,footstep_sound=33,dust_effect=0;
     std::int32_t motion=-1,floor_contact=0;
@@ -23,6 +29,7 @@ public:
     void load_effects(Bytes);
     void load_exploration_camera(Bytes stg);
     void load_exploration_collision(Bytes xcl,Bytes variables);
+    void load_interactions(Bytes database,const std::string& room,Bytes variables);
     const PlayerMovement& player_movement() const {return player_;}
     const std::vector<CollisionBody>& collision_bodies() const {return bodies_;}
     const AttachedEffects& effects() const {return effects_;}
@@ -31,6 +38,9 @@ public:
     std::function<bool(unsigned,std::int32_t)> audio_service;
     std::function<bool(unsigned,std::int32_t,float,unsigned)> sound_cue;
     std::function<void(unsigned,unsigned,std::int32_t)> set_variable;
+    std::function<std::int32_t(std::uint32_t)> get_variable;
+    int interaction_alias() const {return interaction_alias_;}
+    int interaction_event() const {return interaction_event_;}
     unsigned pending_opcode=0;
     int pending_actor=0,pending_animation=0;
     std::uint32_t pc() const {return script_.pc();}
@@ -52,6 +62,10 @@ private:
     std::optional<CollisionMap> collision_;
     std::vector<CollisionBody> bodies_;
     PlayerMovement player_;
+    std::optional<FieldDefinition> definition_;
+    int interaction_alias_=0,interaction_event_=0;
+    std::int32_t saved_input_gate_=0;
+    void interact(ExplorationInput);
     void move_player(ExplorationInput);
     void remember_player();
     std::vector<EffectDefinition> effect_definitions_;

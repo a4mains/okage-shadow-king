@@ -50,8 +50,95 @@ OpeningField::OpeningField(Bytes bytes,std::function<void(int)> start,std::funct
     evaluate();
 }
 FieldActor* OpeningField::actor(int alias) const {
+    if(alias==-7 && interaction_alias_)alias=interaction_alias_;
     for(const auto& binding:actors_)if(binding.alias==alias)return binding.actor;
     return nullptr;
+}
+FieldDefinition read_field_definition(Bytes data,const std::string& room) {
+    if(get(data,0)!=0x424458 || get(data,16)!=0xffffffff)throw std::runtime_error("Invalid field XDB header");
+    const auto count=get(data,12);const std::uint64_t base=32ull+16ull*count,strings=base+get(data,4);
+    if(count>65536 || strings>data.size() || strings+get(data,8)!=data.size())throw std::runtime_error("Field XDB section bounds");
+    auto string=[&](std::uint32_t offset) {
+        const auto at=strings+offset;if(at>=data.size())throw std::runtime_error("Field XDB string bounds");
+        const auto first=data.begin()+at,last=std::find(first,data.end(),0);
+        if(last==data.end())throw std::runtime_error("Unterminated field XDB string");
+        return std::string(first,last);
+    };
+    std::optional<FieldDefinition> found;
+    for(unsigned i=0;i<count;++i) {
+        const auto row=32+i*16;const auto name=string(get(data,row));
+        if(!name.starts_with("scene"))continue;
+        const auto at=base+get(data,row+4);const auto words=get(data,row+8);
+        if((at&3)||words<13||at+std::uint64_t(words)*4>strings)throw std::runtime_error("Field XDB record bounds");
+        if(string(get(data,at+20))!=room)continue;
+        if(found)throw std::runtime_error("Ambiguous field room definition");
+        FieldDefinition result;result.type=get(data,at+4);result.event=string(get(data,at+28));
+        unsigned index=12;
+        for(;index<words && get(data,at+index*4);index+=8) {
+            if(index+8>words || result.npcs.size()>=256)throw std::runtime_error("Field NPC definition bounds");
+            const auto p=at+index*4;FieldNpcDefinition npc;
+            npc.alias=-8-int(result.npcs.size());npc.model=string(get(data,p));
+            npc.state=__builtin_bit_cast(std::int32_t, (get(data,p+4)));npc.talk=__builtin_bit_cast(std::int32_t, (get(data,p+8)));
+            npc.alternate_talk=__builtin_bit_cast(std::int32_t, (get(data,p+12)));npc.position[3]=1;
+            for(unsigned k=0;k<3;++k)npc.position[k]=__builtin_bit_cast(float, (get(data,p+16+k*4)));
+            npc.facing=__builtin_bit_cast(float, (get(data,p+28)));
+            if(!std::all_of(npc.position.begin(),npc.position.end(),[](float v){return std::isfinite(v);})||!std::isfinite(npc.facing))
+                throw std::runtime_error("Non-finite field NPC definition");
+            result.npcs.push_back(std::move(npc));
+        }
+        if(index>=words)throw std::runtime_error("Missing field NPC terminator");
+        found=std::move(result);
+    }
+    if(!found)throw std::runtime_error("Missing field room definition");
+    return *found;
+}
+void OpeningField::load_interactions(Bytes database,const std::string& room,Bytes variables) {
+    if(definition_||!actor(-1))throw std::runtime_error("Field interactions require one configuration and a player");
+    auto definition=read_field_definition(database,room);
+    if(definition.type!=1)throw std::runtime_error("Field interactions currently require interior field class 1");
+    if(definition.event!="e_"+room)throw std::runtime_error("Field event definition does not match diagnostic room");
+    std::array<std::uint8_t,0x800> setup{};std::fill_n(setup.begin()+0x1a8,256,1);
+    run_event_setup(bytes_,variables,setup);
+    std::erase_if(definition.npcs,[&](const auto& npc){return setup[0x1a8+(-8-npc.alias)]==0;});
+    for(const auto& npc:definition.npcs)if(!actor(npc.alias)||npc.state!=0)
+        throw std::runtime_error("Field NPC binding/state is not implemented");
+    if(definition.npcs.size()+1!=actors_.size())throw std::runtime_error("Field NPC bindings differ from enabled definitions");
+    definition_=std::move(definition);
+}
+void OpeningField::interact(ExplorationInput input) {
+    if(!(input.pressed&0x40)||!definition_)return;
+    if(!get_variable||!set_variable)throw std::runtime_error("Field interaction requires native variables");
+    if(player_.trigger_kind>=0x80)throw std::runtime_error("Contact event dispatch is unrecovered");
+    Rounding rounding;const auto position=actor(-1)->animation().values().at(1);
+    float distance=10;FieldNpcDefinition* selected=nullptr;
+    for(auto& npc:definition_->npcs) {
+        auto* object=actor(npc.alias);if(npc.state>=4||!object->visible)continue;
+        const auto target=object->animation().values().at(1);
+        const float y=position[1]-target[1];if(y>4||y< -4)continue;
+        const float x=position[0]-target[0],z=position[2]-target[2];
+        const float candidate=std::sqrt(x*x+z*z);
+        if(candidate<distance){distance=candidate;selected=&npc;}
+    }
+    if(!selected)return;
+    if(selected->talk>=0)throw std::runtime_error("Direct NPC message lifecycle is unrecovered");
+    if(selected->talk==INT32_MIN)throw std::runtime_error("Invalid NPC event entry");
+    interaction_alias_=selected->alias;interaction_event_=-selected->talk;
+    auto* hero=actor(-1);hero->select_motion(1);player_.motion=1;player_.effect_counter=0;
+    auto* npc=actor(selected->alias);npc->select_motion(3);selected->state=3;
+    if(get_variable(0x40005)==0) {
+        const auto p=npc->animation().values().at(1);
+        npc->animation().set_channel(0,{0,camera_angle(-(p[0]-position[0]),-(p[2]-position[2]),angles_)+.5f,0,0});
+    }
+    player_.mask|=1;player_.floor_contact=0;player_.trigger_kind=player_.trigger_index=0;
+    if(player_.contact_bubble) {
+        const auto handle=player_.contact_bubble&0xfff;
+        if(handle>=effects_.size())throw std::runtime_error("Invalid contact effect handle");
+        if(effects_[handle])effects_[handle]->animation.request_removal();player_.contact_bubble=0;
+    }
+    saved_input_gate_=get_variable(0x40006);set_variable(6,4,1);
+    exploration_handoff_=false;
+    // 0x1bb7e0 -> 0x1b5dd0 executes the newly selected event immediately.
+    script_.start(unsigned(interaction_event_));
 }
 void OpeningField::load_effects(Bytes bytes) {
     if(!effect_definitions_.empty())throw std::runtime_error("Field effects already loaded");
@@ -172,6 +259,21 @@ void OpeningField::move_player(ExplorationInput input) {
 Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32_t b,std::uint32_t pc) {
     auto pending=[&] {pending_opcode=op;pending_actor=b;pending_animation=a;return Animation::ServiceResult{pc,true};};
     switch(op) {
+        case 11: {
+            if(!get_variable)return pending();
+            const auto value=get_variable(word(pc+4)),expected=__builtin_bit_cast(std::int32_t, (word(pc+8)));
+            bool take=true;
+            switch(a){case 1:take=value==expected;break;case 2:take=value!=expected;break;
+                case 3:take=value>expected;break;case 4:take=value<expected;break;
+                case 5:take=value>=expected;break;case 6:take=value<=expected;break;}
+            const auto next=take?std::int64_t(pc)+12:std::int64_t(pc)+(b>>2)*4;
+            if(next<32||std::uint64_t(next)+4>bytes_.size())throw std::runtime_error("Field condition branch bounds");
+            pending_opcode=0;return {std::uint32_t(next)};
+        }
+        case 0x53:
+            // Original 0x1307e0 only changes the camera for exterior class 0.
+            if(!definition_||definition_->type!=1)return pending();
+            return {pc+4};
         case 7:
             if(b==-2)script_.set_channel_target(nullptr);
             else if(auto* target=actor(b))script_.set_channel_target(&target->animation());
@@ -267,15 +369,24 @@ void OpeningField::tick(ExplorationInput input) {
     // ended script and selects the room camera; case 0 updates it next frame.
     if(exploration_camera_&&!event_running()) {
         if(exploration_handoff_) {
-            move_player(input);
-            const auto camera=anchored_camera(actor(-1)->animation().values().at(1),*exploration_camera_,angles_,sine_);
-            script_.set_channel(0,camera.position);requested_target_=camera.target;camera_mode_=2;
+            interact(input);
+            if(!event_running()) {
+                move_player(input);
+                const auto camera=anchored_camera(actor(-1)->animation().values().at(1),*exploration_camera_,angles_,sine_);
+                script_.set_channel(0,camera.position);requested_target_=camera.target;camera_mode_=2;
+            }
         } else {
             exploration_handoff_=true;
             // 0x132ca8 resets contact state, clears movement bit 0 and invalidates
             // selected motion; 0x134c18 chooses it on the next player update.
             player_.floor_contact=0;player_.trigger_kind=player_.trigger_index=0;
             player_.mask&=~1u;player_.motion=-1;
+            if(interaction_alias_) {
+                // Mode 5 clears field +0x64 before 0x132ca8. The NPC therefore
+                // retains state 3 and its event-selected motion/interpolation;
+                // only the direct-message mode-4 path requests NPC state 8.
+                set_variable(6,4,saved_input_gate_);
+            }
         }
     }
     if(collision_)remember_player();

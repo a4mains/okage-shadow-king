@@ -11,6 +11,7 @@
 #include "reference_text.hpp"
 #include "reference_controller.hpp"
 #include "reference_movement.hpp"
+#include "reference_interaction.hpp"
 #include "reference_camera.hpp"
 #include "reference_actor.hpp"
 #include "reference_lifecycle.hpp"
@@ -56,9 +57,9 @@ public:
 };
 int main(int argc,char** argv) {
     try {
-        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--movement FILE] [--actor FILE --actor-alias -1|-8|-9] [--lifecycle FILE] [--order FILE] [--music FILE] [--deadline-seconds 1..7200]");
+        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--movement FILE] [--interaction FILE] [--actor FILE --actor-alias -1|-8|-9] [--lifecycle FILE] [--order FILE] [--music FILE] [--deadline-seconds 1..7200]");
         unsigned deadlineSeconds=0;
-        int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,music,movement;
+        int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,music,movement,interaction;
         for (int i=3;i<argc;++i) {
             const std::string arg=argv[i];
             if (arg=="--load") load=true;
@@ -79,6 +80,7 @@ int main(int argc,char** argv) {
             else if (arg=="--music" && i+1<argc) music=argv[++i];
             else if (arg=="--camera" && i+1<argc) camera=argv[++i];
             else if (arg=="--controller" && i+1<argc) controller=argv[++i];
+            else if (arg=="--interaction" && i+1<argc) interaction=argv[++i];
             else if (arg=="--movement" && i+1<argc) movement=argv[++i];
             else if (arg=="--deadline-seconds" && i+1<argc) {
                 const std::string_view input=argv[++i];unsigned value=0;
@@ -116,10 +118,11 @@ int main(int argc,char** argv) {
         auto controllerTrace=controller.empty() ? nullptr : std::make_unique<ControllerTrace>(controller);
         auto cameraTrace=camera.empty() ? nullptr : std::make_unique<CameraTrace>(camera);
         auto actorTrace=actor.empty() ? nullptr : std::make_unique<ActorTrace>(actor,actorAlias);
+        auto interactionTrace=interaction.empty() ? nullptr : std::make_unique<InteractionTrace>(interaction);
         auto movementTrace=movement.empty() ? nullptr : std::make_unique<MovementTrace>(movement);
         auto lifecycleTrace=lifecycle.empty() ? nullptr : std::make_unique<LifecycleTrace>(lifecycle);
         auto orderTrace=order.empty() ? nullptr : std::make_unique<OrderTrace>(order);
-        const bool tracing=traceLoaders || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace) || bool(cameraTrace) || bool(actorTrace) || bool(movementTrace) || bool(lifecycleTrace) || bool(orderTrace) || !music.empty();
+        const bool tracing=traceLoaders || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace) || bool(cameraTrace) || bool(actorTrace) || bool(movementTrace) || bool(interactionTrace) || bool(lifecycleTrace) || bool(orderTrace) || !music.empty();
         RecordedAudio* recordedAudio=nullptr;
         Traffic traffic; std::atomic<unsigned> frames{0}; std::atomic<bool> exited{false};
         CPS2VM vm;
@@ -168,6 +171,7 @@ int main(int argc,char** argv) {
         if(controllerTrace)for(auto at:ControllerTrace::breakpoints)loaders.push_back(at);
         if(cameraTrace)for(auto at:CameraTrace::breakpoints)loaders.push_back(at);
         if(actorTrace)for(auto at:ActorTrace::breakpoints)loaders.push_back(at);
+        if(interactionTrace)for(auto at:InteractionTrace::breakpoints)loaders.push_back(at);
         if(movementTrace)for(auto at:MovementTrace::breakpoints)loaders.push_back(at);
         if(lifecycleTrace)for(auto at:LifecycleTrace::breakpoints)loaders.push_back(at);
         if(orderTrace)for(auto at:OrderTrace::breakpoints)loaders.push_back(at);
@@ -206,6 +210,9 @@ int main(int argc,char** argv) {
                     throw std::runtime_error(error.str());
                 }
                 if (++tracedCalls>(eventTrace ? 200000u : 10000u)) throw std::runtime_error("Reference trace limit exceeded");
+                if(interactionTrace && std::find(InteractionTrace::breakpoints.begin(),InteractionTrace::breakpoints.end(),pc)!=InteractionTrace::breakpoints.end()) {
+                    interactionTrace->observe(*vm.m_ee,frames);vm.Resume();continue;
+                }
                 if(movementTrace && std::find(MovementTrace::breakpoints.begin(),MovementTrace::breakpoints.end(),pc)!=MovementTrace::breakpoints.end()) {
                     movementTrace->observe(*vm.m_ee,frames);vm.Resume();continue;
                 }
@@ -262,6 +269,7 @@ int main(int argc,char** argv) {
         std::cout<<"Stopped: vblanks="<<frames<<" exit_request="<<exited<<" gs_registers="<<traffic.registers
                  <<" gs_vertices="<<traffic.vertices<<" uploads="<<traffic.uploads<<std::endl;
         if(actorTrace)actorTrace->finish();
+        if(interactionTrace)interactionTrace->finish();
         if(movementTrace)movementTrace->finish();
         if(lifecycleTrace)lifecycleTrace->finish();
         if(musicTrace)musicTrace->finish();

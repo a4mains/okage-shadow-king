@@ -57,6 +57,17 @@ int main(){try {
     for(unsigned i=0;i<180;++i)cameraRelease.tick();
     require(cameraRelease.camera_mode()==0 && cameraRelease.pc()==0xbe8);
     require(cameraRelease.rotation==before);
+    // Run signed conditions in the timed event context, with both branch paths.
+    word(0xbe4,(24u<<20)|(4u<<8)|11);word(0xbe8,0x20000);word(0xbec,0);
+    word(0xbf0,0x100047);word(0xbf4,0x10007);word(0xbf8,0xff800236);word(0xbfc,0xff800236);
+    for(int input:{-1,0}) {
+        unsigned count=0;okage::OpeningField conditional(b,[](int){},[](int){return true;});
+        conditional.get_variable=[&](auto selector){require(selector==0x20000);return input;};
+        conditional.set_variable=[&](auto index,auto bank,auto value){require(index==7&&bank==1&&value==1);++count;};
+        for(unsigned i=0;i<180;++i)conditional.tick();
+        require(count==unsigned(input<0));require(conditional.pending_opcode==0x36);
+        require(conditional.pc()==(input<0?0xbf8u:0xbfcu));
+    }
     word(0xb88,0);rejects([&]{okage::OpeningField bad(b,[](int){},[](int){return true;});});
     rejects([&]{okage::field_projection({});});
     b.assign(88,0);word(0,0x475453);word(16,32);word(20,1);word(24,88);
@@ -70,5 +81,21 @@ int main(){try {
     word(76,0);rejects([&]{okage::field_anchored_camera(b);});word(76,__builtin_bit_cast(std::uint32_t, (1.f)));
     word(60,0x10000);rejects([&]{okage::field_anchored_camera(b);});word(60,0);
     word(64,0x7fc00000);rejects([&]{okage::field_anchored_camera(b);});
+    // Independently specified minimal field database and malformed boundaries.
+    const std::string strings("scene0\0room\0e_room\0actor\0",25);
+    b.assign(48+84+strings.size(),0);word(0,0x424458);word(4,84);word(8,strings.size());word(12,1);word(16,0xffffffff);
+    word(32,0);word(36,0);word(40,21);word(52,1);word(68,7);word(76,12);
+    word(96,19);word(100,0);word(104,std::uint32_t(-30));word(108,0);
+    point(112,{1,2,3,1});word(124,__builtin_bit_cast(std::uint32_t, (.5f)));
+    std::copy(strings.begin(),strings.end(),b.begin()+132);
+    const auto definition=okage::read_field_definition(b,"room");
+    require(definition.type==1&&definition.event=="e_room"&&definition.npcs.size()==1);
+    const auto& npc=definition.npcs[0];require(npc.alias==-8&&npc.model=="actor"&&npc.talk==-30&&npc.state==0);
+    require(npc.position==okage::Float4({1,2,3,1})&&npc.facing==.5f);
+    rejects([&]{okage::read_field_definition(b,"missing");});
+    for(unsigned size=0;size<b.size();++size)rejects([&]{okage::read_field_definition(okage::Bytes(b.data(),size),"room");});
+    word(104,0);word(112,0x7fc00000);rejects([&]{okage::read_field_definition(b,"room");});word(112,0);
+    word(128,19);rejects([&]{okage::read_field_definition(b,"room");});word(128,0);
+    word(32,1000);rejects([&]{okage::read_field_definition(b,"room");});
     std::cout<<"Camera look-at, blend, field dialogue gate and pending actor service passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

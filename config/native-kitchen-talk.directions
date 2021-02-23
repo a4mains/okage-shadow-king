@@ -1,0 +1,19 @@
+# Native kitchen conversation; reference latches, not requested pad frames.
+2600 4000
+2604 0
+2640 4000
+2644 0
+3611 4000
+3612 0
+3620 1000
+3621 0
+4390 1000
+4394 0
+4430 1000
+4434 0
+5060 1000
+5081 0000
+
+# Demonstrate that movement is available after dialogue closure.
+5500 4000
+5510 0000

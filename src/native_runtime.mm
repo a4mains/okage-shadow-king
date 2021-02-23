@@ -100,7 +100,7 @@ struct Session {
     std::unique_ptr<okage::OpeningField> field;
     std::unique_ptr<okage::SceneRenderer> renderer;
     okage::Float4 projection{};
-    std::vector<std::uint32_t> scene_trace,dialogue_trace,camera_state_trace,movement_trace;
+    std::vector<std::uint32_t> scene_trace,dialogue_trace,camera_state_trace,movement_trace,interaction_trace;
     std::vector<std::uint32_t> effect_trace;
     bool effects_loaded=false;
     std::map<int,std::vector<std::uint32_t>> actor_traces;
@@ -132,7 +132,7 @@ struct Session {
         dialogue_active=false;
         field=std::make_unique<okage::OpeningField>(readData(event),[this](int id){
             if(dialogue_active && !closure.finished())throw std::runtime_error("Field replaces an unfinished message");
-            if(id<10100 || id>10107)throw std::runtime_error("Field message initialization outside recovered scope");
+            if(id!=10026 && (id<10100 || id>10107))throw std::runtime_error("Field message initialization outside recovered scope");
             message_id=id;++messages_started;
             text=okage::DialogueText(messages,id);text.fonts=fonts;
             text.state.flags=0x8041;text.state.font=2;text.state.period=1;
@@ -150,7 +150,11 @@ struct Session {
             return released;
         },actor_bindings);
         field->set_variable=[this](unsigned index,unsigned bank,std::int32_t value){okage::set_event_variable(variables,index,bank,value);};
+        field->get_variable=[this](std::uint32_t selector){return okage::event_variable(variables,selector);};
         if(std::any_of(actor_bindings.begin(),actor_bindings.end(),[](const auto& a){return a.alias==-1;})) {
+            auto room=map.parent_path().stem().string();
+            std::transform(room.begin(),room.end(),room.begin(),[](unsigned char c){return char(std::tolower(c));});
+            field->load_interactions(readData(event.parent_path()/"fldset.xdb"),room,variables);
             field->load_exploration_camera(readData(stg));
             auto xcl=map;xcl.replace_extension(".xcl");field->load_exploration_collision(readData(xcl),variables);
         }
@@ -166,7 +170,7 @@ struct Session {
         input.repeat=pad_repeat.update(input.held,input.pressed);
         scene_fade.tick();
         const std::array<std::uint32_t,2> layers={0x50,controller.layer_flags};
-        if(field)field->tick({input.held});
+        if(field)field->tick({input.held,128,128,input.pressed});
         if(music){
             music_volume.tick();music->volume(music_volume.level(),music_volume.level());
             std::array<std::int16_t,1600> pcm{};music->render(pcm);
@@ -200,6 +204,10 @@ struct Session {
             text.state.period,text.state.delay,text.state.progress,controller.advance_count,controller.layer_advance,
             controller.layer_flags,controller.stage,__builtin_bit_cast(std::uint32_t, (opacity.delta))});
         if(field) {
+            interaction_trace.insert(interaction_trace.end(),{frame,input.pressed,
+                std::uint32_t(field->interaction_alias()),std::uint32_t(field->interaction_event()),
+                field->event_running()?1u:0u,field->player_movement().mask,
+                std::uint32_t(okage::event_variable(variables,0x40006)),field->pc()});
             const auto& m=field->player_movement();
             movement_trace.insert(movement_trace.end(),{frame,input.held,m.mask,m.footstep_sound,
                 std::uint32_t(m.motion),std::uint32_t(m.floor_contact),m.trigger_kind,m.trigger_index,
@@ -293,6 +301,8 @@ static void capture(const Session& session,const fs::path& path) {
          <<",\n  \"progression_flag_5\": "<<okage::event_variable(session.variables,5)
          <<",\n  \"field_event_running\": "<<(session.field&&session.field->event_running()?"true":"false")
          <<",\n  \"field_camera_mode\": "<<(session.field?session.field->camera_mode():0)
+         <<",\n  \"interaction_alias\": "<<(session.field?session.field->interaction_alias():0)
+         <<",\n  \"interaction_event\": "<<(session.field?session.field->interaction_event():0)
          <<",\n  \"loaded_stream_banks\": "<<session.sound_banks.size()
          <<",\n  \"choice_cursor\": "<<session.text.choice_cursor
          <<",\n  \"choice_result\": "<<session.text.choice_result
@@ -327,6 +337,11 @@ static void capture(const Session& session,const fs::path& path) {
         if(!out.write(reinterpret_cast<const char*>(trace.data()),trace.size()*4))throw std::runtime_error("Cannot save actor trace");
     }
     if(session.field) {
+        const auto interactionPath=fs::path(path.string()+".interaction.bin");
+        if(fs::exists(interactionPath)||fs::is_symlink(interactionPath))throw std::runtime_error("Refusing existing interaction trace");
+        std::ofstream interaction(interactionPath,std::ios::binary);
+        if(!interaction.write(reinterpret_cast<const char*>(session.interaction_trace.data()),session.interaction_trace.size()*4))
+            throw std::runtime_error("Cannot save interaction trace");
         const auto tracePath=fs::path(path.string()+".camera.bin");
         if(fs::exists(tracePath)||fs::is_symlink(tracePath))throw std::runtime_error("Refusing existing camera trace");
         std::ofstream trace(tracePath,std::ios::binary);
