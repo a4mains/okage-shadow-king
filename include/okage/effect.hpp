@@ -41,6 +41,7 @@ private:
 struct AttachedEffect {
     BubbleEffect animation;
     int actor_alias;
+    bool player_contact=false;
     Float4 position{};
     AttachedEffect(const EffectDefinition& d,int parameter,int actor):animation(d,parameter),actor_alias(actor){}
 };

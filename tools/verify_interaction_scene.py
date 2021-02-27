@@ -24,6 +24,9 @@ def main():
     p.add_argument('--capture', type=Path, default=Path('local/native-talk-end-5530-debug-v3.png'))
     p.add_argument('--compare', type=Path, action='append', default=[])
     p.add_argument('--ui', type=Path)
+    p.add_argument('--database', type=Path,
+                   default=Path('local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/fldset.xdb'),
+                   help='Database used by this capture; historical default predates runtime disc-database correction')
     p.add_argument('--output', type=Path, required=True)
     args = p.parse_args()
     original = Path('local/reference-kitchen-talk-180-v1')
@@ -148,7 +151,7 @@ def main():
     files += [source(prefix, s) for prefix in (original, continuation)
               for s in ('.interaction.bin', '.controller.bin', '.actor.bin', '.input', '.log', '.state.zip')]
     files += [Path('config/native-kitchen-talk.directions'),
-              Path('local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/fldset.xdb')]
+              args.database]
     report = {'scope': __doc__.strip(), 'elf_sha256': ELF_HASH,
               'reference': str(original), 'continuation': str(continuation), 'native': str(args.capture),
               'native_frame_for_original_callback_zero': origin,

@@ -9,10 +9,21 @@ namespace okage {
 struct ExplorationInput {std::uint16_t held=0;std::uint8_t x=128,z=128;std::uint16_t pressed=0;};
 struct FieldNpcDefinition {
     int alias=0;std::string model;std::int32_t state=0,talk=0,alternate_talk=0;
-    Float4 position{};float facing=0;
+    Float4 position{};float facing=0;unsigned flags=1;
 };
-struct FieldDefinition {std::uint32_t type=0;std::string event;std::vector<FieldNpcDefinition> npcs;};
+struct FieldDefinition {
+    int scene=-1;std::uint32_t type=0,party=0,startup=0;
+    std::int32_t music=0,secondary_music=0;
+    unsigned footstep=33,dust=0;
+    std::string room_directory,room,message,event;
+    std::vector<FieldNpcDefinition> npcs;
+};
 FieldDefinition read_field_definition(Bytes database,const std::string& room);
+FieldDefinition read_field_definition(Bytes database,int scene);
+FieldDefinition prepare_field_definition(Bytes script,Bytes variables,FieldDefinition definition);
+struct FieldEntrance {Float4 position{},rotation{};};
+FieldEntrance field_entrance(Bytes stg,unsigned entrance);
+struct FieldTransition {int scene;unsigned entrance,countdown=2;bool ready=false;};
 struct PlayerMovement {
     std::uint32_t mask=1,footstep_sound=33,dust_effect=0;
     std::int32_t motion=-1,floor_contact=0;
@@ -24,12 +35,15 @@ struct PlayerMovement {
 class OpeningField {
 public:
     OpeningField(Bytes script,std::function<void(int)> start_dialogue,
-                 std::function<bool(int)> wait_dialogue,std::span<const ActorBinding> actors={});
+                 std::function<bool(int)> wait_dialogue,std::span<const ActorBinding> actors={},bool diagnostic=true);
     void tick(ExplorationInput input={});
     void load_effects(Bytes);
     void load_exploration_camera(Bytes stg);
     void load_exploration_collision(Bytes xcl,Bytes variables);
     void load_interactions(Bytes database,const std::string& room,Bytes variables);
+    void enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned entrance);
+    const std::optional<FieldTransition>& transition() const {return transition_;}
+    std::function<void(unsigned)> transition_service;
     const PlayerMovement& player_movement() const {return player_;}
     const std::vector<CollisionBody>& collision_bodies() const {return bodies_;}
     const AttachedEffects& effects() const {return effects_;}
@@ -65,6 +79,11 @@ private:
     std::optional<FieldDefinition> definition_;
     int interaction_alias_=0,interaction_event_=0;
     std::int32_t saved_input_gate_=0;
+    bool input_gate_saved_=false;
+    std::optional<FieldTransition> transition_;
+    void clear_contact();
+    void build_collision(Bytes xcl);
+    void advance_effects(bool player_contacts);
     void interact(ExplorationInput);
     void move_player(ExplorationInput);
     void remember_player();
@@ -72,6 +91,7 @@ private:
     AttachedEffects effects_;
     std::array<unsigned,16> effect_ring_{};
     unsigned effect_ring_index_=0;
+    unsigned attach_bubble(int parameter,int alias);
     std::function<void(int)> start_dialogue_;
     std::function<bool(int)> wait_dialogue_;
     Animation::ServiceResult service(unsigned,unsigned,std::int32_t,std::uint32_t);

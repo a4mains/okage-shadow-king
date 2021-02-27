@@ -68,6 +68,16 @@ int main(){try {
         require(count==unsigned(input<0));require(conditional.pending_opcode==0x36);
         require(conditional.pc()==(input<0?0xbf8u:0xbfcu));
     }
+    word(0xbe4,0x04600243);word(0xbe8,0);
+    okage::OpeningField exiting(b,[](int){},[](int){return true;});
+    std::vector<unsigned> fades;exiting.transition_service=[&](unsigned n){fades.push_back(n);};
+    for(unsigned i=0;i<180&&!exiting.transition();++i)exiting.tick();
+    require(exiting.transition()&&exiting.transition()->scene==70&&exiting.transition()->entrance==2);
+    require(!exiting.event_running()&&exiting.transition()->countdown==2&&!exiting.transition()->ready);
+    exiting.tick();require(exiting.transition()->countdown==1&&!exiting.transition()->ready);
+    exiting.tick();require(exiting.transition()->countdown==0&&!exiting.transition()->ready);
+    exiting.tick();require(exiting.transition()->ready&&fades==std::vector<unsigned>({1,0}));
+    rejects([&]{exiting.tick();});
     word(0xb88,0);rejects([&]{okage::OpeningField bad(b,[](int){},[](int){return true;});});
     rejects([&]{okage::field_projection({});});
     b.assign(88,0);word(0,0x475453);word(16,32);word(20,1);word(24,88);
@@ -81,6 +91,15 @@ int main(){try {
     word(76,0);rejects([&]{okage::field_anchored_camera(b);});word(76,__builtin_bit_cast(std::uint32_t, (1.f)));
     word(60,0x10000);rejects([&]{okage::field_anchored_camera(b);});word(60,0);
     word(64,0x7fc00000);rejects([&]{okage::field_anchored_camera(b);});
+    b.assign(88,0);word(0,0x475453);word(24,32);word(28,2);
+    point(36,{1,-2,3,1});point(48,{0,.25f,0,1});
+    point(64,{-4,-5,6,1});point(76,{0,-.5f,0,1});
+    const auto entrance=okage::field_entrance(b,1);
+    require(entrance.position==okage::Float4({-4,-5,6,1})&&entrance.rotation==okage::Float4({0,-.5f,0,1}));
+    rejects([&]{okage::field_entrance(b,2);});
+    word(64,0x7fc00000);rejects([&]{okage::field_entrance(b,1);});word(64,0);
+    word(24,33);rejects([&]{okage::field_entrance(b,0);});word(24,32);
+    b.resize(87);rejects([&]{okage::field_entrance(b,1);});
     // Independently specified minimal field database and malformed boundaries.
     const std::string strings("scene0\0room\0e_room\0actor\0",25);
     b.assign(48+84+strings.size(),0);word(0,0x424458);word(4,84);word(8,strings.size());word(12,1);word(16,0xffffffff);
@@ -90,6 +109,10 @@ int main(){try {
     std::copy(strings.begin(),strings.end(),b.begin()+132);
     const auto definition=okage::read_field_definition(b,"room");
     require(definition.type==1&&definition.event=="e_room"&&definition.npcs.size()==1);
+    const auto by_scene=okage::read_field_definition(b,0);
+    require(by_scene.scene==0&&by_scene.room=="room"&&by_scene.event==definition.event);
+    rejects([&]{okage::read_field_definition(b,1);});
+    rejects([&]{okage::read_field_definition(b,-1);});
     const auto& npc=definition.npcs[0];require(npc.alias==-8&&npc.model=="actor"&&npc.talk==-30&&npc.state==0);
     require(npc.position==okage::Float4({1,2,3,1})&&npc.facing==.5f);
     rejects([&]{okage::read_field_definition(b,"missing");});

@@ -70,6 +70,11 @@ struct Session {
         record_audio=record;sound_directory=sounds;
         if(!sound_directory.empty())sound_banks.emplace(0,std::make_unique<okage::StreamPlayer>(
             okage::read_stream_bank(readData(sound_directory/"ALL.XWS"))));
+        bind_audio_services();
+        std::cout<<"Native dry music enabled: original sequence/bank, reverb and SFX pending\n";
+    }
+
+    void bind_audio_services() {
         if(field)field->audio_service=[this](unsigned operation,int argument){
             if(operation==1 && !sound_directory.empty()){
                 if(argument<0 || argument>9999)throw std::runtime_error("Sound set number outside import scope");
@@ -91,7 +96,6 @@ struct Session {
             found->second->play(index,speed,volume);
             sound_trace.insert(sound_trace.end(),{frame,bank,unsigned(index),__builtin_bit_cast(unsigned, (speed)),volume});return true;
         };
-        std::cout<<"Native dry music enabled: original sequence/bank, reverb and SFX pending\n";
     }
 
     bool dialogue_active=true;
@@ -117,22 +121,15 @@ struct Session {
         clock.glyph_flags=0x10;opacity.set(1,8);
         scene_fade.current=scene_fade.target=1; // Already lit diagnostic entry.
     }
-    void load_scene(const fs::path& map,const fs::path& event,const std::vector<std::pair<int,fs::path>>& assets) {
-        std::vector<okage::SceneActor> scene_actors;
-        for(const auto& [alias,path]:assets) {
-            auto motion=path,xta=path;motion.replace_extension(".xmt");xta.replace_extension(".xta");
-            const auto data=readData(xta);
-            auto object=std::make_unique<okage::FieldActor>(okage::read_xmd(readData(path)),readData(motion),
-                okage::read_xta(std::string_view(reinterpret_cast<const char*>(data.data()),data.size())));
-            actor_bindings.push_back({alias,object.get()});scene_actors.push_back({object.get(),path});
-            actor_objects.push_back(std::move(object));
-        }
-        renderer=std::make_unique<okage::SceneRenderer>(map,scene_actors);
-        auto stg=map;stg.replace_extension(".stg");projection=okage::field_projection(readData(stg));
-        dialogue_active=false;
-        field=std::make_unique<okage::OpeningField>(readData(event),[this](int id){
+    fs::path field_root,event_directory,effect_data,effect_textures;
+    int current_scene=-1,current_entrance=0,current_music=0;
+    std::vector<std::uint32_t> transition_trace;
+    std::optional<okage::Texture> transition_image;
+    unsigned transition_alpha=0,transition_target=0;
+    void create_field(okage::Bytes script,bool diagnostic) {
+        field=std::make_unique<okage::OpeningField>(script,[this](int id){
             if(dialogue_active && !closure.finished())throw std::runtime_error("Field replaces an unfinished message");
-            if(id!=10026 && (id<10100 || id>10107))throw std::runtime_error("Field message initialization outside recovered scope");
+            if(id!=10026 && id!=10030 && (id<10100 || id>10107))throw std::runtime_error("Field message initialization outside recovered scope");
             message_id=id;++messages_started;
             text=okage::DialogueText(messages,id);text.fonts=fonts;
             text.state.flags=0x8041;text.state.font=2;text.state.period=1;
@@ -148,13 +145,36 @@ struct Session {
             if(released && !release_frame)release_frame=frame;
             if(released && request==0 && !close_release_frame)close_release_frame=frame;
             return released;
-        },actor_bindings);
+        },actor_bindings,diagnostic);
         field->set_variable=[this](unsigned index,unsigned bank,std::int32_t value){okage::set_event_variable(variables,index,bank,value);};
         field->get_variable=[this](std::uint32_t selector){return okage::event_variable(variables,selector);};
+        field->transition_service=[this](unsigned countdown){
+            if(countdown==1)transition_image=surface();
+            else if(countdown==0){transition_alpha=transition_target=128;}
+        };
+    }
+    void load_scene(const fs::path& map,const fs::path& event,const std::vector<std::pair<int,fs::path>>& assets) {
+        std::vector<okage::SceneActor> scene_actors;
+        for(const auto& [alias,path]:assets) {
+            auto motion=path,xta=path;motion.replace_extension(".xmt");xta.replace_extension(".xta");
+            const auto data=readData(xta);
+            auto object=std::make_unique<okage::FieldActor>(okage::read_xmd(readData(path)),readData(motion),
+                okage::read_xta(std::string_view(reinterpret_cast<const char*>(data.data()),data.size())));
+            actor_bindings.push_back({alias,object.get()});scene_actors.push_back({object.get(),path});
+            actor_objects.push_back(std::move(object));
+        }
+        renderer=std::make_unique<okage::SceneRenderer>(map,scene_actors);
+        auto stg=map;stg.replace_extension(".stg");projection=okage::field_projection(readData(stg));
+        dialogue_active=false;
+        create_field(readData(event),true);
         if(std::any_of(actor_bindings.begin(),actor_bindings.end(),[](const auto& a){return a.alias==-1;})) {
             auto room=map.parent_path().stem().string();
             std::transform(room.begin(),room.end(),room.begin(),[](unsigned char c){return char(std::tolower(c));});
-            field->load_interactions(readData(event.parent_path()/"fldset.xdb"),room,variables);
+            field_root=event.parent_path().parent_path().parent_path();event_directory=event.parent_path();
+            const auto database=readData(field_root/"FLDSET.XDB");
+            const auto definition=okage::read_field_definition(database,room);
+            current_scene=definition.scene;current_music=definition.music;
+            field->load_interactions(database,room,variables);
             field->load_exploration_camera(readData(stg));
             auto xcl=map;xcl.replace_extension(".xcl");field->load_exploration_collision(readData(xcl),variables);
         }
@@ -164,13 +184,67 @@ struct Session {
     void load_effects(const fs::path& data,const fs::path& textures) {
         if(!field||!renderer)throw std::runtime_error("Effects require a loaded scene");
         renderer->load_effect_textures(textures);field->load_effects(readData(data));effects_loaded=true;
+        effect_data=data;effect_textures=textures;
+    }
+    void load_destination(const okage::FieldTransition& request) {
+        auto definition=okage::read_field_definition(readData(field_root/"FLDSET.XDB"),request.scene);
+        if(definition.party||definition.type!=1||definition.message!="field")
+            throw std::runtime_error("Destination party/type/message bank is unrecovered");
+        // Field constructor 0x125ad0 clears only the temporary bank0 bits.
+        std::fill(variables.begin()+0x10,variables.begin()+0x110,0);
+        okage::set_event_variable(variables,0,4,request.scene);
+        okage::set_event_variable(variables,1,4,request.entrance);
+        okage::set_event_variable(variables,6,4,1);
+        auto upper=[](std::string name){
+            if(name.empty()||name.front()=='/'||name.find("..")!=std::string::npos||name.find('\\')!=std::string::npos)
+                throw std::runtime_error("Unsafe field asset path");
+            std::transform(name.begin(),name.end(),name.begin(),[](unsigned char c){return char(std::toupper(c));});return name;
+        };
+        upper(definition.event);
+        const auto script=readData(event_directory/(definition.event+".xmt"));
+        definition=okage::prepare_field_definition(script,variables,std::move(definition));
+        if(definition.music!=current_music||definition.secondary_music)
+            throw std::runtime_error("Destination music bank switching is unrecovered");
+        const auto map=field_root/upper(definition.room_directory)/(upper(definition.room)+".XPF")/"a.xmp";
+        std::vector<okage::SceneActor> scene_actors;
+        renderer.reset();field.reset();actor_bindings.clear();actor_objects.clear();
+        auto add=[&](int alias,const std::string& model){
+            const auto path=field_root/"OBJ"/(upper(model)+".XPF")/"a.xmd";
+            auto motion=path,xta=path;motion.replace_extension(".xmt");xta.replace_extension(".xta");const auto data=readData(xta);
+            auto object=std::make_unique<okage::FieldActor>(okage::read_xmd(readData(path)),readData(motion),
+                okage::read_xta(std::string_view(reinterpret_cast<const char*>(data.data()),data.size())));
+            actor_bindings.push_back({alias,object.get()});scene_actors.push_back({object.get(),path});actor_objects.push_back(std::move(object));
+        };
+        for(const auto& npc:definition.npcs)add(npc.alias,npc.model);
+        add(-1,"hero");
+        renderer=std::make_unique<okage::SceneRenderer>(map,scene_actors);
+        auto stg=map,xcl=map;stg.replace_extension(".stg");xcl.replace_extension(".xcl");
+        const auto stage=readData(stg);projection=okage::field_projection(stage);
+        create_field(script,false);bind_audio_services();
+        if(effects_loaded){renderer->load_effect_textures(effect_textures);field->load_effects(readData(effect_data));}
+        dialogue_active=false;choices={};narration={};
+        field->enter(std::move(definition),stage,readData(xcl),request.entrance);
+        current_scene=request.scene;current_entrance=int(request.entrance);transition_target=0;
+        std::cout<<"Native destination: scene "<<current_scene<<" entrance "<<current_entrance<<"; "<<renderer->actors()<<" actors\n";
     }
     void tick(okage::DialogueButtons input) {
         ++frame;
         input.repeat=pad_repeat.update(input.held,input.pressed);
+        // 0x114ac0 advances the captured-frame overlay by four alpha units.
+        if(transition_alpha!=transition_target) {
+            transition_alpha=transition_alpha>transition_target?transition_alpha-4:transition_alpha+4;
+            if(!transition_alpha)transition_image.reset();
+        }
         scene_fade.tick();
         const std::array<std::uint32_t,2> layers={0x50,controller.layer_flags};
-        if(field)field->tick({input.held,128,128,input.pressed});
+        if(field) {
+            field->tick({input.held,128,128,input.pressed});
+            const auto request=field->transition();
+            transition_trace.insert(transition_trace.end(),{frame,unsigned(current_scene),unsigned(current_entrance),
+                request?unsigned(request->scene):0xffffffffu,request?request->entrance:0,
+                request?request->countdown:0,request&&request->ready?1u:0u,field->pc()});
+            if(request&&request->ready)load_destination(*request);
+        }
         if(music){
             music_volume.tick();music->volume(music_volume.level(),music_volume.level());
             std::array<std::int16_t,1600> pcm{};music->render(pcm);
@@ -265,6 +339,11 @@ struct Session {
             for(unsigned c=0;c<3;++c)image.rgba[640*224*4+i+c]=std::uint8_t(text_image.rgba[i+c]*a+16.f*(1-a));
             image.rgba[640*224*4+i+3]=255;
         }
+        if(transition_alpha) {
+            if(!transition_image||transition_image->rgba.size()!=image.rgba.size())throw std::runtime_error("Missing transition framebuffer");
+            for(std::size_t i=0;i<image.rgba.size();i+=4)for(unsigned c=0;c<3;++c)
+                image.rgba[i+c]=(unsigned(transition_image->rgba[i+c])*transition_alpha+unsigned(image.rgba[i+c])*(128-transition_alpha))/128;
+        }
         return image;
     }
 };
@@ -309,6 +388,15 @@ static void capture(const Session& session,const fs::path& path) {
          <<",\n  \"choice_armed\": "<<(session.controller.choice_armed ? "true" : "false")
          <<",\n  \"close_frame\": "<<session.close_frame<<",\n  \"close_wait_release_frame\": "<<session.close_release_frame<<"\n}\n";
     if(!state)throw std::runtime_error("Cannot write native capture state");
+    for(const auto& [suffix,data]:std::array<std::pair<std::string,okage::Bytes>,2>{
+        std::pair{".transition.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.transition_trace.data()),session.transition_trace.size()*4)},
+        std::pair{".variables.bin",okage::Bytes(session.variables)}}) {
+        const auto output=fs::path(path.string()+suffix);
+        if(fs::exists(output)||fs::is_symlink(output))throw std::runtime_error("Refusing existing field-state capture");
+        std::ofstream stream(output,std::ios::binary);
+        if(!stream.write(reinterpret_cast<const char*>(data.data()),data.size()))throw std::runtime_error("Cannot write field-state capture");
+    }
+
     if(session.music){
         const auto pcmPath=path.string()+".audio.pcm",tracePath=path.string()+".music.bin",statsPath=path.string()+".audio.json",soundPath=path.string()+".sound.bin";
         for(const auto& p:{pcmPath,tracePath,statsPath,soundPath})if(fs::exists(p)||fs::is_symlink(p))throw std::runtime_error("Refusing existing audio capture");

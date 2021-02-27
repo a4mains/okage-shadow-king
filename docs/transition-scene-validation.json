@@ -1,0 +1,52 @@
+{
+  "scope": "Audit the native kitchen exit and arrival; excludes complete loading/presentation fidelity.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "native": "local/native-kitchen-exit-5200-debug-v4.png",
+  "reference": "local/reference-kitchen-exit-180-v1",
+  "exact_preexit_field_updates": 64,
+  "root_position_maximum_absolute_error": 0.0,
+  "root_position_tolerance": 2e-05,
+  "exact_bubble_phase_flags_attachment_texture_uv_frames": 40,
+  "contact_job_order_observed_frames": 21,
+  "input_event": 1,
+  "destination_scene": 70,
+  "entrance": 2,
+  "request_frame": 5110,
+  "native_load_frame": 5113,
+  "original_startup_frame": 140,
+  "arrival_root_transform_exact": true,
+  "startup_event": 50,
+  "native_movement_after_arrival": true,
+  "matching_captures": [
+    "local/native-kitchen-exit-5200-release-v4.png",
+    "local/native-kitchen-exit-5200-sanitize-v4.png"
+  ],
+  "appkit": {
+    "dry_output": true,
+    "frames": 4160000,
+    "rate": 48000,
+    "volume": 128,
+    "peak_voices": 18,
+    "device_frames_enqueued": 4155200,
+    "device_underrun_frames": 6400,
+    "producer_frames_pending_at_capture": 4800
+  },
+  "limits": [
+    "Synchronous native loading does not reproduce original loading latency or cold initialization.",
+    "No full destination skeleton, room lighting, shadows or transition-pixel equivalence claim.",
+    "Blocked progression message10030 uses diagnostic window initialization; this route does not exercise it.",
+    "Post-arrival movement is demonstrated natively, not yet paired with original movement in this room.",
+    "Original capture/raw RAM are auditor-only references; native launch reads owned asset imports.",
+    "Physical controller/listening, sustained performance, battles, saves and full playthrough remain open."
+  ],
+  "sha256": {
+    "local/native-kitchen-exit-5200-debug-v4.png": "48de63b0f907ae1acafff158b048418d30b43b3a908a14e27f96660894e500ff",
+    "local/native-kitchen-exit-5200-debug-v4.png.transition.bin": "c321eca868e8c6099ae9d8fbcac102c3d5ac9acb634566b7bfabec55882aa11b",
+    "local/native-kitchen-exit-5200-debug-v4.png.variables.bin": "383bd47d57237f5994fb9df6adac67761217aba729ff9b83c883d3b3f6f9fdbd",
+    "local/reference-kitchen-exit-180-v1.transition.bin": "46a4b45a801e0dccce4cc9d5f6e6b4c980bf0d365f6e6854e6ef69c4486a74d4",
+    "local/reference-contact-order-45-v2.transition.bin": "b756bd572c32b84acf73400e610e5f2cb86e080bb8d9e05afec62d0f88dcbfbc",
+    "local/research/kitchen-end700-v2-ee.bin": "d123959880ccb1eb13dd7c9a208bad1a6446775b2e18a47cdb6cd7b14f49d216",
+    "local/xpf-decoded/FLDDATA/FLDSET.XDB": "e1085fc18788d42b10b11d6fdbf8e8bcb3de67ef11003669b4de9e4b30d1f0ba",
+    "config/native-kitchen-exit.directions": "4976565e61b582c0c8b4198a81ead0373fd1070242793ad323a0b5faab87853d"
+  }
+}
