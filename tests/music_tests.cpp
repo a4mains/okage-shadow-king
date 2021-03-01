@@ -33,6 +33,17 @@ int main(){try{
     require(std::all_of(actual.end()-1000,actual.end(),[](auto x){return x==0;}),"Note release left audible tail");
     require(whole.sample_loops()>2 && whole.sample_loops()==chunked.sample_loops(),"Streaming loop progress");
     require(whole.driver_ticks()==13 && chunked.driver_ticks()==13,"Fractional driver tick advancement");
+    auto secondScore=score;
+    secondScore.insert(secondScore.begin()+52,{0,0xb0,32,1});
+    secondScore.insert(secondScore.begin()+60,{0,0xb0,32,0});
+    put(secondScore,8,secondScore.size());put(secondScore,48,secondScore.size()-52);
+    auto silentBank=bank();std::fill(silentBank.velocities[0].begin(),silentBank.velocities[0].end(),0);
+    okage::DryMusicPlayer dual(secondScore,std::move(silentBank),bank());
+    std::vector<std::int16_t> dualOutput(expected.size());dual.render(dualOutput);
+    require(dualOutput==expected,"Bank1 note or retained instrument tables differ");
+    rejects([&]{okage::DryMusicPlayer missing(secondScore,bank());missing.render(dualOutput);});
+    secondScore[55]=2;
+    rejects([&]{okage::DryMusicPlayer invalid(secondScore,bank(),bank());invalid.render(dualOutput);});
     okage::DryMusicPlayer muted(score,bank());muted.volume(0,0);std::vector<std::int16_t> zeros(6000);muted.render(zeros);
     require(std::all_of(zeros.begin(),zeros.end(),[](auto x){return x==0;}) && muted.sample_loops()>0,"Mute must preserve sample progression");
     rejects([&]{muted.render(std::span(zeros).first(3));});rejects([&]{muted.volume(129,0);});

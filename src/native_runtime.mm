@@ -66,7 +66,12 @@ struct Session {
     std::map<unsigned,std::unique_ptr<okage::StreamPlayer>> sound_banks;
     std::vector<std::uint32_t> sound_trace;
     void load_music(const fs::path& sequence,const fs::path& bank,bool record,const fs::path& sounds){
-        music=std::make_unique<okage::DryMusicPlayer>(readData(sequence),okage::read_music_bank(readData(bank)));
+        // 0x12d158 loads <sequence>1.xv if present and binds it to bank slot1.
+        // The supplied primary bank can differ (the original jingles share one).
+        const auto second_path=sequence.parent_path()/(sequence.stem().string()+"1.XV");
+        std::optional<okage::MusicBank> second;
+        if(fs::exists(second_path))second=okage::read_music_bank(readData(second_path));
+        music=std::make_unique<okage::DryMusicPlayer>(readData(sequence),okage::read_music_bank(readData(bank)),std::move(second));
         record_audio=record;sound_directory=sounds;
         if(!sound_directory.empty())sound_banks.emplace(0,std::make_unique<okage::StreamPlayer>(
             okage::read_stream_bank(readData(sound_directory/"ALL.XWS"))));

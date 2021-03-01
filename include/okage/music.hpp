@@ -2,6 +2,7 @@
 #include "okage/bank.hpp"
 #include "okage/voice.hpp"
 #include <memory>
+#include <optional>
 
 namespace okage {
 struct MusicVolumeRamp {
@@ -13,7 +14,8 @@ struct MusicVolumeRamp {
 };
 class DryMusicPlayer {
 public:
-    DryMusicPlayer(Bytes sequence,MusicBank bank):bank_(std::move(bank)),sequence_(sequence){}
+    DryMusicPlayer(Bytes sequence,MusicBank bank,std::optional<MusicBank> second={}):
+        banks_{std::move(bank),std::move(second)},sequence_(sequence){}
     DryMusicPlayer(const DryMusicPlayer&)=delete;
     DryMusicPlayer& operator=(const DryMusicPlayer&)=delete;
     void render(std::span<std::int16_t> interleaved_stereo);
@@ -25,11 +27,13 @@ public:
 private:
     struct Voice {
         unsigned channel,key,velocity,age=0,silent_ticks=0;
+        const MusicBank* bank;
         const MusicTone* tone;
         SampleVoice sample;
-        Voice(unsigned c,unsigned k,unsigned v,const MusicTone& t,Bytes b):channel(c),key(k),velocity(v),tone(&t),sample(b,t.adsr1,t.adsr2){}
+        Voice(unsigned c,unsigned k,unsigned v,const MusicBank& source,const MusicTone& t,Bytes b):
+            channel(c),key(k),velocity(v),bank(&source),tone(&t),sample(b,t.adsr1,t.adsr2){}
     };
-    MusicBank bank_;
+    std::array<std::optional<MusicBank>,2> banks_;
     MusicSequence sequence_;
     std::array<std::unique_ptr<Voice>,48> voices_;
     unsigned ticks_=0,within_tick_=0,next_voice_=0,peak_=0,stolen_=0,left_=128,right_=128;

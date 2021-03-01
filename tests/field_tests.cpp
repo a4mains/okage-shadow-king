@@ -78,6 +78,19 @@ int main(){try {
     exiting.tick();require(exiting.transition()->countdown==0&&!exiting.transition()->ready);
     exiting.tick();require(exiting.transition()->ready&&fades==std::vector<unsigned>({1,0}));
     rejects([&]{exiting.tick();});
+    word(0xbe4,0x02500067);word(0xbe8,0xff800236);
+    okage::OpeningField sound(b,[](int){},[](int){return true;});
+    for(unsigned i=0;i<180;++i)sound.tick();
+    require(sound.pc()==0xbe4&&sound.pending_opcode==0x67);
+    unsigned cues=0;sound.sound_cue=[&](unsigned bank,int cue,float speed,unsigned gain){
+        require(bank==0&&cue==37&&speed==1&&gain==128);++cues;return true;
+    };
+    sound.tick();require(cues==1&&sound.pc()==0xbe8);
+    word(0xbe4,0xfff00067);
+    okage::OpeningField stop(b,[](int){},[](int){return true;});
+    stop.sound_cue=[&](auto,auto,auto,auto){throw std::runtime_error("Stop routed as play");return false;};
+    for(unsigned i=0;i<180;++i)stop.tick();
+    require(stop.pc()==0xbe4&&stop.pending_opcode==0x67);
     word(0xb88,0);rejects([&]{okage::OpeningField bad(b,[](int){},[](int){return true;});});
     rejects([&]{okage::field_projection({});});
     b.assign(88,0);word(0,0x475453);word(16,32);word(20,1);word(24,88);
@@ -120,5 +133,17 @@ int main(){try {
     word(104,0);word(112,0x7fc00000);rejects([&]{okage::read_field_definition(b,"room");});word(112,0);
     word(128,19);rejects([&]{okage::read_field_definition(b,"room");});word(128,0);
     word(32,1000);rejects([&]{okage::read_field_definition(b,"room");});
+    b.assign(40,0);word(0,0x544d58);word(4,8);word(16,0xffffffff);
+    auto construction=definition;construction.field_flags=7;
+    auto state=okage::field_setup_state(b,variables,construction);
+    auto get=[&](unsigned at){return std::uint32_t(state[at])|(std::uint32_t(state[at+1])<<8)|
+        (std::uint32_t(state[at+2])<<16)|(std::uint32_t(state[at+3])<<24);};
+    require(get(0x414)==0&&get(0x428)==0xffffffff&&get(0x41c)==0x40000000&&get(0x40c)==7);
+    construction.type=0;state=okage::field_setup_state(b,variables,construction);
+    require(get(0x414)==17&&get(0x42c)==33&&state[0x1a8]==1&&state[0x2a7]==1);
+    word(32,(5u<<20)|(9u<<8)|0x59);
+    state=okage::field_setup_state(b,variables,construction);require(get(0x414)==9);
+    const auto prepared=okage::prepare_field_definition(b,variables,construction);
+    require(prepared.type==0&&prepared.dust==9&&prepared.field_flags==7);
     std::cout<<"Camera look-at, blend, field dialogue gate and pending actor service passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

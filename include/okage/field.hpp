@@ -12,7 +12,7 @@ struct FieldNpcDefinition {
     Float4 position{};float facing=0;unsigned flags=1;
 };
 struct FieldDefinition {
-    int scene=-1;std::uint32_t type=0,party=0,startup=0;
+    int scene=-1;std::uint32_t type=0,party=0,startup=0,field_flags=0;
     std::int32_t music=0,secondary_music=0;
     unsigned footstep=33,dust=0;
     std::string room_directory,room,message,event;
@@ -20,6 +20,9 @@ struct FieldDefinition {
 };
 FieldDefinition read_field_definition(Bytes database,const std::string& room);
 FieldDefinition read_field_definition(Bytes database,int scene);
+// 0x131d28 defaults followed by synchronous entry zero. This is field setup,
+// not cold game initialization; inputs must already contain scene/entrance/gate.
+std::array<std::uint8_t,0x800> field_setup_state(Bytes script,Bytes variables,const FieldDefinition& definition);
 FieldDefinition prepare_field_definition(Bytes script,Bytes variables,FieldDefinition definition);
 struct FieldEntrance {Float4 position{},rotation{};};
 FieldEntrance field_entrance(Bytes stg,unsigned entrance);

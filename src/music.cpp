@@ -21,13 +21,15 @@ void DryMusicPlayer::volume(unsigned left,unsigned right){
 void DryMusicPlayer::update(Voice& v){
     const auto& channel=sequence_.channels[v.channel];
     if(channel.flags || channel.modulation)throw std::runtime_error("Music pedal/mono/portamento/modulation playback not recovered");
-    const auto p=music_tone_parameters(bank_,*v.tone,v.key,v.velocity,channel,left_,right_);
+    const auto p=music_tone_parameters(*v.bank,*v.tone,v.key,v.velocity,channel,left_,right_);
     const auto pitch=std::uint16_t((music_note_pitch(p.center,p.fine,p.key,p.key_fine)*std::int32_t(p.pitch_scale))>>12);
     v.sample.parameters(pitch,p.left,p.right);
 }
 void DryMusicPlayer::note(const MusicEvent& e){
-    if(e.parameters.bank!=0)throw std::runtime_error("Music bank switching not recovered");
-    const auto& program=bank_.programs.at(e.parameters.program);
+    if(e.parameters.bank>=banks_.size()||!banks_[e.parameters.bank])
+        throw std::runtime_error("Music note requests an unbound bank");
+    const auto& bank=*banks_[e.parameters.bank];
+    const auto& program=bank.programs.at(e.parameters.program);
     for(const auto& tone:program){
         if(e.key<tone.key_low || e.key>tone.key_high)continue;
         if(tone.flags&~3u)throw std::runtime_error("Music noise/pitch-modulated tone not recovered");
@@ -39,7 +41,7 @@ void DryMusicPlayer::note(const MusicEvent& e){
                 if(a.tone->priority>b.tone->priority || (a.tone->priority==b.tone->priority && a.age>b.age))chosen=i;}
             retired_loops_+=voices_[chosen]->sample.loop_count;++stolen_;
         }
-        auto v=std::make_unique<Voice>(e.channel,e.key,e.value,tone,bank_.sample_blocks.at(tone.sample_offset));
+        auto v=std::make_unique<Voice>(e.channel,e.key,e.value,bank,tone,bank.sample_blocks.at(tone.sample_offset));
         // New notes receive final channel parameters below, after all this tick's events.
         voices_[chosen]=std::move(v);
     }

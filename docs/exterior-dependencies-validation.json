@@ -1,0 +1,252 @@
+{
+  "scope": "Exterior prerequisites; native scene1 loading and playability remain incomplete",
+  "field_setup": {
+    "scope": "Scene1 entry-zero settings and NPC enables; not construction, rendering or playability",
+    "scene": 1,
+    "entrance": 1,
+    "all_compared_bytes_exact": true,
+    "compared": [
+      {
+        "name": "settings",
+        "offset": 1024,
+        "exact_bytes": 48
+      },
+      {
+        "name": "npc_enable",
+        "offset": 424,
+        "exact_bytes": 256
+      }
+    ],
+    "settings": [
+      10,
+      26,
+      0,
+      1,
+      60,
+      17,
+      2,
+      1070218609,
+      1115684864,
+      1124073472,
+      4294967295,
+      33
+    ],
+    "inputs": [
+      {
+        "path": "local/xpf-decoded/FLDDATA/FLDSET.XDB",
+        "sha256": "e1085fc18788d42b10b11d6fdbf8e8bcb3de67ef11003669b4de9e4b30d1f0ba"
+      },
+      {
+        "path": "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_field.xmt",
+        "sha256": "f844e662fcebb09c8ea4ab2497bf7b392d33b4844037004f27d998c11d4ac0f2"
+      },
+      {
+        "path": "local/native-kitchen-exit-5200-debug-v4.png.variables.bin",
+        "sha256": "383bd47d57237f5994fb9df6adac67761217aba729ff9b83c883d3b3f6f9fdbd"
+      },
+      {
+        "path": "local/research/exterior-load180-v1-ee.bin",
+        "sha256": "678908347fbaf42471f000f256164407ab6ead08309efc69303f2d3b58acb6c1"
+      },
+      {
+        "path": "build/native/okage-assets",
+        "sha256": "daff2b370e8e39971bda1de8d296a1c21bfc6f7f9b82343927159872455b81d0"
+      }
+    ],
+    "native_variables_sha256": "317336caab1a1e4be48761a947e90a728e68255f185280954a80609acbdea3e2",
+    "native_field_sha256": "1a428a0081a8099afb3dd17e0ef3cf630e15b80c7d77feb91a104e8693586d8a",
+    "limits": [
+      "Native game variables still originate in the diagnostic opening",
+      "Reference field contains pointers and later runtime state outside the compared spans",
+      "No captured RAM is passed to the native implementation"
+    ]
+  },
+  "field_setup_three_builds_exact": true,
+  "corrupted_reference_sentinel_rejected": true,
+  "music_sequence": {
+    "scope": "Asset-initialized music sequencing only; no voice, mixer, device, or hardware fidelity claim",
+    "sequence_sha256": "17704d69deb1e516e216a2459ac83c8e80773582916de434ad98b860fb8ab16f",
+    "driver_sha256": "7fe8b5a33c2f8700d1f964cf5ce2f66942f8f97d952e86e6dc0ad5d4f74becb2",
+    "reference": "local/reference-field-music-300-v1.bin",
+    "reference_sha256": "83440d984deb5facba2e8e4287c8292de2aa9dacaf66d0bc7b3fc4707535f492",
+    "reference_log_sha256": "acaf87a117dc81914fd9c598367a1c9e854bd46f964acbd3fe21104dd27fec1b",
+    "native_sha256": "d8dce506131a96a410f9775fd5ea7ca9f9e53d83ae1f8657ccdad1921329e316",
+    "ticks": 241,
+    "records": 887,
+    "events": 405,
+    "event_status_counts": {
+      "0x83": 23,
+      "0x88": 10,
+      "0x89": 8,
+      "0x93": 24,
+      "0x98": 11,
+      "0x99": 9,
+      "0xb0": 5,
+      "0xb1": 5,
+      "0xb2": 4,
+      "0xb3": 115,
+      "0xb4": 4,
+      "0xb5": 4,
+      "0xb6": 4,
+      "0xb7": 4,
+      "0xb8": 118,
+      "0xb9": 27,
+      "0xba": 4,
+      "0xbb": 4,
+      "0xc0": 1,
+      "0xc1": 1,
+      "0xc2": 1,
+      "0xc3": 1,
+      "0xc4": 1,
+      "0xc5": 1,
+      "0xc6": 1,
+      "0xc7": 1,
+      "0xc8": 1,
+      "0xc9": 1,
+      "0xca": 1,
+      "0xcb": 1,
+      "0xff": 10
+    },
+    "backward_event_cursor_jumps": 0,
+    "compared_words_per_record": 170,
+    "all_compared_words_exact": true,
+    "excluded": [
+      "RAM pointers",
+      "active voice counts",
+      "slot/track flags and external API fields outside channel records"
+    ]
+  },
+  "dry_music": {
+    "scope": "Two-bank native dry synthesis and source imports; no original PCM or listening comparison",
+    "imports": [
+      {
+        "path": "SNDDATA/BGM/FLD_NMA.XSQ",
+        "lba": 190057,
+        "size": 38748,
+        "sha256": "17704d69deb1e516e216a2459ac83c8e80773582916de434ad98b860fb8ab16f"
+      },
+      {
+        "path": "SNDDATA/BGM/FLD_NMA0.XV",
+        "lba": 190076,
+        "size": 294384,
+        "sha256": "e665937a9ecbf92840bed1ebc2d8b749430874c52776faef3be17dbcf5be6056"
+      },
+      {
+        "path": "SNDDATA/BGM/FLD_NMA1.XV",
+        "lba": 190220,
+        "size": 217872,
+        "sha256": "e63996352754c5fdea7b4d67a3335b833b3cc32ddf87717d584c574b3d2a1c1c"
+      },
+      {
+        "path": "SNDDATA/BGM/SNT_DNM.XSQ",
+        "lba": 190903,
+        "size": 23120,
+        "sha256": "23fe656a52ea7609d99730a130b938d168e1d5e3737ece90e3511407719ba635"
+      },
+      {
+        "path": "SNDDATA/BGM/SNT_DNM0.XV",
+        "lba": 190915,
+        "size": 277328,
+        "sha256": "66af95774d616ee50d04387dcc072407cd28650675877f0b17a7e952622d292e"
+      },
+      {
+        "path": "SNDDATA/BGM/SNT_DNM1.XV",
+        "lba": 191051,
+        "size": 289360,
+        "sha256": "d0a53fab59690cfc167eaa0c9d3a2f36cd1998ed6f3ae21b32ecb47a50f12c6c"
+      },
+      {
+        "path": "SNDDATA/BGM/SNT_DNM2.XSQ",
+        "lba": 191193,
+        "size": 22460,
+        "sha256": "667ecf9354a99b387b50f7e6d11173389c1e6f0a4c4e02489222c2ed7bb33e46"
+      }
+    ],
+    "tracks": [
+      {
+        "name": "FLD_NMA",
+        "ticks": 300,
+        "frames": 240000,
+        "sha256": "445918b7f1ad3aa52ff8b6c5d068faa0158a4298ed336873f38f776a9cf1c142",
+        "peak": 31912,
+        "clipped_samples": 0,
+        "three_builds_exact": true
+      },
+      {
+        "name": "SNT_DNM",
+        "ticks": 300,
+        "frames": 240000,
+        "sha256": "1a79ac2ec2e66d4ab94bc54534505930408b23ba3afa209d15f0840b5fca7286",
+        "peak": 29204,
+        "clipped_samples": 0,
+        "three_builds_exact": true
+      }
+    ],
+    "original_field_note_on_dispatches_by_bank": {
+      "0": 20,
+      "1": 24
+    }
+  },
+  "interior_regression": {
+    "scope": "Audit the native kitchen exit and arrival; excludes complete loading/presentation fidelity.",
+    "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "native": "local/native-kitchen-exit-5200-exterior-deps-v1.png",
+    "reference": "local/reference-kitchen-exit-180-v1",
+    "exact_preexit_field_updates": 64,
+    "root_position_maximum_absolute_error": 0.0,
+    "root_position_tolerance": 2e-05,
+    "exact_bubble_phase_flags_attachment_texture_uv_frames": 40,
+    "contact_job_order_observed_frames": 21,
+    "input_event": 1,
+    "destination_scene": 70,
+    "entrance": 2,
+    "request_frame": 5110,
+    "native_load_frame": 5113,
+    "original_startup_frame": 140,
+    "arrival_root_transform_exact": true,
+    "startup_event": 50,
+    "native_movement_after_arrival": true,
+    "matching_captures": [
+      "local/native-kitchen-exit-5200-debug-v4.png"
+    ],
+    "appkit": null,
+    "limits": [
+      "Synchronous native loading does not reproduce original loading latency or cold initialization.",
+      "No full destination skeleton, room lighting, shadows or transition-pixel equivalence claim.",
+      "Blocked progression message10030 uses diagnostic window initialization; this route does not exercise it.",
+      "Post-arrival movement is demonstrated natively, not yet paired with original movement in this room.",
+      "Original capture/raw RAM are auditor-only references; native launch reads owned asset imports.",
+      "Physical controller/listening, sustained performance, battles, saves and full playthrough remain open."
+    ],
+    "sha256": {
+      "local/native-kitchen-exit-5200-exterior-deps-v1.png": "48de63b0f907ae1acafff158b048418d30b43b3a908a14e27f96660894e500ff",
+      "local/native-kitchen-exit-5200-exterior-deps-v1.png.transition.bin": "c321eca868e8c6099ae9d8fbcac102c3d5ac9acb634566b7bfabec55882aa11b",
+      "local/native-kitchen-exit-5200-exterior-deps-v1.png.variables.bin": "383bd47d57237f5994fb9df6adac67761217aba729ff9b83c883d3b3f6f9fdbd",
+      "local/reference-kitchen-exit-180-v1.transition.bin": "46a4b45a801e0dccce4cc9d5f6e6b4c980bf0d365f6e6854e6ef69c4486a74d4",
+      "local/reference-contact-order-45-v2.transition.bin": "b756bd572c32b84acf73400e610e5f2cb86e080bb8d9e05afec62d0f88dcbfbc",
+      "local/research/kitchen-end700-v2-ee.bin": "d123959880ccb1eb13dd7c9a208bad1a6446775b2e18a47cdb6cd7b14f49d216",
+      "local/xpf-decoded/FLDDATA/FLDSET.XDB": "e1085fc18788d42b10b11d6fdbf8e8bcb3de67ef11003669b4de9e4b30d1f0ba",
+      "config/native-kitchen-exit.directions": "4976565e61b582c0c8b4198a81ead0373fd1070242793ad323a0b5faab87853d"
+    }
+  },
+  "tests": {
+    "debug_ctests_passed": 19,
+    "release_focused_tests": [
+      "music-tests",
+      "field-tests",
+      "event-tests"
+    ],
+    "sanitizer_focused_tests": [
+      "music-tests",
+      "field-tests",
+      "event-tests"
+    ],
+    "python_tests_passed": 12
+  },
+  "limits": [
+    "No native exterior arrival yet",
+    "Automatic kind0x81 dispatch has static recovery only",
+    "No whole-mix original comparison or listening test",
+    "No new physical input or AppKit test"
+  ]
+}

@@ -276,9 +276,11 @@ int main(int argc, char** argv) {
             }
             write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4));return 0;
         }
-        if(command=="music-dry" && argc==6) {
+        if(command=="music-dry" && (argc==6||argc==7)) {
             const auto ticks=std::stoul(argv[4]);if(!ticks || ticks>12000)throw std::runtime_error("Dry music tick budget");
-            okage::DryMusicPlayer player(read(argv[2]),okage::read_music_bank(read(argv[3])));
+            std::optional<okage::MusicBank> second;
+            if(argc==7)second=okage::read_music_bank(read(argv[6]));
+            okage::DryMusicPlayer player(read(argv[2]),okage::read_music_bank(read(argv[3])),std::move(second));
             std::vector<std::int16_t> pcm(ticks*800*2);player.render(pcm);
             write(argv[5],okage::Bytes(reinterpret_cast<const std::uint8_t*>(pcm.data()),pcm.size()*2));
             std::cout<<"Native dry music: ticks="<<player.driver_ticks()<<" peak_voices="<<player.peak_voices()<<" stolen="<<player.stolen_voices()<<" sample_loops="<<player.sample_loops()<<"; reverb/SFX/device pending\n";return 0;
@@ -642,6 +644,11 @@ int main(int argc, char** argv) {
                 output.insert(output.end(),{state.countdown,state.observed,state.accumulated,__builtin_bit_cast(std::uint32_t, (result))});
             }
             write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4));return 0;
+        }
+        if(command=="field-setup" && argc==7) {
+            const auto definition=okage::read_field_definition(read(argv[2]),std::stoi(argv[3]));
+            const auto state=okage::field_setup_state(read(argv[4]),read(argv[5]),definition);
+            write(argv[6],state);return 0;
         }
         if(command=="event-setup" && argc==6) {
             const auto script=read(argv[2]),variables=read(argv[3]);auto state=read(argv[4]);

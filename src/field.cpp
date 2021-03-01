@@ -77,7 +77,7 @@ static FieldDefinition read_definition(Bytes data,const std::string& room,int sc
         const auto number=name.substr(5);
         if(number.empty()||number.size()>6||!std::all_of(number.begin(),number.end(),[](char c){return c>='0'&&c<='9';}))
             throw std::runtime_error("Invalid field scene identifier");
-        result.scene=std::stoi(number);result.party=get(data,at);result.startup=get(data,at+12);
+        result.scene=std::stoi(number);result.party=get(data,at);result.startup=get(data,at+12);result.field_flags=get(data,at+8);
         result.music=__builtin_bit_cast(std::int32_t, (get(data,at+40)));result.secondary_music=__builtin_bit_cast(std::int32_t, (get(data,at+44)));
         result.room_directory=string(get(data,at+16));result.room=string(get(data,at+20));result.message=string(get(data,at+24));
         unsigned index=12;
@@ -104,14 +104,20 @@ FieldDefinition read_field_definition(Bytes data,int scene) {
     if(scene<0)throw std::runtime_error("Negative field scene requires another game mode");
     return read_definition(data,"",scene);
 }
-FieldDefinition prepare_field_definition(Bytes script,Bytes variables,FieldDefinition definition) {
-    if(definition.type!=1)throw std::runtime_error("Field construction currently requires interior class 1");
+std::array<std::uint8_t,0x800> field_setup_state(Bytes script,Bytes variables,const FieldDefinition& definition) {
     std::array<std::uint8_t,0x800> setup{};std::fill_n(setup.begin()+0x1a8,256,1);
     auto put=[&](unsigned at,std::uint32_t value){for(unsigned i=0;i<4;++i)setup[at+i]=value>>(i*8);};
+    put(0x2b4,0xffffffff);put(0x2b8,0xffffffff);put(0x114,0xc5700000);
     put(0x400,definition.music);put(0x404,definition.secondary_music);put(0x408,definition.type);
-    put(0x410,definition.startup);put(0x42c,33);
+    put(0x40c,definition.field_flags);put(0x410,definition.startup);
+    put(0x414,definition.type==1?0:17);put(0x41c,0x40000000);put(0x428,0xffffffff);put(0x42c,33);
     run_event_setup(script,variables,setup);
+    return setup;
+}
+FieldDefinition prepare_field_definition(Bytes script,Bytes variables,FieldDefinition definition) {
+    const auto setup=field_setup_state(script,variables,definition);
     definition.type=get(setup,0x408);definition.startup=get(setup,0x410);
+    definition.field_flags=get(setup,0x40c);
     definition.music=__builtin_bit_cast(std::int32_t, (get(setup,0x400)));definition.secondary_music=__builtin_bit_cast(std::int32_t, (get(setup,0x404)));
     definition.footstep=get(setup,0x42c);definition.dust=get(setup,0x414);
     for(auto& npc:definition.npcs)npc.flags=setup[0x1a8+(-8-npc.alias)];
@@ -136,7 +142,7 @@ void OpeningField::clear_contact() {
     }
 }
 void OpeningField::interact(ExplorationInput input) {
-    if(!(input.pressed&0x40)||!definition_)return;
+    if(!definition_||(!(input.pressed&0x40)&&player_.trigger_kind!=0x81))return;
     if(!get_variable||!set_variable)throw std::runtime_error("Field interaction requires native variables");
     if(player_.trigger_kind>=0x80) {
         interaction_alias_=0;interaction_event_=int(player_.trigger_index);player_.trigger_kind=0;
@@ -232,6 +238,10 @@ void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned
     body.position=body.previous=desired;hero->animation().set_channel(1,desired);
     player_.floor_contact=(body.contact.flags&1)?body.contact.materials[0]:-1;
     player_.camera_area=(std::uint32_t(player_.floor_contact)&0x38)>>3;
+    // 0x135458 enables the initial automatic-contact latch; 0x135300 records
+    // its index without arming it, so spawning inside one does not retrigger it.
+    if((std::uint32_t(player_.floor_contact)&0x83)==0x81)
+        player_.trigger_index=std::uint32_t(player_.floor_contact)>>8;
     player_.history.fill(desired);
     player_.mask=0;player_.motion=1;exploration_handoff_=true;
     load_exploration_camera(stg);
@@ -311,8 +321,8 @@ void OpeningField::move_player(ExplorationInput input) {
             state.contact_bubble=attach_bubble(0,-1)|0x1000;
             effects_[state.contact_bubble&0xfff]->player_contact=true;
         }
-        if(state.camera_area || kind==0x81)
-            throw std::runtime_error("Field contact camera/scene transition is unrecovered");
+        if(state.camera_area)
+            throw std::runtime_error("Field contact camera area is unrecovered");
     }
     if(motion==3) {
         if(__builtin_bit_cast(std::int32_t, (state.run_delay))<24){if(state.motion>=0)motion=state.motion;++state.run_delay;}
@@ -402,6 +412,11 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             return pending();
         case 0x68:
             if(sound_cue && sound_cue(a,b,__builtin_bit_cast(float, (word(pc+4))),word(pc+8))){pending_opcode=0;return {pc+12};}
+            return pending();
+        case 0x67:
+            // 0x130ab8 -> 0x12dea0 uses speed1, volume128. Negative indices
+            // use a separate stop service; do not pretend they are play calls.
+            if(b>=0&&sound_cue&&sound_cue(a,b,1,128)){pending_opcode=0;return {pc+4};}
             return pending();
         case 0x47: {
             const auto selector=word(pc+4),index=selector&0xffff,bank=selector>>16;

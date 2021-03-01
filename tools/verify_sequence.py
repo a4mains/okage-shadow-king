@@ -16,12 +16,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--reference', type=Path, default=Path('local/reference-music-600-v4.bin'))
     parser.add_argument('--native', type=Path, default=Path('build/native/okage-assets'))
+    parser.add_argument('--sequence', type=Path, default=Path('local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ'))
     parser.add_argument('--output', type=Path, default=Path('local/sequence-validation'))
     args = parser.parse_args()
-    sequence = Path('local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ')
+    sequence = args.sequence
     source = sequence.read_bytes()
-    if sha(source) != '908a259c61b333bad7c570b7c1c33f9e954d5c93811be52228643b8323131cf2':
-        raise RuntimeError('Opening sequence hash mismatch')
+    if sha(source) not in ('908a259c61b333bad7c570b7c1c33f9e954d5c93811be52228643b8323131cf2',
+                           '17704d69deb1e516e216a2459ac83c8e80773582916de434ad98b860fb8ab16f'):
+        raise RuntimeError('Sequence is not one of the pinned research assets')
     reference = args.reference.read_bytes()
     if not reference or len(reference) % 736:
         raise RuntimeError('Reference record extent')
