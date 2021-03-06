@@ -53,7 +53,19 @@ OpeningField::OpeningField(Bytes bytes,std::function<void(int)> start,std::funct
 FieldActor* OpeningField::actor(int alias) const {
     if(alias==-7 && interaction_alias_)alias=interaction_alias_;
     for(const auto& binding:actors_)if(binding.alias==alias)return binding.actor;
+    for(const auto& binding:map_objects_)if(binding.alias==alias)return binding.actor;
     return nullptr;
+}
+void OpeningField::bind_map_objects(std::span<const ActorBinding> bindings) {
+    if(!map_objects_.empty())throw std::runtime_error("Map objects already bound");
+    for(std::size_t i=0;i<bindings.size();++i) {
+        const auto& b=bindings[i];
+        if(b.alias<0||b.alias>=2048||!b.actor)throw std::runtime_error("Invalid map object binding");
+        for(std::size_t j=0;j<i;++j)if(bindings[j].alias==b.alias||bindings[j].actor==b.actor)
+            throw std::runtime_error("Duplicate map object binding");
+        for(const auto& npc:actors_)if(npc.actor==b.actor)throw std::runtime_error("Map object also bound as field actor");
+    }
+    map_objects_.assign(bindings.begin(),bindings.end());
 }
 static FieldDefinition read_definition(Bytes data,const std::string& room,int scene) {
     if(get(data,0)!=0x424458 || get(data,16)!=0xffffffff)throw std::runtime_error("Invalid field XDB header");
@@ -378,6 +390,13 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             else if(auto* target=actor(b))script_.set_channel_target(&target->animation());
             else return pending();
             group_=b;return {pc+4};
+        case 9:
+            // 0x1b5830 -> 0x1bb608 waits for the selected object's motion
+            // context to clear running bit0x100, not for a guessed duration.
+            if(auto* object=actor(b);object&&!(object->animation().script_state()&0x100)) {
+                pending_opcode=0;return {pc+4};
+            }
+            return pending();
         case 0x4b:
             if(b==0) {
                 // 0x130670 resets the automatic rate, begins a .01 blend and
@@ -504,10 +523,12 @@ void OpeningField::tick(ExplorationInput input) {
     }
     if(collision_)remember_player();
     script_.tick_script();
+    for(const auto& binding:map_objects_)binding.actor->tick_script();
     for(const auto& binding:actors_)binding.actor->tick_script();
     script_.tick_channels();evaluate();
     // Actor groups have flag1 (not global-advance flag2). Original 0x1b9be0
     // calls 0x1b70a0 only for visible instances; hidden motion scripts still run.
+    for(const auto& binding:map_objects_)if(binding.actor->visible){binding.actor->tick_channels();binding.actor->evaluate();}
     for(const auto& binding:actors_)if(binding.actor->visible){binding.actor->tick_channels();binding.actor->evaluate();}
     advance_effects(false);
 }

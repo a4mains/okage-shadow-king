@@ -6,6 +6,7 @@
 #include "okage/audio_output.hpp"
 #include "okage/stream_bank.hpp"
 #include "okage/scene_renderer.hpp"
+#include "okage/map_objects.hpp"
 #include <bit>
 #include <algorithm>
 #include <array>
@@ -106,6 +107,7 @@ struct Session {
     bool dialogue_active=true;
     std::vector<std::unique_ptr<okage::FieldActor>> actor_objects;
     std::vector<okage::ActorBinding> actor_bindings;
+    std::unique_ptr<okage::MapObjects> map_objects;
     std::unique_ptr<okage::OpeningField> field;
     std::unique_ptr<okage::SceneRenderer> renderer;
     okage::Float4 projection{};
@@ -151,6 +153,7 @@ struct Session {
             if(released && request==0 && !close_release_frame)close_release_frame=frame;
             return released;
         },actor_bindings,diagnostic);
+        if(map_objects)field->bind_map_objects(map_objects->bindings());
         field->set_variable=[this](unsigned index,unsigned bank,std::int32_t value){okage::set_event_variable(variables,index,bank,value);};
         field->get_variable=[this](std::uint32_t selector){return okage::event_variable(variables,selector);};
         field->transition_service=[this](unsigned countdown){
@@ -168,7 +171,8 @@ struct Session {
             actor_bindings.push_back({alias,object.get()});scene_actors.push_back({object.get(),path});
             actor_objects.push_back(std::move(object));
         }
-        renderer=std::make_unique<okage::SceneRenderer>(map,scene_actors);
+        map_objects=std::make_unique<okage::MapObjects>(map);
+        renderer=std::make_unique<okage::SceneRenderer>(map,scene_actors,map_objects.get());
         auto stg=map;stg.replace_extension(".stg");projection=okage::field_projection(readData(stg));
         dialogue_active=false;
         create_field(readData(event),true);
@@ -212,7 +216,7 @@ struct Session {
             throw std::runtime_error("Destination music bank switching is unrecovered");
         const auto map=field_root/upper(definition.room_directory)/(upper(definition.room)+".XPF")/"a.xmp";
         std::vector<okage::SceneActor> scene_actors;
-        renderer.reset();field.reset();actor_bindings.clear();actor_objects.clear();
+        renderer.reset();field.reset();map_objects.reset();actor_bindings.clear();actor_objects.clear();
         auto add=[&](int alias,const std::string& model){
             const auto path=field_root/"OBJ"/(upper(model)+".XPF")/"a.xmd";
             auto motion=path,xta=path;motion.replace_extension(".xmt");xta.replace_extension(".xta");const auto data=readData(xta);
@@ -222,7 +226,8 @@ struct Session {
         };
         for(const auto& npc:definition.npcs)add(npc.alias,npc.model);
         add(-1,"hero");
-        renderer=std::make_unique<okage::SceneRenderer>(map,scene_actors);
+        map_objects=std::make_unique<okage::MapObjects>(map);
+        renderer=std::make_unique<okage::SceneRenderer>(map,scene_actors,map_objects.get());
         auto stg=map,xcl=map;stg.replace_extension(".stg");xcl.replace_extension(".xcl");
         const auto stage=readData(stg);projection=okage::field_projection(stage);
         create_field(script,false);bind_audio_services();

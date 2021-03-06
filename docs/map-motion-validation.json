@@ -1,0 +1,97 @@
+{
+  "scope": "Isolated native door motion driven by original motion-selection requests.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "reference_prefixes": [
+    "local/reference-outdoor-door-260-v2",
+    "local/reference-outdoor-door-close-60-v1"
+  ],
+  "instance": 18,
+  "channels": 10,
+  "exact_channel_words_per_update": 40,
+  "exact_motion_pc_and_script_state": true,
+  "request_replay": [
+    [
+      0,
+      1
+    ],
+    [
+      84,
+      3
+    ]
+  ],
+  "continuation_native_frame": 120,
+  "timing": "Previous-render channels at field entry; request frame minus first sample plus one.",
+  "builds": [
+    {
+      "build": "native",
+      "exact_updates": 180
+    },
+    {
+      "build": "native-release",
+      "exact_updates": 180
+    },
+    {
+      "build": "model-sanitize",
+      "exact_updates": 180
+    }
+  ],
+  "native_build_outputs_identical": true,
+  "final_ten_channel_states_stable": true,
+  "commands": [
+    [
+      "build/native/okage-assets",
+      "map-motion",
+      "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.xmp",
+      "18",
+      "local/map-motion-validation-v1/requests.input",
+      "180",
+      "10",
+      "local/map-motion-validation-v1/native.bin"
+    ],
+    [
+      "build/native-release/okage-assets",
+      "map-motion",
+      "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.xmp",
+      "18",
+      "local/map-motion-validation-v1/requests.input",
+      "180",
+      "10",
+      "local/map-motion-validation-v1/native-release.bin"
+    ],
+    [
+      "build/model-sanitize/okage-assets",
+      "map-motion",
+      "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.xmp",
+      "18",
+      "local/map-motion-validation-v1/requests.input",
+      "180",
+      "10",
+      "local/map-motion-validation-v1/model-sanitize.bin"
+    ]
+  ],
+  "limits": [
+    "Does not validate full native event60, outdoor rendering, NPCs, camera or audio.",
+    "Observed requests drive the isolated replay; they are not native runtime inputs.",
+    "The earlier incomplete draw-boundary v1 capture is excluded."
+  ],
+  "sha256": {
+    "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "local/reference-outdoor-door-260-v2.log": "69b30a7485d5f6fefdc61691fd51cc92e461783a8bd0f37c2becf10bcaf88f25",
+    "local/reference-front-door-180-v1.state.zip": "2dfee60fd70352a3f34814fd599c88271f1e53590006601fb7675bcfb8485479",
+    "local/reference-outdoor-door-260-v2.state.zip": "dbeecbf768fbdfb20a6da94b0c94ba021e9f5dfd87ad74b4c882cd68003048d0",
+    "local/reference-outdoor-door-260-v2.actor.bin": "06e6908189af6c9f146fb3e0eb6a7aa3d295ca843894d07a8951062262a90f54",
+    "local/reference-outdoor-door-close-60-v1.log": "48a6e5960f46ca711b1d4e261c44d8c17ae20577bcfb221dfa38535f8b5fbd69",
+    "local/reference-outdoor-door-close-60-v1.state.zip": "d565f7efaaf6badc58a777dd33e439387cd65e72ec0b1917a22d88dc30371069",
+    "local/reference-outdoor-door-close-60-v1.actor.bin": "b98edb310bae23c9ce65f27a01cd57f3bac213c1a9290730a0bea002fc03d73d",
+    "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.xmp": "19e42b385e03ffab7be7b57f8607ebc40591a0331c2e7f24586f9d01f42f7815",
+    "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/fh_dor00.xmd": "7eff695bd06c476586c8f419659a193baa37a45f93bd9c28a4238fd07ccaf1cd",
+    "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/fh_dor00.xmt": "513371bf68c596656053fbb89c32d2570a9f8bd2fc4e4d37dc07a01defeed177",
+    "local/map-motion-validation-v1/requests.input": "35b1a345a04e831ebc76633645e18e80d52c275b9a5048d6ed7ce6c4a63b0609",
+    "build/native/okage-assets": "8a05226e66cf80234fef420e4b7f989c0b58c2cab9f8185e31ab895538edbb64",
+    "local/map-motion-validation-v1/native.bin": "f24661f68f4e530c0fc5096ddeada52dd2415e3f1c8f818437273a3ef04a5d94",
+    "build/native-release/okage-assets": "6dbed286e04e3357db6062bcc528ce7cf807f6530b23f31e678241bae7a17fc1",
+    "local/map-motion-validation-v1/native-release.bin": "f24661f68f4e530c0fc5096ddeada52dd2415e3f1c8f818437273a3ef04a5d94",
+    "build/model-sanitize/okage-assets": "6620bc6039b058bf69e45ae9a838ad590a4b2eca4aa1cb496996e9b0f7d97dae",
+    "local/map-motion-validation-v1/model-sanitize.bin": "f24661f68f4e530c0fc5096ddeada52dd2415e3f1c8f818437273a3ef04a5d94"
+  }
+}

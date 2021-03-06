@@ -41,6 +41,7 @@ public:
                  std::function<bool(int)> wait_dialogue,std::span<const ActorBinding> actors={},bool diagnostic=true);
     void tick(ExplorationInput input={});
     void load_effects(Bytes);
+    void bind_map_objects(std::span<const ActorBinding>);
     void load_exploration_camera(Bytes stg);
     void load_exploration_collision(Bytes xcl,Bytes variables);
     void load_interactions(Bytes database,const std::string& room,Bytes variables);
@@ -71,6 +72,7 @@ private:
     AtanTable angles_=make_atan_table();
     Float4 requested_target_{};
     std::vector<ActorBinding> actors_;
+    std::vector<ActorBinding> map_objects_;
     FieldActor* actor(int alias) const;
     int group_=-2;
     unsigned camera_mode_=2;

@@ -69,4 +69,20 @@ MapTransform map_transform(const MapPlacement& p,const MapDefinition& d) {
         result.flags|=0x100000;
     return result;
 }
+std::vector<int> map_instance_ids(const MapFile& map) {
+    std::vector<int> result;unsigned front=0,back=2048;
+    for(const auto& p:map.placements) {
+        if(p.handler()==1){result.push_back(-1);continue;}
+        require(p.handler()==0,"Map handler instance allocation is unrecovered");
+        const auto transform=map_transform(p,map.definitions.at(p.definition()));
+        if(transform.flags&0x100000) {
+            require(back>0&&--back>front,"Map instance table exhausted");
+            result.push_back(int(back));
+        } else {
+            require(front<back,"Map instance table exhausted");
+            result.push_back(int(front++));
+        }
+    }
+    return result;
+}
 }

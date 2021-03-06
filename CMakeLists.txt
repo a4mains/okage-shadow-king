@@ -8,6 +8,7 @@ add_library(okage_assets src/assets.cpp src/model.cpp src/pose.cpp src/animation
 target_include_directories(okage_assets PUBLIC include)
 target_sources(okage_assets PRIVATE src/effect.cpp)
 target_sources(okage_assets PRIVATE src/collision.cpp)
+target_sources(okage_assets PRIVATE src/map_objects.cpp)
 target_compile_options(okage_assets PRIVATE -Wall -Wextra -Wpedantic)
 add_executable(okage-assets src/assets_main.cpp)
 target_link_libraries(okage-assets PRIVATE okage_assets)

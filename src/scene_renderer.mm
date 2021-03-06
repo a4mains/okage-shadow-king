@@ -1,6 +1,7 @@
 #import <Metal/Metal.h>
 #include "okage/scene_renderer.hpp"
 #include "okage/map.hpp"
+#include "okage/map_objects.hpp"
 #include "okage/render.hpp"
 #include "metal_preview_shader.hpp"
 #include <cmath>
@@ -31,18 +32,20 @@ struct SceneRenderer::Impl {
     id<MTLTexture> target,depthTarget;
     NSMutableArray<id<MTLTexture>>* gpuTextures;
     id<MTLCommandQueue> queue;
-    explicit Impl(const fs::path& path,std::span<const SceneActor> actors) {
+    explicit Impl(const fs::path& path,std::span<const SceneActor> actors,const MapObjects* objects) {
         const auto map=read_xmp(read(path));
-        for(const auto& placement:map.placements) {
+        for(std::size_t index=0;index<map.placements.size();++index) {
+            const auto& placement=map.placements[index];
             if(placement.handler()) {++omittedEffects;continue;}
             const auto& definition=map.definitions.at(placement.definition());
-            if(definition.flags()&8)throw std::runtime_error("Animated map model unsupported");
+            const auto* object=objects?objects->placement(index):nullptr;
+            if((definition.flags()&8)&&!object)throw std::runtime_error("Animated map model requires native object bindings");
             const auto transform=map_transform(placement,definition);
             if(transform.flags&1)throw std::runtime_error("Camera-facing map model unsupported");
             if((transform.flags&0x100000) && (transform.scale[0]!=1 || transform.scale[1]!=1 || transform.scale[2]!=1))
                 throw std::runtime_error("Optimized map scale unsupported");
             const auto file=path.parent_path()/definition.name;
-            inputs.push_back({file,read_xmd(read(file)),instance_matrix(transform.position,transform.rotation,transform.scale,sine)});
+            inputs.push_back({file,object?object->model():read_xmd(read(file)),instance_matrix(transform.position,transform.rotation,transform.scale,sine),object});
         }
         if(inputs.empty())throw std::runtime_error("Empty field map");
         for(const auto& binding:actors) {
@@ -229,7 +232,8 @@ struct SceneRenderer::Impl {
         return image;
     }
 };
-SceneRenderer::SceneRenderer(const fs::path& map,std::span<const SceneActor> actors):impl_(std::make_unique<Impl>(map,actors)){}
+SceneRenderer::SceneRenderer(const fs::path& map,std::span<const SceneActor> actors,const MapObjects* objects):
+    impl_(std::make_unique<Impl>(map,actors,objects)){}
 SceneRenderer::~SceneRenderer()=default;
 void SceneRenderer::load_effect_textures(const fs::path& path){impl_->loadEffects(path);}
 Texture SceneRenderer::render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera){return impl_->render(view,projection,effects,camera);}

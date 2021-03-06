@@ -28,4 +28,7 @@ MapFile read_xmp(Bytes bytes);
 // Recovered 0x1bbd28..0x1bbe40 conversion. Does not execute effect handlers,
 // attach animation, perform model instantiation or apply these transforms.
 MapTransform map_transform(const MapPlacement& placement,const MapDefinition& definition);
+// Retail 0x1b8a80 allocates ordinary instances upward and optimized ones
+// downward. Handler1 uses the separate effect pool and receives -1 here.
+std::vector<int> map_instance_ids(const MapFile& map);
 }

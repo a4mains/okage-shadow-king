@@ -175,7 +175,7 @@ int main(int argc,char** argv) {
         if(textTrace)for(auto at:TextTrace::breakpoints)loaders.push_back(at);
         if(controllerTrace)for(auto at:ControllerTrace::breakpoints)loaders.push_back(at);
         if(cameraTrace)for(auto at:CameraTrace::breakpoints)loaders.push_back(at);
-        if(actorTrace)for(auto at:ActorTrace::breakpoints)loaders.push_back(at);
+        if(actorTrace)for(auto at:actorTrace->breakpoints())loaders.push_back(at);
         if(transitionTrace)for(auto at:TransitionTrace::breakpoints)loaders.push_back(at);
         if(interactionTrace)for(auto at:InteractionTrace::breakpoints)loaders.push_back(at);
         if(movementTrace)for(auto at:MovementTrace::breakpoints)loaders.push_back(at);
@@ -216,6 +216,9 @@ int main(int argc,char** argv) {
                     throw std::runtime_error(error.str());
                 }
                 if (++tracedCalls>(eventTrace ? 200000u : 10000u)) throw std::runtime_error("Reference trace limit exceeded");
+                const bool observingActor=actorTrace&&std::find(actorTrace->breakpoints().begin(),actorTrace->breakpoints().end(),pc)!=actorTrace->breakpoints().end();
+                // Observe before another subscriber resumes a shared field BP.
+                if(observingActor)actorTrace->observe(*vm.m_ee,frames);
                 if(transitionTrace && std::find(TransitionTrace::breakpoints.begin(),TransitionTrace::breakpoints.end(),pc)!=TransitionTrace::breakpoints.end()) {
                     transitionTrace->observe(*vm.m_ee,frames);
                     if(!(interactionTrace && std::find(InteractionTrace::breakpoints.begin(),InteractionTrace::breakpoints.end(),pc)!=InteractionTrace::breakpoints.end())) {vm.Resume();continue;}
@@ -236,9 +239,8 @@ int main(int argc,char** argv) {
                     if(!shared){vm.Resume();continue;}
                 }
                 // Actor and scene observers share a model-render boundary.
-                if(actorTrace && std::find(ActorTrace::breakpoints.begin(),ActorTrace::breakpoints.end(),pc)!=ActorTrace::breakpoints.end()) {
-                    actorTrace->observe(*vm.m_ee,frames);
-                    if(!sceneTrace){vm.Resume();continue;}
+                if(observingActor) {
+                    if(!sceneTrace||std::find(sceneBreakpoints.begin(),sceneBreakpoints.end(),pc)==sceneBreakpoints.end()){vm.Resume();continue;}
                 }
                 if(cameraTrace && std::find(CameraTrace::breakpoints.begin(),CameraTrace::breakpoints.end(),pc)!=CameraTrace::breakpoints.end()) {
                     cameraTrace->observe(*vm.m_ee,frames);vm.Resume();continue;

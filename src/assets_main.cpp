@@ -5,6 +5,7 @@
 #include "okage/texture_animation.hpp"
 #include "okage/render.hpp"
 #include "okage/map.hpp"
+#include "okage/map_objects.hpp"
 #include "okage/event.hpp"
 #include "okage/audio.hpp"
 #include "okage/sequence.hpp"
@@ -644,6 +645,31 @@ int main(int argc, char** argv) {
                 output.insert(output.end(),{state.countdown,state.observed,state.accumulated,__builtin_bit_cast(std::uint32_t, (result))});
             }
             write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4));return 0;
+        }
+        if(command=="map-motion" && argc==8) {
+            okage::MapObjects map(argv[2]);const auto id=std::stoi(argv[3]);
+            auto selected=std::find_if(map.bindings().begin(),map.bindings().end(),[&](const auto& b){return b.alias==id;});
+            if(selected==map.bindings().end())throw std::runtime_error("Map instance has no native animation binding");
+            const auto frames=std::stoul(argv[5]);if(!frames||frames>2000)throw std::runtime_error("Map motion frame budget");
+            std::ifstream input(argv[4]);if(!input)throw std::runtime_error("Cannot read map motion replay");
+            std::vector<std::pair<unsigned,unsigned>> selections;unsigned frame,entry;
+            while(input>>frame) {
+                if(!(input>>entry))throw std::runtime_error("Incomplete map motion replay pair");
+                if(frame>=frames||entry>=0x800||(!selections.empty()&&frame<=selections.back().first))
+                    throw std::runtime_error("Map motion replay bounds/order");
+                selections.emplace_back(frame,entry);
+            }
+            if(!input.eof()||selections.empty())throw std::runtime_error("Invalid map motion replay");
+            auto& object=*selected->actor;const auto channels=std::stoul(argv[6]);
+            if(object.channels().size()!=channels)throw std::runtime_error("Map motion channel count mismatch");
+            std::vector<std::uint32_t> out;std::size_t selection=0;
+            for(unsigned i=0;i<frames;++i) {
+                if(selection<selections.size()&&selections[selection].first==i)object.select_motion(selections[selection++].second);
+                object.tick_script();if(object.visible){object.tick_channels();object.evaluate();}
+                out.insert(out.end(),{i,object.animation().pc(),object.animation().script_state(),unsigned(object.visible),unsigned(id),unsigned(channels)});
+                for(const auto& v:object.channels())for(float f:v)out.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+            }
+            write(argv[7],{reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4});return 0;
         }
         if(command=="field-setup" && argc==7) {
             const auto definition=okage::read_field_definition(read(argv[2]),std::stoi(argv[3]));

@@ -29,5 +29,11 @@ int main() {try {
     require(p.handler()==1 && p.handler_argument()==0x10005b);
     p.words[12]=__builtin_bit_cast(std::uint32_t, (2.0f));p.words[14]=0;
     require(okage::map_transform(p,m.definitions[0]).flags==0x5b100080);
+    auto ordinary=m.placements[0];ordinary.words[12]=__builtin_bit_cast(std::uint32_t, (2.f));
+    auto effect=m.placements[0];effect.words[3]=0x100000;
+    m.placements={m.placements[0],ordinary,effect,ordinary,m.placements[0]};
+    require(okage::map_instance_ids(m)==std::vector<int>({2047,0,-1,1,2046}));
+    m.placements[2].words[3]=0x200000;rejects([&]{okage::map_instance_ids(m);});
+    m.placements.assign(2049,ordinary);rejects([&]{okage::map_instance_ids(m);});
     std::cout<<"Map bounds, references, handler metadata and coordinate tests passed\n";
 } catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

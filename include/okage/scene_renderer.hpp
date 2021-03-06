@@ -5,10 +5,11 @@
 #include <filesystem>
 #include <memory>
 namespace okage {
+class MapObjects;
 struct SceneActor {const FieldActor* actor;std::filesystem::path model_path;};
 class SceneRenderer {
 public:
-    explicit SceneRenderer(const std::filesystem::path& map,std::span<const SceneActor> actors={});
+    explicit SceneRenderer(const std::filesystem::path& map,std::span<const SceneActor> actors={},const MapObjects* objects=nullptr);
     ~SceneRenderer();
     void load_effect_textures(const std::filesystem::path&);
     Texture render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects=nullptr,const Float4& camera_rotation={});
