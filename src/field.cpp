@@ -153,6 +153,10 @@ void OpeningField::clear_contact() {
         if(effects_[handle])effects_[handle]->animation.request_removal();player_.contact_bubble=0;
     }
 }
+void OpeningField::restore_event_gate() {
+    if(saved_input_gate_==0&&get_variable(0x40005)!=0)saved_input_gate_=1;
+    set_variable(6,4,saved_input_gate_);input_gate_saved_=false;
+}
 void OpeningField::interact(ExplorationInput input) {
     if(!definition_||(!(input.pressed&0x40)&&player_.trigger_kind!=0x81))return;
     if(!get_variable||!set_variable)throw std::runtime_error("Field interaction requires native variables");
@@ -161,7 +165,7 @@ void OpeningField::interact(ExplorationInput input) {
         saved_input_gate_=get_variable(0x40006);set_variable(6,4,1);input_gate_saved_=true;
         script_.start(unsigned(interaction_event_));
         if(event_running()) {exploration_handoff_=false;player_.mask|=1;clear_contact();}
-        else {set_variable(6,4,saved_input_gate_);input_gate_saved_=false;}
+        else restore_event_gate();
         return;
     }
     Rounding rounding;const auto position=actor(-1)->animation().values().at(1);
@@ -264,7 +268,7 @@ void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned
         saved_input_gate_=get_variable(0x40006);set_variable(6,4,1);input_gate_saved_=true;
         script_.start(definition_->startup);
         if(event_running()){exploration_handoff_=false;player_.mask|=1;}
-        else{set_variable(6,4,saved_input_gate_);input_gate_saved_=false;}
+        else restore_event_gate();
     }
     for(const auto& binding:actors_)binding.actor->evaluate();
     evaluate();
@@ -439,9 +443,13 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             return pending();
         case 0x47: {
             const auto selector=word(pc+4),index=selector&0xffff,bank=selector>>16;
-            if(bank>4 || (bank==4 && index==6))throw std::runtime_error("Unrecovered field variable storage or controller side effect");
+            if(bank>4)throw std::runtime_error("Unrecovered field variable storage");
             if(!set_variable)return pending();
-            set_variable(index,bank,b);pending_opcode=0;return {pc+8};
+            set_variable(index,bank,b);
+            // 0x130270 also updates field+0xf4 for explicit encounter-gate
+            // writes. Completion must restore this new value, not the old one.
+            if(bank==4&&index==6)saved_input_gate_=b;
+            pending_opcode=0;return {pc+8};
         }
         case 0x5e: {
             const auto handle=attach_bubble(int(a),b);
@@ -509,7 +517,7 @@ void OpeningField::tick(ExplorationInput input) {
                 // Mode 5 clears field +0x64 before 0x132ca8. The NPC therefore
                 // retains state 3 and its event-selected motion/interpolation;
                 // only the direct-message mode-4 path requests NPC state 8.
-                set_variable(6,4,saved_input_gate_);input_gate_saved_=false;
+                restore_event_gate();
             }
         }
     }

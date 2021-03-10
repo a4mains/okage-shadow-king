@@ -45,7 +45,7 @@ int main(){try {
     writing.tick();require(writes==1 && writing.pc()==0xbec && writing.pending_opcode==0x36);
     require(okage::event_variable(variables,0x10007)==1 && variables[0x110]==1);
     writing.tick();require(writes==1);
-    for(auto selector:{0x40006u,0x80000u}) {
+    for(auto selector:{0x80000u}) {
         word(0xbe8,selector);okage::OpeningField special(b,[](int){},[](int){return true;});
         rejects([&]{for(unsigned i=0;i<180;++i)special.tick();});
     }
@@ -163,5 +163,30 @@ int main(){try {
     state=okage::field_setup_state(b,variables,construction);require(get(0x414)==9);
     const auto prepared=okage::prepare_field_definition(b,variables,construction);
     require(prepared.type==0&&prepared.dust==9&&prepared.field_flags==7);
+    auto put=[](auto& data,unsigned at,std::uint32_t value){for(unsigned i=0;i<4;++i)data.at(at+i)=value>>(i*8);};
+    std::vector<std::uint8_t> stage(116),empty_map(69),idle(56),startup(56);
+    put(stage,0,0x475453);put(stage,16,32);put(stage,20,1);put(stage,24,88);put(stage,28,1);
+    put(stage,64,__builtin_bit_cast(std::uint32_t, (10.f)));put(stage,76,__builtin_bit_cast(std::uint32_t, (1.f)));
+    for(unsigned i=0;i<3;++i)put(empty_map,i*4,1);put(empty_map,65,64);
+    for(auto* data:{&idle,&startup}){put(*data,0,0x544d58);put(*data,4,24);put(*data,16,0xffffffff);}
+    // Initial gate, written index/value, initial party-disable, expected gate.
+    const std::array<std::array<int,5>,6> gate_cases={{{0,5,0,0,0},{0,5,1,0,1},{2,5,1,0,2},
+                                                   {0,6,1,0,1},{1,6,0,0,0},{1,6,0,1,1}}};
+    for(bool waited:{false,true})for(const auto test:gate_cases) {
+        put(startup,44,0x40000|test[1]);
+        put(startup,40,(std::uint32_t(test[2])<<20)|0x47);put(startup,48,waited?0x200002:0);
+        okage::ModelFile hero_model;hero_model.models.emplace_back();
+        okage::FieldActor hero(std::move(hero_model),idle,{});
+        const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
+        okage::OpeningField scene(startup,[](int){},[](int){return true;},player,false);
+        std::array<std::uint8_t,0x1000> vars{};okage::set_event_variable(vars,6,4,test[0]);
+        okage::set_event_variable(vars,5,4,test[3]);
+        scene.get_variable=[&](auto selector){return okage::event_variable(vars,selector);};
+        scene.set_variable=[&](auto index,auto bank,auto value){okage::set_event_variable(vars,index,bank,value);};
+        okage::FieldDefinition entry;entry.type=1;entry.startup=1;
+        scene.enter(entry,stage,empty_map,0);
+        if(waited){require(okage::event_variable(vars,0x40006)==(test[1]==6?test[2]:1));for(unsigned i=0;i<4;++i)scene.tick();}
+        require(!scene.event_running()&&okage::event_variable(vars,0x40006)==test[4]);
+    }
     std::cout<<"Camera look-at, blend, field dialogue gate and pending actor service passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

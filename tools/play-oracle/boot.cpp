@@ -15,6 +15,7 @@
 #include "reference_transition.hpp"
 #include "reference_camera.hpp"
 #include "reference_actor.hpp"
+#include "reference_npc.hpp"
 #include "reference_lifecycle.hpp"
 #include "reference_order.hpp"
 #include "reference_music.hpp"
@@ -58,9 +59,9 @@ public:
 };
 int main(int argc,char** argv) {
     try {
-        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--movement FILE] [--interaction FILE] [--transition FILE] [--actor FILE --actor-alias -1|-8|-9] [--lifecycle FILE] [--order FILE] [--music FILE] [--deadline-seconds 1..7200]");
+        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--movement FILE] [--interaction FILE] [--transition FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--lifecycle FILE] [--order FILE] [--music FILE] [--deadline-seconds 1..7200]");
         unsigned deadlineSeconds=0;
-        int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false,musicField=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,music,movement,interaction,transition;
+        int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false,musicField=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,music,movement,interaction,transition,npc;
         for (int i=3;i<argc;++i) {
             const std::string arg=argv[i];
             if (arg=="--load") load=true;
@@ -74,6 +75,7 @@ int main(int argc,char** argv) {
             else if (arg=="--events" && i+1<argc) events=argv[++i];
             else if (arg=="--dialogue" && i+1<argc) dialogue=argv[++i];
             else if (arg=="--text" && i+1<argc) text=argv[++i];
+            else if (arg=="--npc" && i+1<argc) npc=argv[++i];
             else if (arg=="--actor" && i+1<argc) actor=argv[++i];
             else if (arg=="--actor-alias" && i+1<argc) actorAlias=std::stoi(argv[++i]);
             else if (arg=="--lifecycle" && i+1<argc) lifecycle=argv[++i];
@@ -121,13 +123,14 @@ int main(int argc,char** argv) {
         auto textTrace=text.empty() ? nullptr : std::make_unique<TextTrace>(text);
         auto controllerTrace=controller.empty() ? nullptr : std::make_unique<ControllerTrace>(controller);
         auto cameraTrace=camera.empty() ? nullptr : std::make_unique<CameraTrace>(camera);
+        auto npcTrace=npc.empty() ? nullptr : std::make_unique<NpcTrace>(npc);
         auto actorTrace=actor.empty() ? nullptr : std::make_unique<ActorTrace>(actor,actorAlias);
         auto transitionTrace=transition.empty() ? nullptr : std::make_unique<TransitionTrace>(transition);
         auto interactionTrace=interaction.empty() ? nullptr : std::make_unique<InteractionTrace>(interaction);
         auto movementTrace=movement.empty() ? nullptr : std::make_unique<MovementTrace>(movement);
         auto lifecycleTrace=lifecycle.empty() ? nullptr : std::make_unique<LifecycleTrace>(lifecycle);
         auto orderTrace=order.empty() ? nullptr : std::make_unique<OrderTrace>(order);
-        const bool tracing=traceLoaders || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace) || bool(cameraTrace) || bool(actorTrace) || bool(movementTrace) || bool(interactionTrace) || bool(transitionTrace) || bool(lifecycleTrace) || bool(orderTrace) || !music.empty();
+        const bool tracing=traceLoaders || bool(npcTrace) || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace) || bool(cameraTrace) || bool(actorTrace) || bool(movementTrace) || bool(interactionTrace) || bool(transitionTrace) || bool(lifecycleTrace) || bool(orderTrace) || !music.empty();
         RecordedAudio* recordedAudio=nullptr;
         Traffic traffic; std::atomic<unsigned> frames{0}; std::atomic<bool> exited{false};
         CPS2VM vm;
@@ -176,6 +179,7 @@ int main(int argc,char** argv) {
         if(controllerTrace)for(auto at:ControllerTrace::breakpoints)loaders.push_back(at);
         if(cameraTrace)for(auto at:CameraTrace::breakpoints)loaders.push_back(at);
         if(actorTrace)for(auto at:actorTrace->breakpoints())loaders.push_back(at);
+        if(npcTrace)for(auto at:NpcTrace::breakpoints)loaders.push_back(at);
         if(transitionTrace)for(auto at:TransitionTrace::breakpoints)loaders.push_back(at);
         if(interactionTrace)for(auto at:InteractionTrace::breakpoints)loaders.push_back(at);
         if(movementTrace)for(auto at:MovementTrace::breakpoints)loaders.push_back(at);
@@ -216,6 +220,8 @@ int main(int argc,char** argv) {
                     throw std::runtime_error(error.str());
                 }
                 if (++tracedCalls>(eventTrace ? 200000u : 10000u)) throw std::runtime_error("Reference trace limit exceeded");
+                const bool observingNpc=npcTrace&&std::find(NpcTrace::breakpoints.begin(),NpcTrace::breakpoints.end(),pc)!=NpcTrace::breakpoints.end();
+                if(observingNpc)npcTrace->observe(*vm.m_ee,frames);
                 const bool observingActor=actorTrace&&std::find(actorTrace->breakpoints().begin(),actorTrace->breakpoints().end(),pc)!=actorTrace->breakpoints().end();
                 // Observe before another subscriber resumes a shared field BP.
                 if(observingActor)actorTrace->observe(*vm.m_ee,frames);
@@ -238,6 +244,7 @@ int main(int argc,char** argv) {
                         (controllerTrace && std::find(ControllerTrace::breakpoints.begin(),ControllerTrace::breakpoints.end(),pc)!=ControllerTrace::breakpoints.end());
                     if(!shared){vm.Resume();continue;}
                 }
+                if(observingNpc){vm.Resume();continue;}
                 // Actor and scene observers share a model-render boundary.
                 if(observingActor) {
                     if(!sceneTrace||std::find(sceneBreakpoints.begin(),sceneBreakpoints.end(),pc)==sceneBreakpoints.end()){vm.Resume();continue;}
@@ -281,6 +288,7 @@ int main(int argc,char** argv) {
         std::cout<<"Stopped: vblanks="<<frames<<" exit_request="<<exited<<" gs_registers="<<traffic.registers
                  <<" gs_vertices="<<traffic.vertices<<" uploads="<<traffic.uploads<<std::endl;
         if(actorTrace)actorTrace->finish();
+        if(npcTrace)npcTrace->finish();
         if(transitionTrace)transitionTrace->finish();
         if(interactionTrace)interactionTrace->finish();
         if(movementTrace)movementTrace->finish();

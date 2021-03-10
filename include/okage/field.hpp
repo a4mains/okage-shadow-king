@@ -85,6 +85,7 @@ private:
     int interaction_alias_=0,interaction_event_=0;
     std::int32_t saved_input_gate_=0;
     bool input_gate_saved_=false;
+    void restore_event_gate();
     std::optional<FieldTransition> transition_;
     void clear_contact();
     void build_collision(Bytes xcl);

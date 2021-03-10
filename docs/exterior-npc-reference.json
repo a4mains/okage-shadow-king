@@ -1,0 +1,129 @@
+{
+  "scope": "Original outdoor NPC observations only; not native NPC equivalence.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "reference_prefix": "local/reference-exterior-npc-360-v1",
+  "field_updates": 360,
+  "field_mode": 0,
+  "variable_4_6": 1,
+  "spawn_events_observed": 0,
+  "npcs": [
+    {
+      "instance": 37,
+      "state": 5,
+      "initial_cooldown": 619,
+      "final_cooldown": 260,
+      "visible_frames": 0,
+      "speed_bits": "0xbe4ccccd"
+    },
+    {
+      "instance": 38,
+      "state": 5,
+      "initial_cooldown": 1019,
+      "final_cooldown": 660,
+      "visible_frames": 0,
+      "speed_bits": "0xbe4ccccd"
+    },
+    {
+      "instance": 39,
+      "state": 5,
+      "initial_cooldown": 59,
+      "final_cooldown": 0,
+      "visible_frames": 0,
+      "speed_bits": "0xbe4ccccd"
+    },
+    {
+      "instance": 40,
+      "state": 5,
+      "initial_cooldown": 139,
+      "final_cooldown": 0,
+      "visible_frames": 0,
+      "speed_bits": "0xbe4ccccd"
+    },
+    {
+      "instance": 41,
+      "state": 0,
+      "initial_cooldown": 1440,
+      "final_cooldown": 1440,
+      "visible_frames": 360,
+      "speed_bits": "0xbe4ccccd"
+    },
+    {
+      "instance": 42,
+      "state": 0,
+      "initial_cooldown": 1280,
+      "final_cooldown": 1280,
+      "visible_frames": 360,
+      "speed_bits": "0xbe4ccccd"
+    },
+    {
+      "instance": 43,
+      "state": 0,
+      "initial_cooldown": 240,
+      "final_cooldown": 240,
+      "visible_frames": 360,
+      "speed_bits": "0xbe4ccccd"
+    }
+  ],
+  "motion_input_changes": [
+    [
+      0,
+      [
+        1,
+        0
+      ]
+    ],
+    [
+      10,
+      [
+        1,
+        1073758208
+      ]
+    ],
+    [
+      11,
+      [
+        3,
+        16384
+      ]
+    ],
+    [
+      301,
+      [
+        3,
+        0
+      ]
+    ],
+    [
+      302,
+      [
+        1,
+        0
+      ]
+    ]
+  ],
+  "player_initial": [
+    283.25,
+    -37.25,
+    689.6599731445312,
+    1.0
+  ],
+  "player_final": [
+    252.65098571777344,
+    -35.000999450683594,
+    693.9296875,
+    1.0
+  ],
+  "limits": [
+    "No enemy spawn, pursuit or battle entry was observed; variable4:6 remained1.",
+    "The process-wide RNG also advances outside enemy callbacks; do not seed an independent RNG per NPC.",
+    "Captured state is reference-only and must not initialize the native runtime."
+  ],
+  "sha256": {
+    "local/reference-exterior-npc-360-v1.npc.bin": "cd8329c1f746cf197a2a700e88dc97622d06f0732fc0dbaf33705b986eac8ff2",
+    "local/reference-exterior-npc-360-v1.input": "b7365e56b67f57a44c88bb4868c7a3b1c35d867e634586eb42e52772a08f1988",
+    "local/reference-exterior-npc-360-v1.log": "c6d117250b16983cd70aefa5f9d034e597b3fea5daa66fa9b4822ba33a0d7c42",
+    "local/reference-exterior-npc-360-v1.state.zip": "e4527bbb3291fe4fef3914212b1282dadefeb4781552cac86cf75168b6531b21",
+    "local/reference-outdoor-door-close-60-v1.state.zip": "d565f7efaaf6badc58a777dd33e439387cd65e72ec0b1917a22d88dc30371069",
+    "local/reference-exterior-npc-360-v1.layer0.png": "b6791cd73e0346c094decb5a0d7c244fc7112fea13f23855cdd2d5de42380921"
+  }
+}
