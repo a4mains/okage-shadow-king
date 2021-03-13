@@ -143,7 +143,59 @@ void OpeningField::load_interactions(Bytes database,const std::string& room,Byte
     for(const auto& npc:definition.npcs)if(!actor(npc.alias)||npc.state!=0)
         throw std::runtime_error("Field NPC binding/state is not implemented");
     if(definition.npcs.size()+1!=actors_.size())throw std::runtime_error("Field NPC bindings differ from enabled definitions");
-    definition_=std::move(definition);
+    definition_=std::move(definition);initialize_npcs();
+}
+void OpeningField::initialize_npcs() {
+    if(!definition_||!enemies_.empty())throw std::runtime_error("NPC configuration lifecycle");
+    for(std::size_t i=0;i<definition_->npcs.size();++i) {
+        const auto& npc=definition_->npcs[i];
+        if(actors_.at(i).alias!=npc.alias)throw std::runtime_error("NPC collision bindings must preserve construction order");
+        if(!random_value)throw std::runtime_error("NPC construction requires the shared game RNG");
+        const auto cooldown=EncounterEnemy::initial_cooldown(random_value(),definition_->type==2?2:0);
+        enemies_.push_back(npc.state==5?std::optional<EncounterEnemy>({0,cooldown,-.2f}):std::nullopt);
+        actor(npc.alias)->encounter_model=npc.model=="rkumo"||npc.model=="wkumo"||npc.model=="bkumo";
+    }
+}
+void OpeningField::update_npcs() {
+    if(!definition_)return;
+    Rounding rounding;
+    for(std::size_t index=0;index<enemies_.size();++index) {
+        if(!enemies_[index])continue;
+        auto* object=actor(definition_->npcs[index].alias);auto* hero=actor(-1);
+        const auto& channel=object->animation().values();const auto& player=hero->animation().values();
+        EnemyObservation observation{channel.at(1),channel.at(0),channel.at(3),player.at(1),player.at(0),rotation,
+            get_variable(0x40006),player_.motion,event_running()?5:(transition_?14:0),get_variable(0x40004)};
+        const auto action=enemies_[index]->tick(observation,random_value,angles_,sine_);
+        if(action.visible) {
+            object->visible=*action.visible;
+            // Original 0x1baa60 excludes collision index zero, including the
+            // first FIELD_1D kumo. Preserve that quirk, as for event visibility.
+            if(index)bodies_.at(index).flags=object->visible?(bodies_[index].flags&~2u):(bodies_[index].flags|2u);
+        }
+        if(action.translucent)object->render_flags|=0x100000;
+        if(action.position)object->animation().set_channel(1,*action.position);
+        if(action.rotation)object->animation().set_channel(0,*action.rotation);
+        if(action.color)object->animation().set_channel(3,*action.color);
+        if(action.alpha)object->animation().set_component(3,3,*action.alpha);
+        if(action.displacement) {
+            if(!collision_)throw std::runtime_error("Enemy pursuit requires field collision");
+            for(unsigned i=0;i<bodies_.size();++i)bodies_[i].position=actors_[i].actor->animation().values().at(1);
+            auto desired=bodies_[index].position;for(unsigned k=0;k<4;++k)desired[k]+=(*action.displacement)[k];
+            MapCollisionSettings settings;settings.wall_iterations=3;
+            resolve_collision(*collision_,bodies_,index,desired,settings,__builtin_bit_cast(float, (0x3efff17du)));
+            bodies_[index].position=desired;
+            for(unsigned i=0;i<bodies_.size();++i) {
+                if(i==index)actors_[i].actor->animation().set_channel(1,bodies_[i].position);
+                else actors_[i].actor->animation().write_channel_output(1,bodies_[i].position);
+                bodies_[i].previous=bodies_[i].position;
+            }
+        }
+        rear_attack_|=action.rear_attack;
+        if(action.encounter_column) {
+            encounter_=FieldEncounter{*action.encounter_column,action.field_mode,rear_attack_};
+            return;
+        }
+    }
 }
 void OpeningField::clear_contact() {
     player_.floor_contact=0;player_.trigger_kind=player_.trigger_index=0;
@@ -239,11 +291,12 @@ void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned
     const auto placement=field_entrance(stg,entrance);
     for(const auto& npc:definition.npcs) {
         auto* object=actor(npc.alias);
-        if(!object||npc.state!=0||(npc.flags&~3u))throw std::runtime_error("Unrecovered field NPC construction state/flags");
+        if(!object||(npc.state!=0&&npc.state!=5)||(npc.flags&~3u))throw std::runtime_error("Unrecovered field NPC construction state/flags");
         object->animation().set_channel(0,{0,npc.facing,0,1});object->animation().set_channel(1,npc.position);
         object->visible=(npc.flags&2)==0;
     }
     definition_=std::move(definition);player_.footstep_sound=definition_->footstep;player_.dust_effect=definition_->dust;
+    initialize_npcs();
     auto* hero=actor(-1);hero->animation().set_channel(0,placement.rotation);hero->animation().set_channel(1,placement.position);
     build_collision(xcl);
     // 0x135300: settle with a Y=1 collision move, then finish placement
@@ -491,6 +544,7 @@ void OpeningField::evaluate() {
     }
 }
 void OpeningField::tick(ExplorationInput input) {
+    if(encounter_)throw std::runtime_error("Pending native battle request was not consumed");
     // Field manager 0x133a98 runs before the event pass. Case 5 detects the
     // ended script and selects the room camera; case 0 updates it next frame.
     const bool was_transitioning=bool(transition_);
@@ -522,6 +576,8 @@ void OpeningField::tick(ExplorationInput input) {
         }
     }
     advance_effects(true);
+    update_npcs();
+    if(encounter_)return;
     // Mode14 changes the field manager, not the player's movement mask.
     // 0x1354d8 still runs movement while bit0 is clear during the countdown.
     if(move||transition_)move_player(input);

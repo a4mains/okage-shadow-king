@@ -6,6 +6,8 @@
 #include "okage/render.hpp"
 #include "okage/map.hpp"
 #include "okage/map_objects.hpp"
+#include "okage/enemy.hpp"
+#include <cfenv>
 #include "okage/event.hpp"
 #include "okage/audio.hpp"
 #include "okage/sequence.hpp"
@@ -645,6 +647,38 @@ int main(int argc, char** argv) {
                 output.insert(output.end(),{state.countdown,state.observed,state.accumulated,__builtin_bit_cast(std::uint32_t, (result))});
             }
             write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4));return 0;
+        }
+        if(command=="enemy-step" && argc==4) {
+            const auto bytes=read(argv[2]);
+            if(bytes.empty()||bytes.size()%144||bytes.size()>144*2000)throw std::runtime_error("Enemy fixture extent");
+            const auto angles=okage::make_atan_table();const auto sine=okage::make_sine_table();
+            std::vector<std::uint32_t> output;const auto old=std::fegetround();std::fesetround(FE_TOWARDZERO);
+            for(std::size_t at=0;at<bytes.size();at+=144) {
+                std::array<std::uint32_t,36> row;
+                for(unsigned i=0;i<36;++i)row[i]=std::uint32_t(bytes[at+4*i])|(std::uint32_t(bytes[at+4*i+1])<<8)|
+                    (std::uint32_t(bytes[at+4*i+2])<<16)|(std::uint32_t(bytes[at+4*i+3])<<24);
+                auto point=[&](unsigned i){okage::Float4 p;for(unsigned k=0;k<4;++k)p[k]=__builtin_bit_cast(float, (row[i+k]));return p;};
+                auto store=[&](unsigned i,const okage::Float4& p){for(unsigned k=0;k<4;++k)row[i+k]=__builtin_bit_cast(std::uint32_t, (p[k]));};
+                okage::EncounterEnemy enemy{__builtin_bit_cast(std::int32_t, (row[0])),__builtin_bit_cast(std::int32_t, (row[1])),__builtin_bit_cast(float, (row[2]))};
+                okage::GameRandom random{row[3]};
+                okage::EnemyObservation in{point(12),point(16),point(20),point(24),point(28),point(32),
+                    __builtin_bit_cast(std::int32_t, (row[4])),__builtin_bit_cast(std::int32_t, (row[5])),__builtin_bit_cast(std::int32_t, (row[6])),__builtin_bit_cast(std::int32_t, (row[7]))};
+                const auto action=enemy.tick(in,[&]{return random.next();},angles,sine);
+                row[0]=__builtin_bit_cast(std::uint32_t, (enemy.counter));row[1]=__builtin_bit_cast(std::uint32_t, (enemy.cooldown));
+                row[2]=__builtin_bit_cast(std::uint32_t, (enemy.speed));row[3]=random.state;
+                if(action.visible)row[8]=*action.visible;
+                if(action.translucent)row[9]|=0x100000;
+                if(action.rear_attack)row[10]=1;
+                if(action.encounter_column){row[11]=*action.encounter_column;row[6]=action.field_mode;}
+                if(action.position)store(12,*action.position);
+                if(action.rotation)store(16,*action.rotation);
+                if(action.color)store(20,*action.color);
+                if(action.alpha)row[23]=__builtin_bit_cast(std::uint32_t, (*action.alpha));
+                if(action.displacement){auto p=point(12);for(unsigned k=0;k<4;++k)p[k]+=(*action.displacement)[k];store(12,p);}
+                output.insert(output.end(),row.begin(),row.end());
+            }
+            std::fesetround(old);
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
         }
         if(command=="map-motion" && argc==8) {
             okage::MapObjects map(argv[2]);const auto id=std::stoi(argv[3]);

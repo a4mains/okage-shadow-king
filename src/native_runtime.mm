@@ -55,6 +55,7 @@ struct Session {
     okage::ChoiceMenu choices;
     std::vector<std::uint32_t> choice_trace;
     std::array<std::uint8_t,0x1000> variables{};
+    okage::GameRandom random{1};
     okage::DialogueWaitState wait{5,1};
     unsigned frame=0,release_frame=0,close_frame=0,close_release_frame=0;
     std::unique_ptr<okage::DryMusicPlayer> music;
@@ -154,6 +155,7 @@ struct Session {
             return released;
         },actor_bindings,diagnostic);
         if(map_objects)field->bind_map_objects(map_objects->bindings());
+        field->random_value=[this]{return random.next();};
         field->set_variable=[this](unsigned index,unsigned bank,std::int32_t value){okage::set_event_variable(variables,index,bank,value);};
         field->get_variable=[this](std::uint32_t selector){return okage::event_variable(variables,selector);};
         field->transition_service=[this](unsigned countdown){
@@ -249,6 +251,8 @@ struct Session {
         const std::array<std::uint32_t,2> layers={0x50,controller.layer_flags};
         if(field) {
             field->tick({input.held,128,128,input.pressed});
+            if(field->encounter())throw std::runtime_error("Native battle dispatch is unrecovered (encounter column "+
+                std::to_string(field->encounter()->column)+")");
             const auto request=field->transition();
             transition_trace.insert(transition_trace.end(),{frame,unsigned(current_scene),unsigned(current_entrance),
                 request?unsigned(request->scene):0xffffffffu,request?request->entrance:0,

@@ -133,6 +133,43 @@ public:
         std::ostringstream error; error<<"Oracle instruction budget exceeded at "<<std::hex<<cpu.m_State.nPC;
         throw std::runtime_error(error.str());
     }
+    void enemyStep(const std::vector<uint8>& ram,const std::vector<uint8>& cases,const char* output) {
+        if(ram.size()!=32*1024*1024||cases.empty()||cases.size()%144||cases.size()>144*2000)
+            throw std::runtime_error("Enemy oracle fixture extent");
+        effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
+                                        ee->m_gs,ee->m_sif,*dynamic_cast<CIopBios*>(iop->m_bios.get()));
+        std::vector<uint32> result;
+        for(std::size_t at=0;at<cases.size();at+=144) {
+            std::cout<<"enemy_case="<<at/144<<std::endl;
+            std::memcpy(ee->m_ram,ram.data(),ram.size());
+            put(stop,0x08000000|(stop>>2));put(stop+4,0);
+            std::memcpy(ee->m_microMem0,ee->m_ram+0x21ab00,0x660);
+            std::array<uint32,36> row;std::memcpy(row.data(),cases.data()+at,144);
+            const auto field=get(0x2d9bf4),player=get(field+0x44),vars=get(0x24f788);
+            if(get(field+0x70)!=7)throw std::runtime_error("Enemy fixture requires exterior seven-NPC snapshot");
+            const auto npc=get(field+0x118+2*4),instance=get(npc+0x40),objects=get(0x21301c);
+            auto first=[&](uint32 id){if(id>=2048)throw std::runtime_error("Enemy fixture instance");return get(objects+id*0x3c+4)&0xffff;};
+            const auto channel=first(instance),hero=first(get(0x337b64)),camera=get(0x337d8c),object=objects+instance*0x3c;
+            auto set=[&](uint32 id,unsigned index){
+                std::memcpy(ee->m_ram+0x80000,row.data()+index,16);call(0x1b4220,{id,0x80000});
+                call(0x1b43c0,{id,0x80000});
+            };
+            set(channel+1,12);set(channel,16);set(channel+3,20);set(hero+1,24);set(hero,28);set(camera+1,32);
+            put(npc+0x3c,row[0]);put(npc+0x50,row[1]);put(npc+0x54,row[2]);
+            const auto random=get(0x2151b4)+0x58;put(random,row[3]);
+            put(vars+0x510+6*4,row[4]);put(player+0x230,row[5]);put(field+0x48,row[6]);
+            put(vars+0x510+4*4,row[7]);call(0x1baa60,{instance,row[8]});put(object+0x24,row[9]);
+            put(field+0xfc,row[10]);const auto oldMode=row[6];
+            call(0x137218,{npc});
+            row[0]=get(npc+0x3c);row[1]=get(npc+0x50);row[2]=get(npc+0x54);row[3]=get(random);
+            row[6]=get(field+0x48);row[8]=(get(object)&0x800)!=0;row[9]=get(object+0x24);row[10]=get(field+0xfc);
+            if(oldMode==0&&(row[6]==8||row[6]==11))row[11]=(row[3]&0x7fffffff)%24;
+            auto read=[&](uint32 id,unsigned index){call(0x1b43c0,{id,0x80000});std::memcpy(row.data()+index,ee->m_ram+0x80000,16);};
+            read(channel+1,12);read(channel,16);read(channel+3,20);
+            result.insert(result.end(),row.begin(),row.end());
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
     uint32 get(uint32 address) const { uint32 v; std::memcpy(&v,ee->m_ram+address,4); return v; }
     void put(uint32 address,uint32 value) { std::memcpy(ee->m_ram+address,&value,4); }
     void put64(uint32 address,uint64 value) { std::memcpy(ee->m_ram+address,&value,8); }
@@ -999,7 +1036,9 @@ int main(int argc,char** argv) {
         }
         Reference reference(readFile(argv[2]));
         const std::string command=argv[1];
-        if(command=="camera-angles" && argc==4) {
+        if(command=="enemy-step" && argc==6) {
+            reference.enemyStep(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="camera-angles" && argc==4) {
             reference.call(0x1b1ed0);writeFile(argv[3],reference.ee->m_ram+0x335490,8192);
         } else if(command=="camera-look-at" && argc==6) {
             reference.cameraLookAt(readFile(argv[3]),readFile(argv[4]),argv[5]);

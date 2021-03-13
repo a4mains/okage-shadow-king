@@ -188,5 +188,36 @@ int main(){try {
         if(waited){require(okage::event_variable(vars,0x40006)==(test[1]==6?test[2]:1));for(unsigned i=0;i<4;++i)scene.tick();}
         require(!scene.event_running()&&okage::event_variable(vars,0x40006)==test[4]);
     }
-    std::cout<<"Camera look-at, blend, field dialogue gate and pending actor service passed\n";
+    idle.resize(80);put(idle,4,48);
+    for(unsigned enemy_index:{0u,1u}) {
+        okage::ModelFile enemy_model,player_model,ordinary_model;
+        enemy_model.models.emplace_back();player_model.models.emplace_back();ordinary_model.models.emplace_back();
+        okage::FieldActor enemy_actor(std::move(enemy_model),idle,{}),enemy_player(std::move(player_model),idle,{});
+        okage::FieldActor ordinary_actor(std::move(ordinary_model),idle,{});
+        std::vector<okage::ActorBinding> enemy_bindings;
+        okage::FieldDefinition enemy_room;enemy_room.type=1;
+        if(enemy_index) {
+            enemy_bindings.push_back({-8,&ordinary_actor});
+            enemy_room.npcs.push_back({-8,"npc",0,0,0,{-100,0,-100,1},0,1});
+        }
+        const int enemy_alias=-8-int(enemy_index);
+        enemy_bindings.push_back({enemy_alias,&enemy_actor});enemy_bindings.push_back({-1,&enemy_player});
+        enemy_room.npcs.push_back({enemy_alias,"bkumo",5,0,0,{100,0,100,1},0,1});
+        okage::OpeningField enemy_field(idle,[](int){},[](int){return true;},enemy_bindings,false);
+        std::array<std::uint8_t,0x1000> enemy_variables{};okage::set_event_variable(enemy_variables,6,4,1);
+        enemy_field.get_variable=[&](auto selector){return okage::event_variable(enemy_variables,selector);};
+        enemy_field.set_variable=[&](auto index,auto bank,auto value){okage::set_event_variable(enemy_variables,index,bank,value);};
+        unsigned random_calls=0;enemy_field.random_value=[&]{++random_calls;return 0;};
+        enemy_field.enter(enemy_room,stage,empty_map,0);require(random_calls==1+enemy_index);
+        for(unsigned i=0;i<240;++i)enemy_field.tick();
+        require(random_calls==1+enemy_index&&!enemy_actor.visible);
+        require((enemy_field.collision_bodies()[enemy_index].flags&2)==(enemy_index?2u:0u));
+        enemy_field.tick();require(random_calls==2+enemy_index&&!enemy_actor.visible);
+        okage::set_event_variable(enemy_variables,6,4,0);
+        enemy_field.tick({0x4000});require(random_calls==3+enemy_index&&!enemy_actor.visible);
+        enemy_field.tick({0x4000});require(random_calls==5+enemy_index&&enemy_actor.visible&&enemy_actor.encounter_model);
+        require(!(enemy_field.collision_bodies()[enemy_index].flags&2)&&enemy_actor.render_flags==0x100000);
+        require(enemy_actor.animation().values()[3]==okage::Float4({.5f,.5f,.5f,0}));
+    }
+    std::cout<<"Camera, field lifecycle, map motion, event gates and encounter spawning passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

@@ -125,6 +125,8 @@ struct SceneRenderer::Impl {
         for(std::size_t inputIndex=0;inputIndex<inputs.size();++inputIndex) {
             const auto& input=inputs[inputIndex];const auto textureOffset=textureOffsets[inputIndex];
             if(input.actor && !input.actor->visible)continue;
+            if(input.actor && input.actor->encounter_model)
+                throw std::runtime_error("Visible encounter-enemy rendering is unrecovered");
             std::size_t textureBase=0;
             const auto world=input.actor ? input.actor->world(sine) : input.world;
             for (const auto& part:input.model.models) {

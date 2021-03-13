@@ -4,6 +4,7 @@
 #include "okage/actor.hpp"
 #include "okage/effect.hpp"
 #include "okage/collision.hpp"
+#include "okage/enemy.hpp"
 #include <optional>
 namespace okage {
 struct ExplorationInput {std::uint16_t held=0;std::uint8_t x=128,z=128;std::uint16_t pressed=0;};
@@ -27,6 +28,7 @@ FieldDefinition prepare_field_definition(Bytes script,Bytes variables,FieldDefin
 struct FieldEntrance {Float4 position{},rotation{};};
 FieldEntrance field_entrance(Bytes stg,unsigned entrance);
 struct FieldTransition {int scene;unsigned entrance,countdown=2;bool ready=false;};
+struct FieldEncounter {unsigned column,mode;bool rear_attack;};
 struct PlayerMovement {
     std::uint32_t mask=1,footstep_sound=33,dust_effect=0;
     std::int32_t motion=-1,floor_contact=0;
@@ -47,6 +49,8 @@ public:
     void load_interactions(Bytes database,const std::string& room,Bytes variables);
     void enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned entrance);
     const std::optional<FieldTransition>& transition() const {return transition_;}
+    const std::optional<FieldEncounter>& encounter() const {return encounter_;}
+    std::function<std::uint32_t()> random_value;
     std::function<void(unsigned)> transition_service;
     const PlayerMovement& player_movement() const {return player_;}
     const std::vector<CollisionBody>& collision_bodies() const {return bodies_;}
@@ -87,6 +91,11 @@ private:
     bool input_gate_saved_=false;
     void restore_event_gate();
     std::optional<FieldTransition> transition_;
+    std::optional<FieldEncounter> encounter_;
+    std::vector<std::optional<EncounterEnemy>> enemies_;
+    bool rear_attack_=false;
+    void initialize_npcs();
+    void update_npcs();
     void clear_contact();
     void build_collision(Bytes xcl);
     void advance_effects(bool player_contacts);

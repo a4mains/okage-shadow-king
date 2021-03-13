@@ -20,6 +20,8 @@ public:
     const Animation& animation() const{return animation_;}
     unsigned motion() const{return motion_;}
     bool visible=true; // Instance flag0x800; scene gates channel ticks, scripts keep running.
+    bool encounter_model=false;
+    std::uint32_t render_flags=0;
 private:
     ModelFile model_;
     TextureBindings textures_;
