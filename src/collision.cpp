@@ -290,9 +290,10 @@ MapContact CollisionMap::move_contact(const Float4& previous,const Float4& desir
     for(const auto& v:{previous,desired})for(unsigned i=0;i<3;++i)require(std::isfinite(v[i]),"Non-finite map contact point");
     for(const auto& shape:shapes) {
         const auto type=shape.flags&7;
-        require(type==0||type==2,"Unrecovered map contact shape");
+        require(type<=2,"Unrecovered map contact shape");
         require(!(type==0&&(shape.flags&0x20)),"Unrecovered point wall contact");
         for(unsigned i=0;i<3;++i)require(std::isfinite(shape.geometry.first[i]),"Non-finite shape point");
+        if(type==1)require(std::isfinite(shape.geometry.radius)&&shape.geometry.radius>0,"Invalid map sphere");
         if(type==2) {
             for(unsigned i=0;i<3;++i)require(std::isfinite(shape.geometry.second[i]),"Non-finite shape endpoint");
             require(std::isfinite(shape.geometry.radius)&&shape.geometry.radius>0&&
@@ -312,14 +313,21 @@ MapContact CollisionMap::move_contact(const Float4& previous,const Float4& desir
         // Original 0x187498 processes all walls, then ceilings, then floors.
         for(const auto& shape:shapes)if(shape.flags&0x20)
             for(unsigned i=0;i<settings.wall_iterations;++i)
-                if(!apply(capsule_wall_contact(start,position,shape.geometry,settings.normal_threshold,settings.disabled_mask),2))break;
+                if(!apply((shape.flags&7)==1?
+                    sphere_wall_contact(start,position,shape.geometry.first,shape.geometry.radius,settings.normal_threshold,settings.disabled_mask):
+                    capsule_wall_contact(start,position,shape.geometry,settings.normal_threshold,settings.disabled_mask),2))break;
         for(unsigned kind:{1u,0u})for(const auto& shape:shapes)if(shape.flags&(kind?0x10:8)) {
             auto offset=shape.geometry.first;
             if((shape.flags&7)==2) {
                 const auto& second=shape.geometry.second;
                 if(kind?second[1]<=offset[1]:offset[1]<=second[1])offset=second;
             }
-            apply(vertical_contact(add(start,offset),add(position,offset),kind,settings.floor_reach,
+            auto first=add(start,offset),second=add(position,offset);
+            if((shape.flags&7)==1) {
+                const float amount=kind?-shape.geometry.radius:shape.geometry.radius;
+                first[1]+=amount;second[1]+=amount;
+            }
+            apply(vertical_contact(first,second,kind,settings.floor_reach,
                                    settings.normal_threshold,settings.disabled_mask),kind);
         }
         if(hit) {

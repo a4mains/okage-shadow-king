@@ -133,6 +133,32 @@ public:
         std::ostringstream error; error<<"Oracle instruction budget exceeded at "<<std::hex<<cpu.m_State.nPC;
         throw std::runtime_error(error.str());
     }
+    void exteriorCameraStep(const std::vector<uint8>& ram,const std::vector<uint8>& cases,const char* output) {
+        if(ram.size()!=32*1024*1024||cases.empty()||cases.size()%184||cases.size()>184*2000)
+            throw std::runtime_error("Exterior camera fixture extent");
+        std::vector<uint32> result;
+        for(unsigned at=0;at<cases.size();at+=184) {
+            std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
+            std::memcpy(ee->m_microMem0,ee->m_ram+0x21ab00,0x660);
+            std::array<uint32,46> row;std::memcpy(row.data(),cases.data()+at,184);
+            if(row[2]!=0||row[44]>65535||row[45]>255)throw std::runtime_error("Exterior camera oracle input scope");
+            const auto objects=get(0x21301c),hero=get(objects+get(0x337b64)*0x3c+4)&0xffff,camera=get(0x337d8c);
+            auto set=[&](uint32 id,unsigned index) {
+                std::memcpy(ee->m_ram+0x80000,row.data()+index,16);call(0x1b4220,{id,0x80000});call(0x1b43c0,{id,0x80000});
+            };
+            set(hero+1,28);set(hero,32);set(camera,36);
+            for(unsigned i=0;i<22;++i)put(0x2d9c28+4*i,row[i]);
+            for(unsigned i=0;i<6;++i)put(0x1fb9a0+4*i,row[22+i]);
+            put(0x1fb970,0);put(0x33958c,row[44]);ee->m_ram[0x3395b8]=row[45];
+            call(0x136d00);
+            for(unsigned i=0;i<22;++i)row[i]=get(0x2d9c28+4*i);
+            for(unsigned i=0;i<6;++i)row[22+i]=get(0x1fb9a0+4*i);
+            call(0x1b43c0,{camera,0x80000});for(unsigned i=0;i<4;++i)row[36+i]=get(0x80000+4*i);
+            for(unsigned i=0;i<4;++i)row[40+i]=get(0x337db0+4*i);
+            result.insert(result.end(),row.begin(),row.end());
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
     void enemyStep(const std::vector<uint8>& ram,const std::vector<uint8>& cases,const char* output) {
         if(ram.size()!=32*1024*1024||cases.empty()||cases.size()%144||cases.size()>144*2000)
             throw std::runtime_error("Enemy oracle fixture extent");
@@ -559,6 +585,37 @@ public:
                 for(unsigned j=0;j<4;++j)row[3+j]=get(record+0x30+j*4);
                 for(unsigned j=0;j<3;++j)row[7+j]=get(record+0x70+j*4);
             }
+            result.insert(result.end(),row.begin(),row.end());
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
+    void xclCamera(const std::vector<uint8>& asset,const std::vector<uint8>& queries,const char* output) {
+        if(asset.size()<69||asset.size()>0x400000||queries.empty()||queries.size()%48||queries.size()>48*10000)
+            throw std::runtime_error("Camera collision fixture bounds");
+        constexpr uint32 base=0x900000,record=0xe00000,previous=0xe00100,desired=0xe00110,sphere=0xe00200,shape=0xe00300;
+        std::memcpy(ee->m_ram+base,asset.data(),asset.size());
+        call(0x189028,{base,uint32(asset.size())});call(0x188f90,{base});
+        put(0x1feb40,65536);put(0x1feb44,0xf00000);put(0x1feb3c,0);
+        put(0x1fe318,0x3f000000);put(0x1fe320,2);put(0x1feb30,0x3efff17d);
+        std::vector<uint32> result;
+        for(unsigned at=0;at<queries.size();at+=48) {
+            auto word=[&](unsigned n){uint32 v;std::memcpy(&v,queries.data()+at+4*n,4);return v;};
+            const auto mode=word(8);
+            if(mode>2||word(11)>16384||(mode==2&&(word(9)!=0x40900000||word(11)!=8190)))throw std::runtime_error("Camera collision fixture settings");
+            std::memset(ee->m_ram+record,0,0xb0);std::memcpy(ee->m_ram+previous,queries.data()+at,32);
+            for(unsigned i=0;i<3;++i)put(sphere+4*i,0);put(sphere+12,0x3f800000);put(sphere+16,word(9));
+            put(0x1feb34,word(11));put(0x1feb28,word(10));
+            if(mode==2) {
+                put(record+4,1);put(record+8,shape);put(record+12,1);put(shape,0x39);put(shape+4,sphere);
+                call(0x186fa0,{previous,desired,0,record});
+            } else if(mode==1)call(0x18b020,{previous,desired,sphere,record});
+            else call(0x1882a0,{previous,desired,record});
+            std::array<uint32,22> row{};row[0]=ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0];row[1]=get(record+0x28);
+            row[2]=get(record+0x40)&0xffff;row[3]=get(record+0x40)>>16;row[4]=get(record+0x44)&0xffff;
+            if(row[0])for(unsigned i=0;i<4;++i)row[5+i]=get(record+0x30+4*i);
+            for(unsigned kind=0;kind<3;++kind)if(row[1]&(1u<<kind))
+                for(unsigned i=0;i<3;++i)row[9+kind*3+i]=get(record+0x50+kind*16+4*i);
+            for(unsigned i=0;i<4;++i)row[18+i]=get(desired+4*i);
             result.insert(result.end(),row.begin(),row.end());
         }
         writeFile(output,result.data(),result.size()*4);
@@ -1036,7 +1093,9 @@ int main(int argc,char** argv) {
         }
         Reference reference(readFile(argv[2]));
         const std::string command=argv[1];
-        if(command=="enemy-step" && argc==6) {
+        if(command=="exterior-camera-step" && argc==6) {
+            reference.exteriorCameraStep(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="enemy-step" && argc==6) {
             reference.enemyStep(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="camera-angles" && argc==4) {
             reference.call(0x1b1ed0);writeFile(argv[3],reference.ee->m_ram+0x335490,8192);
@@ -1066,6 +1125,8 @@ int main(int argc,char** argv) {
             reference.xclVertical(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="xcl-wall" && argc==6) {
             reference.xclWall(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="xcl-camera" && argc==6) {
+            reference.xclCamera(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="xcl-move" && argc==6) {
             reference.xclMove(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="capsule-pair" && argc==5) {

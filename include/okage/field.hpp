@@ -7,7 +7,7 @@
 #include "okage/enemy.hpp"
 #include <optional>
 namespace okage {
-struct ExplorationInput {std::uint16_t held=0;std::uint8_t x=128,z=128;std::uint16_t pressed=0;};
+struct ExplorationInput {std::uint16_t held=0;std::uint8_t x=128,z=128;std::uint16_t pressed=0;std::uint8_t look_x=128;};
 struct FieldNpcDefinition {
     int alias=0;std::string model;std::int32_t state=0,talk=0,alternate_talk=0;
     Float4 position{};float facing=0;unsigned flags=1;
@@ -29,6 +29,8 @@ struct FieldEntrance {Float4 position{},rotation{};};
 FieldEntrance field_entrance(Bytes stg,unsigned entrance);
 struct FieldTransition {int scene;unsigned entrance,countdown=2;bool ready=false;};
 struct FieldEncounter {unsigned column,mode;bool rear_attack;};
+struct FieldCameraSetting {int id=0;float height=0,scale=0,target=0,mode=0;};
+std::vector<FieldCameraSetting> field_camera_settings(Bytes stg);
 struct PlayerMovement {
     std::uint32_t mask=1,footstep_sound=33,dust_effect=0;
     std::int32_t motion=-1,floor_contact=0;
@@ -51,6 +53,8 @@ public:
     const std::optional<FieldTransition>& transition() const {return transition_;}
     const std::optional<FieldEncounter>& encounter() const {return encounter_;}
     std::function<std::uint32_t()> random_value;
+    // Session-owned manager state persists across field construction.
+    ExteriorCamera* exterior_camera=nullptr;
     std::function<void(unsigned)> transition_service;
     const PlayerMovement& player_movement() const {return player_;}
     const std::vector<CollisionBody>& collision_bodies() const {return bodies_;}
@@ -81,6 +85,10 @@ private:
     int group_=-2;
     unsigned camera_mode_=2;
     std::optional<AnchoredCamera> exploration_camera_;
+    std::vector<FieldCameraSetting> camera_settings_;
+    bool exterior_camera_enabled_=false;
+    unsigned configured_camera_area_=0;
+    void configure_exterior_camera(unsigned area);
     bool exploration_handoff_=false;
     std::optional<CollisionMap> collision_;
     std::vector<CollisionBody> bodies_;

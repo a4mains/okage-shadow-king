@@ -138,6 +138,36 @@ int main(int argc, char** argv) {
             }
             write(argv[4],out);return 0;
         }
+        if(command=="xcl-camera"&&argc==5) {
+            const auto map=okage::read_xcl(read(argv[2]));const auto data=read(argv[3]);
+            if(data.empty()||data.size()%48||data.size()>48*10000)throw std::runtime_error("Camera collision fixture bounds");
+            std::vector<std::uint32_t> output;
+            for(unsigned at=0;at<data.size();at+=48) {
+                auto word=[&](unsigned n){std::uint32_t v;std::memcpy(&v,data.data()+at+4*n,4);return v;};
+                auto point=[&](unsigned n){okage::Float4 v;for(unsigned k=0;k<4;++k)v[k]=__builtin_bit_cast(float, (word(n+k)));return v;};
+                const auto first=point(0);auto second=point(4);const auto mode=word(8),mask=word(10);const float radius=__builtin_bit_cast(float, (word(9)));
+                if(mode>2||word(11)>16384||(mode==2&&(radius!=4.5f||word(11)!=8190)))throw std::runtime_error("Camera collision fixture settings");
+                okage::MapContact contact;
+                if(mode==2)contact=map.camera_move(first,second,mask);
+                else {
+                    const auto surface=mode?map.sphere_wall_contact(first,second,{0,0,0,1},radius,word(11),mask):map.segment_contact(first,second,mask);
+                    if(surface.hit) {
+                        const float threshold=__builtin_bit_cast(float, (0x3efff17du));
+                        const unsigned kind=mode?2:(surface.normal[1]< -threshold?0:(surface.normal[1]>threshold?1:2));
+                        contact.hit=true;contact.flags=1u<<kind;contact.materials[kind]=surface.material;
+                        contact.correction=surface.correction;contact.normals[kind]=surface.normal;
+                    }
+                }
+                std::array<std::uint32_t,22> row{};row[0]=contact.hit;row[1]=contact.flags;
+                for(unsigned i=0;i<3;++i)row[2+i]=contact.materials[i];
+                if(contact.hit)for(unsigned i=0;i<4;++i)row[5+i]=__builtin_bit_cast(std::uint32_t, (contact.correction[i]));
+                for(unsigned kind=0;kind<3;++kind)if(contact.flags&(1u<<kind))
+                    for(unsigned i=0;i<3;++i)row[9+kind*3+i]=__builtin_bit_cast(std::uint32_t, (contact.normals[kind][i]));
+                for(unsigned i=0;i<4;++i)row[18+i]=__builtin_bit_cast(std::uint32_t, (second[i]));
+                output.insert(output.end(),row.begin(),row.end());
+            }
+            write(argv[4],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
         if(command=="xcl-move"&&argc==5) {
             const auto map=okage::read_xcl(read(argv[2]));const auto queries=read(argv[3]);
             if(queries.size()%112)throw std::runtime_error("XCL movement fixture extent");
@@ -647,6 +677,34 @@ int main(int argc, char** argv) {
                 output.insert(output.end(),{state.countdown,state.observed,state.accumulated,__builtin_bit_cast(std::uint32_t, (result))});
             }
             write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4));return 0;
+        }
+        if(command=="exterior-camera-step"&&argc==5) {
+            const auto map=okage::read_xcl(read(argv[2]));const auto data=read(argv[3]);
+            if(data.empty()||data.size()%184||data.size()>184*2000)throw std::runtime_error("Exterior camera fixture extent");
+            const auto angles=okage::make_atan_table();const auto sine=okage::make_sine_table();
+            std::vector<std::uint32_t> output;
+            for(unsigned at=0;at<data.size();at+=184) {
+                std::array<std::uint32_t,46> row;std::memcpy(row.data(),data.data()+at,184);
+                auto f=[&](unsigned i){return __builtin_bit_cast(float, (row[i]));};
+                auto n=[&](unsigned i){return __builtin_bit_cast(std::int32_t, (row[i]));};
+                auto point=[&](unsigned i){return okage::Float4{f(i),f(i+1),f(i+2),f(i+3)};};
+                auto number=[&](unsigned i,float value){row[i]=__builtin_bit_cast(std::uint32_t, (value));};
+                auto store=[&](unsigned i,const okage::Float4& value){for(unsigned k=0;k<4;++k)number(i+k,value[k]);};
+                okage::ExteriorCamera c;
+                c.preset=n(0);c.obstruction_clock=n(1);c.fast_turn=row[2]!=0;c.distance=n(4);
+                c.distance_scale=f(5);c.target_height=f(6);c.height=f(7);c.turn_rate=f(8);c.saved_scale=f(9);
+                c.desired_height=f(10);c.maximum_height=f(11);c.phase=f(14);c.manual_rotate=row[16]!=0;
+                c.snap_target=row[18]!=0;c.target_reset_counter=n(19);c.target_reset_clock=n(20);c.target_y=f(21);
+                c.previous_player=point(22);c.angular_velocity=f(26);c.target_offset=f(27);
+                const auto result=c.tick(point(28),point(32),point(36),row[44],row[45],map,angles,sine);
+                row[0]=c.preset;row[1]=c.obstruction_clock;row[4]=c.distance;
+                number(5,c.distance_scale);number(6,c.target_height);number(7,c.height);number(8,c.turn_rate);number(9,c.saved_scale);
+                number(10,c.desired_height);number(11,c.maximum_height);number(14,c.phase);row[18]=c.snap_target;
+                row[19]=c.target_reset_counter;row[20]=c.target_reset_clock;number(21,c.target_y);
+                store(22,c.previous_player);number(26,c.angular_velocity);number(27,c.target_offset);
+                store(36,result.position);store(40,result.target);output.insert(output.end(),row.begin(),row.end());
+            }
+            write(argv[4],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
         }
         if(command=="enemy-step" && argc==4) {
             const auto bytes=read(argv[2]);

@@ -53,6 +53,15 @@ int main(){try {
     auto wall=m;
     wall.chunks[0].vertices={{4,0,0,1},{4,0,8,1},{4,8,8,1},{4,8,0,1}};
     wall.chunks[0].polygons={{{3,11,0,0xc000,0,0,1,2,3,0}}};
+    const auto ray=wall.segment_contact({2,4,4,1},{6,4,4,1});
+    check(ray.hit&&ray.material==11&&ray.normal[0]==-1&&ray.correction[0]<-2);
+    check(!wall.segment_contact({6,4,4,1},{2,4,4,1}).hit);
+    check(!wall.segment_contact({2,4,4,1},{6,4,4,1},2).hit);
+    const auto sphere=wall.sphere_wall_contact({2,4,4,1},{3,4,4,1},{0,0,0,1},1.9f,8190);
+    check(sphere.hit&&sphere.material==11&&sphere.correction[0]<-.9f&&sphere.correction[3]==1);
+    const auto sphere_edge=wall.sphere_wall_contact({2,4,-1,1},{3,4,-1,1},{0,0,0,1},1.9f,8190);
+    check(sphere_edge.hit&&sphere_edge.correction[0]<0&&sphere_edge.correction[2]<0);
+    rejects([&]{wall.sphere_wall_contact({},{},{},-1,8190);});
     const okage::CollisionCapsule capsule{{0,2.5f,0,1},{0,5,0,1},1.9f};
     const auto face=wall.capsule_wall_contact({2,0,4,1},{2.5f,0,4,1},capsule,8190);
     check(face.hit&&face.material==11&&face.correction[0]<-.4009f&&face.correction[0]>-.4011f);
@@ -82,7 +91,7 @@ int main(){try {
     // disabled. Verified by the independent room fixture in verify_map_contacts.
     check(no_wall.flags==1&&__builtin_bit_cast(std::uint32_t, (no_wall.correction[0]))==0xb6800000);
     settings.step=0;rejects([&]{wall.move_contact({},{},shapes,settings);});
-    auto bad_shapes=shapes;bad_shapes[1].flags=1;
+    auto bad_shapes=shapes;bad_shapes[1].flags=3;
     rejects([&]{wall.move_contact({},{},bad_shapes,{});});
     bad_shapes=shapes;bad_shapes[0].flags=0x20;
     rejects([&]{wall.move_contact({},{},bad_shapes,{});});

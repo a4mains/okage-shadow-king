@@ -262,6 +262,17 @@ void OpeningField::load_exploration_camera(Bytes stg) {
     if(!actor(-1)||exploration_camera_)throw std::runtime_error("Exploration camera requires a player and one configuration");
     exploration_camera_=field_anchored_camera(stg);
 }
+void OpeningField::configure_exterior_camera(unsigned area) {
+    if(!exterior_camera)throw std::runtime_error("Exterior camera requires session state");
+    configured_camera_area_=area;exterior_camera_enabled_=true;
+    if(area==0){exterior_camera->select_preset(0);return;}
+    const auto setting=std::find_if(camera_settings_.begin(),camera_settings_.end(),[&](const auto& s){return s.id==int(area)-1;});
+    // 0x138a50 provides these defaults when a settings ID is absent.
+    const auto value=setting==camera_settings_.end()?FieldCameraSetting{0,
+        __builtin_bit_cast(float, (0xc1a01449u)),__builtin_bit_cast(float, (0x3f7c2917u)),__builtin_bit_cast(float, (0xc11028d4u)),0}:*setting;
+    if(value.mode!=0)throw std::runtime_error("Alternate exterior camera mode is unrecovered");
+    exterior_camera->configure(value.height,value.scale,value.target);
+}
 void OpeningField::load_exploration_collision(Bytes xcl,Bytes variables) {
     if(!actor(-1)||collision_||actors_.size()!=3 || actors_[0].alias!=-8 ||
        actors_[1].alias!=-9 || actors_[2].alias!=-1)
@@ -285,8 +296,9 @@ void OpeningField::build_collision(Bytes xcl) {
 }
 void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned entrance) {
     Rounding rounding;
-    if(definition_||actors_.empty()||actors_.back().alias!=-1||definition.type!=1||definition.party)
+    if(definition_||actors_.empty()||actors_.back().alias!=-1||definition.type>1||definition.party)
         throw std::runtime_error("Unrecovered field entry construction");
+    if(definition.type==0&&!exterior_camera)throw std::runtime_error("Exterior field requires session camera state");
     if(definition.npcs.size()+1!=actors_.size())throw std::runtime_error("Field entry NPC bindings differ");
     const auto placement=field_entrance(stg,entrance);
     for(const auto& npc:definition.npcs) {
@@ -313,9 +325,15 @@ void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned
         player_.trigger_index=std::uint32_t(player_.floor_contact)>>8;
     player_.history.fill(desired);
     player_.mask=0;player_.motion=1;exploration_handoff_=true;
-    load_exploration_camera(stg);
-    const auto camera=anchored_camera(desired,*exploration_camera_,angles_,sine_);
-    script_.set_channel(0,camera.position);requested_target_=camera.target;camera_mode_=2;
+    if(definition_->type==0) {
+        camera_settings_=field_camera_settings(stg);
+        script_.set_channel(0,exterior_camera->begin(desired));
+        configure_exterior_camera(player_.camera_area);exterior_camera_enabled_=true;
+    } else {
+        load_exploration_camera(stg);
+        const auto camera=anchored_camera(desired,*exploration_camera_,angles_,sine_);
+        script_.set_channel(0,camera.position);requested_target_=camera.target;camera_mode_=2;
+    }
     if(!get_variable||!set_variable)throw std::runtime_error("Field entry requires native variables");
     if(definition_->startup) {
         saved_input_gate_=get_variable(0x40006);set_variable(6,4,1);input_gate_saved_=true;
@@ -390,7 +408,7 @@ void OpeningField::move_player(ExplorationInput input) {
             state.contact_bubble=attach_bubble(0,-1)|0x1000;
             effects_[state.contact_bubble&0xfff]->player_contact=true;
         }
-        if(state.camera_area)
+        if(state.camera_area&&(!definition_||definition_->type!=0))
             throw std::runtime_error("Field contact camera area is unrecovered");
     }
     if(motion==3) {
@@ -440,7 +458,12 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             transition_=FieldTransition{b,a};return {pc+4};
         case 0x53:
             // Original 0x1307e0 only changes the camera for exterior class 0.
-            if(!definition_||definition_->type!=1)return pending();
+            if(!definition_)return pending();
+            if(definition_->type==0) {
+                if(!exterior_camera)return pending();
+                exterior_camera_enabled_=b>=0;
+                if(b>=0){exterior_camera->select_preset(unsigned(b));exterior_camera->phase=0;}
+            }
             return {pc+4};
         case 7:
             if(b==-2)script_.set_channel_target(nullptr);
@@ -548,6 +571,13 @@ void OpeningField::tick(ExplorationInput input) {
     // Field manager 0x133a98 runs before the event pass. Case 5 detects the
     // ended script and selects the room camera; case 0 updates it next frame.
     const bool was_transitioning=bool(transition_);
+    const bool exterior=definition_&&definition_->type==0;
+    auto update_exterior_camera=[&] {
+        const auto& values=actor(-1)->animation().values();
+        const auto camera=exterior_camera->tick(values.at(1),values.at(0),script_.values().at(0),input.held,input.look_x,
+                                                *collision_,angles_,sine_);
+        script_.set_channel(0,camera.position);requested_target_=camera.target;camera_mode_=2;
+    };
     bool move=false;
     if(transition_) {
         if(transition_->ready)throw std::runtime_error("Destination loader did not consume field transition");
@@ -557,7 +587,8 @@ void OpeningField::tick(ExplorationInput input) {
             transition_service(transition_->countdown);
         } else transition_->ready=true;
     }
-    if(!was_transitioning&&exploration_camera_&&!event_running()) {
+    if(!was_transitioning&&exterior&&!exploration_handoff_&&exterior_camera_enabled_)update_exterior_camera();
+    if(!was_transitioning&&(exploration_camera_||exterior)&&!event_running()) {
         if(exploration_handoff_) {
             interact(input);
             move=!event_running()&&!transition_;
@@ -567,6 +598,7 @@ void OpeningField::tick(ExplorationInput input) {
             // selected motion; 0x134c18 chooses it on the next player update.
             player_.floor_contact=0;player_.trigger_kind=player_.trigger_index=0;
             player_.mask&=~1u;player_.motion=-1;
+            if(exterior){exterior_camera_enabled_=true;exterior_camera->manual_rotate=true;exterior_camera->phase=0;}
             if(input_gate_saved_) {
                 // Mode 5 clears field +0x64 before 0x132ca8. The NPC therefore
                 // retains state 3 and its event-selected motion/interpolation;
@@ -575,13 +607,15 @@ void OpeningField::tick(ExplorationInput input) {
             }
         }
     }
+    if(move&&exterior&&exterior_camera_enabled_)update_exterior_camera();
+    if(move&&exterior&&player_.camera_area!=configured_camera_area_)configure_exterior_camera(player_.camera_area);
     advance_effects(true);
     update_npcs();
     if(encounter_)return;
     // Mode14 changes the field manager, not the player's movement mask.
     // 0x1354d8 still runs movement while bit0 is clear during the countdown.
     if(move||transition_)move_player(input);
-    if(move) {
+    if(move&&!exterior) {
         const auto camera=anchored_camera(actor(-1)->animation().values().at(1),*exploration_camera_,angles_,sine_);
         script_.set_channel(0,camera.position);requested_target_=camera.target;camera_mode_=2;
     }
@@ -645,6 +679,20 @@ AnchoredCamera field_anchored_camera(Bytes stg) {
         result.target_height=number(at+12);return result;
     }
     throw std::runtime_error("STG anchored camera has no default settings");
+}
+std::vector<FieldCameraSetting> field_camera_settings(Bytes stg) {
+    if(get(stg,0)!=0x475453)throw std::runtime_error("Invalid STG magic");
+    const std::uint64_t begin=get(stg,16),count=get(stg,20),end=get(stg,24);
+    if(begin<32||begin%4||count>30||end>stg.size()||begin+count*28>end||
+       (end-begin-count*28)%28||(end-begin-count*28)/28>30)throw std::runtime_error("Invalid STG camera tables");
+    std::vector<FieldCameraSetting> result;
+    for(auto at=begin+count*28;at<end;at+=28) {
+        FieldCameraSetting setting;setting.id=__builtin_bit_cast(std::int16_t, (std::uint16_t(get(stg,at)>>16)));
+        std::array<float*,4> fields{&setting.height,&setting.scale,&setting.target,&setting.mode};
+        for(unsigned i=0;i<4;++i){*fields[i]=__builtin_bit_cast(float, (get(stg,at+4+i*4)));if(!std::isfinite(*fields[i]))throw std::runtime_error("Invalid STG camera setting");}
+        result.push_back(setting);
+    }
+    return result;
 }
 FieldEntrance field_entrance(Bytes stg,unsigned entrance) {
     if(get(stg,0)!=0x475453)throw std::runtime_error("Invalid STG magic");

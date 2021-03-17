@@ -1,0 +1,189 @@
+{
+  "scope": "228 camera collision cases per build:60 synthetic room and168 owned FIELD_1D cases",
+  "builds": {
+    "native": {
+      "scope": "Original sphere-wall, segment obstruction and camera sphere map resolution",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "native_sha256": "4e6b9725f74676183c5d6a1521ab1cba21dd6ed41206b943a8203d2b514de388",
+      "cases": [
+        {
+          "name": "room",
+          "count": 60,
+          "exact": true,
+          "hits": 36,
+          "sha256": {
+            "local/camera-collision-native-final/room.xcl": "1926d62e7a8c704b45bba8f389ea7d07406efe605599721443973c923b03a849",
+            "local/camera-collision-native-final/room.inputs.bin": "8ae12bb4451a75a4547c60e75b1a70baa7140ccf9b2b5efe2011131db6ccb3b1",
+            "local/camera-collision-v2/room.original.bin": "73f3c9349da2b7fade123726f3ae5e3f916683a52ea984565b85c8c002a9be59",
+            "local/camera-collision-native-final/room.native.bin": "73f3c9349da2b7fade123726f3ae5e3f916683a52ea984565b85c8c002a9be59"
+          }
+        },
+        {
+          "name": "outdoor",
+          "count": 168,
+          "exact": true,
+          "hits": 92,
+          "sha256": {
+            "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.xcl": "5b68b79957751c4d066ece44d32c423ad123c747917fb64ff666add10550e7fb",
+            "local/camera-collision-native-final/outdoor.inputs.bin": "8b10e57efd96ca2ef5ffc6904c410b06d164410acefa749df750a041e5339db2",
+            "local/camera-collision-v2/outdoor.original.bin": "950a298c0de569621d7b55826537f0e1f60b3086bf4b6e098385aa1604c58dbe",
+            "local/camera-collision-native-final/outdoor.native.bin": "950a298c0de569621d7b55826537f0e1f60b3086bf4b6e098385aa1604c58dbe"
+          }
+        }
+      ],
+      "commands": [
+        [
+          "build/native/okage-assets",
+          "xcl-camera",
+          "local/camera-collision-native-final/room.xcl",
+          "local/camera-collision-native-final/room.inputs.bin",
+          "local/camera-collision-native-final/room.native.bin"
+        ],
+        [
+          "build/native/okage-assets",
+          "xcl-camera",
+          "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.xcl",
+          "local/camera-collision-native-final/outdoor.inputs.bin",
+          "local/camera-collision-native-final/outdoor.native.bin"
+        ]
+      ],
+      "limits": [
+        "Bounded synthetic inputs, not a complete outdoor camera or scene.",
+        "Normal W is undefined in the original and excluded.",
+        "Original query services are unpatched; no reference RAM is required."
+      ]
+    },
+    "native-release": {
+      "scope": "Original sphere-wall, segment obstruction and camera sphere map resolution",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "native_sha256": "c9ed1b13ef5f46b2e753aa2980073b4cccc62871a9eafa2df5683f345db9c837",
+      "cases": [
+        {
+          "name": "room",
+          "count": 60,
+          "exact": true,
+          "hits": 36,
+          "sha256": {
+            "local/camera-collision-native-release-final/room.xcl": "1926d62e7a8c704b45bba8f389ea7d07406efe605599721443973c923b03a849",
+            "local/camera-collision-native-release-final/room.inputs.bin": "8ae12bb4451a75a4547c60e75b1a70baa7140ccf9b2b5efe2011131db6ccb3b1",
+            "local/camera-collision-v2/room.original.bin": "73f3c9349da2b7fade123726f3ae5e3f916683a52ea984565b85c8c002a9be59",
+            "local/camera-collision-native-release-final/room.native.bin": "73f3c9349da2b7fade123726f3ae5e3f916683a52ea984565b85c8c002a9be59"
+          }
+        },
+        {
+          "name": "outdoor",
+          "count": 168,
+          "exact": true,
+          "hits": 92,
+          "sha256": {
+            "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.xcl": "5b68b79957751c4d066ece44d32c423ad123c747917fb64ff666add10550e7fb",
+            "local/camera-collision-native-release-final/outdoor.inputs.bin": "8b10e57efd96ca2ef5ffc6904c410b06d164410acefa749df750a041e5339db2",
+            "local/camera-collision-v2/outdoor.original.bin": "950a298c0de569621d7b55826537f0e1f60b3086bf4b6e098385aa1604c58dbe",
+            "local/camera-collision-native-release-final/outdoor.native.bin": "950a298c0de569621d7b55826537f0e1f60b3086bf4b6e098385aa1604c58dbe"
+          }
+        }
+      ],
+      "commands": [
+        [
+          "build/native-release/okage-assets",
+          "xcl-camera",
+          "local/camera-collision-native-release-final/room.xcl",
+          "local/camera-collision-native-release-final/room.inputs.bin",
+          "local/camera-collision-native-release-final/room.native.bin"
+        ],
+        [
+          "build/native-release/okage-assets",
+          "xcl-camera",
+          "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.xcl",
+          "local/camera-collision-native-release-final/outdoor.inputs.bin",
+          "local/camera-collision-native-release-final/outdoor.native.bin"
+        ]
+      ],
+      "limits": [
+        "Bounded synthetic inputs, not a complete outdoor camera or scene.",
+        "Normal W is undefined in the original and excluded.",
+        "Original query services are unpatched; no reference RAM is required."
+      ]
+    },
+    "model-sanitize": {
+      "scope": "Original sphere-wall, segment obstruction and camera sphere map resolution",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "native_sha256": "47e469c6582580280e78859d32b0a1639db1e6517555a593f15bde6f64f3c14b",
+      "cases": [
+        {
+          "name": "room",
+          "count": 60,
+          "exact": true,
+          "hits": 36,
+          "sha256": {
+            "local/camera-collision-model-sanitize-final/room.xcl": "1926d62e7a8c704b45bba8f389ea7d07406efe605599721443973c923b03a849",
+            "local/camera-collision-model-sanitize-final/room.inputs.bin": "8ae12bb4451a75a4547c60e75b1a70baa7140ccf9b2b5efe2011131db6ccb3b1",
+            "local/camera-collision-v2/room.original.bin": "73f3c9349da2b7fade123726f3ae5e3f916683a52ea984565b85c8c002a9be59",
+            "local/camera-collision-model-sanitize-final/room.native.bin": "73f3c9349da2b7fade123726f3ae5e3f916683a52ea984565b85c8c002a9be59"
+          }
+        },
+        {
+          "name": "outdoor",
+          "count": 168,
+          "exact": true,
+          "hits": 92,
+          "sha256": {
+            "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.xcl": "5b68b79957751c4d066ece44d32c423ad123c747917fb64ff666add10550e7fb",
+            "local/camera-collision-model-sanitize-final/outdoor.inputs.bin": "8b10e57efd96ca2ef5ffc6904c410b06d164410acefa749df750a041e5339db2",
+            "local/camera-collision-v2/outdoor.original.bin": "950a298c0de569621d7b55826537f0e1f60b3086bf4b6e098385aa1604c58dbe",
+            "local/camera-collision-model-sanitize-final/outdoor.native.bin": "950a298c0de569621d7b55826537f0e1f60b3086bf4b6e098385aa1604c58dbe"
+          }
+        }
+      ],
+      "commands": [
+        [
+          "build/model-sanitize/okage-assets",
+          "xcl-camera",
+          "local/camera-collision-model-sanitize-final/room.xcl",
+          "local/camera-collision-model-sanitize-final/room.inputs.bin",
+          "local/camera-collision-model-sanitize-final/room.native.bin"
+        ],
+        [
+          "build/model-sanitize/okage-assets",
+          "xcl-camera",
+          "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.xcl",
+          "local/camera-collision-model-sanitize-final/outdoor.inputs.bin",
+          "local/camera-collision-model-sanitize-final/outdoor.native.bin"
+        ]
+      ],
+      "limits": [
+        "Bounded synthetic inputs, not a complete outdoor camera or scene.",
+        "Normal W is undefined in the original and excluded.",
+        "Original query services are unpatched; no reference RAM is required."
+      ]
+    }
+  },
+  "original_commands": [
+    [
+      "build/play-research/okage-oracle/okage-pose-oracle",
+      "xcl-camera",
+      "local/extracted/SCUS_971.29",
+      "local/camera-collision-v2/room.xcl",
+      "local/camera-collision-v2/room.inputs.bin",
+      "local/camera-collision-v2/room.original.bin"
+    ],
+    [
+      "build/play-research/okage-oracle/okage-pose-oracle",
+      "xcl-camera",
+      "local/extracted/SCUS_971.29",
+      "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.xcl",
+      "local/camera-collision-v2/outdoor.inputs.bin",
+      "local/camera-collision-v2/outdoor.original.bin"
+    ]
+  ],
+  "original_provenance": "Completed v2 outputs reused; original execution binary hash was not retained before adding the exterior-camera-step command. Current source preserves those calls and adds only input-bound rejection for different mode2 settings.",
+  "original_log_sha256": "1657997d39fdae2bf29188ef4428899bfe83dad4caec99c65eb78244c47807ec",
+  "failed_comparisons": [
+    "v1:four sphere edge correction W mismatches; this original helper does not write W there.",
+    "v2:26 outdoor obstruction correction mismatches; native omitted wrapper add/subtract rounding. Native v3 and final builds pass against the completed v2 originals."
+  ],
+  "limits": [
+    "Each query begins with a fresh original collision record; undefined sphere edge/vertex correction W is zeroed by the harness and normalized to zero natively.",
+    "All defined contact and position outputs match exactly; this is not a full camera/scene replay."
+  ]
+}

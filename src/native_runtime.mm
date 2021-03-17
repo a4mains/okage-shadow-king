@@ -56,6 +56,7 @@ struct Session {
     std::vector<std::uint32_t> choice_trace;
     std::array<std::uint8_t,0x1000> variables{};
     okage::GameRandom random{1};
+    okage::ExteriorCamera exterior_camera;
     okage::DialogueWaitState wait{5,1};
     unsigned frame=0,release_frame=0,close_frame=0,close_release_frame=0;
     std::unique_ptr<okage::DryMusicPlayer> music;
@@ -156,6 +157,7 @@ struct Session {
         },actor_bindings,diagnostic);
         if(map_objects)field->bind_map_objects(map_objects->bindings());
         field->random_value=[this]{return random.next();};
+        field->exterior_camera=&exterior_camera;
         field->set_variable=[this](unsigned index,unsigned bank,std::int32_t value){okage::set_event_variable(variables,index,bank,value);};
         field->get_variable=[this](std::uint32_t selector){return okage::event_variable(variables,selector);};
         field->transition_service=[this](unsigned countdown){

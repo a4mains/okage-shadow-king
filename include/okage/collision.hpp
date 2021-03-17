@@ -58,6 +58,15 @@ struct CollisionMap {
     // Original 0x189258 order; mode 1 reverses Y, modes 0/2 ascend.
     // Returns chunk indices, preserving repeated cells and original ordering.
     std::vector<std::uint32_t> query(const Float4& first,const Float4& second,unsigned mode=0) const;
+    // Original 0x189ab8: clip against cells and order by center distance.
+    std::vector<std::uint32_t> segment_query(const Float4& first,const Float4& second) const;
+    // Original 0x1882a0/0x18c960, first candidate chunk with a hit; record flags0.
+    SurfaceContact segment_contact(const Float4& first,const Float4& second,std::uint32_t disabled_mask=0) const;
+    SurfaceContact sphere_wall_contact(const Float4& previous,const Float4& desired,
+                                       const Float4& offset,float radius,std::int32_t normal_threshold,
+                                       std::uint32_t disabled_mask=0) const;
+    // 0x1ba8c8 camera sphere and 0x186fa0's two map-resolution passes.
+    MapContact camera_move(const Float4& previous,Float4& desired,std::uint32_t disabled_mask=4) const;
     SurfaceContact vertical_contact(const Float4& previous,const Float4& desired,
                                     bool ceiling,float floor_reach,
                                     std::int32_t normal_threshold,std::uint32_t disabled_mask=0) const;

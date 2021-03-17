@@ -189,6 +189,29 @@ int main(){try {
         require(!scene.event_running()&&okage::event_variable(vars,0x40006)==test[4]);
     }
     idle.resize(80);put(idle,4,48);
+    for(bool frozen_camera:{true,false}) {
+        auto exterior_stage=stage;put(exterior_stage,76,0);
+        const auto settings=okage::field_camera_settings(exterior_stage);
+        require(settings.size()==1&&settings[0].id==0&&settings[0].height==10&&settings[0].mode==0);
+        put(startup,40,frozen_camera?0xfff00053:0x53);put(startup,44,0x200002);put(startup,48,0);
+        okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
+        const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
+        okage::OpeningField scene(startup,[](int){},[](int){return true;},player,false);
+        okage::ExteriorCamera manager;scene.exterior_camera=&manager;
+        std::array<std::uint8_t,0x1000> vars{};
+        scene.get_variable=[&](auto selector){return okage::event_variable(vars,selector);};
+        scene.set_variable=[&](auto index,auto bank,auto value){okage::set_event_variable(vars,index,bank,value);};
+        okage::FieldDefinition entry;entry.type=0;entry.startup=1;
+        scene.enter(entry,exterior_stage,empty_map,0);const auto frozen=scene.position;
+        require(scene.event_running());
+        for(unsigned i=0;i<3;++i){scene.tick();if(frozen_camera)require(scene.position==frozen);}
+        const float offset_before_handoff=manager.target_offset;
+        require(!scene.event_running());scene.tick();require(manager.manual_rotate&&manager.phase==0);
+        if(!frozen_camera)require(manager.target_offset<offset_before_handoff);
+        const auto previous=hero.animation().values()[1];scene.tick({0x4000});
+        require(manager.phase>0&&manager.previous_player==previous&&scene.camera_mode()==2);
+        require(manager.previous_player!=hero.animation().values()[1]);
+    }
     for(unsigned enemy_index:{0u,1u}) {
         okage::ModelFile enemy_model,player_model,ordinary_model;
         enemy_model.models.emplace_back();player_model.models.emplace_back();ordinary_model.models.emplace_back();
