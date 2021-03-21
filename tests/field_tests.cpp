@@ -111,6 +111,15 @@ int main(){try {
     require(map_event.collision_bodies().empty());
     word(0xb88,0);rejects([&]{okage::OpeningField bad(b,[](int){},[](int){return true;});});
     rejects([&]{okage::field_projection({});});
+    b.assign(52,0);word(0,0x475453);word(8,32);word(12,1);word(32,0x44);
+    word(36,__builtin_bit_cast(unsigned, (1.f)));word(40,__builtin_bit_cast(unsigned, (.47f)));word(44,__builtin_bit_cast(unsigned, (1024.f)));
+    const auto default_projection=okage::field_projection(b);
+    word(48,__builtin_bit_cast(unsigned, (9.99f)));require(okage::field_projection(b)==default_projection);
+    word(48,__builtin_bit_cast(unsigned, (450.f)));const auto outdoor_projection=okage::field_projection(b);
+    require(outdoor_projection[0]==default_projection[0]&&outdoor_projection[1]==default_projection[1]);
+    require(outdoor_projection[2]!=default_projection[2]&&outdoor_projection[3]!=default_projection[3]);
+    word(48,__builtin_bit_cast(unsigned, (10.f)));require(okage::field_projection(b)!=default_projection);
+    word(48,0x7fc00000);rejects([&]{okage::field_projection(b);});
     b.assign(88,0);word(0,0x475453);word(16,32);word(20,1);word(24,88);
     point(36,{0,0,0,1});point(64,{10,.5f,-2,1});word(76,__builtin_bit_cast(std::uint32_t, (1.f)));
     const auto settings=okage::field_anchored_camera(b);
@@ -163,6 +172,31 @@ int main(){try {
     state=okage::field_setup_state(b,variables,construction);require(get(0x414)==9);
     const auto prepared=okage::prepare_field_definition(b,variables,construction);
     require(prepared.type==0&&prepared.dust==9&&prepared.field_flags==7);
+    b.resize(56);word(4,24);word(32,(16u<<20)|(1u<<8)|11);word(36,0x40006);word(40,0);
+    word(44,(5u<<20)|(9u<<8)|0x59);word(48,0);
+    construction.scene=1;construction.party=1;
+    for(int disabled:{0,1,-1}) {
+        std::array<std::uint8_t,0x1000> vars{};
+        okage::set_event_variable(vars,3,0,1);okage::set_event_variable(vars,3,1,1);
+        okage::set_event_variable(vars,5,4,disabled);okage::set_event_variable(vars,6,4,17);
+        for(unsigned index=25;index<30;++index)okage::set_event_variable(vars,index,4,index==26||index==29?3:2);
+        const auto entry=okage::prepare_field_entry(b,vars,construction,1);
+        require(entry.party==unsigned(!disabled)&&entry.dust==(disabled?17u:9u));
+        require(entry.followers==(disabled?std::vector<unsigned>{}:std::vector<unsigned>{26,29}));
+        require(okage::event_variable(vars,0x40006)==bool(disabled));
+        require(okage::event_variable(vars,0x40000)==1&&okage::event_variable(vars,0x40001)==1);
+        require(okage::event_variable(vars,3)==0&&okage::event_variable(vars,0x10003)==1);
+        require(okage::event_variable(vars,0x4001a)==3); // Roster is never forced or cleared.
+    }
+    {
+        std::array<std::uint8_t,0x1000> vars{};
+        const auto entry=okage::prepare_field_entry(b,vars,construction,0);
+        require(entry.party==1&&entry.followers.empty()&&okage::event_variable(vars,0x40006)==0);
+        construction.party=0;okage::set_event_variable(vars,25,4,3);
+        const auto solo=okage::prepare_field_entry(b,vars,construction,0);
+        require(solo.party==0&&solo.followers.empty()&&okage::event_variable(vars,0x40006)==1);
+        rejects([&]{okage::prepare_field_entry(b,std::span(vars).first(0x587),construction,0);});
+    }
     auto put=[](auto& data,unsigned at,std::uint32_t value){for(unsigned i=0;i<4;++i)data.at(at+i)=value>>(i*8);};
     std::vector<std::uint8_t> stage(116),empty_map(69),idle(56),startup(56);
     put(stage,0,0x475453);put(stage,16,32);put(stage,20,1);put(stage,24,88);put(stage,28,1);
@@ -201,7 +235,7 @@ int main(){try {
         std::array<std::uint8_t,0x1000> vars{};
         scene.get_variable=[&](auto selector){return okage::event_variable(vars,selector);};
         scene.set_variable=[&](auto index,auto bank,auto value){okage::set_event_variable(vars,index,bank,value);};
-        okage::FieldDefinition entry;entry.type=0;entry.startup=1;
+        okage::FieldDefinition entry;entry.type=0;entry.startup=1;entry.party=1;
         scene.enter(entry,exterior_stage,empty_map,0);const auto frozen=scene.position;
         require(scene.event_running());
         for(unsigned i=0;i<3;++i){scene.tick();if(frozen_camera)require(scene.position==frozen);}
@@ -211,6 +245,22 @@ int main(){try {
         const auto previous=hero.animation().values()[1];scene.tick({0x4000});
         require(manager.phase>0&&manager.previous_player==previous&&scene.camera_mode()==2);
         require(manager.previous_player!=hero.animation().values()[1]);
+    }
+    put(startup,40,0x144);put(startup,44,0);
+    {
+        okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
+        const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
+        okage::OpeningField scene(startup,[](int){},[](int){return true;},player,false);
+        std::array<std::uint8_t,0x1000> vars{};
+        scene.get_variable=[&](auto selector){return okage::event_variable(vars,selector);};
+        scene.set_variable=[&](auto index,auto bank,auto value){okage::set_event_variable(vars,index,bank,value);};
+        okage::FieldDefinition entry;entry.type=1;entry.startup=1;entry.music=10;
+        scene.enter(entry,stage,empty_map,0);require(scene.pending_opcode==0x44&&scene.event_running());
+        unsigned calls=0;scene.music_service=[&](int id,bool fade){require(id==10&&fade);++calls;return true;};
+        scene.tick();require(calls==1&&!scene.event_running()&&scene.pending_opcode==0);
+        entry.followers={25};
+        okage::OpeningField unsupported(startup,[](int){},[](int){return true;},player,false);
+        rejects([&]{unsupported.enter(entry,stage,empty_map,0);});
     }
     for(unsigned enemy_index:{0u,1u}) {
         okage::ModelFile enemy_model,player_model,ordinary_model;

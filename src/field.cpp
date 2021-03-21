@@ -136,6 +136,23 @@ FieldDefinition prepare_field_definition(Bytes script,Bytes variables,FieldDefin
     std::erase_if(definition.npcs,[](const auto& npc){return !npc.flags;});
     return definition;
 }
+FieldDefinition prepare_field_entry(Bytes script,std::span<std::uint8_t> variables,
+                                    FieldDefinition definition,unsigned entrance) {
+    // 0x125ad0 clears temporary flags. 0x131d28 applies the persistent party
+    // disable and writes the encounter gate BEFORE executing entry zero.
+    if(variables.size()<0x588 || definition.scene<0 || entrance>0x7fffffff)
+        throw std::runtime_error("Invalid field entry variables/scene/entrance");
+    std::fill(variables.begin()+0x10,variables.begin()+0x110,0);
+    set_event_variable(variables,0,4,definition.scene);
+    set_event_variable(variables,1,4,int(entrance));
+    if(event_variable(variables,0x40005))definition.party=0;
+    set_event_variable(variables,6,4,definition.party==0);
+    definition=prepare_field_definition(script,variables,std::move(definition));
+    definition.followers.clear();
+    if(definition.party)for(unsigned index=25;index<30;++index)
+        if(event_variable(variables,0x40000|index)==3)definition.followers.push_back(index);
+    return definition;
+}
 void OpeningField::load_interactions(Bytes database,const std::string& room,Bytes variables) {
     if(definition_||!actor(-1))throw std::runtime_error("Field interactions require one configuration and a player");
     auto definition=prepare_field_definition(bytes_,variables,read_field_definition(database,room));
@@ -296,8 +313,9 @@ void OpeningField::build_collision(Bytes xcl) {
 }
 void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned entrance) {
     Rounding rounding;
-    if(definition_||actors_.empty()||actors_.back().alias!=-1||definition.type>1||definition.party)
+    if(definition_||actors_.empty()||actors_.back().alias!=-1||definition.type>1)
         throw std::runtime_error("Unrecovered field entry construction");
+    if(!definition.followers.empty())throw std::runtime_error("Field follower construction is unrecovered");
     if(definition.type==0&&!exterior_camera)throw std::runtime_error("Exterior field requires session camera state");
     if(definition.npcs.size()+1!=actors_.size())throw std::runtime_error("Field entry NPC bindings differ");
     const auto placement=field_entrance(stg,entrance);
@@ -506,6 +524,14 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
                 return {pc+4};
             }
             return pending();
+        case 0x44: {
+            // 0x130a30: b=0 selects this field's default, a>0 starts at zero
+            // and requests the fixed rate8 fade. Selection need not restart.
+            if(!b&&!definition_)return pending();
+            const int id=b?b:definition_->music;
+            if(music_service&&music_service(id,a>0)){pending_opcode=0;return {pc+4};}
+            return pending();
+        }
         case 0x45:
             if(audio_service && audio_service(a,b)){pending_opcode=0;return {pc+4};}
             return pending();
@@ -552,7 +578,8 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             else moving->animation().turn_component(0,1,angle,duration);
             return {pc+(op==0x5a ? 4u : 16u)};
         }
-        default:throw std::runtime_error("Unrecovered field service "+std::to_string(op));
+        default:throw std::runtime_error("Unrecovered field service "+std::to_string(op)+
+            " at PC "+std::to_string(pc)+" (a="+std::to_string(a)+", b="+std::to_string(b)+")");
     }
 }
 void OpeningField::evaluate() {
@@ -655,9 +682,12 @@ Float4 field_projection(Bytes stg) {
         if(found)throw std::runtime_error("Multiple STG projection records");found=true;
         for(unsigned j=0;j<4;++j){settings[j]=__builtin_bit_cast(float, (get(stg,begin+i*20+4+j*4)));if(!std::isfinite(settings[j]))throw std::runtime_error("Non-finite STG projection");}
     }
-    if(!found || settings[0]<=0 || settings[1]<=0 || settings[2]<=0 || settings[3]>=10)throw std::runtime_error("Unsupported STG projection");
+    if(!found || settings[0]<=0 || settings[1]<=0 || settings[2]<=0)throw std::runtime_error("Unsupported STG projection");
+    // 0x1bb1a4..0x1bb1cc retains the fourth record value in f13 and calls
+    // 0x1b7f98 with f12=3 when it is >=10: near/far, not a second focal length.
+    const float far=settings[3]>=10?settings[3]:1024.f;
     return {(settings[2]*settings[0])/320.f,(settings[2]*settings[1])/112.f,
-        (1024.f+3.f)/(1024.f-3.f),((1024.f*-2.f)*3.f)/(1024.f-3.f)};
+        (far+3.f)/(far-3.f),((far*-2.f)*3.f)/(far-3.f)};
 }
 AnchoredCamera field_anchored_camera(Bytes stg) {
     if(get(stg,0)!=0x475453)throw std::runtime_error("Invalid STG magic");

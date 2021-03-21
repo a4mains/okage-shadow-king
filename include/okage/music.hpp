@@ -3,6 +3,7 @@
 #include "okage/voice.hpp"
 #include <memory>
 #include <optional>
+#include <functional>
 
 namespace okage {
 struct MusicVolumeRamp {
@@ -41,5 +42,36 @@ private:
     void driver_tick();
     void update(Voice&);
     void note(const MusicEvent&);
+};
+struct MusicResource {
+    std::vector<std::uint8_t> sequence;
+    MusicBank bank;
+    std::optional<MusicBank> second;
+    // Loaded with the secondary score; playback remains a separate service.
+    std::vector<std::uint8_t> alternate;
+};
+struct MusicResourceNames {const char* sequence;const char* primary_bank;const char* alternate;};
+// Reviewed entries from retail table0x1fb530, not a fabricated filename rule.
+MusicResourceNames music_resource_names(int id);
+class MusicRouter {
+public:
+    using Loader=std::function<MusicResource(int)>;
+    MusicVolumeRamp volume;
+    void install(unsigned slot,int id,MusicResource resource);
+    void enter(int primary,int secondary,const Loader& load);
+    void select(int id,bool fade=false);
+    void stop();
+    void render(std::span<std::int16_t> stereo);
+    int loaded_id(unsigned slot) const{return ids_.at(slot);}
+    int current_id() const{return current_;}
+    int active_slot() const{return active_slot_;}
+    const DryMusicPlayer* player() const{return player_.get();}
+private:
+    std::array<std::optional<MusicResource>,2> slots_;
+    std::array<int,2> ids_={-1,-1};
+    int current_=-1,active_slot_=-1;
+    std::unique_ptr<DryMusicPlayer> player_;
+    void unload(unsigned slot);
+    void ensure(unsigned slot,int id,const Loader& load);
 };
 }

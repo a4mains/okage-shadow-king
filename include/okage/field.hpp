@@ -18,6 +18,7 @@ struct FieldDefinition {
     unsigned footstep=33,dust=0;
     std::string room_directory,room,message,event;
     std::vector<FieldNpcDefinition> npcs;
+    std::vector<unsigned> followers;
 };
 FieldDefinition read_field_definition(Bytes database,const std::string& room);
 FieldDefinition read_field_definition(Bytes database,int scene);
@@ -25,6 +26,8 @@ FieldDefinition read_field_definition(Bytes database,int scene);
 // not cold game initialization; inputs must already contain scene/entrance/gate.
 std::array<std::uint8_t,0x800> field_setup_state(Bytes script,Bytes variables,const FieldDefinition& definition);
 FieldDefinition prepare_field_definition(Bytes script,Bytes variables,FieldDefinition definition);
+FieldDefinition prepare_field_entry(Bytes script,std::span<std::uint8_t> variables,
+                                    FieldDefinition definition,unsigned entrance);
 struct FieldEntrance {Float4 position{},rotation{};};
 FieldEntrance field_entrance(Bytes stg,unsigned entrance);
 struct FieldTransition {int scene;unsigned entrance,countdown=2;bool ready=false;};
@@ -62,6 +65,7 @@ public:
     Float4 position{},target{},rotation{};
     CameraBlend blend;
     std::function<bool(unsigned,std::int32_t)> audio_service;
+    std::function<bool(std::int32_t,bool)> music_service;
     std::function<bool(unsigned,std::int32_t,float,unsigned)> sound_cue;
     std::function<void(unsigned,unsigned,std::int32_t)> set_variable;
     std::function<std::int32_t(std::uint32_t)> get_variable;
@@ -122,8 +126,6 @@ private:
     Float4 point(std::size_t) const;
     void evaluate();
 };
-// Clip-space projection coefficients x/y/z scale and z offset. Uses the STG
-// projection record and recovered 640x224 field near/far defaults (3,1024).
 Float4 field_projection(Bytes stg);
 AnchoredCamera field_anchored_camera(Bytes stg);
 }

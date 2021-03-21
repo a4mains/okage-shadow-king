@@ -23,6 +23,13 @@ static std::vector<std::uint8_t> readData(const fs::path& path) {
     std::vector<std::uint8_t> b(n);std::ifstream in(path,std::ios::binary);
     if(!in.read(reinterpret_cast<char*>(b.data()),b.size()))throw std::runtime_error("Cannot read runtime input");return b;
 }
+static okage::TextureAnimation readActorTextures(const fs::path& path) {
+    // 0x1b6a18 initializes empty bindings and ignores 0x1b6848's missing-XTA
+    // return. RKUMO/BKUMO have no companion; texture operations still validate.
+    if(!fs::exists(path))return {};
+    const auto data=readData(path);
+    return okage::read_xta({reinterpret_cast<const char*>(data.data()),data.size()});
+}
 struct DirectionReplay {
     std::vector<std::pair<unsigned,std::uint16_t>> entries;
     void load(const fs::path& path){
@@ -59,27 +66,43 @@ struct Session {
     okage::ExteriorCamera exterior_camera;
     okage::DialogueWaitState wait{5,1};
     unsigned frame=0,release_frame=0,close_frame=0,close_release_frame=0;
-    std::unique_ptr<okage::DryMusicPlayer> music;
+    std::unique_ptr<okage::MusicRouter> music;
     std::unique_ptr<okage::AudioOutput> audio_output;
-    okage::MusicVolumeRamp music_volume;
     std::vector<std::int16_t> audio_capture;
     std::vector<std::uint32_t> music_trace;
     bool record_audio=false;
-    fs::path sound_directory;
+    fs::path sound_directory,music_directory;
     std::map<unsigned,std::unique_ptr<okage::StreamPlayer>> sound_banks;
     std::vector<std::uint32_t> sound_trace;
+    okage::MusicResource read_music_resource(const fs::path& sequence,const fs::path& bank,const fs::path& alternate={}) {
+        okage::MusicResource resource;
+        resource.sequence=readData(sequence);resource.bank=okage::read_music_bank(readData(bank));
+        const auto second_path=sequence.parent_path()/(sequence.stem().string()+"1.XV");
+        if(fs::exists(second_path))resource.second=okage::read_music_bank(readData(second_path));
+        if(!alternate.empty())resource.alternate=readData(alternate);
+        return resource;
+    }
+    okage::MusicResource read_music_resource(int id) {
+        if(music_directory.empty())throw std::runtime_error("Destination music requires an imported BGM directory");
+        const auto names=okage::music_resource_names(id);
+        const auto alternate=*names.alternate?music_directory/(std::string(names.alternate)+".XSQ"):fs::path{};
+        return read_music_resource(music_directory/(std::string(names.sequence)+".XSQ"),
+                                   music_directory/(std::string(names.primary_bank)+".XV"),alternate);
+    }
     void load_music(const fs::path& sequence,const fs::path& bank,bool record,const fs::path& sounds){
         // 0x12d158 loads <sequence>1.xv if present and binds it to bank slot1.
         // The supplied primary bank can differ (the original jingles share one).
-        const auto second_path=sequence.parent_path()/(sequence.stem().string()+"1.XV");
-        std::optional<okage::MusicBank> second;
-        if(fs::exists(second_path))second=okage::read_music_bank(readData(second_path));
-        music=std::make_unique<okage::DryMusicPlayer>(readData(sequence),okage::read_music_bank(readData(bank)),std::move(second));
+        music_directory=sequence.parent_path();music=std::make_unique<okage::MusicRouter>();
+        int id=0;
+        for(int candidate:{10,26,51})if(sequence.stem()==okage::music_resource_names(candidate).sequence &&
+                                      bank.stem()==okage::music_resource_names(candidate).primary_bank)id=candidate;
+        const auto alternate=id==26?music_directory/"SNT_DNM2.XSQ":fs::path{};
+        music->install(0,id,read_music_resource(sequence,bank,alternate));music->select(id);
         record_audio=record;sound_directory=sounds;
         if(!sound_directory.empty())sound_banks.emplace(0,std::make_unique<okage::StreamPlayer>(
             okage::read_stream_bank(readData(sound_directory/"ALL.XWS"))));
         bind_audio_services();
-        std::cout<<"Native dry music enabled: original sequence/bank, reverb and SFX pending\n";
+        std::cout<<"Native dry music enabled: original sequence/banks; reverb pending\n";
     }
 
     void bind_audio_services() {
@@ -97,7 +120,12 @@ struct Session {
             }
             if(operation==2){sound_banks.erase(1);return true;}
             if((operation!=4 && operation!=5) || argument<0)return false;
-            music_volume.request(operation==4 ? 128 : 80,unsigned(argument));return true;
+            if(!music)return false;
+            music->volume.request(operation==4 ? 128 : 80,unsigned(argument));return true;
+        };
+        if(field)field->music_service=[this](int id,bool fade){
+            if(!music)return false;
+            music->select(id,fade);return true;
         };
         if(field)field->sound_cue=[this](unsigned bank,int index,float speed,unsigned volume){
             auto found=sound_banks.find(bank);if(found==sound_banks.end())return false;
@@ -131,7 +159,7 @@ struct Session {
         scene_fade.current=scene_fade.target=1; // Already lit diagnostic entry.
     }
     fs::path field_root,event_directory,effect_data,effect_textures;
-    int current_scene=-1,current_entrance=0,current_music=0;
+    int current_scene=-1,current_entrance=0;
     std::vector<std::uint32_t> transition_trace;
     std::optional<okage::Texture> transition_image;
     unsigned transition_alpha=0,transition_target=0;
@@ -169,9 +197,8 @@ struct Session {
         std::vector<okage::SceneActor> scene_actors;
         for(const auto& [alias,path]:assets) {
             auto motion=path,xta=path;motion.replace_extension(".xmt");xta.replace_extension(".xta");
-            const auto data=readData(xta);
             auto object=std::make_unique<okage::FieldActor>(okage::read_xmd(readData(path)),readData(motion),
-                okage::read_xta(std::string_view(reinterpret_cast<const char*>(data.data()),data.size())));
+                readActorTextures(xta));
             actor_bindings.push_back({alias,object.get()});scene_actors.push_back({object.get(),path});
             actor_objects.push_back(std::move(object));
         }
@@ -186,7 +213,7 @@ struct Session {
             field_root=event.parent_path().parent_path().parent_path();event_directory=event.parent_path();
             const auto database=readData(field_root/"FLDSET.XDB");
             const auto definition=okage::read_field_definition(database,room);
-            current_scene=definition.scene;current_music=definition.music;
+            current_scene=definition.scene;
             field->load_interactions(database,room,variables);
             field->load_exploration_camera(readData(stg));
             auto xcl=map;xcl.replace_extension(".xcl");field->load_exploration_collision(readData(xcl),variables);
@@ -201,13 +228,7 @@ struct Session {
     }
     void load_destination(const okage::FieldTransition& request) {
         auto definition=okage::read_field_definition(readData(field_root/"FLDSET.XDB"),request.scene);
-        if(definition.party||definition.type!=1||definition.message!="field")
-            throw std::runtime_error("Destination party/type/message bank is unrecovered");
-        // Field constructor 0x125ad0 clears only the temporary bank0 bits.
-        std::fill(variables.begin()+0x10,variables.begin()+0x110,0);
-        okage::set_event_variable(variables,0,4,request.scene);
-        okage::set_event_variable(variables,1,4,request.entrance);
-        okage::set_event_variable(variables,6,4,1);
+        if(definition.message!="field")throw std::runtime_error("Destination message bank is unrecovered");
         auto upper=[](std::string name){
             if(name.empty()||name.front()=='/'||name.find("..")!=std::string::npos||name.find('\\')!=std::string::npos)
                 throw std::runtime_error("Unsafe field asset path");
@@ -215,17 +236,22 @@ struct Session {
         };
         upper(definition.event);
         const auto script=readData(event_directory/(definition.event+".xmt"));
-        definition=okage::prepare_field_definition(script,variables,std::move(definition));
-        if(definition.music!=current_music||definition.secondary_music)
-            throw std::runtime_error("Destination music bank switching is unrecovered");
+        definition=okage::prepare_field_entry(script,variables,std::move(definition),request.entrance);
+        if(definition.type>1)throw std::runtime_error("Destination field type is unrecovered");
+        if(!definition.followers.empty())throw std::runtime_error("Destination follower construction is unrecovered");
+        if(!music)throw std::runtime_error("Destination music service is not bound");
+        music->enter(definition.music,definition.secondary_music,[this](int id){return read_music_resource(id);});
+        std::cout<<"Native destination setup: scene "<<request.scene<<"; party "<<definition.party
+                 <<"; followers "<<definition.followers.size()<<"; music "<<music->current_id()
+                 <<"; slots "<<music->loaded_id(0)<<","<<music->loaded_id(1)<<"\n";
         const auto map=field_root/upper(definition.room_directory)/(upper(definition.room)+".XPF")/"a.xmp";
         std::vector<okage::SceneActor> scene_actors;
         renderer.reset();field.reset();map_objects.reset();actor_bindings.clear();actor_objects.clear();
         auto add=[&](int alias,const std::string& model){
             const auto path=field_root/"OBJ"/(upper(model)+".XPF")/"a.xmd";
-            auto motion=path,xta=path;motion.replace_extension(".xmt");xta.replace_extension(".xta");const auto data=readData(xta);
+            auto motion=path,xta=path;motion.replace_extension(".xmt");xta.replace_extension(".xta");
             auto object=std::make_unique<okage::FieldActor>(okage::read_xmd(readData(path)),readData(motion),
-                okage::read_xta(std::string_view(reinterpret_cast<const char*>(data.data()),data.size())));
+                readActorTextures(xta));
             actor_bindings.push_back({alias,object.get()});scene_actors.push_back({object.get(),path});actor_objects.push_back(std::move(object));
         };
         for(const auto& npc:definition.npcs)add(npc.alias,npc.model);
@@ -262,14 +288,14 @@ struct Session {
             if(request&&request->ready)load_destination(*request);
         }
         if(music){
-            music_volume.tick();music->volume(music_volume.level(),music_volume.level());
             std::array<std::int16_t,1600> pcm{};music->render(pcm);
             std::array<std::int32_t,1600> stream{};
             for(auto& [bank,player]:sound_banks)player->mix(stream);
             for(unsigned i=0;i<pcm.size();++i)pcm[i]=std::clamp(int(pcm[i])+stream[i],-32768,32767);
             if(audio_output)audio_output->submit(pcm);
             if(record_audio){audio_capture.insert(audio_capture.end(),pcm.begin(),pcm.end());
-                music_trace.insert(music_trace.end(),{frame,unsigned(music_volume.current),unsigned(music_volume.target),unsigned(music_volume.step),music->peak_voices()});}
+                music_trace.insert(music_trace.end(),{frame,unsigned(music->volume.current),unsigned(music->volume.target),
+                    unsigned(music->volume.step),music->player()?music->player()->peak_voices():0});}
         }
         if(!field && !release_frame && okage::poll_dialogue_wait(wait,2,{true,0,layers,std::int32_t(text.state.progress)})==0)release_frame=frame;
         if(dialogue_active && !closure.finished()) {
@@ -420,8 +446,8 @@ static void capture(const Session& session,const fs::path& path) {
         pcm.write(reinterpret_cast<const char*>(session.audio_capture.data()),session.audio_capture.size()*2);
         trace.write(reinterpret_cast<const char*>(session.music_trace.data()),session.music_trace.size()*4);
         sound.write(reinterpret_cast<const char*>(session.sound_trace.data()),session.sound_trace.size()*4);
-        stats<<"{\n  \"dry_output\": true,\n  \"frames\": "<<session.audio_capture.size()/2<<",\n  \"rate\": 48000,\n  \"volume\": "<<session.music_volume.level()
-             <<",\n  \"peak_voices\": "<<session.music->peak_voices()<<",\n  \"device_frames_enqueued\": "<<(session.audio_output ? session.audio_output->delivered_frames() : 0)
+        stats<<"{\n  \"dry_output\": true,\n  \"frames\": "<<session.audio_capture.size()/2<<",\n  \"rate\": 48000,\n  \"volume\": "<<session.music->volume.level()
+             <<",\n  \"peak_voices\": "<<(session.music->player()?session.music->player()->peak_voices():0)<<",\n  \"device_frames_enqueued\": "<<(session.audio_output ? session.audio_output->delivered_frames() : 0)
              <<",\n  \"device_underrun_frames\": "<<(session.audio_output ? session.audio_output->underrun_frames() : 0)<<"\n}\n";
         if(!pcm || !trace || !stats || !sound)throw std::runtime_error("Cannot write native audio capture");
     }
