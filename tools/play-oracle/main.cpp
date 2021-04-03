@@ -59,6 +59,7 @@ public:
     std::unique_ptr<Iop::CSubSystem> iop;
     std::unique_ptr<Ee::CSubSystem> ee;
     std::unique_ptr<CPS2OS> effectOs;
+    bool streamTransferProbe=false;
     static constexpr uint32 stop=0x007ff000;
     Reference(const std::vector<uint8>& elf) {
         if (hash(elf)!="2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5")
@@ -123,6 +124,19 @@ public:
                 cpu.m_State.callMsEnabled=0;
             }
             if (executed && cpu.m_executor->MustBreak()) {
+                if(streamTransferProbe && cpu.m_State.nPC==0x16e300) {
+                    const auto dst=cpu.m_State.nGPR[CMIPS::A0].nV[0];
+                    const auto src=cpu.m_State.nGPR[CMIPS::A1].nV[0];
+                    const auto size=cpu.m_State.nGPR[CMIPS::A2].nV[0];
+                    if(dst<0x40000 || dst>0x140000 || size>0x140000-dst ||
+                       src>32*1024*1024 || size>32*1024*1024-src)
+                        throw std::runtime_error("Stream probe DMA bounds");
+                    std::memcpy(iop->m_ram+dst,ee->m_ram+src,size);
+                    cpu.m_State.nGPR[CMIPS::V0].nD0=1;
+                    cpu.m_State.nPC=cpu.m_State.nGPR[CMIPS::RA].nV[0];
+                    cpu.m_State.nDelayedJumpAddr=MIPS_INVALID_PC;
+                    continue;
+                }
                 if (cpu.m_State.nPC!=stop) {
                     std::ostringstream error;error<<"Unexpected oracle breakpoint at "<<std::hex<<cpu.m_State.nPC
                         <<", wanted "<<stop;throw std::runtime_error(error.str());
@@ -132,6 +146,38 @@ public:
         }
         std::ostringstream error; error<<"Oracle instruction budget exceeded at "<<std::hex<<cpu.m_State.nPC;
         throw std::runtime_error(error.str());
+    }
+    void streamPrepare(const std::vector<uint8>& source,unsigned ring,const char* output) {
+        if(source.empty()||source.size()%16||source.size()>512*1024||ring<64||ring>0x10000||ring%64)
+            throw std::runtime_error("Stream prepare fixture bounds");
+        constexpr uint32 context=0x2fd644,input=0x800000;
+        std::memset(ee->m_ram+context,0,64);
+        ee->m_ram[context+5]=1;
+        put(context+0x14,0x40000);put(context+0x18,0x100000);
+        put(context+0x2c,ring);
+        std::memset(ee->m_ram+0x2f2e80,0,64);
+        std::memcpy(ee->m_ram+input,source.data(),source.size());
+        streamTransferProbe=true;ee->m_EE.ToggleBreakpoint(0x16e300);
+        std::vector<uint8> commands;
+        auto collect=[&] {
+            const auto n=get(0x1fe200);
+            if(n>4096||get(0x1fe204))throw std::runtime_error("Stream command extent");
+            commands.insert(commands.end(),ee->m_ram+0x3072c0,ee->m_ram+0x3072c0+n);
+            put(0x1fe200,0);put(0x1fe204,0);
+        };
+        put(0x1fe200,0);put(0x1fe204,0);
+        for(unsigned at=0;at<source.size();) {
+            const auto count=std::min<unsigned>(4096,source.size()-at);
+            call(0x173088,{0,input+at,0,count,0});collect();at+=count;
+        }
+        call(0x173940,{0});collect();
+        if(ee->m_ram[context+8]!=1)throw std::runtime_error("Stream EOF not set");
+        const auto extent=get(context+0x20)+64;
+        if(extent!=(source.size()+63)/64*64+64)throw std::runtime_error("Stream EOF extent");
+        writeFile(output,iop->m_ram+0x40000,extent);
+        writeFile((std::string(output)+".commands.bin").c_str(),commands.data(),commands.size());
+        writeFile((std::string(output)+".context.bin").c_str(),ee->m_ram+context,64);
+        ee->m_EE.ToggleBreakpoint(0x16e300);streamTransferProbe=false;
     }
     void exteriorCameraStep(const std::vector<uint8>& ram,const std::vector<uint8>& cases,const char* output) {
         if(ram.size()!=32*1024*1024||cases.empty()||cases.size()%184||cases.size()>184*2000)
@@ -1138,7 +1184,9 @@ int main(int argc,char** argv) {
         }
         Reference reference(readFile(argv[2]));
         const std::string command=argv[1];
-        if(command=="exterior-camera-step" && argc==6) {
+        if(command=="stream-prepare" && argc==6) {
+            reference.streamPrepare(readFile(argv[3]),std::stoul(argv[4]),argv[5]);
+        } else if(command=="exterior-camera-step" && argc==6) {
             reference.exteriorCameraStep(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="enemy-step" && argc==6) {
             reference.enemyStep(readFile(argv[3]),readFile(argv[4]),argv[5]);

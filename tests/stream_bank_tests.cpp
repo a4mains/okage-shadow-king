@@ -3,7 +3,9 @@
 #include <iostream>
 #include <stdexcept>
 
-void require(bool ok){if(!ok)throw std::runtime_error("RXWS assertion");}
+void require(bool ok,unsigned where=__builtin_LINE()){
+    if(!ok)throw std::runtime_error("RXWS assertion at line "+std::to_string(where));
+}
 template<class F> void rejects(F f){bool bad=false;try{f();}catch(const std::exception&){bad=true;}require(bad);}
 void put(std::vector<std::uint8_t>& b,unsigned at,unsigned v){for(unsigned i=0;i<4;++i)b.at(at+i)=v>>(i*8);}
 int main(){try{
@@ -37,18 +39,35 @@ int main(){try{
     const auto footstep=okage::stream_tone(flagged,0,1,60);
     require(footstep.pitch==3763 && footstep.left==59 && footstep.right==59);
     okage::StreamPlayer player(bank);player.play(0,1,128);require(player.active()==1);
-    std::vector<std::int32_t> mix(200);player.mix(mix);require(player.active()==0);
+    std::vector<std::int32_t> mix(400);player.mix(mix);require(player.active()==0);
     require(std::any_of(mix.begin(),mix.end(),[](auto v){return v!=0;}));
     player.play(0,1,128);player.stop();require(player.active()==0);
     rejects([&]{player.play(-1,1,128);});rejects([&]{player.play(0,-1,128);});rejects([&]{player.play(0,1,129);});
     auto invalid=bank;invalid.bytes[45]=2;rejects([&]{okage::stream_tone(invalid,0);});
     invalid=bank;put(invalid.bytes,56,32);rejects([&]{okage::stream_tone(invalid,0);});
-    invalid=bank;invalid.bytes[81]=0;okage::StreamPlayer unterminated(invalid);rejects([&]{unterminated.play(0,1,128);});
+    // Finite FORM extent, not source flags, determines the streaming endpoint.
+    invalid=bank;invalid.bytes[81]=0;okage::StreamPlayer unterminated(invalid);unterminated.play(0,1,128);
+    std::vector<std::int32_t> no_marker(400);unterminated.mix(no_marker);
+    require(no_marker==mix && unterminated.active()==0);
     auto padded=cue;padded.resize(112);put(padded,4,96);put(padded,56,32);put(padded,68,32);
     padded[96]=0x0c;padded[97]=7;
     okage::StreamPlayer terminated(okage::read_stream_bank(padded));terminated.play(0,1,128);
-    std::vector<std::int32_t> with_tail(200);terminated.mix(with_tail);
+    std::vector<std::int32_t> with_tail(400);terminated.mix(with_tail);
     require(with_tail==mix && terminated.active()==0);
-    padded[98]=1;okage::StreamPlayer invalid_tail(okage::read_stream_bank(padded));rejects([&]{invalid_tail.play(0,1,128);});
+    // Nonzero payload after a source end flag must play, not be discarded.
+    padded[96]=0;padded[98]=0x77;okage::StreamPlayer audible_tail(okage::read_stream_bank(padded));audible_tail.play(0,1,128);
+    std::vector<std::int32_t> changed_tail(400);audible_tail.mix(changed_tail);require(changed_tail!=mix);
+    padded[96]=0x50;okage::StreamPlayer invalid_tail(okage::read_stream_bank(padded));rejects([&]{invalid_tail.play(0,1,128);});
+    rejects([&]{okage::prepare_stream_sample({});});
+    rejects([&]{okage::prepare_stream_sample(okage::Bytes(cue).first(15));});
+    // Check all four alignment residues and clear source end/loop/reserved flags.
+    for(unsigned n=1;n<=8;++n){
+        std::vector<std::uint8_t> raw(n*16);
+        for(unsigned i=0;i<n;++i){raw[i*16]=0x0c;raw[i*16+1]=0xff;raw[i*16+2]=i;}
+        auto prepared=okage::prepare_stream_sample(raw);const auto aligned=(n*16+63)/64*64;
+        require(prepared.size()==aligned+64 && prepared[aligned+1]==1);
+        for(unsigned i=0;i<n;++i)require(prepared[i*16]==0x0c && prepared[i*16+1]==0 && prepared[i*16+2]==i);
+        for(unsigned i=n*16;i<prepared.size();++i)if(i!=aligned+1)require(prepared[i]==0);
+    }
     std::cout<<"RXWS owned records, optional chunks, bounds and malformed input passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

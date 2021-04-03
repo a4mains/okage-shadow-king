@@ -12,6 +12,7 @@ import subprocess
 from build_voice_reference import build, HASHES
 from build_spu_reference import REVISION
 from verify_event import write_exact
+from verify_finite_stream import finite_sample
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
@@ -26,7 +27,7 @@ def main():
     if digest(bank) != 'a422f83c70125c775cf234fdb195a4590253bcebf87d0fcf65727eaa5d5fea1a':
         raise RuntimeError('Expected observed ALL.XWS revision')
     sample = args.output/'footstep35.adpcm'
-    write_exact(sample, bank[335808:335808+13568])
+    write_exact(sample, finite_sample(bank[335808:335808+13568]))
     reference = (args.reference or args.output)/'reference.pcm'
     if args.reference:
         if (args.reference/sample.name).read_bytes() != sample.read_bytes():
@@ -47,7 +48,7 @@ def main():
               'native_sha256': digest(args.native.read_bytes()),
               'reference_revision': REVISION, 'reference_source_hashes': HASHES,
               'parameter_evidence': ['EE 0x12df80 tables', 'EE 0x1769b0/0x176738/0x172bf8', 'IOP 0x9398/0x9770'],
-              'trailer': 'One 0c07 block with zero payload follows the flag-1 termination and is not played.'}
+              'endpoint': 'EE producer clears source flags, pads to64 bytes and appends its64-byte stop sequence; verified separately by verify_finite_stream.py.'}
     write_exact(args.output/'report.json', (json.dumps(report, indent=2)+'\n').encode())
     print('Footstep 35: 48000 stereo frames exact; native voice terminated')
 

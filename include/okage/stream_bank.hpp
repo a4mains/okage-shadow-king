@@ -22,6 +22,7 @@ struct StreamTone {
 };
 // Recovered mono ADPCM, no MARK/BRCH or loop behavior. Unsupported forms throw.
 StreamTone stream_tone(const StreamBank&,int index,float speed=1,unsigned volume=128);
+std::vector<std::uint8_t> prepare_stream_sample(Bytes);
 class StreamPlayer {
 public:
     explicit StreamPlayer(StreamBank bank):bank_(std::move(bank)){}
@@ -33,7 +34,15 @@ public:
     unsigned active() const{return voices_.size();}
     unsigned records() const{return bank_.records.size();}
 private:
+    struct Playing {
+        std::vector<std::uint8_t> sample;
+        SampleVoice voice;
+        Playing(std::vector<std::uint8_t> data,const StreamTone& tone)
+            :sample(std::move(data)),voice(sample,StreamTone::adsr1,StreamTone::adsr2){
+            voice.parameters(tone.pitch,tone.left,tone.right);
+        }
+    };
     StreamBank bank_;
-    std::vector<std::unique_ptr<SampleVoice>> voices_;
+    std::vector<std::unique_ptr<Playing>> voices_;
 };
 }

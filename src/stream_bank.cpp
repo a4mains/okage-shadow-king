@@ -65,23 +65,27 @@ StreamTone stream_tone(const StreamBank& bank,int index,float speed,unsigned vol
     t.right=(int(volume)*__builtin_bit_cast(std::int8_t, (r[5])))>>7;
     return t;
 }
+std::vector<std::uint8_t> prepare_stream_sample(Bytes blocks){
+    if(blocks.empty()||blocks.size()%16||blocks.size()>2*1024*1024-128)
+        throw std::runtime_error("RXWS finite sample extent");
+    const auto aligned=(blocks.size()+63)&~std::size_t(63);
+    std::vector<std::uint8_t> result(aligned+64);
+    std::copy(blocks.begin(),blocks.end(),result.begin());
+    for(std::size_t i=1;i<blocks.size();i+=16)result[i]=0;
+    result[aligned+1]=1;
+    (void)decode_spu_sample(result);
+    return result;
+}
 void StreamPlayer::play(int index,float speed,unsigned volume){
     const auto tone=stream_tone(bank_,index,speed,volume);
-    const auto blocks=Bytes(bank_.bytes).subspan(tone.offset,tone.size);
-    const auto sample=decode_spu_sample(blocks);
-    const auto tail=blocks.subspan(sample.consumed);
-    const bool stop_trailer=tail.size()==16 && tail[0]==0x0c && tail[1]==7 &&
-        std::all_of(tail.begin()+2,tail.end(),[](auto v){return v==0;});
-    if(sample.end_flags!=1 || (!tail.empty()&&!stop_trailer))
-        throw std::runtime_error("RXWS mono end marker outside recovered scope");
-    std::erase_if(voices_,[](const auto& v){return v->ended();});
+    auto sample=prepare_stream_sample(Bytes(bank_.bytes).subspan(tone.offset,tone.size));
+    std::erase_if(voices_,[](const auto& v){return v->voice.ended();});
     if(voices_.size()>=48)throw std::runtime_error("RXWS shared voice allocation not recovered");
-    auto voice=std::make_unique<SampleVoice>(blocks,StreamTone::adsr1,StreamTone::adsr2);
-    voice->parameters(tone.pitch,tone.left,tone.right);voices_.push_back(std::move(voice));
+    voices_.push_back(std::make_unique<Playing>(std::move(sample),tone));
 }
 void StreamPlayer::mix(std::span<std::int32_t> stereo){
     if(stereo.size()%2)throw std::runtime_error("RXWS stereo output extent");
-    for(std::size_t i=0;i<stereo.size();i+=2)for(auto& voice:voices_){const auto v=voice->tick();stereo[i]+=v[0];stereo[i+1]+=v[1];}
-    std::erase_if(voices_,[](const auto& v){return v->ended();});
+    for(std::size_t i=0;i<stereo.size();i+=2)for(auto& voice:voices_){const auto v=voice->voice.tick();stereo[i]+=v[0];stereo[i+1]+=v[1];}
+    std::erase_if(voices_,[](const auto& v){return v->voice.ended();});
 }
 }

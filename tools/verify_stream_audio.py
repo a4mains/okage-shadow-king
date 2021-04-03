@@ -13,6 +13,7 @@ import subprocess
 from build_voice_reference import build, HASHES
 from build_spu_reference import REVISION
 from verify_event import write_exact
+from verify_finite_stream import finite_sample
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
@@ -26,7 +27,7 @@ def main():
     reference=build();cases=[]
     # Fixed offsets follow the original-registration comparison, not native CLI.
     for i,(offset,size) in enumerate([(0,31040),(31040,135776),(166816,136944),(303760,122896),(426656,83696)]):
-        sample=args.output/f'cue-{i}.adpcm';write_exact(sample,bank[0x110+offset:0x110+offset+size])
+        sample=args.output/f'cue-{i}.adpcm';write_exact(sample,finite_sample(bank[0x110+offset:0x110+offset+size]))
         frames=280000;original=args.output/f'cue-{i}.reference.pcm';native=args.output/f'cue-{i}.native.pcm'
         if not original.exists():
             subprocess.run([str(reference),'voice',str(sample),'32768','32806','3763','127','480000',str(frames),str(original)],check=True)

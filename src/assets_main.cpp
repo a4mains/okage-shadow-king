@@ -315,6 +315,12 @@ int main(int argc, char** argv) {
             out.push_back(bank.record(-1).size());out.push_back(bank.record(bank.records.size()).size());
             write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4));return 0;
         }
+        if(command=="stream-prepare" && argc==5) {
+            const auto bank=okage::read_stream_bank(read(argv[2]));
+            const auto tone=okage::stream_tone(bank,std::stoi(argv[3]));
+            const auto sample=okage::prepare_stream_sample(okage::Bytes(bank.bytes).subspan(tone.offset,tone.size));
+            write(argv[4],sample);return 0;
+        }
         if(command=="stream-cue" && argc==8) {
             const auto bank=okage::read_stream_bank(read(argv[2]));const auto index=std::stoi(argv[3]);
             const auto speed=std::stof(argv[4]);const auto gain=std::stoul(argv[5]);const auto frames=std::stoul(argv[6]);
