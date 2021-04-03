@@ -146,6 +146,7 @@ struct Session {
     std::unique_ptr<okage::OpeningField> field;
     std::unique_ptr<okage::SceneRenderer> renderer;
     okage::Float4 projection{};
+    float far_clip=1024;
     std::vector<std::uint32_t> scene_trace,dialogue_trace,camera_state_trace,movement_trace,interaction_trace;
     std::vector<std::uint32_t> effect_trace;
     bool effects_loaded=false;
@@ -210,7 +211,7 @@ struct Session {
         }
         map_objects=std::make_unique<okage::MapObjects>(map);
         renderer=std::make_unique<okage::SceneRenderer>(map,scene_actors,map_objects.get());
-        auto stg=map;stg.replace_extension(".stg");projection=okage::field_projection(readData(stg));
+        auto stg=map;stg.replace_extension(".stg");projection=okage::field_projection(readData(stg),&far_clip);
         dialogue_active=false;
         create_field(readData(event),true);
         if(std::any_of(actor_bindings.begin(),actor_bindings.end(),[](const auto& a){return a.alias==-1;})) {
@@ -265,7 +266,7 @@ struct Session {
         map_objects=std::make_unique<okage::MapObjects>(map);
         renderer=std::make_unique<okage::SceneRenderer>(map,scene_actors,map_objects.get());
         auto stg=map,xcl=map;stg.replace_extension(".stg");xcl.replace_extension(".xcl");
-        const auto stage=readData(stg);projection=okage::field_projection(stage);
+        const auto stage=readData(stg);projection=okage::field_projection(stage,&far_clip);
         create_field(script,false);bind_audio_services();
         if(effects_loaded){renderer->load_effect_textures(effect_textures);field->load_effects(readData(effect_data));}
         if(definition.type==0) {
@@ -371,7 +372,7 @@ struct Session {
         auto text_image=okage::rasterize_text(fonts,text.glyphs,640,224);
         if(!renderer)return text_image;
         const auto& r=field->rotation;
-        auto image=renderer->render(field->view(),projection,effects_loaded?&field->effects():nullptr,{-r[0],-r[1],-r[2],0});
+        auto image=renderer->render(field->view(),projection,effects_loaded?&field->effects():nullptr,{-r[0],-r[1],-r[2],0},far_clip);
         const auto brightness=128-scene_fade.alpha();
         for(std::size_t i=0;i<image.rgba.size();i+=4)for(unsigned c=0;c<3;++c)image.rgba[i+c]=unsigned(image.rgba[i+c])*brightness/128;
         if(choices.highlighted){

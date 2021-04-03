@@ -46,6 +46,7 @@ public:
     void set_parameter(unsigned selector,const Float4& payload);
     void tick(const std::function<std::uint32_t()>& random,bool clock_enabled=true);
     void request_removal(){flags|=0x100;}
+    const EffectTextureSizes& texture_sizes() const{return texture_sizes_;}
     std::uint32_t id=0,flags=0,duration=0,phase=0;
     float inverse_duration=0;
     Float4 position{},rotation{},scale{},color{1,1,1,1},parameters{};
@@ -56,6 +57,18 @@ private:
     SineTable sine_=make_sine_table();
 };
 using MapEffects=std::array<std::unique_ptr<MapEffect>,84>;
+struct MapEffectVertex {Float4 position,color,uv;};
+struct MapEffectDraw {
+    Matrix4 matrix;
+    Float4 color;
+    std::uint32_t texture;
+    std::array<std::uint16_t,4> uv;
+    // Local source positions, byte-range source colors and normalized GS S/T.
+    std::vector<MapEffectVertex> vertices;
+};
+// Reviewed template25 geometry/material: additive, depth tested, no depth write.
+std::vector<MapEffectDraw> map_effect_draws(const MapEffect&,const Matrix4& view,
+    const Float4& camera_rotation,float far_clip,const SineTable&);
 
 struct EffectSprite {
     Float4 position{},rotation{},scale{},color{};

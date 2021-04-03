@@ -61,6 +61,7 @@ public:
     std::unique_ptr<CPS2OS> effectOs;
     bool streamTransferProbe=false;
     static constexpr uint32 stop=0x007ff000;
+    uint32 expectedStop=stop;
     Reference(const std::vector<uint8>& elf) {
         if (hash(elf)!="2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5")
             throw std::runtime_error("Oracle requires the pinned USA ELF");
@@ -137,9 +138,9 @@ public:
                     cpu.m_State.nDelayedJumpAddr=MIPS_INVALID_PC;
                     continue;
                 }
-                if (cpu.m_State.nPC!=stop) {
+                if (cpu.m_State.nPC!=expectedStop) {
                     std::ostringstream error;error<<"Unexpected oracle breakpoint at "<<std::hex<<cpu.m_State.nPC
-                        <<", wanted "<<stop;throw std::runtime_error(error.str());
+                        <<", wanted "<<expectedStop;throw std::runtime_error(error.str());
                 }
                 return;
             }
@@ -326,6 +327,62 @@ public:
         }
         if(get(object+0x3e34)!=text.size())throw std::runtime_error("Text fixture did not finish");
         writeFile(output,result.data(),result.size());
+    }
+    void mapEffectGeometry(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
+        constexpr unsigned stride=198*4,sp=0x1ff0000;
+        if(ram.size()!=32*1024*1024||input.empty()||input.size()%stride||input.size()>stride*64)
+            throw std::runtime_error("Effect geometry fixture bounds");
+        std::vector<uint32> result,packets;
+        for(unsigned at=0;at<input.size();at+=stride) {
+            ee->m_EE.m_executor->Reset();
+            std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
+            loadMicro();const auto table=get(0x1f849c),job=get(table+8);
+            if(get(job)!=25||get(job+8)!=8)throw std::runtime_error("Expected captured map effect25");
+            std::memcpy(ee->m_ram+job+0x10,input.data()+at+4,64);
+            call(0x1842c8);const auto camera=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+            std::memcpy(ee->m_ram+camera,input.data()+at+68,16);
+            std::memcpy(ee->m_ram+0x80000,input.data()+at+84,64);
+            std::memcpy(ee->m_ram+0x1f8484,input.data()+at+148,4);
+            put(0x1f8490,get(job+0x78));put(sp+0xe0,0x80000);put(sp+0xf4,sp+0xa0);
+            auto& cpu=ee->m_EE;
+            cpu.m_State.nGPR[CMIPS::S3].nD0=8;cpu.m_State.nGPR[CMIPS::S6].nD0=2;
+            cpu.m_State.nGPR[CMIPS::FP].nD0=0x202ee0;
+            auto block=[&](uint32 begin,uint32 end) {
+                expectedStop=end;cpu.ToggleBreakpoint(end);call(begin);
+                cpu.ToggleBreakpoint(end);expectedStop=stop;
+            };
+            block(0x1024e0,0x1027b8);
+            // Caller scratch destinations from0x1027b8..0x1027c0.
+            put(sp+0xf8,sp+0x10);cpu.m_State.nGPR[CMIPS::S7].nD0=sp+0x90;
+            uint32 identity;std::memcpy(&identity,input.data()+at,4);result.push_back(identity);
+            for(unsigned i=0;i<8;++i) {
+                const auto e=get(job+12)+i*128,r=get(e+0x78),g=get(e+0x64);
+                const auto source=input.data()+at+152+i*80;
+                std::array<uint32,4> meta;std::memcpy(meta.data(),source+64,16);
+                unsigned texture=0;for(;texture<31;++texture)if(get(get(0x24e780)+texture*4)==(get(e+0x5c)&65535))break;
+                if(meta[0]!=(i<3?24u:29u)||meta[1]!=get(e+0x54)||meta[2]!=get(e+0x58)||meta[3]!=texture)
+                    throw std::runtime_error("Effect geometry input metadata mismatch");
+                std::memcpy(ee->m_ram+r,source,64);
+                cpu.m_State.nGPR[CMIPS::S1].nD0=e;cpu.m_State.nGPR[CMIPS::S2].nD0=r;
+                cpu.m_State.nGPR[CMIPS::S4].nD0=i;
+                block(0x102978,0x1aeb10);
+                block(0x102a20,0x1ad3c8);
+                for(unsigned k=0;k<16;++k)result.push_back(get(sp+0x10+k*4));
+                for(unsigned k=0;k<4;++k)result.push_back(get(sp+0x90+k*4));
+                if(at==0) {
+                    packets.insert(packets.end(),{i,meta[0],get(e+0x68),get(e+0x6c)});
+                    for(unsigned k=0;k<6;++k)packets.push_back(get(r+0x40+k*4));
+                    for(unsigned offset:{4u,8u,12u,16u}) {
+                        const auto p=get(g+offset),bytes=(get(p)&65535)*16+32;
+                        if(bytes>8192||p>ram.size()-bytes)throw std::runtime_error("Effect packet extent");
+                        packets.push_back(bytes);
+                        for(unsigned k=0;k<bytes;k+=4)packets.push_back(get(p+k));
+                    }
+                }
+            }
+        }
+        writeFile(output,result.data(),result.size()*4);
+        writeFile((std::string(output)+".packets.bin").c_str(),packets.data(),packets.size()*4);
     }
     void mapEffectProbe(const std::vector<uint8>& ram,const std::vector<uint8>& input,unsigned frames,const char* output) {
         if(ram.size()!=32*1024*1024||input.size()!=80||frames>1000)
@@ -1184,7 +1241,9 @@ int main(int argc,char** argv) {
         }
         Reference reference(readFile(argv[2]));
         const std::string command=argv[1];
-        if(command=="stream-prepare" && argc==6) {
+        if(command=="map-effect-geometry" && argc==6) {
+            reference.mapEffectGeometry(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="stream-prepare" && argc==6) {
             reference.streamPrepare(readFile(argv[3]),std::stoul(argv[4]),argv[5]);
         } else if(command=="exterior-camera-step" && argc==6) {
             reference.exteriorCameraStep(readFile(argv[3]),readFile(argv[4]),argv[5]);

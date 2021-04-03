@@ -30,5 +30,22 @@ int main(){try{
     e.tick({0,0,0,0});check(std::fegetround()==rounding);
     rejects([&]{e.tick({__builtin_bit_cast(float, (0x7fc00000u)),0,0,0});});
     e.request_removal();rejects([&]{e.tick({0,0,0,0});});
+    okage::EffectDefinition map;map.id=25;map.duration=400;map.flags=0x9000;map.elements.resize(8);
+    for(unsigned i=0;i<8;++i){map.elements[i].shape=i<3?24:29;map.elements[i].primitive_flags=i<3?1:0x101;}
+    okage::EffectTextureSizes sizes;for(auto& size:sizes)size={64,64};sizes[5]={32,24};sizes[13]={32,32};
+    okage::MapEffect job(map,{0,0,420,1},{0,0,0,0},{1,1,1,1},sizes,[]{return 1;});
+    const okage::Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
+    const auto sine=okage::make_sine_table();
+    const auto draw=[&]{return okage::map_effect_draws(job,identity,{0,0,0,0},450,sine);};
+    auto draws=draw();check(draws.size()==8&&draws[0].vertices.size()==96&&draws[3].vertices.size()==6);
+    check(draws[0].color[3]==.75f);check(std::fegetround()==rounding);
+    // Texture replacement uses fixed5-bit ratios, not ideal float scaling.
+    job.elements[3].texture=13;job.elements[3].uv={0,0,31,31};
+    draws=draw();check(draws[3].vertices[2].uv[1]==1050.f/32768);
+    job.flags|=0x100;check(draw().empty());job.flags&=~0x100u;
+    job.flags|=0x400;rejects(draw);job.flags&=~0x400u;
+    job.elements[0].flags=2;rejects(draw);job.elements[0].flags=0;
+    job.elements[0].primitive_flags=0;rejects(draw);job.elements[0].primitive_flags=1;
+    job.elements[0].shape=31;rejects(draw);
     std::cout<<"EFD extent, ID, pointer, finite-value and unsupported-program checks passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

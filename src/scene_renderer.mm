@@ -15,7 +15,7 @@ std::vector<std::uint8_t> read(const fs::path& path) {
     if(!in.read(reinterpret_cast<char*>(b.data()),b.size()))throw std::runtime_error("Cannot read scene input");return b;
 }
 struct Vertex {Float4 position,color,uv;};
-struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false;};
+struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false;};
 }
 struct SceneRenderer::Impl {
     struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;};
@@ -28,8 +28,8 @@ struct SceneRenderer::Impl {
     bool effectTexturesLoaded=false;
     const MapEffects* mapEffects=nullptr;
     id<MTLDevice> device;
-    id<MTLRenderPipelineState> pipeline,effectPipeline;
-    id<MTLDepthStencilState> depth,effectDepth;
+    id<MTLRenderPipelineState> pipeline,effectPipeline,mapEffectPipeline;
+    id<MTLDepthStencilState> depth,effectDepth,mapEffectDepth;
     id<MTLTexture> target,depthTarget;
     NSMutableArray<id<MTLTexture>>* gpuTextures;
     id<MTLCommandQueue> queue;
@@ -83,10 +83,19 @@ struct SceneRenderer::Impl {
         descriptor.colorAttachments[0].destinationAlphaBlendFactor=MTLBlendFactorOneMinusSourceAlpha;
         effectPipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
         if(!effectPipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
+        descriptor.vertexFunction=[library newFunctionWithName:@"map_effect_vertex"];
+        descriptor.fragmentFunction=[library newFunctionWithName:@"map_effect_fragment"];
+        descriptor.colorAttachments[0].sourceRGBBlendFactor=MTLBlendFactorOne;
+        descriptor.colorAttachments[0].destinationRGBBlendFactor=MTLBlendFactorOne;
+        descriptor.colorAttachments[0].destinationAlphaBlendFactor=MTLBlendFactorOne;
+        mapEffectPipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
+        if(!mapEffectPipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
         auto depthState=[MTLDepthStencilDescriptor new]; depthState.depthCompareFunction=MTLCompareFunctionLess; depthState.depthWriteEnabled=YES;
         depth=[device newDepthStencilStateWithDescriptor:depthState];
         depthState.depthCompareFunction=MTLCompareFunctionAlways;depthState.depthWriteEnabled=NO;
         effectDepth=[device newDepthStencilStateWithDescriptor:depthState];
+        depthState.depthCompareFunction=MTLCompareFunctionLessEqual;
+        mapEffectDepth=[device newDepthStencilStateWithDescriptor:depthState];
         auto targetDesc=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:width height:height mipmapped:NO];
         targetDesc.usage=MTLTextureUsageRenderTarget; targetDesc.storageMode=MTLStorageModeShared;
         target=[device newTextureWithDescriptor:targetDesc];
@@ -119,9 +128,7 @@ struct SceneRenderer::Impl {
         }
         effectTexturesLoaded=true;
     }
-    Texture render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera) {
-        if(mapEffects)for(const auto& e:*mapEffects)if(e&&!(e->flags&0x4300))
-            throw std::runtime_error("Native map effect geometry submission is unrecovered");
+    Texture render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip) {
         std::vector<Vertex> vertices;
         std::vector<Draw> draws;
         okage::Float4 low{INFINITY,INFINITY,INFINITY,0},high{-INFINITY,-INFINITY,-INFINITY,0};
@@ -186,7 +193,30 @@ struct SceneRenderer::Impl {
                 }
             }
         }
-        if(effects)for(const auto& attached:*effects)if(attached&&!(attached->animation.flags&0x300)) {
+        for(unsigned slot=0;slot<84;++slot){
+        if(mapEffects&&(*mapEffects)[slot]) {
+            const auto& effect=(*mapEffects)[slot];
+            if(!effectTexturesLoaded)throw std::runtime_error("Map effect textures are unavailable");
+            for(const auto& e:map_effect_draws(*effect,view,camera,farClip,sine)){
+                const auto texture=effectTexture+e.texture;
+                const auto& image=textures.at(texture);
+                if(e.uv[2]>=image.width||e.uv[3]>=image.height)throw std::runtime_error("Map effect texture bounds");
+                Draw draw{std::uint32_t(vertices.size()),std::uint32_t(e.vertices.size()),std::int32_t(texture),
+                    {e.uv[0],e.uv[2],e.uv[1],e.uv[3],2,2,1,0},true,true};
+                for(const auto& source:e.vertices){
+                    Float4 p{},c{};
+                    for(unsigned r=0;r<4;++r){
+                        p[r]=e.matrix[0][r]*source.position[0]+e.matrix[1][r]*source.position[1]+
+                             e.matrix[2][r]*source.position[2]+e.matrix[3][r];
+                        c[r]=std::clamp(std::trunc(source.color[r]*e.color[r]),0.0f,255.0f);
+                    }
+                    vertices.push_back({p,c,source.uv});
+                }
+                draws.push_back(draw);
+            }
+        }
+        if(effects&&(*effects)[slot]&&!((*effects)[slot]->animation.flags&0x300)) {
+            const auto& attached=(*effects)[slot];
             if(!effectTexturesLoaded)throw std::runtime_error("Effect textures are unavailable");
             for(const auto& sprite:attached->animation.sprites) {
                 auto origin=attached->position;for(unsigned i=0;i<3;++i)origin[i]+=sprite.position[i];
@@ -208,6 +238,7 @@ struct SceneRenderer::Impl {
                 draws.push_back(draw);
             }
         }
+        }
         if (vertices.empty()) throw std::runtime_error("Empty preview geometry");
         for(auto& v:vertices) {
             const auto p=v.position;
@@ -224,8 +255,8 @@ struct SceneRenderer::Impl {
         id<MTLBuffer> vertexBuffer=[device newBufferWithBytes:vertices.data() length:vertices.size()*sizeof(Vertex) options:MTLResourceStorageModeShared];
         [encoder setVertexBuffer:vertexBuffer offset:0 atIndex:0];
         for (const auto& draw:draws) {
-            [encoder setRenderPipelineState:draw.effect?effectPipeline:pipeline];
-            [encoder setDepthStencilState:draw.effect?effectDepth:depth];
+            [encoder setRenderPipelineState:draw.additive?mapEffectPipeline:draw.effect?effectPipeline:pipeline];
+            [encoder setDepthStencilState:draw.additive?mapEffectDepth:draw.effect?effectDepth:depth];
             [encoder setFragmentTexture:gpuTextures[draw.image<0 ? whiteTexture : draw.image] atIndex:0];
             [encoder setFragmentBytes:draw.state.data() length:sizeof(draw.state) atIndex:0];
             [encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:draw.first vertexCount:draw.count];
@@ -248,7 +279,7 @@ EffectTextureSizes SceneRenderer::effect_texture_sizes() const {
     return result;
 }
 void SceneRenderer::bind_map_effects(const MapEffects* effects){impl_->mapEffects=effects;}
-Texture SceneRenderer::render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera){return impl_->render(view,projection,effects,camera);}
+Texture SceneRenderer::render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip){return impl_->render(view,projection,effects,camera,farClip);}
 std::size_t SceneRenderer::placements() const{return impl_->inputs.size()-impl_->actorCount;}
 std::size_t SceneRenderer::actors() const{return impl_->actorCount;}
 std::size_t SceneRenderer::omitted_effects() const{return impl_->omittedEffects;}

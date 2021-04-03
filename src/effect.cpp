@@ -93,6 +93,72 @@ void MapEffect::set_parameter(unsigned selector,const Float4& payload) {
         if(target)*target={payload[0],payload[1],payload[2],1};
     }
 }
+std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix4& view,
+        const Float4& camera,float far_clip,const SineTable& sine) {
+    if(effect.flags&0x4300)return {};
+    require(effect.id==25&&effect.elements.size()==8,"Unrecovered map effect geometry template");
+    require(!(effect.flags&0x400),"Deferred map effect rendering is unrecovered");
+    require(std::isfinite(far_clip)&&far_clip>0,"Invalid effect far clip");
+    Rounding rounding;
+    const auto job=effect_matrix(effect.position,effect.rotation,effect.scale,sine,false);
+    float fade=1;
+    if(effect.flags&0x1000) {
+        float z=view[0][2]*effect.position[0];z+=view[1][2]*effect.position[1];
+        z+=view[2][2]*effect.position[2];z+=view[3][2];
+        if(far_clip<z+40)fade=std::max(0.0f,(far_clip-z)*.025f);
+    }
+    std::vector<MapEffectDraw> result;
+    for(const auto& e:effect.elements) {
+        require((e.primitive_flags&255)==1&&!(e.flags&0x400000),"Unrecovered map effect material");
+        require(e.uv[0]==0&&e.uv[1]==0&&!e.render_flags,"Unrecovered map effect texture region");
+        auto rotation=e.rendered[1];
+        switch(e.flags&15){case 0:break;case 1:
+            rotation[0]=(1-camera[0])-effect.rotation[0];
+            rotation[1]=(1-camera[1])-effect.rotation[1];rotation[3]=camera[3];break;
+            default:throw std::runtime_error("Unrecovered map effect orientation");}
+        auto matrix=effect_matrix(e.rendered[0],rotation,e.rendered[2],sine,true);
+        matrix=compose_pose(job,std::span(&matrix,1))[0];
+        matrix=compose_pose(view,std::span(&matrix,1))[0];
+        Float4 color{};for(unsigned i=0;i<4;++i)color[i]=e.rendered[3][i]*effect.color[i];color[3]*=fade;
+        MapEffectDraw draw{matrix,color,e.texture,e.uv,{}};
+        const auto base=effect.texture_sizes().at(e.shape==24?20:5);
+        const auto current=effect.texture_sizes().at(e.texture);
+        const bool replace=(e.program>>30)==1;
+        //0x1122e8 constructs T using height+1.0x1055d8 rescales the
+        // original packed UVs with truncated5-bit fixed ratios on replacement.
+        auto uv=[&](float u,float v){
+            int s=int(u*float(base[0])*32),t=int(v*float(base[1]+1)*32);
+            require(s>=0&&s<=32767&&t>=0&&t<=32767,"Unrecovered effect UV packing range");
+            if(replace){s=(s*int((current[0]<<5)/base[0]))>>5;t=(t*int((current[1]<<5)/base[1]))>>5;}
+            return Float4{float(std::uint16_t(s))/32768,float(std::uint16_t(t))/32768,0,0};
+        };
+        auto quad=[&](const std::array<Float4,4>& p,const std::array<Float4,4>& c,const std::array<Float4,4>& uv) {
+            // Original strip order B,A,C,D, hence the shared A-C diagonal.
+            for(unsigned i:{1u,0u,2u,0u,2u,3u})draw.vertices.push_back({p[i],c[i],uv[i]});
+        };
+        const Float4 white{255,255,255,255},clear{255,255,255,0};
+        if(e.shape==24) {
+            auto point=[&](unsigned i,float y) {
+                //0x113d88 packs nearest signed1/64 positions. Source W is a
+                // separate byte tag; VU rendering supplies homogeneous1.
+                return Float4{std::round(sine[(i*1024+4096)&16383]*64)/64,y,
+                              std::round(sine[(i*1024)&16383]*64)/64,1};
+            };
+            for(unsigned i=0;i<16;++i){
+                const float a=float(i)/16,b=float(i+1)/16;
+                quad({point(i,-3),point(i,0),point(i+1,0),point(i+1,-3)},
+                    {clear,white,white,clear},
+                    {uv(a,0),uv(a,1),uv(b,1),uv(b,0)});
+            }
+        } else if(e.shape==29) {
+            quad({Float4{-.5f,-1,0,1},Float4{.5f,-1,0,1},Float4{.5f,0,0,1},Float4{-.5f,0,0,1}},
+                 {white,white,white,white},
+                 {uv(0,0),uv(1,0),uv(1,1),uv(0,1)});
+        } else throw std::runtime_error("Unrecovered map effect primitive geometry");
+        result.push_back(std::move(draw));
+    }
+    return result;
+}
 void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_enabled) {
     if(!clock_enabled)return;
     require(!(flags&0x100),"Cannot update a removed map effect");

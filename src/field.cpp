@@ -718,7 +718,7 @@ Matrix4 OpeningField::view() const {
     Float4 p=position,r=rotation;for(unsigned i=0;i<3;++i){p[i]=-p[i];r[i]=-r[i];}p[3]=1;r[3]=0;
     return camera_matrix(p,r,{1,1,1,0},sine_);
 }
-Float4 field_projection(Bytes stg) {
+Float4 field_projection(Bytes stg,float* far_clip) {
     Rounding rounding;
     if(get(stg,0)!=0x475453)throw std::runtime_error("Invalid STG magic");
     const auto begin=get(stg,8),count=get(stg,12);
@@ -732,6 +732,7 @@ Float4 field_projection(Bytes stg) {
     // 0x1bb1a4..0x1bb1cc retains the fourth record value in f13 and calls
     // 0x1b7f98 with f12=3 when it is >=10: near/far, not a second focal length.
     const float far=settings[3]>=10?settings[3]:1024.f;
+    if(far_clip)*far_clip=far;
     return {(settings[2]*settings[0])/320.f,(settings[2]*settings[1])/112.f,
         (far+3.f)/(far-3.f),((far*-2.f)*3.f)/(far-3.f)};
 }

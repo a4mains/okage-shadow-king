@@ -254,6 +254,43 @@ int main(int argc, char** argv) {
             }
             write(argv[3],out);return 0;
         }
+        if(command=="map-effect-geometry"&&argc==6) {
+            const auto bank=okage::read_efd(read(argv[2]));const auto input=read(argv[4]);
+            constexpr unsigned stride=198*4;
+            if(input.empty()||input.size()%stride||input.size()>stride*64)throw std::runtime_error("Map geometry fixture bounds");
+            const auto found=std::find_if(bank.begin(),bank.end(),[](const auto& d){return d.id==25;});
+            if(found==bank.end())throw std::runtime_error("Missing map effect25");
+            okage::EffectTextureSizes sizes{};
+            for(unsigned i=0;i<sizes.size();++i){const auto image=okage::decode_xim(read(fs::path(argv[3])/okage::effect_texture_names[i]));sizes[i]={image.width,image.height};}
+            std::vector<std::uint32_t> out,geometry;const auto sine=okage::make_sine_table();
+            auto append=[](auto& dest,const auto& v){for(float f:v)dest.push_back(__builtin_bit_cast(std::uint32_t, (f)));};
+            for(unsigned at=0;at<input.size();at+=stride){
+                std::uint32_t identity;std::memcpy(&identity,input.data()+at,4);
+                std::array<okage::Float4,5> channels;std::memcpy(channels.data(),input.data()+at+4,80);
+                okage::Matrix4 view;std::memcpy(view.data(),input.data()+at+84,64);
+                float far;std::memcpy(&far,input.data()+at+148,4);
+                okage::MapEffect effect(*found,channels[0],channels[1],channels[2],sizes,[]{return 1;});
+                effect.color=channels[3];
+                for(unsigned i=0;i<8;++i){
+                    auto& e=effect.elements[i];const auto source=input.data()+at+152+i*80;
+                    std::array<std::uint32_t,4> meta;std::memcpy(meta.data(),source+64,16);
+                    if(e.shape!=meta[0]||e.flags!=meta[1]||e.primitive_flags!=meta[2]||meta[3]>=sizes.size())
+                        throw std::runtime_error("Native geometry fixture metadata mismatch");
+                    std::memcpy(e.rendered.data(),source,64);e.texture=meta[3];
+                    e.uv={0,0,std::uint16_t(sizes[e.texture][0]-1),std::uint16_t(sizes[e.texture][1]-1)};
+                }
+                out.push_back(identity);
+                const auto draws=okage::map_effect_draws(effect,view,channels[4],far,sine);
+                if(draws.size()!=8)throw std::runtime_error("Missing map effect geometry");
+                for(unsigned i=0;i<draws.size();++i){
+                    const auto& d=draws[i];for(const auto& v:d.matrix)append(out,v);append(out,d.color);
+                    if(at==0){geometry.insert(geometry.end(),{i,unsigned(d.vertices.size()),d.texture});
+                        for(const auto& v:d.vertices){append(geometry,v.position);append(geometry,v.color);append(geometry,v.uv);}}
+                }
+            }
+            write(argv[5],{reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4});
+            write(std::string(argv[5])+".vertices.bin",{reinterpret_cast<const std::uint8_t*>(geometry.data()),geometry.size()*4});return 0;
+        }
         if(command=="map-effect-probe"&&argc==7) {
             const auto bank=okage::read_efd(read(argv[2]));const auto input=read(argv[4]);
             if(input.size()!=80)throw std::runtime_error("Map effect request requires80 bytes");

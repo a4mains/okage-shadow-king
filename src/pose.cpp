@@ -74,6 +74,18 @@ std::vector<Matrix4> compose_pose(const Matrix4& parent,std::span<const Matrix4>
     for(auto& matrix:result)for(auto& column:matrix)column=transform(parent,column);
     return result;
 }
+Matrix4 effect_matrix(const Float4& position,const Float4& rotation,const Float4& scale,const SineTable& sine,bool element) {
+    Rounding rounding(FE_TOWARDZERO);
+    for(const auto& channel:{position,rotation,scale})for(float v:channel)
+        if(!std::isfinite(v))throw std::runtime_error("Non-finite effect transform");
+    Matrix4 result{{{1,0,0,0},{0,1,0,0},{0,0,1,0},position}};result[3][3]=1;
+    const auto x=angle_index(rotation[0],true),y=angle_index(rotation[1],true),z=angle_index(rotation[2],true);
+    if(element){rotate(result,2,0,y,sine);rotate(result,1,2,x,sine);}
+    else {rotate(result,1,2,x,sine);rotate(result,2,0,y,sine);}
+    rotate(result,0,1,z,sine);
+    for(unsigned c=0;c<3;++c)for(unsigned r=0;r<4;++r)result[c][r]*=scale[c];
+    return result;
+}
 Matrix4 camera_matrix(const Float4& position,const Float4& rotation,const Float4& scale,const SineTable& sine) {
     Rounding rounding(FE_TOWARDZERO);
     for(const auto& values:{position,rotation,scale})for(float v:values)

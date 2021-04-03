@@ -34,4 +34,24 @@ fragment float4 effect_fragment(Varying v [[stage_in]], texture2d<float> image [
     if(color.a<=0)discard_fragment();
     return clamp(color,0.0f,1.0f);
 }
+struct MapEffectVarying {float4 position [[position]];float4 color [[center_no_perspective]];float2 uv;};
+vertex MapEffectVarying map_effect_vertex(uint id [[vertex_id]],device const Vertex* v [[buffer(0)]]) {
+    return {v[id].position,v[id].color,v[id].uv.xy};
+}
+fragment float4 map_effect_fragment(MapEffectVarying v [[stage_in]],texture2d<float> image [[texture(0)]],
+                                   constant State& state [[buffer(0)]]) {
+    // TEX1=0x60 uses linear filtering; clamp each tap to the observed region.
+    float2 texel=v.uv*1024.0f-0.5f;int2 base=int2(floor(texel));float2 f=fract(texel);
+    float4 texels[4];
+    for(uint i=0;i<4;++i){
+        int2 p=clamp(base+int2(i&1,i>>1),int2(state.region.x,state.region.z),int2(state.region.y,state.region.w));
+        float4 t=image.read(uint2(p));
+        texels[i]=float4(t.rgb*255.0f,floor(t.a*127.5f+0.5f));
+    }
+    float4 t=mix(mix(texels[0],texels[1],f.x),mix(texels[2],texels[3],f.x),f.y);
+    float4 modulated=clamp(floor(t*v.color/128.0f),0.0f,255.0f);
+    // GS ALPHA0x48=(Cs-0)*As/128+Cd. Premultiply explicitly so As>128
+    // keeps its additive contribution instead of clipping the blend factor.
+    return float4((modulated.rgb/255.0f)*(modulated.a/128.0f),0);
+}
 )metal";

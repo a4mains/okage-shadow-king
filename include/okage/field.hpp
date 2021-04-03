@@ -132,6 +132,6 @@ private:
     Float4 point(std::size_t) const;
     void evaluate();
 };
-Float4 field_projection(Bytes stg);
+Float4 field_projection(Bytes stg,float* far_clip=nullptr);
 AnchoredCamera field_anchored_camera(Bytes stg);
 }

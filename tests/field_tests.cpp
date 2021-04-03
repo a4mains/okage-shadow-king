@@ -115,7 +115,9 @@ int main(){try {
     word(36,__builtin_bit_cast(unsigned, (1.f)));word(40,__builtin_bit_cast(unsigned, (.47f)));word(44,__builtin_bit_cast(unsigned, (1024.f)));
     const auto default_projection=okage::field_projection(b);
     word(48,__builtin_bit_cast(unsigned, (9.99f)));require(okage::field_projection(b)==default_projection);
-    word(48,__builtin_bit_cast(unsigned, (450.f)));const auto outdoor_projection=okage::field_projection(b);
+    float far_clip=0;
+    word(48,__builtin_bit_cast(unsigned, (450.f)));const auto outdoor_projection=okage::field_projection(b,&far_clip);
+    require(far_clip==450);
     require(outdoor_projection[0]==default_projection[0]&&outdoor_projection[1]==default_projection[1]);
     require(outdoor_projection[2]!=default_projection[2]&&outdoor_projection[3]!=default_projection[3]);
     word(48,__builtin_bit_cast(unsigned, (10.f)));require(okage::field_projection(b)!=default_projection);
