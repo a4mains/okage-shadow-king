@@ -12,6 +12,8 @@ public:
     explicit SceneRenderer(const std::filesystem::path& map,std::span<const SceneActor> actors={},const MapObjects* objects=nullptr);
     ~SceneRenderer();
     void load_effect_textures(const std::filesystem::path&);
+    EffectTextureSizes effect_texture_sizes() const;
+    void bind_map_effects(const MapEffects*);
     Texture render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects=nullptr,const Float4& camera_rotation={});
     std::size_t placements() const;
     std::size_t omitted_effects() const;

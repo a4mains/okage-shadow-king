@@ -10,6 +10,12 @@ void check(bool b,unsigned at=__builtin_LINE()){
 void put(Data& b,unsigned at,std::uint32_t v,unsigned size=4){for(unsigned i=0;i<size;++i)b.at(at+i)=v>>(i*8);}
 template<class F>void rejects(F f){try{f();}catch(const std::runtime_error&){return;}throw std::runtime_error("Invalid XCL accepted");}
 int main(){try {
+    okage::CollisionMask filter;
+    filter.event(0,2);check(filter.bits==4);filter.event(1,2);check(filter.bits==0);
+    filter.event(0,-1);check(filter.bits==0x80000000);filter.event(3,63);check(filter.bits==0);
+    filter.bits=0x108;filter.event(0x100,0);check(filter.bits==0x101);
+    filter.event(0x100,0);check(filter.bits==0x102);
+    filter.bits=0x80000000;filter.event(0x100,31);check(filter.bits==0x80000000);
     Data b(164);
     for(unsigned i=0;i<3;++i){put(b,i*4,8);put(b,12+i*4,3);put(b,48+i*4,1);}
     put(b,60,64);put(b,64,68);put(b,68,72);put(b,72,76);
@@ -43,6 +49,9 @@ int main(){try {
     check(contact.hit&&contact.material==0x123&&contact.normal[1]==-1&&contact.correction[1]==-.001f);
     check(!floor.vertical_contact({3,0,3,1},{3,0,3,1},false,4,8190).hit);
     check(!floor.vertical_contact({1,0,1,1},{1,0,1,1},false,4,8190,1).hit);
+    filter.bits=0;filter.event(0,0);
+    check(!floor.vertical_contact({1,0,1,1},{1,0,1,1},false,4,8190,filter.bits).hit);
+    filter.event(1,0);check(floor.vertical_contact({1,0,1,1},{1,0,1,1},false,4,8190,filter.bits).hit);
     check(!floor.vertical_contact({1,0,1,1},{1,0,1,1},false,4,16384).hit);
     put(triangle,148,0x4000,2);put(triangle,156,2,2);put(triangle,158,1,2);
     const auto ceiling=okage::read_xcl(triangle);

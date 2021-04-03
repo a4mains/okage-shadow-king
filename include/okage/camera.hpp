@@ -29,7 +29,7 @@ struct ExteriorCamera {
     void select_preset(unsigned value);
     CameraPoints tick(const Float4& player,const Float4& facing,const Float4& camera,
                       unsigned held,unsigned look_x,const CollisionMap&,
-                      const AtanTable&,const SineTable&);
+                      const AtanTable&,const SineTable&,std::uint32_t disabled_mask=4);
 };
 // Original room-camera manager mode 1, 0x136aa8.
 CameraPoints anchored_camera(const Float4& player,const AnchoredCamera& settings,

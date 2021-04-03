@@ -48,6 +48,7 @@ public:
                  std::function<bool(int)> wait_dialogue,std::span<const ActorBinding> actors={},bool diagnostic=true);
     void tick(ExplorationInput input={});
     void load_effects(Bytes);
+    void load_map_effects(Bytes map,const EffectTextureSizes&);
     void bind_map_objects(std::span<const ActorBinding>);
     void load_exploration_camera(Bytes stg);
     void load_exploration_collision(Bytes xcl,Bytes variables);
@@ -58,10 +59,12 @@ public:
     std::function<std::uint32_t()> random_value;
     // Session-owned manager state persists across field construction.
     ExteriorCamera* exterior_camera=nullptr;
+    CollisionMask* collision_mask=&local_collision_mask_;
     std::function<void(unsigned)> transition_service;
     const PlayerMovement& player_movement() const {return player_;}
     const std::vector<CollisionBody>& collision_bodies() const {return bodies_;}
     const AttachedEffects& effects() const {return effects_;}
+    const MapEffects& map_effects() const {return map_effects_;}
     Float4 position{},target{},rotation{};
     CameraBlend blend;
     std::function<bool(unsigned,std::int32_t)> audio_service;
@@ -78,6 +81,7 @@ public:
     unsigned camera_mode() const {return camera_mode_;}
     Matrix4 view() const;
 private:
+    CollisionMask local_collision_mask_;
     std::vector<std::uint8_t> bytes_;
     Animation script_;
     SineTable sine_=make_sine_table();
@@ -116,6 +120,8 @@ private:
     void remember_player();
     std::vector<EffectDefinition> effect_definitions_;
     AttachedEffects effects_;
+    MapEffects map_effects_;
+    bool map_effects_loaded_=false;
     std::array<unsigned,16> effect_ring_{};
     unsigned effect_ring_index_=0;
     unsigned attach_bubble(int parameter,int alias);

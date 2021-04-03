@@ -262,6 +262,39 @@ int main(){try {
         okage::OpeningField unsupported(startup,[](int){},[](int){return true;},player,false);
         rejects([&]{unsupported.enter(entry,stage,empty_map,0);});
     }
+    {
+        std::vector<std::uint8_t> efd(64+8*116),map(64+148+3*80),event(96);
+        put(efd,0,0x20444645);put(efd,4,1);put(efd,16,25);put(efd,20,10);put(efd,24,0x8000);
+        put(efd,32,8);put(efd,36,64);
+        for(unsigned i=0;i<8;++i){const auto at=64+116*i;put(efd,at+8,29);put(efd,at+28,__builtin_bit_cast(std::uint32_t, (2.f)));}
+        put(map,8,212);put(map,12,3);put(map,40,64);put(map,44,1);map[64]='e';
+        for(unsigned i=0;i<3;++i){const auto at=212+80*i;put(map,at+12,0x19100000);put(map,at+16,__builtin_bit_cast(std::uint32_t, (float(i))));}
+        put(event,0,0x544d58);put(event,4,event.size()-32);put(event,16,0xffffffff);
+        put(event,40,0x102ffd5d);put(event,44,__builtin_bit_cast(std::uint32_t, (.75f)));
+        put(event,48,__builtin_bit_cast(std::uint32_t, (.25f)));put(event,52,__builtin_bit_cast(std::uint32_t, (.25f)));
+        put(event,56,0x1001005c);put(event,60,0x1011005c);put(event,64,0x20003f);
+        put(event,68,0x100061);
+        okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
+        const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
+        okage::OpeningField scene(event,[](int){},[](int){return true;},player,false);
+        std::array<std::uint8_t,0x1000> vars{};okage::EffectTextureSizes sizes{};sizes[5]={32,24};
+        for(unsigned i:{13u,14u,15u})okage::set_event_variable(vars,i,4,2);
+        scene.get_variable=[&](auto s){return okage::event_variable(vars,s);};
+        scene.set_variable=[&](auto i,auto b,auto v){okage::set_event_variable(vars,i,b,v);};
+        unsigned calls=0;scene.random_value=[&]{return ++calls;};scene.load_effects(efd);scene.load_map_effects(map,sizes);
+        require(calls==3&&scene.map_effects()[0]->phase==1&&scene.map_effects()[2]->phase==3);
+        okage::FieldDefinition entry;entry.type=1;entry.startup=1;
+        scene.enter(entry,stage,empty_map,0);
+        for(unsigned i:{13u,14u,15u})require(okage::event_variable(vars,0x40000|i)==0);
+        require(scene.collision_mask->bits==4&&scene.map_effects()[2]->color==okage::Float4({.75f,.25f,.25f,1}));
+        require((scene.map_effects()[0]->flags&0x100)&&(scene.map_effects()[1]->flags&0x100));
+        scene.tick();require(scene.map_effects()[0]&&(scene.map_effects()[0]->flags&0x200));
+        scene.tick();require(!scene.map_effects()[0]&&!scene.map_effects()[1]&&scene.map_effects()[2]);
+        rejects([&]{scene.load_map_effects(map,sizes);});
+        okage::OpeningField omitted(event,[](int){},[](int){return true;},player,false);
+        omitted.get_variable=scene.get_variable;omitted.set_variable=scene.set_variable;
+        rejects([&]{omitted.enter(entry,stage,empty_map,0);});
+    }
     for(unsigned enemy_index:{0u,1u}) {
         okage::ModelFile enemy_model,player_model,ordinary_model;
         enemy_model.models.emplace_back();player_model.models.emplace_back();ordinary_model.models.emplace_back();

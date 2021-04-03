@@ -1,4 +1,5 @@
 #include "okage/field.hpp"
+#include "okage/map.hpp"
 #include "okage/event.hpp"
 #include <algorithm>
 #include <bit>
@@ -198,7 +199,7 @@ void OpeningField::update_npcs() {
             if(!collision_)throw std::runtime_error("Enemy pursuit requires field collision");
             for(unsigned i=0;i<bodies_.size();++i)bodies_[i].position=actors_[i].actor->animation().values().at(1);
             auto desired=bodies_[index].position;for(unsigned k=0;k<4;++k)desired[k]+=(*action.displacement)[k];
-            MapCollisionSettings settings;settings.wall_iterations=3;
+            MapCollisionSettings settings;settings.wall_iterations=3;settings.disabled_mask=collision_mask->bits;
             resolve_collision(*collision_,bodies_,index,desired,settings,__builtin_bit_cast(float, (0x3efff17du)));
             bodies_[index].position=desired;
             for(unsigned i=0;i<bodies_.size();++i) {
@@ -267,11 +268,28 @@ void OpeningField::load_effects(Bytes bytes) {
     if(!effect_definitions_.empty())throw std::runtime_error("Field effects already loaded");
     effect_definitions_=read_efd(bytes);
 }
+void OpeningField::load_map_effects(Bytes bytes,const EffectTextureSizes& sizes) {
+    if(effect_definitions_.empty()||!random_value)throw std::runtime_error("Map effects require templates and shared RNG");
+    if(map_effects_loaded_)throw std::runtime_error("Map effects already constructed");
+    const auto map=read_xmp(bytes);
+    for(const auto& p:map.placements) {
+        if(!p.handler())continue;
+        if(p.handler()!=1)throw std::runtime_error("Unrecovered map placement handler");
+        const auto id=p.handler_argument()&127;
+        const auto definition=std::find_if(effect_definitions_.begin(),effect_definitions_.end(),[&](const auto& d){return d.id==id;});
+        if(definition==effect_definitions_.end())throw std::runtime_error("Missing map effect definition");
+        unsigned handle=0;while(handle<effects_.size()&&(effects_[handle]||map_effects_[handle]))++handle;
+        if(handle==effects_.size())throw std::runtime_error("Field effect capacity exhausted");
+        const auto t=map_transform(p,map.definitions.at(p.definition()));
+        map_effects_[handle]=std::make_unique<MapEffect>(*definition,t.position,t.rotation,t.scale,sizes,random_value);
+    }
+    map_effects_loaded_=true;
+}
 unsigned OpeningField::attach_bubble(int parameter,int alias) {
     const auto definition=std::find_if(effect_definitions_.begin(),effect_definitions_.end(),[](const auto& d){return d.id==30;});
     if(definition==effect_definitions_.end())throw std::runtime_error("Bubble requires owned TES.EFD and effect textures");
     if(!actor(alias))throw std::runtime_error("Unresolved effect attachment actor");
-    unsigned handle=0;while(handle<effects_.size()&&effects_[handle])++handle;
+    unsigned handle=0;while(handle<effects_.size()&&(effects_[handle]||map_effects_[handle]))++handle;
     if(handle==effects_.size())throw std::runtime_error("Field effect capacity exhausted");
     effects_[handle]=std::make_unique<AttachedEffect>(*definition,parameter,alias);return handle;
 }
@@ -332,7 +350,7 @@ void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned
     // 0x135300: settle with a Y=1 collision move, then finish placement
     // by reading back the corrected output and initializing all 32 history entries.
     auto& body=bodies_.back();auto desired=placement.position;desired[1]+=1;
-    MapCollisionSettings settings;settings.wall_iterations=3;
+    MapCollisionSettings settings;settings.wall_iterations=3;settings.disabled_mask=collision_mask->bits;
     resolve_collision(*collision_,bodies_,bodies_.size()-1,desired,settings,__builtin_bit_cast(float, (0x3efff17du)));
     body.position=body.previous=desired;hero->animation().set_channel(1,desired);
     player_.floor_contact=(body.contact.flags&1)?body.contact.materials[0]:-1;
@@ -395,7 +413,7 @@ void OpeningField::move_player(ExplorationInput input) {
         for(unsigned i=0;i<bodies_.size();++i)bodies_[i].position=actors_[i].actor->animation().values().at(1);
         auto& body=bodies_.back();body.previous=body.position;Float4 desired;
         for(unsigned i=0;i<4;++i)desired[i]=body.position[i]+delta[i];
-        MapCollisionSettings settings;settings.wall_iterations=3;
+        MapCollisionSettings settings;settings.wall_iterations=3;settings.disabled_mask=collision_mask->bits;
         resolve_collision(*collision_,bodies_,bodies_.size()-1,desired,settings,__builtin_bit_cast(float, (0x3efff17du)));
         body.position=desired;
         // 0x1ba948 commits the mover and copies every current position to history.
@@ -563,8 +581,28 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             const auto handle=(b&0x100)?unsigned(b&255):effect_ring_[(effect_ring_index_-unsigned(b+1))&15];
             if(handle>=effects_.size())throw std::runtime_error("Invalid effect removal handle");
             if(effects_[handle])effects_[handle]->animation.request_removal();
+            if(map_effects_[handle])map_effects_[handle]->request_removal();
             return {pc+4};
         }
+        case 0x5d: {
+            const auto handle=(b&0x100)?unsigned(b&255):effect_ring_[(effect_ring_index_-unsigned(b+1))&15];
+            if(handle>=effects_.size())throw std::runtime_error("Invalid effect parameter handle");
+            if(effects_[handle])throw std::runtime_error("Attached effect parameter service is unrecovered");
+            if(!map_effects_loaded_)throw std::runtime_error("Effect parameter service requires initialized map jobs");
+            const auto payload=a>=0xf00?point(pc+4):Float4{};
+            if(map_effects_[handle])map_effects_[handle]->set_parameter(a,payload);
+            return {pc+(a>=0xf00?16u:4u)};
+        }
+        case 0x3f:
+            collision_mask->event(a,b);return {pc+4};
+        case 0x61:
+            // 0x1314f8 copies constructed follower count/identities to bank4.
+            // enter() still rejects selected followers until their construction
+            // is recovered; an enabled party with no followers reports zeros.
+            if(b!=1)throw std::runtime_error("Unrecovered party service mode "+std::to_string(b));
+            if(!definition_||!set_variable)return pending();
+            if(!definition_->followers.empty())throw std::runtime_error("Follower identity reporting requires constructed followers");
+            set_variable(13,4,0);set_variable(14,4,0);set_variable(15,4,0);return {pc+4};
         case 0x5a:
         case 0x5b: {
             auto* moving=actor(group_);auto* facing=op==0x5a ? actor(b) : nullptr;
@@ -602,7 +640,7 @@ void OpeningField::tick(ExplorationInput input) {
     auto update_exterior_camera=[&] {
         const auto& values=actor(-1)->animation().values();
         const auto camera=exterior_camera->tick(values.at(1),values.at(0),script_.values().at(0),input.held,input.look_x,
-                                                *collision_,angles_,sine_);
+                                                *collision_,angles_,sine_,collision_mask->bits);
         script_.set_channel(0,camera.position);requested_target_=camera.target;camera_mode_=2;
     };
     bool move=false;
@@ -658,6 +696,14 @@ void OpeningField::tick(ExplorationInput input) {
     advance_effects(false);
 }
 void OpeningField::advance_effects(bool player_contacts) {
+    if(!player_contacts)for(auto& effect:map_effects_)if(effect) {
+        auto& flags=effect->flags;
+        if(flags&0x200){effect.reset();continue;}
+        if(flags&0x100){flags|=0x200;continue;}
+        if(flags&0x4000)continue;
+        if(flags&0x400)throw std::runtime_error("Deferred map effect render pass is unrecovered");
+        effect->tick(random_value);
+    }
     for(auto& effect:effects_)if(effect&&effect->player_contact==player_contacts) {
         auto& flags=effect->animation.flags;
         if(flags&0x200){effect.reset();continue;}

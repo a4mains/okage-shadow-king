@@ -2,6 +2,12 @@
 #include "okage/model.hpp"
 
 namespace okage {
+// Shared retail polygon-group disable mask (0x1feb28). Event3f changes the
+// same mask read by actor and camera map queries; group numbers wrap to5 bits.
+struct CollisionMask {
+    std::uint32_t bits=0;
+    void event(unsigned mode,std::int32_t group);
+};
 struct CollisionPolygon {
     std::array<std::uint16_t,10> words{};
     unsigned vertex_count() const {return 3+(words[0]&1);}

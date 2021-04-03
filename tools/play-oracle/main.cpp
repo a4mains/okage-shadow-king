@@ -281,6 +281,51 @@ public:
         if(get(object+0x3e34)!=text.size())throw std::runtime_error("Text fixture did not finish");
         writeFile(output,result.data(),result.size());
     }
+    void mapEffectProbe(const std::vector<uint8>& ram,const std::vector<uint8>& input,unsigned frames,const char* output) {
+        if(ram.size()!=32*1024*1024||input.size()!=80||frames>1000)
+            throw std::runtime_error("Map effect probe fixture bounds");
+        std::array<uint32,20> request;std::memcpy(request.data(),input.data(),80);
+        if((request[0]!=25&&request[0]!=34)||request[2]>0xfff||request[3]!=0x100)
+            throw std::runtime_error("Map effect probe request scope");
+        std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
+        effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
+                                        ee->m_gs,ee->m_sif,*dynamic_cast<CIopBios*>(iop->m_bios.get()));
+        loadMicro();
+        const auto table=get(0x1f849c),random=get(0x2151b4)+0x58;
+        if(table>ram.size()-212*4||random>ram.size()-4)throw std::runtime_error("Map effect fixture pointers");
+        for(unsigned i=0;i<84;++i)put(table+4*i,0xffffffff);
+        put(random,request[1]);std::memcpy(ee->m_ram+0x80000,request.data()+4,64);
+        call(0x101440,{request[0],0x80000,0x80010,0x80020});
+        const auto handle=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+        if(handle!=0)throw std::runtime_error("Map effect allocation order");
+        put(0x1f85a4,1);
+        std::vector<uint32> result;
+        auto capture=[&](unsigned step){
+            const auto job=get(table+4*handle);
+            if(job>ram.size()-128||get(job+8)>32)throw std::runtime_error("Map effect job extent");
+            result.insert(result.end(),{step,handle,get(job),get(job+4),get(job+8),get(job+0x60),get(job+0x64),get(random)});
+            for(unsigned offset=0x10;offset<=0x5c;offset+=4)result.push_back(get(job+offset));
+            result.push_back(get(job+0x6c));
+            for(unsigned i=0;i<get(job+8);++i) {
+                const auto element=get(job+12)+i*128,render=get(element+0x78);
+                if(element>ram.size()-128||render>ram.size()-96)throw std::runtime_error("Map effect element extent");
+                for(unsigned offset=0;offset<80;offset+=4)result.push_back(get(element+offset));
+                for(unsigned offset:{0x54u,0x60u,0x70u,0x74u})result.push_back(get(element+offset));
+                for(unsigned offset=0;offset<64;offset+=4)result.push_back(get(render+offset));
+                unsigned texture=0;
+                for(;texture<get(0x1f8498);++texture)if(get(get(0x24e780)+4*texture)==(get(element+0x5c)&0xffff))break;
+                if(texture==get(0x1f8498))throw std::runtime_error("Map effect texture identity");
+                result.insert(result.end(),{texture,get(element+0x68),get(element+0x6c),get(render+0x58)});
+            }
+        };
+        capture(0);
+        call(0x130d88,{0,request[2],request[3],0x80030});
+        const auto next=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+        if(next!=(request[2]<0xf00?0x80030u:0x8003cu))throw std::runtime_error("Map effect service payload extent");
+        capture(1);
+        for(unsigned frame=0;frame<frames;++frame){call(0x1131d0,{handle});capture(frame+2);}
+        writeFile(output,result.data(),result.size()*4);
+    }
     void effectProbe(const std::vector<uint8>& ram,unsigned id,unsigned parameter,unsigned frames,const char* output) {
         if(ram.size()!=32*1024*1024||id!=30||parameter>=32||frames>1000)
             throw std::runtime_error("Effect probe fixture bounds");
@@ -1135,6 +1180,8 @@ int main(int argc,char** argv) {
             reference.collisionWorld(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="event-write" && argc==6) {
             reference.eventWrite(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="map-effect-probe" && argc==7) {
+            reference.mapEffectProbe(readFile(argv[3]),readFile(argv[4]),std::stoul(argv[5]),argv[6]);
         } else if(command=="effect-probe" && argc==8) {
             reference.effectProbe(readFile(argv[3]),std::stoul(argv[4]),std::stoul(argv[5]),std::stoul(argv[6]),argv[7]);
         } else if(command=="pme-choice" && argc==8) {

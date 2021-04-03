@@ -26,6 +26,7 @@ struct SceneRenderer::Impl {
     std::size_t omittedEffects=0,actorCount=0;
     std::size_t whiteTexture=0,effectTexture=0;
     bool effectTexturesLoaded=false;
+    const MapEffects* mapEffects=nullptr;
     id<MTLDevice> device;
     id<MTLRenderPipelineState> pipeline,effectPipeline;
     id<MTLDepthStencilState> depth,effectDepth;
@@ -107,7 +108,7 @@ struct SceneRenderer::Impl {
     void loadEffects(const fs::path& directory) {
         if(effectTexturesLoaded)throw std::runtime_error("Effect textures already loaded");
         effectTexture=textures.size();
-        for(const auto* name:{"fuki32b.xim","all.xim","all2.xim"}) {
+        for(const auto name:effect_texture_names) {
             auto image=decode_xim(read(directory/name));
             auto td=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:image.width height:image.height mipmapped:NO];
             td.storageMode=MTLStorageModeShared;td.usage=MTLTextureUsageShaderRead;
@@ -119,6 +120,8 @@ struct SceneRenderer::Impl {
         effectTexturesLoaded=true;
     }
     Texture render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera) {
+        if(mapEffects)for(const auto& e:*mapEffects)if(e&&!(e->flags&0x4300))
+            throw std::runtime_error("Native map effect geometry submission is unrecovered");
         std::vector<Vertex> vertices;
         std::vector<Draw> draws;
         okage::Float4 low{INFINITY,INFINITY,INFINITY,0},high{-INFINITY,-INFINITY,-INFINITY,0};
@@ -191,7 +194,7 @@ struct SceneRenderer::Impl {
                 const auto matrix=compose_pose(view,std::span(&world,1))[0];
                 const std::array<Float4,4> corners={Float4{0,-1,0,1},Float4{1,-1,0,1},Float4{1,0,0,1},Float4{0,0,0,1}};
                 if(sprite.texture<14||sprite.texture>16)throw std::runtime_error("Unsupported effect texture");
-                const auto texture=effectTexture+sprite.texture-14;const auto& image=textures.at(texture);
+                const auto texture=effectTexture+sprite.texture;const auto& image=textures.at(texture);
                 const unsigned left=sprite.uv[0],top=sprite.uv[1],right=sprite.uv[2],bottom=sprite.uv[3];
                 Draw draw{std::uint32_t(vertices.size()),6,std::int32_t(texture),{left,std::min(right,image.width-1),top,std::min(bottom,image.height-1),2,2,1,0},true};
                 const float u0=left/1024.f,v0=top/1024.f;
@@ -238,6 +241,13 @@ SceneRenderer::SceneRenderer(const fs::path& map,std::span<const SceneActor> act
     impl_(std::make_unique<Impl>(map,actors,objects)){}
 SceneRenderer::~SceneRenderer()=default;
 void SceneRenderer::load_effect_textures(const fs::path& path){impl_->loadEffects(path);}
+EffectTextureSizes SceneRenderer::effect_texture_sizes() const {
+    if(!impl_->effectTexturesLoaded)throw std::runtime_error("Effect textures are unavailable");
+    EffectTextureSizes result{};
+    for(unsigned i=0;i<result.size();++i){const auto& t=impl_->textures.at(impl_->effectTexture+i);result[i]={t.width,t.height};}
+    return result;
+}
+void SceneRenderer::bind_map_effects(const MapEffects* effects){impl_->mapEffects=effects;}
 Texture SceneRenderer::render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera){return impl_->render(view,projection,effects,camera);}
 std::size_t SceneRenderer::placements() const{return impl_->inputs.size()-impl_->actorCount;}
 std::size_t SceneRenderer::actors() const{return impl_->actorCount;}

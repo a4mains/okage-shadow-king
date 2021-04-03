@@ -1,0 +1,350 @@
+{
+  "native": {
+    "scope": "Compare native map-effect state against completed isolated original probes.",
+    "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+    "native_binary_sha256": "8ebdb2638c401def911609e670e4a5b14b9f65d48ac90f6df583e42af6f94323",
+    "texture_sha256": {
+      "5sen.xim": "a6f4aabe8909a195ff37735efaf72001287c37958f5c68fd4d6cd498b42a775b",
+      "6eff01.xim": "57fc8e2e47a985d35ba5531058bd5b490a5d268498122393525f56caa94ac61d",
+      "6eff02.xim": "f67a1bdd275a54284539246e89cfb2f138bcd9f59c12fb3343867aec5c648d33",
+      "all.xim": "e35e6d02436cde092dc26cffd3340cdfa5119173ffe02f080797b288d9fd1947",
+      "all2.xim": "af4d452b82ceec1e21a01aa2885aedab6453b281e3005fd44b92c299e5ae0e6a",
+      "aura.xim": "9b789518dc328b3462e3bc406e66ce61c18d639ae6c4464450e0d79d2daece4a",
+      "exp9.xim": "0f75f7b7bd0b3c218cdaaeb482bdaafe6ff7e999c6b7d986e1fbdbbc2da3df46",
+      "exp_c.xim": "bf48faf54ce36ea1af13844e715c4b0123e713675e2cb5e56610924a3c3cd724",
+      "f2.xim": "bea1730e29afffe4f97f9f229fc679f85148e57b91e74a96870c404f93aa7a3e",
+      "fuki32b.xim": "f4362dc85edeb174ba4d012d2cad6b666bfef3f420e05366352a8b08306195a4",
+      "h29_4.xim": "a683d6bfbe5fef31a398cb762443520271367ef14509dcae0dbdf2d706ae9717",
+      "heart.xim": "821a7e98c4774c2bc00f8a0786072032bab3967100c3136279797d3506de15a0",
+      "hit!.xim": "4ca368c7882ba6c67fb31b77fd2abc8ef48c6ca991c93f658a618b9dadabcb26",
+      "kemuri.xim": "c04b3c2219b95ce79b524afa5c2d7cf9f363b4d51d6459bfadb00a118c4ccb4a",
+      "kyusyu16.xim": "fc34044f98269d70c193a38bdbaad4ceef3e221ce3f351b69d6ff78699cc883a",
+      "lgtballm4.xim": "81d1ee7bddd13c218cf3a85672e76b5e673c895acf44b1251a52ba64accc7b5b",
+      "niji.xim": "b86509274c38f73e3c811402fd43ce1a434a5a9687ff8bc0b00f5a8511eb6b03",
+      "odoro.xim": "1b19fb7af3dab17670a9873ea0d70902a40e9e2bb374e0d5ebc53f02667b5503",
+      "oldskilt4.xim": "473ab019281a39cba4b43e1043010d6cf6c02f21af658974902943da392fd6ad",
+      "onnpu.xim": "b9294c102f58b85d552145aedada0ffffdad90abffdfb0a14d344ccbb2e58a1c",
+      "page.xim": "869aae415f2ec8ed6a18b7b874dbf3e5054b57cb1fba7630403da35da5bc641b",
+      "smoke_4.xim": "52f59a2114feab46c535f56d729e33194b748fbaeb08ce3b8a3c1c29d3629a63",
+      "spark.xim": "b8d181a1157a6aaa1ddf7653a959eb82ebfab3dad1fbb6c905ba1b3d22240e24",
+      "splash_a.xim": "b133efc1b4a928478d573ea79b3f78db6c0c9298e0d323337aaa01846997d6af",
+      "suuji.xim": "83e0896ecca63c95ea69858d7e93ce9ada5a5198880ae8e0c29ae2148e9d4fef",
+      "thunder.xim": "82283a13f1cfaf107d740540f84d8c48b7e3bfb9de7c4a182ae51b8f67d39e80",
+      "thunderball.xim": "ec934adf9c3e0fcfa3365e1e1af1f404471d2a6266df582f1d9352ad41b39086",
+      "treasure.xim": "e9ccaa79db2df0a8c6b0858ee41415c8b0e81be45c3d034622f5947d51710af1",
+      "wat_4.xim": "90acd2d41837a60b50773a694fd60c3dfc828b4241dc636d3f8f348d52ad1ae6",
+      "water.xim": "a550cb4932f2bc8a5406361c42ec90467b2689d143126e927479338785d0bd3b",
+      "wind.xim": "16354ff48e492e46dec87ba99d85295c210efe7ea7daac63ec6a0f7423d0eab5"
+    },
+    "position_tolerance": 2e-06,
+    "cases": [
+      {
+        "records": 452,
+        "words_per_record": 381,
+        "all_other_words_exact": true,
+        "particle_position_max_abs_error": [
+          9.5367431640625e-07,
+          1.9073486328125e-06,
+          9.5367431640625e-07
+        ],
+        "particle_position_differing_words": 1971,
+        "template": 25,
+        "input_sha256": "ad350ab5b6cea5d34faf64fc3b34323d246e10888ee8469952345004a66309eb",
+        "reference_sha256": "041e1f6ef41b0be5846299b1a635dc80e7f956f152588d0d93115182016e5f29",
+        "native_sha256": "c960ccbb07993126bac12e9dde42ef2d6474ba3cf5526014e426e2ab12981e2c",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "map-effect-probe",
+            "local/extracted/SCUS_971.29",
+            "local/research/exterior-load180-v1-ee.bin",
+            "local/map-effect-probe-v1/25.input.bin",
+            "450",
+            "local/map-effect-probe-v1/25.original.bin"
+          ],
+          "binary_sha256": "524f9cdc23f0a1d6fe99185816b426437a456f6b1e929b569ceb9cf0e6237c3d",
+          "exit_code": 0
+        },
+        "native_command": [
+          "build/native/okage-assets",
+          "map-effect-probe",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/map-effect-probe-v1/25.input.bin",
+          "450",
+          "local/map-effect-validation-native-v1/25.native.bin"
+        ]
+      },
+      {
+        "records": 2,
+        "words_per_record": 645,
+        "all_other_words_exact": true,
+        "particle_position_max_abs_error": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "particle_position_differing_words": 0,
+        "template": 34,
+        "input_sha256": "769c8ec963c03f97f47d6a38fe15e6edb88dd5d88a812f596f0496de3be3aa10",
+        "reference_sha256": "d166e6ba19585cf02826346cd500ef2171ff2a961195baf82e290b440b576c41",
+        "native_sha256": "d166e6ba19585cf02826346cd500ef2171ff2a961195baf82e290b440b576c41",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "map-effect-probe",
+            "local/extracted/SCUS_971.29",
+            "local/research/exterior-load180-v1-ee.bin",
+            "local/map-effect-probe-v1/34.input.bin",
+            "0",
+            "local/map-effect-probe-v1/34.original.bin"
+          ],
+          "binary_sha256": "524f9cdc23f0a1d6fe99185816b426437a456f6b1e929b569ceb9cf0e6237c3d",
+          "exit_code": 0
+        },
+        "native_command": [
+          "build/native/okage-assets",
+          "map-effect-probe",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/map-effect-probe-v1/34.input.bin",
+          "0",
+          "local/map-effect-validation-native-v1/34.native.bin"
+        ]
+      }
+    ]
+  },
+  "native-release": {
+    "scope": "Compare native map-effect state against completed isolated original probes.",
+    "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+    "native_binary_sha256": "36046aba1875093de09a92545a0adcd16e94687e82277099d6dc736a17b80c72",
+    "texture_sha256": {
+      "5sen.xim": "a6f4aabe8909a195ff37735efaf72001287c37958f5c68fd4d6cd498b42a775b",
+      "6eff01.xim": "57fc8e2e47a985d35ba5531058bd5b490a5d268498122393525f56caa94ac61d",
+      "6eff02.xim": "f67a1bdd275a54284539246e89cfb2f138bcd9f59c12fb3343867aec5c648d33",
+      "all.xim": "e35e6d02436cde092dc26cffd3340cdfa5119173ffe02f080797b288d9fd1947",
+      "all2.xim": "af4d452b82ceec1e21a01aa2885aedab6453b281e3005fd44b92c299e5ae0e6a",
+      "aura.xim": "9b789518dc328b3462e3bc406e66ce61c18d639ae6c4464450e0d79d2daece4a",
+      "exp9.xim": "0f75f7b7bd0b3c218cdaaeb482bdaafe6ff7e999c6b7d986e1fbdbbc2da3df46",
+      "exp_c.xim": "bf48faf54ce36ea1af13844e715c4b0123e713675e2cb5e56610924a3c3cd724",
+      "f2.xim": "bea1730e29afffe4f97f9f229fc679f85148e57b91e74a96870c404f93aa7a3e",
+      "fuki32b.xim": "f4362dc85edeb174ba4d012d2cad6b666bfef3f420e05366352a8b08306195a4",
+      "h29_4.xim": "a683d6bfbe5fef31a398cb762443520271367ef14509dcae0dbdf2d706ae9717",
+      "heart.xim": "821a7e98c4774c2bc00f8a0786072032bab3967100c3136279797d3506de15a0",
+      "hit!.xim": "4ca368c7882ba6c67fb31b77fd2abc8ef48c6ca991c93f658a618b9dadabcb26",
+      "kemuri.xim": "c04b3c2219b95ce79b524afa5c2d7cf9f363b4d51d6459bfadb00a118c4ccb4a",
+      "kyusyu16.xim": "fc34044f98269d70c193a38bdbaad4ceef3e221ce3f351b69d6ff78699cc883a",
+      "lgtballm4.xim": "81d1ee7bddd13c218cf3a85672e76b5e673c895acf44b1251a52ba64accc7b5b",
+      "niji.xim": "b86509274c38f73e3c811402fd43ce1a434a5a9687ff8bc0b00f5a8511eb6b03",
+      "odoro.xim": "1b19fb7af3dab17670a9873ea0d70902a40e9e2bb374e0d5ebc53f02667b5503",
+      "oldskilt4.xim": "473ab019281a39cba4b43e1043010d6cf6c02f21af658974902943da392fd6ad",
+      "onnpu.xim": "b9294c102f58b85d552145aedada0ffffdad90abffdfb0a14d344ccbb2e58a1c",
+      "page.xim": "869aae415f2ec8ed6a18b7b874dbf3e5054b57cb1fba7630403da35da5bc641b",
+      "smoke_4.xim": "52f59a2114feab46c535f56d729e33194b748fbaeb08ce3b8a3c1c29d3629a63",
+      "spark.xim": "b8d181a1157a6aaa1ddf7653a959eb82ebfab3dad1fbb6c905ba1b3d22240e24",
+      "splash_a.xim": "b133efc1b4a928478d573ea79b3f78db6c0c9298e0d323337aaa01846997d6af",
+      "suuji.xim": "83e0896ecca63c95ea69858d7e93ce9ada5a5198880ae8e0c29ae2148e9d4fef",
+      "thunder.xim": "82283a13f1cfaf107d740540f84d8c48b7e3bfb9de7c4a182ae51b8f67d39e80",
+      "thunderball.xim": "ec934adf9c3e0fcfa3365e1e1af1f404471d2a6266df582f1d9352ad41b39086",
+      "treasure.xim": "e9ccaa79db2df0a8c6b0858ee41415c8b0e81be45c3d034622f5947d51710af1",
+      "wat_4.xim": "90acd2d41837a60b50773a694fd60c3dfc828b4241dc636d3f8f348d52ad1ae6",
+      "water.xim": "a550cb4932f2bc8a5406361c42ec90467b2689d143126e927479338785d0bd3b",
+      "wind.xim": "16354ff48e492e46dec87ba99d85295c210efe7ea7daac63ec6a0f7423d0eab5"
+    },
+    "position_tolerance": 2e-06,
+    "cases": [
+      {
+        "records": 452,
+        "words_per_record": 381,
+        "all_other_words_exact": true,
+        "particle_position_max_abs_error": [
+          9.5367431640625e-07,
+          1.9073486328125e-06,
+          9.5367431640625e-07
+        ],
+        "particle_position_differing_words": 1971,
+        "template": 25,
+        "input_sha256": "ad350ab5b6cea5d34faf64fc3b34323d246e10888ee8469952345004a66309eb",
+        "reference_sha256": "041e1f6ef41b0be5846299b1a635dc80e7f956f152588d0d93115182016e5f29",
+        "native_sha256": "c960ccbb07993126bac12e9dde42ef2d6474ba3cf5526014e426e2ab12981e2c",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "map-effect-probe",
+            "local/extracted/SCUS_971.29",
+            "local/research/exterior-load180-v1-ee.bin",
+            "local/map-effect-probe-v1/25.input.bin",
+            "450",
+            "local/map-effect-probe-v1/25.original.bin"
+          ],
+          "binary_sha256": "524f9cdc23f0a1d6fe99185816b426437a456f6b1e929b569ceb9cf0e6237c3d",
+          "exit_code": 0
+        },
+        "native_command": [
+          "build/native-release/okage-assets",
+          "map-effect-probe",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/map-effect-probe-v1/25.input.bin",
+          "450",
+          "local/map-effect-validation-native-release-v1/25.native.bin"
+        ]
+      },
+      {
+        "records": 2,
+        "words_per_record": 645,
+        "all_other_words_exact": true,
+        "particle_position_max_abs_error": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "particle_position_differing_words": 0,
+        "template": 34,
+        "input_sha256": "769c8ec963c03f97f47d6a38fe15e6edb88dd5d88a812f596f0496de3be3aa10",
+        "reference_sha256": "d166e6ba19585cf02826346cd500ef2171ff2a961195baf82e290b440b576c41",
+        "native_sha256": "d166e6ba19585cf02826346cd500ef2171ff2a961195baf82e290b440b576c41",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "map-effect-probe",
+            "local/extracted/SCUS_971.29",
+            "local/research/exterior-load180-v1-ee.bin",
+            "local/map-effect-probe-v1/34.input.bin",
+            "0",
+            "local/map-effect-probe-v1/34.original.bin"
+          ],
+          "binary_sha256": "524f9cdc23f0a1d6fe99185816b426437a456f6b1e929b569ceb9cf0e6237c3d",
+          "exit_code": 0
+        },
+        "native_command": [
+          "build/native-release/okage-assets",
+          "map-effect-probe",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/map-effect-probe-v1/34.input.bin",
+          "0",
+          "local/map-effect-validation-native-release-v1/34.native.bin"
+        ]
+      }
+    ]
+  },
+  "model-sanitize": {
+    "scope": "Compare native map-effect state against completed isolated original probes.",
+    "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+    "native_binary_sha256": "b61184c18cfc8ebc4dd5f4b5537942d2d80beaaccd6946546df2048b13250a24",
+    "texture_sha256": {
+      "5sen.xim": "a6f4aabe8909a195ff37735efaf72001287c37958f5c68fd4d6cd498b42a775b",
+      "6eff01.xim": "57fc8e2e47a985d35ba5531058bd5b490a5d268498122393525f56caa94ac61d",
+      "6eff02.xim": "f67a1bdd275a54284539246e89cfb2f138bcd9f59c12fb3343867aec5c648d33",
+      "all.xim": "e35e6d02436cde092dc26cffd3340cdfa5119173ffe02f080797b288d9fd1947",
+      "all2.xim": "af4d452b82ceec1e21a01aa2885aedab6453b281e3005fd44b92c299e5ae0e6a",
+      "aura.xim": "9b789518dc328b3462e3bc406e66ce61c18d639ae6c4464450e0d79d2daece4a",
+      "exp9.xim": "0f75f7b7bd0b3c218cdaaeb482bdaafe6ff7e999c6b7d986e1fbdbbc2da3df46",
+      "exp_c.xim": "bf48faf54ce36ea1af13844e715c4b0123e713675e2cb5e56610924a3c3cd724",
+      "f2.xim": "bea1730e29afffe4f97f9f229fc679f85148e57b91e74a96870c404f93aa7a3e",
+      "fuki32b.xim": "f4362dc85edeb174ba4d012d2cad6b666bfef3f420e05366352a8b08306195a4",
+      "h29_4.xim": "a683d6bfbe5fef31a398cb762443520271367ef14509dcae0dbdf2d706ae9717",
+      "heart.xim": "821a7e98c4774c2bc00f8a0786072032bab3967100c3136279797d3506de15a0",
+      "hit!.xim": "4ca368c7882ba6c67fb31b77fd2abc8ef48c6ca991c93f658a618b9dadabcb26",
+      "kemuri.xim": "c04b3c2219b95ce79b524afa5c2d7cf9f363b4d51d6459bfadb00a118c4ccb4a",
+      "kyusyu16.xim": "fc34044f98269d70c193a38bdbaad4ceef3e221ce3f351b69d6ff78699cc883a",
+      "lgtballm4.xim": "81d1ee7bddd13c218cf3a85672e76b5e673c895acf44b1251a52ba64accc7b5b",
+      "niji.xim": "b86509274c38f73e3c811402fd43ce1a434a5a9687ff8bc0b00f5a8511eb6b03",
+      "odoro.xim": "1b19fb7af3dab17670a9873ea0d70902a40e9e2bb374e0d5ebc53f02667b5503",
+      "oldskilt4.xim": "473ab019281a39cba4b43e1043010d6cf6c02f21af658974902943da392fd6ad",
+      "onnpu.xim": "b9294c102f58b85d552145aedada0ffffdad90abffdfb0a14d344ccbb2e58a1c",
+      "page.xim": "869aae415f2ec8ed6a18b7b874dbf3e5054b57cb1fba7630403da35da5bc641b",
+      "smoke_4.xim": "52f59a2114feab46c535f56d729e33194b748fbaeb08ce3b8a3c1c29d3629a63",
+      "spark.xim": "b8d181a1157a6aaa1ddf7653a959eb82ebfab3dad1fbb6c905ba1b3d22240e24",
+      "splash_a.xim": "b133efc1b4a928478d573ea79b3f78db6c0c9298e0d323337aaa01846997d6af",
+      "suuji.xim": "83e0896ecca63c95ea69858d7e93ce9ada5a5198880ae8e0c29ae2148e9d4fef",
+      "thunder.xim": "82283a13f1cfaf107d740540f84d8c48b7e3bfb9de7c4a182ae51b8f67d39e80",
+      "thunderball.xim": "ec934adf9c3e0fcfa3365e1e1af1f404471d2a6266df582f1d9352ad41b39086",
+      "treasure.xim": "e9ccaa79db2df0a8c6b0858ee41415c8b0e81be45c3d034622f5947d51710af1",
+      "wat_4.xim": "90acd2d41837a60b50773a694fd60c3dfc828b4241dc636d3f8f348d52ad1ae6",
+      "water.xim": "a550cb4932f2bc8a5406361c42ec90467b2689d143126e927479338785d0bd3b",
+      "wind.xim": "16354ff48e492e46dec87ba99d85295c210efe7ea7daac63ec6a0f7423d0eab5"
+    },
+    "position_tolerance": 2e-06,
+    "cases": [
+      {
+        "records": 452,
+        "words_per_record": 381,
+        "all_other_words_exact": true,
+        "particle_position_max_abs_error": [
+          9.5367431640625e-07,
+          1.9073486328125e-06,
+          9.5367431640625e-07
+        ],
+        "particle_position_differing_words": 1971,
+        "template": 25,
+        "input_sha256": "ad350ab5b6cea5d34faf64fc3b34323d246e10888ee8469952345004a66309eb",
+        "reference_sha256": "041e1f6ef41b0be5846299b1a635dc80e7f956f152588d0d93115182016e5f29",
+        "native_sha256": "c960ccbb07993126bac12e9dde42ef2d6474ba3cf5526014e426e2ab12981e2c",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "map-effect-probe",
+            "local/extracted/SCUS_971.29",
+            "local/research/exterior-load180-v1-ee.bin",
+            "local/map-effect-probe-v1/25.input.bin",
+            "450",
+            "local/map-effect-probe-v1/25.original.bin"
+          ],
+          "binary_sha256": "524f9cdc23f0a1d6fe99185816b426437a456f6b1e929b569ceb9cf0e6237c3d",
+          "exit_code": 0
+        },
+        "native_command": [
+          "build/model-sanitize/okage-assets",
+          "map-effect-probe",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/map-effect-probe-v1/25.input.bin",
+          "450",
+          "local/map-effect-validation-model-sanitize-v1/25.native.bin"
+        ]
+      },
+      {
+        "records": 2,
+        "words_per_record": 645,
+        "all_other_words_exact": true,
+        "particle_position_max_abs_error": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "particle_position_differing_words": 0,
+        "template": 34,
+        "input_sha256": "769c8ec963c03f97f47d6a38fe15e6edb88dd5d88a812f596f0496de3be3aa10",
+        "reference_sha256": "d166e6ba19585cf02826346cd500ef2171ff2a961195baf82e290b440b576c41",
+        "native_sha256": "d166e6ba19585cf02826346cd500ef2171ff2a961195baf82e290b440b576c41",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "map-effect-probe",
+            "local/extracted/SCUS_971.29",
+            "local/research/exterior-load180-v1-ee.bin",
+            "local/map-effect-probe-v1/34.input.bin",
+            "0",
+            "local/map-effect-probe-v1/34.original.bin"
+          ],
+          "binary_sha256": "524f9cdc23f0a1d6fe99185816b426437a456f6b1e929b569ceb9cf0e6237c3d",
+          "exit_code": 0
+        },
+        "native_command": [
+          "build/model-sanitize/okage-assets",
+          "map-effect-probe",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/map-effect-probe-v1/34.input.bin",
+          "0",
+          "local/map-effect-validation-model-sanitize-v1/34.native.bin"
+        ]
+      }
+    ]
+  }
+}

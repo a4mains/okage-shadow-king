@@ -92,7 +92,7 @@ void ExteriorCamera::select_preset(unsigned value) {
 }
 CameraPoints ExteriorCamera::tick(const Float4& player,const Float4& facing,const Float4& camera,
                                  unsigned held,unsigned look_x,const CollisionMap& map,
-                                 const AtanTable& angles,const SineTable& sine) {
+                                 const AtanTable& angles,const SineTable& sine,std::uint32_t disabled_mask) {
     using namespace collision_geometry;Rounding rounding;
     for(const auto& point:{player,facing,camera,previous_player})for(float v:point)
         if(!std::isfinite(v)||std::fabs(v)>1e6f)throw std::runtime_error("Invalid exterior camera transform");
@@ -133,9 +133,9 @@ CameraPoints ExteriorCamera::tick(const Float4& player,const Float4& facing,cons
     CameraPoints result;result.position=add(player,{radius*sine[index],vertical,(-radius)*sine[(index+4096)&0x3fff],1});
     if(phase!=1) {
         auto delta=sub(result.position,camera);for(auto& v:delta)v*=phase;
-        result.position=add(camera,delta);map.camera_move(camera,result.position);
+        result.position=add(camera,delta);map.camera_move(camera,result.position,disabled_mask);
         phase+=.005f;if(phase>=.99f)phase=1;
-    } else map.camera_move(camera,result.position);
+    } else map.camera_move(camera,result.position,disabled_mask);
     if(preset==0) {
         const float base=result.position[1]-vertical;
         if(obstruction_clock<0) {
@@ -148,13 +148,13 @@ CameraPoints ExteriorCamera::tick(const Float4& player,const Float4& facing,cons
         const float threshold=from[1]-44.7f;
         auto probe=result.position;probe[1]=base+desired_height;
         if(threshold<=desired_height)probe[1]-=1;
-        if(map.segment_contact(from,probe,4).hit) {
+        if(map.segment_contact(from,probe,disabled_mask).hit) {
             if(threshold<=desired_height)desired_height-=1;
             obstruction_clock=-1;
         }
         if(obstruction_clock>=0) {
             probe[1]=-5;
-            if(map.segment_contact(from,probe,4).hit)obstruction_clock=0;
+            if(map.segment_contact(from,probe,disabled_mask).hit)obstruction_clock=0;
             else {
                 if(obstruction_clock==INT32_MAX)throw std::runtime_error("Camera obstruction timer overflow");
                 if(++obstruction_clock>=60) {

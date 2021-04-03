@@ -254,6 +254,36 @@ int main(int argc, char** argv) {
             }
             write(argv[3],out);return 0;
         }
+        if(command=="map-effect-probe"&&argc==7) {
+            const auto bank=okage::read_efd(read(argv[2]));const auto input=read(argv[4]);
+            if(input.size()!=80)throw std::runtime_error("Map effect request requires80 bytes");
+            std::array<std::uint32_t,4> request;std::memcpy(request.data(),input.data(),16);
+            std::array<okage::Float4,4> vectors;std::memcpy(vectors.data(),input.data()+16,64);
+            if(request[3]!=0x100)throw std::runtime_error("Map effect probe requires direct handle0");
+            const auto found=std::find_if(bank.begin(),bank.end(),[&](const auto& d){return d.id==request[0];});
+            if(found==bank.end())throw std::runtime_error("Missing map effect definition");
+            const auto frames=std::stoul(argv[5]);if(frames>1000)throw std::runtime_error("Map effect frame bounds");
+            okage::EffectTextureSizes sizes{};
+            for(unsigned i=0;i<sizes.size();++i){const auto image=okage::decode_xim(read(fs::path(argv[3])/okage::effect_texture_names[i]));sizes[i]={image.width,image.height};}
+            okage::GameRandom rng{request[1]};const auto random=[&]{return rng.next();};
+            okage::MapEffect effect(*found,vectors[0],vectors[1],vectors[2],sizes,random);
+            std::vector<std::uint32_t> out;
+            const auto vector=[&](const okage::Float4& v){for(float f:v)out.push_back(__builtin_bit_cast(std::uint32_t, (f)));};
+            const auto capture=[&](unsigned step){
+                out.insert(out.end(),{step,0,effect.id,effect.flags,unsigned(effect.elements.size()),effect.duration,effect.phase,rng.state});
+                for(const auto& v:{effect.position,effect.rotation,effect.scale,effect.color,effect.parameters})vector(v);
+                out.push_back(__builtin_bit_cast(std::uint32_t, (effect.inverse_duration)));
+                for(const auto& e:effect.elements){
+                    for(const auto& v:{e.position,e.rotation,e.scale,e.color,e.interval})vector(v);
+                    out.insert(out.end(),{e.flags,e.program,__builtin_bit_cast(std::uint32_t, (e.change_time)),e.next_program});
+                    for(const auto& v:e.rendered)vector(v);
+                    out.insert(out.end(),{e.texture,e.uv[0]|(std::uint32_t(e.uv[1])<<16),e.uv[2]|(std::uint32_t(e.uv[3])<<16),e.render_flags});
+                }
+            };
+            capture(0);effect.set_parameter(request[2],vectors[3]);capture(1);
+            for(unsigned i=0;i<frames;++i){effect.tick(random);capture(i+2);}
+            write(argv[6],{reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4});return 0;
+        }
         if(command=="effect-probe"&&argc==7) {
             const auto bank=okage::read_efd(read(argv[2]));const auto fixture=read(argv[3]);
             if(fixture.size()!=16)throw std::runtime_error("Effect camera fixture requires float4");

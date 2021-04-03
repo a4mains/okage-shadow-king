@@ -49,6 +49,116 @@ std::vector<EffectDefinition> read_efd(Bytes bytes) {
     }
     require(p==bytes.size(),"Trailing EFD data");return result;
 }
+MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
+                     const Float4& s,const EffectTextureSizes& sizes,
+                     const std::function<std::uint32_t()>& random):
+    id(d.id),flags(d.flags&~0x4000u),duration(d.duration),position(p),rotation(r),scale(s),
+    parameters(d.parameters),texture_sizes_(sizes) {
+    require((d.id==25&&d.elements.size()==8)||(d.id==34&&d.elements.size()==14),
+            "Unrecovered map effect template");
+    require(duration>0&&duration<=0x7fffffff,"Invalid map effect duration");
+    Rounding rounding;inverse_duration=1.0f/float(duration);
+    const std::array<Float4,5> defaults={Float4{1,1,1,1},Float4{},Float4{},
+                                       Float4{1,1,1,1},Float4{0,1,1,0}};
+    for(const auto& source:d.elements) {
+        require(!(source.channels&~31u),"Unrecovered map effect channel modifiers");
+        MapEffectElement e;
+        const auto channel=[&](unsigned i){return (source.channels&(1u<<i))?source.values[i]:defaults[i];};
+        e.position=channel(2);e.rotation=channel(1);e.scale=channel(3);e.color=channel(0);e.interval=channel(4);
+        e.id=source.id;e.shape=source.shape;e.flags=source.flags;e.primitive_flags=source.primitive_flags;
+        e.program=source.program|((source.primitive_flags&0x300u)<<22);
+        e.change_time=source.change_time;e.next_program=source.next_program;
+        e.rendered={e.position,e.rotation,e.scale,e.color};
+        unsigned texture;
+        switch(e.shape){case 24:texture=20;break;case 29:texture=5;break;
+                        case 28:texture=4;break;case 31:texture=17;break;
+                        default:throw std::runtime_error("Unrecovered map effect shape");}
+        set_texture(e,texture);elements.push_back(e);
+    }
+    phase=random()%duration;
+}
+void MapEffect::set_texture(MapEffectElement& e,unsigned texture) {
+    require(texture<texture_sizes_.size(),"Invalid logical effect texture");
+    const auto size=texture_sizes_[texture];
+    require(size[0]>0&&size[1]>0&&size[0]<=4096&&size[1]<=4096,"Missing effect texture dimensions");
+    e.texture=texture;e.uv={0,0,std::uint16_t(size[0]-1),std::uint16_t(size[1]-1)};
+}
+void MapEffect::set_parameter(unsigned selector,const Float4& payload) {
+    require(selector<=0xfff,"Invalid effect parameter selector");
+    if(selector<0xf00)parameters.fill(float(selector));
+    else {
+        Float4* target=nullptr;
+        switch(selector){case 0xfff:target=&rotation;break;case 0xffe:target=&scale;break;case 0xffd:target=&color;break;}
+        // Other reserved selectors consume their payload but perform no write.
+        if(target)*target={payload[0],payload[1],payload[2],1};
+    }
+}
+void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_enabled) {
+    if(!clock_enabled)return;
+    require(!(flags&0x100),"Cannot update a removed map effect");
+    require(id==25,"Unrecovered map effect update program");
+    Rounding rounding;
+    if(phase>duration){if(!(flags&0x8000)){request_removal();return;}phase-=duration;}
+    const float time=float(phase)*inverse_duration;
+    for(auto& e:elements) {
+        require(e.change_time>=1,"Unrecovered map effect program change");
+        require(e.interval[0]<e.interval[1],"Invalid map effect interval");
+        float t=time<e.interval[0]?0:time>e.interval[1]?1:(time-e.interval[0])/(e.interval[1]-e.interval[0]);
+        if(!(flags&0x20)) {
+            const auto mode=e.program>>30;
+            require(mode!=3&&!(e.flags&0x800000),"Unrecovered map effect texture mode");
+            if(mode)set_texture(e,unsigned(e.interval[2]));
+            e.interval[2]=0;
+        }
+        auto program=e.program;
+        if((e.flags&0x2000)&&e.interval[2]<t)program&=0xc0ffffff;
+        const auto timing=(program>>24)&63;
+        require(timing==0||timing==7,"Unrecovered map effect time program");
+        if(timing==7){t=t*3.0f+e.interval[3];t-=float(int(t));}
+        if((e.flags&0x1000)&&e.interval[2]<t)program&=0xfffc0fff;
+        auto& p=e.rendered[0];auto& r=e.rendered[1];auto& s=e.rendered[2];auto& c=e.rendered[3];
+        switch((program>>12)&63) {
+        case 0:break;
+        case 42:
+            if(e.interval[2]<t) {
+                const auto theta=angle(t*e.position[3]+e.position[2]);
+                p[0]=e.position[0]*sine_[(theta+4096)&16383];
+                p[1]=e.position[1]+sine_[angle((t*3.0f)*e.position[3])];
+                p[2]=e.position[0]*sine_[theta];
+            } else {
+                e.position[1]=float(int(random()%70)-100)*.1f;
+                e.position[2]=float(random()%100)*.01f;
+                e.position[3]=float(int(random()%100)-50)*.02f;
+            }
+            break;
+        default:throw std::runtime_error("Unrecovered map effect position program");
+        }
+        if((e.flags&0x4000)&&e.interval[2]<t)program&=0xfffff03f;
+        switch((program>>6)&63){case 0:break;case 11:r[1]=float(random()%360+360)*.00278f;break;
+                              default:throw std::runtime_error("Unrecovered map effect rotation program");}
+        switch((program>>18)&63){case 0:break;case 13:s[0]=t*e.scale[0];s[1]=(1.0f-t)*e.scale[1];s[2]=t*e.scale[2];break;
+                               default:throw std::runtime_error("Unrecovered map effect scale program");}
+        if((e.flags&0x8000)&&e.interval[2]<t)program&=0xffffffc0;
+        switch(program&63) {
+        case 0:break;
+        case 15:case 17: {
+            const float head=(program&63)==15?.6f:.4f,tail=(program&63)==15?.8f:.7f;
+            float alpha=0;
+            if(t!=0&&t!=1){alpha=1;if(t>tail)alpha=1.0f-(t-tail)/(1.0f-tail);else if(t<head)alpha=t/head;alpha*=e.color[3];}
+            c[3]=alpha;break;
+        }
+        default:throw std::runtime_error("Unrecovered map effect color program");
+        }
+        e.interval[2]=t;
+        if(!(flags&0x20)) {
+            if(e.flags&0x200)e.program&=0xc0ffffff;
+            if(e.flags&0x100)e.program&=0xfffc0fff;
+            if(e.flags&0x400)e.program&=0xfffff03f;
+            if(e.flags&0x800)e.program&=0xffffffc0;
+        }
+    }
+    flags|=0x20;if(!(flags&0x2000))++phase;
+}
 BubbleEffect::BubbleEffect(const EffectDefinition& d,int parameter):definition_(d),parameter_(parameter) {
     require(d.id==30&&d.flags==0x8400&&d.duration>0&&d.elements.size()==2,"Unsupported speech-bubble definition");
     require(parameter>=0&&parameter<32,"Unsupported speech-bubble symbol");

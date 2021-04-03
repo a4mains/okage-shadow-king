@@ -1,6 +1,8 @@
 #pragma once
 #include "okage/pose.hpp"
 #include <memory>
+#include <functional>
+#include <string_view>
 
 namespace okage {
 struct EffectElement {
@@ -19,6 +21,41 @@ struct EffectDefinition {
 // Structural EFD import; reference templates remain explicitly marked by flag
 // 0x800. Reading a definition does not imply support for its runtime program.
 std::vector<EffectDefinition> read_efd(Bytes bytes);
+
+// Retail ENV_TEX logical order; dimensions come from the owned XIM files.
+inline constexpr std::array<std::string_view,31> effect_texture_names={
+    "niji.xim","splash_a.xim","wat_4.xim","exp9.xim","f2.xim","h29_4.xim",
+    "hit!.xim","spark.xim","smoke_4.xim","thunder.xim","oldskilt4.xim","water.xim",
+    "suuji.xim","lgtballm4.xim","fuki32b.xim","all.xim","all2.xim","kemuri.xim",
+    "thunderball.xim","6eff01.xim","6eff02.xim","5sen.xim","exp_c.xim","heart.xim",
+    "onnpu.xim","wind.xim","treasure.xim","page.xim","odoro.xim","aura.xim","kyusyu16.xim"};
+using EffectTextureSizes=std::array<std::array<std::uint32_t,2>,31>;
+struct MapEffectElement {
+    Float4 position{},rotation{},scale{},color{},interval{};
+    std::uint32_t id=0,shape=0,flags=0,primitive_flags=0,program=0,next_program=0;
+    float change_time=0;
+    std::array<Float4,4> rendered{};
+    std::uint32_t texture=0,render_flags=0;
+    std::array<std::uint16_t,4> uv{};
+};
+class MapEffect {
+public:
+    MapEffect(const EffectDefinition&,const Float4& position,const Float4& rotation,
+              const Float4& scale,const EffectTextureSizes&,
+              const std::function<std::uint32_t()>& random);
+    void set_parameter(unsigned selector,const Float4& payload);
+    void tick(const std::function<std::uint32_t()>& random,bool clock_enabled=true);
+    void request_removal(){flags|=0x100;}
+    std::uint32_t id=0,flags=0,duration=0,phase=0;
+    float inverse_duration=0;
+    Float4 position{},rotation{},scale{},color{1,1,1,1},parameters{};
+    std::vector<MapEffectElement> elements;
+private:
+    void set_texture(MapEffectElement&,unsigned);
+    EffectTextureSizes texture_sizes_;
+    SineTable sine_=make_sine_table();
+};
+using MapEffects=std::array<std::unique_ptr<MapEffect>,84>;
 
 struct EffectSprite {
     Float4 position{},rotation{},scale{},color{};

@@ -13,6 +13,15 @@
 #pragma STDC FP_CONTRACT OFF
 
 namespace okage {
+void CollisionMask::event(unsigned mode,std::int32_t group) {
+    const unsigned shift=std::uint32_t(group)&31;
+    if(mode==0x100) {
+        auto nibble=(std::uint32_t(__builtin_bit_cast(std::int32_t, (bits))>>shift)&15u)<<1;
+        if(nibble&16)nibble=(nibble&15)+1;
+        bits=(bits&~(15u<<shift))|(nibble<<shift);
+    } else if(!mode)bits|=1u<<shift;
+    else bits&=~(1u<<shift);
+}
 namespace {
 void require(bool condition,const char* reason){if(!condition)throw std::runtime_error(reason);}
 struct Reader {

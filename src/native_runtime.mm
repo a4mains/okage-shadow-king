@@ -63,6 +63,7 @@ struct Session {
     std::vector<std::uint32_t> choice_trace;
     std::array<std::uint8_t,0x1000> variables{};
     okage::GameRandom random{1};
+    okage::CollisionMask collision_mask;
     okage::ExteriorCamera exterior_camera;
     okage::DialogueWaitState wait{5,1};
     unsigned frame=0,release_frame=0,close_frame=0,close_release_frame=0;
@@ -129,7 +130,11 @@ struct Session {
         };
         if(field)field->sound_cue=[this](unsigned bank,int index,float speed,unsigned volume){
             auto found=sound_banks.find(bank);if(found==sound_banks.end())return false;
-            found->second->play(index,speed,volume);
+            try {found->second->play(index,speed,volume);}
+            catch(const std::exception& e) {
+                throw std::runtime_error("Sound cue frame "+std::to_string(frame)+", bank "+std::to_string(bank)+
+                    ", record "+std::to_string(index)+": "+e.what());
+            }
             sound_trace.insert(sound_trace.end(),{frame,bank,unsigned(index),__builtin_bit_cast(unsigned, (speed)),volume});return true;
         };
     }
@@ -186,6 +191,7 @@ struct Session {
         if(map_objects)field->bind_map_objects(map_objects->bindings());
         field->random_value=[this]{return random.next();};
         field->exterior_camera=&exterior_camera;
+        field->collision_mask=&collision_mask;
         field->set_variable=[this](unsigned index,unsigned bank,std::int32_t value){okage::set_event_variable(variables,index,bank,value);};
         field->get_variable=[this](std::uint32_t selector){return okage::event_variable(variables,selector);};
         field->transition_service=[this](unsigned countdown){
@@ -262,6 +268,11 @@ struct Session {
         const auto stage=readData(stg);projection=okage::field_projection(stage);
         create_field(script,false);bind_audio_services();
         if(effects_loaded){renderer->load_effect_textures(effect_textures);field->load_effects(readData(effect_data));}
+        if(definition.type==0) {
+            if(!effects_loaded)throw std::runtime_error("Exterior requires owned effect resources");
+            field->load_map_effects(readData(map),renderer->effect_texture_sizes());
+            renderer->bind_map_effects(&field->map_effects());
+        }
         dialogue_active=false;choices={};narration={};
         field->enter(std::move(definition),stage,readData(xcl),request.entrance);
         current_scene=request.scene;current_entrance=int(request.entrance);transition_target=0;
