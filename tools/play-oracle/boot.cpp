@@ -13,6 +13,7 @@
 #include "reference_movement.hpp"
 #include "reference_interaction.hpp"
 #include "reference_transition.hpp"
+#include "reference_dust.hpp"
 #include "reference_camera.hpp"
 #include "reference_actor.hpp"
 #include "reference_npc.hpp"
@@ -59,9 +60,9 @@ public:
 };
 int main(int argc,char** argv) {
     try {
-        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--movement FILE] [--interaction FILE] [--transition FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--lifecycle FILE] [--order FILE] [--music FILE] [--deadline-seconds 1..7200]");
+        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--movement FILE] [--interaction FILE] [--interaction-wide FILE] [--transition FILE] [--dust FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--lifecycle FILE] [--order FILE] [--music FILE] [--deadline-seconds 1..7200]");
         unsigned deadlineSeconds=0;
-        int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false,musicField=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,music,movement,interaction,transition,npc;
+        int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false,musicField=false,interactionWide=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,music,movement,interaction,transition,npc,dust;
         for (int i=3;i<argc;++i) {
             const std::string arg=argv[i];
             if (arg=="--load") load=true;
@@ -84,7 +85,9 @@ int main(int argc,char** argv) {
             else if (arg=="--music-field") musicField=true;
             else if (arg=="--camera" && i+1<argc) camera=argv[++i];
             else if (arg=="--controller" && i+1<argc) controller=argv[++i];
+            else if (arg=="--dust" && i+1<argc) dust=argv[++i];
             else if (arg=="--transition" && i+1<argc) transition=argv[++i];
+            else if (arg=="--interaction-wide" && i+1<argc) {interaction=argv[++i];interactionWide=true;}
             else if (arg=="--interaction" && i+1<argc) interaction=argv[++i];
             else if (arg=="--movement" && i+1<argc) movement=argv[++i];
             else if (arg=="--deadline-seconds" && i+1<argc) {
@@ -125,12 +128,13 @@ int main(int argc,char** argv) {
         auto cameraTrace=camera.empty() ? nullptr : std::make_unique<CameraTrace>(camera);
         auto npcTrace=npc.empty() ? nullptr : std::make_unique<NpcTrace>(npc);
         auto actorTrace=actor.empty() ? nullptr : std::make_unique<ActorTrace>(actor,actorAlias);
+        auto dustTrace=dust.empty() ? nullptr : std::make_unique<DustTrace>(dust);
         auto transitionTrace=transition.empty() ? nullptr : std::make_unique<TransitionTrace>(transition);
-        auto interactionTrace=interaction.empty() ? nullptr : std::make_unique<InteractionTrace>(interaction);
+        auto interactionTrace=interaction.empty() ? nullptr : std::make_unique<InteractionTrace>(interaction,interactionWide);
         auto movementTrace=movement.empty() ? nullptr : std::make_unique<MovementTrace>(movement);
         auto lifecycleTrace=lifecycle.empty() ? nullptr : std::make_unique<LifecycleTrace>(lifecycle);
         auto orderTrace=order.empty() ? nullptr : std::make_unique<OrderTrace>(order);
-        const bool tracing=traceLoaders || bool(npcTrace) || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace) || bool(cameraTrace) || bool(actorTrace) || bool(movementTrace) || bool(interactionTrace) || bool(transitionTrace) || bool(lifecycleTrace) || bool(orderTrace) || !music.empty();
+        const bool tracing=traceLoaders || bool(dustTrace) || bool(npcTrace) || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace) || bool(cameraTrace) || bool(actorTrace) || bool(movementTrace) || bool(interactionTrace) || bool(transitionTrace) || bool(lifecycleTrace) || bool(orderTrace) || !music.empty();
         RecordedAudio* recordedAudio=nullptr;
         Traffic traffic; std::atomic<unsigned> frames{0}; std::atomic<bool> exited{false};
         CPS2VM vm;
@@ -180,6 +184,7 @@ int main(int argc,char** argv) {
         if(cameraTrace)for(auto at:CameraTrace::breakpoints)loaders.push_back(at);
         if(actorTrace)for(auto at:actorTrace->breakpoints())loaders.push_back(at);
         if(npcTrace)for(auto at:NpcTrace::breakpoints)loaders.push_back(at);
+        if(dustTrace)for(auto at:DustTrace::breakpoints)loaders.push_back(at);
         if(transitionTrace)for(auto at:TransitionTrace::breakpoints)loaders.push_back(at);
         if(interactionTrace)for(auto at:InteractionTrace::breakpoints)loaders.push_back(at);
         if(movementTrace)for(auto at:MovementTrace::breakpoints)loaders.push_back(at);
@@ -225,6 +230,8 @@ int main(int argc,char** argv) {
                 const bool observingActor=actorTrace&&std::find(actorTrace->breakpoints().begin(),actorTrace->breakpoints().end(),pc)!=actorTrace->breakpoints().end();
                 // Observe before another subscriber resumes a shared field BP.
                 if(observingActor)actorTrace->observe(*vm.m_ee,frames);
+                const bool observingDust=dustTrace&&std::find(DustTrace::breakpoints.begin(),DustTrace::breakpoints.end(),pc)!=DustTrace::breakpoints.end();
+                if(observingDust)dustTrace->observe(*vm.m_ee,frames);
                 if(transitionTrace && std::find(TransitionTrace::breakpoints.begin(),TransitionTrace::breakpoints.end(),pc)!=TransitionTrace::breakpoints.end()) {
                     transitionTrace->observe(*vm.m_ee,frames);
                     if(!(interactionTrace && std::find(InteractionTrace::breakpoints.begin(),InteractionTrace::breakpoints.end(),pc)!=InteractionTrace::breakpoints.end())) {vm.Resume();continue;}
@@ -267,6 +274,7 @@ int main(int argc,char** argv) {
                 if(sceneTrace && std::find(sceneBreakpoints.begin(),sceneBreakpoints.end(),pc)!=sceneBreakpoints.end()) {
                     sceneTrace->observe(*vm.m_ee,frames);vm.Resume();continue;
                 }
+                if(observingDust){vm.Resume();continue;}
                 const uint32 address=uint32(cpu.nGPR[CMIPS::A0].nD0)&0x1fffffff;
                 std::string path;
                 for (unsigned i=0;i<256 && address+i<PS2::EE_RAM_SIZE;++i) {
@@ -290,6 +298,7 @@ int main(int argc,char** argv) {
         if(actorTrace)actorTrace->finish();
         if(npcTrace)npcTrace->finish();
         if(transitionTrace)transitionTrace->finish();
+        if(dustTrace)dustTrace->finish();
         if(interactionTrace)interactionTrace->finish();
         if(movementTrace)movementTrace->finish();
         if(lifecycleTrace)lifecycleTrace->finish();

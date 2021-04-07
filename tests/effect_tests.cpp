@@ -47,5 +47,26 @@ int main(){try{
     job.elements[0].flags=2;rejects(draw);job.elements[0].flags=0;
     job.elements[0].primitive_flags=0;rejects(draw);job.elements[0].primitive_flags=1;
     job.elements[0].shape=31;rejects(draw);
+    okage::EffectDefinition dust;dust.id=17;dust.duration=30;dust.elements.resize(9);
+    for(unsigned i=0;i<9;++i){auto& element=dust.elements[i];element.id=i+1;element.shape=31;
+        element.flags=i?0x400601:0x400401;element.primitive_flags=0x41;
+        element.program=i?0x1104c114:0x4c114;element.change_time=1.1f;
+    }
+    unsigned random_calls=0;auto random=[&]{++random_calls;return 7u;};
+    rejects([&]{okage::MapEffect invalid(dust,{},{},{},sizes,random);});
+    okage::MapEffect puff(dust,{1,2,3,1},{},{1,1,1,1},sizes,random,okage::EffectStart::FirstFrame);
+    check(puff.phase==1&&random_calls==0);
+    rejects([&]{okage::map_effect_draws(puff,identity,{},450,sine);});
+    const auto tint=okage::effect_light_tint({1,1,1,1},{.5,.5,.5,1},{1,1,1,0});
+    check(tint==okage::Float4({1,1,1,1}));
+    rejects([&]{okage::effect_light_tint({},{},{});});
+    const auto dust_draws=okage::map_effect_draws(puff,identity,{},450,sine,&tint);
+    check(dust_draws.size()==9&&!dust_draws[0].additive&&dust_draws[0].vertices.size()==6);
+    puff.tick(random);check(random_calls==36&&puff.phase==2&&!(puff.flags&0x100));
+    for(unsigned i=0;i<29;++i)puff.tick(random);
+    check(random_calls==36&&puff.phase==31&&!(puff.flags&0x100));
+    puff.tick(random);check(puff.phase==31&&(puff.flags&0x100));
+    check(okage::map_effect_draws(puff,identity,{},450,sine,&tint).empty());
+    rejects([&]{puff.tick(random);});
     std::cout<<"EFD extent, ID, pointer, finite-value and unsupported-program checks passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

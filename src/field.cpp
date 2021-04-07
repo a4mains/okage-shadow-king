@@ -283,7 +283,19 @@ void OpeningField::load_map_effects(Bytes bytes,const EffectTextureSizes& sizes)
         const auto t=map_transform(p,map.definitions.at(p.definition()));
         map_effects_[handle]=std::make_unique<MapEffect>(*definition,t.position,t.rotation,t.scale,sizes,random_value);
     }
-    map_effects_loaded_=true;
+    effect_texture_sizes_=sizes;map_effects_loaded_=true;
+}
+void OpeningField::spawn_dust(const Float4& position) {
+    if(!map_effects_loaded_||!random_value||player_.dust_effect!=17)
+        throw std::runtime_error("Unrecovered player dust resources/template");
+    const auto definition=std::find_if(effect_definitions_.begin(),effect_definitions_.end(),[](const auto& d){return d.id==17;});
+    if(definition==effect_definitions_.end())throw std::runtime_error("Missing owned dust template17");
+    unsigned handle=0;while(handle<effects_.size()&&(effects_[handle]||map_effects_[handle]))++handle;
+    if(handle==effects_.size())throw std::runtime_error("Field effect capacity exhausted");
+    //0x1012f8 stores the current position and starts phase1, without attachment
+    // or a random starting phase. Particle RNG runs on its first effect update.
+    map_effects_[handle]=std::make_unique<MapEffect>(*definition,position,Float4{},Float4{1,1,1,1},
+        effect_texture_sizes_,random_value,EffectStart::FirstFrame);
 }
 unsigned OpeningField::attach_bubble(int parameter,int alias) {
     const auto definition=std::find_if(effect_definitions_.begin(),effect_definitions_.end(),[](const auto& d){return d.id==30;});
@@ -456,7 +468,7 @@ void OpeningField::move_player(ExplorationInput input) {
         if((motion==2&&counter<0)||(motion==3)) {
             if(state.dust_effect && ((motion==2&&!(state.effect_counter&3)) ||
                (motion==3&&counter<40&&!(state.effect_counter&7))))
-                throw std::runtime_error("Player dust effect is unrecovered");
+                spawn_dust(hero->animation().values().at(1));
             ++state.effect_counter;
         }
     } else {
@@ -696,7 +708,7 @@ void OpeningField::tick(ExplorationInput input) {
     advance_effects(false);
 }
 void OpeningField::advance_effects(bool player_contacts) {
-    if(!player_contacts)for(auto& effect:map_effects_)if(effect) {
+    if(player_contacts)for(auto& effect:map_effects_)if(effect) {
         auto& flags=effect->flags;
         if(flags&0x200){effect.reset();continue;}
         if(flags&0x100){flags|=0x200;continue;}
@@ -717,6 +729,24 @@ void OpeningField::advance_effects(bool player_contacts) {
 Matrix4 OpeningField::view() const {
     Float4 p=position,r=rotation;for(unsigned i=0;i<3;++i){p[i]=-p[i];r[i]=-r[i];}p[3]=1;r[3]=0;
     return camera_matrix(p,r,{1,1,1,0},sine_);
+}
+Float4 field_effect_tint(Bytes stg) {
+    if(get(stg,0)!=0x475453)throw std::runtime_error("Invalid STG magic");
+    const auto begin=get(stg,8),count=get(stg,12);
+    if(begin<32||count>4096||std::uint64_t(begin)+std::uint64_t(count)*20>stg.size())throw std::runtime_error("STG lighting bounds");
+    std::optional<Float4> base,ambient,light;
+    Rounding rounding;
+    for(unsigned i=0;i<count;++i) {
+        const auto at=begin+i*20,kind=get(stg,at);
+        if(kind!=1&&kind!=0x40&&kind!=0x41&&kind!=0x45)continue;
+        Float4 v;for(unsigned k=0;k<4;++k){v[k]=__builtin_bit_cast(float, (get(stg,at+4+k*4)));if(!std::isfinite(v[k]))throw std::runtime_error("Invalid STG lighting");}
+        if(kind==1)light=v;
+        else if(kind==0x40)base=v;
+        else if(kind==0x41)ambient=v;
+        else {base=v;for(unsigned k=0;k<3;++k)v[k]*=.25f;ambient=v;}
+    }
+    if(!base||!ambient||!light)throw std::runtime_error("Effect lighting requires explicit STG colors");
+    return effect_light_tint(*base,*ambient,*light);
 }
 Float4 field_projection(Bytes stg,float* far_clip) {
     Rounding rounding;

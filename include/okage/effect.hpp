@@ -38,11 +38,12 @@ struct MapEffectElement {
     std::uint32_t texture=0,render_flags=0;
     std::array<std::uint16_t,4> uv{};
 };
+enum class EffectStart {RandomPhase, FirstFrame};
 class MapEffect {
 public:
     MapEffect(const EffectDefinition&,const Float4& position,const Float4& rotation,
               const Float4& scale,const EffectTextureSizes&,
-              const std::function<std::uint32_t()>& random);
+              const std::function<std::uint32_t()>& random,EffectStart start=EffectStart::RandomPhase);
     void set_parameter(unsigned selector,const Float4& payload);
     void tick(const std::function<std::uint32_t()>& random,bool clock_enabled=true);
     void request_removal(){flags|=0x100;}
@@ -65,10 +66,11 @@ struct MapEffectDraw {
     std::array<std::uint16_t,4> uv;
     // Local source positions, byte-range source colors and normalized GS S/T.
     std::vector<MapEffectVertex> vertices;
+    bool additive=true;
 };
-// Reviewed template25 geometry/material: additive, depth tested, no depth write.
 std::vector<MapEffectDraw> map_effect_draws(const MapEffect&,const Matrix4& view,
-    const Float4& camera_rotation,float far_clip,const SineTable&);
+    const Float4& camera_rotation,float far_clip,const SineTable&,const Float4* light_tint=nullptr);
+Float4 effect_light_tint(const Float4& base,const Float4& ambient,const Float4& light);
 
 struct EffectSprite {
     Float4 position{},rotation{},scale{},color{};

@@ -148,7 +148,7 @@ struct Session {
     okage::Float4 projection{};
     float far_clip=1024;
     std::vector<std::uint32_t> scene_trace,dialogue_trace,camera_state_trace,movement_trace,interaction_trace;
-    std::vector<std::uint32_t> effect_trace;
+    std::vector<std::uint32_t> effect_trace,map_effect_trace;
     bool effects_loaded=false;
     std::map<int,std::vector<std::uint32_t>> actor_traces;
     int message_id=10100;unsigned messages_started=0;
@@ -172,7 +172,7 @@ struct Session {
     void create_field(okage::Bytes script,bool diagnostic) {
         field=std::make_unique<okage::OpeningField>(script,[this](int id){
             if(dialogue_active && !closure.finished())throw std::runtime_error("Field replaces an unfinished message");
-            if(id!=10026 && id!=10030 && (id<10100 || id>10107))throw std::runtime_error("Field message initialization outside recovered scope");
+            if(id!=10026 && id!=10030 && (id<10100 || id>10107))throw std::runtime_error("Field message initialization outside recovered scope: ID="+std::to_string(id)+" native frame="+std::to_string(frame));
             message_id=id;++messages_started;
             text=okage::DialogueText(messages,id);text.fonts=fonts;
             text.state.flags=0x8041;text.state.font=2;text.state.period=1;
@@ -273,6 +273,7 @@ struct Session {
             if(!effects_loaded)throw std::runtime_error("Exterior requires owned effect resources");
             field->load_map_effects(readData(map),renderer->effect_texture_sizes());
             renderer->bind_map_effects(&field->map_effects());
+            renderer->set_effect_light_tint(okage::field_effect_tint(stage));
         }
         dialogue_active=false;choices={};narration={};
         field->enter(std::move(definition),stage,readData(xcl),request.entrance);
@@ -348,6 +349,16 @@ struct Session {
             for(const auto& values:{field->position,field->target,field->rotation})
                 for(float v:values)scene_trace.push_back(__builtin_bit_cast(std::uint32_t, (v)));
             if(effects_loaded) {
+                const auto& jobs=field->map_effects();unsigned jobs_count=0;for(const auto& e:jobs)if(e)++jobs_count;
+                map_effect_trace.insert(map_effect_trace.end(),{frame,jobs_count});
+                for(unsigned i=0;i<jobs.size();++i)if(const auto& e=jobs[i]) {
+                    map_effect_trace.insert(map_effect_trace.end(),{i,e->id,e->flags,e->phase,e->duration,unsigned(e->elements.size())});
+                    for(const auto& v:{e->position,e->rotation,e->scale,e->color})for(float f:v)map_effect_trace.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+                    for(const auto& element:e->elements) {
+                        map_effect_trace.insert(map_effect_trace.end(),{element.id,element.program,element.texture,element.render_flags});
+                        for(const auto& v:element.rendered)for(float f:v)map_effect_trace.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+                    }
+                }
                 const auto& all=field->effects();unsigned count=0;for(const auto& e:all)if(e)++count;
                 effect_trace.insert(effect_trace.end(),{frame,field->pc(),count});
                 for(unsigned i=0;i<all.size();++i)if(const auto& e=all[i]) {
@@ -416,6 +427,8 @@ static void capture(const Session& session,const fs::path& path) {
     std::ofstream out(path,std::ios::binary);if(!data || !out.write(static_cast<const char*>(data.bytes),data.length))throw std::runtime_error("Cannot write native capture");
     std::ofstream state(statePath);
     if(session.effects_loaded) {
+        std::ofstream map_effects(path.string()+".map-effects.bin",std::ios::binary);
+        if(!map_effects.write(reinterpret_cast<const char*>(session.map_effect_trace.data()),session.map_effect_trace.size()*4))throw std::runtime_error("Cannot write map effect trace");
         std::ofstream effects(path.string()+".effects.bin",std::ios::binary);
         if(!effects.write(reinterpret_cast<const char*>(session.effect_trace.data()),session.effect_trace.size()*4))throw std::runtime_error("Cannot write effect trace");
     }

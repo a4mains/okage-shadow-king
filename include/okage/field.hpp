@@ -122,6 +122,8 @@ private:
     AttachedEffects effects_;
     MapEffects map_effects_;
     bool map_effects_loaded_=false;
+    EffectTextureSizes effect_texture_sizes_{};
+    void spawn_dust(const Float4& position);
     std::array<unsigned,16> effect_ring_{};
     unsigned effect_ring_index_=0;
     unsigned attach_bubble(int parameter,int alias);
@@ -132,6 +134,8 @@ private:
     Float4 point(std::size_t) const;
     void evaluate();
 };
+// Reviewed STG light0/base/ambient records for ordinary effect tint.
+Float4 field_effect_tint(Bytes stg);
 Float4 field_projection(Bytes stg,float* far_clip=nullptr);
 AnchoredCamera field_anchored_camera(Bytes stg);
 }

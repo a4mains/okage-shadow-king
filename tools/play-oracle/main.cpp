@@ -328,6 +328,17 @@ public:
         if(get(object+0x3e34)!=text.size())throw std::runtime_error("Text fixture did not finish");
         writeFile(output,result.data(),result.size());
     }
+    void effectTint(const std::vector<uint8>& input,const char* output) {
+        if(input.empty()||input.size()%48||input.size()>48*64)throw std::runtime_error("Effect tint fixture extent");
+        loadMicro();std::vector<uint32> result;
+        for(unsigned at=0;at<input.size();at+=48) {
+            std::memcpy(ee->m_ram+0x80000,input.data()+at,48);
+            call(0x183d68,{0x80000});call(0x183d30,{0x80010});call(0x183ce0,{0,0x80020});
+            call(0x1020e0);
+            for(unsigned i=0;i<4;++i)result.push_back(get(0x24e620+i*4));
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
     void mapEffectGeometry(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
         constexpr unsigned stride=198*4,sp=0x1ff0000;
         if(ram.size()!=32*1024*1024||input.empty()||input.size()%stride||input.size()>stride*64)
@@ -388,7 +399,7 @@ public:
         if(ram.size()!=32*1024*1024||input.size()!=80||frames>1000)
             throw std::runtime_error("Map effect probe fixture bounds");
         std::array<uint32,20> request;std::memcpy(request.data(),input.data(),80);
-        if((request[0]!=25&&request[0]!=34)||request[2]>0xfff||request[3]!=0x100)
+        if((request[0]!=17&&request[0]!=25&&request[0]!=34)||request[2]>0xfff||request[3]!=0x100)
             throw std::runtime_error("Map effect probe request scope");
         std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
         effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
@@ -398,7 +409,8 @@ public:
         if(table>ram.size()-212*4||random>ram.size()-4)throw std::runtime_error("Map effect fixture pointers");
         for(unsigned i=0;i<84;++i)put(table+4*i,0xffffffff);
         put(random,request[1]);std::memcpy(ee->m_ram+0x80000,request.data()+4,64);
-        call(0x101440,{request[0],0x80000,0x80010,0x80020});
+        if(request[0]==17)call(0x1012f8,{17,0x80000});
+        else call(0x101440,{request[0],0x80000,0x80010,0x80020});
         const auto handle=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
         if(handle!=0)throw std::runtime_error("Map effect allocation order");
         put(0x1f85a4,1);
@@ -422,11 +434,31 @@ public:
             }
         };
         capture(0);
-        call(0x130d88,{0,request[2],request[3],0x80030});
-        const auto next=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
-        if(next!=(request[2]<0xf00?0x80030u:0x8003cu))throw std::runtime_error("Map effect service payload extent");
+        if(request[0]!=17) {
+            call(0x130d88,{0,request[2],request[3],0x80030});
+            const auto next=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+            if(next!=(request[2]<0xf00?0x80030u:0x8003cu))throw std::runtime_error("Map effect service payload extent");
+        }
         capture(1);
         for(unsigned frame=0;frame<frames;++frame){call(0x1131d0,{handle});capture(frame+2);}
+        if(request[0]==17) {
+            // Research-only geometry/material dump, not a native runtime input.
+            std::vector<uint32> packets;
+            const auto job=get(table+4*handle);
+            for(unsigned i=0;i<9;++i) {
+                const auto e=get(job+12)+i*128,r=get(e+0x78),g=get(e+0x64);
+                packets.insert(packets.end(),{i,31,get(e+0x68),get(e+0x6c)});
+                for(unsigned k=0;k<6;++k)packets.push_back(get(r+0x40+k*4));
+                for(unsigned offset:{4u,8u,12u,16u}) {
+                    const auto p=get(g+offset),bytes=(get(p)&65535)*16+32;
+                    if(bytes>8192||p>ram.size()-bytes)throw std::runtime_error("Dust packet extent");
+                    packets.push_back(bytes);
+                    for(unsigned k=0;k<bytes;k+=4)packets.push_back(get(p+k));
+                }
+            }
+            writeFile((std::string(output)+".packets.bin").c_str(),packets.data(),packets.size()*4);
+            writeFile((std::string(output)+".tint.bin").c_str(),ee->m_ram+0x24e620,16);
+        }
         writeFile(output,result.data(),result.size()*4);
     }
     void effectProbe(const std::vector<uint8>& ram,unsigned id,unsigned parameter,unsigned frames,const char* output) {
@@ -1241,7 +1273,9 @@ int main(int argc,char** argv) {
         }
         Reference reference(readFile(argv[2]));
         const std::string command=argv[1];
-        if(command=="map-effect-geometry" && argc==6) {
+        if(command=="effect-tint" && argc==5) {
+            reference.effectTint(readFile(argv[3]),argv[4]);
+        } else if(command=="map-effect-geometry" && argc==6) {
             reference.mapEffectGeometry(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="stream-prepare" && argc==6) {
             reference.streamPrepare(readFile(argv[3]),std::stoul(argv[4]),argv[5]);

@@ -327,5 +327,16 @@ int main(){try {
         require(!(enemy_field.collision_bodies()[enemy_index].flags&2)&&enemy_actor.render_flags==0x100000);
         require(enemy_actor.animation().values()[3]==okage::Float4({.5f,.5f,.5f,0}));
     }
+    // Field effect tint uses owned STG light0/base/ambient colors, preserving
+    // record order and the combined base+quarter-ambient opcode45.
+    std::vector<std::uint8_t> lighting(32+3*20);
+    auto light_word=[&](unsigned at,std::uint32_t v){for(unsigned j=0;j<4;++j)lighting.at(at+j)=v>>(j*8);};
+    light_word(0,0x475453);light_word(8,32);light_word(12,3);
+    for(unsigned i=0;i<3;++i){light_word(32+i*20,i==0?1:i==1?0x40:0x41);
+        for(unsigned c=0;c<4;++c)light_word(36+i*20+c*4,__builtin_bit_cast(std::uint32_t, (c==3?1.f:float(c+1))));}
+    auto tint=okage::field_effect_tint(lighting);require(tint[0]<tint[1]&&tint[1]<tint[2]&&tint[2]==1&&tint[3]==1);
+    light_word(12,2);rejects([&]{okage::field_effect_tint(lighting);});
+    light_word(52,0x45);tint=okage::field_effect_tint(lighting);require(tint[2]==1);
+    light_word(36,0x7fc00000);rejects([&]{okage::field_effect_tint(lighting);});
     std::cout<<"Camera, field lifecycle, map motion, event gates and encounter spawning passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

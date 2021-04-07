@@ -254,6 +254,16 @@ int main(int argc, char** argv) {
             }
             write(argv[3],out);return 0;
         }
+        if(command=="effect-tint"&&argc==4) {
+            const auto input=read(argv[2]);std::vector<std::uint8_t> output;
+            if(input.empty()||input.size()%48||input.size()>48*64)throw std::runtime_error("Effect tint fixture extent");
+            for(unsigned at=0;at<input.size();at+=48){
+                std::array<okage::Float4,3> v;std::memcpy(v.data(),input.data()+at,48);
+                const auto tint=okage::effect_light_tint(v[0],v[1],v[2]);
+                const auto* bytes=reinterpret_cast<const std::uint8_t*>(tint.data());output.insert(output.end(),bytes,bytes+16);
+            }
+            write(argv[3],output);return 0;
+        }
         if(command=="map-effect-geometry"&&argc==6) {
             const auto bank=okage::read_efd(read(argv[2]));const auto input=read(argv[4]);
             constexpr unsigned stride=198*4;
@@ -303,7 +313,10 @@ int main(int argc, char** argv) {
             okage::EffectTextureSizes sizes{};
             for(unsigned i=0;i<sizes.size();++i){const auto image=okage::decode_xim(read(fs::path(argv[3])/okage::effect_texture_names[i]));sizes[i]={image.width,image.height};}
             okage::GameRandom rng{request[1]};const auto random=[&]{return rng.next();};
-            okage::MapEffect effect(*found,vectors[0],vectors[1],vectors[2],sizes,random);
+            const bool dust=request[0]==17;
+            okage::MapEffect effect(*found,vectors[0],dust?okage::Float4{}:vectors[1],
+                dust?okage::Float4{1,1,1,1}:vectors[2],sizes,random,
+                dust?okage::EffectStart::FirstFrame:okage::EffectStart::RandomPhase);
             std::vector<std::uint32_t> out;
             const auto vector=[&](const okage::Float4& v){for(float f:v)out.push_back(__builtin_bit_cast(std::uint32_t, (f)));};
             const auto capture=[&](unsigned step){
@@ -317,7 +330,19 @@ int main(int argc, char** argv) {
                     out.insert(out.end(),{e.texture,e.uv[0]|(std::uint32_t(e.uv[1])<<16),e.uv[2]|(std::uint32_t(e.uv[3])<<16),e.render_flags});
                 }
             };
-            capture(0);effect.set_parameter(request[2],vectors[3]);capture(1);
+            capture(0);
+            if(dust) {
+                const okage::Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
+                const okage::Float4 tint{1,1,1,1};std::vector<std::uint32_t> geometry;
+                unsigned element=0;
+                for(const auto& draw:okage::map_effect_draws(effect,identity,{},450,okage::make_sine_table(),&tint)) {
+                    geometry.insert(geometry.end(),{element++,unsigned(draw.vertices.size()),draw.texture});
+                    for(const auto& vertex:draw.vertices)for(const auto& v:{vertex.position,vertex.color,vertex.uv})
+                        for(float f:v)geometry.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+                }
+                write(std::string(argv[6])+".vertices.bin",{reinterpret_cast<const std::uint8_t*>(geometry.data()),geometry.size()*4});
+            }
+            if(!dust)effect.set_parameter(request[2],vectors[3]);capture(1);
             for(unsigned i=0;i<frames;++i){effect.tick(random);capture(i+2);}
             write(argv[6],{reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4});return 0;
         }

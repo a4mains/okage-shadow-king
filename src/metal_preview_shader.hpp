@@ -52,6 +52,8 @@ fragment float4 map_effect_fragment(MapEffectVarying v [[stage_in]],texture2d<fl
     float4 modulated=clamp(floor(t*v.color/128.0f),0.0f,255.0f);
     // GS ALPHA0x48=(Cs-0)*As/128+Cd. Premultiply explicitly so As>128
     // keeps its additive contribution instead of clipping the blend factor.
-    return float4((modulated.rgb/255.0f)*(modulated.a/128.0f),0);
+    if(state.mode.w && modulated.a<=0)discard_fragment(); // TEST0x5000d: alpha>0.
+    // Dust ALPHA0x44 adds the destination scaled by1-As/128.
+    return float4((modulated.rgb/255.0f)*(modulated.a/128.0f),state.mode.w?modulated.a/128.0f:0);
 }
 )metal";

@@ -14,6 +14,7 @@ public:
     void load_effect_textures(const std::filesystem::path&);
     EffectTextureSizes effect_texture_sizes() const;
     void bind_map_effects(const MapEffects*);
+    void set_effect_light_tint(const Float4&);
     Texture render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects=nullptr,const Float4& camera_rotation={},float far_clip=1024);
     std::size_t placements() const;
     std::size_t omitted_effects() const;

@@ -1,5 +1,6 @@
 #import <Metal/Metal.h>
 #include "okage/scene_renderer.hpp"
+#include <optional>
 #include "okage/map.hpp"
 #include "okage/map_objects.hpp"
 #include "okage/render.hpp"
@@ -15,7 +16,7 @@ std::vector<std::uint8_t> read(const fs::path& path) {
     if(!in.read(reinterpret_cast<char*>(b.data()),b.size()))throw std::runtime_error("Cannot read scene input");return b;
 }
 struct Vertex {Float4 position,color,uv;};
-struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false;};
+struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;};
 }
 struct SceneRenderer::Impl {
     struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;};
@@ -27,8 +28,9 @@ struct SceneRenderer::Impl {
     std::size_t whiteTexture=0,effectTexture=0;
     bool effectTexturesLoaded=false;
     const MapEffects* mapEffects=nullptr;
+    std::optional<Float4> effectTint;
     id<MTLDevice> device;
-    id<MTLRenderPipelineState> pipeline,effectPipeline,mapEffectPipeline;
+    id<MTLRenderPipelineState> pipeline,effectPipeline,mapEffectPipeline,dustPipeline;
     id<MTLDepthStencilState> depth,effectDepth,mapEffectDepth;
     id<MTLTexture> target,depthTarget;
     NSMutableArray<id<MTLTexture>>* gpuTextures;
@@ -90,6 +92,10 @@ struct SceneRenderer::Impl {
         descriptor.colorAttachments[0].destinationAlphaBlendFactor=MTLBlendFactorOne;
         mapEffectPipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
         if(!mapEffectPipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
+        descriptor.colorAttachments[0].destinationRGBBlendFactor=MTLBlendFactorOneMinusSourceAlpha;
+        descriptor.colorAttachments[0].sourceAlphaBlendFactor=MTLBlendFactorZero;
+        dustPipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
+        if(!dustPipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
         auto depthState=[MTLDepthStencilDescriptor new]; depthState.depthCompareFunction=MTLCompareFunctionLess; depthState.depthWriteEnabled=YES;
         depth=[device newDepthStencilStateWithDescriptor:depthState];
         depthState.depthCompareFunction=MTLCompareFunctionAlways;depthState.depthWriteEnabled=NO;
@@ -194,15 +200,15 @@ struct SceneRenderer::Impl {
             }
         }
         for(unsigned slot=0;slot<84;++slot){
-        if(mapEffects&&(*mapEffects)[slot]) {
+        if(mapEffects&&(*mapEffects)[slot]&&((*mapEffects)[slot]->id!=17||((*mapEffects)[slot]->flags&0x20))) {
             const auto& effect=(*mapEffects)[slot];
             if(!effectTexturesLoaded)throw std::runtime_error("Map effect textures are unavailable");
-            for(const auto& e:map_effect_draws(*effect,view,camera,farClip,sine)){
+            for(const auto& e:map_effect_draws(*effect,view,camera,farClip,sine,effectTint?&*effectTint:nullptr)){
                 const auto texture=effectTexture+e.texture;
                 const auto& image=textures.at(texture);
                 if(e.uv[2]>=image.width||e.uv[3]>=image.height)throw std::runtime_error("Map effect texture bounds");
                 Draw draw{std::uint32_t(vertices.size()),std::uint32_t(e.vertices.size()),std::int32_t(texture),
-                    {e.uv[0],e.uv[2],e.uv[1],e.uv[3],2,2,1,0},true,true};
+                    {e.uv[0],e.uv[2],e.uv[1],e.uv[3],2,2,1,e.additive?0u:1u},true,e.additive,!e.additive};
                 for(const auto& source:e.vertices){
                     Float4 p{},c{};
                     for(unsigned r=0;r<4;++r){
@@ -255,8 +261,8 @@ struct SceneRenderer::Impl {
         id<MTLBuffer> vertexBuffer=[device newBufferWithBytes:vertices.data() length:vertices.size()*sizeof(Vertex) options:MTLResourceStorageModeShared];
         [encoder setVertexBuffer:vertexBuffer offset:0 atIndex:0];
         for (const auto& draw:draws) {
-            [encoder setRenderPipelineState:draw.additive?mapEffectPipeline:draw.effect?effectPipeline:pipeline];
-            [encoder setDepthStencilState:draw.additive?mapEffectDepth:draw.effect?effectDepth:depth];
+            [encoder setRenderPipelineState:draw.dust?dustPipeline:draw.additive?mapEffectPipeline:draw.effect?effectPipeline:pipeline];
+            [encoder setDepthStencilState:(draw.additive||draw.dust)?mapEffectDepth:draw.effect?effectDepth:depth];
             [encoder setFragmentTexture:gpuTextures[draw.image<0 ? whiteTexture : draw.image] atIndex:0];
             [encoder setFragmentBytes:draw.state.data() length:sizeof(draw.state) atIndex:0];
             [encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:draw.first vertexCount:draw.count];
@@ -278,6 +284,7 @@ EffectTextureSizes SceneRenderer::effect_texture_sizes() const {
     for(unsigned i=0;i<result.size();++i){const auto& t=impl_->textures.at(impl_->effectTexture+i);result[i]={t.width,t.height};}
     return result;
 }
+void SceneRenderer::set_effect_light_tint(const Float4& tint){impl_->effectTint=tint;}
 void SceneRenderer::bind_map_effects(const MapEffects* effects){impl_->mapEffects=effects;}
 Texture SceneRenderer::render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip){return impl_->render(view,projection,effects,camera,farClip);}
 std::size_t SceneRenderer::placements() const{return impl_->inputs.size()-impl_->actorCount;}

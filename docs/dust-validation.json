@@ -1,0 +1,566 @@
+{
+  "scope": "Dust17 bounded original state/geometry/tint comparisons and native outdoor control/lifetime checks.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "build_reports": {
+    "native": {
+      "scope": "Audit dust17 constructor/31 updates, source geometry and effect-light tint.",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "exact_state_words": 14025,
+      "updates": 31,
+      "exact_source_vertices": 54,
+      "exact_tint_cases": 5,
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "map-effect-probe",
+          "local/extracted/SCUS_971.29",
+          "local/research/exterior-load180-v1-ee.bin",
+          "local/dust-probe-v1/17.input.bin",
+          "31",
+          "local/dust-probe-v1/17.original.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.362884,
+        "binary_sha256": "1150eb22ce09a019e29ab9c0c7bd862cfb565b1cf254681fe6229ceee21431a8",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "ram_sha256": "678908347fbaf42471f000f256164407ab6ead08309efc69303f2d3b58acb6c1",
+        "input_sha256": "8168aef8f6c5db966d3b8bfc6848e9266da5f21bc33a8aa5fbe69de7d17969fc",
+        "output_sha256": "16ff0b25c13acdd5b964f4154392ec1b16cd1795e90e39466f1bd7f086da677c"
+      },
+      "original_tint_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "effect-tint",
+          "local/extracted/SCUS_971.29",
+          "local/dust-tint-v1/cases.bin",
+          "local/dust-tint-v1/original.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.347505833,
+        "binary_sha256": "6192751e2b23d280940163fe199f9fc725de48fed19888f73eb951b713009d96",
+        "input_sha256": "128790c97d7880685c756bcb1d6f2bb679491d49624850d401c5715199bc9aed",
+        "output_sha256": "9afee921dd5312c1e81e344de1fbcd6fed9ddbc9f63d9b545b6d2ea91bc78ac9"
+      },
+      "native_commands": [
+        [
+          "build/native/okage-assets",
+          "map-effect-probe",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/dust-probe-v1/17.input.bin",
+          "31",
+          "local/dust-validation-native-v1/native.bin"
+        ],
+        [
+          "build/native/okage-assets",
+          "effect-tint",
+          "local/dust-tint-v1/cases.bin",
+          "local/dust-validation-native-v1/tint.bin"
+        ]
+      ],
+      "native_binary_sha256": "fc3c8687d59229fc98be74e09df340868b4eb2a63f18d51eee0acd5bc64fc3d4",
+      "sha256": {
+        "local/dust-probe-v1/17.original.bin": "16ff0b25c13acdd5b964f4154392ec1b16cd1795e90e39466f1bd7f086da677c",
+        "local/dust-probe-v1/17.original.bin.packets.bin": "2edcdf8fdf077b070671d61544769731225b51974bfe35953722534dccd848d3",
+        "local/dust-probe-v1/17.input.bin": "8168aef8f6c5db966d3b8bfc6848e9266da5f21bc33a8aa5fbe69de7d17969fc",
+        "local/dust-tint-v1/cases.bin": "128790c97d7880685c756bcb1d6f2bb679491d49624850d401c5715199bc9aed",
+        "local/dust-tint-v1/original.bin": "9afee921dd5312c1e81e344de1fbcd6fed9ddbc9f63d9b545b6d2ea91bc78ac9",
+        "local/effect-input/CMNDATA/2D/TES.EFD": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+        "local/dust-validation-native-v1/native.bin": "16ff0b25c13acdd5b964f4154392ec1b16cd1795e90e39466f1bd7f086da677c",
+        "local/dust-validation-native-v1/native.bin.vertices.bin": "76206a3ea42d0ec012636bab31cb48d3bb0ba644babad9765bc59b3e0c795363",
+        "local/dust-validation-native-v1/tint.bin": "9afee921dd5312c1e81e344de1fbcd6fed9ddbc9f63d9b545b6d2ea91bc78ac9"
+      }
+    },
+    "release": {
+      "scope": "Audit dust17 constructor/31 updates, source geometry and effect-light tint.",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "exact_state_words": 14025,
+      "updates": 31,
+      "exact_source_vertices": 54,
+      "exact_tint_cases": 5,
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "map-effect-probe",
+          "local/extracted/SCUS_971.29",
+          "local/research/exterior-load180-v1-ee.bin",
+          "local/dust-probe-v1/17.input.bin",
+          "31",
+          "local/dust-probe-v1/17.original.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.362884,
+        "binary_sha256": "1150eb22ce09a019e29ab9c0c7bd862cfb565b1cf254681fe6229ceee21431a8",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "ram_sha256": "678908347fbaf42471f000f256164407ab6ead08309efc69303f2d3b58acb6c1",
+        "input_sha256": "8168aef8f6c5db966d3b8bfc6848e9266da5f21bc33a8aa5fbe69de7d17969fc",
+        "output_sha256": "16ff0b25c13acdd5b964f4154392ec1b16cd1795e90e39466f1bd7f086da677c"
+      },
+      "original_tint_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "effect-tint",
+          "local/extracted/SCUS_971.29",
+          "local/dust-tint-v1/cases.bin",
+          "local/dust-tint-v1/original.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.347505833,
+        "binary_sha256": "6192751e2b23d280940163fe199f9fc725de48fed19888f73eb951b713009d96",
+        "input_sha256": "128790c97d7880685c756bcb1d6f2bb679491d49624850d401c5715199bc9aed",
+        "output_sha256": "9afee921dd5312c1e81e344de1fbcd6fed9ddbc9f63d9b545b6d2ea91bc78ac9"
+      },
+      "native_commands": [
+        [
+          "build/native-release/okage-assets",
+          "map-effect-probe",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/dust-probe-v1/17.input.bin",
+          "31",
+          "local/dust-validation-release-v1/native.bin"
+        ],
+        [
+          "build/native-release/okage-assets",
+          "effect-tint",
+          "local/dust-tint-v1/cases.bin",
+          "local/dust-validation-release-v1/tint.bin"
+        ]
+      ],
+      "native_binary_sha256": "d30156be3d504669526889a7bdd8cccd6da5da2ad1d51678884eb90db9720625",
+      "sha256": {
+        "local/dust-probe-v1/17.original.bin": "16ff0b25c13acdd5b964f4154392ec1b16cd1795e90e39466f1bd7f086da677c",
+        "local/dust-probe-v1/17.original.bin.packets.bin": "2edcdf8fdf077b070671d61544769731225b51974bfe35953722534dccd848d3",
+        "local/dust-probe-v1/17.input.bin": "8168aef8f6c5db966d3b8bfc6848e9266da5f21bc33a8aa5fbe69de7d17969fc",
+        "local/dust-tint-v1/cases.bin": "128790c97d7880685c756bcb1d6f2bb679491d49624850d401c5715199bc9aed",
+        "local/dust-tint-v1/original.bin": "9afee921dd5312c1e81e344de1fbcd6fed9ddbc9f63d9b545b6d2ea91bc78ac9",
+        "local/effect-input/CMNDATA/2D/TES.EFD": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+        "local/dust-validation-release-v1/native.bin": "16ff0b25c13acdd5b964f4154392ec1b16cd1795e90e39466f1bd7f086da677c",
+        "local/dust-validation-release-v1/native.bin.vertices.bin": "76206a3ea42d0ec012636bab31cb48d3bb0ba644babad9765bc59b3e0c795363",
+        "local/dust-validation-release-v1/tint.bin": "9afee921dd5312c1e81e344de1fbcd6fed9ddbc9f63d9b545b6d2ea91bc78ac9"
+      }
+    },
+    "sanitize": {
+      "scope": "Audit dust17 constructor/31 updates, source geometry and effect-light tint.",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "exact_state_words": 14025,
+      "updates": 31,
+      "exact_source_vertices": 54,
+      "exact_tint_cases": 5,
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "map-effect-probe",
+          "local/extracted/SCUS_971.29",
+          "local/research/exterior-load180-v1-ee.bin",
+          "local/dust-probe-v1/17.input.bin",
+          "31",
+          "local/dust-probe-v1/17.original.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.362884,
+        "binary_sha256": "1150eb22ce09a019e29ab9c0c7bd862cfb565b1cf254681fe6229ceee21431a8",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "ram_sha256": "678908347fbaf42471f000f256164407ab6ead08309efc69303f2d3b58acb6c1",
+        "input_sha256": "8168aef8f6c5db966d3b8bfc6848e9266da5f21bc33a8aa5fbe69de7d17969fc",
+        "output_sha256": "16ff0b25c13acdd5b964f4154392ec1b16cd1795e90e39466f1bd7f086da677c"
+      },
+      "original_tint_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "effect-tint",
+          "local/extracted/SCUS_971.29",
+          "local/dust-tint-v1/cases.bin",
+          "local/dust-tint-v1/original.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.347505833,
+        "binary_sha256": "6192751e2b23d280940163fe199f9fc725de48fed19888f73eb951b713009d96",
+        "input_sha256": "128790c97d7880685c756bcb1d6f2bb679491d49624850d401c5715199bc9aed",
+        "output_sha256": "9afee921dd5312c1e81e344de1fbcd6fed9ddbc9f63d9b545b6d2ea91bc78ac9"
+      },
+      "native_commands": [
+        [
+          "build/model-sanitize/okage-assets",
+          "map-effect-probe",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/dust-probe-v1/17.input.bin",
+          "31",
+          "local/dust-validation-sanitize-v1/native.bin"
+        ],
+        [
+          "build/model-sanitize/okage-assets",
+          "effect-tint",
+          "local/dust-tint-v1/cases.bin",
+          "local/dust-validation-sanitize-v1/tint.bin"
+        ]
+      ],
+      "native_binary_sha256": "8d0ed94ca33239c6a8da3ffc0fe701bb7fc7ffd38a90d9819c1b5de936259466",
+      "sha256": {
+        "local/dust-probe-v1/17.original.bin": "16ff0b25c13acdd5b964f4154392ec1b16cd1795e90e39466f1bd7f086da677c",
+        "local/dust-probe-v1/17.original.bin.packets.bin": "2edcdf8fdf077b070671d61544769731225b51974bfe35953722534dccd848d3",
+        "local/dust-probe-v1/17.input.bin": "8168aef8f6c5db966d3b8bfc6848e9266da5f21bc33a8aa5fbe69de7d17969fc",
+        "local/dust-tint-v1/cases.bin": "128790c97d7880685c756bcb1d6f2bb679491d49624850d401c5715199bc9aed",
+        "local/dust-tint-v1/original.bin": "9afee921dd5312c1e81e344de1fbcd6fed9ddbc9f63d9b545b6d2ea91bc78ac9",
+        "local/effect-input/CMNDATA/2D/TES.EFD": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+        "local/dust-validation-sanitize-v1/native.bin": "16ff0b25c13acdd5b964f4154392ec1b16cd1795e90e39466f1bd7f086da677c",
+        "local/dust-validation-sanitize-v1/native.bin.vertices.bin": "76206a3ea42d0ec012636bab31cb48d3bb0ba644babad9765bc59b3e0c795363",
+        "local/dust-validation-sanitize-v1/tint.bin": "9afee921dd5312c1e81e344de1fbcd6fed9ddbc9f63d9b545b6d2ea91bc78ac9"
+      }
+    }
+  },
+  "scene_reports": {
+    "native": {
+      "scope": "Audit native outdoor movement/dust lifecycle and observed original scheduling.",
+      "native_run": {
+        "command": [
+          "build/native/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "5650",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435",
+          "--directions",
+          "local/native-outdoor-controls-5650-v1.directions",
+          "--capture",
+          "local/native-outdoor-controls-5650-dust-order-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 14.122762666,
+        "binary_sha256": "05308c4517b6d0902e7c70349a1006e5e433bb35508b1c0f902d2b8bf1a70b51"
+      },
+      "spawn_frames": [
+        5601,
+        5609,
+        5617
+      ],
+      "handles": [
+        1,
+        3,
+        0
+      ],
+      "original_spawn_frames": [
+        2,
+        10,
+        18
+      ],
+      "first_update_delay": 1,
+      "native_removal_request_age": 31,
+      "native_slot_release_age": 33,
+      "original_order_frames": 12,
+      "native_movement_and_stop": true,
+      "native_camera_response": true,
+      "sha256": {
+        "local/native-outdoor-controls-5650-dust-order-v1.png": "4116e19d45d4a9de2395bd78241d2a1e371322499995ad995ee263ff73783671",
+        "local/native-outdoor-controls-5650-dust-order-v1.png.map-effects.bin": "c62d9f6a9105427eeb547a2e3b46a0c2786d5ee8ed18e2bfd5bc2f3c8a7c10eb",
+        "local/native-outdoor-controls-5650-dust-order-v1.png.movement.bin": "6f62af6bc2ef102b3e88c5cf67e749fb4963b7e56000f168d2d9d6abcd07463b",
+        "local/native-outdoor-controls-5650-dust-order-v1.png.actor-1.bin": "e75c6e66a1673126ac589c26322e26aebf53915f3d2626889bd3e43088f22f10",
+        "local/native-outdoor-controls-5650-dust-order-v1.png.camera.bin": "90551a3740568dd13cb13b8ed0d06b05a0cf44afe6e6980c6562b7b595a573bc",
+        "local/reference-exterior-dust-65-v1.dust.bin": "26305365cb8b45cf4a2740d6f527b34a2e642e40a6e96b9b451f89882100a42a",
+        "local/reference-exterior-dust-order-12-v2.dust.bin": "0b413f2c13d7a05a15e3c05f16c48f81e4b4b7140a041234fe87ebf01edb327c"
+      }
+    },
+    "sanitize": {
+      "scope": "Audit native outdoor movement/dust lifecycle and observed original scheduling.",
+      "native_run": {
+        "command": [
+          "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "5650",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435",
+          "--directions",
+          "local/native-outdoor-controls-5650-v1.directions",
+          "--capture",
+          "local/native-outdoor-sanitize-5650-dust-final-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 32.183165792000004,
+        "binary_sha256": "9e82e4ea4e32c4789735ca0143df1929b3a4a8aac711c7a28a133c3c66e320b4"
+      },
+      "spawn_frames": [
+        5601,
+        5609,
+        5617
+      ],
+      "handles": [
+        1,
+        3,
+        0
+      ],
+      "original_spawn_frames": [
+        2,
+        10,
+        18
+      ],
+      "first_update_delay": 1,
+      "native_removal_request_age": 31,
+      "native_slot_release_age": 33,
+      "original_order_frames": 12,
+      "native_movement_and_stop": true,
+      "native_camera_response": true,
+      "sha256": {
+        "local/native-outdoor-sanitize-5650-dust-final-v1.png": "4116e19d45d4a9de2395bd78241d2a1e371322499995ad995ee263ff73783671",
+        "local/native-outdoor-sanitize-5650-dust-final-v1.png.map-effects.bin": "c62d9f6a9105427eeb547a2e3b46a0c2786d5ee8ed18e2bfd5bc2f3c8a7c10eb",
+        "local/native-outdoor-sanitize-5650-dust-final-v1.png.movement.bin": "6f62af6bc2ef102b3e88c5cf67e749fb4963b7e56000f168d2d9d6abcd07463b",
+        "local/native-outdoor-sanitize-5650-dust-final-v1.png.actor-1.bin": "e75c6e66a1673126ac589c26322e26aebf53915f3d2626889bd3e43088f22f10",
+        "local/native-outdoor-sanitize-5650-dust-final-v1.png.camera.bin": "90551a3740568dd13cb13b8ed0d06b05a0cf44afe6e6980c6562b7b595a573bc",
+        "local/reference-exterior-dust-65-v1.dust.bin": "26305365cb8b45cf4a2740d6f527b34a2e642e40a6e96b9b451f89882100a42a",
+        "local/reference-exterior-dust-order-12-v2.dust.bin": "0b413f2c13d7a05a15e3c05f16c48f81e4b4b7140a041234fe87ebf01edb327c"
+      }
+    }
+  },
+  "original_scene_runs": {
+    "local/reference-exterior-dust-65-v1": {
+      "command": [
+        "build/play-research/okage-oracle/okage-boot-oracle",
+        "local/disc/Okage - Shadow King (USA).cue",
+        "65",
+        "local/reference-exterior-startup-180-v1.state.zip",
+        "--load",
+        "--pad",
+        "local/reference-exterior-dust-65-v1.input",
+        "--dust",
+        "local/reference-exterior-dust-65-v1.dust.bin",
+        "--transition",
+        "local/reference-exterior-dust-65-v1.transition.bin",
+        "--capture",
+        "local/reference-exterior-dust-65-v1",
+        "--deadline-seconds",
+        "120"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 42.612840292,
+      "binary_sha256": "229b58bab164e8e44fc0695f5af996d3d8eef3318c5470211d7618ec3f0ac8ce"
+    },
+    "local/reference-exterior-dust-order-12-v2": {
+      "command": [
+        "build/play-research/okage-oracle/okage-boot-oracle",
+        "local/disc/Okage - Shadow King (USA).cue",
+        "12",
+        "local/reference-exterior-startup-180-v1.state.zip",
+        "--load",
+        "--pad",
+        "local/reference-exterior-dust-order-12-v1.input",
+        "--dust",
+        "local/reference-exterior-dust-order-12-v2.dust.bin",
+        "--capture",
+        "local/reference-exterior-dust-order-12-v2",
+        "--deadline-seconds",
+        "90"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 22.029882625,
+      "binary_sha256": "d54b3b8055eb43e7d9fce25fa870aad184f2e2ba85fbe021814fb05fe8e92f54"
+    }
+  },
+  "additional_native_runs": {
+    "local/native-outdoor-live-5610-dust-final-v1": {
+      "command": [
+        "build/native/okage-native.app/Contents/MacOS/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "5610",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435",
+        "--directions",
+        "local/native-outdoor-live-5610-dust-v2.directions",
+        "--capture",
+        "local/native-outdoor-live-5610-dust-final-v1.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 14.201102749999999,
+      "binary_sha256": "998833134c3c5f2fafc185f2545a068d5c4b2cccf8eeb1b8b3c8197d461328bf"
+    },
+    "local/native-outdoor-neighbor-5729-dust-v2": {
+      "command": [
+        "build/native/okage-native.app/Contents/MacOS/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "5729",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435",
+        "--directions",
+        "local/native-outdoor-neighbor-5850-dust-v1.directions",
+        "--capture",
+        "local/native-outdoor-neighbor-5729-dust-v2.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 14.306201833,
+      "binary_sha256": "998833134c3c5f2fafc185f2545a068d5c4b2cccf8eeb1b8b3c8197d461328bf"
+    },
+    "local/native-outdoor-neighbor-5850-dust-v2": {
+      "command": [
+        "build/native/okage-native.app/Contents/MacOS/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "5850",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5820",
+        "--directions",
+        "local/native-outdoor-neighbor-5850-dust-v1.directions",
+        "--capture",
+        "local/native-outdoor-neighbor-5850-dust-v2.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 13.891648833000001,
+      "binary_sha256": "998833134c3c5f2fafc185f2545a068d5c4b2cccf8eeb1b8b3c8197d461328bf"
+    }
+  },
+  "interior_regression": {
+    "scope": "Audit the native kitchen exit and arrival; excludes complete loading/presentation fidelity.",
+    "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "native": "local/native-kitchen-exit-5200-dust-order-v1.png",
+    "reference": "local/reference-kitchen-exit-180-v1",
+    "exact_preexit_field_updates": 64,
+    "root_position_maximum_absolute_error": 0.0,
+    "root_position_tolerance": 2e-05,
+    "exact_bubble_phase_flags_attachment_texture_uv_frames": 40,
+    "contact_job_order_observed_frames": 21,
+    "input_event": 1,
+    "destination_scene": 70,
+    "entrance": 2,
+    "request_frame": 5110,
+    "native_load_frame": 5113,
+    "original_startup_frame": 140,
+    "arrival_root_transform_exact": true,
+    "startup_event": 50,
+    "native_movement_after_arrival": true,
+    "matching_captures": [
+      "local/native-kitchen-exit-5200-finite-stream-v1.png"
+    ],
+    "appkit": null,
+    "limits": [
+      "Synchronous native loading does not reproduce original loading latency or cold initialization.",
+      "No full destination skeleton, room lighting, shadows or transition-pixel equivalence claim.",
+      "Blocked progression message10030 uses diagnostic window initialization; this route does not exercise it.",
+      "Post-arrival movement is demonstrated natively, not yet paired with original movement in this room.",
+      "Original capture/raw RAM are auditor-only references; native launch reads owned asset imports.",
+      "Physical controller/listening, sustained performance, battles, saves and full playthrough remain open."
+    ],
+    "sha256": {
+      "local/native-kitchen-exit-5200-dust-order-v1.png": "48de63b0f907ae1acafff158b048418d30b43b3a908a14e27f96660894e500ff",
+      "local/native-kitchen-exit-5200-dust-order-v1.png.transition.bin": "c321eca868e8c6099ae9d8fbcac102c3d5ac9acb634566b7bfabec55882aa11b",
+      "local/native-kitchen-exit-5200-dust-order-v1.png.variables.bin": "383bd47d57237f5994fb9df6adac67761217aba729ff9b83c883d3b3f6f9fdbd",
+      "local/reference-kitchen-exit-180-v1.transition.bin": "46a4b45a801e0dccce4cc9d5f6e6b4c980bf0d365f6e6854e6ef69c4486a74d4",
+      "local/reference-contact-order-45-v2.transition.bin": "b756bd572c32b84acf73400e610e5f2cb86e080bb8d9e05afec62d0f88dcbfbc",
+      "local/research/kitchen-end700-v2-ee.bin": "d123959880ccb1eb13dd7c9a208bad1a6446775b2e18a47cdb6cd7b14f49d216",
+      "local/xpf-decoded/FLDDATA/FLDSET.XDB": "e1085fc18788d42b10b11d6fdbf8e8bcb3de67ef11003669b4de9e4b30d1f0ba",
+      "config/native-kitchen-exit.directions": "4976565e61b582c0c8b4198a81ead0373fd1070242793ad323a0b5faab87853d"
+    }
+  },
+  "next_guard": "Field message initialization outside recovered scope: ID=10001 native frame=5730",
+  "limitations": [
+    "No whole-scene or pixel equivalence",
+    "No physical input or listening verification",
+    "Diagnostic initialization and dialogue panel remain",
+    "Template34 updates and battle dispatch remain guarded"
+  ]
+}
