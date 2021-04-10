@@ -261,6 +261,9 @@ void OpeningField::interact(ExplorationInput input) {
     player_.mask|=1;clear_contact();
     saved_input_gate_=get_variable(0x40006);set_variable(6,4,1);input_gate_saved_=true;
     exploration_handoff_=false;
+    // 0x132b00 disables the exploration camera via0x135c78(-1) before
+    // starting a negative-ID event. Its scripted camera must remain in control.
+    exterior_camera_enabled_=false;
     // 0x1bb7e0 -> 0x1b5dd0 executes the newly selected event immediately.
     script_.start(unsigned(interaction_event_));
 }

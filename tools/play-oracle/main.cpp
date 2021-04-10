@@ -328,6 +328,37 @@ public:
         if(get(object+0x3e34)!=text.size())throw std::runtime_error("Text fixture did not finish");
         writeFile(output,result.data(),result.size());
     }
+    void messageInit(const std::vector<uint8>& ram,unsigned id,const char* output) {
+        if(ram.size()!=32*1024*1024||id<10000||id>11000)
+            throw std::runtime_error("Field message initialization fixture bounds");
+        std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
+        effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
+                                       ee->m_gs,ee->m_sif,*dynamic_cast<CIopBios*>(iop->m_bios.get()));
+        loadMicro();
+        for(unsigned i=0;i<8;++i)if(get(0x200688+i*4))
+            throw std::runtime_error("Message fixture already has text objects");
+        const auto field=get(0x2d9bf4);
+        if(!field||get(field+0x50))throw std::runtime_error("Message fixture has active field dialogue");
+        call(0x11f570,{field,0x2293e0,0,id});
+        const auto message=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+        if(!message||message>ram.size()-0xef0||get(message+0xe40)!=2)
+            throw std::runtime_error("Field message construction did not produce two layers");
+        std::vector<uint8> result;
+        const auto capture=[&]{
+            result.insert(result.end(),ee->m_ram+message,ee->m_ram+message+0xef0);
+            for(unsigned i=0;i<2;++i){
+                const auto handle=get(message+0x40+i*0xe0);
+                if(handle!=i)throw std::runtime_error("Field message handle order");
+                const auto object=get(0x200688+handle*4);
+                if(!object||object>ram.size()-0x6ec0)throw std::runtime_error("Field message object bounds");
+                result.insert(result.end(),ee->m_ram+object,ee->m_ram+object+0x6ec0);
+            }
+        };
+        capture();
+        call(0x1980f8);call(0x198390,{0});capture();
+        call(0x11fec8,{message});capture();
+        writeFile(output,result.data(),result.size());
+    }
     void effectTint(const std::vector<uint8>& input,const char* output) {
         if(input.empty()||input.size()%48||input.size()>48*64)throw std::runtime_error("Effect tint fixture extent");
         loadMicro();std::vector<uint32> result;
@@ -1273,7 +1304,9 @@ int main(int argc,char** argv) {
         }
         Reference reference(readFile(argv[2]));
         const std::string command=argv[1];
-        if(command=="effect-tint" && argc==5) {
+        if(command=="message-init" && argc==6) {
+            reference.messageInit(readFile(argv[3]),std::stoul(argv[4]),argv[5]);
+        } else if(command=="effect-tint" && argc==5) {
             reference.effectTint(readFile(argv[3]),argv[4]);
         } else if(command=="map-effect-geometry" && argc==6) {
             reference.mapEffectGeometry(readFile(argv[3]),readFile(argv[4]),argv[5]);

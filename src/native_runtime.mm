@@ -152,6 +152,7 @@ struct Session {
     bool effects_loaded=false;
     std::map<int,std::vector<std::uint32_t>> actor_traces;
     int message_id=10100;unsigned messages_started=0;
+    std::optional<okage::DialogueOpening> opening;
     std::uint64_t service_request_count=0;
     Session(const fs::path& directory,const fs::path& pme,const std::string& player_name):
         fonts{okage::read_fnt(readData(directory/"IQ24.FNT")),okage::read_fnt(readData(directory/"BMUI.FNT")),okage::read_fnt(readData(directory/"BM.FNT"))},
@@ -172,11 +173,14 @@ struct Session {
     void create_field(okage::Bytes script,bool diagnostic) {
         field=std::make_unique<okage::OpeningField>(script,[this](int id){
             if(dialogue_active && !closure.finished())throw std::runtime_error("Field replaces an unfinished message");
-            if(id!=10026 && id!=10030 && (id<10100 || id>10107))throw std::runtime_error("Field message initialization outside recovered scope: ID="+std::to_string(id)+" native frame="+std::to_string(frame));
+            const bool legacy_diagnostic=id==10026||id==10030||(id>=10100&&id<=10107);
+            if(!legacy_diagnostic&&id!=10001)throw std::runtime_error("Field message initialization outside recovered scope: ID="+std::to_string(id)+" native frame="+std::to_string(frame));
             message_id=id;++messages_started;
             text=okage::DialogueText(messages,id);text.fonts=fonts;
             text.state.flags=0x8041;text.state.font=2;text.state.period=1;
             clock={};clock.glyph_flags=0x10;controller={};closure={};opacity.set(1,8);
+            opening.reset();
+            if(!legacy_diagnostic){opening.emplace();opening->initialize(text,clock,controller,opacity,closure);}
             controller.set_variable=[this](unsigned index,unsigned bank,std::int32_t value){okage::set_event_variable(variables,index,bank,value);};
             wait.countdown=wait.observed=wait.accumulated=0;
             dialogue_active=true;
@@ -312,10 +316,14 @@ struct Session {
         }
         if(!field && !release_frame && okage::poll_dialogue_wait(wait,2,{true,0,layers,std::int32_t(text.state.progress)})==0)release_frame=frame;
         if(dialogue_active && !closure.finished()) {
-            opacity.tick();closure.decoration.tick();text.frame(clock,opacity.visible());
+            opacity.tick();closure.decoration.tick();
+            if(opening&&controller.stage==0)opening->bootstrap(text,clock);
+            else text.frame(clock,opacity.visible());
         }
+        const bool opening_tick=dialogue_active&&opening&&controller.stage<6&&
+            opening->update(text,clock,controller,opacity,closure);
         if(dialogue_active && !closure.finished() && controller.stage>=6)closure.update(controller.stage);
-        else if(dialogue_active && controller.stage==5) {
+        else if(dialogue_active && !opening_tick && controller.stage==5) {
             const auto effects=controller.update(text,input);
             if(effects.accepted_choice>=0)choices.accepted=effects.accepted_choice;
             if(effects.reset_text_clock){clock.revealed=0;clock.scroll=0;clock.scroll_target=0;clock.scroll_step=clock.scroll_base_step;}

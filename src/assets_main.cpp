@@ -254,6 +254,28 @@ int main(int argc, char** argv) {
             }
             write(argv[3],out);return 0;
         }
+        if(command=="field-message-init"&&argc==5) {
+            const auto bank=okage::read_pme(read(argv[2]));
+            okage::DialogueText text(bank,std::stoi(argv[3]));
+            okage::TextClock clock;okage::DialogueController controller;
+            okage::DialogueOpacity body;okage::DialogueClosure closure;okage::DialogueOpening opening;
+            opening.initialize(text,clock,controller,body,closure);
+            std::vector<std::uint32_t> output;
+            const auto capture=[&]{
+                const auto& s=text.state;
+                output.insert(output.end(),{controller.stage,0x50,controller.layer_flags,
+                    __builtin_bit_cast(std::uint32_t, (controller.window_type)),controller.advance_count,
+                    s.flags,s.font,s.line_height,s.color,s.phase,s.period,s.delay,s.progress,s.x,s.y,s.line_origin,
+                    clock.revealed,__builtin_bit_cast(std::uint32_t, (clock.scroll_target)),
+                    __builtin_bit_cast(std::uint32_t, (clock.scroll)),__builtin_bit_cast(std::uint32_t, (clock.scroll_step)),
+                    __builtin_bit_cast(std::uint32_t, (clock.scroll_base_step)),clock.glyph_flags});
+                for(const auto& o:{body,closure.decoration})for(float f:{o.value,o.upper,o.lower,o.delta})
+                    output.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+            };
+            capture();body.tick();closure.decoration.tick();opening.bootstrap(text,clock);capture();
+            opening.update(text,clock,controller,body,closure);capture();
+            write(argv[4],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
         if(command=="effect-tint"&&argc==4) {
             const auto input=read(argv[2]);std::vector<std::uint8_t> output;
             if(input.empty()||input.size()%48||input.size()>48*64)throw std::runtime_error("Effect tint fixture extent");

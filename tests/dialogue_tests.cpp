@@ -80,6 +80,24 @@ int main() {try {
     closure.decoration.tick();closure.update(stage);require(stage==9 && closure.finished());
     // At zero the shared stage advances before the strict-bound fade stops.
     stage=5;rejects([&]{closure.update(stage);});
+    okage::DialogueText starting({"\\l\\m[Speaker]\\y[WINTYPE(0)]\\v","Body"});
+    okage::TextClock starting_clock;okage::DialogueController starting_controller;
+    okage::DialogueOpacity starting_opacity;okage::DialogueClosure starting_closure;okage::DialogueOpening opening;
+    opening.initialize(starting,starting_clock,starting_controller,starting_opacity,starting_closure);
+    require(starting_controller.stage==0&&starting_controller.window_type==-1);
+    starting_opacity.tick();starting_closure.decoration.tick();opening.bootstrap(starting,starting_clock);
+    require(starting.state.flags==0x84e6&&starting.state.period==0xfffffffeu);
+    require(opening.update(starting,starting_clock,starting_controller,starting_opacity,starting_closure));
+    require(starting_controller.stage==2&&starting.state.flags==0x84c5&&starting_opacity.value==1);
+    for(unsigned i=0;i<2;++i){
+        starting_opacity.tick();starting_closure.decoration.tick();starting.frame(starting_clock);
+        require(opening.update(starting,starting_clock,starting_controller,starting_opacity,starting_closure));
+    }
+    require(starting_controller.stage==5&&starting.state.period==1&&starting_controller.advance_count==0);
+    require(starting.state.window=="WINTYPE(0)"&&(starting.state.flags&0x910));
+    require(!opening.update(starting,starting_clock,starting_controller,starting_opacity,starting_closure));
+    const auto start_effects=starting_controller.update(starting,{});
+    require(starting_controller.window_type==0&&start_effects.cue==11&&starting_controller.layer_flags==0x70);
     okage::SceneFade fade;require(!fade.enabled && fade.alpha()==0 && fade.current==0);
     fade.current=1;fade.request(.5f);for(unsigned i=0;i<26;++i)fade.tick();
     require(fade.current==.5f && fade.enabled && fade.alpha()==64);

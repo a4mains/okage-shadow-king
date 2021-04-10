@@ -68,4 +68,11 @@ struct DialogueClosure {
     void update(unsigned& shared_stage); // Call after both layers' opacity ticks.
     bool finished() const {return (message_flags&0x80000000u)!=0;}
 };
+struct DialogueOpening {
+    unsigned decoration_ticks=0;
+    void initialize(DialogueText&,TextClock&,DialogueController&,DialogueOpacity&,DialogueClosure&);
+    void bootstrap(DialogueText&,TextClock&);
+    // Returns true if this tick handled an opening stage rather than input.
+    bool update(DialogueText&,TextClock&,DialogueController&,DialogueOpacity&,DialogueClosure&);
+};
 }

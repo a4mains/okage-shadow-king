@@ -131,6 +131,42 @@ void SceneFade::tick() {
     std::fesetround(rounding);
 }
 unsigned SceneFade::alpha() const {return enabled ? 128-std::min(127,int(current*128.f)) : 0;}
+void DialogueOpening::initialize(DialogueText& text,TextClock& clock,DialogueController& controller,
+                                DialogueOpacity& body,DialogueClosure& closure) {
+    // Text allocator/default style plus field descriptor: body font2,
+    // glyph flag0x10, two successfully constructed ready layers (0x50).
+    text.state={};text.state.flags=0x8645;text.state.font=2;text.state.period=1;
+    clock={};clock.glyph_flags=0x10;
+    controller={};controller.stage=0;controller.window_type=-1;
+    closure={};body.set(0,.2f);closure.decoration.set(0,.2f);decoration_ticks=0;
+}
+void DialogueOpening::bootstrap(DialogueText& text,TextClock& clock) {
+    tick_text_clock(text.state,clock);
+    text.state.line_height=24;text.state.period=0xfffffffeu;
+    text.state.flags=(text.state.flags|0xa2u)&~0x201u;
+    text.state.x=24;
+}
+bool DialogueOpening::update(DialogueText& text,TextClock& clock,DialogueController& controller,
+                             DialogueOpacity& body,DialogueClosure& closure) {
+    switch(controller.stage) {
+    case 0:
+        text.seek({});text.page.clear();text.glyphs.clear();
+        text.state.flags=(text.state.flags&0xfffff6c5u)|1u;
+        text.state.color=0x80808080;text.state.phase=text.state.x=text.state.y=text.state.line_origin=0;
+        text.state.progress=0;clock.revealed=0;clock.scroll=0;clock.scroll_target=0;
+        body.set(1,8);closure.decoration.set(128,-128);controller.stage=2;return true;
+    case 2: // Decoration2->3 followed by body3->4.
+        controller.stage=4;return true;
+    case 4:
+        text.state.period=__builtin_bit_cast(std::uint32_t, (controller.normal_period));
+        controller.stage=5;return true;
+    case 5:
+        decoration_ticks=std::min(8u,decoration_ticks+1);
+        if(closure.decoration.value==0)closure.decoration.set(1,8);
+        return false;
+    default:throw std::runtime_error("Unrecovered field dialogue opening stage");
+    }
+}
 namespace {
 int narration_advance(unsigned char c,const Font& font){
     const auto* glyph=font.find(c);
