@@ -254,6 +254,33 @@ int main(int argc, char** argv) {
             }
             write(argv[3],out);return 0;
         }
+        if(command=="relationship"&&argc==4) {
+            const auto input=read(argv[2]);std::vector<std::uint32_t> output;
+            if(input.empty()||input.size()%40||input.size()>40*256)throw std::runtime_error("Relationship fixture extent");
+            for(unsigned at=0;at<input.size();at+=40) {
+                std::uint32_t row[10];std::memcpy(row,input.data()+at,40);
+                okage::DialogueText text({""});okage::DialogueController controller;
+                controller.window_type=1;controller.advance_count=controller.layer_advance=4;
+                text.choice_result=__builtin_bit_cast(std::int32_t, (row[0]));
+                text.state.flags=0x8910;text.state.phase=9;text.state.period=0xfffffffe;
+                text.state.delay=7;text.state.progress=5;
+                text.state.window="LA("+std::to_string(row[1])+"/"+std::to_string(row[2])+"/"+std::to_string(row[3])+")";
+                controller.get_variable=[&](unsigned index,unsigned bank){
+                    if(bank!=4||index<16||index>21)throw std::runtime_error("Relationship read outside fixture");
+                    return __builtin_bit_cast(std::int32_t, (row[4+index-16]));
+                };
+                controller.set_variable=[&](unsigned index,unsigned bank,std::int32_t value){
+                    if(bank!=4||index<16||index>21)throw std::runtime_error("Relationship write outside fixture");
+                    row[4+index-16]=__builtin_bit_cast(std::uint32_t, (value));
+                };
+                controller.update(text,{});
+                output.insert(output.end(),row+4,row+10);
+                output.insert(output.end(),{text.state.flags,text.state.phase,text.state.period,text.state.delay,text.state.progress,
+                    controller.advance_count,controller.layer_flags,controller.stage,
+                    std::uint32_t(static_cast<unsigned char>(text.state.window[0])),std::uint32_t(text.choice_result)});
+            }
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
         if(command=="field-message-init"&&argc==5) {
             const auto bank=okage::read_pme(read(argv[2]));
             okage::DialogueText text(bank,std::stoi(argv[3]));

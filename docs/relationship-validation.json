@@ -1,0 +1,1164 @@
+{
+  "scope": "156 bounded relationship cases, complete Annie window and event handoff, native post-conversation movement, in three builds.",
+  "reports": {
+    "native": {
+      "scope": "Audit native LA metadata against bounded original handler/controller execution.\n\n156 cases cover all three choice indices,13 reviewed adjustment codes, signed\nclamping and overflow.",
+      "cases": 156,
+      "exact_words": 2496,
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "relationship",
+          "local/extracted/SCUS_971.29",
+          "local/research/neighbor251-v2-ee.bin",
+          "local/relationship-v1/cases.bin",
+          "local/relationship-v1/original.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 24.487568333,
+        "sha256": {
+          "build/play-research/okage-oracle/okage-pose-oracle": "8c14e34920a925e582d667988b724700f13a2d7184472ba880a36aff13155e8f",
+          "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "local/research/neighbor251-v2-ee.bin": "1fc9bb33762cbbd5a7cff8c3aafcb93af9650e1ec1696eacf8a79d81a5cfdae5",
+          "local/relationship-v1/cases.bin": "9fabcb192c036c58a402802a44ae042a96ca6ac132f07656a5d79c683b73ca17",
+          "local/relationship-v1/original.bin": "d8c1363a322c1d1f95b66d8050d6348286e49c6e0120e023cde56f4727290a64"
+        }
+      },
+      "native_command": [
+        "build/native/okage-assets",
+        "relationship",
+        "local/relationship-native-v1/cases.bin",
+        "local/relationship-native-v1/native.bin"
+      ],
+      "sha256": {
+        "local/relationship-native-v1/cases.bin": "9fabcb192c036c58a402802a44ae042a96ca6ac132f07656a5d79c683b73ca17",
+        "local/relationship-v1/original.bin": "d8c1363a322c1d1f95b66d8050d6348286e49c6e0120e023cde56f4727290a64",
+        "local/relationship-native-v1/native.bin": "5d46e36e3209fba37c6eb561d375578256ee936ed3e0158b05b88c0170c6ffb1",
+        "build/native/okage-assets": "b981e9aabe41040516f380fc9eaf148cd72656bfd00d7b5cce82f138ba13f106"
+      },
+      "live_answer": {
+        "controller_words": 2400,
+        "choice_words": 960,
+        "native_run": {
+          "command": [
+            "build/native/okage-native.app/Contents/MacOS/okage-native",
+            "local/font-input/CMNDATA/FONT",
+            "local/text-input/FLDDATA/MES/FIELD.PME",
+            "--scene",
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+            "--event",
+            "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+            "--actor",
+            "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+            "--actor-bind",
+            "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+            "--actor-bind",
+            "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+            "--frames",
+            "6389",
+            "--press",
+            "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360",
+            "--directions",
+            "local/native-neighbor-answer-6389-message-v1.directions",
+            "--capture",
+            "local/native-neighbor-answer-6389-relationship-v1.png",
+            "--music-dry",
+            "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+            "--music-bank",
+            "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+            "--sound-dir",
+            "local/audio-input/SNDDATA/SE",
+            "--effect-data",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "--effect-textures",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 17.042414082999997,
+          "binary_sha256": "bc09179d05188129b969e730ce918d7cd70f464dbb2df79dee39fe0209470417"
+        },
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-boot-oracle",
+            "local/disc/Okage - Shadow King (USA).cue",
+            "240",
+            "local/reference-neighbor-choice-300-v1.state.zip",
+            "--load",
+            "--pad",
+            "local/reference-neighbor-answer-240-v1.input",
+            "--interaction-wide",
+            "local/reference-neighbor-answer-240-v1.interaction.bin",
+            "--controller",
+            "local/reference-neighbor-answer-240-v1.controller.bin",
+            "--capture",
+            "local/reference-neighbor-answer-240-v1",
+            "--save",
+            "local/reference-neighbor-answer-240-v1.state.zip",
+            "--deadline-seconds",
+            "240"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 117.506398292,
+          "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+        },
+        "sha256": {
+          "local/reference-neighbor-answer-240-v1.controller.bin": "cef9b750c5a40aa29884fef76dfc416b04c4a820c1185df20c2c3851c7df8d71",
+          "local/reference-neighbor-answer-240-v1.controller.bin.choices.bin": "f00fc8474fb8f097d20f165dede7c8ea257b1993b349d2526e34bcbb51af8546",
+          "local/native-neighbor-answer-6389-relationship-v1.png.dialogue.bin": "50e95d79a10000ac2b3516faf01d70d0fb1500fc6d606f030390654cca914e62",
+          "local/native-neighbor-answer-6389-relationship-v1.png.choices.bin": "01a4649f3683ebcb12e639ee2d9621faedbc8fe5f65c156d19da2aac68ba4631",
+          "local/native-neighbor-answer-6389-relationship-v1.png": "2c291c9bb3ccba61d410fb296d5d243828431b942ad7e5fc542fdc038897d486"
+        }
+      }
+    },
+    "release": {
+      "scope": "Audit native LA metadata against bounded original handler/controller execution.\n\n156 cases cover all three choice indices,13 reviewed adjustment codes, signed\nclamping and overflow.",
+      "cases": 156,
+      "exact_words": 2496,
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "relationship",
+          "local/extracted/SCUS_971.29",
+          "local/research/neighbor251-v2-ee.bin",
+          "local/relationship-v1/cases.bin",
+          "local/relationship-v1/original.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 24.487568333,
+        "sha256": {
+          "build/play-research/okage-oracle/okage-pose-oracle": "8c14e34920a925e582d667988b724700f13a2d7184472ba880a36aff13155e8f",
+          "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "local/research/neighbor251-v2-ee.bin": "1fc9bb33762cbbd5a7cff8c3aafcb93af9650e1ec1696eacf8a79d81a5cfdae5",
+          "local/relationship-v1/cases.bin": "9fabcb192c036c58a402802a44ae042a96ca6ac132f07656a5d79c683b73ca17",
+          "local/relationship-v1/original.bin": "d8c1363a322c1d1f95b66d8050d6348286e49c6e0120e023cde56f4727290a64"
+        }
+      },
+      "native_command": [
+        "build/native-release/okage-assets",
+        "relationship",
+        "local/relationship-release-v1/cases.bin",
+        "local/relationship-release-v1/native.bin"
+      ],
+      "sha256": {
+        "local/relationship-release-v1/cases.bin": "9fabcb192c036c58a402802a44ae042a96ca6ac132f07656a5d79c683b73ca17",
+        "local/relationship-v1/original.bin": "d8c1363a322c1d1f95b66d8050d6348286e49c6e0120e023cde56f4727290a64",
+        "local/relationship-release-v1/native.bin": "5d46e36e3209fba37c6eb561d375578256ee936ed3e0158b05b88c0170c6ffb1",
+        "build/native-release/okage-assets": "f5452ef0dec7f866582a985fe9ed8161d0ca68b470771f4c179998e03c044bc7"
+      },
+      "live_answer": {
+        "controller_words": 2400,
+        "choice_words": 960,
+        "native_run": {
+          "command": [
+            "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+            "local/font-input/CMNDATA/FONT",
+            "local/text-input/FLDDATA/MES/FIELD.PME",
+            "--scene",
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+            "--event",
+            "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+            "--actor",
+            "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+            "--actor-bind",
+            "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+            "--actor-bind",
+            "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+            "--frames",
+            "6389",
+            "--press",
+            "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360",
+            "--directions",
+            "local/native-neighbor-answer-6389-message-v1.directions",
+            "--capture",
+            "local/native-neighbor-answer-6389-relationship-release-v1.png",
+            "--music-dry",
+            "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+            "--music-bank",
+            "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+            "--sound-dir",
+            "local/audio-input/SNDDATA/SE",
+            "--effect-data",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "--effect-textures",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.6081785830000002,
+          "binary_sha256": "2b1ad3febeef322cd96f180209d8e25d585e50208a11e239ca92081ec3731095"
+        },
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-boot-oracle",
+            "local/disc/Okage - Shadow King (USA).cue",
+            "240",
+            "local/reference-neighbor-choice-300-v1.state.zip",
+            "--load",
+            "--pad",
+            "local/reference-neighbor-answer-240-v1.input",
+            "--interaction-wide",
+            "local/reference-neighbor-answer-240-v1.interaction.bin",
+            "--controller",
+            "local/reference-neighbor-answer-240-v1.controller.bin",
+            "--capture",
+            "local/reference-neighbor-answer-240-v1",
+            "--save",
+            "local/reference-neighbor-answer-240-v1.state.zip",
+            "--deadline-seconds",
+            "240"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 117.506398292,
+          "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+        },
+        "sha256": {
+          "local/reference-neighbor-answer-240-v1.controller.bin": "cef9b750c5a40aa29884fef76dfc416b04c4a820c1185df20c2c3851c7df8d71",
+          "local/reference-neighbor-answer-240-v1.controller.bin.choices.bin": "f00fc8474fb8f097d20f165dede7c8ea257b1993b349d2526e34bcbb51af8546",
+          "local/native-neighbor-answer-6389-relationship-release-v1.png.dialogue.bin": "50e95d79a10000ac2b3516faf01d70d0fb1500fc6d606f030390654cca914e62",
+          "local/native-neighbor-answer-6389-relationship-release-v1.png.choices.bin": "01a4649f3683ebcb12e639ee2d9621faedbc8fe5f65c156d19da2aac68ba4631",
+          "local/native-neighbor-answer-6389-relationship-release-v1.png": "2c291c9bb3ccba61d410fb296d5d243828431b942ad7e5fc542fdc038897d486"
+        }
+      }
+    },
+    "sanitize": {
+      "scope": "Audit native LA metadata against bounded original handler/controller execution.\n\n156 cases cover all three choice indices,13 reviewed adjustment codes, signed\nclamping and overflow.",
+      "cases": 156,
+      "exact_words": 2496,
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "relationship",
+          "local/extracted/SCUS_971.29",
+          "local/research/neighbor251-v2-ee.bin",
+          "local/relationship-v1/cases.bin",
+          "local/relationship-v1/original.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 24.487568333,
+        "sha256": {
+          "build/play-research/okage-oracle/okage-pose-oracle": "8c14e34920a925e582d667988b724700f13a2d7184472ba880a36aff13155e8f",
+          "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "local/research/neighbor251-v2-ee.bin": "1fc9bb33762cbbd5a7cff8c3aafcb93af9650e1ec1696eacf8a79d81a5cfdae5",
+          "local/relationship-v1/cases.bin": "9fabcb192c036c58a402802a44ae042a96ca6ac132f07656a5d79c683b73ca17",
+          "local/relationship-v1/original.bin": "d8c1363a322c1d1f95b66d8050d6348286e49c6e0120e023cde56f4727290a64"
+        }
+      },
+      "native_command": [
+        "build/model-sanitize/okage-assets",
+        "relationship",
+        "local/relationship-sanitize-v1/cases.bin",
+        "local/relationship-sanitize-v1/native.bin"
+      ],
+      "sha256": {
+        "local/relationship-sanitize-v1/cases.bin": "9fabcb192c036c58a402802a44ae042a96ca6ac132f07656a5d79c683b73ca17",
+        "local/relationship-v1/original.bin": "d8c1363a322c1d1f95b66d8050d6348286e49c6e0120e023cde56f4727290a64",
+        "local/relationship-sanitize-v1/native.bin": "5d46e36e3209fba37c6eb561d375578256ee936ed3e0158b05b88c0170c6ffb1",
+        "build/model-sanitize/okage-assets": "56f717d07042d4806ff16c52b720c8449caa4f2cb91a220e07616959a36e0f37"
+      },
+      "live_answer": {
+        "controller_words": 2400,
+        "choice_words": 960,
+        "native_run": {
+          "command": [
+            "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",
+            "local/font-input/CMNDATA/FONT",
+            "local/text-input/FLDDATA/MES/FIELD.PME",
+            "--scene",
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+            "--event",
+            "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+            "--actor",
+            "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+            "--actor-bind",
+            "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+            "--actor-bind",
+            "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+            "--frames",
+            "6389",
+            "--press",
+            "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360",
+            "--directions",
+            "local/native-neighbor-answer-6389-message-v1.directions",
+            "--capture",
+            "local/native-neighbor-answer-6389-relationship-sanitize-v1.png",
+            "--music-dry",
+            "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+            "--music-bank",
+            "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+            "--sound-dir",
+            "local/audio-input/SNDDATA/SE",
+            "--effect-data",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "--effect-textures",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 34.997993792,
+          "binary_sha256": "03b5d5aeb61926e315a71891220e42dcf376b48289073af50d29882776f3ca7f"
+        },
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-boot-oracle",
+            "local/disc/Okage - Shadow King (USA).cue",
+            "240",
+            "local/reference-neighbor-choice-300-v1.state.zip",
+            "--load",
+            "--pad",
+            "local/reference-neighbor-answer-240-v1.input",
+            "--interaction-wide",
+            "local/reference-neighbor-answer-240-v1.interaction.bin",
+            "--controller",
+            "local/reference-neighbor-answer-240-v1.controller.bin",
+            "--capture",
+            "local/reference-neighbor-answer-240-v1",
+            "--save",
+            "local/reference-neighbor-answer-240-v1.state.zip",
+            "--deadline-seconds",
+            "240"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 117.506398292,
+          "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+        },
+        "sha256": {
+          "local/reference-neighbor-answer-240-v1.controller.bin": "cef9b750c5a40aa29884fef76dfc416b04c4a820c1185df20c2c3851c7df8d71",
+          "local/reference-neighbor-answer-240-v1.controller.bin.choices.bin": "f00fc8474fb8f097d20f165dede7c8ea257b1993b349d2526e34bcbb51af8546",
+          "local/native-neighbor-answer-6389-relationship-sanitize-v1.png.dialogue.bin": "50e95d79a10000ac2b3516faf01d70d0fb1500fc6d606f030390654cca914e62",
+          "local/native-neighbor-answer-6389-relationship-sanitize-v1.png.choices.bin": "01a4649f3683ebcb12e639ee2d9621faedbc8fe5f65c156d19da2aac68ba4631",
+          "local/native-neighbor-answer-6389-relationship-sanitize-v1.png": "2c291c9bb3ccba61d410fb296d5d243828431b942ad7e5fc542fdc038897d486"
+        }
+      }
+    }
+  },
+  "opening_regression": {
+    "native": {
+      "controller_words": 4200,
+      "intervals": {
+        "local/reference-outdoor-neighbor-251-v2.controller.bin": 1200,
+        "local/reference-neighbor-choice-300-v1.controller.bin": 3000
+      },
+      "trace_sha256": "50e95d79a10000ac2b3516faf01d70d0fb1500fc6d606f030390654cca914e62"
+    },
+    "release": {
+      "controller_words": 4200,
+      "intervals": {
+        "local/reference-outdoor-neighbor-251-v2.controller.bin": 1200,
+        "local/reference-neighbor-choice-300-v1.controller.bin": 3000
+      },
+      "trace_sha256": "50e95d79a10000ac2b3516faf01d70d0fb1500fc6d606f030390654cca914e62"
+    },
+    "sanitize": {
+      "controller_words": 4200,
+      "intervals": {
+        "local/reference-outdoor-neighbor-251-v2.controller.bin": 1200,
+        "local/reference-neighbor-choice-300-v1.controller.bin": 3000
+      },
+      "trace_sha256": "50e95d79a10000ac2b3516faf01d70d0fb1500fc6d606f030390654cca914e62"
+    }
+  },
+  "conversation": {
+    "native": {
+      "scope": "Audit Annie's complete window interval using five completed original captures.",
+      "native_run": {
+        "command": [
+          "build/native/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "7300",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901",
+          "--directions",
+          "local/native-neighbor-movement-7300-relationship-v1.directions",
+          "--capture",
+          "local/native-neighbor-movement-7300-relationship-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 15.602655625,
+        "binary_sha256": "bc09179d05188129b969e730ce918d7cd70f464dbb2df79dee39fe0209470417"
+      },
+      "intervals": [
+        {
+          "reference": "outdoor-neighbor-251-v2",
+          "first_original": 131,
+          "first_native": 5730,
+          "frames": 120,
+          "controller_words": 1200,
+          "choice_words": 0,
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-boot-oracle",
+              "local/disc/Okage - Shadow King (USA).cue",
+              "251",
+              "local/reference-exterior-startup-180-v1.state.zip",
+              "--load",
+              "--pad",
+              "local/reference-outdoor-neighbor-251-v1.input",
+              "--interaction-wide",
+              "local/reference-outdoor-neighbor-251-v2.interaction.bin",
+              "--text",
+              "local/reference-outdoor-neighbor-251-v2.text.bin",
+              "--controller",
+              "local/reference-outdoor-neighbor-251-v2.controller.bin",
+              "--capture",
+              "local/reference-outdoor-neighbor-251-v2",
+              "--save",
+              "local/reference-outdoor-neighbor-251-v2.state.zip",
+              "--deadline-seconds",
+              "180"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 159.416079875,
+            "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+          }
+        },
+        {
+          "reference": "neighbor-choice-300-v1",
+          "first_original": 0,
+          "first_native": 5850,
+          "frames": 300,
+          "controller_words": 3000,
+          "choice_words": 1200,
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-boot-oracle",
+              "local/disc/Okage - Shadow King (USA).cue",
+              "300",
+              "local/reference-outdoor-neighbor-251-v2.state.zip",
+              "--load",
+              "--pad",
+              "local/reference-neighbor-choice-300-v1.input",
+              "--interaction-wide",
+              "local/reference-neighbor-choice-300-v1.interaction.bin",
+              "--controller",
+              "local/reference-neighbor-choice-300-v1.controller.bin",
+              "--capture",
+              "local/reference-neighbor-choice-300-v1",
+              "--save",
+              "local/reference-neighbor-choice-300-v1.state.zip",
+              "--deadline-seconds",
+              "240"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 145.64811362499998,
+            "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+          }
+        },
+        {
+          "reference": "neighbor-answer-240-v1",
+          "first_original": 0,
+          "first_native": 6150,
+          "frames": 240,
+          "controller_words": 2400,
+          "choice_words": 960,
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-boot-oracle",
+              "local/disc/Okage - Shadow King (USA).cue",
+              "240",
+              "local/reference-neighbor-choice-300-v1.state.zip",
+              "--load",
+              "--pad",
+              "local/reference-neighbor-answer-240-v1.input",
+              "--interaction-wide",
+              "local/reference-neighbor-answer-240-v1.interaction.bin",
+              "--controller",
+              "local/reference-neighbor-answer-240-v1.controller.bin",
+              "--capture",
+              "local/reference-neighbor-answer-240-v1",
+              "--save",
+              "local/reference-neighbor-answer-240-v1.state.zip",
+              "--deadline-seconds",
+              "240"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 117.506398292,
+            "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+          }
+        },
+        {
+          "reference": "neighbor-second-choice-300-v1",
+          "first_original": 0,
+          "first_native": 6390,
+          "frames": 300,
+          "controller_words": 3000,
+          "choice_words": 1200,
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-boot-oracle",
+              "local/disc/Okage - Shadow King (USA).cue",
+              "300",
+              "local/reference-neighbor-answer-240-v1.state.zip",
+              "--load",
+              "--pad",
+              "local/reference-neighbor-second-choice-300-v1.input",
+              "--interaction-wide",
+              "local/reference-neighbor-second-choice-300-v1.interaction.bin",
+              "--controller",
+              "local/reference-neighbor-second-choice-300-v1.controller.bin",
+              "--capture",
+              "local/reference-neighbor-second-choice-300-v1",
+              "--save",
+              "local/reference-neighbor-second-choice-300-v1.state.zip",
+              "--deadline-seconds",
+              "240"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 147.065844583,
+            "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+          }
+        },
+        {
+          "reference": "neighbor-close-240-v1",
+          "first_original": 0,
+          "first_native": 6690,
+          "frames": 210,
+          "controller_words": 2100,
+          "choice_words": 840,
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-boot-oracle",
+              "local/disc/Okage - Shadow King (USA).cue",
+              "240",
+              "local/reference-neighbor-second-choice-300-v1.state.zip",
+              "--load",
+              "--pad",
+              "local/reference-neighbor-close-240-v1.input",
+              "--interaction-wide",
+              "local/reference-neighbor-close-240-v1.interaction.bin",
+              "--controller",
+              "local/reference-neighbor-close-240-v1.controller.bin",
+              "--capture",
+              "local/reference-neighbor-close-240-v1",
+              "--save",
+              "local/reference-neighbor-close-240-v1.state.zip",
+              "--deadline-seconds",
+              "240"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 108.21610137500001,
+            "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+          }
+        }
+      ],
+      "sha256": {
+        "local/native-neighbor-movement-7300-relationship-v1.png": "de08216e777998f9726549a88767ac6cde220bf8aaf0dd8fe8ebd66f0d9f41e2",
+        "local/native-neighbor-movement-7300-relationship-v1.png.dialogue.bin": "a495b890eeff292816d1444ec48dc608323d0fec84f717d86a0c4ee4c5fb2adb",
+        "local/native-neighbor-movement-7300-relationship-v1.png.choices.bin": "e4436d9ce3b3e98afb0639bb2c2872f0152128cc3bbe69842c5f8284a6f12690",
+        "local/reference-outdoor-neighbor-251-v2.controller.bin": "408465d3fbbf3c0ce95d8eb051158472c1fb42f41aed052aef0c4fe0075902c1",
+        "local/reference-outdoor-neighbor-251-v2.controller.bin.choices.bin": "81306cdfb8540c198c9b5b3a35eb835c5b7c11fae1f3242dfdd9888b350c6f7f",
+        "local/reference-neighbor-choice-300-v1.controller.bin": "1511c1654364e11bea3152d8a8d6cbd1f85a21908d26f72705cd55df30bfbee2",
+        "local/reference-neighbor-choice-300-v1.controller.bin.choices.bin": "2f91e510141484a43fd5424dcf38ea90dcf9b4d20b4b0c4db2d083c27aa3a18f",
+        "local/reference-neighbor-answer-240-v1.controller.bin": "cef9b750c5a40aa29884fef76dfc416b04c4a820c1185df20c2c3851c7df8d71",
+        "local/reference-neighbor-answer-240-v1.controller.bin.choices.bin": "f00fc8474fb8f097d20f165dede7c8ea257b1993b349d2526e34bcbb51af8546",
+        "local/reference-neighbor-second-choice-300-v1.controller.bin": "49aed5efc7486bcc2a86d32f4ff24100c488f073ce34b34112d7cf4649027451",
+        "local/reference-neighbor-second-choice-300-v1.controller.bin.choices.bin": "290232266c025ef06854c95cd07145dc2717ef7003a933b515ae72dc234e9e21",
+        "local/reference-neighbor-close-240-v1.controller.bin": "41a98684301368433da69e446684162453ef189973cd7ec39cbc46206b0a888b",
+        "local/reference-neighbor-close-240-v1.controller.bin.choices.bin": "4c6326ebac305c5e31326c01aaba1230eda694e78312b822eabb04817f950eee",
+        "local/reference-neighbor-handoff-300-v1.interaction.bin": "74dbf1169a3168e969c4a89357883295c0dae76c3331e0b6a145bbb6d26b438f",
+        "local/native-neighbor-movement-7300-relationship-v1.png.interaction.bin": "b9475a2bacb1434e0a12a4e440492889e87fd7e10a1333974e36b7766e227285",
+        "local/native-neighbor-movement-7300-relationship-v1.png.actor-1.bin": "9e2c34b43b6925dd668797bcecf8cd2967e1ec7207c913fb76eb8388ae0d9262",
+        "local/native-neighbor-movement-7300-relationship-v1.png.movement.bin": "577150670a91348d1fe6853ee5ffb07b289456ce9bc9ce91dc618f1bdffb45c9",
+        "local/native-neighbor-movement-7300-relationship-v1.png.camera.bin": "55773154dafa2476cd16cb58b8d4802da79a9d9f9a92a76edb3bdb7a4e069b31"
+      },
+      "controller_frames": 1170,
+      "controller_words": 11700,
+      "choice_words": 4200,
+      "pressed_latches": 1170,
+      "closure_begin_frame": 6865,
+      "closure_finished_frame": 6898,
+      "handoff": {
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-boot-oracle",
+            "local/disc/Okage - Shadow King (USA).cue",
+            "300",
+            "local/reference-neighbor-close-240-v1.state.zip",
+            "--load",
+            "--interaction-wide",
+            "local/reference-neighbor-handoff-300-v1.interaction.bin",
+            "--controller",
+            "local/reference-neighbor-handoff-300-v1.controller.bin",
+            "--capture",
+            "local/reference-neighbor-handoff-300-v1",
+            "--save",
+            "local/reference-neighbor-handoff-300-v1.state.zip",
+            "--deadline-seconds",
+            "240"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 47.831974499999994,
+          "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+        },
+        "manager_words": 1200,
+        "hero_endpoint_words": 4,
+        "script_finished_frame": 7051,
+        "control_return_frame": 7052
+      },
+      "native_movement": {
+        "start": 7230,
+        "release": 7250,
+        "end": 7300,
+        "moved": true,
+        "stopped": true,
+        "camera_followed": true,
+        "scope": "Native behavior only; no original post-handoff movement comparison"
+      }
+    },
+    "release": {
+      "scope": "Audit Annie's complete window interval using five completed original captures.",
+      "native_run": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "7300",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901",
+          "--directions",
+          "local/native-neighbor-movement-7300-relationship-v1.directions",
+          "--capture",
+          "local/native-neighbor-movement-7300-relationship-release-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.304942083,
+        "binary_sha256": "2b1ad3febeef322cd96f180209d8e25d585e50208a11e239ca92081ec3731095"
+      },
+      "intervals": [
+        {
+          "reference": "outdoor-neighbor-251-v2",
+          "first_original": 131,
+          "first_native": 5730,
+          "frames": 120,
+          "controller_words": 1200,
+          "choice_words": 0,
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-boot-oracle",
+              "local/disc/Okage - Shadow King (USA).cue",
+              "251",
+              "local/reference-exterior-startup-180-v1.state.zip",
+              "--load",
+              "--pad",
+              "local/reference-outdoor-neighbor-251-v1.input",
+              "--interaction-wide",
+              "local/reference-outdoor-neighbor-251-v2.interaction.bin",
+              "--text",
+              "local/reference-outdoor-neighbor-251-v2.text.bin",
+              "--controller",
+              "local/reference-outdoor-neighbor-251-v2.controller.bin",
+              "--capture",
+              "local/reference-outdoor-neighbor-251-v2",
+              "--save",
+              "local/reference-outdoor-neighbor-251-v2.state.zip",
+              "--deadline-seconds",
+              "180"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 159.416079875,
+            "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+          }
+        },
+        {
+          "reference": "neighbor-choice-300-v1",
+          "first_original": 0,
+          "first_native": 5850,
+          "frames": 300,
+          "controller_words": 3000,
+          "choice_words": 1200,
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-boot-oracle",
+              "local/disc/Okage - Shadow King (USA).cue",
+              "300",
+              "local/reference-outdoor-neighbor-251-v2.state.zip",
+              "--load",
+              "--pad",
+              "local/reference-neighbor-choice-300-v1.input",
+              "--interaction-wide",
+              "local/reference-neighbor-choice-300-v1.interaction.bin",
+              "--controller",
+              "local/reference-neighbor-choice-300-v1.controller.bin",
+              "--capture",
+              "local/reference-neighbor-choice-300-v1",
+              "--save",
+              "local/reference-neighbor-choice-300-v1.state.zip",
+              "--deadline-seconds",
+              "240"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 145.64811362499998,
+            "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+          }
+        },
+        {
+          "reference": "neighbor-answer-240-v1",
+          "first_original": 0,
+          "first_native": 6150,
+          "frames": 240,
+          "controller_words": 2400,
+          "choice_words": 960,
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-boot-oracle",
+              "local/disc/Okage - Shadow King (USA).cue",
+              "240",
+              "local/reference-neighbor-choice-300-v1.state.zip",
+              "--load",
+              "--pad",
+              "local/reference-neighbor-answer-240-v1.input",
+              "--interaction-wide",
+              "local/reference-neighbor-answer-240-v1.interaction.bin",
+              "--controller",
+              "local/reference-neighbor-answer-240-v1.controller.bin",
+              "--capture",
+              "local/reference-neighbor-answer-240-v1",
+              "--save",
+              "local/reference-neighbor-answer-240-v1.state.zip",
+              "--deadline-seconds",
+              "240"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 117.506398292,
+            "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+          }
+        },
+        {
+          "reference": "neighbor-second-choice-300-v1",
+          "first_original": 0,
+          "first_native": 6390,
+          "frames": 300,
+          "controller_words": 3000,
+          "choice_words": 1200,
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-boot-oracle",
+              "local/disc/Okage - Shadow King (USA).cue",
+              "300",
+              "local/reference-neighbor-answer-240-v1.state.zip",
+              "--load",
+              "--pad",
+              "local/reference-neighbor-second-choice-300-v1.input",
+              "--interaction-wide",
+              "local/reference-neighbor-second-choice-300-v1.interaction.bin",
+              "--controller",
+              "local/reference-neighbor-second-choice-300-v1.controller.bin",
+              "--capture",
+              "local/reference-neighbor-second-choice-300-v1",
+              "--save",
+              "local/reference-neighbor-second-choice-300-v1.state.zip",
+              "--deadline-seconds",
+              "240"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 147.065844583,
+            "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+          }
+        },
+        {
+          "reference": "neighbor-close-240-v1",
+          "first_original": 0,
+          "first_native": 6690,
+          "frames": 210,
+          "controller_words": 2100,
+          "choice_words": 840,
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-boot-oracle",
+              "local/disc/Okage - Shadow King (USA).cue",
+              "240",
+              "local/reference-neighbor-second-choice-300-v1.state.zip",
+              "--load",
+              "--pad",
+              "local/reference-neighbor-close-240-v1.input",
+              "--interaction-wide",
+              "local/reference-neighbor-close-240-v1.interaction.bin",
+              "--controller",
+              "local/reference-neighbor-close-240-v1.controller.bin",
+              "--capture",
+              "local/reference-neighbor-close-240-v1",
+              "--save",
+              "local/reference-neighbor-close-240-v1.state.zip",
+              "--deadline-seconds",
+              "240"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 108.21610137500001,
+            "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+          }
+        }
+      ],
+      "sha256": {
+        "local/native-neighbor-movement-7300-relationship-release-v1.png": "de08216e777998f9726549a88767ac6cde220bf8aaf0dd8fe8ebd66f0d9f41e2",
+        "local/native-neighbor-movement-7300-relationship-release-v1.png.dialogue.bin": "a495b890eeff292816d1444ec48dc608323d0fec84f717d86a0c4ee4c5fb2adb",
+        "local/native-neighbor-movement-7300-relationship-release-v1.png.choices.bin": "e4436d9ce3b3e98afb0639bb2c2872f0152128cc3bbe69842c5f8284a6f12690",
+        "local/reference-outdoor-neighbor-251-v2.controller.bin": "408465d3fbbf3c0ce95d8eb051158472c1fb42f41aed052aef0c4fe0075902c1",
+        "local/reference-outdoor-neighbor-251-v2.controller.bin.choices.bin": "81306cdfb8540c198c9b5b3a35eb835c5b7c11fae1f3242dfdd9888b350c6f7f",
+        "local/reference-neighbor-choice-300-v1.controller.bin": "1511c1654364e11bea3152d8a8d6cbd1f85a21908d26f72705cd55df30bfbee2",
+        "local/reference-neighbor-choice-300-v1.controller.bin.choices.bin": "2f91e510141484a43fd5424dcf38ea90dcf9b4d20b4b0c4db2d083c27aa3a18f",
+        "local/reference-neighbor-answer-240-v1.controller.bin": "cef9b750c5a40aa29884fef76dfc416b04c4a820c1185df20c2c3851c7df8d71",
+        "local/reference-neighbor-answer-240-v1.controller.bin.choices.bin": "f00fc8474fb8f097d20f165dede7c8ea257b1993b349d2526e34bcbb51af8546",
+        "local/reference-neighbor-second-choice-300-v1.controller.bin": "49aed5efc7486bcc2a86d32f4ff24100c488f073ce34b34112d7cf4649027451",
+        "local/reference-neighbor-second-choice-300-v1.controller.bin.choices.bin": "290232266c025ef06854c95cd07145dc2717ef7003a933b515ae72dc234e9e21",
+        "local/reference-neighbor-close-240-v1.controller.bin": "41a98684301368433da69e446684162453ef189973cd7ec39cbc46206b0a888b",
+        "local/reference-neighbor-close-240-v1.controller.bin.choices.bin": "4c6326ebac305c5e31326c01aaba1230eda694e78312b822eabb04817f950eee",
+        "local/reference-neighbor-handoff-300-v1.interaction.bin": "74dbf1169a3168e969c4a89357883295c0dae76c3331e0b6a145bbb6d26b438f",
+        "local/native-neighbor-movement-7300-relationship-release-v1.png.interaction.bin": "b9475a2bacb1434e0a12a4e440492889e87fd7e10a1333974e36b7766e227285",
+        "local/native-neighbor-movement-7300-relationship-release-v1.png.actor-1.bin": "9e2c34b43b6925dd668797bcecf8cd2967e1ec7207c913fb76eb8388ae0d9262",
+        "local/native-neighbor-movement-7300-relationship-release-v1.png.movement.bin": "577150670a91348d1fe6853ee5ffb07b289456ce9bc9ce91dc618f1bdffb45c9",
+        "local/native-neighbor-movement-7300-relationship-release-v1.png.camera.bin": "55773154dafa2476cd16cb58b8d4802da79a9d9f9a92a76edb3bdb7a4e069b31"
+      },
+      "controller_frames": 1170,
+      "controller_words": 11700,
+      "choice_words": 4200,
+      "pressed_latches": 1170,
+      "closure_begin_frame": 6865,
+      "closure_finished_frame": 6898,
+      "handoff": {
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-boot-oracle",
+            "local/disc/Okage - Shadow King (USA).cue",
+            "300",
+            "local/reference-neighbor-close-240-v1.state.zip",
+            "--load",
+            "--interaction-wide",
+            "local/reference-neighbor-handoff-300-v1.interaction.bin",
+            "--controller",
+            "local/reference-neighbor-handoff-300-v1.controller.bin",
+            "--capture",
+            "local/reference-neighbor-handoff-300-v1",
+            "--save",
+            "local/reference-neighbor-handoff-300-v1.state.zip",
+            "--deadline-seconds",
+            "240"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 47.831974499999994,
+          "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+        },
+        "manager_words": 1200,
+        "hero_endpoint_words": 4,
+        "script_finished_frame": 7051,
+        "control_return_frame": 7052
+      },
+      "native_movement": {
+        "start": 7230,
+        "release": 7250,
+        "end": 7300,
+        "moved": true,
+        "stopped": true,
+        "camera_followed": true,
+        "scope": "Native behavior only; no original post-handoff movement comparison"
+      }
+    },
+    "sanitize": {
+      "scope": "Audit Annie's complete window interval using five completed original captures.",
+      "native_run": {
+        "command": [
+          "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "7300",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901",
+          "--directions",
+          "local/native-neighbor-movement-7300-relationship-v1.directions",
+          "--capture",
+          "local/native-neighbor-movement-7300-relationship-sanitize-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 36.663279834,
+        "binary_sha256": "03b5d5aeb61926e315a71891220e42dcf376b48289073af50d29882776f3ca7f"
+      },
+      "intervals": [
+        {
+          "reference": "outdoor-neighbor-251-v2",
+          "first_original": 131,
+          "first_native": 5730,
+          "frames": 120,
+          "controller_words": 1200,
+          "choice_words": 0,
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-boot-oracle",
+              "local/disc/Okage - Shadow King (USA).cue",
+              "251",
+              "local/reference-exterior-startup-180-v1.state.zip",
+              "--load",
+              "--pad",
+              "local/reference-outdoor-neighbor-251-v1.input",
+              "--interaction-wide",
+              "local/reference-outdoor-neighbor-251-v2.interaction.bin",
+              "--text",
+              "local/reference-outdoor-neighbor-251-v2.text.bin",
+              "--controller",
+              "local/reference-outdoor-neighbor-251-v2.controller.bin",
+              "--capture",
+              "local/reference-outdoor-neighbor-251-v2",
+              "--save",
+              "local/reference-outdoor-neighbor-251-v2.state.zip",
+              "--deadline-seconds",
+              "180"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 159.416079875,
+            "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+          }
+        },
+        {
+          "reference": "neighbor-choice-300-v1",
+          "first_original": 0,
+          "first_native": 5850,
+          "frames": 300,
+          "controller_words": 3000,
+          "choice_words": 1200,
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-boot-oracle",
+              "local/disc/Okage - Shadow King (USA).cue",
+              "300",
+              "local/reference-outdoor-neighbor-251-v2.state.zip",
+              "--load",
+              "--pad",
+              "local/reference-neighbor-choice-300-v1.input",
+              "--interaction-wide",
+              "local/reference-neighbor-choice-300-v1.interaction.bin",
+              "--controller",
+              "local/reference-neighbor-choice-300-v1.controller.bin",
+              "--capture",
+              "local/reference-neighbor-choice-300-v1",
+              "--save",
+              "local/reference-neighbor-choice-300-v1.state.zip",
+              "--deadline-seconds",
+              "240"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 145.64811362499998,
+            "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+          }
+        },
+        {
+          "reference": "neighbor-answer-240-v1",
+          "first_original": 0,
+          "first_native": 6150,
+          "frames": 240,
+          "controller_words": 2400,
+          "choice_words": 960,
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-boot-oracle",
+              "local/disc/Okage - Shadow King (USA).cue",
+              "240",
+              "local/reference-neighbor-choice-300-v1.state.zip",
+              "--load",
+              "--pad",
+              "local/reference-neighbor-answer-240-v1.input",
+              "--interaction-wide",
+              "local/reference-neighbor-answer-240-v1.interaction.bin",
+              "--controller",
+              "local/reference-neighbor-answer-240-v1.controller.bin",
+              "--capture",
+              "local/reference-neighbor-answer-240-v1",
+              "--save",
+              "local/reference-neighbor-answer-240-v1.state.zip",
+              "--deadline-seconds",
+              "240"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 117.506398292,
+            "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+          }
+        },
+        {
+          "reference": "neighbor-second-choice-300-v1",
+          "first_original": 0,
+          "first_native": 6390,
+          "frames": 300,
+          "controller_words": 3000,
+          "choice_words": 1200,
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-boot-oracle",
+              "local/disc/Okage - Shadow King (USA).cue",
+              "300",
+              "local/reference-neighbor-answer-240-v1.state.zip",
+              "--load",
+              "--pad",
+              "local/reference-neighbor-second-choice-300-v1.input",
+              "--interaction-wide",
+              "local/reference-neighbor-second-choice-300-v1.interaction.bin",
+              "--controller",
+              "local/reference-neighbor-second-choice-300-v1.controller.bin",
+              "--capture",
+              "local/reference-neighbor-second-choice-300-v1",
+              "--save",
+              "local/reference-neighbor-second-choice-300-v1.state.zip",
+              "--deadline-seconds",
+              "240"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 147.065844583,
+            "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+          }
+        },
+        {
+          "reference": "neighbor-close-240-v1",
+          "first_original": 0,
+          "first_native": 6690,
+          "frames": 210,
+          "controller_words": 2100,
+          "choice_words": 840,
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-boot-oracle",
+              "local/disc/Okage - Shadow King (USA).cue",
+              "240",
+              "local/reference-neighbor-second-choice-300-v1.state.zip",
+              "--load",
+              "--pad",
+              "local/reference-neighbor-close-240-v1.input",
+              "--interaction-wide",
+              "local/reference-neighbor-close-240-v1.interaction.bin",
+              "--controller",
+              "local/reference-neighbor-close-240-v1.controller.bin",
+              "--capture",
+              "local/reference-neighbor-close-240-v1",
+              "--save",
+              "local/reference-neighbor-close-240-v1.state.zip",
+              "--deadline-seconds",
+              "240"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 108.21610137500001,
+            "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+          }
+        }
+      ],
+      "sha256": {
+        "local/native-neighbor-movement-7300-relationship-sanitize-v1.png": "de08216e777998f9726549a88767ac6cde220bf8aaf0dd8fe8ebd66f0d9f41e2",
+        "local/native-neighbor-movement-7300-relationship-sanitize-v1.png.dialogue.bin": "a495b890eeff292816d1444ec48dc608323d0fec84f717d86a0c4ee4c5fb2adb",
+        "local/native-neighbor-movement-7300-relationship-sanitize-v1.png.choices.bin": "e4436d9ce3b3e98afb0639bb2c2872f0152128cc3bbe69842c5f8284a6f12690",
+        "local/reference-outdoor-neighbor-251-v2.controller.bin": "408465d3fbbf3c0ce95d8eb051158472c1fb42f41aed052aef0c4fe0075902c1",
+        "local/reference-outdoor-neighbor-251-v2.controller.bin.choices.bin": "81306cdfb8540c198c9b5b3a35eb835c5b7c11fae1f3242dfdd9888b350c6f7f",
+        "local/reference-neighbor-choice-300-v1.controller.bin": "1511c1654364e11bea3152d8a8d6cbd1f85a21908d26f72705cd55df30bfbee2",
+        "local/reference-neighbor-choice-300-v1.controller.bin.choices.bin": "2f91e510141484a43fd5424dcf38ea90dcf9b4d20b4b0c4db2d083c27aa3a18f",
+        "local/reference-neighbor-answer-240-v1.controller.bin": "cef9b750c5a40aa29884fef76dfc416b04c4a820c1185df20c2c3851c7df8d71",
+        "local/reference-neighbor-answer-240-v1.controller.bin.choices.bin": "f00fc8474fb8f097d20f165dede7c8ea257b1993b349d2526e34bcbb51af8546",
+        "local/reference-neighbor-second-choice-300-v1.controller.bin": "49aed5efc7486bcc2a86d32f4ff24100c488f073ce34b34112d7cf4649027451",
+        "local/reference-neighbor-second-choice-300-v1.controller.bin.choices.bin": "290232266c025ef06854c95cd07145dc2717ef7003a933b515ae72dc234e9e21",
+        "local/reference-neighbor-close-240-v1.controller.bin": "41a98684301368433da69e446684162453ef189973cd7ec39cbc46206b0a888b",
+        "local/reference-neighbor-close-240-v1.controller.bin.choices.bin": "4c6326ebac305c5e31326c01aaba1230eda694e78312b822eabb04817f950eee",
+        "local/reference-neighbor-handoff-300-v1.interaction.bin": "74dbf1169a3168e969c4a89357883295c0dae76c3331e0b6a145bbb6d26b438f",
+        "local/native-neighbor-movement-7300-relationship-sanitize-v1.png.interaction.bin": "b9475a2bacb1434e0a12a4e440492889e87fd7e10a1333974e36b7766e227285",
+        "local/native-neighbor-movement-7300-relationship-sanitize-v1.png.actor-1.bin": "9e2c34b43b6925dd668797bcecf8cd2967e1ec7207c913fb76eb8388ae0d9262",
+        "local/native-neighbor-movement-7300-relationship-sanitize-v1.png.movement.bin": "577150670a91348d1fe6853ee5ffb07b289456ce9bc9ce91dc618f1bdffb45c9",
+        "local/native-neighbor-movement-7300-relationship-sanitize-v1.png.camera.bin": "55773154dafa2476cd16cb58b8d4802da79a9d9f9a92a76edb3bdb7a4e069b31"
+      },
+      "controller_frames": 1170,
+      "controller_words": 11700,
+      "choice_words": 4200,
+      "pressed_latches": 1170,
+      "closure_begin_frame": 6865,
+      "closure_finished_frame": 6898,
+      "handoff": {
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-boot-oracle",
+            "local/disc/Okage - Shadow King (USA).cue",
+            "300",
+            "local/reference-neighbor-close-240-v1.state.zip",
+            "--load",
+            "--interaction-wide",
+            "local/reference-neighbor-handoff-300-v1.interaction.bin",
+            "--controller",
+            "local/reference-neighbor-handoff-300-v1.controller.bin",
+            "--capture",
+            "local/reference-neighbor-handoff-300-v1",
+            "--save",
+            "local/reference-neighbor-handoff-300-v1.state.zip",
+            "--deadline-seconds",
+            "240"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 47.831974499999994,
+          "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+        },
+        "manager_words": 1200,
+        "hero_endpoint_words": 4,
+        "script_finished_frame": 7051,
+        "control_return_frame": 7052
+      },
+      "native_movement": {
+        "start": 7230,
+        "release": 7250,
+        "end": 7300,
+        "moved": true,
+        "stopped": true,
+        "camera_followed": true,
+        "scope": "Native behavior only; no original post-handoff movement comparison"
+      }
+    }
+  }
+}

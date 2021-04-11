@@ -36,6 +36,24 @@ int main() {try {
     text.state.window="SET(2/0/)";rejects([&]{c.update(text,{});});
     text.state.window="WINTYPE(3)";rejects([&]{c.update(text,{});});
     text.state.window.clear();text.state.option="Choice";rejects([&]{c.update(text,{});});
+    okage::DialogueController relation;okage::DialogueText relation_text({""});
+    relation_text.state.window="LA(0/3/0)";relation_text.choice_result=1;
+    rejects([&]{relation.update(relation_text,{});});
+    std::array<std::int32_t,6> relationship_values={-2,0,0x7fffffff,1,2,3};unsigned relationship_writes=0;
+    relation.get_variable=[&](unsigned index,unsigned bank){require(bank==4&&index>=16&&index<22);return relationship_values[index-16];};
+    relation.set_variable=[&](unsigned index,unsigned bank,std::int32_t value){require(bank==4&&index>=16&&index<22);relationship_values[index-16]=value;++relationship_writes;};
+    relation_text.state.flags=0x8910;relation_text.state.delay=7;relation_text.state.phase=9;
+    const auto relationship_effect=relation.update(relation_text,{});
+    require(relationship_values==std::array<std::int32_t,6>{0,0,0,1,2,3});
+    require(relationship_effect.resume_calls==1&&relationship_effect.cue==-1&&relation.layer_flags==0x50);
+    require(relation_text.state.delay==0&&relation_text.state.phase==0&&relation_text.state.period==1);
+    relation.update(relation_text,{});require(relationship_writes==6);
+    for(const auto* command:{"LA(0/13/0)","LA(0/-1/0)","LA(0/3)","LA(0/3/)"}) {
+        relation_text.state.window=command;rejects([&]{relation.update(relation_text,{});});
+        require(relationship_writes==6);
+    }
+    relation_text.state.window="LA(0/3/0)";relation_text.choice_result=3;
+    rejects([&]{relation.update(relation_text,{});});require(relationship_writes==6);
     okage::MessageBank bank;
     bank.strings={"system","42","\\z[One\\nTwo\\nThree]\\o[CC]\\v","A\\e","B\\e","C\\e","After\\v"};
     bank.nodes={{0,0},{0,1},{1,2},{2,3},{2,4},{2,5},{1,6}};

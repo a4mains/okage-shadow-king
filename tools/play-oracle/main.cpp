@@ -687,6 +687,43 @@ public:
         }
         writeFile(output,result.data(),result.size()*4);
     }
+    void relationship(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
+        if(ram.size()!=32*1024*1024||input.empty()||input.size()%40||input.size()>40*256)
+            throw std::runtime_error("Relationship fixture extent");
+        std::vector<uint32> result;
+        for(unsigned at=0;at<input.size();at+=40) {
+            ee->m_EE.m_executor->Reset();
+            std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
+            effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
+                                           ee->m_gs,ee->m_sif,*dynamic_cast<CIopBios*>(iop->m_bios.get()));
+            const auto field=get(0x2d9bf4),message=get(field+0x50),object=get(0x20068c),vars=get(0x24f788);
+            if(!message||get(message+0x8c)!=10001||!object||!vars)
+                throw std::runtime_error("Relationship fixture message identity");
+            uint32 row[10];std::memcpy(row,input.data()+at,40);
+            if(row[0]>2||row[1]>12||row[2]>12||row[3]>12)throw std::runtime_error("Relationship fixture selection/code");
+            const auto command=std::string("LA(")+std::to_string(row[1])+"/"+std::to_string(row[2])+"/"+std::to_string(row[3])+")";
+            const auto setup=[&]{
+                put(message+0xe48,1);put(message+0xe8c,0);put(message+0xe4c,5);put(message+0xed8,1);
+                put(message+0xed4,4);put(message+0x170,0x50);put(message+0x1f0,4);
+                put(0x1fcb60,1);put(0x1fcb64,0);put(0x33958c,0);put(0x339590,0);
+                for(unsigned i=0;i<6;++i)put(vars+0x510+(16+i)*4,row[4+i]);
+                put(object+0x1e70,row[0]);put(object+0x1970,255);
+                put(object+0x1900,0x8910);put(object+0xcd0,9);put(object+0xcd4,0xfffffffe);
+                put(object+0xcd8,7);put(object+0x3d08,5);
+                std::strcpy(reinterpret_cast<char*>(ee->m_ram+object+0x1c70),command.c_str());
+            };
+            const auto capture=[&]{
+                for(unsigned i=0;i<6;++i)result.push_back(get(vars+0x510+(16+i)*4));
+                for(auto offset:{0x1900,0xcd0,0xcd4,0xcd8,0x3d08})result.push_back(get(object+offset));
+            };
+            setup();call(0x148240,{message,object+0x1c70,0});
+            result.push_back(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);capture();result.push_back(get(object+0x1c70)&0xffff);
+            setup();call(0x148dc8,{message});capture();
+            result.insert(result.end(),{get(message+0xed4),get(message+0x170),get(message+0xe4c),
+                                       get(object+0x1c70)&0xffff,get(object+0x1e70)});
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
     void choiceOptions(const std::vector<uint8>& ram,const char* output) {
         if(ram.size()!=32*1024*1024)throw std::runtime_error("Option oracle requires EE snapshot");
         std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
@@ -1304,7 +1341,9 @@ int main(int argc,char** argv) {
         }
         Reference reference(readFile(argv[2]));
         const std::string command=argv[1];
-        if(command=="message-init" && argc==6) {
+        if(command=="relationship" && argc==6) {
+            reference.relationship(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="message-init" && argc==6) {
             reference.messageInit(readFile(argv[3]),std::stoul(argv[4]),argv[5]);
         } else if(command=="effect-tint" && argc==5) {
             reference.effectTint(readFile(argv[3]),argv[4]);

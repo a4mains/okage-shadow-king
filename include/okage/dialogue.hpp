@@ -27,6 +27,7 @@ struct DialogueController {
     bool choice_active=false,choice_armed=false;
     unsigned stage=5;
     std::function<void(unsigned,unsigned,std::int32_t)> set_variable;
+    std::function<std::int32_t(unsigned,unsigned)> get_variable;
     DialogueInputEffects update(DialogueText& text,DialogueButtons buttons);
 };
 // Original 0x114c20/0x114cc0/0x114b58 scene-darkening layer. Initial state

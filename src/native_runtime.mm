@@ -181,6 +181,7 @@ struct Session {
             clock={};clock.glyph_flags=0x10;controller={};closure={};opacity.set(1,8);
             opening.reset();
             if(!legacy_diagnostic){opening.emplace();opening->initialize(text,clock,controller,opacity,closure);}
+            controller.get_variable=[this](unsigned index,unsigned bank){return okage::event_variable(variables,(bank<<16)|index);};
             controller.set_variable=[this](unsigned index,unsigned bank,std::int32_t value){okage::set_event_variable(variables,index,bank,value);};
             wait.countdown=wait.observed=wait.accumulated=0;
             dialogue_active=true;
@@ -324,7 +325,12 @@ struct Session {
             opening->update(text,clock,controller,opacity,closure);
         if(dialogue_active && !closure.finished() && controller.stage>=6)closure.update(controller.stage);
         else if(dialogue_active && !opening_tick && controller.stage==5) {
-            const auto effects=controller.update(text,input);
+            okage::DialogueInputEffects effects;
+            try {effects=controller.update(text,input);}
+            catch(const std::exception& e) {
+                throw std::runtime_error("Dialogue ID="+std::to_string(message_id)+" native frame="+
+                    std::to_string(frame)+" command="+text.state.window+": "+e.what());
+            }
             if(effects.accepted_choice>=0)choices.accepted=effects.accepted_choice;
             if(effects.reset_text_clock){clock.revealed=0;clock.scroll=0;clock.scroll_target=0;clock.scroll_step=clock.scroll_base_step;}
             if(effects.scene_fade)scene_fade.request(*effects.scene_fade);

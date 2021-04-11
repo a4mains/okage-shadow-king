@@ -41,7 +41,7 @@ DialogueInputEffects DialogueController::update(DialogueText& text,DialogueButto
     auto resume=[&]{text.resume();text.state.period=__builtin_bit_cast(std::uint32_t, (normal_period));++effects.resume_calls;};
     auto& command=text.state.window;
     if(!command.empty() && static_cast<unsigned char>(command[0])!=255) {
-        bool resuming=true;
+        bool resuming=true,window_style=true;
         if(command.starts_with("WINTYPE(")) {
             const auto next=arguments(command,"WINTYPE(",1)[0];
             if(next<0 || next>2)throw std::runtime_error("Dialogue window type not implemented");
@@ -56,12 +56,30 @@ DialogueInputEffects DialogueController::update(DialogueText& text,DialogueButto
             const auto values=arguments(command,"SET(",3);
             if(values[0]<0 || values[1]<0 || !set_variable)throw std::runtime_error("Dialogue variable service unavailable");
             set_variable(values[0],values[1],values[2]);resuming=false;
+        } else if(command.starts_with("LA(")) {
+            const auto values=arguments(command,"LA(",3);
+            if(text.choice_result<0 || text.choice_result>=3 || !get_variable || !set_variable)
+                throw std::runtime_error("Dialogue relationship service/selection unavailable");
+            const auto code=values[text.choice_result];
+            if(code<0 || code>12)throw std::runtime_error("Dialogue relationship adjustment outside reviewed scope");
+            // 0x148240 handler11: reviewed signed-byte rows0..12 are zero,
+            // unit basis vectors and doubled basis vectors. Retail bank4 ADD
+            // wraps at32 bits, then the handler clamps signed-negative values.
+            for(unsigned i=0;i<6;++i) {
+                const unsigned delta=code && unsigned((code-1)%6)==i ? unsigned((code-1)/6+1) : 0;
+                const auto value=__builtin_bit_cast(std::int32_t, (
+                    __builtin_bit_cast(std::uint32_t, (get_variable(16+i,4)))+delta));
+                set_variable(16+i,4,std::max(0,value));
+            }
+            window_style=false;
         } else throw std::runtime_error("Dialogue window command not implemented");
         command.assign(1,char(255)); // Original 0x19aef0 marks it consumed.
         // Case 7 resumes; SET returns 12 and must preserve a concurrent delay.
         if(resuming){
-            if(window_type)layer_flags&=~0x20u;
-            else if(!(layer_flags&0x20)) {layer_flags|=0x20;effects.cue=11;}
+            if(window_style) {
+                if(window_type)layer_flags&=~0x20u;
+                else if(!(layer_flags&0x20)) {layer_flags|=0x20;effects.cue=11;}
+            }
             resume();
         }
     }
