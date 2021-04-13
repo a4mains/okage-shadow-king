@@ -122,6 +122,14 @@ int main(){try {
     require(outdoor_projection[2]!=default_projection[2]&&outdoor_projection[3]!=default_projection[3]);
     word(48,__builtin_bit_cast(unsigned, (10.f)));require(okage::field_projection(b)!=default_projection);
     word(48,0x7fc00000);rejects([&]{okage::field_projection(b);});
+    rejects([&]{okage::field_sky_follow({});});
+    b.assign(72,0);word(0,0x475453);word(8,32);word(12,0);
+    require(okage::field_sky_follow(b)==okage::Float4({.5f,0,.5f,0}));
+    word(12,2);word(32,0x46);word(52,0x46);
+    for(unsigned i=0;i<4;++i){word(36+i*4,__builtin_bit_cast(unsigned, (1.f)));word(56+i*4,__builtin_bit_cast(unsigned, (float(i)*.25f)));}
+    require(okage::field_sky_follow(b)==okage::Float4({0,.25f,.5f,.75f}));
+    word(56,0x7fc00000);rejects([&]{okage::field_sky_follow(b);});
+    word(12,3);rejects([&]{okage::field_sky_follow(b);});
     b.assign(88,0);word(0,0x475453);word(16,32);word(20,1);word(24,88);
     point(36,{0,0,0,1});point(64,{10,.5f,-2,1});word(76,__builtin_bit_cast(std::uint32_t, (1.f)));
     const auto settings=okage::field_anchored_camera(b);

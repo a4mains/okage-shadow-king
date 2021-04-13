@@ -397,7 +397,7 @@ struct Session {
         auto text_image=okage::rasterize_text(fonts,text.glyphs,640,224);
         if(!renderer)return text_image;
         const auto& r=field->rotation;
-        auto image=renderer->render(field->view(),projection,effects_loaded?&field->effects():nullptr,{-r[0],-r[1],-r[2],0},far_clip);
+        auto image=renderer->render(field->view(),projection,effects_loaded?&field->effects():nullptr,{-r[0],-r[1],-r[2],0},far_clip,field->position);
         const auto brightness=128-scene_fade.alpha();
         for(std::size_t i=0;i<image.rgba.size();i+=4)for(unsigned c=0;c<3;++c)image.rgba[i+c]=unsigned(image.rgba[i+c])*brightness/128;
         if(choices.highlighted){

@@ -137,5 +137,7 @@ private:
 // Reviewed STG light0/base/ambient records for ordinary effect tint.
 Float4 field_effect_tint(Bytes stg);
 Float4 field_projection(Bytes stg,float* far_clip=nullptr);
+// STG0x46 overrides the default camera-relative sky translation factors.
+Float4 field_sky_follow(Bytes stg);
 AnchoredCamera field_anchored_camera(Bytes stg);
 }

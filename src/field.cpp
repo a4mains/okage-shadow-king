@@ -751,6 +751,17 @@ Float4 field_effect_tint(Bytes stg) {
     if(!base||!ambient||!light)throw std::runtime_error("Effect lighting requires explicit STG colors");
     return effect_light_tint(*base,*ambient,*light);
 }
+Float4 field_sky_follow(Bytes stg) {
+    if(get(stg,0)!=0x475453)throw std::runtime_error("Invalid STG magic");
+    const auto begin=get(stg,8),count=get(stg,12);
+    if(begin<32||count>4096||std::uint64_t(begin)+std::uint64_t(count)*20>stg.size())
+        throw std::runtime_error("STG sky settings bounds");
+    Float4 factors{.5f,0,.5f,0}; // 0x1b8028 defaults; later records overwrite.
+    for(unsigned i=0;i<count;++i)if(get(stg,begin+i*20)==0x46)
+        for(unsigned j=0;j<4;++j){factors[j]=__builtin_bit_cast(float, (get(stg,begin+i*20+4+j*4)));
+            if(!std::isfinite(factors[j]))throw std::runtime_error("Non-finite STG sky factor");}
+    return factors;
+}
 Float4 field_projection(Bytes stg,float* far_clip) {
     Rounding rounding;
     if(get(stg,0)!=0x475453)throw std::runtime_error("Invalid STG magic");

@@ -281,6 +281,15 @@ int main(int argc, char** argv) {
             }
             write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
         }
+        if(command=="sky-follow"&&argc==5) {
+            const auto factors=okage::field_sky_follow(read(argv[2]));const auto input=read(argv[3]);
+            if(input.empty()||input.size()%16)throw std::runtime_error("Sky-follow camera extent");
+            std::vector<std::uint8_t> output;
+            for(unsigned at=0;at<input.size();at+=16){okage::Float4 camera;std::memcpy(camera.data(),input.data()+at,16);
+                const auto position=okage::sky_follow_position(camera,factors);
+                const auto* first=reinterpret_cast<const std::uint8_t*>(position.data());output.insert(output.end(),first,first+16);}
+            write(argv[4],output);return 0;
+        }
         if(command=="field-message-init"&&argc==5) {
             const auto bank=okage::read_pme(read(argv[2]));
             okage::DialogueText text(bank,std::stoi(argv[3]));

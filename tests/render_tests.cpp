@@ -32,6 +32,9 @@ int main() {
         rejects([&]{okage::texture_coordinates(state,64,32,{std::numeric_limits<float>::infinity(),0});});
         state.region[2]=std::numeric_limits<float>::quiet_NaN();
         rejects([&]{okage::texture_coordinates(state,64,32,{0,0});});
+        const auto sky=okage::sky_follow_position({8,-10,20,2},{.75f,.2f,.75f,0});
+        require(sky==okage::Float4({6,-2,15,0})&&std::fegetround()==FE_UPWARD);
+        rejects([]{okage::sky_follow_position({std::numeric_limits<float>::infinity(),0,0,1},{.5f,0,.5f,0});});
         require(std::fegetround()==FE_UPWARD); std::fesetround(before);
         require(okage::triangle_corners(3)==std::vector<std::array<unsigned,3>>{{0,1,2}});
         require(okage::triangle_corners(4)==std::vector<std::array<unsigned,3>>{{0,1,2},{0,2,3}});

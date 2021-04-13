@@ -23,6 +23,15 @@ std::array<float,2> region_dimensions(const TextureState& state,std::uint32_t wi
     return {float(width),float(height)};
 }
 }
+Float4 sky_follow_position(const Float4& camera,const Float4& factors) {
+    Rounding rounding;Float4 result;
+    for(unsigned i=0;i<4;++i){
+        if(!std::isfinite(camera[i])||!std::isfinite(factors[i]))throw std::runtime_error("Invalid sky-follow input");
+        result[i]=camera[i]*factors[i];
+        if(!std::isfinite(result[i]))throw std::runtime_error("Sky-follow overflow");
+    }
+    return result;
+}
 std::array<float,2> texture_coordinates(const TextureState& state,
     std::uint32_t width,std::uint32_t height,std::array<float,2> source) {
     const auto dimensions=region_dimensions(state,width,height);

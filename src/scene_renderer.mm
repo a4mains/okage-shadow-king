@@ -2,6 +2,7 @@
 #include "okage/scene_renderer.hpp"
 #include <optional>
 #include "okage/map.hpp"
+#include "okage/field.hpp"
 #include "okage/map_objects.hpp"
 #include "okage/render.hpp"
 #include "metal_preview_shader.hpp"
@@ -22,6 +23,8 @@ struct SceneRenderer::Impl {
     struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;};
     SineTable sine=make_sine_table();
     std::vector<Input> inputs;
+    std::optional<std::size_t> sky_input;
+    Float4 sky_factors{.5f,0,.5f,0};
     std::vector<Texture> textures;
     std::vector<std::size_t> textureOffsets;
     std::size_t omittedEffects=0,actorCount=0;
@@ -47,10 +50,14 @@ struct SceneRenderer::Impl {
             if(transform.flags&1)throw std::runtime_error("Camera-facing map model unsupported");
             if((transform.flags&0x100000) && (transform.scale[0]!=1 || transform.scale[1]!=1 || transform.scale[2]!=1))
                 throw std::runtime_error("Optimized map scale unsupported");
+            // 0x1b8a80 selects the last eligible0x20000 instance. Foreground
+            // optimized0x80 and terrain0x80000 classifications take precedence.
+            if(!(transform.flags&0x80080)&&(transform.flags&0x20000))sky_input=inputs.size();
             const auto file=path.parent_path()/definition.name;
             inputs.push_back({file,object?object->model():read_xmd(read(file)),instance_matrix(transform.position,transform.rotation,transform.scale,sine),object});
         }
         if(inputs.empty())throw std::runtime_error("Empty field map");
+        if(sky_input){auto stage=path;stage.replace_extension(".stg");sky_factors=field_sky_follow(read(stage));}
         for(const auto& binding:actors) {
             if(!binding.actor || binding.model_path.empty())throw std::runtime_error("Actor and model path required");
             inputs.push_back({binding.model_path,binding.actor->model(),{},binding.actor});++actorCount;
@@ -134,7 +141,7 @@ struct SceneRenderer::Impl {
         }
         effectTexturesLoaded=true;
     }
-    Texture render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip) {
+    Texture render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition) {
         std::vector<Vertex> vertices;
         std::vector<Draw> draws;
         okage::Float4 low{INFINITY,INFINITY,INFINITY,0},high{-INFINITY,-INFINITY,-INFINITY,0};
@@ -144,7 +151,11 @@ struct SceneRenderer::Impl {
             if(input.actor && input.actor->encounter_model)
                 throw std::runtime_error("Visible encounter-enemy rendering is unrecovered");
             std::size_t textureBase=0;
-            const auto world=input.actor ? input.actor->world(sine) : input.world;
+            auto world=input.actor ? input.actor->world(sine) : input.world;
+            if(sky_input&&inputIndex==*sky_input){
+                const auto position=sky_follow_position(cameraPosition,sky_factors);
+                world[3]={position[0],position[1],position[2],1};
+            }
             for (const auto& part:input.model.models) {
                 auto pose=input.actor ? okage::animated_pose(part,input.actor->channels(),sine,input.actor->animation().scale_channels()) : okage::rest_pose(part,sine);
                 {
@@ -286,7 +297,7 @@ EffectTextureSizes SceneRenderer::effect_texture_sizes() const {
 }
 void SceneRenderer::set_effect_light_tint(const Float4& tint){impl_->effectTint=tint;}
 void SceneRenderer::bind_map_effects(const MapEffects* effects){impl_->mapEffects=effects;}
-Texture SceneRenderer::render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip){return impl_->render(view,projection,effects,camera,farClip);}
+Texture SceneRenderer::render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition){return impl_->render(view,projection,effects,camera,farClip,cameraPosition);}
 std::size_t SceneRenderer::placements() const{return impl_->inputs.size()-impl_->actorCount;}
 std::size_t SceneRenderer::actors() const{return impl_->actorCount;}
 std::size_t SceneRenderer::omitted_effects() const{return impl_->omittedEffects;}

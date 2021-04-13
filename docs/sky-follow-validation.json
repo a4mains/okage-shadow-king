@@ -1,0 +1,471 @@
+{
+  "scope": "12 original sky words, visible corrected7410 scene, unchanged simulation traces, three builds; no pixel equivalence",
+  "reports": {
+    "native": {
+      "scope": "Compare native sky translation to three original saved render states.",
+      "exact_words": 12,
+      "snapshots": [
+        {
+          "ram": "local/research/neighbor251-v2-ee.bin",
+          "sky_instance": 0,
+          "camera_channel": 3967904,
+          "sky_channel": 3968480
+        },
+        {
+          "ram": "local/research/neighbor-handoff300-v1-ee.bin",
+          "sky_instance": 0,
+          "camera_channel": 3967904,
+          "sky_channel": 3968480
+        },
+        {
+          "ram": "local/research/field-path181-v2-ee.bin",
+          "sky_instance": 0,
+          "camera_channel": 3967904,
+          "sky_channel": 3968480
+        }
+      ],
+      "native_command": [
+        "build/native/okage-assets",
+        "sky-follow",
+        "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.stg",
+        "local/sky-follow-native-v1/camera.bin",
+        "local/sky-follow-native-v1/native.bin"
+      ],
+      "sha256": {
+        "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.stg": "8ac896b817d3a671e7f6d3bcfd491b4b62e02bb8f77934184196a4caf2c4c77d",
+        "build/native/okage-assets": "28276b87e760c221d2d62f6f77a7b42f658ee28ba29b4e5d2e20d283cdac98ca",
+        "local/research/neighbor251-v2-ee.bin": "1fc9bb33762cbbd5a7cff8c3aafcb93af9650e1ec1696eacf8a79d81a5cfdae5",
+        "local/research/neighbor-handoff300-v1-ee.bin": "7cae10cbfca5fb6ae0646bfe768e20951f6f1c5d425627f257de3a704988fa1a",
+        "local/research/field-path181-v2-ee.bin": "815e4fdc7486ffca2f30c64d906966df27ee77a32bcc6aab450ac9997f884621",
+        "local/sky-follow-native-v1/camera.bin": "3e8c970e8cdb97a414ae181e3612ec1e92b88bcd760dd20220cab3bd5a5a7de1",
+        "local/sky-follow-native-v1/native.bin": "b746d050e73cfab4b5c97b580fb6c0dc5bc49f96700898a4cfbfdcf9a0f8ae27",
+        "local/sky-follow-native-v1/original.bin": "b746d050e73cfab4b5c97b580fb6c0dc5bc49f96700898a4cfbfdcf9a0f8ae27",
+        "local/native-field-path-7410-sky-v1.png.dialogue.bin": "97724b2f3687bd433856ea23361259afbede794da2e392fe05a5e66e53cc42cb",
+        "local/native-field-path-7410-relationship-v2.png.dialogue.bin": "97724b2f3687bd433856ea23361259afbede794da2e392fe05a5e66e53cc42cb",
+        "local/native-field-path-7410-sky-v1.png.choices.bin": "685f6454f8bce8197e8756392e25bc4ce9835038e8d38eb26099f923a1b3b6d9",
+        "local/native-field-path-7410-relationship-v2.png.choices.bin": "685f6454f8bce8197e8756392e25bc4ce9835038e8d38eb26099f923a1b3b6d9",
+        "local/native-field-path-7410-sky-v1.png.interaction.bin": "1434f2c9edddd587022c8cb92291896a48598d6cbcfe0945fdb25465b87c324c",
+        "local/native-field-path-7410-relationship-v2.png.interaction.bin": "1434f2c9edddd587022c8cb92291896a48598d6cbcfe0945fdb25465b87c324c",
+        "local/native-field-path-7410-sky-v1.png.movement.bin": "92fcfdc43eff139c18b3f2b0e304c3abc1f6c866ba43b7fb48317eebefab2d72",
+        "local/native-field-path-7410-relationship-v2.png.movement.bin": "92fcfdc43eff139c18b3f2b0e304c3abc1f6c866ba43b7fb48317eebefab2d72",
+        "local/native-field-path-7410-sky-v1.png.camera.bin": "53c39169c6c79ebd3cb1b7d4e069cf7a9b2bfaf146d8ff2f154d8364cdfa1d8f",
+        "local/native-field-path-7410-relationship-v2.png.camera.bin": "53c39169c6c79ebd3cb1b7d4e069cf7a9b2bfaf146d8ff2f154d8364cdfa1d8f",
+        "local/native-field-path-7410-sky-v1.png.actor-1.bin": "9983b6f4929442d563639e7d4ad3bf313ced7a293b2408e57bc8b311ff489747",
+        "local/native-field-path-7410-relationship-v2.png.actor-1.bin": "9983b6f4929442d563639e7d4ad3bf313ced7a293b2408e57bc8b311ff489747",
+        "local/native-field-path-7410-sky-v1.png.variables.bin": "5afd574600b2e55ed306a1f5e0f4cf23ba6d987d8367f3aed1fa11767a795956",
+        "local/native-field-path-7410-relationship-v2.png.variables.bin": "5afd574600b2e55ed306a1f5e0f4cf23ba6d987d8367f3aed1fa11767a795956",
+        "local/native-field-path-7410-sky-v1.png": "568611b13a48967725d842cea4105da721bb3035479d1e9bcb78ecfe83afb41b"
+      },
+      "capture": {
+        "native_run": {
+          "command": [
+            "build/native/okage-native.app/Contents/MacOS/okage-native",
+            "local/font-input/CMNDATA/FONT",
+            "local/text-input/FLDDATA/MES/FIELD.PME",
+            "--scene",
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+            "--event",
+            "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+            "--actor",
+            "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+            "--actor-bind",
+            "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+            "--actor-bind",
+            "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+            "--frames",
+            "7410",
+            "--press",
+            "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901",
+            "--directions",
+            "local/native-field-path-7410-relationship-v2.directions",
+            "--capture",
+            "local/native-field-path-7410-sky-v1.png",
+            "--music-dry",
+            "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+            "--music-bank",
+            "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+            "--sound-dir",
+            "local/audio-input/SNDDATA/SE",
+            "--effect-data",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "--effect-textures",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 15.728353083,
+          "binary_sha256": "6c7c5da51a289be62193e1a8ac5741223bf94fc379f2ecd9f75bbc79edf4d445"
+        },
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-boot-oracle",
+            "local/disc/Okage - Shadow King (USA).cue",
+            "181",
+            "local/reference-neighbor-handoff-300-v1.state.zip",
+            "--load",
+            "--pad",
+            "local/reference-field-path-181-v2.input",
+            "--interaction-wide",
+            "local/reference-field-path-181-v2.interaction.bin",
+            "--camera",
+            "local/reference-field-path-181-v2.camera.bin",
+            "--capture",
+            "local/reference-field-path-181-v2",
+            "--save",
+            "local/reference-field-path-181-v2.state.zip",
+            "--deadline-seconds",
+            "240"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 70.27151391700001,
+          "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+        },
+        "unchanged_state_traces": [
+          ".dialogue.bin",
+          ".choices.bin",
+          ".interaction.bin",
+          ".movement.bin",
+          ".camera.bin",
+          ".actor-1.bin",
+          ".variables.bin"
+        ],
+        "visual_scope": "Image must be inspected; no automated pixel equivalence claim"
+      }
+    },
+    "release": {
+      "scope": "Compare native sky translation to three original saved render states.",
+      "exact_words": 12,
+      "snapshots": [
+        {
+          "ram": "local/research/neighbor251-v2-ee.bin",
+          "sky_instance": 0,
+          "camera_channel": 3967904,
+          "sky_channel": 3968480
+        },
+        {
+          "ram": "local/research/neighbor-handoff300-v1-ee.bin",
+          "sky_instance": 0,
+          "camera_channel": 3967904,
+          "sky_channel": 3968480
+        },
+        {
+          "ram": "local/research/field-path181-v2-ee.bin",
+          "sky_instance": 0,
+          "camera_channel": 3967904,
+          "sky_channel": 3968480
+        }
+      ],
+      "native_command": [
+        "build/native-release/okage-assets",
+        "sky-follow",
+        "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.stg",
+        "local/sky-follow-release-v1/camera.bin",
+        "local/sky-follow-release-v1/native.bin"
+      ],
+      "sha256": {
+        "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.stg": "8ac896b817d3a671e7f6d3bcfd491b4b62e02bb8f77934184196a4caf2c4c77d",
+        "build/native-release/okage-assets": "2191e20c02b81203c258e0333e7cc862e0c4e8d1e0679e421501f930d793afda",
+        "local/research/neighbor251-v2-ee.bin": "1fc9bb33762cbbd5a7cff8c3aafcb93af9650e1ec1696eacf8a79d81a5cfdae5",
+        "local/research/neighbor-handoff300-v1-ee.bin": "7cae10cbfca5fb6ae0646bfe768e20951f6f1c5d425627f257de3a704988fa1a",
+        "local/research/field-path181-v2-ee.bin": "815e4fdc7486ffca2f30c64d906966df27ee77a32bcc6aab450ac9997f884621",
+        "local/sky-follow-release-v1/camera.bin": "3e8c970e8cdb97a414ae181e3612ec1e92b88bcd760dd20220cab3bd5a5a7de1",
+        "local/sky-follow-release-v1/native.bin": "b746d050e73cfab4b5c97b580fb6c0dc5bc49f96700898a4cfbfdcf9a0f8ae27",
+        "local/sky-follow-release-v1/original.bin": "b746d050e73cfab4b5c97b580fb6c0dc5bc49f96700898a4cfbfdcf9a0f8ae27",
+        "local/native-field-path-7410-sky-release-v1.png.dialogue.bin": "97724b2f3687bd433856ea23361259afbede794da2e392fe05a5e66e53cc42cb",
+        "local/native-field-path-7410-relationship-v2.png.dialogue.bin": "97724b2f3687bd433856ea23361259afbede794da2e392fe05a5e66e53cc42cb",
+        "local/native-field-path-7410-sky-release-v1.png.choices.bin": "685f6454f8bce8197e8756392e25bc4ce9835038e8d38eb26099f923a1b3b6d9",
+        "local/native-field-path-7410-relationship-v2.png.choices.bin": "685f6454f8bce8197e8756392e25bc4ce9835038e8d38eb26099f923a1b3b6d9",
+        "local/native-field-path-7410-sky-release-v1.png.interaction.bin": "1434f2c9edddd587022c8cb92291896a48598d6cbcfe0945fdb25465b87c324c",
+        "local/native-field-path-7410-relationship-v2.png.interaction.bin": "1434f2c9edddd587022c8cb92291896a48598d6cbcfe0945fdb25465b87c324c",
+        "local/native-field-path-7410-sky-release-v1.png.movement.bin": "92fcfdc43eff139c18b3f2b0e304c3abc1f6c866ba43b7fb48317eebefab2d72",
+        "local/native-field-path-7410-relationship-v2.png.movement.bin": "92fcfdc43eff139c18b3f2b0e304c3abc1f6c866ba43b7fb48317eebefab2d72",
+        "local/native-field-path-7410-sky-release-v1.png.camera.bin": "53c39169c6c79ebd3cb1b7d4e069cf7a9b2bfaf146d8ff2f154d8364cdfa1d8f",
+        "local/native-field-path-7410-relationship-v2.png.camera.bin": "53c39169c6c79ebd3cb1b7d4e069cf7a9b2bfaf146d8ff2f154d8364cdfa1d8f",
+        "local/native-field-path-7410-sky-release-v1.png.actor-1.bin": "9983b6f4929442d563639e7d4ad3bf313ced7a293b2408e57bc8b311ff489747",
+        "local/native-field-path-7410-relationship-v2.png.actor-1.bin": "9983b6f4929442d563639e7d4ad3bf313ced7a293b2408e57bc8b311ff489747",
+        "local/native-field-path-7410-sky-release-v1.png.variables.bin": "5afd574600b2e55ed306a1f5e0f4cf23ba6d987d8367f3aed1fa11767a795956",
+        "local/native-field-path-7410-relationship-v2.png.variables.bin": "5afd574600b2e55ed306a1f5e0f4cf23ba6d987d8367f3aed1fa11767a795956",
+        "local/native-field-path-7410-sky-release-v1.png": "568611b13a48967725d842cea4105da721bb3035479d1e9bcb78ecfe83afb41b"
+      },
+      "capture": {
+        "native_run": {
+          "command": [
+            "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+            "local/font-input/CMNDATA/FONT",
+            "local/text-input/FLDDATA/MES/FIELD.PME",
+            "--scene",
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+            "--event",
+            "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+            "--actor",
+            "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+            "--actor-bind",
+            "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+            "--actor-bind",
+            "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+            "--frames",
+            "7410",
+            "--press",
+            "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901",
+            "--directions",
+            "local/native-field-path-7410-relationship-v2.directions",
+            "--capture",
+            "local/native-field-path-7410-sky-release-v1.png",
+            "--music-dry",
+            "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+            "--music-bank",
+            "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+            "--sound-dir",
+            "local/audio-input/SNDDATA/SE",
+            "--effect-data",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "--effect-textures",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.332204666,
+          "binary_sha256": "e37a1abd29dad3c92ffb5cf8748035170de16bd64085f6f92a007c13e7b5a02d"
+        },
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-boot-oracle",
+            "local/disc/Okage - Shadow King (USA).cue",
+            "181",
+            "local/reference-neighbor-handoff-300-v1.state.zip",
+            "--load",
+            "--pad",
+            "local/reference-field-path-181-v2.input",
+            "--interaction-wide",
+            "local/reference-field-path-181-v2.interaction.bin",
+            "--camera",
+            "local/reference-field-path-181-v2.camera.bin",
+            "--capture",
+            "local/reference-field-path-181-v2",
+            "--save",
+            "local/reference-field-path-181-v2.state.zip",
+            "--deadline-seconds",
+            "240"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 70.27151391700001,
+          "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+        },
+        "unchanged_state_traces": [
+          ".dialogue.bin",
+          ".choices.bin",
+          ".interaction.bin",
+          ".movement.bin",
+          ".camera.bin",
+          ".actor-1.bin",
+          ".variables.bin"
+        ],
+        "visual_scope": "Image must be inspected; no automated pixel equivalence claim"
+      }
+    },
+    "sanitize": {
+      "scope": "Compare native sky translation to three original saved render states.",
+      "exact_words": 12,
+      "snapshots": [
+        {
+          "ram": "local/research/neighbor251-v2-ee.bin",
+          "sky_instance": 0,
+          "camera_channel": 3967904,
+          "sky_channel": 3968480
+        },
+        {
+          "ram": "local/research/neighbor-handoff300-v1-ee.bin",
+          "sky_instance": 0,
+          "camera_channel": 3967904,
+          "sky_channel": 3968480
+        },
+        {
+          "ram": "local/research/field-path181-v2-ee.bin",
+          "sky_instance": 0,
+          "camera_channel": 3967904,
+          "sky_channel": 3968480
+        }
+      ],
+      "native_command": [
+        "build/model-sanitize/okage-assets",
+        "sky-follow",
+        "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.stg",
+        "local/sky-follow-sanitize-v1/camera.bin",
+        "local/sky-follow-sanitize-v1/native.bin"
+      ],
+      "sha256": {
+        "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.stg": "8ac896b817d3a671e7f6d3bcfd491b4b62e02bb8f77934184196a4caf2c4c77d",
+        "build/model-sanitize/okage-assets": "3ee813678dccc47acc49b80c94a0a5eec858f813241881ddfd882d4cacab15cf",
+        "local/research/neighbor251-v2-ee.bin": "1fc9bb33762cbbd5a7cff8c3aafcb93af9650e1ec1696eacf8a79d81a5cfdae5",
+        "local/research/neighbor-handoff300-v1-ee.bin": "7cae10cbfca5fb6ae0646bfe768e20951f6f1c5d425627f257de3a704988fa1a",
+        "local/research/field-path181-v2-ee.bin": "815e4fdc7486ffca2f30c64d906966df27ee77a32bcc6aab450ac9997f884621",
+        "local/sky-follow-sanitize-v1/camera.bin": "3e8c970e8cdb97a414ae181e3612ec1e92b88bcd760dd20220cab3bd5a5a7de1",
+        "local/sky-follow-sanitize-v1/native.bin": "b746d050e73cfab4b5c97b580fb6c0dc5bc49f96700898a4cfbfdcf9a0f8ae27",
+        "local/sky-follow-sanitize-v1/original.bin": "b746d050e73cfab4b5c97b580fb6c0dc5bc49f96700898a4cfbfdcf9a0f8ae27",
+        "local/native-field-path-7410-sky-sanitize-v1.png.dialogue.bin": "97724b2f3687bd433856ea23361259afbede794da2e392fe05a5e66e53cc42cb",
+        "local/native-field-path-7410-relationship-v2.png.dialogue.bin": "97724b2f3687bd433856ea23361259afbede794da2e392fe05a5e66e53cc42cb",
+        "local/native-field-path-7410-sky-sanitize-v1.png.choices.bin": "685f6454f8bce8197e8756392e25bc4ce9835038e8d38eb26099f923a1b3b6d9",
+        "local/native-field-path-7410-relationship-v2.png.choices.bin": "685f6454f8bce8197e8756392e25bc4ce9835038e8d38eb26099f923a1b3b6d9",
+        "local/native-field-path-7410-sky-sanitize-v1.png.interaction.bin": "1434f2c9edddd587022c8cb92291896a48598d6cbcfe0945fdb25465b87c324c",
+        "local/native-field-path-7410-relationship-v2.png.interaction.bin": "1434f2c9edddd587022c8cb92291896a48598d6cbcfe0945fdb25465b87c324c",
+        "local/native-field-path-7410-sky-sanitize-v1.png.movement.bin": "92fcfdc43eff139c18b3f2b0e304c3abc1f6c866ba43b7fb48317eebefab2d72",
+        "local/native-field-path-7410-relationship-v2.png.movement.bin": "92fcfdc43eff139c18b3f2b0e304c3abc1f6c866ba43b7fb48317eebefab2d72",
+        "local/native-field-path-7410-sky-sanitize-v1.png.camera.bin": "53c39169c6c79ebd3cb1b7d4e069cf7a9b2bfaf146d8ff2f154d8364cdfa1d8f",
+        "local/native-field-path-7410-relationship-v2.png.camera.bin": "53c39169c6c79ebd3cb1b7d4e069cf7a9b2bfaf146d8ff2f154d8364cdfa1d8f",
+        "local/native-field-path-7410-sky-sanitize-v1.png.actor-1.bin": "9983b6f4929442d563639e7d4ad3bf313ced7a293b2408e57bc8b311ff489747",
+        "local/native-field-path-7410-relationship-v2.png.actor-1.bin": "9983b6f4929442d563639e7d4ad3bf313ced7a293b2408e57bc8b311ff489747",
+        "local/native-field-path-7410-sky-sanitize-v1.png.variables.bin": "5afd574600b2e55ed306a1f5e0f4cf23ba6d987d8367f3aed1fa11767a795956",
+        "local/native-field-path-7410-relationship-v2.png.variables.bin": "5afd574600b2e55ed306a1f5e0f4cf23ba6d987d8367f3aed1fa11767a795956",
+        "local/native-field-path-7410-sky-sanitize-v1.png": "568611b13a48967725d842cea4105da721bb3035479d1e9bcb78ecfe83afb41b"
+      },
+      "capture": {
+        "native_run": {
+          "command": [
+            "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",
+            "local/font-input/CMNDATA/FONT",
+            "local/text-input/FLDDATA/MES/FIELD.PME",
+            "--scene",
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+            "--event",
+            "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+            "--actor",
+            "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+            "--actor-bind",
+            "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+            "--actor-bind",
+            "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+            "--frames",
+            "7410",
+            "--press",
+            "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901",
+            "--directions",
+            "local/native-field-path-7410-relationship-v2.directions",
+            "--capture",
+            "local/native-field-path-7410-sky-sanitize-v1.png",
+            "--music-dry",
+            "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+            "--music-bank",
+            "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+            "--sound-dir",
+            "local/audio-input/SNDDATA/SE",
+            "--effect-data",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "--effect-textures",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 37.276678624999995,
+          "binary_sha256": "ba3c839ebfc7863f596ce0c75404542216515a22b7f17b3de7330aafb33db68e"
+        },
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-boot-oracle",
+            "local/disc/Okage - Shadow King (USA).cue",
+            "181",
+            "local/reference-neighbor-handoff-300-v1.state.zip",
+            "--load",
+            "--pad",
+            "local/reference-field-path-181-v2.input",
+            "--interaction-wide",
+            "local/reference-field-path-181-v2.interaction.bin",
+            "--camera",
+            "local/reference-field-path-181-v2.camera.bin",
+            "--capture",
+            "local/reference-field-path-181-v2",
+            "--save",
+            "local/reference-field-path-181-v2.state.zip",
+            "--deadline-seconds",
+            "240"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 70.27151391700001,
+          "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+        },
+        "unchanged_state_traces": [
+          ".dialogue.bin",
+          ".choices.bin",
+          ".interaction.bin",
+          ".movement.bin",
+          ".camera.bin",
+          ".actor-1.bin",
+          ".variables.bin"
+        ],
+        "visual_scope": "Image must be inspected; no automated pixel equivalence claim"
+      }
+    }
+  },
+  "stairs_continuation": {
+    "scope": "110 field-manager samples / 440 exact words; HERO position differs; no whole-movement, visual or pixel-equivalence claim",
+    "original_frame0_native_frame": 7411,
+    "sampling": "Original manager entry compared with preceding completed native frame",
+    "exact_manager_words": 440,
+    "sha256": {
+      "local/reference-field-stairs-110-v1.interaction.bin": "50c50f60563ed69f61b3c1960675d139e82aa23864c99ba3cf043cd7a2e8ff35",
+      "local/native-field-stairs-7520-sky-v2.png": "53aa5b1ac34a7ba9d08d49368f4919a400fe8d97380b3d396c1ff1c2475bf425",
+      "local/native-field-stairs-7520-sky-v2.png.interaction.bin": "2e084b250a5a578d1d8dfec7bcab6a24043bcbe1eadf9c8c9967ab1a4e6a8f60",
+      "local/native-field-stairs-7520-sky-v2.png.actor-1.bin": "76e7e1db4c1e6854ba353358810dd6c11cec66a59e3cdb7209bbc4b7f64a8631",
+      "local/reference-field-stairs-110-v1.run.json": "f779165686783efcbf92c422173b226dd5a4436b29e232fd6dcc56e8eae33f26",
+      "local/native-field-stairs-7520-sky-v2.run.json": "5db836ec2fc26c12d8b805a949915468a23dfdc3bc63a7e92dbc1bfcc7ab3f3e"
+    },
+    "local/reference-field-stairs-110-v1": {
+      "command": [
+        "build/play-research/okage-oracle/okage-boot-oracle",
+        "local/disc/Okage - Shadow King (USA).cue",
+        "110",
+        "local/reference-field-path-181-v2.state.zip",
+        "--load",
+        "--pad",
+        "local/reference-field-stairs-110-v1.input",
+        "--interaction-wide",
+        "local/reference-field-stairs-110-v1.interaction.bin",
+        "--camera",
+        "local/reference-field-stairs-110-v1.camera.bin",
+        "--capture",
+        "local/reference-field-stairs-110-v1",
+        "--save",
+        "local/reference-field-stairs-110-v1.state.zip",
+        "--deadline-seconds",
+        "180"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 46.154665582999996,
+      "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+    },
+    "local/native-field-stairs-7520-sky-v2": {
+      "command": [
+        "build/native/okage-native.app/Contents/MacOS/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "7520",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901",
+        "--directions",
+        "local/native-field-stairs-7520-sky-v2.directions",
+        "--capture",
+        "local/native-field-stairs-7520-sky-v2.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 15.69667675,
+      "binary_sha256": "6c7c5da51a289be62193e1a8ac5741223bf94fc379f2ecd9f75bbc79edf4d445"
+    }
+  }
+}
