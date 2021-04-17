@@ -17,6 +17,10 @@ class MessageOpeningAuditTests(unittest.TestCase):
             changed=bytearray(data);changed[offset]^=1
             with self.assertRaises(ValueError):initialization_projection(changed)
         with self.assertRaises(ValueError):initialization_projection(data[:-4])
+        for phase in range(3):
+            for offset in [0x8c,0x16c]:struct.pack_into('<I',data,phase*stride+offset,99099)
+        with self.assertRaises(ValueError):initialization_projection(data)
+        self.assertEqual(len(initialization_projection(data,99099)),360)
 
     def test_live_comparison_rejects_one_word_and_frame_changes(self):
         reference=[];native=[]

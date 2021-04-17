@@ -26,13 +26,13 @@ def rows(data,width):
     require(bool(data) and len(data)%(width*4)==0,'Trace extent')
     return list(struct.iter_unpack('<'+str(width)+'I',data))
 
-def initialization_projection(data):
+def initialization_projection(data, message_id=10001):
     stride=0xef0+2*0x6ec0
     require(len(data)==3*stride,'Initialization snapshot extent')
     result=[]
     for phase in range(3):
         word=lambda at:struct.unpack_from('<I',data,phase*stride+at)[0]
-        require(word(0x8c)==10001 and word(0x16c)==10001 and word(0xe40)==2,'Message identity/layers')
+        require(word(0x8c)==message_id and word(0x16c)==message_id and word(0xe40)==2,'Message identity/layers')
         require(word(0x88)==0 and word(0x168)==0,'Unreviewed message bank')
         body=0xef0+0x6ec0
         row=[word(a) for a in [0xe4c,0x90,0x170,0xed8,0xed4]]
@@ -44,7 +44,7 @@ def initialization_projection(data):
         result.extend(row)
     return struct.pack('<90I',*result)
 
-def compare_controller(original,native,*,first_original=131,first_native=5730,frames=120,total=5850):
+def compare_controller(original,native,*,first_original=131,first_native=5730,frames=120,total=5850,message_id=10001):
     reference=rows(original,64);live=rows(native,12)
     require(len(reference)==frames*2 and len(live)==total,'Controller interval extent')
     require([r[0] for r in live]==list(range(1,total+1)),'Native frame identity')
@@ -53,7 +53,7 @@ def compare_controller(original,native,*,first_original=131,first_native=5730,fr
         require(before[:2]==(first_original+i,0x148dc8) and after[:2]==(first_original+i,0x11ff38),'Controller pairing')
         n=live[first_native-1+i]
         expected=(after[32],after[33],after[34],after[35],after[36],after[16],after[21],after[17],after[7],after[43])
-        require(n[1]==10001 and n[2:]==expected,f'Controller state differs at original{first_original+i}')
+        require(n[1]==message_id and n[2:]==expected,f'Controller state differs at original{first_original+i}')
     return frames*10
 
 def main():

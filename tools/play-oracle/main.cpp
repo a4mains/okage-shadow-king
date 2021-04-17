@@ -329,7 +329,7 @@ public:
         writeFile(output,result.data(),result.size());
     }
     void messageInit(const std::vector<uint8>& ram,unsigned id,const char* output) {
-        if(ram.size()!=32*1024*1024||id<10000||id>11000)
+        if(ram.size()!=32*1024*1024||id<10000||id>99999)
             throw std::runtime_error("Field message initialization fixture bounds");
         std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
         effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,

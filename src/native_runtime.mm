@@ -174,7 +174,9 @@ struct Session {
         field=std::make_unique<okage::OpeningField>(script,[this](int id){
             if(dialogue_active && !closure.finished())throw std::runtime_error("Field replaces an unfinished message");
             const bool legacy_diagnostic=id==10026||id==10030||(id>=10100&&id<=10107);
-            if(!legacy_diagnostic&&id!=10001)throw std::runtime_error("Field message initialization outside recovered scope: ID="+std::to_string(id)+" native frame="+std::to_string(frame));
+            // Normal bank0/opcode4c uses configuration0x2293e0 for every message
+            // ID. Its logical construction is independent of PME content;
+            // unsupported text/window commands still fail in their handlers.
             message_id=id;++messages_started;
             text=okage::DialogueText(messages,id);text.fonts=fonts;
             text.state.flags=0x8041;text.state.font=2;text.state.period=1;
