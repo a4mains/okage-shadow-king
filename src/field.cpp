@@ -234,7 +234,13 @@ void OpeningField::interact(ExplorationInput input) {
         interaction_alias_=0;interaction_event_=int(player_.trigger_index);player_.trigger_kind=0;
         saved_input_gate_=get_variable(0x40006);set_variable(6,4,1);input_gate_saved_=true;
         script_.start(unsigned(interaction_event_));
-        if(event_running()) {exploration_handoff_=false;player_.mask|=1;clear_contact();}
+        if(event_running()) {
+            // 0x1326e8 disables follow via0x135c78(-1) only when the
+            // newly started floor event remains active. Otherwise the next
+            // manager update would cancel its scripted camera interpolation.
+            exterior_camera_enabled_=false;
+            exploration_handoff_=false;player_.mask|=1;clear_contact();
+        }
         else restore_event_gate();
         return;
     }
@@ -653,6 +659,8 @@ void OpeningField::tick(ExplorationInput input) {
     const bool was_transitioning=bool(transition_);
     const bool exterior=definition_&&definition_->type==0;
     auto update_exterior_camera=[&] {
+        // 0x135e88/0x1363b8 select cubic mode for later scripted camera moves.
+        script_.set_channel_mode(0,0x10);
         const auto& values=actor(-1)->animation().values();
         const auto camera=exterior_camera->tick(values.at(1),values.at(0),script_.values().at(0),input.held,input.look_x,
                                                 *collision_,angles_,sine_,collision_mask->bits);

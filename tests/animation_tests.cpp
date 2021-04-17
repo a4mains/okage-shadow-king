@@ -39,6 +39,13 @@ int main() {
         require(animation.script_state()==1 && animation.pc()==68);
         animation.tick(); require(animation.values()[0][0]==0.25f);
         require(std::fegetround()==FE_TONEAREST);
+        okage::Animation cubic(data,1);cubic.set_channel_mode(0,0x10);cubic.start(0);
+        cubic.tick();require(cubic.values()[0][0]==.15625f);
+        cubic.tick();require(cubic.values()[0][0]==.25f);
+        rejects([&]{cubic.set_channel_mode(0,3);});
+        // Changing the mode is deferred until a transition installs its flags.
+        okage::Animation deferred(data,1);deferred.start(0);deferred.set_channel_mode(0,0x10);
+        deferred.tick();require(deferred.values()[0][0]==.125f);
         okage::Animation pushed(data,1);pushed.start(0);pushed.tick();
         require(pushed.values()[0][0]==.125f && pushed.moving(0,0));
         pushed.write_channel_output(0,{5,6,7,1});

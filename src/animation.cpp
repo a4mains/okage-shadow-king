@@ -133,6 +133,10 @@ void Animation::set_channel(std::size_t index,const Float4& value) {
     for(float v:value)if(!std::isfinite(v))throw std::runtime_error("Non-finite channel value");
     auto& ch=channels_.at(index);ch.a=value;ch.step={};ch.flags=0x201;
 }
+void Animation::set_channel_mode(std::size_t index,unsigned mode) {
+    if(mode!=1&&mode!=2&&mode!=0x10)throw std::runtime_error("Unrecovered channel mode");
+    channels_.at(index).mode=std::uint16_t(mode);
+}
 void Animation::write_channel_output(std::size_t index,const Float4& value) {
     for(float v:value)if(!std::isfinite(v))throw std::runtime_error("Non-finite channel output");
     channels_.at(index).output=value;
@@ -198,6 +202,19 @@ void Animation::evaluate(Channel& ch) {
         case 1: ch.output=ch.a; break;
         case 2:
             for (unsigned i=0;i<4;++i) ch.output[i]=(ch.b[i]-ch.a[i])*ch.t[i]+ch.a[i];
+            break;
+        case 0x10:
+            // 0x1b3c78: preserve the individual VU operations and their order.
+            // Reassociating this cubic changes rounded camera positions.
+            for(unsigned i=0;i<4;++i) {
+                const float t2=ch.t[i]*ch.t[i],t3=t2*ch.t[i];
+                const float d=ch.b[i]-ch.a[i],e=ch.c[i]-ch.b[i];
+                float cubic=ch.a[i]*2.f-ch.b[i]*2.f;
+                cubic=cubic+d;cubic=cubic+e;
+                float quadratic=ch.a[i]*-3.f+ch.b[i]*3.f;
+                quadratic=quadratic-d*2.f;quadratic=quadratic-e;
+                ch.output[i]=((cubic*t3+quadratic*t2)+d*ch.t[i])+ch.a[i];
+            }
             break;
         default: throw std::runtime_error("Unrecovered XMT interpolation mode");
     }

@@ -10,6 +10,8 @@ public:
     void start(std::size_t entry);
     void select(std::size_t entry); // Select for the next script dispatch (0x1b4da8).
     void set_channel(std::size_t index,const Float4& value);
+    // 0x1b4700 changes the mode used by subsequent channel transitions.
+    void set_channel_mode(std::size_t index,unsigned mode);
     // Collision records point to evaluated output (retail channel +0x20).
     // A direct push does not cancel the channel's queued interpolation.
     void write_channel_output(std::size_t index,const Float4& value);
