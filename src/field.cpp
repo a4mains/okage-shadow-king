@@ -561,6 +561,8 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
         case 0x36:
             if(auto* target=actor(b);target && a<0x800) {target->select_motion(a);return {pc+4};}
             return pending();
+        case 0x3d:
+            screen_filter.select(a,b);return {pc+4};
         case 0x3b:
             if(auto* target=actor(b);target && (a&0x100)) {
                 target->visible=(a&255)!=0;
@@ -725,6 +727,7 @@ void OpeningField::tick(ExplorationInput input) {
     for(const auto& binding:map_objects_)binding.actor->tick_script();
     for(const auto& binding:actors_)binding.actor->tick_script();
     script_.tick_channels();evaluate();
+    screen_filter.tick(script_.values().at(2)[0]);
     // Actor groups have flag1 (not global-advance flag2). Original 0x1b9be0
     // calls 0x1b70a0 only for visible instances; hidden motion scripts still run.
     for(const auto& binding:map_objects_)if(binding.actor->visible){binding.actor->tick_channels();binding.actor->evaluate();}

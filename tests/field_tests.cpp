@@ -7,6 +7,42 @@
 void require(bool value){if(!value)throw std::runtime_error("Field test failed");}
 template<class F> void rejects(F f){try{f();}catch(const std::runtime_error&){return;}throw std::runtime_error("Expected field rejection");}
 int main(){try {
+    {
+        okage::ScreenFilter filter;
+        filter.tick(80);require(filter.alpha==0);
+        filter.select(0x49,1);filter.tick(80.9f);require(filter.alpha==80);
+        filter.select(0,0);filter.tick(0);require(!filter.updating&&filter.alpha==80);
+        filter.select(0x49,1);filter.tick(200);require(filter.alpha==127);
+        filter.tick(.9f);require(filter.alpha==0);
+        rejects([&]{filter.select(0x48,1);});rejects([&]{filter.select(0x49,2);});
+        rejects([&]{filter.tick(-1);});rejects([&]{filter.tick(__builtin_bit_cast(float, (0x7fc00000u)));});
+        okage::FrameFeedback history;
+        okage::Texture previous{1,2,0,0,{255,0,1,255,17,18,19,255}};
+        okage::Texture current{1,1,0,0,{0,255,0,255}};
+        rejects([&]{history.apply(current,11,80);});
+        history.retain(previous,10,1);
+        auto repeat=current;history.apply(current,11,80);history.apply(repeat,11,80);
+        require(current.rgba==std::vector<std::uint8_t>({159,95,0,255})&&repeat.rgba==current.rgba);
+        rejects([&]{history.apply(repeat,12,80);}); // No fabricated skipped-frame history.
+        rejects([&]{history.retain(current,10,1);});
+        history.retain(current,11,1);
+        okage::Texture next{1,1,0,0,{255,255,255,255}};history.apply(next,12,100);
+        require(next.rgba==std::vector<std::uint8_t>({180,130,55,255}));
+        // Actual service dispatch and group-2 component8 drive the setting.
+        std::vector<std::uint8_t> script(0xc00);
+        auto put=[&](unsigned at,unsigned value){for(unsigned i=0;i<4;++i)script[at+i]=value>>(8*i);};
+        put(0,0x544d58);put(4,script.size()-32);put(16,0xffffffff);
+        put(0xb88,0xffe00007);put(0xb8c,0x30);
+        put(0xb9c,0x0080002e);put(0xba0,__builtin_bit_cast(unsigned, (80.f)));
+        put(0xba4,0x0010493d);put(0xba8,0x00100002); // Enable, wait one frame.
+        put(0xbac,0x0000003d);put(0xbb0,0x0080002e);put(0xbb4,0);put(0xbb8,0x20000a);
+        put(0xbbc,0x00100002);put(0xbc0,0x0010493d);put(0xbc4,0x0ff00002);
+        okage::OpeningField animated(script,[](int){},[](int){return true;});
+        animated.tick();require(animated.screen_filter.updating&&animated.screen_filter.alpha==80);
+        animated.tick();require(!animated.screen_filter.updating&&animated.screen_filter.alpha==80);
+        animated.tick();require(!animated.screen_filter.updating&&animated.screen_filter.alpha==80);
+        animated.tick();require(animated.screen_filter.updating&&animated.screen_filter.alpha==0);
+    }
     const auto angles=okage::make_atan_table();const auto sine=okage::make_sine_table();
     require(okage::camera_angle(0,0,angles)==0);
     require(okage::camera_angle(1,0,angles)==.25f);

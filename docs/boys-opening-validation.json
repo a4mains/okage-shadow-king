@@ -1,5 +1,5 @@
 {
-  "scope": "Actor-target camera mode3 and CMP metadata: bounded original comparisons cover event69/message10002 opening and first answer; native-only checks cover all three choices, closure and road movement.",
+  "scope": "Actor-target camera mode3 and CMP metadata with bounded original opening, first-answer and ending comparisons in three builds.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "builds": {
     "native": {
@@ -66,7 +66,6 @@
         ],
         "position_equivalence_claimed": false
       },
-      "continued_report": "local/boys-road-debug-validation-v3.json",
       "first_answer": {
         "original_run": {
           "command": [
@@ -100,7 +99,69 @@
         "camera_mode_blend_words": 1440,
         "choice_words": 1920
       },
-      "native_completion": {
+      "ending_report": "local/boys-ending-debug-validation-v1.json",
+      "ending": {
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-boot-oracle",
+            "local/disc/Okage - Shadow King (USA).cue",
+            "720",
+            "local/reference-boys-answer-480-v1.state.zip",
+            "--load",
+            "--pad",
+            "local/reference-boys-close-720-v1.input",
+            "--interaction-wide",
+            "local/reference-boys-close-720-v1.interaction.bin",
+            "--camera",
+            "local/reference-boys-close-720-v1.camera.bin",
+            "--controller",
+            "local/reference-boys-close-720-v1.controller.bin",
+            "--capture",
+            "local/reference-boys-close-720-v1",
+            "--save",
+            "local/reference-boys-close-720-v1.state.zip",
+            "--deadline-seconds",
+            "660"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 485.935086917,
+          "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+        },
+        "controller_words": 6910,
+        "pressed_latches": 691,
+        "manager_words": 2880,
+        "camera_mode_blend_words": 2160,
+        "choice_words": 2764,
+        "scope": "Ending controller, choices, manager and camera mode/blend; no movement/raster/audio equivalence"
+      },
+      "aligned_completion": {
+        "scope": "Original closure compared; subsequent movement native-only",
+        "answers": [
+          [
+            10031,
+            0
+          ],
+          [
+            10571,
+            0
+          ],
+          [
+            10892,
+            0
+          ]
+        ],
+        "closed_stage_frame": 11010,
+        "script_finished_frame": 11014,
+        "control_return_frame": 11015,
+        "flag": "bank1:index0=1",
+        "final_hero_position": [
+          3.819822072982788,
+          2.498999834060669,
+          967.0989379882812,
+          1.0
+        ]
+      },
+      "previous_native_completion": {
         "scope": "Native execution only; original closure/movement not compared",
         "answers": [
           [
@@ -127,7 +188,8 @@
           1.0
         ]
       },
-      "continued_native_run": {
+      "previous_continued_report": "local/boys-road-debug-validation-v3.json",
+      "previous_continued_native_run": {
         "command": [
           "build/native/okage-native.app/Contents/MacOS/okage-native",
           "local/font-input/CMNDATA/FONT",
@@ -230,7 +292,6 @@
         ],
         "position_equivalence_claimed": false
       },
-      "continued_report": "local/boys-road-release-validation-v3.json",
       "first_answer": {
         "original_run": {
           "command": [
@@ -264,7 +325,69 @@
         "camera_mode_blend_words": 1440,
         "choice_words": 1920
       },
-      "native_completion": {
+      "ending_report": "local/boys-ending-release-validation-v1.json",
+      "ending": {
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-boot-oracle",
+            "local/disc/Okage - Shadow King (USA).cue",
+            "720",
+            "local/reference-boys-answer-480-v1.state.zip",
+            "--load",
+            "--pad",
+            "local/reference-boys-close-720-v1.input",
+            "--interaction-wide",
+            "local/reference-boys-close-720-v1.interaction.bin",
+            "--camera",
+            "local/reference-boys-close-720-v1.camera.bin",
+            "--controller",
+            "local/reference-boys-close-720-v1.controller.bin",
+            "--capture",
+            "local/reference-boys-close-720-v1",
+            "--save",
+            "local/reference-boys-close-720-v1.state.zip",
+            "--deadline-seconds",
+            "660"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 485.935086917,
+          "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+        },
+        "controller_words": 6910,
+        "pressed_latches": 691,
+        "manager_words": 2880,
+        "camera_mode_blend_words": 2160,
+        "choice_words": 2764,
+        "scope": "Ending controller, choices, manager and camera mode/blend; no movement/raster/audio equivalence"
+      },
+      "aligned_completion": {
+        "scope": "Original closure compared; subsequent movement native-only",
+        "answers": [
+          [
+            10031,
+            0
+          ],
+          [
+            10571,
+            0
+          ],
+          [
+            10892,
+            0
+          ]
+        ],
+        "closed_stage_frame": 11010,
+        "script_finished_frame": 11014,
+        "control_return_frame": 11015,
+        "flag": "bank1:index0=1",
+        "final_hero_position": [
+          3.819822072982788,
+          2.498999834060669,
+          967.0989379882812,
+          1.0
+        ]
+      },
+      "previous_native_completion": {
         "scope": "Native execution only; original closure/movement not compared",
         "answers": [
           [
@@ -291,7 +414,8 @@
           1.0
         ]
       },
-      "continued_native_run": {
+      "previous_continued_report": "local/boys-road-release-validation-v3.json",
+      "previous_continued_native_run": {
         "command": [
           "build/native-release/okage-native.app/Contents/MacOS/okage-native",
           "local/font-input/CMNDATA/FONT",
@@ -394,7 +518,6 @@
         ],
         "position_equivalence_claimed": false
       },
-      "continued_report": "local/boys-road-sanitize-validation-v3.json",
       "first_answer": {
         "original_run": {
           "command": [
@@ -428,7 +551,69 @@
         "camera_mode_blend_words": 1440,
         "choice_words": 1920
       },
-      "native_completion": {
+      "ending_report": "local/boys-ending-sanitize-validation-v1.json",
+      "ending": {
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-boot-oracle",
+            "local/disc/Okage - Shadow King (USA).cue",
+            "720",
+            "local/reference-boys-answer-480-v1.state.zip",
+            "--load",
+            "--pad",
+            "local/reference-boys-close-720-v1.input",
+            "--interaction-wide",
+            "local/reference-boys-close-720-v1.interaction.bin",
+            "--camera",
+            "local/reference-boys-close-720-v1.camera.bin",
+            "--controller",
+            "local/reference-boys-close-720-v1.controller.bin",
+            "--capture",
+            "local/reference-boys-close-720-v1",
+            "--save",
+            "local/reference-boys-close-720-v1.state.zip",
+            "--deadline-seconds",
+            "660"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 485.935086917,
+          "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+        },
+        "controller_words": 6910,
+        "pressed_latches": 691,
+        "manager_words": 2880,
+        "camera_mode_blend_words": 2160,
+        "choice_words": 2764,
+        "scope": "Ending controller, choices, manager and camera mode/blend; no movement/raster/audio equivalence"
+      },
+      "aligned_completion": {
+        "scope": "Original closure compared; subsequent movement native-only",
+        "answers": [
+          [
+            10031,
+            0
+          ],
+          [
+            10571,
+            0
+          ],
+          [
+            10892,
+            0
+          ]
+        ],
+        "closed_stage_frame": 11010,
+        "script_finished_frame": 11014,
+        "control_return_frame": 11015,
+        "flag": "bank1:index0=1",
+        "final_hero_position": [
+          3.819822072982788,
+          2.498999834060669,
+          967.0989379882812,
+          1.0
+        ]
+      },
+      "previous_native_completion": {
         "scope": "Native execution only; original closure/movement not compared",
         "answers": [
           [
@@ -455,7 +640,8 @@
           1.0
         ]
       },
-      "continued_native_run": {
+      "previous_continued_report": "local/boys-road-sanitize-validation-v3.json",
+      "previous_continued_native_run": {
         "command": [
           "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",
           "local/font-input/CMNDATA/FONT",
@@ -562,7 +748,8 @@
     "local/native-road-north-11309-release-v2.png": "d4092b1c0e4afe39535a84f347732617505c1ecfb68c5d74924214570ad7558f",
     "local/native-boys-road-11309-sanitize-v1.png": "d4092b1c0e4afe39535a84f347732617505c1ecfb68c5d74924214570ad7558f"
   },
-  "next_guard": {
+  "latest_north_gate_report": "docs/north-gate-validation.json",
+  "superseded_opcode3d_guard": {
     "command": [
       "build/native-release/okage-native.app/Contents/MacOS/okage-native",
       "local/font-input/CMNDATA/FONT",
@@ -600,5 +787,6 @@
     "elapsed_seconds": 1.6319627079999999,
     "binary_sha256": "6c4125a55ebbf6e9dd6c3c946279d476793dc1d4aa390f2bf5dc9364a728a7df",
     "message": "Unrecovered field service 61 at PC 30352 (a=73, b=1)"
-  }
+  },
+  "current_next_guard_report": "docs/north-gate-validation.json"
 }

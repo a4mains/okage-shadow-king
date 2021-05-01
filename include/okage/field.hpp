@@ -5,6 +5,7 @@
 #include "okage/effect.hpp"
 #include "okage/collision.hpp"
 #include "okage/enemy.hpp"
+#include "okage/screen_filter.hpp"
 #include <optional>
 namespace okage {
 struct ExplorationInput {std::uint16_t held=0;std::uint8_t x=128,z=128;std::uint16_t pressed=0;std::uint8_t look_x=128;};
@@ -67,6 +68,7 @@ public:
     const MapEffects& map_effects() const {return map_effects_;}
     Float4 position{},target{},rotation{};
     CameraBlend blend;
+    ScreenFilter screen_filter;
     std::function<bool(unsigned,std::int32_t)> audio_service;
     std::function<bool(std::int32_t,bool)> music_service;
     std::function<bool(unsigned,std::int32_t,float,unsigned)> sound_cue;

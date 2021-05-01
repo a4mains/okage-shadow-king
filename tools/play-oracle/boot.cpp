@@ -15,6 +15,7 @@
 #include "reference_transition.hpp"
 #include "reference_dust.hpp"
 #include "reference_camera.hpp"
+#include "reference_screen_filter.hpp"
 #include "reference_actor.hpp"
 #include "reference_npc.hpp"
 #include "reference_lifecycle.hpp"
@@ -60,9 +61,9 @@ public:
 };
 int main(int argc,char** argv) {
     try {
-        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--movement FILE] [--interaction FILE] [--interaction-wide FILE] [--transition FILE] [--dust FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--lifecycle FILE] [--order FILE] [--music FILE] [--deadline-seconds 1..7200]");
+        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--screen-filter FILE] [--movement FILE] [--interaction FILE] [--interaction-wide FILE] [--transition FILE] [--dust FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--lifecycle FILE] [--order FILE] [--music FILE] [--deadline-seconds 1..7200]");
         unsigned deadlineSeconds=0;
-        int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false,musicField=false,interactionWide=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,music,movement,interaction,transition,npc,dust;
+        int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false,musicField=false,interactionWide=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,music,movement,interaction,transition,npc,dust,screenFilter;
         for (int i=3;i<argc;++i) {
             const std::string arg=argv[i];
             if (arg=="--load") load=true;
@@ -83,6 +84,7 @@ int main(int argc,char** argv) {
             else if (arg=="--order" && i+1<argc) order=argv[++i];
             else if (arg=="--music" && i+1<argc) music=argv[++i];
             else if (arg=="--music-field") musicField=true;
+            else if (arg=="--screen-filter" && i+1<argc) screenFilter=argv[++i];
             else if (arg=="--camera" && i+1<argc) camera=argv[++i];
             else if (arg=="--controller" && i+1<argc) controller=argv[++i];
             else if (arg=="--dust" && i+1<argc) dust=argv[++i];
@@ -125,6 +127,7 @@ int main(int argc,char** argv) {
         auto dialogueTrace=dialogue.empty() ? nullptr : std::make_unique<DialogueTrace>(dialogue);
         auto textTrace=text.empty() ? nullptr : std::make_unique<TextTrace>(text);
         auto controllerTrace=controller.empty() ? nullptr : std::make_unique<ControllerTrace>(controller);
+        auto screenFilterTrace=screenFilter.empty() ? nullptr : std::make_unique<ScreenFilterTrace>(screenFilter);
         auto cameraTrace=camera.empty() ? nullptr : std::make_unique<CameraTrace>(camera);
         auto npcTrace=npc.empty() ? nullptr : std::make_unique<NpcTrace>(npc);
         auto actorTrace=actor.empty() ? nullptr : std::make_unique<ActorTrace>(actor,actorAlias);
@@ -134,7 +137,7 @@ int main(int argc,char** argv) {
         auto movementTrace=movement.empty() ? nullptr : std::make_unique<MovementTrace>(movement);
         auto lifecycleTrace=lifecycle.empty() ? nullptr : std::make_unique<LifecycleTrace>(lifecycle);
         auto orderTrace=order.empty() ? nullptr : std::make_unique<OrderTrace>(order);
-        const bool tracing=traceLoaders || bool(dustTrace) || bool(npcTrace) || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace) || bool(cameraTrace) || bool(actorTrace) || bool(movementTrace) || bool(interactionTrace) || bool(transitionTrace) || bool(lifecycleTrace) || bool(orderTrace) || !music.empty();
+        const bool tracing=traceLoaders || bool(screenFilterTrace) || bool(dustTrace) || bool(npcTrace) || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace) || bool(cameraTrace) || bool(actorTrace) || bool(movementTrace) || bool(interactionTrace) || bool(transitionTrace) || bool(lifecycleTrace) || bool(orderTrace) || !music.empty();
         RecordedAudio* recordedAudio=nullptr;
         Traffic traffic; std::atomic<unsigned> frames{0}; std::atomic<bool> exited{false};
         CPS2VM vm;
@@ -181,6 +184,7 @@ int main(int argc,char** argv) {
         if(dialogueTrace) {loaders.push_back(0x130458);loaders.push_back(0x1b59f0);}
         if(textTrace)for(auto at:TextTrace::breakpoints)loaders.push_back(at);
         if(controllerTrace)for(auto at:ControllerTrace::breakpoints)loaders.push_back(at);
+        if(screenFilterTrace)for(auto at:ScreenFilterTrace::breakpoints)loaders.push_back(at);
         if(cameraTrace)for(auto at:CameraTrace::breakpoints)loaders.push_back(at);
         if(actorTrace)for(auto at:actorTrace->breakpoints())loaders.push_back(at);
         if(npcTrace)for(auto at:NpcTrace::breakpoints)loaders.push_back(at);
@@ -255,6 +259,9 @@ int main(int argc,char** argv) {
                 // Actor and scene observers share a model-render boundary.
                 if(observingActor) {
                     if(!sceneTrace||std::find(sceneBreakpoints.begin(),sceneBreakpoints.end(),pc)==sceneBreakpoints.end()){vm.Resume();continue;}
+                }
+                if(screenFilterTrace && std::find(ScreenFilterTrace::breakpoints.begin(),ScreenFilterTrace::breakpoints.end(),pc)!=ScreenFilterTrace::breakpoints.end()) {
+                    screenFilterTrace->observe(*vm.m_ee,frames);vm.Resume();continue;
                 }
                 if(cameraTrace && std::find(CameraTrace::breakpoints.begin(),CameraTrace::breakpoints.end(),pc)!=CameraTrace::breakpoints.end()) {
                     cameraTrace->observe(*vm.m_ee,frames);vm.Resume();continue;

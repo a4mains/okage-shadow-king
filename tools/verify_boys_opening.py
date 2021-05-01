@@ -26,6 +26,7 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--answer', action='store_true', help='Also audit the completed original480 first-answer continuation')
     parser.add_argument('--complete', action='store_true', help='Check native-only conversation closure and subsequent road movement')
+    parser.add_argument('--ending', action='store_true', help='Audit original720 ending with observed input alignment')
     args = parser.parse_args()
     original = 'local/reference-boys-opening-180-v1'
     ref = lambda suffix: Path(original + suffix)
@@ -112,6 +113,46 @@ def main():
             require(r[2:6] == native_choices[9840 + r[0]][2:6], 'Answer choice state differs')
         answer = dict(original_run=answer_run, controller_words=count, pressed_latches=480,
                       manager_words=1920, camera_mode_blend_words=1440, choice_words=1920)
+    ending = None
+    if args.ending:
+        require(total >= 11040, 'Ending capture is too short')
+        prefix = 'local/reference-boys-close-720-v1'
+        reference = lambda suffix: Path(prefix + suffix)
+        hashes = {
+            '.controller.bin': 'a174b3ba0333c3ab9cca22b06661f243fd52558eb7cdc1f6044691570c8a0f6d',
+            '.interaction.bin': '83b50a1d8bd1c71ac4600ef27384c948babf92dbb72312a983f3be8b21289db1',
+            '.camera.bin': '91ae4dccdba9d8a8539d48f092a42e645166a8fa6b4bcfdbbf976b0e797d8399',
+            '.controller.bin.choices.bin': 'a86f99c7a5718d3d0078ce65151763aee2ba8ebbb2d8752fa66861373b27eb1e',
+        }
+        ending_run = json.loads(reference('.run.json').read_text())
+        require(ending_run['exit_code'] == 0, 'Incomplete original ending')
+        for suffix, expected in hashes.items():
+            require(digest(reference(suffix)) == expected, 'Changed ending reference')
+            files.append(reference(suffix))
+        files.append(reference('.run.json'))
+        count = compare_controller(reference('.controller.bin').read_bytes(), native('.dialogue.bin').read_bytes(),
+                                   first_original=0, first_native=10321, frames=691, total=total, message_id=10002)
+        for r in rows(reference('.controller.bin').read_bytes(), 64)[1::2]:
+            require(interaction[10320 + r[0]][1] == r[9], 'Ending pressed latch differs')
+        managers = [r for r in rows(reference('.interaction.bin').read_bytes(), 176) if r[1] == 0x133a98]
+        require([r[0] for r in managers] == list(range(720)), 'Ending manager extent')
+        for r in managers:
+            n = interaction[10319 + r[0]]
+            require((n[4], n[7], n[5], n[6]) == (int(bool(r[20] & 0x100)), r[21], r[15], r[150]),
+                    'Ending manager differs at ' + str(r[0]))
+        cameras = rows(reference('.camera.bin').read_bytes(), 32)
+        require([r[0] for r in cameras] == list(range(720)), 'Ending camera extent')
+        for r in cameras:
+            n = state[10320 + r[0]]
+            require((n[1], n[3], n[4]) == (r[2], r[3], r[28]), 'Ending camera mode/blend differs')
+        choices = rows(reference('.controller.bin.choices.bin').read_bytes(), 16)
+        native_choices = rows(native('.choices.bin').read_bytes(), 12)
+        require(len(choices) == 1382 and len(native_choices) == total, 'Ending choice extent')
+        for r in choices[1::2]:
+            require(r[2:6] == native_choices[10320 + r[0]][2:6], 'Ending choice state differs')
+        ending = dict(original_run=ending_run, controller_words=count, pressed_latches=691,
+                      manager_words=2880, camera_mode_blend_words=2160, choice_words=2764,
+                      scope='Ending controller, choices, manager and camera mode/blend; no movement/raster/audio equivalence')
     floats = lambda words: list(struct.unpack('<4f', struct.pack('<4I', *words)))
     report = dict(scope=__doc__, native_run=run, original_run=original_run, event_frame=9751,
                   controller_words=words, pressed_latches=90, manager_words=720,
@@ -121,27 +162,30 @@ def main():
                                    'position_equivalence_claimed': False},
                   sha256={str(p): digest(p) for p in files})
     report['first_answer'] = answer
+    report['ending'] = ending
     if args.complete:
         require(total == 11309, 'Native completion route extent')
         dialogue = rows(native('.dialogue.bin').read_bytes(), 12)
         choices = rows(native('.choices.bin').read_bytes(), 12)
         accepts = [(r[0], r[5]) for i, r in enumerate(choices[9750:], 9750)
                    if choices[i - 1][7] and not r[7]]
-        require(accepts == [(10031, 0), (10570, 0), (10890, 0)], 'Native answers differ')
-        require(dialogue[11007][10] == 9 and interaction[11011][4:7] == (0, 1, 1)
-                and interaction[11012][4:7] == (0, 0, 1), 'Native closure/handoff differs')
+        require(accepts == ([(10031, 0), (10571, 0), (10892, 0)] if args.ending else
+                            [(10031, 0), (10570, 0), (10890, 0)]), 'Native answers differ')
+        shift = 2 if args.ending else 0
+        require(dialogue[11007 + shift][10] == 9 and interaction[11011 + shift][4:7] == (0, 1, 1)
+                and interaction[11012 + shift][4:7] == (0, 0, 1), 'Native closure/handoff differs')
         variables = native('.variables.bin').read_bytes()
         require(len(variables) == 4096 and variables[0x110] & 1, 'Native conversation flag absent')
         hero = actor_rows(native('.actor-1.bin'))
         require(len(hero) == total and hero[11039][12:16] != hero[-1][12:16], 'Native movement absent')
-        require(all(r[4:7] == (0, 0, 1) for r in interaction[11012:]), 'Unexpected later event/control gate')
-        report['native_completion'] = dict(scope='Native execution only; original closure/movement not compared',
-                                          answers=accepts, closed_stage_frame=11008, script_finished_frame=11012,
-                                          control_return_frame=11013, flag='bank1:index0=1',
+        require(all(r[4:7] == (0, 0, 1) for r in interaction[11012 + shift:]), 'Unexpected later event/control gate')
+        report['native_completion'] = dict(scope='Original closure compared; subsequent movement native-only' if args.ending else 'Native execution only; original closure/movement not compared',
+                                          answers=accepts, closed_stage_frame=11008 + shift, script_finished_frame=11012 + shift,
+                                          control_return_frame=11013 + shift, flag='bank1:index0=1',
                                           final_hero_position=floats(hero[-1][12:16]))
         report['sha256'][str(native('.variables.bin'))] = digest(native('.variables.bin'))
     write_exact(args.output, (json.dumps(report, indent=2) + '\n').encode())
-    print('Boys opening:900 controller,720 manager,270 camera-state and240 target words match')
+    print('Boys opening comparison passed; first answer:', bool(answer), 'ending:', bool(ending))
 
 if __name__ == '__main__':
     main()

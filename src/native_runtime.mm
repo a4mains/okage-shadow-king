@@ -67,6 +67,10 @@ struct Session {
     okage::ExteriorCamera exterior_camera;
     okage::DialogueWaitState wait{5,1};
     unsigned frame=0,release_frame=0,close_frame=0,close_release_frame=0;
+    unsigned render_from=0,rendered_frame=0;
+    okage::FrameFeedback feedback;
+    std::optional<okage::Texture> rendered_surface;
+    std::vector<std::uint32_t> filter_trace;
     std::unique_ptr<okage::MusicRouter> music;
     std::unique_ptr<okage::AudioOutput> audio_output;
     std::vector<std::int16_t> audio_capture;
@@ -394,12 +398,27 @@ struct Session {
             for(const auto& channel:actor->channels())for(float v:channel)actor_trace.push_back(__builtin_bit_cast(std::uint32_t, (v)));
             for(auto image:actor->textures().images())actor_trace.push_back(__builtin_bit_cast(std::uint32_t, (image)));
         }
+        if(field) {
+            const auto& filter=field->screen_filter;
+            filter_trace.insert(filter_trace.end(),{frame,filter.updating?1u:0u,filter.setting,filter.alpha});
+            if(filter.alpha&&(!render_from||frame<render_from))
+                throw std::runtime_error("Active feedback needs consecutive rendering; use --render-from before activation");
+        }
+        if(render_from&&frame>=render_from)render_frame();
+    }
+    void render_frame() {
+        if(rendered_surface&&rendered_frame==frame)return;
+        auto image=surface();
+        feedback.retain(image,frame,224);
+        rendered_surface=std::move(image);rendered_frame=frame;
     }
     okage::Texture surface() const {
+        if(rendered_surface&&rendered_frame==frame)return *rendered_surface;
         auto text_image=okage::rasterize_text(fonts,text.glyphs,640,224);
         if(!renderer)return text_image;
         const auto& r=field->rotation;
         auto image=renderer->render(field->view(),projection,effects_loaded?&field->effects():nullptr,{-r[0],-r[1],-r[2],0},far_clip,field->position);
+        feedback.apply(image,frame,field->screen_filter.alpha);
         const auto brightness=128-scene_fade.alpha();
         for(std::size_t i=0;i<image.rgba.size();i+=4)for(unsigned c=0;c<3;++c)image.rgba[i+c]=unsigned(image.rgba[i+c])*brightness/128;
         if(choices.highlighted){
@@ -471,7 +490,8 @@ static void capture(const Session& session,const fs::path& path) {
          <<",\n  \"choice_armed\": "<<(session.controller.choice_armed ? "true" : "false")
          <<",\n  \"close_frame\": "<<session.close_frame<<",\n  \"close_wait_release_frame\": "<<session.close_release_frame<<"\n}\n";
     if(!state)throw std::runtime_error("Cannot write native capture state");
-    for(const auto& [suffix,data]:std::array<std::pair<std::string,okage::Bytes>,2>{
+    for(const auto& [suffix,data]:std::array<std::pair<std::string,okage::Bytes>,3>{
+        std::pair{".screen-filter.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.filter_trace.data()),session.filter_trace.size()*4)},
         std::pair{".transition.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.transition_trace.data()),session.transition_trace.size()*4)},
         std::pair{".variables.bin",okage::Bytes(session.variables)}}) {
         const auto output=fs::path(path.string()+suffix);
@@ -652,11 +672,12 @@ static void capture(const Session& session,const fs::path& path) {
 @end
 int main(int argc,const char** argv) {
     @autoreleasepool {try {
-        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames N] [--press FRAME,FRAME --directions INPUT --capture FILE.png] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY]");
-        unsigned frames=0,uiFrames=0;DirectionReplay directions;std::vector<unsigned> presses;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
+        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames N] [--press FRAME,FRAME --directions INPUT --capture FILE.png --render-from FRAME] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY]");
+        unsigned frames=0,uiFrames=0,renderFrom=0;DirectionReplay directions;std::vector<unsigned> presses;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         for(int i=3;i<argc;++i) {
             const std::string arg=argv[i];if(++i==argc)throw std::runtime_error("Missing native runtime option value");
             if(arg=="--frames")frames=std::stoul(argv[i]);
+            else if(arg=="--render-from")renderFrom=std::stoul(argv[i]);
             else if(arg=="--ui-test-frames")uiFrames=std::stoul(argv[i]);
             else if(arg=="--directions")directions.load(argv[i]);
             else if(arg=="--capture")output=argv[i];
@@ -684,8 +705,9 @@ int main(int argc,const char** argv) {
         if(effectData.empty()!=effectTextures.empty()||(!effectData.empty()&&map.empty()))throw std::runtime_error("Effects require data, texture directory and scene");
         if(map.empty()!=event.empty() || (!actors.empty() && map.empty()))throw std::runtime_error("Scene requires both map and event assets");
         if(frames>36000 || uiFrames>36000 || (frames && uiFrames) || (uiFrames && output.empty()))throw std::runtime_error("Native diagnostic frame/capture bounds");
+        if(renderFrom&&(!frames||renderFrom>frames))throw std::runtime_error("Render start requires a headless frame within the capture");
         if(frames) {
-            Session session(argv[1],argv[2],playerName);if(!map.empty())session.load_scene(map,event,actors);
+            Session session(argv[1],argv[2],playerName);session.render_from=renderFrom;if(!map.empty())session.load_scene(map,event,actors);
             if(!musicSequence.empty())session.load_music(musicSequence,musicBank,!output.empty(),soundDirectory);
             if(!effectData.empty())session.load_effects(effectData,effectTextures);
             std::uint16_t previous=0;
@@ -700,7 +722,7 @@ int main(int argc,const char** argv) {
         NativeApp* app=[NativeApp new];app->session=std::make_unique<Session>(argv[1],argv[2],playerName);if(!map.empty())app->session->load_scene(map,event,actors);
         if(!musicSequence.empty())app->session->load_music(musicSequence,musicBank,!output.empty(),soundDirectory);
         if(!effectData.empty())app->session->load_effects(effectData,effectTextures);
-        app->testFrames=uiFrames;app->testPresses=presses;app->directions=directions;app->testCapture=output;
+        app->session->render_from=1;app->testFrames=uiFrames;app->testPresses=presses;app->directions=directions;app->testCapture=output;
         [NSApp setDelegate:app];[NSApp run];return app->failureStatus;
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
 }
