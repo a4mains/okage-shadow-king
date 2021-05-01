@@ -213,6 +213,33 @@ int main(){try {
     put(stage,64,__builtin_bit_cast(std::uint32_t, (10.f)));put(stage,76,__builtin_bit_cast(std::uint32_t, (1.f)));
     for(unsigned i=0;i<3;++i)put(empty_map,i*4,1);put(empty_map,65,64);
     for(auto* data:{&idle,&startup}){put(*data,0,0x544d58);put(*data,4,24);put(*data,16,0xffffffff);}
+    {
+        auto event=startup;put(event,40,0xfff0004b);put(event,44,0xb400002);put(event,48,0);
+        okage::ModelFile model;model.models.emplace_back();
+        okage::FieldActor hero(std::move(model),idle,{});
+        const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
+        okage::OpeningField scene(event,[](int){},[](int){return true;},player,false);
+        std::array<std::uint8_t,0x1000> vars{};
+        scene.get_variable=[&](auto selector){return okage::event_variable(vars,selector);};
+        scene.set_variable=[&](auto index,auto bank,auto value){okage::set_event_variable(vars,index,bank,value);};
+        okage::FieldDefinition entry;entry.type=1;entry.startup=1;
+        scene.enter(entry,stage,empty_map,0);require(scene.camera_mode()==3);
+        hero.animation().set_channel(1,{3,4,5,1});scene.tick();
+        require(scene.target==okage::Float4({3,4,5,1}));
+        scene.blend.begin(.5f,scene.position,{1,2,3,1});
+        hero.animation().set_channel(1,{5,6,7,1});scene.tick();
+        require(scene.target==okage::Float4({1,2,3,1})&&scene.blend.phase==.5f);
+        hero.animation().set_channel(1,{9,10,11,1});scene.tick();
+        require(scene.target==okage::Float4({5,6,7,1})&&scene.blend.phase==1);
+        hero.animation().turn_component(1,0,13,2);
+        const auto previous=hero.animation().values()[1];scene.tick();
+        require(scene.target==previous);
+        require(scene.rotation==okage::camera_look_at(scene.position,scene.target,angles,sine));
+        put(event,40,0xfed0004b);
+        okage::OpeningField missing(event,[](int){},[](int){return true;},player,false);
+        missing.get_variable=scene.get_variable;missing.set_variable=scene.set_variable;
+        rejects([&]{missing.enter(entry,stage,empty_map,0);});
+    }
     // Initial gate, written index/value, initial party-disable, expected gate.
     const std::array<std::array<int,5>,6> gate_cases={{{0,5,0,0,0},{0,5,1,0,1},{2,5,1,0,2},
                                                    {0,6,1,0,1},{1,6,0,0,0},{1,6,0,1,1}}};

@@ -92,6 +92,7 @@ private:
     FieldActor* actor(int alias) const;
     int group_=-2;
     unsigned camera_mode_=2;
+    FieldActor* camera_actor_=nullptr;
     std::optional<AnchoredCamera> exploration_camera_;
     std::vector<FieldCameraSetting> camera_settings_;
     bool exterior_camera_enabled_=false;

@@ -57,6 +57,25 @@ int main() {try {
     okage::MessageBank bank;
     bank.strings={"system","42","\\z[One\\nTwo\\nThree]\\o[CC]\\v","A\\e","B\\e","C\\e","After\\v"};
     bank.nodes={{0,0},{0,1},{1,2},{2,3},{2,4},{2,5},{1,6}};
+    {
+        auto conditional_bank=bank;
+        conditional_bank.strings[2]="\\o[CMP(0/4/-1)=]\\v";
+        okage::DialogueText conditional(conditional_bank,42);okage::DialogueController controller;
+        conditional.state.flags=0x8001;conditional.step();
+        rejects([&]{controller.update(conditional,{});});
+        unsigned reads=0;
+        controller.get_variable=[&](unsigned index,unsigned storage){require(index==0&&storage==4);++reads;return -1;};
+        conditional.state.delay=3;const auto waiting=controller.update(conditional,{});
+        require(reads==0&&!waiting.resume_calls);
+        conditional.state.delay=0;const auto chosen=controller.update(conditional,{});
+        require(reads==1&&chosen.reset_text_clock&&chosen.resume_calls==1&&chosen.accepted_choice==-1);
+        require(controller.advance_count==0&&!controller.choice_active&&conditional.choice_result==0);
+        require(conditional.step()==okage::TextStep::glyph&&conditional.page=="A");
+        for(const auto* option:{"CMP(0/4/-1)<=","CMP(0/4/-1)","CMP(0/4)=","CMP(-1/4/0)=","CMP(0/4/0="}) {
+            okage::DialogueText malformed(conditional_bank,42);malformed.state.flags=0x8001;malformed.step();
+            malformed.state.option=option;rejects([&]{controller.update(malformed,{});});
+        }
+    }
     for(unsigned selected=0;selected<3;++selected){
         okage::DialogueText choice(bank,42);okage::DialogueController controller;
         choice.state.flags=0x8001;choice.state.progress=9;

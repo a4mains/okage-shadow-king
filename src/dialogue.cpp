@@ -36,7 +36,8 @@ DialogueInputEffects DialogueController::update(DialogueText& text,DialogueButto
     DialogueInputEffects effects;
     choice_active=false;
     const bool option=!text.state.option.empty() && static_cast<unsigned char>(text.state.option[0])!=255;
-    if(option && text.state.option!="CC" && text.state.option!="BC" && text.state.option!="BC=0")
+    const bool comparison=option && text.state.option.starts_with("CMP(");
+    if(option && !comparison && text.state.option!="CC" && text.state.option!="BC" && text.state.option!="BC=0")
         throw std::runtime_error("Dialogue option outside recovered scope");
     auto resume=[&]{text.resume();text.state.period=__builtin_bit_cast(std::uint32_t, (normal_period));++effects.resume_calls;};
     auto& command=text.state.window;
@@ -111,6 +112,21 @@ DialogueInputEffects DialogueController::update(DialogueText& text,DialogueButto
                 effects.reset_text_clock=text.select_choice(text.choice_cursor);
                 choice_armed=false;resume();++advance_count;
             }
+        } else if(comparison) {
+            const auto end=text.state.option.find(')');
+            if(end==std::string::npos)throw std::runtime_error("Malformed dialogue comparison");
+            const auto values=arguments(std::string_view(text.state.option).substr(0,end+1),"CMP(",3);
+            const auto op=std::string_view(text.state.option).substr(end+1);
+            if(values[0]<0||values[1]<0||!get_variable)throw std::runtime_error("Dialogue comparison variable unavailable");
+            const auto value=get_variable(values[0],values[1]);bool matches;
+            if(op=="<")matches=value<values[2];
+            else if(op==">")matches=value>values[2];
+            else if(op=="=")matches=value==values[2];
+            else if(op=="!=")matches=value!=values[2];
+            else throw std::runtime_error("Dialogue comparison operator outside recovered scope");
+            // 0x148240 returns handler14 with branch0 on true, branch1 on
+            // false. 0x148dc8 selects/resumes without incrementing advances.
+            effects.reset_text_clock=text.select_choice(matches?0:1);resume();
         } else if(option && (text.state.option=="BC" || text.state.option=="BC=0")) {
             const auto branch=text.state.option=="BC"?text.choice_result:(text.choice_result==0?0:1);
             effects.reset_text_clock=text.select_choice(branch);resume();

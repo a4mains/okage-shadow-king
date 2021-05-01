@@ -254,6 +254,27 @@ int main(int argc, char** argv) {
             }
             write(argv[3],out);return 0;
         }
+        if(command=="comparison-options"&&argc==4) {
+            const auto input=read(argv[2]);std::vector<std::uint32_t> output;
+            if(input.empty()||input.size()%16||input.size()>16*512)throw std::runtime_error("Comparison fixture extent");
+            const std::array<const char*,4> operators={"<",">","=","!="};
+            for(unsigned at=0;at<input.size();at+=16) {
+                std::uint32_t row[4];std::memcpy(row,input.data()+at,16);
+                if(row[0]>3||(row[1]!=0&&row[1]!=1&&row[1]!=4))throw std::runtime_error("Comparison fixture scope");
+                okage::MessageBank bank;
+                const auto option="CMP(0/"+std::to_string(row[1])+"/"+std::to_string(__builtin_bit_cast(std::int32_t, (row[3])))+")"+operators[row[0]];
+                bank.strings={"system","42","\\o["+option+"]\\v","True\\e","False\\e"};
+                bank.nodes={{0,0},{0,1},{1,2},{2,3},{2,4}};
+                okage::DialogueText text(bank,42);okage::DialogueController controller;
+                std::array<std::uint8_t,0x1000> variables{};okage::set_event_variable(variables,0,row[1],__builtin_bit_cast(std::int32_t, (row[2])));
+                controller.get_variable=[&](unsigned index,unsigned storage){return okage::event_variable(variables,(storage<<16)|index);};
+                text.state.flags=0x8001;text.step();const auto effect=controller.update(text,{});
+                if(!effect.reset_text_clock||effect.resume_calls!=1||controller.advance_count!=0||text.state.delay)
+                    throw std::runtime_error("Comparison fixture did not select/resume");
+                output.push_back(14u|(unsigned(text.choice_result)<<16));
+            }
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
         if(command=="relationship"&&argc==4) {
             const auto input=read(argv[2]);std::vector<std::uint32_t> output;
             if(input.empty()||input.size()%40||input.size()>40*256)throw std::runtime_error("Relationship fixture extent");

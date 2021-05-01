@@ -535,6 +535,13 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             }
             return pending();
         case 0x4b:
+            if(b<0) {
+                // 0x130670 resolves the alias once; 0x1b9720 stores that
+                // instance and selects mode 3, without restarting the blend.
+                camera_actor_=actor(b);
+                if(!camera_actor_)throw std::runtime_error("Field camera target actor is not bound");
+                camera_mode_=3;return {pc+4};
+            }
             if(b==0) {
                 // 0x130670 resets the automatic rate, begins a .01 blend and
                 // selects mode 0. Rotation retains the last evaluated channel.
@@ -642,8 +649,14 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
     }
 }
 void OpeningField::evaluate() {
+    if(camera_mode_==3) {
+        // 0x1b9894 reads the actor position before visible actor channels tick.
+        // The offset addition at 0x1b98d4 is overwritten by the following
+        // lq/sq at 0x1b98dc: the raw actor position is the blend input.
+        requested_target_=camera_actor_->animation().values().at(1);
+    }
     position=script_.values().at(0);target=requested_target_;blend.apply(position,target);
-    if(camera_mode_==2) {
+    if(camera_mode_==2 || camera_mode_==3) {
         rotation=camera_look_at(position,target,angles_,sine_);
         // Original look-at 0x1b9440 writes the result back into channel 1.
         script_.set_channel(1,rotation);

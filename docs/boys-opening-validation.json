@@ -1,0 +1,604 @@
+{
+  "scope": "Actor-target camera mode3 and CMP metadata: bounded original comparisons cover event69/message10002 opening and first answer; native-only checks cover all three choices, closure and road movement.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "builds": {
+    "native": {
+      "comparison_report": "local/comparison-options-debug-validation-v1/report.json",
+      "opening_report": "local/boys-opening-debug-validation-v1.json",
+      "comparison_cases": 228,
+      "comparison_result_words": 228,
+      "controller_words": 900,
+      "pressed_latches": 90,
+      "manager_words": 720,
+      "camera_mode_blend_words": 270,
+      "settled_actor_target_words": 240,
+      "unchanged_prefix_frames": 8260,
+      "native_run": {
+        "command": [
+          "build/native/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "9840",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751",
+          "--directions",
+          "local/native-boys-opening-9840-aligned-v2.directions",
+          "--capture",
+          "local/native-boys-opening-9840-aligned-v2.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 18.0432645,
+        "binary_sha256": "cd97fbdd9424ebb87acf2978345fe6ec02f0fbed1b9bf0eeb958b7c96353f6f6"
+      },
+      "camera_endpoint": {
+        "native_position": [
+          21.20078468322754,
+          -25.5,
+          803.8096313476562,
+          2.0
+        ],
+        "original_position": [
+          20.64664649963379,
+          -25.5,
+          804.3123779296875,
+          2.0
+        ],
+        "position_equivalence_claimed": false
+      },
+      "continued_report": "local/boys-road-debug-validation-v3.json",
+      "first_answer": {
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-boot-oracle",
+            "local/disc/Okage - Shadow King (USA).cue",
+            "480",
+            "local/reference-boys-opening-180-v1.state.zip",
+            "--load",
+            "--pad",
+            "local/reference-boys-answer-480-v1.input",
+            "--interaction-wide",
+            "local/reference-boys-answer-480-v1.interaction.bin",
+            "--camera",
+            "local/reference-boys-answer-480-v1.camera.bin",
+            "--controller",
+            "local/reference-boys-answer-480-v1.controller.bin",
+            "--capture",
+            "local/reference-boys-answer-480-v1",
+            "--save",
+            "local/reference-boys-answer-480-v1.state.zip",
+            "--deadline-seconds",
+            "360"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 331.95200983300003,
+          "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+        },
+        "controller_words": 4800,
+        "pressed_latches": 480,
+        "manager_words": 1920,
+        "camera_mode_blend_words": 1440,
+        "choice_words": 1920
+      },
+      "native_completion": {
+        "scope": "Native execution only; original closure/movement not compared",
+        "answers": [
+          [
+            10031,
+            0
+          ],
+          [
+            10570,
+            0
+          ],
+          [
+            10890,
+            0
+          ]
+        ],
+        "closed_stage_frame": 11008,
+        "script_finished_frame": 11012,
+        "control_return_frame": 11013,
+        "flag": "bank1:index0=1",
+        "final_hero_position": [
+          3.8535993099212646,
+          2.498999834060669,
+          967.0989379882812,
+          1.0
+        ]
+      },
+      "continued_native_run": {
+        "command": [
+          "build/native/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "11309",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10351,10391,10431,10471,10511,10570,10610,10650,10690,10730,10770,10810,10850,10890,10930,10970,11010",
+          "--directions",
+          "local/native-boys-road-11309-debug-v1.directions",
+          "--capture",
+          "local/native-boys-road-11309-debug-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 19.536060708,
+        "binary_sha256": "cd97fbdd9424ebb87acf2978345fe6ec02f0fbed1b9bf0eeb958b7c96353f6f6"
+      }
+    },
+    "native-release": {
+      "comparison_report": "local/comparison-options-release-validation-v1/report.json",
+      "opening_report": "local/boys-opening-release-validation-v1.json",
+      "comparison_cases": 228,
+      "comparison_result_words": 228,
+      "controller_words": 900,
+      "pressed_latches": 90,
+      "manager_words": 720,
+      "camera_mode_blend_words": 270,
+      "settled_actor_target_words": 240,
+      "unchanged_prefix_frames": 8260,
+      "native_run": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "9840",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751",
+          "--directions",
+          "local/native-boys-opening-9840-release-v1.directions",
+          "--capture",
+          "local/native-boys-opening-9840-release-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.6306301669999999,
+        "binary_sha256": "6c4125a55ebbf6e9dd6c3c946279d476793dc1d4aa390f2bf5dc9364a728a7df"
+      },
+      "camera_endpoint": {
+        "native_position": [
+          21.20078468322754,
+          -25.5,
+          803.8096313476562,
+          2.0
+        ],
+        "original_position": [
+          20.64664649963379,
+          -25.5,
+          804.3123779296875,
+          2.0
+        ],
+        "position_equivalence_claimed": false
+      },
+      "continued_report": "local/boys-road-release-validation-v3.json",
+      "first_answer": {
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-boot-oracle",
+            "local/disc/Okage - Shadow King (USA).cue",
+            "480",
+            "local/reference-boys-opening-180-v1.state.zip",
+            "--load",
+            "--pad",
+            "local/reference-boys-answer-480-v1.input",
+            "--interaction-wide",
+            "local/reference-boys-answer-480-v1.interaction.bin",
+            "--camera",
+            "local/reference-boys-answer-480-v1.camera.bin",
+            "--controller",
+            "local/reference-boys-answer-480-v1.controller.bin",
+            "--capture",
+            "local/reference-boys-answer-480-v1",
+            "--save",
+            "local/reference-boys-answer-480-v1.state.zip",
+            "--deadline-seconds",
+            "360"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 331.95200983300003,
+          "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+        },
+        "controller_words": 4800,
+        "pressed_latches": 480,
+        "manager_words": 1920,
+        "camera_mode_blend_words": 1440,
+        "choice_words": 1920
+      },
+      "native_completion": {
+        "scope": "Native execution only; original closure/movement not compared",
+        "answers": [
+          [
+            10031,
+            0
+          ],
+          [
+            10570,
+            0
+          ],
+          [
+            10890,
+            0
+          ]
+        ],
+        "closed_stage_frame": 11008,
+        "script_finished_frame": 11012,
+        "control_return_frame": 11013,
+        "flag": "bank1:index0=1",
+        "final_hero_position": [
+          3.8535993099212646,
+          2.498999834060669,
+          967.0989379882812,
+          1.0
+        ]
+      },
+      "continued_native_run": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "11309",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10351,10391,10431,10471,10511,10570,10610,10650,10690,10730,10770,10810,10850,10890,10930,10970,11010",
+          "--directions",
+          "local/native-road-north-11309-release-v2.directions",
+          "--capture",
+          "local/native-road-north-11309-release-v2.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.787273041,
+        "binary_sha256": "6c4125a55ebbf6e9dd6c3c946279d476793dc1d4aa390f2bf5dc9364a728a7df"
+      }
+    },
+    "model-sanitize": {
+      "comparison_report": "local/comparison-options-sanitize-validation-v1/report.json",
+      "opening_report": "local/boys-opening-sanitize-validation-v1.json",
+      "comparison_cases": 228,
+      "comparison_result_words": 228,
+      "controller_words": 900,
+      "pressed_latches": 90,
+      "manager_words": 720,
+      "camera_mode_blend_words": 270,
+      "settled_actor_target_words": 240,
+      "unchanged_prefix_frames": 8260,
+      "native_run": {
+        "command": [
+          "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "9840",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751",
+          "--directions",
+          "local/native-boys-opening-9840-sanitize-v1.directions",
+          "--capture",
+          "local/native-boys-opening-9840-sanitize-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 45.527915666,
+        "binary_sha256": "f4d981db9d1c3e7b7eb8de43d4933e7d8a4c991ac39133f52b8b1d6a59ba339c"
+      },
+      "camera_endpoint": {
+        "native_position": [
+          21.20078468322754,
+          -25.5,
+          803.8096313476562,
+          2.0
+        ],
+        "original_position": [
+          20.64664649963379,
+          -25.5,
+          804.3123779296875,
+          2.0
+        ],
+        "position_equivalence_claimed": false
+      },
+      "continued_report": "local/boys-road-sanitize-validation-v3.json",
+      "first_answer": {
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-boot-oracle",
+            "local/disc/Okage - Shadow King (USA).cue",
+            "480",
+            "local/reference-boys-opening-180-v1.state.zip",
+            "--load",
+            "--pad",
+            "local/reference-boys-answer-480-v1.input",
+            "--interaction-wide",
+            "local/reference-boys-answer-480-v1.interaction.bin",
+            "--camera",
+            "local/reference-boys-answer-480-v1.camera.bin",
+            "--controller",
+            "local/reference-boys-answer-480-v1.controller.bin",
+            "--capture",
+            "local/reference-boys-answer-480-v1",
+            "--save",
+            "local/reference-boys-answer-480-v1.state.zip",
+            "--deadline-seconds",
+            "360"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 331.95200983300003,
+          "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+        },
+        "controller_words": 4800,
+        "pressed_latches": 480,
+        "manager_words": 1920,
+        "camera_mode_blend_words": 1440,
+        "choice_words": 1920
+      },
+      "native_completion": {
+        "scope": "Native execution only; original closure/movement not compared",
+        "answers": [
+          [
+            10031,
+            0
+          ],
+          [
+            10570,
+            0
+          ],
+          [
+            10890,
+            0
+          ]
+        ],
+        "closed_stage_frame": 11008,
+        "script_finished_frame": 11012,
+        "control_return_frame": 11013,
+        "flag": "bank1:index0=1",
+        "final_hero_position": [
+          3.8535993099212646,
+          2.498999834060669,
+          967.0989379882812,
+          1.0
+        ]
+      },
+      "continued_native_run": {
+        "command": [
+          "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "11309",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10351,10391,10431,10471,10511,10570,10610,10650,10690,10730,10770,10810,10850,10890,10930,10970,11010",
+          "--directions",
+          "local/native-boys-road-11309-sanitize-v1.directions",
+          "--capture",
+          "local/native-boys-road-11309-sanitize-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 50.643021542,
+        "binary_sha256": "f4d981db9d1c3e7b7eb8de43d4933e7d8a4c991ac39133f52b8b1d6a59ba339c"
+      }
+    }
+  },
+  "reference_runs": [
+    {
+      "command": [
+        "build/play-research/okage-oracle/okage-pose-oracle",
+        "comparison-options",
+        "local/extracted/SCUS_971.29",
+        "local/research/neighbor251-v2-ee.bin",
+        "local/comparison-options-v1/cases.bin",
+        "local/comparison-options-v1/original.bin"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.209633125,
+      "sha256": {
+        "build/play-research/okage-oracle/okage-pose-oracle": "64d8ec96bf03c104628595bfb6f1cf8d67322e5fb1f1bc322df79ee0cbfa0b5a",
+        "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "local/research/neighbor251-v2-ee.bin": "1fc9bb33762cbbd5a7cff8c3aafcb93af9650e1ec1696eacf8a79d81a5cfdae5",
+        "local/comparison-options-v1/cases.bin": "c3c3be39297b1978aa2fe1f0e70f973620dd23a1c7f54bf39951312154d4fdfe",
+        "local/comparison-options-v1/original.bin": "4b7a3c0439ab9656704d61c3ac925949beab3d8e3549bf50c28a7146ec46fd80"
+      }
+    },
+    {
+      "command": [
+        "build/play-research/okage-oracle/okage-boot-oracle",
+        "local/disc/Okage - Shadow King (USA).cue",
+        "180",
+        "local/reference-road-660-v1.state.zip",
+        "--load",
+        "--pad",
+        "local/reference-boys-opening-180-v1.input",
+        "--interaction-wide",
+        "local/reference-boys-opening-180-v1.interaction.bin",
+        "--camera",
+        "local/reference-boys-opening-180-v1.camera.bin",
+        "--controller",
+        "local/reference-boys-opening-180-v1.controller.bin",
+        "--capture",
+        "local/reference-boys-opening-180-v1",
+        "--save",
+        "local/reference-boys-opening-180-v1.state.zip",
+        "--deadline-seconds",
+        "240"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 102.35864933399999,
+      "binary_sha256": "5d3cdc43623fd6f866d8f40cbfcbbc851207bef7a700a5a85c4b8326c9d2f93c"
+    }
+  ],
+  "image_sha256": "18e27a33991a85593eca8a7f7a4c6ba6395b838ead67b0abe682e13d037ce064",
+  "tests": {
+    "focused_ctests": [
+      "field-tests",
+      "dialogue-tests",
+      "text-tests"
+    ],
+    "builds": [
+      "native",
+      "native-release",
+      "model-sanitize"
+    ],
+    "python_tests": 35,
+    "python_log": "local/research/boys-python-tests-v5.log"
+  },
+  "continued_image_sha256": {
+    "local/native-boys-road-11309-debug-v1.png": "d4092b1c0e4afe39535a84f347732617505c1ecfb68c5d74924214570ad7558f",
+    "local/native-road-north-11309-release-v2.png": "d4092b1c0e4afe39535a84f347732617505c1ecfb68c5d74924214570ad7558f",
+    "local/native-boys-road-11309-sanitize-v1.png": "d4092b1c0e4afe39535a84f347732617505c1ecfb68c5d74924214570ad7558f"
+  },
+  "next_guard": {
+    "command": [
+      "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+      "local/font-input/CMNDATA/FONT",
+      "local/text-input/FLDDATA/MES/FIELD.PME",
+      "--scene",
+      "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+      "--event",
+      "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+      "--actor",
+      "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+      "--actor-bind",
+      "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+      "--actor-bind",
+      "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+      "--frames",
+      "11320",
+      "--press",
+      "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10351,10391,10431,10471,10511,10570,10610,10650,10690,10730,10770,10810,10850,10890,10930,10970,11010,11310",
+      "--directions",
+      "local/native-north-event-11320-release-v2.directions",
+      "--capture",
+      "local/native-north-event-11320-release-v2.png",
+      "--music-dry",
+      "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+      "--music-bank",
+      "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+      "--sound-dir",
+      "local/audio-input/SNDDATA/SE",
+      "--effect-data",
+      "local/effect-input/CMNDATA/2D/TES.EFD",
+      "--effect-textures",
+      "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF"
+    ],
+    "exit_code": 1,
+    "elapsed_seconds": 1.6319627079999999,
+    "binary_sha256": "6c4125a55ebbf6e9dd6c3c946279d476793dc1d4aa390f2bf5dc9364a728a7df",
+    "message": "Unrecovered field service 61 at PC 30352 (a=73, b=1)"
+  }
+}

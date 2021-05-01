@@ -724,6 +724,23 @@ public:
         }
         writeFile(output,result.data(),result.size()*4);
     }
+    void comparisonOptions(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
+        if(ram.size()!=32*1024*1024||input.empty()||input.size()%16||input.size()>16*512)
+            throw std::runtime_error("Comparison option fixture extent");
+        std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
+        constexpr uint32 message=0x900000,command=0x902000;
+        std::memset(ee->m_ram+message,0,0x1000);put(message+0x40,1);
+        const std::array<const char*,4> operators={"<",">","=","!="};std::vector<uint32> result;
+        for(unsigned at=0;at<input.size();at+=16) {
+            uint32 row[4];std::memcpy(row,input.data()+at,16);
+            if(row[0]>3||(row[1]!=0&&row[1]!=1&&row[1]!=4))throw std::runtime_error("Comparison option fixture scope");
+            call(0x125918,{0,row[1],row[2]});
+            const auto text="CMP(0/"+std::to_string(row[1])+"/"+std::to_string(int32(row[3]))+")"+operators[row[0]];
+            std::strcpy(reinterpret_cast<char*>(ee->m_ram+command),text.c_str());
+            call(0x148240,{message,command,1});result.push_back(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
     void choiceOptions(const std::vector<uint8>& ram,const char* output) {
         if(ram.size()!=32*1024*1024)throw std::runtime_error("Option oracle requires EE snapshot");
         std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
@@ -1343,6 +1360,8 @@ int main(int argc,char** argv) {
         const std::string command=argv[1];
         if(command=="relationship" && argc==6) {
             reference.relationship(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="comparison-options" && argc==6) {
+            reference.comparisonOptions(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="message-init" && argc==6) {
             reference.messageInit(readFile(argv[3]),std::stoul(argv[4]),argv[5]);
         } else if(command=="effect-tint" && argc==5) {
