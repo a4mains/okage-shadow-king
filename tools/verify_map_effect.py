@@ -40,16 +40,21 @@ def compare(expected, actual, template, elements, frames):
             if a == b:
                 continue
             element, channel = divmod(index - 29, 44)
-            if template != 25 or step < 2 or not 3 <= element < 8 or not 24 <= channel < 27:
+            particle = template == 25 and 3 <= element < 8 and 24 <= channel < 27
+            smoke = template == 19 and 0 <= element < 9 and channel in (32, 33)
+            if step < 2 or not (particle or smoke):
                 raise ValueError(f'Exact mismatch at record{step} word{index}: {a:x} != {b:x}')
             delta = abs(number(a) - number(b))
             if not delta <= 2e-6:
                 raise ValueError(f'Particle position mismatch at record{step} word{index}')
-            maxima[channel - 24] = max(maxima[channel - 24], delta)
+            axis = channel - (32 if smoke else 24)
+            maxima[axis] = max(maxima[axis], delta)
             differences += 1
+    name = 'smoke_scale' if template == 19 else 'particle_position'
     return {'records': frames + 2, 'words_per_record': stride,
-            'all_other_words_exact': True, 'particle_position_max_abs_error': maxima,
-            'particle_position_differing_words': differences}
+            'all_other_words_exact': True,
+            name+'_max_abs_error': maxima[:2] if template == 19 else maxima,
+            name+'_differing_words': differences}
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)

@@ -20,7 +20,7 @@ struct Vertex {Float4 position,color,uv;};
 struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;};
 }
 struct SceneRenderer::Impl {
-    struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;};
+    struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;std::optional<MapTransform> facing;};
     SineTable sine=make_sine_table();
     std::vector<Input> inputs;
     std::optional<std::size_t> sky_input;
@@ -47,14 +47,15 @@ struct SceneRenderer::Impl {
             const auto* object=objects?objects->placement(index):nullptr;
             if((definition.flags()&8)&&!object)throw std::runtime_error("Animated map model requires native object bindings");
             const auto transform=map_transform(placement,definition);
-            if(transform.flags&1)throw std::runtime_error("Camera-facing map model unsupported");
+            if((transform.flags&1)&&object)throw std::runtime_error("Animated camera-facing map model requires channel integration");
             if((transform.flags&0x100000) && (transform.scale[0]!=1 || transform.scale[1]!=1 || transform.scale[2]!=1))
                 throw std::runtime_error("Optimized map scale unsupported");
             // 0x1b8a80 selects the last eligible0x20000 instance. Foreground
             // optimized0x80 and terrain0x80000 classifications take precedence.
             if(!(transform.flags&0x80080)&&(transform.flags&0x20000))sky_input=inputs.size();
             const auto file=path.parent_path()/definition.name;
-            inputs.push_back({file,object?object->model():read_xmd(read(file)),instance_matrix(transform.position,transform.rotation,transform.scale,sine),object});
+            inputs.push_back({file,object?object->model():read_xmd(read(file)),instance_matrix(transform.position,transform.rotation,transform.scale,sine),object,
+                (transform.flags&1)?std::optional<MapTransform>(transform):std::nullopt});
         }
         if(inputs.empty())throw std::runtime_error("Empty field map");
         if(sky_input){auto stage=path;stage.replace_extension(".stg");sky_factors=field_sky_follow(read(stage));}
@@ -152,6 +153,7 @@ struct SceneRenderer::Impl {
                 throw std::runtime_error("Visible encounter-enemy rendering is unrecovered");
             std::size_t textureBase=0;
             auto world=input.actor ? input.actor->world(sine) : input.world;
+            if(input.facing)world=map_instance_matrix(*input.facing,{-camera[0],-camera[1],0,1},sine);
             if(sky_input&&inputIndex==*sky_input){
                 const auto position=sky_follow_position(cameraPosition,sky_factors);
                 world[3]={position[0],position[1],position[2],1};

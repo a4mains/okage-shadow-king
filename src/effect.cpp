@@ -55,7 +55,7 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
                      const std::function<std::uint32_t()>& random,EffectStart start):
     id(d.id),flags(d.flags&~0x4000u),duration(d.duration),position(p),rotation(r),scale(s),
     parameters(d.parameters),texture_sizes_(sizes) {
-    require((d.id==25&&d.elements.size()==8)||(d.id==34&&d.elements.size()==14)||
+    require((d.id==25&&d.elements.size()==8)||(d.id==34&&d.elements.size()==14)||(d.id==19&&d.elements.size()==9)||
             (d.id==17&&d.elements.size()==9&&start==EffectStart::FirstFrame),
             "Unrecovered map effect template");
     require(duration>0&&duration<=0x7fffffff,"Invalid map effect duration");
@@ -98,7 +98,7 @@ void MapEffect::set_parameter(unsigned selector,const Float4& payload) {
 std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix4& view,
         const Float4& camera,float far_clip,const SineTable& sine,const Float4* light_tint) {
     if(effect.flags&0x4300)return {};
-    require((effect.id==25&&effect.elements.size()==8)||(effect.id==17&&effect.elements.size()==9),"Unrecovered map effect geometry template");
+    require((effect.id==25&&effect.elements.size()==8)||((effect.id==17||effect.id==19)&&effect.elements.size()==9),"Unrecovered map effect geometry template");
     require(!(effect.flags&0x400),"Deferred map effect rendering is unrecovered");
     require(std::isfinite(far_clip)&&far_clip>0,"Invalid effect far clip");
     Rounding rounding;
@@ -111,7 +111,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
     }
     std::vector<MapEffectDraw> result;
     for(const auto& e:effect.elements) {
-        require((e.primitive_flags&255)==1||(effect.id==17&&e.primitive_flags==0x41),"Unrecovered map effect material");
+        require((e.primitive_flags&255)==1||((effect.id==17||effect.id==19)&&e.primitive_flags==0x41),"Unrecovered map effect material");
         require(!(e.flags&0x400000)||light_tint,"Effect requires owned field light tint");
         require(e.uv[0]==0&&e.uv[1]==0&&!e.render_flags,"Unrecovered map effect texture region");
         auto rotation=e.rendered[1];
@@ -157,7 +157,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
                     {clear,white,white,clear},
                     {uv(a,0),uv(a,1),uv(b,1),uv(b,0)});
             }
-        } else if(e.shape==29||(effect.id==17&&e.shape==31)) {
+        } else if(e.shape==29||((effect.id==17||effect.id==19)&&e.shape==31)) {
             const float bottom=e.shape==31?-.5f:-1,top=e.shape==31?.5f:0;
             quad({Float4{-.5f,bottom,0,1},Float4{.5f,bottom,0,1},Float4{.5f,top,0,1},Float4{-.5f,top,0,1}},
                  {white,white,white,white},
@@ -182,7 +182,7 @@ Float4 effect_light_tint(const Float4& base,const Float4& ambient,const Float4& 
 void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_enabled) {
     if(!clock_enabled)return;
     require(!(flags&0x100),"Cannot update a removed map effect");
-    require(id==25||id==17,"Unrecovered map effect update program");
+    require(id==25||id==17||id==19,"Unrecovered map effect update program");
     Rounding rounding;
     if(phase>duration){if(!(flags&0x8000)){request_removal();return;}phase-=duration;}
     const float time=float(phase)*inverse_duration;
@@ -219,6 +219,15 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
                 for(unsigned i=0;i<3;++i)e.position[i]=(float(int(random()%40)-20)*.2f)*parameters[i]+e.position[i];
             }
             break;
+        case 15:
+            // 0x10732c: integrate per update while local time increases;
+            // at a wrap/equal time reset XYZ with three shared RNG draws.
+            if(e.interval[2]<t) {
+                for(unsigned i=0;i<3;++i)p[i]+=parameters[i];
+            } else {
+                for(unsigned i=0;i<3;++i)p[i]=float(int(random()%40)-20)*.02f+e.position[i];
+            }
+            break;
         case 42:
             if(e.interval[2]<t) {
                 const auto theta=angle(t*e.position[3]+e.position[2]);
@@ -237,7 +246,16 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         switch((program>>6)&63){case 0:break;case 4:r[2]=float(random()%360+360)*.00278f;break;case 11:r[1]=float(random()%360+360)*.00278f;break;
                               default:throw std::runtime_error("Unrecovered map effect rotation program");}
         switch((program>>18)&63){case 0:break;case 1:for(unsigned i=0;i<3;++i)s[i]=(t*e.scale[3]+1.0f)*e.scale[i];break;case 13:s[0]=t*e.scale[0];s[1]=(1.0f-t)*e.scale[1];s[2]=t*e.scale[2];break;
-                               default:throw std::runtime_error("Unrecovered map effect scale program");}
+        case 25: {
+            // 0x109950: duration*.01 precedes multiplication by local time;
+            // only X/Y change, with the doubled time added after the base.
+            const float cycle=t*(float(duration)*.01f);
+            const float wave=sine_[angle(cycle-float(int(cycle)))];
+            const float growth=t+t;
+            for(unsigned i=0;i<2;++i)s[i]=(wave*parameters[3]+e.scale[i])+growth;
+            break;
+        }
+        default:throw std::runtime_error("Unrecovered map effect scale program");}
         if((e.flags&0x8000)&&e.interval[2]<t)program&=0xffffffc0;
         switch(program&63) {
         case 0:break;

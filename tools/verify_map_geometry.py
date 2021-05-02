@@ -39,17 +39,17 @@ def compare_matrices(original, native):
     return maximum
 
 def packet_vertices(data, template=25):
-    if template not in (17,25):raise ValueError("Unreviewed geometry template")
+    if template not in (17,19,25):raise ValueError("Unreviewed geometry template")
     at = 0
     result = []
-    for element in range(9 if template==17 else 8):
+    for element in range(9 if template in (17,19) else 8):
         if len(data)-at < 40:
             raise ValueError('Geometry packet header extent')
         index, shape, uvmin, uvmax, zlo, zhi, alo, ahi, tlo, thi = struct.unpack_from('<10I', data, at)
         at += 40
-        if (index, shape) != (element, 31 if template==17 else 24 if element < 3 else 29):
+        if (index, shape) != (element, 31 if template in (17,19) else 24 if element < 3 else 29):
             raise ValueError('Geometry packet identity')
-        if (zlo, zhi, alo, ahi, tlo, thi) != (0, 1, 0x44 if template==17 else 0x48, 0, 0x5000d if template==17 else 0x50000, 0) or uvmin:
+        if (zlo, zhi, alo, ahi, tlo, thi) != (0, 1, 0x44 if template in (17,19) else 0x48, 0, 0x5000d if template in (17,19) else 0x50000, 0) or uvmin:
             raise ValueError('Unreviewed effect material')
         packets = []
         for _ in range(4):
@@ -94,7 +94,7 @@ def compare_vertices(packets, native, template=25):
         if len(native)-at < 12:
             raise ValueError('Native geometry header extent')
         element, count, texture = struct.unpack_from('<3I', native, at);at += 12
-        if (element, count, texture) != (i, len(triangles), 17 if template==17 else 20 if i < 3 else 13):
+        if (element, count, texture) != (i, len(triangles), 17 if template in (17,19) else 20 if i < 3 else 13):
             raise ValueError('Native geometry identity')
         if len(native)-at < count*48:
             raise ValueError('Native geometry vertex extent')

@@ -77,6 +77,7 @@ void DryMusicPlayer::render(std::span<std::int16_t> stereo){
 }
 MusicResourceNames music_resource_names(int id) {
     switch(id) {
+        case 2:return {"CTY_TNB","CTY_TNB0",""};
         case 10:return {"FLD_NMA","FLD_NMA0",""};
         case 26:return {"SNT_DNM","SNT_DNM0","SNT_DNM2"};
         case 51:return {"EVS_MSH","EVS_MSH0",""};

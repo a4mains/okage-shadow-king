@@ -69,6 +69,10 @@ MapTransform map_transform(const MapPlacement& p,const MapDefinition& d) {
         result.flags|=0x100000;
     return result;
 }
+Matrix4 map_instance_matrix(const MapTransform& transform,const Float4& camera_rotation,const SineTable& sine) {
+    const auto rotation=(transform.flags&1) ? Float4{camera_rotation[0],camera_rotation[1],0,1} : transform.rotation;
+    return instance_matrix(transform.position,rotation,transform.scale,sine);
+}
 std::vector<int> map_instance_ids(const MapFile& map) {
     std::vector<int> result;unsigned front=0,back=2048;
     for(const auto& p:map.placements) {

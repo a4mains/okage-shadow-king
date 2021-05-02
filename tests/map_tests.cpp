@@ -17,6 +17,12 @@ int main() {try {
     const int before=std::fegetround();auto t=okage::map_transform(m.placements[0],m.definitions[0]);
     require(std::fegetround()==before && t.position==okage::Float4{3,-2,4,1});
     require(t.rotation[0]>0.24999f && t.rotation[0]<=0.25f && t.flags==0x100080);
+    const auto sine=okage::make_sine_table();
+    okage::MapTransform facing=t;facing.flags|=1;facing.scale={2,3,4,1};
+    const auto world=okage::map_instance_matrix(facing,{0,0,.25f,1},sine);
+    require(world[0]==okage::Float4{2,0,0,0}&&world[1]==okage::Float4{0,3,0,0});
+    require(world[2]==okage::Float4{0,0,4,0}&&world[3]==t.position);
+    facing.flags&=~1u;require(okage::map_instance_matrix(facing,{},sine)!=world);
     for (std::size_t i=0;i<b.size();++i) rejects([&]{okage::read_xmp(okage::Bytes(b).first(i));});
     for (const auto [at,value]:{std::pair{44U,641U},std::pair{8U,0xfffffff0U},std::pair{40U,64U},
         std::pair{72U,1U},std::pair{80U,0x7fc00000U}}) {

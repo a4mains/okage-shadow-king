@@ -430,7 +430,7 @@ public:
         if(ram.size()!=32*1024*1024||input.size()!=80||frames>1000)
             throw std::runtime_error("Map effect probe fixture bounds");
         std::array<uint32,20> request;std::memcpy(request.data(),input.data(),80);
-        if((request[0]!=17&&request[0]!=25&&request[0]!=34)||request[2]>0xfff||request[3]!=0x100)
+        if((request[0]!=17&&request[0]!=19&&request[0]!=25&&request[0]!=34)||request[2]>0xfff||request[3]!=0x100)
             throw std::runtime_error("Map effect probe request scope");
         std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
         effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
@@ -472,7 +472,7 @@ public:
         }
         capture(1);
         for(unsigned frame=0;frame<frames;++frame){call(0x1131d0,{handle});capture(frame+2);}
-        if(request[0]==17) {
+        if(request[0]==17||request[0]==19) {
             // Research-only geometry/material dump, not a native runtime input.
             std::vector<uint32> packets;
             const auto job=get(table+4*handle);
@@ -482,7 +482,7 @@ public:
                 for(unsigned k=0;k<6;++k)packets.push_back(get(r+0x40+k*4));
                 for(unsigned offset:{4u,8u,12u,16u}) {
                     const auto p=get(g+offset),bytes=(get(p)&65535)*16+32;
-                    if(bytes>8192||p>ram.size()-bytes)throw std::runtime_error("Dust packet extent");
+                    if(bytes>8192||p>ram.size()-bytes)throw std::runtime_error("Shape31 packet extent");
                     packets.push_back(bytes);
                     for(unsigned k=0;k<bytes;k+=4)packets.push_back(get(p+k));
                 }
@@ -645,6 +645,17 @@ public:
         if(ram.size()!=32*1024*1024)throw std::runtime_error("Message oracle requires 32 MiB EE snapshot");
         std::memcpy(ee->m_ram,ram.data(),ram.size());
         put(stop,0x08000000|(stop>>2));put(stop+4,0);
+        if(!get(0x20068c)) {
+            for(unsigned i=0;i<8;++i)if(get(0x200688+i*4))
+                throw std::runtime_error("PME fixture has an unexpected text roster");
+            const auto field=get(0x2d9bf4);
+            if(!field||field>ram.size()-0x800||get(field+0x50))
+                throw std::runtime_error("PME fixture has an active/invalid field dialogue");
+            effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
+                                           ee->m_gs,ee->m_sif,*dynamic_cast<CIopBios*>(iop->m_bios.get()));
+            loadMicro();call(0x11f570,{field,0x2293e0,0,uint32(id)});
+            if(!get(0x20068c))throw std::runtime_error("PME fixture message construction failed");
+        }
         if(name) {
             if(std::strlen(name)>12)throw std::runtime_error("Name oracle fixture exceeds reserved name capacity");
             constexpr uint32 tag=0x7fd000,value=0x7fd100;
@@ -652,7 +663,7 @@ public:
             std::memcpy(ee->m_ram+value,name,std::strlen(name)+1);
             call(0x19a5c8,{1,tag,value});
         }
-        // Existing live text handle 1 and bank 0 from the opening600 snapshot.
+        // Live text handle1 and the snapshot's loaded bank0.
         ee->m_EE.m_State.nGPR[CMIPS::A2].nD0=int64(id);
         call(0x19a150,{1,0});
         if(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0!=1)throw std::runtime_error("Original message selection failed");

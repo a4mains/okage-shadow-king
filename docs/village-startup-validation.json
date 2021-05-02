@@ -1,0 +1,646 @@
+{
+  "scope": "Bounded village resource, static billboard and smoke comparisons; unchanged north-gate/boys route.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "updated": "2021-05-02",
+  "original_village_runs": [
+    {
+      "command": [
+        "build/play-research/okage-oracle/okage-boot-oracle",
+        "local/disc/Okage - Shadow King (USA).cue",
+        "300",
+        "local/reference-north-gate-160-v2.state.zip",
+        "--load",
+        "--transition",
+        "local/reference-village-startup-300-v1.transition.bin",
+        "--camera",
+        "local/reference-village-startup-300-v1.camera.bin",
+        "--controller",
+        "local/reference-village-startup-300-v1.controller.bin",
+        "--screen-filter",
+        "local/reference-village-startup-300-v1.screen-filter.bin",
+        "--capture",
+        "local/reference-village-startup-300-v1",
+        "--save",
+        "local/reference-village-startup-300-v1.state.zip",
+        "--deadline-seconds",
+        "480"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 165.916577958,
+      "binary_sha256": "e453c2add0cd78d1de46e04a1f431322482401f75262bcd7bcc49f80891a5234"
+    },
+    {
+      "command": [
+        "build/play-research/okage-oracle/okage-boot-oracle",
+        "local/disc/Okage - Shadow King (USA).cue",
+        "2",
+        "local/reference-village-startup-300-v1.state.zip",
+        "--load",
+        "--transition",
+        "local/reference-village-scene-2-v1.transition.bin",
+        "--camera",
+        "local/reference-village-scene-2-v1.camera.bin",
+        "--scene",
+        "local/reference-village-scene-2-v1.scene",
+        "--screen-filter",
+        "local/reference-village-scene-2-v1.screen-filter.bin",
+        "--capture",
+        "local/reference-village-scene-2-v1",
+        "--save",
+        "local/reference-village-scene-2-v1.state.zip",
+        "--deadline-seconds",
+        "480"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 108.588642916,
+      "binary_sha256": "e453c2add0cd78d1de46e04a1f431322482401f75262bcd7bcc49f80891a5234"
+    }
+  ],
+  "native_exploration": {
+    "command": [
+      "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+      "local/font-input/CMNDATA/FONT",
+      "local/text-input/FLDDATA/MES/FIELD.PME",
+      "--scene",
+      "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+      "--event",
+      "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+      "--actor",
+      "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+      "--actor-bind",
+      "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+      "--actor-bind",
+      "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+      "--frames",
+      "11860",
+      "--press",
+      "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311",
+      "--directions",
+      "local/native-village-startup-11860-release-v4.directions",
+      "--capture",
+      "local/native-village-startup-11860-release-v4.png",
+      "--music-dry",
+      "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+      "--music-bank",
+      "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+      "--sound-dir",
+      "local/audio-input/SNDDATA/SE",
+      "--effect-data",
+      "local/effect-input/CMNDATA/2D/TES.EFD",
+      "--effect-textures",
+      "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+      "--render-from",
+      "11310"
+    ],
+    "exit_code": 1,
+    "elapsed_seconds": 10.64589025,
+    "binary_sha256": "f2fd245357d2ff081c1e0bc8242569aef6104d5d0e1f2da2aa52ce4c43ccb643"
+  },
+  "smoke_original_run": {
+    "command": [
+      "build/play-research/okage-oracle/okage-pose-oracle",
+      "map-effect-probe",
+      "local/extracted/SCUS_971.29",
+      "local/research/village300-v1-ee.bin",
+      "local/village-effect-probe-v1/19.input.bin",
+      "700",
+      "local/village-effect-probe-v1/19.original.bin"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 1.40089225,
+    "binary_sha256": "ffc3f626c51479b3337ff9cce80e5a4f735e0d9185aaa3c9c34f931f67bb00a5",
+    "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "ram_sha256": "cd1420a81e5e838de19bca6e454cdae90880faa6cc3a7e7b0e13d4cd518279ee",
+    "input_sha256": "f0cfa3d27de05000a547ddd47a3ac685c8f4b579a8e09d9bf546608522aebd02",
+    "output_sha256": "8369ef2481f5838b665082df3373641cbcb9c8b434772209591e59b6a1208904",
+    "packets_sha256": "2edcdf8fdf077b070671d61544769731225b51974bfe35953722534dccd848d3"
+  },
+  "builds": {
+    "native": {
+      "facing": {
+        "report": "local/village-facing-native-v1/report.json",
+        "sha256": "7a4a58919f8735cf77d330d2fafcb40f784ab739a321d7afdf7403f764323478",
+        "matrices": 32,
+        "components": 512,
+        "max_absolute_error": 0.0,
+        "native_binary_sha256": "bd2e306b8e4d551c8d8c771d821f0ccd3028bf7fdea77b4c6db41005658d594c"
+      },
+      "smoke": {
+        "report": "local/village-smoke-native-v1/report.json",
+        "sha256": "8c7b94b3c32a4682da52d7291650af9a5f315866c4f39590c8ee04e4be45d35a",
+        "records": 702,
+        "words_per_record": 425,
+        "all_other_words_exact": true,
+        "smoke_scale_max_abs_error": [
+          4.76837158203125e-07,
+          4.76837158203125e-07
+        ],
+        "smoke_scale_differing_words": 70,
+        "exact_vertices": 54,
+        "original_table_exact_scale_words": 12600,
+        "native_binary_sha256": "bd2e306b8e4d551c8d8c771d821f0ccd3028bf7fdea77b4c6db41005658d594c"
+      },
+      "resources": {
+        "report": "local/village-resources-native-v1/report.json",
+        "sha256": "3e3e966e99937cb4b38afce153d113295bcdfcc8d4259d69e58c5a7a35c32093",
+        "native_binary_sha256": "bd2e306b8e4d551c8d8c771d821f0ccd3028bf7fdea77b4c6db41005658d594c",
+        "bank_sha256": "8afa8edf2e3d1cba6b1a24b029422e835306d5afa768d41b1f71a2fde5e0faf0",
+        "cases": [
+          {
+            "message": 10004,
+            "mode": "pme-indices",
+            "exact_bytes": 132,
+            "sha256": "55772ffe2d4083457a70d11d991908e8cdfee00673cdd2bc962fcc0105bb303a"
+          },
+          {
+            "message": 10013,
+            "mode": "pme-indices",
+            "exact_bytes": 76,
+            "sha256": "864ca238596875923d59ec5d3c50ae87973bb25aaa5fff6b503c87e2892a7e5f"
+          },
+          {
+            "message": 10205,
+            "mode": "pme-indices",
+            "exact_bytes": 24,
+            "sha256": "aed8a339938dd3cc5dc7c8b5699cd8086dd46b2d371309928b436c55182af310"
+          },
+          {
+            "message": 10004,
+            "mode": "pme-name",
+            "exact_bytes": 1484,
+            "sha256": "91282e23685e64f9dbad52848e6e6f10f037a3bc6dfdf75d64b80b4fe99c4b99"
+          },
+          {
+            "message": 10013,
+            "mode": "pme-name",
+            "exact_bytes": 778,
+            "sha256": "f2992997d5574a268ad678a504ee79175188fe6d225639a4c7100b3632a787b0"
+          },
+          {
+            "message": 10205,
+            "mode": "pme-name",
+            "exact_bytes": 291,
+            "sha256": "1731041c01d946ab88aadae0dfb62263a82d29880581527313a69c2f463e9785"
+          }
+        ]
+      },
+      "gate": {
+        "report": "local/village-gate-native-v1.json",
+        "sha256": "7ee8e0a1b3f9b6836a2181b0299530bf3d74c66c1e3d5d9e26a1eef3d7ff5ad9",
+        "manager_words": 1440,
+        "pressed_latches": 360,
+        "camera_words": 1800,
+        "camera_mode_blend_words": 450,
+        "filter_frames": 150,
+        "packet_frames": 2
+      },
+      "boys": {
+        "report": "local/village-boys-native-v1.json",
+        "sha256": "3683b086c5a993ffef133c9ca2fc2de31e8baf1eb2e4d7ac8d0ae323f184da30",
+        "controller_words": 900,
+        "pressed_latches": 90,
+        "manager_words": 720,
+        "camera_mode_blend_words": 270,
+        "unchanged_prefix_frames": 8260
+      },
+      "gate_run": {
+        "command": [
+          "build/native/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "11460",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311",
+          "--directions",
+          "local/native-village-regression-11460-native-v1.directions",
+          "--capture",
+          "local/native-village-regression-11460-native-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 58.84776525,
+        "binary_sha256": "79eeab2b847ec536a4cffaabb106adb233df7735bd286d32afeb8192367a66ad"
+      },
+      "gate_image_sha256": "15656d9e3fb95d9e25a7fb2391d1a1881788645bd9b68a8b58ed3413e60d8ef6",
+      "village_guard_run": {
+        "command": [
+          "build/native/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "11860",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311",
+          "--directions",
+          "local/native-village-startup-11860-native-v1.directions",
+          "--capture",
+          "local/native-village-startup-11860-native-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310"
+        ],
+        "exit_code": 1,
+        "elapsed_seconds": 61.961076541,
+        "binary_sha256": "79eeab2b847ec536a4cffaabb106adb233df7735bd286d32afeb8192367a66ad"
+      },
+      "focused_cpp_tests_passed": 6
+    },
+    "native-release": {
+      "facing": {
+        "report": "local/village-facing-native-release-v1/report.json",
+        "sha256": "16ee8b5b9fe49a0f5c5f85a97fa2a45f40b496b2bf3b3483bc1211402d3855e5",
+        "matrices": 32,
+        "components": 512,
+        "max_absolute_error": 0.0,
+        "native_binary_sha256": "7353cd6d9118a356e352de073652e28f565f299029bbafe5a315171831039fa3"
+      },
+      "smoke": {
+        "report": "local/village-smoke-native-release-v1/report.json",
+        "sha256": "013acba85648945f7439c791c6c9cb7b997a33981549fdaf937cf826b141c16c",
+        "records": 702,
+        "words_per_record": 425,
+        "all_other_words_exact": true,
+        "smoke_scale_max_abs_error": [
+          4.76837158203125e-07,
+          4.76837158203125e-07
+        ],
+        "smoke_scale_differing_words": 70,
+        "exact_vertices": 54,
+        "original_table_exact_scale_words": 12600,
+        "native_binary_sha256": "7353cd6d9118a356e352de073652e28f565f299029bbafe5a315171831039fa3"
+      },
+      "resources": {
+        "report": "local/village-resources-native-release-v1/report.json",
+        "sha256": "aed0d97be04999b9bb1660c6f4f17d168d46381a28e1825a3c0b438fe498c864",
+        "native_binary_sha256": "7353cd6d9118a356e352de073652e28f565f299029bbafe5a315171831039fa3",
+        "bank_sha256": "8afa8edf2e3d1cba6b1a24b029422e835306d5afa768d41b1f71a2fde5e0faf0",
+        "cases": [
+          {
+            "message": 10004,
+            "mode": "pme-indices",
+            "exact_bytes": 132,
+            "sha256": "55772ffe2d4083457a70d11d991908e8cdfee00673cdd2bc962fcc0105bb303a"
+          },
+          {
+            "message": 10013,
+            "mode": "pme-indices",
+            "exact_bytes": 76,
+            "sha256": "864ca238596875923d59ec5d3c50ae87973bb25aaa5fff6b503c87e2892a7e5f"
+          },
+          {
+            "message": 10205,
+            "mode": "pme-indices",
+            "exact_bytes": 24,
+            "sha256": "aed8a339938dd3cc5dc7c8b5699cd8086dd46b2d371309928b436c55182af310"
+          },
+          {
+            "message": 10004,
+            "mode": "pme-name",
+            "exact_bytes": 1484,
+            "sha256": "91282e23685e64f9dbad52848e6e6f10f037a3bc6dfdf75d64b80b4fe99c4b99"
+          },
+          {
+            "message": 10013,
+            "mode": "pme-name",
+            "exact_bytes": 778,
+            "sha256": "f2992997d5574a268ad678a504ee79175188fe6d225639a4c7100b3632a787b0"
+          },
+          {
+            "message": 10205,
+            "mode": "pme-name",
+            "exact_bytes": 291,
+            "sha256": "1731041c01d946ab88aadae0dfb62263a82d29880581527313a69c2f463e9785"
+          }
+        ]
+      },
+      "gate": {
+        "report": "local/village-gate-native-release-v1.json",
+        "sha256": "fa0d8c598a60fc8ada42112d71f03be0ff6079661a66e48954f78a27a5fc9867",
+        "manager_words": 1440,
+        "pressed_latches": 360,
+        "camera_words": 1800,
+        "camera_mode_blend_words": 450,
+        "filter_frames": 150,
+        "packet_frames": 2
+      },
+      "boys": {
+        "report": "local/village-boys-native-release-v1.json",
+        "sha256": "5a0d4d60d8cdcd5447e86ef2eee44b1cfd676ef5dbde15622b464930c1669ee1",
+        "controller_words": 900,
+        "pressed_latches": 90,
+        "manager_words": 720,
+        "camera_mode_blend_words": 270,
+        "unchanged_prefix_frames": 8260
+      },
+      "gate_run": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "11460",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311",
+          "--directions",
+          "local/native-village-regression-11460-native-release-v1.directions",
+          "--capture",
+          "local/native-village-regression-11460-native-release-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 10.904174667000001,
+        "binary_sha256": "f2fd245357d2ff081c1e0bc8242569aef6104d5d0e1f2da2aa52ce4c43ccb643"
+      },
+      "gate_image_sha256": "15656d9e3fb95d9e25a7fb2391d1a1881788645bd9b68a8b58ed3413e60d8ef6",
+      "village_guard_run": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "11860",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311",
+          "--directions",
+          "local/native-village-startup-11860-release-v4.directions",
+          "--capture",
+          "local/native-village-startup-11860-release-v4.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310"
+        ],
+        "exit_code": 1,
+        "elapsed_seconds": 10.64589025,
+        "binary_sha256": "f2fd245357d2ff081c1e0bc8242569aef6104d5d0e1f2da2aa52ce4c43ccb643"
+      },
+      "focused_cpp_tests_passed": 6
+    },
+    "model-sanitize": {
+      "facing": {
+        "report": "local/village-facing-model-sanitize-v1/report.json",
+        "sha256": "b192357fe9ec9b5c630bea6eef86d64793b58751203a0f2d9c813924f1fa677a",
+        "matrices": 32,
+        "components": 512,
+        "max_absolute_error": 0.0,
+        "native_binary_sha256": "c5230de36f4f0c2be6ba4c8712d60ca4cd2966284b98b22eebf8ecfce94beab0"
+      },
+      "smoke": {
+        "report": "local/village-smoke-model-sanitize-v1/report.json",
+        "sha256": "3a05681ef3a01f3a39a9eac43b450a5ab651ee0944082b4bc680ccd8e57d7ea5",
+        "records": 702,
+        "words_per_record": 425,
+        "all_other_words_exact": true,
+        "smoke_scale_max_abs_error": [
+          4.76837158203125e-07,
+          4.76837158203125e-07
+        ],
+        "smoke_scale_differing_words": 70,
+        "exact_vertices": 54,
+        "original_table_exact_scale_words": 12600,
+        "native_binary_sha256": "c5230de36f4f0c2be6ba4c8712d60ca4cd2966284b98b22eebf8ecfce94beab0"
+      },
+      "resources": {
+        "report": "local/village-resources-model-sanitize-v1/report.json",
+        "sha256": "d558bd5131bee2588e43fa900eb19d618a32f4d08ffb4238690a688cf8563329",
+        "native_binary_sha256": "c5230de36f4f0c2be6ba4c8712d60ca4cd2966284b98b22eebf8ecfce94beab0",
+        "bank_sha256": "8afa8edf2e3d1cba6b1a24b029422e835306d5afa768d41b1f71a2fde5e0faf0",
+        "cases": [
+          {
+            "message": 10004,
+            "mode": "pme-indices",
+            "exact_bytes": 132,
+            "sha256": "55772ffe2d4083457a70d11d991908e8cdfee00673cdd2bc962fcc0105bb303a"
+          },
+          {
+            "message": 10013,
+            "mode": "pme-indices",
+            "exact_bytes": 76,
+            "sha256": "864ca238596875923d59ec5d3c50ae87973bb25aaa5fff6b503c87e2892a7e5f"
+          },
+          {
+            "message": 10205,
+            "mode": "pme-indices",
+            "exact_bytes": 24,
+            "sha256": "aed8a339938dd3cc5dc7c8b5699cd8086dd46b2d371309928b436c55182af310"
+          },
+          {
+            "message": 10004,
+            "mode": "pme-name",
+            "exact_bytes": 1484,
+            "sha256": "91282e23685e64f9dbad52848e6e6f10f037a3bc6dfdf75d64b80b4fe99c4b99"
+          },
+          {
+            "message": 10013,
+            "mode": "pme-name",
+            "exact_bytes": 778,
+            "sha256": "f2992997d5574a268ad678a504ee79175188fe6d225639a4c7100b3632a787b0"
+          },
+          {
+            "message": 10205,
+            "mode": "pme-name",
+            "exact_bytes": 291,
+            "sha256": "1731041c01d946ab88aadae0dfb62263a82d29880581527313a69c2f463e9785"
+          }
+        ]
+      },
+      "gate": {
+        "report": "local/village-gate-model-sanitize-v1.json",
+        "sha256": "29a7db8fe600e18d8002fdb08e0eaf2af742f89f5a7f375567e7a7a2ec888595",
+        "manager_words": 1440,
+        "pressed_latches": 360,
+        "camera_words": 1800,
+        "camera_mode_blend_words": 450,
+        "filter_frames": 150,
+        "packet_frames": 2
+      },
+      "boys": {
+        "report": "local/village-boys-model-sanitize-v1.json",
+        "sha256": "dd4862bcdec467479ef2e2503fac3391172d187f03302f58a009302a05fca62f",
+        "controller_words": 900,
+        "pressed_latches": 90,
+        "manager_words": 720,
+        "camera_mode_blend_words": 270,
+        "unchanged_prefix_frames": 8260
+      },
+      "gate_run": {
+        "command": [
+          "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "11460",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311",
+          "--directions",
+          "local/native-village-regression-11460-model-sanitize-v1.directions",
+          "--capture",
+          "local/native-village-regression-11460-model-sanitize-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 108.96611762500001,
+        "binary_sha256": "d0b6648adbd36f44b7aa5357929dc0313b694014d91d388b8168db30caf5068d"
+      },
+      "gate_image_sha256": "15656d9e3fb95d9e25a7fb2391d1a1881788645bd9b68a8b58ed3413e60d8ef6",
+      "village_guard_run": {
+        "command": [
+          "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "11860",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311",
+          "--directions",
+          "local/native-village-startup-11860-model-sanitize-v1.directions",
+          "--capture",
+          "local/native-village-startup-11860-model-sanitize-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310"
+        ],
+        "exit_code": 1,
+        "elapsed_seconds": 113.865698333,
+        "binary_sha256": "d0b6648adbd36f44b7aa5357929dc0313b694014d91d388b8168db30caf5068d"
+      },
+      "focused_cpp_tests_passed": 6
+    }
+  },
+  "tests": {
+    "cpp_per_build": [
+      "map-tests",
+      "effect-tests",
+      "music-tests",
+      "field-tests",
+      "text-tests",
+      "dialogue-tests"
+    ],
+    "python": {
+      "command": "python3 -m unittest discover -s tests -v",
+      "passed": 36,
+      "log": "local/research/village-python-tests-v2.log",
+      "sha256": "cf44946f6372e8d1602261aa37242de78f2975124b9597fd02acf6e80eb60e27"
+    }
+  }
+}

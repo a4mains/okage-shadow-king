@@ -410,7 +410,7 @@ int main(int argc, char** argv) {
                 }
             };
             capture(0);
-            if(dust) {
+            if(dust||request[0]==19) {
                 const okage::Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
                 const okage::Float4 tint{1,1,1,1};std::vector<std::uint32_t> geometry;
                 unsigned element=0;
@@ -985,6 +985,21 @@ int main(int argc, char** argv) {
                 const auto* first=reinterpret_cast<const std::uint8_t*>(&matrix);output.insert(output.end(),first,first+64);
             }
             write(argv[3],output);return 0;
+        }
+        if(command=="map-facing-matrices" && argc==5) {
+            const auto map=okage::read_xmp(read(argv[2]));const auto cameras=read(argv[3]);
+            if(cameras.empty()||cameras.size()%16)throw std::runtime_error("Camera-facing matrix fixture extent");
+            const auto sine=okage::make_sine_table();std::vector<std::uint8_t> output;
+            for(std::size_t at=0;at<cameras.size();at+=16) {
+                okage::Float4 rotation;std::memcpy(rotation.data(),cameras.data()+at,16);
+                for(const auto& placement:map.placements) {
+                    const auto transform=okage::map_transform(placement,map.definitions.at(placement.definition()));
+                    if(placement.handler()||!(transform.flags&1))continue;
+                    const auto matrix=okage::map_instance_matrix(transform,rotation,sine);
+                    const auto* bytes=reinterpret_cast<const std::uint8_t*>(&matrix);output.insert(output.end(),bytes,bytes+sizeof(matrix));
+                }
+            }
+            write(argv[4],output);return 0;
         }
         if ((command=="map" && argc==3) || (command=="map-transforms" && argc==4)) {
             const auto map=okage::read_xmp(read(argv[2]));

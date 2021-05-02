@@ -51,6 +51,8 @@ struct DirectionReplay {
 struct Session {
     std::array<okage::Font,3> fonts;
     okage::MessageBank messages;
+    fs::path message_directory;
+    std::string message_bank,player_name;
     okage::DialogueText text;
     okage::TextClock clock;
     okage::DialogueController controller;
@@ -158,12 +160,13 @@ struct Session {
     int message_id=10100;unsigned messages_started=0;
     std::optional<okage::DialogueOpening> opening;
     std::uint64_t service_request_count=0;
-    Session(const fs::path& directory,const fs::path& pme,const std::string& player_name):
+    Session(const fs::path& directory,const fs::path& pme,const std::string& name):
         fonts{okage::read_fnt(readData(directory/"IQ24.FNT")),okage::read_fnt(readData(directory/"BMUI.FNT")),okage::read_fnt(readData(directory/"BM.FNT"))},
-        messages(okage::read_pme(readData(pme))),text({}) {
+        messages(okage::read_pme(readData(pme))),message_directory(pme.parent_path()),
+        message_bank(pme.stem().string()),player_name(name),text({}) {
         if(player_name.empty() || player_name.size()>12 || std::any_of(player_name.begin(),player_name.end(),[](unsigned char c){return c<32 || c>=127 || c=='\\';}))
             throw std::runtime_error("Diagnostic player name requires 1..12 printable ASCII characters without text escapes");
-        if(!messages.bind("############",player_name))throw std::runtime_error("Player-name tag missing from FIELD.PME");
+        if(!messages.bind("############",player_name))throw std::runtime_error("Player-name tag missing from message bank");
         text=okage::DialogueText(messages,10100);
         text.fonts=fonts;text.state.flags=0x8041;text.state.font=2;text.state.period=1;
         clock.glyph_flags=0x10;opacity.set(1,8);
@@ -246,12 +249,24 @@ struct Session {
     }
     void load_destination(const okage::FieldTransition& request) {
         auto definition=okage::read_field_definition(readData(field_root/"FLDSET.XDB"),request.scene);
-        if(definition.message!="field")throw std::runtime_error("Destination message bank is unrecovered");
         auto upper=[](std::string name){
             if(name.empty()||name.front()=='/'||name.find("..")!=std::string::npos||name.find('\\')!=std::string::npos)
                 throw std::runtime_error("Unsafe field asset path");
             std::transform(name.begin(),name.end(),name.begin(),[](unsigned char c){return char(std::toupper(c));});return name;
         };
+        const auto bank_name=upper(definition.message);
+        if(bank_name!=message_bank) {
+            // 0x131d28 loads the field database's bank into slot0. Retire all
+            // borrowers before replacement; a later dialogue constructs its
+            // own path against the new bank, with the same player-name binding.
+            auto replacement=okage::read_pme(readData(message_directory/(bank_name+".PME")));
+            if(!replacement.bind("############",player_name))throw std::runtime_error("Player-name tag missing from destination message bank");
+            if(dialogue_active&&!closure.finished())throw std::runtime_error("Destination replaces an unfinished dialogue bank");
+            dialogue_active=false;text=okage::DialogueText({});text.fonts=fonts;
+            opening.reset();choices={};narration={};controller={};clock={};
+            messages=std::move(replacement);message_bank=bank_name;
+            std::cout<<"Native message bank: "<<message_bank<<"; "<<messages.strings.size()<<" strings; "<<messages.nodes.size()<<" nodes\n";
+        }
         upper(definition.event);
         const auto script=readData(event_directory/(definition.event+".xmt"));
         definition=okage::prepare_field_entry(script,variables,std::move(definition),request.entrance);
