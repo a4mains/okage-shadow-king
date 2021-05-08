@@ -296,11 +296,13 @@ int main(){try {
         require(!scene.event_running()&&okage::event_variable(vars,0x40006)==test[4]);
     }
     idle.resize(80);put(idle,4,48);
-    for(bool frozen_camera:{true,false}) {
+    for(int camera_command:{-1,0,1}) {
+        const bool frozen_camera=camera_command!=1;
         auto exterior_stage=stage;put(exterior_stage,76,0);
         const auto settings=okage::field_camera_settings(exterior_stage);
         require(settings.size()==1&&settings[0].id==0&&settings[0].height==10&&settings[0].mode==0);
-        put(startup,40,frozen_camera?0xfff00053:0x53);put(startup,44,0x200002);put(startup,48,0);
+        put(startup,40,camera_command<0?0x100002:(frozen_camera?0xfff00053:0x53));
+        put(startup,44,0x200002);put(startup,48,0);
         okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
         const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
         okage::OpeningField scene(startup,[](int){},[](int){return true;},player,false);
@@ -311,7 +313,7 @@ int main(){try {
         okage::FieldDefinition entry;entry.type=0;entry.startup=1;entry.party=1;
         scene.enter(entry,exterior_stage,empty_map,0);const auto frozen=scene.position;
         require(scene.event_running());
-        for(unsigned i=0;i<3;++i){scene.tick();if(frozen_camera)require(scene.position==frozen);}
+        for(unsigned i=0;i<(camera_command<0?5u:3u);++i){scene.tick();if(frozen_camera)require(scene.position==frozen);}
         const float offset_before_handoff=manager.target_offset;
         require(!scene.event_running());scene.tick();require(manager.manual_rotate&&manager.phase==0);
         if(!frozen_camera)require(manager.target_offset<offset_before_handoff);
@@ -334,6 +336,22 @@ int main(){try {
         entry.followers={25};
         okage::OpeningField unsupported(startup,[](int){},[](int){return true;},player,false);
         rejects([&]{unsupported.enter(entry,stage,empty_map,0);});
+    }
+    {
+        // Opcode5f consumes one payload word and waits for an audio binding.
+        auto script=startup;script.resize(52);put(script,4,script.size()-32);
+        put(script,40,0x75f);put(script,44,128);put(script,48,0);
+        okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
+        const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
+        okage::OpeningField scene(script,[](int){},[](int){return true;},player,false);
+        std::array<std::uint8_t,0x1000> vars{};
+        scene.get_variable=[&](auto selector){return okage::event_variable(vars,selector);};
+        scene.set_variable=[&](auto index,auto bank,auto value){okage::set_event_variable(vars,index,bank,value);};
+        okage::FieldDefinition entry;entry.type=1;entry.startup=1;
+        scene.enter(entry,stage,empty_map,0);require(scene.pending_opcode==0x5f);
+        unsigned calls=0;scene.music_channels=[&](int first,unsigned last,unsigned level){
+            require(first==0&&last==7&&level==128);++calls;return true;};
+        scene.tick();require(calls==1&&scene.pending_opcode==0);
     }
     {
         std::vector<std::uint8_t> efd(64+8*116),map(64+148+3*80),event(96);

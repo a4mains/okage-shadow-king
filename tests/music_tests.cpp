@@ -47,6 +47,27 @@ int main(){try{
     okage::DryMusicPlayer muted(score,bank());muted.volume(0,0);std::vector<std::int16_t> zeros(6000);muted.render(zeros);
     require(std::all_of(zeros.begin(),zeros.end(),[](auto x){return x==0;}) && muted.sample_loops()>0,"Mute must preserve sample progression");
     rejects([&]{muted.render(std::span(zeros).first(3));});rejects([&]{muted.volume(129,0);});
+    okage::DryMusicPlayer gated(score,bank()),ungated(score,bank());
+    std::array<std::int16_t,800> halfA{},halfB{};
+    gated.render(halfA);ungated.render(halfB);require(halfA==halfB,"Initial channel output");
+    std::array<std::uint32_t,16> gains;gains.fill(128);gains[0]=0;
+    gated.channel_volumes(gains);
+    gated.render(halfA);ungated.render(halfB);require(halfA==halfB,"Channel request applied mid-tick");
+    gated.render(halfA);ungated.render(halfB);
+    require(std::all_of(halfA.begin(),halfA.end(),[](auto v){return v==0;}),"Existing channel voice did not mute");
+    require(gated.sample_loops()==ungated.sample_loops(),"Channel mute changed voice progression");
+    gated.render(halfA);ungated.render(halfB);gains[0]=128;gains[1]=0;gated.channel_volumes(gains);
+    gated.render(halfA);ungated.render(halfB);
+    require(halfA==halfB&&std::any_of(halfA.begin(),halfA.end(),[](auto v){return v!=0;}),"Unmute restarted voice or unrelated channel mute leaked");
+    gains[15]=129;rejects([&]{gated.channel_volumes(gains);});
+    okage::MusicChannelLevels levels;
+    require(!levels.take(true),"Fresh EE gain array is not pending");
+    levels.request(0,7,128);levels.request(3,3,64);auto sent=levels.take(true);
+    require(sent&&(*sent)[0]==128&&(*sent)[3]==64&&(*sent)[8]==0&&!levels.dirty,"Range writes did not coalesce");
+    levels.request(1,0,99);require(levels.take(true)==sent,"Empty range must resend retained levels");
+    levels.request(0,0,1);require(!levels.take(false)&&levels.values[0]==1&&!levels.dirty,"Inactive flush must discard notification only");
+    levels.request(15,15,127);levels.cancel();require(!levels.take(true)&&levels.values[15]==127,"Stop erased retained channel table");
+    rejects([&]{levels.request(-1,0,128);});rejects([&]{levels.request(0,16,128);});rejects([&]{levels.request(0,15,129);});
     auto blocks=bank().sample_blocks.at(0);okage::SampleVoice voice(blocks,0xff,0x1f00);voice.parameters(4096,127,-127);
     bool audible=false;for(unsigned i=0;i<200;++i){const auto s=voice.tick();audible|=s[0]!=0;
         require(s[0]+s[1]>=-1 && s[0]+s[1]<=0,"Signed stereo gains/rounding");}

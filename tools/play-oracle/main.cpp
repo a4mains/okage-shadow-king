@@ -560,6 +560,38 @@ public:
         for(auto index:{0xffffffffu,count}){call(0x174f28,{0,index});result.push_back(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);}
         writeFile(output,result.data(),result.size()*4);
     }
+    void musicChannels(const std::vector<uint8>& input,const char* output) {
+        if(input.empty()||input.size()%16||input.size()>16*512)throw std::runtime_error("Music channel fixture bounds");
+        for(auto address:{0x1c7910u,0x16ddc0u,0x174900u,0x1709d8u}){put(address,0x03e00008);put(address+4,0);}
+        put(0x178a60,0x03e00008);put(0x178a64,0x00001021);
+        constexpr uint32 record=0xa00000,payload=0x80000;
+        const std::array<uint32,11> code={0x3c1a00a0,0x8f5b0000,0x277b0001,0xaf5b0000,
+            0x0005d880,0x037ad821,0x00071400,0x00461025,0xaf620010,0x03e00008,0};
+        std::memcpy(ee->m_ram+0x170c00,code.data(),sizeof(code));
+        std::memset(ee->m_ram+0x2d9a00,0,0x100);put(0x2d9ab8,0xffffffff);
+        std::vector<uint32> outputWords;
+        for(unsigned at=0;at<input.size();at+=16) {
+            std::array<uint32,4> r;std::memcpy(r.data(),input.data()+at,16);
+            put(record,0);for(unsigned i=0;i<16;++i)put(record+16+i*4,0xffffffff);
+            if(r[0]==0) {
+                if(r[1]>15||r[2]>15||r[3]>128)throw std::runtime_error("Music channel request scope");
+                put(payload,r[3]);call(0x130b40,{0,r[2],r[1],payload});
+                if(uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0)!=payload+4)
+                    throw std::runtime_error("Music channel payload consumption");
+            } else if(r[0]==1) {
+                if(r[1]>1||r[2]||r[3])throw std::runtime_error("Music channel flush scope");
+                put(0x2d9ab8,r[1]?3:0xffffffff);call(0x12ce20);
+            } else if(r[0]==2) {
+                if(r[1]||r[2]||r[3])throw std::runtime_error("Music channel cancel scope");
+                call(0x12d470);
+            } else throw std::runtime_error("Unknown music channel probe operation");
+            outputWords.push_back(get(0x2d9a00));
+            for(unsigned i=0;i<16;++i)outputWords.push_back(get(0x2d9a08+i*4));
+            outputWords.push_back(get(record));
+            for(unsigned i=0;i<16;++i)outputWords.push_back(get(record+16+i*4));
+        }
+        writeFile(output,outputWords.data(),outputWords.size()*4);
+    }
     void musicFade(const std::vector<uint8>& input,const char* output) {
         if(input.empty() || input.size()%16)throw std::runtime_error("Music fade fixture bounds");
         for(auto address:{0x1c7910u,0x16ddc0u,0x174900u}){put(address,0x03e00008);put(address+4,0);}
@@ -1367,6 +1399,51 @@ int main(int argc,char** argv) {
             }
             writeFile(argv[4],output.data(),output.size()*4);return 0;
         }
+        if(std::string(argv[1])=="iop-music-channels"&&argc==5) {
+            const auto driver=readFile(argv[2]),input=readFile(argv[3]);
+            if(hash(driver)!="7fe8b5a33c2f8700d1f964cf5ce2f66942f8f97d952e86e6dc0ad5d4f74becb2"||
+               input.empty()||input.size()%16||input.size()>16*512)throw std::runtime_error("IOP channel fixture/hash");
+            auto iop=std::make_unique<Iop::CSubSystem>(true);iop->Reset();
+            uint32 size;std::memcpy(&size,driver.data()+100,4);
+            if(size>driver.size()-176||size>=0x180000)throw std::runtime_error("RX driver LOAD extent");
+            std::memcpy(iop->m_ram,driver.data()+176,size);
+            auto put=[&](uint32 a,uint32 v){std::memcpy(iop->m_ram+a,&v,4);};
+            auto get=[&](uint32 a){uint32 v;std::memcpy(&v,iop->m_ram+a,4);return v;};
+            constexpr uint32 stop=0x1ff000,slot=0x1bf2c,payload=0x180000;
+            put(stop,0x08000000|(stop>>2));put(stop+4,0);
+            auto& cpu=iop->m_cpu;cpu.ToggleBreakpoint(stop);
+            auto call=[&](uint32 address,std::initializer_list<uint32> args){
+                cpu.m_State.nPC=address;cpu.m_State.nHasException=0;cpu.m_State.nDelayedJumpAddr=MIPS_INVALID_PC;
+                cpu.m_State.nGPR[CMIPS::RA].nD0=stop;cpu.m_State.nGPR[CMIPS::SP].nD0=0x1fe000;
+                unsigned reg=CMIPS::A0;for(auto v:args)cpu.m_State.nGPR[reg++].nD0=v;
+                for(unsigned step=0;step<1000;++step){
+                    cpu.m_executor->Execute(1000);
+                    if(cpu.m_State.nHasException==MIPS_EXCEPTION_SYSCALL) {
+                        const auto epc=cpu.m_State.nCOP0[CCOP_SCU::EPC],pc=cpu.m_State.nPC;
+                        if(epc!=0xbd20&&epc!=0xbd28)throw std::runtime_error("Unexpected IOP channel import");
+                        iop->m_bios->HandleException();
+                        if(cpu.m_State.nHasException||cpu.m_State.nPC!=pc)throw std::runtime_error("IOP channel import rescheduled");
+                    } else if(cpu.m_State.nHasException){std::ostringstream error;error<<"IOP channel exception "<<cpu.m_State.nHasException<<" at "<<std::hex<<cpu.m_State.nPC;throw std::runtime_error(error.str());}
+                    if(cpu.m_executor->MustBreak()){
+                        if(cpu.m_State.nPC!=stop)throw std::runtime_error("IOP channel unexpected breakpoint");
+                        return;
+                    }
+                }
+                throw std::runtime_error("IOP channel instruction budget");
+            };
+            std::vector<uint32> output;
+            auto capture=[&]{for(unsigned i=0;i<16;++i){const auto at=slot+0x2c+i*0x28;
+                output.push_back(iop->m_ram[at]);output.push_back(get(at+0x14));}};
+            for(unsigned at=0;at<input.size();at+=16) {
+                std::array<uint32,4> r;std::memcpy(r.data(),input.data()+at,16);
+                if(r[0]>1||r[1]>15||r[2]>128||r[3]>128)throw std::runtime_error("IOP channel case scope");
+                std::memset(iop->m_ram+slot,0,0x2d0);put(slot+8,0x10000|r[0]);put(0x2192c,slot);put(0xd334,0);
+                for(unsigned i=0;i<16;++i)put(slot+0x2c+i*0x28+0x14,0x00800080);
+                put(payload,3);put(payload+4,r[2]|(r[3]<<16));call(0x56f8,{0,r[1],payload});capture();
+                put(0xd334,1);call(0x4578,{});capture();
+            }
+            writeFile(argv[4],output.data(),output.size()*4);return 0;
+        }
         Reference reference(readFile(argv[2]));
         const std::string command=argv[1];
         if(command=="relationship" && argc==6) {
@@ -1391,6 +1468,8 @@ int main(int argc,char** argv) {
             reference.cameraLookAt(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="stream-bank" && argc==5) {
             reference.streamBank(readFile(argv[3]),argv[4]);
+        } else if(command=="music-channels" && argc==5) {
+            reference.musicChannels(readFile(argv[3]),argv[4]);
         } else if(command=="music-fade" && argc==5) {
             reference.musicFade(readFile(argv[3]),argv[4]);
         } else if(command=="dialogue-opacity" && argc==5) {

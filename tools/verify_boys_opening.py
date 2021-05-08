@@ -27,6 +27,9 @@ def main():
     parser.add_argument('--answer', action='store_true', help='Also audit the completed original480 first-answer continuation')
     parser.add_argument('--complete', action='store_true', help='Check native-only conversation closure and subsequent road movement')
     parser.add_argument('--ending', action='store_true', help='Audit original720 ending with observed input alignment')
+    parser.add_argument('--prior-capture', type=Path,
+        default=Path('local/native-gate-message-close-8260-system-native-v1.png'),
+        help='Reviewed native8260 baseline; this regression check is separate from the original comparisons')
     args = parser.parse_args()
     original = 'local/reference-boys-opening-180-v1'
     ref = lambda suffix: Path(original + suffix)
@@ -70,7 +73,11 @@ def main():
         # Reference target is raw; compare rendered target only after blend completion.
         require(camera[9660 + r[0]][8:12] == r[12:16], 'Settled actor target differs')
     for suffix in ['.dialogue.bin', '.choices.bin', '.interaction.bin', '.movement.bin', '.camera.bin', '.actor-1.bin']:
-        before = Path('local/native-gate-message-close-8260-system-native-v1.png' + suffix)
+        before = Path(str(args.prior_capture) + suffix)
+        width = {'.dialogue.bin':12, '.choices.bin':12, '.interaction.bin':8,
+                 '.movement.bin':16, '.camera.bin':16}.get(suffix)
+        baseline = rows(before.read_bytes(),width) if width else actor_rows(before)
+        require([r[0] for r in baseline] == list(range(1,8261)), 'Prior baseline must contain8260 complete frames')
         require(native(suffix).read_bytes().startswith(before.read_bytes()), 'Prior8260 route changed: ' + suffix)
         files.extend([before, native(suffix)])
     files.append(native('.camera-state.bin'))

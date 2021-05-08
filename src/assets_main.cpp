@@ -472,6 +472,30 @@ int main(int argc, char** argv) {
             write(argv[7],okage::Bytes(reinterpret_cast<const std::uint8_t*>(pcm.data()),pcm.size()*2));
             std::cout<<tone.offset<<' '<<tone.size<<' '<<tone.sample_rate<<' '<<tone.pitch<<' '<<tone.left<<' '<<tone.right<<' '<<tone.adsr1<<' '<<tone.adsr2<<' '<<player.active()<<'\n';return 0;
         }
+        if((command=="music-channels"||command=="iop-music-channels")&&argc==4) {
+            const auto input=read(argv[2]);
+            if(input.empty()||input.size()%16||input.size()>16*512)throw std::runtime_error("Music channel fixture bounds");
+            std::vector<std::uint32_t> out;okage::MusicChannelLevels levels;
+            for(unsigned at=0;at<input.size();at+=16) {
+                std::array<std::uint32_t,4> r;std::memcpy(r.data(),input.data()+at,16);
+                if(command=="music-channels") {
+                    std::optional<std::array<std::uint32_t,16>> sent;
+                    if(r[0]==0)levels.request(int(r[1]),int(r[2]),r[3]);
+                    else if(r[0]==1&&r[1]<=1&&!r[2]&&!r[3])sent=levels.take(r[1]);
+                    else if(r[0]==2&&!r[1]&&!r[2]&&!r[3])levels.cancel();
+                    else throw std::runtime_error("Music channel fixture operation");
+                    out.push_back(levels.dirty);out.insert(out.end(),levels.values.begin(),levels.values.end());
+                    out.push_back(sent?16:0);
+                    for(unsigned i=0;i<16;++i)out.push_back(sent?(*sent)[i]|((*sent)[i]<<16):0xffffffff);
+                } else {
+                    if(r[0]>1||r[1]>15)throw std::runtime_error("IOP channel fixture scope");
+                    std::array<okage::MusicChannel,16> channels;
+                    auto capture=[&]{for(const auto& c:channels){out.push_back(c.dirty);out.push_back(c.left|(std::uint32_t(c.right)<<16));}};
+                    capture();if(r[0])channels[r[1]].gain(r[2],r[3]);capture();
+                }
+            }
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4});return 0;
+        }
         if(command=="music-fade" && argc==4) {
             const auto input=read(argv[2]);if(input.empty() || input.size()%16)throw std::runtime_error("Music fade fixture bounds");
             std::vector<std::uint32_t> out;

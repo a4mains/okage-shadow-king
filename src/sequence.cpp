@@ -17,6 +17,10 @@ std::array<std::uint32_t,10> MusicChannel::words() const {
     out[3]|=std::uint32_t(data)<<16;out[4]=std::uint32_t(rpn)|(std::uint32_t(nrpn)<<16);
     out[5]=std::uint32_t(left)|(std::uint32_t(right)<<16);return out;
 }
+void MusicChannel::gain(unsigned left_gain,unsigned right_gain) {
+    if(left_gain>128||right_gain>128)throw std::runtime_error("Unreviewed music channel gain");
+    left=left_gain;right=right_gain;dirty|=2; // RX0x4578 consumes command0x73/mode3.
+}
 MusicSequence::MusicSequence(Bytes bytes,unsigned hz):bytes_(bytes.begin(),bytes.end()),driver_hz_(hz) {
     if(bytes.size()>4*1024*1024 || bytes.size()<52 || word(bytes,0)!=0x51455358 || word(bytes,4)!=0x101 || word(bytes,8)!=bytes.size())
         throw std::runtime_error("Unsupported XSEQ header");

@@ -10,6 +10,7 @@ struct MusicChannel {
     std::uint16_t data=0,rpn=0x3fff,nrpn=0x3fff,left=128,right=128;
     // Inspection encoding of the recovered channel fields, not native memory layout.
     std::array<std::uint32_t,10> words() const;
+    void gain(unsigned left_gain,unsigned right_gain);
 };
 struct MusicEvent {
     enum class Kind {note_on,note_off,control};

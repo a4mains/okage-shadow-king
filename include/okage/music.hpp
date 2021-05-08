@@ -6,6 +6,15 @@
 #include <functional>
 
 namespace okage {
+struct MusicChannelLevels {
+    // EE0x2d9a08 is retained across stops; fresh BSS is zero, unlike the
+    // sequencer's initial per-channel gains of128.
+    std::array<std::uint32_t,16> values{};
+    bool dirty=false;
+    void request(int first,int last,unsigned level);
+    void cancel(){dirty=false;}
+    std::optional<std::array<std::uint32_t,16>> take(bool active);
+};
 struct MusicVolumeRamp {
     std::int32_t current=0x800000,target=0x800000,step=0;
     bool stopped=false;
@@ -21,6 +30,7 @@ public:
     DryMusicPlayer& operator=(const DryMusicPlayer&)=delete;
     void render(std::span<std::int16_t> interleaved_stereo);
     void volume(unsigned left,unsigned right);
+    void channel_volumes(const std::array<std::uint32_t,16>& levels);
     unsigned driver_ticks() const{return ticks_;}
     unsigned peak_voices() const{return peak_;}
     unsigned stolen_voices() const{return stolen_;}
@@ -36,6 +46,7 @@ private:
     };
     std::array<std::optional<MusicBank>,2> banks_;
     MusicSequence sequence_;
+    std::optional<std::array<std::uint32_t,16>> pending_channels_;
     std::array<std::unique_ptr<Voice>,48> voices_;
     unsigned ticks_=0,within_tick_=0,next_voice_=0,peak_=0,stolen_=0,left_=128,right_=128;
     std::uint64_t retired_loops_=0;
@@ -57,6 +68,7 @@ class MusicRouter {
 public:
     using Loader=std::function<MusicResource(int)>;
     MusicVolumeRamp volume;
+    MusicChannelLevels channels;
     void install(unsigned slot,int id,MusicResource resource);
     void enter(int primary,int secondary,const Loader& load);
     void select(int id,bool fade=false);

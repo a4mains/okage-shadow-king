@@ -3,6 +3,17 @@
 #include <stdexcept>
 
 namespace okage {
+void MusicChannelLevels::request(int first,int last,unsigned level) {
+    if(first<0||first>15||last<0||last>15||level>128)
+        throw std::runtime_error("Unreviewed music channel range/level");
+    for(int i=first;i<=last;++i)values[i]=level;
+    dirty=true;
+}
+std::optional<std::array<std::uint32_t,16>> MusicChannelLevels::take(bool active) {
+    const bool send=dirty&&active;dirty=false;
+    if(send)return values;
+    return {};
+}
 void MusicVolumeRamp::request(unsigned level,unsigned rate){
     if(level>128 || rate>32767)throw std::runtime_error("Music volume ramp range");
     target=level*65536;step=rate*4096;stopped=false;
@@ -17,6 +28,11 @@ void MusicVolumeRamp::tick(){
 void DryMusicPlayer::volume(unsigned left,unsigned right){
     if(left>128 || right>128)throw std::runtime_error("Music global volume range");
     left_=left;right_=right;for(auto& v:voices_)if(v)update(*v);
+}
+void DryMusicPlayer::channel_volumes(const std::array<std::uint32_t,16>& levels) {
+    if(std::any_of(levels.begin(),levels.end(),[](auto value){return value>128;}))
+        throw std::runtime_error("Unreviewed music channel gain");
+    pending_channels_=levels;
 }
 void DryMusicPlayer::update(Voice& v){
     const auto& channel=sequence_.channels[v.channel];
@@ -48,6 +64,10 @@ void DryMusicPlayer::note(const MusicEvent& e){
 }
 void DryMusicPlayer::driver_tick(){
     ++ticks_;
+    if(pending_channels_) {
+        for(unsigned i=0;i<16;++i)sequence_.channels[i].gain((*pending_channels_)[i],(*pending_channels_)[i]);
+        pending_channels_.reset();
+    }
     // The driver retains a silent hardware voice for nine updates before freeing it.
     for(auto& v:voices_)if(v){
         ++v->age;
@@ -95,6 +115,7 @@ void require_sequence_music(int id) {
 void MusicRouter::stop() {
     // 0x12d470 cancels pending starts/volume writes as well as active playback.
     player_.reset();current_=active_slot_=-1;
+    channels.cancel();
     volume.current=volume.target=0;volume.stopped=true;
 }
 void MusicRouter::unload(unsigned slot) {
@@ -145,6 +166,7 @@ void MusicRouter::render(std::span<std::int16_t> stereo) {
     if(stereo.size()%2)throw std::runtime_error("Stereo frame extent");
     volume.tick();
     if(volume.stopped&&player_)stop();
+    if(const auto levels=channels.take(bool(player_)))player_->channel_volumes(*levels);
     if(player_){player_->volume(volume.level(),volume.level());player_->render(stereo);}
     else std::fill(stereo.begin(),stereo.end(),0);
 }

@@ -134,6 +134,10 @@ struct Session {
             if(!music)return false;
             music->select(id,fade);return true;
         };
+        if(field)field->music_channels=[this](int first,unsigned last,unsigned level){
+            if(!music)return false;
+            music->channels.request(first,int(last),level);return true;
+        };
         if(field)field->sound_cue=[this](unsigned bank,int index,float speed,unsigned volume){
             auto found=sound_banks.find(bank);if(found==sound_banks.end())return false;
             try {found->second->play(index,speed,volume);}

@@ -394,6 +394,9 @@ void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned
     if(!get_variable||!set_variable)throw std::runtime_error("Field entry requires native variables");
     if(definition_->startup) {
         saved_input_gate_=get_variable(0x40006);set_variable(6,4,1);input_gate_saved_=true;
+        // Startup dispatch 0x133450 case5 disables follow via0x135c78(-1)
+        // before executing the event. Opcode53 may explicitly enable it again.
+        exterior_camera_enabled_=false;
         script_.start(definition_->startup);
         if(event_running()){exploration_handoff_=false;player_.mask|=1;}
         else restore_event_gate();
@@ -580,6 +583,9 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             if(music_service&&music_service(id,a>0)){pending_opcode=0;return {pc+4};}
             return pending();
         }
+        case 0x5f:
+            if(music_channels&&music_channels(b,a,word(pc+4))){pending_opcode=0;return {pc+8};}
+            return pending();
         case 0x45:
             if(audio_service && audio_service(a,b)){pending_opcode=0;return {pc+4};}
             return pending();
