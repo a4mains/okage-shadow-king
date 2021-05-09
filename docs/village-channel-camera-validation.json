@@ -1529,7 +1529,7 @@
       "animation"
     ],
     "python_tests": 38,
-    "python_log": "local/research/village-channel-python-tests-v4.log"
+    "python_log": "local/research/village-channel-python-tests-v5.log"
   },
   "native_walk": {
     "command": [
@@ -1670,7 +1670,7 @@
       "close_frame": 419,
       "close_wait_release_frame": 422
     },
-    "limit": "Opening state matches in Release; original closure and broader presentation remain pending.",
+    "limit": "Opening state matches in Release; presentation, whole camera and audio remain unvalidated.",
     "comparison": {
       "scope": "Audit the first village conversation opening after native VIL bank replacement.",
       "original_run": {
@@ -1756,7 +1756,36 @@
     }
   },
   "native_conversation_closure": {
-    "run": {
+    "scope": "Audit the first village conversation opening after native VIL bank replacement.",
+    "original_run": {
+      "command": [
+        "build/play-research/okage-oracle/okage-boot-oracle",
+        "local/disc/Okage - Shadow King (USA).cue",
+        "260",
+        "local/reference-village-walk-100-v1.state.zip",
+        "--load",
+        "--pad",
+        "local/reference-village-talk-260-v1.input",
+        "--transition",
+        "local/reference-village-talk-260-v1.transition.bin",
+        "--camera",
+        "local/reference-village-talk-260-v1.camera.bin",
+        "--controller",
+        "local/reference-village-talk-260-v1.controller.bin",
+        "--screen-filter",
+        "local/reference-village-talk-260-v1.screen-filter.bin",
+        "--capture",
+        "local/reference-village-talk-260-v1",
+        "--save",
+        "local/reference-village-talk-260-v1.state.zip",
+        "--deadline-seconds",
+        "480"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 168.10596516700002,
+      "binary_sha256": "e453c2add0cd78d1de46e04a1f431322482401f75262bcd7bcc49f80891a5234"
+    },
+    "native_run": {
       "command": [
         "build/native-release/okage-native.app/Contents/MacOS/okage-native",
         "local/font-input/CMNDATA/FONT",
@@ -1774,11 +1803,11 @@
         "--frames",
         "12520",
         "--press",
-        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12441",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442",
         "--directions",
-        "local/native-village-talk-12520-release-v1.directions",
+        "local/native-village-talk-12520-release-v2.directions",
         "--capture",
-        "local/native-village-talk-12520-release-v1.png",
+        "local/native-village-talk-12520-release-v2.png",
         "--music-dry",
         "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
         "--music-bank",
@@ -1793,11 +1822,127 @@
         "11310"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 33.79523125,
+      "elapsed_seconds": 40.653466042,
       "binary_sha256": "7936562a23d411cb7c4575eda9f28cb51c3855f25d55dd3423478151f2e9671b"
     },
-    "event_end": 12483,
-    "control_return": 12484,
-    "limit": "Native-only; original continuation running at checkpoint creation."
+    "controller_returns": 119,
+    "exact_controller_words": 1190,
+    "manager_entries": 119,
+    "exact_manager_words": 476,
+    "native_dispatch": 12101,
+    "original_dispatch": 141,
+    "sha256": {
+      "local/reference-village-talk-260-v1.controller.bin": "7dd2d2f0fa557f5d4136d94f93dd7e8c70d35567c2686916b685ed4a5c118b17",
+      "local/reference-village-talk-260-v1.transition.bin": "916dfe8ff1374d68f155a972d8a2a85ed243974378cf363504c16a40637ede44",
+      "local/native-village-talk-12520-release-v2.png.dialogue.bin": "4a0b7b8fbaea1f88cc59168d98b18bce29c834aa0a7cb83a1869d91935e84ac4",
+      "local/native-village-talk-12520-release-v2.png.interaction.bin": "6f9cba5ec4545eed9ef97fbb178a19365052c48bddb672ea8237019bb48e905d",
+      "local/reference-village-talk-end-300-v1.controller.bin": "71d433f48a12bca7105dcfb88ca7a4f46a1d010c6721623042fa04a1bcc8b954",
+      "local/reference-village-talk-end-300-v1.transition.bin": "56e425aacac9aeee92e66dbf5a731ebb95f31b2c7c8b4703a120c3df3215b329"
+    },
+    "ending": {
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-boot-oracle",
+          "local/disc/Okage - Shadow King (USA).cue",
+          "300",
+          "local/reference-village-talk-260-v1.state.zip",
+          "--load",
+          "--pad",
+          "local/reference-village-talk-end-300-v1.input",
+          "--transition",
+          "local/reference-village-talk-end-300-v1.transition.bin",
+          "--camera",
+          "local/reference-village-talk-end-300-v1.camera.bin",
+          "--controller",
+          "local/reference-village-talk-end-300-v1.controller.bin",
+          "--screen-filter",
+          "local/reference-village-talk-end-300-v1.screen-filter.bin",
+          "--capture",
+          "local/reference-village-talk-end-300-v1",
+          "--save",
+          "local/reference-village-talk-end-300-v1.state.zip",
+          "--deadline-seconds",
+          "480"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 212.99874283300002,
+        "binary_sha256": "e453c2add0cd78d1de46e04a1f431322482401f75262bcd7bcc49f80891a5234"
+      },
+      "controller_returns": 262,
+      "exact_controller_words": 2620,
+      "manager_entries": 300,
+      "exact_manager_words": 1200,
+      "observed_confirmations": [
+        1,
+        42,
+        83,
+        124,
+        165,
+        222
+      ],
+      "stage9_frame": 12480,
+      "event_end": 12484,
+      "control_return": 12485
+    }
+  },
+  "native_resumed_movement": {
+    "run": {
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "12620",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442",
+        "--directions",
+        "local/native-village-resume-12620-release-v2.directions",
+        "--capture",
+        "local/native-village-resume-12620-release-v2.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "--render-from",
+        "11310"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 43.278567125,
+      "binary_sha256": "7936562a23d411cb7c4575eda9f28cb51c3855f25d55dd3423478151f2e9671b"
+    },
+    "initial_hero": [
+      8.203027725219727,
+      2.498999834060669,
+      -73.70841979980469,
+      1.0
+    ],
+    "final_hero": [
+      7.5414652824401855,
+      -0.0010000000474974513,
+      -41.41584396362305,
+      1.0
+    ],
+    "movement_frames": [
+      12521,
+      12580
+    ],
+    "release": 12581,
+    "scope": "Native-only movement after compared closure; no original trajectory comparison."
   }
 }

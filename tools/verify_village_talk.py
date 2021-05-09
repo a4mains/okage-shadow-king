@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Audit the first village conversation opening after native VIL bank replacement.
 
-Compares119 controller returns and manager states from event32/message10008.
-It does not establish closure, full camera/actor output, UI pixels or audio.
+Compares119 opening controller returns and manager states for event32/message10008.
+Optional ending adds262 controller returns and300 manager entries through closure.
+Full camera/actor output, UI pixels and audio remain outside this comparison.
 """
 import argparse
 import json
@@ -18,6 +19,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--capture',type=Path,required=True)
     p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--ending',action='store_true')
     a = p.parse_args()
     require(digest(Path('local/extracted/SCUS_971.29')) == ELF_HASH, 'Different retail ELF')
     prefix = 'local/reference-village-talk-260-v1'
@@ -47,8 +49,36 @@ def main():
         controller_returns=119,exact_controller_words=words,manager_entries=119,
         exact_manager_words=476,native_dispatch=12101,original_dispatch=141,
         sha256={str(path):digest(path) for path in paths})
+    if a.ending:
+        end = 'local/reference-village-talk-end-300-v1'
+        for suffix,sha in [('.controller.bin','71d433f48a12bca7105dcfb88ca7a4f46a1d010c6721623042fa04a1bcc8b954'),
+                           ('.transition.bin','56e425aacac9aeee92e66dbf5a731ebb95f31b2c7c8b4703a120c3df3215b329')]:
+            require(digest(Path(end+suffix)) == sha, 'Different original ending corpus')
+            report['sha256'][end+suffix] = sha
+        end_run = json.loads(Path(end+'.run.json').read_text())
+        require(end_run['exit_code'] == 0 and len(live)>=12520, 'Incomplete closure interval')
+        ending_controller = Path(end+'.controller.bin').read_bytes()
+        end_words = compare_controller(ending_controller,dialogue.read_bytes(),first_original=0,
+            first_native=12220,frames=262,total=len(live),message_id=10008)
+        pressed = []
+        for r in rows(ending_controller,64)[1::2]:
+            require(live[12219+r[0]][1] == r[9], 'Observed closing input differs')
+            if r[9]:pressed.append(r[0])
+        require(pressed == [1,42,83,124,165,222], 'Unexpected original confirmations')
+        end_manager = [r for r in rows(Path(end+'.transition.bin').read_bytes(),128) if r[1]==0x133a98]
+        require([r[0] for r in end_manager] == list(range(300)), 'Ending manager extent')
+        for r in end_manager:
+            got = live[12218+r[0]]
+            require((got[4],got[7],got[5],got[6]) ==
+                    (int(bool(r[35]&256)),r[36],r[48],r[118]), 'Ending manager differs')
+        text = rows(dialogue.read_bytes(),12)
+        require(text[12479][10] == 9 and live[12483][4:7] == (0,1,1)
+                and live[12484][4:7] == (0,0,1), 'Native closure/control boundary differs')
+        report['ending'] = dict(original_run=end_run,controller_returns=262,
+            exact_controller_words=end_words,manager_entries=300,exact_manager_words=1200,
+            observed_confirmations=pressed,stage9_frame=12480,event_end=12484,control_return=12485)
     write_exact(a.output,(json.dumps(report,indent=2)+'\n').encode())
-    print('Village event32/message10008:119 controller returns and119 manager entries exact')
+    print('Village event32/message10008 opening exact; ending compared:',bool(a.ending))
 
 if __name__ == '__main__':
     main()
