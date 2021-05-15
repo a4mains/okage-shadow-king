@@ -350,7 +350,7 @@ void OpeningField::build_collision(Bytes xcl) {
         bodies_.push_back(std::move(body));
     }
 }
-void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned entrance) {
+void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned entrance,ExplorationInput input) {
     Rounding rounding;
     if(definition_||actors_.empty()||actors_.back().alias!=-1||definition.type>1)
         throw std::runtime_error("Unrecovered field entry construction");
@@ -394,15 +394,17 @@ void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned
     if(!get_variable||!set_variable)throw std::runtime_error("Field entry requires native variables");
     if(definition_->startup) {
         saved_input_gate_=get_variable(0x40006);set_variable(6,4,1);input_gate_saved_=true;
-        // Startup dispatch 0x133450 case5 disables follow via0x135c78(-1)
-        // before executing the event. Opcode53 may explicitly enable it again.
-        exterior_camera_enabled_=false;
+        // Entry0x132720 calls0x1326e8: execute immediately, then freeze follow
+        // only if the startup is still active. Later opcode53 may enable it.
         script_.start(definition_->startup);
-        if(event_running()){exploration_handoff_=false;player_.mask|=1;}
+        if(event_running()){
+            exterior_camera_enabled_=false;
+            if(exterior_camera)exterior_camera->manual_rotate=false;
+            exploration_handoff_=false;player_.mask|=1;
+        }
         else restore_event_gate();
     }
-    for(const auto& binding:actors_)binding.actor->evaluate();
-    evaluate();
+    tick_callbacks(input,true,false);
 }
 void OpeningField::remember_player() {
     const auto position=actor(-1)->animation().values().at(1);
@@ -718,13 +720,16 @@ void OpeningField::tick(ExplorationInput input) {
     }
     if(move&&exterior&&exterior_camera_enabled_)update_exterior_camera();
     if(move&&exterior&&player_.camera_area!=configured_camera_area_)configure_exterior_camera(player_.camera_area);
+    tick_callbacks(input,move||bool(transition_),move&&!exterior);
+}
+void OpeningField::tick_callbacks(ExplorationInput input,bool movement,bool interior_camera) {
     advance_effects(true);
     update_npcs();
     if(encounter_)return;
     // Mode14 changes the field manager, not the player's movement mask.
     // 0x1354d8 still runs movement while bit0 is clear during the countdown.
-    if(move||transition_)move_player(input);
-    if(move&&!exterior) {
+    if(movement)move_player(input);
+    if(interior_camera) {
         const auto camera=anchored_camera(actor(-1)->animation().values().at(1),*exploration_camera_,angles_,sine_);
         script_.set_channel(0,camera.position);requested_target_=camera.target;camera_mode_=2;
     }

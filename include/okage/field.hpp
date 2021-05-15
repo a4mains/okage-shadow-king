@@ -54,7 +54,7 @@ public:
     void load_exploration_camera(Bytes stg);
     void load_exploration_collision(Bytes xcl,Bytes variables);
     void load_interactions(Bytes database,const std::string& room,Bytes variables);
-    void enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned entrance);
+    void enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned entrance,ExplorationInput input={});
     const std::optional<FieldTransition>& transition() const {return transition_;}
     const std::optional<FieldEncounter>& encounter() const {return encounter_;}
     std::function<std::uint32_t()> random_value;
@@ -122,6 +122,7 @@ private:
     void interact(ExplorationInput);
     void move_player(ExplorationInput);
     void remember_player();
+    void tick_callbacks(ExplorationInput input,bool move_player,bool interior_camera);
     std::vector<EffectDefinition> effect_definitions_;
     AttachedEffects effects_;
     MapEffects map_effects_;

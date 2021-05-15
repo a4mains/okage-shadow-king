@@ -4,7 +4,9 @@
 #include <cfenv>
 #include <iostream>
 #include <stdexcept>
-void require(bool value){if(!value)throw std::runtime_error("Field test failed");}
+void require(bool value,unsigned where=__builtin_LINE()){
+    if(!value)throw std::runtime_error("Field test failed at line "+std::to_string(where));
+}
 template<class F> void rejects(F f){try{f();}catch(const std::runtime_error&){return;}throw std::runtime_error("Expected field rejection");}
 int main(){try {
     {
@@ -250,6 +252,24 @@ int main(){try {
     for(unsigned i=0;i<3;++i)put(empty_map,i*4,1);put(empty_map,65,64);
     for(auto* data:{&idle,&startup}){put(*data,0,0x544d58);put(*data,4,24);put(*data,16,0xffffffff);}
     {
+        auto event=startup;event.resize(68);put(event,4,36);
+        put(event,40,0xfff00007);put(event,44,0x00400433);
+        put(event,48,__builtin_bit_cast(std::uint32_t, (8.f)));
+        put(event,52,__builtin_bit_cast(std::uint32_t, (1.f)));
+        put(event,56,__builtin_bit_cast(std::uint32_t, (10.f)));
+        put(event,60,0x00400008);put(event,64,0);
+        okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
+        const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
+        okage::OpeningField scene(event,[](int){},[](int){return true;},player,false);
+        std::array<std::uint8_t,0x1000> vars{};
+        scene.get_variable=[&](auto s){return okage::event_variable(vars,s);};
+        scene.set_variable=[&](auto i,auto b,auto v){okage::set_event_variable(vars,i,b,v);};
+        okage::FieldDefinition entry;entry.type=1;entry.startup=1;
+        scene.enter(entry,stage,empty_map,0);
+        require(scene.event_running()&&hero.animation().values()[1][0]==2.f);
+        scene.tick();require(hero.animation().values()[1][0]==4.f);
+    }
+    {
         auto event=startup;put(event,40,0xfff0004b);put(event,44,0xb400002);put(event,48,0);
         okage::ModelFile model;model.models.emplace_back();
         okage::FieldActor hero(std::move(model),idle,{});
@@ -296,24 +316,26 @@ int main(){try {
         require(!scene.event_running()&&okage::event_variable(vars,0x40006)==test[4]);
     }
     idle.resize(80);put(idle,4,48);
-    for(int camera_command:{-1,0,1}) {
-        const bool frozen_camera=camera_command!=1;
+    for(int camera_command:{0,1,2}) {
+        const bool frozen_camera=camera_command!=2;
         auto exterior_stage=stage;put(exterior_stage,76,0);
         const auto settings=okage::field_camera_settings(exterior_stage);
         require(settings.size()==1&&settings[0].id==0&&settings[0].height==10&&settings[0].mode==0);
-        put(startup,40,camera_command<0?0x100002:(frozen_camera?0xfff00053:0x53));
-        put(startup,44,0x200002);put(startup,48,0);
+        auto event=startup;event.resize(64);put(event,4,32);
+        put(event,40,camera_command==1?0x53:0x100002);
+        put(event,44,camera_command==2?0x53:0x200002);
+        put(event,48,camera_command==2?0x200002:0);put(event,52,0);
         okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
         const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
-        okage::OpeningField scene(startup,[](int){},[](int){return true;},player,false);
+        okage::OpeningField scene(event,[](int){},[](int){return true;},player,false);
         okage::ExteriorCamera manager;scene.exterior_camera=&manager;
         std::array<std::uint8_t,0x1000> vars{};
         scene.get_variable=[&](auto selector){return okage::event_variable(vars,selector);};
         scene.set_variable=[&](auto index,auto bank,auto value){okage::set_event_variable(vars,index,bank,value);};
         okage::FieldDefinition entry;entry.type=0;entry.startup=1;entry.party=1;
         scene.enter(entry,exterior_stage,empty_map,0);const auto frozen=scene.position;
-        require(scene.event_running());
-        for(unsigned i=0;i<(camera_command<0?5u:3u);++i){scene.tick();if(frozen_camera)require(scene.position==frozen);}
+        require(scene.event_running()&&!manager.manual_rotate);
+        for(unsigned i=0;i<(camera_command==1?2u:4u);++i){scene.tick();if(frozen_camera)require(scene.position==frozen);}
         const float offset_before_handoff=manager.target_offset;
         require(!scene.event_running());scene.tick();require(manager.manual_rotate&&manager.phase==0);
         if(!frozen_camera)require(manager.target_offset<offset_before_handoff);
@@ -378,8 +400,8 @@ int main(){try {
         scene.enter(entry,stage,empty_map,0);
         for(unsigned i:{13u,14u,15u})require(okage::event_variable(vars,0x40000|i)==0);
         require(scene.collision_mask->bits==4&&scene.map_effects()[2]->color==okage::Float4({.75f,.25f,.25f,1}));
-        require((scene.map_effects()[0]->flags&0x100)&&(scene.map_effects()[1]->flags&0x100));
-        scene.tick();require(scene.map_effects()[0]&&(scene.map_effects()[0]->flags&0x200));
+        // Entry itself runs the first removal pass; the next update frees them.
+        require((scene.map_effects()[0]->flags&0x200)&&(scene.map_effects()[1]->flags&0x200));
         scene.tick();require(!scene.map_effects()[0]&&!scene.map_effects()[1]&&scene.map_effects()[2]);
         rejects([&]{scene.load_map_effects(map,sizes);});
         okage::OpeningField omitted(event,[](int){},[](int){return true;},player,false);
@@ -406,7 +428,7 @@ int main(){try {
         enemy_field.set_variable=[&](auto index,auto bank,auto value){okage::set_event_variable(enemy_variables,index,bank,value);};
         unsigned random_calls=0;enemy_field.random_value=[&]{++random_calls;return 0;};
         enemy_field.enter(enemy_room,stage,empty_map,0);require(random_calls==1+enemy_index);
-        for(unsigned i=0;i<240;++i)enemy_field.tick();
+        for(unsigned i=0;i<239;++i)enemy_field.tick(); // Entry already ran one callback.
         require(random_calls==1+enemy_index&&!enemy_actor.visible);
         require((enemy_field.collision_bodies()[enemy_index].flags&2)==(enemy_index?2u:0u));
         enemy_field.tick();require(random_calls==2+enemy_index&&!enemy_actor.visible);

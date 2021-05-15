@@ -251,7 +251,7 @@ struct Session {
         renderer->load_effect_textures(textures);field->load_effects(readData(data));effects_loaded=true;
         effect_data=data;effect_textures=textures;
     }
-    void load_destination(const okage::FieldTransition& request) {
+    void load_destination(const okage::FieldTransition& request,okage::ExplorationInput input) {
         auto definition=okage::read_field_definition(readData(field_root/"FLDSET.XDB"),request.scene);
         auto upper=[](std::string name){
             if(name.empty()||name.front()=='/'||name.find("..")!=std::string::npos||name.find('\\')!=std::string::npos)
@@ -306,7 +306,7 @@ struct Session {
             renderer->set_effect_light_tint(okage::field_effect_tint(stage));
         }
         dialogue_active=false;choices={};narration={};
-        field->enter(std::move(definition),stage,readData(xcl),request.entrance);
+        field->enter(std::move(definition),stage,readData(xcl),request.entrance,input);
         current_scene=request.scene;current_entrance=int(request.entrance);transition_target=0;
         std::cout<<"Native destination: scene "<<current_scene<<" entrance "<<current_entrance<<"; "<<renderer->actors()<<" actors\n";
     }
@@ -328,7 +328,7 @@ struct Session {
             transition_trace.insert(transition_trace.end(),{frame,unsigned(current_scene),unsigned(current_entrance),
                 request?unsigned(request->scene):0xffffffffu,request?request->entrance:0,
                 request?request->countdown:0,request&&request->ready?1u:0u,field->pc()});
-            if(request&&request->ready)load_destination(*request);
+            if(request&&request->ready)load_destination(*request,{input.held,128,128,input.pressed});
         }
         if(music){
             std::array<std::int16_t,1600> pcm{};music->render(pcm);
