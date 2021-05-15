@@ -107,7 +107,7 @@ MusicResourceNames music_resource_names(int id) {
 namespace {
 void require_sequence_music(int id) {
     if((id>=20&&id<=23)||id==33||id==34)
-        throw std::runtime_error("Streamed music routing is unrecovered");
+        throw std::runtime_error("Preloaded jingle routing is unrecovered (music ID "+std::to_string(id)+")");
     if(id==25||id==27||id==30||id==32)
         throw std::runtime_error("Alternate music playback is unrecovered");
 }

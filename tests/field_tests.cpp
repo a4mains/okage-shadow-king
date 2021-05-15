@@ -69,6 +69,16 @@ int main(){try {
     for(frame=1;frame<=180;++frame){field.tick();if(frame<70)require(field.position[0]==2);}
     require(starts==1 && polls==10 && field.pc()==0xbe4 && field.pending_opcode==0x36);
     require(field.pending_actor==-8 && field.pending_animation==2 && field.position[0]==8 && field.target[0]==1);
+    for(int selector:{-1,0,1,2}) {
+        word(0xbe4,(std::uint32_t(selector)<<20)|0xabc60u);word(0xbe8,0xff800236);
+        okage::OpeningField input(b,[](int){},[](int){return true;});
+        for(unsigned i=0;i<180;++i)input.tick();
+        require(input.pc()==0xbe4&&input.pending_opcode==0x60);
+        unsigned calls=0;
+        input.dialogue_input=[&](bool enabled){require(enabled==(selector==1));++calls;};
+        input.tick();require(calls==1&&input.pc()==0xbe8&&input.pending_opcode==0x36);
+        input.tick();require(calls==1);
+    }
     // A selector whose low byte is a valid group opcode must be consumed as
     // data. Keep this write pending until storage is bound, then resume it.
     word(0xbe4,0x100047);word(0xbe8,0x10007);word(0xbec,0xff800236);

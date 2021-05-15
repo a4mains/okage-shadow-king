@@ -207,6 +207,10 @@ struct Session {
             if(released && request==0 && !close_release_frame)close_release_frame=frame;
             return released;
         },actor_bindings,diagnostic);
+        field->dialogue_input=[this](bool enabled){
+            if(!dialogue_active)throw std::runtime_error("Field input toggle before dialogue initialization");
+            controller.layer_flags=(controller.layer_flags&~0x10u)|(enabled?0x10u:0u);
+        };
         if(map_objects)field->bind_map_objects(map_objects->bindings());
         field->random_value=[this]{return random.next();};
         field->exterior_camera=&exterior_camera;
@@ -321,7 +325,11 @@ struct Session {
         scene_fade.tick();
         const std::array<std::uint32_t,2> layers={0x50,controller.layer_flags};
         if(field) {
-            field->tick({input.held,128,128,input.pressed});
+            try {field->tick({input.held,128,128,input.pressed});}
+            catch(const std::exception& e) {
+                throw std::runtime_error("Native frame="+std::to_string(frame)+" field PC="+
+                    std::to_string(field->pc())+": "+e.what());
+            }
             if(field->encounter())throw std::runtime_error("Native battle dispatch is unrecovered (encounter column "+
                 std::to_string(field->encounter()->column)+")");
             const auto request=field->transition();

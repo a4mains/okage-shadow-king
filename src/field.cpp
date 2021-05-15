@@ -563,6 +563,11 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             if(a || b)throw std::runtime_error("Field dialogue mode not yet implemented");
             start_dialogue_(__builtin_bit_cast(std::int32_t, (word(pc+4))));return {pc+8};
         case 10:return wait_dialogue_(b) ? Animation::ServiceResult{pc+4} : Animation::ServiceResult{pc,true};
+        case 0x60:
+            // 0x1305a8 -> 0x11fd78 changes body-layer flag0x10 only.
+            // Exactly B=1 enables confirmation; every other value clears it.
+            if(!dialogue_input)return pending();
+            dialogue_input(b==1);pending_opcode=0;return {pc+4};
         case 0x36:
             if(auto* target=actor(b);target && a<0x800) {target->select_motion(a);return {pc+4};}
             return pending();
