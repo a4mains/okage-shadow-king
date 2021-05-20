@@ -25,9 +25,26 @@ void MusicVolumeRamp::tick(){
     else current=std::min(current+step,0x800000);
 }
 
+struct DryMusicPlayer::VoicePool {
+    std::array<std::unique_ptr<Voice>,48> voices;
+    unsigned next_voice=0,within_tick=0;
+};
+std::shared_ptr<DryMusicPlayer::VoicePool> DryMusicPlayer::make_pool() {
+    return std::make_shared<VoicePool>();
+}
+DryMusicPlayer::DryMusicPlayer(Bytes sequence,MusicBank bank,std::optional<MusicBank> second,
+                               std::shared_ptr<VoicePool> pool):
+    banks_{std::move(bank),std::move(second)},sequence_(sequence),pool_(pool?std::move(pool):make_pool()){}
+DryMusicPlayer::~DryMusicPlayer() {
+    for(auto& voice:pool_->voices)if(voice&&voice->owner==this)voice.reset();
+}
+bool DryMusicPlayer::finished() const {
+    return sequence_.ended()&&std::none_of(pool_->voices.begin(),pool_->voices.end(),
+        [this](const auto& voice){return voice&&voice->owner==this;});
+}
 void DryMusicPlayer::volume(unsigned left,unsigned right){
     if(left>128 || right>128)throw std::runtime_error("Music global volume range");
-    left_=left;right_=right;for(auto& v:voices_)if(v)update(*v);
+    left_=left;right_=right;for(auto& v:pool_->voices)if(v&&v->owner==this)update(*v);
 }
 void DryMusicPlayer::channel_volumes(const std::array<std::uint32_t,16>& levels) {
     if(std::any_of(levels.begin(),levels.end(),[](auto value){return value>128;}))
@@ -50,16 +67,16 @@ void DryMusicPlayer::note(const MusicEvent& e){
         if(e.key<tone.key_low || e.key>tone.key_high)continue;
         if(tone.flags&~3u)throw std::runtime_error("Music noise/pitch-modulated tone not recovered");
         unsigned chosen=48;
-        for(unsigned i=0;i<48;++i){const auto index=(next_voice_+i)%48;if(!voices_[index]){chosen=index;next_voice_=(index+1)%48;break;}}
+        for(unsigned i=0;i<48;++i){const auto index=(pool_->next_voice+i)%48;if(!pool_->voices[index]){chosen=index;pool_->next_voice=(index+1)%48;break;}}
         if(chosen==48){
             // Original0x3998 selects highest numeric priority, then greatest age.
-            chosen=0;for(unsigned i=1;i<48;++i){const auto& a=*voices_[i];const auto& b=*voices_[chosen];
+            chosen=0;for(unsigned i=1;i<48;++i){const auto& a=*pool_->voices[i];const auto& b=*pool_->voices[chosen];
                 if(a.tone->priority>b.tone->priority || (a.tone->priority==b.tone->priority && a.age>b.age))chosen=i;}
-            retired_loops_+=voices_[chosen]->sample.loop_count;++stolen_;
+            pool_->voices[chosen]->owner->retired_loops_+=pool_->voices[chosen]->sample.loop_count;++stolen_;
         }
-        auto v=std::make_unique<Voice>(e.channel,e.key,e.value,bank,tone,bank.sample_blocks.at(tone.sample_offset));
+        auto v=std::make_unique<Voice>(this,e.channel,e.key,e.value,bank,tone,bank.sample_blocks.at(tone.sample_offset));
         // New notes receive final channel parameters below, after all this tick's events.
-        voices_[chosen]=std::move(v);
+        pool_->voices[chosen]=std::move(v);
     }
 }
 void DryMusicPlayer::driver_tick(){
@@ -68,34 +85,48 @@ void DryMusicPlayer::driver_tick(){
         for(unsigned i=0;i<16;++i)sequence_.channels[i].gain((*pending_channels_)[i],(*pending_channels_)[i]);
         pending_channels_.reset();
     }
-    // The driver retains a silent hardware voice for nine updates before freeing it.
-    for(auto& v:voices_)if(v){
-        ++v->age;
-        if(v->sample.ended()){
-            if(++v->silent_ticks>=9){retired_loops_+=v->sample.loop_count;v.reset();}
-        }else v->silent_ticks=0;
-    }
     for(const auto& e:sequence_.tick()){
         if(e.kind==MusicEvent::Kind::note_on)note(e);
-        else if(e.kind==MusicEvent::Kind::note_off){for(auto& v:voices_)if(v && v->channel==e.channel && v->key==e.key)v->sample.release();}
+        else if(e.kind==MusicEvent::Kind::note_off){for(auto& v:pool_->voices)if(v && v->owner==this && v->channel==e.channel && v->key==e.key)v->sample.release();}
     }
-    unsigned count=0;for(auto& v:voices_)if(v){update(*v);if(!v->sample.ended())++count;}
+    unsigned count=0;for(auto& v:pool_->voices)if(v&&v->owner==this){update(*v);if(!v->sample.ended())++count;}
     peak_=std::max(peak_,count);
 }
 std::uint64_t DryMusicPlayer::sample_loops() const{
-    auto count=retired_loops_;for(const auto& v:voices_)if(v)count+=v->sample.loop_count;return count;
+    auto count=retired_loops_;for(const auto& v:pool_->voices)if(v&&v->owner==this)count+=v->sample.loop_count;return count;
 }
-void DryMusicPlayer::render(std::span<std::int16_t> stereo){
+void DryMusicPlayer::render_pool(VoicePool& pool,std::span<std::int16_t> stereo,const std::function<void()>& tick){
     if(stereo.size()%2)throw std::runtime_error("Stereo frame extent");
     for(std::size_t i=0;i<stereo.size();i+=2){
-        if(!within_tick_)driver_tick();
+        if(!pool.within_tick) {
+            // Age/retire once for the shared hardware pool, not per sequence.
+            for(auto& v:pool.voices)if(v){
+                ++v->age;
+                if(v->sample.ended()){
+                    if(++v->silent_ticks>=9){v->owner->retired_loops_+=v->sample.loop_count;v.reset();}
+                }else v->silent_ticks=0;
+            }
+            tick();
+        }
         std::array<std::int32_t,2> sum{};
-        for(auto& v:voices_)if(v){const auto sample=v->sample.tick();if(v->tone->flags&1){sum[0]+=sample[0];sum[1]+=sample[1];}}
+        for(auto& v:pool.voices)if(v){const auto sample=v->sample.tick();if(v->tone->flags&1){sum[0]+=sample[0];sum[1]+=sample[1];}}
         stereo[i]=std::clamp(sum[0],-32768,32767);stereo[i+1]=std::clamp(sum[1],-32768,32767);
-        within_tick_=(within_tick_+1)%800;
+        pool.within_tick=(pool.within_tick+1)%800;
     }
 }
+void DryMusicPlayer::render(std::span<std::int16_t> stereo){
+    render_pool(*pool_,stereo,[this]{driver_tick();});
+}
+std::optional<unsigned> music_jingle_index(int id) {
+    if(id>=20&&id<=23)return unsigned(id-20);
+    if(id==33||id==34)return unsigned(id-29);
+    return {};
+}
 MusicResourceNames music_resource_names(int id) {
+    if(const auto jingle=music_jingle_index(id)) {
+        static constexpr const char* names[]={"JGL_FLG","JGL_STN","JGL_GET","JGL_SPL","JGL_FVC","JGL_LUP"};
+        return {names[*jingle],"JGL_BSC0",""};
+    }
     switch(id) {
         case 2:return {"CTY_TNB","CTY_TNB0",""};
         case 10:return {"FLD_NMA","FLD_NMA0",""};
@@ -107,13 +138,14 @@ MusicResourceNames music_resource_names(int id) {
 namespace {
 void require_sequence_music(int id) {
     if((id>=20&&id<=23)||id==33||id==34)
-        throw std::runtime_error("Preloaded jingle routing is unrecovered (music ID "+std::to_string(id)+")");
+        throw std::runtime_error("Jingle cannot occupy an ordinary score slot (music ID "+std::to_string(id)+")");
     if(id==25||id==27||id==30||id==32)
         throw std::runtime_error("Alternate music playback is unrecovered");
 }
 }
 void MusicRouter::stop() {
-    // 0x12d470 cancels pending starts/volume writes as well as active playback.
+    // 0x12d470 stops the ordinary score and cancels pending writes. Jingle
+    // instances and the last forwarded hardware gains are independent.
     player_.reset();current_=active_slot_=-1;
     channels.cancel();
     volume.current=volume.target=0;volume.stopped=true;
@@ -122,6 +154,12 @@ void MusicRouter::unload(unsigned slot) {
     if(slot>=slots_.size())throw std::runtime_error("Music sequence slot bounds");
     if(active_slot_==int(slot))stop();
     slots_[slot].reset();ids_[slot]=-1;
+}
+void MusicRouter::install_jingle(unsigned slot,MusicResource resource) {
+    if(slot>=jingle_slots_.size()||resource.second||!resource.alternate.empty())
+        throw std::runtime_error("Invalid shared-bank jingle resource");
+    MusicSequence check(resource.sequence);
+    jingle_slots_[slot]=std::move(resource);
 }
 void MusicRouter::install(unsigned slot,int id,MusicResource resource) {
     if(slot>=slots_.size()||id<0)throw std::runtime_error("Music resource binding bounds");
@@ -146,6 +184,15 @@ void MusicRouter::enter(int primary,int secondary,const Loader& load) {
     if(secondary>0)ensure(1,secondary,load);
 }
 void MusicRouter::select(int id,bool fade) {
+    if(const auto jingle=music_jingle_index(id)) {
+        if(!jingle_slots_[*jingle])throw std::runtime_error("Jingle sequence is not loaded");
+        const auto& resource=*jingle_slots_[*jingle];
+        jingles_.push_back(std::make_unique<DryMusicPlayer>(resource.sequence,resource.bank,std::nullopt,pool_));
+        // 0x12e0b0 neither stops the ordinary score nor assigns its current ID.
+        driver_gain_=128;volume.current=volume.target=0x800000;volume.stopped=false;
+        if(fade)volume.request(128,8);
+        return;
+    }
     require_sequence_music(id);
     // 0x12d580 chooses the last matching loaded sequence. A missing ordinary
     // ID stops playback; it does not implicitly load a resource or keep music.
@@ -154,9 +201,9 @@ void MusicRouter::select(int id,bool fade) {
         for(unsigned i=0;i<slots_.size();++i)if(slots_[i]&&ids_[i]==id)selected=int(i);
         if(selected!=-1) {
             const auto& resource=*slots_[selected];
-            player_=std::make_unique<DryMusicPlayer>(resource.sequence,resource.bank,resource.second);
+            player_=std::make_unique<DryMusicPlayer>(resource.sequence,resource.bank,resource.second,pool_);
             current_=id;active_slot_=selected;
-            volume.current=volume.target=(fade?0:128)*65536;volume.stopped=false;
+            driver_gain_=fade?0:128;volume.current=volume.target=driver_gain_*65536;volume.stopped=false;
         }
     }
     // 0x130a30 applies this request even when selection did not restart music.
@@ -164,10 +211,17 @@ void MusicRouter::select(int id,bool fade) {
 }
 void MusicRouter::render(std::span<std::int16_t> stereo) {
     if(stereo.size()%2)throw std::runtime_error("Stereo frame extent");
+    const bool send_volume=volume.current!=volume.target;
     volume.tick();
+    if(send_volume)driver_gain_=volume.level();
     if(volume.stopped&&player_)stop();
     if(const auto levels=channels.take(bool(player_)))player_->channel_volumes(*levels);
-    if(player_){player_->volume(volume.level(),volume.level());player_->render(stereo);}
-    else std::fill(stereo.begin(),stereo.end(),0);
+    if(player_)player_->volume(driver_gain_,driver_gain_);
+    for(auto& jingle:jingles_)jingle->volume(driver_gain_,driver_gain_);
+    DryMusicPlayer::render_pool(*pool_,stereo,[this]{
+        if(player_)player_->driver_tick();
+        for(auto& jingle:jingles_)jingle->driver_tick();
+    });
+    std::erase_if(jingles_,[](const auto& jingle){return jingle->finished();});
 }
 }

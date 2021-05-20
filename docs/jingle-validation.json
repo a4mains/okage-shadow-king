@@ -1,0 +1,553 @@
+{
+  "scope": "JGL_GET sequencing and observed voice parameters; five fixed-condition DSP tones; original EE routing with recorded driver boundaries.",
+  "assets": {
+    "JGL_FLG.XSQ": "5cbfdeda457005fc4dea89774c5477c4bd25af0306cde566c50ef51afe3368a8",
+    "JGL_STN.XSQ": "b9c66914a98995a4b428298f3f99b8c566257d02210957e02d3360a97a00f2e3",
+    "JGL_GET.XSQ": "b15448498b8a4738cb98d72fda4a595daf6fdc8bee644d732633f631f9e2f407",
+    "JGL_SPL.XSQ": "80bf7d5c0fdbd10d968a1c2f68fdd4728c4db042dffe18937347cf7c77834bc4",
+    "JGL_FVC.XSQ": "4fc3e1cab7b36a11bd69c7ee7da64b837259fa1e4179c7644fa0316cc16ebaaf",
+    "JGL_LUP.XSQ": "4845f7a0c48040a1bdb3058055b32e284fffca5fc91b10aeff7480192a5fb5be",
+    "JGL_BSC0.XV": "a2c11debcde59c737fe9217821d4cbaf27f42a83eb4c202c2ea7a97ab654df85"
+  },
+  "native_tool_sha256": "0f365cffc638131591026873f49aa80003ffc0005150b2c8236c3cb6ec5ac87a",
+  "commands": [
+    [
+      "python3",
+      "tools/verify_sequence.py",
+      "--reference",
+      "local/reference-bakery-jingle-300-v1.bin",
+      "--sequence",
+      "local/audio-input/SNDDATA/BGM/JGL_GET.XSQ",
+      "--native",
+      "build/native-release/okage-assets",
+      "--output",
+      "local/jingle-validation-release-v1/sequence"
+    ],
+    [
+      "python3",
+      "tools/verify_music_bank.py",
+      "--reference",
+      "local/reference-bakery-jingle-160-v1",
+      "--bank",
+      "local/audio-input/SNDDATA/BGM/JGL_BSC0.XV",
+      "--native",
+      "build/native-release/okage-assets",
+      "--output",
+      "local/jingle-validation-release-v1/parameters"
+    ]
+  ],
+  "sequence": {
+    "scope": "Asset-initialized music sequencing only; no voice, mixer, device, or hardware fidelity claim",
+    "sequence_sha256": "b15448498b8a4738cb98d72fda4a595daf6fdc8bee644d732633f631f9e2f407",
+    "driver_sha256": "7fe8b5a33c2f8700d1f964cf5ce2f66942f8f97d952e86e6dc0ad5d4f74becb2",
+    "reference": "local/reference-bakery-jingle-300-v1.bin",
+    "reference_sha256": "67bca2e5d9c86a0be10499a7fb1e0b9c39ad63ede829f66c07c05e6e0eefaa46",
+    "reference_log_sha256": "c01c2743e2f78f0c30a7ce1c049958a9e50f0b0f3ca03c3aa34f55c6fa73b1ef",
+    "native_sha256": "3deffab3bd30eb06bc33a8ae7dafd8b272db345772120f14edd5abac9611a5b4",
+    "ticks": 177,
+    "records": 446,
+    "events": 92,
+    "event_status_counts": {
+      "0x80": 37,
+      "0x90": 37,
+      "0xb0": 5,
+      "0xc0": 1,
+      "0xff": 12
+    },
+    "backward_event_cursor_jumps": 0,
+    "compared_words_per_record": 170,
+    "all_compared_words_exact": true,
+    "excluded": [
+      "RAM pointers",
+      "active voice counts",
+      "slot/track flags and external API fields outside channel records"
+    ]
+  },
+  "parameters": {
+    "scope": "Tone/sample/envelope/volume/pitch parameters for observed active voices; given original note/channel inputs, not a native scheduler or mixer",
+    "bank_sha256": "a2c11debcde59c737fe9217821d4cbaf27f42a83eb4c202c2ea7a97ab654df85",
+    "iop_ram_sha256": "bf4ef68f94b992cd978057085ea91e38784270bf094f35bef93c08e812d7d70b",
+    "reference_trace_sha256": "6b1cc685c3105d4f3589d052ae63784f9e1d016182937dfc7b5c95cb17dfdb44",
+    "fixture_sha256": "bd77cbaeb411d3c8010f3093b290b23c4ea79a19740b6131e7e691ced9cb1a36",
+    "output_sha256": "72548df4c12ac73dac3a150a90906dd406e8c91bbbf4f16d497d854c24b7d411",
+    "cases": [
+      {
+        "program": 2,
+        "tone": 0,
+        "key": 88,
+        "velocity": 111,
+        "voice": 28,
+        "sample_offset": 43504,
+        "adsr1": 33535,
+        "adsr2": 24524,
+        "left": 45,
+        "right": 45,
+        "pitch": 10604
+      },
+      {
+        "program": 2,
+        "tone": 0,
+        "key": 72,
+        "velocity": 99,
+        "voice": 27,
+        "sample_offset": 43504,
+        "adsr1": 33535,
+        "adsr2": 24524,
+        "left": 40,
+        "right": 40,
+        "pitch": 4208
+      },
+      {
+        "program": 2,
+        "tone": 0,
+        "key": 84,
+        "velocity": 118,
+        "voice": 26,
+        "sample_offset": 43504,
+        "adsr1": 33535,
+        "adsr2": 24524,
+        "left": 48,
+        "right": 48,
+        "pitch": 8417
+      },
+      {
+        "program": 2,
+        "tone": 0,
+        "key": 79,
+        "velocity": 111,
+        "voice": 25,
+        "sample_offset": 43504,
+        "adsr1": 33535,
+        "adsr2": 24524,
+        "left": 45,
+        "right": 45,
+        "pitch": 6305
+      },
+      {
+        "program": 2,
+        "tone": 0,
+        "key": 83,
+        "velocity": 95,
+        "voice": 24,
+        "sample_offset": 43504,
+        "adsr1": 33535,
+        "adsr2": 24524,
+        "left": 39,
+        "right": 39,
+        "pitch": 7944
+      },
+      {
+        "program": 2,
+        "tone": 0,
+        "key": 86,
+        "velocity": 99,
+        "voice": 23,
+        "sample_offset": 43504,
+        "adsr1": 33535,
+        "adsr2": 24524,
+        "left": 40,
+        "right": 40,
+        "pitch": 9447
+      },
+      {
+        "program": 2,
+        "tone": 0,
+        "key": 83,
+        "velocity": 107,
+        "voice": 22,
+        "sample_offset": 43504,
+        "adsr1": 33535,
+        "adsr2": 24524,
+        "left": 44,
+        "right": 44,
+        "pitch": 7944
+      },
+      {
+        "program": 2,
+        "tone": 0,
+        "key": 86,
+        "velocity": 99,
+        "voice": 21,
+        "sample_offset": 43504,
+        "adsr1": 33535,
+        "adsr2": 24524,
+        "left": 40,
+        "right": 40,
+        "pitch": 9447
+      }
+    ],
+    "exact": true
+  },
+  "dsp": {
+    "revision": "3143a46e4deffa59832a517915a39d610dcb8564",
+    "source_hashes": {
+      "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
+      "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
+      "defs.h": "c99bb3de5ed27243abdaf18384f2d3cf6ce7578fb01fd2b6616da2d99c418960",
+      "interpolate_table.h": "3c2f96bdb8aee61a6f988ed508d45811ea8f5bd1f8dac8825c59552bbd2c865a"
+    },
+    "cases": [
+      {
+        "tone": 0,
+        "program": 0,
+        "bytes": 64000,
+        "sha256": "089b04d51e6d4448dd135b1121c66fae8bfed79456a4793449ac9b6777cf6170"
+      },
+      {
+        "tone": 1,
+        "program": 0,
+        "bytes": 64000,
+        "sha256": "875cf8e22218f40cdbdf4683a1d97ae4edebbe0cfe1bb92712c377c2d70ad863"
+      },
+      {
+        "tone": 2,
+        "program": 1,
+        "bytes": 64000,
+        "sha256": "98a2186d8345483df385206c21d152a00c3e79b26ba7fe247b8568e13f5188af"
+      },
+      {
+        "tone": 3,
+        "program": 2,
+        "bytes": 64000,
+        "sha256": "7daf67285cefd0a6fd48c39cc6dcaa17a0bd8706b621bf27c1562b01d4929695"
+      },
+      {
+        "tone": 4,
+        "program": 3,
+        "bytes": 64000,
+        "sha256": "c3bbba630cb26639644562366a9ea4e0857c65dbe644440e941fb840ccf4e1d7"
+      }
+    ]
+  },
+  "original_routing": {
+    "cases": 12,
+    "words": 324,
+    "sha256": "f4e1b04a260ae00ad4da049f99f00f9ddcd59f9828c7e988302939985d700355",
+    "command": [
+      "build/play-research/okage-oracle/okage-pose-oracle",
+      "jingle-routing",
+      "local/extracted/SCUS_971.29",
+      "local/research/jingle-routing-original-v1.bin"
+    ],
+    "boundaries": [
+      "0x1708f8 records arguments and returns synthetic handle0x1234",
+      "0x170878 records global gains"
+    ]
+  },
+  "build_reports": {
+    "release": {
+      "path": "local/jingle-validation-release-v1/report.json",
+      "sha256": "12b45922af65151e75859d9f65e334166752cde0b75b71059a18310cc766c422",
+      "native_tool_sha256": "0f365cffc638131591026873f49aa80003ffc0005150b2c8236c3cb6ec5ac87a"
+    },
+    "debug": {
+      "path": "local/jingle-validation-debug-v1/report.json",
+      "sha256": "3fd5040ef27895e651568b6481060d058460d00d89bb06c72a0001fda53323ff",
+      "native_tool_sha256": "39703f59f42564bcb23e2773716ce7f106b5f6b262cfd11f6dff1ef9d95bb603"
+    },
+    "sanitize": {
+      "path": "local/jingle-validation-sanitize-v1/report.json",
+      "sha256": "979fb1513e622462612c251431ba532e640ca0f958445f5b1c0701ed2f4bc797",
+      "native_tool_sha256": "6f63857664fc4c732c8234eb2abe1bd33455321e4de65bf921134b3f68e2f755"
+    }
+  },
+  "retail_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "bakery": {
+    "scope": "Compare bakery event30/message10015, with optional answers, confirmation lock and closure.",
+    "original_run": {
+      "command": [
+        "build/play-research/okage-oracle/okage-boot-oracle",
+        "local/disc/Okage - Shadow King (USA).cue",
+        "480",
+        "local/reference-bakery-startup-180-v1.state.zip",
+        "--load",
+        "--pad",
+        "local/reference-bakery-talk-480-v1.input",
+        "--transition",
+        "local/reference-bakery-talk-480-v1.transition.bin",
+        "--camera",
+        "local/reference-bakery-talk-480-v1.camera.bin",
+        "--controller",
+        "local/reference-bakery-talk-480-v1.controller.bin",
+        "--screen-filter",
+        "local/reference-bakery-talk-480-v1.screen-filter.bin",
+        "--capture",
+        "local/reference-bakery-talk-480-v1",
+        "--save",
+        "local/reference-bakery-talk-480-v1.state.zip",
+        "--deadline-seconds",
+        "480"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 311.9415265,
+      "binary_sha256": "e453c2add0cd78d1de46e04a1f431322482401f75262bcd7bcc49f80891a5234"
+    },
+    "native_run": {
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "14620",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461",
+        "--directions",
+        "local/native-bakery-ending-14620-release-v1.directions",
+        "--capture",
+        "local/native-bakery-ending-14620-release-v1.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "--render-from",
+        "11310"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 62.652254708,
+      "binary_sha256": "4859cae2be7c7575ebad2219db7c505dd8398391d02866e7c227ba4d6f0c1222"
+    },
+    "original_dispatch": 51,
+    "native_dispatch": 13111,
+    "controller_returns": 429,
+    "exact_controller_words": 4290,
+    "manager_entries": 428,
+    "exact_manager_words": 1712,
+    "choice_states": 429,
+    "exact_choice_words": 1716,
+    "observed_confirmations": [
+      51,
+      222,
+      263,
+      304,
+      344,
+      385
+    ],
+    "sha256": {
+      "local/reference-bakery-talk-480-v1.controller.bin": "91e0ab74693adf9b13c53c8f6769f3b46f3754eb1830c6711e4a5e2c0abf16bc",
+      "local/reference-bakery-talk-480-v1.controller.bin.choices.bin": "a5b0edf0b7140f408430bc2461eeaf1a28612826338d19461de58e5e5daf6f41",
+      "local/reference-bakery-talk-480-v1.transition.bin": "2e830f2060958de836c927a229c17489b28a9b5c14ed47a7106519e6c427c649",
+      "local/native-bakery-ending-14620-release-v1.png.interaction.bin": "0343fc8b7a43db733aa89d48533795493767bcdaafb458e9f47635bf8aef65dc",
+      "local/native-bakery-ending-14620-release-v1.png.dialogue.bin": "8853dfb115d86113b07d8d264646af1a8fb7d48a24a1c66f6e9ff8e07687b35a",
+      "local/native-bakery-ending-14620-release-v1.png.choices.bin": "a3f9343efa7fd84941989cf3ac684cdac0fcc62615c2f77980ecbff2a70e875b",
+      "local/reference-bakery-answer-600-v1.controller.bin": "142855d5a13f43cdfbffce9de69ee1e474440eda533924f044a9dac729975f9b",
+      "local/reference-bakery-answer-600-v1.controller.bin.choices.bin": "f8d7ebb85a59194b87da8ed0a239e560011086a5fecef567e88f6894ae708d8d",
+      "local/reference-bakery-answer-600-v1.transition.bin": "f7785bcd0e3b2a720e330750b187e34c32a76885f59ecda58d588b4f6090f52b",
+      "local/reference-bakery-lock-300-v1.controller.bin": "16cabbacdb0742cfa475f85e7218a3f33b084d96afa8ed58da776cd050a57d48",
+      "local/reference-bakery-lock-300-v1.transition.bin": "082949995376e41d1351d7decebe6e6a8947e348cb0c20dbc604f63530e4c57b",
+      "local/reference-bakery-ending-180-v1.controller.bin": "a24d32aeca51e6b9a0babc1150dfc51f4778bdb405f74c62469e71aceff8a2ae",
+      "local/reference-bakery-ending-180-v1.transition.bin": "11847e6b88f621d39ff5f4e4ba6cf4649cb739eff475f7172c248897443f79a4"
+    },
+    "answers": {
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-boot-oracle",
+          "local/disc/Okage - Shadow King (USA).cue",
+          "600",
+          "local/reference-bakery-talk-480-v1.state.zip",
+          "--load",
+          "--pad",
+          "local/reference-bakery-answer-600-v1.input",
+          "--transition",
+          "local/reference-bakery-answer-600-v1.transition.bin",
+          "--camera",
+          "local/reference-bakery-answer-600-v1.camera.bin",
+          "--controller",
+          "local/reference-bakery-answer-600-v1.controller.bin",
+          "--screen-filter",
+          "local/reference-bakery-answer-600-v1.screen-filter.bin",
+          "--capture",
+          "local/reference-bakery-answer-600-v1",
+          "--save",
+          "local/reference-bakery-answer-600-v1.state.zip",
+          "--deadline-seconds",
+          "600"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 409.452556666,
+        "binary_sha256": "e453c2add0cd78d1de46e04a1f431322482401f75262bcd7bcc49f80891a5234"
+      },
+      "controller_returns": 600,
+      "exact_controller_words": 6000,
+      "manager_entries": 600,
+      "exact_manager_words": 2400,
+      "choice_states": 600,
+      "exact_choice_words": 2400,
+      "accepted_answers": [
+        [
+          13561,
+          0
+        ],
+        [
+          13841,
+          0
+        ]
+      ],
+      "observed_confirmations": [
+        21,
+        62,
+        103,
+        144,
+        185,
+        226,
+        301,
+        342,
+        383,
+        424,
+        465,
+        506,
+        548,
+        589
+      ]
+    },
+    "lock": {
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-boot-oracle",
+          "local/disc/Okage - Shadow King (USA).cue",
+          "300",
+          "local/reference-bakery-answer-600-v1.state.zip",
+          "--load",
+          "--pad",
+          "local/reference-bakery-lock-300-v1.input",
+          "--transition",
+          "local/reference-bakery-lock-300-v1.transition.bin",
+          "--camera",
+          "local/reference-bakery-lock-300-v1.camera.bin",
+          "--controller",
+          "local/reference-bakery-lock-300-v1.controller.bin",
+          "--screen-filter",
+          "local/reference-bakery-lock-300-v1.screen-filter.bin",
+          "--capture",
+          "local/reference-bakery-lock-300-v1",
+          "--save",
+          "local/reference-bakery-lock-300-v1.state.zip",
+          "--deadline-seconds",
+          "480"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 204.667382625,
+        "binary_sha256": "e453c2add0cd78d1de46e04a1f431322482401f75262bcd7bcc49f80891a5234"
+      },
+      "controller_returns": 300,
+      "exact_controller_words": 3000,
+      "manager_entries": 300,
+      "exact_manager_words": 1200,
+      "native_disable_frame": 14175,
+      "original_disable_frame": 35,
+      "original_enable_frame": 287,
+      "native_enable_frame": 14427,
+      "limit": "Controller and manager state only; no audio equivalence"
+    },
+    "ending": {
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-boot-oracle",
+          "local/disc/Okage - Shadow King (USA).cue",
+          "180",
+          "local/reference-bakery-lock-300-v1.state.zip",
+          "--load",
+          "--pad",
+          "local/reference-bakery-ending-180-v1.input",
+          "--transition",
+          "local/reference-bakery-ending-180-v1.transition.bin",
+          "--camera",
+          "local/reference-bakery-ending-180-v1.camera.bin",
+          "--controller",
+          "local/reference-bakery-ending-180-v1.controller.bin",
+          "--screen-filter",
+          "local/reference-bakery-ending-180-v1.screen-filter.bin",
+          "--capture",
+          "local/reference-bakery-ending-180-v1",
+          "--save",
+          "local/reference-bakery-ending-180-v1.state.zip",
+          "--deadline-seconds",
+          "480"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 99.234689291,
+        "binary_sha256": "f4308d18ed82540ca1251de144eace72e99e186a45da49baccb04254450bad6d"
+      },
+      "controller_returns": 61,
+      "exact_controller_words": 610,
+      "manager_entries": 180,
+      "exact_manager_words": 720,
+      "native_confirm": 14461,
+      "native_event_end": 14503,
+      "native_control_return": 14504
+    }
+  },
+  "next_failed_run": {
+    "command": [
+      "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+      "local/font-input/CMNDATA/FONT",
+      "local/text-input/FLDDATA/MES/FIELD.PME",
+      "--scene",
+      "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+      "--event",
+      "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+      "--actor",
+      "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+      "--actor-bind",
+      "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+      "--actor-bind",
+      "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+      "--frames",
+      "14920",
+      "--press",
+      "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671",
+      "--directions",
+      "local/native-bakery-exit-14920-release-v1.directions",
+      "--capture",
+      "local/native-bakery-exit-14920-release-v1.png",
+      "--music-dry",
+      "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+      "--music-bank",
+      "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+      "--sound-dir",
+      "local/audio-input/SNDDATA/SE",
+      "--effect-data",
+      "local/effect-input/CMNDATA/2D/TES.EFD",
+      "--effect-textures",
+      "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+      "--render-from",
+      "11310"
+    ],
+    "exit_code": 1,
+    "elapsed_seconds": 62.937945041999996,
+    "binary_sha256": "4859cae2be7c7575ebad2219db7c505dd8398391d02866e7c227ba4d6f0c1222",
+    "guard": "Event string service not yet recovered",
+    "limit": "14920 is requested extent, not achieved extent; destination scene/PC still need contextual diagnosis"
+  },
+  "progression_byte": {
+    "offset": "0x471",
+    "bank": 3,
+    "index": 97,
+    "native": 1,
+    "original": 1,
+    "scope": "One byte only; does not establish inventory meaning or persistent save behavior",
+    "original_snapshot": {
+      "state_sha256": "61cab531db8f40cd636c06d04d6f0541db44e03e2b49ee02524ff497e72f52f3",
+      "ram_sha256": "ebac83029b115e0a0f202b6a7d7e32759820b1754bcc0443b5864944e0320dc0",
+      "pointer": "0x5c1650",
+      "variables_sha256": "1daecb9d26c6ec072a75568538e10c3bd7454ca2e37b10835e08ff6078e174c0",
+      "byte_0x471": 1,
+      "scope": "Research-only original snapshot; no native runtime input or inventory semantics claim"
+    }
+  }
+}

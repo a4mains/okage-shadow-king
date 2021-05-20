@@ -105,6 +105,8 @@ struct Session {
                                       bank.stem()==okage::music_resource_names(candidate).primary_bank)id=candidate;
         const auto alternate=id==26?music_directory/"SNT_DNM2.XSQ":fs::path{};
         music->install(0,id,read_music_resource(sequence,bank,alternate));music->select(id);
+        for(int jingle:{20,21,22,23,33,34})
+            music->install_jingle(*okage::music_jingle_index(jingle),read_music_resource(jingle));
         record_audio=record;sound_directory=sounds;
         if(!sound_directory.empty())sound_banks.emplace(0,std::make_unique<okage::StreamPlayer>(
             okage::read_stream_bank(readData(sound_directory/"ALL.XWS"))));

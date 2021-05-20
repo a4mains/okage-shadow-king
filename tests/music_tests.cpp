@@ -116,5 +116,33 @@ int main(){try{
     for(int id:{20,23,25,27,30,32,33,34})rejects([&]{router.select(id);});
     rejects([&]{router.install(2,10,loader(10));});rejects([&]{okage::music_resource_names(52);});
     auto malformed=loader(26);malformed.alternate={1};rejects([&]{router.install(1,26,std::move(malformed));});
+    {
+        okage::MusicRouter mixed;
+        mixed.install(0,10,{score,bank(),{}, {}});
+        mixed.install_jingle(2,{score,bank(),{}, {}});
+        mixed.select(10);mixed.render(frame);
+        const auto main_ticks=mixed.player()->driver_ticks();
+        mixed.select(22);
+        require(mixed.current_id()==10&&mixed.active_slot()==0&&mixed.active_jingles()==1&&
+                mixed.player()->driver_ticks()==main_ticks,"Jingle replaced or restarted ordinary music");
+        mixed.render(frame);mixed.stop();
+        require(mixed.active_jingles()==1&&mixed.current_id()==-1,"Ordinary stop removed the jingle");
+        mixed.render(frame);
+        require(std::any_of(frame.begin(),frame.end(),[](auto v){return v!=0;}),"Ordinary stop silenced jingle voices");
+        mixed.select(22);require(mixed.active_jingles()==2,"Repeated jingle did not create separate playback");
+        for(unsigned i=0;i<30;++i)mixed.render(frame);
+        require(!mixed.active_jingles()&&std::all_of(frame.begin(),frame.end(),[](auto v){return v==0;}),
+                "Finished jingle retained a playback or audible tail");
+    }
+    {
+        auto pool=okage::DryMusicPlayer::make_pool();
+        std::vector<std::unique_ptr<okage::DryMusicPlayer>> tracks;
+        for(unsigned i=0;i<49;++i)tracks.push_back(std::make_unique<okage::DryMusicPlayer>(score,bank(),std::nullopt,pool));
+        okage::DryMusicPlayer::render_pool(*pool,frame,[&]{for(auto& track:tracks)track->driver_tick();});
+        require(tracks.back()->stolen_voices()==1,"Sequences did not share the48-voice allocation limit");
+        tracks.erase(tracks.begin()); // Its only voice was already stolen.
+        okage::DryMusicPlayer::render_pool(*pool,frame,[&]{for(auto& track:tracks)track->driver_tick();});
+        require(std::any_of(frame.begin(),frame.end(),[](auto v){return v!=0;}),"Retiring a stolen owner damaged other voices");
+    }
     std::cout<<"Music streaming/chunking, release, routing, malformed input and fade regressions passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify opening bank note parameters from an actual completed original snapshot."""
+"""Verify pinned music bank note parameters from a completed original snapshot."""
 import argparse
 import hashlib
 import json
@@ -35,15 +35,21 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--native', type=Path, default=Path('build/native/okage-assets'))
     p.add_argument('--output', type=Path, default=Path('local/music-bank-validation'))
+    p.add_argument('--bank', type=Path, default=Path('local/audio-input/SNDDATA/BGM/EVS_MSH0.XV'))
+    p.add_argument('--reference', type=Path, default=Path('local/reference-music-600-v4'))
     args = p.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
-    bank_path = Path('local/audio-input/SNDDATA/BGM/EVS_MSH0.XV')
+    bank_path = args.bank
     bank = bank_path.read_bytes()
-    if sha(bank) != '1c0428b3fcaba0f822da47ff6374ac0bd1e5d90cec1bd2f3dadc567cd95c3654':
+    if sha(bank) not in ('1c0428b3fcaba0f822da47ff6374ac0bd1e5d90cec1bd2f3dadc567cd95c3654',
+                         'a2c11debcde59c737fe9217821d4cbaf27f42a83eb4c202c2ea7a97ab654df85'):
         raise RuntimeError('Bank hash mismatch')
-    ref = Path('local/reference-music-600-v4')
-    if 'Stopped: vblanks=600 exit_request=0' not in ref.with_suffix('.log').read_text():
+    ref = args.reference
+    if 'Stopped: vblanks=' not in ref.with_suffix('.log').read_text() or 'exit_request=0' not in ref.with_suffix('.log').read_text():
         raise RuntimeError('Incomplete original run')
+    manifest=ref.with_suffix('.run.json')
+    if manifest.exists() and json.loads(manifest.read_text())['exit_code'] != 0:
+        raise RuntimeError('Failed original process')
     ram = iop_ram(ref.with_suffix('.state.zip'))
     irx = Path('local/extracted/MODULES/RXSNDDRV.IRX').read_bytes()
     if sha(irx) != '7fe8b5a33c2f8700d1f964cf5ce2f66942f8f97d952e86e6dc0ad5d4f74becb2':

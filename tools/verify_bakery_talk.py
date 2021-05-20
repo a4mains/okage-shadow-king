@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Compare bakery event30/message10015, with optional answers and confirmation lock.
+"""Compare bakery event30/message10015, with optional answers, confirmation lock and closure.
 
 Uses observed event dispatch and pad polling. Does not establish bakery camera,
-rendering, audio, jingle playback or conversation completion.
+rendering, audio fidelity or inventory persistence.
 """
 import argparse
 import json
@@ -24,7 +24,11 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--answer', action='store_true', help='Compare both first answers and their following dialogue')
     parser.add_argument('--lock', action='store_true', help='Compare confirmation disabling through the tick before the jingle')
+    parser.add_argument('--reenable', action='store_true', help='Compare all 300 lock/re-enable observations')
+    parser.add_argument('--ending', action='store_true', help='Compare the final confirmation and return of movement control')
     args = parser.parse_args()
+    require(not args.reenable or args.lock, 'Re-enable comparison requires --lock')
+    require(not args.ending or args.reenable, 'Ending comparison requires --reenable')
     require(digest(Path('local/extracted/SCUS_971.29')) == ELF_HASH, 'Different retail ELF')
     prefix = 'local/reference-bakery-talk-480-v1'
     original = lambda suffix: Path(prefix + suffix)
@@ -118,27 +122,59 @@ def main():
             report['sha256'][str(paths(suffix))] = sha
         run = json.loads(paths('.run.json').read_text())
         require(run['exit_code'] == 0, 'Incomplete original lock capture')
+        extent = 300 if args.reenable else 106
+        require(total >= 14139 + extent, 'Incomplete lock interval')
         controller = rows(paths('.controller.bin').read_bytes(), 64)
-        interval = [r for r in controller if r[0] < 106]
+        interval = [r for r in controller if r[0] < extent]
         data = b''.join(struct.pack('<64I', *r) for r in interval)
         count = compare_controller(data, native('.dialogue.bin').read_bytes(), first_original=0,
-            first_native=14140, frames=106, total=total, message_id=10015)
+            first_native=14140, frames=extent, total=total, message_id=10015)
         for r in interval[1::2]:
             require(live[14139+r[0]][1] == r[9], 'Lock input differs')
         flags = [(r[0],r[17]) for i,r in enumerate(controller[1::2])
                  if not i or r[17] != controller[2*i-1][17]]
         require(flags == [(0,0x70),(35,0x60),(287,0x70)], 'Original confirmation-toggle boundaries differ')
         managers = [r for r in rows(paths('.transition.bin').read_bytes(), 128)
-                    if r[1] == 0x133a98 and r[0] < 106]
-        require([r[0] for r in managers] == list(range(106)), 'Lock manager extent')
+                    if r[1] == 0x133a98 and r[0] < extent]
+        require([r[0] for r in managers] == list(range(extent)), 'Lock manager extent')
         for r in managers:
             n = live[14138+r[0]]
             require((n[4], n[7], n[5], n[6]) ==
                     (int(bool(r[35]&256)), r[36], r[48], r[118]), 'Lock manager differs')
-        report['lock'] = dict(original_run=run, controller_returns=106, exact_controller_words=count,
-            manager_entries=106, exact_manager_words=424, native_disable_frame=14175,
+        report['lock'] = dict(original_run=run, controller_returns=extent, exact_controller_words=count,
+            manager_entries=extent, exact_manager_words=4*extent, native_disable_frame=14175,
             original_disable_frame=35, original_enable_frame=287,
-            limit='Native re-enable not yet reached; jingle remains unimplemented')
+            native_enable_frame=14427 if args.reenable else None,
+            limit='Controller and manager state only; no audio equivalence')
+    if args.ending:
+        prefix = 'local/reference-bakery-ending-180-v1'
+        paths = lambda suffix: Path(prefix+suffix)
+        for suffix, sha in {
+            '.controller.bin': 'a24d32aeca51e6b9a0babc1150dfc51f4778bdb405f74c62469e71aceff8a2ae',
+            '.transition.bin': '11847e6b88f621d39ff5f4e4ba6cf4649cb739eff475f7172c248897443f79a4',
+        }.items():
+            require(digest(paths(suffix)) == sha, 'Changed original ending corpus')
+            report['sha256'][str(paths(suffix))] = sha
+        run = json.loads(paths('.run.json').read_text())
+        require(run['exit_code'] == 0 and total >= 14619, 'Incomplete ending comparison')
+        count = compare_controller(paths('.controller.bin').read_bytes(), native('.dialogue.bin').read_bytes(),
+            first_original=0, first_native=14440, frames=61, total=total, message_id=10015)
+        controllers = rows(paths('.controller.bin').read_bytes(), 64)[1::2]
+        require([r[0] for r in controllers] == list(range(61)), 'Ending controller extent')
+        for r in controllers:
+            require(live[14439+r[0]][1] == r[9], 'Ending input differs')
+        require([r[0] for r in controllers if r[9]] == [21], 'Ending confirmation differs')
+        managers = [r for r in rows(paths('.transition.bin').read_bytes(), 128) if r[1] == 0x133a98]
+        require([r[0] for r in managers] == list(range(180)), 'Ending manager extent')
+        for r in managers:
+            n = live[14438+r[0]]
+            require((n[4], n[7], n[5], n[6]) ==
+                    (int(bool(r[35]&256)), r[36], r[48], r[118]), 'Ending manager differs at '+str(r[0]))
+        require(live[14501][4] == 1 and live[14502][4] == 0, 'Event closure differs')
+        require(live[14502][5] != 0 and live[14503][5] == 0, 'Movement return differs')
+        report['ending'] = dict(original_run=run, controller_returns=61, exact_controller_words=count,
+            manager_entries=180, exact_manager_words=720, native_confirm=14461,
+            native_event_end=14503, native_control_return=14504)
     write_exact(args.output, (json.dumps(report, indent=2)+'\n').encode())
     print('Bakery opening exact; answers compared:',args.answer,'; confirmation lock compared:',args.lock)
 

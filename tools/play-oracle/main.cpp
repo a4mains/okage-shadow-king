@@ -560,6 +560,29 @@ public:
         for(auto index:{0xffffffffu,count}){call(0x174f28,{0,index});result.push_back(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);}
         writeFile(output,result.data(),result.size()*4);
     }
+    void jingleRouting(const char* output) {
+        constexpr uint32 record=0xa00000;
+        const std::array<uint32,8> startCode={0x3c1a00a0,0xaf440000,0xaf450004,0xaf460008,
+            0xaf47000c,0x24021234,0x03e00008,0};
+        const std::array<uint32,5> gainCode={0x3c1a00a0,0xaf440010,0xaf450014,0x03e00008,0};
+        std::memcpy(ee->m_ram+0x1708f8,startCode.data(),sizeof(startCode));
+        std::memcpy(ee->m_ram+0x170878,gainCode.data(),sizeof(gainCode));
+        std::vector<uint32> result;
+        for(uint32 current:{0xffffffffu,10u})for(uint32 id:{20u,21u,22u,23u,33u,34u}) {
+            std::memset(ee->m_ram+record,0xff,24);
+            for(unsigned i=0;i<6;++i){put(0x2d9ae0+i*4,0x100+i);put(0x2d9af8+i*4,0x200+i);}
+            put(0x2d9ab4,current);put(0x2d9abc,1);put(0x2d9ab8,0x8765);
+            put(0x2d9ac8,0x123000);put(0x2d9acc,0x456000);put(0x2d9ad0,0x2000);put(0x2d9a00,1);
+            call(0x12d580,{id,0,17});
+            result.insert(result.end(),{id,current});
+            for(unsigned i=0;i<6;++i)result.push_back(get(record+i*4));
+            for(uint32 address:{0x2d9ab4u,0x2d9abcu,0x2d9ab8u,0x2d9ac8u,0x2d9accu,0x2d9ad0u,0x2d9a00u})
+                result.push_back(get(address));
+            for(unsigned i=0;i<6;++i)result.push_back(get(0x2d9af8+i*4));
+            for(unsigned i=0;i<6;++i)result.push_back(get(0x2d9ae0+i*4));
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
     void musicChannels(const std::vector<uint8>& input,const char* output) {
         if(input.empty()||input.size()%16||input.size()>16*512)throw std::runtime_error("Music channel fixture bounds");
         for(auto address:{0x1c7910u,0x16ddc0u,0x174900u,0x1709d8u}){put(address,0x03e00008);put(address+4,0);}
@@ -1468,6 +1491,8 @@ int main(int argc,char** argv) {
             reference.cameraLookAt(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="stream-bank" && argc==5) {
             reference.streamBank(readFile(argv[3]),argv[4]);
+        } else if(command=="jingle-routing" && argc==4) {
+            reference.jingleRouting(argv[3]);
         } else if(command=="music-channels" && argc==5) {
             reference.musicChannels(readFile(argv[3]),argv[4]);
         } else if(command=="music-fade" && argc==5) {

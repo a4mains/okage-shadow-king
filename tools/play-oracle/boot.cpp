@@ -63,7 +63,7 @@ int main(int argc,char** argv) {
     try {
         if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--screen-filter FILE] [--movement FILE] [--interaction FILE] [--interaction-wide FILE] [--transition FILE] [--dust FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--lifecycle FILE] [--order FILE] [--music FILE] [--deadline-seconds 1..7200]");
         unsigned deadlineSeconds=0;
-        int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false,musicField=false,interactionWide=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,music,movement,interaction,transition,npc,dust,screenFilter;
+        int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false,musicField=false,musicJingle=false,interactionWide=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,music,movement,interaction,transition,npc,dust,screenFilter;
         for (int i=3;i<argc;++i) {
             const std::string arg=argv[i];
             if (arg=="--load") load=true;
@@ -84,6 +84,7 @@ int main(int argc,char** argv) {
             else if (arg=="--order" && i+1<argc) order=argv[++i];
             else if (arg=="--music" && i+1<argc) music=argv[++i];
             else if (arg=="--music-field") musicField=true;
+            else if (arg=="--music-jingle") musicJingle=true;
             else if (arg=="--screen-filter" && i+1<argc) screenFilter=argv[++i];
             else if (arg=="--camera" && i+1<argc) camera=argv[++i];
             else if (arg=="--controller" && i+1<argc) controller=argv[++i];
@@ -105,6 +106,7 @@ int main(int argc,char** argv) {
         if (load && state.empty()) throw std::runtime_error("--load requires a state path");
         if(!music.empty() && !load)throw std::runtime_error("Music tracing requires a state with RXSNDDRV already loaded");
         if(musicField&&music.empty())throw std::runtime_error("--music-field requires --music");
+        if(musicJingle&&(music.empty()||musicField))throw std::runtime_error("--music-jingle requires --music and excludes --music-field");
         if (!load && !state.empty()) {
             if (!saveState.empty()) throw std::runtime_error("Duplicate state output");
             saveState=state;
@@ -174,7 +176,7 @@ int main(int argc,char** argv) {
             if (!vm.LoadState(state).get()) throw std::runtime_error("Could not load reference state");
             std::cout<<"Loaded reference state "<<state<<std::endl;
         }
-        auto musicTrace=music.empty() ? nullptr : std::make_unique<MusicTrace>(music,*vm.m_iop,musicField);
+        auto musicTrace=music.empty() ? nullptr : std::make_unique<MusicTrace>(music,*vm.m_iop,musicJingle?2:unsigned(musicField));
         if(musicTrace)for(auto at:MusicTrace::offsets)vm.m_iop->m_cpu.ToggleBreakpoint(musicTrace->base+at);
         std::vector<uint32> loaders;
         if(traceLoaders)loaders={0x1bccf0,0x1babf8,0x1c2e68};
