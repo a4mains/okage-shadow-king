@@ -155,6 +155,16 @@ void SceneFade::request(float value) {
     if(!std::isfinite(value)||value<0||value>1)throw std::runtime_error("Scene fade range");
     enabled=true;hold=value!=1;target=value;
 }
+void SceneFade::script_request(unsigned percent,int color_mode) {
+    if(percent>100)throw std::runtime_error("Unrecovered event fade percentage");
+    const auto rounding=std::fegetround();
+    if(std::fesetround(FE_TOWARDZERO))throw std::runtime_error("Unable to set event fade rounding");
+    const float target=float(percent)*.01f;
+    std::fesetround(rounding);
+    request(target);
+    if(color_mode==0)color=0;
+    else if(color_mode==1)color=0xffffff;
+}
 void SceneFade::tick() {
     if(!enabled)return;
     const auto rounding=std::fegetround();

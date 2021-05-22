@@ -560,6 +560,24 @@ public:
         for(auto index:{0xffffffffu,count}){call(0x174f28,{0,index});result.push_back(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);}
         writeFile(output,result.data(),result.size()*4);
     }
+    void sceneFade(const std::vector<uint8>& input,const char* output) {
+        if(input.empty()||input.size()%16)throw std::runtime_error("Scene fade fixture extent");
+        put(0x18fb68,0x03e00008);put(0x18fb6c,0);
+        const std::array<uint32,4> rgba={0x3c1a00a0,0xaf460000,0x03e00008,0};
+        std::memcpy(ee->m_ram+0x18fc10,rgba.data(),sizeof(rgba));
+        std::vector<uint32> result;
+        for(std::size_t at=0;at<input.size();at+=16) {
+            std::array<uint32,4> r{};std::memcpy(r.data(),input.data()+at,16);
+            if(r[0]>100||r[2]>0xffffff)throw std::runtime_error("Scene fade fixture range");
+            put(0x24eaac,1);put(0x24eaa4,0);put(0x24eaa8,0);put(0x24eab0,r[3]);
+            put(0x24eab4,0);put(0x24eabc,r[2]);put(0xa00000,0xdeadbeef);
+            call(0x130fb8,{0,r[0],r[1],0x900800});
+            if(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0!=0x900800)throw std::runtime_error("Scene fade consumed payload");
+            for(uint32 address:{0x24eaa4u,0x24eaa8u,0x24eab0u,0x24eab4u,0x24eabcu,0xa00000u})
+                result.push_back(get(address));
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
     void jingleRouting(const char* output) {
         constexpr uint32 record=0xa00000;
         const std::array<uint32,8> startCode={0x3c1a00a0,0xaf440000,0xaf450004,0xaf460008,
@@ -1493,6 +1511,8 @@ int main(int argc,char** argv) {
             reference.cameraLookAt(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="stream-bank" && argc==5) {
             reference.streamBank(readFile(argv[3]),argv[4]);
+        } else if(command=="scene-fade" && argc==5) {
+            reference.sceneFade(readFile(argv[3]),argv[4]);
         } else if(command=="jingle-routing" && argc==4) {
             reference.jingleRouting(argv[3]);
         } else if(command=="music-channels" && argc==5) {

@@ -73,6 +73,7 @@ public:
     std::function<bool(std::int32_t,bool)> music_service;
     std::function<bool(int,unsigned,unsigned)> music_channels;
     std::function<void(bool)> dialogue_input;
+    std::function<void(unsigned,int)> scene_fade;
     std::function<bool(unsigned,std::int32_t,float,unsigned)> sound_cue;
     std::function<void(unsigned,unsigned,std::int32_t)> set_variable;
     std::function<std::int32_t(std::uint32_t)> get_variable;

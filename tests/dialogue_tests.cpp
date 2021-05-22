@@ -142,5 +142,10 @@ int main() {try {
     require(fade.current==1 && fade.enabled && fade.alpha()==1);
     fade.tick();require(!fade.enabled && fade.alpha()==0);
     rejects([&]{fade.request(2);});
+    fade.current=.5f;fade.color=0x123456;fade.script_request(0,0);
+    require(fade.target==0&&fade.color==0&&fade.enabled&&fade.hold);
+    fade.script_request(50,1);require(fade.color==0xffffff&&fade.target>.49f&&fade.target<=.5f);
+    fade.script_request(0,-1);require(fade.color==0xffffff);
+    rejects([&]{fade.script_request(101,0);});require(fade.color==0xffffff&&fade.target==0);
     std::cout<<"Dialogue input, pause/print/end transitions and opacity passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

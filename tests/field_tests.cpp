@@ -79,6 +79,14 @@ int main(){try {
         input.tick();require(calls==1&&input.pc()==0xbe8&&input.pending_opcode==0x36);
         input.tick();require(calls==1);
     }
+    for(int mode:{-1,0,1,2}) {
+        word(0xbe4,(std::uint32_t(mode)<<20)|(50u<<8)|0x4f);word(0xbe8,0xff800236);
+        okage::OpeningField fading(b,[](int){},[](int){return true;});
+        for(unsigned i=0;i<180;++i)fading.tick();
+        require(fading.pc()==0xbe4&&fading.pending_opcode==0x4f);
+        unsigned calls=0;fading.scene_fade=[&](unsigned percent,int color){require(percent==50&&color==mode);++calls;};
+        fading.tick();require(calls==1&&fading.pc()==0xbe8&&fading.pending_opcode==0x36);
+    }
     // A selector whose low byte is a valid group opcode must be consumed as
     // data. Keep this write pending until storage is bound, then resume it.
     word(0xbe4,0x100047);word(0xbe8,0x10007);word(0xbec,0xff800236);

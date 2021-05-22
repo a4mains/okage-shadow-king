@@ -19,8 +19,10 @@ def main():
     p.add_argument('--output',type=Path,required=True)
     p.add_argument('--dialogue',action='store_true')
     p.add_argument('--answer',action='store_true')
+    p.add_argument('--narration',action='store_true')
     a=p.parse_args()
     require(not a.answer or a.dialogue,'Answer comparison requires --dialogue')
+    require(not a.narration or a.answer,'Narration comparison requires --answer')
     require(digest(Path('local/extracted/SCUS_971.29'))==ELF_HASH,'Different ELF')
     prefix='local/reference-bakery-exit-300-v1'
     run=json.loads(Path(prefix+'.run.json').read_text())
@@ -149,6 +151,37 @@ def main():
                               narration=dict(message=10202,original_frame=471,native_frame=15697,
                                              controller_returns=9,exact_controller_words=words,
                                              limit='Independent message-opening alignment; native starts six frames earlier'))
+    if a.narration:
+        prefix='local/reference-village-return-narration-540-v1'
+        reference_run=json.loads(Path(prefix+'.run.json').read_text())
+        require(reference_run['exit_code']==0 and len(manager)>=16300,'Incomplete narration comparison')
+        for suffix,sha in {
+            '.controller.bin':'40b31bfd69671fcce7bc5d603d7abfb8d23b8e886d980f49cf1ba7515d2c3216',
+            '.transition.bin':'1c06e8cb22c1ae707c34f1abac7315ce63b43adfd08125f48e62150a8033d07c',
+            '.camera.bin':'9307531db9bf729abbcb885c52da360b6f8f6c60633c4e83fc45710bed2eebd3',
+        }.items():
+            f=Path(prefix+suffix);require(digest(f)==sha,'Changed original narration corpus')
+            report['sha256'][str(f)]=sha
+        count=compare_controller(Path(prefix+'.controller.bin').read_bytes(),native('.dialogue.bin').read_bytes(),
+                                 first_original=0,first_native=15706,frames=518,total=len(manager),message_id=10202)
+        managers=[r for r in rows(Path(prefix+'.transition.bin').read_bytes(),128) if r[1]==0x133a98 and r[0]<=520]
+        require([r[0] for r in managers]==list(range(521)),'Narration manager extent')
+        for r in managers:
+            n=manager[15704+r[0]]
+            require((n[4],n[7],n[5],n[6])==(int(bool(r[35]&256)),r[36],r[48],r[118]),'Narration manager differs')
+        cameras=[r for r in rows(Path(prefix+'.camera.bin').read_bytes(),32) if r[0]<=519]
+        require([r[0] for r in cameras]==list(range(520)),'Narration camera extent')
+        for r in cameras:
+            require(camera[15705+r[0]][4:16]==r[4:8]+r[12:16]+r[8:12],'Narration camera differs')
+        for r in managers[:518]:
+            require(actors[15710+r[0]][8:16]==r[40:48],'Pre-load-aligned HERO differs')
+        mismatches=sum(actors[15704+r[0]][8:16]!=r[40:48] for r in managers)
+        require(mismatches==521,'Changed narration-relative actor phase difference')
+        report['narration_continuation']=dict(original_run=reference_run,controller_returns=518,
+            exact_controller_words=count,message_aligned_manager_samples=521,exact_manager_words=2084,
+            camera_updates=520,exact_camera_words=6240,pre_load_aligned_hero_samples=518,exact_hero_words=4144,
+            message_aligned_hero_mismatches=521,
+            limit='Six-frame loading gap changes actor phase relative to narration; two stated anchors do not establish integrated timing equality')
     write_exact(a.output,(json.dumps(report,indent=2)+'\n').encode())
     print('Village return entry exact; dialogue compared:',a.dialogue)
 

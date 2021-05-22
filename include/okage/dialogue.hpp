@@ -35,7 +35,9 @@ struct DialogueController {
 struct SceneFade {
     float current=0,target=0,step=.02f;
     bool enabled=false,hold=false;
+    std::uint32_t color=0;
     void request(float);
+    void script_request(unsigned percent,int color_mode);
     void tick();
     unsigned alpha() const;
 };

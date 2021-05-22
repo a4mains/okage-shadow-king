@@ -1,0 +1,638 @@
+{
+  "scope": "Compare event0x4f color/target/hold/alpha state against original EE execution.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "cases": 72,
+  "exact_words": 432,
+  "fixture_sha256": "0eaf33da36c41c6c67cbeecb9b4ad75bd16728089916a35a0c94231ffe1ac04a",
+  "original_sha256": "2ad14d5f02cbeea8dc04d33286a3793e74e638459292947f2206b81b21e3a9a7",
+  "native_sha256": "9f24e6aa5e5d076c599336585d7699fbf73b795f7de6d38b06e1e17202df86b2",
+  "oracle_sha256": "0151f2ea2c8c2607c9a4e5da78f74f03c14ba0bc313c9a58c95b0e650c42631c",
+  "original_command": [
+    "build/play-research/okage-oracle/okage-pose-oracle",
+    "scene-fade",
+    "local/extracted/SCUS_971.29",
+    "local/event-fade-release-v1/cases.bin",
+    "local/event-fade-release-v1/original.bin"
+  ],
+  "native_command": [
+    "build/native-release/okage-assets",
+    "scene-fade",
+    "local/event-fade-integrated-v2/cases.bin",
+    "local/event-fade-integrated-v2/native.bin"
+  ],
+  "original_exit_code": 0,
+  "boundaries": [
+    "0x18fb68 overlay enable no-op",
+    "0x18fc10 records RGBA"
+  ],
+  "integration": {
+    "original_run": {
+      "command": [
+        "build/play-research/okage-oracle/okage-boot-oracle",
+        "local/disc/Okage - Shadow King (USA).cue",
+        "600",
+        "local/reference-village-return-narration-540-v1.state.zip",
+        "--load",
+        "--pad",
+        "local/reference-next-night-600-v1.input",
+        "--transition",
+        "local/reference-next-night-600-v1.transition.bin",
+        "--camera",
+        "local/reference-next-night-600-v1.camera.bin",
+        "--controller",
+        "local/reference-next-night-600-v1.controller.bin",
+        "--screen-filter",
+        "local/reference-next-night-600-v1.screen-filter.bin",
+        "--capture",
+        "local/reference-next-night-600-v1",
+        "--save",
+        "local/reference-next-night-600-v1.state.zip",
+        "--deadline-seconds",
+        "1200"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 256.20776095800005,
+      "binary_sha256": "f4308d18ed82540ca1251de144eace72e99e186a45da49baccb04254450bad6d"
+    },
+    "native_run": {
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "17000",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622",
+        "--directions",
+        "local/native-next-night-17000-release-v2.directions",
+        "--capture",
+        "local/native-next-night-17000-release-v2.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "--render-from",
+        "11310"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 128.969867791,
+      "binary_sha256": "c948ea3bb20638a5772c3bd2af37c2d8e8ff92c461434d61e643c1ad3d63b076"
+    },
+    "original_dispatch": 297,
+    "native_dispatch": 16229,
+    "manager_samples": 302,
+    "exact_manager_words": 1208,
+    "first_camera_updates_exact": 60,
+    "first_camera_words_exact": 720,
+    "later_camera_target_differing_words": 714,
+    "first_differences": [
+      {
+        "original_frame": 357,
+        "native_frame": 16289,
+        "component": 4,
+        "original": 1133650903,
+        "native": 1133135790
+      },
+      {
+        "original_frame": 357,
+        "native_frame": 16289,
+        "component": 5,
+        "original": 3258030490,
+        "native": 3259970355
+      },
+      {
+        "original_frame": 357,
+        "native_frame": 16289,
+        "component": 6,
+        "original": 1143663657,
+        "native": 1143813571
+      },
+      {
+        "original_frame": 358,
+        "native_frame": 16290,
+        "component": 4,
+        "original": 1133650903,
+        "native": 1133137936
+      },
+      {
+        "original_frame": 358,
+        "native_frame": 16290,
+        "component": 5,
+        "original": 3258030490,
+        "native": 3259962272
+      },
+      {
+        "original_frame": 358,
+        "native_frame": 16290,
+        "component": 6,
+        "original": 1143663657,
+        "native": 1143812946
+      }
+    ],
+    "trace_sha256": {
+      "local/reference-next-night-600-v1.transition.bin": "60cc9ecd3c72d8ea87413ae2959ad51ce65b6aa3fca998cb451b06225204dbd5",
+      "local/reference-next-night-600-v1.camera.bin": "eb13865593317a4a589f075021bfcccf70dd6106536bbd3c10143827f34bd11e",
+      "local/native-next-night-17000-release-v2.png.interaction.bin": "35b9dccda7ea9e62e5efc686ca06a1fc3b36ff3020cbc1ab432894463d0db2ef",
+      "local/native-next-night-17000-release-v2.png.camera.bin": "a71ddb399d49d3a81f8c114445c0abb973dff2fe805822430e4b27bd48108ed4",
+      "local/native-next-night-17000-release-v2.png.transition.bin": "46f8847aa0dd15747f320133762b8fbc5bc08d4d950449113b7cb0927d9494af"
+    },
+    "limit": "Manager execution matches; later camera targets and full raster fidelity remain unresolved"
+  },
+  "build_reports": {
+    "release": {
+      "scope": "Compare event0x4f color/target/hold/alpha state against original EE execution.",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "cases": 72,
+      "exact_words": 432,
+      "fixture_sha256": "0eaf33da36c41c6c67cbeecb9b4ad75bd16728089916a35a0c94231ffe1ac04a",
+      "original_sha256": "2ad14d5f02cbeea8dc04d33286a3793e74e638459292947f2206b81b21e3a9a7",
+      "native_sha256": "9f24e6aa5e5d076c599336585d7699fbf73b795f7de6d38b06e1e17202df86b2",
+      "oracle_sha256": "0151f2ea2c8c2607c9a4e5da78f74f03c14ba0bc313c9a58c95b0e650c42631c",
+      "original_command": [
+        "build/play-research/okage-oracle/okage-pose-oracle",
+        "scene-fade",
+        "local/extracted/SCUS_971.29",
+        "local/event-fade-release-v1/cases.bin",
+        "local/event-fade-release-v1/original.bin"
+      ],
+      "native_command": [
+        "build/native-release/okage-assets",
+        "scene-fade",
+        "local/event-fade-release-v1/cases.bin",
+        "local/event-fade-release-v1/native.bin"
+      ],
+      "original_exit_code": 0,
+      "boundaries": [
+        "0x18fb68 overlay enable no-op",
+        "0x18fc10 records RGBA"
+      ]
+    },
+    "debug": {
+      "scope": "Compare event0x4f color/target/hold/alpha state against original EE execution.",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "cases": 72,
+      "exact_words": 432,
+      "fixture_sha256": "0eaf33da36c41c6c67cbeecb9b4ad75bd16728089916a35a0c94231ffe1ac04a",
+      "original_sha256": "2ad14d5f02cbeea8dc04d33286a3793e74e638459292947f2206b81b21e3a9a7",
+      "native_sha256": "2d17649162f1fe806fb1723d0a4e6e9d703823275568a535a0401cfd6540e823",
+      "oracle_sha256": "0151f2ea2c8c2607c9a4e5da78f74f03c14ba0bc313c9a58c95b0e650c42631c",
+      "original_command": [
+        "build/play-research/okage-oracle/okage-pose-oracle",
+        "scene-fade",
+        "local/extracted/SCUS_971.29",
+        "local/event-fade-release-v1/cases.bin",
+        "local/event-fade-release-v1/original.bin"
+      ],
+      "native_command": [
+        "build/native/okage-assets",
+        "scene-fade",
+        "local/event-fade-debug-v1/cases.bin",
+        "local/event-fade-debug-v1/native.bin"
+      ],
+      "original_exit_code": 0,
+      "boundaries": [
+        "0x18fb68 overlay enable no-op",
+        "0x18fc10 records RGBA"
+      ]
+    },
+    "sanitize": {
+      "scope": "Compare event0x4f color/target/hold/alpha state against original EE execution.",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "cases": 72,
+      "exact_words": 432,
+      "fixture_sha256": "0eaf33da36c41c6c67cbeecb9b4ad75bd16728089916a35a0c94231ffe1ac04a",
+      "original_sha256": "2ad14d5f02cbeea8dc04d33286a3793e74e638459292947f2206b81b21e3a9a7",
+      "native_sha256": "5972ae2c2cb757118c6c927b640dfae150be353fced643645e6823de98a9dff1",
+      "oracle_sha256": "0151f2ea2c8c2607c9a4e5da78f74f03c14ba0bc313c9a58c95b0e650c42631c",
+      "original_command": [
+        "build/play-research/okage-oracle/okage-pose-oracle",
+        "scene-fade",
+        "local/extracted/SCUS_971.29",
+        "local/event-fade-release-v1/cases.bin",
+        "local/event-fade-release-v1/original.bin"
+      ],
+      "native_command": [
+        "build/model-sanitize/okage-assets",
+        "scene-fade",
+        "local/event-fade-sanitize-v1/cases.bin",
+        "local/event-fade-sanitize-v1/native.bin"
+      ],
+      "original_exit_code": 0,
+      "boundaries": [
+        "0x18fb68 overlay enable no-op",
+        "0x18fc10 records RGBA"
+      ]
+    }
+  },
+  "prefix_regression": {
+    ".music.bin": {
+      "bytes": 326000,
+      "sha256": "b232605ec72cd9864110fbc7e8e8485208692ab5b559c955ab8256e023828492"
+    },
+    ".dialogue.bin": {
+      "bytes": 782400,
+      "sha256": "5b1312b7c400915373d850a8b9e42708e051657069d1a614a0b73d1aa241123a"
+    },
+    ".choices.bin": {
+      "bytes": 782400,
+      "sha256": "29a013da2a6537ce355b3f4c40569c899d7156ee591432f8bb52d1b878af825e"
+    },
+    ".interaction.bin": {
+      "bytes": 521600,
+      "sha256": "bf7cc172504202eb16425967826273bf1c6f760e1d619fbaf13dc788a39a6a33"
+    },
+    ".camera.bin": {
+      "bytes": 1043200,
+      "sha256": "f4757dea6fddb15751d5f612b9e0a32b09577a3f29c784d0603b250eafd14f46"
+    },
+    ".audio.pcm": {
+      "bytes": 52160000,
+      "sha256": "fac0a2dfaaa1cf2ed4bbfea1fae5a76c560957b91906347db83e43a92e4678ee"
+    }
+  },
+  "narration_continuation": {
+    "scope": "Audit alternate village entry and optionally Annie's return conversation.",
+    "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "native_run": {
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "16300",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622",
+        "--directions",
+        "local/native-village-return-narration-16300-release-v1.directions",
+        "--capture",
+        "local/native-village-return-narration-16300-release-v1.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "--render-from",
+        "11310"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 107.827075083,
+      "binary_sha256": "42ada720c19581581bb88981aef23bcb7b68faf674943bad6e89c14eac22f6ef"
+    },
+    "original_run": {
+      "command": [
+        "build/play-research/okage-oracle/okage-boot-oracle",
+        "local/disc/Okage - Shadow King (USA).cue",
+        "300",
+        "local/reference-bakery-ending-180-v1.state.zip",
+        "--load",
+        "--pad",
+        "local/reference-bakery-exit-300-v1.input",
+        "--transition",
+        "local/reference-bakery-exit-300-v1.transition.bin",
+        "--camera",
+        "local/reference-bakery-exit-300-v1.camera.bin",
+        "--controller",
+        "local/reference-bakery-exit-300-v1.controller.bin",
+        "--screen-filter",
+        "local/reference-bakery-exit-300-v1.screen-filter.bin",
+        "--capture",
+        "local/reference-bakery-exit-300-v1",
+        "--save",
+        "local/reference-bakery-exit-300-v1.state.zip",
+        "--deadline-seconds",
+        "480"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 145.298724208,
+      "binary_sha256": "f4308d18ed82540ca1251de144eace72e99e186a45da49baccb04254450bad6d"
+    },
+    "native_dispatch": 14674,
+    "original_dispatch": 222,
+    "manager_samples": 77,
+    "exact_manager_words": 308,
+    "hero_samples": 77,
+    "exact_hero_words": 616,
+    "camera_updates": 78,
+    "exact_camera_words": 936,
+    "exact_camera_mode_phase_words": 156,
+    "sha256": {
+      "local/reference-bakery-exit-300-v1.transition.bin": "f9f7cbe13ff66c75a87110d7d569e2366c376ab001323b1e191e355473cfc8db",
+      "local/reference-bakery-exit-300-v1.camera.bin": "01411517e0c6f8db52a9ec7ad29360ff814bcdd0bfcb2cd1be326aa61bc192a6",
+      "local/native-village-return-narration-16300-release-v1.png.interaction.bin": "bf7cc172504202eb16425967826273bf1c6f760e1d619fbaf13dc788a39a6a33",
+      "local/native-village-return-narration-16300-release-v1.png.camera.bin": "f4757dea6fddb15751d5f612b9e0a32b09577a3f29c784d0603b250eafd14f46",
+      "local/native-village-return-narration-16300-release-v1.png.camera-state.bin": "fee59aef6bc0746e9b5f62cc59a8f21d43fb189001766a84f26ba5d3ce42c373",
+      "local/native-village-return-narration-16300-release-v1.png.actor-1.bin": "87e20b1e678e75be4bb6c2b30958c50a7aa46ca69e70a23b74aafbd08a0cb783",
+      "local/native-village-return-narration-16300-release-v1.png.transition.bin": "2ebdf52ab0488fd63d522f595179d585b46304937fc353cda7bd38abf90b1c51",
+      "local/reference-village-return-talk-480-v1.controller.bin": "aaf6724a6b6861eb18ea36dd956a0e2e4403998988449d9955a0d287ba3c513d",
+      "local/reference-village-return-talk-480-v1.controller.bin.choices.bin": "84aafc3a51968606d6bf6435b543a2f3fc978f96c35fbc1af2a020fc84588eab",
+      "local/reference-village-return-talk-480-v1.transition.bin": "b30ec8e966b414172668f778c095af7ccbe8405bd00c3390e79661cafae18763",
+      "local/native-village-return-narration-16300-release-v1.png.dialogue.bin": "5b1312b7c400915373d850a8b9e42708e051657069d1a614a0b73d1aa241123a",
+      "local/native-village-return-narration-16300-release-v1.png.choices.bin": "29a013da2a6537ce355b3f4c40569c899d7156ee591432f8bb52d1b878af825e",
+      "local/reference-village-return-answer-480-v1.controller.bin": "8e141d494de31deeb1204ab50b5a866043e7e53f034a128ec32a86fa28a305c1",
+      "local/reference-village-return-answer-480-v1.controller.bin.choices.bin": "249597f79a8e7e9da94f126b0d6f2b4852d768759fe019174789143451146f0e",
+      "local/reference-village-return-answer-480-v1.transition.bin": "35bce2a3b7f5efc154d512ff1043fff7c34f57aaf9c9f7c5b190b3fae4e13fa7",
+      "local/reference-village-return-narration-540-v1.controller.bin": "40b31bfd69671fcce7bc5d603d7abfb8d23b8e886d980f49cf1ba7515d2c3216",
+      "local/reference-village-return-narration-540-v1.transition.bin": "1c06e8cb22c1ae707c34f1abac7315ce63b43adfd08125f48e62150a8033d07c",
+      "local/reference-village-return-narration-540-v1.camera.bin": "9307531db9bf729abbcb885c52da360b6f8f6c60633c4e83fc45710bed2eebd3"
+    },
+    "dialogue": {
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-boot-oracle",
+          "local/disc/Okage - Shadow King (USA).cue",
+          "480",
+          "local/reference-bakery-exit-300-v1.state.zip",
+          "--load",
+          "--pad",
+          "local/reference-village-return-talk-480-v1.input",
+          "--transition",
+          "local/reference-village-return-talk-480-v1.transition.bin",
+          "--camera",
+          "local/reference-village-return-talk-480-v1.camera.bin",
+          "--controller",
+          "local/reference-village-return-talk-480-v1.controller.bin",
+          "--screen-filter",
+          "local/reference-village-return-talk-480-v1.screen-filter.bin",
+          "--capture",
+          "local/reference-village-return-talk-480-v1",
+          "--save",
+          "local/reference-village-return-talk-480-v1.state.zip",
+          "--deadline-seconds",
+          "720"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 290.038441916,
+        "binary_sha256": "f4308d18ed82540ca1251de144eace72e99e186a45da49baccb04254450bad6d"
+      },
+      "controller_returns": 354,
+      "exact_controller_words": 3540,
+      "manager_samples": 480,
+      "exact_manager_words": 1920,
+      "choice_states": 354,
+      "exact_choice_words": 1416,
+      "observed_pressed": [
+        209,
+        250,
+        291,
+        332,
+        373,
+        414
+      ]
+    },
+    "answer": {
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-boot-oracle",
+          "local/disc/Okage - Shadow King (USA).cue",
+          "480",
+          "local/reference-village-return-talk-480-v1.state.zip",
+          "--load",
+          "--pad",
+          "local/reference-village-return-answer-480-v1.input",
+          "--transition",
+          "local/reference-village-return-answer-480-v1.transition.bin",
+          "--camera",
+          "local/reference-village-return-answer-480-v1.camera.bin",
+          "--controller",
+          "local/reference-village-return-answer-480-v1.controller.bin",
+          "--screen-filter",
+          "local/reference-village-return-answer-480-v1.screen-filter.bin",
+          "--capture",
+          "local/reference-village-return-answer-480-v1",
+          "--save",
+          "local/reference-village-return-answer-480-v1.state.zip",
+          "--deadline-seconds",
+          "720"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 318.35964141700003,
+        "binary_sha256": "f4308d18ed82540ca1251de144eace72e99e186a45da49baccb04254450bad6d"
+      },
+      "controller_returns": 430,
+      "exact_controller_words": 4300,
+      "choice_states": 430,
+      "exact_choice_words": 1720,
+      "accepted_answers": [
+        [
+          15261,
+          0
+        ]
+      ],
+      "observed_pressed": [
+        10,
+        29,
+        70,
+        111,
+        153,
+        193,
+        234,
+        350,
+        390
+      ],
+      "exact_manager_samples": 474,
+      "exact_manager_words": 1896,
+      "synchronous_bank_load_differences": [
+        {
+          "original_frame": 466,
+          "native_frame": 15697,
+          "original_pc": 12112,
+          "native_pc": 12140,
+          "original_manager_mode": 15,
+          "original_movement_observed": false
+        },
+        {
+          "original_frame": 467,
+          "native_frame": 15698,
+          "original_pc": 12112,
+          "native_pc": 12140,
+          "original_manager_mode": 15,
+          "original_movement_observed": false
+        },
+        {
+          "original_frame": 468,
+          "native_frame": 15699,
+          "original_pc": 12112,
+          "native_pc": 12140,
+          "original_manager_mode": 15,
+          "original_movement_observed": false
+        },
+        {
+          "original_frame": 469,
+          "native_frame": 15700,
+          "original_pc": 12112,
+          "native_pc": 12140,
+          "original_manager_mode": 15,
+          "original_movement_observed": false
+        },
+        {
+          "original_frame": 470,
+          "native_frame": 15701,
+          "original_pc": 12112,
+          "native_pc": 12140,
+          "original_manager_mode": 15,
+          "original_movement_observed": false
+        },
+        {
+          "original_frame": 471,
+          "native_frame": 15702,
+          "original_pc": 12112,
+          "native_pc": 12140,
+          "original_manager_mode": 15,
+          "original_movement_observed": false
+        }
+      ],
+      "control_return": false,
+      "narration": {
+        "message": 10202,
+        "original_frame": 471,
+        "native_frame": 15697,
+        "controller_returns": 9,
+        "exact_controller_words": 90,
+        "limit": "Independent message-opening alignment; native starts six frames earlier"
+      }
+    },
+    "narration_continuation": {
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-boot-oracle",
+          "local/disc/Okage - Shadow King (USA).cue",
+          "540",
+          "local/reference-village-return-answer-480-v1.state.zip",
+          "--load",
+          "--pad",
+          "local/reference-village-return-narration-540-v1.input",
+          "--transition",
+          "local/reference-village-return-narration-540-v1.transition.bin",
+          "--camera",
+          "local/reference-village-return-narration-540-v1.camera.bin",
+          "--controller",
+          "local/reference-village-return-narration-540-v1.controller.bin",
+          "--screen-filter",
+          "local/reference-village-return-narration-540-v1.screen-filter.bin",
+          "--capture",
+          "local/reference-village-return-narration-540-v1",
+          "--save",
+          "local/reference-village-return-narration-540-v1.state.zip",
+          "--deadline-seconds",
+          "900"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 421.100444875,
+        "binary_sha256": "f4308d18ed82540ca1251de144eace72e99e186a45da49baccb04254450bad6d"
+      },
+      "controller_returns": 518,
+      "exact_controller_words": 5180,
+      "message_aligned_manager_samples": 521,
+      "exact_manager_words": 2084,
+      "camera_updates": 520,
+      "exact_camera_words": 6240,
+      "pre_load_aligned_hero_samples": 518,
+      "exact_hero_words": 4144,
+      "message_aligned_hero_mismatches": 521,
+      "limit": "Six-frame loading gap changes actor phase relative to narration; two stated anchors do not establish integrated timing equality"
+    }
+  },
+  "home1b_reference_run": {
+    "command": [
+      "build/play-research/okage-oracle/okage-boot-oracle",
+      "local/disc/Okage - Shadow King (USA).cue",
+      "360",
+      "local/reference-next-night-600-v1.state.zip",
+      "--load",
+      "--pad",
+      "local/reference-next-night-home1b-360-v1.input",
+      "--transition",
+      "local/reference-next-night-home1b-360-v1.transition.bin",
+      "--camera",
+      "local/reference-next-night-home1b-360-v1.camera.bin",
+      "--controller",
+      "local/reference-next-night-home1b-360-v1.controller.bin",
+      "--screen-filter",
+      "local/reference-next-night-home1b-360-v1.screen-filter.bin",
+      "--capture",
+      "local/reference-next-night-home1b-360-v1",
+      "--save",
+      "local/reference-next-night-home1b-360-v1.state.zip",
+      "--deadline-seconds",
+      "900"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 222.828065917,
+    "binary_sha256": "f4308d18ed82540ca1251de144eace72e99e186a45da49baccb04254450bad6d"
+  },
+  "home1b_snapshot": {
+    "state_sha256": "e401a2d0cb78aab8008da54a43fdc187333ba13b8ffd36cd074d8861398031cd",
+    "ram_sha256": "7eb52c8511fcda65eaa83d83b3a78491bd2a97a9b9c1bc0ac9661e0c83dbd07d",
+    "objects_pointer": "0x5a01e0",
+    "bodies_pointer": "0x5aae20",
+    "collision_count": 6,
+    "instance1_flags": "0x1900",
+    "instance1_collision_index": 0,
+    "collision_bodies": [
+      {
+        "index": 0,
+        "flags": 1,
+        "shape_count": 2
+      },
+      {
+        "index": 1,
+        "flags": 1,
+        "shape_count": 2
+      },
+      {
+        "index": 2,
+        "flags": 1,
+        "shape_count": 2
+      },
+      {
+        "index": 3,
+        "flags": 1,
+        "shape_count": 2
+      },
+      {
+        "index": 4,
+        "flags": 1,
+        "shape_count": 2
+      },
+      {
+        "index": 5,
+        "flags": 1,
+        "shape_count": 2
+      }
+    ],
+    "field_pointer": "0x1dbd000",
+    "message_pointer": "0x1dbda10",
+    "message_id": 11301
+  }
+}

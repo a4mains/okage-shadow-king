@@ -209,6 +209,7 @@ struct Session {
             if(released && request==0 && !close_release_frame)close_release_frame=frame;
             return released;
         },actor_bindings,diagnostic);
+        field->scene_fade=[this](unsigned percent,int mode){scene_fade.script_request(percent,mode);};
         field->dialogue_input=[this](bool enabled){
             if(!dialogue_active)throw std::runtime_error("Field input toggle before dialogue initialization");
             controller.layer_flags=(controller.layer_flags&~0x10u)|(enabled?0x10u:0u);
@@ -454,8 +455,9 @@ struct Session {
         const auto& r=field->rotation;
         auto image=renderer->render(field->view(),projection,effects_loaded?&field->effects():nullptr,{-r[0],-r[1],-r[2],0},far_clip,field->position);
         feedback.apply(image,frame,field->screen_filter.alpha);
-        const auto brightness=128-scene_fade.alpha();
-        for(std::size_t i=0;i<image.rgba.size();i+=4)for(unsigned c=0;c<3;++c)image.rgba[i+c]=unsigned(image.rgba[i+c])*brightness/128;
+        const auto alpha=scene_fade.alpha(),brightness=128-alpha;
+        for(std::size_t i=0;i<image.rgba.size();i+=4)for(unsigned c=0;c<3;++c)
+            image.rgba[i+c]=(unsigned(image.rgba[i+c])*brightness+((scene_fade.color>>(c*8))&255)*alpha)/128;
         if(choices.highlighted){
             const int top=(336+27*choices.cursor)/2,bottom=(363+27*choices.cursor)/2;
             for(int y=top;y<bottom;++y)for(int x=162;x<599;++x)for(unsigned c=0;c<3;++c){

@@ -574,6 +574,9 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             Rounding rounding;const float rate=b ? 1.f/float(b) : 0.f;
             blend.begin(rate,script_.values().at(0),requested_target_);return {pc+4};
         }
+        case 0x4f:
+            if(!scene_fade)return pending();
+            scene_fade(a,b);pending_opcode=0;return {pc+4};
         case 0x4c:
             if(a || b)throw std::runtime_error("Field dialogue mode not yet implemented");
             start_dialogue_(__builtin_bit_cast(std::int32_t, (word(pc+4))));return {pc+8};

@@ -311,6 +311,20 @@ int main(int argc, char** argv) {
                 const auto* first=reinterpret_cast<const std::uint8_t*>(position.data());output.insert(output.end(),first,first+16);}
             write(argv[4],output);return 0;
         }
+        if(command=="scene-fade"&&argc==4) {
+            const auto input=read(argv[2]);
+            if(input.empty()||input.size()%16)throw std::runtime_error("Scene fade fixture extent");
+            std::vector<std::uint32_t> output;
+            for(std::size_t at=0;at<input.size();at+=16) {
+                std::array<std::uint32_t,4> row{};std::memcpy(row.data(),input.data()+at,16);
+                okage::SceneFade fade;fade.color=row[2];fade.current=__builtin_bit_cast(float, (row[3]));
+                fade.script_request(row[0],__builtin_bit_cast(std::int32_t, (row[1])));
+                output.insert(output.end(),{unsigned(fade.enabled),unsigned(fade.hold),
+                    __builtin_bit_cast(std::uint32_t, (fade.current)),__builtin_bit_cast(std::uint32_t, (fade.target)),
+                    fade.color,(fade.alpha()<<24)|fade.color});
+            }
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
         if(command=="field-message-init"&&argc==5) {
             const auto bank=okage::read_pme(read(argv[2]));
             okage::DialogueText text(bank,std::stoi(argv[3]));
