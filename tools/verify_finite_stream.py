@@ -77,6 +77,7 @@ def bank_payload(bank, index):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--bank', choices=['ALL','SET10','SET11'], action='append', help='Select reviewed banks; defaults to the earlier ALL/SET10 corpus')
     p.add_argument('--native', type=Path, default=Path('build/native/okage-assets'))
     p.add_argument('--oracle', type=Path, default=Path('build/play-research/okage-oracle/okage-pose-oracle'))
     p.add_argument('--original', type=Path, default=Path('local/finite-stream-original-v1'))
@@ -87,7 +88,10 @@ def main():
     reference = None
     cases = []
     banks = [('ALL', [38, 35], 'a422f83c70125c775cf234fdb195a4590253bcebf87d0fcf65727eaa5d5fea1a'),
-             ('SET10', list(range(5)), '84062be8c8b4d10d036e4c4ee4897a08cf875d57abe1bbd71748258ca887200a')]
+             ('SET10', list(range(5)), '84062be8c8b4d10d036e4c4ee4897a08cf875d57abe1bbd71748258ca887200a'),
+             ('SET11', [0,1], '2e5c7bd2f1083c0213723505d505c50421b4146133fe94fd6daca7b5ccf1853f')]
+    selected=args.bank or ['ALL','SET10']
+    banks=[bank for bank in banks if bank[0] in selected]
     for name, indices, expected_hash in banks:
         path = Path('local/audio-input/SNDDATA/SE')/(name+'.XWS')
         bank = path.read_bytes()
@@ -120,7 +124,7 @@ def main():
             pitch = rate*4096//48000
             volume = 60 if key == 'ALL-35' else 128
             gain = volume*127 >> 7
-            frames = 280000 if name == 'SET10' else (100000 if index == 38 else 48000)
+            frames = 280000 if name in ('SET10','SET11') else (100000 if index == 38 else 48000)
             ref_pcm = args.original/(key+'.reference.pcm')
             if not ref_pcm.exists():
                 if reference is None:

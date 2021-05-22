@@ -1062,7 +1062,7 @@ public:
         writeFile(output,result.data(),result.size());
     }
     void eventSetup(const std::vector<uint8>& script,const std::vector<uint8>& variables,
-                    const std::vector<uint8>& state,const char* output) {
+                    const std::vector<uint8>& state,const char* output,bool strings=false) {
         if(script.size()<36 || script.size()>0x100000 || variables.size()!=0x1000 || state.size()!=0x800)
             throw std::runtime_error("Event setup fixture bounds");
         std::memcpy(ee->m_ram+0x900000,script.data(),script.size());
@@ -1072,6 +1072,8 @@ public:
         put(0x337614,0x800000);put(0x24f788,0xa00000);put(0x2d9bf4,0xb00000);
         put(0x33793c,0x130378);put(0x212ef0+(0x50-0x20)*4,0x130bb8);
         put(0x212ef0+(0x59-0x20)*4,0x131048);
+        if(strings){put(0x1c7910,0x03e00008);put(0x1c7914,0);}
+        // Inputs are restricted by the caller to the recovered setup operations.
         call(0x1b5bd8,{0,0x900000});
         if(get(0x800000)&0x100)throw std::runtime_error("Event setup did not terminate");
         writeFile(output,ee->m_ram+0xb00000,state.size());
@@ -1541,8 +1543,8 @@ int main(int argc,char** argv) {
             reference.spuSample(readFile(argv[3]),argv[4]);
         } else if(command=="dialogue-wait" && argc==5) {
             reference.dialogueWait(readFile(argv[3]),argv[4]);
-        } else if(command=="event-setup" && argc==7) {
-            reference.eventSetup(readFile(argv[3]),readFile(argv[4]),readFile(argv[5]),argv[6]);
+        } else if((command=="event-setup"||command=="event-setup-strings") && argc==7) {
+            reference.eventSetup(readFile(argv[3]),readFile(argv[4]),readFile(argv[5]),argv[6],command=="event-setup-strings");
         } else if ((command=="instance-matrices" || command=="camera-matrices") && argc==5) {
             reference.instanceMatrices(readFile(argv[3]),argv[4],command=="camera-matrices");
         } else if (command=="map-transforms" && argc==5) {

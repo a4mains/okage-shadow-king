@@ -338,7 +338,13 @@ struct Session {
             transition_trace.insert(transition_trace.end(),{frame,unsigned(current_scene),unsigned(current_entrance),
                 request?unsigned(request->scene):0xffffffffu,request?request->entrance:0,
                 request?request->countdown:0,request&&request->ready?1u:0u,field->pc()});
-            if(request&&request->ready)load_destination(*request,{input.held,128,128,input.pressed});
+            if(request&&request->ready) {
+                try {load_destination(*request,{input.held,128,128,input.pressed});}
+                catch(const std::exception& e) {
+                    throw std::runtime_error("Native frame="+std::to_string(frame)+" destination scene="+
+                        std::to_string(request->scene)+" entrance="+std::to_string(request->entrance)+": "+e.what());
+                }
+            }
         }
         if(music){
             std::array<std::int16_t,1600> pcm{};music->render(pcm);

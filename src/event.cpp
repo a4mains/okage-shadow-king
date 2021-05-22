@@ -79,6 +79,13 @@ std::vector<std::uint32_t> run_event_setup(Bytes script,Bytes variables,
     const std::uint64_t end=32ull+word(script,4);
     if(end<36 || (end&3) || end+word(script,8)+word(script,12)!=script.size())
         throw std::runtime_error("Event setup section bounds");
+    const auto strings=end+word(script,8);
+    auto string=[&](std::uint32_t offset) {
+        if(offset>=word(script,12))throw std::runtime_error("Event setup string offset bounds");
+        const auto first=script.begin()+strings+offset,last=std::find(first,script.end(),0);
+        if(last==script.end())throw std::runtime_error("Unterminated event setup string");
+        return std::string(first,last);
+    };
     std::vector<std::uint8_t> state(field_state.begin(),field_state.end());
     std::vector<std::uint32_t> pcs;
     std::int64_t pc=32;
@@ -114,7 +121,19 @@ std::vector<std::uint32_t> run_event_setup(Bytes script,Bytes variables,
             case 0x59:
                 if(b&0x200) {write_word(0x400+(b&255)*4,code_word(payload));pc=payload+4;}
                 else if(!(b&0x100) && b>=0) {write_word(0x400+b*4,a);pc=payload;}
-                else throw std::runtime_error("Event string service not yet recovered");
+                else if(b>=0 && ((b&255)==0 || (b&255)==1)) {
+                    // 0x131048 resolves against the current XMT string section,
+                    // then copies an inline map filename or resource directory.
+                    const auto value=string(code_word(payload));
+                    const auto path=(b&255)==0?value+".xpf":"flddata/"+value+"/";
+                    const std::size_t at=(b&255)==0?0x2c0:0x300;
+                    if(path.size()>=64 || at+64>state.size())
+                        throw std::runtime_error("Event setup resource path exceeds inline buffer");
+                    std::copy(path.begin(),path.end(),state.begin()+at);state[at+path.size()]=0;
+                    pc=payload+4;
+                }
+                else throw std::runtime_error("Event string service not yet recovered at PC="+std::to_string(pc)+
+                    " a="+std::to_string(a)+" b="+std::to_string(b)+" payload="+std::to_string(code_word(payload)));
                 break;
             default:throw std::runtime_error("Unrecovered event setup opcode "+std::to_string(op)+" at "+std::to_string(pc));
         }

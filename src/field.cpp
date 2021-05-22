@@ -124,11 +124,26 @@ std::array<std::uint8_t,0x800> field_setup_state(Bytes script,Bytes variables,co
     put(0x400,definition.music);put(0x404,definition.secondary_music);put(0x408,definition.type);
     put(0x40c,definition.field_flags);put(0x410,definition.startup);
     put(0x414,definition.type==1?0:17);put(0x41c,0x40000000);put(0x428,0xffffffff);put(0x42c,33);
+    auto path=[&](unsigned at,const std::string& value) {
+        if(value.size()>=64)throw std::runtime_error("Field resource path exceeds inline buffer");
+        std::copy(value.begin(),value.end(),setup.begin()+at);setup[at+value.size()]=0;
+    };
+    path(0x2c0,definition.room+".xpf");path(0x300,"flddata/"+definition.room_directory+"/");
     run_event_setup(script,variables,setup);
     return setup;
 }
 FieldDefinition prepare_field_definition(Bytes script,Bytes variables,FieldDefinition definition) {
     const auto setup=field_setup_state(script,variables,definition);
+    auto path=[&](unsigned at) {
+        const auto first=setup.begin()+at,last=std::find(first,first+64,0);
+        if(last==first+64)throw std::runtime_error("Unterminated field resource path");
+        return std::string(first,last);
+    };
+    const auto map=path(0x2c0),directory=path(0x300);
+    if(!map.ends_with(".xpf")||!directory.starts_with("flddata/")||!directory.ends_with("/"))
+        throw std::runtime_error("Invalid field resource path format");
+    definition.room=map.substr(0,map.size()-4);
+    definition.room_directory=directory.substr(8,directory.size()-9);
     definition.type=get(setup,0x408);definition.startup=get(setup,0x410);
     definition.field_flags=get(setup,0x40c);
     definition.music=__builtin_bit_cast(std::int32_t, (get(setup,0x400)));definition.secondary_music=__builtin_bit_cast(std::int32_t, (get(setup,0x404)));

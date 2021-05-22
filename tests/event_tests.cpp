@@ -1,4 +1,5 @@
 #include "okage/event.hpp"
+#include <algorithm>
 #include <iostream>
 #include <stdexcept>
 
@@ -49,6 +50,27 @@ int main() {
         rejects([&]{okage::run_event_setup(bad,variables,state);});require(state==previous);
         for(std::size_t n=0;n<script.size();++n)
             rejects([&]{okage::run_event_setup(okage::Bytes(script.data(),n),variables,state);});
+        {
+            const std::string table="unused!variant";
+            std::vector<std::uint8_t> text_script(52+table.size()+1);
+            put(text_script,0,0x544d58);put(text_script,4,20);put(text_script,12,table.size()+1);
+            put(text_script,16,0xffffffff);put(text_script,32,0x100fff59);put(text_script,36,7);
+            put(text_script,40,0x10112359);put(text_script,44,7);put(text_script,48,0);
+            std::copy(table.begin(),table.end(),text_script.begin()+52);
+            auto out=state;
+            require(okage::run_event_setup(text_script,variables,out)==std::vector<std::uint32_t>({32,40,48}));
+            auto text_at=[&](unsigned offset){return std::string(reinterpret_cast<const char*>(out.data()+offset));};
+            require(text_at(0x2c0)=="variant.xpf"&&text_at(0x300)=="flddata/variant/");
+            const auto before=out;
+            auto invalid=text_script;invalid.back()='x';
+            rejects([&]{okage::run_event_setup(invalid,variables,out);});require(out==before);
+            invalid=text_script;put(invalid,44,table.size()+1);
+            rejects([&]{okage::run_event_setup(invalid,variables,out);});require(out==before);
+            invalid=text_script;put(invalid,40,0x11200059);
+            rejects([&]{okage::run_event_setup(invalid,variables,out);});require(out==before);
+            invalid=text_script;invalid.resize(52+65);std::fill(invalid.begin()+52,invalid.end(),'a');invalid.back()=0;put(invalid,12,65);put(invalid,36,0);
+            rejects([&]{okage::run_event_setup(invalid,variables,out);});require(out==before);
+        }
         okage::DialogueWaitState wait{5,1,0,0,0};
         std::vector<std::uint32_t> layers{0x50,0x70};
         okage::DialogueObservation dialogue{true,0,layers,4};

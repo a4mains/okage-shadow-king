@@ -230,6 +230,17 @@ int main(){try {
     state=okage::field_setup_state(b,variables,construction);require(get(0x414)==9);
     const auto prepared=okage::prepare_field_definition(b,variables,construction);
     require(prepared.type==0&&prepared.dust==9&&prepared.field_flags==7);
+    {
+        auto renamed=b;renamed.resize(52+14);
+        // Field construction must pass the script-selected map to the loader.
+        auto set=[&](unsigned at,std::uint32_t value){for(unsigned i=0;i<4;++i)renamed[at+i]=value>>(i*8);};
+        set(4,20);set(12,14);set(32,0x10000059);set(36,0);set(40,0x10100059);set(44,8);set(48,0);
+        const char strings[]="variant\0other\0";
+        std::copy_n(strings,14,renamed.begin()+52);
+        const auto changed=okage::prepare_field_definition(renamed,variables,construction);
+        require(changed.room=="variant"&&changed.room_directory=="other");
+        require(changed.event==construction.event&&changed.message==construction.message);
+    }
     b.resize(56);word(4,24);word(32,(16u<<20)|(1u<<8)|11);word(36,0x40006);word(40,0);
     word(44,(5u<<20)|(9u<<8)|0x59);word(48,0);
     construction.scene=1;construction.party=1;
