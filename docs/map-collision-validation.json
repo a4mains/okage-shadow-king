@@ -1,0 +1,79 @@
+{
+  "scope": "Compare owned village map body construction with a completed original snapshot.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "source_run": {
+    "command": [
+      "build/play-research/okage-oracle/okage-boot-oracle",
+      "local/disc/Okage - Shadow King (USA).cue",
+      "480",
+      "local/reference-village-return-talk-480-v1.state.zip",
+      "--load",
+      "--pad",
+      "local/reference-village-return-answer-480-v1.input",
+      "--transition",
+      "local/reference-village-return-answer-480-v1.transition.bin",
+      "--camera",
+      "local/reference-village-return-answer-480-v1.camera.bin",
+      "--controller",
+      "local/reference-village-return-answer-480-v1.controller.bin",
+      "--screen-filter",
+      "local/reference-village-return-answer-480-v1.screen-filter.bin",
+      "--capture",
+      "local/reference-village-return-answer-480-v1",
+      "--save",
+      "local/reference-village-return-answer-480-v1.state.zip",
+      "--deadline-seconds",
+      "720"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 318.35964141700003,
+    "binary_sha256": "f4308d18ed82540ca1251de144eace72e99e186a45da49baccb04254450bad6d"
+  },
+  "original_collision_count": 12,
+  "map_bodies": 3,
+  "exact_words": 93,
+  "commands": [
+    [
+      "build/native-release/okage-assets",
+      "map-collision",
+      "local/xpf-decoded/FLDDATA/MAP/VIL/VSTART_T.XPF/a.xmp",
+      "local/map-collision-validation-v1/native-release.bin"
+    ],
+    [
+      "build/native/okage-assets",
+      "map-collision",
+      "local/xpf-decoded/FLDDATA/MAP/VIL/VSTART_T.XPF/a.xmp",
+      "local/map-collision-validation-v1/native.bin"
+    ],
+    [
+      "build/model-sanitize/okage-assets",
+      "map-collision",
+      "local/xpf-decoded/FLDDATA/MAP/VIL/VSTART_T.XPF/a.xmp",
+      "local/map-collision-validation-v1/model-sanitize.bin"
+    ]
+  ],
+  "ram_sha256": "6ea01ee67c9e74b720fe608e716a7feeb96941eb86f4bab1daec063a947f70ad",
+  "sha256": {
+    "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "local/reference-village-return-answer-480-v1.run.json": "9faeaa061e49359c9edb64610e8e1f5d0651804f307debbd6387fb61fe4e93d0",
+    "local/reference-village-return-answer-480-v1.state.zip": "334062c03ec275febc1869699f760f544a3c9469ddbbcc10c90ab1dcfca6ef10",
+    "local/xpf-decoded/FLDDATA/MAP/VIL/VSTART_T.XPF/a.xmp": "8e921979f4cb7e2ce75f2a2de141db9ffc6f580169f71de215451e6f2218017c",
+    "local/map-collision-validation-v1/original.bin": "6da2284cf307c097e80f6e2d1a936f11516cfd64cbd35cf756d2de8c2301374d",
+    "build/native-release/okage-assets": "9967cdaf606aafdc8fa4b312e682d789f7b99b70d4d5af514703683c531ec567",
+    "local/map-collision-validation-v1/native-release.bin": "6da2284cf307c097e80f6e2d1a936f11516cfd64cbd35cf756d2de8c2301374d",
+    "build/native/okage-assets": "921d95dd697bc1694b7d21c50e909cdc6bda0bec9822827cd9fd9086a87718bc",
+    "local/map-collision-validation-v1/native.bin": "6da2284cf307c097e80f6e2d1a936f11516cfd64cbd35cf756d2de8c2301374d",
+    "build/model-sanitize/okage-assets": "a9e63b0ab5d77e143dff68cc8f624d34249cd6e061f0d64728b5dc2db857dc26",
+    "local/map-collision-validation-v1/model-sanitize.bin": "6da2284cf307c097e80f6e2d1a936f11516cfd64cbd35cf756d2de8c2301374d"
+  },
+  "static_recovery": [
+    "0x1bba88: definition offset0x80 selects collision type; definition-indexed scale source",
+    "0x1b86e8: floor point plus sphere/capsule, radius and priority",
+    "0x1b8a80: placement-order body allocation and visibility index-zero exemption"
+  ],
+  "limits": [
+    "Original body initialization is observed after gameplay, not an isolated constructor call.",
+    "Three unchanged map positions match owned placements exactly; actor state is outside this comparison.",
+    "Sphere/capsule dynamic pair dispatch remains guarded until separately recovered."
+  ]
+}

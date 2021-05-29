@@ -8,6 +8,7 @@
 #include "okage/screen_filter.hpp"
 #include <optional>
 namespace okage {
+class MapObjects;
 struct ExplorationInput {std::uint16_t held=0;std::uint8_t x=128,z=128;std::uint16_t pressed=0;std::uint8_t look_x=128;};
 struct FieldNpcDefinition {
     int alias=0;std::string model;std::int32_t state=0,talk=0,alternate_talk=0;
@@ -51,6 +52,7 @@ public:
     void load_effects(Bytes);
     void load_map_effects(Bytes map,const EffectTextureSizes&);
     void bind_map_objects(std::span<const ActorBinding>);
+    void bind_map_scene(MapObjects&);
     void load_exploration_camera(Bytes stg);
     void load_exploration_collision(Bytes xcl,Bytes variables);
     void load_interactions(Bytes database,const std::string& room,Bytes variables);
@@ -74,6 +76,7 @@ public:
     std::function<bool(int,unsigned,unsigned)> music_channels;
     std::function<void(bool)> dialogue_input;
     std::function<void(unsigned,int)> scene_fade;
+    std::function<bool(int,bool)> map_visibility;
     std::function<bool(unsigned,std::int32_t,float,unsigned)> sound_cue;
     std::function<void(unsigned,unsigned,std::int32_t)> set_variable;
     std::function<std::int32_t(std::uint32_t)> get_variable;
@@ -106,6 +109,10 @@ private:
     bool exploration_handoff_=false;
     std::optional<CollisionMap> collision_;
     std::vector<CollisionBody> bodies_;
+    MapObjects* map_scene_=nullptr;
+    unsigned map_body_count_=0;
+    void sync_collision_positions();
+    void commit_collision_positions(unsigned mover);
     PlayerMovement player_;
     std::optional<FieldDefinition> definition_;
     int interaction_alias_=0,interaction_event_=0;

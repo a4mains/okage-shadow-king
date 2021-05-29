@@ -1,0 +1,53 @@
+{
+  "scope": "Compare exact1 scene-entry brightness request and 60 original clock updates.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "original_command": [
+    "build/play-research/okage-oracle/okage-pose-oracle",
+    "scene-entry-fade",
+    "local/extracted/SCUS_971.29",
+    "local/scene-entry-fade-validation-v1/original.bin"
+  ],
+  "original_exit_code": 0,
+  "native_commands": [
+    [
+      "build/native-release/okage-assets",
+      "scene-entry-fade",
+      "local/scene-entry-fade-validation-v1/native-release.bin"
+    ],
+    [
+      "build/native/okage-assets",
+      "scene-entry-fade",
+      "local/scene-entry-fade-validation-v1/native.bin"
+    ],
+    [
+      "build/model-sanitize/okage-assets",
+      "scene-entry-fade",
+      "local/scene-entry-fade-validation-v1/model-sanitize.bin"
+    ]
+  ],
+  "initial_brightness": [
+    0,
+    0.5,
+    1
+  ],
+  "samples": 183,
+  "exact_words": 915,
+  "isolated_boundaries": [
+    "0x114ac0 captured-frame transition",
+    "0x18fb68 overlay enable",
+    "0x18fbf8 overlay disable",
+    "0x18fc10 RGBA submission"
+  ],
+  "sha256": {
+    "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "build/play-research/okage-oracle/okage-pose-oracle": "0af63c9726980c6ae5954e1efd7bf524c5421bedda809c53b491287af8a0e908",
+    "local/scene-entry-fade-validation-v1/original.bin": "9382cb3caf48ca2dd3b0c279dfbdb6fab0361fe643c28782bd8942dfbabab473",
+    "build/native-release/okage-assets": "a24e235fe8718da95c09f9953176906a978bb0be61f80a1fbc6d727bdeb480af",
+    "local/scene-entry-fade-validation-v1/native-release.bin": "9382cb3caf48ca2dd3b0c279dfbdb6fab0361fe643c28782bd8942dfbabab473",
+    "build/native/okage-assets": "8920e328128ee31fb8d7c3724d4978717a516300863098dcd014f49d841edc80",
+    "local/scene-entry-fade-validation-v1/native.bin": "9382cb3caf48ca2dd3b0c279dfbdb6fab0361fe643c28782bd8942dfbabab473",
+    "build/model-sanitize/okage-assets": "80fbe57353370762f873fe6a904da97819d561aa3cbdff3b4525f178cda6c676",
+    "local/scene-entry-fade-validation-v1/model-sanitize.bin": "9382cb3caf48ca2dd3b0c279dfbdb6fab0361fe643c28782bd8942dfbabab473"
+  },
+  "limit": "Validates request/clock state; entry call order recovered from0x132720. No full GS blending claim."
+}

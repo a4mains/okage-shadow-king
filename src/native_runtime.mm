@@ -214,7 +214,7 @@ struct Session {
             if(!dialogue_active)throw std::runtime_error("Field input toggle before dialogue initialization");
             controller.layer_flags=(controller.layer_flags&~0x10u)|(enabled?0x10u:0u);
         };
-        if(map_objects)field->bind_map_objects(map_objects->bindings());
+        if(map_objects)field->bind_map_scene(*map_objects);
         field->random_value=[this]{return random.next();};
         field->exterior_camera=&exterior_camera;
         field->collision_mask=&collision_mask;
@@ -313,6 +313,9 @@ struct Session {
             renderer->set_effect_light_tint(okage::field_effect_tint(stage));
         }
         dialogue_active=false;choices={};narration={};
+        // 0x132720 requests exactly1.0 through0x114cc0 before startup dispatch.
+        // This is distinct from event4f's rounded percent multiplication.
+        scene_fade.request(1.f);
         field->enter(std::move(definition),stage,readData(xcl),request.entrance,input);
         current_scene=request.scene;current_entrance=int(request.entrance);transition_target=0;
         std::cout<<"Native destination: scene "<<current_scene<<" entrance "<<current_entrance<<"; "<<renderer->actors()<<" actors\n";

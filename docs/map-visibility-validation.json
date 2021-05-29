@@ -1,0 +1,176 @@
+{
+  "scope": "Bounded retail visibility callback and owned-map native visibility audit.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "original_command": [
+    "build/play-research/okage-oracle/okage-pose-oracle",
+    "instance-visibility",
+    "local/extracted/SCUS_971.29",
+    "local/map-visibility-validation-v2/cases.bin",
+    "local/map-visibility-validation-v2/original.bin"
+  ],
+  "original_exit_code": 0,
+  "patched_original_functions": [],
+  "cases": 240,
+  "exact_words": 1440,
+  "builds": [
+    {
+      "build": "native-release",
+      "callback_command": [
+        "build/native-release/okage-assets",
+        "instance-visibility",
+        "local/map-visibility-validation-v2/cases.bin",
+        "local/map-visibility-validation-v2/native-release.bin"
+      ],
+      "maps": [
+        {
+          "map": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1B.XPF/a.xmp",
+          "placements": 8,
+          "command": [
+            "build/native-release/okage-assets",
+            "map-visibility",
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1B.XPF/a.xmp",
+            "local/map-visibility-validation-v2/native-release-HOME1B.XPF.bin"
+          ]
+        },
+        {
+          "map": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "placements": 6,
+          "command": [
+            "build/native-release/okage-assets",
+            "map-visibility",
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+            "local/map-visibility-validation-v2/native-release-HOME1C.XPF.bin"
+          ]
+        },
+        {
+          "map": "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.xmp",
+          "placements": 559,
+          "command": [
+            "build/native-release/okage-assets",
+            "map-visibility",
+            "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.xmp",
+            "local/map-visibility-validation-v2/native-release-FIELD_1D.XPF.bin"
+          ]
+        }
+      ],
+      "collision_guard": true
+    },
+    {
+      "build": "native",
+      "callback_command": [
+        "build/native/okage-assets",
+        "instance-visibility",
+        "local/map-visibility-validation-v2/cases.bin",
+        "local/map-visibility-validation-v2/native.bin"
+      ],
+      "maps": [
+        {
+          "map": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1B.XPF/a.xmp",
+          "placements": 8,
+          "command": [
+            "build/native/okage-assets",
+            "map-visibility",
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1B.XPF/a.xmp",
+            "local/map-visibility-validation-v2/native-HOME1B.XPF.bin"
+          ]
+        },
+        {
+          "map": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "placements": 6,
+          "command": [
+            "build/native/okage-assets",
+            "map-visibility",
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+            "local/map-visibility-validation-v2/native-HOME1C.XPF.bin"
+          ]
+        },
+        {
+          "map": "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.xmp",
+          "placements": 559,
+          "command": [
+            "build/native/okage-assets",
+            "map-visibility",
+            "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.xmp",
+            "local/map-visibility-validation-v2/native-FIELD_1D.XPF.bin"
+          ]
+        }
+      ],
+      "collision_guard": true
+    },
+    {
+      "build": "model-sanitize",
+      "callback_command": [
+        "build/model-sanitize/okage-assets",
+        "instance-visibility",
+        "local/map-visibility-validation-v2/cases.bin",
+        "local/map-visibility-validation-v2/model-sanitize.bin"
+      ],
+      "maps": [
+        {
+          "map": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1B.XPF/a.xmp",
+          "placements": 8,
+          "command": [
+            "build/model-sanitize/okage-assets",
+            "map-visibility",
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1B.XPF/a.xmp",
+            "local/map-visibility-validation-v2/model-sanitize-HOME1B.XPF.bin"
+          ]
+        },
+        {
+          "map": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "placements": 6,
+          "command": [
+            "build/model-sanitize/okage-assets",
+            "map-visibility",
+            "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+            "local/map-visibility-validation-v2/model-sanitize-HOME1C.XPF.bin"
+          ]
+        },
+        {
+          "map": "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.xmp",
+          "placements": 559,
+          "command": [
+            "build/model-sanitize/okage-assets",
+            "map-visibility",
+            "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.xmp",
+            "local/map-visibility-validation-v2/model-sanitize-FIELD_1D.XPF.bin"
+          ]
+        }
+      ],
+      "collision_guard": true
+    }
+  ],
+  "sha256": {
+    "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "build/play-research/okage-oracle/okage-pose-oracle": "41c1ba1243bde6d70bf3833cbf60140dd4747f41d7deb22cfccae2ca95fe6f17",
+    "local/map-visibility-validation-v2/cases.bin": "58786fe2edb7beeb529f37602a1727ee542cc202fd5eb4aa27b755be08aaf82e",
+    "local/map-visibility-validation-v2/original.bin": "7f340e486c0671b6cd692b89f75428286667e4f6e3aac2595cfaf11fcdc2b86b",
+    "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1B.XPF/a.xmp": "ba3010f64de63e8d85b4e4c726e27d761316a819a803b1298bac4b8dc7a7895f",
+    "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp": "90ff53dcd83e5e5e15608ecb971e6f92c5c09d88db19e5d8a083ada65434562c",
+    "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.xmp": "19e42b385e03ffab7be7b57f8607ebc40591a0331c2e7f24586f9d01f42f7815",
+    "local/map-visibility-validation-v2/native-release-HOME1B.XPF.bin": "ec897fbf7bd2a60eeba04f9032ebcfe5e814b5e97aaa5c126d8db70b0f31b07d",
+    "local/map-visibility-validation-v2/native-release-HOME1C.XPF.bin": "c8931aa6dcd11400b05b708ea7eac6c11922a6bb83d59e34e6fc0a970a4fb945",
+    "local/map-visibility-validation-v2/native-release-FIELD_1D.XPF.bin": "fc1d4a92690261037d8f3bc8efcabfc841a39a04ade07ac23a22ca8aa9d2490a",
+    "build/native-release/okage-assets": "9967cdaf606aafdc8fa4b312e682d789f7b99b70d4d5af514703683c531ec567",
+    "local/map-visibility-validation-v2/native-release.bin": "7f340e486c0671b6cd692b89f75428286667e4f6e3aac2595cfaf11fcdc2b86b",
+    "local/map-visibility-validation-v2/native-release-collision.xmp": "f272ff64b76fc5e431aa81b8c652381d74e0130e7b230275648564b051854a27",
+    "local/map-visibility-validation-v2/native-HOME1B.XPF.bin": "ec897fbf7bd2a60eeba04f9032ebcfe5e814b5e97aaa5c126d8db70b0f31b07d",
+    "local/map-visibility-validation-v2/native-HOME1C.XPF.bin": "c8931aa6dcd11400b05b708ea7eac6c11922a6bb83d59e34e6fc0a970a4fb945",
+    "local/map-visibility-validation-v2/native-FIELD_1D.XPF.bin": "fc1d4a92690261037d8f3bc8efcabfc841a39a04ade07ac23a22ca8aa9d2490a",
+    "build/native/okage-assets": "921d95dd697bc1694b7d21c50e909cdc6bda0bec9822827cd9fd9086a87718bc",
+    "local/map-visibility-validation-v2/native.bin": "7f340e486c0671b6cd692b89f75428286667e4f6e3aac2595cfaf11fcdc2b86b",
+    "local/map-visibility-validation-v2/native-collision.xmp": "f272ff64b76fc5e431aa81b8c652381d74e0130e7b230275648564b051854a27",
+    "local/map-visibility-validation-v2/model-sanitize-HOME1B.XPF.bin": "ec897fbf7bd2a60eeba04f9032ebcfe5e814b5e97aaa5c126d8db70b0f31b07d",
+    "local/map-visibility-validation-v2/model-sanitize-HOME1C.XPF.bin": "c8931aa6dcd11400b05b708ea7eac6c11922a6bb83d59e34e6fc0a970a4fb945",
+    "local/map-visibility-validation-v2/model-sanitize-FIELD_1D.XPF.bin": "fc1d4a92690261037d8f3bc8efcabfc841a39a04ade07ac23a22ca8aa9d2490a",
+    "build/model-sanitize/okage-assets": "a9e63b0ab5d77e143dff68cc8f624d34249cd6e061f0d64728b5dc2db857dc26",
+    "local/map-visibility-validation-v2/model-sanitize.bin": "7f340e486c0671b6cd692b89f75428286667e4f6e3aac2595cfaf11fcdc2b86b",
+    "local/map-visibility-validation-v2/model-sanitize-collision.xmp": "f272ff64b76fc5e431aa81b8c652381d74e0130e7b230275648564b051854a27"
+  },
+  "limits": [
+    "Negative alias resolution is outside this isolated fixture.",
+    "Map collision construction is guarded for unrecovered geometry types beyond sphere/capsule.",
+    "Native instance flags are represented by visibility; retail other-bit preservation is asserted in the oracle.",
+    "Native payload sentinel is fixed; field service dispatch is covered separately by field-tests."
+  ]
+}

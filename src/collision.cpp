@@ -13,6 +13,13 @@
 #pragma STDC FP_CONTRACT OFF
 
 namespace okage {
+void set_instance_visibility(bool& visible,unsigned index,std::span<CollisionBody> bodies,bool value) {
+    if(index) {
+        if(index>=bodies.size())throw std::runtime_error("Visibility collision index outside registry");
+        bodies[index].flags=value?(bodies[index].flags&~2u):(bodies[index].flags|2u);
+    }
+    visible=value;
+}
 void CollisionMask::event(unsigned mode,std::int32_t group) {
     const unsigned shift=std::uint32_t(group)&31;
     if(mode==0x100) {

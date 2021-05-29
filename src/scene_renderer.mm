@@ -20,7 +20,8 @@ struct Vertex {Float4 position,color,uv;};
 struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;};
 }
 struct SceneRenderer::Impl {
-    struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;std::optional<MapTransform> facing;};
+    struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;std::optional<MapTransform> facing;std::optional<std::size_t> placement;bool visible=true;};
+    const MapObjects* mapObjects=nullptr;
     SineTable sine=make_sine_table();
     std::vector<Input> inputs;
     std::optional<std::size_t> sky_input;
@@ -39,6 +40,7 @@ struct SceneRenderer::Impl {
     NSMutableArray<id<MTLTexture>>* gpuTextures;
     id<MTLCommandQueue> queue;
     explicit Impl(const fs::path& path,std::span<const SceneActor> actors,const MapObjects* objects) {
+        mapObjects=objects;
         const auto map=read_xmp(read(path));
         for(std::size_t index=0;index<map.placements.size();++index) {
             const auto& placement=map.placements[index];
@@ -55,13 +57,13 @@ struct SceneRenderer::Impl {
             if(!(transform.flags&0x80080)&&(transform.flags&0x20000))sky_input=inputs.size();
             const auto file=path.parent_path()/definition.name;
             inputs.push_back({file,object?object->model():read_xmd(read(file)),instance_matrix(transform.position,transform.rotation,transform.scale,sine),object,
-                (transform.flags&1)?std::optional<MapTransform>(transform):std::nullopt});
+                (transform.flags&1)?std::optional<MapTransform>(transform):std::nullopt,index,(transform.flags&0x10000)==0});
         }
         if(inputs.empty())throw std::runtime_error("Empty field map");
         if(sky_input){auto stage=path;stage.replace_extension(".stg");sky_factors=field_sky_follow(read(stage));}
         for(const auto& binding:actors) {
             if(!binding.actor || binding.model_path.empty())throw std::runtime_error("Actor and model path required");
-            inputs.push_back({binding.model_path,binding.actor->model(),{},binding.actor});++actorCount;
+            inputs.push_back({binding.model_path,binding.actor->model(),{},binding.actor,{},{},true});++actorCount;
         }
         for(const auto& input:inputs) {
             textureOffsets.push_back(textures.size());
@@ -148,12 +150,14 @@ struct SceneRenderer::Impl {
         okage::Float4 low{INFINITY,INFINITY,INFINITY,0},high{-INFINITY,-INFINITY,-INFINITY,0};
         for(std::size_t inputIndex=0;inputIndex<inputs.size();++inputIndex) {
             const auto& input=inputs[inputIndex];const auto textureOffset=textureOffsets[inputIndex];
+            if(input.placement && !(mapObjects?mapObjects->visible(*input.placement):input.visible))continue;
             if(input.actor && !input.actor->visible)continue;
             if(input.actor && input.actor->encounter_model)
                 throw std::runtime_error("Visible encounter-enemy rendering is unrecovered");
             std::size_t textureBase=0;
             auto world=input.actor ? input.actor->world(sine) : input.world;
             if(input.facing)world=map_instance_matrix(*input.facing,{-camera[0],-camera[1],0,1},sine);
+            if(input.placement&&mapObjects&&!input.actor)world[3]=mapObjects->position(*input.placement);
             if(sky_input&&inputIndex==*sky_input){
                 const auto position=sky_follow_position(cameraPosition,sky_factors);
                 world[3]={position[0],position[1],position[2],1};

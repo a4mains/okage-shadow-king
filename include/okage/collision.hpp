@@ -55,6 +55,10 @@ struct CollisionBody {
     MapContact contact;
     std::int32_t other_body=-1;
 };
+// Retail 0x1baa60: index zero never changes body flags, including when it
+// denotes the first body. Other indices toggle only disable mask0x2.
+void set_instance_visibility(bool& visible,unsigned collision_index,
+                             std::span<CollisionBody> bodies,bool value);
 struct CollisionMap {
     std::array<std::int32_t,15> header{};
     std::vector<std::uint8_t> payload;

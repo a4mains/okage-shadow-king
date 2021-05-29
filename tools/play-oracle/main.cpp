@@ -560,6 +560,42 @@ public:
         for(auto index:{0xffffffffu,count}){call(0x174f28,{0,index});result.push_back(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);}
         writeFile(output,result.data(),result.size()*4);
     }
+    void instanceVisibility(const std::vector<uint8>& input,const char* output) {
+        if(input.empty()||input.size()%32)throw std::runtime_error("Visibility fixture extent");
+        constexpr uint32 objects=0xa00000,bodies=0xa20000,payload=0x900800;
+        put(0x21301c,objects);put(0x337ef8,bodies);
+        std::vector<uint32> result;
+        for(std::size_t at=0;at<input.size();at+=32) {
+            std::array<uint32,8> r{};std::memcpy(r.data(),input.data()+at,32);
+            if(r[0]>=2048||!(r[1]&256)||r[2]>65535||r[3]>=4)
+                throw std::runtime_error("Visibility fixture range");
+            const auto obj=objects+r[0]*0x3c;
+            put(obj,r[2]);put(obj+0x30,r[3]<<16);
+            for(unsigned i=0;i<4;++i)put(bodies+i*0xb0+0xc,r[4+i]);
+            // Unpatched retail callback and visibility service, nonnegative ID.
+            call(0x1b7b48,{0,r[1],r[0],payload});
+            const auto expected=(r[2]&~0x800u)|((r[1]&255)?0x800u:0u);
+            if(get(obj)!=expected)throw std::runtime_error("Original changed unrelated instance flags");
+            result.push_back((get(obj)&0x800)!=0);
+            for(unsigned i=0;i<4;++i)result.push_back(get(bodies+i*0xb0+0xc));
+            result.push_back(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
+    void sceneEntryFade(const char* output) {
+        for(auto address:{0x114ac0u,0x18fb68u,0x18fbf8u,0x18fc10u}){put(address,0x03e00008);put(address+4,0);}
+        std::vector<uint32> result;
+        for(uint32 initial:{0u,0x3f000000u,0x3f800000u}) {
+            call(0x114c20);put(0x24eab0,initial);put(0x24eabc,0x123456);
+            ee->m_EE.m_State.nCOP1[12]=0x3f800000;
+            call(0x114cc0);
+            for(unsigned frame=0;frame<=60;++frame) {
+                if(frame)call(0x114b58);
+                for(uint32 address:{0x24eaa4u,0x24eaa8u,0x24eab0u,0x24eab4u,0x24eabcu})result.push_back(get(address));
+            }
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
     void sceneFade(const std::vector<uint8>& input,const char* output) {
         if(input.empty()||input.size()%16)throw std::runtime_error("Scene fade fixture extent");
         put(0x18fb68,0x03e00008);put(0x18fb6c,0);
@@ -1511,6 +1547,10 @@ int main(int argc,char** argv) {
             reference.cameraLookAt(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="stream-bank" && argc==5) {
             reference.streamBank(readFile(argv[3]),argv[4]);
+        } else if(command=="instance-visibility" && argc==5) {
+            reference.instanceVisibility(readFile(argv[3]),argv[4]);
+        } else if(command=="scene-entry-fade" && argc==4) {
+            reference.sceneEntryFade(argv[3]);
         } else if(command=="scene-fade" && argc==5) {
             reference.sceneFade(readFile(argv[3]),argv[4]);
         } else if(command=="jingle-routing" && argc==4) {

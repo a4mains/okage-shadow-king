@@ -311,6 +311,65 @@ int main(int argc, char** argv) {
                 const auto* first=reinterpret_cast<const std::uint8_t*>(position.data());output.insert(output.end(),first,first+16);}
             write(argv[4],output);return 0;
         }
+        if(command=="instance-visibility"&&argc==4) {
+            const auto input=read(argv[2]);
+            if(input.empty()||input.size()%32)throw std::runtime_error("Visibility fixture extent");
+            std::vector<std::uint32_t> output;
+            for(std::size_t at=0;at<input.size();at+=32) {
+                std::array<std::uint32_t,8> row{};std::memcpy(row.data(),input.data()+at,32);
+                if(row[0]>=2048||!(row[1]&256)||row[2]>65535||row[3]>=4)
+                    throw std::runtime_error("Visibility fixture range");
+                std::array<okage::CollisionBody,4> bodies;
+                for(unsigned i=0;i<4;++i)bodies[i].flags=row[4+i];
+                bool visible=(row[2]&0x800)!=0;
+                okage::set_instance_visibility(visible,row[3],bodies,(row[1]&255)!=0);
+                output.push_back(visible);
+                for(const auto& body:bodies)output.push_back(body.flags);
+                output.push_back(0x900800); // No additional event payload consumed.
+            }
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
+        if(command=="map-collision"&&argc==4) {
+            const auto bindings=okage::map_collision_bodies(okage::read_xmp(read(argv[2])));
+            std::vector<std::uint32_t> output;
+            auto scalar=[&](float f){output.push_back(__builtin_bit_cast(std::uint32_t, (f)));};
+            auto vector=[&](const okage::Float4& v){for(float f:v)scalar(f);};
+            for(const auto& binding:bindings) {
+                const auto& b=binding.body;
+                output.insert(output.end(),{unsigned(binding.placement),unsigned(binding.instance),b.id,b.flags,b.priority});
+                scalar(b.broad_radius);scalar(b.floor_reach);vector(b.position);
+                if(b.shapes.size()!=2)throw std::runtime_error("Map body shape count");
+                for(const auto& shape:b.shapes){output.push_back(shape.flags);vector(shape.geometry.first);vector(shape.geometry.second);scalar(shape.geometry.radius);}
+            }
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
+        if(command=="map-visibility"&&argc==4) {
+            const auto map=okage::read_xmp(read(argv[2]));const auto ids=okage::map_instance_ids(map);
+            okage::MapObjects objects(argv[2]);std::vector<std::uint32_t> output;
+            for(std::size_t i=0;i<ids.size();++i)if(ids[i]>=0) {
+                const bool before=objects.visible(i);
+                if(!objects.set_visible(ids[i],false))throw std::runtime_error("Map instance missing");
+                const bool hidden=objects.visible(i);
+                if(!objects.set_visible(ids[i],true))throw std::runtime_error("Map instance missing");
+                const bool shown=objects.visible(i);objects.set_visible(ids[i],before);
+                output.insert(output.end(),{unsigned(i),unsigned(ids[i]),unsigned(before),unsigned(hidden),
+                    unsigned(shown),unsigned(objects.visible(i)),unsigned(objects.placement(i)!=nullptr)});
+            }
+            if(objects.set_visible(-1,true)||objects.set_visible(2048,true))throw std::runtime_error("Invalid map ID accepted");
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
+        if(command=="scene-entry-fade"&&argc==3) {
+            std::vector<std::uint32_t> output;
+            for(float initial:{0.f,.5f,1.f}) {
+                okage::SceneFade fade;fade.current=initial;fade.color=0x123456;fade.request(1.f);
+                for(unsigned frame=0;frame<=60;++frame) {
+                    if(frame)fade.tick();
+                    output.insert(output.end(),{unsigned(fade.enabled),unsigned(fade.hold),
+                        __builtin_bit_cast(std::uint32_t, (fade.current)),__builtin_bit_cast(std::uint32_t, (fade.target)),fade.color});
+                }
+            }
+            write(argv[2],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
         if(command=="scene-fade"&&argc==4) {
             const auto input=read(argv[2]);
             if(input.empty()||input.size()%16)throw std::runtime_error("Scene fade fixture extent");

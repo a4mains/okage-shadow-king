@@ -1,5 +1,6 @@
 #include "okage/field.hpp"
 #include "okage/map.hpp"
+#include "okage/map_objects.hpp"
 #include "okage/event.hpp"
 #include <algorithm>
 #include <bit>
@@ -67,6 +68,32 @@ void OpeningField::bind_map_objects(std::span<const ActorBinding> bindings) {
         for(const auto& npc:actors_)if(npc.actor==b.actor)throw std::runtime_error("Map object also bound as field actor");
     }
     map_objects_.assign(bindings.begin(),bindings.end());
+}
+void OpeningField::bind_map_scene(MapObjects& scene) {
+    if(map_scene_||collision_)throw std::runtime_error("Map scene binding lifecycle");
+    bind_map_objects(scene.bindings());map_scene_=&scene;
+    map_visibility=[this](int id,bool value) {
+        const auto index=map_scene_->collision_index(id);
+        if(!index)return false;
+        bool visible=value;
+        set_instance_visibility(visible,*index,bodies_,value);
+        return map_scene_->set_visible(id,value);
+    };
+}
+void OpeningField::sync_collision_positions() {
+    for(unsigned i=0;i<map_body_count_;++i)
+        bodies_[i].position=map_scene_->position(map_scene_->collision_bodies()[i].placement);
+    for(unsigned i=0;i<actors_.size();++i)bodies_[map_body_count_+i].position=actors_[i].actor->animation().values().at(1);
+}
+void OpeningField::commit_collision_positions(unsigned mover) {
+    for(unsigned i=0;i<map_body_count_;++i)
+        map_scene_->write_position(map_scene_->collision_bodies()[i].placement,bodies_[i].position);
+    for(unsigned i=0;i<actors_.size();++i) {
+        const auto index=map_body_count_+i;
+        if(index==mover)actors_[i].actor->animation().set_channel(1,bodies_[index].position);
+        else actors_[i].actor->animation().write_channel_output(1,bodies_[index].position);
+    }
+    for(auto& body:bodies_)body.previous=body.position;
 }
 static FieldDefinition read_definition(Bytes data,const std::string& room,int scene) {
     if(get(data,0)!=0x424458 || get(data,16)!=0xffffffff)throw std::runtime_error("Invalid field XDB header");
@@ -200,10 +227,7 @@ void OpeningField::update_npcs() {
             get_variable(0x40006),player_.motion,event_running()?5:(transition_?14:0),get_variable(0x40004)};
         const auto action=enemies_[index]->tick(observation,random_value,angles_,sine_);
         if(action.visible) {
-            object->visible=*action.visible;
-            // Original 0x1baa60 excludes collision index zero, including the
-            // first FIELD_1D kumo. Preserve that quirk, as for event visibility.
-            if(index)bodies_.at(index).flags=object->visible?(bodies_[index].flags&~2u):(bodies_[index].flags|2u);
+            set_instance_visibility(object->visible,map_body_count_+index,bodies_,*action.visible);
         }
         if(action.translucent)object->render_flags|=0x100000;
         if(action.position)object->animation().set_channel(1,*action.position);
@@ -212,16 +236,12 @@ void OpeningField::update_npcs() {
         if(action.alpha)object->animation().set_component(3,3,*action.alpha);
         if(action.displacement) {
             if(!collision_)throw std::runtime_error("Enemy pursuit requires field collision");
-            for(unsigned i=0;i<bodies_.size();++i)bodies_[i].position=actors_[i].actor->animation().values().at(1);
-            auto desired=bodies_[index].position;for(unsigned k=0;k<4;++k)desired[k]+=(*action.displacement)[k];
+            sync_collision_positions();const auto body_index=map_body_count_+index;
+            auto desired=bodies_[body_index].position;for(unsigned k=0;k<4;++k)desired[k]+=(*action.displacement)[k];
             MapCollisionSettings settings;settings.wall_iterations=3;settings.disabled_mask=collision_mask->bits;
-            resolve_collision(*collision_,bodies_,index,desired,settings,__builtin_bit_cast(float, (0x3efff17du)));
-            bodies_[index].position=desired;
-            for(unsigned i=0;i<bodies_.size();++i) {
-                if(i==index)actors_[i].actor->animation().set_channel(1,bodies_[i].position);
-                else actors_[i].actor->animation().write_channel_output(1,bodies_[i].position);
-                bodies_[i].previous=bodies_[i].position;
-            }
+            resolve_collision(*collision_,bodies_,body_index,desired,settings,__builtin_bit_cast(float, (0x3efff17du)));
+            bodies_[body_index].position=desired;
+            commit_collision_positions(body_index);
         }
         rear_attack_|=action.rear_attack;
         if(action.encounter_column) {
@@ -356,12 +376,14 @@ void OpeningField::load_exploration_collision(Bytes xcl,Bytes variables) {
 void OpeningField::build_collision(Bytes xcl) {
     collision_=read_xcl(xcl);
     Rounding rounding;
+    if(map_scene_)for(const auto& binding:map_scene_->collision_bodies())bodies_.push_back(binding.body);
+    map_body_count_=bodies_.size();
     for(unsigned i=0;i<actors_.size();++i) {
-        CollisionBody body;body.id=i;body.priority=10;body.floor_reach=4;
+        CollisionBody body;body.id=map_body_count_+i;body.priority=10;body.floor_reach=4;
         const float radius=__builtin_bit_cast(float, (0x3ff33333u));body.broad_radius=radius+radius;
         body.shapes={{8,{{0,0,0,1},{},0}},{0x72,{{0,-2.5f,0,1},{0,-5,0,1},radius}}};
         body.position=body.previous=actors_[i].actor->animation().values().at(1);
-        if(i&&!actors_[i].actor->visible)body.flags|=2;
+        if(body.id&&!actors_[i].actor->visible)body.flags|=2;
         bodies_.push_back(std::move(body));
     }
 }
@@ -451,7 +473,7 @@ void OpeningField::move_player(ExplorationInput input) {
     }
     if(state.floor_contact<0)delta[1]=1;
     if(moving||state.floor_contact<0) {
-        for(unsigned i=0;i<bodies_.size();++i)bodies_[i].position=actors_[i].actor->animation().values().at(1);
+        sync_collision_positions();
         auto& body=bodies_.back();body.previous=body.position;Float4 desired;
         for(unsigned i=0;i<4;++i)desired[i]=body.position[i]+delta[i];
         MapCollisionSettings settings;settings.wall_iterations=3;settings.disabled_mask=collision_mask->bits;
@@ -459,11 +481,7 @@ void OpeningField::move_player(ExplorationInput input) {
         body.position=desired;
         // 0x1ba948 commits the mover and copies every current position to history.
         // Pushed NPC positions are native animation channels, not detached copies.
-        for(unsigned i=0;i<bodies_.size();++i) {
-            if(i==bodies_.size()-1)actors_[i].actor->animation().set_channel(1,bodies_[i].position);
-            else actors_[i].actor->animation().write_channel_output(1,bodies_[i].position);
-            bodies_[i].previous=bodies_[i].position;
-        }
+        commit_collision_positions(bodies_.size()-1);
         state.floor_contact=(body.contact.flags&1)?body.contact.materials[0]:-1;
     }
     if(state.floor_contact>=0) {
@@ -592,12 +610,16 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
         case 0x3d:
             screen_filter.select(a,b);return {pc+4};
         case 0x3b:
+            if((a&0x100)&&b>=0&&map_visibility) {
+                if(!map_visibility(b,(a&255)!=0))return pending();
+                pending_opcode=0;return {pc+4};
+            }
             if(auto* target=actor(b);target && (a&0x100)) {
-                target->visible=(a&255)!=0;
                 // Original 0x1baa60 excludes collision index zero.
-                for(unsigned i=1;i<bodies_.size();++i)if(actors_[i].actor==target)
-                    bodies_[i].flags=target->visible?(bodies_[i].flags&~2u):(bodies_[i].flags|2u);
-                return {pc+4};
+                unsigned index=0;
+                for(unsigned i=0;i<actors_.size();++i)if(actors_[i].actor==target&&!bodies_.empty())index=map_body_count_+i;
+                set_instance_visibility(target->visible,index,bodies_,(a&255)!=0);
+                pending_opcode=0;return {pc+4};
             }
             return pending();
         case 0x44: {
