@@ -38,7 +38,7 @@ def main():
     cameras=[r for r in rows(Path(prefix+'.camera.bin').read_bytes(),32) if r[0]>=113]
     require([r[0] for r in cameras]==list(range(113,360)),'Original camera extent')
     for r in cameras:require(c[r[0]+16421-1][4:16]==r[4:8]+r[12:16]+r[8:12],'HOME1B camera differs')
-    count=compare_controller(Path(prefix+'.controller.bin').read_bytes(),native('.dialogue.bin').read_bytes(),
+    controller_words=compare_controller(Path(prefix+'.controller.bin').read_bytes(),native('.dialogue.bin').read_bytes(),
                              first_original=143,first_native=16564,frames=217,total=len(m),message_id=11301)
     require(m[-1][7]==0xf10 and m[-1][4]==1,'Family event state changed')
     baseline='local/native-next-night-17000-release-v2.png'
@@ -57,7 +57,7 @@ def main():
     files += [native(s) for s in ['.interaction.bin','.camera.bin','.dialogue.bin','.actor-1.bin','.transition.bin','.json']]
     report=dict(scope=__doc__,original_run=original_run,native_run=native_run,original_dispatch=113,native_dispatch=16534,
                 manager_samples=246,exact_manager_words=984,hero_samples=246,exact_hero_words=1968,
-                camera_updates=247,exact_camera_words=2964,controller_returns=count,exact_controller_words=count*10,
+                camera_updates=247,exact_camera_words=2964,controller_returns=controller_words//10,exact_controller_words=controller_words,
                 native_message_open_frame=16564,final_event_pc='0xf10',scene_brightness=1,
                 unchanged_native_prefix_frames=16533,unchanged_trace_bytes=compared,unchanged_pcm_bytes=size,
                 sha256={str(f):digest(f) for f in files},
