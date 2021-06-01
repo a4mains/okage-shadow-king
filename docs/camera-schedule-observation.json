@@ -1,0 +1,116 @@
+{
+  "scope": "Original HOME1B camera/player callback order; native movement correction remains unimplemented.",
+  "original_run": {
+    "command": [
+      "build/play-research/okage-oracle/okage-boot-oracle",
+      "local/disc/Okage - Shadow King (USA).cue",
+      "120",
+      "local/reference-home1b-date-420-v1.state.zip",
+      "--load",
+      "--pad",
+      "local/reference-home1b-camera-schedule-120-v1.input",
+      "--transition",
+      "local/reference-home1b-camera-schedule-120-v1.transition.bin",
+      "--camera",
+      "local/reference-home1b-camera-schedule-120-v1.camera.bin",
+      "--camera-schedule",
+      "local/reference-home1b-camera-schedule-120-v1.camera-schedule.bin",
+      "--controller",
+      "local/reference-home1b-camera-schedule-120-v1.controller.bin",
+      "--screen-filter",
+      "local/reference-home1b-camera-schedule-120-v1.screen-filter.bin",
+      "--capture",
+      "local/reference-home1b-camera-schedule-120-v1",
+      "--save",
+      "local/reference-home1b-camera-schedule-120-v1.state.zip",
+      "--deadline-seconds",
+      "900"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 81.24045212499999,
+    "binary_sha256": "d640ae1d22cbdc481eceee5d64ea89af1936e7bde92fa3fec0259653ac91e324"
+  },
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "observations": 389,
+  "frames": 120,
+  "manager_samples": 120,
+  "anchored_updates": 74,
+  "camera_returns": 120,
+  "player_entries": 75,
+  "order": [
+    {
+      "frames": [
+        0,
+        44
+      ],
+      "callbacks": [
+        "0x133a98",
+        "0x1b9c74"
+      ]
+    },
+    {
+      "frames": [
+        45,
+        45
+      ],
+      "callbacks": [
+        "0x133a98",
+        "0x1b9c74",
+        "0x134c18"
+      ]
+    },
+    {
+      "frames": [
+        46,
+        119
+      ],
+      "callbacks": [
+        "0x133a98",
+        "0x136aa8",
+        "0x1b9c74",
+        "0x134c18"
+      ]
+    }
+  ],
+  "unchanged_original_prefix": {
+    "capture": "local/reference-home1b-door-240-v2",
+    "frames": 120,
+    "exact_files": [
+      "transition",
+      "camera",
+      "controller"
+    ]
+  },
+  "native_attempt": {
+    "prefix": "local/native-home1b-door-18740-release-v1",
+    "exit_code": 0,
+    "first_hero_difference_original_frame": 83,
+    "native_completed_frame": 18583,
+    "first_facing_words": {
+      "native": "0x3dcf0000",
+      "original": "0x3dcf8000"
+    },
+    "first_x_words": {
+      "native": "0x40403cfa",
+      "original": "0x404031dc"
+    },
+    "manager_observations_exact": 240,
+    "full_door_validation_passed": false
+  },
+  "interpretation": "Original camera return precedes player callback. Native tick_callbacks moves the player before anchored-camera setup/evaluation. Original player0x134c18 queries camera channel1 via0x1b43c0, which evaluates dirty channels; raw cached channel words are not the final query output.",
+  "limits": [
+    "No runtime scheduling correction implemented.",
+    "Camera blend target observer semantics differ; closure report documents the separate comparison limit.",
+    "Do not widen HERO tolerance or fit a new frame anchor to conceal the movement discrepancy."
+  ],
+  "sha256": {
+    "local/reference-home1b-camera-schedule-120-v1.run.json": "df24c261d43e532acfdb0ed2d3c98ee699d9149897ca504c55d4430da83ca38c",
+    "local/reference-home1b-camera-schedule-120-v1.input": "297a2902e0c96119d7b53f3286c8a2ceefcee91f7772c25a1f02d440f1bc8aee",
+    "local/reference-home1b-camera-schedule-120-v1.log": "cd4dcc928da50e41f20d0c48bc2ac1a2a92e4ab2e2576b404f4f65cadd0636fc",
+    "local/reference-home1b-camera-schedule-120-v1.transition.bin": "d9dc80bc12145ee91927559a8e6cdc2840610ed86a1a4f6a154e3f67b37e792d",
+    "local/reference-home1b-camera-schedule-120-v1.camera.bin": "7156d08556167f56981ea1f0c3d3086424af8f5cb84d5a9b64a6d4f4c32083b0",
+    "local/reference-home1b-camera-schedule-120-v1.controller.bin": "04649685cb94bab249e9097441c42bc80aa1206d512130651d80799a5c953eb1",
+    "local/reference-home1b-camera-schedule-120-v1.camera-schedule.bin": "7fdf2e5c3006b4a6c12ae4e4855e81b6d9d30002713e307dd7f973f09f43c623",
+    "local/reference-home1b-camera-schedule-120-v1.state.zip": "9416778777442c597f676dc29fa53d4ef3dee3e9cb029ab1b008ec9ce9a72369"
+  }
+}

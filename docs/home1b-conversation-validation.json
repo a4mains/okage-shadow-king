@@ -1,5 +1,5 @@
 {
-  "scope": "Audit HOME1B Father closure and optionally Mother's conversation.",
+  "scope": "Audit successive HOME1B family conversation intervals.",
   "native_run": {
     "command": [
       "build/native-release/okage-native.app/Contents/MacOS/okage-native",
@@ -16,13 +16,13 @@
       "--actor-bind",
       "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
       "--frames",
-      "18080",
+      "18580",
       "--press",
-      "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863",
+      "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544",
       "--directions",
-      "local/native-home1b-warning-18080-release-v1.directions",
+      "local/native-home1b-closure-18580-release-v1.directions",
       "--capture",
-      "local/native-home1b-warning-18080-release-v1.png",
+      "local/native-home1b-closure-18580-release-v1.png",
       "--music-dry",
       "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
       "--music-bank",
@@ -37,7 +37,7 @@
       "11310"
     ],
     "exit_code": 0,
-    "elapsed_seconds": 137.062080541,
+    "elapsed_seconds": 140.912139875,
     "binary_sha256": "c7aaa8852bc2466d3013f752e375e1f267fa9d877769c1f2e19cd7426b5f3d6f"
   },
   "intervals": [
@@ -72,6 +72,7 @@
         "elapsed_seconds": 194.756466625,
         "binary_sha256": "f4308d18ed82540ca1251de144eace72e99e186a45da49baccb04254450bad6d"
       },
+      "compared_frames": 280,
       "controller_returns": 278,
       "exact_controller_words": 2780,
       "manager_samples": 280,
@@ -81,6 +82,14 @@
       "camera_updates": 280,
       "exact_camera_words": 3360,
       "observed_presses": [
+        [
+          2,
+          16783,
+          64
+        ]
+      ],
+      "pad_latch_samples": 280,
+      "manager_observed_presses": [
         [
           2,
           16783,
@@ -123,6 +132,7 @@
         "elapsed_seconds": 288.48000900000005,
         "binary_sha256": "f4308d18ed82540ca1251de144eace72e99e186a45da49baccb04254450bad6d"
       },
+      "compared_frames": 420,
       "controller_returns": 420,
       "exact_controller_words": 4200,
       "manager_samples": 420,
@@ -132,6 +142,34 @@
       "camera_updates": 420,
       "exact_camera_words": 5040,
       "observed_presses": [
+        [
+          1,
+          17062,
+          64
+        ],
+        [
+          42,
+          17103,
+          64
+        ],
+        [
+          83,
+          17144,
+          64
+        ],
+        [
+          124,
+          17185,
+          64
+        ],
+        [
+          165,
+          17226,
+          64
+        ]
+      ],
+      "pad_latch_samples": 420,
+      "manager_observed_presses": [
         [
           1,
           17062,
@@ -191,6 +229,7 @@
         "elapsed_seconds": 193.779018834,
         "binary_sha256": "f4308d18ed82540ca1251de144eace72e99e186a45da49baccb04254450bad6d"
       },
+      "compared_frames": 300,
       "controller_returns": 254,
       "exact_controller_words": 2540,
       "manager_samples": 300,
@@ -200,6 +239,19 @@
       "camera_updates": 300,
       "exact_camera_words": 3600,
       "observed_presses": [
+        [
+          1,
+          17482,
+          64
+        ],
+        [
+          82,
+          17563,
+          64
+        ]
+      ],
+      "pad_latch_samples": 300,
+      "manager_observed_presses": [
         [
           1,
           17482,
@@ -295,6 +347,7 @@
         "elapsed_seconds": 208.316152709,
         "binary_sha256": "f4308d18ed82540ca1251de144eace72e99e186a45da49baccb04254450bad6d"
       },
+      "compared_frames": 300,
       "controller_returns": 300,
       "exact_controller_words": 3000,
       "manager_samples": 300,
@@ -315,22 +368,356 @@
           64
         ]
       ],
+      "pad_latch_samples": 300,
+      "manager_observed_presses": [
+        [
+          1,
+          17782,
+          64
+        ],
+        [
+          82,
+          17863,
+          64
+        ]
+      ],
       "controller_unobserved_frames": []
+    },
+    {
+      "prefix": "local/reference-home1b-date-420-v1",
+      "native_first_frame": 18081,
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-boot-oracle",
+          "local/disc/Okage - Shadow King (USA).cue",
+          "420",
+          "local/reference-home1b-warning-300-v1.state.zip",
+          "--load",
+          "--pad",
+          "local/reference-home1b-date-420-v1.input",
+          "--transition",
+          "local/reference-home1b-date-420-v1.transition.bin",
+          "--camera",
+          "local/reference-home1b-date-420-v1.camera.bin",
+          "--actor",
+          "local/reference-home1b-date-420-v1.actor.bin",
+          "--actor-alias",
+          "6",
+          "--controller",
+          "local/reference-home1b-date-420-v1.controller.bin",
+          "--screen-filter",
+          "local/reference-home1b-date-420-v1.screen-filter.bin",
+          "--capture",
+          "local/reference-home1b-date-420-v1",
+          "--save",
+          "local/reference-home1b-date-420-v1.state.zip",
+          "--deadline-seconds",
+          "900"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 273.9519975,
+        "binary_sha256": "f4308d18ed82540ca1251de144eace72e99e186a45da49baccb04254450bad6d"
+      },
+      "compared_frames": 420,
+      "controller_returns": 372,
+      "exact_controller_words": 3720,
+      "manager_samples": 420,
+      "exact_manager_words": 1680,
+      "hero_samples": 420,
+      "exact_hero_words": 3360,
+      "camera_updates": 420,
+      "exact_camera_words": 5040,
+      "observed_presses": [
+        [
+          1,
+          18082,
+          64
+        ],
+        [
+          83,
+          18164,
+          64
+        ],
+        [
+          124,
+          18205,
+          64
+        ],
+        [
+          165,
+          18246,
+          64
+        ],
+        [
+          206,
+          18287,
+          64
+        ],
+        [
+          288,
+          18369,
+          64
+        ],
+        [
+          329,
+          18410,
+          64
+        ],
+        [
+          370,
+          18451,
+          64
+        ]
+      ],
+      "pad_latch_samples": 420,
+      "manager_observed_presses": [
+        [
+          1,
+          18082,
+          64
+        ],
+        [
+          42,
+          18123,
+          64
+        ],
+        [
+          83,
+          18164,
+          64
+        ],
+        [
+          124,
+          18205,
+          64
+        ],
+        [
+          165,
+          18246,
+          64
+        ],
+        [
+          206,
+          18287,
+          64
+        ],
+        [
+          247,
+          18328,
+          64
+        ],
+        [
+          288,
+          18369,
+          64
+        ],
+        [
+          329,
+          18410,
+          64
+        ],
+        [
+          370,
+          18451,
+          64
+        ]
+      ],
+      "controller_unobserved_frames": [
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        246,
+        247,
+        248,
+        249,
+        250,
+        251,
+        252,
+        253,
+        254,
+        255,
+        256,
+        257,
+        258,
+        259,
+        260,
+        261,
+        262,
+        263,
+        264,
+        265,
+        266,
+        267,
+        268,
+        269
+      ]
+    },
+    {
+      "prefix": "local/reference-home1b-festival-420-v1",
+      "native_first_frame": 18501,
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-boot-oracle",
+          "local/disc/Okage - Shadow King (USA).cue",
+          "420",
+          "local/reference-home1b-date-420-v1.state.zip",
+          "--load",
+          "--pad",
+          "local/reference-home1b-festival-420-v1.input",
+          "--transition",
+          "local/reference-home1b-festival-420-v1.transition.bin",
+          "--camera",
+          "local/reference-home1b-festival-420-v1.camera.bin",
+          "--actor",
+          "local/reference-home1b-festival-420-v1.actor.bin",
+          "--actor-alias",
+          "6",
+          "--controller",
+          "local/reference-home1b-festival-420-v1.controller.bin",
+          "--screen-filter",
+          "local/reference-home1b-festival-420-v1.screen-filter.bin",
+          "--capture",
+          "local/reference-home1b-festival-420-v1",
+          "--save",
+          "local/reference-home1b-festival-420-v1.state.zip",
+          "--deadline-seconds",
+          "900"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 279.64835475,
+        "binary_sha256": "f4308d18ed82540ca1251de144eace72e99e186a45da49baccb04254450bad6d"
+      },
+      "compared_frames": 80,
+      "controller_returns": 42,
+      "exact_controller_words": 420,
+      "manager_samples": 80,
+      "exact_manager_words": 320,
+      "hero_samples": 80,
+      "exact_hero_words": 640,
+      "camera_updates": 80,
+      "exact_camera_rotation_words": 320,
+      "exact_camera_mode_phase_words": 160,
+      "camera_position_maximum_error": 1.9073486328125e-06,
+      "camera_position_tolerance": 2e-05,
+      "camera_target_limit": "Original requested global and native effective blended target are different observables; not compared during closure.",
+      "observed_presses": [
+        [
+          2,
+          18503,
+          64
+        ]
+      ],
+      "pad_latch_samples": 80,
+      "manager_observed_presses": [
+        [
+          2,
+          18503,
+          64
+        ],
+        [
+          43,
+          18544,
+          64
+        ]
+      ],
+      "controller_unobserved_frames": [
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79
+      ]
     }
   ],
-  "annie_animation": {
-    "actor_alias": -17,
-    "original_instance": 6,
-    "channels": 174,
-    "manager_observations": 300,
-    "exact_channel_words": 208800,
-    "exact_field_motion_words": 900
-  },
+  "annie_animation": [
+    {
+      "prefix": "local/reference-home1b-warning-300-v1",
+      "actor_alias": -17,
+      "original_instance": 6,
+      "channels": 174,
+      "manager_observations": 300,
+      "exact_channel_words": 208800,
+      "exact_field_motion_words": 900
+    },
+    {
+      "prefix": "local/reference-home1b-date-420-v1",
+      "actor_alias": -17,
+      "original_instance": 6,
+      "channels": 174,
+      "manager_observations": 420,
+      "exact_channel_words": 292320,
+      "exact_field_motion_words": 1260
+    },
+    {
+      "prefix": "local/reference-home1b-festival-420-v1",
+      "actor_alias": -17,
+      "original_instance": 6,
+      "channels": 174,
+      "manager_observations": 80,
+      "exact_channel_words": 55680,
+      "exact_field_motion_words": 240
+    }
+  ],
   "sha256": {
-    "local/native-home1b-warning-18080-release-v1.png.dialogue.bin": "f27aeb91bfb69e8a8fcd31dc32c795687c5f30591124d954f9e0e66e5d0ba7e0",
-    "local/native-home1b-warning-18080-release-v1.png.interaction.bin": "3a5d7d33b4de13196bd2b6da78b1c7e5df0b67445d1c7dfc5de1d3d232abf571",
-    "local/native-home1b-warning-18080-release-v1.png.camera.bin": "d567aeeef7fce626595175908ff81f09317b3cbfdb789b6dc4edee32507b1ac3",
-    "local/native-home1b-warning-18080-release-v1.png.actor-1.bin": "ebd7adb5a022c608bde52c0f400a09dbbe0214647bd693d5c39bc8a2a8b163b7",
+    "local/native-home1b-closure-18580-release-v1.png.dialogue.bin": "1d52e15bfab2ff06adefcfe063c485fddb14d724872963acbb75527e8da45a08",
+    "local/native-home1b-closure-18580-release-v1.png.interaction.bin": "ae25c15f469cc8046871dd7cb3699d4b3b70d8cf99507b30c6ac2ca855c72efa",
+    "local/native-home1b-closure-18580-release-v1.png.camera.bin": "cc80b5376348a1651accbc2f99909ab477ced5ab9c9c025f88108b994c8799c3",
+    "local/native-home1b-closure-18580-release-v1.png.camera-state.bin": "9ca88f9c18f496e944694a7afa5301d11e0a752850a32913965c52cb33fb7d63",
+    "local/native-home1b-closure-18580-release-v1.png.actor-1.bin": "45ec2b3d16a605f9d42e23ff227f7ec410df18d92ac0a9ade68508a27cec1b1b",
     "local/reference-home1b-confirm-280-v1.run.json": "d7ce3e1563d80dddfb7cde065f5dc7ce8c8ab816628b00913ba82eceecc3394b",
     "local/reference-home1b-confirm-280-v1.transition.bin": "cc020ef7531a523c21eaa265e86d71227aa25b1ea3350f035b992a993adad405",
     "local/reference-home1b-confirm-280-v1.controller.bin": "2cbb13e0d0647442ca0642324cd706a354312625d22affa54fa87e3fbebefe43",
@@ -355,11 +742,25 @@
     "local/reference-home1b-warning-300-v1.camera.bin": "381d080b8e192dfa426b78c58404264498f06ce50c719f1ad182b6fe28136bc5",
     "local/reference-home1b-warning-300-v1.state.zip": "245a31f0bf1af044264be5ad838cb5f45f5c15bc73aa6a27a670e42ca59a2204",
     "local/reference-home1b-warning-300-v1.input": "cc57c9d4156d3b3a114c4c7877f040f5c94413e0ecedbf01ec71ce8c73500a5f",
+    "local/reference-home1b-date-420-v1.run.json": "984e72dcc134b92874785e2a6e3a417097e5dadb0b9d37b090dc95d57ed53d6e",
+    "local/reference-home1b-date-420-v1.transition.bin": "8b4c74e6b63f44cf09d4103b34bb7114e8e0ad31d09c15393a7e7f8155739f09",
+    "local/reference-home1b-date-420-v1.controller.bin": "f57951b0b8a76af09c8598503843ea6d1f26f2990c5fa9e26f74c7a9e23b15e7",
+    "local/reference-home1b-date-420-v1.camera.bin": "066de2fbe319cefdf6feea45d133bfd92bdb449fd16c237db1efd6ab02d87848",
+    "local/reference-home1b-date-420-v1.state.zip": "2f7af7b92aec9a7468a5e8be7ed2e2fcbeb9e8e087cbf8275c1a8087ee8757b0",
+    "local/reference-home1b-date-420-v1.input": "bd89e643d49a66526a1cf32a7d957df3a5bcd5d6488e6687b4881b6dc6701136",
+    "local/reference-home1b-festival-420-v1.run.json": "8846a4b180db42b2e23741931404c4b6f64e58a172b8b66dfc4d98d0a6669d34",
+    "local/reference-home1b-festival-420-v1.transition.bin": "62b73397426906d04822bb54fae87833631641029b34d92ab3470cc95a18273e",
+    "local/reference-home1b-festival-420-v1.controller.bin": "6c637695b0fc03bc806c71e336c4b9c6145d77a07ea3c89b680e4afe510a49ad",
+    "local/reference-home1b-festival-420-v1.camera.bin": "dd62ef73df2c1e3606a9d59f82ad84645657950c84b9683cabc91eb26d88c5cb",
+    "local/reference-home1b-festival-420-v1.state.zip": "5b0bf20f3e789e337743020c92886d689d1f03fe4cc467cb80a8d0d337fe89b0",
+    "local/reference-home1b-festival-420-v1.input": "bd89e643d49a66526a1cf32a7d957df3a5bcd5d6488e6687b4881b6dc6701136",
     "local/reference-home1b-warning-300-v1.actor.bin": "9974f8cb6a2a2ba606d43518cb4bd27d6fb10385ad33cc38894371e27708e610",
-    "local/native-home1b-warning-18080-release-v1.png.actor-17.bin": "5c80a224418a1b1ea226a475d4a2e4eba275a61f4ce26b01502535476069b421"
+    "local/reference-home1b-date-420-v1.actor.bin": "0a5dcfde5595523991f3cb311d82d815d491f6084d833d3b9b8c131756f51059",
+    "local/reference-home1b-festival-420-v1.actor.bin": "12d2c02fc8037a9ad70d96dd996cab6b7c3aaef0fd43b9eec0207c085d4c2cef",
+    "local/native-home1b-closure-18580-release-v1.png.actor-17.bin": "aa1abc970108bc09444261477c11d66d425ed5ee7ed7b9d4824c3fb973a3ecb3"
   },
   "limits": [
-    "Rendering, other actors and audio are outside these comparisons.",
+    "Rendering, visibility flags, other actors and audio are outside these comparisons.",
     "Original controller is not observed during the explicit closure/initialization gaps."
   ]
 }
