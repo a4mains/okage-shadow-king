@@ -1,5 +1,5 @@
 {
-  "scope": "Original HOME1B camera/player callback order; native movement correction remains unimplemented.",
+  "scope": "Historical v1/pre-fix HOME1B camera/player callback observation.",
   "original_run": {
     "command": [
       "build/play-research/okage-oracle/okage-boot-oracle",
@@ -99,7 +99,7 @@
   },
   "interpretation": "Original camera return precedes player callback. Native tick_callbacks moves the player before anchored-camera setup/evaluation. Original player0x134c18 queries camera channel1 via0x1b43c0, which evaluates dirty channels; raw cached channel words are not the final query output.",
   "limits": [
-    "No runtime scheduling correction implemented.",
+    "This report predates the native scheduling correction; its native_attempt is the old negative control.",
     "Camera blend target observer semantics differ; closure report documents the separate comparison limit.",
     "Do not widen HERO tolerance or fit a new frame anchor to conceal the movement discrepancy."
   ],

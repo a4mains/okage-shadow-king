@@ -2,9 +2,10 @@
 """Audit integrated native kitchen movement against paired original observations.
 
 Original rendering precedes the player callback within a captured vblank.
-Compare callback state with native post-update state, and rendered channels with
-the preceding native update. Derive the time anchor from handoff/counter state,
-never by minimizing position or animation errors.
+Compare callback state with native post-update state; rendered roots precede
+movement, while pose channels follow that frame's scene evaluation. The legacy
+option retains the old runtime's comparison for historical captures. Derive the
+time anchor from handoff/counter state, never by minimizing spatial errors.
 """
 import argparse
 import hashlib
@@ -31,6 +32,7 @@ def main():
     p.add_argument('--capture', type=Path, default=Path('local/native-movement-6000-debug-v4.png'))
     p.add_argument('--compare', type=Path, action='append', default=[])
     p.add_argument('--ui', type=Path)
+    p.add_argument('--schedule',choices=['legacy','current'],default='legacy')
     p.add_argument('--output', type=Path, default=Path('local/movement-scene-validation-v1.json'))
     args = p.parse_args()
     ref = lambda suffix: Path(str(args.reference) + suffix)
@@ -61,8 +63,9 @@ def main():
         if len(part) != 6000 or [r[0] for r in part] != list(range(1, 6001)):
             raise RuntimeError('Incomplete native observation sequence')
     handoff = next(i for i, r in enumerate(camera_states) if r[1] == 0)
-    first_update = camera_states[handoff+2][0]
-    if camera_states[handoff+2][1] != 2 or moves[first_update-1][11] != 1:
+    current_schedule=args.schedule=='current'
+    first_update = camera_states[handoff+(1 if current_schedule else 2)][0]
+    if camera_states[handoff+2][1] != 2 or moves[first_update-1][11] != 1 or moves[first_update-1][2]&1:
         raise RuntimeError('Unexpected native camera/player handoff')
     if before[0][4] or before[0][10] or before[0][11] != 1 or before[0][12]:
         raise RuntimeError('Expected idle original entry anchor')
@@ -70,8 +73,8 @@ def main():
     if moves[origin-1][11] != before[0][19]+1:
         raise RuntimeError('Original/native idle counter anchor differs')
     maximum_position = maximum_camera = maximum_target = 0.
+    motion_changes=[]
     for frame, (entry, post, actor, camera) in enumerate(zip(before, after, actors, cameras)):
-        # Post-player state at original frame N; rendered channels at N+1.
         m = moves[origin+frame-1]
         expected = (post[10], post[9], post[11], post[12], post[13], post[14],
                     post[15], post[16], post[17], post[19], post[20], post[21], post[18], post[30])
@@ -82,12 +85,16 @@ def main():
         if current[8:12] != post[56:60]:
             raise RuntimeError('Post-movement facing differs')
         rendered = nactors[origin+frame-2]
-        if rendered[2:4] != actor[2:4] or rendered[8:12] != actor[8:12] or rendered[16:920] != actor[16:920]:
+        pose = current if current_schedule else rendered
+        changed=current_schedule and entry[11]!=post[11]
+        if changed:motion_changes.append(frame)
+        if ((not changed and pose[2:4] != actor[2:4]) or
+            rendered[8:12] != actor[8:12] or pose[16:920] != actor[16:920]):
             raise RuntimeError('Rendered script, facing, scale or pose channels differ at frame %d' % frame)
         maximum_position = max(maximum_position, error(rendered[12:16], actor[12:16]))
         if frame and actor[12:16] != after[frame-1][48:52]:
             raise RuntimeError('Original render/player phase relationship changed')
-        nc = ncameras[origin+frame-2]
+        nc = ncameras[origin+frame-(1 if current_schedule else 2)]
         if nc[12:16] != camera[8:12] or camera[2:4] != (2, 0x3f800000):
             raise RuntimeError('Rendered camera rotation/mode/phase differs')
         maximum_camera = max(maximum_camera, error(nc[4:8], camera[4:8]))
@@ -123,8 +130,12 @@ def main():
         'scope': __doc__.strip(), 'elf_sha256': ELF_HASH, 'original_frames': 180,
         'native_frames': 6000, 'native_first_player_update': first_update,
         'native_frame_for_original_callback_zero': origin,
-        'phase_evidence': 'Original rendered position at N equals post-player position at N-1 for every observed N>0.',
-        'player_state_input_exact': True, 'rendered_script_and_nonposition_channels_exact': True,
+        'phase_evidence': 'Original rendered position at N equals post-player position at N-1 for every observed N>0. Current runtime pose/camera evaluate before movement in the same frame.',
+        'schedule':args.schedule,
+        'player_state_input_exact': True, 'rendered_nonposition_channels_exact': True,
+        'exact_rendered_script_samples':180-len(motion_changes),
+        'script_phase_exclusions':motion_changes,
+        'script_phase_limit':'At motion-selection callbacks, original render script state precedes selection; native post-update state follows selection. These states are not compared.',
         'rotation_exact': True, 'camera_rotation_exact': True,
         'position_maximum_absolute_error': maximum_position,
         'camera_position_maximum_absolute_error': maximum_camera,

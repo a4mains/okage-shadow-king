@@ -1,0 +1,256 @@
+{
+  "scope": "Check HOME1B original phase order, player camera queries and native script state.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "original_run": {
+    "command": [
+      "build/play-research/okage-oracle/okage-boot-oracle",
+      "local/disc/Okage - Shadow King (USA).cue",
+      "120",
+      "local/reference-home1b-date-420-v1.state.zip",
+      "--load",
+      "--pad",
+      "local/reference-home1b-camera-schedule-120-v2.input",
+      "--transition",
+      "local/reference-home1b-camera-schedule-120-v2.transition.bin",
+      "--camera",
+      "local/reference-home1b-camera-schedule-120-v2.camera.bin",
+      "--camera-schedule",
+      "local/reference-home1b-camera-schedule-120-v2.camera-schedule.bin",
+      "--controller",
+      "local/reference-home1b-camera-schedule-120-v2.controller.bin",
+      "--screen-filter",
+      "local/reference-home1b-camera-schedule-120-v2.screen-filter.bin",
+      "--capture",
+      "local/reference-home1b-camera-schedule-120-v2",
+      "--save",
+      "local/reference-home1b-camera-schedule-120-v2.state.zip",
+      "--deadline-seconds",
+      "900"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 207.975215875,
+    "binary_sha256": "8fd153b021c9044073493a4e8a58a87e433dd98528897bf552dd684ebfee8aee"
+  },
+  "native_run": {
+    "command": [
+      "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+      "local/font-input/CMNDATA/FONT",
+      "local/text-input/FLDDATA/MES/FIELD.PME",
+      "--scene",
+      "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+      "--event",
+      "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+      "--actor",
+      "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+      "--actor-bind",
+      "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+      "--actor-bind",
+      "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+      "--frames",
+      "18740",
+      "--press",
+      "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622",
+      "--directions",
+      "local/native-camera-order-door-18740-release-v1.directions",
+      "--capture",
+      "local/native-camera-order-door-18740-release-v1.png",
+      "--music-dry",
+      "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+      "--music-bank",
+      "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+      "--sound-dir",
+      "local/audio-input/SNDDATA/SE",
+      "--effect-data",
+      "local/effect-input/CMNDATA/2D/TES.EFD",
+      "--effect-textures",
+      "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+      "--render-from",
+      "11310"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 141.92831345899998,
+    "binary_sha256": "1812e12931277e8041f67ae79c223875a85712ae94b52ed676a32fc65b4fe677"
+  },
+  "row_words": 48,
+  "observations": 842,
+  "frames": 120,
+  "callbacks": {
+    "0x133a98": 120,
+    "0x1b5a90": 120,
+    "0x1b9c74": 120,
+    "0x1b70a0": 120,
+    "0x102218": 120,
+    "0x134c18": 75,
+    "0x134c68": 75,
+    "0x136aa8": 74,
+    "0x101118": 18
+  },
+  "order": [
+    {
+      "first": 0,
+      "last": 44,
+      "callbacks": [
+        "0x133a98",
+        "0x1b5a90",
+        "0x1b9c74",
+        "0x1b70a0",
+        "0x102218"
+      ]
+    },
+    {
+      "first": 45,
+      "last": 45,
+      "callbacks": [
+        "0x133a98",
+        "0x1b5a90",
+        "0x1b9c74",
+        "0x1b70a0",
+        "0x102218",
+        "0x134c18",
+        "0x134c68"
+      ]
+    },
+    {
+      "first": 46,
+      "last": 101,
+      "callbacks": [
+        "0x133a98",
+        "0x136aa8",
+        "0x1b5a90",
+        "0x1b9c74",
+        "0x1b70a0",
+        "0x102218",
+        "0x134c18",
+        "0x134c68"
+      ]
+    },
+    {
+      "first": 102,
+      "last": 119,
+      "callbacks": [
+        "0x133a98",
+        "0x136aa8",
+        "0x1b5a90",
+        "0x1b9c74",
+        "0x1b70a0",
+        "0x102218",
+        "0x101118",
+        "0x134c18",
+        "0x134c68"
+      ]
+    }
+  ],
+  "exact_native_field_and_hero_script_words": 360,
+  "exact_original_and_native_player_camera_query_words": 300,
+  "unchanged_v1_files": [
+    "local/reference-home1b-camera-schedule-120-v1.transition.bin",
+    "local/reference-home1b-camera-schedule-120-v1.camera.bin",
+    "local/reference-home1b-camera-schedule-120-v1.controller.bin"
+  ],
+  "limits": [
+    "Native position and conversation comparisons are reported separately.",
+    "Original raw channel cache may be dirty; queried values are authoritative.",
+    "0x101118 observes an attachment callback, not an NPC callback.",
+    "Changing the shared ordering changes earlier pose/movement outputs; native prefix replay agreement does not establish unchanged behavior against the old implementation.",
+    "Kitchen rendered pose matches180 samples, script state176 samples; four motion-selection boundaries compare different phases and are explicitly excluded.",
+    "The app currently renders after player callbacks, while original model rendering precedes them. Root/pose phase comparisons do not establish identical displayed-frame timing."
+  ],
+  "sha256": {
+    "local/native-camera-order-door-18740-release-v1.run.json": "d8755295e33a05aa61ea879d22aa35c57b1fc1b912d4ce8917e75c71c8ec9e3e",
+    "local/reference-home1b-camera-schedule-120-v2.run.json": "f6db6dab32e947b5f24b0c6bfaa52bdf75e46304604a5d19d14fe6dab4d9d88c",
+    "local/reference-home1b-camera-schedule-120-v2.camera-schedule.bin": "629855d578980ace036bcad68229c573ec18acdc8a4d400c550d109588a0d137",
+    "local/reference-home1b-camera-schedule-120-v2.camera.bin": "7156d08556167f56981ea1f0c3d3086424af8f5cb84d5a9b64a6d4f4c32083b0",
+    "local/reference-home1b-camera-schedule-120-v2.transition.bin": "d9dc80bc12145ee91927559a8e6cdc2840610ed86a1a4f6a154e3f67b37e792d",
+    "local/reference-home1b-camera-schedule-120-v2.controller.bin": "04649685cb94bab249e9097441c42bc80aa1206d512130651d80799a5c953eb1",
+    "local/reference-home1b-camera-schedule-120-v2.input": "297a2902e0c96119d7b53f3286c8a2ceefcee91f7772c25a1f02d440f1bc8aee",
+    "local/native-camera-order-door-18740-release-v1.png.actor-1.bin": "c5bb1407ecbcaa47845f9370a867732d4a867fef567dd99d23c52ac346d10462",
+    "local/native-camera-order-door-18740-release-v1.png.camera.bin": "c0fc945650fc887ec492e6243297e802232c9a2460ced79c216e80ddc5f59b3d",
+    "local/reference-home1b-camera-schedule-120-v1.transition.bin": "d9dc80bc12145ee91927559a8e6cdc2840610ed86a1a4f6a154e3f67b37e792d",
+    "local/reference-home1b-camera-schedule-120-v1.camera.bin": "7156d08556167f56981ea1f0c3d3086424af8f5cb84d5a9b64a6d4f4c32083b0",
+    "local/reference-home1b-camera-schedule-120-v1.controller.bin": "04649685cb94bab249e9097441c42bc80aa1206d512130651d80799a5c953eb1",
+    "local/research/camera-order-home1b-debug-validation-v1.json": "18b08b08740412bc935b389ebc97887db97629d58d6e08263cfbf80dd9a52aba",
+    "local/research/camera-order-schedule-debug-validation-v1.json": "2e7a62b1621413b25620d51efd1b283467d36a6c9f479b06ebb2fa9847028eb3",
+    "local/research/camera-order-debug-crossbuild-v1.json": "5f0543497faf37c766b07b7ff1feb85290448788a1bd673d31dbb659d319d15d",
+    "local/research/camera-order-home1b-sanitize-validation-v1.json": "af6ac5deac259e004edec59ba54daddb03de7413d285c89b447a2bc08f307141",
+    "local/research/camera-order-schedule-sanitize-validation-v1.json": "d07019afcae5f56febabd5fa9dc9b4f3b0b1b61384431cc3398be634af6bf8f5",
+    "local/research/camera-order-sanitize-crossbuild-v1.json": "47d773ab344f1f60b87b857a3b8dcf696f1dda8a7abe7a8b38ff41ffc39cc56e"
+  },
+  "native_regressions": {
+    "home1b": {
+      "report": "local/research/home1b-father-talk-validation-v1.json",
+      "sha256": "ef20cf187fca18856ac1e1b80eadd6715c6161648e799cac244c9a1b251e7b6a",
+      "scope": "Audit successive HOME1B family conversation intervals."
+    },
+    "kitchen_movement": {
+      "report": "local/research/camera-order-movement-validation-v3.json",
+      "sha256": "314cada995386f6ee6e2d98fc0c2c57b13d8824d0f496cad98940162fd91fc53",
+      "scope": "Audit integrated native kitchen movement against paired original observations."
+    },
+    "dust": {
+      "report": "local/research/camera-order-dust-validation-v1.json",
+      "sha256": "6fd80b71f71247ced8f48c3f627c89085eb8d234dc036aa38720d5cc34e2c9c4",
+      "scope": "Audit native outdoor movement/dust lifecycle and observed original scheduling."
+    },
+    "north_gate": {
+      "report": "local/research/camera-order-north-gate-validation-v1.json",
+      "sha256": "9dc43b70fe053cec225c144f57bfde663b3e3faf38b6fe12c4377b66cc286539",
+      "scope": "Audit native north-gate event state/camera and animated screen feedback."
+    },
+    "boys": {
+      "report": "local/research/camera-order-boys-validation-v2.json",
+      "sha256": "bc9c38d3613ebe0185f1dfcdb515f544e1b4ffab8896d3afd765fbb5f2ced1d0",
+      "scope": "Audit event69/message10002 opening and actor-target camera integration."
+    },
+    "gate": {
+      "report": "local/research/camera-order-gate-validation-v1.json",
+      "sha256": "0528b736910f8cc9d8089ed54ecf68ee96699bfbe3885a769b85d33193bd04ee",
+      "scope": "Audit the native field gate event against two completed original captures."
+    },
+    "system_message": {
+      "report": "local/research/camera-order-system-validation-v2.json",
+      "sha256": "7783b48b849e15194adc41ba7131f269560f5bacd82ff20fc95a5e9e3609cbb0",
+      "scope": "Audit normal field message99099 opening, confirmation, closure and handoff."
+    }
+  },
+  "doorway_numerical_limit": {
+    "strict_comparison_passed": false,
+    "strict_first_position_difference": 91,
+    "original_x": "0x3edf852a",
+    "native_x": "0x3edf8529",
+    "sine_index": 14793,
+    "retail_sine_word": "0xbf12aefe",
+    "native_sine_word": "0xbf12aeff",
+    "maximum_hero_xyz_error": 1.9073486328125e-06,
+    "maximum_camera_position_error": 1.9073486328125e-06,
+    "existing_tolerance": 2e-05,
+    "facing_and_camera_rotation": "exact for all240 doorway observations",
+    "old_order_negative_control": "Old native-home1b-door-18740-release-v1 still rejected at original83 for facing/W."
+  },
+  "test_status": {
+    "cpp": "field/animation/effect tests pass in Debug, Release and ASan+UBSan; new paired idle/walk regression passes in all three.",
+    "python": "42 tests pass in local/research/camera-order-python-tests-v8.log",
+    "full_door_replays": {
+      "release": "completed and audited",
+      "debug": {
+        "completed": true,
+        "exit_code": 0,
+        "elapsed_seconds": 670.681081,
+        "binary_sha256": "08f63caeedac55c108b666558b058f0ebc99685e4cf6d544d7909b441a0a9cc2",
+        "home1b_report": "local/research/camera-order-home1b-debug-validation-v1.json",
+        "schedule_report": "local/research/camera-order-schedule-debug-validation-v1.json",
+        "crossbuild_report": "local/research/camera-order-debug-crossbuild-v1.json",
+        "exact_files_including_image_pcm_state_and_numeric_traces": 36
+      },
+      "sanitize": {
+        "completed": true,
+        "exit_code": 0,
+        "elapsed_seconds": 1020.454878459,
+        "binary_sha256": "4ff2cec95350a456c0ea664ca4a1d07dcf243e3656f94c147552490c0a37d9d2",
+        "home1b_report": "local/research/camera-order-home1b-sanitize-validation-v1.json",
+        "schedule_report": "local/research/camera-order-schedule-sanitize-validation-v1.json",
+        "crossbuild_report": "local/research/camera-order-sanitize-crossbuild-v1.json",
+        "exact_files_including_image_pcm_state_and_numeric_traces": 36
+      }
+    }
+  }
+}

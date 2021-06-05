@@ -28,6 +28,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--capture', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--prior-capture',type=Path,default=Path('local/native-field-stairs-7520-sky-v2.png'),
+                        help='Independent7520-frame replay for prefix consistency; not original-game evidence')
     args = parser.parse_args()
     base = str(args.capture)
     path = lambda suffix: Path(base + suffix)
@@ -80,15 +82,18 @@ def main():
                             first_camera_frame=first,end_camera_frame_exclusive=end))
     require(native[7890][4:7] == (0, 1, 1) and native[7891][4:7] == (0, 0, 1),
             'Gate completion/control handoff differs')
-    before = 'local/native-field-stairs-7520-sky-v2.png'
+    before = str(args.prior_capture)
     for suffix in ['.dialogue.bin', '.choices.bin', '.interaction.bin', '.movement.bin', '.camera.bin', '.actor-1.bin']:
         previous = Path(before + suffix)
+        if suffix=='.interaction.bin':require(len(rows(previous,8))==7520,'Prior capture extent')
         require(path(suffix).read_bytes().startswith(previous.read_bytes()), 'Prior route changed: ' + suffix)
         files.extend([previous, path(suffix)])
     report = dict(scope=__doc__, native_run=run, intervals=reports, manager_words=1760,
                   scripted_camera_words=2232,hero_endpoint_words=4,
                   event_frame=7707,script_finished_frame=7891,control_return_frame=7892,
-                  unchanged_prefix_frames=7520,sha256={str(p):digest(p) for p in files})
+                  unchanged_prefix_frames=7520,prefix_capture=before,
+                  prefix_scope='Native replay consistency against the selected capture; original comparisons are separate.',
+                  sha256={str(p):digest(p) for p in files})
     write_exact(args.output,(json.dumps(report,indent=2)+'\n').encode())
     print('440 manager samples,186 scripted camera samples and HERO endpoint match')
 

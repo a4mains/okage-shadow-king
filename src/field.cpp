@@ -441,7 +441,7 @@ void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned
         }
         else restore_event_gate();
     }
-    tick_callbacks(input,true,false);
+    tick_callbacks(input,false);
 }
 void OpeningField::remember_player() {
     const auto position=actor(-1)->animation().values().at(1);
@@ -765,20 +765,15 @@ void OpeningField::tick(ExplorationInput input) {
     }
     if(move&&exterior&&exterior_camera_enabled_)update_exterior_camera();
     if(move&&exterior&&player_.camera_area!=configured_camera_area_)configure_exterior_camera(player_.camera_area);
-    tick_callbacks(input,move||bool(transition_),move&&!exterior);
+    tick_callbacks(input,move&&!exterior);
 }
-void OpeningField::tick_callbacks(ExplorationInput input,bool movement,bool interior_camera) {
-    advance_effects(true);
-    update_npcs();
-    if(encounter_)return;
-    // Mode14 changes the field manager, not the player's movement mask.
-    // 0x1354d8 still runs movement while bit0 is clear during the countdown.
-    if(movement)move_player(input);
+void OpeningField::tick_callbacks(ExplorationInput input,bool interior_camera) {
+    // Manager0x133a98 updates the anchored camera from the preceding player
+    // position. Global scripts and scene evaluation precede player callbacks.
     if(interior_camera) {
         const auto camera=anchored_camera(actor(-1)->animation().values().at(1),*exploration_camera_,angles_,sine_);
         script_.set_channel(0,camera.position);requested_target_=camera.target;camera_mode_=2;
     }
-    if(collision_)remember_player();
     script_.tick_script();
     for(const auto& binding:map_objects_)binding.actor->tick_script();
     for(const auto& binding:actors_)binding.actor->tick_script();
@@ -788,6 +783,16 @@ void OpeningField::tick_callbacks(ExplorationInput input,bool movement,bool inte
     // calls 0x1b70a0 only for visible instances; hidden motion scripts still run.
     for(const auto& binding:map_objects_)if(binding.actor->visible){binding.actor->tick_channels();binding.actor->evaluate();}
     for(const auto& binding:actors_)if(binding.actor->visible){binding.actor->tick_channels();binding.actor->evaluate();}
+    // 0x1b9c74 has evaluated the camera before0x134c18 queries channel1.
+    // The player wrapper tests the movement mask independently of manager
+    // mode, including the handoff update and transition countdown.
+    advance_effects(true);
+    update_npcs();
+    if(encounter_)return;
+    move_player(input);
+    if(collision_)remember_player();
+    for(const auto& binding:map_objects_)if(binding.actor->visible)binding.actor->evaluate();
+    for(const auto& binding:actors_)if(binding.actor->visible)binding.actor->evaluate();
     advance_effects(false);
 }
 void OpeningField::advance_effects(bool player_contacts) {

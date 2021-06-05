@@ -362,6 +362,32 @@ int main(){try {
         require(!scene.event_running()&&okage::event_variable(vars,0x40006)==test[4]);
     }
     idle.resize(80);put(idle,4,48);
+    {
+        auto room=stage;
+        put(room,36,__builtin_bit_cast(unsigned, (5.f)));put(room,40,__builtin_bit_cast(unsigned, (-10.f)));
+        put(room,44,__builtin_bit_cast(unsigned, (-7.f)));put(room,68,__builtin_bit_cast(unsigned, (.8f)));
+        put(room,72,__builtin_bit_cast(unsigned, (-3.f)));
+        put(room,92,__builtin_bit_cast(unsigned, (4.f)));put(room,100,__builtin_bit_cast(unsigned, (8.f)));
+        okage::ModelFile moving_model,still_model;moving_model.models.emplace_back();still_model.models.emplace_back();
+        okage::FieldActor moving(std::move(moving_model),idle,{}),still(std::move(still_model),idle,{});
+        const std::array<okage::ActorBinding,1> moving_binding={{{-1,&moving}}},still_binding={{{-1,&still}}};
+        okage::OpeningField walk(startup,[](int){},[](int){return true;},moving_binding,false);
+        okage::OpeningField stay(startup,[](int){},[](int){return true;},still_binding,false);
+        std::array<std::uint8_t,0x1000> walk_vars{},stay_vars{};
+        auto initialize=[&](auto& scene,auto& vars) {
+            scene.get_variable=[&vars](auto s){return okage::event_variable(vars,s);};
+            scene.set_variable=[&vars](auto i,auto b,auto v){okage::set_event_variable(vars,i,b,v);};
+            okage::FieldDefinition entry;entry.type=1;scene.enter(entry,room,empty_map,0);
+        };
+        initialize(walk,walk_vars);initialize(stay,stay_vars);
+        walk.tick({0,40,128});stay.tick();
+        require(walk.position==stay.position&&walk.rotation==stay.rotation&&walk.target==stay.target);
+        const auto moved=moving.animation().values()[1];
+        require(moved!=still.animation().values()[1]);
+        require(moving.animation().pc()==48&&(moving.animation().script_state()&0x100));
+        walk.tick();
+        require(walk.target[0]==moved[0]&&walk.target[2]==moved[2]);
+    }
     for(int camera_command:{0,1,2}) {
         const bool frozen_camera=camera_command!=2;
         auto exterior_stage=stage;put(exterior_stage,76,0);

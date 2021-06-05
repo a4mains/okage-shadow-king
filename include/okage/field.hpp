@@ -131,7 +131,7 @@ private:
     void interact(ExplorationInput);
     void move_player(ExplorationInput);
     void remember_player();
-    void tick_callbacks(ExplorationInput input,bool move_player,bool interior_camera);
+    void tick_callbacks(ExplorationInput input,bool interior_camera);
     std::vector<EffectDefinition> effect_definitions_;
     AttachedEffects effects_;
     MapEffects map_effects_;

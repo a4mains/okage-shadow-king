@@ -25,6 +25,8 @@ def main():
     parser.add_argument('--capture',type=Path,required=True)
     parser.add_argument('--native',type=Path,default=Path('build/native/okage-assets'))
     parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--prior-capture',type=Path,default=Path('local/native-field-gate-7960-camera-v2.png'),
+                        help='Independent7960-frame replay for prefix consistency; not original-game evidence')
     args=parser.parse_args();base=str(args.capture)
     path=lambda suffix:Path(base+suffix)
     manifest=Path(base.removesuffix('.png')+'.run.json')
@@ -66,14 +68,17 @@ def main():
         reports.append(dict(reference=name,original_run=original_run,anchor=anchor,controller_words=frames*10,manager_words=count*4))
         files.extend([controller,manager,original_manifest])
     require(states[8179][10]==9 and interactions[8183][4:7]==(0,1,1) and interactions[8184][4:7]==(0,0,1),'Native closure/handoff differs')
-    before='local/native-field-gate-7960-camera-v2.png'
+    before=str(args.prior_capture)
     for suffix in ['.dialogue.bin','.choices.bin','.interaction.bin','.movement.bin','.camera.bin','.actor-1.bin']:
+        if suffix=='.interaction.bin':require(len(rows(Path(before+suffix).read_bytes(),8))==7960,'Prior capture extent')
         old=Path(before+suffix);require(path(suffix).read_bytes().startswith(old.read_bytes()),'Prior route changed: '+suffix)
         files.extend([old,path(suffix)])
     report=dict(scope=__doc__,native_run=run,init_run=init_run,init_command=command,intervals=reports,
                 initialization_words=90,controller_words=1800,manager_words=1200,pressed_latches=180,
                 closure_frame=8180,script_finished_frame=8184,control_return_frame=8185,
-                unchanged_prefix_frames=7960,sha256={str(p):digest(p) for p in files})
+                unchanged_prefix_frames=7960,prefix_capture=before,
+                prefix_scope='Native replay consistency against the selected capture; original comparisons are separate.',
+                sha256={str(p):digest(p) for p in files})
     write_exact(args.output,(json.dumps(report,indent=2)+'\n').encode())
     print('90 initialization words,180 controller returns,300 manager samples and system-message closure match')
 

@@ -13,17 +13,35 @@ from verify_event import digest,write_exact
 from verify_message_opening import rows,require
 from verify_interaction_scene import actor_rows
 
+def compare_hero(actual, expected, bounded_position=False):
+    """Keep facing/W exact; only walking XYZ uses the established libm bound."""
+    require(len(actual)==len(expected)==8,'HERO root extent')
+    if not bounded_position:
+        require(actual==expected,'HERO root differs')
+        return 0.
+    require(actual[:4]==expected[:4] and actual[7]==expected[7],'HERO facing/W differs')
+    xyz=lambda words:struct.unpack('<3f',struct.pack('<3I',*words[4:7]))
+    a,b=xyz(actual),xyz(expected)
+    require(all(math.isfinite(v) for v in a+b),'Nonfinite HERO position')
+    error=max(abs(x-y) for x,y in zip(a,b))
+    require(error<=0.00002,'HERO position exceeds existing host-math tolerance')
+    return error
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--capture',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--mother',action='store_true');p.add_argument('--annie',action='store_true');p.add_argument('--warning',action='store_true')
     p.add_argument('--date',action='store_true');p.add_argument('--closure',action='store_true')
-    p.add_argument('--door',action='store_true');a=p.parse_args()
+    p.add_argument('--door',action='store_true');p.add_argument('--important',action='store_true')
+    p.add_argument('--father',action='store_true');p.add_argument('--father-talk',action='store_true');a=p.parse_args()
     require(not a.annie or a.mother,'Annie comparison requires Mother interval')
     require(not a.warning or a.annie,'Warning comparison requires Annie interval')
     require(not a.date or a.warning,'Date comparison requires warning interval')
     require(not a.closure or a.date,'Closure comparison requires date interval')
     require(not a.door or a.closure,'Door comparison requires closure interval')
+    require(not a.important or a.door,'Important-message comparison requires doorway interval')
+    require(not a.father or a.important,'Father approach requires important-message continuation')
+    require(not a.father_talk or a.father,'Father talk requires approach interval')
     native=lambda s:Path(str(a.capture)+s)
     run=json.loads(Path(str(a.capture).removesuffix('.png')+'.run.json').read_text())
     require(run['exit_code']==0,'Incomplete native capture')
@@ -32,6 +50,8 @@ def main():
     cameras=rows(native('.camera.bin').read_bytes(),16)
     camera_states=rows(native('.camera-state.bin').read_bytes(),5)
     actors=actor_rows(native('.actor-1.bin'))
+    choices=rows(native('.choices.bin').read_bytes(),12) if a.father else []
+    if a.father:require(len(choices)==len(actors),'Native choice extent')
     require(len(dialogue)==len(managers)==len(cameras)==len(camera_states)==len(actors),'Native trace extent')
     require([r[0] for r in managers]==list(range(1,len(managers)+1)),'Native frame sequence')
     specs=[('local/reference-home1b-confirm-280-v1',16781,280,'local/reference-next-night-home1b-360-v1.state.zip')]
@@ -42,6 +62,9 @@ def main():
     if a.closure:specs.append(('local/reference-home1b-festival-420-v1',18501,80,'local/reference-home1b-date-420-v1.state.zip'))
     animation_specs=specs[3:].copy()
     if a.door:specs[-1]=('local/reference-home1b-door-240-v2',18501,240,'local/reference-home1b-date-420-v1.state.zip')
+    if a.important:specs.append(('local/reference-home1b-important-360-v1',18741,360,'local/reference-home1b-door-240-v2.state.zip'))
+    if a.father:specs.append(('local/reference-home1b-father-approach-180-v1',19101,180,'local/reference-home1b-important-360-v1.state.zip'))
+    if a.father_talk:specs.append(('local/reference-home1b-father-talk-360-v1',19281,360,'local/reference-home1b-father-approach-180-v1.state.zip'))
     artifacts=[native(s) for s in ['.dialogue.bin','.interaction.bin','.camera.bin','.camera-state.bin','.actor-1.bin']]
     results=[]
     for prefix,first,total,source in specs:
@@ -67,14 +90,18 @@ def main():
         original=[r for r in rows(ref('.transition.bin').read_bytes(),128) if r[1]==0x133a98]
         require([r[0] for r in original]==list(range(captured)),'Original manager extent')
         original=original[:total]
+        hero_error=0.;bounded_hero_samples=0
         for r in original:
             n=managers[first+r[0]-2]
             require(managers[first+r[0]-1][1]==r[33]>>16,f'Manager pad latch differs: {prefix} frame{r[0]}')
             require((n[4],n[7],n[5],n[6])==(int(bool(r[35]&256)),r[36],r[48],r[118]),f'Manager differs: {prefix} frame{r[0]}')
-            require(actors[first+r[0]-2][8:16]==r[40:48],f'HERO differs: {prefix} frame{r[0]}')
+            bounded=a.door and (first>18501 or first==18501 and r[0]>=83)
+            try:hero_error=max(hero_error,compare_hero(actors[first+r[0]-2][8:16],r[40:48],bounded))
+            except ValueError as e:raise ValueError(f'{prefix} frame{r[0]}: {e}') from e
+            bounded_hero_samples+=int(bounded)
         camera=rows(ref('.camera.bin').read_bytes(),32)
         require([r[0] for r in camera]==list(range(captured)),'Original camera extent')
-        closure=first==18501
+        closure=first>=18501
         camera_error=0.
         for r in camera[:total]:
             at=first+r[0]-1;n=cameras[at]
@@ -91,10 +118,28 @@ def main():
                             camera_position_maximum_error=camera_error,camera_position_tolerance=0.00002,
                             camera_target_limit='Original requested global and native effective blended target are different observables; not compared during closure.')
                        if closure else dict(exact_camera_words=total*12))
+        choice_samples=0
+        if first>=19101:
+            choice_path=ref('.controller.bin.choices.bin')
+            observed_choices=rows(choice_path.read_bytes(),16)
+            require(len(observed_choices)==len(controller),'Original choice/controller extent')
+            require([r[0] for r in observed_choices[1::2] if r[0]<total]==seen,'Choice/controller frame sequence')
+            for before,after in zip(observed_choices[::2],observed_choices[1::2]):
+                frame=after[0]
+                require(before[:2]==(frame,0x148dc8) and after[1]==0x11ff38,'Choice pairing')
+                if frame>=total:continue
+                require(choices[first+frame-1][2:6]==after[2:6],f'Choice differs: {prefix} frame{frame}')
+                choice_samples+=1
+            require(choice_samples==len(seen),'Choice/controller sample mismatch')
+            artifacts.extend([choice_path,native('.choices.bin')])
         results.append(dict(prefix=prefix,native_first_frame=first,original_run=original_run,compared_frames=total,
                             controller_returns=len(seen),exact_controller_words=len(seen)*10,
                             manager_samples=total,exact_manager_words=total*4,
-                            hero_samples=total,exact_hero_words=total*8,
+                            hero_samples=total,exact_hero_words=total*8-bounded_hero_samples*3,
+                            bounded_hero_position_samples=bounded_hero_samples,
+                            hero_position_maximum_error=hero_error,
+                            hero_position_tolerance=0.00002 if bounded_hero_samples else 0.,
+                            choice_samples=choice_samples,exact_choice_words=choice_samples*4,
                             camera_updates=total,**camera_result,observed_presses=pressed,
                             pad_latch_samples=total,
                             manager_observed_presses=[[r[0],first+r[0],r[33]>>16] for r in original if r[33]>>16],

@@ -8,7 +8,8 @@ class CameraScheduleTrace {
     std::ofstream output;
     unsigned count=0;
 public:
-    static constexpr std::array<uint32,4> breakpoints={0x133a98,0x136aa8,0x134c18,0x1b9c74};
+    static constexpr std::array<uint32,9> breakpoints={0x133a98,0x136aa8,0x134c18,0x1b9c74,
+        0x1b5a90,0x1b70a0,0x134c68,0x102218,0x101118};
     explicit CameraScheduleTrace(const std::filesystem::path& path) {
         if(std::filesystem::exists(path)||std::filesystem::is_symlink(path))throw std::runtime_error("Refusing existing camera schedule trace");
         output.open(path,std::ios::binary);if(!output)throw std::runtime_error("Cannot create camera schedule trace");
@@ -18,6 +19,7 @@ public:
         auto word=[&](uint32 at){if(at>PS2::EE_RAM_SIZE-4)throw std::runtime_error("Camera schedule RAM bounds");uint32 v;std::memcpy(&v,ee.m_ram+at,4);return v;};
         const auto& cpu=ee.m_EE.m_State;
         const auto field=word(0x2d9bf4),instance=word(0x337b64),camera=word(0x337d8c);
+        if(cpu.nPC==0x1b70a0&&uint32(cpu.nGPR[CMIPS::A0].nD0)!=instance)return;
         if(field<0x100000||field>PS2::EE_RAM_SIZE-0x800||instance>=2048||camera>=5119)
             throw std::runtime_error("Camera schedule requires initialized field/player/camera");
         const auto objects=word(0x21301c),channels=word(0x33760c),player=word(field+0x44);
@@ -25,12 +27,20 @@ public:
            player<0x100000||player>PS2::EE_RAM_SIZE-0x284)throw std::runtime_error("Camera schedule object bounds");
         const auto hero=word(objects+instance*0x3c+4)&0xffff;
         if(hero>=5119||++count>4000)throw std::runtime_error("Camera schedule channel/count bounds");
-        std::array<uint32,40> row={frame,cpu.nPC,uint32(cpu.nGPR[CMIPS::RA].nD0),word(field+0x48),
+        // V2 appends the actual camera query result at player0x134c68, field
+        // and HERO motion PCs, HERO script state and the callback argument.
+        std::array<uint32,48> row={frame,cpu.nPC,uint32(cpu.nGPR[CMIPS::RA].nD0),word(field+0x48),
             word(0x337d94),word(0x337da4),word(0x33958c)>>16,word(0x33958c)&0xffff};
         const std::array<uint32,7> sources={channels+camera*0x90+0x20,channels+(camera+1)*0x90+0x20,
             channels+hero*0x90+0x20,channels+(hero+1)*0x90+0x20,0x337db0,0x337dd0,0x337de0};
         for(unsigned i=0;i<sources.size();++i)for(unsigned k=0;k<4;++k)row[8+i*4+k]=word(sources[i]+k*4);
         row[36]=word(0x337dac);row[37]=camera;row[38]=instance;row[39]=word(player+0x22c);
+        if(cpu.nPC==0x134c68)for(unsigned k=0;k<4;++k)row[40+k]=word(uint32(cpu.nGPR[CMIPS::SP].nD0)+k*4);
+        const auto contexts=word(0x337614),context=(word(objects+instance*0x3c+8)>>16)&0xffff;
+        if(context>=192)throw std::runtime_error("Camera schedule context bounds");
+        row[44]=word(contexts+20)-word(contexts+8);
+        row[45]=word(contexts+context*24+20)-word(contexts+context*24+8);
+        row[46]=word(contexts+context*24);row[47]=uint32(cpu.nGPR[CMIPS::A0].nD0);
         if(!output.write(reinterpret_cast<const char*>(row.data()),sizeof(row)))throw std::runtime_error("Cannot write camera schedule trace");
     }
 };
