@@ -33,7 +33,9 @@ def main():
     p.add_argument('--mother',action='store_true');p.add_argument('--annie',action='store_true');p.add_argument('--warning',action='store_true')
     p.add_argument('--date',action='store_true');p.add_argument('--closure',action='store_true')
     p.add_argument('--door',action='store_true');p.add_argument('--important',action='store_true')
-    p.add_argument('--father',action='store_true');p.add_argument('--father-talk',action='store_true');a=p.parse_args()
+    p.add_argument('--father',action='store_true');p.add_argument('--father-talk',action='store_true')
+    p.add_argument('--father-answer',action='store_true');p.add_argument('--father-second-answer',action='store_true')
+    p.add_argument('--father-fade',action='store_true');a=p.parse_args()
     require(not a.annie or a.mother,'Annie comparison requires Mother interval')
     require(not a.warning or a.annie,'Warning comparison requires Annie interval')
     require(not a.date or a.warning,'Date comparison requires warning interval')
@@ -42,6 +44,9 @@ def main():
     require(not a.important or a.door,'Important-message comparison requires doorway interval')
     require(not a.father or a.important,'Father approach requires important-message continuation')
     require(not a.father_talk or a.father,'Father talk requires approach interval')
+    require(not a.father_answer or a.father_talk,'Father answer requires talk interval')
+    require(not a.father_second_answer or a.father_answer,'Second Father answer requires first answer')
+    require(not a.father_fade or a.father_second_answer,'Father fade requires second answer')
     native=lambda s:Path(str(a.capture)+s)
     run=json.loads(Path(str(a.capture).removesuffix('.png')+'.run.json').read_text())
     require(run['exit_code']==0,'Incomplete native capture')
@@ -65,6 +70,9 @@ def main():
     if a.important:specs.append(('local/reference-home1b-important-360-v1',18741,360,'local/reference-home1b-door-240-v2.state.zip'))
     if a.father:specs.append(('local/reference-home1b-father-approach-180-v1',19101,180,'local/reference-home1b-important-360-v1.state.zip'))
     if a.father_talk:specs.append(('local/reference-home1b-father-talk-360-v1',19281,360,'local/reference-home1b-father-approach-180-v1.state.zip'))
+    if a.father_answer:specs.append(('local/reference-home1b-father-answer-360-v1',19641,360,'local/reference-home1b-father-talk-360-v1.state.zip'))
+    if a.father_second_answer:specs.append(('local/reference-home1b-father-second-answer-360-v1',20001,360,'local/reference-home1b-father-answer-360-v1.state.zip'))
+    if a.father_fade:specs.append(('local/reference-home1b-father-fade-420-v1',20361,420,'local/reference-home1b-father-second-answer-360-v1.state.zip'))
     artifacts=[native(s) for s in ['.dialogue.bin','.interaction.bin','.camera.bin','.camera-state.bin','.actor-1.bin']]
     results=[]
     for prefix,first,total,source in specs:

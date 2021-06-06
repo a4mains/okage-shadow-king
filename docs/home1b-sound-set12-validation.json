@@ -1,0 +1,108 @@
+{
+  "scope": "Owned SET12 import, original EE RXWS registration/finite preparation and pinned dry DSP comparison.",
+  "import_manifest": {
+    "path": "SNDDATA/SE/SET12.XWS",
+    "lba": 196238,
+    "size": 58656,
+    "sha256": "e4c07efc18a723862d1bba4759d966c2f2da8d341270ec38b8edd100c20c820c",
+    "destination": "local/audio-input/SNDDATA/SE/SET12.XWS"
+  },
+  "registration": {
+    "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "input": "local/audio-input/SNDDATA/SE/SET12.XWS",
+    "input_sha256": "e4c07efc18a723862d1bba4759d966c2f2da8d341270ec38b8edd100c20c820c",
+    "exact": true,
+    "compared_words": 11,
+    "sha256": "f347d65969df39b73556e35abe987e85ba56244d43f2b53987be479a427f1527",
+    "scope": "FORM/FTXT/MARK/BRCH/BODY registration offsets, BODY extent, record count, all FORM lookups and two invalid indices.",
+    "oracle": "Original 0x174950/0x175038/0x174ff0/0x174be8/0x174f28; semaphore entry/exit no-ops, initially empty slots"
+  },
+  "builds": {
+    "release": {
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "native_sha256": "f19b1bccdf792ae80fb2c2534c45483a3fc85ee6586962d3b93a64f21cd63625",
+      "oracle_sha256": "0af63c9726980c6ae5954e1efd7bf524c5421bedda809c53b491287af8a0e908",
+      "dsp_revision": "3143a46e4deffa59832a517915a39d610dcb8564",
+      "dsp_source_hashes": {
+        "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
+        "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
+        "defs.h": "c99bb3de5ed27243abdaf18384f2d3cf6ce7578fb01fd2b6616da2d99c418960",
+        "interpolate_table.h": "3c2f96bdb8aee61a6f988ed508d45811ea8f5bd1f8dac8825c59552bbd2c865a"
+      },
+      "cases": [
+        {
+          "cue": "SET12-0",
+          "source_sha256": "c9961aaf4f5d4cbd796812641867ba29b162cdbd1176db5b6879b92af1b3bb03",
+          "source_bytes": 58544,
+          "prepared_bytes": 58624,
+          "prepared_sha256": "daf702693e4bff5f9cac55a30afada77c47360f05db8237886e1575fd067f7cc",
+          "original": "local/home1b-set12-original-v1/SET12-0.original.bin",
+          "original_sha256": "477391f205799fe842bc6e2df10aaf7e464c88447db46bc7ab077e26c150af03",
+          "frames": 280000,
+          "pcm_sha256": "2139420cd1fc0dcabb298900dce3c5d2eaefbd2f198192f2883c15325e18e8df",
+          "bytes_and_pcm_exact": true
+        }
+      ]
+    },
+    "debug": {
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "native_sha256": "c98db29f0d443c923cecb8b730b4fbbfddfba0bd305ef842b080e5b07aa60f85",
+      "oracle_sha256": "0af63c9726980c6ae5954e1efd7bf524c5421bedda809c53b491287af8a0e908",
+      "dsp_revision": "3143a46e4deffa59832a517915a39d610dcb8564",
+      "dsp_source_hashes": {
+        "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
+        "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
+        "defs.h": "c99bb3de5ed27243abdaf18384f2d3cf6ce7578fb01fd2b6616da2d99c418960",
+        "interpolate_table.h": "3c2f96bdb8aee61a6f988ed508d45811ea8f5bd1f8dac8825c59552bbd2c865a"
+      },
+      "cases": [
+        {
+          "cue": "SET12-0",
+          "source_sha256": "c9961aaf4f5d4cbd796812641867ba29b162cdbd1176db5b6879b92af1b3bb03",
+          "source_bytes": 58544,
+          "prepared_bytes": 58624,
+          "prepared_sha256": "daf702693e4bff5f9cac55a30afada77c47360f05db8237886e1575fd067f7cc",
+          "original": "local/home1b-set12-original-v1/SET12-0.original.bin",
+          "original_sha256": "477391f205799fe842bc6e2df10aaf7e464c88447db46bc7ab077e26c150af03",
+          "frames": 280000,
+          "pcm_sha256": "2139420cd1fc0dcabb298900dce3c5d2eaefbd2f198192f2883c15325e18e8df",
+          "bytes_and_pcm_exact": true
+        }
+      ]
+    },
+    "sanitize": {
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "native_sha256": "c1a840179d0d32e1f05b5500949563ee330b8b19dfd4a86246ebaec7caafbaf4",
+      "oracle_sha256": "0af63c9726980c6ae5954e1efd7bf524c5421bedda809c53b491287af8a0e908",
+      "dsp_revision": "3143a46e4deffa59832a517915a39d610dcb8564",
+      "dsp_source_hashes": {
+        "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
+        "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
+        "defs.h": "c99bb3de5ed27243abdaf18384f2d3cf6ce7578fb01fd2b6616da2d99c418960",
+        "interpolate_table.h": "3c2f96bdb8aee61a6f988ed508d45811ea8f5bd1f8dac8825c59552bbd2c865a"
+      },
+      "cases": [
+        {
+          "cue": "SET12-0",
+          "source_sha256": "c9961aaf4f5d4cbd796812641867ba29b162cdbd1176db5b6879b92af1b3bb03",
+          "source_bytes": 58544,
+          "prepared_bytes": 58624,
+          "prepared_sha256": "daf702693e4bff5f9cac55a30afada77c47360f05db8237886e1575fd067f7cc",
+          "original": "local/home1b-set12-original-v1/SET12-0.original.bin",
+          "original_sha256": "477391f205799fe842bc6e2df10aaf7e464c88447db46bc7ab077e26c150af03",
+          "frames": 280000,
+          "pcm_sha256": "2139420cd1fc0dcabb298900dce3c5d2eaefbd2f198192f2883c15325e18e8df",
+          "bytes_and_pcm_exact": true
+        }
+      ]
+    }
+  },
+  "failed_experiment": {
+    "output": "local/home1b-set12-release-v1",
+    "reason": "The original generic one-second test budget ended while the2.323-second cue was still active; all parameters matched and active=1. The existing280000-frame long-cue budget proves termination.",
+    "retained_reference_pcm": "local/home1b-set12-original-v1/SET12-0.reference-48000.pcm"
+  },
+  "runtime_changes": "None. The existing finite mono ADPCM backend handles this bank; the owned-data importer and verifier now admit its reviewed hash.",
+  "next_use": "e_hom1b.xmt loads set12 at0x5a0 and starts bank1/cue0 at0x5b0 after Father dialogue.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
+}

@@ -16,13 +16,13 @@
       "--actor-bind",
       "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
       "--frames",
-      "19640",
+      "20360",
       "--press",
-      "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611",
+      "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318",
       "--directions",
-      "local/native-home1b-father-talk-19640-release-v1.directions",
+      "local/native-home1b-father-second-answer-20360-release-v1.directions",
       "--capture",
-      "local/native-home1b-father-talk-19640-release-v1.png",
+      "local/native-home1b-father-second-answer-20360-release-v1.png",
       "--music-dry",
       "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
       "--music-bank",
@@ -37,7 +37,7 @@
       "11310"
     ],
     "exit_code": 0,
-    "elapsed_seconds": 148.651859584,
+    "elapsed_seconds": 153.732731208,
     "binary_sha256": "1812e12931277e8041f67ae79c223875a85712ae94b52ed676a32fc65b4fe677"
   },
   "intervals": [
@@ -1257,6 +1257,378 @@
         ]
       ],
       "controller_unobserved_frames": []
+    },
+    {
+      "prefix": "local/reference-home1b-father-answer-360-v1",
+      "native_first_frame": 19641,
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-boot-oracle",
+          "local/disc/Okage - Shadow King (USA).cue",
+          "360",
+          "local/reference-home1b-father-talk-360-v1.state.zip",
+          "--load",
+          "--pad",
+          "local/reference-home1b-father-answer-360-v1.input",
+          "--transition",
+          "local/reference-home1b-father-answer-360-v1.transition.bin",
+          "--camera",
+          "local/reference-home1b-father-answer-360-v1.camera.bin",
+          "--controller",
+          "local/reference-home1b-father-answer-360-v1.controller.bin",
+          "--screen-filter",
+          "local/reference-home1b-father-answer-360-v1.screen-filter.bin",
+          "--capture",
+          "local/reference-home1b-father-answer-360-v1",
+          "--save",
+          "local/reference-home1b-father-answer-360-v1.state.zip",
+          "--deadline-seconds",
+          "900"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 247.828768292,
+        "binary_sha256": "8fd153b021c9044073493a4e8a58a87e433dd98528897bf552dd684ebfee8aee"
+      },
+      "compared_frames": 360,
+      "controller_returns": 360,
+      "exact_controller_words": 3600,
+      "manager_samples": 360,
+      "exact_manager_words": 1440,
+      "hero_samples": 360,
+      "exact_hero_words": 1800,
+      "bounded_hero_position_samples": 360,
+      "hero_position_maximum_error": 0.0,
+      "hero_position_tolerance": 2e-05,
+      "choice_samples": 360,
+      "exact_choice_words": 1440,
+      "camera_updates": 360,
+      "exact_camera_rotation_words": 1440,
+      "exact_camera_mode_phase_words": 720,
+      "camera_position_maximum_error": 1.9073486328125e-06,
+      "camera_position_tolerance": 2e-05,
+      "camera_target_limit": "Original requested global and native effective blended target are different observables; not compared during closure.",
+      "observed_presses": [
+        [
+          1,
+          19642,
+          16384
+        ],
+        [
+          11,
+          19652,
+          16384
+        ],
+        [
+          20,
+          19661,
+          16384
+        ],
+        [
+          31,
+          19672,
+          64
+        ],
+        [
+          71,
+          19712,
+          64
+        ],
+        [
+          113,
+          19754,
+          64
+        ],
+        [
+          153,
+          19794,
+          64
+        ],
+        [
+          194,
+          19835,
+          64
+        ],
+        [
+          235,
+          19876,
+          64
+        ],
+        [
+          276,
+          19917,
+          64
+        ],
+        [
+          317,
+          19958,
+          64
+        ]
+      ],
+      "pad_latch_samples": 360,
+      "manager_observed_presses": [
+        [
+          1,
+          19642,
+          16384
+        ],
+        [
+          11,
+          19652,
+          16384
+        ],
+        [
+          20,
+          19661,
+          16384
+        ],
+        [
+          31,
+          19672,
+          64
+        ],
+        [
+          71,
+          19712,
+          64
+        ],
+        [
+          113,
+          19754,
+          64
+        ],
+        [
+          153,
+          19794,
+          64
+        ],
+        [
+          194,
+          19835,
+          64
+        ],
+        [
+          235,
+          19876,
+          64
+        ],
+        [
+          276,
+          19917,
+          64
+        ],
+        [
+          317,
+          19958,
+          64
+        ]
+      ],
+      "controller_unobserved_frames": []
+    },
+    {
+      "prefix": "local/reference-home1b-father-second-answer-360-v1",
+      "native_first_frame": 20001,
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-boot-oracle",
+          "local/disc/Okage - Shadow King (USA).cue",
+          "360",
+          "local/reference-home1b-father-answer-360-v1.state.zip",
+          "--load",
+          "--pad",
+          "local/reference-home1b-father-second-answer-360-v1.input",
+          "--transition",
+          "local/reference-home1b-father-second-answer-360-v1.transition.bin",
+          "--camera",
+          "local/reference-home1b-father-second-answer-360-v1.camera.bin",
+          "--controller",
+          "local/reference-home1b-father-second-answer-360-v1.controller.bin",
+          "--screen-filter",
+          "local/reference-home1b-father-second-answer-360-v1.screen-filter.bin",
+          "--capture",
+          "local/reference-home1b-father-second-answer-360-v1",
+          "--save",
+          "local/reference-home1b-father-second-answer-360-v1.state.zip",
+          "--deadline-seconds",
+          "900"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 238.51360749999998,
+        "binary_sha256": "8fd153b021c9044073493a4e8a58a87e433dd98528897bf552dd684ebfee8aee"
+      },
+      "compared_frames": 360,
+      "controller_returns": 316,
+      "exact_controller_words": 3160,
+      "manager_samples": 360,
+      "exact_manager_words": 1440,
+      "hero_samples": 360,
+      "exact_hero_words": 1800,
+      "bounded_hero_position_samples": 360,
+      "hero_position_maximum_error": 0.0,
+      "hero_position_tolerance": 2e-05,
+      "choice_samples": 316,
+      "exact_choice_words": 1264,
+      "camera_updates": 360,
+      "exact_camera_rotation_words": 1440,
+      "exact_camera_mode_phase_words": 720,
+      "camera_position_maximum_error": 1.9073486328125e-06,
+      "camera_position_tolerance": 2e-05,
+      "camera_target_limit": "Original requested global and native effective blended target are different observables; not compared during closure.",
+      "observed_presses": [
+        [
+          1,
+          20002,
+          16384
+        ],
+        [
+          11,
+          20012,
+          16384
+        ],
+        [
+          20,
+          20021,
+          16384
+        ],
+        [
+          31,
+          20032,
+          64
+        ],
+        [
+          71,
+          20072,
+          64
+        ],
+        [
+          113,
+          20114,
+          64
+        ],
+        [
+          153,
+          20154,
+          64
+        ],
+        [
+          194,
+          20195,
+          64
+        ],
+        [
+          235,
+          20236,
+          64
+        ],
+        [
+          276,
+          20277,
+          64
+        ]
+      ],
+      "pad_latch_samples": 360,
+      "manager_observed_presses": [
+        [
+          1,
+          20002,
+          16384
+        ],
+        [
+          11,
+          20012,
+          16384
+        ],
+        [
+          20,
+          20021,
+          16384
+        ],
+        [
+          31,
+          20032,
+          64
+        ],
+        [
+          71,
+          20072,
+          64
+        ],
+        [
+          113,
+          20114,
+          64
+        ],
+        [
+          153,
+          20154,
+          64
+        ],
+        [
+          194,
+          20195,
+          64
+        ],
+        [
+          235,
+          20236,
+          64
+        ],
+        [
+          276,
+          20277,
+          64
+        ],
+        [
+          317,
+          20318,
+          64
+        ]
+      ],
+      "controller_unobserved_frames": [
+        316,
+        317,
+        318,
+        319,
+        320,
+        321,
+        322,
+        323,
+        324,
+        325,
+        326,
+        327,
+        328,
+        329,
+        330,
+        331,
+        332,
+        333,
+        334,
+        335,
+        336,
+        337,
+        338,
+        339,
+        340,
+        341,
+        342,
+        343,
+        344,
+        345,
+        346,
+        347,
+        348,
+        349,
+        350,
+        351,
+        352,
+        353,
+        354,
+        355,
+        356,
+        357,
+        358,
+        359
+      ]
     }
   ],
   "annie_animation": [
@@ -1289,11 +1661,11 @@
     }
   ],
   "sha256": {
-    "local/native-home1b-father-talk-19640-release-v1.png.dialogue.bin": "083675e2405992c48d59ab19c86d213fe446f21f7b8b3c344e7a33d7eaf7f032",
-    "local/native-home1b-father-talk-19640-release-v1.png.interaction.bin": "67ba5465dd084e0ba401d9d9da1b57c649bbe36b6446545f7bb116dfc649379b",
-    "local/native-home1b-father-talk-19640-release-v1.png.camera.bin": "d766f3fecfeffba00526b7454a1c916d7ee08e807a3e4c323c12ffc631e4b463",
-    "local/native-home1b-father-talk-19640-release-v1.png.camera-state.bin": "3a04b0b6e253022245886691236e489db653bdc83e65b550e6ac6bbf25887415",
-    "local/native-home1b-father-talk-19640-release-v1.png.actor-1.bin": "a0c6c231cbb38c4f5f3bdf4b03ecdf6955bff8f948d4e1d8eb031f7be26ea69e",
+    "local/native-home1b-father-second-answer-20360-release-v1.png.dialogue.bin": "1d52acf48a4c54f13c191684b235da809377591099a17ef1d47eb6e536ff8e3e",
+    "local/native-home1b-father-second-answer-20360-release-v1.png.interaction.bin": "0b50f56f8ca40ceed30f3f73a7cce25df69814827a51847a1bd0bd03c28239d2",
+    "local/native-home1b-father-second-answer-20360-release-v1.png.camera.bin": "b962b520482ba7eea1db6ce67e57494ac16c58b6b48c79cdae73f836b698ac50",
+    "local/native-home1b-father-second-answer-20360-release-v1.png.camera-state.bin": "8aa2dd310dcaea5588a0fea5e184a5e4c5005dc4de934946021f8e567326497e",
+    "local/native-home1b-father-second-answer-20360-release-v1.png.actor-1.bin": "7808c28f157fdc9e8520f4a5f11e4e4557abb27e9345d2e392a531d4b73d0c74",
     "local/reference-home1b-confirm-280-v1.run.json": "d7ce3e1563d80dddfb7cde065f5dc7ce8c8ab816628b00913ba82eceecc3394b",
     "local/reference-home1b-confirm-280-v1.transition.bin": "cc020ef7531a523c21eaa265e86d71227aa25b1ea3350f035b992a993adad405",
     "local/reference-home1b-confirm-280-v1.controller.bin": "2cbb13e0d0647442ca0642324cd706a354312625d22affa54fa87e3fbebefe43",
@@ -1337,7 +1709,7 @@
     "local/reference-home1b-important-360-v1.state.zip": "35c787687bb8ebe8f83f947d1fd8800c6073a09bc4c670a67a21484e027cfbcd",
     "local/reference-home1b-important-360-v1.input": "aba2f4670159992fc183c7309c5d0da02aea685abfd6ec72c3736e24e0a10c7d",
     "local/reference-home1b-father-approach-180-v1.controller.bin.choices.bin": "505bc8c89beb77f1040715e04e9cb0ed8f9dcfc81db6943f4fe4a108a62c214e",
-    "local/native-home1b-father-talk-19640-release-v1.png.choices.bin": "2ba0c7868a2866a1d5aca633ac3247fe7db222fd47502fd0f478925ab02b32b1",
+    "local/native-home1b-father-second-answer-20360-release-v1.png.choices.bin": "7aebb7331fc6698e8e94fad82f1bce5cc073330243066a00a731817b6aa7244f",
     "local/reference-home1b-father-approach-180-v1.run.json": "eee8e703324cbcabc068cd77ff9b3a4029866dc808f98c86f05b4095c0ee810c",
     "local/reference-home1b-father-approach-180-v1.transition.bin": "8c7ca3f15ec8cb792cf4f568a4ea441e40bdc01853b8c7078cc0db6535bf47d6",
     "local/reference-home1b-father-approach-180-v1.controller.bin": "5974f605ac924a938caf8b53253127b2fc6bda70da48a5269975136783e177c3",
@@ -1351,10 +1723,24 @@
     "local/reference-home1b-father-talk-360-v1.camera.bin": "39fc346f7e083e9fbfbbd0e5af0e413c96b1cd54ba42d6ff07b1cabe0b1ac765",
     "local/reference-home1b-father-talk-360-v1.state.zip": "fd636f9215306e42cb6dd3c9a81ad4b63e002ea2eabf11176d2d11cad2ef3867",
     "local/reference-home1b-father-talk-360-v1.input": "aba2f4670159992fc183c7309c5d0da02aea685abfd6ec72c3736e24e0a10c7d",
+    "local/reference-home1b-father-answer-360-v1.controller.bin.choices.bin": "b3d2ddaf3dd1e3f484f56b392df822e87298ba577ab5d61b633fa97deaf3c94b",
+    "local/reference-home1b-father-answer-360-v1.run.json": "13da76871f3849e858336510ff30cb5eddbaf6084475c376df7ca968f1842334",
+    "local/reference-home1b-father-answer-360-v1.transition.bin": "131c882ebd1c5ff1426f7fc64e85d3f483582236981b7f8d1d9f492f475fbfa9",
+    "local/reference-home1b-father-answer-360-v1.controller.bin": "f8cdde678b45cb389f1dff734bbe5d3af390953f6fbc5e578719633112eda866",
+    "local/reference-home1b-father-answer-360-v1.camera.bin": "39fc346f7e083e9fbfbbd0e5af0e413c96b1cd54ba42d6ff07b1cabe0b1ac765",
+    "local/reference-home1b-father-answer-360-v1.state.zip": "092cd6f1dae2fbad834acc5629b62a6fbf76ba954e9bacbfa265bedceaed6f24",
+    "local/reference-home1b-father-answer-360-v1.input": "b2a02c5805fff85f09361e2a7ea97cc92fa8731fd0bd520b97ad5a1a6443bb1b",
+    "local/reference-home1b-father-second-answer-360-v1.controller.bin.choices.bin": "efd6ba9ab77a28bfd73ef69a4fb24e5821dd53c585defec9bd9458fbb7293464",
+    "local/reference-home1b-father-second-answer-360-v1.run.json": "090c5adda4d3072ac54b716cd47a3f1653a7feaecf504894f561f9fce2753c4d",
+    "local/reference-home1b-father-second-answer-360-v1.transition.bin": "9a81944a48d6eb44dd0a6c920a3821be4a74ffa8dd04d95d50ce9fd90e15d750",
+    "local/reference-home1b-father-second-answer-360-v1.controller.bin": "4bc0adf0b962071247808f0bb891bdb6b3c3103d854510337df57573eb8cb9f5",
+    "local/reference-home1b-father-second-answer-360-v1.camera.bin": "39fc346f7e083e9fbfbbd0e5af0e413c96b1cd54ba42d6ff07b1cabe0b1ac765",
+    "local/reference-home1b-father-second-answer-360-v1.state.zip": "387d4eaabe7672b27b710d3d5a4927c5b1fd7016c4912f789a711cb7ae72f29a",
+    "local/reference-home1b-father-second-answer-360-v1.input": "b2a02c5805fff85f09361e2a7ea97cc92fa8731fd0bd520b97ad5a1a6443bb1b",
     "local/reference-home1b-warning-300-v1.actor.bin": "9974f8cb6a2a2ba606d43518cb4bd27d6fb10385ad33cc38894371e27708e610",
     "local/reference-home1b-date-420-v1.actor.bin": "0a5dcfde5595523991f3cb311d82d815d491f6084d833d3b9b8c131756f51059",
     "local/reference-home1b-festival-420-v1.actor.bin": "12d2c02fc8037a9ad70d96dd996cab6b7c3aaef0fd43b9eec0207c085d4c2cef",
-    "local/native-home1b-father-talk-19640-release-v1.png.actor-17.bin": "afa7fe49280701b71cf97a548bf6f84f8c81ee94605845ccffc4976e3070907a"
+    "local/native-home1b-father-second-answer-20360-release-v1.png.actor-17.bin": "a7e6a29931f64f7a526942799c1d43f7996e8a6ef1264ca449e9567306516e76"
   },
   "limits": [
     "Rendering, visibility flags, other actors and audio are outside these comparisons.",
