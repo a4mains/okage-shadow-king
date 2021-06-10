@@ -131,6 +131,8 @@ MusicResourceNames music_resource_names(int id) {
         case 2:return {"CTY_TNB","CTY_TNB0",""};
         case 10:return {"FLD_NMA","FLD_NMA0",""};
         case 26:return {"SNT_DNM","SNT_DNM0","SNT_DNM2"};
+        // USA ELF table0x1fb530 entry50; ordinary loader0x12d158.
+        case 50:return {"EVS_NRD","EVS_NRD0",""};
         case 51:return {"EVS_MSH","EVS_MSH0",""};
         default:throw std::runtime_error("Unreviewed music resource ID "+std::to_string(id));
     }

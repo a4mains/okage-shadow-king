@@ -1,0 +1,310 @@
+{
+  "scope": "Music50 import/integration and bounded checks; original sequencer comparison FAILS; no original PCM, hardware, reverb or listening equivalence.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "mapping": {
+    "id": 50,
+    "table_entry": "0x1fb530+50*8",
+    "name_pointer": "0x227a58",
+    "class_pointer": "0x227b50",
+    "class": "1",
+    "native_names": [
+      "EVS_NRD",
+      "EVS_NRD0",
+      ""
+    ],
+    "loader": "0x12d158"
+  },
+  "import_manifest": {
+    "scope": "Import reviewed ordinary music resources from the owned USA disc.",
+    "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "music_id": 50,
+    "table_address": 2078400,
+    "name_pointer": 2259544,
+    "class_pointer": 2259792,
+    "sequence": "EVS_NRD",
+    "primary_bank": "EVS_NRD0",
+    "secondary_bank_present": false,
+    "imported": [
+      {
+        "path": "local/audio-input/SNDDATA/BGM/EVS_NRD.XSQ",
+        "lba": 189602,
+        "size": 5240,
+        "sha256": "c255165d2dd93ff4eb82a918ff30d11cf9d5011d27a10bd8127c07c077fb7594"
+      },
+      {
+        "path": "local/audio-input/SNDDATA/BGM/EVS_NRD0.XV",
+        "lba": 189605,
+        "size": 196896,
+        "sha256": "9367e1eb1cd95a5d79cc02984daf121c64dc4dd48b70f5c8b64bf7922c0f5a29"
+      }
+    ]
+  },
+  "native_run": {
+    "command": [
+      "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+      "local/font-input/CMNDATA/FONT",
+      "local/text-input/FLDDATA/MES/FIELD.PME",
+      "--scene",
+      "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+      "--event",
+      "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+      "--actor",
+      "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+      "--actor-bind",
+      "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+      "--actor-bind",
+      "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+      "--frames",
+      "21860",
+      "--press",
+      "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656",
+      "--directions",
+      "local/native-home1a-night-door-21860-release-v2.directions",
+      "--capture",
+      "local/native-home1a-night-door-21860-release-v2.png",
+      "--music-dry",
+      "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+      "--music-bank",
+      "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+      "--sound-dir",
+      "local/audio-input/SNDDATA/SE",
+      "--effect-data",
+      "local/effect-input/CMNDATA/2D/TES.EFD",
+      "--effect-textures",
+      "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+      "--render-from",
+      "11310"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 177.7003445,
+    "binary_sha256": "ad1ea8ab397ba550c232240ad1b1abba79f1c73ad55795afa1e9587a64f894a9"
+  },
+  "reference_run": {
+    "command": [
+      "build/play-research/okage-oracle/okage-boot-oracle",
+      "local/disc/Okage - Shadow King (USA).cue",
+      "240",
+      "local/reference-home1a-night-approach-120-v1.state.zip",
+      "--load",
+      "--pad",
+      "local/reference-home1a-night-music50-240-v1.input",
+      "--transition",
+      "local/reference-home1a-night-music50-240-v1.transition.bin",
+      "--camera",
+      "local/reference-home1a-night-music50-240-v1.camera.bin",
+      "--controller",
+      "local/reference-home1a-night-music50-240-v1.controller.bin",
+      "--screen-filter",
+      "local/reference-home1a-night-music50-240-v1.screen-filter.bin",
+      "--capture",
+      "local/reference-home1a-night-music50-240-v1",
+      "--save",
+      "local/reference-home1a-night-music50-240-v1.state.zip",
+      "--music",
+      "local/reference-home1a-night-music50-240-v1.bin",
+      "--music-night",
+      "--deadline-seconds",
+      "900"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 180.388747166,
+    "binary_sha256": "9f93d6b4ebe4ce68aac1c96eb92c8c9b7da55d947e77ae4ae5c54c5312deb97a"
+  },
+  "sequence_validation": {
+    "passed": false,
+    "builds": [
+      "Release",
+      "Debug",
+      "ASan+UBSan"
+    ],
+    "first_difference": {
+      "record": 0,
+      "tick": 1,
+      "field": "channel0.word9",
+      "native": "0x00000000",
+      "original": "0x00800080"
+    },
+    "logs": [
+      "local/research/home1a-night-checkpoint-check-1-v1.log",
+      "local/research/home1a-night-checkpoint-check-2-v1.log",
+      "local/research/home1a-night-checkpoint-check-3-v1.log"
+    ],
+    "next": "Recover original initialization/reuse/API contract; do not exclude this word or import captured RAM as native state."
+  },
+  "native_dry_consistency": {
+    "ticks": 600,
+    "peak_voices": 14,
+    "stolen_voices": 0,
+    "sample_loops": 674,
+    "pcm_sha256": "f3342dadc3d96e7a6ca3251bbaa4b82bf4e87b96de93ce80baac7c4e125d206f",
+    "builds": [
+      "Release",
+      "Debug",
+      "ASan+UBSan"
+    ],
+    "original_audio_equivalence": false
+  },
+  "prior_trace_prefixes": [
+    {
+      "suffix": ".actor-1.bin",
+      "bytes": 81356000,
+      "sha256": "9c0a3bcb939998bf2a44a5b41699833bbad537bc3eb9192150aa468bca96306f"
+    },
+    {
+      "suffix": ".actor-10.bin",
+      "bytes": 21263684,
+      "sha256": "719eb292191b08ee6acfbd76b7cbd783d10fc4a09f1f338ceea202ee82899b93"
+    },
+    {
+      "suffix": ".actor-11.bin",
+      "bytes": 19885932,
+      "sha256": "aa805011027996e4e5860d70e838138e4f3ec5b444ee7bcd8f4ddb7847419286"
+    },
+    {
+      "suffix": ".actor-12.bin",
+      "bytes": 7080476,
+      "sha256": "a5aff2e6ae46d2650cc9c216f327af2b4c0083bf18a4e0510938d5a073dfea3a"
+    },
+    {
+      "suffix": ".actor-13.bin",
+      "bytes": 8492096,
+      "sha256": "59ffa7e8d3d6b6b227c8f7d3c2907a2216656a6408793a224556dc700a987b42"
+    },
+    {
+      "suffix": ".actor-14.bin",
+      "bytes": 1066280,
+      "sha256": "e765a1b82ba23281a48a2289868854b173232dff083f3a85fba114f8d9624e42"
+    },
+    {
+      "suffix": ".actor-15.bin",
+      "bytes": 936544,
+      "sha256": "fe53d01333dead023053444a53260dde7310a7397b9cda4a40fbb3679ada78b2"
+    },
+    {
+      "suffix": ".actor-16.bin",
+      "bytes": 936544,
+      "sha256": "02913160908c547849a060bef0658660ab4b7fae86725a990689abfb5bc1c7e3"
+    },
+    {
+      "suffix": ".actor-17.bin",
+      "bytes": 14864128,
+      "sha256": "a247bd78d1fe1033d03e18761a889819e43a30e88ee84b505c7a3aeacd77fec7"
+    },
+    {
+      "suffix": ".actor-18.bin",
+      "bytes": 936544,
+      "sha256": "9e461c6d603b0592d9b13711c4d460f6f02f0399d4e8805a8db58b4f446c52f9"
+    },
+    {
+      "suffix": ".actor-19.bin",
+      "bytes": 17611252,
+      "sha256": "0ad772c44ab84bc715a0e7679ef79c8aca20336f5edf5885cc55ecb1fdad822d"
+    },
+    {
+      "suffix": ".actor-20.bin",
+      "bytes": 14768396,
+      "sha256": "dce67fe8789273e842c73e63b5f6b4993c29c3457f3b02a918b8d9e27126f277"
+    },
+    {
+      "suffix": ".actor-21.bin",
+      "bytes": 17490792,
+      "sha256": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3"
+    },
+    {
+      "suffix": ".actor-22.bin",
+      "bytes": 728340,
+      "sha256": "3efa1727ed121504849182959faf1921f8441c3dba286b37d68d281e20e01257"
+    },
+    {
+      "suffix": ".actor-37.bin",
+      "bytes": 6669448,
+      "sha256": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd"
+    },
+    {
+      "suffix": ".actor-38.bin",
+      "bytes": 45140,
+      "sha256": "f58744340275422f95bb6a136c5f6a397c5c5dc1a3d323f898ab7f2a9af1e422"
+    },
+    {
+      "suffix": ".actor-45.bin",
+      "bytes": 8950128,
+      "sha256": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921"
+    },
+    {
+      "suffix": ".actor-9.bin",
+      "bytes": 37967052,
+      "sha256": "f3f20fa164d8578845dc128f7c980f85c9b9c335102d7fd6dc1715fe866e50e6"
+    },
+    {
+      "suffix": ".actor.bin",
+      "bytes": 36621124,
+      "sha256": "5b1246cc3028e3d6c06094cbcc57f8d80ec26eafbe288972065c280b7958ba81"
+    },
+    {
+      "suffix": ".audio.pcm",
+      "bytes": 68800000,
+      "sha256": "59e0858eb25d40855882eb39a9e9918938f8b700f43833bca6ef165698f3c9e2"
+    },
+    {
+      "suffix": ".camera-state.bin",
+      "bytes": 430000,
+      "sha256": "bcce4de5efd7ef768e9115e6e258aee25f983ec6c484dfd9e64d6e5c8308a51f"
+    },
+    {
+      "suffix": ".camera.bin",
+      "bytes": 1376000,
+      "sha256": "9f4e598764b8a26d65848a920c4f1fd54d2e0238f7e096f178f93e7873cc1fb9"
+    },
+    {
+      "suffix": ".choices.bin",
+      "bytes": 1032000,
+      "sha256": "0771f5533a582bb667dea7ec37203e5fcf246b82030a8484995b0603e78e5311"
+    },
+    {
+      "suffix": ".dialogue.bin",
+      "bytes": 1032000,
+      "sha256": "87aab788aee7285e38c80944bef557e3bb1dbad6c47c0ab51f328f0f715d1f4e"
+    },
+    {
+      "suffix": ".effects.bin",
+      "bytes": 350520,
+      "sha256": "2dc592b6447f8a02f39fa131bc4d206800dddafaf6bd68471fca3bbb0a5dcf76"
+    },
+    {
+      "suffix": ".interaction.bin",
+      "bytes": 688000,
+      "sha256": "d57ad2dc022f5a9600c33f3c4b066e73f680f70f5454689b5713edaeb8bd3336"
+    },
+    {
+      "suffix": ".map-effects.bin",
+      "bytes": 25707432,
+      "sha256": "a4c34c1457ac3b36347dd8b280705d4d86d2ac3a11b3ae9e95339cbcc8b56ba8"
+    },
+    {
+      "suffix": ".movement.bin",
+      "bytes": 1376000,
+      "sha256": "852cd402883d49b276c7a6bd7c59bb1a2d159309d3ec1d40036b49922b621e53"
+    },
+    {
+      "suffix": ".music.bin",
+      "bytes": 430000,
+      "sha256": "42b25ac78aba6420fcc326e7c5ae767691f779b65557975483da2cb7e9c1fba5"
+    },
+    {
+      "suffix": ".screen-filter.bin",
+      "bytes": 344000,
+      "sha256": "cdb4ace18e07e55c0736d2d1093d022591ce5984d952442bf189a93cb21696bb"
+    },
+    {
+      "suffix": ".sound.bin",
+      "bytes": 3140,
+      "sha256": "43e28e2108e7543b2667d53ecf9318496fa5196e3f16a5beb17cf0bc68145270"
+    },
+    {
+      "suffix": ".transition.bin",
+      "bytes": 688000,
+      "sha256": "81c3968a5b1f45060171005b0313df94c10bc5df863a9a68b18a34e86a093639"
+    }
+  ],
+  "live_jobs": []
+}

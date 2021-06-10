@@ -23,7 +23,8 @@ def main():
     source = sequence.read_bytes()
     if sha(source) not in ('908a259c61b333bad7c570b7c1c33f9e954d5c93811be52228643b8323131cf2',
                            '17704d69deb1e516e216a2459ac83c8e80773582916de434ad98b860fb8ab16f',
-                           'b15448498b8a4738cb98d72fda4a595daf6fdc8bee644d732633f631f9e2f407'):
+                           'b15448498b8a4738cb98d72fda4a595daf6fdc8bee644d732633f631f9e2f407',
+                           'c255165d2dd93ff4eb82a918ff30d11cf9d5011d27a10bd8127c07c077fb7594'):
         raise RuntimeError('Sequence is not one of the pinned research assets')
     reference = args.reference.read_bytes()
     if not reference or len(reference) % 736:

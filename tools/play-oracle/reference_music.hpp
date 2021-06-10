@@ -29,8 +29,9 @@ public:
     explicit MusicTrace(const std::filesystem::path& path,Iop::CSubSystem& iop,unsigned kind=0) {
         if(std::filesystem::exists(path)||std::filesystem::is_symlink(path))throw std::runtime_error("Refusing existing music trace");
         const auto irx=pinned("local/extracted/MODULES/RXSNDDRV.IRX","7fe8b5a33c2f8700d1f964cf5ce2f66942f8f97d952e86e6dc0ad5d4f74becb2");
-        if(kind>2)throw std::runtime_error("Unknown music trace corpus");
-        sequence=kind==2 ? pinned("local/audio-input/SNDDATA/BGM/JGL_GET.XSQ","b15448498b8a4738cb98d72fda4a595daf6fdc8bee644d732633f631f9e2f407") :
+        if(kind>3)throw std::runtime_error("Unknown music trace corpus");
+        sequence=kind==3 ? pinned("local/audio-input/SNDDATA/BGM/EVS_NRD.XSQ","c255165d2dd93ff4eb82a918ff30d11cf9d5011d27a10bd8127c07c077fb7594") :
+            kind==2 ? pinned("local/audio-input/SNDDATA/BGM/JGL_GET.XSQ","b15448498b8a4738cb98d72fda4a595daf6fdc8bee644d732633f631f9e2f407") :
             kind==1 ? pinned("local/audio-input/SNDDATA/BGM/FLD_NMA.XSQ","17704d69deb1e516e216a2459ac83c8e80773582916de434ad98b860fb8ab16f") :
             pinned("local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ","908a259c61b333bad7c570b7c1c33f9e954d5c93811be52228643b8323131cf2");
         unsigned matches=0;

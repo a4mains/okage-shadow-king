@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Report HOME1B interval differences without shifting its original time anchor.
+"""Report field-interval differences without shifting their original time anchor.
 
 This diagnostic retains failures; it does not replace the strict conversation
 verifier. Missing original player payloads are counted, never interpreted as zero.
@@ -21,6 +21,7 @@ def main():
     p.add_argument('--reference', type=Path, required=True)
     p.add_argument('--capture', type=Path, required=True)
     p.add_argument('--first-frame', type=int, required=True)
+    p.add_argument('--no-dialogue', action='store_true', help='Require empty original controller/choice traces for an interval without dialogue')
     p.add_argument('--output', type=Path, required=True)
     a = p.parse_args()
     require(a.first_frame > 1, 'Need preceding completed native frame')
@@ -54,8 +55,14 @@ def main():
     require(a.first_frame + total - 1 <= len(managers), 'Native interval incomplete')
     transitions = [r for r in original('.transition.bin', 128) if r[1] == 0x133a98]
     camera = original('.camera.bin', 32)
-    controller = original('.controller.bin', 64)
-    original_choices = original('.controller.bin.choices.bin', 16)
+    controller_bytes = path(a.reference, '.controller.bin').read_bytes()
+    choice_bytes = path(a.reference, '.controller.bin.choices.bin').read_bytes()
+    if a.no_dialogue:
+        require(not controller_bytes and not choice_bytes, 'Unexpected dialogue in no-dialogue interval')
+        controller, original_choices = [], []
+    else:
+        controller = rows(controller_bytes, 64)
+        original_choices = rows(choice_bytes, 16)
     require([r[0] for r in transitions] == [r[0] for r in camera] == list(range(total)),
             'Original manager/camera extent')
     require(len(controller) % 2 == 0 and len(controller) == len(original_choices), 'Controller extent')
@@ -119,6 +126,7 @@ def main():
     report = dict(scope=__doc__, elf_sha256=ELF_HASH, native_run=native_run,
                   original_run=reference_run, first_native_frame=a.first_frame,
                   original_frames=total, controller_samples=len(observed),
+                  no_dialogue_interval=a.no_dialogue,
                   difference_frames=differences, missing_original_player_frames=missing_player,
                   hero_position_maximum_error=hero_error, camera_position_maximum_error=camera_error,
                   position_tolerance=0.00002, compared_observables_agree=not failed,
