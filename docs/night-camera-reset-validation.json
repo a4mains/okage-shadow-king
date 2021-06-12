@@ -1,0 +1,388 @@
+{
+  "scope": "Field-construction target-height reset; Release natural nighttime startup comparison.",
+  "provenance": {
+    "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "constructor": "0x133830 -> 0x135aa0",
+    "snap_flag": "0x2d9c70",
+    "first_follow": "0x136c10",
+    "retained_offset": "0x1fb9b4"
+  },
+  "original_snapshots": [
+    {
+      "snapshot": "local/reference-home1a-night-door-240-v1.state.zip",
+      "sha256": "5fc0762f5ab495346cced5e8c74596bec6021629cd17cbdd4381f317a0332a27",
+      "snap_target": 4294967295,
+      "target_y": 0.15843716263771057,
+      "target_offset": -8.499846458435059,
+      "target_height": -6.0
+    },
+    {
+      "snapshot": "local/reference-home1a-night-outdoor-360-v1.state.zip",
+      "sha256": "308493b88f0d245f4c9a341b7eef006e5575ec9b6c857aaeee7de17274cac985",
+      "snap_target": 0,
+      "target_y": -37.25,
+      "target_offset": -6.099836349487305,
+      "target_height": -6.0
+    }
+  ],
+  "release": {
+    "scope": "Compare nighttime startup at observed dispatch; retain fidelity failures.",
+    "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "original_run": {
+      "command": [
+        "build/play-research/okage-oracle/okage-boot-oracle",
+        "local/disc/Okage - Shadow King (USA).cue",
+        "360",
+        "local/reference-home1a-night-door-240-v1.state.zip",
+        "--load",
+        "--pad",
+        "local/reference-home1a-night-outdoor-360-v1.input",
+        "--transition",
+        "local/reference-home1a-night-outdoor-360-v1.transition.bin",
+        "--camera",
+        "local/reference-home1a-night-outdoor-360-v1.camera.bin",
+        "--controller",
+        "local/reference-home1a-night-outdoor-360-v1.controller.bin",
+        "--screen-filter",
+        "local/reference-home1a-night-outdoor-360-v1.screen-filter.bin",
+        "--capture",
+        "local/reference-home1a-night-outdoor-360-v1",
+        "--save",
+        "local/reference-home1a-night-outdoor-360-v1.state.zip",
+        "--deadline-seconds",
+        "900"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 169.882507,
+      "binary_sha256": "8fd153b021c9044073493a4e8a58a87e433dd98528897bf552dd684ebfee8aee"
+    },
+    "native_run": {
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "21935",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656",
+        "--directions",
+        "local/native-night-camera-snap-21935-release-v1.directions",
+        "--capture",
+        "local/native-night-camera-snap-21935-release-v1.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "--render-from",
+        "11310"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 182.944552,
+      "binary_sha256": "627e827644c6c83903428eb456b1e42dbe0f4c1ac900b5d5c27d06ed45b1bbd8"
+    },
+    "native_startup_frame": 21659,
+    "original_startup_frame": 83,
+    "compared_samples": 276,
+    "original_manager_first": 84,
+    "original_camera_first": 83,
+    "difference_frames": {
+      "manager": [],
+      "hero_root": [],
+      "camera_position": [],
+      "camera_rotation": [],
+      "camera_mode_phase": []
+    },
+    "first_rotation_difference": null,
+    "all_compared_words_exact": true,
+    "full_loading_timeline_equivalence": false,
+    "sha256": {
+      "local/reference-home1a-night-outdoor-360-v1.run.json": "1e0e3908081c6a5d23a839f1dec0c0df696fd904256aa2ec39350de71562e12b",
+      "local/native-night-camera-snap-21935-release-v1.run.json": "ec151b64abffe597d58f658bebf56d3935fdbd28fb93fdaa7dc48feb72bb6f8f",
+      "local/reference-home1a-night-outdoor-360-v1.transition.bin": "cd24bf506f34becf3e1ea07ff93de65131ee2c027fb5189f53d7a3a8832819c3",
+      "local/reference-home1a-night-outdoor-360-v1.camera.bin": "d56fa9fae766c639a1ea52787701c38673e9a0023198570b106dfd6b0584e90b",
+      "local/native-night-camera-snap-21935-release-v1.png.interaction.bin": "96bc09b02e858c2ca960bc8d53ef1892ee151f6ab4340563617d218062b64387",
+      "local/native-night-camera-snap-21935-release-v1.png.camera.bin": "de93b56dae1966daa4877dc33d00451550af0992f61d1148a5758be92708609d",
+      "local/native-night-camera-snap-21935-release-v1.png.camera-state.bin": "844d218aab2983104c56e9af36762e6ec4194225dfbb44ca403d14eca2828c9a",
+      "local/native-night-camera-snap-21935-release-v1.png.transition.bin": "c7be00ba23fbcd1149371a989cbc38da195b8a4b15dcaa7f998e93c316f240aa",
+      "local/native-night-camera-snap-21935-release-v1.png.actor-1.bin": "b92b9364cb1997d8aa11905b9a1da17def81d014457cf87623314f4fcb7b4258"
+    }
+  },
+  "prefix_regression": [
+    {
+      "suffix": ".actor-1.bin",
+      "bytes": 82718240,
+      "sha256": "8300ac4c105835dabe45eab6333c359b50bac4879a7380430697b9400bf63a06",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".actor-10.bin",
+      "bytes": 21758988,
+      "sha256": "a09c2270da2d757873819a9afb939c28666aabb27c528e9c945f45b1ee9343ea",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".actor-11.bin",
+      "bytes": 20384468,
+      "sha256": "78463e4ff0a0bd92b8f54e39f1ef5ab5c983198159e89a85ec0df08970748151",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".actor-12.bin",
+      "bytes": 7671124,
+      "sha256": "6a3f940bdf25385b16778d4bf7d6979f931d7e9f311f70a983a4c9cca43e3d31",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".actor-13.bin",
+      "bytes": 9078704,
+      "sha256": "1f36266c1ca296e8a3c7279298e926527e163c9192817f18c73b148f20c47d66",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".actor-14.bin",
+      "bytes": 1772472,
+      "sha256": "1f93849dc52118cff882ea5dcdd0c26a76ab822116d47ea26bee1b0ca0b77412",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".actor-15.bin",
+      "bytes": 966440,
+      "sha256": "7e28d3ec0f1701043a38dce5f6ad04b06b5a01c2746aa070fa033bae313dded9",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".actor-16.bin",
+      "bytes": 966440,
+      "sha256": "db728908d12a16a66cd7799b93e7ec3fe43b9720a8edf89c7cb95216274c6bfc",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".actor-17.bin",
+      "bytes": 14894024,
+      "sha256": "2a6998f6edc70968b7992ad451583c5525d3a5d93d7509b6e0d2856ed3220d06",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".actor-18.bin",
+      "bytes": 966440,
+      "sha256": "076aa20295e609e0439e5f10fb524be6aadb8ddd5d09e11bf169bdb630e38b0b",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".actor-19.bin",
+      "bytes": 17611252,
+      "sha256": "0ad772c44ab84bc715a0e7679ef79c8aca20336f5edf5885cc55ecb1fdad822d",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".actor-20.bin",
+      "bytes": 14768396,
+      "sha256": "dce67fe8789273e842c73e63b5f6b4993c29c3457f3b02a918b8d9e27126f277",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".actor-21.bin",
+      "bytes": 17490792,
+      "sha256": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".actor-22.bin",
+      "bytes": 1210716,
+      "sha256": "d3776c8c1869a22f9699e699e054581ea667cb0edfa1c8749433d798660f933f",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".actor-37.bin",
+      "bytes": 6669448,
+      "sha256": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".actor-38.bin",
+      "bytes": 75036,
+      "sha256": "f6c8d4a0b3370c78dd86197121b409277a1a79d0eb77ee2172dee125a022e671",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".actor-45.bin",
+      "bytes": 8950128,
+      "sha256": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".actor-9.bin",
+      "bytes": 38404180,
+      "sha256": "4e277d3431e435e5a9f495328e333a74f2c7bea92a76c802636945773967b977",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".actor.bin",
+      "bytes": 37182684,
+      "sha256": "73297bf45413b6a87f28a47a6ea423f01dc4deaec61184b697a68c6973db7585",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".audio.pcm",
+      "bytes": 69952000,
+      "sha256": "d51094aaaddc4ce0aa4bac1da5b600587ddbabe6d3e97b3ab228e4be5ceafff9",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".camera-state.bin",
+      "bytes": 437200,
+      "sha256": "13b1c850c34be0fee58cd61c4bef314ac602d05f4c168f072fafbdb117c46d35",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".camera.bin",
+      "bytes": 1399040,
+      "sha256": "0bfd408123a02246880deec5aeacaf0f70922f825053e9255929cbe057f56af3",
+      "prefix_exact": false,
+      "first_difference_byte": 746788
+    },
+    {
+      "suffix": ".choices.bin",
+      "bytes": 1049280,
+      "sha256": "9e1ff60ad2b9596a98f245947dd0c25b99902cf4bb40deed1a7be79ba1b2d332",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".dialogue.bin",
+      "bytes": 1049280,
+      "sha256": "36b93c42829ba41571063f28eaebdecf95c73300dde04402e8ce04b4f895a351",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".effects.bin",
+      "bytes": 358680,
+      "sha256": "2e160babcb52aae55bbced3a5d535c1a7c70a1175eb660da157ae5d4e8c1791a",
+      "prefix_exact": false,
+      "first_difference_byte": 169324
+    },
+    {
+      "suffix": ".interaction.bin",
+      "bytes": 699520,
+      "sha256": "fe4ac68def1b517dcf9496e621c6e6aefc1db2736217d6852874cfa72d52f119",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".map-effects.bin",
+      "bytes": 25859304,
+      "sha256": "68347d47009ce0c579a56177a93b9324aeeca7eff0c0eb9dc6907e3fff4ef88f",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".movement.bin",
+      "bytes": 1399040,
+      "sha256": "bbe67a81b02fd65d1b6fa9d791f05191ad18294f674e3ac21c10203a7d3e8a42",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".music.bin",
+      "bytes": 437200,
+      "sha256": "d29ff69db82a91bfecf4f85ee864faa9f6286518d90a46a205c00b1de1c864f3",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".screen-filter.bin",
+      "bytes": 349760,
+      "sha256": "a6bb45b7b2f887b4952689f8fd6e3537524e3781f4e50334ac4c408fc048952f",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".sound.bin",
+      "bytes": 3220,
+      "sha256": "258aeb936d8e39bad0fe5d7846b1bde1968441161ff97f732eb1cd9d0e5ffe41",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    },
+    {
+      "suffix": ".transition.bin",
+      "bytes": 699520,
+      "sha256": "7a384021d565258c48254879b2cf3701d6497218d2f679f5032b91e116498a06",
+      "prefix_exact": true,
+      "first_difference_byte": null
+    }
+  ],
+  "derived_differences": {
+    "changed_effect_frames": 99,
+    "first_effect_frame": 11874,
+    "last_effect_frame": 11972,
+    "changed_effect_fields": [
+      19,
+      20,
+      21
+    ],
+    "effect_identity_flags_phase_root_scale_texture_uv_exact": true,
+    "camera_changed_fields": [
+      "target.Y",
+      "pitch"
+    ],
+    "camera_changed_rows": 1227,
+    "first_camera_changed_frame": 11669,
+    "reason": "Camera-facing sprite positions are evaluated with the corrected pitch; no other effect fields changed."
+  },
+  "tests": {
+    "ctest": [
+      "collision-tests",
+      "field-tests"
+    ],
+    "builds": [
+      "native-release",
+      "native",
+      "model-sanitize"
+    ],
+    "python_count": 42,
+    "python_log": "local/research/night-camera-snap-python-tests-v2.log"
+  },
+  "limits": [
+    "Lifecycle comparison, not asynchronous loading-duration equality.",
+    "Walking camera/position/rotation failures remain in night-walk-diagnostic.json.",
+    "No raster/audio/full-game equivalence."
+  ]
+}

@@ -1,0 +1,201 @@
+{
+  "scope": "Diagnostic only.",
+  "records": 91,
+  "ticks": 14,
+  "compared_words": 15470,
+  "differing_words": 2002,
+  "first_sequence_vblank": 226,
+  "full_comparison_passed": false,
+  "fields": [
+    {
+      "channel": 0,
+      "word": 9,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    },
+    {
+      "channel": 1,
+      "word": 9,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    },
+    {
+      "channel": 2,
+      "word": 9,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    },
+    {
+      "channel": 3,
+      "word": 9,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    },
+    {
+      "channel": 4,
+      "word": 9,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    },
+    {
+      "channel": 5,
+      "word": 9,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    },
+    {
+      "channel": 6,
+      "word": 9,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    },
+    {
+      "channel": 7,
+      "word": 9,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    },
+    {
+      "channel": 8,
+      "word": 7,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    },
+    {
+      "channel": 8,
+      "word": 9,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    },
+    {
+      "channel": 9,
+      "word": 7,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    },
+    {
+      "channel": 9,
+      "word": 9,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    },
+    {
+      "channel": 10,
+      "word": 7,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    },
+    {
+      "channel": 10,
+      "word": 9,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    },
+    {
+      "channel": 11,
+      "word": 7,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    },
+    {
+      "channel": 11,
+      "word": 9,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    },
+    {
+      "channel": 12,
+      "word": 7,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    },
+    {
+      "channel": 12,
+      "word": 9,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    },
+    {
+      "channel": 13,
+      "word": 7,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    },
+    {
+      "channel": 13,
+      "word": 9,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    },
+    {
+      "channel": 14,
+      "word": 9,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    },
+    {
+      "channel": 15,
+      "word": 9,
+      "differences": 91,
+      "first_record": 0,
+      "expected": "0x800080",
+      "actual": "0x0"
+    }
+  ],
+  "evidence": {
+    "driver_sha256": "7fe8b5a33c2f8700d1f964cf5ce2f66942f8f97d952e86e6dc0ad5d4f74becb2",
+    "initializer": "RX0x4200 resets channel words0..6 and8; leaves payload words7 and9 intact",
+    "setter": "RX0x56f8 writes buffer flag and payload at channel+0x18+buffer*8",
+    "consumer": "RX0x4578 copies flagged payload to gain at+0x14 then clears only the flag",
+    "implication": "Standalone zero-initialized diagnostic cannot reproduce prior reused-slot transport payload bytes. Do not derive native initial state from the captured values. Active sequencer equality does not establish voices/PCM/RPC timing."
+  },
+  "sha256": {
+    "local/reference-home1a-night-music50-240-v1.bin": "eac37c6bddc277e1ef8fc93b70fe785c6b6c3ae7a91d834f41eacf47fcb5cd42",
+    "local/home1a-night-music50-sequence-release-v1/native.bin": "52dd31bb8564ac144c851843f5a80fce848aa85def790fb80a01be51748aa13b",
+    "local/research-audio/00004200.c": "91fe32e9f171a99dbed8045ae432374c357b5d856db0a594914b8ea7ac813b3c",
+    "local/research-audio/000056f8.c": "aeede653d286e13069ee01d05b446c4609bc64119986b1f06814bd9be3742ba2",
+    "local/research-audio/00004578.c": "c37e7fac52320e9c6224fde3a88471d46f8dcf8c1f928864a53f7c9ab616ef8d"
+  }
+}

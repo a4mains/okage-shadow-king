@@ -394,6 +394,7 @@ void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned
     if(!definition.followers.empty())throw std::runtime_error("Field follower construction is unrecovered");
     if(definition.type==0&&!exterior_camera)throw std::runtime_error("Exterior field requires session camera state");
     if(definition.npcs.size()+1!=actors_.size())throw std::runtime_error("Field entry NPC bindings differ");
+    if(exterior_camera)exterior_camera->snap_target=true;
     const auto placement=field_entrance(stg,entrance);
     for(const auto& npc:definition.npcs) {
         auto* object=actor(npc.alias);

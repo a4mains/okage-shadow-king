@@ -46,10 +46,12 @@ def main():
     require(transitions[21658][3:7] == (1, 1, 0, 1), 'Native destination dispatch changed')
     require(managers[21658][4:8] == (1, 1, 1, 0x7acc), 'Native first startup result')
     # Boundaries follow actual startup dispatch, never a fitted agreement offset.
-    native_first, original_first, samples = 21659, 83, 202
-    require(len(managers) >= native_first + samples - 1, 'Incomplete native interval')
+    native_first, original_first = 21659, 83
     before = {r[0]: r for r in observed if r[1] == 0x133a98}
     camera = {r[0]: r for r in cameras}
+    samples = min(len(managers) - native_first + 1,
+                  max(before) - original_first, max(camera) - original_first + 1)
+    require(samples >= 202, 'Incomplete previously compared startup interval')
     differences = {k: [] for k in ('manager', 'hero_root', 'camera_position',
                                   'camera_rotation', 'camera_mode_phase')}
     first_rotation_difference = None

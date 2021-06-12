@@ -401,17 +401,20 @@ int main(){try {
         const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
         okage::OpeningField scene(event,[](int){},[](int){return true;},player,false);
         okage::ExteriorCamera manager;scene.exterior_camera=&manager;
+        manager.snap_target=false;manager.target_y=100;
         std::array<std::uint8_t,0x1000> vars{};
         scene.get_variable=[&](auto selector){return okage::event_variable(vars,selector);};
         scene.set_variable=[&](auto index,auto bank,auto value){okage::set_event_variable(vars,index,bank,value);};
         okage::FieldDefinition entry;entry.type=0;entry.startup=1;entry.party=1;
         scene.enter(entry,exterior_stage,empty_map,0);const auto frozen=scene.position;
+        require(manager.snap_target&&manager.target_y==100);
         require(scene.event_running()&&!manager.manual_rotate);
         for(unsigned i=0;i<(camera_command==1?2u:4u);++i){scene.tick();if(frozen_camera)require(scene.position==frozen);}
         const float offset_before_handoff=manager.target_offset;
         require(!scene.event_running());scene.tick();require(manager.manual_rotate&&manager.phase==0);
         if(!frozen_camera)require(manager.target_offset<offset_before_handoff);
         const auto previous=hero.animation().values()[1];scene.tick({0x4000});
+        require(!manager.snap_target&&manager.target_y==previous[1]);
         require(manager.phase>0&&manager.previous_player==previous&&scene.camera_mode()==2);
         require(manager.previous_player!=hero.animation().values()[1]);
     }

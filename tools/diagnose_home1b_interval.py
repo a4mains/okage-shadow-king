@@ -44,12 +44,13 @@ def main():
     native = lambda suffix, width: rows(path(a.capture, suffix).read_bytes(), width)
     original = lambda suffix, width: rows(path(a.reference, suffix).read_bytes(), width)
     managers = native('.interaction.bin', 8)
+    movement = native('.movement.bin', 16)
     dialogue = native('.dialogue.bin', 12)
     choices = native('.choices.bin', 12)
     cameras = native('.camera.bin', 16)
     camera_states = native('.camera-state.bin', 5)
     actors = actor_rows(path(a.capture, '.actor-1.bin'))
-    require(len(managers) == len(dialogue) == len(choices) == len(cameras) ==
+    require(len(managers) == len(movement) == len(dialogue) == len(choices) == len(cameras) ==
             len(camera_states) == len(actors), 'Native trace extents')
     require([r[0] for r in managers] == list(range(1, len(managers) + 1)), 'Native frame sequence')
     require(a.first_frame + total - 1 <= len(managers), 'Native interval incomplete')
@@ -67,7 +68,7 @@ def main():
             'Original manager/camera extent')
     require(len(controller) % 2 == 0 and len(controller) == len(original_choices), 'Controller extent')
     differences = {key: [] for key in ('controller', 'choice', 'manager_running_pc_gate',
-                   'pad_latch', 'player_mask', 'hero_facing_w', 'hero_position',
+                   'pad_latch', 'direction_latch', 'player_mask', 'hero_facing_w', 'hero_position',
                    'camera_rotation', 'camera_mode_phase', 'camera_position')}
     observed = []
     for before, after, cb, ca in zip(controller[::2], controller[1::2],
@@ -101,6 +102,8 @@ def main():
             differences['manager_running_pc_gate'].append(f)
         if managers[at][1] != r[33] >> 16:
             differences['pad_latch'].append(f)
+        if movement[at][1] & 0xf000 != r[33] & 0xf000:
+            differences['direction_latch'].append(f)
         if r[28]:
             if prior[5] != r[48]:
                 differences['player_mask'].append(f)
