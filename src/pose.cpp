@@ -14,6 +14,73 @@ struct Rounding {
     explicit Rounding(int mode) { if (std::fesetround(mode)) throw std::runtime_error("Unable to set pose rounding mode"); }
     ~Rounding() { std::fesetround(previous); }
 };
+float constant(std::uint32_t word) {return __builtin_bit_cast(float, (word));}
+std::uint32_t bits(float value) {return __builtin_bit_cast(std::uint32_t, (value));}
+float sine_kernel(float x,float tail,bool reduced) {
+    if((bits(x)&0x7fffffffu)<0x32000000u)return x;
+    const float square=x*x,cube=square*x;
+    float polynomial=square*constant(0x2f2ec9d3u);
+    polynomial=polynomial+constant(0xb2d72f34u);
+    polynomial=square*polynomial;polynomial=polynomial+constant(0x3638ef1bu);
+    polynomial=square*polynomial;polynomial=polynomial+constant(0xb9500d01u);
+    polynomial=square*polynomial;polynomial=polynomial+constant(0x3c088889u);
+    if(!reduced)return x+cube*(square*polynomial+constant(0xbe2aaaabu));
+    return x-((square*(tail*.5f-cube*polynomial)-tail)-cube*constant(0xbe2aaaabu));
+}
+float cosine_kernel(float x,float tail) {
+    const auto magnitude=bits(x)&0x7fffffffu;
+    if(magnitude<0x32000000u)return 1;
+    const float square=x*x;
+    float polynomial=square*constant(0xad47d74eu);
+    polynomial=polynomial+constant(0x310f74f6u);
+    polynomial=square*polynomial;polynomial=polynomial+constant(0xb493f27cu);
+    polynomial=square*polynomial;polynomial=polynomial+constant(0x37d00d01u);
+    polynomial=square*polynomial;polynomial=polynomial+constant(0xbab60b61u);
+    polynomial=square*polynomial;polynomial=polynomial+constant(0x3d2aaaabu);
+    polynomial=square*polynomial;
+    if(magnitude<=0x3e999999u)return 1.f-(square*.5f-(square*polynomial-x*tail));
+    const float split=magnitude>0x3f480000u?constant(0x3e900000u):constant(magnitude-0x1000000u);
+    return (1.f-split)-((square*.5f-split)-(square*polynomial-x*tail));
+}
+float table_sine(float angle) {
+    if(!(angle>=0&&angle<=constant(0x40c90fdbu)))throw std::runtime_error("Sine initializer angle outside reviewed domain");
+    const auto word=bits(angle);
+    if(word<=0x3f490fd8u)return sine_kernel(angle,0,false);
+    float head,tail;unsigned quadrant;
+    if(word<=0x4016cbe3u) {
+        quadrant=1;
+        float remainder=angle-constant(0x3fc90f80u),correction=constant(0x37354443u);
+        if((word&0x7ffffff0u)==0x3fc90fd0u) {
+            remainder=remainder-constant(0x37354400u);correction=constant(0x2e85a308u);
+        }
+        head=remainder-correction;tail=(remainder-head)-correction;
+    } else {
+        quadrant=unsigned(angle*constant(0x3f22f984u)+.5f);
+        if(quadrant<2||quadrant>4)throw std::runtime_error("Sine initializer quadrant outside reviewed domain");
+        const float count=float(quadrant);
+        float remainder=angle-count*constant(0x3fc90f80u),correction=count*constant(0x37354443u);
+        head=remainder-correction;
+        // First four cancellation masks of the reduction table at0x24d9c0.
+        constexpr std::uint32_t masks[]={0x3fc90f00u,0x40490f00u,0x4096cb00u,0x40c90f00u};
+        auto lost_bits=[&]{return int(word>>23)-int((bits(head)>>23)&255u);};
+        if((word&0x7fffff00u)==masks[quadrant-1]&&lost_bits()>=9) {
+            float previous=remainder,part=count*constant(0x37354400u);
+            remainder=previous-part;
+            correction=count*constant(0x2e85a308u)-((previous-remainder)-part);head=remainder-correction;
+            if(lost_bits()>=26) {
+                previous=remainder;part=count*constant(0x2e85a300u);remainder=previous-part;
+                correction=count*constant(0x248d3132u)-((previous-remainder)-part);head=remainder-correction;
+            }
+        }
+        tail=(remainder-head)-correction;
+    }
+    switch(quadrant&3u) {
+        case 0:return sine_kernel(head,tail,true);
+        case 1:return cosine_kernel(head,tail);
+        case 2:return -sine_kernel(head,tail,true);
+        default:return -cosine_kernel(head,tail);
+    }
+}
 Float4 transform(const Matrix4& matrix,const Float4& vector) {
     Float4 result{};
     for (unsigned row=0;row<4;++row) {
@@ -45,15 +112,20 @@ void rotate(Matrix4& matrix,unsigned first,unsigned second,unsigned index,const 
 }
 }
 SineTable make_sine_table() {
+    // 0x1b1d88 constructs each argument in soft double, rounds it to float,
+    // then evaluates the single-precision kernels under the game FPU mode.
     Rounding rounding(FE_TONEAREST);
     SineTable table;
-    for (unsigned i=0;i<table.size();++i) {
-        float angle=static_cast<float>((double(i)/8192.0)*double(3.1415927410125732421875f));
-        table[i]=std::sin(angle);
+    for(unsigned i=0;i<table.size();++i)
+        table[i]=static_cast<float>((double(i)/8192.0)*double(3.1415927410125732421875f));
+    {
+        Rounding kernel_rounding(FE_TOWARDZERO);
+        for(auto& value:table)value=table_sine(value);
     }
-    table[0]=0; table[4096]=1; table[8192]=0; table[12288]=-1;
+    table[0]=0;table[4096]=1;table[8192]=0;table[12288]=-1;
     return table;
 }
+
 Matrix4 instance_matrix(const Float4& position,const Float4& rotation,const Float4& scale,const SineTable& sine) {
     Rounding rounding(FE_TOWARDZERO);
     for (const auto& values:{position,rotation,scale}) for(float v:values)

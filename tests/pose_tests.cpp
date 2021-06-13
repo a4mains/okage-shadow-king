@@ -11,6 +11,11 @@ int main() {
         std::fesetround(FE_TONEAREST);
         const auto sine=okage::make_sine_table();
         require(sine[0]==0 && sine[4096]==1 && sine[8192]==0 && sine[12288]==-1);
+        for(int mode:{FE_DOWNWARD,FE_UPWARD,FE_TOWARDZERO}) {
+            std::fesetround(mode);
+            require(okage::make_sine_table()==sine && std::fegetround()==mode);
+        }
+        std::fesetround(FE_TONEAREST);
         okage::Model model{};
         model.bones.push_back({{2,3,4,0},{0,0,1.5707963705062866f,0},{1,2,3,0}});
         model.bones.push_back({{5,6,7,0},{0,0,0,0},{1,0,0,0}});

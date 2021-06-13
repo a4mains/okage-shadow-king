@@ -1,0 +1,177 @@
+{
+  "scope": "Native mathematical construction of the retail sine table, and independently computed rest poses.",
+  "provenance": {
+    "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "initializer": "0x1b1d88",
+    "sine_dispatch": "0x1ebb48",
+    "reduction": "0x1ebd50",
+    "sine_kernel": "0x1ecd10",
+    "cosine_kernel": "0x1ec268",
+    "argument_domain": "The 16384 initializer angles in [0,2*pi]; not a general replacement math library.",
+    "rounding": "Soft-double argument conversion uses nearest; float reduction and kernels use toward-zero; restore caller mode."
+  },
+  "builds": {
+    "native": {
+      "scope": "Audit native sine generation and optionally the existing retail rest-pose corpus.",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "native_binary_sha256": "371b974af0cee39a08159cf50fc34d74c8d7bb643ab6fd3c184c7f0f378cfcab",
+      "sine_command": [
+        "build/native/okage-assets",
+        "sine-table",
+        "local/retail-sine-native-v1/native.f32"
+      ],
+      "exact_sine_words": 16384,
+      "sine_sha256": "66fb319284747513a9623c94e0f4e9092e51dbab67204a256d5564dfcc22be5f",
+      "poses": {
+        "command": [
+          "build/native/okage-assets",
+          "pose-corpus",
+          "local/xpf-decoded",
+          "local/retail-sine-native-v1/poses"
+        ],
+        "files": 5578,
+        "matrices": 73581,
+        "components": 1177296,
+        "numerically_equal_components": 1177296,
+        "worst": {
+          "absolute_error": 0
+        },
+        "absolute_tolerance": 2e-05,
+        "relative_tolerance": 2e-06,
+        "original_manifest_sha256": "4e555bddb2ed349198c934aa7223d50398d6ff0730475935c11eb6fd7d72d1f8",
+        "native_manifest_sha256": "e8022580c8ce5eb57d9504da0534bbfd297d4b6a79fb93c05c91e3b7c1423c3b",
+        "original_concatenated_sha256": "6417fde5297f9fd0d2cea0a1e0d913aa7e5f87c1f22d33f045c7ff9c329d37a2",
+        "native_concatenated_sha256": "6417fde5297f9fd0d2cea0a1e0d913aa7e5f87c1f22d33f045c7ff9c329d37a2"
+      }
+    },
+    "native-release": {
+      "scope": "Audit native sine generation and optionally the existing retail rest-pose corpus.",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "native_binary_sha256": "64fe678de9308731a3f18aaf4c19fd72b69e92cffe5198dc57390090b16c5d33",
+      "sine_command": [
+        "build/native-release/okage-assets",
+        "sine-table",
+        "local/retail-sine-native-release-v1/native.f32"
+      ],
+      "exact_sine_words": 16384,
+      "sine_sha256": "66fb319284747513a9623c94e0f4e9092e51dbab67204a256d5564dfcc22be5f",
+      "poses": {
+        "command": [
+          "build/native-release/okage-assets",
+          "pose-corpus",
+          "local/xpf-decoded",
+          "local/retail-sine-native-release-v1/poses"
+        ],
+        "files": 5578,
+        "matrices": 73581,
+        "components": 1177296,
+        "numerically_equal_components": 1177296,
+        "worst": {
+          "absolute_error": 0
+        },
+        "absolute_tolerance": 2e-05,
+        "relative_tolerance": 2e-06,
+        "original_manifest_sha256": "4e555bddb2ed349198c934aa7223d50398d6ff0730475935c11eb6fd7d72d1f8",
+        "native_manifest_sha256": "cf76423ac334527dcadd2af3bdfbbf1d3331451daf35777f735e0fb5029edcfe",
+        "original_concatenated_sha256": "6417fde5297f9fd0d2cea0a1e0d913aa7e5f87c1f22d33f045c7ff9c329d37a2",
+        "native_concatenated_sha256": "6417fde5297f9fd0d2cea0a1e0d913aa7e5f87c1f22d33f045c7ff9c329d37a2"
+      }
+    },
+    "model-sanitize": {
+      "scope": "Audit native sine generation and optionally the existing retail rest-pose corpus.",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "native_binary_sha256": "3192f0aedddc77426e5bc97ac24dc1686292d18f7f758c42e1dc71be967e0f90",
+      "sine_command": [
+        "build/model-sanitize/okage-assets",
+        "sine-table",
+        "local/retail-sine-model-sanitize-v1/native.f32"
+      ],
+      "exact_sine_words": 16384,
+      "sine_sha256": "66fb319284747513a9623c94e0f4e9092e51dbab67204a256d5564dfcc22be5f",
+      "poses": {
+        "command": [
+          "build/model-sanitize/okage-assets",
+          "pose-corpus",
+          "local/xpf-decoded",
+          "local/retail-sine-model-sanitize-v1/poses"
+        ],
+        "files": 5578,
+        "matrices": 73581,
+        "components": 1177296,
+        "numerically_equal_components": 1177296,
+        "worst": {
+          "absolute_error": 0
+        },
+        "absolute_tolerance": 2e-05,
+        "relative_tolerance": 2e-06,
+        "original_manifest_sha256": "4e555bddb2ed349198c934aa7223d50398d6ff0730475935c11eb6fd7d72d1f8",
+        "native_manifest_sha256": "3a73e546a5e4a5f852a6c1891d072caa9e2f814dc979c98336bdc2559597dcbd",
+        "original_concatenated_sha256": "6417fde5297f9fd0d2cea0a1e0d913aa7e5f87c1f22d33f045c7ff9c329d37a2",
+        "native_concatenated_sha256": "6417fde5297f9fd0d2cea0a1e0d913aa7e5f87c1f22d33f045c7ff9c329d37a2"
+      }
+    }
+  },
+  "tests": {
+    "ctest_count_per_build": 19,
+    "builds": [
+      "native",
+      "native-release",
+      "model-sanitize"
+    ],
+    "caller_rounding_modes": [
+      "nearest",
+      "downward",
+      "upward",
+      "toward-zero"
+    ],
+    "python_count": 42
+  },
+  "negative_control": {
+    "probe": "local/research/night-sine-probe-v1.cpp",
+    "nearest_kernel_differing_words": 7789,
+    "toward_zero_kernel_differing_words": 0
+  },
+  "limits": [
+    "One pinned emulator reference, not a physical-hardware certification.",
+    "Rest poses only; animated/world/rendered poses need their separate comparisons."
+  ],
+  "earlier_route_regression": {
+    "report": "local/research/sine-home1b-regression-v1.json",
+    "sha256": "ca3a4442fe4ebfef6ae9b9b59baeac77abc25dc958fcf0792559eccfcadaf444",
+    "interval_count": 11,
+    "limits": [
+      "Rendering, visibility flags, other actors and audio are outside these comparisons.",
+      "Original controller is not observed during the explicit closure/initialization gaps."
+    ],
+    "annie_animation": [
+      {
+        "prefix": "local/reference-home1b-warning-300-v1",
+        "actor_alias": -17,
+        "original_instance": 6,
+        "channels": 174,
+        "manager_observations": 300,
+        "exact_channel_words": 208800,
+        "exact_field_motion_words": 900
+      },
+      {
+        "prefix": "local/reference-home1b-date-420-v1",
+        "actor_alias": -17,
+        "original_instance": 6,
+        "channels": 174,
+        "manager_observations": 420,
+        "exact_channel_words": 292320,
+        "exact_field_motion_words": 1260
+      },
+      {
+        "prefix": "local/reference-home1b-festival-420-v1",
+        "actor_alias": -17,
+        "original_instance": 6,
+        "channels": 174,
+        "manager_observations": 80,
+        "exact_channel_words": 55680,
+        "exact_field_motion_words": 240
+      }
+    ],
+    "native_binary_sha256": "9bf8d528a432a4fd6ba5d4d6ccea689d2428081f14bb8fbe2d66758d8e6e6062"
+  }
+}
