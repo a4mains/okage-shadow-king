@@ -418,6 +418,28 @@ int main(){try {
         require(manager.phase>0&&manager.previous_player==previous&&scene.camera_mode()==2);
         require(manager.previous_player!=hero.animation().values()[1]);
     }
+    {
+        auto exterior_stage=stage;put(exterior_stage,76,0);
+        auto event=startup;put(event,40,0x00400002);put(event,44,0);put(event,48,0);
+        okage::ModelFile hero_model,npc_model;
+        hero_model.models.emplace_back();npc_model.models.emplace_back();
+        okage::FieldActor hero(std::move(hero_model),idle,{}),npc(std::move(npc_model),idle,{});
+        const std::array<okage::ActorBinding,2> actors={{{-8,&npc},{-1,&hero}}};
+        okage::OpeningField scene(event,[](int){},[](int){return true;},actors,false);
+        scene.random_value=[] {return 0u;};
+        okage::ExteriorCamera manager;scene.exterior_camera=&manager;
+        std::array<std::uint8_t,0x1000> vars{};
+        scene.get_variable=[&](auto s){return okage::event_variable(vars,s);};
+        scene.set_variable=[&](auto i,auto b,auto v){okage::set_event_variable(vars,i,b,v);};
+        okage::FieldDefinition entry;entry.type=0;entry.party=1;
+        okage::FieldNpcDefinition person;person.alias=-8;person.talk=-1;person.position={3,0,0,1};
+        entry.npcs.push_back(person);
+        scene.enter(entry,exterior_stage,empty_map,0);scene.tick();
+        manager.snap_target=false;manager.target_y=100;
+        scene.tick({0,128,128,0x40});
+        require(scene.event_running()&&scene.interaction_alias()==-8&&manager.target_y==99.5f);
+        scene.tick();require(manager.target_y==99.5f);
+    }
     put(startup,40,0x144);put(startup,44,0);
     {
         okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});

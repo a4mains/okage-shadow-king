@@ -3,7 +3,9 @@
 
 This diagnostic retains failures; it does not replace the strict conversation
 verifier. Missing original player payloads are counted, never interpreted as zero.
-Rendering, sound, camera targets and unobserved state are outside this comparison.
+Rendering, sound and unobserved state are outside this comparison. Optional
+target checks cover only idle mode2 frames with already-completed blending; the
+original trace's requested target is not an effective target during blending.
 """
 import argparse
 import json
@@ -22,6 +24,7 @@ def main():
     p.add_argument('--capture', type=Path, required=True)
     p.add_argument('--first-frame', type=int, required=True)
     p.add_argument('--no-dialogue', action='store_true', help='Require empty original controller/choice traces for an interval without dialogue')
+    p.add_argument('--unblended-target', action='store_true', help='Compare idle mode2 targets after stable completed blending in both traces')
     p.add_argument('--output', type=Path, required=True)
     a = p.parse_args()
     require(a.first_frame > 1, 'Need preceding completed native frame')
@@ -54,7 +57,9 @@ def main():
             len(camera_states) == len(actors), 'Native trace extents')
     require([r[0] for r in managers] == list(range(1, len(managers) + 1)), 'Native frame sequence')
     require(a.first_frame + total - 1 <= len(managers), 'Native interval incomplete')
-    transitions = [r for r in original('.transition.bin', 128) if r[1] == 0x133a98]
+    transition_observations = original('.transition.bin', 128)
+    transitions = [r for r in transition_observations if r[1] == 0x133a98]
+    dispatch_frames = {r[0] for r in transition_observations if r[1] == 0x1bb7e0}
     camera = original('.camera.bin', 32)
     controller_bytes = path(a.reference, '.controller.bin').read_bytes()
     choice_bytes = path(a.reference, '.controller.bin.choices.bin').read_bytes()
@@ -69,7 +74,7 @@ def main():
     require(len(controller) % 2 == 0 and len(controller) == len(original_choices), 'Controller extent')
     differences = {key: [] for key in ('controller', 'choice', 'manager_running_pc_gate',
                    'pad_latch', 'direction_latch', 'player_mask', 'hero_facing_w', 'hero_position',
-                   'camera_rotation', 'camera_mode_phase', 'camera_position')}
+                   'camera_rotation', 'camera_mode_phase', 'camera_position', 'camera_unblended_target')}
     observed = []
     for before, after, cb, ca in zip(controller[::2], controller[1::2],
                                      original_choices[::2], original_choices[1::2]):
@@ -93,6 +98,7 @@ def main():
         return max(abs(x - y) for x, y in zip(va, vb))
 
     hero_error = camera_error = 0.
+    target_frames = []
     missing_player = []
     for r, c in zip(transitions, camera):
         f = r[0]
@@ -124,12 +130,23 @@ def main():
         camera_error = max(camera_error, e)
         if e > 0.00002:
             differences['camera_position'].append(f)
+        if (a.unblended_target and f > 0 and c[2] == 2 and
+                not r[35] & 256 and not managers[at][4] and f not in dispatch_frames and
+                c[3] == camera[f - 1][3] == 0x3f800000 and
+                c[16:24] == camera[f - 1][16:24] and c[28] == camera[f - 1][28] and
+                camera_states[at][1] == c[2] and
+                camera_states[at][3] == camera_states[at - 1][3] == 0x3f800000):
+            target_frames.append(f)
+            if cameras[at][8:12] != c[12:16]:
+                differences['camera_unblended_target'].append(f)
     failed = sorted({f for values in differences.values() for f in values})
     tail = max(failed + missing_player, default=-1) + 1
     report = dict(scope=__doc__, elf_sha256=ELF_HASH, native_run=native_run,
                   original_run=reference_run, first_native_frame=a.first_frame,
                   original_frames=total, controller_samples=len(observed),
                   no_dialogue_interval=a.no_dialogue,
+                  unblended_target_check=a.unblended_target,
+                  unblended_target_compared_frames=target_frames,
                   difference_frames=differences, missing_original_player_frames=missing_player,
                   hero_position_maximum_error=hero_error, camera_position_maximum_error=camera_error,
                   position_tolerance=0.00002, compared_observables_agree=not failed,

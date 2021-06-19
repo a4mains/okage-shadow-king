@@ -747,6 +747,8 @@ void OpeningField::tick(ExplorationInput input) {
     if(!was_transitioning&&exterior&&!exploration_handoff_&&exterior_camera_enabled_)update_exterior_camera();
     if(!was_transitioning&&(exploration_camera_||exterior)&&!event_running()) {
         if(exploration_handoff_) {
+            if(exterior&&exterior_camera_enabled_)update_exterior_camera();
+            if(exterior&&player_.camera_area!=configured_camera_area_)configure_exterior_camera(player_.camera_area);
             interact(input);
             move=!event_running()&&!transition_;
         } else {
@@ -764,8 +766,6 @@ void OpeningField::tick(ExplorationInput input) {
             }
         }
     }
-    if(move&&exterior&&exterior_camera_enabled_)update_exterior_camera();
-    if(move&&exterior&&player_.camera_area!=configured_camera_area_)configure_exterior_camera(player_.camera_area);
     tick_callbacks(input,move&&!exterior);
 }
 void OpeningField::tick_callbacks(ExplorationInput input,bool interior_camera) {
