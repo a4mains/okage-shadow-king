@@ -27,7 +27,10 @@ def main():
     parser.add_argument('--answer', action='store_true', help='Also audit the completed original480 first-answer continuation')
     parser.add_argument('--complete', action='store_true', help='Check native-only conversation closure and subsequent road movement')
     parser.add_argument('--ending', action='store_true', help='Audit original720 ending with observed input alignment')
-    parser.add_argument('--prior-capture', type=Path,
+    prefix_check = parser.add_mutually_exclusive_group()
+    prefix_check.add_argument('--original-only', action='store_true',
+        help='Run original-game comparisons without claiming an unchanged earlier native prefix')
+    prefix_check.add_argument('--prior-capture', type=Path,
         default=Path('local/native-gate-message-close-8260-system-native-v1.png'),
         help='Reviewed native8260 baseline; this regression check is separate from the original comparisons')
     args = parser.parse_args()
@@ -72,7 +75,7 @@ def main():
     for r in reference_camera[120:]:
         # Reference target is raw; compare rendered target only after blend completion.
         require(camera[9660 + r[0]][8:12] == r[12:16], 'Settled actor target differs')
-    for suffix in ['.dialogue.bin', '.choices.bin', '.interaction.bin', '.movement.bin', '.camera.bin', '.actor-1.bin']:
+    for suffix in ([] if args.original_only else ['.dialogue.bin', '.choices.bin', '.interaction.bin', '.movement.bin', '.camera.bin', '.actor-1.bin']):
         before = Path(str(args.prior_capture) + suffix)
         width = {'.dialogue.bin':12, '.choices.bin':12, '.interaction.bin':8,
                  '.movement.bin':16, '.camera.bin':16}.get(suffix)
@@ -81,6 +84,9 @@ def main():
         require(native(suffix).read_bytes().startswith(before.read_bytes()), 'Prior8260 route changed: ' + suffix)
         files.extend([before, native(suffix)])
     files.append(native('.camera-state.bin'))
+    files.extend(native(suffix) for suffix in ('.interaction.bin', '.camera.bin', '.dialogue.bin'))
+    if args.answer or args.ending:
+        files.append(native('.choices.bin'))
     answer = None
     if args.answer:
         require(total >= 10320, 'First-answer capture is too short')
@@ -163,7 +169,9 @@ def main():
     floats = lambda words: list(struct.unpack('<4f', struct.pack('<4I', *words)))
     report = dict(scope=__doc__, native_run=run, original_run=original_run, event_frame=9751,
                   controller_words=words, pressed_latches=90, manager_words=720,
-                  camera_mode_blend_words=270, settled_actor_target_words=240, unchanged_prefix_frames=8260,
+                  camera_mode_blend_words=270, settled_actor_target_words=240,
+                  unchanged_prefix_frames=None if args.original_only else 8260,
+                  native_prefix_compared=not args.original_only,
                   camera_endpoint={'native_position': floats(camera[9839][4:8]),
                                    'original_position': floats(reference_camera[-1][4:8]),
                                    'position_equivalence_claimed': False},

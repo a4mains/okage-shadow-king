@@ -26,6 +26,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--capture', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
+    p.add_argument('--prefix', action='store_true', help='Audit the same fixed gate interval inside a longer complete native capture')
     a = p.parse_args()
     require(digest(Path('local/extracted/SCUS_971.29')) == ELF_HASH, 'Retail ELF changed')
     files = []
@@ -46,7 +47,8 @@ def main():
     run = json.loads(run_path.read_text())
     require(run['exit_code'] == 0, 'Native run incomplete')
     total = int(run['command'][run['command'].index('--frames') + 1])
-    require(total == 11460, 'Audited native interval must end at11460')
+    require(total >= 11460 if a.prefix else total == 11460,
+            'Capture must cover the fixed interval through11460 (longer captures require --prefix)')
     require(run['command'][run['command'].index('--render-from') + 1] == '11310', 'Missing preceding native framebuffer')
     n = {key: rows(native(suffix).read_bytes(), width) for key, suffix, width in [
         ('interaction', '.interaction.bin', 8), ('camera', '.camera.bin', 16),
@@ -97,6 +99,8 @@ def main():
         files.append(native(suffix))
     files += [a.capture, run_path]
     report = dict(scope=__doc__, elf_sha256=ELF_HASH, native_run=run, original_runs=runs,
+                  native_capture_frames=total, audited_first_frame=11041, audited_last_frame=11460,
+                  longer_capture_prefix=a.prefix,
                   event_frame=11311, manager_words=1440, pressed_latches=360,
                   camera_words=camera_count*12, camera_mode_blend_words=camera_count*3,
                   filter_frames=filter_count, packet_frames=2,
