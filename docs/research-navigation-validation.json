@@ -1,0 +1,180 @@
+{
+  "scope": "Research waypoint-controller tests; no native runtime change and no successful full-game waypoint route claimed yet.",
+  "oracle_sha256": "602daf664efc8e91003e46aa6880512139dd55ef311858d0786b00e3e343b4da",
+  "checks": [
+    "Expanded okage-input-tests passes",
+    "42 Python tests pass",
+    "Read-only fake-RAM sampling and ordinary pad replay tested",
+    "Event/scene/arrival/stagnation/bounds stops tested"
+  ],
+  "sha256": {
+    "tools/play-oracle/reference_walk.hpp": "73b40016ec80305635160db1b9b94b22f840c3d82aaaf17f4fadee52ce351380",
+    "tools/play-oracle/reference_input.hpp": "9a9bf23c9cd29dee438632693f649bf09a161abbb082589a0319d8ffbccd5e9e",
+    "tools/play-oracle/boot.cpp": "2a321ccb76022ccd2519f5ec0d1f119dae5cebb830719de6f3065a49f7e88d10",
+    "tools/play-oracle/input_tests.cpp": "19b3bc8332043a0cedc8bf24b070ff1bf9062a2bc03d880b701df4829f8db08e",
+    "local/research/circus-walk-input-tests-v2.log": "5112e187849de2d845a75525bc08fbef7a313ac155d796ceb659a2b96aa51c77",
+    "local/research/circus-walk-python-tests-v2.log": "619fa236bd26b3751270d341acd64bf8a6415cc3ef9d24a593592577c4ffa551",
+    "local/research/circus-walk-input-tests-v3.log": "dbf2f43b37ec972334fe239f5f7c9bdd19d97992c2ca28af583eac962cbaee86",
+    "local/research/circus-walk-python-tests-v3.log": "dcaf91a8a9a5f8ea1d85b823e91507f4c17d9b03162c20ce18ea7cd097678c7d"
+  },
+  "full_game_trial": {
+    "prefix": "local/reference-night-circus-walk-600-v1",
+    "status": "Complete exit0 in285.96088766699995 seconds; stopped at pad188 after120 stationary polls. Waypoint0 obstructed; no arrival.",
+    "source": "local/reference-night-circus-path-240-v1.state.zip",
+    "next_check": "Plain-input comparison through239 completed exactly; see plain_input_replay. Remaining idle360 frames excluded."
+  },
+  "limits": [
+    "Controller heuristic is research-only, not recovered game logic.",
+    "Host trigonometry selects inputs; native movement still uses its independently recovered math.",
+    "Only ordinary controller input may cross into a native replay; reference state and waypoints based on RAM do not."
+  ],
+  "plain_input_replay": {
+    "report": "local/research/circus-walk-replay-validation-v1.json",
+    "report_sha256": "d5886815cb906786e48201dfa8b21ae98164f4e25f9a03bdfa8e0c236e85fe60",
+    "result": {
+      "scope": "Plain input replay equals waypoint-controller trial on complete recorded trace prefixes through original frame239.",
+      "runs": {
+        "local/reference-night-circus-walk-600-v1": {
+          "command": [
+            "build/play-research/okage-oracle/okage-boot-oracle",
+            "local/disc/Okage - Shadow King (USA).cue",
+            "600",
+            "local/reference-night-circus-path-240-v1.state.zip",
+            "--load",
+            "--walk-waypoints",
+            "local/reference-night-circus-walk-600-v1.waypoints",
+            "--walk-record",
+            "local/reference-night-circus-walk-600-v1.input",
+            "--transition",
+            "local/reference-night-circus-walk-600-v1.transition.bin",
+            "--camera",
+            "local/reference-night-circus-walk-600-v1.camera.bin",
+            "--controller",
+            "local/reference-night-circus-walk-600-v1.controller.bin",
+            "--screen-filter",
+            "local/reference-night-circus-walk-600-v1.screen-filter.bin",
+            "--capture",
+            "local/reference-night-circus-walk-600-v1",
+            "--save",
+            "local/reference-night-circus-walk-600-v1.state.zip",
+            "--deadline-seconds",
+            "1200"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 285.96088766699995,
+          "binary_sha256": "602daf664efc8e91003e46aa6880512139dd55ef311858d0786b00e3e343b4da"
+        },
+        "local/reference-night-circus-walk-replay-240-v1": {
+          "command": [
+            "build/play-research/okage-oracle/okage-boot-oracle",
+            "local/disc/Okage - Shadow King (USA).cue",
+            "240",
+            "local/reference-night-circus-path-240-v1.state.zip",
+            "--load",
+            "--pad",
+            "local/reference-night-circus-walk-replay-240-v1.input",
+            "--transition",
+            "local/reference-night-circus-walk-replay-240-v1.transition.bin",
+            "--camera",
+            "local/reference-night-circus-walk-replay-240-v1.camera.bin",
+            "--controller",
+            "local/reference-night-circus-walk-replay-240-v1.controller.bin",
+            "--screen-filter",
+            "local/reference-night-circus-walk-replay-240-v1.screen-filter.bin",
+            "--capture",
+            "local/reference-night-circus-walk-replay-240-v1",
+            "--save",
+            "local/reference-night-circus-walk-replay-240-v1.state.zip",
+            "--deadline-seconds",
+            "1200"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 117.665514458,
+          "binary_sha256": "602daf664efc8e91003e46aa6880512139dd55ef311858d0786b00e3e343b4da"
+        }
+      },
+      "frames": 240,
+      "results": {
+        ".transition.bin": {
+          "rows": 480,
+          "equal": true,
+          "compared_words": 61440
+        },
+        ".camera.bin": {
+          "rows": 240,
+          "equal": true,
+          "compared_words": 7680
+        },
+        ".controller.bin": {
+          "rows": 0,
+          "equal": true,
+          "compared_words": 0
+        },
+        ".controller.bin.choices.bin": {
+          "rows": 0,
+          "equal": true,
+          "compared_words": 0
+        },
+        ".screen-filter.bin": {
+          "rows": 0,
+          "equal": true,
+          "compared_words": 0
+        }
+      },
+      "sha256": {
+        "local/reference-night-circus-walk-600-v1.transition.bin": "f7b322342fbe7e26b9bcee24936a25698efe734732462b7d6c10fdfe1e525ea1",
+        "local/reference-night-circus-walk-replay-240-v1.transition.bin": "10c244efdaeb28793ec94d6f48b095e38f61a9bffffd482d6bef2312f04b9453",
+        "local/reference-night-circus-walk-600-v1.camera.bin": "af048fb5422067c86419690f3afb653abe3055c357dc4b4fa9d45828977b6d79",
+        "local/reference-night-circus-walk-replay-240-v1.camera.bin": "6bad9bbd61a0a6b82baea71d3bfe08f95e9ed026721861e696052c639842cc0e",
+        "local/reference-night-circus-walk-600-v1.controller.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "local/reference-night-circus-walk-replay-240-v1.controller.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "local/reference-night-circus-walk-600-v1.controller.bin.choices.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "local/reference-night-circus-walk-replay-240-v1.controller.bin.choices.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "local/reference-night-circus-walk-600-v1.screen-filter.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "local/reference-night-circus-walk-replay-240-v1.screen-filter.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "next_trial": {
+    "prefix": "local/reference-night-circus-lower-walk-480-v1",
+    "status": "Complete exit0; event15 at272; controller stops at273; finalPC0x514c before dialogue controller observations.",
+    "run": {
+      "command": [
+        "build/play-research/okage-oracle/okage-boot-oracle",
+        "local/disc/Okage - Shadow King (USA).cue",
+        "480",
+        "local/reference-night-circus-bend-180-v1.state.zip",
+        "--load",
+        "--walk-waypoints",
+        "local/reference-night-circus-lower-walk-480-v1.waypoints",
+        "--walk-record",
+        "local/reference-night-circus-lower-walk-480-v1.input",
+        "--transition",
+        "local/reference-night-circus-lower-walk-480-v1.transition.bin",
+        "--camera",
+        "local/reference-night-circus-lower-walk-480-v1.camera.bin",
+        "--controller",
+        "local/reference-night-circus-lower-walk-480-v1.controller.bin",
+        "--screen-filter",
+        "local/reference-night-circus-lower-walk-480-v1.screen-filter.bin",
+        "--capture",
+        "local/reference-night-circus-lower-walk-480-v1",
+        "--save",
+        "local/reference-night-circus-lower-walk-480-v1.state.zip",
+        "--deadline-seconds",
+        "1200"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 217.63412350000002,
+      "binary_sha256": "602daf664efc8e91003e46aa6880512139dd55ef311858d0786b00e3e343b4da"
+    },
+    "input_continuity_report": "local/research/circus-lower-walk-input-continuity-v1.json",
+    "input_continuity_sha256": "33ae22f61fe64c44f602f11a08e4ba92ee796adcc119a926d5df4914c28c90d8",
+    "pending": {
+      "plain_reference_replay_session": 22575,
+      "native_entry_session": 7060,
+      "native_first_frame": 25656,
+      "native_last_frame": 26135
+    }
+  }
+}

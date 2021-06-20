@@ -8,6 +8,8 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <memory>
+#include "reference_walk.hpp"
 
 class RecordedPad final : public CPadHandler {
     struct Event {unsigned frame,control,value;};
@@ -15,7 +17,12 @@ class RecordedPad final : public CPadHandler {
     std::array<uint8,PS2::CControllerInfo::MAX_BUTTONS> state{};
     std::size_t next=0;
     unsigned frame=0;
+    std::unique_ptr<ReferenceWalk> walk;
 public:
+    void navigate(const std::filesystem::path& path,const std::filesystem::path& output) {
+        if(!events.empty())throw std::runtime_error("Waypoints cannot override recorded inputs");
+        walk=std::make_unique<ReferenceWalk>(path,output);
+    }
     RecordedPad(const std::filesystem::path& path,unsigned duration) {
         for (unsigned i=0;i<4;++i) state[i]=128;
         if (path.empty()) return;
@@ -46,6 +53,12 @@ public:
         ++frame;bool changed=frame==1;
         while (next<events.size() && events[next].frame==frame) {
             const auto& event=events[next++];state[event.control]=event.value;changed=true;
+        }
+        if(walk) {
+            const auto buttons=walk->sample(ram,frame);walk->record(frame,buttons);
+            for(unsigned i=0;i<buttons.size();++i) {
+                changed|=state[4+i]!=buttons[i];state[4+i]=buttons[i];
+            }
         }
         for (auto* listener:m_interfaces) for (unsigned i=0;i<state.size();++i) {
             const auto button=static_cast<PS2::CControllerInfo::BUTTON>(i);

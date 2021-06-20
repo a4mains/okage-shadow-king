@@ -62,8 +62,9 @@ public:
 };
 int main(int argc,char** argv) {
     try {
-        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--camera-schedule FILE] [--screen-filter FILE] [--movement FILE] [--interaction FILE] [--interaction-wide FILE] [--transition FILE] [--dust FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--lifecycle FILE] [--order FILE] [--music FILE] [--deadline-seconds 1..7200]");
+        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT | --walk-waypoints ROUTE --walk-record INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--camera-schedule FILE] [--screen-filter FILE] [--movement FILE] [--interaction FILE] [--interaction-wide FILE] [--transition FILE] [--dust FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--lifecycle FILE] [--order FILE] [--music FILE] [--deadline-seconds 1..7200]");
         unsigned deadlineSeconds=0;
+        std::string walkWaypoints,walkRecord;
         int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false,musicField=false,musicJingle=false,musicNight=false,interactionWide=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,cameraSchedule,music,movement,interaction,transition,npc,dust,screenFilter;
         for (int i=3;i<argc;++i) {
             const std::string arg=argv[i];
@@ -72,6 +73,8 @@ int main(int argc,char** argv) {
             else if (arg=="--trace-loaders") traceLoaders=true;
             else if (arg=="--capture" && i+1<argc) capture=argv[++i];
             else if (arg=="--pad" && i+1<argc) pad=argv[++i];
+            else if (arg=="--walk-waypoints" && i+1<argc) walkWaypoints=argv[++i];
+            else if (arg=="--walk-record" && i+1<argc) walkRecord=argv[++i];
             else if (arg=="--audio" && i+1<argc) audio=argv[++i];
             else if (arg=="--save" && i+1<argc) saveState=argv[++i];
             else if (arg=="--scene" && i+1<argc) scene=argv[++i];
@@ -128,6 +131,11 @@ int main(int argc,char** argv) {
             throw std::runtime_error("Refusing existing WAV output");
         if (load && !std::filesystem::is_regular_file(state)) throw std::runtime_error("State input missing");
         auto recordedPad=std::make_unique<RecordedPad>(pad,requested);
+        if(!walkWaypoints.empty()||!walkRecord.empty()) {
+            if(walkWaypoints.empty()||walkRecord.empty()||!pad.empty()||!load||transition.empty()||camera.empty())
+                throw std::runtime_error("Walking requires --load, --transition, --camera, --walk-waypoints and --walk-record, without --pad");
+            recordedPad->navigate(walkWaypoints,walkRecord);
+        }
         auto sceneTrace=scene.empty() ? nullptr : std::make_unique<SceneTrace>(scene);
         auto eventTrace=events.empty() ? nullptr : std::make_unique<EventTrace>(events);
         auto dialogueTrace=dialogue.empty() ? nullptr : std::make_unique<DialogueTrace>(dialogue);
