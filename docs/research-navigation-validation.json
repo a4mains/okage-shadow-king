@@ -170,11 +170,119 @@
     },
     "input_continuity_report": "local/research/circus-lower-walk-input-continuity-v1.json",
     "input_continuity_sha256": "33ae22f61fe64c44f602f11a08e4ba92ee796adcc119a926d5df4914c28c90d8",
-    "pending": {
-      "plain_reference_replay_session": 22575,
-      "native_entry_session": 7060,
+    "plain_replay": "Completed exit0 in215.96628975 seconds; all480 frames match across recorded transition/camera traces, including event15. Controller/choice/filter traces are empty.",
+    "native_entry": {
+      "status": "Complete; all480 compared frames agree, zero HERO/camera position error; dialogue continuation pending.",
+      "report": "docs/night-julia-entry-validation.json",
       "native_first_frame": 25656,
       "native_last_frame": 26135
+    }
+  },
+  "lower_route_plain_replay": {
+    "report": "local/research/circus-lower-replay-validation-v1.json",
+    "report_sha256": "6d6e2678db19f6604c41b563909b52f34f90ac06e9cc0d40335892b8ce8e088c",
+    "result": {
+      "scope": "Plain input replay equals waypoint-controller trial on all480 original frames, including event15 dispatch and controller stop/release.",
+      "runs": {
+        "local/reference-night-circus-lower-walk-480-v1": {
+          "command": [
+            "build/play-research/okage-oracle/okage-boot-oracle",
+            "local/disc/Okage - Shadow King (USA).cue",
+            "480",
+            "local/reference-night-circus-bend-180-v1.state.zip",
+            "--load",
+            "--walk-waypoints",
+            "local/reference-night-circus-lower-walk-480-v1.waypoints",
+            "--walk-record",
+            "local/reference-night-circus-lower-walk-480-v1.input",
+            "--transition",
+            "local/reference-night-circus-lower-walk-480-v1.transition.bin",
+            "--camera",
+            "local/reference-night-circus-lower-walk-480-v1.camera.bin",
+            "--controller",
+            "local/reference-night-circus-lower-walk-480-v1.controller.bin",
+            "--screen-filter",
+            "local/reference-night-circus-lower-walk-480-v1.screen-filter.bin",
+            "--capture",
+            "local/reference-night-circus-lower-walk-480-v1",
+            "--save",
+            "local/reference-night-circus-lower-walk-480-v1.state.zip",
+            "--deadline-seconds",
+            "1200"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 217.63412350000002,
+          "binary_sha256": "602daf664efc8e91003e46aa6880512139dd55ef311858d0786b00e3e343b4da"
+        },
+        "local/reference-night-circus-lower-replay-480-v1": {
+          "command": [
+            "build/play-research/okage-oracle/okage-boot-oracle",
+            "local/disc/Okage - Shadow King (USA).cue",
+            "480",
+            "local/reference-night-circus-bend-180-v1.state.zip",
+            "--load",
+            "--pad",
+            "local/reference-night-circus-lower-replay-480-v1.input",
+            "--transition",
+            "local/reference-night-circus-lower-replay-480-v1.transition.bin",
+            "--camera",
+            "local/reference-night-circus-lower-replay-480-v1.camera.bin",
+            "--controller",
+            "local/reference-night-circus-lower-replay-480-v1.controller.bin",
+            "--screen-filter",
+            "local/reference-night-circus-lower-replay-480-v1.screen-filter.bin",
+            "--capture",
+            "local/reference-night-circus-lower-replay-480-v1",
+            "--save",
+            "local/reference-night-circus-lower-replay-480-v1.state.zip",
+            "--deadline-seconds",
+            "1200"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 215.96628975000002,
+          "binary_sha256": "602daf664efc8e91003e46aa6880512139dd55ef311858d0786b00e3e343b4da"
+        }
+      },
+      "frames": 480,
+      "results": {
+        ".transition.bin": {
+          "rows": 814,
+          "equal": true,
+          "compared_words": 104192
+        },
+        ".camera.bin": {
+          "rows": 480,
+          "equal": true,
+          "compared_words": 15360
+        },
+        ".controller.bin": {
+          "rows": 0,
+          "equal": true,
+          "compared_words": 0
+        },
+        ".controller.bin.choices.bin": {
+          "rows": 0,
+          "equal": true,
+          "compared_words": 0
+        },
+        ".screen-filter.bin": {
+          "rows": 0,
+          "equal": true,
+          "compared_words": 0
+        }
+      },
+      "sha256": {
+        "local/reference-night-circus-lower-walk-480-v1.transition.bin": "144fd802af55a925a09376eff8799a8ba2c4675bbf7790d6ed81139c7fa26236",
+        "local/reference-night-circus-lower-replay-480-v1.transition.bin": "144fd802af55a925a09376eff8799a8ba2c4675bbf7790d6ed81139c7fa26236",
+        "local/reference-night-circus-lower-walk-480-v1.camera.bin": "873b625519e7ae9514be192a9471ce51811b4c05319a2f8b826d7134765082c2",
+        "local/reference-night-circus-lower-replay-480-v1.camera.bin": "873b625519e7ae9514be192a9471ce51811b4c05319a2f8b826d7134765082c2",
+        "local/reference-night-circus-lower-walk-480-v1.controller.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "local/reference-night-circus-lower-replay-480-v1.controller.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "local/reference-night-circus-lower-walk-480-v1.controller.bin.choices.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "local/reference-night-circus-lower-replay-480-v1.controller.bin.choices.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "local/reference-night-circus-lower-walk-480-v1.screen-filter.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "local/reference-night-circus-lower-replay-480-v1.screen-filter.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
     }
   }
 }
