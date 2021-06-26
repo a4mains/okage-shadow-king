@@ -19,6 +19,10 @@ RESOURCES = {
         'EVS_NRD.XSQ': 'c255165d2dd93ff4eb82a918ff30d11cf9d5011d27a10bd8127c07c077fb7594',
         'EVS_NRD0.XV': '9367e1eb1cd95a5d79cc02984daf121c64dc4dd48b70f5c8b64bf7922c0f5a29',
     }),
+    54: ('EVS_MPS', {
+        'EVS_MPS.XSQ': 'f49b77cc68c6e7a0f9c3b6ebc588e6e19b5729889faa5bc68caae53823c7aa37',
+        'EVS_MPS0.XV': 'cd6b32d56e0a60d3e8732e4b132c512aaf04b8ea24067691aa33d9f85a1adada',
+    }),
 }
 
 def main():

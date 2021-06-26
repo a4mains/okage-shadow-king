@@ -1,0 +1,481 @@
+{
+  "scope": "Original-only continuation beyond validated native Julia closure; native counterpart running.",
+  "opening": {
+    "scope": "Original ordinary-input continuation from Julia closure; native companion pending.",
+    "reference": "local/reference-night-pudgy-walk-480-v1",
+    "run": {
+      "command": [
+        "build/play-research/okage-oracle/okage-boot-oracle",
+        "local/disc/Okage - Shadow King (USA).cue",
+        "480",
+        "local/reference-night-julia-answer-600-v1.state.zip",
+        "--load",
+        "--walk-waypoints",
+        "local/reference-night-pudgy-walk-480-v1.waypoints",
+        "--walk-record",
+        "local/reference-night-pudgy-walk-480-v1.input",
+        "--transition",
+        "local/reference-night-pudgy-walk-480-v1.transition.bin",
+        "--camera",
+        "local/reference-night-pudgy-walk-480-v1.camera.bin",
+        "--controller",
+        "local/reference-night-pudgy-walk-480-v1.controller.bin",
+        "--screen-filter",
+        "local/reference-night-pudgy-walk-480-v1.screen-filter.bin",
+        "--capture",
+        "local/reference-night-pudgy-walk-480-v1",
+        "--save",
+        "local/reference-night-pudgy-walk-480-v1.state.zip",
+        "--deadline-seconds",
+        "1200"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 301.772619208,
+      "binary_sha256": "602daf664efc8e91003e46aa6880512139dd55ef311858d0786b00e3e343b4da"
+    },
+    "first_native_frame": 26976,
+    "end_native_frame": 27455,
+    "consumed_directions": [
+      [
+        1,
+        24576
+      ],
+      [
+        8,
+        0
+      ]
+    ],
+    "native_directions": [
+      [
+        26977,
+        24576
+      ],
+      [
+        26984,
+        0
+      ]
+    ],
+    "dispatches": [
+      [
+        7,
+        15
+      ]
+    ],
+    "endpoint_pc": "0x5324",
+    "event_active": true,
+    "hero": [
+      -321.2200012207031,
+      2.5,
+      673.6099853515625,
+      1.0
+    ],
+    "controller_records": 802,
+    "image_inspected": true,
+    "sha256": {
+      "local/reference-night-pudgy-walk-480-v1.run.json": "87d6d538a320ec1309f3f3aee60a711c83cbedf216c300c6c520d8342ea7a6a6",
+      "local/reference-night-pudgy-walk-480-v1.transition.bin": "280a14bf7f72ad9a5ff06ab04777154262036cc9a67e293eb04c237f99c39841",
+      "local/reference-night-pudgy-walk-480-v1.input": "2b2619216b0b140ea400f473668942bc91c1337c83f4fe944a4143fd484c6751",
+      "local/reference-night-pudgy-walk-480-v1.waypoints": "6cab24b8fd4f89fc26ce1b4891936a895635fbb7f42cd586fa59c7905914c604",
+      "local/reference-night-pudgy-walk-480-v1.controller.bin": "468ef8af746b79847a8bb57d634d0aaa9ddee9f6e146875cc399d0b4277637e7"
+    }
+  },
+  "answer": {
+    "scope": "Original Pudgy Man invitation closure; next music54 script not yet executed.",
+    "reference": "local/reference-night-pudgy-answer-600-v1",
+    "run": {
+      "command": [
+        "build/play-research/okage-oracle/okage-boot-oracle",
+        "local/disc/Okage - Shadow King (USA).cue",
+        "600",
+        "local/reference-night-pudgy-walk-480-v1.state.zip",
+        "--load",
+        "--pad",
+        "local/reference-night-pudgy-answer-600-v1.input",
+        "--transition",
+        "local/reference-night-pudgy-answer-600-v1.transition.bin",
+        "--camera",
+        "local/reference-night-pudgy-answer-600-v1.camera.bin",
+        "--controller",
+        "local/reference-night-pudgy-answer-600-v1.controller.bin",
+        "--screen-filter",
+        "local/reference-night-pudgy-answer-600-v1.screen-filter.bin",
+        "--actor",
+        "local/reference-night-pudgy-answer-600-v1.pudgy.bin",
+        "--actor-alias",
+        "40",
+        "--capture",
+        "local/reference-night-pudgy-answer-600-v1",
+        "--save",
+        "local/reference-night-pudgy-answer-600-v1.state.zip",
+        "--deadline-seconds",
+        "1200"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 274.486030125,
+      "binary_sha256": "602daf664efc8e91003e46aa6880512139dd55ef311858d0786b00e3e343b4da"
+    },
+    "first_native_frame": 27456,
+    "end_native_frame": 28055,
+    "consumed_cross_frames": [
+      1,
+      42,
+      81,
+      122,
+      161,
+      201,
+      241,
+      281,
+      322,
+      361,
+      402,
+      441,
+      481
+    ],
+    "native_press_frames": [
+      27457,
+      27498,
+      27537,
+      27578,
+      27617,
+      27657,
+      27697,
+      27737,
+      27778,
+      27817,
+      27858,
+      27897,
+      27937
+    ],
+    "last_active_manager_frame": 165,
+    "endpoint_pc": "0x5344",
+    "event_active": false,
+    "hero": [
+      -321.2200012207031,
+      2.5,
+      673.6099853515625,
+      1.0
+    ],
+    "controller_records": 82,
+    "actor_instance": 40,
+    "actor_alias": -11,
+    "actor_identity_correction": "The file named .pudgy.bin observes instance40 / alias-11, a different nearby NPC. Invitation script motion targets alias-8 / instance37. Do not claim Pudgy motion from this trace."
+  },
+  "closed_state": {
+    "scope": "Read-only reference observation for next ordinary-input route; never native input.",
+    "snapshot": "local/reference-night-pudgy-answer-600-v1.state.zip",
+    "sha256": "738769cde74868939ac0bf007f22fb3fcbb70df0261d4f758caf4273ae850ba1",
+    "bank1_bit77": true,
+    "bank1_bit10": false,
+    "actors": [
+      {
+        "alias": -8,
+        "instance": 37,
+        "channels": 168,
+        "position": [
+          -362.57000732421875,
+          2.5,
+          663.25,
+          1.0
+        ]
+      },
+      {
+        "alias": -9,
+        "instance": 38,
+        "channels": 132,
+        "position": [
+          -298.92999267578125,
+          2.5,
+          675.4299926757812,
+          1.0
+        ]
+      },
+      {
+        "alias": -10,
+        "instance": 39,
+        "channels": 144,
+        "position": [
+          -299.4800109863281,
+          2.5,
+          672.0499877929688,
+          1.0
+        ]
+      },
+      {
+        "alias": -11,
+        "instance": 40,
+        "channels": 150,
+        "position": [
+          -162.60000610351562,
+          2.5,
+          656.1699829101562,
+          1.0
+        ]
+      }
+    ]
+  },
+  "resource54_import": {
+    "scope": "Import reviewed ordinary music resources from the owned USA disc.",
+    "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "music_id": 54,
+    "table_address": 2078432,
+    "name_pointer": 2259512,
+    "class_pointer": 2259792,
+    "sequence": "EVS_MPS",
+    "primary_bank": "EVS_MPS0",
+    "secondary_bank_present": false,
+    "imported": [
+      {
+        "path": "local/audio-input/SNDDATA/BGM/EVS_MPS.XSQ",
+        "lba": 189433,
+        "size": 5916,
+        "sha256": "f49b77cc68c6e7a0f9c3b6ebc588e6e19b5729889faa5bc68caae53823c7aa37"
+      },
+      {
+        "path": "local/audio-input/SNDDATA/BGM/EVS_MPS0.XV",
+        "lba": 189436,
+        "size": 27024,
+        "sha256": "cd6b32d56e0a60d3e8732e4b132c512aaf04b8ea24067691aa33d9f85a1adada"
+      }
+    ]
+  },
+  "music54_scope": "Static lead at e_field PC0x534c after the separate invitation script ends at0x5348. Not executed by the captured invitation. Original0x1308d8 operation0 schedules0x12fec8, which stops the ordinary score via0x12d470 then loads secondary slot1 via0x12d898 and signals completion. Runtime operation0 and resource-name54 remain unsupported; no native music54 or loading-timing claim.",
+  "next_reference": {
+    "prefix": "local/reference-night-pudgy-talk-240-v1",
+    "source": "local/reference-night-pudgy-approach-240-v1.state.zip",
+    "first_native_frame": 28296,
+    "end_native_frame": 28535,
+    "actor_instance": 37,
+    "alias": -8,
+    "status": "Running in session48582; one requested Cross at1/release5. Consumed input and script execution not yet audited."
+  },
+  "native_continuation": {
+    "prefix": "local/native-night-pudgy-close-28055-follow-release-v1",
+    "status": "Running in session96275",
+    "base": "local/native-night-julia-close-26975-follow-release-v1"
+  },
+  "approach": {
+    "scope": "Completed ordinary-input approach to corrected Pudgy speaker; native comparison pending.",
+    "reference": "local/reference-night-pudgy-approach-240-v1",
+    "run": {
+      "command": [
+        "build/play-research/okage-oracle/okage-boot-oracle",
+        "local/disc/Okage - Shadow King (USA).cue",
+        "240",
+        "local/reference-night-pudgy-answer-600-v1.state.zip",
+        "--load",
+        "--walk-waypoints",
+        "local/reference-night-pudgy-approach-240-v1.waypoints",
+        "--walk-record",
+        "local/reference-night-pudgy-approach-240-v1.input",
+        "--transition",
+        "local/reference-night-pudgy-approach-240-v1.transition.bin",
+        "--camera",
+        "local/reference-night-pudgy-approach-240-v1.camera.bin",
+        "--controller",
+        "local/reference-night-pudgy-approach-240-v1.controller.bin",
+        "--screen-filter",
+        "local/reference-night-pudgy-approach-240-v1.screen-filter.bin",
+        "--actor",
+        "local/reference-night-pudgy-approach-240-v1.pudgy.bin",
+        "--actor-alias",
+        "37",
+        "--capture",
+        "local/reference-night-pudgy-approach-240-v1",
+        "--save",
+        "local/reference-night-pudgy-approach-240-v1.state.zip",
+        "--deadline-seconds",
+        "1200"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 117.652874291,
+      "binary_sha256": "602daf664efc8e91003e46aa6880512139dd55ef311858d0786b00e3e343b4da"
+    },
+    "first_native_frame": 28056,
+    "end_native_frame": 28295,
+    "consumed_directions": [
+      [
+        2,
+        4096
+      ],
+      [
+        38,
+        36864
+      ],
+      [
+        40,
+        4096
+      ],
+      [
+        42,
+        36864
+      ],
+      [
+        43,
+        4096
+      ],
+      [
+        45,
+        36864
+      ],
+      [
+        47,
+        4096
+      ],
+      [
+        50,
+        36864
+      ],
+      [
+        52,
+        4096
+      ],
+      [
+        54,
+        36864
+      ],
+      [
+        55,
+        4096
+      ],
+      [
+        56,
+        36864
+      ],
+      [
+        57,
+        4096
+      ],
+      [
+        59,
+        36864
+      ],
+      [
+        61,
+        4096
+      ],
+      [
+        63,
+        36864
+      ],
+      [
+        64,
+        4096
+      ],
+      [
+        65,
+        36864
+      ],
+      [
+        66,
+        4096
+      ],
+      [
+        68,
+        36864
+      ],
+      [
+        70,
+        0
+      ]
+    ],
+    "native_directions": [
+      [
+        28058,
+        4096
+      ],
+      [
+        28094,
+        36864
+      ],
+      [
+        28096,
+        4096
+      ],
+      [
+        28098,
+        36864
+      ],
+      [
+        28099,
+        4096
+      ],
+      [
+        28101,
+        36864
+      ],
+      [
+        28103,
+        4096
+      ],
+      [
+        28106,
+        36864
+      ],
+      [
+        28108,
+        4096
+      ],
+      [
+        28110,
+        36864
+      ],
+      [
+        28111,
+        4096
+      ],
+      [
+        28112,
+        36864
+      ],
+      [
+        28113,
+        4096
+      ],
+      [
+        28115,
+        36864
+      ],
+      [
+        28117,
+        4096
+      ],
+      [
+        28119,
+        36864
+      ],
+      [
+        28120,
+        4096
+      ],
+      [
+        28121,
+        36864
+      ],
+      [
+        28122,
+        4096
+      ],
+      [
+        28124,
+        36864
+      ],
+      [
+        28126,
+        0
+      ]
+    ],
+    "dispatches": [],
+    "endpoint_pc": "0x5344",
+    "event_active": false,
+    "hero": [
+      -355.2547607421875,
+      2.498025894165039,
+      664.3037719726562,
+      1.0
+    ],
+    "actor_instance": 37,
+    "actor_alias": -8,
+    "native_trace_suffix": ".actor.bin",
+    "image_inspected": true
+  }
+}
