@@ -1,0 +1,511 @@
+{
+  "scope": "Headless eager-render bounds preserve the complete recorded native capture family through28055.",
+  "source": "src/native_runtime.mm",
+  "source_sha256": "345b8cad89594753b587913a30b05245fad8aefe5bcf3a42bdf913cb6747ce96",
+  "render_from": 11310,
+  "render_until": 11542,
+  "bounds_inclusive": true,
+  "active_feedback_frames": 232,
+  "baseline": "local/native-night-pudgy-close-28055-follow-release-v1",
+  "baseline_run": {
+    "command": [
+      "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+      "local/font-input/CMNDATA/FONT",
+      "local/text-input/FLDDATA/MES/FIELD.PME",
+      "--scene",
+      "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+      "--event",
+      "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+      "--actor",
+      "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+      "--actor-bind",
+      "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+      "--actor-bind",
+      "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+      "--frames",
+      "28055",
+      "--press",
+      "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937",
+      "--directions",
+      "local/native-night-pudgy-close-28055-follow-release-v1.directions",
+      "--capture",
+      "local/native-night-pudgy-close-28055-follow-release-v1.png",
+      "--music-dry",
+      "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+      "--music-bank",
+      "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+      "--sound-dir",
+      "local/audio-input/SNDDATA/SE",
+      "--effect-data",
+      "local/effect-input/CMNDATA/2D/TES.EFD",
+      "--effect-textures",
+      "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+      "--render-from",
+      "11310"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 583.350787959,
+    "binary_sha256": "78819b31022e3d882bf140de2c91b6945cb2120375d94585ffb6dbd73fb22d64"
+  },
+  "builds": {
+    "release": {
+      "exit_code": 0,
+      "elapsed_seconds": 16.19278125,
+      "binary_sha256": "6b321cd08120c5698d8db97d358b959f8b7f7b5301dee4e9c9863d30c5c338cf",
+      "run_manifest": "local/native-night-pudgy-close-28055-window-release-v1.run.json"
+    },
+    "debug": {
+      "exit_code": 0,
+      "elapsed_seconds": 113.16031779199999,
+      "binary_sha256": "454f3bd68c637d51d8d63a884e2750275533104bacf1353aeef3c04702d0c941",
+      "run_manifest": "local/native-night-pudgy-close-28055-window-debug-v1.run.json"
+    },
+    "sanitize": {
+      "exit_code": 0,
+      "elapsed_seconds": 227.203837291,
+      "binary_sha256": "261705dd9c9d6c354665dd6f22047813cd292c6726a13cf8d4c36de5c2303296",
+      "run_manifest": "local/native-night-pudgy-close-28055-window-sanitize-v1.run.json"
+    }
+  },
+  "family_reports": {
+    "release": {
+      "path": "local/research/native-render-window-family-release-v2.json",
+      "sha256": "a61d92d411e96ee67e77a02a01af0fbd387bdcdab89012edb1e87e8313406e1e",
+      "all_36_files_equal": true
+    },
+    "debug": {
+      "path": "local/research/native-render-window-family-debug-v2.json",
+      "sha256": "558f489986a0e698cae8fef7c70f4d4be67949b1691ba21f023d467ec538f82d",
+      "all_36_files_equal": true
+    },
+    "sanitize": {
+      "path": "local/research/native-render-window-family-sanitize-v2.json",
+      "sha256": "62d32f0bf5d38c321d1a669823e3de4b0ec23eb8c8262c4eceab9a8a2a7ad70c",
+      "all_36_files_equal": true
+    }
+  },
+  "equal_files": [
+    {
+      "suffix": "",
+      "size": 198963,
+      "old_sha256": "9d65b2545c7ac5c0e94231ac5f431797f3608307bf6c91132a4e4ce840d681da",
+      "new_sha256": "9d65b2545c7ac5c0e94231ac5f431797f3608307bf6c91132a4e4ce840d681da",
+      "equal": true
+    },
+    {
+      "suffix": ".actor-1.bin",
+      "size": 106160120,
+      "old_sha256": "a41e88b8f1576afe4a5bda1a56acc06f8868252ea0ea8768930bb5d28c06fff5",
+      "new_sha256": "a41e88b8f1576afe4a5bda1a56acc06f8868252ea0ea8768930bb5d28c06fff5",
+      "equal": true
+    },
+    {
+      "suffix": ".actor-10.bin",
+      "size": 36949128,
+      "old_sha256": "2774cb3647f13dd6ba4097dae92ec658b9ca399b6f961dffab4e8f8d5070965f",
+      "new_sha256": "2774cb3647f13dd6ba4097dae92ec658b9ca399b6f961dffab4e8f8d5070965f",
+      "equal": true
+    },
+    {
+      "suffix": ".actor-11.bin",
+      "size": 35673728,
+      "old_sha256": "2940b39ee197f6df557b72ee8fa1535aac633a423f40e08f24ad7261e53208cc",
+      "new_sha256": "2940b39ee197f6df557b72ee8fa1535aac633a423f40e08f24ad7261e53208cc",
+      "equal": true
+    },
+    {
+      "suffix": ".actor-12.bin",
+      "size": 25785304,
+      "old_sha256": "349ae0a324320b25cf714fe6f7433e9a8fb536a9a669676085aefeeae05c6053",
+      "new_sha256": "349ae0a324320b25cf714fe6f7433e9a8fb536a9a669676085aefeeae05c6053",
+      "equal": true
+    },
+    {
+      "suffix": ".actor-13.bin",
+      "size": 27068984,
+      "old_sha256": "8737a307989aee6bace4179874800e732fc14c5f7b208c2d5b87c9085373a48c",
+      "new_sha256": "8737a307989aee6bace4179874800e732fc14c5f7b208c2d5b87c9085373a48c",
+      "equal": true
+    },
+    {
+      "suffix": ".actor-14.bin",
+      "size": 23430192,
+      "old_sha256": "e953776873b6c7f636c70969eff8c6e00f4c525b9372a1dca6f9f265cc5c6a14",
+      "new_sha256": "e953776873b6c7f636c70969eff8c6e00f4c525b9372a1dca6f9f265cc5c6a14",
+      "equal": true
+    },
+    {
+      "suffix": ".actor-15.bin",
+      "size": 1883300,
+      "old_sha256": "9e144edefd135a0ab90a8148e30b6d4306f734d72636ff807a7e47a3e303e146",
+      "new_sha256": "9e144edefd135a0ab90a8148e30b6d4306f734d72636ff807a7e47a3e303e146",
+      "equal": true
+    },
+    {
+      "suffix": ".actor-16.bin",
+      "size": 1883300,
+      "old_sha256": "1f6127b8ac455b933fcca4e41009a13b4554c91efb2bc97897306e1fca4b76ed",
+      "new_sha256": "1f6127b8ac455b933fcca4e41009a13b4554c91efb2bc97897306e1fca4b76ed",
+      "equal": true
+    },
+    {
+      "suffix": ".actor-17.bin",
+      "size": 15810884,
+      "old_sha256": "dcf5d6b7fe9b08ea28658d4d3de8ed5f2c029a4179fe691b989854868ff4fa31",
+      "new_sha256": "dcf5d6b7fe9b08ea28658d4d3de8ed5f2c029a4179fe691b989854868ff4fa31",
+      "equal": true
+    },
+    {
+      "suffix": ".actor-18.bin",
+      "size": 1883300,
+      "old_sha256": "fe03c6e4a58e3385d234b2720015d445df12031f221c059fcb96f07e3021faae",
+      "new_sha256": "fe03c6e4a58e3385d234b2720015d445df12031f221c059fcb96f07e3021faae",
+      "equal": true
+    },
+    {
+      "suffix": ".actor-19.bin",
+      "size": 17611252,
+      "old_sha256": "0ad772c44ab84bc715a0e7679ef79c8aca20336f5edf5885cc55ecb1fdad822d",
+      "new_sha256": "0ad772c44ab84bc715a0e7679ef79c8aca20336f5edf5885cc55ecb1fdad822d",
+      "equal": true
+    },
+    {
+      "suffix": ".actor-20.bin",
+      "size": 14768396,
+      "old_sha256": "dce67fe8789273e842c73e63b5f6b4993c29c3457f3b02a918b8d9e27126f277",
+      "new_sha256": "dce67fe8789273e842c73e63b5f6b4993c29c3457f3b02a918b8d9e27126f277",
+      "equal": true
+    },
+    {
+      "suffix": ".actor-21.bin",
+      "size": 17490792,
+      "old_sha256": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3",
+      "new_sha256": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3",
+      "equal": true
+    },
+    {
+      "suffix": ".actor-22.bin",
+      "size": 16004376,
+      "old_sha256": "c93a79689006341e2d2ed8c722db064fbd3ee89af93c4cd20912c3a537c980fe",
+      "new_sha256": "c93a79689006341e2d2ed8c722db064fbd3ee89af93c4cd20912c3a537c980fe",
+      "equal": true
+    },
+    {
+      "suffix": ".actor-37.bin",
+      "size": 6669448,
+      "old_sha256": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd",
+      "new_sha256": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd",
+      "equal": true
+    },
+    {
+      "suffix": ".actor-38.bin",
+      "size": 991896,
+      "old_sha256": "8a2ce7a94be2053bc4257443ecd5300262d188c74aed2ebb428c5743ba8b7314",
+      "new_sha256": "8a2ce7a94be2053bc4257443ecd5300262d188c74aed2ebb428c5743ba8b7314",
+      "equal": true
+    },
+    {
+      "suffix": ".actor-45.bin",
+      "size": 8950128,
+      "old_sha256": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921",
+      "new_sha256": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921",
+      "equal": true
+    },
+    {
+      "suffix": ".actor-9.bin",
+      "size": 51810160,
+      "old_sha256": "090703763a114a82048d8a86acec36feabfc5732616026f98d4e14adacc54580",
+      "new_sha256": "090703763a114a82048d8a86acec36feabfc5732616026f98d4e14adacc54580",
+      "equal": true
+    },
+    {
+      "suffix": ".actor.bin",
+      "size": 54404784,
+      "old_sha256": "f15e691a1b29a82d2eea69d924d5464376dde3ebabd1845d58273939699eea2a",
+      "new_sha256": "f15e691a1b29a82d2eea69d924d5464376dde3ebabd1845d58273939699eea2a",
+      "equal": true
+    },
+    {
+      "suffix": ".audio.json",
+      "size": 164,
+      "old_sha256": "2315f124483826aedae7c3ec88bc631e365bd0ff798a77e6f9c820948611ab9e",
+      "new_sha256": "2315f124483826aedae7c3ec88bc631e365bd0ff798a77e6f9c820948611ab9e",
+      "equal": true
+    },
+    {
+      "suffix": ".audio.pcm",
+      "size": 89776000,
+      "old_sha256": "222a3c2b1ea367cc8ba93baa44702a9f4853c40f6372c73852a7258a1951c7a7",
+      "new_sha256": "222a3c2b1ea367cc8ba93baa44702a9f4853c40f6372c73852a7258a1951c7a7",
+      "equal": true
+    },
+    {
+      "suffix": ".camera-state.bin",
+      "size": 561100,
+      "old_sha256": "0239adc72caf822fc98724cacb2d29b2aaf5f0b386e6bce118c4eb6886497177",
+      "new_sha256": "0239adc72caf822fc98724cacb2d29b2aaf5f0b386e6bce118c4eb6886497177",
+      "equal": true
+    },
+    {
+      "suffix": ".camera.bin",
+      "size": 1795520,
+      "old_sha256": "4e369ba2787106f4886863ed3566a607fcd28a00d01a17965133786dc67245f3",
+      "new_sha256": "4e369ba2787106f4886863ed3566a607fcd28a00d01a17965133786dc67245f3",
+      "equal": true
+    },
+    {
+      "suffix": ".choices.bin",
+      "size": 1346640,
+      "old_sha256": "f0f5d8a735c205cf0d22a515c2e940b5273cb6bbb31a549e0ba62ee4f1c0d945",
+      "new_sha256": "f0f5d8a735c205cf0d22a515c2e940b5273cb6bbb31a549e0ba62ee4f1c0d945",
+      "equal": true
+    },
+    {
+      "suffix": ".dialogue.bin",
+      "size": 1346640,
+      "old_sha256": "54f265cc69f20cacb6ffe7f5b0c4e9aded43341bb23c4aac39bc474fd0d73f73",
+      "new_sha256": "54f265cc69f20cacb6ffe7f5b0c4e9aded43341bb23c4aac39bc474fd0d73f73",
+      "equal": true
+    },
+    {
+      "suffix": ".effects.bin",
+      "size": 448020,
+      "old_sha256": "0f4a3ac5172d521bf92dc8e229382291dd6e12b2b30fd0b3110778a139147adb",
+      "new_sha256": "0f4a3ac5172d521bf92dc8e229382291dd6e12b2b30fd0b3110778a139147adb",
+      "equal": true
+    },
+    {
+      "suffix": ".interaction.bin",
+      "size": 897760,
+      "old_sha256": "02faca928c7f5e46ca5872db997d7bc643f6427ad31e9f13e94bc6d0270cd3e3",
+      "new_sha256": "02faca928c7f5e46ca5872db997d7bc643f6427ad31e9f13e94bc6d0270cd3e3",
+      "equal": true
+    },
+    {
+      "suffix": ".json",
+      "size": 708,
+      "old_sha256": "9eecd9cba3e85da1fcee77f99fd823725c51daa52bdfec54e598d2d52123be40",
+      "new_sha256": "9eecd9cba3e85da1fcee77f99fd823725c51daa52bdfec54e598d2d52123be40",
+      "equal": true
+    },
+    {
+      "suffix": ".map-effects.bin",
+      "size": 33245208,
+      "old_sha256": "1fc25d9ce8813af97f24173b9b3f1c0e71f7173d4ce8d458b66d97b58757358f",
+      "new_sha256": "1fc25d9ce8813af97f24173b9b3f1c0e71f7173d4ce8d458b66d97b58757358f",
+      "equal": true
+    },
+    {
+      "suffix": ".movement.bin",
+      "size": 1795520,
+      "old_sha256": "61dae288de7a449da33450a009d2eee02efe413225b72ba7f227045b75307de1",
+      "new_sha256": "61dae288de7a449da33450a009d2eee02efe413225b72ba7f227045b75307de1",
+      "equal": true
+    },
+    {
+      "suffix": ".music.bin",
+      "size": 561100,
+      "old_sha256": "3c67c6a141285857629a4fe7d510d648fb4247be7a3571ab8b57710aa7abbf8f",
+      "new_sha256": "3c67c6a141285857629a4fe7d510d648fb4247be7a3571ab8b57710aa7abbf8f",
+      "equal": true
+    },
+    {
+      "suffix": ".screen-filter.bin",
+      "size": 448880,
+      "old_sha256": "ce5b98271e0900212b710558ee911d93582705ce4de2e8711dfb596db76d0d7e",
+      "new_sha256": "ce5b98271e0900212b710558ee911d93582705ce4de2e8711dfb596db76d0d7e",
+      "equal": true
+    },
+    {
+      "suffix": ".sound.bin",
+      "size": 6180,
+      "old_sha256": "3f8b9cfdade12ddafc49bca49471467977f4edf7b4aa539ff4a6ea7e3e24ea39",
+      "new_sha256": "3f8b9cfdade12ddafc49bca49471467977f4edf7b4aa539ff4a6ea7e3e24ea39",
+      "equal": true
+    },
+    {
+      "suffix": ".transition.bin",
+      "size": 897760,
+      "old_sha256": "f57e558113c06d05ad60887927247fb8761cf7312d83b46b05fce4748a558e20",
+      "new_sha256": "f57e558113c06d05ad60887927247fb8761cf7312d83b46b05fce4748a558e20",
+      "equal": true
+    },
+    {
+      "suffix": ".variables.bin",
+      "size": 4096,
+      "old_sha256": "483bcb70bd9d9f8acd94f33470d88fcf174e3735b02a0c1f2063c0c2f95393fc",
+      "new_sha256": "483bcb70bd9d9f8acd94f33470d88fcf174e3735b02a0c1f2063c0c2f95393fc",
+      "equal": true
+    }
+  ],
+  "negative_feedback_checks": [
+    {
+      "prefix": "local/native-render-window-short-negative-v1",
+      "result": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "11312",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937",
+          "--directions",
+          "local/native-render-window-short-negative-v1.directions",
+          "--capture",
+          "local/native-render-window-short-negative-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310",
+          "--render-until",
+          "11311"
+        ],
+        "exit_code": 1,
+        "elapsed_seconds": 1.711220375,
+        "binary_sha256": "6b321cd08120c5698d8db97d358b959f8b7f7b5301dee4e9c9863d30c5c338cf"
+      },
+      "expected_error": "Active feedback needs consecutive rendering",
+      "run_sha256": "560924f559dd8864817f38ef9cfa582036a103cec644842b82618a45aa624776",
+      "log_sha256": "5725ea40728220066f990a60dbff8e393cdee78e5ecf195cb87d39a4a3f14cca"
+    },
+    {
+      "prefix": "local/native-render-window-history-negative-v1",
+      "result": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "11312",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937",
+          "--directions",
+          "local/native-render-window-history-negative-v1.directions",
+          "--capture",
+          "local/native-render-window-history-negative-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11311",
+          "--render-until",
+          "11312"
+        ],
+        "exit_code": 1,
+        "elapsed_seconds": 1.618509833,
+        "binary_sha256": "6b321cd08120c5698d8db97d358b959f8b7f7b5301dee4e9c9863d30c5c338cf"
+      },
+      "expected_error": "Screen feedback requires the preceding rendered native frame",
+      "run_sha256": "dfba22af153b0c9a0fe060fb1d1e8b365f84ca14491d862dd951a245782563b5",
+      "log_sha256": "636ae817959feae0a417edf214ee6532357bebcc24a5557bf37a008172952601"
+    }
+  ],
+  "negative_cli_checks": {
+    "binary_sha256": "6b321cd08120c5698d8db97d358b959f8b7f7b5301dee4e9c9863d30c5c338cf",
+    "checks": [
+      {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--frames",
+          "10",
+          "--render-until",
+          "5"
+        ],
+        "exit_code": 1,
+        "error": "Render end requires a bounded headless render interval"
+      },
+      {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--frames",
+          "10",
+          "--render-from",
+          "6",
+          "--render-until",
+          "5"
+        ],
+        "exit_code": 1,
+        "error": "Render end requires a bounded headless render interval"
+      },
+      {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--frames",
+          "10",
+          "--render-from",
+          "1",
+          "--render-until",
+          "11"
+        ],
+        "exit_code": 1,
+        "error": "Render end requires a bounded headless render interval"
+      },
+      {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--ui-test-frames",
+          "10",
+          "--capture",
+          "unused.png",
+          "--render-from",
+          "1",
+          "--render-until",
+          "5"
+        ],
+        "exit_code": 1,
+        "error": "Render start requires a headless frame within the capture"
+      }
+    ]
+  },
+  "tests": {
+    "ctest": "19 passed in each of Debug, Release, ASan/UBSan builds",
+    "python": "44 passed"
+  },
+  "timing_scope": "Observed local runs under differing concurrent load, not a controlled benchmark; eager rendering outside the needed interval was omitted, simulation/audio updates were not.",
+  "reproducer": "local/research/verify-render-window-family-v1.py",
+  "reproducer_sha256": "99bdde8be59c72b2ada50bc87a30d50b54a1185cf734bf9eff5ce400f9ac7891"
+}

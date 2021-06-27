@@ -69,7 +69,7 @@ struct Session {
     okage::ExteriorCamera exterior_camera;
     okage::DialogueWaitState wait{5,1};
     unsigned frame=0,release_frame=0,close_frame=0,close_release_frame=0;
-    unsigned render_from=0,rendered_frame=0;
+    unsigned render_from=0,render_until=0,rendered_frame=0;
     okage::FrameFeedback feedback;
     std::optional<okage::Texture> rendered_surface;
     std::vector<std::uint32_t> filter_trace;
@@ -437,13 +437,14 @@ struct Session {
             for(const auto& channel:actor->channels())for(float v:channel)actor_trace.push_back(__builtin_bit_cast(std::uint32_t, (v)));
             for(auto image:actor->textures().images())actor_trace.push_back(__builtin_bit_cast(std::uint32_t, (image)));
         }
+        const bool render_tick=render_from&&frame>=render_from&&(!render_until||frame<=render_until);
         if(field) {
             const auto& filter=field->screen_filter;
             filter_trace.insert(filter_trace.end(),{frame,filter.updating?1u:0u,filter.setting,filter.alpha});
-            if(filter.alpha&&(!render_from||frame<render_from))
-                throw std::runtime_error("Active feedback needs consecutive rendering; use --render-from before activation");
+            if(filter.alpha&&!render_tick)
+                throw std::runtime_error("Active feedback needs consecutive rendering; extend the headless render interval");
         }
-        if(render_from&&frame>=render_from)render_frame();
+        if(render_tick)render_frame();
     }
     void render_frame() {
         if(rendered_surface&&rendered_frame==frame)return;
@@ -712,12 +713,13 @@ static void capture(const Session& session,const fs::path& path) {
 @end
 int main(int argc,const char** argv) {
     @autoreleasepool {try {
-        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames N] [--press FRAME,FRAME --directions INPUT --capture FILE.png --render-from FRAME] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY]");
-        unsigned frames=0,uiFrames=0,renderFrom=0;DirectionReplay directions;std::vector<unsigned> presses;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
+        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames N] [--press FRAME,FRAME --directions INPUT --capture FILE.png --render-from FRAME --render-until FRAME] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY]");
+        unsigned frames=0,uiFrames=0,renderFrom=0,renderUntil=0;DirectionReplay directions;std::vector<unsigned> presses;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         for(int i=3;i<argc;++i) {
             const std::string arg=argv[i];if(++i==argc)throw std::runtime_error("Missing native runtime option value");
             if(arg=="--frames")frames=std::stoul(argv[i]);
             else if(arg=="--render-from")renderFrom=std::stoul(argv[i]);
+            else if(arg=="--render-until")renderUntil=std::stoul(argv[i]);
             else if(arg=="--ui-test-frames")uiFrames=std::stoul(argv[i]);
             else if(arg=="--directions")directions.load(argv[i]);
             else if(arg=="--capture")output=argv[i];
@@ -746,8 +748,10 @@ int main(int argc,const char** argv) {
         if(map.empty()!=event.empty() || (!actors.empty() && map.empty()))throw std::runtime_error("Scene requires both map and event assets");
         if(frames>36000 || uiFrames>36000 || (frames && uiFrames) || (uiFrames && output.empty()))throw std::runtime_error("Native diagnostic frame/capture bounds");
         if(renderFrom&&(!frames||renderFrom>frames))throw std::runtime_error("Render start requires a headless frame within the capture");
+        if(renderUntil&&(!renderFrom||renderUntil<renderFrom||renderUntil>frames))
+            throw std::runtime_error("Render end requires a bounded headless render interval");
         if(frames) {
-            Session session(argv[1],argv[2],playerName);session.render_from=renderFrom;if(!map.empty())session.load_scene(map,event,actors);
+            Session session(argv[1],argv[2],playerName);session.render_from=renderFrom;session.render_until=renderUntil;if(!map.empty())session.load_scene(map,event,actors);
             if(!musicSequence.empty())session.load_music(musicSequence,musicBank,!output.empty(),soundDirectory);
             if(!effectData.empty())session.load_effects(effectData,effectTextures);
             std::uint16_t previous=0;
