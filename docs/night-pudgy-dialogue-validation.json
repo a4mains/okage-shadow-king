@@ -1,0 +1,538 @@
+{
+  "scope": "Bounded native Pudgy invitation, approach, dialogue, first response and closure through frame29915.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "base_revision": "8111669",
+  "runtime_worktree_change": "Headless render bounds committed as e4ca8ef; native binary unchanged from validated6b321cd... build.",
+  "native_baseline": "local/native-night-pudgy-close-29915-window-release-v1",
+  "reference_baseline": "local/reference-night-pudgy-close-240-v1",
+  "native_run": {
+    "command": [
+      "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+      "local/font-input/CMNDATA/FONT",
+      "local/text-input/FLDDATA/MES/FIELD.PME",
+      "--scene",
+      "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+      "--event",
+      "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+      "--actor",
+      "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+      "--actor-bind",
+      "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+      "--actor-bind",
+      "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+      "--frames",
+      "29915",
+      "--press",
+      "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677",
+      "--directions",
+      "local/native-night-pudgy-close-29915-window-release-v1.directions",
+      "--capture",
+      "local/native-night-pudgy-close-29915-window-release-v1.png",
+      "--music-dry",
+      "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+      "--music-bank",
+      "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+      "--sound-dir",
+      "local/audio-input/SNDDATA/SE",
+      "--effect-data",
+      "local/effect-input/CMNDATA/2D/TES.EFD",
+      "--effect-textures",
+      "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+      "--render-from",
+      "11310",
+      "--render-until",
+      "11542"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 16.478240167000003,
+    "binary_sha256": "6b321cd08120c5698d8db97d358b959f8b7f7b5301dee4e9c9863d30c5c338cf"
+  },
+  "reference_run": {
+    "command": [
+      "build/play-research/okage-oracle/okage-boot-oracle",
+      "local/disc/Okage - Shadow King (USA).cue",
+      "240",
+      "local/reference-night-pudgy-select-360-v1.state.zip",
+      "--load",
+      "--pad",
+      "local/reference-night-pudgy-close-240-v1.input",
+      "--transition",
+      "local/reference-night-pudgy-close-240-v1.transition.bin",
+      "--camera",
+      "local/reference-night-pudgy-close-240-v1.camera.bin",
+      "--controller",
+      "local/reference-night-pudgy-close-240-v1.controller.bin",
+      "--screen-filter",
+      "local/reference-night-pudgy-close-240-v1.screen-filter.bin",
+      "--actor",
+      "local/reference-night-pudgy-close-240-v1.pudgy.bin",
+      "--actor-alias",
+      "37",
+      "--capture",
+      "local/reference-night-pudgy-close-240-v1",
+      "--save",
+      "local/reference-night-pudgy-close-240-v1.state.zip",
+      "--deadline-seconds",
+      "1200"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 126.98006504199999,
+    "binary_sha256": "602daf664efc8e91003e46aa6880512139dd55ef311858d0786b00e3e343b4da"
+  },
+  "intervals": [
+    {
+      "report": "local/research/night-pudgy-invitation-open-v1.json",
+      "sha256": "1b30995b3d95be77eb023aee1a390393bd874a34b1e8d2ffec51c69534360d43",
+      "first_native_frame": 26976,
+      "frames": 480,
+      "controller_samples": 401,
+      "eligible_unblended_targets": 6,
+      "compared_observables_agree": true,
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0
+    },
+    {
+      "report": "local/research/night-pudgy-invitation-close-v1.json",
+      "sha256": "7587977b8a95c6535a5b8b8940b4e73316fecd71b0e7546a22d0a5c4e8dd582a",
+      "first_native_frame": 27456,
+      "frames": 600,
+      "controller_samples": 41,
+      "eligible_unblended_targets": 433,
+      "compared_observables_agree": true,
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0
+    },
+    {
+      "report": "local/research/night-pudgy-approach-window-v1.json",
+      "sha256": "ddf16c68ac6eecdc320a5f1693db1bee64d9bf93be04878b43040d9260bb6bdd",
+      "first_native_frame": 28056,
+      "frames": 240,
+      "controller_samples": 0,
+      "eligible_unblended_targets": 239,
+      "compared_observables_agree": true,
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0
+    },
+    {
+      "report": "local/research/night-pudgy-talk-window-v1.json",
+      "sha256": "ee2eecdd7a78e2e2076f199e7740ff5812e81def3a3893e8a64229ddbac551d5",
+      "first_native_frame": 28296,
+      "frames": 240,
+      "controller_samples": 239,
+      "eligible_unblended_targets": 0,
+      "compared_observables_agree": true,
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0
+    },
+    {
+      "report": "local/research/night-pudgy-pages-window-v1.json",
+      "sha256": "4866c624e4031222453971de88715143323a2e2400cb7a7e2a60010939d9bbd2",
+      "first_native_frame": 28536,
+      "frames": 360,
+      "controller_samples": 360,
+      "eligible_unblended_targets": 0,
+      "compared_observables_agree": true,
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0
+    },
+    {
+      "report": "local/research/night-pudgy-choice-window-v1.json",
+      "sha256": "1b2d6661cd132c6dfa851fd952abb9bc87f59cadd459f07b50fad8a2f6dc98ad",
+      "first_native_frame": 28896,
+      "frames": 420,
+      "controller_samples": 420,
+      "eligible_unblended_targets": 0,
+      "compared_observables_agree": true,
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0
+    },
+    {
+      "report": "local/research/night-pudgy-select-window-v1.json",
+      "sha256": "97259bed9293b73c99608213ab6850487ea036b3f46a363d63d38159722b5445",
+      "first_native_frame": 29316,
+      "frames": 360,
+      "controller_samples": 360,
+      "eligible_unblended_targets": 0,
+      "compared_observables_agree": true,
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0
+    },
+    {
+      "report": "local/research/night-pudgy-close-window-v1.json",
+      "sha256": "133db45032cde6cb036f071136977192344c592cc417f227f0ae1a14689e728e",
+      "first_native_frame": 29676,
+      "frames": 240,
+      "controller_samples": 41,
+      "eligible_unblended_targets": 196,
+      "compared_observables_agree": true,
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0
+    }
+  ],
+  "interval_totals": {
+    "frames": 2940,
+    "controller_samples": 1862,
+    "eligible_unblended_targets": 874
+  },
+  "pudgy_actor_intervals": [
+    {
+      "report": "local/research/night-pudgy-approach-actor-v1.json",
+      "sha256": "d7f76fad7bc8093064befb2108e26734b63c63dc986f0d8fe3287b620a48d158",
+      "instance": 37,
+      "alias": -8,
+      "first_native_frame": 28056,
+      "frames": 240,
+      "channel_words": 161280,
+      "all_compared_words_equal": true
+    },
+    {
+      "report": "local/research/night-pudgy-talk-actor-v1.json",
+      "sha256": "a641baf60389336a5fb8d92239e890756f8f867433390d9dfc12da724d3881d7",
+      "instance": 37,
+      "alias": -8,
+      "first_native_frame": 28296,
+      "frames": 240,
+      "channel_words": 161280,
+      "all_compared_words_equal": true
+    },
+    {
+      "report": "local/research/night-pudgy-pages-actor-v1.json",
+      "sha256": "45486a99985fcfec201b68073f8111973f63d32eb83995a4ae1b53ba2d17df29",
+      "instance": 37,
+      "alias": -8,
+      "first_native_frame": 28536,
+      "frames": 360,
+      "channel_words": 241920,
+      "all_compared_words_equal": true
+    },
+    {
+      "report": "local/research/night-pudgy-choice-actor-v1.json",
+      "sha256": "5e15a94d97c622e24ebab684ced9b6e3f01425dbea6cf2afd7e4d28684d95afe",
+      "instance": 37,
+      "alias": -8,
+      "first_native_frame": 28896,
+      "frames": 420,
+      "channel_words": 282240,
+      "all_compared_words_equal": true
+    },
+    {
+      "report": "local/research/night-pudgy-select-actor-v1.json",
+      "sha256": "357ae848bbfa9052eabe87a586029add7d06122e9ac37fd556b90b0fd895b390",
+      "instance": 37,
+      "alias": -8,
+      "first_native_frame": 29316,
+      "frames": 360,
+      "channel_words": 241920,
+      "all_compared_words_equal": true
+    },
+    {
+      "report": "local/research/night-pudgy-close-actor-v1.json",
+      "sha256": "00d192c88b07c9223261877c377ceb4e83461f02b3f942169197f2ef3867b299",
+      "instance": 37,
+      "alias": -8,
+      "first_native_frame": 29676,
+      "frames": 240,
+      "channel_words": 161280,
+      "all_compared_words_equal": true
+    }
+  ],
+  "pudgy_actor_totals": {
+    "frames": 1860,
+    "channel_words": 1249920
+  },
+  "actor_identity_correction": "reference-night-pudgy-answer-600-v1.pudgy.bin observes nearby MAN instance40/alias-11, not Pudgy instance37/alias-8. Separate comparison local/research/night-man-invitation-close-v1.json; excluded from Pudgy totals.",
+  "negative_input_evidence": "choice420 at28896..29315 contains ignored confirmations while the menu is unarmed. Directional input first arms without moving cursor; select360 subsequently accepts option0. Do not auto-arm the native menu.",
+  "latest_inputs": {
+    "first_native_frame": 29676,
+    "consumed_original_cross": [
+      1
+    ],
+    "native_cross": [
+      29677
+    ],
+    "directions": []
+  },
+  "endpoint": {
+    "frame": 29915,
+    "message": 11101,
+    "text_progress": 7,
+    "event": 62,
+    "active": false,
+    "pc": "0x2668",
+    "choice_result": 0,
+    "native_event_end_frame": 29719,
+    "native_control_return_frame": 29720,
+    "images_inspected": true,
+    "presentation": "Both images show closed dialogue and return to field; native authentic window/HUD composition, night lighting and shadows remain incomplete."
+  },
+  "next_step": "Complete revised ordinary-input road600 reference and replay at anchor29916 through30515; inspect navigation result before continuing to children.",
+  "live_jobs": [
+    {
+      "session": 39690,
+      "prefix": "local/reference-night-children-road-600-v1",
+      "anchor": 29916,
+      "native_end": 30515,
+      "actor_instance": 42,
+      "actor_alias": -13,
+      "state": "running when checkpoint written; poll exact handle before assuming terminal"
+    }
+  ],
+  "latest_audit_commands": [
+    [
+      "python3",
+      "tools/diagnose_home1b_interval.py",
+      "--reference",
+      "local/reference-night-pudgy-close-240-v1",
+      "--capture",
+      "local/native-night-pudgy-close-29915-window-release-v1.png",
+      "--first-frame",
+      "29676",
+      "--unblended-target",
+      "--output",
+      "local/research/night-pudgy-close-window-v1.json"
+    ],
+    [
+      "python3",
+      "tools/diagnose_actor_interval.py",
+      "--reference",
+      "local/reference-night-pudgy-close-240-v1",
+      "--reference-trace",
+      "local/reference-night-pudgy-close-240-v1.pudgy.bin",
+      "--capture",
+      "local/native-night-pudgy-close-29915-window-release-v1.png",
+      "--instance",
+      "37",
+      "--alias=-8",
+      "--first-frame",
+      "29676",
+      "--output",
+      "local/research/night-pudgy-close-actor-v1.json"
+    ]
+  ],
+  "verification_note": "Use fresh output names when rerunning auditors. Both commands completed exit0 during the handoff refresh; all44 Python tests passed.",
+  "story_state": {
+    "report": "local/research/pudgy-closure-state-v3.json",
+    "sha256": "55c2adce6ae0cbf0a62fa3528590f8b4630e4ccda3da4670a9355bb12ca712d1",
+    "result": {
+      "scope": "Read-only original snapshots compared with native outputs; never runtime inputs.",
+      "states": [
+        {
+          "reference": "reference-night-pudgy-choice-420-v1",
+          "native": "native-night-pudgy-answer-29315-window-release-v1",
+          "snapshot_sha256": "16ba979e384fc52829da33706019e369618e266d7abfd9af4b844977e3f6cd00",
+          "native_variables_sha256": "483bcb70bd9d9f8acd94f33470d88fcf174e3735b02a0c1f2063c0c2f95393fc",
+          "original_flags": {
+            "bit10": false,
+            "bit77": true
+          },
+          "native_flags": {
+            "bit10": false,
+            "bit77": true
+          },
+          "actors": [
+            {
+              "alias": -13,
+              "instance": 42,
+              "original_object_flags": "0x3b1700",
+              "original_visible": 0,
+              "position_words": [
+                3242889052,
+                1075838976,
+                1146850673,
+                1065353216
+              ],
+              "position": [
+                -12.65999984741211,
+                2.5,
+                878.2100219726562,
+                1.0
+              ],
+              "native_visible": 0,
+              "native_actor_sha256": "604c8ffa13418987ba471b1fab0327d116a55c22fd9e3d72f45a5875babfa8c6",
+              "root_position_exact": false,
+              "native_position_words": [
+                0,
+                0,
+                0,
+                1065353216
+              ]
+            },
+            {
+              "alias": -14,
+              "instance": 43,
+              "original_object_flags": "0x3d1700",
+              "original_visible": 0,
+              "position_words": [
+                3248226304,
+                1075838976,
+                1146694533,
+                1065353216
+              ],
+              "position": [
+                -19.5,
+                2.5,
+                868.6799926757812,
+                1.0
+              ],
+              "native_visible": 0,
+              "native_actor_sha256": "81ebaf58c8492beedf04ffcb63ea05eeeddf6a609e85e1e5ac6982fef6dbd966",
+              "root_position_exact": false,
+              "native_position_words": [
+                0,
+                0,
+                0,
+                1065353216
+              ]
+            }
+          ]
+        },
+        {
+          "reference": "reference-night-pudgy-select-360-v1",
+          "native": "native-night-pudgy-select-29675-window-release-v1",
+          "snapshot_sha256": "8b19b17f9fabb7ceee773e110666ab84bd0b6dabab76078a39ff8722dde1f742",
+          "native_variables_sha256": "44b4cda70c81e062dc1c83ff9ced74f98834b9cb8bd0bb83c0720aea86372305",
+          "original_flags": {
+            "bit10": true,
+            "bit77": true
+          },
+          "native_flags": {
+            "bit10": true,
+            "bit77": true
+          },
+          "actors": [
+            {
+              "alias": -13,
+              "instance": 42,
+              "original_object_flags": "0x3b1700",
+              "original_visible": 0,
+              "position_words": [
+                3242889052,
+                1075838976,
+                1146850673,
+                1065353216
+              ],
+              "position": [
+                -12.65999984741211,
+                2.5,
+                878.2100219726562,
+                1.0
+              ],
+              "native_visible": 0,
+              "native_actor_sha256": "de85c9144ee5fca602e94944ee888ca21b850f7fc54febe93655304f64e4519f",
+              "root_position_exact": false,
+              "native_position_words": [
+                0,
+                0,
+                0,
+                1065353216
+              ]
+            },
+            {
+              "alias": -14,
+              "instance": 43,
+              "original_object_flags": "0x3d1700",
+              "original_visible": 0,
+              "position_words": [
+                3248226304,
+                1075838976,
+                1146694533,
+                1065353216
+              ],
+              "position": [
+                -19.5,
+                2.5,
+                868.6799926757812,
+                1.0
+              ],
+              "native_visible": 0,
+              "native_actor_sha256": "938081abb748ba7fb6b3ebcb204f371e921fdd88e41aa74f23c79c0ce21ef103",
+              "root_position_exact": false,
+              "native_position_words": [
+                0,
+                0,
+                0,
+                1065353216
+              ]
+            }
+          ]
+        },
+        {
+          "reference": "reference-night-pudgy-close-240-v1",
+          "native": "native-night-pudgy-close-29915-window-release-v1",
+          "snapshot_sha256": "4d2ab9e11c677884cedb982952a4385f1694048ef727dd4f4cb2200f4564963e",
+          "native_variables_sha256": "44b4cda70c81e062dc1c83ff9ced74f98834b9cb8bd0bb83c0720aea86372305",
+          "original_flags": {
+            "bit10": true,
+            "bit77": true
+          },
+          "native_flags": {
+            "bit10": true,
+            "bit77": true
+          },
+          "actors": [
+            {
+              "alias": -13,
+              "instance": 42,
+              "original_object_flags": "0x3b1f00",
+              "original_visible": 1,
+              "position_words": [
+                3248666706,
+                1075838976,
+                1146406175,
+                1065353216
+              ],
+              "position": [
+                -20.34000015258789,
+                2.5,
+                851.0800170898438,
+                1.0
+              ],
+              "native_visible": 1,
+              "native_actor_sha256": "ac74982b1176282ca25bf6608012ddaeb78542c479ab464b736c6eb10bf2e3da",
+              "root_position_exact": true,
+              "native_position_words": [
+                3248666706,
+                1075838976,
+                1146406175,
+                1065353216
+              ]
+            },
+            {
+              "alias": -14,
+              "instance": 43,
+              "original_object_flags": "0x3d1f00",
+              "original_visible": 1,
+              "position_words": [
+                3253547827,
+                1075838976,
+                1146402898,
+                1065353216
+              ],
+              "position": [
+                -29.649999618530273,
+                2.5,
+                850.8800048828125,
+                1.0
+              ],
+              "native_visible": 1,
+              "native_actor_sha256": "dc5874666129c30cc59082a3da1c3ea306b2caefddbb22b87c2ef55a7b2ae9fe",
+              "root_position_exact": true,
+              "native_position_words": [
+                3253547827,
+                1075838976,
+                1146402898,
+                1065353216
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "reproducer": "python3 local/research/inspect-pudgy-closure-state-v3.py",
+    "limits": "Snapshot observations only: bit10 is already set by message metadata before final-page closure. Hidden actors have different captured cached root positions; only post-closure root equality is claimed. Native inputs remain owned assets and pad edges."
+  },
+  "failed_route": {
+    "report": "local/research/children-route-obstacle-v1.json",
+    "reason": "First waypoint was beyond an obstacle; live trace oscillated near(-340,674.6). Deliberately terminated guest process; exit-15, no complete capture or native equivalence. Revised path reverses successful observed approach."
+  }
+}
