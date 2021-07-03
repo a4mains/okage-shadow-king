@@ -1,0 +1,167 @@
+{
+  "scope": "Handoff checkpoint for road return, partial event-music integration and next explicit renderer failure.",
+  "date": "2021-07-03",
+  "base_commit": "0f6110f",
+  "runtime_changes_uncommitted_at_refresh": [
+    "include/okage/music.hpp",
+    "src/music.cpp",
+    "src/native_runtime.mm",
+    "tests/music_tests.cpp",
+    "tools/import_music_resource.py"
+  ],
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "road": {
+    "first_native_frame": 29916,
+    "frames": 600,
+    "controller_samples": 0,
+    "eligible_camera_targets": 598,
+    "compared_observables_agree": true,
+    "sister_instance": 42,
+    "sister_alias": -13,
+    "actor_channel_words": 417600,
+    "all_compared_actor_words_equal": true
+  },
+  "music_prefix_regression": {
+    "frames": 30515,
+    "capture_family_files": 36,
+    "all_equal": true,
+    "command": "python3 local/research/verify-render-window-family-v1.py local/native-night-children-road-30515-window-release-v1.png local/native-night-children-road-30515-music-release-v1.png local/research/children-music-prefix-family-v1.json"
+  },
+  "approach": {
+    "first_native_frame": 30516,
+    "frames": 600,
+    "controller_samples": 187,
+    "eligible_camera_targets": 309,
+    "manager_difference_frames": [
+      414,
+      415,
+      416,
+      417,
+      418,
+      419,
+      420,
+      421,
+      422,
+      423,
+      424,
+      425,
+      426,
+      427,
+      428,
+      429,
+      430,
+      431,
+      432
+    ],
+    "missing_original_hero_frames": [
+      414,
+      415,
+      416,
+      417,
+      418,
+      419,
+      420,
+      421,
+      422,
+      423,
+      424,
+      425,
+      426,
+      427,
+      428,
+      429,
+      430,
+      431,
+      432
+    ],
+    "matching_tail": {
+      "first_original_frame": 433,
+      "frames": 167,
+      "controller_samples": 167
+    },
+    "compared_observables_agree": false,
+    "full_timeline_equivalence": false,
+    "actor_audit": "Failed: missing, repeated or unordered original actor frame; mode15 is outside observer scope. No completed whole-interval actor report.",
+    "native_endpoint_pc": "0x1854",
+    "music_id": 38,
+    "loading": "Synchronous native file IO; original async duration and audio phase not reproduced."
+  },
+  "answer": {
+    "first_native_frame": 31116,
+    "requested_native_end": 31475,
+    "consumed_cross_native": 31117,
+    "native_exit_code": 1,
+    "native_error": "Visible encounter-enemy rendering is unrecovered",
+    "native_final_capture_family_available": false,
+    "original_exit_code": 0,
+    "original_endpoint_image_inspected": true,
+    "original_image_observation": "Ghost and Jan dialogue visible. Exact actor/model identity still needs recovery.",
+    "first_reveal_tick_validated": false
+  },
+  "tests": {
+    "ctest": {
+      "debug": 19,
+      "release": 19,
+      "sanitize": 19
+    },
+    "python": "44 passed in preceding implementation turn; this refresh changed documentation only."
+  },
+  "jobs": "All named runs terminal and polled; sessions8923 and98005 completed in this refresh. No matching native/reference processes at inspection.",
+  "runs": {
+    "reference-night-children-road-600-v1": {
+      "exit_code": 0,
+      "elapsed_seconds": 294.973036542,
+      "binary_sha256": "602daf664efc8e91003e46aa6880512139dd55ef311858d0786b00e3e343b4da"
+    },
+    "native-night-children-road-30515-window-release-v1": {
+      "exit_code": 0,
+      "elapsed_seconds": 16.53591625,
+      "binary_sha256": "6b321cd08120c5698d8db97d358b959f8b7f7b5301dee4e9c9863d30c5c338cf"
+    },
+    "native-night-children-road-30515-music-release-v1": {
+      "exit_code": 0,
+      "elapsed_seconds": 16.341160792,
+      "binary_sha256": "8feae16e3f09f996205eae1729b9022ffa0d2bcc3c8c0b862b2074f4282fc60a"
+    },
+    "reference-night-children-approach-600-v1": {
+      "exit_code": 0,
+      "elapsed_seconds": 322.664502709,
+      "binary_sha256": "602daf664efc8e91003e46aa6880512139dd55ef311858d0786b00e3e343b4da"
+    },
+    "native-night-children-approach-31115-music-release-v1": {
+      "exit_code": 0,
+      "elapsed_seconds": 16.582892792000003,
+      "binary_sha256": "8feae16e3f09f996205eae1729b9022ffa0d2bcc3c8c0b862b2074f4282fc60a"
+    },
+    "reference-night-children-answer-360-v1": {
+      "exit_code": 0,
+      "elapsed_seconds": 244.947859917,
+      "binary_sha256": "602daf664efc8e91003e46aa6880512139dd55ef311858d0786b00e3e343b4da"
+    },
+    "native-night-children-answer-31475-music-release-v1": {
+      "exit_code": 1,
+      "elapsed_seconds": 16.293909625,
+      "binary_sha256": "8feae16e3f09f996205eae1729b9022ffa0d2bcc3c8c0b862b2074f4282fc60a"
+    }
+  },
+  "evidence_sha256": {
+    "local/research/night-children-road-window-v1.json": "914eb6179f8fb792f463d2701f8f024c6c1870678c74c492bf8af9a46aa7f217",
+    "local/research/night-children-road-actor-v1.json": "e508ebf2c614571df5fa0d3df2a56c8a7dadf5bdd342cb410a1f5a9232fca04c",
+    "local/research/night-children-approach-music-window-v1.json": "19f1fe0a838a73b6b44464a2c4d795ad8637d83dbcc6f563057db65de6d35b29",
+    "local/research/children-music-prefix-family-v1.json": "04e2346549b1aceb66b498361d13203100f97b0a285c12e15786f1f13987bd9c",
+    "local/research/children-music-resource38-v1.json": "6bef2300636ec2fc6863e3540c274f6eb9f162f8803ab4beabb626e54575e386",
+    "local/reference-night-children-road-600-v1.run.json": "4ceb9c2f29fda8397336b8ef908e7b44ae7de32627d38a12f7b921460de0ec47",
+    "local/native-night-children-road-30515-window-release-v1.run.json": "edca45e60280703af17c98f475673cafebdd0b90d6d96fc310fb70988053907c",
+    "local/native-night-children-road-30515-music-release-v1.run.json": "74b905e43b5547ae4f74330641c29ef2e8002853d01db70496c81a62c27d881a",
+    "local/reference-night-children-approach-600-v1.run.json": "14b80ff4cddbd1b89e071fe87d092684e2ee679586140ad6cfbaadcc69b6d636",
+    "local/native-night-children-approach-31115-music-release-v1.run.json": "0f33a21f806ee76d74aeacb35394b7547bf40367e8dec811b9b46d259b7ce1b6",
+    "local/reference-night-children-answer-360-v1.run.json": "249b737504084d6f6546e1588de1f0274eb97f9925a76cbbe0c0dce377bebde5",
+    "local/native-night-children-answer-31475-music-release-v1.run.json": "e01c90404ec92db65280689a352c362737ff7ba6e1e528b312ec1c22131052f0",
+    "local/research/children-music-tests-debug-v1.log": "632938abceca97d266fbea3413f3c291a5ec01348aa1376a8e7a54aefbed6b79",
+    "local/research/children-music-tests-release-v1.log": "29264898075c964a9961b6e7de671f9fb52ff56b6bdfb8dd97d13cea37bdb4bd",
+    "local/research/children-music-tests-sanitize-v1.log": "396396f5074768a5675e09f61497879941a093b4d9d0e8b8c1f623dc68c94d39",
+    "local/native-night-children-answer-31475-music-release-v1.log": "012addba7de3a9585ace0f1982e5549daff05103889e19d0791487005ee3c375",
+    "local/reference-night-children-answer-360-v1.layer0.png": "dbbe80aa2ee13dc23e5637a5e982ac56da597b50519fce65e282a208726d2acf",
+    "local/native-night-children-approach-31115-music-release-v1.png": "d973679beacca17471bc1e3542dd34c8e5a2e1cb41c595d31727fdd8e3b4c43e"
+  }
+}
