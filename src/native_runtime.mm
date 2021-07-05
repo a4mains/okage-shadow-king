@@ -116,6 +116,15 @@ struct Session {
 
     void bind_audio_services() {
         if(field)field->audio_service=[this](unsigned operation,int argument){
+            if(operation==0 && argument>0 && music){
+                wait.mode=15;wait.active=0;
+                music->load_secondary(argument,[this](int id){return read_music_resource(id);});
+                // Original0x12fec8 signals field+0x30 after both sample banks
+                // load. Native file loading is synchronous; its completion is
+                // not a fitted reproduction of the original I/O frame count.
+                wait.mode=5;wait.active=1;
+                std::cout<<"Native event music loaded: slot1 score "<<argument<<"\n";return true;
+            }
             if(operation==1 && !sound_directory.empty()){
                 if(argument<0 || argument>9999)throw std::runtime_error("Sound set number outside import scope");
                 wait.mode=15;wait.active=0;

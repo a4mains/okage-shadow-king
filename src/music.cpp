@@ -131,6 +131,8 @@ MusicResourceNames music_resource_names(int id) {
         case 2:return {"CTY_TNB","CTY_TNB0",""};
         case 10:return {"FLD_NMA","FLD_NMA0",""};
         case 26:return {"SNT_DNM","SNT_DNM0","SNT_DNM2"};
+        // USA ELF table0x1fb530 entry38; EVN_THL1.XV is also loaded.
+        case 38:return {"EVN_THL","EVN_THL0",""};
         // USA ELF table0x1fb530 entry50; ordinary loader0x12d158.
         case 50:return {"EVS_NRD","EVS_NRD0",""};
         case 51:return {"EVS_MSH","EVS_MSH0",""};
@@ -184,6 +186,12 @@ void MusicRouter::enter(int primary,int secondary,const Loader& load) {
     if(primary<0)stop();
     if(primary>0){ensure(0,primary,load);select(primary);}
     if(secondary>0)ensure(1,secondary,load);
+}
+void MusicRouter::load_secondary(int id,const Loader& load) {
+    if(id<=0)throw std::runtime_error("Event secondary music requires an explicit positive ID");
+    require_sequence_music(id);
+    stop();
+    ensure(1,id,load);
 }
 void MusicRouter::select(int id,bool fade) {
     if(const auto jingle=music_jingle_index(id)) {

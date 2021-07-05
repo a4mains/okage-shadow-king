@@ -15,6 +15,11 @@ from prepare_assets import ELF_HASH
 from verify_event import write_exact
 
 RESOURCES = {
+    38: ('EVN_THL', {
+        'EVN_THL.XSQ': 'ca285623d8930060e39ffa3b02b292589b5550c58e9d85859b382e0afea89b85',
+        'EVN_THL0.XV': '9dc31ed9239b5147d88807fa913a87019b0d5b4a2d498426e4d6d176826f2662',
+        'EVN_THL1.XV': 'c1768b23a7d7a8b678eb6aa54c1fff903343fd25a3947ecf0abde4f88811b0e0',
+    }),
     50: ('EVS_NRD', {
         'EVS_NRD.XSQ': 'c255165d2dd93ff4eb82a918ff30d11cf9d5011d27a10bd8127c07c077fb7594',
         'EVS_NRD0.XV': '9367e1eb1cd95a5d79cc02984daf121c64dc4dd48b70f5c8b64bf7922c0f5a29',
@@ -51,8 +56,9 @@ def main():
     if address(class_pointer, 2) != b'1\0':
         raise ValueError('Music class differs from reviewed ordinary sequence route')
     entries = {e['path']: e for e in json.loads(Path('docs/disc-report.json').read_text())['files']}
-    if 'SNDDATA/BGM/' + name + '1.XV' in entries:
-        raise ValueError('Unexpected secondary bank requires review')
+    second = name + '1.XV'
+    if ('SNDDATA/BGM/' + second in entries) != (second in hashes):
+        raise ValueError('Secondary bank differs from reviewed resources')
     disc = Disc('local/disc/Okage - Shadow King (USA).bin')
     imported = []
     try:
@@ -70,7 +76,7 @@ def main():
         disc.close()
     report = dict(scope=__doc__, elf_sha256=ELF_HASH, music_id=a.id, table_address=table,
                   name_pointer=name_pointer, class_pointer=class_pointer, sequence=name,
-                  primary_bank=name + '0', secondary_bank_present=False, imported=imported)
+                  primary_bank=name + '0', secondary_bank_present=second in hashes, imported=imported)
     write_exact(a.output, (json.dumps(report, indent=2) + '\n').encode())
     print('Imported reviewed music', a.id, name)
 

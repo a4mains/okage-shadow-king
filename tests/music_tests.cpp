@@ -117,6 +117,26 @@ int main(){try{
     rejects([&]{router.install(2,10,loader(10));});rejects([&]{okage::music_resource_names(52);});
     auto malformed=loader(26);malformed.alternate={1};rejects([&]{router.install(1,26,std::move(malformed));});
     {
+        okage::MusicRouter event;unsigned resource_loads=0;
+        auto event_loader=[&](int id){
+            ++resource_loads;
+            if(id==38)require(event.current_id()==-1,"Event load must stop ordinary playback before I/O");
+            return okage::MusicResource{score,bank(),bank(),{}};
+        };
+        event.enter(51,26,event_loader);event.render(frame);
+        event.load_secondary(38,event_loader);
+        require(resource_loads==3&&event.loaded_id(0)==51&&event.loaded_id(1)==38&&
+                event.current_id()==-1&&!event.player(),"Event load slot ownership/selection");
+        event.render(frame);require(std::all_of(frame.begin(),frame.end(),[](auto v){return v==0;}),"Event load implicitly played the score");
+        event.select(38);event.render(frame);
+        require(event.active_slot()==1&&event.player()->driver_ticks()==1,"Loaded event score playback");
+        event.load_secondary(38,event_loader);
+        require(resource_loads==3&&event.current_id()==-1,"Cached event load must stop without reloading");
+        event.select(38);require(event.player()->driver_ticks()==0,"Event score did not restart after stop");
+        for(int id:{0,-1,20,25})rejects([&]{event.load_secondary(id,event_loader);});
+        require(event.current_id()==38&&resource_loads==3,"Invalid event load mutated playback");
+    }
+    {
         okage::MusicRouter mixed;
         mixed.install(0,10,{score,bank(),{}, {}});
         mixed.install_jingle(2,{score,bank(),{}, {}});
@@ -125,7 +145,7 @@ int main(){try{
         mixed.select(22);
         require(mixed.current_id()==10&&mixed.active_slot()==0&&mixed.active_jingles()==1&&
                 mixed.player()->driver_ticks()==main_ticks,"Jingle replaced or restarted ordinary music");
-        mixed.render(frame);mixed.stop();
+        mixed.render(frame);mixed.load_secondary(38,[&](int){return okage::MusicResource{score,bank(),{}, {}};});
         require(mixed.active_jingles()==1&&mixed.current_id()==-1,"Ordinary stop removed the jingle");
         mixed.render(frame);
         require(std::any_of(frame.begin(),frame.end(),[](auto v){return v!=0;}),"Ordinary stop silenced jingle voices");

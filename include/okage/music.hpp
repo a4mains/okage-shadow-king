@@ -79,6 +79,9 @@ public:
     void install(unsigned slot,int id,MusicResource resource);
     void install_jingle(unsigned slot,MusicResource resource);
     void enter(int primary,int secondary,const Loader& load);
+    // Event task0x12fec8 stops the ordinary score, then0x12d898 ensures slot1.
+    // Completion scheduling belongs to the caller, not this resource operation.
+    void load_secondary(int id,const Loader& load);
     void select(int id,bool fade=false);
     void stop();
     void render(std::span<std::int16_t> stereo);
