@@ -25,6 +25,28 @@ fragment float4 preview_fragment(Varying v [[stage_in]], texture2d<float> image 
     if (color.a<0.5f) discard_fragment();
     return float4(color.rgb,1);
 }
+fragment float4 material_fragment(Varying v [[stage_in]], texture2d<float> image [[texture(0)]],
+                                 constant State& state [[buffer(0)]]) {
+    float4 color=v.color;
+    if(state.mode.z) {
+        int2 p=int2(floor(v.uv*1024.0f));
+        p.x=state.mode.x==2 ? clamp(p.x,int(state.region.x),int(state.region.y)) :
+                             ((p.x & int(state.region.x)) | int(state.region.y));
+        p.y=state.mode.y==2 ? clamp(p.y,int(state.region.z),int(state.region.w)) :
+                             ((p.y & int(state.region.z)) | int(state.region.w));
+        if(any(p<0)||p.x>=int(image.get_width())||p.y>=int(image.get_height()))
+            return float4(1,0,1,1);
+        float4 t=image.read(uint2(p));
+        t=float4(t.rgb*255.0f,floor(t.a*127.5f+0.5f));
+        color=floor(t*color/128.0f);
+    }
+    color=clamp(floor(color),0.0f,255.0f);
+    // 0x185fb0: TEST 0x5060d (>96, depth write), then 0x50607
+    // (<=96, ZBUF masked). The split applies to final modulated alpha.
+    if(state.mode.w==1 ? color.a<=96.0f : color.a>96.0f)discard_fragment();
+    float alpha=color.a/128.0f;
+    return float4((color.rgb/255.0f)*alpha,alpha);
+}
 fragment float4 effect_fragment(Varying v [[stage_in]], texture2d<float> image [[texture(0)]],
                                constant State& state [[buffer(0)]]) {
     int2 p=int2(floor(v.uv*1024.0f));

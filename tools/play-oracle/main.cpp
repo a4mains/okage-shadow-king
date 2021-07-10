@@ -921,6 +921,24 @@ public:
         }
         writeFile(output,result.data(),result.size());
     }
+    void materialColors(const std::vector<uint8>& input,const char* output) {
+        if(input.empty()||input.size()%20||input.size()>20*8192)
+            throw std::runtime_error("Material color fixture bounds");
+        std::vector<uint32> result;
+        for(std::size_t at=0;at<input.size();at+=20) {
+            auto& cpu=ee->m_EE.m_State;
+            std::memcpy(&cpu.nCOP1[12],input.data()+at,4);
+            call(0x17e020);
+            float alpha;std::memcpy(&alpha,&cpu.nCOP1[0],4);
+            for(unsigned i=0;i<4;++i) {
+                float value;std::memcpy(&value,input.data()+at+4+i*4,4);
+                value=value*(i==3?alpha:255.f);
+                std::memcpy(&cpu.nCOP1[12],&value,4);call(0x17dfe8);
+                result.push_back(cpu.nCOP1[0]);
+            }
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
     void xclVertical(const std::vector<uint8>& asset,const std::vector<uint8>& queries,const char* output) {
         if(asset.size()<69||asset.size()>0x400000||queries.size()%48)throw std::runtime_error("XCL contact fixture bounds");
         constexpr uint32 base=0x900000,record=0xe00000,previous=0xe00100,desired=0xe00110;
@@ -1525,7 +1543,9 @@ int main(int argc,char** argv) {
         }
         Reference reference(readFile(argv[2]));
         const std::string command=argv[1];
-        if(command=="relationship" && argc==6) {
+        if(command=="material-colors" && argc==5) {
+            reference.materialColors(readFile(argv[3]),argv[4]);
+        } else if(command=="relationship" && argc==6) {
             reference.relationship(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="comparison-options" && argc==6) {
             reference.comparisonOptions(readFile(argv[3]),readFile(argv[4]),argv[5]);

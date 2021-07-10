@@ -1,5 +1,6 @@
 #include "okage/render.hpp"
 #include <cfenv>
+#include <bit>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -38,6 +39,25 @@ int main() {
         require(std::fegetround()==FE_UPWARD); std::fesetround(before);
         require(okage::triangle_corners(3)==std::vector<std::array<unsigned,3>>{{0,1,2}});
         require(okage::triangle_corners(4)==std::vector<std::array<unsigned,3>>{{0,1,2},{0,2,3}});
+        okage::Material material{};
+        material.words[5]=__builtin_bit_cast(unsigned, (.4f));
+        require(okage::material_source_color(material,{1,.5f,0,1})==okage::Float4({255,127.5f,0,77}));
+        material.words[5]=__builtin_bit_cast(unsigned, (.41f));
+        require(okage::material_source_color(material,{.5f,.5f,.5f,1})==okage::Float4({127.5f,127.5f,127.5f,76}));
+        require(okage::material_blend_register(material)==0x44);
+        material.words[6]=1;require(okage::material_blend_register(material)==0x48);
+        material.words[6]=2;require(okage::material_blend_register(material)==0x42);
+        material.words[6]=3;rejects([&]{okage::material_blend_register(material);});
+        material.words[5]=__builtin_bit_cast(unsigned, (1.f));
+        require(okage::material_source_color(material,{-1,2,0,1})==okage::Float4({0,255,0,0}));
+        material.words[5]=0;
+        std::fesetround(FE_UPWARD);
+        require(okage::material_source_color(material,{1,1,1,.5f})[3]==64);
+        require(std::fegetround()==FE_UPWARD);std::fesetround(before);
+        material.words[5]=__builtin_bit_cast(unsigned, (-1.f));
+        rejects([&]{okage::material_source_color(material,{1,1,1,1});});
+        material.words[5]=0;
+        rejects([&]{okage::material_source_color(material,{1,1,1,std::numeric_limits<float>::quiet_NaN()});});
         rejects([]{okage::triangle_corners(5);});
         std::cout<<"Native render topology, UV boundaries and rounding checks passed\n";
     } catch (const std::exception& e) {std::cerr<<e.what()<<'\n'; return 1;}

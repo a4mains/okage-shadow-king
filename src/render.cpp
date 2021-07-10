@@ -1,5 +1,6 @@
 #include "okage/render.hpp"
 #include <algorithm>
+#include <bit>
 #include <cfenv>
 #include <cmath>
 #include <stdexcept>
@@ -31,6 +32,29 @@ Float4 sky_follow_position(const Float4& camera,const Float4& factors) {
         if(!std::isfinite(result[i]))throw std::runtime_error("Sky-follow overflow");
     }
     return result;
+}
+Float4 material_source_color(const Material& material,const Float4& source) {
+    const float transparency=__builtin_bit_cast(float, (material.words[5]));
+    if(!std::isfinite(transparency)||transparency<0||transparency>1)
+        throw std::runtime_error("Material transparency outside recovered range");
+    for(float value:source)if(!std::isfinite(value))
+        throw std::runtime_error("Non-finite material source color");
+    Rounding rounding;
+    float alpha=1.0f-transparency;
+    alpha=alpha+0.00390625f;
+    alpha=alpha*128.0f;
+    alpha=float(int(alpha));
+    Float4 result;
+    for(unsigned i=0;i<4;++i)result[i]=std::clamp(source[i]*(i==3?alpha:255.0f),0.0f,255.0f);
+    return result;
+}
+std::uint64_t material_blend_register(const Material& material) {
+    switch(material.words[6]) {
+        case 0:return 0x44;
+        case 1:return 0x48;
+        case 2:return 0x42;
+        default:throw std::runtime_error("Unrecovered material blend mode");
+    }
 }
 std::array<float,2> texture_coordinates(const TextureState& state,
     std::uint32_t width,std::uint32_t height,std::array<float,2> source) {

@@ -7,6 +7,7 @@
 #include "okage/render.hpp"
 #include "metal_preview_shader.hpp"
 #include <cmath>
+#include <bit>
 #include <fstream>
 namespace okage {
 namespace fs=std::filesystem;
@@ -17,7 +18,7 @@ std::vector<std::uint8_t> read(const fs::path& path) {
     if(!in.read(reinterpret_cast<char*>(b.data()),b.size()))throw std::runtime_error("Cannot read scene input");return b;
 }
 struct Vertex {Float4 position,color,uv;};
-struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;};
+struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;std::uint64_t materialBlend=0;};
 }
 struct SceneRenderer::Impl {
     struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;std::optional<MapTransform> facing;std::optional<std::size_t> placement;bool visible=true;};
@@ -34,8 +35,8 @@ struct SceneRenderer::Impl {
     const MapEffects* mapEffects=nullptr;
     std::optional<Float4> effectTint;
     id<MTLDevice> device;
-    id<MTLRenderPipelineState> pipeline,effectPipeline,mapEffectPipeline,dustPipeline;
-    id<MTLDepthStencilState> depth,effectDepth,mapEffectDepth;
+    id<MTLRenderPipelineState> pipeline,effectPipeline,mapEffectPipeline,dustPipeline,materialPipeline,materialAddPipeline,materialSubtractPipeline;
+    id<MTLDepthStencilState> depth,effectDepth,mapEffectDepth,materialDepth;
     id<MTLTexture> target,depthTarget;
     NSMutableArray<id<MTLTexture>>* gpuTextures;
     id<MTLCommandQueue> queue;
@@ -106,8 +107,24 @@ struct SceneRenderer::Impl {
         descriptor.colorAttachments[0].sourceAlphaBlendFactor=MTLBlendFactorZero;
         dustPipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
         if(!dustPipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
+        descriptor.vertexFunction=[library newFunctionWithName:@"preview_vertex"];
+        descriptor.fragmentFunction=[library newFunctionWithName:@"material_fragment"];
+        descriptor.colorAttachments[0].sourceRGBBlendFactor=MTLBlendFactorOne;
+        descriptor.colorAttachments[0].destinationRGBBlendFactor=MTLBlendFactorOneMinusSourceAlpha;
+        descriptor.colorAttachments[0].sourceAlphaBlendFactor=MTLBlendFactorZero;
+        descriptor.colorAttachments[0].destinationAlphaBlendFactor=MTLBlendFactorOne;
+        materialPipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
+        if(!materialPipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
+        descriptor.colorAttachments[0].destinationRGBBlendFactor=MTLBlendFactorOne;
+        materialAddPipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
+        if(!materialAddPipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
+        descriptor.colorAttachments[0].rgbBlendOperation=MTLBlendOperationReverseSubtract;
+        materialSubtractPipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
+        if(!materialSubtractPipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
         auto depthState=[MTLDepthStencilDescriptor new]; depthState.depthCompareFunction=MTLCompareFunctionLess; depthState.depthWriteEnabled=YES;
         depth=[device newDepthStencilStateWithDescriptor:depthState];
+        depthState.depthCompareFunction=MTLCompareFunctionLessEqual;
+        materialDepth=[device newDepthStencilStateWithDescriptor:depthState];
         depthState.depthCompareFunction=MTLCompareFunctionAlways;depthState.depthWriteEnabled=NO;
         effectDepth=[device newDepthStencilStateWithDescriptor:depthState];
         depthState.depthCompareFunction=MTLCompareFunctionLessEqual;
@@ -152,8 +169,10 @@ struct SceneRenderer::Impl {
             const auto& input=inputs[inputIndex];const auto textureOffset=textureOffsets[inputIndex];
             if(input.placement && !(mapObjects?mapObjects->visible(*input.placement):input.visible))continue;
             if(input.actor && !input.actor->visible)continue;
-            if(input.actor && input.actor->encounter_model)
-                throw std::runtime_error("Visible encounter-enemy rendering is unrecovered");
+            const bool materialActor=input.actor && input.actor->encounter_model;
+            if(materialActor && input.actor->render_flags)
+                throw std::runtime_error("Encounter-enemy instance color modulation is unrecovered");
+            std::vector<Draw> translucent;
             std::size_t textureBase=0;
             auto world=input.actor ? input.actor->world(sine) : input.world;
             if(input.facing)world=map_instance_matrix(*input.facing,{-camera[0],-camera[1],0,1},sine);
@@ -182,6 +201,14 @@ struct SceneRenderer::Impl {
                     }
                     for (const auto& polygon:block.polygons) {
                         Draw draw{std::uint32_t(vertices.size()),0,-1,{}};
+                        const Material* material=nullptr;
+                        if(materialActor) {
+                            if(polygon.material<0)throw std::runtime_error("Special actor has no material");
+                            material=&block.materials.at(polygon.material);
+                            if(!(__builtin_bit_cast(float, (material->words[5]))>0) || material->words[7])
+                                throw std::runtime_error("Unrecovered special-actor material class");
+                            draw.materialBlend=material_blend_register(*material);
+                        }
                         const okage::TextureState* state=nullptr;
                         if (polygon.texture_state>=0 && block.textures.at(polygon.texture_state).texture>=0) {
                             state=&block.textures.at(polygon.texture_state);
@@ -197,6 +224,7 @@ struct SceneRenderer::Impl {
                             Vertex vertex{positions.at(corner[0]),{1,1,1,1},{0,0,0,0}};
                             if (corner[2]>=0 && colorDefined.at(corner[2])) vertex.color=colors.at(corner[2]);
                             else throw std::runtime_error("Missing preview source color");
+                            if(material)vertex.color=material_source_color(*material,vertex.color);
                             if (state) {
                                 if (corner[3]<0 || !uvDefined.at(corner[3])) throw std::runtime_error("Missing preview UV");
                                 const auto& original=textures.at(textureOffset+state->texture);
@@ -210,11 +238,15 @@ struct SceneRenderer::Impl {
                             }
                             vertices.push_back(vertex); ++draw.count;
                         }
-                        draws.push_back(draw);
+                        if(material) {
+                            draw.state[7]=1;draws.push_back(draw);
+                            draw.state[7]=2;translucent.push_back(draw);
+                        } else draws.push_back(draw);
                     }
                     textureBase+=block.textures.size();
                 }
             }
+            draws.insert(draws.end(),translucent.begin(),translucent.end());
         }
         for(unsigned slot=0;slot<84;++slot){
         if(mapEffects&&(*mapEffects)[slot]&&((*mapEffects)[slot]->id!=17||((*mapEffects)[slot]->flags&0x20))) {
@@ -278,8 +310,9 @@ struct SceneRenderer::Impl {
         id<MTLBuffer> vertexBuffer=[device newBufferWithBytes:vertices.data() length:vertices.size()*sizeof(Vertex) options:MTLResourceStorageModeShared];
         [encoder setVertexBuffer:vertexBuffer offset:0 atIndex:0];
         for (const auto& draw:draws) {
-            [encoder setRenderPipelineState:draw.dust?dustPipeline:draw.additive?mapEffectPipeline:draw.effect?effectPipeline:pipeline];
-            [encoder setDepthStencilState:(draw.additive||draw.dust)?mapEffectDepth:draw.effect?effectDepth:depth];
+            [encoder setCullMode:draw.materialBlend?MTLCullModeBack:MTLCullModeNone];
+            [encoder setRenderPipelineState:draw.materialBlend?(draw.materialBlend==0x48?materialAddPipeline:draw.materialBlend==0x42?materialSubtractPipeline:materialPipeline):draw.dust?dustPipeline:draw.additive?mapEffectPipeline:draw.effect?effectPipeline:pipeline];
+            [encoder setDepthStencilState:draw.materialBlend?(draw.state[7]==1?materialDepth:mapEffectDepth):(draw.additive||draw.dust)?mapEffectDepth:draw.effect?effectDepth:depth];
             [encoder setFragmentTexture:gpuTextures[draw.image<0 ? whiteTexture : draw.image] atIndex:0];
             [encoder setFragmentBytes:draw.state.data() length:sizeof(draw.state) atIndex:0];
             [encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:draw.first vertexCount:draw.count];

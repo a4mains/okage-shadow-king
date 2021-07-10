@@ -73,6 +73,18 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if(command=="material-colors" && argc==4) {
+            const auto input=read(argv[2]);
+            if(input.empty()||input.size()%20)throw std::runtime_error("Material color fixture extent");
+            std::vector<okage::Float4> output;
+            for(std::size_t at=0;at<input.size();at+=20) {
+                okage::Material material{};okage::Float4 color;
+                std::memcpy(&material.words[5],input.data()+at,4);
+                std::memcpy(color.data(),input.data()+at+4,16);
+                output.push_back(okage::material_source_color(material,color));
+            }
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*16});return 0;
+        }
         if(command=="xcl-probe"&&argc==5) {
             const auto map=okage::read_xcl(read(argv[2]));const auto queries=read(argv[3]);
             if(queries.size()%28)throw std::runtime_error("XCL query fixture extent");
