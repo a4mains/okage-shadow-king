@@ -170,8 +170,15 @@ struct SceneRenderer::Impl {
             if(input.placement && !(mapObjects?mapObjects->visible(*input.placement):input.visible))continue;
             if(input.actor && !input.actor->visible)continue;
             const bool materialActor=input.actor && input.actor->encounter_model;
-            if(materialActor && input.actor->render_flags)
-                throw std::runtime_error("Encounter-enemy instance color modulation is unrecovered");
+            float instanceAlpha=1;
+            if(input.actor && input.actor->render_flags) {
+                if(!materialActor || input.actor->render_flags!=0x100000)
+                    throw std::runtime_error("Actor instance render mode is unrecovered");
+                const auto& ambient=input.actor->channels().at(3);
+                if(ambient[0]!=1 || ambient[1]!=1 || ambient[2]!=1)
+                    throw std::runtime_error("Actor instance ambient RGB is unrecovered");
+                instanceAlpha=ambient[3];
+            }
             std::vector<Draw> translucent;
             std::size_t textureBase=0;
             auto world=input.actor ? input.actor->world(sine) : input.world;
@@ -224,7 +231,10 @@ struct SceneRenderer::Impl {
                             Vertex vertex{positions.at(corner[0]),{1,1,1,1},{0,0,0,0}};
                             if (corner[2]>=0 && colorDefined.at(corner[2])) vertex.color=colors.at(corner[2]);
                             else throw std::runtime_error("Missing preview source color");
-                            if(material)vertex.color=material_source_color(*material,vertex.color);
+                            if(material) {
+                                vertex.color=material_source_color(*material,vertex.color);
+                                vertex.color[3]=material_instance_alpha(vertex.color[3],instanceAlpha);
+                            }
                             if (state) {
                                 if (corner[3]<0 || !uvDefined.at(corner[3])) throw std::runtime_error("Missing preview UV");
                                 const auto& original=textures.at(textureOffset+state->texture);

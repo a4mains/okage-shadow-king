@@ -39,6 +39,15 @@ int main() {
         require(std::fegetround()==FE_UPWARD); std::fesetround(before);
         require(okage::triangle_corners(3)==std::vector<std::array<unsigned,3>>{{0,1,2}});
         require(okage::triangle_corners(4)==std::vector<std::array<unsigned,3>>{{0,1,2},{0,2,3}});
+        require(okage::material_instance_alpha(77,.5f)==38);
+        require(okage::material_instance_alpha(76,.6f)==45);
+        require(okage::material_instance_alpha(128,2)==255);
+        require(okage::material_instance_alpha(77,-1)==0);
+        rejects([]{okage::material_instance_alpha(256,1);});
+        rejects([]{okage::material_instance_alpha(77,std::numeric_limits<float>::quiet_NaN());});
+        std::fesetround(FE_UPWARD);
+        require(okage::material_instance_alpha(77,.5f)==38 && std::fegetround()==FE_UPWARD);
+        std::fesetround(before);
         okage::Material material{};
         material.words[5]=__builtin_bit_cast(unsigned, (.4f));
         require(okage::material_source_color(material,{1,.5f,0,1})==okage::Float4({255,127.5f,0,77}));

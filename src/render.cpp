@@ -48,6 +48,15 @@ Float4 material_source_color(const Material& material,const Float4& source) {
     for(unsigned i=0;i<4;++i)result[i]=std::clamp(source[i]*(i==3?alpha:255.0f),0.0f,255.0f);
     return result;
 }
+float material_instance_alpha(float source_alpha,float ambient_alpha) {
+    if(!std::isfinite(source_alpha)||source_alpha<0||source_alpha>255||!std::isfinite(ambient_alpha))
+        throw std::runtime_error("Invalid instance alpha input");
+    Rounding rounding;
+    // VU1 0x151c/0x1544: ambient W plus zero light W, clamped nonnegative.
+    // Packed primitive color truncates via the 2^23 bias, then caps at255.
+    const float scaled=source_alpha*std::max(0.f,ambient_alpha);
+    return float(int(std::min(scaled,255.f)));
+}
 std::uint64_t material_blend_register(const Material& material) {
     switch(material.words[6]) {
         case 0:return 0x44;

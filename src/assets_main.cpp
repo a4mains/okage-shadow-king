@@ -73,6 +73,16 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if(command=="instance-alpha" && argc==4) {
+            const auto input=read(argv[2]);
+            if(input.empty()||input.size()%8)throw std::runtime_error("Instance alpha fixture extent");
+            std::vector<float> output;
+            for(std::size_t at=0;at<input.size();at+=8) {
+                float source,ambient;std::memcpy(&source,input.data()+at,4);std::memcpy(&ambient,input.data()+at+4,4);
+                output.push_back(okage::material_instance_alpha(source,ambient));
+            }
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
         if(command=="material-colors" && argc==4) {
             const auto input=read(argv[2]);
             if(input.empty()||input.size()%20)throw std::runtime_error("Material color fixture extent");

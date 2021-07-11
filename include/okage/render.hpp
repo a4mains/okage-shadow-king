@@ -6,6 +6,9 @@ namespace okage {
 Float4 sky_follow_position(const Float4& camera,const Float4& factors);
 
 Float4 material_source_color(const Material& material,const Float4& source);
+// VU1 lighting/packed-color alpha with zero directional-light W components.
+// Ambient alpha is root channel3.W for instance flag0x100000.
+float material_instance_alpha(float source_alpha,float ambient_alpha);
 // Retail 0x17c410: ordinary, additive and subtractive ALPHA registers.
 std::uint64_t material_blend_register(const Material& material);
 

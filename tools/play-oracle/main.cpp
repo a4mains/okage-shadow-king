@@ -1332,6 +1332,47 @@ public:
         writeFile(output,result.data(),result.size());
         std::cout<<"Executed original "<<(clamp ? "texture clamp" : "UV conversion")<<" for "<<cases.size()/40<<" records\n";
     }
+    void instanceAlpha(const std::vector<uint8>& cases,const char* output) {
+        if(cases.empty()||cases.size()%8||cases.size()>8*65536)
+            throw std::runtime_error("Instance alpha fixture extent");
+        std::memcpy(ee->m_microMem1,ee->m_ram+0x215900,0x3d98);
+        auto& cpu=ee->m_VU1;
+        auto vector=[&](unsigned at,std::array<float,4> value) {
+            std::memcpy(ee->m_vuMem1+at*16,value.data(),16);
+        };
+        auto run=[&](unsigned entry) {
+            put(0x1900000,0x0400000a);put(0x1900004,0x14000000|entry);
+            put(0x1900008,0);put(0x190000c,0);
+            ee->m_vpu1->GetVif().ReceiveDMA(0x1900000,1,1,false);
+            if(!ee->m_vpu1->IsVuReady()||cpu.m_State.nHasException!=MIPS_EXCEPTION_VU_EBIT)
+                throw std::runtime_error("Instance alpha VU entry did not complete");
+        };
+        std::vector<uint8> result;
+        for(size_t at=0;at<cases.size();at+=8) {
+            float source,ambient;std::memcpy(&source,cases.data()+at,4);std::memcpy(&ambient,cases.data()+at+4,4);
+            run(0);
+            vector(0,{.4f,.6f,1,0});vector(1,{.2f,.3f,.4f,0});
+            vector(2,{.1f,.2f,.3f,0});vector(3,{1,1,1,ambient});run(0x4f);
+            vector(0xd,{1,0,0,0});vector(0xe,{0,1,0,0});vector(0xf,{0,0,1,0});
+            for(unsigned i=0;i<5;++i)vector(0xe8+i,{0,0,1,0});
+            const uint32 lightHeader[]={3,0,0,0};std::memcpy(ee->m_vuMem1,lightHeader,16);
+            cpu.m_State.nCOP2VI[11]=0;run(0x280);
+            result.insert(result.end(),ee->m_vuMem1+0x20b*16+12,ee->m_vuMem1+0x20b*16+16);
+            const uint32 header[]={3,0x30004000|(0x4dU<<15)|0x4dU,0x41f,0};
+            std::memcpy(ee->m_vuMem1,header,16);
+            for(unsigned i=0;i<3;++i) {
+                const uint32 corner[]={i,i,i,i};std::memcpy(ee->m_vuMem1+(i+1)*16,corner,16);
+                vector(0x87+i,{i==0?16.f:80.f,i==2?96.f:32.f,.25f,1});
+                vector(0x149+i,{128,128,128,source});
+            }
+            cpu.m_State.nCOP2VI[12]=0x3ff;cpu.m_State.nCOP2VI[13]=0x300;
+            cpu.m_State.nCOP2VI[14]=0;run(0x3b6);
+            if(cpu.m_State.nCOP2VI[13]!=0x30a)throw std::runtime_error("Instance alpha triangle missing");
+            result.insert(result.end(),ee->m_vuMem1+0x302*16+12,ee->m_vuMem1+0x302*16+16);
+        }
+        writeFile(output,result.data(),result.size());
+        std::cout<<"Original VU1 instance alpha records: "<<cases.size()/8<<'\n';
+    }
     void primitive(unsigned count,bool textured,bool reverse,bool clipChecks,const char* output) {
         if (count!=3 && count!=4) throw std::runtime_error("Primitive fixture requires 3 or 4 vertices");
         std::memcpy(ee->m_microMem1,ee->m_ram+0x215900,0x3d98);
@@ -1631,6 +1672,8 @@ int main(int argc,char** argv) {
             reference.mapTransforms(readFile(argv[3]),argv[4]);
         } else if ((command=="uv" || command=="texture-clamp") && argc==5) {
             reference.uv(readFile(argv[3]),argv[4],command=="texture-clamp");
+        } else if (command=="instance-alpha" && argc==5) {
+            reference.instanceAlpha(readFile(argv[3]),argv[4]);
         } else if (command=="primitive" && argc==8) {
             reference.primitive(std::stoul(argv[3]),std::stoul(argv[4])!=0,std::stoul(argv[5])!=0,std::stoul(argv[6])!=0,argv[7]);
         } else if (command=="texture-callback" && argc==6) {

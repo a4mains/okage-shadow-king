@@ -608,6 +608,17 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
         case 0x36:
             if(auto* target=actor(b);target && a<0x800) {target->select_motion(a);return {pc+4};}
             return pending();
+        case 0x3c:
+            // 0x1b7bb8 -> 0x1bb890: mode bits accumulate until mode0 clears
+            // both; other selectors preserve flags. Positive instance indices
+            // are not the map-object binding namespace and remain pending.
+            if(b<0)if(auto* target=actor(b)) {
+                if(a==0)target->render_flags&=~0x180000u;
+                else if(a==1)target->render_flags|=0x80000;
+                else if(a==2)target->render_flags|=0x100000;
+                pending_opcode=0;return {pc+4};
+            }
+            return pending();
         case 0x3d:
             screen_filter.select(a,b);return {pc+4};
         case 0x3b:
