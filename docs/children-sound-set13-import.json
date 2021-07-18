@@ -1,0 +1,18 @@
+{
+  "path": "SNDDATA/SE/SET13.XWS",
+  "lba": 196267,
+  "size": 178016,
+  "sha256": "467e05cbad272ab6428b8bdf2dab44b8754beb0b99504f24b6eb4efbf6da7011",
+  "destination": "local/audio-input/SNDDATA/SE/SET13.XWS",
+  "scope": "Reviewed owned sound bank for e_field opcode45 operation1 argument13; import preparation, not playback equivalence.",
+  "native_parse": {
+    "form_offset": 32,
+    "header_offset": 80,
+    "body_offset": 112,
+    "body_size": 177904,
+    "records": 1,
+    "record0_offset": 36,
+    "record0_size": 28
+  },
+  "reproduce": "python3 tools/import_sound_set.py --set 13 --output <fresh-manifest.json>"
+}
