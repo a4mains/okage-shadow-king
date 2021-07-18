@@ -331,6 +331,23 @@ int main(){try {
         require(scene.event_running()&&hero.animation().values()[1][0]==2.f);
         scene.tick();require(hero.animation().values()[1][0]==4.f);
     }
+    for(unsigned flags:{1u,2u,4u,8u,12u}) {
+        okage::ModelFile hm,nm;hm.models.emplace_back();nm.models.emplace_back();
+        okage::FieldActor hero(std::move(hm),idle,{}),npc(std::move(nm),idle,{});
+        const std::array<okage::ActorBinding,2> bindings={{{-8,&npc},{-1,&hero}}};
+        okage::OpeningField scene(startup,[](int){},[](int){return true;},bindings,false);
+        std::array<std::uint8_t,0x1000> vars{};
+        scene.get_variable=[&](auto s){return okage::event_variable(vars,s);};
+        scene.set_variable=[&](auto i,auto b,auto v){okage::set_event_variable(vars,i,b,v);};
+        scene.random_value=[] {return 1u;};
+        okage::FieldDefinition entry;entry.type=1;
+        entry.npcs.push_back({-8,"imo",0,-30,0,{100,0,100,1},0,flags});
+        scene.enter(entry,stage,empty_map,0);
+        require(npc.visible==!(flags&2));
+        require(npc.shadow_mode_override==((flags&8)?std::optional<unsigned>(6):
+            (flags&4)?std::optional<unsigned>(2):std::nullopt));
+        require(scene.collision_bodies().at(0).flags==1);
+    }
     {
         auto event=startup;put(event,40,0xfff0004b);put(event,44,0xb400002);put(event,48,0);
         okage::ModelFile model;model.models.emplace_back();

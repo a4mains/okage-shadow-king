@@ -398,9 +398,16 @@ void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned
     const auto placement=field_entrance(stg,entrance);
     for(const auto& npc:definition.npcs) {
         auto* object=actor(npc.alias);
-        if(!object||(npc.state!=0&&npc.state!=5)||(npc.flags&~3u))throw std::runtime_error("Unrecovered field NPC construction state/flags");
+        if(!object||(npc.state!=0&&npc.state!=5)||(npc.flags&~15u))
+            throw std::runtime_error("Unrecovered field NPC construction: alias="+std::to_string(npc.alias)+
+                " model="+npc.model+" state="+std::to_string(npc.state)+" flags="+std::to_string(npc.flags)+
+                " bound="+std::to_string(object!=nullptr));
         object->animation().set_channel(0,{0,npc.facing,0,1});object->animation().set_channel(1,npc.position);
         object->visible=(npc.flags&2)==0;
+        // 0x131d28 -> 0x1baae8 writes a shadow selector, not collision or
+        // visibility flags. The second call takes precedence when both are set.
+        if(npc.flags&4)object->shadow_mode_override=2;
+        if(npc.flags&8)object->shadow_mode_override=6;
     }
     definition_=std::move(definition);player_.footstep_sound=definition_->footstep;player_.dust_effect=definition_->dust;
     initialize_npcs();

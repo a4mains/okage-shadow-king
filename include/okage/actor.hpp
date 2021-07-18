@@ -2,6 +2,7 @@
 #include "okage/animation.hpp"
 #include "okage/texture_animation.hpp"
 #include "okage/pose.hpp"
+#include <optional>
 namespace okage {
 class FieldActor {
 public:
@@ -22,6 +23,9 @@ public:
     bool visible=true; // Instance flag0x800; scene gates channel ticks, scripts keep running.
     bool encounter_model=false;
     std::uint32_t render_flags=0;
+    // 0x1baae8 overrides instance+0x2c. Empty retains model construction's
+    // default. Shadow submission is still an explicit scene-renderer gap.
+    std::optional<unsigned> shadow_mode_override;
 private:
     ModelFile model_;
     TextureBindings textures_;
