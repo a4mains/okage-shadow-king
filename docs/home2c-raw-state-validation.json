@@ -1,0 +1,95 @@
+{
+  "scope": "Read-only actor output capture, seven exact endpoint roots, all eight visibility states, one retained hidden rotation difference.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "native_run": {
+    "command": [
+      "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+      "local/font-input/CMNDATA/FONT",
+      "local/text-input/FLDDATA/MES/FIELD.PME",
+      "--scene",
+      "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+      "--event",
+      "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+      "--actor",
+      "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+      "--actor-bind",
+      "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+      "--actor-bind",
+      "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+      "--frames",
+      "34355",
+      "--press",
+      "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397",
+      "--directions",
+      "local/native-home2c-arrival-34355-raw-release-v2.directions",
+      "--capture",
+      "local/native-home2c-arrival-34355-raw-release-v2.png",
+      "--music-dry",
+      "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+      "--music-bank",
+      "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+      "--sound-dir",
+      "local/audio-input/SNDDATA/SE",
+      "--effect-data",
+      "local/effect-input/CMNDATA/2D/TES.EFD",
+      "--effect-textures",
+      "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+      "--render-from",
+      "11310",
+      "--render-until",
+      "11542"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 19.333203917000002,
+    "binary_sha256": "51e411804e738041f23447326538e8897001517a887342e8edbff3affedf222d"
+  },
+  "legacy_capture_files": 36,
+  "legacy_files_all_equal": true,
+  "added_capture_suffix": ".actors-state.json",
+  "exact_root_aliases": [
+    -1,
+    -8,
+    -9,
+    -10,
+    -11,
+    -12,
+    -13
+  ],
+  "visibility_exact_aliases": [
+    -1,
+    -8,
+    -9,
+    -10,
+    -11,
+    -12,
+    -13,
+    -18
+  ],
+  "remaining_root_difference_alias": -18,
+  "remaining_root_difference": "Rotation output differs; position matches. Original hidden output retains unit vector. Do not alter simulation merely to match this output.",
+  "shadow_override": {
+    "alias": -11,
+    "native": 2,
+    "original": 2
+  },
+  "reference_reports": [
+    "local/research/home2c-entry-v1/raw-state-comparison.json",
+    "local/research/home2c-entry-v1/eighth-actor.json"
+  ],
+  "validation": {
+    "release_ctests": 19,
+    "python_tests": 44,
+    "native_ctests": 19,
+    "model-sanitize_ctests": 19
+  },
+  "sha256": {
+    "local/native-home2c-arrival-34355-raw-release-v2.run.json": "47934346cc8df4469a54f4afbf497ce3a22d87d9c60dae3eec2e986f061ffd9d",
+    "local/native-home2c-arrival-34355-raw-release-v2.png.actors-state.json": "26088275fc24888277d04ce3cac17172fcbe8ed9c3569332411573f4c3a9a72b",
+    "local/research/home2c-entry-v1/raw-state-comparison.json": "5a30c6b682c55d715eb2c11f2e9b6d3d050eda52ac0273e228c8a1027bc75327",
+    "local/research/home2c-entry-v1/eighth-actor.json": "f0c1890e11d79868a8c9335af26611d06cf20c12f609b78e4d1a987ade189acb",
+    "local/research/home2c-entry-v1/raw-state-ctest-v2.log": "b6a9ba2568b60a6cf4aa57363a5ae09c88ae08d07f410eff63b5aa936c1462be",
+    "local/research/home2c-entry-v1/raw-state-python.log": "46e2676da21800e2f70dae95014d295b1520994666c693640a3498a3e9b8510f",
+    "local/research/home2c-entry-v1/raw-state-ctest-native.log": "66dbfd9adbbe051dadd16967c5a275abc99470827e344573bfe1f351a72ea317",
+    "local/research/home2c-entry-v1/raw-state-ctest-model-sanitize.log": "c1ff20c128921f2b6647c85d8e5b9ed922536fbb2f9d0fe985b582dadfafd0f0"
+  }
+}

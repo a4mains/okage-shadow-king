@@ -506,7 +506,9 @@ static NSBitmapImageRep* bitmap(const okage::Texture& image) {
 }
 static void capture(const Session& session,const fs::path& path) {
     auto statePath=fs::path(path.string()+".json");
+    const auto actorsPath=fs::path(path.string()+".actors-state.json");
     if(fs::exists(path)||fs::is_symlink(path)||fs::exists(statePath)||fs::is_symlink(statePath))throw std::runtime_error("Refusing existing native capture");
+    if(fs::exists(actorsPath)||fs::is_symlink(actorsPath))throw std::runtime_error("Refusing existing actor-state capture");
     if(!path.parent_path().empty())fs::create_directories(path.parent_path());
     const auto data=[bitmap(session.surface()) representationUsingType:NSBitmapImageFileTypePNG properties:@{}];
     std::ofstream out(path,std::ios::binary);if(!data || !out.write(static_cast<const char*>(data.bytes),data.length))throw std::runtime_error("Cannot write native capture");
@@ -540,6 +542,25 @@ static void capture(const Session& session,const fs::path& path) {
          <<",\n  \"choice_armed\": "<<(session.controller.choice_armed ? "true" : "false")
          <<",\n  \"close_frame\": "<<session.close_frame<<",\n  \"close_wait_release_frame\": "<<session.close_release_frame<<"\n}\n";
     if(!state)throw std::runtime_error("Cannot write native capture state");
+    std::ofstream actors(actorsPath);
+    actors<<"{\n  \"version\": 1,\n  \"frame\": "<<session.frame<<",\n  \"actors\": [";
+    bool firstActor=true;
+    for(const auto& binding:session.actor_bindings) {
+        const auto& actor=*binding.actor;
+        actors<<(firstActor ? "\n" : ",\n")<<"    {\"alias\": "<<binding.alias
+              <<", \"visible\": "<<(actor.visible ? "true" : "false")
+              <<", \"render_flags\": "<<actor.render_flags<<", \"shadow_mode_override\": ";
+        if(actor.shadow_mode_override)actors<<*actor.shadow_mode_override;else actors<<"null";
+        actors<<", \"raw_channel_words\": [";
+        bool firstWord=true;
+        for(const auto& channel:actor.animation().channel_outputs())for(float value:channel) {
+            if(!firstWord)actors<<',';
+            actors<<__builtin_bit_cast(std::uint32_t, (value));firstWord=false;
+        }
+        actors<<"]}";firstActor=false;
+    }
+    actors<<"\n  ]\n}\n";
+    if(!actors)throw std::runtime_error("Cannot write native actor-state capture");
     for(const auto& [suffix,data]:std::array<std::pair<std::string,okage::Bytes>,3>{
         std::pair{".screen-filter.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.filter_trace.data()),session.filter_trace.size()*4)},
         std::pair{".transition.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.transition_trace.data()),session.transition_trace.size()*4)},

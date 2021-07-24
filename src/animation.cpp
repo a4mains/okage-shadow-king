@@ -229,4 +229,9 @@ std::vector<Float4> Animation::values() {
     for (auto& ch:channels_) { evaluate(ch); result.push_back(ch.output); }
     return result;
 }
+std::vector<Float4> Animation::channel_outputs() const {
+    std::vector<Float4> result;result.reserve(channels_.size());
+    for(const auto& ch:channels_)result.push_back(ch.output);
+    return result;
+}
 }

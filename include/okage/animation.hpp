@@ -28,6 +28,8 @@ public:
     void tick_script();
     void tick_channels();
     std::vector<Float4> values();
+    // Read existing outputs without evaluating channels or advancing state.
+    std::vector<Float4> channel_outputs() const;
     std::uint32_t pc() const { return pc_; }
     std::uint32_t script_state() const { return (std::uint32_t(wait_)<<16)|flags_; }
     bool scale_channels() const { return scale_channels_; }
