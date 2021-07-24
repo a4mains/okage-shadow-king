@@ -1,5 +1,5 @@
 {
-  "scope": "Native HOME2C entry and recovered shadow-selector construction state.",
+  "scope": "Native HOME2C entry and shadow-selector state.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "actual_dependency": {
     "frame": 33974,
@@ -196,6 +196,90 @@
       "exit_code": 0,
       "elapsed_seconds": 20.654604457999998,
       "binary_sha256": "b4b873087bb979d1dfd36f22a2302c870f9a7133c22fbf308da8f4a64df3d25e"
+    },
+    "native-night-children-transfer-34115-shadow-debug-v1.run": {
+      "command": [
+        "build/native/okage-native.app/Contents/MacOS/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "34115",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397",
+        "--directions",
+        "local/native-night-children-transfer-34115-shadow-debug-v1.directions",
+        "--capture",
+        "local/native-night-children-transfer-34115-shadow-debug-v1.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "--render-from",
+        "11310",
+        "--render-until",
+        "11542"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 224.820584125,
+      "binary_sha256": "fb6f4ad01612ec8d764a05ad8bb2671112817adaf8fc6da994ed9cfbfd15d735"
+    },
+    "native-night-children-transfer-34115-shadow-sanitize-v1.run": {
+      "command": [
+        "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "34115",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397",
+        "--directions",
+        "local/native-night-children-transfer-34115-shadow-sanitize-v1.directions",
+        "--capture",
+        "local/native-night-children-transfer-34115-shadow-sanitize-v1.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "--render-from",
+        "11310",
+        "--render-until",
+        "11542"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 362.068556334,
+      "binary_sha256": "e6f87f6f93f86ca8dec3c46558ff932607ca8fce7d83d6a523f33fda1b45d828"
     }
   },
   "ctest_passed": {
@@ -214,16 +298,12 @@
     "consumed_cross_original": 1,
     "consumed_cross_native": 33397,
     "expected_native_end": 34115,
-    "scope": "Input alignment only; original run and whole-interval audit pending."
+    "scope": "Observed consumed-input alignment."
   },
-  "pending_at_checkpoint": {
-    "reference_transfer720": 10955,
-    "native_debug34115": 87954,
-    "native_sanitize34115": 25047
-  },
+  "pending_at_checkpoint": {},
   "limits": [
     "Shadow selector is retained but no shadows are drawn; native log explicitly reports this limitation.",
-    "Original/native scene75 timing, actor roster and pixels not yet compared.",
+    "Scene75 transfer timing is not equivalent; arrival HERO and dialogue differences remain. Hidden native HERO render-cache values require independent raw-state inspection. Destination roster/channel equivalence remains unverified; endpoint pixels visibly differ.",
     "Original loading duration is not matched by synchronous native IO.",
     "Caption lifetime/window layout, shared lighting/audio fidelity and full-game playthrough remain unfinished."
   ],
@@ -239,6 +319,221 @@
     "local/native-night-children-transfer-34115-shadow-release-v1.run.json": "7539955ac86bdeea58eaea460cffea96aea10796d57306416fe64d714202832e",
     "include/okage/actor.hpp": "8e3454d83feedf892da5341844b6321ec6ba54040f4321a4fb161631379f5eaf",
     "src/field.cpp": "8bf0a8bbd80de8332bda481d303b623200d6ec30c73a52110757bc9f512a8772",
-    "tests/field_tests.cpp": "eb3660c047bbb0909a7b2bc61de12b20e9b7d1d1695a6fb95e5f9796889018aa"
+    "tests/field_tests.cpp": "eb3660c047bbb0909a7b2bc61de12b20e9b7d1d1695a6fb95e5f9796889018aa",
+    "local/research/home2c-entry-v1/debug-family.json": "38c2cea48501e8a7658ce4c4037a9f96ca3e5fd8ffd91a3b942420883972f745",
+    "local/native-night-children-transfer-34115-shadow-debug-v1.run.json": "4facd020c983190868d0bf6cbabb20a42ba645240ea11b1d9ea6b404bd0052db",
+    "local/research/home2c-entry-v1/sanitize-family.json": "e5a51e1ec993755fb6487b68930efb6219acd8a316f97cd91d9eca35d46b93ec",
+    "local/native-night-children-transfer-34115-shadow-sanitize-v1.run.json": "5f0f2ee328fdfc0c5a5d49c465373ad941a379e1e6a9fd2108f3fd404fc5dab5",
+    "local/research/home2c-entry-v1/arrival-window.json": "e3d0530e552d643f0f09b1ec933b261ab77ab3f6135888d083e5e7069fa6d07c",
+    "local/research/home2c-entry-v1/transfer-coverage.json": "90d2a3d05f64a18bfb5de4edf488fb51248dbca8781a1e93b4b9bfd5a2613ca2",
+    "local/research/home2c-entry-v1/entry-semantics.json": "6c1aa9685dac303c244af6b6ea409df04d688966ddf50bd8e3ee7527dea4fe21",
+    "local/reference-home2c-arrival-240-v1.run.json": "2de3dfc305685a1bcba3f1c0618a33437a6d7bd6f0657fc27a31cc6789faed0f",
+    "local/native-home2c-arrival-34355-release-v1.run.json": "91d01bf8b4630845300acbd698d5781d8c2cc90cb91632d67605ecd88fb34901"
+  },
+  "native_build_families": {
+    "debug": {
+      "report": "local/research/home2c-entry-v1/debug-family.json",
+      "files": 36,
+      "all_equal": true
+    },
+    "sanitize": {
+      "report": "local/research/home2c-entry-v1/sanitize-family.json",
+      "files": 36,
+      "all_equal": true
+    }
+  },
+  "reference_transfer_coverage": {
+    "scope": "Completed transfer720 observation coverage diagnostic; strict same-field auditor failed.",
+    "reference": "local/reference-night-children-transfer-720-v1",
+    "anchor": 33396,
+    "complete_vblanks": 720,
+    "manager_records": 718,
+    "camera_records": 718,
+    "missing_manager_ranges_inclusive": [
+      [
+        585,
+        586
+      ]
+    ],
+    "missing_camera_ranges_inclusive": [
+      [
+        585,
+        586
+      ]
+    ],
+    "missing_HERO_ranges_inclusive": [
+      [
+        77,
+        82
+      ],
+      [
+        587,
+        716
+      ]
+    ],
+    "manager_modes": {
+      "5": 579,
+      "15": 6,
+      "14": 3,
+      "7": 130
+    },
+    "hooks": [
+      {
+        "frame": 581,
+        "pc": "0x1305e0",
+        "args": [
+          574,
+          0,
+          75,
+          9500048
+        ],
+        "mode": 5,
+        "scene": 1,
+        "entrance": 1
+      },
+      {
+        "frame": 584,
+        "pc": "0x124930",
+        "args": [
+          31182672,
+          2,
+          75,
+          0
+        ],
+        "mode": 14,
+        "scene": 1,
+        "entrance": 1
+      },
+      {
+        "frame": 587,
+        "pc": "0x131d28",
+        "args": [
+          31182848,
+          75,
+          640,
+          0
+        ],
+        "mode": 7,
+        "scene": 1,
+        "entrance": 1
+      },
+      {
+        "frame": 716,
+        "pc": "0x1bb7e0",
+        "args": [
+          50,
+          4,
+          1,
+          127
+        ],
+        "mode": 0,
+        "scene": 75,
+        "entrance": 0
+      }
+    ],
+    "strict_auditor_failure": "ValueError: Original manager/camera extent",
+    "whole_interval_equivalence": false,
+    "sha256": {
+      "local/reference-night-children-transfer-720-v1.transition.bin": "9aad515ea5ab68035a3532c86e244a40a5ca9b173f2233a7832c58c9603283f2",
+      "local/reference-night-children-transfer-720-v1.camera.bin": "42e88b9960a517a8133436deb41e1a081abc13c456d143c646dce209fe494d6f",
+      "local/reference-night-children-transfer-720-v1.run.json": "45c3e7740c54ff8acb50a711dfe211ea084b597ade5f88ac6b359bf4c70ff138"
+    }
+  },
+  "arrival_comparison": {
+    "first_native_frame": 34116,
+    "original_frames": 240,
+    "controller_samples": 240,
+    "compared_observables_agree": false,
+    "full_timeline_equivalence": false,
+    "hero_position_maximum_error": 11.614309310913086,
+    "camera_position_maximum_error": 0.0,
+    "report": "local/research/home2c-entry-v1/arrival-window.json",
+    "difference_counts": {
+      "controller": 61,
+      "choice": 61,
+      "manager_running_pc_gate": 0,
+      "pad_latch": 0,
+      "direction_latch": 0,
+      "player_mask": 0,
+      "hero_facing_w": 240,
+      "hero_position": 240,
+      "camera_rotation": 0,
+      "camera_mode_phase": 0,
+      "camera_position": 0,
+      "camera_unblended_target": 0
+    },
+    "eligible_unblended_target_samples": 0,
+    "endpoint_images_inspected": true,
+    "hidden_hero_raw_state_verified": false
+  },
+  "arrival_runs": {
+    "local/reference-home2c-arrival-240-v1": {
+      "command": [
+        "build/play-research/okage-oracle/okage-boot-oracle",
+        "local/disc/Okage - Shadow King (USA).cue",
+        "240",
+        "local/reference-night-children-transfer-720-v1.state.zip",
+        "--load",
+        "--transition",
+        "local/reference-home2c-arrival-240-v1.transition.bin",
+        "--camera",
+        "local/reference-home2c-arrival-240-v1.camera.bin",
+        "--controller",
+        "local/reference-home2c-arrival-240-v1.controller.bin",
+        "--screen-filter",
+        "local/reference-home2c-arrival-240-v1.screen-filter.bin",
+        "--capture",
+        "local/reference-home2c-arrival-240-v1",
+        "--save",
+        "local/reference-home2c-arrival-240-v1.state.zip",
+        "--deadline-seconds",
+        "1200"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 169.790218125,
+      "binary_sha256": "602daf664efc8e91003e46aa6880512139dd55ef311858d0786b00e3e343b4da"
+    },
+    "local/native-home2c-arrival-34355-release-v1": {
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "34355",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397",
+        "--directions",
+        "local/native-home2c-arrival-34355-release-v1.directions",
+        "--capture",
+        "local/native-home2c-arrival-34355-release-v1.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "--render-from",
+        "11310",
+        "--render-until",
+        "11542"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 19.029592625,
+      "binary_sha256": "b4b873087bb979d1dfd36f22a2302c870f9a7133c22fbf308da8f4a64df3d25e"
+    }
   }
 }
