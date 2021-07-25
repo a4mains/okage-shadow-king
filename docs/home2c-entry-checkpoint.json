@@ -303,7 +303,7 @@
   "pending_at_checkpoint": {},
   "limits": [
     "Shadow selector is retained but no shadows are drawn; native log explicitly reports this limitation.",
-    "Scene75 transfer timing is not equivalent; arrival HERO and dialogue differences remain. Hidden native HERO render-cache values require independent raw-state inspection. Destination roster/channel equivalence remains unverified; endpoint pixels visibly differ.",
+    "Transfer timing remains different. Earlier arrival cached-HERO differences are explained by read-only raw endpoint evidence; original/native hidden HERO root matches. Initial dialogue reveal differs and hidden alias-18 rotation output remains different. Whole-scene equality is not claimed.",
     "Original loading duration is not matched by synchronous native IO.",
     "Caption lifetime/window layout, shared lighting/audio fidelity and full-game playthrough remain unfinished."
   ],
@@ -464,7 +464,7 @@
     },
     "eligible_unblended_target_samples": 0,
     "endpoint_images_inspected": true,
-    "hidden_hero_raw_state_verified": false
+    "hidden_hero_raw_state_verified": true
   },
   "arrival_runs": {
     "local/reference-home2c-arrival-240-v1": {
@@ -535,5 +535,20 @@
       "elapsed_seconds": 19.029592625,
       "binary_sha256": "b4b873087bb979d1dfd36f22a2302c870f9a7133c22fbf308da8f4a64df3d25e"
     }
+  },
+  "raw_state_followup": {
+    "validation": "docs/home2c-raw-state-validation.json",
+    "commit": "5b7553c",
+    "hero_endpoint_root_exact": true,
+    "other_exact_root_aliases": [
+      -8,
+      -9,
+      -10,
+      -11,
+      -12,
+      -13
+    ],
+    "hidden_alias_minus18_rotation_differs": true,
+    "scope": "Endpoint raw outputs only; earlier interval failure remains."
   }
 }

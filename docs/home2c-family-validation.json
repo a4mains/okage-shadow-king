@@ -1,0 +1,44 @@
+{
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "first_native_frame": 35076,
+  "original_frames": 240,
+  "controller_samples": 238,
+  "missing_original_player_frames": [],
+  "hero_position_maximum_error": 0.0,
+  "camera_position_maximum_error": 0.0,
+  "compared_observables_agree": false,
+  "full_timeline_equivalence": false,
+  "matching_tail": {
+    "first_original_frame": 41,
+    "frames": 199,
+    "controller_samples": 197
+  },
+  "scope": "Father12002 closure into Mother12003; whole interval retains initial41 dialogue-reveal differences, then199 matching observed-state frames.",
+  "report": "local/research/home2c-entry-v1/father12002-window.json",
+  "report_sha256": "be1401cbfc1106f4a224b922f349d616d8730754eecf2820476c0cce6e9604c4",
+  "difference_counts": {
+    "controller": 41,
+    "choice": 41,
+    "manager_running_pc_gate": 0,
+    "pad_latch": 0,
+    "direction_latch": 0,
+    "player_mask": 0,
+    "hero_facing_w": 0,
+    "hero_position": 0,
+    "camera_rotation": 0,
+    "camera_mode_phase": 0,
+    "camera_position": 0,
+    "camera_unblended_target": 0
+  },
+  "input": {
+    "consumed_original_cross": 121,
+    "consumed_native_cross": 35197
+  },
+  "native_endpoint": {
+    "frame": 35315,
+    "scene": 75,
+    "message": 12003,
+    "pc": "0x5c0"
+  },
+  "endpoint_images_inspected": true
+}
