@@ -1,0 +1,39 @@
+{
+  "scope": "Diagnostic duration extension for real HOME2C progression; no change to simulation or input order.",
+  "old_limit": 36000,
+  "new_limit": 72000,
+  "affected": [
+    "--frames",
+    "--ui-test-frames",
+    "direction replay entries"
+  ],
+  "prefix_regression": {
+    "report": "local/research/home2c-entry-v1/limit72k-prefix-family.json",
+    "files": 37,
+    "all_equal": true
+  },
+  "boundary_rejections": {
+    "report": "local/research/home2c-entry-v1/limit72k-negative.json",
+    "cases": 6,
+    "builds": [
+      "Release",
+      "Debug",
+      "ASan/UBSan"
+    ]
+  },
+  "ctests_per_build": 19,
+  "above_old_limit_run": {
+    "prefix": "local/native-home2c-annie-choice-36035-release-v1",
+    "frame": 36035,
+    "exit_code": 0,
+    "elapsed_seconds": 18.79206525,
+    "binary_sha256": "edeea0fe5d251485729088e465a5b255ff062d762880aad4a19e79a95b6aa385",
+    "message": 12006,
+    "choice_armed": false
+  },
+  "sha256": {
+    "local/research/home2c-entry-v1/limit72k-prefix-family.json": "81d675d659c34f1d57a61a5cf7ac40ee290b6ea4998955d01f3c5b6d41496846",
+    "local/research/home2c-entry-v1/limit72k-negative.json": "390e66df154aac1e19229b802a386d2fe4a14233a7d47400cd2249a1b180f2dd",
+    "local/native-home2c-annie-choice-36035-release-v1.run.json": "b760bb4abd7ccc2d52fcce0c3598b5326febf574a65429b9a86b05f26ecc3853"
+  }
+}

@@ -38,7 +38,7 @@ struct DirectionReplay {
         while(std::getline(in,line)){
             if(line.empty() || line[0]=='#')continue;
             std::istringstream row(line);unsigned frame,mask;std::string extra;
-            if(!(row>>frame>>std::hex>>mask) || (row>>extra) || frame<=previous || frame>36000 || (mask&~0xf000u))
+            if(!(row>>frame>>std::hex>>mask) || (row>>extra) || frame<=previous || frame>72000 || (mask&~0xf000u))
                 throw std::runtime_error("Direction replay requires increasing FRAME and hexadecimal directional mask");
             entries.push_back({frame,std::uint16_t(mask)});previous=frame;
         }
@@ -776,7 +776,7 @@ int main(int argc,const char** argv) {
         if(!soundDirectory.empty() && musicSequence.empty())throw std::runtime_error("Sound directory requires native music setup");
         if(effectData.empty()!=effectTextures.empty()||(!effectData.empty()&&map.empty()))throw std::runtime_error("Effects require data, texture directory and scene");
         if(map.empty()!=event.empty() || (!actors.empty() && map.empty()))throw std::runtime_error("Scene requires both map and event assets");
-        if(frames>36000 || uiFrames>36000 || (frames && uiFrames) || (uiFrames && output.empty()))throw std::runtime_error("Native diagnostic frame/capture bounds");
+        if(frames>72000 || uiFrames>72000 || (frames && uiFrames) || (uiFrames && output.empty()))throw std::runtime_error("Native diagnostic frame/capture bounds");
         if(renderFrom&&(!frames||renderFrom>frames))throw std::runtime_error("Render start requires a headless frame within the capture");
         if(renderUntil&&(!renderFrom||renderUntil<renderFrom||renderUntil>frames))
             throw std::runtime_error("Render end requires a bounded headless render interval");
