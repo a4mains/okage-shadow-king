@@ -26,9 +26,11 @@
 #include "iop/ioman/OpticalMediaDevice.h"
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
 #include <charconv>
 #include <filesystem>
 #include <iostream>
+#include <mutex>
 #include <CommonCrypto/CommonDigest.h>
 #include <iomanip>
 #include <sstream>
@@ -38,6 +40,10 @@ fs::path CAppConfig::GetBasePath() const {
     std::filesystem::create_directories(path); return path.string();
 }
 using Traffic=ResearchTraffic;
+class ResearchVM final : public CPS2VM {
+public:
+    void wait_for_observer_command(){m_mailBox.WaitForCall(100);}
+};
 class TraceGS final : public CGSH_Null {
     Traffic& traffic;
 public:
@@ -155,7 +161,7 @@ int main(int argc,char** argv) {
         const bool tracing=traceLoaders || bool(cameraScheduleTrace) || bool(screenFilterTrace) || bool(dustTrace) || bool(npcTrace) || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace) || bool(cameraTrace) || bool(actorTrace) || bool(movementTrace) || bool(interactionTrace) || bool(transitionTrace) || bool(lifecycleTrace) || bool(orderTrace) || !music.empty();
         RecordedAudio* recordedAudio=nullptr;
         Traffic traffic; std::atomic<unsigned> frames{0}; std::atomic<bool> exited{false};
-        CPS2VM vm;
+        ResearchVM vm;
         CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH,disc.string());
         vm.Initialize();
         struct Cleanup { CPS2VM& vm; ~Cleanup(){vm.Pause();vm.DestroySoundHandler();vm.DestroyPadHandler();vm.DestroyGSHandler();vm.Destroy();} } cleanup{vm};
@@ -224,7 +230,14 @@ int main(int argc,char** argv) {
             for (auto address:loaders) vm.m_ee->m_EE.ToggleBreakpoint(address);
         }
         std::atomic<bool> stateChanged{false};
-        auto onState=vm.OnMachineStateChange.Connect([&](){stateChanged=true;});
+        std::mutex stateMutex;
+        std::condition_variable stateWake;
+        auto onState=vm.OnMachineStateChange.Connect([&](){
+            {std::lock_guard lock(stateMutex);stateChanged=true;}
+            stateWake.notify_one();
+            if(tracing && frames<requested && vm.GetStatus()==CVirtualMachine::PAUSED)
+                vm.wait_for_observer_command();
+        });
         std::cout<<"Booting "<<vm.m_ee->m_os->GetExecutableName()<<" with research HLE services and "<<(capture.empty() ? "null" : "offscreen Vulkan")<<" GS"<<std::endl;
         vm.Resume();
         const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(deadlineSeconds ? deadlineSeconds : std::max<unsigned long>(90,tracing ? requested*2+30 : requested/30+30));
@@ -312,7 +325,12 @@ int main(int argc,char** argv) {
                          <<" argument=0x"<<address<<std::dec<<" text="<<path<<std::endl;
                 vm.Resume();
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(tracing ? 1 : 50));
+            if(tracing) {
+                std::unique_lock lock(stateMutex);
+                stateWake.wait_for(lock,std::chrono::milliseconds(50),[&](){
+                    return stateChanged.load() || frames>=requested || exited;
+                });
+            } else std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
         vm.Pause();
         if (tracing) for (auto address:loaders) vm.m_ee->m_EE.ToggleBreakpoint(address);

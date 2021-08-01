@@ -1,0 +1,46 @@
+{
+  "scope": "Research-host observer wakeup improvement.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "new_oracle_sha256": "6c9a66f5a8cc87dfba486ea24b0168f20cc229d5caa805bdf87aaa9c1f2d84b7",
+  "old_oracle_sha256": "602daf664efc8e91003e46aa6880512139dd55ef311858d0786b00e3e343b4da",
+  "intermediate_oracle_sha256": "45fe3905487d97e47dfa3f7a911b572e018288e31efdc07300b56cf50ca8ed5b",
+  "same_scene_original_seconds": 171.395077875,
+  "same_scene_intermediate_seconds": 171.411569167,
+  "same_scene_final_seconds": 15.699736375,
+  "loading_original_seconds": 116.969946416,
+  "loading_final_seconds": 16.301438916,
+  "exact_observed_artifacts_per_comparison": 8,
+  "same_scene_snapshot_size_crc_differences": [],
+  "loading_snapshot_size_crc_differences": [
+    "gs/ram"
+  ],
+  "loading_gs_ram_different_bytes": 321,
+  "loading_gs_ram_difference_cause": "unresolved",
+  "deadline_negative_runs": [
+    {
+      "prefix": "local/reference-mailbox-deadline-negative-v1",
+      "exit_code": 1,
+      "elapsed_seconds": 3.064270125
+    },
+    {
+      "prefix": "local/reference-mailbox-deadline-negative-v2",
+      "exit_code": 1,
+      "elapsed_seconds": 4.116033125
+    }
+  ],
+  "sha256": {
+    "local/research/home2c-entry-v1/wakeup-only-comparison.json": "9900019736667b39dd77c7db09240251178a33c2132aa5cfaae720dcc2a7254b",
+    "local/research/home2c-entry-v1/mailbox-comparison.json": "2aa337efab74a3e8def3740b0a06632c3c7ededc49896144c75811ebba25b4d3",
+    "local/research/home2c-entry-v1/mailbox-loading-comparison.json": "7c5cc56d5419c928f60a30212569465ff7912b362af07291ca925c48b07b796d",
+    "local/research/home2c-entry-v1/mailbox-loading-gs-differences.json": "6579d1c65010ead4de6083e07f5e14161151a7363d76c6543310277bfaa70bd9",
+    "local/research/home2c-entry-v1/mailbox-native-window.json": "f4a85b4b5e349729ff8ebc8d56286d0833a9c5c103508005705cc1e8d08604ae",
+    "local/reference-mailbox-deadline-negative-v1.run.json": "01ff931bbee7b8b014539f11a63b37bd7ee52043688a884e20a1f9cefb1d917b",
+    "local/reference-mailbox-deadline-negative-v2.run.json": "44993110f478ee9ce14af20b1675dff9d02fbfc4764b5776d8e35ca4928e80c5",
+    "local/research/home2c-entry-v1/wakeup-input-tests.log": "ad5d885ccd719218a2d83502473981dd932d23a1a529c388139be3806e55309d",
+    "local/research/home2c-entry-v1/mailbox-python.log": "ac28ff3dfac4a10bf862d353e617f0c5e5c5f0ec887198de44ff24918af45293",
+    "tools/play-oracle/boot.cpp": "0ff7783deaad82081fc96e4b19fb317f4c4e4de9f09338e8595c2b8be791703e",
+    "references/Play/Source/PS2VM.cpp": "afa2a091b65b189cc61f9daf713ce0e44dec873c8016c986da77213207905cb7",
+    "references/Play/Source/MailBox.cpp": "373a5847b7d1d985f000ae99db6e760e5845c9ff6045e89b9dd0033f593096aa",
+    "local/research/home2c-entry-v1/wakeup-final-python.log": "631dc277251a5192f41bb08f8c95fe089449dbff7a7d3a2eb97f791faccec1cc"
+  }
+}
