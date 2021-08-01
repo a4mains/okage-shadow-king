@@ -40,5 +40,219 @@
     "message": 12003,
     "pc": "0x5c0"
   },
-  "endpoint_images_inspected": true
+  "endpoint_images_inspected": true,
+  "family_lines540": {
+    "first_native_frame": 35316,
+    "original_frames": 540,
+    "controller_samples": 480,
+    "missing_original_player_frames": [],
+    "hero_position_maximum_error": 0.0,
+    "camera_position_maximum_error": 0.0,
+    "compared_observables_agree": true,
+    "full_timeline_equivalence": false,
+    "matching_tail": {
+      "first_original_frame": 0,
+      "frames": 540,
+      "controller_samples": 480
+    },
+    "report": "local/research/home2c-entry-v1/family-lines-window.json",
+    "sha256": "8b46c2f6f769f3f86447b6b7d124fdd1d7bf474d5c457c319bd0f77d28a20f4f",
+    "original_consumed_cross": [
+      1,
+      181,
+      361
+    ],
+    "native_cross": [
+      35317,
+      35497,
+      35677
+    ],
+    "endpoint_frame": 35855,
+    "endpoint_message": 12006,
+    "endpoint_pc": "0x670",
+    "endpoint_images_inspected": true
+  },
+  "completed_intervals_after_father": [
+    {
+      "first_native_frame": 35316,
+      "original_frames": 540,
+      "controller_samples": 480,
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0,
+      "compared_observables_agree": true,
+      "report": "local/research/home2c-entry-v1/family-lines-window.json",
+      "sha256": "8b46c2f6f769f3f86447b6b7d124fdd1d7bf474d5c457c319bd0f77d28a20f4f"
+    },
+    {
+      "first_native_frame": 35856,
+      "original_frames": 180,
+      "controller_samples": 180,
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0,
+      "compared_observables_agree": true,
+      "report": "local/research/home2c-entry-v1/annie-choice-window.json",
+      "sha256": "f10e09d2886d611f02cc05cb6812c64c0b03a55d3528ad94dc6d3a9a08290be9"
+    },
+    {
+      "first_native_frame": 36036,
+      "original_frames": 240,
+      "controller_samples": 240,
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0,
+      "compared_observables_agree": true,
+      "report": "local/research/home2c-entry-v1/annie-select-window.json",
+      "sha256": "47818430626cce479851f754ab81a9ef913a5d621202905fab17863b82e9d6be"
+    },
+    {
+      "first_native_frame": 36276,
+      "original_frames": 720,
+      "controller_samples": 720,
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0,
+      "compared_observables_agree": true,
+      "report": "local/research/home2c-entry-v1/curse-explanation-window.json",
+      "sha256": "c11a82d1efb4a2534bf51dec47f287393ff2d72d97d156f3b7d725fa5831f293"
+    },
+    {
+      "first_native_frame": 36996,
+      "original_frames": 1200,
+      "controller_samples": 1198,
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0,
+      "compared_observables_agree": true,
+      "report": "local/research/home2c-entry-v1/pig-latin-dialogue-window.json",
+      "sha256": "af0d49b20fe1a80d104daf3ba8b8ec72186a9ee37574ca6b822ae089207ab1a2"
+    },
+    {
+      "first_native_frame": 38196,
+      "original_frames": 720,
+      "controller_samples": 718,
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0,
+      "compared_observables_agree": true,
+      "report": "local/research/home2c-entry-v1/family-concern-window.json",
+      "sha256": "2225f81462dddd0ea43beee49da2b6f7df06ccaf7be6820b11413a4255b7b132"
+    },
+    {
+      "first_native_frame": 38916,
+      "original_frames": 900,
+      "controller_samples": 873,
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0,
+      "compared_observables_agree": true,
+      "report": "local/research/home2c-entry-v1/basement-plan-window.json",
+      "sha256": "014a3cb344694e2da1de472fd3ff187db9290752ec11de4de71cd409a39081b4"
+    },
+    {
+      "first_native_frame": 39816,
+      "original_frames": 240,
+      "controller_samples": 193,
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0,
+      "compared_observables_agree": true,
+      "report": "local/research/home2c-entry-v1/father-departure-window.json",
+      "sha256": "bd07dc20cdab916a5dd464d1e86b47b60048ecba5835d5b05a6cfac1c81bfdd1"
+    },
+    {
+      "first_native_frame": 40056,
+      "original_frames": 540,
+      "controller_samples": 525,
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0,
+      "compared_observables_agree": true,
+      "report": "local/research/home2c-entry-v1/basement-invitation-window.json",
+      "sha256": "aa71693fb78af78c33d7608d6dc1ef74f90b20d79dc7b274dbbbec1b83b9dab3"
+    }
+  ],
+  "contiguous_matching_frames_after_father": 5280,
+  "matching_controller_samples_after_father": 5127,
+  "latest_native_endpoint": {
+    "frame": 40595,
+    "scene": 75,
+    "message": 12014,
+    "pc": "0x8f4",
+    "build": "Release",
+    "images_inspected": true,
+    "choice_cursor": 0,
+    "choice_armed": false,
+    "prefix": "local/native-home2c-basement-invitation-40595-release-v1"
+  },
+  "latest_research_oracle_sha256": "6c9a66f5a8cc87dfba486ea24b0168f20cc229d5caa805bdf87aaa9c1f2d84b7",
+  "comparison_limits": "Observed dialogue/choice, event/manager, input, HERO and camera fields only; not all NPC channels, all variables, rendering, audio or full-game equivalence. Later intervals are Release only; three-build capture equality last established at35075 with pre-limit-change binaries.",
+  "preexisting_event_bank_differences": {
+    "report": "local/research/home2c-entry-v1/event-banks-endpoint-comparison.json",
+    "bank": 3,
+    "indices": [
+      "0x83",
+      "0xae",
+      "0xf0"
+    ],
+    "original": 1,
+    "native": 0,
+    "observed_native_frames": [
+      34355,
+      35075,
+      40595
+    ],
+    "cause": "Unresolved; do not inject values."
+  },
+  "pending_native_continuation": {
+    "reference_prefix": "local/reference-home2c-basement-promises-720-v1",
+    "reference_exit_code": 0,
+    "reference_elapsed_seconds": 40.693132708,
+    "first_native_frame": 40596,
+    "end_native_frame": 41315,
+    "native_replay_completed": false,
+    "original_consumed_cross": [
+      21,
+      262,
+      341,
+      602
+    ],
+    "native_cross": [
+      40617,
+      40858,
+      40937,
+      41198
+    ],
+    "original_direction_edges": [
+      [
+        1,
+        "4000"
+      ],
+      [
+        3,
+        "0000"
+      ],
+      [
+        321,
+        "4000"
+      ],
+      [
+        323,
+        "0000"
+      ]
+    ],
+    "native_direction_edges": [
+      [
+        40597,
+        "4000"
+      ],
+      [
+        40599,
+        "0000"
+      ],
+      [
+        40917,
+        "4000"
+      ],
+      [
+        40919,
+        "0000"
+      ]
+    ],
+    "transition_sha256": "67699304aadc27320bc66d0ca9d57650a277a40b2d09c54aa1c90ba58a4bdbc7",
+    "reference_endpoint_image_inspected": true,
+    "reference_endpoint": "Father12014: Oh yeah? Well, you will do it anyway, son! For your sister!"
+  }
 }

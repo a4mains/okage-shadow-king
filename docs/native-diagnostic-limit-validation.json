@@ -34,6 +34,16 @@
   "sha256": {
     "local/research/home2c-entry-v1/limit72k-prefix-family.json": "81d675d659c34f1d57a61a5cf7ac40ee290b6ea4998955d01f3c5b6d41496846",
     "local/research/home2c-entry-v1/limit72k-negative.json": "390e66df154aac1e19229b802a386d2fe4a14233a7d47400cd2249a1b180f2dd",
-    "local/native-home2c-annie-choice-36035-release-v1.run.json": "b760bb4abd7ccc2d52fcce0c3598b5326febf574a65429b9a86b05f26ecc3853"
+    "local/native-home2c-annie-choice-36035-release-v1.run.json": "b760bb4abd7ccc2d52fcce0c3598b5326febf574a65429b9a86b05f26ecc3853",
+    "local/native-home2c-annie-select-36275-release-v1.run.json": "946a3c3b71056ba1e27bb6105502ea29ae122c7399ed27e6a3ccfd5f36ab95e9"
+  },
+  "direction_above_old_limit_run": {
+    "run": "local/native-home2c-annie-select-36275-release-v1.run.json",
+    "accepted_direction_frames": [
+      36038,
+      36039
+    ],
+    "end_frame": 36275,
+    "exit_code": 0
   }
 }
