@@ -74,7 +74,9 @@ Matrix4 map_instance_matrix(const MapTransform& transform,const Float4& camera_r
     return instance_matrix(transform.position,rotation,transform.scale,sine);
 }
 std::vector<int> map_instance_ids(const MapFile& map) {
-    std::vector<int> result;unsigned front=0,back=2048;
+    // Retail scene reset0x1b8028 initializes0x337b70 to0x280, then
+    // constructor0x1b8a80 allocates optimized instances downward from it.
+    std::vector<int> result;unsigned front=0,back=640;
     for(const auto& p:map.placements) {
         if(p.handler()==1){result.push_back(-1);continue;}
         require(p.handler()==0,"Map handler instance allocation is unrecovered");

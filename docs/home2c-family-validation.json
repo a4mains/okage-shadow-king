@@ -162,20 +162,39 @@
       "compared_observables_agree": true,
       "report": "local/research/home2c-entry-v1/basement-invitation-window.json",
       "sha256": "aa71693fb78af78c33d7608d6dc1ef74f90b20d79dc7b274dbbbec1b83b9dab3"
+    },
+    {
+      "first_native_frame": 40596,
+      "original_frames": 720,
+      "controller_samples": 720,
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0,
+      "compared_observables_agree": true,
+      "report": "local/research/home2c-entry-v1/basement-promises-window.json",
+      "sha256": "fa01f77d9af6f0a63798fb6b29be7906bb9a1bd212f91b22914cee294c4db1a0"
+    },
+    {
+      "first_native_frame": 41316,
+      "original_frames": 900,
+      "controller_samples": 900,
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0,
+      "compared_observables_agree": true,
+      "report": "local/research/home2c-entry-v1/basement-consent-window.json",
+      "sha256": "d26bf0887e933d51de61b47a78bd458d7c9761fe2ce68bbba55f7a6abdc4ca51"
     }
   ],
-  "contiguous_matching_frames_after_father": 5280,
-  "matching_controller_samples_after_father": 5127,
+  "contiguous_matching_frames_after_father": 6900,
+  "matching_controller_samples_after_father": 6747,
   "latest_native_endpoint": {
-    "frame": 40595,
+    "frame": 42215,
     "scene": 75,
     "message": 12014,
-    "pc": "0x8f4",
+    "pc": "0x904",
     "build": "Release",
     "images_inspected": true,
-    "choice_cursor": 0,
-    "choice_armed": false,
-    "prefix": "local/native-home2c-basement-invitation-40595-release-v1"
+    "text_progress": 10,
+    "prefix": "local/native-home2c-basement-consent-42215-release-v1"
   },
   "latest_research_oracle_sha256": "6c9a66f5a8cc87dfba486ea24b0168f20cc229d5caa805bdf87aaa9c1f2d84b7",
   "comparison_limits": "Observed dialogue/choice, event/manager, input, HERO and camera fields only; not all NPC channels, all variables, rendering, audio or full-game equivalence. Later intervals are Release only; three-build capture equality last established at35075 with pre-limit-change binaries.",
@@ -202,7 +221,7 @@
     "reference_elapsed_seconds": 40.693132708,
     "first_native_frame": 40596,
     "end_native_frame": 41315,
-    "native_replay_completed": false,
+    "native_replay_completed": true,
     "original_consumed_cross": [
       21,
       262,
@@ -253,6 +272,8 @@
     ],
     "transition_sha256": "67699304aadc27320bc66d0ca9d57650a277a40b2d09c54aa1c90ba58a4bdbc7",
     "reference_endpoint_image_inspected": true,
-    "reference_endpoint": "Father12014: Oh yeah? Well, you will do it anyway, son! For your sister!"
+    "reference_endpoint": "Father12014: Oh yeah? Well, you will do it anyway, son! For your sister!",
+    "report": "local/research/home2c-entry-v1/basement-promises-window.json",
+    "status": "Historical completed continuation; see native-basement-entry.md for next scene."
   }
 }

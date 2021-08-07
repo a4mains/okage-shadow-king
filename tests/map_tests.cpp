@@ -38,8 +38,16 @@ int main() {try {
     auto ordinary=m.placements[0];ordinary.words[12]=__builtin_bit_cast(std::uint32_t, (2.f));
     auto effect=m.placements[0];effect.words[3]=0x100000;
     m.placements={m.placements[0],ordinary,effect,ordinary,m.placements[0]};
-    require(okage::map_instance_ids(m)==std::vector<int>({2047,0,-1,1,2046}));
+    require(okage::map_instance_ids(m)==std::vector<int>({639,0,-1,1,638}));
     m.placements[2].words[3]=0x200000;rejects([&]{okage::map_instance_ids(m);});
-    m.placements.assign(2049,ordinary);rejects([&]{okage::map_instance_ids(m);});
+    m.placements.assign(640,ordinary);
+    require(okage::map_instance_ids(m).back()==639);
+    m.placements.push_back(ordinary);rejects([&]{okage::map_instance_ids(m);});
+    // The descending allocator rejects a slot that meets the next low slot.
+    m.placements.assign(639,ordinary);m.placements.push_back(p);
+    // p is a handler1 effect, which consumes neither end of the instance pool.
+    require(okage::map_instance_ids(m).back()==-1);
+    m.placements.back()=okage::read_xmp(b).placements[0];
+    rejects([&]{okage::map_instance_ids(m);});
     std::cout<<"Map bounds, references, handler metadata and coordinate tests passed\n";
 } catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

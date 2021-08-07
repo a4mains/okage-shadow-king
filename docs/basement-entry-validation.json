@@ -1,0 +1,290 @@
+{
+  "scope": "Native basement entry, owned music39 mapping, corrected map allocation, and bounded progression.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "music_import": {
+    "scope": "Import reviewed ordinary music resources from the owned USA disc.",
+    "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "music_id": 39,
+    "table_address": 2078312,
+    "name_pointer": 2259632,
+    "class_pointer": 2259792,
+    "sequence": "EVN_TQS",
+    "primary_bank": "EVN_TQS0",
+    "secondary_bank_present": false,
+    "imported": [
+      {
+        "path": "local/audio-input/SNDDATA/BGM/EVN_TQS.XSQ",
+        "lba": 187464,
+        "size": 13500,
+        "sha256": "c1f95490f927c72cc87780498a5c67694c4d608c1a3b0abbbceb7c96648e7e28"
+      },
+      {
+        "path": "local/audio-input/SNDDATA/BGM/EVN_TQS0.XV",
+        "lba": 187471,
+        "size": 157392,
+        "sha256": "661e309bf8d51ded18c4bf730dcb1a520d31aedd05c594f4cbc553b4441a8beb"
+      }
+    ]
+  },
+  "map_ids": {
+    "scope": "Check native basement placement IDs against a completed original snapshot.",
+    "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "scene_reset_address": "0x1b8260",
+    "instance_limit": 640,
+    "original_front": 14,
+    "original_back": 633,
+    "associations": [
+      {
+        "placement": 0,
+        "instance": 0,
+        "model_handle": 1,
+        "first_channel": 3,
+        "visible": true
+      },
+      {
+        "placement": 1,
+        "instance": 639,
+        "model_handle": 2,
+        "first_channel": 7,
+        "visible": true
+      },
+      {
+        "placement": 2,
+        "instance": 638,
+        "model_handle": 3,
+        "first_channel": 11,
+        "visible": true
+      },
+      {
+        "placement": 3,
+        "instance": 637,
+        "model_handle": 4,
+        "first_channel": 15,
+        "visible": true
+      },
+      {
+        "placement": 4,
+        "instance": 636,
+        "model_handle": 5,
+        "first_channel": 19,
+        "visible": true
+      },
+      {
+        "placement": 5,
+        "instance": 1,
+        "model_handle": 6,
+        "first_channel": 23,
+        "visible": false
+      },
+      {
+        "placement": 6,
+        "instance": 635,
+        "model_handle": 7,
+        "first_channel": 27,
+        "visible": true
+      },
+      {
+        "placement": 7,
+        "instance": 634,
+        "model_handle": 8,
+        "first_channel": 31,
+        "visible": false
+      },
+      {
+        "placement": 8,
+        "instance": 633,
+        "model_handle": 9,
+        "first_channel": 35,
+        "visible": false
+      },
+      {
+        "placement": 9,
+        "instance": 2,
+        "model_handle": 10,
+        "first_channel": 39,
+        "visible": false
+      },
+      {
+        "placement": 10,
+        "instance": 3,
+        "model_handle": 11,
+        "first_channel": 43,
+        "visible": true
+      }
+    ],
+    "commands": [
+      [
+        "build/native-release/okage-assets",
+        "map-visibility",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOMEB1B.XPF/a.xmp",
+        "local/basement-map-ids-v1/native-release.bin"
+      ],
+      [
+        "build/native/okage-assets",
+        "map-visibility",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOMEB1B.XPF/a.xmp",
+        "local/basement-map-ids-v1/native.bin"
+      ],
+      [
+        "build/model-sanitize/okage-assets",
+        "map-visibility",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOMEB1B.XPF/a.xmp",
+        "local/basement-map-ids-v1/model-sanitize.bin"
+      ]
+    ],
+    "sha256": {
+      "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "local/reference-home2c-basement-departure-600-v1.run.json": "126fb0deceb4e59700bc6453a5acad018b397ef3fa4e86bbbb2a0a98218fe04d",
+      "local/reference-home2c-basement-departure-600-v1.state.zip": "0d033270cd459e61b6555e5dcf6184e34926f685164f99eeab1d3da9edae6b9b",
+      "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOMEB1B.XPF/a.xmp": "46acbe70ffa7fd04f3c73d3c8792287d03ba9bd219f509184e1888da29ad7649",
+      "build/native-release/okage-assets": "0bf3028218a1ee80577e3d6ed21ddf2b981944bd1eb2e8e5116ce8089e2f3d61",
+      "local/basement-map-ids-v1/native-release.bin": "9b6e9a4cdc7c00d242283bf2c3bf7b8768e97c6dc48da91208e347fb6a83c94d",
+      "build/native/okage-assets": "1524ca93119a3c10ff9d995b100a64e839ef909a283b5211c9bca9a73fa111aa",
+      "local/basement-map-ids-v1/native.bin": "9b6e9a4cdc7c00d242283bf2c3bf7b8768e97c6dc48da91208e347fb6a83c94d",
+      "build/model-sanitize/okage-assets": "e03f36dc725a16e600d93987e28077b7e0e664e6f8009737732b2e36253f3792",
+      "local/basement-map-ids-v1/model-sanitize.bin": "9b6e9a4cdc7c00d242283bf2c3bf7b8768e97c6dc48da91208e347fb6a83c94d"
+    },
+    "limits": [
+      "Model/channel associations are specific to this completed basement snapshot.",
+      "Original final visibility differs from native initial map visibility by event design.",
+      "No full constructor, hidden channel, raster, audio or loading-timing equivalence claim."
+    ]
+  },
+  "prefix_regression": {
+    "report": "local/research/home2c-entry-v1/map640-prefix-family.json",
+    "files": 37,
+    "all_equal": true
+  },
+  "debug_family": {
+    "report": "local/research/home2c-entry-v1/basement-debug-family.json",
+    "files": 37,
+    "all_equal": true
+  },
+  "sanitizer_family": {
+    "status": "complete",
+    "report": "local/research/home2c-entry-v1/basement-sanitize-family.json",
+    "files": 37,
+    "all_equal": true
+  },
+  "failures": [
+    {
+      "native": "local/native-home2c-basement-departure-42815-release-v1",
+      "exit_code": 1,
+      "frame": 42455,
+      "error": "Unreviewed music resource ID 39"
+    },
+    {
+      "native": "local/native-home2c-basement-departure-42815-release-v2",
+      "exit_code": 0,
+      "pending_pc": "0x488",
+      "pending_opcode": "0x3b",
+      "a": 256,
+      "b": 634
+    },
+    {
+      "scope": "Strict interval audit fails on missing original loading records; never filled or realigned.",
+      "command": [
+        "python3",
+        "tools/diagnose_home1b_interval.py",
+        "--reference",
+        "local/reference-home2c-basement-departure-600-v1",
+        "--capture",
+        "local/native-home2c-basement-departure-42815-release-v3.png",
+        "--first-frame",
+        "42216",
+        "--unblended-target",
+        "--output",
+        "local/research/home2c-entry-v1/basement-departure-v3-window.json"
+      ],
+      "exit_code": 1,
+      "missing_manager_frames": [
+        240,
+        241
+      ],
+      "missing_camera_frames": [
+        240,
+        241
+      ]
+    },
+    {
+      "scope": "Retained incorrect input schedule; not accepted as native reference comparison.",
+      "reference": "local/reference-home2c-basement-bottle-420-v1",
+      "native": "local/native-home2c-basement-bottle-43235-release-v1",
+      "first_native_frame": 42816,
+      "audit_exit_code": 1,
+      "error": "Controller/manager pad disagreement",
+      "mistaken_native_cross": 43057,
+      "observed_original_cross": 242,
+      "correct_native_cross": 43058,
+      "corrected_native": "local/native-home2c-basement-bottle-43235-release-v2",
+      "corrected_report": "local/research/home2c-entry-v1/basement-bottle-v2-window.json"
+    }
+  ],
+  "intervals": [
+    {
+      "first_native_frame": 42816,
+      "original_frames": 420,
+      "controller_samples": 346,
+      "compared_observables_agree": true,
+      "missing_original_player_frames": [],
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0,
+      "report": "local/research/home2c-entry-v1/basement-bottle-v2-window.json"
+    },
+    {
+      "first_native_frame": 43236,
+      "original_frames": 600,
+      "controller_samples": 600,
+      "compared_observables_agree": true,
+      "missing_original_player_frames": [],
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0,
+      "report": "local/research/home2c-entry-v1/basement-legend-window.json"
+    },
+    {
+      "first_native_frame": 43836,
+      "original_frames": 420,
+      "controller_samples": 418,
+      "compared_observables_agree": true,
+      "missing_original_player_frames": [],
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0,
+      "report": "local/research/home2c-entry-v1/basement-chant-window.json"
+    }
+  ],
+  "latest_native_endpoint": {
+    "frame": 44255,
+    "scene": 78,
+    "room": "HOMEB1B",
+    "event": "e_homeB1b",
+    "pc": "0x5b0",
+    "message": 12108,
+    "text_progress": 1,
+    "prefix": "local/native-home2c-basement-chant-44255-release-v1",
+    "endpoint_images_inspected": true
+  },
+  "tests": {
+    "ctest": {
+      "native-release": 19,
+      "native": 19,
+      "model-sanitize": 19
+    },
+    "python": 44
+  },
+  "sha256": {
+    "local/research/home2c-entry-v1/music39-import.json": "431891b29592fba28bc23464a65128e86a5c504af1624a78f4ce4129e7c5d851",
+    "local/basement-map-ids-v1/report.json": "487fae8ef78031b5a1cbc15618ee89a1c15fd9229acdecb4c8d64026b92c00f1",
+    "local/research/home2c-entry-v1/map640-prefix-family.json": "067eca117d4f2b4d33abc088d011f3fd389dbf261beb0b64d837c74a4d4f8613",
+    "local/research/home2c-entry-v1/basement-debug-family.json": "902dd708db4ba0d65f385917f8c9d8306ccc55fe994d7fe00aa377459a341b8c",
+    "local/research/home2c-entry-v1/basement-departure-audit-failure.json": "3949d88adf2940f9ce4d2a67ac8d98698dfe5271b86e1ee429d30a7f9cfda073",
+    "local/research/home2c-entry-v1/basement-bottle-v1-audit-failure.json": "533b8eeed68e9e5c61cd0f7d85cf0bb49ca9ead6b94d3cb032b7e165ad593fca",
+    "local/research/home2c-entry-v1/basement-bottle-v2-window.json": "7b291bdd59346f3acb06bf8675045547f616ef370979f52e20974d5da00534dc",
+    "local/research/home2c-entry-v1/basement-legend-window.json": "c02f63cb35f0d959bdf1abc93d9eee12b018e9728a35a131a3e0a7b558c4c1c4",
+    "local/native-home2c-basement-departure-42815-release-v1.run.json": "536796800db9fe507176da98cc48e083177bb8e90ced5a0d984c58210bd26258",
+    "local/native-home2c-basement-departure-42815-release-v2.run.json": "4c1e5f2b7ab97f110ca0051c873f3573e8119a310d9bcbe7ed2c5ec9829fc673",
+    "local/native-home2c-basement-departure-42815-release-v3.run.json": "9c75a623912d9114acc94ac91489f64fd0646c75a5d1bd41e5cd084698b62427",
+    "local/research/home2c-entry-v1/basement-sanitize-family.json": "1f91e77139540cf641dc78abd4e66250908e0adfce0dbd886f8de49d0534b2f1",
+    "local/research/home2c-entry-v1/basement-chant-window.json": "2057045892f53380e5a58f4ed2749bc1ab93bb26a714389bd80edecd48a37426"
+  },
+  "filename_note": "basement-chant-420-v1 actually observes Father12108 explaining Pollack; filenames are not event identities."
+}

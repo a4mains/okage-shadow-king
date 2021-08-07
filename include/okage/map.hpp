@@ -32,6 +32,7 @@ MapTransform map_transform(const MapPlacement& placement,const MapDefinition& de
 // Position and scale remain the placement's values. Camera rotation is in turns.
 Matrix4 map_instance_matrix(const MapTransform&,const Float4& camera_rotation,const SineTable&);
 // Retail 0x1b8a80 allocates ordinary instances upward and optimized ones
-// downward. Handler1 uses the separate effect pool and receives -1 here.
+// downward from640 (scene reset0x1b8028). Handler1 uses the separate effect
+// pool and receives -1 here.
 std::vector<int> map_instance_ids(const MapFile& map);
 }

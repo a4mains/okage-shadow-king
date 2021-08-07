@@ -62,7 +62,7 @@ void OpeningField::bind_map_objects(std::span<const ActorBinding> bindings) {
     if(!map_objects_.empty())throw std::runtime_error("Map objects already bound");
     for(std::size_t i=0;i<bindings.size();++i) {
         const auto& b=bindings[i];
-        if(b.alias<0||b.alias>=2048||!b.actor)throw std::runtime_error("Invalid map object binding");
+        if(b.alias<0||b.alias>=640||!b.actor)throw std::runtime_error("Invalid map object binding");
         for(std::size_t j=0;j<i;++j)if(bindings[j].alias==b.alias||bindings[j].actor==b.actor)
             throw std::runtime_error("Duplicate map object binding");
         for(const auto& npc:actors_)if(npc.actor==b.actor)throw std::runtime_error("Map object also bound as field actor");
