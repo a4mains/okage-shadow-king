@@ -229,7 +229,12 @@
       "missing_original_player_frames": [],
       "hero_position_maximum_error": 0.0,
       "camera_position_maximum_error": 0.0,
-      "report": "local/research/home2c-entry-v1/basement-bottle-v2-window.json"
+      "report": "local/research/home2c-entry-v1/basement-bottle-v2-window.json",
+      "native_cross": [
+        42817,
+        43058
+      ],
+      "native_direction_edges": []
     },
     {
       "first_native_frame": 43236,
@@ -239,7 +244,16 @@
       "missing_original_player_frames": [],
       "hero_position_maximum_error": 0.0,
       "camera_position_maximum_error": 0.0,
-      "report": "local/research/home2c-entry-v1/basement-legend-window.json"
+      "report": "local/research/home2c-entry-v1/basement-legend-window.json",
+      "native_cross": [
+        43357,
+        43598,
+        43677
+      ],
+      "native_direction_edges": [
+        "43657 4000",
+        "43659 0000"
+      ]
     },
     {
       "first_native_frame": 43836,
@@ -249,18 +263,92 @@
       "missing_original_player_frames": [],
       "hero_position_maximum_error": 0.0,
       "camera_position_maximum_error": 0.0,
-      "report": "local/research/home2c-entry-v1/basement-chant-window.json"
+      "report": "local/research/home2c-entry-v1/basement-chant-window.json",
+      "native_cross": [
+        43837,
+        44078
+      ],
+      "native_direction_edges": []
+    },
+    {
+      "first_native_frame": 44256,
+      "original_frames": 1200,
+      "controller_samples": 1200,
+      "compared_observables_agree": true,
+      "missing_original_player_frames": [],
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0,
+      "report": "local/research/home2c-entry-v1/basement-pollack-window.json",
+      "native_cross": [
+        44257,
+        44337,
+        44537,
+        44778,
+        44957,
+        45158,
+        45358
+      ],
+      "native_direction_edges": [
+        "44317 4000",
+        "44319 0000"
+      ]
+    },
+    {
+      "first_native_frame": 45456,
+      "original_frames": 600,
+      "controller_samples": 492,
+      "compared_observables_agree": true,
+      "missing_original_player_frames": [],
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0,
+      "report": "local/research/home2c-entry-v1/basement-summon-intro-window.json",
+      "native_cross": [
+        45458,
+        45698
+      ],
+      "native_direction_edges": []
+    },
+    {
+      "first_native_frame": 46056,
+      "original_frames": 600,
+      "controller_samples": 600,
+      "compared_observables_agree": true,
+      "missing_original_player_frames": [],
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0,
+      "report": "local/research/home2c-entry-v1/basement-incantation-window.json",
+      "behavior": "Early Cross ignored during script-disabled dialogue input; then idle at the same first incantation line.",
+      "native_cross": [
+        46057
+      ],
+      "native_direction_edges": []
+    },
+    {
+      "first_native_frame": 46656,
+      "original_frames": 1200,
+      "controller_samples": 1130,
+      "compared_observables_agree": true,
+      "missing_original_player_frames": [],
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0,
+      "report": "local/research/home2c-entry-v1/basement-three-verses-window.json",
+      "native_cross": [
+        46657,
+        47018,
+        47378
+      ],
+      "native_direction_edges": []
     }
   ],
   "latest_native_endpoint": {
-    "frame": 44255,
+    "frame": 47855,
     "scene": 78,
     "room": "HOMEB1B",
     "event": "e_homeB1b",
-    "pc": "0x5b0",
-    "message": 12108,
-    "text_progress": 1,
-    "prefix": "local/native-home2c-basement-chant-44255-release-v1",
+    "pc": "0x840",
+    "message": 12111,
+    "text_progress": 0,
+    "prefix": "local/native-home2c-basement-three-verses-47855-release-v1",
     "endpoint_images_inspected": true
   },
   "tests": {
@@ -284,7 +372,19 @@
     "local/native-home2c-basement-departure-42815-release-v2.run.json": "4c1e5f2b7ab97f110ca0051c873f3573e8119a310d9bcbe7ed2c5ec9829fc673",
     "local/native-home2c-basement-departure-42815-release-v3.run.json": "9c75a623912d9114acc94ac91489f64fd0646c75a5d1bd41e5cd084698b62427",
     "local/research/home2c-entry-v1/basement-sanitize-family.json": "1f91e77139540cf641dc78abd4e66250908e0adfce0dbd886f8de49d0534b2f1",
-    "local/research/home2c-entry-v1/basement-chant-window.json": "2057045892f53380e5a58f4ed2749bc1ab93bb26a714389bd80edecd48a37426"
+    "local/research/home2c-entry-v1/basement-chant-window.json": "2057045892f53380e5a58f4ed2749bc1ab93bb26a714389bd80edecd48a37426",
+    "local/research/home2c-entry-v1/basement-pollack-window.json": "b81f6227146b9c45a17b2b8488e07b6fac0ae4c4892a5406323f5a6fd5a418e6",
+    "local/research/home2c-entry-v1/basement-summon-intro-window.json": "adf757fc31636b6185380fd47f56d878d6ea71a47f50e5363bc8d5a87ea4dd1d",
+    "local/research/home2c-entry-v1/basement-incantation-window.json": "e914458dab3bad005c9c2234417e01d7a65f5358b04f6ff560902f04e5b2fd06",
+    "local/research/home2c-entry-v1/map640-python.log": "6413145862645dc8956b34bfbe153012e15e8b081ea9382a26f79e0c53048b95",
+    "local/research/home2c-entry-v1/map640-ctest-native-release.log": "b0712122eafda991460ce1fc58c4920a0cf01181aae57bc2e95591a06a1201f7",
+    "local/research/home2c-entry-v1/map640-ctest-native.log": "9fdf1a26675c022c6f1200b39b4f6bf13a002510ec04a51054c8d78f3418e648",
+    "local/research/home2c-entry-v1/map640-ctest-model-sanitize.log": "c8e12b868b8bcf7ad1caf64d372568d050df02a76ff62aa9ee3af781caf3c647",
+    "local/research/home2c-entry-v1/basement-three-verses-window.json": "82bdc39e855b80ac7a12bf0c9c4bc7d21903554f723e59fe953044a2874baa73"
   },
-  "filename_note": "basement-chant-420-v1 actually observes Father12108 explaining Pollack; filenames are not event identities."
+  "filename_note": "basement-chant-420-v1 actually observes Father12108 explaining Pollack; filenames are not event identities.",
+  "contiguous_matching_frames_after_arrival": 5040,
+  "matching_controller_samples_after_arrival": 4786,
+  "implementation_commit": "f06e009",
+  "live_jobs": []
 }
