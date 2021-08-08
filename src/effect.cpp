@@ -56,7 +56,8 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
     id(d.id),flags(d.flags&~0x4000u),duration(d.duration),position(p),rotation(r),scale(s),
     parameters(d.parameters),texture_sizes_(sizes) {
     require((d.id==25&&d.elements.size()==8)||(d.id==34&&d.elements.size()==14)||(d.id==19&&d.elements.size()==9)||
-            (d.id==17&&d.elements.size()==9&&start==EffectStart::FirstFrame),
+            ((d.id==17||d.id==33)&&d.elements.size()==9&&start==EffectStart::FirstFrame)||
+            (d.id==115&&d.elements.size()==5&&start==EffectStart::FirstFrame),
             "Unrecovered map effect template");
     require(duration>0&&duration<=0x7fffffff,"Invalid map effect duration");
     Rounding rounding;inverse_duration=1.0f/float(duration);
@@ -74,8 +75,15 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
         unsigned texture;
         switch(e.shape){case 24:texture=20;break;case 29:texture=5;break;
                         case 28:texture=4;break;case 31:texture=17;break;
+                        case 59:require(d.id==33,"Unrecovered effect shape59 owner");texture=25;break;
+                        case 25:case 40:case 32:
+                            require(d.id==33||d.id==115,"Unrecovered untextured effect owner");
+                            texture=0xffffffffu;break;
                         default:throw std::runtime_error("Unrecovered map effect shape");}
-        set_texture(e,texture);elements.push_back(e);
+        if(texture==0xffffffffu){e.texture=texture;e.uv={0,0,65535,65535};}
+        else set_texture(e,texture);
+        if(d.id==33&&e.shape==25)e.ring_y.assign(30,-192);
+        elements.push_back(e);
     }
     phase=start==EffectStart::RandomPhase?random()%duration:1;
 }
@@ -182,24 +190,42 @@ Float4 effect_light_tint(const Float4& base,const Float4& ambient,const Float4& 
 void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_enabled) {
     if(!clock_enabled)return;
     require(!(flags&0x100),"Cannot update a removed map effect");
-    require(id==25||id==17||id==19,"Unrecovered map effect update program");
+    require(id==25||id==17||id==19||id==33||id==115,"Unrecovered map effect update program");
     Rounding rounding;
     if(phase>duration){if(!(flags&0x8000)){request_removal();return;}phase-=duration;}
     const float time=float(phase)*inverse_duration;
     for(auto& e:elements) {
-        require(e.change_time>=1,"Unrecovered map effect program change");
         require(e.interval[0]<e.interval[1],"Invalid map effect interval");
         float t=time<e.interval[0]?0:time>e.interval[1]?1:(time-e.interval[0])/(e.interval[1]-e.interval[0]);
+        //0x105a40 snapshots the current program before storing its successor.
+        // The successor therefore starts on the following update, even when
+        // the threshold was crossed on the first tick.
+        auto program=e.program;
+        if(e.change_time<t) {
+            e.program=e.next_program;
+            if(e.flags&0x20000)t-=e.change_time;
+            if(!(e.render_flags&1)) {
+                if(e.flags&0x40000)e.position=e.rendered[0];
+                if(e.flags&0x80000)e.scale=e.rendered[2];
+                e.render_flags|=1;
+            }
+        }
         if(!(flags&0x20)) {
-            const auto mode=e.program>>30;
+            const auto mode=program>>30;
             require(mode!=3&&!(e.flags&0x800000),"Unrecovered map effect texture mode");
             if(mode)set_texture(e,unsigned(e.interval[2]));
             e.interval[2]=0;
         }
-        auto program=e.program;
         if((e.flags&0x2000)&&e.interval[2]<t)program&=0xc0ffffff;
         const auto timing=(program>>24)&63;
-        require(timing==0||timing==7||timing==17,"Unrecovered map effect time program");
+        require(timing==0||timing==1||timing==7||timing==17,"Unrecovered map effect time program");
+        if(timing==1) {
+            //0x105f80 ->0x103f88(1,handle,elementID,tag2,axisY/mode0).
+            // Shape25 has thirty tag2 vertices; preserve their packed Y values
+            // as well as the RNG advancement needed by later elements.
+            require(id==33&&e.shape==25&&e.ring_y.size()==30,"Unrecovered effect deformation geometry");
+            for(auto& y:e.ring_y)y=std::int16_t(std::min(0,int(random()%50)-25-64));
+        }
         if(timing==17) {
             //0x105518 links geometry to the element with the preceding ID.
             // Template17's shape31 packets are identical immutable quads.
@@ -212,6 +238,10 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         auto& p=e.rendered[0];auto& r=e.rendered[1];auto& s=e.rendered[2];auto& c=e.rendered[3];
         switch((program>>12)&63) {
         case 0:break;
+        case 1:
+            for(unsigned i=0;i<3;++i)p[i]=float(int(random()%40)-20)*parameters[i]+e.position[i];
+            break;
+        case 17:p[1]=e.position[1]+e.position[3]*t;break;
         case 12:
             if(flags&0x20) {
                 for(unsigned i=0;i<3;++i)p[i]=(e.position[i]*t)*parameters[i];
@@ -243,9 +273,21 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         default:throw std::runtime_error("Unrecovered map effect position program");
         }
         if((e.flags&0x4000)&&e.interval[2]<t)program&=0xfffff03f;
-        switch((program>>6)&63){case 0:break;case 4:r[2]=float(random()%360+360)*.00278f;break;case 11:r[1]=float(random()%360+360)*.00278f;break;
+        switch((program>>6)&63){case 0:break;
+        case 1:{const float cycle=t*e.rotation[3];r[1]=(cycle-float(int(cycle)))+e.rotation[1];break;}
+        case 4:r[2]=float(random()%360+360)*.00278f;break;case 11:r[1]=float(random()%360+360)*.00278f;break;
                               default:throw std::runtime_error("Unrecovered map effect rotation program");}
-        switch((program>>18)&63){case 0:break;case 1:for(unsigned i=0;i<3;++i)s[i]=(t*e.scale[3]+1.0f)*e.scale[i];break;case 13:s[0]=t*e.scale[0];s[1]=(1.0f-t)*e.scale[1];s[2]=t*e.scale[2];break;
+        switch((program>>18)&63){case 0:break;case 1:for(unsigned i=0;i<3;++i)s[i]=(t*e.scale[3]+1.0f)*e.scale[i];break;
+        case 2:{const float q=-.1f/t;const float factor=(q < -1?0:q+1)*e.scale[3];
+            for(unsigned i=0;i<3;++i)s[i]=factor*e.scale[i];break;}
+        case 3:for(unsigned i=0;i<3;++i)s[i]=t*e.scale[i];break;
+        case 16:s[1]+=e.scale[3];break;
+        case 20:{const float x=e.scale[0],cycle=t*30.0f;
+            const float size=((x*.75f+x)-(t*.75f)*x)+((1.0f-(cycle-float(int(cycle))))*x)*.15f;
+            s[0]=size;s[1]=size;s[2]=size;break;}
+        case 6:{const float q=-e.scale[3]/t;const float factor=q < -1?0:q+1;
+            for(unsigned i=0;i<3;++i)s[i]=factor*e.scale[i];break;}
+        case 13:s[0]=t*e.scale[0];s[1]=(1.0f-t)*e.scale[1];s[2]=t*e.scale[2];break;
         case 25: {
             // 0x109950: duration*.01 precedes multiplication by local time;
             // only X/Y change, with the doubled time added after the base.
@@ -259,8 +301,11 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         if((e.flags&0x8000)&&e.interval[2]<t)program&=0xffffffc0;
         switch(program&63) {
         case 0:break;
-        case 15:case 17:case 20: {
-            const float head=(program&63)==15?.6f:(program&63)==17?.4f:.1f,tail=(program&63)==15?.8f:(program&63)==17?.7f:.4f;
+        case 1:c[3]=0;break;
+        case 5:
+            c[3]=(t==0||t==1)?0:(t>.6f?(1.0f-(t-.6f)/(1.0f-.6f))*e.color[3]:e.color[3]);break;
+        case 15:case 16:case 17:case 20: {
+            const float head=(program&63)==15?.6f:(program&63)==17?.4f:.1f,tail=((program&63)==15||(program&63)==16)?.8f:(program&63)==17?.7f:.4f;
             float alpha=0;
             if(t!=0&&t!=1){alpha=1;if(t>tail)alpha=1.0f-(t-tail)/(1.0f-tail);else if(t<head)alpha=t/head;alpha*=e.color[3];}
             c[3]=alpha;break;

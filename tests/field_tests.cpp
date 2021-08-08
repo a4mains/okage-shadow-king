@@ -538,6 +538,37 @@ int main(){try {
         omitted.get_variable=scene.get_variable;omitted.set_variable=scene.set_variable;
         rejects([&]{omitted.enter(entry,stage,empty_map,0);});
     }
+    {
+        std::vector<std::uint8_t> efd(64+8*116),event(40+17*16+28);
+        put(efd,0,0x20444645);put(efd,4,1);put(efd,16,25);put(efd,20,10);
+        put(efd,32,8);put(efd,36,64);
+        for(unsigned i=0;i<8;++i){const auto at=64+116*i;
+            put(efd,at+8,29);put(efd,at+28,__builtin_bit_cast(std::uint32_t, (2.f)));}
+        put(event,0,0x544d58);put(event,4,event.size()-32);put(event,16,0xffffffff);
+        for(unsigned i=0;i<17;++i){const auto at=40+i*16;
+            put(event,at,0x0191233e); // A is deliberately nonzero and ignored.
+            put(event,at+4,__builtin_bit_cast(std::uint32_t, (float(i))));
+            put(event,at+8,__builtin_bit_cast(std::uint32_t, (-1.25f)));
+            put(event,at+12,__builtin_bit_cast(std::uint32_t, (3.5f)));}
+        put(event,312,0x1005c);put(event,316,0x00f1005c);put(event,320,0x100061);
+        okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
+        const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
+        okage::OpeningField scene(event,[](int){},[](int){return true;},player,false);
+        std::array<std::uint8_t,0x1000> vars{};okage::EffectTextureSizes sizes{};sizes[5]={32,24};
+        scene.get_variable=[&](auto s){return okage::event_variable(vars,s);};
+        scene.set_variable=[&](auto i,auto b,auto v){okage::set_event_variable(vars,i,b,v);};
+        unsigned calls=0;scene.random_value=[&]{return ++calls;};
+        std::vector<std::uint8_t> no_placements(64);put(no_placements,8,64);put(no_placements,40,64);
+        scene.load_effects(efd);scene.load_map_effects(no_placements,sizes);
+        okage::FieldDefinition entry;entry.type=1;entry.startup=1;
+        scene.enter(entry,stage,empty_map,0);
+        require(calls==0);
+        for(unsigned i=0;i<17;++i){const auto& e=scene.map_effects()[i];
+            require(e&&e->position==okage::Float4({float(i),-1.25f,3.5f,1}));
+            require(bool(e->flags&0x200)==(i==1||i==16));
+            require(e->phase==(i==1||i==16?1u:2u));}
+        scene.tick();require(!scene.map_effects()[1]&&!scene.map_effects()[16]&&scene.map_effects()[0]);
+    }
     for(unsigned enemy_index:{0u,1u}) {
         okage::ModelFile enemy_model,player_model,ordinary_model;
         enemy_model.models.emplace_back();player_model.models.emplace_back();ordinary_model.models.emplace_back();

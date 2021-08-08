@@ -330,16 +330,23 @@ void OpeningField::load_map_effects(Bytes bytes,const EffectTextureSizes& sizes)
     effect_texture_sizes_=sizes;map_effects_loaded_=true;
 }
 void OpeningField::spawn_dust(const Float4& position) {
-    if(!map_effects_loaded_||!random_value||player_.dust_effect!=17)
+    if(player_.dust_effect!=17)
         throw std::runtime_error("Unrecovered player dust resources/template");
-    const auto definition=std::find_if(effect_definitions_.begin(),effect_definitions_.end(),[](const auto& d){return d.id==17;});
-    if(definition==effect_definitions_.end())throw std::runtime_error("Missing owned dust template17");
+    spawn_positioned_effect(17,position);
+}
+unsigned OpeningField::spawn_positioned_effect(unsigned template_id,const Float4& position) {
+    if(!map_effects_loaded_||!random_value)
+        throw std::runtime_error("Positioned effect requires owned templates, textures and shared RNG");
+    const auto definition=std::find_if(effect_definitions_.begin(),effect_definitions_.end(),
+        [&](const auto& d){return d.id==template_id;});
+    if(definition==effect_definitions_.end())throw std::runtime_error("Missing owned positioned effect template");
     unsigned handle=0;while(handle<effects_.size()&&(effects_[handle]||map_effects_[handle]))++handle;
     if(handle==effects_.size())throw std::runtime_error("Field effect capacity exhausted");
     //0x1012f8 stores the current position and starts phase1, without attachment
     // or a random starting phase. Particle RNG runs on its first effect update.
     map_effects_[handle]=std::make_unique<MapEffect>(*definition,position,Float4{},Float4{1,1,1,1},
         effect_texture_sizes_,random_value,EffectStart::FirstFrame);
+    return handle;
 }
 unsigned OpeningField::attach_bubble(int parameter,int alias) {
     const auto definition=std::find_if(effect_definitions_.begin(),effect_definitions_.end(),[](const auto& d){return d.id==30;});
@@ -628,6 +635,13 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             return pending();
         case 0x3d:
             screen_filter.select(a,b);return {pc+4};
+        case 0x3e: {
+            //0x130c50 ignores A, consumes XYZ, and records the allocated handle
+            // in the same ring used by attachment/removal/parameter services.
+            const auto handle=spawn_positioned_effect(unsigned(b),point(pc+4));
+            effect_ring_[effect_ring_index_]=handle;effect_ring_index_=(effect_ring_index_+1)&15;
+            return {pc+16};
+        }
         case 0x3b:
             if((a&0x100)&&b>=0&&map_visibility) {
                 if(!map_visibility(b,(a&255)!=0))return pending();

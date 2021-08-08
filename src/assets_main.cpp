@@ -488,10 +488,11 @@ int main(int argc, char** argv) {
             for(unsigned i=0;i<sizes.size();++i){const auto image=okage::decode_xim(read(fs::path(argv[3])/okage::effect_texture_names[i]));sizes[i]={image.width,image.height};}
             okage::GameRandom rng{request[1]};const auto random=[&]{return rng.next();};
             const bool dust=request[0]==17;
-            okage::MapEffect effect(*found,vectors[0],dust?okage::Float4{}:vectors[1],
-                dust?okage::Float4{1,1,1,1}:vectors[2],sizes,random,
-                dust?okage::EffectStart::FirstFrame:okage::EffectStart::RandomPhase);
-            std::vector<std::uint32_t> out;
+            const bool positioned=dust||request[0]==33||request[0]==115;
+            okage::MapEffect effect(*found,vectors[0],positioned?okage::Float4{}:vectors[1],
+                positioned?okage::Float4{1,1,1,1}:vectors[2],sizes,random,
+                positioned?okage::EffectStart::FirstFrame:okage::EffectStart::RandomPhase);
+            std::vector<std::uint32_t> out,deformation;
             const auto vector=[&](const okage::Float4& v){for(float f:v)out.push_back(__builtin_bit_cast(std::uint32_t, (f)));};
             const auto capture=[&](unsigned step){
                 out.insert(out.end(),{step,0,effect.id,effect.flags,unsigned(effect.elements.size()),effect.duration,effect.phase,rng.state});
@@ -502,6 +503,11 @@ int main(int argc, char** argv) {
                     out.insert(out.end(),{e.flags,e.program,__builtin_bit_cast(std::uint32_t, (e.change_time)),e.next_program});
                     for(const auto& v:e.rendered)vector(v);
                     out.insert(out.end(),{e.texture,e.uv[0]|(std::uint32_t(e.uv[1])<<16),e.uv[2]|(std::uint32_t(e.uv[3])<<16),e.render_flags});
+                }
+                for(unsigned i=0;i<effect.elements.size();++i)if(!effect.elements[i].ring_y.empty()) {
+                    const auto& y=effect.elements[i].ring_y;
+                    deformation.insert(deformation.end(),{step,i,unsigned(y.size())});
+                    for(auto value:y)deformation.push_back(std::uint16_t(value));
                 }
             };
             capture(0);
@@ -516,8 +522,10 @@ int main(int argc, char** argv) {
                 }
                 write(std::string(argv[6])+".vertices.bin",{reinterpret_cast<const std::uint8_t*>(geometry.data()),geometry.size()*4});
             }
-            if(!dust)effect.set_parameter(request[2],vectors[3]);capture(1);
+            if(!positioned)effect.set_parameter(request[2],vectors[3]);capture(1);
             for(unsigned i=0;i<frames;++i){effect.tick(random);capture(i+2);}
+            if(!deformation.empty())write(std::string(argv[6])+".deformation.bin",
+                {reinterpret_cast<const std::uint8_t*>(deformation.data()),deformation.size()*4});
             write(argv[6],{reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4});return 0;
         }
         if(command=="effect-probe"&&argc==7) {

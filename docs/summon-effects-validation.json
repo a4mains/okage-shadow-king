@@ -1,0 +1,1119 @@
+{
+  "scope": "Summoning element-state/positioned-service recovery, SET2 finite cue0, and native prefix regression.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "state_validation": [
+    {
+      "build": "Release",
+      "report": "local/summon-effects-release-v2/report.json",
+      "report_sha256": "7f9bac900603e687e500545f5017585389a116baf9c08ac45b127a94564c66f7",
+      "native_binary_sha256": "4096aa23e7694071abd01c4a2123c9bfad8025a268b662957a307a0b313a9e6e",
+      "cases": [
+        {
+          "template": 33,
+          "frames": 241,
+          "records": 243,
+          "words_exact": 103275,
+          "input_sha256": "21473d041b24a853bf13ceaeb69d6a5f15fa383e807bde7e8e6730d1798be635",
+          "state_sha256": "ab8430907a7d0cf47c2367c762f549be22ca2aff3e982ceac159c178650a5e28",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "map-effect-probe",
+              "local/extracted/SCUS_971.29",
+              "local/research/basement-summon-v1/after-chant.ram",
+              "local/research/basement-summon-v1/33.input.bin",
+              "241",
+              "local/research/basement-summon-v1/33.original.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.358645542,
+            "binary_sha256": "875bae0ace53bc7c7e65016bdbe62bb824d3e709518330a0e8d1689f53444bb9"
+          },
+          "original_service_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "map-effect-probe",
+              "local/extracted/SCUS_971.29",
+              "local/research/basement-summon-v1/after-chant.ram",
+              "local/research/basement-summon-v1/33.input.bin",
+              "241",
+              "local/research/basement-summon-v1/33.service-original.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.267153292,
+            "binary_sha256": "ca335a0c98e05eef1c53aa2fbfa62063eb4f63ded82d89912dec194ff42c893c"
+          },
+          "native_command": [
+            "build/native-release/okage-assets",
+            "map-effect-probe",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/basement-summon-v1/33.input.bin",
+            "241",
+            "local/summon-effects-release-v2/33.native.bin"
+          ],
+          "ring": {
+            "records": 243,
+            "mutable_y_words_exact": 7290,
+            "original_sha256": "f97fa5914ba4b87882f4e2950abecfae0c7847c93e5e01efe52d8f985ce04e0f",
+            "native_sha256": "f91d5d65af94a88c4dec6a1b3e177485a87f5c467682f7b3615e1cad012f290e",
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "map-effect-probe",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/research/basement-summon-v1/33.input.bin",
+                "241",
+                "local/research/basement-summon-v1/33.geometry-original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 1.436356166,
+              "binary_sha256": "e2ee26731197dadc5f168ba9d21492185fa63aab1fc1c21b848368dbdf859488"
+            }
+          }
+        },
+        {
+          "template": 115,
+          "frames": 501,
+          "records": 503,
+          "words_exact": 125247,
+          "input_sha256": "55f948cbe97b6c1746ab3d4e32f3ecaebf6ac7bcc376773b51722216b9f7b0fb",
+          "state_sha256": "a14ae794911b53dfa18fac872ed170215a3e6db54e2cda5be2fc0b6840d6c05d",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "map-effect-probe",
+              "local/extracted/SCUS_971.29",
+              "local/research/basement-summon-v1/after-chant.ram",
+              "local/research/basement-summon-v1/115.input.bin",
+              "501",
+              "local/research/basement-summon-v1/115.original.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.0465074580000002,
+            "binary_sha256": "875bae0ace53bc7c7e65016bdbe62bb824d3e709518330a0e8d1689f53444bb9"
+          },
+          "original_service_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "map-effect-probe",
+              "local/extracted/SCUS_971.29",
+              "local/research/basement-summon-v1/after-chant.ram",
+              "local/research/basement-summon-v1/115.input.bin",
+              "501",
+              "local/research/basement-summon-v1/115.service-original.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.037575417,
+            "binary_sha256": "ca335a0c98e05eef1c53aa2fbfa62063eb4f63ded82d89912dec194ff42c893c"
+          },
+          "native_command": [
+            "build/native-release/okage-assets",
+            "map-effect-probe",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/basement-summon-v1/115.input.bin",
+            "501",
+            "local/summon-effects-release-v2/115.native.bin"
+          ]
+        }
+      ]
+    },
+    {
+      "build": "Debug",
+      "report": "local/summon-effects-native-v1/report.json",
+      "report_sha256": "489647a57e7374722c55f4a0112dab1900be7bdee5d278fa0e1fe26f6b4f0732",
+      "native_binary_sha256": "23e57eab01d3105dc2241846ed0c88267937ae644ba214a01e1fa4784eebee22",
+      "cases": [
+        {
+          "template": 33,
+          "frames": 241,
+          "records": 243,
+          "words_exact": 103275,
+          "input_sha256": "21473d041b24a853bf13ceaeb69d6a5f15fa383e807bde7e8e6730d1798be635",
+          "state_sha256": "ab8430907a7d0cf47c2367c762f549be22ca2aff3e982ceac159c178650a5e28",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "map-effect-probe",
+              "local/extracted/SCUS_971.29",
+              "local/research/basement-summon-v1/after-chant.ram",
+              "local/research/basement-summon-v1/33.input.bin",
+              "241",
+              "local/research/basement-summon-v1/33.original.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.358645542,
+            "binary_sha256": "875bae0ace53bc7c7e65016bdbe62bb824d3e709518330a0e8d1689f53444bb9"
+          },
+          "original_service_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "map-effect-probe",
+              "local/extracted/SCUS_971.29",
+              "local/research/basement-summon-v1/after-chant.ram",
+              "local/research/basement-summon-v1/33.input.bin",
+              "241",
+              "local/research/basement-summon-v1/33.service-original.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.267153292,
+            "binary_sha256": "ca335a0c98e05eef1c53aa2fbfa62063eb4f63ded82d89912dec194ff42c893c"
+          },
+          "native_command": [
+            "build/native/okage-assets",
+            "map-effect-probe",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/basement-summon-v1/33.input.bin",
+            "241",
+            "local/summon-effects-native-v1/33.native.bin"
+          ],
+          "ring": {
+            "records": 243,
+            "mutable_y_words_exact": 7290,
+            "original_sha256": "f97fa5914ba4b87882f4e2950abecfae0c7847c93e5e01efe52d8f985ce04e0f",
+            "native_sha256": "f91d5d65af94a88c4dec6a1b3e177485a87f5c467682f7b3615e1cad012f290e",
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "map-effect-probe",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/research/basement-summon-v1/33.input.bin",
+                "241",
+                "local/research/basement-summon-v1/33.geometry-original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 1.436356166,
+              "binary_sha256": "e2ee26731197dadc5f168ba9d21492185fa63aab1fc1c21b848368dbdf859488"
+            }
+          }
+        },
+        {
+          "template": 115,
+          "frames": 501,
+          "records": 503,
+          "words_exact": 125247,
+          "input_sha256": "55f948cbe97b6c1746ab3d4e32f3ecaebf6ac7bcc376773b51722216b9f7b0fb",
+          "state_sha256": "a14ae794911b53dfa18fac872ed170215a3e6db54e2cda5be2fc0b6840d6c05d",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "map-effect-probe",
+              "local/extracted/SCUS_971.29",
+              "local/research/basement-summon-v1/after-chant.ram",
+              "local/research/basement-summon-v1/115.input.bin",
+              "501",
+              "local/research/basement-summon-v1/115.original.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.0465074580000002,
+            "binary_sha256": "875bae0ace53bc7c7e65016bdbe62bb824d3e709518330a0e8d1689f53444bb9"
+          },
+          "original_service_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "map-effect-probe",
+              "local/extracted/SCUS_971.29",
+              "local/research/basement-summon-v1/after-chant.ram",
+              "local/research/basement-summon-v1/115.input.bin",
+              "501",
+              "local/research/basement-summon-v1/115.service-original.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.037575417,
+            "binary_sha256": "ca335a0c98e05eef1c53aa2fbfa62063eb4f63ded82d89912dec194ff42c893c"
+          },
+          "native_command": [
+            "build/native/okage-assets",
+            "map-effect-probe",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/basement-summon-v1/115.input.bin",
+            "501",
+            "local/summon-effects-native-v1/115.native.bin"
+          ]
+        }
+      ]
+    },
+    {
+      "build": "ASan/UBSan",
+      "report": "local/summon-effects-model-sanitize-v1/report.json",
+      "report_sha256": "1ea27e1256c5d430f8e5906e574ef6c8d944894714a26cbd108f7ace03624e07",
+      "native_binary_sha256": "2cba21461a599279e9e55a236b35def610b481233d7dbdc166f4c926c116534c",
+      "cases": [
+        {
+          "template": 33,
+          "frames": 241,
+          "records": 243,
+          "words_exact": 103275,
+          "input_sha256": "21473d041b24a853bf13ceaeb69d6a5f15fa383e807bde7e8e6730d1798be635",
+          "state_sha256": "ab8430907a7d0cf47c2367c762f549be22ca2aff3e982ceac159c178650a5e28",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "map-effect-probe",
+              "local/extracted/SCUS_971.29",
+              "local/research/basement-summon-v1/after-chant.ram",
+              "local/research/basement-summon-v1/33.input.bin",
+              "241",
+              "local/research/basement-summon-v1/33.original.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.358645542,
+            "binary_sha256": "875bae0ace53bc7c7e65016bdbe62bb824d3e709518330a0e8d1689f53444bb9"
+          },
+          "original_service_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "map-effect-probe",
+              "local/extracted/SCUS_971.29",
+              "local/research/basement-summon-v1/after-chant.ram",
+              "local/research/basement-summon-v1/33.input.bin",
+              "241",
+              "local/research/basement-summon-v1/33.service-original.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.267153292,
+            "binary_sha256": "ca335a0c98e05eef1c53aa2fbfa62063eb4f63ded82d89912dec194ff42c893c"
+          },
+          "native_command": [
+            "build/model-sanitize/okage-assets",
+            "map-effect-probe",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/basement-summon-v1/33.input.bin",
+            "241",
+            "local/summon-effects-model-sanitize-v1/33.native.bin"
+          ],
+          "ring": {
+            "records": 243,
+            "mutable_y_words_exact": 7290,
+            "original_sha256": "f97fa5914ba4b87882f4e2950abecfae0c7847c93e5e01efe52d8f985ce04e0f",
+            "native_sha256": "f91d5d65af94a88c4dec6a1b3e177485a87f5c467682f7b3615e1cad012f290e",
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "map-effect-probe",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/research/basement-summon-v1/33.input.bin",
+                "241",
+                "local/research/basement-summon-v1/33.geometry-original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 1.436356166,
+              "binary_sha256": "e2ee26731197dadc5f168ba9d21492185fa63aab1fc1c21b848368dbdf859488"
+            }
+          }
+        },
+        {
+          "template": 115,
+          "frames": 501,
+          "records": 503,
+          "words_exact": 125247,
+          "input_sha256": "55f948cbe97b6c1746ab3d4e32f3ecaebf6ac7bcc376773b51722216b9f7b0fb",
+          "state_sha256": "a14ae794911b53dfa18fac872ed170215a3e6db54e2cda5be2fc0b6840d6c05d",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "map-effect-probe",
+              "local/extracted/SCUS_971.29",
+              "local/research/basement-summon-v1/after-chant.ram",
+              "local/research/basement-summon-v1/115.input.bin",
+              "501",
+              "local/research/basement-summon-v1/115.original.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.0465074580000002,
+            "binary_sha256": "875bae0ace53bc7c7e65016bdbe62bb824d3e709518330a0e8d1689f53444bb9"
+          },
+          "original_service_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "map-effect-probe",
+              "local/extracted/SCUS_971.29",
+              "local/research/basement-summon-v1/after-chant.ram",
+              "local/research/basement-summon-v1/115.input.bin",
+              "501",
+              "local/research/basement-summon-v1/115.service-original.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.037575417,
+            "binary_sha256": "ca335a0c98e05eef1c53aa2fbfa62063eb4f63ded82d89912dec194ff42c893c"
+          },
+          "native_command": [
+            "build/model-sanitize/okage-assets",
+            "map-effect-probe",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/basement-summon-v1/115.input.bin",
+            "501",
+            "local/summon-effects-model-sanitize-v1/115.native.bin"
+          ]
+        }
+      ]
+    }
+  ],
+  "sound_import": {
+    "path": "SNDDATA/SE/SET2.XWS",
+    "lba": 193753,
+    "size": 267360,
+    "sha256": "e83e0e53c7cb372d96c33a1867b2e3b54c5d30711abddc999cd483eaade3470a",
+    "destination": "local/audio-input/SNDDATA/SE/SET2.XWS"
+  },
+  "sound_validation": [
+    {
+      "report": "local/finite-stream-set2-release-v2/report.json",
+      "report_sha256": "8a154e5a660694e8166d14d758df7947fd4dac055a518c2d77c1a0041fa953d7",
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "native_binary_sha256": "0bf3028218a1ee80577e3d6ed21ddf2b981944bd1eb2e8e5116ce8089e2f3d61",
+      "cases": [
+        {
+          "cue": "SET2-0",
+          "source_sha256": "597f30b32d3ecc992a80c01820a2e9167d8a8f7f3343cef8d8ad664ff8235db1",
+          "source_bytes": 28864,
+          "prepared_bytes": 28928,
+          "prepared_sha256": "0d75e94abe9ecfce4a9ce8bac37a9040aa99164dbb5de07413a1f8eb9df79441",
+          "original": "local/finite-stream-set2-original-v2/SET2-0.original.bin",
+          "original_sha256": "bfa45441b6fa1474e022005a5359f19c5b11fa7b27faedb57a53caebc2a7340d",
+          "frames": 100000,
+          "pcm_sha256": "42193167fa7f5007bea735f7a629265d4febd7bc391a7424c671809d4a4353eb",
+          "bytes_and_pcm_exact": true
+        }
+      ],
+      "dsp_revision": "3143a46e4deffa59832a517915a39d610dcb8564"
+    },
+    {
+      "report": "local/finite-stream-set2-native-v2/report.json",
+      "report_sha256": "6772591019c7b7d89e383f23607b77663ddfa3cffa0eb48bc72d729d06056753",
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "native_binary_sha256": "1524ca93119a3c10ff9d995b100a64e839ef909a283b5211c9bca9a73fa111aa",
+      "cases": [
+        {
+          "cue": "SET2-0",
+          "source_sha256": "597f30b32d3ecc992a80c01820a2e9167d8a8f7f3343cef8d8ad664ff8235db1",
+          "source_bytes": 28864,
+          "prepared_bytes": 28928,
+          "prepared_sha256": "0d75e94abe9ecfce4a9ce8bac37a9040aa99164dbb5de07413a1f8eb9df79441",
+          "original": "local/finite-stream-set2-original-v2/SET2-0.original.bin",
+          "original_sha256": "bfa45441b6fa1474e022005a5359f19c5b11fa7b27faedb57a53caebc2a7340d",
+          "frames": 100000,
+          "pcm_sha256": "42193167fa7f5007bea735f7a629265d4febd7bc391a7424c671809d4a4353eb",
+          "bytes_and_pcm_exact": true
+        }
+      ],
+      "dsp_revision": "3143a46e4deffa59832a517915a39d610dcb8564"
+    },
+    {
+      "report": "local/finite-stream-set2-model-sanitize-v2/report.json",
+      "report_sha256": "780df50f1dcb20bceb40552ec7cab397a6e25ac7ff231f09727892deef064cad",
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "native_binary_sha256": "e03f36dc725a16e600d93987e28077b7e0e664e6f8009737732b2e36253f3792",
+      "cases": [
+        {
+          "cue": "SET2-0",
+          "source_sha256": "597f30b32d3ecc992a80c01820a2e9167d8a8f7f3343cef8d8ad664ff8235db1",
+          "source_bytes": 28864,
+          "prepared_bytes": 28928,
+          "prepared_sha256": "0d75e94abe9ecfce4a9ce8bac37a9040aa99164dbb5de07413a1f8eb9df79441",
+          "original": "local/finite-stream-set2-original-v2/SET2-0.original.bin",
+          "original_sha256": "bfa45441b6fa1474e022005a5359f19c5b11fa7b27faedb57a53caebc2a7340d",
+          "frames": 100000,
+          "pcm_sha256": "42193167fa7f5007bea735f7a629265d4febd7bc391a7424c671809d4a4353eb",
+          "bytes_and_pcm_exact": true
+        }
+      ],
+      "dsp_revision": "3143a46e4deffa59832a517915a39d610dcb8564"
+    }
+  ],
+  "native_regression": {
+    "scope": "Native regression only, not original fidelity.",
+    "baseline": "local/native-home2c-basement-three-verses-47855-release-v1.png",
+    "new": "local/native-summon-regression-47855-release-v1.png",
+    "run": {
+      "exit_code": 0,
+      "elapsed_seconds": 20.375871166,
+      "binary_sha256": "6c27bffb0f9ee1919c0ce6ea1639c24f6bb39dec3a5c4af16096bd3acae41687"
+    },
+    "files": [
+      {
+        "suffix": "",
+        "sha256": "aec41ac0f4289e8819a5e7a545db1d5ef9c2f2272b8b092911d264a4bb954bd1"
+      },
+      {
+        "suffix": ".actor-1.bin",
+        "sha256": "7bd7eed0c6650503a7605697fbfc0b1a709c186bca7e9cedb9bd9a018039d47a"
+      },
+      {
+        "suffix": ".actor-10.bin",
+        "sha256": "e444e80b034d91348ecde5b0e319e7d0fa693cbffdf5d3e1b22ae813a4bc0490"
+      },
+      {
+        "suffix": ".actor-11.bin",
+        "sha256": "1fca7d3bd793e19d237f88d833797b62a1025cb7fcc81dacb39abb25909b9bc6"
+      },
+      {
+        "suffix": ".actor-12.bin",
+        "sha256": "3bbe89f0bdbe03425aa3514fda6c4a315662a92c48d584fae22a53d11a1d8a9a"
+      },
+      {
+        "suffix": ".actor-13.bin",
+        "sha256": "da2a80fa89b5ced64d2bac1eb09c5effe98027126c64760b9322d01c9d74e441"
+      },
+      {
+        "suffix": ".actor-14.bin",
+        "sha256": "3379c4ae4747dbb45655bfd518a7d8e985003c1703e7984533edc9bd7f2cd7c8"
+      },
+      {
+        "suffix": ".actor-15.bin",
+        "sha256": "422ae0729ea4b557cdf21ceaf1a3ea2f83a727102e2d6add30b1eb3a7e62616f"
+      },
+      {
+        "suffix": ".actor-16.bin",
+        "sha256": "a9b8184ee96875376f7a53e7f2ae63e5746206fb86f2c251cc6f335a0cd2829e"
+      },
+      {
+        "suffix": ".actor-17.bin",
+        "sha256": "ec4cfce3ec49b71094d28e1def4044d40b4c4878687134b7fc73b51925085865"
+      },
+      {
+        "suffix": ".actor-18.bin",
+        "sha256": "495b66777b5a894d9bf450dab77218587e58bd8a29d8d9ce737a2529e19f8dc7"
+      },
+      {
+        "suffix": ".actor-19.bin",
+        "sha256": "7fbae01f7a23a5db0b4a19650c01d3ba790daccc90d9b49441277a0d99412774"
+      },
+      {
+        "suffix": ".actor-20.bin",
+        "sha256": "dce67fe8789273e842c73e63b5f6b4993c29c3457f3b02a918b8d9e27126f277"
+      },
+      {
+        "suffix": ".actor-21.bin",
+        "sha256": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3"
+      },
+      {
+        "suffix": ".actor-22.bin",
+        "sha256": "52ced2ad7d11087e23f17eec62ef9a12152e22819f3c90aae92d7f002c447da5"
+      },
+      {
+        "suffix": ".actor-37.bin",
+        "sha256": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd"
+      },
+      {
+        "suffix": ".actor-38.bin",
+        "sha256": "76ba34c261405d19131ff08afd76466bd58b75955ea5d5be4f94b432248fb11e"
+      },
+      {
+        "suffix": ".actor-45.bin",
+        "sha256": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921"
+      },
+      {
+        "suffix": ".actor-9.bin",
+        "sha256": "c08ffefb51ef7bca2b335b30d592cc3ea85b11e4152b81c128ce05366a4573a5"
+      },
+      {
+        "suffix": ".actor.bin",
+        "sha256": "1b5211c1fa3a2b48d9f736b8ebd496031a1c7cdfddc234d711db53f170ae2685"
+      },
+      {
+        "suffix": ".actors-state.json",
+        "sha256": "da52ebc0260a3602997f2833e3f3b4a8962d9d4c806b5c68c181370408271155"
+      },
+      {
+        "suffix": ".audio.json",
+        "sha256": "5067608dac9f3595578072eea2e3e7e01dafe613720dfd3def98b0f442d00577"
+      },
+      {
+        "suffix": ".audio.pcm",
+        "sha256": "f7609a9d7cd816e1dc400e06259bdc6eb193396b841699071924ffa0178b3232"
+      },
+      {
+        "suffix": ".camera-state.bin",
+        "sha256": "3983cc771d0d0186d6128af00e61919e88d714ad264e38659f7237ca63bfa4b9"
+      },
+      {
+        "suffix": ".camera.bin",
+        "sha256": "270fef6176d50a126f9fa08bebea6757ecf00fb71557a422d0271f03c76ab76f"
+      },
+      {
+        "suffix": ".choices.bin",
+        "sha256": "299d149cb217e54fa7a252d5ea42f10bc8d4bb35544f4b83c52876b5146e84ee"
+      },
+      {
+        "suffix": ".dialogue.bin",
+        "sha256": "997bda69a5ef345b20fc4fcd980dd7a7eb2b1c0075814eea4f075ba434bf4432"
+      },
+      {
+        "suffix": ".effects.bin",
+        "sha256": "228c55b06d26a929f633d3cd2decf94d0e6c9812c84818bd03fdd4d5b686a2df"
+      },
+      {
+        "suffix": ".interaction.bin",
+        "sha256": "656603538cfb644aba85fb2fe0c8b7e69d0703dd1deb92a9146bf1f3feafa841"
+      },
+      {
+        "suffix": ".json",
+        "sha256": "e01c762eef62719bfcbff10dcc389ae38a61aa3773e22d8e357a9fb1636421f5"
+      },
+      {
+        "suffix": ".map-effects.bin",
+        "sha256": "123f3838d821169e4b0d415cdc214e0838df4e1b24d6d8dceb611545ce1277b0"
+      },
+      {
+        "suffix": ".movement.bin",
+        "sha256": "1483638bd28535f2c4dedf7a0bed5ae806a04908fa4a789b146e02218e7e94fb"
+      },
+      {
+        "suffix": ".music.bin",
+        "sha256": "9df7dd460780e02ce197712f728c362f377fe049375157a2f7d79f4c1b48e225"
+      },
+      {
+        "suffix": ".screen-filter.bin",
+        "sha256": "f8f380a36e5dac0b275c2f946e52e0bf1bb64548de7ac99926f640c01b4442a5"
+      },
+      {
+        "suffix": ".sound.bin",
+        "sha256": "efa6ab2eaa24b797f5e15f772a466bef51b3156cdc920d4dfbf6426cea075ff3"
+      },
+      {
+        "suffix": ".transition.bin",
+        "sha256": "d62a484a672e7939dbb1df4965f3f815b61e5ce41bbb988c1f093e67b6bce442"
+      },
+      {
+        "suffix": ".variables.bin",
+        "sha256": "57b15026f7453eb06527fe6681a224f9227abf6dd528bfc0cb42465b37f90535"
+      }
+    ]
+  },
+  "progression_attempts": [
+    {
+      "manifest": "local/native-home2c-basement-after-chant-48455-release-v1.run.json",
+      "manifest_sha256": "8539670c04a6e01084f8d783159195d90da6cf91ceffaacc00a2efc446564f67",
+      "exit_code": 1,
+      "elapsed_seconds": 19.459826083,
+      "binary_sha256": "e732f0acabb2af39a0906b4e6a70b735e134f9c570d5309a95c7f830fd9a93d7",
+      "last_log_line": "Native frame=48051 field PC=2120: filesystem error: in file_size: No such file or directory [\"local/audio-input/SNDDATA/SE/SET2.XWS\"]"
+    },
+    {
+      "manifest": "local/native-home2c-basement-after-chant-48455-release-v2.run.json",
+      "manifest_sha256": "a4a9ac64ed800281c532614ced1ea3580e195f8baafbabd7e24d082b1053b057",
+      "exit_code": 1,
+      "elapsed_seconds": 19.838043833,
+      "binary_sha256": "e732f0acabb2af39a0906b4e6a70b735e134f9c570d5309a95c7f830fd9a93d7",
+      "last_log_line": "Native frame=48051 field PC=2132: Unrecovered field service 62 at PC 2132 (a=0, b=33)"
+    },
+    {
+      "manifest": "local/native-home2c-basement-after-chant-48455-release-v3.run.json",
+      "manifest_sha256": "936373075d5c482d655a5ebdb61592a2df88344c77f0401775c0219605574619",
+      "exit_code": 1,
+      "elapsed_seconds": 20.169807333,
+      "binary_sha256": "6c27bffb0f9ee1919c0ce6ea1639c24f6bb39dec3a5c4af16096bd3acae41687",
+      "last_log_line": "Native frame=48051 field PC=2132: Positioned effect requires owned templates, textures and shared RNG"
+    }
+  ],
+  "original_effect_pools": [
+    {
+      "snapshot": "local/reference-home2c-basement-three-verses-1200-v1.state.zip",
+      "snapshot_sha256": "ffb7b731b231bb34671e131287f85c55ebf327e9c9b76da7354fd5a56e9f3d04",
+      "jobs": [
+        {
+          "slot": 0,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 1224,
+          "duration": 9900
+        },
+        {
+          "slot": 1,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 9353,
+          "duration": 9900
+        },
+        {
+          "slot": 2,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 1642,
+          "duration": 9900
+        },
+        {
+          "slot": 3,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 1639,
+          "duration": 9900
+        },
+        {
+          "slot": 4,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 1384,
+          "duration": 9900
+        },
+        {
+          "slot": 5,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 9309,
+          "duration": 9900
+        },
+        {
+          "slot": 6,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 9434,
+          "duration": 9900
+        },
+        {
+          "slot": 7,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 4739,
+          "duration": 9900
+        },
+        {
+          "slot": 8,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 8596,
+          "duration": 9900
+        },
+        {
+          "slot": 9,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 4893,
+          "duration": 9900
+        },
+        {
+          "slot": 10,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 4314,
+          "duration": 9900
+        },
+        {
+          "slot": 11,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 4359,
+          "duration": 9900
+        },
+        {
+          "slot": 12,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 6456,
+          "duration": 9900
+        },
+        {
+          "slot": 13,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 1585,
+          "duration": 9900
+        },
+        {
+          "slot": 14,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 3770,
+          "duration": 9900
+        },
+        {
+          "slot": 15,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 2843,
+          "duration": 9900
+        },
+        {
+          "slot": 16,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 7116,
+          "duration": 9900
+        },
+        {
+          "slot": 17,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 3961,
+          "duration": 9900
+        },
+        {
+          "slot": 18,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 8838,
+          "duration": 9900
+        },
+        {
+          "slot": 19,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 431,
+          "duration": 9900
+        },
+        {
+          "slot": 20,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 9484,
+          "duration": 9900
+        },
+        {
+          "slot": 21,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 5445,
+          "duration": 9900
+        },
+        {
+          "slot": 22,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 5182,
+          "duration": 9900
+        },
+        {
+          "slot": 23,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 2883,
+          "duration": 9900
+        },
+        {
+          "slot": 24,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 4260,
+          "duration": 9900
+        },
+        {
+          "slot": 25,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 9193,
+          "duration": 9900
+        },
+        {
+          "slot": 26,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 7678,
+          "duration": 9900
+        },
+        {
+          "slot": 27,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 8499,
+          "duration": 9900
+        }
+      ],
+      "ring_index": 7,
+      "ring": [
+        26,
+        0,
+        0,
+        0,
+        0,
+        1,
+        14,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "snapshot": "local/reference-home2c-basement-after-chant-600-v1.state.zip",
+      "snapshot_sha256": "5ddff4456fc0f9a96170733acc16a1b8cd745f37f80b457c0eb037222b04e8e7",
+      "jobs": [
+        {
+          "slot": 0,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 1824,
+          "duration": 9900
+        },
+        {
+          "slot": 1,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 53,
+          "duration": 9900
+        },
+        {
+          "slot": 2,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 2242,
+          "duration": 9900
+        },
+        {
+          "slot": 3,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 2239,
+          "duration": 9900
+        },
+        {
+          "slot": 4,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 1984,
+          "duration": 9900
+        },
+        {
+          "slot": 5,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 9,
+          "duration": 9900
+        },
+        {
+          "slot": 6,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 134,
+          "duration": 9900
+        },
+        {
+          "slot": 7,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 5339,
+          "duration": 9900
+        },
+        {
+          "slot": 8,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 9196,
+          "duration": 9900
+        },
+        {
+          "slot": 9,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 5493,
+          "duration": 9900
+        },
+        {
+          "slot": 10,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 4914,
+          "duration": 9900
+        },
+        {
+          "slot": 11,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 4959,
+          "duration": 9900
+        },
+        {
+          "slot": 12,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 7056,
+          "duration": 9900
+        },
+        {
+          "slot": 13,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 2185,
+          "duration": 9900
+        },
+        {
+          "slot": 14,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 4370,
+          "duration": 9900
+        },
+        {
+          "slot": 15,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 3443,
+          "duration": 9900
+        },
+        {
+          "slot": 16,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 7716,
+          "duration": 9900
+        },
+        {
+          "slot": 17,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 4561,
+          "duration": 9900
+        },
+        {
+          "slot": 18,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 9438,
+          "duration": 9900
+        },
+        {
+          "slot": 19,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 1031,
+          "duration": 9900
+        },
+        {
+          "slot": 20,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 184,
+          "duration": 9900
+        },
+        {
+          "slot": 21,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 6045,
+          "duration": 9900
+        },
+        {
+          "slot": 22,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 5782,
+          "duration": 9900
+        },
+        {
+          "slot": 23,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 3483,
+          "duration": 9900
+        },
+        {
+          "slot": 24,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 4860,
+          "duration": 9900
+        },
+        {
+          "slot": 25,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 9793,
+          "duration": 9900
+        },
+        {
+          "slot": 26,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 8278,
+          "duration": 9900
+        },
+        {
+          "slot": 27,
+          "template": 91,
+          "flags": "0x8020",
+          "phase": 9099,
+          "duration": 9900
+        },
+        {
+          "slot": 29,
+          "template": 30,
+          "flags": "0x8420",
+          "phase": 27,
+          "duration": 250
+        },
+        {
+          "slot": 30,
+          "template": 30,
+          "flags": "0x8420",
+          "phase": 27,
+          "duration": 250
+        },
+        {
+          "slot": 31,
+          "template": 30,
+          "flags": "0x8420",
+          "phase": 27,
+          "duration": 250
+        },
+        {
+          "slot": 32,
+          "template": 30,
+          "flags": "0x8420",
+          "phase": 27,
+          "duration": 250
+        },
+        {
+          "slot": 33,
+          "template": 30,
+          "flags": "0x8420",
+          "phase": 27,
+          "duration": 250
+        },
+        {
+          "slot": 34,
+          "template": 115,
+          "flags": "0x420",
+          "phase": 277,
+          "duration": 500
+        }
+      ],
+      "ring_index": 14,
+      "ring": [
+        26,
+        0,
+        0,
+        0,
+        0,
+        1,
+        14,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        0,
+        0
+      ]
+    }
+  ],
+  "tests": {
+    "ctest": {
+      "Release": 19,
+      "Debug": 19,
+      "ASan/UBSan": 19
+    },
+    "python": 48
+  },
+  "limits": [
+    "Only mutable shape25 Y coordinates are compared geometrically; captured adjacent16-bit values are not homogeneous W.",
+    "Both isolated summoning probes use seed1 and an empty active pool. They do not establish whole-scene RNG or allocation equivalence.",
+    "Native interiors currently omit map effects. Original basement has28 template91 jobs before the summoning. No native snapshot/state injection is used.",
+    "Original static dispatch0x10a970 switches on shapeID-1; account for this when locating geometry constructors.",
+    "SET2 looping cues5/7 remain guarded; producer/dry DSP validation does not establish mixed original PCM, reverb, live refill or listening."
+  ]
+}

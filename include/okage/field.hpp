@@ -138,6 +138,7 @@ private:
     bool map_effects_loaded_=false;
     EffectTextureSizes effect_texture_sizes_{};
     void spawn_dust(const Float4& position);
+    unsigned spawn_positioned_effect(unsigned template_id,const Float4& position);
     std::array<unsigned,16> effect_ring_{};
     unsigned effect_ring_index_=0;
     unsigned attach_bubble(int parameter,int alias);

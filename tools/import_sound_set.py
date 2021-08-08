@@ -8,6 +8,7 @@ from inspect_disc import Disc
 from verify_event import write_exact
 
 HASHES = {
+    2: 'e83e0e53c7cb372d96c33a1867b2e3b54c5d30711abddc999cd483eaade3470a',
     10: '84062be8c8b4d10d036e4c4ee4897a08cf875d57abe1bbd71748258ca887200a',
     11: '2e5c7bd2f1083c0213723505d505c50421b4146133fe94fd6daca7b5ccf1853f',
     12: 'e4c07efc18a723862d1bba4759d966c2f2da8d341270ec38b8edd100c20c820c',

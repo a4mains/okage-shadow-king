@@ -37,6 +37,7 @@ struct MapEffectElement {
     std::array<Float4,4> rendered{};
     std::uint32_t texture=0,render_flags=0;
     std::array<std::uint16_t,4> uv{};
+    std::vector<std::int16_t> ring_y;
 };
 enum class EffectStart {RandomPhase, FirstFrame};
 class MapEffect {

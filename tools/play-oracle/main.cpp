@@ -430,7 +430,7 @@ public:
         if(ram.size()!=32*1024*1024||input.size()!=80||frames>1000)
             throw std::runtime_error("Map effect probe fixture bounds");
         std::array<uint32,20> request;std::memcpy(request.data(),input.data(),80);
-        if((request[0]!=17&&request[0]!=19&&request[0]!=25&&request[0]!=34)||request[2]>0xfff||request[3]!=0x100)
+        if((request[0]!=17&&request[0]!=19&&request[0]!=25&&request[0]!=33&&request[0]!=34&&request[0]!=115)||request[2]>0xfff||request[3]!=0x100)
             throw std::runtime_error("Map effect probe request scope");
         std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
         effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
@@ -440,12 +440,22 @@ public:
         if(table>ram.size()-212*4||random>ram.size()-4)throw std::runtime_error("Map effect fixture pointers");
         for(unsigned i=0;i<84;++i)put(table+4*i,0xffffffff);
         put(random,request[1]);std::memcpy(ee->m_ram+0x80000,request.data()+4,64);
-        if(request[0]==17)call(0x1012f8,{17,0x80000});
-        else call(0x101440,{request[0],0x80000,0x80010,0x80020});
-        const auto handle=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+        const bool positioned=request[0]==17||request[0]==33||request[0]==115;
+        uint32 handle;
+        if(request[0]==33||request[0]==115) {
+            std::memset(ee->m_ram+0x2d9bf8,0xff,32);put(0x1fb948,15);
+            call(0x130c50,{0x3e,0x123,request[0],0x80000});
+            if(uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0)!=0x8000c||get(0x1fb948)!=0)
+                throw std::runtime_error("Positioned effect service payload/ring extent");
+            for(unsigned i=0;i<15;++i)if((get(0x2d9bf8+2*i)&0xffff)!=0xffff)
+                throw std::runtime_error("Positioned effect changed an unrelated ring entry");
+            handle=get(0x2d9bf8+30)&0xffff;
+        }
+        else if(positioned){call(0x1012f8,{request[0],0x80000});handle=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);}
+        else {call(0x101440,{request[0],0x80000,0x80010,0x80020});handle=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);}
         if(handle!=0)throw std::runtime_error("Map effect allocation order");
         put(0x1f85a4,1);
-        std::vector<uint32> result;
+        std::vector<uint32> result,geometry;
         auto capture=[&](unsigned step){
             const auto job=get(table+4*handle);
             if(job>ram.size()-128||get(job+8)>32)throw std::runtime_error("Map effect job extent");
@@ -460,12 +470,30 @@ public:
                 for(unsigned offset=0;offset<64;offset+=4)result.push_back(get(render+offset));
                 unsigned texture=0;
                 for(;texture<get(0x1f8498);++texture)if(get(get(0x24e780)+4*texture)==(get(element+0x5c)&0xffff))break;
-                if(texture==get(0x1f8498))throw std::runtime_error("Map effect texture identity");
+                if(texture==get(0x1f8498)) {
+                    if((request[0]==33||request[0]==115)&&(get(element+0x5c)&0xffff)==0xffff)texture=0xffffffff;
+                    else throw std::runtime_error("Map effect texture identity");
+                }
                 result.insert(result.end(),{texture,get(element+0x68),get(element+0x6c),get(render+0x58)});
+                if(request[0]==33||request[0]==115) {
+                    unsigned piece=0;
+                    for(auto g=get(element+0x64);g;g=get(g)) {
+                        if(g>ram.size()-48||piece>=32)throw std::runtime_error("Effect geometry chain extent");
+                        const auto count=get(g+0x1c)&0xffff,tags=get(g+0x14);
+                        if(count>512||tags>ram.size()-count)throw std::runtime_error("Effect geometry vertex extent");
+                        geometry.insert(geometry.end(),{step,i,piece++,count});
+                        for(unsigned vertex=0;vertex<count;++vertex) {
+                            call(0x113690,{g,vertex});
+                            const auto point=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+                            if(point>ram.size()-8)throw std::runtime_error("Effect geometry point extent");
+                            geometry.insert(geometry.end(),{get(point),get(point+4),ee->m_ram[tags+vertex]});
+                        }
+                    }
+                }
             }
         };
         capture(0);
-        if(request[0]!=17) {
+        if(!positioned) {
             call(0x130d88,{0,request[2],request[3],0x80030});
             const auto next=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
             if(next!=(request[2]<0xf00?0x80030u:0x8003cu))throw std::runtime_error("Map effect service payload extent");
@@ -490,6 +518,7 @@ public:
             writeFile((std::string(output)+".packets.bin").c_str(),packets.data(),packets.size()*4);
             writeFile((std::string(output)+".tint.bin").c_str(),ee->m_ram+0x24e620,16);
         }
+        if(!geometry.empty())writeFile((std::string(output)+".geometry.bin").c_str(),geometry.data(),geometry.size()*4);
         writeFile(output,result.data(),result.size()*4);
     }
     void effectProbe(const std::vector<uint8>& ram,unsigned id,unsigned parameter,unsigned frames,const char* output) {
