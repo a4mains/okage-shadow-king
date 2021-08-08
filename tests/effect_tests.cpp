@@ -68,5 +68,19 @@ int main(){try{
     puff.tick(random);check(puff.phase==31&&(puff.flags&0x100));
     check(okage::map_effect_draws(puff,identity,{},450,sine,&tint).empty());
     rejects([&]{puff.tick(random);});
+    okage::EffectDefinition torch;torch.id=91;torch.duration=9900;torch.flags=0x8000;
+    torch.elements.resize(4);
+    for(unsigned i=0;i<4;++i){auto& e=torch.elements[i];e.shape=i==3?40:28;
+        e.change_time=1.1f;e.program=i==3?49u<<12:0;}
+    okage::MapEffect flame(torch,{3,-4,5,1},{},{1,1,1,1},sizes,random);
+    const auto phase=flame.phase;
+    flame.tick(random,false);check(flame.phase==phase);
+    rejects([&]{flame.tick(random);});
+    const okage::Float4 invalid_eye{__builtin_bit_cast(float, (0x7fc00000u)),0,0,1};
+    rejects([&]{flame.tick(random,true,&invalid_eye);});
+    const okage::Float4 eye{3,-4,5,1};flame.tick(random,true,&eye);
+    check(flame.phase==phase+1&&flame.elements[3].rendered[0][3]==0);
+    // State/quad support alone does not enable the unfinished torch renderer.
+    rejects([&]{okage::map_effect_draws(flame,identity,{},450,sine);});
     std::cout<<"EFD extent, ID, pointer, finite-value and unsupported-program checks passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

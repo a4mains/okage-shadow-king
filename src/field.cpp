@@ -835,7 +835,7 @@ void OpeningField::advance_effects(bool player_contacts) {
         if(flags&0x100){flags|=0x200;continue;}
         if(flags&0x4000)continue;
         if(flags&0x400)throw std::runtime_error("Deferred map effect render pass is unrecovered");
-        effect->tick(random_value);
+        effect->tick(random_value,true,&position);
     }
     for(auto& effect:effects_)if(effect&&effect->player_contact==player_contacts) {
         auto& flags=effect->animation.flags;

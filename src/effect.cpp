@@ -1,4 +1,5 @@
 #include "okage/effect.hpp"
+#include "okage/camera.hpp"
 #include <algorithm>
 #include <bit>
 #include <cfenv>
@@ -57,7 +58,8 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
     parameters(d.parameters),texture_sizes_(sizes) {
     require((d.id==25&&d.elements.size()==8)||(d.id==34&&d.elements.size()==14)||(d.id==19&&d.elements.size()==9)||
             ((d.id==17||d.id==33)&&d.elements.size()==9&&start==EffectStart::FirstFrame)||
-            (d.id==115&&d.elements.size()==5&&start==EffectStart::FirstFrame),
+            (d.id==115&&d.elements.size()==5&&start==EffectStart::FirstFrame)||
+            (d.id==91&&d.elements.size()==4),
             "Unrecovered map effect template");
     require(duration>0&&duration<=0x7fffffff,"Invalid map effect duration");
     Rounding rounding;inverse_duration=1.0f/float(duration);
@@ -77,12 +79,17 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
                         case 28:texture=4;break;case 31:texture=17;break;
                         case 59:require(d.id==33,"Unrecovered effect shape59 owner");texture=25;break;
                         case 25:case 40:case 32:
-                            require(d.id==33||d.id==115,"Unrecovered untextured effect owner");
+                            require(d.id==33||d.id==115||d.id==91,"Unrecovered untextured effect owner");
                             texture=0xffffffffu;break;
                         default:throw std::runtime_error("Unrecovered map effect shape");}
         if(texture==0xffffffffu){e.texture=texture;e.uv={0,0,65535,65535};}
         else set_texture(e,texture);
         if(d.id==33&&e.shape==25)e.ring_y.assign(30,-192);
+        if(d.id==91&&e.shape==28) {
+            e.quad_positions={{{32,-64,0},{-32,-64,0},{32,0,0},{-32,0,0}}};
+            const auto width=std::uint16_t(sizes[4][0]*32),height=std::uint16_t((sizes[4][1]+1)*32);
+            e.quad_uv={{{width,0},{0,0},{width,height},{0,height}}};
+        }
         elements.push_back(e);
     }
     phase=start==EffectStart::RandomPhase?random()%duration:1;
@@ -187,10 +194,12 @@ Float4 effect_light_tint(const Float4& base,const Float4& ambient,const Float4& 
     for(unsigned i=0;i<3;++i)result[i]/=maximum;
     result[3]=1;return result;
 }
-void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_enabled) {
+void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_enabled,const Float4* eye) {
     if(!clock_enabled)return;
     require(!(flags&0x100),"Cannot update a removed map effect");
-    require(id==25||id==17||id==19||id==33||id==115,"Unrecovered map effect update program");
+    require(id==25||id==17||id==19||id==33||id==115||id==91,"Unrecovered map effect update program");
+    if(id==91){require(eye,"Torch effect requires the current camera position");
+        for(float f:*eye)require(std::isfinite(f),"Non-finite torch camera position");}
     Rounding rounding;
     if(phase>duration){if(!(flags&0x8000)){request_removal();return;}phase-=duration;}
     const float time=float(phase)*inverse_duration;
@@ -218,7 +227,15 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         }
         if((e.flags&0x2000)&&e.interval[2]<t)program&=0xc0ffffff;
         const auto timing=(program>>24)&63;
-        require(timing==0||timing==1||timing==7||timing==17,"Unrecovered map effect time program");
+        require(timing==0||timing==1||timing==5||timing==7||timing==17,"Unrecovered map effect time program");
+        if(timing==5) {
+            const float start=float((int(e.id)-1)>>2)*e.interval[3];
+            const int cycles=int((1.0f-start)*450.0f);
+            const float end=float(cycles)/450.0f+start;
+            require(cycles>0&&start<end,"Unrecovered flame cycle interval");
+            float local=t<start?0:t>end?1:(t-start)/(end-start);
+            local*=float(cycles);t=local-float(int(local));
+        }
         if(timing==1) {
             //0x105f80 ->0x103f88(1,handle,elementID,tag2,axisY/mode0).
             // Shape25 has thirty tag2 vertices; preserve their packed Y values
@@ -242,6 +259,33 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
             for(unsigned i=0;i<3;++i)p[i]=float(int(random()%40)-20)*parameters[i]+e.position[i];
             break;
         case 17:p[1]=e.position[1]+e.position[3]*t;break;
+        case 10: {
+            //0x104ba8 maps the original quad UVs into a32x64 atlas cell.
+            require(id==91&&e.shape==28,"Unrecovered effect atlas geometry");
+            const auto column=((int(e.id)-1)>>2)*32;
+            const auto width=texture_sizes_[e.texture][0],height=texture_sizes_[e.texture][1];
+            const int xstep=int(width*32)/32,ystep=int(height*32)/64;
+            require(xstep>0&&ystep>0,"Invalid torch atlas size");
+            const int right=((int(width*32)<<12)/xstep)>>7;
+            const int bottom=((int((height+1)*32)<<12)/ystep)>>7;
+            const auto left=std::uint16_t(column*32),rgt=std::uint16_t(right+column*32);
+            e.quad_uv={{{rgt,0},{left,0},{rgt,std::uint16_t(bottom)},{left,std::uint16_t(bottom)}}};
+            break;
+        }
+        case 49: {
+            //0x103c88 aims from the camera toward the job, then position49
+            // rotates a local negative-Z offset. It does not add job position.
+            require(eye,"Effect glow requires camera position");
+            static const auto angles=make_atan_table();
+            const float dx=position[0]-(*eye)[0],dy=position[1]-(*eye)[1],dz=position[2]-(*eye)[2];
+            const float horizontal=std::sqrt(dx*dx+dz*dz);
+            const Float4 look{camera_angle(-dy,horizontal,angles),camera_angle(dx,dz,angles),0,1};
+            const auto matrix=effect_matrix({},look,{1,1,1,1},sine_,true);
+            const float depth=rotation[2]<0?rotation[2]:-5;
+            for(unsigned i=0;i<4;++i){float v=matrix[0][i]*0.0f;v+=matrix[1][i]*0.0f;
+                v+=matrix[2][i]*depth;v+=matrix[3][i]*0.0f;p[i]=v;}
+            break;
+        }
         case 12:
             if(flags&0x20) {
                 for(unsigned i=0;i<3;++i)p[i]=(e.position[i]*t)*parameters[i];
@@ -276,6 +320,14 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         switch((program>>6)&63){case 0:break;
         case 1:{const float cycle=t*e.rotation[3];r[1]=(cycle-float(int(cycle)))+e.rotation[1];break;}
         case 4:r[2]=float(random()%360+360)*.00278f;break;case 11:r[1]=float(random()%360+360)*.00278f;break;
+        case 5:
+            require(id==91&&e.shape==28,"Unrecovered effect flip geometry");
+            if(t<e.interval[2]) {
+                const int sign=((random()%10+10)&4)?1:-1;
+                e.quad_positions={{{std::int16_t(sign*32),-64,0},{std::int16_t(sign*-32),-64,0},
+                                  {std::int16_t(sign*32),0,0},{std::int16_t(sign*-32),0,0}}};
+            }
+            break;
                               default:throw std::runtime_error("Unrecovered map effect rotation program");}
         switch((program>>18)&63){case 0:break;case 1:for(unsigned i=0;i<3;++i)s[i]=(t*e.scale[3]+1.0f)*e.scale[i];break;
         case 2:{const float q=-.1f/t;const float factor=(q < -1?0:q+1)*e.scale[3];
@@ -288,6 +340,8 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         case 6:{const float q=-e.scale[3]/t;const float factor=q < -1?0:q+1;
             for(unsigned i=0;i<3;++i)s[i]=factor*e.scale[i];break;}
         case 13:s[0]=t*e.scale[0];s[1]=(1.0f-t)*e.scale[1];s[2]=t*e.scale[2];break;
+        case 10:{const float envelope=t>.5f?1.0f-(t-.5f)/.5f:t<.2f?t/.2f:1;
+            s[0]=envelope*e.scale[0];s[1]=t*e.scale[1];s[2]=envelope*e.scale[2];break;}
         case 25: {
             // 0x109950: duration*.01 precedes multiplication by local time;
             // only X/Y change, with the doubled time added after the base.
@@ -304,6 +358,13 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         case 1:c[3]=0;break;
         case 5:
             c[3]=(t==0||t==1)?0:(t>.6f?(1.0f-(t-.6f)/(1.0f-.6f))*e.color[3]:e.color[3]);break;
+        case 13: {
+            const float cycle=t*e.interval[3],local=cycle-float(int(cycle));
+            const float envelope=local>.6f?1.0f-(local-.6f)/.39999998f:local<.4f?local/.4f:1;
+            c[3]=e.color[3]-(envelope*e.color[3])*.25f;break;
+        }
+        case 14:{const float envelope=t>.7f?1.0f-(t-.7f)/.3f:t<.45f?t/.45f:1;
+            for(unsigned i=0;i<3;++i)c[i]=envelope*e.color[i];break;}
         case 15:case 16:case 17:case 20: {
             const float head=(program&63)==15?.6f:(program&63)==17?.4f:.1f,tail=((program&63)==15||(program&63)==16)?.8f:(program&63)==17?.7f:.4f;
             float alpha=0;

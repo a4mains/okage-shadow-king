@@ -427,15 +427,25 @@ public:
         writeFile((std::string(output)+".packets.bin").c_str(),packets.data(),packets.size()*4);
     }
     void mapEffectProbe(const std::vector<uint8>& ram,const std::vector<uint8>& input,unsigned frames,const char* output) {
-        if(ram.size()!=32*1024*1024||input.size()!=80||frames>1000)
+        if(ram.size()!=32*1024*1024||(input.size()!=80&&input.size()!=96)||frames>12000)
             throw std::runtime_error("Map effect probe fixture bounds");
         std::array<uint32,20> request;std::memcpy(request.data(),input.data(),80);
-        if((request[0]!=17&&request[0]!=19&&request[0]!=25&&request[0]!=33&&request[0]!=34&&request[0]!=115)||request[2]>0xfff||request[3]!=0x100)
+        if((request[0]!=17&&request[0]!=19&&request[0]!=25&&request[0]!=33&&request[0]!=34&&request[0]!=91&&request[0]!=115)||request[2]>0xfff||request[3]!=0x100)
             throw std::runtime_error("Map effect probe request scope");
+        const bool torch=request[0]==91;
+        if((torch&&input.size()!=96)||(!torch&&(input.size()!=80||frames>1000)))
+            throw std::runtime_error("Map effect camera/frame scope");
         std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
         effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
                                         ee->m_gs,ee->m_sif,*dynamic_cast<CIopBios*>(iop->m_bios.get()));
         loadMicro();
+        if(torch) {
+            call(0x1842d8);const auto camera=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+            if(camera>ram.size()-16)throw std::runtime_error("Torch camera pointer extent");
+            std::array<float,4> eye;std::memcpy(eye.data(),input.data()+80,16);
+            for(unsigned i=0;i<4;++i){if(!std::isfinite(eye[i]))throw std::runtime_error("Torch camera finite input");
+                const float inverse=-eye[i];uint32 word;std::memcpy(&word,&inverse,4);put(camera+4*i,word);}
+        }
         const auto table=get(0x1f849c),random=get(0x2151b4)+0x58;
         if(table>ram.size()-212*4||random>ram.size()-4)throw std::runtime_error("Map effect fixture pointers");
         for(unsigned i=0;i<84;++i)put(table+4*i,0xffffffff);
@@ -455,8 +465,9 @@ public:
         else {call(0x101440,{request[0],0x80000,0x80010,0x80020});handle=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);}
         if(handle!=0)throw std::runtime_error("Map effect allocation order");
         put(0x1f85a4,1);
-        std::vector<uint32> result,geometry;
+        std::vector<uint32> result,geometry,torchGeometry;
         auto capture=[&](unsigned step){
+            if(torch)torchGeometry.push_back(step);
             const auto job=get(table+4*handle);
             if(job>ram.size()-128||get(job+8)>32)throw std::runtime_error("Map effect job extent");
             result.insert(result.end(),{step,handle,get(job),get(job+4),get(job+8),get(job+0x60),get(job+0x64),get(random)});
@@ -471,10 +482,24 @@ public:
                 unsigned texture=0;
                 for(;texture<get(0x1f8498);++texture)if(get(get(0x24e780)+4*texture)==(get(element+0x5c)&0xffff))break;
                 if(texture==get(0x1f8498)) {
-                    if((request[0]==33||request[0]==115)&&(get(element+0x5c)&0xffff)==0xffff)texture=0xffffffff;
+                    if((request[0]==33||request[0]==115||torch)&&(get(element+0x5c)&0xffff)==0xffff)texture=0xffffffff;
                     else throw std::runtime_error("Map effect texture identity");
                 }
                 result.insert(result.end(),{texture,get(element+0x68),get(element+0x6c),get(render+0x58)});
+                if(torch&&i<3) {
+                    const auto g=get(element+0x64);
+                    if(g>ram.size()-48||get(g)||(get(g+0x1c)&0xffff)!=4)
+                        throw std::runtime_error("Torch quad geometry extent");
+                    torchGeometry.push_back(i);
+                    for(unsigned vertex=0;vertex<4;++vertex) {
+                        call(0x113690,{g,vertex});const auto point=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+                        if(point>ram.size()-6)throw std::runtime_error("Torch point extent");
+                        torchGeometry.insert(torchGeometry.end(),{get(point),get(point+4)&0xffff});
+                        call(0x113720,{g,0});const auto uv=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0)+vertex*4;
+                        if(uv>ram.size()-4)throw std::runtime_error("Torch UV extent");
+                        torchGeometry.push_back(get(uv));
+                    }
+                }
                 if(request[0]==33||request[0]==115) {
                     unsigned piece=0;
                     for(auto g=get(element+0x64);g;g=get(g)) {
@@ -518,6 +543,7 @@ public:
             writeFile((std::string(output)+".packets.bin").c_str(),packets.data(),packets.size()*4);
             writeFile((std::string(output)+".tint.bin").c_str(),ee->m_ram+0x24e620,16);
         }
+        if(torch)writeFile((std::string(output)+".torch-geometry.bin").c_str(),torchGeometry.data(),torchGeometry.size()*4);
         if(!geometry.empty())writeFile((std::string(output)+".geometry.bin").c_str(),geometry.data(),geometry.size()*4);
         writeFile(output,result.data(),result.size()*4);
     }

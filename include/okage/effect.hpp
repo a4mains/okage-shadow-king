@@ -38,6 +38,9 @@ struct MapEffectElement {
     std::uint32_t texture=0,render_flags=0;
     std::array<std::uint16_t,4> uv{};
     std::vector<std::int16_t> ring_y;
+    // Torch91 uses independent mutable flame quads and atlas coordinates.
+    std::array<std::array<std::int16_t,3>,4> quad_positions{};
+    std::array<std::array<std::uint16_t,2>,4> quad_uv{};
 };
 enum class EffectStart {RandomPhase, FirstFrame};
 class MapEffect {
@@ -46,7 +49,8 @@ public:
               const Float4& scale,const EffectTextureSizes&,
               const std::function<std::uint32_t()>& random,EffectStart start=EffectStart::RandomPhase);
     void set_parameter(unsigned selector,const Float4& payload);
-    void tick(const std::function<std::uint32_t()>& random,bool clock_enabled=true);
+    void tick(const std::function<std::uint32_t()>& random,bool clock_enabled=true,
+              const Float4* camera_world_position=nullptr);
     void request_removal(){flags|=0x100;}
     const EffectTextureSizes& texture_sizes() const{return texture_sizes_;}
     std::uint32_t id=0,flags=0,duration=0,phase=0;

@@ -477,13 +477,16 @@ int main(int argc, char** argv) {
         }
         if(command=="map-effect-probe"&&argc==7) {
             const auto bank=okage::read_efd(read(argv[2]));const auto input=read(argv[4]);
-            if(input.size()!=80)throw std::runtime_error("Map effect request requires80 bytes");
+            if(input.size()!=80&&input.size()!=96)throw std::runtime_error("Map effect request requires80 or96 bytes");
             std::array<std::uint32_t,4> request;std::memcpy(request.data(),input.data(),16);
             std::array<okage::Float4,4> vectors;std::memcpy(vectors.data(),input.data()+16,64);
             if(request[3]!=0x100)throw std::runtime_error("Map effect probe requires direct handle0");
             const auto found=std::find_if(bank.begin(),bank.end(),[&](const auto& d){return d.id==request[0];});
             if(found==bank.end())throw std::runtime_error("Missing map effect definition");
-            const auto frames=std::stoul(argv[5]);if(frames>1000)throw std::runtime_error("Map effect frame bounds");
+            const bool torch=request[0]==91;
+            if(input.size()!=(torch?96u:80u))throw std::runtime_error("Map effect camera request extent");
+            okage::Float4 eye{};if(torch)std::memcpy(eye.data(),input.data()+80,16);
+            const auto frames=std::stoul(argv[5]);if(frames>(torch?12000u:1000u))throw std::runtime_error("Map effect frame bounds");
             okage::EffectTextureSizes sizes{};
             for(unsigned i=0;i<sizes.size();++i){const auto image=okage::decode_xim(read(fs::path(argv[3])/okage::effect_texture_names[i]));sizes[i]={image.width,image.height};}
             okage::GameRandom rng{request[1]};const auto random=[&]{return rng.next();};
@@ -492,9 +495,15 @@ int main(int argc, char** argv) {
             okage::MapEffect effect(*found,vectors[0],positioned?okage::Float4{}:vectors[1],
                 positioned?okage::Float4{1,1,1,1}:vectors[2],sizes,random,
                 positioned?okage::EffectStart::FirstFrame:okage::EffectStart::RandomPhase);
-            std::vector<std::uint32_t> out,deformation;
+            std::vector<std::uint32_t> out,deformation,torchGeometry;
             const auto vector=[&](const okage::Float4& v){for(float f:v)out.push_back(__builtin_bit_cast(std::uint32_t, (f)));};
             const auto capture=[&](unsigned step){
+                if(torch){torchGeometry.push_back(step);
+                    for(unsigned i=0;i<3;++i){const auto& e=effect.elements.at(i);torchGeometry.push_back(i);
+                        for(unsigned v=0;v<4;++v){const auto& p=e.quad_positions[v];const auto& uv=e.quad_uv[v];
+                            torchGeometry.insert(torchGeometry.end(),{std::uint16_t(p[0])|(std::uint32_t(std::uint16_t(p[1]))<<16),
+                                std::uint16_t(p[2]),uv[0]|(std::uint32_t(uv[1])<<16)});}}}
+
                 out.insert(out.end(),{step,0,effect.id,effect.flags,unsigned(effect.elements.size()),effect.duration,effect.phase,rng.state});
                 for(const auto& v:{effect.position,effect.rotation,effect.scale,effect.color,effect.parameters})vector(v);
                 out.push_back(__builtin_bit_cast(std::uint32_t, (effect.inverse_duration)));
@@ -523,7 +532,9 @@ int main(int argc, char** argv) {
                 write(std::string(argv[6])+".vertices.bin",{reinterpret_cast<const std::uint8_t*>(geometry.data()),geometry.size()*4});
             }
             if(!positioned)effect.set_parameter(request[2],vectors[3]);capture(1);
-            for(unsigned i=0;i<frames;++i){effect.tick(random);capture(i+2);}
+            for(unsigned i=0;i<frames;++i){effect.tick(random,true,torch?&eye:nullptr);capture(i+2);}
+            if(torch)write(std::string(argv[6])+".torch-geometry.bin",
+                {reinterpret_cast<const std::uint8_t*>(torchGeometry.data()),torchGeometry.size()*4});
             if(!deformation.empty())write(std::string(argv[6])+".deformation.bin",
                 {reinterpret_cast<const std::uint8_t*>(deformation.data()),deformation.size()*4});
             write(argv[6],{reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4});return 0;
