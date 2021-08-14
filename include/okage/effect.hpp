@@ -2,6 +2,7 @@
 #include "okage/pose.hpp"
 #include <memory>
 #include <functional>
+#include <optional>
 #include <string_view>
 
 namespace okage {
@@ -17,10 +18,15 @@ struct EffectDefinition {
     std::uint32_t id=0,duration=0,flags=0;
     Float4 parameters{};
     std::vector<EffectElement> elements;
+    std::optional<std::uint32_t> runtime_id;
+    Float4 position{},rotation{},scale{1,1,1,1},color{1,1,1,1};
 };
 // Structural EFD import; reference templates remain explicitly marked by flag
 // 0x800. Reading a definition does not imply support for its runtime program.
 std::vector<EffectDefinition> read_efd(Bytes bytes);
+// Original0x10ba38 imports ordinary templates first, then references in file
+// order. Header duration/flags/parameters of a reference record are not applied.
+std::vector<EffectDefinition> resolve_effect_references(std::vector<EffectDefinition>);
 
 // Retail ENV_TEX logical order; dimensions come from the owned XIM files.
 inline constexpr std::array<std::string_view,31> effect_texture_names={

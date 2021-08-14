@@ -51,15 +51,33 @@ std::vector<EffectDefinition> read_efd(Bytes bytes) {
     }
     require(p==bytes.size(),"Trailing EFD data");return result;
 }
+std::vector<EffectDefinition> resolve_effect_references(std::vector<EffectDefinition> bank) {
+    //0x10b5e8 copies the source's whole job header, sharing its element table.
+    // Owning an independent C++ definition preserves those immutable elements.
+    for(auto& target:bank) {
+        if(!(target.flags&0x800))continue;
+        require(target.elements.size()==1,"Unrecovered EFD reference extent");
+        const auto reference=target.elements.front();
+        require(!(reference.channels&~31u),"Unrecovered EFD reference channels");
+        const auto source=std::find_if(bank.begin(),bank.end(),[&](const auto& d){return d.id==reference.id;});
+        require(source!=bank.end()&&!(source->flags&0x800),"Unresolved EFD reference order or target");
+        const auto lookup=target.id;
+        target=*source;target.runtime_id=source->runtime_id.value_or(source->id);target.id=lookup;
+        const std::array<Float4*,5> channels={&target.color,&target.rotation,&target.position,&target.scale,&target.parameters};
+        for(unsigned i=0;i<5;++i)if(reference.channels&(1u<<i))*channels[i]=reference.values[i];
+    }
+    return bank;
+}
 MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
                      const Float4& s,const EffectTextureSizes& sizes,
                      const std::function<std::uint32_t()>& random,EffectStart start):
-    id(d.id),flags(d.flags&~0x4000u),duration(d.duration),position(p),rotation(r),scale(s),
+    id(d.runtime_id.value_or(d.id)),flags(d.flags&~0x4000u),duration(d.duration),position(p),rotation(r),scale(s),color(d.color),
     parameters(d.parameters),texture_sizes_(sizes) {
-    require((d.id==25&&d.elements.size()==8)||(d.id==34&&d.elements.size()==14)||(d.id==19&&d.elements.size()==9)||
-            ((d.id==17||d.id==33)&&d.elements.size()==9&&start==EffectStart::FirstFrame)||
-            (d.id==115&&d.elements.size()==5&&start==EffectStart::FirstFrame)||
-            (d.id==91&&d.elements.size()==4),
+    require(!(d.flags&0x800),"Unresolved effect reference");
+    require((id==25&&d.elements.size()==8)||(id==34&&d.elements.size()==14)||(id==19&&d.elements.size()==9)||
+            ((id==17||id==33)&&d.elements.size()==9&&start==EffectStart::FirstFrame)||
+            (id==115&&d.elements.size()==5&&start==EffectStart::FirstFrame)||
+            (id==91&&d.elements.size()==4)||(id==16&&d.elements.size()==3),
             "Unrecovered map effect template");
     require(duration>0&&duration<=0x7fffffff,"Invalid map effect duration");
     Rounding rounding;inverse_duration=1.0f/float(duration);
@@ -77,15 +95,15 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
         unsigned texture;
         switch(e.shape){case 24:texture=20;break;case 29:texture=5;break;
                         case 28:texture=4;break;case 31:texture=17;break;
-                        case 59:require(d.id==33,"Unrecovered effect shape59 owner");texture=25;break;
+                        case 59:require(id==33,"Unrecovered effect shape59 owner");texture=25;break;
                         case 25:case 40:case 32:
-                            require(d.id==33||d.id==115||d.id==91,"Unrecovered untextured effect owner");
+                            require(id==33||id==115||id==91,"Unrecovered untextured effect owner");
                             texture=0xffffffffu;break;
                         default:throw std::runtime_error("Unrecovered map effect shape");}
         if(texture==0xffffffffu){e.texture=texture;e.uv={0,0,65535,65535};}
         else set_texture(e,texture);
-        if(d.id==33&&e.shape==25)e.ring_y.assign(30,-192);
-        if(d.id==91&&e.shape==28) {
+        if(id==33&&e.shape==25)e.ring_y.assign(30,-192);
+        if((id==91||id==16)&&e.shape==28) {
             e.quad_positions={{{32,-64,0},{-32,-64,0},{32,0,0},{-32,0,0}}};
             const auto width=std::uint16_t(sizes[4][0]*32),height=std::uint16_t((sizes[4][1]+1)*32);
             e.quad_uv={{{width,0},{0,0},{width,height},{0,height}}};
@@ -229,7 +247,7 @@ Float4 effect_light_tint(const Float4& base,const Float4& ambient,const Float4& 
 void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_enabled,const Float4* eye) {
     if(!clock_enabled)return;
     require(!(flags&0x100),"Cannot update a removed map effect");
-    require(id==25||id==17||id==19||id==33||id==115||id==91,"Unrecovered map effect update program");
+    require(id==25||id==17||id==19||id==33||id==115||id==91||id==16,"Unrecovered map effect update program");
     if(id==91){require(eye,"Torch effect requires the current camera position");
         for(float f:*eye)require(std::isfinite(f),"Non-finite torch camera position");}
     Rounding rounding;
@@ -293,7 +311,7 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         case 17:p[1]=e.position[1]+e.position[3]*t;break;
         case 10: {
             //0x104ba8 maps the original quad UVs into a32x64 atlas cell.
-            require(id==91&&e.shape==28,"Unrecovered effect atlas geometry");
+            require((id==91||id==16)&&e.shape==28,"Unrecovered effect atlas geometry");
             const auto column=((int(e.id)-1)>>2)*32;
             const auto width=texture_sizes_[e.texture][0],height=texture_sizes_[e.texture][1];
             const int xstep=int(width*32)/32,ystep=int(height*32)/64;
@@ -353,7 +371,7 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         case 1:{const float cycle=t*e.rotation[3];r[1]=(cycle-float(int(cycle)))+e.rotation[1];break;}
         case 4:r[2]=float(random()%360+360)*.00278f;break;case 11:r[1]=float(random()%360+360)*.00278f;break;
         case 5:
-            require(id==91&&e.shape==28,"Unrecovered effect flip geometry");
+            require((id==91||id==16)&&e.shape==28,"Unrecovered effect flip geometry");
             if(t<e.interval[2]) {
                 const int sign=((random()%10+10)&4)?1:-1;
                 e.quad_positions={{{std::int16_t(sign*32),-64,0},{std::int16_t(sign*-32),-64,0},

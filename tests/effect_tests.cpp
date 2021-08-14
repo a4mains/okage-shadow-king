@@ -87,5 +87,29 @@ int main(){try{
     // A recovered ordinary torch does not enable the deferred template16 pass.
     flame.flags|=0x400;
     rejects([&]{okage::map_effect_draws(flame,identity,{},450,sine);});
+    okage::EffectDefinition base=dust;base.id=19;base.flags=0x8000;base.duration=300;
+    base.parameters={.03f,-.05f,0,.1f};
+    okage::EffectDefinition reference;reference.id=98;reference.flags=0x800;
+    reference.duration=999;reference.parameters={9,9,9,9};reference.elements.resize(1);
+    reference.elements[0].id=19;reference.elements[0].channels=31;
+    for(unsigned i=0;i<5;++i)reference.elements[0].values[i]={float(i+1),2,3,4};
+    const auto resolved=okage::resolve_effect_references({reference,base});
+    const auto& copy=resolved.front();
+    check(copy.id==98&&copy.runtime_id==19&&copy.duration==300&&copy.flags==0x8000&&copy.elements.size()==9);
+    check(copy.color==reference.elements[0].values[0]&&copy.rotation==reference.elements[0].values[1]);
+    check(copy.position==reference.elements[0].values[2]&&copy.scale==reference.elements[0].values[3]);
+    check(copy.parameters==reference.elements[0].values[4]&&resolved[1].parameters==base.parameters);
+    okage::MapEffect inherited(copy,{7,8,9,1},{},{1,1,1,1},sizes,random);
+    check(inherited.id==19&&inherited.duration==300&&inherited.color==copy.color);
+    check(inherited.position==okage::Float4({7,8,9,1})&&inherited.rotation==okage::Float4{});
+    rejects([&]{okage::MapEffect unresolved(reference,{},{},{},sizes,random);});
+    rejects([&]{okage::resolve_effect_references({reference});});
+    auto alias=reference;alias.id=97;alias.elements[0].id=98;
+    check(okage::resolve_effect_references({reference,alias,base})[1].runtime_id==19);
+    rejects([&]{okage::resolve_effect_references({alias,reference,base});});
+    reference.elements[0].id=98;rejects([&]{okage::resolve_effect_references({reference,base});});
+    reference.elements[0].id=19;reference.elements[0].channels=32;
+    rejects([&]{okage::resolve_effect_references({reference,base});});
+    reference.elements.clear();rejects([&]{okage::resolve_effect_references({reference,base});});
     std::cout<<"EFD extent, ID, pointer, finite-value and unsupported-program checks passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

@@ -310,7 +310,7 @@ void OpeningField::interact(ExplorationInput input) {
 }
 void OpeningField::load_effects(Bytes bytes) {
     if(!effect_definitions_.empty())throw std::runtime_error("Field effects already loaded");
-    effect_definitions_=read_efd(bytes);
+    effect_definitions_=resolve_effect_references(read_efd(bytes));
 }
 void OpeningField::load_map_effects(Bytes bytes,const EffectTextureSizes& sizes) {
     if(effect_definitions_.empty()||!random_value)throw std::runtime_error("Map effects require templates and shared RNG");

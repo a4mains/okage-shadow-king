@@ -1,0 +1,940 @@
+{
+  "scope": "Native EFD reference import and template16 state/quad support.",
+  "builds": [
+    {
+      "build": "native-release",
+      "app_sha256": "a9487715469ddc713b7b729e3daed18572d2531b85f02b57f6f8f15fffd7e7f6",
+      "report": "local/interior-effects-native-release-v2/report.json",
+      "report_sha256": "979fabb56dcf96490fff4d0686801c4da532752fec7bf498c9a20e87264cadb8",
+      "validation": {
+        "scope": "Audit EFD reference headers, template98 smoke and template16 flame state.",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+        "headers": {
+          "words_exact": 549,
+          "full_header_records_exact": 21,
+          "unimplemented_composite_expansion": {
+            "lookup": 57,
+            "source": 47,
+            "original_runtime_elements": 31,
+            "native_structural_elements": 13
+          }
+        },
+        "headers_original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "effect-reference-probe",
+            "local/extracted/SCUS_971.29",
+            "local/research/basement-summon-v1/after-chant.ram",
+            "local/effect-reference-v1/references.bin",
+            "local/effect-reference-v1/headers.original.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.471814042,
+          "binary_sha256": "2a9ea99f843265f35a13e2a4280d761ebbcb39c57df00f75e6e6caf137eef645",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+          "input_sha256": "c4543bdbe662e1a009ec8267b4bc927920eca0bad775c45380bdbe3147113867",
+          "output_sha256": "d22b6b9443cfdb1caf88bf3d5bad45469d9f138b782f6698f79cf352d61ed23b"
+        },
+        "headers_native_run": {
+          "command": [
+            "build/native-release/okage-assets",
+            "effect-reference-probe",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/interior-effects-native-release-v2/headers.native.bin"
+          ],
+          "exit_code": 0,
+          "binary_sha256": "25f3caf8f9b9b2389f00d4141717ddd578499236056a39409035d8815c6a1581"
+        },
+        "cases": [
+          {
+            "name": "98",
+            "runtime_id": 19,
+            "state_words_exact": 298350,
+            "ticks": 700,
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "map-effect-probe",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/effect-reference-v1/98.input.bin",
+                "700",
+                "local/effect-reference-v1/98.original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 1.045002417,
+              "binary_sha256": "2a9ea99f843265f35a13e2a4280d761ebbcb39c57df00f75e6e6caf137eef645",
+              "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+              "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+              "input_sha256": "65b47cd96c98b1ce8e01d0d2ddac2cace87ee71b82b18ca8cbb01feaf5ee5253",
+              "output_sha256": "67c767e8c957b3d91a3f7531233b824f74f180949c07512543fd7d3b775e75ca"
+            },
+            "native_run": {
+              "command": [
+                "build/native-release/okage-assets",
+                "map-effect-probe",
+                "local/effect-input/CMNDATA/2D/TES.EFD",
+                "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+                "local/effect-reference-v1/98.input.bin",
+                "700",
+                "local/interior-effects-native-release-v2/98.native.bin"
+              ],
+              "exit_code": 0,
+              "binary_sha256": "25f3caf8f9b9b2389f00d4141717ddd578499236056a39409035d8815c6a1581"
+            },
+            "phase_wraps": 2
+          },
+          {
+            "name": "flame16",
+            "runtime_id": 16,
+            "state_words_exact": 1610322,
+            "ticks": 10000,
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "map-effect-probe",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/flame16-reference-v1/flame16.input.bin",
+                "10000",
+                "local/flame16-reference-v1/flame16.original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 1.492170292,
+              "binary_sha256": "d622e430fe14a60db9d022b31a0622212c2a6b89b00228e0e94d30dcc7aab84b",
+              "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+              "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+              "input_sha256": "87b7ff07891096425aaea175a877190fd4774782ad385c44d3be179aff756a68",
+              "output_sha256": "d01f156156e1de3b3b15c0eefaa8d33ffb94fbbeb476605ea24286928c9bd271",
+              "geometry_sha256": "8f116c812d254b111538e102fdb6851137b5dc8b6d4087ddd668d08230ed6e92"
+            },
+            "native_run": {
+              "command": [
+                "build/native-release/okage-assets",
+                "map-effect-probe",
+                "local/effect-input/CMNDATA/2D/TES.EFD",
+                "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+                "local/flame16-reference-v1/flame16.input.bin",
+                "10000",
+                "local/interior-effects-native-release-v2/flame16.native.bin"
+              ],
+              "exit_code": 0,
+              "binary_sha256": "25f3caf8f9b9b2389f00d4141717ddd578499236056a39409035d8815c6a1581"
+            },
+            "quads": {
+              "records": 10002,
+              "packed_position_uv_words_exact": 360072
+            },
+            "phase_wraps": 1
+          },
+          {
+            "name": "flame16-offset",
+            "runtime_id": 16,
+            "state_words_exact": 1610322,
+            "ticks": 10000,
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "map-effect-probe",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/flame16-reference-v1/flame16-offset.input.bin",
+                "10000",
+                "local/flame16-reference-v1/flame16-offset.original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 1.0493307499999998,
+              "binary_sha256": "d622e430fe14a60db9d022b31a0622212c2a6b89b00228e0e94d30dcc7aab84b",
+              "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+              "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+              "input_sha256": "93aaa80f305a5f9929c487f7096a345f506fcb1fc30c270d60514d5207444388",
+              "output_sha256": "fba69028f18a841eea4d7373583d71be6718b70c055d0389b954a9fc95759333",
+              "geometry_sha256": "673bf40c8bbba82c05bafcaf0cd66e9b1cbe0f5137dce8c7f88cf1da7abc66ce"
+            },
+            "native_run": {
+              "command": [
+                "build/native-release/okage-assets",
+                "map-effect-probe",
+                "local/effect-input/CMNDATA/2D/TES.EFD",
+                "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+                "local/flame16-reference-v1/flame16-offset.input.bin",
+                "10000",
+                "local/interior-effects-native-release-v2/flame16-offset.native.bin"
+              ],
+              "exit_code": 0,
+              "binary_sha256": "25f3caf8f9b9b2389f00d4141717ddd578499236056a39409035d8815c6a1581"
+            },
+            "quads": {
+              "records": 10002,
+              "packed_position_uv_words_exact": 360072
+            },
+            "phase_wraps": 1
+          }
+        ]
+      },
+      "checks": [
+        {
+          "command": [
+            "cmake",
+            "--build",
+            "build/native-release",
+            "-j8"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.031799375000000005
+        },
+        {
+          "command": [
+            "ctest",
+            "--test-dir",
+            "build/native-release",
+            "--output-on-failure"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 2.541445667
+        },
+        {
+          "command": [
+            "python3",
+            "tools/verify_interior_effects.py",
+            "--native",
+            "build/native-release/okage-assets",
+            "--output",
+            "local/interior-effects-native-release-v2"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.3584489579999999
+        },
+        {
+          "command": [
+            "python3",
+            "tools/verify_torch_effect.py",
+            "--native",
+            "build/native-release/okage-assets",
+            "--output",
+            "local/interior-torch-state-native-release-v1"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.2924769999999999
+        },
+        {
+          "command": [
+            "python3",
+            "tools/verify_torch_drawing.py",
+            "--native",
+            "build/native-release/okage-assets",
+            "--output",
+            "local/interior-torch-drawing-native-release-v1"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.06473833299999976
+        },
+        {
+          "command": [
+            "python3",
+            "tools/verify_summon_effects.py",
+            "--native",
+            "build/native-release/okage-assets",
+            "--output",
+            "local/interior-summon-native-release-v1"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.08903966599999968
+        }
+      ]
+    },
+    {
+      "build": "native",
+      "app_sha256": "bc745d908f6a2c7e34534e9c07538a0dfdbc5c41187af277628979ecd8624565",
+      "report": "local/interior-effects-native-v2/report.json",
+      "report_sha256": "16eecea007ea13073170b07c5782cd65ceccea175e83bd0cd1d79ea46a8b8f12",
+      "validation": {
+        "scope": "Audit EFD reference headers, template98 smoke and template16 flame state.",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+        "headers": {
+          "words_exact": 549,
+          "full_header_records_exact": 21,
+          "unimplemented_composite_expansion": {
+            "lookup": 57,
+            "source": 47,
+            "original_runtime_elements": 31,
+            "native_structural_elements": 13
+          }
+        },
+        "headers_original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "effect-reference-probe",
+            "local/extracted/SCUS_971.29",
+            "local/research/basement-summon-v1/after-chant.ram",
+            "local/effect-reference-v1/references.bin",
+            "local/effect-reference-v1/headers.original.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.471814042,
+          "binary_sha256": "2a9ea99f843265f35a13e2a4280d761ebbcb39c57df00f75e6e6caf137eef645",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+          "input_sha256": "c4543bdbe662e1a009ec8267b4bc927920eca0bad775c45380bdbe3147113867",
+          "output_sha256": "d22b6b9443cfdb1caf88bf3d5bad45469d9f138b782f6698f79cf352d61ed23b"
+        },
+        "headers_native_run": {
+          "command": [
+            "build/native/okage-assets",
+            "effect-reference-probe",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/interior-effects-native-v2/headers.native.bin"
+          ],
+          "exit_code": 0,
+          "binary_sha256": "0f932d57bb859b9a841dd005ffb4c8853077adc168d45af44f1bf85771f54955"
+        },
+        "cases": [
+          {
+            "name": "98",
+            "runtime_id": 19,
+            "state_words_exact": 298350,
+            "ticks": 700,
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "map-effect-probe",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/effect-reference-v1/98.input.bin",
+                "700",
+                "local/effect-reference-v1/98.original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 1.045002417,
+              "binary_sha256": "2a9ea99f843265f35a13e2a4280d761ebbcb39c57df00f75e6e6caf137eef645",
+              "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+              "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+              "input_sha256": "65b47cd96c98b1ce8e01d0d2ddac2cace87ee71b82b18ca8cbb01feaf5ee5253",
+              "output_sha256": "67c767e8c957b3d91a3f7531233b824f74f180949c07512543fd7d3b775e75ca"
+            },
+            "native_run": {
+              "command": [
+                "build/native/okage-assets",
+                "map-effect-probe",
+                "local/effect-input/CMNDATA/2D/TES.EFD",
+                "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+                "local/effect-reference-v1/98.input.bin",
+                "700",
+                "local/interior-effects-native-v2/98.native.bin"
+              ],
+              "exit_code": 0,
+              "binary_sha256": "0f932d57bb859b9a841dd005ffb4c8853077adc168d45af44f1bf85771f54955"
+            },
+            "phase_wraps": 2
+          },
+          {
+            "name": "flame16",
+            "runtime_id": 16,
+            "state_words_exact": 1610322,
+            "ticks": 10000,
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "map-effect-probe",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/flame16-reference-v1/flame16.input.bin",
+                "10000",
+                "local/flame16-reference-v1/flame16.original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 1.492170292,
+              "binary_sha256": "d622e430fe14a60db9d022b31a0622212c2a6b89b00228e0e94d30dcc7aab84b",
+              "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+              "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+              "input_sha256": "87b7ff07891096425aaea175a877190fd4774782ad385c44d3be179aff756a68",
+              "output_sha256": "d01f156156e1de3b3b15c0eefaa8d33ffb94fbbeb476605ea24286928c9bd271",
+              "geometry_sha256": "8f116c812d254b111538e102fdb6851137b5dc8b6d4087ddd668d08230ed6e92"
+            },
+            "native_run": {
+              "command": [
+                "build/native/okage-assets",
+                "map-effect-probe",
+                "local/effect-input/CMNDATA/2D/TES.EFD",
+                "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+                "local/flame16-reference-v1/flame16.input.bin",
+                "10000",
+                "local/interior-effects-native-v2/flame16.native.bin"
+              ],
+              "exit_code": 0,
+              "binary_sha256": "0f932d57bb859b9a841dd005ffb4c8853077adc168d45af44f1bf85771f54955"
+            },
+            "quads": {
+              "records": 10002,
+              "packed_position_uv_words_exact": 360072
+            },
+            "phase_wraps": 1
+          },
+          {
+            "name": "flame16-offset",
+            "runtime_id": 16,
+            "state_words_exact": 1610322,
+            "ticks": 10000,
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "map-effect-probe",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/flame16-reference-v1/flame16-offset.input.bin",
+                "10000",
+                "local/flame16-reference-v1/flame16-offset.original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 1.0493307499999998,
+              "binary_sha256": "d622e430fe14a60db9d022b31a0622212c2a6b89b00228e0e94d30dcc7aab84b",
+              "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+              "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+              "input_sha256": "93aaa80f305a5f9929c487f7096a345f506fcb1fc30c270d60514d5207444388",
+              "output_sha256": "fba69028f18a841eea4d7373583d71be6718b70c055d0389b954a9fc95759333",
+              "geometry_sha256": "673bf40c8bbba82c05bafcaf0cd66e9b1cbe0f5137dce8c7f88cf1da7abc66ce"
+            },
+            "native_run": {
+              "command": [
+                "build/native/okage-assets",
+                "map-effect-probe",
+                "local/effect-input/CMNDATA/2D/TES.EFD",
+                "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+                "local/flame16-reference-v1/flame16-offset.input.bin",
+                "10000",
+                "local/interior-effects-native-v2/flame16-offset.native.bin"
+              ],
+              "exit_code": 0,
+              "binary_sha256": "0f932d57bb859b9a841dd005ffb4c8853077adc168d45af44f1bf85771f54955"
+            },
+            "quads": {
+              "records": 10002,
+              "packed_position_uv_words_exact": 360072
+            },
+            "phase_wraps": 1
+          }
+        ]
+      },
+      "checks": [
+        {
+          "command": [
+            "cmake",
+            "--build",
+            "build/native",
+            "-j8"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 2.47443475
+        },
+        {
+          "command": [
+            "ctest",
+            "--test-dir",
+            "build/native",
+            "--output-on-failure"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 2.629799
+        },
+        {
+          "command": [
+            "python3",
+            "tools/verify_interior_effects.py",
+            "--native",
+            "build/native/okage-assets",
+            "--output",
+            "local/interior-effects-native-v2"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.7700880840000002
+        },
+        {
+          "command": [
+            "python3",
+            "tools/verify_torch_effect.py",
+            "--native",
+            "build/native/okage-assets",
+            "--output",
+            "local/interior-torch-state-native-v1"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.5581413749999999
+        },
+        {
+          "command": [
+            "python3",
+            "tools/verify_torch_drawing.py",
+            "--native",
+            "build/native/okage-assets",
+            "--output",
+            "local/interior-torch-drawing-native-v1"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.11039829200000018
+        },
+        {
+          "command": [
+            "python3",
+            "tools/verify_summon_effects.py",
+            "--native",
+            "build/native/okage-assets",
+            "--output",
+            "local/interior-summon-native-v1"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.18063300000000027
+        }
+      ]
+    },
+    {
+      "build": "model-sanitize",
+      "app_sha256": "5d397c18142513a4a874d68b4b3d7b563f77c87ec62706c64325cfdf971e6094",
+      "report": "local/interior-effects-model-sanitize-v2/report.json",
+      "report_sha256": "4223cfe5f32a86f8448a455aeaa17806736981d9a537cd6b64b2797fe04ad977",
+      "validation": {
+        "scope": "Audit EFD reference headers, template98 smoke and template16 flame state.",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+        "headers": {
+          "words_exact": 549,
+          "full_header_records_exact": 21,
+          "unimplemented_composite_expansion": {
+            "lookup": 57,
+            "source": 47,
+            "original_runtime_elements": 31,
+            "native_structural_elements": 13
+          }
+        },
+        "headers_original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "effect-reference-probe",
+            "local/extracted/SCUS_971.29",
+            "local/research/basement-summon-v1/after-chant.ram",
+            "local/effect-reference-v1/references.bin",
+            "local/effect-reference-v1/headers.original.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.471814042,
+          "binary_sha256": "2a9ea99f843265f35a13e2a4280d761ebbcb39c57df00f75e6e6caf137eef645",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+          "input_sha256": "c4543bdbe662e1a009ec8267b4bc927920eca0bad775c45380bdbe3147113867",
+          "output_sha256": "d22b6b9443cfdb1caf88bf3d5bad45469d9f138b782f6698f79cf352d61ed23b"
+        },
+        "headers_native_run": {
+          "command": [
+            "build/model-sanitize/okage-assets",
+            "effect-reference-probe",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/interior-effects-model-sanitize-v2/headers.native.bin"
+          ],
+          "exit_code": 0,
+          "binary_sha256": "c9fff33417fb0cb52308e6bc9c161f8e422756476d23859955cf6ad497b39e19"
+        },
+        "cases": [
+          {
+            "name": "98",
+            "runtime_id": 19,
+            "state_words_exact": 298350,
+            "ticks": 700,
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "map-effect-probe",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/effect-reference-v1/98.input.bin",
+                "700",
+                "local/effect-reference-v1/98.original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 1.045002417,
+              "binary_sha256": "2a9ea99f843265f35a13e2a4280d761ebbcb39c57df00f75e6e6caf137eef645",
+              "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+              "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+              "input_sha256": "65b47cd96c98b1ce8e01d0d2ddac2cace87ee71b82b18ca8cbb01feaf5ee5253",
+              "output_sha256": "67c767e8c957b3d91a3f7531233b824f74f180949c07512543fd7d3b775e75ca"
+            },
+            "native_run": {
+              "command": [
+                "build/model-sanitize/okage-assets",
+                "map-effect-probe",
+                "local/effect-input/CMNDATA/2D/TES.EFD",
+                "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+                "local/effect-reference-v1/98.input.bin",
+                "700",
+                "local/interior-effects-model-sanitize-v2/98.native.bin"
+              ],
+              "exit_code": 0,
+              "binary_sha256": "c9fff33417fb0cb52308e6bc9c161f8e422756476d23859955cf6ad497b39e19"
+            },
+            "phase_wraps": 2
+          },
+          {
+            "name": "flame16",
+            "runtime_id": 16,
+            "state_words_exact": 1610322,
+            "ticks": 10000,
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "map-effect-probe",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/flame16-reference-v1/flame16.input.bin",
+                "10000",
+                "local/flame16-reference-v1/flame16.original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 1.492170292,
+              "binary_sha256": "d622e430fe14a60db9d022b31a0622212c2a6b89b00228e0e94d30dcc7aab84b",
+              "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+              "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+              "input_sha256": "87b7ff07891096425aaea175a877190fd4774782ad385c44d3be179aff756a68",
+              "output_sha256": "d01f156156e1de3b3b15c0eefaa8d33ffb94fbbeb476605ea24286928c9bd271",
+              "geometry_sha256": "8f116c812d254b111538e102fdb6851137b5dc8b6d4087ddd668d08230ed6e92"
+            },
+            "native_run": {
+              "command": [
+                "build/model-sanitize/okage-assets",
+                "map-effect-probe",
+                "local/effect-input/CMNDATA/2D/TES.EFD",
+                "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+                "local/flame16-reference-v1/flame16.input.bin",
+                "10000",
+                "local/interior-effects-model-sanitize-v2/flame16.native.bin"
+              ],
+              "exit_code": 0,
+              "binary_sha256": "c9fff33417fb0cb52308e6bc9c161f8e422756476d23859955cf6ad497b39e19"
+            },
+            "quads": {
+              "records": 10002,
+              "packed_position_uv_words_exact": 360072
+            },
+            "phase_wraps": 1
+          },
+          {
+            "name": "flame16-offset",
+            "runtime_id": 16,
+            "state_words_exact": 1610322,
+            "ticks": 10000,
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "map-effect-probe",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/flame16-reference-v1/flame16-offset.input.bin",
+                "10000",
+                "local/flame16-reference-v1/flame16-offset.original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 1.0493307499999998,
+              "binary_sha256": "d622e430fe14a60db9d022b31a0622212c2a6b89b00228e0e94d30dcc7aab84b",
+              "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+              "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+              "input_sha256": "93aaa80f305a5f9929c487f7096a345f506fcb1fc30c270d60514d5207444388",
+              "output_sha256": "fba69028f18a841eea4d7373583d71be6718b70c055d0389b954a9fc95759333",
+              "geometry_sha256": "673bf40c8bbba82c05bafcaf0cd66e9b1cbe0f5137dce8c7f88cf1da7abc66ce"
+            },
+            "native_run": {
+              "command": [
+                "build/model-sanitize/okage-assets",
+                "map-effect-probe",
+                "local/effect-input/CMNDATA/2D/TES.EFD",
+                "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+                "local/flame16-reference-v1/flame16-offset.input.bin",
+                "10000",
+                "local/interior-effects-model-sanitize-v2/flame16-offset.native.bin"
+              ],
+              "exit_code": 0,
+              "binary_sha256": "c9fff33417fb0cb52308e6bc9c161f8e422756476d23859955cf6ad497b39e19"
+            },
+            "quads": {
+              "records": 10002,
+              "packed_position_uv_words_exact": 360072
+            },
+            "phase_wraps": 1
+          }
+        ]
+      },
+      "checks": [
+        {
+          "command": [
+            "cmake",
+            "--build",
+            "build/model-sanitize",
+            "-j8"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 3.029771667
+        },
+        {
+          "command": [
+            "ctest",
+            "--test-dir",
+            "build/model-sanitize",
+            "--output-on-failure"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 3.2246352920000003
+        },
+        {
+          "command": [
+            "python3",
+            "tools/verify_interior_effects.py",
+            "--native",
+            "build/model-sanitize/okage-assets",
+            "--output",
+            "local/interior-effects-model-sanitize-v2"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.3913717500000002
+        },
+        {
+          "command": [
+            "python3",
+            "tools/verify_torch_effect.py",
+            "--native",
+            "build/model-sanitize/okage-assets",
+            "--output",
+            "local/interior-torch-state-model-sanitize-v1"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.0774825000000003
+        },
+        {
+          "command": [
+            "python3",
+            "tools/verify_torch_drawing.py",
+            "--native",
+            "build/model-sanitize/okage-assets",
+            "--output",
+            "local/interior-torch-drawing-model-sanitize-v1"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.17753916600000075
+        },
+        {
+          "command": [
+            "python3",
+            "tools/verify_summon_effects.py",
+            "--native",
+            "build/model-sanitize/okage-assets",
+            "--output",
+            "local/interior-summon-model-sanitize-v1"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.31994320799999976
+        }
+      ]
+    }
+  ],
+  "regression": {
+    "baseline": "local/native-home2c-basement-three-verses-47855-release-v1.png",
+    "new": "local/native-interior-state-regression-47855-release-v1.png",
+    "run": {
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "47855",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378",
+        "--directions",
+        "local/native-interior-state-regression-47855-release-v1.directions",
+        "--capture",
+        "local/native-interior-state-regression-47855-release-v1.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "--render-from",
+        "11310",
+        "--render-until",
+        "11542"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 18.625914083999998,
+      "binary_sha256": "a9487715469ddc713b7b729e3daed18572d2531b85f02b57f6f8f15fffd7e7f6"
+    },
+    "files": [
+      {
+        "suffix": "",
+        "sha256": "aec41ac0f4289e8819a5e7a545db1d5ef9c2f2272b8b092911d264a4bb954bd1"
+      },
+      {
+        "suffix": ".actor-1.bin",
+        "sha256": "7bd7eed0c6650503a7605697fbfc0b1a709c186bca7e9cedb9bd9a018039d47a"
+      },
+      {
+        "suffix": ".actor-10.bin",
+        "sha256": "e444e80b034d91348ecde5b0e319e7d0fa693cbffdf5d3e1b22ae813a4bc0490"
+      },
+      {
+        "suffix": ".actor-11.bin",
+        "sha256": "1fca7d3bd793e19d237f88d833797b62a1025cb7fcc81dacb39abb25909b9bc6"
+      },
+      {
+        "suffix": ".actor-12.bin",
+        "sha256": "3bbe89f0bdbe03425aa3514fda6c4a315662a92c48d584fae22a53d11a1d8a9a"
+      },
+      {
+        "suffix": ".actor-13.bin",
+        "sha256": "da2a80fa89b5ced64d2bac1eb09c5effe98027126c64760b9322d01c9d74e441"
+      },
+      {
+        "suffix": ".actor-14.bin",
+        "sha256": "3379c4ae4747dbb45655bfd518a7d8e985003c1703e7984533edc9bd7f2cd7c8"
+      },
+      {
+        "suffix": ".actor-15.bin",
+        "sha256": "422ae0729ea4b557cdf21ceaf1a3ea2f83a727102e2d6add30b1eb3a7e62616f"
+      },
+      {
+        "suffix": ".actor-16.bin",
+        "sha256": "a9b8184ee96875376f7a53e7f2ae63e5746206fb86f2c251cc6f335a0cd2829e"
+      },
+      {
+        "suffix": ".actor-17.bin",
+        "sha256": "ec4cfce3ec49b71094d28e1def4044d40b4c4878687134b7fc73b51925085865"
+      },
+      {
+        "suffix": ".actor-18.bin",
+        "sha256": "495b66777b5a894d9bf450dab77218587e58bd8a29d8d9ce737a2529e19f8dc7"
+      },
+      {
+        "suffix": ".actor-19.bin",
+        "sha256": "7fbae01f7a23a5db0b4a19650c01d3ba790daccc90d9b49441277a0d99412774"
+      },
+      {
+        "suffix": ".actor-20.bin",
+        "sha256": "dce67fe8789273e842c73e63b5f6b4993c29c3457f3b02a918b8d9e27126f277"
+      },
+      {
+        "suffix": ".actor-21.bin",
+        "sha256": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3"
+      },
+      {
+        "suffix": ".actor-22.bin",
+        "sha256": "52ced2ad7d11087e23f17eec62ef9a12152e22819f3c90aae92d7f002c447da5"
+      },
+      {
+        "suffix": ".actor-37.bin",
+        "sha256": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd"
+      },
+      {
+        "suffix": ".actor-38.bin",
+        "sha256": "76ba34c261405d19131ff08afd76466bd58b75955ea5d5be4f94b432248fb11e"
+      },
+      {
+        "suffix": ".actor-45.bin",
+        "sha256": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921"
+      },
+      {
+        "suffix": ".actor-9.bin",
+        "sha256": "c08ffefb51ef7bca2b335b30d592cc3ea85b11e4152b81c128ce05366a4573a5"
+      },
+      {
+        "suffix": ".actor.bin",
+        "sha256": "1b5211c1fa3a2b48d9f736b8ebd496031a1c7cdfddc234d711db53f170ae2685"
+      },
+      {
+        "suffix": ".actors-state.json",
+        "sha256": "da52ebc0260a3602997f2833e3f3b4a8962d9d4c806b5c68c181370408271155"
+      },
+      {
+        "suffix": ".audio.json",
+        "sha256": "5067608dac9f3595578072eea2e3e7e01dafe613720dfd3def98b0f442d00577"
+      },
+      {
+        "suffix": ".audio.pcm",
+        "sha256": "f7609a9d7cd816e1dc400e06259bdc6eb193396b841699071924ffa0178b3232"
+      },
+      {
+        "suffix": ".camera-state.bin",
+        "sha256": "3983cc771d0d0186d6128af00e61919e88d714ad264e38659f7237ca63bfa4b9"
+      },
+      {
+        "suffix": ".camera.bin",
+        "sha256": "270fef6176d50a126f9fa08bebea6757ecf00fb71557a422d0271f03c76ab76f"
+      },
+      {
+        "suffix": ".choices.bin",
+        "sha256": "299d149cb217e54fa7a252d5ea42f10bc8d4bb35544f4b83c52876b5146e84ee"
+      },
+      {
+        "suffix": ".dialogue.bin",
+        "sha256": "997bda69a5ef345b20fc4fcd980dd7a7eb2b1c0075814eea4f075ba434bf4432"
+      },
+      {
+        "suffix": ".effects.bin",
+        "sha256": "228c55b06d26a929f633d3cd2decf94d0e6c9812c84818bd03fdd4d5b686a2df"
+      },
+      {
+        "suffix": ".interaction.bin",
+        "sha256": "656603538cfb644aba85fb2fe0c8b7e69d0703dd1deb92a9146bf1f3feafa841"
+      },
+      {
+        "suffix": ".json",
+        "sha256": "e01c762eef62719bfcbff10dcc389ae38a61aa3773e22d8e357a9fb1636421f5"
+      },
+      {
+        "suffix": ".map-effects.bin",
+        "sha256": "123f3838d821169e4b0d415cdc214e0838df4e1b24d6d8dceb611545ce1277b0"
+      },
+      {
+        "suffix": ".movement.bin",
+        "sha256": "1483638bd28535f2c4dedf7a0bed5ae806a04908fa4a789b146e02218e7e94fb"
+      },
+      {
+        "suffix": ".music.bin",
+        "sha256": "9df7dd460780e02ce197712f728c362f377fe049375157a2f7d79f4c1b48e225"
+      },
+      {
+        "suffix": ".screen-filter.bin",
+        "sha256": "f8f380a36e5dac0b275c2f946e52e0bf1bb64548de7ac99926f640c01b4442a5"
+      },
+      {
+        "suffix": ".sound.bin",
+        "sha256": "efa6ab2eaa24b797f5e15f772a466bef51b3156cdc920d4dfbf6426cea075ff3"
+      },
+      {
+        "suffix": ".transition.bin",
+        "sha256": "d62a484a672e7939dbb1df4965f3f815b61e5ce41bbb988c1f093e67b6bce442"
+      },
+      {
+        "suffix": ".variables.bin",
+        "sha256": "57b15026f7453eb06527fe6681a224f9227abf6dd528bfc0cb42465b37f90535"
+      }
+    ]
+  },
+  "tests": {
+    "ctests_per_build": 19,
+    "python": 56,
+    "python_log": "local/research/interior-effects-v1/python-reference-flame-tests-v1.log"
+  },
+  "pose_oracle_sha256": "d622e430fe14a60db9d022b31a0622212c2a6b89b00228e0e94d30dcc7aab84b",
+  "next": "Recover template16 deferred drawing/materials and actual shared queue scheduling, then construct real interior jobs. Finish summoning33/115 drawing before extending gameplay."
+}

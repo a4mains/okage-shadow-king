@@ -436,14 +436,31 @@ public:
         writeFile(output,result.data(),result.size()*4);
         writeFile((std::string(output)+".packets.bin").c_str(),packets.data(),packets.size()*4);
     }
+    void effectReferenceProbe(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
+        if(ram.size()!=32*1024*1024||input.empty()||input.size()%8||input.size()>128*8)
+            throw std::runtime_error("Effect reference fixture bounds");
+        std::memcpy(ee->m_ram,ram.data(),ram.size());const auto table=get(0x1f849c);
+        if(table>ram.size()-212*4)throw std::runtime_error("Effect template table extent");
+        std::vector<uint32> out;
+        for(unsigned at=0;at<input.size();at+=8) {
+            std::array<uint32,2> ids;std::memcpy(ids.data(),input.data()+at,8);
+            if(ids[0]>=128||ids[1]>=128)throw std::runtime_error("Effect reference ID extent");
+            const auto job=get(table+(84+ids[0])*4),source=get(table+(84+ids[1])*4);
+            if(job>ram.size()-128||source>ram.size()-128||get(job+12)!=get(source+12)||get(job+8)!=get(source+8))
+                throw std::runtime_error("Original reference does not share source elements");
+            out.insert(out.end(),{ids[0],get(job),get(job+4),get(job+96),get(job+8)});
+            for(unsigned i=0;i<20;++i)out.push_back(get(job+16+i*4));
+        }
+        writeFile(output,out.data(),out.size()*4);
+    }
     void mapEffectProbe(const std::vector<uint8>& ram,const std::vector<uint8>& input,unsigned frames,const char* output) {
         if(ram.size()!=32*1024*1024||(input.size()!=80&&input.size()!=96)||frames>12000)
             throw std::runtime_error("Map effect probe fixture bounds");
         std::array<uint32,20> request;std::memcpy(request.data(),input.data(),80);
-        if((request[0]!=17&&request[0]!=19&&request[0]!=25&&request[0]!=33&&request[0]!=34&&request[0]!=91&&request[0]!=115)||request[2]>0xfff||request[3]!=0x100)
+        if((request[0]!=16&&request[0]!=17&&request[0]!=19&&request[0]!=25&&request[0]!=33&&request[0]!=34&&request[0]!=91&&request[0]!=98&&request[0]!=115)||request[2]>0xfff||request[3]!=0x100)
             throw std::runtime_error("Map effect probe request scope");
-        const bool torch=request[0]==91;
-        if((torch&&input.size()!=96)||(!torch&&(input.size()!=80||frames>1000)))
+        const bool torch=request[0]==91,flame=torch||request[0]==16;
+        if((torch&&input.size()!=96)||(!torch&&(input.size()!=80||(!flame&&frames>1000))))
             throw std::runtime_error("Map effect camera/frame scope");
         std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
         effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
@@ -477,7 +494,7 @@ public:
         put(0x1f85a4,1);
         std::vector<uint32> result,geometry,torchGeometry;
         auto capture=[&](unsigned step){
-            if(torch)torchGeometry.push_back(step);
+            if(flame)torchGeometry.push_back(step);
             const auto job=get(table+4*handle);
             if(job>ram.size()-128||get(job+8)>32)throw std::runtime_error("Map effect job extent");
             result.insert(result.end(),{step,handle,get(job),get(job+4),get(job+8),get(job+0x60),get(job+0x64),get(random)});
@@ -496,7 +513,7 @@ public:
                     else throw std::runtime_error("Map effect texture identity");
                 }
                 result.insert(result.end(),{texture,get(element+0x68),get(element+0x6c),get(render+0x58)});
-                if(torch&&i<3) {
+                if(flame&&i<3) {
                     const auto g=get(element+0x64);
                     if(g>ram.size()-48||get(g)||(get(g+0x1c)&0xffff)!=4)
                         throw std::runtime_error("Torch quad geometry extent");
@@ -553,7 +570,7 @@ public:
             writeFile((std::string(output)+".packets.bin").c_str(),packets.data(),packets.size()*4);
             writeFile((std::string(output)+".tint.bin").c_str(),ee->m_ram+0x24e620,16);
         }
-        if(torch)writeFile((std::string(output)+".torch-geometry.bin").c_str(),torchGeometry.data(),torchGeometry.size()*4);
+        if(flame)writeFile((std::string(output)+".torch-geometry.bin").c_str(),torchGeometry.data(),torchGeometry.size()*4);
         if(!geometry.empty())writeFile((std::string(output)+".geometry.bin").c_str(),geometry.data(),geometry.size()*4);
         writeFile(output,result.data(),result.size()*4);
     }
@@ -1661,6 +1678,8 @@ int main(int argc,char** argv) {
             reference.effectTint(readFile(argv[3]),argv[4]);
         } else if((command=="map-effect-geometry"||command=="torch-effect-geometry") && argc==6) {
             reference.mapEffectGeometry(readFile(argv[3]),readFile(argv[4]),argv[5],command=="torch-effect-geometry");
+        } else if(command=="effect-reference-probe" && argc==6) {
+            reference.effectReferenceProbe(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="stream-prepare" && argc==6) {
             reference.streamPrepare(readFile(argv[3]),std::stoul(argv[4]),argv[5]);
         } else if(command=="exterior-camera-step" && argc==6) {
