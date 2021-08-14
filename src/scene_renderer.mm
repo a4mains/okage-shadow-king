@@ -263,11 +263,12 @@ struct SceneRenderer::Impl {
             const auto& effect=(*mapEffects)[slot];
             if(!effectTexturesLoaded)throw std::runtime_error("Map effect textures are unavailable");
             for(const auto& e:map_effect_draws(*effect,view,camera,farClip,sine,effectTint?&*effectTint:nullptr)){
-                const auto texture=effectTexture+e.texture;
-                const auto& image=textures.at(texture);
-                if(e.uv[2]>=image.width||e.uv[3]>=image.height)throw std::runtime_error("Map effect texture bounds");
+                const bool untextured=e.texture==0xffffffffu;
+                const auto texture=untextured?-1:std::int32_t(effectTexture+e.texture);
+                if(!untextured){const auto& image=textures.at(texture);
+                    if(e.uv[2]>=image.width||e.uv[3]>=image.height)throw std::runtime_error("Map effect texture bounds");}
                 Draw draw{std::uint32_t(vertices.size()),std::uint32_t(e.vertices.size()),std::int32_t(texture),
-                    {e.uv[0],e.uv[2],e.uv[1],e.uv[3],2,2,1,e.additive?0u:1u},true,e.additive,!e.additive};
+                    {e.uv[0],e.uv[2],e.uv[1],e.uv[3],2,2,untextured?0u:1u,e.additive?0u:1u},true,e.additive,!e.additive};
                 for(const auto& source:e.vertices){
                     Float4 p{},c{};
                     for(unsigned r=0;r<4;++r){

@@ -370,16 +370,16 @@ public:
         }
         writeFile(output,result.data(),result.size()*4);
     }
-    void mapEffectGeometry(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
-        constexpr unsigned stride=198*4,sp=0x1ff0000;
+    void mapEffectGeometry(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output,bool torch=false) {
+        const unsigned stride=(torch?154:198)*4,sp=0x1ff0000,count=torch?4:8,slot=torch?0:2;
         if(ram.size()!=32*1024*1024||input.empty()||input.size()%stride||input.size()>stride*64)
             throw std::runtime_error("Effect geometry fixture bounds");
         std::vector<uint32> result,packets;
         for(unsigned at=0;at<input.size();at+=stride) {
             ee->m_EE.m_executor->Reset();
             std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
-            loadMicro();const auto table=get(0x1f849c),job=get(table+8);
-            if(get(job)!=25||get(job+8)!=8)throw std::runtime_error("Expected captured map effect25");
+            loadMicro();const auto table=get(0x1f849c),job=get(table+slot*4);
+            if(get(job)!=(torch?91u:25u)||get(job+8)!=count)throw std::runtime_error("Unexpected captured map effect");
             std::memcpy(ee->m_ram+job+0x10,input.data()+at+4,64);
             call(0x1842c8);const auto camera=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
             std::memcpy(ee->m_ram+camera,input.data()+at+68,16);
@@ -387,7 +387,7 @@ public:
             std::memcpy(ee->m_ram+0x1f8484,input.data()+at+148,4);
             put(0x1f8490,get(job+0x78));put(sp+0xe0,0x80000);put(sp+0xf4,sp+0xa0);
             auto& cpu=ee->m_EE;
-            cpu.m_State.nGPR[CMIPS::S3].nD0=8;cpu.m_State.nGPR[CMIPS::S6].nD0=2;
+            cpu.m_State.nGPR[CMIPS::S3].nD0=slot*4;cpu.m_State.nGPR[CMIPS::S6].nD0=slot;
             cpu.m_State.nGPR[CMIPS::FP].nD0=0x202ee0;
             auto block=[&](uint32 begin,uint32 end) {
                 expectedStop=end;cpu.ToggleBreakpoint(end);call(begin);
@@ -397,14 +397,24 @@ public:
             // Caller scratch destinations from0x1027b8..0x1027c0.
             put(sp+0xf8,sp+0x10);cpu.m_State.nGPR[CMIPS::S7].nD0=sp+0x90;
             uint32 identity;std::memcpy(&identity,input.data()+at,4);result.push_back(identity);
-            for(unsigned i=0;i<8;++i) {
+            for(unsigned i=0;i<count;++i) {
                 const auto e=get(job+12)+i*128,r=get(e+0x78),g=get(e+0x64);
                 const auto source=input.data()+at+152+i*80;
                 std::array<uint32,4> meta;std::memcpy(meta.data(),source+64,16);
                 unsigned texture=0;for(;texture<31;++texture)if(get(get(0x24e780)+texture*4)==(get(e+0x5c)&65535))break;
-                if(meta[0]!=(i<3?24u:29u)||meta[1]!=get(e+0x54)||meta[2]!=get(e+0x58)||meta[3]!=texture)
+                if(torch&&i==3&&(get(e+0x5c)&65535)==65535)texture=0xffffffff;
+                if(meta[0]!=(torch?(i<3?28u:40u):(i<3?24u:29u))||meta[1]!=get(e+0x54)||meta[2]!=get(e+0x58)||meta[3]!=texture)
                     throw std::runtime_error("Effect geometry input metadata mismatch");
                 std::memcpy(ee->m_ram+r,source,64);
+                if(torch&&i<3) {
+                    const auto xyz=get(g+4)+48,uv=get(g+8)+48;
+                    if(xyz>ram.size()-24||uv>ram.size()-16)throw std::runtime_error("Torch geometry extent");
+                    for(unsigned v=0;v<4;++v) {
+                        const auto packed=input.data()+at+472+i*48+v*12;
+                        std::memcpy(ee->m_ram+xyz+v*6,packed,6);
+                        std::memcpy(ee->m_ram+uv+v*4,packed+8,4);
+                    }
+                }
                 cpu.m_State.nGPR[CMIPS::S1].nD0=e;cpu.m_State.nGPR[CMIPS::S2].nD0=r;
                 cpu.m_State.nGPR[CMIPS::S4].nD0=i;
                 block(0x102978,0x1aeb10);
@@ -415,7 +425,7 @@ public:
                     packets.insert(packets.end(),{i,meta[0],get(e+0x68),get(e+0x6c)});
                     for(unsigned k=0;k<6;++k)packets.push_back(get(r+0x40+k*4));
                     for(unsigned offset:{4u,8u,12u,16u}) {
-                        const auto p=get(g+offset),bytes=(get(p)&65535)*16+32;
+                        const auto p=get(g+offset),bytes=p?(get(p)&65535)*16+32:0;
                         if(bytes>8192||p>ram.size()-bytes)throw std::runtime_error("Effect packet extent");
                         packets.push_back(bytes);
                         for(unsigned k=0;k<bytes;k+=4)packets.push_back(get(p+k));
@@ -1649,8 +1659,8 @@ int main(int argc,char** argv) {
             reference.messageInit(readFile(argv[3]),std::stoul(argv[4]),argv[5]);
         } else if(command=="effect-tint" && argc==5) {
             reference.effectTint(readFile(argv[3]),argv[4]);
-        } else if(command=="map-effect-geometry" && argc==6) {
-            reference.mapEffectGeometry(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if((command=="map-effect-geometry"||command=="torch-effect-geometry") && argc==6) {
+            reference.mapEffectGeometry(readFile(argv[3]),readFile(argv[4]),argv[5],command=="torch-effect-geometry");
         } else if(command=="stream-prepare" && argc==6) {
             reference.streamPrepare(readFile(argv[3]),std::stoul(argv[4]),argv[5]);
         } else if(command=="exterior-camera-step" && argc==6) {

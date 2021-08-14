@@ -113,7 +113,8 @@ void MapEffect::set_parameter(unsigned selector,const Float4& payload) {
 std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix4& view,
         const Float4& camera,float far_clip,const SineTable& sine,const Float4* light_tint) {
     if(effect.flags&0x4300)return {};
-    require((effect.id==25&&effect.elements.size()==8)||((effect.id==17||effect.id==19)&&effect.elements.size()==9),"Unrecovered map effect geometry template");
+    require((effect.id==25&&effect.elements.size()==8)||((effect.id==17||effect.id==19)&&effect.elements.size()==9)||
+            (effect.id==91&&effect.elements.size()==4),"Unrecovered map effect geometry template");
     require(!(effect.flags&0x400),"Deferred map effect rendering is unrecovered");
     require(std::isfinite(far_clip)&&far_clip>0,"Invalid effect far clip");
     Rounding rounding;
@@ -133,6 +134,14 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
         switch(e.flags&15){case 0:break;case 1:
             rotation[0]=(1-camera[0])-effect.rotation[0];
             rotation[1]=(1-camera[1])-effect.rotation[1];rotation[3]=camera[3];break;
+            case 2:
+            require(effect.id==91&&e.shape==40,"Unrecovered quarter-turn billboard owner");
+            rotation[0]=((1-camera[0])+.25f)-effect.rotation[0];
+            rotation[1]=(1-camera[1])-effect.rotation[1];rotation[3]=camera[3];break;
+            case 8:
+            require(effect.id==91&&e.shape==28,"Unrecovered horizontal billboard owner");
+            rotation[0]-=effect.rotation[0];
+            rotation[1]=(1-camera[1])-effect.rotation[1];break;
             default:throw std::runtime_error("Unrecovered map effect orientation");}
         auto matrix=effect_matrix(e.rendered[0],rotation,e.rendered[2],sine,true);
         matrix=compose_pose(job,std::span(&matrix,1))[0];
@@ -143,6 +152,30 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
         }
         color[3]*=fade;
         MapEffectDraw draw{matrix,color,e.texture,e.uv,{},(e.primitive_flags&255)==1};
+        const Float4 white{255,255,255,255},clear{255,255,255,0};
+        if(effect.id==91) {
+            if(e.shape==28) {
+                require(e.texture==4,"Unrecovered flame texture");
+                // Stored geometry already has original strip order B,A,C,D.
+                for(unsigned v:{0u,1u,2u,1u,2u,3u}) {
+                    const auto& p=e.quad_positions[v];const auto& uv=e.quad_uv[v];
+                    draw.vertices.push_back({{p[0]/64.f,p[1]/64.f,p[2]/64.f,1},white,
+                                             {uv[0]/32768.f,uv[1]/32768.f,0,0}});
+                }
+            } else if(e.shape==40) {
+                require(e.texture==0xffffffffu,"Unrecovered glow texture");
+                //0x10fca8 emits sixteen independent center/next/current triangles.
+                const auto point=[&](unsigned i){const auto a=(i%16)*1024;
+                    return Float4{std::round(sine[(a+4096)&16383]*64)/64,0,
+                                  std::round(sine[a]*64)/64,1};};
+                for(unsigned i=0;i<16;++i) {
+                    draw.vertices.push_back({{0,0,0,1},white,{}});
+                    draw.vertices.push_back({point(i+1),clear,{}});
+                    draw.vertices.push_back({point(i),clear,{}});
+                }
+            } else throw std::runtime_error("Unrecovered torch geometry");
+            result.push_back(std::move(draw));continue;
+        }
         const auto base=effect.texture_sizes().at(e.shape==24?20:e.shape==31?17:5);
         const auto current=effect.texture_sizes().at(e.texture);
         const bool replace=(e.program>>30)==1;
@@ -158,7 +191,6 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
             // Original strip order B,A,C,D, hence the shared A-C diagonal.
             for(unsigned i:{1u,0u,2u,0u,2u,3u})draw.vertices.push_back({p[i],c[i],uv[i]});
         };
-        const Float4 white{255,255,255,255},clear{255,255,255,0};
         if(e.shape==24) {
             auto point=[&](unsigned i,float y) {
                 //0x113d88 packs nearest signed1/64 positions. Source W is a

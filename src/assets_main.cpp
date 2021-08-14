@@ -438,11 +438,12 @@ int main(int argc, char** argv) {
             }
             write(argv[3],output);return 0;
         }
-        if(command=="map-effect-geometry"&&argc==6) {
+        if((command=="map-effect-geometry"||command=="torch-effect-geometry")&&argc==6) {
+            const bool torch=command=="torch-effect-geometry";const unsigned count=torch?4:8;
             const auto bank=okage::read_efd(read(argv[2]));const auto input=read(argv[4]);
-            constexpr unsigned stride=198*4;
+            const unsigned stride=(torch?154:198)*4;
             if(input.empty()||input.size()%stride||input.size()>stride*64)throw std::runtime_error("Map geometry fixture bounds");
-            const auto found=std::find_if(bank.begin(),bank.end(),[](const auto& d){return d.id==25;});
+            const auto found=std::find_if(bank.begin(),bank.end(),[&](const auto& d){return d.id==(torch?91u:25u);});
             if(found==bank.end())throw std::runtime_error("Missing map effect25");
             okage::EffectTextureSizes sizes{};
             for(unsigned i=0;i<sizes.size();++i){const auto image=okage::decode_xim(read(fs::path(argv[3])/okage::effect_texture_names[i]));sizes[i]={image.width,image.height};}
@@ -455,17 +456,22 @@ int main(int argc, char** argv) {
                 float far;std::memcpy(&far,input.data()+at+148,4);
                 okage::MapEffect effect(*found,channels[0],channels[1],channels[2],sizes,[]{return 1;});
                 effect.color=channels[3];
-                for(unsigned i=0;i<8;++i){
+                for(unsigned i=0;i<count;++i){
                     auto& e=effect.elements[i];const auto source=input.data()+at+152+i*80;
                     std::array<std::uint32_t,4> meta;std::memcpy(meta.data(),source+64,16);
-                    if(e.shape!=meta[0]||e.flags!=meta[1]||e.primitive_flags!=meta[2]||meta[3]>=sizes.size())
+                    if(e.shape!=meta[0]||e.flags!=meta[1]||e.primitive_flags!=meta[2]||(meta[3]>=sizes.size()&&!(torch&&i==3&&meta[3]==0xffffffffu)))
                         throw std::runtime_error("Native geometry fixture metadata mismatch");
                     std::memcpy(e.rendered.data(),source,64);e.texture=meta[3];
-                    e.uv={0,0,std::uint16_t(sizes[e.texture][0]-1),std::uint16_t(sizes[e.texture][1]-1)};
+                    if(e.texture!=0xffffffffu)e.uv={0,0,std::uint16_t(sizes[e.texture][0]-1),std::uint16_t(sizes[e.texture][1]-1)};
+                    if(torch&&i<3)for(unsigned v=0;v<4;++v) {
+                        const auto packed=input.data()+at+472+i*48+v*12;
+                        std::memcpy(e.quad_positions[v].data(),packed,6);
+                        std::memcpy(e.quad_uv[v].data(),packed+8,4);
+                    }
                 }
                 out.push_back(identity);
                 const auto draws=okage::map_effect_draws(effect,view,channels[4],far,sine);
-                if(draws.size()!=8)throw std::runtime_error("Missing map effect geometry");
+                if(draws.size()!=count)throw std::runtime_error("Missing map effect geometry");
                 for(unsigned i=0;i<draws.size();++i){
                     const auto& d=draws[i];for(const auto& v:d.matrix)append(out,v);append(out,d.color);
                     if(at==0){geometry.insert(geometry.end(),{i,unsigned(d.vertices.size()),d.texture});

@@ -1,0 +1,545 @@
+{
+  "scope": "Torch91 native drawing: isolated original source geometry/material and transform comparisons, plus native-only Metal diagnostics.",
+  "builds": [
+    {
+      "build": "native-release",
+      "app_sha256": "12a02c339966542286c87c0c852acf41a630aba2bcc15d3c33db9406e5d64f5d",
+      "drawing_report": "local/torch-drawing-native-release-v4/report.json",
+      "drawing_report_sha256": "4872cfd01eee711c42437d2500a65a9d065c9d3bee426ee9d79db36d02d5e993",
+      "drawing": {
+        "scope": "Compare torch91 source geometry/materials and bounded original draw transforms.",
+        "cases": 5,
+        "element_transforms": 20,
+        "matrix_tolerance": 2e-05,
+        "matrix_max_absolute_error": 0.0,
+        "colors_exact": true,
+        "source_vertices_exact": 66,
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "torch-effect-geometry",
+            "local/extracted/SCUS_971.29",
+            "local/research/basement-summon-v1/after-chant.ram",
+            "local/torch-drawing-reference-v2/cases.bin",
+            "local/torch-drawing-reference-v2/original.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.2923177499999998,
+          "binary_sha256": "fab66ec132d73203f9ba950bcaaf748d47bc3369831fbb6b3b78c513a7c849bf",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+          "input_sha256": "7d26b9b68a2c727226ddee9dd678244da9a0847bcf30123fbc7d6c759fbdcfe9",
+          "output_sha256": "e9a3af6bef926a3bd29d019a734233db6a0a359564c0a43e4f6e164f43456d9d",
+          "packets_sha256": "54213a8540e0e94be8c018b7fe76fd9fd446756c84d89f1c1dc9dea4b92603d7"
+        },
+        "native_command": [
+          "build/native-release/okage-assets",
+          "torch-effect-geometry",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/torch-drawing-reference-v2/cases.bin",
+          "local/torch-drawing-native-release-v4/native.bin"
+        ],
+        "native_binary_sha256": "040d684bccbee48fda4f6a71269f6a58f56fc1cab3803d73216f6bc7a4659c71",
+        "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c"
+      },
+      "checks": [
+        {
+          "command": [
+            "ctest",
+            "--test-dir",
+            "build/native-release",
+            "--output-on-failure"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.8428398749999999
+        },
+        {
+          "command": [
+            "python3",
+            "tools/verify_torch_drawing.py",
+            "--native",
+            "build/native-release/okage-assets",
+            "--output",
+            "local/torch-drawing-native-release-v3"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.131267334
+        },
+        {
+          "command": [
+            "python3",
+            "tools/verify_torch_effect.py",
+            "--native",
+            "build/native-release/okage-assets",
+            "--output",
+            "local/torch-drawing-state-native-release-v1"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.36620224999999995
+        },
+        {
+          "command": [
+            "python3",
+            "tools/verify_map_geometry.py",
+            "--native",
+            "build/native-release/okage-assets",
+            "--output",
+            "local/torch-drawing-map25-native-release-v1"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.08710416700000012
+        }
+      ],
+      "preview": {
+        "command": [
+          "build/native-release/okage-torch-preview",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME2B.XPF/a.xmp",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/torch-metal-native-release-v2"
+        ],
+        "exit_code": 0,
+        "binary_sha256": "79418ac15c68393700f65bc2d4d96393cbbe2e536907619bed67547ac15bf554",
+        "log": "local/research/interior-effects-v1/preview-native-release-v2.log"
+      }
+    },
+    {
+      "build": "native",
+      "app_sha256": "ebe69d96715d3f3e36f2e9fd8d0a278bfd3dbb87cd03e82c79f601b8ce4e98f8",
+      "drawing_report": "local/torch-drawing-native-v4/report.json",
+      "drawing_report_sha256": "1eaf9f5ac833583c18ea54076f5bc3cad3760d3a02b57dbd6b514c0776cbeaf5",
+      "drawing": {
+        "scope": "Compare torch91 source geometry/materials and bounded original draw transforms.",
+        "cases": 5,
+        "element_transforms": 20,
+        "matrix_tolerance": 2e-05,
+        "matrix_max_absolute_error": 0.0,
+        "colors_exact": true,
+        "source_vertices_exact": 66,
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "torch-effect-geometry",
+            "local/extracted/SCUS_971.29",
+            "local/research/basement-summon-v1/after-chant.ram",
+            "local/torch-drawing-reference-v2/cases.bin",
+            "local/torch-drawing-reference-v2/original.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.2923177499999998,
+          "binary_sha256": "fab66ec132d73203f9ba950bcaaf748d47bc3369831fbb6b3b78c513a7c849bf",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+          "input_sha256": "7d26b9b68a2c727226ddee9dd678244da9a0847bcf30123fbc7d6c759fbdcfe9",
+          "output_sha256": "e9a3af6bef926a3bd29d019a734233db6a0a359564c0a43e4f6e164f43456d9d",
+          "packets_sha256": "54213a8540e0e94be8c018b7fe76fd9fd446756c84d89f1c1dc9dea4b92603d7"
+        },
+        "native_command": [
+          "build/native/okage-assets",
+          "torch-effect-geometry",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/torch-drawing-reference-v2/cases.bin",
+          "local/torch-drawing-native-v4/native.bin"
+        ],
+        "native_binary_sha256": "37e2b086d89cdc6a49d9617dd82aa8fe88444aaa54f6a635487e0315cd7c66c5",
+        "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c"
+      },
+      "checks": [
+        {
+          "command": [
+            "ctest",
+            "--test-dir",
+            "build/native",
+            "--output-on-failure"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.096533958
+        },
+        {
+          "command": [
+            "python3",
+            "tools/verify_torch_drawing.py",
+            "--native",
+            "build/native/okage-assets",
+            "--output",
+            "local/torch-drawing-native-v3"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.3078160830000001
+        },
+        {
+          "command": [
+            "python3",
+            "tools/verify_torch_effect.py",
+            "--native",
+            "build/native/okage-assets",
+            "--output",
+            "local/torch-drawing-state-native-v1"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.706477792
+        },
+        {
+          "command": [
+            "python3",
+            "tools/verify_map_geometry.py",
+            "--native",
+            "build/native/okage-assets",
+            "--output",
+            "local/torch-drawing-map25-native-v1"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.14174458299999992
+        }
+      ],
+      "preview": {
+        "command": [
+          "build/native/okage-torch-preview",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME2B.XPF/a.xmp",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/torch-metal-native-v2"
+        ],
+        "exit_code": 0,
+        "binary_sha256": "eda636f65e49cfa9993510e42c1a32d87ec6284fe1a95c7bc7651c9eefc25418",
+        "log": "local/research/interior-effects-v1/preview-native-v2.log"
+      }
+    },
+    {
+      "build": "model-sanitize",
+      "app_sha256": "cba9d0df366282142623350f4ea1fa6f6b99535c59714488650de525b4df15fb",
+      "drawing_report": "local/torch-drawing-model-sanitize-v4/report.json",
+      "drawing_report_sha256": "6ca5fabe8a11a87405f3d0d6c778911f23349058026f5ce9461507f476dd4b7d",
+      "drawing": {
+        "scope": "Compare torch91 source geometry/materials and bounded original draw transforms.",
+        "cases": 5,
+        "element_transforms": 20,
+        "matrix_tolerance": 2e-05,
+        "matrix_max_absolute_error": 0.0,
+        "colors_exact": true,
+        "source_vertices_exact": 66,
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "torch-effect-geometry",
+            "local/extracted/SCUS_971.29",
+            "local/research/basement-summon-v1/after-chant.ram",
+            "local/torch-drawing-reference-v2/cases.bin",
+            "local/torch-drawing-reference-v2/original.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.2923177499999998,
+          "binary_sha256": "fab66ec132d73203f9ba950bcaaf748d47bc3369831fbb6b3b78c513a7c849bf",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+          "input_sha256": "7d26b9b68a2c727226ddee9dd678244da9a0847bcf30123fbc7d6c759fbdcfe9",
+          "output_sha256": "e9a3af6bef926a3bd29d019a734233db6a0a359564c0a43e4f6e164f43456d9d",
+          "packets_sha256": "54213a8540e0e94be8c018b7fe76fd9fd446756c84d89f1c1dc9dea4b92603d7"
+        },
+        "native_command": [
+          "build/model-sanitize/okage-assets",
+          "torch-effect-geometry",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/torch-drawing-reference-v2/cases.bin",
+          "local/torch-drawing-model-sanitize-v4/native.bin"
+        ],
+        "native_binary_sha256": "0af666bae7e48f6d018a44bc9c9ab8718bb8be039a073655ff3d2b61c44efb10",
+        "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c"
+      },
+      "checks": [
+        {
+          "command": [
+            "ctest",
+            "--test-dir",
+            "build/model-sanitize",
+            "--output-on-failure"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.72323725
+        },
+        {
+          "command": [
+            "python3",
+            "tools/verify_torch_drawing.py",
+            "--native",
+            "build/model-sanitize/okage-assets",
+            "--output",
+            "local/torch-drawing-model-sanitize-v3"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.38167454199999984
+        },
+        {
+          "command": [
+            "python3",
+            "tools/verify_torch_effect.py",
+            "--native",
+            "build/model-sanitize/okage-assets",
+            "--output",
+            "local/torch-drawing-state-model-sanitize-v1"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.2762349999999998
+        },
+        {
+          "command": [
+            "python3",
+            "tools/verify_map_geometry.py",
+            "--native",
+            "build/model-sanitize/okage-assets",
+            "--output",
+            "local/torch-drawing-map25-model-sanitize-v1"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.20282820799999968
+        }
+      ],
+      "preview": {
+        "command": [
+          "build/model-sanitize/okage-torch-preview",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME2B.XPF/a.xmp",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/torch-metal-model-sanitize-v2"
+        ],
+        "exit_code": 0,
+        "binary_sha256": "ab35cb7c54c08a5ce154c7bfc5cc52c067c02b54f346d62ec35c56c268327372",
+        "log": "local/research/interior-effects-v1/preview-model-sanitize-v2.log"
+      }
+    }
+  ],
+  "preview": {
+    "pngs_exact_across_builds": {
+      "torch-1.png": "405783a8c0b42ca8c57b40cc3964995904e3b5ee8ef5c7e79bba130e7f1c6f9a",
+      "torch-7.png": "f0799c61ba92171c1cd077af1cb706b877c8c1a7f215e69404d84ae7a65255b1",
+      "torch-15.png": "fa716d3ad233b4f837e30fe05fa396ad2290e3c78bb877b5a2548f93783e0a73",
+      "torch-31.png": "6f7f6a0a9e115ab0f48b40563d0a3e9a21d3054e8aa508e7f6de804ab7107a06",
+      "torch-61.png": "3e52011115608695854968b252eb55fd4cc5b9f03e98929c1c7f6a34fdcf17cf"
+    },
+    "visually_inspected_ticks": [
+      1,
+      15,
+      61
+    ],
+    "scope": "Three synthetic placements outside the owned HOME2B map, isolated from ordinary room geometry."
+  },
+  "regression": {
+    "baseline": "local/native-home2c-basement-three-verses-47855-release-v1.png",
+    "new": "local/native-torch-drawing-regression-47855-release-v1.png",
+    "files": [
+      {
+        "suffix": "",
+        "sha256": "aec41ac0f4289e8819a5e7a545db1d5ef9c2f2272b8b092911d264a4bb954bd1"
+      },
+      {
+        "suffix": ".actor-1.bin",
+        "sha256": "7bd7eed0c6650503a7605697fbfc0b1a709c186bca7e9cedb9bd9a018039d47a"
+      },
+      {
+        "suffix": ".actor-10.bin",
+        "sha256": "e444e80b034d91348ecde5b0e319e7d0fa693cbffdf5d3e1b22ae813a4bc0490"
+      },
+      {
+        "suffix": ".actor-11.bin",
+        "sha256": "1fca7d3bd793e19d237f88d833797b62a1025cb7fcc81dacb39abb25909b9bc6"
+      },
+      {
+        "suffix": ".actor-12.bin",
+        "sha256": "3bbe89f0bdbe03425aa3514fda6c4a315662a92c48d584fae22a53d11a1d8a9a"
+      },
+      {
+        "suffix": ".actor-13.bin",
+        "sha256": "da2a80fa89b5ced64d2bac1eb09c5effe98027126c64760b9322d01c9d74e441"
+      },
+      {
+        "suffix": ".actor-14.bin",
+        "sha256": "3379c4ae4747dbb45655bfd518a7d8e985003c1703e7984533edc9bd7f2cd7c8"
+      },
+      {
+        "suffix": ".actor-15.bin",
+        "sha256": "422ae0729ea4b557cdf21ceaf1a3ea2f83a727102e2d6add30b1eb3a7e62616f"
+      },
+      {
+        "suffix": ".actor-16.bin",
+        "sha256": "a9b8184ee96875376f7a53e7f2ae63e5746206fb86f2c251cc6f335a0cd2829e"
+      },
+      {
+        "suffix": ".actor-17.bin",
+        "sha256": "ec4cfce3ec49b71094d28e1def4044d40b4c4878687134b7fc73b51925085865"
+      },
+      {
+        "suffix": ".actor-18.bin",
+        "sha256": "495b66777b5a894d9bf450dab77218587e58bd8a29d8d9ce737a2529e19f8dc7"
+      },
+      {
+        "suffix": ".actor-19.bin",
+        "sha256": "7fbae01f7a23a5db0b4a19650c01d3ba790daccc90d9b49441277a0d99412774"
+      },
+      {
+        "suffix": ".actor-20.bin",
+        "sha256": "dce67fe8789273e842c73e63b5f6b4993c29c3457f3b02a918b8d9e27126f277"
+      },
+      {
+        "suffix": ".actor-21.bin",
+        "sha256": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3"
+      },
+      {
+        "suffix": ".actor-22.bin",
+        "sha256": "52ced2ad7d11087e23f17eec62ef9a12152e22819f3c90aae92d7f002c447da5"
+      },
+      {
+        "suffix": ".actor-37.bin",
+        "sha256": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd"
+      },
+      {
+        "suffix": ".actor-38.bin",
+        "sha256": "76ba34c261405d19131ff08afd76466bd58b75955ea5d5be4f94b432248fb11e"
+      },
+      {
+        "suffix": ".actor-45.bin",
+        "sha256": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921"
+      },
+      {
+        "suffix": ".actor-9.bin",
+        "sha256": "c08ffefb51ef7bca2b335b30d592cc3ea85b11e4152b81c128ce05366a4573a5"
+      },
+      {
+        "suffix": ".actor.bin",
+        "sha256": "1b5211c1fa3a2b48d9f736b8ebd496031a1c7cdfddc234d711db53f170ae2685"
+      },
+      {
+        "suffix": ".actors-state.json",
+        "sha256": "da52ebc0260a3602997f2833e3f3b4a8962d9d4c806b5c68c181370408271155"
+      },
+      {
+        "suffix": ".audio.json",
+        "sha256": "5067608dac9f3595578072eea2e3e7e01dafe613720dfd3def98b0f442d00577"
+      },
+      {
+        "suffix": ".audio.pcm",
+        "sha256": "f7609a9d7cd816e1dc400e06259bdc6eb193396b841699071924ffa0178b3232"
+      },
+      {
+        "suffix": ".camera-state.bin",
+        "sha256": "3983cc771d0d0186d6128af00e61919e88d714ad264e38659f7237ca63bfa4b9"
+      },
+      {
+        "suffix": ".camera.bin",
+        "sha256": "270fef6176d50a126f9fa08bebea6757ecf00fb71557a422d0271f03c76ab76f"
+      },
+      {
+        "suffix": ".choices.bin",
+        "sha256": "299d149cb217e54fa7a252d5ea42f10bc8d4bb35544f4b83c52876b5146e84ee"
+      },
+      {
+        "suffix": ".dialogue.bin",
+        "sha256": "997bda69a5ef345b20fc4fcd980dd7a7eb2b1c0075814eea4f075ba434bf4432"
+      },
+      {
+        "suffix": ".effects.bin",
+        "sha256": "228c55b06d26a929f633d3cd2decf94d0e6c9812c84818bd03fdd4d5b686a2df"
+      },
+      {
+        "suffix": ".interaction.bin",
+        "sha256": "656603538cfb644aba85fb2fe0c8b7e69d0703dd1deb92a9146bf1f3feafa841"
+      },
+      {
+        "suffix": ".json",
+        "sha256": "e01c762eef62719bfcbff10dcc389ae38a61aa3773e22d8e357a9fb1636421f5"
+      },
+      {
+        "suffix": ".map-effects.bin",
+        "sha256": "123f3838d821169e4b0d415cdc214e0838df4e1b24d6d8dceb611545ce1277b0"
+      },
+      {
+        "suffix": ".movement.bin",
+        "sha256": "1483638bd28535f2c4dedf7a0bed5ae806a04908fa4a789b146e02218e7e94fb"
+      },
+      {
+        "suffix": ".music.bin",
+        "sha256": "9df7dd460780e02ce197712f728c362f377fe049375157a2f7d79f4c1b48e225"
+      },
+      {
+        "suffix": ".screen-filter.bin",
+        "sha256": "f8f380a36e5dac0b275c2f946e52e0bf1bb64548de7ac99926f640c01b4442a5"
+      },
+      {
+        "suffix": ".sound.bin",
+        "sha256": "efa6ab2eaa24b797f5e15f772a466bef51b3156cdc920d4dfbf6426cea075ff3"
+      },
+      {
+        "suffix": ".transition.bin",
+        "sha256": "d62a484a672e7939dbb1df4965f3f815b61e5ce41bbb988c1f093e67b6bce442"
+      },
+      {
+        "suffix": ".variables.bin",
+        "sha256": "57b15026f7453eb06527fe6681a224f9227abf6dd528bfc0cb42465b37f90535"
+      }
+    ],
+    "run": {
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "47855",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378",
+        "--directions",
+        "local/native-torch-drawing-regression-47855-release-v1.directions",
+        "--capture",
+        "local/native-torch-drawing-regression-47855-release-v1.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "--render-from",
+        "11310",
+        "--render-until",
+        "11542"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 21.652152125,
+      "binary_sha256": "12a02c339966542286c87c0c852acf41a630aba2bcc15d3c33db9406e5d64f5d"
+    }
+  },
+  "tests": {
+    "ctests_per_build": 19,
+    "python": 54,
+    "python_log": "local/research/interior-effects-v1/python-drawing-tests-v2.log"
+  },
+  "negative_evidence": [
+    {
+      "path": "local/torch-drawing-reference-v1",
+      "failure": "Probe set S3 to element count4 instead of slot byte offset0. Bounded original code drew against slot1 transform while elements came from slot0. V2 supplies slot*4. Earlier template25 probe had count8 and slot2, so its precondition happened to be correct. Geometry packets are unchanged."
+    },
+    {
+      "path": "local/research/interior-effects-v1/draw-verify-*-0.log",
+      "failure": "Existing test correctly rejected accepting orientation2 for template25. Restrict newly supported modes2/8 to torch91 shapes40/28; all19 CTests now pass in three builds."
+    },
+    {
+      "path": "local/torch-metal-*-v1",
+      "failure": "First preview used an empty diagnostic map, rejected by existing SceneRenderer guard. Revised tool loads owned static HOME2B and places diagnostic torches outside it; guard unchanged."
+    }
+  ],
+  "next": "Recover reference-template98 import and deferred template16. Construct actual interior jobs from owned data with original shared handles/RNG, then finish summoning33/115 geometry/deferred drawing and replay authentic progression."
+}
