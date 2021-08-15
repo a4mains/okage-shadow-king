@@ -84,9 +84,22 @@ int main(){try{
     const auto flames=okage::map_effect_draws(flame,identity,{},450,sine);
     check(flames.size()==4&&flames[0].vertices.size()==6&&flames[3].vertices.size()==48);
     check(flames[3].texture==0xffffffffu&&flames[3].additive);
-    // A recovered ordinary torch does not enable the deferred template16 pass.
+    // Ordinary torch geometry cannot be submitted as a deferred job.
     flame.flags|=0x400;
     rejects([&]{okage::map_effect_draws(flame,identity,{},450,sine);});
+    rejects([&]{okage::map_effect_draws(flame,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);});
+    torch.id=16;torch.flags=0x8403;torch.elements.resize(3);
+    for(auto& e:torch.elements)e.primitive_flags=8;
+    okage::MapEffect deferred(torch,{},{},{1,1,1,1},sizes,random);
+    rejects([&]{okage::map_effect_draws(deferred,identity,{},450,sine);});
+    const auto deferred_draw=[&]{return okage::map_effect_draws(deferred,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);};
+    const auto deferred_flames=deferred_draw();
+    check(deferred_flames.size()==3);
+    for(const auto& draw:deferred_flames)check(draw.vertices.size()==6&&draw.additive&&draw.texture==4);
+    deferred.elements[0].primitive_flags=9;rejects(deferred_draw);
+    deferred.elements[0].primitive_flags=8;
+    deferred.elements[0].shape=40;deferred.elements[0].texture=0xffffffffu;
+    rejects(deferred_draw);
     okage::EffectDefinition base=dust;base.id=19;base.flags=0x8000;base.duration=300;
     base.parameters={.03f,-.05f,0,.1f};
     okage::EffectDefinition reference;reference.id=98;reference.flags=0x800;

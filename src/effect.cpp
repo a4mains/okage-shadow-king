@@ -129,11 +129,13 @@ void MapEffect::set_parameter(unsigned selector,const Float4& payload) {
     }
 }
 std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix4& view,
-        const Float4& camera,float far_clip,const SineTable& sine,const Float4* light_tint) {
+        const Float4& camera,float far_clip,const SineTable& sine,const Float4* light_tint,EffectDrawPass pass) {
     if(effect.flags&0x4300)return {};
     require((effect.id==25&&effect.elements.size()==8)||((effect.id==17||effect.id==19)&&effect.elements.size()==9)||
-            (effect.id==91&&effect.elements.size()==4),"Unrecovered map effect geometry template");
-    require(!(effect.flags&0x400),"Deferred map effect rendering is unrecovered");
+            (effect.id==91&&effect.elements.size()==4)||(effect.id==16&&effect.elements.size()==3),"Unrecovered map effect geometry template");
+    require(bool(effect.flags&0x400)==(pass==EffectDrawPass::Deferred),"Effect submitted to the wrong draw pass");
+    require(pass==EffectDrawPass::Ordinary||effect.id==16,"Unrecovered deferred effect geometry");
+    require(effect.id!=16||pass==EffectDrawPass::Deferred,"Flame16 requires the deferred pass");
     require(std::isfinite(far_clip)&&far_clip>0,"Invalid effect far clip");
     Rounding rounding;
     const auto job=effect_matrix(effect.position,effect.rotation,effect.scale,sine,false);
@@ -145,7 +147,9 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
     }
     std::vector<MapEffectDraw> result;
     for(const auto& e:effect.elements) {
-        require((e.primitive_flags&255)==1||((effect.id==17||effect.id==19)&&e.primitive_flags==0x41),"Unrecovered map effect material");
+        require(effect.id==16?e.primitive_flags==8:
+                (e.primitive_flags&255)==1||((effect.id==17||effect.id==19)&&e.primitive_flags==0x41),
+                "Unrecovered map effect material");
         require(!(e.flags&0x400000)||light_tint,"Effect requires owned field light tint");
         require(e.uv[0]==0&&e.uv[1]==0&&!e.render_flags,"Unrecovered map effect texture region");
         auto rotation=e.rendered[1];
@@ -157,7 +161,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
             rotation[0]=((1-camera[0])+.25f)-effect.rotation[0];
             rotation[1]=(1-camera[1])-effect.rotation[1];rotation[3]=camera[3];break;
             case 8:
-            require(effect.id==91&&e.shape==28,"Unrecovered horizontal billboard owner");
+            require((effect.id==91||effect.id==16)&&e.shape==28,"Unrecovered horizontal billboard owner");
             rotation[0]-=effect.rotation[0];
             rotation[1]=(1-camera[1])-effect.rotation[1];break;
             default:throw std::runtime_error("Unrecovered map effect orientation");}
@@ -169,9 +173,12 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
             if(e.flags&0x400000)color[i]*=(*light_tint)[i];
         }
         color[3]*=fade;
-        MapEffectDraw draw{matrix,color,e.texture,e.uv,{},(e.primitive_flags&255)==1};
+        //16's TEST=0x53001 uses alpha-test NEVER with RGB_ONLY failure.
+        // Its RGB blend is additive; the additive Metal path preserves target
+        // alpha and disables depth writes, as required for that failure mode.
+        MapEffectDraw draw{matrix,color,e.texture,e.uv,{},(e.primitive_flags&255)==1||e.primitive_flags==8};
         const Float4 white{255,255,255,255},clear{255,255,255,0};
-        if(effect.id==91) {
+        if(effect.id==91||effect.id==16) {
             if(e.shape==28) {
                 require(e.texture==4,"Unrecovered flame texture");
                 // Stored geometry already has original strip order B,A,C,D.
@@ -180,7 +187,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
                     draw.vertices.push_back({{p[0]/64.f,p[1]/64.f,p[2]/64.f,1},white,
                                              {uv[0]/32768.f,uv[1]/32768.f,0,0}});
                 }
-            } else if(e.shape==40) {
+            } else if(e.shape==40&&effect.id==91) {
                 require(e.texture==0xffffffffu,"Unrecovered glow texture");
                 //0x10fca8 emits sixteen independent center/next/current triangles.
                 const auto point=[&](unsigned i){const auto a=(i%16)*1024;

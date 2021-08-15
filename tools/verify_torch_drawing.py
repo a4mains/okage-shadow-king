@@ -16,7 +16,7 @@ from verify_map_effect import digest, ELF_SHA
 ORIGINAL_SHA = 'e9a3af6bef926a3bd29d019a734233db6a0a359564c0a43e4f6e164f43456d9d'
 PACKETS_SHA = '54213a8540e0e94be8c018b7fe76fd9fd446756c84d89f1c1dc9dea4b92603d7'
 
-def fixture():
+def fixture(deferred=False):
     data = bytearray()
     identity = (1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1)
     for case in range(5):
@@ -26,24 +26,25 @@ def fixture():
         camera = (0,0,0,1) if not case else (.123*case,-.231*case,.02*case,1)
         view = identity if case < 3 else (0,0,1,0, 0,1,0,0, -1,0,0,0, 7,-3,11,1)
         data += struct.pack('<I37f', case, *(x for v in job for x in v), *camera, *view, 450)
-        for i in range(4):
+        for i in range(3 if deferred else 4):
             channels = ((i*.2,-i*.4,i*.1,0), (.025*i,.03*i,-.07*i,0),
                         (2.5,3.5,1,1), (.65,.55,.45,.75))
             data += struct.pack('<16f4I', *(x for v in channels for x in v),
-                                28 if i < 3 else 40, 0x158 if i < 3 else 2,
-                                1, 4 if i < 3 else 0xffffffff)
+                                28 if i < 3 else 40, 0x108 if deferred else 0x158 if i < 3 else 2,
+                                8 if deferred else 1, 4 if i < 3 else 0xffffffff)
         for i in range(3):
             sign = -1 if i == 1 else 1
             for x,y,u,v in ((32,-64,32,0),(-32,-64,0,0),(32,0,32,65),(-32,0,0,65)):
                 data += struct.pack('<3hH2H', x*sign,y,0,0,(u+i*32)*32,v*32)
     return bytes(data)
 
-def compare_matrices(original, native):
-    if len(original) != 5*81*4 or len(native) != len(original):
+def compare_matrices(original, native, deferred=False):
+    stride = 61 if deferred else 81
+    if len(original) != 5*stride*4 or len(native) != len(original):
         raise ValueError('Torch draw transform extent')
     maximum = 0.
-    for case, (ref, got) in enumerate(zip(struct.iter_unpack('<81I', original),
-                                         struct.iter_unpack('<81I', native))):
+    for case, (ref, got) in enumerate(zip(struct.iter_unpack(f'<{stride}I', original),
+                                         struct.iter_unpack(f'<{stride}I', native))):
         if ref[0] != case or got[0] != case:
             raise ValueError('Torch draw case identity')
         for at,(a,b) in enumerate(zip(ref[1:], got[1:])):
@@ -60,16 +61,16 @@ def compare_matrices(original, native):
             maximum = max(maximum,error)
     return maximum
 
-def packet_vertices(data):
+def packet_vertices(data, deferred=False):
     at, result = 0, []
     word = lambda p,a: struct.unpack_from('<I',p,a)[0]
-    for element in range(4):
+    for element in range(3 if deferred else 4):
         if len(data)-at < 40:
             raise ValueError('Torch packet header extent')
         index,shape,uvmin,uvmax,*material = struct.unpack_from('<10I',data,at);at += 40
         if (index,shape) != (element,28 if element < 3 else 40):
             raise ValueError('Torch source identity')
-        if material != [0,1,0x48,0,0x50000,0] or uvmin or uvmax!=(0x3f005f if element<3 else 0xffffffff):
+        if material != [0,1,0x48,0,0x53001 if deferred else 0x50000,0] or uvmin or uvmax!=(0x3f005f if element<3 else 0xffffffff):
             raise ValueError('Torch source material')
         packets = []
         for packet in range(4):
@@ -114,9 +115,9 @@ def packet_vertices(data):
         raise ValueError('Trailing torch packets')
     return result
 
-def compare_vertices(packets,native):
+def compare_vertices(packets,native,deferred=False):
     at,total = 0,0
-    for i,expected in enumerate(packet_vertices(packets)):
+    for i,expected in enumerate(packet_vertices(packets,deferred)):
         if len(native)-at < 12:
             raise ValueError('Native torch geometry header extent')
         element,count,texture = struct.unpack_from('<3I',native,at);at += 12

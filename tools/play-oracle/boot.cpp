@@ -21,6 +21,7 @@
 #include "reference_npc.hpp"
 #include "reference_lifecycle.hpp"
 #include "reference_order.hpp"
+#include "reference_effect_order.hpp"
 #include "reference_music.hpp"
 #include "iop/IopBios.h"
 #include "iop/ioman/OpticalMediaDevice.h"
@@ -68,10 +69,10 @@ public:
 };
 int main(int argc,char** argv) {
     try {
-        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT | --walk-waypoints ROUTE --walk-record INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--camera-schedule FILE] [--screen-filter FILE] [--movement FILE] [--interaction FILE] [--interaction-wide FILE] [--transition FILE] [--dust FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--lifecycle FILE] [--order FILE] [--music FILE] [--deadline-seconds 1..7200]");
+        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT | --walk-waypoints ROUTE --walk-record INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--camera-schedule FILE] [--screen-filter FILE] [--movement FILE] [--interaction FILE] [--interaction-wide FILE] [--transition FILE] [--dust FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--lifecycle FILE] [--order FILE] [--effect-order FILE] [--music FILE] [--deadline-seconds 1..7200]");
         unsigned deadlineSeconds=0;
         std::string walkWaypoints,walkRecord;
-        int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false,musicField=false,musicJingle=false,musicNight=false,interactionWide=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,cameraSchedule,music,movement,interaction,transition,npc,dust,screenFilter;
+        int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false,musicField=false,musicJingle=false,musicNight=false,interactionWide=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,cameraSchedule,music,movement,interaction,transition,npc,dust,screenFilter,effectOrder;
         for (int i=3;i<argc;++i) {
             const std::string arg=argv[i];
             if (arg=="--load") load=true;
@@ -92,6 +93,7 @@ int main(int argc,char** argv) {
             else if (arg=="--actor-alias" && i+1<argc) actorAlias=std::stoi(argv[++i]);
             else if (arg=="--camera-schedule" && i+1<argc) cameraSchedule=argv[++i];
             else if (arg=="--lifecycle" && i+1<argc) lifecycle=argv[++i];
+            else if (arg=="--effect-order" && i+1<argc) effectOrder=argv[++i];
             else if (arg=="--order" && i+1<argc) order=argv[++i];
             else if (arg=="--music" && i+1<argc) music=argv[++i];
             else if (arg=="--music-field") musicField=true;
@@ -158,7 +160,8 @@ int main(int argc,char** argv) {
         auto cameraScheduleTrace=cameraSchedule.empty() ? nullptr : std::make_unique<CameraScheduleTrace>(cameraSchedule);
         auto lifecycleTrace=lifecycle.empty() ? nullptr : std::make_unique<LifecycleTrace>(lifecycle);
         auto orderTrace=order.empty() ? nullptr : std::make_unique<OrderTrace>(order);
-        const bool tracing=traceLoaders || bool(cameraScheduleTrace) || bool(screenFilterTrace) || bool(dustTrace) || bool(npcTrace) || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace) || bool(cameraTrace) || bool(actorTrace) || bool(movementTrace) || bool(interactionTrace) || bool(transitionTrace) || bool(lifecycleTrace) || bool(orderTrace) || !music.empty();
+        auto effectOrderTrace=effectOrder.empty() ? nullptr : std::make_unique<EffectOrderTrace>(effectOrder);
+        const bool tracing=bool(effectOrderTrace) || traceLoaders || bool(cameraScheduleTrace) || bool(screenFilterTrace) || bool(dustTrace) || bool(npcTrace) || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace) || bool(cameraTrace) || bool(actorTrace) || bool(movementTrace) || bool(interactionTrace) || bool(transitionTrace) || bool(lifecycleTrace) || bool(orderTrace) || !music.empty();
         RecordedAudio* recordedAudio=nullptr;
         Traffic traffic; std::atomic<unsigned> frames{0}; std::atomic<bool> exited{false};
         ResearchVM vm;
@@ -216,6 +219,7 @@ int main(int argc,char** argv) {
         if(lifecycleTrace)for(auto at:LifecycleTrace::breakpoints)loaders.push_back(at);
         if(cameraScheduleTrace)for(auto at:CameraScheduleTrace::breakpoints)loaders.push_back(at);
         if(orderTrace)for(auto at:OrderTrace::breakpoints)loaders.push_back(at);
+        if(effectOrderTrace)for(auto at:EffectOrderTrace::breakpoints)loaders.push_back(at);
         std::sort(loaders.begin(),loaders.end());loaders.erase(std::unique(loaders.begin(),loaders.end()),loaders.end());
         if (tracing) {
             Iop::Ioman::COpticalMediaDevice reader(vm.m_cdrom0);
@@ -258,6 +262,8 @@ int main(int argc,char** argv) {
                     throw std::runtime_error(error.str());
                 }
                 if (++tracedCalls>(eventTrace ? 200000u : 10000u)) throw std::runtime_error("Reference trace limit exceeded");
+                const bool observingEffectOrder=effectOrderTrace&&std::find(EffectOrderTrace::breakpoints.begin(),EffectOrderTrace::breakpoints.end(),pc)!=EffectOrderTrace::breakpoints.end();
+                if(observingEffectOrder)effectOrderTrace->observe(*vm.m_ee,frames);
                 const bool observingCameraSchedule=cameraScheduleTrace&&std::find(CameraScheduleTrace::breakpoints.begin(),CameraScheduleTrace::breakpoints.end(),pc)!=CameraScheduleTrace::breakpoints.end();
                 if(observingCameraSchedule)cameraScheduleTrace->observe(*vm.m_ee,frames);
                 const bool observingNpc=npcTrace&&std::find(NpcTrace::breakpoints.begin(),NpcTrace::breakpoints.end(),pc)!=NpcTrace::breakpoints.end();
@@ -313,7 +319,7 @@ int main(int argc,char** argv) {
                 if(sceneTrace && std::find(sceneBreakpoints.begin(),sceneBreakpoints.end(),pc)!=sceneBreakpoints.end()) {
                     sceneTrace->observe(*vm.m_ee,frames);vm.Resume();continue;
                 }
-                if(observingDust){vm.Resume();continue;}
+                if(observingDust||observingEffectOrder){vm.Resume();continue;}
                 const uint32 address=uint32(cpu.nGPR[CMIPS::A0].nD0)&0x1fffffff;
                 std::string path;
                 for (unsigned i=0;i<256 && address+i<PS2::EE_RAM_SIZE;++i) {
@@ -343,6 +349,7 @@ int main(int argc,char** argv) {
         if(npcTrace)npcTrace->finish();
         if(transitionTrace)transitionTrace->finish();
         if(dustTrace)dustTrace->finish();
+        if(effectOrderTrace)effectOrderTrace->finish();
         if(interactionTrace)interactionTrace->finish();
         if(movementTrace)movementTrace->finish();
         if(lifecycleTrace)lifecycleTrace->finish();

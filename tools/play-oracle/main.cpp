@@ -370,16 +370,28 @@ public:
         }
         writeFile(output,result.data(),result.size()*4);
     }
-    void mapEffectGeometry(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output,bool torch=false) {
-        const unsigned stride=(torch?154:198)*4,sp=0x1ff0000,count=torch?4:8,slot=torch?0:2;
+    void mapEffectGeometry(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output,unsigned templateId=25) {
+        const bool deferred=templateId==16,torch=templateId==91,flame=deferred||torch;
+        const unsigned count=deferred?3:torch?4:8,stride=(38+count*20+(flame?36:0))*4,sp=0x1ff0000,slot=flame?0:2;
         if(ram.size()!=32*1024*1024||input.empty()||input.size()%stride||input.size()>stride*64)
             throw std::runtime_error("Effect geometry fixture bounds");
         std::vector<uint32> result,packets;
         for(unsigned at=0;at<input.size();at+=stride) {
             ee->m_EE.m_executor->Reset();
             std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
-            loadMicro();const auto table=get(0x1f849c),job=get(table+slot*4);
-            if(get(job)!=(torch?91u:25u)||get(job+8)!=count)throw std::runtime_error("Unexpected captured map effect");
+            loadMicro();const auto table=get(0x1f849c);
+            if(deferred) {
+                effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
+                    ee->m_gs,ee->m_sif,*dynamic_cast<CIopBios*>(iop->m_bios.get()));
+                for(unsigned i=0;i<84;++i)put(table+4*i,0xffffffff);
+                put(get(0x2151b4)+0x58,1);
+                std::memcpy(ee->m_ram+0x81000,input.data()+at+4,48);
+                call(0x101440,{16,0x81000,0x81010,0x81020});
+                if(uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0)!=slot)
+                    throw std::runtime_error("Deferred geometry allocation order");
+            }
+            const auto job=get(table+slot*4);
+            if(get(job)!=templateId||get(job+8)!=count)throw std::runtime_error("Unexpected captured map effect");
             std::memcpy(ee->m_ram+job+0x10,input.data()+at+4,64);
             call(0x1842c8);const auto camera=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
             std::memcpy(ee->m_ram+camera,input.data()+at+68,16);
@@ -393,9 +405,16 @@ public:
                 expectedStop=end;cpu.ToggleBreakpoint(end);call(begin);
                 cpu.ToggleBreakpoint(end);expectedStop=stop;
             };
-            block(0x1024e0,0x1027b8);
+            if(deferred) {
+                cpu.m_State.nGPR[CMIPS::S4].nD0=slot*4;
+                cpu.m_State.nGPR[CMIPS::S7].nD0=0x200000;
+                put(sp+0xc0,slot);put(sp+0xd0,0x80000);
+                block(0x102e58,0x10311c);
+                cpu.m_State.nGPR[CMIPS::S5].nD0=sp+0x90;
+                cpu.m_State.nGPR[CMIPS::FP].nD0=sp+0x10;
+            } else block(0x1024e0,0x1027b8);
             // Caller scratch destinations from0x1027b8..0x1027c0.
-            put(sp+0xf8,sp+0x10);cpu.m_State.nGPR[CMIPS::S7].nD0=sp+0x90;
+            if(!deferred){put(sp+0xf8,sp+0x10);cpu.m_State.nGPR[CMIPS::S7].nD0=sp+0x90;}
             uint32 identity;std::memcpy(&identity,input.data()+at,4);result.push_back(identity);
             for(unsigned i=0;i<count;++i) {
                 const auto e=get(job+12)+i*128,r=get(e+0x78),g=get(e+0x64);
@@ -403,22 +422,22 @@ public:
                 std::array<uint32,4> meta;std::memcpy(meta.data(),source+64,16);
                 unsigned texture=0;for(;texture<31;++texture)if(get(get(0x24e780)+texture*4)==(get(e+0x5c)&65535))break;
                 if(torch&&i==3&&(get(e+0x5c)&65535)==65535)texture=0xffffffff;
-                if(meta[0]!=(torch?(i<3?28u:40u):(i<3?24u:29u))||meta[1]!=get(e+0x54)||meta[2]!=get(e+0x58)||meta[3]!=texture)
+                if(meta[0]!=(flame?(i<3?28u:40u):(i<3?24u:29u))||meta[1]!=get(e+0x54)||meta[2]!=get(e+0x58)||meta[3]!=texture)
                     throw std::runtime_error("Effect geometry input metadata mismatch");
                 std::memcpy(ee->m_ram+r,source,64);
-                if(torch&&i<3) {
+                if(flame&&i<3) {
                     const auto xyz=get(g+4)+48,uv=get(g+8)+48;
                     if(xyz>ram.size()-24||uv>ram.size()-16)throw std::runtime_error("Torch geometry extent");
                     for(unsigned v=0;v<4;++v) {
-                        const auto packed=input.data()+at+472+i*48+v*12;
+                        const auto packed=input.data()+at+152+count*80+i*48+v*12;
                         std::memcpy(ee->m_ram+xyz+v*6,packed,6);
                         std::memcpy(ee->m_ram+uv+v*4,packed+8,4);
                     }
                 }
                 cpu.m_State.nGPR[CMIPS::S1].nD0=e;cpu.m_State.nGPR[CMIPS::S2].nD0=r;
-                cpu.m_State.nGPR[CMIPS::S4].nD0=i;
-                block(0x102978,0x1aeb10);
-                block(0x102a20,0x1ad3c8);
+                cpu.m_State.nGPR[deferred?CMIPS::S3:CMIPS::S4].nD0=i;
+                block(deferred?0x1032cc:0x102978,0x1aeb10);
+                block(deferred?0x103370:0x102a20,0x1ad3c8);
                 for(unsigned k=0;k<16;++k)result.push_back(get(sp+0x10+k*4));
                 for(unsigned k=0;k<4;++k)result.push_back(get(sp+0x90+k*4));
                 if(at==0) {
@@ -1676,8 +1695,8 @@ int main(int argc,char** argv) {
             reference.messageInit(readFile(argv[3]),std::stoul(argv[4]),argv[5]);
         } else if(command=="effect-tint" && argc==5) {
             reference.effectTint(readFile(argv[3]),argv[4]);
-        } else if((command=="map-effect-geometry"||command=="torch-effect-geometry") && argc==6) {
-            reference.mapEffectGeometry(readFile(argv[3]),readFile(argv[4]),argv[5],command=="torch-effect-geometry");
+        } else if((command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry") && argc==6) {
+            reference.mapEffectGeometry(readFile(argv[3]),readFile(argv[4]),argv[5],command=="flame16-effect-geometry"?16:command=="torch-effect-geometry"?91:25);
         } else if(command=="effect-reference-probe" && argc==6) {
             reference.effectReferenceProbe(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="stream-prepare" && argc==6) {

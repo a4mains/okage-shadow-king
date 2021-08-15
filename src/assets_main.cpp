@@ -438,13 +438,14 @@ int main(int argc, char** argv) {
             }
             write(argv[3],output);return 0;
         }
-        if((command=="map-effect-geometry"||command=="torch-effect-geometry")&&argc==6) {
-            const bool torch=command=="torch-effect-geometry";const unsigned count=torch?4:8;
+        if((command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry")&&argc==6) {
+            const bool torch=command=="torch-effect-geometry",deferred=command=="flame16-effect-geometry",flame=torch||deferred;
+            const unsigned count=deferred?3:torch?4:8;
             const auto bank=okage::read_efd(read(argv[2]));const auto input=read(argv[4]);
-            const unsigned stride=(torch?154:198)*4;
+            const unsigned stride=(38+count*20+(flame?36:0))*4;
             if(input.empty()||input.size()%stride||input.size()>stride*64)throw std::runtime_error("Map geometry fixture bounds");
-            const auto found=std::find_if(bank.begin(),bank.end(),[&](const auto& d){return d.id==(torch?91u:25u);});
-            if(found==bank.end())throw std::runtime_error("Missing map effect25");
+            const auto found=std::find_if(bank.begin(),bank.end(),[&](const auto& d){return d.id==(deferred?16u:torch?91u:25u);});
+            if(found==bank.end())throw std::runtime_error("Missing geometry effect template");
             okage::EffectTextureSizes sizes{};
             for(unsigned i=0;i<sizes.size();++i){const auto image=okage::decode_xim(read(fs::path(argv[3])/okage::effect_texture_names[i]));sizes[i]={image.width,image.height};}
             std::vector<std::uint32_t> out,geometry;const auto sine=okage::make_sine_table();
@@ -463,14 +464,14 @@ int main(int argc, char** argv) {
                         throw std::runtime_error("Native geometry fixture metadata mismatch");
                     std::memcpy(e.rendered.data(),source,64);e.texture=meta[3];
                     if(e.texture!=0xffffffffu)e.uv={0,0,std::uint16_t(sizes[e.texture][0]-1),std::uint16_t(sizes[e.texture][1]-1)};
-                    if(torch&&i<3)for(unsigned v=0;v<4;++v) {
-                        const auto packed=input.data()+at+472+i*48+v*12;
+                    if(flame&&i<3)for(unsigned v=0;v<4;++v) {
+                        const auto packed=input.data()+at+152+count*80+i*48+v*12;
                         std::memcpy(e.quad_positions[v].data(),packed,6);
                         std::memcpy(e.quad_uv[v].data(),packed+8,4);
                     }
                 }
                 out.push_back(identity);
-                const auto draws=okage::map_effect_draws(effect,view,channels[4],far,sine);
+                const auto draws=okage::map_effect_draws(effect,view,channels[4],far,sine,nullptr,deferred?okage::EffectDrawPass::Deferred:okage::EffectDrawPass::Ordinary);
                 if(draws.size()!=count)throw std::runtime_error("Missing map effect geometry");
                 for(unsigned i=0;i<draws.size();++i){
                     const auto& d=draws[i];for(const auto& v:d.matrix)append(out,v);append(out,d.color);

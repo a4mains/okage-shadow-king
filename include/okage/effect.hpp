@@ -79,8 +79,10 @@ struct MapEffectDraw {
     std::vector<MapEffectVertex> vertices;
     bool additive=true;
 };
+enum class EffectDrawPass {Ordinary, Deferred};
 std::vector<MapEffectDraw> map_effect_draws(const MapEffect&,const Matrix4& view,
-    const Float4& camera_rotation,float far_clip,const SineTable&,const Float4* light_tint=nullptr);
+    const Float4& camera_rotation,float far_clip,const SineTable&,const Float4* light_tint=nullptr,
+    EffectDrawPass pass=EffectDrawPass::Ordinary);
 Float4 effect_light_tint(const Float4& base,const Float4& ambient,const Float4& light);
 
 struct EffectSprite {
