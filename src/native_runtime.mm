@@ -169,7 +169,7 @@ struct Session {
     okage::Float4 projection{};
     float far_clip=1024;
     std::vector<std::uint32_t> scene_trace,dialogue_trace,camera_state_trace,movement_trace,interaction_trace;
-    std::vector<std::uint32_t> effect_trace,map_effect_trace;
+    std::vector<std::uint32_t> effect_trace,map_effect_trace,effect_submission_trace;
     bool effects_loaded=false;
     std::map<int,std::vector<std::uint32_t>> actor_traces;
     int message_id=10100;unsigned messages_started=0;
@@ -234,7 +234,9 @@ struct Session {
             else if(countdown==0){transition_alpha=transition_target=128;}
         };
     }
+    fs::path scene_map;
     void load_scene(const fs::path& map,const fs::path& event,const std::vector<std::pair<int,fs::path>>& assets) {
+        scene_map=map;
         std::vector<okage::SceneActor> scene_actors;
         for(const auto& [alias,path]:assets) {
             auto motion=path,xta=path;motion.replace_extension(".xmt");xta.replace_extension(".xta");
@@ -266,6 +268,12 @@ struct Session {
         if(!field||!renderer)throw std::runtime_error("Effects require a loaded scene");
         renderer->load_effect_textures(textures);field->load_effects(readData(data));effects_loaded=true;
         effect_data=data;effect_textures=textures;
+        auto stage=scene_map;stage.replace_extension(".stg");
+        field->load_map_effects(readData(scene_map),renderer->effect_texture_sizes());
+        renderer->bind_map_effects(&field->map_effects());
+        renderer->bind_effect_submissions(&field->effect_submissions());
+        renderer->set_effect_light_tint(okage::field_effect_tint(readData(stage)));
+        std::cout<<"Native effect placements initialized from owned map data\n";
     }
     void load_destination(const okage::FieldTransition& request,okage::ExplorationInput input) {
         auto definition=okage::read_field_definition(readData(field_root/"FLDSET.XDB"),request.scene);
@@ -314,13 +322,13 @@ struct Session {
         auto stg=map,xcl=map;stg.replace_extension(".stg");xcl.replace_extension(".xcl");
         const auto stage=readData(stg);projection=okage::field_projection(stage,&far_clip);
         create_field(script,false);bind_audio_services();
-        if(effects_loaded){renderer->load_effect_textures(effect_textures);field->load_effects(readData(effect_data));}
-        if(definition.type==0) {
-            if(!effects_loaded)throw std::runtime_error("Exterior requires owned effect resources");
-            field->load_map_effects(readData(map),renderer->effect_texture_sizes());
-            renderer->bind_map_effects(&field->map_effects());
-            renderer->set_effect_light_tint(okage::field_effect_tint(stage));
-        }
+        if(!effects_loaded)throw std::runtime_error("Destination requires owned effect resources");
+        renderer->load_effect_textures(effect_textures);field->load_effects(readData(effect_data));
+        field->load_map_effects(readData(map),renderer->effect_texture_sizes());
+        renderer->bind_map_effects(&field->map_effects());
+        renderer->bind_effect_submissions(&field->effect_submissions());
+        renderer->set_effect_light_tint(okage::field_effect_tint(stage));
+        scene_map=map;
         dialogue_active=false;choices={};narration={};
         // 0x132720 requests exactly1.0 through0x114cc0 before startup dispatch.
         // This is distinct from event4f's rounded percent multiplication.
@@ -417,6 +425,16 @@ struct Session {
             for(const auto& values:{field->position,field->target,field->rotation})
                 for(float v:values)scene_trace.push_back(__builtin_bit_cast(std::uint32_t, (v)));
             if(effects_loaded) {
+                const auto& submitted=field->effect_submissions();
+                effect_submission_trace.insert(effect_submission_trace.end(),{frame,unsigned(submitted.size())});
+                for(const auto& draw:submitted) {
+                    if(const auto* effect=std::get_if<okage::MapEffect>(&draw.effect))
+                        effect_submission_trace.insert(effect_submission_trace.end(),{draw.handle,effect->id,effect->flags,effect->phase});
+                    else {
+                        const auto& bubble=std::get<okage::AttachedEffect>(draw.effect).animation;
+                        effect_submission_trace.insert(effect_submission_trace.end(),{draw.handle,30,bubble.flags,bubble.phase});
+                    }
+                }
                 const auto& jobs=field->map_effects();unsigned jobs_count=0;for(const auto& e:jobs)if(e)++jobs_count;
                 map_effect_trace.insert(map_effect_trace.end(),{frame,jobs_count});
                 for(unsigned i=0;i<jobs.size();++i)if(const auto& e=jobs[i]) {
@@ -514,6 +532,8 @@ static void capture(const Session& session,const fs::path& path) {
     std::ofstream out(path,std::ios::binary);if(!data || !out.write(static_cast<const char*>(data.bytes),data.length))throw std::runtime_error("Cannot write native capture");
     std::ofstream state(statePath);
     if(session.effects_loaded) {
+        std::ofstream submissions(path.string()+".effect-submissions.bin",std::ios::binary);
+        if(!submissions.write(reinterpret_cast<const char*>(session.effect_submission_trace.data()),session.effect_submission_trace.size()*4))throw std::runtime_error("Cannot write effect submission trace");
         std::ofstream map_effects(path.string()+".map-effects.bin",std::ios::binary);
         if(!map_effects.write(reinterpret_cast<const char*>(session.map_effect_trace.data()),session.map_effect_trace.size()*4))throw std::runtime_error("Cannot write map effect trace");
         std::ofstream effects(path.string()+".effects.bin",std::ios::binary);

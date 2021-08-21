@@ -68,6 +68,7 @@ public:
     const std::vector<CollisionBody>& collision_bodies() const {return bodies_;}
     const AttachedEffects& effects() const {return effects_;}
     const MapEffects& map_effects() const {return map_effects_;}
+    const EffectSubmissions& effect_submissions() const {return effect_submissions_;}
     Float4 position{},target{},rotation{};
     CameraBlend blend;
     ScreenFilter screen_filter;
@@ -127,7 +128,7 @@ private:
     void update_npcs();
     void clear_contact();
     void build_collision(Bytes xcl);
-    void advance_effects(bool player_contacts);
+    void advance_effects();
     void interact(ExplorationInput);
     void move_player(ExplorationInput);
     void remember_player();
@@ -135,6 +136,7 @@ private:
     std::vector<EffectDefinition> effect_definitions_;
     AttachedEffects effects_;
     MapEffects map_effects_;
+    EffectSubmissions effect_submissions_;
     bool map_effects_loaded_=false;
     EffectTextureSizes effect_texture_sizes_{};
     void spawn_dust(const Float4& position);

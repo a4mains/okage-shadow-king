@@ -516,7 +516,6 @@ void OpeningField::move_player(ExplorationInput input) {
             // 0x1016a8(handle,0) sets the symbol parameter float4 at +0x50;
             // 0x105a40's texture case 0x19 consumes W to choose the atlas/UV.
             state.contact_bubble=attach_bubble(0,-1)|0x1000;
-            effects_[state.contact_bubble&0xfff]->player_contact=true;
         }
         if(state.camera_area&&(!definition_||definition_->type!=0))
             throw std::runtime_error("Field contact camera area is unrecovered");
@@ -819,33 +818,41 @@ void OpeningField::tick_callbacks(ExplorationInput input,bool interior_camera) {
     // 0x1b9c74 has evaluated the camera before0x134c18 queries channel1.
     // The player wrapper tests the movement mask independently of manager
     // mode, including the handoff update and transition countdown.
-    advance_effects(true);
+    advance_effects();
     update_npcs();
     if(encounter_)return;
     move_player(input);
     if(collision_)remember_player();
     for(const auto& binding:map_objects_)if(binding.actor->visible)binding.actor->evaluate();
     for(const auto& binding:actors_)if(binding.actor->visible)binding.actor->evaluate();
-    advance_effects(false);
 }
-void OpeningField::advance_effects(bool player_contacts) {
-    if(player_contacts)for(auto& effect:map_effects_)if(effect) {
-        auto& flags=effect->flags;
-        if(flags&0x200){effect.reset();continue;}
+void OpeningField::advance_effects() {
+    effect_submissions_.clear();
+    std::array<unsigned,84> deferred{};unsigned deferred_count=0;
+    const auto update=[&](unsigned slot) {
+        if(auto& effect=map_effects_[slot]) {
+            effect->tick(random_value,true,&position);
+            if(!(effect->flags&0x100))effect_submissions_.push_back({slot,*effect});
+        } else if(auto& effect=effects_[slot]) {
+            Rounding rounding;
+            effect->position=actor(effect->actor_alias)->animation().values().at(1);
+            effect->position[1]-=8.5f;
+            effect->animation.tick({-rotation[0],-rotation[1],-rotation[2],0});
+            if(!(effect->animation.flags&0x100))effect_submissions_.push_back({slot,*effect});
+        }
+    };
+    for(unsigned slot=0;slot<84;++slot) {
+        auto& map=map_effects_[slot];auto& attached=effects_[slot];
+        if(map&&attached)throw std::runtime_error("Shared effect handle has two owners");
+        if(!map&&!attached)continue;
+        auto& flags=map?map->flags:attached->animation.flags;
+        if(flags&0x200){map.reset();attached.reset();continue;}
         if(flags&0x100){flags|=0x200;continue;}
         if(flags&0x4000)continue;
-        if(flags&0x400)throw std::runtime_error("Deferred map effect render pass is unrecovered");
-        effect->tick(random_value,true,&position);
+        if(flags&0x400)deferred[deferred_count++]=slot;
+        else update(slot);
     }
-    for(auto& effect:effects_)if(effect&&effect->player_contact==player_contacts) {
-        auto& flags=effect->animation.flags;
-        if(flags&0x200){effect.reset();continue;}
-        if(flags&0x100){flags|=0x200;continue;}
-        Rounding rounding;
-        effect->position=actor(effect->actor_alias)->animation().values().at(1);
-        effect->position[1]-=8.5f;
-        effect->animation.tick({-rotation[0],-rotation[1],-rotation[2],0});
-    }
+    for(unsigned i=0;i<deferred_count;++i)update(deferred[i]);
 }
 Matrix4 OpeningField::view() const {
     Float4 p=position,r=rotation;for(unsigned i=0;i<3;++i){p[i]=-p[i];r[i]=-r[i];}p[3]=1;r[3]=0;

@@ -537,6 +537,25 @@ int main(){try {
         okage::OpeningField omitted(event,[](int){},[](int){return true;},player,false);
         omitted.get_variable=scene.get_variable;omitted.set_variable=scene.set_variable;
         rejects([&]{omitted.enter(entry,stage,empty_map,0);});
+        put(event,40,0x100061);
+        okage::OpeningField queued(event,[](int){},[](int){return true;},player,false);
+        queued.get_variable=scene.get_variable;queued.set_variable=scene.set_variable;
+        queued.random_value=scene.random_value;
+        queued.load_effects(efd);queued.load_map_effects(map,sizes);
+        queued.map_effects()[0]->flags|=0x400;
+        queued.map_effects()[1]->flags|=0x4000;
+        const auto dormant_phase=queued.map_effects()[1]->phase;
+        queued.enter(entry,stage,empty_map,0);
+        require(queued.effect_submissions().size()==2);
+        require(queued.effect_submissions()[0].handle==2&&queued.effect_submissions()[1].handle==0);
+        require(queued.map_effects()[1]->phase==dormant_phase);
+        const auto& submitted=std::get<okage::MapEffect>(queued.effect_submissions()[1].effect);
+        const auto color=submitted.color;
+        queued.map_effects()[0]->request_removal();queued.map_effects()[0]->color={0,0,0,0};
+        require(!(submitted.flags&0x100)&&submitted.color==color);
+        queued.tick();require(queued.effect_submissions().size()==1&&queued.effect_submissions()[0].handle==2);
+        require(queued.map_effects()[0]->flags&0x200);
+        queued.tick();require(!queued.map_effects()[0]);
     }
     {
         std::vector<std::uint8_t> efd(64+8*116),event(40+17*16+28);

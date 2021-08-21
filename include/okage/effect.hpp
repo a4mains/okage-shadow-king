@@ -4,6 +4,7 @@
 #include <functional>
 #include <optional>
 #include <string_view>
+#include <variant>
 
 namespace okage {
 struct EffectElement {
@@ -66,7 +67,7 @@ public:
 private:
     void set_texture(MapEffectElement&,unsigned);
     EffectTextureSizes texture_sizes_;
-    SineTable sine_=make_sine_table();
+    inline static const SineTable sine_=make_sine_table();
 };
 using MapEffects=std::array<std::unique_ptr<MapEffect>,84>;
 struct MapEffectVertex {Float4 position,color,uv;};
@@ -101,14 +102,18 @@ public:
 private:
     EffectDefinition definition_;
     int parameter_;
-    SineTable sine_=make_sine_table();
+    inline static const SineTable sine_=make_sine_table();
 };
 struct AttachedEffect {
     BubbleEffect animation;
     int actor_alias;
-    bool player_contact=false;
     Float4 position{};
     AttachedEffect(const EffectDefinition& d,int parameter,int actor):animation(d,parameter),actor_alias(actor){}
 };
 using AttachedEffects=std::array<std::unique_ptr<AttachedEffect>,84>;
+struct EffectSubmission {
+    unsigned handle;
+    std::variant<MapEffect,AttachedEffect> effect;
+};
+using EffectSubmissions=std::vector<EffectSubmission>;
 }

@@ -33,6 +33,7 @@ struct SceneRenderer::Impl {
     std::size_t whiteTexture=0,effectTexture=0;
     bool effectTexturesLoaded=false;
     const MapEffects* mapEffects=nullptr;
+    const EffectSubmissions* effectSubmissions=nullptr;
     std::optional<Float4> effectTint;
     id<MTLDevice> device;
     id<MTLRenderPipelineState> pipeline,effectPipeline,mapEffectPipeline,dustPipeline,materialPipeline,materialAddPipeline,materialSubtractPipeline;
@@ -258,11 +259,17 @@ struct SceneRenderer::Impl {
             }
             draws.insert(draws.end(),translucent.begin(),translucent.end());
         }
-        for(unsigned slot=0;slot<84;++slot){
-        if(mapEffects&&(*mapEffects)[slot]&&((*mapEffects)[slot]->id!=17||((*mapEffects)[slot]->flags&0x20))) {
-            const auto& effect=(*mapEffects)[slot];
+        EffectSubmissions previewSubmissions;
+        if(!effectSubmissions)for(unsigned slot=0;slot<84;++slot) {
+            if(mapEffects&&(*mapEffects)[slot]&&((*mapEffects)[slot]->id!=17||((*mapEffects)[slot]->flags&0x20)))
+                previewSubmissions.push_back({slot,*(*mapEffects)[slot]});
+            if(effects&&(*effects)[slot])previewSubmissions.push_back({slot,*(*effects)[slot]});
+        }
+        for(const auto& submission:effectSubmissions?*effectSubmissions:previewSubmissions){
+        if(const auto* effect=std::get_if<MapEffect>(&submission.effect)) {
             if(!effectTexturesLoaded)throw std::runtime_error("Map effect textures are unavailable");
-            for(const auto& e:map_effect_draws(*effect,view,camera,farClip,sine,effectTint?&*effectTint:nullptr)){
+            for(const auto& e:map_effect_draws(*effect,view,camera,farClip,sine,effectTint?&*effectTint:nullptr,
+                    effect->flags&0x400?EffectDrawPass::Deferred:EffectDrawPass::Ordinary)){
                 const bool untextured=e.texture==0xffffffffu;
                 const auto texture=untextured?-1:std::int32_t(effectTexture+e.texture);
                 if(!untextured){const auto& image=textures.at(texture);
@@ -281,8 +288,7 @@ struct SceneRenderer::Impl {
                 draws.push_back(draw);
             }
         }
-        if(effects&&(*effects)[slot]&&!((*effects)[slot]->animation.flags&0x300)) {
-            const auto& attached=(*effects)[slot];
+        if(const auto* attached=std::get_if<AttachedEffect>(&submission.effect);attached&&!(attached->animation.flags&0x4300)) {
             if(!effectTexturesLoaded)throw std::runtime_error("Effect textures are unavailable");
             for(const auto& sprite:attached->animation.sprites) {
                 auto origin=attached->position;for(unsigned i=0;i<3;++i)origin[i]+=sprite.position[i];
@@ -347,6 +353,7 @@ EffectTextureSizes SceneRenderer::effect_texture_sizes() const {
 }
 void SceneRenderer::set_effect_light_tint(const Float4& tint){impl_->effectTint=tint;}
 void SceneRenderer::bind_map_effects(const MapEffects* effects){impl_->mapEffects=effects;}
+void SceneRenderer::bind_effect_submissions(const EffectSubmissions* effects){impl_->effectSubmissions=effects;}
 Texture SceneRenderer::render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition){return impl_->render(view,projection,effects,camera,farClip,cameraPosition);}
 std::size_t SceneRenderer::placements() const{return impl_->inputs.size()-impl_->actorCount;}
 std::size_t SceneRenderer::actors() const{return impl_->actorCount;}
