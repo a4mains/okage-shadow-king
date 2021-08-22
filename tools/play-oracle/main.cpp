@@ -371,8 +371,10 @@ public:
         writeFile(output,result.data(),result.size()*4);
     }
     void mapEffectGeometry(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output,unsigned templateId=25) {
-        const bool deferred=templateId==16,torch=templateId==91,flame=deferred||torch;
-        const unsigned count=deferred?3:torch?4:8,stride=(38+count*20+(flame?36:0))*4,sp=0x1ff0000,slot=flame?0:2;
+        const bool summon=templateId==33||templateId==115,deferred=templateId==16||summon;
+        const bool torch=templateId==91,flame=templateId==16||torch;
+        const unsigned count=templateId==33?9:templateId==115?5:templateId==16?3:torch?4:8;
+        const unsigned stride=(38+count*20+(flame?36:templateId==33?30:0))*4,sp=0x1ff0000,slot=flame||summon?0:2;
         if(ram.size()!=32*1024*1024||input.empty()||input.size()%stride||input.size()>stride*64)
             throw std::runtime_error("Effect geometry fixture bounds");
         std::vector<uint32> result,packets;
@@ -386,7 +388,8 @@ public:
                 for(unsigned i=0;i<84;++i)put(table+4*i,0xffffffff);
                 put(get(0x2151b4)+0x58,1);
                 std::memcpy(ee->m_ram+0x81000,input.data()+at+4,48);
-                call(0x101440,{16,0x81000,0x81010,0x81020});
+                if(summon)call(0x1012f8,{templateId,0x81000});
+                else call(0x101440,{templateId,0x81000,0x81010,0x81020});
                 if(uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0)!=slot)
                     throw std::runtime_error("Deferred geometry allocation order");
             }
@@ -421,8 +424,9 @@ public:
                 const auto source=input.data()+at+152+i*80;
                 std::array<uint32,4> meta;std::memcpy(meta.data(),source+64,16);
                 unsigned texture=0;for(;texture<31;++texture)if(get(get(0x24e780)+texture*4)==(get(e+0x5c)&65535))break;
-                if(torch&&i==3&&(get(e+0x5c)&65535)==65535)texture=0xffffffff;
-                if(meta[0]!=(flame?(i<3?28u:40u):(i<3?24u:29u))||meta[1]!=get(e+0x54)||meta[2]!=get(e+0x58)||meta[3]!=texture)
+                if((summon||(torch&&i==3))&&(get(e+0x5c)&65535)==65535)texture=0xffffffff;
+                const unsigned shape=summon?(templateId==115?(i?31:32):i==0?40:i==1?25:i==2?59:29):flame?(i<3?28:40):(i<3?24:29);
+                if(meta[0]!=shape||meta[1]!=get(e+0x54)||meta[2]!=get(e+0x58)||meta[3]!=texture)
                     throw std::runtime_error("Effect geometry input metadata mismatch");
                 std::memcpy(ee->m_ram+r,source,64);
                 if(flame&&i<3) {
@@ -434,6 +438,16 @@ public:
                         std::memcpy(ee->m_ram+uv+v*4,packed+8,4);
                     }
                 }
+                if(templateId==33&&i==1) {
+                    if(get(g)||(get(g+0x1c)&65535)!=60)throw std::runtime_error("Summoning ring extent");
+                    for(unsigned v=0;v<30;++v) {
+                        uint32 y;std::memcpy(&y,input.data()+at+152+count*80+v*4,4);
+                        if(y>65535)throw std::runtime_error("Summoning ring signed16 fixture extent");
+                        call(0x113690,{g,v*2+1});const auto point=uint32(cpu.m_State.nGPR[CMIPS::V0].nD0);
+                        if(point>ram.size()-6)throw std::runtime_error("Summoning ring position extent");
+                        const uint16 packed=uint16(y);std::memcpy(ee->m_ram+point+2,&packed,2);
+                    }
+                }
                 cpu.m_State.nGPR[CMIPS::S1].nD0=e;cpu.m_State.nGPR[CMIPS::S2].nD0=r;
                 cpu.m_State.nGPR[deferred?CMIPS::S3:CMIPS::S4].nD0=i;
                 block(deferred?0x1032cc:0x102978,0x1aeb10);
@@ -443,8 +457,15 @@ public:
                 if(at==0) {
                     packets.insert(packets.end(),{i,meta[0],get(e+0x68),get(e+0x6c)});
                     for(unsigned k=0;k<6;++k)packets.push_back(get(r+0x40+k*4));
-                    for(unsigned offset:{4u,8u,12u,16u}) {
-                        const auto p=get(g+offset),bytes=p?(get(p)&65535)*16+32:0;
+                    std::vector<uint32> pieces;
+                    for(auto piece=g;piece;piece=get(piece)) {
+                        if(piece>ram.size()-48||pieces.size()>=32)throw std::runtime_error("Effect packet chain extent");
+                        pieces.push_back(piece);
+                    }
+                    if(summon)packets.push_back(unsigned(pieces.size()));
+                    else if(pieces.size()!=1)throw std::runtime_error("Unexpected linked effect geometry");
+                    for(const auto piece:pieces)for(unsigned offset:{4u,8u,12u,16u}) {
+                        const auto p=get(piece+offset),bytes=p?(get(p)&65535)*16+32:0;
                         if(bytes>8192||p>ram.size()-bytes)throw std::runtime_error("Effect packet extent");
                         packets.push_back(bytes);
                         for(unsigned k=0;k<bytes;k+=4)packets.push_back(get(p+k));
@@ -1695,8 +1716,8 @@ int main(int argc,char** argv) {
             reference.messageInit(readFile(argv[3]),std::stoul(argv[4]),argv[5]);
         } else if(command=="effect-tint" && argc==5) {
             reference.effectTint(readFile(argv[3]),argv[4]);
-        } else if((command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry") && argc==6) {
-            reference.mapEffectGeometry(readFile(argv[3]),readFile(argv[4]),argv[5],command=="flame16-effect-geometry"?16:command=="torch-effect-geometry"?91:25);
+        } else if((command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry"||command=="summon33-effect-geometry"||command=="summon115-effect-geometry") && argc==6) {
+            reference.mapEffectGeometry(readFile(argv[3]),readFile(argv[4]),argv[5],command=="summon33-effect-geometry"?33:command=="summon115-effect-geometry"?115:command=="flame16-effect-geometry"?16:command=="torch-effect-geometry"?91:25);
         } else if(command=="effect-reference-probe" && argc==6) {
             reference.effectReferenceProbe(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="stream-prepare" && argc==6) {

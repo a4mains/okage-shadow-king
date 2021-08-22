@@ -1,0 +1,1750 @@
+{
+  "scope": "Native33/115 source geometry, deferred transforms/colors, blend/depth mapping and ordinary-input basement progression.",
+  "implementation_base": "4e08526",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "drawing": [
+    {
+      "build": "native-release",
+      "path": "local/summon-drawing-checks-v3/native-release/report.json",
+      "sha256": "1fb69b1bce7fa14db5825e7cd8f3ad19863cd76b2516462adee8a535fa3fba5d",
+      "result": {
+        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+        "native_sha256": "18a035f417d21ab394bc045d536daaa2a56303672acf44236a9c7e2cb4e20b8c",
+        "cases": [
+          {
+            "template": 33,
+            "transforms_colors_exact": 45,
+            "source_vertices_exact": 564,
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "summon33-effect-geometry",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/summon-drawing-reference-v2/33.input.bin",
+                "local/summon-drawing-reference-v2/33.original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 2.4069555,
+              "binary_sha256": "5f4ebbd9c5170e1d2e808602388348a96ad5d722cdad1e6b5878d0f2357dd998",
+              "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+              "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+              "input_sha256": "1ab34cc4af7bdfeafe7a757caf70725d5904c21b28cd5fb6f9a3832581acdc2b",
+              "output_sha256": "b4e0218a1b526481422d718cbaa420985c8a9967b31cf543bf8fb06cf305ea05",
+              "packets_sha256": "1d9c6cad77f0f4c1f6a0b3a4bcbcf2aeab65e233ea889e8e52775b48fd410657"
+            },
+            "native_command": [
+              "build/native-release/okage-assets",
+              "summon33-effect-geometry",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+              "local/summon-drawing-reference-v2/33.input.bin",
+              "local/summon-drawing-checks-v3/native-release/33.native.bin"
+            ],
+            "native_sha256": "b4e0218a1b526481422d718cbaa420985c8a9967b31cf543bf8fb06cf305ea05",
+            "vertices_sha256": "8e55f21309236d0e164f9690e45d60ecad08793822c86704490f8dfa843d3abf"
+          },
+          {
+            "template": 115,
+            "transforms_colors_exact": 25,
+            "source_vertices_exact": 30,
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "summon115-effect-geometry",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/summon-drawing-reference-v2/115.input.bin",
+                "local/summon-drawing-reference-v2/115.original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 1.0475887080000001,
+              "binary_sha256": "5f4ebbd9c5170e1d2e808602388348a96ad5d722cdad1e6b5878d0f2357dd998",
+              "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+              "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+              "input_sha256": "d6b604ca45af9f5f72d1a51873ae8e7a803e4d9990cc900a40b06201f3b994d8",
+              "output_sha256": "160fcd573ac6a278694653b048cba00715ca0744d3c411f79942e54f1ee906d9",
+              "packets_sha256": "88d5efed6aa26b61462e44b2f69cef8566994c70e8060c3477eb1cdbf66e65b1"
+            },
+            "native_command": [
+              "build/native-release/okage-assets",
+              "summon115-effect-geometry",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+              "local/summon-drawing-reference-v2/115.input.bin",
+              "local/summon-drawing-checks-v3/native-release/115.native.bin"
+            ],
+            "native_sha256": "160fcd573ac6a278694653b048cba00715ca0744d3c411f79942e54f1ee906d9",
+            "vertices_sha256": "cab83466d9aa80ef6d95e0c8dafc7728350eee2426101bb720398edeb3284d3c"
+          }
+        ]
+      }
+    },
+    {
+      "build": "native",
+      "path": "local/summon-drawing-checks-v3/native/report.json",
+      "sha256": "73c15faccdf7bc7ac0d43e0a141dd18d43e6e13fceb906bbf25881f671800a85",
+      "result": {
+        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+        "native_sha256": "2c04e8329183b003c9398999a455f80ec201e3d25eea4be14c5b55d9db66cfdc",
+        "cases": [
+          {
+            "template": 33,
+            "transforms_colors_exact": 45,
+            "source_vertices_exact": 564,
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "summon33-effect-geometry",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/summon-drawing-reference-v2/33.input.bin",
+                "local/summon-drawing-reference-v2/33.original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 2.4069555,
+              "binary_sha256": "5f4ebbd9c5170e1d2e808602388348a96ad5d722cdad1e6b5878d0f2357dd998",
+              "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+              "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+              "input_sha256": "1ab34cc4af7bdfeafe7a757caf70725d5904c21b28cd5fb6f9a3832581acdc2b",
+              "output_sha256": "b4e0218a1b526481422d718cbaa420985c8a9967b31cf543bf8fb06cf305ea05",
+              "packets_sha256": "1d9c6cad77f0f4c1f6a0b3a4bcbcf2aeab65e233ea889e8e52775b48fd410657"
+            },
+            "native_command": [
+              "build/native/okage-assets",
+              "summon33-effect-geometry",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+              "local/summon-drawing-reference-v2/33.input.bin",
+              "local/summon-drawing-checks-v3/native/33.native.bin"
+            ],
+            "native_sha256": "b4e0218a1b526481422d718cbaa420985c8a9967b31cf543bf8fb06cf305ea05",
+            "vertices_sha256": "8e55f21309236d0e164f9690e45d60ecad08793822c86704490f8dfa843d3abf"
+          },
+          {
+            "template": 115,
+            "transforms_colors_exact": 25,
+            "source_vertices_exact": 30,
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "summon115-effect-geometry",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/summon-drawing-reference-v2/115.input.bin",
+                "local/summon-drawing-reference-v2/115.original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 1.0475887080000001,
+              "binary_sha256": "5f4ebbd9c5170e1d2e808602388348a96ad5d722cdad1e6b5878d0f2357dd998",
+              "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+              "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+              "input_sha256": "d6b604ca45af9f5f72d1a51873ae8e7a803e4d9990cc900a40b06201f3b994d8",
+              "output_sha256": "160fcd573ac6a278694653b048cba00715ca0744d3c411f79942e54f1ee906d9",
+              "packets_sha256": "88d5efed6aa26b61462e44b2f69cef8566994c70e8060c3477eb1cdbf66e65b1"
+            },
+            "native_command": [
+              "build/native/okage-assets",
+              "summon115-effect-geometry",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+              "local/summon-drawing-reference-v2/115.input.bin",
+              "local/summon-drawing-checks-v3/native/115.native.bin"
+            ],
+            "native_sha256": "160fcd573ac6a278694653b048cba00715ca0744d3c411f79942e54f1ee906d9",
+            "vertices_sha256": "cab83466d9aa80ef6d95e0c8dafc7728350eee2426101bb720398edeb3284d3c"
+          }
+        ]
+      }
+    },
+    {
+      "build": "model-sanitize",
+      "path": "local/summon-drawing-checks-v3/model-sanitize/report.json",
+      "sha256": "e9f3ef055e2edffbebbb5db45551233d67306c5044bc21c50670ef46b5009044",
+      "result": {
+        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+        "native_sha256": "da21eaddf27745afcf169f256b08e48686dfbd39a21df24db6da18a0a19653a9",
+        "cases": [
+          {
+            "template": 33,
+            "transforms_colors_exact": 45,
+            "source_vertices_exact": 564,
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "summon33-effect-geometry",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/summon-drawing-reference-v2/33.input.bin",
+                "local/summon-drawing-reference-v2/33.original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 2.4069555,
+              "binary_sha256": "5f4ebbd9c5170e1d2e808602388348a96ad5d722cdad1e6b5878d0f2357dd998",
+              "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+              "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+              "input_sha256": "1ab34cc4af7bdfeafe7a757caf70725d5904c21b28cd5fb6f9a3832581acdc2b",
+              "output_sha256": "b4e0218a1b526481422d718cbaa420985c8a9967b31cf543bf8fb06cf305ea05",
+              "packets_sha256": "1d9c6cad77f0f4c1f6a0b3a4bcbcf2aeab65e233ea889e8e52775b48fd410657"
+            },
+            "native_command": [
+              "build/model-sanitize/okage-assets",
+              "summon33-effect-geometry",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+              "local/summon-drawing-reference-v2/33.input.bin",
+              "local/summon-drawing-checks-v3/model-sanitize/33.native.bin"
+            ],
+            "native_sha256": "b4e0218a1b526481422d718cbaa420985c8a9967b31cf543bf8fb06cf305ea05",
+            "vertices_sha256": "8e55f21309236d0e164f9690e45d60ecad08793822c86704490f8dfa843d3abf"
+          },
+          {
+            "template": 115,
+            "transforms_colors_exact": 25,
+            "source_vertices_exact": 30,
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "summon115-effect-geometry",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/summon-drawing-reference-v2/115.input.bin",
+                "local/summon-drawing-reference-v2/115.original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 1.0475887080000001,
+              "binary_sha256": "5f4ebbd9c5170e1d2e808602388348a96ad5d722cdad1e6b5878d0f2357dd998",
+              "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+              "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+              "input_sha256": "d6b604ca45af9f5f72d1a51873ae8e7a803e4d9990cc900a40b06201f3b994d8",
+              "output_sha256": "160fcd573ac6a278694653b048cba00715ca0744d3c411f79942e54f1ee906d9",
+              "packets_sha256": "88d5efed6aa26b61462e44b2f69cef8566994c70e8060c3477eb1cdbf66e65b1"
+            },
+            "native_command": [
+              "build/model-sanitize/okage-assets",
+              "summon115-effect-geometry",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+              "local/summon-drawing-reference-v2/115.input.bin",
+              "local/summon-drawing-checks-v3/model-sanitize/115.native.bin"
+            ],
+            "native_sha256": "160fcd573ac6a278694653b048cba00715ca0744d3c411f79942e54f1ee906d9",
+            "vertices_sha256": "cab83466d9aa80ef6d95e0c8dafc7728350eee2426101bb720398edeb3284d3c"
+          }
+        ]
+      }
+    }
+  ],
+  "prior_regressions": [
+    {
+      "build": "native-release",
+      "kind": "flame16",
+      "path": "local/summon-drawing-prior-regressions-v2/native-release-flame16/report.json",
+      "sha256": "69cb83a5d0649a5caf5388cf0d34ec6b49465c0da4b920132b8d715c75fda14e"
+    },
+    {
+      "build": "native-release",
+      "kind": "torch91",
+      "path": "local/summon-drawing-prior-regressions-v2/native-release-torch91/report.json",
+      "sha256": "6b93edb1cd0cd428557549bec34a930e45a97117dc32167c6c5553d052c2b3fc"
+    },
+    {
+      "build": "native",
+      "kind": "flame16",
+      "path": "local/summon-drawing-prior-regressions-v2/native-flame16/report.json",
+      "sha256": "a93d044bbe0828086fa48c80b3548ce9d2508d57b8fe123e91d4d1a4e23b56d0"
+    },
+    {
+      "build": "native",
+      "kind": "torch91",
+      "path": "local/summon-drawing-prior-regressions-v2/native-torch91/report.json",
+      "sha256": "344cd488e39331774347173c569f3dbff5c8bf1166817005955a9105c1b2e384"
+    },
+    {
+      "build": "model-sanitize",
+      "kind": "flame16",
+      "path": "local/summon-drawing-prior-regressions-v2/model-sanitize-flame16/report.json",
+      "sha256": "6455ca43fa41bf2ea64b16505ab6aa202abc74d90a7a7361be64cbfc4e0cbb68"
+    },
+    {
+      "build": "model-sanitize",
+      "kind": "torch91",
+      "path": "local/summon-drawing-prior-regressions-v2/model-sanitize-torch91/report.json",
+      "sha256": "ee807b1047ab821a47dfb115c85e9dcfaed93cbf8e38a2bd0809fda2c2cb28c3"
+    }
+  ],
+  "native_runs": {
+    "local/native-home2c-basement-after-chant-48455-release-v5": {
+      "run": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "48455",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858",
+          "--directions",
+          "local/native-home2c-basement-after-chant-48455-release-v5.directions",
+          "--capture",
+          "local/native-home2c-basement-after-chant-48455-release-v5.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310",
+          "--render-until",
+          "11542"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 18.811296625,
+        "binary_sha256": "f0108bbf48000ad84a8bd444edc9ca229b2abb831630e5dd9b8e98be22c11373"
+      },
+      "run_sha256": "f6755aed6ccd93fd587409468d811b7339470e28a0d462bad43d697607e7ee31",
+      "endpoint": {
+        "frames": 48455,
+        "message_id": 12111,
+        "messages_started": 53,
+        "text_progress": 1,
+        "advance_count": 2,
+        "wait_release_frame": 227,
+        "controller_stage": 9,
+        "unimplemented_service_requests": 19206,
+        "message_flags": 2147483648,
+        "window_type": 0,
+        "scene_brightness": 1,
+        "narration_cues": 364,
+        "progression_flag_2": 0,
+        "progression_flag_3": 0,
+        "kitchen_flag_7": 1,
+        "progression_flag_4": 0,
+        "progression_flag_5": 0,
+        "field_event_running": true,
+        "field_camera_mode": 2,
+        "interaction_alias": 0,
+        "interaction_event": 0,
+        "loaded_stream_banks": 2,
+        "choice_cursor": 0,
+        "choice_result": 0,
+        "choice_armed": false,
+        "close_frame": 419,
+        "close_wait_release_frame": 422
+      },
+      "image_sha256": "3e117b9ac01b2a5d676acfbdb199938b4b9833187e33a5b253da9b6dd7d1872d"
+    },
+    "local/native-home2c-basement-after-chant-48455-debug-v1": {
+      "run": {
+        "command": [
+          "build/native/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "48455",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858",
+          "--directions",
+          "local/native-home2c-basement-after-chant-48455-debug-v1.directions",
+          "--capture",
+          "local/native-home2c-basement-after-chant-48455-debug-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310",
+          "--render-until",
+          "11542"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 135.87215741699998,
+        "binary_sha256": "b3ed3f48fc3cd442683b344108023a196340d12874ae15e0e303b1f537730e7b"
+      },
+      "run_sha256": "e8ecd553b7a99a61473dbe884e7e398783c4cff9b122531d8f38e754b1c93dfe",
+      "endpoint": {
+        "frames": 48455,
+        "message_id": 12111,
+        "messages_started": 53,
+        "text_progress": 1,
+        "advance_count": 2,
+        "wait_release_frame": 227,
+        "controller_stage": 9,
+        "unimplemented_service_requests": 19206,
+        "message_flags": 2147483648,
+        "window_type": 0,
+        "scene_brightness": 1,
+        "narration_cues": 364,
+        "progression_flag_2": 0,
+        "progression_flag_3": 0,
+        "kitchen_flag_7": 1,
+        "progression_flag_4": 0,
+        "progression_flag_5": 0,
+        "field_event_running": true,
+        "field_camera_mode": 2,
+        "interaction_alias": 0,
+        "interaction_event": 0,
+        "loaded_stream_banks": 2,
+        "choice_cursor": 0,
+        "choice_result": 0,
+        "choice_armed": false,
+        "close_frame": 419,
+        "close_wait_release_frame": 422
+      },
+      "image_sha256": "3e117b9ac01b2a5d676acfbdb199938b4b9833187e33a5b253da9b6dd7d1872d"
+    },
+    "local/native-home2c-basement-after-chant-48455-sanitize-v1": {
+      "run": {
+        "command": [
+          "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "48455",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858",
+          "--directions",
+          "local/native-home2c-basement-after-chant-48455-sanitize-v1.directions",
+          "--capture",
+          "local/native-home2c-basement-after-chant-48455-sanitize-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310",
+          "--render-until",
+          "11542"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 287.564376125,
+        "binary_sha256": "de5fe92d47a75abd17a3a77d4d8ef119ae53f7b5a188c115e91299523513b8fa"
+      },
+      "run_sha256": "2581154a13479d1ab4088a30b46405419d184e1fe456d0490a7d1bab0322ffcd",
+      "endpoint": {
+        "frames": 48455,
+        "message_id": 12111,
+        "messages_started": 53,
+        "text_progress": 1,
+        "advance_count": 2,
+        "wait_release_frame": 227,
+        "controller_stage": 9,
+        "unimplemented_service_requests": 19206,
+        "message_flags": 2147483648,
+        "window_type": 0,
+        "scene_brightness": 1,
+        "narration_cues": 364,
+        "progression_flag_2": 0,
+        "progression_flag_3": 0,
+        "kitchen_flag_7": 1,
+        "progression_flag_4": 0,
+        "progression_flag_5": 0,
+        "field_event_running": true,
+        "field_camera_mode": 2,
+        "interaction_alias": 0,
+        "interaction_event": 0,
+        "loaded_stream_banks": 2,
+        "choice_cursor": 0,
+        "choice_result": 0,
+        "choice_armed": false,
+        "close_frame": 419,
+        "close_wait_release_frame": 422
+      },
+      "image_sha256": "3e117b9ac01b2a5d676acfbdb199938b4b9833187e33a5b253da9b6dd7d1872d"
+    },
+    "local/native-summon33-48111-release-v1": {
+      "run": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "48111",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858",
+          "--directions",
+          "local/native-summon33-48111-release-v1.directions",
+          "--capture",
+          "local/native-summon33-48111-release-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310",
+          "--render-until",
+          "11542"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 19.91349975,
+        "binary_sha256": "f0108bbf48000ad84a8bd444edc9ca229b2abb831630e5dd9b8e98be22c11373"
+      },
+      "run_sha256": "27851d8afc4c9d268b5d44517e3fe60759d4618c415b38fa64e7b9d337952c41",
+      "endpoint": {
+        "frames": 48111,
+        "message_id": 12111,
+        "messages_started": 53,
+        "text_progress": 1,
+        "advance_count": 2,
+        "wait_release_frame": 227,
+        "controller_stage": 9,
+        "unimplemented_service_requests": 19206,
+        "message_flags": 2147483648,
+        "window_type": 0,
+        "scene_brightness": 1,
+        "narration_cues": 364,
+        "progression_flag_2": 0,
+        "progression_flag_3": 0,
+        "kitchen_flag_7": 1,
+        "progression_flag_4": 0,
+        "progression_flag_5": 0,
+        "field_event_running": true,
+        "field_camera_mode": 2,
+        "interaction_alias": 0,
+        "interaction_event": 0,
+        "loaded_stream_banks": 2,
+        "choice_cursor": 0,
+        "choice_result": 0,
+        "choice_armed": false,
+        "close_frame": 419,
+        "close_wait_release_frame": 422
+      },
+      "image_sha256": "e231f7b78f53ec839f8179873d5960e27cf9f43af300849a644c251ed7d2e23a"
+    },
+    "local/native-home2c-basement-after-flash-49055-release-v1": {
+      "run": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "49055",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858",
+          "--directions",
+          "local/native-home2c-basement-after-flash-49055-release-v1.directions",
+          "--capture",
+          "local/native-home2c-basement-after-flash-49055-release-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310",
+          "--render-until",
+          "11542"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 20.047432916,
+        "binary_sha256": "f0108bbf48000ad84a8bd444edc9ca229b2abb831630e5dd9b8e98be22c11373"
+      },
+      "run_sha256": "8a81a767bec0d44cc24c8441219f044d2c23d0f08f0c5a07e0c4cc26c4f04a73",
+      "endpoint": {
+        "frames": 49055,
+        "message_id": 12104,
+        "messages_started": 54,
+        "text_progress": 0,
+        "advance_count": 0,
+        "wait_release_frame": 227,
+        "controller_stage": 5,
+        "unimplemented_service_requests": 19620,
+        "message_flags": 0,
+        "window_type": 0,
+        "scene_brightness": 1,
+        "narration_cues": 364,
+        "progression_flag_2": 0,
+        "progression_flag_3": 0,
+        "kitchen_flag_7": 1,
+        "progression_flag_4": 0,
+        "progression_flag_5": 0,
+        "field_event_running": true,
+        "field_camera_mode": 2,
+        "interaction_alias": 0,
+        "interaction_event": 0,
+        "loaded_stream_banks": 2,
+        "choice_cursor": 0,
+        "choice_result": 0,
+        "choice_armed": false,
+        "close_frame": 419,
+        "close_wait_release_frame": 422
+      },
+      "image_sha256": "788d956f9a5d59be7796029124e20c187a0251343ba17a4e8798fc7b1211ed16"
+    }
+  },
+  "interval_audits": [
+    {
+      "path": "local/summon-drawing-after-chant-window-v1.json",
+      "sha256": "56a2e6e7603db3ae853255d69f74ffb960e4cc84e3d07aba9b3cb6c338569b7d",
+      "scope": "Report field-interval differences without shifting their original time anchor.",
+      "first_native_frame": 47856,
+      "original_frames": 600,
+      "controller_samples": 42,
+      "compared_observables_agree": false,
+      "difference_frames": {
+        "controller": [],
+        "choice": [],
+        "manager_running_pc_gate": [
+          196,
+          197,
+          198,
+          199,
+          200,
+          201,
+          202,
+          203,
+          317,
+          318,
+          319,
+          320,
+          321,
+          322,
+          323,
+          324,
+          568,
+          569,
+          570,
+          571,
+          572,
+          573,
+          574,
+          575
+        ],
+        "pad_latch": [],
+        "direction_latch": [],
+        "player_mask": [],
+        "hero_facing_w": [],
+        "hero_position": [],
+        "camera_rotation": [],
+        "camera_mode_phase": [],
+        "camera_position": [],
+        "camera_unblended_target": []
+      },
+      "missing_original_player_frames": [
+        196,
+        197,
+        198,
+        199,
+        200,
+        201,
+        202,
+        203
+      ],
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 0.0,
+      "matching_tail": {
+        "first_original_frame": 576,
+        "frames": 24,
+        "controller_samples": 0
+      }
+    },
+    {
+      "path": "local/summon-drawing-after-flash-window-v1.json",
+      "sha256": "58447d2cbd9ef6331ff0ab5c68a60cae52af517c05d25a71dc01b3b21ff4a957",
+      "scope": "Report field-interval differences without shifting their original time anchor.",
+      "first_native_frame": 48456,
+      "original_frames": 600,
+      "controller_samples": 424,
+      "compared_observables_agree": false,
+      "difference_frames": {
+        "controller": [
+          176,
+          177,
+          178,
+          184,
+          185,
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192,
+          193,
+          194
+        ],
+        "choice": [
+          176,
+          177,
+          178,
+          179,
+          180,
+          181,
+          182,
+          183,
+          184,
+          185,
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192,
+          193,
+          194
+        ],
+        "manager_running_pc_gate": [
+          169,
+          170,
+          171,
+          172,
+          173,
+          174,
+          175,
+          176
+        ],
+        "pad_latch": [],
+        "direction_latch": [],
+        "player_mask": [],
+        "hero_facing_w": [],
+        "hero_position": [],
+        "camera_rotation": [
+          168,
+          169,
+          170,
+          171,
+          172,
+          173,
+          174,
+          175,
+          176,
+          177,
+          178,
+          179,
+          180,
+          181,
+          182,
+          183,
+          184,
+          185,
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192,
+          193,
+          194,
+          195,
+          196,
+          197,
+          198,
+          199,
+          200,
+          201,
+          202,
+          203,
+          204
+        ],
+        "camera_mode_phase": [],
+        "camera_position": [
+          168,
+          169,
+          170,
+          171,
+          172,
+          173,
+          174,
+          175,
+          176,
+          177,
+          178,
+          179,
+          180,
+          181,
+          182,
+          183,
+          184,
+          185,
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192,
+          193,
+          194,
+          195,
+          196,
+          197,
+          198,
+          199,
+          200,
+          201,
+          202,
+          203,
+          204
+        ],
+        "camera_unblended_target": []
+      },
+      "missing_original_player_frames": [],
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 7.895999908447266,
+      "matching_tail": {
+        "first_original_frame": 205,
+        "frames": 395,
+        "controller_samples": 395
+      }
+    }
+  ],
+  "prefix_regression": {
+    "base": "local/native-interior-integration-47855-release-v2.png",
+    "new": "local/native-home2c-basement-after-chant-48455-release-v5.png",
+    "scope": "Exact historical binary/PCM prefixes through47855; final-state JSON, images and variables excluded.",
+    "artifacts": [
+      {
+        "suffix": ".actor-1.bin",
+        "bytes": 181083320,
+        "sha256": "7bd7eed0c6650503a7605697fbfc0b1a709c186bca7e9cedb9bd9a018039d47a",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".actor-10.bin",
+        "bytes": 81347064,
+        "sha256": "e444e80b034d91348ecde5b0e319e7d0fa693cbffdf5d3e1b22ae813a4bc0490",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".actor-11.bin",
+        "bytes": 84804480,
+        "sha256": "1fca7d3bd793e19d237f88d833797b62a1025cb7fcc81dacb39abb25909b9bc6",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".actor-12.bin",
+        "bytes": 77626104,
+        "sha256": "3bbe89f0bdbe03425aa3514fda6c4a315662a92c48d584fae22a53d11a1d8a9a",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".actor-13.bin",
+        "bytes": 45401168,
+        "sha256": "da2a80fa89b5ced64d2bac1eb09c5effe98027126c64760b9322d01c9d74e441",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".actor-14.bin",
+        "bytes": 44119520,
+        "sha256": "3379c4ae4747dbb45655bfd518a7d8e985003c1703e7984533edc9bd7f2cd7c8",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".actor-15.bin",
+        "bytes": 3558512,
+        "sha256": "422ae0729ea4b557cdf21ceaf1a3ea2f83a727102e2d6add30b1eb3a7e62616f",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".actor-16.bin",
+        "bytes": 3558512,
+        "sha256": "a9b8184ee96875376f7a53e7f2ae63e5746206fb86f2c251cc6f335a0cd2829e",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".actor-17.bin",
+        "bytes": 16686748,
+        "sha256": "ec4cfce3ec49b71094d28e1def4044d40b4c4878687134b7fc73b51925085865",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".actor-18.bin",
+        "bytes": 25477948,
+        "sha256": "495b66777b5a894d9bf450dab77218587e58bd8a29d8d9ce737a2529e19f8dc7",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".actor-19.bin",
+        "bytes": 19339572,
+        "sha256": "7fbae01f7a23a5db0b4a19650c01d3ba790daccc90d9b49441277a0d99412774",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".actor-20.bin",
+        "bytes": 14768396,
+        "sha256": "dce67fe8789273e842c73e63b5f6b4993c29c3457f3b02a918b8d9e27126f277",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".actor-21.bin",
+        "bytes": 17490792,
+        "sha256": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".actor-22.bin",
+        "bytes": 30136560,
+        "sha256": "52ced2ad7d11087e23f17eec62ef9a12152e22819f3c90aae92d7f002c447da5",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".actor-37.bin",
+        "bytes": 6669448,
+        "sha256": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".actor-38.bin",
+        "bytes": 1867760,
+        "sha256": "76ba34c261405d19131ff08afd76466bd58b75955ea5d5be4f94b432248fb11e",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".actor-45.bin",
+        "bytes": 8950128,
+        "sha256": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".actor-9.bin",
+        "bytes": 95415524,
+        "sha256": "c08ffefb51ef7bca2b335b30d592cc3ea85b11e4152b81c128ce05366a4573a5",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".actor.bin",
+        "bytes": 106372480,
+        "sha256": "1b5211c1fa3a2b48d9f736b8ebd496031a1c7cdfddc234d711db53f170ae2685",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".audio.pcm",
+        "bytes": 153136000,
+        "sha256": "f7609a9d7cd816e1dc400e06259bdc6eb193396b841699071924ffa0178b3232",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".camera-state.bin",
+        "bytes": 957100,
+        "sha256": "3983cc771d0d0186d6128af00e61919e88d714ad264e38659f7237ca63bfa4b9",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".camera.bin",
+        "bytes": 3062720,
+        "sha256": "270fef6176d50a126f9fa08bebea6757ecf00fb71557a422d0271f03c76ab76f",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".choices.bin",
+        "bytes": 2297040,
+        "sha256": "299d149cb217e54fa7a252d5ea42f10bc8d4bb35544f4b83c52876b5146e84ee",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".dialogue.bin",
+        "bytes": 2297040,
+        "sha256": "997bda69a5ef345b20fc4fcd980dd7a7eb2b1c0075814eea4f075ba434bf4432",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".effect-submissions.bin",
+        "bytes": 10451736,
+        "sha256": "f14eae1e73df897d8a189a88b171a2469b80e0ae87d15667097ac47dd2c88d0f",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".effects.bin",
+        "bytes": 777420,
+        "sha256": "07746d03010bb17480ba91d7401448d15a3274f0c46e1e0397646c5adaf8c34b",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".interaction.bin",
+        "bytes": 1531360,
+        "sha256": "656603538cfb644aba85fb2fe0c8b7e69d0703dd1deb92a9146bf1f3feafa841",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".map-effects.bin",
+        "bytes": 279557424,
+        "sha256": "8bbc7f5c785a47e36473b5c8aeaa2e89f9e6ffc640b0be4bc3859f957af01553",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".movement.bin",
+        "bytes": 3062720,
+        "sha256": "dfdd99aa7e5c3f0b72b075ce118bc94b36db62a39ea33f233a9332b763b81704",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".music.bin",
+        "bytes": 957100,
+        "sha256": "9df7dd460780e02ce197712f728c362f377fe049375157a2f7d79f4c1b48e225",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".screen-filter.bin",
+        "bytes": 765680,
+        "sha256": "f8f380a36e5dac0b275c2f946e52e0bf1bb64548de7ac99926f640c01b4442a5",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".sound.bin",
+        "bytes": 7260,
+        "sha256": "efa6ab2eaa24b797f5e15f772a466bef51b3156cdc920d4dfbf6426cea075ff3",
+        "prefix_exact": true
+      },
+      {
+        "suffix": ".transition.bin",
+        "bytes": 1531360,
+        "sha256": "d62a484a672e7939dbb1df4965f3f815b61e5ce41bbb988c1f093e67b6bce442",
+        "prefix_exact": true
+      }
+    ]
+  },
+  "cross_build_48455": {
+    "debug": {
+      "release": "local/native-home2c-basement-after-chant-48455-release-v5.png",
+      "debug": "local/native-home2c-basement-after-chant-48455-debug-v1.png",
+      "artifacts": [
+        {
+          "suffix": ".png",
+          "bytes": 20795,
+          "sha256": "3e117b9ac01b2a5d676acfbdb199938b4b9833187e33a5b253da9b6dd7d1872d",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-1.bin",
+          "bytes": 183353720,
+          "sha256": "6a2bcf61e67225d80ac27b0c47427a261877e9a52826851cac4c3bf24da062ae",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-10.bin",
+          "bytes": 82667064,
+          "sha256": "29580ba9745e4a7653c98c897e9e1ed44b44d80c6a854ff696add6f8102ef541",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-11.bin",
+          "bytes": 85999680,
+          "sha256": "4e94bd5227be75164a4ea23321d3430bfca9c6c44c3950064d7e55fad062d60b",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-12.bin",
+          "bytes": 79291704,
+          "sha256": "2d6762fe48afb9800e198afec57e255e8c11a6e40a062ae070279ba53e66123f",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-13.bin",
+          "bytes": 45401168,
+          "sha256": "da2a80fa89b5ced64d2bac1eb09c5effe98027126c64760b9322d01c9d74e441",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-14.bin",
+          "bytes": 44119520,
+          "sha256": "3379c4ae4747dbb45655bfd518a7d8e985003c1703e7984533edc9bd7f2cd7c8",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-15.bin",
+          "bytes": 3647312,
+          "sha256": "254f768440b5e800bb06ad36afc1dd9fab99c744133d34d890cb112cfe1c7042",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-16.bin",
+          "bytes": 3647312,
+          "sha256": "64a97e4746f93179655265afb0af3366c636990dbba514224326bbe01db86776",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-17.bin",
+          "bytes": 16686748,
+          "sha256": "ec4cfce3ec49b71094d28e1def4044d40b4c4878687134b7fc73b51925085865",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-18.bin",
+          "bytes": 25477948,
+          "sha256": "495b66777b5a894d9bf450dab77218587e58bd8a29d8d9ce737a2529e19f8dc7",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-19.bin",
+          "bytes": 19531572,
+          "sha256": "58c50c4b95f4dc3322661a3f480fb1235b3a2face8929d43a11b58fd41b7d6c5",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-20.bin",
+          "bytes": 14768396,
+          "sha256": "dce67fe8789273e842c73e63b5f6b4993c29c3457f3b02a918b8d9e27126f277",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-21.bin",
+          "bytes": 17490792,
+          "sha256": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-22.bin",
+          "bytes": 30136560,
+          "sha256": "52ced2ad7d11087e23f17eec62ef9a12152e22819f3c90aae92d7f002c447da5",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-37.bin",
+          "bytes": 6669448,
+          "sha256": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-38.bin",
+          "bytes": 1867760,
+          "sha256": "76ba34c261405d19131ff08afd76466bd58b75955ea5d5be4f94b432248fb11e",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-45.bin",
+          "bytes": 8950128,
+          "sha256": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-9.bin",
+          "bytes": 97025924,
+          "sha256": "fadadfb9d8b699cf9386dea78c3ac8eafa094c28079f2ee28ddd321a95214681",
+          "exact": true
+        },
+        {
+          "suffix": ".actor.bin",
+          "bytes": 107805280,
+          "sha256": "7c5ff11b2ea46b5121b9898b0a29f1d0b110c5d8227a1177bbf8efbb7cac9cfe",
+          "exact": true
+        },
+        {
+          "suffix": ".actors-state.json",
+          "bytes": 28215,
+          "sha256": "6f79477372b2f0536a69946a7f482e2447d0ceec9a72ea6b6c4a9ba58078e136",
+          "exact": true
+        },
+        {
+          "suffix": ".audio.json",
+          "bytes": 164,
+          "sha256": "229d119241172446ac41cc8b21bab4c92d7fc1b7b6a84a45e82ba690b2d37ab8",
+          "exact": true
+        },
+        {
+          "suffix": ".audio.pcm",
+          "bytes": 155056000,
+          "sha256": "a887ff729cddbddc45921c5dd06bd1b707e315795cec712b51e0805f2797d666",
+          "exact": true
+        },
+        {
+          "suffix": ".camera-state.bin",
+          "bytes": 969100,
+          "sha256": "822352edfa5db128f129712bd29d720747c1b92a909c99bb7cb4f3414af6e062",
+          "exact": true
+        },
+        {
+          "suffix": ".camera.bin",
+          "bytes": 3101120,
+          "sha256": "10ede4aa28dd2514b898a63dc66a0dc0236be42854aa1e156f2664b8d4f053cc",
+          "exact": true
+        },
+        {
+          "suffix": ".choices.bin",
+          "bytes": 2325840,
+          "sha256": "267488420920a4fce070d705580b31fdf3d645b7e1cb0829b94c95eefc321493",
+          "exact": true
+        },
+        {
+          "suffix": ".dialogue.bin",
+          "bytes": 2325840,
+          "sha256": "47537856fcb1dde2d1bf5a7c2f2d8b05fd95dd328b7d23781829635c10a51504",
+          "exact": true
+        },
+        {
+          "suffix": ".effect-submissions.bin",
+          "bytes": 10756440,
+          "sha256": "a674505349bc4819f8be783d4ae3bb37657439c594e552dcf053d8c9a117a3bb",
+          "exact": true
+        },
+        {
+          "suffix": ".effects.bin",
+          "bytes": 955020,
+          "sha256": "3a66e15f28bc6f5ce8fb012f699c2dd093e2fae522016202ea6766b9f5e66960",
+          "exact": true
+        },
+        {
+          "suffix": ".interaction.bin",
+          "bytes": 1550560,
+          "sha256": "4b2050a6198b7b1618a8207a023dc7b9b7ccb53ba7fcf4b786d15caf68ee6653",
+          "exact": true
+        },
+        {
+          "suffix": ".json",
+          "bytes": 707,
+          "sha256": "a88079560d30ea2091abd99d3a1cc64544acbbac6962202d0501e0ba2c5b0804",
+          "exact": true
+        },
+        {
+          "suffix": ".map-effects.bin",
+          "bytes": 286750752,
+          "sha256": "fd6a18964af281bb9136cf387c5bf897a3e4317d46da9036e2540291843286ea",
+          "exact": true
+        },
+        {
+          "suffix": ".movement.bin",
+          "bytes": 3101120,
+          "sha256": "6ac69a4055d8086f8f7291f10381eee621cedc87d5e0140f255a50c6acafce30",
+          "exact": true
+        },
+        {
+          "suffix": ".music.bin",
+          "bytes": 969100,
+          "sha256": "5690df8aeca46144e377a1d863fa60da776b547e7c1ff5c4d34add1ff1234956",
+          "exact": true
+        },
+        {
+          "suffix": ".screen-filter.bin",
+          "bytes": 775280,
+          "sha256": "25a9c2535ff0fc74921b9e86a1cb4d0d43e7904907d15b05e67675846e62493e",
+          "exact": true
+        },
+        {
+          "suffix": ".sound.bin",
+          "bytes": 7280,
+          "sha256": "f6141bed595c097b149aa63a51114bef3062c9bb68d5b62c57d2255e08eb2e4c",
+          "exact": true
+        },
+        {
+          "suffix": ".transition.bin",
+          "bytes": 1550560,
+          "sha256": "d6fd354a3ba069e75989d5d2e8d56ef4d71280f42fb0a92944baa3db4ef3b0e0",
+          "exact": true
+        },
+        {
+          "suffix": ".variables.bin",
+          "bytes": 4096,
+          "sha256": "57b15026f7453eb06527fe6681a224f9227abf6dd528bfc0cb42465b37f90535",
+          "exact": true
+        }
+      ]
+    },
+    "sanitize": {
+      "release": "local/native-home2c-basement-after-chant-48455-release-v5.png",
+      "sanitize": "local/native-home2c-basement-after-chant-48455-sanitize-v1.png",
+      "artifacts": [
+        {
+          "suffix": ".png",
+          "bytes": 20795,
+          "sha256": "3e117b9ac01b2a5d676acfbdb199938b4b9833187e33a5b253da9b6dd7d1872d",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-1.bin",
+          "bytes": 183353720,
+          "sha256": "6a2bcf61e67225d80ac27b0c47427a261877e9a52826851cac4c3bf24da062ae",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-10.bin",
+          "bytes": 82667064,
+          "sha256": "29580ba9745e4a7653c98c897e9e1ed44b44d80c6a854ff696add6f8102ef541",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-11.bin",
+          "bytes": 85999680,
+          "sha256": "4e94bd5227be75164a4ea23321d3430bfca9c6c44c3950064d7e55fad062d60b",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-12.bin",
+          "bytes": 79291704,
+          "sha256": "2d6762fe48afb9800e198afec57e255e8c11a6e40a062ae070279ba53e66123f",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-13.bin",
+          "bytes": 45401168,
+          "sha256": "da2a80fa89b5ced64d2bac1eb09c5effe98027126c64760b9322d01c9d74e441",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-14.bin",
+          "bytes": 44119520,
+          "sha256": "3379c4ae4747dbb45655bfd518a7d8e985003c1703e7984533edc9bd7f2cd7c8",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-15.bin",
+          "bytes": 3647312,
+          "sha256": "254f768440b5e800bb06ad36afc1dd9fab99c744133d34d890cb112cfe1c7042",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-16.bin",
+          "bytes": 3647312,
+          "sha256": "64a97e4746f93179655265afb0af3366c636990dbba514224326bbe01db86776",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-17.bin",
+          "bytes": 16686748,
+          "sha256": "ec4cfce3ec49b71094d28e1def4044d40b4c4878687134b7fc73b51925085865",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-18.bin",
+          "bytes": 25477948,
+          "sha256": "495b66777b5a894d9bf450dab77218587e58bd8a29d8d9ce737a2529e19f8dc7",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-19.bin",
+          "bytes": 19531572,
+          "sha256": "58c50c4b95f4dc3322661a3f480fb1235b3a2face8929d43a11b58fd41b7d6c5",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-20.bin",
+          "bytes": 14768396,
+          "sha256": "dce67fe8789273e842c73e63b5f6b4993c29c3457f3b02a918b8d9e27126f277",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-21.bin",
+          "bytes": 17490792,
+          "sha256": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-22.bin",
+          "bytes": 30136560,
+          "sha256": "52ced2ad7d11087e23f17eec62ef9a12152e22819f3c90aae92d7f002c447da5",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-37.bin",
+          "bytes": 6669448,
+          "sha256": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-38.bin",
+          "bytes": 1867760,
+          "sha256": "76ba34c261405d19131ff08afd76466bd58b75955ea5d5be4f94b432248fb11e",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-45.bin",
+          "bytes": 8950128,
+          "sha256": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921",
+          "exact": true
+        },
+        {
+          "suffix": ".actor-9.bin",
+          "bytes": 97025924,
+          "sha256": "fadadfb9d8b699cf9386dea78c3ac8eafa094c28079f2ee28ddd321a95214681",
+          "exact": true
+        },
+        {
+          "suffix": ".actor.bin",
+          "bytes": 107805280,
+          "sha256": "7c5ff11b2ea46b5121b9898b0a29f1d0b110c5d8227a1177bbf8efbb7cac9cfe",
+          "exact": true
+        },
+        {
+          "suffix": ".actors-state.json",
+          "bytes": 28215,
+          "sha256": "6f79477372b2f0536a69946a7f482e2447d0ceec9a72ea6b6c4a9ba58078e136",
+          "exact": true
+        },
+        {
+          "suffix": ".audio.json",
+          "bytes": 164,
+          "sha256": "229d119241172446ac41cc8b21bab4c92d7fc1b7b6a84a45e82ba690b2d37ab8",
+          "exact": true
+        },
+        {
+          "suffix": ".audio.pcm",
+          "bytes": 155056000,
+          "sha256": "a887ff729cddbddc45921c5dd06bd1b707e315795cec712b51e0805f2797d666",
+          "exact": true
+        },
+        {
+          "suffix": ".camera-state.bin",
+          "bytes": 969100,
+          "sha256": "822352edfa5db128f129712bd29d720747c1b92a909c99bb7cb4f3414af6e062",
+          "exact": true
+        },
+        {
+          "suffix": ".camera.bin",
+          "bytes": 3101120,
+          "sha256": "10ede4aa28dd2514b898a63dc66a0dc0236be42854aa1e156f2664b8d4f053cc",
+          "exact": true
+        },
+        {
+          "suffix": ".choices.bin",
+          "bytes": 2325840,
+          "sha256": "267488420920a4fce070d705580b31fdf3d645b7e1cb0829b94c95eefc321493",
+          "exact": true
+        },
+        {
+          "suffix": ".dialogue.bin",
+          "bytes": 2325840,
+          "sha256": "47537856fcb1dde2d1bf5a7c2f2d8b05fd95dd328b7d23781829635c10a51504",
+          "exact": true
+        },
+        {
+          "suffix": ".effect-submissions.bin",
+          "bytes": 10756440,
+          "sha256": "a674505349bc4819f8be783d4ae3bb37657439c594e552dcf053d8c9a117a3bb",
+          "exact": true
+        },
+        {
+          "suffix": ".effects.bin",
+          "bytes": 955020,
+          "sha256": "3a66e15f28bc6f5ce8fb012f699c2dd093e2fae522016202ea6766b9f5e66960",
+          "exact": true
+        },
+        {
+          "suffix": ".interaction.bin",
+          "bytes": 1550560,
+          "sha256": "4b2050a6198b7b1618a8207a023dc7b9b7ccb53ba7fcf4b786d15caf68ee6653",
+          "exact": true
+        },
+        {
+          "suffix": ".json",
+          "bytes": 707,
+          "sha256": "a88079560d30ea2091abd99d3a1cc64544acbbac6962202d0501e0ba2c5b0804",
+          "exact": true
+        },
+        {
+          "suffix": ".map-effects.bin",
+          "bytes": 286750752,
+          "sha256": "fd6a18964af281bb9136cf387c5bf897a3e4317d46da9036e2540291843286ea",
+          "exact": true
+        },
+        {
+          "suffix": ".movement.bin",
+          "bytes": 3101120,
+          "sha256": "6ac69a4055d8086f8f7291f10381eee621cedc87d5e0140f255a50c6acafce30",
+          "exact": true
+        },
+        {
+          "suffix": ".music.bin",
+          "bytes": 969100,
+          "sha256": "5690df8aeca46144e377a1d863fa60da776b547e7c1ff5c4d34add1ff1234956",
+          "exact": true
+        },
+        {
+          "suffix": ".screen-filter.bin",
+          "bytes": 775280,
+          "sha256": "25a9c2535ff0fc74921b9e86a1cb4d0d43e7904907d15b05e67675846e62493e",
+          "exact": true
+        },
+        {
+          "suffix": ".sound.bin",
+          "bytes": 7280,
+          "sha256": "f6141bed595c097b149aa63a51114bef3062c9bb68d5b62c57d2255e08eb2e4c",
+          "exact": true
+        },
+        {
+          "suffix": ".transition.bin",
+          "bytes": 1550560,
+          "sha256": "d6fd354a3ba069e75989d5d2e8d56ef4d71280f42fb0a92944baa3db4ef3b0e0",
+          "exact": true
+        },
+        {
+          "suffix": ".variables.bin",
+          "bytes": 4096,
+          "sha256": "57b15026f7453eb06527fe6681a224f9227abf6dd528bfc0cb42465b37f90535",
+          "exact": true
+        }
+      ]
+    }
+  },
+  "tests": {
+    "ctest": [
+      {
+        "build": "native-release",
+        "tests": 19,
+        "passed": true,
+        "path": "local/summon-drawing-ctest-native-release-v2.log",
+        "sha256": "580e76a1db5389847e88ec127864ac21a416d25c81d460b2ac416a3ebe994979"
+      },
+      {
+        "build": "native",
+        "tests": 19,
+        "passed": true,
+        "path": "local/summon-drawing-ctest-native-v2.log",
+        "sha256": "b5ddd3ca340fed76991bb0024cd3bc127e75c3f09ea91eb25cc788c5c3511b9a"
+      },
+      {
+        "build": "model-sanitize",
+        "tests": 19,
+        "passed": true,
+        "path": "local/summon-drawing-ctest-model-sanitize-v2.log",
+        "sha256": "7ca7efbf0647aaa6b2df95b29aba655bf659c474b6410d2ca39e286d698ae64e"
+      }
+    ],
+    "python": {
+      "tests": 64,
+      "passed": true,
+      "path": "local/summon-drawing-python-tests-v3.log",
+      "sha256": "961d28832b9c1365158b24bbfa0c339a73ecf940677b9a2b0b47447122b47194"
+    }
+  },
+  "negative_evidence": [
+    {
+      "path": "local/summon-drawing-reference-v1",
+      "finding": "33 observer wrote synthetic ring Y as contiguous XYZ across VIF chunks, altering commands/metadata. Exit0 did not establish validity. Current parser rejects its UNPACK destination and native vertex comparison fails. Replaced with original0x113690 accessor in v2."
+    },
+    {
+      "run": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "48455",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858",
+          "--directions",
+          "local/native-home2c-basement-after-chant-48455-release-v4.directions",
+          "--capture",
+          "local/native-home2c-basement-after-chant-48455-release-v4.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310",
+          "--render-until",
+          "11542"
+        ],
+        "exit_code": 1,
+        "elapsed_seconds": 19.053213375,
+        "binary_sha256": "590966c34d493f336317790b9c0a767b71c0b21bf932b40835ba4966cd595b92"
+      },
+      "finding": "Native final draw rejected render-state program-transition bit0 as an unknown texture-region state. Original0x102cf8 does not test this recovered updater marker. Corrected in v5; unknown bits still reject."
+    }
+  ],
+  "endpoint_effect_phase": {
+    "frame": 48455,
+    "slot": 34,
+    "template": 115,
+    "native_phase": 285,
+    "original_phase": 277,
+    "original_ram": {
+      "path": "local/research/basement-summon-v1/after-chant.ram",
+      "sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f"
+    },
+    "scope": "Observed eight-tick displacement retained; no phase adjustment or input injection."
+  },
+  "images_inspected": [
+    "local/native-summon33-48111-release-v1.png",
+    "local/native-home2c-basement-after-chant-48455-release-v5.png",
+    "local/reference-home2c-basement-after-chant-600-v1.layer0.png",
+    "local/native-home2c-basement-after-flash-49055-release-v1.png",
+    "local/reference-home2c-basement-after-flash-600-v1.layer0.png"
+  ],
+  "limits": [
+    "All completed jobs were polled. Timings are concurrent diagnostic runs, not interactive performance measurements.",
+    "The eight-frame original SET2 completion wait is absent in the native synchronous loader; following121/251-frame event waits have equal lengths. No fitted delay/anchor was applied. Full loader/scheduler equivalence remains unproven.",
+    "Native49055 is Release-only. Full artifacts agree in three builds at48455.",
+    "Current effect shader quantization/filtering, original raster equality, lighting/shadows, authentic windows and full audio are unproven.",
+    "Cold startup/RNG, older loading observations, battles, persistent saves and the full-game playthrough remain incomplete."
+  ],
+  "original_after_flash_run": {
+    "command": [
+      "build/play-research/okage-oracle/okage-boot-oracle",
+      "local/disc/Okage - Shadow King (USA).cue",
+      "600",
+      "local/reference-home2c-basement-after-chant-600-v1.state.zip",
+      "--load",
+      "--transition",
+      "local/reference-home2c-basement-after-flash-600-v1.transition.bin",
+      "--camera",
+      "local/reference-home2c-basement-after-flash-600-v1.camera.bin",
+      "--controller",
+      "local/reference-home2c-basement-after-flash-600-v1.controller.bin",
+      "--screen-filter",
+      "local/reference-home2c-basement-after-flash-600-v1.screen-filter.bin",
+      "--capture",
+      "local/reference-home2c-basement-after-flash-600-v1",
+      "--save",
+      "local/reference-home2c-basement-after-flash-600-v1.state.zip",
+      "--deadline-seconds",
+      "1200"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 28.762554583,
+    "binary_sha256": "bece5511360fc954d0b67d61f391a6888349dda69b0c69587bb64b4eca63b173"
+  },
+  "load_timing": {
+    "scope": "Event-PC run lengths at unchanged anchor47856.",
+    "native": [
+      {
+        "first": 0,
+        "last": 44,
+        "pc": "0x840"
+      },
+      {
+        "first": 45,
+        "last": 195,
+        "pc": "0x848"
+      },
+      {
+        "first": 196,
+        "last": 316,
+        "pc": "0x868"
+      },
+      {
+        "first": 317,
+        "last": 567,
+        "pc": "0x890"
+      },
+      {
+        "first": 568,
+        "last": 599,
+        "pc": "0x898"
+      }
+    ],
+    "original": [
+      {
+        "first": 0,
+        "last": 44,
+        "pc": "0x840"
+      },
+      {
+        "first": 45,
+        "last": 195,
+        "pc": "0x848"
+      },
+      {
+        "first": 196,
+        "last": 203,
+        "pc": "0x84c"
+      },
+      {
+        "first": 204,
+        "last": 324,
+        "pc": "0x868"
+      },
+      {
+        "first": 325,
+        "last": 575,
+        "pc": "0x890"
+      },
+      {
+        "first": 576,
+        "last": 599,
+        "pc": "0x898"
+      }
+    ],
+    "source_contract": "e_homeb1b PC0x848 opcode0x45 A1 B2 loads SET2; PC0x84c opcode0x0a B-1 polls completion. Native bind_audio_services loads the owned bank synchronously and signals completion before returning.",
+    "report_sha256": "059133e642f400faa0f39581e70e991119f6a0054487df5409ceff243c9e2834"
+  }
+}

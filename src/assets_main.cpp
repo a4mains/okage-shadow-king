@@ -438,29 +438,33 @@ int main(int argc, char** argv) {
             }
             write(argv[3],output);return 0;
         }
-        if((command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry")&&argc==6) {
-            const bool torch=command=="torch-effect-geometry",deferred=command=="flame16-effect-geometry",flame=torch||deferred;
-            const unsigned count=deferred?3:torch?4:8;
+        if((command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry"||command=="summon33-effect-geometry"||command=="summon115-effect-geometry")&&argc==6) {
+            const bool summon=command=="summon33-effect-geometry"||command=="summon115-effect-geometry";
+            const unsigned id=command=="summon33-effect-geometry"?33:command=="summon115-effect-geometry"?115:command=="flame16-effect-geometry"?16:command=="torch-effect-geometry"?91:25;
+            const bool torch=id==91,deferred=id==16||summon,flame=torch||id==16;
+            const unsigned count=id==33?9:id==115?5:id==16?3:torch?4:8;
             const auto bank=okage::read_efd(read(argv[2]));const auto input=read(argv[4]);
-            const unsigned stride=(38+count*20+(flame?36:0))*4;
+            const unsigned stride=(38+count*20+(flame?36:id==33?30:0))*4;
             if(input.empty()||input.size()%stride||input.size()>stride*64)throw std::runtime_error("Map geometry fixture bounds");
-            const auto found=std::find_if(bank.begin(),bank.end(),[&](const auto& d){return d.id==(deferred?16u:torch?91u:25u);});
+            const auto found=std::find_if(bank.begin(),bank.end(),[&](const auto& d){return d.id==id;});
             if(found==bank.end())throw std::runtime_error("Missing geometry effect template");
             okage::EffectTextureSizes sizes{};
             for(unsigned i=0;i<sizes.size();++i){const auto image=okage::decode_xim(read(fs::path(argv[3])/okage::effect_texture_names[i]));sizes[i]={image.width,image.height};}
-            std::vector<std::uint32_t> out,geometry;const auto sine=okage::make_sine_table();
+            std::vector<std::uint32_t> out,geometry,materials;const auto sine=okage::make_sine_table();
             auto append=[](auto& dest,const auto& v){for(float f:v)dest.push_back(__builtin_bit_cast(std::uint32_t, (f)));};
             for(unsigned at=0;at<input.size();at+=stride){
                 std::uint32_t identity;std::memcpy(&identity,input.data()+at,4);
                 std::array<okage::Float4,5> channels;std::memcpy(channels.data(),input.data()+at+4,80);
                 okage::Matrix4 view;std::memcpy(view.data(),input.data()+at+84,64);
                 float far;std::memcpy(&far,input.data()+at+148,4);
-                okage::MapEffect effect(*found,channels[0],channels[1],channels[2],sizes,[]{return 1;});
+                okage::MapEffect effect(*found,channels[0],channels[1],channels[2],sizes,[]{return 1;},
+                    summon?okage::EffectStart::FirstFrame:okage::EffectStart::RandomPhase);
                 effect.color=channels[3];
                 for(unsigned i=0;i<count;++i){
                     auto& e=effect.elements[i];const auto source=input.data()+at+152+i*80;
                     std::array<std::uint32_t,4> meta;std::memcpy(meta.data(),source+64,16);
-                    if(e.shape!=meta[0]||e.flags!=meta[1]||e.primitive_flags!=meta[2]||(meta[3]>=sizes.size()&&!(torch&&i==3&&meta[3]==0xffffffffu)))
+                    if(e.shape!=meta[0]||e.flags!=meta[1]||e.primitive_flags!=meta[2]||
+                       (summon&&meta[3]!=e.texture)||(meta[3]>=sizes.size()&&!(e.texture==0xffffffffu&&meta[3]==0xffffffffu)))
                         throw std::runtime_error("Native geometry fixture metadata mismatch");
                     std::memcpy(e.rendered.data(),source,64);e.texture=meta[3];
                     if(e.texture!=0xffffffffu)e.uv={0,0,std::uint16_t(sizes[e.texture][0]-1),std::uint16_t(sizes[e.texture][1]-1)};
@@ -469,6 +473,11 @@ int main(int argc, char** argv) {
                         std::memcpy(e.quad_positions[v].data(),packed,6);
                         std::memcpy(e.quad_uv[v].data(),packed+8,4);
                     }
+                    if(id==33&&i==1)for(unsigned v=0;v<30;++v) {
+                        std::uint32_t y;std::memcpy(&y,input.data()+at+152+count*80+v*4,4);
+                        if(y>65535)throw std::runtime_error("Summoning ring signed16 fixture extent");
+                        e.ring_y[v]=__builtin_bit_cast(std::int16_t, (std::uint16_t(y)));
+                    }
                 }
                 out.push_back(identity);
                 const auto draws=okage::map_effect_draws(effect,view,channels[4],far,sine,nullptr,deferred?okage::EffectDrawPass::Deferred:okage::EffectDrawPass::Ordinary);
@@ -476,10 +485,12 @@ int main(int argc, char** argv) {
                 for(unsigned i=0;i<draws.size();++i){
                     const auto& d=draws[i];for(const auto& v:d.matrix)append(out,v);append(out,d.color);
                     if(at==0){geometry.insert(geometry.end(),{i,unsigned(d.vertices.size()),d.texture});
+                        if(summon)materials.insert(materials.end(),{i,unsigned(d.additive),unsigned(d.depth_test)});
                         for(const auto& v:d.vertices){append(geometry,v.position);append(geometry,v.color);append(geometry,v.uv);}}
                 }
             }
             write(argv[5],{reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4});
+            if(summon)write(std::string(argv[5])+".materials.bin",{reinterpret_cast<const std::uint8_t*>(materials.data()),materials.size()*4});
             write(std::string(argv[5])+".vertices.bin",{reinterpret_cast<const std::uint8_t*>(geometry.data()),geometry.size()*4});return 0;
         }
         if(command=="effect-reference-probe"&&argc==4) {

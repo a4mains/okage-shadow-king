@@ -100,6 +100,20 @@ int main(){try{
     deferred.elements[0].primitive_flags=8;
     deferred.elements[0].shape=40;deferred.elements[0].texture=0xffffffffu;
     rejects(deferred_draw);
+    okage::EffectDefinition overlay;overlay.id=115;overlay.duration=500;overlay.flags=0x400;
+    overlay.elements.resize(5);
+    for(unsigned i=0;i<5;++i){auto& e=overlay.elements[i];e.shape=i?31:32;
+        e.flags=i?0x4005:5;e.primitive_flags=0x40;}
+    okage::MapEffect flash(overlay,{3,4,5,1},{.1f,.2f,.3f,0},{2,3,4,1},sizes,random,okage::EffectStart::FirstFrame);
+    const auto flash_draw=[&]{return okage::map_effect_draws(flash,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);};
+    auto first=flash_draw();check(first.size()==5);
+    for(const auto& draw:first)check(!draw.additive&&!draw.depth_test&&draw.vertices.size()==6);
+    flash.position={-1,7,90,1};flash.rotation={.2f,.7f,-.4f,0};flash.scale={9,1,3,1};
+    auto shifted=identity;shifted[3]={18,-37,9,1};
+    flash.elements[0].render_flags=1;
+    const auto changed=okage::map_effect_draws(flash,shifted,{.3f,.7f,.2f,1},450,sine,nullptr,okage::EffectDrawPass::Deferred);
+    for(unsigned i=0;i<5;++i)check(first[i].matrix==changed[i].matrix&&first[i].color==changed[i].color);
+    flash.elements[0].render_flags=2;rejects(flash_draw);
     okage::EffectDefinition base=dust;base.id=19;base.flags=0x8000;base.duration=300;
     base.parameters={.03f,-.05f,0,.1f};
     okage::EffectDefinition reference;reference.id=98;reference.flags=0x800;

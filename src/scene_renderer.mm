@@ -18,7 +18,7 @@ std::vector<std::uint8_t> read(const fs::path& path) {
     if(!in.read(reinterpret_cast<char*>(b.data()),b.size()))throw std::runtime_error("Cannot read scene input");return b;
 }
 struct Vertex {Float4 position,color,uv;};
-struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;std::uint64_t materialBlend=0;};
+struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;std::uint64_t materialBlend=0;bool depthAlways=false;};
 }
 struct SceneRenderer::Impl {
     struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;std::optional<MapTransform> facing;std::optional<std::size_t> placement;bool visible=true;};
@@ -276,6 +276,7 @@ struct SceneRenderer::Impl {
                     if(e.uv[2]>=image.width||e.uv[3]>=image.height)throw std::runtime_error("Map effect texture bounds");}
                 Draw draw{std::uint32_t(vertices.size()),std::uint32_t(e.vertices.size()),std::int32_t(texture),
                     {e.uv[0],e.uv[2],e.uv[1],e.uv[3],2,2,untextured?0u:1u,e.additive?0u:1u},true,e.additive,!e.additive};
+                draw.depthAlways=!e.depth_test;
                 for(const auto& source:e.vertices){
                     Float4 p{},c{};
                     for(unsigned r=0;r<4;++r){
@@ -329,7 +330,7 @@ struct SceneRenderer::Impl {
         for (const auto& draw:draws) {
             [encoder setCullMode:draw.materialBlend?MTLCullModeBack:MTLCullModeNone];
             [encoder setRenderPipelineState:draw.materialBlend?(draw.materialBlend==0x48?materialAddPipeline:draw.materialBlend==0x42?materialSubtractPipeline:materialPipeline):draw.dust?dustPipeline:draw.additive?mapEffectPipeline:draw.effect?effectPipeline:pipeline];
-            [encoder setDepthStencilState:draw.materialBlend?(draw.state[7]==1?materialDepth:mapEffectDepth):(draw.additive||draw.dust)?mapEffectDepth:draw.effect?effectDepth:depth];
+            [encoder setDepthStencilState:draw.depthAlways?effectDepth:draw.materialBlend?(draw.state[7]==1?materialDepth:mapEffectDepth):(draw.additive||draw.dust)?mapEffectDepth:draw.effect?effectDepth:depth];
             [encoder setFragmentTexture:gpuTextures[draw.image<0 ? whiteTexture : draw.image] atIndex:0];
             [encoder setFragmentBytes:draw.state.data() length:sizeof(draw.state) atIndex:0];
             [encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:draw.first vertexCount:draw.count];

@@ -132,9 +132,10 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
         const Float4& camera,float far_clip,const SineTable& sine,const Float4* light_tint,EffectDrawPass pass) {
     if(effect.flags&0x4300)return {};
     require((effect.id==25&&effect.elements.size()==8)||((effect.id==17||effect.id==19)&&effect.elements.size()==9)||
-            (effect.id==91&&effect.elements.size()==4)||(effect.id==16&&effect.elements.size()==3),"Unrecovered map effect geometry template");
+            (effect.id==91&&effect.elements.size()==4)||(effect.id==16&&effect.elements.size()==3)||
+            (effect.id==33&&effect.elements.size()==9)||(effect.id==115&&effect.elements.size()==5),"Unrecovered map effect geometry template");
     require(bool(effect.flags&0x400)==(pass==EffectDrawPass::Deferred),"Effect submitted to the wrong draw pass");
-    require(pass==EffectDrawPass::Ordinary||effect.id==16,"Unrecovered deferred effect geometry");
+    require(pass==EffectDrawPass::Ordinary||effect.id==16||effect.id==33||effect.id==115,"Unrecovered deferred effect geometry");
     require(effect.id!=16||pass==EffectDrawPass::Deferred,"Flame16 requires the deferred pass");
     require(std::isfinite(far_clip)&&far_clip>0,"Invalid effect far clip");
     Rounding rounding;
@@ -147,15 +148,19 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
     }
     std::vector<MapEffectDraw> result;
     for(const auto& e:effect.elements) {
-        require(effect.id==16?e.primitive_flags==8:
+        require(effect.id==16?e.primitive_flags==8:effect.id==115?e.primitive_flags==0x40:
                 (e.primitive_flags&255)==1||((effect.id==17||effect.id==19)&&e.primitive_flags==0x41),
                 "Unrecovered map effect material");
         require(!(e.flags&0x400000)||light_tint,"Effect requires owned field light tint");
-        require(e.uv[0]==0&&e.uv[1]==0&&!e.render_flags,"Unrecovered map effect texture region");
+        //0x105a40 sets render+0x58 bit0 when switching programs. It records
+        //the captured channel transition;0x102cf8 does not test that bit.
+        const unsigned allowed_render_flags=effect.id==33||effect.id==115?1u:0u;
+        require(e.uv[0]==0&&e.uv[1]==0&&!(e.render_flags&~allowed_render_flags),"Unrecovered map effect texture region");
         auto rotation=e.rendered[1];
         switch(e.flags&15){case 0:break;case 1:
             rotation[0]=(1-camera[0])-effect.rotation[0];
             rotation[1]=(1-camera[1])-effect.rotation[1];rotation[3]=camera[3];break;
+            case 5:require(effect.id==115,"Unrecovered camera-space effect owner");break;
             case 2:
             require(effect.id==91&&e.shape==40,"Unrecovered quarter-turn billboard owner");
             rotation[0]=((1-camera[0])+.25f)-effect.rotation[0];
@@ -166,8 +171,8 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
             rotation[1]=(1-camera[1])-effect.rotation[1];break;
             default:throw std::runtime_error("Unrecovered map effect orientation");}
         auto matrix=effect_matrix(e.rendered[0],rotation,e.rendered[2],sine,true);
-        matrix=compose_pose(job,std::span(&matrix,1))[0];
-        matrix=compose_pose(view,std::span(&matrix,1))[0];
+        if((e.flags&15)!=5)matrix=compose_pose(job,std::span(&matrix,1))[0];
+        if(!(e.flags&4))matrix=compose_pose(view,std::span(&matrix,1))[0];
         Float4 color{};for(unsigned i=0;i<4;++i){
             color[i]=e.rendered[3][i]*effect.color[i];
             if(e.flags&0x400000)color[i]*=(*light_tint)[i];
@@ -177,8 +182,10 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
         // Its RGB blend is additive; the additive Metal path preserves target
         // alpha and disables depth writes, as required for that failure mode.
         MapEffectDraw draw{matrix,color,e.texture,e.uv,{},(e.primitive_flags&255)==1||e.primitive_flags==8};
+        //115 uses TEST0x3000d: alpha>0 and depth ALWAYS, with ZBUF masked.
+        draw.depth_test=effect.id!=115;
         const Float4 white{255,255,255,255},clear{255,255,255,0};
-        if(effect.id==91||effect.id==16) {
+        if(effect.id==91||effect.id==16||e.shape==40) {
             if(e.shape==28) {
                 require(e.texture==4,"Unrecovered flame texture");
                 // Stored geometry already has original strip order B,A,C,D.
@@ -187,7 +194,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
                     draw.vertices.push_back({{p[0]/64.f,p[1]/64.f,p[2]/64.f,1},white,
                                              {uv[0]/32768.f,uv[1]/32768.f,0,0}});
                 }
-            } else if(e.shape==40&&effect.id==91) {
+            } else if(e.shape==40&&(effect.id==91||effect.id==33)) {
                 require(e.texture==0xffffffffu,"Unrecovered glow texture");
                 //0x10fca8 emits sixteen independent center/next/current triangles.
                 const auto point=[&](unsigned i){const auto a=(i%16)*1024;
@@ -201,12 +208,14 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
             } else throw std::runtime_error("Unrecovered torch geometry");
             result.push_back(std::move(draw));continue;
         }
-        const auto base=effect.texture_sizes().at(e.shape==24?20:e.shape==31?17:5);
-        const auto current=effect.texture_sizes().at(e.texture);
+        const bool textured=e.texture!=0xffffffffu;
+        const auto base=effect.texture_sizes().at(e.shape==24?20:e.shape==31?17:e.shape==59?25:5);
+        const auto current=textured?effect.texture_sizes().at(e.texture):std::array<std::uint32_t,2>{};
         const bool replace=(e.program>>30)==1;
         //0x1122e8 constructs T using height+1.0x1055d8 rescales the
         // original packed UVs with truncated5-bit fixed ratios on replacement.
         auto uv=[&](float u,float v){
+            if(!textured)return Float4{};
             int s=int(u*float(base[0])*32),t=int(v*float(base[1]+1)*32);
             require(s>=0&&s<=32767&&t>=0&&t<=32767,"Unrecovered effect UV packing range");
             if(replace){s=(s*int((current[0]<<5)/base[0]))>>5;t=(t*int((current[1]<<5)/base[1]))>>5;}
@@ -216,7 +225,38 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
             // Original strip order B,A,C,D, hence the shared A-C diagonal.
             for(unsigned i:{1u,0u,2u,0u,2u,3u})draw.vertices.push_back({p[i],c[i],uv[i]});
         };
-        if(e.shape==24) {
+        if(e.shape==25&&effect.id==33) {
+            require(!textured&&e.ring_y.size()==30,"Unrecovered summoning ring");
+            const auto point=[&](unsigned i,bool lower){
+                const auto a=angle(float(i%30)/30);
+                return Float4{std::round(sine[(a+4096)&16383]*64)/64,
+                    lower?e.ring_y[i%30]/64.f:0,std::round(sine[a]*64)/64,1};};
+            for(unsigned i=0;i<30;++i)
+                quad({point(i,true),point(i,false),point(i+1,false),point(i+1,true)},
+                     {clear,white,white,clear},{Float4{},Float4{},Float4{},Float4{}});
+        } else if(e.shape==59&&effect.id==33) {
+            require(e.texture==25,"Unrecovered summoning spiral texture");
+            //0x110db8 constructs five turns of ten quads. Keep the original
+            //single-precision accumulation before packing positions and UVs.
+            const float delta=-(1.f/50);float phase=0;
+            const auto point=[&](unsigned i,float y,float radius){
+                const auto a=angle(float(i%10)/10);
+                const float x=sine[(a+4096)&16383]*radius,z=sine[a]*radius;
+                return Float4{std::round(x*64)/64,std::round(y*64)/64,std::round(z*64)/64,1};};
+            for(unsigned turn=0;turn<5;++turn) {
+                const float r0=sine[angle(float(turn)/5)]*.5f+1;
+                const float r1=sine[angle(float(turn+1)/5)]*.5f+1;
+                for(unsigned i=0;i<10;++i) {
+                    const float next=phase+delta,a=float(i)/10,b=float(i+1)/10;
+                    const float ra=(1-a)*r0+a*r1,rb=(1-b)*r0+b*r1;
+                    quad({point(i,phase-delta*10,ra),point(i,phase,ra),
+                          point(i+1,next,rb),point(i+1,phase-delta*9,rb)},
+                         {white,white,white,white},
+                         {uv(-phase,0),uv(-phase,1),uv(-next,1),uv(-next,0)});
+                    phase=next;
+                }
+            }
+        } else if(e.shape==24) {
             auto point=[&](unsigned i,float y) {
                 //0x113d88 packs nearest signed1/64 positions. Source W is a
                 // separate byte tag; VU rendering supplies homogeneous1.
@@ -229,8 +269,9 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
                     {clear,white,white,clear},
                     {uv(a,0),uv(a,1),uv(b,1),uv(b,0)});
             }
-        } else if(e.shape==29||((effect.id==17||effect.id==19)&&e.shape==31)) {
-            const float bottom=e.shape==31?-.5f:-1,top=e.shape==31?.5f:0;
+        } else if(e.shape==29||((effect.id==17||effect.id==19||effect.id==115)&&e.shape==31)||
+                  (effect.id==115&&e.shape==32)) {
+            const float bottom=e.shape==29?-1:-.5f,top=e.shape==29?0:.5f;
             quad({Float4{-.5f,bottom,0,1},Float4{.5f,bottom,0,1},Float4{.5f,top,0,1},Float4{-.5f,top,0,1}},
                  {white,white,white,white},
                  {uv(0,0),uv(1,0),uv(1,1),uv(0,1)});
