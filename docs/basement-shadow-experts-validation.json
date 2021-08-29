@@ -1,0 +1,1396 @@
+{
+  "scope": "Native basement progression and reached SET14/music36 integration.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "progression_implementation": "91dcab9",
+  "frames": 7200,
+  "controller_samples": 6831,
+  "intervals": [
+    {
+      "name": "ghost-promise",
+      "reference_prefix": "local/reference-home2c-basement-ghost-promise-1200-v1",
+      "native_prefix": "local/native-home2c-basement-ghost-promise-55655-release-v1",
+      "audit": "local/basement-ghost-promise-window-v1.json",
+      "native_run": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "55655",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537",
+          "--directions",
+          "local/native-home2c-basement-ghost-promise-55655-release-v1.directions",
+          "--capture",
+          "local/native-home2c-basement-ghost-promise-55655-release-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310",
+          "--render-until",
+          "11542"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 20.330261500000002,
+        "binary_sha256": "f0108bbf48000ad84a8bd444edc9ca229b2abb831630e5dd9b8e98be22c11373"
+      },
+      "reference_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-boot-oracle",
+          "local/disc/Okage - Shadow King (USA).cue",
+          "1200",
+          "local/reference-home2c-basement-favor-request-1200-v2.state.zip",
+          "--load",
+          "--pad",
+          "local/reference-home2c-basement-ghost-promise-1200-v1.input",
+          "--transition",
+          "local/reference-home2c-basement-ghost-promise-1200-v1.transition.bin",
+          "--camera",
+          "local/reference-home2c-basement-ghost-promise-1200-v1.camera.bin",
+          "--controller",
+          "local/reference-home2c-basement-ghost-promise-1200-v1.controller.bin",
+          "--screen-filter",
+          "local/reference-home2c-basement-ghost-promise-1200-v1.screen-filter.bin",
+          "--capture",
+          "local/reference-home2c-basement-ghost-promise-1200-v1",
+          "--save",
+          "local/reference-home2c-basement-ghost-promise-1200-v1.state.zip",
+          "--deadline-seconds",
+          "1200"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 75.36645874999999,
+        "binary_sha256": "bece5511360fc954d0b67d61f391a6888349dda69b0c69587bb64b4eca63b173"
+      },
+      "first_native_frame": 54456,
+      "native_endpoint_frame": 55655,
+      "endpoint_pc": "0x9f4",
+      "consumed_cross_native_frames": [
+        54458,
+        54637,
+        54818,
+        54997,
+        55177,
+        55357,
+        55537
+      ],
+      "consumed_direction_edges": [],
+      "comparison": {
+        "original_frames": 1200,
+        "controller_samples": 1200,
+        "difference_frames": {
+          "controller": [],
+          "choice": [],
+          "manager_running_pc_gate": [],
+          "pad_latch": [],
+          "direction_latch": [],
+          "player_mask": [],
+          "hero_facing_w": [],
+          "hero_position": [],
+          "camera_rotation": [],
+          "camera_mode_phase": [],
+          "camera_position": [],
+          "camera_unblended_target": []
+        },
+        "missing_original_player_frames": [],
+        "hero_position_maximum_error": 0.0,
+        "camera_position_maximum_error": 0.0,
+        "compared_observables_agree": true,
+        "full_timeline_equivalence": false
+      },
+      "sha256": {
+        "local/basement-ghost-promise-window-v1.json": "fb9e65c9bf43b978f0c435450d21b3d124cc0e8f7fb44216c87508be97a270bc",
+        "local/reference-home2c-basement-ghost-promise-1200-v1.run.json": "4e886ded5b984faea9f7ca686d686b1092650895e8f506f7ed9fc36aaa0728e0",
+        "local/reference-home2c-basement-ghost-promise-1200-v1.input": "9862b14c38095b7b78a702ce9870c97acc9369e493a8f81b7196b94e0e432755",
+        "local/native-home2c-basement-ghost-promise-55655-release-v1.run.json": "d8175ffda597b28df8323764f960b0445fbe11d40eade2c7f5ef9882415306a5",
+        "local/native-home2c-basement-ghost-promise-55655-release-v1.directions": "882c4e4c1e839d8a1f42164a55fc320677784fa6ff0d2aee11e9b3f0439e36e7"
+      }
+    },
+    {
+      "name": "family-reaction",
+      "reference_prefix": "local/reference-home2c-basement-family-reaction-1200-v1",
+      "native_prefix": "local/native-home2c-basement-family-reaction-56855-release-v1",
+      "audit": "local/basement-family-reaction-window-v1.json",
+      "native_run": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "56855",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737",
+          "--directions",
+          "local/native-home2c-basement-family-reaction-56855-release-v1.directions",
+          "--capture",
+          "local/native-home2c-basement-family-reaction-56855-release-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310",
+          "--render-until",
+          "11542"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 20.372653375,
+        "binary_sha256": "f0108bbf48000ad84a8bd444edc9ca229b2abb831630e5dd9b8e98be22c11373"
+      },
+      "reference_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-boot-oracle",
+          "local/disc/Okage - Shadow King (USA).cue",
+          "1200",
+          "local/reference-home2c-basement-ghost-promise-1200-v1.state.zip",
+          "--load",
+          "--pad",
+          "local/reference-home2c-basement-family-reaction-1200-v1.input",
+          "--transition",
+          "local/reference-home2c-basement-family-reaction-1200-v1.transition.bin",
+          "--camera",
+          "local/reference-home2c-basement-family-reaction-1200-v1.camera.bin",
+          "--controller",
+          "local/reference-home2c-basement-family-reaction-1200-v1.controller.bin",
+          "--screen-filter",
+          "local/reference-home2c-basement-family-reaction-1200-v1.screen-filter.bin",
+          "--capture",
+          "local/reference-home2c-basement-family-reaction-1200-v1",
+          "--save",
+          "local/reference-home2c-basement-family-reaction-1200-v1.state.zip",
+          "--deadline-seconds",
+          "1200"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 75.59338379200001,
+        "binary_sha256": "bece5511360fc954d0b67d61f391a6888349dda69b0c69587bb64b4eca63b173"
+      },
+      "first_native_frame": 55656,
+      "native_endpoint_frame": 56855,
+      "endpoint_pc": "0xa30",
+      "consumed_cross_native_frames": [
+        55658,
+        55837,
+        56017,
+        56197,
+        56378,
+        56558,
+        56737
+      ],
+      "consumed_direction_edges": [],
+      "comparison": {
+        "original_frames": 1200,
+        "controller_samples": 1198,
+        "difference_frames": {
+          "controller": [],
+          "choice": [],
+          "manager_running_pc_gate": [],
+          "pad_latch": [],
+          "direction_latch": [],
+          "player_mask": [],
+          "hero_facing_w": [],
+          "hero_position": [],
+          "camera_rotation": [],
+          "camera_mode_phase": [],
+          "camera_position": [],
+          "camera_unblended_target": []
+        },
+        "missing_original_player_frames": [],
+        "hero_position_maximum_error": 0.0,
+        "camera_position_maximum_error": 0.0,
+        "compared_observables_agree": true,
+        "full_timeline_equivalence": false
+      },
+      "sha256": {
+        "local/basement-family-reaction-window-v1.json": "04f131ff41145be1d3f226c26531bda1ab0b2ad385e6770ff6ae4ee6d2e7deaa",
+        "local/reference-home2c-basement-family-reaction-1200-v1.run.json": "d745733c448d4a74723a1e010dc349dbe7db53d44849c9d104733f38c51666a5",
+        "local/reference-home2c-basement-family-reaction-1200-v1.input": "9862b14c38095b7b78a702ce9870c97acc9369e493a8f81b7196b94e0e432755",
+        "local/native-home2c-basement-family-reaction-56855-release-v1.run.json": "2adefe55945e0495a869d509e29d82ca3332352e7586c6bde8fa2c0bdfd0c885",
+        "local/native-home2c-basement-family-reaction-56855-release-v1.directions": "882c4e4c1e839d8a1f42164a55fc320677784fa6ff0d2aee11e9b3f0439e36e7"
+      }
+    },
+    {
+      "name": "family-convinced",
+      "reference_prefix": "local/reference-home2c-basement-family-convinced-1200-v1",
+      "native_prefix": "local/native-home2c-basement-family-convinced-58055-release-v1",
+      "audit": "local/basement-family-convinced-window-v1.json",
+      "native_run": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "58055",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937",
+          "--directions",
+          "local/native-home2c-basement-family-convinced-58055-release-v1.directions",
+          "--capture",
+          "local/native-home2c-basement-family-convinced-58055-release-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310",
+          "--render-until",
+          "11542"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 20.591730458,
+        "binary_sha256": "f0108bbf48000ad84a8bd444edc9ca229b2abb831630e5dd9b8e98be22c11373"
+      },
+      "reference_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-boot-oracle",
+          "local/disc/Okage - Shadow King (USA).cue",
+          "1200",
+          "local/reference-home2c-basement-family-reaction-1200-v1.state.zip",
+          "--load",
+          "--pad",
+          "local/reference-home2c-basement-family-convinced-1200-v1.input",
+          "--transition",
+          "local/reference-home2c-basement-family-convinced-1200-v1.transition.bin",
+          "--camera",
+          "local/reference-home2c-basement-family-convinced-1200-v1.camera.bin",
+          "--controller",
+          "local/reference-home2c-basement-family-convinced-1200-v1.controller.bin",
+          "--screen-filter",
+          "local/reference-home2c-basement-family-convinced-1200-v1.screen-filter.bin",
+          "--capture",
+          "local/reference-home2c-basement-family-convinced-1200-v1",
+          "--save",
+          "local/reference-home2c-basement-family-convinced-1200-v1.state.zip",
+          "--deadline-seconds",
+          "1200"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 75.05666566699999,
+        "binary_sha256": "bece5511360fc954d0b67d61f391a6888349dda69b0c69587bb64b4eca63b173"
+      },
+      "first_native_frame": 56856,
+      "native_endpoint_frame": 58055,
+      "endpoint_pc": "0xa60",
+      "consumed_cross_native_frames": [
+        56858,
+        56977,
+        57097,
+        57217,
+        57338,
+        57457,
+        57577,
+        57697,
+        57818,
+        57937
+      ],
+      "consumed_direction_edges": [],
+      "comparison": {
+        "original_frames": 1200,
+        "controller_samples": 1200,
+        "difference_frames": {
+          "controller": [],
+          "choice": [],
+          "manager_running_pc_gate": [],
+          "pad_latch": [],
+          "direction_latch": [],
+          "player_mask": [],
+          "hero_facing_w": [],
+          "hero_position": [],
+          "camera_rotation": [],
+          "camera_mode_phase": [],
+          "camera_position": [],
+          "camera_unblended_target": []
+        },
+        "missing_original_player_frames": [],
+        "hero_position_maximum_error": 0.0,
+        "camera_position_maximum_error": 0.0,
+        "compared_observables_agree": true,
+        "full_timeline_equivalence": false
+      },
+      "sha256": {
+        "local/basement-family-convinced-window-v1.json": "b4cec33236a65937a3c73ccc4be1ee8535b7342a27ad08b077e652f9ba52afb6",
+        "local/reference-home2c-basement-family-convinced-1200-v1.run.json": "098483c53e4dfdce60ac35e6ea748acdd97a243416def5d50eadfcb457155d27",
+        "local/reference-home2c-basement-family-convinced-1200-v1.input": "970f403c29d4d0f44409872e98892939bbe7c843f8d4f069760e498eedebc626",
+        "local/native-home2c-basement-family-convinced-58055-release-v1.run.json": "beb6738342245afa161ccbf8ede7cf4bb519df2924566c77db3e2353820313d3",
+        "local/native-home2c-basement-family-convinced-58055-release-v1.directions": "882c4e4c1e839d8a1f42164a55fc320677784fa6ff0d2aee11e9b3f0439e36e7"
+      }
+    },
+    {
+      "name": "ari-agrees",
+      "reference_prefix": "local/reference-home2c-basement-ari-agrees-1200-v1",
+      "native_prefix": "local/native-home2c-basement-ari-agrees-59255-release-v1",
+      "audit": "local/basement-ari-agrees-window-v1.json",
+      "native_run": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "59255",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137",
+          "--directions",
+          "local/native-home2c-basement-ari-agrees-59255-release-v1.directions",
+          "--capture",
+          "local/native-home2c-basement-ari-agrees-59255-release-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310",
+          "--render-until",
+          "11542"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 20.624626917,
+        "binary_sha256": "f0108bbf48000ad84a8bd444edc9ca229b2abb831630e5dd9b8e98be22c11373"
+      },
+      "reference_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-boot-oracle",
+          "local/disc/Okage - Shadow King (USA).cue",
+          "1200",
+          "local/reference-home2c-basement-family-convinced-1200-v1.state.zip",
+          "--load",
+          "--pad",
+          "local/reference-home2c-basement-ari-agrees-1200-v1.input",
+          "--transition",
+          "local/reference-home2c-basement-ari-agrees-1200-v1.transition.bin",
+          "--camera",
+          "local/reference-home2c-basement-ari-agrees-1200-v1.camera.bin",
+          "--controller",
+          "local/reference-home2c-basement-ari-agrees-1200-v1.controller.bin",
+          "--screen-filter",
+          "local/reference-home2c-basement-ari-agrees-1200-v1.screen-filter.bin",
+          "--capture",
+          "local/reference-home2c-basement-ari-agrees-1200-v1",
+          "--save",
+          "local/reference-home2c-basement-ari-agrees-1200-v1.state.zip",
+          "--deadline-seconds",
+          "1200"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 75.37222079200001,
+        "binary_sha256": "bece5511360fc954d0b67d61f391a6888349dda69b0c69587bb64b4eca63b173"
+      },
+      "first_native_frame": 58056,
+      "native_endpoint_frame": 59255,
+      "endpoint_pc": "0xbf0",
+      "consumed_cross_native_frames": [
+        58066,
+        58177,
+        58297,
+        58417,
+        58537,
+        58657,
+        58778,
+        58897,
+        59018,
+        59137
+      ],
+      "consumed_direction_edges": [
+        [
+          58057,
+          "1000"
+        ],
+        [
+          58061,
+          "0000"
+        ]
+      ],
+      "comparison": {
+        "original_frames": 1200,
+        "controller_samples": 1000,
+        "difference_frames": {
+          "controller": [],
+          "choice": [],
+          "manager_running_pc_gate": [],
+          "pad_latch": [],
+          "direction_latch": [],
+          "player_mask": [],
+          "hero_facing_w": [],
+          "hero_position": [],
+          "camera_rotation": [],
+          "camera_mode_phase": [],
+          "camera_position": [],
+          "camera_unblended_target": []
+        },
+        "missing_original_player_frames": [],
+        "hero_position_maximum_error": 0.0,
+        "camera_position_maximum_error": 0.0,
+        "compared_observables_agree": true,
+        "full_timeline_equivalence": false
+      },
+      "sha256": {
+        "local/basement-ari-agrees-window-v1.json": "0056caa2b371621112028ad5dd9a263466f71961f570a24a7be2847bf6a8d280",
+        "local/reference-home2c-basement-ari-agrees-1200-v1.run.json": "c046eac44431c6c77e66eb0f4cd4afd835b2f02cefc30135cf5a7df2064097b7",
+        "local/reference-home2c-basement-ari-agrees-1200-v1.input": "8ac704e56cd820d1f3bce39595283bb8bbe00e8de3a20d005741ad52d44ab96c",
+        "local/native-home2c-basement-ari-agrees-59255-release-v1.run.json": "51e42029b36d86ba59c7a8f0197c5e9b5a86b9c861ecc1d93b4ed60245047f5a",
+        "local/native-home2c-basement-ari-agrees-59255-release-v1.directions": "1c0ca2c7a3fad16c1287adb3f34a8ae14fb3ca88813186d4122ca586d4b4c1bc"
+      }
+    },
+    {
+      "name": "ghost-arrival",
+      "reference_prefix": "local/reference-home2c-basement-ghost-arrival-1200-v1",
+      "native_prefix": "local/native-home2c-basement-ghost-arrival-60455-release-v1",
+      "audit": "local/basement-ghost-arrival-window-v1.json",
+      "native_run": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "60455",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397",
+          "--directions",
+          "local/native-home2c-basement-ghost-arrival-60455-release-v1.directions",
+          "--capture",
+          "local/native-home2c-basement-ghost-arrival-60455-release-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310",
+          "--render-until",
+          "11542"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 20.93906575,
+        "binary_sha256": "f0108bbf48000ad84a8bd444edc9ca229b2abb831630e5dd9b8e98be22c11373"
+      },
+      "reference_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-boot-oracle",
+          "local/disc/Okage - Shadow King (USA).cue",
+          "1200",
+          "local/reference-home2c-basement-ari-agrees-1200-v1.state.zip",
+          "--load",
+          "--pad",
+          "local/reference-home2c-basement-ghost-arrival-1200-v1.input",
+          "--transition",
+          "local/reference-home2c-basement-ghost-arrival-1200-v1.transition.bin",
+          "--camera",
+          "local/reference-home2c-basement-ghost-arrival-1200-v1.camera.bin",
+          "--controller",
+          "local/reference-home2c-basement-ghost-arrival-1200-v1.controller.bin",
+          "--screen-filter",
+          "local/reference-home2c-basement-ghost-arrival-1200-v1.screen-filter.bin",
+          "--capture",
+          "local/reference-home2c-basement-ghost-arrival-1200-v1",
+          "--save",
+          "local/reference-home2c-basement-ghost-arrival-1200-v1.state.zip",
+          "--deadline-seconds",
+          "1200"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 42.023590791,
+        "binary_sha256": "bece5511360fc954d0b67d61f391a6888349dda69b0c69587bb64b4eca63b173"
+      },
+      "first_native_frame": 59256,
+      "native_endpoint_frame": 60455,
+      "endpoint_pc": "0xca0",
+      "consumed_cross_native_frames": [
+        59437,
+        59557,
+        59677,
+        59797,
+        59918,
+        60037,
+        60157,
+        60277,
+        60397
+      ],
+      "consumed_direction_edges": [],
+      "comparison": {
+        "original_frames": 1200,
+        "controller_samples": 1035,
+        "difference_frames": {
+          "controller": [],
+          "choice": [],
+          "manager_running_pc_gate": [],
+          "pad_latch": [],
+          "direction_latch": [],
+          "player_mask": [],
+          "hero_facing_w": [],
+          "hero_position": [],
+          "camera_rotation": [],
+          "camera_mode_phase": [],
+          "camera_position": [],
+          "camera_unblended_target": []
+        },
+        "missing_original_player_frames": [],
+        "hero_position_maximum_error": 0.0,
+        "camera_position_maximum_error": 0.0,
+        "compared_observables_agree": true,
+        "full_timeline_equivalence": false
+      },
+      "sha256": {
+        "local/basement-ghost-arrival-window-v1.json": "66dd8c384e3c8a032583ec50abd7b2df146d2a18832b74d0d2c35e6a5d7d2336",
+        "local/reference-home2c-basement-ghost-arrival-1200-v1.run.json": "f0f089f06425fed8e8d0c074f0d6b9f45291822d7c77713f044336d280cbe9ab",
+        "local/reference-home2c-basement-ghost-arrival-1200-v1.input": "50cf649392b335c2ccd1e6cec90d2622763ed7894d7d5f8ed31405c4c1729779",
+        "local/native-home2c-basement-ghost-arrival-60455-release-v1.run.json": "eea0da9d512d9d3985066ed252ebd15b115676efc11c2a20c9e95019282af0dc",
+        "local/native-home2c-basement-ghost-arrival-60455-release-v1.directions": "1c0ca2c7a3fad16c1287adb3f34a8ae14fb3ca88813186d4122ca586d4b4c1bc"
+      }
+    },
+    {
+      "name": "master-reveal",
+      "reference_prefix": "local/reference-home2c-basement-master-reveal-1200-v1",
+      "native_prefix": "local/native-home2c-basement-master-reveal-61655-release-v1",
+      "audit": "local/basement-master-reveal-window-v1.json",
+      "native_run": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "61655",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538",
+          "--directions",
+          "local/native-home2c-basement-master-reveal-61655-release-v1.directions",
+          "--capture",
+          "local/native-home2c-basement-master-reveal-61655-release-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310",
+          "--render-until",
+          "11542"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 21.154393792,
+        "binary_sha256": "f0108bbf48000ad84a8bd444edc9ca229b2abb831630e5dd9b8e98be22c11373"
+      },
+      "reference_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-boot-oracle",
+          "local/disc/Okage - Shadow King (USA).cue",
+          "1200",
+          "local/reference-home2c-basement-ghost-arrival-1200-v1.state.zip",
+          "--load",
+          "--pad",
+          "local/reference-home2c-basement-master-reveal-1200-v1.input",
+          "--transition",
+          "local/reference-home2c-basement-master-reveal-1200-v1.transition.bin",
+          "--camera",
+          "local/reference-home2c-basement-master-reveal-1200-v1.camera.bin",
+          "--controller",
+          "local/reference-home2c-basement-master-reveal-1200-v1.controller.bin",
+          "--screen-filter",
+          "local/reference-home2c-basement-master-reveal-1200-v1.screen-filter.bin",
+          "--capture",
+          "local/reference-home2c-basement-master-reveal-1200-v1",
+          "--save",
+          "local/reference-home2c-basement-master-reveal-1200-v1.state.zip",
+          "--deadline-seconds",
+          "1200"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 37.034061959,
+        "binary_sha256": "bece5511360fc954d0b67d61f391a6888349dda69b0c69587bb64b4eca63b173"
+      },
+      "first_native_frame": 60456,
+      "native_endpoint_frame": 61655,
+      "endpoint_pc": "0xd1c",
+      "consumed_cross_native_frames": [
+        60457,
+        60577,
+        60698,
+        60817,
+        60937,
+        61057,
+        61177,
+        61297,
+        61417,
+        61538
+      ],
+      "consumed_direction_edges": [],
+      "comparison": {
+        "original_frames": 1200,
+        "controller_samples": 1198,
+        "difference_frames": {
+          "controller": [],
+          "choice": [],
+          "manager_running_pc_gate": [],
+          "pad_latch": [],
+          "direction_latch": [],
+          "player_mask": [],
+          "hero_facing_w": [],
+          "hero_position": [],
+          "camera_rotation": [],
+          "camera_mode_phase": [],
+          "camera_position": [],
+          "camera_unblended_target": []
+        },
+        "missing_original_player_frames": [],
+        "hero_position_maximum_error": 0.0,
+        "camera_position_maximum_error": 0.0,
+        "compared_observables_agree": true,
+        "full_timeline_equivalence": false
+      },
+      "sha256": {
+        "local/basement-master-reveal-window-v1.json": "6ff30a707bfd3050fcdbb776aeb328c725d39400c745a56f211089867ef71b8a",
+        "local/reference-home2c-basement-master-reveal-1200-v1.run.json": "0bade61b3c548e08da240575e786b4c94e494ea7f787746dddedc9895242dcd3",
+        "local/reference-home2c-basement-master-reveal-1200-v1.input": "970f403c29d4d0f44409872e98892939bbe7c843f8d4f069760e498eedebc626",
+        "local/native-home2c-basement-master-reveal-61655-release-v1.run.json": "228d0f0491e9617f7becd3a12ae3e25f746bf814253e47e7f4c8d12b6d0b36d2",
+        "local/native-home2c-basement-master-reveal-61655-release-v1.directions": "1c0ca2c7a3fad16c1287adb3f34a8ae14fb3ca88813186d4122ca586d4b4c1bc"
+      }
+    }
+  ],
+  "latest_native_prefix": "local/native-home2c-basement-before-effect26-62593-release-v1",
+  "latest_native_run": {
+    "command": [
+      "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+      "local/font-input/CMNDATA/FONT",
+      "local/text-input/FLDDATA/MES/FIELD.PME",
+      "--scene",
+      "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+      "--event",
+      "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+      "--actor",
+      "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+      "--actor-bind",
+      "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+      "--actor-bind",
+      "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+      "--frames",
+      "62593",
+      "--press",
+      "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538,61658,61777,61897,62018,62137,62257,62377,62498,62617,62737",
+      "--directions",
+      "local/native-home2c-basement-before-effect26-62593-release-v1.directions",
+      "--capture",
+      "local/native-home2c-basement-before-effect26-62593-release-v1.png",
+      "--music-dry",
+      "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+      "--music-bank",
+      "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+      "--sound-dir",
+      "local/audio-input/SNDDATA/SE",
+      "--effect-data",
+      "local/effect-input/CMNDATA/2D/TES.EFD",
+      "--effect-textures",
+      "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+      "--render-from",
+      "11310",
+      "--render-until",
+      "11542"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 23.067406458999997,
+    "binary_sha256": "cf02d6eda0d4156495100e7f3eb6c11b9e665fba2c0c7b19ef0d58d7ee81bcd4"
+  },
+  "latest_native_endpoint": {
+    "frames": 62593,
+    "message_id": 13004,
+    "messages_started": 61,
+    "text_progress": 0,
+    "advance_count": 0,
+    "wait_release_frame": 227,
+    "controller_stage": 9,
+    "unimplemented_service_requests": 27893,
+    "message_flags": 2147483648,
+    "window_type": 2,
+    "scene_brightness": 0,
+    "narration_cues": 367,
+    "progression_flag_2": 0,
+    "progression_flag_3": 0,
+    "kitchen_flag_7": 1,
+    "progression_flag_4": 0,
+    "progression_flag_5": 0,
+    "field_event_running": true,
+    "field_camera_mode": 2,
+    "interaction_alias": 0,
+    "interaction_event": 0,
+    "loaded_stream_banks": 1,
+    "choice_cursor": 0,
+    "choice_result": 0,
+    "choice_armed": false,
+    "close_frame": 419,
+    "close_wait_release_frame": 422
+  },
+  "latest_scope": "62593 completes after SET14 and music36 loading, before guarded effect26. Original interval61656..62855 is complete, but full native interval is not; no whole-interval audit or equivalence claimed beyond61655.",
+  "next_reference_run": {
+    "command": [
+      "build/play-research/okage-oracle/okage-boot-oracle",
+      "local/disc/Okage - Shadow King (USA).cue",
+      "1200",
+      "local/reference-home2c-basement-master-reveal-1200-v1.state.zip",
+      "--load",
+      "--pad",
+      "local/reference-home2c-basement-shadow-experts-1200-v1.input",
+      "--transition",
+      "local/reference-home2c-basement-shadow-experts-1200-v1.transition.bin",
+      "--camera",
+      "local/reference-home2c-basement-shadow-experts-1200-v1.camera.bin",
+      "--controller",
+      "local/reference-home2c-basement-shadow-experts-1200-v1.controller.bin",
+      "--screen-filter",
+      "local/reference-home2c-basement-shadow-experts-1200-v1.screen-filter.bin",
+      "--capture",
+      "local/reference-home2c-basement-shadow-experts-1200-v1",
+      "--save",
+      "local/reference-home2c-basement-shadow-experts-1200-v1.state.zip",
+      "--deadline-seconds",
+      "1200"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 66.757453667,
+    "binary_sha256": "bece5511360fc954d0b67d61f391a6888349dda69b0c69587bb64b4eca63b173"
+  },
+  "failed_native_runs": [
+    {
+      "prefix": "local/native-home2c-basement-shadow-experts-62855-release-v1",
+      "run": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "62855",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538,61658,61777,61897,62018,62137,62257,62377,62498,62617,62737",
+          "--directions",
+          "local/native-home2c-basement-shadow-experts-62855-release-v1.directions",
+          "--capture",
+          "local/native-home2c-basement-shadow-experts-62855-release-v1.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310",
+          "--render-until",
+          "11542"
+        ],
+        "exit_code": 1,
+        "elapsed_seconds": 21.94485825,
+        "binary_sha256": "f0108bbf48000ad84a8bd444edc9ca229b2abb831630e5dd9b8e98be22c11373"
+      },
+      "failure": "Native frame=62093 field PC=3416: filesystem error: in file_size: No such file or directory [\"local/audio-input/SNDDATA/SE/SET14.XWS\"]"
+    },
+    {
+      "prefix": "local/native-home2c-basement-shadow-experts-62855-release-v3",
+      "run": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "62855",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538,61658,61777,61897,62018,62137,62257,62377,62498,62617,62737",
+          "--directions",
+          "local/native-home2c-basement-shadow-experts-62855-release-v3.directions",
+          "--capture",
+          "local/native-home2c-basement-shadow-experts-62855-release-v3.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310",
+          "--render-until",
+          "11542"
+        ],
+        "exit_code": 1,
+        "elapsed_seconds": 22.291940583,
+        "binary_sha256": "f0108bbf48000ad84a8bd444edc9ca229b2abb831630e5dd9b8e98be22c11373"
+      },
+      "failure": "Native frame=62493 field PC=3476: Unreviewed music resource ID 36"
+    },
+    {
+      "prefix": "local/native-home2c-basement-shadow-experts-62855-release-v4",
+      "run": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "62855",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538,61658,61777,61897,62018,62137,62257,62377,62498,62617,62737",
+          "--directions",
+          "local/native-home2c-basement-shadow-experts-62855-release-v4.directions",
+          "--capture",
+          "local/native-home2c-basement-shadow-experts-62855-release-v4.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310",
+          "--render-until",
+          "11542"
+        ],
+        "exit_code": 1,
+        "elapsed_seconds": 22.092408292000002,
+        "binary_sha256": "cf02d6eda0d4156495100e7f3eb6c11b9e665fba2c0c7b19ef0d58d7ee81bcd4"
+      },
+      "failure": "Native frame=62594 field PC=3492: Unrecovered map effect template"
+    }
+  ],
+  "wrapper_only_failure": "release-v2 created its own wrapper log before the helper checked for unused output prefixes; helper rejected it before launching native. Retained wrapper log, no app run.json.",
+  "sound_set14_import": {
+    "path": "SNDDATA/SE/SET14.XWS",
+    "lba": 196354,
+    "size": 116000,
+    "sha256": "f269d17f17bb1e6520455cb50df6bb3fa810d168ca1702956fab4608c1d0591b",
+    "destination": "local/audio-input/SNDDATA/SE/SET14.XWS"
+  },
+  "finite_set14": {
+    "release": {
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "native_sha256": "18a035f417d21ab394bc045d536daaa2a56303672acf44236a9c7e2cb4e20b8c",
+      "oracle_sha256": "5f4ebbd9c5170e1d2e808602388348a96ad5d722cdad1e6b5878d0f2357dd998",
+      "dsp_revision": "3143a46e4deffa59832a517915a39d610dcb8564",
+      "dsp_source_hashes": {
+        "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
+        "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
+        "defs.h": "c99bb3de5ed27243abdaf18384f2d3cf6ce7578fb01fd2b6616da2d99c418960",
+        "interpolate_table.h": "3c2f96bdb8aee61a6f988ed508d45811ea8f5bd1f8dac8825c59552bbd2c865a"
+      },
+      "cases": [
+        {
+          "cue": "SET14-0",
+          "source_sha256": "b4bc2d5f0efbda8f85cf349bfa1ff36452ba0b83a7cb805b2f04687021048411",
+          "source_bytes": 115888,
+          "prepared_bytes": 115968,
+          "prepared_sha256": "b1126bf94bc6109986297768e7ec090317948298583fe14ed6c9f53b7916abc7",
+          "original": "local/set14-finite-reference-v1/SET14-0.original.bin",
+          "original_sha256": "8fee8a00182f13b15db9b086035a66bc059dfee6dd99c8df19d193d361846fc5",
+          "frames": 280000,
+          "pcm_sha256": "4cb1710683e71df322668c9750ad128010b21ec1b574fc0f5ee22c9c4581998e",
+          "bytes_and_pcm_exact": true
+        }
+      ]
+    },
+    "native": {
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "native_sha256": "2c04e8329183b003c9398999a455f80ec201e3d25eea4be14c5b55d9db66cfdc",
+      "oracle_sha256": "5f4ebbd9c5170e1d2e808602388348a96ad5d722cdad1e6b5878d0f2357dd998",
+      "dsp_revision": "3143a46e4deffa59832a517915a39d610dcb8564",
+      "dsp_source_hashes": {
+        "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
+        "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
+        "defs.h": "c99bb3de5ed27243abdaf18384f2d3cf6ce7578fb01fd2b6616da2d99c418960",
+        "interpolate_table.h": "3c2f96bdb8aee61a6f988ed508d45811ea8f5bd1f8dac8825c59552bbd2c865a"
+      },
+      "cases": [
+        {
+          "cue": "SET14-0",
+          "source_sha256": "b4bc2d5f0efbda8f85cf349bfa1ff36452ba0b83a7cb805b2f04687021048411",
+          "source_bytes": 115888,
+          "prepared_bytes": 115968,
+          "prepared_sha256": "b1126bf94bc6109986297768e7ec090317948298583fe14ed6c9f53b7916abc7",
+          "original": "local/set14-finite-reference-v1/SET14-0.original.bin",
+          "original_sha256": "8fee8a00182f13b15db9b086035a66bc059dfee6dd99c8df19d193d361846fc5",
+          "frames": 280000,
+          "pcm_sha256": "4cb1710683e71df322668c9750ad128010b21ec1b574fc0f5ee22c9c4581998e",
+          "bytes_and_pcm_exact": true
+        }
+      ]
+    },
+    "model-sanitize": {
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "native_sha256": "da21eaddf27745afcf169f256b08e48686dfbd39a21df24db6da18a0a19653a9",
+      "oracle_sha256": "5f4ebbd9c5170e1d2e808602388348a96ad5d722cdad1e6b5878d0f2357dd998",
+      "dsp_revision": "3143a46e4deffa59832a517915a39d610dcb8564",
+      "dsp_source_hashes": {
+        "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
+        "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
+        "defs.h": "c99bb3de5ed27243abdaf18384f2d3cf6ce7578fb01fd2b6616da2d99c418960",
+        "interpolate_table.h": "3c2f96bdb8aee61a6f988ed508d45811ea8f5bd1f8dac8825c59552bbd2c865a"
+      },
+      "cases": [
+        {
+          "cue": "SET14-0",
+          "source_sha256": "b4bc2d5f0efbda8f85cf349bfa1ff36452ba0b83a7cb805b2f04687021048411",
+          "source_bytes": 115888,
+          "prepared_bytes": 115968,
+          "prepared_sha256": "b1126bf94bc6109986297768e7ec090317948298583fe14ed6c9f53b7916abc7",
+          "original": "local/set14-finite-reference-v1/SET14-0.original.bin",
+          "original_sha256": "8fee8a00182f13b15db9b086035a66bc059dfee6dd99c8df19d193d361846fc5",
+          "frames": 280000,
+          "pcm_sha256": "4cb1710683e71df322668c9750ad128010b21ec1b574fc0f5ee22c9c4581998e",
+          "bytes_and_pcm_exact": true
+        }
+      ]
+    }
+  },
+  "music36_import": {
+    "scope": "Import reviewed ordinary music resources from the owned USA disc.",
+    "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "music_id": 36,
+    "table_address": 2078288,
+    "name_pointer": 2259656,
+    "class_pointer": 2259792,
+    "sequence": "EVN_TSR",
+    "primary_bank": "EVN_TSR0",
+    "secondary_bank_present": false,
+    "imported": [
+      {
+        "path": "local/audio-input/SNDDATA/BGM/EVN_TSR.XSQ",
+        "lba": 187834,
+        "size": 18104,
+        "sha256": "c736aceca4929863c9f8e8c3c27c17a153f78eeb2a36305e94f100b538269ad9"
+      },
+      {
+        "path": "local/audio-input/SNDDATA/BGM/EVN_TSR0.XV",
+        "lba": 187843,
+        "size": 295152,
+        "sha256": "d380fdb3eebc89a3159b5f8e7c7ada063b4188eb5e0e33dfd6beb937bd4c47da"
+      }
+    ]
+  },
+  "prefix_regression": {
+    "old_prefix": "local/native-home2c-basement-master-reveal-61655-release-v1.png",
+    "new_prefix": "local/native-home2c-basement-before-effect26-62593-release-v1.png",
+    "scope": "All historical binary/PCM trace prefixes through61655; excludes images, JSON and final variable state.",
+    "files": [
+      {
+        "suffix": ".actor-1.bin",
+        "prefix_bytes": 233302520,
+        "matches": true,
+        "sha256": "c927a225910c1344be45ba2583d904b7fb0c0180bf31fe2ba8faefb1a91754fe"
+      },
+      {
+        "suffix": ".actor-10.bin",
+        "prefix_bytes": 111707064,
+        "matches": true,
+        "sha256": "957c54479443705c582f17165a74fe18c9c7e27fee54f273926b8ca40f606f5d"
+      },
+      {
+        "suffix": ".actor-11.bin",
+        "prefix_bytes": 112294080,
+        "matches": true,
+        "sha256": "7c22bf0cb4820622788bae106b98767a88bbc6f35f237d83f0662a8ed35fb3b8"
+      },
+      {
+        "suffix": ".actor-12.bin",
+        "prefix_bytes": 115934904,
+        "matches": true,
+        "sha256": "51c190ceb7581351dfa53a52cdc1037a93fdb644953f004873b84f98da63cc72"
+      },
+      {
+        "suffix": ".actor-13.bin",
+        "prefix_bytes": 45401168,
+        "matches": true,
+        "sha256": "da2a80fa89b5ced64d2bac1eb09c5effe98027126c64760b9322d01c9d74e441"
+      },
+      {
+        "suffix": ".actor-14.bin",
+        "prefix_bytes": 44119520,
+        "matches": true,
+        "sha256": "3379c4ae4747dbb45655bfd518a7d8e985003c1703e7984533edc9bd7f2cd7c8"
+      },
+      {
+        "suffix": ".actor-15.bin",
+        "prefix_bytes": 5600912,
+        "matches": true,
+        "sha256": "4e4a07bd3dbf09ff8d1f5d1f74c587cc1ef683519cc54737c6de1dcf6fc9e97b"
+      },
+      {
+        "suffix": ".actor-16.bin",
+        "prefix_bytes": 5600912,
+        "matches": true,
+        "sha256": "f347225ef934b7a06881881ff4047104cfa826135629bf8d4b32bcfa17ca24bb"
+      },
+      {
+        "suffix": ".actor-17.bin",
+        "prefix_bytes": 16686748,
+        "matches": true,
+        "sha256": "ec4cfce3ec49b71094d28e1def4044d40b4c4878687134b7fc73b51925085865"
+      },
+      {
+        "suffix": ".actor-18.bin",
+        "prefix_bytes": 25477948,
+        "matches": true,
+        "sha256": "495b66777b5a894d9bf450dab77218587e58bd8a29d8d9ce737a2529e19f8dc7"
+      },
+      {
+        "suffix": ".actor-19.bin",
+        "prefix_bytes": 23755572,
+        "matches": true,
+        "sha256": "b09817af4f8110681636267e7874ffa8c217c585c4a10666daf8b4c3cca11453"
+      },
+      {
+        "suffix": ".actor-20.bin",
+        "prefix_bytes": 14768396,
+        "matches": true,
+        "sha256": "dce67fe8789273e842c73e63b5f6b4993c29c3457f3b02a918b8d9e27126f277"
+      },
+      {
+        "suffix": ".actor-21.bin",
+        "prefix_bytes": 17490792,
+        "matches": true,
+        "sha256": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3"
+      },
+      {
+        "suffix": ".actor-22.bin",
+        "prefix_bytes": 30136560,
+        "matches": true,
+        "sha256": "52ced2ad7d11087e23f17eec62ef9a12152e22819f3c90aae92d7f002c447da5"
+      },
+      {
+        "suffix": ".actor-37.bin",
+        "prefix_bytes": 6669448,
+        "matches": true,
+        "sha256": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd"
+      },
+      {
+        "suffix": ".actor-38.bin",
+        "prefix_bytes": 1867760,
+        "matches": true,
+        "sha256": "76ba34c261405d19131ff08afd76466bd58b75955ea5d5be4f94b432248fb11e"
+      },
+      {
+        "suffix": ".actor-45.bin",
+        "prefix_bytes": 8950128,
+        "matches": true,
+        "sha256": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921"
+      },
+      {
+        "suffix": ".actor-9.bin",
+        "prefix_bytes": 132454724,
+        "matches": true,
+        "sha256": "b060385a96bf949e7581acdaa79e163089b1b4ed0671df2767acbb9dbc450da9"
+      },
+      {
+        "suffix": ".actor.bin",
+        "prefix_bytes": 139326880,
+        "matches": true,
+        "sha256": "e6af76eae3bc8e2997e87f5a141c03b40c51e4a77d03ebdd3f2796a815429c9a"
+      },
+      {
+        "suffix": ".audio.pcm",
+        "prefix_bytes": 197296000,
+        "matches": true,
+        "sha256": "2acfccb5590f1e94d723f9bb9de057af8ffb43e9812e049a5c7ce9d906bebea9"
+      },
+      {
+        "suffix": ".camera-state.bin",
+        "prefix_bytes": 1233100,
+        "matches": true,
+        "sha256": "4514c9cc93c7d22d3d749b2ad2bee5079240e9d5ae681e3f190b2d3543483792"
+      },
+      {
+        "suffix": ".camera.bin",
+        "prefix_bytes": 3945920,
+        "matches": true,
+        "sha256": "4e50880fb178c95ec04203911dbbe64065441666ef8b65e551ad149d7e620210"
+      },
+      {
+        "suffix": ".choices.bin",
+        "prefix_bytes": 2959440,
+        "matches": true,
+        "sha256": "6f591c731b318c9c0f6f7c74bf4a9a4e82429b3598ae485084cf1f622a1e8ff1"
+      },
+      {
+        "suffix": ".dialogue.bin",
+        "prefix_bytes": 2959440,
+        "matches": true,
+        "sha256": "57cc343aae4087f3bbcada3b6b66d72cc01356d04fc4b49ce52603354d74bd14"
+      },
+      {
+        "suffix": ".effect-submissions.bin",
+        "prefix_bytes": 16898344,
+        "matches": true,
+        "sha256": "2f757e8a164ec2216d36178f82954f6089de78e43019c02df221fb6ead27d874"
+      },
+      {
+        "suffix": ".effects.bin",
+        "prefix_bytes": 2008620,
+        "matches": true,
+        "sha256": "750d71957f986a17cdb05aba74544058bdd1cd3fe20be13454254946541627d8"
+      },
+      {
+        "suffix": ".interaction.bin",
+        "prefix_bytes": 1972960,
+        "matches": true,
+        "sha256": "126fde9bdd1382f17274a41ff284e8a67401f9059cacd6a8a44f11ad6b8967f6"
+      },
+      {
+        "suffix": ".map-effects.bin",
+        "prefix_bytes": 437759536,
+        "matches": true,
+        "sha256": "788ad27f6ab066467ce9a342a445e9a691dffbe4603d26f115e200e1cfd34596"
+      },
+      {
+        "suffix": ".movement.bin",
+        "prefix_bytes": 3945920,
+        "matches": true,
+        "sha256": "3f58d8730a8f9396ec9cce0212fb507555a2b7378945172c93f7347f8b48e208"
+      },
+      {
+        "suffix": ".music.bin",
+        "prefix_bytes": 1233100,
+        "matches": true,
+        "sha256": "79a3cd1e201398bac315c8aa64a5bbbb782df31ba54d7d911e684a6a8f897cac"
+      },
+      {
+        "suffix": ".screen-filter.bin",
+        "prefix_bytes": 986480,
+        "matches": true,
+        "sha256": "9862b3054e3e848d3f992d56e4f0527ed32274197e131d00e338bfe5132330df"
+      },
+      {
+        "suffix": ".sound.bin",
+        "prefix_bytes": 7320,
+        "matches": true,
+        "sha256": "9c9af9907ead2dca2ff4e2d2cd13c78826eca59ae747493e6ff1f3f9e4cba266"
+      },
+      {
+        "suffix": ".transition.bin",
+        "prefix_bytes": 1972960,
+        "matches": true,
+        "sha256": "e17b81b675fb29041c5a1486359f61703d68146bddaa96e6a097c3b20c1e7a56"
+      }
+    ],
+    "all_match": true
+  },
+  "effect26_original_observations": {
+    "run": {
+      "command": [
+        "build/play-research/okage-oracle/okage-pose-oracle",
+        "map-effect-probe",
+        "local/extracted/SCUS_971.29",
+        "local/research/basement-summon-v1/after-chant.ram",
+        "local/research/effect26-v1/26.input.bin",
+        "321",
+        "local/research/effect26-v1/26.original.bin"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.783534916,
+      "binary_sha256": "136bff9695e73b3ca4083422d12b74e58c441c15901218f846876592520fafda"
+    },
+    "scope": "Original isolated positioned constructor/service and321 updates only.",
+    "state_records": 323,
+    "state_words": 37791,
+    "uv_records": 646,
+    "uv_vertices_per_element": 34,
+    "uv_tag_order": [
+      0,
+      2,
+      0,
+      2,
+      0,
+      2,
+      0,
+      2,
+      0,
+      2,
+      0,
+      2,
+      0,
+      2,
+      0,
+      2,
+      0,
+      2,
+      0,
+      2,
+      0,
+      2,
+      0,
+      2,
+      0,
+      2,
+      0,
+      2,
+      0,
+      2,
+      0,
+      2,
+      0,
+      2
+    ],
+    "geometry_shared_from_first_update": true,
+    "rng_unchanged": true,
+    "observations": [
+      "Runtime26 has2 shape24 elements, duration160, looping flag0x8000; positioned creation begins phase1.",
+      "Element0 program timing20 calls0x105790 with mode1 from interval.W; it rewrites tag2 texture T using the original sine table. Element1 timing17 calls0x105518 and shares previous element geometry.",
+      "Two160-update wraps appear in the321-update trace; first native constructor guard remains in place."
+    ],
+    "sha256": {
+      "local/research/effect26-v1/26.input.bin": "df87b64aced6fea436774cc473c545b96d5a963a792763e4864bc1297d3cd98e",
+      "local/research/effect26-v1/26.original.bin": "d488ce8fe9be1fac7c4b0e18e9e53c16aedc6524aa5693f94eae4b644fc98ce6",
+      "local/research/effect26-v1/26.original.bin.geometry.bin": "50654dd06354d2bd201c3ff22074eb94fb01efcd3aa22c406a81b7f862b66153",
+      "local/research/effect26-v1/26.original.bin.uv.bin": "5206534e1dac74ae0f3ac8a69f0993ea8ad528fe18632f160f274e8d7e9771ea",
+      "local/research/effect26-v1/00105790.c": "958c09d600921fd5254c4781fbf259a2699498555628938734c6d0826cb29451",
+      "local/research/effect26-v1/00105790.asm": "348e73cd4f3e7fe0bb9fa3eba034289ef0e4a5df2e4f97221ede43a1ad7bc68e"
+    }
+  },
+  "tests": {
+    "ctest": {
+      "native-release": {
+        "passed": 19,
+        "log": "local/research/home2c-entry-v1/music36-ctest-native-release-v1.log"
+      },
+      "native": {
+        "passed": 19,
+        "log": "local/research/home2c-entry-v1/music36-ctest-native-v1.log"
+      },
+      "model-sanitize": {
+        "passed": 19,
+        "log": "local/research/home2c-entry-v1/music36-ctest-model-sanitize-v1.log"
+      }
+    },
+    "python": {
+      "passed": 64,
+      "log": "local/research/effect26-python-tests-v1.log"
+    }
+  },
+  "live_jobs": []
+}

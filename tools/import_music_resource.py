@@ -15,6 +15,10 @@ from prepare_assets import ELF_HASH
 from verify_event import write_exact
 
 RESOURCES = {
+    36: ('EVN_TSR', {
+        'EVN_TSR.XSQ': 'c736aceca4929863c9f8e8c3c27c17a153f78eeb2a36305e94f100b538269ad9',
+        'EVN_TSR0.XV': 'd380fdb3eebc89a3159b5f8e7c7ada063b4188eb5e0e33dfd6beb937bd4c47da',
+    }),
     38: ('EVN_THL', {
         'EVN_THL.XSQ': 'ca285623d8930060e39ffa3b02b292589b5550c58e9d85859b382e0afea89b85',
         'EVN_THL0.XV': '9dc31ed9239b5147d88807fa913a87019b0d5b4a2d498426e4d6d176826f2662',

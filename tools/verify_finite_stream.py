@@ -77,7 +77,7 @@ def bank_payload(bank, index):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--bank', choices=['ALL','SET2','SET10','SET11','SET12','SET13'], action='append', help='Select reviewed banks; defaults to the earlier ALL/SET10 corpus')
+    p.add_argument('--bank', choices=['ALL','SET2','SET10','SET11','SET12','SET13','SET14'], action='append', help='Select reviewed banks; defaults to the earlier ALL/SET10 corpus')
     p.add_argument('--native', type=Path, default=Path('build/native/okage-assets'))
     p.add_argument('--oracle', type=Path, default=Path('build/play-research/okage-oracle/okage-pose-oracle'))
     p.add_argument('--original', type=Path, default=Path('local/finite-stream-original-v1'))
@@ -92,7 +92,8 @@ def main():
              ('SET10', list(range(5)), '84062be8c8b4d10d036e4c4ee4897a08cf875d57abe1bbd71748258ca887200a'),
              ('SET11', [0,1], '2e5c7bd2f1083c0213723505d505c50421b4146133fe94fd6daca7b5ccf1853f'),
              ('SET12', [0], 'e4c07efc18a723862d1bba4759d966c2f2da8d341270ec38b8edd100c20c820c'),
-             ('SET13', [0], '467e05cbad272ab6428b8bdf2dab44b8754beb0b99504f24b6eb4efbf6da7011')]
+             ('SET13', [0], '467e05cbad272ab6428b8bdf2dab44b8754beb0b99504f24b6eb4efbf6da7011'),
+             ('SET14', [0], 'f269d17f17bb1e6520455cb50df6bb3fa810d168ca1702956fab4608c1d0591b')]
     selected=args.bank or ['ALL','SET10']
     banks=[bank for bank in banks if bank[0] in selected]
     for name, indices, expected_hash in banks:
@@ -127,7 +128,7 @@ def main():
             pitch = rate*4096//48000
             volume = 60 if key == 'ALL-35' else 128
             gain = volume*127 >> 7
-            frames = 400000 if name=='SET13' else (280000 if name in ('SET10','SET11','SET12') else (100000 if index == 38 or name=='SET2' else 48000))
+            frames = 400000 if name=='SET13' else (280000 if name in ('SET10','SET11','SET12','SET14') else (100000 if index == 38 or name=='SET2' else 48000))
             ref_pcm = args.original/(key+'.reference.pcm')
             if not ref_pcm.exists():
                 if reference is None:

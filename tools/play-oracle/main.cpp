@@ -497,7 +497,7 @@ public:
         if(ram.size()!=32*1024*1024||(input.size()!=80&&input.size()!=96)||frames>12000)
             throw std::runtime_error("Map effect probe fixture bounds");
         std::array<uint32,20> request;std::memcpy(request.data(),input.data(),80);
-        if((request[0]!=16&&request[0]!=17&&request[0]!=19&&request[0]!=25&&request[0]!=33&&request[0]!=34&&request[0]!=91&&request[0]!=98&&request[0]!=115)||request[2]>0xfff||request[3]!=0x100)
+        if((request[0]!=16&&request[0]!=17&&request[0]!=19&&request[0]!=25&&request[0]!=26&&request[0]!=33&&request[0]!=34&&request[0]!=91&&request[0]!=98&&request[0]!=115)||request[2]>0xfff||request[3]!=0x100)
             throw std::runtime_error("Map effect probe request scope");
         const bool torch=request[0]==91,flame=torch||request[0]==16;
         if((torch&&input.size()!=96)||(!torch&&(input.size()!=80||(!flame&&frames>1000))))
@@ -517,9 +517,9 @@ public:
         if(table>ram.size()-212*4||random>ram.size()-4)throw std::runtime_error("Map effect fixture pointers");
         for(unsigned i=0;i<84;++i)put(table+4*i,0xffffffff);
         put(random,request[1]);std::memcpy(ee->m_ram+0x80000,request.data()+4,64);
-        const bool positioned=request[0]==17||request[0]==33||request[0]==115;
+        const bool positioned=request[0]==17||request[0]==26||request[0]==33||request[0]==115;
         uint32 handle;
-        if(request[0]==33||request[0]==115) {
+        if(request[0]==26||request[0]==33||request[0]==115) {
             std::memset(ee->m_ram+0x2d9bf8,0xff,32);put(0x1fb948,15);
             call(0x130c50,{0x3e,0x123,request[0],0x80000});
             if(uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0)!=0x8000c||get(0x1fb948)!=0)
@@ -532,7 +532,7 @@ public:
         else {call(0x101440,{request[0],0x80000,0x80010,0x80020});handle=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);}
         if(handle!=0)throw std::runtime_error("Map effect allocation order");
         put(0x1f85a4,1);
-        std::vector<uint32> result,geometry,torchGeometry;
+        std::vector<uint32> result,geometry,torchGeometry,uvGeometry;
         auto capture=[&](unsigned step){
             if(flame)torchGeometry.push_back(step);
             const auto job=get(table+4*handle);
@@ -567,7 +567,7 @@ public:
                         torchGeometry.push_back(get(uv));
                     }
                 }
-                if(request[0]==33||request[0]==115) {
+                if(request[0]==26||request[0]==33||request[0]==115) {
                     unsigned piece=0;
                     for(auto g=get(element+0x64);g;g=get(g)) {
                         if(g>ram.size()-48||piece>=32)throw std::runtime_error("Effect geometry chain extent");
@@ -579,6 +579,18 @@ public:
                             const auto point=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
                             if(point>ram.size()-8)throw std::runtime_error("Effect geometry point extent");
                             geometry.insert(geometry.end(),{get(point),get(point+4),ee->m_ram[tags+vertex]});
+                        }
+                        if(request[0]==26) {
+                            //0x105790 walks this UV array and its own tag table;
+                            // XYZ tags are a separate geometry stream.
+                            const auto uvCount=get(g+0x1c)>>16,uvTags=get(g+0x18);
+                            if(uvCount>512||uvTags>ram.size()-uvCount)
+                                throw std::runtime_error("Effect UV tag extent");
+                            call(0x113720,{g,0});const auto uv=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+                            if(uv>ram.size()-uvCount*4)throw std::runtime_error("Effect UV extent");
+                            uvGeometry.insert(uvGeometry.end(),{step,i,piece-1,uvCount});
+                            for(unsigned vertex=0;vertex<uvCount;++vertex)
+                                uvGeometry.insert(uvGeometry.end(),{get(uv+vertex*4),ee->m_ram[uvTags+vertex]});
                         }
                     }
                 }
@@ -612,6 +624,7 @@ public:
         }
         if(flame)writeFile((std::string(output)+".torch-geometry.bin").c_str(),torchGeometry.data(),torchGeometry.size()*4);
         if(!geometry.empty())writeFile((std::string(output)+".geometry.bin").c_str(),geometry.data(),geometry.size()*4);
+        if(!uvGeometry.empty())writeFile((std::string(output)+".uv.bin").c_str(),uvGeometry.data(),uvGeometry.size()*4);
         writeFile(output,result.data(),result.size()*4);
     }
     void effectProbe(const std::vector<uint8>& ram,unsigned id,unsigned parameter,unsigned frames,const char* output) {
