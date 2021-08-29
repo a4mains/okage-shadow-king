@@ -372,9 +372,9 @@ public:
     }
     void mapEffectGeometry(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output,unsigned templateId=25) {
         const bool summon=templateId==33||templateId==115,deferred=templateId==16||summon;
-        const bool torch=templateId==91,flame=templateId==16||torch;
-        const unsigned count=templateId==33?9:templateId==115?5:templateId==16?3:torch?4:8;
-        const unsigned stride=(38+count*20+(flame?36:templateId==33?30:0))*4,sp=0x1ff0000,slot=flame||summon?0:2;
+        const bool torch=templateId==91,flame=templateId==16||torch,cylinder=templateId==26;
+        const unsigned count=cylinder?2:templateId==33?9:templateId==115?5:templateId==16?3:torch?4:8;
+        const unsigned stride=(38+count*20+(flame?36:templateId==33?30:cylinder?34:0))*4,sp=0x1ff0000,slot=flame||summon||cylinder?0:2;
         if(ram.size()!=32*1024*1024||input.empty()||input.size()%stride||input.size()>stride*64)
             throw std::runtime_error("Effect geometry fixture bounds");
         std::vector<uint32> result,packets;
@@ -382,13 +382,13 @@ public:
             ee->m_EE.m_executor->Reset();
             std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
             loadMicro();const auto table=get(0x1f849c);
-            if(deferred) {
+            if(deferred||cylinder) {
                 effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
                     ee->m_gs,ee->m_sif,*dynamic_cast<CIopBios*>(iop->m_bios.get()));
                 for(unsigned i=0;i<84;++i)put(table+4*i,0xffffffff);
                 put(get(0x2151b4)+0x58,1);
                 std::memcpy(ee->m_ram+0x81000,input.data()+at+4,48);
-                if(summon)call(0x1012f8,{templateId,0x81000});
+                if(summon||cylinder)call(0x1012f8,{templateId,0x81000});
                 else call(0x101440,{templateId,0x81000,0x81010,0x81020});
                 if(uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0)!=slot)
                     throw std::runtime_error("Deferred geometry allocation order");
@@ -425,7 +425,7 @@ public:
                 std::array<uint32,4> meta;std::memcpy(meta.data(),source+64,16);
                 unsigned texture=0;for(;texture<31;++texture)if(get(get(0x24e780)+texture*4)==(get(e+0x5c)&65535))break;
                 if((summon||(torch&&i==3))&&(get(e+0x5c)&65535)==65535)texture=0xffffffff;
-                const unsigned shape=summon?(templateId==115?(i?31:32):i==0?40:i==1?25:i==2?59:29):flame?(i<3?28:40):(i<3?24:29);
+                const unsigned shape=cylinder?24:summon?(templateId==115?(i?31:32):i==0?40:i==1?25:i==2?59:29):flame?(i<3?28:40):(i<3?24:29);
                 if(meta[0]!=shape||meta[1]!=get(e+0x54)||meta[2]!=get(e+0x58)||meta[3]!=texture)
                     throw std::runtime_error("Effect geometry input metadata mismatch");
                 std::memcpy(ee->m_ram+r,source,64);
@@ -436,6 +436,16 @@ public:
                         const auto packed=input.data()+at+152+count*80+i*48+v*12;
                         std::memcpy(ee->m_ram+xyz+v*6,packed,6);
                         std::memcpy(ee->m_ram+uv+v*4,packed+8,4);
+                    }
+                }
+                if(cylinder) {
+                    if(get(g)||(get(g+0x1c)>>16)!=34)throw std::runtime_error("Cylinder UV extent");
+                    call(0x113720,{g,0});const auto uv=uint32(cpu.m_State.nGPR[CMIPS::V0].nD0);
+                    if(uv>ram.size()-34*4)throw std::runtime_error("Cylinder UV address");
+                    for(unsigned v=0;v<17;++v) {
+                        uint32 t;std::memcpy(&t,input.data()+at+152+count*80+(i*17+v)*4,4);
+                        if(t>65535)throw std::runtime_error("Cylinder UV fixture extent");
+                        const uint16 packed=uint16(t);std::memcpy(ee->m_ram+uv+(v*2+1)*4+2,&packed,2);
                     }
                 }
                 if(templateId==33&&i==1) {
@@ -1729,8 +1739,8 @@ int main(int argc,char** argv) {
             reference.messageInit(readFile(argv[3]),std::stoul(argv[4]),argv[5]);
         } else if(command=="effect-tint" && argc==5) {
             reference.effectTint(readFile(argv[3]),argv[4]);
-        } else if((command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry"||command=="summon33-effect-geometry"||command=="summon115-effect-geometry") && argc==6) {
-            reference.mapEffectGeometry(readFile(argv[3]),readFile(argv[4]),argv[5],command=="summon33-effect-geometry"?33:command=="summon115-effect-geometry"?115:command=="flame16-effect-geometry"?16:command=="torch-effect-geometry"?91:25);
+        } else if((command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry"||command=="summon33-effect-geometry"||command=="summon115-effect-geometry"||command=="cylinder26-effect-geometry") && argc==6) {
+            reference.mapEffectGeometry(readFile(argv[3]),readFile(argv[4]),argv[5],command=="cylinder26-effect-geometry"?26:command=="summon33-effect-geometry"?33:command=="summon115-effect-geometry"?115:command=="flame16-effect-geometry"?16:command=="torch-effect-geometry"?91:25);
         } else if(command=="effect-reference-probe" && argc==6) {
             reference.effectReferenceProbe(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="stream-prepare" && argc==6) {

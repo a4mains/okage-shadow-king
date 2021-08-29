@@ -45,6 +45,8 @@ struct MapEffectElement {
     std::uint32_t texture=0,render_flags=0;
     std::array<std::uint16_t,4> uv{};
     std::vector<std::int16_t> ring_y;
+    std::vector<std::uint16_t> cylinder_t;
+    std::optional<std::uint32_t> cylinder_source_id;
     // Torch91 uses independent mutable flame quads and atlas coordinates.
     std::array<std::array<std::int16_t,3>,4> quad_positions{};
     std::array<std::array<std::uint16_t,2>,4> quad_uv{};

@@ -36,6 +36,29 @@ int main(){try{
     okage::MapEffect job(map,{0,0,420,1},{0,0,0,0},{1,1,1,1},sizes,[]{return 1;});
     const okage::Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
     const auto sine=okage::make_sine_table();
+    okage::EffectDefinition cylinder;cylinder.id=26;cylinder.duration=160;cylinder.flags=0x8000;
+    cylinder.elements.resize(2);
+    for(unsigned i=0;i<2;++i) {
+        auto& part=cylinder.elements[i];part.id=i+1;part.shape=24;part.channels=27;
+        part.flags=i?0x200:0x40;part.primitive_flags=i?0x201:0x41;
+        part.program=i?0x11000000:0x14000000;part.change_time=1.1f;
+        part.values[0]={1,1,1,.2f};part.values[3]={1,1,1,1};
+        part.values[4]=i?okage::Float4{0,1,20,0}:okage::Float4{0,1,0,1};
+    }
+    unsigned cylinder_rng=0;auto no_rng=[&]{++cylinder_rng;return 1u;};
+    rejects([&]{okage::MapEffect invalid(cylinder,{},{},{},sizes,no_rng);});
+    okage::MapEffect aura(cylinder,{},{},{1,1,1,1},sizes,no_rng,okage::EffectStart::FirstFrame);
+    aura.tick(no_rng);const auto first_uv=aura.elements[0].cylinder_t;
+    check(first_uv==aura.elements[1].cylinder_t&&!(aura.elements[1].program&0x3f000000));
+    const auto snapshot=aura;aura.tick(no_rng);
+    check(aura.elements[0].cylinder_t!=first_uv&&aura.elements[0].cylinder_t==aura.elements[1].cylinder_t);
+    check(snapshot.elements[1].cylinder_t==first_uv); // Submission owns its geometry.
+    for(unsigned i=0;i<159;++i)aura.tick(no_rng);
+    check(aura.elements[0].cylinder_t==first_uv&&aura.elements[1].cylinder_t==first_uv&&cylinder_rng==0);
+    const auto cylinders=okage::map_effect_draws(aura,identity,{},450,sine);
+    check(cylinders.size()==2&&!cylinders[0].additive&&cylinders[1].additive&&cylinders[0].vertices.size()==96);
+    auto bad_cylinder=aura;bad_cylinder.elements[0].interval[3]=2;
+    rejects([&]{bad_cylinder.tick(no_rng);});
     const auto draw=[&]{return okage::map_effect_draws(job,identity,{0,0,0,0},450,sine);};
     auto draws=draw();check(draws.size()==8&&draws[0].vertices.size()==96&&draws[3].vertices.size()==6);
     check(draws[0].color[3]==.75f);check(std::fegetround()==rounding);

@@ -39,18 +39,21 @@ def compare_matrices(original, native):
     return maximum
 
 def packet_vertices(data, template=25):
-    if template not in (17,19,25):raise ValueError("Unreviewed geometry template")
+    if template not in (17,19,25,26):raise ValueError("Unreviewed geometry template")
     at = 0
     result = []
-    for element in range(9 if template in (17,19) else 8):
+    for element in range(9 if template in (17,19) else 2 if template==26 else 8):
         if len(data)-at < 40:
             raise ValueError('Geometry packet header extent')
         index, shape, uvmin, uvmax, zlo, zhi, alo, ahi, tlo, thi = struct.unpack_from('<10I', data, at)
         at += 40
         if (index, shape) != (element, 31 if template in (17,19) else 24 if element < 3 else 29):
             raise ValueError('Geometry packet identity')
-        if (zlo, zhi, alo, ahi, tlo, thi) != (0, 1, 0x44 if template in (17,19) else 0x48, 0, 0x5000d if template in (17,19) else 0x50000, 0) or uvmin:
+        alpha_blend=template in (17,19) or (template==26 and element==0)
+        if (zlo, zhi, alo, ahi, tlo, thi) != (0, 1, 0x44 if alpha_blend else 0x48, 0, 0x5000d if alpha_blend else 0x50000, 0) or uvmin:
             raise ValueError('Unreviewed effect material')
+        if template==26 and uvmax!=0x003f003f:
+            raise ValueError('Cylinder texture region')
         packets = []
         for _ in range(4):
             if len(data)-at < 4:

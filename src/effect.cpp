@@ -77,6 +77,7 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
     require((id==25&&d.elements.size()==8)||(id==34&&d.elements.size()==14)||(id==19&&d.elements.size()==9)||
             ((id==17||id==33)&&d.elements.size()==9&&start==EffectStart::FirstFrame)||
             (id==115&&d.elements.size()==5&&start==EffectStart::FirstFrame)||
+            (id==26&&d.elements.size()==2&&start==EffectStart::FirstFrame)||
             (id==91&&d.elements.size()==4)||(id==16&&d.elements.size()==3),
             "Unrecovered map effect template");
     require(duration>0&&duration<=0x7fffffff,"Invalid map effect duration");
@@ -103,6 +104,7 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
         if(texture==0xffffffffu){e.texture=texture;e.uv={0,0,65535,65535};}
         else set_texture(e,texture);
         if(id==33&&e.shape==25)e.ring_y.assign(30,-192);
+        if(id==26&&e.shape==24)e.cylinder_t.assign(17,0);
         if((id==91||id==16)&&e.shape==28) {
             e.quad_positions={{{32,-64,0},{-32,-64,0},{32,0,0},{-32,0,0}}};
             const auto width=std::uint16_t(sizes[4][0]*32),height=std::uint16_t((sizes[4][1]+1)*32);
@@ -133,7 +135,8 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
     if(effect.flags&0x4300)return {};
     require((effect.id==25&&effect.elements.size()==8)||((effect.id==17||effect.id==19)&&effect.elements.size()==9)||
             (effect.id==91&&effect.elements.size()==4)||(effect.id==16&&effect.elements.size()==3)||
-            (effect.id==33&&effect.elements.size()==9)||(effect.id==115&&effect.elements.size()==5),"Unrecovered map effect geometry template");
+            (effect.id==33&&effect.elements.size()==9)||(effect.id==115&&effect.elements.size()==5)||
+            (effect.id==26&&effect.elements.size()==2),"Unrecovered map effect geometry template");
     require(bool(effect.flags&0x400)==(pass==EffectDrawPass::Deferred),"Effect submitted to the wrong draw pass");
     require(pass==EffectDrawPass::Ordinary||effect.id==16||effect.id==33||effect.id==115,"Unrecovered deferred effect geometry");
     require(effect.id!=16||pass==EffectDrawPass::Deferred,"Flame16 requires the deferred pass");
@@ -149,7 +152,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
     std::vector<MapEffectDraw> result;
     for(const auto& e:effect.elements) {
         require(effect.id==16?e.primitive_flags==8:effect.id==115?e.primitive_flags==0x40:
-                (e.primitive_flags&255)==1||((effect.id==17||effect.id==19)&&e.primitive_flags==0x41),
+                (e.primitive_flags&255)==1||((effect.id==17||effect.id==19||effect.id==26)&&e.primitive_flags==0x41),
                 "Unrecovered map effect material");
         require(!(e.flags&0x400000)||light_tint,"Effect requires owned field light tint");
         //0x105a40 sets render+0x58 bit0 when switching programs. It records
@@ -257,6 +260,12 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
                 }
             }
         } else if(e.shape==24) {
+            if(effect.id==26)require(e.cylinder_t.size()==17,"Missing animated cylinder UVs");
+            const auto lower_uv=[&](unsigned i){
+                auto value=uv(float(i)/16,0);
+                if(effect.id==26)value[1]=float(e.cylinder_t[i])/32768;
+                return value;
+            };
             auto point=[&](unsigned i,float y) {
                 //0x113d88 packs nearest signed1/64 positions. Source W is a
                 // separate byte tag; VU rendering supplies homogeneous1.
@@ -267,7 +276,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
                 const float a=float(i)/16,b=float(i+1)/16;
                 quad({point(i,-3),point(i,0),point(i+1,0),point(i+1,-3)},
                     {clear,white,white,clear},
-                    {uv(a,0),uv(a,1),uv(b,1),uv(b,0)});
+                    {lower_uv(i),uv(a,1),uv(b,1),lower_uv(i+1)});
             }
         } else if(e.shape==29||((effect.id==17||effect.id==19||effect.id==115)&&e.shape==31)||
                   (effect.id==115&&e.shape==32)) {
@@ -295,7 +304,7 @@ Float4 effect_light_tint(const Float4& base,const Float4& ambient,const Float4& 
 void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_enabled,const Float4* eye) {
     if(!clock_enabled)return;
     require(!(flags&0x100),"Cannot update a removed map effect");
-    require(id==25||id==17||id==19||id==33||id==115||id==91||id==16,"Unrecovered map effect update program");
+    require(id==25||id==26||id==17||id==19||id==33||id==115||id==91||id==16,"Unrecovered map effect update program");
     if(id==91){require(eye,"Torch effect requires the current camera position");
         for(float f:*eye)require(std::isfinite(f),"Non-finite torch camera position");}
     Rounding rounding;
@@ -325,7 +334,18 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         }
         if((e.flags&0x2000)&&e.interval[2]<t)program&=0xc0ffffff;
         const auto timing=(program>>24)&63;
-        require(timing==0||timing==1||timing==5||timing==7||timing==17,"Unrecovered map effect time program");
+        require(timing==0||timing==1||timing==5||timing==7||timing==17||timing==20,"Unrecovered map effect time program");
+        if(timing==20) {
+            require(id==26&&e.shape==24&&e.cylinder_t.size()==17&&e.interval[3]==1,
+                    "Unrecovered animated cylinder UV mode");
+            //0x105790 mode1 counts all34 UVs, then advances only at tag2.
+            // Accumulate the original float step, including the seam entry.
+            const float step=1.f/(34.f*.5f);float local=0;
+            for(auto& value:e.cylinder_t) {
+                value=std::uint16_t(int(sine_[angle(local+t)]*300.f)+0x131);
+                local+=step;if(local>=1)local-=1;
+            }
+        }
         if(timing==5) {
             const float start=float((int(e.id)-1)>>2)*e.interval[3];
             const int cycles=int((1.0f-start)*450.0f);
@@ -345,8 +365,11 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
             //0x105518 links geometry to the element with the preceding ID.
             // Template17's shape31 packets are identical immutable quads.
             const auto previous=std::find_if(elements.begin(),elements.end(),[&](const auto& p){return p.id+1==e.id;});
-            require(id==17&&previous!=elements.end()&&previous->shape==31&&e.shape==31&&
-                    previous->texture==e.texture,"Unrecovered effect geometry sharing");
+            require(previous!=elements.end()&&previous->texture==e.texture&&
+                    ((id==17&&previous->shape==31&&e.shape==31)||
+                     (id==26&&previous->shape==24&&e.shape==24&&previous->cylinder_t.size()==17)),
+                    "Unrecovered effect geometry sharing");
+            if(id==26)e.cylinder_source_id=previous->id;
         }
         if(timing==7){t=t*3.0f+e.interval[3];t-=float(int(t));}
         if((e.flags&0x1000)&&e.interval[2]<t)program&=0xfffc0fff;
@@ -477,6 +500,12 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
             if(e.flags&0x100)e.program&=0xfffc0fff;
             if(e.flags&0x400)e.program&=0xfffff03f;
             if(e.flags&0x800)e.program&=0xffffffc0;
+        }
+        if(e.cylinder_source_id) {
+            const auto source=std::find_if(elements.begin(),elements.end(),[&](const auto& p){return p.id==*e.cylinder_source_id;});
+            require(source!=elements.end()&&source->id<e.id&&source->cylinder_t.size()==17,
+                    "Invalid cylinder geometry source");
+            e.cylinder_t=source->cylinder_t;
         }
     }
     flags|=0x20;if(!(flags&0x2000))++phase;
