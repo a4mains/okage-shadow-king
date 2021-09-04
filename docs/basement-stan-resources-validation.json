@@ -1,0 +1,568 @@
+{
+  "scope": "Owned SET15 finite audio and music47 import; native progression to67385.",
+  "implementation_base": "82fbb89",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "sound_import": {
+    "path": "SNDDATA/SE/SET15.XWS",
+    "lba": 196411,
+    "size": 159296,
+    "sha256": "1018e38b81009c73f4febcce0542a173292a0ace17977420ddf50b9ca09de740",
+    "destination": "local/audio-input/SNDDATA/SE/SET15.XWS"
+  },
+  "music_import": {
+    "scope": "Import reviewed ordinary music resources from the owned USA disc.",
+    "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "music_id": 47,
+    "table_address": 2078376,
+    "name_pointer": 2259568,
+    "class_pointer": 2259792,
+    "sequence": "EVS_STM",
+    "primary_bank": "EVS_STM0",
+    "secondary_bank_present": false,
+    "imported": [
+      {
+        "path": "local/audio-input/SNDDATA/BGM/EVS_STM.XSQ",
+        "lba": 189885,
+        "size": 35120,
+        "sha256": "8deb49f39706b70ad6f2b91670a7635f7f306e87ab50577768de7de68891d16c"
+      },
+      {
+        "path": "local/audio-input/SNDDATA/BGM/EVS_STM0.XV",
+        "lba": 189903,
+        "size": 314768,
+        "sha256": "701210a7294368ccd72effdc9811bfd0585bb64a4cae2ae5a375a50f53506727"
+      }
+    ]
+  },
+  "finite_audio": {
+    "release": {
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "native_sha256": "e08536ddfc5bd38a2973a383b60b78df19f0d83e479db5d3f468e7dc32d30cda",
+      "oracle_sha256": "48b2432c6ad225944f24927d80a49576f1f56679131055a228ef60c4c6fc848f",
+      "dsp_revision": "3143a46e4deffa59832a517915a39d610dcb8564",
+      "dsp_source_hashes": {
+        "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
+        "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
+        "defs.h": "c99bb3de5ed27243abdaf18384f2d3cf6ce7578fb01fd2b6616da2d99c418960",
+        "interpolate_table.h": "3c2f96bdb8aee61a6f988ed508d45811ea8f5bd1f8dac8825c59552bbd2c865a"
+      },
+      "cases": [
+        {
+          "cue": "SET15-0",
+          "source_sha256": "133f5f4f97709fc797bcd6077c23fa07013d32166faba7b4bf4cb2618c80494e",
+          "source_bytes": 159184,
+          "prepared_bytes": 159296,
+          "prepared_sha256": "8b5953d609df09f16ad5c74918da1a33758ec975ee06ac861b471fe411fa4629",
+          "original": "local/set15-finite-reference-v1/SET15-0.original.bin",
+          "original_sha256": "b77675b7c263d6c7769f12e05112b63c6000250dabc5ef6ffd00a2cbf63c692b",
+          "frames": 400000,
+          "pcm_sha256": "5dda907b5f9b23e7168e23f2214e36dbb93a848181d277e7ec52b7c1e4e07166",
+          "bytes_and_pcm_exact": true
+        }
+      ]
+    },
+    "native": {
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "native_sha256": "8d12d1425d9ca8c418e8c62483fea840c2db0170072e803a1c844f7ae49b01e0",
+      "oracle_sha256": "48b2432c6ad225944f24927d80a49576f1f56679131055a228ef60c4c6fc848f",
+      "dsp_revision": "3143a46e4deffa59832a517915a39d610dcb8564",
+      "dsp_source_hashes": {
+        "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
+        "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
+        "defs.h": "c99bb3de5ed27243abdaf18384f2d3cf6ce7578fb01fd2b6616da2d99c418960",
+        "interpolate_table.h": "3c2f96bdb8aee61a6f988ed508d45811ea8f5bd1f8dac8825c59552bbd2c865a"
+      },
+      "cases": [
+        {
+          "cue": "SET15-0",
+          "source_sha256": "133f5f4f97709fc797bcd6077c23fa07013d32166faba7b4bf4cb2618c80494e",
+          "source_bytes": 159184,
+          "prepared_bytes": 159296,
+          "prepared_sha256": "8b5953d609df09f16ad5c74918da1a33758ec975ee06ac861b471fe411fa4629",
+          "original": "local/set15-finite-reference-v1/SET15-0.original.bin",
+          "original_sha256": "b77675b7c263d6c7769f12e05112b63c6000250dabc5ef6ffd00a2cbf63c692b",
+          "frames": 400000,
+          "pcm_sha256": "5dda907b5f9b23e7168e23f2214e36dbb93a848181d277e7ec52b7c1e4e07166",
+          "bytes_and_pcm_exact": true
+        }
+      ]
+    },
+    "model-sanitize": {
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "native_sha256": "f56c4757545dc4eac178e4010c19cd404671010adc2738c40be18ba99927c532",
+      "oracle_sha256": "48b2432c6ad225944f24927d80a49576f1f56679131055a228ef60c4c6fc848f",
+      "dsp_revision": "3143a46e4deffa59832a517915a39d610dcb8564",
+      "dsp_source_hashes": {
+        "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
+        "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
+        "defs.h": "c99bb3de5ed27243abdaf18384f2d3cf6ce7578fb01fd2b6616da2d99c418960",
+        "interpolate_table.h": "3c2f96bdb8aee61a6f988ed508d45811ea8f5bd1f8dac8825c59552bbd2c865a"
+      },
+      "cases": [
+        {
+          "cue": "SET15-0",
+          "source_sha256": "133f5f4f97709fc797bcd6077c23fa07013d32166faba7b4bf4cb2618c80494e",
+          "source_bytes": 159184,
+          "prepared_bytes": 159296,
+          "prepared_sha256": "8b5953d609df09f16ad5c74918da1a33758ec975ee06ac861b471fe411fa4629",
+          "original": "local/set15-finite-reference-v1/SET15-0.original.bin",
+          "original_sha256": "b77675b7c263d6c7769f12e05112b63c6000250dabc5ef6ffd00a2cbf63c692b",
+          "frames": 400000,
+          "pcm_sha256": "5dda907b5f9b23e7168e23f2214e36dbb93a848181d277e7ec52b7c1e4e07166",
+          "bytes_and_pcm_exact": true
+        }
+      ]
+    }
+  },
+  "native_runs": [
+    {
+      "prefix": "local/native-home2c-basement-excellent-marks-67055-release-v1",
+      "manifest_sha256": "88a5bf049db3d2d7a68baffeea7aedadec6ba618316d4a8e23c1e89f61ab8e88",
+      "exit_code": 1,
+      "elapsed_seconds": 23.257067167,
+      "binary_sha256": "5aae7c3bc9182154adcffde34629ce71edc299069f3a7892482b9661c33c4165"
+    },
+    {
+      "prefix": "local/native-home2c-basement-excellent-marks-67055-release-v2",
+      "manifest_sha256": "3a9bdb68fd4e422b3f7d2a4ecbb505302c73ea85f2db754030405a6edbe0fc93",
+      "exit_code": 0,
+      "elapsed_seconds": 23.015598375,
+      "binary_sha256": "5aae7c3bc9182154adcffde34629ce71edc299069f3a7892482b9661c33c4165"
+    },
+    {
+      "prefix": "local/native-home2c-basement-warm-sentiments-68255-release-v1",
+      "manifest_sha256": "d6120a2903608590b792f672e766c298cf16fd85b33e6ae0cd9e0143e7fb7841",
+      "exit_code": 1,
+      "elapsed_seconds": 23.188514625,
+      "binary_sha256": "5aae7c3bc9182154adcffde34629ce71edc299069f3a7892482b9661c33c4165"
+    },
+    {
+      "prefix": "local/native-home2c-basement-warm-sentiments-68255-release-v2",
+      "manifest_sha256": "51947b41ebd6c3b94929e3d7ea06b382ccea56552360b9e2e32334350e0d0152",
+      "exit_code": 1,
+      "elapsed_seconds": 22.731373917000003,
+      "binary_sha256": "9fc659c98c1a18dcec05f44f82b65e3b5019a73cb2d27e621753b442511f0fea"
+    },
+    {
+      "prefix": "local/native-home2c-basement-before-effect6-67385-release-v1",
+      "manifest_sha256": "4fb09676e045d0ebe5d99334fac666d72912fef8e0defc654ccf3c29d1d0462b",
+      "exit_code": 0,
+      "elapsed_seconds": 23.188904833000002,
+      "binary_sha256": "9fc659c98c1a18dcec05f44f82b65e3b5019a73cb2d27e621753b442511f0fea"
+    }
+  ],
+  "failures": [
+    {
+      "prefix": "local/native-home2c-basement-excellent-marks-67055-release-v1",
+      "frame": 66772,
+      "pc": "0x1378",
+      "reason": "Missing SET15.XWS"
+    },
+    {
+      "prefix": "local/native-home2c-basement-warm-sentiments-68255-release-v1",
+      "frame": 67274,
+      "pc": "0x13b0",
+      "reason": "Unreviewed music ID47"
+    },
+    {
+      "prefix": "local/native-home2c-basement-warm-sentiments-68255-release-v2",
+      "frame": 67386,
+      "pc": "0x1420",
+      "reason": "Unsupported effect6"
+    }
+  ],
+  "original_runs": [
+    {
+      "prefix": "local/reference-home2c-basement-excellent-marks-1200-v1",
+      "manifest_sha256": "e6b912265a674db8435411648cf08ec9f66643511e7dd8fe852e7a49e04aa8b7",
+      "exit_code": 0,
+      "elapsed_seconds": 43.959047500000004,
+      "binary_sha256": "bece5511360fc954d0b67d61f391a6888349dda69b0c69587bb64b4eca63b173",
+      "anchor": 65856,
+      "frames": 1200,
+      "consumed_cross_native": [
+        65857,
+        65978,
+        66097,
+        66218,
+        66338,
+        66457,
+        66577,
+        66697,
+        66817,
+        66937
+      ],
+      "final_pc": "0x1398"
+    },
+    {
+      "prefix": "local/reference-home2c-basement-warm-sentiments-1200-v1",
+      "manifest_sha256": "3b8a6245989a99c92496039d974c9e4a627802f9c76774bc5ae3e7f2bf2af91e",
+      "exit_code": 0,
+      "elapsed_seconds": 43.213207958,
+      "binary_sha256": "bece5511360fc954d0b67d61f391a6888349dda69b0c69587bb64b4eca63b173",
+      "anchor": 67056,
+      "frames": 1200,
+      "consumed_cross_native": [
+        67057,
+        67178,
+        67297,
+        67417,
+        67537,
+        67657,
+        67777,
+        67897,
+        68017,
+        68138
+      ],
+      "final_pc": "0x1564"
+    },
+    {
+      "prefix": "local/reference-home2c-basement-master-orders-1200-v1",
+      "manifest_sha256": "5ea2324f2b29dc25c8da6edcab0f557f578ff7f944b7934c8ca913253bb070ae",
+      "exit_code": 0,
+      "elapsed_seconds": 51.749442625,
+      "binary_sha256": "bece5511360fc954d0b67d61f391a6888349dda69b0c69587bb64b4eca63b173",
+      "anchor": 68256,
+      "frames": 1200,
+      "consumed_cross_native": [
+        68257,
+        68377,
+        68497,
+        68618,
+        68738,
+        68857,
+        68978,
+        69097,
+        69217,
+        69337
+      ],
+      "final_pc": "0xaf8"
+    }
+  ],
+  "excellent_marks_audit": {
+    "first_native_frame": 65856,
+    "original_frames": 1200,
+    "controller_samples": 1157,
+    "missing_original_player_frames": [
+      917,
+      918,
+      919,
+      920,
+      921,
+      922
+    ],
+    "hero_position_maximum_error": 0.0,
+    "camera_position_maximum_error": 0.0,
+    "compared_observables_agree": false,
+    "matching_tail": {
+      "first_original_frame": 1200,
+      "frames": 0,
+      "controller_samples": 0
+    },
+    "path": "local/set15-excellent-marks-window-v1.json",
+    "sha256": "7e113b02263c670b2d2ef2768b16d9e680b0993e1966ef4188dd492149197772",
+    "difference_counts": {
+      "controller": 278,
+      "choice": 9,
+      "manager_running_pc_gate": 6,
+      "pad_latch": 0,
+      "direction_latch": 0,
+      "player_mask": 0,
+      "hero_facing_w": 0,
+      "hero_position": 0,
+      "camera_rotation": 0,
+      "camera_mode_phase": 0,
+      "camera_position": 0,
+      "camera_unblended_target": 0
+    },
+    "original_set15_wait": {
+      "pc": "0x137c",
+      "first": 917,
+      "last": 922
+    },
+    "native_set15_wait_frames": 0
+  },
+  "prefix_regression": {
+    "old": "local/native-home2c-basement-excellent-marks-67055-release-v2.png",
+    "new": "local/native-home2c-basement-before-effect6-67385-release-v1.png",
+    "scope": "Binary/PCM prefixes through67055; excludes images, JSON and final variables.",
+    "files": [
+      {
+        "suffix": ".actor-1.bin",
+        "bytes": 253736120,
+        "same": true,
+        "sha256": "6b941bf84746960dccc9d907cfa5d0f61a69f4ac0e3a80622aa59c78895c5aa4"
+      },
+      {
+        "suffix": ".actor-10.bin",
+        "bytes": 123587064,
+        "same": true,
+        "sha256": "fbb51b3e95dafc24fd19075c89cdf3cc447fa7cb2343e730b739e693e83abe8c"
+      },
+      {
+        "suffix": ".actor-11.bin",
+        "bytes": 123050880,
+        "same": true,
+        "sha256": "cdc32d8906bce2599e9c827c9cc384550bed82e656dbb2a340bae61b9c2c48bd"
+      },
+      {
+        "suffix": ".actor-12.bin",
+        "bytes": 130925304,
+        "same": true,
+        "sha256": "9cd641bd8bc1274b0fa5ebc581604aa8d42a7f0db44bb962692bdf0cad369b51"
+      },
+      {
+        "suffix": ".actor-13.bin",
+        "bytes": 45401168,
+        "same": true,
+        "sha256": "da2a80fa89b5ced64d2bac1eb09c5effe98027126c64760b9322d01c9d74e441"
+      },
+      {
+        "suffix": ".actor-14.bin",
+        "bytes": 44119520,
+        "same": true,
+        "sha256": "3379c4ae4747dbb45655bfd518a7d8e985003c1703e7984533edc9bd7f2cd7c8"
+      },
+      {
+        "suffix": ".actor-15.bin",
+        "bytes": 6400112,
+        "same": true,
+        "sha256": "33afa66d5033ebcad8f9cf26751fa4c1775bf26328db03353558356619058589"
+      },
+      {
+        "suffix": ".actor-16.bin",
+        "bytes": 6400112,
+        "same": true,
+        "sha256": "d03968bd48daf402262d77ff358f610b2b1eb1264fe72da8c440e680db164ef1"
+      },
+      {
+        "suffix": ".actor-17.bin",
+        "bytes": 16686748,
+        "same": true,
+        "sha256": "ec4cfce3ec49b71094d28e1def4044d40b4c4878687134b7fc73b51925085865"
+      },
+      {
+        "suffix": ".actor-18.bin",
+        "bytes": 25477948,
+        "same": true,
+        "sha256": "495b66777b5a894d9bf450dab77218587e58bd8a29d8d9ce737a2529e19f8dc7"
+      },
+      {
+        "suffix": ".actor-19.bin",
+        "bytes": 25483572,
+        "same": true,
+        "sha256": "8e0820b49c33800c147132392d4944b125fb4c8f65c4107e67ef876b48d305ab"
+      },
+      {
+        "suffix": ".actor-20.bin",
+        "bytes": 14768396,
+        "same": true,
+        "sha256": "dce67fe8789273e842c73e63b5f6b4993c29c3457f3b02a918b8d9e27126f277"
+      },
+      {
+        "suffix": ".actor-21.bin",
+        "bytes": 17490792,
+        "same": true,
+        "sha256": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3"
+      },
+      {
+        "suffix": ".actor-22.bin",
+        "bytes": 30136560,
+        "same": true,
+        "sha256": "52ced2ad7d11087e23f17eec62ef9a12152e22819f3c90aae92d7f002c447da5"
+      },
+      {
+        "suffix": ".actor-37.bin",
+        "bytes": 6669448,
+        "same": true,
+        "sha256": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd"
+      },
+      {
+        "suffix": ".actor-38.bin",
+        "bytes": 1867760,
+        "same": true,
+        "sha256": "76ba34c261405d19131ff08afd76466bd58b75955ea5d5be4f94b432248fb11e"
+      },
+      {
+        "suffix": ".actor-45.bin",
+        "bytes": 8950128,
+        "same": true,
+        "sha256": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921"
+      },
+      {
+        "suffix": ".actor-9.bin",
+        "bytes": 146948324,
+        "same": true,
+        "sha256": "c745b34c36a40f4bacb45c925d2fb595733d6fe70b0f903579391156cea10125"
+      },
+      {
+        "suffix": ".actor.bin",
+        "bytes": 152222080,
+        "same": true,
+        "sha256": "1b0eb04e8375c2c72269b0dd68cd33feaf08ac7198bf23030088fb5eaf00ea7f"
+      },
+      {
+        "suffix": ".audio.pcm",
+        "bytes": 214576000,
+        "same": true,
+        "sha256": "d319238bf430799971d9a000a058e152c275c2982587893db65086cdb2779ec0"
+      },
+      {
+        "suffix": ".camera-state.bin",
+        "bytes": 1341100,
+        "same": true,
+        "sha256": "c5dd95e3d7a7e39a41fa734d6ba8bc37152b49a25dcd6c288b7f1ec44df303f5"
+      },
+      {
+        "suffix": ".camera.bin",
+        "bytes": 4291520,
+        "same": true,
+        "sha256": "ddf5807fc078e309d16946f2785de4f6c2c3a81b3b88ec1d8f60e7484364ded9"
+      },
+      {
+        "suffix": ".choices.bin",
+        "bytes": 3218640,
+        "same": true,
+        "sha256": "76093a576181b13e1d6df49a26c7e58d4a174e22bb0540e7a34425a468638571"
+      },
+      {
+        "suffix": ".dialogue.bin",
+        "bytes": 3218640,
+        "same": true,
+        "sha256": "bdff9e83050cd51ffb3fe70486e3115b4c11e512b4879b22c082ee2072b680d7"
+      },
+      {
+        "suffix": ".effect-submissions.bin",
+        "bytes": 19432136,
+        "same": true,
+        "sha256": "ef8efd3a8de8f1b10fe657e8bebb0bbdbe7b1cf1ae3b01df2fc851b3ab7d2cba"
+      },
+      {
+        "suffix": ".effects.bin",
+        "bytes": 2073420,
+        "same": true,
+        "sha256": "be0495b5a908a8ed731de909cad5fae305336f4b7d04982e3c6129f75ca2a08f"
+      },
+      {
+        "suffix": ".interaction.bin",
+        "bytes": 2145760,
+        "same": true,
+        "sha256": "743cd787703e9488fef163df4882750d3a48c5afdc46fe5de7f594a7123487e6"
+      },
+      {
+        "suffix": ".map-effects.bin",
+        "bytes": 500598912,
+        "same": true,
+        "sha256": "0c75e8538677c356dff7ca8fc575e370a952dc53e2d9eea07257bc94345d75cc"
+      },
+      {
+        "suffix": ".movement.bin",
+        "bytes": 4291520,
+        "same": true,
+        "sha256": "48e77aae38c30cdd2c76484762331cb5925506ae4b8f46884825cd7a09b4010f"
+      },
+      {
+        "suffix": ".music.bin",
+        "bytes": 1341100,
+        "same": true,
+        "sha256": "d187129f74be52c542444a481be91cbd08fb9f23c22115ade775bb22891d6334"
+      },
+      {
+        "suffix": ".screen-filter.bin",
+        "bytes": 1072880,
+        "same": true,
+        "sha256": "4204e4a90407cc0fe1c4dbfdb536b876db54c3f0813cd34199d3d563aa2dcf95"
+      },
+      {
+        "suffix": ".sound.bin",
+        "bytes": 7360,
+        "same": true,
+        "sha256": "88999e40fc76edbdf37f6cc2af86af69d0931b4448ade5c4dffb27e2ff2ba183"
+      },
+      {
+        "suffix": ".transition.bin",
+        "bytes": 2145760,
+        "same": true,
+        "sha256": "0624d02c451693f259d1a176d7829c8c32428e585f0fca633164af008f668a15"
+      }
+    ],
+    "all_same": true
+  },
+  "latest_endpoint": {
+    "frames": 67385,
+    "message_id": 13104,
+    "messages_started": 66,
+    "text_progress": 0,
+    "advance_count": 0,
+    "wait_release_frame": 227,
+    "controller_stage": 9,
+    "unimplemented_service_requests": 29273,
+    "message_flags": 2147483648,
+    "window_type": 2,
+    "scene_brightness": 0,
+    "narration_cues": 368,
+    "progression_flag_2": 0,
+    "progression_flag_3": 0,
+    "kitchen_flag_7": 1,
+    "progression_flag_4": 0,
+    "progression_flag_5": 0,
+    "field_event_running": true,
+    "field_camera_mode": 2,
+    "interaction_alias": 0,
+    "interaction_event": 0,
+    "loaded_stream_banks": 1,
+    "choice_cursor": 0,
+    "choice_result": 0,
+    "choice_armed": false,
+    "close_frame": 419,
+    "close_wait_release_frame": 422
+  },
+  "next_dependency": {
+    "id": 6,
+    "first_frame": 67386,
+    "pc": "0x1420",
+    "event": "e_homeb1b",
+    "duration": 70,
+    "flags": "0x405",
+    "elements": 4,
+    "shapes": [
+      7,
+      9,
+      7,
+      9
+    ],
+    "primitive_flags": "0x20",
+    "program": "0x80003",
+    "unrecovered_color_program": 3,
+    "scope": "Owned EFD inspection only; no original effect6 probe or native implementation yet.",
+    "static_details": "local/research/effect6-v1/template.json"
+  },
+  "tests": {
+    "ctest": {
+      "native-release": {
+        "passed": 19,
+        "log": "local/music47-ctest-native-release-v1.log"
+      },
+      "native": {
+        "passed": 19,
+        "log": "local/music47-ctest-native-v1.log"
+      },
+      "model-sanitize": {
+        "passed": 19,
+        "log": "local/music47-ctest-model-sanitize-v1.log"
+      }
+    },
+    "python": {
+      "passed": 66,
+      "log": "local/music47-python-tests-v1.log"
+    }
+  },
+  "scope_limits": [
+    "Latest native endpoint is black during the scripted fade; it is not completion of this scene.",
+    "Narration at67055 displays the unresolved twelve-hash player-name tag; original displays Ari.",
+    "Full warm-sentiments1200 audit awaits effect6; master-orders reference is retained but not replayed natively.",
+    "Earlier timing/RNG/render/audio failures remain; native route after48455 is Release-only.",
+    "SET15 dry PCM excludes live refill, ownership, mixing, reverb and listening. Music47 whole-score PCM not compared."
+  ],
+  "live_jobs": []
+}

@@ -137,6 +137,8 @@ MusicResourceNames music_resource_names(int id) {
         case 38:return {"EVN_THL","EVN_THL0",""};
         // USA ELF table0x1fb530 entry39; ordinary sequence with one bank.
         case 39:return {"EVN_TQS","EVN_TQS0",""};
+        // USA ELF table0x1fb530 entry47; ordinary sequence with one bank.
+        case 47:return {"EVS_STM","EVS_STM0",""};
         // USA ELF table0x1fb530 entry50; ordinary loader0x12d158.
         case 50:return {"EVS_NRD","EVS_NRD0",""};
         case 51:return {"EVS_MSH","EVS_MSH0",""};
