@@ -137,6 +137,21 @@ int main(){try{
     const auto changed=okage::map_effect_draws(flash,shifted,{.3f,.7f,.2f,1},450,sine,nullptr,okage::EffectDrawPass::Deferred);
     for(unsigned i=0;i<5;++i)check(first[i].matrix==changed[i].matrix&&first[i].color==changed[i].color);
     flash.elements[0].render_flags=2;rejects(flash_draw);
+    okage::EffectDefinition dark;dark.id=6;dark.duration=70;dark.flags=0x405;dark.elements.resize(4);
+    for(unsigned i=0;i<4;++i){auto& e=dark.elements[i];e.id=i+1;e.shape=i%2?9:7;
+        e.primitive_flags=0x20;e.program=0x80003;e.change_time=1.1f;}
+    unsigned dark_rng=0;auto dark_random=[&]{++dark_rng;return 1u;};
+    okage::MapEffect rings(dark,{1,2,3,1},{},{1,1,1,1},sizes,dark_random,okage::EffectStart::FirstFrame);
+    const auto dark_draw=[&]{return okage::map_effect_draws(rings,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);};
+    rejects([&]{okage::map_effect_draws(rings,identity,{},450,sine);});
+    const auto ring_draws=dark_draw();check(ring_draws.size()==4);
+    for(unsigned i=0;i<4;++i)check(ring_draws[i].subtractive&&!ring_draws[i].additive&&!ring_draws[i].depth_test&&
+        ring_draws[i].texture==0xffffffffu&&ring_draws[i].vertices.size()==(i%2?240:120));
+    rings.elements[0].primitive_flags=0x40;rejects(dark_draw);rings.elements[0].primitive_flags=0x20;
+    for(unsigned i=0;i<70;++i)rings.tick(dark_random);
+    check(rings.phase==71&&!(rings.flags&0x100)&&dark_rng==0);
+    rings.tick(dark_random);check((rings.flags&0x100)&&dark_draw().empty()&&dark_rng==0);
+    rejects([&]{rings.tick(dark_random);});
     okage::EffectDefinition base=dust;base.id=19;base.flags=0x8000;base.duration=300;
     base.parameters={.03f,-.05f,0,.1f};
     okage::EffectDefinition reference;reference.id=98;reference.flags=0x800;

@@ -78,6 +78,7 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
             ((id==17||id==33)&&d.elements.size()==9&&start==EffectStart::FirstFrame)||
             (id==115&&d.elements.size()==5&&start==EffectStart::FirstFrame)||
             (id==26&&d.elements.size()==2&&start==EffectStart::FirstFrame)||
+            (id==6&&d.elements.size()==4&&start==EffectStart::FirstFrame)||
             (id==91&&d.elements.size()==4)||(id==16&&d.elements.size()==3),
             "Unrecovered map effect template");
     require(duration>0&&duration<=0x7fffffff,"Invalid map effect duration");
@@ -97,6 +98,8 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
         switch(e.shape){case 24:texture=20;break;case 29:texture=5;break;
                         case 28:texture=4;break;case 31:texture=17;break;
                         case 59:require(id==33,"Unrecovered effect shape59 owner");texture=25;break;
+                        case 7:case 9:
+                            require(id==6,"Unrecovered dark-ring owner");texture=0xffffffffu;break;
                         case 25:case 40:case 32:
                             require(id==33||id==115||id==91,"Unrecovered untextured effect owner");
                             texture=0xffffffffu;break;
@@ -136,9 +139,9 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
     require((effect.id==25&&effect.elements.size()==8)||((effect.id==17||effect.id==19)&&effect.elements.size()==9)||
             (effect.id==91&&effect.elements.size()==4)||(effect.id==16&&effect.elements.size()==3)||
             (effect.id==33&&effect.elements.size()==9)||(effect.id==115&&effect.elements.size()==5)||
-            (effect.id==26&&effect.elements.size()==2),"Unrecovered map effect geometry template");
+            (effect.id==26&&effect.elements.size()==2)||(effect.id==6&&effect.elements.size()==4),"Unrecovered map effect geometry template");
     require(bool(effect.flags&0x400)==(pass==EffectDrawPass::Deferred),"Effect submitted to the wrong draw pass");
-    require(pass==EffectDrawPass::Ordinary||effect.id==16||effect.id==33||effect.id==115,"Unrecovered deferred effect geometry");
+    require(pass==EffectDrawPass::Ordinary||effect.id==6||effect.id==16||effect.id==33||effect.id==115,"Unrecovered deferred effect geometry");
     require(effect.id!=16||pass==EffectDrawPass::Deferred,"Flame16 requires the deferred pass");
     require(std::isfinite(far_clip)&&far_clip>0,"Invalid effect far clip");
     Rounding rounding;
@@ -151,7 +154,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
     }
     std::vector<MapEffectDraw> result;
     for(const auto& e:effect.elements) {
-        require(effect.id==16?e.primitive_flags==8:effect.id==115?e.primitive_flags==0x40:
+        require(effect.id==6?e.primitive_flags==0x20:effect.id==16?e.primitive_flags==8:effect.id==115?e.primitive_flags==0x40:
                 (e.primitive_flags&255)==1||((effect.id==17||effect.id==19||effect.id==26)&&e.primitive_flags==0x41),
                 "Unrecovered map effect material");
         require(!(e.flags&0x400000)||light_tint,"Effect requires owned field light tint");
@@ -186,8 +189,30 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
         // alpha and disables depth writes, as required for that failure mode.
         MapEffectDraw draw{matrix,color,e.texture,e.uv,{},(e.primitive_flags&255)==1||e.primitive_flags==8};
         //115 uses TEST0x3000d: alpha>0 and depth ALWAYS, with ZBUF masked.
-        draw.depth_test=effect.id!=115;
+        draw.depth_test=effect.id!=115&&effect.id!=6;
+        draw.subtractive=effect.id==6;
         const Float4 white{255,255,255,255},clear{255,255,255,0};
+        if(effect.id==6) {
+            require((e.shape==7||e.shape==9)&&e.texture==0xffffffffu,"Unrecovered dark-ring geometry");
+            //0x10faa0: independent B,A,C,D strips between two scaled circles.
+            // Shapes7/9 use20/40 segments and distinct radial color ramps.
+            const unsigned count=e.shape==7?20:40;
+            const auto point=[&](unsigned i,bool outer) {
+                const auto a=angle(float(i%count)/float(count));
+                const float radius=e.shape==7?(outer?1.25f:.3f):(outer?1.5f:.8f);
+                const float y=e.shape==7&&outer?-.95f:0;
+                return Float4{std::round((sine[(a+4096)&16383]*radius)*64)/64,
+                    std::round(y*64)/64,std::round((sine[a]*radius)*64)/64,1};
+            };
+            const Float4 inner=e.shape==7?clear:Float4{255,255,255,172};
+            const Float4 outer=e.shape==7?white:Float4{32,96,32,0};
+            for(unsigned i=0;i<count;++i) {
+                const std::array<Float4,4> p={point(i,true),point(i,false),point(i+1,false),point(i+1,true)};
+                for(unsigned v:{1u,0u,2u,0u,2u,3u})
+                    draw.vertices.push_back({p[v],v==1||v==2?inner:outer,{}});
+            }
+            result.push_back(std::move(draw));continue;
+        }
         if(effect.id==91||effect.id==16||e.shape==40) {
             if(e.shape==28) {
                 require(e.texture==4,"Unrecovered flame texture");
@@ -304,7 +329,7 @@ Float4 effect_light_tint(const Float4& base,const Float4& ambient,const Float4& 
 void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_enabled,const Float4* eye) {
     if(!clock_enabled)return;
     require(!(flags&0x100),"Cannot update a removed map effect");
-    require(id==25||id==26||id==17||id==19||id==33||id==115||id==91||id==16,"Unrecovered map effect update program");
+    require(id==6||id==25||id==26||id==17||id==19||id==33||id==115||id==91||id==16,"Unrecovered map effect update program");
     if(id==91){require(eye,"Torch effect requires the current camera position");
         for(float f:*eye)require(std::isfinite(f),"Non-finite torch camera position");}
     Rounding rounding;
@@ -477,6 +502,8 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         switch(program&63) {
         case 0:break;
         case 1:c[3]=0;break;
+        case 3:
+            c[3]=(t==0||t==1)?0:(t>.1f?(1.0f-(t-.1f)/(1.0f-.1f))*e.color[3]:e.color[3]);break;
         case 5:
             c[3]=(t==0||t==1)?0:(t>.6f?(1.0f-(t-.6f)/(1.0f-.6f))*e.color[3]:e.color[3]);break;
         case 13: {

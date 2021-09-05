@@ -14,6 +14,7 @@ from verify_event import write_exact
 from verify_map_effect import digest, ELF_SHA
 
 METADATA = {
+    6: ((7, 0, 0x20, 0xffffffff), (9, 0, 0x20, 0xffffffff)) * 2,
     33: ((40, 0, 1, 0xffffffff), (25, 0x90, 1, 0xffffffff),
          (59, 0, 1, 25), *((29, 0x101, 1, 5),) * 6),
     115: ((32, 5, 0x40, 0xffffffff), *((31, 0x4005, 0x40, 17),) * 4),
@@ -75,7 +76,8 @@ def packet_vertices(data, template):
         index, got_shape, uvmin, uvmax, *tail = struct.unpack_from('<11I', data, at); at += 44
         material, pieces = tail[:6], tail[6]
         expected_uv = {25: 0x1f007f, 5: 0x17001f, 17: 0x1f001f, 0xffffffff: 0xffffffff}[texture]
-        expected_material = [0, 1, 0x48, 0, 0x50000, 0] if template == 33 else [0, 1, 0x44, 0, 0x3000d, 0]
+        expected_material = ([0, 1, 0x42, 0, 0x30000, 0] if template == 6 else
+                             [0, 1, 0x48, 0, 0x50000, 0] if template == 33 else [0, 1, 0x44, 0, 0x3000d, 0])
         if (index, got_shape, uvmin, uvmax, pieces) != (element, shape, 0, expected_uv, 2 if shape == 59 else 1):
             raise ValueError('Summoning source identity/texture/pieces')
         if material != expected_material:
@@ -96,8 +98,8 @@ def packet_vertices(data, template):
             positions = [v for chunk in unpack_records(pos, 0x79, '<3h') for v in chunk]
             coords = [v for chunk in unpack_records(uv, 0x75, '<2H') for v in chunk] if uv else [(0, 0)]
             colors = [v for chunk in unpack_records(color, 0x6e, '<4B') for v in chunk]
-            expected_positions = {40: 17, 25: 60, 59: (95, 20)[piece], 29: 4, 31: 4, 32: 4}[shape]
-            if len(positions) != expected_positions or len(colors) != (2 if shape in (40, 25) else 1):
+            expected_positions = {7: 40, 9: 80, 40: 17, 25: 60, 59: (95, 20)[piece], 29: 4, 31: 4, 32: 4}[shape]
+            if len(positions) != expected_positions or len(colors) != (2 if shape in (7, 9, 40, 25) else 1):
                 raise ValueError('Summoning source vertex/color count')
             for strip in unpack_records(indices, 0x6e, '<4B'):
                 if len(strip) < 3:
@@ -110,7 +112,7 @@ def packet_vertices(data, template):
                                     coords[t][0]/32768, coords[t][1]/32768, 0., 0.))
                 for i in range(len(corners)-2):
                     triangles.extend(corners[i:i+3])
-        expected_corners = {40: 48, 25: 180, 59: 300, 29: 6, 31: 6, 32: 6}[shape]
+        expected_corners = {7: 120, 9: 240, 40: 48, 25: 180, 59: 300, 29: 6, 31: 6, 32: 6}[shape]
         if len(triangles) != expected_corners:
             raise ValueError('Summoning triangle count')
         result.append(triangles)
@@ -166,7 +168,8 @@ def main():
     textures = Path('local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF')
     report = {'scope': __doc__, 'elf_sha256': ELF_SHA, 'efd_sha256': digest(efd),
               'native_sha256': digest(args.native), 'cases': []}
-    for template in METADATA:
+    # Effect6 shares the packet decoder but has its own retained corpus/verifier.
+    for template in (33, 115):
         inp = args.reference/f'{template}.input.bin'
         original = args.reference/f'{template}.original.bin'
         packets = Path(str(original)+'.packets.bin')
@@ -195,7 +198,7 @@ def main():
                                'native_command': command, 'native_sha256': digest(dst),
                                'vertices_sha256': digest(Path(str(dst)+'.vertices.bin'))})
     write_exact(args.output/'report.json', (json.dumps(report, indent=2)+'\n').encode())
-    print(json.dumps({'templates': list(METADATA), 'all_transforms_colors_vertices_materials_exact': True}))
+    print(json.dumps({'templates': [case['template'] for case in report['cases']], 'all_transforms_colors_vertices_materials_exact': True}))
 
 if __name__ == '__main__':
     main()

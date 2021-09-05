@@ -82,11 +82,9 @@ struct MapEffectDraw {
     std::vector<MapEffectVertex> vertices;
     bool additive=true;
     bool depth_test=true;
+    bool subtractive=false;
 };
 enum class EffectDrawPass {Ordinary, Deferred};
-// Reviewed25 additive,17/19 dust/smoke,91 torch,16 flames and33/115 summoning.
-// No depth writes;115 uses depth ALWAYS. Dust requires the field light tint.
-// Texture0xffffffff is untextured vertex color.
 std::vector<MapEffectDraw> map_effect_draws(const MapEffect&,const Matrix4& view,
     const Float4& camera_rotation,float far_clip,const SineTable&,const Float4* light_tint=nullptr,
     EffectDrawPass pass=EffectDrawPass::Ordinary);

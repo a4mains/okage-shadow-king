@@ -18,7 +18,7 @@ std::vector<std::uint8_t> read(const fs::path& path) {
     if(!in.read(reinterpret_cast<char*>(b.data()),b.size()))throw std::runtime_error("Cannot read scene input");return b;
 }
 struct Vertex {Float4 position,color,uv;};
-struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;std::uint64_t materialBlend=0;bool depthAlways=false;};
+struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;std::uint64_t materialBlend=0;bool depthAlways=false,subtractive=false;};
 }
 struct SceneRenderer::Impl {
     struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;std::optional<MapTransform> facing;std::optional<std::size_t> placement;bool visible=true;};
@@ -36,7 +36,7 @@ struct SceneRenderer::Impl {
     const EffectSubmissions* effectSubmissions=nullptr;
     std::optional<Float4> effectTint;
     id<MTLDevice> device;
-    id<MTLRenderPipelineState> pipeline,effectPipeline,mapEffectPipeline,dustPipeline,materialPipeline,materialAddPipeline,materialSubtractPipeline;
+    id<MTLRenderPipelineState> pipeline,effectPipeline,mapEffectPipeline,dustPipeline,darkEffectPipeline,materialPipeline,materialAddPipeline,materialSubtractPipeline;
     id<MTLDepthStencilState> depth,effectDepth,mapEffectDepth,materialDepth;
     id<MTLTexture> target,depthTarget;
     NSMutableArray<id<MTLTexture>>* gpuTextures;
@@ -108,6 +108,13 @@ struct SceneRenderer::Impl {
         descriptor.colorAttachments[0].sourceAlphaBlendFactor=MTLBlendFactorZero;
         dustPipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
         if(!dustPipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
+        // Effect6 ALPHA0x42: Cd-Cs*As/128, with alpha preserved on this
+        // composited target. Reuse the effect shader's unbounded premultiply.
+        descriptor.colorAttachments[0].destinationRGBBlendFactor=MTLBlendFactorOne;
+        descriptor.colorAttachments[0].rgbBlendOperation=MTLBlendOperationReverseSubtract;
+        darkEffectPipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
+        if(!darkEffectPipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
+        descriptor.colorAttachments[0].rgbBlendOperation=MTLBlendOperationAdd;
         descriptor.vertexFunction=[library newFunctionWithName:@"preview_vertex"];
         descriptor.fragmentFunction=[library newFunctionWithName:@"material_fragment"];
         descriptor.colorAttachments[0].sourceRGBBlendFactor=MTLBlendFactorOne;
@@ -275,8 +282,9 @@ struct SceneRenderer::Impl {
                 if(!untextured){const auto& image=textures.at(texture);
                     if(e.uv[2]>=image.width||e.uv[3]>=image.height)throw std::runtime_error("Map effect texture bounds");}
                 Draw draw{std::uint32_t(vertices.size()),std::uint32_t(e.vertices.size()),std::int32_t(texture),
-                    {e.uv[0],e.uv[2],e.uv[1],e.uv[3],2,2,untextured?0u:1u,e.additive?0u:1u},true,e.additive,!e.additive};
+                    {e.uv[0],e.uv[2],e.uv[1],e.uv[3],2,2,untextured?0u:1u,(e.additive||e.subtractive)?0u:1u},true,e.additive,!e.additive&&!e.subtractive};
                 draw.depthAlways=!e.depth_test;
+                draw.subtractive=e.subtractive;
                 for(const auto& source:e.vertices){
                     Float4 p{},c{};
                     for(unsigned r=0;r<4;++r){
@@ -329,7 +337,7 @@ struct SceneRenderer::Impl {
         [encoder setVertexBuffer:vertexBuffer offset:0 atIndex:0];
         for (const auto& draw:draws) {
             [encoder setCullMode:draw.materialBlend?MTLCullModeBack:MTLCullModeNone];
-            [encoder setRenderPipelineState:draw.materialBlend?(draw.materialBlend==0x48?materialAddPipeline:draw.materialBlend==0x42?materialSubtractPipeline:materialPipeline):draw.dust?dustPipeline:draw.additive?mapEffectPipeline:draw.effect?effectPipeline:pipeline];
+            [encoder setRenderPipelineState:draw.materialBlend?(draw.materialBlend==0x48?materialAddPipeline:draw.materialBlend==0x42?materialSubtractPipeline:materialPipeline):draw.subtractive?darkEffectPipeline:draw.dust?dustPipeline:draw.additive?mapEffectPipeline:draw.effect?effectPipeline:pipeline];
             [encoder setDepthStencilState:draw.depthAlways?effectDepth:draw.materialBlend?(draw.state[7]==1?materialDepth:mapEffectDepth):(draw.additive||draw.dust)?mapEffectDepth:draw.effect?effectDepth:depth];
             [encoder setFragmentTexture:gpuTextures[draw.image<0 ? whiteTexture : draw.image] atIndex:0];
             [encoder setFragmentBytes:draw.state.data() length:sizeof(draw.state) atIndex:0];

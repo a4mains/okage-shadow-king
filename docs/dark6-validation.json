@@ -1,0 +1,982 @@
+{
+  "scope": "Native effect6 state, lifetime, geometry/material and deferred rendering; integrated route to67568.",
+  "implementation_base": "94104c3",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "isolated": {
+    "native-release": {
+      "scope": "Compare effect6's lifetime, ring geometry, deferred transforms and materials.",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "original_sha256": {
+        "6.input.bin": "c4bc2e0e0900c2b62d91587ea25e9c11f540cbdd943916f2357b45cd5ab4e0bf",
+        "6.original.bin": "f8a1010457b761ce1afc74275fd095e36dbde4306851e03e24b30d8fd0a4d689",
+        "geometry-fixture-v1.bin": "1cfba6662844fb8b74b796b09fc8c10666b3703b9d9161ac142ed18c5fda3ad9",
+        "geometry-original-v1.bin": "82789fd7a330ba881be38c14a7170a1d3a191be69cf292efd9daa462ec3abaa4",
+        "geometry-original-v1.bin.packets.bin": "2de26681586acb2a77e39af3b8203b42c50dc5586ee6f0a5fb87b1a16eccb7e7"
+      },
+      "original_runs": [
+        {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "map-effect-probe",
+            "local/extracted/SCUS_971.29",
+            "local/research/basement-summon-v1/after-chant.ram",
+            "local/research/effect6-v1/6.input.bin",
+            "72",
+            "local/research/effect6-v1/6.original.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.358850667,
+          "binary_sha256": "ea934d6f391b69bfea4c147f5feaf4943f2fcbb6b3d15611f813c7894c042064"
+        },
+        {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "dark6-effect-geometry",
+            "local/extracted/SCUS_971.29",
+            "local/research/basement-summon-v1/after-chant.ram",
+            "local/research/effect6-v1/geometry-fixture-v1.bin",
+            "local/research/effect6-v1/geometry-original-v1.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 2.0626174159999997,
+          "binary_sha256": "ea934d6f391b69bfea4c147f5feaf4943f2fcbb6b3d15611f813c7894c042064"
+        }
+      ],
+      "native_runs": [
+        {
+          "command": [
+            "build/native-release/okage-assets",
+            "map-effect-probe",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/effect6-v1/6.input.bin",
+            "72",
+            "local/dark6-checks-v2/native-release/state.bin"
+          ],
+          "exit_code": 0,
+          "binary_sha256": "4161d76e503e3f2c9a52c0e834321a4bc5abfcb5ecc6b1e61e0a58b3d07c5e06"
+        },
+        {
+          "command": [
+            "build/native-release/okage-assets",
+            "dark6-effect-geometry",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/effect6-v1/geometry-fixture-v1.bin",
+            "local/dark6-checks-v2/native-release/drawing.bin"
+          ],
+          "exit_code": 0,
+          "binary_sha256": "4161d76e503e3f2c9a52c0e834321a4bc5abfcb5ecc6b1e61e0a58b3d07c5e06"
+        }
+      ],
+      "state_words_exact": 15170,
+      "transforms_colors_exact": 20,
+      "vertices_exact": 720,
+      "material": "ALPHA0x42, TEST0x30000, ZBUF mask1: subtractive, depth ALWAYS, no writes"
+    },
+    "native": {
+      "scope": "Compare effect6's lifetime, ring geometry, deferred transforms and materials.",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "original_sha256": {
+        "6.input.bin": "c4bc2e0e0900c2b62d91587ea25e9c11f540cbdd943916f2357b45cd5ab4e0bf",
+        "6.original.bin": "f8a1010457b761ce1afc74275fd095e36dbde4306851e03e24b30d8fd0a4d689",
+        "geometry-fixture-v1.bin": "1cfba6662844fb8b74b796b09fc8c10666b3703b9d9161ac142ed18c5fda3ad9",
+        "geometry-original-v1.bin": "82789fd7a330ba881be38c14a7170a1d3a191be69cf292efd9daa462ec3abaa4",
+        "geometry-original-v1.bin.packets.bin": "2de26681586acb2a77e39af3b8203b42c50dc5586ee6f0a5fb87b1a16eccb7e7"
+      },
+      "original_runs": [
+        {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "map-effect-probe",
+            "local/extracted/SCUS_971.29",
+            "local/research/basement-summon-v1/after-chant.ram",
+            "local/research/effect6-v1/6.input.bin",
+            "72",
+            "local/research/effect6-v1/6.original.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.358850667,
+          "binary_sha256": "ea934d6f391b69bfea4c147f5feaf4943f2fcbb6b3d15611f813c7894c042064"
+        },
+        {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "dark6-effect-geometry",
+            "local/extracted/SCUS_971.29",
+            "local/research/basement-summon-v1/after-chant.ram",
+            "local/research/effect6-v1/geometry-fixture-v1.bin",
+            "local/research/effect6-v1/geometry-original-v1.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 2.0626174159999997,
+          "binary_sha256": "ea934d6f391b69bfea4c147f5feaf4943f2fcbb6b3d15611f813c7894c042064"
+        }
+      ],
+      "native_runs": [
+        {
+          "command": [
+            "build/native/okage-assets",
+            "map-effect-probe",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/effect6-v1/6.input.bin",
+            "72",
+            "local/dark6-checks-v2/native/state.bin"
+          ],
+          "exit_code": 0,
+          "binary_sha256": "93c85363c5db859f74fb5b377d63b5421ca49c94989eab7332d3def704e98eea"
+        },
+        {
+          "command": [
+            "build/native/okage-assets",
+            "dark6-effect-geometry",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/effect6-v1/geometry-fixture-v1.bin",
+            "local/dark6-checks-v2/native/drawing.bin"
+          ],
+          "exit_code": 0,
+          "binary_sha256": "93c85363c5db859f74fb5b377d63b5421ca49c94989eab7332d3def704e98eea"
+        }
+      ],
+      "state_words_exact": 15170,
+      "transforms_colors_exact": 20,
+      "vertices_exact": 720,
+      "material": "ALPHA0x42, TEST0x30000, ZBUF mask1: subtractive, depth ALWAYS, no writes"
+    },
+    "model-sanitize": {
+      "scope": "Compare effect6's lifetime, ring geometry, deferred transforms and materials.",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "original_sha256": {
+        "6.input.bin": "c4bc2e0e0900c2b62d91587ea25e9c11f540cbdd943916f2357b45cd5ab4e0bf",
+        "6.original.bin": "f8a1010457b761ce1afc74275fd095e36dbde4306851e03e24b30d8fd0a4d689",
+        "geometry-fixture-v1.bin": "1cfba6662844fb8b74b796b09fc8c10666b3703b9d9161ac142ed18c5fda3ad9",
+        "geometry-original-v1.bin": "82789fd7a330ba881be38c14a7170a1d3a191be69cf292efd9daa462ec3abaa4",
+        "geometry-original-v1.bin.packets.bin": "2de26681586acb2a77e39af3b8203b42c50dc5586ee6f0a5fb87b1a16eccb7e7"
+      },
+      "original_runs": [
+        {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "map-effect-probe",
+            "local/extracted/SCUS_971.29",
+            "local/research/basement-summon-v1/after-chant.ram",
+            "local/research/effect6-v1/6.input.bin",
+            "72",
+            "local/research/effect6-v1/6.original.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.358850667,
+          "binary_sha256": "ea934d6f391b69bfea4c147f5feaf4943f2fcbb6b3d15611f813c7894c042064"
+        },
+        {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "dark6-effect-geometry",
+            "local/extracted/SCUS_971.29",
+            "local/research/basement-summon-v1/after-chant.ram",
+            "local/research/effect6-v1/geometry-fixture-v1.bin",
+            "local/research/effect6-v1/geometry-original-v1.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 2.0626174159999997,
+          "binary_sha256": "ea934d6f391b69bfea4c147f5feaf4943f2fcbb6b3d15611f813c7894c042064"
+        }
+      ],
+      "native_runs": [
+        {
+          "command": [
+            "build/model-sanitize/okage-assets",
+            "map-effect-probe",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/effect6-v1/6.input.bin",
+            "72",
+            "local/dark6-checks-v2/model-sanitize/state.bin"
+          ],
+          "exit_code": 0,
+          "binary_sha256": "c9733ad20ed91165a559790373fc09c6e7e528b5a5addaf84c5644215e5240af"
+        },
+        {
+          "command": [
+            "build/model-sanitize/okage-assets",
+            "dark6-effect-geometry",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/effect6-v1/geometry-fixture-v1.bin",
+            "local/dark6-checks-v2/model-sanitize/drawing.bin"
+          ],
+          "exit_code": 0,
+          "binary_sha256": "c9733ad20ed91165a559790373fc09c6e7e528b5a5addaf84c5644215e5240af"
+        }
+      ],
+      "state_words_exact": 15170,
+      "transforms_colors_exact": 20,
+      "vertices_exact": 720,
+      "material": "ALPHA0x42, TEST0x30000, ZBUF mask1: subtractive, depth ALWAYS, no writes"
+    }
+  },
+  "regressions": {
+    "native-release": {
+      "cylinder": {
+        "scope": "Compare native effect26 state, shared UV animation, geometry and materials.",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "original_sha256": {
+          "26.input.bin": "df87b64aced6fea436774cc473c545b96d5a963a792763e4864bc1297d3cd98e",
+          "26.original.bin": "d488ce8fe9be1fac7c4b0e18e9e53c16aedc6524aa5693f94eae4b644fc98ce6",
+          "26.original.bin.uv.bin": "5206534e1dac74ae0f3ac8a69f0993ea8ad528fe18632f160f274e8d7e9771ea",
+          "geometry-fixture-v1.bin": "0f1f5b9b3e3b45bc8684ad33d308d3224e67462d242c3b32fdb3a8ebd3d43018",
+          "geometry-original-v1.bin": "251f324cd18e7abc7a23a118c0f5b2e4f567a10b95cfdbdb340f75663b0040b3",
+          "geometry-original-v1.bin.packets.bin": "bd739f88da5f43fb4d6168490e1cff7ad5deb609275b7f0326d256bf84787e99"
+        },
+        "original_runs": [
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "map-effect-probe",
+              "local/extracted/SCUS_971.29",
+              "local/research/basement-summon-v1/after-chant.ram",
+              "local/research/effect26-v1/26.input.bin",
+              "321",
+              "local/research/effect26-v1/26.original.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.783534916,
+            "binary_sha256": "136bff9695e73b3ca4083422d12b74e58c441c15901218f846876592520fafda"
+          },
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "cylinder26-effect-geometry",
+              "local/extracted/SCUS_971.29",
+              "local/research/basement-summon-v1/after-chant.ram",
+              "local/research/effect26-v1/geometry-fixture-v1.bin",
+              "local/research/effect26-v1/geometry-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 2.570804875,
+            "binary_sha256": "48b2432c6ad225944f24927d80a49576f1f56679131055a228ef60c4c6fc848f"
+          }
+        ],
+        "native_runs": [
+          {
+            "command": [
+              "build/native-release/okage-assets",
+              "map-effect-probe",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+              "local/research/effect26-v1/26.input.bin",
+              "321",
+              "local/dark6-cylinder-regression-v1/native-release/state.bin"
+            ],
+            "exit_code": 0,
+            "binary_sha256": "4161d76e503e3f2c9a52c0e834321a4bc5abfcb5ecc6b1e61e0a58b3d07c5e06"
+          },
+          {
+            "command": [
+              "build/native-release/okage-assets",
+              "cylinder26-effect-geometry",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+              "local/research/effect26-v1/geometry-fixture-v1.bin",
+              "local/dark6-cylinder-regression-v1/native-release/drawing.bin"
+            ],
+            "exit_code": 0,
+            "binary_sha256": "4161d76e503e3f2c9a52c0e834321a4bc5abfcb5ecc6b1e61e0a58b3d07c5e06"
+          }
+        ],
+        "state_words_exact": 37791,
+        "uv_entries_exact": 21964,
+        "transforms_colors_exact": 10,
+        "vertices_exact": 192,
+        "material": "ALPHA44/48, ZBUF mask1, TEST5000d/50000; both depth-tested"
+      },
+      "summon": {
+        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+        "native_sha256": "4161d76e503e3f2c9a52c0e834321a4bc5abfcb5ecc6b1e61e0a58b3d07c5e06",
+        "cases": [
+          {
+            "template": 33,
+            "transforms_colors_exact": 45,
+            "source_vertices_exact": 564,
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "summon33-effect-geometry",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/summon-drawing-reference-v2/33.input.bin",
+                "local/summon-drawing-reference-v2/33.original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 2.4069555,
+              "binary_sha256": "5f4ebbd9c5170e1d2e808602388348a96ad5d722cdad1e6b5878d0f2357dd998",
+              "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+              "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+              "input_sha256": "1ab34cc4af7bdfeafe7a757caf70725d5904c21b28cd5fb6f9a3832581acdc2b",
+              "output_sha256": "b4e0218a1b526481422d718cbaa420985c8a9967b31cf543bf8fb06cf305ea05",
+              "packets_sha256": "1d9c6cad77f0f4c1f6a0b3a4bcbcf2aeab65e233ea889e8e52775b48fd410657"
+            },
+            "native_command": [
+              "build/native-release/okage-assets",
+              "summon33-effect-geometry",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+              "local/summon-drawing-reference-v2/33.input.bin",
+              "local/dark6-summon-regression-v2/native-release/33.native.bin"
+            ],
+            "native_sha256": "b4e0218a1b526481422d718cbaa420985c8a9967b31cf543bf8fb06cf305ea05",
+            "vertices_sha256": "8e55f21309236d0e164f9690e45d60ecad08793822c86704490f8dfa843d3abf"
+          },
+          {
+            "template": 115,
+            "transforms_colors_exact": 25,
+            "source_vertices_exact": 30,
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "summon115-effect-geometry",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/summon-drawing-reference-v2/115.input.bin",
+                "local/summon-drawing-reference-v2/115.original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 1.0475887080000001,
+              "binary_sha256": "5f4ebbd9c5170e1d2e808602388348a96ad5d722cdad1e6b5878d0f2357dd998",
+              "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+              "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+              "input_sha256": "d6b604ca45af9f5f72d1a51873ae8e7a803e4d9990cc900a40b06201f3b994d8",
+              "output_sha256": "160fcd573ac6a278694653b048cba00715ca0744d3c411f79942e54f1ee906d9",
+              "packets_sha256": "88d5efed6aa26b61462e44b2f69cef8566994c70e8060c3477eb1cdbf66e65b1"
+            },
+            "native_command": [
+              "build/native-release/okage-assets",
+              "summon115-effect-geometry",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+              "local/summon-drawing-reference-v2/115.input.bin",
+              "local/dark6-summon-regression-v2/native-release/115.native.bin"
+            ],
+            "native_sha256": "160fcd573ac6a278694653b048cba00715ca0744d3c411f79942e54f1ee906d9",
+            "vertices_sha256": "cab83466d9aa80ef6d95e0c8dafc7728350eee2426101bb720398edeb3284d3c"
+          }
+        ]
+      }
+    },
+    "native": {
+      "cylinder": {
+        "scope": "Compare native effect26 state, shared UV animation, geometry and materials.",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "original_sha256": {
+          "26.input.bin": "df87b64aced6fea436774cc473c545b96d5a963a792763e4864bc1297d3cd98e",
+          "26.original.bin": "d488ce8fe9be1fac7c4b0e18e9e53c16aedc6524aa5693f94eae4b644fc98ce6",
+          "26.original.bin.uv.bin": "5206534e1dac74ae0f3ac8a69f0993ea8ad528fe18632f160f274e8d7e9771ea",
+          "geometry-fixture-v1.bin": "0f1f5b9b3e3b45bc8684ad33d308d3224e67462d242c3b32fdb3a8ebd3d43018",
+          "geometry-original-v1.bin": "251f324cd18e7abc7a23a118c0f5b2e4f567a10b95cfdbdb340f75663b0040b3",
+          "geometry-original-v1.bin.packets.bin": "bd739f88da5f43fb4d6168490e1cff7ad5deb609275b7f0326d256bf84787e99"
+        },
+        "original_runs": [
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "map-effect-probe",
+              "local/extracted/SCUS_971.29",
+              "local/research/basement-summon-v1/after-chant.ram",
+              "local/research/effect26-v1/26.input.bin",
+              "321",
+              "local/research/effect26-v1/26.original.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.783534916,
+            "binary_sha256": "136bff9695e73b3ca4083422d12b74e58c441c15901218f846876592520fafda"
+          },
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "cylinder26-effect-geometry",
+              "local/extracted/SCUS_971.29",
+              "local/research/basement-summon-v1/after-chant.ram",
+              "local/research/effect26-v1/geometry-fixture-v1.bin",
+              "local/research/effect26-v1/geometry-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 2.570804875,
+            "binary_sha256": "48b2432c6ad225944f24927d80a49576f1f56679131055a228ef60c4c6fc848f"
+          }
+        ],
+        "native_runs": [
+          {
+            "command": [
+              "build/native/okage-assets",
+              "map-effect-probe",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+              "local/research/effect26-v1/26.input.bin",
+              "321",
+              "local/dark6-cylinder-regression-v1/native/state.bin"
+            ],
+            "exit_code": 0,
+            "binary_sha256": "93c85363c5db859f74fb5b377d63b5421ca49c94989eab7332d3def704e98eea"
+          },
+          {
+            "command": [
+              "build/native/okage-assets",
+              "cylinder26-effect-geometry",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+              "local/research/effect26-v1/geometry-fixture-v1.bin",
+              "local/dark6-cylinder-regression-v1/native/drawing.bin"
+            ],
+            "exit_code": 0,
+            "binary_sha256": "93c85363c5db859f74fb5b377d63b5421ca49c94989eab7332d3def704e98eea"
+          }
+        ],
+        "state_words_exact": 37791,
+        "uv_entries_exact": 21964,
+        "transforms_colors_exact": 10,
+        "vertices_exact": 192,
+        "material": "ALPHA44/48, ZBUF mask1, TEST5000d/50000; both depth-tested"
+      },
+      "summon": {
+        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+        "native_sha256": "93c85363c5db859f74fb5b377d63b5421ca49c94989eab7332d3def704e98eea",
+        "cases": [
+          {
+            "template": 33,
+            "transforms_colors_exact": 45,
+            "source_vertices_exact": 564,
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "summon33-effect-geometry",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/summon-drawing-reference-v2/33.input.bin",
+                "local/summon-drawing-reference-v2/33.original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 2.4069555,
+              "binary_sha256": "5f4ebbd9c5170e1d2e808602388348a96ad5d722cdad1e6b5878d0f2357dd998",
+              "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+              "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+              "input_sha256": "1ab34cc4af7bdfeafe7a757caf70725d5904c21b28cd5fb6f9a3832581acdc2b",
+              "output_sha256": "b4e0218a1b526481422d718cbaa420985c8a9967b31cf543bf8fb06cf305ea05",
+              "packets_sha256": "1d9c6cad77f0f4c1f6a0b3a4bcbcf2aeab65e233ea889e8e52775b48fd410657"
+            },
+            "native_command": [
+              "build/native/okage-assets",
+              "summon33-effect-geometry",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+              "local/summon-drawing-reference-v2/33.input.bin",
+              "local/dark6-summon-regression-v2/native/33.native.bin"
+            ],
+            "native_sha256": "b4e0218a1b526481422d718cbaa420985c8a9967b31cf543bf8fb06cf305ea05",
+            "vertices_sha256": "8e55f21309236d0e164f9690e45d60ecad08793822c86704490f8dfa843d3abf"
+          },
+          {
+            "template": 115,
+            "transforms_colors_exact": 25,
+            "source_vertices_exact": 30,
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "summon115-effect-geometry",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/summon-drawing-reference-v2/115.input.bin",
+                "local/summon-drawing-reference-v2/115.original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 1.0475887080000001,
+              "binary_sha256": "5f4ebbd9c5170e1d2e808602388348a96ad5d722cdad1e6b5878d0f2357dd998",
+              "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+              "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+              "input_sha256": "d6b604ca45af9f5f72d1a51873ae8e7a803e4d9990cc900a40b06201f3b994d8",
+              "output_sha256": "160fcd573ac6a278694653b048cba00715ca0744d3c411f79942e54f1ee906d9",
+              "packets_sha256": "88d5efed6aa26b61462e44b2f69cef8566994c70e8060c3477eb1cdbf66e65b1"
+            },
+            "native_command": [
+              "build/native/okage-assets",
+              "summon115-effect-geometry",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+              "local/summon-drawing-reference-v2/115.input.bin",
+              "local/dark6-summon-regression-v2/native/115.native.bin"
+            ],
+            "native_sha256": "160fcd573ac6a278694653b048cba00715ca0744d3c411f79942e54f1ee906d9",
+            "vertices_sha256": "cab83466d9aa80ef6d95e0c8dafc7728350eee2426101bb720398edeb3284d3c"
+          }
+        ]
+      }
+    },
+    "model-sanitize": {
+      "cylinder": {
+        "scope": "Compare native effect26 state, shared UV animation, geometry and materials.",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "original_sha256": {
+          "26.input.bin": "df87b64aced6fea436774cc473c545b96d5a963a792763e4864bc1297d3cd98e",
+          "26.original.bin": "d488ce8fe9be1fac7c4b0e18e9e53c16aedc6524aa5693f94eae4b644fc98ce6",
+          "26.original.bin.uv.bin": "5206534e1dac74ae0f3ac8a69f0993ea8ad528fe18632f160f274e8d7e9771ea",
+          "geometry-fixture-v1.bin": "0f1f5b9b3e3b45bc8684ad33d308d3224e67462d242c3b32fdb3a8ebd3d43018",
+          "geometry-original-v1.bin": "251f324cd18e7abc7a23a118c0f5b2e4f567a10b95cfdbdb340f75663b0040b3",
+          "geometry-original-v1.bin.packets.bin": "bd739f88da5f43fb4d6168490e1cff7ad5deb609275b7f0326d256bf84787e99"
+        },
+        "original_runs": [
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "map-effect-probe",
+              "local/extracted/SCUS_971.29",
+              "local/research/basement-summon-v1/after-chant.ram",
+              "local/research/effect26-v1/26.input.bin",
+              "321",
+              "local/research/effect26-v1/26.original.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.783534916,
+            "binary_sha256": "136bff9695e73b3ca4083422d12b74e58c441c15901218f846876592520fafda"
+          },
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "cylinder26-effect-geometry",
+              "local/extracted/SCUS_971.29",
+              "local/research/basement-summon-v1/after-chant.ram",
+              "local/research/effect26-v1/geometry-fixture-v1.bin",
+              "local/research/effect26-v1/geometry-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 2.570804875,
+            "binary_sha256": "48b2432c6ad225944f24927d80a49576f1f56679131055a228ef60c4c6fc848f"
+          }
+        ],
+        "native_runs": [
+          {
+            "command": [
+              "build/model-sanitize/okage-assets",
+              "map-effect-probe",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+              "local/research/effect26-v1/26.input.bin",
+              "321",
+              "local/dark6-cylinder-regression-v1/model-sanitize/state.bin"
+            ],
+            "exit_code": 0,
+            "binary_sha256": "c9733ad20ed91165a559790373fc09c6e7e528b5a5addaf84c5644215e5240af"
+          },
+          {
+            "command": [
+              "build/model-sanitize/okage-assets",
+              "cylinder26-effect-geometry",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+              "local/research/effect26-v1/geometry-fixture-v1.bin",
+              "local/dark6-cylinder-regression-v1/model-sanitize/drawing.bin"
+            ],
+            "exit_code": 0,
+            "binary_sha256": "c9733ad20ed91165a559790373fc09c6e7e528b5a5addaf84c5644215e5240af"
+          }
+        ],
+        "state_words_exact": 37791,
+        "uv_entries_exact": 21964,
+        "transforms_colors_exact": 10,
+        "vertices_exact": 192,
+        "material": "ALPHA44/48, ZBUF mask1, TEST5000d/50000; both depth-tested"
+      },
+      "summon": {
+        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+        "native_sha256": "c9733ad20ed91165a559790373fc09c6e7e528b5a5addaf84c5644215e5240af",
+        "cases": [
+          {
+            "template": 33,
+            "transforms_colors_exact": 45,
+            "source_vertices_exact": 564,
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "summon33-effect-geometry",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/summon-drawing-reference-v2/33.input.bin",
+                "local/summon-drawing-reference-v2/33.original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 2.4069555,
+              "binary_sha256": "5f4ebbd9c5170e1d2e808602388348a96ad5d722cdad1e6b5878d0f2357dd998",
+              "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+              "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+              "input_sha256": "1ab34cc4af7bdfeafe7a757caf70725d5904c21b28cd5fb6f9a3832581acdc2b",
+              "output_sha256": "b4e0218a1b526481422d718cbaa420985c8a9967b31cf543bf8fb06cf305ea05",
+              "packets_sha256": "1d9c6cad77f0f4c1f6a0b3a4bcbcf2aeab65e233ea889e8e52775b48fd410657"
+            },
+            "native_command": [
+              "build/model-sanitize/okage-assets",
+              "summon33-effect-geometry",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+              "local/summon-drawing-reference-v2/33.input.bin",
+              "local/dark6-summon-regression-v2/model-sanitize/33.native.bin"
+            ],
+            "native_sha256": "b4e0218a1b526481422d718cbaa420985c8a9967b31cf543bf8fb06cf305ea05",
+            "vertices_sha256": "8e55f21309236d0e164f9690e45d60ecad08793822c86704490f8dfa843d3abf"
+          },
+          {
+            "template": 115,
+            "transforms_colors_exact": 25,
+            "source_vertices_exact": 30,
+            "original_run": {
+              "command": [
+                "build/play-research/okage-oracle/okage-pose-oracle",
+                "summon115-effect-geometry",
+                "local/extracted/SCUS_971.29",
+                "local/research/basement-summon-v1/after-chant.ram",
+                "local/summon-drawing-reference-v2/115.input.bin",
+                "local/summon-drawing-reference-v2/115.original.bin"
+              ],
+              "exit_code": 0,
+              "elapsed_seconds": 1.0475887080000001,
+              "binary_sha256": "5f4ebbd9c5170e1d2e808602388348a96ad5d722cdad1e6b5878d0f2357dd998",
+              "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+              "ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
+              "input_sha256": "d6b604ca45af9f5f72d1a51873ae8e7a803e4d9990cc900a40b06201f3b994d8",
+              "output_sha256": "160fcd573ac6a278694653b048cba00715ca0744d3c411f79942e54f1ee906d9",
+              "packets_sha256": "88d5efed6aa26b61462e44b2f69cef8566994c70e8060c3477eb1cdbf66e65b1"
+            },
+            "native_command": [
+              "build/model-sanitize/okage-assets",
+              "summon115-effect-geometry",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+              "local/summon-drawing-reference-v2/115.input.bin",
+              "local/dark6-summon-regression-v2/model-sanitize/115.native.bin"
+            ],
+            "native_sha256": "160fcd573ac6a278694653b048cba00715ca0744d3c411f79942e54f1ee906d9",
+            "vertices_sha256": "cab83466d9aa80ef6d95e0c8dafc7728350eee2426101bb720398edeb3284d3c"
+          }
+        ]
+      }
+    }
+  },
+  "native_runs": [
+    {
+      "prefix": "local/native-home2c-basement-warm-sentiments-68255-release-v3",
+      "manifest_sha256": "f6f17a98f274cedfea0b19efc8e6eca6ff729d071fa2e2d44d7261f51ed0c5a1",
+      "exit_code": 1,
+      "elapsed_seconds": 23.300535875,
+      "binary_sha256": "0a23e96e11a482e17828d11e625a8a8d9775bd0f01d89f475c6bd8f981a49ab2"
+    },
+    {
+      "prefix": "local/native-home2c-basement-dark-rings-67426-release-v1",
+      "manifest_sha256": "4073f8494d9069074b877f8340381207ef56a408a562d87d19ed47b4b96fe4d1",
+      "exit_code": 0,
+      "elapsed_seconds": 24.153623,
+      "binary_sha256": "0a23e96e11a482e17828d11e625a8a8d9775bd0f01d89f475c6bd8f981a49ab2"
+    },
+    {
+      "prefix": "local/native-home2c-basement-before-service54-67568-release-v1",
+      "manifest_sha256": "af018c5d4c798dfd5160d90677fd150914b5c3fa1f3cb2440c19ad8d5ca805ea",
+      "exit_code": 0,
+      "elapsed_seconds": 23.462955167,
+      "binary_sha256": "0a23e96e11a482e17828d11e625a8a8d9775bd0f01d89f475c6bd8f981a49ab2"
+    }
+  ],
+  "latest_endpoint": {
+    "frames": 67568,
+    "message_id": 13104,
+    "messages_started": 66,
+    "text_progress": 0,
+    "advance_count": 0,
+    "wait_release_frame": 227,
+    "controller_stage": 9,
+    "unimplemented_service_requests": 29273,
+    "message_flags": 2147483648,
+    "window_type": 2,
+    "scene_brightness": 1,
+    "narration_cues": 368,
+    "progression_flag_2": 0,
+    "progression_flag_3": 0,
+    "kitchen_flag_7": 1,
+    "progression_flag_4": 0,
+    "progression_flag_5": 0,
+    "field_event_running": true,
+    "field_camera_mode": 2,
+    "interaction_alias": 0,
+    "interaction_event": 0,
+    "loaded_stream_banks": 1,
+    "choice_cursor": 0,
+    "choice_result": 0,
+    "choice_armed": false,
+    "close_frame": 419,
+    "close_wait_release_frame": 422
+  },
+  "prefix_regression": {
+    "old": "local/native-home2c-basement-before-effect6-67385-release-v1.png",
+    "new": "local/native-home2c-basement-before-service54-67568-release-v1.png",
+    "scope": "Binary/PCM prefixes through67385; excludes images, JSON and final variables.",
+    "files": [
+      {
+        "suffix": ".actor-1.bin",
+        "bytes": 254984840,
+        "same": true,
+        "sha256": "0c70ec78b4508b8f587185f2b0d86805d82c4baf02886ba7b8a6e3e26f084cf1"
+      },
+      {
+        "suffix": ".actor-10.bin",
+        "bytes": 124313064,
+        "same": true,
+        "sha256": "4b657416be5253df6b36264188a71fdaa027a0949c80b15dcec4587225de5428"
+      },
+      {
+        "suffix": ".actor-11.bin",
+        "bytes": 123708240,
+        "same": true,
+        "sha256": "cf6294138f6737a35dbd3bb3860eb73632b65259d52dc6431d7b7d64a2ac59f4"
+      },
+      {
+        "suffix": ".actor-12.bin",
+        "bytes": 131841384,
+        "same": true,
+        "sha256": "b9bebdec75680531e593695ac8c9ed0d2f7f1a3091205c190d52bd8079061f0a"
+      },
+      {
+        "suffix": ".actor-13.bin",
+        "bytes": 45401168,
+        "same": true,
+        "sha256": "da2a80fa89b5ced64d2bac1eb09c5effe98027126c64760b9322d01c9d74e441"
+      },
+      {
+        "suffix": ".actor-14.bin",
+        "bytes": 44119520,
+        "same": true,
+        "sha256": "3379c4ae4747dbb45655bfd518a7d8e985003c1703e7984533edc9bd7f2cd7c8"
+      },
+      {
+        "suffix": ".actor-15.bin",
+        "bytes": 6448952,
+        "same": true,
+        "sha256": "11f652d6e434c2a913ee564c9cec798688f22733279bbd6adbb65e37158adc3b"
+      },
+      {
+        "suffix": ".actor-16.bin",
+        "bytes": 6448952,
+        "same": true,
+        "sha256": "b856c2b9e9b92091a9d50019a334bab5c5f3d610fd310b37da17d00dc8697b1d"
+      },
+      {
+        "suffix": ".actor-17.bin",
+        "bytes": 16686748,
+        "same": true,
+        "sha256": "ec4cfce3ec49b71094d28e1def4044d40b4c4878687134b7fc73b51925085865"
+      },
+      {
+        "suffix": ".actor-18.bin",
+        "bytes": 25477948,
+        "same": true,
+        "sha256": "495b66777b5a894d9bf450dab77218587e58bd8a29d8d9ce737a2529e19f8dc7"
+      },
+      {
+        "suffix": ".actor-19.bin",
+        "bytes": 25589172,
+        "same": true,
+        "sha256": "3f37cf6eaeaf915db04f45550d1423bc1a9053bec222a4a07307897ab1b1d64a"
+      },
+      {
+        "suffix": ".actor-20.bin",
+        "bytes": 14768396,
+        "same": true,
+        "sha256": "dce67fe8789273e842c73e63b5f6b4993c29c3457f3b02a918b8d9e27126f277"
+      },
+      {
+        "suffix": ".actor-21.bin",
+        "bytes": 17490792,
+        "same": true,
+        "sha256": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3"
+      },
+      {
+        "suffix": ".actor-22.bin",
+        "bytes": 30136560,
+        "same": true,
+        "sha256": "52ced2ad7d11087e23f17eec62ef9a12152e22819f3c90aae92d7f002c447da5"
+      },
+      {
+        "suffix": ".actor-37.bin",
+        "bytes": 6669448,
+        "same": true,
+        "sha256": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd"
+      },
+      {
+        "suffix": ".actor-38.bin",
+        "bytes": 1867760,
+        "same": true,
+        "sha256": "76ba34c261405d19131ff08afd76466bd58b75955ea5d5be4f94b432248fb11e"
+      },
+      {
+        "suffix": ".actor-45.bin",
+        "bytes": 8950128,
+        "same": true,
+        "sha256": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921"
+      },
+      {
+        "suffix": ".actor-9.bin",
+        "bytes": 147834044,
+        "same": true,
+        "sha256": "c7e5de304a7289f73cb0e5c5e69ea4323fd91eb65a70b3740e72f56b08f8b731"
+      },
+      {
+        "suffix": ".actor.bin",
+        "bytes": 153010120,
+        "same": true,
+        "sha256": "e2db6f8f0933212a203f8bb2116525f679f385b39443a38a5dbff354f9ca96a3"
+      },
+      {
+        "suffix": ".audio.pcm",
+        "bytes": 215632000,
+        "same": true,
+        "sha256": "142f7eb5f2c6653c7cb841f11a1274a0a548a81edab785576617b3c14b754287"
+      },
+      {
+        "suffix": ".camera-state.bin",
+        "bytes": 1347700,
+        "same": true,
+        "sha256": "487c3c8823a5dd99526b21724cb4ec07396f499d5aab824f8630b3e6cff832d1"
+      },
+      {
+        "suffix": ".camera.bin",
+        "bytes": 4312640,
+        "same": true,
+        "sha256": "48bbbbf382ac366f2201d2e861464be78e85d3478a4fba66a7d7fabbfc27619c"
+      },
+      {
+        "suffix": ".choices.bin",
+        "bytes": 3234480,
+        "same": true,
+        "sha256": "424c43ee8c58c55ae2f170c06430feb4bbb23dbb8c8a438912b217686dd731ad"
+      },
+      {
+        "suffix": ".dialogue.bin",
+        "bytes": 3234480,
+        "same": true,
+        "sha256": "365817e3b87d1eb312c68f775d67adf9fecd311caa4c5b0070d5a7b92b604480"
+      },
+      {
+        "suffix": ".effect-submissions.bin",
+        "bytes": 19587896,
+        "same": true,
+        "sha256": "0d3160870d3de71194249df0e03a7c98833e8aa9a5bbbdca7fccd92dc7cc4527"
+      },
+      {
+        "suffix": ".effects.bin",
+        "bytes": 2077380,
+        "same": true,
+        "sha256": "f13bedec263080e09513349bee0d994a88b4d799d538cbf3ac3b654e6995711a"
+      },
+      {
+        "suffix": ".interaction.bin",
+        "bytes": 2156320,
+        "same": true,
+        "sha256": "3b287ab339972d31f0ae69de8940802836efd2c69e5592204b5bb30a5de5db42"
+      },
+      {
+        "suffix": ".map-effects.bin",
+        "bytes": 504453312,
+        "same": true,
+        "sha256": "4baf3a63a0490449976d6b6466493405a7409897127ae4f58df9cbe94a5067e3"
+      },
+      {
+        "suffix": ".movement.bin",
+        "bytes": 4312640,
+        "same": true,
+        "sha256": "91dda833bf2b964d98fc051763407dfc48086d8805244020edea3afdcddb3013"
+      },
+      {
+        "suffix": ".music.bin",
+        "bytes": 1347700,
+        "same": true,
+        "sha256": "7fc10f9eaa5c4956e2533fa5d3513cf6b8f3cd300fb75f1cb4817cbe056005dd"
+      },
+      {
+        "suffix": ".screen-filter.bin",
+        "bytes": 1078160,
+        "same": true,
+        "sha256": "ee02b70e5205ff192a83fa462ccb314d8f2c42555fc010ba993ce1a286cb85a0"
+      },
+      {
+        "suffix": ".sound.bin",
+        "bytes": 7360,
+        "same": true,
+        "sha256": "88999e40fc76edbdf37f6cc2af86af69d0931b4448ade5c4dffb27e2ff2ba183"
+      },
+      {
+        "suffix": ".transition.bin",
+        "bytes": 2156320,
+        "same": true,
+        "sha256": "33b2fd28a456dc347a5def151c99ac79d4420b2d74358d3f2ec026da94caf2fc"
+      }
+    ],
+    "all_same": true
+  },
+  "next_dependency": {
+    "frame": 67569,
+    "pc": "0x1514",
+    "opcode": "0x54",
+    "a": 0,
+    "b": 1,
+    "original_handler": "0x130850",
+    "helper": "0x1346e0",
+    "update": "0x135100",
+    "scope": "Static recovery only; native service and integrated original comparison not implemented.",
+    "notes": [
+      "Low mode1 starts HERO/STUN transition if unlocked/state0, sound0x17, attached effect24, bank4 variable2=1.",
+      "State updater follows HERO transform and transitions through fade-out/scale-in, with original ordering and frame boundaries still requiring execution evidence.",
+      "Mode bit0x100 takes a different actor shadow-selector path. Preserve unsupported guards."
+    ]
+  },
+  "negative_attempts": [
+    {
+      "path": "local/research/effect6-v1/6.native-release-v1.bin",
+      "exit_code": 1,
+      "artifact_created": false,
+      "reason": "CLI called native tick twice after finite lifetime; second call correctly rejected removed job. CLI now preserves terminal snapshots, matching original wrapper repeated removal."
+    },
+    {
+      "path": "local/dark6-summon-regression-v1",
+      "reason": "Shared metadata addition made summoning CLI seek nonexistent effect6 corpus. Explicit33/115 iteration restores existing scope. v2 reports contain only those cases; their stdout initially listed metadata keys and was corrected without changing results."
+    }
+  ],
+  "tests": {
+    "ctest": {
+      "native-release": {
+        "passed": 19,
+        "log": "local/research/effect6-v1/ctest-native-release-v1.log"
+      },
+      "native": {
+        "passed": 19,
+        "log": "local/research/effect6-v1/ctest-native-v1.log"
+      },
+      "model-sanitize": {
+        "passed": 19,
+        "log": "local/research/effect6-v1/ctest-model-sanitize-v1.log"
+      }
+    },
+    "python": {
+      "passed": 68,
+      "log": "local/research/effect6-v1/python-tests-v2.log"
+    }
+  },
+  "scope_limits": [
+    "67426 and67568 images inspected; full original raster and integrated effect-phase equality unproven.",
+    "68255 full fixed-anchor audit remains blocked by reached service54; no fitted/cropped success claimed.",
+    "Warm-sentiments and master-orders original snapshots already complete; reuse them.",
+    "Older timing/name-substitution/RNG/UI/audio failures remain; full route after48455 is Release-only."
+  ],
+  "live_jobs": []
+}

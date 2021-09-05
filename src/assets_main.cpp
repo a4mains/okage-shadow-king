@@ -438,11 +438,11 @@ int main(int argc, char** argv) {
             }
             write(argv[3],output);return 0;
         }
-        if((command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry"||command=="summon33-effect-geometry"||command=="summon115-effect-geometry"||command=="cylinder26-effect-geometry")&&argc==6) {
+        if((command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry"||command=="summon33-effect-geometry"||command=="summon115-effect-geometry"||command=="cylinder26-effect-geometry"||command=="dark6-effect-geometry")&&argc==6) {
             const bool summon=command=="summon33-effect-geometry"||command=="summon115-effect-geometry";
-            const unsigned id=command=="cylinder26-effect-geometry"?26:command=="summon33-effect-geometry"?33:command=="summon115-effect-geometry"?115:command=="flame16-effect-geometry"?16:command=="torch-effect-geometry"?91:25;
-            const bool torch=id==91,deferred=id==16||summon,flame=torch||id==16;
-            const unsigned count=id==26?2:id==33?9:id==115?5:id==16?3:torch?4:8;
+            const unsigned id=command=="dark6-effect-geometry"?6:command=="cylinder26-effect-geometry"?26:command=="summon33-effect-geometry"?33:command=="summon115-effect-geometry"?115:command=="flame16-effect-geometry"?16:command=="torch-effect-geometry"?91:25;
+            const bool torch=id==91,deferred=id==6||id==16||summon,flame=torch||id==16;
+            const unsigned count=id==6?4:id==26?2:id==33?9:id==115?5:id==16?3:torch?4:8;
             const auto bank=okage::read_efd(read(argv[2]));const auto input=read(argv[4]);
             const unsigned stride=(38+count*20+(flame?36:id==33?30:id==26?34:0))*4;
             if(input.empty()||input.size()%stride||input.size()>stride*64)throw std::runtime_error("Map geometry fixture bounds");
@@ -458,7 +458,7 @@ int main(int argc, char** argv) {
                 okage::Matrix4 view;std::memcpy(view.data(),input.data()+at+84,64);
                 float far;std::memcpy(&far,input.data()+at+148,4);
                 okage::MapEffect effect(*found,channels[0],channels[1],channels[2],sizes,[]{return 1;},
-                    (summon||id==26)?okage::EffectStart::FirstFrame:okage::EffectStart::RandomPhase);
+                    (summon||id==26||id==6)?okage::EffectStart::FirstFrame:okage::EffectStart::RandomPhase);
                 effect.color=channels[3];
                 for(unsigned i=0;i<count;++i){
                     auto& e=effect.elements[i];const auto source=input.data()+at+152+i*80;
@@ -490,12 +490,12 @@ int main(int argc, char** argv) {
                 for(unsigned i=0;i<draws.size();++i){
                     const auto& d=draws[i];for(const auto& v:d.matrix)append(out,v);append(out,d.color);
                     if(at==0){geometry.insert(geometry.end(),{i,unsigned(d.vertices.size()),d.texture});
-                        if(summon||id==26)materials.insert(materials.end(),{i,unsigned(d.additive),unsigned(d.depth_test)});
+                        if(summon||id==26||id==6)materials.insert(materials.end(),{i,d.subtractive?2u:unsigned(d.additive),unsigned(d.depth_test)});
                         for(const auto& v:d.vertices){append(geometry,v.position);append(geometry,v.color);append(geometry,v.uv);}}
                 }
             }
             write(argv[5],{reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4});
-            if(summon||id==26)write(std::string(argv[5])+".materials.bin",{reinterpret_cast<const std::uint8_t*>(materials.data()),materials.size()*4});
+            if(summon||id==26||id==6)write(std::string(argv[5])+".materials.bin",{reinterpret_cast<const std::uint8_t*>(materials.data()),materials.size()*4});
             write(std::string(argv[5])+".vertices.bin",{reinterpret_cast<const std::uint8_t*>(geometry.data()),geometry.size()*4});return 0;
         }
         if(command=="effect-reference-probe"&&argc==4) {
@@ -524,11 +524,11 @@ int main(int argc, char** argv) {
             for(unsigned i=0;i<sizes.size();++i){const auto image=okage::decode_xim(read(fs::path(argv[3])/okage::effect_texture_names[i]));sizes[i]={image.width,image.height};}
             okage::GameRandom rng{request[1]};const auto random=[&]{return rng.next();};
             const bool dust=request[0]==17;
-            const bool positioned=dust||request[0]==26||request[0]==33||request[0]==115;
+            const bool positioned=dust||request[0]==6||request[0]==26||request[0]==33||request[0]==115;
             auto position=vectors[0];
             // These probes use0x130c50's XYZ payload; it supplies W=1.
             // The direct0x1012f8 constructor used by dust copies all four words.
-            if(request[0]==26||request[0]==33||request[0]==115)position[3]=1;
+            if(request[0]==6||request[0]==26||request[0]==33||request[0]==115)position[3]=1;
             okage::MapEffect effect(*found,position,positioned?okage::Float4{}:vectors[1],
                 positioned?okage::Float4{1,1,1,1}:vectors[2],sizes,random,
                 positioned?okage::EffectStart::FirstFrame:okage::EffectStart::RandomPhase);
@@ -579,7 +579,7 @@ int main(int argc, char** argv) {
                 write(std::string(argv[6])+".vertices.bin",{reinterpret_cast<const std::uint8_t*>(geometry.data()),geometry.size()*4});
             }
             if(!positioned)effect.set_parameter(request[2],vectors[3]);capture(1);
-            for(unsigned i=0;i<frames;++i){effect.tick(random,true,torch?&eye:nullptr);capture(i+2);}
+            for(unsigned i=0;i<frames;++i){if(!(effect.flags&0x100))effect.tick(random,true,torch?&eye:nullptr);capture(i+2);}
             if(flame)write(std::string(argv[6])+".torch-geometry.bin",
                 {reinterpret_cast<const std::uint8_t*>(torchGeometry.data()),torchGeometry.size()*4});
             if(!deformation.empty())write(std::string(argv[6])+".deformation.bin",
