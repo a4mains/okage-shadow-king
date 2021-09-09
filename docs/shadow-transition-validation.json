@@ -1,0 +1,463 @@
+{
+  "scope": "Isolated native shadow callback and attached effect24 state only; integrated service54, rendering, sound and new route progress remain incomplete.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "correction": "0x337e3c controls mode4 shadow projection, not HERO opacity.",
+  "builds": {
+    "native-release": {
+      "shadow_callback": {
+        "scope": "Compare the native HERO/STUN update callback with original0x135100.",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "shadow-update",
+            "local/extracted/SCUS_971.29",
+            "local/research/shadow-transition-v1/before-shadow.ram",
+            "local/research/shadow-transition-v1/update-fixture-v1.bin",
+            "local/research/shadow-transition-v1/update-original-v1.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.6384468330000002,
+          "binary_sha256": "0816c0b4b442e1e252fd3b0c14178149afef8804b71d8465019ad36c843f5c0e",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "input_sha256": "7512ce4c58082e641a5e8aec09e3717f7a40ed3113aac05c1f268cc5914ae65f",
+          "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+          "output_sha256": "3b3956353830c221a4e7f14e05c24fe3810541debeac65b9138403a082c65d43"
+        },
+        "native_command": [
+          "build/native-release/okage-assets",
+          "shadow-update",
+          "local/research/shadow-transition-v1/update-fixture-v1.bin",
+          "local/shadow-transition-checks-v3/native-release/native.bin"
+        ],
+        "native_sha256": "5c44e6042f38cea059b2ee651a0213b7bdcdbe3fa6814f9c287fd400266aca43",
+        "records_exact": 637,
+        "words_exact": 14014
+      },
+      "effect24": {
+        "scope": "Compare effect24 state and deformed ring heights with original execution.",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "map-effect-probe",
+            "local/extracted/SCUS_971.29",
+            "local/research/shadow-transition-v1/before-shadow.ram",
+            "local/research/effect24-v1/24.input.bin",
+            "82",
+            "local/research/effect24-v1/24.original-v1.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.754799209,
+          "binary_sha256": "821d932f7d725255198fa07f162738d205a0780f414e063507b83eb6913ecbcf",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+          "input_sha256": "94d59066ffe57395a07c628700201e28c9de8d73911d716fd353913b68205170",
+          "outputs": {
+            "24.original-v1.bin.geometry.bin": "17bcee21b54ef8204686ad367dc1579cd5850d9d66c07143be5e5f7ed49e5512",
+            "24.original-v1.bin": "5dcb85d8826b82bca167f900d008b2c24100d62b291da90f9107b282a0d7b2c7"
+          }
+        },
+        "native_command": [
+          "build/native-release/okage-assets",
+          "map-effect-probe",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/research/effect24-v1/24.input.bin",
+          "82",
+          "local/shadow-effect-checks-v2/native-release/state.bin"
+        ],
+        "native_sha256": "5c44e6042f38cea059b2ee651a0213b7bdcdbe3fa6814f9c287fd400266aca43",
+        "state_words_exact": 32004,
+        "ring_heights_exact": 7560
+      },
+      "ctest": {
+        "path": "local/research/effect24-v1/ctest-native-release-v1.log",
+        "sha256": "0e3506b90f502233579a56a72318304651dde408ced5c72c28f0ee59c08402c9"
+      },
+      "regressions": [
+        "local/shadow-dark6-regression-v1/native-release/report.json",
+        "local/shadow-cylinder-regression-v1/native-release/report.json",
+        "local/shadow-summon-regression-v1/native-release/report.json"
+      ]
+    },
+    "native": {
+      "shadow_callback": {
+        "scope": "Compare the native HERO/STUN update callback with original0x135100.",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "shadow-update",
+            "local/extracted/SCUS_971.29",
+            "local/research/shadow-transition-v1/before-shadow.ram",
+            "local/research/shadow-transition-v1/update-fixture-v1.bin",
+            "local/research/shadow-transition-v1/update-original-v1.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.6384468330000002,
+          "binary_sha256": "0816c0b4b442e1e252fd3b0c14178149afef8804b71d8465019ad36c843f5c0e",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "input_sha256": "7512ce4c58082e641a5e8aec09e3717f7a40ed3113aac05c1f268cc5914ae65f",
+          "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+          "output_sha256": "3b3956353830c221a4e7f14e05c24fe3810541debeac65b9138403a082c65d43"
+        },
+        "native_command": [
+          "build/native/okage-assets",
+          "shadow-update",
+          "local/research/shadow-transition-v1/update-fixture-v1.bin",
+          "local/shadow-transition-checks-v3/native/native.bin"
+        ],
+        "native_sha256": "2ce5a3bc8e80c8ff986be340137464666d3baef1b15d4161fd5491bf170c109b",
+        "records_exact": 637,
+        "words_exact": 14014
+      },
+      "effect24": {
+        "scope": "Compare effect24 state and deformed ring heights with original execution.",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "map-effect-probe",
+            "local/extracted/SCUS_971.29",
+            "local/research/shadow-transition-v1/before-shadow.ram",
+            "local/research/effect24-v1/24.input.bin",
+            "82",
+            "local/research/effect24-v1/24.original-v1.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.754799209,
+          "binary_sha256": "821d932f7d725255198fa07f162738d205a0780f414e063507b83eb6913ecbcf",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+          "input_sha256": "94d59066ffe57395a07c628700201e28c9de8d73911d716fd353913b68205170",
+          "outputs": {
+            "24.original-v1.bin.geometry.bin": "17bcee21b54ef8204686ad367dc1579cd5850d9d66c07143be5e5f7ed49e5512",
+            "24.original-v1.bin": "5dcb85d8826b82bca167f900d008b2c24100d62b291da90f9107b282a0d7b2c7"
+          }
+        },
+        "native_command": [
+          "build/native/okage-assets",
+          "map-effect-probe",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/research/effect24-v1/24.input.bin",
+          "82",
+          "local/shadow-effect-checks-v2/native/state.bin"
+        ],
+        "native_sha256": "2ce5a3bc8e80c8ff986be340137464666d3baef1b15d4161fd5491bf170c109b",
+        "state_words_exact": 32004,
+        "ring_heights_exact": 7560
+      },
+      "ctest": {
+        "path": "local/research/effect24-v1/ctest-native-v1.log",
+        "sha256": "9f630a08a346587651368584ffc00344db529ebd29a782c654d2442b1d40ff07"
+      },
+      "regressions": [
+        "local/shadow-dark6-regression-v1/native/report.json",
+        "local/shadow-cylinder-regression-v1/native/report.json",
+        "local/shadow-summon-regression-v1/native/report.json"
+      ]
+    },
+    "model-sanitize": {
+      "shadow_callback": {
+        "scope": "Compare the native HERO/STUN update callback with original0x135100.",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "shadow-update",
+            "local/extracted/SCUS_971.29",
+            "local/research/shadow-transition-v1/before-shadow.ram",
+            "local/research/shadow-transition-v1/update-fixture-v1.bin",
+            "local/research/shadow-transition-v1/update-original-v1.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.6384468330000002,
+          "binary_sha256": "0816c0b4b442e1e252fd3b0c14178149afef8804b71d8465019ad36c843f5c0e",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "input_sha256": "7512ce4c58082e641a5e8aec09e3717f7a40ed3113aac05c1f268cc5914ae65f",
+          "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+          "output_sha256": "3b3956353830c221a4e7f14e05c24fe3810541debeac65b9138403a082c65d43"
+        },
+        "native_command": [
+          "build/model-sanitize/okage-assets",
+          "shadow-update",
+          "local/research/shadow-transition-v1/update-fixture-v1.bin",
+          "local/shadow-transition-checks-v3/model-sanitize/native.bin"
+        ],
+        "native_sha256": "9e0713aecda8b64ffc3cd93a2f5973badeada4eb8661c68460296b7cc04c4b5c",
+        "records_exact": 637,
+        "words_exact": 14014
+      },
+      "effect24": {
+        "scope": "Compare effect24 state and deformed ring heights with original execution.",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "map-effect-probe",
+            "local/extracted/SCUS_971.29",
+            "local/research/shadow-transition-v1/before-shadow.ram",
+            "local/research/effect24-v1/24.input.bin",
+            "82",
+            "local/research/effect24-v1/24.original-v1.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.754799209,
+          "binary_sha256": "821d932f7d725255198fa07f162738d205a0780f414e063507b83eb6913ecbcf",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+          "input_sha256": "94d59066ffe57395a07c628700201e28c9de8d73911d716fd353913b68205170",
+          "outputs": {
+            "24.original-v1.bin.geometry.bin": "17bcee21b54ef8204686ad367dc1579cd5850d9d66c07143be5e5f7ed49e5512",
+            "24.original-v1.bin": "5dcb85d8826b82bca167f900d008b2c24100d62b291da90f9107b282a0d7b2c7"
+          }
+        },
+        "native_command": [
+          "build/model-sanitize/okage-assets",
+          "map-effect-probe",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/research/effect24-v1/24.input.bin",
+          "82",
+          "local/shadow-effect-checks-v2/model-sanitize/state.bin"
+        ],
+        "native_sha256": "9e0713aecda8b64ffc3cd93a2f5973badeada4eb8661c68460296b7cc04c4b5c",
+        "state_words_exact": 32004,
+        "ring_heights_exact": 7560
+      },
+      "ctest": {
+        "path": "local/research/effect24-v1/ctest-model-sanitize-v1.log",
+        "sha256": "a45ba272b4f3dc9db83ba55da83e85f83e7bab609690ac9658ca03c1a5bf7681"
+      },
+      "regressions": [
+        "local/shadow-dark6-regression-v1/model-sanitize/report.json",
+        "local/shadow-cylinder-regression-v1/model-sanitize/report.json",
+        "local/shadow-summon-regression-v1/model-sanitize/report.json"
+      ]
+    }
+  },
+  "python_tests": {
+    "count": 72,
+    "path": "local/research/effect24-v1/python-tests-v1.log",
+    "sha256": "7f69eec18bfa1cf90f1dfb90f9e3d6fd208a069e5c6b3ed5a07ea041971c1802"
+  },
+  "native_route_regression": {
+    "base": "local/native-home2c-basement-before-service54-67568-release-v1",
+    "native": "local/native-shadow-state-regression-67568-release-v1",
+    "run": {
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "67568",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538,61658,61777,61897,62018,62137,62257,62377,62498,62617,62737,63578,63697,63817,63937,64058,64177,64298,64418,64537,64778,64898,65017,65137,65258,65377,65497,65617,65737,65857,65978,66097,66218,66338,66457,66577,66697,66817,66937,67057,67178,67297,67417,67537,67657,67777,67897,68017,68138",
+        "--directions",
+        "local/native-shadow-state-regression-67568-release-v1.directions",
+        "--capture",
+        "local/native-shadow-state-regression-67568-release-v1.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "--render-from",
+        "11310",
+        "--render-until",
+        "11542"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 23.0419475,
+      "binary_sha256": "ff67b22837a5a7bb30406b08db1c679c387fc4c83b905bfe7fd4b0fe1480a9d5"
+    },
+    "files": [
+      {
+        "suffix": ".png.actor-1.bin",
+        "bytes": 255677312,
+        "sha256": "434303f96bda23d1882728a01bc49084a3f5d58db33e05f41cd2f55da7b18b6c"
+      },
+      {
+        "suffix": ".png.actor-10.bin",
+        "bytes": 124715664,
+        "sha256": "f6e1b4da30ec0139b726137cea5576655a1075045a02721a72e3cdce857b62fa"
+      },
+      {
+        "suffix": ".png.actor-11.bin",
+        "bytes": 124072776,
+        "sha256": "b7867af6facf91512495ea9514daaeff6f86ce1fd9558f4e879632f7e6ee08ec"
+      },
+      {
+        "suffix": ".png.actor-12.bin",
+        "bytes": 132349392,
+        "sha256": "c050323d150b5f7369f48644c3d68f65178d251a1748d2df69c267e157f9ce26"
+      },
+      {
+        "suffix": ".png.actor-13.bin",
+        "bytes": 45401168,
+        "sha256": "da2a80fa89b5ced64d2bac1eb09c5effe98027126c64760b9322d01c9d74e441"
+      },
+      {
+        "suffix": ".png.actor-14.bin",
+        "bytes": 44119520,
+        "sha256": "3379c4ae4747dbb45655bfd518a7d8e985003c1703e7984533edc9bd7f2cd7c8"
+      },
+      {
+        "suffix": ".png.actor-15.bin",
+        "bytes": 6476036,
+        "sha256": "f528c08562220dc57d42e2351de0b25319657673d6f02610b0df8c426b4e3200"
+      },
+      {
+        "suffix": ".png.actor-16.bin",
+        "bytes": 6476036,
+        "sha256": "3349d94ca2861a47a8b0fbe3bbe4d40d89cccd461ae89113c349e8ff6f31f1d6"
+      },
+      {
+        "suffix": ".png.actor-17.bin",
+        "bytes": 16686748,
+        "sha256": "ec4cfce3ec49b71094d28e1def4044d40b4c4878687134b7fc73b51925085865"
+      },
+      {
+        "suffix": ".png.actor-18.bin",
+        "bytes": 25477948,
+        "sha256": "495b66777b5a894d9bf450dab77218587e58bd8a29d8d9ce737a2529e19f8dc7"
+      },
+      {
+        "suffix": ".png.actor-19.bin",
+        "bytes": 25647732,
+        "sha256": "50fa3e26848b52ee4c25a20cbe1d9826abf47d0554c43f8fa8077c677ccb9700"
+      },
+      {
+        "suffix": ".png.actor-20.bin",
+        "bytes": 14768396,
+        "sha256": "dce67fe8789273e842c73e63b5f6b4993c29c3457f3b02a918b8d9e27126f277"
+      },
+      {
+        "suffix": ".png.actor-21.bin",
+        "bytes": 17490792,
+        "sha256": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3"
+      },
+      {
+        "suffix": ".png.actor-22.bin",
+        "bytes": 30136560,
+        "sha256": "52ced2ad7d11087e23f17eec62ef9a12152e22819f3c90aae92d7f002c447da5"
+      },
+      {
+        "suffix": ".png.actor-37.bin",
+        "bytes": 6669448,
+        "sha256": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd"
+      },
+      {
+        "suffix": ".png.actor-38.bin",
+        "bytes": 1867760,
+        "sha256": "76ba34c261405d19131ff08afd76466bd58b75955ea5d5be4f94b432248fb11e"
+      },
+      {
+        "suffix": ".png.actor-45.bin",
+        "bytes": 8950128,
+        "sha256": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921"
+      },
+      {
+        "suffix": ".png.actor-9.bin",
+        "bytes": 148325216,
+        "sha256": "caabc3df314f46c0506f8a00ab6131d7906e9915790650c37a7e86a17768bd87"
+      },
+      {
+        "suffix": ".png.actor.bin",
+        "bytes": 153447124,
+        "sha256": "7cb1dfbd21355a6cb595e97e382f3a83f56b8af5ac34f3994f0f41f4c764253e"
+      },
+      {
+        "suffix": ".png.audio.pcm",
+        "bytes": 216217600,
+        "sha256": "fcc5f9dd76ff1c6584a8a2800607fd890a211cf25efd23964e92ac5652cf5b67"
+      },
+      {
+        "suffix": ".png.camera-state.bin",
+        "bytes": 1351360,
+        "sha256": "1dc09ae6740ee0f841d1be8817bf7dfc4b8b84755d624911aaeaad753d766b15"
+      },
+      {
+        "suffix": ".png.camera.bin",
+        "bytes": 4324352,
+        "sha256": "f7e574fd35911b93caef9b81faf5849a6444fe2f127a1d725833b455bce440c6"
+      },
+      {
+        "suffix": ".png.choices.bin",
+        "bytes": 3243264,
+        "sha256": "86fec8919f436a8e4d759ed41e2d30f475f10840645533bfb09337adc215a837"
+      },
+      {
+        "suffix": ".png.dialogue.bin",
+        "bytes": 3243264,
+        "sha256": "9203552fbf7057896c7a0f9abcc10908c24f7fab6f395df7c9b2057ec7756629"
+      },
+      {
+        "suffix": ".png.effect-submissions.bin",
+        "bytes": 19687584,
+        "sha256": "ae854c0241ee92e8483e6074f5ba66da715ac15d8eb63b9df877d5a16ff570ee"
+      },
+      {
+        "suffix": ".png.effects.bin",
+        "bytes": 2079576,
+        "sha256": "333621360835f468728b45ab59fdef86ff195d97ed17c8ce2fd6a2b9e58c0f66"
+      },
+      {
+        "suffix": ".png.interaction.bin",
+        "bytes": 2162176,
+        "sha256": "7e3eb6e3f5f84b85ae16a29db9c0d299755717990d1ff7e10b6772109261cb02"
+      },
+      {
+        "suffix": ".png.map-effects.bin",
+        "bytes": 506939184,
+        "sha256": "9e2109060bd1a95c1bfb3f138c29eae4077c014e18847d5a4a9dd6567a87c51a"
+      },
+      {
+        "suffix": ".png.movement.bin",
+        "bytes": 4324352,
+        "sha256": "94aebfaec40b5a8a23e83679e7a289fb5b47f63f1a6e56f28a6d9bd2feccb7ed"
+      },
+      {
+        "suffix": ".png.music.bin",
+        "bytes": 1351360,
+        "sha256": "9ad8aae17a7680bab834464ed6dbe7992134144243bf0a35ed49070194739ea7"
+      },
+      {
+        "suffix": ".png.screen-filter.bin",
+        "bytes": 1081088,
+        "sha256": "859e4b7a0bd64146acccd4c28cd5521f905289e9518d5c6c29b1bf559795b275"
+      },
+      {
+        "suffix": ".png.sound.bin",
+        "bytes": 7360,
+        "sha256": "88999e40fc76edbdf37f6cc2af86af69d0931b4448ade5c4dffb27e2ff2ba183"
+      },
+      {
+        "suffix": ".png.transition.bin",
+        "bytes": 2162176,
+        "sha256": "5303f83049d5d088ea23241f5ef30a55734b1acb2de17ea340ae88082437b956"
+      },
+      {
+        "suffix": ".png.variables.bin",
+        "bytes": 4096,
+        "sha256": "844e98ce2afec93e6e88a27a6ab56bdbcba51f2ceacc450c5ca8f17b34a10778"
+      }
+    ],
+    "all_exact": true,
+    "scope": "Same67568 endpoint; all binary/PCM outputs, not new route progress or whole-scene fidelity."
+  }
+}

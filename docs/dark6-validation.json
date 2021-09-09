@@ -933,10 +933,10 @@
     "original_handler": "0x130850",
     "helper": "0x1346e0",
     "update": "0x135100",
-    "scope": "Static recovery only; native service and integrated original comparison not implemented.",
+    "scope": "At the effect6 checkpoint this was static recovery only.",
     "notes": [
       "Low mode1 starts HERO/STUN transition if unlocked/state0, sound0x17, attached effect24, bank4 variable2=1.",
-      "State updater follows HERO transform and transitions through fade-out/scale-in, with original ordering and frame boundaries still requiring execution evidence.",
+      "State updater follows HERO transform and changes shadow projection/selector and STUN scale/visibility, not HERO opacity. Isolated ordering/boundaries now have three-build execution evidence; full integration remains pending.",
       "Mode bit0x100 takes a different actor shadow-selector path. Preserve unsupported guards."
     ]
   },

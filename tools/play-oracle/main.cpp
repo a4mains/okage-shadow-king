@@ -359,6 +359,43 @@ public:
         call(0x11fec8,{message});capture();
         writeFile(output,result.data(),result.size());
     }
+    void shadowUpdate(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
+        constexpr unsigned stride=30*4;
+        if(ram.size()!=32*1024*1024||input.empty()||input.size()%stride||input.size()>stride*32)
+            throw std::runtime_error("Shadow update fixture extent");
+        std::vector<uint32> result;
+        for(unsigned at=0;at<input.size();at+=stride) {
+            ee->m_EE.m_executor->Reset();
+            std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);loadMicro();
+            std::array<uint32,30> f;std::memcpy(f.data(),input.data()+at,stride);
+            if(f[1]>5||f[6]>65535||f[7]>1||f[9]>128)throw std::runtime_error("Shadow update fixture bounds");
+            const auto field=get(0x2d9bf4),player=get(field+0x44),objects=get(0x21301c),hero=get(0x337b64),stun=get(player+0x25c);
+            if(player>ram.size()-0x284||hero>=640||stun>=640||objects>ram.size()-640*0x3c)
+                throw std::runtime_error("Shadow update actor bounds");
+            const auto heroFirst=get(objects+hero*0x3c+4)&65535,stunFirst=get(objects+stun*0x3c+4)&65535;
+            if(heroFirst>=5118||stunFirst>=5118)throw std::runtime_error("Shadow channel bounds");
+            for(unsigned i=0;i<5;++i)put(player+0x260+i*4,f[1+i]);
+            put(0x337e3c,f[8]);call(0x1baae8,{hero,f[6]});call(0x1baa60,{stun,f[7]});
+            const auto setChannel=[&](unsigned channel,const uint32* words) {
+                std::memcpy(ee->m_ram+0x80000,words,16);call(0x1b4220,{channel,0x80000});
+            };
+            setChannel(heroFirst,f.data()+10);setChannel(heroFirst+1,f.data()+14);
+            for(unsigned i=0;i<3;++i)setChannel(stunFirst+i,f.data()+18+i*4);
+            const auto capture=[&](unsigned step) {
+                result.insert(result.end(),{f[0],step});
+                for(unsigned i=0;i<5;++i)result.push_back(get(player+0x260+i*4));
+                result.insert(result.end(),{get(objects+hero*0x3c+0x2c)&65535,
+                    unsigned(bool(get(objects+stun*0x3c)&0x800)),get(0x337e3c)});
+                for(unsigned i=0;i<3;++i) {
+                    call(0x1b43c0,{stunFirst+i,0x80000});
+                    for(unsigned k=0;k<4;++k)result.push_back(get(0x80000+k*4));
+                }
+            };
+            capture(0);
+            for(unsigned step=1;step<=f[9];++step){call(0x135100,{player});capture(step);}
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
     void effectTint(const std::vector<uint8>& input,const char* output) {
         if(input.empty()||input.size()%48||input.size()>48*64)throw std::runtime_error("Effect tint fixture extent");
         loadMicro();std::vector<uint32> result;
@@ -507,7 +544,7 @@ public:
         if(ram.size()!=32*1024*1024||(input.size()!=80&&input.size()!=96)||frames>12000)
             throw std::runtime_error("Map effect probe fixture bounds");
         std::array<uint32,20> request;std::memcpy(request.data(),input.data(),80);
-        if((request[0]!=6&&request[0]!=16&&request[0]!=17&&request[0]!=19&&request[0]!=25&&request[0]!=26&&request[0]!=33&&request[0]!=34&&request[0]!=91&&request[0]!=98&&request[0]!=115)||request[2]>0xfff||request[3]!=0x100)
+        if((request[0]!=6&&request[0]!=16&&request[0]!=17&&request[0]!=19&&request[0]!=24&&request[0]!=25&&request[0]!=26&&request[0]!=33&&request[0]!=34&&request[0]!=91&&request[0]!=98&&request[0]!=115)||request[2]>0xfff||request[3]!=0x100)
             throw std::runtime_error("Map effect probe request scope");
         const bool torch=request[0]==91,flame=torch||request[0]==16;
         if((torch&&input.size()!=96)||(!torch&&(input.size()!=80||(!flame&&frames>1000))))
@@ -527,9 +564,16 @@ public:
         if(table>ram.size()-212*4||random>ram.size()-4)throw std::runtime_error("Map effect fixture pointers");
         for(unsigned i=0;i<84;++i)put(table+4*i,0xffffffff);
         put(random,request[1]);std::memcpy(ee->m_ram+0x80000,request.data()+4,64);
-        const bool positioned=request[0]==6||request[0]==17||request[0]==26||request[0]==33||request[0]==115;
+        const bool attached=request[0]==24;
+        const bool positioned=attached||request[0]==6||request[0]==17||request[0]==26||request[0]==33||request[0]==115;
         uint32 handle;
-        if(request[0]==6||request[0]==26||request[0]==33||request[0]==115) {
+        if(attached) {
+            const auto actor=get(0x337b64);
+            call(0x1bb5b8,{actor});const auto channel=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+            call(0x1b4220,{channel,0x80010});call(0x1b4220,{channel+1,0x80000});
+            call(0x1015e8,{24,actor});handle=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+        }
+        else if(request[0]==6||request[0]==26||request[0]==33||request[0]==115) {
             std::memset(ee->m_ram+0x2d9bf8,0xff,32);put(0x1fb948,15);
             call(0x130c50,{0x3e,0x123,request[0],0x80000});
             if(uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0)!=0x8000c||get(0x1fb948)!=0)
@@ -559,7 +603,7 @@ public:
                 unsigned texture=0;
                 for(;texture<get(0x1f8498);++texture)if(get(get(0x24e780)+4*texture)==(get(element+0x5c)&0xffff))break;
                 if(texture==get(0x1f8498)) {
-                    if((request[0]==6||request[0]==33||request[0]==115||torch)&&(get(element+0x5c)&0xffff)==0xffff)texture=0xffffffff;
+                    if((attached||request[0]==6||request[0]==33||request[0]==115||torch)&&(get(element+0x5c)&0xffff)==0xffff)texture=0xffffffff;
                     else throw std::runtime_error("Map effect texture identity");
                 }
                 result.insert(result.end(),{texture,get(element+0x68),get(element+0x6c),get(render+0x58)});
@@ -577,7 +621,7 @@ public:
                         torchGeometry.push_back(get(uv));
                     }
                 }
-                if(request[0]==6||request[0]==26||request[0]==33||request[0]==115) {
+                if(attached||request[0]==6||request[0]==26||request[0]==33||request[0]==115) {
                     unsigned piece=0;
                     for(auto g=get(element+0x64);g;g=get(g)) {
                         if(g>ram.size()-48||piece>=32)throw std::runtime_error("Effect geometry chain extent");
@@ -613,7 +657,14 @@ public:
             if(next!=(request[2]<0xf00?0x80030u:0x8003cu))throw std::runtime_error("Map effect service payload extent");
         }
         capture(1);
-        for(unsigned frame=0;frame<frames;++frame){call(0x1131d0,{handle});capture(frame+2);}
+        for(unsigned frame=0;frame<frames;++frame){
+            const auto job=get(table+4*handle);
+            if(attached&&!(get(job+4)&0x100)) {
+                if(get(job+0x68)!=0x101118)throw std::runtime_error("Unexpected effect attachment callback");
+                call(0x101118,{job});
+            }
+            call(0x1131d0,{handle});capture(frame+2);
+        }
         if(request[0]==17||request[0]==19) {
             // Research-only geometry/material dump, not a native runtime input.
             std::vector<uint32> packets;
@@ -1819,6 +1870,8 @@ int main(int argc,char** argv) {
             reference.mapTransforms(readFile(argv[3]),argv[4]);
         } else if ((command=="uv" || command=="texture-clamp") && argc==5) {
             reference.uv(readFile(argv[3]),argv[4],command=="texture-clamp");
+        } else if (command=="shadow-update" && argc==6) {
+            reference.shadowUpdate(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if (command=="instance-alpha" && argc==5) {
             reference.instanceAlpha(readFile(argv[3]),argv[4]);
         } else if (command=="primitive" && argc==8) {

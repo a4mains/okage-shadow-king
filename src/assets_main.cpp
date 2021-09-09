@@ -20,6 +20,7 @@
 #include "okage/camera.hpp"
 #include "okage/field.hpp"
 #include "okage/effect.hpp"
+#include "okage/shadow.hpp"
 #include "okage/collision.hpp"
 #include <algorithm>
 #include <bit>
@@ -73,6 +74,30 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if(command=="shadow-update" && argc==4) {
+            const auto input=read(argv[2]);constexpr unsigned stride=30*4;
+            if(input.empty()||input.size()%stride||input.size()>stride*32)throw std::runtime_error("Shadow update fixture extent");
+            std::vector<std::uint32_t> out;
+            for(unsigned at=0;at<input.size();at+=stride) {
+                std::array<std::uint32_t,30> f;std::memcpy(f.data(),input.data()+at,stride);
+                if(f[1]>5||f[6]>65535||f[7]>1||f[9]>128)throw std::runtime_error("Shadow update fixture bounds");
+                okage::ShadowTransition state;
+                state.phase=f[1];state.locked=f[2];state.follow_disabled=f[3];state.voice=__builtin_bit_cast(std::int32_t, (f[4]));
+                state.factor=__builtin_bit_cast(float, (f[5]));state.hero_shadow=f[6];state.stun_visible=f[7];state.projection_factor=__builtin_bit_cast(float, (f[8]));
+                okage::Float4 hero_rotation,hero_position;
+                std::memcpy(hero_rotation.data(),f.data()+10,16);std::memcpy(hero_position.data(),f.data()+14,16);
+                std::memcpy(state.stun_rotation.data(),f.data()+18,16);std::memcpy(state.stun_position.data(),f.data()+22,16);
+                std::memcpy(state.stun_scale.data(),f.data()+26,16);
+                const auto capture=[&](unsigned step) {
+                    out.insert(out.end(),{f[0],step,state.phase,state.locked,state.follow_disabled,__builtin_bit_cast(std::uint32_t, (state.voice)),
+                        __builtin_bit_cast(std::uint32_t, (state.factor)),state.hero_shadow,unsigned(state.stun_visible),__builtin_bit_cast(std::uint32_t, (state.projection_factor))});
+                    for(const auto& v:{state.stun_rotation,state.stun_position,state.stun_scale})
+                        for(float x:v)out.push_back(__builtin_bit_cast(std::uint32_t, (x)));
+                };
+                capture(0);for(unsigned step=1;step<=f[9];++step){state.tick(hero_rotation,hero_position);capture(step);}
+            }
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4});return 0;
+        }
         if(command=="instance-alpha" && argc==4) {
             const auto input=read(argv[2]);
             if(input.empty()||input.size()%8)throw std::runtime_error("Instance alpha fixture extent");
@@ -524,8 +549,9 @@ int main(int argc, char** argv) {
             for(unsigned i=0;i<sizes.size();++i){const auto image=okage::decode_xim(read(fs::path(argv[3])/okage::effect_texture_names[i]));sizes[i]={image.width,image.height};}
             okage::GameRandom rng{request[1]};const auto random=[&]{return rng.next();};
             const bool dust=request[0]==17;
-            const bool positioned=dust||request[0]==6||request[0]==26||request[0]==33||request[0]==115;
-            auto position=vectors[0];
+            const bool attached=request[0]==24;
+            const bool positioned=attached||dust||request[0]==6||request[0]==26||request[0]==33||request[0]==115;
+            auto position=attached?okage::Float4{}:vectors[0];
             // These probes use0x130c50's XYZ payload; it supplies W=1.
             // The direct0x1012f8 constructor used by dust copies all four words.
             if(request[0]==6||request[0]==26||request[0]==33||request[0]==115)position[3]=1;
@@ -579,7 +605,10 @@ int main(int argc, char** argv) {
                 write(std::string(argv[6])+".vertices.bin",{reinterpret_cast<const std::uint8_t*>(geometry.data()),geometry.size()*4});
             }
             if(!positioned)effect.set_parameter(request[2],vectors[3]);capture(1);
-            for(unsigned i=0;i<frames;++i){if(!(effect.flags&0x100))effect.tick(random,true,torch?&eye:nullptr);capture(i+2);}
+            for(unsigned i=0;i<frames;++i){if(!(effect.flags&0x100)) {
+                if(attached){effect.position=vectors[0];effect.rotation=vectors[1];}
+                effect.tick(random,true,torch?&eye:nullptr);
+            }capture(i+2);}
             if(flame)write(std::string(argv[6])+".torch-geometry.bin",
                 {reinterpret_cast<const std::uint8_t*>(torchGeometry.data()),torchGeometry.size()*4});
             if(!deformation.empty())write(std::string(argv[6])+".deformation.bin",
