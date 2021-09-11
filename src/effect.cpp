@@ -111,6 +111,10 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
         else set_texture(e,texture);
         if((id==24||id==33)&&e.shape==25)e.ring_y.assign(30,-192);
         if(id==26&&e.shape==24)e.cylinder_t.assign(17,0);
+        if(id==24&&e.shape==31) {
+            const auto w=std::uint16_t(sizes[17][0]*32),h=std::uint16_t((sizes[17][1]+1)*32);
+            e.quad_uv={{{0,0},{w,0},{w,h},{0,h}}};
+        }
         if((id==91||id==16)&&e.shape==28) {
             e.quad_positions={{{32,-64,0},{-32,-64,0},{32,0,0},{-32,0,0}}};
             const auto width=std::uint16_t(sizes[4][0]*32),height=std::uint16_t((sizes[4][1]+1)*32);
@@ -142,7 +146,8 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
     require((effect.id==25&&effect.elements.size()==8)||((effect.id==17||effect.id==19)&&effect.elements.size()==9)||
             (effect.id==91&&effect.elements.size()==4)||(effect.id==16&&effect.elements.size()==3)||
             (effect.id==33&&effect.elements.size()==9)||(effect.id==115&&effect.elements.size()==5)||
-            (effect.id==26&&effect.elements.size()==2)||(effect.id==6&&effect.elements.size()==4),"Unrecovered map effect geometry template");
+            (effect.id==26&&effect.elements.size()==2)||(effect.id==6&&effect.elements.size()==4)||
+            (effect.id==24&&effect.elements.size()==8),"Unrecovered map effect geometry template");
     require(bool(effect.flags&0x400)==(pass==EffectDrawPass::Deferred),"Effect submitted to the wrong draw pass");
     require(pass==EffectDrawPass::Ordinary||effect.id==6||effect.id==16||effect.id==33||effect.id==115,"Unrecovered deferred effect geometry");
     require(effect.id!=16||pass==EffectDrawPass::Deferred,"Flame16 requires the deferred pass");
@@ -157,13 +162,13 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
     }
     std::vector<MapEffectDraw> result;
     for(const auto& e:effect.elements) {
-        require(effect.id==6?e.primitive_flags==0x20:effect.id==16?e.primitive_flags==8:effect.id==115?e.primitive_flags==0x40:
+        require(effect.id==24?(e.primitive_flags&255)==0x21:effect.id==6?e.primitive_flags==0x20:effect.id==16?e.primitive_flags==8:effect.id==115?e.primitive_flags==0x40:
                 (e.primitive_flags&255)==1||((effect.id==17||effect.id==19||effect.id==26)&&e.primitive_flags==0x41),
                 "Unrecovered map effect material");
         require(!(e.flags&0x400000)||light_tint,"Effect requires owned field light tint");
         //0x105a40 sets render+0x58 bit0 when switching programs. It records
         //the captured channel transition;0x102cf8 does not test that bit.
-        const unsigned allowed_render_flags=effect.id==33||effect.id==115?1u:0u;
+        const unsigned allowed_render_flags=effect.id==24||effect.id==33||effect.id==115?1u:0u;
         require(e.uv[0]==0&&e.uv[1]==0&&!(e.render_flags&~allowed_render_flags),"Unrecovered map effect texture region");
         auto rotation=e.rendered[1];
         switch(e.flags&15){case 0:break;case 1:
@@ -193,7 +198,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
         MapEffectDraw draw{matrix,color,e.texture,e.uv,{},(e.primitive_flags&255)==1||e.primitive_flags==8};
         //115 uses TEST0x3000d: alpha>0 and depth ALWAYS, with ZBUF masked.
         draw.depth_test=effect.id!=115&&effect.id!=6;
-        draw.subtractive=effect.id==6;
+        draw.subtractive=effect.id==6||effect.id==24;
         const Float4 white{255,255,255,255},clear{255,255,255,0};
         if(effect.id==6) {
             require((e.shape==7||e.shape==9)&&e.texture==0xffffffffu,"Unrecovered dark-ring geometry");
@@ -256,7 +261,14 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
             // Original strip order B,A,C,D, hence the shared A-C diagonal.
             for(unsigned i:{1u,0u,2u,0u,2u,3u})draw.vertices.push_back({p[i],c[i],uv[i]});
         };
-        if(e.shape==25&&effect.id==33) {
+        if(effect.id==24&&(e.shape==3||e.shape==55)) {
+            require(!textured,"Unrecovered textured shadow shape");
+            if(e.shape==3)draw.vertices=make_shadow_effect_shape(3,sine,{});
+            else {
+                require(effect.shape55_geometry&&effect.shape55_geometry->size()==240,"Missing native shape55 template geometry");
+                draw.vertices=*effect.shape55_geometry;
+            }
+        } else if(e.shape==25&&(effect.id==24||effect.id==33)) {
             require(!textured&&e.ring_y.size()==30,"Unrecovered summoning ring");
             const auto point=[&](unsigned i,bool lower){
                 const auto a=angle(float(i%30)/30);
@@ -306,12 +318,14 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
                     {clear,white,white,clear},
                     {lower_uv(i),uv(a,1),uv(b,1),lower_uv(i+1)});
             }
-        } else if(e.shape==29||((effect.id==17||effect.id==19||effect.id==115)&&e.shape==31)||
+        } else if(e.shape==29||((effect.id==17||effect.id==19||effect.id==24||effect.id==115)&&e.shape==31)||
                   (effect.id==115&&e.shape==32)) {
             const float bottom=e.shape==29?-1:-.5f,top=e.shape==29?0:.5f;
+            const auto quad_uv=[&](unsigned i,float u,float v){return effect.id==24?
+                Float4{float(e.quad_uv[i][0])/32768,float(e.quad_uv[i][1])/32768,0,0}:uv(u,v);};
             quad({Float4{-.5f,bottom,0,1},Float4{.5f,bottom,0,1},Float4{.5f,top,0,1},Float4{-.5f,top,0,1}},
                  {white,white,white,white},
-                 {uv(0,0),uv(1,0),uv(1,1),uv(0,1)});
+                 {quad_uv(0,0,0),quad_uv(1,1,0),quad_uv(2,1,1),quad_uv(3,0,1)});
         } else throw std::runtime_error("Unrecovered map effect primitive geometry");
         result.push_back(std::move(draw));
     }
@@ -364,7 +378,16 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
                 //0x105e78 shares the immutable shape31 packet and copies the
                 //source texture/UV rectangle after its first-update replacement.
                 e.texture=source->texture;e.uv=source->uv;
-            } else if(mode)set_texture(e,unsigned(e.interval[2]));
+                e.quad_uv=source->quad_uv;
+            } else if(mode) {
+                const auto old=(id==24&&e.shape==31&&mode==1)?texture_sizes_.at(e.texture):std::array<std::uint32_t,2>{};
+                set_texture(e,unsigned(e.interval[2]));
+                if(id==24&&e.shape==31&&mode==1) {
+                    const auto next=texture_sizes_.at(e.texture);
+                    for(auto& pair:e.quad_uv)for(unsigned axis=0;axis<2;++axis)
+                        pair[axis]=std::uint16_t((unsigned(pair[axis])*((next[axis]<<5)/old[axis]))>>5);
+                }
+            }
             e.interval[2]=0;
         }
         if((e.flags&0x2000)&&e.interval[2]<t)program&=0xc0ffffff;

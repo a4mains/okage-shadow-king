@@ -36,6 +36,24 @@ int main(){try{
     okage::MapEffect job(map,{0,0,420,1},{0,0,0,0},{1,1,1,1},sizes,[]{return 1;});
     const okage::Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
     const auto sine=okage::make_sine_table();
+    unsigned shape_rng=0;
+    const auto shape_random=[&]{++shape_rng;return shape_rng;};
+    const auto rounding_before=std::fegetround();
+    const auto sphere=okage::make_shadow_effect_shape(3,sine,shape_random);
+    check(sphere.size()==672&&shape_rng==0&&std::fegetround()==rounding_before);
+    const auto edge=okage::make_shadow_effect_shape(55,sine,shape_random);
+    check(edge.size()==240&&shape_rng==20&&std::fegetround()==rounding_before);
+    rejects([&]{okage::make_shadow_effect_shape(55,sine,{});});
+    rejects([&]{okage::make_shadow_effect_shape(56,sine,shape_random);});
+    okage::EffectDefinition shadow;shadow.id=24;shadow.duration=80;shadow.elements.resize(8);
+    for(unsigned i=0;i<8;++i){auto& e=shadow.elements[i];e.id=i+1;
+        e.shape=i<3?25:i==3?3:i==4?55:31;e.primitive_flags=0x21;}
+    okage::MapEffect transition(shadow,{},{},{1,1,1,1},sizes,shape_random,okage::EffectStart::FirstFrame);
+    rejects([&]{okage::map_effect_draws(transition,identity,{},450,sine);});
+    transition.shape55_geometry=std::make_shared<const std::vector<okage::MapEffectVertex>>(edge);
+    const auto shadow_draws=okage::map_effect_draws(transition,identity,{},450,sine);
+    check(shadow_draws.size()==8&&shape_rng==20); // Drawing never consumes template RNG.
+    for(const auto& draw:shadow_draws)check(draw.subtractive&&draw.depth_test&&!draw.additive);
     okage::EffectDefinition cylinder;cylinder.id=26;cylinder.duration=160;cylinder.flags=0x8000;
     cylinder.elements.resize(2);
     for(unsigned i=0;i<2;++i) {

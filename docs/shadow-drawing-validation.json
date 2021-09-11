@@ -1,0 +1,477 @@
+{
+  "scope": "Isolated native effect24 geometry/drawing; global template startup RNG and full service54 remain incomplete.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "builds": {
+    "native-release": {
+      "drawing": {
+        "scope": "Verify native effect24 geometry factories, draw transforms/materials and UV sharing.",
+        "original_runs": [
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "effect-shape",
+              "local/extracted/SCUS_971.29",
+              "local/research/shadow-transition-v1/before-shadow.ram",
+              "local/research/effect24-v1/shapes-fixture-v1.bin",
+              "local/research/effect24-v1/shapes-original-v3.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 3.423458583,
+            "binary_sha256": "d068dcdbcf5132454cddb30f0dab5c0c48a39b94c9cfc2ea3707d276fed49e54",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+            "input_sha256": "5abf96e0fe5c8672f8744fd15439b4fbcf5a5c7e5ee242377c461583de0c0c9a",
+            "output_sha256": "76fd7288493c6b0555151628123ed17a835a410fc573774592d7dacbf39bfb62"
+          },
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow24-effect-geometry",
+              "local/extracted/SCUS_971.29",
+              "local/research/shadow-transition-v1/before-shadow.ram",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/research/effect24-v1/geometry-fixture-v1.bin",
+              "local/research/effect24-v1/geometry-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 5.395967875,
+            "binary_sha256": "dc6687ceff1253b53982405699c76591926e84920830009867699f0d8addd819",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+            "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+            "input_sha256": "d20ad9c804353dd12c438d73a4a7dc10977d4de715c85b43363c1e6eba24858a",
+            "outputs": {
+              "geometry-original-v1.bin": "58dfb844dd32a6d2cca546372b9c25b6a94006113037ba921cbd4ffdf9d5929f",
+              "geometry-original-v1.bin.packets.bin": "c96053eba6009d79107a5cfd7d5a0fbf48826bda97407c092f3d03824c712f1b"
+            }
+          },
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "map-effect-probe",
+              "local/extracted/SCUS_971.29",
+              "local/research/shadow-transition-v1/before-shadow.ram",
+              "local/research/effect24-v1/24.input.bin",
+              "82",
+              "local/research/effect24-v1/24.original-v2.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.447724041,
+            "binary_sha256": "48b8965fcedb7e3bf58b7180099fe630b732c0fe08ff1572f7e8b5a71dd8bf1c",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+            "input_sha256": "94d59066ffe57395a07c628700201e28c9de8d73911d716fd353913b68205170",
+            "outputs": {
+              "24.original-v2.bin": "5dcb85d8826b82bca167f900d008b2c24100d62b291da90f9107b282a0d7b2c7",
+              "24.original-v2.bin.geometry.bin": "17bcee21b54ef8204686ad367dc1579cd5850d9d66c07143be5e5f7ed49e5512",
+              "24.original-v2.bin.shadow-uv.bin": "2be6a79c913c80de7bc72f45f66b3832802878be0cc1d8a2d3742022a553d711"
+            }
+          }
+        ],
+        "native_commands": [
+          [
+            "build/native-release/okage-assets",
+            "effect-shape",
+            "local/research/effect24-v1/shapes-fixture-v1.bin",
+            "local/shadow-drawing-checks-v2/native-release/shapes.bin"
+          ],
+          [
+            "build/native-release/okage-assets",
+            "shadow24-effect-geometry",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/effect24-v1/geometry-fixture-v1.bin",
+            "local/shadow-drawing-checks-v2/native-release/drawing.bin"
+          ],
+          [
+            "build/native-release/okage-assets",
+            "map-effect-probe",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/effect24-v1/24.input.bin",
+            "82",
+            "local/shadow-drawing-checks-v2/native-release/state.bin"
+          ]
+        ],
+        "native_sha256": "f024fd377700fde0c4e322be8080f97503c8eb8e3885a3275c00afc3154a3c16",
+        "factory_vertices_exact": 2064,
+        "draw_vertices_exact": 1470,
+        "transform_colors_exact": 40,
+        "shared_uv_entries_exact": 1008,
+        "sphere_comparison": "Exact triangle multiset including multiplicity; order and winding differ. No raster equality claim.",
+        "native_material": "Subtractive, depth-tested/no-write, no culling"
+      },
+      "state": {
+        "scope": "Compare effect24 state and deformed ring heights with original execution.",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "map-effect-probe",
+            "local/extracted/SCUS_971.29",
+            "local/research/shadow-transition-v1/before-shadow.ram",
+            "local/research/effect24-v1/24.input.bin",
+            "82",
+            "local/research/effect24-v1/24.original-v1.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.754799209,
+          "binary_sha256": "821d932f7d725255198fa07f162738d205a0780f414e063507b83eb6913ecbcf",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+          "input_sha256": "94d59066ffe57395a07c628700201e28c9de8d73911d716fd353913b68205170",
+          "outputs": {
+            "24.original-v1.bin.geometry.bin": "17bcee21b54ef8204686ad367dc1579cd5850d9d66c07143be5e5f7ed49e5512",
+            "24.original-v1.bin": "5dcb85d8826b82bca167f900d008b2c24100d62b291da90f9107b282a0d7b2c7"
+          }
+        },
+        "native_command": [
+          "build/native-release/okage-assets",
+          "map-effect-probe",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/research/effect24-v1/24.input.bin",
+          "82",
+          "local/shadow-state-drawing-regression-v1/native-release/state.bin"
+        ],
+        "native_sha256": "f024fd377700fde0c4e322be8080f97503c8eb8e3885a3275c00afc3154a3c16",
+        "state_words_exact": 32004,
+        "ring_heights_exact": 7560
+      },
+      "ctest_log": "local/research/effect24-v1/ctest-drawing-native-release-v1.log",
+      "regression_reports": [
+        "local/shadow-draw-dark6-regression-v1/native-release/report.json",
+        "local/shadow-draw-cylinder-regression-v1/native-release/report.json",
+        "local/shadow-draw-summon-regression-v1/native-release/report.json"
+      ]
+    },
+    "native": {
+      "drawing": {
+        "scope": "Verify native effect24 geometry factories, draw transforms/materials and UV sharing.",
+        "original_runs": [
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "effect-shape",
+              "local/extracted/SCUS_971.29",
+              "local/research/shadow-transition-v1/before-shadow.ram",
+              "local/research/effect24-v1/shapes-fixture-v1.bin",
+              "local/research/effect24-v1/shapes-original-v3.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 3.423458583,
+            "binary_sha256": "d068dcdbcf5132454cddb30f0dab5c0c48a39b94c9cfc2ea3707d276fed49e54",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+            "input_sha256": "5abf96e0fe5c8672f8744fd15439b4fbcf5a5c7e5ee242377c461583de0c0c9a",
+            "output_sha256": "76fd7288493c6b0555151628123ed17a835a410fc573774592d7dacbf39bfb62"
+          },
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow24-effect-geometry",
+              "local/extracted/SCUS_971.29",
+              "local/research/shadow-transition-v1/before-shadow.ram",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/research/effect24-v1/geometry-fixture-v1.bin",
+              "local/research/effect24-v1/geometry-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 5.395967875,
+            "binary_sha256": "dc6687ceff1253b53982405699c76591926e84920830009867699f0d8addd819",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+            "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+            "input_sha256": "d20ad9c804353dd12c438d73a4a7dc10977d4de715c85b43363c1e6eba24858a",
+            "outputs": {
+              "geometry-original-v1.bin": "58dfb844dd32a6d2cca546372b9c25b6a94006113037ba921cbd4ffdf9d5929f",
+              "geometry-original-v1.bin.packets.bin": "c96053eba6009d79107a5cfd7d5a0fbf48826bda97407c092f3d03824c712f1b"
+            }
+          },
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "map-effect-probe",
+              "local/extracted/SCUS_971.29",
+              "local/research/shadow-transition-v1/before-shadow.ram",
+              "local/research/effect24-v1/24.input.bin",
+              "82",
+              "local/research/effect24-v1/24.original-v2.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.447724041,
+            "binary_sha256": "48b8965fcedb7e3bf58b7180099fe630b732c0fe08ff1572f7e8b5a71dd8bf1c",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+            "input_sha256": "94d59066ffe57395a07c628700201e28c9de8d73911d716fd353913b68205170",
+            "outputs": {
+              "24.original-v2.bin": "5dcb85d8826b82bca167f900d008b2c24100d62b291da90f9107b282a0d7b2c7",
+              "24.original-v2.bin.geometry.bin": "17bcee21b54ef8204686ad367dc1579cd5850d9d66c07143be5e5f7ed49e5512",
+              "24.original-v2.bin.shadow-uv.bin": "2be6a79c913c80de7bc72f45f66b3832802878be0cc1d8a2d3742022a553d711"
+            }
+          }
+        ],
+        "native_commands": [
+          [
+            "build/native/okage-assets",
+            "effect-shape",
+            "local/research/effect24-v1/shapes-fixture-v1.bin",
+            "local/shadow-drawing-checks-v2/native/shapes.bin"
+          ],
+          [
+            "build/native/okage-assets",
+            "shadow24-effect-geometry",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/effect24-v1/geometry-fixture-v1.bin",
+            "local/shadow-drawing-checks-v2/native/drawing.bin"
+          ],
+          [
+            "build/native/okage-assets",
+            "map-effect-probe",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/effect24-v1/24.input.bin",
+            "82",
+            "local/shadow-drawing-checks-v2/native/state.bin"
+          ]
+        ],
+        "native_sha256": "39f28331593a8d652d2c2ca4d6dbd45b4509180e392bca0f09b8c5d3d986a84b",
+        "factory_vertices_exact": 2064,
+        "draw_vertices_exact": 1470,
+        "transform_colors_exact": 40,
+        "shared_uv_entries_exact": 1008,
+        "sphere_comparison": "Exact triangle multiset including multiplicity; order and winding differ. No raster equality claim.",
+        "native_material": "Subtractive, depth-tested/no-write, no culling"
+      },
+      "state": {
+        "scope": "Compare effect24 state and deformed ring heights with original execution.",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "map-effect-probe",
+            "local/extracted/SCUS_971.29",
+            "local/research/shadow-transition-v1/before-shadow.ram",
+            "local/research/effect24-v1/24.input.bin",
+            "82",
+            "local/research/effect24-v1/24.original-v1.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.754799209,
+          "binary_sha256": "821d932f7d725255198fa07f162738d205a0780f414e063507b83eb6913ecbcf",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+          "input_sha256": "94d59066ffe57395a07c628700201e28c9de8d73911d716fd353913b68205170",
+          "outputs": {
+            "24.original-v1.bin.geometry.bin": "17bcee21b54ef8204686ad367dc1579cd5850d9d66c07143be5e5f7ed49e5512",
+            "24.original-v1.bin": "5dcb85d8826b82bca167f900d008b2c24100d62b291da90f9107b282a0d7b2c7"
+          }
+        },
+        "native_command": [
+          "build/native/okage-assets",
+          "map-effect-probe",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/research/effect24-v1/24.input.bin",
+          "82",
+          "local/shadow-state-drawing-regression-v1/native/state.bin"
+        ],
+        "native_sha256": "39f28331593a8d652d2c2ca4d6dbd45b4509180e392bca0f09b8c5d3d986a84b",
+        "state_words_exact": 32004,
+        "ring_heights_exact": 7560
+      },
+      "ctest_log": "local/research/effect24-v1/ctest-drawing-native-v1.log",
+      "regression_reports": [
+        "local/shadow-draw-dark6-regression-v1/native/report.json",
+        "local/shadow-draw-cylinder-regression-v1/native/report.json",
+        "local/shadow-draw-summon-regression-v1/native/report.json"
+      ]
+    },
+    "model-sanitize": {
+      "drawing": {
+        "scope": "Verify native effect24 geometry factories, draw transforms/materials and UV sharing.",
+        "original_runs": [
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "effect-shape",
+              "local/extracted/SCUS_971.29",
+              "local/research/shadow-transition-v1/before-shadow.ram",
+              "local/research/effect24-v1/shapes-fixture-v1.bin",
+              "local/research/effect24-v1/shapes-original-v3.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 3.423458583,
+            "binary_sha256": "d068dcdbcf5132454cddb30f0dab5c0c48a39b94c9cfc2ea3707d276fed49e54",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+            "input_sha256": "5abf96e0fe5c8672f8744fd15439b4fbcf5a5c7e5ee242377c461583de0c0c9a",
+            "output_sha256": "76fd7288493c6b0555151628123ed17a835a410fc573774592d7dacbf39bfb62"
+          },
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow24-effect-geometry",
+              "local/extracted/SCUS_971.29",
+              "local/research/shadow-transition-v1/before-shadow.ram",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/research/effect24-v1/geometry-fixture-v1.bin",
+              "local/research/effect24-v1/geometry-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 5.395967875,
+            "binary_sha256": "dc6687ceff1253b53982405699c76591926e84920830009867699f0d8addd819",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+            "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+            "input_sha256": "d20ad9c804353dd12c438d73a4a7dc10977d4de715c85b43363c1e6eba24858a",
+            "outputs": {
+              "geometry-original-v1.bin": "58dfb844dd32a6d2cca546372b9c25b6a94006113037ba921cbd4ffdf9d5929f",
+              "geometry-original-v1.bin.packets.bin": "c96053eba6009d79107a5cfd7d5a0fbf48826bda97407c092f3d03824c712f1b"
+            }
+          },
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "map-effect-probe",
+              "local/extracted/SCUS_971.29",
+              "local/research/shadow-transition-v1/before-shadow.ram",
+              "local/research/effect24-v1/24.input.bin",
+              "82",
+              "local/research/effect24-v1/24.original-v2.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.447724041,
+            "binary_sha256": "48b8965fcedb7e3bf58b7180099fe630b732c0fe08ff1572f7e8b5a71dd8bf1c",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+            "input_sha256": "94d59066ffe57395a07c628700201e28c9de8d73911d716fd353913b68205170",
+            "outputs": {
+              "24.original-v2.bin": "5dcb85d8826b82bca167f900d008b2c24100d62b291da90f9107b282a0d7b2c7",
+              "24.original-v2.bin.geometry.bin": "17bcee21b54ef8204686ad367dc1579cd5850d9d66c07143be5e5f7ed49e5512",
+              "24.original-v2.bin.shadow-uv.bin": "2be6a79c913c80de7bc72f45f66b3832802878be0cc1d8a2d3742022a553d711"
+            }
+          }
+        ],
+        "native_commands": [
+          [
+            "build/model-sanitize/okage-assets",
+            "effect-shape",
+            "local/research/effect24-v1/shapes-fixture-v1.bin",
+            "local/shadow-drawing-checks-v2/model-sanitize/shapes.bin"
+          ],
+          [
+            "build/model-sanitize/okage-assets",
+            "shadow24-effect-geometry",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/effect24-v1/geometry-fixture-v1.bin",
+            "local/shadow-drawing-checks-v2/model-sanitize/drawing.bin"
+          ],
+          [
+            "build/model-sanitize/okage-assets",
+            "map-effect-probe",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/effect24-v1/24.input.bin",
+            "82",
+            "local/shadow-drawing-checks-v2/model-sanitize/state.bin"
+          ]
+        ],
+        "native_sha256": "6791b427c5ea222a77ee1cdbb05677c7e9a6284254f6d1ef996f4b9787bff683",
+        "factory_vertices_exact": 2064,
+        "draw_vertices_exact": 1470,
+        "transform_colors_exact": 40,
+        "shared_uv_entries_exact": 1008,
+        "sphere_comparison": "Exact triangle multiset including multiplicity; order and winding differ. No raster equality claim.",
+        "native_material": "Subtractive, depth-tested/no-write, no culling"
+      },
+      "state": {
+        "scope": "Compare effect24 state and deformed ring heights with original execution.",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "map-effect-probe",
+            "local/extracted/SCUS_971.29",
+            "local/research/shadow-transition-v1/before-shadow.ram",
+            "local/research/effect24-v1/24.input.bin",
+            "82",
+            "local/research/effect24-v1/24.original-v1.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.754799209,
+          "binary_sha256": "821d932f7d725255198fa07f162738d205a0780f414e063507b83eb6913ecbcf",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+          "input_sha256": "94d59066ffe57395a07c628700201e28c9de8d73911d716fd353913b68205170",
+          "outputs": {
+            "24.original-v1.bin.geometry.bin": "17bcee21b54ef8204686ad367dc1579cd5850d9d66c07143be5e5f7ed49e5512",
+            "24.original-v1.bin": "5dcb85d8826b82bca167f900d008b2c24100d62b291da90f9107b282a0d7b2c7"
+          }
+        },
+        "native_command": [
+          "build/model-sanitize/okage-assets",
+          "map-effect-probe",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/research/effect24-v1/24.input.bin",
+          "82",
+          "local/shadow-state-drawing-regression-v1/model-sanitize/state.bin"
+        ],
+        "native_sha256": "6791b427c5ea222a77ee1cdbb05677c7e9a6284254f6d1ef996f4b9787bff683",
+        "state_words_exact": 32004,
+        "ring_heights_exact": 7560
+      },
+      "ctest_log": "local/research/effect24-v1/ctest-drawing-model-sanitize-v1.log",
+      "regression_reports": [
+        "local/shadow-draw-dark6-regression-v1/model-sanitize/report.json",
+        "local/shadow-draw-cylinder-regression-v1/model-sanitize/report.json",
+        "local/shadow-draw-summon-regression-v1/model-sanitize/report.json"
+      ]
+    }
+  },
+  "tests": {
+    "ctest_per_build": 20,
+    "python_count": 75,
+    "python_log": "local/research/effect24-v1/python-tests-drawing-v1.log"
+  },
+  "preview": {
+    "command": [
+      "build/native-release/okage-shadow-preview",
+      "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOMEB1B.XPF/a.xmp",
+      "local/effect-input/CMNDATA/2D/TES.EFD",
+      "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+      "local/shadow24-metal-preview-v2"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.412282625,
+    "binary_sha256": "bed6735dedd6a135ff9502ffea345171070473ecab3a4ba63f756a1f165d049f",
+    "scope": "Synthetic placement/camera and explicit factory seed1; not original raster comparison or gameplay progression."
+  },
+  "inspected_images": [
+    {
+      "path": "local/shadow24-metal-preview-v2/shadow-25.png",
+      "sha256": "6195e5b4ef2fe1a107afa537e7dae117756f3ff44b94d23705358f1161a2e119"
+    },
+    {
+      "path": "local/shadow24-metal-preview-v2/shadow-81.png",
+      "sha256": "0856f8f09c2a7acedc89b23f0d1e4093987d73d1c6f8dd8f506b7e126220bd67"
+    }
+  ],
+  "negative_attempts": [
+    {
+      "path": "local/research/effect24-v1/shapes-original-v1.run.json",
+      "exit_code": 1,
+      "reason": "Unused UV pointer rejected despite zero UV-record count; no output artifact."
+    },
+    {
+      "path": "local/research/effect24-v1/shapes-original-diagnostic-v2.log",
+      "exit_code": 1,
+      "reason": "Diagnostic confirmed stale untextured UV pointer; no output artifact."
+    },
+    {
+      "path": "local/shadow24-metal-preview-v1.run.json",
+      "exit_code": 0,
+      "reason": "Completed but effect occluded by wall; not a visible drawing proof."
+    }
+  ]
+}

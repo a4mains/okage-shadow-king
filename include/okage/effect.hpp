@@ -52,6 +52,7 @@ struct MapEffectElement {
     std::array<std::array<std::uint16_t,2>,4> quad_uv{};
 };
 enum class EffectStart {RandomPhase, FirstFrame};
+struct MapEffectVertex {Float4 position,color,uv;};
 class MapEffect {
 public:
     MapEffect(const EffectDefinition&,const Float4& position,const Float4& rotation,
@@ -66,13 +67,15 @@ public:
     float inverse_duration=0;
     Float4 position{},rotation{},scale{},color{1,1,1,1},parameters{};
     std::vector<MapEffectElement> elements;
+    std::shared_ptr<const std::vector<MapEffectVertex>> shape55_geometry;
 private:
     void set_texture(MapEffectElement&,unsigned);
     EffectTextureSizes texture_sizes_;
     inline static const SineTable sine_=make_sine_table();
 };
 using MapEffects=std::array<std::unique_ptr<MapEffect>,84>;
-struct MapEffectVertex {Float4 position,color,uv;};
+std::vector<MapEffectVertex> make_shadow_effect_shape(unsigned shape,const SineTable&,
+    const std::function<std::uint32_t()>& random);
 struct MapEffectDraw {
     Matrix4 matrix;
     Float4 color;

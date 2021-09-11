@@ -338,7 +338,7 @@ struct SceneRenderer::Impl {
         for (const auto& draw:draws) {
             [encoder setCullMode:draw.materialBlend?MTLCullModeBack:MTLCullModeNone];
             [encoder setRenderPipelineState:draw.materialBlend?(draw.materialBlend==0x48?materialAddPipeline:draw.materialBlend==0x42?materialSubtractPipeline:materialPipeline):draw.subtractive?darkEffectPipeline:draw.dust?dustPipeline:draw.additive?mapEffectPipeline:draw.effect?effectPipeline:pipeline];
-            [encoder setDepthStencilState:draw.depthAlways?effectDepth:draw.materialBlend?(draw.state[7]==1?materialDepth:mapEffectDepth):(draw.additive||draw.dust)?mapEffectDepth:draw.effect?effectDepth:depth];
+            [encoder setDepthStencilState:draw.depthAlways?effectDepth:draw.materialBlend?(draw.state[7]==1?materialDepth:mapEffectDepth):(draw.additive||draw.dust||draw.subtractive)?mapEffectDepth:draw.effect?effectDepth:depth];
             [encoder setFragmentTexture:gpuTextures[draw.image<0 ? whiteTexture : draw.image] atIndex:0];
             [encoder setFragmentBytes:draw.state.data() length:sizeof(draw.state) atIndex:0];
             [encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:draw.first vertexCount:draw.count];

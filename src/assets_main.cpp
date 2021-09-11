@@ -74,6 +74,19 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if(command=="effect-shape" && argc==4) {
+            const auto input=read(argv[2]);
+            if(input.empty()||input.size()%12||input.size()>12*16)throw std::runtime_error("Effect shape fixture extent");
+            const auto sine=okage::make_sine_table();std::vector<std::uint32_t> output;
+            for(unsigned at=0;at<input.size();at+=12) {
+                std::uint32_t f[3];std::memcpy(f,input.data()+at,12);okage::GameRandom rng{f[2]};
+                const auto vertices=okage::make_shadow_effect_shape(f[1],sine,[&]{return rng.next();});
+                output.insert(output.end(),{f[0],f[1],f[2],rng.state,unsigned(vertices.size())});
+                for(const auto& v:vertices)for(const auto& channel:{v.position,v.color,v.uv})
+                    for(float x:channel)output.push_back(__builtin_bit_cast(std::uint32_t, (x)));
+            }
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
         if(command=="shadow-update" && argc==4) {
             const auto input=read(argv[2]);constexpr unsigned stride=30*4;
             if(input.empty()||input.size()%stride||input.size()>stride*32)throw std::runtime_error("Shadow update fixture extent");
@@ -463,13 +476,13 @@ int main(int argc, char** argv) {
             }
             write(argv[3],output);return 0;
         }
-        if((command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry"||command=="summon33-effect-geometry"||command=="summon115-effect-geometry"||command=="cylinder26-effect-geometry"||command=="dark6-effect-geometry")&&argc==6) {
+        if((command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry"||command=="summon33-effect-geometry"||command=="summon115-effect-geometry"||command=="cylinder26-effect-geometry"||command=="dark6-effect-geometry"||command=="shadow24-effect-geometry")&&argc==6) {
             const bool summon=command=="summon33-effect-geometry"||command=="summon115-effect-geometry";
-            const unsigned id=command=="dark6-effect-geometry"?6:command=="cylinder26-effect-geometry"?26:command=="summon33-effect-geometry"?33:command=="summon115-effect-geometry"?115:command=="flame16-effect-geometry"?16:command=="torch-effect-geometry"?91:25;
+            const unsigned id=command=="shadow24-effect-geometry"?24:command=="dark6-effect-geometry"?6:command=="cylinder26-effect-geometry"?26:command=="summon33-effect-geometry"?33:command=="summon115-effect-geometry"?115:command=="flame16-effect-geometry"?16:command=="torch-effect-geometry"?91:25;
             const bool torch=id==91,deferred=id==6||id==16||summon,flame=torch||id==16;
             const unsigned count=id==6?4:id==26?2:id==33?9:id==115?5:id==16?3:torch?4:8;
             const auto bank=okage::read_efd(read(argv[2]));const auto input=read(argv[4]);
-            const unsigned stride=(38+count*20+(flame?36:id==33?30:id==26?34:0))*4;
+            const unsigned stride=(38+count*20+(flame?36:id==24?90:id==33?30:id==26?34:0))*4;
             if(input.empty()||input.size()%stride||input.size()>stride*64)throw std::runtime_error("Map geometry fixture bounds");
             const auto found=std::find_if(bank.begin(),bank.end(),[&](const auto& d){return d.id==id;});
             if(found==bank.end())throw std::runtime_error("Missing geometry effect template");
@@ -483,8 +496,13 @@ int main(int argc, char** argv) {
                 okage::Matrix4 view;std::memcpy(view.data(),input.data()+at+84,64);
                 float far;std::memcpy(&far,input.data()+at+148,4);
                 okage::MapEffect effect(*found,channels[0],channels[1],channels[2],sizes,[]{return 1;},
-                    (summon||id==26||id==6)?okage::EffectStart::FirstFrame:okage::EffectStart::RandomPhase);
+                    (summon||id==24||id==26||id==6)?okage::EffectStart::FirstFrame:okage::EffectStart::RandomPhase);
                 effect.color=channels[3];
+                if(id==24) {
+                    okage::GameRandom geometry_rng{1};
+                    effect.shape55_geometry=std::make_shared<const std::vector<okage::MapEffectVertex>>(
+                        okage::make_shadow_effect_shape(55,sine,[&]{return geometry_rng.next();}));
+                }
                 for(unsigned i=0;i<count;++i){
                     auto& e=effect.elements[i];const auto source=input.data()+at+152+i*80;
                     std::array<std::uint32_t,4> meta;std::memcpy(meta.data(),source+64,16);
@@ -503,8 +521,8 @@ int main(int argc, char** argv) {
                         if(t>65535)throw std::runtime_error("Cylinder packed UV fixture extent");
                         e.cylinder_t[v]=std::uint16_t(t);
                     }
-                    if(id==33&&i==1)for(unsigned v=0;v<30;++v) {
-                        std::uint32_t y;std::memcpy(&y,input.data()+at+152+count*80+v*4,4);
+                    if((id==33&&i==1)||(id==24&&i<3))for(unsigned v=0;v<30;++v) {
+                        std::uint32_t y;std::memcpy(&y,input.data()+at+152+count*80+(v+(id==24?i*30:0))*4,4);
                         if(y>65535)throw std::runtime_error("Summoning ring signed16 fixture extent");
                         e.ring_y[v]=__builtin_bit_cast(std::int16_t, (std::uint16_t(y)));
                     }
@@ -515,12 +533,12 @@ int main(int argc, char** argv) {
                 for(unsigned i=0;i<draws.size();++i){
                     const auto& d=draws[i];for(const auto& v:d.matrix)append(out,v);append(out,d.color);
                     if(at==0){geometry.insert(geometry.end(),{i,unsigned(d.vertices.size()),d.texture});
-                        if(summon||id==26||id==6)materials.insert(materials.end(),{i,d.subtractive?2u:unsigned(d.additive),unsigned(d.depth_test)});
+                        if(summon||id==24||id==26||id==6)materials.insert(materials.end(),{i,d.subtractive?2u:unsigned(d.additive),unsigned(d.depth_test)});
                         for(const auto& v:d.vertices){append(geometry,v.position);append(geometry,v.color);append(geometry,v.uv);}}
                 }
             }
             write(argv[5],{reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4});
-            if(summon||id==26||id==6)write(std::string(argv[5])+".materials.bin",{reinterpret_cast<const std::uint8_t*>(materials.data()),materials.size()*4});
+            if(summon||id==24||id==26||id==6)write(std::string(argv[5])+".materials.bin",{reinterpret_cast<const std::uint8_t*>(materials.data()),materials.size()*4});
             write(std::string(argv[5])+".vertices.bin",{reinterpret_cast<const std::uint8_t*>(geometry.data()),geometry.size()*4});return 0;
         }
         if(command=="effect-reference-probe"&&argc==4) {
@@ -558,9 +576,16 @@ int main(int argc, char** argv) {
             okage::MapEffect effect(*found,position,positioned?okage::Float4{}:vectors[1],
                 positioned?okage::Float4{1,1,1,1}:vectors[2],sizes,random,
                 positioned?okage::EffectStart::FirstFrame:okage::EffectStart::RandomPhase);
-            std::vector<std::uint32_t> out,deformation,torchGeometry,cylinderUV;
+            std::vector<std::uint32_t> out,deformation,torchGeometry,cylinderUV,shadowUV;
             const auto vector=[&](const okage::Float4& v){for(float f:v)out.push_back(__builtin_bit_cast(std::uint32_t, (f)));};
             const auto capture=[&](unsigned step){
+                if(attached)for(unsigned i=5;i<8;++i) {
+                    shadowUV.insert(shadowUV.end(),{step,i,4});
+                    for(unsigned j:{1u,0u,2u,3u}) {
+                        const auto& uv=effect.elements[i].quad_uv[j];
+                        shadowUV.push_back(uv[0]|(std::uint32_t(uv[1])<<16));
+                    }
+                }
                 if(request[0]==26)for(unsigned i=0;i<effect.elements.size();++i) {
                     const auto& e=effect.elements[i];
                     if(e.cylinder_t.size()!=17)throw std::runtime_error("Cylinder UV probe extent");
@@ -609,6 +634,7 @@ int main(int argc, char** argv) {
                 if(attached){effect.position=vectors[0];effect.rotation=vectors[1];}
                 effect.tick(random,true,torch?&eye:nullptr);
             }capture(i+2);}
+            if(attached)write(std::string(argv[6])+".shadow-uv.bin",{reinterpret_cast<const std::uint8_t*>(shadowUV.data()),shadowUV.size()*4});
             if(flame)write(std::string(argv[6])+".torch-geometry.bin",
                 {reinterpret_cast<const std::uint8_t*>(torchGeometry.data()),torchGeometry.size()*4});
             if(!deformation.empty())write(std::string(argv[6])+".deformation.bin",
