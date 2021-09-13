@@ -74,6 +74,24 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if(command=="effect-noise" && argc==4) {
+            const auto input=read(argv[2]);
+            if(input.empty()||input.size()%8||input.size()>8*16)throw std::runtime_error("Effect noise fixture extent");
+            std::vector<std::uint32_t> output;
+            for(unsigned at=0;at<input.size();at+=8) {
+                std::uint32_t f[2];std::memcpy(f,input.data()+at,8);okage::GameRandom rng{f[1]};
+                const auto grid=okage::make_effect_noise_grid([&]{return rng.next();});
+                output.insert(output.end(),{f[0],f[1],rng.state,unsigned(grid.size())});
+                output.insert(output.end(),grid.begin(),grid.end());
+                for(unsigned shape=10;shape<=16;++shape) {
+                    const auto vertices=okage::make_effect_noise_shape(shape,grid);
+                    output.insert(output.end(),{shape,rng.state,unsigned(vertices.size())});
+                    for(const auto& v:vertices)for(const auto& channel:{v.position,v.color,v.uv})
+                        for(float x:channel)output.push_back(__builtin_bit_cast(std::uint32_t, (x)));
+                }
+            }
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
         if(command=="effect-shape" && argc==4) {
             const auto input=read(argv[2]);
             if(input.empty()||input.size()%12||input.size()>12*16)throw std::runtime_error("Effect shape fixture extent");

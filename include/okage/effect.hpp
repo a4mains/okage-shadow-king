@@ -53,6 +53,9 @@ struct MapEffectElement {
 };
 enum class EffectStart {RandomPhase, FirstFrame};
 struct MapEffectVertex {Float4 position,color,uv;};
+using EffectNoiseGrid=std::array<std::uint32_t,8*8*6>;
+EffectNoiseGrid make_effect_noise_grid(const std::function<std::uint32_t()>& random);
+std::vector<MapEffectVertex> make_effect_noise_shape(unsigned shape,const EffectNoiseGrid&);
 class MapEffect {
 public:
     MapEffect(const EffectDefinition&,const Float4& position,const Float4& rotation,

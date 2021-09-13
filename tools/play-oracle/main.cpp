@@ -60,6 +60,8 @@ public:
     std::unique_ptr<Ee::CSubSystem> ee;
     std::unique_ptr<CPS2OS> effectOs;
     bool streamTransferProbe=false;
+    bool templateLoadProbe=false;
+    std::vector<uint32> templateRandomLog;
     static constexpr uint32 stop=0x007ff000;
     uint32 expectedStop=stop;
     Reference(const std::vector<uint8>& elf) {
@@ -125,6 +127,13 @@ public:
                 cpu.m_State.callMsEnabled=0;
             }
             if (executed && cpu.m_executor->MustBreak()) {
+                if(templateLoadProbe&&cpu.m_State.nPC==0x1f14b0) {
+                    if(templateRandomLog.size()>=2*10000)throw std::runtime_error("Template RNG observation limit");
+                    templateRandomLog.insert(templateRandomLog.end(),{
+                        cpu.m_State.nGPR[CMIPS::RA].nV[0],get(get(0x2151b4)+0x58)});
+                    // Observe entry, then execute the original function unchanged.
+                    cpu.m_executor->DisableBreakpointsOnce();continue;
+                }
                 if(streamTransferProbe && cpu.m_State.nPC==0x16e300) {
                     const auto dst=cpu.m_State.nGPR[CMIPS::A0].nV[0];
                     const auto src=cpu.m_State.nGPR[CMIPS::A1].nV[0];
@@ -404,6 +413,83 @@ public:
             call(0x183d68,{0x80000});call(0x183d30,{0x80010});call(0x183ce0,{0,0x80020});
             call(0x1020e0);
             for(unsigned i=0;i<4;++i)result.push_back(get(0x24e620+i*4));
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
+    void effectTemplateLoad(const std::vector<uint8>& ram,const std::vector<uint8>& efd,uint32 seed,const char* output) {
+        if(ram.size()!=32*1024*1024||efd.size()<16||efd.size()>0x70000)
+            throw std::runtime_error("Effect template load fixture extent");
+        uint32 magic,count;std::memcpy(&magic,efd.data(),4);std::memcpy(&count,efd.data()+4,4);
+        if(magic!=0x20444645||count>128)throw std::runtime_error("Effect template EFD header");
+        ee->m_EE.m_executor->Reset();std::memcpy(ee->m_ram,ram.data(),ram.size());
+        put(stop,0x08000000|(stop>>2));put(stop+4,0);loadMicro();
+        effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,ee->m_gs,ee->m_sif,*dynamic_cast<CIopBios*>(iop->m_bios.get()));
+        const auto table=get(0x1f849c),random=get(0x2151b4)+0x58;
+        if(table>ram.size()-212*4||random>ram.size()-4)throw std::runtime_error("Template load pointers");
+        for(unsigned i=0;i<212;++i)put(table+i*4,0xffffffff);
+        for(unsigned i=0;i<66;++i){put(0x24e790+i*4,0);put(0x24e898+i*4,0);}
+        std::memcpy(ee->m_ram+0x80000,efd.data(),efd.size());put(random,seed);
+        templateRandomLog.clear();templateLoadProbe=true;ee->m_EE.ToggleBreakpoint(0x1f14b0);
+        call(0x10e098,{8});const auto grid=get(0x24e9fc),gridRng=get(random);
+        if(grid>ram.size()-384*4)throw std::runtime_error("Template grid extent");
+        std::vector<uint32> noise;for(unsigned i=0;i<384;++i)noise.push_back(get(grid+i*4));
+        call(0x10ba38,{0x80000});
+        if(uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0)!=count)throw std::runtime_error("Template importer count");
+        ee->m_EE.ToggleBreakpoint(0x1f14b0);templateLoadProbe=false;
+        std::vector<uint32> result{0x504d5445,seed,gridRng,get(random),count,unsigned(templateRandomLog.size()/2)};
+        result.insert(result.end(),noise.begin(),noise.end());
+        result.insert(result.end(),templateRandomLog.begin(),templateRandomLog.end());
+        for(unsigned shape=0;shape<66;++shape){result.push_back(get(0x24e790+shape*4));result.push_back(get(0x24e898+shape*4));}
+        for(unsigned id=0;id<128;++id) {
+            const auto job=get(table+(84+id)*4);
+            if(job==0xffffffff){result.insert(result.end(),{id,0xffffffff,0,0});continue;}
+            if(job>ram.size()-128)throw std::runtime_error("Imported template pointer");
+            result.insert(result.end(),{id,get(job),get(job+4),get(job+8)});
+        }
+        writeFile(output,result.data(),result.size()*4);
+        std::cout<<"Imported "<<count<<" EFD templates with "<<templateRandomLog.size()/2<<" observed RNG calls including noise grid\n";
+    }
+    void effectNoise(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
+        if(ram.size()!=32*1024*1024||input.empty()||input.size()%8||input.size()>8*16)
+            throw std::runtime_error("Effect noise fixture extent");
+        std::vector<uint32> result;
+        for(unsigned at=0;at<input.size();at+=8) {
+            uint32 f[2];std::memcpy(f,input.data()+at,8);
+            ee->m_EE.m_executor->Reset();std::memcpy(ee->m_ram,ram.data(),ram.size());
+            put(stop,0x08000000|(stop>>2));put(stop+4,0);loadMicro();
+            effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,ee->m_gs,ee->m_sif,*dynamic_cast<CIopBios*>(iop->m_bios.get()));
+            const auto table=get(0x1f849c),random=get(0x2151b4)+0x58;
+            if(table>ram.size()-212*4||random>ram.size()-4)throw std::runtime_error("Effect noise fixture pointers");
+            for(unsigned i=0;i<84;++i)put(table+i*4,0xffffffff);
+            put(random,f[1]);call(0x10e098,{8});
+            const auto grid=get(0x24e9fc);
+            if(grid>ram.size()-384*4)throw std::runtime_error("Effect noise grid extent");
+            result.insert(result.end(),{f[0],f[1],get(random),384});
+            for(unsigned i=0;i<384;++i)result.push_back(get(grid+i*4));
+            for(unsigned shape=10;shape<=16;++shape) {
+                put(0x24e790+shape*4,0);std::memset(ee->m_ram+0x80000,0,48+116);
+                put(0x80000,124);put(0x80004,80);put(0x80010,1);put(0x80014,0x80030);
+                put(0x80034,1);put(0x80038,shape);put(0x8003c,0x21);put(0x80048,0xffffffff);
+                call(0x10b7a0,{0x80000});
+                if(uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0)!=0)throw std::runtime_error("Effect noise construction failed");
+                const auto job=get(table+(84+124)*4);
+                if(job>ram.size()-128||get(job)!=124||get(job+8)!=1)throw std::runtime_error("Effect noise template extent");
+                const auto element=get(job+12);if(element>ram.size()-128)throw std::runtime_error("Effect noise element extent");
+                std::vector<uint32> pieces;
+                for(auto g=get(element+0x64);g;g=get(g)) {
+                    if(g>ram.size()-48||pieces.size()>=32)throw std::runtime_error("Effect noise piece extent");
+                    pieces.push_back(g);
+                }
+                result.insert(result.end(),{shape,get(random),unsigned(pieces.size())});
+                for(auto g:pieces)for(unsigned offset:{4u,8u,12u,16u}) {
+                    if(offset==8&&(get(g+0x1c)>>16)==0){result.push_back(0);continue;}
+                    const auto p=get(g+offset);if(!p){result.push_back(0);continue;}
+                    if(p>ram.size()-4)throw std::runtime_error("Effect noise packet pointer");
+                    const auto n=(get(p)&65535)*16+32;
+                    if(n>8192||p>ram.size()-n)throw std::runtime_error("Effect noise packet extent");
+                    result.push_back(n);for(unsigned i=0;i<n;i+=4)result.push_back(get(p+i));
+                }
+            }
         }
         writeFile(output,result.data(),result.size()*4);
     }
@@ -1858,6 +1944,10 @@ int main(int argc,char** argv) {
             reference.effectTint(readFile(argv[3]),argv[4]);
         } else if(command=="shadow24-effect-geometry" && argc==7) {
             reference.mapEffectGeometry(readFile(argv[3]),readFile(argv[5]),argv[6],24,readFile(argv[4]));
+        } else if(command=="effect-template-load" && argc==7) {
+            reference.effectTemplateLoad(readFile(argv[3]),readFile(argv[4]),std::stoul(argv[5],nullptr,0),argv[6]);
+        } else if(command=="effect-noise" && argc==6) {
+            reference.effectNoise(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="effect-shape" && argc==6) {
             reference.effectShape(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if((command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry"||command=="summon33-effect-geometry"||command=="summon115-effect-geometry"||command=="cylinder26-effect-geometry"||command=="dark6-effect-geometry") && argc==6) {

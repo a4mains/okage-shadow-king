@@ -38,6 +38,16 @@ int main(){try{
     const auto sine=okage::make_sine_table();
     unsigned shape_rng=0;
     const auto shape_random=[&]{++shape_rng;return shape_rng;};
+    const auto noise=okage::make_effect_noise_grid(shape_random);
+    check(shape_rng==384);unsigned noise_vertices=0;
+    for(unsigned shape=10;shape<=16;++shape)noise_vertices+=okage::make_effect_noise_shape(shape,noise).size();
+    check(noise_vertices==6*8*8*6&&shape_rng==384);
+    check(okage::make_effect_noise_shape(17,noise).empty());
+    rejects([&]{okage::make_effect_noise_grid({});});
+    rejects([&]{okage::make_effect_noise_shape(9,noise);});
+    auto bad_noise=noise;bad_noise[0]=7;
+    rejects([&]{okage::make_effect_noise_shape(10,bad_noise);});
+    shape_rng=0;
     const auto rounding_before=std::fegetround();
     const auto sphere=okage::make_shadow_effect_shape(3,sine,shape_random);
     check(sphere.size()==672&&shape_rng==0&&std::fegetround()==rounding_before);

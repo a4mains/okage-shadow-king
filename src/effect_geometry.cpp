@@ -7,6 +7,32 @@
 #pragma STDC FP_CONTRACT OFF
 
 namespace okage {
+EffectNoiseGrid make_effect_noise_grid(const std::function<std::uint32_t()>& random) {
+    if(!random)throw std::runtime_error("Effect noise grid requires template RNG");
+    EffectNoiseGrid result;
+    for(auto& cell:result)cell=random()%7;
+    return result;
+}
+std::vector<MapEffectVertex> make_effect_noise_shape(unsigned shape,const EffectNoiseGrid& grid) {
+    if(shape<10||shape>17)throw std::runtime_error("Unrecovered effect noise shape");
+    for(auto group:grid)if(group>6)throw std::runtime_error("Invalid effect noise group");
+    std::vector<MapEffectVertex> result;
+    //0x10e138 walks Z+/Z-, X+/X-, Y+/Y-, rows then columns. Coordinates
+    //are exact multiples of1/4, so no host rounding-mode dependency remains.
+    for(unsigned face=0;face<6;++face)for(unsigned row=0;row<8;++row)for(unsigned column=0;column<8;++column) {
+        if(grid[face*64+row*8+column]!=shape-10)continue;
+        const float a=float(column)/4-1,b=float(column+1)/4-1;
+        const float c=float(row)/4-1,d=float(row+1)/4-1,side=face%2?-1:1;
+        std::array<Float4,4> points;
+        switch(face/2) {
+            case 0:points={Float4{b,c,side,1},Float4{a,c,side,1},Float4{a,d,side,1},Float4{b,d,side,1}};break;
+            case 1:points={Float4{side,d,a,1},Float4{side,c,a,1},Float4{side,c,b,1},Float4{side,d,b,1}};break;
+            default:points={Float4{b,side,c,1},Float4{a,side,c,1},Float4{a,side,d,1},Float4{b,side,d,1}};break;
+        }
+        for(unsigned i:{1u,0u,2u,0u,2u,3u})result.push_back({points[i],{255,255,255,255},{}});
+    }
+    return result;
+}
 std::vector<MapEffectVertex> make_shadow_effect_shape(unsigned shape,const SineTable& sine,
         const std::function<std::uint32_t()>& random) {
     if(shape!=3&&shape!=55)throw std::runtime_error("Unrecovered procedural shadow shape");

@@ -1,0 +1,276 @@
+{
+  "scope": "Native noise-grid geometry and bounded complete original EFD import.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "noise": {
+    "native-release": {
+      "scope": "Compare original effect noise initialization and its cube-face consumers.",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "effect-noise",
+          "local/extracted/SCUS_971.29",
+          "local/research/shadow-transition-v1/before-shadow.ram",
+          "local/research/effect-template-v1/noise-fixture-v1.bin",
+          "local/research/effect-template-v1/noise-original-v1.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 2.420774625,
+        "binary_sha256": "9994a48bb18916a23d079b1e69fb5e61c96b3ed55e8d8fa32dd980a53208a1c5",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "input_sha256": "71cca7be0896a06c7eea08509a8b99210b4ee49487463d3ed3fe3d51397a5e8e",
+        "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+        "output_sha256": "fd075e761340fb35f0c9cdeada65511a502fac56a4c3fe6bddeb79dbbc431bd2"
+      },
+      "native_command": [
+        "build/native-release/okage-assets",
+        "effect-noise",
+        "local/research/effect-template-v1/noise-fixture-v1.bin",
+        "local/effect-noise-checks-v2/native-release/native.bin"
+      ],
+      "native_sha256": "f3c31283646db4a3b11972e667416bb2cd9238f6f3f444f77e6a0f0f737117e9",
+      "grid_words_exact": 1152,
+      "triangle_vertices_exact": 6912,
+      "vertices_per_partition": [
+        [
+          330,
+          312,
+          294,
+          372,
+          366,
+          264,
+          366
+        ],
+        [
+          324,
+          300,
+          282,
+          312,
+          372,
+          366,
+          348
+        ],
+        [
+          342,
+          276,
+          354,
+          342,
+          282,
+          390,
+          318
+        ]
+      ],
+      "shadow_regression_report": "local/effect-noise-shadow-regression-v1/native-release/report.json",
+      "ctest_log": "local/research/effect-template-v1/ctest-native-release-v1.log"
+    },
+    "native": {
+      "scope": "Compare original effect noise initialization and its cube-face consumers.",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "effect-noise",
+          "local/extracted/SCUS_971.29",
+          "local/research/shadow-transition-v1/before-shadow.ram",
+          "local/research/effect-template-v1/noise-fixture-v1.bin",
+          "local/research/effect-template-v1/noise-original-v1.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 2.420774625,
+        "binary_sha256": "9994a48bb18916a23d079b1e69fb5e61c96b3ed55e8d8fa32dd980a53208a1c5",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "input_sha256": "71cca7be0896a06c7eea08509a8b99210b4ee49487463d3ed3fe3d51397a5e8e",
+        "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+        "output_sha256": "fd075e761340fb35f0c9cdeada65511a502fac56a4c3fe6bddeb79dbbc431bd2"
+      },
+      "native_command": [
+        "build/native/okage-assets",
+        "effect-noise",
+        "local/research/effect-template-v1/noise-fixture-v1.bin",
+        "local/effect-noise-checks-v2/native/native.bin"
+      ],
+      "native_sha256": "fb1f228b411bfaa44046c07d14e6b27b3b938bcc4c27cb261f0d7ab05f8f1eb0",
+      "grid_words_exact": 1152,
+      "triangle_vertices_exact": 6912,
+      "vertices_per_partition": [
+        [
+          330,
+          312,
+          294,
+          372,
+          366,
+          264,
+          366
+        ],
+        [
+          324,
+          300,
+          282,
+          312,
+          372,
+          366,
+          348
+        ],
+        [
+          342,
+          276,
+          354,
+          342,
+          282,
+          390,
+          318
+        ]
+      ],
+      "shadow_regression_report": "local/effect-noise-shadow-regression-v1/native/report.json",
+      "ctest_log": "local/research/effect-template-v1/ctest-native-v1.log"
+    },
+    "model-sanitize": {
+      "scope": "Compare original effect noise initialization and its cube-face consumers.",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "effect-noise",
+          "local/extracted/SCUS_971.29",
+          "local/research/shadow-transition-v1/before-shadow.ram",
+          "local/research/effect-template-v1/noise-fixture-v1.bin",
+          "local/research/effect-template-v1/noise-original-v1.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 2.420774625,
+        "binary_sha256": "9994a48bb18916a23d079b1e69fb5e61c96b3ed55e8d8fa32dd980a53208a1c5",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "input_sha256": "71cca7be0896a06c7eea08509a8b99210b4ee49487463d3ed3fe3d51397a5e8e",
+        "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+        "output_sha256": "fd075e761340fb35f0c9cdeada65511a502fac56a4c3fe6bddeb79dbbc431bd2"
+      },
+      "native_command": [
+        "build/model-sanitize/okage-assets",
+        "effect-noise",
+        "local/research/effect-template-v1/noise-fixture-v1.bin",
+        "local/effect-noise-checks-v2/model-sanitize/native.bin"
+      ],
+      "native_sha256": "67a1be75283a7c3a4f040db699f16a5e79128ef91f07c056f7dcee3381f4702d",
+      "grid_words_exact": 1152,
+      "triangle_vertices_exact": 6912,
+      "vertices_per_partition": [
+        [
+          330,
+          312,
+          294,
+          372,
+          366,
+          264,
+          366
+        ],
+        [
+          324,
+          300,
+          282,
+          312,
+          372,
+          366,
+          348
+        ],
+        [
+          342,
+          276,
+          354,
+          342,
+          282,
+          390,
+          318
+        ]
+      ],
+      "shadow_regression_report": "local/effect-noise-shadow-regression-v1/model-sanitize/report.json",
+      "ctest_log": "local/research/effect-template-v1/ctest-model-sanitize-v1.log"
+    }
+  },
+  "original_loader": {
+    "scope": "Audit a bounded original noise initializer + complete owned EFD import.",
+    "original_run": {
+      "command": [
+        "build/play-research/okage-oracle/okage-pose-oracle",
+        "effect-template-load",
+        "local/extracted/SCUS_971.29",
+        "local/research/shadow-transition-v1/before-shadow.ram",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "1",
+        "local/research/effect-template-v1/loader-seed1-original-v1.bin"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.540947833,
+      "binary_sha256": "b61f48256527202ad49af37cdd1b2d95e3f3e397d7b02537cd725a43f8c0e56e",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+      "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+      "seed": 1,
+      "output_sha256": "1ca1c550cd397d649a976d63e14e55af809e6679002ec10d3de33d0b9ead04af"
+    },
+    "template_count": 121,
+    "rng_calls": 544,
+    "grid_rng_state": 3189031553,
+    "final_rng_state": 1866612961,
+    "call_sites": {
+      "0x0010e0e0": 384,
+      "0x001119e4": 20,
+      "0x00111a10": 20,
+      "0x0010dd38": 8,
+      "0x0010dd6c": 8,
+      "0x0010dd98": 8,
+      "0x0010ddc4": 8,
+      "0x0010dff0": 8,
+      "0x0010ea10": 20,
+      "0x0010eaa0": 20,
+      "0x0010eb10": 20,
+      "0x0010eb80": 20
+    },
+    "constructor_runs": [
+      {
+        "constructor": "noise-grid",
+        "first_call": 0,
+        "initial_state": 1,
+        "calls": 384,
+        "final_state": 3189031553
+      },
+      {
+        "constructor": "surface",
+        "first_call": 384,
+        "initial_state": 3189031553,
+        "calls": 20,
+        "final_state": 3396130861
+      },
+      {
+        "constructor": "rays",
+        "first_call": 404,
+        "initial_state": 3396130861,
+        "calls": 40,
+        "final_state": 1779250373
+      },
+      {
+        "constructor": "surface",
+        "first_call": 444,
+        "initial_state": 1779250373,
+        "calls": 20,
+        "final_state": 1707070385
+      },
+      {
+        "constructor": "spray",
+        "first_call": 464,
+        "initial_state": 1707070385,
+        "calls": 80,
+        "final_state": 1866612961
+      }
+    ]
+  },
+  "tests": {
+    "ctest_per_build": 20,
+    "python": 78,
+    "python_log": "local/research/effect-template-v1/python-tests-v2.log"
+  },
+  "negative_attempt": {
+    "log": "local/research/effect-template-v1/verify-noise-release-v1.log",
+    "reason": "Comparison observer allowed two packet pieces, but some cube partitions contain three. Original run succeeded; corpus reused unchanged."
+  },
+  "next": "Implement actual native43/56/62 data, then session-owned template preparation/cache and service54."
+}
