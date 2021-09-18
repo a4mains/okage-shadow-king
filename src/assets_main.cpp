@@ -74,6 +74,53 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) throw std::runtime_error("Usage: okage-assets list ARCHIVE | extract ARCHIVE OUTDIR | decode PACKED OUTFILE | texture XIM PAMFILE");
         const std::string command = argv[1];
+        if(command=="prepare-effect-templates"&&argc==6) {
+            const auto bank=okage::read_efd(read(argv[2]));okage::EffectTextureSizes sizes;
+            for(unsigned i=0;i<sizes.size();++i) {
+                const auto image=okage::decode_xim(read(fs::path(argv[3])/okage::effect_texture_names[i]));
+                sizes[i]={image.width,image.height};
+            }
+            const auto seed=std::stoul(argv[4],nullptr,0);
+            if(seed>0xffffffffu)throw std::runtime_error("Template fixture seed extent");
+            okage::GameRandom rng{unsigned(seed)};std::vector<std::uint32_t> states;
+            const okage::EffectTemplatePreparation prepared(bank,sizes,okage::make_sine_table(),[&]{states.push_back(rng.state);return rng.next();});
+            std::vector<std::uint32_t> output{unsigned(seed),rng.state,unsigned(states.size()),unsigned(bank.size())};
+            output.insert(output.end(),prepared.noise.begin(),prepared.noise.end());
+            output.insert(output.end(),states.begin(),states.end());
+            for(const auto& owner:prepared.cache_owners)output.insert(output.end(),owner.begin(),owner.end());
+            for(unsigned shape:{43u,45u,55u,56u,62u}) {
+                const auto& g=prepared.geometry[shape];
+                if(!g)throw std::runtime_error("Prepared procedural geometry missing");
+                output.insert(output.end(),{shape,unsigned(g->vertices.size())});
+                for(unsigned i=0;i<g->vertices.size();++i) {
+                    const auto& v=g->vertices[i];
+                    for(const auto& channel:{v.position,v.color,v.uv})for(float x:channel)output.push_back(__builtin_bit_cast(std::uint32_t, (x)));
+                    output.push_back(g->position_tags[i]);output.push_back(g->uv_tags[i]);
+                }
+            }
+            write(argv[5],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
+        if(command=="procedural-effect-shape"&&argc==5) {
+            const auto input=read(argv[2]);
+            if(input.empty()||input.size()%12||input.size()>12*32)throw std::runtime_error("Procedural shape fixture extent");
+            const auto sine=okage::make_sine_table();std::vector<std::uint32_t> output;
+            for(unsigned at=0;at<input.size();at+=12) {
+                std::uint32_t f[3];std::memcpy(f,input.data()+at,12);okage::GameRandom rng{f[2]};
+                std::array<std::uint32_t,2> size{};
+                if(f[1]==56||f[1]==62) {
+                    const auto image=okage::decode_xim(read(fs::path(argv[3])/okage::effect_texture_names[f[1]==56?30:10]));
+                    size={image.width,image.height};
+                }
+                const auto geometry=okage::make_procedural_effect_shape(f[1],sine,[&]{return rng.next();},size);
+                output.insert(output.end(),{f[0],f[1],f[2],rng.state,unsigned(geometry.vertices.size())});
+                for(unsigned i=0;i<geometry.vertices.size();++i) {
+                    const auto& v=geometry.vertices[i];
+                    for(const auto& channel:{v.position,v.color,v.uv})for(float x:channel)output.push_back(__builtin_bit_cast(std::uint32_t, (x)));
+                    output.push_back(geometry.position_tags[i]);output.push_back(geometry.uv_tags[i]);
+                }
+            }
+            write(argv[4],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
         if(command=="effect-noise" && argc==4) {
             const auto input=read(argv[2]);
             if(input.empty()||input.size()%8||input.size()>8*16)throw std::runtime_error("Effect noise fixture extent");

@@ -49,7 +49,7 @@ public:
     OpeningField(Bytes script,std::function<void(int)> start_dialogue,
                  std::function<bool(int)> wait_dialogue,std::span<const ActorBinding> actors={},bool diagnostic=true);
     void tick(ExplorationInput input={});
-    void load_effects(Bytes);
+    void load_effects(Bytes,std::shared_ptr<const EffectTemplatePreparation> prepared={});
     void load_map_effects(Bytes map,const EffectTextureSizes&);
     void bind_map_objects(std::span<const ActorBinding>);
     void bind_map_scene(MapObjects&);
@@ -134,6 +134,8 @@ private:
     void remember_player();
     void tick_callbacks(ExplorationInput input,bool interior_camera);
     std::vector<EffectDefinition> effect_definitions_;
+    std::shared_ptr<const EffectTemplatePreparation> effect_preparation_;
+    void bind_effect_geometry(MapEffect&) const;
     AttachedEffects effects_;
     MapEffects map_effects_;
     EffectSubmissions effect_submissions_;

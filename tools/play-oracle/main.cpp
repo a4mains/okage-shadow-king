@@ -416,7 +416,7 @@ public:
         }
         writeFile(output,result.data(),result.size()*4);
     }
-    void effectTemplateLoad(const std::vector<uint8>& ram,const std::vector<uint8>& efd,uint32 seed,const char* output) {
+    void effectTemplateLoad(const std::vector<uint8>& ram,const std::vector<uint8>& efd,uint32 seed,const char* output,bool geometry=false) {
         if(ram.size()!=32*1024*1024||efd.size()<16||efd.size()>0x70000)
             throw std::runtime_error("Effect template load fixture extent");
         uint32 magic,count;std::memcpy(&magic,efd.data(),4);std::memcpy(&count,efd.data()+4,4);
@@ -447,6 +447,42 @@ public:
             result.insert(result.end(),{id,get(job),get(job+4),get(job+8)});
         }
         writeFile(output,result.data(),result.size()*4);
+        if(geometry) {
+            std::vector<uint32> data;
+            for(unsigned shape:{43u,45u,55u,56u,62u}) {
+                const auto owner=get(0x24e790+shape*4),id=get(0x24e898+shape*4);
+                if(!owner||owner>=128)throw std::runtime_error("Prepared geometry cache owner");
+                const auto job=get(table+(84+owner)*4);
+                if(job>ram.size()-128)throw std::runtime_error("Prepared geometry job");
+                const auto count=get(job+8),elements=get(job+12);
+                if(count>4096||elements>ram.size()-count*128)throw std::runtime_error("Prepared geometry elements");
+                uint32 element=0;
+                for(unsigned i=0;i<count;++i)if(get(elements+i*128+0x50)==id){element=elements+i*128;break;}
+                if(!element)throw std::runtime_error("Prepared geometry cache element");
+                std::vector<uint32> pieces;
+                for(auto g=get(element+0x64);g;g=get(g)) {
+                    if(g>ram.size()-48||pieces.size()>=32)throw std::runtime_error("Prepared geometry piece extent");
+                    pieces.push_back(g);
+                }
+                data.insert(data.end(),{shape,owner,id,unsigned(pieces.size())});
+                for(auto g:pieces) {
+                    for(unsigned kind=0;kind<2;++kind) {
+                        const auto n=(get(g+0x1c)>>(kind*16))&65535,p=get(g+0x14+kind*4);
+                        if(n>512||(n&&p>ram.size()-n))throw std::runtime_error("Prepared geometry tags");
+                        data.push_back(n);for(unsigned i=0;i<n;++i)data.push_back(ee->m_ram[p+i]);
+                    }
+                    for(unsigned offset:{4u,8u,12u,16u}) {
+                        if(offset==8&&(get(g+0x1c)>>16)==0){data.push_back(0);continue;}
+                        const auto p=get(g+offset);if(!p){data.push_back(0);continue;}
+                        if(p>ram.size()-4)throw std::runtime_error("Prepared geometry packet pointer");
+                        const auto n=(get(p)&65535)*16+32;
+                        if(n>8192||p>ram.size()-n)throw std::runtime_error("Prepared geometry packet extent");
+                        data.push_back(n);for(unsigned i=0;i<n;i+=4)data.push_back(get(p+i));
+                    }
+                }
+            }
+            writeFile((std::string(output)+".geometry.bin").c_str(),data.data(),data.size()*4);
+        }
         std::cout<<"Imported "<<count<<" EFD templates with "<<templateRandomLog.size()/2<<" observed RNG calls including noise grid\n";
     }
     void effectNoise(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
@@ -493,13 +529,14 @@ public:
         }
         writeFile(output,result.data(),result.size()*4);
     }
-    void effectShape(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
-        if(ram.size()!=32*1024*1024||input.empty()||input.size()%12||input.size()>12*16)
+    void effectShape(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output,bool procedural=false) {
+        if(ram.size()!=32*1024*1024||input.empty()||input.size()%12||input.size()>12*32)
             throw std::runtime_error("Effect shape fixture extent");
         std::vector<uint32> result;
         for(unsigned at=0;at<input.size();at+=12) {
             uint32 f[3];std::memcpy(f,input.data()+at,12);
-            if(f[1]!=3&&f[1]!=55)throw std::runtime_error("Effect shape scope");
+            if(procedural?(f[1]!=43&&f[1]!=45&&f[1]!=55&&f[1]!=56&&f[1]!=62):(f[1]!=3&&f[1]!=55))
+                throw std::runtime_error("Effect shape scope");
             ee->m_EE.m_executor->Reset();std::memcpy(ee->m_ram,ram.data(),ram.size());
             put(stop,0x08000000|(stop>>2));put(stop+4,0);loadMicro();
             effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,ee->m_gs,ee->m_sif,*dynamic_cast<CIopBios*>(iop->m_bios.get()));
@@ -510,6 +547,7 @@ public:
             std::memset(ee->m_ram+0x80000,0,48+116);
             put(0x80000,124);put(0x80004,80);put(0x80010,1);put(0x80014,0x80030);
             put(0x80034,1);put(0x80038,f[1]);put(0x8003c,0x21);put(0x80048,0xffffffff);
+            if(procedural&&(f[1]==56||f[1]==62))put(0x80048,f[1]==56?30:10);
             call(0x10b7a0,{0x80000});
             if(uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0)!=0)throw std::runtime_error("Effect shape construction failed");
             const auto job=get(table+(84+124)*4);
@@ -521,13 +559,20 @@ public:
                 pieces.push_back(g);
             }
             result.insert(result.end(),{f[0],f[1],f[2],get(random),unsigned(pieces.size())});
-            for(auto g:pieces)for(unsigned offset:{4u,8u,12u,16u}) {
+            for(auto g:pieces) {
+                if(procedural)for(unsigned kind=0;kind<2;++kind) {
+                    const auto n=(get(g+0x1c)>>(kind*16))&65535,p=get(g+0x14+kind*4);
+                    if(n>512||(n&&p>ram.size()-n))throw std::runtime_error("Procedural tag extent");
+                    result.push_back(n);for(unsigned i=0;i<n;++i)result.push_back(ee->m_ram[p+i]);
+                }
+                for(unsigned offset:{4u,8u,12u,16u}) {
                 if(offset==8&&(get(g+0x1c)>>16)==0){result.push_back(0);continue;}
                 const auto p=get(g+offset);if(!p){result.push_back(0);continue;}
                 if(p>ram.size()-4)throw std::runtime_error("Effect shape packet pointer case="+std::to_string(f[0])+" geometry="+std::to_string(g)+" offset="+std::to_string(offset)+" pointer="+std::to_string(p));
                 const auto n=(get(p)&65535)*16+32;
                 if(n>8192||p>ram.size()-n)throw std::runtime_error("Effect shape packet extent");
                 result.push_back(n);for(unsigned i=0;i<n;i+=4)result.push_back(get(p+i));
+                }
             }
         }
         writeFile(output,result.data(),result.size()*4);
@@ -1944,10 +1989,12 @@ int main(int argc,char** argv) {
             reference.effectTint(readFile(argv[3]),argv[4]);
         } else if(command=="shadow24-effect-geometry" && argc==7) {
             reference.mapEffectGeometry(readFile(argv[3]),readFile(argv[5]),argv[6],24,readFile(argv[4]));
-        } else if(command=="effect-template-load" && argc==7) {
-            reference.effectTemplateLoad(readFile(argv[3]),readFile(argv[4]),std::stoul(argv[5],nullptr,0),argv[6]);
+        } else if((command=="effect-template-load"||command=="effect-template-geometry") && argc==7) {
+            reference.effectTemplateLoad(readFile(argv[3]),readFile(argv[4]),std::stoul(argv[5],nullptr,0),argv[6],command=="effect-template-geometry");
         } else if(command=="effect-noise" && argc==6) {
             reference.effectNoise(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="procedural-effect-shape" && argc==6) {
+            reference.effectShape(readFile(argv[3]),readFile(argv[4]),argv[5],true);
         } else if(command=="effect-shape" && argc==6) {
             reference.effectShape(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if((command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry"||command=="summon33-effect-geometry"||command=="summon115-effect-geometry"||command=="cylinder26-effect-geometry"||command=="dark6-effect-geometry") && argc==6) {

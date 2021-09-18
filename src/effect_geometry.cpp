@@ -87,4 +87,119 @@ std::vector<MapEffectVertex> make_shadow_effect_shape(unsigned shape,const SineT
     }
     return result;
 }
+ProceduralEffectGeometry make_procedural_effect_shape(unsigned shape,const SineTable& sine,
+        const std::function<std::uint32_t()>& random,const std::array<std::uint32_t,2>& texture_size) {
+    if(shape!=43&&shape!=45&&shape!=55&&shape!=56&&shape!=62)
+        throw std::runtime_error("Unrecovered procedural template shape");
+    if(shape!=45&&!random)throw std::runtime_error("Procedural template requires RNG");
+    const bool textured=shape==56||shape==62;
+    if(textured&&(!texture_size[0]||!texture_size[1]||texture_size[0]>512||texture_size[1]>512))
+        throw std::runtime_error("Procedural texture dimensions outside reviewed extent");
+    struct Rounding {
+        int old=std::fegetround();
+        Rounding(){if(std::fesetround(FE_TOWARDZERO))throw std::runtime_error("Cannot set procedural rounding");}
+        ~Rounding(){std::fesetround(old);}
+    } rounding;
+    ProceduralEffectGeometry result;
+    const auto uv=[&](float u,float v){return Float4{
+        float(unsigned(u*float(texture_size[0])*32))/32768,
+        float(unsigned(v*float(texture_size[1]+1)*32))/32768,0,0};};
+    const auto append=[&](Float4 p,const Float4& c,const Float4& t,unsigned tag) {
+        for(unsigned axis=0;axis<3;++axis)p[axis]=std::round(p[axis]*64)/64;
+        p[3]=1;result.vertices.push_back({p,c,t});
+        result.position_tags.push_back(std::uint8_t(tag));result.uv_tags.push_back(0);
+    };
+    if(shape==55||shape==56) {
+        result.vertices=make_shadow_effect_shape(55,sine,random);
+        result.position_tags.resize(result.vertices.size());result.uv_tags.resize(result.vertices.size());
+        if(textured) {
+            unsigned vertex=0;
+            for(unsigned row=0;row<4;++row)for(unsigned column=0;column<10;++column) {
+                const auto point=[&](unsigned col,unsigned r){return uv(r?float(col)/10:.5f,float(r)/4);};
+                const std::array<Float4,4> coords{point(column,row),point(column,row+1),point(column+1,row+1),point(column+1,row)};
+                for(unsigned i:{1u,0u,2u,0u,2u,3u})result.vertices[vertex++].uv=coords[i];
+            }
+        }
+    } else if(shape==43||shape==45) {
+        for(unsigned ray=0;ray<8;++ray) {
+            Float4 rotation{};float scale=1;
+            if(shape==43) {
+                for(unsigned axis=0;axis<3;++axis)rotation[axis]=float(random()%1024)*.001953125f;
+                scale=.6f/float(random()%7+1)+.4f;
+            } else rotation[2]=float(ray)/8;
+            const auto matrix=effect_matrix({},rotation,{scale,scale,scale,1},sine,false);
+            const auto transformed=[&](float x){
+                Float4 p;
+                for(unsigned axis=0;axis<4;++axis) {
+                    float v=matrix[0][axis]*x;v=v+matrix[1][axis]*6;
+                    v=v+matrix[2][axis]*0;v=v+matrix[3][axis];p[axis]=v;
+                }
+                return p;
+            };
+            const auto a=transformed(-1),b=transformed(1);
+            const unsigned tag=shape==43?random()%7+1:1u<<(ray&1);
+            append({0,0,0,1},{255,255,255,255},{},0);
+            append(a,{128,128,128,0},{},tag);append(b,{128,128,128,0},{},tag);
+        }
+    } else {
+        const std::array<Float4,3> base{Float4{-1.5f,0,0,0},Float4{-1.5f,-1.5f,0,0},Float4{0,-1.5f,0,0}};
+        const std::array<Float4,3> coords{uv(0,1),uv(0,0),uv(1,0)};
+        const auto offset=[&](float scale){
+            const auto word=random();Float4 p{};
+            for(unsigned axis=0;axis<3;++axis)p[axis]=float(int((word>>(axis*6))&63)-32)*scale;
+            return p;
+        };
+        for(unsigned triangle=0;triangle<20;++triangle) {
+            const auto common=offset(.1f);
+            for(unsigned corner=0;corner<3;++corner) {
+                auto p=base[corner];const auto noise=offset(.05f);
+                for(unsigned axis=0;axis<3;++axis){p[axis]=p[axis]+common[axis];p[axis]=p[axis]+noise[axis];}
+                append(p,{255,255,255,255},coords[corner],0);
+            }
+        }
+    }
+    return result;
+}
+EffectTemplatePreparation::EffectTemplatePreparation(const std::vector<EffectDefinition>& bank,
+        const EffectTextureSizes& sizes,const SineTable& sine,const std::function<std::uint32_t()>& random):
+    noise(make_effect_noise_grid(random)) {
+    const auto request=[&](const EffectDefinition& definition,const EffectElement& e) {
+        if(!e.shape||e.shape>=geometry.size()||e.shape==44||e.shape==46)
+            throw std::runtime_error("Unrecovered template preparation shape");
+        if(!cache_owners[e.shape][0]) {
+            if(e.shape>=10&&e.shape<=17) {
+                auto g=std::make_shared<ProceduralEffectGeometry>();
+                g->vertices=make_effect_noise_shape(e.shape,noise);
+                g->position_tags.resize(g->vertices.size());g->uv_tags.resize(g->vertices.size());
+                geometry[e.shape]=std::move(g);
+            } else if(e.shape==43||e.shape==45||e.shape==55||e.shape==56||e.shape==62) {
+                std::array<std::uint32_t,2> size{};
+                if(e.shape==56||e.shape==62) {
+                    if(e.texture<0||unsigned(e.texture)>=sizes.size())throw std::runtime_error("Missing prepared shape texture");
+                    size=sizes[unsigned(e.texture)];
+                }
+                geometry[e.shape]=std::make_shared<const ProceduralEffectGeometry>(make_procedural_effect_shape(e.shape,sine,random,size));
+            }
+        }
+        cache_owners[e.shape]={definition.id,e.id};
+    };
+    //0x10ba38 ordinary pass, including0x10b318 range expansion. References
+    //copy existing jobs in the second pass and do not construct new geometry.
+    for(const auto& d:bank) {
+        if(d.flags&0x800)continue;
+        for(const auto& e:d.elements) {
+            if(e.flags&0x10000) {
+                if(!e.shape||e.shape>=geometry.size()||e.shape>e.primitive_flags)
+                    throw std::runtime_error("Unrecovered template expansion range");
+                for(const auto& source:d.elements) {
+                    if(source.id<e.shape)continue;
+                    if(source.id>e.primitive_flags)break;
+                    if(source.flags&0x10000)throw std::runtime_error("Unrecovered nested template range");
+                    request(d,source);
+                }
+                cache_owners[e.shape]={d.id,e.id};
+            } else request(d,e);
+        }
+    }
+}
 }

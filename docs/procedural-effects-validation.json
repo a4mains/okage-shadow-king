@@ -1,0 +1,1388 @@
+{
+  "scope": "Native procedural factories, shared session preparation and bounded native route regression; full port incomplete.",
+  "base_commit": "11b2e2d",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "factories": {
+    "native-release": {
+      "scope": "Verify first-use procedural43/45/55/56/62 geometry, tags, UVs and RNG.",
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "procedural-effect-shape",
+          "local/extracted/SCUS_971.29",
+          "local/research/shadow-transition-v1/before-shadow.ram",
+          "local/research/procedural-effects-v1/shapes-fixture-v1.bin",
+          "local/research/procedural-effects-v1/shapes-original-v1.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 8.353428583,
+        "binary_sha256": "3d3c2a8e94c949598298e0a0fb4ef34817d06ddf98088a3d34b6ab7c73619bf0",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "input_sha256": "56ea8bf1e960e7f75a29982485ca7b89b29699bb74d99870d3ba1826f233e813",
+        "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+        "output_sha256": "dedef191a50ab1da27f854a32bbec4e47b8fd976faecb7f40d38a9633b17a209"
+      },
+      "native_command": [
+        "build/native-release/okage-assets",
+        "procedural-effect-shape",
+        "local/research/procedural-effects-v1/shapes-fixture-v1.bin",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "local/procedural-effect-checks-v2/native-release/native.bin"
+      ],
+      "native_sha256": "10da8aa2933371b711f4c5eb25983f59b3ae0c5cf2c74bf0cd36c20152c6f832",
+      "cases": [
+        {
+          "case": 0,
+          "shape": 43,
+          "seed": 1,
+          "final_rng": 1775811865,
+          "vertices": 24,
+          "ordered": true
+        },
+        {
+          "case": 1,
+          "shape": 45,
+          "seed": 1,
+          "final_rng": 1,
+          "vertices": 24,
+          "ordered": true
+        },
+        {
+          "case": 2,
+          "shape": 55,
+          "seed": 1,
+          "final_rng": 3823029677,
+          "vertices": 240,
+          "ordered": true
+        },
+        {
+          "case": 3,
+          "shape": 56,
+          "seed": 1,
+          "final_rng": 3823029677,
+          "vertices": 240,
+          "ordered": true
+        },
+        {
+          "case": 4,
+          "shape": 62,
+          "seed": 1,
+          "final_rng": 3008295217,
+          "vertices": 60,
+          "ordered": true
+        },
+        {
+          "case": 5,
+          "shape": 43,
+          "seed": 4660,
+          "final_rng": 4218996780,
+          "vertices": 24,
+          "ordered": true
+        },
+        {
+          "case": 6,
+          "shape": 45,
+          "seed": 4660,
+          "final_rng": 4660,
+          "vertices": 24,
+          "ordered": true
+        },
+        {
+          "case": 7,
+          "shape": 55,
+          "seed": 4660,
+          "final_rng": 1523330768,
+          "vertices": 240,
+          "ordered": true
+        },
+        {
+          "case": 8,
+          "shape": 56,
+          "seed": 4660,
+          "final_rng": 1523330768,
+          "vertices": 240,
+          "ordered": true
+        },
+        {
+          "case": 9,
+          "shape": 62,
+          "seed": 4660,
+          "final_rng": 2939494692,
+          "vertices": 60,
+          "ordered": true
+        },
+        {
+          "case": 10,
+          "shape": 43,
+          "seed": 2147483647,
+          "final_rng": 3146036695,
+          "vertices": 24,
+          "ordered": true
+        },
+        {
+          "case": 11,
+          "shape": 45,
+          "seed": 2147483647,
+          "final_rng": 2147483647,
+          "vertices": 24,
+          "ordered": true
+        },
+        {
+          "case": 12,
+          "shape": 55,
+          "seed": 2147483647,
+          "final_rng": 639435531,
+          "vertices": 240,
+          "ordered": true
+        },
+        {
+          "case": 13,
+          "shape": 56,
+          "seed": 2147483647,
+          "final_rng": 639435531,
+          "vertices": 240,
+          "ordered": true
+        },
+        {
+          "case": 14,
+          "shape": 62,
+          "seed": 2147483647,
+          "final_rng": 4119632559,
+          "vertices": 60,
+          "ordered": true
+        }
+      ],
+      "vertices_exact": 1764,
+      "texture_sha256": {
+        "kyusyu16.xim": "fc34044f98269d70c193a38bdbaad4ceef3e221ce3f351b69d6ff78699cc883a",
+        "oldskilt4.xim": "473ab019281a39cba4b43e1043010d6cf6c02f21af658974902943da392fd6ad"
+      }
+    },
+    "native": {
+      "scope": "Verify first-use procedural43/45/55/56/62 geometry, tags, UVs and RNG.",
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "procedural-effect-shape",
+          "local/extracted/SCUS_971.29",
+          "local/research/shadow-transition-v1/before-shadow.ram",
+          "local/research/procedural-effects-v1/shapes-fixture-v1.bin",
+          "local/research/procedural-effects-v1/shapes-original-v1.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 8.353428583,
+        "binary_sha256": "3d3c2a8e94c949598298e0a0fb4ef34817d06ddf98088a3d34b6ab7c73619bf0",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "input_sha256": "56ea8bf1e960e7f75a29982485ca7b89b29699bb74d99870d3ba1826f233e813",
+        "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+        "output_sha256": "dedef191a50ab1da27f854a32bbec4e47b8fd976faecb7f40d38a9633b17a209"
+      },
+      "native_command": [
+        "build/native/okage-assets",
+        "procedural-effect-shape",
+        "local/research/procedural-effects-v1/shapes-fixture-v1.bin",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "local/procedural-effect-checks-v2/native/native.bin"
+      ],
+      "native_sha256": "a41d668d2f67b7650eb36ae80a9238fabd1a153def0db0d44555498a23dc6acf",
+      "cases": [
+        {
+          "case": 0,
+          "shape": 43,
+          "seed": 1,
+          "final_rng": 1775811865,
+          "vertices": 24,
+          "ordered": true
+        },
+        {
+          "case": 1,
+          "shape": 45,
+          "seed": 1,
+          "final_rng": 1,
+          "vertices": 24,
+          "ordered": true
+        },
+        {
+          "case": 2,
+          "shape": 55,
+          "seed": 1,
+          "final_rng": 3823029677,
+          "vertices": 240,
+          "ordered": true
+        },
+        {
+          "case": 3,
+          "shape": 56,
+          "seed": 1,
+          "final_rng": 3823029677,
+          "vertices": 240,
+          "ordered": true
+        },
+        {
+          "case": 4,
+          "shape": 62,
+          "seed": 1,
+          "final_rng": 3008295217,
+          "vertices": 60,
+          "ordered": true
+        },
+        {
+          "case": 5,
+          "shape": 43,
+          "seed": 4660,
+          "final_rng": 4218996780,
+          "vertices": 24,
+          "ordered": true
+        },
+        {
+          "case": 6,
+          "shape": 45,
+          "seed": 4660,
+          "final_rng": 4660,
+          "vertices": 24,
+          "ordered": true
+        },
+        {
+          "case": 7,
+          "shape": 55,
+          "seed": 4660,
+          "final_rng": 1523330768,
+          "vertices": 240,
+          "ordered": true
+        },
+        {
+          "case": 8,
+          "shape": 56,
+          "seed": 4660,
+          "final_rng": 1523330768,
+          "vertices": 240,
+          "ordered": true
+        },
+        {
+          "case": 9,
+          "shape": 62,
+          "seed": 4660,
+          "final_rng": 2939494692,
+          "vertices": 60,
+          "ordered": true
+        },
+        {
+          "case": 10,
+          "shape": 43,
+          "seed": 2147483647,
+          "final_rng": 3146036695,
+          "vertices": 24,
+          "ordered": true
+        },
+        {
+          "case": 11,
+          "shape": 45,
+          "seed": 2147483647,
+          "final_rng": 2147483647,
+          "vertices": 24,
+          "ordered": true
+        },
+        {
+          "case": 12,
+          "shape": 55,
+          "seed": 2147483647,
+          "final_rng": 639435531,
+          "vertices": 240,
+          "ordered": true
+        },
+        {
+          "case": 13,
+          "shape": 56,
+          "seed": 2147483647,
+          "final_rng": 639435531,
+          "vertices": 240,
+          "ordered": true
+        },
+        {
+          "case": 14,
+          "shape": 62,
+          "seed": 2147483647,
+          "final_rng": 4119632559,
+          "vertices": 60,
+          "ordered": true
+        }
+      ],
+      "vertices_exact": 1764,
+      "texture_sha256": {
+        "kyusyu16.xim": "fc34044f98269d70c193a38bdbaad4ceef3e221ce3f351b69d6ff78699cc883a",
+        "oldskilt4.xim": "473ab019281a39cba4b43e1043010d6cf6c02f21af658974902943da392fd6ad"
+      }
+    },
+    "model-sanitize": {
+      "scope": "Verify first-use procedural43/45/55/56/62 geometry, tags, UVs and RNG.",
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "procedural-effect-shape",
+          "local/extracted/SCUS_971.29",
+          "local/research/shadow-transition-v1/before-shadow.ram",
+          "local/research/procedural-effects-v1/shapes-fixture-v1.bin",
+          "local/research/procedural-effects-v1/shapes-original-v1.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 8.353428583,
+        "binary_sha256": "3d3c2a8e94c949598298e0a0fb4ef34817d06ddf98088a3d34b6ab7c73619bf0",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "input_sha256": "56ea8bf1e960e7f75a29982485ca7b89b29699bb74d99870d3ba1826f233e813",
+        "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+        "output_sha256": "dedef191a50ab1da27f854a32bbec4e47b8fd976faecb7f40d38a9633b17a209"
+      },
+      "native_command": [
+        "build/model-sanitize/okage-assets",
+        "procedural-effect-shape",
+        "local/research/procedural-effects-v1/shapes-fixture-v1.bin",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "local/procedural-effect-checks-v2/model-sanitize/native.bin"
+      ],
+      "native_sha256": "b239db76b2c738344cb4ad33749f375cf9527a70b16bd22fd6721252da7b5776",
+      "cases": [
+        {
+          "case": 0,
+          "shape": 43,
+          "seed": 1,
+          "final_rng": 1775811865,
+          "vertices": 24,
+          "ordered": true
+        },
+        {
+          "case": 1,
+          "shape": 45,
+          "seed": 1,
+          "final_rng": 1,
+          "vertices": 24,
+          "ordered": true
+        },
+        {
+          "case": 2,
+          "shape": 55,
+          "seed": 1,
+          "final_rng": 3823029677,
+          "vertices": 240,
+          "ordered": true
+        },
+        {
+          "case": 3,
+          "shape": 56,
+          "seed": 1,
+          "final_rng": 3823029677,
+          "vertices": 240,
+          "ordered": true
+        },
+        {
+          "case": 4,
+          "shape": 62,
+          "seed": 1,
+          "final_rng": 3008295217,
+          "vertices": 60,
+          "ordered": true
+        },
+        {
+          "case": 5,
+          "shape": 43,
+          "seed": 4660,
+          "final_rng": 4218996780,
+          "vertices": 24,
+          "ordered": true
+        },
+        {
+          "case": 6,
+          "shape": 45,
+          "seed": 4660,
+          "final_rng": 4660,
+          "vertices": 24,
+          "ordered": true
+        },
+        {
+          "case": 7,
+          "shape": 55,
+          "seed": 4660,
+          "final_rng": 1523330768,
+          "vertices": 240,
+          "ordered": true
+        },
+        {
+          "case": 8,
+          "shape": 56,
+          "seed": 4660,
+          "final_rng": 1523330768,
+          "vertices": 240,
+          "ordered": true
+        },
+        {
+          "case": 9,
+          "shape": 62,
+          "seed": 4660,
+          "final_rng": 2939494692,
+          "vertices": 60,
+          "ordered": true
+        },
+        {
+          "case": 10,
+          "shape": 43,
+          "seed": 2147483647,
+          "final_rng": 3146036695,
+          "vertices": 24,
+          "ordered": true
+        },
+        {
+          "case": 11,
+          "shape": 45,
+          "seed": 2147483647,
+          "final_rng": 2147483647,
+          "vertices": 24,
+          "ordered": true
+        },
+        {
+          "case": 12,
+          "shape": 55,
+          "seed": 2147483647,
+          "final_rng": 639435531,
+          "vertices": 240,
+          "ordered": true
+        },
+        {
+          "case": 13,
+          "shape": 56,
+          "seed": 2147483647,
+          "final_rng": 639435531,
+          "vertices": 240,
+          "ordered": true
+        },
+        {
+          "case": 14,
+          "shape": 62,
+          "seed": 2147483647,
+          "final_rng": 4119632559,
+          "vertices": 60,
+          "ordered": true
+        }
+      ],
+      "vertices_exact": 1764,
+      "texture_sha256": {
+        "kyusyu16.xim": "fc34044f98269d70c193a38bdbaad4ceef3e221ce3f351b69d6ff78699cc883a",
+        "oldskilt4.xim": "473ab019281a39cba4b43e1043010d6cf6c02f21af658974902943da392fd6ad"
+      }
+    }
+  },
+  "preparation": {
+    "native-release": {
+      "scope": "Verify native procedural preparation against complete original EFD import.",
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "effect-template-geometry",
+          "local/extracted/SCUS_971.29",
+          "local/research/shadow-transition-v1/before-shadow.ram",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "1",
+          "local/research/procedural-effects-v1/loader-geometry-original-v1.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 2.411549625,
+        "binary_sha256": "0ebc994db966925a2dccb2b8f21e55007ff83af670230bc186b56ed84321a969",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+        "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+        "seed": 1,
+        "outputs": {
+          "loader-geometry-original-v1.bin": "1ca1c550cd397d649a976d63e14e55af809e6679002ec10d3de33d0b9ead04af",
+          "loader-geometry-original-v1.bin.geometry.bin": "76f19746e7a0cff01c4892c562d81e456143cbc9726a6b47d69e800e58fc1a7b"
+        }
+      },
+      "native_command": [
+        "build/native-release/okage-assets",
+        "prepare-effect-templates",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "1",
+        "local/effect-preparation-checks-v1/native-release/native.bin"
+      ],
+      "native_sha256": "10da8aa2933371b711f4c5eb25983f59b3ae0c5cf2c74bf0cd36c20152c6f832",
+      "grid_words_exact": 384,
+      "rng_states_exact": 544,
+      "cache_records_exact": 66,
+      "ordered_vertices_exact": 588
+    },
+    "native": {
+      "scope": "Verify native procedural preparation against complete original EFD import.",
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "effect-template-geometry",
+          "local/extracted/SCUS_971.29",
+          "local/research/shadow-transition-v1/before-shadow.ram",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "1",
+          "local/research/procedural-effects-v1/loader-geometry-original-v1.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 2.411549625,
+        "binary_sha256": "0ebc994db966925a2dccb2b8f21e55007ff83af670230bc186b56ed84321a969",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+        "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+        "seed": 1,
+        "outputs": {
+          "loader-geometry-original-v1.bin": "1ca1c550cd397d649a976d63e14e55af809e6679002ec10d3de33d0b9ead04af",
+          "loader-geometry-original-v1.bin.geometry.bin": "76f19746e7a0cff01c4892c562d81e456143cbc9726a6b47d69e800e58fc1a7b"
+        }
+      },
+      "native_command": [
+        "build/native/okage-assets",
+        "prepare-effect-templates",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "1",
+        "local/effect-preparation-checks-v1/native/native.bin"
+      ],
+      "native_sha256": "a41d668d2f67b7650eb36ae80a9238fabd1a153def0db0d44555498a23dc6acf",
+      "grid_words_exact": 384,
+      "rng_states_exact": 544,
+      "cache_records_exact": 66,
+      "ordered_vertices_exact": 588
+    },
+    "model-sanitize": {
+      "scope": "Verify native procedural preparation against complete original EFD import.",
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "effect-template-geometry",
+          "local/extracted/SCUS_971.29",
+          "local/research/shadow-transition-v1/before-shadow.ram",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "1",
+          "local/research/procedural-effects-v1/loader-geometry-original-v1.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 2.411549625,
+        "binary_sha256": "0ebc994db966925a2dccb2b8f21e55007ff83af670230bc186b56ed84321a969",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+        "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+        "seed": 1,
+        "outputs": {
+          "loader-geometry-original-v1.bin": "1ca1c550cd397d649a976d63e14e55af809e6679002ec10d3de33d0b9ead04af",
+          "loader-geometry-original-v1.bin.geometry.bin": "76f19746e7a0cff01c4892c562d81e456143cbc9726a6b47d69e800e58fc1a7b"
+        }
+      },
+      "native_command": [
+        "build/model-sanitize/okage-assets",
+        "prepare-effect-templates",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "1",
+        "local/effect-preparation-checks-v1/model-sanitize/native.bin"
+      ],
+      "native_sha256": "b239db76b2c738344cb4ad33749f375cf9527a70b16bd22fd6721252da7b5776",
+      "grid_words_exact": 384,
+      "rng_states_exact": 544,
+      "cache_records_exact": 66,
+      "ordered_vertices_exact": 588
+    }
+  },
+  "regressions": {
+    "native-release": {
+      "noise": {
+        "scope": "Compare original effect noise initialization and its cube-face consumers.",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "effect-noise",
+            "local/extracted/SCUS_971.29",
+            "local/research/shadow-transition-v1/before-shadow.ram",
+            "local/research/effect-template-v1/noise-fixture-v1.bin",
+            "local/research/effect-template-v1/noise-original-v1.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 2.420774625,
+          "binary_sha256": "9994a48bb18916a23d079b1e69fb5e61c96b3ed55e8d8fa32dd980a53208a1c5",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "input_sha256": "71cca7be0896a06c7eea08509a8b99210b4ee49487463d3ed3fe3d51397a5e8e",
+          "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+          "output_sha256": "fd075e761340fb35f0c9cdeada65511a502fac56a4c3fe6bddeb79dbbc431bd2"
+        },
+        "native_command": [
+          "build/native-release/okage-assets",
+          "effect-noise",
+          "local/research/effect-template-v1/noise-fixture-v1.bin",
+          "local/preparation-noise-regression-v1/native-release/native.bin"
+        ],
+        "native_sha256": "10da8aa2933371b711f4c5eb25983f59b3ae0c5cf2c74bf0cd36c20152c6f832",
+        "grid_words_exact": 1152,
+        "triangle_vertices_exact": 6912,
+        "vertices_per_partition": [
+          [
+            330,
+            312,
+            294,
+            372,
+            366,
+            264,
+            366
+          ],
+          [
+            324,
+            300,
+            282,
+            312,
+            372,
+            366,
+            348
+          ],
+          [
+            342,
+            276,
+            354,
+            342,
+            282,
+            390,
+            318
+          ]
+        ]
+      },
+      "shadow": {
+        "scope": "Verify native effect24 geometry factories, draw transforms/materials and UV sharing.",
+        "original_runs": [
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "effect-shape",
+              "local/extracted/SCUS_971.29",
+              "local/research/shadow-transition-v1/before-shadow.ram",
+              "local/research/effect24-v1/shapes-fixture-v1.bin",
+              "local/research/effect24-v1/shapes-original-v3.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 3.423458583,
+            "binary_sha256": "d068dcdbcf5132454cddb30f0dab5c0c48a39b94c9cfc2ea3707d276fed49e54",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+            "input_sha256": "5abf96e0fe5c8672f8744fd15439b4fbcf5a5c7e5ee242377c461583de0c0c9a",
+            "output_sha256": "76fd7288493c6b0555151628123ed17a835a410fc573774592d7dacbf39bfb62"
+          },
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow24-effect-geometry",
+              "local/extracted/SCUS_971.29",
+              "local/research/shadow-transition-v1/before-shadow.ram",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/research/effect24-v1/geometry-fixture-v1.bin",
+              "local/research/effect24-v1/geometry-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 5.395967875,
+            "binary_sha256": "dc6687ceff1253b53982405699c76591926e84920830009867699f0d8addd819",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+            "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+            "input_sha256": "d20ad9c804353dd12c438d73a4a7dc10977d4de715c85b43363c1e6eba24858a",
+            "outputs": {
+              "geometry-original-v1.bin": "58dfb844dd32a6d2cca546372b9c25b6a94006113037ba921cbd4ffdf9d5929f",
+              "geometry-original-v1.bin.packets.bin": "c96053eba6009d79107a5cfd7d5a0fbf48826bda97407c092f3d03824c712f1b"
+            }
+          },
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "map-effect-probe",
+              "local/extracted/SCUS_971.29",
+              "local/research/shadow-transition-v1/before-shadow.ram",
+              "local/research/effect24-v1/24.input.bin",
+              "82",
+              "local/research/effect24-v1/24.original-v2.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.447724041,
+            "binary_sha256": "48b8965fcedb7e3bf58b7180099fe630b732c0fe08ff1572f7e8b5a71dd8bf1c",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+            "input_sha256": "94d59066ffe57395a07c628700201e28c9de8d73911d716fd353913b68205170",
+            "outputs": {
+              "24.original-v2.bin": "5dcb85d8826b82bca167f900d008b2c24100d62b291da90f9107b282a0d7b2c7",
+              "24.original-v2.bin.geometry.bin": "17bcee21b54ef8204686ad367dc1579cd5850d9d66c07143be5e5f7ed49e5512",
+              "24.original-v2.bin.shadow-uv.bin": "2be6a79c913c80de7bc72f45f66b3832802878be0cc1d8a2d3742022a553d711"
+            }
+          }
+        ],
+        "native_commands": [
+          [
+            "build/native-release/okage-assets",
+            "effect-shape",
+            "local/research/effect24-v1/shapes-fixture-v1.bin",
+            "local/preparation-shadow-regression-v1/native-release/shapes.bin"
+          ],
+          [
+            "build/native-release/okage-assets",
+            "shadow24-effect-geometry",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/effect24-v1/geometry-fixture-v1.bin",
+            "local/preparation-shadow-regression-v1/native-release/drawing.bin"
+          ],
+          [
+            "build/native-release/okage-assets",
+            "map-effect-probe",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/effect24-v1/24.input.bin",
+            "82",
+            "local/preparation-shadow-regression-v1/native-release/state.bin"
+          ]
+        ],
+        "native_sha256": "10da8aa2933371b711f4c5eb25983f59b3ae0c5cf2c74bf0cd36c20152c6f832",
+        "factory_vertices_exact": 2064,
+        "draw_vertices_exact": 1470,
+        "transform_colors_exact": 40,
+        "shared_uv_entries_exact": 1008,
+        "sphere_comparison": "Exact triangle multiset including multiplicity; order and winding differ. No raster equality claim.",
+        "native_material": "Subtractive, depth-tested/no-write, no culling"
+      }
+    },
+    "native": {
+      "noise": {
+        "scope": "Compare original effect noise initialization and its cube-face consumers.",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "effect-noise",
+            "local/extracted/SCUS_971.29",
+            "local/research/shadow-transition-v1/before-shadow.ram",
+            "local/research/effect-template-v1/noise-fixture-v1.bin",
+            "local/research/effect-template-v1/noise-original-v1.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 2.420774625,
+          "binary_sha256": "9994a48bb18916a23d079b1e69fb5e61c96b3ed55e8d8fa32dd980a53208a1c5",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "input_sha256": "71cca7be0896a06c7eea08509a8b99210b4ee49487463d3ed3fe3d51397a5e8e",
+          "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+          "output_sha256": "fd075e761340fb35f0c9cdeada65511a502fac56a4c3fe6bddeb79dbbc431bd2"
+        },
+        "native_command": [
+          "build/native/okage-assets",
+          "effect-noise",
+          "local/research/effect-template-v1/noise-fixture-v1.bin",
+          "local/preparation-noise-regression-v1/native/native.bin"
+        ],
+        "native_sha256": "a41d668d2f67b7650eb36ae80a9238fabd1a153def0db0d44555498a23dc6acf",
+        "grid_words_exact": 1152,
+        "triangle_vertices_exact": 6912,
+        "vertices_per_partition": [
+          [
+            330,
+            312,
+            294,
+            372,
+            366,
+            264,
+            366
+          ],
+          [
+            324,
+            300,
+            282,
+            312,
+            372,
+            366,
+            348
+          ],
+          [
+            342,
+            276,
+            354,
+            342,
+            282,
+            390,
+            318
+          ]
+        ]
+      },
+      "shadow": {
+        "scope": "Verify native effect24 geometry factories, draw transforms/materials and UV sharing.",
+        "original_runs": [
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "effect-shape",
+              "local/extracted/SCUS_971.29",
+              "local/research/shadow-transition-v1/before-shadow.ram",
+              "local/research/effect24-v1/shapes-fixture-v1.bin",
+              "local/research/effect24-v1/shapes-original-v3.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 3.423458583,
+            "binary_sha256": "d068dcdbcf5132454cddb30f0dab5c0c48a39b94c9cfc2ea3707d276fed49e54",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+            "input_sha256": "5abf96e0fe5c8672f8744fd15439b4fbcf5a5c7e5ee242377c461583de0c0c9a",
+            "output_sha256": "76fd7288493c6b0555151628123ed17a835a410fc573774592d7dacbf39bfb62"
+          },
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow24-effect-geometry",
+              "local/extracted/SCUS_971.29",
+              "local/research/shadow-transition-v1/before-shadow.ram",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/research/effect24-v1/geometry-fixture-v1.bin",
+              "local/research/effect24-v1/geometry-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 5.395967875,
+            "binary_sha256": "dc6687ceff1253b53982405699c76591926e84920830009867699f0d8addd819",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+            "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+            "input_sha256": "d20ad9c804353dd12c438d73a4a7dc10977d4de715c85b43363c1e6eba24858a",
+            "outputs": {
+              "geometry-original-v1.bin": "58dfb844dd32a6d2cca546372b9c25b6a94006113037ba921cbd4ffdf9d5929f",
+              "geometry-original-v1.bin.packets.bin": "c96053eba6009d79107a5cfd7d5a0fbf48826bda97407c092f3d03824c712f1b"
+            }
+          },
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "map-effect-probe",
+              "local/extracted/SCUS_971.29",
+              "local/research/shadow-transition-v1/before-shadow.ram",
+              "local/research/effect24-v1/24.input.bin",
+              "82",
+              "local/research/effect24-v1/24.original-v2.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.447724041,
+            "binary_sha256": "48b8965fcedb7e3bf58b7180099fe630b732c0fe08ff1572f7e8b5a71dd8bf1c",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+            "input_sha256": "94d59066ffe57395a07c628700201e28c9de8d73911d716fd353913b68205170",
+            "outputs": {
+              "24.original-v2.bin": "5dcb85d8826b82bca167f900d008b2c24100d62b291da90f9107b282a0d7b2c7",
+              "24.original-v2.bin.geometry.bin": "17bcee21b54ef8204686ad367dc1579cd5850d9d66c07143be5e5f7ed49e5512",
+              "24.original-v2.bin.shadow-uv.bin": "2be6a79c913c80de7bc72f45f66b3832802878be0cc1d8a2d3742022a553d711"
+            }
+          }
+        ],
+        "native_commands": [
+          [
+            "build/native/okage-assets",
+            "effect-shape",
+            "local/research/effect24-v1/shapes-fixture-v1.bin",
+            "local/preparation-shadow-regression-v1/native/shapes.bin"
+          ],
+          [
+            "build/native/okage-assets",
+            "shadow24-effect-geometry",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/effect24-v1/geometry-fixture-v1.bin",
+            "local/preparation-shadow-regression-v1/native/drawing.bin"
+          ],
+          [
+            "build/native/okage-assets",
+            "map-effect-probe",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/effect24-v1/24.input.bin",
+            "82",
+            "local/preparation-shadow-regression-v1/native/state.bin"
+          ]
+        ],
+        "native_sha256": "a41d668d2f67b7650eb36ae80a9238fabd1a153def0db0d44555498a23dc6acf",
+        "factory_vertices_exact": 2064,
+        "draw_vertices_exact": 1470,
+        "transform_colors_exact": 40,
+        "shared_uv_entries_exact": 1008,
+        "sphere_comparison": "Exact triangle multiset including multiplicity; order and winding differ. No raster equality claim.",
+        "native_material": "Subtractive, depth-tested/no-write, no culling"
+      }
+    },
+    "model-sanitize": {
+      "noise": {
+        "scope": "Compare original effect noise initialization and its cube-face consumers.",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "effect-noise",
+            "local/extracted/SCUS_971.29",
+            "local/research/shadow-transition-v1/before-shadow.ram",
+            "local/research/effect-template-v1/noise-fixture-v1.bin",
+            "local/research/effect-template-v1/noise-original-v1.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 2.420774625,
+          "binary_sha256": "9994a48bb18916a23d079b1e69fb5e61c96b3ed55e8d8fa32dd980a53208a1c5",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "input_sha256": "71cca7be0896a06c7eea08509a8b99210b4ee49487463d3ed3fe3d51397a5e8e",
+          "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+          "output_sha256": "fd075e761340fb35f0c9cdeada65511a502fac56a4c3fe6bddeb79dbbc431bd2"
+        },
+        "native_command": [
+          "build/model-sanitize/okage-assets",
+          "effect-noise",
+          "local/research/effect-template-v1/noise-fixture-v1.bin",
+          "local/preparation-noise-regression-v1/model-sanitize/native.bin"
+        ],
+        "native_sha256": "b239db76b2c738344cb4ad33749f375cf9527a70b16bd22fd6721252da7b5776",
+        "grid_words_exact": 1152,
+        "triangle_vertices_exact": 6912,
+        "vertices_per_partition": [
+          [
+            330,
+            312,
+            294,
+            372,
+            366,
+            264,
+            366
+          ],
+          [
+            324,
+            300,
+            282,
+            312,
+            372,
+            366,
+            348
+          ],
+          [
+            342,
+            276,
+            354,
+            342,
+            282,
+            390,
+            318
+          ]
+        ]
+      },
+      "shadow": {
+        "scope": "Verify native effect24 geometry factories, draw transforms/materials and UV sharing.",
+        "original_runs": [
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "effect-shape",
+              "local/extracted/SCUS_971.29",
+              "local/research/shadow-transition-v1/before-shadow.ram",
+              "local/research/effect24-v1/shapes-fixture-v1.bin",
+              "local/research/effect24-v1/shapes-original-v3.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 3.423458583,
+            "binary_sha256": "d068dcdbcf5132454cddb30f0dab5c0c48a39b94c9cfc2ea3707d276fed49e54",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+            "input_sha256": "5abf96e0fe5c8672f8744fd15439b4fbcf5a5c7e5ee242377c461583de0c0c9a",
+            "output_sha256": "76fd7288493c6b0555151628123ed17a835a410fc573774592d7dacbf39bfb62"
+          },
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow24-effect-geometry",
+              "local/extracted/SCUS_971.29",
+              "local/research/shadow-transition-v1/before-shadow.ram",
+              "local/effect-input/CMNDATA/2D/TES.EFD",
+              "local/research/effect24-v1/geometry-fixture-v1.bin",
+              "local/research/effect24-v1/geometry-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 5.395967875,
+            "binary_sha256": "dc6687ceff1253b53982405699c76591926e84920830009867699f0d8addd819",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+            "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+            "input_sha256": "d20ad9c804353dd12c438d73a4a7dc10977d4de715c85b43363c1e6eba24858a",
+            "outputs": {
+              "geometry-original-v1.bin": "58dfb844dd32a6d2cca546372b9c25b6a94006113037ba921cbd4ffdf9d5929f",
+              "geometry-original-v1.bin.packets.bin": "c96053eba6009d79107a5cfd7d5a0fbf48826bda97407c092f3d03824c712f1b"
+            }
+          },
+          {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "map-effect-probe",
+              "local/extracted/SCUS_971.29",
+              "local/research/shadow-transition-v1/before-shadow.ram",
+              "local/research/effect24-v1/24.input.bin",
+              "82",
+              "local/research/effect24-v1/24.original-v2.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.447724041,
+            "binary_sha256": "48b8965fcedb7e3bf58b7180099fe630b732c0fe08ff1572f7e8b5a71dd8bf1c",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+            "input_sha256": "94d59066ffe57395a07c628700201e28c9de8d73911d716fd353913b68205170",
+            "outputs": {
+              "24.original-v2.bin": "5dcb85d8826b82bca167f900d008b2c24100d62b291da90f9107b282a0d7b2c7",
+              "24.original-v2.bin.geometry.bin": "17bcee21b54ef8204686ad367dc1579cd5850d9d66c07143be5e5f7ed49e5512",
+              "24.original-v2.bin.shadow-uv.bin": "2be6a79c913c80de7bc72f45f66b3832802878be0cc1d8a2d3742022a553d711"
+            }
+          }
+        ],
+        "native_commands": [
+          [
+            "build/model-sanitize/okage-assets",
+            "effect-shape",
+            "local/research/effect24-v1/shapes-fixture-v1.bin",
+            "local/preparation-shadow-regression-v1/model-sanitize/shapes.bin"
+          ],
+          [
+            "build/model-sanitize/okage-assets",
+            "shadow24-effect-geometry",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/effect24-v1/geometry-fixture-v1.bin",
+            "local/preparation-shadow-regression-v1/model-sanitize/drawing.bin"
+          ],
+          [
+            "build/model-sanitize/okage-assets",
+            "map-effect-probe",
+            "local/effect-input/CMNDATA/2D/TES.EFD",
+            "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+            "local/research/effect24-v1/24.input.bin",
+            "82",
+            "local/preparation-shadow-regression-v1/model-sanitize/state.bin"
+          ]
+        ],
+        "native_sha256": "b239db76b2c738344cb4ad33749f375cf9527a70b16bd22fd6721252da7b5776",
+        "factory_vertices_exact": 2064,
+        "draw_vertices_exact": 1470,
+        "transform_colors_exact": 40,
+        "shared_uv_entries_exact": 1008,
+        "sphere_comparison": "Exact triangle multiset including multiplicity; order and winding differ. No raster equality claim.",
+        "native_material": "Subtractive, depth-tested/no-write, no culling"
+      }
+    }
+  },
+  "route": {
+    "scope": "Saved native route regression after real procedural template RNG initialization; native self-comparison, not original fidelity proof.",
+    "run": {
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "67568",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538,61658,61777,61897,62018,62137,62257,62377,62498,62617,62737,63578,63697,63817,63937,64058,64177,64298,64418,64537,64778,64898,65017,65137,65258,65377,65497,65617,65737,65857,65978,66097,66218,66338,66457,66577,66697,66817,66937,67057,67178,67297,67417,67537,67657,67777,67897,68017,68138",
+        "--directions",
+        "local/native-template-preparation-67568-release-v1.directions",
+        "--capture",
+        "local/native-template-preparation-67568-release-v1.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "--render-from",
+        "11310",
+        "--render-until",
+        "11542"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 23.297483749999998,
+      "binary_sha256": "4320251bb7315e85508672b8b35a8f2fb34ea3459bc6d90a9d9d25256d6b0e7f"
+    },
+    "previous": "local/native-shadow-state-regression-67568-release-v1.png",
+    "current": "local/native-template-preparation-67568-release-v1.png",
+    "files": [
+      {
+        "suffix": ".actor-1.bin",
+        "old_sha256": "434303f96bda23d1882728a01bc49084a3f5d58db33e05f41cd2f55da7b18b6c",
+        "new_sha256": "434303f96bda23d1882728a01bc49084a3f5d58db33e05f41cd2f55da7b18b6c",
+        "equal": true
+      },
+      {
+        "suffix": ".actor-10.bin",
+        "old_sha256": "f6e1b4da30ec0139b726137cea5576655a1075045a02721a72e3cdce857b62fa",
+        "new_sha256": "f6e1b4da30ec0139b726137cea5576655a1075045a02721a72e3cdce857b62fa",
+        "equal": true
+      },
+      {
+        "suffix": ".actor-11.bin",
+        "old_sha256": "b7867af6facf91512495ea9514daaeff6f86ce1fd9558f4e879632f7e6ee08ec",
+        "new_sha256": "b7867af6facf91512495ea9514daaeff6f86ce1fd9558f4e879632f7e6ee08ec",
+        "equal": true
+      },
+      {
+        "suffix": ".actor-12.bin",
+        "old_sha256": "c050323d150b5f7369f48644c3d68f65178d251a1748d2df69c267e157f9ce26",
+        "new_sha256": "c050323d150b5f7369f48644c3d68f65178d251a1748d2df69c267e157f9ce26",
+        "equal": true
+      },
+      {
+        "suffix": ".actor-13.bin",
+        "old_sha256": "da2a80fa89b5ced64d2bac1eb09c5effe98027126c64760b9322d01c9d74e441",
+        "new_sha256": "da2a80fa89b5ced64d2bac1eb09c5effe98027126c64760b9322d01c9d74e441",
+        "equal": true
+      },
+      {
+        "suffix": ".actor-14.bin",
+        "old_sha256": "3379c4ae4747dbb45655bfd518a7d8e985003c1703e7984533edc9bd7f2cd7c8",
+        "new_sha256": "3379c4ae4747dbb45655bfd518a7d8e985003c1703e7984533edc9bd7f2cd7c8",
+        "equal": true
+      },
+      {
+        "suffix": ".actor-15.bin",
+        "old_sha256": "f528c08562220dc57d42e2351de0b25319657673d6f02610b0df8c426b4e3200",
+        "new_sha256": "f528c08562220dc57d42e2351de0b25319657673d6f02610b0df8c426b4e3200",
+        "equal": true
+      },
+      {
+        "suffix": ".actor-16.bin",
+        "old_sha256": "3349d94ca2861a47a8b0fbe3bbe4d40d89cccd461ae89113c349e8ff6f31f1d6",
+        "new_sha256": "3349d94ca2861a47a8b0fbe3bbe4d40d89cccd461ae89113c349e8ff6f31f1d6",
+        "equal": true
+      },
+      {
+        "suffix": ".actor-17.bin",
+        "old_sha256": "ec4cfce3ec49b71094d28e1def4044d40b4c4878687134b7fc73b51925085865",
+        "new_sha256": "ec4cfce3ec49b71094d28e1def4044d40b4c4878687134b7fc73b51925085865",
+        "equal": true
+      },
+      {
+        "suffix": ".actor-18.bin",
+        "old_sha256": "495b66777b5a894d9bf450dab77218587e58bd8a29d8d9ce737a2529e19f8dc7",
+        "new_sha256": "495b66777b5a894d9bf450dab77218587e58bd8a29d8d9ce737a2529e19f8dc7",
+        "equal": true
+      },
+      {
+        "suffix": ".actor-19.bin",
+        "old_sha256": "50fa3e26848b52ee4c25a20cbe1d9826abf47d0554c43f8fa8077c677ccb9700",
+        "new_sha256": "50fa3e26848b52ee4c25a20cbe1d9826abf47d0554c43f8fa8077c677ccb9700",
+        "equal": true
+      },
+      {
+        "suffix": ".actor-20.bin",
+        "old_sha256": "dce67fe8789273e842c73e63b5f6b4993c29c3457f3b02a918b8d9e27126f277",
+        "new_sha256": "dce67fe8789273e842c73e63b5f6b4993c29c3457f3b02a918b8d9e27126f277",
+        "equal": true
+      },
+      {
+        "suffix": ".actor-21.bin",
+        "old_sha256": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3",
+        "new_sha256": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3",
+        "equal": true
+      },
+      {
+        "suffix": ".actor-22.bin",
+        "old_sha256": "52ced2ad7d11087e23f17eec62ef9a12152e22819f3c90aae92d7f002c447da5",
+        "new_sha256": "52ced2ad7d11087e23f17eec62ef9a12152e22819f3c90aae92d7f002c447da5",
+        "equal": true
+      },
+      {
+        "suffix": ".actor-37.bin",
+        "old_sha256": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd",
+        "new_sha256": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd",
+        "equal": true
+      },
+      {
+        "suffix": ".actor-38.bin",
+        "old_sha256": "76ba34c261405d19131ff08afd76466bd58b75955ea5d5be4f94b432248fb11e",
+        "new_sha256": "76ba34c261405d19131ff08afd76466bd58b75955ea5d5be4f94b432248fb11e",
+        "equal": true
+      },
+      {
+        "suffix": ".actor-45.bin",
+        "old_sha256": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921",
+        "new_sha256": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921",
+        "equal": true
+      },
+      {
+        "suffix": ".actor-9.bin",
+        "old_sha256": "caabc3df314f46c0506f8a00ab6131d7906e9915790650c37a7e86a17768bd87",
+        "new_sha256": "caabc3df314f46c0506f8a00ab6131d7906e9915790650c37a7e86a17768bd87",
+        "equal": true
+      },
+      {
+        "suffix": ".actor.bin",
+        "old_sha256": "7cb1dfbd21355a6cb595e97e382f3a83f56b8af5ac34f3994f0f41f4c764253e",
+        "new_sha256": "7cb1dfbd21355a6cb595e97e382f3a83f56b8af5ac34f3994f0f41f4c764253e",
+        "equal": true
+      },
+      {
+        "suffix": ".audio.pcm",
+        "old_sha256": "fcc5f9dd76ff1c6584a8a2800607fd890a211cf25efd23964e92ac5652cf5b67",
+        "new_sha256": "fcc5f9dd76ff1c6584a8a2800607fd890a211cf25efd23964e92ac5652cf5b67",
+        "equal": true
+      },
+      {
+        "suffix": ".camera-state.bin",
+        "old_sha256": "1dc09ae6740ee0f841d1be8817bf7dfc4b8b84755d624911aaeaad753d766b15",
+        "new_sha256": "1dc09ae6740ee0f841d1be8817bf7dfc4b8b84755d624911aaeaad753d766b15",
+        "equal": true
+      },
+      {
+        "suffix": ".camera.bin",
+        "old_sha256": "f7e574fd35911b93caef9b81faf5849a6444fe2f127a1d725833b455bce440c6",
+        "new_sha256": "f7e574fd35911b93caef9b81faf5849a6444fe2f127a1d725833b455bce440c6",
+        "equal": true
+      },
+      {
+        "suffix": ".choices.bin",
+        "old_sha256": "86fec8919f436a8e4d759ed41e2d30f475f10840645533bfb09337adc215a837",
+        "new_sha256": "86fec8919f436a8e4d759ed41e2d30f475f10840645533bfb09337adc215a837",
+        "equal": true
+      },
+      {
+        "suffix": ".dialogue.bin",
+        "old_sha256": "9203552fbf7057896c7a0f9abcc10908c24f7fab6f395df7c9b2057ec7756629",
+        "new_sha256": "9203552fbf7057896c7a0f9abcc10908c24f7fab6f395df7c9b2057ec7756629",
+        "equal": true
+      },
+      {
+        "suffix": ".effect-submissions.bin",
+        "old_sha256": "ae854c0241ee92e8483e6074f5ba66da715ac15d8eb63b9df877d5a16ff570ee",
+        "new_sha256": "0b76e024370945463efbb752a03d584679cb5a0064e70b081eb1fd2a9bbc51e3",
+        "equal": false
+      },
+      {
+        "suffix": ".effects.bin",
+        "old_sha256": "333621360835f468728b45ab59fdef86ff195d97ed17c8ce2fd6a2b9e58c0f66",
+        "new_sha256": "333621360835f468728b45ab59fdef86ff195d97ed17c8ce2fd6a2b9e58c0f66",
+        "equal": true
+      },
+      {
+        "suffix": ".interaction.bin",
+        "old_sha256": "7e3eb6e3f5f84b85ae16a29db9c0d299755717990d1ff7e10b6772109261cb02",
+        "new_sha256": "7e3eb6e3f5f84b85ae16a29db9c0d299755717990d1ff7e10b6772109261cb02",
+        "equal": true
+      },
+      {
+        "suffix": ".map-effects.bin",
+        "old_sha256": "9e2109060bd1a95c1bfb3f138c29eae4077c014e18847d5a4a9dd6567a87c51a",
+        "new_sha256": "88204fe1c0d399e2a9e57dec48444467ecaf1145286a8c10a5689ffc45f138e3",
+        "equal": false
+      },
+      {
+        "suffix": ".movement.bin",
+        "old_sha256": "94aebfaec40b5a8a23e83679e7a289fb5b47f63f1a6e56f28a6d9bd2feccb7ed",
+        "new_sha256": "94aebfaec40b5a8a23e83679e7a289fb5b47f63f1a6e56f28a6d9bd2feccb7ed",
+        "equal": true
+      },
+      {
+        "suffix": ".music.bin",
+        "old_sha256": "9ad8aae17a7680bab834464ed6dbe7992134144243bf0a35ed49070194739ea7",
+        "new_sha256": "9ad8aae17a7680bab834464ed6dbe7992134144243bf0a35ed49070194739ea7",
+        "equal": true
+      },
+      {
+        "suffix": ".screen-filter.bin",
+        "old_sha256": "859e4b7a0bd64146acccd4c28cd5521f905289e9518d5c6c29b1bf559795b275",
+        "new_sha256": "859e4b7a0bd64146acccd4c28cd5521f905289e9518d5c6c29b1bf559795b275",
+        "equal": true
+      },
+      {
+        "suffix": ".sound.bin",
+        "old_sha256": "88999e40fc76edbdf37f6cc2af86af69d0931b4448ade5c4dffb27e2ff2ba183",
+        "new_sha256": "88999e40fc76edbdf37f6cc2af86af69d0931b4448ade5c4dffb27e2ff2ba183",
+        "equal": true
+      },
+      {
+        "suffix": ".transition.bin",
+        "old_sha256": "5303f83049d5d088ea23241f5ef30a55734b1acb2de17ea340ae88082437b956",
+        "new_sha256": "5303f83049d5d088ea23241f5ef30a55734b1acb2de17ea340ae88082437b956",
+        "equal": true
+      },
+      {
+        "suffix": ".variables.bin",
+        "old_sha256": "844e98ce2afec93e6e88a27a6ab56bdbcba51f2ceacc450c5ca8f17b34a10778",
+        "new_sha256": "844e98ce2afec93e6e88a27a6ab56bdbcba51f2ceacc450c5ca8f17b34a10778",
+        "equal": true
+      }
+    ]
+  },
+  "interior_audit": {
+    "scope": "Original interior order and placement comparison after native procedural initialization; phase differences retained.",
+    "capture": "local/native-template-preparation-67568-release-v1.png",
+    "inputs": {
+      ".effect-submissions.bin": "0b76e024370945463efbb752a03d584679cb5a0064e70b081eb1fd2a9bbc51e3",
+      ".map-effects.bin": "88204fe1c0d399e2a9e57dec48444467ecaf1145286a8c10a5689ffc45f138e3"
+    },
+    "order": {
+      "contact": {
+        "frames": 45,
+        "submissions_exact_except_map_phase": 1191,
+        "contact_phases_exact": 21,
+        "unresolved_map_phase_mismatches": {
+          "91": 1080,
+          "19": 90
+        },
+        "reference": "local/reference-contact-effect-order-45-v1.bin",
+        "sha256": "07a6c94f13e68ce151bf7c9de13306622289309ba2a41b48967fdef8ba0aa17c",
+        "first_frame": 5050
+      },
+      "home1b": {
+        "frames": 30,
+        "submissions_exact_except_map_phase": 990,
+        "contact_phases_exact": 0,
+        "unresolved_map_phase_mismatches": {
+          "91": 870,
+          "19": 30,
+          "16": 90
+        },
+        "reference": "local/reference-home1b-effect-order-30-v1.bin",
+        "sha256": "5baf7ae242882866f06403548172ece7874d5cf4482dbef06455327920b5be94",
+        "first_frame": 18501
+      }
+    },
+    "placements": [
+      {
+        "frame": 5074,
+        "jobs": 26,
+        "source": "local/research/kitchen-end700-v2-ee.bin",
+        "sha256": "d123959880ccb1eb13dd7c9a208bad1a6446775b2e18a47cdb6cd7b14f49d216"
+      },
+      {
+        "frame": 18501,
+        "jobs": 33,
+        "source": "local/research/home1b360-v1-ee.bin",
+        "sha256": "1505b0ba1e165b4f7f3088bf8bfaa02f7015bc39ae1bf634cd4d202c3cf1ab95"
+      },
+      {
+        "frame": 47855,
+        "jobs": 28,
+        "source": "local/research/basement-summon-v1/after-chant.ram",
+        "sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f"
+      }
+    ]
+  },
+  "checks": {
+    "ctests_per_build": 20,
+    "python_tests": 80,
+    "logs": "local/research/procedural-effects-v1/{ctest-*-v2,python-tests-v2}.log"
+  },
+  "limitations": [
+    "Service54 remains guarded at67569; no new progression",
+    "Explicit seed1 and captured original allocator/textures do not prove cold startup",
+    "2160 original interior map-phase mismatches remain",
+    "Other deterministic geometry/runtime programs outside preparation geometry comparison",
+    "No original raster equivalence or complete audio/playthrough claim",
+    "Full-route cross-build evidence ends48455; current67568 is Release-only"
+  ]
+}

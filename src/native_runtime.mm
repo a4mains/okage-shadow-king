@@ -171,6 +171,8 @@ struct Session {
     std::vector<std::uint32_t> scene_trace,dialogue_trace,camera_state_trace,movement_trace,interaction_trace;
     std::vector<std::uint32_t> effect_trace,map_effect_trace,effect_submission_trace;
     bool effects_loaded=false;
+    std::shared_ptr<const okage::EffectTemplatePreparation> effect_preparation;
+    std::vector<std::uint8_t> effect_bytes;
     std::map<int,std::vector<std::uint32_t>> actor_traces;
     int message_id=10100;unsigned messages_started=0;
     std::optional<okage::DialogueOpening> opening;
@@ -264,10 +266,22 @@ struct Session {
         std::cout<<"Native room: "<<renderer->placements()<<" placements; "<<renderer->omitted_effects()
             <<" effects omitted; "<<renderer->actors()<<" native actors; shadows unavailable; diagnostic dialogue panel\n";
     }
+    void prepare_effects(const fs::path& data,const fs::path& textures) {
+        if(effect_preparation||field)throw std::runtime_error("Effect templates must initialize once before field construction");
+        effect_bytes=readData(data);okage::EffectTextureSizes sizes;
+        for(unsigned i=0;i<sizes.size();++i) {
+            const auto image=okage::decode_xim(readData(textures/okage::effect_texture_names[i]));
+            sizes[i]={image.width,image.height};
+        }
+        effect_preparation=std::make_shared<const okage::EffectTemplatePreparation>(
+            okage::read_efd(effect_bytes),sizes,okage::make_sine_table(),[this]{return random.next();});
+        effect_data=data;effect_textures=textures;
+    }
     void load_effects(const fs::path& data,const fs::path& textures) {
         if(!field||!renderer)throw std::runtime_error("Effects require a loaded scene");
-        renderer->load_effect_textures(textures);field->load_effects(readData(data));effects_loaded=true;
-        effect_data=data;effect_textures=textures;
+        if(!effect_preparation||effect_data!=data||effect_textures!=textures)
+            throw std::runtime_error("Effects require the session's prepared resources");
+        renderer->load_effect_textures(textures);field->load_effects(effect_bytes,effect_preparation);effects_loaded=true;
         auto stage=scene_map;stage.replace_extension(".stg");
         field->load_map_effects(readData(scene_map),renderer->effect_texture_sizes());
         renderer->bind_map_effects(&field->map_effects());
@@ -323,7 +337,7 @@ struct Session {
         const auto stage=readData(stg);projection=okage::field_projection(stage,&far_clip);
         create_field(script,false);bind_audio_services();
         if(!effects_loaded)throw std::runtime_error("Destination requires owned effect resources");
-        renderer->load_effect_textures(effect_textures);field->load_effects(readData(effect_data));
+        renderer->load_effect_textures(effect_textures);field->load_effects(effect_bytes,effect_preparation);
         field->load_map_effects(readData(map),renderer->effect_texture_sizes());
         renderer->bind_map_effects(&field->map_effects());
         renderer->bind_effect_submissions(&field->effect_submissions());
@@ -801,7 +815,9 @@ int main(int argc,const char** argv) {
         if(renderUntil&&(!renderFrom||renderUntil<renderFrom||renderUntil>frames))
             throw std::runtime_error("Render end requires a bounded headless render interval");
         if(frames) {
-            Session session(argv[1],argv[2],playerName);session.render_from=renderFrom;session.render_until=renderUntil;if(!map.empty())session.load_scene(map,event,actors);
+            Session session(argv[1],argv[2],playerName);session.render_from=renderFrom;session.render_until=renderUntil;
+            if(!effectData.empty())session.prepare_effects(effectData,effectTextures);
+            if(!map.empty())session.load_scene(map,event,actors);
             if(!musicSequence.empty())session.load_music(musicSequence,musicBank,!output.empty(),soundDirectory);
             if(!effectData.empty())session.load_effects(effectData,effectTextures);
             std::uint16_t previous=0;
@@ -813,7 +829,9 @@ int main(int argc,const char** argv) {
             std::cout<<"Native frames="<<session.frame<<" progress="<<session.text.state.progress<<" wait_release="<<session.release_frame<<'\n';return 0;
         }
         [NSApplication sharedApplication];[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
-        NativeApp* app=[NativeApp new];app->session=std::make_unique<Session>(argv[1],argv[2],playerName);if(!map.empty())app->session->load_scene(map,event,actors);
+        NativeApp* app=[NativeApp new];app->session=std::make_unique<Session>(argv[1],argv[2],playerName);
+        if(!effectData.empty())app->session->prepare_effects(effectData,effectTextures);
+        if(!map.empty())app->session->load_scene(map,event,actors);
         if(!musicSequence.empty())app->session->load_music(musicSequence,musicBank,!output.empty(),soundDirectory);
         if(!effectData.empty())app->session->load_effects(effectData,effectTextures);
         app->session->render_from=1;app->testFrames=uiFrames;app->testPresses=presses;app->directions=directions;app->testCapture=output;

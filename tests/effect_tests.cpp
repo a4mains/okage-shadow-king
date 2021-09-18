@@ -64,6 +64,21 @@ int main(){try{
     const auto shadow_draws=okage::map_effect_draws(transition,identity,{},450,sine);
     check(shadow_draws.size()==8&&shape_rng==20); // Drawing never consumes template RNG.
     for(const auto& draw:shadow_draws)check(draw.subtractive&&draw.depth_test&&!draw.additive);
+    unsigned prepared_rng=0;auto preparation_random=[&]{return ++prepared_rng;};
+    okage::EffectDefinition initial;initial.id=120;
+    for(unsigned shape:{55u,43u,56u,62u,45u}) {
+        okage::EffectElement e;e.id=initial.elements.size()+1;e.shape=shape;
+        e.texture=shape==56?30:shape==62?10:-1;initial.elements.push_back(e);
+    }
+    auto duplicate=initial;duplicate.id=24;
+    auto prepared_reference=initial;prepared_reference.id=22;prepared_reference.flags=0x800;
+    const okage::EffectTemplatePreparation prepared({initial,duplicate,prepared_reference},sizes,sine,preparation_random);
+    check(prepared_rng==544&&prepared.cache_owners[55]==std::array<std::uint32_t,2>{24,1});
+    check(prepared.geometry[43]->vertices.size()==24&&prepared.geometry[56]->vertices.size()==240&&
+          prepared.geometry[62]->vertices.size()==60&&prepared.geometry[55]->position_tags.size()==240);
+    check(std::fegetround()==rounding_before);
+    rejects([&]{okage::make_procedural_effect_shape(62,sine,preparation_random,{});});
+    rejects([&]{okage::make_procedural_effect_shape(43,sine,{},{});});
     okage::EffectDefinition cylinder;cylinder.id=26;cylinder.duration=160;cylinder.flags=0x8000;
     cylinder.elements.resize(2);
     for(unsigned i=0;i<2;++i) {

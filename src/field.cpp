@@ -308,9 +308,19 @@ void OpeningField::interact(ExplorationInput input) {
     // 0x1bb7e0 -> 0x1b5dd0 executes the newly selected event immediately.
     script_.start(unsigned(interaction_event_));
 }
-void OpeningField::load_effects(Bytes bytes) {
+void OpeningField::load_effects(Bytes bytes,std::shared_ptr<const EffectTemplatePreparation> prepared) {
     if(!effect_definitions_.empty())throw std::runtime_error("Field effects already loaded");
     effect_definitions_=resolve_effect_references(read_efd(bytes));
+    effect_preparation_=std::move(prepared);
+}
+void OpeningField::bind_effect_geometry(MapEffect& effect) const {
+    for(const auto& e:effect.elements)if(e.shape==55) {
+        if(!effect_preparation_||!effect_preparation_->geometry[55])
+            throw std::runtime_error("Field shape55 requires shared template preparation");
+        const auto& geometry=effect_preparation_->geometry[55];
+        effect.shape55_geometry=std::shared_ptr<const std::vector<MapEffectVertex>>(geometry,&geometry->vertices);
+        break;
+    }
 }
 void OpeningField::load_map_effects(Bytes bytes,const EffectTextureSizes& sizes) {
     if(effect_definitions_.empty()||!random_value)throw std::runtime_error("Map effects require templates and shared RNG");
@@ -326,6 +336,7 @@ void OpeningField::load_map_effects(Bytes bytes,const EffectTextureSizes& sizes)
         if(handle==effects_.size())throw std::runtime_error("Field effect capacity exhausted");
         const auto t=map_transform(p,map.definitions.at(p.definition()));
         map_effects_[handle]=std::make_unique<MapEffect>(*definition,t.position,t.rotation,t.scale,sizes,random_value);
+        bind_effect_geometry(*map_effects_[handle]);
     }
     effect_texture_sizes_=sizes;map_effects_loaded_=true;
 }
@@ -346,6 +357,7 @@ unsigned OpeningField::spawn_positioned_effect(unsigned template_id,const Float4
     // or a random starting phase. Particle RNG runs on its first effect update.
     map_effects_[handle]=std::make_unique<MapEffect>(*definition,position,Float4{},Float4{1,1,1,1},
         effect_texture_sizes_,random_value,EffectStart::FirstFrame);
+    bind_effect_geometry(*map_effects_[handle]);
     return handle;
 }
 unsigned OpeningField::attach_bubble(int parameter,int alias) {

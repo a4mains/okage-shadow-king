@@ -588,6 +588,35 @@ int main(){try {
             require(e->phase==(i==1||i==16?1u:2u));}
         scene.tick();require(!scene.map_effects()[1]&&!scene.map_effects()[16]&&scene.map_effects()[0]);
     }
+    {
+        std::vector<std::uint8_t> efd(64+8*116),event(64),no_placements(64);
+        put(efd,0,0x20444645);put(efd,4,1);put(efd,16,24);put(efd,20,80);put(efd,32,8);put(efd,36,64);
+        for(unsigned i=0;i<8;++i) {
+            const auto at=64+116*i;put(efd,at+4,i+1);put(efd,at+8,i<3?25:i==3?3:i==4?55:31);
+            put(efd,at+12,0x21);put(efd,at+24,0xffffffff);put(efd,at+28,__builtin_bit_cast(std::uint32_t, (2.f)));
+        }
+        put(event,0,0x544d58);put(event,4,event.size()-32);put(event,16,0xffffffff);
+        put(event,40,(24u<<20)|0x3e);put(event,56,0x100061);
+        put(no_placements,8,64);put(no_placements,40,64);
+        okage::EffectTextureSizes sizes;for(auto& size:sizes)size={64,64};
+        unsigned calls=0;const auto random=[&]{return ++calls;};
+        auto prepared=std::make_shared<const okage::EffectTemplatePreparation>(okage::read_efd(efd),sizes,okage::make_sine_table(),random);
+        require(calls==404);const auto* vertices=&prepared->geometry[55]->vertices;
+        std::shared_ptr<const std::vector<okage::MapEffectVertex>> retained;
+        for(unsigned visit=0;visit<2;++visit) {
+            okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
+            const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
+            okage::OpeningField scene(event,[](int){},[](int){return true;},player,false);
+            std::array<std::uint8_t,0x1000> vars{};
+            scene.get_variable=[&](auto s){return okage::event_variable(vars,s);};
+            scene.set_variable=[&](auto i,auto b,auto v){okage::set_event_variable(vars,i,b,v);};
+            scene.random_value=random;scene.load_effects(efd,prepared);scene.load_map_effects(no_placements,sizes);
+            okage::FieldDefinition entry;entry.type=1;entry.startup=1;scene.enter(entry,stage,empty_map,0);
+            require(scene.map_effects()[0]&&scene.map_effects()[0]->shape55_geometry.get()==vertices&&calls==404);
+            retained=scene.map_effects()[0]->shape55_geometry;
+        }
+        prepared.reset();require(retained->size()==240); // Queued/retained geometry remains alive.
+    }
     for(unsigned enemy_index:{0u,1u}) {
         okage::ModelFile enemy_model,player_model,ordinary_model;
         enemy_model.models.emplace_back();player_model.models.emplace_back();ordinary_model.models.emplace_back();

@@ -56,6 +56,21 @@ struct MapEffectVertex {Float4 position,color,uv;};
 using EffectNoiseGrid=std::array<std::uint32_t,8*8*6>;
 EffectNoiseGrid make_effect_noise_grid(const std::function<std::uint32_t()>& random);
 std::vector<MapEffectVertex> make_effect_noise_shape(unsigned shape,const EffectNoiseGrid&);
+struct ProceduralEffectGeometry {
+    std::vector<MapEffectVertex> vertices;
+    // Expanded alongside triangle vertices; animation tags are not homogeneous W.
+    std::vector<std::uint8_t> position_tags,uv_tags;
+};
+// First-use ray/surface/spray factories. Texture dimensions are owned XIM data.
+ProceduralEffectGeometry make_procedural_effect_shape(unsigned shape,const SineTable&,
+    const std::function<std::uint32_t()>& random,const std::array<std::uint32_t,2>& texture_size={});
+struct EffectTemplatePreparation {
+    EffectNoiseGrid noise;
+    std::array<std::array<std::uint32_t,2>,66> cache_owners{};
+    std::array<std::shared_ptr<const ProceduralEffectGeometry>,66> geometry{};
+    EffectTemplatePreparation(const std::vector<EffectDefinition>&,const EffectTextureSizes&,
+        const SineTable&,const std::function<std::uint32_t()>& random);
+};
 class MapEffect {
 public:
     MapEffect(const EffectDefinition&,const Float4& position,const Float4& rotation,
