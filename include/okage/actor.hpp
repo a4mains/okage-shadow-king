@@ -33,5 +33,6 @@ private:
     std::vector<Float4> channels_;
     unsigned motion_=0;
 };
-struct ActorBinding {int alias;FieldActor* actor;};
+// Field actor construction may omit a collision body (STUN).
+struct ActorBinding {int alias;FieldActor* actor;bool collidable=true;};
 }

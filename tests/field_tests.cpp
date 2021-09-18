@@ -421,6 +421,32 @@ int main(){try {
         walk.tick();
         require(walk.target[0]==moved[0]&&walk.target[2]==moved[2]);
     }
+    {
+        okage::ModelFile hm,nm,sm;hm.models.emplace_back();nm.models.emplace_back();sm.models.emplace_back();
+        okage::FieldActor hero(std::move(hm),idle,{}),npc(std::move(nm),idle,{}),stun(std::move(sm),idle,{});
+        const std::array<okage::ActorBinding,3> bindings={{{-8,&npc},{-3,&stun,false},{-1,&hero}}};
+        auto event=startup;put(event,40,0x40000002);put(event,44,0);
+        okage::OpeningField scene(event,[](int){},[](int){return true;},bindings,false);
+        require(!stun.visible&&stun.motion()==1&&stun.animation().values()[1]==okage::Float4{0,-2,0,1});
+        std::array<std::uint8_t,0x1000> vars{};
+        scene.get_variable=[&](auto s){return okage::event_variable(vars,s);};
+        scene.set_variable=[&](auto i,auto b,auto v){okage::set_event_variable(vars,i,b,v);};
+        scene.random_value=[] {return 0u;};
+        okage::FieldDefinition entry;entry.type=1;entry.startup=1;
+        entry.npcs.push_back({-8,"npc",0,0,0,{-100,0,-100,1},0,1});
+        scene.enter(entry,stage,empty_map,0);
+        require(scene.collision_bodies().size()==2&&scene.collision_bodies()[1].id==1);
+        require(scene.player_movement().mask&1); // Bit0 must not suppress follow.
+        hero.animation().set_channel(0,{.1f,.25f,.5f,1});hero.animation().set_channel(1,{3,2,7,1});
+        scene.tick();
+        const auto& shadow=*scene.player_shadow();
+        require(shadow.phase==0&&!shadow.stun_visible&&hero.visible&&!hero.shadow_mode_override);
+        require(stun.animation().values()[0]==hero.animation().values()[0]);
+        require(stun.animation().values()[1]==shadow.stun_position&&shadow.stun_position[0]==3&&shadow.stun_position[2]==7);
+        require(shadow.stun_position[1]<2&&shadow.stun_position[1]>1.98f);
+        auto invalid=bindings;invalid[1].collidable=true;
+        rejects([&]{okage::OpeningField bad(event,[](int){},[](int){return true;},invalid,false);});
+    }
     for(int camera_command:{0,1,2}) {
         const bool frozen_camera=camera_command!=2;
         auto exterior_stage=stage;put(exterior_stage,76,0);

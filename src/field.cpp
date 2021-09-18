@@ -32,7 +32,16 @@ OpeningField::OpeningField(Bytes bytes,std::function<void(int)> start,std::funct
         const auto& binding=actors_[i];
         if(binding.alias>=0 || binding.alias < -2048 || binding.alias==-2 || !binding.actor)throw std::runtime_error("Invalid actor binding");
         for(std::size_t j=0;j<i;++j)if(actors_[j].alias==binding.alias || actors_[j].actor==binding.actor)throw std::runtime_error("Duplicate actor binding");
-        binding.actor->select_motion(1); // Original field actor construction 0x138220.
+        if(!binding.collidable && binding.alias!=-3)throw std::runtime_error("Unrecovered noncolliding field actor");
+        if(binding.alias==-3) {
+            if(binding.collidable||i+2!=actors_.size()||actors_.back().alias!=-1)
+                throw std::runtime_error("STUN requires no collision and construction immediately before HERO");
+            //0x134858 constructs STUN at(0,-2,0), then0x134980 hides it.
+            binding.actor->animation().set_channel(1,{0,-2,0,1});
+            binding.actor->visible=false;shadow_.emplace();
+            shadow_->stun_position={0,-2,0,1};
+        }
+        binding.actor->select_motion(1); //0x138220 NPC and0x134858 STUN/HERO setup.
     }
     if(!start_dialogue_ || !wait_dialogue_)throw std::runtime_error("Field requires dialogue services");
     script_.set_service_callback([this](auto op,auto a,auto b,auto pc){return service(op,a,b,pc);});
@@ -83,13 +92,15 @@ void OpeningField::bind_map_scene(MapObjects& scene) {
 void OpeningField::sync_collision_positions() {
     for(unsigned i=0;i<map_body_count_;++i)
         bodies_[i].position=map_scene_->position(map_scene_->collision_bodies()[i].placement);
-    for(unsigned i=0;i<actors_.size();++i)bodies_[map_body_count_+i].position=actors_[i].actor->animation().values().at(1);
+    for(unsigned i=0;i<actors_.size();++i)if(actors_[i].collidable)
+        bodies_[actor_collision_indices_[i]].position=actors_[i].actor->animation().values().at(1);
 }
 void OpeningField::commit_collision_positions(unsigned mover) {
     for(unsigned i=0;i<map_body_count_;++i)
         map_scene_->write_position(map_scene_->collision_bodies()[i].placement,bodies_[i].position);
     for(unsigned i=0;i<actors_.size();++i) {
-        const auto index=map_body_count_+i;
+        if(!actors_[i].collidable)continue;
+        const auto index=actor_collision_indices_[i];
         if(index==mover)actors_[i].actor->animation().set_channel(1,bodies_[index].position);
         else actors_[i].actor->animation().write_channel_output(1,bodies_[index].position);
     }
@@ -202,7 +213,7 @@ void OpeningField::load_interactions(Bytes database,const std::string& room,Byte
     if(definition.event!="e_"+room)throw std::runtime_error("Field event definition does not match diagnostic room");
     for(const auto& npc:definition.npcs)if(!actor(npc.alias)||npc.state!=0)
         throw std::runtime_error("Field NPC binding/state is not implemented");
-    if(definition.npcs.size()+1!=actors_.size())throw std::runtime_error("Field NPC bindings differ from enabled definitions");
+    if(definition.npcs.size()+1+unsigned(shadow_.has_value())!=actors_.size())throw std::runtime_error("Field NPC bindings differ from enabled definitions");
     definition_=std::move(definition);initialize_npcs();
 }
 void OpeningField::initialize_npcs() {
@@ -227,7 +238,7 @@ void OpeningField::update_npcs() {
             get_variable(0x40006),player_.motion,event_running()?5:(transition_?14:0),get_variable(0x40004)};
         const auto action=enemies_[index]->tick(observation,random_value,angles_,sine_);
         if(action.visible) {
-            set_instance_visibility(object->visible,map_body_count_+index,bodies_,*action.visible);
+            set_instance_visibility(object->visible,actor_collision_indices_.at(index),bodies_,*action.visible);
         }
         if(action.translucent)object->render_flags|=0x100000;
         if(action.position)object->animation().set_channel(1,*action.position);
@@ -236,7 +247,7 @@ void OpeningField::update_npcs() {
         if(action.alpha)object->animation().set_component(3,3,*action.alpha);
         if(action.displacement) {
             if(!collision_)throw std::runtime_error("Enemy pursuit requires field collision");
-            sync_collision_positions();const auto body_index=map_body_count_+index;
+            sync_collision_positions();const auto body_index=actor_collision_indices_.at(index);
             auto desired=bodies_[body_index].position;for(unsigned k=0;k<4;++k)desired[k]+=(*action.displacement)[k];
             MapCollisionSettings settings;settings.wall_iterations=3;settings.disabled_mask=collision_mask->bits;
             resolve_collision(*collision_,bodies_,body_index,desired,settings,__builtin_bit_cast(float, (0x3efff17du)));
@@ -384,8 +395,8 @@ void OpeningField::configure_exterior_camera(unsigned area) {
     exterior_camera->configure(value.height,value.scale,value.target);
 }
 void OpeningField::load_exploration_collision(Bytes xcl,Bytes variables) {
-    if(!actor(-1)||collision_||actors_.size()!=3 || actors_[0].alias!=-8 ||
-       actors_[1].alias!=-9 || actors_[2].alias!=-1)
+    if(!actor(-1)||collision_||actors_.size()!=3+unsigned(shadow_.has_value()) || actors_[0].alias!=-8 ||
+       actors_[1].alias!=-9 || actors_.back().alias!=-1)
         throw std::runtime_error("Exploration currently requires HOME1C MAM/IMO/HERO construction order");
     std::array<std::uint8_t,0x800> setup{};setup[0x42c]=33;
     run_event_setup(bytes_,variables,setup);
@@ -396,9 +407,11 @@ void OpeningField::build_collision(Bytes xcl) {
     collision_=read_xcl(xcl);
     Rounding rounding;
     if(map_scene_)for(const auto& binding:map_scene_->collision_bodies())bodies_.push_back(binding.body);
-    map_body_count_=bodies_.size();
+    map_body_count_=bodies_.size();actor_collision_indices_.resize(actors_.size());
     for(unsigned i=0;i<actors_.size();++i) {
-        CollisionBody body;body.id=map_body_count_+i;body.priority=10;body.floor_reach=4;
+        if(!actors_[i].collidable)continue;
+        actor_collision_indices_[i]=unsigned(bodies_.size());
+        CollisionBody body;body.id=unsigned(bodies_.size());body.priority=10;body.floor_reach=4;
         const float radius=__builtin_bit_cast(float, (0x3ff33333u));body.broad_radius=radius+radius;
         body.shapes={{8,{{0,0,0,1},{},0}},{0x72,{{0,-2.5f,0,1},{0,-5,0,1},radius}}};
         body.position=body.previous=actors_[i].actor->animation().values().at(1);
@@ -412,7 +425,7 @@ void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned
         throw std::runtime_error("Unrecovered field entry construction");
     if(!definition.followers.empty())throw std::runtime_error("Field follower construction is unrecovered");
     if(definition.type==0&&!exterior_camera)throw std::runtime_error("Exterior field requires session camera state");
-    if(definition.npcs.size()+1!=actors_.size())throw std::runtime_error("Field entry NPC bindings differ");
+    if(definition.npcs.size()+1+unsigned(shadow_.has_value())!=actors_.size())throw std::runtime_error("Field entry NPC bindings differ");
     if(exterior_camera)exterior_camera->snap_target=true;
     const auto placement=field_entrance(stg,entrance);
     for(const auto& npc:definition.npcs) {
@@ -661,7 +674,7 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             if(auto* target=actor(b);target && (a&0x100)) {
                 // Original 0x1baa60 excludes collision index zero.
                 unsigned index=0;
-                for(unsigned i=0;i<actors_.size();++i)if(actors_[i].actor==target&&!bodies_.empty())index=map_body_count_+i;
+                for(unsigned i=0;i<actors_.size();++i)if(actors_[i].actor==target&&!bodies_.empty())index=actor_collision_indices_.at(i);
                 set_instance_visibility(target->visible,index,bodies_,(a&255)!=0);
                 pending_opcode=0;return {pc+4};
             }
@@ -834,9 +847,25 @@ void OpeningField::tick_callbacks(ExplorationInput input,bool interior_camera) {
     update_npcs();
     if(encounter_)return;
     move_player(input);
+    update_player_shadow();
     if(collision_)remember_player();
     for(const auto& binding:map_objects_)if(binding.actor->visible)binding.actor->evaluate();
     for(const auto& binding:actors_)if(binding.actor->visible)binding.actor->evaluate();
+}
+void OpeningField::update_player_shadow() {
+    //0x1354d8 tests mask bit1 independently of movement bit0, before history.
+    if(!shadow_||(player_.mask&2))return;
+    auto* stun=actor(-3);auto* hero=actor(-1);
+    const auto& channels=stun->animation().values();
+    shadow_->stun_rotation=channels.at(0);shadow_->stun_position=channels.at(1);
+    shadow_->stun_scale=channels.at(2);shadow_->stun_visible=stun->visible;
+    shadow_->hero_shadow=std::uint16_t(hero->shadow_mode_override.value_or(4));
+    if(shadow_->phase!=0)throw std::runtime_error("Shadow transition integration is incomplete");
+    shadow_->tick(hero->animation().values().at(0),hero->animation().values().at(1));
+    if(!shadow_->follow_disabled) {
+        stun->animation().set_channel(0,shadow_->stun_rotation);
+        stun->animation().set_channel(1,shadow_->stun_position);
+    }
 }
 void OpeningField::advance_effects() {
     effect_submissions_.clear();

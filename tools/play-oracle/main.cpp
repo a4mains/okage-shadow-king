@@ -1828,13 +1828,14 @@ public:
         call(0x1b5bd8,{0,0x900000});
         for (unsigned ch=0;ch<channels;++ch) call(0x1b43c0,{ch,0x1800000});
         uint32 bones=0,hierarchy=0,boneCount=0,nodeCount=0;
+        const bool scaleChannels=get(0x900014)!=0;
         if (modelPath) {
             const auto modelBytes=readFile(modelPath);
             const auto model=okage::read_xmd(modelBytes);
-            if (model.models.size()!=1 || modelBytes.size()>0x100000 || get(0x900014)!=0)
-                throw std::runtime_error("Animation pose oracle currently requires one model and two channels per bone");
+            if (model.models.size()!=1 || modelBytes.size()>0x100000)
+                throw std::runtime_error("Animation pose oracle requires one bounded model");
             boneCount=model.models[0].bones.size(); nodeCount=model.models[0].hierarchy.size();
-            if (channels!=4+boneCount*2 || nodeCount>4096 ||
+            if (channels!=4+boneCount*(scaleChannels?3:2) || nodeCount>4096 ||
                 (uint64(frames)+1)*(8+16*channels+64*nodeCount)>32*1024*1024)
                 throw std::runtime_error("Animation pose oracle bounds mismatch");
             std::memcpy(ee->m_ram+0x1700000,modelBytes.data(),modelBytes.size());
@@ -1870,7 +1871,9 @@ public:
                 append(ee->m_ram+at+0x20,16);
             }
             if (modelPath) {
-                call(0x1b4480,{4,boneCount,bones+16});
+                //0x1b7820 selects the scale/rotation/translation copier for
+                // scale-aware motion context (three channels per bone).
+                call(scaleChannels?0x1b4560:0x1b4480,{4,boneCount,bones+16});
                 call(0x184a20,{hierarchy,bones+16,0x1800000,0});
                 append(ee->m_ram+0x1800000,nodeCount*64);
             }

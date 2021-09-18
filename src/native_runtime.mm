@@ -169,7 +169,7 @@ struct Session {
     okage::Float4 projection{};
     float far_clip=1024;
     std::vector<std::uint32_t> scene_trace,dialogue_trace,camera_state_trace,movement_trace,interaction_trace;
-    std::vector<std::uint32_t> effect_trace,map_effect_trace,effect_submission_trace;
+    std::vector<std::uint32_t> effect_trace,map_effect_trace,effect_submission_trace,shadow_trace;
     bool effects_loaded=false;
     std::shared_ptr<const okage::EffectTemplatePreparation> effect_preparation;
     std::vector<std::uint8_t> effect_bytes;
@@ -240,12 +240,16 @@ struct Session {
     void load_scene(const fs::path& map,const fs::path& event,const std::vector<std::pair<int,fs::path>>& assets) {
         scene_map=map;
         std::vector<okage::SceneActor> scene_actors;
-        for(const auto& [alias,path]:assets) {
+        auto add=[&](int alias,const fs::path& path) {
             auto motion=path,xta=path;motion.replace_extension(".xmt");xta.replace_extension(".xta");
             auto object=std::make_unique<okage::FieldActor>(okage::read_xmd(readData(path)),readData(motion),
                 readActorTextures(xta));
-            actor_bindings.push_back({alias,object.get()});scene_actors.push_back({object.get(),path});
+            actor_bindings.push_back({alias,object.get(),alias!=-3});scene_actors.push_back({object.get(),path});
             actor_objects.push_back(std::move(object));
+        };
+        for(const auto& [alias,path]:assets) {
+            if(alias==-1)add(-3,path.parent_path().parent_path()/"STUN.XPF"/"a.xmd");
+            add(alias,path);
         }
         map_objects=std::make_unique<okage::MapObjects>(map);
         renderer=std::make_unique<okage::SceneRenderer>(map,scene_actors,map_objects.get());
@@ -327,10 +331,10 @@ struct Session {
             auto motion=path,xta=path;motion.replace_extension(".xmt");xta.replace_extension(".xta");
             auto object=std::make_unique<okage::FieldActor>(okage::read_xmd(readData(path)),readData(motion),
                 readActorTextures(xta));
-            actor_bindings.push_back({alias,object.get()});scene_actors.push_back({object.get(),path});actor_objects.push_back(std::move(object));
+            actor_bindings.push_back({alias,object.get(),alias!=-3});scene_actors.push_back({object.get(),path});actor_objects.push_back(std::move(object));
         };
         for(const auto& npc:definition.npcs)add(npc.alias,npc.model);
-        add(-1,"hero");
+        add(-3,"stun");add(-1,"hero");
         map_objects=std::make_unique<okage::MapObjects>(map);
         renderer=std::make_unique<okage::SceneRenderer>(map,scene_actors,map_objects.get());
         auto stg=map,xcl=map;stg.replace_extension(".stg");xcl.replace_extension(".xcl");
@@ -471,6 +475,17 @@ struct Session {
                 }
             }
         }
+        if(field&&field->player_shadow()) {
+            const auto& shadow=*field->player_shadow();
+            shadow_trace.insert(shadow_trace.end(),{frame,field->player_movement().mask,shadow.phase,shadow.locked,
+                shadow.follow_disabled,__builtin_bit_cast(std::uint32_t, (shadow.voice)),__builtin_bit_cast(std::uint32_t, (shadow.factor)),
+                shadow.hero_shadow,unsigned(shadow.stun_visible),__builtin_bit_cast(std::uint32_t, (shadow.projection_factor))});
+            for(const auto& v:{shadow.stun_rotation,shadow.stun_position,shadow.stun_scale})
+                for(float f:v)shadow_trace.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+            const auto hero=std::find_if(actor_bindings.begin(),actor_bindings.end(),[](const auto& a){return a.alias==-1;})->actor;
+            const auto hero_channels=hero->animation().values();
+            for(unsigned ch:{0u,1u})for(float f:hero_channels.at(ch))shadow_trace.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+        }
         for(const auto& binding:actor_bindings) {
             const auto* actor=binding.actor;auto& actor_trace=actor_traces[binding.alias];
             actor_trace.insert(actor_trace.end(),{frame,field->pc(),actor->animation().pc(),actor->animation().script_state(),
@@ -545,6 +560,11 @@ static void capture(const Session& session,const fs::path& path) {
     const auto data=[bitmap(session.surface()) representationUsingType:NSBitmapImageFileTypePNG properties:@{}];
     std::ofstream out(path,std::ios::binary);if(!data || !out.write(static_cast<const char*>(data.bytes),data.length))throw std::runtime_error("Cannot write native capture");
     std::ofstream state(statePath);
+    if(!session.shadow_trace.empty()) {
+        std::ofstream shadow(path.string()+".shadow.bin",std::ios::binary);
+        if(!shadow.write(reinterpret_cast<const char*>(session.shadow_trace.data()),session.shadow_trace.size()*4))
+            throw std::runtime_error("Cannot write player shadow trace");
+    }
     if(session.effects_loaded) {
         std::ofstream submissions(path.string()+".effect-submissions.bin",std::ios::binary);
         if(!submissions.write(reinterpret_cast<const char*>(session.effect_submission_trace.data()),session.effect_submission_trace.size()*4))throw std::runtime_error("Cannot write effect submission trace");

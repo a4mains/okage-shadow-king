@@ -6,6 +6,7 @@
 #include "okage/collision.hpp"
 #include "okage/enemy.hpp"
 #include "okage/screen_filter.hpp"
+#include "okage/shadow.hpp"
 #include <optional>
 namespace okage {
 class MapObjects;
@@ -65,6 +66,7 @@ public:
     CollisionMask* collision_mask=&local_collision_mask_;
     std::function<void(unsigned)> transition_service;
     const PlayerMovement& player_movement() const {return player_;}
+    const std::optional<ShadowTransition>& player_shadow() const {return shadow_;}
     const std::vector<CollisionBody>& collision_bodies() const {return bodies_;}
     const AttachedEffects& effects() const {return effects_;}
     const MapEffects& map_effects() const {return map_effects_;}
@@ -110,11 +112,14 @@ private:
     bool exploration_handoff_=false;
     std::optional<CollisionMap> collision_;
     std::vector<CollisionBody> bodies_;
+    std::vector<unsigned> actor_collision_indices_;
     MapObjects* map_scene_=nullptr;
     unsigned map_body_count_=0;
     void sync_collision_positions();
     void commit_collision_positions(unsigned mover);
     PlayerMovement player_;
+    std::optional<ShadowTransition> shadow_;
+    void update_player_shadow();
     std::optional<FieldDefinition> definition_;
     int interaction_alias_=0,interaction_event_=0;
     std::int32_t saved_input_gate_=0;
