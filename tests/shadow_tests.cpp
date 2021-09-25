@@ -92,6 +92,37 @@ int main(){try{
     rejects([&]{okage::shadow_prism(prism);});check(std::fegetround()==FE_UPWARD);
     prism.screen[0][2]=10000;prism.camera[0][0]=std::numeric_limits<float>::infinity();
     rejects([&]{okage::shadow_prism(prism);});check(std::fegetround()==FE_UPWARD);
+    const okage::ShadowScreenSettings screen_settings{800,1,.47f,2048,2048,101,16777115,
+        3,2048,3,1024,0,0,320,112};
+    const auto screen_params=okage::shadow_screen_parameters(screen_settings);
+    check(screen_params[4][2]==8400912&&screen_params[5][2]== -8376200);
+    const okage::Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
+    auto upper=identity;upper[1][0]=.3f;upper[3][1]=1;
+    std::array<okage::Float4,2> points{{{0,0,16,1},{0,0,0,1}}};
+    const auto cache=okage::shadow_vertex_cache(points,{identity,upper},screen_params);
+    check(cache.clip_status==1&&cache.clip[0]==0&&cache.clip[1]==0x20&&cache.clip[3]==0x24);
+    check(__builtin_bit_cast(unsigned, (cache.screen[0][2]))==0x4a3ec886);
+    check(cache.screen[1][0]==0&&cache.screen[1][2]==std::numeric_limits<float>::max());
+    check(cache.screen[3][1]==std::numeric_limits<float>::max());
+    check(std::fegetround()==FE_UPWARD);
+    auto invalid_settings=screen_settings;invalid_settings.clip_far=3;
+    rejects([&]{okage::shadow_screen_parameters(invalid_settings);});
+    rejects([&]{okage::shadow_vertex_cache({}, {identity,upper},screen_params);});
+    points[0][2]=std::numeric_limits<float>::quiet_NaN();
+    rejects([&]{okage::shadow_vertex_cache(points,{identity,upper},screen_params);});
+    check(std::fegetround()==FE_UPWARD);
+    okage::Model main_model,shadow_model;
+    main_model.bones.resize(3);main_model.hierarchy={{0,-1},{1,0},{2,0}};
+    main_model.names={"root","leg","arm"};
+    shadow_model.bones.resize(3);shadow_model.hierarchy={{0,-1},{1,0},{2,1}};
+    shadow_model.names={"unmatched root is unused by name lookup","arm","leg"};
+    main_model.bones[2].translation={17,0,0,1};
+    const auto bound=okage::bind_shadow_model(main_model,shadow_model);
+    check(bound.hierarchy[0].bone==0&&bound.hierarchy[1].bone==2&&bound.hierarchy[2].bone==1);
+    check(bound.hierarchy[2].parent==1&&bound.bones[2].translation[0]==17);
+    check(shadow_model.hierarchy[1].bone==1&&shadow_model.bones[2].translation[0]==0);
+    shadow_model.names[1]="missing";rejects([&]{okage::bind_shadow_model(main_model,shadow_model);});
+    shadow_model.names.pop_back();rejects([&]{okage::bind_shadow_model(main_model,shadow_model);});
     std::fesetround(previous);
     std::cout<<"Shadow boundaries, follow, lock, projection, rounding and invalid-state checks pass\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

@@ -152,6 +152,39 @@ int main(int argc, char** argv) {
             }
             write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
         }
+        if(command=="shadow-bind" && argc==5) {
+            const auto main=okage::read_xmd(read(argv[2])),shadow=okage::read_xmd(read(argv[3]));
+            if(main.models.size()!=1||shadow.models.size()!=1)throw std::runtime_error("Shadow binding requires one model");
+            const auto bound=okage::bind_shadow_model(main.models[0],shadow.models[0]);
+            std::vector<std::uint32_t> output{static_cast<unsigned>(bound.hierarchy.size())};
+            for(const auto& node:bound.hierarchy)output.push_back(node.bone);
+            for(const auto& matrix:okage::rest_pose(bound,okage::make_sine_table()))
+                for(const auto& v:matrix)for(float f:v)output.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+            write(argv[4],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
+        if(command=="shadow-cache" && argc==4) {
+            const auto input=read(argv[2]);constexpr unsigned stride=73*4;
+            if(input.empty()||input.size()%stride||input.size()>stride*128)throw std::runtime_error("Shadow cache fixture extent");
+            std::vector<std::uint32_t> output;
+            for(unsigned at=0;at<input.size();at+=stride) {
+                std::array<std::uint32_t,73> f;std::memcpy(f.data(),input.data()+at,stride);
+                if(!f[1]||f[1]>6)throw std::runtime_error("Shadow cache fixture vertex count");
+                std::array<float,15> v;std::memcpy(v.data(),f.data()+2,60);
+                const okage::ShadowScreenSettings settings{v[0],v[1],v[2],v[3],v[4],v[5],v[6],v[7],v[8],v[9],v[10],v[11],v[12],v[13],v[14]};
+                const auto params=okage::shadow_screen_parameters(settings);
+                std::array<okage::Matrix4,2> projections;std::memcpy(projections.data(),f.data()+17,128);
+                std::array<okage::Float4,6> positions;std::memcpy(positions.data(),f.data()+49,96);
+                const auto cache=okage::shadow_vertex_cache(std::span(positions).first(f[1]),projections,params);
+                output.insert(output.end(),{f[0],f[1],__builtin_bit_cast(std::uint32_t, (cache.clip_status))});
+                for(const auto& p:params)for(float value:p)output.push_back(__builtin_bit_cast(std::uint32_t, (value)));
+                for(unsigned i=0;i<cache.camera.size();++i) {
+                    for(unsigned j=0;j<3;++j)output.push_back(__builtin_bit_cast(std::uint32_t, (cache.camera[i][j])));
+                    output.push_back(cache.clip[i]);
+                    for(float value:cache.screen[i])output.push_back(__builtin_bit_cast(std::uint32_t, (value)));
+                }
+            }
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
         if(command=="shadow-prism" && argc==4) {
             const auto input=read(argv[2]);constexpr unsigned stride=54*4;
             if(input.empty()||input.size()%stride||input.size()>stride*128)throw std::runtime_error("Shadow prism fixture extent");

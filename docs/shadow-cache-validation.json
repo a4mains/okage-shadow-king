@@ -1,17 +1,17 @@
 {
   "scope": "Bounded native perspective/cache arithmetic and owned bone binding/rest matrices.",
   "implementation_base_commit": "5597bf1",
-  "implementation_uncommitted_at_handoff": true,
+  "implementation_uncommitted_at_handoff": false,
   "source_sha256": {
-    "include/okage/shadow.hpp": "38102d1390394f75c661be048af3619f852b3258d11b23fc8078efe7cef26389",
-    "src/shadow.cpp": "abb72579ef36a9673106cffd7cf6fd7c47a9ce70fec6419a5a1dd6bfea18562d",
-    "src/assets_main.cpp": "c7c86c42e17d708c49ef6c3c06b2c3a5238aff9ad2eebdb1d0da759e452cafe2",
-    "tests/shadow_tests.cpp": "2d0a3aca84b40fe9e031639b11523ed6f887edb767e16719344e255ac1a95ed5",
-    "tools/play-oracle/main.cpp": "1b0245f18d2ff60f4cd6e297f65c5736f5d696138d159e8fe5373c8471e958d6",
-    "tools/verify_shadow_cache.py": "385a48d1145a07963215f0f632f868307ba3579440d2e1f0dff5af3087d28b9c",
-    "tools/verify_shadow_binding.py": "a24e6b420b69d87d12562dcca873134f6e2571ecfd9ada0a8f54145690457599",
-    "tests/test_shadow_cache.py": "ec893ef9133416050a58824afbe763663024d5fe278a7c69e7565ae4c62fedcf",
-    "tests/test_shadow_binding.py": "c116586dafc2da36e2648b0421e879329357cd553e28cbcdd9f4fb6517a34809"
+    "include/okage/shadow.hpp": "a43fd71ae3dd3000d39d366073825235f75098f92b92a43cda6b2a2364212a04",
+    "src/shadow.cpp": "f12c42e64ea772ed32ac50e98391a554042bfd155dd49f17946e176181f5cf3a",
+    "src/assets_main.cpp": "6eb9292582f70217afc154cff845af0fae132da65af937c48c85971e5e321442",
+    "tests/shadow_tests.cpp": "cf7a4a7f01623d16686e9d8ad51d888ef546bdf148c311f5cd36d22a4fd94b18",
+    "tools/play-oracle/main.cpp": "289e6c438bb9395085d9115a0497d38c4edc41ed68c24cb72d74f74cf02a06e1",
+    "tools/verify_shadow_cache.py": "de32664ccc288e9f87563bc41067bcca101aa3379342556ce720eb6374e8a0ad",
+    "tools/verify_shadow_binding.py": "3ba8d2c5e31dda9e8b2489b37993759f305bd3ec20ebb5cc3f86e62487c2a7d9",
+    "tests/test_shadow_cache.py": "e87fceb2c6b94fd752336f134766c117cdde2e9cb941eada2d5ba34366665e9b",
+    "tests/test_shadow_binding.py": "cec4a6999ef78ca5d499ec38ad90b4f34f2249c0cf195eb98ea2369d2caaab5d"
   },
   "reports": {
     "cache": {
@@ -687,5 +687,6 @@
   },
   "runtime_integration": false,
   "latest_native_route_frame": 67568,
-  "route_replayed_for_this_change": false
+  "route_replayed_for_this_change": false,
+  "implementation_checkpoint": "Implement native shadow screen caches and owned bone binding"
 }

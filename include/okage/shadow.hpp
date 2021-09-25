@@ -30,6 +30,24 @@ struct ShadowProjectionContext {
     ShadowProjection project(unsigned mode,float height,float factor,
         const std::array<std::uint32_t,3>& tint={255,64,192}) const;
 };
+//0x1b6b40 shares the main bone channels and remaps non-root shadow hierarchy
+// entries by raw names. Geometry and parent links remain those of the shadow.
+Model bind_shadow_model(const Model& main,const Model& shadow);
+// Full perspective/viewport setup from0x1acc10. Depth mapping planes are
+// independent of clipping planes; field rendering uses both pairs.
+struct ShadowScreenSettings {
+    float focal,scale_x,scale_y,center_x,center_y,depth_min,depth_max;
+    float depth_near,depth_far,clip_near,clip_far,fog_near,fog_far,half_width,half_height;
+};
+using ShadowScreenParameters=std::array<Float4,8>;
+ShadowScreenParameters shadow_screen_parameters(const ShadowScreenSettings&);
+struct ShadowVertexCache {
+    std::vector<Float4> camera,screen;
+    std::vector<std::uint32_t> clip;
+    std::int32_t clip_status=0;
+};
+ShadowVertexCache shadow_vertex_cache(std::span<const Float4> positions,
+    const std::array<Matrix4,2>& projections,const ShadowScreenParameters&);
 struct ShadowPrismInput {
     std::array<Float4,6> camera{},screen{}; // Lower triangle, then upper triangle.
     std::array<std::uint32_t,6> clip{};

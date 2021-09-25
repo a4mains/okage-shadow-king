@@ -1,5 +1,7 @@
 #include "okage/shadow.hpp"
 #include <bit>
+#include <algorithm>
+#include <limits>
 #include <cfenv>
 #include <cmath>
 #include <stdexcept>
@@ -101,6 +103,91 @@ ShadowProjection ShadowProjectionContext::project(unsigned mode,float height,flo
     second=shadow_translate(second,{rate*upper,upper,offset_z,0});
     out.matrices={shadow_multiply(view,shadow_multiply(first,inverse)),
                   shadow_multiply(view,shadow_multiply(second,inverse))};
+    return out;
+}
+Model bind_shadow_model(const Model& main,const Model& shadow) {
+    const auto count=main.hierarchy.size();
+    if(!count||count>32768||shadow.hierarchy.size()!=count||main.names.size()!=count||shadow.names.size()!=count)
+        throw std::runtime_error("Shadow model hierarchy/name counts differ");
+    Model result=shadow;result.bones=main.bones;
+    for(std::size_t i=0;i<count;++i) {
+        auto& node=result.hierarchy[i];
+        if(node.parent!= -1) {
+            const auto found=std::find(main.names.begin(),main.names.end(),shadow.names[i]);
+            if(found==main.names.end())throw std::runtime_error("Shadow model bone name is missing");
+            node.bone=static_cast<std::uint16_t>(found-main.names.begin());
+        }
+        if(node.bone>=result.bones.size())throw std::runtime_error("Shadow model mapped bone outside main channels");
+    }
+    return result;
+}
+ShadowScreenParameters shadow_screen_parameters(const ShadowScreenSettings& s) {
+    const std::array<float,15> values{s.focal,s.scale_x,s.scale_y,s.center_x,s.center_y,
+        s.depth_min,s.depth_max,s.depth_near,s.depth_far,s.clip_near,s.clip_far,
+        s.fog_near,s.fog_far,s.half_width,s.half_height};
+    for(float v:values)if(!std::isfinite(v))throw std::runtime_error("Nonfinite shadow screen setting");
+    if(s.focal<=0||s.scale_x<=0||s.scale_y<=0||s.half_width<=0||s.half_height<=0||
+       s.depth_near<=0||s.depth_far<=s.depth_near||s.clip_near<=0||s.clip_far<=s.clip_near)
+        throw std::runtime_error("Invalid shadow screen range");
+    ProjectionRounding rounding;
+    const float clip_range=s.clip_far-s.clip_near;
+    const float zoffset=((s.clip_far*-2.f)*s.clip_near)/clip_range;
+    const float zscale=(s.clip_far+s.clip_near)/clip_range;
+    const float depth_range=s.depth_far-s.depth_near;
+    const float depth_scale=((s.depth_near*s.depth_far)*(s.depth_max-s.depth_min))/depth_range;
+    const float depth_base=(s.depth_min*s.depth_far-s.depth_max*s.depth_near)/depth_range;
+    const float xscale=(s.focal*s.scale_x)/s.half_width;
+    const float yscale=(s.focal*s.scale_y)/s.half_height;
+    float fog_base=255,fog_scale=0;
+    if(s.fog_near<s.fog_far) {
+        const float range=s.fog_far-s.fog_near;
+        fog_base=(-s.fog_near/range)*255.f;
+        fog_scale=((s.fog_far*s.fog_near)/range)*255.f;
+    }
+    ShadowScreenParameters result{{
+        {xscale,yscale,zscale,1},{0,0,zoffset,0},
+        {1.f/xscale,1.f/yscale,1.f/zscale,0},{0,0,-zoffset/zscale,0},
+        {s.center_x,s.center_y,depth_base-(depth_scale*zscale)/zoffset,fog_scale/zoffset},
+        {s.half_width,s.half_height,depth_scale/zoffset,fog_base-(fog_scale*zscale)/zoffset},
+        {-s.half_width+s.center_x,-s.half_height+s.center_y,-s.clip_near,1},
+        {s.half_width+s.center_x,s.half_height+s.center_y,s.clip_far,-depth_base}}};
+    for(const auto& v:result)for(float f:v)if(!std::isfinite(f))throw std::runtime_error("Shadow screen arithmetic overflow");
+    return result;
+}
+ShadowVertexCache shadow_vertex_cache(std::span<const Float4> positions,
+        const std::array<Matrix4,2>& projections,const ShadowScreenParameters& params) {
+    if(positions.empty()||positions.size()>97)throw std::runtime_error("Shadow vertex cache extent");
+    for(const auto& m:projections)for(const auto& v:m)for(float f:v)
+        if(!std::isfinite(f))throw std::runtime_error("Nonfinite shadow cache projection");
+    for(const auto& v:params)for(float f:v)if(!std::isfinite(f))throw std::runtime_error("Nonfinite shadow screen parameter");
+    for(const auto& v:positions)for(float f:v)if(!std::isfinite(f))throw std::runtime_error("Nonfinite shadow cache position");
+    ProjectionRounding rounding;
+    const Matrix4 perspective{{{params[0][0],0,0,0},{0,params[0][1],0,0},
+        {0,0,params[0][2],params[0][3]},params[1]}};
+    ShadowVertexCache out;std::uint32_t clip_union=0,clip_intersection=63;
+    for(const auto& projection:projections)for(const auto& position:positions) {
+        auto camera=shadow_transform(projection,position);
+        const auto clip=shadow_transform(perspective,camera);
+        for(float f:clip)if(!std::isfinite(f))throw std::runtime_error("Shadow cache arithmetic overflow");
+        const float w=std::abs(clip[3]);std::uint32_t flags=0;
+        for(unsigned i=0;i<3;++i) {
+            if(clip[i]>w)flags|=1u<<(2*i);
+            if(clip[i]< -w)flags|=2u<<(2*i);
+        }
+        clip_union|=flags;clip_intersection&=flags;
+        const float reciprocal=clip[3]==0?std::copysign(std::numeric_limits<float>::max(),clip[3]):1.f/clip[3];
+        Float4 screen;
+        for(unsigned i=0;i<4;++i) {
+            float v=params[4][i]*(i==3?clip[2]:clip[3]);
+            v=v+clip[i]*params[5][i];v=v*reciprocal;
+            if(!std::isfinite(v))throw std::runtime_error("Shadow cache screen overflow");
+            screen[i]=std::max(v,0.f);
+        }
+        screen[3]=std::min(screen[3],255.f);
+        camera[3]=0;
+        out.camera.push_back(camera);out.screen.push_back(screen);out.clip.push_back(flags);
+    }
+    out.clip_status=clip_union?(clip_intersection?-1:1):0;
     return out;
 }
 namespace {

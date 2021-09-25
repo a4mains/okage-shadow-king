@@ -370,6 +370,82 @@ public:
         call(0x11fec8,{message});capture();
         writeFile(output,result.data(),result.size());
     }
+    void shadowBind(const std::vector<uint8>& main,const std::vector<uint8>& shadow,const char* output) {
+        const auto a=okage::read_xmd(main),b=okage::read_xmd(shadow);
+        if(a.models.size()!=1||b.models.size()!=1||main.size()>0x100000||shadow.size()>0x100000)
+            throw std::runtime_error("Shadow binding expects two bounded models");
+        const auto count=a.models[0].hierarchy.size();
+        if(!count||count>4096||b.models[0].hierarchy.size()!=count)
+            throw std::runtime_error("Shadow binding hierarchy extent");
+        put(0x1fe250,0);put(0x1fe2ac,0x800000);put(0x330184,0);
+        call(0x1caa20,{0x1400000});
+        for(unsigned i=0;i<2;++i) {
+            const auto& bytes=i?shadow:main;const auto& decoded=i?b:a;
+            const auto base=0x900000+i*0x100000;
+            std::memcpy(ee->m_ram+base,bytes.data(),bytes.size());
+            put(0x1fe2b0,i);put(0x33014c,base+decoded.models[0].offset);
+            call(0x1829c0);call(0x1827e0);call(0x182408);
+        }
+        call(0x1b6b40,{1,0});
+        if(ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0]||get(0x800034)!=get(0x800000))
+            throw std::runtime_error("Original shadow binding failed");
+        const auto bones=get(0x800034),hierarchy=get(0x800038);
+        std::vector<uint32> result{static_cast<uint32>(count)};
+        for(unsigned i=0;i<count;++i) {
+            result.push_back(get(hierarchy+8+i*8)&0xffff);
+            uint16 flag=0;std::memcpy(ee->m_ram+hierarchy+14+i*8,&flag,2);
+        }
+        call(0x1b1d88);loadMicro();call(0x184a20,{hierarchy,bones+16,0x1800000,0});
+        for(unsigned i=0;i<count*16;++i)result.push_back(get(0x1800000+i*4));
+        writeFile(output,result.data(),result.size()*4);
+    }
+    void shadowCache(const std::vector<uint8>& input,const char* output) {
+        constexpr unsigned stride=73*4,top=0x19c;
+        if(input.empty()||input.size()%stride||input.size()>stride*128)
+            throw std::runtime_error("Shadow cache fixture extent");
+        std::memcpy(ee->m_microMem1,ee->m_ram+0x219700,0x1358);
+        auto& cpu=ee->m_VU1;
+        auto run=[&](unsigned entry) {
+            // Fixed research input arena; BASE/OFFSET are normal VIF commands.
+            put(0x1900000,0x03000000|top);put(0x1900004,0x02000000);
+            put(0x1900008,0);put(0x190000c,0x14000000|entry);
+            ee->m_vpu1->GetVif().ReceiveDMA(0x1900000,1,1,false);
+            if(!ee->m_vpu1->IsVuReady()||cpu.m_State.nHasException!=MIPS_EXCEPTION_VU_EBIT)
+                throw std::runtime_error("Shadow cache VU entry did not complete");
+        };
+        auto header=[&](unsigned count,unsigned source,unsigned dest) {
+            const uint32 values[]={count,source,dest,0};
+            std::memcpy(ee->m_vuMem1+top*16,values,16);
+        };
+        std::vector<uint32> result;
+        for(unsigned at=0;at<input.size();at+=stride) {
+            std::array<uint32,73> f;std::memcpy(f.data(),input.data()+at,stride);
+            const unsigned count=f[1];
+            if(!count||count>6)throw std::runtime_error("Shadow cache fixture vertex count");
+            for(unsigned i=0;i<8;++i)ee->m_EE.m_State.nCOP1[12+i]=f[2+i];
+            for(unsigned i=0;i<7;++i)put(0x1ff0000+i*8,f[10+i]);
+            call(0x1acc10,{0x80000});
+            std::memset(ee->m_vuMem1,0,0x4000);
+            std::memcpy(ee->m_vuMem1+top*16,ee->m_ram+0x202de0,9*16);run(0);
+            std::memcpy(ee->m_vuMem1+top*16,ee->m_ram+0x80000,128);run(2);
+            std::memcpy(ee->m_vuMem1+top*16,f.data()+17,64);run(6);
+            std::memcpy(ee->m_vuMem1+top*16,f.data()+33,64);run(8);
+            header(count,0,0);run(12);
+            std::memcpy(ee->m_vuMem1+0x18*16,f.data()+49,count*16);
+            header(count,0,0x61);run(18);header(count,0,0);run(16);
+            header(count,0,0);run(20);header(count,0x61,0);run(20);
+            const int32 status=static_cast<int16>(cpu.m_State.nCOP2VI[11]);
+            result.insert(result.end(),{f[0],count,static_cast<uint32>(status)});
+            for(unsigned i=0;i<32;++i)result.push_back(get(0x80000+i*4));
+            for(unsigned cache=0;cache<2;++cache)for(unsigned i=0;i<count;++i) {
+                for(unsigned base:{0x18u,0xdau})for(unsigned j=0;j<4;++j) {
+                    uint32 value;std::memcpy(&value,ee->m_vuMem1+(base+cache*0x61+i)*16+j*4,4);
+                    result.push_back(value);
+                }
+            }
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
     void shadowPrism(const std::vector<uint8>& input,const char* output) {
         constexpr unsigned stride=54*4;
         if(input.empty()||input.size()%stride||input.size()>stride*128)
@@ -2167,6 +2243,10 @@ int main(int argc,char** argv) {
             reference.mapTransforms(readFile(argv[3]),argv[4]);
         } else if ((command=="uv" || command=="texture-clamp") && argc==5) {
             reference.uv(readFile(argv[3]),argv[4],command=="texture-clamp");
+        } else if (command=="shadow-bind" && argc==6) {
+            reference.shadowBind(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if (command=="shadow-cache" && argc==5) {
+            reference.shadowCache(readFile(argv[3]),argv[4]);
         } else if (command=="shadow-prism" && argc==5) {
             reference.shadowPrism(readFile(argv[3]),argv[4]);
         } else if (command=="shadow-projection" && argc==5) {
