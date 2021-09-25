@@ -41,6 +41,57 @@ int main(){try{
     s.factor=0;auto bad=position;bad[1]=std::numeric_limits<float>::infinity();
     rejects([&]{s.tick(rotation,bad);});
     check(s.stun_position==before.stun_position);
+    const okage::Matrix4 camera{{{0,0,-1,0},{0,1,0,0},{1,0,0,0},{10,-7,3,1}}};
+    const okage::ShadowProjectionContext projection({.3f,1,0,0},camera);
+    check(std::fegetround()==FE_UPWARD);
+    const auto exact=projection.project(4,80,1);
+    const auto neighbor=projection.project(4,80,__builtin_bit_cast(float, (0x3f7fffffu)));
+    check(exact.has_matrices&&!exact.direction&&neighbor.has_matrices&&neighbor.direction);
+    check(__builtin_bit_cast(unsigned, (exact.matrices[1][3][0]))==0);
+    check(__builtin_bit_cast(unsigned, (neighbor.matrices[1][3][0]))==0xbe931f40u);
+    check(__builtin_bit_cast(unsigned, ((*neighbor.direction)[2]))==0xbe931f43u);
+    check(__builtin_bit_cast(unsigned, (exact.matrices[1][0][0]))==0x3f7fffffu);
+    check(__builtin_bit_cast(unsigned, (neighbor.matrices[1][0][0]))==0x3f800000u);
+    for(unsigned mode=0;mode<8;++mode) {
+        const auto output=projection.project(mode,80,1,{17,31,192});
+        check(output.has_matrices==(mode>=4)&&!output.direction);
+        check(output.color==((mode&2)?std::array<unsigned,3>{17,31,192}:std::array<unsigned,3>{}));
+    }
+    check(std::fegetround()==FE_UPWARD);
+    rejects([&]{projection.project(8,0,1);});
+    rejects([&]{projection.project(4,std::numeric_limits<float>::infinity(),1);});
+    rejects([&]{projection.project(4,0,std::numeric_limits<float>::quiet_NaN());});
+    rejects([&]{projection.project(2,0,1,{256,0,0});});
+    // Failures both before and inside the rounding scope must restore the caller.
+    auto invalid_camera=camera;invalid_camera[0][3]=1;
+    rejects([&]{okage::ShadowProjectionContext invalid({.3f,1,0,0},invalid_camera);});
+    rejects([&]{okage::ShadowProjectionContext invalid({0,0,0,0},camera);});
+    rejects([&]{okage::ShadowProjectionContext invalid({1,0,0,0},camera);});
+    check(std::fegetround()==FE_UPWARD);
+    okage::ShadowPrismInput prism;
+    prism.direction={0,1,0,0};
+    prism.camera={okage::Float4{0,0,3,0},{1,0,3,0},{0,0,4,0},
+                  {0,1,3,0},{1,1,3,0},{0,1,4,0}};
+    prism.screen={okage::Float4{1024,1024,10000,128},{1280,1024,10000,128},
+                  {1024,1280,10000,128},{1024,924,10050,128},
+                  {1280,924,10050,128},{1024,1180,10050,128}};
+    const auto draw=okage::shadow_prism(prism);
+    check(draw.emitted&&draw.passes[0]==draw.passes[2]);
+    check(draw.passes[0][0][2]==0x26480&&draw.passes[1][0][2]==0x27d80);
+    check(draw.passes[0][6][3]==0x8800&&draw.passes[1][6][3]==0x800);
+    check(draw.passes[0][3][3]==0x8800&&draw.passes[1][3][3]==0x8800);
+    check(std::fegetround()==FE_UPWARD);
+    prism.direction[1]=-1;check(!okage::shadow_prism(prism).emitted);prism.direction[1]=1;
+    prism.screen[0][0]=0;check(okage::shadow_prism(prism).emitted);
+    prism.clip[0]=1;check(!okage::shadow_prism(prism).emitted);
+    prism.screen[0][0]=16;check(!okage::shadow_prism(prism).emitted);
+    prism.screen[0][0]=17;check(okage::shadow_prism(prism).emitted);
+    prism.clip[0]=16;check(!okage::shadow_prism(prism).emitted);prism.clip[0]=0;
+    prism.clip_status=-1;check(!okage::shadow_prism(prism).emitted);prism.clip_status=0;
+    prism.screen[0][2]=std::numeric_limits<float>::max();
+    rejects([&]{okage::shadow_prism(prism);});check(std::fegetround()==FE_UPWARD);
+    prism.screen[0][2]=10000;prism.camera[0][0]=std::numeric_limits<float>::infinity();
+    rejects([&]{okage::shadow_prism(prism);});check(std::fegetround()==FE_UPWARD);
     std::fesetround(previous);
-    std::cout<<"Shadow boundaries, follow, lock, rounding and invalid-state checks pass\n";
+    std::cout<<"Shadow boundaries, follow, lock, projection, rounding and invalid-state checks pass\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

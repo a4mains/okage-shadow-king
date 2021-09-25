@@ -1,0 +1,205 @@
+{
+  "scope": "Bounded native shadow projection math and prism geometry.",
+  "reports": {
+    "projection": {
+      "native-release": {
+        "scope": "Compare native shadow projection setup/matrices with original packet generation.",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "shadow-projection",
+            "local/extracted/SCUS_971.29",
+            "local/research/shadow-projection-v1/projection-fixture-v1.bin",
+            "local/research/shadow-projection-v1/projection-original-v1.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.434071667,
+          "binary_sha256": "9e514aaf0987cd343a36e104d504894e93e4737b41523f4a7eb1790bf89c26d0",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "input_sha256": "5a641f84b61d8d2eb381f1d76833301ef422828365496f1427b2d5b6bc45a9a1",
+          "outputs": {
+            "projection-original-v1.bin": "ae2945f7f4aa76ff487376093deec06e4a4ffae257edb15a980c3c24878fadea",
+            "projection-original-v1.bin.setup.bin": "ca750e556515677ac1e87329491e42f359a396545d02afffede3f42f49c643d5"
+          }
+        },
+        "native_command": [
+          "build/native-release/okage-assets",
+          "shadow-projection",
+          "local/research/shadow-projection-v1/projection-fixture-v1.bin",
+          "local/shadow-projection-checks-v4/native-release/projection-native.bin"
+        ],
+        "native_sha256": "9f2bd0889476d383a7a7f8c786187a7b4d5ee73e824398b3b7377246e18f87b9",
+        "cases": 117,
+        "setup_words_exact": 6552,
+        "matrices_exact": 162,
+        "directions_exact": 45,
+        "color_records_exact": 117
+      },
+      "native": {
+        "scope": "Compare native shadow projection setup/matrices with original packet generation.",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "shadow-projection",
+            "local/extracted/SCUS_971.29",
+            "local/research/shadow-projection-v1/projection-fixture-v1.bin",
+            "local/research/shadow-projection-v1/projection-original-v1.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.434071667,
+          "binary_sha256": "9e514aaf0987cd343a36e104d504894e93e4737b41523f4a7eb1790bf89c26d0",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "input_sha256": "5a641f84b61d8d2eb381f1d76833301ef422828365496f1427b2d5b6bc45a9a1",
+          "outputs": {
+            "projection-original-v1.bin": "ae2945f7f4aa76ff487376093deec06e4a4ffae257edb15a980c3c24878fadea",
+            "projection-original-v1.bin.setup.bin": "ca750e556515677ac1e87329491e42f359a396545d02afffede3f42f49c643d5"
+          }
+        },
+        "native_command": [
+          "build/native/okage-assets",
+          "shadow-projection",
+          "local/research/shadow-projection-v1/projection-fixture-v1.bin",
+          "local/shadow-projection-checks-v4/native/projection-native.bin"
+        ],
+        "native_sha256": "8bf00ee3b4688f53fe28d92fd396f1096122f5db9f03f352beb62a59fbe3b61c",
+        "cases": 117,
+        "setup_words_exact": 6552,
+        "matrices_exact": 162,
+        "directions_exact": 45,
+        "color_records_exact": 117
+      },
+      "model-sanitize": {
+        "scope": "Compare native shadow projection setup/matrices with original packet generation.",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "shadow-projection",
+            "local/extracted/SCUS_971.29",
+            "local/research/shadow-projection-v1/projection-fixture-v1.bin",
+            "local/research/shadow-projection-v1/projection-original-v1.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.434071667,
+          "binary_sha256": "9e514aaf0987cd343a36e104d504894e93e4737b41523f4a7eb1790bf89c26d0",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "input_sha256": "5a641f84b61d8d2eb381f1d76833301ef422828365496f1427b2d5b6bc45a9a1",
+          "outputs": {
+            "projection-original-v1.bin": "ae2945f7f4aa76ff487376093deec06e4a4ffae257edb15a980c3c24878fadea",
+            "projection-original-v1.bin.setup.bin": "ca750e556515677ac1e87329491e42f359a396545d02afffede3f42f49c643d5"
+          }
+        },
+        "native_command": [
+          "build/model-sanitize/okage-assets",
+          "shadow-projection",
+          "local/research/shadow-projection-v1/projection-fixture-v1.bin",
+          "local/shadow-projection-checks-v4/model-sanitize/projection-native.bin"
+        ],
+        "native_sha256": "3f9bd45ec9063a60c520169fdca3f2b936759bb8abcfe3e91802588801da5076",
+        "cases": 117,
+        "setup_words_exact": 6552,
+        "matrices_exact": 162,
+        "directions_exact": 45,
+        "color_records_exact": 117
+      }
+    },
+    "prism": {
+      "native-release": {
+        "scope": "Compare native three-pass shadow prism geometry with original VU1 packets.",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "shadow-prism",
+            "local/extracted/SCUS_971.29",
+            "local/research/shadow-prism-v1/fixture-v2.bin",
+            "local/research/shadow-prism-v1/original-v4.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.6584467909999998,
+          "binary_sha256": "cd5637463f020aa13b61b59ff043a5fe95352b419b079bee8441be6795208ade",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "input_sha256": "10cc3ad2e17b4ae63f164ab9f7c2c39105ca7c3e18eb9776205879a4ede15adf",
+          "output_sha256": "acecc772bf766ad95097afc68fd95618fde2793d092d23e198e3953ec08f0df0"
+        },
+        "native_command": [
+          "build/native-release/okage-assets",
+          "shadow-prism",
+          "local/research/shadow-prism-v1/fixture-v2.bin",
+          "local/shadow-prism-checks-v4/native-release/native.bin"
+        ],
+        "native_sha256": "9f2bd0889476d383a7a7f8c786187a7b4d5ee73e824398b3b7377246e18f87b9",
+        "cases": 128,
+        "emitted_prisms": 59,
+        "culled_prisms": 69,
+        "ordered_vertices_exact": 2124,
+        "original_pass_headers_checked": 531
+      },
+      "native": {
+        "scope": "Compare native three-pass shadow prism geometry with original VU1 packets.",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "shadow-prism",
+            "local/extracted/SCUS_971.29",
+            "local/research/shadow-prism-v1/fixture-v2.bin",
+            "local/research/shadow-prism-v1/original-v4.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.6584467909999998,
+          "binary_sha256": "cd5637463f020aa13b61b59ff043a5fe95352b419b079bee8441be6795208ade",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "input_sha256": "10cc3ad2e17b4ae63f164ab9f7c2c39105ca7c3e18eb9776205879a4ede15adf",
+          "output_sha256": "acecc772bf766ad95097afc68fd95618fde2793d092d23e198e3953ec08f0df0"
+        },
+        "native_command": [
+          "build/native/okage-assets",
+          "shadow-prism",
+          "local/research/shadow-prism-v1/fixture-v2.bin",
+          "local/shadow-prism-checks-v4/native/native.bin"
+        ],
+        "native_sha256": "8bf00ee3b4688f53fe28d92fd396f1096122f5db9f03f352beb62a59fbe3b61c",
+        "cases": 128,
+        "emitted_prisms": 59,
+        "culled_prisms": 69,
+        "ordered_vertices_exact": 2124,
+        "original_pass_headers_checked": 531
+      },
+      "model-sanitize": {
+        "scope": "Compare native three-pass shadow prism geometry with original VU1 packets.",
+        "original_run": {
+          "command": [
+            "build/play-research/okage-oracle/okage-pose-oracle",
+            "shadow-prism",
+            "local/extracted/SCUS_971.29",
+            "local/research/shadow-prism-v1/fixture-v2.bin",
+            "local/research/shadow-prism-v1/original-v4.bin"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 1.6584467909999998,
+          "binary_sha256": "cd5637463f020aa13b61b59ff043a5fe95352b419b079bee8441be6795208ade",
+          "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "input_sha256": "10cc3ad2e17b4ae63f164ab9f7c2c39105ca7c3e18eb9776205879a4ede15adf",
+          "output_sha256": "acecc772bf766ad95097afc68fd95618fde2793d092d23e198e3953ec08f0df0"
+        },
+        "native_command": [
+          "build/model-sanitize/okage-assets",
+          "shadow-prism",
+          "local/research/shadow-prism-v1/fixture-v2.bin",
+          "local/shadow-prism-checks-v4/model-sanitize/native.bin"
+        ],
+        "native_sha256": "3f9bd45ec9063a60c520169fdca3f2b936759bb8abcfe3e91802588801da5076",
+        "cases": 128,
+        "emitted_prisms": 59,
+        "culled_prisms": 69,
+        "ordered_vertices_exact": 2124,
+        "original_pass_headers_checked": 531
+      }
+    }
+  },
+  "tests": {
+    "ctests_per_build": 20,
+    "python": 87
+  },
+  "runtime_integration": false,
+  "latest_native_route_frame": 67568,
+  "route_replayed_for_this_change": false
+}

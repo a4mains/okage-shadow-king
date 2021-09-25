@@ -152,6 +152,46 @@ int main(int argc, char** argv) {
             }
             write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
         }
+        if(command=="shadow-prism" && argc==4) {
+            const auto input=read(argv[2]);constexpr unsigned stride=54*4;
+            if(input.empty()||input.size()%stride||input.size()>stride*128)throw std::runtime_error("Shadow prism fixture extent");
+            std::vector<std::uint32_t> output;
+            for(unsigned at=0;at<input.size();at+=stride) {
+                std::array<std::uint32_t,54> f;std::memcpy(f.data(),input.data()+at,stride);
+                okage::ShadowPrismInput values;values.clip_status=__builtin_bit_cast(std::int32_t, (f[1]));
+                std::memcpy(values.direction.data(),f.data()+2,16);
+                std::memcpy(values.camera.data(),f.data()+6,96);
+                std::memcpy(values.screen.data(),f.data()+30,96);
+                for(unsigned i=0;i<6;++i){values.clip[i]=f[9+i*4];values.camera[i][3]=0;}
+                const auto prism=okage::shadow_prism(values);
+                output.insert(output.end(),{f[0],unsigned(prism.emitted)});
+                if(prism.emitted)for(const auto& pass:prism.passes)for(const auto& v:pass)
+                    output.insert(output.end(),v.begin(),v.end());
+            }
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
+        if(command=="shadow-projection" && argc==4) {
+            const auto input=read(argv[2]);constexpr unsigned stride=27*4;
+            if(input.empty()||input.size()%stride||input.size()>stride*128)throw std::runtime_error("Shadow projection fixture extent");
+            std::vector<std::uint32_t> output,setup;
+            for(unsigned at=0;at<input.size();at+=stride) {
+                std::array<std::uint32_t,27> f;std::memcpy(f.data(),input.data()+at,stride);
+                okage::Float4 light;okage::Matrix4 view;
+                std::memcpy(light.data(),f.data()+4,16);std::memcpy(view.data(),f.data()+8,64);
+                const okage::ShadowProjectionContext context(light,view);
+                const auto result=context.project(f[1],__builtin_bit_cast(float, (f[2])),__builtin_bit_cast(float, (f[3])),{f[24],f[25],f[26]});
+                const auto vector=[&](auto& out,const auto& v){for(float x:v)out.push_back(__builtin_bit_cast(std::uint32_t, (x)));};
+                setup.push_back(f[0]);
+                for(const auto& m:{context.inverse,context.planes[0],context.planes[1]})for(const auto& v:m)vector(setup,v);
+                vector(setup,context.world_direction);vector(setup,context.view_direction);
+                output.insert(output.end(),{f[0],f[1],unsigned(result.has_matrices),unsigned(result.direction.has_value()),
+                    result.color[0],result.color[1],result.color[2]});
+                for(const auto& m:result.matrices)for(const auto& v:m)vector(output,v);
+                vector(output,result.direction.value_or(okage::Float4{}));
+            }
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});
+            write(std::string(argv[3])+".setup.bin",{reinterpret_cast<const std::uint8_t*>(setup.data()),setup.size()*4});return 0;
+        }
         if(command=="shadow-update" && argc==4) {
             const auto input=read(argv[2]);constexpr unsigned stride=30*4;
             if(input.empty()||input.size()%stride||input.size()>stride*32)throw std::runtime_error("Shadow update fixture extent");

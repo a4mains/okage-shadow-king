@@ -9,6 +9,7 @@
 #include "iop/Iop_SpuBase.h"
 #include "Ps2Const.h"
 #include "FpUtils.h"
+#include "gs/GSH_Null.h"
 #include "okage/model.hpp"
 #include "okage/texture_animation.hpp"
 #include <CommonCrypto/CommonDigest.h>
@@ -57,6 +58,7 @@ std::string hash(const std::vector<uint8>& data) {
 class Reference {
 public:
     std::unique_ptr<Iop::CSubSystem> iop;
+    std::unique_ptr<CGSH_Null> researchGs;
     std::unique_ptr<Ee::CSubSystem> ee;
     std::unique_ptr<CPS2OS> effectOs;
     bool streamTransferProbe=false;
@@ -367,6 +369,91 @@ public:
         call(0x1980f8);call(0x198390,{0});capture();
         call(0x11fec8,{message});capture();
         writeFile(output,result.data(),result.size());
+    }
+    void shadowPrism(const std::vector<uint8>& input,const char* output) {
+        constexpr unsigned stride=54*4;
+        if(input.empty()||input.size()%stride||input.size()>stride*128)
+            throw std::runtime_error("Shadow prism fixture extent");
+        researchGs=std::make_unique<CGSH_Null>();
+        researchGs->Initialize();researchGs->Reset();ee->m_gs=researchGs.get();
+        std::memcpy(ee->m_microMem1,ee->m_ram+0x219700,0x1358);
+        auto& cpu=ee->m_VU1;
+        auto run=[&](unsigned entry,unsigned count) {
+            put(0x1900000,0x04000000|count);put(0x1900004,0x14000000|entry);
+            put(0x1900008,0);put(0x190000c,0);
+            ee->m_vpu1->GetVif().ReceiveDMA(0x1900000,1,1,false);
+            if(!ee->m_vpu1->IsVuReady()||cpu.m_State.nHasException!=MIPS_EXCEPTION_VU_EBIT)
+                throw std::runtime_error("Shadow prism VU entry did not complete");
+        };
+        std::vector<uint32> result;
+        for(unsigned at=0;at<input.size();at+=stride) {
+            std::array<uint32,54> f;std::memcpy(f.data(),input.data()+at,stride);
+            std::memset(ee->m_vuMem1,0,0x4000);
+            std::memcpy(ee->m_vuMem1,ee->m_ram+0x202de0,9*16);
+            run(0,0);
+            std::memcpy(ee->m_vuMem1+0x10*16,f.data()+2,16);
+            const uint32 indices[]={0,1,2,0};std::memcpy(ee->m_vuMem1,indices,16);
+            for(unsigned i=0;i<4;++i) {
+                const unsigned base=std::array<unsigned,4>{0x18,0x79,0xda,0x13b}[i];
+                std::memcpy(ee->m_vuMem1+base*16,f.data()+6+i*12,48);
+            }
+            cpu.m_State.nCOP2VI[11]=f[1];run(22,1);
+            uint32 first;std::memcpy(&first,ee->m_vuMem1+0x1dc*16,4);
+            if(first!=1&&first!=0x4b008000)throw std::runtime_error("Unexpected shadow prism output tag");
+            const auto nextBuffer=cpu.m_State.nCOP2VI[12];
+            if(nextBuffer!=0x1dc&&nextBuffer!=0x2ee)
+                throw std::runtime_error("Unexpected shadow prism buffer selector");
+            const unsigned qwords=nextBuffer==0x1dc?0:(first==1?46:1);
+            if(!qwords){result.insert(result.end(),{f[0],0});continue;}
+            uint32 end;std::memcpy(&end,ee->m_vuMem1+(0x1dc+qwords-1)*16,4);
+            if(end!=0x4b008000)
+                throw std::runtime_error("Shadow prism terminal tag missing");
+            result.insert(result.end(),{f[0],qwords});
+            for(unsigned i=0;i<qwords*4;++i) {
+                uint32 word;std::memcpy(&word,ee->m_vuMem1+0x1dc*16+i*4,4);result.push_back(word);
+            }
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
+    void shadowProjection(const std::vector<uint8>& input,const char* output) {
+        constexpr unsigned stride=27*4;
+        if(input.empty()||input.size()%stride||input.size()>stride*128)
+            throw std::runtime_error("Shadow projection fixture extent");
+        loadMicro();std::vector<uint32> result,setup;
+        for(unsigned at=0;at<input.size();at+=stride) {
+            std::array<uint32,27> f;std::memcpy(f.data(),input.data()+at,stride);
+            if(f[1]>7)throw std::runtime_error("Shadow projection mode");
+            auto& cpu=ee->m_EE;
+            std::memcpy(ee->m_ram+0x80000,f.data()+8,64);
+            put(0x337e90,0x80000);call(0x1e2350,{0x337ea0,0x80000});
+            for(unsigned i=0;i<3;++i)cpu.m_State.nCOP1[12+i]=f[4+i];
+            call(0x1b15c0);
+            cpu.m_State.nCOP1[12]=0;cpu.m_State.nCOP1[13]=0xc0800000;cpu.m_State.nCOP1[14]=0;
+            call(0x1b15e8);
+            cpu.m_State.nCOP1[12]=0;cpu.m_State.nCOP1[13]=0x40800000;cpu.m_State.nCOP1[14]=0;
+            call(0x1b1608);call(0x1b1508);
+            put(0x337e88,0x3353d0);put(0x337e8c,0x335410);
+            put(0x337e60,f[4]);put(0x337e3c,f[3]);
+            float slope;std::memcpy(&slope,f.data()+4,4);const float span=slope+slope;
+            uint32 spanBits;std::memcpy(&spanBits,&span,4);put(0x337e38,spanBits);
+            for(unsigned i=0;i<3;++i)put(0x337e78+4*i,f[24+i]);
+            // Same direction transform/normalization as0x1b1710, without
+            // invoking unrelated GPU/queue setup. All math executes unchanged.
+            call(0x1e2210,{0x81000,0x80000,0x202ea0});call(0x1e22d0,{0x81000,0x81000});
+            setup.push_back(f[0]);
+            for(auto pair:{std::pair<uint32,unsigned>{0x337ea0,16},{0x3353d0,32},{0x202ea0,4},{0x81000,4}})
+                for(unsigned i=0;i<pair.second;++i)setup.push_back(get(pair.first+4*i));
+            constexpr uint32 arena=0x1800000;
+            std::memset(ee->m_ram+arena,0xcd,4096);
+            put(0x3a0aa0,arena);put(0x3a0aa4,0);put(0x2138b4,arena+16);put(0x335328,0);
+            cpu.m_State.nCOP1[12]=f[2];call(0x1b8dc8,{f[1]});
+            const auto end=get(0x3a0aa0);
+            if(end<arena+16||end>arena+4080||(end&15))throw std::runtime_error("Shadow packet arena extent");
+            result.insert(result.end(),{f[0],f[1],end-arena});
+            for(uint32 p=arena;p<end;p+=4)result.push_back(get(p));
+        }
+        writeFile(output,result.data(),result.size()*4);
+        writeFile((std::string(output)+".setup.bin").c_str(),setup.data(),setup.size()*4);
     }
     void shadowUpdate(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
         constexpr unsigned stride=30*4;
@@ -2080,6 +2167,10 @@ int main(int argc,char** argv) {
             reference.mapTransforms(readFile(argv[3]),argv[4]);
         } else if ((command=="uv" || command=="texture-clamp") && argc==5) {
             reference.uv(readFile(argv[3]),argv[4],command=="texture-clamp");
+        } else if (command=="shadow-prism" && argc==5) {
+            reference.shadowPrism(readFile(argv[3]),argv[4]);
+        } else if (command=="shadow-projection" && argc==5) {
+            reference.shadowProjection(readFile(argv[3]),argv[4]);
         } else if (command=="shadow-update" && argc==6) {
             reference.shadowUpdate(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if (command=="instance-alpha" && argc==5) {
@@ -2094,14 +2185,15 @@ int main(int argc,char** argv) {
             reference.call(0x001b1d88);
             writeFile(argv[3],reference.ee->m_ram+0x00202ee0,16384*4);
             std::cout<<"Executed retail sine initializer; wrote 16384 float entries\n";
-        } else if ((command=="vu-asm" || command=="vu1-asm") && argc==4) {
-            const bool vu1=command=="vu1-asm";
-            if (vu1) std::memcpy(reference.ee->m_microMem1,reference.ee->m_ram+0x215900,0x3d98);
+        } else if ((command=="vu-asm" || command=="vu1-asm" || command=="shadow-vu1-asm") && argc==4) {
+            const bool vu1=command!="vu-asm",shadow=command=="shadow-vu1-asm";
+            const uint32 length=vu1?(shadow?0x1358:0x3d98):0x660;
+            if (vu1) std::memcpy(reference.ee->m_microMem1,reference.ee->m_ram+(shadow?0x219700:0x215900),length);
             else reference.loadMicro();
             auto& cpu=vu1 ? reference.ee->m_VU1 : reference.ee->m_VU0;
             const auto* memory=vu1 ? reference.ee->m_microMem1 : reference.ee->m_microMem0;
             std::ostringstream listing;
-            for (uint32 at=0;at<(vu1 ? 0x3d98 : 0x660);at+=4) {
+            for (uint32 at=0;at<length;at+=4) {
                 uint32 word; std::memcpy(&word,memory+at,4);
                 char name[256]{},operands[256]{};
                 cpu.m_pArch->GetInstructionMnemonic(&cpu,at,word,name,sizeof(name));
