@@ -152,6 +152,22 @@ int main(int argc, char** argv) {
             }
             write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
         }
+        if(command=="shadow-batches" && argc==4) {
+            const auto file=okage::read_xmd(read(argv[2]));
+            if(file.models.size()!=1)throw std::runtime_error("Shadow batches require one model");
+            std::vector<std::uint32_t> output{static_cast<unsigned>(file.models[0].blocks.size())};
+            for(const auto& block:file.models[0].blocks)for(bool pass:{false,true}) {
+                const auto batches=okage::shadow_batches(block,pass);output.push_back(batches.size());
+                for(const auto& batch:batches) {
+                    output.insert(output.end(),{static_cast<unsigned>(batch.positions.size()),static_cast<unsigned>(batch.polygons.size())});
+                    output.insert(output.end(),batch.positions.begin(),batch.positions.end());
+                    for(const auto& polygon:batch.polygons) {
+                        output.push_back(polygon.size());output.insert(output.end(),polygon.begin(),polygon.end());
+                    }
+                }
+            }
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
         if(command=="shadow-bind" && argc==5) {
             const auto main=okage::read_xmd(read(argv[2])),shadow=okage::read_xmd(read(argv[3]));
             if(main.models.size()!=1||shadow.models.size()!=1)throw std::runtime_error("Shadow binding requires one model");

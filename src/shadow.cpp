@@ -121,6 +121,37 @@ Model bind_shadow_model(const Model& main,const Model& shadow) {
     }
     return result;
 }
+std::vector<ShadowBatch> shadow_batches(const RenderBlock& block,bool positive_material) {
+    std::vector<ShadowBatch> result;ShadowBatch batch;
+    for(const auto& polygon:block.polygons) {
+        if(polygon.material>=0) {
+            if(std::size_t(polygon.material)>=block.materials.size())throw std::runtime_error("Shadow material index");
+            const float value=__builtin_bit_cast(float, (block.materials[polygon.material].words[5]));
+            if(!std::isfinite(value))throw std::runtime_error("Nonfinite shadow material");
+            if((value>0)!=positive_material)continue;
+        }
+        if(polygon.corners.size()!=3&&polygon.corners.size()!=4)throw std::runtime_error("Unsupported shadow polygon");
+        auto positions=batch.positions;std::vector<std::uint16_t> corners;
+        for(const auto& corner:polygon.corners) {
+            if(corner[0]<0||std::uint32_t(corner[0])>=block.attribute_extents[0])
+                throw std::runtime_error("Shadow source position index");
+            auto found=std::find(positions.begin(),positions.end(),corner[0]);
+            if(found==positions.end()) {corners.push_back(positions.size());positions.push_back(corner[0]);}
+            else corners.push_back(found-positions.begin());
+        }
+        if(positions.size()>97||batch.polygons.size()==97) {
+            result.push_back(std::move(batch));batch={};positions.clear();corners.clear();
+            for(const auto& corner:polygon.corners) {
+                auto found=std::find(positions.begin(),positions.end(),corner[0]);
+                if(found==positions.end()) {corners.push_back(positions.size());positions.push_back(corner[0]);}
+                else corners.push_back(found-positions.begin());
+            }
+        }
+        batch.positions=std::move(positions);batch.polygons.push_back(std::move(corners));
+    }
+    if(!batch.polygons.empty())result.push_back(std::move(batch));
+    return result;
+}
 ShadowScreenParameters shadow_screen_parameters(const ShadowScreenSettings& s) {
     const std::array<float,15> values{s.focal,s.scale_x,s.scale_y,s.center_x,s.center_y,
         s.depth_min,s.depth_max,s.depth_near,s.depth_far,s.clip_near,s.clip_far,

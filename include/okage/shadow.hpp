@@ -33,6 +33,11 @@ struct ShadowProjectionContext {
 //0x1b6b40 shares the main bone channels and remaps non-root shadow hierarchy
 // entries by raw names. Geometry and parent links remain those of the shadow.
 Model bind_shadow_model(const Model& main,const Model& shadow);
+struct ShadowBatch {
+    std::vector<std::uint16_t> positions; // First-use source position indices.
+    std::vector<std::vector<std::uint16_t>> polygons; // Remapped triangles/quads.
+};
+std::vector<ShadowBatch> shadow_batches(const RenderBlock&,bool positive_material);
 // Full perspective/viewport setup from0x1acc10. Depth mapping planes are
 // independent of clipping planes; field rendering uses both pairs.
 struct ShadowScreenSettings {

@@ -123,6 +123,21 @@ int main(){try{
     check(shadow_model.hierarchy[1].bone==1&&shadow_model.bones[2].translation[0]==0);
     shadow_model.names[1]="missing";rejects([&]{okage::bind_shadow_model(main_model,shadow_model);});
     shadow_model.names.pop_back();rejects([&]{okage::bind_shadow_model(main_model,shadow_model);});
+    okage::RenderBlock batch_block{};batch_block.attribute_extents[0]=100;
+    for(int i=0;i<96;i+=3)batch_block.polygons.push_back({32,-1,-1,{{short(i),0,0,0},{short(i+1),0,0,0},{short(i+2),0,0,0}}});
+    batch_block.polygons.push_back({32,-1,-1,{{95,0,0,0},{96,0,0,0},{97,0,0,0}}});
+    auto batches=okage::shadow_batches(batch_block,false);
+    check(batches.size()==2&&batches[0].positions.size()==96&&batches[0].polygons.size()==32);
+    check(batches[1].positions==std::vector<std::uint16_t>({95,96,97}));
+    check(batches[1].polygons[0]==std::vector<std::uint16_t>({0,1,2}));
+    const auto repeated=batch_block.polygons.back();batch_block.polygons.assign(98,repeated);
+    batches=okage::shadow_batches(batch_block,false);
+    check(batches.size()==2&&batches[0].polygons.size()==97&&batches[1].polygons.size()==1);
+    batch_block.materials.resize(2);batch_block.materials[1].words[5]=__builtin_bit_cast(unsigned, (1.f));
+    batch_block.polygons.resize(2);batch_block.polygons[0].material=0;batch_block.polygons[1].material=1;
+    check(okage::shadow_batches(batch_block,false)[0].polygons.size()==1);
+    check(okage::shadow_batches(batch_block,true)[0].polygons.size()==1);
+    batch_block.polygons[0].corners[0][0]=100;rejects([&]{okage::shadow_batches(batch_block,false);});
     std::fesetround(previous);
     std::cout<<"Shadow boundaries, follow, lock, projection, rounding and invalid-state checks pass\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

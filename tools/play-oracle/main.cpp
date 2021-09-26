@@ -370,6 +370,44 @@ public:
         call(0x11fec8,{message});capture();
         writeFile(output,result.data(),result.size());
     }
+    void shadowBatches(const std::vector<uint8>& bytes,const char* output) {
+        const auto decoded=okage::read_xmd(bytes);
+        if(decoded.models.size()!=1||bytes.size()>0x100000)throw std::runtime_error("Shadow batch model extent");
+        constexpr unsigned source=0x900000,scratch=0x1800000;
+        std::memcpy(ee->m_ram+source,bytes.data(),bytes.size());
+        put(0x1fe250,0);put(0x1fe254,1);put(0x3321b4,scratch);
+        std::vector<uint32> result{static_cast<uint32>(decoded.models[0].blocks.size())};
+        for(const auto& block:decoded.models[0].blocks)for(unsigned pass=0;pass<2;++pass) {
+            put(0x330148,pass);call(0x17ac20,{source+static_cast<uint32>(block.offset)+16});
+            const auto count_slot=result.size();result.push_back(0);
+            for(unsigned guard=0;;++guard) {
+                if(guard>4096)throw std::runtime_error("Shadow batch loop bound");
+                call(0x17acc8);if(ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0])break;
+                call(0x17ac90,{1});call(0x17b9d8);
+                const auto polygons=ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0];
+                if(!polygons)break;
+                const auto count=get(0x3301b0)&0xffff,end=get(0x3321c4);
+                if(count>97||polygons>97||end<scratch||end>scratch+0x10000)
+                    throw std::runtime_error("Original shadow batch extent");
+                ++result[count_slot];result.insert(result.end(),{count,polygons});
+                for(unsigned i=0;i<count;++i)result.push_back(get(0x3301b8+i*4));
+                unsigned observed=0;
+                for(unsigned at=scratch;at<end;) {
+                    const auto header=get(at),size=header&0xffffff,op=header>>24;
+                    if(size<4||size%4||size>end-at)throw std::runtime_error("Original shadow batch command extent");
+                    if(op==11||op==12) {
+                        const unsigned corners=op==11?3:4;
+                        if(size!=8+corners*8)throw std::runtime_error("Original shadow batch polygon extent");
+                        result.push_back(corners);++observed;
+                        for(unsigned i=0;i<corners;++i)result.push_back(get(at+8+i*8)&0xffff);
+                    } else if(op!=9&&op!=10)throw std::runtime_error("Unexpected original shadow batch command");
+                    at+=size;
+                }
+                if(observed!=polygons)throw std::runtime_error("Original shadow polygon count");
+            }
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
     void shadowBind(const std::vector<uint8>& main,const std::vector<uint8>& shadow,const char* output) {
         const auto a=okage::read_xmd(main),b=okage::read_xmd(shadow);
         if(a.models.size()!=1||b.models.size()!=1||main.size()>0x100000||shadow.size()>0x100000)
@@ -2243,6 +2281,8 @@ int main(int argc,char** argv) {
             reference.mapTransforms(readFile(argv[3]),argv[4]);
         } else if ((command=="uv" || command=="texture-clamp") && argc==5) {
             reference.uv(readFile(argv[3]),argv[4],command=="texture-clamp");
+        } else if (command=="shadow-batches" && argc==5) {
+            reference.shadowBatches(readFile(argv[3]),argv[4]);
         } else if (command=="shadow-bind" && argc==6) {
             reference.shadowBind(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if (command=="shadow-cache" && argc==5) {

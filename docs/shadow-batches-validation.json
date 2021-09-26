@@ -1,0 +1,378 @@
+{
+  "scope": "Owned shadow mode1 batch selection and first-use remapping.",
+  "reports": {
+    "native-release": {
+      "scope": "Compare native shadow batches with original mode1 source polygon selection.",
+      "native_sha256": "9329c4182d68b79f94fe0566d4beb58e30649508ea767bc130be2bf98df84062",
+      "cases": [
+        {
+          "name": "HERO",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-batches",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/shadow.xmd",
+              "local/research/shadow-batches-v1/HERO-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.856851208,
+            "binary_sha256": "200b7bfa413411d3f1207d00bc5a3acc75bb204958ca6c7c2c1dc7e2d33fae73",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": "1c1df4b5b66ba66a9a0608ce1b6a2eab0532da7cb3a87dc5a88fa90dce90d1e7",
+            "output_sha256": "ab964be441faa603a95d360508c8473886bc8b9198800bec808a16a12f529102"
+          },
+          "native_command": [
+            "build/native-release/okage-assets",
+            "shadow-batches",
+            "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/shadow.xmd",
+            "local/shadow-batches-checks-v1/native-release/HERO-native.bin"
+          ],
+          "blocks": 1,
+          "batches": 4,
+          "positions_exact": 279,
+          "polygons_exact": 302,
+          "corners_exact": 906
+        },
+        {
+          "name": "MAM",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-batches",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/shadow.xmd",
+              "local/research/shadow-batches-v1/MAM-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.116115625,
+            "binary_sha256": "200b7bfa413411d3f1207d00bc5a3acc75bb204958ca6c7c2c1dc7e2d33fae73",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": "c91810dcfc789361d100247ec61677c48e8aa735ae2de1f4c860fa49cd49ac02",
+            "output_sha256": "e48c57c524145961626329e3b3189c0883cf29ee60be153c1c5f9ded216d64f0"
+          },
+          "native_command": [
+            "build/native-release/okage-assets",
+            "shadow-batches",
+            "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/shadow.xmd",
+            "local/shadow-batches-checks-v1/native-release/MAM-native.bin"
+          ],
+          "blocks": 1,
+          "batches": 4,
+          "positions_exact": 254,
+          "polygons_exact": 311,
+          "corners_exact": 933
+        },
+        {
+          "name": "IMO",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-batches",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/shadow.xmd",
+              "local/research/shadow-batches-v1/IMO-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.1194561249999997,
+            "binary_sha256": "200b7bfa413411d3f1207d00bc5a3acc75bb204958ca6c7c2c1dc7e2d33fae73",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": "f4023803c98752c025d903bd696d77ae5b33f678c72db4684218225d524d99e0",
+            "output_sha256": "dc14bb68128b26c4ad1407928b8480f6c31973414c29e96b4d0eed7cb2a99a29"
+          },
+          "native_command": [
+            "build/native-release/okage-assets",
+            "shadow-batches",
+            "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/shadow.xmd",
+            "local/shadow-batches-checks-v1/native-release/IMO-native.bin"
+          ],
+          "blocks": 1,
+          "batches": 5,
+          "positions_exact": 320,
+          "polygons_exact": 394,
+          "corners_exact": 1182
+        },
+        {
+          "name": "PAP",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-batches",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/shadow.xmd",
+              "local/research/shadow-batches-v1/PAP-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.1395735,
+            "binary_sha256": "200b7bfa413411d3f1207d00bc5a3acc75bb204958ca6c7c2c1dc7e2d33fae73",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": "b4cc25ee1a1b48583a0c47b1a56dc28500d8c3cae1b77ed2800fa30e5fb23ad4",
+            "output_sha256": "346dcab1ee3d8d02dcb0d22dae4a6e32eb9abb531c3e90ad194b5a29beb0a810"
+          },
+          "native_command": [
+            "build/native-release/okage-assets",
+            "shadow-batches",
+            "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/shadow.xmd",
+            "local/shadow-batches-checks-v1/native-release/PAP-native.bin"
+          ],
+          "blocks": 1,
+          "batches": 5,
+          "positions_exact": 377,
+          "polygons_exact": 392,
+          "corners_exact": 1176
+        }
+      ]
+    },
+    "native": {
+      "scope": "Compare native shadow batches with original mode1 source polygon selection.",
+      "native_sha256": "8fcfd115797e59fec57b6db9393e5ef36c48eff9706152342212ffeb701b91cb",
+      "cases": [
+        {
+          "name": "HERO",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-batches",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/shadow.xmd",
+              "local/research/shadow-batches-v1/HERO-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.856851208,
+            "binary_sha256": "200b7bfa413411d3f1207d00bc5a3acc75bb204958ca6c7c2c1dc7e2d33fae73",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": "1c1df4b5b66ba66a9a0608ce1b6a2eab0532da7cb3a87dc5a88fa90dce90d1e7",
+            "output_sha256": "ab964be441faa603a95d360508c8473886bc8b9198800bec808a16a12f529102"
+          },
+          "native_command": [
+            "build/native/okage-assets",
+            "shadow-batches",
+            "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/shadow.xmd",
+            "local/shadow-batches-checks-v1/native/HERO-native.bin"
+          ],
+          "blocks": 1,
+          "batches": 4,
+          "positions_exact": 279,
+          "polygons_exact": 302,
+          "corners_exact": 906
+        },
+        {
+          "name": "MAM",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-batches",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/shadow.xmd",
+              "local/research/shadow-batches-v1/MAM-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.116115625,
+            "binary_sha256": "200b7bfa413411d3f1207d00bc5a3acc75bb204958ca6c7c2c1dc7e2d33fae73",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": "c91810dcfc789361d100247ec61677c48e8aa735ae2de1f4c860fa49cd49ac02",
+            "output_sha256": "e48c57c524145961626329e3b3189c0883cf29ee60be153c1c5f9ded216d64f0"
+          },
+          "native_command": [
+            "build/native/okage-assets",
+            "shadow-batches",
+            "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/shadow.xmd",
+            "local/shadow-batches-checks-v1/native/MAM-native.bin"
+          ],
+          "blocks": 1,
+          "batches": 4,
+          "positions_exact": 254,
+          "polygons_exact": 311,
+          "corners_exact": 933
+        },
+        {
+          "name": "IMO",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-batches",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/shadow.xmd",
+              "local/research/shadow-batches-v1/IMO-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.1194561249999997,
+            "binary_sha256": "200b7bfa413411d3f1207d00bc5a3acc75bb204958ca6c7c2c1dc7e2d33fae73",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": "f4023803c98752c025d903bd696d77ae5b33f678c72db4684218225d524d99e0",
+            "output_sha256": "dc14bb68128b26c4ad1407928b8480f6c31973414c29e96b4d0eed7cb2a99a29"
+          },
+          "native_command": [
+            "build/native/okage-assets",
+            "shadow-batches",
+            "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/shadow.xmd",
+            "local/shadow-batches-checks-v1/native/IMO-native.bin"
+          ],
+          "blocks": 1,
+          "batches": 5,
+          "positions_exact": 320,
+          "polygons_exact": 394,
+          "corners_exact": 1182
+        },
+        {
+          "name": "PAP",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-batches",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/shadow.xmd",
+              "local/research/shadow-batches-v1/PAP-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.1395735,
+            "binary_sha256": "200b7bfa413411d3f1207d00bc5a3acc75bb204958ca6c7c2c1dc7e2d33fae73",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": "b4cc25ee1a1b48583a0c47b1a56dc28500d8c3cae1b77ed2800fa30e5fb23ad4",
+            "output_sha256": "346dcab1ee3d8d02dcb0d22dae4a6e32eb9abb531c3e90ad194b5a29beb0a810"
+          },
+          "native_command": [
+            "build/native/okage-assets",
+            "shadow-batches",
+            "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/shadow.xmd",
+            "local/shadow-batches-checks-v1/native/PAP-native.bin"
+          ],
+          "blocks": 1,
+          "batches": 5,
+          "positions_exact": 377,
+          "polygons_exact": 392,
+          "corners_exact": 1176
+        }
+      ]
+    },
+    "model-sanitize": {
+      "scope": "Compare native shadow batches with original mode1 source polygon selection.",
+      "native_sha256": "9296719d39dfceb76cd82bd06dc8a3cb7d632a35e381660384e33ab685f4a343",
+      "cases": [
+        {
+          "name": "HERO",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-batches",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/shadow.xmd",
+              "local/research/shadow-batches-v1/HERO-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.856851208,
+            "binary_sha256": "200b7bfa413411d3f1207d00bc5a3acc75bb204958ca6c7c2c1dc7e2d33fae73",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": "1c1df4b5b66ba66a9a0608ce1b6a2eab0532da7cb3a87dc5a88fa90dce90d1e7",
+            "output_sha256": "ab964be441faa603a95d360508c8473886bc8b9198800bec808a16a12f529102"
+          },
+          "native_command": [
+            "build/model-sanitize/okage-assets",
+            "shadow-batches",
+            "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/shadow.xmd",
+            "local/shadow-batches-checks-v1/model-sanitize/HERO-native.bin"
+          ],
+          "blocks": 1,
+          "batches": 4,
+          "positions_exact": 279,
+          "polygons_exact": 302,
+          "corners_exact": 906
+        },
+        {
+          "name": "MAM",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-batches",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/shadow.xmd",
+              "local/research/shadow-batches-v1/MAM-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.116115625,
+            "binary_sha256": "200b7bfa413411d3f1207d00bc5a3acc75bb204958ca6c7c2c1dc7e2d33fae73",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": "c91810dcfc789361d100247ec61677c48e8aa735ae2de1f4c860fa49cd49ac02",
+            "output_sha256": "e48c57c524145961626329e3b3189c0883cf29ee60be153c1c5f9ded216d64f0"
+          },
+          "native_command": [
+            "build/model-sanitize/okage-assets",
+            "shadow-batches",
+            "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/shadow.xmd",
+            "local/shadow-batches-checks-v1/model-sanitize/MAM-native.bin"
+          ],
+          "blocks": 1,
+          "batches": 4,
+          "positions_exact": 254,
+          "polygons_exact": 311,
+          "corners_exact": 933
+        },
+        {
+          "name": "IMO",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-batches",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/shadow.xmd",
+              "local/research/shadow-batches-v1/IMO-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.1194561249999997,
+            "binary_sha256": "200b7bfa413411d3f1207d00bc5a3acc75bb204958ca6c7c2c1dc7e2d33fae73",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": "f4023803c98752c025d903bd696d77ae5b33f678c72db4684218225d524d99e0",
+            "output_sha256": "dc14bb68128b26c4ad1407928b8480f6c31973414c29e96b4d0eed7cb2a99a29"
+          },
+          "native_command": [
+            "build/model-sanitize/okage-assets",
+            "shadow-batches",
+            "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/shadow.xmd",
+            "local/shadow-batches-checks-v1/model-sanitize/IMO-native.bin"
+          ],
+          "blocks": 1,
+          "batches": 5,
+          "positions_exact": 320,
+          "polygons_exact": 394,
+          "corners_exact": 1182
+        },
+        {
+          "name": "PAP",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-batches",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/shadow.xmd",
+              "local/research/shadow-batches-v1/PAP-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.1395735,
+            "binary_sha256": "200b7bfa413411d3f1207d00bc5a3acc75bb204958ca6c7c2c1dc7e2d33fae73",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": "b4cc25ee1a1b48583a0c47b1a56dc28500d8c3cae1b77ed2800fa30e5fb23ad4",
+            "output_sha256": "346dcab1ee3d8d02dcb0d22dae4a6e32eb9abb531c3e90ad194b5a29beb0a810"
+          },
+          "native_command": [
+            "build/model-sanitize/okage-assets",
+            "shadow-batches",
+            "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/shadow.xmd",
+            "local/shadow-batches-checks-v1/model-sanitize/PAP-native.bin"
+          ],
+          "blocks": 1,
+          "batches": 5,
+          "positions_exact": 377,
+          "polygons_exact": 392,
+          "corners_exact": 1176
+        }
+      ]
+    }
+  },
+  "tests": {
+    "ctests_per_build": 20,
+    "python": 93
+  },
+  "runtime_integration": false,
+  "route_replayed_for_this_change": false,
+  "latest_native_route_frame": 67568
+}
