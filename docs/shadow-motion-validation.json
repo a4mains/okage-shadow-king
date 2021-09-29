@@ -1,0 +1,623 @@
+{
+  "scope": "Owned motion1 shadow hierarchy matrices, source-position skinning and main-model texture selections over61 samples for HERO/MAM/IMO/PAP.",
+  "reports": {
+    "native-release": {
+      "scope": "Compare bound animated shadow matrices and source positions against original execution.",
+      "native_sha256": "42e254e5b41ec68106bb8026438f037c551c18acadc7d0d25acae9506d3d4372",
+      "cases": [
+        {
+          "name": "HERO",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-motion",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/shadow.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmt",
+              "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xta",
+              "1",
+              "60",
+              "local/research/shadow-motion-v2/HERO-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.739071083,
+            "binary_sha256": "08d3e4d939067b1f5e664b481abe58a681154fc834d33ee7a78eeaf50f93f65a",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": {
+              "a.xmd": "4e84368aa2241d7210d7e32b902358fc23ae9ac6b3f81e5c7f2e00bf615aecf9",
+              "shadow.xmd": "1c1df4b5b66ba66a9a0608ce1b6a2eab0532da7cb3a87dc5a88fa90dce90d1e7",
+              "a.xmt": "631f1c7f31ab96917983d36a55a1865c29b9e38a2b23a47c94a0499d4a811c1c",
+              "a.xta": "39c03fa8d57e075be630b6131ccc12114aa047aa663dfa8812cccb58c47de6c9"
+            },
+            "entry": 1,
+            "frames": 60,
+            "output_sha256": "999bcc6a8a12d330d961dc1befb3f2dd3f472f87fe33ee972ebc6df8b7c68435"
+          },
+          "native_command": [
+            "build/native-release/okage-assets",
+            "shadow-motion",
+            "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/shadow.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmt",
+            "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xta",
+            "1",
+            "60",
+            "local/shadow-motion-checks-v2/native-release/HERO-native.bin"
+          ],
+          "samples": 61,
+          "matrices_exact": 6832,
+          "positions_exact": 11956,
+          "texture_slots_exact": 1586,
+          "matrix_count": 112,
+          "block_position_counts": [
+            196
+          ]
+        },
+        {
+          "name": "MAM",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-motion",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/shadow.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmt",
+              "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xta",
+              "1",
+              "60",
+              "local/research/shadow-motion-v2/MAM-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.0690236670000002,
+            "binary_sha256": "08d3e4d939067b1f5e664b481abe58a681154fc834d33ee7a78eeaf50f93f65a",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": {
+              "a.xmd": "c7d46694dd3dad1c7d12272b2b3cb2c3aa3fcfa281bfd7bbaeae1c3279f3e002",
+              "shadow.xmd": "c91810dcfc789361d100247ec61677c48e8aa735ae2de1f4c860fa49cd49ac02",
+              "a.xmt": "4b255d4fed23200fe9ac6df7ac7c1b25b2e4cb22899d9e61be4ee73926d0bb93",
+              "a.xta": "81c7b7d748a3ed51fa2c5395ca92ca8702811d388de89559ebba30334c90e1f1"
+            },
+            "entry": 1,
+            "frames": 60,
+            "output_sha256": "e530bd04d3a6fd1b4feb9fe976409be28eb92cf5711f373365cc7f0a28cfbec7"
+          },
+          "native_command": [
+            "build/native-release/okage-assets",
+            "shadow-motion",
+            "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/shadow.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmt",
+            "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xta",
+            "1",
+            "60",
+            "local/shadow-motion-checks-v2/native-release/MAM-native.bin"
+          ],
+          "samples": 61,
+          "matrices_exact": 4819,
+          "positions_exact": 10675,
+          "texture_slots_exact": 915,
+          "matrix_count": 79,
+          "block_position_counts": [
+            175
+          ]
+        },
+        {
+          "name": "IMO",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-motion",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/shadow.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmt",
+              "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xta",
+              "1",
+              "60",
+              "local/research/shadow-motion-v2/IMO-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.0679046250000002,
+            "binary_sha256": "08d3e4d939067b1f5e664b481abe58a681154fc834d33ee7a78eeaf50f93f65a",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": {
+              "a.xmd": "63009446c4634a0b945d9cd39aeafda70b9ba8977374efeb74f9a5a4c49ea6da",
+              "shadow.xmd": "f4023803c98752c025d903bd696d77ae5b33f678c72db4684218225d524d99e0",
+              "a.xmt": "966fb537f94be0f3e5f245414739b2a16ef1943235e23012250deba40b270386",
+              "a.xta": "a4616d68c0306fef43fe7d8421230fbff36fc818c6148310bd145e98af03edb5"
+            },
+            "entry": 1,
+            "frames": 60,
+            "output_sha256": "a9d4e89b88553484981be74cc78d0502d42ce5dfd637579caff827a3ab67b922"
+          },
+          "native_command": [
+            "build/native-release/okage-assets",
+            "shadow-motion",
+            "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/shadow.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmt",
+            "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xta",
+            "1",
+            "60",
+            "local/shadow-motion-checks-v2/native-release/IMO-native.bin"
+          ],
+          "samples": 61,
+          "matrices_exact": 5185,
+          "positions_exact": 14152,
+          "texture_slots_exact": 1342,
+          "matrix_count": 85,
+          "block_position_counts": [
+            232
+          ]
+        },
+        {
+          "name": "PAP",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-motion",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/a.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/shadow.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/a.xmt",
+              "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/a.xta",
+              "1",
+              "60",
+              "local/research/shadow-motion-v2/PAP-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.0650221660000003,
+            "binary_sha256": "08d3e4d939067b1f5e664b481abe58a681154fc834d33ee7a78eeaf50f93f65a",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": {
+              "a.xmd": "c2fca43589556b8b3d4420bdd4823b6c750bebe8c88f33521caa652b842d33a5",
+              "shadow.xmd": "b4cc25ee1a1b48583a0c47b1a56dc28500d8c3cae1b77ed2800fa30e5fb23ad4",
+              "a.xmt": "8bf07b2f2096d2e995dec033ae45bf05c9e66dc699861ca08387face1bf6830c",
+              "a.xta": "74e222a3c365c8c9fd2c72c2e53f83ac858198f51fb0f72bf50adcd40845a29b"
+            },
+            "entry": 1,
+            "frames": 60,
+            "output_sha256": "0f8ebf98d68eae475ce82ecbe41364c867a32c7b2c9672c8590b2f9f97f70b1a"
+          },
+          "native_command": [
+            "build/native-release/okage-assets",
+            "shadow-motion",
+            "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/a.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/shadow.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/a.xmt",
+            "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/a.xta",
+            "1",
+            "60",
+            "local/shadow-motion-checks-v2/native-release/PAP-native.bin"
+          ],
+          "samples": 61,
+          "matrices_exact": 4270,
+          "positions_exact": 13481,
+          "texture_slots_exact": 793,
+          "matrix_count": 70,
+          "block_position_counts": [
+            221
+          ]
+        }
+      ]
+    },
+    "native": {
+      "scope": "Compare bound animated shadow matrices and source positions against original execution.",
+      "native_sha256": "cce2f391405b24c494043dcca11eee75259c5b3b96b96a9c9387aea8ddd93099",
+      "cases": [
+        {
+          "name": "HERO",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-motion",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/shadow.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmt",
+              "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xta",
+              "1",
+              "60",
+              "local/research/shadow-motion-v2/HERO-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.739071083,
+            "binary_sha256": "08d3e4d939067b1f5e664b481abe58a681154fc834d33ee7a78eeaf50f93f65a",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": {
+              "a.xmd": "4e84368aa2241d7210d7e32b902358fc23ae9ac6b3f81e5c7f2e00bf615aecf9",
+              "shadow.xmd": "1c1df4b5b66ba66a9a0608ce1b6a2eab0532da7cb3a87dc5a88fa90dce90d1e7",
+              "a.xmt": "631f1c7f31ab96917983d36a55a1865c29b9e38a2b23a47c94a0499d4a811c1c",
+              "a.xta": "39c03fa8d57e075be630b6131ccc12114aa047aa663dfa8812cccb58c47de6c9"
+            },
+            "entry": 1,
+            "frames": 60,
+            "output_sha256": "999bcc6a8a12d330d961dc1befb3f2dd3f472f87fe33ee972ebc6df8b7c68435"
+          },
+          "native_command": [
+            "build/native/okage-assets",
+            "shadow-motion",
+            "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/shadow.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmt",
+            "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xta",
+            "1",
+            "60",
+            "local/shadow-motion-checks-v2/native/HERO-native.bin"
+          ],
+          "samples": 61,
+          "matrices_exact": 6832,
+          "positions_exact": 11956,
+          "texture_slots_exact": 1586,
+          "matrix_count": 112,
+          "block_position_counts": [
+            196
+          ]
+        },
+        {
+          "name": "MAM",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-motion",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/shadow.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmt",
+              "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xta",
+              "1",
+              "60",
+              "local/research/shadow-motion-v2/MAM-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.0690236670000002,
+            "binary_sha256": "08d3e4d939067b1f5e664b481abe58a681154fc834d33ee7a78eeaf50f93f65a",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": {
+              "a.xmd": "c7d46694dd3dad1c7d12272b2b3cb2c3aa3fcfa281bfd7bbaeae1c3279f3e002",
+              "shadow.xmd": "c91810dcfc789361d100247ec61677c48e8aa735ae2de1f4c860fa49cd49ac02",
+              "a.xmt": "4b255d4fed23200fe9ac6df7ac7c1b25b2e4cb22899d9e61be4ee73926d0bb93",
+              "a.xta": "81c7b7d748a3ed51fa2c5395ca92ca8702811d388de89559ebba30334c90e1f1"
+            },
+            "entry": 1,
+            "frames": 60,
+            "output_sha256": "e530bd04d3a6fd1b4feb9fe976409be28eb92cf5711f373365cc7f0a28cfbec7"
+          },
+          "native_command": [
+            "build/native/okage-assets",
+            "shadow-motion",
+            "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/shadow.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmt",
+            "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xta",
+            "1",
+            "60",
+            "local/shadow-motion-checks-v2/native/MAM-native.bin"
+          ],
+          "samples": 61,
+          "matrices_exact": 4819,
+          "positions_exact": 10675,
+          "texture_slots_exact": 915,
+          "matrix_count": 79,
+          "block_position_counts": [
+            175
+          ]
+        },
+        {
+          "name": "IMO",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-motion",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/shadow.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmt",
+              "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xta",
+              "1",
+              "60",
+              "local/research/shadow-motion-v2/IMO-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.0679046250000002,
+            "binary_sha256": "08d3e4d939067b1f5e664b481abe58a681154fc834d33ee7a78eeaf50f93f65a",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": {
+              "a.xmd": "63009446c4634a0b945d9cd39aeafda70b9ba8977374efeb74f9a5a4c49ea6da",
+              "shadow.xmd": "f4023803c98752c025d903bd696d77ae5b33f678c72db4684218225d524d99e0",
+              "a.xmt": "966fb537f94be0f3e5f245414739b2a16ef1943235e23012250deba40b270386",
+              "a.xta": "a4616d68c0306fef43fe7d8421230fbff36fc818c6148310bd145e98af03edb5"
+            },
+            "entry": 1,
+            "frames": 60,
+            "output_sha256": "a9d4e89b88553484981be74cc78d0502d42ce5dfd637579caff827a3ab67b922"
+          },
+          "native_command": [
+            "build/native/okage-assets",
+            "shadow-motion",
+            "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/shadow.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmt",
+            "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xta",
+            "1",
+            "60",
+            "local/shadow-motion-checks-v2/native/IMO-native.bin"
+          ],
+          "samples": 61,
+          "matrices_exact": 5185,
+          "positions_exact": 14152,
+          "texture_slots_exact": 1342,
+          "matrix_count": 85,
+          "block_position_counts": [
+            232
+          ]
+        },
+        {
+          "name": "PAP",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-motion",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/a.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/shadow.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/a.xmt",
+              "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/a.xta",
+              "1",
+              "60",
+              "local/research/shadow-motion-v2/PAP-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.0650221660000003,
+            "binary_sha256": "08d3e4d939067b1f5e664b481abe58a681154fc834d33ee7a78eeaf50f93f65a",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": {
+              "a.xmd": "c2fca43589556b8b3d4420bdd4823b6c750bebe8c88f33521caa652b842d33a5",
+              "shadow.xmd": "b4cc25ee1a1b48583a0c47b1a56dc28500d8c3cae1b77ed2800fa30e5fb23ad4",
+              "a.xmt": "8bf07b2f2096d2e995dec033ae45bf05c9e66dc699861ca08387face1bf6830c",
+              "a.xta": "74e222a3c365c8c9fd2c72c2e53f83ac858198f51fb0f72bf50adcd40845a29b"
+            },
+            "entry": 1,
+            "frames": 60,
+            "output_sha256": "0f8ebf98d68eae475ce82ecbe41364c867a32c7b2c9672c8590b2f9f97f70b1a"
+          },
+          "native_command": [
+            "build/native/okage-assets",
+            "shadow-motion",
+            "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/a.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/shadow.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/a.xmt",
+            "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/a.xta",
+            "1",
+            "60",
+            "local/shadow-motion-checks-v2/native/PAP-native.bin"
+          ],
+          "samples": 61,
+          "matrices_exact": 4270,
+          "positions_exact": 13481,
+          "texture_slots_exact": 793,
+          "matrix_count": 70,
+          "block_position_counts": [
+            221
+          ]
+        }
+      ]
+    },
+    "model-sanitize": {
+      "scope": "Compare bound animated shadow matrices and source positions against original execution.",
+      "native_sha256": "2f9853675d22300f5b6ddffb9820ec1b4dcebedad9fbae14190c995fcb3e1394",
+      "cases": [
+        {
+          "name": "HERO",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-motion",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/shadow.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmt",
+              "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xta",
+              "1",
+              "60",
+              "local/research/shadow-motion-v2/HERO-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.739071083,
+            "binary_sha256": "08d3e4d939067b1f5e664b481abe58a681154fc834d33ee7a78eeaf50f93f65a",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": {
+              "a.xmd": "4e84368aa2241d7210d7e32b902358fc23ae9ac6b3f81e5c7f2e00bf615aecf9",
+              "shadow.xmd": "1c1df4b5b66ba66a9a0608ce1b6a2eab0532da7cb3a87dc5a88fa90dce90d1e7",
+              "a.xmt": "631f1c7f31ab96917983d36a55a1865c29b9e38a2b23a47c94a0499d4a811c1c",
+              "a.xta": "39c03fa8d57e075be630b6131ccc12114aa047aa663dfa8812cccb58c47de6c9"
+            },
+            "entry": 1,
+            "frames": 60,
+            "output_sha256": "999bcc6a8a12d330d961dc1befb3f2dd3f472f87fe33ee972ebc6df8b7c68435"
+          },
+          "native_command": [
+            "build/model-sanitize/okage-assets",
+            "shadow-motion",
+            "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/shadow.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmt",
+            "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xta",
+            "1",
+            "60",
+            "local/shadow-motion-checks-v2/model-sanitize/HERO-native.bin"
+          ],
+          "samples": 61,
+          "matrices_exact": 6832,
+          "positions_exact": 11956,
+          "texture_slots_exact": 1586,
+          "matrix_count": 112,
+          "block_position_counts": [
+            196
+          ]
+        },
+        {
+          "name": "MAM",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-motion",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/shadow.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmt",
+              "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xta",
+              "1",
+              "60",
+              "local/research/shadow-motion-v2/MAM-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.0690236670000002,
+            "binary_sha256": "08d3e4d939067b1f5e664b481abe58a681154fc834d33ee7a78eeaf50f93f65a",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": {
+              "a.xmd": "c7d46694dd3dad1c7d12272b2b3cb2c3aa3fcfa281bfd7bbaeae1c3279f3e002",
+              "shadow.xmd": "c91810dcfc789361d100247ec61677c48e8aa735ae2de1f4c860fa49cd49ac02",
+              "a.xmt": "4b255d4fed23200fe9ac6df7ac7c1b25b2e4cb22899d9e61be4ee73926d0bb93",
+              "a.xta": "81c7b7d748a3ed51fa2c5395ca92ca8702811d388de89559ebba30334c90e1f1"
+            },
+            "entry": 1,
+            "frames": 60,
+            "output_sha256": "e530bd04d3a6fd1b4feb9fe976409be28eb92cf5711f373365cc7f0a28cfbec7"
+          },
+          "native_command": [
+            "build/model-sanitize/okage-assets",
+            "shadow-motion",
+            "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/shadow.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmt",
+            "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xta",
+            "1",
+            "60",
+            "local/shadow-motion-checks-v2/model-sanitize/MAM-native.bin"
+          ],
+          "samples": 61,
+          "matrices_exact": 4819,
+          "positions_exact": 10675,
+          "texture_slots_exact": 915,
+          "matrix_count": 79,
+          "block_position_counts": [
+            175
+          ]
+        },
+        {
+          "name": "IMO",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-motion",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/shadow.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmt",
+              "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xta",
+              "1",
+              "60",
+              "local/research/shadow-motion-v2/IMO-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.0679046250000002,
+            "binary_sha256": "08d3e4d939067b1f5e664b481abe58a681154fc834d33ee7a78eeaf50f93f65a",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": {
+              "a.xmd": "63009446c4634a0b945d9cd39aeafda70b9ba8977374efeb74f9a5a4c49ea6da",
+              "shadow.xmd": "f4023803c98752c025d903bd696d77ae5b33f678c72db4684218225d524d99e0",
+              "a.xmt": "966fb537f94be0f3e5f245414739b2a16ef1943235e23012250deba40b270386",
+              "a.xta": "a4616d68c0306fef43fe7d8421230fbff36fc818c6148310bd145e98af03edb5"
+            },
+            "entry": 1,
+            "frames": 60,
+            "output_sha256": "a9d4e89b88553484981be74cc78d0502d42ce5dfd637579caff827a3ab67b922"
+          },
+          "native_command": [
+            "build/model-sanitize/okage-assets",
+            "shadow-motion",
+            "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/shadow.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmt",
+            "local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xta",
+            "1",
+            "60",
+            "local/shadow-motion-checks-v2/model-sanitize/IMO-native.bin"
+          ],
+          "samples": 61,
+          "matrices_exact": 5185,
+          "positions_exact": 14152,
+          "texture_slots_exact": 1342,
+          "matrix_count": 85,
+          "block_position_counts": [
+            232
+          ]
+        },
+        {
+          "name": "PAP",
+          "original_run": {
+            "command": [
+              "build/play-research/okage-oracle/okage-pose-oracle",
+              "shadow-motion",
+              "local/extracted/SCUS_971.29",
+              "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/a.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/shadow.xmd",
+              "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/a.xmt",
+              "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/a.xta",
+              "1",
+              "60",
+              "local/research/shadow-motion-v2/PAP-original-v1.bin"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.0650221660000003,
+            "binary_sha256": "08d3e4d939067b1f5e664b481abe58a681154fc834d33ee7a78eeaf50f93f65a",
+            "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+            "input_sha256": {
+              "a.xmd": "c2fca43589556b8b3d4420bdd4823b6c750bebe8c88f33521caa652b842d33a5",
+              "shadow.xmd": "b4cc25ee1a1b48583a0c47b1a56dc28500d8c3cae1b77ed2800fa30e5fb23ad4",
+              "a.xmt": "8bf07b2f2096d2e995dec033ae45bf05c9e66dc699861ca08387face1bf6830c",
+              "a.xta": "74e222a3c365c8c9fd2c72c2e53f83ac858198f51fb0f72bf50adcd40845a29b"
+            },
+            "entry": 1,
+            "frames": 60,
+            "output_sha256": "0f8ebf98d68eae475ce82ecbe41364c867a32c7b2c9672c8590b2f9f97f70b1a"
+          },
+          "native_command": [
+            "build/model-sanitize/okage-assets",
+            "shadow-motion",
+            "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/a.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/shadow.xmd",
+            "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/a.xmt",
+            "local/xpf-decoded/FLDDATA/OBJ/PAP.XPF/a.xta",
+            "1",
+            "60",
+            "local/shadow-motion-checks-v2/model-sanitize/PAP-native.bin"
+          ],
+          "samples": 61,
+          "matrices_exact": 4270,
+          "positions_exact": 13481,
+          "texture_slots_exact": 793,
+          "matrix_count": 70,
+          "block_position_counts": [
+            221
+          ]
+        }
+      ]
+    }
+  },
+  "tests": {
+    "ctests_per_build": 20,
+    "python": 94
+  },
+  "weighted_geometry": {
+    "PAP_overlapping_positions": 122,
+    "PAP_max_contributors": 2
+  },
+  "negative_evidence": "local/research/shadow-motion-v1: missing XTA bindings, original assertion at frame29 and native explicit guard; corrected observer uses original texture callback and owned XTA.",
+  "runtime_integration": false,
+  "route_replayed_for_this_change": false,
+  "latest_native_route_frame": 67568
+}

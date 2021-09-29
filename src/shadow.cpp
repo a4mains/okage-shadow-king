@@ -152,6 +152,31 @@ std::vector<ShadowBatch> shadow_batches(const RenderBlock& block,bool positive_m
     if(!batch.polygons.empty())result.push_back(std::move(batch));
     return result;
 }
+std::vector<Float4> shadow_posed_positions(const RenderBlock& block,std::span<const Matrix4> pose) {
+    if(block.attribute_extents[0]>32768)throw std::runtime_error("Shadow position extent");
+    ProjectionRounding rounding;
+    std::vector<Float4> result(block.attribute_extents[0]);
+    for(const auto& range:block.attributes) {
+        if(range.kind!=5)continue;
+        if(range.flags!=1||range.hierarchy_node<0||std::size_t(range.hierarchy_node)>=pose.size()||
+           std::size_t(range.first)+range.values.size()>result.size())
+            throw std::runtime_error("Invalid shadow position range");
+        const auto& matrix=pose[range.hierarchy_node];
+        for(const auto& col:matrix)for(float v:col)if(!std::isfinite(v))throw std::runtime_error("Nonfinite shadow pose");
+        for(std::size_t i=0;i<range.values.size();++i) {
+            const auto& position=range.values[i];
+            for(float v:position)if(!std::isfinite(v))throw std::runtime_error("Nonfinite shadow source position");
+            auto& dest=result[range.first+i];
+            for(unsigned row=0;row<4;++row) {
+                float value=dest[row]*1.f;
+                for(unsigned col=0;col<4;++col)value=value+matrix[col][row]*position[col];
+                if(!std::isfinite(value))throw std::runtime_error("Shadow skinning overflow");
+                dest[row]=value;
+            }
+        }
+    }
+    return result;
+}
 ShadowScreenParameters shadow_screen_parameters(const ShadowScreenSettings& s) {
     const std::array<float,15> values{s.focal,s.scale_x,s.scale_y,s.center_x,s.center_y,
         s.depth_min,s.depth_max,s.depth_near,s.depth_far,s.clip_near,s.clip_far,

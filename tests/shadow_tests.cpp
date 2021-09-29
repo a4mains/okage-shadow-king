@@ -138,6 +138,16 @@ int main(){try{
     check(okage::shadow_batches(batch_block,false)[0].polygons.size()==1);
     check(okage::shadow_batches(batch_block,true)[0].polygons.size()==1);
     batch_block.polygons[0].corners[0][0]=100;rejects([&]{okage::shadow_batches(batch_block,false);});
+    okage::RenderBlock skin_block{};skin_block.attribute_extents[0]=1;
+    skin_block.attributes={{5,1,0,0,{{1,0,0,0}}},{5,1,0,1,{{1,1,1,0}}}};
+    auto cancellation=identity;cancellation[0][0]=1e10f;cancellation[1][0]=-1e10f;cancellation[2][0]=1;
+    const std::array skin_pose{identity,cancellation};
+    check(okage::shadow_posed_positions(skin_block,skin_pose)[0][0]==1);
+    check(okage::posed_positions(skin_block,skin_pose)[0][0]==2);
+    check(std::fegetround()==FE_UPWARD);
+    skin_block.attributes[1].hierarchy_node=2;rejects([&]{okage::shadow_posed_positions(skin_block,skin_pose);});
+    skin_block.attributes[1].hierarchy_node=1;skin_block.attributes[1].values[0][0]=std::numeric_limits<float>::infinity();
+    rejects([&]{okage::shadow_posed_positions(skin_block,skin_pose);});check(std::fegetround()==FE_UPWARD);
     std::fesetround(previous);
     std::cout<<"Shadow boundaries, follow, lock, projection, rounding and invalid-state checks pass\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

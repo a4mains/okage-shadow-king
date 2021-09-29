@@ -38,6 +38,7 @@ struct ShadowBatch {
     std::vector<std::vector<std::uint16_t>> polygons; // Remapped triangles/quads.
 };
 std::vector<ShadowBatch> shadow_batches(const RenderBlock&,bool positive_material);
+std::vector<Float4> shadow_posed_positions(const RenderBlock&,std::span<const Matrix4> pose);
 // Full perspective/viewport setup from0x1acc10. Depth mapping planes are
 // independent of clipping planes; field rendering uses both pairs.
 struct ShadowScreenSettings {

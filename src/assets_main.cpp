@@ -152,6 +152,35 @@ int main(int argc, char** argv) {
             }
             write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
         }
+        if(command=="shadow-motion" && argc==9) {
+            const auto main=okage::read_xmd(read(argv[2])),shadow=okage::read_xmd(read(argv[3]));
+            if(main.models.size()!=1||shadow.models.size()!=1)throw std::runtime_error("Shadow motion requires one model");
+            const auto bound=okage::bind_shadow_model(main.models[0],shadow.models[0]);
+            const auto bytes=read(argv[4]);if(bytes.size()<24)throw std::runtime_error("Shadow motion header");
+            std::uint32_t scale;std::memcpy(&scale,bytes.data()+20,4);
+            const auto text=read(argv[5]);
+            okage::TextureBindings textures(main,okage::read_xta(std::string_view(reinterpret_cast<const char*>(text.data()),text.size())));
+            const auto entry=std::stoul(argv[6]),frames=std::stoul(argv[7]);
+            if(frames>180||bound.hierarchy.size()>4096)throw std::runtime_error("Shadow motion bounds");
+            okage::Animation animation(bytes,4+bound.bones.size()*(scale?3:2));
+            animation.set_texture_callback([&](std::size_t group,std::size_t variant){textures.select(group,variant);});
+            animation.start(0);animation.values();animation.start(entry);
+            const auto sine=okage::make_sine_table();
+            std::vector<std::uint32_t> output{static_cast<unsigned>(bound.hierarchy.size()),static_cast<unsigned>(bound.blocks.size()),static_cast<unsigned>(textures.images().size())};
+            for(const auto& block:bound.blocks)output.push_back(block.attribute_extents[0]);
+            auto append=[&](const auto& values) {
+                for(const auto& v:values)for(float f:v)output.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+            };
+            for(unsigned frame=0;frame<=frames;++frame) {
+                if(frame)animation.tick();
+                output.insert(output.end(),{frame,animation.pc(),animation.script_state()});
+                const auto pose=okage::animated_pose(bound,animation.values(),sine,animation.scale_channels());
+                for(const auto& matrix:pose)append(matrix);
+                for(const auto& block:bound.blocks)append(okage::shadow_posed_positions(block,pose));
+                output.insert(output.end(),textures.images().begin(),textures.images().end());
+            }
+            write(argv[8],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
         if(command=="shadow-batches" && argc==4) {
             const auto file=okage::read_xmd(read(argv[2]));
             if(file.models.size()!=1)throw std::runtime_error("Shadow batches require one model");

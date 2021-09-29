@@ -433,8 +433,74 @@ public:
             result.push_back(get(hierarchy+8+i*8)&0xffff);
             uint16 flag=0;std::memcpy(ee->m_ram+hierarchy+14+i*8,&flag,2);
         }
+        if(!output)return;
         call(0x1b1d88);loadMicro();call(0x184a20,{hierarchy,bones+16,0x1800000,0});
         for(unsigned i=0;i<count*16;++i)result.push_back(get(0x1800000+i*4));
+        writeFile(output,result.data(),result.size()*4);
+    }
+    void shadowMotion(const std::vector<uint8>& main,const std::vector<uint8>& shadow,
+            const std::vector<uint8>& motion,const char* mainPath,const char* xtaPath,unsigned entry,unsigned frames,const char* output) {
+        const auto a=okage::read_xmd(main),b=okage::read_xmd(shadow);
+        if(a.models.size()!=1||b.models.size()!=1||motion.size()<32||motion.size()>0x100000||frames>180)
+            throw std::runtime_error("Shadow motion fixture extent");
+        shadowBind(main,shadow,nullptr);
+        const auto& model=b.models[0];
+        const unsigned nodes=model.hierarchy.size(),boneCount=a.models[0].bones.size();
+        const auto bones=get(0x800034),hierarchy=get(0x800038);
+        constexpr unsigned motionBase=0xb00000,top=0x19c;
+        std::memcpy(ee->m_ram+motionBase,motion.data(),motion.size());
+        const bool scale=get(motionBase+20)!=0;const unsigned channels=4+boneCount*(scale?3:2);
+        if(channels>5120)throw std::runtime_error("Shadow motion channel extent");
+        put(0x213014,0x810000);put(0x33760c,0x1000000);put(0x337614,0x850000);
+        put(0x337610,1024);put(0x337928,0);
+        call(0x1b5d10,{channels,0,0,get(motionBase+24)!=0});call(0x1b5bd8,{0,motionBase});
+        for(unsigned ch=0;ch<channels;++ch)call(0x1b43c0,{ch,0x1800000});
+        call(0x1b1d88);loadMicro();
+        const auto textures=textureFixture(mainPath,xtaPath);
+        call(0x1b5dd0,{0,entry});
+        std::memcpy(ee->m_microMem1,ee->m_ram+0x219700,0x1358);
+        auto run=[&](unsigned vuEntry) {
+            put(0x1900000,0x03000000|top);put(0x1900004,0x02000000);
+            put(0x1900008,0);put(0x190000c,0x14000000|vuEntry);
+            ee->m_vpu1->GetVif().ReceiveDMA(0x1900000,1,1,false);
+            if(!ee->m_vpu1->IsVuReady()||ee->m_VU1.m_State.nHasException!=MIPS_EXCEPTION_VU_EBIT)
+                throw std::runtime_error("Shadow skinning VU entry did not complete");
+        };
+        auto header=[&](unsigned count,unsigned dest) {
+            const uint32 values[]={count,dest,0,0};std::memcpy(ee->m_vuMem1+top*16,values,16);
+        };
+        std::vector<uint32> result{nodes,static_cast<uint32>(model.blocks.size()),static_cast<uint32>(textures.packets.size())};
+        for(const auto& block:model.blocks)result.push_back(block.attribute_extents[0]);
+        for(unsigned frame=0;frame<=frames;++frame) {
+            if(frame){call(0x1b4748,{0,channels});call(0x1b5a90);}
+            result.insert(result.end(),{frame,get(0x850014)-motionBase,get(0x850000)});
+            call(scale?0x1b4560:0x1b4480,{4,boneCount,bones+16});
+            call(0x184a20,{hierarchy,bones+16,0x1800000,0});
+            for(unsigned i=0;i<nodes*16;++i)result.push_back(get(0x1800000+i*4));
+            for(const auto& block:model.blocks)for(unsigned first=0;first<block.attribute_extents[0];first+=97) {
+                const unsigned count=std::min(97u,block.attribute_extents[0]-first);
+                std::memset(ee->m_vuMem1,0,0x4000);
+                std::memcpy(ee->m_vuMem1+top*16,ee->m_ram+0x202de0,9*16);run(0);
+                header(count,0);run(12);
+                for(const auto& range:block.attributes) {
+                    if(range.kind!=5)continue;
+                    const unsigned start=std::max(first,unsigned(range.first));
+                    const unsigned end=std::min(first+count,unsigned(range.first+range.values.size()));
+                    if(start>=end)continue;
+                    std::memcpy(ee->m_vuMem1+top*16,ee->m_ram+0x1800000+range.hierarchy_node*64,64);run(4);
+                    for(unsigned at=start;at<end;) {
+                        const unsigned n=std::min(31u,end-at);header(n,at-first);
+                        std::memcpy(ee->m_vuMem1+(top+1)*16,range.values.data()+at-range.first,n*16);
+                        run(14);at+=n;
+                    }
+                }
+                for(unsigned i=0;i<count*4;++i) {
+                    uint32 v;std::memcpy(&v,ee->m_vuMem1+0x18*16+i*4,4);result.push_back(v);
+                }
+            }
+            const auto selection=textureSelection(textures);result.insert(result.end(),selection.begin(),selection.end());
+            if(result.size()>8*1024*1024)throw std::runtime_error("Shadow motion output bound");
+        }
         writeFile(output,result.data(),result.size()*4);
     }
     void shadowCache(const std::vector<uint8>& input,const char* output) {
@@ -2281,6 +2347,8 @@ int main(int argc,char** argv) {
             reference.mapTransforms(readFile(argv[3]),argv[4]);
         } else if ((command=="uv" || command=="texture-clamp") && argc==5) {
             reference.uv(readFile(argv[3]),argv[4],command=="texture-clamp");
+        } else if (command=="shadow-motion" && argc==10) {
+            reference.shadowMotion(readFile(argv[3]),readFile(argv[4]),readFile(argv[5]),argv[3],argv[6],std::stoul(argv[7]),std::stoul(argv[8]),argv[9]);
         } else if (command=="shadow-batches" && argc==5) {
             reference.shadowBatches(readFile(argv[3]),argv[4]);
         } else if (command=="shadow-bind" && argc==6) {
