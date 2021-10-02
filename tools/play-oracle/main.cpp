@@ -10,6 +10,9 @@
 #include "Ps2Const.h"
 #include "FpUtils.h"
 #include "gs/GSH_Null.h"
+#ifdef OKAGE_REFERENCE_VULKAN
+#include "reference_graphics.hpp"
+#endif
 #include "okage/model.hpp"
 #include "okage/texture_animation.hpp"
 #include <CommonCrypto/CommonDigest.h>
@@ -58,7 +61,10 @@ std::string hash(const std::vector<uint8>& data) {
 class Reference {
 public:
     std::unique_ptr<Iop::CSubSystem> iop;
-    std::unique_ptr<CGSH_Null> researchGs;
+#ifdef OKAGE_REFERENCE_VULKAN
+    ResearchTraffic researchTraffic;
+#endif
+    std::unique_ptr<CGSHandler> researchGs;
     std::unique_ptr<Ee::CSubSystem> ee;
     std::unique_ptr<CPS2OS> effectOs;
     bool streamTransferProbe=false;
@@ -82,6 +88,7 @@ public:
         FpUtils::SetDenormalHandlingMode();
     }
     ~Reference() {
+        if(researchGs)researchGs->Release();
         if (ee) static_cast<CEeExecutor*>(ee->m_EE.m_executor.get())->RemoveExceptionHandler();
         std::fesetround(FE_TONEAREST);
     }
@@ -655,11 +662,17 @@ public:
         }
         writeFile(output,result.data(),result.size()*4);
     }
-    void shadowPrism(const std::vector<uint8>& input,const char* output) {
-        constexpr unsigned stride=54*4;
-        if(input.empty()||input.size()%stride||input.size()>stride*128)
+    void shadowPrism(const std::vector<uint8>& input,const char* output,bool raster=false) {
+        const unsigned stride=(raster?58:54)*4;
+        if(input.empty()||input.size()%stride||input.size()>stride*(raster?48:128))
             throw std::runtime_error("Shadow prism fixture extent");
-        researchGs=std::make_unique<CGSH_Null>();
+        if(raster) {
+#ifdef OKAGE_REFERENCE_VULKAN
+            researchGs.reset(vulkanReference(researchTraffic)());
+#else
+            throw std::runtime_error("Shadow raster requires research Vulkan build");
+#endif
+        } else researchGs=std::make_unique<CGSH_Null>();
         researchGs->Initialize();researchGs->Reset();ee->m_gs=researchGs.get();
         std::memcpy(ee->m_microMem1,ee->m_ram+0x219700,0x1358);
         auto& cpu=ee->m_VU1;
@@ -670,9 +683,28 @@ public:
             if(!ee->m_vpu1->IsVuReady()||cpu.m_State.nHasException!=MIPS_EXCEPTION_VU_EBIT)
                 throw std::runtime_error("Shadow prism VU entry did not complete");
         };
-        std::vector<uint32> result;
+        std::vector<uint32> result;std::vector<uint8> pixels;
         for(unsigned at=0;at<input.size();at+=stride) {
-            std::array<uint32,54> f;std::memcpy(f.data(),input.data()+at,stride);
+            std::array<uint32,58> f{};std::memcpy(f.data(),input.data()+at,stride);
+            if(raster) {
+                if(f[55]>0xffffff||!f[57]||f[57]>8)throw std::runtime_error("Shadow raster depth/repeat range");
+                auto reg=[&](uint8 address,uint64 value){researchGs->WriteRegister({address,value});};
+                constexpr uint64 frame=uint64(10)<<16,zbuf=128;
+                reg(GS_REG_FRAME_1,frame);reg(GS_REG_ZBUF_1,zbuf);
+                reg(GS_REG_SCISSOR_1,(uint64(639)<<16)|(uint64(223)<<48));
+                reg(GS_REG_XYOFFSET_1,uint64(1728*16)|(uint64(1936*16)<<32));
+                reg(GS_REG_PRMODECONT,1);reg(GS_REG_COLCLAMP,1);reg(GS_REG_FBA_1,0);
+                reg(GS_REG_TEST_1,0x30000);reg(GS_REG_PRIM,6);
+                reg(GS_REG_RGBAQ,uint64(f[54]&0xffffff)|0x40000000|(uint64(0x3f800000)<<32));
+                auto xyz=[&](unsigned x,unsigned y){return uint64(x*16)|(uint64(y*16)<<16)|(uint64(f[55])<<32);};
+                reg(GS_REG_XYZ2,xyz(1728,1936));reg(GS_REG_XYZ2,xyz(1728+640,1936+224));
+                reg(GS_REG_ZBUF_1,zbuf|(uint64(1)<<32));reg(GS_REG_TEST_1,0x5000c);
+                reg(GS_REG_FRAME_1,frame|(uint64(0x7fffffff)<<32));reg(GS_REG_ALPHA_1,0x54);
+                reg(GS_REG_RGBAQ,uint64(f[56]&0xffffff)|(uint64(0x3f800000)<<32));
+                researchGs->ProcessWriteBuffer(nullptr);researchGs->FlushWriteBuffer();
+                // Synthetic framebuffer allocation; original template control words unchanged.
+                put(0x202e20,frame);put(0x202e24,0);put(0x202e50,frame);put(0x202e54,0x7fffffff);
+            }
             std::memset(ee->m_vuMem1,0,0x4000);
             std::memcpy(ee->m_vuMem1,ee->m_ram+0x202de0,9*16);
             run(0,0);
@@ -683,6 +715,13 @@ public:
                 std::memcpy(ee->m_vuMem1+base*16,f.data()+6+i*12,48);
             }
             cpu.m_State.nCOP2VI[11]=f[1];run(22,1);
+            if(raster) {
+#ifdef OKAGE_REFERENCE_VULKAN
+                for(unsigned repeat=1;repeat<f[57];++repeat)run(22,1);
+                const auto image=captureShadowPixels(researchGs.get());pixels.insert(pixels.end(),image.begin(),image.end());
+#endif
+                continue;
+            }
             uint32 first;std::memcpy(&first,ee->m_vuMem1+0x1dc*16,4);
             if(first!=1&&first!=0x4b008000)throw std::runtime_error("Unexpected shadow prism output tag");
             const auto nextBuffer=cpu.m_State.nCOP2VI[12];
@@ -698,7 +737,8 @@ public:
                 uint32 word;std::memcpy(&word,ee->m_vuMem1+0x1dc*16+i*4,4);result.push_back(word);
             }
         }
-        writeFile(output,result.data(),result.size()*4);
+        if(raster)writeFile(output,pixels.data(),pixels.size());
+        else writeFile(output,result.data(),result.size()*4);
     }
     std::vector<uint32> shadowProjection(const std::vector<uint8>& input,const char* output) {
         constexpr unsigned stride=27*4;
@@ -2467,6 +2507,8 @@ int main(int argc,char** argv) {
             reference.shadowCache(readFile(argv[3]),argv[4]);
         } else if (command=="shadow-prism" && argc==5) {
             reference.shadowPrism(readFile(argv[3]),argv[4]);
+        } else if (command=="shadow-raster" && argc==5) {
+            reference.shadowPrism(readFile(argv[3]),argv[4],true);
         } else if (command=="shadow-projection" && argc==5) {
             reference.shadowProjection(readFile(argv[3]),argv[4]);
         } else if (command=="shadow-update" && argc==6) {

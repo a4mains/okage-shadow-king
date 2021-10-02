@@ -29,6 +29,21 @@ void vacant(const std::filesystem::path& path) {
 CGSHandler::FactoryFunction vulkanReference(ResearchTraffic& traffic) {
     return [&traffic](){return new OffscreenGS(traffic);};
 }
+std::vector<uint8> captureShadowPixels(CGSHandler* base) {
+    auto* gs=dynamic_cast<CGSH_Vulkan*>(base);
+    if(!gs)throw std::runtime_error("Shadow raster requires Vulkan research backend");
+    gs->FlushWriteBuffer();gs->SendGSCall([](){},true);
+    const auto bitmap=gs->GetFramebuffer(uint64(10)<<16);
+    if(bitmap.GetWidth()<640||bitmap.GetHeight()<224||bitmap.GetBitsPerPixel()!=32)
+        throw std::runtime_error("Shadow framebuffer extent");
+    std::vector<uint8> pixels(640*224*4);
+    for(unsigned y=0;y<224;++y)for(unsigned x=0;x<640;++x) {
+        const auto* source=bitmap.GetPixels()+y*bitmap.GetPitch()+x*4;
+        auto* dest=pixels.data()+(y*640+x)*4;
+        dest[0]=source[2];dest[1]=source[1];dest[2]=source[0];dest[3]=source[3];
+    }
+    return pixels;
+}
 void captureReference(CGSHandler* base,const std::filesystem::path& prefix) {
     @autoreleasepool {
         auto* gs=dynamic_cast<CGSH_Vulkan*>(base);

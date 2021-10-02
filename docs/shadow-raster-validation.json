@@ -1,0 +1,467 @@
+{
+  "base_commit": "8e72f03",
+  "scope": "Native Metal raster versus unchanged original shadow VU1 and pinned Play Vulkan GS, using explicit synthetic cache/depth/color/repeat fixtures.",
+  "source_sha256": {
+    "src/shadow_metal.hpp": "a4ff5eeb0965c8e704db6290ada82490a2dea4220941a31fceaa6683137541ec",
+    "src/shadow_metal.mm": "ebd4c57f397faba3cd2ec9ac59e0aec85785ca4872bffd7385a7719501672ab0",
+    "tools/shadow_raster.mm": "b27d0ebca3d4940e2a4f35e8dbb2ecb5bbbed498b9f2fe6e0dd7eb4baec7d333",
+    "tools/verify_shadow_raster.py": "9a38dbcdb323b1e9d0548b9a7baed2b44d7d1c4719e402202731c2432b973b2e",
+    "tests/test_shadow_raster.py": "f49235c9ec82a70c2ddce83f1c571ab1a719ecea47c4919831ae4b6a1c7fa489",
+    "tools/play-oracle/main.cpp": "fa3ee6351281d59c575121a5691e80b50aceb7476283054e87704e229d959999",
+    "tools/play-oracle/reference_graphics.hpp": "ac77c52a19c702097b0492517d515c7b91bfa9ca5798d4ba0659d235a7fde940",
+    "tools/play-oracle/reference_graphics.mm": "4b319bcc6263df8b32c68991213288fdc213f6eae54cf61ee5ddd8310135da72",
+    "tools/play-oracle/CMakeLists.txt": "d4a0fedb7ed3e217371e74494972d1393aaf7305c487b325eabbb25c5f68ea15",
+    "CMakeLists.txt": "28e746776c2bed89e795abba38682d6207c0e8e7261a6ce64272a1bb8ac60d76"
+  },
+  "reports": {
+    "native-release": {
+      "scope": "Compare native Metal shadow pixels with original VU1 and pinned Vulkan GS.",
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "shadow-raster",
+          "local/extracted/SCUS_971.29",
+          "local/research/shadow-raster-v2/fixture-v1.bin",
+          "local/research/shadow-raster-v2/original-v1.rgba"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.206386667,
+        "binary_sha256": "30d4a76fc32abb0d9f8561c44424be9b7bfa19642b680f3606bfcfe4e71a26fd",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "input_sha256": "777588e27eda8e41bdafe08dad8b964a65adcee696b6fffe5e709ce26bc36ec9",
+        "output_sha256": "1dd13f541e24874f2428d76c5441128b9a3d35ccab82637981a278888e9ea77b"
+      },
+      "native_command": [
+        "build/native-release/okage-shadow-raster",
+        "local/research/shadow-raster-v2/fixture-v1.bin",
+        "local/shadow-raster-checks-v3/native-release/native.rgba"
+      ],
+      "native_sha256": "8c24cacb7ab250162cbe3fd808704bb82ea2ea244077ea1b5825f70b6b3e06e4",
+      "native_output_sha256": "1dd13f541e24874f2428d76c5441128b9a3d35ccab82637981a278888e9ea77b",
+      "cases": [
+        {
+          "case": 0,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 0,
+          "first_differences": []
+        },
+        {
+          "case": 1,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 0,
+          "first_differences": []
+        },
+        {
+          "case": 2,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 351,
+          "first_differences": []
+        },
+        {
+          "case": 3,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 352,
+          "first_differences": []
+        },
+        {
+          "case": 4,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 814,
+          "first_differences": []
+        },
+        {
+          "case": 5,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 1543,
+          "first_differences": []
+        },
+        {
+          "case": 6,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 5208,
+          "first_differences": []
+        },
+        {
+          "case": 7,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 248,
+          "first_differences": []
+        },
+        {
+          "case": 8,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 0,
+          "first_differences": []
+        },
+        {
+          "case": 9,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 0,
+          "first_differences": []
+        },
+        {
+          "case": 10,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 351,
+          "first_differences": []
+        },
+        {
+          "case": 11,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 352,
+          "first_differences": []
+        },
+        {
+          "case": 12,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 860,
+          "first_differences": []
+        },
+        {
+          "case": 13,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 10064,
+          "first_differences": []
+        },
+        {
+          "case": 14,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 4764,
+          "first_differences": []
+        },
+        {
+          "case": 15,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 0,
+          "first_differences": []
+        }
+      ]
+    },
+    "native": {
+      "scope": "Compare native Metal shadow pixels with original VU1 and pinned Vulkan GS.",
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "shadow-raster",
+          "local/extracted/SCUS_971.29",
+          "local/research/shadow-raster-v2/fixture-v1.bin",
+          "local/research/shadow-raster-v2/original-v1.rgba"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.206386667,
+        "binary_sha256": "30d4a76fc32abb0d9f8561c44424be9b7bfa19642b680f3606bfcfe4e71a26fd",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "input_sha256": "777588e27eda8e41bdafe08dad8b964a65adcee696b6fffe5e709ce26bc36ec9",
+        "output_sha256": "1dd13f541e24874f2428d76c5441128b9a3d35ccab82637981a278888e9ea77b"
+      },
+      "native_command": [
+        "build/native/okage-shadow-raster",
+        "local/research/shadow-raster-v2/fixture-v1.bin",
+        "local/shadow-raster-checks-v3/native/native.rgba"
+      ],
+      "native_sha256": "53212ae2a82478a50740d7f57a243d51546eb40f4f83d3e467d35ace23e5b4ff",
+      "native_output_sha256": "1dd13f541e24874f2428d76c5441128b9a3d35ccab82637981a278888e9ea77b",
+      "cases": [
+        {
+          "case": 0,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 0,
+          "first_differences": []
+        },
+        {
+          "case": 1,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 0,
+          "first_differences": []
+        },
+        {
+          "case": 2,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 351,
+          "first_differences": []
+        },
+        {
+          "case": 3,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 352,
+          "first_differences": []
+        },
+        {
+          "case": 4,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 814,
+          "first_differences": []
+        },
+        {
+          "case": 5,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 1543,
+          "first_differences": []
+        },
+        {
+          "case": 6,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 5208,
+          "first_differences": []
+        },
+        {
+          "case": 7,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 248,
+          "first_differences": []
+        },
+        {
+          "case": 8,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 0,
+          "first_differences": []
+        },
+        {
+          "case": 9,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 0,
+          "first_differences": []
+        },
+        {
+          "case": 10,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 351,
+          "first_differences": []
+        },
+        {
+          "case": 11,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 352,
+          "first_differences": []
+        },
+        {
+          "case": 12,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 860,
+          "first_differences": []
+        },
+        {
+          "case": 13,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 10064,
+          "first_differences": []
+        },
+        {
+          "case": 14,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 4764,
+          "first_differences": []
+        },
+        {
+          "case": 15,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 0,
+          "first_differences": []
+        }
+      ]
+    },
+    "model-sanitize": {
+      "scope": "Compare native Metal shadow pixels with original VU1 and pinned Vulkan GS.",
+      "original_run": {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "shadow-raster",
+          "local/extracted/SCUS_971.29",
+          "local/research/shadow-raster-v2/fixture-v1.bin",
+          "local/research/shadow-raster-v2/original-v1.rgba"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.206386667,
+        "binary_sha256": "30d4a76fc32abb0d9f8561c44424be9b7bfa19642b680f3606bfcfe4e71a26fd",
+        "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+        "input_sha256": "777588e27eda8e41bdafe08dad8b964a65adcee696b6fffe5e709ce26bc36ec9",
+        "output_sha256": "1dd13f541e24874f2428d76c5441128b9a3d35ccab82637981a278888e9ea77b"
+      },
+      "native_command": [
+        "build/model-sanitize/okage-shadow-raster",
+        "local/research/shadow-raster-v2/fixture-v1.bin",
+        "local/shadow-raster-checks-v3/model-sanitize/native.rgba"
+      ],
+      "native_sha256": "cadd7eca9195bc985e323f0ab6be0174350bc1ecdb64b8eb236e0b5d44c4a22b",
+      "native_output_sha256": "1dd13f541e24874f2428d76c5441128b9a3d35ccab82637981a278888e9ea77b",
+      "cases": [
+        {
+          "case": 0,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 0,
+          "first_differences": []
+        },
+        {
+          "case": 1,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 0,
+          "first_differences": []
+        },
+        {
+          "case": 2,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 351,
+          "first_differences": []
+        },
+        {
+          "case": 3,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 352,
+          "first_differences": []
+        },
+        {
+          "case": 4,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 814,
+          "first_differences": []
+        },
+        {
+          "case": 5,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 1543,
+          "first_differences": []
+        },
+        {
+          "case": 6,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 5208,
+          "first_differences": []
+        },
+        {
+          "case": 7,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 248,
+          "first_differences": []
+        },
+        {
+          "case": 8,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 0,
+          "first_differences": []
+        },
+        {
+          "case": 9,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 0,
+          "first_differences": []
+        },
+        {
+          "case": 10,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 351,
+          "first_differences": []
+        },
+        {
+          "case": 11,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 352,
+          "first_differences": []
+        },
+        {
+          "case": 12,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 860,
+          "first_differences": []
+        },
+        {
+          "case": 13,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 10064,
+          "first_differences": []
+        },
+        {
+          "case": 14,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 4764,
+          "first_differences": []
+        },
+        {
+          "case": 15,
+          "different_bytes": 0,
+          "different_pixels": 0,
+          "original_changed_pixels": 0,
+          "first_differences": []
+        }
+      ]
+    }
+  },
+  "cases_per_build": 16,
+  "rgba_pixels_exact_per_build": 2293760,
+  "rgba_bytes_exact_per_build": 9175040,
+  "changed_reference_pixels": 24907,
+  "depth_preservation_and_opaque_alpha_restoration_checked": true,
+  "tests": {
+    "ctests_per_build": 20,
+    "python": 96,
+    "logs": "local/research/shadow-raster-v1/"
+  },
+  "negative_reference_run": {
+    "command": [
+      "build/play-research/okage-oracle/okage-pose-oracle",
+      "shadow-raster",
+      "local/extracted/SCUS_971.29",
+      "local/research/shadow-raster-v1/fixture-v1.bin",
+      "local/research/shadow-raster-v1/original-v1.rgba"
+    ],
+    "exit_code": -6,
+    "elapsed_seconds": 0.346958667,
+    "binary_sha256": "fc914eeab10a71253cf562e88cb8776edf6e072b659266a8d52e6f121fc81d56",
+    "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "input_sha256": "777588e27eda8e41bdafe08dad8b964a65adcee696b6fffe5e709ce26bc36ec9"
+  },
+  "negative_cause": "Synthetic register writes were not ProcessWriteBuffer-ed before FlushWriteBuffer; corrected observer lifecycle, with original instructions/backend unchanged.",
+  "original_geometry_regressions": {
+    "prism": "local/research/shadow-raster-v1/prism-regression-v1.bin matches shadow-prism-v1/original-v4.bin",
+    "HERO_assembled": "local/research/shadow-raster-v1/assembled-regression-v1.bin matches shadow-assembled-v1/HERO-original-v1.bin"
+  },
+  "field_integration": false,
+  "native_route_replayed": false,
+  "latest_native_route_frame": 67568
+}

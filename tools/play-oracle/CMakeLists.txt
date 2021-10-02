@@ -29,6 +29,12 @@ if(OKAGE_REFERENCE_VULKAN)
     target_compile_definitions(okage-boot-oracle PRIVATE OKAGE_REFERENCE_VULKAN=1 "$<$<CONFIG:Debug>:_DEBUG>")
     target_compile_options(okage-boot-oracle PRIVATE "$<$<COMPILE_LANGUAGE:OBJCXX>:-fobjc-arc>")
     target_link_libraries(okage-boot-oracle PRIVATE gsh_vulkan "-framework AppKit")
+    target_sources(okage-pose-oracle PRIVATE "${CMAKE_CURRENT_LIST_DIR}/reference_graphics.mm")
+    target_compile_definitions(okage-pose-oracle PRIVATE OKAGE_REFERENCE_VULKAN=1 "$<$<CONFIG:Debug>:_DEBUG>")
+    target_compile_options(okage-pose-oracle PRIVATE "$<$<COMPILE_LANGUAGE:OBJCXX>:-fobjc-arc>")
+    target_link_libraries(okage-pose-oracle PRIVATE gsh_vulkan "-framework AppKit")
+    add_custom_command(TARGET okage-pose-oracle POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${Vulkan_LIBRARY}" "$<TARGET_FILE_DIR:okage-pose-oracle>/libMoltenVK.dylib")
     add_custom_command(TARGET okage-boot-oracle POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${Vulkan_LIBRARY}" "$<TARGET_FILE_DIR:okage-boot-oracle>/libMoltenVK.dylib")
 endif()
