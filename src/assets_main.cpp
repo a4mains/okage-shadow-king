@@ -152,6 +152,33 @@ int main(int argc, char** argv) {
             }
             write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
         }
+        if(command=="shadow-assembled" && argc==6) {
+            const auto main=okage::read_xmd(read(argv[2])),shadow=okage::read_xmd(read(argv[3]));
+            if(main.models.size()!=1||shadow.models.size()!=1)throw std::runtime_error("Shadow assembly requires one model");
+            const auto bound=okage::bind_shadow_model(main.models[0],shadow.models[0]);
+            const auto rest=okage::rest_pose(bound,okage::make_sine_table());
+            const auto input=read(argv[4]);constexpr unsigned stride=58*4;
+            if(input.empty()||input.size()%stride||input.size()>stride*32)throw std::runtime_error("Shadow assembly fixture extent");
+            std::vector<std::uint32_t> output;
+            for(unsigned at=0;at<input.size();at+=stride) {
+                std::array<std::uint32_t,58> row;std::memcpy(row.data(),input.data()+at,stride);
+                auto value=[&](unsigned i){return __builtin_bit_cast(float, (row[i]));};
+                okage::Matrix4 view,world;std::memcpy(view.data(),row.data()+8,64);std::memcpy(world.data(),row.data()+24,64);
+                const okage::ShadowScreenSettings settings{value(40),value(41),value(42),value(43),value(44),value(45),value(46),value(47),value(48),value(49),value(50),value(51),value(52),value(53),value(54)};
+                const okage::ShadowProjectionContext context({value(4),value(5),value(6),value(7)},view);
+                const auto projection=context.project(row[1],value(2),value(3),{row[55],row[56],row[57]});
+                const auto parent=okage::compose_pose(view,std::span(&world,1));
+                const auto pose=okage::compose_pose(parent[0],rest);
+                const auto draws=okage::shadow_draws(bound,pose,projection,okage::shadow_screen_parameters(settings),context.view_direction);
+                output.insert(output.end(),{row[0],static_cast<unsigned>(pose.size()),static_cast<unsigned>(draws.size())});
+                for(const auto& matrix:pose)for(const auto& col:matrix)for(float f:col)output.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+                for(const auto& draw:draws) {
+                    output.insert(output.end(),{draw.block,draw.batch,draw.triangle,unsigned(draw.prism.emitted)});
+                    if(draw.prism.emitted)for(const auto& pass:draw.prism.passes)for(const auto& vertex:pass)output.insert(output.end(),vertex.begin(),vertex.end());
+                }
+            }
+            write(argv[5],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
         if(command=="shadow-motion" && argc==9) {
             const auto main=okage::read_xmd(read(argv[2])),shadow=okage::read_xmd(read(argv[3]));
             if(main.models.size()!=1||shadow.models.size()!=1)throw std::runtime_error("Shadow motion requires one model");

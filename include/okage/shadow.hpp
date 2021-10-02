@@ -65,4 +65,11 @@ struct ShadowPrism {
     std::array<std::array<std::array<std::uint32_t,4>,12>,3> passes{};
 };
 ShadowPrism shadow_prism(const ShadowPrismInput& input);
+struct ShadowDraw {
+    std::uint32_t block,batch,triangle;
+    ShadowPrism prism;
+};
+std::vector<ShadowDraw> shadow_draws(const Model&,std::span<const Matrix4> camera_pose,
+    const ShadowProjection&,const ShadowScreenParameters&,const Float4& default_direction,
+    bool positive_material=false);
 }

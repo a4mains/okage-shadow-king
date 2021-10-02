@@ -438,6 +438,111 @@ public:
         for(unsigned i=0;i<count*16;++i)result.push_back(get(0x1800000+i*4));
         writeFile(output,result.data(),result.size()*4);
     }
+    void shadowAssembled(const std::vector<uint8>& main,const std::vector<uint8>& shadow,
+            const std::vector<uint8>& input,const char* output) {
+        constexpr unsigned stride=58*4,top=0x19c,scratch=0x1a00000;
+        if(input.empty()||input.size()%stride||input.size()>stride*32)throw std::runtime_error("Shadow assembly fixture extent");
+        shadowBind(main,shadow,nullptr);const auto decoded=okage::read_xmd(shadow);
+        const auto& model=decoded.models[0];const auto bones=get(0x800034),hierarchy=get(0x800038);
+        call(0x1b1d88);loadMicro();
+        researchGs=std::make_unique<CGSH_Null>();researchGs->Initialize();researchGs->Reset();ee->m_gs=researchGs.get();
+        std::memcpy(ee->m_microMem1,ee->m_ram+0x219700,0x1358);
+        auto run=[&](unsigned entry,unsigned count=0) {
+            put(0x1900000,0x03000000|top);put(0x1900004,0x02000000);
+            put(0x1900008,0x04000000|count);put(0x190000c,0x14000000|entry);
+            ee->m_vpu1->GetVif().ReceiveDMA(0x1900000,1,1,false);
+            if(!ee->m_vpu1->IsVuReady()||ee->m_VU1.m_State.nHasException!=MIPS_EXCEPTION_VU_EBIT)
+                throw std::runtime_error("Assembled shadow VU entry did not complete");
+        };
+        auto header=[&](unsigned count,unsigned source,unsigned dest=0) {
+            const uint32 values[]={count,source,dest,0};std::memcpy(ee->m_vuMem1+top*16,values,16);
+        };
+        std::vector<uint32> result;
+        for(unsigned at=0;at<input.size();at+=stride) {
+            std::array<uint32,58> f;std::memcpy(f.data(),input.data()+at,stride);
+            if(f[1]<4||f[1]>7)throw std::runtime_error("Assembled shadow projection mode");
+            std::vector<uint8> projectionInput(108);std::memcpy(projectionInput.data(),f.data(),24*4);
+            std::memcpy(projectionInput.data()+24*4,f.data()+55,12);
+            const auto packet=shadowProjection(projectionInput,nullptr);
+            std::array<uint32,4> direction;for(unsigned i=0;i<4;++i)direction[i]=get(0x81000+i*4);
+            unsigned cursor=3+4+10;
+            if(packet.at(cursor)==0x6c018000) {
+                for(unsigned i=0;i<4;++i)direction[i]=packet.at(cursor+1+i);
+                if(packet.at(cursor+5)!=0x1400000a)throw std::runtime_error("Assembled direction packet");cursor+=6;
+            }
+            std::array<std::array<uint32,16>,2> projections;
+            for(unsigned i=0;i<2;++i) {
+                if(packet.at(cursor)!=0x6c048000||packet.at(cursor+17)!=0x14000006+i*2)
+                    throw std::runtime_error("Assembled projection packet");
+                std::copy_n(packet.begin()+cursor+1,16,projections[i].begin());cursor+=18;
+            }
+            for(unsigned i=0;i<8;++i)ee->m_EE.m_State.nCOP1[12+i]=f[40+i];
+            for(unsigned i=0;i<7;++i)put(0x1ff0000+i*8,f[48+i]);call(0x1acc10,{0x82000});
+            std::memcpy(ee->m_ram+0x3322a0,f.data()+8,64);std::memcpy(ee->m_ram+0x83000,f.data()+24,64);
+            put(0x1fe2f4,0);call(0x1caa20,{0x1700000});call(0x184bd8,{hierarchy,bones+16,0x83000});
+            const auto poses=ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0];
+            if(poses!=0x1700000)throw std::runtime_error("Original composed pose arena");
+            const auto countSlot=result.size()+2;
+            result.insert(result.end(),{f[0],static_cast<uint32>(model.hierarchy.size()),0});
+            for(unsigned i=0;i<model.hierarchy.size()*16;++i)result.push_back(get(poses+i*4));
+            put(0x1fe254,1);put(0x3321b4,scratch);put(0x330148,0);
+            for(unsigned blockIndex=0;blockIndex<model.blocks.size();++blockIndex) {
+                const auto& block=model.blocks[blockIndex];call(0x17ac20,{0xa00000+static_cast<uint32>(block.offset)+16});
+                for(unsigned batch=0;;++batch) {
+                    if(batch>4096)throw std::runtime_error("Assembled batch loop bound");
+                    call(0x17acc8);if(ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0])break;
+                    call(0x17ac90,{1});call(0x17b9d8);if(!ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0])break;
+                    const unsigned count=get(0x3301b0)&0xffff,end=get(0x3321c4);
+                    if(!count||count>97||end<scratch||end>scratch+0x10000)throw std::runtime_error("Assembled batch extent");
+                    std::vector<unsigned> mapping;for(unsigned i=0;i<count;++i)mapping.push_back(get(0x3301b8+i*4));
+                    std::memset(ee->m_vuMem1,0,0x4000);
+                    std::memcpy(ee->m_vuMem1+top*16,ee->m_ram+0x202de0,9*16);run(0);
+                    std::memcpy(ee->m_vuMem1+top*16,ee->m_ram+0x82000,128);run(2);
+                    for(unsigned i=0;i<2;++i){std::memcpy(ee->m_vuMem1+top*16,projections[i].data(),64);run(6+i*2);}
+                    std::memcpy(ee->m_vuMem1+top*16,direction.data(),16);run(10);header(count,0);run(12);
+                    for(const auto& range:block.attributes) {
+                        if(range.kind!=5)continue;
+                        std::memcpy(ee->m_vuMem1+top*16,ee->m_ram+poses+range.hierarchy_node*64,64);run(4);
+                        for(unsigned i=0;i<count;) {
+                            if(mapping[i]<range.first||mapping[i]>=range.first+range.values.size()){++i;continue;}
+                            unsigned n=1;
+                            while(n<31&&i+n<count&&mapping[i+n]>=range.first&&mapping[i+n]<range.first+range.values.size())++n;
+                            header(n,i);
+                            for(unsigned j=0;j<n;++j)std::memcpy(ee->m_vuMem1+(top+1+j)*16,range.values[mapping[i+j]-range.first].data(),16);
+                            run(14);i+=n;
+                        }
+                    }
+                    header(count,0,0x61);run(18);header(count,0);run(16);
+                    header(count,0);run(20);header(count,0x61);run(20);
+                    unsigned triangle=0;
+                    auto draw=[&](unsigned x,unsigned y,unsigned z) {
+                        header(x,y,z);const auto start=ee->m_VU1.m_State.nCOP2VI[12];run(22,1);
+                        const auto next=ee->m_VU1.m_State.nCOP2VI[12];uint32 first;
+                        std::memcpy(&first,ee->m_vuMem1+start*16,4);
+                        if((start!=0x1dc&&start!=0x2ee)||(next!=0x1dc&&next!=0x2ee))throw std::runtime_error("Assembled packet buffer");
+                        const bool emitted=next!=start&&first==1;
+                        if(next!=start&&first!=1&&first!=0x4b008000)throw std::runtime_error("Assembled packet header");
+                        ++result[countSlot];result.insert(result.end(),{blockIndex,batch,triangle++,unsigned(emitted)});
+                        if(emitted)for(unsigned offset:{2u,18u,33u})for(unsigned word=0;word<48;++word) {
+                            uint32 value;std::memcpy(&value,ee->m_vuMem1+(start+offset)*16+word*4,4);result.push_back(value);
+                        }
+                    };
+                    for(unsigned command=scratch;command<end;) {
+                        const auto word=get(command),size=word&0xffffff,op=word>>24;
+                        if(size<4||size%4||size>end-command)throw std::runtime_error("Assembled command extent");
+                        if(op==11||op==12) {
+                            if(size!=(op==11?32u:40u))throw std::runtime_error("Assembled polygon extent");
+                            const auto a=get(command+8)&0xffff,b=get(command+16)&0xffff,c=get(command+24)&0xffff;
+                            draw(a,b,c);if(op==12)draw(c,get(command+32)&0xffff,a);
+                        } else if(op!=9&&op!=10)throw std::runtime_error("Assembled polygon opcode");
+                        command+=size;
+                    }
+                }
+            }
+            if(result.size()>8*1024*1024)throw std::runtime_error("Assembled output limit");
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
     void shadowMotion(const std::vector<uint8>& main,const std::vector<uint8>& shadow,
             const std::vector<uint8>& motion,const char* mainPath,const char* xtaPath,unsigned entry,unsigned frames,const char* output) {
         const auto a=okage::read_xmd(main),b=okage::read_xmd(shadow);
@@ -595,7 +700,7 @@ public:
         }
         writeFile(output,result.data(),result.size()*4);
     }
-    void shadowProjection(const std::vector<uint8>& input,const char* output) {
+    std::vector<uint32> shadowProjection(const std::vector<uint8>& input,const char* output) {
         constexpr unsigned stride=27*4;
         if(input.empty()||input.size()%stride||input.size()>stride*128)
             throw std::runtime_error("Shadow projection fixture extent");
@@ -632,8 +737,11 @@ public:
             result.insert(result.end(),{f[0],f[1],end-arena});
             for(uint32 p=arena;p<end;p+=4)result.push_back(get(p));
         }
-        writeFile(output,result.data(),result.size()*4);
-        writeFile((std::string(output)+".setup.bin").c_str(),setup.data(),setup.size()*4);
+        if(output) {
+            writeFile(output,result.data(),result.size()*4);
+            writeFile((std::string(output)+".setup.bin").c_str(),setup.data(),setup.size()*4);
+        }
+        return result;
     }
     void shadowUpdate(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
         constexpr unsigned stride=30*4;
@@ -2347,6 +2455,8 @@ int main(int argc,char** argv) {
             reference.mapTransforms(readFile(argv[3]),argv[4]);
         } else if ((command=="uv" || command=="texture-clamp") && argc==5) {
             reference.uv(readFile(argv[3]),argv[4],command=="texture-clamp");
+        } else if (command=="shadow-assembled" && argc==7) {
+            reference.shadowAssembled(readFile(argv[3]),readFile(argv[4]),readFile(argv[5]),argv[6]);
         } else if (command=="shadow-motion" && argc==10) {
             reference.shadowMotion(readFile(argv[3]),readFile(argv[4]),readFile(argv[5]),argv[3],argv[6],std::stoul(argv[7]),std::stoul(argv[8]),argv[9]);
         } else if (command=="shadow-batches" && argc==5) {

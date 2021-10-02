@@ -246,6 +246,38 @@ ShadowVertexCache shadow_vertex_cache(std::span<const Float4> positions,
     out.clip_status=clip_union?(clip_intersection?-1:1):0;
     return out;
 }
+std::vector<ShadowDraw> shadow_draws(const Model& model,std::span<const Matrix4> pose,
+        const ShadowProjection& projection,const ShadowScreenParameters& screen,
+        const Float4& default_direction,bool positive_material) {
+    if(!projection.has_matrices||pose.size()!=model.hierarchy.size())
+        throw std::runtime_error("Shadow draw requires projection and complete camera pose");
+    std::vector<ShadowDraw> result;
+    for(unsigned block_index=0;block_index<model.blocks.size();++block_index) {
+        const auto& block=model.blocks[block_index];
+        const auto positions=shadow_posed_positions(block,pose);
+        const auto batches=shadow_batches(block,positive_material);
+        for(unsigned batch_index=0;batch_index<batches.size();++batch_index) {
+            const auto& batch=batches[batch_index];std::vector<Float4> selected;
+            for(auto index:batch.positions)selected.push_back(positions.at(index));
+            const auto cache=shadow_vertex_cache(selected,projection.matrices,screen);
+            unsigned triangle_index=0;
+            for(const auto& polygon:batch.polygons) {
+                const std::array<std::array<unsigned,3>,2> triangles{{{0,1,2},{2,3,0}}};
+                for(unsigned triangle=0;triangle<(polygon.size()==4?2u:1u);++triangle) {
+                    ShadowPrismInput input;input.clip_status=cache.clip_status;
+                    input.direction=projection.direction.value_or(default_direction);
+                    for(unsigned upper=0;upper<2;++upper)for(unsigned corner=0;corner<3;++corner) {
+                        const auto at=upper*selected.size()+polygon[triangles[triangle][corner]];
+                        const auto dest=upper*3+corner;
+                        input.camera[dest]=cache.camera[at];input.screen[dest]=cache.screen[at];input.clip[dest]=cache.clip[at];
+                    }
+                    result.push_back({block_index,batch_index,triangle_index++,shadow_prism(input)});
+                }
+            }
+        }
+    }
+    return result;
+}
 namespace {
 Float4 shadow_cross(const Float4& a,const Float4& b) {
     return {a[1]*b[2]-b[1]*a[2],a[2]*b[0]-b[2]*a[0],a[0]*b[1]-b[0]*a[1],0};
