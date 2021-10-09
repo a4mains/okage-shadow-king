@@ -1,0 +1,66 @@
+{
+  "scope": "Native field/effect projection state integrated in simulation callbacks.",
+  "base_revision": "7caad27",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "stage": {
+    "path": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOMEB1B.XPF/a.stg",
+    "sha256": "acf0fad3f3938a7d475def9fcd8951e48de5e983a9addcd3a4d57170a53c3120"
+  },
+  "original_run": "local/research/shadow-field-state-v1/basement-v1.run.json",
+  "original_trace_sha256": "1cde602b70665a99c1b5827300e1e316414ecb0dc35d025dfe276e1f7e6befd3",
+  "original_frames": 6,
+  "native_start": 67056,
+  "words_compared_per_build": 546,
+  "native_frames": 67568,
+  "native_field_submissions": 67581,
+  "runs": [
+    {
+      "build": "release",
+      "run": "local/native-field-projection-67568-release-v1.run.json",
+      "exit_code": 0,
+      "elapsed_seconds": 24.441285375,
+      "binary_sha256": "d0a98e8fedee8c040ddf72937d88edf3609898a49b87d3994272707d2e0a5d0a",
+      "route_report": "local/research/shadow-field-state-v1/route-release-validation-v1.json",
+      "route_report_sha256": "e59e76f22ca81ab306ee547c1acebc8978c9cc9651f15b6ccf1c8351fc02ea47",
+      "unchanged_binary_pcm_artifacts": 36,
+      "unchanged_endpoint_png": true,
+      "projection_trace_sha256": "c4c160e0590dbeed69db43589e5f484b87782317dfa595cf1b7756603a69e94b",
+      "comparison_report": "local/research/shadow-field-state-v1/native-release-validation-v1.json"
+    },
+    {
+      "build": "debug",
+      "run": "local/native-field-projection-67568-debug-v1.run.json",
+      "exit_code": 0,
+      "elapsed_seconds": 168.249829625,
+      "binary_sha256": "f9c8beb29dfba1d815a75a3cd488e2522e423ba2044c98436c0f8e0c60defe2f",
+      "route_report": "local/research/shadow-field-state-v1/route-debug-validation-v1.json",
+      "route_report_sha256": "6228a41e27d60ab775af322c1fdef6f0d91b9699a6f241dbd031e858652038ba",
+      "unchanged_binary_pcm_artifacts": 36,
+      "unchanged_endpoint_png": true,
+      "projection_trace_sha256": "c4c160e0590dbeed69db43589e5f484b87782317dfa595cf1b7756603a69e94b",
+      "comparison_report": "local/research/shadow-field-state-v1/native-debug-validation-v1.json"
+    },
+    {
+      "build": "sanitize",
+      "run": "local/native-field-projection-67568-sanitize-v1.run.json",
+      "exit_code": 0,
+      "elapsed_seconds": 367.01454750000005,
+      "binary_sha256": "07927f11f0fa093815560131307217b65fdab09b019c0a63fc93a9a5e0734dad",
+      "route_report": "local/research/shadow-field-state-v1/route-sanitize-validation-v1.json",
+      "route_report_sha256": "a5614d569490fcc8f723339d93b8fa37e9b611a77996478418ae1b9a9933ae66",
+      "unchanged_binary_pcm_artifacts": 36,
+      "unchanged_endpoint_png": true,
+      "projection_trace_sha256": "c4c160e0590dbeed69db43589e5f484b87782317dfa595cf1b7756603a69e94b",
+      "comparison_report": "local/research/shadow-field-state-v1/native-sanitize-validation-v1.json"
+    }
+  ],
+  "ctest_per_build": 20,
+  "python_tests": 99,
+  "negative": "Initial callback-order unit fixture omitted required opening event word0xbb8; corrected the synthetic fixture, no game/runtime patch for that failure.",
+  "limitations": [
+    "No cold-start or variable-near original-execution comparison; synthetic unit coverage only.",
+    "No new story progression; service54 remains guarded at67569.",
+    "Scene rendering still uses its existing clip-based floating depth.",
+    "Projection lifecycle route binaries predate the subsequent AppKit preview controls. The isolated preview has its own binary hash and capture."
+  ]
+}

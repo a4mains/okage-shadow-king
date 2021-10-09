@@ -7,6 +7,7 @@
 #include "okage/enemy.hpp"
 #include "okage/screen_filter.hpp"
 #include "okage/shadow.hpp"
+#include "okage/field_projection.hpp"
 #include <optional>
 namespace okage {
 class MapObjects;
@@ -91,6 +92,8 @@ public:
     bool event_running() const {return (script_.script_state()&0x100)!=0;}
     unsigned camera_mode() const {return camera_mode_;}
     Matrix4 view() const;
+    // Session-owned; retained across field transitions and independent of Metal.
+    FieldProjection* render_projection=nullptr;
 private:
     CollisionMask local_collision_mask_;
     std::vector<std::uint8_t> bytes_;

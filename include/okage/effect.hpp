@@ -83,6 +83,7 @@ public:
     const EffectTextureSizes& texture_sizes() const{return texture_sizes_;}
     std::uint32_t id=0,flags=0,duration=0,phase=0;
     float inverse_duration=0;
+    float near_clip=3; // Job constructor0x10d338, +0x78.
     Float4 position{},rotation{},scale{},color{1,1,1,1},parameters{};
     std::vector<MapEffectElement> elements;
     std::shared_ptr<const std::vector<MapEffectVertex>> shape55_geometry;
@@ -133,6 +134,7 @@ struct AttachedEffect {
     BubbleEffect animation;
     int actor_alias;
     Float4 position{};
+    float near_clip=3;
     AttachedEffect(const EffectDefinition& d,int parameter,int actor):animation(d,parameter),actor_alias(actor){}
 };
 using AttachedEffects=std::array<std::unique_ptr<AttachedEffect>,84>;

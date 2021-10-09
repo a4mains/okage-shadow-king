@@ -843,6 +843,7 @@ void OpeningField::tick_callbacks(ExplorationInput input,bool interior_camera) {
     // 0x1b9c74 has evaluated the camera before0x134c18 queries channel1.
     // The player wrapper tests the movement mask independently of manager
     // mode, including the handoff update and transition countdown.
+    if(render_projection)render_projection->begin_field();
     advance_effects();
     update_npcs();
     if(encounter_)return;
@@ -869,17 +870,24 @@ void OpeningField::update_player_shadow() {
 }
 void OpeningField::advance_effects() {
     effect_submissions_.clear();
+    if(render_projection)render_projection->begin_effects();
     std::array<unsigned,84> deferred{};unsigned deferred_count=0;
     const auto update=[&](unsigned slot) {
         if(auto& effect=map_effects_[slot]) {
             effect->tick(random_value,true,&position);
-            if(!(effect->flags&0x100))effect_submissions_.push_back({slot,*effect});
+            if(!(effect->flags&0x100)) {
+                if(render_projection)render_projection->select_effect_near(effect->near_clip);
+                effect_submissions_.push_back({slot,*effect});
+            }
         } else if(auto& effect=effects_[slot]) {
             Rounding rounding;
             effect->position=actor(effect->actor_alias)->animation().values().at(1);
             effect->position[1]-=8.5f;
             effect->animation.tick({-rotation[0],-rotation[1],-rotation[2],0});
-            if(!(effect->animation.flags&0x100))effect_submissions_.push_back({slot,*effect});
+            if(!(effect->animation.flags&0x100)) {
+                if(render_projection)render_projection->select_effect_near(effect->near_clip);
+                effect_submissions_.push_back({slot,*effect});
+            }
         }
     };
     for(unsigned slot=0;slot<84;++slot) {
@@ -893,7 +901,9 @@ void OpeningField::advance_effects() {
         if(flags&0x400)deferred[deferred_count++]=slot;
         else update(slot);
     }
+    if(render_projection)render_projection->begin_deferred();
     for(unsigned i=0;i<deferred_count;++i)update(deferred[i]);
+    if(render_projection)render_projection->end_effects();
 }
 Matrix4 OpeningField::view() const {
     Float4 p=position,r=rotation;for(unsigned i=0;i<3;++i){p[i]=-p[i];r[i]=-r[i];}p[3]=1;r[3]=0;
@@ -929,23 +939,11 @@ Float4 field_sky_follow(Bytes stg) {
     return factors;
 }
 Float4 field_projection(Bytes stg,float* far_clip) {
-    Rounding rounding;
-    if(get(stg,0)!=0x475453)throw std::runtime_error("Invalid STG magic");
-    const auto begin=get(stg,8),count=get(stg,12);
-    if(begin<32 || count>4096 || std::uint64_t(begin)+std::uint64_t(count)*20>stg.size())throw std::runtime_error("STG settings bounds");
-    Float4 settings{};bool found=false;
-    for(unsigned i=0;i<count;++i)if(get(stg,begin+i*20)==0x44) {
-        if(found)throw std::runtime_error("Multiple STG projection records");found=true;
-        for(unsigned j=0;j<4;++j){settings[j]=__builtin_bit_cast(float, (get(stg,begin+i*20+4+j*4)));if(!std::isfinite(settings[j]))throw std::runtime_error("Non-finite STG projection");}
-    }
-    if(!found || settings[0]<=0 || settings[1]<=0 || settings[2]<=0)throw std::runtime_error("Unsupported STG projection");
-    // 0x1bb1a4..0x1bb1cc retains the fourth record value in f13 and calls
-    // 0x1b7f98 with f12=3 when it is >=10: near/far, not a second focal length.
-    const float far=settings[3]>=10?settings[3]:1024.f;
-    if(far_clip)*far_clip=far;
-    return {(settings[2]*settings[0])/320.f,(settings[2]*settings[1])/112.f,
-        (far+3.f)/(far-3.f),((far*-2.f)*3.f)/(far-3.f)};
+    FieldProjection projection;projection.load_stage(stg);
+    if(far_clip)*far_clip=projection.current().clip_far;
+    return field_clip_projection(projection.current());
 }
+
 AnchoredCamera field_anchored_camera(Bytes stg) {
     if(get(stg,0)!=0x475453)throw std::runtime_error("Invalid STG magic");
     const std::size_t begin=get(stg,16),count=get(stg,20),end=get(stg,24);
