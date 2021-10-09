@@ -445,6 +445,62 @@ public:
         for(unsigned i=0;i<count*16;++i)result.push_back(get(0x1800000+i*4));
         writeFile(output,result.data(),result.size()*4);
     }
+    void shadowVisibility(const std::vector<uint8>& input,const char* output) {
+        std::size_t at=0;
+        auto word=[&]() {if(at+4>input.size())throw std::runtime_error("Truncated visibility fixture");
+            uint32 value;std::memcpy(&value,input.data()+at,4);at+=4;return value;};
+        constexpr unsigned table=0x800000,poses=0x900000,bounds=0xa00000,pointers=0xb00000,selected=0xc00000;
+        ee->m_EE.ToggleBreakpoint(0x185a98);ee->m_EE.ToggleBreakpoint(0x185c1c);
+        const unsigned settingsAddresses[]={0x1fe2ec,0x1fe2e4,0x1fe2e8,0x1fe2b4,0x1fe2b8,
+            0x1fe2d4,0x1fe2d8,0x1fe2c4,0x1fe2c8,0x1fe2cc,0x1fe2d0,0x1fe2dc,0x1fe2e0,0x1fe2bc,0x1fe2c0};
+        std::vector<uint32> result;
+        while(at<input.size()) {
+            const auto id=word(),culling=word(),count=word(),nodes=word();
+            if(culling>1||!count||count>256||!nodes||nodes>4096)throw std::runtime_error("Visibility fixture bounds");
+            for(auto address:settingsAddresses)put(address,word());
+            for(unsigned i=0;i<nodes*16;++i)put(poses+i*4,word());
+            unsigned cursor=bounds;
+            for(unsigned block=0;block<count;++block) {
+                const auto n=word();if(!n||n>4096||cursor+16+n*32>pointers)throw std::runtime_error("Visibility bound capacity");
+                put(pointers+block*4,cursor);put(cursor,n);
+                for(unsigned i=0;i<n;++i)for(unsigned j=0;j<6;++j) {
+                    const auto value=word();if(j==5&&value>=nodes)throw std::runtime_error("Visibility hierarchy index");
+                    put(cursor+16+i*32+j*4,value);
+                }
+                cursor+=16+n*32;
+            }
+            put(table+12,pointers);put(table+28,0);put(0x1fe2fc,culling);put(0x1ff0040,count);
+            auto& cpu=ee->m_EE;
+            cpu.m_State.nGPR[CMIPS::S2].nD0=selected;cpu.m_State.nGPR[CMIPS::S3].nD0=0;
+            cpu.m_State.nGPR[CMIPS::S4].nD0=table;cpu.m_State.nGPR[CMIPS::S5].nD0=0;
+            cpu.m_State.nGPR[CMIPS::FP].nD0=poses;cpu.m_State.nGPR[CMIPS::T6].nD0=0;
+            expectedStop=0x185a98;call(0x1857bc);
+            const auto size=cpu.m_State.nGPR[CMIPS::S5].nV[0];
+            if(size>count||cpu.m_State.nGPR[CMIPS::S2].nV[0]!=selected)throw std::runtime_error("Visibility result extent");
+            if(size) {
+                cpu.m_State.nGPR[CMIPS::T0].nD0=1;expectedStop=0x185c1c;call(0x185ab0);
+            }
+            result.insert(result.end(),{id,size});
+            for(unsigned i=0;i<size;++i)result.insert(result.end(),{get(selected+i*16),get(selected+i*16+4)});
+        }
+        expectedStop=stop;ee->m_EE.ToggleBreakpoint(0x185a98);ee->m_EE.ToggleBreakpoint(0x185c1c);
+        writeFile(output,result.data(),result.size()*4);
+    }
+    void shadowBounds(const std::vector<uint8>& main,const std::vector<uint8>& shadow,const char* output) {
+        shadowBind(main,shadow,nullptr);
+        const auto decoded=okage::read_xmd(shadow);const auto hierarchy=get(0x800038);
+        constexpr unsigned scratch=0x1800000;
+        std::vector<uint32> result{static_cast<uint32>(decoded.models[0].blocks.size())};
+        for(const auto& block:decoded.models[0].blocks)for(unsigned mode=0;mode<2;++mode) {
+            std::memset(ee->m_ram+scratch,0,0x40000);put(0x1fe254,mode);
+            call(0x181e40,{scratch,0xa00000+static_cast<unsigned>(block.offset),hierarchy});
+            const auto count=get(scratch);
+            if(count>4096)throw std::runtime_error("Original model bound extent");
+            result.push_back(count);
+            for(unsigned i=0;i<count;++i)for(unsigned j=0;j<6;++j)result.push_back(get(scratch+16+i*32+j*4));
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
     void shadowAssembled(const std::vector<uint8>& main,const std::vector<uint8>& shadow,
             const std::vector<uint8>& input,const char* output) {
         constexpr unsigned stride=58*4,top=0x19c,scratch=0x1a00000;
@@ -2495,6 +2551,10 @@ int main(int argc,char** argv) {
             reference.mapTransforms(readFile(argv[3]),argv[4]);
         } else if ((command=="uv" || command=="texture-clamp") && argc==5) {
             reference.uv(readFile(argv[3]),argv[4],command=="texture-clamp");
+        } else if (command=="shadow-visibility" && argc==5) {
+            reference.shadowVisibility(readFile(argv[3]),argv[4]);
+        } else if (command=="shadow-bounds" && argc==6) {
+            reference.shadowBounds(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if (command=="shadow-assembled" && argc==7) {
             reference.shadowAssembled(readFile(argv[3]),readFile(argv[4]),readFile(argv[5]),argv[6]);
         } else if (command=="shadow-motion" && argc==10) {

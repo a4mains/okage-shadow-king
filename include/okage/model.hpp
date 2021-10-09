@@ -27,7 +27,11 @@ struct Polygon {
     std::int32_t texture_state, material;
     std::vector<std::array<std::int16_t, 4>> corners; // Three or four, in source order.
 };
-struct ModelCommand { std::size_t offset, size; std::uint8_t opcode; };
+struct ModelCommand {
+    std::size_t offset, size;
+    std::uint8_t opcode;
+    std::int32_t hierarchy_node=-1,attribute=-1;
+};
 struct RenderBlock {
     std::size_t offset, end, draw_offset;
     Float4 bounds;

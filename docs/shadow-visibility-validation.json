@@ -1,0 +1,85 @@
+{
+  "scope": "Original bound construction and unmasked block visibility/sorting; explicit selected-block geometry API.",
+  "base_revision": "d04a084",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "bounds_exact_per_build": 102,
+  "bounds_words_exact_per_build": 612,
+  "visibility_cases_exact_per_build": 90,
+  "selected_blocks_exact_per_build": 139,
+  "empty_visibility_cases_per_build": 34,
+  "visibility_words_exact_per_build": 458,
+  "ctest_per_build": 20,
+  "python_tests": 102,
+  "runs": [
+    {
+      "build": "native-release",
+      "binary_sha256": "de8e0ff1f51be0e63426613f9349b56a1ee3015381a05266833a2cc33d591c2d",
+      "bounds": {
+        "report": "local/shadow-bounds-checks-v2/native-release/report.json",
+        "sha256": "185abbec8521865faa526b8994ee6cb3027f289a955e65f60dcca9f4c1aaf547"
+      },
+      "visibility": {
+        "report": "local/shadow-visibility-checks-v3/native-release/report.json",
+        "sha256": "3f8d248e517796c2b032bab57c7e0728f200687ea0218368fcf7dfa4b1d06417"
+      },
+      "assembled_regression": {
+        "report": "local/shadow-visibility-assembled-regression-v1/native-release/report.json",
+        "sha256": "5b0884736e248199c1cb12d9243a701897f5f45158a7414f31ddfd89ad96abf4"
+      },
+      "ctest_log": "local/research/shadow-visibility-v1/ctest-native-release-v2.log"
+    },
+    {
+      "build": "native",
+      "binary_sha256": "d059f7bd93cc8ad082202b495f424818d81050fe525f5d688a40a292d2c8c363",
+      "bounds": {
+        "report": "local/shadow-bounds-checks-v2/native/report.json",
+        "sha256": "24c3a5e1294dfff65244dce7acc1dbef65d58d8d41ce6585454b9b2868935047"
+      },
+      "visibility": {
+        "report": "local/shadow-visibility-checks-v3/native/report.json",
+        "sha256": "155e3494c6b04b98c1a7111eb55f4d2cbfbe5da60eb7ede16997298eaa85e612"
+      },
+      "assembled_regression": {
+        "report": "local/shadow-visibility-assembled-regression-v1/native/report.json",
+        "sha256": "078bfe7f98f33c440141a04a90c4ea5ae661092977acab021308bf3a97e7cf05"
+      },
+      "ctest_log": "local/research/shadow-visibility-v1/ctest-native-v2.log"
+    },
+    {
+      "build": "model-sanitize",
+      "binary_sha256": "4e9adee9ece650654b978a04b388d3cfa174b0280bba41c2ed6daf737bb190e5",
+      "bounds": {
+        "report": "local/shadow-bounds-checks-v2/model-sanitize/report.json",
+        "sha256": "ba3bc8a81583913c6e907c80c9306b5324e7d5101e5eefa89fd850775a4d2b76"
+      },
+      "visibility": {
+        "report": "local/shadow-visibility-checks-v3/model-sanitize/report.json",
+        "sha256": "d978cfc93433ab3e1aa7beb3bf53aea2f46fd0feca6cd98e4987d05711a27ecd"
+      },
+      "assembled_regression": {
+        "report": "local/shadow-visibility-assembled-regression-v1/model-sanitize/report.json",
+        "sha256": "3703ce1ba65ef6d6faa84424ad4ec0a2eb6deef37045bb64fe5a679e1845c961"
+      },
+      "ctest_log": "local/research/shadow-visibility-v1/ctest-model-sanitize-v2.log"
+    }
+  ],
+  "bounds_original_runs": [
+    "local/research/shadow-visibility-v1/HERO-bounds-original-v1.run.json",
+    "local/research/shadow-visibility-v1/MAM-bounds-original-v1.run.json",
+    "local/research/shadow-visibility-v1/IMO-bounds-original-v1.run.json",
+    "local/research/shadow-visibility-v1/PAP-bounds-original-v1.run.json"
+  ],
+  "visibility_original_run": "local/research/shadow-visibility-v2/visibility-original-v1.run.json",
+  "visibility_fixture_sha256": "f09f094d6ef2b04214272eb0021b69b13eea5ca8cd267ff2ce9ffe1f5128a7f1",
+  "visibility_original_sha256": "afd757bb74da14058c21a03cc7b0301167bada466b0421d308f0f2eac4f8927a",
+  "negative_evidence": [
+    "local/research/shadow-visibility-v1/visibility-original-v1.run.json: breakpoint inside original basic block stopped at185c1c instead of185c20; observer corrected to block entry, original instructions unchanged.",
+    "Initial builds rejected misspelled target okage-shadow-tests and non-existent CMIPS::S8; corrected build target and research register name FP."
+  ],
+  "limitations": [
+    "Four owned shadow models, both compilation modes; not all field actors.",
+    "Synthetic precomposed matrices and bound lists; no block-bone flag masks or complete original packet submission.",
+    "Selected block draw API has synthetic unit coverage; the existing all-block assembled corpus stays exact.",
+    "No field raster/progression claim; service54 remains guarded at67569."
+  ]
+}

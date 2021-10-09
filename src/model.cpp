@@ -85,6 +85,7 @@ RenderBlock block(const Reader& source, std::size_t& at, const Model& model, std
             hierarchy=cmd.i32(4);
             if (hierarchy<0 || std::size_t(hierarchy)>=model.hierarchy.size())
                 fail("XMD attribute references missing hierarchy node");
+            result.commands.back().hierarchy_node=hierarchy;
             break;
         case 5: case 6: case 7: case 8: {
             AttributeRange entry{opcode,cmd.u16(4),cmd.u16(8),hierarchy,{}};
@@ -104,6 +105,7 @@ RenderBlock block(const Reader& source, std::size_t& at, const Model& model, std
             present.resize(std::max(present.size(),std::size_t(end)),false);
             std::fill(present.begin()+entry.first,present.begin()+end,true);
             result.attribute_extents[opcode-5]=std::max(result.attribute_extents[opcode-5],end);
+            result.commands.back().attribute=static_cast<std::int32_t>(result.attributes.size());
             result.attributes.push_back(std::move(entry));
             break;
         }

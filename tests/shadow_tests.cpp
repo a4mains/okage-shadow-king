@@ -148,6 +148,45 @@ int main(){try{
     skin_block.attributes[1].hierarchy_node=2;rejects([&]{okage::shadow_posed_positions(skin_block,skin_pose);});
     skin_block.attributes[1].hierarchy_node=1;skin_block.attributes[1].values[0][0]=std::numeric_limits<float>::infinity();
     rejects([&]{okage::shadow_posed_positions(skin_block,skin_pose);});check(std::fegetround()==FE_UPWARD);
+    okage::RenderBlock bounds_block{};bounds_block.bounds={0,0,0,.25f};
+    bounds_block.attributes={{5,1,0,0,{{-2,0,0,2},{2,4,0,2}}},
+                             {5,1,2,1,{{100,100,100,1}}},
+                             {5,1,3,1,{{0,0,0,1},{0,0,2,1}}}};
+    bounds_block.commands={{0,8,4,0,-1},{8,44,5,-1,0},{52,8,4,1,-1},
+                           {60,28,5,-1,1},{88,44,5,-1,2},{132,4,1}};
+    const auto local_bounds=okage::model_block_bounds(bounds_block,false);
+    const auto shadow_bounds=okage::model_block_bounds(bounds_block,true);
+    check(local_bounds.size()==2&&local_bounds[0].center==okage::Float4({0,1,0,1}));
+    check(local_bounds[1].center==okage::Float4({0,0,1,1})&&local_bounds[1].radius==2);
+    check(shadow_bounds[0].radius==local_bounds[0].radius+local_bounds[0].radius);
+    check(shadow_bounds[1].radius==4&&shadow_bounds[1].hierarchy_node==1);
+    bounds_block.attributes[0].values[0][3]=0;
+    rejects([&]{okage::model_block_bounds(bounds_block,true);});
+    std::vector<std::vector<okage::ModelBlockBound>> visibility_bounds={
+        {{{0,0,10.125f,1},0,0}},{{{0,0,10.875f,1},0,0}},{{{0,0,10.125f,1},0,0}},
+        {{{0,0,2,1},0,0}},{{{1000,0,10,1},0,0}}};
+    auto selection=okage::visible_model_blocks(visibility_bounds,std::span(&identity,1),screen_settings);
+    check(selection.size()==3&&selection[0].block==1&&selection[1].block==0&&selection[2].block==2);
+    check(selection[0].depth==10.875f);
+    check(okage::visible_model_blocks(visibility_bounds,std::span(&identity,1),screen_settings,false).size()==5);
+    visibility_bounds[3].push_back({{0,0,4,1},0,0});
+    selection=okage::visible_model_blocks(visibility_bounds,std::span(&identity,1),screen_settings);
+    check(selection.size()==4&&selection.back().block==3&&selection.back().depth==3);
+    visibility_bounds[0][0].hierarchy_node=1;
+    rejects([&]{okage::visible_model_blocks(visibility_bounds,std::span(&identity,1),screen_settings);});
+    check(std::fegetround()==FE_UPWARD);
+    okage::Model draw_model;draw_model.hierarchy={{0,-1}};
+    okage::RenderBlock draw_block{};draw_block.attribute_extents[0]=3;
+    draw_block.attributes={{5,1,0,0,{{0,0,10,1},{1,0,10,1},{0,0,11,1}}}};
+    draw_block.polygons={{0,-1,-1,{{0,-1,-1,-1},{1,-1,-1,-1},{2,-1,-1,-1}}}};
+    draw_model.blocks={draw_block,draw_block,draw_block};
+    okage::ShadowProjection draw_projection;draw_projection.has_matrices=true;draw_projection.matrices={identity,upper};
+    const std::array<okage::ModelBlockSelection,2> order{{{2,11},{0,10}}};
+    const auto ordered=okage::shadow_draw_blocks(draw_model,std::span(&identity,1),draw_projection,screen_params,{0,1,0,0},order);
+    check(ordered.size()==2&&ordered[0].block==2&&ordered[1].block==0);
+    check(okage::shadow_draw_blocks(draw_model,std::span(&identity,1),draw_projection,screen_params,{0,1,0,0},{}).empty());
+    const std::array<okage::ModelBlockSelection,2> duplicate{{{0,0},{0,0}}};
+    rejects([&]{okage::shadow_draw_blocks(draw_model,std::span(&identity,1),draw_projection,screen_params,{0,1,0,0},duplicate);});
     std::fesetround(previous);
     std::cout<<"Shadow boundaries, follow, lock, projection, rounding and invalid-state checks pass\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

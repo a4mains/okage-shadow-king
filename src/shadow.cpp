@@ -246,13 +246,124 @@ ShadowVertexCache shadow_vertex_cache(std::span<const Float4> positions,
     out.clip_status=clip_union?(clip_intersection?-1:1):0;
     return out;
 }
+std::vector<ModelBlockBound> model_block_bounds(const RenderBlock& block,bool shadow) {
+    ProjectionRounding rounding;
+    if(!std::isfinite(block.bounds[3])||block.bounds[3]<0)
+        throw std::runtime_error("Invalid model block radius");
+    std::vector<ModelBlockBound> result;
+    std::int32_t selected=-1;
+    auto positions=[&](const ModelCommand& command)->const std::vector<Float4>& {
+        if(command.attribute<0||std::size_t(command.attribute)>=block.attributes.size())
+            throw std::runtime_error("Model bound command has no attribute");
+        const auto& range=block.attributes[command.attribute];
+        if(range.kind!=5||range.hierarchy_node!=selected||range.values.empty())
+            throw std::runtime_error("Invalid model bound position range");
+        return range.values;
+    };
+    auto point=[](const Float4& v) {
+        for(float f:v)if(!std::isfinite(f))throw std::runtime_error("Nonfinite model bound position");
+        if(v[3]==0)throw std::runtime_error("Zero model bound position weight");
+        Float4 p{v[0]/v[3],v[1]/v[3],v[2]/v[3],1};
+        for(float f:p)if(!std::isfinite(f))throw std::runtime_error("Model bound position overflow");
+        return p;
+    };
+    for(std::size_t at=0;at<block.commands.size()&&block.commands[at].opcode!=1;++at) {
+        const auto& command=block.commands[at];
+        if(command.opcode==4)selected=command.hierarchy_node;
+        else if(command.opcode==5&&selected>=0) {
+            const auto node=selected;
+            auto minimum=point(positions(command).front()),maximum=minimum;
+            while(at<block.commands.size()&&block.commands[at].opcode!=1&&selected==node) {
+                const auto& current=block.commands[at];
+                if(current.opcode==4)selected=current.hierarchy_node;
+                else if(current.opcode==5)for(const auto& v:positions(current)) {
+                    const auto p=point(v);
+                    for(unsigned axis=0;axis<3;++axis) {
+                        // EE MIN/MAX select their second operand on equal values.
+                        minimum[axis]=minimum[axis]<p[axis]?minimum[axis]:p[axis];
+                        maximum[axis]=p[axis]<maximum[axis]?maximum[axis]:p[axis];
+                    }
+                }
+                ++at;
+            }
+            ModelBlockBound bound{{0,0,0,1},0,static_cast<std::uint32_t>(node)};
+            Float4 half{};
+            for(unsigned axis=0;axis<3;++axis) {
+                half[axis]=(maximum[axis]-minimum[axis])*.5f;
+                bound.center[axis]=(maximum[axis]+minimum[axis])*.5f;
+            }
+            float square=half[0]*half[0];square=square+half[1]*half[1];square=square+half[2]*half[2];
+            float radius=std::sqrt(square);radius=radius+radius;
+            const float minimum_radius=block.bounds[3]+block.bounds[3];
+            radius=minimum_radius<radius?radius:minimum_radius;
+            bound.radius=shadow?radius+radius:radius;
+            if(!std::isfinite(bound.radius))throw std::runtime_error("Model bound radius overflow");
+            result.push_back(bound);
+            if(at==block.commands.size()||block.commands[at].opcode==1)break;
+            // 0x182000 advances after the changed selection, then0x1820c4
+            // advances once more. Preserve that skipped command, not a merge
+            // of all position ranges with the same hierarchy index.
+        }
+    }
+    return result;
+}
+std::vector<ModelBlockSelection> visible_model_blocks(
+        std::span<const std::vector<ModelBlockBound>> blocks,std::span<const Matrix4> pose,
+        const ShadowScreenSettings& settings,bool culling) {
+    (void)shadow_screen_parameters(settings); // Validate the shared screen contract.
+    ProjectionRounding rounding;
+    for(const auto& matrix:pose)for(const auto& col:matrix)for(float f:col)
+        if(!std::isfinite(f))throw std::runtime_error("Nonfinite model visibility pose");
+    std::vector<ModelBlockSelection> result;
+    for(unsigned index=0;index<blocks.size();++index) {
+        const auto& bounds=blocks[index];
+        if(bounds.empty())throw std::runtime_error("Model visibility requires block bounds");
+        bool visible=!culling;float sum_z=0;
+        for(const auto& bound:bounds) {
+            if(bound.hierarchy_node>=pose.size()||!std::isfinite(bound.radius)||bound.radius<0)
+                throw std::runtime_error("Invalid model visibility bound");
+            for(float f:bound.center)if(!std::isfinite(f))throw std::runtime_error("Nonfinite model bound center");
+            const auto& matrix=pose[bound.hierarchy_node];
+            const auto center=shadow_transform(matrix,bound.center);
+            sum_z=sum_z+center[2];
+            if(!culling)continue;
+            Float4 radius{};const float square=bound.radius*bound.radius;
+            for(unsigned axis=0;axis<3;++axis) {
+                const float a=matrix[0][axis]*matrix[0][axis],b=matrix[1][axis]*matrix[1][axis],c=matrix[2][axis]*matrix[2][axis];
+                float extent=a*square;extent=extent+b*square;extent=extent+c*square;
+                radius[axis]=std::sqrt(extent);
+            }
+            if(center[2]+radius[2]<settings.clip_near||settings.clip_far<center[2]-radius[2])continue;
+            const float z=center[2]<settings.depth_near?settings.depth_near:center[2];
+            if(std::abs(center[0])-radius[0]>((settings.half_width/settings.scale_x)/settings.focal)*z)continue;
+            if(std::abs(center[1])-radius[1]>((settings.half_height/settings.scale_y)/settings.focal)*z)continue;
+            visible=true;
+        }
+        const float depth=sum_z/static_cast<float>(bounds.size());
+        if(!std::isfinite(depth))throw std::runtime_error("Model visibility depth overflow");
+        if(visible)result.push_back({index,depth});
+    }
+    std::stable_sort(result.begin(),result.end(),[](const auto& a,const auto& b){return a.depth>b.depth;});
+    return result;
+}
 std::vector<ShadowDraw> shadow_draws(const Model& model,std::span<const Matrix4> pose,
         const ShadowProjection& projection,const ShadowScreenParameters& screen,
         const Float4& default_direction,bool positive_material) {
+    std::vector<ModelBlockSelection> blocks;
+    for(unsigned i=0;i<model.blocks.size();++i)blocks.push_back({i,0});
+    return shadow_draw_blocks(model,pose,projection,screen,default_direction,blocks,positive_material);
+}
+std::vector<ShadowDraw> shadow_draw_blocks(const Model& model,std::span<const Matrix4> pose,
+        const ShadowProjection& projection,const ShadowScreenParameters& screen,
+        const Float4& default_direction,std::span<const ModelBlockSelection> blocks,bool positive_material) {
     if(!projection.has_matrices||pose.size()!=model.hierarchy.size())
         throw std::runtime_error("Shadow draw requires projection and complete camera pose");
     std::vector<ShadowDraw> result;
-    for(unsigned block_index=0;block_index<model.blocks.size();++block_index) {
+    std::vector<bool> seen(model.blocks.size());
+    for(const auto& selected:blocks) {
+        const auto block_index=selected.block;
+        if(block_index>=model.blocks.size()||seen[block_index])throw std::runtime_error("Invalid shadow block selection");
+        seen[block_index]=true;
         const auto& block=model.blocks[block_index];
         const auto positions=shadow_posed_positions(block,pose);
         const auto batches=shadow_batches(block,positive_material);

@@ -152,6 +152,43 @@ int main(int argc, char** argv) {
             }
             write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
         }
+        if(command=="shadow-visibility" && argc==4) {
+            const auto bytes=read(argv[2]);std::size_t at=0;
+            auto word=[&]() {if(at+4>bytes.size())throw std::runtime_error("Truncated model visibility fixture");
+                std::uint32_t v;std::memcpy(&v,bytes.data()+at,4);at+=4;return v;};
+            auto scalar=[&](){return __builtin_bit_cast(float, (word()));};
+            std::vector<std::uint32_t> output;
+            while(at<bytes.size()) {
+                const auto id=word(),culling=word(),count=word(),nodes=word();
+                if(culling>1||!count||count>256||!nodes||nodes>4096)throw std::runtime_error("Model visibility fixture bounds");
+                const okage::ShadowScreenSettings settings{scalar(),scalar(),scalar(),scalar(),scalar(),scalar(),scalar(),scalar(),scalar(),scalar(),scalar(),scalar(),scalar(),scalar(),scalar()};
+                std::vector<okage::Matrix4> pose(nodes);
+                for(auto& matrix:pose)for(auto& col:matrix)for(float& f:col)f=scalar();
+                std::vector<std::vector<okage::ModelBlockBound>> blocks(count);
+                for(auto& block:blocks) {
+                    const auto n=word();if(!n||n>4096)throw std::runtime_error("Model visibility bound count");
+                    for(unsigned i=0;i<n;++i)block.push_back({{scalar(),scalar(),scalar(),scalar()},scalar(),word()});
+                }
+                const auto selected=okage::visible_model_blocks(blocks,pose,settings,culling);
+                output.insert(output.end(),{id,static_cast<unsigned>(selected.size())});
+                for(const auto& entry:selected)output.insert(output.end(),{entry.block,__builtin_bit_cast(std::uint32_t, (entry.depth))});
+            }
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
+        if(command=="shadow-bounds" && argc==4) {
+            const auto decoded=okage::read_xmd(read(argv[2]));
+            if(decoded.models.size()!=1)throw std::runtime_error("Shadow bounds require one model");
+            std::vector<std::uint32_t> output{static_cast<unsigned>(decoded.models[0].blocks.size())};
+            for(const auto& block:decoded.models[0].blocks)for(unsigned mode=0;mode<2;++mode) {
+                const auto bounds=okage::model_block_bounds(block,mode==1);
+                output.push_back(static_cast<unsigned>(bounds.size()));
+                for(const auto& bound:bounds) {
+                    for(float f:bound.center)output.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+                    output.push_back(__builtin_bit_cast(std::uint32_t, (bound.radius)));output.push_back(bound.hierarchy_node);
+                }
+            }
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
         if(command=="shadow-assembled" && argc==6) {
             const auto main=okage::read_xmd(read(argv[2])),shadow=okage::read_xmd(read(argv[3]));
             if(main.models.size()!=1||shadow.models.size()!=1)throw std::runtime_error("Shadow assembly requires one model");

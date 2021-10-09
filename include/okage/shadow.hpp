@@ -47,6 +47,18 @@ struct ShadowScreenSettings {
 };
 using ShadowScreenParameters=std::array<Float4,8>;
 ShadowScreenParameters shadow_screen_parameters(const ShadowScreenSettings&);
+struct ModelBlockBound {
+    Float4 center;
+    float radius;
+    std::uint32_t hierarchy_node;
+};
+// Original0x181e40 command scan. Bounds are local to each selected hierarchy,
+// dehomogenized before min/max; shadow compilation doubles the final radius.
+std::vector<ModelBlockBound> model_block_bounds(const RenderBlock&,bool shadow);
+struct ModelBlockSelection { std::uint32_t block; float depth; };
+std::vector<ModelBlockSelection> visible_model_blocks(
+    std::span<const std::vector<ModelBlockBound>>,std::span<const Matrix4> camera_pose,
+    const ShadowScreenSettings&,bool culling=true);
 struct ShadowVertexCache {
     std::vector<Float4> camera,screen;
     std::vector<std::uint32_t> clip;
@@ -72,4 +84,7 @@ struct ShadowDraw {
 std::vector<ShadowDraw> shadow_draws(const Model&,std::span<const Matrix4> camera_pose,
     const ShadowProjection&,const ShadowScreenParameters&,const Float4& default_direction,
     bool positive_material=false);
+std::vector<ShadowDraw> shadow_draw_blocks(const Model&,std::span<const Matrix4> camera_pose,
+    const ShadowProjection&,const ShadowScreenParameters&,const Float4& default_direction,
+    std::span<const ModelBlockSelection>,bool positive_material=false);
 }
