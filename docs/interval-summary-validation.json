@@ -1,0 +1,35 @@
+{
+  "scope": "Report-only summary of retained fixed-anchor route audit; does not rerun either implementation, verify artifact contents or add image/audio comparison.",
+  "base_revision": "57b82fe",
+  "command": [
+    "python3",
+    "tools/summarize_interval_report.py",
+    "--input",
+    "local/set15-excellent-marks-window-v1.json",
+    "--output",
+    "local/research/interval-summary-v1/set15-excellent-marks-summary-v3.json"
+  ],
+  "sha256": {
+    "tools/summarize_interval_report.py": "21a7d9086e44db7895b56c5535dd61ba8428f6dd2dbd4f60db43a59269eb9f08",
+    "tests/test_interval_summary.py": "12231eba74e31928c5739cbd735964dc46153f5ce795948e74ac6b248149c82c",
+    "local/set15-excellent-marks-window-v1.json": "7e113b02263c670b2d2ef2768b16d9e680b0993e1966ef4188dd492149197772",
+    "local/research/interval-summary-v1/set15-excellent-marks-summary-v3.json": "6a8d73b150945943051cd48675912c14be485293518c04d418ac561aa49425be",
+    "local/research/interval-summary-v1/python-tests-integrated-v1.log": "efdeec49616820f2b89831c5682ed1a78ec925145e44528961d57b1a309a81f2"
+  },
+  "first_difference_original_frame": 917,
+  "associated_native_tick": 66773,
+  "first_difference_categories": [
+    "manager_running_pc_gate"
+  ],
+  "unique_differing_frames": 283,
+  "missing_original_player_frames": 6,
+  "matching_tail_frames": 0,
+  "python_tests": 109,
+  "run": "comparison_audit; second-pass review of the implementation, fixes applied, tests and summary derivation rerun",
+  "limitations": [
+    "Historical source report; no latest-executable route rerun.",
+    "Underlying artifact hashes retained, not rehashed by summarizer.",
+    "No per-frame image or aligned audio comparison.",
+    "Whole timeline equivalence remains false."
+  ]
+}
