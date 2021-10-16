@@ -151,6 +151,7 @@ private:
     EffectTextureSizes effect_texture_sizes_{};
     void spawn_dust(const Float4& position);
     unsigned spawn_positioned_effect(unsigned template_id,const Float4& position);
+    unsigned attach_map_effect(unsigned template_id,int alias);
     std::array<unsigned,16> effect_ring_{};
     unsigned effect_ring_index_=0;
     unsigned attach_bubble(int parameter,int alias);

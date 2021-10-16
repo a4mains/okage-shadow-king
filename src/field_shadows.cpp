@@ -99,6 +99,9 @@ FieldShadowFrame field_shadow_frame(std::span<const FieldShadowActor> actors,con
         const auto sort=field_depth_bucket(view,input.actor->channels().at(1),screen.ordinary);
         if(sort<=settings.threshold)continue;
         const auto selector=input.actor->shadow_mode_override.value_or(*input.selector);
+        //0x1ba244/0x1ba248 loads the selector as signed16 and skips both
+        // geometry and selector packets when negative (transition uses0xffff).
+        if(std::int16_t(selector)<0)continue;
         const auto next=context.project(selector,input.actor->channels().at(1)[1],factor,settings.tint);
         projection.color=next.color;
         if(next.has_matrices)projection.matrices=next.matrices;

@@ -122,6 +122,45 @@ int main() {
         check(okage::field_ordinary_bucket(0x80000, 512) == 4); // Front terrain.
         rejects([&] { okage::field_ordinary_bucket(0, 513); });
 
+        {
+            std::vector<std::uint8_t> motion(56);
+            const auto put=[&](unsigned at,std::uint32_t value) {
+                for(unsigned i=0;i<4;++i)motion.at(at+i)=value>>(8*i);
+            };
+            put(0,0x544d58);put(4,24);put(16,0xffffffff);
+            okage::ModelFile model;model.models.emplace_back();
+            okage::FieldActor hero(model,motion,{});
+            hero.animation().set_channel(1,{0,0,10,1});hero.evaluate();
+            std::array<okage::FieldShadowActor,1> actors;
+            actors[0].alias=-1;actors[0].actor=&hero;actors[0].flags=0xc0;
+            actors[0].selector=4;actors[0].companion.emplace();
+            const okage::Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
+            okage::FieldProjectionFrame screen;screen.ordinary=settings;screen.shadow=settings;
+            okage::FieldShadowSettings shadows;shadows.threshold=0;
+            const auto sine=okage::make_sine_table();
+            const auto frame=[&](float factor) {
+                return okage::field_shadow_frame(actors,identity,screen,shadows,factor,sine);
+            };
+            check_rounding_restored([&] {
+                const auto baseline=frame(1);
+                check(hero.visible&&baseline.submissions.size()==1&&baseline.draws.empty());
+                const auto& submission=baseline.submissions[0];
+                check(submission.alias==-1&&submission.selector==4&&submission.bucket>shadows.threshold);
+                check(submission.blocks==0&&submission.triangles==0&&submission.emitted==0);
+            });
+            actors[0].companion->bones.emplace_back();
+            check_rounding_restored([&] { rejects([&] { frame(1); }); });
+            for(unsigned selector:{0xffffu,0x8000u}) {
+                hero.shadow_mode_override=selector;
+                for(float factor:{1.f,std::numeric_limits<float>::quiet_NaN()})
+                    check_rounding_restored([&] {
+                        const auto suppressed=frame(factor);
+                        check(hero.visible&&hero.shadow_mode_override==selector);
+                        check(suppressed.submissions.empty()&&suppressed.draws.empty());
+                    });
+            }
+        }
+
         check(std::fegetround() == FE_UPWARD);
         check(std::fesetround(previous_rounding) == 0);
         std::cout << "Field raster clipping, packing, buckets and rounding checks pass\n";

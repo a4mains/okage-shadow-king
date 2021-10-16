@@ -502,6 +502,18 @@ int main(){try {
         auto invalid=bindings;invalid[1].collidable=true;
         rejects([&]{okage::OpeningField bad(event,[](int){},[](int){return true;},invalid,false);});
     }
+    for(unsigned selector:{0u,1u,2u}) {
+        auto event=startup;put(event,40,((0x100u|selector)<<20)|0xabc54u);put(event,44,0x10000a);
+        okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
+        const std::array<okage::ActorBinding,1> bindings={{{-1,&hero}}};
+        okage::OpeningField scene(event,[](int){},[](int){return false;},bindings,false);
+        std::array<std::uint8_t,0x1000> vars{};
+        scene.get_variable=[&](auto s){return okage::event_variable(vars,s);};
+        scene.set_variable=[&](auto i,auto b,auto v){okage::set_event_variable(vars,i,b,v);};
+        okage::FieldDefinition entry;entry.type=1;entry.startup=1;scene.enter(entry,stage,empty_map,0);
+        require(!scene.player_shadow()&&scene.pc()==44&&hero.visible);
+        require(hero.shadow_mode_override.has_value()&&*hero.shadow_mode_override==selector*4);
+    }
     for(int camera_command:{0,1,2}) {
         const bool frozen_camera=camera_command!=2;
         auto exterior_stage=stage;put(exterior_stage,76,0);
@@ -695,6 +707,94 @@ int main(){try {
             okage::FieldDefinition entry;entry.type=1;entry.startup=1;scene.enter(entry,stage,empty_map,0);
             require(scene.map_effects()[0]&&scene.map_effects()[0]->shape55_geometry.get()==vertices&&calls==404);
             retained=scene.map_effects()[0]->shape55_geometry;
+        }
+        {
+            std::vector<std::uint8_t> transition(128);
+            put(transition,0,0x544d58);put(transition,4,transition.size()-32);put(transition,16,0xffffffff);
+            unsigned pc=40;
+            const auto command=[&](unsigned mode){put(transition,pc,(mode<<20)|0x54);pc+=4;};
+            const auto barrier=[&](unsigned n){put(transition,pc,(n<<20)|0x0a);pc+=4;};
+            command(5);command(1);barrier(1); // Locked request has no side effects.
+            command(4);command(1);command(5);barrier(2);
+            command(3);barrier(3);
+            command(4);command(1);command(2);barrier(4); // Duplicate request is ignored.
+            command(0);barrier(5);
+            command(0x81);barrier(6);
+            okage::ModelFile hm,sm;hm.models.emplace_back();sm.models.emplace_back();
+            okage::FieldActor hero(std::move(hm),idle,{}),stun(std::move(sm),idle,{});
+            const std::array<okage::ActorBinding,2> bindings={{{-3,&stun,false},{-1,&hero}}};
+            unsigned gate=0,sounds=0,writes=0,attached_handle=84;
+            okage::OpeningField scene(transition,[](int){},[&](int n){return gate>=unsigned(n);},bindings,false);
+            std::array<std::uint8_t,0x1000> vars{};
+            scene.get_variable=[&](auto s){return okage::event_variable(vars,s);};
+            scene.sound_cue=[&](unsigned bank,int cue,float speed,unsigned gain) {
+                require(bank==0&&speed==1&&sounds<2&&writes==sounds);
+                require(cue==(sounds?12:23)&&gain==(sounds?64u:100u));
+                require(scene.player_shadow()->phase==(sounds?4u:1u)&&scene.player_shadow()->factor==1);
+                ++sounds;return true;
+            };
+            scene.set_variable=[&](auto i,auto b,auto v) {
+                if(i==2&&b==4) {
+                    require(v==(writes==1?0:1));
+                    require(scene.player_shadow()->phase==(v?1u:4u)&&scene.player_shadow()->factor==1);
+                    attached_handle=84;
+                    for(unsigned slot=0;slot<scene.map_effects().size();++slot) {
+                        const auto& effect=scene.map_effects()[slot];
+                        if(effect&&effect->id==24&&effect->phase==1) {
+                            require(attached_handle==84);attached_handle=slot;
+                            require(effect->actor_alias==-1&&effect->position==okage::Float4{}&&effect->rotation==okage::Float4{});
+                            require(effect->shape55_geometry.get()==vertices);
+                        }
+                    }
+                    require(attached_handle<84);++writes;
+                }
+                okage::set_event_variable(vars,i,b,v);
+            };
+            scene.random_value=random;scene.load_effects(efd,prepared);scene.load_map_effects(no_placements,sizes);
+            okage::FieldDefinition entry;entry.type=1;entry.startup=1;scene.enter(entry,stage,empty_map,0);
+            require(scene.player_shadow()->locked&&scene.player_shadow()->phase==0&&sounds==0&&writes==0);
+            require(scene.effect_submissions().empty()&&!scene.map_effects()[0]);
+            gate=1;scene.tick();
+            require(sounds==1&&writes==1&&okage::event_variable(vars,0x40002)==1);
+            require(scene.player_shadow()->locked&&scene.player_shadow()->phase==1&&scene.player_shadow()->factor<1);
+            require(scene.map_effects()[attached_handle]->phase==2&&scene.effect_submissions().size()==1);
+            require(scene.map_effects()[attached_handle]->position==hero.animation().values()[1]);
+            const auto factor=scene.player_shadow()->factor;scene.tick();
+            require(scene.player_shadow()->locked&&scene.player_shadow()->factor<factor);
+            const auto frozen_position=stun.animation().values()[1],frozen_rotation=stun.animation().values()[0];
+            hero.animation().set_channel(0,{.1f,.2f,.3f,1});hero.animation().set_channel(1,{4,2,7,1});
+            gate=2;scene.tick();
+            require(scene.player_shadow()->follow_disabled&&stun.animation().values()[1]==frozen_position);
+            require(stun.animation().values()[0]==frozen_rotation);
+            require(scene.map_effects()[attached_handle]->position==hero.animation().values()[1]);
+            require(scene.map_effects()[attached_handle]->rotation==hero.animation().values()[0]);
+            const auto snapshot=std::get<okage::MapEffect>(scene.effect_submissions()[0].effect);
+            hero.animation().set_channel(1,{8,3,9,1});scene.tick();
+            require(stun.animation().values()[1]==frozen_position&&snapshot.position==okage::Float4({4,2,7,1}));
+            require(scene.map_effects()[attached_handle]->position==okage::Float4({8,3,9,1}));
+            gate=3;scene.tick();
+            require(!scene.player_shadow()->locked&&!scene.player_shadow()->follow_disabled&&sounds==1&&writes==1);
+            require(stun.animation().values()[0]==hero.animation().values()[0]&&stun.animation().values()[1][0]==8);
+            for(unsigned tick=0;tick<100&&scene.player_shadow()->phase==1;++tick)scene.tick();
+            require(scene.player_shadow()->phase==2&&hero.shadow_mode_override==0xffff&&!stun.visible&&hero.visible);
+            scene.tick();require(stun.visible&&stun.animation().values()[2]==scene.player_shadow()->stun_scale);
+            for(unsigned tick=0;tick<100&&scene.player_shadow()->phase!=3;++tick)scene.tick();
+            require(scene.player_shadow()->phase==3&&stun.visible&&stun.animation().values()[2]==okage::Float4({1,1,1,1}));
+            gate=4;scene.tick();
+            require(sounds==2&&writes==2&&okage::event_variable(vars,0x40002)==0&&scene.player_shadow()->phase==4);
+            for(unsigned tick=0;tick<100&&scene.player_shadow()->phase==4;++tick)scene.tick();
+            require(scene.player_shadow()->phase==5&&!stun.visible&&hero.shadow_mode_override==0xffff);
+            scene.tick();require(hero.shadow_mode_override==4&&hero.visible);
+            for(unsigned tick=0;tick<100&&scene.player_shadow()->phase!=0;++tick)scene.tick();
+            require(scene.player_shadow()->phase==0&&scene.player_shadow()->projection_factor==1&&!stun.visible);
+            scene.sound_cue={};gate=5;scene.tick();
+            require(sounds==2&&writes==3&&scene.player_shadow()->phase==1&&okage::event_variable(vars,0x40002)==1);
+            // Attached map jobs share the ordinary two-pass removal lifecycle.
+            const auto removed_handle=attached_handle;
+            scene.map_effects()[removed_handle]->request_removal();scene.tick();
+            require(scene.map_effects()[removed_handle]->flags&0x200);
+            for(const auto& submission:scene.effect_submissions())require(submission.handle!=removed_handle);
+            scene.tick();require(!scene.map_effects()[removed_handle]);
         }
         prepared.reset();require(retained->size()==240); // Queued/retained geometry remains alive.
     }

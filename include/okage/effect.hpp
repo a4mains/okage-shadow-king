@@ -85,6 +85,9 @@ public:
     float inverse_duration=0;
     float near_clip=3; // Job constructor0x10d338, +0x78.
     Float4 position{},rotation{},scale{},color{1,1,1,1},parameters{};
+    // Mode0 attachment0x101118 copies this actor's position/rotation before
+    // the effect update. Ownership follows the job, including removal/reuse.
+    std::optional<int> actor_alias;
     std::vector<MapEffectElement> elements;
     std::shared_ptr<const std::vector<MapEffectVertex>> shape55_geometry;
 private:

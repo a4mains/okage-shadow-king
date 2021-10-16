@@ -73,6 +73,49 @@ def summarize(report, *, source_path='<input>', source_sha256=None):
 
     missing = _frame_list(report.get('missing_original_player_frames'),
                           'missing_original_player_frames', total)
+    missing_manager = _frame_list(report.get('missing_original_manager_frames', []),
+                                  'missing_original_manager_frames', total)
+    missing_camera = _frame_list(report.get('missing_original_camera_frames', []),
+                                 'missing_original_camera_frames', total)
+    if set(missing) & set(missing_manager):
+        raise ValueError('missing_original_player_frames requires a present manager observation')
+    missing_by_kind = dict(manager=missing_manager, camera=missing_camera, player=missing)
+    all_missing = sorted({f for frames in missing_by_kind.values() for f in frames})
+    missing_by_channel = dict(manager=missing_manager, camera=missing_camera,
+                              player=sorted(set(missing_manager + missing)))
+    coverage = {name: dict(expected_frames=total, observed_frames=total-len(frames))
+                for name, frames in missing_by_channel.items()}
+    complete_coverage = not all_missing
+    if 'complete_original_observation_coverage' in report:
+        claimed = report['complete_original_observation_coverage']
+        if not isinstance(claimed, bool) or claimed != complete_coverage:
+            raise ValueError('complete_original_observation_coverage contradicts missing observations')
+    if 'original_observation_coverage' in report:
+        claimed = report['original_observation_coverage']
+        if not isinstance(claimed, dict) or set(claimed) != set(coverage):
+            raise ValueError('original_observation_coverage must contain manager, camera, player')
+        for name, expected in coverage.items():
+            if not isinstance(claimed[name], dict) or set(claimed[name]) != set(expected):
+                raise ValueError(f'original_observation_coverage.{name} has invalid fields')
+            for field, value in expected.items():
+                if _integer(claimed[name][field], f'original_observation_coverage.{name}.{field}') != value:
+                    raise ValueError(f'original_observation_coverage.{name}.{field} contradicts missing observations')
+    for category, frames in category_frames.items():
+        channel = ('manager' if category in ('manager_running_pc_gate', 'pad_latch', 'direction_latch')
+                   else 'player' if category in ('player_mask', 'hero_facing_w', 'hero_position')
+                   else 'camera' if category.startswith('camera_') else None)
+        if channel and set(frames) & set(missing_by_channel[channel]):
+            raise ValueError(f'difference_frames.{category} includes a missing observation')
+    if 'unblended_target_compared_frames' in report:
+        targets = _frame_list(report['unblended_target_compared_frames'],
+                             'unblended_target_compared_frames', total)
+        if targets and report.get('unblended_target_check') is False:
+            raise ValueError('unblended_target_compared_frames contradicts disabled target check')
+        if any(f == 0 or f in missing_manager or f in missing_camera or f-1 in missing_camera
+               for f in targets):
+            raise ValueError('unblended_target_compared_frames requires current manager/camera and prior camera')
+        if not set(category_frames.get('camera_unblended_target', [])) <= set(targets):
+            raise ValueError('camera_unblended_target differences require compared target frames')
     union = sorted({frame for frames in category_frames.values() for frame in frames})
     first_difference_frame = union[0] if union else None
     first_categories = ([name for name, frames in category_frames.items()
@@ -93,7 +136,7 @@ def summarize(report, *, source_path='<input>', source_sha256=None):
     tail_frames = _integer(tail.get('frames'), 'matching_tail.frames')
     tail_controller = _integer(tail.get('controller_samples'),
                                'matching_tail.controller_samples')
-    expected_tail_first = max(union + missing, default=-1) + 1
+    expected_tail_first = max(union + all_missing, default=-1) + 1
     if tail_first != expected_tail_first:
         raise ValueError('matching_tail.first_original_frame contradicts the last difference/missing frame')
     if tail_first > total or tail_frames != total - tail_first:
@@ -113,7 +156,9 @@ def summarize(report, *, source_path='<input>', source_sha256=None):
         if key not in report:
             raise ValueError(f'missing required provenance/comparison field: {key}')
 
-    first_missing = missing[0] if missing else None
+    first_missing = all_missing[0] if all_missing else None
+    first_missing_kinds = [f'missing_original_{kind}_observation'
+                           for kind, frames in missing_by_kind.items() if first_missing in frames]
     return {
         'schema_version': 1,
         'source_report': {
@@ -132,6 +177,8 @@ def summarize(report, *, source_path='<input>', source_sha256=None):
             'controller_samples': controller_samples,
             'position_tolerance': report['position_tolerance'],
             'compared_observables_agree': agrees,
+            'complete_original_observation_coverage': complete_coverage,
+            'original_observation_coverage': coverage,
             'full_timeline_equivalence': False,
             **{key: report[key] for key in (
                 'no_dialogue_interval', 'unblended_target_check',
@@ -157,8 +204,14 @@ def summarize(report, *, source_path='<input>', source_sha256=None):
             'first_missing_observation': None if first_missing is None else {
                 'original_frame': first_missing,
                 'native_simulation_tick': anchor + first_missing,
-                'kind': 'missing_original_player_observation',
+                'kind': first_missing_kinds[0],
             },
+            'first_missing_observation_kinds': first_missing_kinds,
+            'missing_original_manager_frames': len(missing_manager),
+            'missing_manager_ranges': _ranges(missing_manager, anchor),
+            'missing_original_camera_frames': len(missing_camera),
+            'missing_camera_ranges': _ranges(missing_camera, anchor),
+            'unique_missing_observation_frames': len(all_missing),
             'missing_original_player_frames': len(missing),
             'missing_player_ranges': _ranges(missing, anchor),
             'matching_tail': {
@@ -173,6 +226,9 @@ def summarize(report, *, source_path='<input>', source_sha256=None):
             'aligned_audio_comparison': False,
             'whole_timeline_equivalence_claim': False,
             'difference_frame_lists_count_frames_not_words': True,
+            'agreement_applies_only_to_compared_observables': True,
+            'coverage_scope': 'Original manager, camera and player observations only; controller samples are conditional.',
+            'missing_player_list_scope': 'Present manager records without a player payload; player coverage also includes absent managers.',
         },
     }
 

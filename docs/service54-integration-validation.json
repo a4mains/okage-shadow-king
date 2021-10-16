@@ -1,0 +1,324 @@
+{
+  "date": "2021-10-16",
+  "base_revision": "913d6bbddbcde41d94da0f2ba7f429388008796b",
+  "retail_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "scope": "Reached service54 native integration and progression through69455; bounded original static semantics and retained helper corpora, failed full-interval original comparisons, native cross-build consistency.",
+  "source_sha256": {
+    "include/okage/effect.hpp": "5420996198d41eacdd026d8708bd65d7475ee7a3e1a064090d53774dacbb3c3d",
+    "include/okage/field.hpp": "2f375e9badda89e34306e13e412317df17cd6d3f4865926b0e29da989ebd633a",
+    "src/field.cpp": "e0c710991dc13d73aaef57489b12bb3046c62f574416e3f6ab8b28173295c9ce",
+    "src/field_shadows.cpp": "c1171900cd669bfafbdce3f53d983bb053e7d6fe8336e34464eea369ec60a5d9",
+    "tests/field_raster_tests.cpp": "91d49d483c7e90dd83fb8fc5c1b03b77615798b46bdbc7c432df71e8595b7601",
+    "tests/field_tests.cpp": "f238cf5661c7b538e49ca86a2f2d196c2d1610539ac2ddcec379fa07815ef3c3",
+    "tests/test_interval_observations.py": "70aef9a3f06e026600ea393f5a7454388fe743c1bcc8883694fdb5d27ad46319",
+    "tools/diagnose_home1b_interval.py": "162c13855214726e1207276ede831a7115898d5b3dc5f44fbefc1a61f710e520",
+    "tools/summarize_interval_report.py": "97d67168ac9e1404228be34d1b42c81623848e229932ddbffc4cf407115e8422"
+  },
+  "reports": {
+    "local/research/service54-integration-v1/warm-sentiments-interval-v1.json": "abd063fe3318f3862e90fc520a3cf40d7f35866aa90c086df9eff98ecb32ff6c",
+    "local/research/service54-integration-v1/warm-sentiments-interval-v2.json": "79cd066673aab5b0bf86b0eab6424657b246d34ec02cd386dfbc9c7aeba5a7ba",
+    "local/research/service54-integration-v1/warm-sentiments-summary-v2.json": "692ca6eba449bf152b3cdc2a0f1a9bc551a7b77a4cbf7681a6a0601afecfa39a",
+    "local/research/service54-integration-v1/master-orders-interval-v2.json": "921f4c937dd1d7b6442532204847dc83a96de06568b5a2c05124cc6a3b4e559e",
+    "local/research/service54-integration-v1/master-orders-summary-v2.json": "3b29002b4b4162826e70606acce5f586e09695146378d9b427b48f2e39e82aab",
+    "local/research/service54-integration-v1/release-debug-regression-v1.json": "9f22b96e1aa8f400ac18602e523567c329eb6b1ac60944318092101ec1702f5b",
+    "local/research/service54-integration-v1/release-sanitize-regression-v1.json": "83b9d48ac06dd9bce2ed2ef24aa6af97755868374ddce3bcc6b77dd1e8546db8",
+    "local/research/service54-integration-v1/transition-route-check-v1.json": "57d24fc70c140cc7f0fd5d563ecb2d48bbc00b990deab496f2f060d35fb40ce4",
+    "local/research/service54-image-pair-v1/comparison.json": "fe577ca41559774b8dac3f6d5aa1ef42e3771ac75e57081729475c3e62734557",
+    "local/research/service54-image-pair-v1/pair-provenance.json": "ecef25817874dce19e0cf9c8f661a0fd53f9b65771cda65584cc30ae94bad8fc",
+    "local/research/service54-integration-v1/timestamp-triage-v1.json": "6441493673585e9501a85747eaef1d124f17c5d04fa151a7f27383fc4c786304"
+  },
+  "native_runs": {
+    "local/native-home2c-basement-warm-sentiments-68255-release-v5": {
+      "manifest_sha256": "6d87eec34aefb926cfc87697a70d00d8bdc08326fc9180397bcba6f0a66a4392",
+      "binary_sha256": "a31b551f5b260bc5ca771870fce744648a5c5f6c25a3faf7d8364ead25f47f9e",
+      "exit_code": 0,
+      "elapsed_seconds": 20.1901565,
+      "png_sha256": "1d930db312b392379fbad261bcb05629a6e6ffe97586bcb285dcee89c2cc999f"
+    },
+    "local/native-home2c-basement-warm-sentiments-68255-debug-v1": {
+      "manifest_sha256": "e1aeaf4ad7c4e79cc5874f14d8365ec10e080c9cb545547efeb9f1d146424e6c",
+      "binary_sha256": "3f4e170b0e5152e9be9c8aecb81a465f03a5e7044c8e1bbac63966440284a506",
+      "exit_code": 0,
+      "elapsed_seconds": 193.30323579199998,
+      "png_sha256": "1d930db312b392379fbad261bcb05629a6e6ffe97586bcb285dcee89c2cc999f"
+    },
+    "local/native-home2c-basement-warm-sentiments-68255-sanitize-v1": {
+      "manifest_sha256": "059a738974cb44292e6d009678bd6056cba8aa99c6ac338b0fb32df1b662c613",
+      "binary_sha256": "20fd55cc3f6d3790a76b04622854cc394a58658a2a4ff76059f5fd707186fe25",
+      "exit_code": 0,
+      "elapsed_seconds": 463.981644042,
+      "png_sha256": "1d930db312b392379fbad261bcb05629a6e6ffe97586bcb285dcee89c2cc999f"
+    },
+    "local/native-home2c-basement-master-orders-69455-release-v1": {
+      "manifest_sha256": "ba4179d7431ee7ce6e3011747c723d19f0549fbc67997d49d7b4d508c1846208",
+      "binary_sha256": "a31b551f5b260bc5ca771870fce744648a5c5f6c25a3faf7d8364ead25f47f9e",
+      "exit_code": 0,
+      "elapsed_seconds": 19.914447541,
+      "png_sha256": "70a64f1d412375bf75fb82cab0ac737c53d6e89a7b4f684876642d2d12e794d0"
+    }
+  },
+  "tests": {
+    "ctest_passed_per_build": 21,
+    "python_unittest_passed": 131,
+    "logs": {
+      "local/research/service54-integration-v1/ctest-release-v2.log": "ee8ab4ca8ca082b9c811d847dfa6ef70aff1fb4285b71ee605b942814f118f14",
+      "local/research/service54-integration-v1/ctest-debug-v1.log": "d75372321ddf7e9f4ea1dc335ae1b4d3603421f1ceb15111a7fb4410acbfa513",
+      "local/research/service54-integration-v1/ctest-sanitize-v1.log": "464c18957117ad73c7b40bb2d67edc7cc771e208c4ef4ac19bffe07ff3c6c68a",
+      "local/research/service54-integration-v1/python-tests-v1.log": "4119aa125be385802879faf7a7c0e0c4dd6e6dbe4ecb94a78ebb2e24ea27ffb0",
+      "local/research/service54-integration-v1/build-release-v1.log": "60beb5dce2be40d36240cc1844e2bd4be506784681b84b2719d82c7e0887430f"
+    }
+  },
+  "regression": {
+    "three_build_capture_artifacts_exact": 42,
+    "prior67568_time_series_pcm_prefixes_exact": 36,
+    "variable_snapshot_changed_bytes": [
+      {
+        "offset": "0x518",
+        "before": 0,
+        "after": 1
+      }
+    ]
+  },
+  "original_interval_audits": {
+    "warm-sentiments": {
+      "first_native_frame": 67056,
+      "original_frames": 1200,
+      "compared_observables_agree": false,
+      "matching_tail": {
+        "first_original_frame": 1200,
+        "frames": 0,
+        "controller_samples": 0
+      },
+      "hero_position_maximum_error": 0.0,
+      "camera_position_maximum_error": 10.000000059604645,
+      "original_observation_coverage": {
+        "manager": {
+          "expected_frames": 1200,
+          "observed_frames": 1200
+        },
+        "camera": {
+          "expected_frames": 1200,
+          "observed_frames": 1200
+        },
+        "player": {
+          "expected_frames": 1200,
+          "observed_frames": 1169
+        }
+      },
+      "complete_original_observation_coverage": false,
+      "difference_frame_counts": {
+        "controller": 812,
+        "choice": 656,
+        "manager_running_pc_gate": 294,
+        "pad_latch": 0,
+        "direction_latch": 0,
+        "player_mask": 0,
+        "hero_facing_w": 43,
+        "hero_position": 0,
+        "camera_rotation": 131,
+        "camera_mode_phase": 192,
+        "camera_position": 133,
+        "camera_unblended_target": 0
+      },
+      "divergence": {
+        "first_difference": {
+          "original_frame": 0,
+          "native_simulation_tick": 67056,
+          "categories": [
+            "controller"
+          ]
+        },
+        "category_frame_counts": {
+          "controller": 812,
+          "choice": 656,
+          "manager_running_pc_gate": 294,
+          "pad_latch": 0,
+          "direction_latch": 0,
+          "player_mask": 0,
+          "hero_facing_w": 43,
+          "hero_position": 0,
+          "camera_rotation": 131,
+          "camera_mode_phase": 192,
+          "camera_position": 133,
+          "camera_unblended_target": 0
+        },
+        "unique_differing_frames": 1098,
+        "first_missing_observation": {
+          "original_frame": 225,
+          "native_simulation_tick": 67281,
+          "kind": "missing_original_player_observation"
+        },
+        "first_missing_observation_kinds": [
+          "missing_original_player_observation"
+        ],
+        "missing_original_manager_frames": 0,
+        "missing_manager_ranges": [],
+        "missing_original_camera_frames": 0,
+        "missing_camera_ranges": [],
+        "unique_missing_observation_frames": 31,
+        "missing_original_player_frames": 31,
+        "missing_player_ranges": [
+          {
+            "original_start_frame": 225,
+            "original_end_frame": 255,
+            "native_tick_start": 67281,
+            "native_tick_end": 67311,
+            "frames": 31
+          }
+        ],
+        "matching_tail": {
+          "first_original_frame": 1200,
+          "first_native_tick": 68256,
+          "frames": 0,
+          "controller_samples": 0
+        }
+      }
+    },
+    "master-orders": {
+      "first_native_frame": 68256,
+      "original_frames": 1200,
+      "compared_observables_agree": false,
+      "matching_tail": {
+        "first_original_frame": 1200,
+        "frames": 0,
+        "controller_samples": 0
+      },
+      "hero_position_maximum_error": 3.290000021457672,
+      "camera_position_maximum_error": 215.78000020980835,
+      "original_observation_coverage": {
+        "manager": {
+          "expected_frames": 1200,
+          "observed_frames": 1198
+        },
+        "camera": {
+          "expected_frames": 1200,
+          "observed_frames": 1198
+        },
+        "player": {
+          "expected_frames": 1200,
+          "observed_frames": 1074
+        }
+      },
+      "complete_original_observation_coverage": false,
+      "difference_frame_counts": {
+        "controller": 945,
+        "choice": 945,
+        "manager_running_pc_gate": 1033,
+        "pad_latch": 0,
+        "direction_latch": 0,
+        "player_mask": 0,
+        "hero_facing_w": 251,
+        "hero_position": 120,
+        "camera_rotation": 476,
+        "camera_mode_phase": 182,
+        "camera_position": 476,
+        "camera_unblended_target": 0
+      },
+      "divergence": {
+        "first_difference": {
+          "original_frame": 0,
+          "native_simulation_tick": 68256,
+          "categories": [
+            "controller",
+            "choice"
+          ]
+        },
+        "category_frame_counts": {
+          "controller": 945,
+          "choice": 945,
+          "manager_running_pc_gate": 1033,
+          "pad_latch": 0,
+          "direction_latch": 0,
+          "player_mask": 0,
+          "hero_facing_w": 251,
+          "hero_position": 120,
+          "camera_rotation": 476,
+          "camera_mode_phase": 182,
+          "camera_position": 476,
+          "camera_unblended_target": 0
+        },
+        "unique_differing_frames": 1198,
+        "first_missing_observation": {
+          "original_frame": 528,
+          "native_simulation_tick": 68784,
+          "kind": "missing_original_manager_observation"
+        },
+        "first_missing_observation_kinds": [
+          "missing_original_manager_observation",
+          "missing_original_camera_observation"
+        ],
+        "missing_original_manager_frames": 2,
+        "missing_manager_ranges": [
+          {
+            "original_start_frame": 528,
+            "original_end_frame": 529,
+            "native_tick_start": 68784,
+            "native_tick_end": 68785,
+            "frames": 2
+          }
+        ],
+        "missing_original_camera_frames": 2,
+        "missing_camera_ranges": [
+          {
+            "original_start_frame": 528,
+            "original_end_frame": 529,
+            "native_tick_start": 68784,
+            "native_tick_end": 68785,
+            "frames": 2
+          }
+        ],
+        "unique_missing_observation_frames": 126,
+        "missing_original_player_frames": 124,
+        "missing_player_ranges": [
+          {
+            "original_start_frame": 530,
+            "original_end_frame": 653,
+            "native_tick_start": 68786,
+            "native_tick_end": 68909,
+            "frames": 124
+          }
+        ],
+        "matching_tail": {
+          "first_original_frame": 1200,
+          "first_native_tick": 69456,
+          "frames": 0,
+          "controller_samples": 0
+        }
+      }
+    }
+  },
+  "failures": [
+    {
+      "prefix": "local/native-home2c-basement-warm-sentiments-68255-release-v4",
+      "manifest_sha256": "d5a4cf3bdfe2c88fc13577c3ff945ea9150a34f59cc9455e7d221c440254aef1",
+      "reason": "Selectorffff was passed to projection instead of original signed16-negative suppression; fixed after original assembly review."
+    },
+    {
+      "path": "local/research/service54-integration-v1/build-release-v1.log",
+      "reason": "Attachment getter initially used const Animation for nonconst values(); fixed and rebuilt."
+    },
+    {
+      "reason": "Initial master comparator rejected missing manager/camera frames528..529; missing evidence now reported without changing anchors."
+    },
+    {
+      "reason": "Initial prefix script compared final variables snapshot as a time-series prefix; corrected scope records the authentic0x518 change."
+    }
+  ],
+  "preview": {
+    "prefix": "local/native-service54-preview-68255-v1",
+    "app": "local/demos/service54-preview-v1/okage-native.app",
+    "last_observed_pid": 33600,
+    "tool_session": 56486,
+    "state": "AppKit window raised and visually inspected paused at68255; P resumes; intentionally live, recheck on resume."
+  },
+  "performance_scope": "Replay durations are instrumented and some independent validation work overlapped. No FPS or uncontended performance claim.",
+  "next_original_anchor": 69456,
+  "next_original_state": "local/reference-home2c-basement-master-orders-1200-v1.state.zip",
+  "remaining": [
+    "Full route timing/text/camera fidelity failures retained.",
+    "Per-voice stop for unexpected nonnegative ownership remains guarded; final SPU release timing unrecovered.",
+    "Per-frame route image/aligned original-native audio capture missing.",
+    "Original0xc48 arithmetic, clipped raster, ordinary internal block ordering, lighting/material fidelity incomplete.",
+    "Cold startup/RNG, battles, persistence, physical controls/listening and full native playthrough unfinished."
+  ]
+}

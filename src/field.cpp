@@ -371,6 +371,21 @@ unsigned OpeningField::spawn_positioned_effect(unsigned template_id,const Float4
     bind_effect_geometry(*map_effects_[handle]);
     return handle;
 }
+unsigned OpeningField::attach_map_effect(unsigned template_id,int alias) {
+    if(!map_effects_loaded_||!random_value||!actor(alias))
+        throw std::runtime_error("Attached map effect requires owned resources and an actor");
+    const auto definition=std::find_if(effect_definitions_.begin(),effect_definitions_.end(),
+        [&](const auto& d){return d.id==template_id;});
+    if(definition==effect_definitions_.end())throw std::runtime_error("Missing attached map effect template");
+    unsigned handle=0;while(handle<effects_.size()&&(effects_[handle]||map_effects_[handle]))++handle;
+    if(handle==effects_.size())throw std::runtime_error("Field effect capacity exhausted");
+    //0x1015e8/0x101558 retain constructor transforms until callback0x101118.
+    auto effect=std::make_unique<MapEffect>(*definition,definition->position,definition->rotation,
+        definition->scale,effect_texture_sizes_,random_value,EffectStart::FirstFrame);
+    bind_effect_geometry(*effect);effect->actor_alias=alias;
+    map_effects_[handle]=std::move(effect);
+    return handle;
+}
 unsigned OpeningField::attach_bubble(int parameter,int alias) {
     const auto definition=std::find_if(effect_definitions_.begin(),effect_definitions_.end(),[](const auto& d){return d.id==30;});
     if(definition==effect_definitions_.end())throw std::runtime_error("Bubble requires owned TES.EFD and effect textures");
@@ -599,6 +614,36 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
                 if(b>=0){exterior_camera->select_preset(unsigned(b));exterior_camera->phase=0;}
             }
             return {pc+4};
+        case 0x54: {
+            auto* hero=actor(-1);
+            if(!hero)return pending();
+            const auto request=std::uint32_t(b);
+            //0x130850 handles the direct selector independently of transition state.
+            if(request&0x100) {
+                hero->shadow_mode_override=(request&255)<<2;
+                pending_opcode=0;return {pc+4};
+            }
+            if(!shadow_)return pending();
+            auto& state=*shadow_;
+            const auto mode=request&127;
+            if(mode<=1&&!state.locked&&state.phase==(mode?0u:3u)) {
+                if(!set_variable||(!(request&0x80)&&!sound_cue))return pending();
+                if(!mode&&state.voice>=0)
+                    throw std::runtime_error("Shadow transition owned voice stop is unrecovered");
+                if(!mode)state.voice=-1;
+                state.phase=mode?1:4;state.factor=1;
+                //0x1346e0 discards cue handles; +0x26c is not their owner.
+                if(!(request&0x80)&&!sound_cue(0,mode?23:12,1,mode?100:64))
+                    throw std::runtime_error("Shadow transition sound is unavailable");
+                attach_map_effect(24,-1);
+                set_variable(2,4,int(mode));
+            } else if(mode==2)state.follow_disabled=0;
+            else if(mode==3)state.follow_disabled=1;
+            else if(mode==4)state.locked=0;
+            else if(mode==5)state.locked=1;
+            // Other low-seven-bit modes have no action in the original switch.
+            pending_opcode=0;return {pc+4};
+        }
         case 7:
             if(b==-2)script_.set_channel_target(nullptr);
             else if(auto* target=actor(b))script_.set_channel_target(&target->animation());
@@ -861,12 +906,15 @@ void OpeningField::update_player_shadow() {
     shadow_->stun_rotation=channels.at(0);shadow_->stun_position=channels.at(1);
     shadow_->stun_scale=channels.at(2);shadow_->stun_visible=stun->visible;
     shadow_->hero_shadow=std::uint16_t(hero->shadow_mode_override.value_or(4));
-    if(shadow_->phase!=0)throw std::runtime_error("Shadow transition integration is incomplete");
+    const auto phase=shadow_->phase;
     shadow_->tick(hero->animation().values().at(0),hero->animation().values().at(1));
     if(!shadow_->follow_disabled) {
         stun->animation().set_channel(0,shadow_->stun_rotation);
         stun->animation().set_channel(1,shadow_->stun_position);
     }
+    if(phase==2||phase==4)stun->animation().set_channel(2,shadow_->stun_scale);
+    if(phase==2||(phase==4&&shadow_->phase==5))stun->visible=shadow_->stun_visible;
+    if((phase==1&&shadow_->phase==2)||phase==5)hero->shadow_mode_override=shadow_->hero_shadow;
 }
 void OpeningField::advance_effects() {
     effect_submissions_.clear();
@@ -874,6 +922,12 @@ void OpeningField::advance_effects() {
     std::array<unsigned,84> deferred{};unsigned deferred_count=0;
     const auto update=[&](unsigned slot) {
         if(auto& effect=map_effects_[slot]) {
+            if(effect->actor_alias) {
+                auto* object=actor(*effect->actor_alias);
+                if(!object)throw std::runtime_error("Attached map effect actor disappeared");
+                const auto& channels=object->animation().values();
+                effect->position=channels.at(1);effect->rotation=channels.at(0);
+            }
             effect->tick(random_value,true,&position);
             if(!(effect->flags&0x100)) {
                 if(render_projection)render_projection->select_effect_near(effect->near_clip);
