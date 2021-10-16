@@ -72,6 +72,13 @@ ShadowProjectionContext::ShadowProjectionContext(const Float4& light,const Matri
     }
     view_direction=shadow_normalize(shadow_transform(view,world_direction));
 }
+ShadowProjection ShadowProjectionContext::base() const {
+    ProjectionRounding rounding;
+    ShadowProjection result;result.has_matrices=true;result.direction=view_direction;
+    result.matrices={shadow_multiply(view,shadow_multiply(planes[0],inverse)),
+                     shadow_multiply(view,shadow_multiply(planes[1],inverse))};
+    return result;
+}
 ShadowProjection ShadowProjectionContext::project(unsigned mode,float height,float factor,
         const std::array<std::uint32_t,3>& tint) const {
     if(mode>7||!std::isfinite(height)||!std::isfinite(factor))throw std::runtime_error("Invalid shadow projection request");

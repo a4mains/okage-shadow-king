@@ -244,7 +244,7 @@ struct Session {
             auto motion=path,xta=path;motion.replace_extension(".xmt");xta.replace_extension(".xta");
             auto object=std::make_unique<okage::FieldActor>(okage::read_xmd(readData(path)),readData(motion),
                 readActorTextures(xta));
-            actor_bindings.push_back({alias,object.get(),alias!=-3});scene_actors.push_back({object.get(),path});
+            actor_bindings.push_back({alias,object.get(),alias!=-3});scene_actors.push_back({object.get(),path,alias});
             actor_objects.push_back(std::move(object));
         };
         for(const auto& [alias,path]:assets) {
@@ -268,7 +268,7 @@ struct Session {
             auto xcl=map;xcl.replace_extension(".xcl");field->load_exploration_collision(readData(xcl),variables);
         }
         std::cout<<"Native room: "<<renderer->placements()<<" placements; "<<renderer->omitted_effects()
-            <<" effects omitted; "<<renderer->actors()<<" native actors; shadows unavailable; diagnostic dialogue panel\n";
+            <<" effects omitted; "<<renderer->actors()<<" native actors; native projected shadows; diagnostic dialogue panel\n";
     }
     void prepare_effects(const fs::path& data,const fs::path& textures) {
         if(effect_preparation||field)throw std::runtime_error("Effect templates must initialize once before field construction");
@@ -331,7 +331,7 @@ struct Session {
             auto motion=path,xta=path;motion.replace_extension(".xmt");xta.replace_extension(".xta");
             auto object=std::make_unique<okage::FieldActor>(okage::read_xmd(readData(path)),readData(motion),
                 readActorTextures(xta));
-            actor_bindings.push_back({alias,object.get(),alias!=-3});scene_actors.push_back({object.get(),path});actor_objects.push_back(std::move(object));
+            actor_bindings.push_back({alias,object.get(),alias!=-3});scene_actors.push_back({object.get(),path,alias});actor_objects.push_back(std::move(object));
         };
         for(const auto& npc:definition.npcs)add(npc.alias,npc.model);
         add(-3,"stun");add(-1,"hero");
@@ -521,7 +521,7 @@ struct Session {
         if(!renderer)return text_image;
         const auto& r=field->rotation;
         const auto& screen=projection.frame().ordinary;
-        auto image=renderer->render(field->view(),okage::field_clip_projection(screen),effects_loaded?&field->effects():nullptr,{-r[0],-r[1],-r[2],0},screen.clip_far,field->position);
+        auto image=renderer->render(field->view(),okage::field_clip_projection(screen),effects_loaded?&field->effects():nullptr,{-r[0],-r[1],-r[2],0},screen.clip_far,field->position,&projection.frame(),field->player_shadow()?field->player_shadow()->projection_factor:1);
         feedback.apply(image,frame,field->screen_filter.alpha);
         const auto alpha=scene_fade.alpha(),brightness=128-alpha;
         for(std::size_t i=0;i<image.rgba.size();i+=4)for(unsigned c=0;c<3;++c)
@@ -562,8 +562,10 @@ static NSBitmapImageRep* bitmap(const okage::Texture& image) {
 static void capture(const Session& session,const fs::path& path) {
     auto statePath=fs::path(path.string()+".json");
     const auto actorsPath=fs::path(path.string()+".actors-state.json");
+    const auto shadowsPath=fs::path(path.string()+".shadow-submissions.json");
     if(fs::exists(path)||fs::is_symlink(path)||fs::exists(statePath)||fs::is_symlink(statePath))throw std::runtime_error("Refusing existing native capture");
     if(fs::exists(actorsPath)||fs::is_symlink(actorsPath))throw std::runtime_error("Refusing existing actor-state capture");
+    if(fs::exists(shadowsPath)||fs::is_symlink(shadowsPath))throw std::runtime_error("Refusing existing shadow-submission capture");
     if(!path.parent_path().empty())fs::create_directories(path.parent_path());
     const auto data=[bitmap(session.surface()) representationUsingType:NSBitmapImageFileTypePNG properties:@{}];
     std::ofstream out(path,std::ios::binary);if(!data || !out.write(static_cast<const char*>(data.bytes),data.length))throw std::runtime_error("Cannot write native capture");
@@ -628,6 +630,19 @@ static void capture(const Session& session,const fs::path& path) {
     }
     actors<<"\n  ]\n}\n";
     if(!actors)throw std::runtime_error("Cannot write native actor-state capture");
+    if(session.renderer){
+        std::ofstream shadows(shadowsPath);
+        shadows<<"{\n  \"version\": 1,\n  \"frame\": "<<session.frame<<",\n  \"gpu_order\": [";
+        bool first=true;
+        for(const auto& s:session.renderer->shadow_submissions()){
+            shadows<<(first?"\n":",\n")<<"    {\"alias\": "<<s.alias<<", \"selector\": "<<s.selector
+                <<", \"depth_bucket\": "<<s.bucket<<", \"blocks\": "<<s.blocks
+                <<", \"triangles\": "<<s.triangles<<", \"emitted_prisms\": "<<s.emitted<<"}";
+            first=false;
+        }
+        shadows<<"\n  ]\n}\n";
+        if(!shadows)throw std::runtime_error("Cannot write shadow-submission capture");
+    }
     for(const auto& [suffix,data]:std::array<std::pair<std::string,okage::Bytes>,3>{
         std::pair{".screen-filter.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.filter_trace.data()),session.filter_trace.size()*4)},
         std::pair{".transition.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.transition_trace.data()),session.transition_trace.size()*4)},

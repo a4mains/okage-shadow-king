@@ -1,0 +1,171 @@
+{
+  "date": "2021-10-16",
+  "base_revision": "a96073b58d1137f18aa8f139a52a376724e47393",
+  "retail_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "scope": "Native animated field shadow integration with bounded original screen/packing, roster and projection comparisons; cross-build route regression and diagnostic endpoint image pair.",
+  "source_sha256": {
+    "CMakeLists.txt": "9a4b572b7f0cc4ad453f97de6d75ad3a60470bf9a14c8566d6f3342edace998b",
+    "include/okage/field_raster.hpp": "4484cea19bf7e737e455cf0c6bb36e22b5fe6caa03095c82900601264da608e5",
+    "include/okage/field_shadows.hpp": "7a71cea0b4978162445b66bbb7061f5fa4d07daa81154980e2ccab32c2e77759",
+    "include/okage/scene_renderer.hpp": "cca7bafa299a0e019c02ca28f6d7cf2ccab09b410e3cd2c4e2d00ef4f355ef28",
+    "include/okage/shadow.hpp": "c98221453631e732781608ea30b88e0d50d3280b89e1317df9810ea5bd3295d2",
+    "src/assets_main.cpp": "1b857eaaa04ed237b441d77b6ab1d8fd89fe39940b197fbcac6a7f808ace1f12",
+    "src/field_raster.cpp": "f46a6e16b91425333c327cdfabab55273fb46bcffde7795804ddfdbcfbad95ed",
+    "src/field_shadows.cpp": "83fcd0078d1d21baca5eff6be0b90d2f7fb74ee6dc3f535a3e6379f80d0c1a7e",
+    "src/metal_preview_shader.hpp": "eae39b6e8a97b6c47f6a3a1e14e67b4c16d44a76435a5568a99c5624ae4d91d4",
+    "src/native_runtime.mm": "951678e9dd91b93d8971887222119eea065b5c7826cb7b4efd842f3364737bd0",
+    "src/scene_renderer.mm": "4db4d65f9a1728923b50abe23283dfa43d5ad88c048d6a379b681c025658e160",
+    "src/shadow.cpp": "ca9c5bee70c1ab7ac0e44b3dfb7dbe3fc290ba51dd1584b3ddde9c9c9e0fd0f6",
+    "tests/field_raster_tests.cpp": "7daa6765113d654a020a9e1f4f98f22c00579fa69a076136954912b96ccac0ec",
+    "tests/test_field_screen.py": "dfcbf41a30ec97cdf19653a9060adaa8ba2d45b28a07afd1267b8e9671354cba",
+    "tests/test_frame_images.py": "511eba05d38e42c162dbb8266b065b7fa67f1a5e8d757cf723608b5da84da606",
+    "tools/compare_frame_images.py": "593d49f51ee579de311ec4c9c2e0fc64e4c357b596676a923006a05da672fe06",
+    "tools/play-oracle/main.cpp": "6a2dae2d4a9fd1fa56b378a1939d87c7938f1ac9ebcc4e512f48aca2b406046a",
+    "tools/verify_field_screen.py": "5ff417d099cb91b46894623c56ace2541ad4cb8a150b69d76000027a37fc454a"
+  },
+  "reports": {
+    "local/field-screen-checks-v2/native-release/report.json": "d8f62b1c44062e57bf30f82bf7e8ec46ad3e2724406363bc2d176c67b290aeca",
+    "local/field-screen-checks-v2/native/report.json": "41f1c0309d1f5139c42007e6b8104a10874498555685877884f683670d2c1bf7",
+    "local/field-screen-checks-v2/model-sanitize/report.json": "a9f6f88c3a21d274e5745df254ea737dd02ebe3f0c0f7e4b8f8c330a7d6b1600",
+    "local/research/field-shadow-runtime-v1/roster-check-v1.json": "b0d65c6e5d5b34ff72827d0810ec6b9082640c8aea03bce724f9123c88b59dd4",
+    "local/research/field-shadow-runtime-v1/projection-check-67061-v1.json": "b8ed195977d7e32a26be3cc7235eaeedf4fe81843a1ea980e261ce15f8705eee",
+    "local/research/field-shadow-runtime-v1/routes-check-v1.json": "830cb56f7bb58802db16cf7a9b2d641b5976641e679b0a98b1368118835061a8",
+    "local/research/field-shadow-image-pair-v1/comparison.json": "486d163a3d279e62344b3059f12553172b01554abb9c5ea58147f40729738d7d",
+    "local/research/field-shadow-image-pair-v1/pair-provenance.json": "833bd3b0de1bb72d9e636eb75106690d3068d63393b7b1c96807eba0e7f790a7"
+  },
+  "screen_checks": {
+    "native-release": {
+      "cases": 64,
+      "mode_counts": [
+        16,
+        16,
+        16,
+        16
+      ],
+      "data_words_exact": 5312,
+      "setup_words_exact": 2048,
+      "camera_cache_vertices_exact": 96,
+      "direct_screen_vertices_exact": 96,
+      "packed_words_exact": 768,
+      "decoded_words_exact": 768,
+      "native_sha256": "dd6c61349a35cf0cfe6c74fa667aef9f91b92de25a09ba8611afe43acd2cc2b5",
+      "native_output_sha256": "daa544a30a7a8a5f98bcfe36b7b127f5d1bf2eff35d420e80b79ca67aa8ea6ba"
+    },
+    "native": {
+      "cases": 64,
+      "mode_counts": [
+        16,
+        16,
+        16,
+        16
+      ],
+      "data_words_exact": 5312,
+      "setup_words_exact": 2048,
+      "camera_cache_vertices_exact": 96,
+      "direct_screen_vertices_exact": 96,
+      "packed_words_exact": 768,
+      "decoded_words_exact": 768,
+      "native_sha256": "1b3184339052172c8406d486ea535ca5c9194adaa63a7d89a832f3ba1a29611d",
+      "native_output_sha256": "daa544a30a7a8a5f98bcfe36b7b127f5d1bf2eff35d420e80b79ca67aa8ea6ba"
+    },
+    "model-sanitize": {
+      "cases": 64,
+      "mode_counts": [
+        16,
+        16,
+        16,
+        16
+      ],
+      "data_words_exact": 5312,
+      "setup_words_exact": 2048,
+      "camera_cache_vertices_exact": 96,
+      "direct_screen_vertices_exact": 96,
+      "packed_words_exact": 768,
+      "decoded_words_exact": 768,
+      "native_sha256": "bdd28d3c426bea9d28e7fcd94749b3094d292a58512fda4bdce964d17246f58e",
+      "native_output_sha256": "daa544a30a7a8a5f98bcfe36b7b127f5d1bf2eff35d420e80b79ca67aa8ea6ba"
+    }
+  },
+  "native_runs": {
+    "local/native-field-shadows-67568-release-v2": {
+      "manifest_sha256": "4f42236bf2e26696ef7a3cc3c5e53c15f430fc22d98954a0dc5cb1648080b24f",
+      "binary_sha256": "f723c7e809aaf61dc69ddd11249e285f6568d1b499088f7618270026f182d2a9",
+      "exit_code": 0,
+      "elapsed_seconds": 20.05728775,
+      "png_sha256": "02e89b6c655940a4c1a9b96fc4ae29d54fa83618a36e36afc91b3428a65e2803",
+      "shadow_submissions_sha256": "a9d98474aabff8db673c2191f22a290efd66e8ee4b77664f470ef04ee7765e79"
+    },
+    "local/native-field-shadows-67568-debug-v1": {
+      "manifest_sha256": "f7bf7068ec27444248c94c29e5ab310265724185029283c8ebd92573ff907619",
+      "binary_sha256": "1023396592db528c97ae5b2a6e608f733d5b3d53c3a2a8fc9931bfe94ad04cad",
+      "exit_code": 0,
+      "elapsed_seconds": 205.954703458,
+      "png_sha256": "02e89b6c655940a4c1a9b96fc4ae29d54fa83618a36e36afc91b3428a65e2803",
+      "shadow_submissions_sha256": "a9d98474aabff8db673c2191f22a290efd66e8ee4b77664f470ef04ee7765e79"
+    },
+    "local/native-field-shadows-67568-sanitize-v1": {
+      "manifest_sha256": "3d1b33b1615844fbebe6c2cf6211199cc2e1f020933de5b9261c1265f7ac506f",
+      "binary_sha256": "902dcc850a62e15bd5308d2e7c8219ce35ddfbc0775763dfe14e12f35ba60d9b",
+      "exit_code": 0,
+      "elapsed_seconds": 518.2015947909999,
+      "png_sha256": "02e89b6c655940a4c1a9b96fc4ae29d54fa83618a36e36afc91b3428a65e2803",
+      "shadow_submissions_sha256": "a9d98474aabff8db673c2191f22a290efd66e8ee4b77664f470ef04ee7765e79"
+    },
+    "local/native-field-shadows-67061-release-v1": {
+      "manifest_sha256": "b3befb077cc879db0fd6f6773b4daac97c8f9f3947d739c280d4febf3d8bae2f",
+      "binary_sha256": "f723c7e809aaf61dc69ddd11249e285f6568d1b499088f7618270026f182d2a9",
+      "exit_code": 0,
+      "elapsed_seconds": 20.930518583,
+      "png_sha256": "5c98d6706caf2f0d1dc509908506ec1348e820414db4b18ab59a749cb710cead",
+      "shadow_submissions_sha256": "4cf2bf0b101380585de245ec6d62e45e496aa8670cd2492df23b43a5fb9ec1f7"
+    },
+    "local/native-field-shadows-62855-release-v1": {
+      "manifest_sha256": "4a9b5e266a4ae0bdcd792bf064ae354e6eba5a644f88ca204213784d2531b4e7",
+      "binary_sha256": "f723c7e809aaf61dc69ddd11249e285f6568d1b499088f7618270026f182d2a9",
+      "exit_code": 0,
+      "elapsed_seconds": 23.163510834,
+      "png_sha256": "d632ddab18c2e04f3a1f5db132351f902d13cc9621d0b99cf7222d380b2d9bb6",
+      "shadow_submissions_sha256": "12a16e9d6e2b4600380ed57620cad2432d22d3e7d812cf877789ece607076867"
+    }
+  },
+  "native_route_regression": {
+    "builds": 3,
+    "prior_artifacts_exact_per_build": 40,
+    "new_png_and_shadow_report_exact_across_builds": true
+  },
+  "tests": {
+    "ctest_passed_per_build": 21,
+    "python_unittest_passed": 122,
+    "logs": {
+      "local/research/field-shadow-runtime-v1/ctest-release-v2.log": "2e9258cedbe34cb4ff0b946f44380534ff3430fe531186e1a435661bf1c2d421",
+      "local/research/field-shadow-runtime-v1/ctest-debug-v1.log": "98df804b3870c55df1d75d090b9288305c20b11ed91c2db0ad2ed2ad1831364a",
+      "local/research/field-shadow-runtime-v1/ctest-sanitize-v1.log": "86fa073ec3ff4d3d178565a1fbacffb1134e2219f86c936a04656fc34c0fb13a",
+      "local/research/field-shadow-runtime-v1/python-tests-v2.log": "bbbda9ebac7e120fe8e80cb25327ce73927d5ad365893e2e1c840b5a18021f89"
+    }
+  },
+  "preview": {
+    "prefix": "local/native-field-shadows-preview-62855-v1",
+    "app": "local/demos/field-shadows-preview-v1/okage-native.app",
+    "last_observed_pid": 22020,
+    "tool_session": 46844,
+    "frame": 62855,
+    "last_observed_state": "AppKit window visibly inspected, paused; P toggles pause. Interactive process intentionally left live; recheck on resume.",
+    "binary_sha256": "f723c7e809aaf61dc69ddd11249e285f6568d1b499088f7618270026f182d2a9"
+  },
+  "limitations": [
+    "Native progression ends at67568 before guarded service54.",
+    "Original0xc48 combined hierarchy/projection arithmetic is not established equivalent to native camera pose plus0xe08.",
+    "Clipped original packet output and varying receiver-depth GS raster remain unproved.",
+    "Ordinary model blocks still use raw internal order rather than original visibility/sort.",
+    "Endpoint image pair has nominal correspondence, not certified full-interval temporal alignment. Lighting/material/pose differences remain.",
+    "No aligned per-frame route images or original route PCM were captured.",
+    "Replay durations are not interactive FPS or uncontended performance comparisons.",
+    "Earlier loading/text/RNG/audio/whole-interval fidelity failures remain.",
+    "Full game playthrough, battles, persistence and physical controller/listening checks are unfinished."
+  ],
+  "runs": {
+    "comparison_audit": "Smaller-model tests and image tooling; primary review/corrections/full-suite execution.",
+    "field_shadow_roster": "Read-only roster, queues and rendering review.",
+    "receiving_depth": "Original screen probe/verifier and read-only service54 recovery."
+  }
+}

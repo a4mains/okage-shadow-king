@@ -27,6 +27,7 @@ struct ShadowProjectionContext {
     std::array<Matrix4,2> planes{};
     Float4 world_direction{},view_direction{};
     ShadowProjectionContext(const Float4& light_direction,const Matrix4& camera_view);
+    ShadowProjection base() const; //0x1b1710, before per-instance selector packets.
     ShadowProjection project(unsigned mode,float height,float factor,
         const std::array<std::uint32_t,3>& tint={255,64,192}) const;
 };

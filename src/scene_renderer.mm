@@ -5,7 +5,11 @@
 #include "okage/field.hpp"
 #include "okage/map_objects.hpp"
 #include "okage/render.hpp"
+#include "okage/field_raster.hpp"
+#include "shadow_metal.hpp"
 #include "metal_preview_shader.hpp"
+#include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <bit>
 #include <fstream>
@@ -17,14 +21,18 @@ std::vector<std::uint8_t> read(const fs::path& path) {
     std::vector<std::uint8_t> b(n);std::ifstream in(path,std::ios::binary);
     if(!in.read(reinterpret_cast<char*>(b.data()),b.size()))throw std::runtime_error("Cannot read scene input");return b;
 }
-struct Vertex {Float4 position,color,uv;};
-struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;std::uint64_t materialBlend=0;bool depthAlways=false,subtractive=false;};
+using Vertex=FieldRasterVertex;
+struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;std::uint64_t materialBlend=0;bool depthAlways=false,subtractive=false;unsigned phase=0;float nearClip=3;bool deferred=false;unsigned bucket=0,ordinal=0;};
 }
 struct SceneRenderer::Impl {
-    struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;std::optional<MapTransform> facing;std::optional<std::size_t> placement;bool visible=true;};
+    struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;std::optional<MapTransform> facing;std::optional<std::size_t> placement;bool visible=true;bool afterShadows=false;std::uint32_t flags=0;unsigned ordinal=0;bool special=false;};
     const MapObjects* mapObjects=nullptr;
     SineTable sine=make_sine_table();
     std::vector<Input> inputs;
+    std::vector<FieldShadowActor> shadowActors;
+    FieldShadowSettings shadowSettings;
+    FieldShadowFrame shadowFrame;
+    std::unique_ptr<ShadowMetal> shadowMetal;
     std::optional<std::size_t> sky_input;
     Float4 sky_factors{.5f,0,.5f,0};
     std::vector<Texture> textures;
@@ -44,6 +52,7 @@ struct SceneRenderer::Impl {
     explicit Impl(const fs::path& path,std::span<const SceneActor> actors,const MapObjects* objects) {
         mapObjects=objects;
         const auto map=read_xmp(read(path));
+        unsigned front=0,back=640;
         for(std::size_t index=0;index<map.placements.size();++index) {
             const auto& placement=map.placements[index];
             if(placement.handler()) {++omittedEffects;continue;}
@@ -60,12 +69,23 @@ struct SceneRenderer::Impl {
             const auto file=path.parent_path()/definition.name;
             inputs.push_back({file,object?object->model():read_xmd(read(file)),instance_matrix(transform.position,transform.rotation,transform.scale,sine),object,
                 (transform.flags&1)?std::optional<MapTransform>(transform):std::nullopt,index,(transform.flags&0x10000)==0});
+            inputs.back().flags=transform.flags;
+            inputs.back().ordinal=transform.flags&0x100000?640+--back:front++;
         }
         if(inputs.empty())throw std::runtime_error("Empty field map");
         if(sky_input){auto stage=path;stage.replace_extension(".stg");sky_factors=field_sky_follow(read(stage));}
+        {auto stage=path;stage.replace_extension(".stg");shadowSettings=field_shadow_settings(read(stage));}
         for(const auto& binding:actors) {
             if(!binding.actor || binding.model_path.empty())throw std::runtime_error("Actor and model path required");
-            inputs.push_back({binding.model_path,binding.actor->model(),{},binding.actor,{},{},true});++actorCount;
+            const auto companion_path=binding.model_path.parent_path()/"shadow.xmd";
+            std::optional<ModelFile> companion;
+            if(fs::exists(companion_path))companion=read_xmd(read(companion_path));
+            auto name=binding.model_path.parent_path().stem().string();
+            std::transform(name.begin(),name.end(),name.begin(),[](unsigned char c){return char(std::tolower(c));});
+            shadowActors.push_back(make_field_shadow_actor(binding.alias,name,*binding.actor,companion?&*companion:nullptr));
+            inputs.push_back({binding.model_path,binding.actor->model(),{},binding.actor,{},{},true,shadowActors.back().ordinary_after_shadows()});++actorCount;
+            inputs.back().flags=shadowActors.back().flags;inputs.back().ordinal=front++;
+            inputs.back().special=name=="wkumo"||name=="rkumo"||name=="bkumo";
         }
         for(const auto& input:inputs) {
             textureOffsets.push_back(textures.size());
@@ -83,13 +103,13 @@ struct SceneRenderer::Impl {
         id<MTLLibrary> library=[device newLibraryWithSource:[NSString stringWithUTF8String:shader] options:nil error:&error];
         if (!library) throw std::runtime_error(error.localizedDescription.UTF8String);
         auto descriptor=[MTLRenderPipelineDescriptor new];
-        descriptor.vertexFunction=[library newFunctionWithName:@"preview_vertex"];
-        descriptor.fragmentFunction=[library newFunctionWithName:@"preview_fragment"];
+        descriptor.vertexFunction=[library newFunctionWithName:@"field_vertex"];
+        descriptor.fragmentFunction=[library newFunctionWithName:@"field_preview_fragment"];
         descriptor.colorAttachments[0].pixelFormat=MTLPixelFormatRGBA8Unorm;
         descriptor.depthAttachmentPixelFormat=MTLPixelFormatDepth32Float;
         pipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
         if (!pipeline) throw std::runtime_error(error.localizedDescription.UTF8String);
-        descriptor.fragmentFunction=[library newFunctionWithName:@"effect_fragment"];
+        descriptor.fragmentFunction=[library newFunctionWithName:@"field_effect_fragment"];
         descriptor.colorAttachments[0].blendingEnabled=YES;
         descriptor.colorAttachments[0].sourceRGBBlendFactor=MTLBlendFactorSourceAlpha;
         descriptor.colorAttachments[0].destinationRGBBlendFactor=MTLBlendFactorOneMinusSourceAlpha;
@@ -97,8 +117,7 @@ struct SceneRenderer::Impl {
         descriptor.colorAttachments[0].destinationAlphaBlendFactor=MTLBlendFactorOneMinusSourceAlpha;
         effectPipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
         if(!effectPipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
-        descriptor.vertexFunction=[library newFunctionWithName:@"map_effect_vertex"];
-        descriptor.fragmentFunction=[library newFunctionWithName:@"map_effect_fragment"];
+        descriptor.fragmentFunction=[library newFunctionWithName:@"field_map_effect_fragment"];
         descriptor.colorAttachments[0].sourceRGBBlendFactor=MTLBlendFactorOne;
         descriptor.colorAttachments[0].destinationRGBBlendFactor=MTLBlendFactorOne;
         descriptor.colorAttachments[0].destinationAlphaBlendFactor=MTLBlendFactorOne;
@@ -115,8 +134,7 @@ struct SceneRenderer::Impl {
         darkEffectPipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
         if(!darkEffectPipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
         descriptor.colorAttachments[0].rgbBlendOperation=MTLBlendOperationAdd;
-        descriptor.vertexFunction=[library newFunctionWithName:@"preview_vertex"];
-        descriptor.fragmentFunction=[library newFunctionWithName:@"material_fragment"];
+        descriptor.fragmentFunction=[library newFunctionWithName:@"field_material_fragment"];
         descriptor.colorAttachments[0].sourceRGBBlendFactor=MTLBlendFactorOne;
         descriptor.colorAttachments[0].destinationRGBBlendFactor=MTLBlendFactorOneMinusSourceAlpha;
         descriptor.colorAttachments[0].sourceAlphaBlendFactor=MTLBlendFactorZero;
@@ -129,7 +147,7 @@ struct SceneRenderer::Impl {
         descriptor.colorAttachments[0].rgbBlendOperation=MTLBlendOperationReverseSubtract;
         materialSubtractPipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
         if(!materialSubtractPipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
-        auto depthState=[MTLDepthStencilDescriptor new]; depthState.depthCompareFunction=MTLCompareFunctionLess; depthState.depthWriteEnabled=YES;
+        auto depthState=[MTLDepthStencilDescriptor new]; depthState.depthCompareFunction=MTLCompareFunctionLessEqual; depthState.depthWriteEnabled=YES;
         depth=[device newDepthStencilStateWithDescriptor:depthState];
         depthState.depthCompareFunction=MTLCompareFunctionLessEqual;
         materialDepth=[device newDepthStencilStateWithDescriptor:depthState];
@@ -169,7 +187,8 @@ struct SceneRenderer::Impl {
         }
         effectTexturesLoaded=true;
     }
-    Texture render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition) {
+    Texture render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor) {
+        shadowFrame=fieldProjection?field_shadow_frame(shadowActors,view,*fieldProjection,shadowSettings,shadowFactor,sine):FieldShadowFrame{};
         std::vector<Vertex> vertices;
         std::vector<Draw> draws;
         okage::Float4 low{INFINITY,INFINITY,INFINITY,0},high{-INFINITY,-INFINITY,-INFINITY,0};
@@ -196,6 +215,7 @@ struct SceneRenderer::Impl {
                 const auto position=sky_follow_position(cameraPosition,sky_factors);
                 world[3]={position[0],position[1],position[2],1};
             }
+            const unsigned sort=fieldProjection?field_ordinary_bucket(input.flags,field_depth_bucket(view,world[3],fieldProjection->ordinary),input.special):0;
             for (const auto& part:input.model.models) {
                 auto pose=input.actor ? okage::animated_pose(part,input.actor->channels(),sine,input.actor->animation().scale_channels()) : okage::rest_pose(part,sine);
                 {
@@ -216,6 +236,7 @@ struct SceneRenderer::Impl {
                     }
                     for (const auto& polygon:block.polygons) {
                         Draw draw{std::uint32_t(vertices.size()),0,-1,{}};
+                        draw.bucket=sort;draw.ordinal=input.ordinal;draw.phase=sort>517?1:0;
                         const Material* material=nullptr;
                         if(materialActor) {
                             if(polygon.material<0)throw std::runtime_error("Special actor has no material");
@@ -266,6 +287,9 @@ struct SceneRenderer::Impl {
             }
             draws.insert(draws.end(),translucent.begin(),translucent.end());
         }
+        if(fieldProjection)std::stable_sort(draws.begin(),draws.end(),[](const Draw& a,const Draw& b){
+            return a.bucket!=b.bucket?a.bucket<b.bucket:a.ordinal>b.ordinal;
+        });
         EffectSubmissions previewSubmissions;
         if(!effectSubmissions)for(unsigned slot=0;slot<84;++slot) {
             if(mapEffects&&(*mapEffects)[slot]&&((*mapEffects)[slot]->id!=17||((*mapEffects)[slot]->flags&0x20)))
@@ -285,6 +309,7 @@ struct SceneRenderer::Impl {
                     {e.uv[0],e.uv[2],e.uv[1],e.uv[3],2,2,untextured?0u:1u,(e.additive||e.subtractive)?0u:1u},true,e.additive,!e.additive&&!e.subtractive};
                 draw.depthAlways=!e.depth_test;
                 draw.subtractive=e.subtractive;
+                draw.phase=2;draw.nearClip=effect->near_clip;draw.deferred=(effect->flags&0x400)!=0;
                 for(const auto& source:e.vertices){
                     Float4 p{},c{};
                     for(unsigned r=0;r<4;++r){
@@ -308,6 +333,7 @@ struct SceneRenderer::Impl {
                 const auto texture=effectTexture+sprite.texture;const auto& image=textures.at(texture);
                 const unsigned left=sprite.uv[0],top=sprite.uv[1],right=sprite.uv[2],bottom=sprite.uv[3];
                 Draw draw{std::uint32_t(vertices.size()),6,std::int32_t(texture),{left,std::min(right,image.width-1),top,std::min(bottom,image.height-1),2,2,1,0},true};
+                draw.phase=2;draw.nearClip=attached->near_clip;
                 const float u0=left/1024.f,v0=top/1024.f;
                 const float u1=(sprite.texture==14?32.f:float(left+16))/1024.f;
                 const float v1=(sprite.texture==14?32.f:16.f)/1024.f;
@@ -321,7 +347,17 @@ struct SceneRenderer::Impl {
         }
         }
         if (vertices.empty()) throw std::runtime_error("Empty preview geometry");
-        for(auto& v:vertices) {
+        if(fieldProjection){
+            std::vector<Vertex> projected;
+            for(auto& draw:draws){
+                auto settings=draw.effect?(draw.deferred?fieldProjection->deferred:fieldProjection->effects):fieldProjection->ordinary;
+                if(draw.effect)settings.clip_near=draw.nearClip;
+                auto part=field_raster_triangles(std::span(vertices).subspan(draw.first,draw.count),settings,draw.materialBlend||draw.additive||draw.dust||draw.subtractive);
+                draw.first=static_cast<unsigned>(projected.size());draw.count=static_cast<unsigned>(part.size());
+                projected.insert(projected.end(),part.begin(),part.end());
+            }
+            vertices=std::move(projected);
+        }else for(auto& v:vertices) {
             const auto p=v.position;
             v.position={p[0]*projection[0],-p[1]*projection[1],(p[2]*projection[2]+projection[3]+p[2])*0.5f,p[2]};
         }
@@ -330,12 +366,16 @@ struct SceneRenderer::Impl {
         pass.colorAttachments[0].storeAction=MTLStoreActionStore;
         pass.colorAttachments[0].clearColor=MTLClearColorMake(.055,.07,.095,1);
         pass.depthAttachment.texture=depthTarget; pass.depthAttachment.loadAction=MTLLoadActionClear; pass.depthAttachment.clearDepth=1;
+        pass.depthAttachment.storeAction=MTLStoreActionStore;
         id<MTLCommandBuffer> command=[queue commandBuffer];
+        id<MTLBuffer> vertexBuffer=vertices.empty()?nil:[device newBufferWithBytes:vertices.data() length:vertices.size()*sizeof(Vertex) options:MTLResourceStorageModeShared];
+        auto encode=[&](bool after){
         id<MTLRenderCommandEncoder> encoder=[command renderCommandEncoderWithDescriptor:pass];
         [encoder setRenderPipelineState:pipeline]; [encoder setDepthStencilState:depth]; [encoder setCullMode:MTLCullModeNone];
-        id<MTLBuffer> vertexBuffer=[device newBufferWithBytes:vertices.data() length:vertices.size()*sizeof(Vertex) options:MTLResourceStorageModeShared];
-        [encoder setVertexBuffer:vertexBuffer offset:0 atIndex:0];
+        if(vertexBuffer)[encoder setVertexBuffer:vertexBuffer offset:0 atIndex:0];
         for (const auto& draw:draws) {
+            if(fieldProjection&&((draw.phase!=0)!=after))continue;
+            if(!draw.count)continue;
             [encoder setCullMode:draw.materialBlend?MTLCullModeBack:MTLCullModeNone];
             [encoder setRenderPipelineState:draw.materialBlend?(draw.materialBlend==0x48?materialAddPipeline:draw.materialBlend==0x42?materialSubtractPipeline:materialPipeline):draw.subtractive?darkEffectPipeline:draw.dust?dustPipeline:draw.additive?mapEffectPipeline:draw.effect?effectPipeline:pipeline];
             [encoder setDepthStencilState:draw.depthAlways?effectDepth:draw.materialBlend?(draw.state[7]==1?materialDepth:mapEffectDepth):(draw.additive||draw.dust||draw.subtractive)?mapEffectDepth:draw.effect?effectDepth:depth];
@@ -343,7 +383,21 @@ struct SceneRenderer::Impl {
             [encoder setFragmentBytes:draw.state.data() length:sizeof(draw.state) atIndex:0];
             [encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:draw.first vertexCount:draw.count];
         }
-        [encoder endEncoding]; [command commit]; [command waitUntilCompleted];
+        [encoder endEncoding];
+        };
+        encode(false);
+        if(fieldProjection){
+            if(!shadowMetal)shadowMetal=std::make_unique<ShadowMetal>(device);
+            std::vector<ShadowRasterDraw> shadowDraws;shadowDraws.reserve(shadowFrame.draws.size());
+            for(const auto& draw:shadowFrame.draws)shadowDraws.push_back({draw.prism,draw.color});
+            ShadowRasterMapping mapping;mapping.offset_x=fieldProjection->shadow.center_x-320;
+            mapping.offset_y=fieldProjection->shadow.center_y-112;
+            shadowMetal->encode(command,target,depthTarget,shadowDraws,mapping);
+            pass.colorAttachments[0].loadAction=MTLLoadActionLoad;
+            pass.depthAttachment.loadAction=MTLLoadActionLoad;
+            encode(true);
+        }
+        [command commit]; [command waitUntilCompleted];
         if (command.status!=MTLCommandBufferStatusCompleted) throw std::runtime_error(command.error.localizedDescription.UTF8String);
         Texture image{640,224,0,0,std::vector<std::uint8_t>(640*224*4)};
         [target getBytes:image.rgba.data() bytesPerRow:640*4 fromRegion:MTLRegionMake2D(0,0,640,224) mipmapLevel:0];
@@ -363,7 +417,8 @@ EffectTextureSizes SceneRenderer::effect_texture_sizes() const {
 void SceneRenderer::set_effect_light_tint(const Float4& tint){impl_->effectTint=tint;}
 void SceneRenderer::bind_map_effects(const MapEffects* effects){impl_->mapEffects=effects;}
 void SceneRenderer::bind_effect_submissions(const EffectSubmissions* effects){impl_->effectSubmissions=effects;}
-Texture SceneRenderer::render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition){return impl_->render(view,projection,effects,camera,farClip,cameraPosition);}
+Texture SceneRenderer::render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor){return impl_->render(view,projection,effects,camera,farClip,cameraPosition,fieldProjection,shadowFactor);}
+const std::vector<FieldShadowSubmission>& SceneRenderer::shadow_submissions() const{return impl_->shadowFrame.submissions;}
 std::size_t SceneRenderer::placements() const{return impl_->inputs.size()-impl_->actorCount;}
 std::size_t SceneRenderer::actors() const{return impl_->actorCount;}
 std::size_t SceneRenderer::omitted_effects() const{return impl_->omittedEffects;}

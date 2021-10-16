@@ -21,6 +21,7 @@
 #include "okage/field.hpp"
 #include "okage/effect.hpp"
 #include "okage/shadow.hpp"
+#include "okage/field_raster.hpp"
 #include "okage/collision.hpp"
 #include <algorithm>
 #include <bit>
@@ -270,6 +271,30 @@ int main(int argc, char** argv) {
             for(const auto& matrix:okage::rest_pose(bound,okage::make_sine_table()))
                 for(const auto& v:matrix)for(float f:v)output.push_back(__builtin_bit_cast(std::uint32_t, (f)));
             write(argv[4],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
+        if(command=="field-screen" && argc==4) {
+            const auto input=read(argv[2]);constexpr unsigned stride=29*4;
+            if(input.empty()||input.size()%stride||input.size()>stride*64)throw std::runtime_error("Field screen fixture extent");
+            std::vector<std::uint32_t> output;
+            for(unsigned at=0;at<input.size();at+=stride){
+                std::array<std::uint32_t,29> f;std::memcpy(f.data(),input.data()+at,stride);
+                if(f[1]>3)throw std::runtime_error("Field screen fixture mode");
+                std::array<float,15> v;std::memcpy(v.data(),f.data()+2,60);
+                const okage::ShadowScreenSettings settings{v[0],v[1],v[2],v[3],v[4],v[5],v[6],v[7],v[8],v[9],v[10],v[11],v[12],v[13],v[14]};
+                const auto params=okage::shadow_screen_parameters(settings);
+                std::array<okage::Float4,3> points;std::memcpy(points.data(),f.data()+17,48);
+                std::vector<okage::FieldScreenVertex> vertices;
+                if(f[1]&2)for(const auto& p:points)vertices.push_back({{},p,0});
+                else vertices=okage::field_screen_vertices(points,params);
+                output.insert(output.end(),{f[0],f[1]});
+                for(const auto& p:params)for(float value:p)output.push_back(__builtin_bit_cast(std::uint32_t, (value)));
+                for(const auto& p:vertices)for(float value:p.clip)output.push_back(__builtin_bit_cast(std::uint32_t, (value)));
+                for(const auto& p:vertices)for(float value:p.screen)output.push_back(__builtin_bit_cast(std::uint32_t, (value)));
+                for(const auto& p:vertices)output.push_back(p.flags);
+                for(const auto& p:vertices){const auto packed=okage::field_pack_xyzf(p.screen);output.insert(output.end(),packed.begin(),packed.end());}
+                for(const auto& p:vertices){const auto packed=okage::field_pack_xyzf(p.screen);output.insert(output.end(),{packed[0]&0xffff,packed[1]&0xffff,(packed[2]&0x0ffffff0)>>4,(packed[3]&0xff0)>>4});}
+            }
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
         }
         if(command=="shadow-cache" && argc==4) {
             const auto input=read(argv[2]);constexpr unsigned stride=73*4;

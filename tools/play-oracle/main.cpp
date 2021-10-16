@@ -2237,6 +2237,83 @@ public:
         writeFile(output,result.data(),result.size());
         std::cout<<"Original VU1 instance alpha records: "<<cases.size()/8<<'\n';
     }
+    void ordinaryDepth(const std::vector<uint8>& input,const char* output) {
+        constexpr unsigned stride=29*4,top=0x350,outputBase=0x300,qwords=10;
+        if(input.empty()||input.size()%stride||input.size()>stride*64)
+            throw std::runtime_error("Ordinary depth fixture extent");
+        std::memcpy(ee->m_microMem1,ee->m_ram+0x215900,0x3d98);
+        auto& cpu=ee->m_VU1;
+        auto run=[&](unsigned entry,unsigned count=0) {
+            put(0x1900000,0x03000000|top);put(0x1900004,0x02000000);
+            put(0x1900008,0x04000000|count);put(0x190000c,0x14000000|entry);
+            ee->m_vpu1->GetVif().ReceiveDMA(0x1900000,1,1,false);
+            if(!ee->m_vpu1->IsVuReady()||cpu.m_State.nHasException!=MIPS_EXCEPTION_VU_EBIT)
+                throw std::runtime_error("Ordinary depth VU entry did not complete");
+        };
+        auto vector=[&](unsigned at,std::array<float,4> value) {
+            std::memcpy(ee->m_vuMem1+at*16,value.data(),16);
+        };
+        std::vector<uint32> result;
+        for(unsigned at=0;at<input.size();at+=stride) {
+            std::array<uint32,29> f;std::memcpy(f.data(),input.data()+at,stride);
+            if(f[1]>3)throw std::runtime_error("Ordinary depth fixture mode");
+            for(unsigned i=2;i<f.size();++i)
+                if((f[i]&0x7f800000)==0x7f800000)
+                    throw std::runtime_error("Nonfinite ordinary depth fixture");
+            const bool textured=f[1]&1,direct=f[1]&2;
+            for(unsigned i=0;i<8;++i)ee->m_EE.m_State.nCOP1[12+i]=f[2+i];
+            for(unsigned i=0;i<7;++i)put(0x1ff0000+i*8,f[10+i]);
+            call(0x1acc10,{0x80000});
+            // Also initializes the projection-loop prefetch beyond vertex3.
+            std::memset(ee->m_vuMem1,0,0x4000);run(0);
+            std::memcpy(ee->m_vuMem1+top*16,ee->m_ram+0x80000,128);run(0x59);
+            if(direct) {
+                std::memcpy(ee->m_vuMem1+0x87*16,f.data()+17,48);
+                cpu.m_State.nCOP2VI[11]=0;
+            } else {
+                std::memcpy(ee->m_vuMem1+0x26*16,f.data()+17,48);
+                const uint32 header[]={3,0,1,0};
+                std::memcpy(ee->m_vuMem1+top*16,header,16);run(0x1c1);
+                if(cpu.m_State.nCOP2VI[11]!=0)
+                    throw std::runtime_error("Ordinary depth probe requires unclipped camera vertices");
+            }
+            std::array<uint32,115> record{};
+            record[0]=f[0];record[1]=f[1];record[2]=cpu.m_State.nCOP2VI[11];
+            std::memcpy(record.data()+4,ee->m_ram+0x80000,128);
+            if(!direct)std::memcpy(record.data()+36,ee->m_vuMem1+0x26*16,48);
+            std::memcpy(record.data()+48,ee->m_vuMem1+0x87*16,48);
+            for(unsigned i=0;i<3;++i) {
+                if(!direct)std::memcpy(record.data()+60+i,ee->m_vuMem1+(0x1aa+i)*16+12,4);
+                const uint32 corner[]={i,i,i,i};
+                std::memcpy(ee->m_vuMem1+(top+i+1)*16,corner,16);
+                vector(0x149+i,{128,128,128,128});vector(0x20b+i,{1,1,1,1});
+                vector(0x1aa+i,{.125f*float(i+1),.125f*float(i+2),1,0});
+            }
+            const uint32 prim=textured?0x5dU:0x4dU;
+            const uint32 header[]={3,0x30004000|(prim<<15)|prim,textured?0x412U:0x41fU,0};
+            std::memcpy(ee->m_vuMem1+top*16,header,16);
+            std::memset(ee->m_vuMem1+(outputBase-1)*16,0xcd,(qwords+2)*16);
+            cpu.m_State.nCOP2VI[11]=0;cpu.m_State.nCOP2VI[12]=0x3ff;
+            cpu.m_State.nCOP2VI[13]=outputBase;cpu.m_State.nCOP2VI[14]=0;
+            run(0x3b6,qwords);
+            record[3]=cpu.m_State.nCOP2VI[13]-outputBase;
+            if(record[3]!=qwords||cpu.m_State.nPC!=0x2100)
+                throw std::runtime_error("Ordinary depth triangle missing or wrong exit; require positive screen winding");
+            for(unsigned i=0;i<16;++i)
+                if(ee->m_vuMem1[(outputBase-1)*16+i]!=0xcd||ee->m_vuMem1[(outputBase+qwords)*16+i]!=0xcd)
+                    throw std::runtime_error("Ordinary depth output exceeded fixture");
+            std::memcpy(record.data()+63,ee->m_vuMem1+outputBase*16,qwords*16);
+            for(unsigned i=0;i<3;++i) {
+                const auto* packed=record.data()+63+(3+3*i)*4;
+                auto* decoded=record.data()+103+i*4;
+                decoded[0]=packed[0]&0xffff;decoded[1]=packed[1]&0xffff;
+                decoded[2]=(packed[2]&0x0ffffff0)>>4;decoded[3]=(packed[3]&0xff0)>>4;
+            }
+            result.insert(result.end(),record.begin(),record.end());
+        }
+        writeFile(output,result.data(),result.size()*4);
+        std::cout<<"Original ordinary receiver cache/packing records: "<<input.size()/stride<<'\n';
+    }
     void primitive(unsigned count,bool textured,bool reverse,bool clipChecks,const char* output) {
         if (count!=3 && count!=4) throw std::runtime_error("Primitive fixture requires 3 or 4 vertices");
         std::memcpy(ee->m_microMem1,ee->m_ram+0x215900,0x3d98);
@@ -2575,6 +2652,8 @@ int main(int argc,char** argv) {
             reference.shadowUpdate(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if (command=="instance-alpha" && argc==5) {
             reference.instanceAlpha(readFile(argv[3]),argv[4]);
+        } else if (command=="ordinary-depth" && argc==5) {
+            reference.ordinaryDepth(readFile(argv[3]),argv[4]);
         } else if (command=="primitive" && argc==8) {
             reference.primitive(std::stoul(argv[3]),std::stoul(argv[4])!=0,std::stoul(argv[5])!=0,std::stoul(argv[6])!=0,argv[7]);
         } else if (command=="texture-callback" && argc==6) {

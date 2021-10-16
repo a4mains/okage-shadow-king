@@ -9,8 +9,8 @@ struct State { uint4 region; uint4 mode; };
 vertex Varying preview_vertex(uint id [[vertex_id]], device const Vertex* v [[buffer(0)]]) {
     return {v[id].position, v[id].color, v[id].uv.xy};
 }
-fragment float4 preview_fragment(Varying v [[stage_in]], texture2d<float> image [[texture(0)]],
-                                constant State& state [[buffer(0)]]) {
+float4 preview_color(Varying v, texture2d<float> image,
+                                constant State& state) {
     float4 color=v.color;
     if (state.mode.z) {
         int2 p=int2(floor(v.uv*1024.0f));
@@ -25,8 +25,8 @@ fragment float4 preview_fragment(Varying v [[stage_in]], texture2d<float> image 
     if (color.a<0.5f) discard_fragment();
     return float4(color.rgb,1);
 }
-fragment float4 material_fragment(Varying v [[stage_in]], texture2d<float> image [[texture(0)]],
-                                 constant State& state [[buffer(0)]]) {
+float4 material_color(Varying v, texture2d<float> image,
+                                 constant State& state) {
     float4 color=v.color;
     if(state.mode.z) {
         int2 p=int2(floor(v.uv*1024.0f));
@@ -47,8 +47,8 @@ fragment float4 material_fragment(Varying v [[stage_in]], texture2d<float> image
     float alpha=color.a/128.0f;
     return float4((color.rgb/255.0f)*alpha,alpha);
 }
-fragment float4 effect_fragment(Varying v [[stage_in]], texture2d<float> image [[texture(0)]],
-                               constant State& state [[buffer(0)]]) {
+float4 effect_color(Varying v, texture2d<float> image,
+                               constant State& state) {
     int2 p=int2(floor(v.uv*1024.0f));
     p=clamp(p,int2(state.region.x,state.region.z),int2(state.region.y,state.region.w));
     p=clamp(p,int2(0),int2(image.get_width()-1,image.get_height()-1));
@@ -60,8 +60,8 @@ struct MapEffectVarying {float4 position [[position]];float4 color [[center_no_p
 vertex MapEffectVarying map_effect_vertex(uint id [[vertex_id]],device const Vertex* v [[buffer(0)]]) {
     return {v[id].position,v[id].color,v[id].uv.xy};
 }
-fragment float4 map_effect_fragment(MapEffectVarying v [[stage_in]],texture2d<float> image [[texture(0)]],
-                                   constant State& state [[buffer(0)]]) {
+float4 map_effect_color(MapEffectVarying v,texture2d<float> image,
+                                   constant State& state) {
     // TEX1=0x60 uses linear filtering; clamp each tap to the observed region.
     float4 modulated;
     if(!state.mode.z)modulated=clamp(v.color,0.0f,255.0f);
@@ -81,5 +81,44 @@ fragment float4 map_effect_fragment(MapEffectVarying v [[stage_in]],texture2d<fl
     if(state.mode.w && modulated.a<=0)discard_fragment(); // TEST0x5000d: alpha>0.
     // Dust ALPHA0x44 adds the destination scaled by1-As/128.
     return float4((modulated.rgb/255.0f)*(modulated.a/128.0f),state.mode.w?modulated.a/128.0f:0);
+}
+
+struct FieldVarying {float4 position [[position]]; float4 color [[center_no_perspective]];
+    float3 uv [[center_no_perspective]]; float z [[center_no_perspective]]; float field [[flat]];};
+struct FieldOutput {float4 color [[color(0)]];float depth [[depth(any)]];};
+vertex FieldVarying field_vertex(uint id [[vertex_id]],device const Vertex* v [[buffer(0)]]) {
+    const auto a=v[id];
+    const bool field=a.uv.w>0;
+    const float q=field?a.position.z:1.0f/a.position.w;
+    return {field?float4(a.position.xy,0,1):a.position,a.color,
+        float3(field?a.uv.xy:a.uv.xy*q,q),a.uv.z,a.uv.w};
+}
+
+fragment float4 preview_fragment(Varying v [[stage_in]],texture2d<float> image [[texture(0)]],
+    constant State& state [[buffer(0)]]) {return preview_color(v,image,state);}
+fragment FieldOutput field_preview_fragment(FieldVarying v [[stage_in]],texture2d<float> image [[texture(0)]],
+    constant State& state [[buffer(0)]]) {
+    return {preview_color(Varying{v.position,v.color,v.uv.xy/v.uv.z},image,state),v.field>0?1.0f-floor(v.z)/16777216.0f:v.position.z};
+}
+
+fragment float4 material_fragment(Varying v [[stage_in]],texture2d<float> image [[texture(0)]],
+    constant State& state [[buffer(0)]]) {return material_color(v,image,state);}
+fragment FieldOutput field_material_fragment(FieldVarying v [[stage_in]],texture2d<float> image [[texture(0)]],
+    constant State& state [[buffer(0)]]) {
+    return {material_color(Varying{v.position,v.color,v.uv.xy/v.uv.z},image,state),v.field>0?1.0f-floor(v.z)/16777216.0f:v.position.z};
+}
+
+fragment float4 effect_fragment(Varying v [[stage_in]],texture2d<float> image [[texture(0)]],
+    constant State& state [[buffer(0)]]) {return effect_color(v,image,state);}
+fragment FieldOutput field_effect_fragment(FieldVarying v [[stage_in]],texture2d<float> image [[texture(0)]],
+    constant State& state [[buffer(0)]]) {
+    return {effect_color(Varying{v.position,v.color,v.uv.xy/v.uv.z},image,state),v.field>0?1.0f-floor(v.z)/16777216.0f:v.position.z};
+}
+
+fragment float4 map_effect_fragment(MapEffectVarying v [[stage_in]],texture2d<float> image [[texture(0)]],
+    constant State& state [[buffer(0)]]) {return map_effect_color(v,image,state);}
+fragment FieldOutput field_map_effect_fragment(FieldVarying v [[stage_in]],texture2d<float> image [[texture(0)]],
+    constant State& state [[buffer(0)]]) {
+    return {map_effect_color(MapEffectVarying{v.position,v.color,v.uv.xy/v.uv.z},image,state),v.field>0?1.0f-floor(v.z)/16777216.0f:v.position.z};
 }
 )metal";
