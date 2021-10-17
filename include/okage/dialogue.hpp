@@ -44,9 +44,9 @@ struct SceneFade {
 // Three description widgets from 0x146ee8, using the USA sysmes[0x106]
 // font-2 style. Diagnostic rasterization omits GS filtering/subpixel coverage.
 struct Narration {
-    struct Line {std::string text;unsigned ticks=0,alpha=0;int width=0,x=0;};
+    struct Line {std::string text,source;unsigned ticks=0,alpha=0;int width=0,x=0;};
     std::array<Line,3> lines;
-    void update(std::string_view description,const Font& font);
+    void update(std::string_view description,const Font& font,std::string_view player_name);
     std::vector<TextGlyph> glyphs(const Font& font) const;
 };
 // Choice text positions/opacity from 0x146ee8. The runtime's flat diagnostic
@@ -56,7 +56,7 @@ struct ChoiceMenu {
     unsigned alpha=0,accepted=0;
     int cursor=0;
     bool highlighted=false;
-    void update(std::string_view replacement,int selection,bool armed);
+    void update(std::string_view replacement,int selection,bool armed,std::string_view player_name);
     std::vector<TextGlyph> glyphs(const Font&) const;
 };
 struct DialogueOpacity {

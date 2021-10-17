@@ -105,6 +105,23 @@ int main(){try {
         word(0xbe8,selector);okage::OpeningField special(b,[](int){},[](int){return true;});
         rejects([&]{for(unsigned i=0;i<180;++i)special.tick();});
     }
+    for(const auto& test:std::array<std::array<std::int32_t,4>,6>{{
+        {2,127,1,-128},{3,-128,-1,127},{4,2147483647,1,(-2147483647-1)},
+        {4,(-2147483647-1),-1,2147483647},{0,1,1,1},{1,0,-1,0}}}) {
+        const auto bank=unsigned(test[0]);word(0xbe4,(std::uint32_t(test[2])<<20)|0xabc48);
+        word(0xbe8,(bank<<16)|7);word(0xbec,0xff800236);
+        okage::OpeningField adding(b,[](int){},[](int){return true;});
+        std::array<std::uint8_t,0x1000> storage{};okage::set_event_variable(storage,7,bank,test[1]);
+        unsigned gets=0,sets=0;
+        for(unsigned i=0;i<180;++i)adding.tick();
+        require(adding.pc()==(bank>1?0xbe4u:0xbecu));
+        adding.get_variable=[&](auto selector){++gets;return okage::event_variable(storage,selector);};
+        adding.set_variable=[&](auto index,auto kind,auto value){++sets;okage::set_event_variable(storage,index,kind,value);};
+        adding.tick();require(adding.pc()==0xbec&&adding.pending_opcode==0x36);
+        require(gets==unsigned(bank>1)&&sets==unsigned(bank>1));
+        require(okage::event_variable(storage,(bank<<16)|7)==test[3]);
+        adding.tick();require(sets==unsigned(bank>1));
+    }
     word(0xbe4,0x4b);word(0xbe8,0xff800236);
     okage::OpeningField cameraRelease(b,[](int){},[](int){return true;});
     require(cameraRelease.camera_mode()==2 && cameraRelease.event_running());

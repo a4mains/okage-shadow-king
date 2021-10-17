@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+"""Check selected-capture CLI validation; every case exits before VM construction."""
+import argparse
+from pathlib import Path
+import subprocess
+import tempfile
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('oracle', type=Path, help='Newly built Vulkan boot oracle')
+    args = parser.parse_args()
+    oracle = args.oracle.resolve(strict=True)
+    with tempfile.TemporaryDirectory() as directory:
+        root = Path(directory)
+        missing_disc = root / 'not-a-disc.cue'
+        prefix = root / 'capture'
+
+        def check(options, expected):
+            command = [str(oracle), str(missing_disc), '100', *options]
+            result = subprocess.run(command, capture_output=True, text=True, timeout=10, cwd=root)
+            if result.returncode == 0 or expected not in result.stderr:
+                raise AssertionError((command, result.returncode, result.stdout, result.stderr))
+            if 'Booting ' in result.stdout or (root / 'local/play-boot-config').exists():
+                raise AssertionError('CLI validation unexpectedly entered VM initialization')
+
+        for value in ('0', '101', '2,1', '1,1', '-1', '1,', ',1', '1,,2', '1x', ' 1',
+                      ','.join(map(str, range(1, 66)))):
+            check(['--capture', str(prefix), '--capture-frames', value], 'Capture frames')
+        check(['--capture', str(prefix), '--capture-frames', ''], 'Empty capture')
+        check(['--capture-frames', '1'], '--capture-frames requires --capture')
+        check(['--capture', str(prefix), '--capture-frames', '1', '--capture-frames', '2'],
+              'Duplicate capture')
+        for value in ('1', '1,60,100', ','.join(map(str, range(1, 65)))):
+            check(['--capture', str(prefix), '--capture-frames', value], 'Disc input missing')
+        check(['--audio-index', str(root / 'audio.json')], '--audio-index requires --audio')
+        frame_dir = Path(str(prefix) + '.frames')
+        frame_dir.mkdir()
+        check(['--capture', str(prefix), '--capture-frames', '1'], 'Refusing existing reference output')
+        frame_dir.rmdir()
+        frame_dir.symlink_to(root / 'absent-directory')
+        check(['--capture', str(prefix), '--capture-frames', '1'], 'Refusing existing reference output')
+        index = root / 'audio.json'
+        index.symlink_to(root / 'absent-file')
+        check(['--audio', str(root / 'audio.wav'), '--audio-index', str(index)],
+              'Refusing existing reference output')
+    print('Capture argument tests passed; no VM constructed.')
+
+if __name__ == '__main__':
+    main()

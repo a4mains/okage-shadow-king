@@ -212,6 +212,30 @@ bool DialogueOpening::update(DialogueText& text,TextClock& clock,DialogueControl
     }
 }
 namespace {
+std::string presentation_name(std::string_view source,std::string_view name) {
+    // USA sysmes[0xd5]. The original 0x147ad0/0x147418 loops compare
+    // the copied destination, not the advancing source. Preserve that
+    // distinction when a shortened name exposes another marker.
+    constexpr std::string_view marker="############";
+    if(name.empty() || name.size()>marker.size() || name.find('\0')!=name.npos)
+        throw std::runtime_error("Invalid presentation player name");
+    std::string scratch(source);scratch.push_back('\0');
+    std::size_t input=0,output=0;
+    while(scratch.at(output)) {
+        if(std::string_view(scratch).substr(output).starts_with(marker)) {
+            if(input+marker.size()>source.size())
+                throw std::runtime_error("Unrecovered presentation name source overrun");
+            input+=marker.size();
+            for(char c:name)scratch.at(output++)=c;
+        } else {
+            if(input>source.size())throw std::runtime_error("Unrecovered presentation name source overrun");
+            const char c=input==source.size() ? '\0' : source[input];
+            ++input;scratch.at(output++)=c;
+            if(!c){scratch.resize(output-1);return scratch;}
+        }
+    }
+    scratch.resize(output);return scratch;
+}
 int narration_advance(unsigned char c,const Font& font){
     const auto* glyph=font.find(c);
     if(c<32 || c>=127 || c=='\\' || !glyph)throw std::runtime_error("Unrecovered narration character");
@@ -220,7 +244,7 @@ int narration_advance(unsigned char c,const Font& font){
     return glyph->metrics[8]*3/32;
 }
 }
-void Narration::update(std::string_view description,const Font& font){
+void Narration::update(std::string_view description,const Font& font,std::string_view player_name){
     std::vector<std::string> parts;
     if(!description.empty())for(;;){
         const auto end=description.find("\\n");parts.emplace_back(description.substr(0,end));
@@ -230,10 +254,11 @@ void Narration::update(std::string_view description,const Font& font){
     for(unsigned i=0;i<3;++i){
         auto& line=lines[i];
         if(i>=parts.size()){line.alpha=line.alpha<8?0:line.alpha-8;continue;}
-        if(parts[i].empty())parts[i]=" ";
-        int width=-28;for(unsigned char c:parts[i])width+=narration_advance(c,font);
-        if(line.text!=parts[i])line.ticks=0;
-        line.text=std::move(parts[i]);
+        auto displayed=presentation_name(parts[i],player_name);
+        if(displayed.empty())displayed=" ";
+        int width=-28;for(unsigned char c:displayed)width+=narration_advance(c,font);
+        if(line.source!=parts[i])line.ticks=0;
+        line.source=std::move(parts[i]);line.text=std::move(displayed);
         // 0x1aa4a8 reads dimensions from the preceding render. The first two
         // low-alpha ticks hide the initial/stale width when a line changes.
         line.x=line.width<0?0:300-line.width/2;line.width=width;
@@ -259,7 +284,7 @@ std::vector<TextGlyph> Narration::glyphs(const Font& font) const {
     }
     return result;
 }
-void ChoiceMenu::update(std::string_view replacement,int selection,bool armed) {
+void ChoiceMenu::update(std::string_view replacement,int selection,bool armed,std::string_view player_name) {
     std::vector<std::string> parts;
     if(!replacement.empty())for(;;){
         const auto end=replacement.find("\\n");parts.emplace_back(replacement.substr(0,end));
@@ -267,7 +292,7 @@ void ChoiceMenu::update(std::string_view replacement,int selection,bool armed) {
     }
     if(parts.size()==3){
         if(!accepted){
-            for(unsigned i=0;i<3;++i)lines[i]=parts[i].empty()?" ":parts[i];
+            for(unsigned i=0;i<3;++i){lines[i]=presentation_name(parts[i],player_name);if(lines[i].empty())lines[i]=" ";}
             cursor=selection;highlighted=armed;alpha=std::min(128u,alpha+8);
         }
     } else {

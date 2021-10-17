@@ -10,6 +10,7 @@
 #include <bit>
 #include <algorithm>
 #include <array>
+#include <charconv>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -18,6 +19,7 @@
 #include <sstream>
 
 namespace fs=std::filesystem;
+static constexpr unsigned diagnosticFrameLimit=96000;
 static std::vector<std::uint8_t> readData(const fs::path& path) {
     const auto n=fs::file_size(path);if(n>128*1024*1024)throw std::runtime_error("Runtime input limit");
     std::vector<std::uint8_t> b(n);std::ifstream in(path,std::ios::binary);
@@ -38,7 +40,7 @@ struct DirectionReplay {
         while(std::getline(in,line)){
             if(line.empty() || line[0]=='#')continue;
             std::istringstream row(line);unsigned frame,mask;std::string extra;
-            if(!(row>>frame>>std::hex>>mask) || (row>>extra) || frame<=previous || frame>72000 || (mask&~0xf000u))
+            if(!(row>>frame>>std::hex>>mask) || (row>>extra) || frame<=previous || frame>diagnosticFrameLimit || (mask&~0xf000u))
                 throw std::runtime_error("Direction replay requires increasing FRAME and hexadecimal directional mask");
             entries.push_back({frame,std::uint16_t(mask)});previous=frame;
         }
@@ -137,9 +139,11 @@ struct Session {
                 std::cout<<"Native sound set "<<argument<<": "<<count<<" RXWS records loaded\n";return true;
             }
             if(operation==2){sound_banks.erase(1);return true;}
-            if((operation!=4 && operation!=5) || argument<0)return false;
+            if((operation!=3 && operation!=4 && operation!=5) || argument<0)return false;
             if(!music)return false;
-            music->volume.request(operation==4 ? 128 : 80,unsigned(argument));return true;
+            //0x1308d8 mode3 requests0x12d778(0,B); the normal driver
+            // callback ramps and stops the active score on reaching zero.
+            music->volume.request(operation==3 ? 0 : operation==4 ? 128 : 80,unsigned(argument));return true;
         };
         if(field)field->music_service=[this](int id,bool fade){
             if(!music)return false;
@@ -418,11 +422,11 @@ struct Session {
             if(effects.cue>=0 || effects.stop_voice || effects.stop_effect)++service_request_count;
         }
         if(closure.finished() && !close_frame)close_frame=frame;
-        choices.update(dialogue_active && !closure.finished() ? text.state.replacement : "",text.choice_cursor,controller.choice_armed);
+        choices.update(dialogue_active && !closure.finished() ? text.state.replacement : "",text.choice_cursor,controller.choice_armed,player_name);
         choice_trace.insert(choice_trace.end(),{frame,unsigned(message_id),unsigned(text.position().fragment),unsigned(text.position().cursor),
             unsigned(text.choice_cursor),unsigned(text.choice_result),controller.choice_active?1u:0u,controller.choice_armed?1u:0u,
             input.held,input.pressed,input.repeat,choices.alpha});
-        narration.update(dialogue_active && !closure.finished() ? text.state.description : "",fonts[2]);
+        narration.update(dialogue_active && !closure.finished() ? text.state.description : "",fonts[2],player_name);
         dialogue_trace.insert(dialogue_trace.end(),{frame,std::uint32_t(message_id),text.state.flags,text.state.phase,
             text.state.period,text.state.delay,text.state.progress,controller.advance_count,controller.layer_advance,
             controller.layer_flags,controller.stage,__builtin_bit_cast(std::uint32_t, (opacity.delta))});
@@ -558,6 +562,13 @@ static NSBitmapImageRep* bitmap(const okage::Texture& image) {
         bitmapFormat:NSBitmapFormatAlphaNonpremultiplied bytesPerRow:image.width*4 bitsPerPixel:32];
     if(!rep)throw std::runtime_error("Cannot allocate native text bitmap");
     std::memcpy(rep.bitmapData,image.rgba.data(),image.rgba.size());return rep;
+}
+static void captureImage(const Session& session,const fs::path& path) {
+    if(fs::exists(path)||fs::is_symlink(path))throw std::runtime_error("Refusing existing native frame image");
+    const auto data=[bitmap(session.surface()) representationUsingType:NSBitmapImageFileTypePNG properties:@{}];
+    NSError* error=nil;
+    if(!data || ![data writeToFile:[NSString stringWithUTF8String:path.c_str()] options:NSDataWritingWithoutOverwriting error:&error])
+        throw std::runtime_error("Cannot write native frame image");
 }
 static void capture(const Session& session,const fs::path& path) {
     auto statePath=fs::path(path.string()+".json");
@@ -843,8 +854,8 @@ static void capture(const Session& session,const fs::path& path) {
 @end
 int main(int argc,const char** argv) {
     @autoreleasepool {try {
-        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames N | --preview-at N] [--press FRAME,FRAME --directions INPUT --capture FILE.png --render-from FRAME --render-until FRAME] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY]");
-        unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions;std::vector<unsigned> presses;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
+        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames N | --preview-at N] [--press FRAME,FRAME --directions INPUT --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY]");
+        unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         for(int i=3;i<argc;++i) {
             const std::string arg=argv[i];if(++i==argc)throw std::runtime_error("Missing native runtime option value");
             if(arg=="--frames")frames=std::stoul(argv[i]);
@@ -854,6 +865,17 @@ int main(int argc,const char** argv) {
             else if(arg=="--ui-test-frames")uiFrames=std::stoul(argv[i]);
             else if(arg=="--directions")directions.load(argv[i]);
             else if(arg=="--capture")output=argv[i];
+            else if(arg=="--capture-frames") {
+                if(!captureFrames.empty())throw std::runtime_error("Duplicate native frame selection");
+                std::string_view input=argv[i];
+                for(;;){
+                    const auto comma=input.find(',');const auto token=input.substr(0,comma);unsigned n=0;
+                    const auto [end,error]=std::from_chars(token.data(),token.data()+token.size(),n);
+                    if(error!=std::errc{}||end!=token.data()+token.size()||!n||captureFrames.size()>=64||(!captureFrames.empty()&&n<=captureFrames.back()))
+                        throw std::runtime_error("Native capture frames require 1..64 increasing positive ticks");
+                    captureFrames.push_back(n);if(comma==input.npos)break;input.remove_prefix(comma+1);
+                }
+            }
             else if(arg=="--scene")map=argv[i];
             else if(arg=="--event")event=argv[i];
             else if(arg=="--music-dry")musicSequence=argv[i];
@@ -877,23 +899,46 @@ int main(int argc,const char** argv) {
         if(!soundDirectory.empty() && musicSequence.empty())throw std::runtime_error("Sound directory requires native music setup");
         if(effectData.empty()!=effectTextures.empty()||(!effectData.empty()&&map.empty()))throw std::runtime_error("Effects require data, texture directory and scene");
         if(map.empty()!=event.empty() || (!actors.empty() && map.empty()))throw std::runtime_error("Scene requires both map and event assets");
-        if(frames>72000 || uiFrames>72000 || previewAt>72000 || (bool(frames)+bool(uiFrames)+bool(previewAt)>1) || (uiFrames && output.empty()))throw std::runtime_error("Native diagnostic frame/capture bounds");
+        if(frames>diagnosticFrameLimit || uiFrames>diagnosticFrameLimit || previewAt>diagnosticFrameLimit || (bool(frames)+bool(uiFrames)+bool(previewAt)>1) || (uiFrames && output.empty()))throw std::runtime_error("Native diagnostic frame/capture bounds");
         const auto replayFrames=frames?frames:previewAt;
+        if(!captureFrames.empty()&&(!replayFrames||output.empty()||captureFrames.back()>replayFrames))
+            throw std::runtime_error("Native selected captures require an output and ticks within a replay");
         if(renderFrom&&(!replayFrames||renderFrom>replayFrames))throw std::runtime_error("Render start requires a replay frame within the capture");
         if(renderUntil&&(!renderFrom||renderUntil<renderFrom||renderUntil>replayFrames))
             throw std::runtime_error("Render end requires a bounded headless render interval");
         std::unique_ptr<Session> prepared;
         if(replayFrames) {
+            const auto frameDirectory=fs::path(output.string()+".frames");std::ofstream frameManifest;
+            if(!captureFrames.empty()) {
+                if(fs::exists(frameDirectory)||fs::is_symlink(frameDirectory)||!fs::create_directory(frameDirectory))
+                    throw std::runtime_error("Native selected-frame output must be a fresh directory");
+                frameManifest.open(frameDirectory/"manifest.json");
+                frameManifest<<"{\n  \"boundary\": \"after completed native Session::tick, before the next input\",\n  \"captures\": [\n";
+                if(!frameManifest)throw std::runtime_error("Cannot open native frame manifest");
+            }
             prepared=std::make_unique<Session>(argv[1],argv[2],playerName);
             auto& session=*prepared;session.render_from=renderFrom;session.render_until=renderUntil;
             if(!effectData.empty())session.prepare_effects(effectData,effectTextures);
             if(!map.empty())session.load_scene(map,event,actors);
             if(!musicSequence.empty())session.load_music(musicSequence,musicBank,!output.empty(),soundDirectory);
             if(!effectData.empty())session.load_effects(effectData,effectTextures);
-            std::uint16_t previous=0;
+            std::uint16_t previous=0;std::size_t selected=0;
             for(unsigned i=1;i<=replayFrames;++i) {
                 const std::uint16_t mask=std::find(presses.begin(),presses.end(),i)!=presses.end()?0x40:0;
                 const auto held=directions.held(i);session.tick({std::uint16_t(mask|held),std::uint16_t(mask|(held&~previous))});previous=held;
+                if(selected<captureFrames.size()&&i==captureFrames[selected]) {
+                    const auto filename="tick-"+std::to_string(i)+".png";captureImage(session,frameDirectory/filename);
+                    frameManifest<<(selected ? ",\n" : "")<<"    {\"tick\": "<<i<<", \"image\": \""<<filename
+                        <<"\", \"scene\": "<<session.current_scene<<", \"event_pc\": "<<(session.field?session.field->pc():0);
+                    if(session.record_audio&&session.music)
+                        frameManifest<<", \"audio_sample_frame_offset\": "<<session.audio_capture.size()/2;
+                    frameManifest<<"}";
+                    ++selected;
+                }
+            }
+            if(!captureFrames.empty()) {
+                frameManifest<<"\n  ],\n  \"complete\": true\n}\n";frameManifest.close();
+                if(!frameManifest||selected!=captureFrames.size())throw std::runtime_error("Incomplete native frame capture");
             }
             if(!output.empty())capture(session,output);
             std::cout<<"Native frames="<<session.frame<<" progress="<<session.text.state.progress<<" wait_release="<<session.release_frame<<std::endl;

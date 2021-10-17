@@ -746,6 +746,18 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             // use a separate stop service; do not pretend they are play calls.
             if(b>=0&&sound_cue&&sound_cue(a,b,1,128)){pending_opcode=0;return {pc+4};}
             return pending();
+        case 0x48: {
+            //0x130308 ->0x1259d0 adds B to byte/word storage, ignores A,
+            // and leaves bit banks unchanged. No saved encounter-gate write.
+            const auto selector=word(pc+4),index=selector&0xffff,bank=selector>>16;
+            if(bank>4)throw std::runtime_error("Unrecovered field variable addition storage");
+            if(bank>1) {
+                if(!get_variable||!set_variable)return pending();
+                const auto sum=__builtin_bit_cast(std::uint32_t, (get_variable(selector)))+std::uint32_t(b);
+                set_variable(index,bank,__builtin_bit_cast(std::int32_t, (sum)));
+            }
+            pending_opcode=0;return {pc+8};
+        }
         case 0x47: {
             const auto selector=word(pc+4),index=selector&0xffff,bank=selector>>16;
             if(bank>4)throw std::runtime_error("Unrecovered field variable storage");

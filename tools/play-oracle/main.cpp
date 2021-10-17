@@ -19,6 +19,7 @@
 #include <cfenv>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -72,6 +73,7 @@ public:
     std::vector<uint32> templateRandomLog;
     static constexpr uint32 stop=0x007ff000;
     uint32 expectedStop=stop;
+    std::function<bool(uint32)> boundedInstructionProbe;
     Reference(const std::vector<uint8>& elf) {
         if (hash(elf)!="2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5")
             throw std::runtime_error("Oracle requires the pinned USA ELF");
@@ -136,6 +138,9 @@ public:
                 cpu.m_State.callMsEnabled=0;
             }
             if (executed && cpu.m_executor->MustBreak()) {
+                if(boundedInstructionProbe&&boundedInstructionProbe(cpu.m_State.nPC)) {
+                    cpu.m_executor->DisableBreakpointsOnce();continue;
+                }
                 if(templateLoadProbe&&cpu.m_State.nPC==0x1f14b0) {
                     if(templateRandomLog.size()>=2*10000)throw std::runtime_error("Template RNG observation limit");
                     templateRandomLog.insert(templateRandomLog.end(),{
@@ -316,6 +321,90 @@ public:
                            uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0)});
         }
         writeFile(output,results.data(),results.size()*4);
+    }
+    void nameExpansion(const std::vector<uint8>& ram,const char* raw,const char* name,const char* output) {
+        const std::string sourceText(raw),playerName(name);
+        const auto printable=[](const std::string& text) {
+            return std::all_of(text.begin(),text.end(),[](unsigned char c){return c>=32&&c<127;});
+        };
+        if(ram.size()!=32*1024*1024||sourceText.empty()||sourceText.size()>200||
+           playerName.empty()||playerName.size()>12||!printable(sourceText)||!printable(playerName))
+            throw std::runtime_error("Name expansion requires RAM, a 1..200-byte ASCII line and a 1..12-byte ASCII name");
+        constexpr uint32 begin=0x147ad0,end=0x147b5c,sp=0x1ff0000,source=0x1f9cb8,destination=sp+0x200;
+        const std::vector<uint8> originalCode(ee->m_ram+begin,ee->m_ram+end);
+        std::memcpy(ee->m_ram,ram.data(),ram.size());
+        if(std::memcmp(ee->m_ram+begin,originalCode.data(),originalCode.size()))
+            throw std::runtime_error("Name expansion snapshot differs from pinned original loop");
+        put(stop,0x08000000|(stop>>2));put(stop+4,0); // Existing harness return trampoline.
+        const auto save=get(0x24f788);
+        if(save<0x100000||save>ram.size()-0x900)
+            throw std::runtime_error("Name expansion snapshot has invalid variable storage");
+        const auto nameAddress=save+0x844;
+        call(0x123530,{0xd5});
+        const auto marker=ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0];
+        if(marker>ram.size()-13||std::memcmp(ee->m_ram+marker,"############",13))
+            throw std::runtime_error("Name expansion requires the owned USA sysmes marker");
+        std::memset(ee->m_ram+nameAddress,0,13);
+        std::memcpy(ee->m_ram+nameAddress,playerName.c_str(),playerName.size()+1);
+        std::memcpy(ee->m_ram+source,sourceText.c_str(),sourceText.size()+1);
+        call(0x1f1a5c,{destination,source}); // The original preceding full strcpy.
+        const std::vector<uint8> sourceBefore(ee->m_ram+source,ee->m_ram+source+256);
+        const std::vector<uint8> destinationBefore(ee->m_ram+destination,ee->m_ram+destination+256);
+        put(sp+0x330,save+0x510);
+        auto& cpu=ee->m_EE;
+        cpu.m_State.nGPR[CMIPS::S1].nD0=source;
+        cpu.m_State.nGPR[CMIPS::S2].nD0=destination;
+        cpu.m_State.nGPR[CMIPS::S6].nD0=destination;
+        std::vector<std::array<uint32,3>> trace;
+        constexpr std::array<uint32,3> observations={begin,0x147b18,0x147b48};
+        boundedInstructionProbe=[&](uint32 pc) {
+            if(pc!=0x147b04&&std::find(observations.begin(),observations.end(),pc)==observations.end())return false;
+            const auto src=cpu.m_State.nGPR[CMIPS::S1].nV[0],dst=cpu.m_State.nGPR[CMIPS::S2].nV[0];
+            if(trace.size()>=4096||src<source||src>=source+256||dst<destination||dst>=destination+256||
+               (pc==begin&&dst>destination+244))
+                throw std::runtime_error("Name expansion escaped its bounded scratch fixture");
+            if(pc==0x147b18) {
+                const auto cursor=cpu.m_State.nGPR[CMIPS::V1].nV[0];
+                if(cursor<nameAddress||cursor>=nameAddress+playerName.size())
+                    throw std::runtime_error("Name expansion escaped its name bytes");
+            }
+            trace.push_back({pc,src-source,dst-destination});return true;
+        };
+        expectedStop=end;cpu.ToggleBreakpoint(end);
+        for(auto address:observations)cpu.ToggleBreakpoint(address);
+        const auto cleanup=[&] {
+            boundedInstructionProbe={};expectedStop=stop;cpu.ToggleBreakpoint(end);
+            for(auto address:observations)cpu.ToggleBreakpoint(address);
+        };
+        try {call(begin);}catch(...){cleanup();throw;}
+        cleanup();
+        if(std::memcmp(ee->m_ram+source,sourceBefore.data(),sourceBefore.size())||
+           std::memcmp(ee->m_ram+nameAddress,playerName.c_str(),playerName.size()+1)||
+           std::memcmp(ee->m_ram+begin,originalCode.data(),originalCode.size()))
+            throw std::runtime_error("Name expansion changed its source, name or original code");
+        const auto terminator=std::find(ee->m_ram+destination,ee->m_ram+destination+256,0);
+        if(terminator==ee->m_ram+destination+256)throw std::runtime_error("Name expansion result is unterminated");
+        const auto hex=[](const uint8* bytes,std::size_t size) {
+            std::ostringstream result;result<<std::hex<<std::setfill('0');
+            for(std::size_t i=0;i<size;++i)result<<std::setw(2)<<unsigned(bytes[i]);
+            return result.str();
+        };
+        std::ostringstream result;
+        result<<"{\n  \"scope\":\"Original 0x147ad0..0x147b5c only; retained scratch tails, synthetic line/name\",\n"
+              <<"  \"ram_sha256\":\""<<hash(ram)<<"\",\n  \"marker_address\":"<<marker
+              <<",\n  \"name_address\":"<<nameAddress<<",\n  \"raw_length\":"<<sourceText.size()
+              <<",\n  \"name_hex\":\""<<hex(reinterpret_cast<const uint8*>(playerName.data()),playerName.size())
+              <<"\",\n  \"source_before_hex\":\""<<hex(sourceBefore.data(),sourceBefore.size())
+              <<"\",\n  \"destination_before_hex\":\""<<hex(destinationBefore.data(),destinationBefore.size())
+              <<"\",\n  \"destination_after_hex\":\""<<hex(ee->m_ram+destination,256)
+              <<"\",\n  \"result_hex\":\""<<hex(ee->m_ram+destination,terminator-(ee->m_ram+destination))
+              <<"\",\n  \"final_source_offset\":"<<cpu.m_State.nGPR[CMIPS::S1].nV[0]-source
+              <<",\n  \"final_destination_offset\":"<<cpu.m_State.nGPR[CMIPS::S2].nV[0]-destination
+              <<",\n  \"source_name_code_unchanged\":true,\n  \"trace_pc_source_destination\":[";
+        for(std::size_t i=0;i<trace.size();++i) {
+            if(i)result<<',';result<<'['<<trace[i][0]<<','<<trace[i][1]<<','<<trace[i][2]<<']';
+        }
+        result<<"]\n}\n";const auto data=result.str();writeFile(output,data.data(),data.size());
     }
     void textControls(const std::vector<uint8>& text,const char* output) {
         if(text.empty() || text.size()>0x10000)throw std::runtime_error("Text fixture bounds");
@@ -2584,6 +2673,8 @@ int main(int argc,char** argv) {
             reference.fontMetrics(readFile(argv[3]),argv[4]);
         } else if(command=="text-clock" && argc==5) {
             reference.textClock(readFile(argv[3]),argv[4]);
+        } else if(command=="name-expansion" && argc==7) {
+            reference.nameExpansion(readFile(argv[3]),argv[4],argv[5],argv[6]);
         } else if(command=="text-controls" && argc==5) {
             reference.textControls(readFile(argv[3]),argv[4]);
         } else if(command=="pad-repeat" && argc==5) {

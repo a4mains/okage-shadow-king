@@ -36,6 +36,7 @@
 #include <CommonCrypto/CommonDigest.h>
 #include <iomanip>
 #include <sstream>
+#include <exception>
 
 fs::path CAppConfig::GetBasePath() const {
     auto path=std::filesystem::current_path()/"local/play-boot-config";
@@ -68,11 +69,28 @@ public:
         return result;
     }
 };
+// A deliberately small, strictly ordered selection; never reorders input or pads gaps.
+std::vector<unsigned> parseCaptureFrames(std::string_view text,unsigned duration) {
+    std::vector<unsigned> result;
+    while(!text.empty()) {
+        const auto separator=text.find(',');
+        const auto token=text.substr(0,separator);
+        unsigned frame=0;
+        const auto [end,error]=std::from_chars(token.data(),token.data()+token.size(),frame);
+        if(error!=std::errc{} || end!=token.data()+token.size() || !frame || frame>duration ||
+           (!result.empty() && frame<=result.back()) || result.size()>=64)
+            throw std::runtime_error("Capture frames require 1..64 strictly increasing unique vblanks within the run");
+        result.push_back(frame);
+        if(separator==std::string_view::npos)return result;
+        text.remove_prefix(separator+1);
+    }
+    throw std::runtime_error("Capture frames must be a nonempty comma-separated list without a trailing comma");
+}
 int main(int argc,char** argv) {
     try {
-        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX] [--pad INPUT | --walk-waypoints ROUTE --walk-record INPUT] [--audio WAV] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--camera-schedule FILE] [--screen-filter FILE] [--movement FILE] [--interaction FILE] [--interaction-wide FILE] [--transition FILE] [--dust FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--lifecycle FILE] [--order FILE] [--effect-order FILE] [--projection FILE] [--music FILE] [--deadline-seconds 1..7200]");
+        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX [--capture-frames N,N,...]] [--pad INPUT | --walk-waypoints ROUTE --walk-record INPUT] [--audio WAV [--audio-index JSON]] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--camera-schedule FILE] [--screen-filter FILE] [--movement FILE] [--interaction FILE] [--interaction-wide FILE] [--transition FILE] [--dust FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--lifecycle FILE] [--order FILE] [--effect-order FILE] [--projection FILE] [--music FILE] [--deadline-seconds 1..7200]");
         unsigned deadlineSeconds=0;
-        std::string walkWaypoints,walkRecord;
+        std::string walkWaypoints,walkRecord,captureFramesText,audioIndex;
         int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false,musicField=false,musicJingle=false,musicNight=false,interactionWide=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,cameraSchedule,music,movement,interaction,transition,npc,dust,screenFilter,effectOrder,projection;
         for (int i=3;i<argc;++i) {
             const std::string arg=argv[i];
@@ -80,6 +98,16 @@ int main(int argc,char** argv) {
             else if (arg=="--trace-files") traceFiles=true;
             else if (arg=="--trace-loaders") traceLoaders=true;
             else if (arg=="--capture" && i+1<argc) capture=argv[++i];
+            else if (arg=="--capture-frames" && i+1<argc) {
+                if(!captureFramesText.empty())throw std::runtime_error("Duplicate capture frame selection");
+                captureFramesText=argv[++i];
+                if(captureFramesText.empty())throw std::runtime_error("Empty capture frame selection");
+            }
+            else if (arg=="--audio-index" && i+1<argc) {
+                if(!audioIndex.empty())throw std::runtime_error("Duplicate audio index output");
+                audioIndex=argv[++i];
+                if(audioIndex.empty())throw std::runtime_error("Empty audio index output");
+            }
             else if (arg=="--pad" && i+1<argc) pad=argv[++i];
             else if (arg=="--walk-waypoints" && i+1<argc) walkWaypoints=argv[++i];
             else if (arg=="--walk-record" && i+1<argc) walkRecord=argv[++i];
@@ -133,6 +161,22 @@ int main(int argc,char** argv) {
 #endif
         const auto requested=std::stoul(argv[2]);
         if (!requested || requested>36000) throw std::runtime_error("Boot experiment requires 1..36000 vblanks");
+        if(!captureFramesText.empty() && capture.empty())throw std::runtime_error("--capture-frames requires --capture");
+        if(!audioIndex.empty() && audio.empty())throw std::runtime_error("--audio-index requires --audio");
+        const auto captureFrames=captureFramesText.empty() ? std::vector<unsigned>{} : parseCaptureFrames(captureFramesText,unsigned(requested));
+        const auto captureDirectory=std::filesystem::path(capture+".frames");
+        std::vector<std::filesystem::path> framePrefixes;
+        for(auto frame:captureFrames) {
+            std::ostringstream name;name<<"vblank-"<<std::setw(6)<<std::setfill('0')<<frame;
+            framePrefixes.push_back(captureDirectory/name.str());
+        }
+        auto vacant=[](const std::filesystem::path& path) {
+            if(std::filesystem::exists(path)||std::filesystem::is_symlink(path))
+                throw std::runtime_error("Refusing existing reference output: "+path.string());
+        };
+        if(!capture.empty())for(const auto* suffix:{".json",".layer0.png",".layer1.png"})vacant(capture+suffix);
+        if(!audioIndex.empty())vacant(audioIndex);
+        if(!captureFrames.empty())vacant(captureDirectory);
         const auto disc=std::filesystem::absolute(argv[1]);
         if (!std::filesystem::is_regular_file(disc)) throw std::runtime_error("Disc input missing");
         if (!saveState.empty() && (std::filesystem::exists(saveState) || std::filesystem::is_symlink(saveState)))
@@ -165,8 +209,15 @@ int main(int argc,char** argv) {
         auto effectOrderTrace=effectOrder.empty() ? nullptr : std::make_unique<EffectOrderTrace>(effectOrder);
         auto projectionTrace=projection.empty() ? nullptr : std::make_unique<ProjectionTrace>(projection);
         const bool tracing=bool(projectionTrace) || bool(effectOrderTrace) || traceLoaders || bool(cameraScheduleTrace) || bool(screenFilterTrace) || bool(dustTrace) || bool(npcTrace) || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace) || bool(cameraTrace) || bool(actorTrace) || bool(movementTrace) || bool(interactionTrace) || bool(transitionTrace) || bool(lifecycleTrace) || bool(orderTrace) || !music.empty();
+        // An exclusive fresh directory prevents image/manifest reuse across runs.
+        if(!captureFrames.empty() && !std::filesystem::create_directory(captureDirectory))
+            throw std::runtime_error("Could not create fresh selected-frame capture directory");
         RecordedAudio* recordedAudio=nullptr;
         Traffic traffic; std::atomic<unsigned> frames{0}; std::atomic<bool> exited{false};
+        std::exception_ptr frameObservationFailure;
+        std::atomic<bool> frameObservationFailed{false};
+        std::size_t nextCaptureFrame=0;
+        std::vector<std::size_t> capturedAudioOffsets;capturedAudioOffsets.reserve(captureFrames.size());
         ResearchVM vm;
         CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH,disc.string());
         vm.Initialize();
@@ -178,6 +229,7 @@ int main(int argc,char** argv) {
         vm.CreateGSHandler([&](){return new TraceGS(traffic);});
         vm.CreatePadHandler([&](){return recordedPad.release();});
         if (!audio.empty()) vm.CreateSoundHandler([&](){recordedAudio=new RecordedAudio();return recordedAudio;});
+        if(!audioIndex.empty())recordedAudio->prepareVblankIndex(unsigned(requested));
         if (!vm.m_cdrom0) throw std::runtime_error("Reference VM did not mount the disc");
         if (traceFiles) {
             auto* bios=dynamic_cast<CIopBios*>(vm.m_iop->m_bios.get());
@@ -187,6 +239,22 @@ int main(int argc,char** argv) {
         }
         auto onFrame=vm.OnNewFrame.Connect([&](){
             const auto n=++frames;
+            try {
+                if(!audioIndex.empty())recordedAudio->markVblank(n);
+#ifdef OKAGE_REFERENCE_VULKAN
+                if(nextCaptureFrame<captureFrames.size() && n==captureFrames[nextCaptureFrame]) {
+                    const auto audioOffset=recordedAudio ? recordedAudio->sampleFrameCount() : 0;
+                    captureReference(vm.GetGSHandler(),framePrefixes[nextCaptureFrame]);
+                    capturedAudioOffsets.push_back(audioOffset);
+                    ++nextCaptureFrame;
+                }
+#endif
+            } catch(...) {
+                frameObservationFailure=std::current_exception();
+                frameObservationFailed.store(true,std::memory_order_release);
+                vm.PauseAsync();
+                return;
+            }
             if (n==1 || n%60==0) {
                 std::cout<<"vblank="<<n<<" ee_pc=0x"<<std::hex<<vm.m_ee->m_EE.m_State.nPC
                          <<" iop_pc=0x"<<vm.m_iop->m_cpu.m_State.nPC<<std::dec
@@ -250,7 +318,7 @@ int main(int argc,char** argv) {
         vm.Resume();
         const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(deadlineSeconds ? deadlineSeconds : std::max<unsigned long>(90,tracing ? requested*2+30 : requested/30+30));
         unsigned tracedCalls=0;
-        while (frames<requested && !exited && std::chrono::steady_clock::now()<deadline) {
+        while (frames<requested && !exited && !frameObservationFailed.load(std::memory_order_acquire) && std::chrono::steady_clock::now()<deadline) {
             if (tracing && stateChanged.exchange(false) && vm.GetStatus()==CVirtualMachine::PAUSED && frames<requested) {
                 if(musicTrace) {
                     const auto at=vm.m_iop->m_cpu.m_State.nPC-musicTrace->base;
@@ -345,6 +413,8 @@ int main(int argc,char** argv) {
             } else std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
         vm.Pause();
+        if(frameObservationFailed.load(std::memory_order_acquire))std::rethrow_exception(frameObservationFailure);
+        if(nextCaptureFrame!=captureFrames.size())throw std::runtime_error("Selected-frame capture interval incomplete");
         if (tracing) for (auto address:loaders) vm.m_ee->m_EE.ToggleBreakpoint(address);
         if(musicTrace)for(auto at:MusicTrace::offsets)vm.m_iop->m_cpu.ToggleBreakpoint(musicTrace->base+at);
         for (const auto& module:vm.m_iop->m_bios->GetModulesDebugInfo())
@@ -365,8 +435,24 @@ int main(int argc,char** argv) {
         if (frames<requested) throw std::runtime_error("Reference boot ended or timed out before requested vblanks");
         if (!saveState.empty() && !vm.SaveState(saveState).get()) throw std::runtime_error("Could not save reference state");
         if (recordedAudio) recordedAudio->finish(audio);
+        if(!audioIndex.empty())recordedAudio->finishVblankIndex(audioIndex);
 #ifdef OKAGE_REFERENCE_VULKAN
         if (!capture.empty()) captureReference(vm.GetGSHandler(),capture);
+        if(!captureFrames.empty()) {
+            const auto manifest=captureDirectory/"manifest.json";vacant(manifest);
+            std::ofstream out(manifest);
+            out<<"{\n  \"boundary\": \"OnNewFrame after GS SetVBlank and PadHandler Update, before this iteration's EE/IOP update\","
+                <<"\n  \"scope\": \"Framebuffer layers at a vblank boundary, not a completed game-update label. Trace interval f runs with counter f; boundary n follows interval n-1. Existing final --capture is later, after queued PauseAsync.\","
+                <<"\n  \"requested_vblanks\": "<<requested<<", \"observed_vblanks\": "<<frames.load()<<",\n  \"captures\": [\n";
+            for(std::size_t i=0;i<captureFrames.size();++i) {
+                out<<"    {\"vblank_start\": "<<captureFrames[i]<<", \"previous_trace_interval\": "<<captureFrames[i]-1
+                   <<", \"prefix\": \""<<framePrefixes[i].filename().string()<<"\"";
+                if(recordedAudio)out<<", \"audio_sample_frame_offset\": "<<capturedAudioOffsets[i];
+                out<<"}"<<(i+1<captureFrames.size() ? ",\n" : "\n");
+            }
+            out<<"  ]\n}\n";out.close();
+            if(!out)throw std::runtime_error("Could not write selected-frame capture manifest");
+        }
 #endif
     } catch (const std::exception& e) {std::cerr<<e.what()<<'\n'; return 1;}
 }

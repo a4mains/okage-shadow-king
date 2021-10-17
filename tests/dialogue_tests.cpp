@@ -6,6 +6,28 @@
 void require(bool value) {if(!value)throw std::runtime_error("Dialogue test failed");}
 template<class F> void rejects(F f) {try{f();}catch(const std::runtime_error&){return;}throw std::runtime_error("Expected dialogue rejection");}
 int main() {try {
+    {
+        okage::Font font;font.first=32;font.last=126;font.glyphs.resize(95);
+        for(auto& glyph:font.glyphs)glyph.metrics[8]=32;
+        okage::Narration narration;
+        const std::string raw="############ arrived.\\nHello, ############!\\n############";
+        narration.update(raw,font,"Ari");
+        require(narration.lines[0].text=="Ari arrived." && narration.lines[1].text=="Hello, Ari!" && narration.lines[2].text=="Ari");
+        require(narration.lines[0].source=="############ arrived." && raw.starts_with("############"));
+        narration.update(raw,font,"Ari");narration.update(raw,font,"Ari");
+        require(narration.lines[0].ticks==11 && narration.lines[0].alpha==10);
+        narration.update(raw,font,"Z");
+        require(narration.lines[0].text=="Z arrived." && narration.lines[0].ticks==11 && narration.lines[0].alpha==18);
+        narration.update("############",font,"ABCDEFGHIJKL");
+        require(narration.lines[0].text=="ABCDEFGHIJKL" && narration.lines[0].ticks==1 && narration.lines[0].alpha==2);
+        require(narration.lines[1].alpha==10);
+        rejects([&]{narration.update("########################",font,"Ari");});
+        okage::ChoiceMenu menu;
+        menu.update("Ask ############\\n\\nLeave",1,true,"Ari");
+        require(menu.lines==std::array<std::string,3>{"Ask Ari"," ","Leave"} && menu.cursor==1 && menu.highlighted);
+        menu.accepted=1;menu.update("New\\nNew\\nNew",0,false,"Ari");
+        require(menu.lines[0]=="Ask Ari");
+    }
     okage::DialogueText text({"Hello\\v"});text.state.flags=0x8001;
     okage::DialogueController c;
     auto effect=c.update(text,{0x40,0});require(!effect.accelerated && text.state.period==2);
