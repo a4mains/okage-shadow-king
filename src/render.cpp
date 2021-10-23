@@ -12,8 +12,8 @@ namespace okage {
 namespace {
 struct Rounding {
     int previous=std::fegetround();
-    Rounding() { if (std::fesetround(FE_TOWARDZERO)) throw std::runtime_error("Cannot set UV rounding mode"); }
-    ~Rounding() { std::fesetround(previous); }
+    Rounding() { if (previous!=FE_TOWARDZERO && std::fesetround(FE_TOWARDZERO)) throw std::runtime_error("Cannot set UV rounding mode"); }
+    ~Rounding() { if(previous!=FE_TOWARDZERO)std::fesetround(previous); }
 };
 std::array<float,2> region_dimensions(const TextureState& state,std::uint32_t width,std::uint32_t height) {
     if (!width || !height || width>4095 || height>4095)
@@ -65,12 +65,9 @@ std::uint64_t material_blend_register(const Material& material) {
         default:throw std::runtime_error("Unrecovered material blend mode");
     }
 }
-std::array<float,2> texture_coordinates(const TextureState& state,
-    std::uint32_t width,std::uint32_t height,std::array<float,2> source) {
-    const auto dimensions=region_dimensions(state,width,height);
-    for (float value:source)
-        if (!std::isfinite(value)) throw std::runtime_error("Non-finite texture coordinate");
-    Rounding rounding;
+namespace {
+std::array<float,2> convert_coordinates(const TextureState& state,
+    const std::array<float,2>& dimensions,std::array<float,2> source) {
     const std::int16_t modes[]={state.u_mode,state.v_mode};
     for (unsigned axis=0;axis<2;++axis) {
         float scale=(state.region[axis+2]-state.region[axis])*dimensions[axis];
@@ -81,6 +78,25 @@ std::array<float,2> texture_coordinates(const TextureState& state,
         if (!std::isfinite(source[axis])) throw std::runtime_error("Texture coordinate overflow");
     }
     return source;
+}
+void validate_coordinates(const std::array<float,2>& source) {
+    for(float value:source)
+        if(!std::isfinite(value))throw std::runtime_error("Non-finite texture coordinate");
+}
+}
+std::array<float,2> texture_coordinates(const TextureState& state,
+    std::uint32_t width,std::uint32_t height,std::array<float,2> source) {
+    const auto dimensions=region_dimensions(state,width,height);
+    validate_coordinates(source);
+    Rounding rounding;
+    return convert_coordinates(state,dimensions,source);
+}
+void texture_coordinates_batch(const TextureState& state,
+    std::uint32_t width,std::uint32_t height,std::span<std::array<float,2>> source) {
+    const auto dimensions=region_dimensions(state,width,height);
+    for(const auto& value:source)validate_coordinates(value);
+    Rounding rounding;
+    for(auto& value:source)value=convert_coordinates(state,dimensions,value);
 }
 std::uint64_t texture_clamp(const TextureState& state,std::uint32_t width,std::uint32_t height) {
     const auto dimensions=region_dimensions(state,width,height);

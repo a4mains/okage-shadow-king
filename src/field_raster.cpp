@@ -10,8 +10,8 @@ namespace okage {
 namespace {
 struct Rounding {
     int old=std::fegetround();
-    Rounding(){if(std::fesetround(FE_TOWARDZERO))throw std::runtime_error("Field raster rounding unavailable");}
-    ~Rounding(){std::fesetround(old);}
+    Rounding(){if(old!=FE_TOWARDZERO && std::fesetround(FE_TOWARDZERO))throw std::runtime_error("Field raster rounding unavailable");}
+    ~Rounding(){if(old!=FE_TOWARDZERO)std::fesetround(old);}
 };
 Float4 project(const Float4& p,const ShadowScreenParameters& s) {
     // Keep all four terms, including zero products, in the VU's order.

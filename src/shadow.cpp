@@ -13,8 +13,8 @@ namespace okage {
 namespace {
 struct ProjectionRounding {
     int old=std::fegetround();
-    ProjectionRounding(){if(std::fesetround(FE_TOWARDZERO))throw std::runtime_error("Cannot set shadow projection rounding");}
-    ~ProjectionRounding(){std::fesetround(old);}
+    ProjectionRounding(){if(old!=FE_TOWARDZERO && std::fesetround(FE_TOWARDZERO))throw std::runtime_error("Cannot set shadow projection rounding");}
+    ~ProjectionRounding(){if(old!=FE_TOWARDZERO)std::fesetround(old);}
 };
 Float4 shadow_transform(const Matrix4& m,const Float4& v) {
     Float4 result{};

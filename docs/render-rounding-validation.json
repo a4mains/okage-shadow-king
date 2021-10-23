@@ -1,0 +1,101 @@
+{
+  "scope": "Rounding/UV renderer optimization; exact retained arithmetic and native-output regression, plus scoped live CPU observations.",
+  "base_commit": "c5274f3",
+  "run_commit": "c5274f3276d5a1ff25d342916de511651aa468d8",
+  "source_sha256": {
+    "include/okage/render.hpp": "cf6da76ecd405d7b7283f31811eab1495e09587b54ec07328de7d64861152c99",
+    "src/render.cpp": "2de265a260f58f2e75aa497d403b2279d230f550c77b6202adbac6a7b68c6e8f",
+    "src/scene_renderer.mm": "db32a8e345e91d6f807bf1831e142d582255ec3714684574ed05dc8a1fb2139b",
+    "src/field_raster.cpp": "eaee753979716e0973a74f71c08db77990f1c06ce3d387b35dbdfcaf212c965a",
+    "src/shadow.cpp": "26e91a3a6c35fc498a9471f1f5a2362d6ba7848afe8b264c60b907ce766c72f9",
+    "tests/render_tests.cpp": "f351204bc8a71768f536dff24fabc3f0209dc0fbfc89e8907c82189f6d2b798e"
+  },
+  "sources_match_root": true,
+  "reports": {
+    "local/worktrees/render-rounding-v1/local/rounding-retained-v1/report.json": "00988685f54d0dac9c42d6438218ae9bc9cceb52289253ed01ec5668c542e82e",
+    "local/research/render-rounding-v1/route-regression-v1.json": "6bf24718a9883ba2076ff3eb2cf89732f85d7ee1aa8a5282d41fc6ee6ea515c0",
+    "local/research/render-rounding-v1/live-cpu-v1.json": "a3164eabb8aeb11ccb272f937e4ba026353949b83741906c657ccc9507771310",
+    "local/research/render-rounding-v1/live-cpu-summary-v1.json": "74b53b6b3d5fb2b8791ab3beabfb06d7fb55637eda7e643d34f28ed5d701794f",
+    "local/research/render-rounding-v1/optimized-audio-thread-observation-v1.json": "0890df3328f94ce5f15ed384c285d22b91a3644a89de48ca21651c3237f4ee86"
+  },
+  "checks": {
+    "release": {
+      "ctest_log": "local/research/render-rounding-v1/ctest-release-v1.log",
+      "ctest_sha256": "38a574de6c48d8d19f5b392e64d298d8c0cab8ea7ea6cae1f0bfd42efad1d55d",
+      "passed": 21,
+      "build_log": "local/research/render-rounding-v1/build-release-v1.log"
+    },
+    "debug": {
+      "ctest_log": "local/research/render-rounding-v1/ctest-debug-v1.log",
+      "ctest_sha256": "5c7f807fdd2031d5e195d1862261977c1e22e6ed13426612cf89d67092764b6e",
+      "passed": 21,
+      "build_log": "local/research/render-rounding-v1/build-debug-v1.log"
+    },
+    "sanitize": {
+      "ctest_log": "local/research/render-rounding-v1/ctest-sanitize-v1.log",
+      "ctest_sha256": "aad0e957504125f1273cc282927ac78d0e0113256d4b2d6d8459a9e5f994ce41",
+      "passed": 21,
+      "build_log": "local/research/render-rounding-v1/build-sanitize-v1.log"
+    }
+  },
+  "native_route": {
+    "run": "local/native-render-rounding-73535-release-v1.run.json",
+    "run_sha256": "23da6aa31ffaf0341d5fde279d58633e765d5942ed5130ec664d87a0059454c3",
+    "binary_sha256": "d6f49f16ccda4bac11bc599a7dc883e97f818a0cf5e78533b8d1f569edd2d218",
+    "exit_code": 0,
+    "endpoint_tick": 73535,
+    "exact_endpoint_artifacts": 42,
+    "exact_selected_images": [
+      70656,
+      70955,
+      71255,
+      71555,
+      71855,
+      73055
+    ]
+  },
+  "original_arithmetic": {
+    "field_screen_cases": 64,
+    "field_screen_data_words": 5312,
+    "shadow_cache_cases": 128,
+    "shadow_cache_data_words": 11328,
+    "uv_pairs": 5608,
+    "clamp_values": 5608,
+    "source": "run report above; native reruns against retained original fixtures"
+  },
+  "profile_normalized_full_recording": {
+    "main_thread": {
+      "baseline_ms_per_s": 382.8145325841713,
+      "optimized_ms_per_s": 282.22216252312273,
+      "optimized_minus_baseline_percent": -26.27705102572897
+    },
+    "scene_render_inclusive": {
+      "baseline_ms_per_s": 236.12859019210563,
+      "optimized_ms_per_s": 147.89918868923806,
+      "optimized_minus_baseline_percent": -37.364980424897865
+    },
+    "fesetround_self": {
+      "baseline_ms_per_s": 89.39494505454667,
+      "optimized_ms_per_s": 30.51050405655381,
+      "optimized_minus_baseline_percent": -65.86998958617065
+    },
+    "uv_conversion_inclusive": {
+      "baseline_ms_per_s": 61.91816365037437,
+      "optimized_ms_per_s": 11.753260210464912,
+      "optimized_minus_baseline_percent": -81.0180736676388
+    }
+  },
+  "limitations": [
+    "Both recordings exclude waiting threads; GPU execution, blocked time, presentation cadence and audio underruns are not quantified.",
+    "Full-recording normalization divides sample weights by exported recording duration; common interior uses [1,20) relative trace seconds (19 seconds). Neither is per-game-frame normalization.",
+    "Inclusive metrics overlap. Self samples may include optimized/inlined code. Three optimized running samples have no backtrace and remain in total/main denominators.",
+    "Baseline has named IOThread/AQConverterThread samples and AudioOutput callback samples; optimized has none. Music synthesis is sampled in both. Device-audio workload equivalence is not established.",
+    "Single recordings, different processes/times, no repetition or statistical confidence interval. Inputs/checkpoint/recording options were reported equivalent; exact game-frame windows were not recorded.",
+    "Native diagnostic traces and PCM recording remained enabled. Changes in sampled stage weights do not alone isolate an optimization causal effect.",
+    "Native regression retains prior behavior, including known original timing, lighting, raster and audio discrepancies.",
+    "The six selected images are sparse complete frames, not every frame of the replay.",
+    "Arithmetic corpus validates recovered functions; it is not a full-scene PS2 raster comparison.",
+    "No FPS, GPU duration, presentation cadence, audio underrun, listening or full-playthrough claim.",
+    "Optimized audio threads were registered but contributed no running samples; absence of samples does not demonstrate disabled audio."
+  ]
+}

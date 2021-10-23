@@ -235,6 +235,8 @@ struct SceneRenderer::Impl {
                         }
                     }
                     for (const auto& polygon:block.polygons) {
+                        const auto triangles=okage::triangle_corners(polygon.corners.size());
+                        std::array<std::array<float,2>,4> polygonUV{};
                         Draw draw{std::uint32_t(vertices.size()),0,-1,{}};
                         draw.bucket=sort;draw.ordinal=input.ordinal;draw.phase=sort>517?1:0;
                         const Material* material=nullptr;
@@ -254,8 +256,15 @@ struct SceneRenderer::Impl {
                             draw.state={std::uint32_t(clamp>>4)&1023,std::uint32_t(clamp>>14)&1023,
                                 std::uint32_t(clamp>>24)&1023,std::uint32_t(clamp>>34)&1023,
                                 std::uint32_t(clamp)&3,std::uint32_t(clamp>>2)&3,1,0};
+                            for(std::size_t i=0;i<polygon.corners.size();++i) {
+                                const auto index=polygon.corners[i][3];
+                                if(index<0 || !uvDefined.at(index))throw std::runtime_error("Missing preview UV");
+                                polygonUV[i]={uv.at(index)[0],uv.at(index)[1]};
+                            }
+                            okage::texture_coordinates_batch(*state,original.width,original.height,
+                                std::span(polygonUV).first(polygon.corners.size()));
                         }
-                        for (auto triangle:okage::triangle_corners(polygon.corners.size())) for (auto index:triangle) {
+                        for (auto triangle:triangles) for (auto index:triangle) {
                             const auto& corner=polygon.corners.at(index);
                             Vertex vertex{positions.at(corner[0]),{1,1,1,1},{0,0,0,0}};
                             if (corner[2]>=0 && colorDefined.at(corner[2])) vertex.color=colors.at(corner[2]);
@@ -265,10 +274,7 @@ struct SceneRenderer::Impl {
                                 vertex.color[3]=material_instance_alpha(vertex.color[3],instanceAlpha);
                             }
                             if (state) {
-                                if (corner[3]<0 || !uvDefined.at(corner[3])) throw std::runtime_error("Missing preview UV");
-                                const auto& original=textures.at(textureOffset+state->texture);
-                                const auto value=okage::texture_coordinates(*state,original.width,original.height,
-                                    {uv.at(corner[3])[0],uv.at(corner[3])[1]});
+                                const auto& value=polygonUV[index];
                                 vertex.uv={value[0],value[1],0,0};
                             }
                             for (unsigned axis=0;axis<3;++axis) {
