@@ -7,6 +7,7 @@
 #include "okage/stream_bank.hpp"
 #include "okage/scene_renderer.hpp"
 #include "okage/map_objects.hpp"
+#include "okage/live_performance.hpp"
 #include <bit>
 #include <algorithm>
 #include <array>
@@ -716,7 +717,9 @@ static void capture(const Session& session,const fs::path& path) {
     }
 }
 
-@interface NativeTextView : NSView
+@interface NativeTextView : NSView {
+@public okage::LivePerformance* performance;
+}
 @property(strong) NSImage* image;
 @property float opacity;
 @property unsigned short held;
@@ -741,6 +744,7 @@ static void capture(const Session& session,const fs::path& path) {
     else [super keyUp:event];
 }
 - (void)drawRect:(NSRect)dirty {
+    if(performance&&performance->interval.active())performance->interval.draw(NSProcessInfo.processInfo.systemUptime);
     (void)dirty;[[NSColor colorWithCalibratedRed:.04 green:.06 blue:.09 alpha:1] setFill];NSRectFill(self.bounds);
     [[NSGraphicsContext currentContext] setImageInterpolation:NSImageInterpolationNone];
     [self.image drawInRect:self.bounds fromRect:NSZeroRect operation:NSCompositingOperationSourceOver
@@ -756,6 +760,7 @@ static void capture(const Session& session,const fs::path& path) {
 @public DirectionReplay directions;
 @public std::uint16_t replayDirections;
 @public fs::path testCapture;
+@public std::unique_ptr<okage::LivePerformance> performance;
 }
 @property(strong) NSWindow* window;
 @property(strong) NativeTextView* view;
@@ -771,30 +776,50 @@ static void capture(const Session& session,const fs::path& path) {
     self.window.delegate=self;
     if(session->music&&!paused)session->audio_output=std::make_unique<okage::AudioOutput>();
     self.view=[[NativeTextView alloc] initWithFrame:self.window.contentView.bounds];self.view.autoresizingMask=NSViewWidthSizable|NSViewHeightSizable;
+    self.view->performance=performance.get();
     self.window.contentView=self.view;[self.window center];[self.window makeKeyAndOrderFront:nil];[self.window makeFirstResponder:self.view];
     [NSApp activateIgnoringOtherApps:YES];self.previousTime=NSProcessInfo.processInfo.systemUptime;
     if(paused)[self refreshImage];
+    else if(performance)performance->interval.begin(self.previousTime,session->frame);
     self.timer=[NSTimer scheduledTimerWithTimeInterval:1./120 target:self selector:@selector(update:) userInfo:nil repeats:YES];
 }
 - (void)refreshImage {
+    const bool measured=performance&&performance->interval.active();
+    const double started=measured?NSProcessInfo.processInfo.systemUptime:0;
     NSImage* image=[[NSImage alloc] initWithSize:NSMakeSize(640,session->field ? 448 : 224)];[image addRepresentation:bitmap(session->surface())];
     self.view.image=image;self.view.opacity=session->field ? 128 : session->opacity.value;self.view.needsDisplay=YES;
     self.window.title=[NSString stringWithFormat:@"Okage native — frame %u — %@ — P: pause/resume — Arrows, Return/Space",
         session->frame,paused ? @"paused" : @"running"];
     if(session->field && session->field->pending_opcode)
         self.window.title=[self.window.title stringByAppendingString:@" — service pending (partial scene)"];
+    if(measured)performance->interval.refresh(started,NSProcessInfo.processInfo.systemUptime);
 }
 - (void)update:(NSTimer*)timer {
     (void)timer;
+    bool measured=false;
     try {
         const double now=NSProcessInfo.processInfo.systemUptime;
-        self.accumulator+=std::min(.25,now-self.previousTime);self.previousTime=now;
+        const double elapsed=now-self.previousTime;
+        self.accumulator+=std::min(.25,elapsed);self.previousTime=now;
+        if(performance&&performance->interval.active()&&!(self.view.pauseRequested&&!paused)) {
+            performance->interval.update_begin(now,std::max(0.,elapsed-.25));measured=true;
+        }
         if(self.view.pauseRequested) {
             self.view.pauseRequested=NO;paused=!paused;self.accumulator=0;
             self.view.held=self.view.pressed=0;
+            if(performance) {
+                if(paused) {
+                    performance->interval.discard_elapsed(std::max(0.,elapsed-.25));
+                }
+                else {
+                    performance->interval.begin(now,session->frame);
+                    performance->interval.update_begin(now,0);measured=true;
+                }
+            }
             if(paused)session->audio_output.reset();
             if(!paused&&session->music&&!session->audio_output)
                 session->audio_output=std::make_unique<okage::AudioOutput>();
+            if(paused&&performance)performance->finish(now,session->frame,okage::PerformanceEnd::pause);
             [self refreshImage];
         }
         if(paused){self.accumulator=0;self.view.held=self.view.pressed=0;return;}
@@ -819,7 +844,10 @@ static void capture(const Session& session,const fs::path& path) {
                     windowNumber:self.window.windowNumber context:nil characters:@"\r" charactersIgnoringModifiers:@"\r" isARepeat:NO keyCode:36];
                 [self.window sendEvent:event];
             }
+            const double tickStarted=measured?NSProcessInfo.processInfo.systemUptime:0;
             session->tick({self.view.held,self.view.pressed});self.view.pressed=0;
+            if(measured)performance->interval.tick(tickStarted,NSProcessInfo.processInfo.systemUptime,
+                session->rendered_surface&&session->rendered_frame==session->frame);
             if(press) {
                 NSEvent* event=[NSEvent keyEventWithType:NSEventTypeKeyUp location:NSZeroPoint modifierFlags:0 timestamp:now
                     windowNumber:self.window.windowNumber context:nil characters:@"\r" charactersIgnoringModifiers:@"\r" isARepeat:NO keyCode:36];
@@ -828,8 +856,12 @@ static void capture(const Session& session,const fs::path& path) {
             self.accumulator-=1./60;changed=true;
             if(testFrames && session->frame==testFrames)break;
         }
-        if(!changed)return;
+        if(!changed) {
+            if(measured){performance->interval.update_end(NSProcessInfo.processInfo.systemUptime);measured=false;}
+            return;
+        }
         [self refreshImage];
+        if(measured){performance->interval.update_end(NSProcessInfo.processInfo.systemUptime);measured=false;}
         if(testFrames && session->frame==testFrames) {
             [self.timer invalidate];capture(*session,testCapture);
             [self.view display];
@@ -844,18 +876,38 @@ static void capture(const Session& session,const fs::path& path) {
             [NSApp terminate:nil];
         }
     }catch(const std::exception& e) {
+        const double failedAt=performance?NSProcessInfo.processInfo.systemUptime:0;
         session->audio_output.reset();
+        if(performance) {
+            failureStatus=1;
+            try {
+                if(measured)performance->interval.update_end(failedAt);
+                performance->finish(failedAt,session->frame,okage::PerformanceEnd::runtime_error);
+            } catch(const std::exception& reportError) {std::cerr<<reportError.what()<<'\n';}
+        }
         [self.timer invalidate];self.window.title=[NSString stringWithUTF8String:e.what()];std::cerr<<e.what()<<'\n';
         if(testFrames){failureStatus=1;[NSApp stop:nil];}
     }
+}
+- (void)finishPerformance:(okage::PerformanceEnd)reason {
+    if(!performance)return;
+    try {performance->finish(NSProcessInfo.processInfo.systemUptime,session->frame,reason);}
+    catch(const std::exception& e) {failureStatus=1;std::cerr<<e.what()<<'\n';}
+}
+- (void)windowWillClose:(NSNotification*)notification {
+    (void)notification;[self finishPerformance:okage::PerformanceEnd::window_close];
+}
+- (void)applicationWillTerminate:(NSNotification*)notification {
+    (void)notification;[self finishPerformance:okage::PerformanceEnd::application_terminate];
 }
 - (void)windowDidResignKey:(NSNotification*)notification {(void)notification;self.view.held=0;self.view.pressed=0;}
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)app {(void)app;return YES;}
 @end
 int main(int argc,const char** argv) {
     @autoreleasepool {try {
-        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames N | --preview-at N] [--press FRAME,FRAME --directions INPUT --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY]");
+        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames N | --preview-at N] [--press FRAME,FRAME --directions INPUT --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--performance-report FRESH.jsonl (interactive/preview only)]");
         unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
+        std::optional<fs::path> performancePath;
         for(int i=3;i<argc;++i) {
             const std::string arg=argv[i];if(++i==argc)throw std::runtime_error("Missing native runtime option value");
             if(arg=="--frames")frames=std::stoul(argv[i]);
@@ -865,6 +917,10 @@ int main(int argc,const char** argv) {
             else if(arg=="--ui-test-frames")uiFrames=std::stoul(argv[i]);
             else if(arg=="--directions")directions.load(argv[i]);
             else if(arg=="--capture")output=argv[i];
+            else if(arg=="--performance-report") {
+                if(performancePath||!argv[i][0])throw std::runtime_error("Performance report requires one nonempty path");
+                performancePath=argv[i];
+            }
             else if(arg=="--capture-frames") {
                 if(!captureFrames.empty())throw std::runtime_error("Duplicate native frame selection");
                 std::string_view input=argv[i];
@@ -906,6 +962,10 @@ int main(int argc,const char** argv) {
         if(renderFrom&&(!replayFrames||renderFrom>replayFrames))throw std::runtime_error("Render start requires a replay frame within the capture");
         if(renderUntil&&(!renderFrom||renderUntil<renderFrom||renderUntil>replayFrames))
             throw std::runtime_error("Render end requires a bounded headless render interval");
+        if(performancePath&&(frames||uiFrames))throw std::runtime_error("Performance report requires interactive or preview-at mode");
+        // Reserve the fresh report before loading assets or preparing a preview.
+        std::unique_ptr<okage::LivePerformance> performance;
+        if(performancePath)performance=std::make_unique<okage::LivePerformance>(*performancePath);
         std::unique_ptr<Session> prepared;
         if(replayFrames) {
             const auto frameDirectory=fs::path(output.string()+".frames");std::ofstream frameManifest;
@@ -947,6 +1007,7 @@ int main(int argc,const char** argv) {
         }
         [NSApplication sharedApplication];[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
         NativeApp* app=[NativeApp new];app->paused=previewAt!=0;app->session=std::move(prepared);
+        app->performance=std::move(performance);
         if(!app->session) {
         app->session=std::make_unique<Session>(argv[1],argv[2],playerName);
         if(!effectData.empty())app->session->prepare_effects(effectData,effectTextures);
