@@ -1,0 +1,130 @@
+{
+  "scope": "Native ordinary-input return from upstairs through FIELD_1D and Stan dialogue; JAM reveal rendering remains guarded.",
+  "implementation_commit": "c12c54e",
+  "retail_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "runs": {
+    "local/native-home1a-exit-73835-release-v1.run.json": {
+      "sha256": "a24e62d77e835900c5bab1b12d1e2824e2c5166ab535518e4cdf73b3ec087bbf",
+      "binary_sha256": "d6f49f16ccda4bac11bc599a7dc883e97f818a0cf5e78533b8d1f569edd2d218",
+      "exit_code": 0,
+      "elapsed_seconds": 20.296439
+    },
+    "local/native-field1d-return-74435-release-v1.run.json": {
+      "sha256": "0f60e630902e3d0c2b4f7680660cf51ad306cd298360070e837230292b9769db",
+      "binary_sha256": "d6f49f16ccda4bac11bc599a7dc883e97f818a0cf5e78533b8d1f569edd2d218",
+      "exit_code": 0,
+      "elapsed_seconds": 19.444091459000003
+    },
+    "local/native-field1d-mysterious-voice-75635-release-v1.run.json": {
+      "sha256": "52571c81418d4b16417d8314e502e70be8e9e6e5d1423c739ebd9bd9f6a7a262",
+      "binary_sha256": "d6f49f16ccda4bac11bc599a7dc883e97f818a0cf5e78533b8d1f569edd2d218",
+      "exit_code": 0,
+      "elapsed_seconds": 18.639096792
+    },
+    "local/native-field1d-stan-orders-76835-release-v1.run.json": {
+      "sha256": "616c4352f498be650277afb45152361f8ce613821d100d68db0484f194781ae9",
+      "binary_sha256": "d6f49f16ccda4bac11bc599a7dc883e97f818a0cf5e78533b8d1f569edd2d218",
+      "exit_code": 1,
+      "elapsed_seconds": 18.612351334
+    },
+    "local/reference-home1a-exit-300-v1.run.json": {
+      "sha256": "eaa4517789e0aefd190de02330dc389a2f7cfab9796aa7dec9c084aaca0af599",
+      "binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+      "exit_code": 0,
+      "elapsed_seconds": 15.393579
+    },
+    "local/reference-field1d-return-600-v1.run.json": {
+      "sha256": "6524123e2f893b1e07a9ad447a9b5830d021278313c02095f2e4ca1363e904c0",
+      "binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+      "exit_code": 0,
+      "elapsed_seconds": 33.630979833000005
+    },
+    "local/reference-field1d-mysterious-voice-1200-v1.run.json": {
+      "sha256": "6b2725a3cbf2f1c02c38b4eac21a20fb5906c4149118522a53529dc9b9aa926e",
+      "binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+      "exit_code": 0,
+      "elapsed_seconds": 51.810569041
+    },
+    "local/reference-field1d-stan-orders-1200-v1.run.json": {
+      "sha256": "686c6f7db21336a36c20f319cead292409e2c663ffc13d0d23b681150e3c5872",
+      "binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+      "exit_code": 0,
+      "elapsed_seconds": 55.198415250000004
+    }
+  },
+  "reports": {
+    "local/research/home1a-exit-pair-v1/bundle.json": "c5ee3916ed8fc87418b4c66e1aaea5f67457db1a9ca24541399c6cd891779bdc",
+    "local/research/home1a-exit-pair-v1/interval.json": "054967df1a27451a0e68c391ee97acb247117c31fa8f398a433c2dec3a25c4d7",
+    "local/research/home1a-exit-pair-v1/summary.json": "0e2dc7fecef0626f47d199eca617c60b4f0efa94df1c6558a0f7737140ff4fdb",
+    "local/research/field1d-return-pair-v1/bundle.json": "8085000fe66fe07b5e5f89f0fe29fd4e3ee700ecf80893a2e7f36fb55fd9e172",
+    "local/research/field1d-return-pair-v1/interval.json": "1267f0bb30f65a4308ec5e00c6f1648f0f3c165f619e8592019ea87022c38540",
+    "local/research/field1d-return-pair-v1/summary.json": "57b5b97dc5b54e3c282b489cde114aa65b97cb8637a748c26c4a26de9b728e06",
+    "local/research/mysterious-voice-pair-v1/bundle.json": "21ce4df3b5cd49f35d7c806c93fe05de0fd7be32475ad8d45318c448b59dfd26",
+    "local/research/mysterious-voice-pair-v1/interval.json": "69c647ec2c2d091ff0e618649a962a857ae1990331280485a2f27df4f16e4df2",
+    "local/research/mysterious-voice-pair-v1/summary.json": "3984a9c9d7ccda817affec6982af7343390a047c56ebcf2080a673bd369e0d96",
+    "local/research/jam-lighting-v1/actor-observation-v1.json": "990910821403251453c442602a02bce2819c011492135e14776d966598726270"
+  },
+  "latest_success": {
+    "native_tick": 75635,
+    "scene": 1,
+    "event_pc": "0x3b60",
+    "pending_opcode": 0
+  },
+  "reached_failure": {
+    "native_requested_tick": 76835,
+    "message": "Actor instance render mode is unrecovered",
+    "scope": "Selected images only complete at75636 and75935; subsequent selected capture throws.",
+    "original_completed_through": 76835
+  },
+  "comparisons": {
+    "home1a_exit": {
+      "differing_frames": 177,
+      "matching_tail": 0,
+      "player_coverage": [
+        122,
+        300
+      ]
+    },
+    "field1d_return": {
+      "differing_frames": 584,
+      "matching_tail": 16,
+      "player_coverage": [
+        473,
+        600
+      ]
+    },
+    "mysterious_voice": {
+      "differing_frames": 15,
+      "matching_tail": 468,
+      "player_coverage": [
+        1185,
+        1200
+      ]
+    }
+  },
+  "limitations": [
+    "Complete original timelines still fail; matching tails do not erase earlier differences or missing observations.",
+    "Image pairs are nominal fixed-tick comparisons, with before/after-update boundary and loading timing differences.",
+    "Audio segments preserve original44.1kHz/native48kHz and are not waveform or listening fidelity checks.",
+    "Current UI remains diagnostic; shared RGB lighting and material fidelity remain unfinished.",
+    "Emulator RAM is research-only. Native state is replayed from owned assets and ordinary inputs."
+  ],
+  "jam_actor_observation": {
+    "reference": "local/reference-field1d-jam-color-1200-v1",
+    "rows": 1200,
+    "instance": 48,
+    "channel_count": 168,
+    "channel3_transition_relative_frames": [
+      315,
+      374
+    ],
+    "settled_relative_frame": 375,
+    "settled_channel3": [
+      0.5,
+      0.5,
+      0.5,
+      1.0
+    ],
+    "scope": "Original observer only; seven retained control artifacts match baseline."
+  }
+}
