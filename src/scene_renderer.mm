@@ -5,6 +5,7 @@
 #include "okage/field.hpp"
 #include "okage/map_objects.hpp"
 #include "okage/render.hpp"
+#include "okage/ordinary_lighting.hpp"
 #include "okage/field_raster.hpp"
 #include "shadow_metal.hpp"
 #include "metal_preview_shader.hpp"
@@ -31,6 +32,7 @@ struct SceneRenderer::Impl {
     std::vector<Input> inputs;
     std::vector<FieldShadowActor> shadowActors;
     FieldShadowSettings shadowSettings;
+    FieldOrdinaryLighting ordinaryLighting;
     FieldShadowFrame shadowFrame;
     std::unique_ptr<ShadowMetal> shadowMetal;
     std::optional<std::size_t> sky_input;
@@ -74,7 +76,7 @@ struct SceneRenderer::Impl {
         }
         if(inputs.empty())throw std::runtime_error("Empty field map");
         if(sky_input){auto stage=path;stage.replace_extension(".stg");sky_factors=field_sky_follow(read(stage));}
-        {auto stage=path;stage.replace_extension(".stg");shadowSettings=field_shadow_settings(read(stage));}
+        {auto stage=path;stage.replace_extension(".stg");const auto bytes=read(stage);shadowSettings=field_shadow_settings(bytes);ordinaryLighting=field_ordinary_lighting(bytes);}
         for(const auto& binding:actors) {
             if(!binding.actor || binding.model_path.empty())throw std::runtime_error("Actor and model path required");
             const auto companion_path=binding.model_path.parent_path()/"shadow.xmd";
@@ -196,15 +198,22 @@ struct SceneRenderer::Impl {
             const auto& input=inputs[inputIndex];const auto textureOffset=textureOffsets[inputIndex];
             if(input.placement && !(mapObjects?mapObjects->visible(*input.placement):input.visible))continue;
             if(input.actor && !input.actor->visible)continue;
-            const bool materialActor=input.actor && input.actor->encounter_model;
+            const bool ordinaryInstance=input.actor && !input.actor->encounter_model && input.actor->render_flags==0x100000;
+            const bool materialActor=input.actor && (input.actor->encounter_model || ordinaryInstance);
             float instanceAlpha=1;
             if(input.actor && input.actor->render_flags) {
                 if(!materialActor || input.actor->render_flags!=0x100000)
                     throw std::runtime_error("Actor instance render mode is unrecovered");
                 const auto& ambient=input.actor->channels().at(3);
-                if(ambient[0]!=1 || ambient[1]!=1 || ambient[2]!=1)
+                if(!ordinaryInstance && (ambient[0]!=1 || ambient[1]!=1 || ambient[2]!=1))
                     throw std::runtime_error("Actor instance ambient RGB is unrecovered");
                 instanceAlpha=ambient[3];
+            }
+            std::optional<Matrix4> directionMatrix;
+            auto lightColors=ordinaryLighting.colors;
+            if(ordinaryInstance) {
+                directionMatrix=ordinary_direction_matrix(ordinaryLighting.directions,view);
+                lightColors[3]=input.actor->channels().at(3);
             }
             std::vector<Draw> translucent;
             std::size_t textureBase=0;
@@ -224,6 +233,12 @@ struct SceneRenderer::Impl {
                 }
                 for (const auto& block:part.blocks) {
                     const auto positions=okage::posed_positions(block,pose);
+                    std::optional<OrdinaryNormalCache> normals;
+                    std::vector<Float4> lights;std::vector<bool> lightDefined;
+                    if(ordinaryInstance) {
+                        normals=ordinary_normal_cache(block,pose);
+                        lights.resize(normals->normals.size());lightDefined.resize(lights.size());
+                    }
                     std::vector<okage::Float4> uv(block.attribute_extents[3]),colors(block.attribute_extents[2]);
                     std::vector<bool> uvDefined(uv.size()),colorDefined(colors.size());
                     for (const auto& attr:block.attributes) if (attr.kind==7 || attr.kind==8) {
@@ -243,7 +258,8 @@ struct SceneRenderer::Impl {
                         if(materialActor) {
                             if(polygon.material<0)throw std::runtime_error("Special actor has no material");
                             material=&block.materials.at(polygon.material);
-                            if(!(__builtin_bit_cast(float, (material->words[5]))>0) || material->words[7])
+                            const float transparency=__builtin_bit_cast(float, (material->words[5]));
+                            if((ordinaryInstance ? transparency!=0 : !(transparency>0)) || material->words[7])
                                 throw std::runtime_error("Unrecovered special-actor material class");
                             draw.materialBlend=material_blend_register(*material);
                         }
@@ -256,6 +272,9 @@ struct SceneRenderer::Impl {
                             draw.state={std::uint32_t(clamp>>4)&1023,std::uint32_t(clamp>>14)&1023,
                                 std::uint32_t(clamp>>24)&1023,std::uint32_t(clamp>>34)&1023,
                                 std::uint32_t(clamp)&3,std::uint32_t(clamp>>2)&3,1,0};
+                            // Ordinary setup TEXA has TA0=128, AEM=1. PSM24
+                            // stores no alpha: RGB zero becomes transparent.
+                            if(ordinaryInstance && textures.at(draw.image).pixel_format==1)draw.state[6]|=2;
                             for(std::size_t i=0;i<polygon.corners.size();++i) {
                                 const auto index=polygon.corners[i][3];
                                 if(index<0 || !uvDefined.at(index))throw std::runtime_error("Missing preview UV");
@@ -271,7 +290,19 @@ struct SceneRenderer::Impl {
                             else throw std::runtime_error("Missing preview source color");
                             if(material) {
                                 vertex.color=material_source_color(*material,vertex.color);
-                                vertex.color[3]=material_instance_alpha(vertex.color[3],instanceAlpha);
+                                if(ordinaryInstance) {
+                                    const auto normal=corner[1];
+                                    if(normal<0 || !normals->defined.at(normal))
+                                        throw std::runtime_error("Missing ordinary instance normal");
+                                    if(!lightDefined.at(normal)) {
+                                        lights[normal]=ordinary_light_normal(normals->normals[normal],*directionMatrix,lightColors,normals->path).lighting_cache;
+                                        lightDefined[normal]=true;
+                                    }
+                                    // Original clipping interpolates the fractional lit color;
+                                    // field_raster packs only after clipping.
+                                    vertex.color=fieldProjection?ordinary_material_modulation(vertex.color,lights[normal]):
+                                        ordinary_material_color(vertex.color,lights[normal]);
+                                } else vertex.color[3]=material_instance_alpha(vertex.color[3],instanceAlpha);
                             }
                             if (state) {
                                 const auto& value=polygonUV[index];
@@ -283,7 +314,11 @@ struct SceneRenderer::Impl {
                             }
                             vertices.push_back(vertex); ++draw.count;
                         }
-                        if(material) {
+                        if(ordinaryInstance) {
+                            // Ordinary TEST0x5000d: positive alpha, depth writes.
+                            // Opaque-list classification does not disable ABE.
+                            draw.state[7]=3;draws.push_back(draw);
+                        } else if(material) {
                             draw.state[7]=1;draws.push_back(draw);
                             draw.state[7]=2;translucent.push_back(draw);
                         } else draws.push_back(draw);
@@ -384,7 +419,7 @@ struct SceneRenderer::Impl {
             if(!draw.count)continue;
             [encoder setCullMode:draw.materialBlend?MTLCullModeBack:MTLCullModeNone];
             [encoder setRenderPipelineState:draw.materialBlend?(draw.materialBlend==0x48?materialAddPipeline:draw.materialBlend==0x42?materialSubtractPipeline:materialPipeline):draw.subtractive?darkEffectPipeline:draw.dust?dustPipeline:draw.additive?mapEffectPipeline:draw.effect?effectPipeline:pipeline];
-            [encoder setDepthStencilState:draw.depthAlways?effectDepth:draw.materialBlend?(draw.state[7]==1?materialDepth:mapEffectDepth):(draw.additive||draw.dust||draw.subtractive)?mapEffectDepth:draw.effect?effectDepth:depth];
+            [encoder setDepthStencilState:draw.depthAlways?effectDepth:draw.materialBlend?(draw.state[7]!=2?materialDepth:mapEffectDepth):(draw.additive||draw.dust||draw.subtractive)?mapEffectDepth:draw.effect?effectDepth:depth];
             [encoder setFragmentTexture:gpuTextures[draw.image<0 ? whiteTexture : draw.image] atIndex:0];
             [encoder setFragmentBytes:draw.state.data() length:sizeof(draw.state) atIndex:0];
             [encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:draw.first vertexCount:draw.count];

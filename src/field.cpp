@@ -975,6 +975,29 @@ Matrix4 OpeningField::view() const {
     Float4 p=position,r=rotation;for(unsigned i=0;i<3;++i){p[i]=-p[i];r[i]=-r[i];}p[3]=1;r[3]=0;
     return camera_matrix(p,r,{1,1,1,0},sine_);
 }
+FieldOrdinaryLighting field_ordinary_lighting(Bytes stg) {
+    if(get(stg,0)!=0x475453)throw std::runtime_error("Invalid STG magic");
+    const auto begin=get(stg,8),count=get(stg,12);
+    if(begin<32||count>4096||std::uint64_t(begin)+std::uint64_t(count)*20>stg.size())
+        throw std::runtime_error("STG ordinary lighting bounds");
+    FieldOrdinaryLighting result;Rounding rounding;
+    for(unsigned i=0;i<count;++i) {
+        const auto at=begin+i*20,kind=get(stg,at);
+        if(!(kind>=1&&kind<=3)&&!(kind>=0x11&&kind<=0x13)&&kind!=0x41&&kind!=0x45)continue;
+        Float4 value;
+        for(unsigned c=0;c<4;++c) {
+            value[c]=__builtin_bit_cast(float, (get(stg,at+4+c*4)));
+            if(!std::isfinite(value[c]))throw std::runtime_error("Non-finite STG ordinary lighting");
+        }
+        if(kind<=3)result.colors[kind-1]=value;
+        else if(kind<=0x13){value[3]=0;result.directions[kind-0x11]=value;}
+        else {
+            if(kind==0x45)for(unsigned c=0;c<3;++c)value[c]*=.25f;
+            result.colors[3]=value;
+        }
+    }
+    return result;
+}
 Float4 field_effect_tint(Bytes stg) {
     if(get(stg,0)!=0x475453)throw std::runtime_error("Invalid STG magic");
     const auto begin=get(stg,8),count=get(stg,12);

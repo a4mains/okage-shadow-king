@@ -37,13 +37,17 @@ float4 material_color(Varying v, texture2d<float> image,
         if(any(p<0)||p.x>=int(image.get_width())||p.y>=int(image.get_height()))
             return float4(1,0,1,1);
         float4 t=image.read(uint2(p));
-        t=float4(t.rgb*255.0f,floor(t.a*127.5f+0.5f));
+        float a=floor(t.a*127.5f+0.5f);
+        if(state.mode.z&2u)a=all(t.rgb==float3(0))?0.0f:128.0f;
+        t=float4(t.rgb*255.0f,a);
         color=floor(t*color/128.0f);
     }
     color=clamp(floor(color),0.0f,255.0f);
     // 0x185fb0: TEST 0x5060d (>96, depth write), then 0x50607
     // (<=96, ZBUF masked). The split applies to final modulated alpha.
-    if(state.mode.w==1 ? color.a<=96.0f : color.a>96.0f)discard_fragment();
+    // Ordinary opaque-list TEST0x5000d uses one alpha>0, depth-writing pass.
+    if(state.mode.w==3) {if(color.a<=0.0f)discard_fragment();}
+    else if(state.mode.w==1 ? color.a<=96.0f : color.a>96.0f)discard_fragment();
     float alpha=color.a/128.0f;
     return float4((color.rgb/255.0f)*alpha,alpha);
 }

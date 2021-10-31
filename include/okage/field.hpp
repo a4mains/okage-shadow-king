@@ -162,6 +162,12 @@ private:
     Float4 point(std::size_t) const;
     void evaluate();
 };
+// 0x1b8028 defaults and ordered STG1..3/11..13/41/45 setters.
+struct FieldOrdinaryLighting {
+    std::array<Float4,3> directions{Float4{0,0,1,0},Float4{0,1,0,0},Float4{1,0,0,0}};
+    std::array<Float4,4> colors{Float4{1,1,1,0},Float4{},Float4{},Float4{.25f,.25f,.25f,1}};
+};
+FieldOrdinaryLighting field_ordinary_lighting(Bytes stg);
 // Reviewed STG light0/base/ambient records for ordinary effect tint.
 Float4 field_effect_tint(Bytes stg);
 Float4 field_projection(Bytes stg,float* far_clip=nullptr);

@@ -2326,6 +2326,86 @@ public:
         writeFile(output,result.data(),result.size());
         std::cout<<"Original VU1 instance alpha records: "<<cases.size()/8<<'\n';
     }
+    void ordinaryLighting(const std::vector<uint8>& input,const char* output) {
+        constexpr unsigned stride=100*4,top=0x350;
+        if(input.empty()||input.size()%stride||input.size()>stride*2048)
+            throw std::runtime_error("Ordinary lighting fixture extent");
+        std::memcpy(ee->m_microMem1,ee->m_ram+0x215900,0x3d98);
+        auto& cpu=ee->m_VU1;
+        auto run=[&](unsigned entry,unsigned count=0) {
+            put(0x1900000,0x03000000|top);put(0x1900004,0x02000000);
+            put(0x1900008,0x04000000|count);put(0x190000c,0x14000000|entry);
+            ee->m_vpu1->GetVif().ReceiveDMA(0x1900000,1,1,false);
+            if(!ee->m_vpu1->IsVuReady()||cpu.m_State.nHasException!=MIPS_EXCEPTION_VU_EBIT)
+                throw std::runtime_error("Ordinary lighting VU entry did not complete");
+        };
+        auto vector=[&](unsigned at,std::array<float,4> value) {
+            std::memcpy(ee->m_vuMem1+at*16,value.data(),16);
+        };
+        std::vector<uint32> result;
+        for(unsigned at=0;at<input.size();at+=stride) {
+            std::array<uint32,100> f;std::memcpy(f.data(),input.data()+at,stride);
+            if(f[1]>3||f[2]||f[3])throw std::runtime_error("Ordinary lighting fixture header");
+            for(unsigned i=4;i<f.size();++i)
+                if((f[i]&0x7f800000)==0x7f800000)
+                    throw std::runtime_error("Nonfinite ordinary lighting fixture");
+            // Execute actual EE light setup. Caller setters force direction W0.
+            std::memcpy(ee->m_ram+0x80000,f.data()+44,48);
+            for(unsigned i=0;i<3;++i)put(0x80000+i*16+12,0);
+            std::memcpy(ee->m_ram+0x80100,f.data()+56,64);
+            call(0x1e28f0,{0x80200,0x80000,0x80010,0x80020});
+            call(0x1e2308,{0x80300,0x80100});
+            call(0x1e2240,{0x80400,0x80200,0x80300});
+            std::array<uint32,68> record{};
+            std::copy_n(f.data(),4,record.data());
+            std::memcpy(record.data()+4,ee->m_ram+0x80400,64);
+            std::memset(ee->m_vuMem1,0,0x4000);run(0);
+            std::memcpy(ee->m_vuMem1+top*16,f.data()+4,64);run(0x3d);
+            std::memcpy(ee->m_vuMem1+top*16,ee->m_ram+0x80400,48);run(0x47);
+            std::memcpy(ee->m_vuMem1+top*16,f.data()+72,64);run(0x4f);
+            // Prefetch slots are explicit finite values, outside the observed3.
+            for(unsigned i=0;i<6;++i) {
+                vector(0xe8+i,{0,0,1,0});vector(top+i+1,{0,0,1,0});
+            }
+            const uint32 header[]={3,0,0,0};
+            std::memcpy(ee->m_vuMem1+top*16,header,16);
+            std::memcpy(ee->m_vuMem1+(top+1)*16,f.data()+20,48);
+            std::memcpy(ee->m_vuMem1+0xe8*16,f.data()+32,48);
+            cpu.m_State.nCOP2VI[11]=0;
+            if(f[1]==3)run(0x214);
+            else {
+                if(f[1]==1)run(0x252);
+                if(f[1]==2)run(0x268);
+                if(f[1]==0)std::memcpy(ee->m_vuMem1+0xe8*16,f.data()+20,48);
+                std::memcpy(record.data()+20,ee->m_vuMem1+0xe8*16,48);
+                run(0x280);
+            }
+            std::memcpy(record.data()+32,ee->m_vuMem1+0xe8*16,48);
+            std::memcpy(record.data()+44,ee->m_vuMem1+0x20b*16,48);
+            const uint32 primHeader[]={3,0x30004000|(0x4dU<<15)|0x4dU,0x41f,0};
+            std::memcpy(ee->m_vuMem1+top*16,primHeader,16);
+            for(unsigned i=0;i<3;++i) {
+                const uint32 corner[]={i,i,i,i};
+                std::memcpy(ee->m_vuMem1+(top+i+1)*16,corner,16);
+                vector(0x87+i,{i==0?16.f:80.f,i==2?96.f:32.f,.25f,1});
+                std::memcpy(ee->m_vuMem1+(0x149+i)*16,f.data()+88+i*4,16);
+            }
+            std::memset(ee->m_vuMem1+0x2ff*16,0xcd,12*16);
+            cpu.m_State.nCOP2VI[11]=0;cpu.m_State.nCOP2VI[12]=0x3ff;
+            cpu.m_State.nCOP2VI[13]=0x300;cpu.m_State.nCOP2VI[14]=0;
+            run(0x3b6,10);
+            if(cpu.m_State.nCOP2VI[13]!=0x30a||cpu.m_State.nPC!=0x2100)
+                throw std::runtime_error("Ordinary lighting triangle missing");
+            for(unsigned i=0;i<16;++i)
+                if(ee->m_vuMem1[0x2ff*16+i]!=0xcd||ee->m_vuMem1[0x30a*16+i]!=0xcd)
+                    throw std::runtime_error("Ordinary lighting triangle exceeded fixture");
+            for(unsigned i=0;i<3;++i)
+                std::memcpy(record.data()+56+i*4,ee->m_vuMem1+(0x302+i*3)*16,16);
+            result.insert(result.end(),record.begin(),record.end());
+        }
+        writeFile(output,result.data(),result.size()*4);
+        std::cout<<"Original ordinary lighting records: "<<input.size()/stride<<'\n';
+    }
     void ordinaryDepth(const std::vector<uint8>& input,const char* output) {
         constexpr unsigned stride=29*4,top=0x350,outputBase=0x300,qwords=10;
         if(input.empty()||input.size()%stride||input.size()>stride*64)
@@ -2743,6 +2823,8 @@ int main(int argc,char** argv) {
             reference.shadowUpdate(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if (command=="instance-alpha" && argc==5) {
             reference.instanceAlpha(readFile(argv[3]),argv[4]);
+        } else if (command=="ordinary-lighting" && argc==5) {
+            reference.ordinaryLighting(readFile(argv[3]),argv[4]);
         } else if (command=="ordinary-depth" && argc==5) {
             reference.ordinaryDepth(readFile(argv[3]),argv[4]);
         } else if (command=="primitive" && argc==8) {

@@ -4,6 +4,7 @@
 #include "okage/animation.hpp"
 #include "okage/texture_animation.hpp"
 #include "okage/render.hpp"
+#include "okage/ordinary_lighting.hpp"
 #include "okage/map.hpp"
 #include "okage/map_objects.hpp"
 #include "okage/enemy.hpp"
@@ -382,6 +383,42 @@ int main(int argc, char** argv) {
                 capture(0);for(unsigned step=1;step<=f[9];++step){state.tick(hero_rotation,hero_position);capture(step);}
             }
             write(argv[3],{reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4});return 0;
+        }
+        if(command=="ordinary-lighting" && argc==4) {
+            const auto input=read(argv[2]);constexpr unsigned stride=100*4;
+            if(input.empty()||input.size()%stride||input.size()>stride*2048)
+                throw std::runtime_error("Ordinary lighting fixture extent");
+            std::vector<std::uint32_t> output;
+            for(std::size_t at=0;at<input.size();at+=stride) {
+                std::array<std::uint32_t,100> f;std::memcpy(f.data(),input.data()+at,stride);
+                if(f[1]>3||f[2]||f[3])throw std::runtime_error("Ordinary lighting fixture header");
+                okage::Matrix4 matrix,view,colors;
+                std::array<okage::Float4,3> source,prior,directions,sourceColors;
+                std::memcpy(matrix.data(),f.data()+4,64);std::memcpy(source.data(),f.data()+20,48);
+                std::memcpy(prior.data(),f.data()+32,48);std::memcpy(directions.data(),f.data()+44,48);
+                std::memcpy(view.data(),f.data()+56,64);std::memcpy(colors.data(),f.data()+72,64);
+                std::memcpy(sourceColors.data(),f.data()+88,48);
+                const auto direction=okage::ordinary_direction_matrix(directions,view);
+                std::array<std::uint32_t,68> record{};
+                std::copy_n(f.data(),4,record.data());std::memcpy(record.data()+4,direction.data(),64);
+                for(unsigned i=0;i<3;++i) {
+                    auto normal=source[i];
+                    if(f[1]) {
+                        const auto operation=f[1]==1?okage::OrdinaryNormalOperation::overwrite:
+                            f[1]==2?okage::OrdinaryNormalOperation::accumulate:okage::OrdinaryNormalOperation::direct;
+                        normal=okage::ordinary_transform_normal(matrix,normal,operation,prior[i]);
+                    }
+                    if(f[1]!=3)std::memcpy(record.data()+20+i*4,normal.data(),16);
+                    const auto light=okage::ordinary_light_normal(normal,direction,colors,
+                        f[1]==3?okage::OrdinaryLightingPath::direct:okage::OrdinaryLightingPath::deferred);
+                    std::memcpy(record.data()+32+i*4,light.normalized_normal.data(),16);
+                    std::memcpy(record.data()+44+i*4,light.lighting_cache.data(),16);
+                    const auto packed=okage::ordinary_material_color(sourceColors[i],light.lighting_cache);
+                    for(unsigned c=0;c<4;++c)record[56+i*4+c]=0x4b000000u|std::uint32_t(packed[c]);
+                }
+                output.insert(output.end(),record.begin(),record.end());
+            }
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
         }
         if(command=="instance-alpha" && argc==4) {
             const auto input=read(argv[2]);

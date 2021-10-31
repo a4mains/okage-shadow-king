@@ -1,4 +1,5 @@
 #include "okage/field_raster.hpp"
+#include "okage/ordinary_lighting.hpp"
 #include "okage/field_shadows.hpp"
 #include <array>
 #include <cfenv>
@@ -113,6 +114,22 @@ int main() {
         });
         check(!fractional.empty() && fractional.size() == gs_units.size());
         check(fractional[0].color[3] == 96.75f && gs_units[0].color[3] == 96.f);
+
+        auto lit = crossing, prematurely_packed = crossing;
+        for (unsigned i=0;i<3;++i) {
+            const okage::Float4 source{i?1.75f:.75f,32,64,128};
+            lit[i].color=okage::ordinary_material_modulation(source,{1,1,1,1});
+            prematurely_packed[i].color=okage::ordinary_material_color(source,{1,1,1,1});
+        }
+        const auto correct=okage::field_raster_triangles(lit,settings,true);
+        const auto early=okage::field_raster_triangles(prematurely_packed,settings,true);
+        check(correct.size()==early.size() && !correct.empty());
+        bool differs=false;
+        for(unsigned i=0;i<correct.size();++i) {
+            check(correct[i].color[0]==1);
+            differs|=correct[i].color[0]!=early[i].color[0];
+        }
+        check(differs);
 
         check(okage::field_ordinary_bucket(0, 512, true) == 1031); // Ghost 1031.
         check(okage::field_ordinary_bucket(0xe0, 12) == 533); // Ordinary NPC depth.

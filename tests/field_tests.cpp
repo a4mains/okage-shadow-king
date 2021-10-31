@@ -856,5 +856,20 @@ int main(){try {
     light_word(12,2);rejects([&]{okage::field_effect_tint(lighting);});
     light_word(52,0x45);tint=okage::field_effect_tint(lighting);require(tint[2]==1);
     light_word(36,0x7fc00000);rejects([&]{okage::field_effect_tint(lighting);});
+    // Independent ordered light setters: direction W is forced0, opcode45
+    // changes ambient RGB only, and a later41 replaces all ambient components.
+    light_word(36,__builtin_bit_cast(std::uint32_t, (1.f)));
+    light_word(12,0);auto ordinary=okage::field_ordinary_lighting(lighting);
+    require(ordinary.directions[0]==okage::Float4({0,0,1,0}));
+    require(ordinary.colors[3]==okage::Float4({.25f,.25f,.25f,1}));
+    light_word(12,2);light_word(32,0x11);light_word(52,0x45);
+    ordinary=okage::field_ordinary_lighting(lighting);
+    require(ordinary.directions[0]==okage::Float4({1,2,3,0}));
+    require(ordinary.colors[3]==okage::Float4({.25f,.5f,.75f,1}));
+    light_word(12,3);ordinary=okage::field_ordinary_lighting(lighting);
+    require(ordinary.colors[3]==okage::Float4({1,2,3,1}));
+    light_word(12,4);rejects([&]{okage::field_ordinary_lighting(lighting);});
+    light_word(12,3);light_word(36,0x7fc00000);rejects([&]{okage::field_ordinary_lighting(lighting);});
+
     std::cout<<"Camera, field lifecycle, map motion, event gates and encounter spawning passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
