@@ -1,0 +1,827 @@
+{
+  "build_tests": {
+    "configurations": [
+      {
+        "build_log": "local/research/jam-lighting-v1/build-release-final-v1.log",
+        "build_log_sha256": "efdd3d2b8670fd44235acadfe71ee3a9ac8cc3c6abe170e412bd7224272b9e59",
+        "ctest_log": "local/research/jam-lighting-v1/ctest-release-final-v1.log",
+        "ctest_log_sha256": "1a94f90d3afb4e041940e56d3baa70cb7cf32fc20595e0d701a81babdf3532be",
+        "name": "release",
+        "passed": 23,
+        "summary": "100% tests passed, 0 tests failed",
+        "total": 23
+      },
+      {
+        "build_log": "local/research/jam-lighting-v1/build-debug-final-v1.log",
+        "build_log_sha256": "16cbca974ce827d9e1b5fdab14d60ca8197a69c008c06575d0f473cc3c471520",
+        "ctest_log": "local/research/jam-lighting-v1/ctest-debug-final-v1.log",
+        "ctest_log_sha256": "5cdeb4937035f848e31b285e4c10c9b7bb1ec2de7e9c8d9a9490901f1d972dda",
+        "name": "debug",
+        "passed": 23,
+        "summary": "100% tests passed, 0 tests failed",
+        "total": 23
+      },
+      {
+        "build_log": "local/research/jam-lighting-v1/build-sanitize-final-v1.log",
+        "build_log_sha256": "20e6101abb6471d20b3dd0a31e4ec6180d5457950bb6db5c023400b7845ca45b",
+        "ctest_log": "local/research/jam-lighting-v1/ctest-sanitize-final-v1.log",
+        "ctest_log_sha256": "62b9db553dda75ac2612415e27c40cb705e0c6340a8333fa64f1cc6ee14121e2",
+        "name": "sanitize",
+        "passed": 23,
+        "summary": "100% tests passed, 0 tests failed",
+        "total": 23
+      }
+    ],
+    "note": "Build logs do not include their invocation; all three CTest logs report 23/23 passed.",
+    "python_result": "OK",
+    "python_test_log": "local/research/jam-lighting-v1/python-tests-final-v1.log",
+    "python_test_log_sha256": "3bb3c395bd992b94d14a638863f7085a37ff4299d6900834d9536697403fdbde",
+    "python_tests": 142
+  },
+  "current_bundle_manifests": {
+    "jam-ready-pair-v1": {
+      "bundle_sha256": "6a976f46fb0357971bf405344f22d5d2730d80eb5b431497adaf77cca86d3f2e",
+      "commands_path": "local/research/jam-ready-pair-v1/commands.txt",
+      "commands_sha256": "25217e22bb58f4a28eadd571c78dc7164a97f473b7908763f1142456174cf0f9"
+    },
+    "jam-talk-pair-v1": {
+      "bundle_sha256": "7f3387455ceebe630c0c9a4ac1e9e4f77852f42b62f5e73ff923f637e847d925",
+      "commands_path": "local/research/jam-talk-pair-v1/commands.txt",
+      "commands_sha256": "d74a5237ac822dc5b7cfc08a0f451dba3e53bdb3029899de2ce55abdf5c228f3"
+    },
+    "stan-orders-pair-v3": {
+      "bundle_sha256": "147c9e5cbce115cc92a19efa5acd6892fb220532876cb46120ec9d0f4cfc0b59",
+      "commands_path": "local/research/stan-orders-pair-v3/commands.txt",
+      "commands_sha256": "9794fa45e6818e1a2494ad951127e1e9fd92053154fcf53b30525c92c6f7c184"
+    }
+  },
+  "game_identity": {
+    "elf_path": "local/extracted/SCUS_971.29",
+    "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
+  },
+  "implementation": {
+    "limits": [
+      "Not complete model submission, polygon selection/remapping, or animated kind-5/6 payloads.",
+      "Unsupported command/flag patterns, absent normals, and unproved arithmetic exceptions fail closed.",
+      "Verifier is synthetic arithmetic and cache coverage; it is not GS raster or scene-fidelity evidence.",
+      "Other scene/HERO lighting paths, texture filtering and general GS blending/raster fidelity remain incomplete."
+    ],
+    "scope": [
+      "Inline ordinary normal-cache construction; direct/deferred normal and lighting arithmetic with EE/VU operation order and round-toward-zero.",
+      "Ordinary material color handling carries fractional values through clipping before packing.",
+      "Ordinary PSM24 texture AEM handling treats RGB black texels as transparent.",
+      "Renderer hookup is limited to non-encounter actors with render_flags==0x100000; existing sort/depth behavior is reused, not newly proved."
+    ],
+    "source_revision": "b24fdaa",
+    "source_sha256": {
+      "include/okage/ordinary_lighting.hpp": "cbd49fbeaccebc75e09fe4fa14469a01982f2633d624d27cddc79181e84ea673",
+      "src/field.cpp": "c77ecc0b200bab2445c70b4ae53e21b85e579a2f245d3d415898b8f8456c43f7",
+      "src/ordinary_lighting.cpp": "c628a4ae5e6ed122cfabc94bdc8221d2ae8c1b6c9ddcbed5f832f7bf647f0858",
+      "src/scene_renderer.mm": "db51fa9fcf4baf7d245c1e664116dc1dcda847b08e0b20e7e2b21cb9dea3cdaf",
+      "tests/field_raster_tests.cpp": "eabb40e37c1e5203eacc542615883e707d5e4facf030a4e50ae968076c34140c",
+      "tests/ordinary_lighting_tests.cpp": "d1641ce5f86747b74dd02cff9a92ca2f773f167163abc288c327c0d96688c5d5",
+      "tools/verify_ordinary_lighting.py": "236940b9d576f703e3aa3a819d2e6494c17b69e976f3b30062dd98d5b144dd91"
+    },
+    "status": "committed as b24fdaa; Release, Debug and ASan/UBSan validation logs retained below"
+  },
+  "later_failure_outside_paired_lighting_scope": {
+    "binary_sha256": "cc886c3332a8b2c73d62867ea678a17a212b719197e1616f1259458a6ef45a52",
+    "error": "Dialogue ID=14007 at native frame 78702: SHADOW(0) dialogue window command not implemented.",
+    "native_exit_code": 1,
+    "native_log": "local/native-jam-talk-more-79535-release-v1.log",
+    "native_run_manifest": "local/native-jam-talk-more-79535-release-v1.run.json",
+    "original_exit_code": 0,
+    "original_run_manifest": "local/reference-field1d-jam-talk-more-1200-v1.run.json",
+    "status": "retained negative evidence; separate dialogue gap, not a lighting comparison."
+  },
+  "limits": [
+    "Original capture occurs after VBlank/pad update and before EE/IOP iteration update; native selected frames occur after completed Session::tick. Do not shift anchors.",
+    "Latest route state audits report no differences in compared state and full manager/camera/player coverage, but not unobserved state or full-timeline equivalence.",
+    "Selected image pairs are nominal 640\u00d7224 comparisons with many differing pixels; no temporal match or raster pass.",
+    "Audio segments are 44.1 kHz original and 48 kHz native; no resampling, fitted lag, waveform comparison, or equivalence pass.",
+    "v2/v3 render check covers endpoint and five selected frames plus output sidecars only."
+  ],
+  "live_timing": {
+    "limitation": "Wall time only; not CPU/GPU or compositor FPS. No before/after speedup claim.",
+    "metadata": {
+      "boundaries": "Resume callback entry through pause callback entry; initial live start is after window activation. Pause callback work and report flush are excluded. Resume audio setup and refresh are included. Cap discard includes the last running gap at pause.",
+      "clock": "NSProcessInfo.systemUptime monotonic seconds",
+      "counts": "Ticks count completed Session::tick calls. Rendered ticks have a current-frame rendered surface after that call. Failed tick work is included only in update_wall; frame-counter mismatch is reported. Gaps are between callbacks within an interval.",
+      "histogram_upper_ms": [
+        0.25,
+        0.5,
+        1,
+        2,
+        4,
+        8,
+        16.666667,
+        25,
+        33.333334,
+        50,
+        100,
+        250,
+        500,
+        1000,
+        2000,
+        5000,
+        10000,
+        30000,
+        60000,
+        null
+      ],
+      "persistence": "Only finished intervals are written. Abrupt termination can leave the final interval absent.",
+      "schema_version": 1,
+      "scope": "Interactive running intervals only; wall timings, not CPU or GPU timings.",
+      "timings": "update_wall includes tick and refresh wall times; distributions overlap. Histogram bins have inclusive upper bounds; final bin is overflow. No per-frame samples retained.",
+      "type": "metadata"
+    },
+    "path": "local/native-jam-ready-preview-77135-v1.performance.jsonl",
+    "sample": {
+      "appkit_draw_callbacks": 67,
+      "appkit_draw_callbacks_per_wall_second": 1.762141021502852,
+      "completed_simulation_ticks": 973,
+      "elapsed_discarded_by_update_cap_s": 21.53999966668198,
+      "end_frame": 78108,
+      "rendered_ticks": 973,
+      "simulation_ticks_per_wall_second": 25.590495730183207,
+      "start_frame": 77135,
+      "update_callbacks": 67,
+      "wall_duration_s": 38.02192854171153
+    },
+    "sha256": "1c972fef727449b37ffae5d29007664dba3e79b071425640a9b6d6e81896f893"
+  },
+  "ordinary_lighting": {
+    "actual_commands_from_reports": {
+      "local/research/ordinary-lighting-debug-v3/report.json": [
+        [
+          "build/native/okage-assets",
+          "ordinary-lighting",
+          "local/research/ordinary-lighting-debug-v3/cases.bin",
+          "local/research/ordinary-lighting-debug-v3/native.bin"
+        ]
+      ],
+      "local/research/ordinary-lighting-original-v2/report.json": [
+        [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "ordinary-lighting",
+          "local/extracted/SCUS_971.29",
+          "local/research/ordinary-lighting-original-v2/cases.bin",
+          "local/research/ordinary-lighting-original-v2/original.bin"
+        ]
+      ],
+      "local/research/ordinary-lighting-release-v3/report.json": [
+        [
+          "build/native-release/okage-assets",
+          "ordinary-lighting",
+          "local/research/ordinary-lighting-release-v3/cases.bin",
+          "local/research/ordinary-lighting-release-v3/native-release.bin"
+        ]
+      ],
+      "local/research/ordinary-lighting-sanitize-v3/report.json": [
+        [
+          "build/model-sanitize/okage-assets",
+          "ordinary-lighting",
+          "local/research/ordinary-lighting-sanitize-v3/cases.bin",
+          "local/research/ordinary-lighting-sanitize-v3/model-sanitize.bin"
+        ]
+      ]
+    },
+    "cases": 256,
+    "fresh_output_reproduction": [
+      "python3 tools/verify_ordinary_lighting.py --output local/research/ordinary-lighting-release-v4 --original local/research/ordinary-lighting-original-v2/original.bin --build native-release",
+      "python3 tools/verify_ordinary_lighting.py --output local/research/ordinary-lighting-debug-v4 --original local/research/ordinary-lighting-original-v2/original.bin --build native",
+      "python3 tools/verify_ordinary_lighting.py --output local/research/ordinary-lighting-sanitize-v4 --original local/research/ordinary-lighting-original-v2/original.bin --build model-sanitize"
+    ],
+    "oracle_tool": "tools/verify_ordinary_lighting.py",
+    "original_oracle_output_sha256": "9c5dbbd19afae63c318dc8a0d71173ab4a7119d430d8a745ade5e3cebc8c2a4d",
+    "original_oracle_report": "local/research/ordinary-lighting-original-v2/report.json",
+    "reports": [
+      {
+        "all_reported_artifact_hashes_revalidated": true,
+        "build": null,
+        "cases": 256,
+        "differences": null,
+        "differing_words": null,
+        "native_compared": false,
+        "report": "local/research/ordinary-lighting-original-v2/report.json",
+        "sha256": "3670a07029e812070b48f6bbeaf4635724c0610989725ff7c3d4adbb99d2c417",
+        "sha256_claims": {
+          "build/play-research/okage-oracle/okage-pose-oracle": "224f6420bf9ec0175957a3a316dec90d56431c8730531968b6a86c440543f0b3",
+          "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "local/research/ordinary-lighting-original-v2/cases.bin": "f9ff2cbd23d2e4a2d3334dbd0d761f8209e54138055bb4318f3b0712420a0fc7",
+          "local/research/ordinary-lighting-original-v2/original.bin": "9c5dbbd19afae63c318dc8a0d71173ab4a7119d430d8a745ade5e3cebc8c2a4d"
+        }
+      },
+      {
+        "all_reported_artifact_hashes_revalidated": true,
+        "build": "native-release",
+        "cases": 256,
+        "differences": [],
+        "differing_words": 0,
+        "native_compared": true,
+        "report": "local/research/ordinary-lighting-release-v3/report.json",
+        "sha256": "54c62469a5ee548a04746d4effc0c4746b395e3fa4061e493fad78a25c744f06",
+        "sha256_claims": {
+          "build/native-release/okage-assets": "6de48b433d2170afb4cb1dc3ca64d5213edc621b998cc58a08cbca1a85060b1e",
+          "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "local/research/ordinary-lighting-original-v2/original.bin": "9c5dbbd19afae63c318dc8a0d71173ab4a7119d430d8a745ade5e3cebc8c2a4d",
+          "local/research/ordinary-lighting-release-v3/cases.bin": "f9ff2cbd23d2e4a2d3334dbd0d761f8209e54138055bb4318f3b0712420a0fc7",
+          "local/research/ordinary-lighting-release-v3/native-release.bin": "9c5dbbd19afae63c318dc8a0d71173ab4a7119d430d8a745ade5e3cebc8c2a4d"
+        }
+      },
+      {
+        "all_reported_artifact_hashes_revalidated": true,
+        "build": "native",
+        "cases": 256,
+        "differences": [],
+        "differing_words": 0,
+        "native_compared": true,
+        "report": "local/research/ordinary-lighting-debug-v3/report.json",
+        "sha256": "5b3e4c45f49be76a6455c75f702c68beb6aef2d8a9f1621e319d23b4b039d5f3",
+        "sha256_claims": {
+          "build/native/okage-assets": "cfec16e1430ba8c0f2b757112938f9f170f6a7692d8ff95c3a59df06d1229d68",
+          "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "local/research/ordinary-lighting-debug-v3/cases.bin": "f9ff2cbd23d2e4a2d3334dbd0d761f8209e54138055bb4318f3b0712420a0fc7",
+          "local/research/ordinary-lighting-debug-v3/native.bin": "9c5dbbd19afae63c318dc8a0d71173ab4a7119d430d8a745ade5e3cebc8c2a4d",
+          "local/research/ordinary-lighting-original-v2/original.bin": "9c5dbbd19afae63c318dc8a0d71173ab4a7119d430d8a745ade5e3cebc8c2a4d"
+        }
+      },
+      {
+        "all_reported_artifact_hashes_revalidated": true,
+        "build": "model-sanitize",
+        "cases": 256,
+        "differences": [],
+        "differing_words": 0,
+        "native_compared": true,
+        "report": "local/research/ordinary-lighting-sanitize-v3/report.json",
+        "sha256": "c476ae53c441675a812093b91b91eb0ee42c97f49773bfba4863fc0ed6951459",
+        "sha256_claims": {
+          "build/model-sanitize/okage-assets": "0bbc457becd0d421f809a543e7fd44ef0344e8ebd841f730b89bcd0accca10aa",
+          "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+          "local/research/ordinary-lighting-original-v2/original.bin": "9c5dbbd19afae63c318dc8a0d71173ab4a7119d430d8a745ade5e3cebc8c2a4d",
+          "local/research/ordinary-lighting-sanitize-v3/cases.bin": "f9ff2cbd23d2e4a2d3334dbd0d761f8209e54138055bb4318f3b0712420a0fc7",
+          "local/research/ordinary-lighting-sanitize-v3/model-sanitize.bin": "9c5dbbd19afae63c318dc8a0d71173ab4a7119d430d8a745ade5e3cebc8c2a4d"
+        }
+      }
+    ]
+  },
+  "purpose": "Evidence for ordinary VU1 lighting integration committed in b24fdaa and bounded fixed-anchor routes; no game-wide fidelity claim.",
+  "revision_comparison": {
+    "all_byte_identical": true,
+    "endpoint_and_selected_pngs": 6,
+    "pixel_delta": 0,
+    "report": "local/research/stan-orders-pair-v3/render-v2-v3-artifact-diff.json",
+    "report_sha256": "2e10cff9c7c5857dd1a8523bb38250359fb3bc10d4eb921e1cf37f4a96a2b6c4",
+    "script": "local/research/stan-orders-pair-v3/compare_v2_v3_artifacts.py",
+    "script_sha256": "435abc127a03e5683831439dff3208549b13820adb2621e1e699136ce15ce382",
+    "sidecar_trace_artifacts_equal_except_run_manifest_and_command": true,
+    "v2_binary_sha256": "9da849583351772a9acd478b26c2a4601b53d57414f7f0c40dad461f8546a809",
+    "v3_binary_sha256": "b79f057006813c1bfd5022ddbac276c4b8fdb53ff2c089bb17d0ab7f8e3a5419"
+  },
+  "routes": [
+    {
+      "audio": {
+        "alignment_proven": false,
+        "rates_hz": {
+          "native": 48000,
+          "original": 44100
+        },
+        "waveform_comparison": false
+      },
+      "binary_sha256": {
+        "native": "b79f057006813c1bfd5022ddbac276c4b8fdb53ff2c089bb17d0ab7f8e3a5419",
+        "original": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5"
+      },
+      "bundle": "local/research/stan-orders-pair-v3/bundle.json",
+      "category_frame_counts": {
+        "camera_mode_phase": 0,
+        "camera_position": 0,
+        "camera_rotation": 0,
+        "camera_unblended_target": 0,
+        "choice": 0,
+        "controller": 0,
+        "direction_latch": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "player_mask": 0
+      },
+      "controller_samples": 281,
+      "exit_codes": {
+        "native": 0,
+        "original": 0
+      },
+      "first_difference": null,
+      "fixed_first_native_frame": 75636,
+      "full_timeline_equivalence": false,
+      "images": [
+        {
+          "metrics": {
+            "alpha_different_pixel_count": 0,
+            "alpha_mae": 0.0,
+            "alpha_max_absolute_difference": 0,
+            "exact_different_pixel_count": 143047,
+            "height": 224,
+            "rgb_mae": 38.74448707217262,
+            "rgb_max_absolute_difference": 255,
+            "width": 640
+          },
+          "native_tick": 75636,
+          "original_vblank": 1
+        },
+        {
+          "metrics": {
+            "alpha_different_pixel_count": 0,
+            "alpha_mae": 0.0,
+            "alpha_max_absolute_difference": 0,
+            "exact_different_pixel_count": 143318,
+            "height": 224,
+            "rgb_mae": 63.21717819940476,
+            "rgb_max_absolute_difference": 255,
+            "width": 640
+          },
+          "native_tick": 75935,
+          "original_vblank": 300
+        },
+        {
+          "metrics": {
+            "alpha_different_pixel_count": 0,
+            "alpha_mae": 0.0,
+            "alpha_max_absolute_difference": 0,
+            "exact_different_pixel_count": 143333,
+            "height": 224,
+            "rgb_mae": 67.50043480282739,
+            "rgb_max_absolute_difference": 255,
+            "width": 640
+          },
+          "native_tick": 76235,
+          "original_vblank": 600
+        },
+        {
+          "metrics": {
+            "alpha_different_pixel_count": 0,
+            "alpha_mae": 0.0,
+            "alpha_max_absolute_difference": 0,
+            "exact_different_pixel_count": 143324,
+            "height": 224,
+            "rgb_mae": 67.85420154389881,
+            "rgb_max_absolute_difference": 255,
+            "width": 640
+          },
+          "native_tick": 76535,
+          "original_vblank": 900
+        },
+        {
+          "metrics": {
+            "alpha_different_pixel_count": 0,
+            "alpha_mae": 0.0,
+            "alpha_max_absolute_difference": 0,
+            "exact_different_pixel_count": 143324,
+            "height": 224,
+            "rgb_mae": 68.02417457217263,
+            "rgb_max_absolute_difference": 255,
+            "width": 640
+          },
+          "native_tick": 76835,
+          "original_vblank": 1200
+        }
+      ],
+      "matching_tail": {
+        "controller_samples": 281,
+        "first_native_tick": 75636,
+        "first_original_frame": 0,
+        "frames": 1200
+      },
+      "maximum_position_errors": {
+        "camera": 0.0,
+        "hero": 0.0
+      },
+      "native_run_manifest": "local/native-jam-lighting-76835-release-v3.run.json",
+      "no_dialogue_interval": false,
+      "observation_coverage": {
+        "camera": {
+          "expected_frames": 1200,
+          "observed_frames": 1200
+        },
+        "manager": {
+          "expected_frames": 1200,
+          "observed_frames": 1200
+        },
+        "player": {
+          "expected_frames": 1200,
+          "observed_frames": 1200
+        }
+      },
+      "original_frames": 1200,
+      "original_run_manifest": "local/reference-field1d-stan-orders-1200-v1.run.json",
+      "unblended_target_check": true,
+      "unblended_target_compared_frames": 733,
+      "unique_differing_frames": 0
+    },
+    {
+      "audio": {
+        "alignment_proven": false,
+        "rates_hz": {
+          "native": 48000,
+          "original": 44100
+        },
+        "waveform_comparison": false
+      },
+      "binary_sha256": {
+        "native": "9da849583351772a9acd478b26c2a4601b53d57414f7f0c40dad461f8546a809",
+        "original": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5"
+      },
+      "bundle": "local/research/jam-ready-pair-v1/bundle.json",
+      "category_frame_counts": {
+        "camera_mode_phase": 0,
+        "camera_position": 0,
+        "camera_rotation": 0,
+        "camera_unblended_target": 0,
+        "choice": 0,
+        "controller": 0,
+        "direction_latch": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "player_mask": 0
+      },
+      "controller_samples": 0,
+      "exit_codes": {
+        "native": 0,
+        "original": 0
+      },
+      "first_difference": null,
+      "fixed_first_native_frame": 76836,
+      "full_timeline_equivalence": false,
+      "images": [
+        {
+          "metrics": {
+            "alpha_different_pixel_count": 0,
+            "alpha_mae": 0.0,
+            "alpha_max_absolute_difference": 0,
+            "exact_different_pixel_count": 143343,
+            "height": 224,
+            "rgb_mae": 68.33680478050596,
+            "rgb_max_absolute_difference": 255,
+            "width": 640
+          },
+          "native_tick": 76836,
+          "original_vblank": 1
+        },
+        {
+          "metrics": {
+            "alpha_different_pixel_count": 0,
+            "alpha_mae": 0.0,
+            "alpha_max_absolute_difference": 0,
+            "exact_different_pixel_count": 143327,
+            "height": 224,
+            "rgb_mae": 68.07066592261904,
+            "rgb_max_absolute_difference": 255,
+            "width": 640
+          },
+          "native_tick": 76955,
+          "original_vblank": 120
+        },
+        {
+          "metrics": {
+            "alpha_different_pixel_count": 0,
+            "alpha_mae": 0.0,
+            "alpha_max_absolute_difference": 0,
+            "exact_different_pixel_count": 143324,
+            "height": 224,
+            "rgb_mae": 67.85384812127977,
+            "rgb_max_absolute_difference": 255,
+            "width": 640
+          },
+          "native_tick": 77135,
+          "original_vblank": 300
+        }
+      ],
+      "matching_tail": {
+        "controller_samples": 0,
+        "first_native_tick": 76836,
+        "first_original_frame": 0,
+        "frames": 300
+      },
+      "maximum_position_errors": {
+        "camera": 0.0,
+        "hero": 0.0
+      },
+      "native_run_manifest": "local/native-jam-ready-77135-release-v1.run.json",
+      "no_dialogue_interval": true,
+      "observation_coverage": {
+        "camera": {
+          "expected_frames": 300,
+          "observed_frames": 300
+        },
+        "manager": {
+          "expected_frames": 300,
+          "observed_frames": 300
+        },
+        "player": {
+          "expected_frames": 300,
+          "observed_frames": 300
+        }
+      },
+      "original_frames": 300,
+      "original_run_manifest": "local/reference-field1d-jam-ready-300-v1.run.json",
+      "unblended_target_check": true,
+      "unblended_target_compared_frames": 299,
+      "unique_differing_frames": 0
+    },
+    {
+      "audio": {
+        "alignment_proven": false,
+        "rates_hz": {
+          "native": 48000,
+          "original": 44100
+        },
+        "waveform_comparison": false
+      },
+      "binary_sha256": {
+        "native": "cc886c3332a8b2c73d62867ea678a17a212b719197e1616f1259458a6ef45a52",
+        "original": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5"
+      },
+      "bundle": "local/research/jam-talk-pair-v1/bundle.json",
+      "category_frame_counts": {
+        "camera_mode_phase": 0,
+        "camera_position": 0,
+        "camera_rotation": 0,
+        "camera_unblended_target": 0,
+        "choice": 0,
+        "controller": 0,
+        "direction_latch": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "player_mask": 0
+      },
+      "controller_samples": 1112,
+      "exit_codes": {
+        "native": 0,
+        "original": 0
+      },
+      "first_difference": null,
+      "fixed_first_native_frame": 77136,
+      "full_timeline_equivalence": false,
+      "images": [
+        {
+          "metrics": {
+            "alpha_different_pixel_count": 0,
+            "alpha_mae": 0.0,
+            "alpha_max_absolute_difference": 0,
+            "exact_different_pixel_count": 143343,
+            "height": 224,
+            "rgb_mae": 68.15681733630953,
+            "rgb_max_absolute_difference": 255,
+            "width": 640
+          },
+          "native_tick": 77136,
+          "original_vblank": 1
+        },
+        {
+          "metrics": {
+            "alpha_different_pixel_count": 0,
+            "alpha_mae": 0.0,
+            "alpha_max_absolute_difference": 0,
+            "exact_different_pixel_count": 143307,
+            "height": 224,
+            "rgb_mae": 50.082075427827384,
+            "rgb_max_absolute_difference": 255,
+            "width": 640
+          },
+          "native_tick": 77255,
+          "original_vblank": 120
+        },
+        {
+          "metrics": {
+            "alpha_different_pixel_count": 0,
+            "alpha_mae": 0.0,
+            "alpha_max_absolute_difference": 0,
+            "exact_different_pixel_count": 143307,
+            "height": 224,
+            "rgb_mae": 50.33845796130952,
+            "rgb_max_absolute_difference": 255,
+            "width": 640
+          },
+          "native_tick": 77435,
+          "original_vblank": 300
+        },
+        {
+          "metrics": {
+            "alpha_different_pixel_count": 0,
+            "alpha_mae": 0.0,
+            "alpha_max_absolute_difference": 0,
+            "exact_different_pixel_count": 143309,
+            "height": 224,
+            "rgb_mae": 52.39474981398809,
+            "rgb_max_absolute_difference": 255,
+            "width": 640
+          },
+          "native_tick": 77735,
+          "original_vblank": 600
+        },
+        {
+          "metrics": {
+            "alpha_different_pixel_count": 0,
+            "alpha_mae": 0.0,
+            "alpha_max_absolute_difference": 0,
+            "exact_different_pixel_count": 143309,
+            "height": 224,
+            "rgb_mae": 51.40011625744047,
+            "rgb_max_absolute_difference": 255,
+            "width": 640
+          },
+          "native_tick": 78035,
+          "original_vblank": 900
+        },
+        {
+          "metrics": {
+            "alpha_different_pixel_count": 0,
+            "alpha_mae": 0.0,
+            "alpha_max_absolute_difference": 0,
+            "exact_different_pixel_count": 143302,
+            "height": 224,
+            "rgb_mae": 51.64864908854167,
+            "rgb_max_absolute_difference": 255,
+            "width": 640
+          },
+          "native_tick": 78335,
+          "original_vblank": 1200
+        }
+      ],
+      "matching_tail": {
+        "controller_samples": 1112,
+        "first_native_tick": 77136,
+        "first_original_frame": 0,
+        "frames": 1200
+      },
+      "maximum_position_errors": {
+        "camera": 0.0,
+        "hero": 0.0
+      },
+      "native_run_manifest": "local/native-jam-talk-78335-release-v1.run.json",
+      "no_dialogue_interval": false,
+      "observation_coverage": {
+        "camera": {
+          "expected_frames": 1200,
+          "observed_frames": 1200
+        },
+        "manager": {
+          "expected_frames": 1200,
+          "observed_frames": 1200
+        },
+        "player": {
+          "expected_frames": 1200,
+          "observed_frames": 1200
+        }
+      },
+      "original_frames": 1200,
+      "original_run_manifest": "local/reference-field1d-jam-talk-1200-v1.run.json",
+      "unblended_target_check": true,
+      "unblended_target_compared_frames": 5,
+      "unique_differing_frames": 0
+    }
+  ],
+  "schema_version": 1,
+  "updated": "2021-11-01",
+  "verified_file_sha256": {
+    "build/model-sanitize/okage-assets": "0bbc457becd0d421f809a543e7fd44ef0344e8ebd841f730b89bcd0accca10aa",
+    "build/native-release/okage-assets": "6de48b433d2170afb4cb1dc3ca64d5213edc621b998cc58a08cbca1a85060b1e",
+    "build/native/okage-assets": "cfec16e1430ba8c0f2b757112938f9f170f6a7692d8ff95c3a59df06d1229d68",
+    "build/play-research/okage-oracle/okage-pose-oracle": "224f6420bf9ec0175957a3a316dec90d56431c8730531968b6a86c440543f0b3",
+    "include/okage/ordinary_lighting.hpp": "cbd49fbeaccebc75e09fe4fa14469a01982f2633d624d27cddc79181e84ea673",
+    "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "local/native-jam-lighting-76835-release-v3.png": "a010a4a32095b7786e0047c069209f57c8dae36e1300cb0212da8fadde35427b",
+    "local/native-jam-lighting-76835-release-v3.png.actor-1.bin": "47e3f7502076461098e82fc0894695e2523909315c23e94b41c718d8f24ff942",
+    "local/native-jam-lighting-76835-release-v3.png.audio.json": "b8faeb1ee1f5458df39ceae50ac85dd4d341fbb9c9fc8fe66c8cd34f44622000",
+    "local/native-jam-lighting-76835-release-v3.png.audio.pcm": "1113fe2042d8593d5659aea5cb5c7bbf95f87638bc88907f850c02dcb9e40473",
+    "local/native-jam-lighting-76835-release-v3.png.camera-state.bin": "63831a11cb75383d30b3f5299cb2aec3dce8617676c27c53cf73feb506236513",
+    "local/native-jam-lighting-76835-release-v3.png.camera.bin": "752ad96b56651ca0699761e31b2b47881371a4e8942316c0ec64a06e70df5e55",
+    "local/native-jam-lighting-76835-release-v3.png.choices.bin": "04d9defc771e64b733540d3de21ebbb9754faa087b829c92665e1dd5b86562fa",
+    "local/native-jam-lighting-76835-release-v3.png.dialogue.bin": "1ee5bd6ed623a1cba51cd45da560a454302b9c9ca9bcd081be56184b9e8fbdf9",
+    "local/native-jam-lighting-76835-release-v3.png.frames/tick-75636.png": "b62a43d42b1b6b23ba4df4a9a52f4ded2c559271ee91f46455e5adf69e3662f5",
+    "local/native-jam-lighting-76835-release-v3.png.frames/tick-75935.png": "909146b574e6533910e11e5cf6f0b9adec901de4b9d86d81ee3aaf1750cb0b43",
+    "local/native-jam-lighting-76835-release-v3.png.frames/tick-76235.png": "8b206548adaf3b7d15bc2c728ae400e42898c4364d80d195a8135fed8aceb3c9",
+    "local/native-jam-lighting-76835-release-v3.png.frames/tick-76535.png": "c5d9de5feee9f56f4b4a3fc37bdd4196e8cdd0a46e0e7b7c6efd64b7e8e2b438",
+    "local/native-jam-lighting-76835-release-v3.png.frames/tick-76835.png": "a010a4a32095b7786e0047c069209f57c8dae36e1300cb0212da8fadde35427b",
+    "local/native-jam-lighting-76835-release-v3.png.interaction.bin": "953e473dd8a00bee89cad26aa4aa5d31d0ed87b7a38f4a5d24d4801539ad035f",
+    "local/native-jam-lighting-76835-release-v3.png.movement.bin": "6b6b7b6223419d484fd48d5c5cc50ee5d7e2f883d548387549b0ad3b6f343652",
+    "local/native-jam-lighting-76835-release-v3.run.json": "170a2039c67248ad37e4db0f4253e1a3c6c91fde143d61a0526f2a0a7c5adfbc",
+    "local/native-jam-ready-77135-release-v1.directions": "6bd7121567c90302d36c9b57e55314b45468cfef00a41e4d3c00908b76304642",
+    "local/native-jam-ready-77135-release-v1.png.actor-1.bin": "c807294610bccbf5103b423ab1b6e7eb4453bf1d1ee14ffb2ac38c84bc3fa0d1",
+    "local/native-jam-ready-77135-release-v1.png.audio.json": "ef5480e477bfc13f5fdfff7f06bb45abb8d607ad8b31efe373aa1feaf9841c11",
+    "local/native-jam-ready-77135-release-v1.png.audio.pcm": "65714178747d64a726c2ba4dbb44919da6701500eff11a40387e937c500d874e",
+    "local/native-jam-ready-77135-release-v1.png.camera-state.bin": "a34d76c2ed683584555c571d76ea4bb29f61b37a261dc66945cb75e6631cd321",
+    "local/native-jam-ready-77135-release-v1.png.camera.bin": "c4b613640940653a73f0cebde03f1d57a9d3e2dff39c8a693f27898e1d474fa7",
+    "local/native-jam-ready-77135-release-v1.png.choices.bin": "953e0ce792e75a16ae0e69c0df7f5bc7965a70433371b408e11f8a42ff222cb1",
+    "local/native-jam-ready-77135-release-v1.png.dialogue.bin": "8b3d19663b61c40aa1bd03d46b219d5e136f8184697bd69f1070355445e98727",
+    "local/native-jam-ready-77135-release-v1.png.frames/manifest.json": "28aac1444032bf9059389843d8f9c26bade27623f8248a76f4f849ce769acd8e",
+    "local/native-jam-ready-77135-release-v1.png.interaction.bin": "def807034be195ba572bae2394781148b677e2505d036a7146d0a27934d7d5af",
+    "local/native-jam-ready-77135-release-v1.png.json": "f609d41de04b37560cc370edbdc71447487bff068488a356fc199aa956cc9ac9",
+    "local/native-jam-ready-77135-release-v1.png.movement.bin": "c6487ee6016ea967842b881fd4542f6199366e5e9c5ab6b682c0273a527beb5b",
+    "local/native-jam-ready-77135-release-v1.run.json": "967db915578c64cb1a51d7bc8fe5a8d1e236059d5edff3d5afbea09f1bbe83c7",
+    "local/native-jam-talk-78335-release-v1.png": "dc56a616a102add0b80b32883a07428b26ee9ca853731e6a57f647a8bc8f6bcb",
+    "local/native-jam-talk-78335-release-v1.png.actor-1.bin": "e7b099d9181895946314dc96d2ab72cefa3f820671f1b157537ceef4b3463e2d",
+    "local/native-jam-talk-78335-release-v1.png.audio.json": "e34c3b4b4736626391711f633723abc7234cb5325698b9df8975f372ba14a529",
+    "local/native-jam-talk-78335-release-v1.png.audio.pcm": "a960ed86cb50e3ef429cce721e417264150d8f94d60b410e40ef7d1208d556e0",
+    "local/native-jam-talk-78335-release-v1.png.camera-state.bin": "481d10cc3765f4e770c48153f28fafdcf547a1e20f89d0f32c83c1aca3c03e7e",
+    "local/native-jam-talk-78335-release-v1.png.camera.bin": "c435efb49c5f0e53a8d8a840face98ae2995a46bb9618e34729f8ae99b0ab099",
+    "local/native-jam-talk-78335-release-v1.png.choices.bin": "43c59efaad4499b72956682900ee46f4d14a4c3dcf14a68fd04ae1e4ed5e35c2",
+    "local/native-jam-talk-78335-release-v1.png.dialogue.bin": "04416540b02d8b4ecc018f4cc06b9be779eedae4a7d50b021004888ad7f2fdc7",
+    "local/native-jam-talk-78335-release-v1.png.frames/tick-77136.png": "cf45bfbe133eed8199a00923820511a0f905e351a440703bad65e68c8d0429bb",
+    "local/native-jam-talk-78335-release-v1.png.frames/tick-77255.png": "c0fe17f35b3b7dd828790bb8b8ef627711a68a9e4badba7476e8205c5bad11bc",
+    "local/native-jam-talk-78335-release-v1.png.frames/tick-77435.png": "a46130ca27dd25698bbad8da0739d5733aa0af73bb01b83b282a376c6d105a91",
+    "local/native-jam-talk-78335-release-v1.png.frames/tick-77735.png": "4a17c9b4831b71878a577756ac8377fe379dcd6a3d5d9b0a247e714bd2099413",
+    "local/native-jam-talk-78335-release-v1.png.frames/tick-78035.png": "5e6b121fc8759d6044d3ebcccc3269e5ba1147b4094375c4ac6b26fc703379b2",
+    "local/native-jam-talk-78335-release-v1.png.frames/tick-78335.png": "dc56a616a102add0b80b32883a07428b26ee9ca853731e6a57f647a8bc8f6bcb",
+    "local/native-jam-talk-78335-release-v1.png.interaction.bin": "93fa033401c86154c4bc0f0e9427eb827255ee1065f2a7d008fa1ea1790c2b1f",
+    "local/native-jam-talk-78335-release-v1.png.movement.bin": "c4d28e818faaa0b1ea233ea1a381a238e79354f09518b883f3ef1797e9fb4707",
+    "local/native-jam-talk-78335-release-v1.run.json": "6410efa81f2b5f28628f9c1ec0f2b2d05f1a1abd3b27e7a1b6d506908e471d01",
+    "local/native-jam-talk-more-79535-release-v1.log": "ecb22a652a46eceda3258a9805947741e7c2bc198b6798d20fd5588176f657cc",
+    "local/native-jam-talk-more-79535-release-v1.run.json": "253b8347fa79ebefe884e2ac258b815b07d219fa9dc09d18bed7b129f166d7c3",
+    "local/reference-field1d-jam-ready-300-v1.audio-index.json": "32c80dbf256c4e96a1440444265519badd0300c2d924e648926390a0d6ea2e78",
+    "local/reference-field1d-jam-ready-300-v1.camera.bin": "31575b1696dd9626c724135ea8b975a75f455be9df9ccb004d60ddb576aab24a",
+    "local/reference-field1d-jam-ready-300-v1.controller.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/reference-field1d-jam-ready-300-v1.controller.bin.choices.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/reference-field1d-jam-ready-300-v1.frames/manifest.json": "7ea8be674b2902d9ebe098deed75fe2a38040123969d1866109376e95542f1a4",
+    "local/reference-field1d-jam-ready-300-v1.frames/vblank-000001.layer0.png": "862f998de6384a531f28ed0285a96b5e623170a483c45969f1c43cbf5262fd75",
+    "local/reference-field1d-jam-ready-300-v1.frames/vblank-000120.layer0.png": "66e06bb633357e2744badca1038d18e488f9cfc63c5fe2f36cc53c203bcbd856",
+    "local/reference-field1d-jam-ready-300-v1.frames/vblank-000300.layer0.png": "21529ae7c8fa2aa0674387f87ca9ef38591a52d7c1e15917a12bad32e8827b7c",
+    "local/reference-field1d-jam-ready-300-v1.input": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/reference-field1d-jam-ready-300-v1.log": "b9b2f467dfbdd56ebdbe6209a54e9c8f18a62ec74377eef6b6e553e4d4dcb37d",
+    "local/reference-field1d-jam-ready-300-v1.run.json": "244f3afbbfbc571df28195c69bc598ea2441f58d71fd1f8d841a90f53e052b91",
+    "local/reference-field1d-jam-ready-300-v1.transition.bin": "54ef86694828a99d6b8b96e7ecd81e25f16a608085eb25513eb7ac61c26ec824",
+    "local/reference-field1d-jam-talk-1200-v1.camera.bin": "44ee084968951780275a0ebb65b2415201aa53551a17b5d5bfe62c3453815f3d",
+    "local/reference-field1d-jam-talk-1200-v1.controller.bin": "b62afa08354f6814367ea841c49f2807cc2b098303a97333e5d2e041786e7948",
+    "local/reference-field1d-jam-talk-1200-v1.controller.bin.choices.bin": "973dcab03e3b878fc977b6d1ecfdfcadca947adfc021ee1f813ae2b9b8c6ce3a",
+    "local/reference-field1d-jam-talk-1200-v1.frames/vblank-000001.layer0.png": "d30c337f73099bf77755359931cd9db9403030b0eeca40b000deb18222b79d9b",
+    "local/reference-field1d-jam-talk-1200-v1.frames/vblank-000120.layer0.png": "659314895b09428cc954d8116435e43dfee7a63fcd6909835debcc0e29edf6c0",
+    "local/reference-field1d-jam-talk-1200-v1.frames/vblank-000300.layer0.png": "0fe5e168926446dec1bea7557e7caedd2692a723fa5ef9072b9219596b5df1e7",
+    "local/reference-field1d-jam-talk-1200-v1.frames/vblank-000600.layer0.png": "dd847d58d02ea85a22e4363353c2d54c305c03fca1657a688b50ca83ba8eeba8",
+    "local/reference-field1d-jam-talk-1200-v1.frames/vblank-000900.layer0.png": "8fa9767b70ff67daeadcea9f4733b141c4dac56a67f56855683c24889c9a78ef",
+    "local/reference-field1d-jam-talk-1200-v1.frames/vblank-001200.layer0.png": "2ada8b2f357c425ea06b03ead400d97bdd2f0440f3e84d9afaf5a625c77dbc43",
+    "local/reference-field1d-jam-talk-1200-v1.json": "b6dd5f0eb0093d81527476dc565aa7662fb9c6218974599bbf7ee316187d9e57",
+    "local/reference-field1d-jam-talk-1200-v1.run.json": "835c2f11cc5326f06fab6faebce538b42b73550d9ed33b661497db943613e6af",
+    "local/reference-field1d-jam-talk-1200-v1.transition.bin": "6da81a944b3fe48c6d71f625f64ef96441142586fbcbfee3912fdadc78e3ce8a",
+    "local/reference-field1d-jam-talk-1200-v1.wav": "7d3c819f827888c4d4e32f19ec5c01e53fa2f6080908de2e83374c911abb58db",
+    "local/reference-field1d-jam-talk-more-1200-v1.run.json": "247b0d4140f43074f96d530077ed82ec4a590d4fd758d18fee8d06976114cc51",
+    "local/reference-field1d-stan-orders-1200-v1.camera.bin": "c02e1c43338d0a05b655cf7b95b88c1873eed9bc6c13afe5fddda4d456d69c78",
+    "local/reference-field1d-stan-orders-1200-v1.controller.bin": "828d8d8adc088021c2920baa851547768d132507f0091618ea25d99948849a95",
+    "local/reference-field1d-stan-orders-1200-v1.controller.bin.choices.bin": "45cfe253e975d866fdb26010657ecf6679bea9fdd4b6ba12d3d3fc0c5b17f804",
+    "local/reference-field1d-stan-orders-1200-v1.frames/vblank-000001.layer0.png": "e0df4cd184360f89c9b92197f8ccf9f6879a0e06899bec65b9a64b26e07a395e",
+    "local/reference-field1d-stan-orders-1200-v1.frames/vblank-000300.layer0.png": "e46083447f54b7aedfc8cfb8c2288e1aacd08e70b778b4db1a294cb6a476a202",
+    "local/reference-field1d-stan-orders-1200-v1.frames/vblank-000600.layer0.png": "565af8279ccaa70f899dc5e9b4f5d8bfeac0e02f1e5fcd8508481761b3c96156",
+    "local/reference-field1d-stan-orders-1200-v1.frames/vblank-000900.layer0.png": "163ef61dbfb973e2232c86854209b2577e3ccb6a3c5a23b3f798405089f0ed46",
+    "local/reference-field1d-stan-orders-1200-v1.frames/vblank-001200.layer0.png": "a314e1e155288558af87baa10c7d0a78483f0e73ee4f76425ad9911b80ba28dd",
+    "local/reference-field1d-stan-orders-1200-v1.json": "f3b8b15736d43071e649c504cc5f421ae5b4c6e55d9ab8953ee72750500c011c",
+    "local/reference-field1d-stan-orders-1200-v1.run.json": "686c6f7db21336a36c20f319cead292409e2c663ffc13d0d23b681150e3c5872",
+    "local/reference-field1d-stan-orders-1200-v1.state.zip": "034c4a5ce3a1249a460a8f977f81059ace5b4b1c3114cce40cfa8203010ed739",
+    "local/reference-field1d-stan-orders-1200-v1.transition.bin": "6668df7fdbdc42854b7b936f1748796d7ce0a669e3df567dad3bf2a987e00ddc",
+    "local/reference-field1d-stan-orders-1200-v1.wav": "0d1bd6fcaff11a41a9f15d75438c3c7864d8cd4c1bd0075123b5be8c5fd3c582",
+    "local/research/jam-lighting-v1/build-debug-final-v1.log": "16cbca974ce827d9e1b5fdab14d60ca8197a69c008c06575d0f473cc3c471520",
+    "local/research/jam-lighting-v1/build-release-final-v1.log": "efdd3d2b8670fd44235acadfe71ee3a9ac8cc3c6abe170e412bd7224272b9e59",
+    "local/research/jam-lighting-v1/build-sanitize-final-v1.log": "20e6101abb6471d20b3dd0a31e4ec6180d5457950bb6db5c023400b7845ca45b",
+    "local/research/jam-lighting-v1/ctest-debug-final-v1.log": "5cdeb4937035f848e31b285e4c10c9b7bb1ec2de7e9c8d9a9490901f1d972dda",
+    "local/research/jam-lighting-v1/ctest-release-final-v1.log": "1a94f90d3afb4e041940e56d3baa70cb7cf32fc20595e0d701a81babdf3532be",
+    "local/research/jam-lighting-v1/ctest-sanitize-final-v1.log": "62b9db553dda75ac2612415e27c40cb705e0c6340a8333fa64f1cc6ee14121e2",
+    "local/research/jam-lighting-v1/jam-talk-latches.json": "6307280e466bdca3e824c82f4cc1c8e72d3ca4ec05dc890e39f2e378658881fa",
+    "local/research/jam-lighting-v1/python-tests-final-v1.log": "3bb3c395bd992b94d14a638863f7085a37ff4299d6900834d9536697403fdbde",
+    "local/research/jam-ready-pair-v1/audio.json": "8d78098c15c18ac8a028100dae64fa5ddfcd008a8bc13266e73200fd8abfc51e",
+    "local/research/jam-ready-pair-v1/bundle.json": "6a976f46fb0357971bf405344f22d5d2730d80eb5b431497adaf77cca86d3f2e",
+    "local/research/jam-ready-pair-v1/commands.txt": "25217e22bb58f4a28eadd571c78dc7164a97f473b7908763f1142456174cf0f9",
+    "local/research/jam-ready-pair-v1/interval.json": "a362083dd38791cb831b905470d741bc9abb5941d988288e366c2b33ea403ce1",
+    "local/research/jam-ready-pair-v1/summary.json": "d03e24d6bc6d19cebe276548061098bbe1b21b1be0a74ee699fdf732b5955f14",
+    "local/research/jam-talk-pair-v1/audio.json": "24c30f0e7db41e0ea2f2a1710f2590155c456ebe94ed059b04b7c3f63605e647",
+    "local/research/jam-talk-pair-v1/bundle.json": "7f3387455ceebe630c0c9a4ac1e9e4f77852f42b62f5e73ff923f637e847d925",
+    "local/research/jam-talk-pair-v1/commands.txt": "d74a5237ac822dc5b7cfc08a0f451dba3e53bdb3029899de2ce55abdf5c228f3",
+    "local/research/jam-talk-pair-v1/interval.json": "7b6da0513669703b6b607915d8497ae76f8a71180e7fa87dfb5ef478d84ee5d3",
+    "local/research/jam-talk-pair-v1/summary.json": "bf7072079e4b661c43914f39d0f0e11a768227e6e62104f4924e2a79db49c7f0",
+    "local/research/ordinary-lighting-debug-v3/cases.bin": "f9ff2cbd23d2e4a2d3334dbd0d761f8209e54138055bb4318f3b0712420a0fc7",
+    "local/research/ordinary-lighting-debug-v3/native.bin": "9c5dbbd19afae63c318dc8a0d71173ab4a7119d430d8a745ade5e3cebc8c2a4d",
+    "local/research/ordinary-lighting-debug-v3/report.json": "5b3e4c45f49be76a6455c75f702c68beb6aef2d8a9f1621e319d23b4b039d5f3",
+    "local/research/ordinary-lighting-original-v2/cases.bin": "f9ff2cbd23d2e4a2d3334dbd0d761f8209e54138055bb4318f3b0712420a0fc7",
+    "local/research/ordinary-lighting-original-v2/original.bin": "9c5dbbd19afae63c318dc8a0d71173ab4a7119d430d8a745ade5e3cebc8c2a4d",
+    "local/research/ordinary-lighting-original-v2/report.json": "3670a07029e812070b48f6bbeaf4635724c0610989725ff7c3d4adbb99d2c417",
+    "local/research/ordinary-lighting-release-v3/cases.bin": "f9ff2cbd23d2e4a2d3334dbd0d761f8209e54138055bb4318f3b0712420a0fc7",
+    "local/research/ordinary-lighting-release-v3/native-release.bin": "9c5dbbd19afae63c318dc8a0d71173ab4a7119d430d8a745ade5e3cebc8c2a4d",
+    "local/research/ordinary-lighting-release-v3/report.json": "54c62469a5ee548a04746d4effc0c4746b395e3fa4061e493fad78a25c744f06",
+    "local/research/ordinary-lighting-sanitize-v3/cases.bin": "f9ff2cbd23d2e4a2d3334dbd0d761f8209e54138055bb4318f3b0712420a0fc7",
+    "local/research/ordinary-lighting-sanitize-v3/model-sanitize.bin": "9c5dbbd19afae63c318dc8a0d71173ab4a7119d430d8a745ade5e3cebc8c2a4d",
+    "local/research/ordinary-lighting-sanitize-v3/report.json": "c476ae53c441675a812093b91b91eb0ee42c97f49773bfba4863fc0ed6951459",
+    "local/research/stan-orders-pair-v3/audio.json": "476c7069130a43c0304281f7647b89046911bd9521a0966e783c05f92acc2850",
+    "local/research/stan-orders-pair-v3/bundle.json": "147c9e5cbce115cc92a19efa5acd6892fb220532876cb46120ec9d0f4cfc0b59",
+    "local/research/stan-orders-pair-v3/commands.txt": "9794fa45e6818e1a2494ad951127e1e9fd92053154fcf53b30525c92c6f7c184",
+    "local/research/stan-orders-pair-v3/interval.json": "0bbf4c014bd12025a80748173f69fe08c50a39c7c72f1be41e8ce7b909835d98",
+    "local/research/stan-orders-pair-v3/summary.json": "b715ab98889d76475f95e9ab911c6d739b651df7c5804141069ab809ae112b75",
+    "src/field.cpp": "c77ecc0b200bab2445c70b4ae53e21b85e579a2f245d3d415898b8f8456c43f7",
+    "src/ordinary_lighting.cpp": "c628a4ae5e6ed122cfabc94bdc8221d2ae8c1b6c9ddcbed5f832f7bf647f0858",
+    "src/scene_renderer.mm": "db51fa9fcf4baf7d245c1e664116dc1dcda847b08e0b20e7e2b21cb9dea3cdaf",
+    "tests/field_raster_tests.cpp": "eabb40e37c1e5203eacc542615883e707d5e4facf030a4e50ae968076c34140c",
+    "tests/ordinary_lighting_tests.cpp": "d1641ce5f86747b74dd02cff9a92ca2f773f167163abc288c327c0d96688c5d5",
+    "tools/verify_ordinary_lighting.py": "236940b9d576f703e3aa3a819d2e6494c17b69e976f3b30062dd98d5b144dd91"
+  }
+}
