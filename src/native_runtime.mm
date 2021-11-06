@@ -213,6 +213,10 @@ struct Session {
             if(!legacy_diagnostic){opening.emplace();opening->initialize(text,clock,controller,opacity,closure);}
             controller.get_variable=[this](unsigned index,unsigned bank){return okage::event_variable(variables,(bank<<16)|index);};
             controller.set_variable=[this](unsigned index,unsigned bank,std::int32_t value){okage::set_event_variable(variables,index,bank,value);};
+            controller.shadow_request=[this](std::uint32_t request){
+                if(!field || !field->request_player_shadow(request))
+                    throw std::runtime_error("Dialogue player shadow is unavailable");
+            };
             wait.countdown=wait.observed=wait.accumulated=0;
             dialogue_active=true;
         },[this](int request){

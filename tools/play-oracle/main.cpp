@@ -168,7 +168,9 @@ public:
                 return;
             }
         }
-        std::ostringstream error; error<<"Oracle instruction budget exceeded at "<<std::hex<<cpu.m_State.nPC;
+        std::ostringstream error; error<<"Oracle instruction budget exceeded at "<<std::hex<<cpu.m_State.nPC
+            <<" RA="<<cpu.m_State.nGPR[CMIPS::RA].nV[0]<<" A0="<<cpu.m_State.nGPR[CMIPS::A0].nV[0]
+            <<" A1="<<cpu.m_State.nGPR[CMIPS::A1].nV[0]<<" A2="<<cpu.m_State.nGPR[CMIPS::A2].nV[0];
         throw std::runtime_error(error.str());
     }
     void streamPrepare(const std::vector<uint8>& source,unsigned ring,const char* output) {
@@ -1760,6 +1762,45 @@ public:
         }
         writeFile(output,result.data(),result.size()*4);
     }
+    void dialogueShadow(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
+        if(ram.size()!=32*1024*1024||input.empty()||input.size()%32||input.size()>32*256)
+            throw std::runtime_error("Dialogue shadow fixture extent");
+        std::vector<uint32> result;
+        for(unsigned at=0;at<input.size();at+=32)for(unsigned dispatch=0;dispatch<2;++dispatch) {
+            uint32 f[8];std::memcpy(f,input.data()+at,32);
+            if(f[2]>5||f[3]>1||f[4]>1||f[7]>4)throw std::runtime_error("Dialogue shadow fixture bounds");
+            ee->m_EE.m_executor->Reset();std::memcpy(ee->m_ram,ram.data(),ram.size());
+            put(stop,0x08000000|(stop>>2));put(stop+4,0);loadMicro();
+            effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
+                ee->m_gs,ee->m_sif,*dynamic_cast<CIopBios*>(iop->m_bios.get()));
+            const auto field=get(0x2d9bf4),object=get(0x20068c),vars=get(0x24f788);
+            if(!field||field>ram.size()-0x800||!object||object>ram.size()-0x7000||!vars||vars>ram.size()-0x600)
+                throw std::runtime_error("Dialogue shadow fixture pointers");
+            const auto message=get(field+0x50),player=get(field+0x44);
+            if(!message||message>ram.size()-0x1000||!player||player>ram.size()-0x284)
+                throw std::runtime_error("Dialogue shadow field pointers");
+            put(0x24f738,f[7]);
+            put(player+0x260,f[2]);put(player+0x264,f[3]);put(player+0x268,f[4]);
+            put(player+0x26c,0xffffffff);put(player+0x270,0x3ec00000);
+            put(vars+0x518,9);
+            put(message+0xe48,1);put(message+0xe8c,0);put(message+0xe4c,5);put(message+0xed8,1);
+            put(message+0xed4,4);put(message+0x170,0x50);put(message+0x1f0,4);
+            put(0x1fcb60,1);put(0x1fcb64,0);put(0x33958c,0);put(0x339590,0);
+            put(object+0x1970,255);put(object+0x1900,f[6]);put(object+0xcd0,9);
+            put(object+0xcd4,0xfffffffe);put(object+0xcd8,f[5]);put(object+0x3d08,5);
+            const auto command="SHADOW("+std::to_string(int32(f[1]))+")";
+            std::strcpy(reinterpret_cast<char*>(ee->m_ram+object+0x1c70),command.c_str());
+            try {if(dispatch)call(0x148dc8,{message});else call(0x148240,{message,object+0x1c70,0});}
+            catch(const std::exception& e){throw std::runtime_error("Dialogue shadow case="+std::to_string(f[0])+" dispatch="+std::to_string(dispatch)+": "+e.what());}
+            result.insert(result.end(),{f[0],dispatch,dispatch?0u:ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0]});
+            for(unsigned i=0;i<5;++i)result.push_back(get(player+0x260+i*4));
+            result.push_back(get(vars+0x518));
+            for(auto offset:{0x1900,0xcd0,0xcd4,0xcd8,0x3d08})result.push_back(get(object+offset));
+            result.insert(result.end(),{get(message+0xed4),get(message+0x170),get(message+0xe4c),
+                get(object+0x1c70)&0xffff,get(message+0xed8),get(0x24f738)});
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
     void relationship(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
         if(ram.size()!=32*1024*1024||input.empty()||input.size()%40||input.size()>40*256)
             throw std::runtime_error("Relationship fixture extent");
@@ -2823,6 +2864,8 @@ int main(int argc,char** argv) {
             reference.shadowUpdate(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if (command=="instance-alpha" && argc==5) {
             reference.instanceAlpha(readFile(argv[3]),argv[4]);
+        } else if (command=="dialogue-shadow" && argc==6) {
+            reference.dialogueShadow(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if (command=="ordinary-lighting" && argc==5) {
             reference.ordinaryLighting(readFile(argv[3]),argv[4]);
         } else if (command=="ordinary-depth" && argc==5) {

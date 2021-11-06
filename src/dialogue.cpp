@@ -42,42 +42,56 @@ DialogueInputEffects DialogueController::update(DialogueText& text,DialogueButto
     auto resume=[&]{text.resume();text.state.period=__builtin_bit_cast(std::uint32_t, (normal_period));++effects.resume_calls;};
     auto& command=text.state.window;
     if(!command.empty() && static_cast<unsigned char>(command[0])!=255) {
-        bool resuming=true,window_style=true;
-        if(command.starts_with("WINTYPE(")) {
-            const auto next=arguments(command,"WINTYPE(",1)[0];
-            if(next<0 || next>2)throw std::runtime_error("Dialogue window type not implemented");
-            if(next==2)effects.scene_fade=.5f;
-            else if(window_type==2)effects.scene_fade=1.f;
-            window_type=next;
-        } else if(command.starts_with("FADE(")) {
-            const auto value=arguments(command,"FADE(",1)[0];
-            if(value<0 || value>100)throw std::runtime_error("Dialogue fade range");
-            effects.scene_fade=float(double(value)/100.0);
-        } else if(command.starts_with("SET(")) {
-            const auto values=arguments(command,"SET(",3);
-            if(values[0]<0 || values[1]<0 || !set_variable)throw std::runtime_error("Dialogue variable service unavailable");
-            set_variable(values[0],values[1],values[2]);resuming=false;
-        } else if(command.starts_with("LA(")) {
-            const auto values=arguments(command,"LA(",3);
-            if(text.choice_result<0 || text.choice_result>=3 || !get_variable || !set_variable)
-                throw std::runtime_error("Dialogue relationship service/selection unavailable");
-            const auto code=values[text.choice_result];
-            if(code<0 || code>12)throw std::runtime_error("Dialogue relationship adjustment outside reviewed scope");
-            // 0x148240 handler11: reviewed signed-byte rows0..12 are zero,
-            // unit basis vectors and doubled basis vectors. Retail bank4 ADD
-            // wraps at32 bits, then the handler clamps signed-negative values.
-            for(unsigned i=0;i<6;++i) {
-                const unsigned delta=code && unsigned((code-1)%6)==i ? unsigned((code-1)/6+1) : 0;
-                const auto value=__builtin_bit_cast(std::int32_t, (
-                    __builtin_bit_cast(std::uint32_t, (get_variable(16+i,4)))+delta));
-                set_variable(16+i,4,std::max(0,value));
-            }
-            window_style=false;
-        } else throw std::runtime_error("Dialogue window command not implemented");
+        // 0x148240 parses concatenated metadata in order. Some commands
+        // replace its return ID; SHADOW preserves it. Resume happens only once
+        // after the complete sequence, according to the final returned ID.
+        unsigned handler=0xffffffff;
+        std::string_view rest=command;
+        while(!rest.empty()) {
+            const auto end=rest.find(')');
+            if(end==rest.npos)throw std::runtime_error("Malformed dialogue metadata sequence");
+            const auto part=rest.substr(0,end+1);
+            if(part.starts_with("WINTYPE(")) {
+                const auto next=arguments(part,"WINTYPE(",1)[0];
+                if(next<0 || next>2)throw std::runtime_error("Dialogue window type not implemented");
+                if(next==2)effects.scene_fade=.5f;
+                else if(window_type==2)effects.scene_fade=1.f;
+                window_type=next;handler=7;
+            } else if(part.starts_with("FADE(")) {
+                const auto value=arguments(part,"FADE(",1)[0];
+                if(value<0 || value>100)throw std::runtime_error("Dialogue fade range");
+                effects.scene_fade=float(double(value)/100.0);handler=7;
+            } else if(part.starts_with("SET(")) {
+                const auto values=arguments(part,"SET(",3);
+                if(values[0]<0 || values[1]<0 || !set_variable)throw std::runtime_error("Dialogue variable service unavailable");
+                set_variable(values[0],values[1],values[2]);handler=12;
+            } else if(part.starts_with("SHADOW(")) {
+                const auto value=arguments(part,"SHADOW(",1)[0];
+                if(!shadow_request)throw std::runtime_error("Dialogue shadow service unavailable");
+                shadow_request(__builtin_bit_cast(std::uint32_t, (value)));
+            } else if(part.starts_with("LA(")) {
+                const auto values=arguments(part,"LA(",3);
+                if(text.choice_result<0 || text.choice_result>=3 || !get_variable || !set_variable)
+                    throw std::runtime_error("Dialogue relationship service/selection unavailable");
+                const auto code=values[text.choice_result];
+                if(code<0 || code>12)throw std::runtime_error("Dialogue relationship adjustment outside reviewed scope");
+                // 0x148240 handler11: reviewed signed-byte rows0..12 are zero,
+                // unit basis vectors and doubled basis vectors. Retail bank4 ADD
+                // wraps at32 bits, then the handler clamps signed-negative values.
+                for(unsigned i=0;i<6;++i) {
+                    const unsigned delta=code && unsigned((code-1)%6)==i ? unsigned((code-1)/6+1) : 0;
+                    const auto value=__builtin_bit_cast(std::int32_t, (
+                        __builtin_bit_cast(std::uint32_t, (get_variable(16+i,4)))+delta));
+                    set_variable(16+i,4,std::max(0,value));
+                }
+                handler=11;
+            } else throw std::runtime_error("Dialogue window command not implemented");
+            rest.remove_prefix(end+1);
+        }
         command.assign(1,char(255)); // Original 0x19aef0 marks it consumed.
         // Case 7 resumes; SET returns 12 and must preserve a concurrent delay.
-        if(resuming){
-            if(window_style) {
+        if(handler==7||handler==11){
+            if(handler==7) {
                 if(window_type)layer_flags&=~0x20u;
                 else if(!(layer_flags&0x20)) {layer_flags|=0x20;effects.cue=11;}
             }

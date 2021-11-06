@@ -771,6 +771,9 @@ int main(){try {
             okage::FieldDefinition entry;entry.type=1;entry.startup=1;scene.enter(entry,stage,empty_map,0);
             require(scene.player_shadow()->locked&&scene.player_shadow()->phase==0&&sounds==0&&writes==0);
             require(scene.effect_submissions().empty()&&!scene.map_effects()[0]);
+            require(scene.request_player_shadow(0x104)&&!scene.player_shadow()->locked);
+            require(scene.request_player_shadow(0x105)&&scene.player_shadow()->locked);
+            require(!hero.shadow_mode_override); // Dialogue bit0x100 is not a selector override.
             gate=1;scene.tick();
             require(sounds==1&&writes==1&&okage::event_variable(vars,0x40002)==1);
             require(scene.player_shadow()->locked&&scene.player_shadow()->phase==1&&scene.player_shadow()->factor<1);
@@ -797,6 +800,9 @@ int main(){try {
             scene.tick();require(stun.visible&&stun.animation().values()[2]==scene.player_shadow()->stun_scale);
             for(unsigned tick=0;tick<100&&scene.player_shadow()->phase!=3;++tick)scene.tick();
             require(scene.player_shadow()->phase==3&&stun.visible&&stun.animation().values()[2]==okage::Float4({1,1,1,1}));
+            require(scene.request_player_shadow(0x100));
+            require(scene.player_shadow()->phase==4&&scene.player_shadow()->factor==1);
+            require(hero.shadow_mode_override==0xffff&&sounds==2&&writes==2);
             gate=4;scene.tick();
             require(sounds==2&&writes==2&&okage::event_variable(vars,0x40002)==0&&scene.player_shadow()->phase==4);
             for(unsigned tick=0;tick<100&&scene.player_shadow()->phase==4;++tick)scene.tick();

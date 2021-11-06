@@ -68,6 +68,9 @@ public:
     std::function<void(unsigned)> transition_service;
     const PlayerMovement& player_movement() const {return player_;}
     const std::optional<ShadowTransition>& player_shadow() const {return shadow_;}
+    // 0x1300d0 -> 0x1346e0: dialogue SHADOW requests use the transition
+    // switch directly, without event54's bit0x100 selector override.
+    bool request_player_shadow(std::uint32_t request);
     const std::vector<CollisionBody>& collision_bodies() const {return bodies_;}
     const AttachedEffects& effects() const {return effects_;}
     const MapEffects& map_effects() const {return map_effects_;}

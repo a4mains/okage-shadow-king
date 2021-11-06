@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "scope": "Dialogue SHADOW forwarding/consumption/controller timing, concatenated metadata, and fixed-anchor integrated JAM route.",
+  "base_revision": "3efb89b",
+  "sha256": {
+    "include/okage/dialogue.hpp": "3bc73cd9b15215c99a8b30a5bd1e5bb70db2e5d570d5a959aced0ab34a806ab0",
+    "include/okage/field.hpp": "3d399e348957c6efe06c793e30bcd910afca9d0deb699b5bdfb570435a065e90",
+    "src/dialogue.cpp": "80c319d76d8fba7b4cd4d1f62b2add8225db56f8e53129c7eeba046b1c7a0dff",
+    "src/field.cpp": "0e675c1e6031bc092e7dbc5df6614c8a0a11fb322edf06ed7cc88ef00e80cefd",
+    "src/native_runtime.mm": "b97dc38fa40cea0d9d0f02f638679bb26069ea29e65ebff7d80f19430d4be2d3",
+    "src/assets_main.cpp": "cdbd1967bb3a1faac2d959c7985e88219e77577ccb15de82310f6a4037c8e92d",
+    "tools/play-oracle/main.cpp": "4de53fa8b0d92673eb5df01cbb726058ba2989df728fe093d2e2e19c36386c77",
+    "tools/verify_dialogue_shadow.py": "f1f15989cefefb40f42f9be180321f7ccc16005c0e9bdf5e36a9a0abc651bd01",
+    "tests/dialogue_tests.cpp": "59157add0d8de036b2b80a4dbde018bd24687b360bfbadb7efcabf49bfc6d77c",
+    "tests/field_tests.cpp": "ba40f069484e6ba1d7627e12cc328fe3e69dd9083ff4767bc983d73a47679113",
+    "local/research/dialogue-shadow-original-v3/report.json": "0d8febb3dd9026fef103064a8b0016af9398ba04c22313d972de1e219c27d057",
+    "local/research/dialogue-shadow-debug-v1/report.json": "ba2f9c9c4bbc26831b47f52a64f67c1cc67a52fe2eeb9ebe8c758091f1e94df0",
+    "local/research/dialogue-shadow-sanitize-v1/report.json": "8d0796837b9bde4d0b5e65f1c7335c24405775cf2209b9c6007d3734e68db200",
+    "local/research/jam-lighting-v1/shadow-build-release-v2.log": "8a1e3df8f725c625cef0caf3d326372f9700dff9dfd6dfc870fa501d32434af1",
+    "local/research/jam-lighting-v1/shadow-build-debug-v2.log": "cb724c6f5dc2b239e5193ae71444dbdcc7a1ae19b57d0740ddaef30d0cca6ff3",
+    "local/research/jam-lighting-v1/shadow-build-sanitize-v2.log": "7356805b1843b770bea067b3b14943b22691b9174ebf6d4404563812cef072e0",
+    "local/research/jam-lighting-v1/shadow-ctest-release-v2.log": "905ecb230fd71abb371994cbf440b647c3e4a3429317576cba1d45ba3cadf0a1",
+    "local/research/jam-lighting-v1/shadow-ctest-debug-v2.log": "1db6ed458e1cc06ab6f5c5c72e996d749fbbd6910eb3ec7571974c314c47186b",
+    "local/research/jam-lighting-v1/shadow-ctest-sanitize-v2.log": "6673b73116b15604ffa39feaef2b682fefb9786b522579764f8553f7e64ba6a0",
+    "local/research/jam-lighting-v1/shadow-python-tests-final-v1.log": "cc86a3dd43fb486e41a7192f9aad45a13e19678bb91b74752a8e509127c0afd6",
+    "local/research/jam-talk-more-pair-v1/bundle.json": "ef7daf801b049c9cdbbc64e1a71fe137b9f5b4d9d18bcb12fc07e91ef9d0ae0d",
+    "local/research/jam-talk-more-pair-v1/interval.json": "59a40975e54a9f02259ae6fcd50eedf78562af77299b021ff35ad46811cfedeb",
+    "local/research/jam-talk-more-pair-v1/summary.json": "6447b3864b523a9543f4028b42143b2922d9a1b3c3f6590ecda83031dc7863d0",
+    "local/research/jam-lighting-v1/jam-talk-more-story-endpoint-v1.json": "246fe677c7805b4c00ed33b0eda8f2ca7395e7afe807dd822d1cadf85d4d273d",
+    "local/native-jam-talk-more-79535-release-v3.run.json": "d393b74342fbddfa07ce9cd5e457d32af76bca890227b4ecd26d2fed2b97ee2f",
+    "local/research/jam-lighting-v1/jam-talk-more-latches.json": "c9448f7779e781aa8e0517b27b61b9e3bc22c658466befe68737ced98bc79071",
+    "tests/test_verify_dialogue_shadow.py": "96837a1848509775924cbdca4c30aebc0649ac1ac4534dfa697cbca8c8b15ccb",
+    "local/research/dialogue-shadow-provenance-v1/python-unittest.log": "801b7d3a9961177e84c07878a3a60b9fd7fc422786d6c0acc38302402db92aaa",
+    "local/research/dialogue-shadow-provenance-v1/release/report.json": "ef92800028cb97231c5fc1307abaef01349fb9bf4fc0a02ef9dd6beb3c56b81e",
+    "local/research/dialogue-shadow-provenance-v1/debug/report.json": "7d2029f1d11e90caedffda4ff9ddda7277210fe5a04b0d032106a6bb28bd3974",
+    "local/research/dialogue-shadow-provenance-v1/sanitize-confirmed/report.json": "56650c8345757885a768766fec8bbe0ed2b1cc9c2a53bd7f7f07526330403042"
+  },
+  "isolated_result": {
+    "cases": 176,
+    "original_dispatch_records": 352,
+    "exact_native_controller_words_per_build": 1760,
+    "native_field_side_effect_comparison": false,
+    "accepted_original_transition_audio": "original mute bit; full VM needed for real RPC"
+  },
+  "tests": {
+    "ctest_passed_per_build": 23,
+    "builds": [
+      "Release",
+      "Debug",
+      "ASan/UBSan"
+    ],
+    "python_passed": 145
+  },
+  "route": {
+    "first_native_frame": 78336,
+    "last_native_frame": 79535,
+    "compared_state_differences": 0,
+    "complete_manager_camera_player_coverage": true,
+    "controller_samples": 641,
+    "image_alignment": "nominal only; substantial pixel differences",
+    "audio_alignment": "not established",
+    "full_timeline_equivalence": false
+  },
+  "retained_original_reuse": "Adjacent report/output/cases/ELF/RAM hashes and matching oracle producer are now enforced; producer identity retained without requiring current oracle binary unchanged.",
+  "retained_attempt": "local/research/dialogue-shadow-provenance-v1/sanitize was launched during a rebuild; use sanitizer-confirmed evidence instead."
+}

@@ -57,6 +57,37 @@ int main() {try {
     text.state.window="FADE(100)";effect=c.update(text,{});require(effect.scene_fade==1 && effect.resume_calls==1);
     text.state.window="SET(2/0/)";rejects([&]{c.update(text,{});});
     text.state.window="WINTYPE(3)";rejects([&]{c.update(text,{});});
+    {
+        okage::DialogueText t({""});okage::DialogueController control;
+        t.state.flags=0x8910;t.state.delay=7;t.state.phase=9;
+        t.state.period=0xfffffffe;t.state.window="SHADOW(0)";
+        rejects([&]{control.update(t,{});});
+        require(t.state.window=="SHADOW(0)"&&t.state.delay==7);
+        std::vector<std::uint32_t> requests;
+        control.shadow_request=[&](auto value){requests.push_back(value);};
+        auto result=control.update(t,{});
+        require(requests==std::vector<std::uint32_t>{0}&&result.resume_calls==0&&result.cue==-1);
+        require(t.state.flags==0x8910&&t.state.delay==7&&t.state.phase==9&&t.state.period==0xfffffffe);
+        control.update(t,{});require(requests.size()==1);
+        t.state.window="SHADOW(-1)";control.update(t,{});require(requests.back()==0xffffffff);
+        t.state.window="SHADOW(256)";control.update(t,{});require(requests.back()==256);
+        for(auto command:{"SHADOW()","SHADOW(0/1)","SHADOW(x)","SHADOW(2147483648)"}) {
+            t.state.window=command;rejects([&]{control.update(t,{});});
+        }
+        require(requests.size()==3);
+        std::vector<std::array<int,3>> writes;
+        control.set_variable=[&](auto index,auto bank,auto value){writes.push_back({int(index),int(bank),value});};
+        t.state.window="SET(35/1/1)SET(10/4/1)";
+        result=control.update(t,{});
+        require(writes==std::vector<std::array<int,3>>{{35,1,1},{10,4,1}});
+        require(!result.resume_calls&&t.state.delay==7);
+        t.state.window="WINTYPE(1)SHADOW(0)";
+        result=control.update(t,{});require(result.resume_calls==1&&t.state.delay==0);
+        t.state.delay=7;t.state.window="WINTYPE(0)SET(35/1/1)SHADOW(0)";
+        result=control.update(t,{});require(!result.resume_calls&&t.state.delay==7&&result.cue==-1);
+        t.state.window="SET(35/1/1)WINTYPE(0)";
+        result=control.update(t,{});require(result.resume_calls==1&&result.cue==11&&t.state.delay==0);
+    }
     text.state.window.clear();text.state.option="Choice";rejects([&]{c.update(text,{});});
     okage::DialogueController relation;okage::DialogueText relation_text({""});
     relation_text.state.window="LA(0/3/0)";relation_text.choice_result=1;

@@ -644,6 +644,25 @@ int main(int argc, char** argv) {
             }
             write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
         }
+        if(command=="dialogue-shadow"&&argc==4) {
+            const auto input=read(argv[2]);std::vector<std::uint32_t> output;
+            if(input.empty()||input.size()%32||input.size()>32*256)throw std::runtime_error("Dialogue shadow fixture extent");
+            for(unsigned at=0;at<input.size();at+=32) {
+                std::uint32_t f[8];std::memcpy(f,input.data()+at,32);
+                okage::DialogueText text({""});okage::DialogueController controller;
+                controller.window_type=1;controller.advance_count=controller.layer_advance=4;
+                text.state.flags=f[6];text.state.phase=9;text.state.period=0xfffffffe;
+                text.state.delay=f[5];text.state.progress=5;
+                text.state.window="SHADOW("+std::to_string(__builtin_bit_cast(std::int32_t, (f[1])))+")";
+                unsigned calls=0,request=0;
+                controller.shadow_request=[&](auto value){++calls;request=value;};
+                const auto effects=controller.update(text,{});
+                output.insert(output.end(),{f[0],calls,request,effects.resume_calls,text.state.flags,text.state.phase,
+                    text.state.period,text.state.delay,text.state.progress,controller.advance_count,controller.layer_flags,
+                    controller.stage,std::uint32_t(static_cast<unsigned char>(text.state.window[0])),unsigned(controller.window_type)});
+            }
+            write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
+        }
         if(command=="relationship"&&argc==4) {
             const auto input=read(argv[2]);std::vector<std::uint32_t> output;
             if(input.empty()||input.size()%40||input.size()>40*256)throw std::runtime_error("Relationship fixture extent");

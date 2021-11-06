@@ -623,25 +623,7 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
                 hero->shadow_mode_override=(request&255)<<2;
                 pending_opcode=0;return {pc+4};
             }
-            if(!shadow_)return pending();
-            auto& state=*shadow_;
-            const auto mode=request&127;
-            if(mode<=1&&!state.locked&&state.phase==(mode?0u:3u)) {
-                if(!set_variable||(!(request&0x80)&&!sound_cue))return pending();
-                if(!mode&&state.voice>=0)
-                    throw std::runtime_error("Shadow transition owned voice stop is unrecovered");
-                if(!mode)state.voice=-1;
-                state.phase=mode?1:4;state.factor=1;
-                //0x1346e0 discards cue handles; +0x26c is not their owner.
-                if(!(request&0x80)&&!sound_cue(0,mode?23:12,1,mode?100:64))
-                    throw std::runtime_error("Shadow transition sound is unavailable");
-                attach_map_effect(24,-1);
-                set_variable(2,4,int(mode));
-            } else if(mode==2)state.follow_disabled=0;
-            else if(mode==3)state.follow_disabled=1;
-            else if(mode==4)state.locked=0;
-            else if(mode==5)state.locked=1;
-            // Other low-seven-bit modes have no action in the original switch.
+            if(!request_player_shadow(request))return pending();
             pending_opcode=0;return {pc+4};
         }
         case 7:
@@ -909,6 +891,28 @@ void OpeningField::tick_callbacks(ExplorationInput input,bool interior_camera) {
     if(collision_)remember_player();
     for(const auto& binding:map_objects_)if(binding.actor->visible)binding.actor->evaluate();
     for(const auto& binding:actors_)if(binding.actor->visible)binding.actor->evaluate();
+}
+bool OpeningField::request_player_shadow(std::uint32_t request) {
+    if(!shadow_)return false;
+    auto& state=*shadow_;
+    const auto mode=request&127;
+    if(mode<=1&&!state.locked&&state.phase==(mode?0u:3u)) {
+        if(!set_variable||(!(request&0x80)&&!sound_cue))return false;
+        if(!mode&&state.voice>=0)
+            throw std::runtime_error("Shadow transition owned voice stop is unrecovered");
+        if(!mode)state.voice=-1;
+        state.phase=mode?1:4;state.factor=1;
+        //0x1346e0 discards cue handles; +0x26c is not their owner.
+        if(!(request&0x80)&&!sound_cue(0,mode?23:12,1,mode?100:64))
+            throw std::runtime_error("Shadow transition sound is unavailable");
+        attach_map_effect(24,-1);
+        set_variable(2,4,int(mode));
+    } else if(mode==2)state.follow_disabled=0;
+    else if(mode==3)state.follow_disabled=1;
+    else if(mode==4)state.locked=0;
+    else if(mode==5)state.locked=1;
+    // Other low-seven-bit modes have no action in the original switch.
+    return true;
 }
 void OpeningField::update_player_shadow() {
     //0x1354d8 tests mask bit1 independently of movement bit0, before history.
