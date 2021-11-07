@@ -20,6 +20,11 @@ Float4 project(const Float4& p,const ShadowScreenParameters& s) {
     for(unsigned r=0;r<4;++r){float v=m[0][r]*p[0];v=v+m[1][r]*p[1];v=v+m[2][r]*p[2];c[r]=v+m[3][r]*p[3];}
     return c;
 }
+std::uint32_t clip_flags(const Float4& c) {
+    std::uint32_t flags=0;const auto w=std::abs(c[3]);
+    for(unsigned r=0;r<3;++r){if(c[r]>w)flags|=1u<<(2*r);if(c[r]<-w)flags|=2u<<(2*r);}
+    return flags;
+}
 Float4 screen(const Float4& c,const ShadowScreenParameters& s,bool clamp) {
     const float q=c[3]==0?std::copysign(std::numeric_limits<float>::max(),c[3]):1.f/c[3];
     Float4 out;
@@ -65,8 +70,7 @@ std::vector<FieldScreenVertex> field_screen_vertices(std::span<const Float4> poi
         FieldScreenVertex v;v.clip=project(p,params);v.screen=screen(v.clip,params,true);
         for(float f:v.clip)if(!std::isfinite(f))throw std::runtime_error("Field clip overflow");
         for(float f:v.screen)if(!std::isfinite(f))throw std::runtime_error("Field screen overflow");
-        const auto w=std::abs(v.clip[3]);
-        for(unsigned r=0;r<3;++r){if(v.clip[r]>w)v.flags|=1u<<(2*r);if(v.clip[r]<-w)v.flags|=2u<<(2*r);}
+        v.flags=clip_flags(v.clip);
         out.push_back(v);
     }
     return out;
@@ -81,6 +85,21 @@ std::array<std::uint32_t,4> field_pack_xyzf(const Float4& value) {
     }
     return out;
 }
+bool field_raster_block_rejected(std::span<const Vertex> input,const ShadowScreenSettings& settings) {
+    if(input.empty())return false;
+    if(input.size()%3)throw std::runtime_error("Field raster requires triangles");
+    const auto params=shadow_screen_parameters(settings);
+    Rounding rounding;std::uint32_t common=63;
+    for(const auto& v:input) {
+        for(const auto& value:{v.position,v.color,v.uv})for(float f:value)
+            if(!std::isfinite(f))return false;
+        const auto c=project(v.position,params);
+        for(float f:c)if(!std::isfinite(f))return false;
+        common&=clip_flags(c);
+        if(!common)return false;
+    }
+    return true;
+}
 std::vector<FieldRasterVertex> field_raster_triangles(std::span<const Vertex> input,const ShadowScreenSettings& settings,bool gs_color_units) {
     if(input.size()%3)throw std::runtime_error("Field raster requires triangles");
     const auto params=shadow_screen_parameters(settings);
@@ -93,8 +112,7 @@ std::vector<FieldRasterVertex> field_raster_triangles(std::span<const Vertex> in
                 if(!std::isfinite(f))throw std::runtime_error("Nonfinite field vertex");
             v.position=project(v.position,params);
             if(gs_color_units)for(float& c:v.color)c=std::min(c,255.f);
-            std::uint32_t f=0;const auto w=std::abs(v.position[3]);
-            for(unsigned r=0;r<3;++r){if(v.position[r]>w)f|=1u<<(2*r);if(v.position[r]<-w)f|=2u<<(2*r);}
+            const auto f=clip_flags(v.position);
             flags|=f;common&=f;
         }
         if(common)continue;

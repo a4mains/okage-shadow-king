@@ -11,6 +11,7 @@ struct FieldScreenVertex {
 std::vector<FieldScreenVertex> field_screen_vertices(std::span<const Float4>,const ShadowScreenParameters&);
 std::array<std::uint32_t,4> field_pack_xyzf(const Float4& screen);
 struct FieldRasterVertex {Float4 position,color,uv;};
+bool field_raster_block_rejected(std::span<const FieldRasterVertex>,const ShadowScreenSettings&);
 std::vector<FieldRasterVertex> field_raster_triangles(std::span<const FieldRasterVertex>,
     const ShadowScreenSettings&,bool gs_color_units=false);
 }

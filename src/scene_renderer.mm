@@ -193,6 +193,7 @@ struct SceneRenderer::Impl {
         shadowFrame=fieldProjection?field_shadow_frame(shadowActors,view,*fieldProjection,shadowSettings,shadowFactor,sine):FieldShadowFrame{};
         std::vector<Vertex> vertices;
         std::vector<Draw> draws;
+        bool hadOrdinaryGeometry=false;
         okage::Float4 low{INFINITY,INFINITY,INFINITY,0},high{-INFINITY,-INFINITY,-INFINITY,0};
         for(std::size_t inputIndex=0;inputIndex<inputs.size();++inputIndex) {
             const auto& input=inputs[inputIndex];const auto textureOffset=textureOffsets[inputIndex];
@@ -232,6 +233,7 @@ struct SceneRenderer::Impl {
                     pose=okage::compose_pose(viewWorld[0],pose);
                 }
                 for (const auto& block:part.blocks) {
+                    const auto firstVertex=vertices.size(),firstDraw=draws.size(),firstTranslucent=translucent.size();
                     const auto positions=okage::posed_positions(block,pose);
                     std::optional<OrdinaryNormalCache> normals;
                     std::vector<Float4> lights;std::vector<bool> lightDefined;
@@ -323,6 +325,10 @@ struct SceneRenderer::Impl {
                             draw.state[7]=2;translucent.push_back(draw);
                         } else draws.push_back(draw);
                     }
+                    hadOrdinaryGeometry=hadOrdinaryGeometry||vertices.size()!=firstVertex;
+                    if(fieldProjection&&field_raster_block_rejected(std::span(vertices).subspan(firstVertex),fieldProjection->ordinary)) {
+                        vertices.resize(firstVertex);draws.resize(firstDraw);translucent.resize(firstTranslucent);
+                    }
                     textureBase+=block.textures.size();
                 }
             }
@@ -387,7 +393,7 @@ struct SceneRenderer::Impl {
             }
         }
         }
-        if (vertices.empty()) throw std::runtime_error("Empty preview geometry");
+        if (vertices.empty()&&!hadOrdinaryGeometry) throw std::runtime_error("Empty preview geometry");
         if(fieldProjection){
             std::vector<Vertex> projected;
             for(auto& draw:draws){

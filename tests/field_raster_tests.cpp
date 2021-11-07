@@ -3,6 +3,7 @@
 #include "okage/field_shadows.hpp"
 #include <array>
 #include <cfenv>
+#include <cstring>
 #include <cmath>
 #include <cstdint>
 #include <iostream>
@@ -70,7 +71,66 @@ int main() {
         }};
         check_rounding_restored([&] {
             check(okage::field_raster_triangles(outside, settings).empty());
+            check(okage::field_raster_block_rejected(outside, settings));
         });
+
+        std::vector<std::vector<okage::FieldRasterVertex>> rejected_blocks;
+        for(unsigned axis=0;axis<3;++axis)for(int side:{-1,1}) {
+            auto triangle=outside;
+            for(auto& v:triangle) {
+                v.position={0,0,10,1};
+                v.position[axis]=axis==2?(side<0?2.f:3000.f):float(side*100);
+            }
+            rejected_blocks.emplace_back();
+            for(unsigned i=0;i<8;++i)
+                rejected_blocks.back().insert(rejected_blocks.back().end(),triangle.begin(),triangle.end());
+        }
+        auto behind=outside;
+        for(auto& vertex:behind)vertex.position={0,0,-10,1};
+        rejected_blocks.emplace_back(behind.begin(),behind.end());
+        for(int mode:{FE_TONEAREST,FE_DOWNWARD,FE_UPWARD,FE_TOWARDZERO}) {
+            check(std::fesetround(mode)==0);
+            for(const auto& block:rejected_blocks) {
+                check(okage::field_raster_block_rejected(block,settings));
+                for(bool gs:{false,true})check(okage::field_raster_triangles(block,settings,gs).empty());
+                check(std::fegetround()==mode);
+            }
+            check(!okage::field_raster_block_rejected({},settings));
+        }
+        check(std::fesetround(FE_UPWARD)==0);
+        auto opposite=rejected_blocks[0];
+        opposite.insert(opposite.end(),rejected_blocks[1].begin(),rejected_blocks[1].end());
+        check(!okage::field_raster_block_rejected(opposite,settings));
+        check(okage::field_raster_triangles(opposite,settings).empty());
+
+        for(float exceptional:{std::numeric_limits<float>::quiet_NaN(),std::numeric_limits<float>::infinity()})
+        for(unsigned attribute=0;attribute<3;++attribute)for(unsigned lane=0;lane<4;++lane) {
+            auto invalid=rejected_blocks[0];
+            auto& v=invalid.back();
+            auto& value=attribute==0?v.position:attribute==1?v.color:v.uv;
+            value[lane]=exceptional;
+            check(!okage::field_raster_block_rejected(invalid,settings));
+            rejects([&]{okage::field_raster_triangles(invalid,settings);});
+        }
+        rejects([&]{okage::field_raster_block_rejected(std::span(outside).first(2),settings);});
+        auto invalid_settings=settings;invalid_settings.focal=std::numeric_limits<float>::infinity();
+        rejects([&]{okage::field_raster_block_rejected(outside,invalid_settings);});
+        rejects([&]{okage::field_raster_triangles(outside,invalid_settings);});
+        check(std::fegetround()==FE_UPWARD);
+
+        for(unsigned axis=0;axis<3;++axis)for(int side:{-1,1}) {
+            auto straddle=outside;
+            straddle[0].position={0,0,10,1};straddle[1].position={.1f,0,10,1};straddle[2].position={0,.1f,10,1};
+            straddle[0].position[axis]=axis==2?(side<0?2.f:3000.f):float(side*100);
+            for(bool gs:{false,true}) {
+                const auto expected=okage::field_raster_triangles(straddle,settings,gs);
+                check(!expected.empty());
+                check(!okage::field_raster_block_rejected(straddle,settings));
+                const auto actual=okage::field_raster_triangles(straddle,settings,gs);
+                check(actual.size()==expected.size());
+                check(std::memcmp(actual.data(),expected.data(),actual.size()*sizeof(actual[0]))==0);
+            }
+        }
 
         std::array<okage::FieldRasterVertex, 3> crossing{{
             {{0, 0, 2, 1}, {32, 64, 128, 96.75f}, {.25f, .5f, 100, 1}},
