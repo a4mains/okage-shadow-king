@@ -7,7 +7,7 @@
     "include/okage/field.hpp": "3d399e348957c6efe06c793e30bcd910afca9d0deb699b5bdfb570435a065e90",
     "src/dialogue.cpp": "80c319d76d8fba7b4cd4d1f62b2add8225db56f8e53129c7eeba046b1c7a0dff",
     "src/field.cpp": "0e675c1e6031bc092e7dbc5df6614c8a0a11fb322edf06ed7cc88ef00e80cefd",
-    "src/native_runtime.mm": "b97dc38fa40cea0d9d0f02f638679bb26069ea29e65ebff7d80f19430d4be2d3",
+    "src/native_runtime.mm": "5d56f51821556df29cea0c18e5f4c49b59061a1dc43ad57e0ff69fc5cdcf1281",
     "src/assets_main.cpp": "cdbd1967bb3a1faac2d959c7985e88219e77577ccb15de82310f6a4037c8e92d",
     "tools/play-oracle/main.cpp": "4de53fa8b0d92673eb5df01cbb726058ba2989df728fe093d2e2e19c36386c77",
     "tools/verify_dialogue_shadow.py": "f1f15989cefefb40f42f9be180321f7ccc16005c0e9bdf5e36a9a0abc651bd01",
@@ -62,5 +62,5 @@
     "full_timeline_equivalence": false
   },
   "retained_original_reuse": "Adjacent report/output/cases/ELF/RAM hashes and matching oracle producer are now enforced; producer identity retained without requiring current oracle binary unchanged.",
-  "retained_attempt": "local/research/dialogue-shadow-provenance-v1/sanitize was launched during a rebuild; use sanitizer-confirmed evidence instead."
+  "retained_attempt": "local/research/dialogue-shadow-provenance-v1/sanitize was launched during a rebuild; use sanitize-confirmed evidence instead."
 }

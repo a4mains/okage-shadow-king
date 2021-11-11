@@ -197,6 +197,10 @@ struct Session {
     int current_scene=-1,current_entrance=0;
     std::vector<std::uint32_t> transition_trace;
     std::optional<okage::Texture> transition_image;
+    // AppKit presentation is separate from research captures and feedback.
+    bool live_presentation_enabled=false;
+    mutable std::optional<okage::Texture> live_image;
+    std::optional<okage::Texture> transition_live_image;
     unsigned transition_alpha=0,transition_target=0;
     void create_field(okage::Bytes script,bool diagnostic) {
         field=std::make_unique<okage::OpeningField>(script,[this](int id){
@@ -241,7 +245,10 @@ struct Session {
         field->set_variable=[this](unsigned index,unsigned bank,std::int32_t value){okage::set_event_variable(variables,index,bank,value);};
         field->get_variable=[this](std::uint32_t selector){return okage::event_variable(variables,selector);};
         field->transition_service=[this](unsigned countdown){
-            if(countdown==1)transition_image=surface();
+            if(countdown==1){
+                transition_image=surface();
+                if(live_presentation_enabled)transition_live_image=live_image;
+            }
             else if(countdown==0){transition_alpha=transition_target=128;}
         };
     }
@@ -370,7 +377,7 @@ struct Session {
         // 0x114ac0 advances the captured-frame overlay by four alpha units.
         if(transition_alpha!=transition_target) {
             transition_alpha=transition_alpha>transition_target?transition_alpha-4:transition_alpha+4;
-            if(!transition_alpha)transition_image.reset();
+            if(!transition_alpha){transition_image.reset();transition_live_image.reset();}
         }
         scene_fade.tick();
         const std::array<std::uint32_t,2> layers={0x50,controller.layer_flags};
@@ -524,6 +531,36 @@ struct Session {
         feedback.retain(image,frame,224);
         rendered_surface=std::move(image);rendered_frame=frame;
     }
+    okage::Texture live_frame(const okage::Texture& scene) const {
+        okage::Texture image{640,448,0,0,std::vector<std::uint8_t>(640*448*4)};
+        for(unsigned y=0;y<448;++y)
+            std::copy_n(scene.rgba.data()+(y/2)*640*4,640*4,image.rgba.data()+y*640*4);
+        if(dialogue_active&&controller.window_type!=2) {
+            const float opacityAlpha=std::clamp(opacity.value/128.f,0.f,1.f);
+            auto glyphs=text.glyphs;
+            for(auto& glyph:glyphs){
+                if(glyph.x>INT32_MAX-25||glyph.y>INT32_MAX-(332-24))
+                    throw std::runtime_error("Live dialogue placement overflow");
+                glyph.x+=25;glyph.y+=332-24;
+            }
+            const auto overlay=okage::rasterize_text(fonts,glyphs,640,448);
+            for(unsigned y=332;y<431;++y)for(unsigned x=25;x<610;++x) {
+                const auto i=(y*640+x)*4;
+                const float ink=overlay.rgba[i+3]/255.f*opacityAlpha;
+                for(unsigned c=0;c<3;++c) {
+                    const float background=image.rgba[i+c]*(1-.75f*opacityAlpha)+16.f*.75f*opacityAlpha;
+                    image.rgba[i+c]=std::uint8_t(overlay.rgba[i+c]*ink+background*(1-ink));
+                }
+            }
+        }
+        if(transition_alpha) {
+            if(!transition_live_image||transition_live_image->rgba.size()!=image.rgba.size())
+                throw std::runtime_error("Missing live transition framebuffer");
+            for(std::size_t i=0;i<image.rgba.size();i+=4)for(unsigned c=0;c<3;++c)
+                image.rgba[i+c]=(unsigned(transition_live_image->rgba[i+c])*transition_alpha+unsigned(image.rgba[i+c])*(128-transition_alpha))/128;
+        }
+        return image;
+    }
     okage::Texture surface() const {
         if(rendered_surface&&rendered_frame==frame)return *rendered_surface;
         auto text_image=okage::rasterize_text(fonts,text.glyphs,640,224);
@@ -547,6 +584,7 @@ struct Session {
             const unsigned alpha=overlay.rgba[i+3];
             for(unsigned c=0;c<3;++c)image.rgba[i+c]=(unsigned(overlay.rgba[i+c])*alpha+unsigned(image.rgba[i+c])*(255-alpha)+127)/255;
         }
+        if(live_presentation_enabled)live_image=live_frame(image);
         image.height=448;image.rgba.resize(640*448*4);
         for(std::size_t i=0;i<text_image.rgba.size();i+=4) {
             const float a=dialogue_active && controller.window_type!=2 ? (text_image.rgba[i+3]/255.f)*std::clamp(opacity.value/128.f,0.f,1.f) : 0;
@@ -730,6 +768,7 @@ static void capture(const Session& session,const fs::path& path) {
 @property unsigned short pressed;
 @property unsigned injectedKeyDowns;
 @property BOOL pauseRequested;
+@property BOOL fieldPresentation;
 @end
 @implementation NativeTextView
 - (BOOL)acceptsFirstResponder {return YES;}
@@ -751,7 +790,13 @@ static void capture(const Session& session,const fs::path& path) {
     if(performance&&performance->interval.active())performance->interval.draw(NSProcessInfo.processInfo.systemUptime);
     (void)dirty;[[NSColor colorWithCalibratedRed:.04 green:.06 blue:.09 alpha:1] setFill];NSRectFill(self.bounds);
     [[NSGraphicsContext currentContext] setImageInterpolation:NSImageInterpolationNone];
-    [self.image drawInRect:self.bounds fromRect:NSZeroRect operation:NSCompositingOperationSourceOver
+    NSRect destination=self.bounds;
+    if(self.fieldPresentation) {
+        const CGFloat width=std::min(destination.size.width,destination.size.height*4/3);
+        const CGFloat height=width*3/4;
+        destination=NSMakeRect((self.bounds.size.width-width)/2,(self.bounds.size.height-height)/2,width,height);
+    }
+    [self.image drawInRect:destination fromRect:NSZeroRect operation:NSCompositingOperationSourceOver
         fraction:std::clamp(self.opacity/128.f,0.f,1.f) respectFlipped:YES hints:nil];
 }
 @end
@@ -775,12 +820,13 @@ static void capture(const Session& session,const fs::path& path) {
 @implementation NativeApp
 - (void)applicationDidFinishLaunching:(NSNotification*)notification {
     (void)notification;
-    self.window=[[NSWindow alloc] initWithContentRect:NSMakeRect(0,0,960,session->field ? 672 : 336)
+    self.window=[[NSWindow alloc] initWithContentRect:NSMakeRect(0,0,960,session->field ? 720 : 336)
         styleMask:NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|NSWindowStyleMaskResizable|NSWindowStyleMaskMiniaturizable backing:NSBackingStoreBuffered defer:NO];
     self.window.delegate=self;
     if(session->music&&!paused)session->audio_output=std::make_unique<okage::AudioOutput>();
     self.view=[[NativeTextView alloc] initWithFrame:self.window.contentView.bounds];self.view.autoresizingMask=NSViewWidthSizable|NSViewHeightSizable;
     self.view->performance=performance.get();
+    self.view.fieldPresentation=bool(session->field);
     self.window.contentView=self.view;[self.window center];[self.window makeKeyAndOrderFront:nil];[self.window makeFirstResponder:self.view];
     [NSApp activateIgnoringOtherApps:YES];self.previousTime=NSProcessInfo.processInfo.systemUptime;
     if(paused)[self refreshImage];
@@ -790,7 +836,9 @@ static void capture(const Session& session,const fs::path& path) {
 - (void)refreshImage {
     const bool measured=performance&&performance->interval.active();
     const double started=measured?NSProcessInfo.processInfo.systemUptime:0;
-    NSImage* image=[[NSImage alloc] initWithSize:NSMakeSize(640,session->field ? 448 : 224)];[image addRepresentation:bitmap(session->surface())];
+    const auto diagnostic=session->surface();
+    const auto& displayed=session->field&&session->live_image?*session->live_image:diagnostic;
+    NSImage* image=[[NSImage alloc] initWithSize:NSMakeSize(displayed.width,displayed.height)];[image addRepresentation:bitmap(displayed)];
     self.view.image=image;self.view.opacity=session->field ? 128 : session->opacity.value;self.view.needsDisplay=YES;
     self.window.title=[NSString stringWithFormat:@"Okage native — frame %u — %@ — P: pause/resume — Arrows, Return/Space",
         session->frame,paused ? @"paused" : @"running"];
@@ -982,6 +1030,7 @@ int main(int argc,const char** argv) {
             }
             prepared=std::make_unique<Session>(argv[1],argv[2],playerName);
             auto& session=*prepared;session.render_from=renderFrom;session.render_until=renderUntil;
+            session.live_presentation_enabled=previewAt!=0;
             if(!effectData.empty())session.prepare_effects(effectData,effectTextures);
             if(!map.empty())session.load_scene(map,event,actors);
             if(!musicSequence.empty())session.load_music(musicSequence,musicBank,!output.empty(),soundDirectory);
@@ -1014,6 +1063,7 @@ int main(int argc,const char** argv) {
         app->performance=std::move(performance);
         if(!app->session) {
         app->session=std::make_unique<Session>(argv[1],argv[2],playerName);
+        app->session->live_presentation_enabled=true;
         if(!effectData.empty())app->session->prepare_effects(effectData,effectTextures);
         if(!map.empty())app->session->load_scene(map,event,actors);
         if(!musicSequence.empty())app->session->load_music(musicSequence,musicBank,!output.empty(),soundDirectory);
