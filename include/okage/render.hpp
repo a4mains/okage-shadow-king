@@ -21,5 +21,17 @@ void texture_coordinates_batch(const TextureState& state,
 // source mode 1, region repeat (3) otherwise. Preserve original field packing.
 std::uint64_t texture_clamp(const TextureState& state,std::uint32_t width,std::uint32_t height);
 
+using PolygonTextureCoordinates=std::array<std::array<float,2>,4>;
+class PreparedTextureState {
+public:
+    PreparedTextureState(const TextureState&,std::uint32_t width,std::uint32_t height);
+    std::uint64_t clamp() const {return clamp_;}
+    PolygonTextureCoordinates coordinates(std::span<const std::array<float,2>>) const;
+private:
+    TextureState state_;
+    std::uint32_t width_,height_;
+    std::uint64_t clamp_;
+};
+
 std::vector<std::array<unsigned,3>> triangle_corners(std::size_t count);
 }

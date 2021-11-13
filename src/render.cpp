@@ -128,4 +128,13 @@ std::vector<std::array<unsigned,3>> triangle_corners(std::size_t count) {
     if (count==4) return {{0,1,2},{0,2,3}};
     throw std::runtime_error("Unvalidated source polygon size");
 }
+PreparedTextureState::PreparedTextureState(const TextureState& state,std::uint32_t width,std::uint32_t height)
+    :state_(state),width_(width),height_(height),clamp_(texture_clamp(state,width,height)) {}
+PolygonTextureCoordinates PreparedTextureState::coordinates(std::span<const std::array<float,2>> source) const {
+    if(source.size()!=3&&source.size()!=4)throw std::runtime_error("Unvalidated source polygon size");
+    PolygonTextureCoordinates result{};
+    std::copy(source.begin(),source.end(),result.begin());
+    texture_coordinates_batch(state_,width_,height_,std::span(result).first(source.size()));
+    return result;
+}
 }

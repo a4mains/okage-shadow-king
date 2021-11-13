@@ -26,10 +26,15 @@ using Vertex=FieldRasterVertex;
 struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;std::uint64_t materialBlend=0;bool depthAlways=false,subtractive=false;unsigned phase=0;float nearClip=3;bool deferred=false;unsigned bucket=0,ordinal=0;};
 }
 struct SceneRenderer::Impl {
+    struct BlockPreparation {
+        std::vector<std::optional<PreparedTextureState>> textures;
+        std::vector<std::optional<PolygonTextureCoordinates>> coordinates;
+    };
     struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;std::optional<MapTransform> facing;std::optional<std::size_t> placement;bool visible=true;bool afterShadows=false;std::uint32_t flags=0;unsigned ordinal=0;bool special=false;};
     const MapObjects* mapObjects=nullptr;
     SineTable sine=make_sine_table();
     std::vector<Input> inputs;
+    std::vector<std::vector<std::vector<BlockPreparation>>> preparation;
     std::vector<FieldShadowActor> shadowActors;
     FieldShadowSettings shadowSettings;
     FieldOrdinaryLighting ordinaryLighting;
@@ -96,6 +101,13 @@ struct SceneRenderer::Impl {
                 if(relative.is_absolute() || relative.has_parent_path())throw std::runtime_error("Unsafe scene texture path");
                 if(relative.extension().empty())name+=".xim";
                 textures.push_back(decode_xim(read(input.path.parent_path()/name)));
+            }
+            auto& parts=preparation.emplace_back();
+            for(const auto& part:input.model.models) {
+                auto& blocks=parts.emplace_back();
+                for(const auto& block:part.blocks)
+                    blocks.push_back({std::vector<std::optional<PreparedTextureState>>(block.textures.size()),
+                        std::vector<std::optional<PolygonTextureCoordinates>>(block.polygons.size())});
             }
         }
         constexpr unsigned width=640,height=224;
@@ -226,13 +238,17 @@ struct SceneRenderer::Impl {
                 world[3]={position[0],position[1],position[2],1};
             }
             const unsigned sort=fieldProjection?field_ordinary_bucket(input.flags,field_depth_bucket(view,world[3],fieldProjection->ordinary),input.special):0;
+            std::size_t partIndex=0;
             for (const auto& part:input.model.models) {
+                auto& preparedBlocks=preparation.at(inputIndex).at(partIndex++);
                 auto pose=input.actor ? okage::animated_pose(part,input.actor->channels(),sine,input.actor->animation().scale_channels()) : okage::rest_pose(part,sine);
                 {
                     const auto viewWorld=okage::compose_pose(view,std::span(&world,1));
                     pose=okage::compose_pose(viewWorld[0],pose);
                 }
+                std::size_t blockIndex=0;
                 for (const auto& block:part.blocks) {
+                    auto& prepared=preparedBlocks.at(blockIndex++);
                     const auto firstVertex=vertices.size(),firstDraw=draws.size(),firstTranslucent=translucent.size();
                     const auto positions=okage::posed_positions(block,pose);
                     std::optional<OrdinaryNormalCache> normals;
@@ -251,7 +267,9 @@ struct SceneRenderer::Impl {
                             values.at(attr.first+i)=attr.values[i]; defined.at(attr.first+i)=true;
                         }
                     }
+                    std::size_t polygonIndex=0;
                     for (const auto& polygon:block.polygons) {
+                        auto& preparedUV=prepared.coordinates.at(polygonIndex++);
                         const auto triangles=okage::triangle_corners(polygon.corners.size());
                         std::array<std::array<float,2>,4> polygonUV{};
                         Draw draw{std::uint32_t(vertices.size()),0,-1,{}};
@@ -270,20 +288,24 @@ struct SceneRenderer::Impl {
                             state=&block.textures.at(polygon.texture_state);
                             draw.image=textureOffset+(input.actor ? input.actor->textures().images().at(textureBase+polygon.texture_state) : state->texture);
                             const auto& original=textures.at(textureOffset+state->texture);
-                            const auto clamp=okage::texture_clamp(*state,original.width,original.height);
+                            auto& preparedState=prepared.textures.at(polygon.texture_state);
+                            if(!preparedState)preparedState.emplace(*state,original.width,original.height);
+                            const auto clamp=preparedState->clamp();
                             draw.state={std::uint32_t(clamp>>4)&1023,std::uint32_t(clamp>>14)&1023,
                                 std::uint32_t(clamp>>24)&1023,std::uint32_t(clamp>>34)&1023,
                                 std::uint32_t(clamp)&3,std::uint32_t(clamp>>2)&3,1,0};
                             // Ordinary setup TEXA has TA0=128, AEM=1. PSM24
                             // stores no alpha: RGB zero becomes transparent.
                             if(ordinaryInstance && textures.at(draw.image).pixel_format==1)draw.state[6]|=2;
-                            for(std::size_t i=0;i<polygon.corners.size();++i) {
-                                const auto index=polygon.corners[i][3];
-                                if(index<0 || !uvDefined.at(index))throw std::runtime_error("Missing preview UV");
-                                polygonUV[i]={uv.at(index)[0],uv.at(index)[1]};
+                            if(!preparedUV) {
+                                for(std::size_t i=0;i<polygon.corners.size();++i) {
+                                    const auto index=polygon.corners[i][3];
+                                    if(index<0 || !uvDefined.at(index))throw std::runtime_error("Missing preview UV");
+                                    polygonUV[i]={uv.at(index)[0],uv.at(index)[1]};
+                                }
+                                preparedUV=preparedState->coordinates(std::span(polygonUV).first(polygon.corners.size()));
                             }
-                            okage::texture_coordinates_batch(*state,original.width,original.height,
-                                std::span(polygonUV).first(polygon.corners.size()));
+                            polygonUV=*preparedUV;
                         }
                         for (auto triangle:triangles) for (auto index:triangle) {
                             const auto& corner=polygon.corners.at(index);

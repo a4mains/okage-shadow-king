@@ -33,8 +33,18 @@ void rounding_batches() {
         require(std::fesetround(FE_TONEAREST)==0);
         auto expected=source;
         for(auto& value:expected)value=okage::texture_coordinates(state,dims[0],dims[1],value);
+        const okage::PreparedTextureState prepared(state,dims[0],dims[1]);
+        const auto preparedClamp=okage::texture_clamp(state,dims[0],dims[1]);
         for(int mode:modes) {
             require(std::fesetround(mode)==0);
+            require(prepared.clamp()==preparedClamp && std::fegetround()==mode);
+            for(std::size_t count:{3u,4u}) {
+                const auto coordinates=prepared.coordinates(std::span(source).first(count));
+                require(std::fegetround()==mode);
+                for(std::size_t i=0;i<count;++i)for(unsigned c=0;c<2;++c)
+                    require(__builtin_bit_cast(std::uint32_t, (coordinates[i][c]))==__builtin_bit_cast(std::uint32_t, (expected[i][c])));
+                if(count==3)require(coordinates[3]==std::array<float,2>{});
+            }
             // Includes the actual triangle/quad batch sizes and an empty batch.
             for(std::size_t count:{0u,1u,3u,4u,8u}) {
                 auto batch=source;
@@ -92,9 +102,35 @@ void rounding_batches() {
     }
     require(std::fesetround(previous)==0);
 }
+void prepared_texture_guards() {
+    const int previous=std::fegetround();
+    for(int mode:{FE_TONEAREST,FE_DOWNWARD,FE_UPWARD,FE_TOWARDZERO}) {
+        require(std::fesetround(mode)==0);
+        okage::TextureState state{0,0,1,1,{0,0,1,1}};
+        const okage::PreparedTextureState prepared(state,64,32);
+        std::array<std::array<float,2>,4> source{{{0,0},{1,0},{1,1},{0,1}}};
+        const auto expected=prepared.coordinates(source);
+        // The descriptor is a snapshot, not a reference to animated state.
+        state.region={8,4,24,12};state.texture=27;
+        require(prepared.coordinates(source)==expected);
+        rejects([&]{okage::PreparedTextureState invalid(state,0,32);});
+        state.region[2]=std::numeric_limits<float>::quiet_NaN();
+        rejects([&]{okage::PreparedTextureState invalid(state,64,32);});
+        state.region={0,0,3e20f,3e20f};
+        rejects([&]{okage::PreparedTextureState invalid(state,64,32);});
+        rejects([&]{prepared.coordinates(std::span(source).first(2));});
+        source[3][0]=std::numeric_limits<float>::infinity();
+        rejects([&]{prepared.coordinates(source);});
+        source[3][0]=0;
+        require(prepared.coordinates(source)==expected); // Failed preparation does not corrupt it.
+        require(std::fegetround()==mode);
+    }
+    require(std::fesetround(previous)==0);
+}
 int main() {
     try {
         rounding_batches();
+        prepared_texture_guards();
         // Half-texel placement and the distinction between normalized/pixel regions.
         okage::TextureState state{0,0,1,1,{0,0,1,1}};
         auto uv=okage::texture_coordinates(state,64,32,{0,1});
