@@ -8,6 +8,7 @@
 #include "okage/scene_renderer.hpp"
 #include "okage/map_objects.hpp"
 #include "okage/live_performance.hpp"
+#include "okage/live_scheduler.hpp"
 #include <bit>
 #include <algorithm>
 #include <array>
@@ -810,12 +811,12 @@ static void capture(const Session& session,const fs::path& path) {
 @public std::uint16_t replayDirections;
 @public fs::path testCapture;
 @public std::unique_ptr<okage::LivePerformance> performance;
+@public okage::LiveTickClock tickClock;
 }
 @property(strong) NSWindow* window;
 @property(strong) NativeTextView* view;
 @property(strong) NSTimer* timer;
 @property double previousTime;
-@property double accumulator;
 @end
 @implementation NativeApp
 - (void)applicationDidFinishLaunching:(NSNotification*)notification {
@@ -852,12 +853,14 @@ static void capture(const Session& session,const fs::path& path) {
     try {
         const double now=NSProcessInfo.processInfo.systemUptime;
         const double elapsed=now-self.previousTime;
-        self.accumulator+=std::min(.25,elapsed);self.previousTime=now;
+        const double admitted=tickClock.admit(elapsed);self.previousTime=now;
+        if(performance&&performance->interval.active())
+            performance->interval.scheduler_admit(admitted,tickClock.pending());
         if(performance&&performance->interval.active()&&!(self.view.pauseRequested&&!paused)) {
             performance->interval.update_begin(now,std::max(0.,elapsed-.25));measured=true;
         }
         if(self.view.pauseRequested) {
-            self.view.pauseRequested=NO;paused=!paused;self.accumulator=0;
+            self.view.pauseRequested=NO;paused=!paused;tickClock.reset();
             self.view.held=self.view.pressed=0;
             if(performance) {
                 if(paused) {
@@ -868,15 +871,18 @@ static void capture(const Session& session,const fs::path& path) {
                     performance->interval.update_begin(now,0);measured=true;
                 }
             }
-            if(paused)session->audio_output.reset();
+            if(paused) {
+                if(performance&&performance->interval.active()&&session->audio_output)performance->interval.audio_sample(session->audio_output->stats());
+                session->audio_output.reset();
+            }
             if(!paused&&session->music&&!session->audio_output)
                 session->audio_output=std::make_unique<okage::AudioOutput>();
             if(paused&&performance)performance->finish(now,session->frame,okage::PerformanceEnd::pause);
             [self refreshImage];
         }
-        if(paused){self.accumulator=0;self.view.held=self.view.pressed=0;return;}
+        if(paused){tickClock.reset();self.view.held=self.view.pressed=0;return;}
         bool changed=false;
-        while(self.accumulator>=1./60) {
+        while(tickClock.tick_due()) {
             if(testFrames){
                 const auto next=directions.held(session->frame+1);
                 for(const auto [mask,code]:{std::pair<unsigned,unsigned>{0x1000,126},{0x4000,125},{0x8000,123},{0x2000,124}}){
@@ -905,8 +911,12 @@ static void capture(const Session& session,const fs::path& path) {
                     windowNumber:self.window.windowNumber context:nil characters:@"\r" charactersIgnoringModifiers:@"\r" isARepeat:NO keyCode:36];
                 [self.window sendEvent:event];
             }
-            self.accumulator-=1./60;changed=true;
+            tickClock.complete_tick();changed=true;
             if(testFrames && session->frame==testFrames)break;
+        }
+        if(measured) {
+            performance->interval.scheduler_pending(tickClock.pending());
+            if(session->audio_output)performance->interval.audio_sample(session->audio_output->stats());
         }
         if(!changed) {
             if(measured){performance->interval.update_end(NSProcessInfo.processInfo.systemUptime);measured=false;}
@@ -929,6 +939,10 @@ static void capture(const Session& session,const fs::path& path) {
         }
     }catch(const std::exception& e) {
         const double failedAt=performance?NSProcessInfo.processInfo.systemUptime:0;
+        if(performance&&performance->interval.active()) {
+            performance->interval.scheduler_pending(tickClock.pending());
+            if(session->audio_output)performance->interval.audio_sample(session->audio_output->stats());
+        }
         session->audio_output.reset();
         if(performance) {
             failureStatus=1;
@@ -943,7 +957,11 @@ static void capture(const Session& session,const fs::path& path) {
 }
 - (void)finishPerformance:(okage::PerformanceEnd)reason {
     if(!performance)return;
-    try {performance->finish(NSProcessInfo.processInfo.systemUptime,session->frame,reason);}
+    try {
+        if(performance->interval.active()&&session->audio_output)
+            performance->interval.audio_sample(session->audio_output->stats());
+        performance->finish(NSProcessInfo.processInfo.systemUptime,session->frame,reason);
+    }
     catch(const std::exception& e) {failureStatus=1;std::cerr<<e.what()<<'\n';}
 }
 - (void)windowWillClose:(NSNotification*)notification {

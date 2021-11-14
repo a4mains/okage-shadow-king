@@ -62,19 +62,34 @@ void PerformanceInterval::update_begin(double now,double cap_discarded_seconds) 
     require(std::isfinite(cap_discarded_seconds)&&cap_discarded_seconds>=0,"Invalid discarded elapsed time");
     observe(now);
     if(last_update_)update_gaps_.add(now-*last_update_);
-    last_update_=now;update_start_=now;update_open_=true;++updates_;discarded_+=cap_discarded_seconds;
+    last_update_=now;update_start_=now;update_open_=true;update_ticks_=0;++updates_;discarded_+=cap_discarded_seconds;
 }
 void PerformanceInterval::discard_elapsed(double seconds) {
     require(active_&&std::isfinite(seconds)&&seconds>=0,"Invalid discarded elapsed time");discarded_+=seconds;
 }
+void PerformanceInterval::scheduler_admit(double admitted_seconds,double pending_seconds) {
+    require(active_&&std::isfinite(admitted_seconds)&&admitted_seconds>=0,"Invalid scheduler admission");
+    admitted_+=admitted_seconds;scheduler_pending(pending_seconds);
+}
+void PerformanceInterval::scheduler_pending(double pending_seconds) {
+    require(active_&&std::isfinite(pending_seconds)&&pending_seconds>=0,"Invalid pending simulation time");
+    scheduler_observed_=true;pending_=pending_seconds;max_pending_=std::max(max_pending_,pending_);
+    pending_samples_.add(pending_);
+}
+void PerformanceInterval::audio_sample(const AudioOutputStats& stats) {
+    require(active_,"Audio sample outside performance interval");
+    audio_observed_=true;audio_=stats;audio_ring_samples_.add(stats.ring_frames/48000.);
+}
 void PerformanceInterval::update_end(double now) {
     require(update_open_,"Performance update is not active");observe(now);
     update_wall_.add(now-update_start_);update_open_=false;
+    max_update_ticks_=std::max(max_update_ticks_,update_ticks_);
+    if(scheduler_observed_&&pending_>=1./60)++backlogged_updates_;
 }
 void PerformanceInterval::tick(double start,double end,bool rendered) {
     require(update_open_,"Performance tick outside update");
     require(std::isfinite(start)&&start>=update_start_&&end>=start,"Invalid performance tick timestamps");observe(end);
-    tick_wall_.add(end-start);++ticks_;if(rendered)++rendered_;
+    tick_wall_.add(end-start);++ticks_;++update_ticks_;if(rendered)++rendered_;
 }
 void PerformanceInterval::refresh(double start,double end) {
     require(std::isfinite(start)&&start>=start_&&end>=start,"Invalid performance refresh timestamps");observe(end);refresh_wall_.add(end-start);
@@ -87,7 +102,7 @@ std::string PerformanceInterval::finish(double now,std::uint64_t frame,Performan
     require(!update_open_,"Cannot finish performance interval during update");observe(now);
     require(frame>=first_frame_&&frame-first_frame_>=ticks_,"Inconsistent performance frame counter");
     const double elapsed=now-start_;auto out=json_stream();
-    out<<"{\"type\":\"interval\",\"schema_version\":1,\"interval\":"<<index
+    out<<"{\"type\":\"interval\",\"schema_version\":2,\"interval\":"<<index
        <<",\"end_reason\":\""<<reason_name(reason)<<"\",\"monotonic_start_s\":"<<start_
        <<",\"monotonic_end_s\":"<<now<<",\"wall_duration_s\":"<<elapsed
        <<",\"start_frame\":"<<first_frame_<<",\"end_frame\":"<<frame
@@ -100,7 +115,27 @@ std::string PerformanceInterval::finish(double now,std::uint64_t frame,Performan
     else out<<",\"simulation_ticks_per_wall_second\":null,\"appkit_draw_callbacks_per_wall_second\":null";
     out<<",\"update_callback_gaps\":"<<update_gaps_.json()<<",\"appkit_draw_callback_gaps\":"<<draw_gaps_.json()
        <<",\"update_wall\":"<<update_wall_.json()<<",\"completed_tick_wall\":"<<tick_wall_.json()
-       <<",\"refresh_wall\":"<<refresh_wall_.json()<<"}\n";
+       <<",\"refresh_wall\":"<<refresh_wall_.json()
+       <<",\"max_ticks_per_update\":"<<max_update_ticks_<<",\"updates_with_pending_ticks\":"<<backlogged_updates_
+       <<",\"scheduler_observed\":"<<(scheduler_observed_?"true":"false")
+       <<",\"admitted_elapsed_s\":"<<admitted_<<",\"accumulator_pending_end_s\":"<<pending_
+       <<",\"accumulator_pending_end_ticks\":"<<std::floor(pending_*60)
+       <<",\"accumulator_pending_max_s\":"<<max_pending_
+       <<",\"accumulator_discarded_on_pause_s\":"<<(reason==PerformanceEnd::pause?pending_:0)
+       <<",\"accumulator_accounting_error_s\":"<<(scheduler_observed_?admitted_-ticks_/60.-pending_:0)
+       <<",\"accumulator_samples\":"<<pending_samples_.json()
+       <<",\"audio_observed\":"<<(audio_observed_?"true":"false")
+       <<",\"audio_started\":"<<(audio_.started?"true":"false")
+       <<",\"audio_submitted_source_frames\":"<<audio_.submitted_frames
+       <<",\"audio_source_frames_enqueued\":"<<audio_.source_frames_enqueued
+       <<",\"audio_silence_frames_enqueued\":"<<audio_.silence_frames_enqueued
+       <<",\"audio_ring_frames_end\":"<<audio_.ring_frames
+       <<",\"audio_refills\":"<<audio_.refills<<",\"audio_startup_refills\":"<<audio_.startup_refills
+       <<",\"audio_starved_refills\":"<<audio_.starved_refills
+       <<",\"audio_producer_overruns\":"<<audio_.producer_overruns
+       <<",\"audio_enqueue_failures\":"<<audio_.enqueue_failures
+       <<",\"audio_enqueue_status\":"<<audio_.enqueue_status
+       <<",\"audio_ring_samples\":"<<audio_ring_samples_.json()<<"}\n";
     active_=false;return out.str();
 }
 LivePerformance::LivePerformance(const std::filesystem::path& path) {
@@ -108,11 +143,13 @@ LivePerformance::LivePerformance(const std::filesystem::path& path) {
     if(descriptor_<0)throw std::runtime_error(std::string("Performance report requires a fresh writable path: ")+std::strerror(errno));
     try {
         auto out=json_stream();
-        out<<"{\"type\":\"metadata\",\"schema_version\":1,\"clock\":\"NSProcessInfo.systemUptime monotonic seconds\","
+        out<<"{\"type\":\"metadata\",\"schema_version\":2,\"clock\":\"NSProcessInfo.systemUptime monotonic seconds\","
               "\"scope\":\"Interactive running intervals only; wall timings, not CPU or GPU timings. AppKit draw callbacks are not compositor presentations or presented FPS.\","
               "\"boundaries\":\"Resume callback entry through pause callback entry; initial live start is after window activation. Pause callback work and report flush are excluded. Resume audio setup and refresh are included. Cap discard includes the last running gap at pause.\","
               "\"counts\":\"Ticks count completed Session::tick calls. Rendered ticks have a current-frame rendered surface after that call. Failed tick work is included only in update_wall; frame-counter mismatch is reported. Gaps are between callbacks within an interval.\","
               "\"timings\":\"update_wall includes tick and refresh wall times; distributions overlap. Histogram bins have inclusive upper bounds; final bin is overflow. No per-frame samples retained.\","
+              "\"scheduler\":\"One whole tick per live update; admitted debt survives yields until pause. Accumulator samples follow admission and work, exclude wall elapsed since the latest timer entry, and precede pause reset. Accounting assumes zero starting debt.\","
+              "\"audio\":\"Each interval owns a fresh AudioOutput. Independently sampled counters include startup fills and attempted enqueues, not device playback. Ring occupancy excludes queued device buffers; samples do not observe exact callback-time minima.\","
               "\"persistence\":\"Only finished intervals are written. Abrupt termination can leave the final interval absent.\","
               "\"histogram_upper_ms\":[";
         for(std::size_t i=0;i<PerformanceDistribution::upper_ms.size();++i)

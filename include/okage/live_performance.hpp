@@ -1,4 +1,5 @@
 #pragma once
+#include "okage/audio_output.hpp"
 #include <array>
 #include <cstdint>
 #include <filesystem>
@@ -24,6 +25,9 @@ public:
     void begin(double now,std::uint64_t frame);
     void update_begin(double now,double cap_discarded_seconds);
     void discard_elapsed(double seconds);
+    void scheduler_admit(double admitted_seconds,double pending_seconds);
+    void scheduler_pending(double pending_seconds);
+    void audio_sample(const AudioOutputStats& stats);
     void update_end(double now);
     void tick(double start,double end,bool rendered);
     void refresh(double start,double end);
@@ -35,6 +39,11 @@ private:
     double start_=0,last_observation_=0,update_start_=0,discarded_=0;
     std::optional<double> last_update_,last_draw_;
     std::uint64_t first_frame_=0,updates_=0,ticks_=0,rendered_=0,draws_=0;
+    double admitted_=0,pending_=0,max_pending_=0;
+    bool scheduler_observed_=false,audio_observed_=false;
+    std::uint64_t update_ticks_=0,max_update_ticks_=0,backlogged_updates_=0;
+    AudioOutputStats audio_{};
+    PerformanceDistribution pending_samples_,audio_ring_samples_;
     PerformanceDistribution update_gaps_,draw_gaps_,update_wall_,tick_wall_,refresh_wall_;
 };
 
