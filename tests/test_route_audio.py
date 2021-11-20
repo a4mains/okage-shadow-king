@@ -8,7 +8,7 @@ import unittest
 import wave
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
-from compare_route_audio import compare_route_audio
+from compare_route_audio import compare_route_audio, extract_route_audio_boundaries
 
 def write_wav(path, samples, rate):
     with wave.open(str(path), 'wb') as output:
@@ -149,6 +149,192 @@ class CompareRouteAudioTests(unittest.TestCase):
         symlink.symlink_to(self.root / 'missing-target')
         with self.assertRaisesRegex(ValueError, 'refusing existing output'):
             self.run_pair()
+
+class BoundaryRouteAudioTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name)
+        self.original = self.root / 'original.wav'
+        self.original_index = self.root / 'original.audio-index.json'
+        self.original_run = self.root / 'original.run.json'
+        self.native = self.root / 'native.png.audio.pcm'
+        self.native_audio = self.root / 'native.png.audio.json'
+        self.native_run = self.root / 'native.run.json'
+        self.native_index = self.root / 'native.frames.json'
+        self.output = self.root / 'boundary-pair'
+
+        self.original_pairs = [(n, -n) for n in range(1, 31)]
+        write_wav(self.original, self.original_pairs, 600)
+        self.original_index.write_text(json.dumps({
+            'sample_rate': 600,
+            'channels': 2,
+            'total_sample_frames': 30,
+            'boundary': 'OnNewFrame after GS SetVBlank and PadHandler Update, before this iteration EE/IOP update',
+            'scope': "Offsets into emitted PCM; SPU output is block buffered.",
+            'vblanks': [
+                {'vblank_start': 1, 'sample_frame_offset': 0},
+                {'vblank_start': 2, 'sample_frame_offset': 10},
+                {'vblank_start': 3, 'sample_frame_offset': 25},
+            ],
+        }))
+        self.original_run.write_text(json.dumps({
+            'exit_code': 0,
+            'command': ['oracle', 'disc.cue', '3', '--audio', str(self.original)],
+        }))
+
+        self.native_pairs = [(100+n, -100-n) for n in range(100)]
+        self.native.write_bytes(b''.join(struct.pack('<hh', *pair) for pair in self.native_pairs))
+        self.native_audio.write_text(json.dumps({'frames': 100, 'rate': 1200}))
+        self.native_run.write_text(json.dumps({'exit_code': 0,
+                                              'command': ['native', '--frames', '5']}))
+        self.native_index.write_text(json.dumps({
+            'boundary': 'after completed native Session::tick, before the next input',
+            'captures': [
+                {'tick': 3, 'audio_sample_frame_offset': 20},
+                {'tick': 5, 'audio_sample_frame_offset': 40},
+            ],
+        }))
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def boundary_report(self, *, start=1, end='stop', native_index=None,
+                        native_start=3, native_end=5, output=None):
+        return extract_route_audio_boundaries(
+            self.original, self.original_index, start, end, self.native, 1200,
+            output or self.output, native_frame_index=native_index or self.native_index,
+            native_start_tick=native_start, native_end_tick=native_end)
+
+    def test_uses_recorded_boundaries_and_preserves_duration_mismatch(self):
+        report = self.boundary_report()
+        original_bytes = b''.join(struct.pack('<hh', *pair) for pair in self.original_pairs)
+        native_bytes = b''.join(struct.pack('<hh', *pair) for pair in self.native_pairs[20:40])
+        with wave.open(str(self.root / 'boundary-pair.original.wav'), 'rb') as result:
+            self.assertEqual((result.getframerate(), result.getnframes()), (600, 30))
+            self.assertEqual(result.readframes(30), original_bytes)
+        with wave.open(str(self.root / 'boundary-pair.native.wav'), 'rb') as result:
+            self.assertEqual((result.getframerate(), result.getnframes()), (1200, 20))
+            self.assertEqual(result.readframes(20), native_bytes)
+        self.assertEqual(report['status'], 'captured_unpaired_duration_mismatch')
+        self.assertEqual(report['original_boundary']['end_boundary'],
+                         'post_stop_total_sample_frames')
+        self.assertTrue(report['original_boundary']['post_stop_endpoint_used'])
+        self.assertEqual(report['native_boundary']['scope'], 'recorded_native_capture_boundaries')
+        self.assertEqual(report['alignment']['duration_mismatch_sample_frames'], -10)
+        self.assertFalse(report['alignment']['temporal_alignment_proven'])
+        self.assertFalse(report['alignment']['waveform_equivalence_asserted'])
+        self.assertNotIn('comparison', report)
+
+    def test_uses_explicit_recorded_original_end_boundary(self):
+        report = self.boundary_report(end=3, output=self.root/'interior-pair')
+        self.assertEqual(report['original_boundary']['start_sample_frame'], 0)
+        self.assertEqual(report['original_boundary']['end_sample_frame_exclusive'], 25)
+        self.assertEqual(report['segments']['original']['sample_frames'], 25)
+
+    def test_fixed_tick_native_fallback_is_explicit_in_report(self):
+        report = extract_route_audio_boundaries(
+            self.original, self.original_index, 1, 'stop', self.native, 1200,
+            self.root/'fixed-pair', native_first_tick=3, ticks=2)
+        self.assertEqual(report['native_boundary']['scope'],
+                         'explicit_fixed_tick_sample_rate_arithmetic')
+        self.assertEqual(report['native_boundary']['start_sample_frame'], 40)
+        self.assertEqual(report['native_boundary']['end_sample_frame_exclusive'], 80)
+
+    def test_auto_prefers_adjacent_native_frame_index(self):
+        frame_index = self.root/'native.png.frames'/'manifest.json'
+        frame_index.parent.mkdir()
+        frame_index.write_text(self.native_index.read_text())
+        report = extract_route_audio_boundaries(
+            self.original, self.original_index, 1, 'stop', self.native, 1200,
+            self.root/'auto-index-pair', native_start_tick=3, native_end_tick=5)
+        self.assertEqual(report['native_boundary']['scope'],
+                         'recorded_native_capture_boundaries')
+        self.assertEqual(report['sources']['manifests']['native_frame_index']['path'],
+                         str(frame_index))
+
+    def test_rejects_malformed_nonmonotone_and_out_of_range_original_indexes(self):
+        base = json.loads(self.original_index.read_text())
+        variants = []
+        malformed = dict(base)
+        malformed['vblanks'] = 'not-a-list'
+        variants.append((malformed, 'no vblank boundary rows'))
+        nonmonotone = json.loads(json.dumps(base))
+        nonmonotone['vblanks'][2]['sample_frame_offset'] = 9
+        variants.append((nonmonotone, 'sample offsets must be nondecreasing'))
+        duplicate = json.loads(json.dumps(base))
+        duplicate['vblanks'][1]['vblank_start'] = 1
+        variants.append((duplicate, 'strictly consecutive'))
+        out_of_range = json.loads(json.dumps(base))
+        out_of_range['vblanks'][1]['sample_frame_offset'] = 31
+        variants.append((out_of_range, 'exceeds total_sample_frames'))
+        out_of_range_vblank = json.loads(json.dumps(base))
+        out_of_range_vblank['vblanks'].append(
+            {'vblank_start': 4, 'sample_frame_offset': 30})
+        variants.append((out_of_range_vblank, 'exceeds successful run frame count'))
+        for n, (index, message) in enumerate(variants):
+            with self.subTest(index=n):
+                self.original_index.write_text(json.dumps(index))
+                with self.assertRaisesRegex(ValueError, message):
+                    self.boundary_report(output=self.root/f'bad-index-{n}')
+
+    def test_rejects_index_wav_extent_and_boundary_selector_mismatches(self):
+        index = json.loads(self.original_index.read_text())
+        index['total_sample_frames'] = 29
+        self.original_index.write_text(json.dumps(index))
+        with self.assertRaisesRegex(ValueError, 'index has 29 frames but WAV has 30'):
+            self.boundary_report(output=self.root/'bad-extent')
+
+        self.original_index.write_text(json.dumps({
+            'sample_rate': 600, 'channels': 2, 'total_sample_frames': 30,
+            'boundary': 'OnNewFrame', 'scope': "block buffered",
+            'vblanks': [
+                {'vblank_start': 1, 'sample_frame_offset': 0},
+                {'vblank_start': 2, 'sample_frame_offset': 10},
+                {'vblank_start': 3, 'sample_frame_offset': 25},
+            ],
+        }))
+        with self.assertRaisesRegex(ValueError, 'start vblank is not recorded'):
+            self.boundary_report(start=4, output=self.root/'missing-boundary')
+
+        correct = json.loads(self.original_index.read_text())
+        correct['sample_rate'] = 44100
+        self.original_index.write_text(json.dumps(correct))
+        with self.assertRaisesRegex(ValueError, 'sample_rate disagrees with WAV'):
+            self.boundary_report(output=self.root/'bad-index-rate')
+
+    def test_rejects_bad_native_boundary_index_offsets(self):
+        malformed = json.loads(self.native_index.read_text())
+        malformed['captures'][1]['audio_sample_frame_offset'] = 19
+        bad = self.root/'bad-native-index.json'
+        bad.write_text(json.dumps(malformed))
+        with self.assertRaisesRegex(ValueError, 'sample offsets must be nondecreasing'):
+            self.boundary_report(native_index=bad, output=self.root/'bad-native-offsets')
+
+        with self.assertRaisesRegex(ValueError, 'not recorded in frame index'):
+            self.boundary_report(native_start=2, output=self.root/'missing-native-boundary')
+
+        malformed = json.loads(self.native_index.read_text())
+        malformed['captures'][1]['audio_sample_frame_offset'] = 101
+        bad.write_text(json.dumps(malformed))
+        with self.assertRaisesRegex(ValueError, 'exceeds native PCM extent'):
+            self.boundary_report(native_index=bad, output=self.root/'native-offset-out-of-range')
+
+        malformed = json.loads(self.native_index.read_text())
+        malformed['complete'] = False
+        bad.write_text(json.dumps(malformed))
+        with self.assertRaisesRegex(ValueError, 'frame index is incomplete'):
+            self.boundary_report(native_index=bad, output=self.root/'native-index-incomplete')
+
+    def test_boundary_outputs_refuse_existing_files_and_symlinks(self):
+        collision = self.root/'boundary-pair.native.wav'
+        collision.write_bytes(b'keep')
+        with self.assertRaisesRegex(ValueError, 'refusing existing output'):
+            self.boundary_report()
+        self.assertEqual(collision.read_bytes(), b'keep')
+        collision.unlink()
+        collision.symlink_to(self.root/'missing-boundary-target')
+        with self.assertRaisesRegex(ValueError, 'refusing existing output'):
+            self.boundary_report()
 
 if __name__ == '__main__':
     unittest.main()
