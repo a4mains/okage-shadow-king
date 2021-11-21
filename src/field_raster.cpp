@@ -45,7 +45,7 @@ Vertex intersection(const Vertex& outside,const Vertex& inside,unsigned axis,flo
 }
 //0x3900 clips a pair of planes together; intersections start at the outside
 // endpoint (0x3c98/0x3d18), which matters for floating-point boundary results.
-std::vector<Vertex> clip_range(const std::vector<Vertex>& input,unsigned axis,float low,float high) {
+std::vector<Vertex> clip_range(std::span<const Vertex> input,unsigned axis,float low,float high) {
     std::vector<Vertex> out;
     if(input.empty())return out;
     auto side=[&](const Vertex& v){return v.position[axis]<low?-1:v.position[axis]>high?1:0;};
@@ -105,7 +105,9 @@ std::vector<FieldRasterVertex> field_raster_triangles(std::span<const Vertex> in
     const auto params=shadow_screen_parameters(settings);
     Rounding rounding;std::vector<Vertex> out;out.reserve(input.size());
     for(std::size_t at=0;at<input.size();at+=3){
-        std::vector<Vertex> polygon(input.begin()+at,input.begin()+at+3);
+        std::array<Vertex,3> triangle{input[at],input[at+1],input[at+2]};
+        std::span<Vertex> polygon=triangle;
+        std::vector<Vertex> clipped;
         std::uint32_t flags=0,common=63;
         for(auto& v:polygon){
             for(const auto& value:{v.position,v.color,v.uv})for(float f:value)
@@ -116,14 +118,18 @@ std::vector<FieldRasterVertex> field_raster_triangles(std::span<const Vertex> in
             flags|=f;common&=f;
         }
         if(common)continue;
-        if(flags&0x30)polygon=clip_range(polygon,2,params[6][2],params[7][2]);
+        if(flags&0x30){clipped=clip_range(polygon,2,params[6][2],params[7][2]);polygon=clipped;}
         for(auto& v:polygon){
             const float q=1.f/v.position[3];
             // Clipped path retains negative screen values until XY clipping.
             v.position=screen(v.position,params,!flags);
             v.uv={v.uv[0]*q,v.uv[1]*q,q,0};
         }
-        if(flags){polygon=clip_range(polygon,0,params[6][0],params[7][0]);polygon=clip_range(polygon,1,params[6][1],params[7][1]);}
+        if(flags){
+            clipped=clip_range(polygon,0,params[6][0],params[7][0]);
+            clipped=clip_range(clipped,1,params[6][1],params[7][1]);
+            polygon=clipped;
+        }
         for(auto& v:polygon){
             if(gs_color_units)for(float& c:v.color)c=std::trunc(c);
             v.position[3]=std::clamp(v.position[3],0.f,255.f);

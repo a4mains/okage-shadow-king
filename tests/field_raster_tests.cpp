@@ -2,6 +2,7 @@
 #include "okage/ordinary_lighting.hpp"
 #include "okage/field_shadows.hpp"
 #include <array>
+#include <bit>
 #include <cfenv>
 #include <cstring>
 #include <cmath>
@@ -28,6 +29,71 @@ void check_rounding_restored(const auto& function) {
     check(std::fegetround() == FE_UPWARD);
 }
 
+void raster_storage_paths(const okage::ShadowScreenSettings& settings) {
+    using P=okage::Float4;using V=okage::FieldRasterVertex;
+    const std::array<std::array<P,3>,9> positions{{
+        {P{0,0,10,1},P{1,0,10,1},P{0,1,10,1}}, // no clipping
+        {P{100,0,10,1},P{101,1,10,1},P{100,1,10,1}}, // common reject
+        {P{0,0,2,1},P{1,0,5,1},P{0,1,5,1}}, // near
+        {P{0,0,3000,1},P{10,0,100,1},P{0,10,100,1}}, // far
+        {P{100,0,10,1},P{0,0,10,1},P{0,1,10,1}}, // X
+        {P{0,0,2,1},P{100,0,10,1},P{0,100,10,1}}, // clipped to empty
+        {P{100,0,10,1},P{0,100,10,1},P{100,100,10,1}}, // XY to empty
+        {P{0,0,2,1},P{100,0,10,1},P{0,1,10,1}}, // near then X
+        {P{100,100,10,1},P{0,0,10,1},P{0,1,10,1}}, // X then Y
+    }};
+    const std::array<unsigned,9> counts{3,0,6,6,6,0,0,6,6};
+    const std::array<std::array<std::uint64_t,2>,9> digests{{
+        {8475731917585238904ull,12977841801580022648ull},
+        {14695981039346656037ull,14695981039346656037ull},
+        {1993230469601300914ull,9300896185111820834ull},
+        {2573573708025604317ull,8315156688444081396ull},
+        {12637808025694590848ull,17888922779904911334ull},
+        {14695981039346656037ull,14695981039346656037ull},
+        {14695981039346656037ull,14695981039346656037ull},
+        {10102940894449499366ull,14746301037873709333ull},
+        {10853666249077178761ull,17734705878456284879ull},
+    }};
+    const auto digest=[](const auto& vertices) {
+        std::uint64_t result=14695981039346656037ull;
+        for(const auto& v:vertices)for(const auto& a:{v.position,v.color,v.uv})for(float f:a) {
+            result^=__builtin_bit_cast(std::uint32_t, (f));result*=1099511628211ull;
+        }
+        return result;
+    };
+    const int previous=std::fegetround();
+    for(int mode:{FE_TONEAREST,FE_DOWNWARD,FE_UPWARD,FE_TOWARDZERO})for(bool gs:{false,true}) {
+        check(std::fesetround(mode)==0);
+        std::vector<V> mixed,expected;
+        for(unsigned i=0;i<positions.size();++i) {
+            const std::array<V,3> input{{
+                {positions[i][0],{.75f,64.5f,300.25f,96.75f},{.25f,.5f,100,1}},
+                {positions[i][1],{1.75f,32.25f,128.75f,64.5f},{.75f,.5f,100,1}},
+                {positions[i][2],{2.75f,128.125f,16.5f,32.25f},{.25f,1,100,1}},
+            }};
+            const auto actual=okage::field_raster_triangles(input,settings,gs);
+            check(actual.size()==counts[i] && digest(actual)==digests[i][gs]);
+            check(std::fegetround()==mode);
+            mixed.insert(mixed.end(),input.begin(),input.end());
+            expected.insert(expected.end(),actual.begin(),actual.end());
+        }
+        const auto actual=okage::field_raster_triangles(mixed,settings,gs);
+        check(actual.size()==expected.size());
+        check(std::memcmp(actual.data(),expected.data(),actual.size()*sizeof(V))==0);
+        mixed.back().uv[3]=std::numeric_limits<float>::quiet_NaN();
+        rejects([&]{okage::field_raster_triangles(mixed,settings,gs);});
+        check(std::fegetround()==mode);
+        check(okage::field_raster_triangles({},settings,gs).empty());
+        auto invalid=settings;invalid.focal=std::numeric_limits<float>::infinity();
+        rejects([&]{okage::field_raster_triangles({},invalid,gs);});
+        // Count validation precedes settings and the nonfinite vertex guard.
+        try {okage::field_raster_triangles(std::span(mixed).first(2),invalid,gs);check(false);}
+        catch(const std::runtime_error& e){check(std::string(e.what())=="Field raster requires triangles");}
+        check(std::fegetround()==mode);
+    }
+    check(std::fesetround(previous)==0);
+}
+
 int main() {
     try {
         const int previous_rounding = std::fegetround();
@@ -37,6 +103,7 @@ int main() {
             800, 1, .47f, 320, 112, 101, 16777115,
             3, 2048, 3, 2048, 0, 0, 320, 112};
         const auto parameters = okage::shadow_screen_parameters(settings);
+        raster_storage_paths(settings);
 
         const std::array<okage::Float4, 1> screen_input{{{0, 0, 10, 1}}};
         check_rounding_restored([&] {
