@@ -6,13 +6,15 @@ cross-correlate, compare waveforms, or assert audio equivalence. Frame-count
 checks establish nominal duration only. This tool does not inspect vblank
 indexes in nominal mode, so sample-accurate temporal alignment remains unproven.
 Boundary mode extracts the offsets declared by original/native capture indexes;
-different segment extents remain different and do not imply temporal alignment.
+duration status compares exact frame-count/rate ratios, and different segment
+extents remain different without implying temporal alignment.
 """
 
 import argparse
 import hashlib
 import json
 import math
+from fractions import Fraction
 from pathlib import Path
 import struct
 import wave
@@ -371,7 +373,10 @@ def extract_route_audio_boundaries(original_wav, original_audio_index,
 
     original_frames = len(original_segment) // 4
     native_frames = len(native_segment) // 4
-    duration_mismatch = original_frames != native_frames
+    original_duration = Fraction(original_frames, original_rate)
+    native_duration = Fraction(native_frames, native_rate)
+    duration_difference = native_duration - original_duration
+    duration_mismatch = duration_difference != 0
     status = ('captured_unpaired_duration_mismatch' if duration_mismatch
               else 'captured_segments_unaligned')
     _write_wav_exclusive(original_output, original_segment, original_rate)
@@ -390,7 +395,15 @@ def extract_route_audio_boundaries(original_wav, original_audio_index,
             'trimming_performed': False,
             'waveform_equivalence_asserted': False,
             'duration_mismatch': duration_mismatch,
-            'duration_mismatch_sample_frames': native_frames - original_frames,
+            'original_duration_seconds': float(original_duration),
+            'native_duration_seconds': float(native_duration),
+            'duration_difference_seconds': float(duration_difference),
+            'duration_difference_rational_seconds': {
+                'numerator': duration_difference.numerator,
+                'denominator': duration_difference.denominator,
+            },
+            'segment_frame_count_difference': native_frames - original_frames,
+            'segment_frame_count_difference_unit': 'sample frames; not a duration',
         },
         'original_boundary': {
             'index': str(original_audio_index), 'index_sha256': _sha256(original_audio_index),

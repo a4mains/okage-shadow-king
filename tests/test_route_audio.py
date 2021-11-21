@@ -220,10 +220,49 @@ class BoundaryRouteAudioTests(unittest.TestCase):
                          'post_stop_total_sample_frames')
         self.assertTrue(report['original_boundary']['post_stop_endpoint_used'])
         self.assertEqual(report['native_boundary']['scope'], 'recorded_native_capture_boundaries')
-        self.assertEqual(report['alignment']['duration_mismatch_sample_frames'], -10)
+        self.assertEqual(report['alignment']['segment_frame_count_difference'], -10)
+        self.assertEqual(report['alignment']['segment_frame_count_difference_unit'],
+                         'sample frames; not a duration')
+        self.assertEqual(report['alignment']['duration_difference_rational_seconds'],
+                         {'numerator': -1, 'denominator': 30})
         self.assertFalse(report['alignment']['temporal_alignment_proven'])
         self.assertFalse(report['alignment']['waveform_equivalence_asserted'])
         self.assertNotIn('comparison', report)
+
+    def test_equal_duration_with_different_rates_is_not_a_mismatch(self):
+        index = self.root / 'equal-duration.frames.json'
+        index.write_text(json.dumps({
+            'boundary': 'after completed native Session::tick, before the next input',
+            'captures': [
+                {'tick': 3, 'audio_sample_frame_offset': 20},
+                {'tick': 5, 'audio_sample_frame_offset': 80},
+            ],
+        }))
+        report = self.boundary_report(native_index=index, output=self.root/'equal-duration')
+        self.assertEqual(report['status'], 'captured_segments_unaligned')
+        self.assertFalse(report['alignment']['duration_mismatch'])
+        self.assertEqual(report['alignment']['original_duration_seconds'], 0.05)
+        self.assertEqual(report['alignment']['native_duration_seconds'], 0.05)
+        self.assertEqual(report['alignment']['duration_difference_rational_seconds'],
+                         {'numerator': 0, 'denominator': 1})
+        self.assertEqual(report['alignment']['segment_frame_count_difference'], 30)
+
+    def test_equal_frame_counts_with_different_rates_are_a_duration_mismatch(self):
+        index = self.root / 'equal-count.frames.json'
+        index.write_text(json.dumps({
+            'boundary': 'after completed native Session::tick, before the next input',
+            'captures': [
+                {'tick': 3, 'audio_sample_frame_offset': 20},
+                {'tick': 5, 'audio_sample_frame_offset': 50},
+            ],
+        }))
+        report = self.boundary_report(native_index=index, output=self.root/'equal-count')
+        self.assertEqual(report['status'], 'captured_unpaired_duration_mismatch')
+        self.assertTrue(report['alignment']['duration_mismatch'])
+        self.assertEqual(report['alignment']['segment_frame_count_difference'], 0)
+        self.assertEqual(report['alignment']['duration_difference_rational_seconds'],
+                         {'numerator': -1, 'denominator': 40})
+        self.assertEqual(report['alignment']['duration_difference_seconds'], -0.025)
 
     def test_uses_explicit_recorded_original_end_boundary(self):
         report = self.boundary_report(end=3, output=self.root/'interior-pair')
