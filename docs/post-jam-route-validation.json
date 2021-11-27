@@ -1,0 +1,436 @@
+{
+  "scope": "Fixed-anchor observed state comparison across contiguous ordinary-input FIELD_1D route intervals; not whole-state, pixel, audio or complete-playthrough equivalence.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "first_tick": 79596,
+  "last_tick": 81875,
+  "total_frames": 2280,
+  "interval_count": 18,
+  "controller_samples": 846,
+  "observed_differing_frames": 0,
+  "missing_observation_frames": 0,
+  "endpoint": {
+    "reference": "local/reference-field1d-post-jam-fata-finish-240-v1",
+    "native": "local/native-post-jam-fata-finish-81875-release-v1",
+    "first_tick": 81636,
+    "last_tick": 81875,
+    "hero_position": [
+      65.45845794677734,
+      -0.0010000000474974513,
+      753.418701171875,
+      1.0
+    ],
+    "camera_rotation": [
+      0.83282470703125,
+      0.762939453125,
+      0.0,
+      1.0
+    ],
+    "directions": [],
+    "press": [
+      81637
+    ],
+    "divergence": {
+      "first_difference": null,
+      "category_frame_counts": {
+        "controller": 0,
+        "choice": 0,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "direction_latch": 0,
+        "player_mask": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "camera_rotation": 0,
+        "camera_mode_phase": 0,
+        "camera_position": 0,
+        "camera_unblended_target": 0
+      },
+      "unique_differing_frames": 0,
+      "first_missing_observation": null,
+      "first_missing_observation_kinds": [],
+      "missing_original_manager_frames": 0,
+      "missing_manager_ranges": [],
+      "missing_original_camera_frames": 0,
+      "missing_camera_ranges": [],
+      "unique_missing_observation_frames": 0,
+      "missing_original_player_frames": 0,
+      "missing_player_ranges": [],
+      "matching_tail": {
+        "first_original_frame": 0,
+        "first_native_tick": 81636,
+        "frames": 240,
+        "controller_samples": 41
+      }
+    }
+  },
+  "endpoint_state": {
+    "frames": 81875,
+    "message_id": 14101,
+    "messages_started": 74,
+    "text_progress": 5,
+    "advance_count": 10,
+    "wait_release_frame": 227,
+    "controller_stage": 9,
+    "unimplemented_service_requests": 32867,
+    "message_flags": 2147483648,
+    "window_type": 0,
+    "scene_brightness": 1,
+    "narration_cues": 421,
+    "progression_flag_2": 0,
+    "progression_flag_3": 0,
+    "kitchen_flag_7": 1,
+    "progression_flag_4": 0,
+    "progression_flag_5": 0,
+    "field_event_running": false,
+    "field_camera_mode": 2,
+    "interaction_alias": -23,
+    "interaction_event": 51,
+    "loaded_stream_banks": 1,
+    "choice_cursor": 0,
+    "choice_result": 0,
+    "choice_armed": false,
+    "close_frame": 419,
+    "close_wait_release_frame": 422
+  },
+  "endpoint_native_story_flags": {
+    "13": true,
+    "23": true,
+    "24": false,
+    "25": false,
+    "27": false,
+    "29": false
+  },
+  "native_gate4_index6": 1,
+  "intervals": [
+    {
+      "first_tick": 79596,
+      "last_tick": 79655,
+      "native": "local/native-post-jam-stairs2-79655-release-v1",
+      "reference": "local/reference-field1d-post-jam-stairs2-60-v1",
+      "observed_differing_frames": 0,
+      "missing_observation_frames": 0,
+      "controller_samples": 0,
+      "sha256": {
+        "local/research/post-jam-route-v1/post-jam-stairs2-result.json": "b72061c3d9bb6da1176b5e306a204dd7e3b3c104c9887742a646f9de1e72c91b",
+        "local/research/post-jam-route-v1/post-jam-stairs2-summary.json": "1a6add0fedd0b0ae8e121b0b1b872d8d546e3593a92331e8b7c52cb013576029",
+        "local/research/post-jam-route-v1/post-jam-stairs2-interval.json": "b590f091072bf1a739bead1b4659b273da764af4dea9c1c1f5cdffebd284cd23",
+        "local/native-post-jam-stairs2-79655-release-v1.run.json": "b571a6facdbc8566d3c661aa1b8fe8abc436c674a06462ade45e0023be6e3471",
+        "local/native-post-jam-stairs2-79655-release-v1.directions": "d7955fe8c3e03ebf1e67ea07785d79a6ff3d504f087ef8ebfd48435c8b675bac",
+        "local/reference-field1d-post-jam-stairs2-60-v1.run.json": "2464ce6fdad0e7c6a4fcdb83dd90627eb9c001a6767f712edd8eafdf7c89abb1",
+        "local/reference-field1d-post-jam-stairs2-60-v1.input": "987f322a024086d72f90a4e22da0bdf1b695a826a100255ba69547d18c47959b"
+      }
+    },
+    {
+      "first_tick": 79656,
+      "last_tick": 79715,
+      "native": "local/native-post-jam-stairs3-79715-release-v1",
+      "reference": "local/reference-field1d-post-jam-stairs3-60-v1",
+      "observed_differing_frames": 0,
+      "missing_observation_frames": 0,
+      "controller_samples": 0,
+      "sha256": {
+        "local/research/post-jam-route-v1/post-jam-stairs3-result.json": "4894a359c7f8b41b37d10e10273e7874c6df98e9ed17e3849feaa539e396a344",
+        "local/research/post-jam-route-v1/post-jam-stairs3-summary.json": "e28026b135a80846fefefbbafe24dce7a778ea68a3003005605a20e332c339cc",
+        "local/research/post-jam-route-v1/post-jam-stairs3-interval.json": "b7a8d2555433f73390e570e8d983bf2c3c28adea510b3038ef1b1dc8d19d0434",
+        "local/native-post-jam-stairs3-79715-release-v1.run.json": "4891f11e4b850cc019524635ec8b31d27256db7bd54b926b5eb789bc792c6b67",
+        "local/native-post-jam-stairs3-79715-release-v1.directions": "de17fd0ab8a79af6bbe7f478df810d20477d07007614aa7a1c2e85c0f70e5a3a",
+        "local/reference-field1d-post-jam-stairs3-60-v1.run.json": "3fd45e226691a15bca96e0d0a0b281839da5f60482ccbbbf496deabacbfd4b51",
+        "local/reference-field1d-post-jam-stairs3-60-v1.input": "5c8b8bb0af9365ed855501101370d0a4c9e87ba23cae9e329b5a0208501dd55d"
+      }
+    },
+    {
+      "first_tick": 79716,
+      "last_tick": 79775,
+      "native": "local/native-post-jam-path-bend-79775-release-v1",
+      "reference": "local/reference-field1d-post-jam-path-bend-60-v1",
+      "observed_differing_frames": 0,
+      "missing_observation_frames": 0,
+      "controller_samples": 0,
+      "sha256": {
+        "local/research/post-jam-route-v1/post-jam-path-bend-result.json": "20434426899838924f6250d0f6a965af8d72acf2640854e002026560f0e2bee4",
+        "local/research/post-jam-route-v1/post-jam-path-bend-summary.json": "43bd6d7548ad9aca86281ac693ad42e49916d83de5727a095f13e93395363dcf",
+        "local/research/post-jam-route-v1/post-jam-path-bend-interval.json": "271c349041c3ef74e429060805b3375a8cbb28d492cb4fdb99b61559ad32da5f",
+        "local/native-post-jam-path-bend-79775-release-v1.run.json": "122af48e360e8fabfa324db651e62ea62eb7f73a682a7a5d8fbc905e93220500",
+        "local/native-post-jam-path-bend-79775-release-v1.directions": "db4809e0f4d2356abaae536848ab3e7e956efb80118bde15feabfd82aefd04f2",
+        "local/reference-field1d-post-jam-path-bend-60-v1.run.json": "61a75b0852d17db14a369eabfa8a8b6b85d6e6b9d0336baa3c5e975a6f15eb4f",
+        "local/reference-field1d-post-jam-path-bend-60-v1.input": "dd22f2266baccdbb844c2e71aeed6fecd2b62dcd6cb7bb97247c13a461c709ff"
+      }
+    },
+    {
+      "first_tick": 79776,
+      "last_tick": 79835,
+      "native": "local/native-post-jam-path-south-79835-release-v1",
+      "reference": "local/reference-field1d-post-jam-path-south-60-v1",
+      "observed_differing_frames": 0,
+      "missing_observation_frames": 0,
+      "controller_samples": 0,
+      "sha256": {
+        "local/research/post-jam-route-v1/post-jam-path-south-result.json": "408a8a33ac763ca9ca261bdbd9a8b48c3bd19c54498939cf54cfb1af959b642f",
+        "local/research/post-jam-route-v1/post-jam-path-south-summary.json": "de3973c312d5c47715c0b0a6d9eb67d2d711770ebc605d671607314f9a3d7e5d",
+        "local/research/post-jam-route-v1/post-jam-path-south-interval.json": "cef20379c476bdd4e45194bed5db8c1fe9116ba6df137e95c202037e35ae4c37",
+        "local/native-post-jam-path-south-79835-release-v1.run.json": "59e369f96443321df480ecfc4df656bde96df6e86434a30161e9e8080cadaef2",
+        "local/native-post-jam-path-south-79835-release-v1.directions": "621e8d273c55c2ea6f03e76fb27c87937f37a30c919da21d1fe0693adf8dd3de",
+        "local/reference-field1d-post-jam-path-south-60-v1.run.json": "2d425f6f4d518250f3cfec576c8c536ec5025f99b7d7abeb86a76715d5aac716",
+        "local/reference-field1d-post-jam-path-south-60-v1.input": "96822cb8c5ad6b31ea860e0bb9bf6556f9a76f373b2777c5bdd5de2ba31188c4"
+      }
+    },
+    {
+      "first_tick": 79836,
+      "last_tick": 79895,
+      "native": "local/native-post-jam-path-west-79895-release-v1",
+      "reference": "local/reference-field1d-post-jam-path-west-60-v1",
+      "observed_differing_frames": 0,
+      "missing_observation_frames": 0,
+      "controller_samples": 0,
+      "sha256": {
+        "local/research/post-jam-route-v1/post-jam-path-west-result.json": "186f457973b80435fad165ee8b60358bce04c8164aa1c532703660e22e67a7f6",
+        "local/research/post-jam-route-v1/post-jam-path-west-summary.json": "edd8a4f257aafdd43ca6838900a946b49979a0cd68bedfcd41c5cca3bb9a00aa",
+        "local/research/post-jam-route-v1/post-jam-path-west-interval.json": "e3cbdc014cae7a8eeb02faf59c433502959467523fef8c0bba2361ef0932f0a3",
+        "local/native-post-jam-path-west-79895-release-v1.run.json": "da6b5c364da0cdd6fddcba6f18e98971997f0d9e4972c5dbe5391458d4b2449e",
+        "local/native-post-jam-path-west-79895-release-v1.directions": "9b5e5410ab4e673544511222dca6f471fc5a1f502bdc48a91e4bed1a4dff5fcc",
+        "local/reference-field1d-post-jam-path-west-60-v1.run.json": "4b9152fa2e1563d0a12dea16c5ba95992d0c65bf582b7ff324ee0b822af6b7cf",
+        "local/reference-field1d-post-jam-path-west-60-v1.input": "9651408e4d03651386c84d83b6c011ae60804062317621a7cf0abcee7ee3e147"
+      }
+    },
+    {
+      "first_tick": 79896,
+      "last_tick": 79955,
+      "native": "local/native-post-jam-path-north-79955-release-v1",
+      "reference": "local/reference-field1d-post-jam-path-north-60-v1",
+      "observed_differing_frames": 0,
+      "missing_observation_frames": 0,
+      "controller_samples": 0,
+      "sha256": {
+        "local/research/post-jam-route-v1/post-jam-path-north-result.json": "20cc4840de9fc498286171d09594fbc8d4eb161f5c6ba694dfb1cd6051bc3baf",
+        "local/research/post-jam-route-v1/post-jam-path-north-summary.json": "bc19cacf473deab3db80cd569aefbf375c1eafce28a2f740afbc2a2e4d4c9044",
+        "local/research/post-jam-route-v1/post-jam-path-north-interval.json": "220c90bfe4c9eeebbaf06b5bff06c3edec9f3cb6163c5f011215269bb13c233d",
+        "local/native-post-jam-path-north-79955-release-v1.run.json": "269d75abe0828c02bb0eee87d91ec9a9b4092b8a3ca28a2935b91bf4e1ae03db",
+        "local/native-post-jam-path-north-79955-release-v1.directions": "ec4dda3e0a0d7545dcfb1fc7d0e01fed474bc844253711d0a4b3d1a2577cdab6",
+        "local/reference-field1d-post-jam-path-north-60-v1.run.json": "a26cf457fe4c33c4a0796dd2832369b1cc52d6e48d3907db2a20f9ddbc8a9a84",
+        "local/reference-field1d-post-jam-path-north-60-v1.input": "59f0be71321e48f6e9488bb2efc5bff0c4f5747c6a67bd9dd8853dc59dc0a6c3"
+      }
+    },
+    {
+      "first_tick": 79956,
+      "last_tick": 80015,
+      "native": "local/native-post-jam-path-upper-80015-release-v1",
+      "reference": "local/reference-field1d-post-jam-path-upper-60-v1",
+      "observed_differing_frames": 0,
+      "missing_observation_frames": 0,
+      "controller_samples": 0,
+      "sha256": {
+        "local/research/post-jam-route-v1/post-jam-path-upper-result.json": "aa586c231323bb4919cf57924439d42c05f2fe410eebc010cb7ccad019555f34",
+        "local/research/post-jam-route-v1/post-jam-path-upper-summary.json": "45ad672a88a9c82717927f0096d186814fe5af04c299ba747ae522aed59dc83b",
+        "local/research/post-jam-route-v1/post-jam-path-upper-interval.json": "086ade7f42383b663c419bbead129efec4b776c0a84b20a87a65c2a1a76e2aa5",
+        "local/native-post-jam-path-upper-80015-release-v1.run.json": "d92fff772143bb5e01b8fcb17918d105d4e2218b3c9f20cd711a983ee963bbfb",
+        "local/native-post-jam-path-upper-80015-release-v1.directions": "0f89380b4a58135c91630c0713e990820b6a9da8c8ad20ab3347adcb48af23f1",
+        "local/reference-field1d-post-jam-path-upper-60-v1.run.json": "970bcc08ebdfcbcdd83f718a32095a5c9cecd1c94b34bf1bdb937cc575a424b2",
+        "local/reference-field1d-post-jam-path-upper-60-v1.input": "fa4c587fcf0eebd57d200275aadc24936478244ae442169ac13a7c85bd3a062e"
+      }
+    },
+    {
+      "first_tick": 80016,
+      "last_tick": 80105,
+      "native": "local/native-post-jam-house-gate-80105-release-v1",
+      "reference": "local/reference-field1d-post-jam-house-gate-90-v1",
+      "observed_differing_frames": 0,
+      "missing_observation_frames": 0,
+      "controller_samples": 0,
+      "sha256": {
+        "local/research/post-jam-route-v1/post-jam-house-gate-result.json": "c4e429a581925f5414d1be325e2b4473b2ca69d3dfc0ef46f8ee5792a5abc7a7",
+        "local/research/post-jam-route-v1/post-jam-house-gate-summary.json": "172bfc5ffb8feee275097da93d51a31cb10191999b8bc3fb5c9e87885ccee48e",
+        "local/research/post-jam-route-v1/post-jam-house-gate-interval.json": "855cbdbc5e73c10018562be9a3c87032b913017776d18b10d8f80cb8d5ff2bf9",
+        "local/native-post-jam-house-gate-80105-release-v1.run.json": "373c213b46c4493d60d5c7cfe283bf73ddae97535d86dcd83c20fd28610d85e6",
+        "local/native-post-jam-house-gate-80105-release-v1.directions": "3fd86c68096c024d8a09c8b509359242e03b03de3c22615560259368b045eaa6",
+        "local/reference-field1d-post-jam-house-gate-90-v1.run.json": "2207eee2f8b0ec0f778cc4c48827415ee27425fae2763e5091b1e2b68122136c",
+        "local/reference-field1d-post-jam-house-gate-90-v1.input": "90fcd48537c94f73343da7615a73f27e659a20cce9c5f5f870504a3409ddceea"
+      }
+    },
+    {
+      "first_tick": 80106,
+      "last_tick": 80195,
+      "native": "local/native-post-jam-gate-west-80195-release-v1",
+      "reference": "local/reference-field1d-post-jam-gate-west-90-v1",
+      "observed_differing_frames": 0,
+      "missing_observation_frames": 0,
+      "controller_samples": 0,
+      "sha256": {
+        "local/research/post-jam-route-v1/post-jam-gate-west-result.json": "8ec73df60f3bd2bdf9d3ff36d1c6e01e8aa5ccea8fcdf51c46eb0faabc23b3fb",
+        "local/research/post-jam-route-v1/post-jam-gate-west-summary.json": "3060a51e3b2fc65286938b00587f05820d3608af9c644f76079d863175a3a57e",
+        "local/research/post-jam-route-v1/post-jam-gate-west-interval.json": "eedad1361394e94946099b2b75472c6c141674bb54b2b95d4281c0308bb92d09",
+        "local/native-post-jam-gate-west-80195-release-v1.run.json": "67219403366f82aa63e0854ba2d1c0e0482779215a998a65b0bba9fb2a4dea1c",
+        "local/native-post-jam-gate-west-80195-release-v1.directions": "9c7a3ae25cffface853bd2bf76cc9433210ea70c053fe51f0b4ebaf6b4a3190b",
+        "local/reference-field1d-post-jam-gate-west-90-v1.run.json": "ca5130ff4a400692b87d84707ef0bf6225a9399ef1d41148ad20eb2ecb4c72c4",
+        "local/reference-field1d-post-jam-gate-west-90-v1.input": "53fef1356aab25d0cd1dbec552db1f2802bc5a1d90c4b9ad83286df5affa8057"
+      }
+    },
+    {
+      "first_tick": 80196,
+      "last_tick": 80285,
+      "native": "local/native-post-jam-village-slope-80285-release-v1",
+      "reference": "local/reference-field1d-post-jam-village-slope-90-v1",
+      "observed_differing_frames": 0,
+      "missing_observation_frames": 0,
+      "controller_samples": 0,
+      "sha256": {
+        "local/research/post-jam-route-v1/post-jam-village-slope-result.json": "528ddc5db472cad6ffc91ababcc817206074ec39f7898d87c083b7b170697243",
+        "local/research/post-jam-route-v1/post-jam-village-slope-summary.json": "c856fecd697b6c4d9c3d0cbcd77f2e9076d3f7ab42cf1f2fbd1c9b24110bb138",
+        "local/research/post-jam-route-v1/post-jam-village-slope-interval.json": "2335407c13779494bfb154820c6b0ae04eae844edb513b6929a72a90df0a180e",
+        "local/native-post-jam-village-slope-80285-release-v1.run.json": "91b03b87bca75b4e1e41abe6920518cdccd350f5f81b473aded3099c43e23a45",
+        "local/native-post-jam-village-slope-80285-release-v1.directions": "2f8d1515ddc8ad376746ea0ca17ca127c42425a937b76f48299a14c8ade26244",
+        "local/reference-field1d-post-jam-village-slope-90-v1.run.json": "53dca4427cc870a544ee9a2b69eb11cecf3ee3108a1fd9d6d5bc5efa811cb97b",
+        "local/reference-field1d-post-jam-village-slope-90-v1.input": "159eca749f74575ae552c9f76adbed28fc16c2dc9401697aff17a911787d436f"
+      }
+    },
+    {
+      "first_tick": 80286,
+      "last_tick": 80375,
+      "native": "local/native-post-jam-village-slope2-80375-release-v1",
+      "reference": "local/reference-field1d-post-jam-village-slope2-90-v1",
+      "observed_differing_frames": 0,
+      "missing_observation_frames": 0,
+      "controller_samples": 0,
+      "sha256": {
+        "local/research/post-jam-route-v1/post-jam-village-slope2-result.json": "972cd8e85da59fa732a1b4412a7c235911575d3e4556bed6a588ac1d5b88b5d5",
+        "local/research/post-jam-route-v1/post-jam-village-slope2-summary.json": "d10225c3be57e45f6ee7cf19c476d2484988e97cad067616d57ac5904d3785ad",
+        "local/research/post-jam-route-v1/post-jam-village-slope2-interval.json": "3151b8206097c2acdc35e4abcf59e04b4828a4bdb9af6e525780ac0fd02ba30e",
+        "local/native-post-jam-village-slope2-80375-release-v1.run.json": "fd75513cf85ff203579b5c2151914ac1d0a2c15ad025090bb736a70aeb77830b",
+        "local/native-post-jam-village-slope2-80375-release-v1.directions": "67c46667a275d34633e98681cc619682549529d445e742b5f5d720dab0d91972",
+        "local/reference-field1d-post-jam-village-slope2-90-v1.run.json": "ddfa74516bfc7579956fcaaa6589da550eccf2d67cd59da55d0a7278014c65c8",
+        "local/reference-field1d-post-jam-village-slope2-90-v1.input": "ddbf9eb4a9fbd2802b22409e2722b3fb3e0abd4a9ddaea24e089f13fb716c0e4"
+      }
+    },
+    {
+      "first_tick": 80376,
+      "last_tick": 80495,
+      "native": "local/native-post-jam-village-lane-80495-release-v1",
+      "reference": "local/reference-field1d-post-jam-village-lane-120-v1",
+      "observed_differing_frames": 0,
+      "missing_observation_frames": 0,
+      "controller_samples": 0,
+      "sha256": {
+        "local/research/post-jam-route-v1/post-jam-village-lane-result.json": "728094ac81661136ec56f4bb61a375265aa7cb6be91167204880a99433309355",
+        "local/research/post-jam-route-v1/post-jam-village-lane-summary.json": "8d5b3473d377a3435335d6d387172b63c5a9dca2e09719993c1bfe62742a86d9",
+        "local/research/post-jam-route-v1/post-jam-village-lane-interval.json": "8987b6617757d937891eaf0809bead667153214d35b342606542f646cc2de2c7",
+        "local/native-post-jam-village-lane-80495-release-v1.run.json": "7f311bde47dbadcf03514fa886f3bc047bc7170281ac9b8fce545c67628f2938",
+        "local/native-post-jam-village-lane-80495-release-v1.directions": "8c66fced436a991f513aa3bc188e1a86c95c4189f2f6cc9be2be5b6afa0d5f47",
+        "local/reference-field1d-post-jam-village-lane-120-v1.run.json": "f7983f05599715d987beac2b400ccb7c13261cd75a1102443352cd8922f3dc29",
+        "local/reference-field1d-post-jam-village-lane-120-v1.input": "17e59bd70b7f3e00b985ac489345911e4180295ac4316c8c556974a387f179ef"
+      }
+    },
+    {
+      "first_tick": 80496,
+      "last_tick": 80615,
+      "native": "local/native-post-jam-village-west-80615-release-v1",
+      "reference": "local/reference-field1d-post-jam-village-west-120-v1",
+      "observed_differing_frames": 0,
+      "missing_observation_frames": 0,
+      "controller_samples": 0,
+      "sha256": {
+        "local/research/post-jam-route-v1/post-jam-village-west-result.json": "ac628feda56e7f932635238069e85ad572e20a6b674b9e3e6a2d5c8533be5047",
+        "local/research/post-jam-route-v1/post-jam-village-west-summary.json": "327854b865eb590491ed36b2642657181ef9835985b7ca007bd1e7135a7f1c43",
+        "local/research/post-jam-route-v1/post-jam-village-west-interval.json": "977aa43c3fa8957dba61e7b4ea7fb0d96172097687a7ac7ea098d319735336ff",
+        "local/native-post-jam-village-west-80615-release-v1.run.json": "32b58f1b7e3b0a74a47958885100cfd7dd1b87195efe20fac014114ee607c983",
+        "local/native-post-jam-village-west-80615-release-v1.directions": "eaa4cb091c401343bbc6792eb7461d3aa91fa50c95bf081b7aaf06b00862a4e5",
+        "local/reference-field1d-post-jam-village-west-120-v1.run.json": "fcf3de7d42c3fbee06ef6e7ebb7bbf8537c6bdb7cf22e659975fd206c9c237ec",
+        "local/reference-field1d-post-jam-village-west-120-v1.input": "a842dfbe93f18636104c6dead59171a616d8c2e5cf37aae06c1a9e0a23438935"
+      }
+    },
+    {
+      "first_tick": 80616,
+      "last_tick": 80705,
+      "native": "local/native-post-jam-fata-approach-80705-release-v1",
+      "reference": "local/reference-field1d-post-jam-fata-approach-90-v1",
+      "observed_differing_frames": 0,
+      "missing_observation_frames": 0,
+      "controller_samples": 0,
+      "sha256": {
+        "local/research/post-jam-route-v1/post-jam-fata-approach-result.json": "254bcf0c9eb5a23f4f6b8e662ab6978ca1ea36e7ccf66dfed1dcf61e3db5ea0c",
+        "local/research/post-jam-route-v1/post-jam-fata-approach-summary.json": "639f10b5d104197673dd9d25c55dc4f69c68618f364308de000b69f06fffa82e",
+        "local/research/post-jam-route-v1/post-jam-fata-approach-interval.json": "d1fdc074cc6a9515276ca6af159be8ac4a177c09854073090b6647bc895a060b",
+        "local/native-post-jam-fata-approach-80705-release-v1.run.json": "5620e44ed84e06c7a2486d07937708c6801504bd70b153c2640a6a2c741a5f5d",
+        "local/native-post-jam-fata-approach-80705-release-v1.directions": "ea7c51ebcc38ef7c45df89b34c9ebc0a30bab3ce12faf92486c87d4a70ee45b4",
+        "local/reference-field1d-post-jam-fata-approach-90-v1.run.json": "4baf92c850c62fd2dbeeb327654f352de769603f8647a33855255b5c16a94a75",
+        "local/reference-field1d-post-jam-fata-approach-90-v1.input": "159eca749f74575ae552c9f76adbed28fc16c2dc9401697aff17a911787d436f"
+      }
+    },
+    {
+      "first_tick": 80706,
+      "last_tick": 80795,
+      "native": "local/native-post-jam-fata-near-80795-release-v1",
+      "reference": "local/reference-field1d-post-jam-fata-near-90-v1",
+      "observed_differing_frames": 0,
+      "missing_observation_frames": 0,
+      "controller_samples": 0,
+      "sha256": {
+        "local/research/post-jam-route-v1/post-jam-fata-near-result.json": "e1cb9be96d9dd02a6852102813e85a3be7f52bc714e4fa62c11d26e578e082bf",
+        "local/research/post-jam-route-v1/post-jam-fata-near-summary.json": "4708955951d33ac9593f7a21c64a2b1777ee29cc46ad684adfbfd7c050d15c9a",
+        "local/research/post-jam-route-v1/post-jam-fata-near-interval.json": "24146c9ddd965e46e5333af47fbc2f2bf76ddc0127c3c9e9a9eadcd789dff7c5",
+        "local/native-post-jam-fata-near-80795-release-v1.run.json": "55ab14dd10921691e2440d43e2dfc457fd2707cb8a354f47f6852ce5db9966df",
+        "local/native-post-jam-fata-near-80795-release-v1.directions": "054a445b51cb9d32d7f142d0a0060fd88b1ab1a56412cb4157170f21a42ab4bc",
+        "local/reference-field1d-post-jam-fata-near-90-v1.run.json": "4b832ee9b7156d581e8c26e75c389a8ee455614b037380c19056919887341803",
+        "local/reference-field1d-post-jam-fata-near-90-v1.input": "13f999c744342f80b43aa6070ad3fe39eceda03705a24de5e599077a122d42e3"
+      }
+    },
+    {
+      "first_tick": 80796,
+      "last_tick": 81035,
+      "native": "local/native-post-jam-fata-talk-81035-release-v1",
+      "reference": "local/reference-field1d-post-jam-fata-talk-240-v1",
+      "observed_differing_frames": 0,
+      "missing_observation_frames": 0,
+      "controller_samples": 205,
+      "sha256": {
+        "local/research/post-jam-route-v1/post-jam-fata-talk-result.json": "3c966202e5ac9cd7e4345c106d0d95eea67f2db27bde5cc75ffd1168b2d770e3",
+        "local/research/post-jam-route-v1/post-jam-fata-talk-summary.json": "b2e7268e94e1ab06275e87946da8311a3cca09c14ee89809095d19cbcd61a049",
+        "local/research/post-jam-route-v1/post-jam-fata-talk-interval.json": "655b05796e1f928c1e022054fe8abacd03b15db5d88c48ea9d33e85eda340f78",
+        "local/native-post-jam-fata-talk-81035-release-v1.run.json": "10ac7b247221d566eb229e8cb0c7094cc35bd9e3d1aecff2ca1a912bb61c128e",
+        "local/native-post-jam-fata-talk-81035-release-v1.directions": "e6433ee7d2593152ef35288f3851b95b61a2a2b7e5fcb47bce40914f13ff17ac",
+        "local/reference-field1d-post-jam-fata-talk-240-v1.run.json": "b585ab24269d731135eeccc55ac76fd4da0786fc8ed991ab95e3cd97b3856f26",
+        "local/reference-field1d-post-jam-fata-talk-240-v1.input": "54efc6963e7f545fd6c2f0b1cc45f21289cce3d5ba936faa65a8be94f6462fa5"
+      }
+    },
+    {
+      "first_tick": 81036,
+      "last_tick": 81635,
+      "native": "local/native-post-jam-fata-introduction-81635-release-v1",
+      "reference": "local/reference-field1d-post-jam-fata-introduction-600-v1",
+      "observed_differing_frames": 0,
+      "missing_observation_frames": 0,
+      "controller_samples": 600,
+      "sha256": {
+        "local/research/post-jam-route-v1/post-jam-fata-introduction-result.json": "ae123d1273ab6f015c6b99b937f08045194422e920496a59388f6bc3aa43199e",
+        "local/research/post-jam-route-v1/post-jam-fata-introduction-summary.json": "f68b64f297feb0f46c7e0c670d0c338c23d3b9bbd4677f74a1954e473ca31a50",
+        "local/research/post-jam-route-v1/post-jam-fata-introduction-interval.json": "30ba9a56815ad3ff79ae555a192e12153f55a76c5a474a9a496cc8b79ba5f26d",
+        "local/native-post-jam-fata-introduction-81635-release-v1.run.json": "5c0698efd4c00905d848defa2ad480941c951ec9af4b4b54b853ce00a57b0367",
+        "local/native-post-jam-fata-introduction-81635-release-v1.directions": "e6433ee7d2593152ef35288f3851b95b61a2a2b7e5fcb47bce40914f13ff17ac",
+        "local/reference-field1d-post-jam-fata-introduction-600-v1.run.json": "0e476fc0e9f99f0bed9d03f8ffa490a6c3ea10c014ef04883c85fd4d96e30cc5",
+        "local/reference-field1d-post-jam-fata-introduction-600-v1.input": "5bd86aa1d4694f255231120f7fc1ea731d15f81e12a0e28cf0b5555d91ef27e6"
+      }
+    },
+    {
+      "first_tick": 81636,
+      "last_tick": 81875,
+      "native": "local/native-post-jam-fata-finish-81875-release-v1",
+      "reference": "local/reference-field1d-post-jam-fata-finish-240-v1",
+      "observed_differing_frames": 0,
+      "missing_observation_frames": 0,
+      "controller_samples": 41,
+      "sha256": {
+        "local/research/post-jam-route-v1/post-jam-fata-finish-result.json": "d79d343bcc47c1a03ae26a628002f09bd70374174af151711072c22d4a912946",
+        "local/research/post-jam-route-v1/post-jam-fata-finish-summary.json": "8b6da4696a985de403e10aa898f51ab2fa37e2ff5ce8dec942f89412c2d4e4de",
+        "local/research/post-jam-route-v1/post-jam-fata-finish-interval.json": "221c623647dcede47f3d22d50a13a1231461ecdff8a1e95a66ca50fe9bb187a3",
+        "local/native-post-jam-fata-finish-81875-release-v1.run.json": "81fecaf369ca3184c325e48cc0a8ebfb9f97123f2681445d4500c20a71523794",
+        "local/native-post-jam-fata-finish-81875-release-v1.directions": "e6433ee7d2593152ef35288f3851b95b61a2a2b7e5fcb47bce40914f13ff17ac",
+        "local/reference-field1d-post-jam-fata-finish-240-v1.run.json": "1c5e128e880a4a1817e1da955d6064f13de71b13c95aef799f09416703f4c2d3",
+        "local/reference-field1d-post-jam-fata-finish-240-v1.input": "bdddfbfa712118d34baab8a3ba2b5326dbd2813a4621679f5f3c2a3a97f1321c"
+      }
+    }
+  ],
+  "limitations": [
+    "State audit compares manager/input/HERO/camera plus available dialogue observations; not every variable or actor.",
+    "Source-rate audio remains unaligned; native scenery darker and minimap absent.",
+    "Earlier fixed-anchor loading/dialogue/camera failures remain unresolved.",
+    "Release route only; focused cross-build renderer tests are separate."
+  ]
+}
