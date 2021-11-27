@@ -17,7 +17,8 @@ struct PerformanceDistribution {
     std::string json() const;
 };
 
-enum class PerformanceEnd {pause,window_close,application_terminate,runtime_error};
+enum class PerformanceEnd {pause,window_close,application_terminate,runtime_error,test_complete};
+struct PerformanceTestRange {std::uint64_t start_frame,end_frame;};
 
 class PerformanceInterval {
 public:
@@ -49,7 +50,8 @@ private:
 
 class LivePerformance {
 public:
-    explicit LivePerformance(const std::filesystem::path& path);
+    explicit LivePerformance(const std::filesystem::path& path,
+                             std::optional<PerformanceTestRange> test_range={});
     ~LivePerformance();
     LivePerformance(const LivePerformance&)=delete;
     LivePerformance& operator=(const LivePerformance&)=delete;
@@ -59,5 +61,6 @@ private:
     void append(const std::string& line);
     int descriptor_=-1;
     std::uint64_t intervals_=0;
+    std::optional<PerformanceTestRange> test_range_;
 };
 }

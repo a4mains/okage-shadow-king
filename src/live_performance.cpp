@@ -24,6 +24,7 @@ const char* reason_name(PerformanceEnd reason) {
         case PerformanceEnd::window_close:return "window_close";
         case PerformanceEnd::application_terminate:return "application_terminate";
         case PerformanceEnd::runtime_error:return "runtime_error";
+        case PerformanceEnd::test_complete:return "test_complete";
     }
     throw std::runtime_error("Invalid performance interval end reason");
 }
@@ -101,6 +102,8 @@ void PerformanceInterval::draw(double now) {
 std::string PerformanceInterval::finish(double now,std::uint64_t frame,PerformanceEnd reason,std::uint64_t index) {
     require(!update_open_,"Cannot finish performance interval during update");observe(now);
     require(frame>=first_frame_&&frame-first_frame_>=ticks_,"Inconsistent performance frame counter");
+    if(reason==PerformanceEnd::test_complete)
+        require(frame-first_frame_==ticks_,"Incomplete bounded test tick accounting");
     const double elapsed=now-start_;auto out=json_stream();
     out<<"{\"type\":\"interval\",\"schema_version\":2,\"interval\":"<<index
        <<",\"end_reason\":\""<<reason_name(reason)<<"\",\"monotonic_start_s\":"<<start_
@@ -138,20 +141,26 @@ std::string PerformanceInterval::finish(double now,std::uint64_t frame,Performan
        <<",\"audio_ring_samples\":"<<audio_ring_samples_.json()<<"}\n";
     active_=false;return out.str();
 }
-LivePerformance::LivePerformance(const std::filesystem::path& path) {
+LivePerformance::LivePerformance(const std::filesystem::path& path,
+        std::optional<PerformanceTestRange> test_range):test_range_(test_range) {
+    if(test_range_)require(test_range_->end_frame>test_range_->start_frame,"Invalid performance test range");
     descriptor_=::open(path.c_str(),O_WRONLY|O_CREAT|O_EXCL|O_CLOEXEC,0600);
     if(descriptor_<0)throw std::runtime_error(std::string("Performance report requires a fresh writable path: ")+std::strerror(errno));
     try {
         auto out=json_stream();
         out<<"{\"type\":\"metadata\",\"schema_version\":2,\"clock\":\"NSProcessInfo.systemUptime monotonic seconds\","
               "\"scope\":\"Interactive running intervals only; wall timings, not CPU or GPU timings. AppKit draw callbacks are not compositor presentations or presented FPS.\","
-              "\"boundaries\":\"Resume callback entry through pause callback entry; initial live start is after window activation. Pause callback work and report flush are excluded. Resume audio setup and refresh are included. Cap discard includes the last running gap at pause.\","
+              "\"boundaries\":\"Resume callback entry through pause callback entry; initial live start is after window activation. Pause callback work and report flush are excluded. Resume audio setup and refresh are included. Cap discard includes the last running gap at pause. Automatic test_complete ends after the final ordinary refresh/update timing, before report flush, endpoint artifacts and forced view capture.\","
               "\"counts\":\"Ticks count completed Session::tick calls. Rendered ticks have a current-frame rendered surface after that call. Failed tick work is included only in update_wall; frame-counter mismatch is reported. Gaps are between callbacks within an interval.\","
               "\"timings\":\"update_wall includes tick and refresh wall times; distributions overlap. Histogram bins have inclusive upper bounds; final bin is overflow. No per-frame samples retained.\","
               "\"scheduler\":\"One whole tick per live update; admitted debt survives yields until pause. Accumulator samples follow admission and work, exclude wall elapsed since the latest timer entry, and precede pause reset. Accounting assumes zero starting debt.\","
               "\"audio\":\"Each interval owns a fresh AudioOutput. Independently sampled counters include startup fills and attempted enqueues, not device playback. Ring occupancy excludes queued device buffers; samples do not observe exact callback-time minima.\","
-              "\"persistence\":\"Only finished intervals are written. Abrupt termination can leave the final interval absent.\","
-              "\"histogram_upper_ms\":[";
+              "\"persistence\":\"Only finished intervals are written. Abrupt termination can leave the final interval absent.\",";
+        if(test_range_)out<<"\"bounded_ui_test\":true,\"headless_prelude_end_frame\":"<<test_range_->start_frame
+            <<",\"ui_test_end_frame\":"<<test_range_->end_frame
+            <<",\"ui_test_target_ticks\":"<<test_range_->end_frame-test_range_->start_frame
+            <<",\"ui_test_handoff\":\"The actual Session starts at tick zero or continues after owned-asset headless replay; timer updates deliver subsequent input through AppKit key events. Held directions continue without historical keyDown fabrication. Forced final view capture is excluded from interval counters and is not presented-FPS evidence.\",";
+        out<<"\"histogram_upper_ms\":[";
         for(std::size_t i=0;i<PerformanceDistribution::upper_ms.size();++i)
             out<<(i?",":"")<<PerformanceDistribution::upper_ms[i];
         out<<",null]}\n";append(out.str());
@@ -169,6 +178,8 @@ void LivePerformance::append(const std::string& line) {
     if(::fsync(descriptor_))throw output_error();
 }
 void LivePerformance::finish(double now,std::uint64_t frame,PerformanceEnd reason) {
+    if(reason==PerformanceEnd::test_complete && test_range_)
+        require(frame==test_range_->end_frame,"Bounded UI test ended at the wrong frame");
     if(interval.active())append(interval.finish(now,frame,reason,++intervals_));
 }
 }

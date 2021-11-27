@@ -1,6 +1,7 @@
 #include "okage/live_performance.hpp"
 #include "okage/live_scheduler.hpp"
 #include "okage/audio_ring.hpp"
+#include "okage/native_run.hpp"
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
@@ -204,13 +205,87 @@ void output_checks(const fs::path& directory) {
     rejects([&]{okage::LivePerformance invalid(link);});check(fs::is_symlink(link));
     rejects([&]{okage::LivePerformance invalid(directory/"missing-parent"/"report.jsonl");});
 }
+void run_plan_checks(const fs::path& directory) {
+    const auto capture=directory/"end.png";
+    const auto plain=okage::native_run_plan(0,0,0,{},100);
+    check(!plain.starts_paused&&!plain.bounded_handoff&&plain.replay_frames==0);
+    const auto headless=okage::native_run_plan(20,0,0,capture,100);
+    check(headless.replay_frames==20&&headless.replay_capture==capture&&headless.live_capture.empty());
+    const auto preview=okage::native_run_plan(0,20,0,capture,100);
+    check(preview.starts_paused&&!preview.bounded_handoff&&preview.replay_capture==capture);
+    const auto ui=okage::native_run_plan(0,0,40,capture,100);
+    check(ui.replay_frames==0&&!ui.starts_paused&&ui.live_capture==capture);
+    const auto combined=okage::native_run_plan(0,20,40,capture,100);
+    check(combined.replay_frames==20&&!combined.starts_paused&&combined.bounded_handoff);
+    check(combined.replay_capture==fs::path(capture.string()+".preview.png")&&combined.live_capture==capture);
+    const std::array<unsigned,2> prelude_ticks{1,20},live_ticks{1,21};
+    okage::validate_native_capture_selection(combined,prelude_ticks);
+    rejects([&]{okage::validate_native_capture_selection(combined,live_ticks);});
+    rejects([&]{okage::validate_native_capture_selection(ui,prelude_ticks);});
+    rejects([&]{okage::validate_native_capture_selection(okage::native_run_plan(0,20,0,{},100),prelude_ticks);});
+    okage::validate_native_capture_selection(plain,{});
+    for(unsigned end:{1u,19u,20u,101u})rejects([&]{okage::native_run_plan(0,20,end,capture,100);});
+    rejects([&]{okage::native_run_plan(1,20,40,capture,100);});
+    rejects([&]{okage::native_run_plan(1,0,40,capture,100);});
+    rejects([&]{okage::native_run_plan(1,20,0,capture,100);});
+    rejects([&]{okage::native_run_plan(101,0,0,capture,100);});
+    rejects([&]{okage::native_run_plan(0,101,0,capture,100);});
+    rejects([&]{okage::native_run_plan(0,20,40,{},100);});
+    rejects([&]{okage::native_run_plan(0,0,40,{},100);});
+    check(okage::native_run_plan(0,99,100,capture,100).bounded_handoff);
+    okage::require_fresh_native_capture_family(capture);
+    rejects([&]{okage::require_fresh_native_capture_family(directory/"absent"/"end.png");});
+    const auto blocked_parent=directory/"not-a-directory";
+    {std::ofstream out(blocked_parent);out<<"retained";}
+    rejects([&]{okage::require_fresh_native_capture_family(blocked_parent/"end.png");});
+    check(lines(blocked_parent)==std::vector<std::string>{"retained"});fs::remove(blocked_parent);
+    for(const auto& name:{"end.png","end.png.preview.png","end.png.audio.wav","end.png.frames/tick-1.png"})
+        check(okage::native_capture_family_contains(capture,directory/name));
+    check(!okage::native_capture_family_contains(capture,directory/"end.performance.jsonl"));
+    check(!okage::native_capture_family_contains(capture,directory/"other"/"end.png"));
+    const auto sidecar=directory/"end.png.preview.png.json";
+    {std::ofstream out(sidecar);out<<"retained";}
+    rejects([&]{okage::require_fresh_native_capture_family(capture);});
+    check(lines(sidecar)==std::vector<std::string>{"retained"});fs::remove(sidecar);
+    fs::create_directory(directory/"end.png.frames");
+    rejects([&]{okage::require_fresh_native_capture_family(capture);});fs::remove(directory/"end.png.frames");
+    fs::create_symlink(directory/"missing",capture);
+    rejects([&]{okage::require_fresh_native_capture_family(capture);});check(fs::is_symlink(capture));fs::remove(capture);
+    okage::require_fresh_native_capture_family(capture);
+}
+void bounded_interval_checks(const fs::path& directory) {
+    const auto path=directory/"bounded.jsonl";
+    rejects([&]{okage::LivePerformance invalid(path,okage::PerformanceTestRange{20,20});});
+    check(!fs::exists(path));
+    okage::LivePerformance report(path,okage::PerformanceTestRange{20,22});
+    const auto metadata=lines(path).at(0);
+    check(metadata.find("\"bounded_ui_test\":true")!=metadata.npos);
+    check(number(metadata,"headless_prelude_end_frame")==20&&number(metadata,"ui_test_target_ticks")==2);
+    report.interval.begin(10,20);
+    for(unsigned i=0;i<2;++i) {
+        const double now=10+i*.125;
+        report.interval.update_begin(now,0);report.interval.tick(now,now+.03125,true);
+        report.interval.refresh(now+.03125,now+.0625);report.interval.update_end(now+.0625);
+    }
+    rejects([&]{report.finish(10.25,21,okage::PerformanceEnd::test_complete);});
+    report.finish(10.25,22,okage::PerformanceEnd::test_complete);
+    const auto completed=lines(path);check(completed.size()==2);
+    check(completed[1].find("\"end_reason\":\"test_complete\"")!=completed[1].npos);
+    check(number(completed[1],"completed_simulation_ticks")==2&&number(completed[1],"frame_counter_delta")==2);
+    check(number(completed[1],"update_callbacks")==2&&number(completed[1],"wall_duration_s")==.25);
+    rejects([&]{report.interval.draw(99);});
+    report.finish(100,22,okage::PerformanceEnd::application_terminate);
+    check(lines(path)==completed);
+    okage::PerformanceInterval missed;missed.begin(1,20);
+    rejects([&]{missed.finish(2,22,okage::PerformanceEnd::test_complete,1);});
+}
 int main() {
     fs::path directory;
     try {
         interval_checks();distribution_checks();scheduler_checks();audio_ring_checks();scheduler_audio_interval_checks();
         auto pattern=(fs::temp_directory_path()/"okage-performance-XXXXXX").string();
         const auto created=::mkdtemp(pattern.data());check(created);directory=created;
-        output_checks(directory);fs::remove_all(directory);
+        output_checks(directory);run_plan_checks(directory);bounded_interval_checks(directory);fs::remove_all(directory);
         std::cout<<"Live fairness/debt, PCM ring ordering/starvation/overflow, interval counters and exclusive reports passed\n";
     }catch(const std::exception& e) {
         if(!directory.empty())fs::remove_all(directory);

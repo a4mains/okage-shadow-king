@@ -8,6 +8,7 @@
 #include "okage/scene_renderer.hpp"
 #include "okage/map_objects.hpp"
 #include "okage/live_performance.hpp"
+#include "okage/native_run.hpp"
 #include "okage/live_scheduler.hpp"
 #include <bit>
 #include <algorithm>
@@ -827,6 +828,7 @@ static void capture(const Session& session,const fs::path& path) {
     if(session->music&&!paused)session->audio_output=std::make_unique<okage::AudioOutput>();
     self.view=[[NativeTextView alloc] initWithFrame:self.window.contentView.bounds];self.view.autoresizingMask=NSViewWidthSizable|NSViewHeightSizable;
     self.view->performance=performance.get();
+    self.view.held=replayDirections;
     self.view.fieldPresentation=bool(session->field);
     self.window.contentView=self.view;[self.window center];[self.window makeKeyAndOrderFront:nil];[self.window makeFirstResponder:self.view];
     [NSApp activateIgnoringOtherApps:YES];self.previousTime=NSProcessInfo.processInfo.systemUptime;
@@ -925,7 +927,12 @@ static void capture(const Session& session,const fs::path& path) {
         [self refreshImage];
         if(measured){performance->interval.update_end(NSProcessInfo.processInfo.systemUptime);measured=false;}
         if(testFrames && session->frame==testFrames) {
-            [self.timer invalidate];capture(*session,testCapture);
+            [self.timer invalidate];
+            if(performance) {
+                if(session->audio_output)performance->interval.audio_sample(session->audio_output->stats());
+                performance->finish(NSProcessInfo.processInfo.systemUptime,session->frame,okage::PerformanceEnd::test_complete);
+            }
+            capture(*session,testCapture);
             [self.view display];
             NSBitmapImageRep* rep=[self.view bitmapImageRepForCachingDisplayInRect:self.view.bounds];
             [self.view cacheDisplayInRect:self.view.bounds toBitmapImageRep:rep];
@@ -975,7 +982,7 @@ static void capture(const Session& session,const fs::path& path) {
 @end
 int main(int argc,const char** argv) {
     @autoreleasepool {try {
-        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames N | --preview-at N] [--press FRAME,FRAME --directions INPUT --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--performance-report FRESH.jsonl (interactive/preview only)]");
+        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--performance-report FRESH.jsonl (interactive/preview/UI test)]");
         unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         std::optional<fs::path> performancePath;
         for(int i=3;i<argc;++i) {
@@ -1025,17 +1032,22 @@ int main(int argc,const char** argv) {
         if(!soundDirectory.empty() && musicSequence.empty())throw std::runtime_error("Sound directory requires native music setup");
         if(effectData.empty()!=effectTextures.empty()||(!effectData.empty()&&map.empty()))throw std::runtime_error("Effects require data, texture directory and scene");
         if(map.empty()!=event.empty() || (!actors.empty() && map.empty()))throw std::runtime_error("Scene requires both map and event assets");
-        if(frames>diagnosticFrameLimit || uiFrames>diagnosticFrameLimit || previewAt>diagnosticFrameLimit || (bool(frames)+bool(uiFrames)+bool(previewAt)>1) || (uiFrames && output.empty()))throw std::runtime_error("Native diagnostic frame/capture bounds");
-        const auto replayFrames=frames?frames:previewAt;
-        if(!captureFrames.empty()&&(!replayFrames||output.empty()||captureFrames.back()>replayFrames))
-            throw std::runtime_error("Native selected captures require an output and ticks within a replay");
+        const auto runPlan=okage::native_run_plan(frames,previewAt,uiFrames,output,diagnosticFrameLimit);
+        const auto replayFrames=runPlan.replay_frames;
+        okage::validate_native_capture_selection(runPlan,captureFrames);
         if(renderFrom&&(!replayFrames||renderFrom>replayFrames))throw std::runtime_error("Render start requires a replay frame within the capture");
         if(renderUntil&&(!renderFrom||renderUntil<renderFrom||renderUntil>replayFrames))
             throw std::runtime_error("Render end requires a bounded headless render interval");
-        if(performancePath&&(frames||uiFrames))throw std::runtime_error("Performance report requires interactive or preview-at mode");
+        if(performancePath&&frames)throw std::runtime_error("Performance report requires interactive, preview-at or UI-test mode");
+        if(runPlan.bounded_handoff) {
+            okage::require_fresh_native_capture_family(output);
+            if(performancePath&&okage::native_capture_family_contains(output,*performancePath))
+                throw std::runtime_error("Performance report overlaps the combined capture output family");
+        }
         // Reserve the fresh report before loading assets or preparing a preview.
         std::unique_ptr<okage::LivePerformance> performance;
-        if(performancePath)performance=std::make_unique<okage::LivePerformance>(*performancePath);
+        if(performancePath)performance=std::make_unique<okage::LivePerformance>(*performancePath,
+            uiFrames?std::optional<okage::PerformanceTestRange>({replayFrames,uiFrames}):std::nullopt);
         std::unique_ptr<Session> prepared;
         if(replayFrames) {
             const auto frameDirectory=fs::path(output.string()+".frames");std::ofstream frameManifest;
@@ -1071,13 +1083,13 @@ int main(int argc,const char** argv) {
                 frameManifest<<"\n  ],\n  \"complete\": true\n}\n";frameManifest.close();
                 if(!frameManifest||selected!=captureFrames.size())throw std::runtime_error("Incomplete native frame capture");
             }
-            if(!output.empty())capture(session,output);
+            if(!runPlan.replay_capture.empty())capture(session,runPlan.replay_capture);
             std::cout<<"Native frames="<<session.frame<<" progress="<<session.text.state.progress<<" wait_release="<<session.release_frame<<std::endl;
             if(frames)return 0;
             session.render_frame();
         }
         [NSApplication sharedApplication];[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
-        NativeApp* app=[NativeApp new];app->paused=previewAt!=0;app->session=std::move(prepared);
+        NativeApp* app=[NativeApp new];app->paused=runPlan.starts_paused;app->session=std::move(prepared);
         app->performance=std::move(performance);
         if(!app->session) {
         app->session=std::make_unique<Session>(argv[1],argv[2],playerName);
@@ -1088,7 +1100,8 @@ int main(int argc,const char** argv) {
         if(!effectData.empty())app->session->load_effects(effectData,effectTextures);
         }
         app->session->render_from=1;app->session->render_until=0;
-        app->testFrames=uiFrames;app->testPresses=presses;app->directions=directions;app->testCapture=output;
+        app->testFrames=uiFrames;app->testPresses=presses;app->directions=directions;app->testCapture=runPlan.live_capture;
+        if(runPlan.bounded_handoff)app->replayDirections=directions.held(replayFrames);
         [NSApp setDelegate:app];[NSApp run];return app->failureStatus;
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
 }
