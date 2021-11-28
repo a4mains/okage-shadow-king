@@ -45,6 +45,7 @@ struct SceneRenderer::Impl {
     std::vector<Texture> textures;
     std::vector<std::size_t> textureOffsets;
     std::size_t omittedEffects=0,actorCount=0;
+    unsigned nextFrontOrdinal=0;
     std::size_t whiteTexture=0,effectTexture=0;
     bool effectTexturesLoaded=false;
     const MapEffects* mapEffects=nullptr;
@@ -59,7 +60,7 @@ struct SceneRenderer::Impl {
     explicit Impl(const fs::path& path,std::span<const SceneActor> actors,const MapObjects* objects) {
         mapObjects=objects;
         const auto map=read_xmp(read(path));
-        unsigned front=0,back=640;
+        unsigned back=640;
         for(std::size_t index=0;index<map.placements.size();++index) {
             const auto& placement=map.placements[index];
             if(placement.handler()) {++omittedEffects;continue;}
@@ -77,38 +78,21 @@ struct SceneRenderer::Impl {
             inputs.push_back({file,object?object->model():read_xmd(read(file)),instance_matrix(transform.position,transform.rotation,transform.scale,sine),object,
                 (transform.flags&1)?std::optional<MapTransform>(transform):std::nullopt,index,(transform.flags&0x10000)==0});
             inputs.back().flags=transform.flags;
-            inputs.back().ordinal=transform.flags&0x100000?640+--back:front++;
+            inputs.back().ordinal=transform.flags&0x100000?640+--back:nextFrontOrdinal++;
         }
         if(inputs.empty())throw std::runtime_error("Empty field map");
         if(sky_input){auto stage=path;stage.replace_extension(".stg");sky_factors=field_sky_follow(read(stage));}
         {auto stage=path;stage.replace_extension(".stg");const auto bytes=read(stage);shadowSettings=field_shadow_settings(bytes);ordinaryLighting=field_ordinary_lighting(bytes);}
         for(const auto& binding:actors) {
-            if(!binding.actor || binding.model_path.empty())throw std::runtime_error("Actor and model path required");
-            const auto companion_path=binding.model_path.parent_path()/"shadow.xmd";
-            std::optional<ModelFile> companion;
-            if(fs::exists(companion_path))companion=read_xmd(read(companion_path));
-            auto name=binding.model_path.parent_path().stem().string();
-            std::transform(name.begin(),name.end(),name.begin(),[](unsigned char c){return char(std::tolower(c));});
-            shadowActors.push_back(make_field_shadow_actor(binding.alias,name,*binding.actor,companion?&*companion:nullptr));
-            inputs.push_back({binding.model_path,binding.actor->model(),{},binding.actor,{},{},true,shadowActors.back().ordinary_after_shadows()});++actorCount;
-            inputs.back().flags=shadowActors.back().flags;inputs.back().ordinal=front++;
-            inputs.back().special=name=="wkumo"||name=="rkumo"||name=="bkumo";
+            auto [input,shadow]=actorInput(binding);
+            inputs.push_back(std::move(input));shadowActors.push_back(std::move(shadow));
+            ++actorCount;++nextFrontOrdinal;
         }
         for(const auto& input:inputs) {
             textureOffsets.push_back(textures.size());
-            for(auto name:input.actor ? input.actor->textures().names() : input.model.textures) {
-                const fs::path relative=name;
-                if(relative.is_absolute() || relative.has_parent_path())throw std::runtime_error("Unsafe scene texture path");
-                if(relative.extension().empty())name+=".xim";
-                textures.push_back(decode_xim(read(input.path.parent_path()/name)));
-            }
-            auto& parts=preparation.emplace_back();
-            for(const auto& part:input.model.models) {
-                auto& blocks=parts.emplace_back();
-                for(const auto& block:part.blocks)
-                    blocks.push_back({std::vector<std::optional<PreparedTextureState>>(block.textures.size()),
-                        std::vector<std::optional<PolygonTextureCoordinates>>(block.polygons.size())});
-            }
+            auto images=inputTextures(input);
+            for(auto& image:images)textures.push_back(std::move(image));
+            preparation.push_back(inputPreparation(input));
         }
         constexpr unsigned width=640,height=224;
         device=MTLCreateSystemDefaultDevice();
@@ -177,15 +161,67 @@ struct SceneRenderer::Impl {
         depthTarget=[device newTextureWithDescriptor:depthDesc];
         gpuTextures=[NSMutableArray array];
         whiteTexture=textures.size();textures.push_back({1,1,0,0,{255,255,255,255}});
-        for (const auto& image:textures) {
-            auto td=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:image.width height:image.height mipmapped:NO];
-            td.storageMode=MTLStorageModeShared; td.usage=MTLTextureUsageShaderRead;
-            id<MTLTexture> texture=[device newTextureWithDescriptor:td];
-            if (!texture) throw std::runtime_error("Metal texture allocation failed");
-            [texture replaceRegion:MTLRegionMake2D(0,0,image.width,image.height) mipmapLevel:0 withBytes:image.rgba.data() bytesPerRow:image.width*4];
-            [gpuTextures addObject:texture];
-        }
+        for(const auto& image:textures)[gpuTextures addObject:uploadTexture(image)];
         queue=[device newCommandQueue];
+    }
+    std::pair<Input,FieldShadowActor> actorInput(const SceneActor& binding) const {
+        if(!binding.actor || binding.model_path.empty())throw std::runtime_error("Actor and model path required");
+        if(std::any_of(inputs.begin(),inputs.end(),[&](const Input& input){return input.actor==binding.actor;}))
+            throw std::runtime_error("Scene actor already registered");
+        const auto companion_path=binding.model_path.parent_path()/"shadow.xmd";
+        std::optional<ModelFile> companion;
+        if(fs::exists(companion_path))companion=read_xmd(read(companion_path));
+        auto name=binding.model_path.parent_path().stem().string();
+        std::transform(name.begin(),name.end(),name.begin(),[](unsigned char c){return char(std::tolower(c));});
+        auto shadow=make_field_shadow_actor(binding.alias,name,*binding.actor,companion?&*companion:nullptr);
+        Input input{binding.model_path,binding.actor->model(),{},binding.actor,{},{},true,shadow.ordinary_after_shadows()};
+        input.flags=shadow.flags;input.ordinal=nextFrontOrdinal;
+        input.special=name=="wkumo"||name=="rkumo"||name=="bkumo";
+        return {std::move(input),std::move(shadow)};
+    }
+    static std::vector<Texture> inputTextures(const Input& input) {
+        std::vector<Texture> images;
+        for(auto name:input.actor ? input.actor->textures().names() : input.model.textures) {
+            const fs::path relative=name;
+            if(relative.is_absolute() || relative.has_parent_path())throw std::runtime_error("Unsafe scene texture path");
+            if(relative.extension().empty())name+=".xim";
+            images.push_back(decode_xim(read(input.path.parent_path()/name)));
+        }
+        return images;
+    }
+    static std::vector<std::vector<BlockPreparation>> inputPreparation(const Input& input) {
+        std::vector<std::vector<BlockPreparation>> parts;
+        for(const auto& part:input.model.models) {
+            auto& blocks=parts.emplace_back();
+            for(const auto& block:part.blocks)
+                blocks.push_back({std::vector<std::optional<PreparedTextureState>>(block.textures.size()),
+                    std::vector<std::optional<PolygonTextureCoordinates>>(block.polygons.size())});
+        }
+        return parts;
+    }
+    id<MTLTexture> uploadTexture(const Texture& image) {
+        auto td=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:image.width height:image.height mipmapped:NO];
+        td.storageMode=MTLStorageModeShared;td.usage=MTLTextureUsageShaderRead;
+        id<MTLTexture> texture=[device newTextureWithDescriptor:td];
+        if(!texture)throw std::runtime_error("Metal texture allocation failed");
+        [texture replaceRegion:MTLRegionMake2D(0,0,image.width,image.height) mipmapLevel:0 withBytes:image.rgba.data() bytesPerRow:image.width*4];
+        return texture;
+    }
+    void addActor(const SceneActor& binding) {
+        auto [input,shadow]=actorInput(binding);
+        auto images=inputTextures(input);
+        auto prepared=inputPreparation(input);
+        auto uploaded=[NSMutableArray<id<MTLTexture>> arrayWithCapacity:images.size()];
+        for(const auto& image:images)[uploaded addObject:uploadTexture(image)];
+        inputs.reserve(inputs.size()+1);shadowActors.reserve(shadowActors.size()+1);
+        textureOffsets.reserve(textureOffsets.size()+1);preparation.reserve(preparation.size()+1);
+        textures.reserve(textures.size()+images.size());
+        [gpuTextures addObjectsFromArray:uploaded];
+        textureOffsets.push_back(textures.size());
+        for(auto& image:images)textures.push_back(std::move(image));
+        preparation.push_back(std::move(prepared));
+        inputs.push_back(std::move(input));shadowActors.push_back(std::move(shadow));
+        ++actorCount;++nextFrontOrdinal;
     }
     void loadEffects(const fs::path& directory) {
         if(effectTexturesLoaded)throw std::runtime_error("Effect textures already loaded");
@@ -476,6 +512,7 @@ struct SceneRenderer::Impl {
 SceneRenderer::SceneRenderer(const fs::path& map,std::span<const SceneActor> actors,const MapObjects* objects):
     impl_(std::make_unique<Impl>(map,actors,objects)){}
 SceneRenderer::~SceneRenderer()=default;
+void SceneRenderer::add_actor(const SceneActor& actor){impl_->addActor(actor);}
 void SceneRenderer::load_effect_textures(const fs::path& path){impl_->loadEffects(path);}
 EffectTextureSizes SceneRenderer::effect_texture_sizes() const {
     if(!impl_->effectTexturesLoaded)throw std::runtime_error("Effect textures are unavailable");
