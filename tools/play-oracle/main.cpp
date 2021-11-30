@@ -10,6 +10,7 @@
 #include "Ps2Const.h"
 #include "FpUtils.h"
 #include "gs/GSH_Null.h"
+#include "FrameDump.h"
 #ifdef OKAGE_REFERENCE_VULKAN
 #include "reference_graphics.hpp"
 #endif
@@ -59,6 +60,24 @@ std::string hash(const std::vector<uint8>& data) {
     return value.str();
 }
 
+// Packet-only research sink. No rasterization, texture upload, thread or window.
+class MapPacketGs final : public CGSHandler {
+public:
+    MapPacketGs():CGSHandler(false) {}
+    // Nonthreaded GS still uses its mailbox. Drain before reading observations
+    // or reusing a register-write buffer; no display/Flip implementation runs.
+    void drain() {SendGSCall([this]{m_flipped=true;});ProcessSingleFrame();}
+    void begin() {drain();m_frameDump=std::make_unique<CFrameDump>();}
+    const CFrameDump::PacketArray& packets() const {return m_frameDump->GetPackets();}
+    void ProcessHostToLocalTransfer() override {throw std::runtime_error("Unexpected map image transfer");}
+    void ProcessLocalToHostTransfer() override {throw std::runtime_error("Unexpected map image readback");}
+    void ProcessLocalToLocalTransfer() override {throw std::runtime_error("Unexpected map local transfer");}
+    void ProcessClutTransfer(uint32,uint32) override {} // No pixels claimed; register observation only.
+private:
+    void InitializeImpl() override {}
+    void ReleaseImpl() override {}
+};
+
 class Reference {
 public:
     std::unique_ptr<Iop::CSubSystem> iop;
@@ -73,6 +92,7 @@ public:
     std::vector<uint32> templateRandomLog;
     static constexpr uint32 stop=0x007ff000;
     uint32 expectedStop=stop;
+    unsigned callIterationLimit=1000000;
     std::function<bool(uint32)> boundedInstructionProbe;
     Reference(const std::vector<uint8>& elf) {
         if (hash(elf)!="2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5")
@@ -104,7 +124,7 @@ public:
         cpu.m_State.nGPR[CMIPS::GP].nD0=0x002564f0;
         unsigned reg=CMIPS::A0;
         for (auto arg:args) cpu.m_State.nGPR[reg++].nD0=arg;
-        for (unsigned step=0;step<1000000;++step) {
+        for (unsigned step=0;step<callIterationLimit;++step) {
             bool executed=false;
             if (!cpu.m_State.callMsEnabled) {
                 cpu.m_executor->Execute(1000); executed=true;
@@ -2367,6 +2387,261 @@ public:
         writeFile(output,result.data(),result.size());
         std::cout<<"Original VU1 instance alpha records: "<<cases.size()/8<<'\n';
     }
+    void mapPacket(const std::vector<uint8>& ram,const std::vector<uint8>& asset,const char* output) {
+        constexpr uint32 instance=0x5a0258,descriptor=0x3c53a0;
+        uint32 list=0xb83ab0,source=0xb83440,sourceQwc=94,selectedBlock=0;
+        constexpr uint32 packetArena=0x1b00000,poseArena=0x1c00000,fixture=0x1e00000,arenaSize=0x10000;
+        constexpr uint32 world=fixture+0x40,sp=0x1ff0000,worldEnd=0x1ba178;
+        const auto require=[](bool yes,const char* what){if(!yes)throw std::runtime_error(what);};
+        require(ram.size()==32*1024*1024&&hash(ram)=="74131100a37fc00572db7eb4e3f6dcdd7e5e8f75512a2c1d3b84ab0805513cc5",
+            "Map packet requires the provenance-pinned jam-talk RAM fixture");
+        require(!std::filesystem::exists(output)&&!std::filesystem::is_symlink(output),"Map packet requires fresh output");
+        const auto model=okage::read_xmd(asset);
+        require(model.models.size()==1&&model.models[0].blocks.size()==59,"Map packet source model extent");
+        // Before restoring runtime data, retain the pinned executable/microcode.
+        const std::array<std::pair<uint32,uint32>,8> codeRanges={{{0x184bd8,0x160},{0x184d38,0x338},
+            {0x186618,0x1a8},{0x185fb0,0x668},{0x1b9ff8,worldEnd-0x1b9ff8},{0x1ad1f8,0x70},{0x215900,0x3d98},{0x21ab00,0x660}}};
+        std::vector<std::vector<uint8>> code;
+        for(auto [a,n]:codeRanges)code.emplace_back(ee->m_ram+a,ee->m_ram+a+n);
+        std::memcpy(ee->m_ram,ram.data(),ram.size());
+        for(unsigned i=0;i<code.size();++i)require(!std::memcmp(ee->m_ram+codeRanges[i].first,code[i].data(),code[i].size()),
+            "Retained map executable differs from pinned ELF");
+        require(get(0x21301c)==0x5a01e0&&get(0x1fe2ac)==0x3c52d0&&get(instance)>>16==4,
+            "Retained map instance/model binding changed");
+        require(get(descriptor+8)==0xb83230&&get(descriptor+24)==0x184d38&&get(0xb83234)==list,
+            "Retained map descriptor/list changed");
+        require(get(list)==2&&get(list+4)==1&&get(list+16)==0x005e0007&&get(list+24)==source&&get(list+32)==1,
+            "Retained map compiled block changed");
+        const std::vector<uint8> viewBefore(ee->m_ram+0x3322a0,ee->m_ram+0x3322e0);
+        require(get(0x337e1c)!=0x83,"Map world block requires ordinary stage path");
+        callIterationLimit=10000;
+        put(stop,0x08000000|(stop>>2));put(stop+4,0);loadMicro();
+        std::memcpy(ee->m_microMem1,ee->m_ram+0x215900,0x3d98);
+        auto sink=std::make_unique<MapPacketGs>();auto* gs=sink.get();
+        researchGs=std::move(sink);researchGs->Initialize();researchGs->Reset();ee->m_gs=researchGs.get();gs->begin();
+        auto& cpu=ee->m_EE;
+        const auto channel=get(instance+4)&0xffff;
+        call(0x1b43c0,{channel,fixture});call(0x1b43c0,{channel+1,fixture+16});call(0x1b43c0,{channel+2,fixture+32});
+        std::memcpy(ee->m_ram+sp+0x60,ee->m_ram+fixture,16);put(fixture+28,0x3f800000);
+        cpu.m_State.nGPR[CMIPS::S1].nD0=fixture+16;cpu.m_State.nGPR[CMIPS::S6].nD0=fixture+32;
+        cpu.m_State.nGPR[CMIPS::S2].nD0=instance;
+        cpu.ToggleBreakpoint(worldEnd);expectedStop=worldEnd;
+        try {call(0x1b9ff8);}catch(...){cpu.ToggleBreakpoint(worldEnd);expectedStop=stop;throw;}
+        cpu.ToggleBreakpoint(worldEnd);expectedStop=stop;
+        std::memcpy(ee->m_ram+world,ee->m_ram+sp+0x70,64);
+        std::memset(ee->m_ram+poseArena,0xcd,arenaSize);
+        call(0x1caa20,{poseArena});
+        std::vector<std::array<uint32,7>> selections;
+        cpu.ToggleBreakpoint(0x184d38);
+        boundedInstructionProbe=[&](uint32 pc){
+            if(pc!=0x184d38)return false;
+            require(selections.size()<59,"Map callback selection bound");
+            std::array<uint32,7> args{};
+            for(unsigned i=0;i<args.size();++i)args[i]=cpu.m_State.nGPR[CMIPS::A0+i].nV[0];
+            selections.push_back(args);return true;
+        };
+        try {call(0x185fb0,{4,0,world,0,0,0,0});}
+        catch(...){cpu.ToggleBreakpoint(0x184d38);boundedInstructionProbe={};throw;}
+        cpu.ToggleBreakpoint(0x184d38);boundedInstructionProbe={};
+        const auto batch=cpu.m_State.nGPR[CMIPS::V0].nV[0],poseEnd=get(0x3a0aa0);
+        require(!selections.empty(),"Original map selected no blocks");
+        struct Source {uint32 block,list,address,qwc;std::vector<uint8> before,listBefore;};
+        std::vector<Source> sources;
+        const auto poses=selections.front()[3],nodes=get(get(descriptor+4));
+        require(nodes==60&&poses>=poseArena&&poses+nodes*64<poseArena+arenaSize-16&&
+            poseEnd<poseArena+arenaSize-16,"Map pose/returned packet output bounds");
+        for(const auto& args:selections){
+            const auto index=args[1],entry=args[2];
+            require(args[0]==4&&index<59&&entry==get(get(descriptor+8)+4+index*4),
+                "Original map selection is not a retained opaque block");
+            require(args[3]==poses&&args[4]==0&&args[5]==0&&args[6]==0,"Map selected callback optional/pose state");
+            require(entry<ram.size()-48&&get(entry)==2&&(get(entry+16)&0xffff)==7&&get(entry+32)==1,
+                "Selected map list is not a single matrix/source batch");
+            Source item{index,entry,get(entry+24),get(entry+16)>>16,{},{}};
+            if(!(item.qwc>0&&item.qwc<=8192&&uint64(item.address)+item.qwc*16<ram.size()))
+                throw std::runtime_error("Selected map source extent: block="+std::to_string(index)+" qwc="+std::to_string(item.qwc));
+            item.before.assign(ee->m_ram+item.address,ee->m_ram+item.address+item.qwc*16);
+            item.listBefore.assign(ee->m_ram+entry,ee->m_ram+entry+48);
+            for(const auto& polygon:model.models[0].blocks[index].polygons)for(const auto& corner:polygon.corners)
+                require(corner[1]==-1,"Selected map source unexpectedly has directional normals");
+            sources.push_back(std::move(item));
+        }
+        const auto selectionArgs=selections.front();
+        selectedBlock=selectionArgs[1];list=selectionArgs[2];source=sources.front().address;sourceQwc=sources.front().qwc;
+        const auto& sourceBefore=sources.front().before;
+        const auto& block=model.models[0].blocks[selectedBlock];
+        // Explicit harness allocation arena, not replacement lighting/geometry.
+        std::memset(ee->m_ram+packetArena,0xcd,arenaSize);put(0x3a0aa4,0);call(0x1caa20,{packetArena});
+        call(0x186618);const auto preamble=cpu.m_State.nGPR[CMIPS::V0].nV[0];
+        call(0x186790);const auto footer=cpu.m_State.nGPR[CMIPS::V0].nV[0],arenaEnd=get(0x3a0aa0);
+        require(arenaEnd>=packetArena&&arenaEnd<packetArena+arenaSize-16,"Map generated packet arena bounds");
+        for(unsigned i=0;i<16;++i)require(ee->m_ram[packetArena+arenaSize-16+i]==0xcd&&
+            ee->m_ram[poseArena+arenaSize-16+i]==0xcd,"Map packet/pose arena canary");
+        require(!std::memcmp(viewBefore.data(),ee->m_ram+0x3322a0,64),"Map helper changed retained view matrix");
+        std::ostringstream report;report<<"{\n  \"schema_version\":1,\n  \"scope\":\"Original retained model4 exact185fb0 selected callback order and returned chain; preamble/world/pose/list/footer/VIF, no GS raster proof\",\n";
+        report<<"  \"elf_sha256\":\"2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5\",\n";
+        report<<"  \"ram_sha256\":\""<<hash(ram)<<"\",\n  \"source_xmd_sha256\":\""<<hash(asset)
+              <<"\",\n  \"source_packet_sha256\":\""<<hash(sourceBefore)<<"\",\n";
+        auto words=[&](const void* p,unsigned bytes){require(bytes%4==0,"Map report word extent");report<<'[';
+            for(unsigned i=0;i<bytes;i+=4){uint32 w;std::memcpy(&w,static_cast<const uint8*>(p)+i,4);report<<(i?",":"")<<w;}report<<']';};
+        auto ramWords=[&](const char* name,uint32 a,unsigned bytes){report<<"  \""<<name<<"\":";words(ee->m_ram+a,bytes);report<<",\n";};
+        report<<"  \"selected_sources\":[";
+        for(unsigned i=0;i<sources.size();++i){const auto& item=sources[i];report<<(i?",":"")<<"{\"callback_operands\":";
+            words(selections[i].data(),28);report<<",\"list_words\":";words(item.listBefore.data(),48);
+            report<<",\"payload_address\":"<<item.address<<",\"payload_words\":";words(item.before.data(),item.before.size());
+            report<<",\"payload_sha256\":\""<<hash(item.before)<<"\",\"native_source_corners\":[";
+            bool sep=false;const auto& polygons=model.models[0].blocks[item.block].polygons;
+            for(unsigned p=0;p<polygons.size();++p){for(unsigned c=0;c<polygons[p].corners.size();++c){
+                report<<(sep?",":"")<<'['<<p<<','<<c;for(auto index:polygons[p].corners[c])report<<','<<index;
+                report<<']';sep=true;
+            }}report<<"]}";
+        }report<<"],\n";
+        report<<"  \"selected_block\":"<<selectedBlock<<",\n  \"original_callback_operands\":";words(selectionArgs.data(),selectionArgs.size()*4);report<<",\n";
+        ramWords("instance_words",instance,60);ramWords("descriptor_words",descriptor,52);ramWords("channel_words",fixture,48);
+        ramWords("world_matrix_words",world,64);ramWords("view_matrix_words",0x3322a0,64);ramWords("pose_matrix_words",poses,nodes*64);
+        ramWords("light_state_words",0x3322e0,0x150);ramWords("compiled_list_words",list,48);ramWords("compiled_payload_words",source,sourceQwc*16);
+        report<<"  \"native_source_corners\":[";bool comma=false;
+        for(unsigned p=0;p<block.polygons.size();++p){
+          for(unsigned c=0;c<block.polygons[p].corners.size();++c){
+            const auto& corner=block.polygons[p].corners[c];report<<(comma?",":"")<<'['<<p<<','<<c;
+            for(auto index:corner)report<<','<<index;
+            report<<']';comma=true;
+          }
+        }
+        report<<"],\n  \"dma_segments\":[";
+        struct Raw {unsigned segment,index,address;int sourceBlock;std::vector<uint32> words;};std::vector<Raw> raw;
+        struct Cache {unsigned segment,block;std::vector<uint8> words;};std::vector<Cache> caches;
+        int activeSourceBlock=-1;
+        unsigned segmentCount=0,observedPackets=0,totalQwords=0;
+        auto capture=[&]{
+            const auto& packets=gs->packets();require(packets.size()<=4096,"Map GS packet observation limit");
+            for(;observedPackets<packets.size();++observedPackets){
+                const auto& metadata=packets[observedPackets].metadata;
+                require(metadata.pathIndex==1,"Map observer expected VU XGKICK path1");
+                Raw r{segmentCount,observedPackets,metadata.vuMemPacketAddress,activeSourceBlock,{}};
+                require(r.address<0x4000&&r.address%16==0,"Map GIF packet address");
+                const uint8* kickMemory=observedPackets+1<packets.size()?
+                    packets[observedPackets+1].metadata.vuMem1:ee->m_vuMem1;
+                unsigned a=r.address;bool end=false;
+                for(unsigned tags=0;tags<128&&!end;++tags){
+                    uint64 tag;std::memcpy(&tag,kickMemory+a,8);const auto loops=tag&0x7fff,mode=tag>>58&3;
+                    unsigned regs=tag>>60;if(!regs)regs=16;
+                    require(mode<=1,"Map raw GIF observer encountered unsupported image/disabled tag");
+                    const unsigned qwc=1+(mode==0?loops*regs:(loops*regs+1)/2);
+                    require(qwc<=1024&&r.words.size()+qwc*4<=4096,"Map raw GIF packet extent");
+                    for(unsigned q=0;q<qwc;++q)for(unsigned j=0;j<4;++j){uint32 word;
+                        std::memcpy(&word,kickMemory+((a+q*16+j*4)&0x3fff),4);r.words.push_back(word);}
+                    a=(a+qwc*16)&0x3fff;end=(tag&0x8000)!=0;
+                }
+                require(end,"Map raw GIF packet missing EOP");
+                std::vector<CGSHandler::RegisterWrite> decoded;
+                for(unsigned at=0;at<r.words.size();){
+                    const auto* t=r.words.data()+at;
+                    const uint64 tag=uint64(t[0])|(uint64(t[1])<<32), desc=uint64(t[2])|(uint64(t[3])<<32);
+                    const unsigned loops=tag&0x7fff,mode=tag>>58&3;
+                    unsigned regs=tag>>60;if(!regs)regs=16;
+                    at+=4;uint32 q=0x3f800000;
+                    if(mode==0&&(tag&(uint64(1)<<46)))decoded.emplace_back(0,(tag>>47)&0x7ff);
+                    for(unsigned n=0;n<loops*regs;++n){
+                        unsigned reg=(desc>>((n%regs)*4))&15;
+                        const auto* w=r.words.data()+at;
+                        uint64 value=uint64(w[0])|(uint64(w[1])<<32);
+                        if(mode==0){
+                            switch(reg){
+                            case 0:value=w[0];break;
+                            case 1:value=(w[0]&255)|((w[1]&255)<<8)|((w[2]&255)<<16)|((w[3]&255)<<24)|(uint64(q)<<32);break;
+                            case 2:q=w[2];break;
+                            case 3:value=(w[0]&0x7fff)|((w[1]&0x7fff)<<16);break;
+                            case 4:value=(w[0]&0xffff)|((w[1]&0xffff)<<16)|(uint64(w[2]&0x0ffffff0)<<28)|(uint64(w[3]&0xff0)<<52);reg=(w[3]&0x8000)?12:4;break;
+                            case 5:value=(w[0]&0xffff)|((w[1]&0xffff)<<16)|(uint64(w[2])<<32);reg=(w[3]&0x8000)?13:5;break;
+                            case 6:case 7:case 8:case 9:case 13:break;
+                            case 10:value=(uint64(w[3])>>4)<<56;break;
+                            case 14:reg=w[2]&255;break;
+                            case 15:break;
+                            default:throw std::runtime_error("Map raw GIF unsupported packed register");
+                            }
+                            at+=4;
+                        }else at+=2;
+                        if(reg!=15)decoded.emplace_back(reg,value);
+                    }
+                    if(mode==1&&((loops*regs)&1))at+=2;
+                }
+                require(decoded==packets[observedPackets].registerWrites,
+                    "Map raw GIF buffer differs from actual GS writes (possible within-MSCAL overwrite)");
+                raw.push_back(std::move(r));
+            }
+        };
+        auto feed=[&](uint32 address,unsigned qwc,bool tag){
+            require(qwc<=8192&&address<ram.size()&&uint64(address)+qwc*16<=ram.size(),"Map VIF DMA bounds");
+            totalQwords+=qwc;require(totalQwords<=65536,"Map total VIF budget");
+            for(unsigned i=0;i<qwc;++i){
+                const auto consumed=ee->m_vpu1->GetVif().ReceiveDMA(address+i*16,1,1,tag);
+                if(consumed!=1||!ee->m_vpu1->IsVuReady()){
+                    std::ostringstream error;error<<"Map VIF bounded feed failed: segment="<<segmentCount
+                        <<" address="<<std::hex<<(address+i*16)<<" tag="<<tag<<" consumed="<<consumed
+                        <<" ready="<<ee->m_vpu1->IsVuReady()<<" VU_PC="<<ee->m_VU1.m_State.nPC
+                        <<" VIF_STAT="<<ee->m_vpu1->GetVif().GetRegister(CVif::VIF1_STAT)
+                        <<" VIF_CODE="<<ee->m_vpu1->GetVif().GetRegister(CVif::VIF1_CODE);
+                    throw std::runtime_error(error.str());
+                }
+                researchGs->ProcessWriteBuffer(nullptr);researchGs->FlushWriteBuffer();gs->drain();capture();
+            }
+        };
+        // Retain generated inputs even if a later strict execution guard fails.
+        writeFile((std::string(output)+".generated.bin").c_str(),ee->m_ram+packetArena,arenaEnd-packetArena);
+        writeFile((std::string(output)+".model-generated.bin").c_str(),ee->m_ram+poseArena,poseEnd-poseArena);
+        auto replay=[&](uint32 head,unsigned phase){
+            const auto arenaBegin=phase==1?poseArena:packetArena,arenaLimit=phase==1?poseEnd:arenaEnd;
+            uint32 cursor=head;bool terminal=false;
+            for(unsigned tags=0;tags<512&&!terminal;++tags){
+                require(cursor>=arenaBegin&&cursor+16<=arenaLimit+16&&cursor%16==0,"Map generated DMA tag pointer");
+                const auto lo=get(cursor),id=lo>>28&7,qwc=lo&0xffff,ref=get(cursor+4)&0x1fffffff;
+                const bool inlineData=id==1||id==2||id==6||id==7;
+                require(inlineData||id==0||id==3,"Map generated DMA tag class unsupported");
+                const auto data=inlineData?cursor+16:ref;
+                const Source* sourceItem=nullptr;
+                for(const auto& item:sources)if(data==item.address&&qwc==item.qwc){sourceItem=&item;break;}
+                require((inlineData&&uint64(data)+qwc*16<=arenaLimit+16)||
+                    (!inlineData&&(sourceItem||(data>=0x332220&&uint64(data)+qwc*16<=0x332480)||
+                        (data>=poses&&uint64(data)+qwc*16<=poses+nodes*64))),"Map DMA payload escaped retained/generated bounds");
+                if(sourceItem)activeSourceBlock=sourceItem->block;
+                report<<(segmentCount?",":"")<<"{\"phase\":"<<phase<<",\"tag_address\":"<<cursor<<",\"payload_address\":"<<data<<",\"tag_words\":";
+                words(ee->m_ram+cursor,16);report<<",\"payload_words\":";words(ee->m_ram+data,qwc*16);report<<'}';
+                feed(data,qwc,false);
+                if(sourceItem)caches.push_back({segmentCount,sourceItem->block,{ee->m_vuMem1,ee->m_vuMem1+0x4000}});
+                ++segmentCount;
+                terminal=id==0||id==6||id==7;cursor=id==2?ref:cursor+16+(inlineData?qwc*16:0);
+            }
+            require(terminal,"Map DMA chain did not terminate within bounds");
+        };
+        replay(preamble,0);
+        const std::vector<uint8> preambleVu(ee->m_vuMem1,ee->m_vuMem1+0x4000);
+        replay(batch,1);
+        const std::vector<uint8> batchVu(ee->m_vuMem1,ee->m_vuMem1+0x4000);
+        replay(footer,2);report<<"],\n";
+        report<<"  \"vu_memory_batch_words\":";words(batchVu.data(),batchVu.size());report<<",\n";
+        report<<"  \"vu_memory_preamble_words\":";words(preambleVu.data(),preambleVu.size());report<<",\n";
+        unsigned rgbaWrites=0;
+        for(const auto& packet:gs->packets())for(const auto& write:packet.registerWrites)if(write.first==1)++rgbaWrites;
+        require(rgbaWrites>0,"Original-selected model produced no observed RGBA writes");
+        report<<"  \"rgba_write_count\":"<<rgbaWrites<<",\n";
+        report<<"  \"source_cache_observations\":[";
+        for(unsigned i=0;i<caches.size();++i){const auto& c=caches[i];report<<(i?",":"")<<"{\"segment\":"<<c.segment<<",\"source_block\":"<<c.block<<",\"vu_words\":";words(c.words.data(),c.words.size());report<<'}';}
+        report<<"],\n";
+        report<<"  \"vu_memory_after_words\":";words(ee->m_vuMem1,0x4000);report<<",\n  \"raw_gif_observations\":[";
+        for(unsigned i=0;i<raw.size();++i){const auto& r=raw[i];report<<(i?",":"")<<"{\"segment\":"<<r.segment<<",\"gs_packet_index\":"<<r.index<<",\"triggering_source_block\":"<<r.sourceBlock<<",\"vu_byte_address\":"<<r.address<<",\"words\":";words(r.words.data(),r.words.size()*4);report<<'}';}
+        report<<"],\n  \"gs_packets\":[";
+        for(unsigned i=0;i<gs->packets().size();++i){const auto& p=gs->packets()[i];report<<(i?",":"")<<"{\"path\":"<<p.metadata.pathIndex<<",\"vu_byte_address\":"<<p.metadata.vuMemPacketAddress<<",\"register_writes\":[";
+            for(unsigned j=0;j<p.registerWrites.size();++j){const auto& w=p.registerWrites[j];report<<(j?",":"")<<'['<<unsigned(w.first)<<','<<uint32(w.second)<<','<<uint32(w.second>>32)<<']';}report<<"]}";}
+        report<<"],\n  \"gs_registers_final_words\":";words(researchGs->GetRegisters(),CGSHandler::REGISTER_MAX*8);report<<",\n";
+        for(unsigned i=0;i<code.size();++i)require(!std::memcmp(ee->m_ram+codeRanges[i].first,code[i].data(),code[i].size()),"Map observer modified original executable");
+        require(!std::memcmp(ee->m_microMem1,ee->m_ram+0x215900,0x3d98),"Map observer modified original VU");
+        for(const auto& item:sources)require(!std::memcmp(item.before.data(),ee->m_ram+item.address,item.before.size())&&
+            !std::memcmp(item.listBefore.data(),ee->m_ram+item.list,48),"Map observer modified original source packet/list");
+        report<<"  \"source_and_code_preserved\":true,\n  \"dma_tag_transfer\":false,\n  \"raw_gif_matches_gs_writes\":true,\n  \"mapping_scope\":\"Source cache observations and native corner IDs are exact per original block; a GS packet may span preceding blocks, so triggering_source_block is not a per-vertex identity claim\",\n  \"pixel_claim\":false\n}\n";
+        const auto result=report.str();writeFile(output,result.data(),result.size());
+        std::cout<<"Original retained map packet observed: "<<segmentCount<<" DMA segments, "<<gs->packets().size()<<" GS packets; no raster claim\n";
+    }
     void ordinaryLighting(const std::vector<uint8>& input,const char* output) {
         constexpr unsigned stride=100*4,top=0x350;
         if(input.empty()||input.size()%stride||input.size()>stride*2048)
@@ -2866,6 +3141,8 @@ int main(int argc,char** argv) {
             reference.instanceAlpha(readFile(argv[3]),argv[4]);
         } else if (command=="dialogue-shadow" && argc==6) {
             reference.dialogueShadow(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="map-packet" && argc==6) {
+            reference.mapPacket(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if (command=="ordinary-lighting" && argc==5) {
             reference.ordinaryLighting(readFile(argv[3]),argv[4]);
         } else if (command=="ordinary-depth" && argc==5) {
