@@ -81,7 +81,18 @@ int main() {try {
         result=control.update(t,{});
         require(writes==std::vector<std::array<int,3>>{{35,1,1},{10,4,1}});
         require(!result.resume_calls&&t.state.delay==7);
-        t.state.window="WINTYPE(1)SHADOW(0)";
+        std::vector<std::array<int,2>> motions;
+        t.state.window="CHANI(-27/1)";rejects([&]{control.update(t,{});});
+        require(t.state.window=="CHANI(-27/1)"&&t.state.delay==7);
+        control.actor_motion_request=[&](int alias,int entry){motions.push_back({alias,entry});};
+        result=control.update(t,{});
+        require(motions==std::vector<std::array<int,2>>{{-27,1}}&&!result.resume_calls&&t.state.delay==7);
+        control.update(t,{});require(motions.size()==1);
+        t.state.window="CHANI(8/2048)";control.update(t,{});require(motions.back()==std::array<int,2>{8,2048});
+        for(auto command:{"CHANI()","CHANI(-27)","CHANI(-27/1/0)","CHANI(-27/x)"}) {
+            t.state.window=command;rejects([&]{control.update(t,{});});
+        }
+        t.state.window="WINTYPE(1)CHANI(-27/1)SHADOW(0)";
         result=control.update(t,{});require(result.resume_calls==1&&t.state.delay==0);
         t.state.delay=7;t.state.window="WINTYPE(0)SET(35/1/1)SHADOW(0)";
         result=control.update(t,{});require(!result.resume_calls&&t.state.delay==7&&result.cue==-1);

@@ -29,6 +29,7 @@ struct DialogueController {
     std::function<void(unsigned,unsigned,std::int32_t)> set_variable;
     std::function<std::int32_t(unsigned,unsigned)> get_variable;
     std::function<void(std::uint32_t)> shadow_request;
+    std::function<void(int,int)> actor_motion_request;
     DialogueInputEffects update(DialogueText& text,DialogueButtons buttons);
 };
 // Original 0x114c20/0x114cc0/0x114b58 scene-darkening layer. Initial state

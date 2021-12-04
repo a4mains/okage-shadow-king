@@ -36,6 +36,7 @@ struct FieldEntrance {Float4 position{},rotation{};};
 FieldEntrance field_entrance(Bytes stg,unsigned entrance);
 struct FieldTransition {int scene;unsigned entrance,countdown=2;bool ready=false;};
 struct FieldEncounter {unsigned column,mode;bool rear_attack;};
+struct FieldEventActor {FieldActor* actor=nullptr;std::vector<std::uint8_t> camera_motion;};
 struct FieldCameraSetting {int id=0;float height=0,scale=0,target=0,mode=0;};
 std::vector<FieldCameraSetting> field_camera_settings(Bytes stg);
 struct PlayerMovement {
@@ -71,6 +72,7 @@ public:
     // 0x1300d0 -> 0x1346e0: dialogue SHADOW requests use the transition
     // switch directly, without event54's bit0x100 selector override.
     bool request_player_shadow(std::uint32_t request);
+    bool request_actor_motion(int alias,unsigned entry);
     const std::vector<CollisionBody>& collision_bodies() const {return bodies_;}
     const AttachedEffects& effects() const {return effects_;}
     const MapEffects& map_effects() const {return map_effects_;}
@@ -82,6 +84,10 @@ public:
     std::function<bool(std::int32_t,bool)> music_service;
     std::function<bool(int,unsigned,unsigned)> music_channels;
     std::function<void(bool)> dialogue_input;
+    // Owned event resources; Session retains the returned actor through field teardown.
+    std::function<FieldEventActor()> create_hat_scene;
+    std::function<std::optional<int>(int)> resolve_instance_alias;
+    std::function<void(int,FieldActor*)> set_instance_alias;
     std::function<void(unsigned,int)> scene_fade;
     std::function<bool(int,bool)> map_visibility;
     std::function<bool(unsigned,std::int32_t,float,unsigned)> sound_cue;
@@ -110,6 +116,10 @@ private:
     int group_=-2;
     unsigned camera_mode_=2;
     FieldActor* camera_actor_=nullptr;
+    bool hat_requested_=false;
+    FieldActor* hat_actor_=nullptr;
+    FieldActor* alias7_actor_=nullptr;
+    std::unique_ptr<Animation> camera_motion_;
     std::optional<AnchoredCamera> exploration_camera_;
     std::vector<FieldCameraSetting> camera_settings_;
     bool exterior_camera_enabled_=false;

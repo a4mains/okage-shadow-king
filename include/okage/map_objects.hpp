@@ -15,6 +15,9 @@ public:
     const FieldActor* placement(std::size_t index) const;
     bool visible(std::size_t placement) const;
     bool set_visible(int instance,bool visible);
+    bool select_motion(int instance,unsigned entry);
+    int next_front_instance() const{return front_;}
+    int first_back_instance() const{return back_;}
     const std::vector<MapCollisionBinding>& collision_bodies() const {return collisions_;}
     std::optional<unsigned> collision_index(int instance) const;
     Float4 position(std::size_t placement) const;
@@ -26,5 +29,6 @@ private:
     std::vector<std::unique_ptr<FieldActor>> objects_;
     std::vector<ActorBinding> bindings_;
     std::vector<FieldActor*> placements_;
+    int front_=0,back_=640;
 };
 }

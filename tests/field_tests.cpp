@@ -386,6 +386,49 @@ int main(){try {
     for(unsigned i=0;i<3;++i)put(empty_map,i*4,1);put(empty_map,65,64);
     for(auto* data:{&idle,&startup}){put(*data,0,0x544d58);put(*data,4,24);put(*data,16,0xffffffff);}
     {
+        auto event=startup;event.resize(100);put(event,4,68);
+        put(event,40,1);put(event,44,20); // Entry1 jumps to the hat request.
+        put(event,48,0xff91003b);put(event,52,0x00200002); // Entry2 hides alias7.
+        put(event,64,0x4d);put(event,68,0x00200002);
+        put(event,72,0xff91013b);put(event,76,0xffe00036);
+        put(event,80,0x00600002);put(event,84,0xff91003b);
+        put(event,88,0x00100002);put(event,92,0);
+        std::vector<std::uint8_t> camera(72);
+        put(camera,0,0x544d58);put(camera,4,40);put(camera,16,0xffffffff);
+        put(camera,32,0x30);put(camera,36,__builtin_bit_cast(unsigned, (4.f)));
+        put(camera,40,__builtin_bit_cast(unsigned, (-5.f)));put(camera,44,__builtin_bit_cast(unsigned, (6.f)));
+        put(camera,48,0x00400030);put(camera,64,0x00200002);put(camera,68,0);
+        auto motions=idle;motions.resize(80);put(motions,4,48);
+        okage::ModelFile hm,em,nm;hm.models.emplace_back();em.models.emplace_back();nm.models.emplace_back();
+        okage::FieldActor hero(std::move(hm),motions,{}),hat(std::move(em),idle,{},true),npc(std::move(nm),motions,{});
+        require(hat.channels()[1]==okage::Float4({1,1,1,1}));
+        const std::array<okage::ActorBinding,2> bindings={{{-8,&npc},{-1,&hero}}};
+        okage::OpeningField scene(event,[](int){},[](int){return true;},bindings,false);
+        std::array<std::uint8_t,0x1000> vars{};unsigned loads=0;
+        scene.get_variable=[&](auto s){return okage::event_variable(vars,s);};
+        scene.set_variable=[&](auto i,auto b,auto v){okage::set_event_variable(vars,i,b,v);};
+        scene.create_hat_scene=[&]{++loads;return okage::FieldEventActor{&hat,camera};};
+        scene.random_value=[] {return 0u;};
+        okage::FieldDefinition entry;entry.type=1;entry.startup=1;
+        okage::FieldNpcDefinition person;person.alias=-8;person.talk=-2;person.position={3,0,0,1};
+        entry.npcs.push_back(person);
+        scene.enter(entry,stage,empty_map,0);require(loads==0);
+        scene.tick();require(loads==1&&!hat.visible&&scene.collision_bodies().size()==2);
+        require(hat.channels()[1]==okage::Float4({1,1,1,1}));
+        scene.tick();require(hat.visible&&scene.camera_mode()==1);
+        require(scene.position==okage::Float4({4,-5,6,1}));
+        require(hat.channels()[1]==okage::Float4({42.5f,__builtin_bit_cast(float, (0x401eb852u)),757.f,1}));
+        require(scene.rotation==okage::camera_look_at(scene.position,scene.target,angles,sine));
+        scene.tick();scene.tick();scene.tick();require(scene.camera_mode()==0);
+        for(unsigned i=0;i<5;++i)scene.tick();require(!hat.visible&&loads==1);
+        // A subsequent NPC interaction overwrites alias7 (0x132b00) while
+        // the event actor remains owned and eligible for ordinary updates.
+        for(unsigned i=0;i<16&&scene.event_running();++i)scene.tick();
+        require(!scene.event_running());scene.tick();
+        hat.visible=true;scene.tick({0,128,128,0x40});
+        require(scene.interaction_alias()==-8&&!npc.visible&&hat.visible&&loads==1);
+    }
+    {
         auto event=startup;event.resize(68);put(event,4,36);
         put(event,40,0xfff00007);put(event,44,0x00400433);
         put(event,48,__builtin_bit_cast(std::uint32_t, (8.f)));

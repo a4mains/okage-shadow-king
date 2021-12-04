@@ -6,7 +6,7 @@
 namespace okage {
 class FieldActor {
 public:
-    FieldActor(ModelFile model,Bytes motion,TextureAnimation textures);
+    FieldActor(ModelFile model,Bytes motion,TextureAnimation textures,bool defer_transform_evaluation=false);
     FieldActor(const FieldActor&)=delete;
     FieldActor& operator=(const FieldActor&)=delete;
     void select_motion(unsigned entry);
@@ -34,5 +34,5 @@ private:
     unsigned motion_=0;
 };
 // Field actor construction may omit a collision body (STUN).
-struct ActorBinding {int alias;FieldActor* actor;bool collidable=true;};
+struct ActorBinding {int alias;FieldActor* actor;bool collidable=true;int instance=-1;};
 }

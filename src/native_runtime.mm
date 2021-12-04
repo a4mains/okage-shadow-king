@@ -170,6 +170,8 @@ struct Session {
     bool dialogue_active=true;
     std::vector<std::unique_ptr<okage::FieldActor>> actor_objects;
     std::vector<okage::ActorBinding> actor_bindings;
+    std::array<int,128> instance_aliases{};
+    int next_instance=0,instance_limit=640;
     std::unique_ptr<okage::MapObjects> map_objects;
     std::unique_ptr<okage::OpeningField> field;
     std::unique_ptr<okage::SceneRenderer> renderer;
@@ -204,6 +206,18 @@ struct Session {
     mutable std::optional<okage::Texture> live_image;
     std::optional<okage::Texture> transition_live_image;
     unsigned transition_alpha=0,transition_target=0;
+    int bind_instance(int alias) {
+        if(alias>=0||alias<=-int(instance_aliases.size())||alias==-2||next_instance>=instance_limit)
+            throw std::runtime_error("Field instance/alias allocation is unrecovered");
+        const int instance=next_instance++;
+        instance_aliases[-alias]=instance;return instance;
+    }
+    void bind_scene_instances() {
+        next_instance=map_objects->next_front_instance();instance_limit=map_objects->first_back_instance();
+        //0x131d28 clears follower aliases4..6, leaving absent NPC aliases live.
+        for(unsigned i=4;i<=6;++i)instance_aliases[i]=-1;
+        for(auto& binding:actor_bindings)binding.instance=bind_instance(binding.alias);
+    }
     void create_field(okage::Bytes script,bool diagnostic) {
         field=std::make_unique<okage::OpeningField>(script,[this](int id){
             if(dialogue_active && !closure.finished())throw std::runtime_error("Field replaces an unfinished message");
@@ -223,6 +237,12 @@ struct Session {
                 if(!field || !field->request_player_shadow(request))
                     throw std::runtime_error("Dialogue player shadow is unavailable");
             };
+            controller.actor_motion_request=[this](int alias,int entry){
+                //0x148240 handler21 skips only battle mode4. This controller
+                // belongs to the field; battle dialogue dispatch is separate.
+                if(!field||!field->request_actor_motion(alias,__builtin_bit_cast(unsigned, (entry))))
+                    throw std::runtime_error("Dialogue actor motion target is unavailable");
+            };
             wait.countdown=wait.observed=wait.accumulated=0;
             dialogue_active=true;
         },[this](int request){
@@ -235,6 +255,30 @@ struct Session {
             return released;
         },actor_bindings,diagnostic);
         field->render_projection=&projection;
+        field->resolve_instance_alias=[this](int alias)->std::optional<int> {
+            if(alias>=0||alias<=-int(instance_aliases.size())||alias==-2)return {};
+            return instance_aliases[-alias];
+        };
+        field->set_instance_alias=[this](int alias,okage::FieldActor* actor) {
+            if(alias>=0||alias<=-int(instance_aliases.size())||alias==-2)
+                throw std::runtime_error("Field alias assignment is unrecovered");
+            for(const auto& binding:actor_bindings)if(binding.actor==actor) {
+                instance_aliases[-alias]=binding.instance;return;
+            }
+            throw std::runtime_error("Field alias assignment has no instance");
+        };
+        field->create_hat_scene=[this] {
+            const auto path=event_directory/"hat"/"a.xmd";
+            auto motion=path,xta=path;motion.replace_extension(".xmt");xta.replace_extension(".xta");
+            auto camera=readData(event_directory/"hatcam.xmt");
+            auto object=std::make_unique<okage::FieldActor>(okage::read_xmd(readData(path)),
+                readData(motion),readActorTextures(xta),true);
+            object->visible=false;
+            renderer->add_actor({object.get(),path,-7});
+            auto* actor=object.get();actor_objects.push_back(std::move(object));
+            actor_bindings.push_back({-7,actor,false,bind_instance(-7)});
+            return okage::FieldEventActor{actor,std::move(camera)};
+        };
         field->scene_fade=[this](unsigned percent,int mode){scene_fade.script_request(percent,mode);};
         field->dialogue_input=[this](bool enabled){
             if(!dialogue_active)throw std::runtime_error("Field input toggle before dialogue initialization");
@@ -270,6 +314,7 @@ struct Session {
             add(alias,path);
         }
         map_objects=std::make_unique<okage::MapObjects>(map);
+        bind_scene_instances();
         renderer=std::make_unique<okage::SceneRenderer>(map,scene_actors,map_objects.get());
         auto stg=map;stg.replace_extension(".stg");projection.load_stage(readData(stg));
         dialogue_active=false;
@@ -354,6 +399,7 @@ struct Session {
         for(const auto& npc:definition.npcs)add(npc.alias,npc.model);
         add(-3,"stun");add(-1,"hero");
         map_objects=std::make_unique<okage::MapObjects>(map);
+        bind_scene_instances();
         renderer=std::make_unique<okage::SceneRenderer>(map,scene_actors,map_objects.get());
         auto stg=map,xcl=map;stg.replace_extension(".stg");xcl.replace_extension(".xcl");
         const auto stage=readData(stg);projection.load_stage(stage);
@@ -673,6 +719,7 @@ static void capture(const Session& session,const fs::path& path) {
     for(const auto& binding:session.actor_bindings) {
         const auto& actor=*binding.actor;
         actors<<(firstActor ? "\n" : ",\n")<<"    {\"alias\": "<<binding.alias
+              <<", \"instance\": "<<binding.instance
               <<", \"visible\": "<<(actor.visible ? "true" : "false")
               <<", \"render_flags\": "<<actor.render_flags<<", \"shadow_mode_override\": ";
         if(actor.shadow_mode_override)actors<<*actor.shadow_mode_override;else actors<<"null";
@@ -684,7 +731,14 @@ static void capture(const Session& session,const fs::path& path) {
         }
         actors<<"]}";firstActor=false;
     }
-    actors<<"\n  ]\n}\n";
+    actors<<"\n  ],\n  \"next_front_instance\": "<<session.next_instance
+          <<",\n  \"first_back_instance\": "<<session.instance_limit
+          <<",\n  \"instance_aliases\": [";
+    for(unsigned i=0;i<session.instance_aliases.size();++i) {
+        if(i)actors<<',';
+        if(i==2)actors<<"null";else actors<<session.instance_aliases[i];
+    }
+    actors<<"]\n}\n";
     if(!actors)throw std::runtime_error("Cannot write native actor-state capture");
     if(session.renderer){
         std::ofstream shadows(shadowsPath);

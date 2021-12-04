@@ -2,33 +2,44 @@
   "scope": "Fixed-anchor observed state comparison across contiguous ordinary-input FIELD_1D route intervals; not whole-state, pixel, audio or complete-playthrough equivalence.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "first_tick": 79596,
-  "last_tick": 81875,
-  "total_frames": 2280,
-  "interval_count": 18,
+  "last_tick": 81965,
+  "total_frames": 2370,
+  "interval_count": 19,
   "controller_samples": 846,
   "observed_differing_frames": 0,
   "missing_observation_frames": 0,
   "endpoint": {
-    "reference": "local/reference-field1d-post-jam-fata-finish-240-v1",
-    "native": "local/native-post-jam-fata-finish-81875-release-v1",
-    "first_tick": 81636,
-    "last_tick": 81875,
+    "reference": "local/reference-field1d-post-jam-grandmother-approach-90-v1",
+    "native": "local/native-post-jam-grandmother-approach-81965-release-v1",
+    "first_tick": 81876,
+    "last_tick": 81965,
     "hero_position": [
-      65.45845794677734,
-      -0.0010000000474974513,
-      753.418701171875,
+      45.480751037597656,
+      0.3792929947376251,
+      746.2413940429688,
       1.0
     ],
     "camera_rotation": [
-      0.83282470703125,
-      0.762939453125,
+      0.87518310546875,
+      0.734375,
       0.0,
       1.0
     ],
-    "directions": [],
-    "press": [
-      81637
+    "directions": [
+      [
+        81877,
+        32768
+      ],
+      [
+        81890,
+        4096
+      ],
+      [
+        81924,
+        0
+      ]
     ],
+    "press": [],
     "divergence": {
       "first_difference": null,
       "category_frame_counts": {
@@ -57,14 +68,14 @@
       "missing_player_ranges": [],
       "matching_tail": {
         "first_original_frame": 0,
-        "first_native_tick": 81636,
-        "frames": 240,
-        "controller_samples": 41
+        "first_native_tick": 81876,
+        "frames": 90,
+        "controller_samples": 0
       }
     }
   },
   "endpoint_state": {
-    "frames": 81875,
+    "frames": 81965,
     "message_id": 14101,
     "messages_started": 74,
     "text_progress": 5,
@@ -75,7 +86,7 @@
     "message_flags": 2147483648,
     "window_type": 0,
     "scene_brightness": 1,
-    "narration_cues": 421,
+    "narration_cues": 423,
     "progression_flag_2": 0,
     "progression_flag_3": 0,
     "kitchen_flag_7": 1,
@@ -424,6 +435,24 @@
         "local/native-post-jam-fata-finish-81875-release-v1.directions": "e6433ee7d2593152ef35288f3851b95b61a2a2b7e5fcb47bce40914f13ff17ac",
         "local/reference-field1d-post-jam-fata-finish-240-v1.run.json": "1c5e128e880a4a1817e1da955d6064f13de71b13c95aef799f09416703f4c2d3",
         "local/reference-field1d-post-jam-fata-finish-240-v1.input": "bdddfbfa712118d34baab8a3ba2b5326dbd2813a4621679f5f3c2a3a97f1321c"
+      }
+    },
+    {
+      "first_tick": 81876,
+      "last_tick": 81965,
+      "native": "local/native-post-jam-grandmother-approach-81965-release-v1",
+      "reference": "local/reference-field1d-post-jam-grandmother-approach-90-v1",
+      "observed_differing_frames": 0,
+      "missing_observation_frames": 0,
+      "controller_samples": 0,
+      "sha256": {
+        "local/research/post-jam-route-v1/post-jam-grandmother-approach-result.json": "b20493a539730067cc984301b9cf30b8c2f9c57d00ec9bce88d2c8b38887139c",
+        "local/research/post-jam-route-v1/post-jam-grandmother-approach-summary.json": "5d4eb3ebadc60cce2c99a4f4bc97f635b5395307d1db6ec0a88f38a0b3028c14",
+        "local/research/post-jam-route-v1/post-jam-grandmother-approach-interval.json": "8fbab7edce471eff87363fef56cb44f115ce946529fdbf8633ab8456f9e0dc85",
+        "local/native-post-jam-grandmother-approach-81965-release-v1.run.json": "3d7579b061adb53d75e5e277c005b4bed1ffd48aeb53bcfa849e3f8e1e2c1a92",
+        "local/native-post-jam-grandmother-approach-81965-release-v1.directions": "993fa26d16cb50a64dec85b3c429811b6d08f39ef625597f97ab891e9b267a0c",
+        "local/reference-field1d-post-jam-grandmother-approach-90-v1.run.json": "1ee69d8099da292955af003d5b27a1fb0fcf40db1b0e5f5157b0f5f79abb2b4c",
+        "local/reference-field1d-post-jam-grandmother-approach-90-v1.input": "8c8d623c835c610c93bf345403be85e80145433c708213bce5d77c2092800cc0"
       }
     }
   ],

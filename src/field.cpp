@@ -62,10 +62,24 @@ OpeningField::OpeningField(Bytes bytes,std::function<void(int)> start,std::funct
     evaluate();
 }
 FieldActor* OpeningField::actor(int alias) const {
-    if(alias==-7 && interaction_alias_)alias=interaction_alias_;
+    if(alias==-7&&alias7_actor_)return alias7_actor_;
     for(const auto& binding:actors_)if(binding.alias==alias)return binding.actor;
     for(const auto& binding:map_objects_)if(binding.alias==alias)return binding.actor;
+    const auto instance=alias>=0?std::optional<int>(alias):
+        (resolve_instance_alias?resolve_instance_alias(alias):std::nullopt);
+    if(instance&&*instance>=0) {
+        for(const auto& binding:actors_)if(binding.instance==*instance)return binding.actor;
+        for(const auto& binding:map_objects_)if(binding.alias==*instance)return binding.actor;
+    }
     return nullptr;
+}
+bool OpeningField::request_actor_motion(int alias,unsigned entry) {
+    //0x130158 resolves a negative alias then calls0x1b6fb8 directly. Unlike
+    // event36, this caller has no camera selector or high-entry stop branch.
+    if(auto* target=actor(alias)){target->select_motion(entry);return true;}
+    const auto instance=alias>=0?std::optional<int>(alias):
+        (resolve_instance_alias?resolve_instance_alias(alias):std::nullopt);
+    return instance&&(*instance<0||(map_scene_&&map_scene_->select_motion(*instance,entry)));
 }
 void OpeningField::bind_map_objects(std::span<const ActorBinding> bindings) {
     if(!map_objects_.empty())throw std::runtime_error("Map objects already bound");
@@ -305,7 +319,9 @@ void OpeningField::interact(ExplorationInput input) {
     if(selected->talk==INT32_MIN)throw std::runtime_error("Invalid NPC event entry");
     interaction_alias_=selected->alias;interaction_event_=-selected->talk;
     auto* hero=actor(-1);hero->select_motion(1);player_.motion=1;player_.effect_counter=0;
-    auto* npc=actor(selected->alias);npc->select_motion(3);selected->state=3;
+    auto* npc=actor(selected->alias);alias7_actor_=npc;
+    if(set_instance_alias)set_instance_alias(-7,npc);
+    npc->select_motion(3);selected->state=3;
     if(get_variable(0x40005)==0) {
         const auto p=npc->animation().values().at(1);
         npc->animation().set_channel(0,{0,camera_angle(-(p[0]-position[0]),-(p[2]-position[2]),angles_)+.5f,0,0});
@@ -664,6 +680,11 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
         case 0x4c:
             if(a || b)throw std::runtime_error("Field dialogue mode not yet implemented");
             start_dialogue_(__builtin_bit_cast(std::int32_t, (word(pc+4))));return {pc+8};
+        case 0x4d:
+            //0x1308c0 only writes the manager sentinel. Construction happens
+            // on the following mode5 manager callback, not in this script pass.
+            if(hat_requested_||hat_actor_)throw std::runtime_error("Repeated hat scene construction is unrecovered");
+            hat_requested_=true;return {pc+4};
         case 10:return wait_dialogue_(b) ? Animation::ServiceResult{pc+4} : Animation::ServiceResult{pc,true};
         case 0x60:
             // 0x1305a8 -> 0x11fd78 changes body-layer flag0x10 only.
@@ -671,7 +692,17 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             if(!dialogue_input)return pending();
             dialogue_input(b==1);pending_opcode=0;return {pc+4};
         case 0x36:
-            if(auto* target=actor(b);target && a<0x800) {target->select_motion(a);return {pc+4};}
+            if(b==-2) {
+                //0x1b7a68 ->0x1baf50: camera resource absence is a real no-op.
+                if(camera_motion_) {
+                    if(a<0x100){camera_motion_->select(a);camera_mode_=1;}
+                    else camera_mode_=0;
+                }
+                pending_opcode=0;return {pc+4};
+            }
+            if(a<0x800&&request_actor_motion(b,a)) {
+                pending_opcode=0;return {pc+4};
+            }
             return pending();
         case 0x3c:
             // 0x1b7bb8 -> 0x1bb890: mode bits accumulate until mode0 clears
@@ -694,6 +725,13 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             return {pc+16};
         }
         case 0x3b:
+            if((a&0x100)&&b<0&&resolve_instance_alias&&map_scene_&&map_visibility) {
+                const auto instance=resolve_instance_alias(b);
+                if(instance&&map_scene_->collision_index(*instance)) {
+                    if(!map_visibility(*instance,(a&255)!=0))return pending();
+                    pending_opcode=0;return {pc+4};
+                }
+            }
             if((a&0x100)&&b>=0&&map_visibility) {
                 if(!map_visibility(b,(a&255)!=0))return pending();
                 pending_opcode=0;return {pc+4};
@@ -800,6 +838,15 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
     }
 }
 void OpeningField::evaluate() {
+    const bool animated_camera=camera_mode_==1;
+    if(animated_camera) {
+        if(!camera_motion_)throw std::runtime_error("Camera motion resource is missing");
+        const auto values=camera_motion_->values();
+        script_.set_channel(0,values.at(0));requested_target_=values.at(1);
+        // The final sample still gets look-at/blending on the update that
+        // notices the motion has ended (0x1b9830..0x1b98f8).
+        if(!(camera_motion_->script_state()&0x100))camera_mode_=0;
+    }
     if(camera_mode_==3) {
         // 0x1b9894 reads the actor position before visible actor channels tick.
         // The offset addition at 0x1b98d4 is overwritten by the following
@@ -807,7 +854,7 @@ void OpeningField::evaluate() {
         requested_target_=camera_actor_->animation().values().at(1);
     }
     position=script_.values().at(0);target=requested_target_;blend.apply(position,target);
-    if(camera_mode_==2 || camera_mode_==3) {
+    if(animated_camera || camera_mode_==2 || camera_mode_==3) {
         rotation=camera_look_at(position,target,angles_,sine_);
         // Original look-at 0x1b9440 writes the result back into channel 1.
         script_.set_channel(1,rotation);
@@ -840,6 +887,19 @@ void OpeningField::tick(ExplorationInput input) {
         } else transition_->ready=true;
     }
     if(!was_transitioning&&exterior&&!exploration_handoff_&&exterior_camera_enabled_)update_exterior_camera();
+    if(hat_requested_) {
+        if(exploration_handoff_||!create_hat_scene)
+            throw std::runtime_error("Hat scene requires its manager and owned resource loader");
+        auto resources=create_hat_scene();
+        if(!resources.actor)throw std::runtime_error("Hat scene loader returned no actor");
+        auto motion=std::make_unique<Animation>(resources.camera_motion,2);
+        motion->start(0); //0x1b5c38 ->0x1b5bd8 initializes the separate context.
+        camera_motion_=std::move(motion);camera_mode_=0; //0x1baf50(-1).
+        hat_actor_=resources.actor;alias7_actor_=hat_actor_;
+        hat_actor_->animation().set_channel(1,{__builtin_bit_cast(float, (0x422a0000u)),
+            __builtin_bit_cast(float, (0x401eb852u)),__builtin_bit_cast(float, (0x443d4000u)),1});
+        hat_actor_->visible=false;hat_requested_=false;
+    }
     if(!was_transitioning&&(exploration_camera_||exterior)&&!event_running()) {
         if(exploration_handoff_) {
             if(exterior&&exterior_camera_enabled_)update_exterior_camera();
@@ -873,12 +933,17 @@ void OpeningField::tick_callbacks(ExplorationInput input,bool interior_camera) {
     script_.tick_script();
     for(const auto& binding:map_objects_)binding.actor->tick_script();
     for(const auto& binding:actors_)binding.actor->tick_script();
-    script_.tick_channels();evaluate();
+    if(camera_motion_)camera_motion_->tick_script();
+    if(hat_actor_)hat_actor_->tick_script();
+    if(camera_mode_==1)camera_motion_->tick_channels();
+    else script_.tick_channels();
+    evaluate();
     screen_filter.tick(script_.values().at(2)[0]);
     // Actor groups have flag1 (not global-advance flag2). Original 0x1b9be0
     // calls 0x1b70a0 only for visible instances; hidden motion scripts still run.
     for(const auto& binding:map_objects_)if(binding.actor->visible){binding.actor->tick_channels();binding.actor->evaluate();}
     for(const auto& binding:actors_)if(binding.actor->visible){binding.actor->tick_channels();binding.actor->evaluate();}
+    if(hat_actor_&&hat_actor_->visible){hat_actor_->tick_channels();hat_actor_->evaluate();}
     // 0x1b9c74 has evaluated the camera before0x134c18 queries channel1.
     // The player wrapper tests the movement mask independently of manager
     // mode, including the handoff update and transition countdown.

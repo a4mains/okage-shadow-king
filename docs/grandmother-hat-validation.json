@@ -1,0 +1,638 @@
+{
+  "schema_version": 1,
+  "scope": "Native hat/camera lifecycle, persistent aliases, CHANI forwarding and fixed-anchor route comparisons.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "endpoint": {
+    "native": "local/native-grandmother-chani-85085-release-v1",
+    "original": "local/reference-field1d-post-jam-grandmother-repeat-finish-240-v1",
+    "tick": 85085,
+    "native_binary_sha256": "354472cea269e36e31078624fec3ba103b25ea45884a1fc8de7a3ce19b46c8ea",
+    "exit_code": 0,
+    "state": {
+      "message_id": 14105,
+      "text_progress": 1,
+      "controller_stage": 9,
+      "field_event_running": false,
+      "field_camera_mode": 2,
+      "interaction_alias": -27,
+      "interaction_event": 55
+    },
+    "native_bank1_flags": {
+      "13": 1,
+      "21": 1,
+      "23": 1,
+      "24": 0,
+      "25": 0,
+      "27": 0,
+      "29": 1
+    },
+    "native_gate4_index6": 1
+  },
+  "passing_intervals": [
+    {
+      "summary": "local/research/grandmother-service-v1/summary-visible-current-v1.json",
+      "sha256": "d8681db780b71e68a1bd223a411eda52c98d5641a9650e28d2f5f6826c9acc21",
+      "first_tick": 82806,
+      "frames": 600,
+      "controller_samples": 600,
+      "native_binary_sha256": "787924f7c55115978d30cc78b808f897ed68c7b718ad8563dc0ab4474f2c3a21",
+      "divergence": {
+        "first_difference": null,
+        "category_frame_counts": {
+          "controller": 0,
+          "choice": 0,
+          "manager_running_pc_gate": 0,
+          "pad_latch": 0,
+          "direction_latch": 0,
+          "player_mask": 0,
+          "hero_facing_w": 0,
+          "hero_position": 0,
+          "camera_rotation": 0,
+          "camera_mode_phase": 0,
+          "camera_position": 0,
+          "camera_unblended_target": 0
+        },
+        "unique_differing_frames": 0,
+        "first_missing_observation": null,
+        "first_missing_observation_kinds": [],
+        "missing_original_manager_frames": 0,
+        "missing_manager_ranges": [],
+        "missing_original_camera_frames": 0,
+        "missing_camera_ranges": [],
+        "unique_missing_observation_frames": 0,
+        "missing_original_player_frames": 0,
+        "missing_player_ranges": [],
+        "matching_tail": {
+          "first_original_frame": 0,
+          "first_native_tick": 82806,
+          "frames": 600,
+          "controller_samples": 600
+        }
+      },
+      "coverage": {
+        "manager": {
+          "expected_frames": 600,
+          "observed_frames": 600
+        },
+        "camera": {
+          "expected_frames": 600,
+          "observed_frames": 600
+        },
+        "player": {
+          "expected_frames": 600,
+          "observed_frames": 600
+        }
+      }
+    },
+    {
+      "summary": "local/research/post-jam-route-v1/post-jam-grandmother-finish-summary.json",
+      "sha256": "e2cc6b7c0b63a4cecab4b2ae29708428ffb8386aef7c314282d466e6dcd82812",
+      "first_tick": 83406,
+      "frames": 600,
+      "controller_samples": 600,
+      "native_binary_sha256": "787924f7c55115978d30cc78b808f897ed68c7b718ad8563dc0ab4474f2c3a21",
+      "divergence": {
+        "first_difference": null,
+        "category_frame_counts": {
+          "controller": 0,
+          "choice": 0,
+          "manager_running_pc_gate": 0,
+          "pad_latch": 0,
+          "direction_latch": 0,
+          "player_mask": 0,
+          "hero_facing_w": 0,
+          "hero_position": 0,
+          "camera_rotation": 0,
+          "camera_mode_phase": 0,
+          "camera_position": 0,
+          "camera_unblended_target": 0
+        },
+        "unique_differing_frames": 0,
+        "first_missing_observation": null,
+        "first_missing_observation_kinds": [],
+        "missing_original_manager_frames": 0,
+        "missing_manager_ranges": [],
+        "missing_original_camera_frames": 0,
+        "missing_camera_ranges": [],
+        "unique_missing_observation_frames": 0,
+        "missing_original_player_frames": 0,
+        "missing_player_ranges": [],
+        "matching_tail": {
+          "first_original_frame": 0,
+          "first_native_tick": 83406,
+          "frames": 600,
+          "controller_samples": 600
+        }
+      },
+      "coverage": {
+        "manager": {
+          "expected_frames": 600,
+          "observed_frames": 600
+        },
+        "camera": {
+          "expected_frames": 600,
+          "observed_frames": 600
+        },
+        "player": {
+          "expected_frames": 600,
+          "observed_frames": 600
+        }
+      }
+    },
+    {
+      "summary": "local/research/post-jam-route-v1/post-jam-grandmother-farewell-summary.json",
+      "sha256": "425f7423a495ee23f47b58c94bfd73ea3cc22e231e0064f5de92ded1cec6ee28",
+      "first_tick": 84006,
+      "frames": 600,
+      "controller_samples": 520,
+      "native_binary_sha256": "787924f7c55115978d30cc78b808f897ed68c7b718ad8563dc0ab4474f2c3a21",
+      "divergence": {
+        "first_difference": null,
+        "category_frame_counts": {
+          "controller": 0,
+          "choice": 0,
+          "manager_running_pc_gate": 0,
+          "pad_latch": 0,
+          "direction_latch": 0,
+          "player_mask": 0,
+          "hero_facing_w": 0,
+          "hero_position": 0,
+          "camera_rotation": 0,
+          "camera_mode_phase": 0,
+          "camera_position": 0,
+          "camera_unblended_target": 0
+        },
+        "unique_differing_frames": 0,
+        "first_missing_observation": null,
+        "first_missing_observation_kinds": [],
+        "missing_original_manager_frames": 0,
+        "missing_manager_ranges": [],
+        "missing_original_camera_frames": 0,
+        "missing_camera_ranges": [],
+        "unique_missing_observation_frames": 0,
+        "missing_original_player_frames": 0,
+        "missing_player_ranges": [],
+        "matching_tail": {
+          "first_original_frame": 0,
+          "first_native_tick": 84006,
+          "frames": 600,
+          "controller_samples": 520
+        }
+      },
+      "coverage": {
+        "manager": {
+          "expected_frames": 600,
+          "observed_frames": 600
+        },
+        "camera": {
+          "expected_frames": 600,
+          "observed_frames": 600
+        },
+        "player": {
+          "expected_frames": 600,
+          "observed_frames": 600
+        }
+      }
+    },
+    {
+      "summary": "local/research/post-jam-route-v1/post-jam-grandmother-repeat-close-summary.json",
+      "sha256": "179be61aaf1ee4d1220eb97d7dffac52e6c42aeab1a11a27238f7f5e70210b79",
+      "first_tick": 84606,
+      "frames": 240,
+      "controller_samples": 240,
+      "native_binary_sha256": "787924f7c55115978d30cc78b808f897ed68c7b718ad8563dc0ab4474f2c3a21",
+      "divergence": {
+        "first_difference": null,
+        "category_frame_counts": {
+          "controller": 0,
+          "choice": 0,
+          "manager_running_pc_gate": 0,
+          "pad_latch": 0,
+          "direction_latch": 0,
+          "player_mask": 0,
+          "hero_facing_w": 0,
+          "hero_position": 0,
+          "camera_rotation": 0,
+          "camera_mode_phase": 0,
+          "camera_position": 0,
+          "camera_unblended_target": 0
+        },
+        "unique_differing_frames": 0,
+        "first_missing_observation": null,
+        "first_missing_observation_kinds": [],
+        "missing_original_manager_frames": 0,
+        "missing_manager_ranges": [],
+        "missing_original_camera_frames": 0,
+        "missing_camera_ranges": [],
+        "unique_missing_observation_frames": 0,
+        "missing_original_player_frames": 0,
+        "missing_player_ranges": [],
+        "matching_tail": {
+          "first_original_frame": 0,
+          "first_native_tick": 84606,
+          "frames": 240,
+          "controller_samples": 240
+        }
+      },
+      "coverage": {
+        "manager": {
+          "expected_frames": 240,
+          "observed_frames": 240
+        },
+        "camera": {
+          "expected_frames": 240,
+          "observed_frames": 240
+        },
+        "player": {
+          "expected_frames": 240,
+          "observed_frames": 240
+        }
+      }
+    },
+    {
+      "summary": "local/research/grandmother-service-v1/chani-summary-v1.json",
+      "sha256": "8d05f6245a82cc93c004ab43bd5fbc129e596064d596edbddc83947db17c36c5",
+      "first_tick": 84846,
+      "frames": 240,
+      "controller_samples": 51,
+      "native_binary_sha256": "354472cea269e36e31078624fec3ba103b25ea45884a1fc8de7a3ce19b46c8ea",
+      "divergence": {
+        "first_difference": null,
+        "category_frame_counts": {
+          "controller": 0,
+          "choice": 0,
+          "manager_running_pc_gate": 0,
+          "pad_latch": 0,
+          "direction_latch": 0,
+          "player_mask": 0,
+          "hero_facing_w": 0,
+          "hero_position": 0,
+          "camera_rotation": 0,
+          "camera_mode_phase": 0,
+          "camera_position": 0,
+          "camera_unblended_target": 0
+        },
+        "unique_differing_frames": 0,
+        "first_missing_observation": null,
+        "first_missing_observation_kinds": [],
+        "missing_original_manager_frames": 0,
+        "missing_manager_ranges": [],
+        "missing_original_camera_frames": 0,
+        "missing_camera_ranges": [],
+        "unique_missing_observation_frames": 0,
+        "missing_original_player_frames": 0,
+        "missing_player_ranges": [],
+        "matching_tail": {
+          "first_original_frame": 0,
+          "first_native_tick": 84846,
+          "frames": 240,
+          "controller_samples": 51
+        }
+      },
+      "coverage": {
+        "manager": {
+          "expected_frames": 240,
+          "observed_frames": 240
+        },
+        "camera": {
+          "expected_frames": 240,
+          "observed_frames": 240
+        },
+        "player": {
+          "expected_frames": 240,
+          "observed_frames": 240
+        }
+      }
+    }
+  ],
+  "passing_frames": 2280,
+  "controller_samples": 2011,
+  "hat_channel_comparisons": [
+    {
+      "report": "local/research/grandmother-service-v1/hat-visible-final-600-v1.json",
+      "sha256": "3458064c4b3e187811500ac82876067ca12607705d235a4200f37a01c81d7c2e",
+      "frames": 600,
+      "channel_words": 484800,
+      "different_words": {
+        "field_pc": 0,
+        "actor_pc": 0,
+        "actor_flags": 0,
+        "root_words": 0,
+        "other_channel_words": 0
+      }
+    },
+    {
+      "report": "local/research/grandmother-service-v1/hat-finish-600-v1.json",
+      "sha256": "e0b0f9570a2a679b7b36a5a874e2d20f0a494a19044947026cf0885e70501d0e",
+      "frames": 600,
+      "channel_words": 484800,
+      "different_words": {
+        "field_pc": 0,
+        "actor_pc": 0,
+        "actor_flags": 0,
+        "root_words": 0,
+        "other_channel_words": 0
+      }
+    },
+    {
+      "report": "local/research/grandmother-service-v1/hat-farewell-600-v1.json",
+      "sha256": "52d63ea1bf00ccc304f72c06b0f6ee3e3a04ce351deb044e12ad6e64ef717171",
+      "frames": 600,
+      "channel_words": 484800,
+      "different_words": {
+        "field_pc": 0,
+        "actor_pc": 0,
+        "actor_flags": 0,
+        "root_words": 0,
+        "other_channel_words": 0
+      }
+    },
+    {
+      "report": "local/research/grandmother-service-v1/hat-repeat-close-240-v1.json",
+      "sha256": "642c10304e54e755c80e6eebdc5fc6df6ed42131641b62f981bf17d99d36b216",
+      "frames": 240,
+      "channel_words": 193920,
+      "different_words": {
+        "field_pc": 0,
+        "actor_pc": 0,
+        "actor_flags": 0,
+        "root_words": 0,
+        "other_channel_words": 0
+      }
+    },
+    {
+      "report": "local/research/grandmother-service-v1/hat-chani-240-v1.json",
+      "sha256": "d1b3c43e37c1b2c88f4485c938aedbb02d15ed2e59e089dc3c1032a149a43397",
+      "frames": 240,
+      "channel_words": 193920,
+      "different_words": {
+        "field_pc": 0,
+        "actor_pc": 0,
+        "actor_flags": 0,
+        "root_words": 0,
+        "other_channel_words": 0
+      }
+    }
+  ],
+  "exact_channel_words": 1842240,
+  "preserved_load_failure": {
+    "summary": "local/research/grandmother-service-v1/summary-v1.json",
+    "sha256": "f97aecb381f41333772d4043fd90cf22e1de7583c63420fa61f5f344c2e415a3",
+    "first_tick": 81966,
+    "frames": 240,
+    "controller_samples": 161,
+    "native_binary_sha256": "64b2080e941a1e693a6dc737728dd572bf8ce5161b44aa181d5127cee44aab3c",
+    "divergence": {
+      "first_difference": {
+        "original_frame": 10,
+        "native_simulation_tick": 81976,
+        "categories": [
+          "hero_facing_w"
+        ]
+      },
+      "category_frame_counts": {
+        "controller": 161,
+        "choice": 159,
+        "manager_running_pc_gate": 14,
+        "pad_latch": 0,
+        "direction_latch": 0,
+        "player_mask": 0,
+        "hero_facing_w": 9,
+        "hero_position": 0,
+        "camera_rotation": 66,
+        "camera_mode_phase": 66,
+        "camera_position": 66,
+        "camera_unblended_target": 0
+      },
+      "unique_differing_frames": 230,
+      "first_missing_observation": {
+        "original_frame": 2,
+        "native_simulation_tick": 81968,
+        "kind": "missing_original_camera_observation"
+      },
+      "first_missing_observation_kinds": [
+        "missing_original_camera_observation"
+      ],
+      "missing_original_manager_frames": 7,
+      "missing_manager_ranges": [
+        {
+          "original_start_frame": 3,
+          "original_end_frame": 9,
+          "native_tick_start": 81969,
+          "native_tick_end": 81975,
+          "frames": 7
+        }
+      ],
+      "missing_original_camera_frames": 7,
+      "missing_camera_ranges": [
+        {
+          "original_start_frame": 2,
+          "original_end_frame": 8,
+          "native_tick_start": 81968,
+          "native_tick_end": 81974,
+          "frames": 7
+        }
+      ],
+      "unique_missing_observation_frames": 8,
+      "missing_original_player_frames": 0,
+      "missing_player_ranges": [],
+      "matching_tail": {
+        "first_original_frame": 240,
+        "first_native_tick": 82206,
+        "frames": 0,
+        "controller_samples": 0
+      }
+    },
+    "coverage": {
+      "manager": {
+        "expected_frames": 240,
+        "observed_frames": 233
+      },
+      "camera": {
+        "expected_frames": 240,
+        "observed_frames": 233
+      },
+      "player": {
+        "expected_frames": 240,
+        "observed_frames": 233
+      }
+    }
+  },
+  "preserved_introduction_failure": {
+    "summary": "local/research/post-jam-route-v1/post-jam-grandmother-introduction-summary.json",
+    "sha256": "1800a2513d453f21236786eee6360a2da49d59dc635de4408d56471c9158e91b",
+    "first_tick": 82206,
+    "frames": 600,
+    "controller_samples": 600,
+    "native_binary_sha256": "64b2080e941a1e693a6dc737728dd572bf8ce5161b44aa181d5127cee44aab3c",
+    "divergence": {
+      "first_difference": {
+        "original_frame": 0,
+        "native_simulation_tick": 82206,
+        "categories": [
+          "controller",
+          "choice"
+        ]
+      },
+      "category_frame_counts": {
+        "controller": 8,
+        "choice": 8,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "direction_latch": 0,
+        "player_mask": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "camera_rotation": 0,
+        "camera_mode_phase": 0,
+        "camera_position": 0,
+        "camera_unblended_target": 0
+      },
+      "unique_differing_frames": 8,
+      "first_missing_observation": null,
+      "first_missing_observation_kinds": [],
+      "missing_original_manager_frames": 0,
+      "missing_manager_ranges": [],
+      "missing_original_camera_frames": 0,
+      "missing_camera_ranges": [],
+      "unique_missing_observation_frames": 0,
+      "missing_original_player_frames": 0,
+      "missing_player_ranges": [],
+      "matching_tail": {
+        "first_original_frame": 8,
+        "first_native_tick": 82214,
+        "frames": 592,
+        "controller_samples": 592
+      }
+    },
+    "coverage": {
+      "manager": {
+        "expected_frames": 600,
+        "observed_frames": 600
+      },
+      "camera": {
+        "expected_frames": 600,
+        "observed_frames": 600
+      },
+      "player": {
+        "expected_frames": 600,
+        "observed_frames": 600
+      }
+    }
+  },
+  "preserved_stale_alias_failure": {
+    "summary": "local/research/post-jam-route-v1/post-jam-grandmother-hat-summary.json",
+    "sha256": "d48ae4b089716011072749c8bf0e8e9abc19c1d5eb2ae416a79d8201a3418cad",
+    "first_tick": 82806,
+    "frames": 600,
+    "controller_samples": 600,
+    "native_binary_sha256": "64b2080e941a1e693a6dc737728dd572bf8ce5161b44aa181d5127cee44aab3c",
+    "divergence": {
+      "first_difference": {
+        "original_frame": 6,
+        "native_simulation_tick": 82812,
+        "categories": [
+          "camera_rotation",
+          "camera_mode_phase",
+          "camera_position"
+        ]
+      },
+      "category_frame_counts": {
+        "controller": 0,
+        "choice": 0,
+        "manager_running_pc_gate": 593,
+        "pad_latch": 0,
+        "direction_latch": 0,
+        "player_mask": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "camera_rotation": 594,
+        "camera_mode_phase": 594,
+        "camera_position": 594,
+        "camera_unblended_target": 0
+      },
+      "unique_differing_frames": 594,
+      "first_missing_observation": null,
+      "first_missing_observation_kinds": [],
+      "missing_original_manager_frames": 0,
+      "missing_manager_ranges": [],
+      "missing_original_camera_frames": 0,
+      "missing_camera_ranges": [],
+      "unique_missing_observation_frames": 0,
+      "missing_original_player_frames": 0,
+      "missing_player_ranges": [],
+      "matching_tail": {
+        "first_original_frame": 600,
+        "first_native_tick": 83406,
+        "frames": 0,
+        "controller_samples": 0
+      }
+    },
+    "coverage": {
+      "manager": {
+        "expected_frames": 600,
+        "observed_frames": 600
+      },
+      "camera": {
+        "expected_frames": 600,
+        "observed_frames": 600
+      },
+      "player": {
+        "expected_frames": 600,
+        "observed_frames": 600
+      }
+    }
+  },
+  "preserved_chani_guard": {
+    "run": "local/native-post-jam-grandmother-repeat-finish-85085-release-v1.run.json",
+    "sha256": "521da007600b83ac4862b93df2007e7644668112cbbeab21032d2b73d6bd4b7a",
+    "frame": 84862,
+    "error": "CHANI(-27/1): Dialogue window command not implemented",
+    "exit_code": 1
+  },
+  "alias_evidence": {
+    "path": "local/research/grandmother-service-v1/alias-allocation-v1.json",
+    "sha256": "b4974f2f961c70d9abc7e16fa00978b4d81d35ec92a29d9ec1d591e04a4562ec"
+  },
+  "tests": {
+    "release": "23/23 CTests passed",
+    "release_log": "local/research/grandmother-service-v1/tests-v8.log",
+    "sanitizer": "field-tests and dialogue-tests passed",
+    "sanitizer_log": "local/research/grandmother-service-v1/sanitize-tests-v3.log",
+    "python": "155 passed after map observer integration",
+    "python_log": "local/research/grandmother-service-v1/python-tests-v1.log"
+  },
+  "source_sha256": {
+    "include/okage/actor.hpp": "94e5a63c3118d92e76211d753b97690891e27babf47318363366b838415ccd1a",
+    "include/okage/field.hpp": "0be32c0c4e1eb88558f578e9926471dd04ecc35fdaea86112cf76ea8d2bc3738",
+    "include/okage/map_objects.hpp": "8795de152e7d8c58a4d77db0e60a9f89848bd5246db64b20eb98c89209294dd2",
+    "include/okage/dialogue.hpp": "44f251c127bb3c6e63315d54e23fda0d4f921fd1a576226e49508bf147793aba",
+    "src/actor.cpp": "2379874fc0a70e3fbfb36c74f63da36c54d21701a3688153faee503665c51998",
+    "src/field.cpp": "5270b0e3a93699f65f46777cbbd888122f86360de6353cdafc64cdfd87fa900d",
+    "src/map_objects.cpp": "bdaabf788f2051be7f65ee779704bf1bde4ff31180c487cdb0510158516304b5",
+    "src/dialogue.cpp": "0b0e6b562c47851aabc19e3a8daf2c90c81c53e1ba3ad81cab108487c3790797",
+    "src/native_runtime.mm": "d54f7d9ba400b2a7bd27676a03fcf9b455ccdd1ef1a0e7cca8a694fbd519bc27",
+    "tests/field_tests.cpp": "fd9fb3484d331f9f6b33bc1be599618c541f478d503ebcc73d29f7a73b0ee493",
+    "tests/dialogue_tests.cpp": "ef5b708ab05d56b247215a9a8f35a5ef3c3e8c4e835395b676c6970490d2521e"
+  },
+  "owned_asset_sha256": {
+    "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/hat/0st_kti1.xim": "0f6420f4e12eb2bb461a5c06a45543cb6b6ec08bbaf183a6640bd1eea731e64f",
+    "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/hat/a.xmt": "5f709bfdbd037966bdd4c59d8b1cd5aeabb8aee7e487f1c9e81f2ab86f6d7136",
+    "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/hat/5oyaobi.xim": "ad2c20eeee82a2b59e90b1067cbf7f9ee2e6e2a56ac688cf1f135664f9f67a4e",
+    "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/hat/a.xmd": "cc73dd6f10d3955801b950eb1d46fca74d68f811a1a0b31269e649953c7558dc",
+    "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/hat/0st_eyd3.xim": "e9fcce0655b7b29fdfb61bab02e009fa0916b1e0ce48d465b98c21d0191dc4be",
+    "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/hat/0st_eyd2.xim": "20bd975909376a8a9f4680b29b3f8d5857947f3209f76229d5786a527ff5ed39",
+    "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/hat/0st_eyd1.xim": "3830acf4a46363be824fccbd68c71a129cea2b79163939371956b2a923e0a8ec",
+    "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/hat/1mugiwara.xim": "9d826c83fe954aa168514d1f6b6636c34aca69231f038870eefc8a8260bd922f",
+    "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/hatcam.xmt": "883df0c11b2a53beb866a6dd467956fbe830e04755c2976e20947c35f0b966fa",
+    "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_field.xmt": "f844e662fcebb09c8ea4ab2497bf7b392d33b4844037004f27d998c11d4ac0f2"
+  },
+  "limitations": [
+    "Separate lower diagnostic text panel remains in research PNGs; actual AppKit uses full-height4:3 layout.",
+    "Static-map scripted channel interpolation, repeated hat construction, additional dynamic numeric-instance lookup and followers remain guarded.",
+    "CHANI Grandmother pose channels not independently compared; metadata return semantics recovered statically and unit-tested.",
+    "Source-rate audio retained but unaligned; paired images retain lighting,shadow,UI differences.",
+    "Original loading pauses remain unmatched; passing suffixes do not erase retained interval failures.",
+    "Native route is Release only; focused sanitizer unit tests are separate."
+  ]
+}

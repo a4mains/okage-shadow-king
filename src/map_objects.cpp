@@ -62,6 +62,10 @@ MapObjects::MapObjects(const std::filesystem::path& path) {
     for(std::size_t i=0;i<map.placements.size();++i) {
         const auto& p=map.placements[i];const auto& d=map.definitions.at(p.definition());
         const auto transform=map_transform(p,d);
+        if(ids[i]>=0) {
+            if(transform.flags&0x100000)back_=std::min(back_,ids[i]);
+            else front_=std::max(front_,ids[i]+1);
+        }
         states_[i]={ids[i],(transform.flags&0x10000)==0,transform.position};
         if(p.handler()||!(d.flags()&8))continue;
         auto model=path.parent_path()/d.name,motion=model,xta=model;
@@ -91,6 +95,14 @@ bool MapObjects::set_visible(int instance,bool value) {
     for(std::size_t i=0;i<states_.size();++i)if(states_[i].instance==instance) {
         states_[i].visible=value;
         if(auto* object=placements_[i])object->visible=value;
+        return true;
+    }
+    return false;
+}
+bool MapObjects::select_motion(int instance,unsigned entry) {
+    if(instance<0)return false;
+    for(std::size_t i=0;i<states_.size();++i)if(states_[i].instance==instance) {
+        if(auto* object=placements_[i])object->select_motion(entry);
         return true;
     }
     return false;

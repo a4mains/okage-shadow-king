@@ -69,6 +69,10 @@ DialogueInputEffects DialogueController::update(DialogueText& text,DialogueButto
                 const auto value=arguments(part,"SHADOW(",1)[0];
                 if(!shadow_request)throw std::runtime_error("Dialogue shadow service unavailable");
                 shadow_request(__builtin_bit_cast(std::uint32_t, (value)));
+            } else if(part.starts_with("CHANI(")) {
+                const auto values=arguments(part,"CHANI(",2);
+                if(!actor_motion_request)throw std::runtime_error("Dialogue actor motion service unavailable");
+                actor_motion_request(values[0],values[1]);
             } else if(part.starts_with("LA(")) {
                 const auto values=arguments(part,"LA(",3);
                 if(text.choice_result<0 || text.choice_result>=3 || !get_variable || !set_variable)

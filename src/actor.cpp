@@ -8,13 +8,13 @@ std::size_t channel_count(const ModelFile& model,Bytes motion) {
     return 4+model.models[0].bones.size()*(scale ? 3 : 2);
 }
 }
-FieldActor::FieldActor(ModelFile model,Bytes motion,TextureAnimation textures):
+FieldActor::FieldActor(ModelFile model,Bytes motion,TextureAnimation textures,bool defer_transform_evaluation):
     model_(std::move(model)),textures_(model_,std::move(textures)),animation_(motion,channel_count(model_,motion)) {
     animation_.set_texture_callback([this](auto group,auto variant){textures_.select(group,variant);});
     animation_.start(0);animation_.tick_channels();evaluate();
     // Original instance construction 0x1b64d8 initializes transform channels.
     animation_.set_channel(0,{0,0,0,1});animation_.set_channel(1,{0,0,0,1});animation_.set_channel(2,{1,1,1,1});
-    evaluate();
+    if(!defer_transform_evaluation)evaluate();
 }
 void FieldActor::select_motion(unsigned entry) {
     textures_.restore();animation_.select(entry);motion_=entry;
