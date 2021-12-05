@@ -19,8 +19,6 @@ OrdinaryLightingResult ordinary_light_normal(const Float4& normal_cache,
 Float4 ordinary_material_modulation(const Float4& source_cache, const Float4& lighting_cache);
 Float4 ordinary_material_color(const Float4& source_cache, const Float4& lighting_cache);
 
-// Original EE 0x1e28f0 / 0x183b18: transpose(negative normalized STG directions)
-// multiplied by transpose(view), with a homogeneous fourth direction column.
 Matrix4 ordinary_direction_matrix(const std::array<Float4, 3>& stg_directions,
     const Matrix4& view);
 

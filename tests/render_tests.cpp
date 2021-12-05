@@ -1,5 +1,7 @@
 #include "okage/render.hpp"
 #include "okage/field_raster.hpp"
+#include "okage/map_material.hpp"
+#include "okage/ordinary_lighting.hpp"
 #include <cfenv>
 #include <bit>
 #include <cmath>
@@ -185,6 +187,60 @@ int main() {
         rejects([&]{okage::material_source_color(material,{1,1,1,1});});
         material.words[5]=0;
         rejects([&]{okage::material_source_color(material,{1,1,1,std::numeric_limits<float>::quiet_NaN()});});
+        okage::Material mapMaterial{};
+        mapMaterial.words[0]=__builtin_bit_cast(unsigned, (.125f)); // Not a source RGB multiplier.
+        for(int rounding:{FE_TONEAREST,FE_DOWNWARD,FE_UPWARD,FE_TOWARDZERO}) {
+            std::fesetround(rounding);
+            for(const auto& sample:std::array{
+                    okage::Float4{.75f,.75f,.75f,1},okage::Float4{.59375f,.625f,.65625f,1}}) {
+                const auto cache=okage::material_source_color(mapMaterial,sample);
+                const auto expected=sample[0]==.75f?okage::Float4{191.25f,191.25f,191.25f,128}:
+                    okage::Float4{151.40625f,159.375f,167.34375f,128};
+                require(cache==expected);
+                require(okage::ordinary_material_modulation(cache,{1,1,1,1})==expected);
+                require(okage::ordinary_material_color(cache,{1,1,1,1})==
+                    (sample[0]==.75f?okage::Float4{191,191,191,128}:okage::Float4{151,159,167,128}));
+                require(std::fegetround()==rounding);
+            }
+        }
+        std::fesetround(before);
+        const auto source=okage::material_source_color(mapMaterial,{.5f,.5f,.5f,1});
+        require(okage::ordinary_material_modulation(source,{.5f,1,2,.25f})==okage::Float4({63.75f,127.5f,255,32}));
+        require(okage::map_material_class(mapMaterial,-1).base_lighting);
+        require(!okage::map_material_class(mapMaterial,0).base_lighting);
+        mapMaterial.words[7]=1;require(okage::map_material_class(mapMaterial,0).base_lighting);
+        mapMaterial.words[7]=2;rejects([&]{okage::map_material_class(mapMaterial,-1);});mapMaterial.words[7]=0;
+        require(!okage::map_material_class(mapMaterial,-1).translucent);
+        mapMaterial.words[5]=__builtin_bit_cast(unsigned, (.001f));
+        require(okage::map_material_class(mapMaterial,-1).translucent);
+        require(okage::material_source_color(mapMaterial,{1,1,1,1})[3]==128);
+        mapMaterial.words[5]=__builtin_bit_cast(unsigned, (.009f));
+        require(okage::map_material_class(mapMaterial,-1).translucent);
+        require(okage::material_source_color(mapMaterial,{1,1,1,1})[3]==127);
+        mapMaterial.words[5]=__builtin_bit_cast(unsigned, (-.001f));rejects([&]{okage::map_material_class(mapMaterial,-1);});
+        mapMaterial.words[5]=0;mapMaterial.words[6]=1;rejects([&]{okage::map_material_class(mapMaterial,-1);});
+        okage::Polygon polygon{};polygon.flags=0x20;polygon.texture_state=0;
+        require(!okage::map_material_textured(polygon)); // Selected image, TME off.
+        polygon.flags=0x30;require(okage::map_material_textured(polygon));
+        polygon.texture_state=-1;rejects([&]{okage::map_material_textured(polygon);});
+        polygon.flags=0x20;require(!okage::map_material_textured(polygon));
+        polygon.flags=0x21;rejects([&]{okage::map_material_textured(polygon);});
+        okage::RenderBlock normalBlock;
+        normalBlock.materials.resize(2);normalBlock.polygons.resize(2);
+        normalBlock.polygons[0].material=0;normalBlock.polygons[0].corners.push_back({0,-1,0,-1});
+        normalBlock.polygons[1].material=1;normalBlock.polygons[1].corners.push_back({0,0,0,-1});
+        normalBlock.materials[0].words[4]=__builtin_bit_cast(unsigned, (71.f));
+        require(okage::map_material_block_uses_normals(normalBlock));
+        rejects([&]{okage::validate_map_material_extra_pass(normalBlock.materials[0],true);});
+        normalBlock.materials[1].words[7]=1;
+        require(!okage::map_material_block_uses_normals(normalBlock));
+        okage::validate_map_material_extra_pass(normalBlock.materials[0],false);
+        normalBlock.materials[0].words[4]=__builtin_bit_cast(unsigned, (70.f));
+        okage::validate_map_material_extra_pass(normalBlock.materials[0],true);
+        const std::array<int,2> translucent{10,30};
+        std::vector<std::pair<int,unsigned>> passes{{20,3},{40,3}};
+        okage::map_translucent_passes(std::span<const int>(translucent),[&](int id,unsigned pass){passes.emplace_back(id,pass);});
+        require(passes==std::vector<std::pair<int,unsigned>>{{20,3},{40,3},{10,1},{30,1},{10,2},{30,2}});
         rejects([]{okage::triangle_corners(5);});
         std::cout<<"Native render topology, UV boundaries and rounding checks passed\n";
     } catch (const std::exception& e) {std::cerr<<e.what()<<'\n'; return 1;}

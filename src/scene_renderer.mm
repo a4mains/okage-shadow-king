@@ -6,6 +6,7 @@
 #include "okage/map_objects.hpp"
 #include "okage/render.hpp"
 #include "okage/ordinary_lighting.hpp"
+#include "okage/map_material.hpp"
 #include "okage/field_raster.hpp"
 #include "shadow_metal.hpp"
 #include "metal_preview_shader.hpp"
@@ -23,7 +24,7 @@ std::vector<std::uint8_t> read(const fs::path& path) {
     if(!in.read(reinterpret_cast<char*>(b.data()),b.size()))throw std::runtime_error("Cannot read scene input");return b;
 }
 using Vertex=FieldRasterVertex;
-struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;std::uint64_t materialBlend=0;bool depthAlways=false,subtractive=false;unsigned phase=0;float nearClip=3;bool deferred=false;unsigned bucket=0,ordinal=0;};
+struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;std::uint64_t materialBlend=0;bool depthAlways=false,subtractive=false;unsigned phase=0;float nearClip=3;bool deferred=false;unsigned bucket=0,ordinal=0;bool mapMaterial=false;};
 }
 struct SceneRenderer::Impl {
     struct BlockPreparation {
@@ -247,6 +248,7 @@ struct SceneRenderer::Impl {
             const auto& input=inputs[inputIndex];const auto textureOffset=textureOffsets[inputIndex];
             if(input.placement && !(mapObjects?mapObjects->visible(*input.placement):input.visible))continue;
             if(input.actor && !input.actor->visible)continue;
+            const bool mapMaterial=input.placement.has_value();
             const bool ordinaryInstance=input.actor && !input.actor->encounter_model && input.actor->render_flags==0x100000;
             const bool materialActor=input.actor && (input.actor->encounter_model || ordinaryInstance);
             float instanceAlpha=1;
@@ -276,6 +278,7 @@ struct SceneRenderer::Impl {
             const unsigned sort=fieldProjection?field_ordinary_bucket(input.flags,field_depth_bucket(view,world[3],fieldProjection->ordinary),input.special):0;
             std::size_t partIndex=0;
             for (const auto& part:input.model.models) {
+                std::vector<Draw> mapTranslucent;
                 auto& preparedBlocks=preparation.at(inputIndex).at(partIndex++);
                 auto pose=input.actor ? okage::animated_pose(part,input.actor->channels(),sine,input.actor->animation().scale_channels()) : okage::rest_pose(part,sine);
                 {
@@ -285,7 +288,7 @@ struct SceneRenderer::Impl {
                 std::size_t blockIndex=0;
                 for (const auto& block:part.blocks) {
                     auto& prepared=preparedBlocks.at(blockIndex++);
-                    const auto firstVertex=vertices.size(),firstDraw=draws.size(),firstTranslucent=translucent.size();
+                    const auto firstVertex=vertices.size(),firstDraw=draws.size(),firstTranslucent=translucent.size(),firstMapTranslucent=mapTranslucent.size();
                     const auto positions=okage::posed_positions(block,pose);
                     std::optional<OrdinaryNormalCache> normals;
                     std::vector<Float4> lights;std::vector<bool> lightDefined;
@@ -303,15 +306,23 @@ struct SceneRenderer::Impl {
                             values.at(attr.first+i)=attr.values[i]; defined.at(attr.first+i)=true;
                         }
                     }
+                    const bool mapNormalBlock=mapMaterial&&map_material_block_uses_normals(block);
                     std::size_t polygonIndex=0;
                     for (const auto& polygon:block.polygons) {
                         auto& preparedUV=prepared.coordinates.at(polygonIndex++);
                         const auto triangles=okage::triangle_corners(polygon.corners.size());
                         std::array<std::array<float,2>,4> polygonUV{};
                         Draw draw{std::uint32_t(vertices.size()),0,-1,{}};
-                        draw.bucket=sort;draw.ordinal=input.ordinal;draw.phase=sort>517?1:0;
+                        draw.bucket=sort;draw.ordinal=input.ordinal;draw.phase=sort>517?1:0;draw.mapMaterial=mapMaterial;
                         const Material* material=nullptr;
-                        if(materialActor) {
+                        bool mapTransparent=false;
+                        if(mapMaterial) {
+                            if(polygon.material<0)throw std::runtime_error("Map polygon has no material");
+                            material=&block.materials.at(polygon.material);
+                            mapTransparent=map_material_class(*material,-1).translucent;
+                            validate_map_material_extra_pass(*material,mapNormalBlock);
+                            draw.materialBlend=material_blend_register(*material);
+                        } else if(materialActor) {
                             if(polygon.material<0)throw std::runtime_error("Special actor has no material");
                             material=&block.materials.at(polygon.material);
                             const float transparency=__builtin_bit_cast(float, (material->words[5]));
@@ -320,7 +331,10 @@ struct SceneRenderer::Impl {
                             draw.materialBlend=material_blend_register(*material);
                         }
                         const okage::TextureState* state=nullptr;
-                        if (polygon.texture_state>=0 && block.textures.at(polygon.texture_state).texture>=0) {
+                        const bool textureEnabled=mapMaterial?map_material_textured(polygon):polygon.texture_state>=0;
+                        if(mapMaterial&&textureEnabled&&block.textures.at(polygon.texture_state).texture<0)
+                            throw std::runtime_error("Textured map polygon has no image");
+                        if (textureEnabled && block.textures.at(polygon.texture_state).texture>=0) {
                             state=&block.textures.at(polygon.texture_state);
                             draw.image=textureOffset+(input.actor ? input.actor->textures().images().at(textureBase+polygon.texture_state) : state->texture);
                             const auto& original=textures.at(textureOffset+state->texture);
@@ -332,7 +346,7 @@ struct SceneRenderer::Impl {
                                 std::uint32_t(clamp)&3,std::uint32_t(clamp>>2)&3,1,0};
                             // Ordinary setup TEXA has TA0=128, AEM=1. PSM24
                             // stores no alpha: RGB zero becomes transparent.
-                            if(ordinaryInstance && textures.at(draw.image).pixel_format==1)draw.state[6]|=2;
+                            if((mapMaterial||ordinaryInstance) && textures.at(draw.image).pixel_format==1)draw.state[6]|=2;
                             if(!preparedUV) {
                                 for(std::size_t i=0;i<polygon.corners.size();++i) {
                                     const auto index=polygon.corners[i][3];
@@ -350,7 +364,33 @@ struct SceneRenderer::Impl {
                             else throw std::runtime_error("Missing preview source color");
                             if(material) {
                                 vertex.color=material_source_color(*material,vertex.color);
-                                if(ordinaryInstance) {
+                                if(mapMaterial) {
+                                    const auto normal=corner[1];
+                                    const auto classification=map_material_class(*material,normal);
+                                    const Float4* light=&ordinaryLighting.base;
+                                    if(!classification.base_lighting) {
+                                        if(!normals) {
+                                            normals=ordinary_normal_cache(block,pose);
+                                            lights.resize(normals->normals.size());lightDefined.resize(lights.size());
+                                        }
+                                        if(!normals->defined.at(normal))throw std::runtime_error("Missing map normal");
+                                        if(!directionMatrix)try {
+                                            directionMatrix=ordinary_direction_matrix(ordinaryLighting.directions,view);
+                                        } catch(const std::exception& e) {
+                                            throw std::runtime_error("Map direction matrix "+input.path.string()+" block "+std::to_string(blockIndex-1)+": "+e.what());
+                                        }
+                                        if(!lightDefined.at(normal)) {
+                                            try {
+                                                lights[normal]=ordinary_light_normal(normals->normals[normal],*directionMatrix,lightColors,normals->path).lighting_cache;
+                                            } catch(const std::exception& e) {
+                                                throw std::runtime_error("Map normal "+input.path.string()+" block "+std::to_string(blockIndex-1)+" normal "+std::to_string(normal)+": "+e.what());
+                                            }
+                                            lightDefined[normal]=true;
+                                        }
+                                        light=&lights[normal];
+                                    }
+                                    vertex.color=fieldProjection?ordinary_material_modulation(vertex.color,*light):ordinary_material_color(vertex.color,*light);
+                                } else if(ordinaryInstance) {
                                     const auto normal=corner[1];
                                     if(normal<0 || !normals->defined.at(normal))
                                         throw std::runtime_error("Missing ordinary instance normal");
@@ -374,7 +414,10 @@ struct SceneRenderer::Impl {
                             }
                             vertices.push_back(vertex); ++draw.count;
                         }
-                        if(ordinaryInstance) {
+                        if(mapMaterial) {
+                            if(mapTransparent)mapTranslucent.push_back(draw);
+                            else {draw.state[7]=3;draws.push_back(draw);}
+                        } else if(ordinaryInstance) {
                             // Ordinary TEST0x5000d: positive alpha, depth writes.
                             // Opaque-list classification does not disable ABE.
                             draw.state[7]=3;draws.push_back(draw);
@@ -385,10 +428,13 @@ struct SceneRenderer::Impl {
                     }
                     hadOrdinaryGeometry=hadOrdinaryGeometry||vertices.size()!=firstVertex;
                     if(fieldProjection&&field_raster_block_rejected(std::span(vertices).subspan(firstVertex),fieldProjection->ordinary)) {
-                        vertices.resize(firstVertex);draws.resize(firstDraw);translucent.resize(firstTranslucent);
+                        vertices.resize(firstVertex);draws.resize(firstDraw);translucent.resize(firstTranslucent);mapTranslucent.resize(firstMapTranslucent);
                     }
                     textureBase+=block.textures.size();
                 }
+                map_translucent_passes(std::span<const Draw>(mapTranslucent),[&](Draw draw,unsigned alpha_test){
+                    draw.state[7]=alpha_test;draws.push_back(draw);
+                });
             }
             draws.insert(draws.end(),translucent.begin(),translucent.end());
         }
@@ -481,6 +527,7 @@ struct SceneRenderer::Impl {
         for (const auto& draw:draws) {
             if(fieldProjection&&((draw.phase!=0)!=after))continue;
             if(!draw.count)continue;
+            [encoder setFrontFacingWinding:draw.mapMaterial?MTLWindingCounterClockwise:MTLWindingClockwise];
             [encoder setCullMode:draw.materialBlend?MTLCullModeBack:MTLCullModeNone];
             [encoder setRenderPipelineState:draw.materialBlend?(draw.materialBlend==0x48?materialAddPipeline:draw.materialBlend==0x42?materialSubtractPipeline:materialPipeline):draw.subtractive?darkEffectPipeline:draw.dust?dustPipeline:draw.additive?mapEffectPipeline:draw.effect?effectPipeline:pipeline];
             [encoder setDepthStencilState:draw.depthAlways?effectDepth:draw.materialBlend?(draw.state[7]!=2?materialDepth:mapEffectDepth):(draw.additive||draw.dust||draw.subtractive)?mapEffectDepth:draw.effect?effectDepth:depth];

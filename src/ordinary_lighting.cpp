@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cfenv>
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 
 #pragma STDC FENV_ACCESS ON
@@ -125,7 +126,8 @@ Matrix4 ordinary_direction_matrix(const std::array<Float4, 3>& directions, const
     for (unsigned c = 0; c < 3; ++c) {
         Float4 negative{};
         for (unsigned r = 0; r < 4; ++r) negative[r] = mul(directions[c][r], -1.f);
-        const float q = inverse_length(negative, false);
+        const bool zero = negative[0] == 0 && negative[1] == 0 && negative[2] == 0;
+        const float q = zero ? std::numeric_limits<float>::max() : inverse_length(negative, false);
         for (unsigned r = 0; r < 3; ++r) light[c][r] = mul(negative[r], q);
     }
     light[3][3] = 1.f;

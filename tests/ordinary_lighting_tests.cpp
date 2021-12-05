@@ -119,7 +119,15 @@ void rounding_and_failures() {
         require(std::fegetround() == mode);
         rejects([&] { ordinary_light_normal({}, identity, identity, OrdinaryLightingPath::deferred); });
         require(std::fegetround() == mode);
-        rejects([&] { ordinary_direction_matrix({}, identity); });
+        Matrix4 zero_directions{};zero_directions[3][3]=1;
+        for(unsigned mask=0;mask<8;++mask) {
+            std::array<Float4,3> zero{};
+            for(auto& direction:zero)for(unsigned c=0;c<3;++c)direction[c]=(mask&(1u<<c))?-0.f:0.f;
+            const auto actual=ordinary_direction_matrix(zero,identity);
+            for(unsigned c=0;c<4;++c)require(same(actual[c],zero_directions[c]));
+            require(std::fegetround()==mode);
+        }
+        rejects([&] { ordinary_direction_matrix({Float4{0x1p-100f,0,0,0},Float4{0,1,0,0},Float4{0,0,1,0}}, identity); });
         require(std::fegetround() == mode);
         rejects([&] { ordinary_material_color({-1,0,0,0}, {}); });
         require(std::fegetround() == mode);

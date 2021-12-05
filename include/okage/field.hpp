@@ -175,8 +175,9 @@ private:
     Float4 point(std::size_t) const;
     void evaluate();
 };
-// 0x1b8028 defaults and ordered STG1..3/11..13/41/45 setters.
+// 0x1b8028 defaults and ordered STG1..3/11..13/40/41/45 setters.
 struct FieldOrdinaryLighting {
+    Float4 base{1,1,1,1};
     std::array<Float4,3> directions{Float4{0,0,1,0},Float4{0,1,0,0},Float4{1,0,0,0}};
     std::array<Float4,4> colors{Float4{1,1,1,0},Float4{},Float4{},Float4{.25f,.25f,.25f,1}};
 };

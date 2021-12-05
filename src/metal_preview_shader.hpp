@@ -1,4 +1,4 @@
-// Shared provisional unlit material path; see docs/native-rendering.md.
+// Shared native preview/material shaders; see docs/native-rendering.md.
 #pragma once
 static const char* shader=R"metal(
 #include <metal_stdlib>

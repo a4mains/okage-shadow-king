@@ -1052,7 +1052,7 @@ FieldOrdinaryLighting field_ordinary_lighting(Bytes stg) {
     FieldOrdinaryLighting result;Rounding rounding;
     for(unsigned i=0;i<count;++i) {
         const auto at=begin+i*20,kind=get(stg,at);
-        if(!(kind>=1&&kind<=3)&&!(kind>=0x11&&kind<=0x13)&&kind!=0x41&&kind!=0x45)continue;
+        if(!(kind>=1&&kind<=3)&&!(kind>=0x11&&kind<=0x13)&&kind!=0x40&&kind!=0x41&&kind!=0x45)continue;
         Float4 value;
         for(unsigned c=0;c<4;++c) {
             value[c]=__builtin_bit_cast(float, (get(stg,at+4+c*4)));
@@ -1060,8 +1060,12 @@ FieldOrdinaryLighting field_ordinary_lighting(Bytes stg) {
         }
         if(kind<=3)result.colors[kind-1]=value;
         else if(kind<=0x13){value[3]=0;result.directions[kind-0x11]=value;}
+        else if(kind==0x40)result.base=value;
         else {
-            if(kind==0x45)for(unsigned c=0;c<3;++c)value[c]*=.25f;
+            if(kind==0x45) {
+                result.base=value;
+                for(unsigned c=0;c<3;++c)value[c]*=.25f;
+            }
             result.colors[3]=value;
         }
     }
