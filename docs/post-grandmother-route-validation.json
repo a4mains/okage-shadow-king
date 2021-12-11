@@ -1,0 +1,386 @@
+{
+  "schema_version": 3,
+  "scope": "Read-only audit of completed saved post-grandmother intervals through tick 89755, including the 300-tick live-idle endpoint; no full-timeline or original-fidelity claim.",
+  "source_directory": "local/research/post-jam-route-v1",
+  "interval_coverage": {
+    "first_tick": 85086,
+    "last_tick": 89755,
+    "inclusive_ticks": 4670,
+    "segments": 19,
+    "contiguous_no_gaps": true,
+    "sum_segment_ticks": 4670
+  },
+  "native_runs": {
+    "all_exit_code_zero": true,
+    "binary_hashes": [
+      "354472cea269e36e31078624fec3ba103b25ea45884a1fc8de7a3ce19b46c8ea",
+      "65ababb2edc8ec8b96ce926fbe14769334f0911396d5885695b78efae0c67fec"
+    ]
+  },
+  "comparison_totals": {
+    "original_frames": 4670,
+    "all_first_differences_null": true,
+    "all_compared_observable_category_counts_zero": true,
+    "all_original_manager_camera_player_observation_coverage_complete": true,
+    "all_missing_original_observations_zero": true,
+    "full_timeline_equivalence_claimed": false
+  },
+  "flag_read_method": {
+    "source": "src/event.cpp:event_variable",
+    "bank1_byte_offset": "0x110 + (index >> 3)",
+    "mask": "0x80 >> (index & 7)",
+    "initial_variables_path": "local/native-grandmother-chani-85085-release-v1.png.variables.bin",
+    "initial_variables_sha256": "73cbc66593e96f5d8131f195b85b2af7741888659b9cbbf6bd43375c078732dd",
+    "endpoint_variables_path": "local/native-post-grandmother-live-idle-89755-release-v1.png.variables.bin",
+    "endpoint_variables_sha256": "7840ffca092b3de5f40900977e0311bdf90c23bc03e92b41d8d58ada6c07ed9d",
+    "initial_bank1_flags": {
+      "23": 1,
+      "24": 0,
+      "25": 0,
+      "26": 0,
+      "27": 0,
+      "28": 0,
+      "29": 1,
+      "30": 0
+    },
+    "endpoint_bank1_flags": {
+      "23": 1,
+      "24": 1,
+      "25": 1,
+      "26": 0,
+      "27": 1,
+      "28": 0,
+      "29": 1,
+      "30": 0
+    }
+  },
+  "referenced_hash_audit": {
+    "summary_artifact_hashes_verified": 285,
+    "summary_artifact_hashes_total": 285,
+    "all_verified": true,
+    "each_interval_hash_matches_summary": true
+  },
+  "excluded_intervals": [
+    "Any interval ending after tick 89755."
+  ],
+  "limits": [
+    "Comparisons report agreement for recorded observables and separately report coverage; source summaries retain full_timeline_equivalence false.",
+    "Controller sample counts can be below original-frame counts; see segment rows.",
+    "Flag values are read from native run sidecars using the source variable-bank layout, not original VM state."
+  ],
+  "audit_source": {
+    "path": "local/research/post-grandmother-route-v1/route-audit-v3.json",
+    "sha256": "e684d772608e88ec9c11e91b7e85484516b948264b73512e053dc2e226090122"
+  },
+  "segments": [
+    {
+      "segment": "hos-walk",
+      "native_ticks_inclusive": [
+        85086,
+        85235
+      ],
+      "tick_count": 150,
+      "native_run_record": "local/native-post-grandmother-hos-walk-85235-release-v1.run.json",
+      "native_run_sha256": "d7ecf05a8139f6a584999f9d287217223f941e70d08a304f5a8de469e1964bfe",
+      "native_binary_sha256": "354472cea269e36e31078624fec3ba103b25ea45884a1fc8de7a3ce19b46c8ea",
+      "comparison_summary": "local/research/post-jam-route-v1/post-grandmother-hos-walk-summary.json",
+      "summary_sha256": "0448e3e7d4f5238616dfc4554e05b42862a86997079c1ba01039f95e9bfbd97a",
+      "interval_report": "local/research/post-jam-route-v1/post-grandmother-hos-walk-interval.json",
+      "interval_sha256": "51ef42b28cccb279059785f0f0ff361fb8eb0695ff4a3b7fb39a1039dd821ff6",
+      "controller_samples": 0
+    },
+    {
+      "segment": "hos-approach",
+      "native_ticks_inclusive": [
+        85236,
+        85345
+      ],
+      "tick_count": 110,
+      "native_run_record": "local/native-post-grandmother-hos-approach-85345-release-v1.run.json",
+      "native_run_sha256": "096e00fcc146ed888f7c289db8dae0e3be4a952e9d06b2e13760dd2af0fba8ff",
+      "native_binary_sha256": "354472cea269e36e31078624fec3ba103b25ea45884a1fc8de7a3ce19b46c8ea",
+      "comparison_summary": "local/research/post-jam-route-v1/post-grandmother-hos-approach-summary.json",
+      "summary_sha256": "c28136ff3e09910c227b84d20e25942bc0e9033f564f8d4e172027eca433a700",
+      "interval_report": "local/research/post-jam-route-v1/post-grandmother-hos-approach-interval.json",
+      "interval_sha256": "6d383f70547f9ed13b727b40cb917e7b8c0886da2e92cb6b68f2fdf9f5560452",
+      "controller_samples": 0
+    },
+    {
+      "segment": "hos-talk",
+      "native_ticks_inclusive": [
+        85346,
+        85585
+      ],
+      "tick_count": 240,
+      "native_run_record": "local/native-post-grandmother-hos-talk-85585-release-v1.run.json",
+      "native_run_sha256": "1ba4b61eb332bcbff22b0bf16301f4ce12942253c00aae12a340d143c9021cee",
+      "native_binary_sha256": "354472cea269e36e31078624fec3ba103b25ea45884a1fc8de7a3ce19b46c8ea",
+      "comparison_summary": "local/research/post-jam-route-v1/post-grandmother-hos-talk-summary.json",
+      "summary_sha256": "ef14a69f5d84c343977c6b5de5a06253e8a9ca2a860b696b0a473e924f9f40b2",
+      "interval_report": "local/research/post-jam-route-v1/post-grandmother-hos-talk-interval.json",
+      "interval_sha256": "af8a1c7095393cef98a6fbafacedb3fc812a598fbe771ad647efa50ff4421e13",
+      "controller_samples": 209
+    },
+    {
+      "segment": "hos-dialogue",
+      "native_ticks_inclusive": [
+        85586,
+        86065
+      ],
+      "tick_count": 480,
+      "native_run_record": "local/native-post-grandmother-hos-dialogue-86065-release-v1.run.json",
+      "native_run_sha256": "224beff1baed3b50c8506f251f670df3ba601139b2513cef11efe071779068e4",
+      "native_binary_sha256": "354472cea269e36e31078624fec3ba103b25ea45884a1fc8de7a3ce19b46c8ea",
+      "comparison_summary": "local/research/post-jam-route-v1/post-grandmother-hos-dialogue-summary.json",
+      "summary_sha256": "e8b817ce578c4be800456ed0d1be08ec9ec7ca8191ee02d0684e4c51398123ab",
+      "interval_report": "local/research/post-jam-route-v1/post-grandmother-hos-dialogue-interval.json",
+      "interval_sha256": "d938675dcb4792bc35c1744fb0d28538e5ce9196aaa10513fafced10b6d71ef7",
+      "controller_samples": 480
+    },
+    {
+      "segment": "hos-dialogue2",
+      "native_ticks_inclusive": [
+        86066,
+        86545
+      ],
+      "tick_count": 480,
+      "native_run_record": "local/native-post-grandmother-hos-dialogue2-86545-release-v1.run.json",
+      "native_run_sha256": "f6207028ab24fd93f8285e379d6b16559ff2e2b607c86342dc98f877963e048d",
+      "native_binary_sha256": "354472cea269e36e31078624fec3ba103b25ea45884a1fc8de7a3ce19b46c8ea",
+      "comparison_summary": "local/research/post-jam-route-v1/post-grandmother-hos-dialogue2-summary.json",
+      "summary_sha256": "c3a71e783c00b217864a972cb6aa55ba1312e4ecedb432b03749394f05842827",
+      "interval_report": "local/research/post-jam-route-v1/post-grandmother-hos-dialogue2-interval.json",
+      "interval_sha256": "7fbf2a975c59aed0050c0d6ee4d571ede36b3f175897d9e37f54059f84a38f85",
+      "controller_samples": 400
+    },
+    {
+      "segment": "hos-repeat-close",
+      "native_ticks_inclusive": [
+        86546,
+        86725
+      ],
+      "tick_count": 180,
+      "native_run_record": "local/native-post-grandmother-hos-repeat-close-86725-release-v1.run.json",
+      "native_run_sha256": "197af8658fe4fcb6b32ed8e00200e3df1197a3418dc8df5c1230e50ec78930cb",
+      "native_binary_sha256": "354472cea269e36e31078624fec3ba103b25ea45884a1fc8de7a3ce19b46c8ea",
+      "comparison_summary": "local/research/post-jam-route-v1/post-grandmother-hos-repeat-close-summary.json",
+      "summary_sha256": "885c95c48e672882b212f9347de12ac94f710ee0c31c09894563173e073780c7",
+      "interval_report": "local/research/post-jam-route-v1/post-grandmother-hos-repeat-close-interval.json",
+      "interval_sha256": "93ba2655ec1ceac372c3171455a22996f6627cd9caddb435d37552bb970b00db",
+      "controller_samples": 50
+    },
+    {
+      "segment": "boyc-walk",
+      "native_ticks_inclusive": [
+        86726,
+        86845
+      ],
+      "tick_count": 120,
+      "native_run_record": "local/native-post-grandmother-boyc-walk-86845-release-v1.run.json",
+      "native_run_sha256": "973d4633483723bd3ed59efed0cedd507b4266ad6ad5ffefd904da433ed3d77b",
+      "native_binary_sha256": "354472cea269e36e31078624fec3ba103b25ea45884a1fc8de7a3ce19b46c8ea",
+      "comparison_summary": "local/research/post-jam-route-v1/post-grandmother-boyc-walk-summary.json",
+      "summary_sha256": "1ecb436522158ea83d2a5787229c5d9df57b50e1fd204d7e35c12a06758b6fe2",
+      "interval_report": "local/research/post-jam-route-v1/post-grandmother-boyc-walk-interval.json",
+      "interval_sha256": "81b67a2923a7acc05c38903f27e2689d35f7b48cc5d11d7ddb2a988a91f28e62",
+      "controller_samples": 0
+    },
+    {
+      "segment": "boyc-approach",
+      "native_ticks_inclusive": [
+        86846,
+        86945
+      ],
+      "tick_count": 100,
+      "native_run_record": "local/native-post-grandmother-boyc-approach-86945-release-v1.run.json",
+      "native_run_sha256": "e313e9e6255ecc2cadf0e96b1d0965c17ec7d151dffcfbd2747de547a88371d5",
+      "native_binary_sha256": "354472cea269e36e31078624fec3ba103b25ea45884a1fc8de7a3ce19b46c8ea",
+      "comparison_summary": "local/research/post-jam-route-v1/post-grandmother-boyc-approach-summary.json",
+      "summary_sha256": "5dbb60ee86bb99ac7a88f34508b4b15092f5d25e13ea52bdf23f2ec28de4702a",
+      "interval_report": "local/research/post-jam-route-v1/post-grandmother-boyc-approach-interval.json",
+      "interval_sha256": "00f252a6087b5b963849f9e276d2a870d960a78e2e77f6412304420395f80ff1",
+      "controller_samples": 0
+    },
+    {
+      "segment": "boyc-around-tree",
+      "native_ticks_inclusive": [
+        86946,
+        87045
+      ],
+      "tick_count": 100,
+      "native_run_record": "local/native-post-grandmother-boyc-around-tree-87045-release-v1.run.json",
+      "native_run_sha256": "8c6e2775e0ce60fa4f43875d8279032a0429f766f01e306fca0c001a89a75e84",
+      "native_binary_sha256": "354472cea269e36e31078624fec3ba103b25ea45884a1fc8de7a3ce19b46c8ea",
+      "comparison_summary": "local/research/post-jam-route-v1/post-grandmother-boyc-around-tree-summary.json",
+      "summary_sha256": "af169b33ce05d74d08e12fa4a0c654c050a973f135af31c143850e8b55be2345",
+      "interval_report": "local/research/post-jam-route-v1/post-grandmother-boyc-around-tree-interval.json",
+      "interval_sha256": "41bb868b2d7b28e8efca5586289c16ad3858fc15db01281b9c4b8528b76751bb",
+      "controller_samples": 0
+    },
+    {
+      "segment": "boyc-path",
+      "native_ticks_inclusive": [
+        87046,
+        87145
+      ],
+      "tick_count": 100,
+      "native_run_record": "local/native-post-grandmother-boyc-path-87145-release-v1.run.json",
+      "native_run_sha256": "930bdbf542c89aecfcab101878ff11bbf28152ba17115ef80fecde6575e4953d",
+      "native_binary_sha256": "354472cea269e36e31078624fec3ba103b25ea45884a1fc8de7a3ce19b46c8ea",
+      "comparison_summary": "local/research/post-jam-route-v1/post-grandmother-boyc-path-summary.json",
+      "summary_sha256": "55f7fcb1ccfe9713214367ecebdea1b0af1f96d2197037cb143b1299c14f0287",
+      "interval_report": "local/research/post-jam-route-v1/post-grandmother-boyc-path-interval.json",
+      "interval_sha256": "a93876bff0db96db79438ddd4676fe189e073b3d12c25523717e028ea72b1639",
+      "controller_samples": 0
+    },
+    {
+      "segment": "boyc-talk",
+      "native_ticks_inclusive": [
+        87146,
+        87385
+      ],
+      "tick_count": 240,
+      "native_run_record": "local/native-post-grandmother-boyc-talk-87385-release-v1.run.json",
+      "native_run_sha256": "4231ae81796903b2913623480c5214e770adb18589964ca95add70be5bf22c51",
+      "native_binary_sha256": "354472cea269e36e31078624fec3ba103b25ea45884a1fc8de7a3ce19b46c8ea",
+      "comparison_summary": "local/research/post-jam-route-v1/post-grandmother-boyc-talk-summary.json",
+      "summary_sha256": "b1da528aa6f58f9dfb2dea325c62bd58773b1eda181868411ae4a0516aec51d5",
+      "interval_report": "local/research/post-jam-route-v1/post-grandmother-boyc-talk-interval.json",
+      "interval_sha256": "81d1c1faffd59c75ac5c1a70a1d51381ef295e9a91a3181b11dd3529c4a68a08",
+      "controller_samples": 199
+    },
+    {
+      "segment": "boyc-dialogue",
+      "native_ticks_inclusive": [
+        87386,
+        87865
+      ],
+      "tick_count": 480,
+      "native_run_record": "local/native-post-grandmother-boyc-dialogue-87865-release-v1.run.json",
+      "native_run_sha256": "77f9401967bc7a674b360b4b08b693be0843afd5bb3438eefa8e9d59af4649f6",
+      "native_binary_sha256": "354472cea269e36e31078624fec3ba103b25ea45884a1fc8de7a3ce19b46c8ea",
+      "comparison_summary": "local/research/post-jam-route-v1/post-grandmother-boyc-dialogue-summary.json",
+      "summary_sha256": "06e330326d54ca2f15006f7b34b644fc82560ea77b98ce830f9be877da3a1ea0",
+      "interval_report": "local/research/post-jam-route-v1/post-grandmother-boyc-dialogue-interval.json",
+      "interval_sha256": "b4c2d4bd624ac4058e660ae8566a06e360e81aa97f52a0002ebc1f498b1f0e3b",
+      "controller_samples": 412
+    },
+    {
+      "segment": "mana-walk",
+      "native_ticks_inclusive": [
+        87866,
+        87975
+      ],
+      "tick_count": 110,
+      "native_run_record": "local/native-post-grandmother-mana-walk-87975-release-v1.run.json",
+      "native_run_sha256": "2bb0cc7e131bc02cc628bee53781cad6105d9c0bd4fb15417efb2f895331df83",
+      "native_binary_sha256": "354472cea269e36e31078624fec3ba103b25ea45884a1fc8de7a3ce19b46c8ea",
+      "comparison_summary": "local/research/post-jam-route-v1/post-grandmother-mana-walk-summary.json",
+      "summary_sha256": "e157960b1f99932ee3ea059afcd3bb265c156faff2a81b82429141c1dc89e25e",
+      "interval_report": "local/research/post-jam-route-v1/post-grandmother-mana-walk-interval.json",
+      "interval_sha256": "794a511af81b983befa977b41234739b012e17ab1d2a9ee8fbe4a0326699bc79",
+      "controller_samples": 0
+    },
+    {
+      "segment": "mana-path",
+      "native_ticks_inclusive": [
+        87976,
+        88125
+      ],
+      "tick_count": 150,
+      "native_run_record": "local/native-post-grandmother-mana-path-88125-release-v1.run.json",
+      "native_run_sha256": "a0b2b118927887defcd4fbb3f37bff6835652a74655c31b03f52e2004f09f4aa",
+      "native_binary_sha256": "354472cea269e36e31078624fec3ba103b25ea45884a1fc8de7a3ce19b46c8ea",
+      "comparison_summary": "local/research/post-jam-route-v1/post-grandmother-mana-path-summary.json",
+      "summary_sha256": "a5d40b791b39d1131b820ea8fdac41d6ce5403f4d2d4fd41b4ba08eaf1e4c9e2",
+      "interval_report": "local/research/post-jam-route-v1/post-grandmother-mana-path-interval.json",
+      "interval_sha256": "3341f3aa39484f9ebab015d75bfd7a6184a32a7e8c6b97255977c9457c7de395",
+      "controller_samples": 0
+    },
+    {
+      "segment": "mana-approach",
+      "native_ticks_inclusive": [
+        88126,
+        88255
+      ],
+      "tick_count": 130,
+      "native_run_record": "local/native-post-grandmother-mana-approach-88255-release-v1.run.json",
+      "native_run_sha256": "8d6fe743e5e81763ffdc2f546732f33d8a5728736aa1e6018a8aa5d4c01fc4f2",
+      "native_binary_sha256": "354472cea269e36e31078624fec3ba103b25ea45884a1fc8de7a3ce19b46c8ea",
+      "comparison_summary": "local/research/post-jam-route-v1/post-grandmother-mana-approach-summary.json",
+      "summary_sha256": "cb4cd970e8d66af1643446bb86a524128ebcf06678c268fa43970d64f7e8088f",
+      "interval_report": "local/research/post-jam-route-v1/post-grandmother-mana-approach-interval.json",
+      "interval_sha256": "1625c13ea8d78e74f477124e7e8a15c5a332b4b666300781f18accd1991bfec0",
+      "controller_samples": 0
+    },
+    {
+      "segment": "mana-talk",
+      "native_ticks_inclusive": [
+        88256,
+        88495
+      ],
+      "tick_count": 240,
+      "native_run_record": "local/native-post-grandmother-mana-talk-88495-release-v1.run.json",
+      "native_run_sha256": "65055a38e50afa1e521a7a191f619af2c4359b3f15b39bedd0e06e308d4976b0",
+      "native_binary_sha256": "354472cea269e36e31078624fec3ba103b25ea45884a1fc8de7a3ce19b46c8ea",
+      "comparison_summary": "local/research/post-jam-route-v1/post-grandmother-mana-talk-summary.json",
+      "summary_sha256": "3a7ded2b3e6bdc8f8e56dcf76e75057d47fd63975ef795479db4f27f7b4b2dc6",
+      "interval_report": "local/research/post-jam-route-v1/post-grandmother-mana-talk-interval.json",
+      "interval_sha256": "29b213b1dafd59aadc208d52717d1d19f14f45a5aefdba069ba4763e47c873e2",
+      "controller_samples": 199
+    },
+    {
+      "segment": "mana-dialogue",
+      "native_ticks_inclusive": [
+        88496,
+        88975
+      ],
+      "tick_count": 480,
+      "native_run_record": "local/native-post-grandmother-mana-dialogue-88975-release-v1.run.json",
+      "native_run_sha256": "9099789a8a1ef51d4d2b8eeb476f28e3396749d68e24a0a013214eb1f363cef1",
+      "native_binary_sha256": "65ababb2edc8ec8b96ce926fbe14769334f0911396d5885695b78efae0c67fec",
+      "comparison_summary": "local/research/post-jam-route-v1/post-grandmother-mana-dialogue-summary.json",
+      "summary_sha256": "0200aa21e69fa18fe8690ed879fabec0ef4d52c87df5066310e7d16934fb960f",
+      "interval_report": "local/research/post-jam-route-v1/post-grandmother-mana-dialogue-interval.json",
+      "interval_sha256": "2ec283d4c5eb5315c6550ebcc06a294c67ce81fbfc23f2ca134d149d2260ba7a",
+      "controller_samples": 480
+    },
+    {
+      "segment": "mana-dialogue2",
+      "native_ticks_inclusive": [
+        88976,
+        89455
+      ],
+      "tick_count": 480,
+      "native_run_record": "local/native-post-grandmother-mana-dialogue2-89455-release-v1.run.json",
+      "native_run_sha256": "6873c098262cc32e0d60717c5f333510171dcc6a9ae11fe677ab4dd25b184b47",
+      "native_binary_sha256": "65ababb2edc8ec8b96ce926fbe14769334f0911396d5885695b78efae0c67fec",
+      "comparison_summary": "local/research/post-jam-route-v1/post-grandmother-mana-dialogue2-summary.json",
+      "summary_sha256": "101bee954193eea77ee124801a1af397eeec81ca621ddeaaf6047882577443ff",
+      "interval_report": "local/research/post-jam-route-v1/post-grandmother-mana-dialogue2-interval.json",
+      "interval_sha256": "0518b0ee9036fb733681f93d5aab82ae0f16b3ca18f3dc5c8730b90300787e46",
+      "controller_samples": 411
+    },
+    {
+      "segment": "live-idle",
+      "native_ticks_inclusive": [
+        89456,
+        89755
+      ],
+      "tick_count": 300,
+      "native_run_record": "local/native-post-grandmother-live-idle-89755-release-v1.run.json",
+      "native_run_sha256": "2b791a047ce316bb5d74d450e8aaa871293c523e29820023aef96b1560dc2a96",
+      "native_binary_sha256": "65ababb2edc8ec8b96ce926fbe14769334f0911396d5885695b78efae0c67fec",
+      "comparison_summary": "local/research/post-jam-route-v1/post-grandmother-live-idle-summary.json",
+      "summary_sha256": "f5f237137fcedd5361a8b3f971098a8e1549f19f3dd9cdc334d1c3d82d449a2d",
+      "interval_report": "local/research/post-jam-route-v1/post-grandmother-live-idle-interval.json",
+      "interval_sha256": "7f142404ce7cd60f54a95a3215fef61b2db7eb6b6226489c4d209913a219a230",
+      "controller_samples": 0
+    }
+  ],
+  "limitations": [
+    "Compared state only; no full-timeline, raster or audio equivalence.",
+    "Earlier loading/controller/cold-start/RNG failures remain.",
+    "Full route is Release-only. Reference saves never enter the native application."
+  ]
+}

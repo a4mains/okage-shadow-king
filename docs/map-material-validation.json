@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "implementation_commit": "b75f4968f196098b4e8de03b03148dc873ac1e31",
+  "run_commit": "b75f4968f196098b4e8de03b03148dc873ac1e31",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "source_sha256": {
+    "include/okage/field.hpp": "8d59c9bb93be15124ae2a5146530739971c5924179c7b4f1af5603bb31eaf03b",
+    "include/okage/map_material.hpp": "d0a27ee8b02c420947f3b7b0034b99870d87939a744574207685fd82ab0f5b58",
+    "include/okage/ordinary_lighting.hpp": "aa9db84271ef411650a4cd97af75cc1238933dd9baeacbe16472c2a0bd124d68",
+    "src/field.cpp": "6e86a484ea090ec5ca3ed3b15af2cf2de475c1e54fb94c9dc350ac76b429d1a9",
+    "src/ordinary_lighting.cpp": "dcf41a4775a1eecd3ea680302553aeedfc3b2fa765cd79f05baa12e0812ee122",
+    "src/scene_renderer.mm": "48b559a40f608a36a87086dfaefec4e2e82d8362e64ede93003b0a717ee09b51",
+    "src/metal_preview_shader.hpp": "054613ea40db5c50d5ac4f67f427ee684068d010f11500398703bf15a3289dcd",
+    "tests/field_tests.cpp": "00d886377dc9410b238788b6da532d9fdb91844a19e2db5e907beef0935fe762",
+    "tests/ordinary_lighting_tests.cpp": "15cb24a830f28662bf8371b7e5d69d38026d90e661bd7a0cc661bdd86ba23dcf",
+    "tests/render_tests.cpp": "e51ce4ef49c73d18b2d4d3bf1deae820557a36a702e8c0ec2a5ee7560f309a1e",
+    "tests/scene_map_material_tests.mm": "03e533402a3f5168be4e566d2e0caab0c712b682f2d6ce2f35b4755f821931e0"
+  },
+  "evidence_sha256": {
+    "local/worktrees/map-material-v1/local/map-material-report-v1.json": "5e778b96ce69481a1a3be094c29f100a7135a6039c7d9e711a895823df47750f",
+    "local/worktrees/map-material-v1/local/lighting-regression-v1/report.json": "947ea92311ead117fdce482d3c4685f787289373c3a36a675982bcefa83c309d",
+    "local/research/map-material-integration-v1/zero-original-v1/run.json": "039d1d222b5efd5fa80138cdd13132c248c648a27632eabdc8fb44807cce3f83",
+    "local/research/map-material-integration-v1/zero-original-v1/findings.txt": "92efb3b748a2522653ff5f3da5493d8e2bf701c62f15956e71ccfcd49397f27d",
+    "local/research/map-material-integration-v1/culling-v1.json": "c1c1c47eabcc07d6ac0a791ed9552aa8ac443eb9e35f36c0de38276770342e7b",
+    "local/research/map-material-integration-v1/primary-build-v1.json": "e699d3278177d0ead0b26180e6b2fab9245c1b517b766c444ce96f25396893fe",
+    "local/research/map-material-integration-v1/primary-tests-v1.log": "ce54fe8b555e90e2fa5d0b57c1f4c564a98b1798fbb108a274e37eff9162bb35",
+    "local/research/map-material-integration-v1/route-85085-comparison-v2.json": "374ec9cee969a444f3ceb9a9a3033442a435f987b0b7b36cb5b868a5b5a15f5b",
+    "local/research/map-material-integration-v1/image-pair-83105-v1/comparison.json": "f611bfd5826421eea697b9fd03f56588a675228548d32748624e3f943e4a02c6",
+    "local/research/map-material-integration-v1/image-pair-83105-v2/comparison.json": "3d53929ebba67b1e831bb4fb0e5101c2c3ddabc9c58307a6905251be627837a0",
+    "local/research/grandmother-service-v1/image-pair-300-v1/comparison.json": "eb5aa83462282ea49b9709e683d850a9bf5de8e273cbae435af17f4a2c9a9478",
+    "local/native-map-material-85085-release-v1.run.json": "958a42a794c37eb0e18e5f576f902c5801ea2372917e72bd21601b199778a5a3",
+    "local/native-map-material-85085-release-v2.run.json": "336784d737ea36e490a10f680985e51fe7d7881686e295f62d0ee5630e26183a",
+    "local/native-map-material-85085-release-v3.run.json": "657d843f3e95dba3ce8174e9c70a554a2e20081b8a7d46952c3383a41e722ba8",
+    "local/native-map-material-85085-release-v4.run.json": "82211439df6023249c05fdb1d4b3fc2a2eeb936bddaef97c997ba19ee707a548"
+  },
+  "artifact_hash_checks": {
+    "local/worktrees/map-material-v1/local/map-material-v1.patch": true,
+    "local/worktrees/map-material-v1/build/native-release/okage-native.app/Contents/MacOS/okage-native": true,
+    "local/worktrees/map-material-v1/build/native-release/okage-assets": true,
+    "local/worktrees/map-material-v1/local/scene-map-material-tests": true,
+    "local/worktrees/map-material-v1/local/scene-map-material-tests-asan": true
+  },
+  "binary_sha256": "65ababb2edc8ec8b96ce926fbe14769334f0911396d5885695b78efae0c67fec",
+  "tests": {
+    "primary_release_ctest": 23,
+    "release_ctest": 4,
+    "sanitizer_ctest": 4,
+    "offscreen_release_and_sanitizer": true,
+    "new_ee_zero_direction_cases": 16,
+    "new_original_compared_words": 1088,
+    "retained_arithmetic_cases": 256,
+    "retained_original_compared_words": 17408,
+    "differing_arithmetic_words": 0
+  },
+  "replay": {
+    "frames": 85085,
+    "final_run": "local/native-map-material-85085-release-v4.run.json",
+    "baseline": "local/native-grandmother-chani-85085-release-v1",
+    "immediate_files": 51,
+    "equal_state_audio_and_metadata_files": 50,
+    "different": [
+      ".png"
+    ],
+    "missing": 0,
+    "frame_directories_excluded": "Requested checkpoint sets differ; nominal83105 pair compared separately."
+  },
+  "image": {
+    "native_tick": 83105,
+    "original_vblank": 300,
+    "original_prefix": "local/reference-field1d-post-jam-grandmother-hat-600-v1",
+    "native_scene_crop": [
+      0,
+      0,
+      640,
+      224
+    ],
+    "previous_rgb_mae": 43.67364443824405,
+    "rejected_clockwise_rgb_mae": 66.09893740699405,
+    "corrected_rgb_mae": 24.62084495907738,
+    "corrected_different_pixels": 138645,
+    "total_pixels": 143360,
+    "scope": "Nominal fixed pair, no image tolerance or exact temporal alignment claim; retail UI differs."
+  },
+  "retained_failures": {
+    "v1_v2": "Native frame16532 rejected zero stage directions for FIELD_1N chest. Exact EEzero normalization now implemented; nonzero underflow/VU normalzero guards retained.",
+    "v3": "Startup completed but new map material selected clockwise front culling, removing terrain. Single-winding regression and explicit map CCW fix this orientation."
+  },
+  "limitations": [
+    "Original raster/framebuffer equivalence is not established.",
+    "Fog, filtering, blend precision, block sorting, area bias and warped-quad/clip culling remain incomplete.",
+    "Default non-map actor/HERO lighting and retail UI remain separate work.",
+    "Full startup replay is Release-only; sanitizer checks are focused CPU and synthetic scene tests.",
+    "No new live performance or listening claim."
+  ]
+}
