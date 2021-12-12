@@ -73,7 +73,15 @@ static Texture sample(const fs::path& dir,std::span<const Surface> surfaces,bool
     require(renderer.actors()==0&&renderer.placements()==1);
     FieldProjection projection;projection.load_stage(stg);projection.begin_field();projection.begin_effects();projection.begin_deferred();projection.end_effects();
     const Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
-    return renderer.render(identity,field_clip_projection(projection.frame().ordinary),nullptr,{},1024,{},&projection.frame());
+    const auto clip=field_clip_projection(projection.frame().ordinary);
+    const auto cold=renderer.render(identity,clip,nullptr,{},1024,{},&projection.frame());
+    const auto warm=renderer.render(identity,clip,nullptr,{},1024,{},&projection.frame());
+    require(cold.rgba==warm.rgba);
+    const auto standalone=renderer.render(identity,clip);
+    SceneRenderer fresh(dir/"a.xmp",{},&objects);
+    require(standalone.rgba==fresh.render(identity,clip).rgba);
+    require(cold.rgba==renderer.render(identity,clip,nullptr,{},1024,{},&projection.frame()).rgba);
+    return cold;
 }
 static std::array<unsigned,3> center(const Texture& t){const auto n=(112*640+320)*4;return {t.rgba[n],t.rgba[n+1],t.rgba[n+2]};}
 int main(int argc,const char** argv){@autoreleasepool {try {

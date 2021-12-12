@@ -237,6 +237,33 @@ int main() {
         okage::validate_map_material_extra_pass(normalBlock.materials[0],false);
         normalBlock.materials[0].words[4]=__builtin_bit_cast(unsigned, (70.f));
         okage::validate_map_material_extra_pass(normalBlock.materials[0],true);
+        for(int rounding:{FE_TONEAREST,FE_DOWNWARD,FE_UPWARD,FE_TOWARDZERO}) {
+            std::fesetround(rounding);
+            for(float transparency:{0.f,.001f,.009f,.4f,1.f}) {
+                okage::Material m{};m.words[5]=__builtin_bit_cast(unsigned, (transparency));
+                for(const auto& input:std::array{okage::Float4{.59375f,.625f,.65625f,1},
+                        okage::Float4{0,1,2,.5f},okage::Float4{.1234567f,.9876543f,.3333333f,.77f}})
+                    for(const auto& base:std::array{okage::Float4{1,1,1,1},okage::Float4{.5f,1,2,.25f},okage::Float4{0,.31f,.99f,1.25f}}) {
+                        okage::PreparedMapBaseColor cache;
+                        for(bool packed:{false,false,true,true,false,false,true}) {
+                            const auto source=okage::material_source_color(m,input);
+                            const auto expected=packed?okage::ordinary_material_color(source,base):okage::ordinary_material_modulation(source,base);
+                            const auto actual=cache.get(m,input,base,packed);
+                            require(__builtin_bit_cast(std::array<unsigned,4>, (actual))==__builtin_bit_cast(std::array<unsigned,4>, (expected)));
+                            require(std::fegetround()==rounding);
+                        }
+                    }
+            }
+            okage::PreparedMapBaseColor failed;okage::Material invalid{};
+            invalid.words[5]=__builtin_bit_cast(unsigned, (-1.f));
+            rejects([&]{failed.get(invalid,{1,1,1,1},{1,1,1,1},false);});
+            invalid.words[5]=0;
+            rejects([&]{failed.get(invalid,{1,1,1,1},{-1,1,1,1},false);});
+            rejects([&]{failed.get(invalid,{1,1,1,1},{std::numeric_limits<float>::quiet_NaN(),1,1,1},false);});
+            require(failed.get(invalid,{.75f,.75f,.75f,1},{1,1,1,1},false)==okage::Float4({191.25f,191.25f,191.25f,128}));
+            require(std::fegetround()==rounding);
+        }
+        std::fesetround(before);
         const std::array<int,2> translucent{10,30};
         std::vector<std::pair<int,unsigned>> passes{{20,3},{40,3}};
         okage::map_translucent_passes(std::span<const int>(translucent),[&](int id,unsigned pass){passes.emplace_back(id,pass);});

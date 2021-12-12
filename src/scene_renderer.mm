@@ -30,6 +30,7 @@ struct SceneRenderer::Impl {
     struct BlockPreparation {
         std::vector<std::optional<PreparedTextureState>> textures;
         std::vector<std::optional<PolygonTextureCoordinates>> coordinates;
+        std::vector<std::array<PreparedMapBaseColor,4>> mapBaseColors;
     };
     struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;std::optional<MapTransform> facing;std::optional<std::size_t> placement;bool visible=true;bool afterShadows=false;std::uint32_t flags=0;unsigned ordinal=0;bool special=false;};
     const MapObjects* mapObjects=nullptr;
@@ -196,7 +197,8 @@ struct SceneRenderer::Impl {
             auto& blocks=parts.emplace_back();
             for(const auto& block:part.blocks)
                 blocks.push_back({std::vector<std::optional<PreparedTextureState>>(block.textures.size()),
-                    std::vector<std::optional<PolygonTextureCoordinates>>(block.polygons.size())});
+                    std::vector<std::optional<PolygonTextureCoordinates>>(block.polygons.size()),
+                    input.placement?std::vector<std::array<PreparedMapBaseColor,4>>(block.polygons.size()):std::vector<std::array<PreparedMapBaseColor,4>>{}});
         }
         return parts;
     }
@@ -362,7 +364,10 @@ struct SceneRenderer::Impl {
                             Vertex vertex{positions.at(corner[0]),{1,1,1,1},{0,0,0,0}};
                             if (corner[2]>=0 && colorDefined.at(corner[2])) vertex.color=colors.at(corner[2]);
                             else throw std::runtime_error("Missing preview source color");
-                            if(material) {
+                            if(material&&mapMaterial&&(corner[1]<0||(material->words[7]&1))) {
+                                vertex.color=prepared.mapBaseColors.at(polygonIndex-1)[index].get(
+                                    *material,vertex.color,ordinaryLighting.base,!fieldProjection);
+                            } else if(material) {
                                 vertex.color=material_source_color(*material,vertex.color);
                                 if(mapMaterial) {
                                     const auto normal=corner[1];

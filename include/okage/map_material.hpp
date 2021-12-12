@@ -1,5 +1,6 @@
 #pragma once
 #include "okage/render.hpp"
+#include "okage/ordinary_lighting.hpp"
 #include <bit>
 #include <cmath>
 #include <stdexcept>
@@ -8,6 +9,22 @@ namespace okage {
 struct MapMaterialClass {
     bool translucent;
     bool base_lighting;
+};
+class PreparedMapBaseColor {
+public:
+    const Float4& get(const Material& material,const Float4& source,
+                      const Float4& base,bool packed) {
+        const unsigned mode=packed?2:1;
+        if(mode_!=mode) {
+            const auto cache=material_source_color(material,source);
+            const auto next=packed?ordinary_material_color(cache,base):ordinary_material_modulation(cache,base);
+            color_=next;mode_=mode;
+        }
+        return color_;
+    }
+private:
+    Float4 color_{};
+    unsigned mode_=0;
 };
 // Source draw command bits are FGE0x20 and optional TME0x10 in the
 // reviewed ordinary map corpus. A retained texture selection does not enable it.
