@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "implementation_commit": "41e2278ab8d29902804f07160bcb3e3786590b92",
+  "run_commit": "41e2278ab8d29902804f07160bcb3e3786590b92",
+  "source_sha256": {
+    "include/okage/map_material.hpp": "1b3dae1ff96719504de5518f2a2c8114d539ce31303471d8bfa00f256b83b3e4",
+    "src/scene_renderer.mm": "48b11e51eba199ff8d3350774cfb4c9573f7e355038a443f7f2a8b754f74ce77",
+    "tests/render_tests.cpp": "4913c221c32475ba9008944dc867df6f3052449e44a75e8999c31167a12f0abc",
+    "tests/scene_map_material_tests.mm": "83ee5a1e58405d609897067f49f23b1efff233331c8b1c796753aeafdaa1c204"
+  },
+  "binary_sha256": "da04d2c5fba6f27681469d0a0fb0579bb5db2fd99d3d080e8593ecebe8552678",
+  "evidence_hash_checks": {
+    "local/worktrees/map-material-performance-v1/local/map-material-performance-v1.patch": true,
+    "local/worktrees/map-material-performance-v1/local/build-asan.log": true,
+    "local/worktrees/map-material-performance-v1/local/build-release-final.log": true,
+    "local/worktrees/map-material-performance-v1/local/build-release.log": true,
+    "local/worktrees/map-material-performance-v1/local/configure-asan.log": true,
+    "local/worktrees/map-material-performance-v1/local/configure-release.log": true,
+    "local/worktrees/map-material-performance-v1/local/scene-map-asan-build.log": true,
+    "local/worktrees/map-material-performance-v1/local/scene-map-build.log": true,
+    "local/worktrees/map-material-performance-v1/local/scene-map-test-asan-v1.log": true,
+    "local/worktrees/map-material-performance-v1/local/scene-map-test-v1.log": true,
+    "local/worktrees/map-material-performance-v1/local/test-asan.log": true,
+    "local/worktrees/map-material-performance-v1/local/test-release.log": true,
+    "local/worktrees/map-material-performance-v1/build/native-release/okage-native.app/Contents/MacOS/okage-native": true,
+    "local/worktrees/map-material-performance-v1/build/native-release/okage-assets": true,
+    "local/worktrees/map-material-performance-v1/local/cache-corpus-release.json": true,
+    "local/worktrees/map-material-performance-v1/local/cache-corpus.cpp": true,
+    "local/worktrees/map-material-performance-v1/local/cache-corpus-inputs.json": true,
+    "local/worktrees/map-material-performance-v1/local/lighting-regression-v1/report.json": true,
+    "local/research/map-material-performance-v1/profile-summary-v1.json": true,
+    "local/native-map-material-live-89755-v1.performance.jsonl": true,
+    "local/native-map-material-cached-live-89755-v1.performance.jsonl": true,
+    "local/research/post-grandmother-route-v1/cached-live-idle-89755-comparison-v1.json": true
+  },
+  "evidence_sha256": {
+    "local/worktrees/map-material-performance-v1/local/map-material-performance-report-v1.json": "dc291693e36b7b7c8f6475c2b2e6e89bb4f348d6ecb3b6d175bc7ea0017e8c49",
+    "local/research/map-material-performance-v1/primary-build-tests.json": "610591e6020636bcbc4922102227f2aa4be35208ee8af7069d595048afafbee3",
+    "local/research/map-material-performance-v1/profile-summary-v1.json": "00c331fedf2c17e869ac86f74db578197ca5c22dff29ca5e7195a2ae74adc00c",
+    "local/research/map-material-integration-v1/profile-record-v1.json": "ecc35d8bb7fb0c60e6bd66aa4717550a07e9c660e41f2e646307ac62d9a0af1c",
+    "local/research/post-grandmother-route-v1/cached-live-idle-89755-comparison-v1.json": "ad07ed96f27deb6929001195732ca53108bb3276c9433322f1ba31a98dfd99a7",
+    "local/native-map-material-live-89755-v1.run.json": "d6bd1c3a1c8d22290b13e29421eba6186a1f16d3e6f4f7d37ac2a967c2330016",
+    "local/native-map-material-live-89755-v1.performance.jsonl": "2896d1afc37962156c4ad02d0cfab803acc2a20fa0880486dfbcfcbeee7d3f00",
+    "local/native-map-material-live-89755-v1.log": "a75a2374c9c2411c6b2fe7c3e03613004b1028f7461ca7196009a1e0644a8ef8",
+    "local/native-map-material-cached-live-89755-v1.run.json": "daad4cfc358e5954437a7e6f47847cceb37143796e799166447d7f6b8833e12c",
+    "local/native-map-material-cached-live-89755-v1.performance.jsonl": "3c89939d1d01c9acb035f2d883d59786d292336e7fdcd110d7ac00cab2afa9e5",
+    "local/native-map-material-cached-live-89755-v1.log": "a75a2374c9c2411c6b2fe7c3e03613004b1028f7461ca7196009a1e0644a8ef8"
+  },
+  "tests": {
+    "root_release_ctest_pass": 23,
+    "run": {
+      "release_ctest": "4/4 pass",
+      "asan_ubsan_ctest": "4/4 pass",
+      "release_offscreen_scene": "pass",
+      "asan_ubsan_offscreen_scene": "pass",
+      "coverage": "Cold/warm cache, packed/fractional switching, failed initialization and retry, host rounding restoration; public renderer field/standalone mode changes and unchanged existing map material scene checks."
+    },
+    "owned_corpus": {
+      "models": 48,
+      "polygons": 45275,
+      "base_corners": 164530,
+      "compared_calls": 6581200,
+      "compared_words": 26324800,
+      "fnv_words": 16237218976184357227,
+      "different_words": 0
+    },
+    "owned_corpus_scope": "All 48 XMD files in owned FIELD_1D directory, including an unplaced asset; 4 host rounding modes, 2 bases, packed/fractional changes; bitwise comparison against unchanged scalar helpers. Native equivalence test, not fresh original execution."
+  },
+  "live_comparison": [
+    {
+      "label": "before",
+      "prefix": "local/native-map-material-live-89755-v1",
+      "binary_sha256": "65ababb2edc8ec8b96ce926fbe14769334f0911396d5885695b78efae0c67fec",
+      "exit_code": 0,
+      "interval": {
+        "start_frame": 89455,
+        "end_frame": 89755,
+        "wall_duration_s": 17.63184491667198,
+        "completed_simulation_ticks": 300,
+        "rendered_ticks": 300,
+        "appkit_draw_callbacks": 300,
+        "simulation_ticks_per_wall_second": 17.014668709814465,
+        "appkit_draw_callbacks_per_wall_second": 17.014668709814465,
+        "completed_tick_wall": {
+          "count": 300,
+          "sum_ms": 16319.865458237473,
+          "min_ms": 53.4870833507739,
+          "max_ms": 112.99308337038383,
+          "mean_ms": 54.39955152745824,
+          "bucket_counts": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            299,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "accumulator_pending_end_ticks": 754,
+        "elapsed_discarded_by_update_cap_s": 0,
+        "audio_source_frames_enqueued": 240000,
+        "audio_silence_frames_enqueued": 598400,
+        "audio_producer_overruns": 0,
+        "audio_enqueue_failures": 0
+      }
+    },
+    {
+      "label": "cached",
+      "prefix": "local/native-map-material-cached-live-89755-v1",
+      "binary_sha256": "da04d2c5fba6f27681469d0a0fb0579bb5db2fd99d3d080e8593ecebe8552678",
+      "exit_code": 0,
+      "interval": {
+        "start_frame": 89455,
+        "end_frame": 89755,
+        "wall_duration_s": 5.199064499989618,
+        "completed_simulation_ticks": 300,
+        "rendered_ticks": 300,
+        "appkit_draw_callbacks": 300,
+        "simulation_ticks_per_wall_second": 57.702688628040505,
+        "appkit_draw_callbacks_per_wall_second": 57.702688628040505,
+        "completed_tick_wall": {
+          "count": 300,
+          "sum_ms": 4535.289958002977,
+          "min_ms": 14.242625038605183,
+          "max_ms": 68.33720835857093,
+          "mean_ms": 15.117633193343258,
+          "bucket_counts": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            299,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "accumulator_pending_end_ticks": 11,
+        "elapsed_discarded_by_update_cap_s": 0,
+        "audio_source_frames_enqueued": 240000,
+        "audio_silence_frames_enqueued": 5600,
+        "audio_producer_overruns": 0,
+        "audio_enqueue_failures": 0
+      }
+    }
+  ],
+  "endpoint_comparison": {
+    "immediate_files_per_pair": 51,
+    "exact_files_per_pair": 50,
+    "different": [
+      ".audio.json"
+    ],
+    "pairs": 3,
+    "generated_pcm_sha256": "557e449ebf9a9c4dd71f3a83f4419072867994b1d4a99a47698ab73d479025f3",
+    "actual_view_sha256": "2e7849399255d6ab0877998376fe9d9b23bd593dc818621c02ee7846f3a5ccf3",
+    "main_image_state_generated_pcm_equal": true
+  },
+  "limitations": [
+    "One bounded 300-tick same-workload live trial per binary, not sustained 60 Hz or compositor-present FPS proof. Candidate retains 11 pending ticks and 5600 silence frames at interval end.",
+    "Candidate final artifact audio device report has 10400 silence frames; it is sampled later than the 5600 performance boundary, after heavy final capture.",
+    "This worktree ran no AppKit window, original VM or gameplay replay; the root checkout supplied live and endpoint evidence.",
+    "Endpoint audit: all three pairs cached live/prior live/headless have 50 of 51 family files exact, only device audio counters differ; generated PCM, main image and state exact. Actual old/new view byte exact.",
+    "Existing map raster, blending, clipping and warped-quad fidelity limits remain unchanged."
+  ]
+}
