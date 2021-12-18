@@ -1,9 +1,38 @@
 #pragma once
+#include <charconv>
 #include <filesystem>
 #include <span>
 #include <stdexcept>
+#include <string_view>
 
 namespace okage {
+struct NativeRenderRange { unsigned first,last; };
+inline NativeRenderRange native_render_range(std::string_view text) {
+    const auto colon=text.find(':');
+    if(colon==text.npos)throw std::runtime_error("Render range requires positive FIRST:LAST");
+    const auto number=[](std::string_view token) {
+        unsigned value=0;
+        const auto [end,error]=std::from_chars(token.data(),token.data()+token.size(),value);
+        if(error!=std::errc{}||end!=token.data()+token.size()||!value)
+            throw std::runtime_error("Render range requires positive FIRST:LAST");
+        return value;
+    };
+    const NativeRenderRange range{number(text.substr(0,colon)),number(text.substr(colon+1))};
+    if(range.first>range.last)throw std::runtime_error("Render range requires FIRST <= LAST");
+    return range;
+}
+inline void validate_native_render_ranges(std::span<const NativeRenderRange> ranges,unsigned replay_frames) {
+    for(const auto range:ranges)
+        if(!replay_frames||!range.first||range.first>range.last||range.last>replay_frames)
+            throw std::runtime_error("Render ranges require positive ordered endpoints within the headless replay");
+}
+inline bool native_render_tick(unsigned frame,unsigned from,unsigned until,
+        std::span<const NativeRenderRange> ranges) {
+    if(from&&frame>=from&&(!until||frame<=until))return true;
+    for(const auto range:ranges)if(frame>=range.first&&frame<=range.last)return true;
+    return false;
+}
+
 struct NativeRunPlan {
     unsigned replay_frames=0;
     bool starts_paused=false,bounded_handoff=false;

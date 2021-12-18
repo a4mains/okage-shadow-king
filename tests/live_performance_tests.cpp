@@ -205,6 +205,33 @@ void output_checks(const fs::path& directory) {
     rejects([&]{okage::LivePerformance invalid(link);});check(fs::is_symlink(link));
     rejects([&]{okage::LivePerformance invalid(directory/"missing-parent"/"report.jsonl");});
 }
+void render_range_checks() {
+    using okage::NativeRenderRange;
+    for(const auto text:{"", "1", ":2", "1:", "0:2", "1:0", "2:1", "-1:2", "+1:2",
+                        " 1:2", "1:2 ", "1:2:3", "1:2x", "4294967296:4294967296"})
+        rejects([&]{okage::native_render_range(text);});
+    const auto single=okage::native_render_range("7:7");check(single.first==7&&single.last==7);
+    // Unordered, overlapping repeated options form a union, never extra ticks.
+    const std::array ranges{okage::native_render_range("91115:91595"),single,
+                           okage::native_render_range("91116:91594")};
+    okage::validate_native_render_ranges(ranges,91595);
+    rejects([&]{okage::validate_native_render_ranges(ranges,91594);});
+    rejects([&]{okage::validate_native_render_ranges(ranges,0);});
+    okage::validate_native_render_ranges({},0);
+    for(const auto bad:{NativeRenderRange{0,1},NativeRenderRange{2,1}})
+        rejects([&]{okage::validate_native_render_ranges(std::span(&bad,1),91595);});
+    unsigned selected=0;
+    for(unsigned frame=0;frame<=91596;++frame) {
+        const bool expected=frame==7||(frame>=11310&&frame<=11542)||(frame>=91115&&frame<=91595);
+        const bool actual=okage::native_render_tick(frame,11310,11542,ranges);
+        check(actual==expected);selected+=actual;
+        check(okage::native_render_tick(frame,1,0,{})==(frame>=1));
+        check(!okage::native_render_tick(frame,0,0,{}));
+    }
+    check(selected==1+233+481);
+    check(okage::native_render_tick(91596,91115,0,ranges));
+    check(!okage::native_render_tick(91596,0,0,ranges));
+}
 void run_plan_checks(const fs::path& directory) {
     const auto capture=directory/"end.png";
     const auto plain=okage::native_run_plan(0,0,0,{},100);
@@ -282,7 +309,7 @@ void bounded_interval_checks(const fs::path& directory) {
 int main() {
     fs::path directory;
     try {
-        interval_checks();distribution_checks();scheduler_checks();audio_ring_checks();scheduler_audio_interval_checks();
+        render_range_checks();interval_checks();distribution_checks();scheduler_checks();audio_ring_checks();scheduler_audio_interval_checks();
         auto pattern=(fs::temp_directory_path()/"okage-performance-XXXXXX").string();
         const auto created=::mkdtemp(pattern.data());check(created);directory=created;
         output_checks(directory);run_plan_checks(directory);bounded_interval_checks(directory);fs::remove_all(directory);

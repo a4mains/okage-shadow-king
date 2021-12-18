@@ -75,6 +75,7 @@ struct Session {
     okage::DialogueWaitState wait{5,1};
     unsigned frame=0,release_frame=0,close_frame=0,close_release_frame=0;
     unsigned render_from=0,render_until=0,rendered_frame=0;
+    std::vector<okage::NativeRenderRange> render_ranges;
     okage::FrameFeedback feedback;
     std::optional<okage::Texture> rendered_surface;
     std::vector<std::uint32_t> filter_trace;
@@ -564,12 +565,14 @@ struct Session {
             for(const auto* s:{&p.shadow,&p.ordinary,&p.field_end,&p.effects,&p.deferred,&p.ending})
                 for(float f:okage::field_projection_words(*s))projection_trace.push_back(__builtin_bit_cast(std::uint32_t, (f)));
         }
-        const bool render_tick=render_from&&frame>=render_from&&(!render_until||frame<=render_until);
+        const bool render_tick=okage::native_render_tick(frame,render_from,render_until,render_ranges);
         if(field) {
             const auto& filter=field->screen_filter;
             filter_trace.insert(filter_trace.end(),{frame,filter.updating?1u:0u,filter.setting,filter.alpha});
             if(filter.alpha&&!render_tick)
-                throw std::runtime_error("Active feedback needs consecutive rendering; extend the headless render interval");
+                throw std::runtime_error("Active feedback needs consecutive rendering at native frame="+std::to_string(frame)+
+                    " scene="+std::to_string(current_scene)+" event_pc="+std::to_string(field->pc())+
+                    "; extend the headless render interval or --render-range");
         }
         if(render_tick)render_frame();
     }
@@ -616,7 +619,11 @@ struct Session {
         const auto& r=field->rotation;
         const auto& screen=projection.frame().ordinary;
         auto image=renderer->render(field->view(),okage::field_clip_projection(screen),effects_loaded?&field->effects():nullptr,{-r[0],-r[1],-r[2],0},screen.clip_far,field->position,&projection.frame(),field->player_shadow()?field->player_shadow()->projection_factor:1);
-        feedback.apply(image,frame,field->screen_filter.alpha);
+        try {feedback.apply(image,frame,field->screen_filter.alpha);}
+        catch(const std::exception& e) {
+            throw std::runtime_error("Feedback at native frame="+std::to_string(frame)+" scene="+
+                std::to_string(current_scene)+" event_pc="+std::to_string(field->pc())+": "+e.what());
+        }
         const auto alpha=scene_fade.alpha(),brightness=128-alpha;
         for(std::size_t i=0;i<image.rgba.size();i+=4)for(unsigned c=0;c<3;++c)
             image.rgba[i+c]=(unsigned(image.rgba[i+c])*brightness+((scene_fade.color>>(c*8))&255)*alpha)/128;
@@ -1036,15 +1043,17 @@ static void capture(const Session& session,const fs::path& path) {
 @end
 int main(int argc,const char** argv) {
     @autoreleasepool {try {
-        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--performance-report FRESH.jsonl (interactive/preview/UI test)]");
+        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--performance-report FRESH.jsonl (interactive/preview/UI test)]");
         unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         std::optional<fs::path> performancePath;
+        std::vector<okage::NativeRenderRange> renderRanges;
         for(int i=3;i<argc;++i) {
             const std::string arg=argv[i];if(++i==argc)throw std::runtime_error("Missing native runtime option value");
             if(arg=="--frames")frames=std::stoul(argv[i]);
             else if(arg=="--preview-at")previewAt=std::stoul(argv[i]);
             else if(arg=="--render-from")renderFrom=std::stoul(argv[i]);
             else if(arg=="--render-until")renderUntil=std::stoul(argv[i]);
+            else if(arg=="--render-range")renderRanges.push_back(okage::native_render_range(argv[i]));
             else if(arg=="--ui-test-frames")uiFrames=std::stoul(argv[i]);
             else if(arg=="--directions")directions.load(argv[i]);
             else if(arg=="--capture")output=argv[i];
@@ -1089,6 +1098,7 @@ int main(int argc,const char** argv) {
         const auto runPlan=okage::native_run_plan(frames,previewAt,uiFrames,output,diagnosticFrameLimit);
         const auto replayFrames=runPlan.replay_frames;
         okage::validate_native_capture_selection(runPlan,captureFrames);
+        okage::validate_native_render_ranges(renderRanges,replayFrames);
         if(renderFrom&&(!replayFrames||renderFrom>replayFrames))throw std::runtime_error("Render start requires a replay frame within the capture");
         if(renderUntil&&(!renderFrom||renderUntil<renderFrom||renderUntil>replayFrames))
             throw std::runtime_error("Render end requires a bounded headless render interval");
@@ -1113,7 +1123,7 @@ int main(int argc,const char** argv) {
                 if(!frameManifest)throw std::runtime_error("Cannot open native frame manifest");
             }
             prepared=std::make_unique<Session>(argv[1],argv[2],playerName);
-            auto& session=*prepared;session.render_from=renderFrom;session.render_until=renderUntil;
+            auto& session=*prepared;session.render_from=renderFrom;session.render_until=renderUntil;session.render_ranges=std::move(renderRanges);
             session.live_presentation_enabled=previewAt!=0;
             if(!effectData.empty())session.prepare_effects(effectData,effectTextures);
             if(!map.empty())session.load_scene(map,event,actors);
@@ -1153,7 +1163,7 @@ int main(int argc,const char** argv) {
         if(!musicSequence.empty())app->session->load_music(musicSequence,musicBank,!output.empty(),soundDirectory);
         if(!effectData.empty())app->session->load_effects(effectData,effectTextures);
         }
-        app->session->render_from=1;app->session->render_until=0;
+        app->session->render_from=1;app->session->render_until=0;app->session->render_ranges.clear();
         app->testFrames=uiFrames;app->testPresses=presses;app->directions=directions;app->testCapture=runPlan.live_capture;
         if(runPlan.bounded_handoff)app->replayDirections=directions.held(replayFrames);
         [NSApp setDelegate:app];[NSApp run];return app->failureStatus;
