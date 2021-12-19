@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "implementation_commit": "fd33b641f3e1e7726a0e5f77b2cfceeef8beb758",
+  "run_commit": "fd33b641f3e1e7726a0e5f77b2cfceeef8beb758",
+  "source_sha256": {
+    "include/okage/native_run.hpp": "58b0199e4e05eb3aa688e1a195388084142bb5f87a39c128e771d106403ed4e4",
+    "src/native_runtime.mm": "586575e5e44391bb860b4540030f17e2431a2eea7e07da16bb2836709321aeca",
+    "tests/live_performance_tests.cpp": "d81dcd2a94f411b345273500767dd279ef7ecf3cde0b14581bb3ecc505dd9b22"
+  },
+  "binary_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+  "evidence_sha256": {
+    "local/worktrees/render-ranges-v1/local/render-ranges-report-v1.json": "35fc5e77a5838dd8e7ff4f46eaa5355bb8ef5af7627637928638a08dc646d95a",
+    "local/worktrees/render-ranges-v1/local/cli-validation-v1.json": "3bb4c998501bfef89ae8cd20fa78cc6b91a8c8c0fb3608566093d770cc208000",
+    "local/research/village-gate-v1/ranges-primary-build-v1.json": "2de86b8d4ac592b3dd97da8777452bab845281bc6e65263c57ce60af47d0b5f9",
+    "local/research/village-gate-v1/render-range-execution-v1.json": "a752c08fc69a9bc6790bb40e86a977d7d44c037cfa0e3f70a7feb9aebac7bd74",
+    "local/research/village-gate-v1/render-range-regression-comparison-v1.json": "3e7d92787723c1c073c55fd44b14b9039b22d3ea4b2957dd57d4f606cc2122aa",
+    "local/research/village-gate-v1/choice-ranges-summary-v1.json": "e1e4d8774e46a2d27891fb88e47b148cfddff7dcdc1c2f9352030506ba285670",
+    "local/research/village-gate-v1/choice-ranges-interval-v1.json": "52a11564c2aa1d8cee304d6767785e7ba2db87e0f7e401e3571a320b354bc21f",
+    "local/native-render-ranges-missing-predecessor-v1.run.json": "126a71fdbddeda9fdfac902c4c499cccaca83fc3ea858367c06f77066901af98",
+    "local/native-render-ranges-missing-predecessor-v1.log": "be9453bbd384869a47bf11fcb842a54d24c4a40db16de14158e50fe1541df896",
+    "local/native-render-ranges-active-gap-v1.run.json": "795f5f39bccef88a9f5e238d4f66525b8ed7ae2a59f8f0dc57062b209188a7f0",
+    "local/native-render-ranges-active-gap-v1.log": "bdd4dc79ec7dd646a3b8e99c045dfd0f1b266af23462a59aea3a64e0a9ef777f",
+    "local/native-render-ranges-split-regression-v1.run.json": "5ce2294f11c16eda69060979fbbac06bb1df45ccfd4165260b401c3767743cc0",
+    "local/native-render-ranges-split-regression-v1.log": "6cf0acb06cf494fa116b63ee75f2176a7cead37e4a205b93d723d3bc528fd20c",
+    "local/native-village-gate-choice-91595-release-v1.run.json": "f57820e96c7bc11cb3186ab17dfc903cc91ad41dd2557e5d725c874aef907f00",
+    "local/native-village-gate-choice-91595-release-v1.log": "14fec38d533efdd9dbd100d1b0eaed61485b107cf60b42c1c865271ebda508d2",
+    "local/native-village-gate-choice-91595-ranges-v1.run.json": "a80b649f5951913ea320648af2069a2a64d6a53dbdd8bd351ca0233f16d281f6",
+    "local/native-village-gate-choice-91595-ranges-v1.log": "8c5ad65001cb24889d19db92045333a99c47c22dc3aea4c0b07b170b9a19b885"
+  },
+  "tests": {
+    "root_release_ctest_pass": 23,
+    "focused_range_tests_pass": true,
+    "actual_cli_cases": 10,
+    "same_91115_endpoint_files": 51,
+    "different_endpoint_files": 0,
+    "negative_missing_predecessor_frame": 11311,
+    "negative_active_gap_frame": 11312,
+    "negative_exit_codes": [
+      1,
+      1
+    ]
+  },
+  "new_feedback_replay": {
+    "native": "local/native-village-gate-choice-91595-ranges-v1",
+    "original": "local/reference-field1d-village-gate-choice-480-v1",
+    "interval": [
+      91116,
+      91595
+    ],
+    "first_active_feedback": 91548,
+    "compared_state_differences": 0,
+    "missing_observations": 0,
+    "legacy_render_interval": [
+      11310,
+      11542
+    ],
+    "additional_render_ranges": [
+      [
+        91115,
+        91595
+      ]
+    ],
+    "exact_same_input_as_retained_failed_replay": true
+  },
+  "limitations": [
+    "Diagnostic option only; no live performance change or claim.",
+    "Selected frame directories differ in split regression and are excluded; immediate51files allagree.",
+    "Native consistency and compared state do not establish original raster or audio fidelity.",
+    "Historical and gate feedback must each retain the preceding native frame."
+  ]
+}
