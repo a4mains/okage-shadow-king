@@ -917,7 +917,7 @@ static void captureView(NSView* view,const fs::path& path) {
                     <<" path="<<pausedViewCapture<<std::endl;
             }
         }catch(const std::exception& e) {
-            failureStatus=1;std::cerr<<e.what()<<'\n';[NSApp terminate:nil];return;
+            failureStatus=1;std::cerr<<e.what()<<'\n';[NSApp stop:nil];return;
         }
     }
     else if(performance)performance->interval.begin(self.previousTime,session->frame);
