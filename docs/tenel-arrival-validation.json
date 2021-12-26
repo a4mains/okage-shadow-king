@@ -1,0 +1,1007 @@
+{
+  "schema_version": 1,
+  "scope": "Native village gate and Tenel arrival, owned-asset startup through92915.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "implementation_commit": "fd33b64",
+  "native_binary": {
+    "path": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+    "sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331"
+  },
+  "route_worker_report": {
+    "path": "local/research/village-gate-v1/route-audit-v3.json",
+    "sha256": "a44887078ba58d0228c892a87bd534e7eb348351e14de8914daebf313b3574fe"
+  },
+  "primary_review": {
+    "listed_artifact_hashes_verified": 150,
+    "actual_run_records_verified": 20,
+    "commands_equal_summary": true,
+    "historical_or_current_binary_hashes_verified": true
+  },
+  "route_aggregate": {
+    "actual_run_record_hashes_and_status_verified": true,
+    "all_listed_artifacts_hash_match": true,
+    "all_native_and_original_run_exit_zero": true,
+    "all_run_hashes_match_summary": true,
+    "listed_artifact_hash_mismatches": [],
+    "listed_artifacts_checked": 150,
+    "loading_segments_with_differences_or_missing": [
+      "exit",
+      "arrival_idle"
+    ],
+    "run_record_issues": [],
+    "segments_contiguous": true,
+    "segments_full_coverage_and_zero_state_difference": 8,
+    "segments_with_missing_observations": [
+      "exit",
+      "arrival_idle"
+    ],
+    "segments_with_observed_state_differences": [
+      "exit",
+      "arrival_idle"
+    ],
+    "source_summary_interval_hashes_match": true,
+    "sum_unique_differing_frames": 323,
+    "sum_unique_missing_observation_frames": 194,
+    "tick_sum_matches": true
+  },
+  "segments": [
+    {
+      "artifact_hash_mismatches": [],
+      "artifact_hashes_checked": 15,
+      "compared_observables_agree": true,
+      "contiguous_from_previous": true,
+      "controller_samples": 0,
+      "coverage": {
+        "camera": {
+          "expected_frames": 100,
+          "observed_frames": 100
+        },
+        "manager": {
+          "expected_frames": 100,
+          "observed_frames": 100
+        },
+        "player": {
+          "expected_frames": 100,
+          "observed_frames": 100
+        }
+      },
+      "difference_frame_counts": {
+        "camera_mode_phase": 0,
+        "camera_position": 0,
+        "camera_rotation": 0,
+        "camera_unblended_target": 0,
+        "choice": 0,
+        "controller": 0,
+        "direction_latch": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "player_mask": 0
+      },
+      "first_difference": null,
+      "frames": 100,
+      "interval_hash_matches_summary": true,
+      "interval_report": "local/research/post-jam-route-v1/village-gate-approach-interval.json",
+      "interval_report_sha256": "99bb8ab8bab0b02e6380c5e4ead947d02632eb1f1060625ceb6e430c4e15975c",
+      "matching_tail": {
+        "controller_samples": 0,
+        "first_native_tick": 89756,
+        "first_original_frame": 0,
+        "frames": 100
+      },
+      "missing_original_camera_frames": 0,
+      "missing_original_manager_frames": 0,
+      "missing_original_player_frames": 0,
+      "name": "approach",
+      "native_run": {
+        "binary_hash_matches_summary": true,
+        "command_executable": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "command_executable_current_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "exit_code_matches_summary": true,
+        "recorded_binary_sha256": "da04d2c5fba6f27681469d0a0fb0579bb5db2fd99d3d080e8593ecebe8552678",
+        "retained_binary_matches_recorded": true,
+        "retained_da04_binary_path": "local/demos/current-preview-89755-v1/okage-native.app/Contents/MacOS/okage-native",
+        "retained_da04_binary_sha256": "da04d2c5fba6f27681469d0a0fb0579bb5db2fd99d3d080e8593ecebe8552678",
+        "run_record_exit_code": 0,
+        "run_record_path": "local/native-village-gate-approach-89855-release-v1.run.json",
+        "run_record_sha256": "bc473a9eca761b609ce4ef00a66ae576ce4c6a91316c0194cce6eed684837b59",
+        "summary_binary_sha256": "da04d2c5fba6f27681469d0a0fb0579bb5db2fd99d3d080e8593ecebe8552678",
+        "summary_exit_code": 0
+      },
+      "original_run": {
+        "binary_hash_matches_summary": true,
+        "command_executable": "build/play-research/okage-oracle/okage-boot-oracle",
+        "command_executable_current_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "exit_code_matches_summary": true,
+        "recorded_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "retained_binary_matches_recorded": null,
+        "retained_da04_binary_path": null,
+        "retained_da04_binary_sha256": null,
+        "run_record_exit_code": 0,
+        "run_record_path": "local/reference-field1d-village-gate-approach-100-v1.run.json",
+        "run_record_sha256": "bae3d978983bc14e9ad120d87ed6b40f136f827ca3fd1152645acc50047c3356",
+        "summary_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "summary_exit_code": 0
+      },
+      "source_summary": "local/research/post-jam-route-v1/village-gate-approach-summary.json",
+      "source_summary_sha256": "e751711130ef94d39d4a1fcf400ef0ee5865d33f41ba054120657169d161e0d7",
+      "ticks": [
+        89756,
+        89855
+      ],
+      "unique_differing_frames": 0,
+      "unique_missing_observation_frames": 0
+    },
+    {
+      "artifact_hash_mismatches": [],
+      "artifact_hashes_checked": 15,
+      "compared_observables_agree": true,
+      "contiguous_from_previous": true,
+      "controller_samples": 0,
+      "coverage": {
+        "camera": {
+          "expected_frames": 60,
+          "observed_frames": 60
+        },
+        "manager": {
+          "expected_frames": 60,
+          "observed_frames": 60
+        },
+        "player": {
+          "expected_frames": 60,
+          "observed_frames": 60
+        }
+      },
+      "difference_frame_counts": {
+        "camera_mode_phase": 0,
+        "camera_position": 0,
+        "camera_rotation": 0,
+        "camera_unblended_target": 0,
+        "choice": 0,
+        "controller": 0,
+        "direction_latch": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "player_mask": 0
+      },
+      "first_difference": null,
+      "frames": 60,
+      "interval_hash_matches_summary": true,
+      "interval_report": "local/research/post-jam-route-v1/village-gate-align-interval.json",
+      "interval_report_sha256": "61a383c378d1f940b0b65772738ed7800738e9d301b80d90dcf6a97c7aaa253d",
+      "matching_tail": {
+        "controller_samples": 0,
+        "first_native_tick": 89856,
+        "first_original_frame": 0,
+        "frames": 60
+      },
+      "missing_original_camera_frames": 0,
+      "missing_original_manager_frames": 0,
+      "missing_original_player_frames": 0,
+      "name": "align",
+      "native_run": {
+        "binary_hash_matches_summary": true,
+        "command_executable": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "command_executable_current_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "exit_code_matches_summary": true,
+        "recorded_binary_sha256": "da04d2c5fba6f27681469d0a0fb0579bb5db2fd99d3d080e8593ecebe8552678",
+        "retained_binary_matches_recorded": true,
+        "retained_da04_binary_path": "local/demos/current-preview-89755-v1/okage-native.app/Contents/MacOS/okage-native",
+        "retained_da04_binary_sha256": "da04d2c5fba6f27681469d0a0fb0579bb5db2fd99d3d080e8593ecebe8552678",
+        "run_record_exit_code": 0,
+        "run_record_path": "local/native-village-gate-align-89915-release-v1.run.json",
+        "run_record_sha256": "a41972f145540099e15678d62772c363c00b53e7c4e75765a38e0f0e9976b414",
+        "summary_binary_sha256": "da04d2c5fba6f27681469d0a0fb0579bb5db2fd99d3d080e8593ecebe8552678",
+        "summary_exit_code": 0
+      },
+      "original_run": {
+        "binary_hash_matches_summary": true,
+        "command_executable": "build/play-research/okage-oracle/okage-boot-oracle",
+        "command_executable_current_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "exit_code_matches_summary": true,
+        "recorded_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "retained_binary_matches_recorded": null,
+        "retained_da04_binary_path": null,
+        "retained_da04_binary_sha256": null,
+        "run_record_exit_code": 0,
+        "run_record_path": "local/reference-field1d-village-gate-align-60-v1.run.json",
+        "run_record_sha256": "2df799df7f5bbdace9f13097b5563a7048308237e107ed2f4ef21242361e0b1f",
+        "summary_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "summary_exit_code": 0
+      },
+      "source_summary": "local/research/post-jam-route-v1/village-gate-align-summary.json",
+      "source_summary_sha256": "525599682bca986e8f90b83bf52ee1e4b2ca442b3496c58a6922fccc652f730c",
+      "ticks": [
+        89856,
+        89915
+      ],
+      "unique_differing_frames": 0,
+      "unique_missing_observation_frames": 0
+    },
+    {
+      "artifact_hash_mismatches": [],
+      "artifact_hashes_checked": 15,
+      "compared_observables_agree": true,
+      "contiguous_from_previous": true,
+      "controller_samples": 239,
+      "coverage": {
+        "camera": {
+          "expected_frames": 240,
+          "observed_frames": 240
+        },
+        "manager": {
+          "expected_frames": 240,
+          "observed_frames": 240
+        },
+        "player": {
+          "expected_frames": 240,
+          "observed_frames": 240
+        }
+      },
+      "difference_frame_counts": {
+        "camera_mode_phase": 0,
+        "camera_position": 0,
+        "camera_rotation": 0,
+        "camera_unblended_target": 0,
+        "choice": 0,
+        "controller": 0,
+        "direction_latch": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "player_mask": 0
+      },
+      "first_difference": null,
+      "frames": 240,
+      "interval_hash_matches_summary": true,
+      "interval_report": "local/research/post-jam-route-v1/village-gate-confirm-interval.json",
+      "interval_report_sha256": "8ca55c15572d30b2591fc3fd839f13698c59c197a84747a9453d68f24a8368e5",
+      "matching_tail": {
+        "controller_samples": 239,
+        "first_native_tick": 89916,
+        "first_original_frame": 0,
+        "frames": 240
+      },
+      "missing_original_camera_frames": 0,
+      "missing_original_manager_frames": 0,
+      "missing_original_player_frames": 0,
+      "name": "confirm",
+      "native_run": {
+        "binary_hash_matches_summary": true,
+        "command_executable": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "command_executable_current_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "exit_code_matches_summary": true,
+        "recorded_binary_sha256": "da04d2c5fba6f27681469d0a0fb0579bb5db2fd99d3d080e8593ecebe8552678",
+        "retained_binary_matches_recorded": true,
+        "retained_da04_binary_path": "local/demos/current-preview-89755-v1/okage-native.app/Contents/MacOS/okage-native",
+        "retained_da04_binary_sha256": "da04d2c5fba6f27681469d0a0fb0579bb5db2fd99d3d080e8593ecebe8552678",
+        "run_record_exit_code": 0,
+        "run_record_path": "local/native-village-gate-confirm-90155-release-v1.run.json",
+        "run_record_sha256": "5583ff7c0ba9a1e051ca23e5bc7e19d79da1f122dd2a4cc091983ca139709880",
+        "summary_binary_sha256": "da04d2c5fba6f27681469d0a0fb0579bb5db2fd99d3d080e8593ecebe8552678",
+        "summary_exit_code": 0
+      },
+      "original_run": {
+        "binary_hash_matches_summary": true,
+        "command_executable": "build/play-research/okage-oracle/okage-boot-oracle",
+        "command_executable_current_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "exit_code_matches_summary": true,
+        "recorded_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "retained_binary_matches_recorded": null,
+        "retained_da04_binary_path": null,
+        "retained_da04_binary_sha256": null,
+        "run_record_exit_code": 0,
+        "run_record_path": "local/reference-field1d-village-gate-confirm-240-v1.run.json",
+        "run_record_sha256": "d2f5cff81040025287a0901bf1fda779613793355b56778d14889f67258933a7",
+        "summary_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "summary_exit_code": 0
+      },
+      "source_summary": "local/research/post-jam-route-v1/village-gate-confirm-summary.json",
+      "source_summary_sha256": "f9739e3c9ed8a175fcda25b22c47732b1db8d5b059f3edec5893fcae0b1afe95",
+      "ticks": [
+        89916,
+        90155
+      ],
+      "unique_differing_frames": 0,
+      "unique_missing_observation_frames": 0
+    },
+    {
+      "artifact_hash_mismatches": [],
+      "artifact_hashes_checked": 15,
+      "compared_observables_agree": true,
+      "contiguous_from_previous": true,
+      "controller_samples": 480,
+      "coverage": {
+        "camera": {
+          "expected_frames": 480,
+          "observed_frames": 480
+        },
+        "manager": {
+          "expected_frames": 480,
+          "observed_frames": 480
+        },
+        "player": {
+          "expected_frames": 480,
+          "observed_frames": 480
+        }
+      },
+      "difference_frame_counts": {
+        "camera_mode_phase": 0,
+        "camera_position": 0,
+        "camera_rotation": 0,
+        "camera_unblended_target": 0,
+        "choice": 0,
+        "controller": 0,
+        "direction_latch": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "player_mask": 0
+      },
+      "first_difference": null,
+      "frames": 480,
+      "interval_hash_matches_summary": true,
+      "interval_report": "local/research/post-jam-route-v1/village-gate-dialogue-interval.json",
+      "interval_report_sha256": "05097a20061b49528894a3d196352b74bb3ed1a4c40c9c530f60dc19eea4c763",
+      "matching_tail": {
+        "controller_samples": 480,
+        "first_native_tick": 90156,
+        "first_original_frame": 0,
+        "frames": 480
+      },
+      "missing_original_camera_frames": 0,
+      "missing_original_manager_frames": 0,
+      "missing_original_player_frames": 0,
+      "name": "dialogue",
+      "native_run": {
+        "binary_hash_matches_summary": true,
+        "command_executable": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "command_executable_current_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "exit_code_matches_summary": true,
+        "recorded_binary_sha256": "da04d2c5fba6f27681469d0a0fb0579bb5db2fd99d3d080e8593ecebe8552678",
+        "retained_binary_matches_recorded": true,
+        "retained_da04_binary_path": "local/demos/current-preview-89755-v1/okage-native.app/Contents/MacOS/okage-native",
+        "retained_da04_binary_sha256": "da04d2c5fba6f27681469d0a0fb0579bb5db2fd99d3d080e8593ecebe8552678",
+        "run_record_exit_code": 0,
+        "run_record_path": "local/native-village-gate-dialogue-90635-release-v1.run.json",
+        "run_record_sha256": "0ce7a876388ecace29521e09e09084fc71ce3cd4c33cfb2d27cc8e85ea69fc1f",
+        "summary_binary_sha256": "da04d2c5fba6f27681469d0a0fb0579bb5db2fd99d3d080e8593ecebe8552678",
+        "summary_exit_code": 0
+      },
+      "original_run": {
+        "binary_hash_matches_summary": true,
+        "command_executable": "build/play-research/okage-oracle/okage-boot-oracle",
+        "command_executable_current_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "exit_code_matches_summary": true,
+        "recorded_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "retained_binary_matches_recorded": null,
+        "retained_da04_binary_path": null,
+        "retained_da04_binary_sha256": null,
+        "run_record_exit_code": 0,
+        "run_record_path": "local/reference-field1d-village-gate-dialogue-480-v1.run.json",
+        "run_record_sha256": "e5c47f291963ac3b393de4d416ac3e7ca085c57cf76238b4b1ade4b5a67b9b0b",
+        "summary_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "summary_exit_code": 0
+      },
+      "source_summary": "local/research/post-jam-route-v1/village-gate-dialogue-summary.json",
+      "source_summary_sha256": "dae785357ae6ceb1190cf75365e4a8d758a719de1182f13672ca8fa3e4155e25",
+      "ticks": [
+        90156,
+        90635
+      ],
+      "unique_differing_frames": 0,
+      "unique_missing_observation_frames": 0
+    },
+    {
+      "artifact_hash_mismatches": [],
+      "artifact_hashes_checked": 15,
+      "compared_observables_agree": true,
+      "contiguous_from_previous": true,
+      "controller_samples": 480,
+      "coverage": {
+        "camera": {
+          "expected_frames": 480,
+          "observed_frames": 480
+        },
+        "manager": {
+          "expected_frames": 480,
+          "observed_frames": 480
+        },
+        "player": {
+          "expected_frames": 480,
+          "observed_frames": 480
+        }
+      },
+      "difference_frame_counts": {
+        "camera_mode_phase": 0,
+        "camera_position": 0,
+        "camera_rotation": 0,
+        "camera_unblended_target": 0,
+        "choice": 0,
+        "controller": 0,
+        "direction_latch": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "player_mask": 0
+      },
+      "first_difference": null,
+      "frames": 480,
+      "interval_hash_matches_summary": true,
+      "interval_report": "local/research/post-jam-route-v1/village-gate-dialogue2-interval.json",
+      "interval_report_sha256": "e54cba2b2bddcaa4d484225fc99ca952bc6bf5f4e9bc594c93726d181a15a5e1",
+      "matching_tail": {
+        "controller_samples": 480,
+        "first_native_tick": 90636,
+        "first_original_frame": 0,
+        "frames": 480
+      },
+      "missing_original_camera_frames": 0,
+      "missing_original_manager_frames": 0,
+      "missing_original_player_frames": 0,
+      "name": "dialogue2",
+      "native_run": {
+        "binary_hash_matches_summary": true,
+        "command_executable": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "command_executable_current_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "exit_code_matches_summary": true,
+        "recorded_binary_sha256": "da04d2c5fba6f27681469d0a0fb0579bb5db2fd99d3d080e8593ecebe8552678",
+        "retained_binary_matches_recorded": true,
+        "retained_da04_binary_path": "local/demos/current-preview-89755-v1/okage-native.app/Contents/MacOS/okage-native",
+        "retained_da04_binary_sha256": "da04d2c5fba6f27681469d0a0fb0579bb5db2fd99d3d080e8593ecebe8552678",
+        "run_record_exit_code": 0,
+        "run_record_path": "local/native-village-gate-dialogue2-91115-release-v1.run.json",
+        "run_record_sha256": "1dc8530cfcb0c49afb16aa13b8bccebd3ea79a16b7ff59ef97d36bef18ff6760",
+        "summary_binary_sha256": "da04d2c5fba6f27681469d0a0fb0579bb5db2fd99d3d080e8593ecebe8552678",
+        "summary_exit_code": 0
+      },
+      "original_run": {
+        "binary_hash_matches_summary": true,
+        "command_executable": "build/play-research/okage-oracle/okage-boot-oracle",
+        "command_executable_current_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "exit_code_matches_summary": true,
+        "recorded_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "retained_binary_matches_recorded": null,
+        "retained_da04_binary_path": null,
+        "retained_da04_binary_sha256": null,
+        "run_record_exit_code": 0,
+        "run_record_path": "local/reference-field1d-village-gate-dialogue2-480-v1.run.json",
+        "run_record_sha256": "ecc6e7b7313bee589bed441a4bbc54fc9dc2339ce034f4e1ad4c95aea979da8d",
+        "summary_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "summary_exit_code": 0
+      },
+      "source_summary": "local/research/post-jam-route-v1/village-gate-dialogue2-summary.json",
+      "source_summary_sha256": "5701b1fa3077d687bf191a9c1c3a9fac7c865340193bb3dbdcb93967fee08f45",
+      "ticks": [
+        90636,
+        91115
+      ],
+      "unique_differing_frames": 0,
+      "unique_missing_observation_frames": 0
+    },
+    {
+      "artifact_hash_mismatches": [],
+      "artifact_hashes_checked": 15,
+      "compared_observables_agree": true,
+      "contiguous_from_previous": true,
+      "controller_samples": 430,
+      "coverage": {
+        "camera": {
+          "expected_frames": 480,
+          "observed_frames": 480
+        },
+        "manager": {
+          "expected_frames": 480,
+          "observed_frames": 480
+        },
+        "player": {
+          "expected_frames": 480,
+          "observed_frames": 480
+        }
+      },
+      "difference_frame_counts": {
+        "camera_mode_phase": 0,
+        "camera_position": 0,
+        "camera_rotation": 0,
+        "camera_unblended_target": 0,
+        "choice": 0,
+        "controller": 0,
+        "direction_latch": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "player_mask": 0
+      },
+      "first_difference": null,
+      "frames": 480,
+      "interval_hash_matches_summary": true,
+      "interval_report": "local/research/village-gate-v1/choice-ranges-interval-v1.json",
+      "interval_report_sha256": "52a11564c2aa1d8cee304d6767785e7ba2db87e0f7e401e3571a320b354bc21f",
+      "matching_tail": {
+        "controller_samples": 430,
+        "first_native_tick": 91116,
+        "first_original_frame": 0,
+        "frames": 480
+      },
+      "missing_original_camera_frames": 0,
+      "missing_original_manager_frames": 0,
+      "missing_original_player_frames": 0,
+      "name": "choice",
+      "native_run": {
+        "binary_hash_matches_summary": true,
+        "command_executable": "local/worktrees/render-ranges-v1/build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "command_executable_current_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "exit_code_matches_summary": true,
+        "recorded_binary_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "retained_binary_matches_recorded": null,
+        "retained_da04_binary_path": null,
+        "retained_da04_binary_sha256": null,
+        "run_record_exit_code": 0,
+        "run_record_path": "local/native-village-gate-choice-91595-ranges-v1.run.json",
+        "run_record_sha256": "a80b649f5951913ea320648af2069a2a64d6a53dbdd8bd351ca0233f16d281f6",
+        "summary_binary_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "summary_exit_code": 0
+      },
+      "original_run": {
+        "binary_hash_matches_summary": true,
+        "command_executable": "build/play-research/okage-oracle/okage-boot-oracle",
+        "command_executable_current_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "exit_code_matches_summary": true,
+        "recorded_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "retained_binary_matches_recorded": null,
+        "retained_da04_binary_path": null,
+        "retained_da04_binary_sha256": null,
+        "run_record_exit_code": 0,
+        "run_record_path": "local/reference-field1d-village-gate-choice-480-v1.run.json",
+        "run_record_sha256": "ebbe55e49d184ceb66ae452453c04ba42b04de2cf4d254b97f4c23d4ecedf7ab",
+        "summary_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "summary_exit_code": 0
+      },
+      "source_summary": "local/research/village-gate-v1/choice-ranges-summary-v1.json",
+      "source_summary_sha256": "e1e4d8774e46a2d27891fb88e47b148cfddff7dcdc1c2f9352030506ba285670",
+      "ticks": [
+        91116,
+        91595
+      ],
+      "unique_differing_frames": 0,
+      "unique_missing_observation_frames": 0
+    },
+    {
+      "artifact_hash_mismatches": [],
+      "artifact_hashes_checked": 15,
+      "compared_observables_agree": false,
+      "contiguous_from_previous": true,
+      "controller_samples": 0,
+      "coverage": {
+        "camera": {
+          "expected_frames": 240,
+          "observed_frames": 238
+        },
+        "manager": {
+          "expected_frames": 240,
+          "observed_frames": 238
+        },
+        "player": {
+          "expected_frames": 240,
+          "observed_frames": 103
+        }
+      },
+      "difference_frame_counts": {
+        "camera_mode_phase": 135,
+        "camera_position": 136,
+        "camera_rotation": 136,
+        "camera_unblended_target": 0,
+        "choice": 0,
+        "controller": 0,
+        "direction_latch": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "manager_running_pc_gate": 135,
+        "pad_latch": 0,
+        "player_mask": 0
+      },
+      "first_difference": {
+        "categories": [
+          "camera_rotation",
+          "camera_position"
+        ],
+        "native_simulation_tick": 91698,
+        "original_frame": 102
+      },
+      "frames": 240,
+      "interval_hash_matches_summary": true,
+      "interval_report": "local/research/post-jam-route-v1/village-gate-exit-interval.json",
+      "interval_report_sha256": "5a06a93ef2d9dc7114d21123e174df4aaa1e8f10543b599a3a63907eff92f4c4",
+      "matching_tail": {
+        "controller_samples": 0,
+        "first_native_tick": 91836,
+        "first_original_frame": 240,
+        "frames": 0
+      },
+      "missing_original_camera_frames": 2,
+      "missing_original_manager_frames": 2,
+      "missing_original_player_frames": 135,
+      "name": "exit",
+      "native_run": {
+        "binary_hash_matches_summary": true,
+        "command_executable": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "command_executable_current_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "exit_code_matches_summary": true,
+        "recorded_binary_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "retained_binary_matches_recorded": null,
+        "retained_da04_binary_path": null,
+        "retained_da04_binary_sha256": null,
+        "run_record_exit_code": 0,
+        "run_record_path": "local/native-village-gate-exit-91835-release-v1.run.json",
+        "run_record_sha256": "23b3457399c5d2a78de89bf87ccdab1bcc3d6acd77a4c5d474599af9c9e20e51",
+        "summary_binary_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "summary_exit_code": 0
+      },
+      "original_run": {
+        "binary_hash_matches_summary": true,
+        "command_executable": "build/play-research/okage-oracle/okage-boot-oracle",
+        "command_executable_current_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "exit_code_matches_summary": true,
+        "recorded_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "retained_binary_matches_recorded": null,
+        "retained_da04_binary_path": null,
+        "retained_da04_binary_sha256": null,
+        "run_record_exit_code": 0,
+        "run_record_path": "local/reference-field1d-village-gate-exit-240-v1.run.json",
+        "run_record_sha256": "412f0f1cb7b6d750c4b77fe57714c2a0c120140aacbab3c22c5cdb3be65b924f",
+        "summary_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "summary_exit_code": 0
+      },
+      "source_summary": "local/research/post-jam-route-v1/village-gate-exit-summary.json",
+      "source_summary_sha256": "4f91e627a8d8f340820ca5147c5bae464b4358c92ce0c689fbc5f8367a5aa647",
+      "ticks": [
+        91596,
+        91835
+      ],
+      "unique_differing_frames": 136,
+      "unique_missing_observation_frames": 137
+    },
+    {
+      "artifact_hash_mismatches": [],
+      "artifact_hashes_checked": 15,
+      "compared_observables_agree": false,
+      "contiguous_from_previous": true,
+      "controller_samples": 182,
+      "coverage": {
+        "camera": {
+          "expected_frames": 300,
+          "observed_frames": 300
+        },
+        "manager": {
+          "expected_frames": 300,
+          "observed_frames": 300
+        },
+        "player": {
+          "expected_frames": 300,
+          "observed_frames": 243
+        }
+      },
+      "difference_frame_counts": {
+        "camera_mode_phase": 56,
+        "camera_position": 56,
+        "camera_rotation": 56,
+        "camera_unblended_target": 0,
+        "choice": 69,
+        "controller": 69,
+        "direction_latch": 0,
+        "hero_facing_w": 0,
+        "hero_position": 59,
+        "manager_running_pc_gate": 119,
+        "pad_latch": 0,
+        "player_mask": 0
+      },
+      "first_difference": {
+        "categories": [
+          "manager_running_pc_gate",
+          "camera_rotation",
+          "camera_mode_phase",
+          "camera_position"
+        ],
+        "native_simulation_tick": 91836,
+        "original_frame": 0
+      },
+      "frames": 300,
+      "interval_hash_matches_summary": true,
+      "interval_report": "local/research/post-jam-route-v1/tenel-arrival-idle-interval.json",
+      "interval_report_sha256": "09b3921355729ce1c9a5cd3916bf3f51ece1c7f8c51b2cbd352307d0407c2a2d",
+      "matching_tail": {
+        "controller_samples": 113,
+        "first_native_tick": 92023,
+        "first_original_frame": 187,
+        "frames": 113
+      },
+      "missing_original_camera_frames": 0,
+      "missing_original_manager_frames": 0,
+      "missing_original_player_frames": 57,
+      "name": "arrival_idle",
+      "native_run": {
+        "binary_hash_matches_summary": true,
+        "command_executable": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "command_executable_current_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "exit_code_matches_summary": true,
+        "recorded_binary_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "retained_binary_matches_recorded": null,
+        "retained_da04_binary_path": null,
+        "retained_da04_binary_sha256": null,
+        "run_record_exit_code": 0,
+        "run_record_path": "local/native-tenel-arrival-idle-92135-release-v1.run.json",
+        "run_record_sha256": "66896d68d8d9033065469198c23d5634d00512d1a3b7cd91c0b1a1a65c1cc6ca",
+        "summary_binary_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "summary_exit_code": 0
+      },
+      "original_run": {
+        "binary_hash_matches_summary": true,
+        "command_executable": "build/play-research/okage-oracle/okage-boot-oracle",
+        "command_executable_current_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "exit_code_matches_summary": true,
+        "recorded_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "retained_binary_matches_recorded": null,
+        "retained_da04_binary_path": null,
+        "retained_da04_binary_sha256": null,
+        "run_record_exit_code": 0,
+        "run_record_path": "local/reference-field1d-tenel-arrival-idle-300-v1.run.json",
+        "run_record_sha256": "49e6871122bacef3419781174d458fab1084e61fbe091c3af1c85372b6c9da81",
+        "summary_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "summary_exit_code": 0
+      },
+      "source_summary": "local/research/post-jam-route-v1/tenel-arrival-idle-summary.json",
+      "source_summary_sha256": "1ff65f994675f1bf9c7b14e007808aacb3a2f9e8b898fd3561610306928a1269",
+      "ticks": [
+        91836,
+        92135
+      ],
+      "unique_differing_frames": 187,
+      "unique_missing_observation_frames": 57
+    },
+    {
+      "artifact_hash_mismatches": [],
+      "artifact_hashes_checked": 15,
+      "compared_observables_agree": true,
+      "contiguous_from_previous": true,
+      "controller_samples": 371,
+      "coverage": {
+        "camera": {
+          "expected_frames": 480,
+          "observed_frames": 480
+        },
+        "manager": {
+          "expected_frames": 480,
+          "observed_frames": 480
+        },
+        "player": {
+          "expected_frames": 480,
+          "observed_frames": 480
+        }
+      },
+      "difference_frame_counts": {
+        "camera_mode_phase": 0,
+        "camera_position": 0,
+        "camera_rotation": 0,
+        "camera_unblended_target": 0,
+        "choice": 0,
+        "controller": 0,
+        "direction_latch": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "player_mask": 0
+      },
+      "first_difference": null,
+      "frames": 480,
+      "interval_hash_matches_summary": true,
+      "interval_report": "local/research/post-jam-route-v1/tenel-arrival-dialogue-interval.json",
+      "interval_report_sha256": "9c66ef65f47bb5443e605e0d10ffcca6094b99cd5d85fd6d8d4632e37f83a720",
+      "matching_tail": {
+        "controller_samples": 371,
+        "first_native_tick": 92136,
+        "first_original_frame": 0,
+        "frames": 480
+      },
+      "missing_original_camera_frames": 0,
+      "missing_original_manager_frames": 0,
+      "missing_original_player_frames": 0,
+      "name": "arrival_dialogue",
+      "native_run": {
+        "binary_hash_matches_summary": true,
+        "command_executable": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "command_executable_current_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "exit_code_matches_summary": true,
+        "recorded_binary_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "retained_binary_matches_recorded": null,
+        "retained_da04_binary_path": null,
+        "retained_da04_binary_sha256": null,
+        "run_record_exit_code": 0,
+        "run_record_path": "local/native-tenel-arrival-dialogue-92615-release-v1.run.json",
+        "run_record_sha256": "4d6f184dcd09973a2ee1f621103a078baf9f243f038294a0d023310606bcc2be",
+        "summary_binary_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "summary_exit_code": 0
+      },
+      "original_run": {
+        "binary_hash_matches_summary": true,
+        "command_executable": "build/play-research/okage-oracle/okage-boot-oracle",
+        "command_executable_current_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "exit_code_matches_summary": true,
+        "recorded_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "retained_binary_matches_recorded": null,
+        "retained_da04_binary_path": null,
+        "retained_da04_binary_sha256": null,
+        "run_record_exit_code": 0,
+        "run_record_path": "local/reference-field1d-tenel-arrival-dialogue-480-v1.run.json",
+        "run_record_sha256": "fa8457013bb3a13244ff1ea6c21e8489cc57ab65d31e86d8bf20f7d388afb398",
+        "summary_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "summary_exit_code": 0
+      },
+      "source_summary": "local/research/post-jam-route-v1/tenel-arrival-dialogue-summary.json",
+      "source_summary_sha256": "17c21f1f30b656886aa04229ae143864510d379ee58c34ebe9dc3ddb10807135",
+      "ticks": [
+        92136,
+        92615
+      ],
+      "unique_differing_frames": 0,
+      "unique_missing_observation_frames": 0
+    },
+    {
+      "artifact_hash_mismatches": [],
+      "artifact_hashes_checked": 15,
+      "compared_observables_agree": true,
+      "contiguous_from_previous": true,
+      "controller_samples": 0,
+      "coverage": {
+        "camera": {
+          "expected_frames": 300,
+          "observed_frames": 300
+        },
+        "manager": {
+          "expected_frames": 300,
+          "observed_frames": 300
+        },
+        "player": {
+          "expected_frames": 300,
+          "observed_frames": 300
+        }
+      },
+      "difference_frame_counts": {
+        "camera_mode_phase": 0,
+        "camera_position": 0,
+        "camera_rotation": 0,
+        "camera_unblended_target": 0,
+        "choice": 0,
+        "controller": 0,
+        "direction_latch": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "player_mask": 0
+      },
+      "first_difference": null,
+      "frames": 300,
+      "interval_hash_matches_summary": true,
+      "interval_report": "local/research/post-jam-route-v1/tenel-live-idle-interval.json",
+      "interval_report_sha256": "01dc39b94504f66f6cf879375a1de4fedb4dfe1978afafa772c85729f76b38cb",
+      "matching_tail": {
+        "controller_samples": 0,
+        "first_native_tick": 92616,
+        "first_original_frame": 0,
+        "frames": 300
+      },
+      "missing_original_camera_frames": 0,
+      "missing_original_manager_frames": 0,
+      "missing_original_player_frames": 0,
+      "name": "arrival_live_idle",
+      "native_run": {
+        "binary_hash_matches_summary": true,
+        "command_executable": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "command_executable_current_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "exit_code_matches_summary": true,
+        "recorded_binary_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "retained_binary_matches_recorded": null,
+        "retained_da04_binary_path": null,
+        "retained_da04_binary_sha256": null,
+        "run_record_exit_code": 0,
+        "run_record_path": "local/native-tenel-live-idle-92915-release-v1.run.json",
+        "run_record_sha256": "14c2f69b3426ba39a8d7c4b1cfdb3bd99a3fd5b942d9d872bd068f5be386e46f",
+        "summary_binary_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "summary_exit_code": 0
+      },
+      "original_run": {
+        "binary_hash_matches_summary": true,
+        "command_executable": "build/play-research/okage-oracle/okage-boot-oracle",
+        "command_executable_current_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "exit_code_matches_summary": true,
+        "recorded_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "retained_binary_matches_recorded": null,
+        "retained_da04_binary_path": null,
+        "retained_da04_binary_sha256": null,
+        "run_record_exit_code": 0,
+        "run_record_path": "local/reference-field1d-tenel-live-idle-300-v1.run.json",
+        "run_record_sha256": "24f4efa7a16c566a01d9e3379e70aef5bb17b549553762579184191ea7f0128e",
+        "summary_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "summary_exit_code": 0
+      },
+      "source_summary": "local/research/post-jam-route-v1/tenel-live-idle-summary.json",
+      "source_summary_sha256": "2671b1054a4dfe410ad9b630eb43aab8b2ccae4a1cb0128d855cb965965f4440",
+      "ticks": [
+        92616,
+        92915
+      ],
+      "unique_differing_frames": 0,
+      "unique_missing_observation_frames": 0
+    }
+  ],
+  "retained_failed_choice_run": {
+    "path": "local/native-village-gate-choice-91595-release-v1.run.json",
+    "sha256": "f57820e96c7bc11cb3186ab17dfc903cc91ad41dd2557e5d725c874aef907f00"
+  },
+  "rejected_report": {
+    "evidence": {
+      "path": "local/research/village-gate-v1/route-audit-v2.json",
+      "sha256": "733470f0feec02280fbb492d170bf1893daafb38982459ff54a77794bb2d2828"
+    },
+    "reason": "Zero artifacts checked, absent run paths, and failed choice run misattributed. Preserved; superseded by primary-reviewed v3."
+  },
+  "live": {
+    "comparison": {
+      "path": "local/research/village-gate-v1/live-idle-comparison-v1.json",
+      "sha256": "ad9b9b38a419ca389044974b8f319f11b8dfdcca7f3713f5ec26d8ea758d92c8"
+    },
+    "primary_review": {
+      "path": "local/research/village-gate-v1/live-idle-primary-review-v1.json",
+      "sha256": "b3561675fb90b618eca7ccbfcdcbc312e881119e5c0326c42108f1ad25aa04b4"
+    },
+    "second_pass_review": {
+      "path": "local/research/village-gate-v1/live-idle-comparison-review-v1.json",
+      "sha256": "2f6d9012ae5a5815da646413d1d7c59613ecdb06242b05539f92ffa0303bddf1"
+    },
+    "performance_report": {
+      "path": "local/native-tenel-live-92915-v1.performance.jsonl",
+      "sha256": "229241e45e2aadea32103a9647fcc366b2072ca2ba778492185088fecca1c1d8"
+    },
+    "view_capture": {
+      "path": "local/native-tenel-live-92915-v1.png.view.png",
+      "sha256": "ebf210bb3112798825775e24f537ffb2d988be87312dbc75f0061664871805c2"
+    },
+    "scope": "300 actual AppKit ticks, 59.1861198294 ticks and draw callbacks per second, not presented FPS. 50/51 immediate endpoint artifacts equal; only device-audio metadata differs; PCM equal."
+  },
+  "supporting_evidence": [
+    {
+      "path": "local/research/village-gate-v1/opcode14-static.json",
+      "sha256": "10d5907edba59a3fa95097073178a100e90fcd4c334c93b73da651f488f0e615"
+    },
+    {
+      "path": "local/research/village-gate-v1/downstream.json",
+      "sha256": "50c76b6ed121fb21daa2cbe12702bae9a58a5de158cfb34c89914b7a83ea1d47"
+    },
+    {
+      "path": "local/research/village-gate-v1/image-pairs-v1/summary.json",
+      "sha256": "b7a6477677921dedd51b67e1b16550c7e08124a973be719f377f323bec091fe2"
+    },
+    {
+      "path": "local/research/tenel-arrival-v1/progression-inventory.json",
+      "sha256": "20e9cbc5419956c28ee4ff36a4049c42fd313028d3b3da59cecb9e1609771d42"
+    },
+    {
+      "path": "docs/render-ranges-validation.json",
+      "sha256": "cfa0a71c02cd8d16f48368cb9cc7344d3319656a218a581748d12879e9c3922a"
+    }
+  ],
+  "limitations": [
+    "Two loading intervals retain323 differing frames and194 unique missing observations. Later agreement does not erase these failures.",
+    "Release route only; no full-route sanitizer claim.",
+    "Diagnostic PNGs retain a lower text panel; actual live view is full4:3 with provisional dialogue overlay.",
+    "Battles, native saves, cold startup, exact loading, retail UI, aligned audio and full playthrough remain incomplete."
+  ]
+}
