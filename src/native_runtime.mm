@@ -22,7 +22,7 @@
 #include <sstream>
 
 namespace fs=std::filesystem;
-static constexpr unsigned diagnosticFrameLimit=96000;
+static constexpr unsigned diagnosticFrameLimit=120000;
 static std::vector<std::uint8_t> readData(const fs::path& path) {
     const auto n=fs::file_size(path);if(n>128*1024*1024)throw std::runtime_error("Runtime input limit");
     std::vector<std::uint8_t> b(n);std::ifstream in(path,std::ios::binary);
@@ -863,6 +863,21 @@ static void capture(const Session& session,const fs::path& path) {
         fraction:std::clamp(self.opacity/128.f,0.f,1.f) respectFlipped:YES hints:nil];
 }
 @end
+static void requireFreshViewCapture(const fs::path& path) {
+    if(fs::exists(path)||fs::is_symlink(path))throw std::runtime_error("Refusing existing native view capture");
+}
+static void captureView(NSView* view,const fs::path& path) {
+    requireFreshViewCapture(path);
+    [view display];
+    NSBitmapImageRep* rep=[view bitmapImageRepForCachingDisplayInRect:view.bounds];
+    if(!rep)throw std::runtime_error("Cannot allocate native view capture");
+    [view cacheDisplayInRect:view.bounds toBitmapImageRep:rep];
+    NSData* png=[rep representationUsingType:NSBitmapImageFileTypePNG properties:@{}];
+    NSError* error=nil;
+    if(!png||![png writeToFile:[NSString stringWithUTF8String:path.c_str()]
+            options:NSDataWritingWithoutOverwriting error:&error])
+        throw std::runtime_error("Cannot save native view");
+}
 @interface NativeApp : NSObject<NSApplicationDelegate,NSWindowDelegate> {
 @public std::unique_ptr<Session> session;
 @public unsigned testFrames;
@@ -871,7 +886,7 @@ static void capture(const Session& session,const fs::path& path) {
 @public std::vector<unsigned> testPresses;
 @public DirectionReplay directions;
 @public std::uint16_t replayDirections;
-@public fs::path testCapture;
+@public fs::path testCapture,pausedViewCapture;
 @public std::unique_ptr<okage::LivePerformance> performance;
 @public okage::LiveTickClock tickClock;
 }
@@ -893,7 +908,18 @@ static void capture(const Session& session,const fs::path& path) {
     self.view.fieldPresentation=bool(session->field);
     self.window.contentView=self.view;[self.window center];[self.window makeKeyAndOrderFront:nil];[self.window makeFirstResponder:self.view];
     [NSApp activateIgnoringOtherApps:YES];self.previousTime=NSProcessInfo.processInfo.systemUptime;
-    if(paused)[self refreshImage];
+    if(paused) {
+        try {
+            [self refreshImage];
+            if(!pausedViewCapture.empty()) {
+                captureView(self.view,pausedViewCapture);
+                std::cout<<"Paused AppKit view capture at native frame="<<session->frame
+                    <<" path="<<pausedViewCapture<<std::endl;
+            }
+        }catch(const std::exception& e) {
+            failureStatus=1;std::cerr<<e.what()<<'\n';[NSApp terminate:nil];return;
+        }
+    }
     else if(performance)performance->interval.begin(self.previousTime,session->frame);
     self.timer=[NSTimer scheduledTimerWithTimeInterval:1./120 target:self selector:@selector(update:) userInfo:nil repeats:YES];
 }
@@ -994,14 +1020,7 @@ static void capture(const Session& session,const fs::path& path) {
                 performance->finish(NSProcessInfo.processInfo.systemUptime,session->frame,okage::PerformanceEnd::test_complete);
             }
             capture(*session,testCapture);
-            [self.view display];
-            NSBitmapImageRep* rep=[self.view bitmapImageRepForCachingDisplayInRect:self.view.bounds];
-            [self.view cacheDisplayInRect:self.view.bounds toBitmapImageRep:rep];
-            NSData* png=[rep representationUsingType:NSBitmapImageFileTypePNG properties:@{}];
-            const auto path=testCapture.string()+".view.png";
-            if(fs::exists(path)||fs::is_symlink(path))throw std::runtime_error("Refusing existing native view capture");
-            std::ofstream out(path,std::ios::binary);
-            if(!png || !out.write(static_cast<const char*>(png.bytes),png.length))throw std::runtime_error("Cannot save native view");
+            captureView(self.view,testCapture.string()+".view.png");
             std::cout<<"AppKit keyDown events="<<self.view.injectedKeyDowns<<" native progress="<<session->text.state.progress<<" wait_release="<<session->release_frame<<std::endl;
             [NSApp terminate:nil];
         }
@@ -1108,6 +1127,14 @@ int main(int argc,const char** argv) {
             if(performancePath&&okage::native_capture_family_contains(output,*performancePath))
                 throw std::runtime_error("Performance report overlaps the combined capture output family");
         }
+        const auto pausedViewCapture=runPlan.starts_paused&&!output.empty()
+            ?fs::path(output.string()+".view.png"):fs::path{};
+        if(!pausedViewCapture.empty()) {
+            requireFreshViewCapture(pausedViewCapture);
+            if(performancePath&&fs::weakly_canonical(fs::absolute(*performancePath))==
+                    fs::weakly_canonical(fs::absolute(pausedViewCapture)))
+                throw std::runtime_error("Performance report overlaps the paused view capture");
+        }
         // Reserve the fresh report before loading assets or preparing a preview.
         std::unique_ptr<okage::LivePerformance> performance;
         if(performancePath)performance=std::make_unique<okage::LivePerformance>(*performancePath,
@@ -1154,7 +1181,7 @@ int main(int argc,const char** argv) {
         }
         [NSApplication sharedApplication];[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
         NativeApp* app=[NativeApp new];app->paused=runPlan.starts_paused;app->session=std::move(prepared);
-        app->performance=std::move(performance);
+        app->performance=std::move(performance);app->pausedViewCapture=pausedViewCapture;
         if(!app->session) {
         app->session=std::make_unique<Session>(argv[1],argv[2],playerName);
         app->session->live_presentation_enabled=true;
