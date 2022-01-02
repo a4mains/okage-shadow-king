@@ -7,7 +7,7 @@
     "source_sha256": "a422f83c70125c775cf234fdb195a4590253bcebf87d0fcf65727eaa5d5fea1a",
     "pcm_sha256": "ca56b0224b5124b766d2759a692c5959e214c87ce3d1af91065fead75e332108",
     "native_sha256": "d713ad09072089ba0577c4f0795a8a99c246d834817e752370d28f82f98ac9f8",
-    "reference_revision": "3143a46e4deffa59832a517915a39d610dcb8564",
+    "reference_revision": "b6dafff52464c343ce4a53d54d793e7cbec0696d",
     "reference_source_hashes": {
       "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
       "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
@@ -29,7 +29,7 @@
     "source_sha256": "a422f83c70125c775cf234fdb195a4590253bcebf87d0fcf65727eaa5d5fea1a",
     "pcm_sha256": "ca56b0224b5124b766d2759a692c5959e214c87ce3d1af91065fead75e332108",
     "native_sha256": "c59a6c2b6f17279b1c8ef097e389f86aed23c2e19a3dd2abc35a89bf74042296",
-    "reference_revision": "3143a46e4deffa59832a517915a39d610dcb8564",
+    "reference_revision": "b6dafff52464c343ce4a53d54d793e7cbec0696d",
     "reference_source_hashes": {
       "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
       "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
@@ -51,7 +51,7 @@
     "source_sha256": "a422f83c70125c775cf234fdb195a4590253bcebf87d0fcf65727eaa5d5fea1a",
     "pcm_sha256": "ca56b0224b5124b766d2759a692c5959e214c87ce3d1af91065fead75e332108",
     "native_sha256": "289b0d16606cffb98499a5c6ce3a69c16a795d9b8b5ecff97d09a9a0b5f0adf2",
-    "reference_revision": "3143a46e4deffa59832a517915a39d610dcb8564",
+    "reference_revision": "b6dafff52464c343ce4a53d54d793e7cbec0696d",
     "reference_source_hashes": {
       "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
       "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",

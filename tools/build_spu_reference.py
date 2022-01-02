@@ -6,8 +6,8 @@ import subprocess
 import urllib.request
 from verify_event import write_exact
 
-REVISION = '3143a46e4deffa59832a517915a39d610dcb8564'
-SOURCE_SHA256 = 'f4456da469addf2d811172e8cfabb183a4f1c5b0f524ac39407f2888f0984ca4'
+REVISION = 'b6dafff52464c343ce4a53d54d793e7cbec0696d'
+SOURCE_SHA256 = '4e3175fc8be4673bd3f897f0b3fd14e00216a1d9341dcd3cea9b3714a06301c5'
 
 def build():
     root = Path('local/research-audio/pcsx2-reference')

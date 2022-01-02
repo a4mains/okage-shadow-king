@@ -1,6 +1,6 @@
 Initial native SPU decoder work in src/audio.cpp was adapted from Play!
 Source/iop/Iop_SpuBase.cpp, revision
-9534ba7e59089b20086b94cb2c83596ef14fd9f7.
+5a67bba38bc09fc873c1050599455e08cc6c611c.
 The final decoder changes predictor history and rounding. The native library does not link Play! or execute guest
 CPU instructions. This notice preserves attribution for the initial work.
 
@@ -31,7 +31,7 @@ DAMAGE.
 Native voice signal processing is independently expressed from documented and
 compared numerical behavior. The mathematical Gaussian construction in
 src/voice.cpp is credited to Near, nocash and Ryphecha by PCSX2's pinned
-interpolate_table.h (revision 3143a46e4deffa59832a517915a39d610dcb8564).
+interpolate_table.h (revision b6dafff52464c343ce4a53d54d793e7cbec0696d).
 No extracted coefficient table or PCSX2 source is compiled into the native app.
 tools/build_voice_reference.py extracts pinned GPL-licensed PCSX2 DSP kernels
 into ignored local research files for differential testing. Its generated

@@ -1,0 +1,1367 @@
+{
+  "schema_version": 1,
+  "scope": "Native Scared Guy church-information conversation and actual paused preview; bounded state comparison, not full game/state/raster/audio equivalence.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "implementation_commits": [
+    "16a8170",
+    "991da78"
+  ],
+  "route_report": {
+    "path": "local/research/tenel-scared-v1/route-audit-v1.json",
+    "sha256": "b9ee24af259e2dd82598c71a07f638eaa82a74d89478f1ebda688891bba97cf1"
+  },
+  "primary_review": {
+    "path": "local/research/tenel-scared-v1/primary-review-v1.json",
+    "sha256": "4e5bffe8321c6e2e6022eac16a84f217b2821fd28b93770b35ebd7afe0f4805c"
+  },
+  "primary_original_flags": {
+    "path": "local/research/tenel-scared-v1/primary-original-flags-v1.json",
+    "sha256": "52739949fb5993f29e44ed1561f225eb9a15787c98a24246e1219c024a7a7b67"
+  },
+  "route_aggregate": {
+    "all_actual_runs_exit_zero_and_binary_identity_matches": true,
+    "all_interval_hashes_match_summaries": true,
+    "all_result_ranges_and_divergence_match": true,
+    "all_selected_input_hashes_resolve": true,
+    "all_source_artifact_hashes_match": true,
+    "contiguous": true,
+    "missing_observation_frames_sum": 0,
+    "note": "For native runs recorded with SHA 0dfe9f..., the root native-release binary was subsequently rebuilt (current a023f0...). The unchanged preview binary at local/demos/current-preview-92915-v1 and render-ranges worktree both match the historical recorded SHA.",
+    "run_binary_hashes_match_retained_or_current_executable": true,
+    "run_record_issues": [],
+    "segments_full_coverage_zero_difference": 7,
+    "source_artifact_mismatches": [],
+    "source_artifacts_checked": 105,
+    "state_difference_frames_sum": 0
+  },
+  "tick_range": [
+    92916,
+    95285
+  ],
+  "ticks": 2370,
+  "segments": [
+    {
+      "comparison": {
+        "category_frame_counts": {
+          "camera_mode_phase": 0,
+          "camera_position": 0,
+          "camera_rotation": 0,
+          "camera_unblended_target": 0,
+          "choice": 0,
+          "controller": 0,
+          "direction_latch": 0,
+          "hero_facing_w": 0,
+          "hero_position": 0,
+          "manager_running_pc_gate": 0,
+          "pad_latch": 0,
+          "player_mask": 0
+        },
+        "compared_observables_agree": true,
+        "controller_samples": 0,
+        "coverage": {
+          "camera": {
+            "expected_frames": 60,
+            "observed_frames": 60
+          },
+          "manager": {
+            "expected_frames": 60,
+            "observed_frames": 60
+          },
+          "player": {
+            "expected_frames": 60,
+            "observed_frames": 60
+          }
+        },
+        "missing_camera": 0,
+        "missing_manager": 0,
+        "missing_player": 0,
+        "unique_differing_frames": 0,
+        "unique_missing_observation_frames": 0
+      },
+      "input_files": {
+        "native--actor": {
+          "path": "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "sha256": "c7d46694dd3dad1c7d12272b2b3cb2c3aa3fcfa281bfd7bbaeae1c3279f3e002"
+        },
+        "native--directions": {
+          "path": "local/native-tenel-scared-approach-92975-release-v1.directions",
+          "sha256": "da71fd4ec83fb229259910a74fd70b8e0db9c0cf9425e87f0c7bb3cfaf9073e0"
+        },
+        "native--effect-data": {
+          "path": "local/effect-input/CMNDATA/2D/TES.EFD",
+          "sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c"
+        },
+        "native--event": {
+          "path": "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "sha256": "0fd868603f66f22ca93cfdd050a30b223f496e7c69ec0bf1995e9759441fcded"
+        },
+        "native--music-bank": {
+          "path": "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "sha256": "1c0428b3fcaba0f822da47ff6374ac0bd1e5d90cec1bd2f3dadc567cd95c3654"
+        },
+        "native--music-dry": {
+          "path": "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "sha256": "908a259c61b333bad7c570b7c1c33f9e954d5c93811be52228643b8323131cf2"
+        },
+        "native--scene": {
+          "path": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "sha256": "90ff53dcd83e5e5e15608ecb971e6f92c5c09d88db19e5d8a083ada65434562c"
+        },
+        "original--audio": {
+          "path": "local/reference-field1d-tenel-scared-approach-60-v1.wav",
+          "sha256": "c919f1951b5377a56b1949ce07b9dff87f6b9643208c0851e731fc496b0a2d5b"
+        },
+        "original--camera": {
+          "path": "local/reference-field1d-tenel-scared-approach-60-v1.camera.bin",
+          "sha256": "26835573b4706e9279b6b2a92294a1768bced0199e69f19ae0030e1b3fd9cda3"
+        },
+        "original--controller": {
+          "path": "local/reference-field1d-tenel-scared-approach-60-v1.controller.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "original--pad": {
+          "path": "local/reference-field1d-tenel-scared-approach-60-v1.input",
+          "sha256": "e3944a222e43b29f8719cbd53d07e13665502c6a66c7486130e1a7a5182f5515"
+        },
+        "original--save": {
+          "path": "local/reference-field1d-tenel-scared-approach-60-v1.state.zip",
+          "sha256": "efaf7c9cbf1f670fc9297e09a033b864123eb5d5d3141f3e8d6fe1d3fec7908d"
+        },
+        "original--screen-filter": {
+          "path": "local/reference-field1d-tenel-scared-approach-60-v1.screen-filter.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "original--transition": {
+          "path": "local/reference-field1d-tenel-scared-approach-60-v1.transition.bin",
+          "sha256": "5d51448177b25311138381fbaced6e852efc0d66443715e8c4eb411e1c2c396b"
+        }
+      },
+      "interval": {
+        "path": "local/research/post-jam-route-v1/tenel-scared-approach-interval.json",
+        "sha256": "48b46814708ce7387460ce2fd3c50b3e3d83161d72b68806a0ed9b18cbceff35",
+        "sha_matches_summary": true
+      },
+      "native_run": {
+        "binary_identity_verified_by_recorded_sha_and_candidate": true,
+        "binary_sha256_matches_summary": true,
+        "command_executable": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "current_executable_matches_recorded": false,
+        "current_executable_sha256": "a023f002f71263d83bce8f8cc271ef67fb167170895b88aa83d85499f174345a",
+        "exit_code": 0,
+        "exit_code_matches_summary": true,
+        "path": "local/native-tenel-scared-approach-92975-release-v1.run.json",
+        "recorded_binary_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "retained_or_current_executable_candidates": [
+          {
+            "matches_recorded": true,
+            "path": "local/demos/current-preview-92915-v1/okage-native.app/Contents/MacOS/okage-native",
+            "sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331"
+          },
+          {
+            "matches_recorded": true,
+            "path": "local/worktrees/render-ranges-v1/build/native-release/okage-native.app/Contents/MacOS/okage-native",
+            "sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331"
+          }
+        ],
+        "sha256": "fa87bf957c676ec9ca2d8dd43427661be00620a9f809eafdc2e4e8602bb83563"
+      },
+      "original_run": {
+        "binary_identity_verified_by_recorded_sha_and_candidate": true,
+        "binary_sha256_matches_summary": true,
+        "command_executable": "build/play-research/okage-oracle/okage-boot-oracle",
+        "current_executable_matches_recorded": true,
+        "current_executable_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "exit_code": 0,
+        "exit_code_matches_summary": true,
+        "path": "local/reference-field1d-tenel-scared-approach-60-v1.run.json",
+        "recorded_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "retained_or_current_executable_candidates": [
+          {
+            "matches_recorded": true,
+            "path": "build/play-research/okage-oracle/okage-boot-oracle",
+            "sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5"
+          }
+        ],
+        "sha256": "33ccf39727182373ebffdf2001505a6e510329af51e4a42f6f267346ae3eae68"
+      },
+      "replay_history": {
+        "native_directions": {
+          "path": "local/native-tenel-scared-approach-92975-release-v1.directions",
+          "sha256": "da71fd4ec83fb229259910a74fd70b8e0db9c0cf9425e87f0c7bb3cfaf9073e0"
+        },
+        "original_pad_input": {
+          "path": "local/reference-field1d-tenel-scared-approach-60-v1.input",
+          "sha256": "e3944a222e43b29f8719cbd53d07e13665502c6a66c7486130e1a7a5182f5515"
+        }
+      },
+      "result": {
+        "path": "local/research/post-jam-route-v1/tenel-scared-approach-result.json",
+        "range_and_divergence_match_summary": true,
+        "sha256": "e0b6047b96ddc49a26409edf460e88efe632b5224fcce63ef262632387f1d78d"
+      },
+      "segment": "approach",
+      "source_artifacts": {
+        "checked": 15,
+        "mismatches": []
+      },
+      "summary": {
+        "path": "local/research/post-jam-route-v1/tenel-scared-approach-summary.json",
+        "sha256": "6984dcfb714b01bfa0d4e1b56b4306364ccf61095efb5110a739cd5fc5b35488"
+      },
+      "tick_range": [
+        92916,
+        92975
+      ],
+      "ticks": 60
+    },
+    {
+      "comparison": {
+        "category_frame_counts": {
+          "camera_mode_phase": 0,
+          "camera_position": 0,
+          "camera_rotation": 0,
+          "camera_unblended_target": 0,
+          "choice": 0,
+          "controller": 0,
+          "direction_latch": 0,
+          "hero_facing_w": 0,
+          "hero_position": 0,
+          "manager_running_pc_gate": 0,
+          "pad_latch": 0,
+          "player_mask": 0
+        },
+        "compared_observables_agree": true,
+        "controller_samples": 0,
+        "coverage": {
+          "camera": {
+            "expected_frames": 90,
+            "observed_frames": 90
+          },
+          "manager": {
+            "expected_frames": 90,
+            "observed_frames": 90
+          },
+          "player": {
+            "expected_frames": 90,
+            "observed_frames": 90
+          }
+        },
+        "missing_camera": 0,
+        "missing_manager": 0,
+        "missing_player": 0,
+        "unique_differing_frames": 0,
+        "unique_missing_observation_frames": 0
+      },
+      "input_files": {
+        "native--actor": {
+          "path": "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "sha256": "c7d46694dd3dad1c7d12272b2b3cb2c3aa3fcfa281bfd7bbaeae1c3279f3e002"
+        },
+        "native--directions": {
+          "path": "local/native-tenel-scared-align-93065-release-v1.directions",
+          "sha256": "482de7f7a87d7b2b3fd3085dc37b56d2aebdc1466f17172b0dd93dc1032ddf75"
+        },
+        "native--effect-data": {
+          "path": "local/effect-input/CMNDATA/2D/TES.EFD",
+          "sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c"
+        },
+        "native--event": {
+          "path": "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "sha256": "0fd868603f66f22ca93cfdd050a30b223f496e7c69ec0bf1995e9759441fcded"
+        },
+        "native--music-bank": {
+          "path": "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "sha256": "1c0428b3fcaba0f822da47ff6374ac0bd1e5d90cec1bd2f3dadc567cd95c3654"
+        },
+        "native--music-dry": {
+          "path": "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "sha256": "908a259c61b333bad7c570b7c1c33f9e954d5c93811be52228643b8323131cf2"
+        },
+        "native--scene": {
+          "path": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "sha256": "90ff53dcd83e5e5e15608ecb971e6f92c5c09d88db19e5d8a083ada65434562c"
+        },
+        "original--audio": {
+          "path": "local/reference-field1d-tenel-scared-align-90-v1.wav",
+          "sha256": "86af1bfa384b190dc7d25112e12e859ff6639058ad857d5080a435b10cf20b0e"
+        },
+        "original--camera": {
+          "path": "local/reference-field1d-tenel-scared-align-90-v1.camera.bin",
+          "sha256": "9f0ad54b7b1e4210e6ef16285645e9b2776b248b7fe24c4a7391106fd309735d"
+        },
+        "original--controller": {
+          "path": "local/reference-field1d-tenel-scared-align-90-v1.controller.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "original--pad": {
+          "path": "local/reference-field1d-tenel-scared-align-90-v1.input",
+          "sha256": "db7f1cf0e712835fb6a8a41f0cf0fa097ddb86cb18b8ba447504cf0431a3699d"
+        },
+        "original--save": {
+          "path": "local/reference-field1d-tenel-scared-align-90-v1.state.zip",
+          "sha256": "77115a6dc9c1f92149788169dd8137f55213a3588b16a41821e1490e1168b543"
+        },
+        "original--screen-filter": {
+          "path": "local/reference-field1d-tenel-scared-align-90-v1.screen-filter.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "original--transition": {
+          "path": "local/reference-field1d-tenel-scared-align-90-v1.transition.bin",
+          "sha256": "73d007add160a13b4243b817c3fa3e09925df6bfbfb9623799170c883eb0cec8"
+        }
+      },
+      "interval": {
+        "path": "local/research/post-jam-route-v1/tenel-scared-align-interval.json",
+        "sha256": "33a87514244662990e9a4e07146791167e59a4c1d5185ed42e2b8f1486d6acc4",
+        "sha_matches_summary": true
+      },
+      "native_run": {
+        "binary_identity_verified_by_recorded_sha_and_candidate": true,
+        "binary_sha256_matches_summary": true,
+        "command_executable": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "current_executable_matches_recorded": false,
+        "current_executable_sha256": "a023f002f71263d83bce8f8cc271ef67fb167170895b88aa83d85499f174345a",
+        "exit_code": 0,
+        "exit_code_matches_summary": true,
+        "path": "local/native-tenel-scared-align-93065-release-v1.run.json",
+        "recorded_binary_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "retained_or_current_executable_candidates": [
+          {
+            "matches_recorded": true,
+            "path": "local/demos/current-preview-92915-v1/okage-native.app/Contents/MacOS/okage-native",
+            "sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331"
+          },
+          {
+            "matches_recorded": true,
+            "path": "local/worktrees/render-ranges-v1/build/native-release/okage-native.app/Contents/MacOS/okage-native",
+            "sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331"
+          }
+        ],
+        "sha256": "2b9efe00ad86e23c424ef09e947e1521f3b520ca82dadce72e303d2d1d788682"
+      },
+      "original_run": {
+        "binary_identity_verified_by_recorded_sha_and_candidate": true,
+        "binary_sha256_matches_summary": true,
+        "command_executable": "build/play-research/okage-oracle/okage-boot-oracle",
+        "current_executable_matches_recorded": true,
+        "current_executable_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "exit_code": 0,
+        "exit_code_matches_summary": true,
+        "path": "local/reference-field1d-tenel-scared-align-90-v1.run.json",
+        "recorded_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "retained_or_current_executable_candidates": [
+          {
+            "matches_recorded": true,
+            "path": "build/play-research/okage-oracle/okage-boot-oracle",
+            "sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5"
+          }
+        ],
+        "sha256": "6cac8734a7667736f52954d6b594e32e40ab8655fa3c3b5da85fd2b6ba6e5495"
+      },
+      "replay_history": {
+        "native_directions": {
+          "path": "local/native-tenel-scared-align-93065-release-v1.directions",
+          "sha256": "482de7f7a87d7b2b3fd3085dc37b56d2aebdc1466f17172b0dd93dc1032ddf75"
+        },
+        "original_pad_input": {
+          "path": "local/reference-field1d-tenel-scared-align-90-v1.input",
+          "sha256": "db7f1cf0e712835fb6a8a41f0cf0fa097ddb86cb18b8ba447504cf0431a3699d"
+        }
+      },
+      "result": {
+        "path": "local/research/post-jam-route-v1/tenel-scared-align-result.json",
+        "range_and_divergence_match_summary": true,
+        "sha256": "0d4ef266e57ee14ec999e0cde8f8414631ee188afe35579e2f7d4ad565638fd0"
+      },
+      "segment": "align",
+      "source_artifacts": {
+        "checked": 15,
+        "mismatches": []
+      },
+      "summary": {
+        "path": "local/research/post-jam-route-v1/tenel-scared-align-summary.json",
+        "sha256": "0676e407f9cdfc28a770eb8ad4c727e394429869b9a5ef2c08f78278c3ac7c1b"
+      },
+      "tick_range": [
+        92976,
+        93065
+      ],
+      "ticks": 90
+    },
+    {
+      "comparison": {
+        "category_frame_counts": {
+          "camera_mode_phase": 0,
+          "camera_position": 0,
+          "camera_rotation": 0,
+          "camera_unblended_target": 0,
+          "choice": 0,
+          "controller": 0,
+          "direction_latch": 0,
+          "hero_facing_w": 0,
+          "hero_position": 0,
+          "manager_running_pc_gate": 0,
+          "pad_latch": 0,
+          "player_mask": 0
+        },
+        "compared_observables_agree": true,
+        "controller_samples": 139,
+        "coverage": {
+          "camera": {
+            "expected_frames": 180,
+            "observed_frames": 180
+          },
+          "manager": {
+            "expected_frames": 180,
+            "observed_frames": 180
+          },
+          "player": {
+            "expected_frames": 180,
+            "observed_frames": 180
+          }
+        },
+        "missing_camera": 0,
+        "missing_manager": 0,
+        "missing_player": 0,
+        "unique_differing_frames": 0,
+        "unique_missing_observation_frames": 0
+      },
+      "input_files": {
+        "native--actor": {
+          "path": "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "sha256": "c7d46694dd3dad1c7d12272b2b3cb2c3aa3fcfa281bfd7bbaeae1c3279f3e002"
+        },
+        "native--directions": {
+          "path": "local/native-tenel-scared-talk-93245-release-v1.directions",
+          "sha256": "7aedd73dfbdbf1e7bd0d45cc13002f5620e58667c5061d512e470d7f171f0f5c"
+        },
+        "native--effect-data": {
+          "path": "local/effect-input/CMNDATA/2D/TES.EFD",
+          "sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c"
+        },
+        "native--event": {
+          "path": "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "sha256": "0fd868603f66f22ca93cfdd050a30b223f496e7c69ec0bf1995e9759441fcded"
+        },
+        "native--music-bank": {
+          "path": "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "sha256": "1c0428b3fcaba0f822da47ff6374ac0bd1e5d90cec1bd2f3dadc567cd95c3654"
+        },
+        "native--music-dry": {
+          "path": "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "sha256": "908a259c61b333bad7c570b7c1c33f9e954d5c93811be52228643b8323131cf2"
+        },
+        "native--scene": {
+          "path": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "sha256": "90ff53dcd83e5e5e15608ecb971e6f92c5c09d88db19e5d8a083ada65434562c"
+        },
+        "original--audio": {
+          "path": "local/reference-field1d-tenel-scared-talk-180-v1.wav",
+          "sha256": "6f80dad8417fc7b30b04f723bdcc5b5408709f9c8f51f107425aea8093929db7"
+        },
+        "original--camera": {
+          "path": "local/reference-field1d-tenel-scared-talk-180-v1.camera.bin",
+          "sha256": "5cb567394f211330baa4828e2661efdcb5b269ed9813713473a393fdf9012c80"
+        },
+        "original--controller": {
+          "path": "local/reference-field1d-tenel-scared-talk-180-v1.controller.bin",
+          "sha256": "2edf829aa12ef3e289ae620aa8f078090be7fe5a80326b99f2e6b9296cdfd006"
+        },
+        "original--pad": {
+          "path": "local/reference-field1d-tenel-scared-talk-180-v1.input",
+          "sha256": "b156a7bf0210352c5e3c13b1aef5deadf574c7d57c8ba772c9c3d11e7553518f"
+        },
+        "original--save": {
+          "path": "local/reference-field1d-tenel-scared-talk-180-v1.state.zip",
+          "sha256": "12b0a7fa20b2fd72584895fd987f446f760b83c8371320dbbefc028d7fef346e"
+        },
+        "original--screen-filter": {
+          "path": "local/reference-field1d-tenel-scared-talk-180-v1.screen-filter.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "original--transition": {
+          "path": "local/reference-field1d-tenel-scared-talk-180-v1.transition.bin",
+          "sha256": "6e640e50fbdb86b3b173d47119d8204b850aa4fd2a3b3bd722a53daaaa4864ef"
+        }
+      },
+      "interval": {
+        "path": "local/research/post-jam-route-v1/tenel-scared-talk-interval.json",
+        "sha256": "e022de046d6a7c8532cbc47ce4f043df848dd8715418416746f2060add62dc16",
+        "sha_matches_summary": true
+      },
+      "native_run": {
+        "binary_identity_verified_by_recorded_sha_and_candidate": true,
+        "binary_sha256_matches_summary": true,
+        "command_executable": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "current_executable_matches_recorded": false,
+        "current_executable_sha256": "a023f002f71263d83bce8f8cc271ef67fb167170895b88aa83d85499f174345a",
+        "exit_code": 0,
+        "exit_code_matches_summary": true,
+        "path": "local/native-tenel-scared-talk-93245-release-v1.run.json",
+        "recorded_binary_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "retained_or_current_executable_candidates": [
+          {
+            "matches_recorded": true,
+            "path": "local/demos/current-preview-92915-v1/okage-native.app/Contents/MacOS/okage-native",
+            "sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331"
+          },
+          {
+            "matches_recorded": true,
+            "path": "local/worktrees/render-ranges-v1/build/native-release/okage-native.app/Contents/MacOS/okage-native",
+            "sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331"
+          }
+        ],
+        "sha256": "ce87ac94cddec2fd4045e9baa2f94e3101e60749a4c010616028873cf737c3a5"
+      },
+      "original_run": {
+        "binary_identity_verified_by_recorded_sha_and_candidate": true,
+        "binary_sha256_matches_summary": true,
+        "command_executable": "build/play-research/okage-oracle/okage-boot-oracle",
+        "current_executable_matches_recorded": true,
+        "current_executable_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "exit_code": 0,
+        "exit_code_matches_summary": true,
+        "path": "local/reference-field1d-tenel-scared-talk-180-v1.run.json",
+        "recorded_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "retained_or_current_executable_candidates": [
+          {
+            "matches_recorded": true,
+            "path": "build/play-research/okage-oracle/okage-boot-oracle",
+            "sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5"
+          }
+        ],
+        "sha256": "6dec450c943b8ead5e5d60ba92560daa818c7fc6a78bbefcb17d4a7972f6345f"
+      },
+      "replay_history": {
+        "native_directions": {
+          "path": "local/native-tenel-scared-talk-93245-release-v1.directions",
+          "sha256": "7aedd73dfbdbf1e7bd0d45cc13002f5620e58667c5061d512e470d7f171f0f5c"
+        },
+        "original_pad_input": {
+          "path": "local/reference-field1d-tenel-scared-talk-180-v1.input",
+          "sha256": "b156a7bf0210352c5e3c13b1aef5deadf574c7d57c8ba772c9c3d11e7553518f"
+        }
+      },
+      "result": {
+        "path": "local/research/post-jam-route-v1/tenel-scared-talk-result.json",
+        "range_and_divergence_match_summary": true,
+        "sha256": "c3f63f07f82d2c539fc16dcc58dc94913157f2e7745ecbba524c6165d2f94386"
+      },
+      "segment": "talk",
+      "source_artifacts": {
+        "checked": 15,
+        "mismatches": []
+      },
+      "summary": {
+        "path": "local/research/post-jam-route-v1/tenel-scared-talk-summary.json",
+        "sha256": "e9fc7f69deca0a420f6498283c9a13423b36b023275631adb140be47c7b06bf7"
+      },
+      "tick_range": [
+        93066,
+        93245
+      ],
+      "ticks": 180
+    },
+    {
+      "comparison": {
+        "category_frame_counts": {
+          "camera_mode_phase": 0,
+          "camera_position": 0,
+          "camera_rotation": 0,
+          "camera_unblended_target": 0,
+          "choice": 0,
+          "controller": 0,
+          "direction_latch": 0,
+          "hero_facing_w": 0,
+          "hero_position": 0,
+          "manager_running_pc_gate": 0,
+          "pad_latch": 0,
+          "player_mask": 0
+        },
+        "compared_observables_agree": true,
+        "controller_samples": 600,
+        "coverage": {
+          "camera": {
+            "expected_frames": 600,
+            "observed_frames": 600
+          },
+          "manager": {
+            "expected_frames": 600,
+            "observed_frames": 600
+          },
+          "player": {
+            "expected_frames": 600,
+            "observed_frames": 600
+          }
+        },
+        "missing_camera": 0,
+        "missing_manager": 0,
+        "missing_player": 0,
+        "unique_differing_frames": 0,
+        "unique_missing_observation_frames": 0
+      },
+      "input_files": {
+        "native--actor": {
+          "path": "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "sha256": "c7d46694dd3dad1c7d12272b2b3cb2c3aa3fcfa281bfd7bbaeae1c3279f3e002"
+        },
+        "native--directions": {
+          "path": "local/native-tenel-scared-dialogue-93845-release-v1.directions",
+          "sha256": "7aedd73dfbdbf1e7bd0d45cc13002f5620e58667c5061d512e470d7f171f0f5c"
+        },
+        "native--effect-data": {
+          "path": "local/effect-input/CMNDATA/2D/TES.EFD",
+          "sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c"
+        },
+        "native--event": {
+          "path": "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "sha256": "0fd868603f66f22ca93cfdd050a30b223f496e7c69ec0bf1995e9759441fcded"
+        },
+        "native--music-bank": {
+          "path": "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "sha256": "1c0428b3fcaba0f822da47ff6374ac0bd1e5d90cec1bd2f3dadc567cd95c3654"
+        },
+        "native--music-dry": {
+          "path": "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "sha256": "908a259c61b333bad7c570b7c1c33f9e954d5c93811be52228643b8323131cf2"
+        },
+        "native--scene": {
+          "path": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "sha256": "90ff53dcd83e5e5e15608ecb971e6f92c5c09d88db19e5d8a083ada65434562c"
+        },
+        "original--audio": {
+          "path": "local/reference-field1d-tenel-scared-dialogue-600-v1.wav",
+          "sha256": "d9bd289397537cb929bdd7b18f380f0bd0828ce896db3b43c8a8bbe14f2ee557"
+        },
+        "original--camera": {
+          "path": "local/reference-field1d-tenel-scared-dialogue-600-v1.camera.bin",
+          "sha256": "220c5e92400f4a2c98e0474e6c213c20d728a75e2bdd14e8d5704286b018414b"
+        },
+        "original--controller": {
+          "path": "local/reference-field1d-tenel-scared-dialogue-600-v1.controller.bin",
+          "sha256": "8ebc8aec29e047c517d526b917363da2ebe77d812351c44f43069ef11868894e"
+        },
+        "original--pad": {
+          "path": "local/reference-field1d-tenel-scared-dialogue-600-v1.input",
+          "sha256": "29e56f07d3b11b777c8633028f468d2dbdd67411232cee51ea9f9e119d541ab3"
+        },
+        "original--save": {
+          "path": "local/reference-field1d-tenel-scared-dialogue-600-v1.state.zip",
+          "sha256": "f04ed38e360bfe148d6068a244c5293e0a9ee9c998fa51eb7e96f9a284060e93"
+        },
+        "original--screen-filter": {
+          "path": "local/reference-field1d-tenel-scared-dialogue-600-v1.screen-filter.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "original--transition": {
+          "path": "local/reference-field1d-tenel-scared-dialogue-600-v1.transition.bin",
+          "sha256": "90e7a9b921c933ec681f4690d4779efa486e93d3062932d066f66cec04597b3e"
+        }
+      },
+      "interval": {
+        "path": "local/research/post-jam-route-v1/tenel-scared-dialogue-interval.json",
+        "sha256": "98a36632a9332ae83e9d2b8abce81d45c6ab2eded4b67cf514eee4d3a7d59abe",
+        "sha_matches_summary": true
+      },
+      "native_run": {
+        "binary_identity_verified_by_recorded_sha_and_candidate": true,
+        "binary_sha256_matches_summary": true,
+        "command_executable": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "current_executable_matches_recorded": false,
+        "current_executable_sha256": "a023f002f71263d83bce8f8cc271ef67fb167170895b88aa83d85499f174345a",
+        "exit_code": 0,
+        "exit_code_matches_summary": true,
+        "path": "local/native-tenel-scared-dialogue-93845-release-v1.run.json",
+        "recorded_binary_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "retained_or_current_executable_candidates": [
+          {
+            "matches_recorded": true,
+            "path": "local/demos/current-preview-92915-v1/okage-native.app/Contents/MacOS/okage-native",
+            "sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331"
+          },
+          {
+            "matches_recorded": true,
+            "path": "local/worktrees/render-ranges-v1/build/native-release/okage-native.app/Contents/MacOS/okage-native",
+            "sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331"
+          }
+        ],
+        "sha256": "668dbe45789fb3f7795dc56c5668636692c09d5c16aed1e541ca0a25b672ff3d"
+      },
+      "original_run": {
+        "binary_identity_verified_by_recorded_sha_and_candidate": true,
+        "binary_sha256_matches_summary": true,
+        "command_executable": "build/play-research/okage-oracle/okage-boot-oracle",
+        "current_executable_matches_recorded": true,
+        "current_executable_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "exit_code": 0,
+        "exit_code_matches_summary": true,
+        "path": "local/reference-field1d-tenel-scared-dialogue-600-v1.run.json",
+        "recorded_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "retained_or_current_executable_candidates": [
+          {
+            "matches_recorded": true,
+            "path": "build/play-research/okage-oracle/okage-boot-oracle",
+            "sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5"
+          }
+        ],
+        "sha256": "5cb75f614b5e4f13cd7785548c889bc7416e8f0e689110daa44b8e76ed6fd864"
+      },
+      "replay_history": {
+        "native_directions": {
+          "path": "local/native-tenel-scared-dialogue-93845-release-v1.directions",
+          "sha256": "7aedd73dfbdbf1e7bd0d45cc13002f5620e58667c5061d512e470d7f171f0f5c"
+        },
+        "original_pad_input": {
+          "path": "local/reference-field1d-tenel-scared-dialogue-600-v1.input",
+          "sha256": "29e56f07d3b11b777c8633028f468d2dbdd67411232cee51ea9f9e119d541ab3"
+        }
+      },
+      "result": {
+        "path": "local/research/post-jam-route-v1/tenel-scared-dialogue-result.json",
+        "range_and_divergence_match_summary": true,
+        "sha256": "11b5b67c8de715774ac1c6c28a153e469557c83d9551689e0fdbcfdce74de791"
+      },
+      "segment": "dialogue",
+      "source_artifacts": {
+        "checked": 15,
+        "mismatches": []
+      },
+      "summary": {
+        "path": "local/research/post-jam-route-v1/tenel-scared-dialogue-summary.json",
+        "sha256": "e4df4208e1b8a50eb08ba3b19ae29aae9943e7a0da8afa41ad3681d6d10ba3c0"
+      },
+      "tick_range": [
+        93246,
+        93845
+      ],
+      "ticks": 600
+    },
+    {
+      "comparison": {
+        "category_frame_counts": {
+          "camera_mode_phase": 0,
+          "camera_position": 0,
+          "camera_rotation": 0,
+          "camera_unblended_target": 0,
+          "choice": 0,
+          "controller": 0,
+          "direction_latch": 0,
+          "hero_facing_w": 0,
+          "hero_position": 0,
+          "manager_running_pc_gate": 0,
+          "pad_latch": 0,
+          "player_mask": 0
+        },
+        "compared_observables_agree": true,
+        "controller_samples": 600,
+        "coverage": {
+          "camera": {
+            "expected_frames": 600,
+            "observed_frames": 600
+          },
+          "manager": {
+            "expected_frames": 600,
+            "observed_frames": 600
+          },
+          "player": {
+            "expected_frames": 600,
+            "observed_frames": 600
+          }
+        },
+        "missing_camera": 0,
+        "missing_manager": 0,
+        "missing_player": 0,
+        "unique_differing_frames": 0,
+        "unique_missing_observation_frames": 0
+      },
+      "input_files": {
+        "native--actor": {
+          "path": "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "sha256": "c7d46694dd3dad1c7d12272b2b3cb2c3aa3fcfa281bfd7bbaeae1c3279f3e002"
+        },
+        "native--directions": {
+          "path": "local/native-tenel-scared-dialogue2-94445-release-v1.directions",
+          "sha256": "7aedd73dfbdbf1e7bd0d45cc13002f5620e58667c5061d512e470d7f171f0f5c"
+        },
+        "native--effect-data": {
+          "path": "local/effect-input/CMNDATA/2D/TES.EFD",
+          "sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c"
+        },
+        "native--event": {
+          "path": "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "sha256": "0fd868603f66f22ca93cfdd050a30b223f496e7c69ec0bf1995e9759441fcded"
+        },
+        "native--music-bank": {
+          "path": "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "sha256": "1c0428b3fcaba0f822da47ff6374ac0bd1e5d90cec1bd2f3dadc567cd95c3654"
+        },
+        "native--music-dry": {
+          "path": "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "sha256": "908a259c61b333bad7c570b7c1c33f9e954d5c93811be52228643b8323131cf2"
+        },
+        "native--scene": {
+          "path": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "sha256": "90ff53dcd83e5e5e15608ecb971e6f92c5c09d88db19e5d8a083ada65434562c"
+        },
+        "original--audio": {
+          "path": "local/reference-field1d-tenel-scared-dialogue2-600-v1.wav",
+          "sha256": "8fb74345190f6bade634e1751d7b9ee1752ba1e2aa41ae36d065d465b7b44f10"
+        },
+        "original--camera": {
+          "path": "local/reference-field1d-tenel-scared-dialogue2-600-v1.camera.bin",
+          "sha256": "008ca851e937f339e0326142dfedb9a4a85b12eeac1e97b9edcb145307560ecd"
+        },
+        "original--controller": {
+          "path": "local/reference-field1d-tenel-scared-dialogue2-600-v1.controller.bin",
+          "sha256": "8090346bc592d7425db74af41d0281b713a4236250e08420ed09162d68ee6c2b"
+        },
+        "original--pad": {
+          "path": "local/reference-field1d-tenel-scared-dialogue2-600-v1.input",
+          "sha256": "29e56f07d3b11b777c8633028f468d2dbdd67411232cee51ea9f9e119d541ab3"
+        },
+        "original--save": {
+          "path": "local/reference-field1d-tenel-scared-dialogue2-600-v1.state.zip",
+          "sha256": "759a5ea74d6e4c75b94bf614b9be615d303800d98288828b6e2c99a1d5286e6c"
+        },
+        "original--screen-filter": {
+          "path": "local/reference-field1d-tenel-scared-dialogue2-600-v1.screen-filter.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "original--transition": {
+          "path": "local/reference-field1d-tenel-scared-dialogue2-600-v1.transition.bin",
+          "sha256": "d05aacf60e4bce3507186893ba8d4fbec4b6a9ed744b2ec2f174f0c5fb3bdd64"
+        }
+      },
+      "interval": {
+        "path": "local/research/post-jam-route-v1/tenel-scared-dialogue2-interval.json",
+        "sha256": "ad21d41b0c3cae8d63cc164f3c76f3685dbbc065d6ecf1fd312322ffd3d0282c",
+        "sha_matches_summary": true
+      },
+      "native_run": {
+        "binary_identity_verified_by_recorded_sha_and_candidate": true,
+        "binary_sha256_matches_summary": true,
+        "command_executable": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "current_executable_matches_recorded": false,
+        "current_executable_sha256": "a023f002f71263d83bce8f8cc271ef67fb167170895b88aa83d85499f174345a",
+        "exit_code": 0,
+        "exit_code_matches_summary": true,
+        "path": "local/native-tenel-scared-dialogue2-94445-release-v1.run.json",
+        "recorded_binary_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "retained_or_current_executable_candidates": [
+          {
+            "matches_recorded": true,
+            "path": "local/demos/current-preview-92915-v1/okage-native.app/Contents/MacOS/okage-native",
+            "sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331"
+          },
+          {
+            "matches_recorded": true,
+            "path": "local/worktrees/render-ranges-v1/build/native-release/okage-native.app/Contents/MacOS/okage-native",
+            "sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331"
+          }
+        ],
+        "sha256": "2c767d850bc0524c8203c5070cf491d5e6a5b3e3cd8e8ebb045b31d3f8af7ed4"
+      },
+      "original_run": {
+        "binary_identity_verified_by_recorded_sha_and_candidate": true,
+        "binary_sha256_matches_summary": true,
+        "command_executable": "build/play-research/okage-oracle/okage-boot-oracle",
+        "current_executable_matches_recorded": true,
+        "current_executable_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "exit_code": 0,
+        "exit_code_matches_summary": true,
+        "path": "local/reference-field1d-tenel-scared-dialogue2-600-v1.run.json",
+        "recorded_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "retained_or_current_executable_candidates": [
+          {
+            "matches_recorded": true,
+            "path": "build/play-research/okage-oracle/okage-boot-oracle",
+            "sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5"
+          }
+        ],
+        "sha256": "c8ba7e6b8180a33eb76a66dba8339bd820379fb681eaabefbeb9c4c7c488c981"
+      },
+      "replay_history": {
+        "native_directions": {
+          "path": "local/native-tenel-scared-dialogue2-94445-release-v1.directions",
+          "sha256": "7aedd73dfbdbf1e7bd0d45cc13002f5620e58667c5061d512e470d7f171f0f5c"
+        },
+        "original_pad_input": {
+          "path": "local/reference-field1d-tenel-scared-dialogue2-600-v1.input",
+          "sha256": "29e56f07d3b11b777c8633028f468d2dbdd67411232cee51ea9f9e119d541ab3"
+        }
+      },
+      "result": {
+        "path": "local/research/post-jam-route-v1/tenel-scared-dialogue2-result.json",
+        "range_and_divergence_match_summary": true,
+        "sha256": "523149aed5c66301590989312f02fe9989adba421ed77ce5d3f442928cbe498c"
+      },
+      "segment": "dialogue2",
+      "source_artifacts": {
+        "checked": 15,
+        "mismatches": []
+      },
+      "summary": {
+        "path": "local/research/post-jam-route-v1/tenel-scared-dialogue2-summary.json",
+        "sha256": "dc286b144d11095b8a035b54bbc25461a89239374bdc7e257308d5101a20e950"
+      },
+      "tick_range": [
+        93846,
+        94445
+      ],
+      "ticks": 600
+    },
+    {
+      "comparison": {
+        "category_frame_counts": {
+          "camera_mode_phase": 0,
+          "camera_position": 0,
+          "camera_rotation": 0,
+          "camera_unblended_target": 0,
+          "choice": 0,
+          "controller": 0,
+          "direction_latch": 0,
+          "hero_facing_w": 0,
+          "hero_position": 0,
+          "manager_running_pc_gate": 0,
+          "pad_latch": 0,
+          "player_mask": 0
+        },
+        "compared_observables_agree": true,
+        "controller_samples": 545,
+        "coverage": {
+          "camera": {
+            "expected_frames": 600,
+            "observed_frames": 600
+          },
+          "manager": {
+            "expected_frames": 600,
+            "observed_frames": 600
+          },
+          "player": {
+            "expected_frames": 600,
+            "observed_frames": 600
+          }
+        },
+        "missing_camera": 0,
+        "missing_manager": 0,
+        "missing_player": 0,
+        "unique_differing_frames": 0,
+        "unique_missing_observation_frames": 0
+      },
+      "input_files": {
+        "native--actor": {
+          "path": "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "sha256": "c7d46694dd3dad1c7d12272b2b3cb2c3aa3fcfa281bfd7bbaeae1c3279f3e002"
+        },
+        "native--directions": {
+          "path": "local/native-tenel-scared-dialogue3-95045-release-v1.directions",
+          "sha256": "7aedd73dfbdbf1e7bd0d45cc13002f5620e58667c5061d512e470d7f171f0f5c"
+        },
+        "native--effect-data": {
+          "path": "local/effect-input/CMNDATA/2D/TES.EFD",
+          "sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c"
+        },
+        "native--event": {
+          "path": "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "sha256": "0fd868603f66f22ca93cfdd050a30b223f496e7c69ec0bf1995e9759441fcded"
+        },
+        "native--music-bank": {
+          "path": "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "sha256": "1c0428b3fcaba0f822da47ff6374ac0bd1e5d90cec1bd2f3dadc567cd95c3654"
+        },
+        "native--music-dry": {
+          "path": "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "sha256": "908a259c61b333bad7c570b7c1c33f9e954d5c93811be52228643b8323131cf2"
+        },
+        "native--scene": {
+          "path": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "sha256": "90ff53dcd83e5e5e15608ecb971e6f92c5c09d88db19e5d8a083ada65434562c"
+        },
+        "original--audio": {
+          "path": "local/reference-field1d-tenel-scared-dialogue3-600-v1.wav",
+          "sha256": "ad9291c5838a40900d538fac0616deb3c6d87469bc2b4a5ab6df8d83756facad"
+        },
+        "original--camera": {
+          "path": "local/reference-field1d-tenel-scared-dialogue3-600-v1.camera.bin",
+          "sha256": "99c0163d2b17a3da41bcfc8e4caba029483324f6644a25078922f42635bf229c"
+        },
+        "original--controller": {
+          "path": "local/reference-field1d-tenel-scared-dialogue3-600-v1.controller.bin",
+          "sha256": "dba83c64c1fffda10a35bddce7e2353d87e0abf77f55baaa4788413a479f6391"
+        },
+        "original--pad": {
+          "path": "local/reference-field1d-tenel-scared-dialogue3-600-v1.input",
+          "sha256": "29e56f07d3b11b777c8633028f468d2dbdd67411232cee51ea9f9e119d541ab3"
+        },
+        "original--save": {
+          "path": "local/reference-field1d-tenel-scared-dialogue3-600-v1.state.zip",
+          "sha256": "0442aa3b0f337138ceb3e69fd1c7daa3c660fa6c11a8398c160065dee3bddfc2"
+        },
+        "original--screen-filter": {
+          "path": "local/reference-field1d-tenel-scared-dialogue3-600-v1.screen-filter.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "original--transition": {
+          "path": "local/reference-field1d-tenel-scared-dialogue3-600-v1.transition.bin",
+          "sha256": "01d220c7b1c36c65590bc879a72c3d799b987bf406965862fd695e691827af7b"
+        }
+      },
+      "interval": {
+        "path": "local/research/post-jam-route-v1/tenel-scared-dialogue3-interval.json",
+        "sha256": "17a510abee229944f2413b092965785f19315386774fc6cddf1abe359cbce689",
+        "sha_matches_summary": true
+      },
+      "native_run": {
+        "binary_identity_verified_by_recorded_sha_and_candidate": true,
+        "binary_sha256_matches_summary": true,
+        "command_executable": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "current_executable_matches_recorded": false,
+        "current_executable_sha256": "a023f002f71263d83bce8f8cc271ef67fb167170895b88aa83d85499f174345a",
+        "exit_code": 0,
+        "exit_code_matches_summary": true,
+        "path": "local/native-tenel-scared-dialogue3-95045-release-v1.run.json",
+        "recorded_binary_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "retained_or_current_executable_candidates": [
+          {
+            "matches_recorded": true,
+            "path": "local/demos/current-preview-92915-v1/okage-native.app/Contents/MacOS/okage-native",
+            "sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331"
+          },
+          {
+            "matches_recorded": true,
+            "path": "local/worktrees/render-ranges-v1/build/native-release/okage-native.app/Contents/MacOS/okage-native",
+            "sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331"
+          }
+        ],
+        "sha256": "1b1063aaf71a8d4d8f31ae9bf0b6a43b5fd47c635eec519797030971f5814750"
+      },
+      "original_run": {
+        "binary_identity_verified_by_recorded_sha_and_candidate": true,
+        "binary_sha256_matches_summary": true,
+        "command_executable": "build/play-research/okage-oracle/okage-boot-oracle",
+        "current_executable_matches_recorded": true,
+        "current_executable_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "exit_code": 0,
+        "exit_code_matches_summary": true,
+        "path": "local/reference-field1d-tenel-scared-dialogue3-600-v1.run.json",
+        "recorded_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "retained_or_current_executable_candidates": [
+          {
+            "matches_recorded": true,
+            "path": "build/play-research/okage-oracle/okage-boot-oracle",
+            "sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5"
+          }
+        ],
+        "sha256": "a084c4206de15b822463cb32fbd02eece1d8ae4e840206ff41e0730f6e401616"
+      },
+      "replay_history": {
+        "native_directions": {
+          "path": "local/native-tenel-scared-dialogue3-95045-release-v1.directions",
+          "sha256": "7aedd73dfbdbf1e7bd0d45cc13002f5620e58667c5061d512e470d7f171f0f5c"
+        },
+        "original_pad_input": {
+          "path": "local/reference-field1d-tenel-scared-dialogue3-600-v1.input",
+          "sha256": "29e56f07d3b11b777c8633028f468d2dbdd67411232cee51ea9f9e119d541ab3"
+        }
+      },
+      "result": {
+        "path": "local/research/post-jam-route-v1/tenel-scared-dialogue3-result.json",
+        "range_and_divergence_match_summary": true,
+        "sha256": "57750be793617d83e01d7306b016c2a15f4da92addc51a9ad9b4e1637c577856"
+      },
+      "segment": "dialogue3",
+      "source_artifacts": {
+        "checked": 15,
+        "mismatches": []
+      },
+      "summary": {
+        "path": "local/research/post-jam-route-v1/tenel-scared-dialogue3-summary.json",
+        "sha256": "7bc310dfb387c1667fa5fb67c683b822e332c8128a9ed0a4967ac6ef800112f3"
+      },
+      "tick_range": [
+        94446,
+        95045
+      ],
+      "ticks": 600
+    },
+    {
+      "comparison": {
+        "category_frame_counts": {
+          "camera_mode_phase": 0,
+          "camera_position": 0,
+          "camera_rotation": 0,
+          "camera_unblended_target": 0,
+          "choice": 0,
+          "controller": 0,
+          "direction_latch": 0,
+          "hero_facing_w": 0,
+          "hero_position": 0,
+          "manager_running_pc_gate": 0,
+          "pad_latch": 0,
+          "player_mask": 0
+        },
+        "compared_observables_agree": true,
+        "controller_samples": 71,
+        "coverage": {
+          "camera": {
+            "expected_frames": 240,
+            "observed_frames": 240
+          },
+          "manager": {
+            "expected_frames": 240,
+            "observed_frames": 240
+          },
+          "player": {
+            "expected_frames": 240,
+            "observed_frames": 240
+          }
+        },
+        "missing_camera": 0,
+        "missing_manager": 0,
+        "missing_player": 0,
+        "unique_differing_frames": 0,
+        "unique_missing_observation_frames": 0
+      },
+      "input_files": {
+        "native--actor": {
+          "path": "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "sha256": "c7d46694dd3dad1c7d12272b2b3cb2c3aa3fcfa281bfd7bbaeae1c3279f3e002"
+        },
+        "native--directions": {
+          "path": "local/native-tenel-scared-finish-95285-release-v1.directions",
+          "sha256": "7aedd73dfbdbf1e7bd0d45cc13002f5620e58667c5061d512e470d7f171f0f5c"
+        },
+        "native--effect-data": {
+          "path": "local/effect-input/CMNDATA/2D/TES.EFD",
+          "sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c"
+        },
+        "native--event": {
+          "path": "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "sha256": "0fd868603f66f22ca93cfdd050a30b223f496e7c69ec0bf1995e9759441fcded"
+        },
+        "native--music-bank": {
+          "path": "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "sha256": "1c0428b3fcaba0f822da47ff6374ac0bd1e5d90cec1bd2f3dadc567cd95c3654"
+        },
+        "native--music-dry": {
+          "path": "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "sha256": "908a259c61b333bad7c570b7c1c33f9e954d5c93811be52228643b8323131cf2"
+        },
+        "native--scene": {
+          "path": "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "sha256": "90ff53dcd83e5e5e15608ecb971e6f92c5c09d88db19e5d8a083ada65434562c"
+        },
+        "original--audio": {
+          "path": "local/reference-field1d-tenel-scared-finish-240-v1.wav",
+          "sha256": "f4c8fda3b37cc83437409dda94991bbc002dd8572f406dc274a5a485c1b97d54"
+        },
+        "original--camera": {
+          "path": "local/reference-field1d-tenel-scared-finish-240-v1.camera.bin",
+          "sha256": "fba3d61f43d0623ce0c482fd93008a0c131660db1586cd71b82fa6d9e3f5ff49"
+        },
+        "original--controller": {
+          "path": "local/reference-field1d-tenel-scared-finish-240-v1.controller.bin",
+          "sha256": "edd392012f321d05b5f331701a2015079a5f9b01848b38b573d5c3120e1415ec"
+        },
+        "original--pad": {
+          "path": "local/reference-field1d-tenel-scared-finish-240-v1.input",
+          "sha256": "8c9877519ce161ad7cd449e80766a4362e197d8117f322f390a697adab9cec0d"
+        },
+        "original--save": {
+          "path": "local/reference-field1d-tenel-scared-finish-240-v1.state.zip",
+          "sha256": "d4d1e7f055af4f44d5fb31976130b9313947c00544daa050e0f2f459bca7326a"
+        },
+        "original--screen-filter": {
+          "path": "local/reference-field1d-tenel-scared-finish-240-v1.screen-filter.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "original--transition": {
+          "path": "local/reference-field1d-tenel-scared-finish-240-v1.transition.bin",
+          "sha256": "3dfe28c5753e7512ed370bd32dc6ae53f31a877d27fd0b7209018e012610e922"
+        }
+      },
+      "interval": {
+        "path": "local/research/post-jam-route-v1/tenel-scared-finish-interval.json",
+        "sha256": "3365ee143a58c9cdbe09b2b87c0f7e16082e571f24e986d14043ba990c9b1105",
+        "sha_matches_summary": true
+      },
+      "native_run": {
+        "binary_identity_verified_by_recorded_sha_and_candidate": true,
+        "binary_sha256_matches_summary": true,
+        "command_executable": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "current_executable_matches_recorded": false,
+        "current_executable_sha256": "a023f002f71263d83bce8f8cc271ef67fb167170895b88aa83d85499f174345a",
+        "exit_code": 0,
+        "exit_code_matches_summary": true,
+        "path": "local/native-tenel-scared-finish-95285-release-v1.run.json",
+        "recorded_binary_sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331",
+        "retained_or_current_executable_candidates": [
+          {
+            "matches_recorded": true,
+            "path": "local/demos/current-preview-92915-v1/okage-native.app/Contents/MacOS/okage-native",
+            "sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331"
+          },
+          {
+            "matches_recorded": true,
+            "path": "local/worktrees/render-ranges-v1/build/native-release/okage-native.app/Contents/MacOS/okage-native",
+            "sha256": "0dfe9f7369803d845d7d108310c3306386e11475b32170a4807cfe5a926a2331"
+          }
+        ],
+        "sha256": "38ce45e1a7abbf0f58936263d255caf291e0219c559be129343aa9fad441f092"
+      },
+      "original_run": {
+        "binary_identity_verified_by_recorded_sha_and_candidate": true,
+        "binary_sha256_matches_summary": true,
+        "command_executable": "build/play-research/okage-oracle/okage-boot-oracle",
+        "current_executable_matches_recorded": true,
+        "current_executable_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "exit_code": 0,
+        "exit_code_matches_summary": true,
+        "path": "local/reference-field1d-tenel-scared-finish-240-v1.run.json",
+        "recorded_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "retained_or_current_executable_candidates": [
+          {
+            "matches_recorded": true,
+            "path": "build/play-research/okage-oracle/okage-boot-oracle",
+            "sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5"
+          }
+        ],
+        "sha256": "6332363ed691c8d9a3f48a4c66b443c7f1c80dc23612df7a5b6c8552ce667ad4"
+      },
+      "replay_history": {
+        "native_directions": {
+          "path": "local/native-tenel-scared-finish-95285-release-v1.directions",
+          "sha256": "7aedd73dfbdbf1e7bd0d45cc13002f5620e58667c5061d512e470d7f171f0f5c"
+        },
+        "original_pad_input": {
+          "path": "local/reference-field1d-tenel-scared-finish-240-v1.input",
+          "sha256": "8c9877519ce161ad7cd449e80766a4362e197d8117f322f390a697adab9cec0d"
+        }
+      },
+      "result": {
+        "path": "local/research/post-jam-route-v1/tenel-scared-finish-result.json",
+        "range_and_divergence_match_summary": true,
+        "sha256": "99f23d4901bfa14cd80bdb9146013ca0138399b52cd1a7a9642a76491708082c"
+      },
+      "segment": "finish",
+      "source_artifacts": {
+        "checked": 15,
+        "mismatches": []
+      },
+      "summary": {
+        "path": "local/research/post-jam-route-v1/tenel-scared-finish-summary.json",
+        "sha256": "e450be7fdc77e5a8f554f54606f5f1f17eb834ed704296c37d6498c659d9caa6"
+      },
+      "tick_range": [
+        95046,
+        95285
+      ],
+      "ticks": 240
+    }
+  ],
+  "final_story_state": {
+    "layout": {
+      "bank1_byte_offset": "0x110 + (index >> 3)",
+      "bank1_mask": "0x80 >> (index & 7)",
+      "bank4_index10_offset_hex": "0x538",
+      "bank4_type": "signed 32-bit little-endian value",
+      "index17_mask_hex": "0x40",
+      "index17_offset_hex": "0x112",
+      "index31_mask_hex": "0x1",
+      "index31_offset_hex": "0x113",
+      "native_reader": "src/event.cpp:event_variable",
+      "original_pointer_evidence": "docs/home1b-father-closure-validation.json and docs/post-grandmother-route-validation.json"
+    },
+    "native": {
+      "bank1_17": 1,
+      "bank1_31": 1,
+      "bank4_10": 3,
+      "sha256": "c2f11a722affb0bb40891cfed4e2c5bedce1f582ce80ddaf422670998ccfc6ed",
+      "variables_path": "local/native-tenel-scared-finish-95285-release-v1.png.variables.bin"
+    },
+    "original_saved_ee": {
+      "bank1_17": 1,
+      "bank1_31": 1,
+      "bank4_10": 3,
+      "pointer_address_hex": "0x24f788",
+      "ram_compression_method": 93,
+      "ram_crc32": "70658fab",
+      "ram_size": 67108864,
+      "sha256": "d4d1e7f055af4f44d5fb31976130b9313947c00544daa050e0f2f459bca7326a",
+      "snapshot_path": "local/reference-field1d-tenel-scared-finish-240-v1.state.zip",
+      "variable_base_pointer_hex": "0x5c1650"
+    }
+  },
+  "native_binary_sha256": "a023f002f71263d83bce8f8cc271ef67fb167170895b88aa83d85499f174345a",
+  "native_build_and_tests": [
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "build/native-release",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.8219199169999998,
+      "log": "local/research/tenel-scared-v1/primary-build-0.log",
+      "log_sha256": "309ef32b37c52021b77a8112081594900f3a8418ed9b4c119ac41477efbf51d7"
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/native-release",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.1240441670000001,
+      "log": "local/research/tenel-scared-v1/primary-build-1.log",
+      "log_sha256": "5f01cbacbb0a8c3751a112f9d43a9d3173f179e1195d7c8d81dba5124ecaa811"
+    },
+    {
+      "binary": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+      "sha256": "a023f002f71263d83bce8f8cc271ef67fb167170895b88aa83d85499f174345a"
+    }
+  ],
+  "presentation_worker_report": {
+    "path": "local/worktrees/paused-view-capture-v1/local/paused-view-report-v1.json",
+    "sha256": "c8c9120ca2509369bdd88b778b2c0e5e6ffa76b14f1b0b7e5579dea4316b9bf3"
+  },
+  "startup_error_fix_report": {
+    "path": "local/worktrees/paused-view-capture-v1/local/startup-exit-fix-report.json",
+    "sha256": "d24b6cbd3ef2446bd5127b874c9b070d2c32c710774aa05a60fdf390b36790ea"
+  },
+  "cli_cases": {
+    "path": "local/worktrees/paused-view-capture-v1/local/cli-validation-v1.json",
+    "sha256": "74eb1c5e2696e0ff045ede71e2232e9d3e95a1d87600203923b93077b0801d71"
+  },
+  "preview": {
+    "launch_snapshot": {
+      "path": "local/research/tenel-scared-v1/preview-launch-snapshot-v1.json",
+      "sha256": "710687722263a7c5fd2166371a7fd14f24c7ffc7aa7be4a3d08533d169c8c600"
+    },
+    "view_capture": {
+      "path": "local/native-current-preview-95285-v1.png.view.png",
+      "sha256": "113035df38d9297e5a4be80322da297d82fba17f48b529f2194bbe81d9c8852a"
+    },
+    "frame": 95285,
+    "diagnostic_endpoint_pairs_equal": 51,
+    "note": "Actual paused NSView capture inspected as full4:3. All51 previous immediate image/state/PCM files match. Live process intentionally remains; immutable launch snapshot binds command/binary. No new timer/audio/performance claim."
+  },
+  "next_static_guidance": {
+    "path": "local/research/tenel-permission-v1/report.json",
+    "sha256": "a4099c126dabac7903f90e6df995e0af4d030c5faa2534b82e6b003fe9b92d3f"
+  },
+  "prior_arrival_validation": {
+    "path": "docs/tenel-arrival-validation.json",
+    "sha256": "66a7ce9e3ad93b5d5504d927e3162017b8f487540e4e664c9f28b4537ffa1d06"
+  },
+  "limitations": [
+    "This is a paused AppKit view, not physical compositor inspection.",
+    "No new live performance or listening claim.",
+    "New startup capture error path was source-reviewed but not executed with an injected AppKit failure.",
+    "Seven progression runs use prior0dfe9f binary, retained in closed92915 preview. Newa023f0 binary replayed the same history to95285 in paused AppKit and preserved51 outputs.",
+    "Office NPCstate1 and dialogueFFF are prospective guards, not yet executed or implemented.",
+    "Older loading/RNG/presentation/audio differences remain; battles, persistence, cold startup and full playthrough remain incomplete."
+  ]
+}

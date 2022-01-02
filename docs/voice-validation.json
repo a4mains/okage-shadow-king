@@ -1,6 +1,6 @@
 {
   "scope": "Pinned PCSX2 DSP kernels with direct voice start and fixed gains; no whole-device, reverb or hardware fidelity claim",
-  "reference_revision": "3143a46e4deffa59832a517915a39d610dcb8564",
+  "reference_revision": "b6dafff52464c343ce4a53d54d793e7cbec0696d",
   "reference_source_hashes": {
     "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
     "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
