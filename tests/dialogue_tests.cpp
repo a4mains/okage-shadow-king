@@ -140,6 +140,50 @@ int main() {try {
             malformed.state.option=option;rejects([&]{controller.update(malformed,{});});
         }
     }
+    {
+        okage::MessageBank flags;
+        flags.strings={"system","42","\\v\r\n","\\o[FFF(31/1/22/1)]\\v\r\n","A\\e","B\\e","C\\e","After\\v"};
+        flags.nodes={{0,0},{0,1},{1,2},{2,3},{3,4},{3,5},{3,6},{1,7}};
+        auto pause_option=[](okage::DialogueText& t) {
+            t.state.flags=0x8001;require(t.step()==okage::TextStep::pause);
+            t.resume();require(t.step()==okage::TextStep::pause);
+        };
+        for(int information:{0,1})for(int permission:{0,1,2}) {
+            okage::DialogueText t(flags,42);pause_option(t);okage::DialogueController c;
+            c.advance_count=7;c.layer_flags=0;c.choice_armed=true;
+            std::vector<std::pair<unsigned,unsigned>> reads;
+            c.get_variable=[&](unsigned index,unsigned bank){reads.emplace_back(index,bank);return index==22?permission:information;};
+            c.set_variable=[](unsigned,unsigned,int){throw std::runtime_error("FFF must not write variables");};
+            t.state.delay=3;require(!c.update(t,{}).resume_calls&&reads.empty());
+            t.state.delay=0;t.choice_cursor=99;
+            const auto e=c.update(t,{});const int branch=permission==1?2:information;
+            const std::vector<std::pair<unsigned,unsigned>> expected=permission==1
+                ?std::vector<std::pair<unsigned,unsigned>>{{22,1}}
+                :std::vector<std::pair<unsigned,unsigned>>{{22,1},{31,1},{31,1}};
+            require(reads==expected&&e.resume_calls==1&&e.reset_text_clock&&e.accepted_choice==-1);
+            require(c.advance_count==7&&c.layer_advance==7&&!c.choice_active&&c.choice_armed);
+            require(t.choice_result==branch&&t.choice_cursor==0&&t.state.delay==0&&t.state.phase==0&&t.state.period==1);
+            require(t.step()==okage::TextStep::glyph&&t.page==std::string(1,'A'+branch));
+        }
+        auto single=flags;single.nodes={{0,0},{0,1},{1,2},{2,3},{3,4},{2,7}};
+        okage::DialogueText t(single,42);pause_option(t);okage::DialogueController c;unsigned reads=0;
+        c.get_variable=[&](unsigned index,unsigned bank){require(bank==1);++reads;return index==22?0:reads==2?1:2;};
+        const auto e=c.update(t,{});
+        require(reads==3&&!e.reset_text_clock&&e.resume_calls==1&&t.choice_result==2&&t.choice_cursor==0);
+        single.nodes.pop_back();okage::DialogueText one(single,42);pause_option(one);reads=0;
+        const auto forced=c.update(one,{});require(!forced.reset_text_clock&&one.choice_result==0);
+        okage::DialogueText packed(flags,42);pause_option(packed);reads=0;
+        c.get_variable=[&](unsigned index,unsigned){++reads;return index==22?0:reads==2?65537:2;};
+        c.update(packed,{});require(packed.choice_result==1&&reads==3);
+        for(const auto* option:{"FFF(31/1/22)","FFF(31/1/22/1)=","FFF(-1/1/22/1)","FFF(31/1/22/1)BC","FFF(31/1/22/1/)","FFF(31/1/22/1"}) {
+            okage::DialogueText bad(flags,42);pause_option(bad);bad.state.option=option;reads=0;
+            rejects([&]{c.update(bad,{});});require(reads==0);
+        }
+        okage::DialogueText unavailable(flags,42);pause_option(unavailable);okage::DialogueController missing;
+        rejects([&]{missing.update(unavailable,{});});
+        okage::DialogueText no_prior(flags,42);rejects([&]{no_prior.set_option_cursor(2);});
+        okage::DialogueText no_bank({"text"});rejects([&]{no_bank.set_option_cursor(2);});
+    }
     for(unsigned selected=0;selected<3;++selected){
         okage::DialogueText choice(bank,42);okage::DialogueController controller;
         choice.state.flags=0x8001;choice.state.progress=9;

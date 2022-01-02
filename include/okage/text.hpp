@@ -21,6 +21,7 @@ struct MessageBank {
     MessagePath message_path(std::int32_t id) const;
     // True when a multi-child branch rewrites the remaining fragment stream.
     bool select_branch(MessagePath&,std::size_t fragment,unsigned selection) const;
+    unsigned branch_count(const MessagePath&,std::size_t fragment) const;
     // Original 0x19a5c8 replaces the first matching tagged system child.
     // Shared string indices make the binding visible to every referring message.
     bool bind(std::string_view tag,std::string_view value);
@@ -70,6 +71,7 @@ public:
     std::vector<TextGlyph> glyphs;
     int choice_cursor=0,choice_result=0;
     void move_choice(int delta);
+    void set_option_cursor(int selection); // 0x19b800 examines the preceding path slot.
     bool select_choice(unsigned selection); // 0x19b448; true resets the text clock.
     const MessagePath& path() const {return path_;}
     TextStep step();

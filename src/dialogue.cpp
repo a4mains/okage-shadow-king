@@ -37,7 +37,8 @@ DialogueInputEffects DialogueController::update(DialogueText& text,DialogueButto
     choice_active=false;
     const bool option=!text.state.option.empty() && static_cast<unsigned char>(text.state.option[0])!=255;
     const bool comparison=option && text.state.option.starts_with("CMP(");
-    if(option && !comparison && text.state.option!="CC" && text.state.option!="BC" && text.state.option!="BC=0")
+    const bool flag_branch=option && text.state.option.starts_with("FFF(");
+    if(option && !comparison && !flag_branch && text.state.option!="CC" && text.state.option!="BC" && text.state.option!="BC=0")
         throw std::runtime_error("Dialogue option outside recovered scope");
     auto resume=[&]{text.resume();text.state.period=__builtin_bit_cast(std::uint32_t, (normal_period));++effects.resume_calls;};
     auto& command=text.state.window;
@@ -130,6 +131,21 @@ DialogueInputEffects DialogueController::update(DialogueText& text,DialogueButto
                 effects.reset_text_clock=text.select_choice(text.choice_cursor);
                 choice_armed=false;resume();++advance_count;
             }
+        } else if(flag_branch) {
+            const auto values=arguments(text.state.option,"FFF(",4);
+            if(values[0]<0||values[1]<0||values[2]<0||values[3]<0||!get_variable)
+                throw std::runtime_error("Dialogue FFF variable service unavailable");
+            // 0x1485f4: exact ==1 on the second pair short-circuits the first.
+            // Otherwise the first read supplies the packed return's high16,
+            // and a separate second read supplies the widget cursor.
+            int branch=2,cursor=2;
+            if(get_variable(values[2],values[3])!=1) {
+                const auto first=get_variable(values[0],values[1]);
+                branch=__builtin_bit_cast(std::int16_t, (std::uint16_t(first)));
+                cursor=get_variable(values[0],values[1]);
+            }
+            text.set_option_cursor(cursor);
+            effects.reset_text_clock=text.select_choice(std::uint32_t(branch));resume();
         } else if(comparison) {
             const auto end=text.state.option.find(')');
             if(end==std::string::npos)throw std::runtime_error("Malformed dialogue comparison");

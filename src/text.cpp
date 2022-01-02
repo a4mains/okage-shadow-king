@@ -84,6 +84,16 @@ std::vector<std::string> MessageBank::message(std::int32_t id) const {
     for(auto index:message_indices(id))result.push_back(strings.at(index));
     return result;
 }
+unsigned MessageBank::branch_count(const MessagePath& path,std::size_t fragment) const {
+    if(fragment>=path.strings.size())throw std::runtime_error("Choice fragment outside message");
+    const auto parent=path.nodes[fragment];
+    if(parent>=nodes.size())throw std::runtime_error("Choice node outside PME");
+    unsigned count=0;const auto depth=nodes[parent].depth;
+    for(std::size_t i=parent+1;i<nodes.size()&&nodes[i].depth>depth;++i)
+        if(nodes[i].depth==depth+1)++count;
+    if(count>512)throw std::runtime_error("Choice child table capacity");
+    return count;
+}
 bool MessageBank::select_branch(MessagePath& path,std::size_t fragment,unsigned selection) const {
     if(fragment>=path.strings.size())throw std::runtime_error("Choice fragment outside message");
     auto children=[&](std::uint32_t parent){
@@ -122,6 +132,12 @@ void DialogueText::move_choice(int delta) {
     while((at=state.replacement.find("\\n",at))!=std::string::npos){++count;at+=2;}
     const auto next=std::int64_t(choice_cursor)+delta;
     choice_cursor=next<0 ? count-1 : next%count;
+}
+void DialogueText::set_option_cursor(int selection) {
+    if(!bank_||!fragment_)throw std::runtime_error("Option cursor requires a preceding PME fragment");
+    // Unlike select_choice's current-node lookup, 0x19b800 refreshes children
+    // of path[index-1], then forces zero only when that node has <2 children.
+    choice_cursor=bank_->branch_count(path_,fragment_-1)<2 ? 0 : selection;
 }
 bool DialogueText::select_choice(unsigned selection) {
     if(!bank_)throw std::runtime_error("Choice requires PME node context");
