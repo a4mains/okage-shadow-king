@@ -10,6 +10,26 @@ void require(bool value,unsigned where=__builtin_LINE()){
 template<class F> void rejects(F f){try{f();}catch(const std::runtime_error&){return;}throw std::runtime_error("Expected field rejection");}
 int main(){try {
     {
+        const auto angles=okage::make_atan_table();
+        const auto floats=[](std::array<std::uint32_t,4> bits){okage::Float4 out;for(unsigned i=0;i<4;++i)out[i]=__builtin_bit_cast(float, (bits[i]));return out;};
+        const std::array<std::array<std::uint32_t,4>,2> positions={{{0x4146147b,0,0xc0db3333,0x3f800000},{0x41175a05,0xba83126f,0xc0980332,0x3f800000}}};
+        const std::array<std::array<std::uint32_t,4>,2> velocities={{{0xbccf0cb7,0,0x3c96b0de,0xbf800000},{0xbcdcc6cb,0x357e3343,0xbc85d0ad,0xbf800000}}};
+        for(unsigned i=0;i<2;++i) {
+            okage::GameRandom random{i?0xe9ce4642u:0x26c79124u};okage::WanderingNpc npc;
+            const auto rotation=npc.begin_leg(floats(positions[i]),0,[&]{return random.next();},angles);
+            require(npc.counter==(i?1056:2112));
+            require(random.state==(i?0x497e9b90u:0xe9ce4642u));
+            for(unsigned k=0;k<4;++k)require(__builtin_bit_cast(std::uint32_t, (npc.velocity[k]))==velocities[i][k]);
+            require(__builtin_bit_cast(std::uint32_t, (rotation[1]))==(i?0x3e273000u:0x3eb34800u));
+            npc.finish_move(floats(positions[i]),floats(positions[i]));require(npc.counter==-1);
+        }
+        // Sub-unit horizontal distance truncates before multiplication by32.
+        okage::WanderingNpc short_leg;unsigned draws=0;
+        short_leg.begin_leg({.5f,0,0,1},0,[&]{++draws;return 50u;},angles);
+        require(short_leg.counter==0&&draws==2);
+        rejects([&]{short_leg.finish_move({0,0,0,1},{1,0,0,1});});
+    }
+    {
         okage::ScreenFilter filter;
         filter.tick(80);require(filter.alpha==0);
         filter.select(0x49,1);filter.tick(80.9f);require(filter.alpha==80);

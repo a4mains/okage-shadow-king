@@ -29,4 +29,14 @@ struct EncounterEnemy {
     EnemyActions tick(const EnemyObservation&,const std::function<std::uint32_t()>& random,
                       const AtanTable&,const SineTable&);
 };
+// Retail ordinary NPC state 1 (0x137df8). Collision belongs to the field;
+// initialization selects a leg without moving, movement then reports its
+// corrected position back through finish_move().
+struct WanderingNpc {
+    std::int32_t counter=0;
+    Float4 velocity{};
+    Float4 begin_leg(const Float4& position,float target_w,
+                    const std::function<std::uint32_t()>& random,const AtanTable&);
+    void finish_move(const Float4& before,const Float4& after);
+};
 }

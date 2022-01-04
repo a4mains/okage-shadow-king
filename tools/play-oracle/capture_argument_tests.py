@@ -43,6 +43,12 @@ def main():
         index.symlink_to(root / 'absent-file')
         check(['--audio', str(root / 'audio.wav'), '--audio-index', str(index)],
               'Refusing existing reference output')
+        wander = root / 'meg-wander.jsonl'
+        check(['--wander'], 'Unknown boot argument')
+        check(['--wander', str(wander), '--wander', str(wander)], 'Duplicate wander')
+        check(['--wander', str(wander)], 'Disc input missing')
+        wander.touch()
+        check(['--wander', str(wander)], 'Refusing existing reference output')
     print('Capture argument tests passed; no VM constructed.')
 
 if __name__ == '__main__':

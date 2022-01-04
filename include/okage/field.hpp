@@ -63,6 +63,8 @@ public:
     const std::optional<FieldTransition>& transition() const {return transition_;}
     const std::optional<FieldEncounter>& encounter() const {return encounter_;}
     std::function<std::uint32_t()> random_value;
+    // Optional read-only research observer, before/after a state-1 callback.
+    std::function<void(int,bool,const WanderingNpc&,const Animation&)> observe_wander;
     // Session-owned manager state persists across field construction.
     ExteriorCamera* exterior_camera=nullptr;
     CollisionMask* collision_mask=&local_collision_mask_;
@@ -144,6 +146,7 @@ private:
     std::optional<FieldTransition> transition_;
     std::optional<FieldEncounter> encounter_;
     std::vector<std::optional<EncounterEnemy>> enemies_;
+    std::vector<std::optional<WanderingNpc>> wanderers_;
     bool rear_attack_=false;
     void initialize_npcs();
     void update_npcs();

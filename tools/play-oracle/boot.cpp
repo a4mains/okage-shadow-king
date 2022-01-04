@@ -19,6 +19,7 @@
 #include "reference_screen_filter.hpp"
 #include "reference_actor.hpp"
 #include "reference_npc.hpp"
+#include "reference_wander.hpp"
 #include "reference_lifecycle.hpp"
 #include "reference_order.hpp"
 #include "reference_effect_order.hpp"
@@ -88,10 +89,10 @@ std::vector<unsigned> parseCaptureFrames(std::string_view text,unsigned duration
 }
 int main(int argc,char** argv) {
     try {
-        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX [--capture-frames N,N,...]] [--pad INPUT | --walk-waypoints ROUTE --walk-record INPUT] [--audio WAV [--audio-index JSON]] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--camera-schedule FILE] [--screen-filter FILE] [--movement FILE] [--interaction FILE] [--interaction-wide FILE] [--transition FILE] [--dust FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--lifecycle FILE] [--order FILE] [--effect-order FILE] [--projection FILE] [--music FILE] [--deadline-seconds 1..7200]");
+        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX [--capture-frames N,N,...]] [--pad INPUT | --walk-waypoints ROUTE --walk-record INPUT] [--audio WAV [--audio-index JSON]] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--camera-schedule FILE] [--screen-filter FILE] [--movement FILE] [--interaction FILE] [--interaction-wide FILE] [--transition FILE] [--dust FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--wander FILE] [--lifecycle FILE] [--order FILE] [--effect-order FILE] [--projection FILE] [--music FILE] [--deadline-seconds 1..7200]");
         unsigned deadlineSeconds=0;
         std::string walkWaypoints,walkRecord,captureFramesText,audioIndex;
-        int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false,musicField=false,musicJingle=false,musicNight=false,interactionWide=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,cameraSchedule,music,movement,interaction,transition,npc,dust,screenFilter,effectOrder,projection;
+        int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false,musicField=false,musicJingle=false,musicNight=false,interactionWide=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,cameraSchedule,music,movement,interaction,transition,npc,wander,dust,screenFilter,effectOrder,projection;
         for (int i=3;i<argc;++i) {
             const std::string arg=argv[i];
             if (arg=="--load") load=true;
@@ -118,6 +119,10 @@ int main(int argc,char** argv) {
             else if (arg=="--dialogue" && i+1<argc) dialogue=argv[++i];
             else if (arg=="--text" && i+1<argc) text=argv[++i];
             else if (arg=="--npc" && i+1<argc) npc=argv[++i];
+            else if (arg=="--wander" && i+1<argc) {
+                if(!wander.empty())throw std::runtime_error("Duplicate wander trace output");
+                wander=argv[++i];if(wander.empty())throw std::runtime_error("Empty wander trace output");
+            }
             else if (arg=="--actor" && i+1<argc) actor=argv[++i];
             else if (arg=="--actor-alias" && i+1<argc) actorAlias=std::stoi(argv[++i]);
             else if (arg=="--camera-schedule" && i+1<argc) cameraSchedule=argv[++i];
@@ -176,6 +181,7 @@ int main(int argc,char** argv) {
         };
         if(!capture.empty())for(const auto* suffix:{".json",".layer0.png",".layer1.png"})vacant(capture+suffix);
         if(!audioIndex.empty())vacant(audioIndex);
+        if(!wander.empty())vacant(wander);
         if(!captureFrames.empty())vacant(captureDirectory);
         const auto disc=std::filesystem::absolute(argv[1]);
         if (!std::filesystem::is_regular_file(disc)) throw std::runtime_error("Disc input missing");
@@ -198,6 +204,7 @@ int main(int argc,char** argv) {
         auto screenFilterTrace=screenFilter.empty() ? nullptr : std::make_unique<ScreenFilterTrace>(screenFilter);
         auto cameraTrace=camera.empty() ? nullptr : std::make_unique<CameraTrace>(camera);
         auto npcTrace=npc.empty() ? nullptr : std::make_unique<NpcTrace>(npc);
+        auto wanderTrace=wander.empty() ? nullptr : std::make_unique<WanderTrace>(wander);
         auto actorTrace=actor.empty() ? nullptr : std::make_unique<ActorTrace>(actor,actorAlias);
         auto dustTrace=dust.empty() ? nullptr : std::make_unique<DustTrace>(dust);
         auto transitionTrace=transition.empty() ? nullptr : std::make_unique<TransitionTrace>(transition);
@@ -208,7 +215,7 @@ int main(int argc,char** argv) {
         auto orderTrace=order.empty() ? nullptr : std::make_unique<OrderTrace>(order);
         auto effectOrderTrace=effectOrder.empty() ? nullptr : std::make_unique<EffectOrderTrace>(effectOrder);
         auto projectionTrace=projection.empty() ? nullptr : std::make_unique<ProjectionTrace>(projection);
-        const bool tracing=bool(projectionTrace) || bool(effectOrderTrace) || traceLoaders || bool(cameraScheduleTrace) || bool(screenFilterTrace) || bool(dustTrace) || bool(npcTrace) || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace) || bool(cameraTrace) || bool(actorTrace) || bool(movementTrace) || bool(interactionTrace) || bool(transitionTrace) || bool(lifecycleTrace) || bool(orderTrace) || !music.empty();
+        const bool tracing=bool(projectionTrace) || bool(effectOrderTrace) || traceLoaders || bool(cameraScheduleTrace) || bool(screenFilterTrace) || bool(dustTrace) || bool(npcTrace) || bool(wanderTrace) || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace) || bool(cameraTrace) || bool(actorTrace) || bool(movementTrace) || bool(interactionTrace) || bool(transitionTrace) || bool(lifecycleTrace) || bool(orderTrace) || !music.empty();
         // An exclusive fresh directory prevents image/manifest reuse across runs.
         if(!captureFrames.empty() && !std::filesystem::create_directory(captureDirectory))
             throw std::runtime_error("Could not create fresh selected-frame capture directory");
@@ -283,6 +290,7 @@ int main(int argc,char** argv) {
         if(cameraTrace)for(auto at:CameraTrace::breakpoints)loaders.push_back(at);
         if(actorTrace)for(auto at:actorTrace->breakpoints())loaders.push_back(at);
         if(npcTrace)for(auto at:NpcTrace::breakpoints)loaders.push_back(at);
+        if(wanderTrace)for(auto at:WanderTrace::breakpoints)loaders.push_back(at);
         if(dustTrace)for(auto at:DustTrace::breakpoints)loaders.push_back(at);
         if(transitionTrace)for(auto at:TransitionTrace::breakpoints)loaders.push_back(at);
         if(interactionTrace)for(auto at:InteractionTrace::breakpoints)loaders.push_back(at);
@@ -342,6 +350,8 @@ int main(int argc,char** argv) {
                 if(observingCameraSchedule)cameraScheduleTrace->observe(*vm.m_ee,frames);
                 const bool observingNpc=npcTrace&&std::find(NpcTrace::breakpoints.begin(),NpcTrace::breakpoints.end(),pc)!=NpcTrace::breakpoints.end();
                 if(observingNpc)npcTrace->observe(*vm.m_ee,frames);
+                const bool observingWander=wanderTrace&&std::find(WanderTrace::breakpoints.begin(),WanderTrace::breakpoints.end(),pc)!=WanderTrace::breakpoints.end();
+                if(observingWander){wanderTrace->observe(*vm.m_ee,frames);vm.Resume();continue;}
                 const bool observingActor=actorTrace&&std::find(actorTrace->breakpoints().begin(),actorTrace->breakpoints().end(),pc)!=actorTrace->breakpoints().end();
                 // Observe before another subscriber resumes a shared field BP.
                 if(observingActor)actorTrace->observe(*vm.m_ee,frames);
@@ -423,6 +433,7 @@ int main(int argc,char** argv) {
                  <<" gs_vertices="<<traffic.vertices<<" uploads="<<traffic.uploads<<std::endl;
         if(actorTrace)actorTrace->finish();
         if(npcTrace)npcTrace->finish();
+        if(wanderTrace)wanderTrace->finish();
         if(transitionTrace)transitionTrace->finish();
         if(dustTrace)dustTrace->finish();
         if(effectOrderTrace)effectOrderTrace->finish();

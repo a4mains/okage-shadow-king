@@ -1,6 +1,8 @@
 #include "okage/enemy.hpp"
 #include <cfenv>
 #include <cmath>
+#include <bit>
+#include <limits>
 #include <stdexcept>
 #pragma STDC FENV_ACCESS ON
 #pragma STDC FP_CONTRACT OFF
@@ -69,5 +71,32 @@ EnemyActions EncounterEnemy::tick(const EnemyObservation& in,const std::function
     (*out.displacement)[3]=in.player_position[3]*speed;
     if(--counter==0)counter=-1;
     return out;
+}
+Float4 WanderingNpc::begin_leg(const Float4& position,float target_w,
+                              const std::function<std::uint32_t()>& random,const AtanTable& angles) {
+    Rounding rounding;
+    if(counter>0||!random||!std::isfinite(target_w))throw std::runtime_error("Invalid wander leg initialization");
+    for(float value:position)if(!std::isfinite(value))throw std::runtime_error("Invalid wander position");
+    // 0x137eb8/0x137ee0: world-space destinations, two shared RNG calls.
+    const auto x=random(),z=random();
+    if(x>0x7fffffffu||z>0x7fffffffu)throw std::runtime_error("Invalid shared wander RNG result");
+    const Float4 target{float(int(x%100)-50),0,float(int(z%100)-50),target_w};
+    Float4 delta;for(unsigned k=0;k<4;++k)delta[k]=target[k]-position[k];
+    const float distance=std::sqrt(delta[0]*delta[0]+delta[2]*delta[2]);
+    if(!std::isfinite(distance)||distance>=67108864.f)throw std::runtime_error("Wander duration overflow");
+    counter=std::int32_t(distance)*32;
+    const float reciprocal=counter?1.f/float(counter):std::numeric_limits<float>::max();
+    velocity=delta;for(unsigned k=0;k<3;++k)velocity[k]=delta[k]*reciprocal;
+    Float4 rotation{camera_angle(-delta[1],distance,angles),camera_angle(delta[0],delta[2],angles),0,1};
+    rotation[1]+=.5f;while(rotation[1]>1.f)rotation[1]-=1.f;
+    return rotation;
+}
+void WanderingNpc::finish_move(const Float4& before,const Float4& after) {
+    Rounding rounding;
+    if(counter<=0)throw std::runtime_error("Wander movement without a live leg");
+    Float4 delta;for(unsigned k=0;k<4;++k)delta[k]=before[k]-after[k];
+    const float moved=(delta[0]*delta[0]+delta[1]*delta[1])+delta[2]*delta[2];
+    if(moved<__builtin_bit_cast(float, (0x3a03126fu)))counter=0;
+    --counter;
 }
 }

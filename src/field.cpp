@@ -238,6 +238,7 @@ void OpeningField::initialize_npcs() {
         if(!random_value)throw std::runtime_error("NPC construction requires the shared game RNG");
         const auto cooldown=EncounterEnemy::initial_cooldown(random_value(),definition_->type==2?2:0);
         enemies_.push_back(npc.state==5?std::optional<EncounterEnemy>({0,cooldown,-.2f}):std::nullopt);
+        wanderers_.push_back(npc.state==1?std::make_optional<WanderingNpc>():std::nullopt);
         actor(npc.alias)->encounter_model=npc.model=="rkumo"||npc.model=="wkumo"||npc.model=="bkumo";
     }
 }
@@ -245,6 +246,28 @@ void OpeningField::update_npcs() {
     if(!definition_)return;
     Rounding rounding;
     for(std::size_t index=0;index<enemies_.size();++index) {
+        if(wanderers_[index]&&definition_->npcs[index].state==1) {
+            auto& wander=*wanderers_[index];const auto alias=definition_->npcs[index].alias;
+            auto* object=actor(alias);auto& animation=object->animation();
+            if(observe_wander)observe_wander(alias,false,wander,animation);
+            const auto before=animation.values().at(1);
+            if(wander.counter<=0) {
+                const auto facing=wander.begin_leg(before,0,random_value,angles_);
+                object->select_motion(2);animation.set_channel(0,facing);
+            } else {
+                if(!collision_)throw std::runtime_error("Wandering NPC requires field collision");
+                sync_collision_positions();const auto body_index=actor_collision_indices_.at(index);
+                auto desired=before;for(unsigned k=0;k<4;++k)desired[k]+=wander.velocity[k];
+                MapCollisionSettings settings;settings.wall_iterations=3;settings.disabled_mask=collision_mask->bits;
+                const bool corrected=resolve_collision(*collision_,bodies_,body_index,desired,settings,__builtin_bit_cast(float, (0x3efff17du)));
+                if(!corrected||!(bodies_[body_index].flags&1)||desired[3]!=1)
+                    throw std::runtime_error("Uncorrected NPC wander W semantics are unrecovered");
+                bodies_[body_index].position=desired;commit_collision_positions(body_index);
+                wander.finish_move(before,animation.values().at(1));
+            }
+            if(observe_wander)observe_wander(alias,true,wander,animation);
+            continue;
+        }
         if(!enemies_[index])continue;
         auto* object=actor(definition_->npcs[index].alias);auto* hero=actor(-1);
         const auto& channel=object->animation().values();const auto& player=hero->animation().values();
@@ -322,6 +345,8 @@ void OpeningField::interact(ExplorationInput input) {
     auto* npc=actor(selected->alias);alias7_actor_=npc;
     if(set_instance_alias)set_instance_alias(-7,npc);
     npc->select_motion(3);selected->state=3;
+    const auto selected_index=std::size_t(selected-definition_->npcs.data());
+    if(wanderers_[selected_index])wanderers_[selected_index]->counter=-1;
     if(get_variable(0x40005)==0) {
         const auto p=npc->animation().values().at(1);
         npc->animation().set_channel(0,{0,camera_angle(-(p[0]-position[0]),-(p[2]-position[2]),angles_)+.5f,0,0});
@@ -461,7 +486,7 @@ void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned
     const auto placement=field_entrance(stg,entrance);
     for(const auto& npc:definition.npcs) {
         auto* object=actor(npc.alias);
-        if(!object||(npc.state!=0&&npc.state!=5)||(npc.flags&~15u))
+        if(!object||(npc.state!=0&&npc.state!=1&&npc.state!=5)||(npc.flags&~15u))
             throw std::runtime_error("Unrecovered field NPC construction: alias="+std::to_string(npc.alias)+
                 " model="+npc.model+" state="+std::to_string(npc.state)+" flags="+std::to_string(npc.flags)+
                 " bound="+std::to_string(object!=nullptr));

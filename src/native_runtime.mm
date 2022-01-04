@@ -79,6 +79,7 @@ struct Session {
     okage::FrameFeedback feedback;
     std::optional<okage::Texture> rendered_surface;
     std::vector<std::uint32_t> filter_trace;
+    std::vector<std::uint32_t> wander_trace;
     std::unique_ptr<okage::MusicRouter> music;
     std::unique_ptr<okage::AudioOutput> audio_output;
     std::vector<std::int16_t> audio_capture;
@@ -287,6 +288,13 @@ struct Session {
         };
         if(map_objects)field->bind_map_scene(*map_objects);
         field->random_value=[this]{return random.next();};
+        field->observe_wander=[this](int alias,bool after,const okage::WanderingNpc& npc,const okage::Animation& animation) {
+            const auto channels=animation.channel_outputs();
+            wander_trace.insert(wander_trace.end(),{frame,std::uint32_t(okage::event_variable(variables,0x40000)),
+                __builtin_bit_cast(std::uint32_t, (alias)),unsigned(after),__builtin_bit_cast(std::uint32_t, (npc.counter)),random.state,unsigned(channels.size())});
+            for(float value:npc.velocity)wander_trace.push_back(__builtin_bit_cast(std::uint32_t, (value)));
+            for(const auto& channel:channels)for(float value:channel)wander_trace.push_back(__builtin_bit_cast(std::uint32_t, (value)));
+        };
         field->exterior_camera=&exterior_camera;
         field->collision_mask=&collision_mask;
         field->set_variable=[this](unsigned index,unsigned bank,std::int32_t value){okage::set_event_variable(variables,index,bank,value);};
@@ -679,6 +687,13 @@ static void capture(const Session& session,const fs::path& path) {
     const auto data=[bitmap(session.surface()) representationUsingType:NSBitmapImageFileTypePNG properties:@{}];
     std::ofstream out(path,std::ios::binary);if(!data || !out.write(static_cast<const char*>(data.bytes),data.length))throw std::runtime_error("Cannot write native capture");
     std::ofstream state(statePath);
+    if(!session.wander_trace.empty()) {
+        const auto output=fs::path(path.string()+".wander.bin");
+        if(fs::exists(output)||fs::is_symlink(output))throw std::runtime_error("Refusing existing wander capture");
+        std::ofstream wander(output,std::ios::binary);
+        if(!wander.write(reinterpret_cast<const char*>(session.wander_trace.data()),session.wander_trace.size()*4))
+            throw std::runtime_error("Cannot write wander capture");
+    }
     if(!session.projection_trace.empty()) {
         std::ofstream projection(path.string()+".projection.bin",std::ios::binary);
         if(!projection.write(reinterpret_cast<const char*>(session.projection_trace.data()),session.projection_trace.size()*4))
@@ -698,6 +713,7 @@ static void capture(const Session& session,const fs::path& path) {
         if(!effects.write(reinterpret_cast<const char*>(session.effect_trace.data()),session.effect_trace.size()*4))throw std::runtime_error("Cannot write effect trace");
     }
     state<<"{\n  \"frames\": "<<session.frame<<",\n  \"message_id\": "<<session.message_id
+         <<",\n  \"rng_state\": "<<session.random.state
          <<",\n  \"messages_started\": "<<session.messages_started<<",\n  \"text_progress\": "<<session.text.state.progress
          <<",\n  \"advance_count\": "<<session.controller.advance_count<<",\n  \"wait_release_frame\": "<<session.release_frame
          <<",\n  \"controller_stage\": "<<session.controller.stage<<",\n  \"unimplemented_service_requests\": "<<session.service_request_count
