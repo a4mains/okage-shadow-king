@@ -49,6 +49,12 @@ def main():
         check(['--wander', str(wander)], 'Disc input missing')
         wander.touch()
         check(['--wander', str(wander)], 'Refusing existing reference output')
+        rng = root / 'shared-rng.jsonl'
+        check(['--rng'], 'Unknown boot argument')
+        check(['--rng', str(rng), '--rng', str(rng)], 'Duplicate RNG')
+        check(['--rng', str(rng)], 'Disc input missing')
+        rng.touch()
+        check(['--rng', str(rng)], 'Refusing existing reference output')
     print('Capture argument tests passed; no VM constructed.')
 
 if __name__ == '__main__':

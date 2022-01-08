@@ -70,8 +70,21 @@ int main(){try {
     check(sphere.hit&&sphere.material==11&&sphere.correction[0]<-.9f&&sphere.correction[3]==1);
     const auto sphere_edge=wall.sphere_wall_contact({2,4,-1,1},{3,4,-1,1},{0,0,0,1},1.9f,8190);
     check(sphere_edge.hit&&sphere_edge.correction[0]<0&&sphere_edge.correction[2]<0);
+    auto zero_normal=wall;
+    zero_normal.chunks[0].polygons[0].words[3]=0;
+    check(!zero_normal.sphere_wall_contact({2,4,4,1},{3,4,4,1},{0,0,0,1},1.9f,8190).hit);
+    check(!zero_normal.sphere_wall_contact({3,4,4,1},{3,4,4,1},{0,0,0,1},1.9f,8190).hit);
+    // Reject only the failed plane, retaining the next valid wall candidate.
+    zero_normal.chunks[0].polygons.push_back(wall.chunks[0].polygons[0]);
+    const auto after_zero=zero_normal.sphere_wall_contact({2,4,4,1},{3,4,4,1},{0,0,0,1},1.9f,8190);
+    check(after_zero.hit&&after_zero.polygon==1&&after_zero.correction==sphere.correction);
     rejects([&]{wall.sphere_wall_contact({},{},{},-1,8190);});
     const okage::CollisionCapsule capsule{{0,2.5f,0,1},{0,5,0,1},1.9f};
+    auto capsule_zero=wall;
+    capsule_zero.chunks[0].polygons[0].words[3]=0;
+    rejects([&]{capsule_zero.capsule_wall_contact({0,0,4,1},{1,0,4,1},capsule,8190);});
+    capsule_zero.chunks[0].polygons.insert(capsule_zero.chunks[0].polygons.begin(),wall.chunks[0].polygons[0]);
+    check(!capsule_zero.capsule_wall_contact({0,0,4,1},{1,0,4,1},capsule,8190).hit);
     const auto face=wall.capsule_wall_contact({2,0,4,1},{2.5f,0,4,1},capsule,8190);
     check(face.hit&&face.material==11&&face.correction[0]<-.4009f&&face.correction[0]>-.4011f);
     check(face.correction[1]==0&&face.correction[2]==0&&face.correction[3]==0&&face.normal[0]==-1);

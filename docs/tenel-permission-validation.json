@@ -1,0 +1,1530 @@
+{
+  "schema_version": 1,
+  "status": "Integrated collision fixes and RNG observer; full port incomplete; fixed route discrepancies retained",
+  "created_utc": "2022-01-08T09:11:42.477547+00:00",
+  "root_head": "9c2f78fd00058d295194b82f9937438d6eaf8020",
+  "source_state": "Source hashes identify the integrated source snapshot on the recorded base commit. Historical run binary hashes remain independently recorded.",
+  "exact_father_segment": {
+    "first_tick": 97716,
+    "last_tick": 98615,
+    "ticks": 900,
+    "conditional_controller_samples": 825,
+    "hero_and_camera_maximum_error": 0,
+    "excluded": [
+      "NPC trajectories",
+      "shared RNG state/caller sequence",
+      "rendering",
+      "audio",
+      "all other unobserved state"
+    ]
+  },
+  "intervals": [
+    {
+      "name": "tenel-father-approach-summary",
+      "summary": "local/research/post-jam-route-v1/tenel-father-approach-summary.json",
+      "report": "local/research/post-jam-route-v1/tenel-father-approach-interval.json",
+      "first_tick": 97716,
+      "last_tick": 97775,
+      "ticks": 60,
+      "controller_samples": 0,
+      "compared_observables_agree": true,
+      "complete_original_observation_coverage": true,
+      "coverage": {
+        "manager": {
+          "expected_frames": 60,
+          "observed_frames": 60
+        },
+        "camera": {
+          "expected_frames": 60,
+          "observed_frames": 60
+        },
+        "player": {
+          "expected_frames": 60,
+          "observed_frames": 60
+        }
+      },
+      "first_difference": null,
+      "differing_frames": 0,
+      "category_frame_counts": {
+        "controller": 0,
+        "choice": 0,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "direction_latch": 0,
+        "player_mask": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "camera_rotation": 0,
+        "camera_mode_phase": 0,
+        "camera_position": 0,
+        "camera_unblended_target": 0
+      },
+      "missing_manager_ranges": [],
+      "missing_camera_ranges": [],
+      "missing_player_ranges": [],
+      "hero_max_error": 0.0,
+      "camera_max_error": 0.0,
+      "original_binary_sha256": "9f48f2c0d8933468073333ea14800514874b42c9cf21f153f5186dcf7a3dc195",
+      "native_binary_sha256": "763bcec376bb1b876c322c4f171b40ab4f579404751a725f2d0d64c63b9a63b4"
+    },
+    {
+      "name": "tenel-father-talk-summary",
+      "summary": "local/research/post-jam-route-v1/tenel-father-talk-summary.json",
+      "report": "local/research/post-jam-route-v1/tenel-father-talk-interval.json",
+      "first_tick": 97776,
+      "last_tick": 97955,
+      "ticks": 180,
+      "controller_samples": 169,
+      "compared_observables_agree": true,
+      "complete_original_observation_coverage": true,
+      "coverage": {
+        "manager": {
+          "expected_frames": 180,
+          "observed_frames": 180
+        },
+        "camera": {
+          "expected_frames": 180,
+          "observed_frames": 180
+        },
+        "player": {
+          "expected_frames": 180,
+          "observed_frames": 180
+        }
+      },
+      "first_difference": null,
+      "differing_frames": 0,
+      "category_frame_counts": {
+        "controller": 0,
+        "choice": 0,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "direction_latch": 0,
+        "player_mask": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "camera_rotation": 0,
+        "camera_mode_phase": 0,
+        "camera_position": 0,
+        "camera_unblended_target": 0
+      },
+      "missing_manager_ranges": [],
+      "missing_camera_ranges": [],
+      "missing_player_ranges": [],
+      "hero_max_error": 0.0,
+      "camera_max_error": 0.0,
+      "original_binary_sha256": "9f48f2c0d8933468073333ea14800514874b42c9cf21f153f5186dcf7a3dc195",
+      "native_binary_sha256": "763bcec376bb1b876c322c4f171b40ab4f579404751a725f2d0d64c63b9a63b4"
+    },
+    {
+      "name": "tenel-father-more-summary",
+      "summary": "local/research/post-jam-route-v1/tenel-father-more-summary.json",
+      "report": "local/research/post-jam-route-v1/tenel-father-more-interval.json",
+      "first_tick": 97956,
+      "last_tick": 98135,
+      "ticks": 180,
+      "controller_samples": 180,
+      "compared_observables_agree": true,
+      "complete_original_observation_coverage": true,
+      "coverage": {
+        "manager": {
+          "expected_frames": 180,
+          "observed_frames": 180
+        },
+        "camera": {
+          "expected_frames": 180,
+          "observed_frames": 180
+        },
+        "player": {
+          "expected_frames": 180,
+          "observed_frames": 180
+        }
+      },
+      "first_difference": null,
+      "differing_frames": 0,
+      "category_frame_counts": {
+        "controller": 0,
+        "choice": 0,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "direction_latch": 0,
+        "player_mask": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "camera_rotation": 0,
+        "camera_mode_phase": 0,
+        "camera_position": 0,
+        "camera_unblended_target": 0
+      },
+      "missing_manager_ranges": [],
+      "missing_camera_ranges": [],
+      "missing_player_ranges": [],
+      "hero_max_error": 0.0,
+      "camera_max_error": 0.0,
+      "original_binary_sha256": "9f48f2c0d8933468073333ea14800514874b42c9cf21f153f5186dcf7a3dc195",
+      "native_binary_sha256": "763bcec376bb1b876c322c4f171b40ab4f579404751a725f2d0d64c63b9a63b4"
+    },
+    {
+      "name": "tenel-father-orders-summary",
+      "summary": "local/research/post-jam-route-v1/tenel-father-orders-summary.json",
+      "report": "local/research/post-jam-route-v1/tenel-father-orders-interval.json",
+      "first_tick": 98136,
+      "last_tick": 98435,
+      "ticks": 300,
+      "controller_samples": 300,
+      "compared_observables_agree": true,
+      "complete_original_observation_coverage": true,
+      "coverage": {
+        "manager": {
+          "expected_frames": 300,
+          "observed_frames": 300
+        },
+        "camera": {
+          "expected_frames": 300,
+          "observed_frames": 300
+        },
+        "player": {
+          "expected_frames": 300,
+          "observed_frames": 300
+        }
+      },
+      "first_difference": null,
+      "differing_frames": 0,
+      "category_frame_counts": {
+        "controller": 0,
+        "choice": 0,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "direction_latch": 0,
+        "player_mask": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "camera_rotation": 0,
+        "camera_mode_phase": 0,
+        "camera_position": 0,
+        "camera_unblended_target": 0
+      },
+      "missing_manager_ranges": [],
+      "missing_camera_ranges": [],
+      "missing_player_ranges": [],
+      "hero_max_error": 0.0,
+      "camera_max_error": 0.0,
+      "original_binary_sha256": "9f48f2c0d8933468073333ea14800514874b42c9cf21f153f5186dcf7a3dc195",
+      "native_binary_sha256": "763bcec376bb1b876c322c4f171b40ab4f579404751a725f2d0d64c63b9a63b4"
+    },
+    {
+      "name": "tenel-father-choice-summary",
+      "summary": "local/research/post-jam-route-v1/tenel-father-choice-summary.json",
+      "report": "local/research/post-jam-route-v1/tenel-father-choice-interval.json",
+      "first_tick": 98436,
+      "last_tick": 98615,
+      "ticks": 180,
+      "controller_samples": 176,
+      "compared_observables_agree": true,
+      "complete_original_observation_coverage": true,
+      "coverage": {
+        "manager": {
+          "expected_frames": 180,
+          "observed_frames": 180
+        },
+        "camera": {
+          "expected_frames": 180,
+          "observed_frames": 180
+        },
+        "player": {
+          "expected_frames": 180,
+          "observed_frames": 180
+        }
+      },
+      "first_difference": null,
+      "differing_frames": 0,
+      "category_frame_counts": {
+        "controller": 0,
+        "choice": 0,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "direction_latch": 0,
+        "player_mask": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "camera_rotation": 0,
+        "camera_mode_phase": 0,
+        "camera_position": 0,
+        "camera_unblended_target": 0
+      },
+      "missing_manager_ranges": [],
+      "missing_camera_ranges": [],
+      "missing_player_ranges": [],
+      "hero_max_error": 0.0,
+      "camera_max_error": 0.0,
+      "original_binary_sha256": "db7802dc87d17e828766080b4edbde684a9c657a64f2337266472d910e7e8dd2",
+      "native_binary_sha256": "763bcec376bb1b876c322c4f171b40ab4f579404751a725f2d0d64c63b9a63b4"
+    },
+    {
+      "name": "tenel-office-exit-approach-summary",
+      "summary": "local/research/post-jam-route-v1/tenel-office-exit-approach-summary.json",
+      "report": "local/research/post-jam-route-v1/tenel-office-exit-approach-interval.json",
+      "first_tick": 98616,
+      "last_tick": 98795,
+      "ticks": 180,
+      "controller_samples": 0,
+      "compared_observables_agree": false,
+      "complete_original_observation_coverage": true,
+      "coverage": {
+        "manager": {
+          "expected_frames": 180,
+          "observed_frames": 180
+        },
+        "camera": {
+          "expected_frames": 180,
+          "observed_frames": 180
+        },
+        "player": {
+          "expected_frames": 180,
+          "observed_frames": 180
+        }
+      },
+      "first_difference": {
+        "original_frame": 9,
+        "native_simulation_tick": 98625,
+        "categories": [
+          "hero_position",
+          "camera_rotation",
+          "camera_position",
+          "camera_unblended_target"
+        ]
+      },
+      "differing_frames": 171,
+      "category_frame_counts": {
+        "controller": 0,
+        "choice": 0,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "direction_latch": 0,
+        "player_mask": 0,
+        "hero_facing_w": 170,
+        "hero_position": 171,
+        "camera_rotation": 171,
+        "camera_mode_phase": 0,
+        "camera_position": 171,
+        "camera_unblended_target": 171
+      },
+      "missing_manager_ranges": [],
+      "missing_camera_ranges": [],
+      "missing_player_ranges": [],
+      "hero_max_error": 0.7432422675192356,
+      "camera_max_error": 0.3671131134033203,
+      "original_binary_sha256": "db7802dc87d17e828766080b4edbde684a9c657a64f2337266472d910e7e8dd2",
+      "native_binary_sha256": "763bcec376bb1b876c322c4f171b40ab4f579404751a725f2d0d64c63b9a63b4"
+    },
+    {
+      "name": "leave-summary-v2",
+      "summary": "local/research/office-exit-collision-v1/leave-summary-v2.json",
+      "report": "local/research/office-exit-collision-v1/leave-interval-v2.json",
+      "first_tick": 98796,
+      "last_tick": 99095,
+      "ticks": 300,
+      "controller_samples": 0,
+      "compared_observables_agree": false,
+      "complete_original_observation_coverage": false,
+      "coverage": {
+        "manager": {
+          "expected_frames": 300,
+          "observed_frames": 298
+        },
+        "camera": {
+          "expected_frames": 300,
+          "observed_frames": 298
+        },
+        "player": {
+          "expected_frames": 300,
+          "observed_frames": 142
+        }
+      },
+      "first_difference": {
+        "original_frame": 0,
+        "native_simulation_tick": 98796,
+        "categories": [
+          "hero_facing_w",
+          "hero_position",
+          "camera_rotation",
+          "camera_position"
+        ]
+      },
+      "differing_frames": 298,
+      "category_frame_counts": {
+        "controller": 0,
+        "choice": 0,
+        "manager_running_pc_gate": 216,
+        "pad_latch": 0,
+        "direction_latch": 0,
+        "player_mask": 61,
+        "hero_facing_w": 20,
+        "hero_position": 20,
+        "camera_rotation": 298,
+        "camera_mode_phase": 219,
+        "camera_position": 298,
+        "camera_unblended_target": 17
+      },
+      "missing_manager_ranges": [
+        {
+          "original_start_frame": 20,
+          "original_end_frame": 21,
+          "native_tick_start": 98816,
+          "native_tick_end": 98817,
+          "frames": 2
+        }
+      ],
+      "missing_camera_ranges": [
+        {
+          "original_start_frame": 20,
+          "original_end_frame": 21,
+          "native_tick_start": 98816,
+          "native_tick_end": 98817,
+          "frames": 2
+        }
+      ],
+      "missing_player_ranges": [
+        {
+          "original_start_frame": 22,
+          "original_end_frame": 177,
+          "native_tick_start": 98818,
+          "native_tick_end": 98973,
+          "frames": 156
+        }
+      ],
+      "hero_max_error": 0.7375835478305817,
+      "camera_max_error": 442.4461364746094,
+      "original_binary_sha256": "db7802dc87d17e828766080b4edbde684a9c657a64f2337266472d910e7e8dd2",
+      "native_binary_sha256": "aaf76c13ff30e8ee14f57da0a18f4385dbfb15ea4701e106f45808c7c9eabc01"
+    },
+    {
+      "name": "tenel-plaza-return-summary",
+      "summary": "local/research/post-jam-route-v1/tenel-plaza-return-summary.json",
+      "report": "local/research/post-jam-route-v1/tenel-plaza-return-interval.json",
+      "first_tick": 99096,
+      "last_tick": 99275,
+      "ticks": 180,
+      "controller_samples": 0,
+      "compared_observables_agree": false,
+      "complete_original_observation_coverage": true,
+      "coverage": {
+        "manager": {
+          "expected_frames": 180,
+          "observed_frames": 180
+        },
+        "camera": {
+          "expected_frames": 180,
+          "observed_frames": 180
+        },
+        "player": {
+          "expected_frames": 180,
+          "observed_frames": 180
+        }
+      },
+      "first_difference": {
+        "original_frame": 0,
+        "native_simulation_tick": 99096,
+        "categories": [
+          "camera_rotation",
+          "camera_mode_phase",
+          "camera_position"
+        ]
+      },
+      "differing_frames": 180,
+      "category_frame_counts": {
+        "controller": 0,
+        "choice": 0,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "direction_latch": 0,
+        "player_mask": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "camera_rotation": 180,
+        "camera_mode_phase": 36,
+        "camera_position": 180,
+        "camera_unblended_target": 0
+      },
+      "missing_manager_ranges": [],
+      "missing_camera_ranges": [],
+      "missing_player_ranges": [],
+      "hero_max_error": 0.0,
+      "camera_max_error": 13.999229431152344,
+      "original_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+      "native_binary_sha256": "aaf76c13ff30e8ee14f57da0a18f4385dbfb15ea4701e106f45808c7c9eabc01"
+    },
+    {
+      "name": "church-approach-summary-v3",
+      "summary": "local/research/office-exit-collision-v1/church-approach-summary-v3.json",
+      "report": "local/research/office-exit-collision-v1/church-approach-interval-v3.json",
+      "first_tick": 99276,
+      "last_tick": 99455,
+      "ticks": 180,
+      "controller_samples": 0,
+      "compared_observables_agree": false,
+      "complete_original_observation_coverage": true,
+      "coverage": {
+        "manager": {
+          "expected_frames": 180,
+          "observed_frames": 180
+        },
+        "camera": {
+          "expected_frames": 180,
+          "observed_frames": 180
+        },
+        "player": {
+          "expected_frames": 180,
+          "observed_frames": 180
+        }
+      },
+      "first_difference": {
+        "original_frame": 0,
+        "native_simulation_tick": 99276,
+        "categories": [
+          "camera_rotation",
+          "camera_position"
+        ]
+      },
+      "differing_frames": 180,
+      "category_frame_counts": {
+        "controller": 0,
+        "choice": 0,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "direction_latch": 0,
+        "player_mask": 0,
+        "hero_facing_w": 162,
+        "hero_position": 170,
+        "camera_rotation": 180,
+        "camera_mode_phase": 0,
+        "camera_position": 180,
+        "camera_unblended_target": 169
+      },
+      "missing_manager_ranges": [],
+      "missing_camera_ranges": [],
+      "missing_player_ranges": [],
+      "hero_max_error": 0.00716400146484375,
+      "camera_max_error": 0.0614471435546875,
+      "original_binary_sha256": "db7802dc87d17e828766080b4edbde684a9c657a64f2337266472d910e7e8dd2",
+      "native_binary_sha256": "b7ede03596c778d35599b2d93dea0636fa04fc93191355e071d8518bad2c948e"
+    },
+    {
+      "name": "tenel-church-talk-summary",
+      "summary": "local/research/post-jam-route-v1/tenel-church-talk-summary.json",
+      "report": "local/research/post-jam-route-v1/tenel-church-talk-interval.json",
+      "first_tick": 99456,
+      "last_tick": 99635,
+      "ticks": 180,
+      "controller_samples": 119,
+      "compared_observables_agree": false,
+      "complete_original_observation_coverage": true,
+      "coverage": {
+        "manager": {
+          "expected_frames": 180,
+          "observed_frames": 180
+        },
+        "camera": {
+          "expected_frames": 180,
+          "observed_frames": 180
+        },
+        "player": {
+          "expected_frames": 180,
+          "observed_frames": 180
+        }
+      },
+      "first_difference": {
+        "original_frame": 0,
+        "native_simulation_tick": 99456,
+        "categories": [
+          "hero_facing_w",
+          "hero_position",
+          "camera_rotation",
+          "camera_position"
+        ]
+      },
+      "differing_frames": 180,
+      "category_frame_counts": {
+        "controller": 0,
+        "choice": 0,
+        "manager_running_pc_gate": 0,
+        "pad_latch": 0,
+        "direction_latch": 0,
+        "player_mask": 0,
+        "hero_facing_w": 21,
+        "hero_position": 180,
+        "camera_rotation": 180,
+        "camera_mode_phase": 0,
+        "camera_position": 180,
+        "camera_unblended_target": 0
+      },
+      "missing_manager_ranges": [],
+      "missing_camera_ranges": [],
+      "missing_player_ranges": [],
+      "hero_max_error": 0.005279541015625,
+      "camera_max_error": 0.061946868896484375,
+      "original_binary_sha256": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+      "native_binary_sha256": "b7ede03596c778d35599b2d93dea0636fa04fc93191355e071d8518bad2c948e"
+    }
+  ],
+  "permission": {
+    "report": "local/research/father-fff-validation-v1/permission-findings-v1.json",
+    "before": {
+      "bank1_index22": 0,
+      "bank1_index31": 1,
+      "bank1_index36": 0,
+      "bank4_index10": 3,
+      "bank2_index0": 2
+    },
+    "original_endpoint": {
+      "bank1_index22": 1,
+      "bank1_index31": 1,
+      "bank1_index36": 0,
+      "bank4_index10": 4,
+      "bank2_index0": 2
+    },
+    "native_endpoint": {
+      "bank1_index22": 1,
+      "bank1_index31": 1,
+      "bank1_index36": 0,
+      "bank4_index10": 4,
+      "bank2_index0": 2
+    },
+    "choice_tick": 98452,
+    "branch": 0,
+    "set_consumed_tick": 98526,
+    "bank4_index10_first_post_write_manager_tick": 98527,
+    "FFF_report": "local/research/father-fff-validation-v1/findings-v2.json"
+  },
+  "reached_fixture_comparisons": [
+    {
+      "case": "sphere",
+      "build": "native-release",
+      "command": [
+        "build/native-release/okage-assets",
+        "xcl-camera",
+        "local/xpf-decoded/FLDDATA/MAP/VIL/VSTART_D.XPF/a.xcl",
+        "local/research/office-exit-collision-v1/reached.inputs.bin",
+        "local/research/office-exit-collision-v1/sphere-final-native-release.bin"
+      ],
+      "exact_words": 44,
+      "binary_sha256": "8593bb5246c326acb35e3e2318a49a4d1950d2dda9cd8e8aeac8a8338a4f8071",
+      "original": "local/research/office-exit-collision-v1/reached.original-v2.bin",
+      "retained_bytes_rechecked_exact": true
+    },
+    {
+      "case": "sphere",
+      "build": "native",
+      "command": [
+        "build/native/okage-assets",
+        "xcl-camera",
+        "local/xpf-decoded/FLDDATA/MAP/VIL/VSTART_D.XPF/a.xcl",
+        "local/research/office-exit-collision-v1/reached.inputs.bin",
+        "local/research/office-exit-collision-v1/sphere-final-native.bin"
+      ],
+      "exact_words": 44,
+      "binary_sha256": "7e33539d243d26498cf383215da4a97d53265e6c52112905785c424102b2382d",
+      "original": "local/research/office-exit-collision-v1/reached.original-v2.bin",
+      "retained_bytes_rechecked_exact": true
+    },
+    {
+      "case": "sphere",
+      "build": "model-sanitize",
+      "command": [
+        "build/model-sanitize/okage-assets",
+        "xcl-camera",
+        "local/xpf-decoded/FLDDATA/MAP/VIL/VSTART_D.XPF/a.xcl",
+        "local/research/office-exit-collision-v1/reached.inputs.bin",
+        "local/research/office-exit-collision-v1/sphere-final-model-sanitize.bin"
+      ],
+      "exact_words": 44,
+      "binary_sha256": "67c7eeff3e0416f574bce742d5a24fd0f0409b3054d2e5e995130516ad7d7575",
+      "original": "local/research/office-exit-collision-v1/reached.original-v2.bin",
+      "retained_bytes_rechecked_exact": true
+    },
+    {
+      "case": "capsule",
+      "build": "native-release",
+      "command": [
+        "build/native-release/okage-assets",
+        "xcl-wall",
+        "local/xpf-decoded/FLDDATA/MAP/VIL/VSTART_D.XPF/a.xcl",
+        "local/research/office-exit-collision-v1/capsule-reached.inputs.bin",
+        "local/research/office-exit-collision-v1/capsule-final-native-release.bin"
+      ],
+      "exact_words": 10,
+      "binary_sha256": "8593bb5246c326acb35e3e2318a49a4d1950d2dda9cd8e8aeac8a8338a4f8071",
+      "original": "local/research/office-exit-collision-v1/capsule-reached.original.bin",
+      "retained_bytes_rechecked_exact": true
+    },
+    {
+      "case": "capsule",
+      "build": "native",
+      "command": [
+        "build/native/okage-assets",
+        "xcl-wall",
+        "local/xpf-decoded/FLDDATA/MAP/VIL/VSTART_D.XPF/a.xcl",
+        "local/research/office-exit-collision-v1/capsule-reached.inputs.bin",
+        "local/research/office-exit-collision-v1/capsule-final-native.bin"
+      ],
+      "exact_words": 10,
+      "binary_sha256": "7e33539d243d26498cf383215da4a97d53265e6c52112905785c424102b2382d",
+      "original": "local/research/office-exit-collision-v1/capsule-reached.original.bin",
+      "retained_bytes_rechecked_exact": true
+    },
+    {
+      "case": "capsule",
+      "build": "model-sanitize",
+      "command": [
+        "build/model-sanitize/okage-assets",
+        "xcl-wall",
+        "local/xpf-decoded/FLDDATA/MAP/VIL/VSTART_D.XPF/a.xcl",
+        "local/research/office-exit-collision-v1/capsule-reached.inputs.bin",
+        "local/research/office-exit-collision-v1/capsule-final-model-sanitize.bin"
+      ],
+      "exact_words": 10,
+      "binary_sha256": "67c7eeff3e0416f574bce742d5a24fd0f0409b3054d2e5e995130516ad7d7575",
+      "original": "local/research/office-exit-collision-v1/capsule-reached.original.bin",
+      "retained_bytes_rechecked_exact": true
+    },
+    {
+      "case": "edge",
+      "build": "native-release",
+      "command": [
+        "build/native-release/okage-assets",
+        "xcl-wall",
+        "local/xpf-decoded/FLDDATA/MAP/VIL/VSTART_D.XPF/a.xcl",
+        "local/research/office-exit-collision-v1/edge-reached.inputs.bin",
+        "local/research/office-exit-collision-v1/edge-final-native-release.bin"
+      ],
+      "exact_words": 10,
+      "binary_sha256": "8593bb5246c326acb35e3e2318a49a4d1950d2dda9cd8e8aeac8a8338a4f8071",
+      "original": "local/research/office-exit-collision-v1/edge-reached.original.bin",
+      "retained_bytes_rechecked_exact": true
+    },
+    {
+      "case": "edge",
+      "build": "native",
+      "command": [
+        "build/native/okage-assets",
+        "xcl-wall",
+        "local/xpf-decoded/FLDDATA/MAP/VIL/VSTART_D.XPF/a.xcl",
+        "local/research/office-exit-collision-v1/edge-reached.inputs.bin",
+        "local/research/office-exit-collision-v1/edge-final-native.bin"
+      ],
+      "exact_words": 10,
+      "binary_sha256": "7e33539d243d26498cf383215da4a97d53265e6c52112905785c424102b2382d",
+      "original": "local/research/office-exit-collision-v1/edge-reached.original.bin",
+      "retained_bytes_rechecked_exact": true
+    },
+    {
+      "case": "edge",
+      "build": "model-sanitize",
+      "command": [
+        "build/model-sanitize/okage-assets",
+        "xcl-wall",
+        "local/xpf-decoded/FLDDATA/MAP/VIL/VSTART_D.XPF/a.xcl",
+        "local/research/office-exit-collision-v1/edge-reached.inputs.bin",
+        "local/research/office-exit-collision-v1/edge-final-model-sanitize.bin"
+      ],
+      "exact_words": 10,
+      "binary_sha256": "67c7eeff3e0416f574bce742d5a24fd0f0409b3054d2e5e995130516ad7d7575",
+      "original": "local/research/office-exit-collision-v1/edge-reached.original.bin",
+      "retained_bytes_rechecked_exact": true
+    }
+  ],
+  "regression_reports": [
+    {
+      "report": "local/research/office-exit-collision-v1/map-regression-release-v2/report.json",
+      "queries": 2066,
+      "native_sha256": "8593bb5246c326acb35e3e2318a49a4d1950d2dda9cd8e8aeac8a8338a4f8071",
+      "cases": [
+        {
+          "name": "wall",
+          "count": 408,
+          "exact": true
+        },
+        {
+          "name": "stacked",
+          "count": 408,
+          "exact": true
+        },
+        {
+          "name": "home1c",
+          "count": 1248,
+          "exact": true
+        },
+        {
+          "name": "room",
+          "count": 2,
+          "exact": true
+        }
+      ],
+      "limits": [
+        "other shape types",
+        "point wall contacts",
+        "cached/resumed queries",
+        "undefined normal W",
+        "dynamic actor contacts",
+        "outer registry resolution",
+        "app movement"
+      ]
+    },
+    {
+      "report": "local/research/office-exit-collision-v1/camera-regression-release-v2/report.json",
+      "queries": 228,
+      "native_sha256": "7b52f57c9270b06ff2def82ca5a14685828c008fe7e18cc297b4950d6ccba724",
+      "cases": [
+        {
+          "name": "room",
+          "count": 60,
+          "exact": true
+        },
+        {
+          "name": "outdoor",
+          "count": 168,
+          "exact": true
+        }
+      ],
+      "limits": [
+        "Bounded synthetic inputs, not a complete outdoor camera or scene.",
+        "Normal W is undefined in the original and excluded.",
+        "Original query services are unpatched; no reference RAM is required."
+      ]
+    },
+    {
+      "report": "local/research/office-exit-collision-v1/wall-regression-release/report.json",
+      "queries": 1400,
+      "native_sha256": "8593bb5246c326acb35e3e2318a49a4d1950d2dda9cd8e8aeac8a8338a4f8071",
+      "cases": [
+        {
+          "name": "wall",
+          "count": 280,
+          "exact": true
+        },
+        {
+          "name": "home1c",
+          "count": 1120,
+          "exact": true
+        }
+      ],
+      "limits": [
+        "undefined normal W",
+        "stale failure metadata",
+        "cached/resumed queries",
+        "dynamic actor contacts",
+        "collision composition",
+        "app movement"
+      ]
+    }
+  ],
+  "retained_test_logs": [
+    {
+      "path": "local/research/office-exit-collision-v1/ctest-v1.log",
+      "passed": 23,
+      "source": "Retained CTest log, not newly run."
+    },
+    {
+      "path": "local/research/office-exit-collision-v1/debug-test-v1.log",
+      "passed": 1,
+      "source": "Retained CTest log, not newly run."
+    },
+    {
+      "path": "local/research/office-exit-collision-v1/sanitize-test-v1.log",
+      "passed": 1,
+      "source": "Retained CTest log, not newly run."
+    },
+    {
+      "path": "local/research/office-exit-collision-v1/capsule-ctest-v1.log",
+      "passed": 23,
+      "source": "Retained CTest log, not newly run."
+    },
+    {
+      "path": "local/research/office-exit-collision-v1/capsule-debug-test-v1.log",
+      "passed": 1,
+      "source": "Retained CTest log, not newly run."
+    },
+    {
+      "path": "local/research/office-exit-collision-v1/capsule-sanitize-test-v1.log",
+      "passed": 1,
+      "source": "Retained CTest log, not newly run."
+    },
+    {
+      "path": "local/research/office-exit-collision-v1/edge-ctest-v1.log",
+      "passed": 23,
+      "source": "Retained CTest log, not newly run."
+    },
+    {
+      "path": "local/research/office-exit-collision-v1/edge-debug-test-v1.log",
+      "passed": 1,
+      "source": "Retained CTest log, not newly run."
+    },
+    {
+      "path": "local/research/office-exit-collision-v1/edge-sanitize-test-v1.log",
+      "passed": 1,
+      "source": "Retained CTest log, not newly run."
+    }
+  ],
+  "retained_runs": [
+    {
+      "path": "local/research/office-exit-collision-v1/reached-original.run.json",
+      "command": [
+        "build/play-research/okage-oracle/okage-pose-oracle",
+        "xcl-camera",
+        "local/extracted/SCUS_971.29",
+        "local/xpf-decoded/FLDDATA/ROOM/VIL/VSTART_D.XPF/a.xcl",
+        "local/research/office-exit-collision-v1/reached.inputs.bin",
+        "local/research/office-exit-collision-v1/reached.original.bin"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 1.0788990840000001,
+      "binary_sha256": "f64e497c82b1ab5b7de5645196f532a00e89b094fc6e0535ef0e868e63d05569"
+    },
+    {
+      "path": "local/research/office-exit-collision-v1/reached-original-v2.run.json",
+      "command": [
+        "build/play-research/okage-oracle/okage-pose-oracle",
+        "xcl-camera",
+        "local/extracted/SCUS_971.29",
+        "local/xpf-decoded/FLDDATA/MAP/VIL/VSTART_D.XPF/a.xcl",
+        "local/research/office-exit-collision-v1/reached.inputs.bin",
+        "local/research/office-exit-collision-v1/reached.original-v2.bin"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.043042958,
+      "binary_sha256": "f64e497c82b1ab5b7de5645196f532a00e89b094fc6e0535ef0e868e63d05569"
+    },
+    {
+      "path": "local/research/office-exit-collision-v1/capsule-reached-original.run.json",
+      "command": [
+        "build/play-research/okage-oracle/okage-pose-oracle",
+        "xcl-wall",
+        "local/extracted/SCUS_971.29",
+        "local/xpf-decoded/FLDDATA/MAP/VIL/VSTART_D.XPF/a.xcl",
+        "local/research/office-exit-collision-v1/capsule-reached.inputs.bin",
+        "local/research/office-exit-collision-v1/capsule-reached.original.bin"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.051649375,
+      "binary_sha256": "f64e497c82b1ab5b7de5645196f532a00e89b094fc6e0535ef0e868e63d05569"
+    },
+    {
+      "path": "local/research/office-exit-collision-v1/edge-reached-original.run.json",
+      "command": [
+        "build/play-research/okage-oracle/okage-pose-oracle",
+        "xcl-wall",
+        "local/extracted/SCUS_971.29",
+        "local/xpf-decoded/FLDDATA/MAP/VIL/VSTART_D.XPF/a.xcl",
+        "local/research/office-exit-collision-v1/edge-reached.inputs.bin",
+        "local/research/office-exit-collision-v1/edge-reached.original.bin"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.049108917,
+      "binary_sha256": "f64e497c82b1ab5b7de5645196f532a00e89b094fc6e0535ef0e868e63d05569"
+    },
+    {
+      "path": "local/native-tenel-church-approach-99455-diagnostic-v1.run.json",
+      "exit_code": 1,
+      "binary_sha256": "2a9402553fbb4aede49ac1988b1f3e1a2fde0e494d0259fdc29af4948b6a9621",
+      "last_log_line": "Native frame=99302 field PC=168: Degenerate capsule plane chunk=272 polygon=81 successful_planes=23 threshold=8190 mask=2 radius_word=1072902963 previous 1075628220 3255566601 1132524813 1073741824 desired 1075784344 3255566601 1132523718 1073741824 first 0 3223322624 0 1065353216 second 0 3231711232 0 1065353216"
+    },
+    {
+      "path": "local/native-tenel-church-approach-99455-diagnostic-v2.run.json",
+      "exit_code": 1,
+      "binary_sha256": "9421b16d2afa8a0a956f245eeacfaab2a382bc36695f7ae01e06887169c1ef09",
+      "last_log_line": "Native frame=99320 field PC=176: Degenerate capsule edge chunk=272 polygon=81 edge=0 threshold=8190 mask=2 radius_word=1072902963 previous 1091596470 3255569219 1132207786 1065353216 desired 1091774370 3255569219 1132186134 1065353216 first 0 3223322624 0 1065353216 second 0 3231711232 0 1065353216"
+    },
+    {
+      "path": "local/native-tenel-church-approach-99455-release-v1.run.json",
+      "exit_code": 1,
+      "binary_sha256": "aaf76c13ff30e8ee14f57da0a18f4385dbfb15ea4701e106f45808c7c9eabc01",
+      "last_log_line": "Native frame=99302 field PC=168: Degenerate collision plane"
+    },
+    {
+      "path": "local/native-tenel-church-approach-99455-release-v2.run.json",
+      "exit_code": 1,
+      "binary_sha256": "20677120c6f726b0bf2380451e5bf4647d9b9bd7aeacf711a2362413117a2541",
+      "last_log_line": "Native frame=99320 field PC=176: Degenerate collision line"
+    },
+    {
+      "path": "local/native-tenel-church-approach-99455-release-v3.run.json",
+      "exit_code": 0,
+      "binary_sha256": "b7ede03596c778d35599b2d93dea0636fa04fc93191355e071d8518bad2c948e",
+      "last_log_line": "Native frames=99455 progress=6 wait_release=227"
+    },
+    {
+      "path": "local/native-tenel-church-dialogue-99935-release-v1.run.json",
+      "exit_code": 1,
+      "binary_sha256": "b7ede03596c778d35599b2d93dea0636fa04fc93191355e071d8518bad2c948e",
+      "last_log_line": "Native frame=99868 field PC=3544: Unrecovered field service 57 at PC 3544 (a=14, b=-20)"
+    },
+    {
+      "path": "local/native-tenel-church-talk-99635-release-v1.run.json",
+      "exit_code": 0,
+      "binary_sha256": "b7ede03596c778d35599b2d93dea0636fa04fc93191355e071d8518bad2c948e",
+      "last_log_line": "Native frames=99635 progress=0 wait_release=227"
+    },
+    {
+      "path": "local/native-tenel-office-leave-99095-diagnostic-v1.run.json",
+      "exit_code": 1,
+      "binary_sha256": "fc16c26c8ea1d6927776a09258623aaddd3e59b2eec616f143094f57e96cd55e",
+      "last_log_line": "Native frame=98877 field PC=10480: Degenerate sphere collision plane chunk=272 polygon=81 threshold=8190 mask=2 radius_word=1083179008 previous 1092616192 3259498496 1130430464 1065353216 desired 1092616192 3259498496 1130430464 1065353216 offset 0 0 0 1065353216"
+    },
+    {
+      "path": "local/native-tenel-office-leave-99095-release-v1.run.json",
+      "exit_code": 1,
+      "binary_sha256": "763bcec376bb1b876c322c4f171b40ab4f579404751a725f2d0d64c63b9a63b4",
+      "last_log_line": "Native frame=98877 field PC=10480: Degenerate collision plane"
+    },
+    {
+      "path": "local/native-tenel-office-leave-99095-release-v2.run.json",
+      "exit_code": 0,
+      "binary_sha256": "aaf76c13ff30e8ee14f57da0a18f4385dbfb15ea4701e106f45808c7c9eabc01",
+      "last_log_line": "Native frames=99095 progress=6 wait_release=227"
+    }
+  ],
+  "latest_successful_native_endpoint": {
+    "frames": 99635,
+    "message_id": 14301,
+    "rng_state": 459363799,
+    "messages_started": 86,
+    "text_progress": 0,
+    "advance_count": 0,
+    "wait_release_frame": 227,
+    "controller_stage": 5,
+    "unimplemented_service_requests": 38695,
+    "message_flags": 0,
+    "window_type": 0,
+    "scene_brightness": 1,
+    "narration_cues": 566,
+    "progression_flag_2": 0,
+    "progression_flag_3": 0,
+    "kitchen_flag_7": 1,
+    "progression_flag_4": 0,
+    "progression_flag_5": 0,
+    "field_event_running": true,
+    "field_camera_mode": 2,
+    "interaction_alias": 0,
+    "interaction_event": 11,
+    "loaded_stream_banks": 1,
+    "choice_cursor": 0,
+    "choice_result": 0,
+    "choice_armed": false,
+    "close_frame": 419,
+    "close_wait_release_frame": 422
+  },
+  "latest_original_completed": {
+    "prefix": "local/reference-field1d-tenel-church-dialogue-300-v1",
+    "native_mapping": [
+      99636,
+      99935
+    ],
+    "exit_code": 0,
+    "run_manifest": "local/reference-field1d-tenel-church-dialogue-300-v1.run.json"
+  },
+  "latest_native_guard": {
+    "path": "local/native-tenel-church-dialogue-99935-release-v1.run.json",
+    "exit_code": 1,
+    "binary_sha256": "b7ede03596c778d35599b2d93dea0636fa04fc93191355e071d8518bad2c948e",
+    "last_log_line": "Native frame=99868 field PC=3544: Unrecovered field service 57 at PC 3544 (a=14, b=-20)"
+  },
+  "next_boundary": {
+    "first_uncaptured_original_native_mapping": 99936,
+    "requirement": "Implement/review the reached service57, then replay the existing99636..99935 interval before new original capture. No source implementation claim in this draft."
+  },
+  "rng_observer": {
+    "report": "local/research/rng-initialization-audit-v1/capture-validation-v1.json",
+    "entry_only": true,
+    "recorded_calls": 10378,
+    "adjacent_recurrence_checks": 10377,
+    "adjacent_mismatches": 0,
+    "last_advance_matches_reported_saved_state": true,
+    "saved_archive_hashes_rechecked": true,
+    "RAM_decode_rerun": false,
+    "native_rng_parity": false,
+    "scene_id_proven": false,
+    "observer_source": "tools/play-oracle/reference_rng.hpp"
+  },
+  "verification_performed_now": {
+    "retained_reached_binary_outputs_recompared": 9,
+    "interval_and_evidence_hash_assertions": 238,
+    "unique_paths_checked_against_recorded_hash": 212,
+    "rechecked_original_rng_entry_recurrence": true,
+    "new_build_tests_VM_UI": false
+  },
+  "limitations": [
+    "900 exact ticks apply only to listed observables; they do not establish shared RNG/NPC or full timeline equivalence.",
+    "Later interval failures and missing observations remain failures; no anchor shifts, synthetic padding, seed fitting or captured state imports.",
+    "Source evidence and executed fixture evidence are distinct; limited reached operands do not establish every degenerate collision path.",
+    "Capsule output slots with no demonstrated prior writer remain guarded; sphere edge and other exceptional shapes are not broadly recovered.",
+    "Regression fixtures exclude undefined normal W and other exclusions recorded in their reports.",
+    "The most recent guard prevents full native99636..99935 comparison; original already completed that interval.",
+    "No audio/pixel equivalence or performance claim; diagnostic framebuffer layers are not automatically actual AppKit presentation."
+  ],
+  "sha256": {
+    "local/research/post-jam-route-v1/tenel-father-approach-summary.json": "e00744f886a12a07f9e9270b994720c18bcb9b2b0d149cdaffb2e300d78dc941",
+    "local/research/post-jam-route-v1/tenel-father-approach-interval.json": "f114e5c73ad33e45943f0f4975fb781ff131da14a7c7a4076d5993b886de6d89",
+    "local/reference-field1d-tenel-father-approach-60-v1.run.json": "60565fe7fc5fac21a5b180b6ffe6a4c3b2a7e6178f0003d3cf0e83b559b89039",
+    "local/native-tenel-father-approach-97775-release-v1.run.json": "67760a1a0d41b6d3b7590409d5795b04f6cc0b9b461536516b12c66a23512b27",
+    "local/reference-field1d-tenel-father-approach-60-v1.log": "94f0401e189dbf7fbf8bb4935997ae52cb1304bcf25492db1574a9734ae90070",
+    "local/reference-field1d-tenel-office-enter-300-v1.state.zip": "e1b437ad25c41339f565a8c2332c1f664edfe0344fb58db062459a469bd6d87b",
+    "local/native-tenel-father-approach-97775-release-v1.png.interaction.bin": "e6bf40ac2924f027c017ea43635220c53be4b8ec9ba622b5d2c1f2f3a1d2887a",
+    "local/native-tenel-father-approach-97775-release-v1.png.movement.bin": "0939b7b94b77575203d00a69f52230edcf6cef790da865547e9f112fe73046c8",
+    "local/native-tenel-father-approach-97775-release-v1.png.dialogue.bin": "4fc7a5129f28333b59a776e1e33c8010232bd9146a5d6424a6c592298c522068",
+    "local/native-tenel-father-approach-97775-release-v1.png.choices.bin": "e7058921ae3a681474fe3f8a8c388186d89fbb654480e0db87b660d3ad70529b",
+    "local/native-tenel-father-approach-97775-release-v1.png.camera.bin": "f232311c0ef375a8c3e0771ece44e9dbaa7572519d75ce76edd559e5af49e7cc",
+    "local/native-tenel-father-approach-97775-release-v1.png.camera-state.bin": "ec2fa5d77cebfadf3b9f91866cc4c84ddc62f4561c33e29448731066d8596c73",
+    "local/native-tenel-father-approach-97775-release-v1.png.actor-1.bin": "2118621a7dd9588bc8e2fd0a088223a6191e65abf71623c98605c4836640e738",
+    "local/reference-field1d-tenel-father-approach-60-v1.transition.bin": "4fc467d277f5e26e873f998dd373f3b6502eb65671a368844813e0adc498ca8c",
+    "local/reference-field1d-tenel-father-approach-60-v1.camera.bin": "f3698fbf0f426f6a8ef2ea1a81b17e373b7de8176bfd766352696de08e44b8b5",
+    "local/reference-field1d-tenel-father-approach-60-v1.controller.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/reference-field1d-tenel-father-approach-60-v1.controller.bin.choices.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/post-jam-route-v1/tenel-father-talk-summary.json": "5e2458454728ef93e6ee576d3cbb3e1d3af83ad1cd668e32145cc9a9120b443a",
+    "local/research/post-jam-route-v1/tenel-father-talk-interval.json": "9c0223ec16618c269df169acf84df74ee244de9fa84e5fcd3ae57cc1f2ef9ab1",
+    "local/reference-field1d-tenel-father-talk-180-v1.run.json": "d2982dde9fcd6ed25021509f0d7d9b60c3c552ce965df5c201cf6d9293c39884",
+    "local/native-tenel-father-talk-97955-release-v1.run.json": "e29c1de777a9108f2bcc2d570990bba86d4903fe102c029dc3ae206a7e5f5836",
+    "local/reference-field1d-tenel-father-talk-180-v1.log": "3fb339aa565f4da3544f4c53f62ba03e9cec982b087f73f4138c6aabcf908361",
+    "local/reference-field1d-tenel-father-approach-60-v1.state.zip": "9826e5a0b0228438ebfbd0bdbcc38766fd3839e43993e6aae960265acf8fbd8d",
+    "local/native-tenel-father-talk-97955-release-v1.png.interaction.bin": "1de8ab4ade2fbbc26a7e47b46aad4460a7cce7eb6f06a976bd7df36322172ea6",
+    "local/native-tenel-father-talk-97955-release-v1.png.movement.bin": "cb42c1690b4f8bb4307f7f06eb0fc10853c2bb95dbdfa64c7ec3170eb6ebec9f",
+    "local/native-tenel-father-talk-97955-release-v1.png.dialogue.bin": "2d4f1b7e5564cbce8812d48cbb11b06d2db8910a995a3bc5360386b488e7e1e4",
+    "local/native-tenel-father-talk-97955-release-v1.png.choices.bin": "b1f9499ae203d04a224319ca59ded6157ab2fac1cfe77e60e5aa476f6bf0b2e5",
+    "local/native-tenel-father-talk-97955-release-v1.png.camera.bin": "383dae3421ed25197fcf13e7fab8e41b678be3686c4d03f5f7a8d68d9861db33",
+    "local/native-tenel-father-talk-97955-release-v1.png.camera-state.bin": "0e5838b65f581a5bf4747e8f1461a66606598d5926a5cca2b60b599ff7bf34e7",
+    "local/native-tenel-father-talk-97955-release-v1.png.actor-1.bin": "da146099b33b2950f698976b9f8c18ad1fb905435325aa23ea02b13e47976d48",
+    "local/reference-field1d-tenel-father-talk-180-v1.transition.bin": "a648857ab8f7bf116b1cd5bb7ba502f61498c7ec215583738b30f4891809f820",
+    "local/reference-field1d-tenel-father-talk-180-v1.camera.bin": "d662aa4a8876628f1e431458db9eeea61c14dc1d6794b49150bad56eddc16abb",
+    "local/reference-field1d-tenel-father-talk-180-v1.controller.bin": "67cdeef913a6484fbad5a42156795581f8b1c9d7f382e3b4afcc40912728bb03",
+    "local/reference-field1d-tenel-father-talk-180-v1.controller.bin.choices.bin": "86d3227bcde037b656289d2a6e20e77c785415fe222c9eff749ea3a76070a1a3",
+    "local/research/post-jam-route-v1/tenel-father-more-summary.json": "27768aaa488d2aba63fd7efe89128516414fc6c6c6e16d6fb29145ebc7324dd8",
+    "local/research/post-jam-route-v1/tenel-father-more-interval.json": "2b81f7faacc1f1d4b818365020a5f5c5565ebacc9c2a2536936a8cc46d525ed0",
+    "local/reference-field1d-tenel-father-more-180-v1.run.json": "030cad09a191ab0104ff9c7324570a243a1edc14fc5fe0f9569c4c5233dfdebc",
+    "local/native-tenel-father-more-98135-release-v1.run.json": "a64e02a08243a8cd1746ef166623b7e4846625e32ae84845c64960835b8aaec7",
+    "local/reference-field1d-tenel-father-more-180-v1.log": "97783794cd6b3abc9163e3a4c66bbda50ec50bb5d1c9d697aedfe49bba3982c5",
+    "local/reference-field1d-tenel-father-talk-180-v1.state.zip": "2ff8f8a4bd1d4e4f4dc77215e6609c71bcdbfb71099a442a69044a93dcfd7c8a",
+    "local/native-tenel-father-more-98135-release-v1.png.interaction.bin": "70e20e886abc1260e51011807e5ed58a7287f83ff51071f8f666d77064570cb6",
+    "local/native-tenel-father-more-98135-release-v1.png.movement.bin": "088a3e5020c1492b801b02fe37924566d091665a220b8a4f9cbd12e77a8b4f2d",
+    "local/native-tenel-father-more-98135-release-v1.png.dialogue.bin": "a637b5bab824971e3f2eeaa82536217a513989e723f8c8e7daec349fe0a3dbeb",
+    "local/native-tenel-father-more-98135-release-v1.png.choices.bin": "4b8aafa26de23bf53128e998e22a29196ff42e40fdb518be750592c7ddc96580",
+    "local/native-tenel-father-more-98135-release-v1.png.camera.bin": "f1559bfe127085b3b8bc237b37b8229bea376a29188dcfa2016435e48d7a241a",
+    "local/native-tenel-father-more-98135-release-v1.png.camera-state.bin": "22c78de2156692630e5630e5468ade877e9f7f7f9d2c98b09416fdc1f0a0fc10",
+    "local/native-tenel-father-more-98135-release-v1.png.actor-1.bin": "5914951b7d881a04092e308020b2e042cea5f0433e00041e23b3a3befdda4085",
+    "local/reference-field1d-tenel-father-more-180-v1.transition.bin": "f49dc6259687fa2eddf1190a332aaf8bcea0a5b99352957a5db675af3b9817d0",
+    "local/reference-field1d-tenel-father-more-180-v1.camera.bin": "871be9bbd02c0f853f3fc716b58713d7c9f125226a31f79969cb09c1db35051d",
+    "local/reference-field1d-tenel-father-more-180-v1.controller.bin": "e39c799996b6289d0f355092947cdadb0526b88ee7890fe6b215ac693359e1a3",
+    "local/reference-field1d-tenel-father-more-180-v1.controller.bin.choices.bin": "9dcb234e5af3ba70077da4021941188b75c937bdc2ff2b94a9b3fc39e35be315",
+    "local/research/post-jam-route-v1/tenel-father-orders-summary.json": "1dc4f27e1bf0d1fe780da9076a60464ab839a1caa7f7c4c457a3b4b1bbad418c",
+    "local/research/post-jam-route-v1/tenel-father-orders-interval.json": "88846dd20c3ce4d5d8b54816fc38487c0ec4af5102dd05a6453d014bd7d23397",
+    "local/reference-field1d-tenel-father-orders-300-v1.run.json": "3af6de5be57adef1d1f01e633cac184c0770909cc29450b5f075f995864264f7",
+    "local/native-tenel-father-orders-98435-release-v1.run.json": "157874707d1bbc282fcc7e481a1bcf79e45485d8c1b69b473abfc12b62ab3e0a",
+    "local/reference-field1d-tenel-father-orders-300-v1.log": "860bcd1ee89d550185d7d320e85a5e1408bf15a2ac4b45bc6cc787a8b22cb781",
+    "local/reference-field1d-tenel-father-more-180-v1.state.zip": "15af5005ca0256c51146234e466b2155259b36d19c85089748670b305ae93aa6",
+    "local/native-tenel-father-orders-98435-release-v1.png.interaction.bin": "4c71f78ed4b28d294a030e33782e846e7391cf78ef9795d069d1cae28fea1470",
+    "local/native-tenel-father-orders-98435-release-v1.png.movement.bin": "e15bdbade617086e8d5409c410bf0432d07a1ec3f6e643a78f0e18cda893bd5d",
+    "local/native-tenel-father-orders-98435-release-v1.png.dialogue.bin": "ad88f5c3a0db48e31581601a3d7f7c49f78433a0a26cb370dcbba0e0a7d0dadf",
+    "local/native-tenel-father-orders-98435-release-v1.png.choices.bin": "efe1e8f4901d4d684b603f82521476cf5b25e74b3983658fc529fe160411b467",
+    "local/native-tenel-father-orders-98435-release-v1.png.camera.bin": "088dce0ef670e2e43aa6052d6ef78fb151932b47ca256b148c958ec4e90e6a45",
+    "local/native-tenel-father-orders-98435-release-v1.png.camera-state.bin": "ee03923568ff04fd8488b2f8ffaaa3879524f39ddf0d3a7879fed9a4e46f5325",
+    "local/native-tenel-father-orders-98435-release-v1.png.actor-1.bin": "596b61c4f1756f1c42a51c538bc500a22539009bddca9458602931caf8881d69",
+    "local/reference-field1d-tenel-father-orders-300-v1.transition.bin": "e38442cd384bb83fa7e243f5630c2ecbd27449f48a0831cba3067d3337a21b64",
+    "local/reference-field1d-tenel-father-orders-300-v1.camera.bin": "8838bb0413adeb6292b6f11a75a85e4b0919a4dead4d990468391ffe929dcacf",
+    "local/reference-field1d-tenel-father-orders-300-v1.controller.bin": "397f6aad96a3b3410c687676b4eb50f190830e8d28ba7aa64c8955b591d546f8",
+    "local/reference-field1d-tenel-father-orders-300-v1.controller.bin.choices.bin": "93a3450a50b5fc5b0f1f7ae4d51967fa3737d0fe78e588f9e2278b018fee1fce",
+    "local/research/post-jam-route-v1/tenel-father-choice-summary.json": "a24d76a15dc92e94582059362b58295c33124797b2af0d1eed69cc07843e1f32",
+    "local/research/post-jam-route-v1/tenel-father-choice-interval.json": "264c21ce0c09602023c5a630959614912c4954b8c6554dfc5fb4ec4ef275c6f6",
+    "local/reference-field1d-tenel-father-choice-180-v1.run.json": "03a1a9f8c289c88b2d352e7d669ea64695ad5d02281d7bec2034967193e540df",
+    "local/native-tenel-father-choice-98615-release-v1.run.json": "042262dd9bbb36c532c4d386a2d6d2ba79bdc6215c96847b86f14592c7a098ba",
+    "local/reference-field1d-tenel-father-choice-180-v1.log": "21b79bfe1109fa1303b50e4debf23952989494ba0c01ef7dea6306d0ceaffe9f",
+    "local/reference-field1d-tenel-father-orders-300-v1.state.zip": "faec5511a0b5088deb014cdba36e2062a88bb25a95d5e3af1e02790447a82cef",
+    "local/native-tenel-father-choice-98615-release-v1.png.interaction.bin": "a799cdca57c3343960d690524b3129786906e96722f4852ab45fc4f3b57978f2",
+    "local/native-tenel-father-choice-98615-release-v1.png.movement.bin": "19fbdc6d070f759860045f0a6a1a844727a46260944105189d267987d842fd50",
+    "local/native-tenel-father-choice-98615-release-v1.png.dialogue.bin": "77c70170661cd1a8a1aeccb8e27afa4969c29948ed306557c08b4adbaf4d634c",
+    "local/native-tenel-father-choice-98615-release-v1.png.choices.bin": "2d2e8274aaea788fd8ca6fd13a8fe4838a7afe73f6de942f8ec3d494193cc118",
+    "local/native-tenel-father-choice-98615-release-v1.png.camera.bin": "2bc2598d8309f69a862c29c7c687fba963f685e93224007affa42d6fec1ed267",
+    "local/native-tenel-father-choice-98615-release-v1.png.camera-state.bin": "38e0452f4e8e70797f147e010d1549865ec25da03a5d540cd999e05c898ea6ad",
+    "local/native-tenel-father-choice-98615-release-v1.png.actor-1.bin": "053ed42129024940cbf345263fd1b31695f46700d20b7d224212908fc977e401",
+    "local/reference-field1d-tenel-father-choice-180-v1.transition.bin": "fd72205d891e1884e06d44087954f275a52bbc11180a92d920e20f7662410789",
+    "local/reference-field1d-tenel-father-choice-180-v1.camera.bin": "871be9bbd02c0f853f3fc716b58713d7c9f125226a31f79969cb09c1db35051d",
+    "local/reference-field1d-tenel-father-choice-180-v1.controller.bin": "2ae72b487b8de9ae780c19a1e2a7900871548d3663834d66d9c0cd323a76d9dd",
+    "local/reference-field1d-tenel-father-choice-180-v1.controller.bin.choices.bin": "1beeb1ac8fa860b88c9f4282c6ef8835e02bafa78c8c30cfc6d12ca91ca5763d",
+    "local/research/post-jam-route-v1/tenel-office-exit-approach-summary.json": "9250f09df441b67c10503e4e5d4c014767c44506089934cac6c096a67bd8b34a",
+    "local/research/post-jam-route-v1/tenel-office-exit-approach-interval.json": "a8549073247b21b8c3b0f713d49c6bcc722cd9c244857fa6ac7831fb863789a7",
+    "local/reference-field1d-tenel-office-exit-approach-180-v1.run.json": "a5a395fd5ac543882aa253bfa016926093b54da164ff7b93dfedf5e13c51bed4",
+    "local/native-tenel-office-exit-approach-98795-release-v1.run.json": "bf1fb774f4da0bd316cf2bafdead39e68fe2da104dafb66f0a2c0b0dfef1d46a",
+    "local/reference-field1d-tenel-office-exit-approach-180-v1.log": "f1a6c3fb7d7340baf03d9f6fb3c0db703100469bb65fca968432eacd5705fe0f",
+    "local/reference-field1d-tenel-father-choice-180-v1.state.zip": "987a2800cf42f4de35e86c45c9aacc6e590d34269ef892377080ece7cfc17c24",
+    "local/native-tenel-office-exit-approach-98795-release-v1.png.interaction.bin": "85edcca227033b034220cff90821ed0743f91536ae5621ed0007218c75224c81",
+    "local/native-tenel-office-exit-approach-98795-release-v1.png.movement.bin": "492930aa5b215de5c249d877e487eadb5bfd3366073fa4edbdc28738965d61c7",
+    "local/native-tenel-office-exit-approach-98795-release-v1.png.dialogue.bin": "e4f98f779ec8e34d4f27d2bd3d6e51235e9000380fbc3c34faebff55d1b4c6cd",
+    "local/native-tenel-office-exit-approach-98795-release-v1.png.choices.bin": "cf06b5074ffff4f7161b2ec3338a97fcaa52d0d0131add10c3f26337e5f37116",
+    "local/native-tenel-office-exit-approach-98795-release-v1.png.camera.bin": "089fd7d5b5b6ccde82020c4e6325cdf21358efabbed1baf8518c1ec5bed659c0",
+    "local/native-tenel-office-exit-approach-98795-release-v1.png.camera-state.bin": "bb5043b9ed5a201c9ab73f1d1419f80dd937df257837147eb096da586fa600b2",
+    "local/native-tenel-office-exit-approach-98795-release-v1.png.actor-1.bin": "3da84bbd19ff6dfff53b5375f57d66e39392c3a912b93e26bda93247f8375c93",
+    "local/reference-field1d-tenel-office-exit-approach-180-v1.transition.bin": "60a29ab6b382c856897db12dfa3237d75794c401caa77b303f943f3929163d97",
+    "local/reference-field1d-tenel-office-exit-approach-180-v1.camera.bin": "8823617b031f4387e8de9f12304060348ccc438995a744563800f89e87c65ea1",
+    "local/reference-field1d-tenel-office-exit-approach-180-v1.controller.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/reference-field1d-tenel-office-exit-approach-180-v1.controller.bin.choices.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/office-exit-collision-v1/leave-summary-v2.json": "daade5e12d52ca423941a87498dba6010f0907c9b7a74eba19d0b51ca2968ccc",
+    "local/research/office-exit-collision-v1/leave-interval-v2.json": "b4891879c336d81ba2698858f5253267b32a472f6cb347475ad0c8eca8712edc",
+    "local/reference-field1d-tenel-office-leave-300-v1.run.json": "0e2a20dbde1c1d54c0fea29e407b2627771d2205d6fadd273255e89b8e0f031d",
+    "local/native-tenel-office-leave-99095-release-v2.run.json": "03c791e889fc049f0d6040dd26adab31dfcff84f2c8deed2fb070aa82e595510",
+    "local/reference-field1d-tenel-office-leave-300-v1.log": "83b308a29d6d2aca04c757f7424fa90c551a8307ec55c1e3a3cb7813ea5049d0",
+    "local/reference-field1d-tenel-office-exit-approach-180-v1.state.zip": "ff177a7084ca0b269b73afd455c26eba6dde4a2f212678799b8ca568f370a384",
+    "local/native-tenel-office-leave-99095-release-v2.png.interaction.bin": "be52a06cd84c4d4cb36b94c4098eb98162ef1c70bcd735d782946a74e5ae46ac",
+    "local/native-tenel-office-leave-99095-release-v2.png.movement.bin": "15deaeb397d617720bf46bc586ab902f84df7c0502aba68a42fdf2624b272092",
+    "local/native-tenel-office-leave-99095-release-v2.png.dialogue.bin": "e00138589cea8dfc8ad4f10dbf56123712c646be4ff1148b51d70e2fc8c02cfa",
+    "local/native-tenel-office-leave-99095-release-v2.png.choices.bin": "46fc3ac63358f1b588489f6fa7f44147c246e9fe3d3692e8940f30074da06f04",
+    "local/native-tenel-office-leave-99095-release-v2.png.camera.bin": "33a20d0ea6536419b59a31de908ca3aef2dd96b1e0c0e14e89c9d7233dd1f13d",
+    "local/native-tenel-office-leave-99095-release-v2.png.camera-state.bin": "e25ec573690a3c105666aa6d80a0ee2af632505ed9a73dce16c882aa42ddc8e5",
+    "local/native-tenel-office-leave-99095-release-v2.png.actor-1.bin": "1950ffdd20c9d201cb63c99b1baf8306b73060f1a2a854c19edbf10f175abedc",
+    "local/reference-field1d-tenel-office-leave-300-v1.transition.bin": "ac850474f3ace80db75cd792b2a9fa0cde4c31fcddde895e415838c0cd96cdc8",
+    "local/reference-field1d-tenel-office-leave-300-v1.camera.bin": "76231a53b3b6e5d592052508706ae3e722aff574912906ff2e6bd0bb8dcab619",
+    "local/reference-field1d-tenel-office-leave-300-v1.controller.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/reference-field1d-tenel-office-leave-300-v1.controller.bin.choices.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/post-jam-route-v1/tenel-plaza-return-summary.json": "651989e592547afeef6bd2f64936055c5c3058cbaecbc3d3dc0c84136ed71ac9",
+    "local/research/post-jam-route-v1/tenel-plaza-return-interval.json": "f64adea0c261fb3fcb83574392322e2d49f7eb874dbc35ebacda239e79d9eea6",
+    "local/reference-field1d-tenel-plaza-return-180-v1.run.json": "97f1ec06bc874a387f931c76e07471342f178ce82671a2a04f1fced759039925",
+    "local/native-tenel-plaza-return-99275-release-v1.run.json": "6369522485c368fa2017abf139bd754c83e2f7308e85803c9eb74d3071ed5ce7",
+    "local/reference-field1d-tenel-plaza-return-180-v1.log": "17aedde2bbf9e94d9e80f35f6b206588c9d72e7b21809fd7bc2275cfe9a6dd36",
+    "local/reference-field1d-tenel-office-leave-300-v1.state.zip": "c803901a13689e4baf311bcc5de463860855b01c9de4b6d3dcd767398f6b0d82",
+    "local/native-tenel-plaza-return-99275-release-v1.png.interaction.bin": "8cb0a7e37290e4844e5fde5870ee64566ab7431a25d5a3f4d669b7f466f0ceab",
+    "local/native-tenel-plaza-return-99275-release-v1.png.movement.bin": "0abd2b3e476a7b22de6b6ecb50cb09313cff53e79f1e45e2463ecc987de614ec",
+    "local/native-tenel-plaza-return-99275-release-v1.png.dialogue.bin": "5b08810cfc725b8392ac53ea0db952f8fd5547123c776053af6df85ef7fd9f4e",
+    "local/native-tenel-plaza-return-99275-release-v1.png.choices.bin": "8b880ea55a2c4e70ade7285284714afb2d429f1521f530358124d0bfc74a6536",
+    "local/native-tenel-plaza-return-99275-release-v1.png.camera.bin": "9a46e6e0e0ffc1fba93aa69b2aaa13dcf1547d6da9cda1f644c51c4b187d1601",
+    "local/native-tenel-plaza-return-99275-release-v1.png.camera-state.bin": "a98659f87875ab8de1ecf7fe1afcccdcd9b106702b4a54642444c8fc9d40ff1f",
+    "local/native-tenel-plaza-return-99275-release-v1.png.actor-1.bin": "6e62b6377cf4a558b78e18eab63adb6ac56dd490184c7e6d2f27361bfbc82802",
+    "local/reference-field1d-tenel-plaza-return-180-v1.transition.bin": "fad90454e9a548110176081e23c817298df5d10cccf70c7cdce08ea0647e544e",
+    "local/reference-field1d-tenel-plaza-return-180-v1.camera.bin": "5659f9c0a3edecd5c4aeb90d1139328b32a77ef2ac673fb40b8989c327d38e46",
+    "local/reference-field1d-tenel-plaza-return-180-v1.controller.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/reference-field1d-tenel-plaza-return-180-v1.controller.bin.choices.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/office-exit-collision-v1/church-approach-summary-v3.json": "6b248e9a14c457ef246c4fc18feac7e8c15e3426ce7a9453758a2eac671a33c2",
+    "local/research/office-exit-collision-v1/church-approach-interval-v3.json": "eeacf3dbfa7b044a203e152401aa2b8e5eed68b70bf951647b057b3cce8ac862",
+    "local/reference-field1d-tenel-church-approach-180-v1.run.json": "83c912db8df74683c0f190809b9954ca576f751dd0f0fb258423b4e62cae2861",
+    "local/native-tenel-church-approach-99455-release-v3.run.json": "6f4ba080d33e926b3399cd0962ffcb480ec1a6d9ef8afd4aa05c439d6b16fd1c",
+    "local/reference-field1d-tenel-church-approach-180-v1.log": "b4057bc2d8e22aebd235a81ecb68e192cb4cb1889d023fc994306e1ca561dcd2",
+    "local/reference-field1d-tenel-plaza-return-180-v1.state.zip": "5c0fb0b477b117fb2caf93f2dd4724b61d214f0944218b55f8bf7aefd76131a4",
+    "local/native-tenel-church-approach-99455-release-v3.png.interaction.bin": "b5f736451f12910b246d1c074398b5ca2771087a357205970fa241ae07111750",
+    "local/native-tenel-church-approach-99455-release-v3.png.movement.bin": "cadf399a343a2556e36ea919fefc9365d2c3d060a72f7af77b516d34616e99f7",
+    "local/native-tenel-church-approach-99455-release-v3.png.dialogue.bin": "53df474936352594f038e450fb1e967b1d0f55f647ee2c6d057081d3a4af29a5",
+    "local/native-tenel-church-approach-99455-release-v3.png.choices.bin": "6a912332d36aa2229b8fd3b9e3638cdadae48230b89e8860950b673fdaf7360c",
+    "local/native-tenel-church-approach-99455-release-v3.png.camera.bin": "b8bdafc5a2216edffcc4a32e033d7bbe5a0057cf517528caf29fb6eeaff99270",
+    "local/native-tenel-church-approach-99455-release-v3.png.camera-state.bin": "e0b5ecce27207a02817b314f0cbb0210f10ecec4f74457db272e5981f00ef3de",
+    "local/native-tenel-church-approach-99455-release-v3.png.actor-1.bin": "6212895385159cccbcc48cd34752aaba1c1cdc65d2ff0f4c9cd7fe6e05be0196",
+    "local/reference-field1d-tenel-church-approach-180-v1.transition.bin": "7830f5412a0baf46645bda2d5488362be38403245d0e76037335b1f1e8c2c23e",
+    "local/reference-field1d-tenel-church-approach-180-v1.camera.bin": "1941e95837169833b9b15e4248335fd121c3c7c3c559b692f8f6fa367ac3b641",
+    "local/reference-field1d-tenel-church-approach-180-v1.controller.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/reference-field1d-tenel-church-approach-180-v1.controller.bin.choices.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/post-jam-route-v1/tenel-church-talk-summary.json": "212363f62440134ba1136a393e0ffb054ec9533aac76813f77441d7532dd13d1",
+    "local/research/post-jam-route-v1/tenel-church-talk-interval.json": "62c3f06f1aa25770ceb1542bf6055be276993672ffcb84cedcbc1b01f3f72ef6",
+    "local/reference-field1d-tenel-church-talk-180-v1.run.json": "42ea5a8c540c7d863e5ceacef33a884abe9fb14db9148748d37102f32998927b",
+    "local/native-tenel-church-talk-99635-release-v1.run.json": "a8942e96be4f90f3c8556d74ced296dd5718f4cc51e2826770e7e5b2312484d0",
+    "local/reference-field1d-tenel-church-talk-180-v1.log": "5a14dc5fbd130acffc372def4848a675697b58aefd248c2782b76a0395287114",
+    "local/reference-field1d-tenel-church-approach-180-v1.state.zip": "9eeea83dbc21240845a46afcc53cfe762bcab1604d95cd99f9f5517bcf0598f5",
+    "local/native-tenel-church-talk-99635-release-v1.png.interaction.bin": "29d3513b1cbeeaeb7be72f5f089ca3c36fe48a26945f08cefb04284443b90240",
+    "local/native-tenel-church-talk-99635-release-v1.png.movement.bin": "6df6d14ff56c923629096893fe6cf971a9e5e872f4643804caef5c0dd447e2bc",
+    "local/native-tenel-church-talk-99635-release-v1.png.dialogue.bin": "a736afd3ae39f90aaf890e71143a7f42c938a6754336d5decf0eb4b6e008a82d",
+    "local/native-tenel-church-talk-99635-release-v1.png.choices.bin": "343e676a51c950c7777f4024ca367050671b5eb023f34dcdca69b16a18b0003e",
+    "local/native-tenel-church-talk-99635-release-v1.png.camera.bin": "b4a483ed756c448a8e441aeb7958ff9facedea69ca573d0252f55183fb62d916",
+    "local/native-tenel-church-talk-99635-release-v1.png.camera-state.bin": "605b29dc6aa7dca2750d0da09739b9befe09e5f649e8af758da4ca3a25ca200c",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-1.bin": "3774f7620039d2de896d17c64f3aea6f4bcb26d5fbe12800340ff83c83b10cbd",
+    "local/reference-field1d-tenel-church-talk-180-v1.transition.bin": "65e069bbff719361f5cc5cae05f5014590cfe7324f94b7eb56325cc6a27af94a",
+    "local/reference-field1d-tenel-church-talk-180-v1.camera.bin": "b33adb4b159af850ddd775ad0e2642e7c7d2ecba07b3ba2c84b004e757a075cb",
+    "local/reference-field1d-tenel-church-talk-180-v1.controller.bin": "1cbdbc104b037d2732693ad7bb09c4ab92ad9c5240682b3c688f101018125ed5",
+    "local/reference-field1d-tenel-church-talk-180-v1.controller.bin.choices.bin": "28a9a9aa70ad4f735ce594f023f44d6830da5820b19e1f015b51e40d93549b1b",
+    "local/research/father-fff-validation-v1/permission-findings-v1.json": "5285003d382b8d1e757d95680a724fd13a45b8aa9a45d59a68d579948810fb29",
+    "local/research/father-fff-validation-v1/permission-exit-floor-v1.json": "dcabd0732101a89c049ddc9aab230d85fa3592a5a35ac3e3516b9c7711bb4b71",
+    "local/research/father-fff-validation-v1/findings-v2.json": "bbae68df2dc465549225dc308d193bf002235dbe6b519921a80e01c0827ee26d",
+    "local/reference-field1d-tenel-father-choice-180-v1.input": "e016e1d77f290f2d52003cf13cfa697b922d3aa93d0c3a18de6e5e1c5a4e0be5",
+    "local/native-tenel-father-choice-98615-release-v1.log": "8d03f9302395041a209ba69b6ec97ae56bb25b4125416c3139a7ef48fdd71555",
+    "local/native-tenel-father-choice-98615-release-v1.png.variables.bin": "c4afc5aac335329486de3b6bf0c22cf4c7ebf0169e7161e1a0dbac94469ccb55",
+    "local/native-tenel-father-choice-98615-release-v1.png.json": "f2d50d1c3258348092533778b6a12a72cb7e4a444530a7d1aa4bcd106f52287d",
+    "local/text-input/FLDDATA/MES/VIL.PME": "8afa8edf2e3d1cba6b1a24b029422e835306d5afa768d41b1f71a2fde5e0faf0",
+    "local/research/father-fff-validation-v1/permission-inspect.py": "67a1dfaf39a4c804c9e1679e181046d2d1548b186073b77cd01cea618d15e540",
+    "local/xpf-decoded/FLDDATA/FLDSET.XDB": "e1085fc18788d42b10b11d6fdbf8e8bcb3de67ef11003669b4de9e4b30d1f0ba",
+    "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_vil.xmt": "b8031d37a50f488e030035b9b1bc4ffa57fde8a02bebab355f269263be89c7d3",
+    "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_syak1a.xmt": "ceb4e82595b6579bb96f158966481af5d988b76acbb953265de648952bbdd270",
+    "local/xpf-decoded/FLDDATA/ROOM/VIL/SYAK1A.XPF/a.xcl": "a49e4d36282454f3c90e0dd85d7c6f82b85d4267200cfc033c0f66f5fabbc99b",
+    "local/xpf-decoded/FLDDATA/MAP/VIL/VSTART_D.XPF/a.xcl": "7562dce9f70de8c7ba7f1a558b473e4589f74211277f28168e2b27ffd6c58455",
+    "local/research/father-fff-validation-v1/permission-office-contacts-v2.json": "405e4cfde1a9acd5335404b44fab3f24e8a49f87906d02db00565ace65e4fa2d",
+    "local/research/father-fff-validation-v1/permission-church-contacts.json": "7222d3764354b78faf1fab8594c9a044e637ac97a69fe16445d40fa88f2ee756",
+    "local/reference-field1d-tenel-office-exit-approach-180-v1.input": "434b642c078752857a17459e86bd10b3d299e5ddbad82a979c631da490dc993e",
+    "local/research/father-fff-validation-v1/permission-exit-floor-inspect.py": "59e600275f7a7767b84e0de1a7e3da97b46554f5adc49509a8081f8dd6d07501",
+    "local/research/office-exit-collision-v1/final-reached-comparison-v1.json": "6802c2b9e36de83240edd0ccf85b68a50ee02620dfb11a82fe3dbcb7b14f6175",
+    "local/research/office-exit-collision-v1/reached.original-v2.bin": "9ecd1054592b10fb7813f9e21e19c95dda216aefa4c922336812865dbe0e5d3d",
+    "local/research/office-exit-collision-v1/sphere-final-native-release.bin": "9ecd1054592b10fb7813f9e21e19c95dda216aefa4c922336812865dbe0e5d3d",
+    "local/research/office-exit-collision-v1/reached.inputs.bin": "01b323be25fc51590f5fb4eda61f654142d07982d9370c9632e3dc9d47ad68e8",
+    "build/native-release/okage-assets": "8593bb5246c326acb35e3e2318a49a4d1950d2dda9cd8e8aeac8a8338a4f8071",
+    "local/research/office-exit-collision-v1/sphere-final-native.bin": "9ecd1054592b10fb7813f9e21e19c95dda216aefa4c922336812865dbe0e5d3d",
+    "build/native/okage-assets": "7e33539d243d26498cf383215da4a97d53265e6c52112905785c424102b2382d",
+    "local/research/office-exit-collision-v1/sphere-final-model-sanitize.bin": "9ecd1054592b10fb7813f9e21e19c95dda216aefa4c922336812865dbe0e5d3d",
+    "build/model-sanitize/okage-assets": "67c7eeff3e0416f574bce742d5a24fd0f0409b3054d2e5e995130516ad7d7575",
+    "local/research/office-exit-collision-v1/capsule-reached.original.bin": "2c34ce1df23b838c5abf2a7f6437cca3d3067ed509ff25f11df6b11b582b51eb",
+    "local/research/office-exit-collision-v1/capsule-final-native-release.bin": "2c34ce1df23b838c5abf2a7f6437cca3d3067ed509ff25f11df6b11b582b51eb",
+    "local/research/office-exit-collision-v1/capsule-reached.inputs.bin": "7b850cd3c535b35a26f6e00cba70c5d9441ca34d78f9e9c22e9468bc8e6c0727",
+    "local/research/office-exit-collision-v1/capsule-final-native.bin": "2c34ce1df23b838c5abf2a7f6437cca3d3067ed509ff25f11df6b11b582b51eb",
+    "local/research/office-exit-collision-v1/capsule-final-model-sanitize.bin": "2c34ce1df23b838c5abf2a7f6437cca3d3067ed509ff25f11df6b11b582b51eb",
+    "local/research/office-exit-collision-v1/edge-reached.original.bin": "2c34ce1df23b838c5abf2a7f6437cca3d3067ed509ff25f11df6b11b582b51eb",
+    "local/research/office-exit-collision-v1/edge-final-native-release.bin": "2c34ce1df23b838c5abf2a7f6437cca3d3067ed509ff25f11df6b11b582b51eb",
+    "local/research/office-exit-collision-v1/edge-reached.inputs.bin": "b750590e95df76fa8575eef8b3fa80d01ddfad7bd0aac7ebe3b83848155ec068",
+    "local/research/office-exit-collision-v1/edge-final-native.bin": "2c34ce1df23b838c5abf2a7f6437cca3d3067ed509ff25f11df6b11b582b51eb",
+    "local/research/office-exit-collision-v1/edge-final-model-sanitize.bin": "2c34ce1df23b838c5abf2a7f6437cca3d3067ed509ff25f11df6b11b582b51eb",
+    "local/research/office-exit-collision-v1/map-regression-release-v2/report.json": "99f5af1903ea20071f91e7c811a2907d6b7b8d1a38c4f979d72cc1ea10261feb",
+    "local/research/office-exit-collision-v1/map-regression-release-v2/wall.xcl": "3d23582095c33308ec4387359414e66a07d6ef83a3c4621a68d7124a5cd9b28d",
+    "local/research/office-exit-collision-v1/map-regression-release-v2/wall.queries.bin": "45af65e7c8d36a34475c701eb8b1c33807f0bb7e26f380cb40aafce75028b0e1",
+    "local/map-contact-validation-v2/wall.retail.bin": "153145621b3639bfff8c519d128a1597f579bf68b52ccd4f84b8fcf7319f75dc",
+    "local/research/office-exit-collision-v1/map-regression-release-v2/wall.native.bin": "153145621b3639bfff8c519d128a1597f579bf68b52ccd4f84b8fcf7319f75dc",
+    "local/research/office-exit-collision-v1/map-regression-release-v2/stacked.xcl": "25589ba42cd080e49dcb2125bc0ce9ee131b56b21c04d3952a81fe890abd3f3b",
+    "local/research/office-exit-collision-v1/map-regression-release-v2/stacked.queries.bin": "45af65e7c8d36a34475c701eb8b1c33807f0bb7e26f380cb40aafce75028b0e1",
+    "local/map-contact-validation-v2/stacked.retail.bin": "8fbb32e56d1e4ac57822dc5a2a195397bbc467a410254df21312e5d11d3e4b42",
+    "local/research/office-exit-collision-v1/map-regression-release-v2/stacked.native.bin": "8fbb32e56d1e4ac57822dc5a2a195397bbc467a410254df21312e5d11d3e4b42",
+    "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xcl": "91cf084b00eb1779c050c3339cc7765b4f2f86e3fd01bbda2e82954ae6445099",
+    "local/research/office-exit-collision-v1/map-regression-release-v2/home1c.queries.bin": "22d641df5ffbc5b83b8d66ffc4a95976520ffd8f073bda60d1a496699645a255",
+    "local/map-contact-validation-v2/home1c.retail.bin": "316c38bb5a03cfd5814d7aaabbe15c42e0f4f6eb9bc218b6c2efc56d2d62089c",
+    "local/research/office-exit-collision-v1/map-regression-release-v2/home1c.native.bin": "316c38bb5a03cfd5814d7aaabbe15c42e0f4f6eb9bc218b6c2efc56d2d62089c",
+    "local/research/office-exit-collision-v1/map-regression-release-v2/room.xcl": "1926d62e7a8c704b45bba8f389ea7d07406efe605599721443973c923b03a849",
+    "local/research/office-exit-collision-v1/map-regression-release-v2/room.queries.bin": "c8a17a9591c41695023e19860afb8edd07d5c2895ae93569a0b5b9828b91d442",
+    "local/map-contact-validation-v2/room.retail.bin": "0d6cae808e998398a00a528cbc6246fd6f3724eb0be36593a273c9deebbbefd1",
+    "local/research/office-exit-collision-v1/map-regression-release-v2/room.native.bin": "0d6cae808e998398a00a528cbc6246fd6f3724eb0be36593a273c9deebbbefd1",
+    "local/research/office-exit-collision-v1/camera-regression-release-v2/report.json": "9a2f0f564d77907c80c2f3083bc26420a45f67f603c944787402ffcf252ee15e",
+    "local/research/office-exit-collision-v1/camera-regression-release-v2/room.xcl": "1926d62e7a8c704b45bba8f389ea7d07406efe605599721443973c923b03a849",
+    "local/research/office-exit-collision-v1/camera-regression-release-v2/room.inputs.bin": "8ae12bb4451a75a4547c60e75b1a70baa7140ccf9b2b5efe2011131db6ccb3b1",
+    "local/camera-collision-v2/room.original.bin": "73f3c9349da2b7fade123726f3ae5e3f916683a52ea984565b85c8c002a9be59",
+    "local/research/office-exit-collision-v1/camera-regression-release-v2/room.native.bin": "73f3c9349da2b7fade123726f3ae5e3f916683a52ea984565b85c8c002a9be59",
+    "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.xcl": "5b68b79957751c4d066ece44d32c423ad123c747917fb64ff666add10550e7fb",
+    "local/research/office-exit-collision-v1/camera-regression-release-v2/outdoor.inputs.bin": "8b10e57efd96ca2ef5ffc6904c410b06d164410acefa749df750a041e5339db2",
+    "local/camera-collision-v2/outdoor.original.bin": "950a298c0de569621d7b55826537f0e1f60b3086bf4b6e098385aa1604c58dbe",
+    "local/research/office-exit-collision-v1/camera-regression-release-v2/outdoor.native.bin": "950a298c0de569621d7b55826537f0e1f60b3086bf4b6e098385aa1604c58dbe",
+    "local/research/office-exit-collision-v1/wall-regression-release/report.json": "df643770b13a46b23f0a52f9e80f4040dd4d3f11308ed67cb0b259a0ab2cedbc",
+    "local/research/office-exit-collision-v1/wall-regression-release/wall.xcl": "3d23582095c33308ec4387359414e66a07d6ef83a3c4621a68d7124a5cd9b28d",
+    "local/research/office-exit-collision-v1/wall-regression-release/wall.queries.bin": "454b6920f71d2d59a6c3003bc565ddb716af767a80fe4dc8ee0ad29984acc365",
+    "local/wall-validation-v1/wall.retail.bin": "f15b11ce6175ceab6d90aee25193732164194000b33ed240548d91a0c60b39be",
+    "local/research/office-exit-collision-v1/wall-regression-release/wall.native.bin": "f15b11ce6175ceab6d90aee25193732164194000b33ed240548d91a0c60b39be",
+    "local/research/office-exit-collision-v1/wall-regression-release/home1c.queries.bin": "9c78c855c6a9d83851a716f6fd9424965c5549742ff99b1ac573083cffda3a63",
+    "local/wall-validation-v1/home1c.retail.bin": "681f5b04c483eec0b37d72faa7e2f7504f7cf9605af7ebbeae1c5fcea40b8523",
+    "local/research/office-exit-collision-v1/wall-regression-release/home1c.native.bin": "681f5b04c483eec0b37d72faa7e2f7504f7cf9605af7ebbeae1c5fcea40b8523",
+    "local/research/office-exit-collision-v1/ctest-v1.log": "470a25820f73fac216b7807ad3888683233512d06a1dc83a2e9be6d91e268443",
+    "local/research/office-exit-collision-v1/debug-test-v1.log": "17bc8c78c5f93d01f012bad21995d7df7e4db5aa864747d146ac8afb81a158b2",
+    "local/research/office-exit-collision-v1/sanitize-test-v1.log": "aa364384f5f8f7ebcc999f055c38f700acb859579ada0f600ea95e8a38b377c7",
+    "local/research/office-exit-collision-v1/capsule-ctest-v1.log": "e84e8dd4408ac39e90399b4bcd6781307eeb5ad60dcad7650809cb8b839d3715",
+    "local/research/office-exit-collision-v1/capsule-debug-test-v1.log": "9d16367543e8b0238bec61380696c82147678ffc09726d803414b90c08a2c9ff",
+    "local/research/office-exit-collision-v1/capsule-sanitize-test-v1.log": "548cd7a74dd9fdd5937ecde9dcea5e6e0252ce8e6fa0d3ea32fc1ffaf0c2f816",
+    "local/research/office-exit-collision-v1/edge-ctest-v1.log": "a13875ed9cabea49e1f198cb41314789baca4011892f3b6ff0a4d8d036f40a7e",
+    "local/research/office-exit-collision-v1/edge-debug-test-v1.log": "f27a86662ebb44d723b3ea6a4143e1c86e1287f6ae869d05e45f1d5c66dc9d44",
+    "local/research/office-exit-collision-v1/edge-sanitize-test-v1.log": "61f96f22f47ab8f472abf8e9ea77dcd86abd2f2606809403fc6d502029be3530",
+    "local/research/office-exit-collision-v1/edge-debug-build-v1.log": "43c0d6b8878f006ef82aa8f1a0ffda91d9c9190f814d5e1453de77586d9cec2e",
+    "local/research/office-exit-collision-v1/sanitize-build-v1.log": "cb3db793d909bd1bbeda57f46473d83d1f85912a06b8845d28791bb40e641bb4",
+    "local/research/office-exit-collision-v1/edge-diagnostic-build-v1.log": "b67c5071af8b175e2adc0f2dc8635dd543c3c59e5878b9aeebd2b49ed75b84a2",
+    "local/research/office-exit-collision-v1/capsule-diagnostic-build-v1.log": "f7055c60cc0bb1a0bd6c9300dba6b9bfd26ffbd8ba0ca20e2b6e690945ce2fce",
+    "local/research/office-exit-collision-v1/capsule-fix-build-v1.log": "12a4a2814e201b518521dbdbcbbd13d8764cde4ccb794b9b48b45b06db5d1807",
+    "local/research/office-exit-collision-v1/diagnostic-build-v1.log": "387588cbc24817b756dfd74653a7727390bda8e0fbb5c80bac96d90b944df0cc",
+    "local/research/office-exit-collision-v1/fix-build-v1.log": "7500e9f6111923f08a082a9596c742dbf01e42b7eda4e2f947bebff49dd6aa54",
+    "local/research/office-exit-collision-v1/capsule-debug-build-v1.log": "068de3979fbcbaa3c3f1311ca4190e86fc3e252fea59e19028d62551a040f00f",
+    "local/research/office-exit-collision-v1/capsule-sanitize-build-v1.log": "068de3979fbcbaa3c3f1311ca4190e86fc3e252fea59e19028d62551a040f00f",
+    "local/research/office-exit-collision-v1/debug-build-v1.log": "cb3db793d909bd1bbeda57f46473d83d1f85912a06b8845d28791bb40e641bb4",
+    "local/research/office-exit-collision-v1/edge-fix-build-v1.log": "2b4d0891b75ab64c6c5334e332cb9b315b001218d68cf100b440f8abeb6179a7",
+    "local/research/office-exit-collision-v1/edge-sanitize-build-v1.log": "43c0d6b8878f006ef82aa8f1a0ffda91d9c9190f814d5e1453de77586d9cec2e",
+    "build/native-release/CMakeCache.txt": "a8afe6993155641074f2dcf087bb07b3a5f27c1079fd719d57a25af66dc2edd7",
+    "build/native/CMakeCache.txt": "b191ebcf702ec93007fcdf86c4a97e6221723fb57a98269938a1eb2d70f19960",
+    "build/model-sanitize/CMakeCache.txt": "928b342deb34d22bfafb4cd5f91ef475aeb3781e7ee1aa56fb9558709419d57c",
+    "local/research/office-exit-collision-v1/reached-original.run.json": "ee3effb106a6765c2cb2917a7ccb3fa4336cb7fa39fefc9c2a7665b4f96b4c97",
+    "local/research/office-exit-collision-v1/reached-original.log": "3899a23e8bbbdf9ad58b10d3995e8fd145f564850ed370804a5fd8d7fcc937f2",
+    "local/research/office-exit-collision-v1/reached-original-v2.run.json": "7e0d87281e2d9d0f3e7a7a596c8444fe1489aaf374be262c63ae2aadd9668a82",
+    "local/research/office-exit-collision-v1/reached-original-v2.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/office-exit-collision-v1/capsule-reached-original.run.json": "f6e65f14924dffa9bd34285edb2d2fb313f74b26ec4d26416cc1642734d467dc",
+    "local/research/office-exit-collision-v1/capsule-reached-original.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/office-exit-collision-v1/edge-reached-original.run.json": "ad8f56fc005c585cc396f4b156f7c5ee12bd92b93987e5cd61c1cb81e6c593f3",
+    "local/research/office-exit-collision-v1/edge-reached-original.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/native-tenel-church-approach-99455-diagnostic-v1.run.json": "084d64497bff2c4b54833b55ae43c7a2820aa03362aa716406feb14a9d24e216",
+    "local/native-tenel-church-approach-99455-diagnostic-v1.log": "a3cd356341868288691744ac8644cd064edaa353a953a78dcacf285652f5d55b",
+    "local/native-tenel-church-approach-99455-diagnostic-v2.run.json": "1c95bde4906bc00a6c4f68876e76717037eeb05c1404121bdb763b7a18c7ccfd",
+    "local/native-tenel-church-approach-99455-diagnostic-v2.log": "b67864f8ee8cebcdda7371f695f728af8720db8d5a3669fee07db9537a55658a",
+    "local/native-tenel-church-approach-99455-release-v1.run.json": "8bbc0e2874bc5783dd1fc8219c9933bf74ecddd453bf9277f1bf8314c09c1d12",
+    "local/native-tenel-church-approach-99455-release-v1.log": "0f59948f3b75802e5a647e5eb79deff707d7b3ce2598d654651e2e34d8385d81",
+    "local/native-tenel-church-approach-99455-release-v2.run.json": "56a3975b2223acc420886394c6e58872c621175257206842aaf4fec1526d27cc",
+    "local/native-tenel-church-approach-99455-release-v2.log": "694e0958f7f11f55b756f588aa0c319db1463fc87be9b5a2217208c6c6691963",
+    "local/native-tenel-church-approach-99455-release-v3.log": "b974ee22e19e8a8236dfead24ec251f5f46f71d83859f3f0e6ddece674f7bf95",
+    "local/native-tenel-church-dialogue-99935-release-v1.run.json": "4c8c7a146ca856ae38b153a6ac6502f1daa007c16d0eb86d6a013b4cc98b7f12",
+    "local/native-tenel-church-dialogue-99935-release-v1.log": "3c9399b3dbac9d053b504886a4f7a0eb62910b57042f8d1a908a3e5c8486e8be",
+    "local/native-tenel-church-talk-99635-release-v1.log": "a009ea2afc1eb22d06921fbda69e867f872d9bcd4fc32b89e912d9203a3ce21d",
+    "local/native-tenel-office-leave-99095-diagnostic-v1.run.json": "97cb47d063238c5c53a1d4daa080d8c0a61ba627485363329763bf971c235b51",
+    "local/native-tenel-office-leave-99095-diagnostic-v1.log": "9efc86d8b23fc1affe4184afb8faa5bdafad626441176cd35ad390bd4be68405",
+    "local/native-tenel-office-leave-99095-release-v1.run.json": "761463108130180772489e7dc5e99ea7277e7ff69a4e6ce6e877456c786df70f",
+    "local/native-tenel-office-leave-99095-release-v1.log": "9eb4b2ad86bde8c09be7f63ef1a9f45ee698ec186f72fea351875ef521610f7b",
+    "local/native-tenel-office-leave-99095-release-v2.log": "ac1079e709e3508a4a4b2f9f6c3b1c33d8477891cdcdc9f0945c5938bc0e7f7f",
+    "local/reference-field1d-tenel-church-dialogue-300-v1.run.json": "f2825e7edc5e0668d18b351327dc634cb1f052bb5dad671805ed36f60f3e17fa",
+    "local/native-tenel-church-talk-99635-release-v1.png.json": "6509b5aceaa000a3f83c71a0512ca1a3fae599f066ea58e88de1b8b187a430e6",
+    "local/reference-field1d-tenel-church-talk-180-v1.input": "4fbb775b120396277fdcd95514eade834f6fe374f882204dc8bc7140a3387b35",
+    "local/reference-field1d-tenel-church-talk-180-v1.state.zip": "7bea8ba02d784bb5f57c35d7cfc6114fa943cfc8225898d66396fc91514e70cf",
+    "local/reference-field1d-tenel-church-talk-180-v1.json": "b6dd5f0eb0093d81527476dc565aa7662fb9c6218974599bbf7ee316187d9e57",
+    "local/reference-field1d-tenel-church-dialogue-300-v1.log": "bbafd6246d4a03113bc45712610373adb556caf9895739a30bbdba21736839b7",
+    "local/reference-field1d-tenel-church-dialogue-300-v1.input": "875925a026363a37b3afd1788da6d4eec9c7322c19e7ad8eb183f7007ce10547",
+    "local/reference-field1d-tenel-church-dialogue-300-v1.state.zip": "d08d4f9f737d8ce2f5c98760f0a15f8186dabe2ce0e35ca08ceb3a1484ec7185",
+    "local/reference-field1d-tenel-church-dialogue-300-v1.json": "f3b8b15736d43071e649c504cc5f421ae5b4c6e55d9ab8953ee72750500c011c",
+    "local/reference-field1d-tenel-church-dialogue-300-v1.controller.bin": "1309c9af99f1db815d9fb81d5be544a588f13664076d531bc4e0e29a06732f81",
+    "local/reference-field1d-tenel-church-dialogue-300-v1.controller.bin.choices.bin": "f31685c64edc323e0e7340364583f897b877464cc73fa602ba135ab75386eeaf",
+    "local/reference-field1d-tenel-church-dialogue-300-v1.transition.bin": "5fbea434746350658b63b11d8e56ee5f947c4f80d06a520f44ab7b315ef1e594",
+    "local/reference-field1d-tenel-church-dialogue-300-v1.camera.bin": "e688df57637c1ca6aca8551bda28e21dd3612db7a28a40da823209432e64abb4",
+    "local/research/office-exit-collision-v1/map-regression-release.log": "7af692a12a0e20347688b7eee166292f3d3f5bd150ea40871b143b71f88be780",
+    "local/research/office-exit-collision-v1/camera-regression-release.log": "e1f0537061f0895d6e100ed5dcd2630901a9b25d2d40182fd84222009ffe6580",
+    "local/research/office-exit-collision-v1/reached-comparison-v1.json": "b5941edaa29ec0007861008bca84d8b87d4d537ee9cd6017f389fd75756a0651",
+    "local/research/rng-initialization-audit-v1/capture-validation-v1.json": "ec48c9d0b170fe99cab8e3949715fca128e141a27ed80788936728df71a907e7",
+    "local/reference-field1d-tenel-father-choice-180-v1.rng.jsonl": "628f80af290db4b5db04cc57634f3237e93e0c5d4c3d7de7d2d51937f14696e8",
+    "local/research/rng-initialization-audit-v1/recovery.txt": "a81a862a6ee5e012fd6c480fb3db67f0dddda6b46fb30a89a9fc9c64aa1e562c",
+    "local/research/rng-initialization-audit-v1/static-audit.json": "5c31cee2dd469554d140f2863725192f8b08226c01023d473054da2e99692581",
+    "local/research/rng-initialization-audit-v1/retained-states.json": "0978c5891a8e05c69e6ae1fba125ca67d9f51b0aa44a75aedc92ead298f9923a",
+    "local/research/rng-initialization-audit-v1/root-python-tests-v1.log": "d4fec26f78f2df28297bf420b487618e81249e31160db78f9a49620b698fbdd0",
+    "local/research/rng-initialization-audit-v1/capture-validation-v1.txt": "73fd2acf2af7fa2b8d4663ef6f75dd4b228de2b989a7327e0c764ce19ff0346d",
+    "src/collision.cpp": "bc66fda0b4a22fe6a914a8a8e89878a12bf4a2674e55bac1fa7afcd264b3f539",
+    "src/camera_collision.cpp": "6556d536cec35070e0527d3d366b55348272512d17fdf20b2819fdeed609b945",
+    "src/collision_geometry.hpp": "400194bf2415ed2afb647a757c4c4695e2541929ac1a055b6713233114705eb4",
+    "tests/collision_tests.cpp": "5b8ca24e2c24a25a8b512ef74363d120fc307febece0b6f748b3e5eecbab437e",
+    "tools/play-oracle/boot.cpp": "47ffad330c8e94444b0ee675b07c76566a7a5c80a4c1d2b586c40256c5fa21c7",
+    "tools/play-oracle/reference_rng.hpp": "c4d639def56cd13ce3eb787633c71a2fd042b37c58ae200bdce438f3a1bbb1f2",
+    "tools/play-oracle/capture_argument_tests.py": "1f24f24dd5107d7ddd61b15bed7a09f7f465f513f1bfa900da97a95e2d0facfa",
+    "tools/play-oracle/main.cpp": "708f47b64b122baa756ff463998c5bfacb6750ee2c83a8cb4eb3dccf2f6f3c61",
+    "src/native_runtime.mm": "13333971d36ab80300dafac2b6166a0dbef8fec28752153604a78336ec64d328",
+    "include/okage/enemy.hpp": "213381c21b9d171289e0846cbb00f6a52d540388b72136e235127fd0c097d14c",
+    "src/text.cpp": "6185eb5b1320909557993f10549fed71896887e12329520d7502049b778bbb0f",
+    "src/dialogue.cpp": "d0cf914bb92eee627604e687351152634f5caca0ec5b1c13dd5d2ab1db37056e",
+    "tests/dialogue_tests.cpp": "84a351603e882e72778faa78db3d068f7eeedbd51429dbe4d535947cc866dbe5",
+    "tools/diagnose_home1b_interval.py": "162c13855214726e1207276ede831a7115898d5b3dc5f44fbefc1a61f710e520",
+    "tools/summarize_interval_report.py": "97d67168ac9e1404228be34d1b42c81623848e229932ddbffc4cf407115e8422",
+    "tools/verify_map_contacts.py": "5a6d589ef73155cfe2dc7f3a3b78e71dd965c59bb9a6024fe06575f20db63a02",
+    "tools/verify_camera_collision.py": "e16cc0541a9ed00e224d40d9d14b63c10f078d4cf2f425bae62961fd25d0f6f3",
+    "tools/verify_wall_contacts.py": "78dd83d110bac9d9d68970c6b712367578617396c48d4b5ff66467999e9ff338",
+    "CMakeLists.txt": "58101ea4aa55056e6bfa8f235f07ffa847800509f323c0433f4d8d0876b2a5ef",
+    "docs/disc-report.json": "8e2f5ef35fd6491dd49f8934c08b6342db8f31783d8100f1caaf067703e1714a",
+    "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "local/research/office-exit-collision-v1/line-source-followup.txt": "f3fdffb80578f7c481be397d96e95a39c3cd73feafc66853accee01e01c96d47",
+    "local/research/office-exit-collision-v1/capsule-source-followup.txt": "540b96bd483da8e8d85eeae6305a999c372126b767d7f02b69eb8d2f25d292bd",
+    "local/research/office-exit-collision-v1/source-recovery.txt": "0acaa5f0f5c8c6dfa8daa1c9050fc1bb031f2981156d3a874b40ef02f96122a2",
+    "local/research/office-exit-collision-v1/sphere-source-recovery.txt": "b47097e0126f1b4568c760dd9f02969042f0512e52544ffea3cd9a3257e520ca",
+    "local/research/office-exit-collision-v1/capsule-source-followup.json": "5d4d5ff59688afcaa8f451c33b1a13401d8fd5eaec7e79f0c32e7fea97a2d0be",
+    "local/research/office-exit-collision-v1/source-recovery.json": "f7bf217c2c9b9943cf12b816d89ae474dd5871fc6a43ae089f4a4111fa2aa5ad",
+    "local/research/office-exit-collision-v1/line-source-followup.json": "e6afc6946b985fe985e5acc09c43a6700ebf716140999c26bb2e0b4c411c4c5b",
+    "local/research/office-exit-collision-v1/sphere-source-recovery.json": "a7c78194b263ae6934453e0d34c90c259ec0120419912be28d75006da8d82bc7",
+    "local/research/0018b020.asm": "1bf61f566ec32be34a563fb32cae8f377df3626f85d7233af7f5ab4b2213eb9b",
+    "local/research/0018b020.c": "e8d963a9c59c09433f39db76603a5a253e596ad12a2fea4e434c630350437ced",
+    "local/research/0018bb10.asm": "c911b6c9c6e839ed0959c018a7297cffbd53b18e74ed1e2516a7efbcf91f0b67",
+    "local/research/0018bb10.c": "ee1d87fc12d91053642a83609da82f4b92baa0bb201c5d7b0d86a12735bb6cca",
+    "local/research/00188b58.asm": "09bcd83417ec1de6bb5907fc33c04c76dbf07deea6925ef166619a14b05c740a",
+    "local/research/00188b58.c": "4a4ce980ad2eb5da19a2db8c0a8f576964f7d3513ada245cfe0b0a10b153f19d",
+    "local/research/00188be8.asm": "180f70d97d87c818762ffedaff37bf07f1e8423474545b73f43a622225dfd5af",
+    "local/research/00188be8.c": "3915ed78994bc9f89973557fdbe893f1fac21ed2bee91e887aea2d99dc231bec",
+    "local/research/00188cb0.asm": "af1b4182f0c3126b2f1ff8fe861eeae8f5fe6260afe7fe956da947f724e8c789",
+    "local/research/00188cb0.c": "8c8ba852563c189fe704d8b405e6be4ecd4ef0bf72ddc21cba947981311a8ff7",
+    "local/research/00188f20.asm": "3dfbb73179687598e577d3c29af34aa3add4db7b73bad4561c90416de7b0613b",
+    "local/research/00188f20.c": "3c75b329466e5b5a0c375b70959bddb40a1773bfc8c5feb8f25d07cd10c78255",
+    "local/research/office-exit-collision-v1/checkpoint-report-draft.md": "12931f3a82fc1915a83bf0c1ba9b6a1f46670c7b9dc0b413593e6a64e2f9b85a",
+    "local/native-tenel-church-talk-99635-release-v1.png": "4f9509cbc50025a0487cbba9ea697acdecfbaf307aa4574578cb5c0ee6c2d92a",
+    "local/native-current-preview-99635-v1.png": "4f9509cbc50025a0487cbba9ea697acdecfbaf307aa4574578cb5c0ee6c2d92a",
+    "local/native-current-preview-99635-v1.png.actor-1.bin": "3774f7620039d2de896d17c64f3aea6f4bcb26d5fbe12800340ff83c83b10cbd",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-10.bin": "57d9bc430ab92bee91cbf7aca263afa6dc24c8ed943c637c538342ac4945089d",
+    "local/native-current-preview-99635-v1.png.actor-10.bin": "57d9bc430ab92bee91cbf7aca263afa6dc24c8ed943c637c538342ac4945089d",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-11.bin": "4629103173c59322e9522a730b5b3eccbe7287d50c23a0ae5125e218ed00f705",
+    "local/native-current-preview-99635-v1.png.actor-11.bin": "4629103173c59322e9522a730b5b3eccbe7287d50c23a0ae5125e218ed00f705",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-12.bin": "68a9bcff20f7d7e60e37fb65935d1938844789d76300413865451e2914de5c53",
+    "local/native-current-preview-99635-v1.png.actor-12.bin": "68a9bcff20f7d7e60e37fb65935d1938844789d76300413865451e2914de5c53",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-13.bin": "e9f1f56b2721058b895130c92165e5735684594b0f8d2a297a77ab3dfe71001c",
+    "local/native-current-preview-99635-v1.png.actor-13.bin": "e9f1f56b2721058b895130c92165e5735684594b0f8d2a297a77ab3dfe71001c",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-14.bin": "5f3bdce7d6647d5e6658ad756e0c322bc494bb456b6fb9d383b5992446e3b785",
+    "local/native-current-preview-99635-v1.png.actor-14.bin": "5f3bdce7d6647d5e6658ad756e0c322bc494bb456b6fb9d383b5992446e3b785",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-15.bin": "ef1830ec69ef32f18586b64a0a50ed723eec965bcec3590aa83ec58cc7d5f4d4",
+    "local/native-current-preview-99635-v1.png.actor-15.bin": "ef1830ec69ef32f18586b64a0a50ed723eec965bcec3590aa83ec58cc7d5f4d4",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-16.bin": "3997c3bf159a102d860c897964ca90130a0c72b37f5254e272d9afcf762633fc",
+    "local/native-current-preview-99635-v1.png.actor-16.bin": "3997c3bf159a102d860c897964ca90130a0c72b37f5254e272d9afcf762633fc",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-17.bin": "e7e20a8229abb7fda909a3f043e45c9a0e18a5158e73d0f6880f0dbfc4ec3b2a",
+    "local/native-current-preview-99635-v1.png.actor-17.bin": "e7e20a8229abb7fda909a3f043e45c9a0e18a5158e73d0f6880f0dbfc4ec3b2a",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-18.bin": "c4029904a41299be03456079e39e53ca0af49c542e95f0ca57f6a05dfc5eb868",
+    "local/native-current-preview-99635-v1.png.actor-18.bin": "c4029904a41299be03456079e39e53ca0af49c542e95f0ca57f6a05dfc5eb868",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-19.bin": "756f42370f643c771f8affb8ed32a8b75242b7f09cce5733a6a6a4599acc9d89",
+    "local/native-current-preview-99635-v1.png.actor-19.bin": "756f42370f643c771f8affb8ed32a8b75242b7f09cce5733a6a6a4599acc9d89",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-20.bin": "bd55fd50a50c42fad81f989ffd5019aa813a88977bcf43f95c127869492dc293",
+    "local/native-current-preview-99635-v1.png.actor-20.bin": "bd55fd50a50c42fad81f989ffd5019aa813a88977bcf43f95c127869492dc293",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-21.bin": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3",
+    "local/native-current-preview-99635-v1.png.actor-21.bin": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-22.bin": "52ced2ad7d11087e23f17eec62ef9a12152e22819f3c90aae92d7f002c447da5",
+    "local/native-current-preview-99635-v1.png.actor-22.bin": "52ced2ad7d11087e23f17eec62ef9a12152e22819f3c90aae92d7f002c447da5",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-23.bin": "1f9f59b044fba236b222258b5fdbd317ef825b3377ea0ae87b520961dcc705db",
+    "local/native-current-preview-99635-v1.png.actor-23.bin": "1f9f59b044fba236b222258b5fdbd317ef825b3377ea0ae87b520961dcc705db",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-24.bin": "32874905d2185e72ec34ff09170557e7b69b725cdd985cccf26d5f7cd6711677",
+    "local/native-current-preview-99635-v1.png.actor-24.bin": "32874905d2185e72ec34ff09170557e7b69b725cdd985cccf26d5f7cd6711677",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-25.bin": "fdc89a50be91af9e191e45c69fe02da0b2e142974b27839eb0451c4f9728cf70",
+    "local/native-current-preview-99635-v1.png.actor-25.bin": "fdc89a50be91af9e191e45c69fe02da0b2e142974b27839eb0451c4f9728cf70",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-26.bin": "af41cfef8c84ff73ab49d785a6d91101f8f3b3e5d8b3979f627dfab41274cb3b",
+    "local/native-current-preview-99635-v1.png.actor-26.bin": "af41cfef8c84ff73ab49d785a6d91101f8f3b3e5d8b3979f627dfab41274cb3b",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-27.bin": "bbe4332ed86616c2b3baac9fcb220e9796a384a3f7bb57ced729d31a9ba06a1f",
+    "local/native-current-preview-99635-v1.png.actor-27.bin": "bbe4332ed86616c2b3baac9fcb220e9796a384a3f7bb57ced729d31a9ba06a1f",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-28.bin": "90d96a56ce093691b3c09d5d70b05bcdf347d023450189eb7dcb927d5ea0eef9",
+    "local/native-current-preview-99635-v1.png.actor-28.bin": "90d96a56ce093691b3c09d5d70b05bcdf347d023450189eb7dcb927d5ea0eef9",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-29.bin": "04b9a8a807d6759bd955f6b61efeed04fb3268c2fd0917ff08112a94d400f18b",
+    "local/native-current-preview-99635-v1.png.actor-29.bin": "04b9a8a807d6759bd955f6b61efeed04fb3268c2fd0917ff08112a94d400f18b",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-3.bin": "2532c8a8080715722cbccfaf5abe79acfba3a6a81f45c7aeda9e134ef6537511",
+    "local/native-current-preview-99635-v1.png.actor-3.bin": "2532c8a8080715722cbccfaf5abe79acfba3a6a81f45c7aeda9e134ef6537511",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-37.bin": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd",
+    "local/native-current-preview-99635-v1.png.actor-37.bin": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-38.bin": "76ba34c261405d19131ff08afd76466bd58b75955ea5d5be4f94b432248fb11e",
+    "local/native-current-preview-99635-v1.png.actor-38.bin": "76ba34c261405d19131ff08afd76466bd58b75955ea5d5be4f94b432248fb11e",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-45.bin": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921",
+    "local/native-current-preview-99635-v1.png.actor-45.bin": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-7.bin": "970ba83d9cbc0ea19838e938b2e23f6846fec527c18919568f79912f5ea0efb2",
+    "local/native-current-preview-99635-v1.png.actor-7.bin": "970ba83d9cbc0ea19838e938b2e23f6846fec527c18919568f79912f5ea0efb2",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-80.bin": "c3a1d74820a3d85bf67f30081c73a98a7b47f89e94e9320bccc2ea5e5de87470",
+    "local/native-current-preview-99635-v1.png.actor-80.bin": "c3a1d74820a3d85bf67f30081c73a98a7b47f89e94e9320bccc2ea5e5de87470",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor-9.bin": "46617611f711119a98f32fdb1028d81cf6dabd5dc86fdb903c90660a32022d3a",
+    "local/native-current-preview-99635-v1.png.actor-9.bin": "46617611f711119a98f32fdb1028d81cf6dabd5dc86fdb903c90660a32022d3a",
+    "local/native-tenel-church-talk-99635-release-v1.png.actor.bin": "be2bcd43d7c3c687fc90062d014f58d4ded3b61348bd9fcf08c86e9ce5b3a98f",
+    "local/native-current-preview-99635-v1.png.actor.bin": "be2bcd43d7c3c687fc90062d014f58d4ded3b61348bd9fcf08c86e9ce5b3a98f",
+    "local/native-tenel-church-talk-99635-release-v1.png.actors-state.json": "e066e194c358b6d4aec2be612165558f633efd3cd0c8b99a81e857bc32c0387f",
+    "local/native-current-preview-99635-v1.png.actors-state.json": "e066e194c358b6d4aec2be612165558f633efd3cd0c8b99a81e857bc32c0387f",
+    "local/native-tenel-church-talk-99635-release-v1.png.audio.json": "c7c2251338d0dfaa66f129c803c90e55498561154229a1a80135a895bdb8c6a9",
+    "local/native-current-preview-99635-v1.png.audio.json": "c7c2251338d0dfaa66f129c803c90e55498561154229a1a80135a895bdb8c6a9",
+    "local/native-tenel-church-talk-99635-release-v1.png.audio.pcm": "5af958ca2da95bcac6e10081f756474e1f75b3c137e37dc563dcf9b6b12f46a0",
+    "local/native-current-preview-99635-v1.png.audio.pcm": "5af958ca2da95bcac6e10081f756474e1f75b3c137e37dc563dcf9b6b12f46a0",
+    "local/native-current-preview-99635-v1.png.camera-state.bin": "605b29dc6aa7dca2750d0da09739b9befe09e5f649e8af758da4ca3a25ca200c",
+    "local/native-current-preview-99635-v1.png.camera.bin": "b4a483ed756c448a8e441aeb7958ff9facedea69ca573d0252f55183fb62d916",
+    "local/native-current-preview-99635-v1.png.choices.bin": "343e676a51c950c7777f4024ca367050671b5eb023f34dcdca69b16a18b0003e",
+    "local/native-current-preview-99635-v1.png.dialogue.bin": "a736afd3ae39f90aaf890e71143a7f42c938a6754336d5decf0eb4b6e008a82d",
+    "local/native-tenel-church-talk-99635-release-v1.png.effect-submissions.bin": "e3c3dfe298381feeeda39bc3a80818eb35cd2e77a029ecdc3ed07cbdc3db9139",
+    "local/native-current-preview-99635-v1.png.effect-submissions.bin": "e3c3dfe298381feeeda39bc3a80818eb35cd2e77a029ecdc3ed07cbdc3db9139",
+    "local/native-tenel-church-talk-99635-release-v1.png.effects.bin": "ed5efe608f47340041d9da51a705a1e871875d46013c6d426a88aef2d4291f27",
+    "local/native-current-preview-99635-v1.png.effects.bin": "ed5efe608f47340041d9da51a705a1e871875d46013c6d426a88aef2d4291f27",
+    "local/native-current-preview-99635-v1.png.interaction.bin": "29d3513b1cbeeaeb7be72f5f089ca3c36fe48a26945f08cefb04284443b90240",
+    "local/native-current-preview-99635-v1.png.json": "6509b5aceaa000a3f83c71a0512ca1a3fae599f066ea58e88de1b8b187a430e6",
+    "local/native-tenel-church-talk-99635-release-v1.png.map-effects.bin": "bfbc55b9852ba330bc84085cac74f3581f9dfc0c882702cf9141750d293ebe5c",
+    "local/native-current-preview-99635-v1.png.map-effects.bin": "bfbc55b9852ba330bc84085cac74f3581f9dfc0c882702cf9141750d293ebe5c",
+    "local/native-current-preview-99635-v1.png.movement.bin": "6df6d14ff56c923629096893fe6cf971a9e5e872f4643804caef5c0dd447e2bc",
+    "local/native-tenel-church-talk-99635-release-v1.png.music.bin": "07b3bd4b2c17a2cdc33634b0a3a58d002b58dcc888028e245a3840de564bcedb",
+    "local/native-current-preview-99635-v1.png.music.bin": "07b3bd4b2c17a2cdc33634b0a3a58d002b58dcc888028e245a3840de564bcedb",
+    "local/native-tenel-church-talk-99635-release-v1.png.projection.bin": "7f2c3f31d4eb5cc38c04dca91344e8525ff217d79b433d4e8f7731eec9781377",
+    "local/native-current-preview-99635-v1.png.projection.bin": "7f2c3f31d4eb5cc38c04dca91344e8525ff217d79b433d4e8f7731eec9781377",
+    "local/native-tenel-church-talk-99635-release-v1.png.screen-filter.bin": "0b26b57d6941da341194643a3bff378d97b5255b4608319e9d55f713e9eb2b82",
+    "local/native-current-preview-99635-v1.png.screen-filter.bin": "0b26b57d6941da341194643a3bff378d97b5255b4608319e9d55f713e9eb2b82",
+    "local/native-tenel-church-talk-99635-release-v1.png.shadow-submissions.json": "03bff6dc534e426172f38f4a944066e8daf26a02aa73911d041b24b21ee1ea65",
+    "local/native-current-preview-99635-v1.png.shadow-submissions.json": "03bff6dc534e426172f38f4a944066e8daf26a02aa73911d041b24b21ee1ea65",
+    "local/native-tenel-church-talk-99635-release-v1.png.shadow.bin": "d1a77f75043f1eb7daa3f909f5d3d06a5bad11ad31d95d624c26dc262afa965b",
+    "local/native-current-preview-99635-v1.png.shadow.bin": "d1a77f75043f1eb7daa3f909f5d3d06a5bad11ad31d95d624c26dc262afa965b",
+    "local/native-tenel-church-talk-99635-release-v1.png.sound.bin": "a2ad69bef85547a1d0096e2459cda2aceffbd70e9a5dac670c66777dee79029b",
+    "local/native-current-preview-99635-v1.png.sound.bin": "a2ad69bef85547a1d0096e2459cda2aceffbd70e9a5dac670c66777dee79029b",
+    "local/native-tenel-church-talk-99635-release-v1.png.transition.bin": "7dd56a106e52ed72c77bb8af347ac8b146ca0f1dcc6aed994bc19cba6352ba17",
+    "local/native-current-preview-99635-v1.png.transition.bin": "7dd56a106e52ed72c77bb8af347ac8b146ca0f1dcc6aed994bc19cba6352ba17",
+    "local/native-tenel-church-talk-99635-release-v1.png.variables.bin": "f9729db3482c96858367622ae4375792afb3866beb539b82931b8c8cae02b6bf",
+    "local/native-current-preview-99635-v1.png.variables.bin": "f9729db3482c96858367622ae4375792afb3866beb539b82931b8c8cae02b6bf",
+    "local/native-tenel-church-talk-99635-release-v1.png.wander.bin": "5b55e6e820bea76c2e2bcf52bdcafbd89811307cd9d200ea85fd1088ff98c7a3",
+    "local/native-current-preview-99635-v1.png.wander.bin": "5b55e6e820bea76c2e2bcf52bdcafbd89811307cd9d200ea85fd1088ff98c7a3",
+    "local/native-current-preview-99635-v1.png.view.png": "07d78ea86da768b93848fdd48b3148a5716769296f36388fcf88b729f6266af4",
+    "local/research/office-exit-collision-v1/preview-99635-validation-v1.json": "c7f7783af7a077571b9698694af7ee3cd008271080ed7be084cb074804cefae8",
+    "local/research/office-exit-collision-v1/preview-99635-launch-v1.json": "29cb6be1022d91f1ceb7f7c66dd0304519402176c8bbbe9a59fba55d99df2850"
+  },
+  "preview": {
+    "validation": "local/research/office-exit-collision-v1/preview-99635-validation-v1.json",
+    "launch": "local/research/office-exit-collision-v1/preview-99635-launch-v1.json",
+    "exact_endpoint_artifact_pairs_rehashed": 52,
+    "actual_view": "local/native-current-preview-99635-v1.png.view.png",
+    "view_visual_inspection": "Primary reports full-height church/Stan dialogue inspected; this audit rehashed the file but did not inspect the window or image.",
+    "pid_at_launch": 12300,
+    "session_at_launch": 45810,
+    "live_process_status_rechecked": false,
+    "original_pixel_equivalence": false
+  }
+}

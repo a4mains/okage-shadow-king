@@ -231,6 +231,7 @@ SurfaceContact CollisionMap::capsule_wall_contact(const Float4& previous,const F
         for(unsigned i=0;i<4;++i)r.correction[i]=direction[i]*amount;
         return r;
     };
+    std::optional<float> first_distance,second_distance;
     for(unsigned ci=0;ci<candidates.size();++ci) {
         const auto& chunk=chunks[candidates[ci]];marked.emplace_back(chunk.polygons.size(),false);
         for(unsigned pi=0;pi<chunk.polygons.size();++pi) {
@@ -239,8 +240,12 @@ SurfaceContact CollisionMap::capsule_wall_contact(const Float4& previous,const F
             if(ny>threshold||ny< -threshold||(disabled_mask&(1u<<((w[0]&0x3e)>>1))))continue;
             const auto n=normal(polygon);if(dot(movement,n)>0)continue;
             const Plane plane{chunk.vertices.at(w[5]),n};
-            const float first_distance=plane_distance_squared(plane,first),second_distance=plane_distance_squared(plane,second);
-            if(first_distance>radius_squared&&second_distance>radius_squared)continue;
+            if(dot(n,n)!=0) {
+                first_distance=plane_distance_squared(plane,first);
+                second_distance=plane_distance_squared(plane,second);
+            } else if(!first_distance||!second_distance)
+                throw std::runtime_error("Uninitialized capsule plane distance outputs");
+            if(*first_distance>radius_squared&&*second_distance>radius_squared)continue;
             marked[ci][pi]=true;
             if(dot(sub(old_first,plane.point),n)<0||dot(sub(old_second,plane.point),n)<0)continue;
             bool inside=true;
@@ -250,15 +255,19 @@ SurfaceContact CollisionMap::capsule_wall_contact(const Float4& previous,const F
                 if(dot(edge_normal,sub(first,a))>0||dot(edge_normal,sub(second,a))>0){inside=false;break;}
             }
             if(!inside)continue;
-            const auto point=second_distance<=first_distance?second:first;
+            const auto point=*second_distance<=*first_distance?second:first;
             Line intersection;
             if(!intersect_planes(plane,{point,axis},intersection))continue;
             const auto projection=project_line(intersection,point);
+            // 0x18c190 reuses the first distance slot for this line result.
+            first_distance=projection.distance_squared;
             if(projection.distance_squared<=radius_squared)
                 return contact(ci,pi,sub(point,projection.point),projection.distance_squared);
         }
     }
     const Line capsule_line{first,axis};
+    std::optional<Float4> edge_point,capsule_point;
+    std::optional<float> edge_parameter,capsule_parameter;
     for(unsigned ci=0;ci<candidates.size();++ci) {
         const auto& chunk=chunks[candidates[ci]];
         for(unsigned pi=0;pi<chunk.polygons.size();++pi)if(marked[ci][pi]) {
@@ -268,27 +277,44 @@ SurfaceContact CollisionMap::capsule_wall_contact(const Float4& previous,const F
                 const Line line{a,sub(b,a)};
                 if(parallel(line.direction,axis)) {
                     const auto projection=project_line(line,first);
+                    edge_point=projection.point;edge_parameter=projection.parameter;
+                    first_distance=projection.distance_squared;
                     if(projection.distance_squared>radius_squared)continue;
                     const float second_parameter=project_line(line,second).parameter;
+                    capsule_parameter=second_parameter;
                     if(projection.parameter<0&&second_parameter<0)continue;
                     if(projection.parameter>1&&second_parameter>1)continue;
                     return contact(ci,pi,sub(first,projection.point),projection.distance_squared);
                 }
-                const auto closest=closest_lines(line,capsule_line);
-                if(closest.distance_squared>radius_squared)continue;
-                const unsigned region=unsigned(in_segment(closest.first_parameter))|
-                                      (unsigned(in_segment(closest.second_parameter))<<1);
-                if(region==3)return contact(ci,pi,sub(closest.second,closest.first),closest.distance_squared);
+                if(dot(line.direction,line.direction)!=0) {
+                    const auto closest=closest_lines(line,capsule_line);
+                    edge_point=closest.first;capsule_point=closest.second;
+                    edge_parameter=closest.first_parameter;capsule_parameter=closest.second_parameter;
+                    first_distance=closest.distance_squared;
+                }
+                if(!first_distance)throw std::runtime_error("Uninitialized capsule edge distance output");
+                if(*first_distance>radius_squared)continue;
+                if(!edge_parameter||!capsule_parameter)throw std::runtime_error("Uninitialized capsule edge parameter outputs");
+                const unsigned region=unsigned(in_segment(*edge_parameter))|
+                                      (unsigned(in_segment(*capsule_parameter))<<1);
+                if(region==3) {
+                    if(!edge_point||!capsule_point)throw std::runtime_error("Uninitialized capsule closest-point outputs");
+                    return contact(ci,pi,sub(*capsule_point,*edge_point),*first_distance);
+                }
                 if(region==2) {
-                    const auto point=closest.first_parameter<0?a:b;
+                    const auto point=*edge_parameter<0?a:b;
                     const auto projection=project_line(capsule_line,point);
+                    edge_point=projection.point;edge_parameter=projection.parameter;
+                    first_distance=projection.distance_squared;
                     if(projection.distance_squared<=radius_squared&&in_segment(projection.parameter))
                         return contact(ci,pi,sub(projection.point,point),projection.distance_squared);
                 } else if(region==0) {
-                    const auto point=closest.second_parameter<0?first:second;Float4 intersection;
+                    const auto point=*capsule_parameter<0?first:second;Float4 intersection;
                     if(!intersect_line_plane({point,axis},line,intersection))continue;
-                    if(!in_segment(line_parameter(line,intersection)))continue;
+                    edge_point=intersection;edge_parameter=line_parameter(line,intersection);
+                    if(!in_segment(*edge_parameter))continue;
                     const float distance=distance_squared(intersection,point);
+                    first_distance=distance;
                     if(distance<=radius_squared)return contact(ci,pi,sub(point,intersection),distance);
                 }
             }

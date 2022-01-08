@@ -137,6 +137,10 @@ SurfaceContact CollisionMap::sphere_wall_contact(const Float4& previous,const Fl
             if(ny>threshold||ny< -threshold||(mask&(1u<<((w[0]&0x3e)>>1))))continue;
             const auto n=normal(polygon);const Plane plane{chunk.vertices.at(w[5]),n};
             if(dot(movement,n)>0||dot(sub(first,plane.point),n)<0)continue;
+            // 0x18b354 calls plane projection, then 0x18b35c skips the
+            // candidate when its normal has zero squared length. The helper
+            // writes neither projection nor distance on this failure path.
+            if(dot(n,n)==0)continue;
             if(plane_distance_squared(plane,second)>squared_radius)continue;
             marked[ci][pi]=1;bool inside=true;
             for(unsigned edge=0;edge<polygon.vertex_count();++edge) {
