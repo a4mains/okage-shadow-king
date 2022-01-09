@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "status": "Integrated collision fixes and RNG observer; full port incomplete; fixed route discrepancies retained",
-  "created_utc": "2022-01-08T09:11:42.477547+00:00",
+  "created_utc": "2022-01-09T09:11:42.531804+00:00",
   "root_head": "9c2f78fd00058d295194b82f9937438d6eaf8020",
   "source_state": "Source hashes identify the integrated source snapshot on the recorded base commit. Historical run binary hashes remain independently recorded.",
   "exact_father_segment": {
@@ -1381,7 +1381,7 @@
     "tools/play-oracle/boot.cpp": "47ffad330c8e94444b0ee675b07c76566a7a5c80a4c1d2b586c40256c5fa21c7",
     "tools/play-oracle/reference_rng.hpp": "c4d639def56cd13ce3eb787633c71a2fd042b37c58ae200bdce438f3a1bbb1f2",
     "tools/play-oracle/capture_argument_tests.py": "1f24f24dd5107d7ddd61b15bed7a09f7f465f513f1bfa900da97a95e2d0facfa",
-    "tools/play-oracle/main.cpp": "708f47b64b122baa756ff463998c5bfacb6750ee2c83a8cb4eb3dccf2f6f3c61",
+    "tools/play-oracle/main.cpp": "1aa0ddae0d58851d1c7aedc639a92e6222aeea6f3f1a9dcdc0dd7642ecc6ff18",
     "src/native_runtime.mm": "13333971d36ab80300dafac2b6166a0dbef8fec28752153604a78336ec64d328",
     "include/okage/enemy.hpp": "213381c21b9d171289e0846cbb00f6a52d540388b72136e235127fd0c097d14c",
     "src/text.cpp": "6185eb5b1320909557993f10549fed71896887e12329520d7502049b778bbb0f",
@@ -1526,5 +1526,11 @@
     "session_at_launch": 45810,
     "live_process_status_rechecked": false,
     "original_pixel_equivalence": false
+  },
+  "image_audio_bundle": {
+    "path": "local/research/tenel-church-talk-pair-v1/bundle.json",
+    "sha256": "9687bab34ec87660786cd8e5386fb80bb2b0d0940d4b333f07a0149f2f9f02eb",
+    "image_status": "nominal pairs unequal; diagnostic crop, not actual AppKit comparison",
+    "audio_status": "captured_unpaired_duration_mismatch"
   }
 }

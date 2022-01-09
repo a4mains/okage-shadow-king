@@ -1314,7 +1314,7 @@ public:
         if(ram.size()!=32*1024*1024||(input.size()!=80&&input.size()!=96)||frames>12000)
             throw std::runtime_error("Map effect probe fixture bounds");
         std::array<uint32,20> request;std::memcpy(request.data(),input.data(),80);
-        if((request[0]!=6&&request[0]!=16&&request[0]!=17&&request[0]!=19&&request[0]!=24&&request[0]!=25&&request[0]!=26&&request[0]!=33&&request[0]!=34&&request[0]!=91&&request[0]!=98&&request[0]!=115)||request[2]>0xfff||request[3]!=0x100)
+        if((request[0]!=6&&request[0]!=14&&request[0]!=16&&request[0]!=17&&request[0]!=19&&request[0]!=24&&request[0]!=25&&request[0]!=26&&request[0]!=33&&request[0]!=34&&request[0]!=91&&request[0]!=98&&request[0]!=115)||request[2]>0xfff||request[3]!=0x100)
             throw std::runtime_error("Map effect probe request scope");
         const bool torch=request[0]==91,flame=torch||request[0]==16;
         if((torch&&input.size()!=96)||(!torch&&(input.size()!=80||(!flame&&frames>1000))))
@@ -1334,14 +1334,24 @@ public:
         if(table>ram.size()-212*4||random>ram.size()-4)throw std::runtime_error("Map effect fixture pointers");
         for(unsigned i=0;i<84;++i)put(table+4*i,0xffffffff);
         put(random,request[1]);std::memcpy(ee->m_ram+0x80000,request.data()+4,64);
-        const bool attached=request[0]==24;
+        const bool attached=request[0]==14||request[0]==24;
         const bool positioned=attached||request[0]==6||request[0]==17||request[0]==26||request[0]==33||request[0]==115;
         uint32 handle;
         if(attached) {
             const auto actor=get(0x337b64);
             call(0x1bb5b8,{actor});const auto channel=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
             call(0x1b4220,{channel,0x80010});call(0x1b4220,{channel+1,0x80000});
-            call(0x1015e8,{24,actor});handle=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+            if(request[0]==14) {
+                std::memset(ee->m_ram+0x2d9bf8,0xff,32);put(0x1fb948,15);
+                call(0x130be0,{0x39,14,actor,0x80000});
+                if(uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0)!=0x80000||get(0x1fb948)!=0)
+                    throw std::runtime_error("Attached effect service payload/ring extent");
+                for(unsigned i=0;i<15;++i)if((get(0x2d9bf8+2*i)&0xffff)!=0xffff)
+                    throw std::runtime_error("Attached effect changed an unrelated ring entry");
+                handle=get(0x2d9bf8+30)&0xffff;
+            } else {
+                call(0x1015e8,{24,actor});handle=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+            }
         }
         else if(request[0]==6||request[0]==26||request[0]==33||request[0]==115) {
             std::memset(ee->m_ram+0x2d9bf8,0xff,32);put(0x1fb948,15);
@@ -1404,7 +1414,7 @@ public:
                             if(point>ram.size()-8)throw std::runtime_error("Effect geometry point extent");
                             geometry.insert(geometry.end(),{get(point),get(point+4),ee->m_ram[tags+vertex]});
                         }
-                        if(attached&&i>=5) {
+                        if(request[0]==24&&i>=5) {
                             const auto count=get(g+0x1c)>>16;
                             if(count!=4)throw std::runtime_error("Shadow shared quad UV count");
                             call(0x113720,{g,0});const auto uv=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
@@ -1412,12 +1422,13 @@ public:
                             shadowUV.insert(shadowUV.end(),{step,i,count});
                             for(unsigned j=0;j<4;++j)shadowUV.push_back(get(uv+j*4));
                         }
-                        if(request[0]==26) {
+                        if(request[0]==26||request[0]==14) {
                             //0x105790 walks this UV array and its own tag table;
                             // XYZ tags are a separate geometry stream.
                             const auto uvCount=get(g+0x1c)>>16,uvTags=get(g+0x18);
                             if(uvCount>512||uvTags>ram.size()-uvCount)
                                 throw std::runtime_error("Effect UV tag extent");
+                            if(!uvCount)continue;
                             call(0x113720,{g,0});const auto uv=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
                             if(uv>ram.size()-uvCount*4)throw std::runtime_error("Effect UV extent");
                             uvGeometry.insert(uvGeometry.end(),{step,i,piece-1,uvCount});

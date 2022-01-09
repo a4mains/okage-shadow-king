@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "status": "Original research baseline; native effect14 remains unimplemented",
+  "base_commit": "33f0966",
+  "original_probe": {
+    "command": [
+      "build/play-research/okage-oracle/okage-pose-oracle",
+      "map-effect-probe",
+      "local/extracted/SCUS_971.29",
+      "local/research/basement-summon-v1/after-chant.ram",
+      "local/research/church-service57-v1/14.input.bin",
+      "72",
+      "local/research/church-service57-v1/14.original-v1.bin"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 1.386327292,
+    "binary_sha256": "c741377afc9b898742bd15e70454334fb26172aa17e900c0e06640c1cb6fd611",
+    "input_sha256": "26ce0965d165425008ed9177b1243ac512b7eeaf68d1c215f9b87266926bf217",
+    "source_ram_sha256": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f"
+  },
+  "scope": {
+    "snapshots": 74,
+    "words_per_snapshot": 337,
+    "state_words": 24938,
+    "updates": 72,
+    "authored_duration": 60,
+    "first_removal_snapshot": 62,
+    "terminal_phase": 61,
+    "final_rng": "0x8c44f8e1",
+    "geometry_bytes": 138824,
+    "uv_bytes": 47360
+  },
+  "isolated_preconditions": [
+    "Owned prepared template/heap state from oracle-only after-chant RAM",
+    "Empty effect pool and explicit seed1",
+    "Actor transform supplied by fixture through original channel setters",
+    "Actual event39 handler called using existing valid actor selector",
+    "No original instructions patched; native runtime never consumes snapshot or captured state/geometry"
+  ],
+  "limits": [
+    "Not a full field callback/render/GS comparison",
+    "Does not directly execute reached negative B=-20 encoding; signed conversion is separately source-recovered",
+    "No native template14 equivalence claim",
+    "Whole church interval must be replayed after implementation"
+  ],
+  "regression": {
+    "command": [
+      "build/play-research/okage-oracle/okage-pose-oracle",
+      "map-effect-probe",
+      "local/extracted/SCUS_971.29",
+      "local/research/shadow-transition-v1/before-shadow.ram",
+      "local/research/effect24-v1/24.input.bin",
+      "82",
+      "local/research/church-service57-v1/24.regression-v1.bin"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 1.061977041,
+    "binary_sha256": "c741377afc9b898742bd15e70454334fb26172aa17e900c0e06640c1cb6fd611",
+    "comparisons": [
+      {
+        "suffix": "",
+        "equal": true,
+        "sha256": "5dcb85d8826b82bca167f900d008b2c24100d62b291da90f9107b282a0d7b2c7",
+        "baseline": "local/research/effect24-v1/24.original-v2.bin",
+        "output": "local/research/church-service57-v1/24.regression-v1.bin",
+        "baseline_sha256": "5dcb85d8826b82bca167f900d008b2c24100d62b291da90f9107b282a0d7b2c7"
+      },
+      {
+        "suffix": ".geometry.bin",
+        "equal": true,
+        "sha256": "17bcee21b54ef8204686ad367dc1579cd5850d9d66c07143be5e5f7ed49e5512",
+        "baseline": "local/research/effect24-v1/24.original-v2.bin.geometry.bin",
+        "output": "local/research/church-service57-v1/24.regression-v1.bin.geometry.bin",
+        "baseline_sha256": "17bcee21b54ef8204686ad367dc1579cd5850d9d66c07143be5e5f7ed49e5512"
+      },
+      {
+        "suffix": ".shadow-uv.bin",
+        "equal": true,
+        "sha256": "2be6a79c913c80de7bc72f45f66b3832802878be0cc1d8a2d3742022a553d711",
+        "baseline": "local/research/effect24-v1/24.original-v2.bin.shadow-uv.bin",
+        "output": "local/research/church-service57-v1/24.regression-v1.bin.shadow-uv.bin",
+        "baseline_sha256": "2be6a79c913c80de7bc72f45f66b3832802878be0cc1d8a2d3742022a553d711"
+      }
+    ],
+    "source_ram_sha256": "6c46d04c549cae2a08f0fa38d397d2e2a4d48e2ffa2174a159c87f93b19c304d",
+    "input_sha256": "94d59066ffe57395a07c628700201e28c9de8d73911d716fd353913b68205170"
+  },
+  "tests": {
+    "python": 162,
+    "result": "pass"
+  },
+  "sha256": {
+    "tools/play-oracle/main.cpp": "1aa0ddae0d58851d1c7aedc639a92e6222aeea6f3f1a9dcdc0dd7642ecc6ff18",
+    "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "local/research/church-service57-v1/audit-v1.json": "eac6c2ffae4296d0b0cb5ec18c7060933994b17ca7b155e54e01546166b9e23e",
+    "local/research/church-service57-v1/source-recovery.txt": "b51607c7716d7a152b8484cd847501712cfe2f4ccb539f7c8c68ff5048f19778",
+    "local/research/church-service57-v1/14.input.bin": "26ce0965d165425008ed9177b1243ac512b7eeaf68d1c215f9b87266926bf217",
+    "local/research/church-service57-v1/14.original-v1.run.json": "11b14836c729f2b7ca359897d412749ad7b61796a60ff7f2d2b5410d0721a8a6",
+    "local/research/church-service57-v1/14.original-v1.bin": "2032940d011642af3a016f43507e40f071bdd7d6fc8c334e18ef492ae2bd4560",
+    "local/research/church-service57-v1/14.original-v1.bin.geometry.bin": "45bd3c5530f54a99ce9c3e4fba6c65ebbc6d075a3bd592a8c24b7be8341c127d",
+    "local/research/church-service57-v1/14.original-v1.bin.uv.bin": "7831e2152ccf88dbd1e227009fc18c5b38ce4bdb57ea7a45a98de1dac5eda250",
+    "local/research/church-service57-v1/24.regression-v1.run.json": "e57c1acc5bbcd12c4896cdaca1fbbe7fec4f30c657a9eb00fe593e965df11a13",
+    "local/research/church-service57-v1/oracle-build-v1.log": "065970eec5c0738e4f21b17beb4894e70db70820f56aa62705b3f38e737cf8f1",
+    "local/research/church-service57-v1/python-tests-v1.log": "6f7b9b0fe511c52fd697322da403837d79c3a5ea512313155e684be67ed35f56",
+    "local/research/church-service57-v1/primary-source-review-v1.json": "99de18a804c64f79f10627e03ef0e34cc8987d5c530d8f893618c4ee5ff6ca56",
+    "local/research/church-service57-v1/effect-selectors-shapes-followup-v1.txt": "0de2966e8411a9bfed70d4410828ecc0f14b12b17063befa8ad76438ac73fa46",
+    "local/research/church-service57-v1/gap-export-v1/00104438.asm": "fe8ba813c81390fdc2c3ba4ae412fa7edc39536023e11f092608d005f381c464",
+    "local/research/church-service57-v1/gap-export-v1/00110908.asm": "ffc93f7bc9d0655a1a74120aa777ae847a4e228e59a6d48344750f8e96cc68d3",
+    "local/research/church-service57-v1/gap-export-v2/00111cf0.asm": "99e8e47ecd35f0feebca542787f2830db622cadd86922c357966107eb8a56d76"
+  },
+  "independent_review": {
+    "state_words_checked": 24938,
+    "geometry_records_checked": 518,
+    "uv_records_checked": 370,
+    "terminal_payloads_stable": true,
+    "scope": "Retained evidence review; no new execution"
+  },
+  "source_followup_review": {
+    "review": "Corrections after the run source report",
+    "corrections": [
+      "Element3 rotation selector0; scale4 uses authored scaleW denominator",
+      "0x200 clears time24..29, not scale; mask0xc0ffffff at0x10a7f0",
+      "0x111 includes0x100; it clears position12..17 after first update, not time12",
+      "Corrected truncated112xxx helper addresses",
+      "Twelve terminal zero-delta snapshots, plus one duplicate constructor observation; not thirteen terminal snapshots"
+    ],
+    "remaining_uncertainties": [
+      "UV axes/dimension conventions require exact constructor/native comparison",
+      "Template14 material/GS drawing remains unverified; existing probe captures update geometry only"
+    ],
+    "report_sha256": "0de2966e8411a9bfed70d4410828ecc0f14b12b17063befa8ad76438ac73fa46"
+  }
+}
