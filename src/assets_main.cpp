@@ -895,24 +895,51 @@ int main(int argc, char** argv) {
             for(unsigned i=0;i<sizes.size();++i){const auto image=okage::decode_xim(read(fs::path(argv[3])/okage::effect_texture_names[i]));sizes[i]={image.width,image.height};}
             okage::GameRandom rng{request[1]};const auto random=[&]{return rng.next();};
             const bool dust=request[0]==17;
-            const bool attached=request[0]==24;
+            const bool attached=request[0]==14||request[0]==24;
             const bool positioned=attached||dust||request[0]==6||request[0]==26||request[0]==33||request[0]==115;
-            auto position=attached?okage::Float4{}:vectors[0];
+            auto position=attached?found->position:vectors[0];
             // These probes use0x130c50's XYZ payload; it supplies W=1.
             // The direct0x1012f8 constructor used by dust copies all four words.
             if(request[0]==6||request[0]==26||request[0]==33||request[0]==115)position[3]=1;
-            okage::MapEffect effect(*found,position,positioned?okage::Float4{}:vectors[1],
-                positioned?okage::Float4{1,1,1,1}:vectors[2],sizes,random,
+            okage::MapEffect effect(*found,position,attached?found->rotation:positioned?okage::Float4{}:vectors[1],
+                attached?found->scale:positioned?okage::Float4{1,1,1,1}:vectors[2],sizes,random,
                 positioned?okage::EffectStart::FirstFrame:okage::EffectStart::RandomPhase);
-            std::vector<std::uint32_t> out,deformation,torchGeometry,cylinderUV,shadowUV;
+            std::vector<std::uint32_t> out,deformation,torchGeometry,cylinderUV,shadowUV,stripGeometry,stripUV;
             const auto vector=[&](const okage::Float4& v){for(float f:v)out.push_back(__builtin_bit_cast(std::uint32_t, (f)));};
             const auto capture=[&](unsigned step){
-                if(attached)for(unsigned i=5;i<8;++i) {
+                if(request[0]==24)for(unsigned i=5;i<8;++i) {
                     shadowUV.insert(shadowUV.end(),{step,i,4});
                     for(unsigned j:{1u,0u,2u,3u}) {
                         const auto& uv=effect.elements[i].quad_uv[j];
                         shadowUV.push_back(uv[0]|(std::uint32_t(uv[1])<<16));
                     }
+                }
+                if(request[0]==14) {
+                    const auto old=std::fegetround();std::fesetround(FE_TOWARDZERO);
+                    const auto sine=okage::make_sine_table();
+                    for(unsigned i=0;i<effect.elements.size();++i) {
+                        const auto& e=effect.elements[i];
+                        const unsigned count=e.shape==25?60:e.shape==40?17:14;
+                        stripGeometry.insert(stripGeometry.end(),{step,i,0,count});
+                        const auto point=[&](std::int16_t x,std::int16_t y,std::int16_t z,unsigned tag) {
+                            // Three signed shorts only: upper Z-word half is
+                            // adjacent original heap storage, not a coordinate.
+                            stripGeometry.insert(stripGeometry.end(),{std::uint16_t(x)|(std::uint32_t(std::uint16_t(y))<<16),std::uint16_t(z),tag});
+                        };
+                        const auto circle=[&](unsigned ordinal,unsigned segments,std::int16_t y,unsigned tag) {
+                            const auto at=(std::uint32_t(int((float(ordinal)/float(segments))*32768))>>1)&16383;
+                            point(std::int16_t(std::round(sine[(at+4096)&16383]*64)),y,std::int16_t(std::round(sine[at]*64)),tag);
+                        };
+                        if(e.shape==25)for(unsigned v=0;v<30;++v){circle(v,30,0,1);circle(v,30,e.ring_y.at(v),2);}
+                        else if(e.shape==40){point(0,0,0,1);circle(1,16,0,1);circle(0,16,0,1);for(unsigned v=2;v<16;++v)circle(v,16,0,1);}
+                        else {
+                            if(e.shape!=35||e.strip_positions.size()!=14)throw std::runtime_error("Effect14 geometry extent");
+                            stripUV.insert(stripUV.end(),{step,i,0,14});
+                            for(unsigned v=0;v<14;++v){const auto& p=e.strip_positions[v];point(p[0],p[1],p[2],e.strip_tags[v]);
+                                const auto& uv=e.strip_uv[v];stripUV.insert(stripUV.end(),{uv[0]|(std::uint32_t(uv[1])<<16),0});}
+                        }
+                    }
+                    std::fesetround(old);
                 }
                 if(request[0]==26)for(unsigned i=0;i<effect.elements.size();++i) {
                     const auto& e=effect.elements[i];
@@ -962,7 +989,11 @@ int main(int argc, char** argv) {
                 if(attached){effect.position=vectors[0];effect.rotation=vectors[1];}
                 effect.tick(random,true,torch?&eye:nullptr);
             }capture(i+2);}
-            if(attached)write(std::string(argv[6])+".shadow-uv.bin",{reinterpret_cast<const std::uint8_t*>(shadowUV.data()),shadowUV.size()*4});
+            if(request[0]==24)write(std::string(argv[6])+".shadow-uv.bin",{reinterpret_cast<const std::uint8_t*>(shadowUV.data()),shadowUV.size()*4});
+            if(request[0]==14){
+                write(std::string(argv[6])+".geometry.bin",{reinterpret_cast<const std::uint8_t*>(stripGeometry.data()),stripGeometry.size()*4});
+                write(std::string(argv[6])+".uv.bin",{reinterpret_cast<const std::uint8_t*>(stripUV.data()),stripUV.size()*4});
+            }
             if(flame)write(std::string(argv[6])+".torch-geometry.bin",
                 {reinterpret_cast<const std::uint8_t*>(torchGeometry.data()),torchGeometry.size()*4});
             if(!deformation.empty())write(std::string(argv[6])+".deformation.bin",

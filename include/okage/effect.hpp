@@ -50,6 +50,10 @@ struct MapEffectElement {
     // Torch91 uses independent mutable flame quads and atlas coordinates.
     std::array<std::array<std::int16_t,3>,4> quad_positions{};
     std::array<std::array<std::uint16_t,2>,4> quad_uv{};
+    std::vector<std::array<std::int16_t,3>> strip_positions;
+    std::vector<std::uint8_t> strip_tags;
+    std::vector<std::array<std::uint16_t,2>> strip_uv;
+    std::optional<std::uint32_t> strip_source_id;
 };
 enum class EffectStart {RandomPhase, FirstFrame};
 struct MapEffectVertex {Float4 position,color,uv;};

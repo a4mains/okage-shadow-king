@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "Original research baseline; native effect14 remains unimplemented",
+  "status": "Native template14 lifecycle and packed geometry exact in Release, Debug and ASan/UBSan; rendering/service integration pending",
   "base_commit": "33f0966",
   "original_probe": {
     "command": [
@@ -40,8 +40,10 @@
   "limits": [
     "Not a full field callback/render/GS comparison",
     "Does not directly execute reached negative B=-20 encoding; signed conversion is separately source-recovered",
-    "No native template14 equivalence claim",
-    "Whole church interval must be replayed after implementation"
+    "Whole church interval must be replayed after implementation",
+    "One explicit native template14 fixture, not general effect14 inputs or full-field proof",
+    "Geometry second-word upper16 is adjacent storage, excluded; raw artifacts differ",
+    "No native template14 draw or church progression claim"
   ],
   "regression": {
     "command": [
@@ -106,7 +108,24 @@
     "local/research/church-service57-v1/effect-selectors-shapes-followup-v1.txt": "0de2966e8411a9bfed70d4410828ecc0f14b12b17063befa8ad76438ac73fa46",
     "local/research/church-service57-v1/gap-export-v1/00104438.asm": "fe8ba813c81390fdc2c3ba4ae412fa7edc39536023e11f092608d005f381c464",
     "local/research/church-service57-v1/gap-export-v1/00110908.asm": "ffc93f7bc9d0655a1a74120aa777ae847a4e228e59a6d48344750f8e96cc68d3",
-    "local/research/church-service57-v1/gap-export-v2/00111cf0.asm": "99e8e47ecd35f0feebca542787f2830db622cadd86922c357966107eb8a56d76"
+    "local/research/church-service57-v1/gap-export-v2/00111cf0.asm": "99e8e47ecd35f0feebca542787f2830db622cadd86922c357966107eb8a56d76",
+    "include/okage/effect.hpp": "a5c521ca5d563673a7f00fa324877d089e2501ebc7346ff17f725390323e2179",
+    "src/effect.cpp": "b479438bb5412fd5c0f5c89368496a7f7f4d6644b1cef9c6ef5f808336e0c85c",
+    "src/assets_main.cpp": "636cb90f9df687db5582fff52f15219d4302cfd97ae027a528f237c4d80de294",
+    "local/research/church-service57-v1/compare-native14.py": "3e64eecd8cad95e25b52b59e0618dd080bb7f123b992164d3390089f62f6cb9e",
+    "local/research/church-service57-v1/native-lifecycle-checks-v1/runs.json": "dac2c3de642aaeeadab99767b2d07a564482f7700f38381b5e282e5ce84de35f",
+    "local/research/church-service57-v1/material-shape35-v1.txt": "0a94868c6036fc533d23bb6d341e2cbcbdb2bc2d29c223c4ef0ff3edf8416fd1",
+    "local/research/church-service57-v1/material-shape35-v1.json": "6babb3b760b3d9ce5dca8ef171c951371e0ef761c0b615203fc63cd55f673f46",
+    "local/research/church-service57-v1/native-build-v1.log": "a1d9928c12bcb97785644b770219cd449bcd8165b76fd8bd6e969ea2fa392d7f",
+    "local/research/church-service57-v1/native-debug-build-v1.log": "1d918f97e66ab62e83b36cc42066b0c7ee374d1f513bdb32b470210f82240867",
+    "local/research/church-service57-v1/native-sanitize-build-v1.log": "47e85908348fc466531ff04de1ee0a2bfed626c2ba117fb2c74f90c479fe00cd",
+    "local/research/church-service57-v1/native-release-tests-v1.log": "0ac2fdd3b459d9fa71f970c6f2bda6faf153e5e871938885fc08194f6a17cdc6",
+    "local/research/church-service57-v1/native-debug-tests-v1.log": "f434ac523318538048454ea35d5cf3d78b554aca12f043f4297c80622667a691",
+    "local/research/church-service57-v1/native-sanitize-tests-v1.log": "198e40758ae11fcd7d2ff5541df1152585bff96c2edcb30a4039da828d6ecb7e",
+    "local/research/church-service57-v1/python-native-tests-v1.log": "eef8f493f19c91d3873561ab116360cdbcb543512d505e00c6c34de88b1fcf6d",
+    "local/research/church-service57-v1/native-lifecycle-checks-v1/native/14.compare.json": "db4214091001d8e53a3fbe45628062aa9da6ebd905d66b36b6c912d128857049",
+    "local/research/church-service57-v1/native-lifecycle-checks-v1/model-sanitize/14.compare.json": "5f819cccf6a44c8e45b8faab9dd33c00af136760628326ca1f67bf2554881bbc",
+    "local/research/church-service57-v1/native-lifecycle-checks-v1/native-release/14.compare.json": "3b819801b27e80b78fbae571751f36f23d4cd504981e2d846bc2418c33195f19"
   },
   "independent_review": {
     "state_words_checked": 24938,
@@ -125,9 +144,492 @@
       "Twelve terminal zero-delta snapshots, plus one duplicate constructor observation; not thirteen terminal snapshots"
     ],
     "remaining_uncertainties": [
-      "UV axes/dimension conventions require exact constructor/native comparison",
-      "Template14 material/GS drawing remains unverified; existing probe captures update geometry only"
+      "Drawing indices/colors, billboard transforms and GS material behavior remain unverified; lifecycle probe captures updates/geometry/UV only"
     ],
     "report_sha256": "0de2966e8411a9bfed70d4410828ecc0f14b12b17063befa8ad76438ac73fa46"
+  },
+  "native_base_commit": "d261c31",
+  "native_runs": {
+    "native-release": [
+      {
+        "command": [
+          "build/native-release/okage-assets",
+          "map-effect-probe",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/research/church-service57-v1/14.input.bin",
+          "72",
+          "local/research/church-service57-v1/native-lifecycle-checks-v1/native-release/14.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.012170707999999999,
+        "binary_sha256": "17b50b43b6ff04f689de2d940ad93377655c5530aa1dea11124cf65cb442c097",
+        "input_sha256": "26ce0965d165425008ed9177b1243ac512b7eeaf68d1c215f9b87266926bf217",
+        "stdout": "",
+        "stderr": "",
+        "comparison_command": [
+          "python3",
+          "local/research/church-service57-v1/compare-native14.py",
+          "--native",
+          "local/research/church-service57-v1/native-lifecycle-checks-v1/native-release/14.bin",
+          "--output",
+          "local/research/church-service57-v1/native-lifecycle-checks-v1/native-release/14.compare.json"
+        ],
+        "comparison_exit_code": 0
+      },
+      {
+        "command": [
+          "build/native-release/okage-assets",
+          "map-effect-probe",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/research/effect24-v1/24.input.bin",
+          "82",
+          "local/research/church-service57-v1/native-lifecycle-checks-v1/native-release/24.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.010495208000000006,
+        "binary_sha256": "17b50b43b6ff04f689de2d940ad93377655c5530aa1dea11124cf65cb442c097",
+        "input_sha256": "94d59066ffe57395a07c628700201e28c9de8d73911d716fd353913b68205170",
+        "stdout": "",
+        "stderr": "",
+        "comparisons": [
+          {
+            "output": "local/research/church-service57-v1/native-lifecycle-checks-v1/native-release/24.bin",
+            "reference": "local/research/effect24-v1/24.original-v2.bin",
+            "sha256": "5dcb85d8826b82bca167f900d008b2c24100d62b291da90f9107b282a0d7b2c7",
+            "reference_sha256": "5dcb85d8826b82bca167f900d008b2c24100d62b291da90f9107b282a0d7b2c7",
+            "exact": true,
+            "scope": "Retained original bytes"
+          },
+          {
+            "output": "local/research/church-service57-v1/native-lifecycle-checks-v1/native-release/24.bin.deformation.bin",
+            "reference": "local/shadow-state-drawing-regression-v1/native-release/state.bin.deformation.bin",
+            "sha256": "1ca145d28b909d8f112a4fbc8ab726b89a24f5d1ca05eaad76ddec840d8f7211",
+            "reference_sha256": "1ca145d28b909d8f112a4fbc8ab726b89a24f5d1ca05eaad76ddec840d8f7211",
+            "exact": true,
+            "scope": "Native previously validated ring heights"
+          },
+          {
+            "output": "local/research/church-service57-v1/native-lifecycle-checks-v1/native-release/24.bin.shadow-uv.bin",
+            "reference": "local/research/effect24-v1/24.original-v2.bin.shadow-uv.bin",
+            "sha256": "2be6a79c913c80de7bc72f45f66b3832802878be0cc1d8a2d3742022a553d711",
+            "reference_sha256": "2be6a79c913c80de7bc72f45f66b3832802878be0cc1d8a2d3742022a553d711",
+            "exact": true,
+            "scope": "Retained original bytes"
+          }
+        ]
+      }
+    ],
+    "native": [
+      {
+        "command": [
+          "build/native/okage-assets",
+          "map-effect-probe",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/research/church-service57-v1/14.input.bin",
+          "72",
+          "local/research/church-service57-v1/native-lifecycle-checks-v1/native/14.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.37522537499999997,
+        "binary_sha256": "a4809a18565dcd54110b83a4b94fb8891919c6158f501df86406e1ec99d3150c",
+        "input_sha256": "26ce0965d165425008ed9177b1243ac512b7eeaf68d1c215f9b87266926bf217",
+        "stdout": "",
+        "stderr": "",
+        "comparison_command": [
+          "python3",
+          "local/research/church-service57-v1/compare-native14.py",
+          "--native",
+          "local/research/church-service57-v1/native-lifecycle-checks-v1/native/14.bin",
+          "--output",
+          "local/research/church-service57-v1/native-lifecycle-checks-v1/native/14.compare.json"
+        ],
+        "comparison_exit_code": 0
+      },
+      {
+        "command": [
+          "build/native/okage-assets",
+          "map-effect-probe",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/research/effect24-v1/24.input.bin",
+          "82",
+          "local/research/church-service57-v1/native-lifecycle-checks-v1/native/24.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.04744770900000006,
+        "binary_sha256": "a4809a18565dcd54110b83a4b94fb8891919c6158f501df86406e1ec99d3150c",
+        "input_sha256": "94d59066ffe57395a07c628700201e28c9de8d73911d716fd353913b68205170",
+        "stdout": "",
+        "stderr": "",
+        "comparisons": [
+          {
+            "output": "local/research/church-service57-v1/native-lifecycle-checks-v1/native/24.bin",
+            "reference": "local/research/effect24-v1/24.original-v2.bin",
+            "sha256": "5dcb85d8826b82bca167f900d008b2c24100d62b291da90f9107b282a0d7b2c7",
+            "reference_sha256": "5dcb85d8826b82bca167f900d008b2c24100d62b291da90f9107b282a0d7b2c7",
+            "exact": true,
+            "scope": "Retained original bytes"
+          },
+          {
+            "output": "local/research/church-service57-v1/native-lifecycle-checks-v1/native/24.bin.deformation.bin",
+            "reference": "local/shadow-state-drawing-regression-v1/native-release/state.bin.deformation.bin",
+            "sha256": "1ca145d28b909d8f112a4fbc8ab726b89a24f5d1ca05eaad76ddec840d8f7211",
+            "reference_sha256": "1ca145d28b909d8f112a4fbc8ab726b89a24f5d1ca05eaad76ddec840d8f7211",
+            "exact": true,
+            "scope": "Native previously validated ring heights"
+          },
+          {
+            "output": "local/research/church-service57-v1/native-lifecycle-checks-v1/native/24.bin.shadow-uv.bin",
+            "reference": "local/research/effect24-v1/24.original-v2.bin.shadow-uv.bin",
+            "sha256": "2be6a79c913c80de7bc72f45f66b3832802878be0cc1d8a2d3742022a553d711",
+            "reference_sha256": "2be6a79c913c80de7bc72f45f66b3832802878be0cc1d8a2d3742022a553d711",
+            "exact": true,
+            "scope": "Retained original bytes"
+          }
+        ]
+      }
+    ],
+    "model-sanitize": [
+      {
+        "command": [
+          "build/model-sanitize/okage-assets",
+          "map-effect-probe",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/research/church-service57-v1/14.input.bin",
+          "72",
+          "local/research/church-service57-v1/native-lifecycle-checks-v1/model-sanitize/14.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.4857349580000001,
+        "binary_sha256": "6d87fa5289abbfebef306518bd72689bb133fb13966e3875d9990d2b9f266536",
+        "input_sha256": "26ce0965d165425008ed9177b1243ac512b7eeaf68d1c215f9b87266926bf217",
+        "stdout": "",
+        "stderr": "",
+        "comparison_command": [
+          "python3",
+          "local/research/church-service57-v1/compare-native14.py",
+          "--native",
+          "local/research/church-service57-v1/native-lifecycle-checks-v1/model-sanitize/14.bin",
+          "--output",
+          "local/research/church-service57-v1/native-lifecycle-checks-v1/model-sanitize/14.compare.json"
+        ],
+        "comparison_exit_code": 0
+      },
+      {
+        "command": [
+          "build/model-sanitize/okage-assets",
+          "map-effect-probe",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "local/research/effect24-v1/24.input.bin",
+          "82",
+          "local/research/church-service57-v1/native-lifecycle-checks-v1/model-sanitize/24.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.11567858400000008,
+        "binary_sha256": "6d87fa5289abbfebef306518bd72689bb133fb13966e3875d9990d2b9f266536",
+        "input_sha256": "94d59066ffe57395a07c628700201e28c9de8d73911d716fd353913b68205170",
+        "stdout": "",
+        "stderr": "",
+        "comparisons": [
+          {
+            "output": "local/research/church-service57-v1/native-lifecycle-checks-v1/model-sanitize/24.bin",
+            "reference": "local/research/effect24-v1/24.original-v2.bin",
+            "sha256": "5dcb85d8826b82bca167f900d008b2c24100d62b291da90f9107b282a0d7b2c7",
+            "reference_sha256": "5dcb85d8826b82bca167f900d008b2c24100d62b291da90f9107b282a0d7b2c7",
+            "exact": true,
+            "scope": "Retained original bytes"
+          },
+          {
+            "output": "local/research/church-service57-v1/native-lifecycle-checks-v1/model-sanitize/24.bin.deformation.bin",
+            "reference": "local/shadow-state-drawing-regression-v1/native-release/state.bin.deformation.bin",
+            "sha256": "1ca145d28b909d8f112a4fbc8ab726b89a24f5d1ca05eaad76ddec840d8f7211",
+            "reference_sha256": "1ca145d28b909d8f112a4fbc8ab726b89a24f5d1ca05eaad76ddec840d8f7211",
+            "exact": true,
+            "scope": "Native previously validated ring heights"
+          },
+          {
+            "output": "local/research/church-service57-v1/native-lifecycle-checks-v1/model-sanitize/24.bin.shadow-uv.bin",
+            "reference": "local/research/effect24-v1/24.original-v2.bin.shadow-uv.bin",
+            "sha256": "2be6a79c913c80de7bc72f45f66b3832802878be0cc1d8a2d3742022a553d711",
+            "reference_sha256": "2be6a79c913c80de7bc72f45f66b3832802878be0cc1d8a2d3742022a553d711",
+            "exact": true,
+            "scope": "Retained original bytes"
+          }
+        ]
+      }
+    ]
+  },
+  "native_comparisons": {
+    "native-release": {
+      "status": "exact_compared_fields",
+      "all_compared_fields_exact": true,
+      "raw_all_artifacts_equal": false,
+      "channels": {
+        "state": {
+          "valid": true,
+          "exact": true,
+          "bytes_inspected": 99752,
+          "words_inspected": 24938,
+          "full32_bit_words_compared": 24938,
+          "low16_bit_z_words_compared": 0,
+          "excluded_geometry_upper16_bits": 0,
+          "excluded_upper16_differing_words": 0,
+          "raw_words_exact": true,
+          "raw_differing_words": 0,
+          "records": 74,
+          "differing_words": 0,
+          "first_mismatch": null,
+          "first_raw_mismatch": null
+        },
+        "geometry": {
+          "valid": true,
+          "exact": true,
+          "bytes_inspected": 138824,
+          "words_inspected": 34706,
+          "full32_bit_words_compared": 23828,
+          "low16_bit_z_words_compared": 10878,
+          "excluded_geometry_upper16_bits": 174048,
+          "excluded_upper16_differing_words": 10104,
+          "raw_words_exact": false,
+          "raw_differing_words": 10104,
+          "records": 518,
+          "differing_words": 0,
+          "first_mismatch": null,
+          "first_raw_mismatch": {
+            "snapshot": 0,
+            "element_ordinal": 0,
+            "authored_element_id": 1,
+            "shape": 25,
+            "piece": 0,
+            "record_word": 5,
+            "vertex_or_uv": 0,
+            "field": "packed_z_low16",
+            "word_offset": 5,
+            "byte_offset": 20,
+            "expected_hex": "0x00400000",
+            "actual_hex": "0x00000000",
+            "comparison_mask_hex": "0x0000ffff",
+            "expected_z_s16": 0,
+            "actual_z_s16": 0,
+            "excluded_expected_upper16": 64,
+            "excluded_actual_upper16": 0,
+            "note": "Position is three int16 values: second-word upper16 is adjacent storage, excluded from XYZ comparison."
+          }
+        },
+        "uv": {
+          "valid": true,
+          "exact": true,
+          "bytes_inspected": 47360,
+          "words_inspected": 11840,
+          "full32_bit_words_compared": 11840,
+          "low16_bit_z_words_compared": 0,
+          "excluded_geometry_upper16_bits": 0,
+          "excluded_upper16_differing_words": 0,
+          "raw_words_exact": true,
+          "raw_differing_words": 0,
+          "records": 370,
+          "differing_words": 0,
+          "first_mismatch": null,
+          "first_raw_mismatch": null
+        }
+      },
+      "candidate_sha256": {
+        "state": "2032940d011642af3a016f43507e40f071bdd7d6fc8c334e18ef492ae2bd4560",
+        "geometry": "f9efef3ea3becc422834e6d6dadb522b102a3ad7ef613e78f4a159dedb730eae",
+        "uv": "7831e2152ccf88dbd1e227009fc18c5b38ce4bdb57ea7a45a98de1dac5eda250"
+      },
+      "comparison": "Exact state/UV u32 words, geometry headers/tags and three packed int16 XYZ values. Only second-coordinate-word upper16 is excluded as adjacent storage. No float tolerance, fitting or normalization.",
+      "scope": "One retained template14 fixture, 72 updater calls and two constructor observations; all seven geometry elements and five UV streams."
+    },
+    "native": {
+      "status": "exact_compared_fields",
+      "all_compared_fields_exact": true,
+      "raw_all_artifacts_equal": false,
+      "channels": {
+        "state": {
+          "valid": true,
+          "exact": true,
+          "bytes_inspected": 99752,
+          "words_inspected": 24938,
+          "full32_bit_words_compared": 24938,
+          "low16_bit_z_words_compared": 0,
+          "excluded_geometry_upper16_bits": 0,
+          "excluded_upper16_differing_words": 0,
+          "raw_words_exact": true,
+          "raw_differing_words": 0,
+          "records": 74,
+          "differing_words": 0,
+          "first_mismatch": null,
+          "first_raw_mismatch": null
+        },
+        "geometry": {
+          "valid": true,
+          "exact": true,
+          "bytes_inspected": 138824,
+          "words_inspected": 34706,
+          "full32_bit_words_compared": 23828,
+          "low16_bit_z_words_compared": 10878,
+          "excluded_geometry_upper16_bits": 174048,
+          "excluded_upper16_differing_words": 10104,
+          "raw_words_exact": false,
+          "raw_differing_words": 10104,
+          "records": 518,
+          "differing_words": 0,
+          "first_mismatch": null,
+          "first_raw_mismatch": {
+            "snapshot": 0,
+            "element_ordinal": 0,
+            "authored_element_id": 1,
+            "shape": 25,
+            "piece": 0,
+            "record_word": 5,
+            "vertex_or_uv": 0,
+            "field": "packed_z_low16",
+            "word_offset": 5,
+            "byte_offset": 20,
+            "expected_hex": "0x00400000",
+            "actual_hex": "0x00000000",
+            "comparison_mask_hex": "0x0000ffff",
+            "expected_z_s16": 0,
+            "actual_z_s16": 0,
+            "excluded_expected_upper16": 64,
+            "excluded_actual_upper16": 0,
+            "note": "Position is three int16 values: second-word upper16 is adjacent storage, excluded from XYZ comparison."
+          }
+        },
+        "uv": {
+          "valid": true,
+          "exact": true,
+          "bytes_inspected": 47360,
+          "words_inspected": 11840,
+          "full32_bit_words_compared": 11840,
+          "low16_bit_z_words_compared": 0,
+          "excluded_geometry_upper16_bits": 0,
+          "excluded_upper16_differing_words": 0,
+          "raw_words_exact": true,
+          "raw_differing_words": 0,
+          "records": 370,
+          "differing_words": 0,
+          "first_mismatch": null,
+          "first_raw_mismatch": null
+        }
+      },
+      "candidate_sha256": {
+        "state": "2032940d011642af3a016f43507e40f071bdd7d6fc8c334e18ef492ae2bd4560",
+        "geometry": "f9efef3ea3becc422834e6d6dadb522b102a3ad7ef613e78f4a159dedb730eae",
+        "uv": "7831e2152ccf88dbd1e227009fc18c5b38ce4bdb57ea7a45a98de1dac5eda250"
+      },
+      "comparison": "Exact state/UV u32 words, geometry headers/tags and three packed int16 XYZ values. Only second-coordinate-word upper16 is excluded as adjacent storage. No float tolerance, fitting or normalization.",
+      "scope": "One retained template14 fixture, 72 updater calls and two constructor observations; all seven geometry elements and five UV streams."
+    },
+    "model-sanitize": {
+      "status": "exact_compared_fields",
+      "all_compared_fields_exact": true,
+      "raw_all_artifacts_equal": false,
+      "channels": {
+        "state": {
+          "valid": true,
+          "exact": true,
+          "bytes_inspected": 99752,
+          "words_inspected": 24938,
+          "full32_bit_words_compared": 24938,
+          "low16_bit_z_words_compared": 0,
+          "excluded_geometry_upper16_bits": 0,
+          "excluded_upper16_differing_words": 0,
+          "raw_words_exact": true,
+          "raw_differing_words": 0,
+          "records": 74,
+          "differing_words": 0,
+          "first_mismatch": null,
+          "first_raw_mismatch": null
+        },
+        "geometry": {
+          "valid": true,
+          "exact": true,
+          "bytes_inspected": 138824,
+          "words_inspected": 34706,
+          "full32_bit_words_compared": 23828,
+          "low16_bit_z_words_compared": 10878,
+          "excluded_geometry_upper16_bits": 174048,
+          "excluded_upper16_differing_words": 10104,
+          "raw_words_exact": false,
+          "raw_differing_words": 10104,
+          "records": 518,
+          "differing_words": 0,
+          "first_mismatch": null,
+          "first_raw_mismatch": {
+            "snapshot": 0,
+            "element_ordinal": 0,
+            "authored_element_id": 1,
+            "shape": 25,
+            "piece": 0,
+            "record_word": 5,
+            "vertex_or_uv": 0,
+            "field": "packed_z_low16",
+            "word_offset": 5,
+            "byte_offset": 20,
+            "expected_hex": "0x00400000",
+            "actual_hex": "0x00000000",
+            "comparison_mask_hex": "0x0000ffff",
+            "expected_z_s16": 0,
+            "actual_z_s16": 0,
+            "excluded_expected_upper16": 64,
+            "excluded_actual_upper16": 0,
+            "note": "Position is three int16 values: second-word upper16 is adjacent storage, excluded from XYZ comparison."
+          }
+        },
+        "uv": {
+          "valid": true,
+          "exact": true,
+          "bytes_inspected": 47360,
+          "words_inspected": 11840,
+          "full32_bit_words_compared": 11840,
+          "low16_bit_z_words_compared": 0,
+          "excluded_geometry_upper16_bits": 0,
+          "excluded_upper16_differing_words": 0,
+          "raw_words_exact": true,
+          "raw_differing_words": 0,
+          "records": 370,
+          "differing_words": 0,
+          "first_mismatch": null,
+          "first_raw_mismatch": null
+        }
+      },
+      "candidate_sha256": {
+        "state": "2032940d011642af3a016f43507e40f071bdd7d6fc8c334e18ef492ae2bd4560",
+        "geometry": "f9efef3ea3becc422834e6d6dadb522b102a3ad7ef613e78f4a159dedb730eae",
+        "uv": "7831e2152ccf88dbd1e227009fc18c5b38ce4bdb57ea7a45a98de1dac5eda250"
+      },
+      "comparison": "Exact state/UV u32 words, geometry headers/tags and three packed int16 XYZ values. Only second-coordinate-word upper16 is excluded as adjacent storage. No float tolerance, fitting or normalization.",
+      "scope": "One retained template14 fixture, 72 updater calls and two constructor observations; all seven geometry elements and five UV streams."
+    }
+  },
+  "native_tests": {
+    "ctest": {
+      "Release": {
+        "passed": 23,
+        "failed": 0,
+        "log": "local/research/church-service57-v1/native-release-tests-v1.log"
+      },
+      "Debug": {
+        "passed": 23,
+        "failed": 0,
+        "log": "local/research/church-service57-v1/native-debug-tests-v1.log"
+      },
+      "ASan_UBSan": {
+        "passed": 23,
+        "failed": 0,
+        "log": "local/research/church-service57-v1/native-sanitize-tests-v1.log"
+      }
+    },
+    "python": {
+      "passed": 162,
+      "log": "local/research/church-service57-v1/python-native-tests-v1.log"
+    }
   }
 }

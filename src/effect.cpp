@@ -79,6 +79,7 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
             (id==115&&d.elements.size()==5&&start==EffectStart::FirstFrame)||
             (id==26&&d.elements.size()==2&&start==EffectStart::FirstFrame)||
             (id==6&&d.elements.size()==4&&start==EffectStart::FirstFrame)||
+            (id==14&&d.elements.size()==7&&start==EffectStart::FirstFrame)||
             (id==24&&d.elements.size()==8&&start==EffectStart::FirstFrame)||
             (id==91&&d.elements.size()==4)||(id==16&&d.elements.size()==3),
             "Unrecovered map effect template");
@@ -99,17 +100,31 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
         switch(e.shape){case 24:texture=20;break;case 29:texture=5;break;
                         case 28:texture=4;break;case 31:texture=17;break;
                         case 59:require(id==33,"Unrecovered effect shape59 owner");texture=25;break;
+                        case 35:require(id==14,"Unrecovered segmented-strip owner");texture=9;break;
                         case 7:case 9:
                             require(id==6,"Unrecovered dark-ring owner");texture=0xffffffffu;break;
                         case 3:case 55:
                             require(id==24,"Unrecovered shadow-effect geometry owner");texture=0xffffffffu;break;
                         case 25:case 40:case 32:
-                            require(id==24||id==33||id==115||id==91,"Unrecovered untextured effect owner");
+                            require(id==14||id==24||id==33||id==115||id==91,"Unrecovered untextured effect owner");
                             texture=0xffffffffu;break;
                         default:throw std::runtime_error("Unrecovered map effect shape");}
         if(texture==0xffffffffu){e.texture=texture;e.uv={0,0,65535,65535};}
         else set_texture(e,texture);
-        if((id==24||id==33)&&e.shape==25)e.ring_y.assign(30,-192);
+        if((id==14||id==24||id==33)&&e.shape==25)e.ring_y.assign(30,-192);
+        if(id==14&&e.shape==35) {
+            //0x110908 accumulates six float steps before XYZ/UV packing.
+            std::array<float,7> along{};const float delta=1.f/6;
+            for(unsigned i=1;i<along.size();++i)along[i]=along[i-1]+delta;
+            const auto add=[&](unsigned segment,bool top) {
+                e.strip_positions.push_back({std::int16_t(std::round(along[segment]*64)),std::int16_t(top?32:-32),0});
+                e.strip_tags.push_back(std::uint8_t(segment));
+                e.strip_uv.push_back({std::uint16_t(along[segment]*float(sizes[9][0])*32),
+                                     std::uint16_t(top?(sizes[9][1]+1)*32:0)});
+            };
+            add(1,false);add(0,false);add(1,true);add(0,true);
+            for(unsigned i=2;i<=6;++i){add(i,false);add(i,true);}
+        }
         if(id==26&&e.shape==24)e.cylinder_t.assign(17,0);
         if(id==24&&e.shape==31) {
             const auto w=std::uint16_t(sizes[17][0]*32),h=std::uint16_t((sizes[17][1]+1)*32);
@@ -346,7 +361,7 @@ Float4 effect_light_tint(const Float4& base,const Float4& ambient,const Float4& 
 void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_enabled,const Float4* eye) {
     if(!clock_enabled)return;
     require(!(flags&0x100),"Cannot update a removed map effect");
-    require(id==6||id==24||id==25||id==26||id==17||id==19||id==33||id==115||id==91||id==16,"Unrecovered map effect update program");
+    require(id==6||id==14||id==24||id==25||id==26||id==17||id==19||id==33||id==115||id==91||id==16,"Unrecovered map effect update program");
     if(id==91){require(eye,"Torch effect requires the current camera position");
         for(float f:*eye)require(std::isfinite(f),"Non-finite torch camera position");}
     Rounding rounding;
@@ -373,12 +388,15 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
             require(!(e.flags&0x800000),"Unrecovered map effect texture mode");
             if(mode==3) {
                 const auto source=std::find_if(elements.begin(),elements.end(),[&](const auto& v){return float(v.id)==e.interval[2];});
-                require(id==24&&source!=elements.end()&&source->id<e.id&&source->shape==31&&e.shape==31,
+                require(source!=elements.end()&&source->id<e.id&&
+                        ((id==24&&source->shape==31&&e.shape==31)||(id==14&&source->shape==35&&e.shape==35)),
                         "Unrecovered shared effect texture geometry");
-                //0x105e78 shares the immutable shape31 packet and copies the
-                //source texture/UV rectangle after its first-update replacement.
+                //0x105e78 shares geometry and copies the source texture/UV
+                //rectangle after its first-update replacement. Mutable shape35
+                //coordinates are refreshed from that source on every update.
                 e.texture=source->texture;e.uv=source->uv;
                 e.quad_uv=source->quad_uv;
+                if(id==14)e.strip_source_id=source->id;
             } else if(mode) {
                 const auto old=(id==24&&e.shape==31&&mode==1)?texture_sizes_.at(e.texture):std::array<std::uint32_t,2>{};
                 set_texture(e,unsigned(e.interval[2]));
@@ -392,7 +410,35 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         }
         if((e.flags&0x2000)&&e.interval[2]<t)program&=0xc0ffffff;
         const auto timing=(program>>24)&63;
-        require(timing==0||timing==1||timing==5||timing==6||timing==7||timing==17||timing==20,"Unrecovered map effect time program");
+        require(timing==0||timing==1||timing==5||timing==6||timing==7||timing==12||timing==17||timing==20,"Unrecovered map effect time program");
+        if(timing==12) {
+            require(id==14&&e.shape==35&&e.strip_positions.size()==14,"Unrecovered segmented-strip deformation");
+            if(!(flags&0x20)) {
+                //0x105200 rotates original template geometry before the first
+                //deformation. No captured positions or extra RNG draws.
+                const auto matrix=effect_matrix({}, {0,0,.75f,0},{1,1,1,1},sine_,true);
+                for(auto& point:e.strip_positions) {
+                    const auto source=point;
+                    for(unsigned c=0;c<3;++c) {
+                        float value=matrix[0][c]*float(source[0]);value+=matrix[1][c]*float(source[1]);
+                        value+=matrix[2][c]*float(source[2]);value+=matrix[3][c];
+                        point[c]=std::int16_t(int(value));
+                    }
+                }
+            }
+            if(!(flags&0x20)||e.rendered[0][3]+.04f<t) {
+                for(unsigned vertex=0;vertex<e.strip_positions.size();++vertex) {
+                    const auto tag=e.strip_tags[vertex];if(!tag)continue;
+                    const auto draw=random();
+                    const std::array<int,3> jitter={int(draw%80)-40,int((draw>>10)%2)-1,int((draw>>20)%80)-40};
+                    for(unsigned c=0;c<3;++c) {
+                        const float value=e.rendered[0][c]*float(6-tag)+parameters[c]*float(tag);
+                        e.strip_positions[vertex][c]=std::int16_t(int(value)+jitter[c]);
+                    }
+                }
+                e.rendered[0][3]=(flags&0x20)?t:0;
+            }
+        }
         if(timing==20) {
             require(id==26&&e.shape==24&&e.cylinder_t.size()==17&&e.interval[3]==1,
                     "Unrecovered animated cylinder UV mode");
@@ -416,7 +462,7 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
             //0x105f80 ->0x103f88(1,handle,elementID,tag2,axisY/mode0).
             // Shape25 has thirty tag2 vertices; preserve their packed Y values
             // as well as the RNG advancement needed by later elements.
-            require((id==24||id==33)&&e.shape==25&&e.ring_y.size()==30,"Unrecovered effect deformation geometry");
+            require((id==14||id==24||id==33)&&e.shape==25&&e.ring_y.size()==30,"Unrecovered effect deformation geometry");
             for(auto& y:e.ring_y)y=std::int16_t(std::min(0,int(random()%50)-25-64));
         }
         if(timing==17) {
@@ -515,6 +561,8 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         case 2:{const float q=-.1f/t;const float factor=(q < -1?0:q+1)*e.scale[3];
             for(unsigned i=0;i<3;++i)s[i]=factor*e.scale[i];break;}
         case 3:for(unsigned i=0;i<3;++i)s[i]=t*e.scale[i];break;
+        case 4:{const float local=t<0?0:t>e.scale[3]?1:t/e.scale[3];
+            const float factor=std::sqrt(local);for(unsigned i=0;i<3;++i)s[i]=factor*e.scale[i];break;}
         case 16:s[1]+=e.scale[3];break;
         case 15:s[1]=((t*4.f)*(1.f-t))*e.scale[1];break;
         case 20:{const float x=e.scale[0],cycle=t*30.0f;
@@ -543,6 +591,7 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         case 6:c[3]=(t==0||t==1)?0:(t>.7f?(1.f-(t-.7f)/(1.f-.7f))*e.color[3]:e.color[3]);break;
         case 9:c[3]=t<.6f?(1.f-t/.6f)*e.color[3]:e.color[3]*0.f;break;
         case 24:c[3]=t==0?0:1.f-t;break;
+        case 32:c[3]=(t==0||t==1)?0:e.color[3];break;
         case 3:
             c[3]=(t==0||t==1)?0:(t>.1f?(1.0f-(t-.1f)/(1.0f-.1f))*e.color[3]:e.color[3]);break;
         case 5:
@@ -574,6 +623,11 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
             require(source!=elements.end()&&source->id<e.id&&source->cylinder_t.size()==17,
                     "Invalid cylinder geometry source");
             e.cylinder_t=source->cylinder_t;
+        }
+        if(e.strip_source_id) {
+            const auto source=std::find_if(elements.begin(),elements.end(),[&](const auto& p){return p.id==*e.strip_source_id;});
+            require(source!=elements.end()&&source->id<e.id&&source->strip_positions.size()==14,"Invalid segmented-strip geometry source");
+            e.strip_positions=source->strip_positions;e.strip_tags=source->strip_tags;e.strip_uv=source->strip_uv;
         }
     }
     flags|=0x20;if(!(flags&0x2000))++phase;
