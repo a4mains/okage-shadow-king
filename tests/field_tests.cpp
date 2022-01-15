@@ -762,6 +762,42 @@ int main(){try {
         scene.tick();require(!scene.map_effects()[1]&&!scene.map_effects()[16]&&scene.map_effects()[0]);
     }
     {
+        std::vector<std::uint8_t> efd(64+4*116),event(128),no_placements(64);
+        put(efd,0,0x20444645);put(efd,4,1);put(efd,16,6);put(efd,20,70);put(efd,24,0x400);
+        put(efd,32,4);put(efd,36,64);
+        for(unsigned i=0;i<4;++i){const auto at=64+116*i;
+            put(efd,at+4,i+1);put(efd,at+8,i%2?9:7);put(efd,at+12,0x20);
+            put(efd,at+28,__builtin_bit_cast(std::uint32_t, (2.f)));}
+        put(event,0,0x544d58);put(event,4,event.size()-32);put(event,16,0xffffffff);
+        for(unsigned i=0;i<17;++i)put(event,40+i*4,((i%2?89u:0xfecu)<<20)|0x639);
+        put(event,108,0x1005c);put(event,112,0x00f1005c);put(event,116,0x100061);
+        put(no_placements,8,64);put(no_placements,40,64);
+        okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
+        const std::array<okage::ActorBinding,1> player={{{-1,&hero,true,89}}};
+        okage::OpeningField scene(event,[](int){},[](int){return true;},player,false);
+        scene.resolve_instance_alias=[](int alias)->std::optional<int>{return alias==-20?std::optional<int>(89):std::nullopt;};
+        std::array<std::uint8_t,0x1000> vars{};okage::EffectTextureSizes sizes{};
+        scene.get_variable=[&](auto s){return okage::event_variable(vars,s);};
+        scene.set_variable=[&](auto i,auto b,auto v){okage::set_event_variable(vars,i,b,v);};
+        unsigned calls=0;scene.random_value=[&]{return ++calls;};
+        scene.load_effects(efd);scene.load_map_effects(no_placements,sizes);
+        okage::FieldDefinition entry;entry.type=1;entry.startup=1;scene.enter(entry,stage,empty_map,0);
+        require(calls==0&&!scene.pending_opcode&&scene.map_effects()[0]);
+        for(unsigned i=0;i<17;++i){const auto& e=scene.map_effects()[i];
+            require(e&&e->actor_alias==(i%2?89:-20));
+            require(bool(e->flags&0x200)==(i==1||i==16));}
+        const okage::Float4 rotation{.125f,.25f,.5f,1},position{13,-7,29,1};
+        hero.animation().set_channel(0,rotation);
+        hero.animation().set_channel(1,position);scene.tick();
+        require(!scene.map_effects()[1]&&!scene.map_effects()[16]&&scene.effect_submissions().size()==15);
+        for(const auto& submission:scene.effect_submissions()){
+            const auto& e=std::get<okage::MapEffect>(submission.effect);
+            require(e.position==position&&e.rotation==rotation);
+        }
+        scene.resolve_instance_alias=[](int)->std::optional<int>{return std::nullopt;};
+        rejects([&]{scene.tick();});
+    }
+    {
         std::vector<std::uint8_t> efd(64+8*116),event(64),no_placements(64);
         put(efd,0,0x20444645);put(efd,4,1);put(efd,16,24);put(efd,20,80);put(efd,32,8);put(efd,36,64);
         for(unsigned i=0;i<8;++i) {

@@ -804,11 +804,11 @@ int main(int argc, char** argv) {
             }
             write(argv[3],output);return 0;
         }
-        if((command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry"||command=="summon33-effect-geometry"||command=="summon115-effect-geometry"||command=="cylinder26-effect-geometry"||command=="dark6-effect-geometry"||command=="shadow24-effect-geometry")&&argc==6) {
+        if((command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry"||command=="summon33-effect-geometry"||command=="summon115-effect-geometry"||command=="cylinder26-effect-geometry"||command=="dark6-effect-geometry"||command=="shadow24-effect-geometry"||command=="church14-effect-geometry")&&argc==6) {
             const bool summon=command=="summon33-effect-geometry"||command=="summon115-effect-geometry";
-            const unsigned id=command=="shadow24-effect-geometry"?24:command=="dark6-effect-geometry"?6:command=="cylinder26-effect-geometry"?26:command=="summon33-effect-geometry"?33:command=="summon115-effect-geometry"?115:command=="flame16-effect-geometry"?16:command=="torch-effect-geometry"?91:25;
-            const bool torch=id==91,deferred=id==6||id==16||summon,flame=torch||id==16;
-            const unsigned count=id==6?4:id==26?2:id==33?9:id==115?5:id==16?3:torch?4:8;
+            const unsigned id=command=="church14-effect-geometry"?14:command=="shadow24-effect-geometry"?24:command=="dark6-effect-geometry"?6:command=="cylinder26-effect-geometry"?26:command=="summon33-effect-geometry"?33:command=="summon115-effect-geometry"?115:command=="flame16-effect-geometry"?16:command=="torch-effect-geometry"?91:25;
+            const bool torch=id==91,deferred=id==14||id==6||id==16||summon,flame=torch||id==16;
+            const unsigned count=id==14?7:id==6?4:id==26?2:id==33?9:id==115?5:id==16?3:torch?4:8;
             const auto bank=okage::read_efd(read(argv[2]));const auto input=read(argv[4]);
             const unsigned stride=(38+count*20+(flame?36:id==24?90:id==33?30:id==26?34:0))*4;
             if(input.empty()||input.size()%stride||input.size()>stride*64)throw std::runtime_error("Map geometry fixture bounds");
@@ -824,7 +824,7 @@ int main(int argc, char** argv) {
                 okage::Matrix4 view;std::memcpy(view.data(),input.data()+at+84,64);
                 float far;std::memcpy(&far,input.data()+at+148,4);
                 okage::MapEffect effect(*found,channels[0],channels[1],channels[2],sizes,[]{return 1;},
-                    (summon||id==24||id==26||id==6)?okage::EffectStart::FirstFrame:okage::EffectStart::RandomPhase);
+                    (summon||id==14||id==24||id==26||id==6)?okage::EffectStart::FirstFrame:okage::EffectStart::RandomPhase);
                 effect.color=channels[3];
                 if(id==24) {
                     okage::GameRandom geometry_rng{1};
@@ -861,12 +861,12 @@ int main(int argc, char** argv) {
                 for(unsigned i=0;i<draws.size();++i){
                     const auto& d=draws[i];for(const auto& v:d.matrix)append(out,v);append(out,d.color);
                     if(at==0){geometry.insert(geometry.end(),{i,unsigned(d.vertices.size()),d.texture});
-                        if(summon||id==24||id==26||id==6)materials.insert(materials.end(),{i,d.subtractive?2u:unsigned(d.additive),unsigned(d.depth_test)});
+                        if(summon||id==14||id==24||id==26||id==6)materials.insert(materials.end(),{i,d.subtractive?2u:unsigned(d.additive),unsigned(d.depth_test)});
                         for(const auto& v:d.vertices){append(geometry,v.position);append(geometry,v.color);append(geometry,v.uv);}}
                 }
             }
             write(argv[5],{reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4});
-            if(summon||id==24||id==26||id==6)write(std::string(argv[5])+".materials.bin",{reinterpret_cast<const std::uint8_t*>(materials.data()),materials.size()*4});
+            if(summon||id==14||id==24||id==26||id==6)write(std::string(argv[5])+".materials.bin",{reinterpret_cast<const std::uint8_t*>(materials.data()),materials.size()*4});
             write(std::string(argv[5])+".vertices.bin",{reinterpret_cast<const std::uint8_t*>(geometry.data()),geometry.size()*4});return 0;
         }
         if(command=="effect-reference-probe"&&argc==4) {

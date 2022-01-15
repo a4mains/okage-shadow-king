@@ -162,9 +162,9 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
             (effect.id==91&&effect.elements.size()==4)||(effect.id==16&&effect.elements.size()==3)||
             (effect.id==33&&effect.elements.size()==9)||(effect.id==115&&effect.elements.size()==5)||
             (effect.id==26&&effect.elements.size()==2)||(effect.id==6&&effect.elements.size()==4)||
-            (effect.id==24&&effect.elements.size()==8),"Unrecovered map effect geometry template");
+            (effect.id==24&&effect.elements.size()==8)||(effect.id==14&&effect.elements.size()==7),"Unrecovered map effect geometry template");
     require(bool(effect.flags&0x400)==(pass==EffectDrawPass::Deferred),"Effect submitted to the wrong draw pass");
-    require(pass==EffectDrawPass::Ordinary||effect.id==6||effect.id==16||effect.id==33||effect.id==115,"Unrecovered deferred effect geometry");
+    require(pass==EffectDrawPass::Ordinary||effect.id==6||effect.id==14||effect.id==16||effect.id==33||effect.id==115,"Unrecovered deferred effect geometry");
     require(effect.id!=16||pass==EffectDrawPass::Deferred,"Flame16 requires the deferred pass");
     require(std::isfinite(far_clip)&&far_clip>0,"Invalid effect far clip");
     Rounding rounding;
@@ -177,7 +177,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
     }
     std::vector<MapEffectDraw> result;
     for(const auto& e:effect.elements) {
-        require(effect.id==24?(e.primitive_flags&255)==0x21:effect.id==6?e.primitive_flags==0x20:effect.id==16?e.primitive_flags==8:effect.id==115?e.primitive_flags==0x40:
+        require(effect.id==14?(e.primitive_flags==0||e.primitive_flags==0x20||e.primitive_flags==0x300):effect.id==24?(e.primitive_flags&255)==0x21:effect.id==6?e.primitive_flags==0x20:effect.id==16?e.primitive_flags==8:effect.id==115?e.primitive_flags==0x40:
                 (e.primitive_flags&255)==1||((effect.id==17||effect.id==19||effect.id==26)&&e.primitive_flags==0x41),
                 "Unrecovered map effect material");
         require(!(e.flags&0x400000)||light_tint,"Effect requires owned field light tint");
@@ -191,7 +191,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
             rotation[1]=(1-camera[1])-effect.rotation[1];rotation[3]=camera[3];break;
             case 5:require(effect.id==115,"Unrecovered camera-space effect owner");break;
             case 2:
-            require(effect.id==91&&e.shape==40,"Unrecovered quarter-turn billboard owner");
+            require((effect.id==91&&e.shape==40)||(effect.id==14&&(e.shape==25||e.shape==40)),"Unrecovered quarter-turn billboard owner");
             rotation[0]=((1-camera[0])+.25f)-effect.rotation[0];
             rotation[1]=(1-camera[1])-effect.rotation[1];rotation[3]=camera[3];break;
             case 8:
@@ -210,10 +210,13 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
         //16's TEST=0x53001 uses alpha-test NEVER with RGB_ONLY failure.
         // Its RGB blend is additive; the additive Metal path preserves target
         // alpha and disables depth writes, as required for that failure mode.
-        MapEffectDraw draw{matrix,color,e.texture,e.uv,{},(e.primitive_flags&255)==1||e.primitive_flags==8};
+        MapEffectDraw draw{matrix,color,e.texture,e.uv,{},(e.primitive_flags&255)==1||e.primitive_flags==8||
+            (effect.id==14&&(e.primitive_flags&255)==0)};
         //115 uses TEST0x3000d: alpha>0 and depth ALWAYS, with ZBUF masked.
-        draw.depth_test=effect.id!=115&&effect.id!=6;
-        draw.subtractive=effect.id==6||effect.id==24;
+        //14 uses TEST0x30000/ZBUF mask1: depth ALWAYS/no writes. Its ring
+        // and strips use ALPHA0x48 (add); the disc uses ALPHA0x42 (subtract).
+        draw.depth_test=effect.id!=115&&effect.id!=6&&effect.id!=14;
+        draw.subtractive=effect.id==6||effect.id==24||(effect.id==14&&e.primitive_flags==0x20);
         const Float4 white{255,255,255,255},clear{255,255,255,0};
         if(effect.id==6) {
             require((e.shape==7||e.shape==9)&&e.texture==0xffffffffu,"Unrecovered dark-ring geometry");
@@ -245,7 +248,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
                     draw.vertices.push_back({{p[0]/64.f,p[1]/64.f,p[2]/64.f,1},white,
                                              {uv[0]/32768.f,uv[1]/32768.f,0,0}});
                 }
-            } else if(e.shape==40&&(effect.id==91||effect.id==33)) {
+            } else if(e.shape==40&&(effect.id==91||effect.id==33||effect.id==14)) {
                 require(e.texture==0xffffffffu,"Unrecovered glow texture");
                 //0x10fca8 emits sixteen independent center/next/current triangles.
                 const auto point=[&](unsigned i){const auto a=(i%16)*1024;
@@ -257,6 +260,21 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
                     draw.vertices.push_back({point(i),clear,{}});
                 }
             } else throw std::runtime_error("Unrecovered torch geometry");
+            result.push_back(std::move(draw));continue;
+        }
+        if(effect.id==14&&e.shape==35) {
+            require(e.texture==9&&e.strip_positions.size()==14&&e.strip_uv.size()==14,"Unrecovered segmented-strip drawing");
+            // Six original B,A,C,D strips share deduplicated endpoint pairs.
+            const auto bottom=[](unsigned i){return i==0?1u:i==1?0u:i*2;};
+            const auto top=[](unsigned i){return i==0?3u:i==1?2u:i*2+1;};
+            for(unsigned i=0;i<6;++i) {
+                const std::array<unsigned,4> corners={bottom(i+1),bottom(i),top(i+1),top(i)};
+                for(unsigned corner:{0u,1u,2u,1u,2u,3u}) {
+                    const auto v=corners[corner];const auto& p=e.strip_positions[v];const auto& uv=e.strip_uv[v];
+                    draw.vertices.push_back({{p[0]/64.f,p[1]/64.f,p[2]/64.f,1},white,
+                                             {uv[0]/32768.f,uv[1]/32768.f,0,0}});
+                }
+            }
             result.push_back(std::move(draw));continue;
         }
         const bool textured=e.texture!=0xffffffffu;
@@ -283,7 +301,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
                 require(effect.shape55_geometry&&effect.shape55_geometry->size()==240,"Missing native shape55 template geometry");
                 draw.vertices=*effect.shape55_geometry;
             }
-        } else if(e.shape==25&&(effect.id==24||effect.id==33)) {
+        } else if(e.shape==25&&(effect.id==14||effect.id==24||effect.id==33)) {
             require(!textured&&e.ring_y.size()==30,"Unrecovered summoning ring");
             const auto point=[&](unsigned i,bool lower){
                 const auto a=angle(float(i%30)/30);

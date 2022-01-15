@@ -1160,10 +1160,10 @@ public:
         writeFile(output,result.data(),result.size()*4);
     }
     void mapEffectGeometry(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output,unsigned templateId=25,const std::vector<uint8>& efd={}) {
-        const bool shadow=templateId==24,dark=templateId==6,summon=templateId==33||templateId==115,deferred=dark||templateId==16||summon;
+        const bool church=templateId==14,shadow=templateId==24,dark=templateId==6,summon=templateId==33||templateId==115,deferred=church||dark||templateId==16||summon;
         const bool torch=templateId==91,flame=templateId==16||torch,cylinder=templateId==26;
-        const unsigned count=dark?4:cylinder?2:templateId==33?9:templateId==115?5:templateId==16?3:torch?4:8;
-        const unsigned stride=(38+count*20+(flame?36:shadow?90:templateId==33?30:cylinder?34:0))*4,sp=0x1ff0000,slot=shadow||dark||flame||summon||cylinder?0:2;
+        const unsigned count=church?7:dark?4:cylinder?2:templateId==33?9:templateId==115?5:templateId==16?3:torch?4:8;
+        const unsigned stride=(38+count*20+(flame?36:shadow?90:templateId==33?30:cylinder?34:0))*4,sp=0x1ff0000,slot=church||shadow||dark||flame||summon||cylinder?0:2;
         if(ram.size()!=32*1024*1024||input.empty()||input.size()%stride||input.size()>stride*64)
             throw std::runtime_error("Effect geometry fixture bounds");
         std::vector<uint32> result,packets;
@@ -1194,7 +1194,7 @@ public:
                     }
                     if(!found)throw std::runtime_error("Missing shadow geometry template");
                 }
-                if(shadow||dark||summon||cylinder)call(0x1012f8,{templateId,0x81000});
+                if(church||shadow||dark||summon||cylinder)call(0x1012f8,{templateId,0x81000});
                 else call(0x101440,{templateId,0x81000,0x81010,0x81020});
                 if(uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0)!=slot)
                     throw std::runtime_error("Deferred geometry allocation order");
@@ -1230,8 +1230,8 @@ public:
                 const auto source=input.data()+at+152+i*80;
                 std::array<uint32,4> meta;std::memcpy(meta.data(),source+64,16);
                 unsigned texture=0;for(;texture<31;++texture)if(get(get(0x24e780)+texture*4)==(get(e+0x5c)&65535))break;
-                if((shadow||dark||summon||(torch&&i==3))&&(get(e+0x5c)&65535)==65535)texture=0xffffffff;
-                const unsigned shape=shadow?(i<3?25:i==3?3:i==4?55:31):dark?(i%2?9:7):cylinder?24:summon?(templateId==115?(i?31:32):i==0?40:i==1?25:i==2?59:29):flame?(i<3?28:40):(i<3?24:29);
+                if((church||shadow||dark||summon||(torch&&i==3))&&(get(e+0x5c)&65535)==65535)texture=0xffffffff;
+                const unsigned shape=church?(i==0?25:i==1?40:35):shadow?(i<3?25:i==3?3:i==4?55:31):dark?(i%2?9:7):cylinder?24:summon?(templateId==115?(i?31:32):i==0?40:i==1?25:i==2?59:29):flame?(i<3?28:40):(i<3?24:29);
                 if(meta[0]!=shape||meta[1]!=get(e+0x54)||meta[2]!=get(e+0x58)||meta[3]!=texture)
                     throw std::runtime_error("Effect geometry input metadata mismatch");
                 std::memcpy(ee->m_ram+r,source,64);
@@ -1278,7 +1278,7 @@ public:
                         if(piece>ram.size()-48||pieces.size()>=32)throw std::runtime_error("Effect packet chain extent");
                         pieces.push_back(piece);
                     }
-                    if(shadow||dark||summon)packets.push_back(unsigned(pieces.size()));
+                    if(church||shadow||dark||summon)packets.push_back(unsigned(pieces.size()));
                     else if(pieces.size()!=1)throw std::runtime_error("Unexpected linked effect geometry");
                     for(const auto piece:pieces)for(unsigned offset:{4u,8u,12u,16u}) {
                         if(offset==8&&(get(piece+0x1c)>>16)==0){packets.push_back(0);continue;}
@@ -3044,8 +3044,8 @@ int main(int argc,char** argv) {
             reference.effectShape(readFile(argv[3]),readFile(argv[4]),argv[5],true);
         } else if(command=="effect-shape" && argc==6) {
             reference.effectShape(readFile(argv[3]),readFile(argv[4]),argv[5]);
-        } else if((command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry"||command=="summon33-effect-geometry"||command=="summon115-effect-geometry"||command=="cylinder26-effect-geometry"||command=="dark6-effect-geometry") && argc==6) {
-            reference.mapEffectGeometry(readFile(argv[3]),readFile(argv[4]),argv[5],command=="dark6-effect-geometry"?6:command=="cylinder26-effect-geometry"?26:command=="summon33-effect-geometry"?33:command=="summon115-effect-geometry"?115:command=="flame16-effect-geometry"?16:command=="torch-effect-geometry"?91:25);
+        } else if((command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry"||command=="summon33-effect-geometry"||command=="summon115-effect-geometry"||command=="cylinder26-effect-geometry"||command=="dark6-effect-geometry"||command=="church14-effect-geometry") && argc==6) {
+            reference.mapEffectGeometry(readFile(argv[3]),readFile(argv[4]),argv[5],command=="church14-effect-geometry"?14:command=="dark6-effect-geometry"?6:command=="cylinder26-effect-geometry"?26:command=="summon33-effect-geometry"?33:command=="summon115-effect-geometry"?115:command=="flame16-effect-geometry"?16:command=="torch-effect-geometry"?91:25);
         } else if(command=="effect-reference-probe" && argc==6) {
             reference.effectReferenceProbe(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="stream-prepare" && argc==6) {

@@ -742,6 +742,14 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             return pending();
         case 0x3d:
             screen_filter.select(a,b);return {pc+4};
+        case 0x39: {
+            //0x130be0 attaches A in mode0. Negative B uses the actor-alias
+            //namespace; nonnegative B is an instance index. The shared actor
+            //resolver preserves those namespaces for the attachment callback.
+            const auto handle=attach_map_effect(a,b);
+            effect_ring_[effect_ring_index_]=handle;effect_ring_index_=(effect_ring_index_+1)&15;
+            pending_opcode=0;return {pc+4};
+        }
         case 0x3e: {
             //0x130c50 ignores A, consumes XYZ, and records the allocated handle
             // in the same ring used by attachment/removal/parameter services.
