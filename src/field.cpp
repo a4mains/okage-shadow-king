@@ -387,8 +387,12 @@ void OpeningField::load_map_effects(Bytes bytes,const EffectTextureSizes& sizes)
         unsigned handle=0;while(handle<effects_.size()&&(effects_[handle]||map_effects_[handle]))++handle;
         if(handle==effects_.size())throw std::runtime_error("Field effect capacity exhausted");
         const auto t=map_transform(p,map.definitions.at(p.definition()));
-        map_effects_[handle]=std::make_unique<MapEffect>(*definition,t.position,t.rotation,t.scale,sizes,random_value);
-        bind_effect_geometry(*map_effects_[handle]);
+        try {
+            map_effects_[handle]=std::make_unique<MapEffect>(*definition,t.position,t.rotation,t.scale,sizes,random_value);
+            bind_effect_geometry(*map_effects_[handle]);
+        } catch(const std::exception& error) {
+            throw std::runtime_error("Map effect "+std::to_string(id)+": "+error.what());
+        }
     }
     effect_texture_sizes_=sizes;map_effects_loaded_=true;
 }

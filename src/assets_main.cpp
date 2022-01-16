@@ -887,9 +887,9 @@ int main(int argc, char** argv) {
             if(request[3]!=0x100)throw std::runtime_error("Map effect probe requires direct handle0");
             const auto found=std::find_if(bank.begin(),bank.end(),[&](const auto& d){return d.id==request[0];});
             if(found==bank.end())throw std::runtime_error("Missing map effect definition");
-            const bool torch=request[0]==91,flame=torch||request[0]==16;
-            if(input.size()!=(torch?96u:80u))throw std::runtime_error("Map effect camera request extent");
-            okage::Float4 eye{};if(torch)std::memcpy(eye.data(),input.data()+80,16);
+            const bool torch=request[0]==91,flame=torch||request[0]==16,cameraGlow=torch||request[0]==90;
+            if(input.size()!=(cameraGlow?96u:80u))throw std::runtime_error("Map effect camera request extent");
+            okage::Float4 eye{};if(cameraGlow)std::memcpy(eye.data(),input.data()+80,16);
             const auto frames=std::stoul(argv[5]);if(frames>(flame?12000u:1000u))throw std::runtime_error("Map effect frame bounds");
             okage::EffectTextureSizes sizes{};
             for(unsigned i=0;i<sizes.size();++i){const auto image=okage::decode_xim(read(fs::path(argv[3])/okage::effect_texture_names[i]));sizes[i]={image.width,image.height};}
@@ -907,7 +907,7 @@ int main(int argc, char** argv) {
             std::vector<std::uint32_t> out,deformation,torchGeometry,cylinderUV,shadowUV,stripGeometry,stripUV;
             const auto vector=[&](const okage::Float4& v){for(float f:v)out.push_back(__builtin_bit_cast(std::uint32_t, (f)));};
             const auto capture=[&](unsigned step){
-                if(request[0]==24)for(unsigned i=5;i<8;++i) {
+                if(request[0]==24||request[0]==105)for(unsigned i=request[0]==24?5:0;i<effect.elements.size();++i) {
                     shadowUV.insert(shadowUV.end(),{step,i,4});
                     for(unsigned j:{1u,0u,2u,3u}) {
                         const auto& uv=effect.elements[i].quad_uv[j];
@@ -987,9 +987,9 @@ int main(int argc, char** argv) {
             if(!positioned)effect.set_parameter(request[2],vectors[3]);capture(1);
             for(unsigned i=0;i<frames;++i){if(!(effect.flags&0x100)) {
                 if(attached){effect.position=vectors[0];effect.rotation=vectors[1];}
-                effect.tick(random,true,torch?&eye:nullptr);
+                effect.tick(random,true,cameraGlow?&eye:nullptr);
             }capture(i+2);}
-            if(request[0]==24)write(std::string(argv[6])+".shadow-uv.bin",{reinterpret_cast<const std::uint8_t*>(shadowUV.data()),shadowUV.size()*4});
+            if(request[0]==24||request[0]==105)write(std::string(argv[6])+".shadow-uv.bin",{reinterpret_cast<const std::uint8_t*>(shadowUV.data()),shadowUV.size()*4});
             if(request[0]==14){
                 write(std::string(argv[6])+".geometry.bin",{reinterpret_cast<const std::uint8_t*>(stripGeometry.data()),stripGeometry.size()*4});
                 write(std::string(argv[6])+".uv.bin",{reinterpret_cast<const std::uint8_t*>(stripUV.data()),stripUV.size()*4});

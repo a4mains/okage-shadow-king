@@ -1314,16 +1314,16 @@ public:
         if(ram.size()!=32*1024*1024||(input.size()!=80&&input.size()!=96)||frames>12000)
             throw std::runtime_error("Map effect probe fixture bounds");
         std::array<uint32,20> request;std::memcpy(request.data(),input.data(),80);
-        if((request[0]!=6&&request[0]!=14&&request[0]!=16&&request[0]!=17&&request[0]!=19&&request[0]!=24&&request[0]!=25&&request[0]!=26&&request[0]!=33&&request[0]!=34&&request[0]!=91&&request[0]!=98&&request[0]!=115)||request[2]>0xfff||request[3]!=0x100)
+        if((request[0]!=6&&request[0]!=14&&request[0]!=16&&request[0]!=17&&request[0]!=19&&request[0]!=24&&request[0]!=25&&request[0]!=26&&request[0]!=33&&request[0]!=34&&request[0]!=90&&request[0]!=91&&request[0]!=98&&request[0]!=105&&request[0]!=106&&request[0]!=115)||request[2]>0xfff||request[3]!=0x100)
             throw std::runtime_error("Map effect probe request scope");
-        const bool torch=request[0]==91,flame=torch||request[0]==16;
-        if((torch&&input.size()!=96)||(!torch&&(input.size()!=80||(!flame&&frames>1000))))
+        const bool torch=request[0]==91,flame=torch||request[0]==16,cameraGlow=torch||request[0]==90;
+        if((cameraGlow&&input.size()!=96)||(!cameraGlow&&input.size()!=80)||(!flame&&frames>1000))
             throw std::runtime_error("Map effect camera/frame scope");
         std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
         effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
                                         ee->m_gs,ee->m_sif,*dynamic_cast<CIopBios*>(iop->m_bios.get()));
         loadMicro();
-        if(torch) {
+        if(cameraGlow) {
             call(0x1842d8);const auto camera=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
             if(camera>ram.size()-16)throw std::runtime_error("Torch camera pointer extent");
             std::array<float,4> eye;std::memcpy(eye.data(),input.data()+80,16);
@@ -1383,7 +1383,7 @@ public:
                 unsigned texture=0;
                 for(;texture<get(0x1f8498);++texture)if(get(get(0x24e780)+4*texture)==(get(element+0x5c)&0xffff))break;
                 if(texture==get(0x1f8498)) {
-                    if((attached||request[0]==6||request[0]==33||request[0]==115||torch)&&(get(element+0x5c)&0xffff)==0xffff)texture=0xffffffff;
+                    if((attached||request[0]==6||request[0]==33||request[0]==90||request[0]==115||torch)&&(get(element+0x5c)&0xffff)==0xffff)texture=0xffffffff;
                     else throw std::runtime_error("Map effect texture identity");
                 }
                 result.insert(result.end(),{texture,get(element+0x68),get(element+0x6c),get(render+0x58)});
@@ -1401,7 +1401,7 @@ public:
                         torchGeometry.push_back(get(uv));
                     }
                 }
-                if(attached||request[0]==6||request[0]==26||request[0]==33||request[0]==115) {
+                if(attached||request[0]==6||request[0]==26||request[0]==33||request[0]==90||request[0]==105||request[0]==106||request[0]==115) {
                     unsigned piece=0;
                     for(auto g=get(element+0x64);g;g=get(g)) {
                         if(g>ram.size()-48||piece>=32)throw std::runtime_error("Effect geometry chain extent");
@@ -1422,7 +1422,7 @@ public:
                             shadowUV.insert(shadowUV.end(),{step,i,count});
                             for(unsigned j=0;j<4;++j)shadowUV.push_back(get(uv+j*4));
                         }
-                        if(request[0]==26||request[0]==14) {
+                        if(request[0]==26||request[0]==14||request[0]==105||request[0]==106) {
                             //0x105790 walks this UV array and its own tag table;
                             // XYZ tags are a separate geometry stream.
                             const auto uvCount=get(g+0x1c)>>16,uvTags=get(g+0x18);

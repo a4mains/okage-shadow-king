@@ -81,7 +81,7 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
             (id==6&&d.elements.size()==4&&start==EffectStart::FirstFrame)||
             (id==14&&d.elements.size()==7&&start==EffectStart::FirstFrame)||
             (id==24&&d.elements.size()==8&&start==EffectStart::FirstFrame)||
-            (id==91&&d.elements.size()==4)||(id==16&&d.elements.size()==3),
+            (id==105&&d.elements.size()==16)||(id==90&&d.elements.size()==1)||(id==91&&d.elements.size()==4)||(id==16&&d.elements.size()==3),
             "Unrecovered map effect template");
     require(duration>0&&duration<=0x7fffffff,"Invalid map effect duration");
     Rounding rounding;inverse_duration=1.0f/float(duration);
@@ -106,7 +106,7 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
                         case 3:case 55:
                             require(id==24,"Unrecovered shadow-effect geometry owner");texture=0xffffffffu;break;
                         case 25:case 40:case 32:
-                            require(id==14||id==24||id==33||id==115||id==91,"Unrecovered untextured effect owner");
+                            require(id==14||id==24||id==33||id==115||id==90||id==91,"Unrecovered untextured effect owner");
                             texture=0xffffffffu;break;
                         default:throw std::runtime_error("Unrecovered map effect shape");}
         if(texture==0xffffffffu){e.texture=texture;e.uv={0,0,65535,65535};}
@@ -126,7 +126,7 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
             for(unsigned i=2;i<=6;++i){add(i,false);add(i,true);}
         }
         if(id==26&&e.shape==24)e.cylinder_t.assign(17,0);
-        if(id==24&&e.shape==31) {
+        if((id==24||id==105)&&e.shape==31) {
             const auto w=std::uint16_t(sizes[17][0]*32),h=std::uint16_t((sizes[17][1]+1)*32);
             e.quad_uv={{{0,0},{w,0},{w,h},{0,h}}};
         }
@@ -159,7 +159,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
         const Float4& camera,float far_clip,const SineTable& sine,const Float4* light_tint,EffectDrawPass pass) {
     if(effect.flags&0x4300)return {};
     require((effect.id==25&&effect.elements.size()==8)||((effect.id==17||effect.id==19)&&effect.elements.size()==9)||
-            (effect.id==91&&effect.elements.size()==4)||(effect.id==16&&effect.elements.size()==3)||
+            (effect.id==105&&effect.elements.size()==16)||(effect.id==90&&effect.elements.size()==1)||(effect.id==91&&effect.elements.size()==4)||(effect.id==16&&effect.elements.size()==3)||
             (effect.id==33&&effect.elements.size()==9)||(effect.id==115&&effect.elements.size()==5)||
             (effect.id==26&&effect.elements.size()==2)||(effect.id==6&&effect.elements.size()==4)||
             (effect.id==24&&effect.elements.size()==8)||(effect.id==14&&effect.elements.size()==7),"Unrecovered map effect geometry template");
@@ -177,7 +177,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
     }
     std::vector<MapEffectDraw> result;
     for(const auto& e:effect.elements) {
-        require(effect.id==14?(e.primitive_flags==0||e.primitive_flags==0x20||e.primitive_flags==0x300):effect.id==24?(e.primitive_flags&255)==0x21:effect.id==6?e.primitive_flags==0x20:effect.id==16?e.primitive_flags==8:effect.id==115?e.primitive_flags==0x40:
+        require(effect.id==105?(e.primitive_flags==0x41||e.primitive_flags==0x141||e.primitive_flags==0x341):effect.id==14?(e.primitive_flags==0||e.primitive_flags==0x20||e.primitive_flags==0x300):effect.id==24?(e.primitive_flags&255)==0x21:effect.id==6?e.primitive_flags==0x20:effect.id==16?e.primitive_flags==8:effect.id==115?e.primitive_flags==0x40:
                 (e.primitive_flags&255)==1||((effect.id==17||effect.id==19||effect.id==26)&&e.primitive_flags==0x41),
                 "Unrecovered map effect material");
         require(!(e.flags&0x400000)||light_tint,"Effect requires owned field light tint");
@@ -191,7 +191,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
             rotation[1]=(1-camera[1])-effect.rotation[1];rotation[3]=camera[3];break;
             case 5:require(effect.id==115,"Unrecovered camera-space effect owner");break;
             case 2:
-            require((effect.id==91&&e.shape==40)||(effect.id==14&&(e.shape==25||e.shape==40)),"Unrecovered quarter-turn billboard owner");
+            require(((effect.id==90||effect.id==91)&&e.shape==40)||(effect.id==14&&(e.shape==25||e.shape==40)),"Unrecovered quarter-turn billboard owner");
             rotation[0]=((1-camera[0])+.25f)-effect.rotation[0];
             rotation[1]=(1-camera[1])-effect.rotation[1];rotation[3]=camera[3];break;
             case 8:
@@ -248,7 +248,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
                     draw.vertices.push_back({{p[0]/64.f,p[1]/64.f,p[2]/64.f,1},white,
                                              {uv[0]/32768.f,uv[1]/32768.f,0,0}});
                 }
-            } else if(e.shape==40&&(effect.id==91||effect.id==33||effect.id==14)) {
+            } else if(e.shape==40&&(effect.id==90||effect.id==91||effect.id==33||effect.id==14)) {
                 require(e.texture==0xffffffffu,"Unrecovered glow texture");
                 //0x10fca8 emits sixteen independent center/next/current triangles.
                 const auto point=[&](unsigned i){const auto a=(i%16)*1024;
@@ -351,10 +351,10 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
                     {clear,white,white,clear},
                     {lower_uv(i),uv(a,1),uv(b,1),lower_uv(i+1)});
             }
-        } else if(e.shape==29||((effect.id==17||effect.id==19||effect.id==24||effect.id==115)&&e.shape==31)||
+        } else if(e.shape==29||((effect.id==17||effect.id==19||effect.id==24||effect.id==105||effect.id==115)&&e.shape==31)||
                   (effect.id==115&&e.shape==32)) {
             const float bottom=e.shape==29?-1:-.5f,top=e.shape==29?0:.5f;
-            const auto quad_uv=[&](unsigned i,float u,float v){return effect.id==24?
+            const auto quad_uv=[&](unsigned i,float u,float v){return (effect.id==24||effect.id==105)?
                 Float4{float(e.quad_uv[i][0])/32768,float(e.quad_uv[i][1])/32768,0,0}:uv(u,v);};
             quad({Float4{-.5f,bottom,0,1},Float4{.5f,bottom,0,1},Float4{.5f,top,0,1},Float4{-.5f,top,0,1}},
                  {white,white,white,white},
@@ -379,8 +379,8 @@ Float4 effect_light_tint(const Float4& base,const Float4& ambient,const Float4& 
 void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_enabled,const Float4* eye) {
     if(!clock_enabled)return;
     require(!(flags&0x100),"Cannot update a removed map effect");
-    require(id==6||id==14||id==24||id==25||id==26||id==17||id==19||id==33||id==115||id==91||id==16,"Unrecovered map effect update program");
-    if(id==91){require(eye,"Torch effect requires the current camera position");
+    require(id==6||id==14||id==24||id==25||id==26||id==17||id==19||id==33||id==105||id==115||id==90||id==91||id==16,"Unrecovered map effect update program");
+    if(id==90||id==91){require(eye,"Glow effect requires the current camera position");
         for(float f:*eye)require(std::isfinite(f),"Non-finite torch camera position");}
     Rounding rounding;
     if(phase>duration){if(!(flags&0x8000)){request_removal();return;}phase-=duration;}
@@ -407,7 +407,7 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
             if(mode==3) {
                 const auto source=std::find_if(elements.begin(),elements.end(),[&](const auto& v){return float(v.id)==e.interval[2];});
                 require(source!=elements.end()&&source->id<e.id&&
-                        ((id==24&&source->shape==31&&e.shape==31)||(id==14&&source->shape==35&&e.shape==35)),
+                        (((id==24||id==105)&&source->shape==31&&e.shape==31)||(id==14&&source->shape==35&&e.shape==35)),
                         "Unrecovered shared effect texture geometry");
                 //0x105e78 shares geometry and copies the source texture/UV
                 //rectangle after its first-update replacement. Mutable shape35
@@ -416,9 +416,9 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
                 e.quad_uv=source->quad_uv;
                 if(id==14)e.strip_source_id=source->id;
             } else if(mode) {
-                const auto old=(id==24&&e.shape==31&&mode==1)?texture_sizes_.at(e.texture):std::array<std::uint32_t,2>{};
+                const auto old=((id==24||id==105)&&e.shape==31&&mode==1)?texture_sizes_.at(e.texture):std::array<std::uint32_t,2>{};
                 set_texture(e,unsigned(e.interval[2]));
-                if(id==24&&e.shape==31&&mode==1) {
+                if((id==24||id==105)&&e.shape==31&&mode==1) {
                     const auto next=texture_sizes_.at(e.texture);
                     for(auto& pair:e.quad_uv)for(unsigned axis=0;axis<2;++axis)
                         pair[axis]=std::uint16_t((unsigned(pair[axis])*((next[axis]<<5)/old[axis]))>>5);
@@ -503,6 +503,11 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
             for(unsigned i=0;i<3;++i)p[i]=float(int(random()%40)-20)*parameters[i]+e.position[i];
             break;
         case 17:p[1]=e.position[1]+e.position[3]*t;break;
+        case 23:
+            //0x107558: quadratic Y fall and linear X from authored position-W.
+            p[1]=e.position[1]-(t*t)*e.position[3];
+            p[0]=e.position[0]+t*e.position[3];break;
+        case 28:p[1]=(t*t)*e.position[3]+e.position[1];break;
         case 26:p[1]=((t*4.f)*(1.f-t))*e.position[3]+e.position[1];break;
         case 10: {
             //0x104ba8 maps the original quad UVs into a32x64 atlas cell.
@@ -618,6 +623,11 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
             const float cycle=t*e.interval[3],local=cycle-float(int(cycle));
             const float envelope=local>.6f?1.0f-(local-.6f)/.39999998f:local<.4f?local/.4f:1;
             c[3]=e.color[3]-(envelope*e.color[3])*.25f;break;
+        }
+        case 34: {
+            //0x10a410: source alpha minus the authored interval-W modulation.
+            const float envelope=t>.6f?1.f-(t-.6f)/.39999998f:t<.4f?t/.4f:1;
+            c[3]=e.color[3]-(envelope*e.color[3])*e.interval[3];break;
         }
         case 14:{const float envelope=t>.7f?1.0f-(t-.7f)/.3f:t<.45f?t/.45f:1;
             for(unsigned i=0;i<3;++i)c[i]=envelope*e.color[i];break;}
