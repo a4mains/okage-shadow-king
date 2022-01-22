@@ -904,9 +904,20 @@ int main(int argc, char** argv) {
             okage::MapEffect effect(*found,position,attached?found->rotation:positioned?okage::Float4{}:vectors[1],
                 attached?found->scale:positioned?okage::Float4{1,1,1,1}:vectors[2],sizes,random,
                 positioned?okage::EffectStart::FirstFrame:okage::EffectStart::RandomPhase);
-            std::vector<std::uint32_t> out,deformation,torchGeometry,cylinderUV,shadowUV,stripGeometry,stripUV;
+            std::vector<std::uint32_t> out,deformation,torchGeometry,cylinderUV,shadowUV,stripGeometry,stripUV,waterGeometry;
             const auto vector=[&](const okage::Float4& v){for(float f:v)out.push_back(__builtin_bit_cast(std::uint32_t, (f)));};
             const auto capture=[&](unsigned step){
+                if(request[0]==106) {
+                    const auto& water=effect.elements.at(0).water;
+                    if(!water)throw std::runtime_error("Missing water probe geometry");
+                    waterGeometry.insert(waterGeometry.end(),{step,32,32,effect.clamp_mode,__builtin_bit_cast(std::uint32_t, (effect.near_clip))});
+                    for(unsigned y=0;y<32;++y)for(unsigned x=0;x<32;++x) {
+                        const auto i=y*32+x;const auto& uv=water->packed_uv[i];
+                        waterGeometry.insert(waterGeometry.end(),{
+                            std::uint16_t(int(x)*2-32)|(std::uint32_t(std::uint16_t(water->packed_y[i]))<<16),
+                            std::uint16_t(int(y)*2-32),uv[0]|(std::uint32_t(uv[1])<<16)});
+                    }
+                }
                 if(request[0]==24||request[0]==105)for(unsigned i=request[0]==24?5:0;i<effect.elements.size();++i) {
                     shadowUV.insert(shadowUV.end(),{step,i,4});
                     for(unsigned j:{1u,0u,2u,3u}) {
@@ -990,6 +1001,7 @@ int main(int argc, char** argv) {
                 effect.tick(random,true,cameraGlow?&eye:nullptr);
             }capture(i+2);}
             if(request[0]==24||request[0]==105)write(std::string(argv[6])+".shadow-uv.bin",{reinterpret_cast<const std::uint8_t*>(shadowUV.data()),shadowUV.size()*4});
+            if(request[0]==106)write(std::string(argv[6])+".water.bin",{reinterpret_cast<const std::uint8_t*>(waterGeometry.data()),waterGeometry.size()*4});
             if(request[0]==14){
                 write(std::string(argv[6])+".geometry.bin",{reinterpret_cast<const std::uint8_t*>(stripGeometry.data()),stripGeometry.size()*4});
                 write(std::string(argv[6])+".uv.bin",{reinterpret_cast<const std::uint8_t*>(stripUV.data()),stripUV.size()*4});

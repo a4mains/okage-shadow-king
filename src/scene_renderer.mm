@@ -461,8 +461,14 @@ struct SceneRenderer::Impl {
                 const auto texture=untextured?-1:std::int32_t(effectTexture+e.texture);
                 if(!untextured){const auto& image=textures.at(texture);
                     if(e.uv[2]>=image.width||e.uv[3]>=image.height)throw std::runtime_error("Map effect texture bounds");}
+                if(e.clamp_mode!=2&&e.clamp_mode!=3)throw std::runtime_error("Unrecovered effect texture addressing");
+                //0x1028e0/0x103234: generic CLAMP packing reverses each pair
+                // relative to mode2. Mode3 uses extent-1 as mask, origin as OR.
+                const auto region=e.clamp_mode==3?
+                    std::array<unsigned,4>{e.uv[2],e.uv[0],e.uv[3],e.uv[1]}:
+                    std::array<unsigned,4>{e.uv[0],e.uv[2],e.uv[1],e.uv[3]};
                 Draw draw{std::uint32_t(vertices.size()),std::uint32_t(e.vertices.size()),std::int32_t(texture),
-                    {e.uv[0],e.uv[2],e.uv[1],e.uv[3],2,2,untextured?0u:1u,(e.additive||e.subtractive)?0u:1u},true,e.additive,!e.additive&&!e.subtractive};
+                    {region[0],region[1],region[2],region[3],e.clamp_mode,e.clamp_mode,untextured?0u:1u,(e.additive||e.subtractive)?0u:1u},true,e.additive,!e.additive&&!e.subtractive};
                 draw.depthAlways=!e.depth_test;
                 draw.subtractive=e.subtractive;
                 draw.phase=2;draw.nearClip=effect->near_clip;draw.deferred=(effect->flags&0x400)!=0;

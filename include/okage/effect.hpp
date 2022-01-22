@@ -37,6 +37,14 @@ inline constexpr std::array<std::string_view,31> effect_texture_names={
     "thunderball.xim","6eff01.xim","6eff02.xim","5sen.xim","exp_c.xim","heart.xim",
     "onnpu.xim","wind.xim","treasure.xim","page.xim","odoro.xim","aura.xim","kyusyu16.xim"};
 using EffectTextureSizes=std::array<std::array<std::uint32_t,2>,31>;
+struct EffectWaterSurface {
+    std::array<std::array<std::uint32_t,1024>,2> heights{};
+    std::array<std::array<std::int32_t,2>,1024> coordinates{};
+    std::array<std::int16_t,1024> packed_y{};
+    std::array<std::array<std::uint16_t,2>,1024> packed_uv{};
+    unsigned active=0,rate=0,rate_counter=0,period=0,period_counter=0;
+    bool initialized=false;
+};
 struct MapEffectElement {
     Float4 position{},rotation{},scale{},color{},interval{};
     std::uint32_t id=0,shape=0,flags=0,primitive_flags=0,program=0,next_program=0;
@@ -54,6 +62,7 @@ struct MapEffectElement {
     std::vector<std::uint8_t> strip_tags;
     std::vector<std::array<std::uint16_t,2>> strip_uv;
     std::optional<std::uint32_t> strip_source_id;
+    std::shared_ptr<EffectWaterSurface> water;
 };
 enum class EffectStart {RandomPhase, FirstFrame};
 struct MapEffectVertex {Float4 position,color,uv;};
@@ -88,6 +97,7 @@ public:
     std::uint32_t id=0,flags=0,duration=0,phase=0;
     float inverse_duration=0;
     float near_clip=3; // Job constructor0x10d338, +0x78.
+    unsigned clamp_mode=2; // Job+0x74; water initializer switches to region repeat.
     Float4 position{},rotation{},scale{},color{1,1,1,1},parameters{};
     // Mode0 attachment0x101118 copies this actor's position/rotation before
     // the effect update. Ownership follows the job, including removal/reuse.
@@ -112,6 +122,7 @@ struct MapEffectDraw {
     bool additive=true;
     bool depth_test=true;
     bool subtractive=false;
+    unsigned clamp_mode=2;
 };
 enum class EffectDrawPass {Ordinary, Deferred};
 std::vector<MapEffectDraw> map_effect_draws(const MapEffect&,const Matrix4& view,

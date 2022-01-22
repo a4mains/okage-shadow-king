@@ -26,6 +26,49 @@ struct Rounding {
     ~Rounding(){std::fesetround(old);}
 };
 unsigned angle(float t){return (static_cast<std::uint32_t>(static_cast<std::int32_t>(t*32768.0f))>>1)&16383;}
+void update_water(EffectWaterSurface& water,const MapEffectElement& e,const Float4& parameters) {
+    require(parameters[0]==32&&parameters[1]==32&&parameters[3]==1&&e.interval[3]==0,
+            "Unrecovered water dimensions or impulse mode");
+    require(parameters[2]>=1&&parameters[2]<=65535,"Invalid water update interval");
+    const int right=__builtin_bit_cast(std::int16_t, (e.uv[2])),bottom=__builtin_bit_cast(std::int16_t, (e.uv[3]));
+    if(!water.initialized) {
+        water.rate=unsigned(parameters[2]);water.period=50;
+        for(int y=0;y<32;++y)for(int x=0;x<32;++x)
+            water.coordinates[y*32+x]={right*x/31,bottom-bottom*y/31};
+        water.initialized=true;
+    }
+    ++water.rate_counter;++water.period_counter;
+    if(water.rate_counter<water.rate)return;
+    water.rate_counter=0;
+    auto& source=water.heights[water.active];
+    auto& destination=water.heights[water.active^1];
+    if(water.period_counter>=water.period) {
+        water.period_counter=0;water.period=50;
+        source[30*32+16]=std::uint32_t(-15*32);
+    }
+    const auto signed_word=[](std::uint32_t value){return __builtin_bit_cast(std::int32_t, (value));};
+    for(int y=1;y<31;++y)for(int x=1;x<31;++x) {
+        const auto at=y*32+x;
+        const auto sum=source[at-33]+source[at-32]+source[at-31]+source[at-1]+
+                       source[at+1]+source[at+31]+source[at+32]+source[at+33];
+        const auto value=std::uint32_t(signed_word(sum)>>2)-destination[at];
+        destination[at]=value-std::uint32_t(signed_word(value)>>4);
+    }
+    water.active^=1;
+    for(int y=2;y<31;++y)for(int x=2;x<31;++x) {
+        const auto at=y*32+x;
+        const auto nw=source[at-33],ne=source[at-31],sw=source[at+31],se=source[at+33];
+        const auto dx=std::uint32_t(signed_word(ne+se-nw-sw)>>1)+source[at+1]-source[at-1];
+        const auto dy=std::uint32_t(signed_word(sw+se-nw-ne)>>1)+source[at+32]-source[at-32];
+        water.coordinates[at]={right*(x-1)/29+(signed_word(dx)>>6),
+            std::clamp(bottom-(bottom*(y-1)/29+(signed_word(dy)>>6)),0,bottom)};
+    }
+    for(unsigned i=0;i<1024;++i) {
+        water.packed_y[i]=std::int16_t(signed_word(source[i])>>5);
+        for(unsigned axis=0;axis<2;++axis)
+            water.packed_uv[i][axis]=std::uint16_t(std::uint32_t(water.coordinates[i][axis])<<5);
+    }
+}
 }
 std::vector<EffectDefinition> read_efd(Bytes bytes) {
     Reader r{bytes};r.range(0,16);require(r.word(0)==0x20444645,"Invalid EFD signature");
@@ -81,7 +124,7 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
             (id==6&&d.elements.size()==4&&start==EffectStart::FirstFrame)||
             (id==14&&d.elements.size()==7&&start==EffectStart::FirstFrame)||
             (id==24&&d.elements.size()==8&&start==EffectStart::FirstFrame)||
-            (id==105&&d.elements.size()==16)||(id==90&&d.elements.size()==1)||(id==91&&d.elements.size()==4)||(id==16&&d.elements.size()==3),
+            (id==106&&d.elements.size()==1)||(id==105&&d.elements.size()==16)||(id==90&&d.elements.size()==1)||(id==91&&d.elements.size()==4)||(id==16&&d.elements.size()==3),
             "Unrecovered map effect template");
     require(duration>0&&duration<=0x7fffffff,"Invalid map effect duration");
     Rounding rounding;inverse_duration=1.0f/float(duration);
@@ -98,6 +141,7 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
         e.rendered={e.position,e.rotation,e.scale,e.color};
         unsigned texture;
         switch(e.shape){case 24:texture=20;break;case 29:texture=5;break;
+                        case 65:require(id==106,"Unrecovered water shape owner");texture=2;break;
                         case 28:texture=4;break;case 31:texture=17;break;
                         case 59:require(id==33,"Unrecovered effect shape59 owner");texture=25;break;
                         case 35:require(id==14,"Unrecovered segmented-strip owner");texture=9;break;
@@ -111,6 +155,12 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
                         default:throw std::runtime_error("Unrecovered map effect shape");}
         if(texture==0xffffffffu){e.texture=texture;e.uv={0,0,65535,65535};}
         else set_texture(e,texture);
+        if(e.shape==65) {
+            e.water=std::make_shared<EffectWaterSurface>();
+            //0x10e690 uses i/32, not i/31;0x1122e8 uses texture height+1.
+            for(unsigned y=0;y<32;++y)for(unsigned x=0;x<32;++x)
+                e.water->packed_uv[y*32+x]={std::uint16_t(sizes[2][0]*x),std::uint16_t((sizes[2][1]+1)*y)};
+        }
         if((id==14||id==24||id==33)&&e.shape==25)e.ring_y.assign(30,-192);
         if(id==14&&e.shape==35) {
             //0x110908 accumulates six float steps before XYZ/UV packing.
@@ -159,12 +209,12 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
         const Float4& camera,float far_clip,const SineTable& sine,const Float4* light_tint,EffectDrawPass pass) {
     if(effect.flags&0x4300)return {};
     require((effect.id==25&&effect.elements.size()==8)||((effect.id==17||effect.id==19)&&effect.elements.size()==9)||
-            (effect.id==105&&effect.elements.size()==16)||(effect.id==90&&effect.elements.size()==1)||(effect.id==91&&effect.elements.size()==4)||(effect.id==16&&effect.elements.size()==3)||
+            (effect.id==106&&effect.elements.size()==1)||(effect.id==105&&effect.elements.size()==16)||(effect.id==90&&effect.elements.size()==1)||(effect.id==91&&effect.elements.size()==4)||(effect.id==16&&effect.elements.size()==3)||
             (effect.id==33&&effect.elements.size()==9)||(effect.id==115&&effect.elements.size()==5)||
             (effect.id==26&&effect.elements.size()==2)||(effect.id==6&&effect.elements.size()==4)||
             (effect.id==24&&effect.elements.size()==8)||(effect.id==14&&effect.elements.size()==7),"Unrecovered map effect geometry template");
     require(bool(effect.flags&0x400)==(pass==EffectDrawPass::Deferred),"Effect submitted to the wrong draw pass");
-    require(pass==EffectDrawPass::Ordinary||effect.id==6||effect.id==14||effect.id==16||effect.id==33||effect.id==115,"Unrecovered deferred effect geometry");
+    require(pass==EffectDrawPass::Ordinary||effect.id==6||effect.id==14||effect.id==16||effect.id==33||effect.id==106||effect.id==115,"Unrecovered deferred effect geometry");
     require(effect.id!=16||pass==EffectDrawPass::Deferred,"Flame16 requires the deferred pass");
     require(std::isfinite(far_clip)&&far_clip>0,"Invalid effect far clip");
     Rounding rounding;
@@ -177,7 +227,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
     }
     std::vector<MapEffectDraw> result;
     for(const auto& e:effect.elements) {
-        require(effect.id==105?(e.primitive_flags==0x41||e.primitive_flags==0x141||e.primitive_flags==0x341):effect.id==14?(e.primitive_flags==0||e.primitive_flags==0x20||e.primitive_flags==0x300):effect.id==24?(e.primitive_flags&255)==0x21:effect.id==6?e.primitive_flags==0x20:effect.id==16?e.primitive_flags==8:effect.id==115?e.primitive_flags==0x40:
+        require(effect.id==106?e.primitive_flags==0x41:effect.id==105?(e.primitive_flags==0x41||e.primitive_flags==0x141||e.primitive_flags==0x341):effect.id==14?(e.primitive_flags==0||e.primitive_flags==0x20||e.primitive_flags==0x300):effect.id==24?(e.primitive_flags&255)==0x21:effect.id==6?e.primitive_flags==0x20:effect.id==16?e.primitive_flags==8:effect.id==115?e.primitive_flags==0x40:
                 (e.primitive_flags&255)==1||((effect.id==17||effect.id==19||effect.id==26)&&e.primitive_flags==0x41),
                 "Unrecovered map effect material");
         require(!(e.flags&0x400000)||light_tint,"Effect requires owned field light tint");
@@ -217,7 +267,21 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
         // and strips use ALPHA0x48 (add); the disc uses ALPHA0x42 (subtract).
         draw.depth_test=effect.id!=115&&effect.id!=6&&effect.id!=14;
         draw.subtractive=effect.id==6||effect.id==24||(effect.id==14&&e.primitive_flags==0x20);
+        draw.clamp_mode=effect.clamp_mode;
         const Float4 white{255,255,255,255},clear{255,255,255,0};
+        if(e.shape==65) {
+            require(effect.id==106&&e.water&&e.texture==2,"Missing native water geometry");
+            for(unsigned y=0;y<31;++y)for(unsigned x=0;x<31;++x) {
+                const std::array<unsigned,4> corners={y*32+x,y*32+x+1,(y+1)*32+x+1,(y+1)*32+x};
+                // Factory0x112d20 emits B,A,C,D with the A-C diagonal.
+                for(unsigned corner:{1u,0u,2u,0u,2u,3u}) {
+                    const auto i=corners[corner];const auto& uv=e.water->packed_uv[i];
+                    draw.vertices.push_back({{float(int(i%32)*2-32)/64,e.water->packed_y[i]/64.f,
+                        float(int(i/32)*2-32)/64,1},white,{uv[0]/32768.f,uv[1]/32768.f,0,0}});
+                }
+            }
+            result.push_back(std::move(draw));continue;
+        }
         if(effect.id==6) {
             require((e.shape==7||e.shape==9)&&e.texture==0xffffffffu,"Unrecovered dark-ring geometry");
             //0x10faa0: independent B,A,C,D strips between two scaled circles.
@@ -379,7 +443,7 @@ Float4 effect_light_tint(const Float4& base,const Float4& ambient,const Float4& 
 void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_enabled,const Float4* eye) {
     if(!clock_enabled)return;
     require(!(flags&0x100),"Cannot update a removed map effect");
-    require(id==6||id==14||id==24||id==25||id==26||id==17||id==19||id==33||id==105||id==115||id==90||id==91||id==16,"Unrecovered map effect update program");
+    require(id==6||id==14||id==24||id==25||id==26||id==17||id==19||id==33||id==105||id==106||id==115||id==90||id==91||id==16,"Unrecovered map effect update program");
     if(id==90||id==91){require(eye,"Glow effect requires the current camera position");
         for(float f:*eye)require(std::isfinite(f),"Non-finite torch camera position");}
     Rounding rounding;
@@ -428,7 +492,13 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         }
         if((e.flags&0x2000)&&e.interval[2]<t)program&=0xc0ffffff;
         const auto timing=(program>>24)&63;
-        require(timing==0||timing==1||timing==5||timing==6||timing==7||timing==12||timing==17||timing==20,"Unrecovered map effect time program");
+        require(timing==0||timing==1||timing==5||timing==6||timing==7||timing==12||timing==17||timing==20||timing==32,"Unrecovered map effect time program");
+        if(timing==32) {
+            require(id==106&&e.shape==65&&e.water,"Unrecovered water program owner");
+            if(e.water.use_count()!=1)e.water=std::make_shared<EffectWaterSurface>(*e.water);
+            if(!e.water->initialized){clamp_mode=3;near_clip=10;}
+            update_water(*e.water,e,parameters);
+        }
         if(timing==12) {
             require(id==14&&e.shape==35&&e.strip_positions.size()==14,"Unrecovered segmented-strip deformation");
             if(!(flags&0x20)) {

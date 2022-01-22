@@ -66,14 +66,18 @@ vertex MapEffectVarying map_effect_vertex(uint id [[vertex_id]],device const Ver
 }
 float4 map_effect_color(MapEffectVarying v,texture2d<float> image,
                                    constant State& state) {
-    // TEX1=0x60 uses linear filtering; clamp each tap to the observed region.
+    // TEX1=0x60 uses linear filtering. Apply region clamp/repeat to each tap.
     float4 modulated;
     if(!state.mode.z)modulated=clamp(v.color,0.0f,255.0f);
     else {
     float2 texel=v.uv*1024.0f-0.5f;int2 base=int2(floor(texel));float2 f=fract(texel);
     float4 texels[4];
     for(uint i=0;i<4;++i){
-        int2 p=clamp(base+int2(i&1,i>>1),int2(state.region.x,state.region.z),int2(state.region.y,state.region.w));
+        int2 p=base+int2(i&1,i>>1);
+        p.x=state.mode.x==2?clamp(p.x,int(state.region.x),int(state.region.y)):
+            ((p.x&int(state.region.x))|int(state.region.y));
+        p.y=state.mode.y==2?clamp(p.y,int(state.region.z),int(state.region.w)):
+            ((p.y&int(state.region.z))|int(state.region.w));
         float4 t=image.read(uint2(p));
         texels[i]=float4(t.rgb*255.0f,floor(t.a*127.5f+0.5f));
     }

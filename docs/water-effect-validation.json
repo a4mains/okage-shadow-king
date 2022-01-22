@@ -1,0 +1,131 @@
+{
+  "scope": "Native effect106 state and geometry; source-reviewed drawing; integrated entry and navigation with retained transition and A/V failures",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "state_words_exact_per_build": 47596,
+  "snapshots_per_build": 652,
+  "packed_point_observations_exact_per_build": 1000168,
+  "packed_coordinate_uv_words_exact_per_build": 3000504,
+  "comparison_reports": {
+    "release": {
+      "path": "local/research/church-water-v1/checks-release-v2/report.json",
+      "sha256": "52eab52088338468c9c98e27549c658dff235dd4407f6f18a0295d972daecf4e",
+      "native_binary_sha256": "b7b29a5aaec604729a9343e861eaa030150c6d240375873802202011bdd78b03"
+    },
+    "debug": {
+      "path": "local/research/church-water-v1/checks-debug-v2/report.json",
+      "sha256": "5ca2f758a13ce881b81a7d48e51edca626ac2c739b5d9c3a543a722f8256fab0",
+      "native_binary_sha256": "968c7a2879cc1a2829e29d12da71ddca562d2a75fc15ab2fa86583d4cc4d86ad"
+    },
+    "sanitize": {
+      "path": "local/research/church-water-v1/checks-sanitize-v2/report.json",
+      "sha256": "a084ebd6aea189f3a4bebf7ceb4538eba4439274e662f9fcfe11cacb19db8e6f",
+      "native_binary_sha256": "ae918c98fc72754d81e70ff5cdc05fa5f3991397f0d73d831592b08baf43e7c7"
+    }
+  },
+  "source_sha256": {
+    "include/okage/effect.hpp": "5c26153cc2a4a0b6594fad427ee1a27170b055727d1d7c149786f3763ac18bb5",
+    "src/effect.cpp": "f02bfb8899ed587c04c53ca209d319abb95bf5f73da15ef1518635856290841b",
+    "src/assets_main.cpp": "79aff2c28203f586bd4368243ea2be6ed3d7f52cc5436d628f3170f7a1f02e04",
+    "src/scene_renderer.mm": "2ebde2dffc517240ff154d7cc5712bb6b4b56ec6dd6088d6cae328ec1aeae5a6",
+    "src/metal_preview_shader.hpp": "1f18b6a2228f82d4eb5d33f339641664445fb9ce85f5ce0580770859c822f69e",
+    "tests/effect_tests.cpp": "e84c7ae9667fa4c8b2d2b44dcbc4f7b30416858ac465b45e366ffd433e9cfd44",
+    "tests/test_verify_water_effect.py": "e467ec85a05eb9c6fec3556c9a8959f84e74fa1b838a478200650e97ef1fef99",
+    "tools/verify_water_effect.py": "2abafec8e0f0d5a42a0f8d904faec21bf154053894df5bde51e0b2afae05680e",
+    "tools/verify_map_effect.py": "f5a457a0e073e08a79452c1d07d59bd59602f8066ac290b6753775b9a8fafad5"
+  },
+  "original_source_exports_sha256": {
+    "local/research/church-basement-route-v1/effect-source-v1/0010e690.c": "8c32bfe2094bd488bde7f2d750c9a2e6f2a4bd0c497756ad8d79fa5daade27e3",
+    "local/research/church-basement-route-v1/effect-source-v1/0010e690.asm": "87094a609d9f410e8ac071f804dfef89734b7bf056f3b30c7781bc57424e45e5",
+    "local/research/church-basement-route-v1/effect-source-v1/0010c388.c": "f7ed3a02d0bffc0e806f33f7b3f0ca6bc41d13a5fbf5aa50db6e5cbc993465bb",
+    "local/research/church-basement-route-v1/effect-source-v1/0010c388.asm": "e0cd64684252591a4cf6ffbd1e0ae9f4c1d13b2a9e14ed89d2dbb9909c5b1145",
+    "local/research/church-basement-route-v1/effect-source-v1/0010c7b8.c": "1c5f1df7edbbd6651d4a7f8d181a2193437a28a19db8f10b571e4d1655d765fb",
+    "local/research/church-basement-route-v1/effect-source-v1/0010c7b8.asm": "06e5ce23aa6994702a5ec277b4003e20210d140f97bcecf389fcaff169faca72",
+    "local/research/church-basement-route-v1/effect-source-v1/0010c978.c": "6ebed3ca12b6d695a265c126551e045986ee36428ece3f4b1b8766d403311967",
+    "local/research/church-basement-route-v1/effect-source-v1/0010c978.asm": "7529c54ed8a8d46a499879ad4e4a79afe1c442bd47b5f4da35f9aec51ec18eb6",
+    "local/research/00105a40.asm": "b214df42a920678f8e0f37ea947c5201de929331ef5c751ce874f444f0b0ebfa",
+    "local/research/0010d338.asm": "6b0025576a7b8f765664218e74b5f1adc984aaf4f3326347ce311e4b34904717",
+    "local/research/0010b038.asm": "97f573c7745f0541d43199418bdeca6c913fc363808ee1da888bda5e4773b416",
+    "local/research/shadow-field-projection-v1/00102218.asm": "17166bd56ff962b173550a6f2aaf9e2372573a3bad0aea4d4187580188cbcb5a",
+    "local/research/shadow-field-projection-v1/00102cf8.asm": "38bd7e2997a7c35468b8f8606d9677f234e667bb27ada4ef113d3d5cf15eea9c"
+  },
+  "evidence_sha256": {
+    "local/research/church-water-v1/checks-release-v2/report.json": "52eab52088338468c9c98e27549c658dff235dd4407f6f18a0295d972daecf4e",
+    "local/research/church-water-v1/checks-debug-v2/report.json": "5ca2f758a13ce881b81a7d48e51edca626ac2c739b5d9c3a543a722f8256fab0",
+    "local/research/church-water-v1/checks-sanitize-v2/report.json": "a084ebd6aea189f3a4bebf7ceb4538eba4439274e662f9fcfe11cacb19db8e6f",
+    "local/research/church-water-v1/ctest-release-v2.log": "16d405c90fd855ab419c1f58b1dbc9eefbe0bff5200eff10369ae9d4bd4c64b4",
+    "local/research/church-water-v1/ctest-debug-v2.log": "36646d40702a5a2f4ea85c89a4a3d1d9ec068942712a83276313b43dde725027",
+    "local/research/church-water-v1/ctest-sanitize-v2.log": "f82dd4acee6ab7c18055eab7b7db73785aed43109124bb055e5fb24b37a81a7b",
+    "local/research/church-water-v1/python-tests-integrated-v1.log": "b6b89cee8fbd3aa02a854fcc3262d546189e4bb72be8bd90ef14463795546986",
+    "local/research/church-water-v1/grid-analysis-v1.json": "4edcbd64bd38abf815e3031cfe7bc4cca43f3ff18e85a6ec708e9983560c1797",
+    "local/research/church-water-v1/draw-source-review-v1.txt": "fe95764a854c791604ee1951057206e2de7f71146a145caa1a0ab6abf849457b",
+    "local/research/church-water-v1/draw-source-review-v1.json": "d96d5c4fca0b25973a6629d6020ff6e2072ec38c89dd2e2c7d21e7b138ee7472",
+    "local/research/church-water-v1/entry-interval-v1.json": "6d591ddfd303efeccb0af7cccf28e74120157989740bf56a7f2fa34a91b13205",
+    "local/research/church-water-v1/entry-summary-v1.json": "f78b242f5fb0c88fcd73af7548e427f63ed292ffc11206c73df57fa276d60c67",
+    "local/research/church-water-v1/preview-102335-comparison-v1.json": "f1b7a6b01f3df267f0a26c3c66a4d3796c84ddf4ba529fe763c45cfbc4bbc253",
+    "local/research/church-basement-entry-pair-v1/bundle.json": "e5fb8ca21a2d913f8821c6b7712d0e9e32cfd7aa6b501518937a146f56d2183f",
+    "local/native-tenel-church-basement-enter-102155-release-v3.run.json": "ee075e3c1f6b312627af9e9edc790995f187ee02efe48825f1372b80e6dd29bd",
+    "local/native-tenel-basement-stairs-102335-release-v1.run.json": "ab14b07521760c06fbd075d3fcc4fb8edcadbaa872737a97cccb884cc9815f31",
+    "local/native-tenel-basement-floor-102515-release-v1.run.json": "8fa1737acf8e146f7f7db6097880284ac3172826f7f37f70028eaa2d9e0d48f6",
+    "local/native-tenel-basement-valve-door-approach-102695-release-v1.run.json": "ed126fcb5fe30b39e1161b27bd300a7c63a2798fc108b49d0502fd89ead9e1db",
+    "local/research/post-jam-route-v1/tenel-basement-stairs-summary.json": "10154b63b2b1fd1fe584b40fbdfcf9fac87fc02789931dffffd0001026496fe9",
+    "local/research/post-jam-route-v1/tenel-basement-stairs-interval.json": "c323f6cc9c472c73227a70a96a8d571b0049e27e6c0f0bc22f76bbf4e74ea9cc",
+    "local/research/post-jam-route-v1/tenel-basement-stairs-latches.json": "888abc8ef6cf10d676b26387b8e11413eb58c29fb77c5ad0f927c46eefee1b41",
+    "local/research/post-jam-route-v1/tenel-basement-stairs-result.json": "7135b43e83b2ae9eed654d2d19bc4132f96338ac078075fb4bd473756206ed4d",
+    "local/research/post-jam-route-v1/tenel-basement-floor-summary.json": "5712484d7f3cc7804bd3a052ae7ae7ce8ebf4e7c9a892c8106617efe9a4a2c75",
+    "local/research/post-jam-route-v1/tenel-basement-floor-interval.json": "888a13fdcb0a97d909b90a71796bb0473c623c8c4d18102d0b0219b2c4a7a82a",
+    "local/research/post-jam-route-v1/tenel-basement-floor-latches.json": "dad32dfdb0a04dddca471554dcdaee6409ee999e1a7ae0e7c067ea9d15433870",
+    "local/research/post-jam-route-v1/tenel-basement-floor-result.json": "f684242833ad1bea7a72a7744a61a7fdbf619896e30c145e6b016fd3b4a286f9",
+    "local/research/post-jam-route-v1/tenel-basement-valve-door-approach-summary.json": "316c26c32ba29c8a869d5d2559e6f200ca99771c7a94d9af3a1fb4cf076eb652",
+    "local/research/post-jam-route-v1/tenel-basement-valve-door-approach-interval.json": "d9bdf97f59c0346dab0c778e9cc8afdcd7e2a477d10fabc40ae83ddca6c110ec",
+    "local/research/post-jam-route-v1/tenel-basement-valve-door-approach-latches.json": "566c4a068b325e586f2608a5db514e9e4d0f12b4959b67b686adb24d4e3a3166",
+    "local/research/post-jam-route-v1/tenel-basement-valve-door-approach-result.json": "6eb49cb4e9102f6b988760b51cf464c237062c9dac650e460479d78e07c6a89b",
+    "local/native-tenel-basement-ghost-room-enter-102995-release-v1.run.json": "6d93bc3387efcd54d589b91dac9a0b8151c5fabe682f48e72667b2c55d9e4998"
+  },
+  "runtime_sha256": "85de8200658ce01000279e66c56f54a5f350f774f468011f2fb19f0f155ccb9f",
+  "tests": {
+    "ctest_each_build": 23,
+    "python": 171
+  },
+  "native_entry": {
+    "last_tick": 102155,
+    "exit_code": 0,
+    "first_divergence": 101933,
+    "differing_frames": 59,
+    "unique_missing_observation_frames": 60,
+    "observed_matching_tail": 162
+  },
+  "subsequent_navigation": {
+    "first_tick": 102156,
+    "last_tick": 102695,
+    "compared_frames": 540,
+    "differing_frames": 0,
+    "missing_observations": 0,
+    "scope": "manager/camera/player/input; excludes NPC/global RNG, water phase, pixels/audio"
+  },
+  "preview": {
+    "tick": 102335,
+    "pid": 42666,
+    "tool_session": 99196,
+    "app": "local/demos/current-preview-102335-v1/okage-native.app",
+    "binary_sha256": "8278fee3d79fb43099a6edfda8167d7fc0e2767adb16bab23907d60fa602a4ea",
+    "endpoint_files_exact": 52,
+    "view_capture": "local/native-current-preview-102335-v1.png.view.png"
+  },
+  "limits": [
+    "Clamp/near are source assertions, not retained original root-field observations",
+    "No full water packet or isolated raster comparison",
+    "No direct auxiliary-grid/counter observation",
+    "Entry retains loading/camera differences and missing observations",
+    "All entry image pairs differ; audio boundaries remain unaligned",
+    "Full gameplay, battles, persistence, cold startup and playthrough remain incomplete"
+  ],
+  "next_room_failure": {
+    "tick": 102700,
+    "scene": 96,
+    "entrance": 0,
+    "reason": "Unreviewed music resource ID 28",
+    "native_run": "local/native-tenel-basement-ghost-room-enter-102995-release-v1.run.json",
+    "original_last_tick": 102995,
+    "first_uncaptured_original_tick": 102996
+  }
+}
