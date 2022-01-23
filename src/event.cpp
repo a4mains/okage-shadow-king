@@ -38,17 +38,31 @@ std::int32_t event_variable(Bytes variables,std::uint32_t selector) {
         return __builtin_bit_cast(std::int8_t, (variables[at]));
     }
     if(bank==4)return __builtin_bit_cast(std::int32_t, (word(variables,0x510+std::size_t(index)*4)));
+    if(bank>=8 && bank<=15) {
+        // 0x125758 supplies 0x50-byte records. Keep supported indices within
+        // one record; the original unchecked helper can otherwise alias it.
+        at=0x5c4+(bank&7)*0x50+std::size_t(index)*2;
+        if(index>=0x28 || at>variables.size() || variables.size()-at<2)
+            throw std::runtime_error("Event short bank bounds");
+        const auto value=std::uint16_t(unsigned(variables[at])|(unsigned(variables[at+1])<<8));
+        return __builtin_bit_cast(std::int16_t, (value));
+    }
     throw std::runtime_error("Unrecovered event variable bank "+std::to_string(bank));
 }
 void set_event_variable(std::span<std::uint8_t> variables,unsigned index,unsigned bank,std::int32_t value) {
-    if(index>0xffff || bank>4)throw std::runtime_error("Unrecovered event variable write bank/index");
+    if(index>0xffff || (bank>4 && (bank<8 || bank>15)))throw std::runtime_error("Unrecovered event variable write bank/index");
     // Validate the same backing extent as the reader before mutating it.
     event_variable(variables,(bank<<16)|index);
     if(bank<=1){
         auto& byte=variables[0x10+bank*0x100+(index>>3)];const auto mask=0x80>>(index&7);
         byte=value ? byte|mask : byte&~mask;
     } else if(bank<=3)variables[0x210+(bank-2)*0x200+index]=std::uint8_t(value);
-    else for(unsigned i=0;i<4;++i)variables[0x510+index*4+i]=std::uint32_t(value)>>(i*8);
+    else if(bank==4)for(unsigned i=0;i<4;++i)variables[0x510+index*4+i]=std::uint32_t(value)>>(i*8);
+    else {
+        const auto at=0x5c4+(bank&7)*0x50+index*2;
+        variables[at]=std::uint32_t(value)&255;
+        variables[at+1]=(std::uint32_t(value)>>8)&255;
+    }
 }
 std::int32_t poll_dialogue_wait(DialogueWaitState& state,std::int32_t request,
                                const DialogueObservation& dialogue) {

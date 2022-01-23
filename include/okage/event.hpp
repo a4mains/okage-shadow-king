@@ -4,6 +4,8 @@
 #include <vector>
 
 namespace okage {
+// Recovered field-event variable banks in the runtime structure, not a save format.
+// Banks 8..15 expose signed 16-bit records, bounded to their 0x50-byte stride.
 std::int32_t event_variable(Bytes variables, std::uint32_t selector);
 void set_event_variable(std::span<std::uint8_t> variables,unsigned index,unsigned bank,std::int32_t value);
 

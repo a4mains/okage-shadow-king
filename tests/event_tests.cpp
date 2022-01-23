@@ -18,7 +18,7 @@ int main() {
         require(okage::event_variable(variables,0x20000)==-128);
         require(okage::event_variable(variables,0x30000)==-1);
         require(okage::event_variable(variables,0x40000)==(-2147483647-1));
-        rejects([&]{okage::event_variable(variables,0x80000);});
+        rejects([&]{okage::event_variable(variables,0x50000);});
         rejects([&]{okage::event_variable(variables,0x800);});
         rejects([&]{okage::event_variable(variables,0x31000);});
         rejects([&]{okage::event_variable(variables,0x4ffff);});
@@ -28,7 +28,39 @@ int main() {
         okage::set_event_variable(variables,511,2,255);require(okage::event_variable(variables,0x201ff)==-1);
         okage::set_event_variable(variables,1,4,-123);require(okage::event_variable(variables,0x40001)==-123);
         rejects([&]{okage::set_event_variable(variables,65536,0,1);});
-        rejects([&]{okage::set_event_variable(variables,0,8,1);});
+        rejects([&]{okage::set_event_variable(variables,0,5,1);});
+        // Signed short records occupy adjacent 0x50-byte ranges. Exercise
+        // both ends of every record and verify all unrelated bytes survive.
+        for(unsigned bank=8;bank<=15;++bank)for(unsigned index:{0u,7u,39u}) {
+            std::vector<std::uint8_t> shorts(0x845,0xa5);
+            const auto offset=0x5c4+(bank-8)*0x50+index*2;
+            for(const auto value:{0,32767,32768,65535,65536,-1,-32769,(-2147483647-1),2147483647}) {
+                const auto previous=shorts;
+                okage::set_event_variable(shorts,index,bank,value);
+                const auto low=std::uint32_t(value)&0xffff;
+                require(okage::event_variable(shorts,(bank<<16)|index)==
+                        (low<32768?int(low):int(low)-65536));
+                require(shorts[offset]==(low&255)&&shorts[offset+1]==(low>>8));
+                for(std::size_t i=0;i<shorts.size();++i)
+                    if(i!=offset&&i!=offset+1)require(shorts[i]==previous[i]);
+            }
+            const auto previous=shorts;
+            rejects([&]{okage::event_variable(shorts,(bank<<16)|40);});
+            rejects([&]{okage::set_event_variable(shorts,40,bank,7);});
+            require(shorts==previous);
+            shorts.resize(offset+2);okage::set_event_variable(shorts,index,bank,-123);
+            require(okage::event_variable(shorts,(bank<<16)|index)==-123);
+            shorts.pop_back();const auto truncated=shorts;
+            rejects([&]{okage::event_variable(shorts,(bank<<16)|index);});
+            rejects([&]{okage::set_event_variable(shorts,index,bank,42);});
+            require(shorts==truncated);
+        }
+        for(unsigned bank:{5u,6u,7u,16u,24u,65535u}) {
+            const auto previous=variables;
+            rejects([&]{okage::event_variable(variables,bank<<16);});
+            rejects([&]{okage::set_event_variable(variables,0,bank,1);});
+            require(variables==previous);
+        }
         put(script,0,0x544d58);put(script,4,32);put(script,16,0xffffffff);
         // Signed -128 < 0: take body. False branch skips to end at byte 60.
         put(script,32,(28u<<20)|(4u<<8)|11);put(script,36,0x20000);put(script,40,0);
@@ -46,7 +78,7 @@ int main() {
         rejects([&]{okage::run_event_setup(bad,variables,state);});require(state==previous);
         bad=script;put(bad,32,1);put(bad,36,0xfffffffc);
         rejects([&]{okage::run_event_setup(bad,variables,state);});require(state==previous);
-        bad=script;put(bad,36,0x80000);
+        bad=script;put(bad,36,0x50000);
         rejects([&]{okage::run_event_setup(bad,variables,state);});require(state==previous);
         for(std::size_t n=0;n<script.size();++n)
             rejects([&]{okage::run_event_setup(okage::Bytes(script.data(),n),variables,state);});

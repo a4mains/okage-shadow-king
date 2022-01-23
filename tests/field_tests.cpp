@@ -121,13 +121,39 @@ int main(){try {
     writing.tick();require(writes==1 && writing.pc()==0xbec && writing.pending_opcode==0x36);
     require(okage::event_variable(variables,0x10007)==1 && variables[0x110]==1);
     writing.tick();require(writes==1);
-    for(auto selector:{0x80000u}) {
+    for(auto selector:{0x50000u,0x70000u,0x100000u,0x80028u,0xf0028u}) {
         word(0xbe8,selector);okage::OpeningField special(b,[](int){},[](int){return true;});
         rejects([&]{for(unsigned i=0;i<180;++i)special.tick();});
     }
-    for(const auto& test:std::array<std::array<std::int32_t,4>,6>{{
+    word(0xbe4,0x06900047);word(0xbe8,0x000e0007);
+    word(0xbec,0x00700162);word(0xbf0,17);word(0xbf4,0);
+    {
+        okage::OpeningField short_write(b,[](int){},[](int){return true;});
+        std::array<std::uint8_t,0x1000> storage{};storage.fill(0xa5);
+        for(unsigned i=0;i<180;++i)short_write.tick();
+        require(short_write.pc()==0xbe4&&short_write.pending_opcode==0x47);
+        unsigned calls=0;
+        short_write.set_variable=[&](auto index,auto bank,auto value){
+            require(index==7&&bank==14&&value==105);++calls;
+            okage::set_event_variable(storage,index,bank,value);
+        };
+        rejects([&]{short_write.tick();});require(calls==1&&short_write.pc()==0xbec);
+        for(unsigned i=0;i<storage.size();++i)
+            require(storage[i]==(i==0x7b2?105:i==0x7b3?0:0xa5));
+        rejects([&]{short_write.tick();});require(calls==1&&short_write.pc()==0xbec);
+    }
+    for(auto selector:{0x50000u,0x70000u,0x100000u,0x80028u,0xf0028u}) {
+        word(0xbe4,0x100048);word(0xbe8,selector);
+        okage::OpeningField invalid_add(b,[](int){},[](int){return true;});
+        unsigned calls=0;
+        invalid_add.get_variable=[&](auto){++calls;return 0;};
+        invalid_add.set_variable=[&](auto,auto,auto){++calls;};
+        rejects([&]{for(unsigned i=0;i<180;++i)invalid_add.tick();});require(calls==0);
+    }
+    for(const auto& test:std::array<std::array<std::int32_t,4>,10>{{
         {2,127,1,-128},{3,-128,-1,127},{4,2147483647,1,(-2147483647-1)},
-        {4,(-2147483647-1),-1,2147483647},{0,1,1,1},{1,0,-1,0}}}) {
+        {4,(-2147483647-1),-1,2147483647},{0,1,1,1},{1,0,-1,0},
+        {8,32767,1,-32768},{14,-32768,-1,32767},{15,-1,1,0},{9,0,-1,-1}}}) {
         const auto bank=unsigned(test[0]);word(0xbe4,(std::uint32_t(test[2])<<20)|0xabc48);
         word(0xbe8,(bank<<16)|7);word(0xbec,0xff800236);
         okage::OpeningField adding(b,[](int){},[](int){return true;});

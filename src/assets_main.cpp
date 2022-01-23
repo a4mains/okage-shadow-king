@@ -610,6 +610,26 @@ int main(int argc, char** argv) {
             }
             write(argv[4],out);return 0;
         }
+        if(command=="event-shorts" && argc==4) {
+            const auto input=read(argv[2]);
+            if(input.empty()||input.size()%12||input.size()>12*1024)
+                throw std::runtime_error("Event short fixture bounds");
+            std::vector<std::uint8_t> variables(0x1000,0xa5),out;
+            for(std::size_t at=0;at<input.size();at+=12) {
+                std::uint32_t row[3];std::memcpy(row,input.data()+at,12);
+                const auto op=row[0],index=row[1]&0xffff,bank=row[1]>>16;
+                if(op>2||bank<8||bank>15||index>=40)
+                    throw std::runtime_error("Unsupported event short fixture");
+                if(op) {
+                    const auto value=op==1?row[2]:row[2]+__builtin_bit_cast(std::uint32_t, (okage::event_variable(variables,row[1])));
+                    okage::set_event_variable(variables,index,bank,__builtin_bit_cast(std::int32_t, (value)));
+                }
+                const auto value=__builtin_bit_cast(std::uint32_t, (okage::event_variable(variables,row[1])));
+                for(unsigned i=0;i<4;++i)out.push_back(value>>(8*i));
+                out.insert(out.end(),variables.begin(),variables.end());
+            }
+            write(argv[3],out);return 0;
+        }
         if(command=="event-write" && argc==4) {
             const auto input=read(argv[2]);
             if(input.empty()||input.size()%8||input.size()>1024)throw std::runtime_error("Event write fixture bounds");

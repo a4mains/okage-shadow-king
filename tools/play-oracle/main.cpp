@@ -2158,6 +2158,24 @@ public:
         }
         writeFile(output,result.data(),result.size());
     }
+    void eventShorts(const std::vector<uint8>& input,const char* output) {
+        if(input.empty()||input.size()%12||input.size()>12*1024)
+            throw std::runtime_error("Event short fixture bounds");
+        std::memset(ee->m_ram+0xa00000,0xa5,0x1000);put(0x24f788,0xa00000);
+        std::vector<uint8> result;
+        for(unsigned at=0;at<input.size();at+=12) {
+            uint32 row[3];std::memcpy(row,input.data()+at,12);
+            const auto op=row[0],index=row[1]&0xffff,bank=row[1]>>16;
+            if(op>2||bank<8||bank>15||index>=40)
+                throw std::runtime_error("Unsupported event short fixture");
+            if(op)call(op==1?0x125918:0x1259d0,{index,bank,row[2]});
+            call(0x125888,{index,bank});
+            const auto value=ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0];
+            for(unsigned i=0;i<4;++i)result.push_back(value>>(8*i));
+            result.insert(result.end(),ee->m_ram+0xa00000,ee->m_ram+0xa01000);
+        }
+        writeFile(output,result.data(),result.size());
+    }
     void eventSetup(const std::vector<uint8>& script,const std::vector<uint8>& variables,
                     const std::vector<uint8>& state,const char* output,bool strings=false) {
         if(script.size()<36 || script.size()>0x100000 || variables.size()!=0x1000 || state.size()!=0x800)
@@ -3102,6 +3120,8 @@ int main(int argc,char** argv) {
             reference.capsulePair(readFile(argv[3]),argv[4]);
         } else if(command=="collision-world" && argc==6) {
             reference.collisionWorld(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="event-shorts" && argc==5) {
+            reference.eventShorts(readFile(argv[3]),argv[4]);
         } else if(command=="event-write" && argc==6) {
             reference.eventWrite(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="map-effect-probe" && argc==7) {
