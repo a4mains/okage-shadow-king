@@ -1,0 +1,176 @@
+{
+  "status": "Executed original primitive comparison; bounded native storage support, not battle or whole-event proof",
+  "implementation_commit": "4944f620d3476b2afd9512ace89065062034ddb3",
+  "scope": {
+    "banks": [
+      8,
+      15
+    ],
+    "indices": [
+      0,
+      39
+    ],
+    "record_stride": 80,
+    "variables_offset": 1476,
+    "storage_size": 4096,
+    "initial_storage_byte": 165,
+    "getter": "signed16",
+    "SET": "low16",
+    "ADD": "wrapped16",
+    "original_index_bounds": "Original helper has no check; native support deliberately bounds each record.",
+    "member_semantics": "Unnamed and unrecovered"
+  },
+  "source_functions": {
+    "0x125758": "record address",
+    "0x125888": "signed getter",
+    "0x125918": "SET",
+    "0x1259d0": "ADD"
+  },
+  "original_setup": {
+    "variable_pointer_global": "0x24f788",
+    "synthetic_buffer_address": "0xa00000",
+    "snapshot_required": false,
+    "game_code_patches": false,
+    "primitive_calls": "Unmodified original ELF functions through existing bounded call harness"
+  },
+  "fixture": {
+    "rows": 676,
+    "input_bytes": 8112,
+    "input_record_bytes": 12,
+    "output_record_bytes": 4100,
+    "compared_bytes_per_build": 2771600,
+    "generator": "tools/verify_event_shorts.py fixtures()",
+    "input_sha256": "57959d872b7d7d0e45448d1dad1c8ccd3337a29d96154c492c15e461ec596d1e",
+    "all_output_sha256": "1ebbfc171bfd1e895bacd593c5a0b290ec71a605551eb7f36dadea519d883007"
+  },
+  "executed_reference_and_release": {
+    "rows": 676,
+    "bytes_per_row": 4100,
+    "compared_bytes": 2771600,
+    "exact": true,
+    "runs": [
+      {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "event-shorts",
+          "local/extracted/SCUS_971.29",
+          "local/research/event-shorts-v1/input.bin",
+          "local/research/event-shorts-v1/original.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.337760333,
+        "binary_sha256": "7abf529bd1c530dfd475fdc00b311998d8746853b58f3bc1b6d7f426659fb129"
+      },
+      {
+        "command": [
+          "build/native-release/okage-assets",
+          "event-shorts",
+          "local/research/event-shorts-v1/input.bin",
+          "local/research/event-shorts-v1/release.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.17460058299999992,
+        "binary_sha256": "c6bbc0d0757e80a398772e6556c9ad8e9906ff4036d7fd87373f27d5f2663869"
+      }
+    ],
+    "hashes": {
+      "local/research/event-shorts-v1/input.bin": "57959d872b7d7d0e45448d1dad1c8ccd3337a29d96154c492c15e461ec596d1e",
+      "local/research/event-shorts-v1/original.bin": "1ebbfc171bfd1e895bacd593c5a0b290ec71a605551eb7f36dadea519d883007",
+      "local/research/event-shorts-v1/release.bin": "1ebbfc171bfd1e895bacd593c5a0b290ec71a605551eb7f36dadea519d883007",
+      "src/event.cpp": "71740bd676b4d970556d4c5274ef40ed65108b1ffafe6746b765bd5cf079a156",
+      "src/field.cpp": "bb0436b1388752439e2695ac2b058c617c525587d0a2d707e3837985d5ea6ad0",
+      "src/assets_main.cpp": "7a043ad90e9dd87011161e403073438d4a7fb7c4156dac50a42eb95b48b85dcb",
+      "tools/play-oracle/main.cpp": "ecff84e1fa58c14977852a34c544086d34020a6c62547435a25b291717b322b0",
+      "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
+    }
+  },
+  "other_executed_native_builds": [
+    {
+      "build": "debug",
+      "command": [
+        "build/native/okage-assets",
+        "event-shorts",
+        "local/research/event-shorts-v1/input.bin",
+        "local/research/event-shorts-v1/debug.bin"
+      ],
+      "exit_code": 0,
+      "rows": 676,
+      "exact": true,
+      "binary_sha256": "748dbe401156b54796845aaa33ce1388b21180168b832392e589d16ac6725c16",
+      "output_sha256": "1ebbfc171bfd1e895bacd593c5a0b290ec71a605551eb7f36dadea519d883007"
+    },
+    {
+      "build": "sanitize",
+      "command": [
+        "build/model-sanitize/okage-assets",
+        "event-shorts",
+        "local/research/event-shorts-v1/input.bin",
+        "local/research/event-shorts-v1/sanitize.bin"
+      ],
+      "exit_code": 0,
+      "rows": 676,
+      "exact": true,
+      "binary_sha256": "bdb32c8fe3b163354fd693702ad2a2fbbdb39ae2955fee210edd9ca5e740ca1f",
+      "output_sha256": "1ebbfc171bfd1e895bacd593c5a0b290ec71a605551eb7f36dadea519d883007"
+    }
+  ],
+  "verification": {
+    "command": [
+      "python3",
+      "tools/verify_event_shorts.py",
+      "verify",
+      "local/research/event-shorts-verifier-v1/input.bin",
+      "local/research/event-shorts-v1/original.bin",
+      "local/research/event-shorts-v1/release.bin",
+      "--report",
+      "local/research/event-shorts-verifier-v1/report.json"
+    ],
+    "checks": [
+      "Exact input/output record extents and supported input scope",
+      "Signed getter result at every row",
+      "Full4096-byte backing at every row against independent arithmetic",
+      "Both original and native against expected results; identical corruption rejected"
+    ],
+    "release_debug_sanitizer_exact": true,
+    "python_suite": {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "tests": 178,
+      "passed": true
+    },
+    "negative_cli_cases": [
+      "truncated output",
+      "extra output byte",
+      "adjacent backing-byte corruption"
+    ],
+    "native_tests": "event-tests and field-tests pass Release, Debug and sanitizer; retained logs hashed below"
+  },
+  "limits": [
+    "No whole-event wrapper execution comparison in this probe.",
+    "No original index bounds exist; native indices40+ remain unsupported.",
+    "No battle transition, battle subsystem, member naming or arbitrary-bank equivalence claim.",
+    "No captured output or original RAM enters native runtime.",
+    "Emulator reference only, not physical PS2 proof."
+  ],
+  "evidence_sha256": {
+    "local/research/event-shorts-v1/report.json": "9232de9e43175ecd7432173c1148f5e70d9837b5bbcc8e3f22ebdbe7c8190789",
+    "local/research/event-shorts-v1/other-builds.json": "b9c682861da83b7caf930676c0d85e733d3b824968bcdb778aedbab9fa054d09",
+    "local/research/event-shorts-v1/release-tests.log": "dd704b7df8ca1e22ab39fce6e2f884c33d84bf7bf837b14910d09ff9be753572",
+    "local/research/event-shorts-v1/debug-tests.log": "505ad76589631f1a57beedcd0045749592e566114ba8ef968f366be0ba7f8cd5",
+    "local/research/event-shorts-v1/sanitize-tests.log": "43af5aee76d940d29eeb4c01004742418f960d777f5a4b48d78559e90d065717",
+    "local/research/event-shorts-verifier-v1/report.json": "505be5e332ea0a0d63fa2f7633f7ee558113a1b6ad87deae18efb977b041fd68",
+    "local/research/event-shorts-verifier-v1/debug-report.json": "ca682827c4a95e1cf06d6e29671ef19044446e7d34d2199e5c538b4cf3696bb9",
+    "local/research/event-shorts-verifier-v1/sanitize-report.json": "b969a9d7b881ce8709eb38326980a9a8b8c0fc78c78e6691bb0d19a2f0e567d7",
+    "local/research/event-shorts-verifier-v1/negative-results.json": "3f77e928857808fc38365e1a47a7e41aa5e1f6f27b5871f90d0e3162842c24ca",
+    "local/research/event-shorts-verifier-v1/python-tests.log": "8e0ba1f56b2836a0f64f23e291a4edfbbd16304f7ca9db1caf031245b0c1956d",
+    "tools/verify_event_shorts.py": "76bca48e9015c0dda9acf290ebb49d5d7c8f4387abdcb6e620cda87655aee50c",
+    "tests/test_verify_event_shorts.py": "1f1b04b4df0dfc1fcf701055a994321d30e72c44460f7c73f349c6d836a6bfd7"
+  }
+}
