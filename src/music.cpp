@@ -131,6 +131,8 @@ MusicResourceNames music_resource_names(int id) {
         case 2:return {"CTY_TNB","CTY_TNB0",""};
         case 10:return {"FLD_NMA","FLD_NMA0",""};
         case 26:return {"SNT_DNM","SNT_DNM0","SNT_DNM2"};
+        // USA ELF table0x1fb530 entry28; loader also binds SNT_LDF1.XV.
+        case 28:return {"SNT_LDF","SNT_LDF0",""};
         // USA ELF table0x1fb530 entry36; ordinary sequence with one bank.
         case 36:return {"EVN_TSR","EVN_TSR0",""};
         // USA ELF table0x1fb530 entry38; EVN_THL1.XV is also loaded.

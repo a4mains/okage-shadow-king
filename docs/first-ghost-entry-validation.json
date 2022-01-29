@@ -1,0 +1,516 @@
+{
+  "schema_version": 1,
+  "scope": "Music resource 28 source mapping and bounded native checks; scene 96 entry plus three following dialogue intervals through tick 103895.",
+  "retail_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "music_mapping": {
+    "id": 28,
+    "table_base_va": "0x1fb530",
+    "entry_va": "0x1fb610",
+    "name_pointer": "0x227b08",
+    "class_pointer": "0x227b50",
+    "name": "snt_ldf",
+    "class_string": "1",
+    "sequence": "SNT_LDF.XSQ",
+    "bank0": "SNT_LDF0.XV",
+    "optional_bank1": "SNT_LDF1.XV",
+    "alternate_sequence": null,
+    "elf_row_and_strings_independently_read": true,
+    "source_report": {
+      "path": "local/research/church-water-v1/music28-source-v1.json",
+      "sha256": "ced36f7c16f6c3761dac5aab70bbf9e4b152cd6acaa449666e73d4ec1d8b398e"
+    },
+    "source_note": {
+      "path": "local/research/church-water-v1/music28-source-v1.txt",
+      "sha256": "6fc9a2bb786f556080dc141140f3d2a6eb12e005b67913216ddc575faf5da3d7"
+    },
+    "source_exports": [
+      {
+        "path": "local/research/0012d898.c",
+        "size_bytes": 706,
+        "sha256": "869848f63f88d0343ee2b6f228f5a4e95485376c5dd6f0fb52a30a5211792294"
+      },
+      {
+        "path": "local/research/0012d158.c",
+        "size_bytes": 1455,
+        "sha256": "0d8bdb99eccddd2b46a05cfeb3e36b6fe4114c9648d8854d17883bd3892a1fd7"
+      }
+    ],
+    "disc_inventory": {
+      "path": "docs/disc-report.json",
+      "size_bytes": 101706,
+      "sha256": "8e2f5ef35fd6491dd49f8934c08b6342db8f31783d8100f1caaf067703e1714a"
+    },
+    "owned_assets": [
+      {
+        "path": "local/audio-input/SNDDATA/BGM/SNT_LDF.XSQ",
+        "size_bytes": 38128,
+        "sha256": "38edbe4d18fab5dfeba4abd13f180009c9e91e6ceb95ea6b98bfe78a24b98bad"
+      },
+      {
+        "path": "local/audio-input/SNDDATA/BGM/SNT_LDF0.XV",
+        "size_bytes": 275056,
+        "sha256": "53e9f4409afaea5a9a06cb93bcb0cc4df0e49cb0c5398bfc79fc28d6135f3808"
+      },
+      {
+        "path": "local/audio-input/SNDDATA/BGM/SNT_LDF1.XV",
+        "size_bytes": 172288,
+        "sha256": "9f5bbcde807f097c4e5c4c718a4894b8268817982c0e5dbc3163e11ccaa362c4"
+      }
+    ],
+    "implementation": {
+      "path": "src/music.cpp",
+      "sha256": "9878ec23c4aab40661df2e56b34974a17f061d9744c2914ccefce60a9846da06"
+    },
+    "optional_bank_loading_source": {
+      "path": "src/native_runtime.mm",
+      "sha256": "13333971d36ab80300dafac2b6166a0dbef8fec28752153604a78336ec64d328"
+    }
+  },
+  "native_dry_1200": {
+    "report": {
+      "path": "local/research/church-water-v1/music28-dry-v1/report.json",
+      "sha256": "6b397ac86c73e013e7d2afb5cfd09d1d20cb528a5bf0910ccd471ff2530e1a56"
+    },
+    "runs": [
+      {
+        "configuration": "release",
+        "run": {
+          "path": "local/research/church-water-v1/music28-dry-v1/release.run.json",
+          "sha256": "d4754d759271cc05015c8c747f55b5e0f3ca0d20ca55fdad04abf4f8edb1254d"
+        },
+        "log": {
+          "path": "local/research/church-water-v1/music28-dry-v1/release.log",
+          "sha256": "07d1c19d8758a12bd6cb45936b59eaf5840ab33d1b2e012a3970c707110c60db"
+        },
+        "pcm": {
+          "path": "local/research/church-water-v1/music28-dry-v1/release.pcm",
+          "sha256": "242ec462757cfa11ce6eb5d9d157ef3362033e450b71eafe0b02bd87555e0b43"
+        },
+        "bytes": 83228,
+        "ticks": 1200,
+        "binary_sha256_recorded": "eb388cc747f4057fb08562a5e07c4487e9bf9df10615204d11d44d91627c8bf4",
+        "music_source_sha256_recorded": "512f049f6a36da699d981852910caa2f52935ceae1d719c0819983af69d1fdc5"
+      },
+      {
+        "configuration": "debug",
+        "run": {
+          "path": "local/research/church-water-v1/music28-dry-v1/debug.run.json",
+          "sha256": "d715fc778e9916f26b53cbcd52de3b069317fa06c90cab56ddc83b5610df1f21"
+        },
+        "log": {
+          "path": "local/research/church-water-v1/music28-dry-v1/debug.log",
+          "sha256": "07d1c19d8758a12bd6cb45936b59eaf5840ab33d1b2e012a3970c707110c60db"
+        },
+        "pcm": {
+          "path": "local/research/church-water-v1/music28-dry-v1/debug.pcm",
+          "sha256": "242ec462757cfa11ce6eb5d9d157ef3362033e450b71eafe0b02bd87555e0b43"
+        },
+        "bytes": 3840000,
+        "ticks": 1200,
+        "binary_sha256_recorded": "0ec09ce1eb0f6fcda8578ba94e0f52a58cb53f4a91351eb64dbad287d901ff95",
+        "music_source_sha256_recorded": "512f049f6a36da699d981852910caa2f52935ceae1d719c0819983af69d1fdc5"
+      },
+      {
+        "configuration": "sanitize",
+        "run": {
+          "path": "local/research/church-water-v1/music28-dry-v1/sanitize.run.json",
+          "sha256": "961d063b29b8c1ed08ff7fa62ca60c852aa6954766d809db8cc2c35a50ec6ef3"
+        },
+        "log": {
+          "path": "local/research/church-water-v1/music28-dry-v1/sanitize.log",
+          "sha256": "07d1c19d8758a12bd6cb45936b59eaf5840ab33d1b2e012a3970c707110c60db"
+        },
+        "pcm": {
+          "path": "local/research/church-water-v1/music28-dry-v1/sanitize.pcm",
+          "sha256": "242ec462757cfa11ce6eb5d9d157ef3362033e450b71eafe0b02bd87555e0b43"
+        },
+        "bytes": 3840000,
+        "ticks": 1200,
+        "binary_sha256_recorded": "d5ac25f90494950114bd457df09325856ee1fbc2d9489a9f471ba70990000c32",
+        "music_source_sha256_recorded": "512f049f6a36da699d981852910caa2f52935ceae1d719c0819983af69d1fdc5"
+      }
+    ],
+    "all_three_pcm_sha256_equal": true,
+    "pcm_sha256": "242ec462757cfa11ce6eb5d9d157ef3362033e450b71eafe0b02bd87555e0b43",
+    "original_audio_comparison": false,
+    "full_score_verified": false
+  },
+  "native_parser_prefix_12000": {
+    "source_report": {
+      "path": "local/research/church-water-v1/music28-source-v1.json",
+      "sha256": "ced36f7c16f6c3761dac5aab70bbf9e4b152cd6acaa449666e73d4ec1d8b398e"
+    },
+    "sequence": {
+      "exit_code": 0,
+      "ticks_requested": 12000,
+      "record_bytes": 680,
+      "records": 50377,
+      "phase_counts": {
+        "tick_entry": 12000,
+        "event_dispatch": 26377,
+        "post_tick": 12000
+      },
+      "end_row_seen": false
+    },
+    "dry_playback": {
+      "exit_code": 0,
+      "ticks": 12000,
+      "peak_voices": 18,
+      "stolen_voices": 0,
+      "sample_loops": 2911
+    },
+    "outputs": [
+      {
+        "path": "local/research/church-water-v1/SNT_LDF-sequence-12000.bin",
+        "size_bytes": 34256360,
+        "sha256": "3df735297002fd6e78429ae5fbbb8e2f64e3c5d2d2fc0daf0906f0bbcba9339a"
+      },
+      {
+        "path": "local/research/church-water-v1/SNT_LDF-12000.pcm",
+        "size_bytes": 38400000,
+        "sha256": "62af7601da528a2858f607668ad18da455d44fd8dcd27320a3d416764eae7e35"
+      }
+    ],
+    "binary_sha256_recorded": "eb388cc747f4057fb08562a5e07c4487e9bf9df10615204d11d44d91627c8bf4",
+    "end_of_score_seen": false,
+    "scope": "Previously executed native parser/dry prefix only; no original synthesis comparison."
+  },
+  "music_tests": [
+    {
+      "configuration": "release",
+      "test_log": {
+        "path": "local/research/church-water-v1/music28-tests-release-v1.log",
+        "sha256": "7b9155b1781e2c5d89856fd9dde402b3cbcc70a9a34dd210394faefceee1a023"
+      },
+      "build_log": {
+        "path": "local/research/church-water-v1/music28-build-release-v1.log",
+        "sha256": "d44c5e8387f49b024e395856afd36bb775aa59b7320ae3838b6321456703206e"
+      },
+      "observed_passed_tests": 1,
+      "test_name": "music-tests"
+    },
+    {
+      "configuration": "debug",
+      "test_log": {
+        "path": "local/research/church-water-v1/music28-tests-debug-v1.log",
+        "sha256": "5f0f4b578252953ff6f73e332cd58a55e7f1e5fbfa95cd0efaff42dc281f95d9"
+      },
+      "build_log": {
+        "path": "local/research/church-water-v1/music28-build-debug-v1.log",
+        "sha256": "325a97bfd37d51ab04c92e8424dd76e881b8424d76a77042d31d5455dd6b27be"
+      },
+      "observed_passed_tests": 1,
+      "test_name": "music-tests"
+    },
+    {
+      "configuration": "sanitize",
+      "test_log": {
+        "path": "local/research/church-water-v1/music28-tests-sanitize-v1.log",
+        "sha256": "026f3bf16014143c5bc4e98eb439a555ac77fe9cf318a4df114a8b0c2695c978"
+      },
+      "build_log": {
+        "path": "local/research/church-water-v1/music28-build-sanitize-v1.log",
+        "sha256": "35a2ecb8b85fa92c38b0aa6507d0626e44dfbcf77f8a5502678a57ecbbf88802"
+      },
+      "observed_passed_tests": 1,
+      "test_name": "music-tests"
+    }
+  ],
+  "retained_music_guard_failure": {
+    "run": {
+      "path": "local/native-tenel-basement-ghost-room-enter-102995-release-v1.run.json",
+      "sha256": "6d93bc3387efcd54d589b91dac9a0b8151c5fabe682f48e72667b2c55d9e4998"
+    },
+    "log": {
+      "path": "local/native-tenel-basement-ghost-room-enter-102995-release-v1.log",
+      "sha256": "3e53862a089413c13391ad2f69e121c2b3fa79a7849fb1c9544951192b84fdcf"
+    },
+    "exit_code": 1,
+    "tick": 102700,
+    "scene": 96,
+    "resource": 28,
+    "native_binary_sha256_recorded": "85de8200658ce01000279e66c56f54a5f350f774f468011f2fb19f0f155ccb9f"
+  },
+  "entry": {
+    "first_tick": 102696,
+    "last_tick": 102995,
+    "frames": 300,
+    "report": {
+      "path": "local/research/church-water-v1/ghost-room-entry-interval-v1.json",
+      "sha256": "5f2dc4292879db28f28806662d3a54d4bc166842c7612beeb6b3bff2f6528a22"
+    },
+    "summary": {
+      "path": "local/research/church-water-v1/ghost-room-entry-summary-v1.json",
+      "sha256": "5594a90fafe529070bddd771d96bba095ad61ef7c2c04d6e77f3d5cc7950ae48"
+    },
+    "native_run": {
+      "path": "local/native-tenel-basement-ghost-room-enter-102995-release-v2.run.json",
+      "sha256": "bb759c216ef17d29d9e32896df669f0f631ee6d3ac5a5d7ed255c21afde55781"
+    },
+    "original_run": {
+      "path": "local/reference-field1d-tenel-basement-ghost-room-enter-300-v1.run.json",
+      "sha256": "a9c0aaf67638cb1446aedea0821b1278fbb9d6259a149823d78a05db3750b507"
+    },
+    "native_exit_code": 0,
+    "original_exit_code": 0,
+    "native_binary_sha256_recorded": "806bc9e49bb831211150a0725dfdeb9f31a06f5fbaf6b54357c5d1419d38575a",
+    "original_binary_sha256_recorded": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+    "compared_observables_agree": false,
+    "complete_original_observation_coverage": false,
+    "controller_samples": 132,
+    "observation_coverage": {
+      "manager": {
+        "expected_frames": 300,
+        "observed_frames": 298
+      },
+      "camera": {
+        "expected_frames": 300,
+        "observed_frames": 298
+      },
+      "player": {
+        "expected_frames": 300,
+        "observed_frames": 157
+      }
+    },
+    "divergence": {
+      "first_difference": {
+        "original_frame": 4,
+        "native_simulation_tick": 102700,
+        "categories": [
+          "camera_rotation",
+          "camera_position"
+        ]
+      },
+      "category_frame_counts": {
+        "controller": 93,
+        "choice": 93,
+        "manager_running_pc_gate": 162,
+        "pad_latch": 0,
+        "direction_latch": 0,
+        "player_mask": 0,
+        "hero_facing_w": 0,
+        "hero_position": 0,
+        "camera_rotation": 141,
+        "camera_mode_phase": 140,
+        "camera_position": 141,
+        "camera_unblended_target": 0
+      },
+      "unique_differing_frames": 255,
+      "first_missing_observation": {
+        "original_frame": 5,
+        "native_simulation_tick": 102701,
+        "kind": "missing_original_manager_observation"
+      },
+      "first_missing_observation_kinds": [
+        "missing_original_manager_observation",
+        "missing_original_camera_observation"
+      ],
+      "missing_original_manager_frames": 2,
+      "missing_manager_ranges": [
+        {
+          "original_start_frame": 5,
+          "original_end_frame": 6,
+          "native_tick_start": 102701,
+          "native_tick_end": 102702,
+          "frames": 2
+        }
+      ],
+      "missing_original_camera_frames": 2,
+      "missing_camera_ranges": [
+        {
+          "original_start_frame": 5,
+          "original_end_frame": 6,
+          "native_tick_start": 102701,
+          "native_tick_end": 102702,
+          "frames": 2
+        }
+      ],
+      "unique_missing_observation_frames": 143,
+      "missing_original_player_frames": 141,
+      "missing_player_ranges": [
+        {
+          "original_start_frame": 7,
+          "original_end_frame": 147,
+          "native_tick_start": 102703,
+          "native_tick_end": 102843,
+          "frames": 141
+        }
+      ],
+      "matching_tail": {
+        "first_original_frame": 261,
+        "first_native_tick": 102957,
+        "frames": 39,
+        "controller_samples": 39
+      }
+    }
+  },
+  "later_dialogue": {
+    "first_tick": 102996,
+    "last_tick": 103895,
+    "total_frames": 900,
+    "total_controller_samples": 898,
+    "all_compared_observables_agree": true,
+    "complete_original_observation_coverage": true,
+    "intervals": [
+      {
+        "name": "talk",
+        "first_tick": 102996,
+        "last_tick": 103355,
+        "frames": 360,
+        "controller_samples": 358,
+        "interval": {
+          "path": "local/research/post-jam-route-v1/tenel-first-ghost-talk-interval.json",
+          "sha256": "a0d2f28742ccd79ee7302b282d2b707cf816890c384ef2f87c91b127d03e9042"
+        },
+        "summary": {
+          "path": "local/research/post-jam-route-v1/tenel-first-ghost-talk-summary.json",
+          "sha256": "965d2a98f01875217fb5c7ed718d3d9afeb4a2039274ca5e61f3c638ed8b0016"
+        },
+        "original_run": {
+          "path": "local/reference-field1d-tenel-first-ghost-talk-360-v1.run.json",
+          "sha256": "71bdfdeed61e51f38526056b235bc907e86033738105756d3bab880f8772ec58"
+        },
+        "native_run": {
+          "path": "local/native-tenel-first-ghost-talk-103355-release-v1.run.json",
+          "sha256": "d240abae94950755039b188524e97ffc472c766737ddf04012b3f508ff4eed92"
+        },
+        "original_binary_sha256_recorded": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "native_binary_sha256_recorded": "806bc9e49bb831211150a0725dfdeb9f31a06f5fbaf6b54357c5d1419d38575a",
+        "compared_observables_agree": true,
+        "complete_original_observation_coverage": true,
+        "position_maximum_error": 0,
+        "source_save": {
+          "path": "local/reference-field1d-tenel-basement-ghost-room-enter-300-v1.state.zip",
+          "sha256": "aaadf61f8946758374c08d58d618ef6e8d8e8465c7e89c043ff1d738f4416fd1"
+        }
+      },
+      {
+        "name": "challenge",
+        "first_tick": 103356,
+        "last_tick": 103595,
+        "frames": 240,
+        "controller_samples": 240,
+        "interval": {
+          "path": "local/research/post-jam-route-v1/tenel-first-ghost-challenge-interval.json",
+          "sha256": "293048ac32e1128830bfb1cd11048e4b29eeae9c6a139df6fbf8439919c354ab"
+        },
+        "summary": {
+          "path": "local/research/post-jam-route-v1/tenel-first-ghost-challenge-summary.json",
+          "sha256": "79b8e432aaf1bff7c831e9abca967483670764750e5b52dcad8254422295576f"
+        },
+        "original_run": {
+          "path": "local/reference-field1d-tenel-first-ghost-challenge-240-v1.run.json",
+          "sha256": "4649c4cef7319eba4150f4473298c31efe7de1165fa458ebad2e61862e82b5ec"
+        },
+        "native_run": {
+          "path": "local/native-tenel-first-ghost-challenge-103595-release-v1.run.json",
+          "sha256": "483fc415172b491538e48288f924cc29f5817c8e57e34afcc2985455897ad86a"
+        },
+        "original_binary_sha256_recorded": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "native_binary_sha256_recorded": "806bc9e49bb831211150a0725dfdeb9f31a06f5fbaf6b54357c5d1419d38575a",
+        "compared_observables_agree": true,
+        "complete_original_observation_coverage": true,
+        "position_maximum_error": 0,
+        "source_save": {
+          "path": "local/reference-field1d-tenel-first-ghost-talk-360-v1.state.zip",
+          "sha256": "325b8a2d2d60885445a23ab5dd219f1aa73a05c5b29c51bef0545a3a2a188741"
+        }
+      },
+      {
+        "name": "confrontation",
+        "first_tick": 103596,
+        "last_tick": 103895,
+        "frames": 300,
+        "controller_samples": 300,
+        "interval": {
+          "path": "local/research/post-jam-route-v1/tenel-first-ghost-confrontation-interval.json",
+          "sha256": "4c3ab78166e3db5720e1517396f720ebe92e382a596e60b3214b6a2458c985f5"
+        },
+        "summary": {
+          "path": "local/research/post-jam-route-v1/tenel-first-ghost-confrontation-summary.json",
+          "sha256": "ec6637408b7a86ae69ff931360150de7efea03ec1d590294a25b05e65c61e4d9"
+        },
+        "original_run": {
+          "path": "local/reference-field1d-tenel-first-ghost-confrontation-300-v1.run.json",
+          "sha256": "7c86d30c749b88f459a615c030717924a98c68df51ef37655976743667d4b6a1"
+        },
+        "native_run": {
+          "path": "local/native-tenel-first-ghost-confrontation-103895-release-v1.run.json",
+          "sha256": "973151db766570cc3ea8b8e42d9d63f0af77024a599448c675e045b1e187f877"
+        },
+        "original_binary_sha256_recorded": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+        "native_binary_sha256_recorded": "806bc9e49bb831211150a0725dfdeb9f31a06f5fbaf6b54357c5d1419d38575a",
+        "compared_observables_agree": true,
+        "complete_original_observation_coverage": true,
+        "position_maximum_error": 0,
+        "source_save": {
+          "path": "local/reference-field1d-tenel-first-ghost-challenge-240-v1.state.zip",
+          "sha256": "83eb12c7da64a09692c0eec38cbe9d19e00213d7b1b96313ee2ffbfdb77e38f3"
+        }
+      }
+    ],
+    "scope_exclusions": [
+      "NPC/global RNG equality",
+      "pixels",
+      "audio",
+      "unobserved state"
+    ]
+  },
+  "audio_visual": {
+    "bundle": {
+      "path": "local/research/first-ghost-entry-pair-v1/bundle.json",
+      "sha256": "866b4c59aa89a8cffdba3ae5af75d0b69b71c73c07eb981f78bb5fc666c16fbb"
+    },
+    "image_rgb_mae": [
+      7.891320219494047,
+      29.099007161458335,
+      12.437806919642858
+    ],
+    "all_selected_image_pairs_unequal": true,
+    "audio_status": "captured_unpaired_duration_mismatch",
+    "alignment": {
+      "temporal_alignment_proven": false,
+      "sample_to_vblank_alignment_proven": false,
+      "waveform_alignment_performed": false,
+      "resampling_performed": false,
+      "padding_performed": false,
+      "trimming_performed": false,
+      "waveform_equivalence_asserted": false,
+      "duration_mismatch": true,
+      "original_duration_seconds": 5.0,
+      "native_duration_seconds": 4.983333333333333,
+      "duration_difference_seconds": -0.016666666666666666,
+      "duration_difference_rational_seconds": {
+        "numerator": -1,
+        "denominator": 60
+      },
+      "segment_frame_count_difference": 18700,
+      "segment_frame_count_difference_unit": "sample frames; not a duration"
+    },
+    "scope": "Nominal pre-EE/IOP versus completed-native-tick labels; diagnostic 640×224 crop, not AppKit presentation."
+  },
+  "latest_endpoint": {
+    "metadata": {
+      "path": "local/native-tenel-first-ghost-confrontation-103895-release-v1.png.json",
+      "sha256": "0c762b48a32d290cc159d9e907ce7654b14f6f6d4326436ceb034ea38ebf9fc0"
+    },
+    "tick": 103895,
+    "scene": 96,
+    "message_id": 14905,
+    "controller_stage": 5,
+    "battle_completion_claimed": false
+  },
+  "verification": {
+    "method": "Read retained manifests/logs/reports, read ELF resource row, rehash source assets and report-bound artifacts; no builds/VM/UI/new native execution.",
+    "hashed_file_count": 131,
+    "all_checked_hashes_match": true
+  },
+  "limitations": [
+    "Native dry equality establishes cross-build determinism for 1,200 ticks only. No original PCM, listening, reverb/SFX/device or full-score pass.",
+    "The native 12,000-tick sequence prefix reached its cap without an end row; later events and the full loop remain unverified.",
+    "The failed entry interval retains 255 differing frames and 143 missing-observation frames; sets overlap and are not summed. Its 39-frame observed matching tail does not convert it into a pass.",
+    "Later 900-tick agreement covers the existing comparator fields only, with full manager/camera/player coverage and 898 conditional controller samples; it does not establish original/native NPC or RNG equality.",
+    "Image/audio differences and boundary conventions are retained without fitted offsets, time shifts, resampling or waveform equivalence.",
+    "Recorded executable hashes identify retained runs; current mutable binaries were not used as substitutes. Music CTest success is from retained logs; no test rerun occurred during documentation."
+  ]
+}
