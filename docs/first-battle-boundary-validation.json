@@ -1,0 +1,528 @@
+{
+  "schema_version": 1,
+  "scope": "Retained first ghost conversation checks and the unsupported first battle boundary; no battle implementation or full timeline parity claim.",
+  "retail_elf": {
+    "path": "local/extracted/SCUS_971.29",
+    "sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
+  },
+  "latest_completed_native_tick": 104375,
+  "first_uncaptured_original_tick": 104616,
+  "runtime_sha256_recorded": "75fde4de80590774a98688caf617e7e8645a38b48b2e8aeac3a2be9f45a1ef8f",
+  "conversation": {
+    "first_tick": 102996,
+    "last_tick": 104375,
+    "total_ticks": 1380,
+    "conditional_controller_samples": 1378,
+    "all_compared_observables_agree": true,
+    "complete_original_observation_coverage": true,
+    "intervals": [
+      {
+        "name": "talk",
+        "first_tick": 102996,
+        "last_tick": 103355,
+        "frames": 360,
+        "controller_samples": 358,
+        "all_compared_observables_agree": true,
+        "complete_original_observation_coverage": true,
+        "hero_position_maximum_error": 0,
+        "camera_position_maximum_error": 0,
+        "report": {
+          "path": "local/research/post-jam-route-v1/tenel-first-ghost-talk-interval.json",
+          "sha256": "a0d2f28742ccd79ee7302b282d2b707cf816890c384ef2f87c91b127d03e9042"
+        },
+        "summary": {
+          "path": "local/research/post-jam-route-v1/tenel-first-ghost-talk-summary.json",
+          "sha256": "965d2a98f01875217fb5c7ed718d3d9afeb4a2039274ca5e61f3c638ed8b0016"
+        },
+        "native_run": {
+          "path": "local/native-tenel-first-ghost-talk-103355-release-v1.run.json",
+          "sha256": "d240abae94950755039b188524e97ffc472c766737ddf04012b3f508ff4eed92"
+        },
+        "original_run": {
+          "path": "local/reference-field1d-tenel-first-ghost-talk-360-v1.run.json",
+          "sha256": "71bdfdeed61e51f38526056b235bc907e86033738105756d3bab880f8772ec58"
+        },
+        "native_exit_code": 0,
+        "original_exit_code": 0,
+        "native_binary_sha256_recorded": "806bc9e49bb831211150a0725dfdeb9f31a06f5fbaf6b54357c5d1419d38575a",
+        "original_binary_sha256_recorded": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5"
+      },
+      {
+        "name": "challenge",
+        "first_tick": 103356,
+        "last_tick": 103595,
+        "frames": 240,
+        "controller_samples": 240,
+        "all_compared_observables_agree": true,
+        "complete_original_observation_coverage": true,
+        "hero_position_maximum_error": 0,
+        "camera_position_maximum_error": 0,
+        "report": {
+          "path": "local/research/post-jam-route-v1/tenel-first-ghost-challenge-interval.json",
+          "sha256": "293048ac32e1128830bfb1cd11048e4b29eeae9c6a139df6fbf8439919c354ab"
+        },
+        "summary": {
+          "path": "local/research/post-jam-route-v1/tenel-first-ghost-challenge-summary.json",
+          "sha256": "79b8e432aaf1bff7c831e9abca967483670764750e5b52dcad8254422295576f"
+        },
+        "native_run": {
+          "path": "local/native-tenel-first-ghost-challenge-103595-release-v1.run.json",
+          "sha256": "483fc415172b491538e48288f924cc29f5817c8e57e34afcc2985455897ad86a"
+        },
+        "original_run": {
+          "path": "local/reference-field1d-tenel-first-ghost-challenge-240-v1.run.json",
+          "sha256": "4649c4cef7319eba4150f4473298c31efe7de1165fa458ebad2e61862e82b5ec"
+        },
+        "native_exit_code": 0,
+        "original_exit_code": 0,
+        "native_binary_sha256_recorded": "806bc9e49bb831211150a0725dfdeb9f31a06f5fbaf6b54357c5d1419d38575a",
+        "original_binary_sha256_recorded": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5"
+      },
+      {
+        "name": "confrontation",
+        "first_tick": 103596,
+        "last_tick": 103895,
+        "frames": 300,
+        "controller_samples": 300,
+        "all_compared_observables_agree": true,
+        "complete_original_observation_coverage": true,
+        "hero_position_maximum_error": 0,
+        "camera_position_maximum_error": 0,
+        "report": {
+          "path": "local/research/post-jam-route-v1/tenel-first-ghost-confrontation-interval.json",
+          "sha256": "4c3ab78166e3db5720e1517396f720ebe92e382a596e60b3214b6a2458c985f5"
+        },
+        "summary": {
+          "path": "local/research/post-jam-route-v1/tenel-first-ghost-confrontation-summary.json",
+          "sha256": "ec6637408b7a86ae69ff931360150de7efea03ec1d590294a25b05e65c61e4d9"
+        },
+        "native_run": {
+          "path": "local/native-tenel-first-ghost-confrontation-103895-release-v1.run.json",
+          "sha256": "973151db766570cc3ea8b8e42d9d63f0af77024a599448c675e045b1e187f877"
+        },
+        "original_run": {
+          "path": "local/reference-field1d-tenel-first-ghost-confrontation-300-v1.run.json",
+          "sha256": "7c86d30c749b88f459a615c030717924a98c68df51ef37655976743667d4b6a1"
+        },
+        "native_exit_code": 0,
+        "original_exit_code": 0,
+        "native_binary_sha256_recorded": "806bc9e49bb831211150a0725dfdeb9f31a06f5fbaf6b54357c5d1419d38575a",
+        "original_binary_sha256_recorded": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5"
+      },
+      {
+        "name": "warning",
+        "first_tick": 103896,
+        "last_tick": 104135,
+        "frames": 240,
+        "controller_samples": 240,
+        "all_compared_observables_agree": true,
+        "complete_original_observation_coverage": true,
+        "hero_position_maximum_error": 0,
+        "camera_position_maximum_error": 0,
+        "report": {
+          "path": "local/research/post-jam-route-v1/tenel-first-ghost-warning-interval.json",
+          "sha256": "eac30174a1feedbb477c0bbe615e66b361f4303299e8bc3e2827d4c130fb02a2"
+        },
+        "summary": {
+          "path": "local/research/post-jam-route-v1/tenel-first-ghost-warning-summary.json",
+          "sha256": "6af1d8e2c5c1d94b2ec458fd0980442d9bce92f89cc80f02bf8f62c833aff147"
+        },
+        "native_run": {
+          "path": "local/native-tenel-first-ghost-warning-104135-release-v1.run.json",
+          "sha256": "8992366344432463e3f8736cb0c18dff8a674a0f0e3b6f65c53ca63e41cccd8a"
+        },
+        "original_run": {
+          "path": "local/reference-field1d-tenel-first-ghost-warning-240-v1.run.json",
+          "sha256": "2f37052c5a7c0c488da26fd3eec00652dc8eeb7c8d2e09bd5199ad5d4ac98a54"
+        },
+        "native_exit_code": 0,
+        "original_exit_code": 0,
+        "native_binary_sha256_recorded": "75fde4de80590774a98688caf617e7e8645a38b48b2e8aeac3a2be9f45a1ef8f",
+        "original_binary_sha256_recorded": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5"
+      },
+      {
+        "name": "stand",
+        "first_tick": 104136,
+        "last_tick": 104375,
+        "frames": 240,
+        "controller_samples": 240,
+        "all_compared_observables_agree": true,
+        "complete_original_observation_coverage": true,
+        "hero_position_maximum_error": 0,
+        "camera_position_maximum_error": 0,
+        "report": {
+          "path": "local/research/post-jam-route-v1/tenel-first-ghost-stand-interval.json",
+          "sha256": "3d9dc896d364d0d3a2abced6ed02090e7d22ea6b88639689911e9396ef99827b"
+        },
+        "summary": {
+          "path": "local/research/post-jam-route-v1/tenel-first-ghost-stand-summary.json",
+          "sha256": "67c9daddca1ebce57bb34a32fb02caf031d3a4b6968205de40ba98f696b2b0ab"
+        },
+        "native_run": {
+          "path": "local/native-tenel-first-ghost-stand-104375-release-v1.run.json",
+          "sha256": "63a720bb50792016ef977195cd3219726d77d34336e448141abc841927002477"
+        },
+        "original_run": {
+          "path": "local/reference-field1d-tenel-first-ghost-stand-240-v1.run.json",
+          "sha256": "a05a24582be2beadce5c5e25be53a49a7f1257a643117e919a80818afae50ead"
+        },
+        "native_exit_code": 0,
+        "original_exit_code": 0,
+        "native_binary_sha256_recorded": "75fde4de80590774a98688caf617e7e8645a38b48b2e8aeac3a2be9f45a1ef8f",
+        "original_binary_sha256_recorded": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5"
+      }
+    ],
+    "scope_exclusions": [
+      "NPC/global RNG equality",
+      "pixels",
+      "audio",
+      "unobserved state"
+    ]
+  },
+  "last_warning": {
+    "first_tick": 104376,
+    "requested_last_tick": 104615,
+    "requested_frames": 240,
+    "original_run": {
+      "path": "local/reference-field1d-tenel-first-ghost-last-warning-240-v1.run.json",
+      "sha256": "f7ad338a446028c0b2072093ec5cdbccd59ef9b8fb13ca9a6666d839121c5e3b"
+    },
+    "original_log": {
+      "path": "local/reference-field1d-tenel-first-ghost-last-warning-240-v1.log",
+      "sha256": "0d0853b0d803cdd3aaab6b02997f7a0d45bd4beba6f31894add550094df1963a"
+    },
+    "original_exit_code": 0,
+    "original_completed_vblanks": 240,
+    "original_binary_sha256_recorded": "4fa693a8d9c61b86fe8710db456dbca66b5ef667f8b381d2d16c6610104d5ba5",
+    "original_source_save": {
+      "path": "local/reference-field1d-tenel-first-ghost-stand-240-v1.state.zip",
+      "sha256": "100ab685c68a5a7153093f5f5865be83dde9fe05af56bac71625997bff564eef"
+    },
+    "original_endpoint_save": {
+      "path": "local/reference-field1d-tenel-first-ghost-last-warning-240-v1.state.zip",
+      "sha256": "ed86d688b06915e636bf85ba06146bba557474b5e643833da837ee273254456e"
+    },
+    "original_input": {
+      "path": "local/reference-field1d-tenel-first-ghost-last-warning-240-v1.input",
+      "sha256": "c357717e839b7fcc7cbbe76ebd2c007afb140d6a898ec289c748fe2ffdcb2ac5"
+    },
+    "native_run": {
+      "path": "local/native-tenel-first-ghost-last-warning-104615-release-v1.run.json",
+      "sha256": "479d55ced929eb2425814c6f62ba28b030e55d544b6fe7702a33085ed63bb8c5"
+    },
+    "native_log": {
+      "path": "local/native-tenel-first-ghost-last-warning-104615-release-v1.log",
+      "sha256": "4fce292ace0af766d874ad2b5d75f1044da8a3457ae9287a13e646d41d955264"
+    },
+    "native_exit_code": 1,
+    "native_binary_sha256_recorded": "75fde4de80590774a98688caf617e7e8645a38b48b2e8aeac3a2be9f45a1ef8f",
+    "failure_tick": 104440,
+    "failure_pc_decimal": 1304,
+    "failure_pc_hex": "0x518",
+    "service_decimal": 98,
+    "service_hex": "0x62",
+    "a": 1,
+    "b": 7,
+    "exact_error": "Native frame=104440 field PC=1304: Unrecovered field service 98 at PC 1304 (a=1, b=7)",
+    "complete_interval_pass": false,
+    "forced_continuation": false,
+    "signed_short_validation": {
+      "path": "docs/event-shorts-validation.json",
+      "sha256": "1c0c2cf45f7abd64c1c7983c0ee008bcc3f7a5622b06ae39524424f79ffff1e9"
+    }
+  },
+  "original_boundary": {
+    "observations": {
+      "path": "local/research/first-battle-source-v1/natural-boundary-observations.json",
+      "sha256": "22ad85683982c97869ad985945d9e1f32652500ff8b1e6518968c3cc080b4480"
+    },
+    "transition": {
+      "path": "local/reference-field1d-tenel-first-ghost-last-warning-240-v1.transition.bin",
+      "sha256": "d41d0789ed24af43531bdf5f428d334eb10fc1f0a07eb683cb016b4c44716e83"
+    },
+    "trace_source": {
+      "path": "tools/play-oracle/reference_transition.hpp",
+      "sha256": "3b6de2e155a5237009229ab5a6cf14a37977f653ec4307c85d97062573cb5c6d"
+    },
+    "record_words": 128,
+    "total_records": 146,
+    "all_observation_rows_independently_checked_against_trace": true,
+    "frame_mapping": "Nominal tick = 104376 + original zero-based frame index; manager observations are at callback entry before update.",
+    "manager_callback": "0x133a98",
+    "phases": [
+      {
+        "nominal_tick": 104441,
+        "original_frame_index": 65,
+        "phase": 5,
+        "event_state": "0x1",
+        "event_pc": "0x510"
+      },
+      {
+        "nominal_tick": 104442,
+        "original_frame_index": 66,
+        "phase": 0,
+        "event_state": "0x1",
+        "event_pc": "0x510"
+      },
+      {
+        "nominal_tick": 104443,
+        "original_frame_index": 67,
+        "phase": 11,
+        "event_state": "0x1",
+        "event_pc": "0x510"
+      },
+      {
+        "nominal_tick": 104444,
+        "original_frame_index": 68,
+        "phase": 12,
+        "event_state": "0x1",
+        "event_pc": "0x510"
+      },
+      {
+        "nominal_tick": 104445,
+        "original_frame_index": 69,
+        "phase": 13,
+        "event_state": "0x1",
+        "event_pc": "0x510"
+      }
+    ],
+    "mode_request": {
+      "nominal_tick": 104445,
+      "callback": "0x124930",
+      "raw_arguments_hex": [
+        "0x1dbcf50",
+        "0x3",
+        "0x1",
+        "0x11"
+      ],
+      "mode": 3,
+      "argument_1": 1,
+      "argument_2": 17,
+      "argument_1_meaning": null,
+      "argument_2_static_role": "Forwarded and clamped resource-table index; 17 selects b_room1.xpf.",
+      "enemy_or_encounter_id_claimed": false
+    }
+  },
+  "static_recovery": {
+    "source_exports": [
+      {
+        "path": "local/research/first-battle-source-v1/00131338.c",
+        "sha256": "e17678f7777468a8709f0cb422cbcee13a1953bf64998a3847e52c13cb7a456d"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/00131338.asm",
+        "sha256": "35a154c1affce64f0f3cb00a39fee7eae0a2948d9b745afcf210d3721e779194"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/00133450.c",
+        "sha256": "f4613830bde7c994ee30cfdc32d0fd0f9b27568f89ceca3a7d2d7834fd129740"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/00133450.asm",
+        "sha256": "6dda5df1f53e32d902e17025e765d7a23de3caf13ca0493ab46c3f96e8ac8cda"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/00133a98.c",
+        "sha256": "ed6b5fee8cde2d92ec2b788227e95b1731bdf8bfe5b2bdae0cf267b9f100e288"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/00133a98.asm",
+        "sha256": "50aefaa4d1b1d18542ffdf7a21f29034dd8858440340262957dc1cdb13d2e2ca"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/00124930.c",
+        "sha256": "fcf4673889a27aeb6f268c7e85d51a8270c205d373fee2b0fa20570858107604"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/00124930.asm",
+        "sha256": "6458e557dc29c6271fb73d2f7aa5333a8ae60d1745ecc051585866bc4b457d38"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/001246b0.c",
+        "sha256": "c7448db88a37da005cb45e9e3cd78c00d3cf792d90f0d9b0f53043b8a6f81464"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/001246b0.asm",
+        "sha256": "1012baeda44f9cad0f225e492f60a4a26008da969c08e846e839ee3a2dcebb7a"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/00149e60.c",
+        "sha256": "8c73a3145a5a50bffffa2d78a375301255a0d5a0f02ba909b7fab249b963c025"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/00149e60.asm",
+        "sha256": "ec0fd0ec9a2e3469705d3df09e2219847693fceaafb6c8c038451ab7c70b783b"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/00149ec8.c",
+        "sha256": "67764e9a51225e7b44f2dc5af953dd9f96ba5e26ca1c8dd4ddbbbd0d5e2eac89"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/00149ec8.asm",
+        "sha256": "f8435a74c97c62a545a18072f514329d93da52377a86dc46da1d6a080e1be70b"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/00149fd8.c",
+        "sha256": "5fa19d818f1d1f0df7a866d3799f2a100c7030c28ca8001ddcee4e82c5c6dbbf"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/00149fd8.asm",
+        "sha256": "521c318e9899d90f68b3d0a52fafbc526c1c4218ac8bd5e6bc3d9f962ab367ff"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/0014a248.c",
+        "sha256": "acc47b58306e30b8c886f0016ad4dae01aed0e9ab4ca5bdd3960213a473f6794"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/0014a248.asm",
+        "sha256": "7baaa64f50bdef7be814216a33958a5ecd5fc7fffa5e3b14d66ea56379988482"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/0014a118.c",
+        "sha256": "bd1e175804f08b4ef6017e9f8abe393c3d80318ce8a012af630031bc88ed2af3"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/0014a118.asm",
+        "sha256": "02762d356a9e2bbd57dd685435828795f45cf437748d271ad5820fb9bdd9eb4b"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/00126800.c",
+        "sha256": "ff6ce22631b2b75b8f60bf37abb2e514ba33e5d8859a65288eb618b61c17ddb5"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/00126800.asm",
+        "sha256": "911ca21ac3efc80b1c138f6a19ff71bb98967ef2d3bd087cdef571cf26723f8f"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/00114d50.c",
+        "sha256": "66c986970cd4fcb3767740f4a0f12c8355241718d2613bb8f3969e618bab2ddc"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/00114d50.asm",
+        "sha256": "7b90ee89c9a684ea338f1ad85db570e3e80dd1bd8282382a21a43b2570d4ae56"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/00114dc8.c",
+        "sha256": "320170435b14172f91d79ba6ba3b80746e7738b047a9721c17277e5829e4a86a"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/00114dc8.asm",
+        "sha256": "c0387b767795a2b6cd6d9b3fece311ed657fcf79915cd7f9dabe789fa773a534"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/00152248.c",
+        "sha256": "4d051c3af2a0bd0271b8da7d6e970c632560a89eb6d8a786f4da8544772c4d6f"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/00152248.asm",
+        "sha256": "4312e4c20905eb021c756b72fa88bee65ff5ac5c2fc68688b1164c62c35078f4"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/001523a0.c",
+        "sha256": "2c4d3bdea57c52ae078db08ad8bdc23961f3dfa4816885e71ef31a6076e30d30"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/001523a0.asm",
+        "sha256": "3d8d2d9435fd6b3e130cde3dc96cba8c1a13c611216953ddb00a3fd8c3ced04f"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/001252a8.c",
+        "sha256": "de6234b37d2f6862fc4984f943d6ba57e2f5e3fb152f06fc2f71c9ea2026fef5"
+      },
+      {
+        "path": "local/research/first-battle-source-v1/001252a8.asm",
+        "sha256": "1ed82ef1bf1b78a15fec694012ef38aacd4786ffca27be27709824dda62e3c9c"
+      }
+    ],
+    "wrapper_descriptor": {
+      "address": "0x229530",
+      "first_four_words": [
+        "0x149e60",
+        "0x0",
+        "0x149ec8",
+        "0x149f90"
+      ]
+    },
+    "child_descriptor": {
+      "address": "0x229550",
+      "first_four_words": [
+        "0x149fd8",
+        "0x0",
+        "0x14aac0",
+        "0x14aac8"
+      ]
+    },
+    "descriptor_words_read_from_pinned_elf": true,
+    "child_initial_callback": "0x149fd8",
+    "child_installed_callback": "0x14a248",
+    "queued_loading_callback": "0x14a118",
+    "later_callback": "0x14a508",
+    "native_battle_implementation": false,
+    "execution_scope": "Transition observer directly captures the manager and mode request, not wrapper or child callback execution.",
+    "component_callback_export_log": {
+      "path": "local/research/first-battle-source-v1/export-component-callbacks.log",
+      "sha256": "e74af664cee32b1cff1a2ef4cab849f632833bc679a5eb6bce899698f42161e7"
+    },
+    "stage_resource": {
+      "report": {
+        "path": "local/research/first-battle-source-v1/stage-resource-table.json",
+        "sha256": "d09d71c28b1eb6f48a057f1a4171880dc2296e235b5fcfa6cbff358e94101d0a"
+      },
+      "source_callback": "0x152248",
+      "root_argument_offset": "0x40",
+      "table_va": "0x1fce68",
+      "directory_va": "0x237148",
+      "directory": "btldata/beta2/field",
+      "selected_index": 17,
+      "selected_filename": "b_room1.xpf",
+      "table_rows_independently_checked_against_elf": 24,
+      "directory_independently_checked_against_elf": true,
+      "scope": "Static resource-index role only; no claim of observed loading or enemy/encounter semantics."
+    },
+    "shared_variable_prerequisite": {
+      "source_callback": "0x1523a0",
+      "base_helper": "0x1252a8(2)",
+      "bank": 4,
+      "scan_indices": [
+        24,
+        25,
+        26,
+        27,
+        28,
+        29
+      ],
+      "required_value": 3,
+      "maximum_scanned_entries_created": 3,
+      "fourth_entry_index": 30,
+      "fourth_entry_required_value": 3,
+      "member_meanings_assigned": false,
+      "native_session_source": {
+        "path": "src/native_runtime.mm",
+        "sha256": "13333971d36ab80300dafac2b6166a0dbef8fec28752153604a78336ec64d328"
+      },
+      "native_initial_backing": "Zeroed diagnostic variables, not recovered new-game initialization.",
+      "scope": "Static dependency; authentic initialization and battle behavior remain unresolved."
+    }
+  },
+  "latest_endpoint_metadata": {
+    "path": "local/native-tenel-first-ghost-stand-104375-release-v1.png.json",
+    "sha256": "d29e787eb3497ebaa53d8e0c618f625221f4c9bea1ae09451919d944effbc925"
+  },
+  "previous_entry_validation": {
+    "path": "docs/first-ghost-entry-validation.json",
+    "sha256": "3f2a3d0cd7ccb1dae90962afd0c74773d063a538f3919ab57313da0feb92f820"
+  },
+  "limitations": [
+    "The original completes the last-warning interval while native fails; no full fixed-interval comparison pass is available for that interval.",
+    "Static source recovery and descriptor reads do not prove execution of the wrapper, child or resource-loading branches.",
+    "Original observations are emulator reference evidence, not a physical PS2 result.",
+    "Conversation agreement covers only the existing comparator fields. No original audio, image, NPC/global RNG or battle parity claim.",
+    "The retained first ghost room entry failures and unequal A/V pairs remain unchanged.",
+    "The second argument has a source-established resource-index role only. The first argument remains uninterpreted; zeroed native diagnostic variables do not establish authentic battle shared state."
+  ],
+  "verification": {
+    "method": "Read retained source, manifests, logs and interval reports; rehash their pinned artifacts; independently decode retained transition records and ELF descriptor words. No builds, VM, UI or new game execution.",
+    "hashed_evidence_file_count": 136,
+    "all_checked_hashes_match": true
+  }
+}
