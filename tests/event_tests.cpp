@@ -10,6 +10,36 @@ void put(std::vector<std::uint8_t>& bytes,std::size_t at,std::uint32_t value) {
 }
 int main() {
     try {
+        {
+            std::vector<std::uint8_t> backing(0x1020,0xa5);
+            auto storage=std::span<std::uint8_t>(backing).subspan(16,0x1000);
+            okage::initialize_game_variables(storage);
+            require(storage[0xe]==1 && storage[0xc]==0 && storage[0xd]==0);
+            require(okage::event_variable(storage,0x40018)==3);
+            require(okage::event_variable(storage,0x4001e)==3);
+            require(okage::event_variable(storage,0x40003)==1000);
+            for(unsigned i=25;i<30;++i)require(okage::event_variable(storage,0x40000|i)==0);
+            require(std::equal(storage.begin()+0x844,storage.begin()+0x848,"Ari"));
+            require(std::equal(storage.begin()+0x864,storage.begin()+0x868,"???"));
+            constexpr unsigned levels[]={1,5,10,25,30,40,1};
+            for(unsigned i=0;i<7;++i) {
+                const auto bank=(8+i)<<16;
+                require(okage::event_variable(storage,bank)==1);
+                require(okage::event_variable(storage,bank|1)==int(170+i));
+                require(okage::event_variable(storage,bank|2)==int(levels[i]));
+                require(okage::event_variable(storage,bank|7)==5);
+                require(okage::event_variable(storage,bank|4)==0);
+            }
+            require(std::all_of(storage.begin()+0x7f4,storage.begin()+0x844,[](auto v){return v==0;}));
+            require(std::all_of(storage.begin()+0x878,storage.begin()+0xd78,[](auto v){return v==0;}));
+            require(std::all_of(backing.begin(),backing.begin()+16,[](auto v){return v==0xa5;}));
+            require(std::all_of(backing.begin()+16+0xd78,backing.end(),[](auto v){return v==0xa5;}));
+            const auto reset=backing;okage::initialize_game_variables(storage);require(backing==reset);
+            for(std::size_t length:{0u,0x844u,0xd77u}) {
+                rejects([&]{okage::initialize_game_variables(storage.first(length));});
+                require(backing==reset);
+            }
+        }
         std::vector<std::uint8_t> variables(0x1000),state(0x800,0x55),script(64);
         variables[0x10]=0x81;variables[0x210]=0x80;variables[0x410]=0xff;
         put(variables,0x510,0x80000000);

@@ -610,6 +610,15 @@ int main(int argc, char** argv) {
             }
             write(argv[4],out);return 0;
         }
+        if(command=="game-vars-reset" && argc==4) {
+            auto input=read(argv[2]);
+            constexpr std::size_t row_size=0x1020;
+            if(input.empty()||input.size()%row_size||input.size()>16*row_size)
+                throw std::runtime_error("Game variable reset fixture bounds");
+            for(std::size_t at=0;at<input.size();at+=row_size)
+                okage::initialize_game_variables(std::span<std::uint8_t>(input).subspan(at+16,0x1000));
+            write(argv[3],input);return 0;
+        }
         if(command=="event-shorts" && argc==4) {
             const auto input=read(argv[2]);
             if(input.empty()||input.size()%12||input.size()>12*1024)

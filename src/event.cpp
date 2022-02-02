@@ -23,6 +23,30 @@ bool condition(unsigned mode,std::int32_t value,std::int32_t expected) {
     }
 }
 }
+void initialize_game_variables(std::span<std::uint8_t> variables) {
+    if(variables.size()<0xd78)throw std::runtime_error("Game variable reset bounds");
+    std::fill_n(variables.begin(),0xd78,0);
+    variables[0xe]=1;
+    // 0x124f10 copies these four-byte initial names from the pinned retail
+    // constants at 0x2237d0/0x2237d8. Later naming is a separate operation.
+    constexpr std::uint8_t hero_name[]={'A','r','i',0},shadow_name[]={'?','?','?',0};
+    std::copy_n(hero_name,4,variables.begin()+0x844);
+    std::copy_n(shadow_name,4,variables.begin()+0x864);
+    set_event_variable(variables,3,4,1000);
+    set_event_variable(variables,24,4,3);
+    set_event_variable(variables,30,4,3);
+    constexpr unsigned initial_levels[]={1,5,10,25,30,40,1};
+    for(unsigned i=0;i<7;++i) {
+        const auto at=0x5c4+i*0x50;
+        // 0x125b08 writes its incoming byte/short arguments to the zeroed
+        // temporary before copying all 0x50 bytes. Its decompilation omits
+        // these stack stores; see instructions 0x125b58..0x125b78.
+        variables[at]=1;
+        variables[at+2]=0xaa+i;
+        variables[at+4]=initial_levels[i];
+        variables[at+0xe]=5;
+    }
+}
 std::int32_t event_variable(Bytes variables,std::uint32_t selector) {
     const auto index=selector&0xffff,bank=selector>>16;
     std::size_t at;

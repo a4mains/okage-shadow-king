@@ -2158,6 +2158,21 @@ public:
         }
         writeFile(output,result.data(),result.size());
     }
+    void gameVariablesReset(const std::vector<uint8>& input,const char* output) {
+        constexpr unsigned rowSize=0x1020,root=0xa00000;
+        if(input.empty()||input.size()%rowSize||input.size()>16*rowSize)
+            throw std::runtime_error("Game variable reset fixture bounds");
+        std::vector<uint8> result;
+        for(unsigned at=0;at<input.size();at+=rowSize) {
+            std::memcpy(ee->m_ram+root-16,input.data()+at,rowSize);
+            put(0x24f788,root);
+            call(0x124f10,{});
+            uint32 pointer;std::memcpy(&pointer,ee->m_ram+0x24f788,4);
+            if(pointer!=root)throw std::runtime_error("Game variable reset changed storage pointer");
+            result.insert(result.end(),ee->m_ram+root-16,ee->m_ram+root-16+rowSize);
+        }
+        writeFile(output,result.data(),result.size());
+    }
     void eventShorts(const std::vector<uint8>& input,const char* output) {
         if(input.empty()||input.size()%12||input.size()>12*1024)
             throw std::runtime_error("Event short fixture bounds");
@@ -3120,6 +3135,8 @@ int main(int argc,char** argv) {
             reference.capsulePair(readFile(argv[3]),argv[4]);
         } else if(command=="collision-world" && argc==6) {
             reference.collisionWorld(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="game-vars-reset" && argc==5) {
+            reference.gameVariablesReset(readFile(argv[3]),argv[4]);
         } else if(command=="event-shorts" && argc==5) {
             reference.eventShorts(readFile(argv[3]),argv[4]);
         } else if(command=="event-write" && argc==6) {

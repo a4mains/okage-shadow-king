@@ -191,6 +191,7 @@ struct Session {
         fonts{okage::read_fnt(readData(directory/"IQ24.FNT")),okage::read_fnt(readData(directory/"BMUI.FNT")),okage::read_fnt(readData(directory/"BM.FNT"))},
         messages(okage::read_pme(readData(pme))),message_directory(pme.parent_path()),
         message_bank(pme.stem().string()),player_name(name),text({}) {
+        okage::initialize_game_variables(variables);
         if(player_name.empty() || player_name.size()>12 || std::any_of(player_name.begin(),player_name.end(),[](unsigned char c){return c<32 || c>=127 || c=='\\';}))
             throw std::runtime_error("Diagnostic player name requires 1..12 printable ASCII characters without text escapes");
         if(!messages.bind("############",player_name))throw std::runtime_error("Player-name tag missing from message bank");
