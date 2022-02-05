@@ -1,0 +1,193 @@
+{
+  "status": "Executed bounded original/native Release initialization comparison; inactive in gameplay runtime",
+  "implementation_commit": "f2c1d6e4cf12cc52fb08a13bffcd8ec6fafdba20",
+  "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "native_api": {
+    "owner": "BattleState",
+    "root_bytes": 33232,
+    "entity_count": 64,
+    "entity_bytes": 512,
+    "preserved_table_bytes": 140,
+    "default_input_bytes": 16,
+    "default_input": "Explicit; copied before mutation; not assumed universally zero",
+    "bounds": "Full root extent and exact default length checked before mutation; entity indices0..63",
+    "runtime_integration": false,
+    "guest_addresses_in_native": false
+  },
+  "original_helpers": {
+    "entity_table": "0x1511d8",
+    "callees": [
+      "0x1513f8",
+      "0x158b28",
+      "0x158c58",
+      "0x149fc8"
+    ],
+    "secondary": "0x151798",
+    "root_global": "0x1fce60",
+    "runtime_default_copy": "0x236f70",
+    "constructor_not_executed": "0x149fd8"
+  },
+  "probe": {
+    "synthetic": true,
+    "root_patterns": [
+      "00",
+      "ff",
+      "a5",
+      "byte(index*73+19)"
+    ],
+    "prefix_bytes": 32,
+    "suffix_bytes": 32,
+    "input_row_bytes": 33312,
+    "output_snapshots_per_row": 2,
+    "output_snapshot_bytes": 33296,
+    "rows": 4,
+    "total_compared_bytes": 266368,
+    "game_code_patches": false,
+    "default_global_replaced": false,
+    "captured_ram_required": false,
+    "global_and_canary_checks_after_each_call": true
+  },
+  "executed_reference_and_release": {
+    "cases": 4,
+    "snapshots": 8,
+    "compared_bytes": 266368,
+    "exact": true,
+    "runs": [
+      {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "battle-state-init",
+          "local/extracted/SCUS_971.29",
+          "local/research/battle-state-init-checks-v1/input.bin",
+          "local/research/battle-state-init-checks-v1/original.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.527388167,
+        "binary_sha256": "2c65fb89848cc979529e7c8eb2d6b188b3b87bb991e20a5783cd719d49070932"
+      },
+      {
+        "command": [
+          "build/native-release/okage-assets",
+          "battle-state-init",
+          "local/research/battle-state-init-checks-v1/input.bin",
+          "local/research/battle-state-init-checks-v1/release.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.07506279199999999,
+        "binary_sha256": "a6de81bfb670f2c00f0256d48e16917e5dc85e1569c40d0684f7d070fcd9604b"
+      }
+    ],
+    "hashes": {
+      "local/research/battle-state-init-checks-v1/input.bin": "8a549cb73e7d8e07b72134ffd07f7d59ebd5170ef20c6b497ae74982cad3a15a",
+      "local/research/battle-state-init-checks-v1/original.bin": "3ec4aa52aa68aaa8bb830144c7d8cab89076649eaf0d66dbb5f0890ac667e47e",
+      "local/research/battle-state-init-checks-v1/release.bin": "3ec4aa52aa68aaa8bb830144c7d8cab89076649eaf0d66dbb5f0890ac667e47e",
+      "src/battle_state.cpp": "4122000468ba15a6cd30e2d192d7c10e7b6451010f88539607d875b7f9cf0867",
+      "include/okage/battle_state.hpp": "00cf187f87e5a366d9fcebbb8d09306eb52ae1b1f40625a5331a3f1bb01e62d1",
+      "src/assets_main.cpp": "2dbe5002c36eeb4f3a1cf96fc37efb922ac906dc8b2b16bc16ef5dcf486407cf",
+      "tools/play-oracle/main.cpp": "6db12dc0286940890d3e8ce0601c60cb2201a087b3a641ddc273466810015667"
+    }
+  },
+  "verification": {
+    "tool": "tools/verify_battle_state_init.py",
+    "generator_matches_retained_input": true,
+    "full_per_byte_model": true,
+    "original_release_exact": true,
+    "python_tests": {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "count": 195,
+      "passed": true
+    },
+    "new_verifier_tests": 8,
+    "retained_negative_cli_cases": [
+      "truncated output",
+      "unknown header byte",
+      "suffix canary",
+      "swapped phases"
+    ],
+    "native_unit_test": "Isolated Release battle-state-tests passed in the side worktree build; primary combined build results not yet recorded here",
+    "all_three_builds_exact": true
+  },
+  "other_builds": [
+    {
+      "build": "release",
+      "command": [
+        "build/native-release/okage-assets",
+        "battle-state-init",
+        "local/research/battle-state-init-checks-v1/input.bin",
+        "local/research/battle-state-init-checks-v1/release-combined.bin"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.004229707999999999,
+      "binary_sha256": "a6de81bfb670f2c00f0256d48e16917e5dc85e1569c40d0684f7d070fcd9604b",
+      "input_sha256": "8a549cb73e7d8e07b72134ffd07f7d59ebd5170ef20c6b497ae74982cad3a15a",
+      "exact": true,
+      "compared_bytes": 266368,
+      "output_sha256": "3ec4aa52aa68aaa8bb830144c7d8cab89076649eaf0d66dbb5f0890ac667e47e"
+    },
+    {
+      "build": "debug",
+      "command": [
+        "build/native/okage-assets",
+        "battle-state-init",
+        "local/research/battle-state-init-checks-v1/input.bin",
+        "local/research/battle-state-init-checks-v1/debug-combined.bin"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.011192833000000069,
+      "binary_sha256": "92ad32c9d315787eb8aa698669195f338c39dfc0612a849ad7446edef1559e96",
+      "input_sha256": "8a549cb73e7d8e07b72134ffd07f7d59ebd5170ef20c6b497ae74982cad3a15a",
+      "exact": true,
+      "compared_bytes": 266368,
+      "output_sha256": "3ec4aa52aa68aaa8bb830144c7d8cab89076649eaf0d66dbb5f0890ac667e47e"
+    },
+    {
+      "build": "sanitize",
+      "command": [
+        "build/model-sanitize/okage-assets",
+        "battle-state-init",
+        "local/research/battle-state-init-checks-v1/input.bin",
+        "local/research/battle-state-init-checks-v1/sanitize-combined.bin"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.028901166999999894,
+      "binary_sha256": "b94c17a1f6a9f285b85ff5a8d711ae5f62e2518bd31b289af81c5261bd3f20da",
+      "input_sha256": "8a549cb73e7d8e07b72134ffd07f7d59ebd5170ef20c6b497ae74982cad3a15a",
+      "exact": true,
+      "compared_bytes": 266368,
+      "output_sha256": "3ec4aa52aa68aaa8bb830144c7d8cab89076649eaf0d66dbb5f0890ac667e47e"
+    }
+  ],
+  "limits": [
+    "Inactive in gameplay runtime; no battle or service62 implementation claim.",
+    "Ordinary matched root/table alias relationship only.",
+    "Runtime default-global immutability unproved; original comparison uses its pinned zero contents.",
+    "Final helper snapshots, not complete constructor/scheduler or intermediate-store execution order.",
+    "Unknown field meanings/lifetimes, activation and destruction remain unrecovered.",
+    "No original captured data enters native runtime.",
+    "Emulator reference, not physical PS2 proof."
+  ],
+  "evidence_sha256": {
+    "local/research/battle-state-init-checks-v1/report.json": "f1b49ac1cdeaae77cef3da439c98d1a42e6927da68b979d767e706aa6f4b0e3a",
+    "local/research/battle-state-init-verifier-v1/report.json": "50a9a2a6c6ed9f51ea28460383befac5586678d2b152201fb8df76e0ab0c6f9a",
+    "local/research/battle-state-init-verifier-v1/negative-results.json": "8f452b7cb551bcde7990a7933ed107e4e4e3cb6600460ce6066d935dd5d21312",
+    "local/research/battle-state-init-verifier-v1/python-tests.log": "3f711faf7c03aed13fd13c6ea469a1b3770f92579892bb458b254c3611ad4333",
+    "tools/verify_battle_state_init.py": "adae95053f2059bd6e81ea13eed19d42a6734fe09360ba5e6a197af8716225df",
+    "tests/test_verify_battle_state_init.py": "0c0d14fa683edb39fb17c8c9e3c3d2fd35fba1c5f4f7f3fdc546b2c20fca9850",
+    "local/research/battle-entity-init-v1/report.json": "b88f9f9033cdcb82ed57d87cb29226c06f6a51049dd94ac66757e06ac06fcc50",
+    "local/research/battle-entity-init-v1/report.txt": "67556e5e1d75f046d7504b4b6422f28c4627ac4804a211405f55df4a9e1e6eef",
+    "local/research/battle-state-init-checks-v1/release-combined.run.json": "014305b23a81f9fb4dba2f675ce71be500f8d3b9ce65c4c93879a2faf77ae422",
+    "local/research/battle-state-init-verifier-v1/release-combined-report.json": "33bc14f04ef11a8bf1a57798c6c8e286284726f6f3f616c6c198945dde53035d",
+    "local/research/battle-state-init-checks-v1/debug-combined.run.json": "66c9a5364e7a1cfed6120be189c28698a61f5e28ef4305d8bc1e786ad3445d37",
+    "local/research/battle-state-init-verifier-v1/debug-combined-report.json": "82e69f0ae9d76623655b4460954f1ca63e2ed593fb79e772de42c819ac64a294",
+    "local/research/battle-state-init-checks-v1/sanitize-combined.run.json": "3122449d76c12d6222d56cc5950a9d8183ecc9bd191f0f0a7ee80990b132753b",
+    "local/research/battle-state-init-verifier-v1/sanitize-combined-report.json": "e7aafc54bdc0dd2c09b2337af5f7b74792b1383e611a7c124a65394c4b62e0de"
+  }
+}

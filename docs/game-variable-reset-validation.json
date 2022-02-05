@@ -1,0 +1,498 @@
+{
+  "schema_version": 1,
+  "scope": "Bounded shared-variable reset primitive, Session call site, and final 240-tick retained stand interval; not full startup/new-game preparation or battle parity.",
+  "implementation_commit": "7ff9e75",
+  "commit_source_sha256": {
+    "src/event.cpp": "eb8caabb724d72bfbb160d45982499d8e726dbed0bfb1ddeb218a6c7bc3e8270",
+    "src/native_runtime.mm": "f682d99c1650096d5d26af1bdccf0fb3a40dabf5e8776508b9df42244bec519d",
+    "include/okage/event.hpp": "9853e6ca270d1f0e2fe2666a7ad0ee13ea7b1cd363236c41fc9866ab4043c335",
+    "src/assets_main.cpp": "2dbe5002c36eeb4f3a1cf96fc37efb922ac906dc8b2b16bc16ef5dcf486407cf",
+    "tools/play-oracle/main.cpp": "6db12dc0286940890d3e8ce0601c60cb2201a087b3a641ddc273466810015667",
+    "tests/event_tests.cpp": "866e0127990919bfca0b34795756ec888324d6d176eaca537a47f46b326854f4"
+  },
+  "retail_elf": {
+    "path": "local/extracted/SCUS_971.29",
+    "sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
+  },
+  "original_run": {
+    "path": "local/research/game-state-init-v1/original-probe.run.json",
+    "sha256": "410a799a387162b2bf76a6aa5e96c1741620f2f0ea80ad540b10d2499b4759a3"
+  },
+  "original_log": {
+    "path": "local/research/game-state-init-v1/original-probe.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "original_exit_code": 0,
+  "original_binary_sha256_recorded": "d6ba571690f810d532ea8f8e2e5717d2246ceb5fe120eeb592f83d812a4d1129",
+  "comparisons": [
+    {
+      "configuration": "release",
+      "report": {
+        "path": "local/research/game-state-init-v1/release-report.json",
+        "sha256": "3c5428dc982b88122258b2bd046da066a671df63336e3ce66d0bfe1d82f90a03"
+      },
+      "run": {
+        "path": "local/research/game-state-init-v1/release-probe.run.json",
+        "sha256": "1e7fd327786c025d8f2ef4a15d0fb81c4ec0b4a76f4adee30320560cb698e86d"
+      },
+      "log": {
+        "path": "local/research/game-state-init-v1/release-probe.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "exit_code": 0,
+      "binary_sha256_recorded": "92f86dfffc1f4141f3b816cedb9882f63d9b58d371b7d1d829193cf1663460fc",
+      "comparison": {
+        "rows": 4,
+        "bytes_per_row": 4128,
+        "compared_bytes_per_output": 16512,
+        "reset_bytes_per_row": 3448,
+        "preserved_bytes_per_row": 680,
+        "exact": true,
+        "independent_expected_layout": true,
+        "scope": "Entire rows, including prefix/suffix canaries and untouched root tail; reset primitive only, not whole new-game initialization.",
+        "sha256": {
+          "input": "cf6f6de6a4bf3da5111927f3bbbe678ae2aa27314e03967a9de03759ac1a91f0",
+          "original": "8113bdac2cc7c5d08e1d102a97e5c100b1b0f2f0677bfb8b7327664fae73dcfa",
+          "native": "8113bdac2cc7c5d08e1d102a97e5c100b1b0f2f0677bfb8b7327664fae73dcfa"
+        }
+      },
+      "artifacts": {
+        "input": {
+          "path": "local/research/game-variables-reset-verifier-v1/input.bin",
+          "sha256": "cf6f6de6a4bf3da5111927f3bbbe678ae2aa27314e03967a9de03759ac1a91f0"
+        },
+        "original": {
+          "path": "local/research/game-state-init-v1/original.bin",
+          "sha256": "8113bdac2cc7c5d08e1d102a97e5c100b1b0f2f0677bfb8b7327664fae73dcfa"
+        },
+        "native": {
+          "path": "local/research/game-state-init-v1/release.bin",
+          "sha256": "8113bdac2cc7c5d08e1d102a97e5c100b1b0f2f0677bfb8b7327664fae73dcfa"
+        }
+      }
+    }
+  ],
+  "source_exports": [
+    {
+      "path": "local/research/game-state-init-v1/00124f10.asm",
+      "sha256": "b36e9d49a4a7453b2371cb0bded53c2315f9fa9667c49249eb8b8b6e1bd0b5f7"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00124f10.c",
+      "sha256": "d2d4fcca78503d1e4b9ab0ab7cf6d4f39e8ca9258d9a597e29888f3ee1cbf154"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00124e98.asm",
+      "sha256": "6469c2dc9260d88e62f062567eaccd66395ca507ce808a80b6cc2c44b3f25005"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00124e98.c",
+      "sha256": "efceb95d3a720096af7b3fd6435955408f0c8e1e855e83598a4223f283a46df7"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125b08.asm",
+      "sha256": "da5a2a00268fd36e126271c46bda1972c97b3c2fbd8c65f34f83b356ab6cce97"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125b08.c",
+      "sha256": "8ea38c41eed98db6aa4ef71806398aa706cb16dba666bc75fb10a7186dcbf9fc"
+    },
+    {
+      "path": "local/research/game-state-init-v1/001251d8.asm",
+      "sha256": "4fb2c795857a3eb821c2d78ea47ed581da57f41868a6bc165a6f927e42b3ae0c"
+    },
+    {
+      "path": "local/research/game-state-init-v1/001251d8.c",
+      "sha256": "67a09eb0db3bdb2841eaa98b5b72f757463cbd1490f0f39d9b5e7b82916ff383"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00126370.asm",
+      "sha256": "9b40f6b18fda84be19d4b52fd5aeedd85fce29fad8e06d15b49f56f2c4500a34"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00126370.c",
+      "sha256": "c1aba7b36302f80f14e9f9635e0e0d006b3949c7ac9d7895b41015e294a3a16d"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125e10.asm",
+      "sha256": "59d2b40c8c5489e5c48d0f6be0eafaae547f1bd16f90fb6b7a3c92474ad5c15d"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125e10.c",
+      "sha256": "095aae3a920ac83a7cb7f6cf86c9785800d5adb5c038b8b1f59ecf439ef9459f"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125ff8.asm",
+      "sha256": "867ae331d0076e7349b0a7afc73f351dc44b683eb86be901f38cfa616af3b279"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125ff8.c",
+      "sha256": "29ab17073617194329c43b75e1d6057fba5eb006c1514a957dc16ae1cf255bf7"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125a80.asm",
+      "sha256": "0b904f0e1e246ee18126455cd4e9dd672e3291592c8dbd76219233e2e5353cb0"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125a80.c",
+      "sha256": "8d8cf58039d3bc81e1e9957e378937fe6e3a9215f8cf8fc26fd105dd13e9c3da"
+    }
+  ],
+  "reset_layout": {
+    "root_bytes": 4096,
+    "reset_bytes": 3448,
+    "prefix_canary_bytes": 16,
+    "suffix_canary_bytes": 16,
+    "untouched_root_tail_bytes": 648,
+    "input_rows": 4,
+    "bytes_per_row": 4128,
+    "compared_bytes_per_output": 16512,
+    "default_names": {
+      "0x844": "41726900",
+      "0x864": "3f3f3f00"
+    },
+    "bank4_defaults": {
+      "3": 1000,
+      "24": 3,
+      "30": 3
+    },
+    "seven_records": {
+      "first_offset": "0x5c4",
+      "stride": "0x50",
+      "byte_at_0": 1,
+      "short_at_2": [
+        170,
+        171,
+        172,
+        173,
+        174,
+        175,
+        176
+      ],
+      "short_at_4": [
+        1,
+        5,
+        10,
+        25,
+        30,
+        40,
+        1
+      ],
+      "short_at_0xe": 5
+    },
+    "decompiler_missing_stack_stores": "0x125b58..0x125b78; assembly is authoritative for these fields."
+  },
+  "tests": {
+    "native": [
+      {
+        "configuration": "release",
+        "log": {
+          "path": "local/research/game-state-init-v1/release-tests.log",
+          "sha256": "da714f6851966531b27e6d85758f518c3715b7ec9d27960cbff8a6ebdfbbbdae"
+        },
+        "passed": 2,
+        "targets": [
+          "field-tests",
+          "event-tests"
+        ]
+      }
+    ],
+    "python": {
+      "log": {
+        "path": "local/research/game-variables-reset-verifier-v1/python-tests-v1.log",
+        "sha256": "7efd4220c98a86389040efe5abeace271c2f08f14ba79d286945fdbc18b99f0d"
+      },
+      "passed": 187,
+      "focused_reset_verifier_tests": 9
+    },
+    "verifier": {
+      "path": "tools/verify_game_variables_reset.py",
+      "sha256": "df736ac59eb31138d4e6ea6cf9c994f5f2696a42b9cc41a3bfbbd0b28b4a3a61"
+    },
+    "verifier_tests": {
+      "path": "tests/test_verify_game_variables_reset.py",
+      "sha256": "9fbf291ed6937a3b43aaf19e57e633b709f3aae69b5eec601833ca3b6113afcf"
+    },
+    "combined_native": [
+      {
+        "configuration": "release",
+        "log": {
+          "path": "local/research/game-state-init-v1/combined-release-tests.log",
+          "sha256": "c715a51e983734559b828223346967b0623d94514ecb78ab8a73e178f75b9069"
+        },
+        "passed": 3,
+        "targets": [
+          "battle-state-tests",
+          "field-tests",
+          "event-tests"
+        ]
+      },
+      {
+        "configuration": "debug",
+        "log": {
+          "path": "local/research/game-state-init-v1/combined-debug-tests.log",
+          "sha256": "344f1a685311979b3861ad1f77569a18a3a4d310462c0f7975925c087cf8a23b"
+        },
+        "passed": 3,
+        "targets": [
+          "battle-state-tests",
+          "field-tests",
+          "event-tests"
+        ]
+      },
+      {
+        "configuration": "sanitize",
+        "log": {
+          "path": "local/research/game-state-init-v1/combined-sanitize-tests.log",
+          "sha256": "58fa8639b8c7341e8fe6bde547f49c064d56460f33aaac857a88f1da6c32732f"
+        },
+        "passed": 3,
+        "targets": [
+          "battle-state-tests",
+          "field-tests",
+          "event-tests"
+        ]
+      }
+    ]
+  },
+  "research_snapshot": {
+    "observation": {
+      "path": "local/research/game-state-init-v1/stand-snapshot-observation.json",
+      "sha256": "dc0b7662810fa8d8b55f578e13a6e653c922d835cb5b081c2fb558e0d1261bb1"
+    },
+    "save": {
+      "path": "local/reference-field1d-tenel-first-ghost-stand-240-v1.state.zip",
+      "sha256": "100ab685c68a5a7153093f5f5865be83dde9fe05af56bac71625997bff564eef"
+    },
+    "purpose": "Research-only later shared-state observation; not reset output or native input.",
+    "retained_failed_approach": "Python zipfile.read unsupported compression method 93, recorded in observation scope.",
+    "reported_correction": "Existing Zstandard extraction and CRC-validation approach.",
+    "snapshot_independently_reextracted_for_this_document": false
+  },
+  "next_source_dependency": {
+    "entry": "0x1251d8",
+    "first_call": "0x126370",
+    "second_call": "0x125e10",
+    "second_call_arguments": [
+      0,
+      131,
+      174,
+      240
+    ],
+    "record_recalculation": "0x125ff8",
+    "validated_by_reset_probe": false,
+    "native_full_new_game_preparation_claimed": false
+  },
+  "route_status": {
+    "native_run": {
+      "path": "local/native-game-variable-reset-104375-release-v1.run.json",
+      "sha256": "5fc85c124952b7ed9a7b4df24d0006c8e5d69dbe921e3e7c002f5a3062741c23"
+    },
+    "native_log": {
+      "path": "local/native-game-variable-reset-104375-release-v1.log",
+      "sha256": "fe0040b764beae562dc4bf8a0f927be9b24dd9e3805ae78ea7a31811f556c11c"
+    },
+    "native_binary_sha256_recorded": "79940b65800e38d4bf7d7effddabed304642434a19da017bb1d5d066b8cd379d",
+    "exit_code": 0,
+    "elapsed_seconds_recorded": 21.32199,
+    "elapsed_time_scope": "Whole command wall duration; not FPS or simulation cadence.",
+    "completed_native_tick": 104375,
+    "initial_native_scene": "HOME1C diagnostic start",
+    "full_startup_claimed": false,
+    "audited_first_tick": 104136,
+    "audited_last_tick": 104375,
+    "audited_ticks": 240,
+    "controller_samples": 240,
+    "all_compared_observables_agree": true,
+    "complete_original_observation_coverage": true,
+    "unique_differing_frames": 0,
+    "unique_missing_observation_frames": 0,
+    "hero_position_maximum_error": 0,
+    "camera_position_maximum_error": 0,
+    "interval": {
+      "path": "local/research/game-state-init-v1/reset-stand-audit-v1/interval.json",
+      "sha256": "eda613e9dca7690b2975f8c12cca15f2282ba5b4a0991fea75cef33d240709ea"
+    },
+    "summary": {
+      "path": "local/research/game-state-init-v1/reset-stand-audit-v1/summary.json",
+      "sha256": "1461de230f5efe82d76b8cd76a53b8befb93e3b6c33e3b9670622618fac30dc5"
+    },
+    "commands": {
+      "path": "local/research/game-state-init-v1/reset-stand-audit-v1/commands.json",
+      "sha256": "4654230c30d933a766697251b957e0a148a9f43e1dc641d4985c2def989742f6"
+    },
+    "executed_audit_commands": [
+      {
+        "command": [
+          "python3",
+          "tools/diagnose_home1b_interval.py",
+          "--reference",
+          "local/reference-field1d-tenel-first-ghost-stand-240-v1",
+          "--capture",
+          "local/native-game-variable-reset-104375-release-v1.png",
+          "--first-frame",
+          "104136",
+          "--unblended-target",
+          "--output",
+          "local/research/game-state-init-v1/reset-stand-audit-v1/interval.json"
+        ],
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "python3",
+          "tools/summarize_interval_report.py",
+          "--input",
+          "local/research/game-state-init-v1/reset-stand-audit-v1/interval.json",
+          "--output",
+          "local/research/game-state-init-v1/reset-stand-audit-v1/summary.json"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "audit_log": {
+      "path": "local/research/game-state-init-v1/reset-stand-audit-v1/command-0.log",
+      "sha256": "3dd96f5db1583012a01a5c503246080aae9fb71d961ff53b4f6741b05c93e1b4"
+    },
+    "summary_log": {
+      "path": "local/research/game-state-init-v1/reset-stand-audit-v1/command-1.log",
+      "sha256": "484f0e9d542f2ec9414d5687dc863dce804d7836a78bd41418d6284b7449d443"
+    },
+    "audit_tools": [
+      {
+        "path": "tools/diagnose_home1b_interval.py",
+        "sha256": "162c13855214726e1207276ede831a7115898d5b3dc5f44fbefc1a61f710e520"
+      },
+      {
+        "path": "tools/summarize_interval_report.py",
+        "sha256": "97d67168ac9e1404228be34d1b42c81623848e229932ddbffc4cf407115e8422"
+      }
+    ],
+    "scope_exclusions": [
+      "Original/new-game startup equivalence",
+      "Earlier replay interval equivalence",
+      "NPC/global RNG equality",
+      "Images",
+      "Audio",
+      "Unobserved state",
+      "Battle lifecycle"
+    ]
+  },
+  "limitations": [
+    "The synthetic reset corpus does not cover full new-game initialization, resource-derived stats, equipment preparation, persistence or battle execution.",
+    "The combined native replay completes through tick 104375 from the existing HOME1C diagnostic start. Only ticks 104136..104375 are differentially audited here; no full-startup or whole-replay parity claim.",
+    "Original execution is an emulator reference, not physical PS2 proof.",
+    "The retained snapshot observation must not supply runtime initialization data.",
+    "Recorded binary hashes identify retained executions; mutable build outputs are not substituted."
+  ],
+  "verification": {
+    "method": "Rehash retained inputs/outputs and run manifests; verify command-to-file binding; rerun the pure Python byte comparator; inspect assembly, decompilation, call site and retained test logs. No builds, game execution, VM or UI.",
+    "checked_file_count": 32,
+    "latest_update": "Verified combined Release/Debug/sanitizer reset outputs using the independent Python layout; executed existing fixed-anchor comparator and summarizer on retained traces only. No builds, VM, game/window execution or source edits.",
+    "latest_update_hashed_files": 41
+  },
+  "combined_build_comparisons": {
+    "aggregate_report": {
+      "path": "local/research/game-state-init-v1/three-build-checks.json",
+      "sha256": "bac0296afd9d1358ea4a1ab8f22f221cfe44bba2c5131c7e1687c436db5e145e"
+    },
+    "scope": "Only game-vars-reset rows from the combined report are claimed here; battle-state-init has separate evidence.",
+    "original_output": {
+      "path": "local/research/game-state-init-v1/original.bin",
+      "sha256": "8113bdac2cc7c5d08e1d102a97e5c100b1b0f2f0677bfb8b7327664fae73dcfa"
+    },
+    "input": {
+      "path": "local/research/game-variables-reset-verifier-v1/input.bin",
+      "sha256": "cf6f6de6a4bf3da5111927f3bbbe678ae2aa27314e03967a9de03759ac1a91f0"
+    },
+    "runs": [
+      {
+        "configuration": "release",
+        "run": {
+          "path": "local/research/game-state-init-v1/release-combined.run.json",
+          "sha256": "173ff1caf3c5c319975223a49a616cc626d6d44bee8a33147566f5aa5c1ac6f8"
+        },
+        "log": {
+          "path": "local/research/game-state-init-v1/release-combined.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "binary_sha256_recorded": "a6de81bfb670f2c00f0256d48e16917e5dc85e1569c40d0684f7d070fcd9604b",
+        "exit_code": 0,
+        "command": [
+          "build/native-release/okage-assets",
+          "game-vars-reset",
+          "local/research/game-variables-reset-verifier-v1/input.bin",
+          "local/research/game-state-init-v1/release-combined.bin"
+        ],
+        "output": {
+          "path": "local/research/game-state-init-v1/release-combined.bin",
+          "sha256": "8113bdac2cc7c5d08e1d102a97e5c100b1b0f2f0677bfb8b7327664fae73dcfa"
+        },
+        "independent_comparison": {
+          "path": "local/research/game-state-init-v1/reset-stand-audit-v1/release-reset-report.json",
+          "sha256": "ba35a40cbb3c8ad432e3601af7b3a9de73fb3f5f80378efca524a2a1bc3dc621"
+        },
+        "compared_bytes_per_output": 16512,
+        "exact": true
+      },
+      {
+        "configuration": "debug",
+        "run": {
+          "path": "local/research/game-state-init-v1/debug-combined.run.json",
+          "sha256": "ebb0db7720a819a7b0f71dd1fac3c153f0434bac65cd0fb9422f9c0c6647dc9d"
+        },
+        "log": {
+          "path": "local/research/game-state-init-v1/debug-combined.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "binary_sha256_recorded": "92ad32c9d315787eb8aa698669195f338c39dfc0612a849ad7446edef1559e96",
+        "exit_code": 0,
+        "command": [
+          "build/native/okage-assets",
+          "game-vars-reset",
+          "local/research/game-variables-reset-verifier-v1/input.bin",
+          "local/research/game-state-init-v1/debug-combined.bin"
+        ],
+        "output": {
+          "path": "local/research/game-state-init-v1/debug-combined.bin",
+          "sha256": "8113bdac2cc7c5d08e1d102a97e5c100b1b0f2f0677bfb8b7327664fae73dcfa"
+        },
+        "independent_comparison": {
+          "path": "local/research/game-state-init-v1/reset-stand-audit-v1/debug-reset-report.json",
+          "sha256": "ba35a40cbb3c8ad432e3601af7b3a9de73fb3f5f80378efca524a2a1bc3dc621"
+        },
+        "compared_bytes_per_output": 16512,
+        "exact": true
+      },
+      {
+        "configuration": "sanitize",
+        "run": {
+          "path": "local/research/game-state-init-v1/sanitize-combined.run.json",
+          "sha256": "fdc86f342b25f7d0b74513003a8484a4ba2c8fcad78d4cb4a8cb03b3cb1b7ac0"
+        },
+        "log": {
+          "path": "local/research/game-state-init-v1/sanitize-combined.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "binary_sha256_recorded": "b94c17a1f6a9f285b85ff5a8d711ae5f62e2518bd31b289af81c5261bd3f20da",
+        "exit_code": 0,
+        "command": [
+          "build/model-sanitize/okage-assets",
+          "game-vars-reset",
+          "local/research/game-variables-reset-verifier-v1/input.bin",
+          "local/research/game-state-init-v1/sanitize-combined.bin"
+        ],
+        "output": {
+          "path": "local/research/game-state-init-v1/sanitize-combined.bin",
+          "sha256": "8113bdac2cc7c5d08e1d102a97e5c100b1b0f2f0677bfb8b7327664fae73dcfa"
+        },
+        "independent_comparison": {
+          "path": "local/research/game-state-init-v1/reset-stand-audit-v1/sanitize-reset-report.json",
+          "sha256": "ba35a40cbb3c8ad432e3601af7b3a9de73fb3f5f80378efca524a2a1bc3dc621"
+        },
+        "compared_bytes_per_output": 16512,
+        "exact": true
+      }
+    ]
+  }
+}
