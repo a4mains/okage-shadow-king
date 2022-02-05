@@ -2173,6 +2173,32 @@ public:
         }
         writeFile(output,result.data(),result.size());
     }
+    void battleStateInit(const std::vector<uint8>& input,const char* output) {
+        // Only original 0x1511d8 / 0x151798; never the resource/scheduler
+        // constructor 0x149fd8. No game code or default-global replacement.
+        constexpr unsigned root=0xa00000,rootSize=0x81d0,guardedSize=rootSize+64,
+                           recordSize=16+guardedSize;
+        if(input.empty()||input.size()%recordSize||input.size()>recordSize*16)
+            throw std::runtime_error("Battle initialization fixture extent");
+        std::vector<uint8> result;
+        for(unsigned at=0;at<input.size();at+=recordSize) {
+            if(std::memcmp(input.data()+at,ee->m_ram+0x236f70,16))
+                throw std::runtime_error("Battle fixture defaults differ from original ELF global");
+            std::memcpy(ee->m_ram+root-32,input.data()+at+16,guardedSize);
+            put(0x1fce60,root);
+            auto snapshot=[&] {
+                if(get(0x1fce60)!=root||std::memcmp(input.data()+at,ee->m_ram+0x236f70,16))
+                    throw std::runtime_error("Unexpected battle initializer global mutation");
+                if(std::memcmp(ee->m_ram+root-32,input.data()+at+16,32)||
+                   std::memcmp(ee->m_ram+root+rootSize,input.data()+at+48+rootSize,32))
+                    throw std::runtime_error("Battle initializer crossed root canary");
+                result.insert(result.end(),ee->m_ram+root-32,ee->m_ram+root+rootSize+32);
+            };
+            call(0x1511d8,{root+0x50});snapshot();
+            call(0x151798,{root+0x80a4});snapshot();
+        }
+        writeFile(output,result.data(),result.size());
+    }
     void eventShorts(const std::vector<uint8>& input,const char* output) {
         if(input.empty()||input.size()%12||input.size()>12*1024)
             throw std::runtime_error("Event short fixture bounds");
@@ -3137,6 +3163,8 @@ int main(int argc,char** argv) {
             reference.collisionWorld(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="game-vars-reset" && argc==5) {
             reference.gameVariablesReset(readFile(argv[3]),argv[4]);
+        } else if(command=="battle-state-init" && argc==5) {
+            reference.battleStateInit(readFile(argv[3]),argv[4]);
         } else if(command=="event-shorts" && argc==5) {
             reference.eventShorts(readFile(argv[3]),argv[4]);
         } else if(command=="event-write" && argc==6) {

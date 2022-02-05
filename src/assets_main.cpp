@@ -1,3 +1,4 @@
+#include "okage/battle_state.hpp"
 #include "okage/assets.hpp"
 #include "okage/model.hpp"
 #include "okage/pose.hpp"
@@ -618,6 +619,22 @@ int main(int argc, char** argv) {
             for(std::size_t at=0;at<input.size();at+=row_size)
                 okage::initialize_game_variables(std::span<std::uint8_t>(input).subspan(at+16,0x1000));
             write(argv[3],input);return 0;
+        }
+        if(command=="battle-state-init" && argc==4) {
+            const auto input=read(argv[2]);
+            constexpr std::size_t guarded_size=32+okage::battle_state_size+32,record_size=16+guarded_size;
+            if(input.empty()||input.size()%record_size||input.size()>record_size*16)
+                throw std::runtime_error("Battle initialization fixture extent");
+            std::vector<std::uint8_t> output;
+            for(std::size_t at=0;at<input.size();at+=record_size) {
+                std::vector<std::uint8_t> guarded(input.begin()+at+16,input.begin()+at+record_size);
+                const auto root=std::span(guarded).subspan(32,okage::battle_state_size);
+                okage::initialize_battle_entities(root,okage::Bytes(input).subspan(at,16));
+                output.insert(output.end(),guarded.begin(),guarded.end());
+                okage::initialize_battle_secondary(root);
+                output.insert(output.end(),guarded.begin(),guarded.end());
+            }
+            write(argv[3],output);return 0;
         }
         if(command=="event-shorts" && argc==4) {
             const auto input=read(argv[2]);
