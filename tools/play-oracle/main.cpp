@@ -2158,6 +2158,80 @@ public:
         }
         writeFile(output,result.data(),result.size());
     }
+    void gameNewStats(const std::vector<uint8>& bkdata,const std::vector<uint8>& items,
+                      const std::vector<uint8>& input,const char* output) {
+        // Research-only owned tables and synthetic storage. Execute the actual
+        // 0x1251d8 callees without its unrelated diagnostic logger; no patches.
+        constexpr uint32 rowSize=0x1020,root=0xa00000,bk=0xb00000,item=0xc00000;
+        if(input.empty()||input.size()%rowSize||input.size()>16*rowSize)
+            throw std::runtime_error("New-game stats fixture bounds");
+        if(hash(bkdata)!="973964019ddb24d033b0e10f4f3e2cf72fafdee9bdb25ee143ee87c832b0aff4"||
+           hash(items)!="d3c0af83a4f47a8e5960f9181bdd72649692b80dafeb387395307130804c7cce")
+            throw std::runtime_error("New-game stats requires pinned owned BKDATA/ITEM tables");
+        // 0x178a60 simply loads current slot from 0x31fa60. Use bounded slot0,
+        // not an OS/thread stub, and restore every affected pointer/cache global.
+        const uint32 globals[]={0x24f788,0x24f78c,0x24f790,0x31fa60,
+                                0x1faf88,0x24f758,0x24f760,0x24f768,0x24f770,0x24f778};
+        std::vector<uint32> previous;
+        for(auto address:globals)previous.push_back(get(address));
+        auto restore=[&] {for(unsigned i=0;i<previous.size();++i)put(globals[i],previous[i]);};
+        std::vector<uint8> result;
+        try {
+            std::memset(ee->m_ram+bk-16,0x69,bkdata.size()+32);
+            std::memcpy(ee->m_ram+bk,bkdata.data(),bkdata.size());
+            std::memset(ee->m_ram+item-16,0x96,items.size()+32);
+            std::memcpy(ee->m_ram+item,items.data(),items.size());
+            put(0x24f788,root);put(0x24f78c,bk);put(0x24f790,item);put(0x31fa60,0);
+            call(0x178a60,{});
+            if(ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0]!=0)
+                throw std::runtime_error("Unexpected original XDB context slot");
+            auto lookup=[&](uint32 address,uint32 size,uint32 name,uint32 recordBytes,uint32 required) {
+                call(0x1249c8,{address});
+                if(ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0]!=0)
+                    throw std::runtime_error("Original XDB selection failed");
+                call(0x124b58,{name});
+                const auto records=ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0];
+                const uint64 bytes=uint64(get(0x24f770))*4;
+                if(records<address||uint64(records)+bytes>uint64(address)+size||
+                   bytes<uint64(recordBytes)*required||bytes%recordBytes)
+                    throw std::runtime_error("Original XDB record bounds");
+                call(0x124ca8,{0});
+                const auto strings=ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0];
+                if(strings<address||uint64(strings)>=uint64(address)+size)
+                    throw std::runtime_error("Original XDB string bounds");
+            };
+            // 0x125400 selects "unit" through BKDATA; 0x125360 selects
+            // "item" through ITEM. Original reset uses unit IDs170..176.
+            lookup(bk,uint32(bkdata.size()),0x223898,0x6c,176);
+            lookup(item,uint32(items.size()),0x223890,0x3c,240);
+            auto tablesUnchanged=[&] {
+                if(std::memcmp(ee->m_ram+bk,bkdata.data(),bkdata.size())||
+                   std::memcmp(ee->m_ram+item,items.data(),items.size()))
+                    throw std::runtime_error("New-game stats mutated owned table data");
+                for(unsigned i=0;i<16;++i)
+                    if(ee->m_ram[bk-16+i]!=0x69||ee->m_ram[bk+bkdata.size()+i]!=0x69||
+                       ee->m_ram[item-16+i]!=0x96||ee->m_ram[item+items.size()+i]!=0x96)
+                        throw std::runtime_error("New-game stats crossed table canary");
+            };
+            for(unsigned at=0;at<input.size();at+=rowSize) {
+                std::memcpy(ee->m_ram+root-16,input.data()+at,rowSize);
+                auto snapshot=[&] {
+                    if(get(0x24f788)!=root||get(0x24f78c)!=bk||get(0x24f790)!=item||get(0x31fa60)!=0)
+                        throw std::runtime_error("New-game stats changed owner/context pointer");
+                    if(std::memcmp(ee->m_ram+root-16,input.data()+at,16)||
+                       std::memcmp(ee->m_ram+root+0x1000,input.data()+at+0x1010,16))
+                        throw std::runtime_error("New-game stats crossed shared-variable canary");
+                    tablesUnchanged();
+                    result.insert(result.end(),ee->m_ram+root-16,ee->m_ram+root-16+rowSize);
+                };
+                call(0x124f10,{});snapshot();
+                call(0x126370,{});snapshot();
+                call(0x125e10,{0,131,174,240});snapshot();
+            }
+        }catch(...) {restore();throw;}
+        restore();
+        writeFile(output,result.data(),result.size());
+    }
     void gameVariablesReset(const std::vector<uint8>& input,const char* output) {
         constexpr unsigned rowSize=0x1020,root=0xa00000;
         if(input.empty()||input.size()%rowSize||input.size()>16*rowSize)
@@ -3161,6 +3235,8 @@ int main(int argc,char** argv) {
             reference.capsulePair(readFile(argv[3]),argv[4]);
         } else if(command=="collision-world" && argc==6) {
             reference.collisionWorld(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="new-game-state" && argc==7) {
+            reference.gameNewStats(readFile(argv[3]),readFile(argv[4]),readFile(argv[5]),argv[6]);
         } else if(command=="game-vars-reset" && argc==5) {
             reference.gameVariablesReset(readFile(argv[3]),argv[4]);
         } else if(command=="battle-state-init" && argc==5) {
