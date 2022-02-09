@@ -1,4 +1,5 @@
 #include "okage/battle_state.hpp"
+#include "okage/game_state.hpp"
 #include "okage/assets.hpp"
 #include "okage/model.hpp"
 #include "okage/pose.hpp"
@@ -619,6 +620,28 @@ int main(int argc, char** argv) {
             for(std::size_t at=0;at<input.size();at+=row_size)
                 okage::initialize_game_variables(std::span<std::uint8_t>(input).subspan(at+16,0x1000));
             write(argv[3],input);return 0;
+        }
+        if(command=="new-game-state" && argc==6) {
+            const okage::GameDataTables tables(read(argv[2]),read(argv[3]));
+            const auto input=read(argv[4]);
+            constexpr std::size_t row_size=0x1020;
+            if(input.empty()||input.size()%row_size||input.size()>16*row_size)
+                throw std::runtime_error("New game state fixture bounds");
+            std::vector<std::uint8_t> output;
+            for(std::size_t at=0;at<input.size();at+=row_size) {
+                std::vector<std::uint8_t> row(input.begin()+at,input.begin()+at+row_size);
+                auto variables=std::span(row).subspan(16,0x1000);
+                okage::initialize_game_variables(variables);
+                output.insert(output.end(),row.begin(),row.end());
+                okage::refresh_game_characters(variables,tables,15);
+                output.insert(output.end(),row.begin(),row.end());
+                okage::grant_and_equip_game_character(variables,tables,0,{131,174,240});
+                output.insert(output.end(),row.begin(),row.end());
+                auto integrated=std::vector<std::uint8_t>(input.begin()+at,input.begin()+at+row_size);
+                okage::initialize_new_game_variables(std::span(integrated).subspan(16,0x1000),tables);
+                if(integrated!=row)throw std::runtime_error("New game state stage/integrated mismatch");
+            }
+            write(argv[5],output);return 0;
         }
         if(command=="battle-state-init" && argc==4) {
             const auto input=read(argv[2]);

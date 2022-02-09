@@ -1,6 +1,7 @@
 #import <AppKit/AppKit.h>
 #include "okage/dialogue.hpp"
 #include "okage/event.hpp"
+#include "okage/game_state.hpp"
 #include "okage/field.hpp"
 #include "okage/music.hpp"
 #include "okage/audio_output.hpp"
@@ -201,6 +202,7 @@ struct Session {
         scene_fade.current=scene_fade.target=1; // Already lit diagnostic entry.
     }
     fs::path field_root,event_directory,effect_data,effect_textures;
+    std::optional<okage::GameDataTables> game_data;
     int current_scene=-1,current_entrance=0;
     std::vector<std::uint32_t> transition_trace;
     std::optional<okage::Texture> transition_image;
@@ -310,6 +312,10 @@ struct Session {
     }
     fs::path scene_map;
     void load_scene(const fs::path& map,const fs::path& event,const std::vector<std::pair<int,fs::path>>& assets) {
+        if(game_data)throw std::runtime_error("Initial game data already prepared");
+        const auto data_root=message_directory.parent_path().parent_path()/"CMNDATA"/"XDB";
+        game_data.emplace(readData(data_root/"BKDATA.XDB"),readData(data_root/"ITEM.XDB"));
+        okage::initialize_new_game_variables(variables,*game_data);
         scene_map=map;
         std::vector<okage::SceneActor> scene_actors;
         auto add=[&](int alias,const fs::path& path) {
