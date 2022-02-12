@@ -1,0 +1,724 @@
+{
+  "schema_version": 1,
+  "status": "three_build_helper_exact_and_final_240_tick_audit_exact",
+  "scope": "Resource-backed shared-variable reset, record refresh and initial equipment; not full original startup, new-game UI or battle lifecycle.",
+  "retail_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "owned_inventory": {
+    "path": "local/research/game-state-data-v1/unit-item-rows-v1.json",
+    "size_bytes": 16569,
+    "sha256": "530852c7f7c9d46c4dfeb217d771f5fd351d5f796f9829416e24a266daeae3fb"
+  },
+  "owned_inventory_note": {
+    "path": "local/research/game-state-data-v1/unit-item-rows-v1.txt",
+    "size_bytes": 4223,
+    "sha256": "24baf5a5c2fd7d4274423dcf576a05f2346735babe699a370e309b0a9b8c3ae5"
+  },
+  "assets": [
+    {
+      "path": "local/text-input/CMNDATA/XDB/BKDATA.XDB",
+      "size_bytes": 66278,
+      "sha256": "973964019ddb24d033b0e10f4f3e2cf72fafdee9bdb25ee143ee87c832b0aff4"
+    },
+    {
+      "path": "local/text-input/CMNDATA/XDB/ITEM.XDB",
+      "size_bytes": 27796,
+      "sha256": "d3c0af83a4f47a8e5960f9181bdd72649692b80dafeb387395307130804c7cce"
+    }
+  ],
+  "source_exports": [
+    {
+      "path": "local/research/game-state-init-v1/00124f10.asm",
+      "size_bytes": 2338,
+      "sha256": "b36e9d49a4a7453b2371cb0bded53c2315f9fa9667c49249eb8b8b6e1bd0b5f7"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00124f10.c",
+      "size_bytes": 1168,
+      "sha256": "d2d4fcca78503d1e4b9ab0ab7cf6d4f39e8ca9258d9a597e29888f3ee1cbf154"
+    },
+    {
+      "path": "local/research/game-state-init-v1/001251d8.asm",
+      "size_bytes": 316,
+      "sha256": "4fb2c795857a3eb821c2d78ea47ed581da57f41868a6bc165a6f927e42b3ae0c"
+    },
+    {
+      "path": "local/research/game-state-init-v1/001251d8.c",
+      "size_bytes": 119,
+      "sha256": "67a09eb0db3bdb2841eaa98b5b72f757463cbd1490f0f39d9b5e7b82916ff383"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00126370.asm",
+      "size_bytes": 51,
+      "sha256": "9b40f6b18fda84be19d4b52fd5aeedd85fce29fad8e06d15b49f56f2c4500a34"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00126370.c",
+      "size_bytes": 1069,
+      "sha256": "c1aba7b36302f80f14e9f9635e0e0d006b3949c7ac9d7895b41015e294a3a16d"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00126228.asm",
+      "size_bytes": 1968,
+      "sha256": "1392217fbab16e2228298b4f4980ed6f91d14b6caf355009938f47e550ad3e24"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00126228.c",
+      "size_bytes": 1237,
+      "sha256": "11c2d9d464e8b624374adec97d1898ac93084b2ed05374b0d01bbe357121f7ad"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125ff8.asm",
+      "size_bytes": 2910,
+      "sha256": "867ae331d0076e7349b0a7afc73f351dc44b683eb86be901f38cfa616af3b279"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125ff8.c",
+      "size_bytes": 3138,
+      "sha256": "29ab17073617194329c43b75e1d6057fba5eb006c1514a957dc16ae1cf255bf7"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125f18.asm",
+      "size_bytes": 290,
+      "sha256": "d54acf8cd410e1b2488f058146c0735717b17f4cd298d3e863b29b40cc00fb16"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125f18.c",
+      "size_bytes": 226,
+      "sha256": "83026dafe37443f8fe90fefc013800a48a10ff60ea93c5c69c06093ea719556f"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125f50.asm",
+      "size_bytes": 990,
+      "sha256": "f369ec05bd53f9e08a61b5f5c04246f71d173ebbc012d791a5cfc37937c2a457"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125f50.c",
+      "size_bytes": 834,
+      "sha256": "1e0eb655322189c34b4eb8156346f649a56233df11af202fe307571f729aefcb"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125e10.asm",
+      "size_bytes": 1504,
+      "sha256": "59d2b40c8c5489e5c48d0f6be0eafaae547f1bd16f90fb6b7a3c92474ad5c15d"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125e10.c",
+      "size_bytes": 537,
+      "sha256": "095aae3a920ac83a7cb7f6cf86c9785800d5adb5c038b8b1f59ecf439ef9459f"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125a80.asm",
+      "size_bytes": 453,
+      "sha256": "0b904f0e1e246ee18126455cd4e9dd672e3291592c8dbd76219233e2e5353cb0"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125a80.c",
+      "size_bytes": 315,
+      "sha256": "8d8cf58039d3bc81e1e9957e378937fe6e3a9215f8cf8fc26fd105dd13e9c3da"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125400.asm",
+      "size_bytes": 924,
+      "sha256": "bbf9a24dad01e8b85c6df9b343d5bc06ced5b82d34daf2fe3b5958c6a4d24e97"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125400.c",
+      "size_bytes": 636,
+      "sha256": "bd193d4ea294445236d795cc0e640e4db1a8246104632c092782d9cc63762773"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125360.asm",
+      "size_bytes": 924,
+      "sha256": "793a5817296d7478c42774eacf5c6b6aed6ca2f57be5ac56838b5d2aaa0a7023"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00125360.c",
+      "size_bytes": 639,
+      "sha256": "e0028a10d9e78942fb669498b2df7c072f0f3ede80019dcf2d0f5182bfef0f1b"
+    },
+    {
+      "path": "local/research/game-state-init-v1/001249c8.asm",
+      "size_bytes": 1370,
+      "sha256": "c2e7b0081132e097f1d29c1c4e4b5636e8bb15c811feafd14d934b4ac8100628"
+    },
+    {
+      "path": "local/research/game-state-init-v1/001249c8.c",
+      "size_bytes": 779,
+      "sha256": "56cb7af80c6d6a1337feb376a8100179173a3ef5701950a0a75ef05a04c407af"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00124b58.asm",
+      "size_bytes": 1978,
+      "sha256": "10ff08cdcfe367e7743f08b083706ee1ed5a5e4b5efba72d65ba61aba1296362"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00124b58.c",
+      "size_bytes": 960,
+      "sha256": "aa8e5060d48db3fdc279b17f2c115ec51685c3cdd656a17cfe4cf521eab638d3"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00124ca8.asm",
+      "size_bytes": 349,
+      "sha256": "8dd9b8fc3c57e50385343a46f3561be38b07c5d734e5e0d8c08a31174529615c"
+    },
+    {
+      "path": "local/research/game-state-init-v1/00124ca8.c",
+      "size_bytes": 135,
+      "sha256": "d3dc29f5f214c3a1b3a173d669ddeaf97c49a366f617a1d0182eedcf9b8fd703"
+    }
+  ],
+  "implementation_source_snapshot": [
+    {
+      "path": "include/okage/game_state.hpp",
+      "size_bytes": 1449,
+      "sha256": "ddfc890586191041656e7c53843ffda4e8b6088625992077aeea6a00777ab504"
+    },
+    {
+      "path": "src/game_state.cpp",
+      "size_bytes": 6654,
+      "sha256": "d97c9764f59e7272b5a5df135777ef0bdea7a0446e1ae6e9b95fa71941728bea"
+    },
+    {
+      "path": "src/event.cpp",
+      "size_bytes": 9268,
+      "sha256": "eb8caabb724d72bfbb160d45982499d8e726dbed0bfb1ddeb218a6c7bc3e8270"
+    },
+    {
+      "path": "src/native_runtime.mm",
+      "size_bytes": 87066,
+      "sha256": "15b0ae850df5966eea62363f04695fb0e66203ef848122d037c7c4b89a2cf88e"
+    },
+    {
+      "path": "src/assets_main.cpp",
+      "size_bytes": 143976,
+      "sha256": "99a6e9cad55b21be3044ccb7e9c9dba12d928152d753ee468714aa3e3b13445a"
+    }
+  ],
+  "extraction_reader": {
+    "path": "tools/inspect_disc.py",
+    "size_bytes": 9160,
+    "sha256": "9aa1ea0f31be6d3941b90bcfd8638069e329f177122d7f000174b3b939d4e342"
+  },
+  "source_chain": {
+    "reset": "0x124f10",
+    "preparation_entry": "0x1251d8",
+    "refresh_wrapper": "0x126370",
+    "refresh_entry": "0x126228",
+    "original_refresh_mask": "0xffff",
+    "native_recovered_mask": 15,
+    "equipment_entry": "0x125e10",
+    "equipment_arguments": [
+      0,
+      131,
+      174,
+      240
+    ],
+    "record_refresh": "0x125ff8",
+    "level_helper": "0x125f18",
+    "item_modifier": "0x125f50",
+    "unit_getter": "0x125400",
+    "item_getter": "0x125360"
+  },
+  "xdb_contract": {
+    "unit": {
+      "section": "unit",
+      "row_count": 255,
+      "words_per_record": 27,
+      "one_based_ids": true,
+      "string_columns": [
+        0,
+        1
+      ]
+    },
+    "item": {
+      "section": "item",
+      "row_count": 255,
+      "words_per_record": 15,
+      "one_based_ids": true,
+      "string_columns": [
+        0,
+        14
+      ]
+    }
+  },
+  "diagnostic_contract": {
+    "native_command": "okage-assets new-game-state BKDATA ITEM INPUT OUTPUT",
+    "input_bytes_per_row": 4128,
+    "maximum_input_rows": 16,
+    "root_offset": 16,
+    "root_extent": 4096,
+    "stages": [
+      "reset",
+      "refresh",
+      "equip"
+    ],
+    "output_bytes_per_input_row": 12384,
+    "four_row_output_bytes": 49536,
+    "integrated_vs_staged_assertion": true
+  },
+  "execution_validation": {
+    "status": "three_builds_exact",
+    "original_run": {
+      "path": "local/research/new-game-state-v1/original.run.json",
+      "size_bytes": 486,
+      "sha256": "f6db026c479a452c88997875cf77d14574d5776e3512c198ce2df12f57f45d4d"
+    },
+    "original_log": {
+      "path": "local/research/new-game-state-v1/original.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "original_exit_code": 0,
+    "original_binary_sha256_recorded": "1c5d6ebfaa884f9d257324661d69ab0cae258ce0bc606eb6cef8411e75b04738",
+    "original_command": [
+      "build/play-research/okage-oracle/okage-pose-oracle",
+      "new-game-state",
+      "local/extracted/SCUS_971.29",
+      "local/text-input/CMNDATA/XDB/BKDATA.XDB",
+      "local/text-input/CMNDATA/XDB/ITEM.XDB",
+      "local/research/game-variables-reset-verifier-v1/input.bin",
+      "local/research/new-game-state-v1/original.bin"
+    ],
+    "native_runs": [
+      {
+        "configuration": "release",
+        "run": {
+          "path": "local/research/new-game-state-v1/release.run.json",
+          "size_bytes": 441,
+          "sha256": "9807e3f90952e83589167aaa7fb85a3e54a2305d95dd8ec031e45ed388f95684"
+        },
+        "log": {
+          "path": "local/research/new-game-state-v1/release.log",
+          "size_bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "exit_code": 0,
+        "binary_sha256_recorded": "4df1afc32bac4aa48cf98955cc764cc031e2e0bfb995ea98e3f8ba6b771a1288",
+        "command": [
+          "build/native-release/okage-assets",
+          "new-game-state",
+          "local/text-input/CMNDATA/XDB/BKDATA.XDB",
+          "local/text-input/CMNDATA/XDB/ITEM.XDB",
+          "local/research/game-variables-reset-verifier-v1/input.bin",
+          "local/research/new-game-state-v1/release.bin"
+        ]
+      },
+      {
+        "configuration": "debug",
+        "run": {
+          "path": "local/research/new-game-state-v1/debug.run.json",
+          "size_bytes": 422,
+          "sha256": "81b1daffe72834ccf1651ec8e872cb29f3161820d77979e2f58ac264281a634b"
+        },
+        "log": {
+          "path": "local/research/new-game-state-v1/debug.log",
+          "size_bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "exit_code": 0,
+        "binary_sha256_recorded": "7036f57453ae33c675e34b5ea5e85b7de2d3e0902e21c8c4537e1d1f82a4a853",
+        "command": [
+          "build/native/okage-assets",
+          "new-game-state",
+          "local/text-input/CMNDATA/XDB/BKDATA.XDB",
+          "local/text-input/CMNDATA/XDB/ITEM.XDB",
+          "local/research/game-variables-reset-verifier-v1/input.bin",
+          "local/research/new-game-state-v1/debug.bin"
+        ],
+        "output": {
+          "path": "local/research/new-game-state-v1/debug.bin",
+          "size_bytes": 49536,
+          "sha256": "9d4cfef24ea8757a573dcde4f8c1d4b2691eae203a07dbb0420bc3535f7cf23b"
+        },
+        "tests": {
+          "log": {
+            "path": "local/research/new-game-state-v1/debug-tests.log",
+            "size_bytes": 624,
+            "sha256": "e5a50b1c563dce6a2844c6db7ebe64a9170c61c4c79ec9586381e824193b680a"
+          },
+          "passed": 4,
+          "targets": [
+            "game-state-tests",
+            "battle-state-tests",
+            "field-tests",
+            "event-tests"
+          ]
+        }
+      },
+      {
+        "configuration": "sanitize",
+        "run": {
+          "path": "local/research/new-game-state-v1/sanitize.run.json",
+          "size_bytes": 442,
+          "sha256": "2d282124b01e6fa68bfcdfbd6d48d1ef07167a1fd68ed3adc337d8d9b135adec"
+        },
+        "log": {
+          "path": "local/research/new-game-state-v1/sanitize.log",
+          "size_bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "exit_code": 0,
+        "binary_sha256_recorded": "0d26f919d1866dffebf0f66c6e72c77731bff510edfcddd7c183504c88403351",
+        "command": [
+          "build/model-sanitize/okage-assets",
+          "new-game-state",
+          "local/text-input/CMNDATA/XDB/BKDATA.XDB",
+          "local/text-input/CMNDATA/XDB/ITEM.XDB",
+          "local/research/game-variables-reset-verifier-v1/input.bin",
+          "local/research/new-game-state-v1/sanitize.bin"
+        ],
+        "output": {
+          "path": "local/research/new-game-state-v1/sanitize.bin",
+          "size_bytes": 49536,
+          "sha256": "9d4cfef24ea8757a573dcde4f8c1d4b2691eae203a07dbb0420bc3535f7cf23b"
+        },
+        "tests": {
+          "log": {
+            "path": "local/research/new-game-state-v1/sanitize-tests.log",
+            "size_bytes": 640,
+            "sha256": "3ed0e47bdbcb9789f1369889e7662d189ffc9e42262b38bd74d2f28832b84eca"
+          },
+          "passed": 4,
+          "targets": [
+            "game-state-tests",
+            "battle-state-tests",
+            "field-tests",
+            "event-tests"
+          ]
+        }
+      }
+    ],
+    "comparison_reports": [
+      {
+        "path": "local/research/new-game-state-v1/release-comparison.json",
+        "size_bytes": 276,
+        "sha256": "9d0428cf9aed1d51729170b898f8ff4ceae7a9e4bf8cb515b5308dd14058535a"
+      },
+      {
+        "path": "local/research/new-game-state-v1/cross-build-comparison.json",
+        "size_bytes": 1195,
+        "sha256": "47752a0c38cd43b462311f4b1284887ba1a272c9306842df560cf3f3bbca1756"
+      }
+    ],
+    "input": {
+      "path": "local/research/game-variables-reset-verifier-v1/input.bin",
+      "size_bytes": 16512,
+      "sha256": "cf6f6de6a4bf3da5111927f3bbbe678ae2aa27314e03967a9de03759ac1a91f0"
+    },
+    "original_output": {
+      "path": "local/research/new-game-state-v1/original.bin",
+      "size_bytes": 49536,
+      "sha256": "9d4cfef24ea8757a573dcde4f8c1d4b2691eae203a07dbb0420bc3535f7cf23b"
+    },
+    "native_output": {
+      "path": "local/research/new-game-state-v1/release.bin",
+      "size_bytes": 49536,
+      "sha256": "9d4cfef24ea8757a573dcde4f8c1d4b2691eae203a07dbb0420bc3535f7cf23b"
+    },
+    "rows": 4,
+    "snapshots_per_row": 3,
+    "guarded_snapshots": 12,
+    "compared_bytes_per_output": 49536,
+    "exact_all_bytes": true,
+    "protected_bytes_per_snapshot": 680,
+    "protected_bytes_checked_per_output": 8160,
+    "canaries_and_untouched_tail_independently_checked": true,
+    "reset_stage_independent_layout_checked": true,
+    "initialized_extent_equal_across_all_four_input_fills_at_each_stage": true,
+    "derived_snapshot_facts": [
+      {
+        "stage": "reset",
+        "bank4_indices_32_to_35": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "inventory_counts_131_174_240": [
+          0,
+          0,
+          0
+        ],
+        "slot0_equipment": [
+          0,
+          0,
+          0
+        ],
+        "slot0_derived_fields": {
+          "0x18": 0,
+          "0x1a": 0,
+          "0x1c": 0,
+          "0x1e": 0,
+          "0x28": 0,
+          "0x2a": 0,
+          "0x2c": 0
+        }
+      },
+      {
+        "stage": "refresh",
+        "bank4_indices_32_to_35": [
+          10,
+          10,
+          693,
+          693
+        ],
+        "inventory_counts_131_174_240": [
+          0,
+          0,
+          0
+        ],
+        "slot0_equipment": [
+          0,
+          0,
+          0
+        ],
+        "slot0_derived_fields": {
+          "0x18": 32,
+          "0x1a": 8,
+          "0x1c": 3,
+          "0x1e": 10,
+          "0x28": 55,
+          "0x2a": 0,
+          "0x2c": 0
+        }
+      },
+      {
+        "stage": "equip",
+        "bank4_indices_32_to_35": [
+          10,
+          10,
+          693,
+          693
+        ],
+        "inventory_counts_131_174_240": [
+          1,
+          1,
+          1
+        ],
+        "slot0_equipment": [
+          131,
+          174,
+          240
+        ],
+        "slot0_derived_fields": {
+          "0x18": 32,
+          "0x1a": 9,
+          "0x1c": 3,
+          "0x1e": 10,
+          "0x28": 55,
+          "0x2a": 1,
+          "0x2c": 0
+        }
+      }
+    ],
+    "facts_scope": "Decoded from retained original bytes, exactly matched by Release. No runtime route claim or extra field-name inference.",
+    "reference_harness_scope": "Calls unchanged 0x124f10, 0x126370 and 0x125e10 separately on synthetic guarded storage and owned hash-pinned tables; does not invoke 0x1251d8 diagnostic logger or full startup. Bounded context slot 0; owner/cache globals restored.",
+    "release_tests": {
+      "log": {
+        "path": "local/research/new-game-state-v1/release-tests.log",
+        "size_bytes": 640,
+        "sha256": "feb5cf9196d4cda4f6fda0d9b9dd19b96c29e405a14e7866b3fd009dc149541d"
+      },
+      "passed": 4,
+      "targets": [
+        "game-state-tests",
+        "battle-state-tests",
+        "field-tests",
+        "event-tests"
+      ]
+    },
+    "debug_status": "exact",
+    "sanitize_status": "exact",
+    "route_after_preparation": {
+      "native_run": {
+        "path": "local/native-new-game-state-104375-release-v1.run.json",
+        "size_bytes": 5832,
+        "sha256": "9d9959a0dce2b696f5542ca0936de870a7820ac516e77566e910a80a3fe41cfc"
+      },
+      "native_log": {
+        "path": "local/native-new-game-state-104375-release-v1.log",
+        "size_bytes": 4488,
+        "sha256": "fe0040b764beae562dc4bf8a0f927be9b24dd9e3805ae78ea7a31811f556c11c"
+      },
+      "native_binary_sha256_recorded": "2f11b11ed9261ed0b439172c4ed608c49a93caed58d14988086265dd3cdac8c7",
+      "exit_code": 0,
+      "elapsed_seconds_recorded": 21.479239084000003,
+      "elapsed_time_scope": "Whole command wall duration, not live FPS or tick cadence.",
+      "completed_tick": 104375,
+      "initial_scene": "HOME1C diagnostic start",
+      "full_original_startup_claimed": false,
+      "audited_first_tick": 104136,
+      "audited_last_tick": 104375,
+      "audited_ticks": 240,
+      "controller_samples": 240,
+      "all_compared_observables_agree": true,
+      "complete_original_observation_coverage": true,
+      "unique_differing_frames": 0,
+      "unique_missing_observation_frames": 0,
+      "hero_position_maximum_error": 0,
+      "camera_position_maximum_error": 0,
+      "interval": {
+        "path": "local/research/new-game-state-v1/route-audit-v1/interval.json",
+        "size_bytes": 11525,
+        "sha256": "1bbba868cc03c88b800eea8c057956df64b9f0a6c792c861af6a23e6a7e6e7ac"
+      },
+      "summary": {
+        "path": "local/research/new-game-state-v1/route-audit-v1/summary.json",
+        "size_bytes": 13341,
+        "sha256": "85af8df65e3b81d4e8081c6618593c9808ccdc30d132d244740aebc0368550d5"
+      },
+      "commands": {
+        "path": "local/research/new-game-state-v1/route-audit-v1/commands.json",
+        "size_bytes": 721,
+        "sha256": "6635a1f58a4ec62e954965271ff47f8182d680045c9d0f3f056d9b0d23413741"
+      },
+      "executed_commands": [
+        {
+          "command": [
+            "python3",
+            "tools/diagnose_home1b_interval.py",
+            "--reference",
+            "local/reference-field1d-tenel-first-ghost-stand-240-v1",
+            "--capture",
+            "local/native-new-game-state-104375-release-v1.png",
+            "--first-frame",
+            "104136",
+            "--unblended-target",
+            "--output",
+            "local/research/new-game-state-v1/route-audit-v1/interval.json"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": [
+            "python3",
+            "tools/summarize_interval_report.py",
+            "--input",
+            "local/research/new-game-state-v1/route-audit-v1/interval.json",
+            "--output",
+            "local/research/new-game-state-v1/route-audit-v1/summary.json"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "tool_sources": [
+        {
+          "path": "tools/diagnose_home1b_interval.py",
+          "size_bytes": 12300,
+          "sha256": "162c13855214726e1207276ede831a7115898d5b3dc5f44fbefc1a61f710e520"
+        },
+        {
+          "path": "tools/summarize_interval_report.py",
+          "size_bytes": 14092,
+          "sha256": "97d67168ac9e1404228be34d1b42c81623848e229932ddbffc4cf407115e8422"
+        }
+      ],
+      "scope_exclusions": [
+        "Earlier replay interval equivalence",
+        "Full original startup",
+        "NPC/global RNG equality",
+        "Images",
+        "Audio",
+        "Unobserved state",
+        "Battle lifecycle"
+      ]
+    },
+    "no_full_startup_or_battle_pass_claimed": true,
+    "release_final_tests": {
+      "log": {
+        "path": "local/research/new-game-state-v1/release-final-tests.log",
+        "size_bytes": 343,
+        "sha256": "0e898f04914d269719f50956892b25fc03644283bf6037c828db4f9dd3bebd02"
+      },
+      "build_log": {
+        "path": "local/research/new-game-state-v1/release-final-test-build.log",
+        "size_bytes": 133,
+        "sha256": "87d34509d32ed2a73a68f4686129547b1fb12b36479930a6a24a540b1886be24"
+      },
+      "passed": 1,
+      "targets": [
+        "game-state-tests"
+      ],
+      "reason": "Latest initialization test was added after the earlier Release test binary; this final rebuild and rerun covers it."
+    },
+    "all_three_native_outputs_exact_original": true,
+    "endpoint_record_comparison": {
+      "report": {
+        "path": "local/research/new-game-state-v1/endpoint-record-comparison.json",
+        "size_bytes": 1186,
+        "sha256": "6a8ac27f31250b96b371f72610ca91911d80f8143772ecf27fc9632d356a2dbe"
+      },
+      "native_variables": {
+        "path": "local/native-new-game-state-104375-release-v1.png.variables.bin",
+        "size_bytes": 4096,
+        "sha256": "90a25f45228888d9ea36895842601b9f9994b45854681e308ca0df43e23508a6"
+      },
+      "original_observation": {
+        "path": "local/research/game-state-init-v1/stand-snapshot-observation.json",
+        "size_bytes": 5021,
+        "sha256": "dc0b7662810fa8d8b55f578e13a6e653c922d835cb5b081c2fb558e0d1261bb1"
+      },
+      "original_save": {
+        "path": "local/reference-field1d-tenel-first-ghost-stand-240-v1.state.zip",
+        "size_bytes": 11262188,
+        "sha256": "100ab685c68a5a7153093f5f5865be83dde9fe05af56bac71625997bff564eef"
+      },
+      "record_count": 8,
+      "bytes_per_record": 80,
+      "compared_record_bytes": 640,
+      "all_records_exact": true,
+      "aggregate_indices_bank4": [
+        32,
+        33,
+        34,
+        35
+      ],
+      "aggregate_values": [
+        10,
+        10,
+        693,
+        693
+      ],
+      "aggregate_bytes": 16,
+      "independently_recomputed_against_retained_observation": true,
+      "scope": "Selected native endpoint fields compared with an earlier decoded original save observation.",
+      "original_snapshot_is_native_input": false
+    },
+    "test_source": {
+      "path": "tests/game_state_tests.cpp",
+      "size_bytes": 9736,
+      "sha256": "af1e182d6ee57468c936e9e721d1b2e9db826c9d221b5d509cf7a6f520a0aa2a"
+    }
+  },
+  "limits": [
+    "Earlier reset-only evidence is supplemented by exact Release comparison of all three preparation snapshots; other masks, levels, equipment combinations and arbitrary asset tables are not established by this corpus.",
+    "All three native configurations exactly match the guarded original helper corpus. The route audit covers only ticks 104136..104375 from a longer HOME1C diagnostic replay, not full original startup or earlier replay equivalence.",
+    "No full original startup, naming flow, save/persistence or battle manager lifecycle claim.",
+    "No snapshot or captured original output is a native runtime input.",
+    "The endpoint record/aggregate match uses a retained decoded snapshot observation and is separate from the executed helper corpus; it does not establish equality of all game variables or runtime snapshot input."
+  ],
+  "research_oracle_source": {
+    "path": "tools/play-oracle/main.cpp",
+    "size_bytes": 237987,
+    "sha256": "d0f4248cd47b83773dabeabd70c235a68ca9bedd990f61f8c87532b5c56c1970"
+  },
+  "native_commit": "1892353",
+  "oracle_commit": "4f80cce",
+  "python_tests": {
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-v"
+    ],
+    "passed": 195,
+    "log": {
+      "path": "local/research/new-game-state-v1/python-tests.log",
+      "sha256": "71f7b4b14efabbf4facd12751ccd4c35882a90287e1110a02599a1b6a8f60173",
+      "size_bytes": 19199
+    }
+  }
+}
