@@ -18,6 +18,7 @@
 #include "okage/texture_animation.hpp"
 #include <CommonCrypto/CommonDigest.h>
 #include <cfenv>
+#include <cmath>
 #include <filesystem>
 #include <fstream>
 #include <functional>
@@ -2158,6 +2159,108 @@ public:
         }
         writeFile(output,result.data(),result.size());
     }
+    void battleCamera(const std::vector<uint8>& input,const char* output) {
+        constexpr uint32 rowSize=448,presetSize=144,camera=0xa00000,body=camera+0x40;
+        constexpr uint32 cameraSize=0x150,table=0xb00000,presets=0xb00100;
+        constexpr uint32 presetStride=presetSize+32,groups=0x800000,contexts=0x850000;
+        constexpr uint32 channels=0x1000000,snapshotSize=224;
+        if(input.empty()||input.size()%rowSize||input.size()>16*rowSize)
+            throw std::runtime_error("Battle camera input extent");
+        if(std::filesystem::exists(output)||std::filesystem::is_symlink(output))
+            throw std::runtime_error("Refusing existing battle camera output");
+        auto inputWord=[&](std::size_t at) {
+            uint32 value;std::memcpy(&value,input.data()+at,4);return value;
+        };
+        std::size_t outputBytes=0;
+        for(std::size_t at=0;at<input.size();at+=rowSize) {
+            float timestep;std::memcpy(&timestep,input.data()+at,4);
+            const auto ticks=inputWord(at+4),mask=inputWord(at+8);
+            if(!std::isfinite(timestep)||!(timestep>0)||ticks>2000||!(mask&1)||
+               (mask&~7u)||inputWord(at+12))
+                throw std::runtime_error("Battle camera header bounds");
+            for(unsigned i=0;i<3;++i)if(mask&(1u<<i)) {
+                const auto p=at+16+i*presetSize;
+                if(inputWord(p)>1||inputWord(p+0x30)>1)
+                    throw std::runtime_error("Unsupported battle camera preset mode");
+                // 0x150468 selects mode6 for a nonzero endpoint W; accept +/-0.
+                if(inputWord(p+0x2c)&0x7fffffff)
+                    throw std::runtime_error("Battle camera position endpoint W must be zero");
+            }
+            outputBytes+=(std::size_t(ticks)+1)*snapshotSize;
+        }
+        const uint32 globals[]={0x213014,0x33760c,0x337614,0x337610,0x337928,0x337d8c};
+        std::vector<uint32> previous;
+        for(auto address:globals)previous.push_back(get(address));
+        auto restore=[&] {for(unsigned i=0;i<previous.size();++i)put(globals[i],previous[i]);};
+        std::vector<uint8> result;result.reserve(outputBytes);
+        try {
+            // Populate the actual atan table; no code or math-table patch.
+            call(0x1b1ed0);
+            for(std::size_t at=0;at<input.size();at+=rowSize) {
+                const auto ticks=inputWord(at+4),mask=inputWord(at+8);
+                std::memset(ee->m_ram+camera-16,0xcd,cameraSize+32);
+                std::memset(ee->m_ram+camera,0,cameraSize);
+                std::memset(ee->m_ram+table-16,0xa5,12+32);
+                for(unsigned i=0;i<3;++i) {
+                    const auto p=presets+i*presetStride;
+                    std::memset(ee->m_ram+p-16,0x69,presetSize+32);
+                    std::memcpy(ee->m_ram+p,input.data()+at+16+i*presetSize,presetSize);
+                    put(table+i*4,(mask&(1u<<i))?p:0);
+                }
+                // Same group/channel/context backing as the animation probe.
+                // Real 0x1b5d10/0x1b4220 writes are retained; no animation stub.
+                std::memset(ee->m_ram+groups,0,12);
+                std::memset(ee->m_ram+contexts,0,192*24);
+                std::memset(ee->m_ram+channels,0,4*0x90);
+                put(0x213014,groups);put(0x33760c,channels);put(0x337614,contexts);
+                put(0x337610,1024);put(0x337928,0);put(0x337d8c,0);
+                call(0x1b5d10,{4,0,0,0});
+                if(ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0]!=0||
+                   (get(groups+4)&0xffff)!=0)
+                    throw std::runtime_error("Battle camera channel allocation");
+                put(body+8,inputWord(at));put(camera+0x130,table);put(camera+0x140,0);
+                call(0x14fc50,{body,presets,presets+0x30,presets+0x60,0xffffffff});
+                auto snapshot=[&] {
+                    if(get(body+0xe8)!=0xffffffff||get(camera+0x130)!=table||
+                       get(camera+0x140)>3||get(body)!=0||get(0x337d8c)!=0)
+                        throw std::runtime_error("Battle camera owner/phase invariant");
+                    for(unsigned i=0;i<16;++i)
+                        if(ee->m_ram[camera-16+i]!=0xcd||ee->m_ram[camera+cameraSize+i]!=0xcd||
+                           ee->m_ram[table-16+i]!=0xa5||ee->m_ram[table+12+i]!=0xa5)
+                            throw std::runtime_error("Battle camera/table canary");
+                    for(unsigned i=0;i<3;++i) {
+                        const auto p=presets+i*presetStride;
+                        if(get(table+i*4)!=((mask&(1u<<i))?p:0)||
+                           std::memcmp(ee->m_ram+p,input.data()+at+16+i*presetSize,presetSize))
+                            throw std::runtime_error("Battle camera modified authored preset/table");
+                        for(unsigned j=0;j<16;++j)
+                            if(ee->m_ram[p-16+j]!=0x69||ee->m_ram[p+presetSize+j]!=0x69)
+                                throw std::runtime_error("Battle camera preset canary");
+                    }
+                    result.insert(result.end(),ee->m_ram+body+0x10,ee->m_ram+body+0xec);
+                    result.insert(result.end(),ee->m_ram+camera+0x140,ee->m_ram+camera+0x144);
+                };
+                snapshot();
+                for(unsigned tick=0;tick<ticks;++tick) {
+                    call(0x14f0d8,{camera});
+                    if(ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0]!=1) {
+                        const auto target=get(body+0x70);
+                        if(target!=0&&target!=1&&target!=7)
+                            throw std::runtime_error("Unsupported battle camera target dispatch");
+                        call(target==1?0x150030:0x14fee0,{body});
+                        const auto position=get(body+0x10);
+                        if(position!=0&&position!=1&&position!=7)
+                            throw std::runtime_error("Unsupported battle camera position dispatch");
+                        call(position==1?0x150558:0x150380,{body});
+                    }
+                    snapshot();
+                }
+            }
+        }catch(...) {restore();throw;}
+        restore();
+        if(result.size()!=outputBytes)throw std::runtime_error("Battle camera output extent");
+        writeFile(output,result.data(),result.size());
+    }
     void gameNewStats(const std::vector<uint8>& bkdata,const std::vector<uint8>& items,
                       const std::vector<uint8>& input,const char* output) {
         // Research-only owned tables and synthetic storage. Execute the actual
@@ -3235,6 +3338,8 @@ int main(int argc,char** argv) {
             reference.capsulePair(readFile(argv[3]),argv[4]);
         } else if(command=="collision-world" && argc==6) {
             reference.collisionWorld(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="battle-camera" && argc==5) {
+            reference.battleCamera(readFile(argv[3]),argv[4]);
         } else if(command=="new-game-state" && argc==7) {
             reference.gameNewStats(readFile(argv[3]),readFile(argv[4]),readFile(argv[5]),argv[6]);
         } else if(command=="game-vars-reset" && argc==5) {
