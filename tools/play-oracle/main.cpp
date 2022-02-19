@@ -2219,7 +2219,8 @@ public:
                    (get(groups+4)&0xffff)!=0)
                     throw std::runtime_error("Battle camera channel allocation");
                 put(body+8,inputWord(at));put(camera+0x130,table);put(camera+0x140,0);
-                call(0x14fc50,{body,presets,presets+0x30,presets+0x60,0xffffffff});
+                ee->m_EE.m_State.nGPR[CMIPS::T0].nD0=~uint64(0);
+                call(0x14fc50,{body,presets,presets+0x30,presets+0x60});
                 auto snapshot=[&] {
                     if(get(body+0xe8)!=0xffffffff||get(camera+0x130)!=table||
                        get(camera+0x140)>3||get(body)!=0||get(0x337d8c)!=0)

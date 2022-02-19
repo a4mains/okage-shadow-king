@@ -1,4 +1,6 @@
 #include "okage/battle_state.hpp"
+#include "okage/battle_camera.hpp"
+#include "okage/battle_data.hpp"
 #include "okage/game_state.hpp"
 #include "okage/assets.hpp"
 #include "okage/model.hpp"
@@ -620,6 +622,37 @@ int main(int argc, char** argv) {
             for(std::size_t at=0;at<input.size();at+=row_size)
                 okage::initialize_game_variables(std::span<std::uint8_t>(input).subspan(at+16,0x1000));
             write(argv[3],input);return 0;
+        }
+        if(command=="battle-camera" && argc==4) {
+            const auto input=read(argv[2]);constexpr unsigned row_size=448;
+            if(input.empty()||input.size()%row_size||input.size()>16*row_size)
+                throw std::runtime_error("Battle camera fixture extent");
+            std::vector<std::uint8_t> output;
+            for(unsigned at=0;at<input.size();at+=row_size) {
+                auto word=[&](unsigned off){std::uint32_t value;std::memcpy(&value,input.data()+at+off,4);return value;};
+                const auto ticks=word(4),mask=word(8);
+                if(ticks>2000||!(mask&1)||mask>7||word(12))throw std::runtime_error("Battle camera fixture scope");
+                okage::BattleCameraSequence sequence;
+                for(unsigned i=0;i<3;++i)if(mask&(1u<<i))
+                    sequence[i]=okage::read_battle_camera_preset(okage::Bytes(input).subspan(at+16+i*144,144));
+                okage::BattleCameraMotion camera(sequence,__builtin_bit_cast(float, (word(0))));
+                auto observe=[&]{for(auto n:camera.observation())for(unsigned i=0;i<4;++i)output.push_back(n>>(i*8));};
+                observe();for(unsigned i=0;i<ticks;++i){camera.tick();observe();}
+            }
+            write(argv[3],output);return 0;
+        }
+        if(command=="battle-data" && argc==3) {
+            const okage::BattleData data(read(argv[2]));unsigned formations=0,entries=0;
+            for(int i=0;i<256;++i)if(data.has_formation(i)) {
+                const auto formation=data.formation(i);++formations;entries+=formation.size();
+                std::cout<<"formation "<<i<<" count "<<formation.size()<<'\n';
+                for(const auto& entry:formation)
+                    std::cout<<entry.unit_id<<' '<<int(entry.field_2)<<' '<<int(entry.field_3)<<' '
+                             <<std::hex<<__builtin_bit_cast(std::uint32_t, (entry.x))<<' '
+                             <<__builtin_bit_cast(std::uint32_t, (entry.z))<<std::dec<<'\n';
+            }
+            for(int i=1;i<=23;++i)std::cout<<"stage "<<i<<' '<<data.stage_path(i)<<'\n';
+            std::cout<<formations<<" formations; "<<entries<<" entries\n";return 0;
         }
         if(command=="new-game-state" && argc==6) {
             const okage::GameDataTables tables(read(argv[2]),read(argv[3]));
