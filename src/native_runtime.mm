@@ -205,6 +205,7 @@ struct Session {
     std::optional<okage::GameDataTables> game_data;
     int current_scene=-1,current_entrance=0;
     std::vector<std::uint32_t> transition_trace;
+    std::vector<std::uint32_t> battle_transition_trace;
     std::optional<okage::Texture> transition_image;
     // AppKit presentation is separate from research captures and feedback.
     bool live_presentation_enabled=false;
@@ -308,6 +309,11 @@ struct Session {
                 if(live_presentation_enabled)transition_live_image=live_image;
             }
             else if(countdown==0){transition_alpha=transition_target=128;}
+        };
+        field->battle_transition_service=[](unsigned phase,const okage::FieldBattleRequest& request) {
+            throw std::runtime_error("Native battle capture transition is unrecovered (field phase "+
+                std::to_string(phase)+", formation "+std::to_string(request.formation)+
+                ", stage "+std::to_string(request.stage)+")");
         };
     }
     fs::path scene_map;
@@ -453,6 +459,12 @@ struct Session {
             }
             if(field->encounter())throw std::runtime_error("Native battle dispatch is unrecovered (encounter column "+
                 std::to_string(field->encounter()->column)+")");
+            if(const auto& battle=field->battle_request()) {
+                const unsigned phase=battle->phase?battle->phase:(field->exploration_ready()?0u:5u);
+                battle_transition_trace.insert(battle_transition_trace.end(),{frame,phase,battle->formation,
+                    __builtin_bit_cast(std::uint32_t, (battle->stage)),battle->return_scene,unsigned(battle->dispatched),
+                    field->pc(),unsigned(field->event_running())});
+            }
             const auto request=field->transition();
             transition_trace.insert(transition_trace.end(),{frame,unsigned(current_scene),unsigned(current_entrance),
                 request?unsigned(request->scene):0xffffffffu,request?request->entrance:0,
@@ -783,9 +795,10 @@ static void capture(const Session& session,const fs::path& path) {
         shadows<<"\n  ]\n}\n";
         if(!shadows)throw std::runtime_error("Cannot write shadow-submission capture");
     }
-    for(const auto& [suffix,data]:std::array<std::pair<std::string,okage::Bytes>,3>{
+    for(const auto& [suffix,data]:std::array<std::pair<std::string,okage::Bytes>,4>{
         std::pair{".screen-filter.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.filter_trace.data()),session.filter_trace.size()*4)},
         std::pair{".transition.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.transition_trace.data()),session.transition_trace.size()*4)},
+        std::pair{".battle-transition.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.battle_transition_trace.data()),session.battle_transition_trace.size()*4)},
         std::pair{".variables.bin",okage::Bytes(session.variables)}}) {
         const auto output=fs::path(path.string()+suffix);
         if(fs::exists(output)||fs::is_symlink(output))throw std::runtime_error("Refusing existing field-state capture");

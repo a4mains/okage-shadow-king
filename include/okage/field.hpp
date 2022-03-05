@@ -36,6 +36,12 @@ struct FieldEntrance {Float4 position{},rotation{};};
 FieldEntrance field_entrance(Bytes stg,unsigned entrance);
 struct FieldTransition {int scene;unsigned entrance,countdown=2;bool ready=false;};
 struct FieldEncounter {unsigned column,mode;bool rear_attack;};
+// Script mode7 queues a formation/stage request. Phase0 waits for the ordinary
+// event-to-exploration handoff; phases11..13 belong to field manager0x133a98.
+struct FieldBattleRequest {
+    unsigned formation;std::int32_t stage;unsigned return_scene;
+    unsigned phase=0;bool dispatched=false;
+};
 struct FieldEventActor {FieldActor* actor=nullptr;std::vector<std::uint8_t> camera_motion;};
 struct FieldCameraSetting {int id=0;float height=0,scale=0,target=0,mode=0;};
 std::vector<FieldCameraSetting> field_camera_settings(Bytes stg);
@@ -62,6 +68,9 @@ public:
     void enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned entrance,ExplorationInput input={});
     const std::optional<FieldTransition>& transition() const {return transition_;}
     const std::optional<FieldEncounter>& encounter() const {return encounter_;}
+    const std::optional<FieldBattleRequest>& battle_request() const {return battle_request_;}
+    bool exploration_ready() const {return exploration_handoff_;}
+    std::function<void(unsigned,const FieldBattleRequest&)> battle_transition_service;
     std::function<std::uint32_t()> random_value;
     // Optional read-only research observer, before/after a state-1 callback.
     std::function<void(int,bool,const WanderingNpc&,const Animation&)> observe_wander;
@@ -145,6 +154,7 @@ private:
     void restore_event_gate();
     std::optional<FieldTransition> transition_;
     std::optional<FieldEncounter> encounter_;
+    std::optional<FieldBattleRequest> battle_request_;
     std::vector<std::optional<EncounterEnemy>> enemies_;
     std::vector<std::optional<WanderingNpc>> wanderers_;
     bool rear_attack_=false;

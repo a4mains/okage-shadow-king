@@ -271,8 +271,10 @@ void OpeningField::update_npcs() {
         if(!enemies_[index])continue;
         auto* object=actor(definition_->npcs[index].alias);auto* hero=actor(-1);
         const auto& channel=object->animation().values();const auto& player=hero->animation().values();
+        const int manager_mode=battle_request_ ? (battle_request_->phase?int(battle_request_->phase):
+            (exploration_handoff_?0:5)) : (event_running()?5:(transition_?14:0));
         EnemyObservation observation{channel.at(1),channel.at(0),channel.at(3),player.at(1),player.at(0),rotation,
-            get_variable(0x40006),player_.motion,event_running()?5:(transition_?14:0),get_variable(0x40004)};
+            get_variable(0x40006),player_.motion,manager_mode,get_variable(0x40004)};
         const auto action=enemies_[index]->tick(observation,random_value,angles_,sine_);
         if(action.visible) {
             set_instance_visibility(object->visible,actor_collision_indices_.at(index),bodies_,*action.visible);
@@ -636,6 +638,16 @@ void OpeningField::move_player(ExplorationInput input) {
 Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32_t b,std::uint32_t pc) {
     auto pending=[&] {pending_opcode=op;pending_actor=b;pending_animation=a;return Animation::ServiceResult{pc,true};};
     switch(op) {
+        case 0x62:
+            // 0x131338 ->0x1248d8. Only the reached scripted mode7 is
+            // implemented; its payload is a stage index, not another opcode.
+            if(b!=7||!battle_transition_service||!definition_)
+                throw std::runtime_error("Unrecovered field mode request "+std::to_string(b));
+            if(battle_request_||transition_||encounter_)
+                throw std::runtime_error("Overlapping field battle request");
+            battle_request_=FieldBattleRequest{a,__builtin_bit_cast(std::int32_t, (word(pc+4))),
+                unsigned(definition_->scene)|0x1000u};
+            pending_opcode=0;return {pc+8};
         case 11: {
             if(!get_variable)return pending();
             const auto value=get_variable(word(pc+4)),expected=__builtin_bit_cast(std::int32_t, (word(pc+8)));
@@ -906,7 +918,8 @@ void OpeningField::tick(ExplorationInput input) {
     if(encounter_)throw std::runtime_error("Pending native battle request was not consumed");
     // Field manager 0x133a98 runs before the event pass. Case 5 detects the
     // ended script and selects the room camera; case 0 updates it next frame.
-    const bool was_transitioning=bool(transition_);
+    const bool battle_transitioning=battle_request_&&battle_request_->phase>=11;
+    const bool was_transitioning=bool(transition_)||battle_transitioning;
     const bool exterior=definition_&&definition_->type==0;
     auto update_exterior_camera=[&] {
         // 0x135e88/0x1363b8 select cubic mode for later scripted camera moves.
@@ -917,6 +930,15 @@ void OpeningField::tick(ExplorationInput input) {
         script_.set_channel(0,camera.position);requested_target_=camera.target;camera_mode_=2;
     };
     bool move=false;
+    if(battle_transitioning) {
+        if(battle_request_->dispatched)
+            throw std::runtime_error("Global manager did not consume native battle request");
+        if(!definition_||!definition_->followers.empty())
+            throw std::runtime_error("Battle transition requires recovered follower return state");
+        battle_transition_service(battle_request_->phase,*battle_request_);
+        if(battle_request_->phase==13)battle_request_->dispatched=true;
+        else ++battle_request_->phase;
+    }
     if(transition_) {
         if(transition_->ready)throw std::runtime_error("Destination loader did not consume field transition");
         if(transition_->countdown) {
@@ -941,10 +963,15 @@ void OpeningField::tick(ExplorationInput input) {
     }
     if(!was_transitioning&&(exploration_camera_||exterior)&&!event_running()) {
         if(exploration_handoff_) {
-            if(exterior&&exterior_camera_enabled_)update_exterior_camera();
-            if(exterior&&player_.camera_area!=configured_camera_area_)configure_exterior_camera(player_.camera_area);
-            interact(input);
-            move=!event_running()&&!transition_;
+            if(battle_request_) {
+                // 0x133450 consumes queued mode7 before camera/interactions.
+                battle_request_->phase=11;
+            } else {
+                if(exterior&&exterior_camera_enabled_)update_exterior_camera();
+                if(exterior&&player_.camera_area!=configured_camera_area_)configure_exterior_camera(player_.camera_area);
+                interact(input);
+                move=!event_running()&&!transition_;
+            }
         } else {
             exploration_handoff_=true;
             // 0x132ca8 resets contact state, clears movement bit 0 and invalidates

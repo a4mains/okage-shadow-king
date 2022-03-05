@@ -432,6 +432,41 @@ int main(){try {
     for(unsigned i=0;i<3;++i)put(empty_map,i*4,1);put(empty_map,65,64);
     for(auto* data:{&idle,&startup}){put(*data,0,0x544d58);put(*data,4,24);put(*data,16,0xffffffff);}
     {
+        auto event=startup;
+        put(event,40,0x00700162);put(event,44,17);put(event,48,0x00200002);put(event,52,0);
+        okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
+        const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
+        okage::OpeningField scene(event,[](int){},[](int){return true;},player,false);
+        std::array<std::uint8_t,0x1000> vars{};std::vector<unsigned> phases;
+        scene.get_variable=[&](auto s){return okage::event_variable(vars,s);};
+        scene.set_variable=[&](auto i,auto b,auto v){okage::set_event_variable(vars,i,b,v);};
+        bool block=true;
+        scene.battle_transition_service=[&](unsigned phase,const okage::FieldBattleRequest& request) {
+            require(!scene.event_running()&&scene.exploration_ready());
+            require(request.formation==1&&request.stage==17&&request.return_scene==0x1060);
+            if(block)throw std::runtime_error("Unimplemented capture layer");
+            phases.push_back(phase);
+        };
+        okage::FieldDefinition entry;entry.scene=96;entry.type=1;entry.startup=1;
+        scene.enter(entry,stage,empty_map,0);
+        require(scene.battle_request()&&scene.battle_request()->phase==0&&scene.event_running());
+        require(scene.pc()==52&&phases.empty());
+        for(unsigned i=0;i<4&&scene.event_running();++i) {
+            scene.tick();require(phases.empty()&&scene.battle_request()->phase==0);
+        }
+        require(!scene.event_running()&&!scene.exploration_ready());
+        scene.tick();require(scene.exploration_ready()&&scene.battle_request()->phase==0);
+        scene.tick();require(scene.battle_request()->phase==11&&phases.empty());
+        rejects([&]{scene.tick();});require(scene.battle_request()->phase==11&&!scene.battle_request()->dispatched);
+        block=false;
+        for(unsigned phase:{11u,12u,13u}) {
+            require(scene.battle_request()->phase==phase);scene.tick();
+        }
+        require(phases==std::vector<unsigned>({11,12,13}));
+        require(scene.battle_request()->phase==13&&scene.battle_request()->dispatched);
+        rejects([&]{scene.tick();});require(phases.size()==3);
+    }
+    {
         auto event=startup;event.resize(100);put(event,4,68);
         put(event,40,1);put(event,44,20); // Entry1 jumps to the hat request.
         put(event,48,0xff91003b);put(event,52,0x00200002); // Entry2 hides alias7.
