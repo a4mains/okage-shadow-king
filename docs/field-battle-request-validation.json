@@ -1,0 +1,191 @@
+{
+  "schema": "native-field-battle-request-validation-v1",
+  "base_commit": "6cd98eda9385e6ed546108597abe111ff17ab212",
+  "measurement_scope": {
+    "claim": "The native field runtime reaches the battle-request handoff and stops at the explicit phase-11 captured-frame guard.",
+    "battle_admitted": false,
+    "phase_12_or_13_runtime_observed": false,
+    "phase_order_unit_test_is_runtime_evidence": false,
+    "runtime_source_was_uncommitted_at_measurement": true,
+    "runtime_source_paths": [
+      "src/field.cpp",
+      "include/okage/field.hpp",
+      "src/native_runtime.mm",
+      "tests/field_tests.cpp"
+    ],
+    "source_sha256": {
+      "src/field.cpp": "386d5f21a8d5802806741a32484683c67e92292cad57cef7c5abcedd01c53f40",
+      "include/okage/field.hpp": "ad00354ef0ddca9d2bacac035a4ae5a4a1f4d81a99d18581c5753334787913bb",
+      "src/native_runtime.mm": "5246938fa0e73cdd3d267f438fb010d905701cd72872fc250b1fa2c346240180",
+      "tests/field_tests.cpp": "ec914c68c0b4b97ad44ee47c3286390175ea8db897a5c9cf235a28716801ce3a",
+      "include/okage/battle_entry.hpp": "a9c365430a664a1ac65205edb34f2a9c5c888ad371a08863eebd618f2869cac5",
+      "src/battle_entry.cpp": "874dbadd18061ac6bc7f33585f6f9b41a9fd9fea50cff00068f752892d1e2b43"
+    },
+    "source_commit_after_measurement": "59243f5b925fc61926e2bce03fda156144da4a09"
+  },
+  "request_execution": {
+    "native_run_record": "local/native-battle-request-104615-release-v2.run.json",
+    "native_run_record_sha256": "8b8b6516fb9118c131da1fe1dd1d870f0cb0559f84cce33b81ef84ba89b4242d",
+    "native_exit_code": 1,
+    "native_elapsed_seconds": 20.672681792,
+    "native_binary_sha256": "b4efd6b7207f9b68ddad1c4c46496c9b0faac25fb47d07c80e2fafb931efffd8",
+    "observed_stop": {
+      "native_frame": 104443,
+      "field_pc_hex": "0x510",
+      "manager_phase": 11,
+      "reason": "unrecovered captured-frame transition"
+    },
+    "request": {
+      "service_hex": "0x62",
+      "event_pc_hex": "0x518",
+      "a": 1,
+      "b": 7,
+      "payload": 17,
+      "return_scene_source_value_hex": "0x1060"
+    },
+    "manager_phase_trace": [
+      {
+        "native_completed_frame": 104440,
+        "phase": 5,
+        "event_pc": 1296,
+        "running": 0
+      },
+      {
+        "native_completed_frame": 104441,
+        "phase": 0,
+        "event_pc": 1296,
+        "running": 0
+      },
+      {
+        "native_completed_frame": 104442,
+        "phase": 11,
+        "event_pc": 1296,
+        "running": 0
+      }
+    ],
+    "original_fixed_anchor_comparison": {
+      "report": "local/research/battle-native-integration-v1/request-comparison.json",
+      "report_sha256": "78a4f6c8cac03ceb1eb90207a75181c65169030e15c99102d445114e69bc59b2",
+      "exact": true,
+      "native_completed_frames_to_original_preupdate_frames": [
+        [
+          104440,
+          104441
+        ],
+        [
+          104441,
+          104442
+        ],
+        [
+          104442,
+          104443
+        ]
+      ],
+      "compared": "manager phase, event PC/running state (nine words), final formation/stage pair",
+      "transition_trace_sha256": {
+        "native": "c375150cf16eddfac149f011a650b31fc9367f8943d82c26bb2f8535c47cb457",
+        "original": "d41d0789ed24af43531bdf5f428d334eb10fc1f0a07eb683cb016b4c44716e83"
+      },
+      "limitations": [
+        "This is a fixed-anchor state comparison, not a full-interval comparison.",
+        "No raster, audio, or unobserved-state equality is claimed.",
+        "The return-scene value comes from source and is not present in the original transition trace."
+      ],
+      "reproduction_recipe": {
+        "native_record": "8 little-endian 32-bit words per record; n is the native completed-frame number plus one for original pre-update alignment",
+        "original_record": "128 little-endian 32-bit words per record from the original pre-update callback at 0x133a98",
+        "first_native_completed_frame": 104376,
+        "mapping": "For native completed frame n, compare against original pre-update frame n+1; do not shift to seek a later match.",
+        "request_anchor_words": [
+          "Compare native n[1], n[6], n[7] with original r[17], r[36], and (bool(r[35] & 0x100)).",
+          "Compare native formation/stage n[2], n[3] with original r[15], r[14]."
+        ],
+        "request_anchors": [
+          {
+            "native_completed_frame": 104440,
+            "original_preupdate_frame": 104441
+          },
+          {
+            "native_completed_frame": 104441,
+            "original_preupdate_frame": 104442
+          },
+          {
+            "native_completed_frame": 104442,
+            "original_preupdate_frame": 104443
+          }
+        ],
+        "source_of_expected_native_rows": "local/native-battle-request-104442-release-v2.png.battle-transition.bin",
+        "source_of_original_rows": "local/reference-field1d-tenel-first-ghost-last-warning-240-v1.transition.bin"
+      }
+    }
+  },
+  "retained_failed_attempt": {
+    "native_run_record": "local/native-battle-request-104615-release-v1.run.json",
+    "native_run_record_sha256": "a05e27cc0a780590c018ee309f20221c9a9cabd5b808d391db693bfb659fcf8e",
+    "exit_code": 1,
+    "binary_sha256": "f63b7629297cf5e9ac7b96380c532cfd8e87f09707d3db7c45919912ebb7be37",
+    "failure": "stopped at field PC 0x518 on unsupported service 0x62 before the request was handled"
+  },
+  "interval_checks": {
+    "preceding_240_tick_interval": {
+      "report": "local/research/battle-native-integration-v1/prior-240.json",
+      "report_sha256": "d8a8737d231a19b25dccc4ef12556d86f4f5ef318349dd4636f3cba55bf954e4",
+      "native_run_exit": 0,
+      "original_run_exit": 0,
+      "ticks": 240,
+      "controller_samples": 240,
+      "compared_observables_agree": true,
+      "complete_original_observation_coverage": true,
+      "full_timeline_equivalence": false,
+      "scope_excludes": [
+        "pixels",
+        "audio",
+        "unobserved state"
+      ]
+    },
+    "request_interval": {
+      "original_capture": "local/reference-field1d-tenel-first-ghost-last-warning-240-v1",
+      "requested_ticks": 240,
+      "native_completed_before_guard": 104443,
+      "full_interval_audit": "local/research/battle-native-integration-v1/full-240-incomplete.log",
+      "full_interval_audit_sha256": "a6398daeaab039b43bb83f5e601c8074273eb7fb9786160b43ef56e8f537e1b9",
+      "audit_result": "incomplete native extent; comparator exits 1",
+      "interpretation": "The successful endpoint replay does not establish a complete 240-tick match.",
+      "original_run_record": "local/reference-field1d-tenel-first-ghost-last-warning-240-v1.run.json",
+      "original_run_record_sha256": "f7ad338a446028c0b2072093ec5cdbccd59ef9b8fb13ca9a6666d839121c5e3b"
+    }
+  },
+  "tests_and_builds": {
+    "release": {
+      "build_log": "local/research/battle-native-integration-v1/release-build-v2.log",
+      "build_log_sha256": "96df596fee0d2514f8c3b743ae69eba8ba1f573ee9df67cf519ba80f52473e6b",
+      "selected_ctests": 7,
+      "passed": 7,
+      "failed": 0,
+      "test_log": "local/research/battle-native-integration-v1/release-tests-v2.log",
+      "test_log_sha256": "4d262cb2d4c5eebb5265743a0195d28d50118c3eaad8de9db3f0bece1c3789a5"
+    },
+    "debug": {
+      "build_log": "local/research/battle-native-integration-v1/debug-build.log",
+      "build_log_sha256": "2e42786a5e99f871e87063cbce1bf9f60a0ba02d4c10a59f09c0ab2f5251e4f0",
+      "test_log": "local/research/battle-native-integration-v1/debug-tests.log",
+      "test_log_sha256": "093eb1b630b15fc06a9c98a46437a3ab4109196019e226aa399c30f98a53a8c2",
+      "selected_ctests_passed": 7,
+      "selected_ctests_failed": 0
+    },
+    "sanitizer": {
+      "build_log": "local/research/battle-native-integration-v1/sanitize-build.log",
+      "build_log_sha256": "e19a1cbe35f37aa731d6b453bcec894f6ec0729a5e5bdaf4991a18404a75de95",
+      "test_log": "local/research/battle-native-integration-v1/sanitize-tests.log",
+      "test_log_sha256": "4263901978f6fe8741fc09e2308e2ba11c09d907547d70be843ff12f0b09699d",
+      "status": "passed",
+      "selected_ctests_passed": 7,
+      "selected_ctests_failed": 0
+    }
+  },
+  "source_limitations": [
+    "BattleEntryContext from commit 6cd98ed is a compiled helper and is not connected to the runtime handoff.",
+    "The phase-11 guard intentionally prevents claiming a captured-frame transition or successful battle entry.",
+    "Original callback/source exports are static evidence; the mode-2 captured-frame path was not executed by the native runtime."
+  ]
+}
