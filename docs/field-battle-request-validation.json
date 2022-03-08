@@ -41,7 +41,8 @@
       "a": 1,
       "b": 7,
       "payload": 17,
-      "return_scene_source_value_hex": "0x1060"
+      "return_scene_source_value_hex": "0x1060",
+      "native_execution_frame": 104440
     },
     "manager_phase_trace": [
       {
@@ -81,7 +82,7 @@
           104443
         ]
       ],
-      "compared": "manager phase, event PC/running state (nine words), final formation/stage pair",
+      "compared": "Manager phase and event PC/running state at all three anchors; formation/stage only at the final anchor because earlier original records do not contain the queued arguments.",
       "transition_trace_sha256": {
         "native": "c375150cf16eddfac149f011a650b31fc9367f8943d82c26bb2f8535c47cb457",
         "original": "d41d0789ed24af43531bdf5f428d334eb10fc1f0a07eb683cb016b4c44716e83"
@@ -92,39 +93,49 @@
         "The return-scene value comes from source and is not present in the original transition trace."
       ],
       "reproduction_recipe": {
-        "native_record": "8 little-endian 32-bit words per record; n is the native completed-frame number plus one for original pre-update alignment",
-        "original_record": "128 little-endian 32-bit words per record from the original pre-update callback at 0x133a98",
-        "first_native_completed_frame": 104376,
-        "mapping": "For native completed frame n, compare against original pre-update frame n+1; do not shift to seek a later match.",
-        "request_anchor_words": [
-          "Compare native n[1], n[6], n[7] with original r[17], r[36], and (bool(r[35] & 0x100)).",
-          "Compare native formation/stage n[2], n[3] with original r[15], r[14]."
-        ],
-        "request_anchors": [
-          {
-            "native_completed_frame": 104440,
-            "original_preupdate_frame": 104441
-          },
-          {
-            "native_completed_frame": 104441,
-            "original_preupdate_frame": 104442
-          },
-          {
-            "native_completed_frame": 104442,
-            "original_preupdate_frame": 104443
-          }
-        ],
-        "source_of_expected_native_rows": "local/native-battle-request-104442-release-v2.png.battle-transition.bin",
-        "source_of_original_rows": "local/reference-field1d-tenel-first-ghost-last-warning-240-v1.transition.bin"
-      }
-    }
+        "native_record": "8 little-endian 32-bit words per record; native record n has an absolute completed-frame index.",
+        "original_record": "128 little-endian 32-bit words per pre-update callback record at 0x133a98; r is indexed by original relative frame.",
+        "relative_original_record_index_formula": "n[0] + 1 - 104376",
+        "alignment": "Native completed frame n maps to original absolute pre-update frame n+1; relative original record index is n[0] + 1 - 104376. Do not shift or interpolate either trace.",
+        "all_three_manager_anchors": "Compare n[1], n[6], n[7] with original r[17], r[36], and bool(r[35] & 0x100) at relative indices 65, 66, and 67.",
+        "final_arguments_only": "At native completed frame 104442, compare n[2], n[3] with original relative record r[15], r[14] at relative index 67. Earlier original manager records do not yet contain the queued formation/stage arguments.",
+        "trace_files": {
+          "native": "local/native-battle-request-104442-release-v2.png.battle-transition.bin",
+          "original": "local/reference-field1d-tenel-first-ghost-last-warning-240-v1.transition.bin"
+        },
+        "first_original_preupdate_frame_absolute": 104376
+      },
+      "request_anchors": [
+        {
+          "native_completed_frame": 104440,
+          "original_preupdate_frame": 104441,
+          "original_relative_index": 65
+        },
+        {
+          "native_completed_frame": 104441,
+          "original_preupdate_frame": 104442,
+          "original_relative_index": 66
+        },
+        {
+          "native_completed_frame": 104442,
+          "original_preupdate_frame": 104443,
+          "original_relative_index": 67
+        }
+      ]
+    },
+    "native_log": "local/native-battle-request-104615-release-v2.log",
+    "native_log_sha256": "3a83a18d2beaae4470004f9cf93c66c8d783c5f54c94145170a428b31239b12a"
   },
   "retained_failed_attempt": {
     "native_run_record": "local/native-battle-request-104615-release-v1.run.json",
     "native_run_record_sha256": "a05e27cc0a780590c018ee309f20221c9a9cabd5b808d391db693bfb659fcf8e",
+    "native_log": "local/native-battle-request-104615-release-v1.log",
+    "native_log_sha256": "3a83a18d2beaae4470004f9cf93c66c8d783c5f54c94145170a428b31239b12a",
     "exit_code": 1,
+    "elapsed_seconds": 20.707970083,
     "binary_sha256": "f63b7629297cf5e9ac7b96380c532cfd8e87f09707d3db7c45919912ebb7be37",
-    "failure": "stopped at field PC 0x518 on unsupported service 0x62 before the request was handled"
+    "failure": "frame 104443, field PC 0x510, manager phase 11: captured-frame transition is unrecovered",
+    "difference_from_v2": "The v2 fix updates NPC observation to report manager phase 5 while the ended event remains queued, then phase 0 and phase 11 at the actual handoff; the explicit phase-11 stop remains."
   },
   "interval_checks": {
     "preceding_240_tick_interval": {
@@ -146,13 +157,14 @@
     "request_interval": {
       "original_capture": "local/reference-field1d-tenel-first-ghost-last-warning-240-v1",
       "requested_ticks": 240,
-      "native_completed_before_guard": 104443,
+      "native_completed_before_guard": 104442,
       "full_interval_audit": "local/research/battle-native-integration-v1/full-240-incomplete.log",
       "full_interval_audit_sha256": "a6398daeaab039b43bb83f5e601c8074273eb7fb9786160b43ef56e8f537e1b9",
       "audit_result": "incomplete native extent; comparator exits 1",
       "interpretation": "The successful endpoint replay does not establish a complete 240-tick match.",
       "original_run_record": "local/reference-field1d-tenel-first-ghost-last-warning-240-v1.run.json",
-      "original_run_record_sha256": "f7ad338a446028c0b2072093ec5cdbccd59ef9b8fb13ca9a6666d839121c5e3b"
+      "original_run_record_sha256": "f7ad338a446028c0b2072093ec5cdbccd59ef9b8fb13ca9a6666d839121c5e3b",
+      "guard_attempt_frame": 104443
     }
   },
   "tests_and_builds": {
@@ -187,5 +199,45 @@
     "BattleEntryContext from commit 6cd98ed is a compiled helper and is not connected to the runtime handoff.",
     "The phase-11 guard intentionally prevents claiming a captured-frame transition or successful battle entry.",
     "Original callback/source exports are static evidence; the mode-2 captured-frame path was not executed by the native runtime."
+  ],
+  "older_unsupported_service_attempt": {
+    "native_run_record": "local/native-tenel-first-ghost-last-warning-104615-release-v1.run.json",
+    "native_run_record_sha256": "479d55ced929eb2425814c6f62ba28b030e55d544b6fe7702a33085ed63bb8c5",
+    "exit_code": 1,
+    "binary_sha256": "75fde4de80590774a98688caf617e7e8645a38b48b2e8aeac3a2be9f45a1ef8f",
+    "failure": "frame 104440, PC 0x518: unrecovered field service 0x62 (A=1, B=7); this is a separate earlier build, not the battle-request v1 attempt."
+  },
+  "endpoint_replay": {
+    "invalid_attempt": {
+      "run_record": "local/native-battle-request-104442-release-v1.run.json",
+      "run_record_sha256": "567d50295201b734ad90ccd7941f6280ec38d3cc8cf2b95940bfea0f6918782b",
+      "log": "local/native-battle-request-104442-release-v1.log",
+      "log_sha256": "221c71e298919ca4f0c4fb56ff13ac1f8dabba6801710b1840a5f4ca593ba8f2",
+      "exit_code": 1,
+      "elapsed_seconds": 0.022555084,
+      "binary_sha256": "b4efd6b7207f9b68ddad1c4c46496c9b0faac25fb47d07c80e2fafb931efffd8",
+      "reason": "Selected capture ticks exceeded the requested replay extent; validation failed before gameplay."
+    },
+    "corrected_success": {
+      "run_record": "local/native-battle-request-104442-release-v2.run.json",
+      "run_record_sha256": "950836da5945739ad890535c1a38512da3f7bd77774967f5bc7db7391266c131",
+      "log": "local/native-battle-request-104442-release-v2.log",
+      "log_sha256": "bc051aa52ba3ffe9ffd4cd6c6e0b7d3747ccb955dd149ad451bcbbf04f43dc15",
+      "exit_code": 0,
+      "elapsed_seconds": 20.92563825,
+      "binary_sha256": "b4efd6b7207f9b68ddad1c4c46496c9b0faac25fb47d07c80e2fafb931efffd8",
+      "basis": "Previously successful replay through 104375 plus Cross at 104377; no input changes.",
+      "endpoint": "Completed manager phase 11 at native frame 104442; the diagnostic capture tick completes before the next-frame phase-11 guard.",
+      "inputs": {
+        "prior_successful_endpoint": 104375,
+        "cross_tick": 104377
+      }
+    }
+  },
+  "source_exports": [
+    "local/research/first-battle-source-v1/",
+    "local/research/battle-transition-callees-v1/",
+    "local/research/battle-capture-layer-v1/",
+    "local/research/battle-capture-transform-v1/"
   ]
 }
