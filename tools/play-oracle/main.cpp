@@ -2159,6 +2159,76 @@ public:
         }
         writeFile(output,result.data(),result.size());
     }
+    void battleCapture(const std::vector<uint8>& input,const char* output) {
+        constexpr unsigned stride=24;
+        constexpr uint32 layers=0xa00000,texture=0xb00000,arena=0x1800000,arenaSize=4096;
+        auto require=[](bool yes,const char* message){if(!yes)throw std::runtime_error(message);};
+        require(!input.empty()&&input.size()%stride==0&&input.size()<=64*stride,
+                "Battle capture fixture extent");
+        require(!std::filesystem::exists(output)&&!std::filesystem::is_symlink(output),
+                "Battle capture requires fresh output");
+        for(unsigned at=0;at<input.size();at+=stride) {
+            std::array<uint32,6> f;std::memcpy(f.data(),input.data()+at,stride);
+            require(f[3]<=1&&f[4]>=1&&f[4]<=2000&&!f[5],"Battle capture fixture bounds");
+        }
+        const std::vector<uint8> code(ee->m_ram+0x192040,ee->m_ram+0x192bf0);
+        call(0x1b1d88);
+        const std::vector<uint8> sine(ee->m_ram+0x202ee0,ee->m_ram+0x212ee0);
+        std::vector<uint32> result;
+        auto qword=[&](uint32 p){return uint64(get(p))|(uint64(get(p+4))<<32);};
+        for(unsigned at=0;at<input.size();at+=stride) {
+            std::array<uint32,6> f;std::memcpy(f.data(),input.data()+at,stride);
+            std::memset(ee->m_ram+layers-16,0xcd,96);
+            std::memset(ee->m_ram+layers,0,64);
+            put(layers+0x24,f[0]);put(layers+0x28,f[1]);put(layers+0x2c,f[2]);
+            const std::vector<uint8> initialLayer(ee->m_ram+layers,ee->m_ram+layers+64);
+            put(0x332934,layers);put(0x332a88,texture);
+            std::memset(ee->m_ram+texture-16,0xcd,0x140);
+            std::memset(ee->m_ram+texture,0,0x120);
+            // Synthetic frame/texture descriptors only supply GS state words.
+            // 0x1cbc90 selects 0x3a17f0 + frame*0x110; 0x1cde90 reads texture+0x100.
+            put(0x3a1778,0);std::memset(ee->m_ram+0x3a17f0,0,0x110);
+            std::memset(ee->m_ram+0x3a19f0,0,16);put(0x214058,f[3]);
+            for(unsigned step=0;step<f[4];++step) {
+                const auto mode=get(layers+0x24),rgba=get(layers+0x28),progress=get(layers+0x2c);
+                std::memset(ee->m_ram+arena-16,0xcd,arenaSize+32);
+                // Same unchanged begin/append/close allocator path as shadowProjection.
+                put(0x3a0aa0,arena);put(0x3a0aa4,0);put(0x2138b4,arena+16);
+                put(0x2138a0,0);put(0x2138a4,0);std::memset(ee->m_ram+0x3a0aa8,0,128);
+                call(0x192b10,{mode,rgba,progress});
+                const auto start=get(0x332a58),end=get(0x3a0aa0);
+                require(start==arena+32&&end>start&&end<=arena+arenaSize&&!(end&15),
+                        "Battle capture packet arena extent");
+                require(get(0x2138a0)==0&&get(0x3a0aa4)==0&&get(0x2138b4)==end+16&&
+                        get(0x332a5c)<=end,"Battle capture packet allocator restoration");
+                require(qword(start)==0x1000000000000009ULL&&qword(start+8)==0xe&&
+                        qword(start+0x90)==uint64(rgba),"Battle capture packet prologue");
+                const uint32 geometry=start+0xa0;
+                require(qword(geometry)==0x1000000000000001ULL&&qword(geometry+8)==0xe&&
+                        qword(geometry+24)==0&&qword(geometry+40)==0x43,
+                        "Battle capture geometry packet header");
+                const uint64 tag=qword(geometry+32),primitive=qword(geometry+16);
+                const unsigned count=unsigned(tag&0x7fff);
+                require((count==2||count==4)&&tag==(0x2400000000000000ULL|count)&&
+                        primitive==(count==2?0x156ULL:0x155ULL)&&geometry+48+count*16<=end,
+                        "Battle capture geometry count/primitive");
+                result.insert(result.end(),{get(layers+0x24),get(layers+0x28),get(layers+0x2c),count});
+                for(unsigned i=0;i<4;++i)for(unsigned word=0;word<4;++word)
+                    result.push_back(i<count?get(geometry+48+i*16+word*4):0);
+                for(unsigned i=0;i<16;++i)
+                    require(ee->m_ram[arena-16+i]==0xcd&&ee->m_ram[arena+arenaSize+i]==0xcd&&
+                            ee->m_ram[layers-16+i]==0xcd&&ee->m_ram[layers+64+i]==0xcd&&
+                            ee->m_ram[texture-16+i]==0xcd&&ee->m_ram[texture+0x120+i]==0xcd,
+                            "Battle capture fixture canary");
+                for(unsigned i=0;i<64;++i)if(!(i>=0x24&&i<0x28)&&!(i>=0x2c&&i<0x30))
+                    require(ee->m_ram[layers+i]==initialLayer[i],"Battle capture unrelated layer mutation");
+            }
+            require(!std::memcmp(code.data(),ee->m_ram+0x192040,code.size())&&
+                    !std::memcmp(sine.data(),ee->m_ram+0x202ee0,sine.size()),
+                    "Battle capture modified original code/sine table");
+        }
+        writeFile(output,result.data(),result.size()*4);
+    }
     void battleCamera(const std::vector<uint8>& input,const char* output) {
         constexpr uint32 rowSize=448,presetSize=144,camera=0xa00000,body=camera+0x40;
         constexpr uint32 cameraSize=0x150,table=0xb00000,presets=0xb00100;
@@ -3339,6 +3409,8 @@ int main(int argc,char** argv) {
             reference.capsulePair(readFile(argv[3]),argv[4]);
         } else if(command=="collision-world" && argc==6) {
             reference.collisionWorld(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="battle-capture" && argc==5) {
+            reference.battleCapture(readFile(argv[3]),argv[4]);
         } else if(command=="battle-camera" && argc==5) {
             reference.battleCamera(readFile(argv[3]),argv[4]);
         } else if(command=="new-game-state" && argc==7) {
