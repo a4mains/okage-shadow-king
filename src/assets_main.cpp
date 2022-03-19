@@ -1,5 +1,6 @@
 #include "okage/battle_state.hpp"
 #include "okage/battle_camera.hpp"
+#include "okage/battle_capture.hpp"
 #include "okage/battle_data.hpp"
 #include "okage/game_state.hpp"
 #include "okage/assets.hpp"
@@ -622,6 +623,24 @@ int main(int argc, char** argv) {
             for(std::size_t at=0;at<input.size();at+=row_size)
                 okage::initialize_game_variables(std::span<std::uint8_t>(input).subspan(at+16,0x1000));
             write(argv[3],input);return 0;
+        }
+        if(command=="battle-capture" && argc==4) {
+            const auto input=read(argv[2]);constexpr unsigned row_size=24;
+            if(input.empty()||input.size()%row_size||input.size()>64*row_size)
+                throw std::runtime_error("Battle capture fixture extent");
+            const auto sine=okage::make_sine_table();std::vector<std::uint8_t> output;
+            auto append=[&](std::uint64_t word,unsigned bytes){for(unsigned j=0;j<bytes;++j)output.push_back(word>>(j*8));};
+            for(unsigned at=0;at<input.size();at+=row_size) {
+                auto word=[&](unsigned off){std::uint32_t value;std::memcpy(&value,input.data()+at+off,4);return value;};
+                if(word(12)>1||!word(16)||word(16)>2000||word(20))throw std::runtime_error("Battle capture fixture scope");
+                okage::BattleCaptureLayer layer{word(0),word(4),word(8)};
+                for(unsigned i=0;i<word(16);++i) {
+                    const auto draw=layer.draw(word(12)!=0,sine);
+                    for(auto n:{layer.mode,layer.rgba,layer.progress,draw.count})append(n,4);
+                    for(const auto& vertex:draw.vertices){append(vertex.uv,8);append(vertex.xyz,8);}
+                }
+            }
+            write(argv[3],output);return 0;
         }
         if(command=="battle-camera" && argc==4) {
             const auto input=read(argv[2]);constexpr unsigned row_size=448;
