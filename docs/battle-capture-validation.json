@@ -1,0 +1,244 @@
+{
+  "schema": "native-battle-capture-validation-v1",
+  "documentation_base_commit": "dccaf6dd9475a790d7b885d66ad9db7dbd558fe4",
+  "implementation_commits": {
+    "native_helper": "a752dd839e8cac8368f39442887ddf03f568e428",
+    "original_oracle": "722134c0e83acd4a40293bd1de4e7ead729fec83",
+    "verifier": "dccaf6dd9475a790d7b885d66ad9db7dbd558fe4",
+    "v2_fixture_expansion": "67011a9"
+  },
+  "source_identity": {
+    "disc_report": "docs/disc-report.json",
+    "disc_report_sha256": "8e2f5ef35fd6491dd49f8934c08b6342db8f31783d8100f1caaf067703e1714a",
+    "usa_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "native_helper_source_sha256": {
+      "include/okage/battle_capture.hpp": "c951ae1f3c3bfe8fbcd63d7e1b32a6812e6f9d4b4b5cf6ef07847d9c90c51caa",
+      "src/battle_capture.cpp": "c454547579d8c78db0ceafcddbc0bdec75d6903572d443694266161a325520b0",
+      "src/assets_main.cpp": "cd3477ee75a3bd714aef63a6d0c55acf8abf0721bb27cf04dc0d88f38a0b9e27",
+      "tools/play-oracle/main.cpp": "5db5187b6d222e29eb7daf07c277089116ecd395b4a8680b02ce25a5c6c0d464",
+      "CMakeLists.txt": "a8b37ea75a063af7719e6d0de826d604f6c6e753c0322ea049adfa68d5515fad",
+      "tools/verify_battle_capture.py": "eaef735200ecf0831217857134be15979460ba3d522a1f04a8a83f6fb426f3a8",
+      "tests/test_verify_battle_capture.py": "f8cc682a8938135d40676b048636774a2f485bde3cb186dca2499446aec70980"
+    },
+    "source_exports": [
+      {
+        "path": "local/research/battle-capture-layer-v1/",
+        "functions": [
+          "0x192b10"
+        ],
+        "selected_source": "local/research/battle-capture-layer-v1/00192b10.asm",
+        "selected_source_sha256": "3a35ff70190cdf4e1c517bb4c8f39a4378543f4ed84b8ff0cb24016941903792"
+      },
+      {
+        "path": "local/research/battle-capture-transform-v1/",
+        "functions": [
+          "0x192368"
+        ],
+        "selected_source": "local/research/battle-capture-transform-v1/00192368.asm",
+        "selected_source_sha256": "900d895d8cf07d10d4f347b14836c3ebe8d1933ad46cec7944ef292af8b8e6d3"
+      },
+      {
+        "path": "local/research/battle-capture-geometry-v1/",
+        "functions": [
+          "0x192040",
+          "0x192128"
+        ],
+        "selected_sources_sha256": {
+          "local/research/battle-capture-geometry-v1/00192040.asm": "d879708a9ba4e36586b256a1346c8f9cf8e0513c7619d15e0a30b89d9dd01f45",
+          "local/research/battle-capture-geometry-v1/00192128.asm": "4c22bd7998a88db129ed9b297b128e26915afb0039b3bbb364b00ab83c17d3cf"
+        }
+      },
+      {
+        "path": "local/research/battle-capture-ownership-v1/",
+        "selected_sources_sha256": {
+          "local/research/battle-capture-ownership-v1/00114f50.asm": "15b294f37063a4d1df875028a845c2b035c2ed1a84cd7fdd3c7840069b39fc9e",
+          "local/research/battle-capture-ownership-v1/00114f70.asm": "f04a77e0d9f0996bee6a5ef40c618c9572216a1dcf0ad6ed00267788395413c4"
+        },
+        "scope_note": "Static lifecycle source was reviewed, but texture lifetime and renderer integration are not exercised by this probe."
+      }
+    ],
+    "verifier_source_state": "The v2 fixture extension is included in commit 67011a9; its file SHA-256 is pinned above.",
+    "ownership_review": {
+      "report": "local/research/battle-capture-ownership-v1/review.txt",
+      "report_sha256": "cd7452f511c86237b3cd2e899dc1ba579529f086bbdb2994bec17cf5a306500c",
+      "provenance": "local/research/battle-capture-ownership-v1/review-provenance.json",
+      "provenance_sha256": "2483ad3429b817eb5b210b36d6acc9869aefbe8be4198bfffb4efb0b93eaa0cc",
+      "scope": "Static source review only; no original/native execution or pixel experiment."
+    }
+  },
+  "fixture": {
+    "path": "local/research/battle-capture-v1/input-v2.bin",
+    "generator": "python3 tools/verify_battle_capture.py generate <fresh-output-path>",
+    "generator_source_sha256": "eaef735200ecf0831217857134be15979460ba3d522a1f04a8a83f6fb426f3a8",
+    "input_row_format": "six little-endian u32 words: mode, RGBA, progress, field_nonzero (0 or 1), steps (1..2000), reserved (0)",
+    "case_count": 32,
+    "input_row_bytes": 24,
+    "input_bytes": 768,
+    "total_steps": 1371,
+    "output_step_bytes": 80,
+    "expected_output_bytes": 109680,
+    "sha256": "051d07179243b209429b9b4cdd271223da38492a29ca89e6c4a50f16d6231a41",
+    "coverage": [
+      "Low-byte modes 0 through 4",
+      "Mode-2 high-mode branches 0/1/4 under both field_nonzero values",
+      "The mode-2 progress transition and both adjacent raw progress values under both field phases",
+      "Negative high-mode input, signed progress extrema, and raw color endpoints",
+      "Added large-scale eightfold sprite and fan cases plus low-word overflow in width multiplication; these produce negative X/Y corners and sign-extended packed XYZ words"
+    ],
+    "output_record_format": "post-step mode, RGBA, progress and vertex_count as four u32 values, followed by four (u64 UV, u64 XYZ) pairs; unused vertices are zero",
+    "output_semantics": "Vertices are computed from the incoming transform values; the emitted state words describe the layer after its step mutation.",
+    "negative_coordinate_example": {
+      "case": 26,
+      "incoming_mode_hex": "0x00000000",
+      "incoming_progress_hex": "0xfff90000",
+      "field_nonzero": 0,
+      "first_packed_xyz_hex": "0xffffffffffffdff0",
+      "evidence": "First 80-byte record in original-v2.bin; exact original/native output hashes match."
+    }
+  },
+  "execution": {
+    "original": {
+      "run_record": "local/research/battle-capture-v1/original-v2.run.json",
+      "run_record_sha256": "5d82595ebddcd7ecfc14db5b0818fd25979b82b16845247895491c5350e14117",
+      "command": [
+        "build/play-research/okage-oracle/okage-pose-oracle",
+        "battle-capture",
+        "local/extracted/SCUS_971.29",
+        "local/research/battle-capture-v1/input-v2.bin",
+        "local/research/battle-capture-v1/original-v2.bin"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.04957875,
+      "binary_sha256": "27285cadf4df870dfb15c49f29774548ee5814101cf5fef2c98a60f5e696b89c",
+      "output_sha256": "b7a157f642478473da68df20a309678114aab7982ec2340b4b2b70fa36281433"
+    },
+    "native": [
+      {
+        "configuration": "Release",
+        "run_record": "local/research/battle-capture-v1/native-release-v2.run.json",
+        "run_record_sha256": "64e08a95b03d6a381f14b8739619237517dd1559f6901af8ac13215ade5629dc",
+        "command": [
+          "build/native-release/okage-assets",
+          "battle-capture",
+          "local/research/battle-capture-v1/input-v2.bin",
+          "local/research/battle-capture-v1/native-release-v2.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.011944957,
+        "binary_sha256": "40293cd22acbcc165110be6efc0fe868e3177e13a884da9b2f44bdf2f1d6ba53",
+        "output_sha256": "b7a157f642478473da68df20a309678114aab7982ec2340b4b2b70fa36281433",
+        "comparison_report": "local/research/battle-capture-v1/release-v2.json",
+        "comparison_report_sha256": "d732ac5727af3bf92874eb6731e52c9be8e02b2caa7bda6d96cd51b8c3a4aae6"
+      },
+      {
+        "configuration": "Debug",
+        "run_record": "local/research/battle-capture-v1/native-debug-v2.run.json",
+        "run_record_sha256": "4b4673d79a6eafc3006f3e6188319781504fecac3cb27de6ae5ea7eb7d2d67f4",
+        "command": [
+          "build/native/okage-assets",
+          "battle-capture",
+          "local/research/battle-capture-v1/input-v2.bin",
+          "local/research/battle-capture-v1/native-debug-v2.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.019855583,
+        "binary_sha256": "30f93efc8918116e99310da7d9bf2a70a56a10cce6eb58344118fcb37a663434",
+        "output_sha256": "b7a157f642478473da68df20a309678114aab7982ec2340b4b2b70fa36281433",
+        "comparison_report": "local/research/battle-capture-v1/debug-v2.json",
+        "comparison_report_sha256": "644f206237bb0a636cdc24080b7c30d897df0e9a1573422f7553056f03e98103"
+      },
+      {
+        "configuration": "ASan+UBSan",
+        "run_record": "local/research/battle-capture-v1/native-sanitize-v2.run.json",
+        "run_record_sha256": "a669b157c3e2e78afd0523f0e8bf4f05de1c17e9a242dc3d10efcd21976125b6",
+        "command": [
+          "build/model-sanitize/okage-assets",
+          "battle-capture",
+          "local/research/battle-capture-v1/input-v2.bin",
+          "local/research/battle-capture-v1/native-sanitize-v2.bin"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.038388625,
+        "binary_sha256": "966cb998246a1c1349bff0b04d5f4f4ad81c3e7bb5f0371940d697e551f9222a",
+        "output_sha256": "b7a157f642478473da68df20a309678114aab7982ec2340b4b2b70fa36281433",
+        "comparison_report": "local/research/battle-capture-v1/sanitize-v2.json",
+        "comparison_report_sha256": "b09295884f1ef1ed5d016f7df50ac5ca31ea706d2ca8671f30041771506f7755"
+      }
+    ],
+    "comparison_command_template": "python3 tools/verify_battle_capture.py verify <input.bin> <original.bin> <native.bin> --report <fresh-report.json>",
+    "comparison": {
+      "exact": true,
+      "first_difference": null,
+      "all_output_sha256_equal_original": true,
+      "scope": "Raw 80-byte post-step records for v2; no raster, texture lifetime, full callback, or runtime battle comparison."
+    },
+    "fixture_version": "v2"
+  },
+  "tests": {
+    "python": {
+      "log": "local/research/battle-capture-v1/python-tests-v2.log",
+      "log_sha256": "15a32cf1daf8e00b59c9adae8401739afde33ebabd888c4fd6bd6d6d3e999e07",
+      "result": "214 tests passed after the final fixture expansion"
+    },
+    "native_ctests": [
+      {
+        "configuration": "Release",
+        "log": "local/research/battle-capture-v1/native-release-tests.log",
+        "log_sha256": "f79d322159fbf8a650d9973df73020fb9ca1bb08a38ff1e99cb7646127f372ed",
+        "result": "7 selected tests passed"
+      },
+      {
+        "configuration": "Debug",
+        "log": "local/research/battle-capture-v1/native-tests.log",
+        "log_sha256": "2f9894fc9578f724e16eda0a9021f616852a34c56d384e91f8b3cc90cc22d962",
+        "result": "7 selected tests passed"
+      },
+      {
+        "configuration": "ASan+UBSan",
+        "log": "local/research/battle-capture-v1/model-sanitize-tests.log",
+        "log_sha256": "6d4af5fef8dc73a6a4723b00bcf42f9d0f18a29c4be52ef7360f883f2ccc5e57",
+        "result": "7 selected tests passed"
+      }
+    ]
+  },
+  "runtime_boundary": {
+    "current_field_to_battle_replay_still_stops_at_phase11": true,
+    "native_completed_frame": 104442,
+    "guard_frame": 104443,
+    "capture_helper_wired_into_session": false,
+    "runtime_run_record": "local/native-battle-request-104615-release-v2.run.json",
+    "runtime_run_record_sha256": "8b8b6516fb9118c131da1fe1dd1d870f0cb0559f84cce33b81ef84ba89b4242d",
+    "runtime_binary_sha256": "b4efd6b7207f9b68ddad1c4c46496c9b0faac25fb47d07c80e2fafb931efffd8"
+  },
+  "limitations": [
+    "The probe is a synthetic helper comparison. It does not execute the phase-11 framebuffer copy or submit generated packets for rasterization.",
+    "No pixel, texture sampling, or full framebuffer equivalence is claimed.",
+    "Texture ownership/queue ordering findings are static source review only; the native helper does not copy or retain framebuffer textures.",
+    "No integrated field-to-battle transition or battle session advancement is validated."
+  ],
+  "retained_v1": {
+    "input": "local/research/battle-capture-v1/input.bin",
+    "input_sha256": "9a9c5760d2b258b4889c41549a2cae5bb806ce0117285d32e836c61506beb724",
+    "case_count": 26,
+    "total_steps": 1365,
+    "input_bytes": 624,
+    "output_bytes": 109200,
+    "exact_release_debug_sanitize": true,
+    "shared_output_sha256": "19a2e06962a234acf539c40abe078bbd736f1fd391ce6494f7c6d70b8af4210b",
+    "reports": {
+      "release": {
+        "path": "local/research/battle-capture-v1/release-v1.json",
+        "sha256": "13c2f73b8f772d40ea550d9e17402358e0c70dcbebafe87abdc1cf51885c04ee"
+      },
+      "debug": {
+        "path": "local/research/battle-capture-v1/debug-v1.json",
+        "sha256": "5962111d29533fe8a52fa573c1bd5b4ad2707eb89823b329a7033926722d5665"
+      },
+      "sanitize": {
+        "path": "local/research/battle-capture-v1/sanitize-v1.json",
+        "sha256": "010feef163fd9b94de4c14fe88f1625a9b64c37099f3e2538d250d221c3fa447"
+      }
+    },
+    "limitation": "This version did not produce negative X/Y corners."
+  }
+}
