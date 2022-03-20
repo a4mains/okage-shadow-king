@@ -48,6 +48,11 @@ def fixture_cases():
     for mode in (0, 1, 3, 4):
         for field_nonzero in (0, 1):
             cases.append((mode, 0x80808080, 0, field_nonzero, 4, 0))
+    # Large corners cross zero: sign-extended XY OR also changes packed Z.
+    # Scale 0x400000 additionally overflows width*640's low signed word.
+    for mode, progress in ((0, 0xfff90000), (0x10002, 0xfff90000), (0x102, 0xffc10000)):
+        for field_nonzero in (0, 1):
+            cases.append((mode, 0x80808080, progress, field_nonzero, 1, 0))
     return cases
 
 def fixtures():
