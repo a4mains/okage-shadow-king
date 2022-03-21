@@ -93,7 +93,7 @@
       "incoming_progress_hex": "0xfff90000",
       "field_nonzero": 0,
       "first_packed_xyz_hex": "0xffffffffffffdff0",
-      "evidence": "First 80-byte record in original-v2.bin; exact original/native output hashes match."
+      "evidence": "Case 26 begins at output byte 109200 in original-v2.bin; its first vertex XYZ is at byte 109224. Exact original/native output hashes match."
     }
   },
   "execution": {
