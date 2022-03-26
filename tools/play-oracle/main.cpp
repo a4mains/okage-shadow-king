@@ -2159,25 +2159,37 @@ public:
         }
         writeFile(output,result.data(),result.size());
     }
-    void battleCapture(const std::vector<uint8>& input,const char* output) {
-        constexpr unsigned stride=24;
+    void battleCapture(const std::vector<uint8>& input,const char* output,bool raster=false) {
+        constexpr unsigned imageBytes=640*256*4;
+        const unsigned stride=raster?32+3*imageBytes:24;
         constexpr uint32 layers=0xa00000,texture=0xb00000,arena=0x1800000,arenaSize=4096;
         auto require=[](bool yes,const char* message){if(!yes)throw std::runtime_error(message);};
-        require(!input.empty()&&input.size()%stride==0&&input.size()<=64*stride,
+        require(!input.empty()&&input.size()%stride==0&&input.size()<=(raster?16:64)*stride,
                 "Battle capture fixture extent");
         require(!std::filesystem::exists(output)&&!std::filesystem::is_symlink(output),
                 "Battle capture requires fresh output");
         for(unsigned at=0;at<input.size();at+=stride) {
-            std::array<uint32,6> f;std::memcpy(f.data(),input.data()+at,stride);
-            require(f[3]<=1&&f[4]>=1&&f[4]<=2000&&!f[5],"Battle capture fixture bounds");
+            std::array<uint32,8> f{};std::memcpy(f.data(),input.data()+at,raster?32:24);
+            if(raster)require(f[3]<=1&&!f[4]&&!f[5]&&!f[6]&&!f[7],"Battle capture raster fixture bounds");
+            else require(f[3]<=1&&f[4]>=1&&f[4]<=2000&&!f[5],"Battle capture fixture bounds");
+        }
+        if(raster) {
+#ifdef OKAGE_REFERENCE_VULKAN
+            researchGs.reset(vulkanReference(researchTraffic)());
+            researchGs->Initialize();ee->m_gs=researchGs.get();
+#else
+            throw std::runtime_error("Battle capture raster requires Vulkan research backend");
+#endif
         }
         const std::vector<uint8> code(ee->m_ram+0x192040,ee->m_ram+0x192bf0);
         call(0x1b1d88);
         const std::vector<uint8> sine(ee->m_ram+0x202ee0,ee->m_ram+0x212ee0);
         std::vector<uint32> result;
+        std::vector<uint8> pixels;
         auto qword=[&](uint32 p){return uint64(get(p))|(uint64(get(p+4))<<32);};
         for(unsigned at=0;at<input.size();at+=stride) {
-            std::array<uint32,6> f;std::memcpy(f.data(),input.data()+at,stride);
+            std::array<uint32,6> f{};std::memcpy(f.data(),input.data()+at,raster?16:24);
+            if(raster)f[4]=1;
             std::memset(ee->m_ram+layers-16,0xcd,96);
             std::memset(ee->m_ram+layers,0,64);
             put(layers+0x24,f[0]);put(layers+0x28,f[1]);put(layers+0x2c,f[2]);
@@ -2189,6 +2201,28 @@ public:
             // 0x1cbc90 selects 0x3a17f0 + frame*0x110; 0x1cde90 reads texture+0x100.
             put(0x3a1778,0);std::memset(ee->m_ram+0x3a17f0,0,0x110);
             std::memset(ee->m_ram+0x3a19f0,0,16);put(0x214058,f[3]);
+            if(raster) {
+                researchGs->Reset();ee->m_gif.Reset();
+                auto reg=[&](uint8 address,uint64 value){researchGs->WriteRegister({address,value});};
+                for(unsigned i=0;i<3;++i) {
+                    const uint64 base=uint64(i)*0x100000;
+                    reg(GS_REG_BITBLTBUF,((base/256)<<32)|(uint64(10)<<48));
+                    reg(GS_REG_TRXPOS,0);reg(GS_REG_TRXREG,uint64(640)|(uint64(256)<<32));
+                    reg(GS_REG_TRXDIR,0);researchGs->ProcessWriteBuffer(nullptr);
+                    researchGs->FeedImageData(input.data()+at+32+i*imageBytes,imageBytes);
+                }
+                reg(GS_REG_FRAME_1,uint64(10)<<16);
+                reg(GS_REG_ZBUF_1,0x180|(uint64(1)<<32)); // Separate depth, writes masked.
+                reg(GS_REG_XYOFFSET_1,uint64(1728*16)|(uint64(1936*16)<<32));
+                reg(GS_REG_SCISSOR_1,(uint64(639)<<16)|(uint64(223)<<48));
+                reg(GS_REG_PRMODECONT,1);reg(GS_REG_COLCLAMP,1);reg(GS_REG_PABE,0);
+                reg(GS_REG_FBA_1,0);reg(GS_REG_SCANMSK,0);reg(0x45,0); // DTHE=0.
+                researchGs->ProcessWriteBuffer(nullptr);researchGs->FlushWriteBuffer();
+                researchGs->SendGSCall([](){},true);
+                put(0x3a17f0,10<<16);
+                put(0x3a19f8,0x1000|(10<<14));
+                put(texture+0x100,0x2000|(10<<14));
+            }
             for(unsigned step=0;step<f[4];++step) {
                 const auto mode=get(layers+0x24),rgba=get(layers+0x28),progress=get(layers+0x2c);
                 std::memset(ee->m_ram+arena-16,0xcd,arenaSize+32);
@@ -2222,12 +2256,32 @@ public:
                             "Battle capture fixture canary");
                 for(unsigned i=0;i<64;++i)if(!(i>=0x24&&i<0x28)&&!(i>=0x2c&&i<0x30))
                     require(ee->m_ram[layers+i]==initialLayer[i],"Battle capture unrelated layer mutation");
+                if(raster) {
+                    const auto gifEnd=get(0x332a5c);
+                    require(gifEnd>start&&gifEnd<=end&&!(gifEnd&15)&&
+                            qword(gifEnd-16)==0x8000&&qword(gifEnd-8)==0,
+                            "Battle capture full GIF extent/EOP");
+                    const std::vector<uint8> packet(ee->m_ram+start,ee->m_ram+gifEnd);
+                    CGsPacketMetadata metadata{};metadata.pathIndex=2;
+                    const auto consumed=ee->m_gif.ProcessMultiplePackets(
+                        ee->m_ram,PS2::EE_RAM_SIZE,start,gifEnd,metadata);
+                    require(consumed==gifEnd-start&&ee->m_gif.GetActivePath()==0&&
+                            !std::memcmp(packet.data(),ee->m_ram+start,packet.size()),
+                            "Battle capture full GIF submission");
+                    researchGs->ProcessWriteBuffer(nullptr);
+#ifdef OKAGE_REFERENCE_VULKAN
+                    const auto image=captureShadowPixels(researchGs.get());
+                    require(image.size()==640*224*4,"Battle capture raster output extent");
+                    pixels.insert(pixels.end(),image.begin(),image.end());
+#endif
+                }
             }
             require(!std::memcmp(code.data(),ee->m_ram+0x192040,code.size())&&
                     !std::memcmp(sine.data(),ee->m_ram+0x202ee0,sine.size()),
                     "Battle capture modified original code/sine table");
         }
-        writeFile(output,result.data(),result.size()*4);
+        if(raster)writeFile(output,pixels.data(),pixels.size());
+        else writeFile(output,result.data(),result.size()*4);
     }
     void battleCamera(const std::vector<uint8>& input,const char* output) {
         constexpr uint32 rowSize=448,presetSize=144,camera=0xa00000,body=camera+0x40;
@@ -3409,8 +3463,8 @@ int main(int argc,char** argv) {
             reference.capsulePair(readFile(argv[3]),argv[4]);
         } else if(command=="collision-world" && argc==6) {
             reference.collisionWorld(readFile(argv[3]),readFile(argv[4]),argv[5]);
-        } else if(command=="battle-capture" && argc==5) {
-            reference.battleCapture(readFile(argv[3]),argv[4]);
+        } else if((command=="battle-capture"||command=="battle-capture-raster") && argc==5) {
+            reference.battleCapture(readFile(argv[3]),argv[4],command=="battle-capture-raster");
         } else if(command=="battle-camera" && argc==5) {
             reference.battleCamera(readFile(argv[3]),argv[4]);
         } else if(command=="new-game-state" && argc==7) {
