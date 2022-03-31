@@ -11,6 +11,7 @@
 #include "okage/live_performance.hpp"
 #include "okage/native_run.hpp"
 #include "okage/live_scheduler.hpp"
+#include "battle_capture_metal.hpp"
 #include <bit>
 #include <algorithm>
 #include <array>
@@ -206,6 +207,15 @@ struct Session {
     int current_scene=-1,current_entrance=0;
     std::vector<std::uint32_t> transition_trace;
     std::vector<std::uint32_t> battle_transition_trace;
+    std::vector<std::uint32_t> battle_capture_trace;
+    std::optional<okage::Texture> completed_game_image,battle_capture_image;
+    unsigned completed_game_frame=0,battle_capture_frame=0;
+    bool battle_followers_saved=false;
+    unsigned battle_capture_alpha=0,battle_capture_target=0;
+    std::optional<okage::BattleCaptureLayer> battle_capture_layer;
+    std::optional<okage::BattleCaptureDraw> battle_capture_draw;
+    std::unique_ptr<okage::BattleCaptureSurface> battle_capture_surface;
+    okage::SineTable battle_capture_sine=okage::make_sine_table();
     std::optional<okage::Texture> transition_image;
     // AppKit presentation is separate from research captures and feedback.
     bool live_presentation_enabled=false;
@@ -310,8 +320,31 @@ struct Session {
             }
             else if(countdown==0){transition_alpha=transition_target=128;}
         };
-        field->battle_transition_service=[](unsigned phase,const okage::FieldBattleRequest& request) {
-            throw std::runtime_error("Native battle capture transition is unrecovered (field phase "+
+        field->battle_transition_service=[this](unsigned phase,const okage::FieldBattleRequest& request) {
+            if(phase==11) {
+                // 0x192bf0 copies the other framebuffer, completed last tick.
+                // Never render this partially updated phase11 frame to get it.
+                if(!completed_game_image||completed_game_frame+1!=frame)
+                    throw std::runtime_error("Battle capture requires the preceding completed native game frame");
+                if(transition_alpha||battle_capture_layer)
+                    throw std::runtime_error("Battle capture layer already owned by a transition");
+                if(dialogue_active&&controller.window_type!=2&&opacity.value>0)
+                    throw std::runtime_error("Battle capture of a visible dialogue window needs shared game-surface UI");
+                for(unsigned alias:{4u,5u,6u})if(instance_aliases[alias]!=-1)
+                    throw std::runtime_error("Battle capture requires recovered live follower return state");
+                battle_capture_image=*completed_game_image;battle_capture_frame=completed_game_frame;
+                battle_followers_saved=true; // 0x131828 marks even an empty roster saved.
+                battle_capture_surface=std::make_unique<okage::BattleCaptureSurface>();
+                return;
+            }
+            if(phase==12) {
+                if(!battle_capture_image||battle_capture_layer)
+                    throw std::runtime_error("Battle capture cover without a fresh frozen frame");
+                battle_capture_layer.emplace(); // 0x114dc8(2): mode2, RGBA80808080, progress0.
+                battle_capture_alpha=battle_capture_target=128;
+                return;
+            }
+            throw std::runtime_error("Native battle return/global-manager handoff is unrecovered (field phase "+
                 std::to_string(phase)+", formation "+std::to_string(request.formation)+
                 ", stage "+std::to_string(request.stage)+")");
         };
@@ -444,6 +477,14 @@ struct Session {
     void tick(okage::DialogueButtons input) {
         ++frame;
         input.repeat=pad_repeat.update(input.held,input.pressed);
+        if(battle_capture_layer) {
+            // 0x114ac0. The battle loader must request target0 when its real
+            // resources become ready; there is no fabricated reveal timer.
+            if(battle_capture_alpha!=battle_capture_target)
+                battle_capture_alpha=battle_capture_alpha>battle_capture_target?battle_capture_alpha-4:battle_capture_alpha+4;
+            if(!battle_capture_alpha) {battle_capture_layer.reset();battle_capture_draw.reset();}
+            else battle_capture_layer->rgba=0x00808080u|(battle_capture_alpha<<24);
+        }
         // 0x114ac0 advances the captured-frame overlay by four alpha units.
         if(transition_alpha!=transition_target) {
             transition_alpha=transition_alpha>transition_target?transition_alpha-4:transition_alpha+4;
@@ -592,7 +633,15 @@ struct Session {
             for(const auto* s:{&p.shadow,&p.ordinary,&p.field_end,&p.effects,&p.deferred,&p.ending})
                 for(float f:okage::field_projection_words(*s))projection_trace.push_back(__builtin_bit_cast(std::uint32_t, (f)));
         }
-        const bool render_tick=okage::native_render_tick(frame,render_from,render_until,render_ranges);
+        if(battle_capture_layer) {
+            battle_capture_draw=battle_capture_layer->draw(true,battle_capture_sine);
+            const auto& draw=*battle_capture_draw;
+            battle_capture_trace.insert(battle_capture_trace.end(),{frame,battle_capture_frame,
+                completed_game_frame,1,draw.mode,draw.rgba,draw.scale,draw.count,
+                battle_capture_layer->mode,battle_capture_layer->rgba,battle_capture_layer->progress});
+        }
+        const bool render_tick=(field&&field->battle_request())||battle_capture_layer||
+            okage::native_render_tick(frame,render_from,render_until,render_ranges);
         if(field) {
             const auto& filter=field->screen_filter;
             filter_trace.insert(filter_trace.end(),{frame,filter.updating?1u:0u,filter.setting,filter.alpha});
@@ -607,6 +656,10 @@ struct Session {
         if(rendered_surface&&rendered_frame==frame)return;
         auto image=surface();
         feedback.retain(image,frame,224);
+        if(field&&field->battle_request()) {
+            completed_game_image=image;completed_game_image->height=224;
+            completed_game_image->rgba.resize(640*224*4);completed_game_frame=frame;
+        }
         rendered_surface=std::move(image);rendered_frame=frame;
     }
     okage::Texture live_frame(const okage::Texture& scene) const {
@@ -666,6 +719,11 @@ struct Session {
             const unsigned alpha=overlay.rgba[i+3];
             for(unsigned c=0;c<3;++c)image.rgba[i+c]=(unsigned(overlay.rgba[i+c])*alpha+unsigned(image.rgba[i+c])*(255-alpha)+127)/255;
         }
+        if(battle_capture_draw) {
+            if(!battle_capture_surface||!battle_capture_image||!completed_game_image||completed_game_frame+1!=frame)
+                throw std::runtime_error("Battle capture lost consecutive native framebuffer history");
+            battle_capture_surface->apply(image,*battle_capture_image,*completed_game_image,*battle_capture_draw);
+        }
         if(live_presentation_enabled)live_image=live_frame(image);
         image.height=448;image.rgba.resize(640*448*4);
         for(std::size_t i=0;i<text_image.rgba.size();i+=4) {
@@ -705,6 +763,14 @@ static void capture(const Session& session,const fs::path& path) {
     if(!path.parent_path().empty())fs::create_directories(path.parent_path());
     const auto data=[bitmap(session.surface()) representationUsingType:NSBitmapImageFileTypePNG properties:@{}];
     std::ofstream out(path,std::ios::binary);if(!data || !out.write(static_cast<const char*>(data.bytes),data.length))throw std::runtime_error("Cannot write native capture");
+    if(session.battle_capture_image) {
+        const auto frozen=fs::path(path.string()+".battle-frozen.rgba");
+        if(fs::exists(frozen)||fs::is_symlink(frozen))throw std::runtime_error("Refusing existing frozen-frame capture");
+        std::ofstream pixels(frozen,std::ios::binary);
+        const auto& rgba=session.battle_capture_image->rgba;
+        if(!pixels.write(reinterpret_cast<const char*>(rgba.data()),rgba.size()))
+            throw std::runtime_error("Cannot write native frozen-frame capture");
+    }
     std::ofstream state(statePath);
     if(!session.wander_trace.empty()) {
         const auto output=fs::path(path.string()+".wander.bin");
@@ -753,6 +819,10 @@ static void capture(const Session& session,const fs::path& path) {
          <<",\n  \"choice_cursor\": "<<session.text.choice_cursor
          <<",\n  \"choice_result\": "<<session.text.choice_result
          <<",\n  \"choice_armed\": "<<(session.controller.choice_armed ? "true" : "false")
+         <<",\n  \"battle_capture_frame\": "<<session.battle_capture_frame
+         <<",\n  \"battle_followers_saved\": "<<(session.battle_followers_saved?"true":"false")
+         <<",\n  \"battle_capture_alpha\": "<<session.battle_capture_alpha
+         <<",\n  \"battle_capture_target\": "<<session.battle_capture_target
          <<",\n  \"close_frame\": "<<session.close_frame<<",\n  \"close_wait_release_frame\": "<<session.close_release_frame<<"\n}\n";
     if(!state)throw std::runtime_error("Cannot write native capture state");
     std::ofstream actors(actorsPath);
@@ -795,10 +865,11 @@ static void capture(const Session& session,const fs::path& path) {
         shadows<<"\n  ]\n}\n";
         if(!shadows)throw std::runtime_error("Cannot write shadow-submission capture");
     }
-    for(const auto& [suffix,data]:std::array<std::pair<std::string,okage::Bytes>,4>{
+    for(const auto& [suffix,data]:std::array<std::pair<std::string,okage::Bytes>,5>{
         std::pair{".screen-filter.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.filter_trace.data()),session.filter_trace.size()*4)},
         std::pair{".transition.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.transition_trace.data()),session.transition_trace.size()*4)},
         std::pair{".battle-transition.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.battle_transition_trace.data()),session.battle_transition_trace.size()*4)},
+        std::pair{".battle-capture.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.battle_capture_trace.data()),session.battle_capture_trace.size()*4)},
         std::pair{".variables.bin",okage::Bytes(session.variables)}}) {
         const auto output=fs::path(path.string()+suffix);
         if(fs::exists(output)||fs::is_symlink(output))throw std::runtime_error("Refusing existing field-state capture");

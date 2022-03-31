@@ -18,10 +18,16 @@ class BattleCaptureRasterTests(unittest.TestCase):
         self.assertLessEqual(len(cases), raster.MAX_CASES)
         self.assertEqual(raster.INPUT_ROW_BYTES, 1_966_112)
         self.assertLessEqual(len(cases) * raster.INPUT_ROW_BYTES, 32 * 1024 * 1024)
-        self.assertEqual({c['rgba'] & 255 for c in cases[:4]}, {0, 64, 128, 255})
+        self.assertEqual({c['rgba'] >> 24 for c in cases[:4]}, {0, 64, 128, 255})
         self.assertEqual({(c['mode'], c['progress'], c['field_nonzero']) for c in cases[:2]},
                          {(2, 0, 0), (2, 0, 1)})
-        self.assertEqual(len({c['rgba'] >> 8 for c in cases}), len(cases))
+        self.assertTrue(all(c['mode'] >> 8 == 0 for c in cases[:4]))
+        self.assertEqual((0x10000-cases[2]['progress']) & 0xffffffff, 0x8000)
+        self.assertEqual((0x10000-cases[3]['progress']) & 0xffffffff, 0x14000)
+        self.assertEqual([((c['mode'] >> 8)*4) & 0x3fff for c in cases[4:7]],
+                         [2048, 4096, 1024])
+        self.assertTrue(all(((0x10000-c['progress']) & 0xffffffff) > 0 for c in cases))
+        self.assertNotEqual(cases[-1]['rgba'] & 0xffffff, 0x808080)
 
     def test_source_roles_and_padding_rows_have_distinct_texels(self):
         for pattern in ('ramp', 'checker', 'impulse', 'edges'):
