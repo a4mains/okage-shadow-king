@@ -434,20 +434,26 @@ int main(){try {
     {
         auto event=startup;
         put(event,40,0x00700162);put(event,44,17);put(event,48,0x00200002);put(event,52,0);
-        okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
+        auto hero_motion=idle;hero_motion.resize(76);put(hero_motion,4,44);
+        put(hero_motion,56,2);put(hero_motion,60,0x0040002e);
+        put(hero_motion,64,__builtin_bit_cast(std::uint32_t, (99.f)));put(hero_motion,68,0);
+        okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),hero_motion,{});
         const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
         okage::OpeningField scene(event,[](int){},[](int){return true;},player,false);
         std::array<std::uint8_t,0x1000> vars{};std::vector<unsigned> phases;
         scene.get_variable=[&](auto s){return okage::event_variable(vars,s);};
         scene.set_variable=[&](auto i,auto b,auto v){okage::set_event_variable(vars,i,b,v);};
+        rejects([&]{scene.battle_return_snapshot();}); // No entered definition yet.
+        std::optional<okage::FieldBattleReturnSnapshot> saved;
         bool block=true;
         scene.battle_transition_service=[&](unsigned phase,const okage::FieldBattleRequest& request) {
             require(!scene.event_running()&&scene.exploration_ready());
             require(request.formation==1&&request.stage==17&&request.return_scene==0x1060);
             if(block)throw std::runtime_error("Unimplemented capture layer");
+            if(phase==13)saved=scene.battle_return_snapshot();
             phases.push_back(phase);
         };
-        okage::FieldDefinition entry;entry.scene=96;entry.type=1;entry.startup=1;
+        okage::FieldDefinition entry;entry.scene=96;entry.type=1;entry.startup=1;entry.secondary_music=28;
         scene.enter(entry,stage,empty_map,0);
         require(scene.battle_request()&&scene.battle_request()->phase==0&&scene.event_running());
         require(scene.pc()==52&&phases.empty());
@@ -459,9 +465,24 @@ int main(){try {
         scene.tick();require(scene.battle_request()->phase==11&&phases.empty());
         rejects([&]{scene.tick();});require(scene.battle_request()->phase==11&&!scene.battle_request()->dispatched);
         block=false;
-        for(unsigned phase:{11u,12u,13u}) {
-            require(scene.battle_request()->phase==phase);scene.tick();
-        }
+        scene.tick();require(scene.battle_request()->phase==12);
+        const auto before=scene.battle_return_snapshot();
+        const okage::Float4 blended_from{200,300,400,7};
+        scene.blend.begin(.25f,blended_from,{0,0,0,1});
+        scene.tick();require(scene.battle_request()->phase==13);
+        require(scene.position==blended_from&&scene.position!=before.raw_camera_position);
+        const okage::Float4 player_position{13,-7,29,2.5f},player_rotation{-.125f,-0.f,.5f,-2};
+        hero.animation().set_channel(0,player_rotation);hero.animation().set_channel(1,player_position);
+        hero.animation().start_at(56);
+        scene.tick();require(saved.has_value());
+        require(saved->scene==96&&saved->secondary_music==28);
+        auto equal_bits=[](const okage::Float4& a,const okage::Float4& b) {
+            for(unsigned i=0;i<4;++i)require(__builtin_bit_cast(std::uint32_t, (a[i]))==__builtin_bit_cast(std::uint32_t, (b[i])));
+        };
+        equal_bits(saved->player_position,player_position);equal_bits(saved->player_rotation,player_rotation);
+        equal_bits(saved->raw_camera_position,before.raw_camera_position);
+        require(hero.animation().values()[1][0]==99&&saved->player_position[0]==13);
+        require(saved->raw_camera_position!=scene.position);
         require(phases==std::vector<unsigned>({11,12,13}));
         require(scene.battle_request()->phase==13&&scene.battle_request()->dispatched);
         rejects([&]{scene.tick();});require(phases.size()==3);

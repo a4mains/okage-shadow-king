@@ -42,6 +42,13 @@ struct FieldBattleRequest {
     unsigned formation;std::int32_t stage;unsigned return_scene;
     unsigned phase=0;bool dispatched=false;
 };
+// 0x1301a8 return pose plus the entered field's phase13 music selection.
+// The camera value is channel0 before CameraBlend, not the rendered position.
+struct FieldBattleReturnSnapshot {
+    Float4 player_position{},player_rotation{},raw_camera_position{};
+    int scene=-1;
+    std::int32_t secondary_music=0;
+};
 struct FieldEventActor {FieldActor* actor=nullptr;std::vector<std::uint8_t> camera_motion;};
 struct FieldCameraSetting {int id=0;float height=0,scale=0,target=0,mode=0;};
 std::vector<FieldCameraSetting> field_camera_settings(Bytes stg);
@@ -69,6 +76,9 @@ public:
     const std::optional<FieldTransition>& transition() const {return transition_;}
     const std::optional<FieldEncounter>& encounter() const {return encounter_;}
     const std::optional<FieldBattleRequest>& battle_request() const {return battle_request_;}
+    // Call during the phase13 manager callback, before later script/channel
+    // updates. Like0x1b43c0, reads evaluate dirty channels without advancing them.
+    FieldBattleReturnSnapshot battle_return_snapshot();
     bool exploration_ready() const {return exploration_handoff_;}
     std::function<void(unsigned,const FieldBattleRequest&)> battle_transition_service;
     std::function<std::uint32_t()> random_value;

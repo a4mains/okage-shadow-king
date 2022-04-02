@@ -73,6 +73,16 @@ FieldActor* OpeningField::actor(int alias) const {
     }
     return nullptr;
 }
+FieldBattleReturnSnapshot OpeningField::battle_return_snapshot() {
+    auto* hero=actor(-1);
+    if(!definition_||!hero||hero->animation().channel_outputs().size()<2||script_.channel_outputs().empty())
+        throw std::runtime_error("Battle return snapshot requires an entered field and HERO/camera channels");
+    // 0x1301a8 reads HERO group+1, HERO group, then camera group. values()
+    // resolves the same dirty output as0x1b43c0; it never ticks interpolation.
+    const auto player=hero->animation().values();
+    const auto camera=script_.values();
+    return {player[1],player[0],camera[0],definition_->scene,definition_->secondary_music};
+}
 bool OpeningField::request_actor_motion(int alias,unsigned entry) {
     //0x130158 resolves a negative alias then calls0x1b6fb8 directly. Unlike
     // event36, this caller has no camera selector or high-entry stop branch.
