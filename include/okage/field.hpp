@@ -39,7 +39,7 @@ struct FieldEncounter {unsigned column,mode;bool rear_attack;};
 // Script mode7 queues a formation/stage request. Phase0 waits for the ordinary
 // event-to-exploration handoff; phases11..13 belong to field manager0x133a98.
 struct FieldBattleRequest {
-    unsigned formation;std::int32_t stage;unsigned return_scene;
+    unsigned formation;std::int32_t stage;unsigned return_token;
     unsigned phase=0;bool dispatched=false;
 };
 // 0x1301a8 return pose plus the entered field's phase13 music selection.
@@ -165,6 +165,9 @@ private:
     std::optional<FieldTransition> transition_;
     std::optional<FieldEncounter> encounter_;
     std::optional<FieldBattleRequest> battle_request_;
+    // Task member+28, distinct from the parent's scene argument. Ordinary
+    // field entry starts at zero; pending mode0xe entry is not implemented.
+    std::uint32_t battle_return_value_=0;
     std::vector<std::optional<EncounterEnemy>> enemies_;
     std::vector<std::optional<WanderingNpc>> wanderers_;
     bool rear_attack_=false;

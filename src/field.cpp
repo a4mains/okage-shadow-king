@@ -656,7 +656,7 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             if(battle_request_||transition_||encounter_)
                 throw std::runtime_error("Overlapping field battle request");
             battle_request_=FieldBattleRequest{a,__builtin_bit_cast(std::int32_t, (word(pc+4))),
-                unsigned(definition_->scene)|0x1000u};
+                battle_return_value_|0x1000u}; // 0x131390 reads field+28, not scene.
             pending_opcode=0;return {pc+8};
         case 11: {
             if(!get_variable)return pending();

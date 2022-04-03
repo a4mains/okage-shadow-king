@@ -503,7 +503,7 @@ struct Session {
             if(const auto& battle=field->battle_request()) {
                 const unsigned phase=battle->phase?battle->phase:(field->exploration_ready()?0u:5u);
                 battle_transition_trace.insert(battle_transition_trace.end(),{frame,phase,battle->formation,
-                    __builtin_bit_cast(std::uint32_t, (battle->stage)),battle->return_scene,unsigned(battle->dispatched),
+                    __builtin_bit_cast(std::uint32_t, (battle->stage)),battle->return_token,unsigned(battle->dispatched),
                     field->pc(),unsigned(field->event_running())});
             }
             const auto request=field->transition();

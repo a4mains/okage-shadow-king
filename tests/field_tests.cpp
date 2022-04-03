@@ -448,7 +448,7 @@ int main(){try {
         bool block=true;
         scene.battle_transition_service=[&](unsigned phase,const okage::FieldBattleRequest& request) {
             require(!scene.event_running()&&scene.exploration_ready());
-            require(request.formation==1&&request.stage==17&&request.return_scene==0x1060);
+            require(request.formation==1&&request.stage==17&&request.return_token==0x1000);
             if(block)throw std::runtime_error("Unimplemented capture layer");
             if(phase==13)saved=scene.battle_return_snapshot();
             phases.push_back(phase);
