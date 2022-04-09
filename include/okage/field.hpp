@@ -19,6 +19,7 @@ struct FieldNpcDefinition {
 struct FieldDefinition {
     int scene=-1;std::uint32_t type=0,party=0,startup=0,field_flags=0;
     std::int32_t music=0,secondary_music=0;
+    std::int32_t battle_record_selection=-1;
     unsigned footstep=33,dust=0;
     std::string room_directory,room,message,event;
     std::vector<FieldNpcDefinition> npcs;
@@ -48,6 +49,7 @@ struct FieldBattleReturnSnapshot {
     Float4 player_position{},player_rotation{},raw_camera_position{};
     int scene=-1;
     std::int32_t secondary_music=0;
+    std::int32_t battle_record_selection=-1;
 };
 struct FieldEventActor {FieldActor* actor=nullptr;std::vector<std::uint8_t> camera_motion;};
 struct FieldCameraSetting {int id=0;float height=0,scale=0,target=0,mode=0;};

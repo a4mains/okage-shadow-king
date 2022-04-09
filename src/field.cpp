@@ -81,7 +81,8 @@ FieldBattleReturnSnapshot OpeningField::battle_return_snapshot() {
     // resolves the same dirty output as0x1b43c0; it never ticks interpolation.
     const auto player=hero->animation().values();
     const auto camera=script_.values();
-    return {player[1],player[0],camera[0],definition_->scene,definition_->secondary_music};
+    return {player[1],player[0],camera[0],definition_->scene,definition_->secondary_music,
+        definition_->battle_record_selection};
 }
 bool OpeningField::request_actor_motion(int alias,unsigned entry) {
     //0x130158 resolves a negative alias then calls0x1b6fb8 directly. Unlike
@@ -209,6 +210,7 @@ FieldDefinition prepare_field_definition(Bytes script,Bytes variables,FieldDefin
     definition.type=get(setup,0x408);definition.startup=get(setup,0x410);
     definition.field_flags=get(setup,0x40c);
     definition.music=__builtin_bit_cast(std::int32_t, (get(setup,0x400)));definition.secondary_music=__builtin_bit_cast(std::int32_t, (get(setup,0x404)));
+    definition.battle_record_selection=__builtin_bit_cast(std::int32_t, (get(setup,0x428)));
     definition.footstep=get(setup,0x42c);definition.dust=get(setup,0x414);
     for(auto& npc:definition.npcs)npc.flags=setup[0x1a8+(-8-npc.alias)];
     std::erase_if(definition.npcs,[](const auto& npc){return !npc.flags;});

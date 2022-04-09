@@ -12,6 +12,7 @@
 #include "okage/native_run.hpp"
 #include "okage/live_scheduler.hpp"
 #include "battle_capture_metal.hpp"
+#include "okage/battle_entry.hpp"
 #include <bit>
 #include <algorithm>
 #include <array>
@@ -216,6 +217,11 @@ struct Session {
     std::optional<okage::BattleCaptureDraw> battle_capture_draw;
     std::unique_ptr<okage::BattleCaptureSurface> battle_capture_surface;
     okage::SineTable battle_capture_sine=okage::make_sine_table();
+    std::optional<okage::FieldBattleReturnSnapshot> battle_return;
+    okage::BattleEntryContext battle_entry;
+    std::array<std::uint32_t,3> pending_game_command{};
+    std::optional<std::array<std::uint32_t,3>> requested_game_mode;
+    bool retain_field_music=false;
     std::optional<okage::Texture> transition_image;
     // AppKit presentation is separate from research captures and feedback.
     bool live_presentation_enabled=false;
@@ -344,7 +350,21 @@ struct Session {
                 battle_capture_alpha=battle_capture_target=128;
                 return;
             }
-            throw std::runtime_error("Native battle return/global-manager handoff is unrecovered (field phase "+
+            if(phase==13) {
+                if(!battle_followers_saved||!battle_capture_layer||!music||request.stage<0||requested_game_mode)
+                    throw std::runtime_error("Battle return requires saved field state, music and explicit stage");
+                auto saved=field->battle_return_snapshot(); // 0x1301a8, before later callbacks.
+                if(saved.battle_record_selection!=-1)
+                    throw std::runtime_error("Battle return character-record selection is unrecovered");
+                battle_return=std::move(saved);
+                music->select(battle_return->secondary_music,false); // 0x12d768 -> 0x12d580.
+                retain_field_music=battle_return->secondary_music!=28; // 0x12da78.
+                pending_game_command={13,0,0}; // 0x1248d8; persists for field return.
+                battle_entry.reset(0,0,okage::event_variable(variables,0x80010)==0x83,request.return_token);
+                requested_game_mode=std::array<std::uint32_t,3>{3,request.formation,__builtin_bit_cast(std::uint32_t, (request.stage))};
+                return; // 0x124930 queues only; do not destroy the field here.
+            }
+            throw std::runtime_error("Native battle transition phase is unrecovered (field phase "+
                 std::to_string(phase)+", formation "+std::to_string(request.formation)+
                 ", stage "+std::to_string(request.stage)+")");
         };
@@ -491,6 +511,9 @@ struct Session {
             if(!transition_alpha){transition_image.reset();transition_live_image.reset();}
         }
         scene_fade.tick();
+        if(requested_game_mode)
+            throw std::runtime_error("Native global mode3 field retirement/battle construction is unrecovered at frame="+
+                std::to_string(frame));
         const std::array<std::uint32_t,2> layers={0x50,controller.layer_flags};
         if(field) {
             try {field->tick({input.held,128,128,input.pressed});}
@@ -770,6 +793,23 @@ static void capture(const Session& session,const fs::path& path) {
         const auto& rgba=session.battle_capture_image->rgba;
         if(!pixels.write(reinterpret_cast<const char*>(rgba.data()),rgba.size()))
             throw std::runtime_error("Cannot write native frozen-frame capture");
+    }
+    if(session.battle_return) {
+        const auto output=fs::path(path.string()+".battle-return.bin");
+        if(fs::exists(output)||fs::is_symlink(output))throw std::runtime_error("Refusing existing battle return capture");
+        const auto& saved=*session.battle_return;
+        std::vector<std::uint32_t> words={__builtin_bit_cast(std::uint32_t, (saved.scene)),
+            __builtin_bit_cast(std::uint32_t, (saved.secondary_music)),unsigned(session.retain_field_music)};
+        words.insert(words.end(),session.pending_game_command.begin(),session.pending_game_command.end());
+        if(!session.requested_game_mode)throw std::runtime_error("Battle return capture has no queued mode");
+        words.insert(words.end(),session.requested_game_mode->begin(),session.requested_game_mode->end());
+        for(const auto& v:{saved.player_position,saved.player_rotation,saved.raw_camera_position})
+            for(float f:v)words.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+        std::ofstream return_state(output,std::ios::binary);
+        const auto& context=session.battle_entry.bytes();
+        if(!return_state.write(reinterpret_cast<const char*>(words.data()),words.size()*4)||
+           !return_state.write(reinterpret_cast<const char*>(context.data()),context.size()))
+            throw std::runtime_error("Cannot write battle return state");
     }
     std::ofstream state(statePath);
     if(!session.wander_trace.empty()) {
