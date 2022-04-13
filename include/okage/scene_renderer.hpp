@@ -18,6 +18,7 @@ public:
     void bind_map_effects(const MapEffects*);
     void bind_effect_submissions(const EffectSubmissions*);
     void set_effect_light_tint(const Float4&);
+    void set_clear_rgb(std::array<std::uint8_t,3>);
     Texture render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects=nullptr,const Float4& camera_rotation={},float far_clip=1024,const Float4& camera_position={},const FieldProjectionFrame* field_projection=nullptr,float shadow_factor=1);
     const std::vector<FieldShadowSubmission>& shadow_submissions() const;
     std::size_t placements() const;

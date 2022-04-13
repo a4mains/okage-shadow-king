@@ -81,6 +81,8 @@ public:
     // Call during the phase13 manager callback, before later script/channel
     // updates. Like0x1b43c0, reads evaluate dirty channels without advancing them.
     FieldBattleReturnSnapshot battle_return_snapshot();
+    void validate_retirement() const;
+    RetiringSceneEffects retire_effects();
     bool exploration_ready() const {return exploration_handoff_;}
     std::function<void(unsigned,const FieldBattleRequest&)> battle_transition_service;
     std::function<std::uint32_t()> random_value;
@@ -210,6 +212,10 @@ struct FieldOrdinaryLighting {
     std::array<Float4,4> colors{Float4{1,1,1,0},Float4{},Float4{},Float4{.25f,.25f,.25f,1}};
 };
 FieldOrdinaryLighting field_ordinary_lighting(Bytes stg);
+struct SceneClearColor {
+    std::array<std::uint8_t,3> rgb{64,64,64}; //0x1002f8 ->0x1cb4b8.
+    void load_stage(Bytes);
+};
 // Reviewed STG light0/base/ambient records for ordinary effect tint.
 Float4 field_effect_tint(Bytes stg);
 Float4 field_projection(Bytes stg,float* far_clip=nullptr);

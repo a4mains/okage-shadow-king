@@ -746,6 +746,30 @@ BubbleEffect::BubbleEffect(const EffectDefinition& d,int parameter):definition_(
         s.texture=14;s.uv={0,0,31,31};
     }
 }
+void RetiringSceneEffects::mark() {
+    for(unsigned i=0;i<84;++i) {
+        require(!(map[i]&&attached[i]),"Retiring effect slot has two owners");
+        if(map[i])map[i]->flags|=0x100;
+        if(attached[i])attached[i]->animation.flags|=0x100;
+    }
+}
+void RetiringSceneEffects::tick() {
+    for(unsigned i=0;i<84;++i) {
+        require(!(map[i]&&attached[i]),"Retiring effect slot has two owners");
+        if(!map[i]&&!attached[i])continue;
+        auto& f=map[i]?map[i]->flags:attached[i]->animation.flags;
+        require(f&0x100,"Unmarked retiring effect");
+        if(f&0x200){map[i].reset();attached[i].reset();}
+        else f|=0x200;
+    }
+}
+std::array<std::uint32_t,84> RetiringSceneEffects::flags() const {
+    std::array<std::uint32_t,84> result{};
+    for(unsigned i=0;i<84;++i)
+        if(map[i])result[i]=map[i]->flags;
+        else if(attached[i])result[i]=attached[i]->animation.flags;
+    return result;
+}
 void BubbleEffect::tick(const Float4& camera) {
     require(!(flags&0x100),"Cannot update a removed effect");
     for(float f:camera)require(std::isfinite(f)&&std::abs(f)<1000,"Invalid effect camera rotation");

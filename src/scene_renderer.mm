@@ -53,6 +53,7 @@ struct SceneRenderer::Impl {
     const MapEffects* mapEffects=nullptr;
     const EffectSubmissions* effectSubmissions=nullptr;
     std::optional<Float4> effectTint;
+    std::array<std::uint8_t,3> clearRGB{64,64,64};
     id<MTLDevice> device;
     id<MTLRenderPipelineState> pipeline,effectPipeline,mapEffectPipeline,dustPipeline,darkEffectPipeline,materialPipeline,materialAddPipeline,materialSubtractPipeline;
     id<MTLDepthStencilState> depth,effectDepth,mapEffectDepth,materialDepth;
@@ -526,7 +527,7 @@ struct SceneRenderer::Impl {
         auto pass=[MTLRenderPassDescriptor renderPassDescriptor];
         pass.colorAttachments[0].texture=target; pass.colorAttachments[0].loadAction=MTLLoadActionClear;
         pass.colorAttachments[0].storeAction=MTLStoreActionStore;
-        pass.colorAttachments[0].clearColor=MTLClearColorMake(.055,.07,.095,1);
+        pass.colorAttachments[0].clearColor=MTLClearColorMake(clearRGB[0]/255.,clearRGB[1]/255.,clearRGB[2]/255.,1);
         pass.depthAttachment.texture=depthTarget; pass.depthAttachment.loadAction=MTLLoadActionClear; pass.depthAttachment.clearDepth=1;
         pass.depthAttachment.storeAction=MTLStoreActionStore;
         id<MTLCommandBuffer> command=[queue commandBuffer];
@@ -579,6 +580,7 @@ EffectTextureSizes SceneRenderer::effect_texture_sizes() const {
     return result;
 }
 void SceneRenderer::set_effect_light_tint(const Float4& tint){impl_->effectTint=tint;}
+void SceneRenderer::set_clear_rgb(std::array<std::uint8_t,3> rgb){impl_->clearRGB=rgb;}
 void SceneRenderer::bind_map_effects(const MapEffects* effects){impl_->mapEffects=effects;}
 void SceneRenderer::bind_effect_submissions(const EffectSubmissions* effects){impl_->effectSubmissions=effects;}
 Texture SceneRenderer::render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor){return impl_->render(view,projection,effects,camera,farClip,cameraPosition,fieldProjection,shadowFactor);}

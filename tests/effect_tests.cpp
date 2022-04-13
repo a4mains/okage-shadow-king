@@ -34,6 +34,14 @@ int main(){try{
     for(unsigned i=0;i<8;++i){map.elements[i].shape=i<3?24:29;map.elements[i].primitive_flags=i<3?1:0x101;}
     okage::EffectTextureSizes sizes;for(auto& size:sizes)size={64,64};sizes[5]={32,24};sizes[13]={32,32};
     okage::MapEffect job(map,{0,0,420,1},{0,0,0,0},{1,1,1,1},sizes,[]{return 1;});
+    {
+        okage::RetiringSceneEffects effects;
+        effects.map[4]=std::make_unique<okage::MapEffect>(job);effects.map[4]->flags=0x4020;
+        effects.map[80]=std::make_unique<okage::MapEffect>(job);effects.map[80]->flags=0x220;
+        effects.mark();check(effects.flags()[4]==0x4120&&effects.flags()[80]==0x320);
+        effects.tick();check(effects.flags()[4]==0x4320&&!effects.map[80]);
+        effects.tick();check(!effects.map[4]);
+    }
     const okage::Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
     const auto sine=okage::make_sine_table();
     okage::EffectDefinition water;water.id=106;water.duration=600;water.flags=0x8400;

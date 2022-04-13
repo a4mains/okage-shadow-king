@@ -37,6 +37,10 @@ std::uint32_t Animation::relative(std::uint32_t at) const {
     if (target<code_ || target>=samples_ || (target&3)) throw std::runtime_error("XMT relative target out of code bounds");
     return static_cast<std::uint32_t>(target);
 }
+Animation::Animation(std::size_t count) {
+    if(!count||count>5120)throw std::runtime_error("Invalid native channel count");
+    channels_.resize(count);
+}
 Animation::Animation(Bytes bytes,std::size_t count):bytes_(bytes.begin(),bytes.end()) {
     if (!count || count>5120 || bytes.size()>0x700000 || word(0)!=0x544d58)
         throw std::runtime_error("Invalid XMT input/count");

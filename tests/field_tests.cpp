@@ -10,6 +10,27 @@ void require(bool value,unsigned where=__builtin_LINE()){
 template<class F> void rejects(F f){try{f();}catch(const std::runtime_error&){return;}throw std::runtime_error("Expected field rejection");}
 int main(){try {
     {
+        okage::SceneClearColor clear;
+        require(clear.rgb==std::array<std::uint8_t,3>{64,64,64});
+        std::vector<std::uint8_t> stg(72);
+        auto put=[&](unsigned at,unsigned v){for(unsigned j=0;j<4;++j)stg[at+j]=v>>(8*j);};
+        put(0,0x475453);put(8,32);put(12,2);
+        put(32,0x60);put(36,9);put(40,10);put(44,11);
+        // Raw low bytes, ordered repeated records, not floating conversion.
+        put(52,0x60);put(56,0x1234);put(60,0xffffffff);put(64,256);put(68,0x7fc00000);
+        clear.load_stage(stg);require(clear.rgb==std::array<std::uint8_t,3>{52,255,0});
+        put(12,0);clear.load_stage(stg);require(clear.rgb==std::array<std::uint8_t,3>{52,255,0});
+        put(12,3);rejects([&]{clear.load_stage(stg);});
+        require(clear.rgb==std::array<std::uint8_t,3>{52,255,0});
+        rejects([&]{clear.load_stage({});});
+        okage::Animation camera(3);
+        camera.set_channel(0,{13.09f,-10,-209,1});camera.set_channel(1,{.9757f,.038f,0,1});
+        camera.tick();
+        require(camera.values()==std::vector<okage::Float4>{{13.09f,-10,-209,1},{.9757f,.038f,0,1},{1,1,1,1}});
+        rejects([&]{camera.start(0);});rejects([&]{okage::Animation invalid(0);});
+
+    }
+    {
         const auto angles=okage::make_atan_table();
         const auto floats=[](std::array<std::uint32_t,4> bits){okage::Float4 out;for(unsigned i=0;i<4;++i)out[i]=__builtin_bit_cast(float, (bits[i]));return out;};
         const std::array<std::array<std::uint32_t,4>,2> positions={{{0x4146147b,0,0xc0db3333,0x3f800000},{0x41175a05,0xba83126f,0xc0980332,0x3f800000}}};
@@ -303,6 +324,12 @@ int main(){try {
         projection.begin_deferred();projection.end_effects();
         projection.load_stage(b);
         require(projection.current().depth_far==450&&projection.effect_near()==9);
+        const auto scale=projection.current().scale_y;
+        projection.reset_scene();
+        require(projection.current().depth_far==1024&&projection.current().clip_far==1024);
+        require(projection.current().focal==1024&&projection.current().scale_y==scale&&projection.effect_near()==9);
+        require(projection.current().half_width==320&&projection.current().half_height==112);
+        rejects([&]{projection.begin_field();});projection.load_stage(b);
         // Apply duplicate records in file order; far<10 preserves the last far.
         auto repeated=b;repeated.resize(72);repeated[12]=2;
         for(unsigned j=0;j<20;++j)repeated[52+j]=b[32+j];

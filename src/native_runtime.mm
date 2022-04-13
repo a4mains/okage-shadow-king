@@ -2,6 +2,7 @@
 #include "okage/dialogue.hpp"
 #include "okage/event.hpp"
 #include "okage/game_state.hpp"
+#include "okage/game_mode.hpp"
 #include "okage/field.hpp"
 #include "okage/music.hpp"
 #include "okage/audio_output.hpp"
@@ -181,6 +182,9 @@ struct Session {
     std::unique_ptr<okage::OpeningField> field;
     std::unique_ptr<okage::SceneRenderer> renderer;
     okage::FieldProjection projection;
+    okage::SceneClearColor scene_clear;
+    std::optional<okage::RetiringSceneEffects> retiring_effects;
+    std::unique_ptr<okage::Animation> reset_camera;
     std::vector<std::uint32_t> scene_trace,dialogue_trace,camera_state_trace,movement_trace,interaction_trace;
     std::vector<std::uint32_t> effect_trace,map_effect_trace,effect_submission_trace,shadow_trace,projection_trace;
     bool effects_loaded=false;
@@ -220,7 +224,8 @@ struct Session {
     std::optional<okage::FieldBattleReturnSnapshot> battle_return;
     okage::BattleEntryContext battle_entry;
     std::array<std::uint32_t,3> pending_game_command{};
-    std::optional<std::array<std::uint32_t,3>> requested_game_mode;
+    std::optional<okage::GameModeParent> game_mode;
+    std::vector<std::uint32_t> game_mode_trace,retiring_effect_trace;
     bool retain_field_music=false;
     std::optional<okage::Texture> transition_image;
     // AppKit presentation is separate from research captures and feedback.
@@ -351,7 +356,7 @@ struct Session {
                 return;
             }
             if(phase==13) {
-                if(!battle_followers_saved||!battle_capture_layer||!music||request.stage<0||requested_game_mode)
+                if(!battle_followers_saved||!battle_capture_layer||!music||request.stage<0||!game_mode||game_mode->requested())
                     throw std::runtime_error("Battle return requires saved field state, music and explicit stage");
                 auto saved=field->battle_return_snapshot(); // 0x1301a8, before later callbacks.
                 if(saved.battle_record_selection!=-1)
@@ -361,7 +366,7 @@ struct Session {
                 retain_field_music=battle_return->secondary_music!=28; // 0x12da78.
                 pending_game_command={13,0,0}; // 0x1248d8; persists for field return.
                 battle_entry.reset(0,0,okage::event_variable(variables,0x80010)==0x83,request.return_token);
-                requested_game_mode=std::array<std::uint32_t,3>{3,request.formation,__builtin_bit_cast(std::uint32_t, (request.stage))};
+                game_mode->request({3,request.formation,__builtin_bit_cast(std::uint32_t, (request.stage))});
                 return; // 0x124930 queues only; do not destroy the field here.
             }
             throw std::runtime_error("Native battle transition phase is unrecovered (field phase "+
@@ -391,7 +396,8 @@ struct Session {
         map_objects=std::make_unique<okage::MapObjects>(map);
         bind_scene_instances();
         renderer=std::make_unique<okage::SceneRenderer>(map,scene_actors,map_objects.get());
-        auto stg=map;stg.replace_extension(".stg");projection.load_stage(readData(stg));
+        auto stg=map;stg.replace_extension(".stg");const auto stage=readData(stg);projection.load_stage(stage);
+        scene_clear.rgb={0,0,0};scene_clear.load_stage(stage);renderer->set_clear_rgb(scene_clear.rgb);
         dialogue_active=false;
         create_field(readData(event),true);
         if(std::any_of(actor_bindings.begin(),actor_bindings.end(),[](const auto& a){return a.alias==-1;})) {
@@ -405,6 +411,7 @@ struct Session {
             field->load_exploration_camera(readData(stg));
             auto xcl=map;xcl.replace_extension(".xcl");field->load_exploration_collision(readData(xcl),variables);
         }
+        game_mode.emplace(okage::GameModeSelection{2,unsigned(current_scene),unsigned(current_entrance)});
         std::cout<<"Native room: "<<renderer->placements()<<" placements; "<<renderer->omitted_effects()
             <<" effects omitted; "<<renderer->actors()<<" native actors; native projected shadows; diagnostic dialogue panel\n";
     }
@@ -478,6 +485,7 @@ struct Session {
         renderer=std::make_unique<okage::SceneRenderer>(map,scene_actors,map_objects.get());
         auto stg=map,xcl=map;stg.replace_extension(".stg");xcl.replace_extension(".xcl");
         const auto stage=readData(stg);projection.load_stage(stage);
+        scene_clear.rgb={0,0,0};scene_clear.load_stage(stage);renderer->set_clear_rgb(scene_clear.rgb);
         create_field(script,false);bind_audio_services();
         if(!effects_loaded)throw std::runtime_error("Destination requires owned effect resources");
         renderer->load_effect_textures(effect_textures);field->load_effects(effect_bytes,effect_preparation);
@@ -492,7 +500,46 @@ struct Session {
         scene_fade.request(1.f);
         field->enter(std::move(definition),stage,readData(xcl),request.entrance,input);
         current_scene=request.scene;current_entrance=int(request.entrance);transition_target=0;
+        game_mode.emplace(okage::GameModeSelection{2,unsigned(current_scene),unsigned(current_entrance)});
         std::cout<<"Native destination: scene "<<current_scene<<" entrance "<<current_entrance<<"; "<<renderer->actors()<<" actors\n";
+    }
+    void retire_field() {
+        if(!field||!renderer||!battle_return||!battle_capture_layer||retiring_effects)
+            throw std::runtime_error("Field retirement requires a complete battle handoff");
+        field->validate_retirement();
+        renderer.reset();
+        retiring_effects.emplace(field->retire_effects());
+        dialogue_active=false;opening.reset();choices={};narration={};controller={};clock={};
+        text=okage::DialogueText({});text.fonts=fonts;
+        opacity={};closure={};
+        actor_bindings.clear();field.reset();map_objects.reset();actor_objects.clear();
+        next_instance=0;instance_limit=640; // Numeric alias table survives.
+        projection.reset_scene();
+        reset_camera=std::make_unique<okage::Animation>(3);
+        //0x1b8028 ->0x1b4220, reviewed ELF constants24a480/24a490.
+        const std::array<std::array<std::uint32_t,4>,2> defaults={{{0x415170a4,0xc1200000,0xc3510000,0x3f800000},
+            {0x3f79c77a,0x3d1ba5e3,0,0x3f800000}}};
+        for(unsigned i=0;i<2;++i) {
+            okage::Float4 v;for(unsigned c=0;c<4;++c)v[c]=__builtin_bit_cast(float, (defaults[i][c]));
+            reset_camera->set_channel(i,v);
+        }
+        messages={};message_bank.clear();
+        scene_fade.step=__builtin_bit_cast(float, (0x3ca3d70au));
+    }
+    void observe_game_mode(unsigned point) {
+        if(!game_mode||(!game_mode->requested()&&!game_mode->has_dead_allocation()&&game_mode->current()[0]==2))return;
+        const auto current=game_mode->current(),request=game_mode->requested().value_or(okage::GameModeSelection{});
+        game_mode_trace.insert(game_mode_trace.end(),{frame,point,game_mode->phase(),current[0],current[1],current[2],
+            request[0],request[1],request[2],unsigned(game_mode->has_child()),unsigned(game_mode->has_dead_allocation()),
+            unsigned(bool(field)),pending_game_command[0],pending_game_command[1],pending_game_command[2],
+            __builtin_bit_cast(unsigned, (scene_fade.current)),__builtin_bit_cast(unsigned, (scene_fade.target)),__builtin_bit_cast(unsigned, (scene_fade.step)),
+            battle_capture_alpha,battle_capture_target,battle_capture_frame,completed_game_frame,
+            scene_clear.rgb[0],scene_clear.rgb[1],scene_clear.rgb[2]});
+        if(retiring_effects) {
+            retiring_effect_trace.insert(retiring_effect_trace.end(),{frame,point});
+            const auto flags=retiring_effects->flags();
+            retiring_effect_trace.insert(retiring_effect_trace.end(),flags.begin(),flags.end());
+        }
     }
     void tick(okage::DialogueButtons input) {
         ++frame;
@@ -511,9 +558,17 @@ struct Session {
             if(!transition_alpha){transition_image.reset();transition_live_image.reset();}
         }
         scene_fade.tick();
-        if(requested_game_mode)
-            throw std::runtime_error("Native global mode3 field retirement/battle construction is unrecovered at frame="+
-                std::to_string(frame));
+        if(game_mode) {
+            observe_game_mode(0);
+            game_mode->tick([this]{retire_field();},[this]{
+                if(field||renderer||!actor_bindings.empty()||!actor_objects.empty()||map_objects)
+                    throw std::runtime_error("Field borrowers survived mode retirement");
+            },[this](okage::GameModeSelection selection){
+                throw std::runtime_error("Native game mode constructor is unrecovered at frame="+
+                    std::to_string(frame)+" mode="+std::to_string(selection[0])+" formation="+
+                    std::to_string(selection[1])+" stage="+std::to_string(selection[2]));
+            });
+        }
         const std::array<std::uint32_t,2> layers={0x50,controller.layer_flags};
         if(field) {
             try {field->tick({input.held,128,128,input.pressed});}
@@ -551,7 +606,8 @@ struct Session {
                 music_trace.insert(music_trace.end(),{frame,unsigned(music->volume.current),unsigned(music->volume.target),
                     unsigned(music->volume.step),music->player()?music->player()->peak_voices():0});}
         }
-        if(!field && !release_frame && okage::poll_dialogue_wait(wait,2,{true,0,layers,std::int32_t(text.state.progress)})==0)release_frame=frame;
+        if(!game_mode && !release_frame && okage::poll_dialogue_wait(wait,2,{true,0,layers,std::int32_t(text.state.progress)})==0)release_frame=frame;
+        if(!game_mode||field) {
         if(dialogue_active && !closure.finished()) {
             opacity.tick();closure.decoration.tick();
             if(opening&&controller.stage==0)opening->bootstrap(text,clock);
@@ -582,6 +638,7 @@ struct Session {
         dialogue_trace.insert(dialogue_trace.end(),{frame,std::uint32_t(message_id),text.state.flags,text.state.phase,
             text.state.period,text.state.delay,text.state.progress,controller.advance_count,controller.layer_advance,
             controller.layer_flags,controller.stage,__builtin_bit_cast(std::uint32_t, (opacity.delta))});
+        }
         if(field) {
             interaction_trace.insert(interaction_trace.end(),{frame,input.pressed,
                 std::uint32_t(field->interaction_alias()),std::uint32_t(field->interaction_event()),
@@ -656,6 +713,7 @@ struct Session {
             for(const auto* s:{&p.shadow,&p.ordinary,&p.field_end,&p.effects,&p.deferred,&p.ending})
                 for(float f:okage::field_projection_words(*s))projection_trace.push_back(__builtin_bit_cast(std::uint32_t, (f)));
         }
+        observe_game_mode(1);
         if(battle_capture_layer) {
             battle_capture_draw=battle_capture_layer->draw(true,battle_capture_sine);
             const auto& draw=*battle_capture_draw;
@@ -679,7 +737,7 @@ struct Session {
         if(rendered_surface&&rendered_frame==frame)return;
         auto image=surface();
         feedback.retain(image,frame,224);
-        if(field&&field->battle_request()) {
+        if(battle_capture_image||(field&&field->battle_request())) {
             completed_game_image=image;completed_game_image->height=224;
             completed_game_image->rgba.resize(640*224*4);completed_game_frame=frame;
         }
@@ -718,14 +776,23 @@ struct Session {
     okage::Texture surface() const {
         if(rendered_surface&&rendered_frame==frame)return *rendered_surface;
         auto text_image=okage::rasterize_text(fonts,text.glyphs,640,224);
-        if(!renderer)return text_image;
+        if(!renderer&&!game_mode)return text_image;
+        okage::Texture image{640,224,0,0,std::vector<std::uint8_t>(640*224*4)};
+        if(renderer) {
+        if(!field)throw std::runtime_error("Field renderer has no mode owner");
         const auto& r=field->rotation;
         const auto& screen=projection.frame().ordinary;
-        auto image=renderer->render(field->view(),okage::field_clip_projection(screen),effects_loaded?&field->effects():nullptr,{-r[0],-r[1],-r[2],0},screen.clip_far,field->position,&projection.frame(),field->player_shadow()?field->player_shadow()->projection_factor:1);
+        image=renderer->render(field->view(),okage::field_clip_projection(screen),effects_loaded?&field->effects():nullptr,{-r[0],-r[1],-r[2],0},screen.clip_far,field->position,&projection.frame(),field->player_shadow()?field->player_shadow()->projection_factor:1);
         try {feedback.apply(image,frame,field->screen_filter.alpha);}
         catch(const std::exception& e) {
             throw std::runtime_error("Feedback at native frame="+std::to_string(frame)+" scene="+
                 std::to_string(current_scene)+" event_pc="+std::to_string(field->pc())+": "+e.what());
+        }
+        } else {
+            for(std::size_t i=0;i<image.rgba.size();i+=4) {
+                for(unsigned c=0;c<3;++c)image.rgba[i+c]=scene_clear.rgb[c];
+                image.rgba[i+3]=255; // Existing opaque display-alpha policy.
+            }
         }
         const auto alpha=scene_fade.alpha(),brightness=128-alpha;
         for(std::size_t i=0;i<image.rgba.size();i+=4)for(unsigned c=0;c<3;++c)
@@ -801,8 +868,9 @@ static void capture(const Session& session,const fs::path& path) {
         std::vector<std::uint32_t> words={__builtin_bit_cast(std::uint32_t, (saved.scene)),
             __builtin_bit_cast(std::uint32_t, (saved.secondary_music)),unsigned(session.retain_field_music)};
         words.insert(words.end(),session.pending_game_command.begin(),session.pending_game_command.end());
-        if(!session.requested_game_mode)throw std::runtime_error("Battle return capture has no queued mode");
-        words.insert(words.end(),session.requested_game_mode->begin(),session.requested_game_mode->end());
+        if(!session.game_mode)throw std::runtime_error("Battle return capture has no mode parent");
+        const auto selection=session.game_mode->requested().value_or(session.game_mode->current());
+        words.insert(words.end(),selection.begin(),selection.end());
         for(const auto& v:{saved.player_position,saved.player_rotation,saved.raw_camera_position})
             for(float f:v)words.push_back(__builtin_bit_cast(std::uint32_t, (f)));
         std::ofstream return_state(output,std::ios::binary);
@@ -852,6 +920,10 @@ static void capture(const Session& session,const fs::path& path) {
          <<",\n  \"progression_flag_4\": "<<okage::event_variable(session.variables,4)
          <<",\n  \"progression_flag_5\": "<<okage::event_variable(session.variables,5)
          <<",\n  \"field_event_running\": "<<(session.field&&session.field->event_running()?"true":"false")
+         <<",\n  \"field_present\": "<<(session.field?"true":"false")
+         <<",\n  \"game_mode\": "<<(session.game_mode?session.game_mode->current()[0]:0)
+         <<",\n  \"game_mode_parent_phase\": "<<(session.game_mode?session.game_mode->phase():0)
+         <<",\n  \"game_mode_dead_allocation\": "<<(session.game_mode&&session.game_mode->has_dead_allocation()?"true":"false")
          <<",\n  \"field_camera_mode\": "<<(session.field?session.field->camera_mode():0)
          <<",\n  \"interaction_alias\": "<<(session.field?session.field->interaction_alias():0)
          <<",\n  \"interaction_event\": "<<(session.field?session.field->interaction_event():0)
@@ -905,11 +977,13 @@ static void capture(const Session& session,const fs::path& path) {
         shadows<<"\n  ]\n}\n";
         if(!shadows)throw std::runtime_error("Cannot write shadow-submission capture");
     }
-    for(const auto& [suffix,data]:std::array<std::pair<std::string,okage::Bytes>,5>{
+    for(const auto& [suffix,data]:std::array<std::pair<std::string,okage::Bytes>,7>{
         std::pair{".screen-filter.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.filter_trace.data()),session.filter_trace.size()*4)},
         std::pair{".transition.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.transition_trace.data()),session.transition_trace.size()*4)},
         std::pair{".battle-transition.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.battle_transition_trace.data()),session.battle_transition_trace.size()*4)},
         std::pair{".battle-capture.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.battle_capture_trace.data()),session.battle_capture_trace.size()*4)},
+        std::pair{".game-mode.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.game_mode_trace.data()),session.game_mode_trace.size()*4)},
+        std::pair{".retiring-effects.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.retiring_effect_trace.data()),session.retiring_effect_trace.size()*4)},
         std::pair{".variables.bin",okage::Bytes(session.variables)}}) {
         const auto output=fs::path(path.string()+suffix);
         if(fs::exists(output)||fs::is_symlink(output))throw std::runtime_error("Refusing existing field-state capture");
@@ -944,7 +1018,7 @@ static void capture(const Session& session,const fs::path& path) {
         std::ofstream out(actorPath,std::ios::binary);
         if(!out.write(reinterpret_cast<const char*>(trace.data()),trace.size()*4))throw std::runtime_error("Cannot save actor trace");
     }
-    if(session.field) {
+    if(!session.scene_trace.empty()) {
         const auto interactionPath=fs::path(path.string()+".interaction.bin");
         if(fs::exists(interactionPath)||fs::is_symlink(interactionPath))throw std::runtime_error("Refusing existing interaction trace");
         std::ofstream interaction(interactionPath,std::ios::binary);
@@ -964,7 +1038,7 @@ static void capture(const Session& session,const fs::path& path) {
         std::ofstream movementTrace(movementPath,std::ios::binary);
         if(!movementTrace.write(reinterpret_cast<const char*>(session.movement_trace.data()),session.movement_trace.size()*4))
             throw std::runtime_error("Cannot save native movement trace");
-        std::cout<<"Field PC=0x"<<std::hex<<session.field->pc()<<" pending opcode=0x"<<session.field->pending_opcode<<std::dec
+        if(session.field)std::cout<<"Field PC=0x"<<std::hex<<session.field->pc()<<" pending opcode=0x"<<session.field->pending_opcode<<std::dec
             <<" actor="<<session.field->pending_actor<<" animation="<<session.field->pending_animation<<'\n';
     }
 }
@@ -1074,9 +1148,9 @@ static void captureView(NSView* view,const fs::path& path) {
     const bool measured=performance&&performance->interval.active();
     const double started=measured?NSProcessInfo.processInfo.systemUptime:0;
     const auto diagnostic=session->surface();
-    const auto& displayed=session->field&&session->live_image?*session->live_image:diagnostic;
+    const auto& displayed=session->game_mode&&session->live_image?*session->live_image:diagnostic;
     NSImage* image=[[NSImage alloc] initWithSize:NSMakeSize(displayed.width,displayed.height)];[image addRepresentation:bitmap(displayed)];
-    self.view.image=image;self.view.opacity=session->field ? 128 : session->opacity.value;self.view.needsDisplay=YES;
+    self.view.image=image;self.view.opacity=session->game_mode ? 128 : session->opacity.value;self.view.needsDisplay=YES;
     self.window.title=[NSString stringWithFormat:@"Okage native — frame %u — %@ — P: pause/resume — Arrows, Return/Space",
         session->frame,paused ? @"paused" : @"running"];
     if(session->field && session->field->pending_opcode)

@@ -6,6 +6,8 @@
 namespace okage {
 class Animation {
 public:
+    // Native channel group with no XMT script, as allocated by0x1b5d10.
+    explicit Animation(std::size_t channel_count);
     Animation(Bytes bytes, std::size_t channel_count);
     void start(std::size_t entry);
     void select(std::size_t entry); // Select for the next script dispatch (0x1b4da8).

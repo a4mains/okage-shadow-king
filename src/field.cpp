@@ -84,6 +84,17 @@ FieldBattleReturnSnapshot OpeningField::battle_return_snapshot() {
     return {player[1],player[0],camera[0],definition_->scene,definition_->secondary_music,
         definition_->battle_record_selection};
 }
+RetiringSceneEffects OpeningField::retire_effects() {
+    RetiringSceneEffects retired{std::move(map_effects_),std::move(effects_)};
+    retired.mark();effect_submissions_.clear();
+    return retired;
+}
+void OpeningField::validate_retirement() const {
+    if(hat_requested_||hat_actor_||camera_motion_||alias7_actor_)
+        throw std::runtime_error("Exceptional field child retirement is unrecovered");
+    if(shadow_&&shadow_->voice>=0)
+        throw std::runtime_error("Field retirement owned voice release is unrecovered");
+}
 bool OpeningField::request_actor_motion(int alias,unsigned entry) {
     //0x130158 resolves a negative alias then calls0x1b6fb8 directly. Unlike
     // event36, this caller has no camera selector or high-entry stop branch.
@@ -1121,6 +1132,16 @@ void OpeningField::advance_effects() {
 Matrix4 OpeningField::view() const {
     Float4 p=position,r=rotation;for(unsigned i=0;i<3;++i){p[i]=-p[i];r[i]=-r[i];}p[3]=1;r[3]=0;
     return camera_matrix(p,r,{1,1,1,0},sine_);
+}
+void SceneClearColor::load_stage(Bytes stg) {
+    if(get(stg,0)!=0x475453)throw std::runtime_error("Invalid clear-color STG");
+    const auto begin=get(stg,8),count=get(stg,12);
+    if(begin<32||count>4096||std::uint64_t(begin)+std::uint64_t(count)*20>stg.size())
+        throw std::runtime_error("STG clear-color settings bounds");
+    auto next=rgb;
+    for(unsigned i=0;i<count;++i)if(get(stg,begin+i*20)==0x60)
+        for(unsigned c=0;c<3;++c)next[c]=std::uint8_t(get(stg,begin+i*20+4+c*4));
+    rgb=next;
 }
 FieldOrdinaryLighting field_ordinary_lighting(Bytes stg) {
     if(get(stg,0)!=0x475453)throw std::runtime_error("Invalid STG magic");

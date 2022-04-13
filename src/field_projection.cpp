@@ -13,6 +13,14 @@ std::uint32_t word(Bytes b,std::size_t at) {
         (std::uint32_t(b[at+2])<<16)|(std::uint32_t(b[at+3])<<24);
 }
 }
+void FieldProjection::reset_scene() {
+    if(phase_!=Phase::Idle)throw std::runtime_error("Scene reset during projection submission");
+    current_.depth_min=101;current_.depth_max=16777115;current_.focal=1024;
+    current_.depth_near=current_.clip_near=3;current_.depth_far=current_.clip_far=1024;
+    current_.fog_near=4096;current_.fog_far=16384;
+    field_far_=1024;field_fog_near_=4096;field_fog_far_=16384;
+    frame_={current_,current_,current_,current_,current_,current_};loaded_=false;
+}
 void FieldProjection::load_stage(Bytes bytes) {
     if(phase_!=Phase::Idle)throw std::runtime_error("Projection stage changed during submission");
     if(word(bytes,0)!=0x475453)throw std::runtime_error("Invalid projection STG");

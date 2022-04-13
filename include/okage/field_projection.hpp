@@ -7,6 +7,7 @@ struct FieldProjectionFrame {
 };
 class FieldProjection {
 public:
+    void reset_scene(); //0x1b8028, preserving display scale/viewport.
     void load_stage(Bytes);
     void begin_field();
     void begin_effects();

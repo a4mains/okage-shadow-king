@@ -156,6 +156,15 @@ struct AttachedEffect {
     AttachedEffect(const EffectDefinition& d,int parameter,int actor):animation(d,parameter),actor_alias(actor){}
 };
 using AttachedEffects=std::array<std::unique_ptr<AttachedEffect>,84>;
+//0x1036d8 marks scene slots for the ordinary effect deletion callbacks. No
+// animation, RNG or actor lookup is legal after their field owners retire.
+struct RetiringSceneEffects {
+    MapEffects map;
+    AttachedEffects attached;
+    void mark();
+    void tick();
+    std::array<std::uint32_t,84> flags() const;
+};
 struct EffectSubmission {
     unsigned handle;
     std::variant<MapEffect,AttachedEffect> effect;

@@ -13,6 +13,7 @@
 #include "reference_movement.hpp"
 #include "reference_interaction.hpp"
 #include "reference_transition.hpp"
+#include "reference_game_mode.hpp"
 #include "reference_dust.hpp"
 #include "reference_camera.hpp"
 #include "reference_camera_schedule.hpp"
@@ -90,10 +91,10 @@ std::vector<unsigned> parseCaptureFrames(std::string_view text,unsigned duration
 }
 int main(int argc,char** argv) {
     try {
-        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX [--capture-frames N,N,...]] [--pad INPUT | --walk-waypoints ROUTE --walk-record INPUT] [--audio WAV [--audio-index JSON]] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--camera-schedule FILE] [--screen-filter FILE] [--movement FILE] [--interaction FILE] [--interaction-wide FILE] [--transition FILE] [--dust FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--wander FILE] [--rng FILE] [--lifecycle FILE] [--order FILE] [--effect-order FILE] [--projection FILE] [--music FILE] [--deadline-seconds 1..7200]");
+        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX [--capture-frames N,N,...]] [--pad INPUT | --walk-waypoints ROUTE --walk-record INPUT] [--audio WAV [--audio-index JSON]] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--camera-schedule FILE] [--screen-filter FILE] [--movement FILE] [--interaction FILE] [--interaction-wide FILE] [--transition FILE] [--game-mode FILE] [--dust FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--wander FILE] [--rng FILE] [--lifecycle FILE] [--order FILE] [--effect-order FILE] [--projection FILE] [--music FILE] [--deadline-seconds 1..7200]");
         unsigned deadlineSeconds=0;
         std::string walkWaypoints,walkRecord,captureFramesText,audioIndex;
-        int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false,musicField=false,musicJingle=false,musicNight=false,interactionWide=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,cameraSchedule,music,movement,interaction,transition,npc,wander,rng,dust,screenFilter,effectOrder,projection;
+        int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false,musicField=false,musicJingle=false,musicNight=false,interactionWide=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,cameraSchedule,music,movement,interaction,transition,gameMode,npc,wander,rng,dust,screenFilter,effectOrder,projection;
         for (int i=3;i<argc;++i) {
             const std::string arg=argv[i];
             if (arg=="--load") load=true;
@@ -144,6 +145,7 @@ int main(int argc,char** argv) {
             else if (arg=="--controller" && i+1<argc) controller=argv[++i];
             else if (arg=="--dust" && i+1<argc) dust=argv[++i];
             else if (arg=="--transition" && i+1<argc) transition=argv[++i];
+            else if (arg=="--game-mode" && i+1<argc) {if(!gameMode.empty())throw std::runtime_error("Duplicate game-mode trace output");gameMode=argv[++i];if(gameMode.empty())throw std::runtime_error("Empty game-mode trace output");}
             else if (arg=="--interaction-wide" && i+1<argc) {interaction=argv[++i];interactionWide=true;}
             else if (arg=="--interaction" && i+1<argc) interaction=argv[++i];
             else if (arg=="--movement" && i+1<argc) movement=argv[++i];
@@ -215,6 +217,7 @@ int main(int argc,char** argv) {
         auto actorTrace=actor.empty() ? nullptr : std::make_unique<ActorTrace>(actor,actorAlias);
         auto dustTrace=dust.empty() ? nullptr : std::make_unique<DustTrace>(dust);
         auto transitionTrace=transition.empty() ? nullptr : std::make_unique<TransitionTrace>(transition);
+        auto gameModeTrace=gameMode.empty() ? nullptr : std::make_unique<GameModeTrace>(gameMode);
         auto interactionTrace=interaction.empty() ? nullptr : std::make_unique<InteractionTrace>(interaction,interactionWide);
         auto movementTrace=movement.empty() ? nullptr : std::make_unique<MovementTrace>(movement);
         auto cameraScheduleTrace=cameraSchedule.empty() ? nullptr : std::make_unique<CameraScheduleTrace>(cameraSchedule);
@@ -222,7 +225,7 @@ int main(int argc,char** argv) {
         auto orderTrace=order.empty() ? nullptr : std::make_unique<OrderTrace>(order);
         auto effectOrderTrace=effectOrder.empty() ? nullptr : std::make_unique<EffectOrderTrace>(effectOrder);
         auto projectionTrace=projection.empty() ? nullptr : std::make_unique<ProjectionTrace>(projection);
-        const bool tracing=bool(projectionTrace) || bool(effectOrderTrace) || traceLoaders || bool(cameraScheduleTrace) || bool(screenFilterTrace) || bool(dustTrace) || bool(npcTrace) || bool(wanderTrace) || bool(rngTrace) || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace) || bool(cameraTrace) || bool(actorTrace) || bool(movementTrace) || bool(interactionTrace) || bool(transitionTrace) || bool(lifecycleTrace) || bool(orderTrace) || !music.empty();
+        const bool tracing=bool(projectionTrace) || bool(effectOrderTrace) || traceLoaders || bool(cameraScheduleTrace) || bool(screenFilterTrace) || bool(dustTrace) || bool(npcTrace) || bool(wanderTrace) || bool(rngTrace) || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace) || bool(cameraTrace) || bool(actorTrace) || bool(movementTrace) || bool(interactionTrace) || bool(transitionTrace) || bool(gameModeTrace) || bool(lifecycleTrace) || bool(orderTrace) || !music.empty();
         // An exclusive fresh directory prevents image/manifest reuse across runs.
         if(!captureFrames.empty() && !std::filesystem::create_directory(captureDirectory))
             throw std::runtime_error("Could not create fresh selected-frame capture directory");
@@ -301,6 +304,7 @@ int main(int argc,char** argv) {
         if(rngTrace)for(auto at:RngTrace::breakpoints)loaders.push_back(at);
         if(dustTrace)for(auto at:DustTrace::breakpoints)loaders.push_back(at);
         if(transitionTrace)for(auto at:TransitionTrace::breakpoints)loaders.push_back(at);
+        if(gameModeTrace)for(auto at:GameModeTrace::breakpoints)loaders.push_back(at);
         if(interactionTrace)for(auto at:InteractionTrace::breakpoints)loaders.push_back(at);
         if(movementTrace)for(auto at:MovementTrace::breakpoints)loaders.push_back(at);
         if(lifecycleTrace)for(auto at:LifecycleTrace::breakpoints)loaders.push_back(at);
@@ -371,6 +375,9 @@ int main(int argc,char** argv) {
                 if(transitionTrace && std::find(TransitionTrace::breakpoints.begin(),TransitionTrace::breakpoints.end(),pc)!=TransitionTrace::breakpoints.end()) {
                     transitionTrace->observe(*vm.m_ee,frames);
                     if(!(interactionTrace && std::find(InteractionTrace::breakpoints.begin(),InteractionTrace::breakpoints.end(),pc)!=InteractionTrace::breakpoints.end())) {vm.Resume();continue;}
+                }
+                if(gameModeTrace && std::find(GameModeTrace::breakpoints.begin(),GameModeTrace::breakpoints.end(),pc)!=GameModeTrace::breakpoints.end()) {
+                    gameModeTrace->observe(*vm.m_ee,frames);vm.Resume();continue;
                 }
                 if(interactionTrace && std::find(InteractionTrace::breakpoints.begin(),InteractionTrace::breakpoints.end(),pc)!=InteractionTrace::breakpoints.end()) {
                     interactionTrace->observe(*vm.m_ee,frames);vm.Resume();continue;
@@ -447,6 +454,7 @@ int main(int argc,char** argv) {
         if(wanderTrace)wanderTrace->finish();
         if(rngTrace)rngTrace->finish();
         if(transitionTrace)transitionTrace->finish();
+        if(gameModeTrace)gameModeTrace->finish();
         if(dustTrace)dustTrace->finish();
         if(effectOrderTrace)effectOrderTrace->finish();
         if(projectionTrace)projectionTrace->finish();
