@@ -1119,14 +1119,14 @@ static void captureView(NSView* view,const fs::path& path) {
 @implementation NativeApp
 - (void)applicationDidFinishLaunching:(NSNotification*)notification {
     (void)notification;
-    self.window=[[NSWindow alloc] initWithContentRect:NSMakeRect(0,0,960,session->field ? 720 : 336)
+    self.window=[[NSWindow alloc] initWithContentRect:NSMakeRect(0,0,960,session->game_mode ? 720 : 336)
         styleMask:NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|NSWindowStyleMaskResizable|NSWindowStyleMaskMiniaturizable backing:NSBackingStoreBuffered defer:NO];
     self.window.delegate=self;
     if(session->music&&!paused)session->audio_output=std::make_unique<okage::AudioOutput>();
     self.view=[[NativeTextView alloc] initWithFrame:self.window.contentView.bounds];self.view.autoresizingMask=NSViewWidthSizable|NSViewHeightSizable;
     self.view->performance=performance.get();
     self.view.held=replayDirections;
-    self.view.fieldPresentation=bool(session->field);
+    self.view.fieldPresentation=bool(session->game_mode);
     self.window.contentView=self.view;[self.window center];[self.window makeKeyAndOrderFront:nil];[self.window makeFirstResponder:self.view];
     [NSApp activateIgnoringOtherApps:YES];self.previousTime=NSProcessInfo.processInfo.systemUptime;
     if(paused) {
