@@ -1,0 +1,293 @@
+{
+  "schema": "okage-field-retirement-validation-v1",
+  "date": "2022-04-17",
+  "implementation_revision": "3bf23f0681b3f2e0c40fb13f31af6014c6ee2068",
+  "presentation_and_comparator_revision": "b641f70034f600ff712b04ecbef9b384517ddcd2",
+  "retail_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "scope": "Native field destruction at 104446 and scheduler allocation removal at 104447; battle construction remains guarded at 104448.",
+  "sources": [
+    {
+      "path": "CMakeLists.txt",
+      "sha256": "9aa64928e293cb67043cb7ed4fe671eb9d4ed68fac6da2d82768a055ee6b497e"
+    },
+    {
+      "path": "include/okage/animation.hpp",
+      "sha256": "5445e3617780f2ea8c51a9521fa74d4499d728cc1188b71ac8580b5272daebd1"
+    },
+    {
+      "path": "include/okage/effect.hpp",
+      "sha256": "726f927c8078bcc9053f1227d29ffb1e94842390db8b5c37ee753321b266f5bf"
+    },
+    {
+      "path": "include/okage/field.hpp",
+      "sha256": "ff56be1118d79df120b4b5aee1a15cd428643d4d1c09eae71cba5fa5c6f16f0e"
+    },
+    {
+      "path": "include/okage/field_projection.hpp",
+      "sha256": "9212fbee2f0379f6726e306bc7a246ec192b8bf70dc8c4e97bbf42d14414a750"
+    },
+    {
+      "path": "include/okage/game_mode.hpp",
+      "sha256": "8e1be76fb55bc9c42e2368ee2b9e08d7c9d3e696a3aff6dd00d24d0396477bbe"
+    },
+    {
+      "path": "include/okage/scene_renderer.hpp",
+      "sha256": "77cacf0dcf46cedffbd829609f0cf0eabb0af0b458c341d0c2aefd98cc5c569c"
+    },
+    {
+      "path": "src/animation.cpp",
+      "sha256": "2dc0b01099a003a111651e96dc5cb28b9fd42a58b5df0890156d68c182188dd7"
+    },
+    {
+      "path": "src/effect.cpp",
+      "sha256": "467d3e2d8022c9026f99b14e1993edc90b59eda7c5bf29f0f25a9432403599e4"
+    },
+    {
+      "path": "src/field.cpp",
+      "sha256": "31e102a82bf8dfe004e795796145cc166a07a1f9cefe2c7c7df022fd14cf61a8"
+    },
+    {
+      "path": "src/field_projection.cpp",
+      "sha256": "36a050c5299f5432ca2bfb422b2349a8e85e1c2c43a67bb619b9fa2e09ca00c6"
+    },
+    {
+      "path": "src/game_mode.cpp",
+      "sha256": "f05dae39aa2c283712bbc0908919f108399d1bd78f54c81c3d00c5fa9303437b"
+    },
+    {
+      "path": "src/native_runtime.mm",
+      "sha256": "8189dd3e254b2fc3e76f258dbe8183c6f17afa85fc2489c0fd6f7d84f8c8143e"
+    },
+    {
+      "path": "src/scene_renderer.mm",
+      "sha256": "36161bb2d4f6d34cb0fc6a9197e39c0d5d128a32c46473e23b85ad092b105252"
+    },
+    {
+      "path": "tests/effect_tests.cpp",
+      "sha256": "1d39f5d009ccf6a41d0fc8d7e626b5e54581b1f9c6897e8bfa4a64f96a29f771"
+    },
+    {
+      "path": "tests/field_tests.cpp",
+      "sha256": "9f55910ff24e7db7fb93e933d6d51e57017697563ad08fda42fd4f24f1dd8c86"
+    },
+    {
+      "path": "tests/game_mode_tests.cpp",
+      "sha256": "ac356921dcc8ca94c82c2ca0f8ed0e351249995ecba7353b6cbea1f0af5842b3"
+    },
+    {
+      "path": "tests/test_compare_game_mode.py",
+      "sha256": "71647aacc4280f1097d84604f49e0c94da2fa5d4e01a7bc32baad850985046f5"
+    },
+    {
+      "path": "tools/compare_game_mode.py",
+      "sha256": "e65a392a5bbcc168c156344e1aca8dea7d7d0615c0751016be6973572a2bb53e"
+    },
+    {
+      "path": "tools/play-oracle/boot.cpp",
+      "sha256": "882e0341404b03a3769b9338e3443dc1f47e8efecc199abe0560eea6f3d3901c"
+    },
+    {
+      "path": "tools/play-oracle/reference_game_mode.hpp",
+      "sha256": "0f56ed5904b4eb5c720ee70a8ea6231fdd2a32e438aa35032a73baf37f266bd6"
+    }
+  ],
+  "runs": {
+    "release_v1": {
+      "path": "local/native-field-retirement-104447-release-v1.run.json",
+      "sha256": "e8f8172dd375bc474f32da4e6f6c8beac16fdf2aa8c512fa5a997f43bbdedd94",
+      "exit_code": 0,
+      "elapsed_seconds": 21.146319417,
+      "binary_sha256": "47a211021c2e23bc444169e6a4b0c7c62ee9396a3ade71124c120271b449992e"
+    },
+    "release_v2": {
+      "path": "local/native-field-retirement-104447-release-v2.run.json",
+      "sha256": "42f3b143c9b20f2804ad8b6d53b25ed777b893c8a354de2d90c3e1cf6df9aa12",
+      "exit_code": 0,
+      "elapsed_seconds": 22.379108958,
+      "binary_sha256": "88d696f1699fa52fef3d297a3ac0bb1b3096c45d2fcb02e3b5f164eaefda2059"
+    },
+    "sanitize": {
+      "path": "local/native-field-retirement-104447-sanitize-v1.run.json",
+      "sha256": "a9530bc44164ad71601a53da5eb6e12ee2e02835a21f4549c6cb4c9943afc1c3",
+      "exit_code": 0,
+      "elapsed_seconds": 623.750431875,
+      "binary_sha256": "3792d93895c237c041294140feb5c6c6efb4df2fdb4100d07a2d42b9a469372d"
+    },
+    "boundary": {
+      "path": "local/native-field-retirement-104615-boundary-release-v1.run.json",
+      "sha256": "24e50e90d6644a059e9ff85ac95f8c0b99c31b4bc0fccdb883fccc3cd48327e3",
+      "exit_code": 1,
+      "elapsed_seconds": 20.716506959,
+      "binary_sha256": "47a211021c2e23bc444169e6a4b0c7c62ee9396a3ade71124c120271b449992e"
+    },
+    "original": {
+      "path": "local/research/battle-retirement-integration-v1/original-v1.run.json",
+      "sha256": "dbf10eb6eae7ce1c595d9dc900f6b7ba8f67250bcdba57121c267ded7e93f55f",
+      "exit_code": 0,
+      "elapsed_seconds": 17.499048416999997,
+      "binary_sha256": "c28c7e5d5d63fa2b858d5167b80d5472534e9aaa9d90c8f21658df826d6c9d01"
+    }
+  },
+  "comparison": {
+    "scheduler_records": 5,
+    "scheduler_words": 60,
+    "differences": 0,
+    "missing_original_records": 0,
+    "alignment": "Native pre-parent matches same original entry; post-mode matches next original entry. Original absolute frame = 104376 + rawframe.",
+    "cross_build_endpoint_artifacts": 57,
+    "cross_build_equal": true,
+    "prior_prefix_artifacts": 51,
+    "unchanged_prefixes": 50,
+    "changed_frozen_pixels": 24,
+    "changed_frozen_channels": 72,
+    "whole_104376_104615": "Incomplete; checker exit 1 preserved."
+  },
+  "reports": [
+    {
+      "path": "local/research/battle-retirement-integration-v1/scheduler-comparison-final.json",
+      "sha256": "0009ccdf648cc74531b9932f6588768b9ba218efceb9aae266b270731b2b1052"
+    },
+    {
+      "path": "local/research/battle-retirement-integration-v1/prior-prefixes-v1.json",
+      "sha256": "8d30f26d13c2c8855d41ea452475b81748f7f66e2dbfd7f4b875378a7ca2df0b"
+    },
+    {
+      "path": "local/research/battle-retirement-integration-v1/clear-change-v1.json",
+      "sha256": "666421b73e110ffbcc2e5183f7fa42eea90a73538387e306ddab500cf6ee864a"
+    },
+    {
+      "path": "local/research/battle-retirement-integration-v1/prior-240-v1.json",
+      "sha256": "7406f2546855c7fca6885958794bef2ebd273c824db5776211e3266b35eaa5b7"
+    },
+    {
+      "path": "local/research/battle-retirement-integration-v1/full-240-incomplete-v1.log",
+      "sha256": "a6398daeaab039b43bb83f5e601c8074273eb7fb9786160b43ef56e8f537e1b9"
+    },
+    {
+      "path": "local/research/battle-retirement-integration-v1/release-v1-v2-comparison.json",
+      "sha256": "af18d85087284d1f16fa2f43729bea5c22c1c519969bc1a5cef70e82df3d3d9f"
+    },
+    {
+      "path": "local/research/battle-retirement-integration-v1/release-sanitize-comparison.json",
+      "sha256": "cd187e3888e127593236d11948689c4d4ca411cc99b9fa3989d31e34004276e4"
+    },
+    {
+      "path": "local/research/battle-retirement-integration-v1/preview-v2-comparison.json",
+      "sha256": "0ccef4a5416ff88507c256b224e0676bcad1509341a5313555a448612efc857f"
+    },
+    {
+      "path": "local/research/battle-retirement-integration-v1/audit-commands-v1.json",
+      "sha256": "ef50059fe5198ac15f5d0bfeeb41a9155e73ef358b1c8812ed44c6b6cc4d077b"
+    },
+    {
+      "path": "local/research/battle-retirement-integration-v1/provenance-audit.json",
+      "sha256": "0b7aa01bfdc762d347f6c3ea78b188237c3584269bd4422707220287e412e0a2"
+    }
+  ],
+  "tests": {
+    "python": {
+      "passed": 226,
+      "evidence": {
+        "path": "local/research/battle-retirement-integration-v1/python-tests-final.log",
+        "sha256": "91e4a85f32ade159efc1b0cd723f1e5d14956313198fdc2ccd983c1bb5b25524"
+      }
+    },
+    "focused": [
+      {
+        "path": "local/research/battle-retirement-integration-v1/release-tests-v1.log",
+        "sha256": "972b9afddff9ba1c69ca8d75b47b26e659c3c8989dc025701382795b7cdfa16a"
+      },
+      {
+        "path": "local/research/battle-retirement-integration-v1/debug-tests-v1.log",
+        "sha256": "f9a94062af3c173b01d34bd523bc75779d3b2e0b6b27a5bf8d85587ee1292f7e"
+      },
+      {
+        "path": "local/research/battle-retirement-integration-v1/sanitize-tests-v1.log",
+        "sha256": "ed9538efd5a98c12388d8952b0e991a9881c6f3569582a23ef4a8ffa75547abe"
+      }
+    ],
+    "final_game_mode": [
+      {
+        "path": "local/research/battle-retirement-integration-v1/native-release-mode-test-final.log",
+        "sha256": "3ef83aa5dd1afa1120a0dc1357a039512d59fa8ddc897fea8200aa3078e4d922"
+      },
+      {
+        "path": "local/research/battle-retirement-integration-v1/native-mode-test-final.log",
+        "sha256": "2d1ff61d35b2076b67d7d1a7206f1f537712a133391c19e3325ea233754ed744"
+      },
+      {
+        "path": "local/research/battle-retirement-integration-v1/model-sanitize-mode-test-final.log",
+        "sha256": "aeef74ad32f1aa605d9d6cb7787352cacc498f72c26a240bdf34219b23127c0d"
+      }
+    ]
+  },
+  "source_research": [
+    {
+      "path": "local/research/battle-field-retirement-v1/review.txt",
+      "sha256": "d5480ece4f398568435f600f2205760cf39ca871901b1a354aa4bd4943465928"
+    },
+    {
+      "path": "local/research/battle-field-retirement-v1/provenance.json",
+      "sha256": "dae370ae1d64efba7612dae51139682512e1ca76b378d71557b9ce0b6ec6f48a"
+    },
+    {
+      "path": "local/research/battle-retirement-dependencies-v1/review.txt",
+      "sha256": "c28677998b2ad019c3b81b9f7b136c714fbd525d4b429d8aafcb44a325aac641"
+    },
+    {
+      "path": "local/research/battle-retirement-dependencies-v1/provenance.json",
+      "sha256": "8b4e909de74a1a937a33d697e6a42b2a7df08e80872672461c4635e8628b6af5"
+    },
+    {
+      "path": "local/research/battle-constructor-contract-v1/review.txt",
+      "sha256": "f146dfd133308dd6c4bde0b7dd66a2db140b574b2916836bbc6d415c15dd4491"
+    },
+    {
+      "path": "local/research/battle-constructor-contract-v1/provenance.json",
+      "sha256": "b37e20f324450168174b2c67bc55782fcf93b41cf62d3b7dd09015d8662757c6"
+    }
+  ],
+  "source_provenance_audit": {
+    "total": 365,
+    "verified": 364,
+    "unverified": [
+      {
+        "manifest": "local/research/battle-retirement-dependencies-v1/provenance.json",
+        "path": "src/native_runtime.mm",
+        "expected": "f6a5807ce9db6e8ca74740dc1cb667df9457224c09fefd0d079f70030a63c586",
+        "verified": false,
+        "actual": "32dab6da66ab407013df58dda1420f667c59769f92d4a3cf4f77d18f57afb53b"
+      }
+    ],
+    "limitation": "One historical native_runtime.mm context hash cannot be reproduced from current file or audited revisions 1298ece/3bf23f0/b641f70. Preserve this discrepancy. Original export hashes verify; current native sources are bound separately above."
+  },
+  "preview": {
+    "bundle": "local/demos/current-preview-104447-v2/okage-native.app",
+    "pid_at_check": 3907,
+    "session": 40107,
+    "paused_frame": 104447,
+    "binary_sha256": "88d696f1699fa52fef3d297a3ac0bb1b3096c45d2fcb02e3b5f164eaefda2059",
+    "view": {
+      "path": "local/native-current-preview-104447-v2.png.view.png",
+      "sha256": "8189dd3e254b2fc3e76f258dbe8183c6f17afa85fc2489c0fd6f7d84f8c8143e"
+    },
+    "view_dimensions": [
+      1920,
+      1440
+    ],
+    "endpoint_artifacts_equal": 57,
+    "desktop_inspection": "cgWindowNotFound from the automation; inspected saved AppKit view instead. Activated existing app with open -b, no new preview launched.",
+    "retained_negative": {
+      "path": "local/research/battle-retirement-integration-v1/close-preview-104447-v1.json",
+      "sha256": "3109d259f5843209d183f2cda99ad337613bc224ed4f6c4de5a8cf0654837426"
+    }
+  },
+  "limitations": [
+    "No BattleSession/combat or loading completion is implemented.",
+    "ASan route binary predates the two-line AppKit initial-size/aspect change; simulation unchanged and all endpoint artifacts match.",
+    "Replay durations are not live FPS; runs overlapped sanitizer work.",
+    "Prior capture raster exact comparison still fails: 14786 pixels/15601 channels, max difference 1.",
+    "Research backend filter corrections remain OFF.",
+    "General UI, audio, lighting, progression, persistence, cold start, performance and full playthrough remain incomplete."
+  ]
+}
