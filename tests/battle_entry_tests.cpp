@@ -67,6 +67,24 @@ int main() {
         expect(guarded.value,{});
         for(auto byte:guarded.before)require(byte==0xa5);
         for(auto byte:guarded.after)require(byte==0x5a);
+        std::array<std::uint8_t,88> dirty;
+        for(unsigned i=0;i<dirty.size();++i)dirty[i]=std::uint8_t(i*73+19);
+        const auto dirty_before=dirty;
+        for(unsigned extent:{0u,47u,48u,55u}) {
+            bool rejected=false;
+            try {okage::clear_battle_entry_prefix(std::span(dirty).subspan(16,extent));}
+            catch(const std::runtime_error&){rejected=true;}
+            require(rejected&&dirty==dirty_before);
+        }
+        okage::clear_battle_entry_prefix(std::span(dirty).subspan(16));
+        for(unsigned i=0;i<dirty.size();++i)
+            require(dirty[i]==(i>=16&&i<64?0:dirty_before[i]));
+        const auto cleared=dirty;
+        okage::clear_battle_entry_prefix(std::span(dirty).subspan(16,56));
+        require(dirty==cleared);
+        adjacent[1].clear_prefix();
+        expect(adjacent[1],{0xef,0xbe,0xbe,0xba,0xff,0xff,0x44,0x33});
+        require(adjacent[0].bytes()==left&&adjacent[2].bytes()==right);
         std::cout<<"Battle entry tests passed\n";
         return 0;
     } catch(const std::exception& error) {

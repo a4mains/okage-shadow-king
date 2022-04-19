@@ -1,5 +1,6 @@
 #include "okage/battle_state.hpp"
 #include <algorithm>
+#include <bit>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -48,6 +49,34 @@ int main() {
             okage::initialize_battle_entities(root,defaults);okage::initialize_battle_secondary(root);
             require(guarded==both);
         }
+        for(const auto parameters:{okage::BattleRootParameters{1.f,1,17},
+                okage::BattleRootParameters{-0.f,0xfedcba98u,-1}}) {
+            std::vector<std::uint8_t> guarded(okage::battle_state_size+64);
+            for(std::size_t i=0;i<guarded.size();++i)guarded[i]=std::uint8_t(i*73+19);
+            auto expected=guarded;
+            auto expected_root=std::span(expected).subspan(32,okage::battle_state_size);
+            const std::array<std::uint8_t,16> source_defaults{};
+            okage::initialize_battle_entities(expected_root,source_defaults);
+            okage::initialize_battle_secondary(expected_root);
+            for(auto offset:{0x20,0x24,0x28,0x30,0x44,0x807c,0x8080,
+                             0x81ac,0x81b0,0x81b4,0x81b8,0x81bc,0x81c0})
+                std::fill_n(expected_root.begin()+offset,4,0);
+            const std::array<std::pair<unsigned,std::uint32_t>,4> scalars={{{0x2c,__builtin_bit_cast(std::uint32_t, (parameters.scale))},
+                {0x3c,parameters.formation},{0x40,__builtin_bit_cast(std::uint32_t, (parameters.stage))},{0x80a0,0xffffffba}}};
+            for(auto [offset,value]:scalars)
+                for(unsigned i=0;i<4;++i)expected_root[offset+i]=value>>(i*8);
+            okage::initialize_battle_root(std::span(guarded).subspan(32,okage::battle_state_size+32),parameters);
+            require(guarded==expected);
+            const auto initialized=guarded;
+            okage::initialize_battle_root(std::span(guarded).subspan(32),parameters);
+            require(guarded==initialized);
+        }
+        okage::BattleState constructed;
+        std::array<std::uint8_t,16> nonzero_default;nonzero_default.fill(0xa5);
+        constructed.initialize_entities(nonzero_default);
+        constructed.initialize_root({1.f,1,17});
+        for(unsigned i=0;i<64;++i)for(unsigned j=0x40;j<0x50;++j)
+            require(constructed.entity(i)[j]==0);
         // Malformed inputs must fail before changing any byte.
         std::vector<std::uint8_t> root(okage::battle_state_size,0xa5),defaults(16,0x42);
         const auto before=root;
@@ -55,6 +84,7 @@ int main() {
             rejects([&]{okage::initialize_battle_entities(std::span(root).first(size),defaults);});
             require(root==before);
             rejects([&]{okage::initialize_battle_secondary(std::span(root).first(size));});require(root==before);
+            rejects([&]{okage::initialize_battle_root(std::span(root).first(size),{1.f,1,17});});require(root==before);
         }
         for(unsigned size:{0u,15u,17u}) {
             defaults.resize(size);

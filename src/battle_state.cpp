@@ -1,5 +1,6 @@
 #include "okage/battle_state.hpp"
 #include <algorithm>
+#include <bit>
 #include <stdexcept>
 
 namespace okage {
@@ -39,6 +40,29 @@ void initialize_battle_secondary(std::span<std::uint8_t> root) {
     std::fill(root.begin()+0x80a4,root.begin()+0x81a4,0xff);
     std::fill(root.begin()+0x81a4,root.begin()+0x81ac,0);
     root[0x81a8]=1;
+}
+void initialize_battle_root(std::span<std::uint8_t> root,const BattleRootParameters& parameters) {
+    validate(root);
+    const auto put=[&](std::size_t offset,std::uint32_t value) {
+        for(unsigned i=0;i<4;++i)root[offset+i]=std::uint8_t(value>>(i*8));
+    };
+    // 0x149fd8 scalar writes. Typed runtime ownership handles the omitted
+    // header callback/global-current-root/resource pointer operations.
+    put(0x24,0);put(0x20,0);
+    put(0x2c,__builtin_bit_cast(std::uint32_t, (parameters.scale)));
+    put(0x80a0,0xffffffba); // Signed -70; not a readiness flag.
+    put(0x28,0);
+    put(0x24,0);put(0x30,0);
+    put(0x3c,parameters.formation);put(0x44,0);
+    put(0x40,__builtin_bit_cast(std::uint32_t, (parameters.stage)));
+    // Pinned owned .rodata at 0x236f70 contains 16 zero bytes. Generic helper still accepts an
+    // explicit default for independent callers and original helper probes.
+    constexpr std::array<std::uint8_t,16> constructor_defaults{};
+    initialize_battle_entities(root,constructor_defaults);
+    initialize_battle_secondary(root);
+    put(0x8080,0);put(0x81b0,0);put(0x81ac,0);put(0x807c,0);
+    put(0x81bc,0);put(0x81b4,0);put(0x81b8,0); // 0x14b008.
+    put(0x81c0,0);
 }
 std::span<std::uint8_t,battle_entity_size> BattleState::entity(std::size_t index) {
     if(index>=battle_entity_count)throw std::runtime_error("Battle entity index");

@@ -1,7 +1,15 @@
 #include "okage/battle_entry.hpp"
 #include <cstddef>
+#include <algorithm>
+#include <stdexcept>
 
 namespace okage {
+void clear_battle_entry_prefix(std::span<std::uint8_t> context) {
+    if(context.size()<56)throw std::runtime_error("Battle entry backing extent");
+    std::fill_n(context.begin(),48,0);
+}
+void BattleEntryContext::clear_prefix() {clear_battle_entry_prefix(storage_);}
+
 BattleEntryContext::BattleEntryContext(std::uint32_t a,std::uint32_t b,
                                      std::uint32_t c,std::uint32_t d) {
     reset(a,b,c,d);
