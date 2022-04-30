@@ -1,4 +1,5 @@
 #include "okage/battle_state.hpp"
+#include "okage/ruw.hpp"
 #include "okage/battle_camera.hpp"
 #include "okage/battle_capture.hpp"
 #include "okage/battle_data.hpp"
@@ -659,6 +660,31 @@ int main(int argc, char** argv) {
                 observe();for(unsigned i=0;i<ticks;++i){camera.tick();observe();}
             }
             write(argv[3],output);return 0;
+        }
+        if(command=="ruw-resource" && argc==4) {
+            const okage::RuwResource resource(read(argv[2]));
+            std::vector<std::uint8_t> output;
+            auto word=[&](std::uint32_t v){for(unsigned i=0;i<4;++i)output.push_back(v>>(i*8));};
+            word(resource.styles().size());word(resource.templates().size());word(resource.widgets().size());
+            for(const auto& s:resource.styles())for(auto w:s)word(w);
+            for(const auto* groups:{&resource.templates(),&resource.widgets()}) {
+                for(const auto& group:*groups) {
+                    word(group.size());
+                    for(const auto& widget:group) {
+                        for(auto w:widget.words)word(w);
+                        word(bool(widget.runtime));
+                        if(widget.runtime) {
+                            for(auto w:widget.runtime->words)word(w);
+                            word(bool(widget.runtime->text));
+                            if(widget.runtime->text)for(char c:*widget.runtime->text)output.push_back(std::uint8_t(c));
+                        }
+                    }
+                }
+            }
+            write(argv[3],output);
+            std::cout<<resource.styles().size()<<" styles; "<<resource.templates().size()
+                <<" template groups; "<<resource.widgets().size()<<" widget groups\n";
+            return 0;
         }
         if(command=="battle-data" && argc==3) {
             const okage::BattleData data(read(argv[2]));unsigned formations=0,entries=0;

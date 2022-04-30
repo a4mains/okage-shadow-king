@@ -3,6 +3,7 @@
 #include "okage/event.hpp"
 #include "okage/game_state.hpp"
 #include "okage/game_mode.hpp"
+#include "battle_session.hpp"
 #include "okage/field.hpp"
 #include "okage/music.hpp"
 #include "okage/audio_output.hpp"
@@ -225,6 +226,9 @@ struct Session {
     okage::BattleEntryContext battle_entry;
     std::array<std::uint32_t,3> pending_game_command{};
     std::optional<okage::GameModeParent> game_mode;
+    std::unique_ptr<okage::BattleSession> battle;
+    fs::path battle_input;
+    std::vector<std::uint32_t> battle_loading_trace;
     std::vector<std::uint32_t> game_mode_trace,retiring_effect_trace;
     bool retain_field_music=false;
     std::optional<okage::Texture> transition_image;
@@ -528,7 +532,7 @@ struct Session {
     }
     void observe_game_mode(unsigned point) {
         if(!game_mode||(!game_mode->requested()&&!game_mode->has_dead_allocation()&&game_mode->current()[0]==2))return;
-        const auto current=game_mode->current(),request=game_mode->requested().value_or(okage::GameModeSelection{});
+        const auto current=game_mode->current(),request=game_mode->queue_words();
         game_mode_trace.insert(game_mode_trace.end(),{frame,point,game_mode->phase(),current[0],current[1],current[2],
             request[0],request[1],request[2],unsigned(game_mode->has_child()),unsigned(game_mode->has_dead_allocation()),
             unsigned(bool(field)),pending_game_command[0],pending_game_command[1],pending_game_command[2],
@@ -564,10 +568,25 @@ struct Session {
                 if(field||renderer||!actor_bindings.empty()||!actor_objects.empty()||map_objects)
                     throw std::runtime_error("Field borrowers survived mode retirement");
             },[this](okage::GameModeSelection selection){
-                throw std::runtime_error("Native game mode constructor is unrecovered at frame="+
-                    std::to_string(frame)+" mode="+std::to_string(selection[0])+" formation="+
-                    std::to_string(selection[1])+" stage="+std::to_string(selection[2]));
+                if(selection[0]!=3||battle||field||!reset_camera||battle_input.empty())
+                    throw std::runtime_error("Native mode construction requires mode3 and --battle-input at frame="+
+                        std::to_string(frame));
+                //149e60 clamps the signed stage and sets fade CURRENT/target0.
+                const int stage=std::clamp(__builtin_bit_cast(std::int32_t, (selection[2])),1,23);
+                scene_fade.current=0;scene_fade.request(0);
+                scene_clear.rgb={0,0,0};scene_fade.color=0; //100ef8 fresh resource.
+                battle=std::make_unique<okage::BattleSession>(selection[1],stage,battle_input,
+                    field_root.parent_path(),variables,battle_entry,*reset_camera);
             });
+        }
+        if(battle) {
+            try {battle->tick(retiring_effects?&*retiring_effects:nullptr);}
+            catch(const std::exception& error) {
+                throw std::runtime_error("Native battle frame="+std::to_string(frame)+": "+error.what());
+            }
+            battle_loading_trace.push_back(frame);
+            const auto observation=battle->observation();
+            battle_loading_trace.insert(battle_loading_trace.end(),observation.begin(),observation.end());
         }
         const std::array<std::uint32_t,2> layers={0x50,controller.layer_flags};
         if(field) {
@@ -732,6 +751,7 @@ struct Session {
                     "; extend the headless render interval or --render-range");
         }
         if(render_tick)render_frame();
+        if(battle)battle->resume_loader();
     }
     void render_frame() {
         if(rendered_surface&&rendered_frame==frame)return;
@@ -844,6 +864,9 @@ static void captureImage(const Session& session,const fs::path& path) {
         throw std::runtime_error("Cannot write native frame image");
 }
 static void capture(const Session& session,const fs::path& path) {
+    const auto battlePath=fs::path(path.string()+".battle-root.bin");
+    if(session.battle&&(fs::exists(battlePath)||fs::is_symlink(battlePath)))
+        throw std::runtime_error("Refusing existing battle root capture");
     auto statePath=fs::path(path.string()+".json");
     const auto actorsPath=fs::path(path.string()+".actors-state.json");
     const auto shadowsPath=fs::path(path.string()+".shadow-submissions.json");
@@ -851,6 +874,12 @@ static void capture(const Session& session,const fs::path& path) {
     if(fs::exists(actorsPath)||fs::is_symlink(actorsPath))throw std::runtime_error("Refusing existing actor-state capture");
     if(fs::exists(shadowsPath)||fs::is_symlink(shadowsPath))throw std::runtime_error("Refusing existing shadow-submission capture");
     if(!path.parent_path().empty())fs::create_directories(path.parent_path());
+    if(session.battle) {
+        const auto& bytes=session.battle->state().bytes;
+        std::ofstream root(battlePath,std::ios::binary);
+        if(!root.write(reinterpret_cast<const char*>(bytes.data()),bytes.size()))
+            throw std::runtime_error("Cannot write battle root capture");
+    }
     const auto data=[bitmap(session.surface()) representationUsingType:NSBitmapImageFileTypePNG properties:@{}];
     std::ofstream out(path,std::ios::binary);if(!data || !out.write(static_cast<const char*>(data.bytes),data.length))throw std::runtime_error("Cannot write native capture");
     if(session.battle_capture_image) {
@@ -977,12 +1006,13 @@ static void capture(const Session& session,const fs::path& path) {
         shadows<<"\n  ]\n}\n";
         if(!shadows)throw std::runtime_error("Cannot write shadow-submission capture");
     }
-    for(const auto& [suffix,data]:std::array<std::pair<std::string,okage::Bytes>,7>{
+    for(const auto& [suffix,data]:std::array{
         std::pair{".screen-filter.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.filter_trace.data()),session.filter_trace.size()*4)},
         std::pair{".transition.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.transition_trace.data()),session.transition_trace.size()*4)},
         std::pair{".battle-transition.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.battle_transition_trace.data()),session.battle_transition_trace.size()*4)},
         std::pair{".battle-capture.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.battle_capture_trace.data()),session.battle_capture_trace.size()*4)},
         std::pair{".game-mode.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.game_mode_trace.data()),session.game_mode_trace.size()*4)},
+        std::pair{".battle-loading.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.battle_loading_trace.data()),session.battle_loading_trace.size()*4)},
         std::pair{".retiring-effects.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.retiring_effect_trace.data()),session.retiring_effect_trace.size()*4)},
         std::pair{".variables.bin",okage::Bytes(session.variables)}}) {
         const auto output=fs::path(path.string()+suffix);
@@ -1283,8 +1313,8 @@ static void captureView(NSView* view,const fs::path& path) {
 @end
 int main(int argc,const char** argv) {
     @autoreleasepool {try {
-        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--performance-report FRESH.jsonl (interactive/preview/UI test)]");
-        unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
+        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--performance-report FRESH.jsonl (interactive/preview/UI test)]");
+        unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures,battleInput;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         std::optional<fs::path> performancePath;
         std::vector<okage::NativeRenderRange> renderRanges;
         for(int i=3;i<argc;++i) {
@@ -1319,6 +1349,7 @@ int main(int argc,const char** argv) {
             else if(arg=="--sound-dir")soundDirectory=argv[i];
             else if(arg=="--effect-data")effectData=argv[i];
             else if(arg=="--effect-textures")effectTextures=argv[i];
+            else if(arg=="--battle-input")battleInput=argv[i];
             else if(arg=="--actor")actors.push_back({-8,argv[i]});
             else if(arg=="--actor-bind") {
                 const std::string value=argv[i];const auto eq=value.find('=');std::size_t consumed=0;
@@ -1372,6 +1403,7 @@ int main(int argc,const char** argv) {
             }
             prepared=std::make_unique<Session>(argv[1],argv[2],playerName);
             auto& session=*prepared;session.render_from=renderFrom;session.render_until=renderUntil;session.render_ranges=std::move(renderRanges);
+            session.battle_input=battleInput;
             session.live_presentation_enabled=previewAt!=0;
             if(!effectData.empty())session.prepare_effects(effectData,effectTextures);
             if(!map.empty())session.load_scene(map,event,actors);
@@ -1405,6 +1437,7 @@ int main(int argc,const char** argv) {
         app->performance=std::move(performance);app->pausedViewCapture=pausedViewCapture;
         if(!app->session) {
         app->session=std::make_unique<Session>(argv[1],argv[2],playerName);
+        app->session->battle_input=battleInput;
         app->session->live_presentation_enabled=true;
         if(!effectData.empty())app->session->prepare_effects(effectData,effectTextures);
         if(!map.empty())app->session->load_scene(map,event,actors);

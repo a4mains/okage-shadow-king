@@ -117,6 +117,7 @@ Texture decode_xim(Bytes data, Alpha16 alpha16) {
         case 0: bits = 32; break;
         case 1: bits = 24; break;
         case 19: bits = 8; break;
+        case 27: bits = 8; break;
         case 20: bits = 4; break;
         default: fail("Unsupported XIM pixel format");
     }

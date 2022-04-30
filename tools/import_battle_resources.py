@@ -103,7 +103,7 @@ def _reject_symlink_path(path):
     return parent / absolute.name
 
 def write_bundle(output, artifacts, manifest):
-    """Create a new directory atomically; never merge or replace an output."""
+    """Create a new directory exclusively; never merge or replace an output."""
     target = _reject_symlink_path(output)
     if target.exists():
         raise ValueError('Output directory already exists; choose a fresh path')

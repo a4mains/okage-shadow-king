@@ -15,12 +15,17 @@ int main(){try {
         std::vector<std::uint8_t> stg(72);
         auto put=[&](unsigned at,unsigned v){for(unsigned j=0;j<4;++j)stg[at+j]=v>>(8*j);};
         put(0,0x475453);put(8,32);put(12,2);
-        put(32,0x60);put(36,9);put(40,10);put(44,11);
-        // Raw low bytes, ordered repeated records, not floating conversion.
-        put(52,0x60);put(56,0x1234);put(60,0xffffffff);put(64,256);put(68,0x7fc00000);
+        auto fp=[&](unsigned at,float v){put(at,__builtin_bit_cast(unsigned, (v)));};
+        put(32,0x60);fp(36,9);fp(40,10);fp(44,11);
+        // Authored floats convert first, then selector60 uses low bytes.
+        put(52,0x60);fp(56,4660);fp(60,-1);fp(64,256);fp(68,0);
         clear.load_stage(stg);require(clear.rgb==std::array<std::uint8_t,3>{52,255,0});
         put(12,0);clear.load_stage(stg);require(clear.rgb==std::array<std::uint8_t,3>{52,255,0});
         put(12,3);rejects([&]{clear.load_stage(stg);});
+        require(clear.rgb==std::array<std::uint8_t,3>{52,255,0});
+        put(12,2);put(68,0x7fc00000);rejects([&]{clear.load_stage(stg);});
+        require(clear.rgb==std::array<std::uint8_t,3>{52,255,0});
+        fp(68,0);fp(56,12.5f);rejects([&]{clear.load_stage(stg);});
         require(clear.rgb==std::array<std::uint8_t,3>{52,255,0});
         rejects([&]{clear.load_stage({});});
         okage::Animation camera(3);

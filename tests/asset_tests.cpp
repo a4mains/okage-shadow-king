@@ -50,6 +50,14 @@ int main() {
         xim[104]=1; xim[108]=2; xim[112]=0x21;
         texture=okage::decode_xim(xim);
         require(texture.rgba == std::vector<std::uint8_t>({7,0,0,255,9,0,0,128}));
+        xim.assign(16+1040+16+2,0);xim[2]=0x30;xim[3]=1;
+        xim[16]=0x10;xim[17]=4;xim[24]=1;xim[29]=1;
+        xim[32+4]=17;xim[32+7]=128;xim[32+255*4+1]=91;xim[32+255*4+3]=64;
+        xim[1064]=1;xim[1068]=2;xim[1072]=1;xim[1073]=255;
+        const auto ordinary=okage::decode_xim(xim);xim[2]=0xb0;
+        const auto high=okage::decode_xim(xim);
+        require(high.pixel_format==27&&high.rgba==ordinary.rgba);
+        require(high.rgba==std::vector<std::uint8_t>({17,0,0,255,0,91,0,128}));
         std::cout << "Native asset boundary tests passed\n";
     } catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

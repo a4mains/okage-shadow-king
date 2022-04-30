@@ -39,6 +39,7 @@ int main() {
         require(!parent.has_dead_allocation()&&parent.phase()==1&&battle_ticks==0);
         traversal();require(callbacks==std::vector<unsigned>{1,2,3,4,5,6});
         require(!parent.requested()&&parent.phase()==0&&battle_ticks==1);
+        require(parent.queue_words()==okage::GameModeSelection{0,1,17});
         traversal();require(battle_ticks==2&&field_ticks==1);
 
         okage::GameModeParent replacement({2,0,0});
@@ -51,6 +52,7 @@ int main() {
             throw std::runtime_error("unrecovered constructor");
         });}catch(const std::runtime_error& e){failed=std::string(e.what())=="unrecovered constructor";}
         require(failed&&!replacement.has_child()&&replacement.requested()&&replacement.phase()==1);
+        require(replacement.queue_words()==okage::GameModeSelection{3,7,23});
         bool zero=false;try {replacement.request({0,1,2});}catch(const std::runtime_error&){zero=true;}
         require(zero);
         std::cout<<"Game mode lifecycle tests passed\n";

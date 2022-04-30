@@ -1,5 +1,6 @@
 #pragma once
 #include "okage/assets.hpp"
+#include "okage/battle_camera.hpp"
 #include <array>
 #include <span>
 #include <string>
@@ -23,5 +24,15 @@ private:
     std::array<Range,256> formations_{};
     std::array<std::string,23> stages_{};
     std::vector<BattleFormationEntry> entries_;
+};
+// Pointer-free camera rows imported from owned ELF table0x235ea0. Decode only
+// the selected sequence: unreached camera modes remain guarded by its reader.
+class BattleCameraData {
+public:
+    explicit BattleCameraData(Bytes);
+    BattleCameraSequence sequence(int stage,bool after_intro=false) const;
+private:
+    using Preset=std::optional<std::array<std::uint8_t,0x90>>;
+    std::array<std::array<std::array<Preset,3>,2>,23> stages_;
 };
 }

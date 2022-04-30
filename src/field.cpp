@@ -1139,8 +1139,19 @@ void SceneClearColor::load_stage(Bytes stg) {
     if(begin<32||count>4096||std::uint64_t(begin)+std::uint64_t(count)*20>stg.size())
         throw std::runtime_error("STG clear-color settings bounds");
     auto next=rgb;
-    for(unsigned i=0;i<count;++i)if(get(stg,begin+i*20)==0x60)
-        for(unsigned c=0;c<3;++c)next[c]=std::uint8_t(get(stg,begin+i*20+4+c*4));
+    for(unsigned i=0;i<count;++i)if(get(stg,begin+i*20)==0x60) {
+        // 0x138b40 converts authored floats to integer selector arguments;
+        // 0x1bb088 then takes each integer's low byte. Reading STG bitpatterns
+        // directly bypasses the first operation (invisible only for zero).
+        for(unsigned c=0;c<4;++c) {
+            const auto value=__builtin_bit_cast(float, (get(stg,begin+i*20+4+c*4)));
+            if(!std::isfinite(value)||value < -2147483648.f||value >= 2147483648.f)
+                throw std::runtime_error("STG clear-color conversion range");
+            if(std::trunc(value)!=value)
+                throw std::runtime_error("Fractional STG clear-color rounding is unrecovered");
+            if(c<3)next[c]=std::uint8_t(std::int32_t(value));
+        }
+    }
     rgb=next;
 }
 FieldOrdinaryLighting field_ordinary_lighting(Bytes stg) {

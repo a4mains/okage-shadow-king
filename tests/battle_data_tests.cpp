@@ -74,6 +74,25 @@ int main() {
         bad=b; bad[stage+63]='x'; rejects([&]{okage::BattleData d(bad);});
         bad=b; bad[stage+20]='/'; rejects([&]{okage::BattleData d(bad);});
         bad=b; bad[stage+20]='.'; bad[stage+21]='.'; rejects([&]{okage::BattleData d(bad);});
+        std::vector<std::uint8_t> cameras(48+23*2*3*148);
+        const std::string camera_magic="OKBTCAM1";
+        std::copy(camera_magic.begin(),camera_magic.end(),cameras.begin());
+        put(cameras,8,1);put(cameras,12,23);
+        std::copy_n(b.begin()+24,32,cameras.begin()+16);
+        const unsigned selected=48+16*6*148;
+        put(cameras,selected,1);put(cameras,selected+4+0x70,0x44480000); // focal800.
+        put(cameras,selected+3*148,1);put(cameras,selected+3*148+4+0x70,0x44800000);
+        put(cameras,48,1);put(cameras,52,9); // Unsupported other-stage mode.
+        okage::BattleCameraData camera_data(cameras);
+        const auto initial=camera_data.sequence(17),later=camera_data.sequence(17,true);
+        require(initial[0]&&initial[0]->projection_value==800&&!initial[1]&&!initial[2]);
+        require(later[0]&&later[0]->projection_value==1024);
+        rejects([&]{camera_data.sequence(0);});rejects([&]{camera_data.sequence(24);});
+        rejects([&]{camera_data.sequence(1);});
+        auto invalid=cameras;put(invalid,selected,2);rejects([&]{okage::BattleCameraData x(invalid);});
+        invalid=cameras;put(invalid,selected,0);rejects([&]{okage::BattleCameraData x(invalid);});
+        invalid=cameras;invalid[16]^=1;rejects([&]{okage::BattleCameraData x(invalid);});
+        rejects([&]{okage::BattleCameraData x(okage::Bytes(cameras).first(cameras.size()-1));});
         std::cout << "Battle data tests passed\n";
     } catch(const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }
