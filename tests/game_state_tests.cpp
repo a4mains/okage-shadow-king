@@ -97,7 +97,11 @@ int main() {
             auto i=make_xdb("item",items,{0,14});
             okage::GameDataTables parsed(b,i);
             require(parsed.unit(1)[2]==321 && parsed.item(2)[2]==0x10);
+            require(parsed.unit_model_name(1)=="unit-row-1-word-1");
+            require(parsed.unit_model_name(2)=="unit-row-2-word-1");
             rejects([&]{(void)parsed.unit(0);});
+            rejects([&]{(void)parsed.unit_model_name(0);});
+            rejects([&]{(void)parsed.unit_model_name(3);});
             rejects([&]{(void)parsed.item(4);});
 
             auto malformed=b;
@@ -109,8 +113,27 @@ int main() {
             malformed=i;
             malformed.back()='X';
             rejects([&]{okage::GameDataTables bad(b,malformed);});
+            malformed=b;
+            put32(malformed,0x34,0xffffffffu); // first unit model-name string offset
+            rejects([&]{okage::GameDataTables bad(malformed,i);});
+            malformed=b;
+            malformed.back()='X';
+            rejects([&]{okage::GameDataTables bad(malformed,i);});
             malformed=b; malformed.resize(19);
             rejects([&]{okage::GameDataTables bad(malformed,i);});
+
+            std::fill(b.begin(),b.end(),0);
+            std::fill(i.begin(),i.end(),0);
+            require(parsed.unit_model_name(1)=="unit-row-1-word-1");
+            require(parsed.unit_model_name(2)=="unit-row-2-word-1");
+
+            const auto after_inputs_die=[&] {
+                const auto source_units=make_xdb("unit",units,{0,1});
+                const auto source_items=make_xdb("item",items,{0,14});
+                return okage::GameDataTables(source_units,source_items);
+            }();
+            require(after_inputs_die.unit_model_name(1)=="unit-row-1-word-1");
+            require(after_inputs_die.unit_model_name(2)=="unit-row-2-word-1");
         }
         {
             auto units=make_units(2);

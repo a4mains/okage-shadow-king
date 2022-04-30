@@ -13,8 +13,14 @@ std::uint32_t word(Bytes b,std::size_t at) {
 }
 template<std::size_t N>
 std::vector<std::array<std::uint32_t,N>> records(Bytes b,std::string_view section,
-                                               std::array<unsigned,2> string_columns) {
+                                               std::array<unsigned,2> string_columns,
+                                               int owned_string_column=-1,
+                                               std::vector<std::string>* owned_strings=nullptr) {
     if(word(b,0)!=0x424458||word(b,16)!=0xffffffff)throw std::runtime_error("Invalid game XDB header");
+    if(owned_string_column>=0 &&
+       (owned_string_column>=int(N)||!owned_strings||
+        std::find(string_columns.begin(),string_columns.end(),unsigned(owned_string_column))==string_columns.end()))
+        throw std::runtime_error("Invalid owned game XDB string column");
     const std::uint64_t count=word(b,12),base=32+count*16,strings=base+word(b,4);
     if(count>65536||strings>b.size()||strings+word(b,8)!=b.size())throw std::runtime_error("Game XDB section bounds");
     auto string=[&](std::uint32_t offset) {
@@ -32,7 +38,10 @@ std::vector<std::array<std::uint32_t,N>> records(Bytes b,std::string_view sectio
         std::vector<std::array<std::uint32_t,N>> result(words/N);
         for(std::size_t row=0;row<result.size();++row) {
             for(unsigned j=0;j<N;++j)result[row][j]=word(b,start+(row*N+j)*4);
-            for(const auto j:string_columns)(void)string(result[row][j]);
+            for(const auto j:string_columns) {
+                const auto value=string(result[row][j]);
+                if(int(j)==owned_string_column)owned_strings->emplace_back(value);
+            }
         }
         return result;
     }
@@ -77,10 +86,16 @@ void refresh(std::span<std::uint8_t> b,const GameDataTables& tables,unsigned slo
 }
 }
 GameDataTables::GameDataTables(Bytes battle_data,Bytes item_data):
-    units_(records<27>(battle_data,"unit",{0,1})),items_(records<15>(item_data,"item",{0,14})) {}
+    unit_model_names_(),
+    units_(records<27>(battle_data,"unit",{0,1},1,&unit_model_names_)),
+    items_(records<15>(item_data,"item",{0,14})) {}
 const std::array<std::uint32_t,27>& GameDataTables::unit(int id) const {
     if(id<1||std::size_t(id)>units_.size())throw std::runtime_error("Game unit ID bounds");
     return units_[id-1];
+}
+const std::string& GameDataTables::unit_model_name(int id) const {
+    if(id<1||std::size_t(id)>unit_model_names_.size())throw std::runtime_error("Game unit ID bounds");
+    return unit_model_names_[id-1];
 }
 const std::array<std::uint32_t,15>& GameDataTables::item(int id) const {
     if(id<1||std::size_t(id)>items_.size())throw std::runtime_error("Game item ID bounds");
