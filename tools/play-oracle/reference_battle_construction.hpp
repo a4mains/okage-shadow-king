@@ -12,8 +12,8 @@
 
 class BattleConstructionTrace {
 public:
-    static constexpr std::array<uint32,7> breakpoints={
-        0x153618,0x153a00,0x15b580,0x15b978,0x1512f0,0x1513dc,0x1f14b0
+    static constexpr std::array<uint32,8> breakpoints={
+        0x153618,0x15b580,0x115384,0x1512f0,0x1537c0,0x15b7b4,0x152480,0x1f14b0
     };
     static constexpr unsigned maxRngCalls=1'000'000;
     explicit BattleConstructionTrace(const std::filesystem::path& path) {
@@ -21,9 +21,9 @@ public:
             throw std::runtime_error("Refusing existing battle-construction trace");
         output.open(path);
         if(!output)throw std::runtime_error("Cannot create battle-construction trace");
-        output<<"{\"schema\":\"okage-battle-construction-v1\",\"encoding\":\"addresses and words are unsigned decimal; raw_hex is ascending-address bytes\","
+        output<<"{\"schema\":\"okage-battle-construction-v2\",\"encoding\":\"addresses and words are unsigned decimal; raw_hex is ascending-address bytes\","
                 "\"frame_convention\":\"current reference vblank counter at paused EE instruction, not a native tick\","
-                "\"end_boundary\":\"after last constructor child store, before register restore and return\","
+                "\"end_boundary\":\"caller continuation after constructor returns; caller instruction not yet executed\","
                 "\"rng_scope\":\"all entry calls counted; detailed rows while constructor in flight may include other scheduled work; inspect RA/SP\","
                 "\"raw_scope\":\"includes pointer words and untouched allocation bytes; raw equality is not implied\","
                 "\"elf_sha256\":\"2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5\"}\n";
@@ -54,6 +54,7 @@ public:
         if(pc==0x153618||pc==0x15b580) {
             if(active)throw std::runtime_error("Nested battle constructors exceed observer scope");
             if(++constructors>32)throw std::runtime_error("Battle-construction count limit");
+            if(reg(CMIPS::RA)!=0x115384)throw std::runtime_error("Battle constructor caller outside reviewed dispatcher");
             const bool party=pc==0x153618;
             const uint32 child=reg(CMIPS::A0),argument=reg(CMIPS::A1);
             memory.require(child,party?0x3d0:0x3e0);
@@ -68,12 +69,8 @@ public:
             snapshot("constructor_entry",frame,pc,reg(CMIPS::RA),reg(CMIPS::SP),memory,false);
             return;
         }
-        if(pc==0x153a00||pc==0x15b978) {
-            if(!active||active->party!=(pc==0x153a00))
-                throw std::runtime_error("Unpaired battle-construction epilogue");
-            if(active->child!=reg(active->party?CMIPS::S2:CMIPS::S4)||
-               reg(CMIPS::SP)+(active->party?0x50u:0x70u)!=active->sp)
-                throw std::runtime_error("Battle-construction epilogue owner/stack mismatch");
+        if(pc==0x115384) {
+            if(!active||reg(CMIPS::SP)!=active->sp||reg(CMIPS::S0)!=active->child)return;
             if(registration)throw std::runtime_error("Battle constructor completed inside registration");
             snapshot("constructor_complete",frame,pc,reg(CMIPS::RA),reg(CMIPS::SP),memory,true);
             if(active->party)++partyCompleted;else ++enemyCompleted;
@@ -82,17 +79,20 @@ public:
         if(pc==0x1512f0) {
             if(registration)throw std::runtime_error("Nested battle registration exceeds observer scope");
             if(registrationsCompleted>=64)throw std::runtime_error("Battle registration count limit");
+            const auto returnPc=reg(CMIPS::RA);
+            if(returnPc!=0x1537c0&&returnPc!=0x15b7b4&&returnPc!=0x152480)
+                throw std::runtime_error("Battle registration caller outside reviewed constructor scope");
             const auto root=memory.word(0x1fce60);memory.require(root,0x81d0);
             const auto count=memory.word(root+0x50);
             if(count>=64)throw std::runtime_error("Battle registration table full");
-            registration=Registration{root,count,reg(CMIPS::A0),reg(CMIPS::A1),reg(CMIPS::A2),reg(CMIPS::SP)};
+            registration=Registration{root,count,reg(CMIPS::A0),reg(CMIPS::A1),reg(CMIPS::A2),reg(CMIPS::SP),returnPc};
             registrationSnapshot("registration_entry",frame,pc,reg(CMIPS::RA),reg(CMIPS::SP),memory);
             return;
         }
-        if(pc==0x1513dc) {
-            if(!registration||reg(CMIPS::SP)+0x80!=registration->sp||
+        if(pc==0x1537c0||pc==0x15b7b4||pc==0x152480) {
+            if(!registration||pc!=registration->returnPc||reg(CMIPS::SP)!=registration->sp||
                reg(CMIPS::V0)!=registration->index||memory.word(0x1fce60)!=registration->root)
-                throw std::runtime_error("Unpaired battle registration epilogue");
+                throw std::runtime_error("Unpaired battle registration continuation");
             if(memory.word(registration->root+0x50)!=registration->index+1)
                 throw std::runtime_error("Battle registration did not advance exactly one slot");
             registrationSnapshot("registration_complete",frame,pc,reg(CMIPS::RA),reg(CMIPS::SP),memory);
@@ -118,7 +118,7 @@ private:
         }
     };
     struct Constructor {uint32 id,child,argument,sp,live,rngStart;bool party;};
-    struct Registration {uint32 root,index,body,stats,kind,sp;};
+    struct Registration {uint32 root,index,body,stats,kind,sp,returnPc;};
     std::ofstream output;
     std::optional<Constructor> active;
     std::optional<Registration> registration;
@@ -207,7 +207,7 @@ private:
     void registrationSnapshot(const char* event,unsigned frame,uint32 pc,uint32 ra,uint32 sp,const Memory& memory) {
         const auto& r=*registration;auto row=begin(event,frame,pc,ra,sp);
         row<<",\"registration_index\":"<<r.index<<",\"body_pointer\":"<<r.body
-           <<",\"stats_pointer\":"<<r.stats<<",\"registration_kind\":"<<r.kind
+           <<",\"return_pc\":"<<r.returnPc<<",\"stats_pointer\":"<<r.stats<<",\"registration_kind\":"<<r.kind
            <<",\"constructor_id\":";
         if(active)row<<active->id;else row<<"null";
         rootState(row,memory);emit(row);
