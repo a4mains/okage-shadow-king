@@ -7,6 +7,7 @@
 #include "okage/event.hpp"
 #include "okage/animation.hpp"
 #include "okage/scene_renderer.hpp"
+#include "okage/battle_actor.hpp"
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 #include <algorithm>
@@ -14,6 +15,8 @@
 #include <bit>
 #include <cctype>
 #include <fstream>
+#include <iomanip>
+#include <sstream>
 #include <stdexcept>
 
 namespace okage {
@@ -61,6 +64,10 @@ struct BattleSession::Impl {
     std::array<std::uint32_t,9> ui_controllers{};
     std::atomic<unsigned> load_step{0};
     std::atomic<bool> suppress_effects{false};
+    std::atomic<bool> resources_prepared{false};
+    enum class Construction {Preparing,Constructing,Complete,Failed};
+    Construction construction=Construction::Preparing; //Main thread only.
+    std::exception_ptr construction_failure;
     unsigned phase=0;
     bool loader_resumed=false;
     id<MTLDevice> device;
@@ -72,6 +79,9 @@ struct BattleSession::Impl {
     std::unique_ptr<SceneRenderer> renderer;
     Animation& camera_channels;
     std::optional<BattleCameraMotion> camera;
+    std::optional<BattleCameraSequence> camera_sequence;
+    std::optional<BattleData> battle_data;
+    BattleRoster roster{root};
     // Last member: its destructor joins before any job-captured owners die.
     NativeLoadQueue jobs;
     Impl(unsigned f,int s,fs::path i,fs::path d,Bytes variables,BattleEntryContext& entry,Animation& channels):
@@ -110,24 +120,61 @@ struct BattleSession::Impl {
             environment_uv={.5f/1024,.5f/1024,(float(env_image.width)+.5f)/1024,
                 (float(env_image.height)+.5f)/1024};
             load_step.store(2);
-            const BattleData data(read(input/"battle-data.bin"));
-            (void)data.formation(int(formation));
-            const auto package=archive_path(decoded,data.stage_path(stage));
+            battle_data.emplace(read(input/"battle-data.bin"));
+            (void)battle_data->formation(int(formation));
+            const auto package=archive_path(decoded,battle_data->stage_path(stage));
             suppress_effects.store(true);
             if(fs::exists(package/"add.afd"))
                 throw std::runtime_error("Battle stage additional effects are unrecovered");
             const auto map=package/"a.xmp";
+            const auto map_data=read_xmp(read(map));
+            if(std::any_of(map_data.definitions.begin(),map_data.definitions.end(),[](const auto& d){return d.words[0x80/4]!=0;}))
+                throw std::runtime_error("Battle stage model collision-definition ownership is unrecovered");
             objects=std::make_unique<MapObjects>(map);
             renderer=std::make_unique<SceneRenderer>(map,std::span<const SceneActor>{},objects.get());
             held_stage=read(package/"a.stg");
             collision=read_xcl(read(package/"a.xcl"));
             load_step.store(3);
-            camera_channels.set_channel_mode(0,0x10);
             const BattleCameraData camera_data(read(input/"battle-camera.bin"));
-            camera.emplace(camera_data.sequence(stage),1.f);
-            load_step.store(4);
-            throw std::runtime_error("Native battle party constructor 0x153618 is unrecovered; UI, stage and camera resources loaded, job incomplete");
+            camera_sequence=camera_data.sequence(stage);
+            resources_prepared.store(true,std::memory_order_release);
         }
+    }
+    void report(const fs::path& path,unsigned frame,std::uint32_t rng_before,
+                const BattleConstructionContext& context,const std::string& error) const {
+        if(path.empty())return;
+        if(fs::exists(path)||fs::is_symlink(path))throw std::runtime_error("Refusing existing battle construction report");
+        if(!path.parent_path().empty())fs::create_directories(path.parent_path());
+        std::ofstream out(path);
+        const auto hex=[](Bytes b){std::ostringstream s;for(auto v:b)s<<std::hex<<std::setw(2)<<std::setfill('0')<<unsigned(v);return s.str();};
+        out<<"{\"schema\":\"okage-native-battle-construction-v1\",\"frame\":"<<frame
+           <<",\"complete\":"<<(construction==Construction::Complete?"true":"false")
+           <<",\"error\":"<<std::quoted(error)<<",\"rng_before\":"<<rng_before<<",\"rng_after\":"<<context.random.state
+           <<",\"root_hex\":\""<<hex(root.bytes)<<"\",\"entry_hex\":\""<<hex(context.entry.bytes())<<"\",\"actors\":[";
+        bool comma=false;
+        const auto write_model=[&](const FieldActor* a){
+            if(!a){out<<"null";return;}
+            out<<"{\"has_motion\":"<<(a->has_motion()?"true":"false")<<",\"motion\":"<<a->motion()<<",\"pc\":"<<a->animation().pc()<<",\"script_state\":"<<a->animation().script_state()
+               <<",\"flags\":"<<a->render_flags<<",\"visible\":"<<(a->visible?"true":"false")<<",\"channels\":[";
+            bool separate=false;for(const auto& v:a->animation().channel_outputs())for(float f:v){if(separate)out<<',';separate=true;out<<__builtin_bit_cast(std::uint32_t, (f));}
+            out<<"]}";
+        };
+        for(const auto& owner:roster.actors()) {
+            const auto& a=*owner;if(comma)out<<',';comma=true;
+            out<<"{\"enemy\":"<<(a.enemy?"true":"false")<<",\"entity_id\":"<<a.entity_id
+               <<",\"model_path\":"<<std::quoted(a.model_path.string())<<",\"shadow_bound\":"<<(a.bound_shadow?"true":"false")
+               <<",\"child_hex\":\""<<hex(Bytes(a.storage).first(a.enemy?0x3e0:0x3d0))
+               <<"\",\"record_before_hex\":\""<<hex(a.record_before)<<"\",\"record_hex\":\""<<hex(a.record)<<"\",\"random_draws\":[";
+            for(unsigned j=0;j<a.constructor_random_draws.size();++j){if(j)out<<',';out<<a.constructor_random_draws[j];}
+            out<<"],\"model\":";write_model(a.model.get());out<<",\"bag\":";write_model(a.bag.get());out<<",\"box\":";write_model(a.box.get());out<<'}';
+        }
+        out<<"],\"entities\":[";comma=false;
+        for(const auto& entity:roster.entities()){
+            if(comma)out<<',';comma=true;out<<"{\"kind\":"<<entity.kind<<",\"actor\":";
+            if(entity.actor)out<<entity.actor->entity_id;else out<<"null";
+            out<<",\"record_bytes\":"<<entity.record.size()<<'}';
+        }
+        out<<"]}\n";if(!out)throw std::runtime_error("Cannot write battle construction report");
     }
 };
 BattleSession::BattleSession(unsigned formation,int stage,const fs::path& input,
@@ -136,17 +183,39 @@ BattleSession::BattleSession(unsigned formation,int stage,const fs::path& input,
 BattleSession::~BattleSession()=default;
 void BattleSession::tick(RetiringSceneEffects* retiring) {
     impl_->jobs.check();
+    if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
     if(!impl_->suppress_effects.load()&&retiring)retiring->tick();
-    if(impl_->jobs.pending())return;
+    if(impl_->construction!=Impl::Construction::Complete)return;
     // No successful empty party/enemy or UI object may open this gate.
     throw std::runtime_error("Battle loading commit/UI constructors are unrecovered");
 }
-void BattleSession::resume_loader(){
-    if(!impl_->loader_resumed){impl_->jobs.resume();impl_->loader_resumed=true;}
+void BattleSession::service_loader_after_frame(BattleConstructionContext context,unsigned frame,const fs::path& report){
+    impl_->jobs.check();
+    if(!impl_->loader_resumed){impl_->jobs.resume();impl_->loader_resumed=true;return;}
+    if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
+    if(impl_->construction!=Impl::Construction::Preparing||!impl_->resources_prepared.load(std::memory_order_acquire))return;
+    if(impl_->jobs.pending()!=0)return;
+    impl_->construction=Impl::Construction::Constructing;
+    const auto rng_before=context.random.state;
+    std::string error;
+    try {
+        impl_->camera_channels.set_channel_mode(0,0x10);
+        impl_->camera.emplace(*impl_->camera_sequence,1.f);impl_->load_step.store(4);
+        const auto random=[&context]{return context.random.next();};
+        impl_->roster.construct_party(impl_->decoded,context.variables,context.tables,context.entry,random);
+        impl_->load_step.store(5);
+        impl_->roster.construct_enemies(impl_->decoded,impl_->formation,impl_->battle_data->formation(impl_->formation),context.tables,
+            __builtin_bit_cast(std::int16_t, (context.entry.parameters().argument2)),random);
+        impl_->load_step.store(6);impl_->construction=Impl::Construction::Complete;
+    }catch(const std::exception& e){
+        impl_->construction=Impl::Construction::Failed;impl_->construction_failure=std::current_exception();error=e.what();
+    }
+    impl_->report(report,frame,rng_before,context,error);
+    if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
 }
 const BattleState& BattleSession::state() const{return impl_->root;}
 std::array<std::uint32_t,7> BattleSession::observation() const {
-    return {impl_->phase,unsigned(impl_->jobs.pending()),impl_->load_step.load(),
+    return {impl_->phase,unsigned(impl_->construction!=Impl::Construction::Complete),impl_->load_step.load(),
         unsigned(impl_->suppress_effects.load()),1,0x40d,0x40c};
 }
 }

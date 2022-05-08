@@ -1,0 +1,47 @@
+#pragma once
+#include "okage/actor.hpp"
+#include "okage/battle_data.hpp"
+#include "okage/battle_entry.hpp"
+#include "okage/battle_state.hpp"
+#include "okage/game_state.hpp"
+#include <filesystem>
+#include <functional>
+#include <memory>
+
+namespace okage {
+struct BattleActor {
+    std::array<std::uint8_t,0x3e0> storage{};
+    std::span<std::uint8_t> record;
+    std::array<std::span<std::uint8_t>,6> stat_bindings;
+    std::unique_ptr<FieldActor> model,bag,box;
+    std::optional<Model> bound_shadow;
+    std::vector<std::uint8_t> record_before;
+    std::vector<std::uint32_t> constructor_random_draws;
+    std::filesystem::path model_path,bag_path,box_path;
+    unsigned entity_id=0;
+    bool dead_callback=false;
+    bool enemy=false;
+};
+struct BattleEntityBinding {
+    BattleActor* actor=nullptr;
+    std::span<std::uint8_t> record;
+    unsigned kind=4;
+};
+class BattleRoster {
+public:
+    explicit BattleRoster(BattleState& root):root_(root) {}
+    void construct_party(const std::filesystem::path& decoded,std::span<std::uint8_t> variables,
+        const GameDataTables&,BattleEntryContext&,const std::function<std::uint32_t()>& random);
+    void construct_enemies(const std::filesystem::path& decoded,unsigned formation_index,
+        std::span<const BattleFormationEntry>,const GameDataTables&,int entry_half32,
+        const std::function<std::uint32_t()>& random);
+    const auto& actors() const {return actors_;}
+    const auto& entities() const {return entities_;}
+private:
+    BattleState& root_;
+    std::vector<std::unique_ptr<BattleActor>> actors_;
+    std::vector<BattleEntityBinding> entities_;
+    bool party_done_=false,enemies_done_=false;
+    unsigned register_entity(BattleActor*,std::span<std::uint8_t>,unsigned kind);
+};
+}

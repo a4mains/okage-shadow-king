@@ -30,6 +30,7 @@ public:
     void tick_script();
     void tick_channels();
     std::vector<Float4> values();
+    Float4 value(std::size_t index);
     // Read existing outputs without evaluating channels or advancing state.
     std::vector<Float4> channel_outputs() const;
     std::uint32_t pc() const { return pc_; }

@@ -1,5 +1,6 @@
 #include "okage/animation.hpp"
 #include "okage/pose.hpp"
+#include "okage/actor.hpp"
 #include <bit>
 #include <cfenv>
 #include <iostream>
@@ -30,6 +31,26 @@ int main() {
     try {
         std::fesetround(FE_TONEAREST);
         auto data=fixture(); okage::Animation animation(data,1); animation.start(0);
+        {
+            //Bone consumers must not evaluate a pending world transform.
+            okage::ModelFile model;model.models.emplace_back().bones.resize(1);
+            okage::FieldActor actor(model,data,{},true,true);
+            actor.animation().set_channel(0,{2,3,4,1});
+            actor.animation().set_channel(4,{5,6,7,1});
+            const auto before=actor.animation().channel_outputs();
+            actor.evaluate_bones();
+            const auto after=actor.animation().channel_outputs();
+            require(after[0]==before[0]&&after[1]==before[1]&&after[3]==before[3]);
+            require(after[4]==okage::Float4({5,6,7,1}));
+            require(actor.animation().value(0)==okage::Float4({2,3,4,1}));
+            require(actor.animation().channel_outputs()[1]==before[1]);
+            okage::FieldActor fixed(model);require(!fixed.has_motion());
+            const auto initial=fixed.animation().channel_outputs();require(initial.size()==4);
+            fixed.tick_channels();fixed.tick_script();require(fixed.animation().channel_outputs()==initial);
+            rejects([&]{fixed.select_motion(0);});
+            fixed.evaluate();require(fixed.channels()[0]==okage::Float4({0,0,0,1}));
+            require(fixed.channels()[2]==okage::Float4({1,1,1,1}));
+        }
         require(animation.pc()==68 && animation.script_state()==0x10101);
         // Transition setup does not mark output dirty; it is evaluated on tick.
         require(animation.values()[0][0]==1);

@@ -228,6 +228,7 @@ struct Session {
     std::optional<okage::GameModeParent> game_mode;
     std::unique_ptr<okage::BattleSession> battle;
     fs::path battle_input;
+    fs::path battle_construction_report;
     std::vector<std::uint32_t> battle_loading_trace;
     std::vector<std::uint32_t> game_mode_trace,retiring_effect_trace;
     bool retain_field_music=false;
@@ -751,7 +752,13 @@ struct Session {
                     "; extend the headless render interval or --render-range");
         }
         if(render_tick)render_frame();
-        if(battle)battle->resume_loader();
+        if(battle) {
+            if(!game_data)throw std::runtime_error("Battle construction requires owned game tables");
+            try {battle->service_loader_after_frame({variables,*game_data,battle_entry,random},frame,battle_construction_report);}
+            catch(const std::exception& error) {
+                throw std::runtime_error("Native battle construction frame="+std::to_string(frame)+": "+error.what());
+            }
+        }
     }
     void render_frame() {
         if(rendered_surface&&rendered_frame==frame)return;
@@ -1404,6 +1411,7 @@ int main(int argc,const char** argv) {
             prepared=std::make_unique<Session>(argv[1],argv[2],playerName);
             auto& session=*prepared;session.render_from=renderFrom;session.render_until=renderUntil;session.render_ranges=std::move(renderRanges);
             session.battle_input=battleInput;
+            if(!output.empty())session.battle_construction_report=output.string()+".battle-construction.json";
             session.live_presentation_enabled=previewAt!=0;
             if(!effectData.empty())session.prepare_effects(effectData,effectTextures);
             if(!map.empty())session.load_scene(map,event,actors);
@@ -1438,6 +1446,7 @@ int main(int argc,const char** argv) {
         if(!app->session) {
         app->session=std::make_unique<Session>(argv[1],argv[2],playerName);
         app->session->battle_input=battleInput;
+        if(!output.empty())app->session->battle_construction_report=output.string()+".battle-construction.json";
         app->session->live_presentation_enabled=true;
         if(!effectData.empty())app->session->prepare_effects(effectData,effectTextures);
         if(!map.empty())app->session->load_scene(map,event,actors);

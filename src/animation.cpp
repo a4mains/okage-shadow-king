@@ -233,6 +233,9 @@ std::vector<Float4> Animation::values() {
     for (auto& ch:channels_) { evaluate(ch); result.push_back(ch.output); }
     return result;
 }
+Float4 Animation::value(std::size_t index) {
+    Rounding rounding;auto& ch=channels_.at(index);evaluate(ch);return ch.output;
+}
 std::vector<Float4> Animation::channel_outputs() const {
     std::vector<Float4> result;result.reserve(channels_.size());
     for(const auto& ch:channels_)result.push_back(ch.output);

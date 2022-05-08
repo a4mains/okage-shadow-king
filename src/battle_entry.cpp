@@ -9,6 +9,9 @@ void clear_battle_entry_prefix(std::span<std::uint8_t> context) {
     std::fill_n(context.begin(),48,0);
 }
 void BattleEntryContext::clear_prefix() {clear_battle_entry_prefix(storage_);}
+void BattleEntryContext::clear_party_slots() {
+    for(unsigned at:{0x26,0x2a,0x2e}){storage_[at]=0;storage_[at+1]=0;}
+}
 
 BattleEntryContext::BattleEntryContext(std::uint32_t a,std::uint32_t b,
                                      std::uint32_t c,std::uint32_t d) {
