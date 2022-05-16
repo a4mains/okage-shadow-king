@@ -12,6 +12,9 @@ spec = importlib.util.spec_from_file_location('compare_battle_construction', SCR
 mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
 
 def wrap(b): return {'bytes':len(b),'raw_hex':b.hex()}
+def root_hex(count):
+    root=bytearray(0x81d0); struct.pack_into('<I',root,0x50,count)
+    return root.hex()
 def source_fixture():
     child=bytearray(0x3d0); struct.pack_into('<HH',child,0x42,0,0)
     live=bytes(0x50)
@@ -27,7 +30,7 @@ def source_fixture():
 
 def native_fixture():
     child=bytearray(0x3d0)
-    return {'schema':'okage-native-battle-construction-v1','frame':10,'complete':True,'error':'','actors':[{'enemy':False,'entity_id':0,'child_hex':child.hex(),'record_before_hex':bytes(0x50).hex(),'record_hex':bytes(0x50).hex(),'random_draws':[],'model':None,'bag':None,'box':None}], 'entities':[{'kind':0,'actor':0,'record_bytes':0x50}]}
+    return {'schema':'okage-native-battle-construction-v1','frame':10,'complete':True,'error':'','root_hex':root_hex(1),'actors':[{'enemy':False,'entity_id':0,'child_hex':child.hex(),'record_before_hex':bytes(0x50).hex(),'record_hex':bytes(0x50).hex(),'random_draws':[],'model':None,'bag':None,'box':None}], 'entities':[{'kind':0,'actor':0,'record_bytes':0x50}]}
 
 def enemy_fixture():
     child=bytearray(0x3e0); struct.pack_into('<HH',child,0x42,0,0)
@@ -48,7 +51,7 @@ def enemy_fixture():
     finish={'event':'finish','party_completed':0,'enemy_completed':1,'registrations_completed':2}
     def nm(): return {'has_motion':False,'pc':0,'script_state':0,'flags':0,'visible':False,'channels':[0,0,0,0]}
     actor={'enemy':True,'entity_id':0,'child_hex':child.hex(),'record_before_hex':'','record_hex':'','random_draws':[],'model':nm(),'bag':nm(),'box':nm()}
-    native={'schema':'okage-native-battle-construction-v1','frame':1,'complete':True,'error':'','actors':[actor],'entities':[{'kind':1,'actor':0,'record_bytes':0x6c},{'kind':4,'actor':None,'record_bytes':0}]}
+    native={'schema':'okage-native-battle-construction-v1','frame':1,'complete':True,'error':'','root_hex':root_hex(2),'actors':[actor],'entities':[{'kind':1,'actor':0,'record_bytes':0x6c},{'kind':4,'actor':None,'record_bytes':0}]}
     return (head,[entry,done,reg0,reg,null_entry,null_done],finish),native
 
 class ComparatorTests(unittest.TestCase):
@@ -136,5 +139,12 @@ class ComparatorTests(unittest.TestCase):
         n=native_fixture(); result=mod.compare(self.loaded((h,e,f)),n)
         self.assertEqual(result['rng']['constructors'][0]['original_return_addresses'],[0x15455c])
         self.assertTrue(any('sequence lengths differ' in x for x in result['unsupported_checks']))
+        self.assertTrue(any(d['path']=='rng.constructor[1].count' for d in result['differences']))
+
+    def test_registration_table_scalars_are_compared(self):
+        ref,n=enemy_fixture(); root=bytearray.fromhex(n['root_hex'])
+        root[0x60+0x200+1]=16; struct.pack_into('<I',root,0x60+0x200+0x1fc,0x80000000)
+        n['root_hex']=root.hex(); result=mod.compare(self.loaded(ref),n)
+        self.assertEqual([d['path'] for d in result['differences']],['root.entity[1].diagonal','root.entity[1].flags'])
 
 if __name__=='__main__': unittest.main()

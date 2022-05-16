@@ -2,7 +2,6 @@
 """Compare natural original battle-constructor observations with a native report."""
 import argparse
 import json
-import os
 import struct
 import sys
 from pathlib import Path
@@ -94,6 +93,18 @@ def compare(reference,native):
     diffs=[]; unsupported=[]; compared={'bytes':0,'channel_words':0,'registrations':0,'motion_contexts':0}
     def diff(path,a,b,why='value mismatch'):
         if a!=b: diffs.append({'path':path,'expected':a,'actual':b,'reason':why})
+    try: native_root=bytes.fromhex(native.get('root_hex',''))
+    except (ValueError,TypeError) as e: raise Invalid(f'native root hex malformed: {e}')
+    need(len(native_root)==0x81d0,'native root extent mismatch')
+    if regs:
+        final_table=raw(regs[max(regs)]['complete']['registration_table'],'final registration table',0x8010)
+        diff('root.registered_count',u32(final_table,0),u32(native_root,0x50))
+        compared['bytes']+=4
+        for index in regs:
+            src=0x10+index*0x200; dst=0x60+index*0x200
+            diff(f'root.entity[{index}].diagonal',final_table[src+index],native_root[dst+index])
+            diff(f'root.entity[{index}].flags',u32(final_table,src+0x1fc),u32(native_root,dst+0x1fc))
+            compared['bytes']+=5
     actors=native.get('actors'); need(isinstance(actors,list),'native actors must be array')
     native_by_key={}
     for i,a in enumerate(actors):
@@ -130,6 +141,7 @@ def compare(reference,native):
             diff(f'actor[{key}].child[{lo:03x}:{hi:03x}]',child[lo:hi].hex(),nchild[lo:hi].hex())
             compared['bytes'] += hi-lo
         for name,nname in [('model','model'),('hidden_bag','bag'),('hidden_box','box')]:
+            need(name in comp or (kind=='party' and name!='model'),f'original {kind} missing {name} observation')
             if name not in comp: continue
             orig=comp[name]; native_model=a.get(nname)
             present=orig.get('present',False)
@@ -194,6 +206,8 @@ def compare(reference,native):
                 diffs.append({'path':f'rng.constructor[{cid}]','expected':[x['output'] for x in original],'actual':actual,'reason':'matching observation lengths but outputs differ'})
         else:
             entry['sequence_match']=None
+            diff(f'rng.constructor[{cid}].count',len(original),len(actual),
+                 'observed counts differ; conditional draws or interleaving require separate diagnosis')
             unsupported.append(f'constructor {cid} RNG sequence lengths differ ({len(original)} original in-flight observations, {len(actual)} native draws); scheduled-work interleaving makes sequence comparison ambiguous')
         rng_report.append(entry)
     unsupported.extend(['RNG exclusivity cannot be proven from in-flight entry observations alone', 'visibility and render flags use sourced original fields and masks; native full constructor flags are not equated to the original masked field'])
