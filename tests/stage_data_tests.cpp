@@ -79,6 +79,15 @@ int main(int argc,char** argv) {
         bad=original; put32(bad,28,0xffffffff); rejects([&]{(void)okage::StageData::parse(bad);});
         bad=original; put32(bad,24,0xe4); rejects([&]{(void)okage::StageData::parse(bad);});
         bad=original; put32(bad,24,0x277); rejects([&]{(void)okage::StageData::parse(bad);});
+        // The file allocation can hold the settings while the fixed0x278-byte
+        // persistent header used by138c98 cannot. Do not validate only file size.
+        bad=original;bad.resize(0x300);
+        put32(bad,8,0x20);put32(bad,12,31); //End0x28c, beyond persistent header.
+        put32(bad,16,0x28c);put32(bad,20,0);put32(bad,24,0x28c);put32(bad,28,0);
+        rejects([&]{(void)okage::StageData::parse(bad);});
+        // Exact header endpoint remains valid, independent of larger allocation.
+        put32(bad,8,0x264);put32(bad,12,1);put32(bad,16,0x278);put32(bad,24,0x278);
+        require(okage::StageData::parse(bad).settings().size()==1,"exact header endpoint rejected");
         std::cout<<"stage data tests passed\n";
         return 0;
     } catch(const std::exception& e) {
