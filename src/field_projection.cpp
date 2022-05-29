@@ -53,7 +53,39 @@ void FieldProjection::load_stage(Bytes bytes) {
     current_=next;field_far_=next.clip_far;
     field_fog_near_=next.fog_near;field_fog_far_=next.fog_far;
     //0x101260 configures effect far/fog, preserving the shared current near.
-    loaded_=true;frame_={next,next,next,next,next,next};
+    synchronize_stage_effects();
+}
+void FieldProjection::apply_stage_setting(unsigned kind,const Float4& value,float depth_min,float depth_max) {
+    if(phase_!=Phase::Idle)throw std::runtime_error("Projection stage changed during submission");
+    for(float f:value)if(!std::isfinite(f))throw std::runtime_error("Nonfinite projection STG value");
+    auto next=current_;
+    if(kind==0x43){next.fog_near=value[0];next.fog_far=value[1];}
+    else if(kind==0x44) {
+        next.scale_x=value[0];next.scale_y=value[1];next.focal=value[2];
+        if(value[3]>=10) {
+            next.depth_near=next.clip_near=3;next.depth_far=next.clip_far=value[3];
+            next.depth_min=depth_min;next.depth_max=depth_max;
+        }
+    } else throw std::runtime_error("Unsupported projection stage setter");
+    (void)shadow_screen_parameters(next);
+    current_=next;
+    if(kind==0x43){field_fog_near_=value[0];field_fog_far_=value[1];}
+    else if(value[3]>=10)field_far_=value[3];
+}
+void FieldProjection::synchronize_stage_effects() {
+    if(phase_!=Phase::Idle)throw std::runtime_error("Effect projection sync during submission");
+    effect_far_=field_far_;effect_fog_near_=field_fog_near_;effect_fog_far_=field_fog_far_;
+    loaded_=true;frame_={current_,current_,current_,current_,current_,current_};
+}
+void FieldProjection::submit_empty_resource_frame(bool effect_pass,float depth_min,float depth_max) {
+    if(phase_!=Phase::Idle)throw std::runtime_error("Resource projection lifecycle order");
+    current_.depth_near=current_.clip_near=3;current_.depth_far=current_.clip_far=2048;
+    current_.depth_min=depth_min;current_.depth_max=depth_max;
+    current_.fog_near=4096;current_.fog_far=16384;
+    if(effect_pass) {
+        phase_=Phase::Field;
+        begin_effects();begin_deferred();end_effects();
+    }
 }
 void FieldProjection::begin_field() {
     if(!loaded_||phase_!=Phase::Idle)throw std::runtime_error("Field projection lifecycle order");
@@ -70,17 +102,17 @@ void FieldProjection::begin_effects() {
     current_.depth_near=current_.clip_near=3;current_.depth_far=current_.clip_far=2048;
     current_.fog_near=4096;current_.fog_far=16384;frame_.field_end=current_;
     current_.half_width=1024;current_.half_height=512;
-    current_.clip_near=effect_near_;current_.clip_far=field_far_;
-    current_.fog_near=field_fog_near_;current_.fog_far=field_fog_far_;
+    current_.clip_near=effect_near_;current_.clip_far=effect_far_;
+    current_.fog_near=effect_fog_near_;current_.fog_far=effect_fog_far_;
     frame_.effects=current_;phase_=Phase::Effects;
 }
 void FieldProjection::select_effect_near(float near) {
     if(phase_!=Phase::Effects&&phase_!=Phase::Deferred)
         throw std::runtime_error("Effect near outside submission");
-    if(!std::isfinite(near)||near<=0||near>=field_far_)
+    if(!std::isfinite(near)||near<=0||near>=effect_far_)
         throw std::runtime_error("Invalid effect clipping plane");
     if(near!=effect_near_) {
-        current_.clip_near=effect_near_=near;current_.clip_far=field_far_;
+        current_.clip_near=effect_near_=near;current_.clip_far=effect_far_;
     }
 }
 void FieldProjection::begin_deferred() {

@@ -82,6 +82,18 @@ void independent_caches_after_submission() {
     p.synchronize_stage_effects();
     require(p.effect_parameters()[0]==10,"101260 reset shared effect near");
 }
+void empty_resource_projection() {
+    okage::FieldProjection p;p.reset_scene();
+    const auto effects=p.effect_parameters();
+    p.submit_empty_resource_frame(false,355,1677621.5f);
+    require(p.current().depth_far==2048&&p.current().clip_far==2048,"suppression incorrectly skipped model epilogue");
+    require(p.current().depth_min==355&&p.current().fog_near==4096,"model epilogue omitted cache/fog state");
+    require(p.effect_parameters()==effects,"model epilogue synchronized separate effect owner");
+    rejects([&]{p.begin_field();});
+    p.submit_empty_resource_frame(true,101,16777115);
+    require(p.current().depth_far==2048&&p.current().clip_far==1024&&p.current().fog_near==0,"unsuppressed resource effect order");
+    require(p.effect_parameters()==effects,"empty effect submission changed parameter owner");
+}
 void filters_and_packing() {
     okage::StageSettings s;okage::FieldProjection p;
     apply(s,p,0x12340047,{110,256,2,3});
@@ -146,7 +158,7 @@ int main(int argc,char** argv) {
     try {
         if(argc==3&&std::string(argv[1])=="--diagnostic")diagnostic(argv[2]);
         else {require(argc==1,"usage: stage-settings-tests [--diagnostic owned-B_ROOM1-a.stg]");
-            defaults();ordered_projection();independent_caches_after_submission();filters_and_packing();guards_and_rounding();}
+            defaults();ordered_projection();independent_caches_after_submission();empty_resource_projection();filters_and_packing();guards_and_rounding();}
         std::cout<<"stage settings tests passed\n";return 0;
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }

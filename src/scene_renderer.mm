@@ -581,6 +581,9 @@ EffectTextureSizes SceneRenderer::effect_texture_sizes() const {
 }
 void SceneRenderer::set_effect_light_tint(const Float4& tint){impl_->effectTint=tint;}
 void SceneRenderer::set_clear_rgb(std::array<std::uint8_t,3> rgb){impl_->clearRGB=rgb;}
+void SceneRenderer::set_stage_environment(const FieldOrdinaryLighting& light,const FieldShadowSettings& shadow,const Float4& sky) {
+    impl_->ordinaryLighting=light;impl_->shadowSettings=shadow;impl_->sky_factors=sky;
+}
 void SceneRenderer::bind_map_effects(const MapEffects* effects){impl_->mapEffects=effects;}
 void SceneRenderer::bind_effect_submissions(const EffectSubmissions* effects){impl_->effectSubmissions=effects;}
 Texture SceneRenderer::render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor){return impl_->render(view,projection,effects,camera,farClip,cameraPosition,fieldProjection,shadowFactor);}

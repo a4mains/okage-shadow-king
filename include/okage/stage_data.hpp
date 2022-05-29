@@ -32,6 +32,7 @@ public:
     const std::vector<StageRecord28>& entrances() const noexcept { return entrances_; }
 
 private:
+    StageData() = default;
     std::vector<std::uint8_t> owned_;
     std::vector<StageSettingRecord> settings_;
     std::vector<StageRecord28> camera_records_;

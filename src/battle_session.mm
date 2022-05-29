@@ -8,6 +8,7 @@
 #include "okage/animation.hpp"
 #include "okage/scene_renderer.hpp"
 #include "okage/battle_actor.hpp"
+#include "okage/stage_settings.hpp"
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 #include <algorithm>
@@ -45,6 +46,7 @@ struct StageScratch {
     std::array<std::array<std::uint8_t,0x348>,3> other{};
     std::array<std::uint32_t,10> selectors{0x22,0x1c};
     std::string name="LOAD_DEFAULT";
+    unsigned camera_settings_count=0;
     StageScratch() {
         first[0]='S';first[1]='T';first[2]='G';first[4]=0x20;first[8]=0x20;
     }
@@ -74,6 +76,9 @@ struct BattleSession::Impl {
     id<MTLTexture> atlas,environment;
     Float4 environment_uv{};
     std::vector<std::uint8_t> held_stage;
+    std::optional<StageData> stage_data;
+    std::optional<StageSettings> stage_settings;
+    bool stage_committed=false;
     std::unique_ptr<MapObjects> objects;
     std::optional<CollisionMap> collision;
     std::unique_ptr<SceneRenderer> renderer;
@@ -91,6 +96,7 @@ struct BattleSession::Impl {
         if(event_variable(variables,0x40005)!=0)
             throw std::runtime_error("Battle wrapper bypass branch is unrecovered");
         root.initialize_root({1.f,formation,stage});entry.clear_prefix();
+        stage_settings.emplace(SceneClearColor{{0,0,0}}); //100ef8 fresh resource clear.
         jobs.enqueue([this]{load();});
     }
     id<MTLTexture> upload(const Texture& image) {
@@ -140,6 +146,91 @@ struct BattleSession::Impl {
             resources_prepared.store(true,std::memory_order_release);
         }
     }
+    void commit_stage(FieldProjection& projection,SceneClearColor& clear,unsigned frame,const fs::path& path) {
+        if(!path.empty()&&(fs::exists(path)||fs::is_symlink(path)))
+            throw std::runtime_error("Refusing existing battle stage report");
+        if(held_stage.empty()||!renderer||!suppress_effects.load())
+            throw std::runtime_error("Battle stage commit ownership order");
+        stage_settings->clear=clear;
+        stage_settings->clear_word=unsigned(clear.rgb[0])|(unsigned(clear.rgb[1])<<8)|(unsigned(clear.rgb[2])<<16);
+        std::vector<std::string> snapshots;
+        const auto array=[](std::ostream& out,const auto& values) {
+            out<<'[';bool comma=false;for(auto v:values){if(comma)out<<',';comma=true;out<<v;}out<<']';
+        };
+        const auto float_bits=[](const auto& values) {
+            std::vector<std::uint32_t> result;for(float v:values)result.push_back(__builtin_bit_cast(std::uint32_t, (v)));return result;
+        };
+        const auto snapshot=[&](const char* event,unsigned index,const StageSettingRecord* record=nullptr) {
+            if(path.empty())return;
+            const auto& s=*stage_settings;std::ostringstream out;
+            out<<"{\"event\":"<<std::quoted(event)<<",\"setting_index\":"<<index;
+            if(record){out<<",\"kind\":"<<record->kind<<",\"value_bits\":";array(out,record->value_bits);}
+            out<<",\"projection\":";array(out,float_bits(field_projection_words(projection.current())));
+            out<<",\"effects\":";array(out,float_bits(projection.effect_parameters()));
+            out<<",\"base\":";array(out,float_bits(s.lighting.base));
+            std::vector<std::uint32_t> colors,directions;
+            for(const auto& v:s.lighting.colors)for(float f:v)colors.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+            for(const auto& v:s.lighting.directions)for(float f:v)directions.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+            out<<",\"colors\":";array(out,colors);out<<",\"directions\":";array(out,directions);
+            out<<",\"sky\":";array(out,float_bits(s.sky));
+            out<<",\"shadow_direction\":";array(out,float_bits(s.shadows.direction));
+            out<<",\"shadow_tint\":";array(out,s.shadows.tint);
+            out<<",\"shadow_threshold\":"<<s.shadows.threshold<<",\"clear_word\":"<<s.clear_word
+               <<",\"fog_rgb\":"<<s.fog_rgb<<",\"signed_setting\":"<<s.signed_setting
+               <<",\"bucket_shift\":"<<s.bucket_shift<<",\"bucket_base\":"<<s.bucket_base<<",\"selector\":"<<s.selector;
+            out<<",\"cached_depth\":";array(out,float_bits(std::array{s.cached_depth_min,s.cached_depth_max}));
+            out<<",\"filters\":[";for(unsigned i=0;i<s.filters.size();++i){if(i)out<<',';if(s.filters[i])array(out,*s.filters[i]);else out<<"null";}
+            out<<"],\"held\":"<<(!held_stage.empty()?"true":"false")
+               <<",\"suppression\":"<<(suppress_effects.load()?"true":"false")<<'}';
+            snapshots.push_back(out.str());
+        };
+        std::exception_ptr failure;std::string error;
+        try {
+            snapshot("commit_entry",0);
+            stage_data.emplace(StageData::parse(held_stage));
+            std::copy(stage_data->header().begin(),stage_data->header().end(),scratch.first.begin());
+            const auto copy_records=[](const auto& records,auto& bytes) {
+                unsigned at=0;for(const auto& record:records)for(auto w:record.words)
+                    for(unsigned c=0;c<4;++c)bytes.at(at++)=std::uint8_t(w>>(c*8));
+            };
+            copy_records(stage_data->camera_records(),scratch.other[0]);
+            copy_records(stage_data->entrances(),scratch.other[1]);
+            copy_records(stage_data->camera_settings(),scratch.other[2]);
+            scratch.camera_settings_count=stage_data->camera_settings().size();
+            unsigned index=0;
+            for(const auto& setting:stage_data->settings()) {
+                snapshot("setting_entry",index,&setting);
+                stage_settings->apply(setting,projection);
+                clear=stage_settings->clear;
+                renderer->set_clear_rgb(clear.rgb);
+                renderer->set_stage_environment(stage_settings->lighting,stage_settings->shadows,stage_settings->sky);
+                snapshot("setting_return",index,&setting);++index;
+            }
+            snapshot("settings_applied_before_free",index);
+            std::vector<std::uint8_t>().swap(held_stage);
+            snapshot("effect_projection_sync_entry",index);
+            projection.synchronize_stage_effects();
+            suppress_effects.store(false);stage_committed=true;
+            snapshot("commit_complete_before_ui",index);
+        } catch(const std::exception& e){failure=std::current_exception();error=e.what();}
+        if(!path.empty()) {
+            if(!path.parent_path().empty())fs::create_directories(path.parent_path());
+            std::ofstream out(path);
+            const auto hex=[](Bytes b){std::ostringstream s;for(auto v:b)s<<std::hex<<std::setw(2)<<std::setfill('0')<<unsigned(v);return s.str();};
+            out<<"{\"schema\":\"okage-native-battle-stage-v1\",\"frame\":"<<frame
+               <<",\"complete\":"<<(stage_committed?"true":"false")<<",\"error\":"<<std::quoted(error)
+               <<",\"owned_stage_hex\":"<<std::quoted(hex(stage_data?stage_data->bytes():Bytes(held_stage)))
+               <<",\"header_hex\":"<<std::quoted(stage_data?hex(scratch.first):"");
+            const auto records=[&](const char* name,const auto& values){
+                out<<",\""<<name<<"\":[";bool comma=false;
+                for(const auto& r:values){if(comma)out<<',';comma=true;array(out,r.words);}out<<']';
+            };
+            if(stage_data){records("cameras",stage_data->camera_records());records("camera_settings",stage_data->camera_settings());records("entrances",stage_data->entrances());}
+            out<<",\"snapshots\":[";for(unsigned i=0;i<snapshots.size();++i){if(i)out<<',';out<<snapshots[i];}
+            out<<"]}\n";if(!out)throw std::runtime_error("Cannot write battle stage report");
+        }
+        if(failure)std::rethrow_exception(failure);
+    }
     void report(const fs::path& path,unsigned frame,std::uint32_t rng_before,
                 const BattleConstructionContext& context,const std::string& error) const {
         if(path.empty())return;
@@ -181,13 +272,17 @@ BattleSession::BattleSession(unsigned formation,int stage,const fs::path& input,
                             const fs::path& decoded,Bytes variables,BattleEntryContext& entry,Animation& camera):
     impl_(std::make_unique<Impl>(formation,stage,input,decoded,variables,entry,camera)) {}
 BattleSession::~BattleSession()=default;
-void BattleSession::tick(RetiringSceneEffects* retiring) {
+void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& projection,SceneClearColor& clear,
+                         unsigned frame,const fs::path& stage_report) {
     impl_->jobs.check();
     if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
-    if(!impl_->suppress_effects.load()&&retiring)retiring->tick();
+    const bool effect_pass=!impl_->suppress_effects.load();
+    projection.submit_empty_resource_frame(effect_pass,
+        impl_->stage_settings->cached_depth_min,impl_->stage_settings->cached_depth_max);
+    if(effect_pass&&retiring)retiring->tick();
     if(impl_->construction!=Impl::Construction::Complete)return;
-    // No successful empty party/enemy or UI object may open this gate.
-    throw std::runtime_error("Battle loading commit/UI constructors are unrecovered");
+    if(!impl_->stage_committed)impl_->commit_stage(projection,clear,frame,stage_report);
+    throw std::runtime_error("Battle UI constructors, child activation and framebuffer filter rendering are unrecovered");
 }
 void BattleSession::service_loader_after_frame(BattleConstructionContext context,unsigned frame,const fs::path& report){
     impl_->jobs.check();

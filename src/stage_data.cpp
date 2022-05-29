@@ -57,6 +57,8 @@ StageData StageData::parse(Bytes input) {
                 max_records, "Invalid STG entrance table extent");
 
     const std::uint64_t settings_end = settings_begin + settings_count * setting_record_size;
+    if(settings_end>original_header_size)
+        throw std::runtime_error("STG settings exceed persistent header copy");
     const std::uint64_t camera_end = camera_begin + camera_count * record_size;
     if (settings_end > camera_begin)
         throw std::runtime_error("Overlapping STG settings and camera records");

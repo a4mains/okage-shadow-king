@@ -9,6 +9,8 @@
 #include <memory>
 
 namespace okage {
+class FieldProjection;
+struct SceneClearColor;
 struct BattleConstructionContext {
     std::span<std::uint8_t> variables;
     const GameDataTables& tables;
@@ -23,7 +25,8 @@ public:
     ~BattleSession();
     BattleSession(const BattleSession&)=delete;
     BattleSession& operator=(const BattleSession&)=delete;
-    void tick(RetiringSceneEffects*);
+    void tick(RetiringSceneEffects*,FieldProjection&,SceneClearColor&,unsigned frame,
+              const std::filesystem::path& stage_report={});
     void service_loader_after_frame(BattleConstructionContext,unsigned frame,
                                     const std::filesystem::path& diagnostic_report={});
     const BattleState& state() const;
