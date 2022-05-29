@@ -119,6 +119,8 @@ def _validate_reference_snapshot(row):
                       ('fog', 4), ('clear', 4), ('setting_4d_signed', 4), ('filter_pointer', 4),
                       ('filter_slots', 0x120)]:
         raw(row.get(key), f'{name} {key}', size)
+    suppression_word = u32(raw(row['resource_header'], f'{name} resource_header', 0x48), 0x38)
+    need(suppression_word in (0, 1), f'{name}: unsupported suppression word {suppression_word}')
     if row.get('event') == 'commit_entry':
         raw(row.get('stg_preimage'), f'{name} stg_preimage', STG_SIZE)
     if row.get('event') in ('setting_entry', 'setting_return'):
@@ -130,6 +132,11 @@ def _native_u32_array(value, name, size):
          f'{name}: elements must be unsigned 32-bit integers')
     return value
 
+def _native_u32(value, name):
+    need(isinstance(value, int) and not isinstance(value, bool) and 0 <= value <= 0xffffffff,
+         f'{name}: expected unsigned 32-bit integer')
+    return value
+
 def _native_record_array(value, name, count):
     need(isinstance(value, list) and len(value) == count, f'{name}: expected {count} records')
     return [_native_u32_array(record, f'{name}[{i}]', 7) for i, record in enumerate(value)]
@@ -138,6 +145,8 @@ def compare(reference, native):
     header, original, finish, stage, tables = reference
     need(isinstance(native, dict), 'native report must be object')
     need(native.get('schema') == NATIVE_SCHEMA, 'native report schema mismatch')
+    need(isinstance(native.get('complete'), bool), 'native complete must be boolean')
+    need(isinstance(native.get('error'), str), 'native error must be present as a string')
     differences = []
     unsupported = [
         'reference/native frame numbers use different clocks; no frame alignment is asserted',
@@ -159,9 +168,6 @@ def compare(reference, native):
 
     diff('native.complete', True, native.get('complete'))
     diff('native.error', '', native.get('error', ''))
-    if native.get('complete') is not True or native.get('error', ''):
-        pass
-
     stage_hex = native.get('owned_stage_hex')
     if stage_hex is None:
         diff('native.owned_stage_hex', stage.hex(), '<missing>')
@@ -228,13 +234,12 @@ def compare(reference, native):
             raw_setting = raw(orig['setting'], f'{path} original setting', 20)
             expected_kind = u32(raw_setting, 0)
             expected_values = words(raw_setting[4:20])
-            if 'kind' in row:
-                diff(f'{path}.kind', expected_kind, row['kind'])
-                compared['settings'] += 1
-            if 'value_bits' in row:
-                values = _native_u32_array(row['value_bits'], f'{path}.value_bits', 4)
-                diff(f'{path}.value_bits', expected_values, values)
-                compared['settings'] += 4
+            kind = _native_u32(row.get('kind'), f'{path}.kind')
+            values = _native_u32_array(row.get('value_bits'), f'{path}.value_bits', 4)
+            diff(f'{path}.kind', expected_kind, kind)
+            compared['settings'] += 1
+            diff(f'{path}.value_bits', expected_values, values)
+            compared['settings'] += 4
         _compare_snapshot_state(path, orig, row, diff, compared)
     # The preserved filter owners 1/2 must not be changed by original commit setters.
     baseline_slots = raw(original[0]['filter_slots'], 'commit-entry filter slots', 0x120)
@@ -289,7 +294,7 @@ def _compare_snapshot_state(path, orig, native, diff, compared):
     diff(f'{path}.shadow_tint', tint, _native_u32_array(native.get('shadow_tint'), f'{path}.shadow_tint', 3))
     scalar_offsets = [('shadow_threshold',0x44),('bucket_shift',0x10),('bucket_base',0x0c),('selector',0x40)]
     for key, offset in scalar_offsets:
-        diff(f'{path}.{key}', u32(field, offset), native.get(key, '<missing>'))
+        diff(f'{path}.{key}', u32(field, offset), _native_u32(native.get(key), f'{path}.{key}'))
         compared['stage_state_words'] += 1
     cached = [u32(field,0x30),u32(field,0x34)]
     diff(f'{path}.cached_depth', cached, _native_u32_array(native.get('cached_depth'), f'{path}.cached_depth', 2))
@@ -297,17 +302,21 @@ def _compare_snapshot_state(path, orig, native, diff, compared):
     tint_count = len(tint)
     compared['stage_state_words'] += tint_count
     fog = u32(raw(orig['fog'], f'{path} fog', 4), 0) & 0x00ffffff
-    diff(f'{path}.fog_rgb', fog, native.get('fog_rgb', '<missing>'))
+    diff(f'{path}.fog_rgb', fog, _native_u32(native.get('fog_rgb'), f'{path}.fog_rgb'))
     clear = u32(raw(orig['clear'], f'{path} clear', 4), 0)
-    diff(f'{path}.clear_word', clear, native.get('clear_word', '<missing>'))
+    diff(f'{path}.clear_word', clear, _native_u32(native.get('clear_word'), f'{path}.clear_word'))
     signed = u32(raw(orig['setting_4d_signed'], f'{path} signed setting', 4), 0)
-    diff(f'{path}.signed_setting', signed, native.get('signed_setting', '<missing>'))
+    diff(f'{path}.signed_setting', signed, _native_u32(native.get('signed_setting'), f'{path}.signed_setting'))
     compared['stage_state_words'] += 3
     resource = raw(orig['resource_header'], f'{path} resource header', 0x48)
     held = u32(resource,0x44) != 0
     suppression = u32(resource,0x38) != 0
-    diff(f'{path}.held', held, native.get('held', '<missing>'))
-    diff(f'{path}.suppression', suppression, native.get('suppression', '<missing>'))
+    native_held = native.get('held')
+    native_suppression = native.get('suppression')
+    need(isinstance(native_held, bool), f'{path}.held must be boolean')
+    need(isinstance(native_suppression, bool), f'{path}.suppression must be boolean')
+    diff(f'{path}.held', held, native_held)
+    diff(f'{path}.suppression', suppression, native_suppression)
     compared['stage_state_words'] += 2
     filter_data = raw(orig['filter_slots'], f'{path} filters', 0x120)
     native_filters = native.get('filters')

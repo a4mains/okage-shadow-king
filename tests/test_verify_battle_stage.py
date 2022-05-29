@@ -157,6 +157,25 @@ class BattleStageComparisonTests(unittest.TestCase):
         self.assertFalse(result['complete'])
         self.assertEqual(result['first_difference']['path'], 'native.complete')
 
+    def test_missing_native_error_and_boolean_word_are_rejected(self):
+        del self.native['error']
+        with self.assertRaises(v.Invalid):
+            v.compare(v.load_reference(self.ref_path), self.native)
+        self.native['error'] = ''
+        self.native['snapshots'][0]['clear_word'] = True
+        with self.assertRaises(v.Invalid):
+            v.compare(v.load_reference(self.ref_path), self.native)
+
+    def test_setting_payload_is_required(self):
+        del self.native['snapshots'][1]['value_bits']
+        with self.assertRaises(v.Invalid):
+            v.compare(v.load_reference(self.ref_path), self.native)
+
+    def test_hold_and_suppression_must_be_booleans(self):
+        self.native['snapshots'][0]['held'] = 1
+        with self.assertRaises(v.Invalid):
+            v.compare(v.load_reference(self.ref_path), self.native)
+
     def test_cli_writes_mismatch_report_and_returns_one(self):
         self.native['snapshots'][0]['clear_word'] ^= 1
         self.write_inputs()
