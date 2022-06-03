@@ -281,7 +281,10 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
         impl_->stage_settings->cached_depth_min,impl_->stage_settings->cached_depth_max);
     if(effect_pass&&retiring)retiring->tick();
     if(impl_->construction!=Impl::Construction::Complete)return;
-    if(!impl_->stage_committed)impl_->commit_stage(projection,clear,frame,stage_report);
+    if(!impl_->stage_committed) {
+        try {impl_->commit_stage(projection,clear,frame,stage_report);}
+        catch(...) {impl_->construction_failure=std::current_exception();throw;}
+    }
     throw std::runtime_error("Battle UI constructors, child activation and framebuffer filter rendering are unrecovered");
 }
 void BattleSession::service_loader_after_frame(BattleConstructionContext context,unsigned frame,const fs::path& report){
