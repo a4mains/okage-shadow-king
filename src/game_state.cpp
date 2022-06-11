@@ -2,6 +2,7 @@
 #include "okage/event.hpp"
 #include <algorithm>
 #include <bit>
+#include <initializer_list>
 #include <stdexcept>
 #include <string_view>
 
@@ -13,9 +14,10 @@ std::uint32_t word(Bytes b,std::size_t at) {
 }
 template<std::size_t N>
 std::vector<std::array<std::uint32_t,N>> records(Bytes b,std::string_view section,
-                                               std::array<unsigned,2> string_columns,
+                                               std::initializer_list<unsigned> string_columns,
                                                int owned_string_column=-1,
-                                               std::vector<std::string>* owned_strings=nullptr) {
+                                               std::vector<std::string>* owned_strings=nullptr,
+                                               bool optional_section=false) {
     if(word(b,0)!=0x424458||word(b,16)!=0xffffffff)throw std::runtime_error("Invalid game XDB header");
     if(owned_string_column>=0 &&
        (owned_string_column>=int(N)||!owned_strings||
@@ -45,6 +47,7 @@ std::vector<std::array<std::uint32_t,N>> records(Bytes b,std::string_view sectio
         }
         return result;
     }
+    if(optional_section)return {};
     throw std::runtime_error("Missing game XDB table");
 }
 std::uint16_t half(Bytes b,std::size_t at) {return unsigned(b[at])|(unsigned(b[at+1])<<8);}
@@ -87,8 +90,11 @@ void refresh(std::span<std::uint8_t> b,const GameDataTables& tables,unsigned slo
 }
 GameDataTables::GameDataTables(Bytes battle_data,Bytes item_data):
     unit_model_names_(),
+    system_messages_(),
     units_(records<27>(battle_data,"unit",{0,1},1,&unit_model_names_)),
-    items_(records<15>(item_data,"item",{0,14})) {}
+    items_(records<15>(item_data,"item",{0,14})) {
+    (void)records<1>(battle_data,"sysmes",{0},0,&system_messages_,true);
+}
 const std::array<std::uint32_t,27>& GameDataTables::unit(int id) const {
     if(id<1||std::size_t(id)>units_.size())throw std::runtime_error("Game unit ID bounds");
     return units_[id-1];
@@ -96,6 +102,10 @@ const std::array<std::uint32_t,27>& GameDataTables::unit(int id) const {
 const std::string& GameDataTables::unit_model_name(int id) const {
     if(id<1||std::size_t(id)>unit_model_names_.size())throw std::runtime_error("Game unit ID bounds");
     return unit_model_names_[id-1];
+}
+const std::string& GameDataTables::system_message(unsigned index) const {
+    if(std::size_t(index)>=system_messages_.size())throw std::runtime_error("Game system message index bounds");
+    return system_messages_[index];
 }
 const std::array<std::uint32_t,15>& GameDataTables::item(int id) const {
     if(id<1||std::size_t(id)>items_.size())throw std::runtime_error("Game item ID bounds");

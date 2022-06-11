@@ -14,9 +14,12 @@ public:
     GameDataTables(Bytes battle_data,Bytes item_data);
     const std::array<std::uint32_t,27>& unit(int id) const;
     const std::string& unit_model_name(int id) const;
+    // 0x1256a8 resolves the zero-based BKDATA sysmes table (battle UI uses 0xa6).
+    const std::string& system_message(unsigned index) const;
     const std::array<std::uint32_t,15>& item(int id) const;
 private:
     std::vector<std::string> unit_model_names_;
+    std::vector<std::string> system_messages_;
     std::vector<std::array<std::uint32_t,27>> units_;
     std::vector<std::array<std::uint32_t,15>> items_;
 };

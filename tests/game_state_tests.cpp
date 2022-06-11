@@ -30,12 +30,13 @@ std::uint32_t get32(const std::vector<std::uint8_t>& b,std::size_t at) {
            (std::uint32_t(b.at(at+2))<<16) | (std::uint32_t(b.at(at+3))<<24);
 }
 
-std::vector<std::uint8_t> make_xdb(
-    const std::string& section,const std::vector<std::vector<std::uint32_t>>& rows,
-    const std::vector<unsigned>& string_columns) {
-    require(!rows.empty());
-    const auto stride=rows.front().size();
-    require(stride!=0 && std::all_of(rows.begin(),rows.end(),[&](const auto& row){return row.size()==stride;}));
+struct SectionFixture {
+    std::string name;
+    std::vector<std::vector<std::uint32_t>> rows;
+    std::vector<unsigned> string_columns;
+};
+std::vector<std::uint8_t> make_xdb_multi(std::vector<SectionFixture> sections) {
+    require(!sections.empty());
     std::vector<std::uint8_t> strings;
     auto append_string=[&](const std::string& value) {
         const auto offset=std::uint32_t(strings.size());
@@ -43,30 +44,49 @@ std::vector<std::uint8_t> make_xdb(
         strings.push_back(0);
         return offset;
     };
-    const auto section_name=append_string(section);
-    require(section_name==0);
-    auto data=rows;
-    for(std::size_t i=0;i<data.size();++i) for(auto col:string_columns) {
-        require(col<stride);
-        data[i][col]=append_string(section+"-row-"+std::to_string(i+1)+"-word-"+std::to_string(col));
+    std::vector<std::uint32_t> section_name_offsets;
+    for(const auto& section:sections) section_name_offsets.push_back(append_string(section.name));
+    struct BuiltSection { std::vector<std::vector<std::uint32_t>> rows; std::uint32_t offset; std::uint32_t words; };
+    std::vector<BuiltSection> built;
+    std::uint32_t record_bytes=0;
+    for(auto& section:sections) {
+        require(!section.rows.empty());
+        const auto stride=section.rows.front().size();
+        require(stride!=0 && std::all_of(section.rows.begin(),section.rows.end(),[&](const auto& row){return row.size()==stride;}));
+        auto rows=section.rows;
+        for(std::size_t i=0;i<rows.size();++i) for(auto col:section.string_columns) {
+            require(col<stride);
+            rows[i][col]=append_string(section.name+"-row-"+std::to_string(i+1)+"-word-"+std::to_string(col));
+        }
+        built.push_back({std::move(rows),record_bytes,std::uint32_t(section.rows.size()*stride)});
+        record_bytes+=std::uint32_t(section.rows.size()*stride*4);
     }
-    const std::size_t record_bytes=data.size()*stride*4;
-    const std::size_t data_base=0x30;
+    const std::size_t data_base=32+sections.size()*16;
     std::vector<std::uint8_t> out(data_base+record_bytes+strings.size());
     put32(out,0,0x00424458); // "XDB\0"
-    put32(out,4,std::uint32_t(record_bytes));
+    put32(out,4,record_bytes);
     put32(out,8,std::uint32_t(strings.size()));
-    put32(out,12,1);
+    put32(out,12,std::uint32_t(sections.size()));
     put32(out,16,0xffffffff);
-    put32(out,0x20,0); // section key offset in strings
-    put32(out,0x24,0); // section data offset
-    put32(out,0x28,std::uint32_t(data.size()*stride)); // section size in words
-    put32(out,0x2c,0);
-    for(std::size_t i=0;i<data.size();++i)
-        for(std::size_t j=0;j<stride;++j)
-            put32(out,data_base+(i*stride+j)*4,data[i][j]);
+    std::size_t row_at=0;
+    for(std::size_t i=0;i<built.size();++i) {
+        const auto dir=32+i*16;
+        put32(out,dir,section_name_offsets[i]);
+        put32(out,dir+4,built[i].offset);
+        put32(out,dir+8,built[i].words);
+        put32(out,dir+12,0);
+        for(const auto& row:built[i].rows) for(const auto value:row) {
+            put32(out,data_base+row_at,value);
+            row_at+=4;
+        }
+    }
     std::copy(strings.begin(),strings.end(),out.begin()+data_base+record_bytes);
     return out;
+}
+std::vector<std::uint8_t> make_xdb(
+    const std::string& section,const std::vector<std::vector<std::uint32_t>>& rows,
+    const std::vector<unsigned>& string_columns) {
+    return make_xdb_multi({SectionFixture{section,rows,string_columns}});
 }
 std::vector<std::vector<std::uint32_t>> make_units(std::size_t count) {
     std::vector<std::vector<std::uint32_t>> rows(count,std::vector<std::uint32_t>(27));
@@ -80,6 +100,9 @@ std::vector<std::vector<std::uint32_t>> make_items(std::size_t count) {
     std::vector<std::vector<std::uint32_t>> rows(count,std::vector<std::uint32_t>(15));
     return rows;
 }
+std::vector<std::vector<std::uint32_t>> make_messages(std::size_t count) {
+    return std::vector<std::vector<std::uint32_t>>(count,std::vector<std::uint32_t>(1));
+}
 okage::GameDataTables tables(std::vector<std::vector<std::uint32_t>> units,
                              std::vector<std::vector<std::uint32_t>> items) {
     auto b=make_xdb("unit",units,{0,1});
@@ -90,6 +113,49 @@ okage::GameDataTables tables(std::vector<std::vector<std::uint32_t>> units,
 
 int main() {
     try {
+        {
+            auto b=make_xdb_multi({
+                SectionFixture{"unit",make_units(1),{0,1}},
+                SectionFixture{"sysmes",make_messages(167),{0}}
+            });
+            auto i=make_xdb("item",make_items(1),{0,14});
+            okage::GameDataTables parsed(b,i);
+            require(parsed.system_message(0)=="sysmes-row-1-word-0");
+            require(parsed.system_message(0xa6)=="sysmes-row-167-word-0");
+            rejects([&]{(void)parsed.system_message(167);});
+
+            // System messages own their string bytes, independent of BKDATA.
+            std::fill(b.begin(),b.end(),0);
+            require(parsed.system_message(0)=="sysmes-row-1-word-0");
+            require(parsed.system_message(0xa6)=="sysmes-row-167-word-0");
+            const auto after_buffers_die=[&] {
+                const auto owned_battle=make_xdb_multi({
+                    SectionFixture{"unit",make_units(1),{0,1}},
+                    SectionFixture{"sysmes",make_messages(167),{0}}
+                });
+                const auto owned_items=make_xdb("item",make_items(1),{0,14});
+                return okage::GameDataTables(owned_battle,owned_items);
+            }();
+            require(after_buffers_die.system_message(0xa6)=="sysmes-row-167-word-0");
+
+            auto missing=tables(make_units(1),make_items(1));
+            rejects([&]{(void)missing.system_message(0);});
+
+            auto malformed=make_xdb_multi({
+                SectionFixture{"unit",make_units(1),{0,1}},
+                SectionFixture{"sysmes",make_messages(2),{0}}
+            });
+            // BKDATA data starts after a two-entry directory; unit is 27 words.
+            put32(malformed,32+2*16+27*4,0xffffffffu);
+            rejects([&]{okage::GameDataTables bad(malformed,i);});
+
+            malformed=make_xdb_multi({
+                SectionFixture{"unit",make_units(1),{0,1}},
+                SectionFixture{"sysmes",make_messages(2),{0}}
+            });
+            malformed.back()='X';
+            rejects([&]{okage::GameDataTables bad(malformed,i);});
+        }
         {
             auto units=make_units(2); units[0][2]=321;
             auto items=make_items(3); items[1][2]=0x10;
