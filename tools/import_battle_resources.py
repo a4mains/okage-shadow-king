@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Import owned first-battle resources from the supported retail ELF and disc.
 
-The output directory contains battle-data.bin (OKBTDAT1), BTL.RUW, and
-battle-camera.bin (OKBTCAM1). Camera format v1 is little endian: header
+The output directory contains battle-data.bin (OKBTDAT1), BTL.RUW,
+battle-ui.bin (OKBTUI1), and battle-camera.bin (OKBTCAM1).
+See import_battle_ui.py for the pointer-free authored interface schema.
+Camera format v1 is little endian: header
 <8sII32s> = magic, version 1, stage count 23, source ELF SHA256 bytes. Then,
 for stages 1..23 and in that order, two table rows are serialized: the initial
 camera row at stage*8+0x5c and the later row at initial+1. Each row has three
@@ -24,6 +26,7 @@ import tempfile
 from pathlib import Path
 
 from import_battle_data import ELF_SHA256, STAGE_COUNT, ElfImage, import_elf
+from import_battle_ui import import_elf as import_ui_elf
 from inspect_disc import Disc
 
 DISC_SHA256 = '08623a1400e2610aecd0247ae7440c97501495c6f819f675494e44de20b62d2a'
@@ -140,11 +143,13 @@ def import_resources(elf_data, disc_path):
     battle_data = import_elf(elf_data)
     image = ElfImage(elf_data)
     camera_data = extract_camera_tables(image, elf_digest)
+    ui_data, ui_manifest = import_ui_elf(elf_data)
     ruw_data, ruw_entry = extract_owned_ruw(disc_path)
     artifacts = {
         'battle-data.bin': battle_data,
         'BTL.RUW': ruw_data,
         'battle-camera.bin': camera_data,
+        'battle-ui.bin': ui_data,
     }
     manifest = {
         'format': 'okage-owned-battle-resources-v1',
@@ -168,6 +173,7 @@ def import_resources(elf_data, disc_path):
             'stage_count': STAGE_COUNT,
             'row_indices': 'stage*8+0x5c, then +1; each row has 3 optional 0x90-byte presets with u32 presence',
         },
+        'ui_format': ui_manifest,
     }
     return artifacts, manifest
 

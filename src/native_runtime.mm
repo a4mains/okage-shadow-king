@@ -2,6 +2,7 @@
 #include "okage/dialogue.hpp"
 #include "okage/event.hpp"
 #include "okage/game_state.hpp"
+#include "okage/battle_ui.hpp"
 #include "okage/game_mode.hpp"
 #include "battle_session.hpp"
 #include "okage/field.hpp"
@@ -74,6 +75,7 @@ struct Session {
     okage::ChoiceMenu choices;
     std::vector<std::uint32_t> choice_trace;
     std::array<std::uint8_t,0x1000> variables{};
+    okage::UiPartySelection ui_party;
     okage::GameRandom random{1};
     okage::CollisionMask collision_mask;
     okage::ExteriorCamera exterior_camera;
@@ -1027,6 +1029,17 @@ static void capture(const Session& session,const fs::path& path) {
         if(fs::exists(output)||fs::is_symlink(output))throw std::runtime_error("Refusing existing field-state capture");
         std::ofstream stream(output,std::ios::binary);
         if(!stream.write(reinterpret_cast<const char*>(data.data()),data.size()))throw std::runtime_error("Cannot write field-state capture");
+    }
+    {
+        const auto output=fs::path(path.string()+".ui-party.bin");
+        if(fs::exists(output)||fs::is_symlink(output))throw std::runtime_error("Refusing existing UI party capture");
+        std::ofstream stream(output,std::ios::binary);
+        const auto write=[&](std::uint32_t value) {
+            for(unsigned i=0;i<4;++i)stream.put(char((value>>(i*8))&255));
+        };
+        for(auto count:session.ui_party.counts())write(count);
+        for(const auto& row:session.ui_party.rows())for(auto value:row)write(std::uint32_t(value));
+        if(!stream)throw std::runtime_error("Cannot write UI party capture");
     }
 
     if(session.music){

@@ -26,6 +26,8 @@ public:
     std::size_t widget_index(std::size_t group,std::int32_t authored_id) const;
     const RuwWidget& widget(std::size_t group,std::int32_t authored_id) const;
     void set_class_rgba(std::size_t group,std::int32_t class_id,std::array<std::int32_t,4>);
+    void set_rgba(std::size_t group,std::int32_t authored_id,std::array<std::int32_t,4>);
+    void set_secondary_rgba(std::size_t group,std::int32_t authored_id,std::array<std::int32_t,4>);
     std::uint32_t add_class_rgba(std::size_t group,std::int32_t class_id,std::array<std::int32_t,4>);
     std::uint32_t add_rgba(std::size_t group,std::int32_t authored_id,std::array<std::int32_t,4>);
     void reset_class(std::size_t group,std::int32_t class_id);

@@ -24,6 +24,16 @@ void update_show(RuwWidget& widget,std::uint32_t alpha) {
     auto& flags=widget.words[4];
     if(flags&0x8000)flags=alpha?flags|1u:flags&~1u;
 }
+void set_color(RuwWidget& widget,std::array<std::int32_t,4> values,unsigned color) {
+    if(!widget.runtime)return;
+    auto& target=widget.runtime->words[4+color];
+    for(unsigned c=0;c<3;++c)if(values[c]!=RuwResource::preserve_component)
+        target=(target&~(255u<<(8*c)))|(std::uint32_t(values[c])<<(8*c));
+    if(values[3]==RuwResource::preserve_component)return;
+    auto alpha=std::uint32_t(values[3]);
+    if(widget.words[4]&0x20)alpha=std::min(alpha,widget.words[2+color]>>24);
+    target=(target&0xffffff)|(alpha<<24);update_show(widget,alpha);
+}
 std::uint32_t add_color(RuwWidget& widget,const std::array<std::int32_t,4>& delta,bool both_alpha) {
     if(!widget.runtime)return 0;
     auto& w=widget.runtime->words;std::uint32_t clipped=0;
@@ -104,6 +114,12 @@ const RuwWidget& RuwResource::widget(std::size_t group,std::int32_t id) const {
 }
 RuwWidget& RuwResource::mutable_widget(std::size_t group,std::int32_t id) {
     const auto index=widget_index(group,id);return widgets_[group][index];
+}
+void RuwResource::set_rgba(std::size_t group,std::int32_t id,std::array<std::int32_t,4> values) {
+    set_color(mutable_widget(group,id),values,0);
+}
+void RuwResource::set_secondary_rgba(std::size_t group,std::int32_t id,std::array<std::int32_t,4> values) {
+    set_color(mutable_widget(group,id),values,1);
 }
 void RuwResource::set_class_rgba(std::size_t group,std::int32_t class_id,std::array<std::int32_t,4> values) {
     //1ab410 carries the alpha register across records: an authored cap on an

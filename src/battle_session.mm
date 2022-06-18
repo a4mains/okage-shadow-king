@@ -1,5 +1,6 @@
 #include "battle_session.hpp"
 #include "okage/battle_data.hpp"
+#include "okage/battle_ui.hpp"
 #include "okage/load_queue.hpp"
 #include "okage/ruw.hpp"
 #include "okage/map_objects.hpp"
@@ -61,6 +62,7 @@ struct BattleSession::Impl {
     StageScratch scratch;
     ShadowScreenParameters ui_projection=initial_ui_projection();
     std::array<std::unique_ptr<RuwResource>,16> ui_resources;
+    std::optional<BattleUiData> ui_definitions;
     // The fresh UI registries have no owners until 11f5f8 constructs them.
     std::array<std::uint32_t,16> ui_registry_a{},ui_registry_b{};
     std::array<std::uint32_t,9> ui_controllers{};
@@ -112,6 +114,7 @@ struct BattleSession::Impl {
     void load() {
         @autoreleasepool {
             ui_resources[0]=std::make_unique<RuwResource>(read(input/"BTL.RUW"));
+            ui_definitions.emplace(read(input/"battle-ui.bin"));
             load_step.store(1);
             device=MTLCreateSystemDefaultDevice();
             if(!device)throw std::runtime_error("Battle loader requires Metal");

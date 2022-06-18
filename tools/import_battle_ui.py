@@ -10,7 +10,7 @@ by the native interface and is not serialized as an authored field. Rows retain 
 controller-stream binding (1=type-2 stream, 2=type-3 stream), word 21 is the
 shared runtime atlas-table binding (1), word 22 is the constructor handler
 (1=type 2, 2=type 3), and word 23 is the callback handler (1=type 2, 2=type
-3). Header texture binding 1 means the host-owned loaded battle UI texture
+3). Shared texture binding 1 means the host-owned loaded battle UI texture
 source (original global 0x24f730). No guest address is emitted.
 
 The source digest covers exactly 0xe4 bytes at ELF virtual address 0x248100:

@@ -1,0 +1,92 @@
+#include "okage/battle_ui.hpp"
+#include "okage/event.hpp"
+#include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <stdexcept>
+#include <string_view>
+
+namespace {
+void require(bool value,const char* message) {if(!value)throw std::runtime_error(message);}
+void put(std::vector<std::uint8_t>& b,unsigned at,std::uint32_t w) {
+    for(unsigned i=0;i<4;++i)b.at(at+i)=w>>(8*i);
+}
+void digest(std::vector<std::uint8_t>& b,unsigned at,std::string_view s) {
+    constexpr std::string_view digits="0123456789abcdef";
+    for(unsigned i=0;i<s.size()/2;++i)b.at(at+i)=digits.find(s[i*2])*16+digits.find(s[i*2+1]);
+}
+std::vector<std::uint8_t> fixture() {
+    std::vector<std::uint8_t> b(312);
+    const std::string_view magic="OKBTUI1";std::copy(magic.begin(),magic.end(),b.begin());
+    put(b,8,1);put(b,12,2);put(b,16,28);put(b,20,112);
+    digest(b,24,"2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5");
+    digest(b,56,"5632c521fdd835a20c81960f9758447216733e2de4afc2d0e32b05ace9e8805b");
+    for(unsigned i=0;i<2;++i) {
+        const unsigned at=88+112*i;
+        put(b,at,i+1);put(b,at+4,40);put(b,at+8,6);put(b,at+12,2);
+        put(b,at+16,0x80000000);put(b,at+64,0x80808080);
+        put(b,at+80,1);put(b,at+84,1);put(b,at+88,i+1);put(b,at+92,i+1);
+        put(b,at+96,i+2);put(b,at+100,i?13:29);put(b,at+104,i?8:17);
+    }
+    return b;
+}
+void rejects(const std::vector<std::uint8_t>& b) {
+    try {okage::BattleUiData data(b);}
+    catch(const std::runtime_error&) {return;}
+    throw std::runtime_error("invalid interface accepted");
+}
+}
+int main(int argc,char** argv) {
+    try {
+        if(argc==3&&std::string_view(argv[1])=="--diagnostic") {
+            std::ifstream in(argv[2],std::ios::binary);require(bool(in),"missing owned interface");
+            std::vector<std::uint8_t> b((std::istreambuf_iterator<char>(in)),{});
+            const okage::BattleUiData data(b);
+            require(data.layers()[0].glyph_capacity()==29&&data.layers()[1].sprite_capacity()==8,"owned capacities changed");
+            std::cout<<"owned battle interface parsed\n";return 0;
+        }
+        require(argc==1,"usage: battle-ui-tests [--diagnostic owned-battle-ui.bin]");
+        auto b=fixture();const okage::BattleUiData data(b);b.clear();
+        require(data.layers()[0].words[4]==0x80000000&&data.layers()[1].words[16]==0x80808080,"owned literal bits changed");
+        require(data.layers()[0].stream()==1&&data.layers()[1].type()==3,"host bindings changed");
+        for(unsigned n:{0u,7u,24u,87u,88u,311u,313u}) {b=fixture();b.resize(n);rejects(b);}
+        for(unsigned at:{0u,8u,12u,16u,20u,24u,56u,88u,88u+84u,88u+88u,88u+92u,88u+96u}) {
+            b=fixture();put(b,at,0xdeadbeef);rejects(b);
+        }
+        for(unsigned i=0;i<2;++i)for(auto [offset,value]:{
+            std::pair{4u,39u}, {8u,0u}, {12u,0u}, {80u,2u}, {100u,0u},
+            {100u,33u}, {104u,0xffffffffu}, {108u,1u}, {16u,0x7f800000u}, {60u,0x7fc00000u}}) {
+            b=fixture();put(b,88+i*112+offset,value);rejects(b);
+        }
+        std::vector<std::uint8_t> vars(0x1000);okage::initialize_game_variables(vars);
+        auto character=[&](unsigned slot,unsigned member,unsigned id,unsigned hp,unsigned charge) {
+            put(vars,0x570+slot*4,member);const unsigned at=0x5c4+slot*0x50;
+            put(vars,at+0, id<<16);put(vars,at+8,hp);
+            vars[at+0x26]=charge;vars[at+0x27]=0;
+        };
+        character(0,3,10,99,100);character(1,1,11,50,100);
+        character(2,3,12,0,100);character(3,3,13,80,99);
+        character(4,3,14,1,100);character(6,3,16,100,100);
+        okage::UiPartySelection party;party.refresh(vars,3);
+        require(party.counts()==std::array<std::uint32_t,8>{5,5,4,4,2,2,2,2},"party row counts");
+        require(party.at(0,1)==11&&party.at(1,1)==1,"owned roster rows");
+        require(party.at(2,1)==12&&party.at(3,1)==2,"active party rows");
+        require(party.at(4,1)==14&&party.at(5,1)==4&&party.at(6,1)==3&&party.at(7,1)==4,"ready party ordinal differs from slot");
+        require(party.at(2,4)==-1&&party.at(6,2)==-1,"unused selection sentinel");
+        const auto unchanged=vars;party.refresh(vars,3);require(vars==unchanged,"non-demo refresh mutated variables");
+        okage::set_event_variable(vars,5,4,1);party.refresh(vars,3);
+        require(party.counts()==std::array<std::uint32_t,8>{1,1,1,1,1,1,1,1},"restricted party selection");
+        okage::set_event_variable(vars,5,4,0);party.refresh(vars,4);
+        require(party.at(5,1)==3&&party.at(6,1)==2&&party.counts()[5]==3,"demo charge refresh");
+        require(vars[0x5c4+3*0x50+0x26]==100,"demo writes actual shared charge");
+        character(1,0xffffffff,0xffff,0xffffffff,100);
+        character(4,3,0xffff,0xffffffff,100);party.refresh(vars,3);
+        require(party.counts()[0]==4&&party.at(0,3)==-1,"signed membership and ID");
+        require(party.at(5,2)==4,"negative readiness word is nonzero");
+        character(3,3,13,80,9);character(6,3,16,100,7);
+        okage::set_event_variable(vars,5,4,1);party.refresh(vars,4);
+        require(vars[0x5c4+3*0x50+0x26]==9&&vars[0x5c4+6*0x50+0x26]==7,"demo must preserve skipped slots");
+        std::cout<<"battle UI data/party tests passed\n";
+    }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
+}

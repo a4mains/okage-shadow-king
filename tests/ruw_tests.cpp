@@ -103,6 +103,21 @@ void mutation_tests() {
     auto copy=r;r.set_text(3,9,"original");
     require(copy.widget(3,9).runtime->text->data()!=text&&copy.widget(3,9).runtime->text->at(0)==0);
     require(r.widget(3,9).words[16]==0);
+    r.reset_widget(3,9);
+    auto colors=r.widget(3,9).runtime->words;
+    r.set_rgba(3,9,{1,2,3,128});
+    require(r.widget(3,9).runtime->words[4]==0x40030201);
+    require(r.widget(3,9).runtime->words[5]==colors[5]);
+    colors=r.widget(3,9).runtime->words;
+    r.set_secondary_rgba(3,9,{4,5,6,128});
+    require(r.widget(3,9).runtime->words[4]==colors[4]);
+    require((r.widget(3,9).runtime->words[5]&0xffffff)==0x060504);
+    require((r.widget(3,9).runtime->words[5]>>24)==std::min(128u,r.widget(3,9).words[3]>>24));
+    r.set_secondary_rgba(3,9,{keep,keep,keep,0});
+    require(!(r.widget(3,9).words[4]&1)&&r.widget(3,9).runtime->words[4]==colors[4]);
+    r.set_rgba(3,9,{keep,keep,keep,1});require(r.widget(3,9).words[4]&1);
+    r.set_rgba(3,1,{1,2,3,4});r.set_secondary_rgba(3,1,{1,2,3,4});
+    require(!r.widget(3,1).runtime);
 }
 void diagnostic(const char* path) {
     std::ifstream stream(path,std::ios::binary);if(!stream)throw std::runtime_error("Cannot read owned BTL.RUW");
