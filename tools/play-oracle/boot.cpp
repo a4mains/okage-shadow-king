@@ -16,6 +16,7 @@
 #include "reference_game_mode.hpp"
 #include "reference_battle_construction.hpp"
 #include "reference_battle_stage.hpp"
+#include "reference_battle_ui.hpp"
 #include "reference_dust.hpp"
 #include "reference_camera.hpp"
 #include "reference_camera_schedule.hpp"
@@ -93,10 +94,10 @@ std::vector<unsigned> parseCaptureFrames(std::string_view text,unsigned duration
 }
 int main(int argc,char** argv) {
     try {
-        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX [--capture-frames N,N,...]] [--pad INPUT | --walk-waypoints ROUTE --walk-record INPUT] [--audio WAV [--audio-index JSON]] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--camera-schedule FILE] [--screen-filter FILE] [--movement FILE] [--interaction FILE] [--interaction-wide FILE] [--transition FILE] [--game-mode FILE] [--battle-construction FILE] [--battle-stage FILE] [--dust FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--wander FILE] [--rng FILE] [--lifecycle FILE] [--order FILE] [--effect-order FILE] [--projection FILE] [--music FILE] [--deadline-seconds 1..7200]");
+        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX [--capture-frames N,N,...]] [--pad INPUT | --walk-waypoints ROUTE --walk-record INPUT] [--audio WAV [--audio-index JSON]] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--camera-schedule FILE] [--screen-filter FILE] [--movement FILE] [--interaction FILE] [--interaction-wide FILE] [--transition FILE] [--game-mode FILE] [--battle-construction FILE] [--battle-stage FILE] [--battle-ui FILE] [--dust FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--wander FILE] [--rng FILE] [--lifecycle FILE] [--order FILE] [--effect-order FILE] [--projection FILE] [--music FILE] [--deadline-seconds 1..7200]");
         unsigned deadlineSeconds=0;
         std::string walkWaypoints,walkRecord,captureFramesText,audioIndex;
-        int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false,musicField=false,musicJingle=false,musicNight=false,interactionWide=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,cameraSchedule,music,movement,interaction,transition,gameMode,battleConstruction,battleStage,npc,wander,rng,dust,screenFilter,effectOrder,projection;
+        int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false,musicField=false,musicJingle=false,musicNight=false,interactionWide=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,cameraSchedule,music,movement,interaction,transition,gameMode,battleConstruction,battleStage,battleUi,npc,wander,rng,dust,screenFilter,effectOrder,projection;
         for (int i=3;i<argc;++i) {
             const std::string arg=argv[i];
             if (arg=="--load") load=true;
@@ -149,6 +150,7 @@ int main(int argc,char** argv) {
             else if (arg=="--transition" && i+1<argc) transition=argv[++i];
             else if (arg=="--battle-construction" && i+1<argc) {if(!battleConstruction.empty())throw std::runtime_error("Duplicate battle-construction trace output");battleConstruction=argv[++i];if(battleConstruction.empty())throw std::runtime_error("Empty battle-construction trace output");}
             else if (arg=="--battle-stage" && i+1<argc) {if(!battleStage.empty())throw std::runtime_error("Duplicate battle-stage trace output");battleStage=argv[++i];if(battleStage.empty())throw std::runtime_error("Empty battle-stage trace output");}
+            else if (arg=="--battle-ui" && i+1<argc) {if(!battleUi.empty())throw std::runtime_error("Duplicate battle-UI trace output");battleUi=argv[++i];if(battleUi.empty())throw std::runtime_error("Empty battle-UI trace output");}
             else if (arg=="--game-mode" && i+1<argc) {if(!gameMode.empty())throw std::runtime_error("Duplicate game-mode trace output");gameMode=argv[++i];if(gameMode.empty())throw std::runtime_error("Empty game-mode trace output");}
             else if (arg=="--interaction-wide" && i+1<argc) {interaction=argv[++i];interactionWide=true;}
             else if (arg=="--interaction" && i+1<argc) interaction=argv[++i];
@@ -226,6 +228,23 @@ int main(int argc,char** argv) {
             for(const auto& prefix:framePrefixes)for(const auto* suffix:{".json",".layer0.png",".layer1.png"})
                 distinct(prefix.string()+suffix);
         }
+        if(!battleUi.empty()) {
+            vacant(battleUi);
+            const auto output=std::filesystem::weakly_canonical(battleUi);
+            auto distinct=[&](const std::filesystem::path& other) {
+                if(!other.empty()&&output==std::filesystem::weakly_canonical(other))
+                    throw std::runtime_error("Battle-UI output aliases another requested output");
+            };
+            for(const auto* other:{&audio,&audioIndex,&saveState,&walkRecord,&dialogue,&text,&controller,&camera,
+                    &actor,&lifecycle,&order,&cameraSchedule,&music,&movement,&interaction,&transition,&gameMode,
+                    &battleConstruction,&battleStage,&npc,&wander,&rng,&dust,&screenFilter,&effectOrder,&projection})distinct(*other);
+            distinct(state);distinct(pad);distinct(walkWaypoints);distinct(std::filesystem::absolute(argv[1]));
+            if(!controller.empty())distinct(controller+".choices.bin");
+            if(!screenFilter.empty())distinct(screenFilter+".packets.bin");
+            if(!capture.empty())for(const auto* suffix:{".json",".layer0.png",".layer1.png"})distinct(capture+suffix);
+            for(const auto& prefix:framePrefixes)for(const auto* suffix:{".json",".layer0.png",".layer1.png"})
+                distinct(prefix.string()+suffix);
+        }
         if(!captureFrames.empty())vacant(captureDirectory);
         const auto disc=std::filesystem::absolute(argv[1]);
         if (!std::filesystem::is_regular_file(disc)) throw std::runtime_error("Disc input missing");
@@ -255,6 +274,7 @@ int main(int argc,char** argv) {
         auto transitionTrace=transition.empty() ? nullptr : std::make_unique<TransitionTrace>(transition);
         auto battleStageTrace=battleStage.empty() ? nullptr : std::make_unique<BattleStageTrace>(battleStage);
         auto battleConstructionTrace=battleConstruction.empty() ? nullptr : std::make_unique<BattleConstructionTrace>(battleConstruction);
+        auto battleUiTrace=battleUi.empty() ? nullptr : std::make_unique<BattleUiTrace>(battleUi);
         auto gameModeTrace=gameMode.empty() ? nullptr : std::make_unique<GameModeTrace>(gameMode);
         auto interactionTrace=interaction.empty() ? nullptr : std::make_unique<InteractionTrace>(interaction,interactionWide);
         auto movementTrace=movement.empty() ? nullptr : std::make_unique<MovementTrace>(movement);
@@ -263,7 +283,7 @@ int main(int argc,char** argv) {
         auto orderTrace=order.empty() ? nullptr : std::make_unique<OrderTrace>(order);
         auto effectOrderTrace=effectOrder.empty() ? nullptr : std::make_unique<EffectOrderTrace>(effectOrder);
         auto projectionTrace=projection.empty() ? nullptr : std::make_unique<ProjectionTrace>(projection);
-        const bool tracing=bool(projectionTrace) || bool(effectOrderTrace) || traceLoaders || bool(cameraScheduleTrace) || bool(screenFilterTrace) || bool(dustTrace) || bool(npcTrace) || bool(wanderTrace) || bool(rngTrace) || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace) || bool(cameraTrace) || bool(actorTrace) || bool(movementTrace) || bool(interactionTrace) || bool(transitionTrace) || bool(gameModeTrace) || bool(battleConstructionTrace) || bool(battleStageTrace) || bool(lifecycleTrace) || bool(orderTrace) || !music.empty();
+        const bool tracing=bool(projectionTrace) || bool(effectOrderTrace) || traceLoaders || bool(cameraScheduleTrace) || bool(screenFilterTrace) || bool(dustTrace) || bool(npcTrace) || bool(wanderTrace) || bool(rngTrace) || bool(sceneTrace) || bool(eventTrace) || bool(dialogueTrace) || bool(textTrace) || bool(controllerTrace) || bool(cameraTrace) || bool(actorTrace) || bool(movementTrace) || bool(interactionTrace) || bool(transitionTrace) || bool(gameModeTrace) || bool(battleConstructionTrace) || bool(battleStageTrace) || bool(battleUiTrace) || bool(lifecycleTrace) || bool(orderTrace) || !music.empty();
         // An exclusive fresh directory prevents image/manifest reuse across runs.
         if(!captureFrames.empty() && !std::filesystem::create_directory(captureDirectory))
             throw std::runtime_error("Could not create fresh selected-frame capture directory");
@@ -345,6 +365,7 @@ int main(int argc,char** argv) {
         if(gameModeTrace)for(auto at:GameModeTrace::breakpoints)loaders.push_back(at);
         if(battleStageTrace)for(auto at:BattleStageTrace::breakpoints)loaders.push_back(at);
         if(battleConstructionTrace)for(auto at:BattleConstructionTrace::breakpoints)loaders.push_back(at);
+        if(battleUiTrace)for(auto at:BattleUiTrace::breakpoints)loaders.push_back(at);
         if(interactionTrace)for(auto at:InteractionTrace::breakpoints)loaders.push_back(at);
         if(movementTrace)for(auto at:MovementTrace::breakpoints)loaders.push_back(at);
         if(lifecycleTrace)for(auto at:LifecycleTrace::breakpoints)loaders.push_back(at);
@@ -409,6 +430,8 @@ int main(int argc,char** argv) {
                 // Run this subscriber before --rng resumes the shared RNG breakpoint.
                 const bool observingBattleConstruction=battleConstructionTrace&&std::find(BattleConstructionTrace::breakpoints.begin(),BattleConstructionTrace::breakpoints.end(),pc)!=BattleConstructionTrace::breakpoints.end();
                 if(observingBattleConstruction)battleConstructionTrace->observe(*vm.m_ee,frames);
+                const bool observingBattleUi=battleUiTrace&&std::find(BattleUiTrace::breakpoints.begin(),BattleUiTrace::breakpoints.end(),pc)!=BattleUiTrace::breakpoints.end();
+                if(observingBattleUi)battleUiTrace->observe(*vm.m_ee,frames);
                 const bool observingWander=wanderTrace&&std::find(WanderTrace::breakpoints.begin(),WanderTrace::breakpoints.end(),pc)!=WanderTrace::breakpoints.end();
                 if(observingWander){wanderTrace->observe(*vm.m_ee,frames);vm.Resume();continue;}
                 const bool observingRng=rngTrace&&std::find(RngTrace::breakpoints.begin(),RngTrace::breakpoints.end(),pc)!=RngTrace::breakpoints.end();
@@ -467,7 +490,7 @@ int main(int argc,char** argv) {
                 if(sceneTrace && std::find(sceneBreakpoints.begin(),sceneBreakpoints.end(),pc)!=sceneBreakpoints.end()) {
                     sceneTrace->observe(*vm.m_ee,frames);vm.Resume();continue;
                 }
-                if(observingDust||observingEffectOrder||observingProjection||observingBattleConstruction||observingBattleStage){vm.Resume();continue;}
+                if(observingDust||observingEffectOrder||observingProjection||observingBattleConstruction||observingBattleStage||observingBattleUi){vm.Resume();continue;}
                 const uint32 address=uint32(cpu.nGPR[CMIPS::A0].nD0)&0x1fffffff;
                 std::string path;
                 for (unsigned i=0;i<256 && address+i<PS2::EE_RAM_SIZE;++i) {
@@ -503,6 +526,7 @@ int main(int argc,char** argv) {
         if(gameModeTrace)gameModeTrace->finish();
         if(battleConstructionTrace)battleConstructionTrace->finish();
         if(battleStageTrace)battleStageTrace->finish();
+        if(battleUiTrace)battleUiTrace->finish();
         if(dustTrace)dustTrace->finish();
         if(effectOrderTrace)effectOrderTrace->finish();
         if(projectionTrace)projectionTrace->finish();
