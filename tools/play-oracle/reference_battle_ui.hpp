@@ -53,25 +53,25 @@ public:
             const auto root=memory.word(0x1fce60);
             memory.require(root,0x81d0);
             if(reg(CMIPS::RA)!=continuationPc||reg(CMIPS::A0)!=root||reg(CMIPS::A1)!=0x248100||
-               memory.word(root+0x24)!=0||memory.word(root+0x8060)!=0)
+               memory.word(root+0x24)!=0)
                 fail("11f5f8 is not the reviewed phase-zero caller");
             validateInterfaceTable(memory);
             memory.require(0x1fae18,0x120);
             active=Call{root,sp,{}};
             std::memcpy(active->partySelection.data(),ee.m_ram+0x1fae18,active->partySelection.size());
             ++entryCount;
-            snapshot("ui_constructor_entry",frame,cpu,memory,false);
+            snapshot("ui_constructor_entry",frame,cpu,memory,false,memory.word(root+0x8060));
             return;
         }
         if(pc==continuationPc) {
-            if(!active||completed||sp!=active->sp||reg(CMIPS::S1)!=active->root)
+            if(!active||completed||sp!=active->sp||reg(CMIPS::S1)!=active->root||memory.word(0x1fce60)!=active->root)
                 fail("unpaired 14a2c8 caller continuation");
-            const auto manager=memory.word(active->root+0x8060);
-            if(!manager||reg(CMIPS::V0)!=manager)
+            const auto manager=reg(CMIPS::V0);
+            if(!manager)
                 fail("UI manager return does not match the battle root");
             memory.require(manager,0xef0);
             validateManager(memory,manager);
-            snapshot("ui_constructor_complete_before_activation",frame,cpu,memory,true);
+            snapshot("ui_constructor_complete_before_activation",frame,cpu,memory,true,manager);
             ++completed;active.reset();return;
         }
         fail("unexpected UI observer breakpoint");
@@ -239,7 +239,7 @@ private:
             m.require(layer,0xe0);
             const auto handle=m.word(layer),type=m.word(layer+0x60),callback=m.word(layer+0x5c);
             const auto expectedType=index?3u:2u,expectedCallback=index?0x1684d0u:0x164090u;
-            if(handle>=8||m.word(layer+0x54)!=record||type!=expectedType||callback!=expectedCallback)
+            if(handle>=8||m.word(layer+0x54)!=m.word(record)||type!=expectedType||callback!=expectedCallback)
                 fail("manager layer does not match authored interface row");
             const auto window=m.word(0x200688+handle*4);
             m.require(window,controllerBytes);
@@ -249,7 +249,7 @@ private:
         }
     }
     template<class State>
-    void snapshot(const char* event,unsigned frame,const State& cpu,const Memory& m,bool post) {
+    void snapshot(const char* event,unsigned frame,const State& cpu,const Memory& m,bool post,uint32 manager) {
         if(++rows>2)fail("snapshot row limit exceeded");
         const auto& call=*active;const auto root=call.root;
         std::ostringstream row;
@@ -258,7 +258,6 @@ private:
            <<",\"sp\":"<<uint32(cpu.nGPR[CMIPS::SP].nD0)<<",\"fcsr\":"<<cpu.nFCSR<<",\"root\":"<<root
            <<",\"constructor_sp\":"<<call.sp<<",\"post_constructor\":"<<(post?"true":"false");
         const auto camera=m.word(root+0x8068);m.require(camera,0x150);
-        const auto manager=post?m.word(root+0x8060):0;
         if(post)m.require(manager,0xef0);
         row<<",\"manager\":"<<manager<<",\"camera\":"<<camera;
         m.bytes(row,"battle_root",root,0x81d0);
