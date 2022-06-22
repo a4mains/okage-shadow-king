@@ -1,6 +1,8 @@
 #include "okage/battle_ui.hpp"
 #include "okage/event.hpp"
+#include "okage/ui_window.hpp"
 #include <algorithm>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -39,6 +41,30 @@ void rejects(const std::vector<std::uint8_t>& b) {
 }
 int main(int argc,char** argv) {
     try {
+        if(argc==4&&std::string_view(argv[1])=="--window-diagnostic") {
+            std::ifstream in(argv[2],std::ios::binary);require(bool(in),"missing owned interface");
+            std::vector<std::uint8_t> b((std::istreambuf_iterator<char>(in)),{});
+            const okage::BattleUiData data(b);
+            const std::filesystem::path path(argv[3]);
+            require(!std::filesystem::exists(path)&&!std::filesystem::is_symlink(path),"refusing existing window report");
+            std::ofstream out(path);require(bool(out),"cannot create window report");
+            out<<"{\"schema\":\"okage-ui-window-diagnostic-v1\",\"scope\":\"198e38 and window configuration only; empty incoming streams and atlas, slots0/1; no layer constructors\",\"windows\":[";
+            for(unsigned i=0;i<2;++i) {
+                const auto& d=data.layers()[i];
+                auto stream=std::make_shared<okage::UiWindowStream>(okage::UiWindowStream{d.stream(),{}});
+                okage::UiWindow window(d.glyph_capacity(),d.sprite_capacity(),i,stream);
+                const std::array<okage::UiWindow::AtlasTuple,1> atlas{};
+                require(!window.configure(d.words,atlas,std::make_shared<int>(1)),"empty atlas unexpectedly dirty");
+                if(i)out<<',';out<<"{\"slot\":"<<i<<",\"words\":[";
+                for(unsigned at=0;at<okage::UiWindow::scalar_bytes;at+=4) {
+                    if(at)out<<',';const auto value=window.known_word(at);
+                    if(value)out<<*value;else out<<"null";
+                }
+                out<<"]}";
+            }
+            out<<"]}\n";require(bool(out),"cannot write window report");
+            std::cout<<"owned interface window diagnostic passed\n";return 0;
+        }
         if(argc==3&&std::string_view(argv[1])=="--diagnostic") {
             std::ifstream in(argv[2],std::ios::binary);require(bool(in),"missing owned interface");
             std::vector<std::uint8_t> b((std::istreambuf_iterator<char>(in)),{});
@@ -46,7 +72,7 @@ int main(int argc,char** argv) {
             require(data.layers()[0].glyph_capacity()==29&&data.layers()[1].sprite_capacity()==8,"owned capacities changed");
             std::cout<<"owned battle interface parsed\n";return 0;
         }
-        require(argc==1,"usage: battle-ui-tests [--diagnostic owned-battle-ui.bin]");
+        require(argc==1,"usage: battle-ui-tests [--diagnostic owned-battle-ui.bin | --window-diagnostic owned-battle-ui.bin fresh.json]");
         auto b=fixture();const okage::BattleUiData data(b);b.clear();
         require(data.layers()[0].words[4]==0x80000000&&data.layers()[1].words[16]==0x80808080,"owned literal bits changed");
         require(data.layers()[0].stream()==1&&data.layers()[1].type()==3,"host bindings changed");
