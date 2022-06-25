@@ -1,24 +1,33 @@
 #pragma once
 #include "okage/assets.hpp"
 #include <array>
+#include <optional>
 #include <span>
 #include <string>
 #include <vector>
 
 namespace okage {
+struct GameUnitUiRecord {
+    std::array<std::uint32_t,27> words{};
+    std::string name;
+    std::string model_name;
+};
 // Owned XDB records used by 0x125400/0x125360. Unit model names are copied
 // from BKDATA at parse time; no guest addresses or reference snapshots enter
-// this state. Numeric row IDs remain one-based.
+// this state. Actor numeric row IDs remain one-based.
 class GameDataTables {
 public:
     GameDataTables(Bytes battle_data,Bytes item_data);
     const std::array<std::uint32_t,27>& unit(int id) const;
     const std::string& unit_model_name(int id) const;
+    const GameUnitUiRecord& ui_unit(int id) const;
     // 0x1256a8 resolves the zero-based BKDATA sysmes table (battle UI uses 0xa6).
     const std::string& system_message(unsigned index) const;
     const std::array<std::uint32_t,15>& item(int id) const;
 private:
     std::vector<std::string> unit_model_names_;
+    std::vector<GameUnitUiRecord> ui_units_;
+    std::optional<GameUnitUiRecord> preceding_ui_unit_;
     std::vector<std::string> system_messages_;
     std::vector<std::array<std::uint32_t,27>> units_;
     std::vector<std::array<std::uint32_t,15>> items_;

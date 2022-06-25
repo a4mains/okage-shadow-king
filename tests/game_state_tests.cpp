@@ -2,9 +2,12 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <fstream>
 #include <iostream>
+#include <iterator>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace {
@@ -109,10 +112,79 @@ okage::GameDataTables tables(std::vector<std::vector<std::uint32_t>> units,
     auto i=make_xdb("item",items,{0,14});
     return okage::GameDataTables(b,i);
 }
+void ui_records() {
+    auto item=make_xdb("item",make_items(1),{0,14});
+    auto prefix=make_units(1);prefix[0][2]=0xaabbccddu;prefix[0][26]=0xffffffffu;
+    auto battle=make_xdb_multi({{"prefix",prefix,{0,1}},{"unit",make_units(2),{0,1}}});
+    auto expected=std::array<std::uint32_t,27>{};
+    for(unsigned j=0;j<27;++j)expected[j]=get32(battle,64+4*j);
+    okage::GameDataTables parsed(battle,item);
+    require(parsed.ui_unit(0).words==expected);
+    require(parsed.ui_unit(0).name=="prefix-row-1-word-0"&&parsed.ui_unit(0).model_name=="prefix-row-1-word-1");
+    for(int id:{1,2}) {
+        require(parsed.ui_unit(id).words==parsed.unit(id));
+        require(parsed.ui_unit(id).name=="unit-row-"+std::to_string(id)+"-word-0");
+        require(parsed.ui_unit(id).model_name==parsed.unit_model_name(id));
+    }
+    for(int id:{-1,-2147483647-1,3,2147483647})rejects([&]{(void)parsed.ui_unit(id);});
+    rejects([&]{(void)parsed.unit(0);});rejects([&]{(void)parsed.unit_model_name(0);});
+    auto malformed=battle;put32(malformed,64,0xffffffffu);
+    okage::GameDataTables invalid_name(malformed,item);
+    rejects([&]{(void)invalid_name.ui_unit(0);});require(invalid_name.ui_unit(2).words==parsed.unit(2));
+    malformed=battle;put32(malformed,68,get32(malformed,8)); // First invalid string offset.
+    okage::GameDataTables invalid_model(malformed,item);
+    rejects([&]{(void)invalid_model.ui_unit(0);});require(invalid_model.item(1)==parsed.item(1));
+    malformed=battle;put32(malformed,68,get32(malformed,8));
+    put32(malformed,8,get32(malformed,8)+1);malformed.push_back('X');
+    okage::GameDataTables unterminated(malformed,item);
+    rejects([&]{(void)unterminated.ui_unit(0);});require(unterminated.unit_model_name(1)==parsed.unit_model_name(1));
+    const auto minimal=tables(make_units(1),make_items(1));
+    rejects([&]{(void)minimal.ui_unit(0);});require(minimal.ui_unit(1).name=="unit-row-1-word-0");
+    // A real predecessor can consist of directory entries rather than records.
+    auto directory=make_xdb_multi({{"unit",make_units(1),{0,1}},
+        {"a",make_messages(1),{}},{"b",make_messages(1),{}},{"c",make_messages(1),{}},
+        {"d",make_messages(1),{}},{"e",make_messages(1),{}},{"f",make_messages(1),{}}});
+    okage::GameDataTables overlapping(directory,item);
+    for(unsigned j=0;j<27;++j)require(overlapping.ui_unit(0).words[j]==get32(directory,36+j*4));
+    require(overlapping.ui_unit(0).name=="unit");
+    std::fill(battle.begin(),battle.end(),0);std::fill(item.begin(),item.end(),0);
+    require(parsed.ui_unit(0).words==expected&&parsed.ui_unit(0).name=="prefix-row-1-word-0");
+    require(parsed.ui_unit(2).name=="unit-row-2-word-0");
+    const auto after_inputs_die=[] {
+        const auto b=make_xdb_multi({{"prefix",make_units(1),{0,1}},{"unit",make_units(1),{0,1}}});
+        const auto i=make_xdb("item",make_items(1),{0,14});return okage::GameDataTables(b,i);
+    }();
+    require(after_inputs_die.ui_unit(0).model_name=="prefix-row-1-word-1");
+    require(after_inputs_die.ui_unit(1).name=="unit-row-1-word-0");
+}
+std::vector<std::uint8_t> read(const char* path) {
+    std::ifstream in(path,std::ios::binary);if(!in)throw std::runtime_error("Missing owned game table");
+    return {(std::istreambuf_iterator<char>(in)),{}};
+}
+void diagnostic(const char* battle_path,const char* item_path) {
+    auto b=read(battle_path),i=read(item_path);okage::GameDataTables tables(b,i);
+    const std::array<std::uint32_t,27> preceding={0,6885,0,3502,27540,3328,0,12738,40852,
+        600,0,12744,43252,336,0,12750,44596,24,0,13940,44692,263,0,19494,45744,222,0};
+    require(tables.ui_unit(0).words==preceding&&tables.ui_unit(0).name=="unit");
+    require(tables.ui_unit(0).model_name==" Group  Poisons Target.");
+    require(tables.ui_unit(170).name=="Ari"&&tables.ui_unit(170).model_name=="lucan");
+    require(tables.ui_unit(170).words==tables.unit(170)&&tables.ui_unit(170).words[2]==32);
+    require(tables.ui_unit(170).words[0]==2918&&tables.ui_unit(170).words[1]==2922);
+    for(unsigned j=0;j<27;++j)require(get32(b,36+4*j)==tables.ui_unit(0).words[j]);
+    rejects([&]{(void)tables.unit(0);});rejects([&]{(void)tables.unit_model_name(0);});
+    rejects([&]{(void)tables.ui_unit(-1);});rejects([&]{(void)tables.ui_unit(256);});
+    std::fill(b.begin(),b.end(),0);std::fill(i.begin(),i.end(),0);
+    require(tables.ui_unit(0).words==preceding&&tables.ui_unit(170).name=="Ari");
+    std::cout<<"Owned BKDATA UI predecessor/display-name diagnostic passed\n";
+}
 }
 
-int main() {
+int main(int argc,char** argv) {
     try {
+        if(argc==4&&std::string_view(argv[1])=="--diagnostic") {
+            diagnostic(argv[2],argv[3]);return 0;
+        }
+        require(argc==1);ui_records();
         {
             auto b=make_xdb_multi({
                 SectionFixture{"unit",make_units(1),{0,1}},

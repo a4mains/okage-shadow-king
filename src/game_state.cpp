@@ -5,6 +5,7 @@
 #include <initializer_list>
 #include <stdexcept>
 #include <string_view>
+#include <utility>
 
 namespace okage {
 namespace {
@@ -17,7 +18,8 @@ std::vector<std::array<std::uint32_t,N>> records(Bytes b,std::string_view sectio
                                                std::initializer_list<unsigned> string_columns,
                                                int owned_string_column=-1,
                                                std::vector<std::string>* owned_strings=nullptr,
-                                               bool optional_section=false) {
+                                               bool optional_section=false,
+                                               std::size_t* section_start=nullptr) {
     if(word(b,0)!=0x424458||word(b,16)!=0xffffffff)throw std::runtime_error("Invalid game XDB header");
     if(owned_string_column>=0 &&
        (owned_string_column>=int(N)||!owned_strings||
@@ -37,6 +39,7 @@ std::vector<std::array<std::uint32_t,N>> records(Bytes b,std::string_view sectio
         const std::uint64_t offset=word(b,at+4),words=word(b,at+8),start=base+offset;
         if((offset&3)||!words||words%N||start>strings||words*4>strings-start)
             throw std::runtime_error("Game XDB record bounds");
+        if(section_start)*section_start=std::size_t(start);
         std::vector<std::array<std::uint32_t,N>> result(words/N);
         for(std::size_t row=0;row<result.size();++row) {
             for(unsigned j=0;j<N;++j)result[row][j]=word(b,start+(row*N+j)*4);
@@ -49,6 +52,21 @@ std::vector<std::array<std::uint32_t,N>> records(Bytes b,std::string_view sectio
     }
     if(optional_section)return {};
     throw std::runtime_error("Missing game XDB table");
+}
+std::optional<GameUnitUiRecord> ui_record(Bytes b,std::size_t at) {
+    if(at>b.size()||b.size()-at<108)return std::nullopt;
+    const std::size_t strings=32+std::size_t(word(b,12))*16+word(b,4);
+    GameUnitUiRecord result;
+    for(unsigned j=0;j<27;++j)result.words[j]=word(b,at+j*4);
+    for(unsigned j=0;j<2;++j) {
+        const auto offset=result.words[j];
+        if(offset>=word(b,8))return std::nullopt;
+        const auto first=b.begin()+strings+offset,last=std::find(first,b.end(),0);
+        if(last==b.end())return std::nullopt;
+        auto& owned=j==0?result.name:result.model_name;
+        owned.assign(reinterpret_cast<const char*>(&*first),last-first);
+    }
+    return result;
 }
 std::uint16_t half(Bytes b,std::size_t at) {return unsigned(b[at])|(unsigned(b[at+1])<<8);}
 int signed_half(Bytes b,std::size_t at) {return __builtin_bit_cast(std::int16_t, (half(b,at)));}
@@ -88,12 +106,18 @@ void refresh(std::span<std::uint8_t> b,const GameDataTables& tables,unsigned slo
     }
 }
 }
-GameDataTables::GameDataTables(Bytes battle_data,Bytes item_data):
-    unit_model_names_(),
-    system_messages_(),
-    units_(records<27>(battle_data,"unit",{0,1},1,&unit_model_names_)),
-    items_(records<15>(item_data,"item",{0,14})) {
+GameDataTables::GameDataTables(Bytes battle_data,Bytes item_data) {
+    std::size_t unit_start=0;
+    units_=records<27>(battle_data,"unit",{0,1},1,&unit_model_names_,false,&unit_start);
+    items_=records<15>(item_data,"item",{0,14});
     (void)records<1>(battle_data,"sysmes",{0},0,&system_messages_,true);
+    ui_units_.reserve(units_.size());
+    for(std::size_t i=0;i<units_.size();++i) {
+        auto record=ui_record(battle_data,unit_start+i*108);
+        if(!record)throw std::runtime_error("Invalid game UI unit record");
+        ui_units_.push_back(std::move(*record));
+    }
+    if(unit_start>=108)preceding_ui_unit_=ui_record(battle_data,unit_start-108);
 }
 const std::array<std::uint32_t,27>& GameDataTables::unit(int id) const {
     if(id<1||std::size_t(id)>units_.size())throw std::runtime_error("Game unit ID bounds");
@@ -102,6 +126,14 @@ const std::array<std::uint32_t,27>& GameDataTables::unit(int id) const {
 const std::string& GameDataTables::unit_model_name(int id) const {
     if(id<1||std::size_t(id)>unit_model_names_.size())throw std::runtime_error("Game unit ID bounds");
     return unit_model_names_[id-1];
+}
+const GameUnitUiRecord& GameDataTables::ui_unit(int id) const {
+    if(id<0||std::size_t(id)>ui_units_.size())throw std::runtime_error("Game UI unit ID bounds");
+    if(id==0) {
+        if(!preceding_ui_unit_)throw std::runtime_error("Game UI preceding unit record unavailable");
+        return *preceding_ui_unit_;
+    }
+    return ui_units_[id-1];
 }
 const std::string& GameDataTables::system_message(unsigned index) const {
     if(std::size_t(index)>=system_messages_.size())throw std::runtime_error("Game system message index bounds");
