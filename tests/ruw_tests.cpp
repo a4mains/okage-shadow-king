@@ -1,11 +1,16 @@
 #include "okage/ruw.hpp"
 #include <algorithm>
+#include <bit>
+#include <cfenv>
+#include <cmath>
 #include <iostream>
 #include <fstream>
 #include <iterator>
 #include <limits>
 #include <string_view>
 #include <stdexcept>
+
+#pragma STDC FENV_ACCESS ON
 
 namespace {
 void require(bool b){if(!b)throw std::runtime_error("RUW test failed");}
@@ -31,6 +36,51 @@ std::vector<std::uint8_t> mutable_fixture() {
     return b;
 }
 constexpr auto keep=okage::RuwResource::preserve_component;
+void fill_tests() {
+    struct Case {std::int32_t positive,negative;float fraction;std::int32_t expected;};
+    const std::array cases={
+        Case{101,203,0.f,0},Case{101,203,-0.f,0},
+        Case{101,203,1.f,101},Case{101,203,-1.f,-203},
+        Case{101,203,9.f,101},Case{101,203,-9.f,-203},
+        Case{101,203,.5f,50},Case{101,203,-.5f,-101},
+        Case{-101,-203,.5f,-50},Case{-101,-203,-.5f,101},
+        // Nearest conversion would produce16777220, not16777218.
+        Case{16777219,16777219,1.f,16777218},Case{-16777219,-16777219,1.f,-16777218},
+        Case{16777219,16777219,-1.f,-16777218},Case{-16777219,-16777219,-1.f,16777218},
+        Case{2147483647,0,1.f,2147483520},Case{-2147483647,0,1.f,-2147483520},
+        Case{std::numeric_limits<std::int32_t>::min(),0,1.f,std::numeric_limits<std::int32_t>::min()},
+        Case{16777218,16777218,.75f,12582913},Case{16777218,16777218,-.75f,-12582913},
+        // CVT.S.W first gives16777216, whose product here is16777215.
+        Case{16777217,16777217,__builtin_bit_cast(float, (0x3f7fffffu)),16777215},
+        Case{16777217,16777217,-__builtin_bit_cast(float, (0x3f7fffffu)),-16777215},
+        Case{1,1,std::numeric_limits<float>::min(),0},Case{0,0,-1.f,0}};
+    const auto original_rounding=std::fegetround();
+    for(auto mode:{FE_TONEAREST,FE_TOWARDZERO,FE_UPWARD,FE_DOWNWARD}) {
+        require(std::fesetround(mode)==0);
+        for(const auto& c:cases) {
+            auto bytes=mutable_fixture();put(bytes,108+13*4,std::uint32_t(c.positive));put(bytes,108+14*4,std::uint32_t(c.negative));
+            okage::RuwResource r(bytes);const auto before=r.widget(3,9);const auto other=r.widget(3,2);
+            const auto* runtime=&*r.widget(3,9).runtime;const auto* text=runtime->text->data();
+            r.set_fill_fraction(3,9,c.fraction);auto expected=before.words;expected[6]=std::uint32_t(c.expected);
+            require(r.widget(3,9).words==expected&&r.widget(3,9).runtime->words==before.runtime->words);
+            require(r.widget(3,9).runtime->text==before.runtime->text&&&*r.widget(3,9).runtime==runtime&&runtime->text->data()==text);
+            require(r.widget(3,2).words==other.words&&r.widget(3,2).runtime->words==other.runtime->words);
+            require(std::fegetround()==mode);
+        }
+        auto bytes=mutable_fixture();put(bytes,108+14*4,0x80000000u);
+        okage::RuwResource r(bytes);const auto before=r.widget(3,9).words;
+        for(float f:{std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity(),
+                     std::numeric_limits<float>::quiet_NaN(),std::numeric_limits<float>::denorm_min(),-1.f}) {
+            rejects([&]{r.set_fill_fraction(3,9,f);});require(r.widget(3,9).words==before&&std::fegetround()==mode);
+        }
+        // Source checks the runtime pointer before even comparing the input.
+        const auto absent=r.widget(3,1).words;r.set_fill_fraction(3,1,std::numeric_limits<float>::quiet_NaN());
+        require(!r.widget(3,1).runtime&&r.widget(3,1).words==absent&&std::fegetround()==mode);
+        rejects([&]{r.set_fill_fraction(99,0,.5f);});rejects([&]{r.set_fill_fraction(3,-1,.5f);});
+        rejects([&]{r.set_fill_fraction(3,99,.5f);});require(std::fegetround()==mode);
+    }
+    require(std::fesetround(original_rounding)==0);
+}
 void mutation_tests() {
     okage::RuwResource r(mutable_fixture());
     require(r.widget_index(3,9)==0&&r.widget_index(3,2)==1&&r.widget_index(3,0)==4);
@@ -139,7 +189,7 @@ int main(int argc,char** argv){try {
     if(argc==3&&std::string_view(argv[1])=="--diagnostic") {
         diagnostic(argv[2]);std::cout<<"Owned RUW mutation diagnostic passed\n";return 0;
     }
-    require(argc==1);mutation_tests();
+    require(argc==1);mutation_tests();fill_tests();
     std::vector<std::uint8_t> b(32+16+7*68);
     put(b,8,1);put(b,12,1);put(b,16,2);
     put(b,20,1);put(b,24,2);put(b,28,4);

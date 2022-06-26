@@ -1,11 +1,24 @@
 #include "okage/ruw.hpp"
 #include <algorithm>
 #include <bit>
+#include <cfenv>
+#include <cmath>
 #include <cstring>
 #include <stdexcept>
 
+#pragma STDC FENV_ACCESS ON
+#pragma STDC FP_CONTRACT OFF
+
 namespace okage {
 namespace {
+struct FillRounding {
+    int old=std::fegetround();
+    FillRounding() {
+        if(old<0||(old!=FE_TOWARDZERO&&std::fesetround(FE_TOWARDZERO)))
+            throw std::runtime_error("RUW fill rounding unavailable");
+    }
+    ~FillRounding(){if(old!=FE_TOWARDZERO)std::fesetround(old);}
+};
 std::uint32_t word(Bytes b,std::size_t at) {
     if(at>b.size()||b.size()-at<4)throw std::runtime_error("Truncated RUW word");
     return std::uint32_t(b[at])|(std::uint32_t(b[at+1])<<8)|
@@ -174,6 +187,22 @@ void RuwResource::set_position(std::size_t group,std::int32_t id,std::int32_t x,
 }
 void RuwResource::set_runtime_word0(std::size_t group,std::int32_t id,std::uint32_t value) {
     auto& widget=mutable_widget(group,id);if(widget.runtime)widget.runtime->words[0]=value;
+}
+void RuwResource::set_fill_fraction(std::size_t group,std::int32_t id,float fraction) {
+    auto& widget=mutable_widget(group,id);if(!widget.runtime)return;
+    if(!std::isfinite(fraction)||std::fpclassify(fraction)==FP_SUBNORMAL)
+        throw std::runtime_error("Unsupported RUW fill fraction");
+    if(fraction>1.f)fraction=1.f;
+    if(fraction<-1.f)fraction=-1.f;
+    const auto capacity=__builtin_bit_cast(std::int32_t, (widget.words[fraction<0.f?14:13]));
+    FillRounding rounding;
+    // Preserve separate CVT.S.W then MUL.S, including capacities beyond the
+    // exactly representable integer range. UI FCSR observed 0x01000001.
+    const float converted=float(capacity);
+    const float product=converted*fraction;
+    if(!std::isfinite(product)||product<-2147483648.f||product>=2147483648.f)
+        throw std::runtime_error("RUW fill integer conversion range");
+    widget.words[6]=std::uint32_t(std::int32_t(product)); // CVT.W.S toward zero.
 }
 ShadowScreenParameters initial_ui_projection() {
     return shadow_screen_parameters({256,__builtin_bit_cast(float, (0x3f828f5cu)),
