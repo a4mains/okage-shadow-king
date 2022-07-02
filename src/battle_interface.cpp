@@ -1,0 +1,57 @@
+#include "okage/battle_interface.hpp"
+#include <algorithm>
+#include <stdexcept>
+
+namespace okage {
+BattleInterface::BattleInterface(BattleUiShared& shared,const BattleUiData& data,
+    std::shared_ptr<const void> texture,std::uint32_t parent_flags,
+    const std::function<void(unsigned)>& constructor):shared_(shared) {
+    if(!texture||!constructor)throw std::runtime_error("Battle interface requires texture and constructors");
+    shared_.atlas_texture=-1;
+    // Header code/owner links are typed host ownership, never guest addresses.
+    words_[0x1c/4]=parent_flags&0x18000000;
+    try {
+        for(unsigned i=0;i<2;++i) {
+            const auto& d=data.layers()[i];const auto& w=d.words;const unsigned base=(0x40+i*0xe0)/4;
+            auto& stream=shared_.streams.at(d.stream()-1);
+            if(!stream||stream->binding_id!=d.stream())throw std::runtime_error("Battle interface stream binding mismatch");
+            words_[base+0x54/4]=d.stream(); // Typed reference ID, not a guest pointer.
+            const auto free=std::find(shared_.registry.begin(),shared_.registry.end(),nullptr);
+            if(free==shared_.registry.end())throw std::runtime_error("UI window registry exhausted");
+            const unsigned slot=free-shared_.registry.begin();
+            // Scan the existing stream before the layer rewrites it below.
+            auto owner=std::make_shared<UiWindow>(d.glyph_capacity(),d.sprite_capacity(),slot,stream);
+            *free=std::move(owner);handles_[i]=int(slot);words_[base]=slot;
+            words_[base+0x40/4]=w[1];words_[base+0x44/4]=w[2];
+            const bool dirty=(*free)->configure(w,shared_.atlas,texture);
+            if(dirty)shared_.atlas_dirty=true; // 1a5500 sets 200530, not 24f734.
+            if(w[21])words_[base+1]=1;
+            std::copy_n(w.begin()+4,12,words_.begin()+base+4);
+            words_[base+0x4c/4]=std::uint32_t(shared_.atlas_texture);
+            for(unsigned j=0;j<8;++j) {
+                words_[base+0x6c/4+j]=0xffffffff;words_[base+0xac/4+j]=0xffffffff;
+            }
+            words_[base+0x64/4]=0xffffffff;
+            stream->entries={UiStreamCommand{14,UiStreamReference::MenuTransform1f9c00},
+                             UiStreamCommand{6,UiStreamReference::MenuTransform1f9c2c}};
+            shared_.current_stream=d.stream();shared_.stream_cursor=4;
+            constructor(d.type());
+            words_[base+0x50/4]|=0x50;words_[base+0x5c/4]=w[23];words_[base+0x60/4]=d.type();
+            // Both supported authored types have one state slot (1f8f88).
+            words_[0xe90/4+i]=i;
+        }
+        words_[0xe40/4]=2;
+        words_[0x8c/4]=0xffffffff;words_[0xe44/4]=words_[0x180/4];words_[0xed8/4]=0xffffffff;
+        words_[0x168/4]=0xffffffff;words_[0x16c/4]=0xffffffff;words_[0x88/4]=0xffffffff;
+    }catch(...){release();throw;}
+}
+void BattleInterface::release() {
+    for(auto& handle:handles_)if(handle>=0){shared_.registry[unsigned(handle)].reset();handle=-1;}
+}
+BattleInterface::~BattleInterface(){release();}
+const UiWindow& BattleInterface::window(unsigned layer) const {
+    if(layer>=2||handles_[layer]<0||!shared_.registry[unsigned(handles_[layer])])
+        throw std::runtime_error("Battle interface window lifetime");
+    return *shared_.registry[unsigned(handles_[layer])];
+}
+}

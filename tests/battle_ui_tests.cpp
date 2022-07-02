@@ -1,6 +1,7 @@
 #include "okage/battle_ui.hpp"
 #include "okage/event.hpp"
 #include "okage/ui_window.hpp"
+#include "okage/battle_interface.hpp"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
@@ -76,6 +77,28 @@ int main(int argc,char** argv) {
         auto b=fixture();const okage::BattleUiData data(b);b.clear();
         require(data.layers()[0].words[4]==0x80000000&&data.layers()[1].words[16]==0x80808080,"owned literal bits changed");
         require(data.layers()[0].stream()==1&&data.layers()[1].type()==3,"host bindings changed");
+        okage::BattleUiShared shared;std::vector<unsigned> constructors;
+        auto texture=std::make_shared<int>(1);
+        {
+            okage::BattleInterface ui(shared,data,texture,0x98000000,[&](unsigned type){
+                constructors.push_back(type);
+                require(shared.current_stream==type-1&&shared.stream_cursor==4,"source constructor stream order");
+                require(shared.registry[type-2]&&shared.registry[type-2]->word(0x1960)==0,"window scans before stream replacement");
+            });
+            require(constructors==std::vector<unsigned>{2,3},"authored constructor order");
+            require(ui.handles()==std::array<int,2>{0,1},"registry handles");
+            const auto& w=ui.words();
+            require(w[0x1c/4]==0x18000000&&w[0xe40/4]==2&&w[0xe44/4]==3&&w[0xe94/4]==1,"manager scalar fields");
+            for(unsigned at:{0x88u,0x8cu,0x168u,0x16cu,0xed8u})require(w[at/4]==0xffffffff,"manager postwrites overlap layers");
+            require(w[0x114/4]==0&&w[0x1f4/4]==0,"layer manager link remains null before callbacks");
+        }
+        require(!shared.registry[0]&&!shared.registry[1],"registry releases owned windows");
+        {
+            shared.atlas={okage::UiWindow::AtlasTuple{1,2,3,4},okage::UiWindow::AtlasTuple{}};
+            okage::BattleInterface ui(shared,data,texture,0,[](unsigned){});
+            require(ui.window(0).word(0x1960)==2&&ui.window(1).word(0x1960)==2,"reentry scans persistent streams");
+            require(shared.atlas_dirty&&ui.window(0).word(0xc)==1,"actual runtime atlas owner used");
+        }
         for(unsigned n:{0u,7u,24u,87u,88u,311u,313u}) {b=fixture();b.resize(n);rejects(b);}
         for(unsigned at:{0u,8u,12u,16u,20u,24u,56u,88u,88u+84u,88u+88u,88u+92u,88u+96u}) {
             b=fixture();put(b,at,0xdeadbeef);rejects(b);

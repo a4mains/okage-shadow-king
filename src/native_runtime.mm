@@ -76,6 +76,7 @@ struct Session {
     std::vector<std::uint32_t> choice_trace;
     std::array<std::uint8_t,0x1000> variables{};
     okage::UiPartySelection ui_party;
+    okage::BattleUiShared ui_shared;
     okage::GameRandom random{1};
     okage::CollisionMask collision_mask;
     okage::ExteriorCamera exterior_camera;
@@ -584,7 +585,8 @@ struct Session {
             });
         }
         if(battle) {
-            try {battle->tick(retiring_effects?&*retiring_effects:nullptr,projection,scene_clear,frame,battle_stage_report);}
+            try {battle->tick(retiring_effects?&*retiring_effects:nullptr,projection,scene_clear,
+                {variables,*game_data,ui_party,ui_shared},frame,battle_stage_report);}
             catch(const std::exception& error) {
                 throw std::runtime_error("Native battle frame="+std::to_string(frame)+": "+error.what());
             }

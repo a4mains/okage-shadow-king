@@ -52,6 +52,7 @@ struct StageScratch {
         first[0]='S';first[1]='T';first[2]='G';first[4]=0x20;first[8]=0x20;
     }
 };
+struct UiTextureOwner {id<MTLTexture> texture;};
 }
 struct BattleSession::Impl {
     unsigned formation;
@@ -63,6 +64,10 @@ struct BattleSession::Impl {
     ShadowScreenParameters ui_projection=initial_ui_projection();
     std::array<std::unique_ptr<RuwResource>,16> ui_resources;
     std::optional<BattleUiData> ui_definitions;
+    std::optional<BattleHudData> hud_definitions;
+    std::unique_ptr<BattleInterface> ui;
+    bool saved_model_range=true;
+    std::uint32_t stage_mask=0x18000000,camera_mask=0x18000000;
     // The fresh UI registries have no owners until 11f5f8 constructs them.
     std::array<std::uint32_t,16> ui_registry_a{},ui_registry_b{};
     std::array<std::uint32_t,9> ui_controllers{};
@@ -115,6 +120,7 @@ struct BattleSession::Impl {
         @autoreleasepool {
             ui_resources[0]=std::make_unique<RuwResource>(read(input/"BTL.RUW"));
             ui_definitions.emplace(read(input/"battle-ui.bin"));
+            hud_definitions.emplace(read(input/"battle-hud.bin"));
             load_step.store(1);
             device=MTLCreateSystemDefaultDevice();
             if(!device)throw std::runtime_error("Battle loader requires Metal");
@@ -234,6 +240,42 @@ struct BattleSession::Impl {
         }
         if(failure)std::rethrow_exception(failure);
     }
+    void construct_ui(BattleUiContext context,unsigned frame,const fs::path& stage_report) {
+        saved_model_range=false;stage_mask&=~0x18000000u;camera_mask&=~0x18000000u;
+        const int selected=__builtin_bit_cast(std::int32_t, (word(root.bytes,0x81ac)));
+        if(!stage_report.empty()) {
+            if(selected||std::any_of(context.party.counts().begin(),context.party.counts().end(),[](auto n){return n!=0;}))
+                throw std::runtime_error("UI diagnostic requires the first-battle zero selection cache");
+            for(const auto& row:context.party.rows())if(std::any_of(row.begin(),row.end(),[](auto n){return n!=0;}))
+                throw std::runtime_error("UI diagnostic requires zero incoming selection rows");
+        }
+        auto texture=std::make_shared<UiTextureOwner>(UiTextureOwner{atlas});
+        ui=std::make_unique<BattleInterface>(context.shared,*ui_definitions,texture,word(root.bytes,0x1c),[&](unsigned type){
+            if(type==2)context.shared.hud.initialize_type2(*ui_resources[0],*hud_definitions,context.tables,
+                context.variables,context.party,3,selected);
+            else if(type==3)context.shared.hud.initialize_type3(*ui_resources[0],context.tables);
+            else throw std::runtime_error("Unrecovered battle layer constructor");
+        });
+        if(stage_report.empty())return;
+        auto hud_path=stage_report;hud_path.replace_extension(".hud.json");
+        auto ui_path=stage_report;ui_path.replace_extension(".ui.json");
+        for(const auto& path:{hud_path,ui_path})if(fs::exists(path)||fs::is_symlink(path))
+            throw std::runtime_error("Refusing existing battle interface report");
+        std::ofstream hud_out(hud_path);hud_out<<context.shared.hud.diagnostic(*ui_resources[0],context.variables,"native-session");
+        if(!hud_out)throw std::runtime_error("Cannot write battle HUD report");
+        std::ofstream out(ui_path);
+        out<<"{\"schema\":\"okage-native-battle-interface-v1\",\"frame\":"<<frame
+           <<",\"scope\":\"11f5f8 constructor before child activation; no callbacks or rendering\",\"manager_words\":[";
+        for(unsigned i=0;i<ui->words().size();++i){if(i)out<<',';out<<ui->words()[i];}
+        out<<"],\"current_stream\":"<<context.shared.current_stream<<",\"stream_cursor\":"<<context.shared.stream_cursor
+           <<",\"atlas_dirty\":"<<(context.shared.atlas_dirty?"true":"false")<<",\"windows\":[";
+        for(unsigned i=0;i<2;++i) {
+            if(i)out<<',';out<<"{\"slot\":"<<ui->handles()[i]<<",\"words\":[";
+            for(unsigned at=0;at<UiWindow::scalar_bytes;at+=4){if(at)out<<',';const auto v=ui->window(i).known_word(at);if(v)out<<*v;else out<<"null";}
+            out<<"]}";
+        }
+        out<<"]}\n";if(!out)throw std::runtime_error("Cannot write battle interface report");
+    }
     void report(const fs::path& path,unsigned frame,std::uint32_t rng_before,
                 const BattleConstructionContext& context,const std::string& error) const {
         if(path.empty())return;
@@ -276,7 +318,7 @@ BattleSession::BattleSession(unsigned formation,int stage,const fs::path& input,
     impl_(std::make_unique<Impl>(formation,stage,input,decoded,variables,entry,camera)) {}
 BattleSession::~BattleSession()=default;
 void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& projection,SceneClearColor& clear,
-                         unsigned frame,const fs::path& stage_report) {
+                         BattleUiContext context,unsigned frame,const fs::path& stage_report) {
     impl_->jobs.check();
     if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
     const bool effect_pass=!impl_->suppress_effects.load();
@@ -288,7 +330,11 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
         try {impl_->commit_stage(projection,clear,frame,stage_report);}
         catch(...) {impl_->construction_failure=std::current_exception();throw;}
     }
-    throw std::runtime_error("Battle UI constructors, child activation and framebuffer filter rendering are unrecovered");
+    if(!impl_->ui) {
+        try {impl_->construct_ui(context,frame,stage_report);}
+        catch(...) {impl_->construction_failure=std::current_exception();throw;}
+    }
+    throw std::runtime_error("Battle UI callbacks, child activation and framebuffer filter rendering are unrecovered");
 }
 void BattleSession::service_loader_after_frame(BattleConstructionContext context,unsigned frame,const fs::path& report){
     impl_->jobs.check();
