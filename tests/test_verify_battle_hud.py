@@ -80,6 +80,7 @@ def fixture():
             at = verifier.GROUPS_OFFSET + (offsets[group] + item) * verifier.RECORD_BYTES
             words = list(struct.unpack_from('<17I', raw_bytes, at))
             pointer = words[16]
+            words[16] = 0
             if pointer:
                 run_at = pointer - runtime_base
                 run_words = list(struct.unpack_from('<11I', runtime_bytes, run_at))
@@ -126,6 +127,15 @@ class VerifyBattleHudTests(unittest.TestCase):
         native['groups'][0][0]['words'][16] = 0
         self.assertEqual(verifier.compare(ref, native)['status'], 'pass')
         native['groups'][0][0]['words'][16] = True
+        with self.assertRaises(verifier.Invalid):
+            verifier.compare(ref, native)
+        native['groups'][0][0]['words'][16] = 0x895630
+        with self.assertRaises(verifier.Invalid):
+            verifier.compare(ref, native)
+
+    def test_missing_original_group_table_wrapper_is_input_error(self):
+        ref, native = fixture()
+        del ref[2]['ruw_slot0']['template_group_counts']
         with self.assertRaises(verifier.Invalid):
             verifier.compare(ref, native)
 

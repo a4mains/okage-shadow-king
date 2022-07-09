@@ -50,6 +50,7 @@ def _original_widgets(complete):
     slot = complete.get('ruw_slot0')
     need(isinstance(slot, dict), 'original slot0 RUW owner is missing')
     need(set(slot) >= {'raw_pointer', 'runtime_pointer', 'text_pointer', 'metadata',
+                       'template_group_counts', 'template_group_offsets',
                        'widget_group_counts', 'widget_group_offsets', 'raw_owner',
                        'runtime_owner', 'text_owner'}, 'original RUW slot metadata is incomplete')
     raw_pointer = u32(slot.get('raw_pointer'), 'original raw pointer')
@@ -188,6 +189,8 @@ def compare(reference, native):
             for word_index, expected in enumerate(original['words']):
                 got = u32(words[word_index], f'{label}.words[{word_index}]')
                 if word_index == 16:
+                    need(got == 0,
+                         f'{label}.words[16]: native pointer-free HUD data must keep this word zero')
                     continue
                 compared_words += 1
                 group_words += 1
@@ -254,8 +257,9 @@ def compare(reference, native):
         'differences': differences,
         'unsupported': [
             'Native variables extent and encoding are validated, but original variables were not captured and no variable equality is claimed.',
-            'Raw word16 guest pointers, runtime word10 text pointers, and text bytes after the first NUL are excluded.',
-            'Runtime comparison covers the first ten words of each observed 44-byte original record; the final pointer word is excluded.',
+            'Original raw word16 is a guest pointer and is excluded from equality; the corresponding native pointer-free word is required to remain zero.',
+            'Original runtime word10 is treated as a text pointer only for type-1 widgets. For other widget types it is an uninitialized or unmodeled scalar and is not interpreted or compared.',
+            'Runtime comparison covers the first ten words of each observed 44-byte original record. The final word is compared as a text pointer only for type-1 widgets; its other-type value is excluded.',
             'This verifies RUW/stat side effects in the declared scope only; it makes no claim about manager allocation, callbacks, rendering, or full UI behavior.'
         ]
     }
