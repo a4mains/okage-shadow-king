@@ -1,4 +1,6 @@
 #include "okage/ui_window.hpp"
+#include <bit>
+#include <cfenv>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -126,8 +128,59 @@ void configuration() {
     // Configuration neither invokes callbacks nor replaces the shared stream.
     require(w.stream().entries.empty()&&w.word(0x1958)==0&&w.word(0x1960)==0,"No fabricated UI execution");
 }
+using ScalarSnapshot=std::array<std::optional<std::uint32_t>,okage::UiWindow::scalar_bytes/4>;
+ScalarSnapshot snapshot(const okage::UiWindow& w) {
+    ScalarSnapshot result;
+    for(std::size_t i=0;i<result.size();++i)result[i]=w.known_word(i*4);
+    return result;
+}
+void scalar_mutators() {
+    auto s=stream();okage::UiWindow w(29,17,0,s);
+    auto texture=std::make_shared<int>(123);
+    const std::array<okage::UiWindow::AtlasTuple,1> empty{};
+    w.configure(authored(),empty,texture);
+    const auto* glyph=&w.glyph_buffer(0);const auto* cache=&w.extra_cache(0);
+    struct RestoreRounding {
+        int mode=std::fegetround();
+        ~RestoreRounding(){std::fesetround(mode);}
+    } restore;
+    for(int mode:{FE_TONEAREST,FE_TOWARDZERO,FE_DOWNWARD,FE_UPWARD}) {
+        require(std::fesetround(mode)==0,"Set test rounding mode");
+        auto expected=snapshot(w);
+        // Reversed bounds and out-of-range current are stored, not normalized.
+        w.set_opacity_tween(-0.0f,256.25f,0x123401ff,0xffffff80);
+        expected[0x27c/4]=0x80000000;expected[0x270/4]=0x43802000;
+        expected[0x274/4]=0x43000000;expected[0x278/4]=0x437f0000;
+        require(snapshot(w)==expected,"Opacity changes exactly four scalar words/masks");
+        require(__builtin_bit_cast(std::uint32_t, (w.opacity()))==0x43802000,"Fractional opacity getter is a float copy");
+        w.set_opacity_tween(-128.0f,-0.0f,0x100,0x200);
+        expected[0x27c/4]=0xc3000000;expected[0x270/4]=0x80000000;
+        expected[0x274/4]=0;expected[0x278/4]=0;
+        require(snapshot(w)==expected&&__builtin_bit_cast(std::uint32_t, (w.opacity()))==0x80000000,
+                "Repeated opacity writes preserve negative zero and masked zero bounds");
+        w.set_opacity_tween(__builtin_bit_cast(float, (0x7fc12345u)),12.75f,0,128);
+        expected[0x27c/4]=0x7fc12345;expected[0x270/4]=0x414c0000;
+        expected[0x274/4]=0x43000000;
+        require(snapshot(w)==expected&&w.opacity()==12.75f,"Opaque increment bits and fractional getter");
+        require(std::fegetround()==mode,"Scalar opacity calls preserve rounding mode");
+    }
+    auto expected=snapshot(w);
+    const std::array<std::uint32_t,3> first={0x80000000,0x3f000001,0x7fcabcde};
+    const std::array<std::uint32_t,3> second={0xff800000,0x00000001,0xbf800000};
+    w.set_transform_xyz(first,second);
+    expected[0x4f4/4]=1;
+    for(unsigned i=0;i<3;++i) {
+        expected[0x2f0/4+i]=expected[0x520/4+i]=first[i];
+        expected[0x3f0/4+i]=expected[0x550/4+i]=second[i];
+    }
+    require(snapshot(w)==expected,"Transform changes only XYZ pairs/flag, preserving all W/history/unknown lanes");
+    require(!w.known_word(0x53c),"Transform does not fabricate the unknown configured W lane");
+    require(w.texture_owner().get()==texture.get()&&&w.stream()==s.get()&&
+            &w.glyph_buffer(0)==glyph&&&w.extra_cache(0)==cache,"Scalar mutators retain owners");
+    require(w.extra_cache(0).word(0x12bc)==0&&!w.glyph_buffer(0).known_byte(0),"Scalar mutators leave buffer contents/validity untouched");
+}
 }
 int main(){try {
-    defaults_and_allocations();stream_scan_and_lifetime();configuration();
-    std::cout<<"UI window ownership/default/configuration tests passed\n";return 0;
+    defaults_and_allocations();stream_scan_and_lifetime();configuration();scalar_mutators();
+    std::cout<<"UI window ownership/default/configuration/scalar tests passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

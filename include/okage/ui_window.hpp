@@ -58,6 +58,12 @@ public:
     const UiWindowBuffer& sprite_cache(unsigned index,unsigned side) const;
     const UiWindowBuffer& extra_cache(unsigned index) const;
 
+    void set_opacity_tween(float increment,float current,
+                           std::uint32_t lower,std::uint32_t upper);
+    float opacity() const;
+    void set_transform_xyz(const std::array<std::uint32_t,3>& first_bits,
+                           const std::array<std::uint32_t,3>& second_bits);
+
     bool configure(const std::array<std::uint32_t,28>& authored,
                    std::span<const AtlasTuple> atlas,
                    std::shared_ptr<const void> texture);

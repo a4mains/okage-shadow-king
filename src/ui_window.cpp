@@ -1,5 +1,6 @@
 #include "okage/ui_window.hpp"
 #include <algorithm>
+#include <bit>
 #include <limits>
 #include <stdexcept>
 
@@ -112,6 +113,20 @@ std::optional<std::uint32_t> UiWindow::known_word(std::size_t at) const {
 std::uint32_t UiWindow::word(std::size_t at) const {
     const auto result=known_word(at);check(bool(result),"Unknown UI window scalar word");return *result;
 }
+void UiWindow::set_opacity_tween(float increment,float current,
+                                 std::uint32_t lower,std::uint32_t upper) {
+    put(0x27c,__builtin_bit_cast(std::uint32_t, (increment)));
+    put(0x270,__builtin_bit_cast(std::uint32_t, (current)));
+    put(0x274,__builtin_bit_cast(std::uint32_t, (static_cast<float>(upper&0xff))));
+    put(0x278,__builtin_bit_cast(std::uint32_t, (static_cast<float>(lower&0xff))));
+}
+float UiWindow::opacity() const {return __builtin_bit_cast(float, (word(0x270)));}
+void UiWindow::set_transform_xyz(const std::array<std::uint32_t,3>& first,
+                                 const std::array<std::uint32_t,3>& second) {
+    put(0x4f4,1);
+    for(unsigned i=0;i<3;++i){put(0x2f0+i*4,first[i]);put(0x520+i*4,first[i]);}
+    for(unsigned i=0;i<3;++i){put(0x3f0+i*4,second[i]);put(0x550+i*4,second[i]);}
+}
 const UiWindowBuffer& UiWindow::glyph_buffer(unsigned i) const {check(i<2,"UI glyph buffer bounds");return glyph_[i];}
 const UiWindowBuffer& UiWindow::sprite_buffer(unsigned i) const {check(i<2,"UI sprite buffer bounds");return sprite_[i];}
 const UiWindowBuffer& UiWindow::glyph_cache(unsigned i,unsigned side) const {
@@ -139,11 +154,8 @@ bool UiWindow::configure(const std::array<std::uint32_t,28>& w,std::span<const A
     for(unsigned i=0;i<4;++i)put(0x2e0+i*4,w[16+i]);
     put(0x23c,0);put(0x240,0);
     put(0x1900,w[20]==1?word(0x1900)|0x1000:word(0x1900)&~0x1000u);
-    for(unsigned i=0;i<3;++i) {
-        put(0x2f0+i*4,w[4+i]);put(0x520+i*4,w[4+i]);
-        put(0x3f0+i*4,w[8+i]);put(0x550+i*4,w[8+i]);
-    }
-    put(0x4f4,1);put(0x25c,(word(0x25c)&0xffff0000)|0x5c5c);
+    set_transform_xyz({w[4],w[5],w[6]},{w[8],w[9],w[10]});
+    put(0x25c,(word(0x25c)&0xffff0000)|0x5c5c);
     for(unsigned i=0;i<entries;++i)for(unsigned j=0;j<4;++j)put(0xc+j*0x80+i*4,atlas[i][j]);
     if(w[21]){texture_=std::move(texture);known_.reset(8/4);}
     return entries!=0;
