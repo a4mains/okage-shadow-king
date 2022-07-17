@@ -14,6 +14,7 @@
 #include <utility>
 #include <vector>
 
+class BattleUiUpdatesTrace;
 class BattleUiTrace {
 public:
     static constexpr uint32 entryPc=0x11f5f8;
@@ -78,6 +79,7 @@ public:
     }
 
 private:
+    friend class BattleUiUpdatesTrace;
     static constexpr uint32 ruwSize=19596;
     static constexpr uint32 runtimeBytes=240*44;
     static constexpr uint32 textBytes=73*128;
