@@ -1,4 +1,5 @@
 #include "okage/ui_window.hpp"
+#include "okage/ruw.hpp"
 #include <bit>
 #include <cfenv>
 #include <iostream>
@@ -179,8 +180,55 @@ void scalar_mutators() {
             &w.glyph_buffer(0)==glyph&&&w.extra_cache(0)==cache,"Scalar mutators retain owners");
     require(w.extra_cache(0).word(0x12bc)==0&&!w.glyph_buffer(0).known_byte(0),"Scalar mutators leave buffer contents/validity untouched");
 }
+void ruw_binding() {
+    // One template group, three widget groups (2,0,1); deliberately unordered IDs.
+    std::vector<std::uint8_t> bytes(36+4*68);
+    const auto put=[&](unsigned at,std::uint32_t v){for(unsigned i=0;i<4;++i)bytes.at(at+i)=v>>(8*i);};
+    put(12,1);put(16,3);put(20,1);put(24,2);put(28,0);put(32,1);
+    for(unsigned i=0;i<3;++i) {
+        const unsigned at=104+i*68;
+        put(at+8,0x80445566);put(at+12,0x12345678);put(at+16,0x40);
+        put(at+20,1);put(at+32,2);put(at+36,1);put(at+40,i&1);put(at+60,20-i);
+    }
+    auto resource=std::make_shared<okage::RuwResource>(bytes);
+    auto source=stream();okage::UiWindow w(2,3,0,source);
+    const auto original_counts=w.word(0x1960);
+    const std::array<std::size_t,4> groups{2,1,0,2}; // Empty and duplicate allowed.
+    w.bind_ruw(resource,groups);
+    require(w.stream().embedded_ruw&&w.stream().entries.size()==6,"Owned embedded stream");
+    require(source->entries.empty(),"External constructor stream remains intact");
+    require(w.word(0x2edc)==12&&w.word(0x26dc+48)==0,"Cursor excludes terminating word");
+    require(w.word(0x3bec)==2&&!w.known_word(0x2698),"Typed stream replaces guest pointer");
+    for(unsigned i=0;i<6;++i) {
+        require(w.word(0x26dc+i*8)==(i==0?14u:i==1?6u:23u),"Ordered raw commands");
+        require(!w.known_word(0x26e0+i*8),"Reference operands are never scalar addresses");
+    }
+    const std::array<std::pair<std::size_t,std::size_t>,4> expected{{{2,0},{0,0},{0,1},{2,0}}};
+    for(unsigned i=0;i<4;++i) {
+        const auto& ref=std::get<okage::UiWidgetReference>(std::get<okage::UiStreamCommand>(w.stream().entries[i+2]).argument);
+        require(ref.resource.get()==resource.get()&&ref.group==expected[i].first&&ref.index==expected[i].second,"Physical order and retained resource reference");
+    }
+    require(w.word(0x1900)==0x8645&&w.word(0x1960)==original_counts,"Reset flags without construction rescan");
+    for(unsigned side=0;side<2;++side)for(unsigned at=0;at<w.glyph_buffer(side).size();at+=4)
+        require(w.glyph_buffer(side).word(at)==(side==1&&at<2*256&&at%16==8?0xbf800000u:0u),"Complete glyph reset including sentinel");
+    require(!w.glyph_cache(0,0).known_byte(0)&&!w.extra_cache(1).known_byte(0),"Uninitialized layout caches preserved");
+    require(w.sprite_buffer(1).word(8)==0xbf800000&&w.sprite_buffer(1).word(3*256+8)==0,"Sprite output unchanged");
+    require(w.word(0x3c08)==13&&w.word(0x3c10)==8,"Separate glyph and sprite flag extents");
+    require(w.word(0xcc0)==0&&w.word(0xcc4)==0&&w.word(0xce8)==0&&w.word(0x264)==0&&w.word(0x260)==0&&w.word(0xcd0)==0,"Reveal and output counters reset");
+    require(w.word(0x268)==w.word(0x26c)&&w.word(0x254)==w.word(0x250)&&w.word(0x258)==w.word(0x250),"Reveal defaults restored");
+    const auto* previous=&w.stream();const auto old_cursor=w.word(0x2edc);
+    rejects([&]{w.bind_ruw(nullptr,groups);});
+    const std::array<std::size_t,2> invalid{0,3};rejects([&]{w.bind_ruw(resource,invalid);});
+    std::vector<std::size_t> too_many(127,0);rejects([&]{w.bind_ruw(resource,too_many);});
+    require(&w.stream()==previous&&w.word(0x2edc)==old_cursor,"Validation precedes binding mutations");
+    w.bind_ruw(resource,{});
+    require(w.stream().entries.size()==2&&w.word(0x2edc)==4&&w.word(0x26ec)==0,"Empty binding retains setup commands");
+    require(!w.known_word(0x26f0)&&w.word(0x26f4)==23,"Shorter bind preserves unreachable stream tail");
+    w.bind_ruw(resource,groups);std::weak_ptr weak=resource;resource.reset();
+    require(!weak.expired(),"Bound resource lifetime");
+}
 }
 int main(){try {
-    defaults_and_allocations();stream_scan_and_lifetime();configuration();scalar_mutators();
+    defaults_and_allocations();stream_scan_and_lifetime();configuration();scalar_mutators();ruw_binding();
     std::cout<<"UI window ownership/default/configuration/scalar tests passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

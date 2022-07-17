@@ -36,6 +36,26 @@ std::vector<std::uint8_t> mutable_fixture() {
     return b;
 }
 constexpr auto keep=okage::RuwResource::preserve_component;
+void binding_tests() {
+    auto bytes=mutable_fixture();
+    // The gate is word9==1, independently of text/sprite type and visibility.
+    for(unsigned i=0;i<8;++i)put(bytes,108+i*68+36,i==4?2:1);
+    put(bytes,108+7*68+40,9);
+    okage::RuwResource r(bytes);
+    for(int id:{9,2,7,0,8,3,4})r.set_rgba(3,id,{1,2,3,0});
+    const auto before=r.widgets();
+    r.prepare_group_binding(3);
+    for(unsigned i=0;i<8;++i) {
+        const auto& prior=before[3][i];const auto& now=r.widgets()[3][i];
+        require(now.words==prior.words&&bool(now.runtime)==bool(prior.runtime));
+        if(!prior.runtime)continue;
+        auto expected=prior.runtime->words;
+        if(i==2||i==6||i==7)expected[4]=prior.words[i==7?3:2];
+        require(now.runtime->words==expected&&now.runtime->text==prior.runtime->text);
+    }
+    r.prepare_group_binding(0); // A valid empty group is inert.
+    rejects([&]{r.prepare_group_binding(4);});
+}
 void fill_tests() {
     struct Case {std::int32_t positive,negative;float fraction;std::int32_t expected;};
     const std::array cases={
@@ -189,7 +209,7 @@ int main(int argc,char** argv){try {
     if(argc==3&&std::string_view(argv[1])=="--diagnostic") {
         diagnostic(argv[2]);std::cout<<"Owned RUW mutation diagnostic passed\n";return 0;
     }
-    require(argc==1);mutation_tests();fill_tests();
+    require(argc==1);mutation_tests();fill_tests();binding_tests();
     std::vector<std::uint8_t> b(32+16+7*68);
     put(b,8,1);put(b,12,1);put(b,16,2);
     put(b,20,1);put(b,24,2);put(b,28,4);

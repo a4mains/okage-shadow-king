@@ -115,6 +115,13 @@ std::vector<RuwWidget>& RuwResource::mutable_group(std::size_t group) {
     if(group>=widgets_.size())throw std::runtime_error("RUW widget group bounds");
     return widgets_[group];
 }
+void RuwResource::prepare_group_binding(std::size_t group) {
+    for(auto& widget:mutable_group(group)) {
+        const auto& w=widget.words;
+        if(widget.runtime&&w[9]==1&&w[8]!=0xffffffffu)
+            widget.runtime->words[4]=w[w[10]?3:2];
+    }
+}
 std::size_t RuwResource::widget_index(std::size_t group,std::int32_t id) const {
     if(group>=widgets_.size()||id<0)throw std::runtime_error("RUW authored widget ID bounds");
     const auto& records=widgets_[group];const auto key=std::uint32_t(id);

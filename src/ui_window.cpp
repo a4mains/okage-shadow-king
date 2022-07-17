@@ -1,4 +1,5 @@
 #include "okage/ui_window.hpp"
+#include "okage/ruw.hpp"
 #include <algorithm>
 #include <bit>
 #include <limits>
@@ -25,7 +26,13 @@ std::array<std::uint32_t,4> scan(const UiWindowStream& stream) {
             check(command->opcode>=1&&command->opcode<=27,"Unsupported UI stream command");
             if(const auto* ref=std::get_if<UiStreamReference>(&command->argument))
                 check(*ref==UiStreamReference::MenuTransform1f9c00||
-                      *ref==UiStreamReference::MenuTransform1f9c2c,"Unsupported UI stream reference");
+                      *ref==UiStreamReference::MenuTransform1f9c2c||
+                      *ref==UiStreamReference::RuwMetrics200b78||
+                      *ref==UiStreamReference::RuwClip200b88,"Unsupported UI stream reference");
+            if(const auto* ref=std::get_if<UiWidgetReference>(&command->argument))
+                check(command->opcode==23&&ref->resource&&
+                      ref->group<ref->resource->widgets().size()&&
+                      ref->index<ref->resource->widgets()[ref->group].size(),"Invalid UI widget reference");
             ++commands;continue;
         }
         const auto& text=std::get<UiStreamText>(entry).bytes;

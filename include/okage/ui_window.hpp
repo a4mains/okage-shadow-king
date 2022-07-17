@@ -10,15 +10,22 @@
 #include <vector>
 
 namespace okage {
-enum class UiStreamReference { MenuTransform1f9c00, MenuTransform1f9c2c };
+class RuwResource;
+enum class UiStreamReference { MenuTransform1f9c00, MenuTransform1f9c2c,
+                               RuwMetrics200b78, RuwClip200b88 };
+struct UiWidgetReference {
+    std::shared_ptr<const RuwResource> resource;
+    std::size_t group,index;
+};
 struct UiStreamCommand {
     std::uint32_t opcode;
-    std::variant<std::uint32_t,UiStreamReference> argument;
+    std::variant<std::uint32_t,UiStreamReference,UiWidgetReference> argument;
 };
 struct UiStreamText { std::vector<std::uint8_t> bytes; }; // Explicit NUL required.
 struct UiWindowStream {
     std::uint32_t binding_id;
     std::vector<std::variant<UiStreamCommand,UiStreamText>> entries;
+    bool embedded_ruw=false;
 };
 
 class UiWindowBuffer {
@@ -63,6 +70,7 @@ public:
     float opacity() const;
     void set_transform_xyz(const std::array<std::uint32_t,3>& first_bits,
                            const std::array<std::uint32_t,3>& second_bits);
+    void bind_ruw(std::shared_ptr<RuwResource>,std::span<const std::size_t> groups);
 
     bool configure(const std::array<std::uint32_t,28>& authored,
                    std::span<const AtlasTuple> atlas,
