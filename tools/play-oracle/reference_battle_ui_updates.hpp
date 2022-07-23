@@ -26,7 +26,7 @@ public:
               <<"\"pairing\":\"entry RA is the exact dynamic caller continuation; return requires matching PC, restored SP, same battle root, and same root+8060 manager\","
               <<"\"callbacks\":[\"0x11fec8 first-layer dispatcher\",\"0x120ad0 second-layer dispatcher\"],"
               <<"\"stream_extent_note\":\"External authored streams are copied only for their source-established five-word prefix. For each window whose active source is its embedded stream, copy cursor+1 words (including the terminator), with cursor<=511 and at most 512 words; this is not an allocation-boundary claim\","
-              <<"\"embedded_stream_note\":\"Opcode 0x17 pointer operands are normalized to offsets within the validated RUW raw widget-record owner; all non-0x17 words remain exact source words. Glyph output allocations are copied at source extent (window+3c00 plus one) times 256 bytes; capacity+1 is capped at 32\","
+              <<"\"embedded_stream_note\":\"Opcode 0x17 pointer operands are normalized to offsets within the validated RUW raw widget-record owner; all non-0x17 words remain exact source words. Glyph output allocations are copied at source extent (window+3c00 plus one) times 256 bytes; capacity is capped at 32\","
               <<"\"pad_scope\":\"Only sourced globals 0x33958c, 0x339590, 0x1fcb60, 0x1fcb64, and 0x1fcb68 are captured\","
               <<"\"elf_sha256\":\"2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5\"}\n";
         flush();
@@ -76,7 +76,7 @@ public:
         memory.require(manager,0xef0);
         if(memory.word(manager+0xe40)!=2)
             fail("target UI manager no longer has the two authored layers");
-        BattleUiTrace::validateManager(memory,manager);
+        validateUpdateManager(memory,manager);
         const uint32 returnPc=reg(CMIPS::RA);
         if((returnPc&3)||returnPc<0x100000||returnPc>=PS2::EE_RAM_SIZE||returnPc==pc)
             fail("target UI callback has an invalid live return PC");
@@ -121,6 +121,28 @@ private:
     }
     void flush() {output.flush();if(!output)fail("trace write failure");}
 
+    static void validateUpdateManager(const BattleUiTrace::Memory& memory,uint32 manager) {
+        if(memory.word(manager+0xe40)!=2||memory.word(manager+0xe90)!=0||memory.word(manager+0xe94)!=1)
+            fail("manager does not contain the two source-ordered interface layers");
+        for(unsigned index=0;index<2;++index) {
+            const auto layer=manager+0x40+index*0xe0,record=0x248100+index*112;
+            memory.require(layer,0xe0);
+            const auto handle=memory.word(layer),type=memory.word(layer+0x60);
+            const auto callback=memory.word(layer+0x5c);
+            const auto expectedType=index?3u:2u,expectedCallback=index?0x1684d0u:0x164090u;
+            if(handle>=8||memory.word(layer+0x54)!=memory.word(record)||type!=expectedType||callback!=expectedCallback)
+                fail("manager layer differs from the authored identity/callback");
+            const auto window=memory.word(0x200688+handle*4);
+            memory.require(window,BattleUiTrace::controllerBytes);
+            const auto stream=memory.word(window+0x2698);
+            if(memory.word(window+4)!=handle||
+               (stream!=memory.word(record+0x54)&&stream!=window+0x26dc)||
+               memory.word(window+0x3c00)!=memory.word(record+0x64)||
+               memory.word(window+0x3c04)!=memory.word(record+0x68))
+                fail("controller window differs from authored identity/capacity or known stream state");
+        }
+    }
+
     void snapshot(const char* event,unsigned frame,uint32 pc,uint32 ra,uint32 sp,uint32 fcsr,
                   const BattleUiTrace::Memory& memory,const Call& call,bool post) {
         if(++rows>8)fail("snapshot count exceeds four paired callbacks");
@@ -146,7 +168,6 @@ private:
         memory.bytes(row,"stream_type2_written_extent",0x1fd820,20);
         memory.bytes(row,"stream_type3_written_extent",0x1fdb88,20);
         BattleUiTrace::captureGlobals(row,memory);
-        memory.bytes(row,"party_selection_counts_and_table",0x1fae18,0x120);
         row<<",\"party_selection_cache_unchanged_during_callback\":"
            <<(std::memcmp(call.partySelection.data(),memory.ee.m_ram+0x1fae18,
                           call.partySelection.size())==0?"true":"false");
@@ -188,7 +209,7 @@ private:
             const auto active=memory.word(window+0x2698);
             const auto embedded=window+0x26dc;
             const auto capacity=memory.word(window+0x3c00);
-            if(capacity>=32)fail("UI glyph-buffer allocation capacity+1 exceeds source bound 32");
+            if(capacity>32)fail("UI glyph-buffer allocation capacity+1 exceeds source bound 33");
             const auto bufferBytes=(capacity+1)*256;
             if(!first)row<<',';first=false;
             row<<"{\"slot\":"<<slot<<",\"window\":"<<window
@@ -199,23 +220,24 @@ private:
                 if(cursor>511)fail("embedded UI command cursor exceeds source bound 511");
                 const auto count=cursor+1;
                 memory.require(embedded,count*4);
+                if(count<5||memory.word(embedded)!=0x0e||memory.word(embedded+4)!=0x200b78||
+                   memory.word(embedded+8)!=6||memory.word(embedded+12)!=0x200b88||
+                   memory.word(embedded+(count-1)*4)!=0)
+                    fail("embedded command stream lacks its authored prefix or final terminator");
                 row<<",\"cursor\":"<<cursor<<",\"word_count_including_terminator\":"<<count<<",\"words\":[";
-                for(uint32 index=0;index<count;++index) {
+                for(uint32 index=0;index<4;++index) {
                     if(index)row<<',';
-                    const auto value=memory.word(embedded+index*4);
-                    if(value==0x17) {
-                        if(index+1>=count)fail("embedded widget opcode lacks pointer operand");
-                        const auto pointer=memory.word(embedded+(index+1)*4);
-                        if(pointer<widgetBase||pointer-widgetBase>=widgetBytes||(pointer-widgetBase)%68)
-                            fail("embedded widget pointer is outside a RUW raw widget record");
-                        row<<value;
-                        ++index;
-                        row<<','<<"{\"raw_widget_offset\":"<<(pointer-raw)<<'}';
-                    } else {
-                        row<<value;
-                    }
+                    row<<memory.word(embedded+index*4);
                 }
-                row<<']';
+                for(uint32 index=4;index<count-1;index+=2) {
+                    if(memory.word(embedded+index*4)!=0x17||index+1>=count-1)
+                        fail("embedded command stream contains an unknown opcode or incomplete widget pair");
+                    const auto pointer=memory.word(embedded+(index+1)*4);
+                    if(pointer<widgetBase||pointer-widgetBase>=widgetBytes||(pointer-widgetBase)%68)
+                        fail("embedded widget pointer is outside a RUW raw widget record");
+                    row<<",23,{\"raw_widget_offset\":"<<(pointer-raw)<<'}';
+                }
+                row<<",0]";
             }
             row<<",\"glyph_buffer_capacity\":"<<capacity<<",\"glyph_buffer_allocation_count\":"<<capacity+1
                <<",\"glyph_buffer_extent_bytes\":"<<bufferBytes;
