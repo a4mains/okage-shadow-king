@@ -47,26 +47,43 @@ void set_color(RuwWidget& widget,std::array<std::int32_t,4> values,unsigned colo
     if(widget.words[4]&0x20)alpha=std::min(alpha,widget.words[2+color]>>24);
     target=(target&0xffffff)|(alpha<<24);update_show(widget,alpha);
 }
-std::uint32_t add_color(RuwWidget& widget,const std::array<std::int32_t,4>& delta,bool both_alpha) {
+std::uint32_t add_color(RuwWidget& widget,const std::array<std::int32_t,4>& delta,bool both_alpha,
+                        unsigned color=0) {
     if(!widget.runtime)return 0;
     auto& w=widget.runtime->words;std::uint32_t clipped=0;
     for(unsigned c=0;c<4;++c) {
         if(delta[c]==RuwResource::preserve_component)continue;
         // EE ADDU wraps before signed comparisons, including extreme deltas.
-        const auto sum=__builtin_bit_cast(std::int32_t, (((w[4]>>(8*c))&255u)+std::uint32_t(delta[c])));
+        const auto sum=__builtin_bit_cast(std::int32_t, (((w[4+color]>>(8*c))&255u)+std::uint32_t(delta[c])));
         std::uint32_t value;
         if(sum<0){value=0;clipped|=1u<<c;}else value=std::uint32_t(sum);
         if(c==3&&(widget.words[4]&0x20)) {
-            const auto cap=widget.words[2]>>24;
-            if(value>cap){value=cap;clipped|=8;}
+            const auto cap=widget.words[2+color]>>24;
+            if(value>cap){value=cap;if(color==0)clipped|=8;}
         }
         const auto maximum=c==3?128u:255u;
         if(value>maximum){value=maximum;clipped|=1u<<c;}
-        w[4]=(w[4]&~(255u<<(8*c)))|(value<<(8*c));
+        w[4+color]=(w[4+color]&~(255u<<(8*c)))|(value<<(8*c));
         if(c==3) {
             //1ab600 changes both colors;1aa938 changes only the first.
             if(both_alpha)w[5]=(w[5]&0xffffff)|(value<<24);
             update_show(widget,value);
+        }
+    }
+    return clipped;
+}
+std::uint32_t add_pair(RuwWidget& widget,unsigned first,std::array<std::int32_t,2> delta,
+                       std::array<std::int32_t,2> limit) {
+    if(!widget.runtime)return 0;
+    std::uint32_t clipped=0;
+    for(unsigned axis=0;axis<2;++axis) {
+        if(delta[axis]==RuwResource::preserve_component)continue;
+        auto& target=widget.runtime->words[first+axis];
+        target+=std::uint32_t(delta[axis]); // EE ADDU before signed comparison.
+        if(limit[axis]==RuwResource::preserve_component)continue;
+        const auto value=__builtin_bit_cast(std::int32_t, (target));
+        if(delta[axis]>0?value>limit[axis]:value<limit[axis]) {
+            target=std::uint32_t(limit[axis]);clipped|=1u<<axis;
         }
     }
     return clipped;
@@ -165,6 +182,9 @@ std::uint32_t RuwResource::add_class_rgba(std::size_t group,std::int32_t class_i
 std::uint32_t RuwResource::add_rgba(std::size_t group,std::int32_t id,std::array<std::int32_t,4> delta) {
     return add_color(mutable_widget(group,id),delta,false);
 }
+std::uint32_t RuwResource::add_secondary_rgba(std::size_t group,std::int32_t id,std::array<std::int32_t,4> delta) {
+    return add_color(mutable_widget(group,id),delta,false,1);
+}
 void RuwResource::reset_class(std::size_t group,std::int32_t class_id) {
     for(auto& widget:mutable_group(group)) {
         if(!widget.runtime||widget.words[8]!=std::uint32_t(class_id))continue;
@@ -191,6 +211,14 @@ void RuwResource::set_position(std::size_t group,std::int32_t id,std::int32_t x,
     auto& widget=mutable_widget(group,id);if(!widget.runtime)return;
     if(x!=preserve_component)widget.runtime->words[6]=std::uint32_t(x);
     if(y!=preserve_component)widget.runtime->words[7]=std::uint32_t(y);
+}
+std::uint32_t RuwResource::add_extent(std::size_t group,std::int32_t id,
+    std::int32_t dx,std::int32_t dy,std::int32_t lx,std::int32_t ly) {
+    return add_pair(mutable_widget(group,id),8,{dx,dy},{lx,ly});
+}
+std::uint32_t RuwResource::add_position(std::size_t group,std::int32_t id,
+    std::int32_t dx,std::int32_t dy,std::int32_t lx,std::int32_t ly) {
+    return add_pair(mutable_widget(group,id),6,{dx,dy},{lx,ly});
 }
 void RuwResource::set_runtime_word0(std::size_t group,std::int32_t id,std::uint32_t value) {
     auto& widget=mutable_widget(group,id);if(widget.runtime)widget.runtime->words[0]=value;

@@ -36,6 +36,92 @@ std::vector<std::uint8_t> mutable_fixture() {
     return b;
 }
 constexpr auto keep=okage::RuwResource::preserve_component;
+void additive_pair_tests() {
+    constexpr auto low=std::numeric_limits<std::int32_t>::min();
+    constexpr auto high=std::numeric_limits<std::int32_t>::max();
+    struct Case {std::int32_t x,y,dx,dy,lx,ly,out_x,out_y;std::uint32_t mask;};
+    const std::array cases={
+        Case{10,20,5,-5,15,15,15,15,0}, // Equality does not report a clamp.
+        Case{10,20,6,-6,15,15,15,15,3},
+        Case{10,20,0,0,11,19,11,20,1}, // Zero delta takes the lower-limit branch.
+        Case{10,20,0,0,10,21,10,21,2},
+        Case{10,20,keep,keep,99,-99,10,20,0},
+        Case{10,20,5,-5,keep,keep,15,15,0},
+        Case{10,20,keep,3,0,22,10,22,2},
+        Case{10,20,-20,keep,-5,0,-5,20,1},
+        Case{high,low,1,-1,keep,keep,low,high,0},
+        Case{high,low,1,-1,0,0,low,high,0}, // Compare the wrapped result.
+        Case{1,-1,high,low,keep,keep,low,high,0},
+        Case{low,high,0,0,low,high,low,high,0},
+        Case{100,-100,1,-1,-50,50,-50,50,3}, // No direction/range normalization.
+        Case{-3001,7,1,0,keep,keep,-3000,7,0}}; // Result sentinel is ordinary data.
+    const std::array methods={&okage::RuwResource::add_position,&okage::RuwResource::add_extent};
+    for(unsigned method=0;method<methods.size();++method)for(const auto& c:cases) {
+        auto bytes=mutable_fixture();const unsigned raw_first=method?13:11;
+        put(bytes,108+raw_first*4,std::uint32_t(c.x));
+        put(bytes,108+(raw_first+1)*4,std::uint32_t(c.y));
+        okage::RuwResource r(bytes);const auto before=r.widget(3,9),neighbor=r.widget(3,2);
+        const auto* runtime=&*r.widget(3,9).runtime;const auto* text=runtime->text->data();
+        require((r.*methods[method])(3,9,c.dx,c.dy,c.lx,c.ly)==c.mask);
+        auto expected=before.runtime->words;const unsigned first=method?8:6;
+        expected[first]=std::uint32_t(c.out_x);expected[first+1]=std::uint32_t(c.out_y);
+        require(r.widget(3,9).runtime->words==expected&&r.widget(3,9).words==before.words);
+        require(r.widget(3,9).runtime->text==before.runtime->text&&&*r.widget(3,9).runtime==runtime&&runtime->text->data()==text);
+        require(r.widget(3,2).words==neighbor.words&&r.widget(3,2).runtime->words==neighbor.runtime->words);
+    }
+    okage::RuwResource r(mutable_fixture());const auto absent=r.widget(3,1).words;
+    for(const auto method:methods) {
+        require((r.*method)(3,1,high,low,high,low)==0);
+        require(!r.widget(3,1).runtime&&r.widget(3,1).words==absent);
+        rejects([&]{(r.*method)(4,0,1,2,3,4);});
+        rejects([&]{(r.*method)(3,-1,1,2,3,4);});
+        rejects([&]{(r.*method)(3,99,1,2,3,4);});
+    }
+}
+void additive_secondary_tests() {
+    constexpr auto high=std::numeric_limits<std::int32_t>::max();
+    struct Case {
+        std::uint32_t color,flags;std::array<std::int32_t,4> delta;
+        std::uint32_t expected,mask;bool shown;
+    };
+    const std::array cases={
+        Case{0x40203040,0x61,{keep,keep,keep,1},0x40203040,0,true}, // Authored cap alone is silent.
+        Case{0xc8203040,0x61,{keep,keep,keep,100},0x80203040,8,true}, // Authored cap then128.
+        Case{0x00203040,0x61,{keep,keep,keep,128},0x00203040,0,false},
+        Case{0x80203040,0x41,{keep,keep,keep,-128},0x00203040,0,false},
+        Case{0x80203040,0x41,{keep,keep,keep,-129},0x00203040,8,false},
+        Case{0x80203040,0x41,{keep,keep,keep,high},0x00203040,8,false},
+        Case{0xff203040,0x41,{keep,keep,keep,0},0x80203040,8,true},
+        Case{0xff203040,0x61,{keep,keep,keep,keep},0xff203040,0,true},
+        Case{0x807f01fa,0x41,{10,-5,200,0},0x80ff00ff,7,true},
+        Case{0x80203064,0x41,{high,keep,keep,keep},0x80203000,1,true},
+        Case{0x80203040,0x40,{0,0,0,0},0x80203040,0,false}, // No8000: don't change raw showbit.
+        Case{0x80203040,0x41,{keep,keep,keep,1},0x80203040,8,true}};
+    for(const auto& c:cases) {
+        auto bytes=mutable_fixture();put(bytes,108+12,c.color);put(bytes,108+16,c.flags);
+        okage::RuwResource r(bytes);const auto before=r.widget(3,9),neighbor=r.widget(3,2);
+        const auto* runtime=&*r.widget(3,9).runtime;const auto* text=runtime->text->data();
+        require(r.add_secondary_rgba(3,9,c.delta)==c.mask);
+        auto expected=before.runtime->words;expected[5]=c.expected;
+        auto raw=before.words;raw[4]=c.shown?raw[4]|1u:raw[4]&~1u;
+        require(r.widget(3,9).runtime->words==expected&&r.widget(3,9).words==raw);
+        require(runtime->text==before.runtime->text&&&*r.widget(3,9).runtime==runtime&&runtime->text->data()==text);
+        require(r.widget(3,2).words==neighbor.words&&r.widget(3,2).runtime->words==neighbor.runtime->words);
+    }
+    okage::RuwResource r(mutable_fixture());
+    const auto primary=r.widget(3,8).runtime->words[4];
+    require(r.add_secondary_rgba(3,8,{keep,keep,keep,-128})==0);
+    require(!(r.widget(3,8).words[4]&1));
+    require(r.add_secondary_rgba(3,8,{keep,keep,keep,128})==0);
+    require(r.widget(3,8).words[4]&1);
+    require(r.widget(3,8).runtime->words[4]==primary&&r.widget(3,8).runtime->words[5]==0x80203040);
+    const auto absent=r.widget(3,1).words;
+    require(r.add_secondary_rgba(3,1,{high,high,high,high})==0);
+    require(!r.widget(3,1).runtime&&r.widget(3,1).words==absent);
+    rejects([&]{r.add_secondary_rgba(4,0,{1,2,3,4});});
+    rejects([&]{r.add_secondary_rgba(3,-1,{1,2,3,4});});
+    rejects([&]{r.add_secondary_rgba(3,99,{1,2,3,4});});
+}
 void binding_tests() {
     auto bytes=mutable_fixture();
     // The gate is word9==1, independently of text/sprite type and visibility.
@@ -209,7 +295,7 @@ int main(int argc,char** argv){try {
     if(argc==3&&std::string_view(argv[1])=="--diagnostic") {
         diagnostic(argv[2]);std::cout<<"Owned RUW mutation diagnostic passed\n";return 0;
     }
-    require(argc==1);mutation_tests();fill_tests();binding_tests();
+    require(argc==1);mutation_tests();fill_tests();binding_tests();additive_pair_tests();additive_secondary_tests();
     std::vector<std::uint8_t> b(32+16+7*68);
     put(b,8,1);put(b,12,1);put(b,16,2);
     put(b,20,1);put(b,24,2);put(b,28,4);

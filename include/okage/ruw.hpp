@@ -30,10 +30,15 @@ public:
     void set_secondary_rgba(std::size_t group,std::int32_t authored_id,std::array<std::int32_t,4>);
     std::uint32_t add_class_rgba(std::size_t group,std::int32_t class_id,std::array<std::int32_t,4>);
     std::uint32_t add_rgba(std::size_t group,std::int32_t authored_id,std::array<std::int32_t,4>);
+    std::uint32_t add_secondary_rgba(std::size_t group,std::int32_t authored_id,std::array<std::int32_t,4>);
     void reset_class(std::size_t group,std::int32_t class_id);
     void reset_widget(std::size_t group,std::int32_t authored_id);
     void set_text(std::size_t group,std::int32_t authored_id,std::string_view);
     void set_position(std::size_t group,std::int32_t authored_id,std::int32_t x,std::int32_t y);
+    std::uint32_t add_extent(std::size_t group,std::int32_t authored_id,
+        std::int32_t delta_x,std::int32_t delta_y,std::int32_t limit_x,std::int32_t limit_y);
+    std::uint32_t add_position(std::size_t group,std::int32_t authored_id,
+        std::int32_t delta_x,std::int32_t delta_y,std::int32_t limit_x,std::int32_t limit_y);
     void set_runtime_word0(std::size_t group,std::int32_t authored_id,std::uint32_t);
     void set_fill_fraction(std::size_t group,std::int32_t authored_id,float);
     void prepare_group_binding(std::size_t group);
