@@ -136,7 +136,7 @@ private:
             memory.require(window,BattleUiTrace::controllerBytes);
             const auto stream=memory.word(window+0x2698);
             if(memory.word(window+4)!=handle||
-               (stream!=memory.word(record+0x54)&&stream!=window+0x26dc)||
+               (stream!=memory.word(record)&&stream!=window+0x26dc)||
                memory.word(window+0x3c00)!=memory.word(record+0x64)||
                memory.word(window+0x3c04)!=memory.word(record+0x68))
                 fail("controller window differs from authored identity/capacity or known stream state");
@@ -209,7 +209,7 @@ private:
             const auto active=memory.word(window+0x2698);
             const auto embedded=window+0x26dc;
             const auto capacity=memory.word(window+0x3c00);
-            if(capacity>32)fail("UI glyph-buffer allocation capacity+1 exceeds source bound 33");
+            if(capacity<1||capacity>32)fail("UI glyph-buffer capacity is outside source bound 1..32");
             const auto bufferBytes=(capacity+1)*256;
             if(!first)row<<',';first=false;
             row<<"{\"slot\":"<<slot<<",\"window\":"<<window
