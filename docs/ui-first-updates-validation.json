@@ -1,0 +1,509 @@
+{
+  "schema": "okage-ui-first-updates-validation-v1",
+  "date": "2022-07-30",
+  "source_revision": "827eab5f200e75e263f0bc2db0c75919f4e2d317",
+  "scope": "Native scalar setters/RUW binding and bounded first-callback original comparison; active native callbacks/clock/layout/combat remain unimplemented",
+  "sources": [
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 12108,
+      "sha256": "423b23fe04127455a1d84d0d5b22886d2f6641d43c728a688cb4d53f4de1887f"
+    },
+    {
+      "path": "include/okage/battle_hud.hpp",
+      "bytes": 1674,
+      "sha256": "6a721561dbb07d202a989a07f7085ac72caeeeeebd2abc9586390d9ce3526010"
+    },
+    {
+      "path": "include/okage/battle_interface.hpp",
+      "bytes": 1237,
+      "sha256": "6a06adb851b5538165950f2bb7811e84286f43a3c07bb720e4ded17e3d6c66c8"
+    },
+    {
+      "path": "include/okage/battle_ui.hpp",
+      "bytes": 1001,
+      "sha256": "368c5c5c471527bbf51c267ffe9e23d5c541464477edf5ac5e797c9e307390db"
+    },
+    {
+      "path": "include/okage/game_state.hpp",
+      "bytes": 1879,
+      "sha256": "e68816021dd95251cebf08c93bb7fd43c747a8153cc9d1eea8aab81ab22ccde0"
+    },
+    {
+      "path": "include/okage/ruw.hpp",
+      "bytes": 2924,
+      "sha256": "27023328cca4b2404b6296e6665e0e9e32c3333e87a39b47f2fd30f3d395799e"
+    },
+    {
+      "path": "include/okage/ui_window.hpp",
+      "bytes": 3511,
+      "sha256": "66485968e5f46cceff1da06c8428ee04889ce9f37d91614a670860a25dee91fb"
+    },
+    {
+      "path": "src/battle_hud.cpp",
+      "bytes": 13304,
+      "sha256": "069654c033e0e11a7dbc18c977ed1178a71c9d643f27e5d4ba118b6c0f58c6d9"
+    },
+    {
+      "path": "src/battle_interface.cpp",
+      "bytes": 3295,
+      "sha256": "863ba7e76d4aa4f264d7861cb75559b5e36d9385a61acdda4a0e05aab67fc584"
+    },
+    {
+      "path": "src/battle_session.hpp",
+      "bytes": 1530,
+      "sha256": "e651159d1acfba7e19bf5cbcd460ce893a7d5920a042dfb3f272d802f244a626"
+    },
+    {
+      "path": "src/battle_session.mm",
+      "bytes": 22973,
+      "sha256": "833cf6280909c3de4067a9673c94fa0db73fd1d0b6c1ea1535f4fdf7c80cb2ce"
+    },
+    {
+      "path": "src/battle_ui.cpp",
+      "bytes": 3811,
+      "sha256": "3453e5dcc20550ee9cd75584d4557e64adb869f55e61eeaa6e5d14bf17cbfcba"
+    },
+    {
+      "path": "src/game_state.cpp",
+      "bytes": 9568,
+      "sha256": "4ae6071be1912e0eef916f3bca1afb060ba52ff9f4d6751e6b73b35c3e5c8abd"
+    },
+    {
+      "path": "src/native_runtime.mm",
+      "bytes": 101557,
+      "sha256": "9000a044cd13ec51f7627a34c3d5d6b9a00e10acb6151bb13f1b61e242af07b2"
+    },
+    {
+      "path": "src/ruw.cpp",
+      "bytes": 12024,
+      "sha256": "22fc66a4bc0975d91a8d8db7f3897adbc7ec3e3e4ad8af7779524973c3a15ef1"
+    },
+    {
+      "path": "src/ui_window.cpp",
+      "bytes": 9558,
+      "sha256": "3d751fdf905da1b71f374bba285794751dff7ab8c1a92d0e49e9c3d640cc6a68"
+    },
+    {
+      "path": "src/ui_window_binding.cpp",
+      "bytes": 2211,
+      "sha256": "b4ca851776755b05113cc12b8e75967ea5862378106a67922eddc4ef2a571cda"
+    },
+    {
+      "path": "tests/battle_hud_tests.cpp",
+      "bytes": 5694,
+      "sha256": "4413eb4d52c74484bca7bc5269e8a6c8f52da273585767a275e559d0e838e59d"
+    },
+    {
+      "path": "tests/battle_ui_tests.cpp",
+      "bytes": 8795,
+      "sha256": "10fc9648e5055cda6afc4ce1366f9e9cc16b1d7d6e6cc5d2a7f2df3e5efcb99e"
+    },
+    {
+      "path": "tests/game_state_tests.cpp",
+      "bytes": 18561,
+      "sha256": "f53eb2c7a56ef2e22776f6d094929e3403c5a12ea0d7f30c7573295a793be4c6"
+    },
+    {
+      "path": "tests/ruw_tests.cpp",
+      "bytes": 19691,
+      "sha256": "689c4a2d9f51ced671c3566f2d57f9191817d3deb6e6e4377a3dc1357708fc8b"
+    },
+    {
+      "path": "tests/test_import_battle_hud.py",
+      "bytes": 7863,
+      "sha256": "302d399d77515b4beed7b0dddfa087a89c72475c66f582c71335613afad5e61d"
+    },
+    {
+      "path": "tests/test_import_battle_ui.py",
+      "bytes": 6657,
+      "sha256": "0ca0cdd81269a2961d800baa5df1699cdfd9c31a0ba77a6a5fa151027b11f154"
+    },
+    {
+      "path": "tests/test_verify_battle_hud.py",
+      "bytes": 8973,
+      "sha256": "9ca796871701bafb1f1628a750b9dfc1e703aba861635ea36f413466c06c2096"
+    },
+    {
+      "path": "tests/test_verify_battle_interface.py",
+      "bytes": 11232,
+      "sha256": "44ece60cdef0771df328fd7f39a3d466732dc044ab0d8f97ae619068ba600362"
+    },
+    {
+      "path": "tests/test_verify_ui_binding.py",
+      "bytes": 11105,
+      "sha256": "5df808f02f8c45483b727ee6862290fc0c685fabd5bfdee91d0884d3f993b159"
+    },
+    {
+      "path": "tests/test_verify_ui_window.py",
+      "bytes": 9449,
+      "sha256": "3352d9230b2901297761cfd6b7965f84d9f188bc7dfe54b20b8150fcfe9b7eb2"
+    },
+    {
+      "path": "tests/ui_window_tests.cpp",
+      "bytes": 16348,
+      "sha256": "0390fae61aa6a7b55072c83f4e0211785e302447aedacb3a1ec894b83bfe5402"
+    },
+    {
+      "path": "tools/import_battle_hud.py",
+      "bytes": 6686,
+      "sha256": "5161b08580d2920b77fa0c128de61ea6ebd8fe5277781d21cfa4ba080d6b2503"
+    },
+    {
+      "path": "tools/import_battle_resources.py",
+      "bytes": 8456,
+      "sha256": "a3a54dccaaa4cd8cddb9b5570bd2464587de18d566c83fade69ddbb10730cf7f"
+    },
+    {
+      "path": "tools/import_battle_ui.py",
+      "bytes": 7184,
+      "sha256": "cc7b39162052d48c64eed0fc52ec83f631faf7692903694381c483f739bae2d9"
+    },
+    {
+      "path": "tools/play-oracle/boot.cpp",
+      "bytes": 44058,
+      "sha256": "c3d3b0b22cd42926f323d73d4cdc23c00a8a074f1c17c00f9865e44d5bb9ec0a"
+    },
+    {
+      "path": "tools/play-oracle/reference_battle_ui.hpp",
+      "bytes": 15612,
+      "sha256": "9839427dba5862f692235c7772660ee00d40c470df8bf42579f39bd073c9b6b1"
+    },
+    {
+      "path": "tools/play-oracle/reference_battle_ui_updates.hpp",
+      "bytes": 14450,
+      "sha256": "2e51dbde7f918e30be26823c6789cf971f6f975ae5bc838d8209c49b00f4f596"
+    },
+    {
+      "path": "tools/ui_binding_diagnostic.cpp",
+      "bytes": 4151,
+      "sha256": "f0ead758d33823659b9be9ccc3acf4b2e5c455556ce42ff3fd5cba38beaa483f"
+    },
+    {
+      "path": "tools/verify_battle_hud.py",
+      "bytes": 16585,
+      "sha256": "f8669b4220f5f5ecf908866ab82b83f7113f8792427368475fdf1f3e1d15a9b4"
+    },
+    {
+      "path": "tools/verify_battle_interface.py",
+      "bytes": 11351,
+      "sha256": "b58bfad6cdcd0da434c67b5888f9c53d2f1f37bf43752c2d270e64a13ad18724"
+    },
+    {
+      "path": "tools/verify_ui_binding.py",
+      "bytes": 19933,
+      "sha256": "d4ff670f4a898d6b5d4efc4f828b4b6ad6422e1522c392bb801872c50caee320"
+    },
+    {
+      "path": "tools/verify_ui_window.py",
+      "bytes": 16116,
+      "sha256": "39352657cb4d77169694aa9291b46d363081dba7b57bbbcbee8a3c679f24616b"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "local/extracted/SCUS_971.29",
+      "bytes": 1374220,
+      "sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
+    },
+    {
+      "path": "local/battle-input-v1/BTL.RUW",
+      "bytes": 19596,
+      "sha256": "2bc4de13d79919a53e7962250ea40acca28bb0e027ee750f35a87b6903dc8800"
+    },
+    {
+      "path": "local/battle-input-v1/battle-ui.bin",
+      "bytes": 312,
+      "sha256": "055db32092309d9face66e7cba1c14b23c8b4ef6e106674e95ebbd8f07b49381"
+    },
+    {
+      "path": "local/battle-input-v1/battle-hud.bin",
+      "bytes": 352,
+      "sha256": "265a3fab66c47102b63516b6139895a944c6c6a292afa28cf22611e2c795d8bd"
+    },
+    {
+      "path": "local/text-input/CMNDATA/XDB/BKDATA.XDB",
+      "bytes": 66278,
+      "sha256": "973964019ddb24d033b0e10f4f3e2cf72fafdee9bdb25ee143ee87c832b0aff4"
+    },
+    {
+      "path": "local/text-input/CMNDATA/XDB/ITEM.XDB",
+      "bytes": 27796,
+      "sha256": "d3c0af83a4f47a8e5960f9181bdd72649692b80dafeb387395307130804c7cce"
+    },
+    {
+      "path": "local/native-battle-ui-data-104448-release-v1.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "efdbf2965e4c5992b74bb2d6f01e12cd4b46317e2319a8822e91521af784241f"
+    },
+    {
+      "path": "local/reference-field1d-tenel-first-ghost-stand-240-v1.state.zip",
+      "bytes": 11262188,
+      "sha256": "100ab685c68a5a7153093f5f5865be83dde9fe05af56bac71625997bff564eef"
+    },
+    {
+      "path": "local/reference-field1d-tenel-first-ghost-last-warning-240-v1.input",
+      "bytes": 90,
+      "sha256": "c357717e839b7fcc7cbbe76ebd2c007afb140d6a898ec289c748fe2ffdcb2ac5"
+    }
+  ],
+  "binaries": [
+    {
+      "path": "/Users/user/src/okage-shadow-king/local/worktrees/battle-ui-updates-observer-v1/build/battle-ui-updates-observer-v1/okage-oracle/okage-boot-oracle",
+      "bytes": 17014144,
+      "sha256": "30c2924a9d846ead4c111ee12560842ee67c6339a2a88adb8d026e3d20f4fdda"
+    },
+    {
+      "path": "build/native-release/okage-ui-binding",
+      "bytes": 234736,
+      "sha256": "15a8bfa3a9c9566973e5fb37d502c93a97dbe45fe958fcd626fed80488ccdb43"
+    },
+    {
+      "path": "build/native/okage-ui-binding",
+      "bytes": 1411120,
+      "sha256": "220c84f269d191271dc36d9bd578f7f20adb40126c4d51a2870961d7a78841de"
+    },
+    {
+      "path": "build/model-sanitize/okage-ui-binding",
+      "bytes": 3920576,
+      "sha256": "557a07544865e648cddd71c70b364b2d791bfe1a785eba00edb300d21bb01c4c"
+    },
+    {
+      "path": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+      "bytes": 1546384,
+      "sha256": "ce52acc4acd02250c602f13b708038761b51b9c79e0eebeb21540b061c4d6f3e"
+    }
+  ],
+  "runs": [
+    {
+      "path": "local/research/ui-first-update-v1/natural-ui-updates-v1.run.json",
+      "bytes": 2145,
+      "sha256": "a577e2aa56f633d780e477b010a8096e1e18a621c864440a87e2a82e5bc74262"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/binding-check-runs-v3.json",
+      "bytes": 4635,
+      "sha256": "e066ca25ef57180f11bc45321d4e81b989064da6aa01fdf6b20069a1a5faba40"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/binding-comparison-runs-v1.json",
+      "bytes": 1371,
+      "sha256": "d61292a35eea4e03f93d3855dc3b680f0edfca7cb4aaf147ea92078236ed820a"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/native-route-verification-runs-v1.json",
+      "bytes": 1735,
+      "sha256": "9d3ef031d3290e042793e30ac59ba9885c08cf6dc6ffc850b2b13f9d542d9c89"
+    },
+    {
+      "path": "local/native-ui-binding-104615-release-v1.run.json",
+      "bytes": 5876,
+      "sha256": "f11cd614d4555f59c8d4be3407f39212a30ed9fb0d60321106ca152a70702242"
+    }
+  ],
+  "comparisons": [
+    {
+      "path": "local/research/ui-first-update-v1/binding-comparison-release-v1.json",
+      "bytes": 23502,
+      "sha256": "0b200d816b7edc4c34a8456bdb15c80a30df126db739846a12064afba6ef51f5"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/binding-comparison-debug-v1.json",
+      "bytes": 23500,
+      "sha256": "6891d67461ef419392216e80f7e06ca15e2947bc7cd21b74b6f042ada49e8284"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/binding-comparison-sanitize-v1.json",
+      "bytes": 23503,
+      "sha256": "7a6c4952d0ce719c6925d1734eb35dc1a6d2c86d4434dd16959fb232d8411cca"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/observer-prefix-comparison-v1.json",
+      "bytes": 2320,
+      "sha256": "2ede2e1d3333e047eccb2e9496fa615640dcb714ebe917ddb2e9bf5c16ee75d4"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/callback-summary-v1.json",
+      "bytes": 5940,
+      "sha256": "85a10bb98676cff51c5af5af5b3739dd5a32a7225fe9f820bd27268976604ba6"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/native-route-comparison-v1.json",
+      "bytes": 619,
+      "sha256": "91b3e9d204beb607ff46726006f1a57a46744d5ea27b3da61b513fae6bd56d6b"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/native-route-hud-comparison-v1.json",
+      "bytes": 2352,
+      "sha256": "d274fecd5664e64739ae764f580e1e63f4f6c4e3621958b912c77b045f28dac6"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/native-route-interface-comparison-v1.json",
+      "bytes": 5059,
+      "sha256": "dbb9c2ea3c658144cfb307266b04ab1d737ecce909255401964963756dfd4557"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/native-route-stage-comparison-v1.json",
+      "bytes": 1678,
+      "sha256": "d37cc42b935c60023c752f7194ab7a626db3596604b2cc5a6d08f115465a63a7"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "local/research/ui-first-update-v1/natural-ui-updates-v1.updates.jsonl",
+      "bytes": 2609856,
+      "sha256": "69ff7cb68d757ff9e8b4e35e3f808421a16d32f0b74cad690580efb7895ba9d4"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/natural-ui-updates-v1.ui.jsonl",
+      "bytes": 425233,
+      "sha256": "6e3355d12c3c11f20bb1a89d542d4fee7a04debb88c609ceb8b15db9d21b2247"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/natural-ui-updates-v1.stage.jsonl",
+      "bytes": 389165,
+      "sha256": "b4f3a92d5e0e7193584ff02ac415c240d0522bb35e4019dde4529b064dd39886"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/native-binding-release-v3.json",
+      "bytes": 159690,
+      "sha256": "62d6a2feb3d2297e31a2f617be73fd82b46d917dedfc4489aff9c482f8639bb5"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/native-binding-debug-v3.json",
+      "bytes": 159690,
+      "sha256": "62d6a2feb3d2297e31a2f617be73fd82b46d917dedfc4489aff9c482f8639bb5"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/native-binding-sanitize-v3.json",
+      "bytes": 159690,
+      "sha256": "62d6a2feb3d2297e31a2f617be73fd82b46d917dedfc4489aff9c482f8639bb5"
+    }
+  ],
+  "logs": [
+    {
+      "path": "local/research/ui-first-update-v1/python-suite-v1.log",
+      "bytes": 32487,
+      "sha256": "b24b9310053c95c228ceea6c73b05e227e6216e08c4a43326d0e9dc3bd894841"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/binding-check-release-0-v3.log",
+      "bytes": 1339,
+      "sha256": "3eb51d1a676bd265bce75ae9bed19d1b6da00ad3b3888d7bf55fbd9c8a56a18a"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/binding-check-release-1-v3.log",
+      "bytes": 631,
+      "sha256": "d3712e3117233d9857f2645f97aa3d786cf09a530848780968289dc182adc81f"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/binding-check-release-2-v3.log",
+      "bytes": 37,
+      "sha256": "6b902ef2942cbfadafc0a5c1ffdc9e10fa30037ca81e158d8432764e207ab0ec"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/binding-check-debug-0-v3.log",
+      "bytes": 1339,
+      "sha256": "7494d16c101f9f403d7432193c63e412020df3934d5b0f5eb0c5b29dd5ff9a14"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/binding-check-debug-1-v3.log",
+      "bytes": 615,
+      "sha256": "71c72255817fa5e4d4520c5871a289830bc158b01ae6c956215c78aaa3c34fbc"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/binding-check-debug-2-v3.log",
+      "bytes": 37,
+      "sha256": "6b902ef2942cbfadafc0a5c1ffdc9e10fa30037ca81e158d8432764e207ab0ec"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/binding-check-sanitize-0-v3.log",
+      "bytes": 1339,
+      "sha256": "c2a216d7f2eea8bca3e20a9ef97d7c5189ad178aadf78fe72f7889e021df4909"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/binding-check-sanitize-1-v3.log",
+      "bytes": 631,
+      "sha256": "83d9c121445be28479831d85ae334a6121f53cdd3e871328c6332da62bc9fffb"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/binding-check-sanitize-2-v3.log",
+      "bytes": 37,
+      "sha256": "6b902ef2942cbfadafc0a5c1ffdc9e10fa30037ca81e158d8432764e207ab0ec"
+    }
+  ],
+  "source_reviews": [
+    {
+      "path": "local/research/ui-first-update-v1/source-review.txt",
+      "bytes": 14981,
+      "sha256": "6c264284c9a50433c67508dc703a91d05c462729e89b35233dc13ea4621c1b5c"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/source-review.json",
+      "bytes": 9642,
+      "sha256": "16dfb803ef0c7bb62640083b75614e2690b66e66703b46110592ac4271c4c011"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/window-update-contract.txt",
+      "bytes": 12963,
+      "sha256": "efb173a409d03874c35c646a541ac2fb8aefe0dca5f8ab8d574d776b2031f9d8"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/binding-integration-review.txt",
+      "bytes": 2736,
+      "sha256": "f7b3cbddb64bb6a3e8a1c2411e6fadc71934f5220dd82bb34c4a47623c31a700"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/binding-comparison-contract.txt",
+      "bytes": 14270,
+      "sha256": "7491ac572244b32fd3d4f7106dc1f6757607a56ee3b47aa8bb9f7c3034db9a9b"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/resource-clock-contract.txt",
+      "bytes": 9462,
+      "sha256": "97186b937521095d87261f45073ef2d5fd99da1956f5ead01b3603ddc7a67803"
+    }
+  ],
+  "tests": {
+    "python": 313,
+    "ctests_per_build": 4,
+    "builds": [
+      "Release",
+      "Debug",
+      "ASan/UBSan"
+    ],
+    "native_app_compiles_all_three": true
+  },
+  "native_route": {
+    "exit_code": 1,
+    "frame": 104453,
+    "prior_frame": 104451,
+    "guard": "Battle UI callbacks, child activation and framebuffer filter rendering are unrecovered",
+    "seconds": 20.610853292,
+    "comparison": "HUD identical; interface/stage/actor construction reports differ only in frame labels. No original loading-time equality or completed battle interval."
+  },
+  "binding_comparison": {
+    "reset_flag_words": 90,
+    "opcode_words": 237,
+    "argument_relations": 235,
+    "active_stream_relations": 2,
+    "glyph_bytes": 22528,
+    "runtime_primary_colors": 229,
+    "eligible_color_writes": 8,
+    "changed_color_values": 0
+  },
+  "retained_failures": [
+    "native-binding-release-v1.json is partial: unsupported HUD diagnostic execution tag; corrected v2/v3 use accepted isolated tag",
+    "native-binding-release-build-v1.log: nonexistent battle-interface-tests target; corrected actual target battle-ui-tests",
+    "Older actor/RNG/loading/raster/audio failures remain unresolved."
+  ],
+  "limits": [
+    "Binding is tested with owned constructors and native-owned variables, not dispatched by native battle gameplay yet.",
+    "Native active callbacks, resource clocks, layout, rendering, shared200a88 write and referenced authored records remain pending.",
+    "Only first11fec8 pair supplies binding comparisons; other pairs guide recovery.",
+    "Additive RUW operations have static source/native tests only, no first-second callback parity.",
+    "No new reference progression beyond104615; next uncaptured104616.",
+    "Native loading completion varies with host worker readiness; frame labels are never fitted.",
+    "No new visible gameplay, performance/listening/controller/save or complete-playthrough claim."
+  ]
+}
