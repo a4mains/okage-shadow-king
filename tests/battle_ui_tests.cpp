@@ -3,6 +3,8 @@
 #include "okage/ui_window.hpp"
 #include "okage/battle_interface.hpp"
 #include <algorithm>
+#include <bit>
+#include <cfenv>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -39,6 +41,39 @@ void rejects(const std::vector<std::uint8_t>& b) {
     catch(const std::runtime_error&) {return;}
     throw std::runtime_error("invalid interface accepted");
 }
+void first_dispatch() {
+    auto b=fixture();
+    put(b,88+0x24,0xbfc00000);put(b,88+112+0x24,0xbfc00000);
+    const okage::BattleUiData data(b);
+    std::vector<std::uint8_t> empty_ruw(48);put(empty_ruw,12,1);put(empty_ruw,16,6);
+    auto resource=std::make_shared<okage::RuwResource>(empty_ruw);
+    okage::BattleUiShared shared;
+    okage::BattleInterface ui(shared,data,std::make_shared<int>(1),0,[](unsigned){});
+    okage::BattleUiPad pad;okage::BattleUiPadInput input{};
+    const int rounding=std::fegetround();std::fesetround(FE_UPWARD);
+    shared.resource_accumulators.fill(123);
+    ui.first_update(resource,pad,input,60);
+    require(std::fegetround()==FE_UPWARD,"first dispatcher restores host rounding");
+    const auto& words=ui.words();
+    require(words[0xe4c/4]==0xffffff9c&&words[0xe50/4]==1,"type2 does not fall through; type3 does");
+    require(words[0xe8c/4]==2&&words[0xe48/4]==1,"state cursor and layer order");
+    require(words[0x114/4]==1&&words[0x1f4/4]==1,"typed callback manager links");
+    require(words[0xa4/4]==19&&words[0x184/4]==0,"initial commands");
+    require(words[0x64/4]==0xbfc00000&&words[0x144/4]!=0xbfc00000,"rotation only type3");
+    require(ui.window(1).word(0x554)==words[0x144/4],"type3 rotation reaches window");
+    require(shared.resource_accumulators[0]==0&&shared.resource_accumulators[1]==123,"only resource slot0 reset");
+    require(ui.window(0).opacity()==128&&ui.window(1).opacity()==128,"callback sets alpha without advancing clock");
+    ui.first_update(resource,pad,input,60);
+    require(words[0xe4c/4]==2&&words[0xa4/4]==0,"type2 -100 advances to 2");
+    bool guarded=false;
+    try{ui.first_update(resource,pad,input,60);}catch(const std::runtime_error&){guarded=true;}
+    require(guarded&&std::fegetround()==FE_UPWARD,"visible interactive type2 remains guarded and restores rounding");
+    shared.registry[0]->set_opacity_tween(0,0,0,128);
+    for(unsigned i=0;i<40;++i)ui.first_update(resource,pad,input,60);
+    require(words[0xe50/4]==2&&words[0x144/4]==0&&ui.window(1).word(0x554)==0,"source rotation completes on positive crossing");
+    require(words[0xe4c/4]==2&&words[0xa4/4]==0xffffffff,"zero-opacity type2 skips interaction");
+    std::fesetround(rounding);
+}
 }
 int main(int argc,char** argv) {
     try {
@@ -74,6 +109,7 @@ int main(int argc,char** argv) {
             std::cout<<"owned battle interface parsed\n";return 0;
         }
         require(argc==1,"usage: battle-ui-tests [--diagnostic owned-battle-ui.bin | --window-diagnostic owned-battle-ui.bin fresh.json]");
+        first_dispatch();
         auto b=fixture();const okage::BattleUiData data(b);b.clear();
         require(data.layers()[0].words[4]==0x80000000&&data.layers()[1].words[16]==0x80808080,"owned literal bits changed");
         require(data.layers()[0].stream()==1&&data.layers()[1].type()==3,"host bindings changed");

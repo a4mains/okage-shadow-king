@@ -22,7 +22,8 @@ void buffer(std::ostream& out,const okage::UiWindowBuffer& b) {
 }
 }
 int main(int argc,char** argv) {try {
-    if(argc!=8)throw std::runtime_error("usage: okage-ui-binding HUD BKDATA ITEM RUW NATIVE_VARIABLES UI FRESH_JSON");
+    const bool first_update=argc==9&&std::string_view(argv[8])=="--first-update";
+    if(argc!=8&&!first_update)throw std::runtime_error("usage: okage-ui-binding HUD BKDATA ITEM RUW NATIVE_VARIABLES UI FRESH_JSON [--first-update]");
     const okage::BattleHudData hud_data(read(argv[1]));
     const okage::GameDataTables tables(read(argv[2]),read(argv[3]));
     auto ruw=std::make_shared<okage::RuwResource>(read(argv[4]));
@@ -38,10 +39,20 @@ int main(int argc,char** argv) {try {
     });
     const std::array<std::size_t,3> type2{2,3,4};
     const std::array<std::size_t,1> type3{5};
-    shared.registry.at(interface.handles()[0])->bind_ruw(ruw,type2);
-    shared.registry.at(interface.handles()[1])->bind_ruw(ruw,type3);
+    const auto before=interface.words();
+    std::array<std::vector<std::optional<std::uint32_t>>,2> windows_before;
+    for(unsigned i=0;i<2;++i)for(unsigned at=0;at<okage::UiWindow::scalar_bytes;at+=4)
+        windows_before[i].push_back(interface.window(i).known_word(at));
+    okage::BattleUiPad pad;
+    if(first_update)interface.first_update(ruw,pad,{},60);
+    else {
+        shared.registry.at(interface.handles()[0])->bind_ruw(ruw,type2);
+        shared.registry.at(interface.handles()[1])->bind_ruw(ruw,type3);
+    }
     std::ofstream out(argv[7]);
-    out<<"{\"schema\":\"okage-native-ui-binding-v1\",\"scope\":\"owned constructors followed only by RUW binding/reset; no UI callbacks or resource clocks\",\"windows\":[";
+    out<<"{\"schema\":\""<<(first_update?"okage-native-ui-first-update-v1":"okage-native-ui-binding-v1")
+       <<"\",\"scope\":\""<<(first_update?"owned constructors and first 11fec8 invocation; neutral native input; no second dispatcher, resource clock, layout or rendering":
+       "owned constructors followed only by RUW binding/reset; no UI callbacks or resource clocks")<<"\",\"windows\":[";
     for(unsigned layer=0;layer<2;++layer) {
         if(layer)out<<',';const auto& w=interface.window(layer);
         out<<"{\"slot\":"<<interface.handles()[layer]<<",\"scalar_words\":[";
@@ -66,7 +77,20 @@ int main(int argc,char** argv) {try {
         out<<"],\"glyph_positions_hex\":";buffer(out,w.glyph_buffer(0));
         out<<",\"glyph_metrics_hex\":";buffer(out,w.glyph_buffer(1));out<<'}';
     }
-    out<<"],\"hud\":"<<shared.hud.diagnostic(*ruw,vars,"isolated")<<"}\n";
+    out<<"],\"hud\":"<<shared.hud.diagnostic(*ruw,vars,"isolated");
+    if(first_update) {
+        const auto words=[&](const auto& values){bool comma=false;out<<'[';for(auto v:values){if(comma)out<<',';comma=true;out<<v;}out<<']';};
+        out<<",\"manager_before\":";words(before);
+        out<<",\"manager_after\":";words(interface.words());
+        out<<",\"windows_before\":[";
+        for(unsigned i=0;i<2;++i) {
+            if(i)out<<',';out<<'[';bool comma=false;
+            for(auto v:windows_before[i]){if(comma)out<<',';comma=true;if(v)out<<*v;else out<<"null";}out<<']';
+        }
+        out<<"],\"resource_accumulators\":";words(shared.resource_accumulators);
+        out<<",\"input\":{\"held\":0,\"pressed\":0,\"released\":0,\"repeat\":0,\"left_x\":128,\"left_y\":128,\"display_rate\":60}";
+    }
+    out<<"}\n";
     if(!out)throw std::runtime_error("Cannot write native UI binding diagnostic");
     std::cout<<"Owned UI binding diagnostic complete\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
