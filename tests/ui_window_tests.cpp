@@ -7,6 +7,12 @@
 #include <string>
 #include <utility>
 
+namespace okage {
+struct UiWindowClockTestAccess {
+    static void set(UiWindow& w,std::size_t at,std::uint32_t value) {w.put(at,value);}
+};
+}
+
 namespace {
 void require(bool condition,const char* message) {if(!condition)throw std::runtime_error(message);}
 template<class F> void rejects(F f) {
@@ -227,8 +233,137 @@ void ruw_binding() {
     w.bind_ruw(resource,groups);std::weak_ptr weak=resource;resource.reset();
     require(!weak.expired(),"Bound resource lifetime");
 }
+void clock_opacity_and_rounding() {
+    auto s=stream();okage::UiWindow w(2,3,0,s);
+    w.set_opacity_tween(-128.0f,128.0f,0,128);
+    const int old=std::fegetround();
+    require(std::fesetround(FE_UPWARD)==0,"Set caller rounding mode");
+    w.advance_clock();
+    require(w.word(0x270)==0&&w.word(0x27c)==0xc3000000,
+            "Strict equality at lower opacity bound retains the delta");
+    require(std::fegetround()==FE_UPWARD,"Clock restores caller rounding mode");
+    w.advance_clock();
+    require(w.word(0x270)==0&&w.word(0x27c)==0,
+            "Strict lower overshoot clamps and clears opacity delta");
+    std::fesetround(old);
+
+    okage::UiWindow fractional(2,3,0,s);
+    okage::UiWindowClockTestAccess::set(fractional,0x270,0x3f800000); // 1.0
+    okage::UiWindowClockTestAccess::set(fractional,0x27c,0x33800000); // 2^-24
+    okage::UiWindowClockTestAccess::set(fractional,0x274,0x40000000);
+    okage::UiWindowClockTestAccess::set(fractional,0x278,0);
+    require(std::fesetround(FE_UPWARD)==0,"Set upward mode for exact tie");
+    fractional.advance_clock();
+    require(fractional.word(0x270)==0x3f800000,"ADD.S follows toward-zero rather than caller upward mode");
+    require(std::fegetround()==FE_UPWARD,"Clock restores upward mode after fractional arithmetic");
+    std::fesetround(old);
+}
+void clock_vectors_and_history() {
+    auto s=stream();okage::UiWindow w(2,3,0,s);
+    // Positive lane overshoot clamps only after the strict upper comparison.
+    okage::UiWindowClockTestAccess::set(w,0x290,0x3f800000); // 1
+    okage::UiWindowClockTestAccess::set(w,0x2a0,0x40000000); // 2
+    okage::UiWindowClockTestAccess::set(w,0x2b0,0);
+    okage::UiWindowClockTestAccess::set(w,0x2c0,0x3f800000); // +1
+    w.advance_clock();
+    require(w.word(0x290)==0x40000000,"Vector equality at upper bound is retained");
+    w.advance_clock();
+    require(w.word(0x290)==0x40000000,"Vector overshoot clamps to upper bound");
+
+    okage::UiWindow history(2,3,0,s);
+    for(unsigned i=0;i<14;++i) {
+        const std::array<std::uint32_t,3> a{0x3f800000u+i,0x40000000u+i,0x40400000u+i};
+        const std::array<std::uint32_t,3> b{0x40800000u+i,0x40a00000u+i,0x40c00000u+i};
+        history.set_transform_xyz(a,b);
+        history.advance_clock();
+    }
+    require(history.word(0x4f0)==15,"History reaches full 15-row capacity");
+    okage::UiWindowClockTestAccess::set(history,0x310,0xdeadbeef);
+    okage::UiWindowClockTestAccess::set(history,0x410,0xcafebabe);
+    okage::UiWindowClockTestAccess::set(history,0x31c,0x12345678);
+    okage::UiWindowClockTestAccess::set(history,0x41c,0x87654321);
+    const std::array<std::uint32_t,3> next{11,12,13},next2{21,22,23};
+    history.set_transform_xyz(next,next2);
+    history.advance_clock();
+    require(history.word(0x300)==0xdeadbeef&&history.word(0x400)==0xcafebabe,
+            "Full history shifts XYZ source words");
+    require(history.word(0x31c)==0x12345678&&history.word(0x41c)==0x87654321,
+            "History shift preserves fourth words");
+    require(history.word(0x3d0)==11&&history.word(0x3d4)==12&&history.word(0x3d8)==13&&
+            history.word(0x4d0)==21&&history.word(0x4d4)==22&&history.word(0x4d8)==23,
+            "Full history appends XYZ at row fourteen");
+    require(history.word(0x4f0)==15,"Full history count wraps through row fourteen");
+}
+void clock_counter_and_gates() {
+    auto s=stream();okage::UiWindow w(2,3,0,s);
+    // Nonzero cd8 takes the assembly early branch and skips bit-zero dirtying.
+    okage::UiWindowClockTestAccess::set(w,0x1900,0x864c);
+    okage::UiWindowClockTestAccess::set(w,0xcd8,1);
+    w.advance_clock();
+    require(w.word(0xcd8)==0&&!(w.word(0x1900)&1u)&&!(w.word(0x1900)&8u),
+            "Nonzero countdown skips dirty bit zero but clears bit three");
+
+    okage::UiWindow counter(2,3,0,s);
+    okage::UiWindowClockTestAccess::set(counter,0xcd0,0x7fffffff);
+    okage::UiWindowClockTestAccess::set(counter,0xcd4,0x7fffffff);
+    okage::UiWindowClockTestAccess::set(counter,0xce8,9);
+    counter.advance_clock();
+    require(counter.word(0xcd0)==0x80000000&&counter.word(0xce8)==9,
+            "Signed counter comparison follows wrapped increment");
+    okage::UiWindowClockTestAccess::set(counter,0xcd0,0);
+    okage::UiWindowClockTestAccess::set(counter,0xcd4,0xffffffff);
+    okage::UiWindowClockTestAccess::set(counter,0xce8,0xffffffff);
+    counter.advance_clock();
+    require(counter.word(0xcd0)==0&&counter.word(0xce8)==0,
+            "Negative period uses wrapped absolute increment and cycle reset");
+
+    okage::UiWindow reveal(2,3,0,s);
+    okage::UiWindowClockTestAccess::set(reveal,0x260,10);
+    okage::UiWindowClockTestAccess::set(reveal,0x264,0x41000000); // 8
+    okage::UiWindowClockTestAccess::set(reveal,0x268,0x40400000); // +3
+    okage::UiWindowClockTestAccess::set(reveal,0x26c,0x3f800000); // enabled
+    reveal.advance_clock();
+    require(reveal.word(0x264)==0x41200000&&reveal.word(0xcd0)==0,
+            "Reveal overshoot clamps to CVT.S.W target and skips counters");
+
+    okage::UiWindow active(2,3,0,s);
+    okage::UiWindowClockTestAccess::set(active,0x5c8,0x12345678);
+    okage::UiWindowClockTestAccess::set(active,0x5c0,0x3f800000);
+    const auto before=snapshot(active);
+    rejects([&]{active.advance_clock();});
+    require(snapshot(active)==before,"Unsupported active channel rejects before any mutation");
+    okage::UiWindowClockTestAccess::set(active,0x5c0,0);
+    active.advance_clock();
+    okage::UiWindowClockTestAccess::set(active,0x5c8,0);
+    okage::UiWindowClockTestAccess::set(active,0x5c0,0x3f800000);
+    active.advance_clock();
+
+    okage::UiWindow gated(2,3,0,s);
+    okage::UiWindowClockTestAccess::set(gated,0x1900,0x0645);
+    const auto gatedBefore=snapshot(gated);
+    gated.advance_clock();
+    require(snapshot(gated)==gatedBefore,"Source active-flag gate exits without mutation");
+
+    okage::UiWindow revealGated(2,3,0,s);
+    okage::UiWindowClockTestAccess::set(revealGated,0x1900,0x8745); // bit 0x100
+    okage::UiWindowClockTestAccess::set(revealGated,0x260,10);
+    okage::UiWindowClockTestAccess::set(revealGated,0x264,0x41000000);
+    okage::UiWindowClockTestAccess::set(revealGated,0xcd0,7);
+    revealGated.advance_clock();
+    require(revealGated.word(0x264)==0x41000000&&revealGated.word(0xcd0)==7,
+            "Reveal control flag skips reveal and counters");
+}
+void clock_rejects_unsupported_float_before_mutation() {
+    auto s=stream();okage::UiWindow w(2,3,0,s);
+    okage::UiWindowClockTestAccess::set(w,0x290,0x7fc00000);
+    const auto before=snapshot(w);
+    rejects([&]{w.advance_clock();});
+    require(snapshot(w)==before,"Nonfinite arithmetic is rejected before any mutation");
+}
 }
 int main(){try {
     defaults_and_allocations();stream_scan_and_lifetime();configuration();scalar_mutators();ruw_binding();
+    clock_opacity_and_rounding();clock_vectors_and_history();clock_counter_and_gates();
+    clock_rejects_unsupported_float_before_mutation();
     std::cout<<"UI window ownership/default/configuration/scalar tests passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

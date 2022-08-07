@@ -70,12 +70,14 @@ public:
     float opacity() const;
     void set_transform_xyz(const std::array<std::uint32_t,3>& first_bits,
                            const std::array<std::uint32_t,3>& second_bits);
+    void advance_clock();
     void bind_ruw(std::shared_ptr<RuwResource>,std::span<const std::size_t> groups);
 
     bool configure(const std::array<std::uint32_t,28>& authored,
                    std::span<const AtlasTuple> atlas,
                    std::shared_ptr<const void> texture);
 private:
+    friend struct UiWindowClockTestAccess;
     void put(std::size_t offset,std::uint32_t value);
     std::array<std::uint32_t,scalar_bytes/4> words_{};
     std::bitset<scalar_bytes/4> known_;
