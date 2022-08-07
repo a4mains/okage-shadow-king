@@ -87,8 +87,10 @@ void row_visibility(RuwResource& r,unsigned row,int value) {
 }
 }
 BattleHudData::BattleHudData(Bytes b) {
-    constexpr std::array<std::uint8_t,8> magic={'O','K','B','H','U','D','1',0};
-    if(b.size()!=352||!std::equal(magic.begin(),magic.end(),b.begin())||word(b,8)!=1||word(b,12)!=272)
+    constexpr std::array<std::uint8_t,6> magic={'O','K','B','H','U','D'};
+    const bool v2=b.size()==480;
+    if((b.size()!=352&&!v2)||!std::equal(magic.begin(),magic.end(),b.begin())||
+       b[6]!=(v2?'2':'1')||b[7]||word(b,8)!=(v2?2u:1u)||word(b,12)!=(v2?400u:272u))
         throw std::runtime_error("Unsupported battle HUD import");
     constexpr std::string_view hash="2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5";
     constexpr std::string_view digits="0123456789abcdef";
@@ -99,10 +101,12 @@ BattleHudData::BattleHudData(Bytes b) {
     warning_fraction_=__builtin_bit_cast(double, (std::uint64_t(word(b,152))|(std::uint64_t(word(b,156))<<32)));
     if(!std::isfinite(warning_fraction_)||warning_fraction_<0||warning_fraction_>1)
         throw std::runtime_error("HUD warning threshold outside recovered scope");
-    for(unsigned i=0;i<3;++i) {
+    if(v2)short_formats_.emplace();
+    for(unsigned i=0;i<(v2?5u:3u);++i) {
         const auto first=b.begin()+160+i*64,last=first+64,end=std::find(first,last,0);
         if(end==last||!std::all_of(end,last,[](auto c){return c==0;}))throw std::runtime_error("HUD format terminator/padding");
-        formats_[i].assign(reinterpret_cast<const char*>(&*first),end-first);
+        auto& destination=i<3?formats_[i]:(*short_formats_)[i-3];
+        destination.assign(reinterpret_cast<const char*>(&*first),end-first);
     }
 }
 std::string BattleHudData::number(std::int32_t value) const {
@@ -114,6 +118,22 @@ std::string BattleHudData::number(std::int32_t value) const {
     auto digits=std::to_string(std::min(value,999));digits.insert(0,3-digits.size(),'0');
     const std::array number_arg{digits};const std::array<std::string_view,1> decimal_spec{"%03d"};
     const auto decimal=format_reached(formats_[1],number_arg,decimal_spec);
+    const auto significant=decimal.find_first_of("123456789");
+    if(significant==decimal.npos)throw std::runtime_error("HUD number lacks significant digit");
+    const std::array args{tint,decimal.substr(0,significant),decimal.substr(significant)};
+    const std::array<std::string_view,3> spec{"%d","%s","%s"};
+    return format_reached(formats_[2],args,spec);
+}
+std::string BattleHudData::number2(std::int32_t value) const {
+    if(!short_formats_)throw std::runtime_error("Two-digit HUD formatting requires v2 owned import");
+    const auto tint=std::to_string(0x1e6e46c3);
+    if(value<=0) {
+        const std::array args{tint};const std::array<std::string_view,1> spec{"%d"};
+        return format_reached((*short_formats_)[0],args,spec);
+    }
+    auto digits=std::to_string(std::min(value,99));digits.insert(0,2-digits.size(),'0');
+    const std::array number_arg{digits};const std::array<std::string_view,1> decimal_spec{"%02d"};
+    const auto decimal=format_reached((*short_formats_)[1],number_arg,decimal_spec);
     const auto significant=decimal.find_first_of("123456789");
     if(significant==decimal.npos)throw std::runtime_error("HUD number lacks significant digit");
     const std::array args{tint,decimal.substr(0,significant),decimal.substr(significant)};
@@ -201,6 +221,60 @@ void BattleHud::initialize_type3(RuwResource& r,const GameDataTables& tables) {
         r.set_runtime_word0(5,34+i,71);
     }
     for(unsigned i=0;i<4;++i)r.set_position(5,48+i,keep,359+i*17);
+}
+void BattleHud::refresh_type3(RuwResource& r,const BattleHudData& data,const GameDataTables& tables,
+                             Bytes vars,const UiPartySelection& party) {
+    if(vars.size()<0xd78)throw std::runtime_error("Type3 HUD shared variable extent");
+    const std::array<std::string_view,1> one_string{"%s"};
+    const std::array<std::string_view,2> two_strings{"%s","%s"};
+    for(unsigned row=0;row<3;++row) {
+        r.set_text(5,26+row,tables.system_message(0x8b));
+        const int unit=party.at(2,row),slot=party.at(3,row);
+        if(unit==-1) {
+            for(unsigned id:{8+row*2,9+row*2})alpha(r,5,id,0);
+            for(unsigned id:{8+row*2,9+row*2})r.set_secondary_rgba(5,id,{keep,keep,keep,0});
+            copy(type3_padded_name,format_reached(tables.system_message(0x8b),{},{}));
+        } else {
+            // 125400 copies into the stack here, not163698's persistent copy.
+            const auto& copied=tables.ui_unit(unit);
+            if(slot<0||slot>=8)continue;
+            const auto c=vars.subspan(0x5c4+unsigned(slot)*0x50,0x50);
+            const auto hp=__builtin_bit_cast(std::int32_t, (word(c,8)));
+            const int maximum=half(c,0x18),charge=half(c,0x26);
+            copy(type3_current_number,data.number(hp));copy(type3_maximum_number,data.number(maximum));
+            const std::array args{std::string(text(type3_current_number)),std::string(text(type3_maximum_number))};
+            copy(type3_formatted,format_reached(tables.system_message(0xa3),args,two_strings));
+            r.set_text(5,26+row,text(type3_formatted));
+            if(!maximum)throw std::runtime_error("Type3 HUD zero maximum HP division is unrecovered");
+            float hp_fraction,charge_fraction;
+            {
+                Rounding rounding(FE_TOWARDZERO);
+                hp_fraction=float(hp)/float(maximum);charge_fraction=float(charge)/100.f;
+            }
+            r.set_fill_fraction(5,8+row*2,hp_fraction);r.set_fill_fraction(5,9+row*2,charge_fraction);
+            for(unsigned id:{8+row*2,9+row*2})alpha(r,5,id,128);
+            for(unsigned id:{8+row*2,9+row*2})r.set_secondary_rgba(5,id,{keep,keep,keep,128});
+            copy(type3_padded_name,format_reached(tables.system_message(0x8b),{},{}));
+            std::string_view name=copied.name;
+            if(slot==0) {
+                const auto first=vars.begin()+0x844,end=std::find(first,vars.end(),0);
+                if(end==vars.end())throw std::runtime_error("Type3 HUD player name lacks terminator");
+                name={reinterpret_cast<const char*>(&*first),std::size_t(end-first)};
+            }
+            if(name.size()>type3_padded_name.size())throw std::runtime_error("Type3 HUD name copy extent");
+            std::copy(name.begin(),name.end(),type3_padded_name.begin());(void)text(type3_padded_name);
+        }
+        const std::array args{std::string(text(type3_padded_name))};
+        copy(type3_formatted,format_reached(tables.system_message(0xa4),args,one_string));
+        r.set_text(5,23+row,text(type3_formatted));
+    }
+    // Source performs the upper clamp before124200, which also clamps to99.
+    const auto current=std::min(__builtin_bit_cast(std::int32_t, (word(vars,0x590))),99);
+    const auto maximum=std::min(__builtin_bit_cast(std::int32_t, (word(vars,0x594))),99);
+    copy(type3_current_number,data.number2(current));copy(type3_maximum_number,data.number2(maximum));
+    const std::array args{std::string(text(type3_current_number)),std::string(text(type3_maximum_number))};
+    copy(type3_formatted,format_reached(tables.system_message(0xa5),args,two_strings));
+    r.set_text(5,44,text(type3_formatted));type3_ready=1;
 }
 
 std::string BattleHud::diagnostic(const RuwResource& r,Bytes vars,std::string_view execution) const {

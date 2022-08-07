@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Import source-authored battle HUD palette, threshold, and format strings.
 
-OKBHUD1\0 v1 is a pointer-free 352-byte artifact. Its 80-byte header is
-<8sII32s32s>: magic, version 1, payload size 272, owned ELF SHA256 bytes,
+OKBHUD2\0 v2 is a pointer-free 480-byte artifact. Its 80-byte header is
+<8sII32s32s>: magic, version 2, payload size 400, owned ELF SHA256 bytes,
 and payload SHA256 bytes. The payload contains 18 signed 32-bit palette words
-from 0x247b50, the authored 64-bit threshold at 0x247b98, and three
+from 0x247b50, the authored 64-bit threshold at 0x247b98, and five
 NUL-terminated source format strings padded to 64 bytes, in source order
-0x2236c8, 0x2236e0, 0x223688. Only each string through its first NUL is
+0x2236c8, 0x2236e0, 0x223688, 0x2236e8, 0x223700. The first three retain
+v1's payload prefix; the last two add124200's resource-number formats.
+Only each string through its first NUL is
 copied; adjacent ELF bytes are not included in the padded slots.
 """
 import argparse
@@ -19,14 +21,14 @@ from pathlib import Path
 
 from import_battle_data import ELF_SHA256, ElfImage
 
-MAGIC = b'OKBHUD1\0'
-VERSION = 1
+MAGIC = b'OKBHUD2\0'
+VERSION = 2
 PALETTE_ADDRESS = 0x247b50
 PALETTE_WORD_COUNT = 18
 PALETTE_BYTES = PALETTE_WORD_COUNT * 4
 THRESHOLD_ADDRESS = 0x247b98
 THRESHOLD_BYTES = 8
-STRING_ADDRESSES = (0x2236c8, 0x2236e0, 0x223688)
+STRING_ADDRESSES = (0x2236c8, 0x2236e0, 0x223688, 0x2236e8, 0x223700)
 STRING_BYTES = 64
 PAYLOAD_BYTES = PALETTE_BYTES + THRESHOLD_BYTES + len(STRING_ADDRESSES) * STRING_BYTES
 HEADER = struct.Struct('<8sII32s32s')
@@ -76,7 +78,7 @@ def extract_payload(image, source_digest):
     if len(payload) != PAYLOAD_BYTES:
         raise ValueError('HUD payload has an unexpected extent')
     return payload, {
-        'schema': 'okage-battle-hud-import-v1',
+        'schema': 'okage-battle-hud-import-v2',
         'elf_sha256': source_digest.hex(),
         'payload_sha256': sha256(payload),
         'output_bytes': HEADER.size + len(payload),
@@ -84,6 +86,8 @@ def extract_payload(image, source_digest):
             'palette_consumer': '0x00162c60',
             'threshold_consumer': '0x00163698',
             'formatting_function': '0x001240c8',
+            'resource_formatting_function': '0x00124200',
+            'type3_refresh_consumer': '0x00167e18',
         },
         'sources': {
             'palette': {

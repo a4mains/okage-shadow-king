@@ -11,10 +11,13 @@ public:
     const auto& palette() const {return palette_;}
     double warning_fraction() const {return warning_fraction_;}
     std::string number(std::int32_t value) const;
+    // 124200's two-digit resource formatter requires the v2 owned import.
+    std::string number2(std::int32_t value) const;
 private:
     std::array<std::array<std::int32_t,3>,6> palette_{};
     double warning_fraction_{};
     std::array<std::string,3> formats_;
+    std::optional<std::array<std::string,2>> short_formats_;
 };
 struct BattleHud {
     std::uint32_t menu_state=0,mode_counter=0,selection_state=0,selected_alpha=128;
@@ -27,6 +30,8 @@ struct BattleHud {
     std::array<std::int32_t,15> type3_slots{};
     std::array<char,256> formatted{},padded_name{};
     std::array<char,64> current_number{},maximum_number{};
+    std::array<char,256> type3_formatted{},type3_padded_name{};
+    std::array<char,64> type3_current_number{},type3_maximum_number{};
     std::optional<GameUnitUiRecord> copied_unit;
 
     void refresh(RuwResource&,const BattleHudData&,const GameDataTables&,
@@ -35,6 +40,8 @@ struct BattleHud {
                           Bytes variables,const UiPartySelection&,unsigned game_mode,int selected);
     void reset_type3(RuwResource&);
     void initialize_type3(RuwResource&,const GameDataTables&);
+    void refresh_type3(RuwResource&,const BattleHudData&,const GameDataTables&,
+                       Bytes variables,const UiPartySelection&);
     std::string diagnostic(const RuwResource&,Bytes variables,std::string_view execution) const;
 };
 }

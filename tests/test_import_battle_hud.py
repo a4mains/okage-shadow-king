@@ -21,7 +21,8 @@ class SyntheticImage:
         self.palette = palette if palette is not None else struct.pack('<18i', *range(-9, 9))
         self.threshold = struct.pack('<d', threshold)
         if strings is None:
-            strings = (b'\\f[1]\\c[%d]00\\c[0]0', b'%03d', b'\\f[1]\\c[%d]%s\\c[0]%s')
+            strings = (b'\\f[1]\\c[%d]00\\c[0]0', b'%03d', b'\\f[1]\\c[%d]%s\\c[0]%s',
+                       b'\\f[1]\\c[%d]0\\c[0]0', b'%02d')
         self.ranges = {
             hud.PALETTE_ADDRESS: self.palette,
             hud.THRESHOLD_ADDRESS: self.threshold,
@@ -54,20 +55,21 @@ class BattleHudImporterTests(unittest.TestCase):
              mock.patch.object(hud, 'ElfImage', return_value=image):
             artifact, artifact_meta = hud.import_elf(fake_elf)
         magic, version, payload_size, source_digest, payload_digest = hud.HEADER.unpack_from(artifact)
-        self.assertEqual((magic, version, payload_size), (hud.MAGIC, 1, 272))
+        self.assertEqual((magic, version, payload_size), (hud.MAGIC, 2, 400))
         self.assertEqual(source_digest.hex(), hashlib.sha256(fake_elf).hexdigest())
         self.assertEqual(payload_digest, hashlib.sha256(payload).digest())
         self.assertEqual(artifact[hud.HEADER.size:], payload)
-        self.assertEqual(len(artifact), 352)
+        self.assertEqual(len(artifact), 480)
         self.assertEqual(artifact_meta['artifact_sha256'], hashlib.sha256(artifact).hexdigest())
         self.assertEqual(metadata['elf_sha256'], digest.hex())
         self.assertEqual(metadata['sources']['palette']['signed_words'], list(range(-9, 9)))
         self.assertEqual([row['vaddr'] for row in metadata['sources']['format_strings']],
                          [f'0x{address:08x}' for address in hud.STRING_ADDRESSES])
         self.assertEqual(metadata['source_provenance']['formatting_function'], '0x001240c8')
+        self.assertEqual(metadata['source_provenance']['resource_formatting_function'], '0x00124200')
 
     def test_unterminated_empty_non_ascii_strings_and_bad_threshold_rejected(self):
-        strings = [b'a', b'b', b'c']
+        strings = [b'a', b'b', b'c', b'd', b'e']
         strings[1] = b'x' * hud.STRING_BYTES
         with self.assertRaisesRegex(ValueError, 'Unterminated'):
             hud.extract_payload(SyntheticImage(strings=strings), bytes(32))
@@ -76,6 +78,10 @@ class BattleHudImporterTests(unittest.TestCase):
             hud.extract_payload(SyntheticImage(strings=strings), bytes(32))
         strings[1] = b'\xff'
         with self.assertRaisesRegex(ValueError, 'Non-ASCII'):
+            hud.extract_payload(SyntheticImage(strings=strings), bytes(32))
+        strings[1] = b'b'
+        strings[4] = b'x' * hud.STRING_BYTES
+        with self.assertRaisesRegex(ValueError, 'Unterminated'):
             hud.extract_payload(SyntheticImage(strings=strings), bytes(32))
         with self.assertRaisesRegex(ValueError, 'threshold'):
             hud.extract_payload(SyntheticImage(threshold=0.2), bytes(32))
@@ -91,9 +97,9 @@ class BattleHudImporterTests(unittest.TestCase):
         digest = bytes(range(32))
         header = hud.HEADER.pack(hud.MAGIC, hud.VERSION, hud.PAYLOAD_BYTES,
                                  digest, hashlib.sha256(payload).digest())
-        self.assertEqual(len(header + payload), 352)
+        self.assertEqual(len(header + payload), 480)
         self.assertEqual(hud.HEADER.unpack(header),
-                         (b'OKBHUD1\0', 1, 272, digest, hashlib.sha256(payload).digest()))
+                         (b'OKBHUD2\0', 2, 400, digest, hashlib.sha256(payload).digest()))
 
     def test_output_writer_refuses_overwrite_and_symlink(self):
         with tempfile.TemporaryDirectory() as tmp:
