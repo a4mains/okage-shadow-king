@@ -25,8 +25,12 @@ void require_float(std::uint32_t bits) {
 }
 float as_float(std::uint32_t bits) {return __builtin_bit_cast(float, (bits));}
 float add_single(float a,float b) {
+    check(std::feclearexcept(FE_OVERFLOW)==0,"Cannot clear UI clock overflow flag");
     volatile float left=a,right=b;
     volatile float result=left+right;
+    check((std::fetestexcept(FE_OVERFLOW)&FE_OVERFLOW)==0,
+          "UI resource clock floating addition overflow is unsupported");
+    require_float(__builtin_bit_cast(std::uint32_t, (float(result))));
     return result;
 }
 float signed_to_single(std::int32_t value) {
@@ -56,8 +60,9 @@ void UiWindow::advance_clock() {
     if((flags&0x8000u)==0||(word(0x25c)&0xffu)==0)return;
 
     const auto channelIndex=signed_word(word(0x5b0));
-    check(channelIndex>=0&&std::size_t(channelIndex)<(scalar_bytes-0x5c8)/4,
-          "UI resource clock transform channel index is outside the window");
+    constexpr std::size_t channelSlots=32;
+    check(channelIndex>=0&&std::size_t(channelIndex)<channelSlots,
+          "UI resource clock transform channel index is outside the 32-slot table");
     const auto channelPointer=word(0x5c8+std::size_t(channelIndex)*4);
     const auto channelStepBits=word(0x5c0);
     if(channelPointer!=0&&as_float(channelStepBits)!=0.0f)

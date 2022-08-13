@@ -360,10 +360,87 @@ void clock_rejects_unsupported_float_before_mutation() {
     rejects([&]{w.advance_clock();});
     require(snapshot(w)==before,"Nonfinite arithmetic is rejected before any mutation");
 }
+void clock_channel_table_bounds() {
+    auto s=stream();okage::UiWindow w(2,3,0,s);
+    okage::UiWindowClockTestAccess::set(w,0x5b0,31);
+    okage::UiWindowClockTestAccess::set(w,0x5c0,0x3f800000);
+    w.advance_clock();
+    for(auto index:{32u,34u,0xffffffffu,0x7fffffffu}) {
+        okage::UiWindowClockTestAccess::set(w,0x5b0,index);
+        const auto before=snapshot(w);
+        rejects([&]{w.advance_clock();});
+        require(snapshot(w)==before,"Channel bounds reject before reading adjacent scalar/owner state");
+    }
+}
+void clock_exceptional_addition_and_environment() {
+    struct RestoreEnvironment {
+        std::fenv_t saved{};
+        RestoreEnvironment(){require(std::fegetenv(&saved)==0,"Save test floating environment");}
+        ~RestoreEnvironment(){std::fesetenv(&saved);}
+    } restore;
+    using Access=okage::UiWindowClockTestAccess;
+    auto s=stream();
+    for(int mode:{FE_TONEAREST,FE_DOWNWARD,FE_UPWARD,FE_TOWARDZERO}) {
+        require(std::fesetround(mode)==0,"Set caller rounding mode for exception tests");
+        require(std::feclearexcept(FE_ALL_EXCEPT)==0&&
+                std::feraiseexcept(FE_DIVBYZERO|FE_OVERFLOW)==0,"Raise caller flags");
+        const int oldFlags=std::fetestexcept(FE_ALL_EXCEPT);
+        const auto preserved=[&] {
+            require(std::fegetround()==mode&&std::fetestexcept(FE_ALL_EXCEPT)==oldFlags,
+                    "Entire caller floating mode/flags survive success or rejection");
+        };
+        okage::UiWindow ordinary(2,3,0,s);
+        ordinary.set_opacity_tween(-128.f,128.f,0,128);
+        ordinary.advance_clock();
+        require(ordinary.word(0x270)==0&&ordinary.word(0x27c)==0xc3000000,
+                "Existing host overflow flag does not reject an exact addition");
+        preserved();
+        for(unsigned path=0;path<3;++path) {
+            okage::UiWindow w(2,3,0,s);
+            unsigned destination;
+            if(path==0) {
+                destination=0x290;
+                Access::set(w,destination,0x7f7fffff);Access::set(w,0x2c0,0x7f7fffff);
+                Access::set(w,0x2a0,0x3f800000); // Previously clamps overflow to1.
+            } else if(path==1) {
+                destination=0x270;
+                w.set_opacity_tween(__builtin_bit_cast(float, (0x7f7fffffu)),
+                                    __builtin_bit_cast(float, (0x7f7fffffu)),0,128);
+            } else {
+                destination=0x264;
+                Access::set(w,0x260,1);Access::set(w,destination,0xff7fffff);
+                Access::set(w,0x268,0xff7fffff);Access::set(w,0x26c,0x3f800000);
+            }
+            const auto before=w.word(destination);
+            rejects([&]{w.advance_clock();});
+            require(w.word(destination)==before,"Overflow rejects before writing failing destination");
+            preserved();
+        }
+        for(unsigned path=0;path<3;++path) {
+            okage::UiWindow w(2,3,0,s);unsigned destination;
+            if(path==0) {
+                destination=0x290;Access::set(w,destination,0x00800001);
+                Access::set(w,0x2c0,0x80800000);Access::set(w,0x2b0,0x3f800000);
+            } else if(path==1) {
+                destination=0x270;Access::set(w,destination,0x00800001);
+                Access::set(w,0x27c,0x80800000);Access::set(w,0x278,0x3f800000);
+            } else {
+                destination=0x264;Access::set(w,0x260,0);
+                Access::set(w,destination,0x80800000);Access::set(w,0x268,0x00800001);
+                Access::set(w,0x26c,0x3f800000);
+            }
+            const auto before=w.word(destination);
+            rejects([&]{w.advance_clock();});
+            require(w.word(destination)==before,"Subnormal result rejects before clamp/store");
+            preserved();
+        }
+    }
+}
 }
 int main(){try {
     defaults_and_allocations();stream_scan_and_lifetime();configuration();scalar_mutators();ruw_binding();
     clock_opacity_and_rounding();clock_vectors_and_history();clock_counter_and_gates();
     clock_rejects_unsupported_float_before_mutation();
+    clock_channel_table_bounds();clock_exceptional_addition_and_environment();
     std::cout<<"UI window ownership/default/configuration/scalar tests passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
