@@ -69,6 +69,11 @@ void first_dispatch() {
     try{ui.first_update(resource,pad,input,60);}catch(const std::runtime_error&){guarded=true;}
     require(guarded&&std::fegetround()==FE_UPWARD,"visible interactive type2 remains guarded and restores rounding");
     shared.registry[0]->set_opacity_tween(0,0,0,128);
+    const auto flags=ui.window(0).word(0x1900);
+    shared.registry[0]->set_layout_enabled(false);
+    require(ui.window(0).word(0x1900)==(flags&~0x1000u),"content flag clears only source bit");
+    shared.registry[0]->set_layout_enabled(true);
+    require(ui.window(0).word(0x1900)==(flags|0x1000u),"content flag sets only source bit");
     for(unsigned i=0;i<40;++i)ui.first_update(resource,pad,input,60);
     require(words[0xe50/4]==2&&words[0x144/4]==0&&ui.window(1).word(0x554)==0,"source rotation completes on positive crossing");
     require(words[0xe4c/4]==2&&words[0xa4/4]==0xffffffff,"zero-opacity type2 skips interaction");

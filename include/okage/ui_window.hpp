@@ -68,6 +68,8 @@ public:
     void set_opacity_tween(float increment,float current,
                            std::uint32_t lower,std::uint32_t upper);
     float opacity() const;
+    // 1a5488: change bit0x1000 only. No layout pass runs in this setter.
+    void set_layout_enabled(bool enabled);
     void set_transform_xyz(const std::array<std::uint32_t,3>& first_bits,
                            const std::array<std::uint32_t,3>& second_bits);
     void advance_clock();
