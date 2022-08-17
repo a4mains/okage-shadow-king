@@ -90,7 +90,7 @@ def _validate_original_manager(reference):
         for index, (stream, _a, _b, layer_type, callback) in enumerate(window.STREAMS):
             base = index * 112
             need(_word(authored, base) == stream and _word(authored, base + 0x54) == 0x1fdba8 and
-                 _word(authored, base + 0x58) in (0x163fb8, 0x168228) and
+                 _word(authored, base + 0x58) == (0x163fb8, 0x168228)[index] and
                  _word(authored, base + 0x5c) == callback and _word(authored, base + 0x60) == layer_type,
                  f'authored interface row {index} reference mismatch')
         originals.append(raw)
@@ -153,6 +153,43 @@ def _manager_differences(reference, native):
     return differences, normalizations, compared, {'root': root, 'manager': manager,
         'enemy_owner': children[3], 'source_texture': texture}
 
+def _compare_windows(reference_row, native_windows, label, after=False):
+    need(isinstance(native_windows, list) and len(native_windows) == 2,
+         f'native {label} requires two windows')
+    differences, compared, per_slot = [], 0, []
+    for slot, native_values in enumerate(native_windows):
+        if after:
+            need(isinstance(native_values, dict) and native_values.get('slot') == slot,
+                 f'native post-window {slot} slot identity mismatch')
+            native_values = native_values.get('scalar_words')
+        need(isinstance(native_values, list) and len(native_values) == window.WINDOW_WORDS,
+             f'native {label}[{slot}] extent mismatch')
+        original_entry = reference_row['controller_windows'][slot]
+        source = binding.raw(original_entry['raw'], f'original {label} window',
+                             window.WINDOW_BYTES, original_entry['pointer'])
+        pointer_words = set(window.EXCLUDED_WORDS)
+        if after:
+            cursor = _word(source, 0x2edc)
+            need(cursor <= window.WINDOW_WORDS and cursor % 2 == 0,
+                 f'original post-window {slot} embedded cursor is invalid')
+            # The binding verifier separately validates every opcode/referent;
+            # these are precisely the argument words holding original pointers.
+            pointer_words.update((0x26dc // 4) + i for i in range(1, cursor, 2))
+        slot_count = 0
+        for index, value in enumerate(native_values):
+            offset = index * 4
+            if index in pointer_words:
+                need(value is None, f'native {label} pointer/unknown lane {slot}:{offset:#x} must be null')
+                continue
+            actual = u32(value, f'native {label}[{slot}][{index}]')
+            expected = _word(source, offset)
+            slot_count += 1; compared += 1
+            if expected != actual:
+                differences.append({'component': label, 'slot': slot, 'offset': offset,
+                                    'expected': expected, 'actual': actual})
+        per_slot.append(slot_count)
+    return differences, compared, per_slot
+
 def compare(reference, native):
     _header, rows, _finish = reference
     entry, complete = rows[0], rows[1]
@@ -167,24 +204,8 @@ def compare(reference, native):
     before_windows = native.get('windows_before')
     need(isinstance(before_windows, list) and len(before_windows) == 2,
          'native requires two pre-update windows')
-    window_diffs, window_compared = [], 0
-    for slot, values in enumerate(before_windows):
-        need(isinstance(values, list) and len(values) == window.WINDOW_WORDS,
-             f'native.windows_before[{slot}] extent mismatch')
-        for index, value in enumerate(values):
-            at = index * 4
-            if index in window.EXCLUDED_WORDS:
-                need(value is None, f'native pre-window excluded lane {at:#x} must be null')
-                continue
-            actual = u32(value, f'native.windows_before[{slot}][{index}]')
-            raw_window = binding.raw(entry['controller_windows'][slot]['raw'], 'original pre-window',
-                                     window.WINDOW_BYTES,
-                                     entry['controller_windows'][slot]['pointer'])
-            expected = _word(raw_window, at)
-            window_compared += 1
-            if expected != actual:
-                window_diffs.append({'component': 'window_before', 'slot': slot,
-                                     'offset': at, 'expected': expected, 'actual': actual})
+    window_diffs, window_compared, before_per_slot = _compare_windows(
+        entry, before_windows, 'window_before')
 
     accumulator = native.get('resource_accumulators')
     need(isinstance(accumulator, list) and len(accumulator) == 16,
@@ -195,6 +216,8 @@ def compare(reference, native):
         raw_acc = binding.raw(row.get('type2_widget_index_accumulators'),
                               f'{label} 200a88 owner', 64, 0x200a88)
         original_accumulators.append(struct.unpack('<16I', raw_acc))
+    need(not any(original_accumulators[0]),
+         'original pre-callback 200a88 owner is not the required zero initial state')
     accumulator_diffs = []
     for i, (expected, actual) in enumerate(zip(original_accumulators[1], accumulator)):
         if expected != actual:
@@ -218,7 +241,12 @@ def compare(reference, native):
     projected = {'schema': binding.SCHEMA, 'scope': binding.SCOPE,
                  'windows': native['windows'], 'hud': native['hud']}
     binding_report = binding.compare(reference, projected)
-    differences = manager_diffs + window_diffs + accumulator_diffs + binding_report['differences']
+    after_diffs, after_compared, after_per_slot = _compare_windows(
+        complete, native['windows'], 'window_after', after=True)
+    binding_report['scope'] = (
+        'reused binding-only assertions on RUW stream, reset, glyph and HUD effects; '
+        'full callback comparison is in the enclosing report')
+    differences = manager_diffs + window_diffs + after_diffs + accumulator_diffs + binding_report['differences']
     return {
         'schema': OUTPUT_SCHEMA, 'status': 'fail' if differences else 'pass',
         'scope': NATIVE_SCOPE,
@@ -228,23 +256,28 @@ def compare(reference, native):
                     'compared_words': manager_compared,
                     'normalized_words': len(manager_norms), 'normalizations': manager_norms},
         'windows_before': {'compared_words': window_compared,
-                           'per_slot': [window_compared // 2] * 2,
+                           'per_slot': before_per_slot,
                            'excluded_offsets_hex': [hex(x) for x in window.EXCLUDED_OFFSETS]},
+        'windows_after': {'compared_words': after_compared, 'per_slot': after_per_slot,
+                          'excluded_offsets_hex': [hex(x) for x in window.EXCLUDED_OFFSETS],
+                          'embedded_pointer_argument_words_excluded': True},
         'resource_accumulators': {'compared_words': 16,
                                   'original_before': list(original_accumulators[0]),
                                   'original_after': list(original_accumulators[1]),
                                   'native_after': accumulator},
         'neutral_input': NEUTRAL_INPUT,
-        'binding': binding_report,
+        'reused_binding_only_checks': binding_report,
         'difference_count': len(differences),
         'first_difference': differences[0] if differences else None,
         'differences': differences,
         'limitations': [
             'The comparison covers construction plus the first neutral 11fec8 dispatcher invocation only; no second dispatcher, resource clock, layout, or rendering is included.',
             'Stick/analog and other controller globals are not captured at the original boundary; only the two packed pad latches and the explicitly serialized native neutral input are validated.',
+            'The native resource-accumulator diagnostic serializes only the callback result; original pre-state is asserted all-zero, and the native owner is known to default-zero at construction, but a distinct native pre-callback snapshot is not serialized.',
             'Manager callback, owner, texture, stream, and manager-backlink pointers are checked against original source relationships, then mapped to native zero placeholders or typed IDs as listed.',
             'Native variables are constructor-owned input, not original RAM; variable/global equivalence is not claimed.',
-            'No HUD draw, UI activation, callback progression, first-frame image, or full battle interface fidelity is claimed.'
+            'The reused HUD check covers only captured HUD construction/widget effects; full HUD state is not compared.',
+            'No UI activation, later callback progression, first-frame image, or full battle interface fidelity is claimed.'
         ]
     }
 
@@ -268,7 +301,7 @@ def main(argv=None):
         report['inputs'] = {name: {'path': str(path.resolve()), 'sha256': sha(path)}
                             for name, path in zip(('original', 'native'), inputs)}
         report['verifier_sha256'] = {Path(m.__file__).name: sha(m.__file__)
-                                     for m in (binding, window, interface)}
+                                     for m in (binding, binding.hud, window, interface)}
         report['verifier_sha256'][Path(__file__).name] = sha(__file__)
         with output.open('x') as f:
             json.dump(report, f, indent=2); f.write('\n')

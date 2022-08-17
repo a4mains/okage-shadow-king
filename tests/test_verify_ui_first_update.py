@@ -91,6 +91,8 @@ def fixture():
         values = list(struct.unpack('<%dI' % window.WINDOW_WORDS, data))
         for idx in window.EXCLUDED_WORDS: values[idx] = None
         native['windows_before'].append(values)
+        post_values = native['windows'][slot]['scalar_words']
+        for idx in window.EXCLUDED_WORDS: post_values[idx] = None
     native['resource_accumulators'] = [0] * 16
     native['input'] = dict(tool.NEUTRAL_INPUT)
     return reference, native
@@ -110,9 +112,10 @@ class VerifyUiFirstUpdateTests(unittest.TestCase):
         report = self.compare()
         self.assertEqual(report['status'], 'pass')
         self.assertEqual(report['windows_before']['compared_words'], 14146)
+        self.assertEqual(report['windows_after']['compared_words'], 13911)
         self.assertEqual(report['manager']['compared_words'], 2 * (tool.MANAGER_WORDS - 15))
         self.assertEqual(report['resource_accumulators']['compared_words'], 16)
-        self.assertEqual(report['binding']['compared_glyph_bytes'], 22528)
+        self.assertEqual(report['reused_binding_only_checks']['compared_glyph_bytes'], 22528)
 
     def test_native_window_before_and_after_manager_mismatches_fail(self):
         self.native['windows_before'][0][0x2a0 // 4] ^= 1
@@ -121,6 +124,17 @@ class VerifyUiFirstUpdateTests(unittest.TestCase):
         self.assertEqual(report['status'], 'fail')
         self.assertGreaterEqual(report['difference_count'], 2)
         self.assertEqual(report['first_difference']['component'], 'manager')
+
+    def test_post_callback_opacity_transform_and_unrelated_word_are_checked(self):
+        for offset in (0x270, 0x2f0, 0x250):
+            with self.subTest(offset=hex(offset)):
+                self.reference, self.native = fixture()
+                words = self.native['windows'][0 if offset != 0x2f0 else 1]['scalar_words']
+                words[offset // 4] ^= 1
+                report = self.compare()
+                self.assertEqual(report['status'], 'fail')
+                self.assertTrue(any(d['component'] == 'window_after' and d['offset'] == offset
+                                    for d in report['differences']))
 
     def test_original_parent_callback_texture_or_backlink_corruption_rejected(self):
         for index in (0, 1):
