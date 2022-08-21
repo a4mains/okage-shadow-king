@@ -7,7 +7,8 @@ and payload SHA256 bytes. The payload contains 18 signed 32-bit palette words
 from 0x247b50, the authored 64-bit threshold at 0x247b98, and five
 NUL-terminated source format strings padded to 64 bytes, in source order
 0x2236c8, 0x2236e0, 0x223688, 0x2236e8, 0x223700. The first three retain
-v1's payload prefix; the last two add124200's resource-number formats.
+v1's payload prefix; the last two add124200's resource-number formats. The
+independent type3 threshold at0x248088 must match0x247b98 byte-for-byte.
 Only each string through its first NUL is
 copied; adjacent ELF bytes are not included in the padded slots.
 """
@@ -27,6 +28,7 @@ PALETTE_ADDRESS = 0x247b50
 PALETTE_WORD_COUNT = 18
 PALETTE_BYTES = PALETTE_WORD_COUNT * 4
 THRESHOLD_ADDRESS = 0x247b98
+TYPE3_THRESHOLD_ADDRESS = 0x248088
 THRESHOLD_BYTES = 8
 STRING_ADDRESSES = (0x2236c8, 0x2236e0, 0x223688, 0x2236e8, 0x223700)
 STRING_BYTES = 64
@@ -62,6 +64,9 @@ def extract_payload(image, source_digest):
     threshold, = struct.unpack('<d', threshold_raw)
     if not math.isfinite(threshold) or threshold != EXPECTED_THRESHOLD:
         raise ValueError(f'Unsupported HUD threshold at {THRESHOLD_ADDRESS:#x}: {threshold!r}')
+    type3_threshold_raw = image.read(TYPE3_THRESHOLD_ADDRESS, THRESHOLD_BYTES)
+    if type3_threshold_raw != threshold_raw:
+        raise ValueError('Type3 HUD threshold differs from the shared imported threshold')
     padded_strings = []
     string_metadata = []
     for address in STRING_ADDRESSES:
@@ -88,6 +93,7 @@ def extract_payload(image, source_digest):
             'formatting_function': '0x001240c8',
             'resource_formatting_function': '0x00124200',
             'type3_refresh_consumer': '0x00167e18',
+            'type3_update_consumer': '0x001684d0',
         },
         'sources': {
             'palette': {
@@ -101,6 +107,13 @@ def extract_payload(image, source_digest):
                 'bytes': THRESHOLD_BYTES,
                 'sha256': sha256(threshold_raw),
                 'value': threshold,
+            },
+            'type3_threshold': {
+                'vaddr': f'0x{TYPE3_THRESHOLD_ADDRESS:08x}',
+                'bytes': THRESHOLD_BYTES,
+                'sha256': sha256(type3_threshold_raw),
+                'value': threshold,
+                'byte_identical_to': f'0x{THRESHOLD_ADDRESS:08x}',
             },
             'format_strings': string_metadata,
         },

@@ -2,6 +2,7 @@
 #include "okage/battle_ui.hpp"
 #include "okage/game_state.hpp"
 #include "okage/ruw.hpp"
+#include <functional>
 #include <string>
 
 namespace okage {
@@ -27,6 +28,7 @@ struct BattleHud {
     std::uint32_t flag_a0=0,flag_a8=0;
     std::array<std::uint32_t,512> type2_work{};
     std::uint32_t type3_ready=0,type3_reset=0,type3_animation=0,type3_cursor=0;
+    std::uint32_t type3_blink=0;
     std::array<std::int32_t,15> type3_slots{};
     std::array<char,256> formatted{},padded_name{};
     std::array<char,64> current_number{},maximum_number{};
@@ -42,6 +44,9 @@ struct BattleHud {
     void initialize_type3(RuwResource&,const GameDataTables&);
     void refresh_type3(RuwResource&,const BattleHudData&,const GameDataTables&,
                        Bytes variables,const UiPartySelection&);
+    void update_type3(RuwResource&,const BattleHudData&,const GameDataTables&,
+                      Bytes variables,const UiPartySelection&,unsigned game_mode,
+                      const std::function<void(bool)>& set_layout_enabled);
     std::string diagnostic(const RuwResource&,Bytes variables,std::string_view execution) const;
 };
 }

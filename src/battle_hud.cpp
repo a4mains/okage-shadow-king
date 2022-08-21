@@ -276,6 +276,53 @@ void BattleHud::refresh_type3(RuwResource& r,const BattleHudData& data,const Gam
     copy(type3_formatted,format_reached(tables.system_message(0xa5),args,two_strings));
     r.set_text(5,44,text(type3_formatted));type3_ready=1;
 }
+void BattleHud::update_type3(RuwResource& r,const BattleHudData& data,const GameDataTables& tables,
+                            Bytes vars,const UiPartySelection& party,unsigned mode,
+                            const std::function<void(bool)>& set_layout_enabled) {
+    if(!set_layout_enabled)throw std::runtime_error("Type3 HUD requires window layout setter");
+    set_layout_enabled(false);
+    refresh_type3(r,data,tables,vars,party);
+    if(type3_ready==1)set_layout_enabled(true);
+    type3_ready=0;
+    if(!type3_reset) {
+        r.add_class_rgba(5,-1,{keep,keep,keep,128});
+        r.set_class_rgba(5,0,{keep,keep,keep,0});
+        alpha(r,5,52,64);alpha(r,5,53,64);
+        for(unsigned id=48;id<52;++id)alpha(r,5,id,64);
+    } else {
+        r.set_class_rgba(5,-1,{keep,keep,keep,0});
+        r.add_class_rgba(5,0,{keep,keep,keep,128});
+    }
+    if(mode==4)throw std::runtime_error("Type3 HUD demo callback is unrecovered");
+    if(type3_reset)return;
+    type3_blink=std::uint32_t(__builtin_bit_cast(std::int32_t, (type3_blink+1u))%60);
+    for(unsigned row=0;row<3;++row) {
+        for(unsigned id:{14+row*3,15+row*3,16+row*3,8+row*2,9+row*2})
+            r.add_rgba(5,id,{keep,keep,keep,-128});
+        for(unsigned id:{8+row*2,9+row*2})r.add_secondary_rgba(5,id,{keep,keep,keep,-128});
+        alpha(r,5,54+row,0);
+    }
+    if(party.counts()[3]>3)throw std::runtime_error("Type3 HUD party exceeds authored row scope");
+    for(unsigned row=0;row<party.counts()[3];++row) {
+        const int slot=party.at(3,row);if(slot<0||slot>=8)continue;
+        const auto c=vars.subspan(0x5c4+unsigned(slot)*0x50,0x50);
+        for(unsigned id:{14+row*3,15+row*3,16+row*3,8+row*2,9+row*2})
+            r.add_rgba(5,id,{keep,keep,keep,128});
+        for(unsigned id:{8+row*2,9+row*2})r.add_secondary_rgba(5,id,{keep,keep,keep,128});
+        alpha(r,5,54+row,128);
+        icons(r,data,row,c,false);
+        const auto hp=__builtin_bit_cast(std::int32_t, (word(c,8)));const auto maximum=half(c,0x18);
+        bool low;
+        {
+            Rounding rounding(FE_TONEAREST);
+            low=double(hp)<double(maximum)*data.warning_fraction();
+        }
+        std::array<int,3> rgb{255,255,255};
+        if(low&&__builtin_bit_cast(std::int32_t, (type3_blink))%60<30)rgb={190,40,45};
+        color(r,5,26+row,rgb);
+        if(hp==0)color(r,5,26+row,{190,40,45});
+    }
+}
 
 std::string BattleHud::diagnostic(const RuwResource& r,Bytes vars,std::string_view execution) const {
     if(execution!="isolated"&&execution!="native-session")throw std::runtime_error("HUD diagnostic execution tag");

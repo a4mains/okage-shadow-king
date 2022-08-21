@@ -75,6 +75,19 @@ std::vector<std::uint8_t> type3_ruw() {
     }
     return b;
 }
+std::vector<std::uint8_t> type3_update_ruw() {
+    std::vector<std::uint8_t> b(48);put(b,12,1);put(b,16,6);
+    for(unsigned group=0;group<6;++group) {
+        const unsigned count=group==2||group==3||group==5?57:0;put(b,24+group*4,count);
+        for(unsigned id=0;id<count;++id) {
+            const unsigned at=b.size();b.resize(at+68);
+            put(b,at+8,0x80203040);put(b,at+12,0x80506070);put(b,at+16,0x41);
+            put(b,at+20,group==5&&((id>=23&&id<=28)||id==44)?1:2);
+            put(b,at+32,id?0xffffffff:0);put(b,at+52,100);put(b,at+56,100);put(b,at+60,id);
+        }
+    }
+    return b;
+}
 std::vector<std::uint8_t> read(const char* path) {
     std::ifstream in(path,std::ios::binary);require(bool(in),"missing HUD diagnostic input");
     return {(std::istreambuf_iterator<char>(in)),{}};
@@ -122,6 +135,60 @@ void type3_checks() {
     vars[0x62c]=0;h.type3_ready=0;rejects([&]{h.refresh_type3(r,data,tables,vars,party);});
     require(!h.type3_ready,"unsupported division cannot claim completion");
 }
+void type3_update_checks() {
+    const okage::BattleHudData data(fixture2());const auto tables=synthetic_tables();
+    std::vector<std::uint8_t> vars(0xd78);okage::UiPartySelection party;
+    for(unsigned i=0;i<3;++i) {
+        put(vars,0x570+i*4,3);const unsigned c=0x5c4+i*0x50;
+        vars[c+2]=i?2:1;put(vars,c+8,i==0?4:i==1?5:0);vars[c+0x18]=50;
+    }
+    vars[0x5c5]=0xff;party.refresh(vars,3);const auto before=vars;const auto cache=party.rows();
+    okage::RuwResource r(type3_update_ruw());okage::BattleHud h;
+    h.type3_blink=59;h.type3_cursor=72;h.mode_counter=81;
+    std::vector<bool> calls;const auto initial_text=text(r,5,44);
+    const auto setter=[&](bool enabled) {
+        calls.push_back(enabled);
+        if(!enabled)require(h.type3_ready==0&&text(r,5,44)==initial_text,"disable precedes refresh");
+        else require(h.type3_ready==1&&text(r,5,44).starts_with("Resource:"),"enable follows completed refresh");
+    };
+    h.update_type3(r,data,tables,vars,party,3,setter);
+    require(calls==std::vector<bool>({false,true})&&!h.type3_ready,"layout order and consumed readiness");
+    require(h.type3_blink==0&&h.type3_cursor==72&&h.mode_counter==81,"distinct blink counter wraps at60");
+    const auto rgb=[&](unsigned id){return r.widget(5,id).runtime->words[4]&0xffffff;};
+    const auto a=[&](unsigned id,unsigned color=4){return r.widget(5,id).runtime->words[color]>>24;};
+    require(rgb(26)==0x2d28be&&rgb(27)==0xffffff&&rgb(28)==0x2d28be,"strict threshold and zeroHP warning");
+    require(r.widget(2,26).runtime->words[0]==60&&r.widget(3,48).runtime->words[0]==60&&r.widget(5,15).runtime->words[0]==60,"signed icon updates all three groups");
+    for(unsigned id=48;id<54;++id)require(a(id)==64,"fixed overlay opacity");
+    for(unsigned id=54;id<57;++id)require(a(id)==128,"active indicators");
+    for(unsigned id=8;id<14;++id)require(a(id)==128&&a(id,5)==128,"active bars restore both colors");
+    require(a(0)==0&&vars==before&&party.rows()==cache,"normal class reset and read-only state inputs");
+    const auto ordinary_setter=[](bool){};
+    h.type3_blink=29;h.update_type3(r,data,tables,vars,party,3,ordinary_setter);
+    require(rgb(26)==0xffffff&&rgb(28)==0x2d28be,"blink off half preserves zeroHP red");
+    h.type3_blink=std::uint32_t(-2);h.update_type3(r,data,tables,vars,party,3,ordinary_setter);
+    require(h.type3_blink==std::uint32_t(-1)&&rgb(26)==0x2d28be,"negative source remainder");
+    h.type3_blink=0x7fffffff;h.update_type3(r,data,tables,vars,party,3,ordinary_setter);
+    require(h.type3_blink==std::uint32_t(-8),"signed32 addition wraps before remainder");
+    for(unsigned count=0;count<3;++count) {
+        for(unsigned i=0;i<3;++i)put(vars,0x570+i*4,i<count?3:0);
+        party.refresh(vars,3);h.update_type3(r,data,tables,vars,party,3,ordinary_setter);
+        for(unsigned i=0;i<3;++i) {
+            require(a(54+i)==(i<count?128:0),"actual cache count indicators");
+            require(a(8+i*2)==(i<count?128:0)&&a(8+i*2,5)==(i<count?128:0),"actual cache count bar colors");
+        }
+    }
+    h.type3_reset=1;h.type3_blink=17;
+    const auto icons_before=r.widget(2,26).runtime->words;
+    h.update_type3(r,data,tables,vars,party,3,ordinary_setter);
+    require(a(0)==128&&a(1)==0&&h.type3_blink==17&&r.widget(2,26).runtime->words==icons_before,"alternate class skips normal row/blink work");
+    h.type3_reset=0;calls.clear();
+    rejects([&]{h.update_type3(r,data,tables,vars,party,4,[&](bool e){calls.push_back(e);});});
+    require(calls==std::vector<bool>({false,true})&&!h.type3_ready&&h.type3_blink==17&&h.type3_cursor==72&&a(52)==64,"demo guard follows known prefix and precedes demo mutation");
+    h.type3_ready=77;rejects([&]{h.update_type3(r,data,tables,vars,party,3,{});});
+    require(h.type3_ready==77,"missing host setter rejects before mutation");
+    for(unsigned i=0;i<4;++i){put(vars,0x570+i*4,3);vars[0x5c6+i*0x50]=1;vars[0x5dc+i*0x50]=50;}
+    party.refresh(vars,3);rejects([&]{h.update_type3(r,data,tables,vars,party,3,ordinary_setter);});
+}
 void owned_checks(const okage::BattleHudData& data,const okage::GameDataTables& tables,okage::Bytes raw,std::vector<std::uint8_t> vars) {
     okage::RuwResource r(raw);okage::BattleHud h;okage::UiPartySelection party;
     // This independent branch exercise uses native variables, not reference RAM.
@@ -131,6 +198,9 @@ void owned_checks(const okage::BattleHudData& data,const okage::GameDataTables& 
     h.refresh_type3(r,data,tables,vars,party);
     require(h.type3_ready==1&&r.widget(5,8).words[6]==r.widget(5,8).words[13],"owned type3 update and health fill");
     require(text(r,5,23).find("Ari         ")!=std::string::npos,"owned type3 player name formatting");
+    std::vector<bool> layout_calls;
+    h.update_type3(r,data,tables,vars,party,3,[&](bool e){layout_calls.push_back(e);});
+    require(layout_calls==std::vector<bool>({false,true})&&!h.type3_ready&&h.type3_blink==1,"owned full type3 callback");
     put(vars,0x5cc,0);vars[0x5c5]=0xff;h.mode_counter=59;h.selection_state=0;
     h.refresh(r,data,tables,vars,party,3,0);
     require(h.mode_counter==60&&h.selection_state==1,"warning counter/state");
@@ -169,7 +239,7 @@ int main(int argc,char** argv) {
         require(data2.number(12)==data.number(12),"v2 preserves constructor formatting");
         require(data2.number2(0)==start+"0\\c[0]0"&&data2.number2(-100)==data2.number2(0),"two-digit nonpositive");
         require(data2.number2(1)==start+"0\\c[0]1"&&data2.number2(12)==start+"\\c[0]12"&&data2.number2(999)==start+"\\c[0]99","two-digit source format/clamp");
-        type3_checks();
+        type3_checks();type3_update_checks();
         for(unsigned n:{0u,8u,79u,351u,353u}){b=fixture();b.resize(n);rejects([&]{okage::BattleHudData bad(b);});}
         for(unsigned at:{0u,8u,12u,16u}){b=fixture();put(b,at,0);rejects([&]{okage::BattleHudData bad(b);});}
         b=fixture();put(b,156,0x7ff00000);rejects([&]{okage::BattleHudData bad(b);});

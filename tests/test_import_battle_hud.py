@@ -26,6 +26,7 @@ class SyntheticImage:
         self.ranges = {
             hud.PALETTE_ADDRESS: self.palette,
             hud.THRESHOLD_ADDRESS: self.threshold,
+            hud.TYPE3_THRESHOLD_ADDRESS: self.threshold,
         }
         for address, value in zip(hud.STRING_ADDRESSES, strings):
             self.ranges[address] = (value + b'\0').ljust(hud.STRING_BYTES, b'\0')[:hud.STRING_BYTES]
@@ -67,6 +68,14 @@ class BattleHudImporterTests(unittest.TestCase):
                          [f'0x{address:08x}' for address in hud.STRING_ADDRESSES])
         self.assertEqual(metadata['source_provenance']['formatting_function'], '0x001240c8')
         self.assertEqual(metadata['source_provenance']['resource_formatting_function'], '0x00124200')
+        self.assertEqual(metadata['sources']['type3_threshold']['vaddr'], '0x00248088')
+        self.assertEqual(metadata['sources']['type3_threshold']['sha256'], metadata['sources']['threshold']['sha256'])
+
+    def test_type3_threshold_is_independently_verified(self):
+        image = SyntheticImage()
+        image.ranges[hud.TYPE3_THRESHOLD_ADDRESS] = struct.pack('<d', 0.2)
+        with self.assertRaisesRegex(ValueError, 'Type3 HUD threshold differs'):
+            hud.extract_payload(image, bytes(32))
 
     def test_unterminated_empty_non_ascii_strings_and_bad_threshold_rejected(self):
         strings = [b'a', b'b', b'c', b'd', b'e']
