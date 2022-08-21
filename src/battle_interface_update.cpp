@@ -57,7 +57,10 @@ BattleUiPadMasks BattleInterface::first_update(std::shared_ptr<RuwResource> reso
         auto& cursor=words_[0xe8c/4];
         if(cursor>=16)throw std::runtime_error("Battle interface state cursor outside owner");
         auto& state=words_[0xe4c/4+cursor];
-        auto& w=*shared_.registry.at(handles_.at(layer));
+        const int handle=handles_.at(layer);
+        if(handle<0||unsigned(handle)>=shared_.registry.size()||!shared_.registry[unsigned(handle)])
+            throw std::runtime_error("Battle interface callback window lifetime");
+        auto& w=*shared_.registry[unsigned(handle)];
         const auto bind=[&](std::span<const std::size_t> groups) {
             shared_.resource_accumulators[0]=0;
             w.bind_ruw(resource,groups);

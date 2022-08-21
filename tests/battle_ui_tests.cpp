@@ -59,7 +59,8 @@ void first_dispatch() {
     require(words[0xe8c/4]==2&&words[0xe48/4]==1,"state cursor and layer order");
     require(words[0x114/4]==1&&words[0x1f4/4]==1,"typed callback manager links");
     require(words[0xa4/4]==19&&words[0x184/4]==0,"initial commands");
-    require(words[0x64/4]==0xbfc00000&&words[0x144/4]!=0xbfc00000,"rotation only type3");
+    require(words[0x64/4]==0xbfc00000&&words[0x144/4]==0xbfb94c5d,"rotation only type3 with source single rounding");
+    require(pad.controls[0].delay==1800&&pad.controls[0].interval==900,"source repeat settings multiply by display rate");
     require(ui.window(1).word(0x554)==words[0x144/4],"type3 rotation reaches window");
     require(shared.resource_accumulators[0]==0&&shared.resource_accumulators[1]==123,"only resource slot0 reset");
     require(ui.window(0).opacity()==128&&ui.window(1).opacity()==128,"callback sets alpha without advancing clock");
@@ -74,6 +75,10 @@ void first_dispatch() {
     require(ui.window(0).word(0x1900)==(flags&~0x1000u),"content flag clears only source bit");
     shared.registry[0]->set_layout_enabled(true);
     require(ui.window(0).word(0x1900)==(flags|0x1000u),"content flag sets only source bit");
+    input.left_x=0;shared.input_inhibit=51;
+    const auto masks=ui.first_update(resource,pad,input,60);
+    require(pad.analog_x_ticks==1&&masks.repeat==0,"inhibition follows unconditional analog update");
+    input.left_x=128;shared.input_inhibit=0;
     for(unsigned i=0;i<40;++i)ui.first_update(resource,pad,input,60);
     require(words[0xe50/4]==2&&words[0x144/4]==0&&ui.window(1).word(0x554)==0,"source rotation completes on positive crossing");
     require(words[0xe4c/4]==2&&words[0xa4/4]==0xffffffff,"zero-opacity type2 skips interaction");
