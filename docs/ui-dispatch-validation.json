@@ -1,0 +1,888 @@
+{
+  "schema": "okage-ui-dispatch-validation-v1",
+  "source_revision": "d4e8bf7d9bba7356d1056eea468982b77e218322",
+  "base_revision": "87a514d",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "scope": "First dispatcher executed in owned-data diagnostic; clock, non-demo type3 callback, pad and live roster dependencies implemented.",
+  "first_dispatch": {
+    "status": "pass",
+    "builds": [
+      "Release",
+      "Debug",
+      "ASan/UBSan"
+    ],
+    "reference": "local/research/ui-first-update-v1/natural-ui-updates-v1.updates.jsonl",
+    "reference_frames": [
+      126,
+      126
+    ],
+    "manager_words": 1882,
+    "manager_pointer_mappings": 30,
+    "window_before_words": 14146,
+    "window_after_words": 13911,
+    "resource_accumulator_words": 16,
+    "binding_glyph_bytes": 22528,
+    "binding_pointer_relations": 237,
+    "binding_primary_colors": 229,
+    "outputs_sha256": "fc48464f26cde681b3cac93799eb216d2d9e4632e5a580a75560b30ac35bbdc3",
+    "reports": [
+      "local/research/ui-dispatch-v1/first-comparison-release-v3.json",
+      "local/research/ui-dispatch-v1/first-comparison-debug-v3.json",
+      "local/research/ui-dispatch-v1/first-comparison-sanitize-v3.json"
+    ]
+  },
+  "checks": {
+    "final_runs": "local/research/ui-dispatch-v1/final-check-runs-v3.json",
+    "affected_ctests_per_build": 6,
+    "python_tests": 321,
+    "python_exit_code": 0,
+    "python_log": "local/research/ui-dispatch-v1/python-suite-v1.log",
+    "owned_hud_tests": "Diagnostic emits constructor JSON before additional owned-data refresh/type3 callback checks; no original type3 parity claim"
+  },
+  "native_route": {
+    "prefix": "local/native-ui-dispatch-104615-release-v1",
+    "exit_code": 1,
+    "guard_frame": 104453,
+    "seconds": 20.354812667,
+    "binary_sha256": "ad846aad385ab98082eaaa2fabd21388139392e827fbdbee654b7cd2fccf4f6b",
+    "comparison": "local/research/ui-dispatch-v1/native-route-comparison-v1.json",
+    "original_checks": "local/research/ui-dispatch-v1/native-route-verification-runs-v1.json",
+    "complete": false
+  },
+  "owned_hud_import": {
+    "path": "local/research/ui-dispatch-v1/battle-hud-v2.bin",
+    "bytes": 480,
+    "source_formats": [
+      "0x2236c8",
+      "0x2236e0",
+      "0x223688",
+      "0x2236e8",
+      "0x223700"
+    ],
+    "threshold_addresses": [
+      "0x247b98",
+      "0x248088"
+    ],
+    "threshold_relation": "independently read and verified byte-identical by pinned importer",
+    "import_command": [
+      "python3",
+      "tools/import_battle_hud.py",
+      "--elf",
+      "local/extracted/SCUS_971.29",
+      "--output",
+      "local/research/ui-dispatch-v1/battle-hud-v2.bin"
+    ]
+  },
+  "runs": {
+    "pad": "local/worktrees/battle-ui-pad-v1/local/validation/report.json",
+    "clock_guards": "local/worktrees/ui-clock-guards-v1/local/validation/report.json",
+    "hud_refresh": "local/worktrees/hud-type3-v1/local/hud-type3-checks/report.json",
+    "hud_callback": "local/worktrees/hud-type3-v1/local/hud-type3-checks/update-report.json",
+    "roster": "local/worktrees/battle-ui-roster-v1/local/validation/report.json"
+  },
+  "limitations": [
+    "No new original VM run or progression; original interval remains104376..104615.",
+    "First dispatcher proof covers manager/known window/binding fields at the first neutral call, not whole shared state, analog pad settings, full HUD, FCSR/RNG or pixels/audio.",
+    "Clock, non-demo type3 callback and roster queries have source review and native tests, not new original entry/return comparisons.",
+    "Active transform records, exceptional floating arithmetic, interactive type2 branches, type3 demo mode and more than three displayed party rows remain explicit guards.",
+    "Neither dispatcher is scheduled in the actual BattleSession yet; type2 second callback, actual child activation, layout, drawing and camera/filter flow remain required.",
+    "The Release regression retains the same104453 guard; its four constructor/stage/HUD reports are byte-identical to the prior route. No full Debug/sanitizer route replay at this checkpoint.",
+    "Replay elapsed time is not interactive FPS or loading-time equality. Earlier loading, actor/RNG, raster/audio, startup and persistence debt remains."
+  ],
+  "review_corrections": [
+    "First verifier omitted post-window fields; corrected before final acceptance and covered by opacity/transform/unrelated-word negative tests.",
+    "Clock table guard originally used whole-window extent; corrected to source32 slots.",
+    "Raw addition overflow/subnormal results now reject before clamps can hide them; host floating environment is restored."
+  ],
+  "live_state": {
+    "preview_pid": 3907,
+    "preview_bundle": "local/demos/current-preview-104447-v2/okage-native.app",
+    "preview_frame": 104447,
+    "preview_source": "b641f70",
+    "extra_windows_opened": 0,
+    "root_jobs": {
+      "13128": "terminal0",
+      "62593": "terminal0",
+      "65087": "terminal0",
+      "21409": "wrapper terminal0; app exit1"
+    },
+    "runs_collected": true
+  },
+  "bindings": [
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 12636,
+      "sha256": "1db64ec6a77a47631e2264e662c8048c8fd1f463b1f608a5fd5aec02eb58be45"
+    },
+    {
+      "path": "build/model-sanitize/CMakeCache.txt",
+      "bytes": 17134,
+      "sha256": "928b342deb34d22bfafb4cd5f91ef475aeb3781e7ee1aa56fb9558709419d57c"
+    },
+    {
+      "path": "build/model-sanitize/battle-hud-tests",
+      "bytes": 3382608,
+      "sha256": "c66d5abe14b127289311be6596e21c8af0d10d4cf10d6418920f68c55f24e3f7"
+    },
+    {
+      "path": "build/model-sanitize/battle-ui-pad-tests",
+      "bytes": 141232,
+      "sha256": "df798ae6983e64284ca97565a6c79a88d20e60c81974c0b02dca0803200fd3ee"
+    },
+    {
+      "path": "build/model-sanitize/battle-ui-roster-tests",
+      "bytes": 2000648,
+      "sha256": "554b133f34f12114c195ab419c1e132aca36eaa84b4d25f5598873a54de1278f"
+    },
+    {
+      "path": "build/model-sanitize/battle-ui-tests",
+      "bytes": 3579648,
+      "sha256": "d34ea59367c38a41cbc8c56ac108f2d2e6fe9a839009502948fb98721f002bbc"
+    },
+    {
+      "path": "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",
+      "bytes": 14805936,
+      "sha256": "593ae1278e88c8a61250a033c9edefb72d86f7b9b0107c7874c94d1f621dbc6f"
+    },
+    {
+      "path": "build/model-sanitize/okage-ui-binding",
+      "bytes": 4127488,
+      "sha256": "29f7bbceefaebd37e05e8aec70dad8e21787911545c617196b7dfb269b0e940b"
+    },
+    {
+      "path": "build/model-sanitize/ui-window-tests",
+      "bytes": 3198768,
+      "sha256": "52161cf1a621d4da3d63c4a2107caae4523f980fc81aab1e40d183170bf15766"
+    },
+    {
+      "path": "build/native-release/CMakeCache.txt",
+      "bytes": 17061,
+      "sha256": "a8afe6993155641074f2dcf087bb07b3a5f27c1079fd719d57a25af66dc2edd7"
+    },
+    {
+      "path": "build/native-release/battle-hud-tests",
+      "bytes": 239536,
+      "sha256": "b1df7160e57d2bc82fbeaf671d3606d680043e28cd20097fff643df4347064b4"
+    },
+    {
+      "path": "build/native-release/battle-ui-pad-tests",
+      "bytes": 37200,
+      "sha256": "4a5115e2360c1ba3111db53a0a86db05b85fbc0fdb86612cb34f8e88b7cb7708"
+    },
+    {
+      "path": "build/native-release/battle-ui-roster-tests",
+      "bytes": 145896,
+      "sha256": "b5b88414824b8b698dd86c5cbf09c0b1bcb8f7c1460b0e667101a2ef0fd5fac6"
+    },
+    {
+      "path": "build/native-release/battle-ui-tests",
+      "bytes": 211200,
+      "sha256": "8fb16aa88ac9925c915695aec3d0a805164dd08cbda6cdcd51aaba52ea1b0669"
+    },
+    {
+      "path": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+      "bytes": 1566080,
+      "sha256": "ad846aad385ab98082eaaa2fabd21388139392e827fbdbee654b7cd2fccf4f6b"
+    },
+    {
+      "path": "build/native-release/okage-ui-binding",
+      "bytes": 255904,
+      "sha256": "2cda2fb79e9f4e8e33d37cc87d630ddc9471f72ec1cb4968ce2dc663f6384059"
+    },
+    {
+      "path": "build/native-release/ui-window-tests",
+      "bytes": 214128,
+      "sha256": "e9e432647138d08175a8ccf6eb64cfc6a59a933f3f34c94ff4cb564f3f1a56cf"
+    },
+    {
+      "path": "build/native/CMakeCache.txt",
+      "bytes": 17031,
+      "sha256": "b191ebcf702ec93007fcdf86c4a97e6221723fb57a98269938a1eb2d70f19960"
+    },
+    {
+      "path": "build/native/battle-hud-tests",
+      "bytes": 1186304,
+      "sha256": "b7382602a9c110fe65f33ae67523006e0b3a496ea372e16ad9f60d009c4929bc"
+    },
+    {
+      "path": "build/native/battle-ui-pad-tests",
+      "bytes": 66560,
+      "sha256": "09557f753716f4236a4426ae4114fc75c9d774605331e47ba1e171fad5437f4c"
+    },
+    {
+      "path": "build/native/battle-ui-roster-tests",
+      "bytes": 662888,
+      "sha256": "07383aa1bc36f8a72cfe1892245cc43a8fe7a8fc5c4fd8a7f1ed02747beee219"
+    },
+    {
+      "path": "build/native/battle-ui-tests",
+      "bytes": 1287200,
+      "sha256": "90167cb629ea4dc76211edaea81677bbeefd9bc976f2a0dc46a26fc68a6c1684"
+    },
+    {
+      "path": "build/native/okage-native.app/Contents/MacOS/okage-native",
+      "bytes": 6539280,
+      "sha256": "a580845db206d49e8b50104ac5a64de8b9ef460727a8fa4aa9b9359f9818bdb9"
+    },
+    {
+      "path": "build/native/okage-ui-binding",
+      "bytes": 1478160,
+      "sha256": "ffd981cda3b1340520ad733fd5d2ac742864ff622ddbfc16b17b3c4c84b635b5"
+    },
+    {
+      "path": "build/native/ui-window-tests",
+      "bytes": 1178272,
+      "sha256": "290b2dc72addba5dbe3e3e18d471cf002d569d3ab57645c5e027ac71bb815339"
+    },
+    {
+      "path": "docs/ui-first-updates-validation.json",
+      "bytes": 18498,
+      "sha256": "77fa13153bc843335f5a6f225d32e6fc646feb36a5c3dbcafaf6c6bd6ff880ec"
+    },
+    {
+      "path": "include/okage/battle_data.hpp",
+      "bytes": 1218,
+      "sha256": "45ae06d11183c451f729b8faa068fa0e5adb285148f7fe94dd5c5727f0c3bcb7"
+    },
+    {
+      "path": "include/okage/battle_hud.hpp",
+      "bytes": 2433,
+      "sha256": "a783150bd782d05086f4e82225711c703e5969d3b3b63cca27ac2916974cbd02"
+    },
+    {
+      "path": "include/okage/battle_interface.hpp",
+      "bytes": 1598,
+      "sha256": "c1a814e517e9d17980277d09a73113049ca66a89ec895532efdc0fb8332030a2"
+    },
+    {
+      "path": "include/okage/battle_ui_pad.hpp",
+      "bytes": 1300,
+      "sha256": "cb8467c3fcacac5edbcf86de15004a0f8e2cf2e77ba65af709ac1166ad023ca8"
+    },
+    {
+      "path": "include/okage/battle_ui_roster.hpp",
+      "bytes": 865,
+      "sha256": "e604d2d13a3833ed0107538088db0a166abea66d2f3ad4cd0cae8011caa1c0b0"
+    },
+    {
+      "path": "include/okage/ui_window.hpp",
+      "bytes": 3697,
+      "sha256": "d812345a6101ff5b5b2ea2454d00e766a859b0a4125ccffa95e153cfdd9406c9"
+    },
+    {
+      "path": "local/battle-input-v1/BTL.RUW",
+      "bytes": 19596,
+      "sha256": "2bc4de13d79919a53e7962250ea40acca28bb0e027ee750f35a87b6903dc8800"
+    },
+    {
+      "path": "local/battle-input-v1/battle-hud.bin",
+      "bytes": 352,
+      "sha256": "265a3fab66c47102b63516b6139895a944c6c6a292afa28cf22611e2c795d8bd"
+    },
+    {
+      "path": "local/battle-input-v1/battle-ui.bin",
+      "bytes": 312,
+      "sha256": "055db32092309d9face66e7cba1c14b23c8b4ef6e106674e95ebbd8f07b49381"
+    },
+    {
+      "path": "local/extracted/SCUS_971.29",
+      "bytes": 1374220,
+      "sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
+    },
+    {
+      "path": "local/native-battle-ui-data-104448-release-v1.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "efdbf2965e4c5992b74bb2d6f01e12cd4b46317e2319a8822e91521af784241f"
+    },
+    {
+      "path": "local/native-ui-dispatch-104615-release-v1.command.txt",
+      "bytes": 5429,
+      "sha256": "ac743df86da0419e666f76ebfc92972e7d872c9ea1468b61aa4503b2c8770cd7"
+    },
+    {
+      "path": "local/native-ui-dispatch-104615-release-v1.directions",
+      "bytes": 8444,
+      "sha256": "7dd846e3e8ce266b2457fdfcdb05e3c12dac6facac4c7b76760454bf0398d8ce"
+    },
+    {
+      "path": "local/native-ui-dispatch-104615-release-v1.log",
+      "bytes": 4500,
+      "sha256": "adc49b734092f8c91e73a5a74993e82937ef139f10422f3369ffc70303a3c7de"
+    },
+    {
+      "path": "local/native-ui-dispatch-104615-release-v1.png.battle-construction.json",
+      "bytes": 93845,
+      "sha256": "e01d3923d1a3898c4030db724c275cd9dfd0536d067db2dbf44551f0096db6d4"
+    },
+    {
+      "path": "local/native-ui-dispatch-104615-release-v1.png.battle-stage.hud.json",
+      "bytes": 75816,
+      "sha256": "dd22eeb11a033cd694ea0ab50a4ce60eaaa85e999ce1594717d1368e6c889d95"
+    },
+    {
+      "path": "local/native-ui-dispatch-104615-release-v1.png.battle-stage.json",
+      "bytes": 42439,
+      "sha256": "4d503d9d65436900c9140a04d6e2f2927ecb853441b9223feec7e531441cd1a8"
+    },
+    {
+      "path": "local/native-ui-dispatch-104615-release-v1.png.battle-stage.ui.json",
+      "bytes": 32001,
+      "sha256": "c5e7e5e90b8b970e70719a306f7a11addd37cce3a85b87cc7b51187dcca549dc"
+    },
+    {
+      "path": "local/native-ui-dispatch-104615-release-v1.run.json",
+      "bytes": 5878,
+      "sha256": "6ede076aaf4afee885f6800daae657811992490fc62841100d002a43f757b057"
+    },
+    {
+      "path": "local/research/0011fec8.asm",
+      "bytes": 1090,
+      "sha256": "cdf5248f062e62b23d57d15da00e25b927535a3e3f045fa6b70888e1ce86ec85"
+    },
+    {
+      "path": "local/research/0011fec8.c",
+      "bytes": 868,
+      "sha256": "7c647da3d9a1a6e3f6cdecb05efe2f3b6d1e42b24443be1a08fc97a64aef0a74"
+    },
+    {
+      "path": "local/research/0011ff78.asm",
+      "bytes": 4198,
+      "sha256": "a13f4e1913192c174896ae9acbfe5a762d0198d66ca776591540127353853b3a"
+    },
+    {
+      "path": "local/research/0011ff78.c",
+      "bytes": 2472,
+      "sha256": "bc629a50f964707fd8e2b0814ed297856563d710dfdaec6d253cf15f33171f46"
+    },
+    {
+      "path": "local/research/00122f98.asm",
+      "bytes": 2937,
+      "sha256": "a4b5bc2b5fcb5d64ef38e5792c39e368c11450c528e8deaa10f70975012f567f"
+    },
+    {
+      "path": "local/research/00122f98.c",
+      "bytes": 1558,
+      "sha256": "d62f85c2d6abd5fe1bb9bf513043f8c16f7166100c44634172d949fbfb4c76a6"
+    },
+    {
+      "path": "local/research/00123820.asm",
+      "bytes": 3921,
+      "sha256": "caec8a1fa43bba791caceb7abf748444e6a29f591c838a133fbf43656f1ac7cd"
+    },
+    {
+      "path": "local/research/00123820.c",
+      "bytes": 2140,
+      "sha256": "7ddf0a470ea324064a288717e73f94468306c9c1dc438f12f507b69b70a24d0f"
+    },
+    {
+      "path": "local/research/001980f8.asm",
+      "bytes": 4092,
+      "sha256": "6d56ff184962a00b6be99c2cae1261b318c2e0df58bfc0f67bab353610fcc1e6"
+    },
+    {
+      "path": "local/research/001980f8.c",
+      "bytes": 4254,
+      "sha256": "07aa4050661879beed489ebf9a3bba8335f076c4f07cd885e0d2e48f5659e72a"
+    },
+    {
+      "path": "local/research/001994d8.asm",
+      "bytes": 5088,
+      "sha256": "411fc423559a58c6ff5a90416961bd1cd519e4db66931df128e5a2a9b563c5fd"
+    },
+    {
+      "path": "local/research/001994d8.c",
+      "bytes": 4233,
+      "sha256": "8c80f78e3047f5d087c5f32c1fa9ee3b85d060077b805559178196a7913cbf19"
+    },
+    {
+      "path": "local/research/00199808.asm",
+      "bytes": 902,
+      "sha256": "1e1ccacd27931f34d9255c6af7069cc808aba786c81a964b854309d87a45db56"
+    },
+    {
+      "path": "local/research/00199808.c",
+      "bytes": 769,
+      "sha256": "88e7a5013fe4f9aa1d8883f0c7d03d380c39b7971aa5b0065387fcb738cd4052"
+    },
+    {
+      "path": "local/research/001998a8.asm",
+      "bytes": 683,
+      "sha256": "158284c15fb1170de8c921c299695c4758b7dee5f8b99d34676debdea1907264"
+    },
+    {
+      "path": "local/research/001998a8.c",
+      "bytes": 648,
+      "sha256": "d74117953349fff4a49850fae68e66ce2b8ff4faa314545c4df47531b0d28184"
+    },
+    {
+      "path": "local/research/001a5488.asm",
+      "bytes": 423,
+      "sha256": "2471f6549377586d81b870ff027249dca1549fc7799bc13efb33081c5f449d58"
+    },
+    {
+      "path": "local/research/001a5488.c",
+      "bytes": 348,
+      "sha256": "334ba25a3ccf0a5c944a5b3ce24315390dd5bad8546509c9cabbae72113d65d3"
+    },
+    {
+      "path": "local/research/battle-stage-commit-v1/next-ui-constructor-exports/00165b50.asm",
+      "bytes": 51641,
+      "sha256": "06401460204cbce2d7c6b1abc59f034a97aacb09062a56a2109531a56ab65919"
+    },
+    {
+      "path": "local/research/battle-stage-commit-v1/next-ui-constructor-exports/00165b50.c",
+      "bytes": 34803,
+      "sha256": "5c5543eda4657e9b635cea9e4a99eae9f2210a46b54294ee97b72527077d4597"
+    },
+    {
+      "path": "local/research/battle-stage-commit-v1/next-ui-exports/001684d0.asm",
+      "bytes": 10074,
+      "sha256": "c20c5b6f4cebbe2c8c7087384e97b0683ba3eb23c374c93bb994a27d98003a82"
+    },
+    {
+      "path": "local/research/battle-stage-commit-v1/next-ui-exports/001684d0.c",
+      "bytes": 6509,
+      "sha256": "83a5247084d73a99dc71d27efa1ce5a3109f53fee3533a9306e720c90dce90d9"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/battle-hud-v2.bin",
+      "bytes": 480,
+      "sha256": "158065d68cb5d00b79a6079dae5b3384b2d7cbb11eb49a0980e6369c694cc5b8"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/battle-hud-v2.bin.manifest.json",
+      "bytes": 2710,
+      "sha256": "77137f0d867f60355b2112fcd296855de48b012a5fc9e80430e64267e41611a1"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/final-check-debug-0-v3.log",
+      "bytes": 1815,
+      "sha256": "36a8a2f21e1d6409a47a49c5903dbe8d23190b61f476c2bf9390c74978cb728e"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/final-check-debug-1-v3.log",
+      "bytes": 822,
+      "sha256": "99e19c2e6c05ab898f8388c962513899502535ffc3eb707d5c8e5ca619c42fc2"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/final-check-debug-2-v3.log",
+      "bytes": 37,
+      "sha256": "6b902ef2942cbfadafc0a5c1ffdc9e10fa30037ca81e158d8432764e207ab0ec"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/final-check-debug-3-v3.log",
+      "bytes": 58,
+      "sha256": "ae01db0d84c284694aabce080dd72b92965c05c9d15a53651024db8420112871"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/final-check-debug-4-v3.log",
+      "bytes": 44,
+      "sha256": "55a47e6d9d0b641eb2aa1c29eb199bceba108a7b9d8ca54a945b176b57a76f69"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/final-check-release-0-v3.log",
+      "bytes": 1823,
+      "sha256": "ef7174a44aa7799f21b307f9c8bd86ad1e136cf3c481966481634056991b7ded"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/final-check-release-1-v3.log",
+      "bytes": 838,
+      "sha256": "4f6ac8f9542cd661ee0930d276a5d35be4419bf3bab5f989aaeda4fc09e3c432"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/final-check-release-2-v3.log",
+      "bytes": 37,
+      "sha256": "6b902ef2942cbfadafc0a5c1ffdc9e10fa30037ca81e158d8432764e207ab0ec"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/final-check-release-3-v3.log",
+      "bytes": 58,
+      "sha256": "ae01db0d84c284694aabce080dd72b92965c05c9d15a53651024db8420112871"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/final-check-release-4-v3.log",
+      "bytes": 44,
+      "sha256": "55a47e6d9d0b641eb2aa1c29eb199bceba108a7b9d8ca54a945b176b57a76f69"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/final-check-runs-v3.json",
+      "bytes": 8889,
+      "sha256": "6731dbb8cc9e45f6bbaf7adf2405686954d35dc70860c85bc6de1ec92c005122"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/final-check-sanitize-0-v3.log",
+      "bytes": 1823,
+      "sha256": "17a04c55e2d1fd79b1f0396e6f02aa726f8b2fa154a8770aaf999d7bdb80c52a"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/final-check-sanitize-1-v3.log",
+      "bytes": 838,
+      "sha256": "1ecee7772862caf308544e438ac9f53cb88f2a4daa9c08074123d5d3b5c51e59"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/final-check-sanitize-2-v3.log",
+      "bytes": 37,
+      "sha256": "6b902ef2942cbfadafc0a5c1ffdc9e10fa30037ca81e158d8432764e207ab0ec"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/final-check-sanitize-3-v3.log",
+      "bytes": 58,
+      "sha256": "ae01db0d84c284694aabce080dd72b92965c05c9d15a53651024db8420112871"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/final-check-sanitize-4-v3.log",
+      "bytes": 44,
+      "sha256": "55a47e6d9d0b641eb2aa1c29eb199bceba108a7b9d8ca54a945b176b57a76f69"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-check-debug-0-v2.log",
+      "bytes": 1755,
+      "sha256": "9023595b1dab98674893fee3a78e8e0a1acbfd9745cb8525dcb5c7f70551853c"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-check-debug-1-v2.log",
+      "bytes": 717,
+      "sha256": "f52dbbf33a4172be13f49a9da11969808903d81044f9a3dfe3f1847bfe6fed54"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-check-debug-2-v2.log",
+      "bytes": 37,
+      "sha256": "6b902ef2942cbfadafc0a5c1ffdc9e10fa30037ca81e158d8432764e207ab0ec"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-check-release-0-v2.log",
+      "bytes": 1683,
+      "sha256": "5905f99f46ba4e212bfc378831ca47a0b1900989d365cc88ced12daf4fa26f62"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-check-release-1-v2.log",
+      "bytes": 733,
+      "sha256": "4a47b064a8ba5330cc923e2adfb104bdb572c986f9874b0745e9bf7ac33967e4"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-check-release-2-v2.log",
+      "bytes": 37,
+      "sha256": "6b902ef2942cbfadafc0a5c1ffdc9e10fa30037ca81e158d8432764e207ab0ec"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-check-runs-v2.json",
+      "bytes": 4009,
+      "sha256": "6dbf01507ccf753b39f4be71c1c01a638425c3b043d3417aaf7bf95f532de72f"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-check-sanitize-0-v2.log",
+      "bytes": 1763,
+      "sha256": "cd567d12d367cc6112c95a6b09b506c514ef61e49a74ef2a91f31a384f274612"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-check-sanitize-1-v2.log",
+      "bytes": 733,
+      "sha256": "23da7f205eb7cacb210300dd2e3bc31247892667e7d317c39021f7f7a3b2a7d3"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-check-sanitize-2-v2.log",
+      "bytes": 37,
+      "sha256": "6b902ef2942cbfadafc0a5c1ffdc9e10fa30037ca81e158d8432764e207ab0ec"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-comparison-debug-v2.json",
+      "bytes": 34339,
+      "sha256": "b2a816d99d3f717f5d137dc677250e04ebd74093f09a2067964bacbf93266016"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-comparison-debug-v2.log",
+      "bytes": 44,
+      "sha256": "55a47e6d9d0b641eb2aa1c29eb199bceba108a7b9d8ca54a945b176b57a76f69"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-comparison-debug-v3.json",
+      "bytes": 34339,
+      "sha256": "f94ed08af0dcf87d75d0a3e709033aade856b5007ed420513352b3b8d1da6159"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-comparison-release-v2.json",
+      "bytes": 34341,
+      "sha256": "8854fdbd161d2a9687b96956186ab6ad5f7df5bc013562dbb4032630f53df7ba"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-comparison-release-v2.log",
+      "bytes": 44,
+      "sha256": "55a47e6d9d0b641eb2aa1c29eb199bceba108a7b9d8ca54a945b176b57a76f69"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-comparison-release-v3.json",
+      "bytes": 34341,
+      "sha256": "2dce434602a13b7feadc6aaecd84f894267e6635d4dd65c5fa34f63455f0572f"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-comparison-runs-v2.json",
+      "bytes": 1475,
+      "sha256": "5dea268009cf4ecb5b71f807848920af4146ff5eed816588519904bb921031f8"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-comparison-sanitize-v2.json",
+      "bytes": 34342,
+      "sha256": "d0d6a754db332c5874d8b78385697f26aaad2ad7a12162dcea854ee68cf06e1c"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-comparison-sanitize-v2.log",
+      "bytes": 44,
+      "sha256": "55a47e6d9d0b641eb2aa1c29eb199bceba108a7b9d8ca54a945b176b57a76f69"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-comparison-sanitize-v3.json",
+      "bytes": 34342,
+      "sha256": "a41cd93520a2fb967d507e7ad29b125ceac62db91db1b1a9600a4dc9d9058738"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-release-0-v1.log",
+      "bytes": 34,
+      "sha256": "544f69115002d1f3f6985613da714cd3baa112bf5f3ce552f57f9d5bd6fe5007"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-release-1-v1.log",
+      "bytes": 37,
+      "sha256": "6b902ef2942cbfadafc0a5c1ffdc9e10fa30037ca81e158d8432764e207ab0ec"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-runs-v1.json",
+      "bytes": 787,
+      "sha256": "10721e06bf8703a925feeae64398942b44030837854ee36d376490a62bb62306"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/native-first-debug-v2.json",
+      "bytes": 194066,
+      "sha256": "fc48464f26cde681b3cac93799eb216d2d9e4632e5a580a75560b30ac35bbdc3"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/native-first-debug-v3.json",
+      "bytes": 194066,
+      "sha256": "fc48464f26cde681b3cac93799eb216d2d9e4632e5a580a75560b30ac35bbdc3"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/native-first-release-v1.json",
+      "bytes": 194066,
+      "sha256": "fc48464f26cde681b3cac93799eb216d2d9e4632e5a580a75560b30ac35bbdc3"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/native-first-release-v2.json",
+      "bytes": 194066,
+      "sha256": "fc48464f26cde681b3cac93799eb216d2d9e4632e5a580a75560b30ac35bbdc3"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/native-first-release-v3.json",
+      "bytes": 194066,
+      "sha256": "fc48464f26cde681b3cac93799eb216d2d9e4632e5a580a75560b30ac35bbdc3"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/native-first-sanitize-v2.json",
+      "bytes": 194066,
+      "sha256": "fc48464f26cde681b3cac93799eb216d2d9e4632e5a580a75560b30ac35bbdc3"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/native-first-sanitize-v3.json",
+      "bytes": 194066,
+      "sha256": "fc48464f26cde681b3cac93799eb216d2d9e4632e5a580a75560b30ac35bbdc3"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/native-hud-debug-v3.json",
+      "bytes": 75810,
+      "sha256": "c17a9ecffdae4cb4410f508e9692abf1f5a752dd2d9bd8ec472914c8fe9e307e"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/native-hud-release-v3.json",
+      "bytes": 75810,
+      "sha256": "c17a9ecffdae4cb4410f508e9692abf1f5a752dd2d9bd8ec472914c8fe9e307e"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/native-hud-sanitize-v3.json",
+      "bytes": 75810,
+      "sha256": "c17a9ecffdae4cb4410f508e9692abf1f5a752dd2d9bd8ec472914c8fe9e307e"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/native-route-comparison-v1.json",
+      "bytes": 1127,
+      "sha256": "b87e8fbc2f9985ebd688bbb5f1216fa5927c72683d7a2ffcd0bd03a61e042793"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/native-route-hud-comparison-v1.json",
+      "bytes": 2352,
+      "sha256": "d274fecd5664e64739ae764f580e1e63f4f6c4e3621958b912c77b045f28dac6"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/native-route-interface-comparison-v1.json",
+      "bytes": 5060,
+      "sha256": "af9fba4b96105099b96d00d8065e874c06c4cdc61a59d2da156ee293eb8236bd"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/native-route-stage-comparison-v1.json",
+      "bytes": 1678,
+      "sha256": "d37cc42b935c60023c752f7194ab7a626db3596604b2cc5a6d08f115465a63a7"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/native-route-verification-runs-v1.json",
+      "bytes": 1726,
+      "sha256": "7329070dd32efa0e4b682cdc7e05e214120a595fca6bf991c02b64b0c92eca4b"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/python-suite-v1.log",
+      "bytes": 33571,
+      "sha256": "6c98f84eb7e52c863642ff2431fadc0baee7dd55041ee039117a54b50d551480"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/dependencies.capstone.txt",
+      "bytes": 6151,
+      "sha256": "47658c09096c2ebea04c42d3695329796ccef7dc2530f25bc034e19a58d7cbdc"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/exports/00121b18.c",
+      "bytes": 1183,
+      "sha256": "642645a4af3d5c095dd1f47512887945cdf75c0a31773ea16edb6bb0eba369ca"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/exports/00167e18.asm",
+      "bytes": 5824,
+      "sha256": "6129c23d760f9f4b1d4db1ef117fe1dc2b92e2d3cc39d75a2938d914d7be8ccd"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/exports/00167e18.c",
+      "bytes": 3115,
+      "sha256": "d1e1a59acc5bc4add7b0c7776d88954f68666a601173408cfefe07c5b2117830"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/natural-ui-updates-v1.run.json",
+      "bytes": 2145,
+      "sha256": "a577e2aa56f633d780e477b010a8096e1e18a621c864440a87e2a82e5bc74262"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/natural-ui-updates-v1.stage.jsonl",
+      "bytes": 389165,
+      "sha256": "b4f3a92d5e0e7193584ff02ac415c240d0522bb35e4019dde4529b064dd39886"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/natural-ui-updates-v1.ui.jsonl",
+      "bytes": 425233,
+      "sha256": "6e3355d12c3c11f20bb1a89d542d4fee7a04debb88c609ceb8b15db9d21b2247"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/natural-ui-updates-v1.updates.jsonl",
+      "bytes": 2609856,
+      "sha256": "69ff7cb68d757ff9e8b4e35e3f808421a16d32f0b74cad690580efb7895ba9d4"
+    },
+    {
+      "path": "local/text-input/CMNDATA/XDB/BKDATA.XDB",
+      "bytes": 66278,
+      "sha256": "973964019ddb24d033b0e10f4f3e2cf72fafdee9bdb25ee143ee87c832b0aff4"
+    },
+    {
+      "path": "local/text-input/CMNDATA/XDB/ITEM.XDB",
+      "bytes": 27796,
+      "sha256": "d3c0af83a4f47a8e5960f9181bdd72649692b80dafeb387395307130804c7cce"
+    },
+    {
+      "path": "local/worktrees/battle-ui-pad-v1/local/validation/report.json",
+      "bytes": 8417,
+      "sha256": "fca10baebfa756caa1ba4dd7c34f2cdc6f41204bab6e5bbd1f6ef9c711b67ad4"
+    },
+    {
+      "path": "local/worktrees/battle-ui-roster-v1/local/validation/report.json",
+      "bytes": 5440,
+      "sha256": "0b5fc4820f9408a0452fe71af2f39a873dd35456225d889d9644e787573a2c3a"
+    },
+    {
+      "path": "local/worktrees/hud-type3-v1/local/hud-type3-checks/report.json",
+      "bytes": 5092,
+      "sha256": "18b8d83738c6572e4349694159002e0cffd626b328944ce0be9bf9e410cdc461"
+    },
+    {
+      "path": "local/worktrees/hud-type3-v1/local/hud-type3-checks/update-report.json",
+      "bytes": 6753,
+      "sha256": "972d7f4bcd768435b4f93fcafddae48c647ac14fa44526530906cc9412ae863e"
+    },
+    {
+      "path": "local/worktrees/ui-clock-guards-v1/local/validation/report.json",
+      "bytes": 5738,
+      "sha256": "74bf0f76f00160109eccf31c56de06e99af9fae55c20a5307ac87ebc3fb1d9d6"
+    },
+    {
+      "path": "src/battle_hud.cpp",
+      "bytes": 20565,
+      "sha256": "f85808ece042e526f134d80317b183f38ed4df131f3c2b3be88c0bb33f528201"
+    },
+    {
+      "path": "src/battle_interface_update.cpp",
+      "bytes": 5410,
+      "sha256": "c10a6f96ab1d6daa6eadb5570a28e058becd334f07eab159257c7507dabd9737"
+    },
+    {
+      "path": "src/battle_ui_pad.cpp",
+      "bytes": 2716,
+      "sha256": "38b953581f9575c1f9a029d74d74b207d0821bdc81422482acfe13074484f9ae"
+    },
+    {
+      "path": "src/battle_ui_roster.cpp",
+      "bytes": 2996,
+      "sha256": "6c060cdb2a083d02d298ce99321dee11e431a1e6063f0ddbefffaef3d236c382"
+    },
+    {
+      "path": "src/ui_window.cpp",
+      "bytes": 9678,
+      "sha256": "7695a344f5e0403bbce8450cd4f0c489ce9037984147b495c742068f206fbdb8"
+    },
+    {
+      "path": "src/ui_window_clock.cpp",
+      "bytes": 7487,
+      "sha256": "5094d76880e63008fd4e1de65b01969a757e78041c6d6689e4e7fd85ee0f9c3d"
+    },
+    {
+      "path": "tests/battle_hud_tests.cpp",
+      "bytes": 17340,
+      "sha256": "e0a2516de1f33f2f9876cf2115aec47930c4a9f920dd044c05b76e66e28e96ad"
+    },
+    {
+      "path": "tests/battle_ui_pad_tests.cpp",
+      "bytes": 6296,
+      "sha256": "cdaf024a3c418f10ae51920eed6222170f7331344b3422b38a37e217ff1f2f7f"
+    },
+    {
+      "path": "tests/battle_ui_roster_tests.cpp",
+      "bytes": 7885,
+      "sha256": "0ced18e550afbb5d5f5d8108c2843f963e76cb3e244cc2b6b20e9be2461cc0e5"
+    },
+    {
+      "path": "tests/battle_ui_tests.cpp",
+      "bytes": 11836,
+      "sha256": "df09d813ad288567a1c40d117e35499ce9b60f5d9c297cd5f43f8948c2961e14"
+    },
+    {
+      "path": "tests/test_import_battle_hud.py",
+      "bytes": 8812,
+      "sha256": "e0f7a2065fcd7691509dec709bcbf33beda00954984aa3b6da5899ca5426fe6e"
+    },
+    {
+      "path": "tests/test_verify_ui_first_update.py",
+      "bytes": 9006,
+      "sha256": "4f87a4e308b2dd1a5237fde625f261c5d99058120485daaf40b4c613887cf562"
+    },
+    {
+      "path": "tests/ui_window_tests.cpp",
+      "bytes": 27172,
+      "sha256": "2499f20c9ce87f94736880e498d9b64b0e3727b5a28c320cb817aade642d90a8"
+    },
+    {
+      "path": "tools/import_battle_hud.py",
+      "bytes": 7616,
+      "sha256": "37cd976d7d9c7487b00cd0455c9febdf83e9a6d78e98229fd0e86171c60a6e44"
+    },
+    {
+      "path": "tools/ui_binding_diagnostic.cpp",
+      "bytes": 5635,
+      "sha256": "055ee6759288764954d64513fc8b0b95c4038888dd9e1465a0c5ee6ebb9d9af1"
+    },
+    {
+      "path": "tools/verify_ui_first_update.py",
+      "bytes": 18365,
+      "sha256": "6e6103602d95ec1c67a38d1d5420b98c52d7f25c34575406296713c5b165d4fe"
+    }
+  ]
+}
