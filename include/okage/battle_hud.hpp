@@ -21,7 +21,8 @@ private:
     std::optional<std::array<std::string,2>> short_formats_;
 };
 struct BattleHud {
-    std::uint32_t menu_state=0,mode_counter=0,selection_state=0,selected_alpha=128;
+    std::uint32_t menu_state=0,mode_counter=0,selected_alpha=128;
+    std::int32_t selection_state=0;
     bool bank2_bound=false;
     std::uint32_t type2_flag_a=0,type2_flag_b=0,type2_enabled=1;
     std::array<std::uint32_t,4> row_flags{};
@@ -40,6 +41,16 @@ struct BattleHud {
                  Bytes variables,const UiPartySelection&,unsigned game_mode,int selected);
     void initialize_type2(RuwResource&,const BattleHudData&,const GameDataTables&,
                           Bytes variables,const UiPartySelection&,unsigned game_mode,int selected);
+    // 15e678 alone; constructor-only pre/post writes remain in initialize_type2.
+    void reset_type2_widgets(RuwResource&,const BattleHudData&,const GameDataTables&,
+                            Bytes,const UiPartySelection&,unsigned game_mode,int selected);
+    void refresh_command_costs(RuwResource&,const BattleHudData&,const GameDataTables&,
+        Bytes,const UiPartySelection&,unsigned game_mode,int selected_row3,
+        std::int32_t cost,std::int32_t kind,std::int32_t pulse_counter,std::int32_t hp_cost_gate);
+    void refresh_command_party(RuwResource&,const BattleHudData&,const GameDataTables&,
+        Bytes,const UiPartySelection&,unsigned game_mode,int selected_row2,
+        std::int32_t display_mode,std::int32_t available_count,
+        std::int32_t& command_countdown,std::int32_t command_alpha);
     void reset_type3(RuwResource&);
     void initialize_type3(RuwResource&,const GameDataTables&);
     void refresh_type3(RuwResource&,const BattleHudData&,const GameDataTables&,

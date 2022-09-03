@@ -200,6 +200,11 @@ void BattleHud::refresh(RuwResource& r,const BattleHudData& data,const GameDataT
 void BattleHud::initialize_type2(RuwResource& r,const BattleHudData& data,const GameDataTables& tables,
                                Bytes vars,const UiPartySelection& party,unsigned mode,int selected) {
     type2_flag_b=0;type2_flag_a=0;
+    reset_type2_widgets(r,data,tables,vars,party,mode,selected);
+    type2_work.fill(0);type2_enabled=1;
+}
+void BattleHud::reset_type2_widgets(RuwResource& r,const BattleHudData& data,const GameDataTables& tables,
+                                    Bytes vars,const UiPartySelection& party,unsigned mode,int selected) {
     r.reset_class(3,1);r.reset_class(3,2);r.reset_widget(4,1);r.reset_widget(2,9);
     r.reset_class(2,0);r.reset_class(2,1);r.reset_class(4,0);
     r.add_class_rgba(2,-1,{keep,keep,keep,128});
@@ -208,7 +213,94 @@ void BattleHud::initialize_type2(RuwResource& r,const BattleHudData& data,const 
     row_flags.fill(0);r.add_class_rgba(2,3,{keep,keep,keep,128});flag_a8=0;
     r.set_class_rgba(2,4,{keep,keep,keep,0});flag_a0=0;
     refresh(r,data,tables,vars,party,mode,selected);
-    r.add_rgba(4,1,{keep,keep,keep,-256});type2_work.fill(0);type2_enabled=1;
+    r.add_rgba(4,1,{keep,keep,keep,-256});
+}
+void BattleHud::refresh_command_costs(RuwResource& r,const BattleHudData& data,const GameDataTables& tables,
+    Bytes vars,const UiPartySelection& party,unsigned mode,int selected,std::int32_t cost,
+    std::int32_t kind,std::int32_t pulse,std::int32_t hp_gate) {
+    if(mode==4)selected=0;
+    const int slot=party.at(3,selected);if(slot<0||slot>=8)return;
+    if(vars.size()<0xd78)throw std::runtime_error("HUD shared variable extent");
+    const auto c=vars.subspan(0x5c4+unsigned(slot)*0x50,0x50);
+    const auto subtract=[](std::int32_t a,std::int32_t b){return __builtin_bit_cast(std::int32_t, (std::uint32_t(a)-std::uint32_t(b)));};
+    const auto resources=std::min(__builtin_bit_cast(std::int32_t, (word(vars,0x590))),99);
+    const auto maximum=std::min(__builtin_bit_cast(std::int32_t, (word(vars,0x594))),99);
+    const auto format=[&](bool resource,std::int32_t current,std::int32_t max) {
+        copy(current_number,resource?data.number2(current):data.number(current));
+        copy(maximum_number,resource?data.number2(max):data.number(max));
+        const std::array args{std::string(text(current_number)),std::string(text(maximum_number))};
+        const std::array<std::string_view,2> spec{"%s","%s"};
+        copy(formatted,format_reached(tables.system_message(resource?0x8f:0x55),args,spec));
+    };
+    const auto paint=[&](bool resource,std::array<int,3> rgb) {
+        color(r,2,resource?41:49,rgb);color(r,4,resource?26:25,rgb);
+    };
+    format(true,resources,maximum);
+    if(kind==1&&pulse%120<60&&cost>0) {
+        const auto remaining=subtract(resources,cost);
+        if(remaining>=0){format(true,remaining,maximum);paint(true,{230,160,40});}
+        // Source bltz15ef78 preserves the previous resource colors.
+    } else paint(true,{255,255,255});
+    r.set_text(2,41,text(formatted));r.set_text(4,26,text(formatted));
+    const auto hp=__builtin_bit_cast(std::int32_t, (word(c,8)));const auto max_hp=half(c,0x18);
+    format(false,hp,max_hp);
+    if(kind==0&&pulse%120<60&&cost>0&&subtract(hp,hp_gate)>0) {
+        format(false,subtract(hp,cost),max_hp);paint(false,{230,160,40});
+    } else paint(false,{255,255,255});
+    r.set_text(2,49,text(formatted));r.set_text(4,25,text(formatted));
+}
+void BattleHud::refresh_command_party(RuwResource& r,const BattleHudData& data,const GameDataTables& tables,
+    Bytes vars,const UiPartySelection& party,unsigned mode,int selected,std::int32_t display_mode,
+    std::int32_t available,std::int32_t& countdown,std::int32_t command_alpha) {
+    if(mode==4)selected=0;
+    if(vars.size()<0xd78)throw std::runtime_error("HUD shared variable extent");
+    bank2_bound=true;
+    if(display_mode==0) {
+        r.add_class_rgba(2,5,{keep,keep,keep,128});
+        if(available<2) {
+            r.set_class_rgba(2,5,{keep,keep,keep,0});alpha(r,2,53,0);alpha(r,2,54,0);
+            r.set_runtime_word0(2,14,28);
+        } else {
+            if(!countdown)countdown=2;
+            for(auto [id,x]:{std::pair{22,462},std::pair{23,478},std::pair{52,494},std::pair{34,504}})
+                r.set_position(2,id,x,keep);
+            alpha(r,2,22,0);alpha(r,2,23,0);alpha(r,2,52,0);
+            alpha(r,2,54,command_alpha);alpha(r,2,53,command_alpha);alpha(r,2,54,command_alpha);
+            r.set_runtime_word0(2,14,11);
+        }
+    }
+    const int slot=party.at(3,selected);
+    const auto unit=__builtin_bit_cast(std::int32_t, (std::uint32_t(slot)+170u));
+    copied_unit=tables.ui_unit(unit);
+    const std::array<std::string,0> no_args{};const std::array<std::string_view,0> no_spec{};
+    copy(padded_name,format_reached(tables.system_message(0x7e),no_args,no_spec));
+    std::string_view name=copied_unit->name;
+    if(slot==0) {
+        const auto first=vars.begin()+0x844,end=std::find(first,vars.end(),0);
+        if(end==vars.end())throw std::runtime_error("HUD player name lacks terminator");
+        name={reinterpret_cast<const char*>(&*first),std::size_t(end-first)};
+    }
+    if(name.size()>padded_name.size())throw std::runtime_error("HUD name copy extent");
+    std::copy(name.begin(),name.end(),padded_name.begin());(void)text(padded_name);
+    const std::array name_args{std::string(text(padded_name))};const std::array<std::string_view,1> name_spec{"%s"};
+    copy(formatted,format_reached(tables.system_message(0x8e),name_args,name_spec));
+    r.set_text(2,34,text(formatted));r.set_text(4,36,text(formatted));
+    const auto format=[&](bool resource,std::int32_t current,std::int32_t max) {
+        copy(current_number,resource?data.number2(current):data.number(current));
+        copy(maximum_number,resource?data.number2(max):data.number(max));
+        const std::array args{std::string(text(current_number)),std::string(text(maximum_number))};
+        const std::array<std::string_view,2> spec{"%s","%s"};
+        copy(formatted,format_reached(tables.system_message(resource?0x8f:0x55),args,spec));
+    };
+    format(true,std::min(__builtin_bit_cast(std::int32_t, (word(vars,0x590))),99),
+                std::min(__builtin_bit_cast(std::int32_t, (word(vars,0x594))),99));
+    color(r,2,41,{255,255,255});color(r,4,26,{255,255,255});
+    r.set_text(2,41,text(formatted));r.set_text(4,26,text(formatted));
+    if(slot<0||slot>=8)return;
+    const auto c=vars.subspan(0x5c4+unsigned(slot)*0x50,0x50);
+    format(false,__builtin_bit_cast(std::int32_t, (word(c,8))),half(c,0x18));
+    r.set_text(2,49,text(formatted));r.set_text(4,25,text(formatted));
+    color(r,2,49,{255,255,255});color(r,4,25,{255,255,255});
 }
 void BattleHud::reset_type3(RuwResource& r) {
     type3_reset=0;r.add_class_rgba(5,-1,{keep,keep,keep,128});

@@ -34,24 +34,25 @@ std::vector<std::uint8_t> fixture2() {
     }
     return b;
 }
-okage::GameDataTables synthetic_tables() {
-    const auto xdb=[](bool battle) {
+okage::GameDataTables synthetic_tables(bool commands=false) {
+    const auto xdb=[commands](bool battle) {
         std::vector<std::uint8_t> strings;
         const auto str=[&](std::string_view s) {
             const auto at=strings.size();strings.insert(strings.end(),s.begin(),s.end());strings.push_back(0);
             return std::uint32_t(at);
         };
         const auto section=str(battle?"unit":"item"),messages=str("sysmes");
-        const unsigned rows=battle?2:1,columns=battle?27:15;
+        const unsigned rows=battle?(commands?177:2):1,columns=battle?27:15;
         std::vector<std::uint32_t> words(rows*columns);
         for(unsigned i=0;i<rows;++i) {
-            words[i*columns]=str(i?"Ally":"Owned Hero");
+            words[i*columns]=str(i==169?"SlotHero":i==170?"SlotAlly":i?"Ally":"Owned Hero");
             words[i*columns+(battle?1:14)]=str("model");
         }
         const unsigned units_size=words.size();
         if(battle)for(unsigned i=0;i<=0xa6;++i) {
             std::string_view s="";
-            if(i==0x8b)s="            ";if(i==0xa3)s="HP:%s|%s";
+            if(i==0x8b||i==0x7e)s="            ";if(i==0xa3||i==0x55)s="HP:%s|%s";
+            if(i==0x8e)s="Command:%s";if(i==0x8f)s="Cost:%s/%s";
             if(i==0xa4)s="Name:%s";if(i==0xa5)s="Resource:%s/%s";
             words.push_back(str(s));
         }
@@ -84,6 +85,18 @@ std::vector<std::uint8_t> type3_update_ruw() {
             put(b,at+8,0x80203040);put(b,at+12,0x80506070);put(b,at+16,0x41);
             put(b,at+20,group==5&&((id>=23&&id<=28)||id==44)?1:2);
             put(b,at+32,id?0xffffffff:0);put(b,at+52,100);put(b,at+56,100);put(b,at+60,id);
+        }
+    }
+    return b;
+}
+std::vector<std::uint8_t> command_ruw() {
+    std::vector<std::uint8_t> b(48);put(b,12,1);put(b,16,6);
+    for(unsigned group=0;group<6;++group) {
+        put(b,24+group*4,64);
+        for(unsigned id=0;id<64;++id) {
+            const unsigned at=b.size();b.resize(at+68);put(b,at+8,0x80203040);put(b,at+12,0x80506070);
+            put(b,at+16,0x41);put(b,at+20,1);put(b,at+32,id==53||id==54?5:0xffffffff);
+            put(b,at+48,123);put(b,at+52,100);put(b,at+56,100);put(b,at+60,id);
         }
     }
     return b;
@@ -189,6 +202,59 @@ void type3_update_checks() {
     for(unsigned i=0;i<4;++i){put(vars,0x570+i*4,3);vars[0x5c6+i*0x50]=1;vars[0x5dc+i*0x50]=50;}
     party.refresh(vars,3);rejects([&]{h.update_type3(r,data,tables,vars,party,3,ordinary_setter);});
 }
+void command_checks() {
+    const okage::BattleHudData data(fixture2());const auto tables=synthetic_tables(true);
+    okage::RuwResource r(command_ruw());okage::BattleHud h;okage::UiPartySelection party;
+    std::vector<std::uint8_t> vars(0xd78);put(vars,0x570,3);put(vars,0x574,3);
+    vars[0x5c6]=1;vars[0x616]=2;put(vars,0x5cc,50);vars[0x5dc]=100;
+    put(vars,0x61c,70);vars[0x62c]=100;put(vars,0x590,120);put(vars,0x594,150);
+    std::copy_n("Renamed",8,vars.begin()+0x844);party.refresh(vars,3);
+    h.formatted.fill('F');h.padded_name.fill('P');h.current_number.fill('C');h.maximum_number.fill('M');
+    h.type3_formatted.fill('T');const auto before=vars;
+    const auto rgb=[&](unsigned group,int id){return r.widget(group,id).runtime->words[4]&0xffffff;};
+    const auto cost_text=[&](int n){return "Cost:"+data.number2(n)+"/"+data.number2(99);};
+    const auto hp_text=[&](int n){return "HP:"+data.number(n)+"|"+data.number(100);};
+    h.refresh_command_costs(r,data,tables,vars,party,3,0,4,1,-1,99);
+    require(text(r,2,41)==cost_text(95)&&text(r,4,26)==cost_text(95),"resource clamp before subtraction and signed pulse");
+    require(rgb(2,41)==0x28a0e6&&rgb(4,26)==0x28a0e6,"resource preview colors");
+    h.refresh_command_costs(r,data,tables,vars,party,3,0,100,1,0,99);
+    require(text(r,2,41)==cost_text(99)&&rgb(2,41)==0x28a0e6,"insufficient resource preserves stale tint");
+    h.refresh_command_costs(r,data,tables,vars,party,3,0,4,1,60,99);
+    require(rgb(2,41)==0xffffff&&text(r,2,41)==cost_text(99),"pulse off resets resource tint");
+    h.refresh_command_costs(r,data,tables,vars,party,3,0,7,0,0,49);
+    require(text(r,2,49)==hp_text(43)&&text(r,4,25)==hp_text(43)&&rgb(2,49)==0x28a0e6,"HP gate distinct from cost argument");
+    h.refresh_command_costs(r,data,tables,vars,party,3,0,7,0,0,50);
+    require(text(r,2,49)==hp_text(50)&&rgb(2,49)==0xffffff,"HP strict positive eligibility");
+    put(vars,0x5cc,0x7fffffff);
+    h.refresh_command_costs(r,data,tables,vars,party,3,0,1,0,0,-1);
+    require(rgb(2,49)==0xffffff,"HP SUBU wraps before signed gate");put(vars,0x5cc,50);
+    h.refresh_command_costs(r,data,tables,vars,party,4,1,0,0,0,0);
+    require(text(r,2,49)==hp_text(50),"demo helper selects row zero");
+    const auto old_text=text(r,2,49);const auto old_scratch=h.formatted;
+    h.refresh_command_costs(r,data,tables,{},party,3,7,9,0,0,0);
+    require(text(r,2,49)==old_text&&h.formatted==old_scratch,"invalid party slot returns before state reads");
+    require(!h.bank2_bound&&!h.copied_unit,"cost helper does not claim persistent bank/unit writes");
+    h.selection_state=0;h.refresh_command_party(r,data,tables,vars,party,3,1,0,2,h.selection_state,45);
+    require(h.selection_state==2&&h.bank2_bound&&h.copied_unit->name=="SlotAlly","command cache slot maps to unit170+slot");
+    require(text(r,2,34)=="Command:SlotAlly    "&&text(r,4,36)==text(r,2,34),"command alias name padding");
+    require(r.widget(2,14).runtime->words[0]==11&&r.widget(2,34).runtime->words[6]==504&&r.widget(2,34).runtime->words[7]==123,"available branch runtime icon and X-only placement");
+    require(r.widget(2,53).runtime->words[4]>>24==45&&r.widget(2,54).runtime->words[4]>>24==45,"command alpha input");
+    h.selection_state=-8;h.refresh_command_party(r,data,tables,vars,party,3,0,0,1,h.selection_state,99);
+    require(h.selection_state==-8&&r.widget(2,14).runtime->words[0]==28&&r.widget(2,53).runtime->words[4]>>24==0,"single available hides controls without countdown mutation");
+    require(text(r,2,34)=="Command:Renamed     "&&h.copied_unit->name=="SlotHero","HERO uses player name but preserves copied authored record");
+    r.set_runtime_word0(2,14,99);h.refresh_command_party(r,data,tables,vars,party,3,1,1,99,h.selection_state,5);
+    require(r.widget(2,14).runtime->words[0]==99&&h.selection_state==-8,"nonzero display mode skips layout-only prefix");
+    const auto prior_hp=text(r,2,49);
+    h.refresh_command_party(r,data,tables,vars,party,3,7,1,0,h.selection_state,0);
+    require(text(r,2,49)==prior_hp&&h.copied_unit->name=="Ally"&&text(r,2,34)=="Command:Ally        ","absent cache still loads unit169 and formats before HP gate");
+    require(h.formatted.back()=='F'&&h.padded_name[13]=='P'&&h.current_number.back()=='C'&&h.maximum_number.back()=='M'&&h.type3_formatted[0]=='T',"source scratch tails and separate type3 ownership");
+    require(vars==before,"command helpers never mutate shared game variables");
+    h.type2_work.fill(0xa5);h.type2_flag_a=7;h.type2_flag_b=8;h.type2_enabled=9;h.menu_state=1;
+    h.reset_type2_widgets(r,data,tables,vars,party,3,0);
+    require(h.type2_work[0]==0xa5&&h.type2_flag_a==7&&h.type2_flag_b==8&&h.type2_enabled==9,"15e678 excludes constructor-only writes");
+    h.initialize_type2(r,data,tables,vars,party,3,0);
+    require(h.type2_work[0]==0&&!h.type2_flag_a&&!h.type2_flag_b&&h.type2_enabled==1,"constructor retains wrapper writes");
+}
 void owned_checks(const okage::BattleHudData& data,const okage::GameDataTables& tables,okage::Bytes raw,std::vector<std::uint8_t> vars) {
     okage::RuwResource r(raw);okage::BattleHud h;okage::UiPartySelection party;
     // This independent branch exercise uses native variables, not reference RAM.
@@ -201,6 +267,10 @@ void owned_checks(const okage::BattleHudData& data,const okage::GameDataTables& 
     std::vector<bool> layout_calls;
     h.update_type3(r,data,tables,vars,party,3,[&](bool e){layout_calls.push_back(e);});
     require(layout_calls==std::vector<bool>({false,true})&&!h.type3_ready&&h.type3_blink==1,"owned full type3 callback");
+    h.refresh_command_party(r,data,tables,vars,party,3,0,0,1,h.selection_state,128);
+    require(text(r,2,34).find("Ari")!=std::string::npos,"owned command player name");
+    h.refresh_command_costs(r,data,tables,vars,party,3,0,1,0,0,1);
+    require(text(r,2,49)==text(r,4,25),"owned command HP text mirrors");
     put(vars,0x5cc,0);vars[0x5c5]=0xff;h.mode_counter=59;h.selection_state=0;
     h.refresh(r,data,tables,vars,party,3,0);
     require(h.mode_counter==60&&h.selection_state==1,"warning counter/state");
@@ -239,7 +309,7 @@ int main(int argc,char** argv) {
         require(data2.number(12)==data.number(12),"v2 preserves constructor formatting");
         require(data2.number2(0)==start+"0\\c[0]0"&&data2.number2(-100)==data2.number2(0),"two-digit nonpositive");
         require(data2.number2(1)==start+"0\\c[0]1"&&data2.number2(12)==start+"\\c[0]12"&&data2.number2(999)==start+"\\c[0]99","two-digit source format/clamp");
-        type3_checks();type3_update_checks();
+        type3_checks();type3_update_checks();command_checks();
         for(unsigned n:{0u,8u,79u,351u,353u}){b=fixture();b.resize(n);rejects([&]{okage::BattleHudData bad(b);});}
         for(unsigned at:{0u,8u,12u,16u}){b=fixture();put(b,at,0);rejects([&]{okage::BattleHudData bad(b);});}
         b=fixture();put(b,156,0x7ff00000);rejects([&]{okage::BattleHudData bad(b);});
