@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 namespace okage {
+void UiWindow::set_transform_parameter(std::uint32_t value) {put(0x4f8,value);}
 void UiWindow::set_layout_enabled(bool enabled) {
     put(0x1900,enabled?word(0x1900)|0x1000u:word(0x1900)&~0x1000u);
 }

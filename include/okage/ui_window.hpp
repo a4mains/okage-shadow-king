@@ -70,6 +70,8 @@ public:
     float opacity() const;
     // 1a5488: change bit0x1000 only. No layout pass runs in this setter.
     void set_layout_enabled(bool enabled);
+    //1a56d0: raw scalar write to4f8; registry lookup belongs to the caller.
+    void set_transform_parameter(std::uint32_t value);
     void set_transform_xyz(const std::array<std::uint32_t,3>& first_bits,
                            const std::array<std::uint32_t,3>& second_bits);
     void advance_clock();
