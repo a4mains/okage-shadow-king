@@ -5,6 +5,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
@@ -30,6 +31,63 @@ def put_row(image, stage, offset, pointers):
     image.write(m.CAMERA_TABLE + index * 12, struct.pack('<3I', *pointers))
 
 class BattleResourceImporterTests(unittest.TestCase):
+    def test_bundle_includes_command_artifact_and_current_hud_provenance(self):
+        elf = b'synthetic ELF boundary; each owned sub-importer is independently tested'
+        hud = b'OKBHUD2\0' + bytes(range(32))
+        commands = b'OKBCMD1\0' + bytes(reversed(range(32)))
+        hud_manifest = {'schema': 'okage-battle-hud-import-v2',
+                        'artifact_sha256': m.sha256(hud)}
+        command_manifest = {'schema': 'okage-battle-ui-command-import-v1',
+                            'artifact_sha256': m.sha256(commands),
+                            'shared_defaults': {'metrics': {'ownership': 'runtime global may mutate'}}}
+        ruw_entry = {'path': m.RUW_PATH, 'lba': 42, 'size': 3}
+        with mock.patch.multiple(m, ELF_SHA256=m.sha256(elf)), \
+             mock.patch.object(m, 'import_elf', return_value=b'formation'), \
+             mock.patch.object(m, 'ElfImage', return_value=object()), \
+             mock.patch.object(m, 'extract_camera_tables', return_value=b'camera'), \
+             mock.patch.object(m, 'import_ui_elf', return_value=(b'ui', {'version': 1})), \
+             mock.patch.object(m, 'import_hud_elf', return_value=(hud, hud_manifest)) as hud_import, \
+             mock.patch.object(m, 'import_commands_elf', return_value=(commands, command_manifest)) as command_import, \
+             mock.patch.object(m, 'extract_owned_ruw', return_value=(b'ruw', ruw_entry)):
+            artifacts, manifest = m.import_resources(elf, Path('owned-disc'))
+        hud_import.assert_called_once_with(elf)
+        command_import.assert_called_once_with(elf)
+        self.assertEqual(set(artifacts), {'battle-data.bin', 'BTL.RUW', 'battle-camera.bin',
+                                         'battle-ui.bin', 'battle-hud.bin', 'battle-ui-commands.bin'})
+        self.assertEqual(artifacts['battle-ui-commands.bin'], commands)
+        self.assertEqual(artifacts['battle-hud.bin'], hud)
+        self.assertEqual(manifest['commands_format'], command_manifest)
+        self.assertEqual(manifest['hud_format'], hud_manifest)
+        self.assertEqual(manifest['sources']['elf_sha256'], m.sha256(elf))
+        for name, data in artifacts.items():
+            self.assertEqual(manifest['artifacts'][name], {'size': len(data), 'sha256': m.sha256(data)})
+        with tempfile.TemporaryDirectory() as tmp:
+            target = Path(tmp) / 'bundle'
+            m.write_bundle(target, artifacts, manifest)
+            self.assertEqual((target / 'battle-ui-commands.bin').read_bytes(), commands)
+            self.assertEqual((target / 'battle-hud.bin').read_bytes(), hud)
+            with self.assertRaisesRegex(ValueError, 'already exists'):
+                m.write_bundle(target, {'battle-ui-commands.bin': b'corrupt'}, {})
+            self.assertEqual((target / 'battle-ui-commands.bin').read_bytes(), commands)
+
+    def test_command_validation_failure_does_not_create_partial_bundle(self):
+        elf = b'controlled integration boundary'
+        with mock.patch.object(m, 'ELF_SHA256', m.sha256(elf)), \
+             mock.patch.object(m, 'import_elf', return_value=b'formation'), \
+             mock.patch.object(m, 'ElfImage', return_value=object()), \
+             mock.patch.object(m, 'extract_camera_tables', return_value=b'camera'), \
+             mock.patch.object(m, 'import_ui_elf', return_value=(b'ui', {})), \
+             mock.patch.object(m, 'import_hud_elf', return_value=(b'hud', {})), \
+             mock.patch.object(m, 'import_commands_elf', side_effect=ValueError('Unsupported command table')), \
+             mock.patch.object(m, 'extract_owned_ruw') as disc_import, \
+             tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / 'bundle'
+            with self.assertRaisesRegex(ValueError, 'Unsupported command'):
+                artifacts, manifest = m.import_resources(elf, Path('owned-disc'))
+                m.write_bundle(output, artifacts, manifest)
+            self.assertFalse(output.exists())
+            disc_import.assert_not_called()
+
     def test_camera_rows_preserve_two_indices_three_slots_and_payloads(self):
         image = SyntheticImage()
         initial = bytes((i * 3) & 0xff for i in range(0x90))

@@ -127,7 +127,7 @@ class BattleHudImporterTests(unittest.TestCase):
     def test_bundle_importer_adds_hud_artifact_and_metadata(self):
         elf = b'fake pinned ELF bytes'
         digest = hashlib.sha256(elf).hexdigest()
-        hud_meta = {'schema': 'okage-battle-hud-import-v1', 'artifact_sha256': 'a' * 64}
+        hud_meta = {'schema': 'okage-battle-hud-import-v2', 'artifact_sha256': 'a' * 64}
         ui_meta = {'schema': 'okage-battle-ui-import-v1'}
         entry = {'path': 'CMNDATA/WIN/BTL.RUW', 'lba': 42, 'size': 19596}
         with mock.patch.object(bundle, 'ELF_SHA256', digest), \
@@ -136,10 +136,11 @@ class BattleHudImporterTests(unittest.TestCase):
              mock.patch.object(bundle, 'extract_camera_tables', return_value=b'camera'), \
              mock.patch.object(bundle, 'import_ui_elf', return_value=(b'ui', ui_meta)), \
              mock.patch.object(bundle, 'import_hud_elf', return_value=(b'hud', hud_meta)), \
+             mock.patch.object(bundle, 'import_commands_elf', return_value=(b'commands', {})), \
              mock.patch.object(bundle, 'extract_owned_ruw', return_value=(b'ruw', entry)):
             artifacts, manifest = bundle.import_resources(elf, Path('not-read-by-mock'))
         self.assertEqual(set(artifacts), {'battle-data.bin', 'BTL.RUW', 'battle-camera.bin',
-                                          'battle-ui.bin', 'battle-hud.bin'})
+                                          'battle-ui.bin', 'battle-hud.bin', 'battle-ui-commands.bin'})
         self.assertEqual(artifacts['battle-hud.bin'], b'hud')
         self.assertEqual(manifest['hud_format'], hud_meta)
         self.assertEqual(manifest['artifacts']['battle-hud.bin']['size'], 3)

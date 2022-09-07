@@ -3,7 +3,7 @@
 
 The output directory contains battle-data.bin (OKBTDAT1), BTL.RUW,
 battle-ui.bin (OKBTUI1), battle-camera.bin (OKBTCAM1), and battle-hud.bin
-(OKBHUD1).
+(OKBHUD2), plus battle-ui-commands.bin (OKBCMD1).
 See import_battle_ui.py for the pointer-free authored interface schema.
 Camera format v1 is little endian: header
 <8sII32s> = magic, version 1, stage count 23, source ELF SHA256 bytes. Then,
@@ -29,6 +29,7 @@ from pathlib import Path
 from import_battle_data import ELF_SHA256, STAGE_COUNT, ElfImage, import_elf
 from import_battle_ui import import_elf as import_ui_elf
 from import_battle_hud import import_elf as import_hud_elf
+from import_battle_ui_commands import import_elf as import_commands_elf
 from inspect_disc import Disc
 
 DISC_SHA256 = '08623a1400e2610aecd0247ae7440c97501495c6f819f675494e44de20b62d2a'
@@ -147,6 +148,7 @@ def import_resources(elf_data, disc_path):
     camera_data = extract_camera_tables(image, elf_digest)
     ui_data, ui_manifest = import_ui_elf(elf_data)
     hud_data, hud_manifest = import_hud_elf(elf_data)
+    commands_data, commands_manifest = import_commands_elf(elf_data)
     ruw_data, ruw_entry = extract_owned_ruw(disc_path)
     artifacts = {
         'battle-data.bin': battle_data,
@@ -154,6 +156,7 @@ def import_resources(elf_data, disc_path):
         'battle-camera.bin': camera_data,
         'battle-ui.bin': ui_data,
         'battle-hud.bin': hud_data,
+        'battle-ui-commands.bin': commands_data,
     }
     manifest = {
         'format': 'okage-owned-battle-resources-v1',
@@ -179,6 +182,7 @@ def import_resources(elf_data, disc_path):
         },
         'ui_format': ui_manifest,
         'hud_format': hud_manifest,
+        'commands_format': commands_manifest,
     }
     return artifacts, manifest
 
