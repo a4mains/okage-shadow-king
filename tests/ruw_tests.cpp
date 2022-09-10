@@ -36,6 +36,23 @@ std::vector<std::uint8_t> mutable_fixture() {
     return b;
 }
 constexpr auto keep=okage::RuwResource::preserve_component;
+void class_selection_tests() {
+    okage::RuwResource r(mutable_fixture());
+    const auto before=r.widgets()[3];
+    r.select_class_color(3,-1,1);
+    for(unsigned i=0;i<before.size();++i) {
+        const auto& a=before[i];const auto& b=r.widgets()[3][i];
+        require(a.words==b.words&&a.runtime.has_value()==b.runtime.has_value());
+        if(!a.runtime)continue;
+        auto expected=a.runtime->words;
+        if(a.words[8]==0xffffffff)expected[4]=a.words[a.words[10]==1?2:3];
+        require(expected==b.runtime->words&&a.runtime->text==b.runtime->text);
+    }
+    require(r.widget(3,2).runtime->words[4]==before[1].words[2]);
+    r.select_class_color(3,-1,0);
+    require(r.widget(3,2).runtime->words[4]==0&&(r.widget(3,2).words[4]&1));
+    rejects([&]{r.select_class_color(4,0,0);});
+}
 void additive_pair_tests() {
     constexpr auto low=std::numeric_limits<std::int32_t>::min();
     constexpr auto high=std::numeric_limits<std::int32_t>::max();
@@ -295,7 +312,7 @@ int main(int argc,char** argv){try {
     if(argc==3&&std::string_view(argv[1])=="--diagnostic") {
         diagnostic(argv[2]);std::cout<<"Owned RUW mutation diagnostic passed\n";return 0;
     }
-    require(argc==1);mutation_tests();fill_tests();binding_tests();additive_pair_tests();additive_secondary_tests();
+    require(argc==1);mutation_tests();fill_tests();binding_tests();additive_pair_tests();additive_secondary_tests();class_selection_tests();
     std::vector<std::uint8_t> b(32+16+7*68);
     put(b,8,1);put(b,12,1);put(b,16,2);
     put(b,20,1);put(b,24,2);put(b,28,4);

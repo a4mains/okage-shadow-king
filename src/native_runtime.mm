@@ -233,6 +233,7 @@ struct Session {
     fs::path battle_input;
     fs::path battle_construction_report;
     fs::path battle_stage_report;
+    fs::path battle_ui_update_report;
     std::vector<std::uint32_t> battle_loading_trace;
     std::vector<std::uint32_t> game_mode_trace,retiring_effect_trace;
     bool retain_field_music=false;
@@ -586,7 +587,7 @@ struct Session {
         }
         if(battle) {
             try {battle->tick(retiring_effects?&*retiring_effects:nullptr,projection,scene_clear,
-                {variables,*game_data,ui_party,ui_shared},frame,battle_stage_report);}
+                {variables,*game_data,ui_party,ui_shared},frame,battle_stage_report,battle_ui_update_report);}
             catch(const std::exception& error) {
                 throw std::runtime_error("Native battle frame="+std::to_string(frame)+": "+error.what());
             }
@@ -1339,6 +1340,7 @@ int main(int argc,const char** argv) {
         if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--performance-report FRESH.jsonl (interactive/preview/UI test)]");
         unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures,battleInput;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         std::optional<fs::path> performancePath;
+        fs::path uiUpdateReport;
         std::vector<okage::NativeRenderRange> renderRanges;
         for(int i=3;i<argc;++i) {
             const std::string arg=argv[i];if(++i==argc)throw std::runtime_error("Missing native runtime option value");
@@ -1373,6 +1375,10 @@ int main(int argc,const char** argv) {
             else if(arg=="--effect-data")effectData=argv[i];
             else if(arg=="--effect-textures")effectTextures=argv[i];
             else if(arg=="--battle-input")battleInput=argv[i];
+            else if(arg=="--ui-update-diagnostic") {
+                if(!uiUpdateReport.empty()||!argv[i][0])throw std::runtime_error("UI-update diagnostic requires one nonempty fresh path");
+                uiUpdateReport=argv[i];
+            }
             else if(arg=="--actor")actors.push_back({-8,argv[i]});
             else if(arg=="--actor-bind") {
                 const std::string value=argv[i];const auto eq=value.find('=');std::size_t consumed=0;
@@ -1427,6 +1433,7 @@ int main(int argc,const char** argv) {
             prepared=std::make_unique<Session>(argv[1],argv[2],playerName);
             auto& session=*prepared;session.render_from=renderFrom;session.render_until=renderUntil;session.render_ranges=std::move(renderRanges);
             session.battle_input=battleInput;
+            session.battle_ui_update_report=uiUpdateReport;
             if(!output.empty())session.battle_construction_report=output.string()+".battle-construction.json";
             if(!output.empty())session.battle_stage_report=output.string()+".battle-stage.json";
             session.live_presentation_enabled=previewAt!=0;
@@ -1463,6 +1470,7 @@ int main(int argc,const char** argv) {
         if(!app->session) {
         app->session=std::make_unique<Session>(argv[1],argv[2],playerName);
         app->session->battle_input=battleInput;
+        app->session->battle_ui_update_report=uiUpdateReport;
         if(!output.empty())app->session->battle_construction_report=output.string()+".battle-construction.json";
         if(!output.empty())app->session->battle_stage_report=output.string()+".battle-stage.json";
         app->session->live_presentation_enabled=true;

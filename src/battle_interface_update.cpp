@@ -75,7 +75,7 @@ BattleUiPadMasks BattleInterface::first_update(std::shared_ptr<RuwResource> reso
         case 2: {
             // 165b50 always executes this prefix, including states 0/-100.
             masks=pad.normalize(input);
-            if(shared_.input_inhibit>50)masks={};
+            if(shared_.hud.selection_state>50)masks={};
             switch(__builtin_bit_cast(std::int32_t, (state))) {
             case 0: {
                 pad.set_enabled(0,true);pad.set_repeat(0,30,15,display_rate);

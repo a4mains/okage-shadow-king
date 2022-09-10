@@ -417,10 +417,13 @@ void BattleHud::update_type3(RuwResource& r,const BattleHudData& data,const Game
 }
 
 std::string BattleHud::diagnostic(const RuwResource& r,Bytes vars,std::string_view execution) const {
-    if(execution!="isolated"&&execution!="native-session")throw std::runtime_error("HUD diagnostic execution tag");
+    if(execution!="isolated"&&execution!="native-session"&&execution!="ui-update")throw std::runtime_error("HUD diagnostic execution tag");
     const auto& h=*this;std::ostringstream out;
     const auto hex=[](Bytes b){std::ostringstream s;for(auto v:b)s<<std::hex<<std::setw(2)<<std::setfill('0')<<unsigned(v);return s.str();};
-    out<<"{\"schema\":\"okage-battle-hud-diagnostic-v1\",\"scope\":\"163fb8 and 168228 RUW/stat side effects only; zero incoming party cache; no manager or callbacks\",\"execution\":\""<<execution<<"\",\"game_mode\":3,\"selected\":0,\"vars_hex\":\""<<hex(vars)<<"\",\"globals\":{";
+    out<<"{\"schema\":\"okage-battle-hud-diagnostic-v1\",\"scope\":\""
+       <<(execution=="ui-update"?"RUW and HUD state at an isolated dispatcher boundary":
+       "163fb8 and 168228 RUW/stat side effects only; zero incoming party cache; no manager or callbacks")
+       <<"\",\"execution\":\""<<execution<<"\",\"game_mode\":3,\"selected\":0,\"vars_hex\":\""<<hex(vars)<<"\",\"globals\":{";
     out<<"\"type2_flag_a\":"<<h.type2_flag_a<<",\"type2_flag_b\":"<<h.type2_flag_b<<",\"type2_enabled\":"<<h.type2_enabled
        <<",\"type3_ready\":"<<h.type3_ready<<",\"type3_reset\":"<<h.type3_reset<<",\"type3_animation\":"<<h.type3_animation
        <<",\"type3_selection\":"<<h.type3_cursor<<",\"ui_menu_state\":"<<h.menu_state<<",\"ui_mode_counter\":"<<h.mode_counter

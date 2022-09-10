@@ -9,6 +9,7 @@
 #include "okage/animation.hpp"
 #include "okage/scene_renderer.hpp"
 #include "okage/battle_actor.hpp"
+#include "okage/battle_ui_diagnostic.hpp"
 #include "okage/stage_settings.hpp"
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
@@ -276,6 +277,40 @@ struct BattleSession::Impl {
         }
         out<<"]}\n";if(!out)throw std::runtime_error("Cannot write battle interface report");
     }
+    void inspect_ui_updates(BattleUiContext context,unsigned frame,const fs::path& path) {
+        if(path.empty())return;
+        if(fs::exists(path)||fs::is_symlink(path))throw std::runtime_error("Refusing existing UI-update report");
+        if(!ui||word(root.bytes,0x81ac)!=0)throw std::runtime_error("UI-update inspection requires constructed first interface");
+        auto r=std::make_shared<RuwResource>(*ui_resources[0]);
+        BattleUiShared copy;
+        copy.hud=context.shared.hud;copy.command=context.shared.command;
+        copy.formation=context.shared.formation;
+        copy.selected_alpha_step=context.shared.selected_alpha_step;
+        copy.secondary_pulse=context.shared.secondary_pulse;copy.secondary_pulse_step=context.shared.secondary_pulse_step;
+        copy.cost_pulse=context.shared.cost_pulse;copy.hp_cost_gate=context.shared.hp_cost_gate;
+        copy.resource_accumulators=context.shared.resource_accumulators;
+        BattleInterface isolated(copy,*ui_definitions,std::make_shared<UiTextureOwner>(UiTextureOwner{atlas}),
+            word(root.bytes,0x1c),[](unsigned){});
+        if(isolated.words()!=ui->words())throw std::runtime_error("UI diagnostic clone manager mismatch");
+        for(unsigned i=0;i<2;++i)for(unsigned at=0;at<UiWindow::scalar_bytes;at+=4)
+            if(isolated.window(i).known_word(at)!=ui->window(i).known_word(at))
+                throw std::runtime_error("UI diagnostic clone window mismatch");
+        std::vector<std::uint8_t> vars(context.variables.begin(),context.variables.end());
+        auto party=context.party;
+        const BattleUiCommandData commands(read(input/"battle-ui-commands.bin"));
+        BattleUiPad pad;
+        isolated.first_update(r,pad,{},60);
+        const auto before=battle_ui_update_snapshot(isolated,copy,*r,vars,party);
+        std::vector<const BattleActor*> enemies;
+        for(const auto& actor:roster.actors())if(actor->enemy)enemies.push_back(actor.get());
+        isolated.second_update(*r,*hud_definitions,commands,
+            {vars,context.tables,party,root,*battle_data,roster.entities(),enemies,3});
+        const auto after=battle_ui_update_snapshot(isolated,copy,*r,vars,party);
+        std::ofstream out(path);
+        out<<"{\"schema\":\"okage-native-ui-second-update-v1\",\"scope\":\"isolated first and second dispatchers on copies of native Session construction state; no parent activation, resource clock, layout or rendering\",\"frame\":"<<frame
+           <<",\"snapshots\":{\"before\":"<<before<<",\"after\":"<<after<<"}}\n";
+        if(!out)throw std::runtime_error("Cannot write UI-update inspection report");
+    }
     void report(const fs::path& path,unsigned frame,std::uint32_t rng_before,
                 const BattleConstructionContext& context,const std::string& error) const {
         if(path.empty())return;
@@ -318,7 +353,7 @@ BattleSession::BattleSession(unsigned formation,int stage,const fs::path& input,
     impl_(std::make_unique<Impl>(formation,stage,input,decoded,variables,entry,camera)) {}
 BattleSession::~BattleSession()=default;
 void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& projection,SceneClearColor& clear,
-                         BattleUiContext context,unsigned frame,const fs::path& stage_report) {
+                         BattleUiContext context,unsigned frame,const fs::path& stage_report,const fs::path& ui_update_report) {
     impl_->jobs.check();
     if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
     const bool effect_pass=!impl_->suppress_effects.load();
@@ -334,6 +369,7 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
         try {impl_->construct_ui(context,frame,stage_report);}
         catch(...) {impl_->construction_failure=std::current_exception();throw;}
     }
+    impl_->inspect_ui_updates(context,frame,ui_update_report);
     throw std::runtime_error("Battle UI callbacks, child activation and framebuffer filter rendering are unrecovered");
 }
 void BattleSession::service_loader_after_frame(BattleConstructionContext context,unsigned frame,const fs::path& report){

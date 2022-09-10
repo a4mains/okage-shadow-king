@@ -139,6 +139,11 @@ void RuwResource::prepare_group_binding(std::size_t group) {
             widget.runtime->words[4]=w[w[10]?3:2];
     }
 }
+void RuwResource::select_class_color(std::size_t group,std::int32_t class_id,std::int32_t selection) {
+    for(auto& widget:mutable_group(group))
+        if(widget.runtime&&widget.words[8]==std::uint32_t(class_id))
+            widget.runtime->words[4]=widget.words[widget.words[10]==std::uint32_t(selection)?2:3];
+}
 std::size_t RuwResource::widget_index(std::size_t group,std::int32_t id) const {
     if(group>=widgets_.size()||id<0)throw std::runtime_error("RUW authored widget ID bounds");
     const auto& records=widgets_[group];const auto key=std::uint32_t(id);
