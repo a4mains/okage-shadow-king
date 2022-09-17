@@ -64,8 +64,17 @@ def _original_manager(reference_row):
     need(tuple(_word(raw, off) for off in (0, 4, 8)) == interface.CALLBACKS,
          'original manager callback table mismatch')
     need(_word(raw, 0x14) == root, 'original manager parent/root relation mismatch')
+    need(_word(raw, 0x10) == 0 and _word(raw, 0x18) == 0,
+         'original manager next-sibling/child links must be null')
     root_bytes = interface.raw(reference_row, 'battle_root', 0x81d0, root)
-    enemy_owner = _word(root_bytes, 0x8070)
+    children = tuple(_word(root_bytes, at) for at in (0x8064, 0x8068, 0x806c, 0x8070))
+    need(all(children) and len(set(children)) == len(children),
+         'original battle-root child owners are null or overlap')
+    need(root not in children and manager not in children,
+         'original manager/root overlaps a battle-root child owner')
+    need(_word(root_bytes, 0x8060) == manager,
+         'original root manager owner does not match captured manager')
+    enemy_owner = children[3]
     need(enemy_owner and _word(raw, 0xc) == enemy_owner,
          'original manager previous-sibling link does not match root enemy owner')
     need(_word(raw, 0x114) == manager and _word(raw, 0x1f4) == manager,
@@ -109,6 +118,8 @@ def _compare_manager(reference_row, native_words, label):
                 need(expected == _word(root_bytes, 0x8070), 'original previous-sibling owner mismatch')
             elif offset == 0x14:
                 need(expected == root, 'original manager parent does not match root')
+            elif offset in (0x10, 0x18):
+                need(expected == 0, f'original {role} must be null')
             elif offset in (0x44, 0x124):
                 need(expected == u32(reference_row['shared_globals'].get('battle_ui_texture'), 'source texture'),
                      'original manager texture pointer mismatch')
@@ -375,9 +386,10 @@ def compare(reference, native):
         'compared_hud': {'before': before['hud'], 'after': after['hud']},
         'unsupported': [
             'The original trace has no variable-owner snapshot, so native variables are not compared.',
-            'Original type3 formatted/padded scratch arrays, command-state scratch, and formation summary arrays are absent; native values are extent/type-validated only.',
+            'Original type3 formatted/padded scratch arrays, command-state scratch, and formation summary arrays are absent; native values are extent/type-validated only. type3_blink is also not compared because its original source owner was not captured.',
             'The original trace does not capture the selected-alpha pulse step, secondary pulse, cost pulse or HP gate owners; those native scalars are validated but not compared.',
-            'The comparison is limited to the second 164090 dispatcher pair on copied native state; it does not establish parent activation, resource-clock scheduling, layout, rendering, or later UI progression.',
+            'The comparison covers the first 120ad0 second-pass invocation (164090 then 1684d0) on copied native state; it does not establish parent activation, resource-clock scheduling, layout, rendering, or later UI progression.',
+            f'HUD shared-global comparison is limited to these ten keys: {", ".join(hud.GLOBAL_KEYS)}. HUD text compares only bytes through the first NUL terminator; text tails are excluded.',
             'The native report frame is recorded independently; this tool does not align it temporally with the emulator frame.'
         ],
         'difference_count': len(differences),

@@ -158,6 +158,32 @@ class VerifyUiSecondUpdateTests(unittest.TestCase):
         report = tool.compare(self.reference, native)
         self.assertEqual(report['status'], 'fail')
 
+    def test_malformed_source_manager_and_owner_links_are_rejected(self):
+        def corrupt(row, key, offset, value):
+            raw = bytearray.fromhex(row[key]['raw_hex'])
+            struct.pack_into('<I', raw, offset, value)
+            row[key]['raw_hex'] = raw.hex()
+
+        mutations = (
+            ('manager next sibling', 'manager_raw', 0x10, 0x1234),
+            ('manager child', 'manager_raw', 0x18, 0x1234),
+            ('root manager backlink', 'battle_root', 0x8060, 0x1234),
+        )
+        for label, key, offset, value in mutations:
+            with self.subTest(label=label):
+                reference = copy.deepcopy(self.reference)
+                row = reference[1][2]
+                corrupt(row, key, offset, value)
+                with self.assertRaises(tool.Invalid):
+                    tool.compare(reference, copy.deepcopy(self.native))
+        reference = copy.deepcopy(self.reference)
+        row = reference[1][2]
+        raw = bytearray.fromhex(row['battle_root']['raw_hex'])
+        first_child = struct.unpack_from('<I', raw, 0x8064)[0]
+        corrupt(row, 'battle_root', 0x8068, first_child)
+        with self.assertRaises(tool.Invalid):
+            tool.compare(reference, copy.deepcopy(self.native))
+
     def test_cli_writes_failure_report_and_refuses_clobber(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory); ref = root / 'ref.jsonl'; nat = root / 'native.json'; out = root / 'report.json'
