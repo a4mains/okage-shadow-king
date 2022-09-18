@@ -20,7 +20,9 @@ unsigned battle_ui_available_party(std::span<const BattleEntityBinding> entities
     unsigned count=0;
     for(unsigned i=0;i<3;++i) {
         const auto* actor=entities[i].actor;
-        if(actor&&word(actor->storage,0x1dc)==2&&signed_half(actor->storage,0x1e0)==2)++count;
+        //1512f0 registers the body pointer (task+40).154418 dereferences
+        // body+1dc/+1e0; BattleActor::storage starts at the task header.
+        if(actor&&word(actor->storage,0x40+0x1dc)==2&&signed_half(actor->storage,0x40+0x1e0)==2)++count;
     }
     return count;
 }

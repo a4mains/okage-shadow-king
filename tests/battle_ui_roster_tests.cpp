@@ -22,15 +22,19 @@ void available_party() {
     std::array<okage::BattleEntityBinding,4> entities{};
     for(unsigned i=0;i<4;++i) {
         entities[i].actor=&actors[i];entities[i].kind=7; // Source has no kind test.
-        put(actors[i].storage,0x1dc,2);put(actors[i].storage,0x1e0,2,2);
+        put(actors[i].storage,0x21c,2);put(actors[i].storage,0x220,2,2);
+        put(actors[i].storage,0x1dc,99);put(actors[i].storage,0x1e0,0xfffe,2);
     }
     require(okage::battle_ui_available_party(entities)==3,"Only first three real bindings are queried");
-    entities[1].actor=nullptr;put(actors[2].storage,0x1e0,0xfffe,2);
+    entities[1].actor=nullptr;put(actors[2].storage,0x220,0xfffe,2);
     require(okage::battle_ui_available_party(entities)==1,"Missing child and signed -2 status unavailable");
-    put(actors[0].storage,0x1dc,0x10002);
+    put(actors[0].storage,0x21c,0x10002);
+    put(actors[0].storage,0x1dc,2);put(actors[0].storage,0x1e0,2,2);
     require(okage::battle_ui_available_party(entities)==0,"Full word state must equal2");
-    put(actors[0].storage,0x1dc,2);put(actors[0].storage,0x1e0,0xffff0002);
-    require(okage::battle_ui_available_party(entities)==1,"Availability reads only signed halfword1e0");
+    put(actors[0].storage,0x21c,2);put(actors[0].storage,0x220,0xffff0002);
+    require(okage::battle_ui_available_party(entities)==1,"Availability reads only body signed halfword1e0, task220");
+    put(actors[0].storage,0x220,0xfffe,2);
+    require(okage::battle_ui_available_party(entities)==0,"Available-looking task decoys cannot substitute for unavailable body state");
     rejects([&]{okage::battle_ui_available_party(std::span(entities).first(2));});
 }
 void enemy_counts() {
