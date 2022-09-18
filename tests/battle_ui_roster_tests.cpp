@@ -23,6 +23,8 @@ void available_party() {
     for(unsigned i=0;i<4;++i) {
         entities[i].actor=&actors[i];entities[i].kind=7; // Source has no kind test.
         put(actors[i].storage,0x21c,2);put(actors[i].storage,0x220,2,2);
+        // Contradict the task-relative decoy lanes. Registered source actors
+        // point 0x40 bytes beyond the task header; availability reads that body.
         put(actors[i].storage,0x1dc,99);put(actors[i].storage,0x1e0,0xfffe,2);
     }
     require(okage::battle_ui_available_party(entities)==3,"Only first three real bindings are queried");
