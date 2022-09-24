@@ -1,0 +1,687 @@
+{
+  "schema": "okage-ui-second-dispatch-validation-v1",
+  "checkpoint_date": "2022-09-24",
+  "checkpoint_source_revision": "91e7c4a8964bea4b15369d6bc485ba6060bc25f6",
+  "code_revisions": {
+    "runtime_before_availability_correction": "aa37d6e3fcdfe704e61e7164d2a1b129c085b876",
+    "runtime_after_availability_correction": "8c489d4b0ed57bf52fb3a0c579729d93122dee18",
+    "availability_correction": "5bff386",
+    "final_integration_and_tests": "91e7c4a8964bea4b15369d6bc485ba6060bc25f6"
+  },
+  "scope": "Native first+second battle-UI dispatcher diagnostics on copied native Session construction state; not scheduled into active battle gameplay.",
+  "status": {
+    "native_scheduler": "guarded before child activation",
+    "playable_battle": false,
+    "all_jobs_terminal": true,
+    "active_ui_scheduler": false,
+    "visible_preview": "local/demos/current-preview-104447-v2/okage-native.app",
+    "preview_process": 3907,
+    "preview_session": 40107,
+    "preview_paused_frame": 104447,
+    "additional_windows_opened": false
+  },
+  "inputs": {
+    "retail_elf": {
+      "path": "local/extracted/SCUS_971.29",
+      "bytes": 1374220,
+      "sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
+    },
+    "retail_elf_sha256_expected": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "original_observation": {
+      "path": "local/research/ui-first-update-v1/natural-ui-updates-v1.updates.jsonl",
+      "bytes": 2609856,
+      "sha256": "69ff7cb68d757ff9e8b4e35e3f808421a16d32f0b74cad690580efb7895ba9d4"
+    },
+    "original_observation_scope": "retained natural first/second UI observer rows within original 104376..104615 capture; no new emulator run",
+    "owned_battle_bundle": {
+      "path": "local/battle-input-v2",
+      "manifest": {
+        "path": "local/battle-input-v2/manifest.json",
+        "bytes": 8023,
+        "sha256": "5220f366c7e6b9eaec8e84cd413fd36bc5ce07d9dc9e809cbaec7f1e3c2986ed"
+      },
+      "artifacts": {
+        "BTL.RUW": {
+          "expected_bytes": 19596,
+          "manifest_sha256": "2bc4de13d79919a53e7962250ea40acca28bb0e027ee750f35a87b6903dc8800",
+          "observed": {
+            "path": "local/battle-input-v2/BTL.RUW",
+            "bytes": 19596,
+            "sha256": "2bc4de13d79919a53e7962250ea40acca28bb0e027ee750f35a87b6903dc8800"
+          }
+        },
+        "battle-camera.bin": {
+          "expected_bytes": 20472,
+          "manifest_sha256": "fddf68c85433689f235ee8e29a94c3990716767dbb79d51be63b1720c92c1507",
+          "observed": {
+            "path": "local/battle-input-v2/battle-camera.bin",
+            "bytes": 20472,
+            "sha256": "fddf68c85433689f235ee8e29a94c3990716767dbb79d51be63b1720c92c1507"
+          }
+        },
+        "battle-data.bin": {
+          "expected_bytes": 9720,
+          "manifest_sha256": "55ac8ac608e9ed877578faf3b951ff0b6f08f7d83d8f961ac590574814567431",
+          "observed": {
+            "path": "local/battle-input-v2/battle-data.bin",
+            "bytes": 9720,
+            "sha256": "55ac8ac608e9ed877578faf3b951ff0b6f08f7d83d8f961ac590574814567431"
+          }
+        },
+        "battle-hud.bin": {
+          "expected_bytes": 480,
+          "manifest_sha256": "158065d68cb5d00b79a6079dae5b3384b2d7cbb11eb49a0980e6369c694cc5b8",
+          "observed": {
+            "path": "local/battle-input-v2/battle-hud.bin",
+            "bytes": 480,
+            "sha256": "158065d68cb5d00b79a6079dae5b3384b2d7cbb11eb49a0980e6369c694cc5b8"
+          }
+        },
+        "battle-ui-commands.bin": {
+          "expected_bytes": 144,
+          "manifest_sha256": "be85b85f23a29d66af4d8787a276fdb4287fc191a0a79af6136b94f921a78860",
+          "observed": {
+            "path": "local/battle-input-v2/battle-ui-commands.bin",
+            "bytes": 144,
+            "sha256": "be85b85f23a29d66af4d8787a276fdb4287fc191a0a79af6136b94f921a78860"
+          }
+        },
+        "battle-ui.bin": {
+          "expected_bytes": 312,
+          "manifest_sha256": "055db32092309d9face66e7cba1c14b23c8b4ef6e106674e95ebbd8f07b49381",
+          "observed": {
+            "path": "local/battle-input-v2/battle-ui.bin",
+            "bytes": 312,
+            "sha256": "055db32092309d9face66e7cba1c14b23c8b4ef6e106674e95ebbd8f07b49381"
+          }
+        }
+      }
+    }
+  },
+  "native_replays": {
+    "release": {
+      "runtime_revision": "8c489d4b0ed57bf52fb3a0c579729d93122dee18",
+      "runtime_binary_sha256": "0cec96ffb93bb2928121b98d91b28481e3f726750cc3ef085808fa0ef1906ce0",
+      "application_exit_code": 1,
+      "elapsed_seconds_contended_not_performance": 21.260981459,
+      "run_record": {
+        "path": "local/native-ui-second-104615-release-v2.run.json",
+        "bytes": 6117,
+        "sha256": "a21293a1a6a60c552286721262948358ee3c39a62f07ef1d88884746e68e818b"
+      },
+      "diagnostic": {
+        "path": "local/native-ui-second-104615-release-v2.ui-second.json",
+        "bytes": 328073,
+        "sha256": "ddca078a0af9bad98594b1c1f441ba023c31870a7dd3f29445f91fa3e804250a"
+      },
+      "comparison": {
+        "path": "local/research/ui-second-dispatch-v1/comparison-release-final-v1.json",
+        "bytes": 17532,
+        "sha256": "51bb75bd7edd1ae2812d7bf64b52147c1436f0fcc7109e97dda3fd7ce0eab027"
+      },
+      "comparison_status": "fail",
+      "difference_count": 4,
+      "compared_manager_words": 1882,
+      "compared_known_window_words": 27822,
+      "compared_party_cache_words": 144,
+      "compared_accumulator_words": 32,
+      "compared_glyph_bytes": 45056,
+      "command": {
+        "exact_argv_is_recorded_in": "local/native-ui-second-104615-release-v2.run.json",
+        "field": "command",
+        "record_sha256": "a21293a1a6a60c552286721262948358ee3c39a62f07ef1d88884746e68e818b"
+      }
+    },
+    "debug": {
+      "runtime_revision": "aa37d6e3fcdfe704e61e7164d2a1b129c085b876",
+      "runtime_binary_sha256": "4f42a8542d7c9fe157e8cc9757facb9f9294c03b20a3f4a364004f979d47a4b1",
+      "application_exit_code": 1,
+      "elapsed_seconds_contended_not_performance": 264.697914083,
+      "run_record": {
+        "path": "local/native-ui-second-104615-debug-v1.run.json",
+        "bytes": 6138,
+        "sha256": "909ccf7a311e9fc3e5009ccb73a5b16a7f4cafff7cdf5f6d4b3d6f21989c010d"
+      },
+      "diagnostic": {
+        "path": "local/native-ui-second-104615-debug-v1.ui-second.json",
+        "bytes": 328073,
+        "sha256": "047a9ad4650c3279df6cfc5719e785b7311fdbb5e757af16a3c79a3784c45345"
+      },
+      "comparison": {
+        "path": "local/research/ui-second-dispatch-v1/comparison-debug-final-v1.json",
+        "bytes": 17530,
+        "sha256": "84f1da9f457eaa7dc80fde4f3cbe02d4670b8b3735bacbd4f1966069640be148"
+      },
+      "comparison_status": "fail",
+      "difference_count": 4,
+      "compared_manager_words": 1882,
+      "compared_known_window_words": 27822,
+      "compared_party_cache_words": 144,
+      "compared_accumulator_words": 32,
+      "compared_glyph_bytes": 45056,
+      "command": {
+        "exact_argv_is_recorded_in": "local/native-ui-second-104615-debug-v1.run.json",
+        "field": "command",
+        "record_sha256": "909ccf7a311e9fc3e5009ccb73a5b16a7f4cafff7cdf5f6d4b3d6f21989c010d"
+      }
+    },
+    "asan_ubsan": {
+      "runtime_revision": "aa37d6e3fcdfe704e61e7164d2a1b129c085b876",
+      "runtime_binary_sha256": "bc2408d384bb280be8267429e72231456fcd5a7e9f0719f525afce8bcc249d85",
+      "application_exit_code": 1,
+      "elapsed_seconds_contended_not_performance": 605.527862084,
+      "run_record": {
+        "path": "local/native-ui-second-104615-sanitize-v1.run.json",
+        "bytes": 6152,
+        "sha256": "467ffb37de706124060232675d90ceced3786d5a63c6452da6a43bf5f6949181"
+      },
+      "diagnostic": {
+        "path": "local/native-ui-second-104615-sanitize-v1.ui-second.json",
+        "bytes": 328073,
+        "sha256": "047a9ad4650c3279df6cfc5719e785b7311fdbb5e757af16a3c79a3784c45345"
+      },
+      "comparison": {
+        "path": "local/research/ui-second-dispatch-v1/comparison-sanitize-final-v1.json",
+        "bytes": 17533,
+        "sha256": "4c0f4cc1350b5e2c6cb3e5be19d19b7e1a415a25bd79389cb537a4e4de673f91"
+      },
+      "comparison_status": "fail",
+      "difference_count": 4,
+      "compared_manager_words": 1882,
+      "compared_known_window_words": 27822,
+      "compared_party_cache_words": 144,
+      "compared_accumulator_words": 32,
+      "compared_glyph_bytes": 45056,
+      "command": {
+        "exact_argv_is_recorded_in": "local/native-ui-second-104615-sanitize-v1.run.json",
+        "field": "command",
+        "record_sha256": "467ffb37de706124060232675d90ceced3786d5a63c6452da6a43bf5f6949181"
+      }
+    }
+  },
+  "cross_build": {
+    "recorded_snapshots_equal": true,
+    "native_frames": [
+      104452,
+      104451,
+      104451
+    ],
+    "note": "The comparison inputs were generated at different runtime revisions: Release v2 follows the availability-offset correction; Debug and ASan/UBSan are earlier runtime revision aa37d6e."
+  },
+  "strict_original_comparisons": {
+    "command": [
+      {
+        "command": [
+          "python3",
+          "tools/verify_battle_hud.py",
+          "--reference",
+          "local/research/ui-first-update-v1/natural-ui-updates-v1.ui.jsonl",
+          "--native",
+          "local/native-ui-second-104615-release-v2.png.battle-stage.hud.json",
+          "--output",
+          "local/research/ui-second-dispatch-v1/native-route-hud-comparison-v1.json"
+        ],
+        "exit_code": 0,
+        "result": "4096 raw words, 2400 runtime words, 1257 text bytes; 0 differences"
+      },
+      {
+        "command": [
+          "python3",
+          "tools/verify_battle_interface.py",
+          "--reference",
+          "local/research/ui-first-update-v1/natural-ui-updates-v1.ui.jsonl",
+          "--native",
+          "local/native-ui-second-104615-release-v2.png.battle-stage.ui.json",
+          "--output",
+          "local/research/ui-second-dispatch-v1/native-route-interface-comparison-v1.json"
+        ],
+        "exit_code": 0,
+        "result": "15089 scalar words +13 normalized manager words +2 builder fields; 0 differences"
+      },
+      {
+        "command": [
+          "python3",
+          "tools/verify_battle_stage.py",
+          "--reference",
+          "local/research/ui-first-update-v1/natural-ui-updates-v1.stage.jsonl",
+          "--native",
+          "local/native-ui-second-104615-release-v2.png.battle-stage.json",
+          "--output",
+          "local/research/ui-second-dispatch-v1/native-route-stage-comparison-v1.json"
+        ],
+        "exit_code": 0,
+        "result": "40 snapshots, 18 settings; 0 differences"
+      },
+      {
+        "command": [
+          "python3",
+          "tools/verify_ui_second_update.py",
+          "--reference",
+          "local/research/ui-first-update-v1/natural-ui-updates-v1.updates.jsonl",
+          "--native",
+          "local/native-ui-second-104615-release-v2.ui-second.json",
+          "--output",
+          "local/research/ui-second-dispatch-v1/comparison-release-final-v1.json"
+        ],
+        "exit_code": 1,
+        "result": "4 differences retained"
+      }
+    ],
+    "hud_interface_stage": "pass in Release: HUD 4096 raw words, 2400 runtime words, 1257 text bytes; interface 15089 scalar words plus 13 normalized manager words and 2 builder fields; stage 40 snapshots, 18 settings, 0 differences.",
+    "second_dispatch": "fail in Release, Debug and ASan/UBSan with four retained differences.",
+    "differences": [
+      {
+        "component": "hud",
+        "phase": "after",
+        "field": "groups[2][45].words[6]",
+        "expected": 31,
+        "actual": 0
+      },
+      {
+        "component": "hud",
+        "phase": "after",
+        "field": "groups[2][46].words[6]",
+        "expected": 31,
+        "actual": 0
+      },
+      {
+        "component": "hud",
+        "phase": "after",
+        "field": "groups[2][47].words[6]",
+        "expected": 31,
+        "actual": 0
+      },
+      {
+        "component": "hud",
+        "phase": "after",
+        "field": "groups[5][9].words[6]",
+        "expected": 29,
+        "actual": 0
+      }
+    ],
+    "other_fields": "Compared totals per replay are recorded above. Text compares through NUL; scoped HUD globals only; whole variable state, all globals, full text tails, FCSR/RNG, layout, audio and raster parity are not established."
+  },
+  "builds_tests_and_commands": {
+    "build_and_ctest_commands_from_final_run_manifest": [
+      {
+        "command": [
+          "cmake",
+          "--build",
+          "build/native",
+          "-j8",
+          "--target",
+          "okage-native",
+          "okage-ui-binding",
+          "ruw-tests",
+          "battle-ui-tests",
+          "battle-hud-tests",
+          "battle-ui-command-data-tests",
+          "battle-ui-command-state-tests",
+          "ui-window-tests",
+          "battle-ui-roster-tests",
+          "battle-ui-pad-tests"
+        ],
+        "exit_code": 0,
+        "log": {
+          "path": "local/research/ui-second-dispatch-v1/final-debug-0-v1.log",
+          "bytes": 1458,
+          "sha256": "ec0b524a4691d97976444c969ce5f2bb867ba8a676d2e33a1bf282b4206979bd"
+        }
+      },
+      {
+        "command": [
+          "ctest",
+          "--test-dir",
+          "build/native",
+          "--output-on-failure",
+          "-R",
+          "^(ruw|battle-ui|battle-hud|battle-ui-command-data|battle-ui-command-state|ui-window|battle-ui-roster|battle-ui-pad)-tests$"
+        ],
+        "exit_code": 0,
+        "log": {
+          "path": "local/research/ui-second-dispatch-v1/final-debug-1-v1.log",
+          "bytes": 1061,
+          "sha256": "a0c589be4367cb1e0942561850d358990b3304d7bc5867d65ad5932f8a85b9cf"
+        }
+      },
+      {
+        "command": [
+          "cmake",
+          "--build",
+          "build/model-sanitize",
+          "-j8",
+          "--target",
+          "okage-native",
+          "okage-ui-binding",
+          "ruw-tests",
+          "battle-ui-tests",
+          "battle-hud-tests",
+          "battle-ui-command-data-tests",
+          "battle-ui-command-state-tests",
+          "ui-window-tests",
+          "battle-ui-roster-tests",
+          "battle-ui-pad-tests"
+        ],
+        "exit_code": 0,
+        "log": {
+          "path": "local/research/ui-second-dispatch-v1/final-sanitize-0-v1.log",
+          "bytes": 1458,
+          "sha256": "d428bd6cd0dbfac66ed494ddf141638f1652a1c52d38c8f0a450d96f20cd83bf"
+        }
+      },
+      {
+        "command": [
+          "ctest",
+          "--test-dir",
+          "build/model-sanitize",
+          "--output-on-failure",
+          "-R",
+          "^(ruw|battle-ui|battle-hud|battle-ui-command-data|battle-ui-command-state|ui-window|battle-ui-roster|battle-ui-pad)-tests$"
+        ],
+        "exit_code": 0,
+        "log": {
+          "path": "local/research/ui-second-dispatch-v1/final-sanitize-1-v1.log",
+          "bytes": 1077,
+          "sha256": "cc37cd0c2ac845268197587e3b25099e30cf373a9600f10f97f5c9777dd88e0e"
+        }
+      },
+      {
+        "command": [
+          "python3",
+          "tools/verify_ui_second_update.py",
+          "--reference",
+          "local/research/ui-first-update-v1/natural-ui-updates-v1.updates.jsonl",
+          "--native",
+          "local/native-ui-second-104615-release-v2.ui-second.json",
+          "--output",
+          "local/research/ui-second-dispatch-v1/comparison-release-final-v1.json"
+        ],
+        "exit_code": 1,
+        "log": null
+      },
+      {
+        "command": [
+          "python3",
+          "tools/verify_ui_second_update.py",
+          "--reference",
+          "local/research/ui-first-update-v1/natural-ui-updates-v1.updates.jsonl",
+          "--native",
+          "local/native-ui-second-104615-debug-v1.ui-second.json",
+          "--output",
+          "local/research/ui-second-dispatch-v1/comparison-debug-final-v1.json"
+        ],
+        "exit_code": 1,
+        "log": null
+      },
+      {
+        "command": [
+          "python3",
+          "tools/verify_ui_second_update.py",
+          "--reference",
+          "local/research/ui-first-update-v1/natural-ui-updates-v1.updates.jsonl",
+          "--native",
+          "local/native-ui-second-104615-sanitize-v1.ui-second.json",
+          "--output",
+          "local/research/ui-second-dispatch-v1/comparison-sanitize-final-v1.json"
+        ],
+        "exit_code": 1,
+        "log": null
+      }
+    ],
+    "final_source_revision": "91e7c4a8964bea4b15369d6bc485ba6060bc25f6",
+    "debug_ctest_targets": 8,
+    "debug_ctests": "8/8 passed",
+    "asan_ubsan_ctest_targets": 8,
+    "asan_ubsan_ctests": "8/8 passed",
+    "python": {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "tests": 333,
+      "exit_code": 0,
+      "log": {
+        "path": "local/research/ui-second-dispatch-v1/python-suite-v3.log",
+        "bytes": 34996,
+        "sha256": "0d872145c185b35ad8fdef6f08c9d0e90ebb36df1a55117cfdf34bbfa858dc54"
+      }
+    },
+    "first_dispatch_regression": {
+      "reports": [
+        {
+          "path": "local/research/ui-second-dispatch-v1/first-comparison-release-v1.json",
+          "bytes": 34341,
+          "sha256": "ba22cdd49c6723ccca951e25560a828bd0a0b62bc88233213cec5d08a96fd1b1"
+        },
+        {
+          "path": "local/research/ui-second-dispatch-v1/first-comparison-debug-v1.json",
+          "bytes": 34339,
+          "sha256": "000e037e1576701ccec28e5467411b8664ae0dab7af95a7090b7253cd5e2adc8"
+        },
+        {
+          "path": "local/research/ui-second-dispatch-v1/first-comparison-sanitize-v1.json",
+          "bytes": 34342,
+          "sha256": "f30b04b4efb011f21577822dba63119d7b8739afa978d1e6515fdb8f9f80d76f"
+        }
+      ],
+      "scope": "Final first-dispatch regression on canonical v2 owned bundle; all three exit0."
+    }
+  },
+  "supporting_artifacts": [
+    {
+      "path": "local/research/ui-first-update-v1/natural-ui-updates-v1.updates.jsonl",
+      "bytes": 2609856,
+      "sha256": "69ff7cb68d757ff9e8b4e35e3f808421a16d32f0b74cad690580efb7895ba9d4"
+    },
+    {
+      "path": "local/extracted/SCUS_971.29",
+      "bytes": 1374220,
+      "sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
+    },
+    {
+      "path": "local/battle-input-v2/manifest.json",
+      "bytes": 8023,
+      "sha256": "5220f366c7e6b9eaec8e84cd413fd36bc5ce07d9dc9e809cbaec7f1e3c2986ed"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/final-runs-v1.json",
+      "bytes": 3684,
+      "sha256": "31052838f8ed49d2d23f359a0d855de4402f5ec0be9bbb9dd6f338f67e902e76"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/build-runs-v1.json",
+      "bytes": 1415,
+      "sha256": "375810fb58c6fce39f42ed9c22436c11cdf0fe79016adbc1019507fce461401c"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/native-route-verification-runs-v1.json",
+      "bytes": 2091,
+      "sha256": "6ccfd45540fd604c3f9549b135d23bacbe5162e5ff42a5215e362a4af0f699d7"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/python-suite-v3.log",
+      "bytes": 34996,
+      "sha256": "0d872145c185b35ad8fdef6f08c9d0e90ebb36df1a55117cfdf34bbfa858dc54"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/final-debug-0-v1.log",
+      "bytes": 1458,
+      "sha256": "ec0b524a4691d97976444c969ce5f2bb867ba8a676d2e33a1bf282b4206979bd"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/final-debug-1-v1.log",
+      "bytes": 1061,
+      "sha256": "a0c589be4367cb1e0942561850d358990b3304d7bc5867d65ad5932f8a85b9cf"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/final-sanitize-0-v1.log",
+      "bytes": 1458,
+      "sha256": "d428bd6cd0dbfac66ed494ddf141638f1652a1c52d38c8f0a450d96f20cd83bf"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/final-sanitize-1-v1.log",
+      "bytes": 1077,
+      "sha256": "cc37cd0c2ac845268197587e3b25099e30cf373a9600f10f97f5c9777dd88e0e"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/native-route-hud-comparison-v1.json",
+      "bytes": 2352,
+      "sha256": "d274fecd5664e64739ae764f580e1e63f4f6c4e3621958b912c77b045f28dac6"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/native-route-interface-comparison-v1.json",
+      "bytes": 5058,
+      "sha256": "517b2be288d94ee4e46b7092ff734d9cc217ede653cb29054e28c02d8d8f6782"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/native-route-stage-comparison-v1.json",
+      "bytes": 1678,
+      "sha256": "83ce1211ec7d48db1958794b4588b985fb097a836ed124fe57d76adb161c5cc3"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-comparison-release-v3.json",
+      "bytes": 34341,
+      "sha256": "2dce434602a13b7feadc6aaecd84f894267e6635d4dd65c5fa34f63455f0572f"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-comparison-debug-v3.json",
+      "bytes": 34339,
+      "sha256": "f94ed08af0dcf87d75d0a3e709033aade856b5007ed420513352b3b8d1da6159"
+    },
+    {
+      "path": "local/research/ui-dispatch-v1/first-comparison-sanitize-v3.json",
+      "bytes": 34342,
+      "sha256": "a41cd93520a2fb967d507e7ad29b125ceac62db91db1b1a9600a4dc9d9058738"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/first-regression-runs-v1.json",
+      "bytes": 3100,
+      "sha256": "e287c4a61985d009abc1e914612af2f76855a78d3865c1b7336220357db52316"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/bundle-copy-v1.json",
+      "bytes": 1144,
+      "sha256": "19e13b3d09992303f711f15ce3f435c92ecf77096196a7dd485396abe1912306"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/party-activation-contract.txt",
+      "bytes": 7274,
+      "sha256": "7c74e85665f0ec2a2a1c729e5f075d3b1b8661c0e0c17dfbc368f0ce088c42cf"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/party-activation-provenance-v1.json",
+      "bytes": 4719,
+      "sha256": "42555efefa7ae2563c4a2765751667fa998a18e283e0b341af8a0def5fcd68da"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/layout-next-contract.txt",
+      "bytes": 11055,
+      "sha256": "969778c8b9873ad67f0bc8b5f4113245bdd7beb9d1a6af30ffef0f7d15703c90"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/first-comparison-release-v1.json",
+      "bytes": 34341,
+      "sha256": "ba22cdd49c6723ccca951e25560a828bd0a0b62bc88233213cec5d08a96fd1b1"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/first-comparison-debug-v1.json",
+      "bytes": 34339,
+      "sha256": "000e037e1576701ccec28e5467411b8664ae0dab7af95a7090b7253cd5e2adc8"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/first-comparison-sanitize-v1.json",
+      "bytes": 34342,
+      "sha256": "f30b04b4efb011f21577822dba63119d7b8739afa978d1e6515fdb8f9f80d76f"
+    }
+  ],
+  "documentation_bindings": {
+    "note": "Final documentation content at this checkpoint; hashes bind these exact files, not a later edited revision. This manifest intentionally does not hash itself.",
+    "files": [
+    ]
+  },
+  "source_bindings": {
+    "revision": "91e7c4a8964bea4b15369d6bc485ba6060bc25f6",
+    "files": [
+      {
+        "path": "CMakeLists.txt",
+        "bytes": 13302,
+        "sha256": "a997e103952117b454bfc9d193d844ec9b900d5c0db1f3c78e513448996b9506"
+      },
+      {
+        "path": "include/okage/battle_interface.hpp",
+        "bytes": 2462,
+        "sha256": "41d6668b5334aa11ea84e1ca2c5f0de9fc23e8cb97448fde34eb2012c4e59c28"
+      },
+      {
+        "path": "src/battle_interface_second.cpp",
+        "bytes": 6858,
+        "sha256": "834c51209dcb2f8c492922dc5da54f04681e81b14f86264a9baa778e65d53ec3"
+      },
+      {
+        "path": "src/battle_interface_update.cpp",
+        "bytes": 5416,
+        "sha256": "9ca238400d7d933e848657857d0cd13932c46043106b0ffa8f7967effa1a1b97"
+      },
+      {
+        "path": "src/battle_session.mm",
+        "bytes": 25747,
+        "sha256": "b3f3f09319ba86b3abcda4a2f2791d57075f36fc172df6630a8af9d77c5c4b62"
+      },
+      {
+        "path": "src/native_runtime.mm",
+        "bytes": 102020,
+        "sha256": "637a2537f323d04d55658d5bf74992b94baede504f8d2a3e2b9f9f5b9aa2ce31"
+      },
+      {
+        "path": "src/battle_hud.cpp",
+        "bytes": 26489,
+        "sha256": "bc36f8a96f7a9ffc39491456a25f814651896d351cc70d687a0093918c827f7c"
+      },
+      {
+        "path": "src/battle_ui_command_state.cpp",
+        "bytes": 2993,
+        "sha256": "0abc034307effbf17ee6bd76239eaf00bd2b082fb68e25698fa0fca596f12773"
+      },
+      {
+        "path": "src/battle_ui_command_data.cpp",
+        "bytes": 1944,
+        "sha256": "331fff75b27a709a01494b5d055cc918e36c1cad02473d3eae63b362ad25f07f"
+      },
+      {
+        "path": "src/battle_ui_roster.cpp",
+        "bytes": 3154,
+        "sha256": "a6729062ff9b6cc593cfa56ca4b97a7260149efd404aecd3c376bdabdca6d036"
+      },
+      {
+        "path": "src/ui_window.cpp",
+        "bytes": 9758,
+        "sha256": "7b3ae89fd2cda5489503477d2708578977065ddf2b1239b95b3e5d6c53f7010f"
+      },
+      {
+        "path": "src/ruw.cpp",
+        "bytes": 12340,
+        "sha256": "4ee718d63789ab6c3e372450c96870ce1c9984a5b9efac05fc75612db436d924"
+      },
+      {
+        "path": "tools/verify_ui_second_update.py",
+        "bytes": 25813,
+        "sha256": "7e6a15edcb8c3cfc1b19535cc3940099ee02a33b41a56e35015ac7b39d79cfba"
+      },
+      {
+        "path": "tools/import_battle_resources.py",
+        "bytes": 8731,
+        "sha256": "45a647db31bfc9b9e1426433c4fdb3b5c33b5a1e7d11da1439505a26888489e8"
+      },
+      {
+        "path": "tools/import_battle_ui_commands.py",
+        "bytes": 5341,
+        "sha256": "b1c2e301cfb740a6550e43fef9da161a7bcac029c5d0f28a2b8e63b8f6f27bc2"
+      }
+    ]
+  }
+}
