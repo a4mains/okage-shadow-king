@@ -248,6 +248,9 @@ def _compare_hud(reference_tuple, reference_row, native_hud, phase):
     adapted['scope'] = hud.NATIVE_SCOPE
     adapted['execution'] = 'isolated'
     report = hud.compare(projected, adapted)
+    report['reference_schema'] = _header.get('schema')
+    report['native_execution'] = native_hud['execution']
+    report['scope'] = native_hud['scope']
     return report
 
 def _compare_snapshot(reference_tuple, reference_row, snapshot, phase):

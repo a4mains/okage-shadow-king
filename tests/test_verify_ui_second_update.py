@@ -109,6 +109,8 @@ class VerifyUiSecondUpdateTests(unittest.TestCase):
         self.assertEqual(report['compared_accumulator_words'], 32)
         self.assertGreater(report['compared_window_words'], 20000)
         self.assertGreater(report['compared_glyph_bytes'], 0)
+        self.assertEqual(report['compared_hud']['after']['reference_schema'], self.reference[0]['schema'])
+        self.assertEqual(report['compared_hud']['after']['native_execution'], 'ui-update')
 
     def test_native_window_hud_cache_and_global_corruptions_are_retained(self):
         cases = (
