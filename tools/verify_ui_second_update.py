@@ -17,6 +17,23 @@ Invalid, need, u32 = window.Invalid, window.need, window.u32
 NATIVE_SCHEMA = 'okage-native-ui-second-update-v1'
 NATIVE_SCOPE = ('isolated first and second dispatchers on copies of native Session construction state; '
                 'no parent activation, resource clock, layout or rendering')
+SCHEDULED_SCHEMA = 'okage-native-ui-scheduled-update-v1'
+SCHEDULED_SCOPE = ('first scheduled UI dispatchers after native parent, camera, party and enemy callbacks; '
+                   'no resource layout or rendering')
+NATIVE_REPORTS = {
+    NATIVE_SCHEMA: {
+        'scope': NATIVE_SCOPE,
+        'execution': 'isolated',
+        'hud_scope': 'RUW and HUD state at an isolated dispatcher boundary',
+        'hud_execution': 'ui-update',
+    },
+    SCHEDULED_SCHEMA: {
+        'scope': SCHEDULED_SCOPE,
+        'execution': 'scheduled',
+        'hud_scope': 'RUW and HUD state at a scheduled dispatcher boundary',
+        'hud_execution': 'scheduled-ui-update',
+    },
+}
 OUTPUT_SCHEMA = 'okage-ui-second-update-verification-v1'
 MANAGER_NORMALIZED = {0, 4, 8, 12, 16, 20, 24, 0x44, 0x94, 0x9c,
                       0x114, 0x124, 0x174, 0x17c, 0x1f4}
@@ -236,13 +253,13 @@ def _compare_windows(reference_row, native_windows, phase):
                           'compared_glyph_bytes': 2 * extent}
     return source_diffs, compared, per_slot, glyph_bytes
 
-def _compare_hud(reference_tuple, reference_row, native_hud, phase):
+def _compare_hud(reference_tuple, reference_row, native_hud, phase, report_kind):
     _header, rows, finish = reference_tuple
     other = next((r for r in rows if r is not reference_row), rows[0])
     projected = (_header, other, reference_row, finish, u32(reference_row.get('root'), 'root'))
-    need(isinstance(native_hud, dict) and native_hud.get('scope') ==
-         'RUW and HUD state at an isolated dispatcher boundary' and
-         native_hud.get('execution') == 'ui-update',
+    hud_contract = NATIVE_REPORTS[report_kind]
+    need(isinstance(native_hud, dict) and native_hud.get('scope') == hud_contract['hud_scope'] and
+         native_hud.get('execution') == hud_contract['hud_execution'],
          f'{phase} HUD diagnostic boundary identity mismatch')
     adapted = dict(native_hud)
     adapted['scope'] = hud.NATIVE_SCOPE
@@ -253,13 +270,13 @@ def _compare_hud(reference_tuple, reference_row, native_hud, phase):
     report['scope'] = native_hud['scope']
     return report
 
-def _compare_snapshot(reference_tuple, reference_row, snapshot, phase):
+def _compare_snapshot(reference_tuple, reference_row, snapshot, phase, report_kind):
     need(isinstance(snapshot, dict) and set(snapshot) == SNAPSHOT_FIELDS,
          f'{phase} snapshot fields mismatch')
     manager_diffs, manager_words = _compare_manager(reference_row, snapshot['manager_words'], phase)
     window_diffs, window_words, window_slots, glyph_bytes = _compare_windows(
         reference_row, snapshot['windows'], phase)
-    hud_report = _compare_hud(reference_tuple, reference_row, snapshot['hud'], phase)
+    hud_report = _compare_hud(reference_tuple, reference_row, snapshot['hud'], phase, report_kind)
 
     cache = binding.raw(reference_row.get('party_selection_counts_and_table'),
                         f'{phase} original party cache', 0x120, 0x1fae18)
@@ -355,8 +372,12 @@ def compare(reference, native):
     allowed = {'schema', 'scope', 'snapshots', 'frame', 'base_report', 'input_hashes'}
     need(isinstance(native, dict) and set(native) <= allowed and
          {'schema', 'scope', 'snapshots'} <= set(native), 'native second-update report fields mismatch')
-    need(native.get('schema') == NATIVE_SCHEMA and native.get('scope') == NATIVE_SCOPE,
-         'native second-update schema/scope mismatch')
+    report_kind = native.get('schema')
+    need(isinstance(report_kind, str) and report_kind in NATIVE_REPORTS,
+         'native second-update schema mismatch')
+    native_contract = NATIVE_REPORTS[report_kind]
+    need(native.get('scope') == native_contract['scope'],
+         'native second-update scope does not match its schema')
     if 'frame' in native: u32(native['frame'], 'native.frame')
     if 'base_report' in native: need(isinstance(native['base_report'], dict), 'base_report must be an object')
     if 'input_hashes' in native:
@@ -366,20 +387,27 @@ def compare(reference, native):
     snapshots = native.get('snapshots')
     need(isinstance(snapshots, dict) and set(snapshots) == {'before', 'after'},
          'native must contain exactly the before/after second-update states')
-    before = _compare_snapshot(reference, entry, snapshots['before'], 'before')
-    after = _compare_snapshot(reference, complete, snapshots['after'], 'after')
+    before = _compare_snapshot(reference, entry, snapshots['before'], 'before', report_kind)
+    after = _compare_snapshot(reference, complete, snapshots['after'], 'after', report_kind)
 
     differences = before['differences'] + after['differences']
     return {
         'schema': OUTPUT_SCHEMA,
         'status': 'fail' if differences else 'pass',
-        'scope': NATIVE_SCOPE,
+        'scope': native_contract['scope'],
+        'native_schema': report_kind,
+        'execution': native_contract['execution'],
+        'comparison_scope': 'The explicitly counted manager/window/cache/glyph/HUD fields in this report only; no whole-scheduler equivalence claim.',
         'reference_schema': header.get('schema'),
         'reference_second_callback_frames': [entry['frame'], complete['frame']],
         'native_frame': native.get('frame'),
         'snapshots': {
-            'before': {k: v for k, v in before.items() if k != 'differences'},
-            'after': {k: v for k, v in after.items() if k != 'differences'},
+            'before': {**{k: v for k, v in before.items() if k != 'differences'},
+                       'native_report': {'schema': report_kind, 'scope': native_contract['scope'],
+                                         'execution': native_contract['execution']}},
+            'after': {**{k: v for k, v in after.items() if k != 'differences'},
+                      'native_report': {'schema': report_kind, 'scope': native_contract['scope'],
+                                        'execution': native_contract['execution']}},
         },
         'compared_manager_words': before['manager_words_compared'] + after['manager_words_compared'],
         'compared_window_words': before['window_words_compared'] + after['window_words_compared'],
@@ -391,7 +419,9 @@ def compare(reference, native):
             'The original trace has no variable-owner snapshot, so native variables are not compared.',
             'Original type3 formatted/padded scratch arrays, command-state scratch, and formation summary arrays are absent; native values are extent/type-validated only. type3_blink is also not compared because its original source owner was not captured.',
             'The original trace does not capture the selected-alpha pulse step, secondary pulse, cost pulse or HP gate owners; those native scalars are validated but not compared.',
-            'The comparison covers the first 120ad0 second-pass invocation (164090 then 1684d0) on copied native state; it does not establish parent activation, resource-clock scheduling, layout, rendering, or later UI progression.',
+            ('The comparison covers the first 120ad0 second-pass invocation (164090 then 1684d0) on copied native state; it does not establish parent activation, resource-clock scheduling, layout, rendering, or later UI progression.'
+             if native_contract['execution'] == 'isolated' else
+             'This compares the first 120ad0 second-pass invocation (164090 then 1684d0) after the named native callbacks only. It does not establish whole-scheduler equivalence, RNG equivalence, resource layout, rendering, or later UI progression.'),
             f'HUD shared-global comparison is limited to these ten keys: {", ".join(hud.GLOBAL_KEYS)}. HUD text compares only bytes through the first NUL terminator; text tails are excluded.',
             'The native report frame is recorded independently; this tool does not align it temporally with the emulator frame.'
         ],

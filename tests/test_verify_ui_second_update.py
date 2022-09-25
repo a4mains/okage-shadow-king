@@ -103,6 +103,11 @@ class VerifyUiSecondUpdateTests(unittest.TestCase):
     def test_exact_second_callback_pair_and_scoped_counts(self):
         report = tool.compare(self.reference, self.native)
         self.assertEqual(report['status'], 'pass')
+        self.assertEqual(report['native_schema'], tool.NATIVE_SCHEMA)
+        self.assertEqual(report['scope'], tool.NATIVE_SCOPE)
+        self.assertEqual(report['execution'], 'isolated')
+        self.assertEqual(report['snapshots']['before']['native_report'], {
+            'schema': tool.NATIVE_SCHEMA, 'scope': tool.NATIVE_SCOPE, 'execution': 'isolated'})
         self.assertEqual(report['reference_second_callback_frames'],
                          [self.reference[1][2]['frame'], self.reference[1][3]['frame']])
         self.assertEqual(report['compared_party_cache_words'], 144)
@@ -111,6 +116,49 @@ class VerifyUiSecondUpdateTests(unittest.TestCase):
         self.assertGreater(report['compared_glyph_bytes'], 0)
         self.assertEqual(report['compared_hud']['after']['reference_schema'], self.reference[0]['schema'])
         self.assertEqual(report['compared_hud']['after']['native_execution'], 'ui-update')
+
+    def test_scheduled_report_schema_and_nested_execution_are_preserved(self):
+        native = copy.deepcopy(self.native)
+        native['schema'] = tool.SCHEDULED_SCHEMA
+        native['scope'] = tool.SCHEDULED_SCOPE
+        for phase in ('before', 'after'):
+            native['snapshots'][phase]['hud']['scope'] = 'RUW and HUD state at a scheduled dispatcher boundary'
+            native['snapshots'][phase]['hud']['execution'] = 'scheduled-ui-update'
+        report = tool.compare(self.reference, native)
+        self.assertEqual(report['status'], 'pass')
+        self.assertEqual(report['native_schema'], tool.SCHEDULED_SCHEMA)
+        self.assertEqual(report['scope'], tool.SCHEDULED_SCOPE)
+        self.assertEqual(report['execution'], 'scheduled')
+        self.assertIn('no whole-scheduler equivalence claim', report['comparison_scope'])
+        for phase in ('before', 'after'):
+            self.assertEqual(report['snapshots'][phase]['native_report'], {
+                'schema': tool.SCHEDULED_SCHEMA, 'scope': tool.SCHEDULED_SCOPE,
+                'execution': 'scheduled'})
+            self.assertEqual(report['compared_hud'][phase]['scope'],
+                             'RUW and HUD state at a scheduled dispatcher boundary')
+            self.assertEqual(report['compared_hud'][phase]['native_execution'],
+                             'scheduled-ui-update')
+        self.assertTrue(any('after the named native callbacks only' in value
+                            for value in report['unsupported']))
+
+    def test_isolated_and_scheduled_schema_scope_mixups_fail(self):
+        cases = (
+            (tool.SCHEDULED_SCHEMA, tool.NATIVE_SCOPE),
+            (tool.NATIVE_SCHEMA, tool.SCHEDULED_SCOPE),
+            ('okage-native-ui-other-v1', tool.NATIVE_SCOPE),
+            ([], tool.NATIVE_SCOPE),
+        )
+        for schema, scope in cases:
+            with self.subTest(schema=schema, scope=scope):
+                native = copy.deepcopy(self.native)
+                native['schema'], native['scope'] = schema, scope
+                with self.assertRaises(tool.Invalid):
+                    tool.compare(self.reference, native)
+        native = copy.deepcopy(self.native)
+        native['schema'], native['scope'] = tool.SCHEDULED_SCHEMA, tool.SCHEDULED_SCOPE
+        native['snapshots']['after']['hud']['execution'] = 'ui-update'
+        with self.assertRaises(tool.Invalid):
+            tool.compare(self.reference, native)
 
     def test_native_window_hud_cache_and_global_corruptions_are_retained(self):
         cases = (
