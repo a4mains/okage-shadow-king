@@ -1,6 +1,6 @@
 {
   "schema": "okage-ui-second-dispatch-validation-v1",
-  "checkpoint_date": "2022-09-24",
+  "checkpoint_date": "2022-09-26",
   "checkpoint_source_revision": "91e7c4a8964bea4b15369d6bc485ba6060bc25f6",
   "code_revisions": {
     "runtime_before_availability_correction": "aa37d6e3fcdfe704e61e7164d2a1b129c085b876",
@@ -602,7 +602,8 @@
   "documentation_bindings": {
     "note": "Final documentation content at this checkpoint; hashes bind these exact files, not a later edited revision. This manifest intentionally does not hash itself.",
     "files": [
-    ]
+    ],
+    "revision": "2f5c8d2"
   },
   "source_bindings": {
     "revision": "91e7c4a8964bea4b15369d6bc485ba6060bc25f6",
