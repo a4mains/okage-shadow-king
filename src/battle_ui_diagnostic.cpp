@@ -5,7 +5,7 @@
 
 namespace okage {
 std::string battle_ui_update_snapshot(const BattleInterface& ui,const BattleUiShared& s,
-    const RuwResource& r,Bytes variables,const UiPartySelection& party) {
+    const RuwResource& r,Bytes variables,const UiPartySelection& party,bool scheduled) {
     std::ostringstream out;
     const auto array=[&](const auto& values){out<<'[';bool comma=false;for(auto v:values){if(comma)out<<',';comma=true;out<<v;}out<<']';};
     const auto hex=[&](const auto& bytes){out<<'"';constexpr char d[]="0123456789abcdef";for(auto v:bytes){const auto u=std::uint8_t(v);out<<d[u>>4]<<d[u&15];}out<<'"';};
@@ -33,7 +33,7 @@ std::string battle_ui_update_snapshot(const BattleInterface& ui,const BattleUiSh
         out<<"],\"glyph_positions_hex\":";buffer(w.glyph_buffer(0));
         out<<",\"glyph_metrics_hex\":";buffer(w.glyph_buffer(1));out<<'}';
     }
-    out<<"],\"hud\":"<<s.hud.diagnostic(r,variables,"ui-update");
+    out<<"],\"hud\":"<<s.hud.diagnostic(r,variables,scheduled?"scheduled-ui-update":"ui-update");
     out<<",\"party_counts\":";array(party.counts());out<<",\"party_rows\":[";
     for(unsigned i=0;i<party.rows().size();++i){if(i)out<<',';array(party.rows()[i]);}out<<']';
     out<<",\"resource_accumulators\":";array(s.resource_accumulators);

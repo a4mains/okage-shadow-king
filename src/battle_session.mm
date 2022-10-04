@@ -17,10 +17,15 @@
 #include <atomic>
 #include <bit>
 #include <cctype>
+#include <cfenv>
+#include <cmath>
 #include <fstream>
 #include <iomanip>
 #include <sstream>
 #include <stdexcept>
+
+#pragma STDC FENV_ACCESS ON
+#pragma STDC FP_CONTRACT OFF
 
 namespace okage {
 namespace fs=std::filesystem;
@@ -36,6 +41,10 @@ std::vector<std::uint8_t> read(const fs::path& path) {
 std::uint32_t word(Bytes b,unsigned at) {
     if(at>b.size()||b.size()-at<4)throw std::runtime_error("Battle asset word bounds");
     return unsigned(b[at])|(unsigned(b[at+1])<<8)|(unsigned(b[at+2])<<16)|(unsigned(b[at+3])<<24);
+}
+void put(std::span<std::uint8_t> b,unsigned at,std::uint32_t value) {
+    if(at>b.size()||b.size()-at<4)throw std::runtime_error("Battle scalar bounds");
+    for(unsigned j=0;j<4;++j)b[at+j]=std::uint8_t(value>>(j*8));
 }
 fs::path archive_path(const fs::path& root,std::string path) {
     if(path.empty()||path.front()=='/'||path.find("..")!=std::string::npos||path.find('\\')!=std::string::npos)
@@ -63,12 +72,15 @@ struct BattleSession::Impl {
     BattleState root;
     StageScratch scratch;
     ShadowScreenParameters ui_projection=initial_ui_projection();
-    std::array<std::unique_ptr<RuwResource>,16> ui_resources;
+    std::array<std::shared_ptr<RuwResource>,16> ui_resources;
     std::optional<BattleUiData> ui_definitions;
     std::optional<BattleHudData> hud_definitions;
+    std::optional<BattleUiCommandData> command_definitions;
     std::unique_ptr<BattleInterface> ui;
     bool saved_model_range=true;
     std::uint32_t stage_mask=0x18000000,camera_mask=0x18000000;
+    std::uint32_t party_mask=0x18000000,enemy_mask=0x18000000;
+    unsigned party_phase=0,enemy_phase=0;
     // The fresh UI registries have no owners until 11f5f8 constructs them.
     std::array<std::uint32_t,16> ui_registry_a{},ui_registry_b{};
     std::array<std::uint32_t,9> ui_controllers{};
@@ -119,9 +131,10 @@ struct BattleSession::Impl {
     }
     void load() {
         @autoreleasepool {
-            ui_resources[0]=std::make_unique<RuwResource>(read(input/"BTL.RUW"));
+            ui_resources[0]=std::make_shared<RuwResource>(read(input/"BTL.RUW"));
             ui_definitions.emplace(read(input/"battle-ui.bin"));
             hud_definitions.emplace(read(input/"battle-hud.bin"));
+            command_definitions.emplace(read(input/"battle-ui-commands.bin"));
             load_step.store(1);
             device=MTLCreateSystemDefaultDevice();
             if(!device)throw std::runtime_error("Battle loader requires Metal");
@@ -311,6 +324,113 @@ struct BattleSession::Impl {
            <<",\"snapshots\":{\"before\":"<<before<<",\"after\":"<<after<<"}}\n";
         if(!out)throw std::runtime_error("Cannot write UI-update inspection report");
     }
+    void activate(BattleUiContext context,FieldProjection& projection) {
+        if(phase!=0||word(root.bytes,0x24)!=0||!ui||!stage_committed)
+            throw std::runtime_error("Battle parent activation lifetime");
+        party_mask&=~0x18000000u;enemy_mask&=~0x18000000u;
+        context.release_capture(); //114df8, before the stage selectors.
+        const auto setting=[&](unsigned kind,float value) {
+            stage_settings->apply({kind,{__builtin_bit_cast(std::uint32_t, (value)),0,0,0}},projection);
+        };
+        setting(0x47,110.f);setting(0x4d,64.f);
+        std::fenv_t saved;
+        if(std::fegetenv(&saved)||std::fesetround(FE_TOWARDZERO))
+            throw std::runtime_error("Battle activation rounding unavailable");
+        const float scale=__builtin_bit_cast(float, (word(root.bytes,0x2c)));
+        volatile float factor=.05f;
+        const float step=scale*factor;
+        std::fesetenv(&saved);
+        if(!std::isfinite(step)||step<=0||std::fpclassify(step)==FP_SUBNORMAL)
+            throw std::runtime_error("Battle activation fade timestep unsupported");
+        context.fade.step=step;context.fade.request(1.f);
+        ++phase;put(root.bytes,0x24,phase);
+    }
+    void scheduled_callbacks(BattleUiContext context,FieldProjection& projection,unsigned frame,const fs::path& stage_report) {
+        fs::path report_path,ui_path;
+        if(!stage_report.empty()) {
+            report_path=stage_report;report_path.replace_extension(".callbacks.json");
+            ui_path=stage_report;ui_path.replace_extension(".scheduled-ui.json");
+            for(const auto& p:{report_path,ui_path})if(fs::exists(p)||fs::is_symlink(p))
+                throw std::runtime_error("Refusing existing battle callback report");
+        }
+        std::vector<std::string> events,actor_snapshots;
+        const auto hex=[](Bytes b){std::ostringstream out;for(auto v:b)out<<std::hex<<std::setw(2)<<std::setfill('0')<<unsigned(v);return out.str();};
+        const auto actor_snapshot=[&](const BattleActor& actor,const char* boundary) {
+            if(report_path.empty())return;
+            std::ostringstream out;
+            out<<"{\"entity_id\":"<<actor.entity_id<<",\"boundary\":"<<std::quoted(boundary)
+               <<",\"enemy\":"<<(actor.enemy?"true":"false")
+               <<",\"task_hex\":"<<std::quoted(hex(Bytes(actor.storage).first(actor.enemy?0x3e0:0x3d0)))
+               <<",\"record_hex\":"<<std::quoted(hex(actor.record))<<",\"channels\":[";
+            bool comma=false;for(const auto& channel:actor.model->animation().channel_outputs())for(float f:channel){if(comma)out<<',';comma=true;out<<__builtin_bit_cast(std::uint32_t, (f));}
+            out<<"]}";actor_snapshots.push_back(out.str());
+        };
+        std::string before,after,error;
+        std::exception_ptr failure;
+        try {
+            events.push_back("parent.activation.entry");activate(context,projection);
+            events.push_back("parent.activation.return");
+            //152330 sees its constructor's zero command;152368 is empty.
+            if(stage_mask&0x18000000u)throw std::runtime_error("Battle stage remains masked");
+            events.push_back("stage.first.return");events.push_back("stage.second.return");
+            if(camera_mask&0x18000000u)throw std::runtime_error("Battle camera remains masked");
+            camera->tick(camera_channels);
+            if(const auto value=camera->take_projection_request()) {
+                stage_settings->apply({0x44,{0x3f800000,0x3ef0a3d7,
+                    __builtin_bit_cast(std::uint32_t, (*value)),0x43e10000}},projection);
+            }
+            events.push_back("camera.first.return");events.push_back("camera.second.return"); //14f270 empty.
+            for(bool enemy:{false,true}) {
+                auto& child_phase=enemy?enemy_phase:party_phase;
+                if((enemy?enemy_mask:party_mask)&0x18000000u)throw std::runtime_error("Battle roster remains masked");
+                if(child_phase!=0)throw std::runtime_error("Battle roster active command selection is unrecovered");
+                if(word(root.bytes,0x81b0)!=0) {
+                    for(const auto& actor:roster.actors())if(actor->enemy==enemy)put(actor->storage,0x21c,1);
+                    ++child_phase;
+                }
+                events.push_back(enemy?"enemy.parent.return":"party.parent.return");
+                for(const auto& actor:roster.actors())if(actor->enemy==enemy) {
+                    actor_snapshot(*actor,"before");
+                    if(enemy)battle_enemy_first_update(*actor,root);else battle_party_first_update(*actor,root);
+                    actor_snapshot(*actor,"after-first");
+                    if(enemy)battle_enemy_second_update(*actor,root);else battle_party_second_update(*actor,root);
+                    actor_snapshot(*actor,"after-second");
+                    events.push_back((enemy?"enemy.child.":"party.child.")+std::to_string(actor->entity_id)+".return");
+                }
+            }
+            ui->first_update(ui_resources[0],context.pad,context.input,60);
+            events.push_back("ui.first.return");
+            if(!ui_path.empty())before=battle_ui_update_snapshot(*ui,context.shared,*ui_resources[0],context.variables,context.party,true);
+            std::vector<const BattleActor*> enemies;
+            for(const auto& actor:roster.actors())if(actor->enemy)enemies.push_back(actor.get());
+            ui->second_update(*ui_resources[0],*hud_definitions,*command_definitions,
+                {context.variables,context.tables,context.party,root,*battle_data,roster.entities(),enemies,3});
+            events.push_back("ui.second.return");
+            if(!ui_path.empty())after=battle_ui_update_snapshot(*ui,context.shared,*ui_resources[0],context.variables,context.party,true);
+        }catch(const std::exception& e){error=e.what();failure=std::current_exception();}
+        if(!report_path.empty()) {
+            const auto array=[](std::ostream& out,const auto& values){out<<'[';bool comma=false;for(auto v:values){if(comma)out<<',';comma=true;out<<v;}out<<']';};
+            std::ofstream out(report_path);
+            out<<"{\"schema\":\"okage-native-battle-callbacks-v1\",\"frame\":"<<frame
+               <<",\"complete\":"<<(failure?"false":"true")<<",\"error\":"<<std::quoted(error)
+               <<",\"scope\":\"first eligible native parent and child traversal; no resource layout, rendering or combat\",\"root_hex\":"<<std::quoted(hex(root.bytes))
+               <<",\"camera\":";array(out,camera->observation());
+            out<<",\"fade\":";array(out,std::array{__builtin_bit_cast(std::uint32_t, (context.fade.current)),__builtin_bit_cast(std::uint32_t, (context.fade.target)),__builtin_bit_cast(std::uint32_t, (context.fade.step)),unsigned(context.fade.enabled),unsigned(context.fade.hold)});
+            out<<",\"projection\":";std::vector<std::uint32_t> projection_bits;for(float f:field_projection_words(projection.current()))projection_bits.push_back(__builtin_bit_cast(std::uint32_t, (f)));array(out,projection_bits);
+            out<<",\"stage_selector\":"<<stage_settings->selector<<",\"stage_signed_setting\":"<<stage_settings->signed_setting
+               <<",\"roster_phases\":["<<party_phase<<','<<enemy_phase<<"],\"events\":[";
+            for(unsigned i=0;i<events.size();++i){if(i)out<<',';out<<std::quoted(events[i]);}
+            out<<"],\"actors\":[";for(unsigned i=0;i<actor_snapshots.size();++i){if(i)out<<',';out<<actor_snapshots[i];}out<<"]}\n";
+            if(!out)throw std::runtime_error("Cannot write battle callbacks report");
+        }
+        if(!ui_path.empty()&&!after.empty()) {
+            std::ofstream out(ui_path);
+            out<<"{\"schema\":\"okage-native-ui-scheduled-update-v1\",\"scope\":\"first scheduled UI dispatchers after native parent, camera, party and enemy callbacks; no resource layout or rendering\",\"frame\":"<<frame
+               <<",\"snapshots\":{\"before\":"<<before<<",\"after\":"<<after<<"}}\n";
+            if(!out)throw std::runtime_error("Cannot write scheduled battle UI report");
+        }
+        if(failure)std::rethrow_exception(failure);
+    }
     void report(const fs::path& path,unsigned frame,std::uint32_t rng_before,
                 const BattleConstructionContext& context,const std::string& error) const {
         if(path.empty())return;
@@ -370,7 +490,8 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
         catch(...) {impl_->construction_failure=std::current_exception();throw;}
     }
     impl_->inspect_ui_updates(context,frame,ui_update_report);
-    throw std::runtime_error("Battle UI callbacks, child activation and framebuffer filter rendering are unrecovered");
+    impl_->scheduled_callbacks(context,projection,frame,stage_report);
+    throw std::runtime_error("Battle resource layout, actor submission and framebuffer filter rendering are unrecovered after first child traversal");
 }
 void BattleSession::service_loader_after_frame(BattleConstructionContext context,unsigned frame,const fs::path& report){
     impl_->jobs.check();

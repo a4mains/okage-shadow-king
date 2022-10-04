@@ -1,4 +1,5 @@
 #include "okage/battle_camera.hpp"
+#include "okage/animation.hpp"
 #include <bit>
 #include <cfenv>
 #include <cmath>
@@ -70,6 +71,12 @@ void BattleCameraMotion::aim() {
     position_.auxiliary[2]=0;
 }
 void BattleCameraMotion::tick() {
+    advance(nullptr);
+}
+void BattleCameraMotion::tick(Animation& channels) {
+    advance(&channels);
+}
+void BattleCameraMotion::advance(Animation* channels) {
     Rounding rounding;
     // 0x14f0d8 runs before motion updates. A null next segment marks readiness
     // and still updates the old modes that tick; exhausting slot2 returns early.
@@ -79,6 +86,7 @@ void BattleCameraMotion::tick() {
         if(sequence_[sequence_phase_])select(*sequence_[sequence_phase_]);
         else sequence_phase_=3;
     }
+    if(channels)position_.auxiliary=channels->value(1);
     if(target_.mode==1)for(unsigned j=0;j<4;++j)target_.point[j]+=target_.auxiliary[j];
     target_.remaining-=timestep_;
     if(target_.remaining<0) {
@@ -103,6 +111,7 @@ void BattleCameraMotion::tick() {
         if(position_.remaining<0){position_.remaining=0;position_.mode=7;flags_|=0x80000000u;}
     }
     aim();
+    if(channels)channels->set_channel(1,position_.auxiliary);
 }
 std::optional<float> BattleCameraMotion::take_projection_request() {
     if(projection_dirty_!=1)return std::nullopt;

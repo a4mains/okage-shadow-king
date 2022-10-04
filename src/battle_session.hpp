@@ -6,6 +6,7 @@
 #include "okage/game_state.hpp"
 #include "okage/enemy.hpp"
 #include "okage/battle_interface.hpp"
+#include "okage/dialogue.hpp"
 #include <filesystem>
 #include <memory>
 
@@ -19,10 +20,15 @@ struct BattleConstructionContext {
     GameRandom& random;
 };
 struct BattleUiContext {
-    Bytes variables;
+    std::span<std::uint8_t> variables;
     const GameDataTables& tables;
-    const UiPartySelection& party;
+    UiPartySelection& party;
     BattleUiShared& shared;
+    BattleUiPad& pad;
+    BattleUiPadInput input;
+    SceneFade& fade;
+    //114df8 mutates the persistent outer capture owner, if it exists.
+    std::function<void()> release_capture;
 };
 class BattleSession {
 public:

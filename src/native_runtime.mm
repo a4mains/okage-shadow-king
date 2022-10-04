@@ -77,6 +77,8 @@ struct Session {
     std::array<std::uint8_t,0x1000> variables{};
     okage::UiPartySelection ui_party;
     okage::BattleUiShared ui_shared;
+    okage::BattleUiPad battle_pad;
+    std::uint16_t previous_held=0;
     okage::GameRandom random{1};
     okage::CollisionMask collision_mask;
     okage::ExteriorCamera exterior_camera;
@@ -553,6 +555,7 @@ struct Session {
     }
     void tick(okage::DialogueButtons input) {
         ++frame;
+        const auto released=std::uint16_t(previous_held&~input.held);previous_held=input.held;
         input.repeat=pad_repeat.update(input.held,input.pressed);
         if(battle_capture_layer) {
             // 0x114ac0. The battle loader must request target0 when its real
@@ -587,8 +590,16 @@ struct Session {
         }
         if(battle) {
             try {battle->tick(retiring_effects?&*retiring_effects:nullptr,projection,scene_clear,
-                {variables,*game_data,ui_party,ui_shared},frame,battle_stage_report,battle_ui_update_report);}
+                {variables,*game_data,ui_party,ui_shared,battle_pad,
+                 {input.held,input.pressed,released,input.repeat,128,128},scene_fade,
+                 [this]{if(battle_capture_layer)battle_capture_target=0;}},
+                frame,battle_stage_report,battle_ui_update_report);
+                pad_repeat.delay=battle_pad.controls[0].delay;
+                pad_repeat.interval=battle_pad.controls[0].interval;
+            }
             catch(const std::exception& error) {
+                pad_repeat.delay=battle_pad.controls[0].delay;
+                pad_repeat.interval=battle_pad.controls[0].interval;
                 throw std::runtime_error("Native battle frame="+std::to_string(frame)+": "+error.what());
             }
             battle_loading_trace.push_back(frame);

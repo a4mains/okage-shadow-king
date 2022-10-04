@@ -1,4 +1,5 @@
 #include "okage/battle_camera.hpp"
+#include "okage/animation.hpp"
 #include <bit>
 #include <cmath>
 #include <cstdint>
@@ -116,6 +117,18 @@ int main() {
             for(unsigned i=0;i<55;++i) require(after[i]==before[i]);
         }
 
+        {
+            okage::BattleCameraSequence seq{};seq[0]=linear(2);
+            okage::BattleCameraMotion motion(seq,1);
+            okage::Animation channels(3);
+            channels.set_channel(0,{7,8,9,10});channels.set_channel(1,{11,12,13,37});
+            channels.set_channel(2,{14,15,16,17});
+            motion.tick(channels);
+            require(motion.rotation()[3]==37);
+            require(channels.value(1)==motion.rotation());
+            require(channels.value(0)==okage::Float4({7,8,9,10}));
+            require(channels.value(2)==okage::Float4({14,15,16,17}));
+        }
         {
             auto b=preset_bytes(fixed());
             require(okage::read_battle_camera_preset(b).position_mode==0);
