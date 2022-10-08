@@ -374,11 +374,10 @@ struct BattleSession::Impl {
             if(stage_mask&0x18000000u)throw std::runtime_error("Battle stage remains masked");
             events.push_back("stage.first.return");events.push_back("stage.second.return");
             if(camera_mask&0x18000000u)throw std::runtime_error("Battle camera remains masked");
-            camera->tick(camera_channels);
-            if(const auto value=camera->take_projection_request()) {
+            camera->tick(camera_channels,[&](float value) {
                 stage_settings->apply({0x44,{0x3f800000,0x3ef0a3d7,
-                    __builtin_bit_cast(std::uint32_t, (*value)),0x43e10000}},projection);
-            }
+                    __builtin_bit_cast(std::uint32_t, (value)),0x43e10000}},projection);
+            });
             events.push_back("camera.first.return");events.push_back("camera.second.return"); //14f270 empty.
             for(bool enemy:{false,true}) {
                 auto& child_phase=enemy?enemy_phase:party_phase;

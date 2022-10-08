@@ -2,6 +2,7 @@
 #include "okage/camera.hpp"
 #include "okage/assets.hpp"
 #include <optional>
+#include <functional>
 #include <vector>
 
 namespace okage {
@@ -20,7 +21,7 @@ class BattleCameraMotion {
 public:
     BattleCameraMotion(const BattleCameraSequence&,float timestep);
     void tick();
-    void tick(Animation& channels);
+    void tick(Animation& channels,const std::function<void(float)>& projection);
     Float4 position() const {return position_.point;}
     Float4 target() const {return target_.point;}
     Float4 rotation() const {return position_.auxiliary;}
@@ -45,6 +46,6 @@ private:
     unsigned projection_dirty_=0,flags_=0,position_phase_=0,sequence_phase_=0;
     void select(const BattleCameraPreset&);
     void aim();
-    void advance(Animation* channels);
+    void advance(Animation* channels,const std::function<void(float)>* projection);
 };
 }

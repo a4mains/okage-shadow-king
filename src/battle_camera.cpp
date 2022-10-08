@@ -71,12 +71,13 @@ void BattleCameraMotion::aim() {
     position_.auxiliary[2]=0;
 }
 void BattleCameraMotion::tick() {
-    advance(nullptr);
+    advance(nullptr,nullptr);
 }
-void BattleCameraMotion::tick(Animation& channels) {
-    advance(&channels);
+void BattleCameraMotion::tick(Animation& channels,const std::function<void(float)>& projection) {
+    if(!projection)throw std::runtime_error("Battle camera requires projection sink");
+    advance(&channels,&projection);
 }
-void BattleCameraMotion::advance(Animation* channels) {
+void BattleCameraMotion::advance(Animation* channels,const std::function<void(float)>* projection) {
     Rounding rounding;
     // 0x14f0d8 runs before motion updates. A null next segment marks readiness
     // and still updates the old modes that tick; exhausting slot2 returns early.
@@ -111,6 +112,10 @@ void BattleCameraMotion::advance(Animation* channels) {
         if(position_.remaining<0){position_.remaining=0;position_.mode=7;flags_|=0x80000000u;}
     }
     aim();
+    if(projection&&projection_dirty_==1) {
+        (*projection)(projection_value_);
+        projection_dirty_=2;
+    }
     if(channels)channels->set_channel(1,position_.auxiliary);
 }
 std::optional<float> BattleCameraMotion::take_projection_request() {
