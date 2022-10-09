@@ -11,6 +11,7 @@
 
 namespace okage {
 class RuwResource;
+struct UiLayoutSprite;
 enum class UiStreamReference { MenuTransform1f9c00, MenuTransform1f9c2c,
                                RuwMetrics200b78, RuwClip200b88 };
 struct UiWidgetReference {
@@ -35,6 +36,7 @@ public:
     std::uint32_t word(std::size_t offset) const;
 private:
     friend class UiWindow;
+    friend struct UiWindowSpriteTestAccess;
     UiWindowBuffer(std::size_t bytes,bool cleared);
     void put_word(std::size_t offset,std::uint32_t value);
     std::vector<std::uint8_t> bytes_;
@@ -77,11 +79,14 @@ public:
     void advance_clock();
     void bind_ruw(std::shared_ptr<RuwResource>,std::span<const std::size_t> groups);
 
+    bool place_sprite(unsigned group,unsigned slot,const UiLayoutSprite&);
+
     bool configure(const std::array<std::uint32_t,28>& authored,
                    std::span<const AtlasTuple> atlas,
                    std::shared_ptr<const void> texture);
 private:
     friend struct UiWindowClockTestAccess;
+    friend struct UiWindowSpriteTestAccess;
     void put(std::size_t offset,std::uint32_t value);
     std::array<std::uint32_t,scalar_bytes/4> words_{};
     std::bitset<scalar_bytes/4> known_;
