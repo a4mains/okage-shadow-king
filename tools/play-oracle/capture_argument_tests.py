@@ -55,6 +55,16 @@ def main():
         check(['--rng', str(rng)], 'Disc input missing')
         rng.touch()
         check(['--rng', str(rng)], 'Refusing existing reference output')
+        callbacks = root / 'battle-callbacks.jsonl'
+        check(['--battle-callbacks'], 'Unknown boot argument')
+        check(['--battle-callbacks', str(callbacks), '--battle-callbacks', str(callbacks)],
+              'Duplicate battle-callbacks')
+        check(['--battle-callbacks', str(missing_disc)], 'Battle-callback output aliases')
+        check(['--battle-callbacks', str(callbacks), '--save', str(callbacks)],
+              'Battle-callback output aliases')
+        check(['--battle-callbacks', str(callbacks)], 'Disc input missing')
+        callbacks.touch()
+        check(['--battle-callbacks', str(callbacks)], 'Refusing existing reference output')
     print('Capture argument tests passed; no VM constructed.')
 
 if __name__ == '__main__':
