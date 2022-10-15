@@ -1,0 +1,863 @@
+{
+  "schema": "okage-battle-callbacks-validation-v1",
+  "checkpoint_date": "2022-10-15",
+  "runtime_source_revision": "1e3eb38a96a97b468d7aa99bf21efecd72545401",
+  "helper_test_checkpoint_revision": "7bf2761055c8a56f7e66253df0f96bf2f82af71a",
+  "scope": "First eligible native parent and child callback traversal.",
+  "status": {
+    "complete_requested_replay": false,
+    "playable_battle": false,
+    "original_ui_comparison": "fail",
+    "runtime_replay_jobs_terminal": true,
+    "runtime_replay_exit_is_application_exit": "Application exit_code=1 in each run record; replay wrapper completion is not application success."
+  },
+  "native_replays": {
+    "release": {
+      "runtime_revision": "1e3eb38a96a97b468d7aa99bf21efecd72545401",
+      "binary_sha256_recorded_at_execution": "5cee325acb209e5ff48373b12b1893268fcd57ee64c4edd7febad3f40bba3881",
+      "binary_hash_scope": "Execution-time run record; mutable build-path binary is not rehashed as that historical executable.",
+      "application_exit_code": 1,
+      "requested_final_frame": 104615,
+      "observed_guard_frame": 104452,
+      "elapsed_seconds_contended_not_performance": 21.490707833000002,
+      "run_record": {
+        "path": "local/native-battle-callbacks-104615-release-v2.run.json",
+        "bytes": 6129,
+        "sha256": "bbae9323a0048e09dbb58f18f65d06a6ab94bca022389962d7afa57060c17991"
+      },
+      "exact_argv": {
+        "record_field": "command",
+        "record": {
+          "path": "local/native-battle-callbacks-104615-release-v2.run.json",
+          "bytes": 6129,
+          "sha256": "bbae9323a0048e09dbb58f18f65d06a6ab94bca022389962d7afa57060c17991"
+        }
+      },
+      "log": {
+        "path": "local/native-battle-callbacks-104615-release-v2.log",
+        "bytes": 4531,
+        "sha256": "d9538db4293322df8fa259a4e3aa59d250978f19a7cf0ecfb00699ac86c70598"
+      },
+      "callback_report": {
+        "path": "local/native-battle-callbacks-104615-release-v2.png.battle-stage.callbacks.json",
+        "bytes": 136477,
+        "sha256": "c48c9ce6d9f8db105e72035e48173c8bc0188295012469f3915227cdf6892cf3"
+      },
+      "scheduled_ui_report": {
+        "path": "local/native-battle-callbacks-104615-release-v2.png.battle-stage.scheduled-ui.json",
+        "bytes": 328075,
+        "sha256": "c8884b186eaac8db7480c9ad461d7a095972963666c9867342faed0674cfcf87"
+      },
+      "comparison": {
+        "path": "local/research/battle-active-callbacks-v1/comparison-release-v2.json",
+        "bytes": 18362,
+        "sha256": "a9bf24d5fa667a439840663137446a23fb2bc8f63eeadc020bcca443260f7ec5"
+      },
+      "comparison_status": "fail",
+      "difference_count": 4,
+      "sanitizer_diagnostic_matches_in_retained_log": [],
+      "sanitizer_scan_scope": "Log scan only; application exit remains 1 at explicit implementation guard."
+    },
+    "debug": {
+      "runtime_revision": "1e3eb38a96a97b468d7aa99bf21efecd72545401",
+      "binary_sha256_recorded_at_execution": "a9f6856f5140561f40450339196bdbadb64941fa22e435e4540ba736a12ab785",
+      "binary_hash_scope": "Execution-time run record; mutable build-path binary is not rehashed as that historical executable.",
+      "application_exit_code": 1,
+      "requested_final_frame": 104615,
+      "observed_guard_frame": 104450,
+      "elapsed_seconds_contended_not_performance": 265.98141295799996,
+      "run_record": {
+        "path": "local/native-battle-callbacks-104615-debug-v2.run.json",
+        "bytes": 6117,
+        "sha256": "2d29091973466b4a2ee0bbddf45e7e0b6644758d6175a6f85b36c6a66f9c9fb6"
+      },
+      "exact_argv": {
+        "record_field": "command",
+        "record": {
+          "path": "local/native-battle-callbacks-104615-debug-v2.run.json",
+          "bytes": 6117,
+          "sha256": "2d29091973466b4a2ee0bbddf45e7e0b6644758d6175a6f85b36c6a66f9c9fb6"
+        }
+      },
+      "log": {
+        "path": "local/native-battle-callbacks-104615-debug-v2.log",
+        "bytes": 4531,
+        "sha256": "d7938286cfac764429de8d26014c9757ce3355acab2d458d45b9efdd9dbc842a"
+      },
+      "callback_report": {
+        "path": "local/native-battle-callbacks-104615-debug-v2.png.battle-stage.callbacks.json",
+        "bytes": 136477,
+        "sha256": "3be7b927372fe4259203819ac9a2d50a8f3fd9dbda692499216620de2c51629e"
+      },
+      "scheduled_ui_report": {
+        "path": "local/native-battle-callbacks-104615-debug-v2.png.battle-stage.scheduled-ui.json",
+        "bytes": 328075,
+        "sha256": "b3e87256e2fa9122614506de179bc972c3c768c6162763d789456513931e7c71"
+      },
+      "comparison": {
+        "path": "local/research/battle-active-callbacks-v1/comparison-debug-v2.json",
+        "bytes": 18360,
+        "sha256": "edb7e9e58ffeeca2123c9780e1bf3ff856a875a4bd12e4a53738eaf3dffa9728"
+      },
+      "comparison_status": "fail",
+      "difference_count": 4,
+      "sanitizer_diagnostic_matches_in_retained_log": [],
+      "sanitizer_scan_scope": "Log scan only; application exit remains 1 at explicit implementation guard."
+    },
+    "sanitize": {
+      "runtime_revision": "1e3eb38a96a97b468d7aa99bf21efecd72545401",
+      "binary_sha256_recorded_at_execution": "628f68c2009269dd6dfcf6406dc146ff5d352efa9b50263c29a8ce34e7ee2cfb",
+      "binary_hash_scope": "Execution-time run record; mutable build-path binary is not rehashed as that historical executable.",
+      "application_exit_code": 1,
+      "requested_final_frame": 104615,
+      "observed_guard_frame": 104451,
+      "elapsed_seconds_contended_not_performance": 608.800487417,
+      "run_record": {
+        "path": "local/native-battle-callbacks-104615-sanitize-v2.run.json",
+        "bytes": 6126,
+        "sha256": "35604026a1b10b8b022389a8a0556052fe762606d82c93a8d97b5a8943995801"
+      },
+      "exact_argv": {
+        "record_field": "command",
+        "record": {
+          "path": "local/native-battle-callbacks-104615-sanitize-v2.run.json",
+          "bytes": 6126,
+          "sha256": "35604026a1b10b8b022389a8a0556052fe762606d82c93a8d97b5a8943995801"
+        }
+      },
+      "log": {
+        "path": "local/native-battle-callbacks-104615-sanitize-v2.log",
+        "bytes": 4531,
+        "sha256": "0efedb03122713c90a8b5bed8b1eaf65970a0fdc810e55e405b1d59f6ecabbe8"
+      },
+      "callback_report": {
+        "path": "local/native-battle-callbacks-104615-sanitize-v2.png.battle-stage.callbacks.json",
+        "bytes": 136477,
+        "sha256": "60e8caa9557af8595f72bf957f405b606c73b687487adf859e70cdae65ff0f06"
+      },
+      "scheduled_ui_report": {
+        "path": "local/native-battle-callbacks-104615-sanitize-v2.png.battle-stage.scheduled-ui.json",
+        "bytes": 328075,
+        "sha256": "4f9568b98066f1dfa177f7655fe63efa0f3fda030b3d5608244d20c43c04629f"
+      },
+      "comparison": {
+        "path": "local/research/battle-active-callbacks-v1/comparison-sanitize-v2.json",
+        "bytes": 18363,
+        "sha256": "dc7acb05c99caf5e9f4933e36e235ca301a20efa3098685a3dd593984e21f7a9"
+      },
+      "comparison_status": "fail",
+      "difference_count": 4,
+      "sanitizer_diagnostic_matches_in_retained_log": [],
+      "sanitizer_scan_scope": "Log scan only; application exit remains 1 at explicit implementation guard."
+    }
+  },
+  "source_bindings": {
+    "runtime": {
+      "revision": "1e3eb38a96a97b468d7aa99bf21efecd72545401",
+      "files": [
+        {
+          "path": "include/okage/battle_actor.hpp",
+          "bytes": 2210,
+          "sha256": "ee293f9e80168b4817acfebd360ed65c224722d3401d81be58c6d34e80a004fb"
+        },
+        {
+          "path": "src/battle_actor_update.cpp",
+          "bytes": 8423,
+          "sha256": "8784613568113ccdc53d04556d67004604628ef91e7c71b0c1c767505d5d10e2"
+        },
+        {
+          "path": "tests/battle_actor_update_tests.cpp",
+          "bytes": 12585,
+          "sha256": "e36ae470ae74a8f3b34db2fd7daf0bd0cd4f123e8e06f8666ff8b6907effb9ac"
+        },
+        {
+          "path": "include/okage/battle_camera.hpp",
+          "bytes": 2069,
+          "sha256": "b2870a3322b75628b237a24efe69ca2a7237b5712ee2cd2ef936256ddd5a9aff"
+        },
+        {
+          "path": "src/battle_camera.cpp",
+          "bytes": 6524,
+          "sha256": "89943cea33f178ed285f9a37e38043cc19b94820aa6f8b13fffc852c3bd40eda"
+        },
+        {
+          "path": "tests/battle_camera_tests.cpp",
+          "bytes": 7276,
+          "sha256": "97a877437d13a0853605abf7551519813baf88e9aa9118e223f2ec82bfa8db9c"
+        },
+        {
+          "path": "src/battle_session.hpp",
+          "bytes": 1806,
+          "sha256": "5e6835fde46065b5d49d92a0376569e1506e2a60193fd3c1f176e4b85a32ca51"
+        },
+        {
+          "path": "src/battle_session.mm",
+          "bytes": 34513,
+          "sha256": "2e088920e9936e91b074e4d4f976e8f7664f1a2c8a56da0abdb6cb60c2086c69"
+        },
+        {
+          "path": "src/native_runtime.mm",
+          "bytes": 102651,
+          "sha256": "3d64eb8ca81fca85244ab39dcb8c6dac16177f6cdfbcccb2437744bbde9c906e"
+        },
+        {
+          "path": "src/battle_interface_update.cpp",
+          "bytes": 5416,
+          "sha256": "9ca238400d7d933e848657857d0cd13932c46043106b0ffa8f7967effa1a1b97"
+        },
+        {
+          "path": "src/battle_interface_second.cpp",
+          "bytes": 6858,
+          "sha256": "834c51209dcb2f8c492922dc5da54f04681e81b14f86264a9baa778e65d53ec3"
+        },
+        {
+          "path": "src/battle_ui_pad.cpp",
+          "bytes": 2716,
+          "sha256": "38b953581f9575c1f9a029d74d74b207d0821bdc81422482acfe13074484f9ae"
+        },
+        {
+          "path": "src/battle_ui_roster.cpp",
+          "bytes": 3154,
+          "sha256": "a6729062ff9b6cc593cfa56ca4b97a7260149efd404aecd3c376bdabdca6d036"
+        },
+        {
+          "path": "CMakeLists.txt",
+          "bytes": 13859,
+          "sha256": "31587f79e2a3d267739615753b74f92a08409ee36dcbf215c4a23752024bce6c"
+        }
+      ]
+    },
+    "helpers": {
+      "revision": "7bf2761055c8a56f7e66253df0f96bf2f82af71a",
+      "scope": "Source-driven isolated helper tests, not executed runtime layout integration.",
+      "files": [
+        {
+          "path": "include/okage/ui_layout_geometry.hpp",
+          "bytes": 998,
+          "sha256": "593c33b3ccd958ba9f3186fb8cfd67ed75d00e5ecccb1b907b94380c3e53bfaa"
+        },
+        {
+          "path": "src/ui_layout_geometry.cpp",
+          "bytes": 11588,
+          "sha256": "f76975c1768c4828b0b6c68d4377f6a6c4acb8e40f202992c50e80772bbb9a1b"
+        },
+        {
+          "path": "tests/ui_layout_geometry_tests.cpp",
+          "bytes": 9637,
+          "sha256": "9c04e7406a3189c4a39b630d6c404f9a1fafae55f89a177f00a13230314df0e8"
+        },
+        {
+          "path": "include/okage/ui_window.hpp",
+          "bytes": 4016,
+          "sha256": "7bf067c78091716175f3af1f99a47c8bd0833b2c0fef88a37a573d2e4b7f76ad"
+        },
+        {
+          "path": "src/ui_window_sprite.cpp",
+          "bytes": 3257,
+          "sha256": "abbb9cf419bef4d5cec6c11c90e5cfd58dc1b46e7be18b7673516a9bb022fb1c"
+        },
+        {
+          "path": "tests/ui_window_sprite_tests.cpp",
+          "bytes": 7030,
+          "sha256": "05f97e15cd3740a0bc6d58ef0b298025a3dc608c2b40cb9d3d86fcaa08527d18"
+        },
+        {
+          "path": "CMakeLists.txt",
+          "bytes": 14141,
+          "sha256": "4ba242bf6624f18ba545e59d9bf6f900c9611d6bb80375d4a13e51d8f16e0f42"
+        }
+      ]
+    }
+  },
+  "evidence": [
+    {
+      "path": "local/research/battle-active-callbacks-v1/replays-v2.json",
+      "bytes": 18690,
+      "sha256": "e5c112afa8cecdbb4333623399cb39b723d63cd5a4db4039c4f7c0bfa530b9d9"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/comparison-sanitize-v2.run.json",
+      "bytes": 463,
+      "sha256": "61333d057b688987a1ee6cf7e363a1fa490fc14b25412ecaffec45f34c667961"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/comparisons-v1.run.json",
+      "bytes": 2152,
+      "sha256": "ac13e79f1050517b20253bb0e10f0c2a3d8b4f29b21d2b94177c91c300aaaf18"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/constructor-hud-comparison-v1.json",
+      "bytes": 2352,
+      "sha256": "d274fecd5664e64739ae764f580e1e63f4f6c4e3621958b912c77b045f28dac6"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/constructor-interface-comparison-v1.json",
+      "bytes": 5065,
+      "sha256": "1bcacd72a11468aa4060ee9c3987e371676d2bc1a0138caed41ae1255aa2394e"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/constructor-stage-comparison-v1.json",
+      "bytes": 1678,
+      "sha256": "83ce1211ec7d48db1958794b4588b985fb097a836ed124fe57d76adb161c5cc3"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/comparison-release-v1.json",
+      "bytes": 18362,
+      "sha256": "a46c5c360b6a137fda04fd3d7fc583defd109733186e421e1f7033d66e8b6cc9"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/runtime-v1.patch",
+      "bytes": 25706,
+      "sha256": "550461895f9335a5decd8d557a96539e4442058a81f31445344a8b5618a8e688"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/camera-projection-template-v1.json",
+      "bytes": 463,
+      "sha256": "a659414289ae892aeda651e57fbcb95cd93a65f2fae28c1e9fd02f4711168dfa"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/export-v1.run.json",
+      "bytes": 678,
+      "sha256": "2bea8f65561c4e009225b0cb6ff6853c79c0b7c04a4585243e4950f7d6036f35"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/export-v1.log",
+      "bytes": 4801,
+      "sha256": "8160bfb5f43f4f21d2b9201e031e7c4580fe288cf492267bef41a5b29e8d5064"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/natural-ui-updates-v1.ui.jsonl",
+      "bytes": 425233,
+      "sha256": "6e3355d12c3c11f20bb1a89d542d4fee7a04debb88c609ceb8b15db9d21b2247"
+    },
+    {
+      "path": "local/research/ui-first-update-v1/natural-ui-updates-v1.stage.jsonl",
+      "bytes": 389165,
+      "sha256": "b4f3a92d5e0e7193584ff02ac415c240d0522bb35e4019dde4529b064dd39886"
+    },
+    {
+      "path": "local/native-battle-callbacks-104615-release-v2.png.battle-stage.hud.json",
+      "bytes": 75816,
+      "sha256": "dd22eeb11a033cd694ea0ab50a4ce60eaaa85e999ce1594717d1368e6c889d95"
+    },
+    {
+      "path": "local/native-battle-callbacks-104615-release-v2.png.battle-stage.ui.json",
+      "bytes": 32001,
+      "sha256": "866201c9d4c2325b30c80c29521e83b0c4f316f1c731a1e0a23a2880c8e904fd"
+    },
+    {
+      "path": "local/native-battle-callbacks-104615-release-v2.png.battle-stage.json",
+      "bytes": 42439,
+      "sha256": "22a1f211a48f88b4a751013cde3c520328bc7a8109ead07a744aedd54feec118"
+    }
+  ],
+  "inputs": {
+    "elf": {
+      "path": "local/extracted/SCUS_971.29",
+      "bytes": 1374220,
+      "sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
+    },
+    "original_ui": {
+      "path": "local/research/ui-first-update-v1/natural-ui-updates-v1.updates.jsonl",
+      "bytes": 2609856,
+      "sha256": "69ff7cb68d757ff9e8b4e35e3f808421a16d32f0b74cad690580efb7895ba9d4"
+    },
+    "original_run": {
+      "path": "local/research/ui-first-update-v1/natural-ui-updates-v1.run.json",
+      "bytes": 2145,
+      "sha256": "a577e2aa56f633d780e477b010a8096e1e18a621c864440a87e2a82e5bc74262"
+    },
+    "directions": {
+      "path": "local/native-ui-dispatch-104615-release-v1.directions",
+      "bytes": 8444,
+      "sha256": "7dd846e3e8ce266b2457fdfcdb05e3c12dac6facac4c7b76760454bf0398d8ce"
+    },
+    "battle_bundle_manifest": {
+      "path": "local/battle-input-v2/manifest.json",
+      "bytes": 8023,
+      "sha256": "5220f366c7e6b9eaec8e84cd413fd36bc5ce07d9dc9e809cbaec7f1e3c2986ed"
+    },
+    "battle_bundle_files": [
+      {
+        "path": "local/battle-input-v2/BTL.RUW",
+        "bytes": 19596,
+        "sha256": "2bc4de13d79919a53e7962250ea40acca28bb0e027ee750f35a87b6903dc8800"
+      },
+      {
+        "path": "local/battle-input-v2/battle-camera.bin",
+        "bytes": 20472,
+        "sha256": "fddf68c85433689f235ee8e29a94c3990716767dbb79d51be63b1720c92c1507"
+      },
+      {
+        "path": "local/battle-input-v2/battle-data.bin",
+        "bytes": 9720,
+        "sha256": "55ac8ac608e9ed877578faf3b951ff0b6f08f7d83d8f961ac590574814567431"
+      },
+      {
+        "path": "local/battle-input-v2/battle-hud.bin",
+        "bytes": 480,
+        "sha256": "158065d68cb5d00b79a6079dae5b3384b2d7cbb11eb49a0980e6369c694cc5b8"
+      },
+      {
+        "path": "local/battle-input-v2/battle-ui-commands.bin",
+        "bytes": 144,
+        "sha256": "be85b85f23a29d66af4d8787a276fdb4287fc191a0a79af6136b94f921a78860"
+      },
+      {
+        "path": "local/battle-input-v2/battle-ui.bin",
+        "bytes": 312,
+        "sha256": "055db32092309d9face66e7cba1c14b23c8b4ef6e106674e95ebbd8f07b49381"
+      },
+      {
+        "path": "local/battle-input-v2/manifest.json",
+        "bytes": 8023,
+        "sha256": "5220f366c7e6b9eaec8e84cd413fd36bc5ce07d9dc9e809cbaec7f1e3c2986ed"
+      }
+    ],
+    "original_execution": {
+      "binary_sha256": "30c2924a9d846ead4c111ee12560842ee67c6339a2a88adb8d026e3d20f4fdda",
+      "save_sha256": "100ab685c68a5a7153093f5f5865be83dde9fe05af56bac71625997bff564eef",
+      "pad_sha256": "c357717e839b7fcc7cbbe76ebd2c007afb140d6a898ec289c748fe2ffdcb2ac5",
+      "backend": {
+        "vulkan": true,
+        "capture_filter_corrections": false,
+        "moltenvk": "1.4.2"
+      },
+      "exit_code": 0,
+      "observer_revision": "30db7f098642ba787c6b52ef226603bffc6e6854"
+    },
+    "bundle_artifact_hashes_rechecked_against_import_manifest": true
+  },
+  "strict_ui_comparison": {
+    "comparison_scope": "The explicitly counted manager/window/cache/glyph/HUD fields in this report only; no whole-scheduler equivalence claim.",
+    "reference_second_callback_frames": [
+      126,
+      126
+    ],
+    "compared_manager_words": 1882,
+    "compared_window_words": 27822,
+    "compared_party_cache_words": 144,
+    "compared_accumulator_words": 32,
+    "compared_glyph_bytes": 45056,
+    "differences": [
+      {
+        "component": "hud",
+        "phase": "after",
+        "field": "groups[2][45].words[6]",
+        "expected": 31,
+        "actual": 21
+      },
+      {
+        "component": "hud",
+        "phase": "after",
+        "field": "groups[2][46].words[6]",
+        "expected": 31,
+        "actual": 21
+      },
+      {
+        "component": "hud",
+        "phase": "after",
+        "field": "groups[2][47].words[6]",
+        "expected": 31,
+        "actual": 21
+      },
+      {
+        "component": "hud",
+        "phase": "after",
+        "field": "groups[5][9].words[6]",
+        "expected": 29,
+        "actual": 20
+      }
+    ],
+    "unsupported": [
+      "The original trace has no variable-owner snapshot, so native variables are not compared.",
+      "Original type3 formatted/padded scratch arrays, command-state scratch, and formation summary arrays are absent; native values are extent/type-validated only. type3_blink is also not compared because its original source owner was not captured.",
+      "The original trace does not capture the selected-alpha pulse step, secondary pulse, cost pulse or HP gate owners; those native scalars are validated but not compared.",
+      "This compares the first 120ad0 second-pass invocation (164090 then 1684d0) after the named native callbacks only. It does not establish whole-scheduler equivalence, RNG equivalence, resource layout, rendering, or later UI progression.",
+      "HUD shared-global comparison is limited to these ten keys: type2_flag_a, type2_flag_b, type2_enabled, type3_ready, type3_reset, type3_animation, type3_selection, ui_menu_state, ui_mode_counter, ui_selection_pointer. HUD text compares only bytes through the first NUL terminator; text tails are excluded.",
+      "The native report frame is recorded independently; this tool does not align it temporally with the emulator frame."
+    ],
+    "verifier_sha256": {
+      "verify_battle_hud.py": "142abccbdfe49f7562f9dde18669fdf6c07e54a435299205bb42fea3d020b89c",
+      "verify_battle_interface.py": "9bc6fc443028fc227eaa6010d5ddb8f9d212c9eba35cbea76dedb440a015b211",
+      "verify_ui_binding.py": "bac8f541c23b04673bd1244c6be2dd9d882aca109d608f8928440549a572f78c",
+      "verify_ui_first_update.py": "23273a1d077a8c1a0217c1ecf54b738ce4df235dc8fc77008a21ea15a5ca66d3",
+      "verify_ui_window.py": "39352657cb4d77169694aa9291b46d363081dba7b57bbbcbee8a3c679f24616b",
+      "verify_ui_second_update.py": "504f1733eb06a794bea77f11cbec1bcb330226e481a808a87541919f6ea47288"
+    },
+    "hud_counts_per_boundary": {
+      "before": {
+        "compared_raw_words": 4096,
+        "compared_runtime_words": 2400,
+        "compared_text_bytes": 1257,
+        "compared_global_scalars": 10
+      },
+      "after": {
+        "compared_raw_words": 4096,
+        "compared_runtime_words": 2400,
+        "compared_text_bytes": 1462,
+        "compared_global_scalars": 10
+      }
+    }
+  },
+  "cross_build": {
+    "record": {
+      "path": "local/research/battle-active-callbacks-v1/cross-build-v2.json",
+      "bytes": 296,
+      "sha256": "99b649c84c01c9b87108b41220396de94b0f65633a7be1f466bffc0c97e08253"
+    },
+    "independently_rechecked_callbacks_excluding_only_frame": true,
+    "independently_rechecked_ui_snapshots": true,
+    "frames": [
+      104452,
+      104450,
+      104451
+    ],
+    "limitation": "Different worker completion frames retained; equality does not prove original timing."
+  },
+  "builds_and_tests": {
+    "prior_six_ctests_per_configuration": "Passed before final camera-order fix; retained logs below. Final camera test alone was rerun in all three builds after that fix.",
+    "command_records": [
+      {
+        "record": {
+          "path": "local/research/battle-active-callbacks-v1/build-release-v1.run.json",
+          "bytes": 336,
+          "sha256": "2e582b337ceae963911a1f88dabb517685ee2431bc57b506ae012203fe466d73"
+        },
+        "exact_commands_field": "command in each record",
+        "recorded_exit_codes": [
+          0
+        ]
+      },
+      {
+        "record": {
+          "path": "local/research/battle-active-callbacks-v1/build-tests-v1.json",
+          "bytes": 1639,
+          "sha256": "20c006fac77c55f4b3dc568a7e04d0a484fd243ebb2ed95917d3323df2578221"
+        },
+        "exact_commands_field": "command in each record",
+        "recorded_exit_codes": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "record": {
+          "path": "local/research/battle-active-callbacks-v1/build-tests-v2.json",
+          "bytes": 1795,
+          "sha256": "e3a136904ebc142879cb28f6726488a3be664b008461cbad0fefb34ead1e089f"
+        },
+        "exact_commands_field": "command in each record",
+        "recorded_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "record": {
+          "path": "local/research/battle-active-callbacks-v1/sprite-checks-v1.json",
+          "bytes": 1788,
+          "sha256": "211eace6468f7d4af62c9b2a033b41cdb28bd1e662243ab21ac896c0e8d1470f"
+        },
+        "exact_commands_field": "command in each record",
+        "recorded_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "logs": [
+      {
+        "path": "local/research/battle-active-callbacks-v1/build-debug-v1.log",
+        "bytes": 1812,
+        "sha256": "b09773669fdb4ac17e6221b6b70a0232e3fb79e54dbeeb605f279de4c4abe229"
+      },
+      {
+        "path": "local/research/battle-active-callbacks-v1/build-debug-v2.log",
+        "bytes": 928,
+        "sha256": "b47d7ed04ed32ea3bfd7e5d371a31e31d0c1c987420a295fa75f0812efe41db1"
+      },
+      {
+        "path": "local/research/battle-active-callbacks-v1/build-release-v1.log",
+        "bytes": 1820,
+        "sha256": "d6103520d832747d95f12a2a601dace90fe68f17dd811622b315bcbbb5ab18e6"
+      },
+      {
+        "path": "local/research/battle-active-callbacks-v1/build-release-v2.log",
+        "bytes": 928,
+        "sha256": "b47d7ed04ed32ea3bfd7e5d371a31e31d0c1c987420a295fa75f0812efe41db1"
+      },
+      {
+        "path": "local/research/battle-active-callbacks-v1/build-sanitize-v1.log",
+        "bytes": 1820,
+        "sha256": "49558e1884c8d64a714e222cbcb63c747f575e25f0f592fa79001f603d36bed4"
+      },
+      {
+        "path": "local/research/battle-active-callbacks-v1/build-sanitize-v2.log",
+        "bytes": 928,
+        "sha256": "784349327916e3dd259637319e3fce1420e9653cda217a1c5bc56cbafe89752f"
+      },
+      {
+        "path": "local/research/battle-active-callbacks-v1/sprite-build-debug-v1.log",
+        "bytes": 1127,
+        "sha256": "d1cfed1e90473d329dcda718f2a7481ea7fce2015ecb871f4af577b63b089849"
+      },
+      {
+        "path": "local/research/battle-active-callbacks-v1/sprite-build-release-v1.log",
+        "bytes": 1135,
+        "sha256": "c6d33598a92314049e5d209fc1763143d51966e10a52c997d0beda88ef76f1ab"
+      },
+      {
+        "path": "local/research/battle-active-callbacks-v1/sprite-build-sanitize-v1.log",
+        "bytes": 1135,
+        "sha256": "8f6c4072c7a24cd9a35ae38d56717e02522f58afe6cc919d070199e47445ddfc"
+      },
+      {
+        "path": "local/research/battle-active-callbacks-v1/sprite-tests-debug-v1.log",
+        "bytes": 333,
+        "sha256": "8e78d1724d1abfcb87296bcee679d478e9f1716700964a8c1d4160a4cd58c9b5"
+      },
+      {
+        "path": "local/research/battle-active-callbacks-v1/sprite-tests-release-v1.log",
+        "bytes": 349,
+        "sha256": "fbe92dc3319381ea4e6117572628a5967dac4d343fbc666032c83945c66710e4"
+      },
+      {
+        "path": "local/research/battle-active-callbacks-v1/sprite-tests-sanitize-v1.log",
+        "bytes": 349,
+        "sha256": "e15176af4a991624fc8bd68a58dbb5bf4bac80fc4778669f71918e5f6ac2fad9"
+      },
+      {
+        "path": "local/research/battle-active-callbacks-v1/tests-debug-v1.log",
+        "bytes": 857,
+        "sha256": "040d13566fcf63c4066b0c963366ce6fdfa6ea59c2ee674990676cc75a6110e2"
+      },
+      {
+        "path": "local/research/battle-active-callbacks-v1/tests-debug-v2.log",
+        "bytes": 332,
+        "sha256": "0d90f3a298696eb62a8120be6a7a9b850d9409e1766da277272e787188c97ead"
+      },
+      {
+        "path": "local/research/battle-active-callbacks-v1/tests-release-v1.log",
+        "bytes": 873,
+        "sha256": "1cc14fdf2951984e3de662514e38d8270529cb4fe01df7fab32ee5affecc4b86"
+      },
+      {
+        "path": "local/research/battle-active-callbacks-v1/tests-release-v2.log",
+        "bytes": 348,
+        "sha256": "1ddb7f289ef532bb6ecd11da878fe2ed4a54320b87aa411b16f4a92374e4ac2f"
+      },
+      {
+        "path": "local/research/battle-active-callbacks-v1/tests-sanitize-v1.log",
+        "bytes": 873,
+        "sha256": "ebe999ce395f7fbdab6315489575fe0836de057e80414d19f69a4b019cdf410f"
+      },
+      {
+        "path": "local/research/battle-active-callbacks-v1/tests-sanitize-v2.log",
+        "bytes": 348,
+        "sha256": "a619fb4362d43cab85299cef04f0914606dfd62b21eed4758b41e0b9f451cc0f"
+      }
+    ],
+    "python": {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "tests": 335,
+      "result": "OK",
+      "log": {
+        "path": "local/research/battle-active-callbacks-v1/python-suite-v1.log",
+        "bytes": 35241,
+        "sha256": "e69be0baf6dac7bdb9f155c6b81560dca5b01635ab3299f0c641c3abc46eef71"
+      },
+      "scope": "Retained inspection-suite result, not rerun for this JSON-only change."
+    }
+  },
+  "supporting_helper_reports": [
+    {
+      "report": {
+        "path": "local/worktrees/battle-party-update-v1/local/validation/report.json",
+        "bytes": 9387,
+        "sha256": "098ae63a37d540cfba4f81b7bba1348ec9ecdee2cd966551bd8e456c12a6b483"
+      },
+      "scope": "Standalone source-based helper tests and owned-asset checks; not original callback/layout execution parity."
+    },
+    {
+      "report": {
+        "path": "local/worktrees/ui-layout-geometry-v1/local/ui-layout-geometry-checks/report.json",
+        "bytes": 9290,
+        "sha256": "0e9eaf8282016ff20db16afc3275db75aef67e9e706cd6c20806341439fc9c42"
+      },
+      "scope": "Standalone source-based helper tests and owned-asset checks; not original callback/layout execution parity."
+    },
+    {
+      "report": {
+        "path": "local/worktrees/ui-window-sprite-v1/local/ui-window-sprite-checks/report-v2.json",
+        "bytes": 4140,
+        "sha256": "d6d2dfc9737d94a98285bb437e4a90f46e6056ef1c37b3dff2b0b3c10e15e94d"
+      },
+      "scope": "Standalone source-based helper tests and owned-asset checks; not original callback/layout execution parity."
+    }
+  ],
+  "constructor_regressions": {
+    "scope": "Release v2 construction/stage snapshots only, distinct from scheduled callback comparison.",
+    "hud": "0 differences",
+    "interface": "0 differences",
+    "stage": {
+      "reference_snapshots": 40,
+      "native_snapshots": 40,
+      "matched_snapshots": 40,
+      "settings": 18,
+      "differences": 0,
+      "unsupported_checks": 9
+    }
+  },
+  "retained_initial_run": {
+    "run": {
+      "path": "local/native-battle-callbacks-104615-release-v1.run.json",
+      "bytes": 6201,
+      "sha256": "4c4158fc2b4f4fc9f0228e56c9a9cd22189633106a4e423a9668327ac3031d34"
+    },
+    "log": {
+      "path": "local/native-battle-callbacks-104615-release-v1.log",
+      "bytes": 4531,
+      "sha256": "d9538db4293322df8fa259a4e3aa59d250978f19a7cf0ecfb00699ac86c70598"
+    },
+    "comparison": {
+      "path": "local/research/battle-active-callbacks-v1/comparison-release-v1.json",
+      "bytes": 18362,
+      "sha256": "a46c5c360b6a137fda04fd3d7fc583defd109733186e421e1f7033d66e8b6cc9"
+    },
+    "scope": "Pre-final-fix runtime, retained as historical failed UI comparison; not substituted for final v2 runs."
+  },
+  "original_source_evidence": [
+    {
+      "path": "local/research/ui-second-dispatch-v1/party-activation-contract.txt",
+      "bytes": 7274,
+      "sha256": "7c74e85665f0ec2a2a1c729e5f075d3b1b8661c0e0c17dfbc368f0ce088c42cf"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/party-activation-provenance-v1.json",
+      "bytes": 4719,
+      "sha256": "42555efefa7ae2563c4a2765751667fa998a18e283e0b341af8a0def5fcd68da"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/layout-next-contract.txt",
+      "bytes": 11055,
+      "sha256": "969778c8b9873ad67f0bc8b5f4113245bdd7beb9d1a6af30ffef0f7d15703c90"
+    },
+    {
+      "path": "local/research/battle-capture-ownership-v1/00114f70.c",
+      "bytes": 2455,
+      "sha256": "22b89af8c871798f08ce383884fd9959ff7b0394feb680640f9291a7f0ce32b9"
+    },
+    {
+      "path": "local/research/battle-capture-ownership-v1/00114f70.asm",
+      "bytes": 2617,
+      "sha256": "f04a77e0d9f0996bee6a5ef40c618c9572216a1dcf0ad6ed00267788395413c4"
+    },
+    {
+      "path": "local/research/first-battle-source-v1/0014a248.c",
+      "bytes": 1221,
+      "sha256": "acc47b58306e30b8c886f0016ad4dae01aed0e9ab4ca5bdd3960213a473f6794"
+    },
+    {
+      "path": "local/research/first-battle-source-v1/0014a248.asm",
+      "bytes": 2413,
+      "sha256": "7baaa64f50bdef7be814216a33958a5ecd5fc7fffa5e3b14d66ea56379988482"
+    },
+    {
+      "path": "local/research/first-battle-source-v1/0014f170.c",
+      "bytes": 455,
+      "sha256": "80ccc5d754ec6e828de7dfb46e231bf9d16a7a465824aabd0d43d1d907cfaadb"
+    },
+    {
+      "path": "local/research/first-battle-source-v1/0014f170.asm",
+      "bytes": 1118,
+      "sha256": "164d2d43e1d15e5a8bceffee723e2f689578af18c13da61b02483292cfc26e02"
+    },
+    {
+      "path": "local/research/first-battle-source-v1/001524e0.c",
+      "bytes": 1105,
+      "sha256": "0c02d98a2ffc54ff0343aff3e633b559a0cf056c480f3e4b8b6da6e7137c23c6"
+    },
+    {
+      "path": "local/research/first-battle-source-v1/001524e0.asm",
+      "bytes": 1693,
+      "sha256": "8df226bb77a12355147d0ca38dba01c24e5607d92d5c0ced4457d37bc1f9cac7"
+    },
+    {
+      "path": "local/research/battle-manager-lifecycle-v1/0014f070.c",
+      "bytes": 387,
+      "sha256": "bde1ae566c48fa3edbd4b85d4e957aa5ca012bff6ac870e7537d2b5504a3e0fd"
+    },
+    {
+      "path": "local/research/battle-manager-lifecycle-v1/0014f070.asm",
+      "bytes": 616,
+      "sha256": "db65f0788ab346846ce3cf206526f792ed8d6c96d67c4f5cf74949886addacb7"
+    },
+    {
+      "path": "local/research/battle-manager-lifecycle-v1/0015afa0.c",
+      "bytes": 1084,
+      "sha256": "68fcf5900715abf652b09bb05130f1badf09dae3c788922b5747683ad9bcdcd2"
+    },
+    {
+      "path": "local/research/battle-manager-lifecycle-v1/0015afa0.asm",
+      "bytes": 1598,
+      "sha256": "3324b6c6489c1b371a075274ff9a8bbf34904c01db8634f24e85f40abedfdc5d"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/exports/0015b9e0.c",
+      "bytes": 1705,
+      "sha256": "e150742002d2fd9972bac8105e7f4470233e21dc14ee9e39c6f372de9b7d2436"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/exports/0015b9e0.asm",
+      "bytes": 2567,
+      "sha256": "c18b28a24ccb97ba1f50b58415ac123f0010e2e57450fc61a0b9cf6fa993dcb0"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/exports/0015c138.c",
+      "bytes": 380,
+      "sha256": "d9a3a8a5736535099be8e1390173e0dc356f2379ad89245f65a638aeb2ffaf91"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/exports/0015c138.asm",
+      "bytes": 657,
+      "sha256": "2ef4a9d6875c4684e498c94c09d220d328a6ba3323fdab26bdc7d43a36c8b687"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/exports/0019bdf8.c",
+      "bytes": 851,
+      "sha256": "37b0184891058588bfbee4aff01ae9072f83a84bd4677f42f0980e322e6a5f03"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/exports/0019bdf8.asm",
+      "bytes": 1281,
+      "sha256": "4e8160dc044d71289ed534cf0bfc7bdf1de23c23f46e990ff23df92a575c3905"
+    }
+  ],
+  "limitations": [
+    "Four original/native charge-bar differences remain failures; native constructor/RNG discrepancy is unresolved. No charge values were fitted from observed bars.",
+    "No original whole-callback-traversal comparison is established by these retained UI observations.",
+    "Unobserved variables, full text tails, unclassified allocator bytes, FCSR/RNG, resource layout, actual geometry submission, pixels and audio are outside this comparison.",
+    "Source-based geometry and sprite tests do not establish original execution parity or integrate the layout helper into these runtime binaries.",
+    "No claim of a complete 104376..104615 battle interval or whole-game completion.",
+    "Documentation hashes are intentionally omitted; this manifest neither hashes itself nor unfinished prose."
+  ]
+}
