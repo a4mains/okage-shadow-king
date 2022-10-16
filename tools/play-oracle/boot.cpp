@@ -170,6 +170,8 @@ int main(int argc,char** argv) {
             else throw std::runtime_error("Unknown boot argument");
         }
         if (load && state.empty()) throw std::runtime_error("--load requires a state path");
+        if(!battleCallbacks.empty()&&!battleUiUpdates.empty())
+            throw std::runtime_error("--battle-callbacks cannot be combined with --battle-ui-updates because both own the 0x120ad0 breakpoint");
         if(!music.empty() && !load)throw std::runtime_error("Music tracing requires a state with RXSNDDRV already loaded");
         if(musicField&&music.empty())throw std::runtime_error("--music-field requires --music");
         if(musicJingle&&(music.empty()||musicField))throw std::runtime_error("--music-jingle requires --music and excludes --music-field");
@@ -314,7 +316,7 @@ int main(int argc,char** argv) {
         auto battleConstructionTrace=battleConstruction.empty() ? nullptr : std::make_unique<BattleConstructionTrace>(battleConstruction);
         auto battleUiTrace=battleUi.empty() ? nullptr : std::make_unique<BattleUiTrace>(battleUi);
         auto battleUiUpdatesTrace=battleUiUpdates.empty() ? nullptr : std::make_unique<BattleUiUpdatesTrace>(battleUiUpdates);
-        auto battleCallbacksTrace=battleCallbacks.empty() ? nullptr : std::make_unique<BattleCallbacksTrace>(battleCallbacks,!battleUiUpdates.empty());
+        auto battleCallbacksTrace=battleCallbacks.empty() ? nullptr : std::make_unique<BattleCallbacksTrace>(battleCallbacks);
         auto gameModeTrace=gameMode.empty() ? nullptr : std::make_unique<GameModeTrace>(gameMode);
         auto interactionTrace=interaction.empty() ? nullptr : std::make_unique<InteractionTrace>(interaction,interactionWide);
         auto movementTrace=movement.empty() ? nullptr : std::make_unique<MovementTrace>(movement);

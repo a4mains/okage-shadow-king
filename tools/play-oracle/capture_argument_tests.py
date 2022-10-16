@@ -62,6 +62,8 @@ def main():
         check(['--battle-callbacks', str(missing_disc)], 'Battle-callback output aliases')
         check(['--battle-callbacks', str(callbacks), '--save', str(callbacks)],
               'Battle-callback output aliases')
+        check(['--battle-callbacks', str(callbacks), '--battle-ui-updates', str(root / 'updates.jsonl')],
+              'cannot be combined with --battle-ui-updates')
         check(['--battle-callbacks', str(callbacks)], 'Disc input missing')
         callbacks.touch()
         check(['--battle-callbacks', str(callbacks)], 'Refusing existing reference output')
