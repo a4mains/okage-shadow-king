@@ -232,10 +232,10 @@ private:
         if(!owner||!reachable(root,owner,m))return false;
         if(k==Kind::Camera)return cameraCount==0&&partyPrimaryOwners.empty()&&enemyPrimaryOwners.empty()&&
             owner==m.word(root+0x8068)&&m.word(owner)==cameraEntry;
-        if(k==Kind::PartyPrimary)return cameraCount==1&&enemyPrimaryOwners.empty()&&m.word(owner)==partyPrimary&&!partyPrimaryOwners.contains(owner);
-        if(k==Kind::PartySecondary)return cameraCount==1&&enemyPrimaryOwners.empty()&&m.word(owner+4)==partySecondary&&partyPrimaryOwners.contains(owner)&&!partySecondaryOwners.contains(owner);
-        if(k==Kind::EnemyPrimary)return cameraCount==1&&partyPrimaryOwners.size()==2&&partySecondaryOwners.size()==2&&m.word(owner)==enemyPrimary&&!enemyPrimaryOwners.contains(owner);
-        if(k==Kind::EnemySecondary)return cameraCount==1&&partyPrimaryOwners.size()==2&&partySecondaryOwners.size()==2&&m.word(owner+4)==enemySecondary&&enemyPrimaryOwners.contains(owner)&&!enemySecondaryOwners.contains(owner);
+        if(k==Kind::PartyPrimary)return cameraCount==1&&enemyPrimaryOwners.empty()&&partyPrimaryOwners.size()==partySecondaryOwners.size()&&m.word(owner)==partyPrimary&&!partyPrimaryOwners.contains(owner);
+        if(k==Kind::PartySecondary)return cameraCount==1&&enemyPrimaryOwners.empty()&&partyPrimaryOwners.size()==partySecondaryOwners.size()+1&&m.word(owner+4)==partySecondary&&partyPrimaryOwners.contains(owner)&&!partySecondaryOwners.contains(owner);
+        if(k==Kind::EnemyPrimary)return cameraCount==1&&partyPrimaryOwners.size()==2&&partySecondaryOwners.size()==2&&enemyPrimaryOwners.size()==enemySecondaryOwners.size()&&m.word(owner)==enemyPrimary&&!enemyPrimaryOwners.contains(owner);
+        if(k==Kind::EnemySecondary)return cameraCount==1&&partyPrimaryOwners.size()==2&&partySecondaryOwners.size()==2&&enemyPrimaryOwners.size()==enemySecondaryOwners.size()+1&&m.word(owner+4)==enemySecondary&&enemyPrimaryOwners.contains(owner)&&!enemySecondaryOwners.contains(owner);
         return false;
     }
     void validateOwnerReturn(const Call& c,const Memory& m) const {
