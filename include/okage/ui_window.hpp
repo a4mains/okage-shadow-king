@@ -3,6 +3,7 @@
 #include <bitset>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <span>
@@ -12,6 +13,12 @@
 namespace okage {
 class RuwResource;
 struct UiLayoutSprite;
+struct Font;
+struct UiPlacementContext {
+    std::int32_t layer;
+    std::span<const float> sine;
+    std::function<std::uint32_t()> random; // Real1f14b0 contract: result<=7fffffff.
+};
 enum class UiStreamReference { MenuTransform1f9c00, MenuTransform1f9c2c,
                                RuwMetrics200b78, RuwClip200b88 };
 struct UiWidgetReference {
@@ -37,6 +44,7 @@ public:
 private:
     friend class UiWindow;
     friend struct UiWindowSpriteTestAccess;
+    friend struct UiWindowGlyphTestAccess;
     UiWindowBuffer(std::size_t bytes,bool cleared);
     void put_word(std::size_t offset,std::uint32_t value);
     std::vector<std::uint8_t> bytes_;
@@ -81,12 +89,19 @@ public:
 
     bool place_sprite(unsigned group,unsigned slot,const UiLayoutSprite&);
 
+    void place_glyph(unsigned group,unsigned slot,std::int32_t x,std::int32_t y,
+                     std::int32_t width,std::int32_t height,std::span<const Font>,
+                     const UiPlacementContext&);
+    bool place_icon(unsigned group,unsigned slot,std::int32_t x,std::int32_t y,
+                    std::int32_t depth,std::int32_t selector,const UiPlacementContext&);
+
     bool configure(const std::array<std::uint32_t,28>& authored,
                    std::span<const AtlasTuple> atlas,
                    std::shared_ptr<const void> texture);
 private:
     friend struct UiWindowClockTestAccess;
     friend struct UiWindowSpriteTestAccess;
+    friend struct UiWindowGlyphTestAccess;
     void put(std::size_t offset,std::uint32_t value);
     std::array<std::uint32_t,scalar_bytes/4> words_{};
     std::bitset<scalar_bytes/4> known_;
