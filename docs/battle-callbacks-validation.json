@@ -1,6 +1,6 @@
 {
   "schema": "okage-battle-callbacks-validation-v1",
-  "checkpoint_date": "2022-10-15",
+  "checkpoint_date": "2022-10-29",
   "runtime_source_revision": "1e3eb38a96a97b468d7aa99bf21efecd72545401",
   "helper_test_checkpoint_revision": "7bf2761055c8a56f7e66253df0f96bf2f82af71a",
   "scope": "First eligible native parent and child callback traversal.",
@@ -267,6 +267,66 @@
           "sha256": "4ba242bf6624f18ba545e59d9bf6f900c9611d6bb80375d4a13e51d8f16e0f42"
         }
       ]
+    },
+    "callback_verifier": {
+      "revision": "40d2c96",
+      "files": [
+        {
+          "path": "tools/verify_battle_callbacks.py",
+          "bytes": 13458,
+          "sha256": "e6580291e580dab6dc99135e4e0fcc2600704c2e05f42289c8f13f4746747739"
+        },
+        {
+          "path": "tests/test_verify_battle_callbacks.py",
+          "bytes": 7759,
+          "sha256": "f338cb8962a4faced38bf30d0458961968937647bfcbc587a602cdd2a0ac173a"
+        }
+      ]
+    },
+    "callback_observer": {
+      "revision": "42a470b",
+      "files": [
+        {
+          "path": "tools/play-oracle/reference_battle_callbacks.hpp",
+          "bytes": 23041,
+          "sha256": "abb51197cd67ab622d01d0ecc8902870b2ba50ad83bbadace58f38b14c4198a1"
+        },
+        {
+          "path": "tools/play-oracle/boot.cpp",
+          "bytes": 46684,
+          "sha256": "048b12777647423f103f036ed90046a81a724fe05e405f4b67a3d6e82ba31d9c"
+        },
+        {
+          "path": "tools/play-oracle/capture_argument_tests.py",
+          "bytes": 4106,
+          "sha256": "d67c6a0c321f329f7838c1960c485994870dc046345371a96d5c3214aeedcbb8"
+        }
+      ]
+    },
+    "glyph_icon_helper": {
+      "revision": "637d28e56657b8b9ae428cc35a238181b0723778",
+      "files": [
+        {
+          "path": "src/ui_window_glyph.cpp",
+          "bytes": 7640,
+          "sha256": "47e6c36b6c39962c272713f4948d0dd809f0e1bc60e343fbdabfa91dad02cc14"
+        },
+        {
+          "path": "include/okage/ui_window.hpp",
+          "bytes": 4693,
+          "sha256": "8fbc9c270541017272b38d37f7aca809d29be19757c5e33a4ca4a7359fc026e2"
+        },
+        {
+          "path": "tests/ui_window_glyph_tests.cpp",
+          "bytes": 11217,
+          "sha256": "13d9167a239fc8e0e486ccd4aa40a6d3afb6b5366a25c5bbb904144359517d56"
+        },
+        {
+          "path": "CMakeLists.txt",
+          "bytes": 14417,
+          "sha256": "6535b07939bc5a8553c68d2c85eafada63cd1ac0e1808158871d3f276f9fc762"
+        }
+      ]
     }
   },
   "evidence": [
@@ -349,6 +409,36 @@
       "path": "local/native-battle-callbacks-104615-release-v2.png.battle-stage.json",
       "bytes": 42439,
       "sha256": "22a1f211a48f88b4a751013cde3c520328bc7a8109ead07a744aedd54feec118"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/glyph-build-release-v1.log",
+      "bytes": 1369,
+      "sha256": "2ac6fefa3ff451403aafd89dd965233c939897edd5d6192d9a1159e66e9a94fe"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/glyph-build-debug-v1.log",
+      "bytes": 1361,
+      "sha256": "3d311d75632c7bbb27d965ac9a1b7e260dd0d5ddb1f7436c22b8e0a313a1556d"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/glyph-build-sanitize-v1.log",
+      "bytes": 1369,
+      "sha256": "08f768efba88bc446451d54b5538ba806b83471cb1c7a690d10adddd558130df"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/glyph-tests-release-v1.log",
+      "bytes": 453,
+      "sha256": "98b393b930ffca7a603b823f285c7b7c6112825edd7f73fdfc4d61700cf530b0"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/glyph-tests-debug-v1.log",
+      "bytes": 437,
+      "sha256": "f326abd4b68c9fe78910ba4e94c2815f25f0240bd97f51e624c2a9680cd8ca0d"
+    },
+    {
+      "path": "local/research/battle-active-callbacks-v1/glyph-tests-sanitize-v1.log",
+      "bytes": 453,
+      "sha256": "b3f2887a239a218b0c90312186533ff411928e8fad26fcae0105d26bed637e17"
     }
   ],
   "inputs": {
@@ -859,5 +949,99 @@
     "Source-based geometry and sprite tests do not establish original execution parity or integrate the layout helper into these runtime binaries.",
     "No claim of a complete 104376..104615 battle interval or whole-game completion.",
     "Documentation hashes are intentionally omitted; this manifest neither hashes itself nor unfinished prose."
-  ]
+  ],
+  "callback_original_comparison": {
+    "status": "fail",
+    "differences_per_build": 22,
+    "explanation": "Five pre-existing timer numerators differ at four callback edges each; party record charge differs at two returns (81/79 original versus56/54 native). No other compared difference.",
+    "scope": "Source-gated first traversal only, originalvblank126; native frames104452/104450/104451 retained without fitting.",
+    "counts_per_build": {
+      "actor_bytes": 3692,
+      "record_bytes": 1840,
+      "channel_words": 10624,
+      "camera_words": 112,
+      "root_words": 5,
+      "queued_action_halfwords": 5,
+      "differences": 22
+    },
+    "unsupported": [
+      "Whole scheduler, callback pointer equivalence and allocator bytes",
+      "Enemy record bytes0..7: original string pointers versus native asset offsets; string ownership/content is not observed here",
+      "Native RNG and motion contexts are absent from this callback report",
+      "Fade/projection/stage-setting originals are absent from this observer",
+      "Resource clock/layout, cache packets, graphics/audio and later combat",
+      "UI manager content uses the separate UI dispatcher verifier"
+    ],
+    "original_run": {
+      "path": "local/research/battle-active-callbacks-v1/original-v1.run.json",
+      "bytes": 1247,
+      "sha256": "5007662c48c9ea65f2836b0e298698ecfcdc28f027426ebc3c9c74551f9e0809"
+    },
+    "original_trace": {
+      "path": "local/research/battle-active-callbacks-v1/original-v1.callbacks.jsonl",
+      "bytes": 2608129,
+      "sha256": "e1b01f9ba7663710cb70c1e14a2993f6f892c6f07806bdf9929a7df804e30d4b"
+    },
+    "original_log": {
+      "path": "local/research/battle-active-callbacks-v1/original-v1.log",
+      "bytes": 13940,
+      "sha256": "2f0bfbb72406b81e2d78b72bebcf83729a8051881a096b2d5a6b7c2b587ae6d0"
+    },
+    "results": {
+      "release": {
+        "path": "local/research/battle-active-callbacks-v1/callback-comparison-release-v1.json",
+        "bytes": 6472,
+        "sha256": "21bdfba0a550746847b12c30ba4c03b838e05ab544db2a6deff43d2d60fae1dc"
+      },
+      "debug": {
+        "path": "local/research/battle-active-callbacks-v1/callback-comparison-debug-v1.json",
+        "bytes": 6470,
+        "sha256": "6604e4472a802dde7e22d322c222ed5eead03bffdc9339c0ee527b5067d16043"
+      },
+      "sanitize": {
+        "path": "local/research/battle-active-callbacks-v1/callback-comparison-sanitize-v1.json",
+        "bytes": 6473,
+        "sha256": "774be20fbd92cd3067fed449202aa03bab79bfb0498d1b1d9d4fe7d5a4664b70"
+      }
+    },
+    "comparison_runs": {
+      "path": "local/research/battle-active-callbacks-v1/callback-comparisons-v1.run.json",
+      "bytes": 1003,
+      "sha256": "421ee1289a8693a5d759b387bf0fa32bfc2ff82a76df33b7ecefbd2e37eacf9e"
+    }
+  },
+  "glyph_icon_helper": {
+    "scope": "19c568/19ca20 source-based known buffer and RNG order; not called by runtime layout yet.",
+    "source_revision": "637d28e56657b8b9ae428cc35a238181b0723778",
+    "run_report": {
+      "path": "local/worktrees/ui-window-glyph-v1/local/ui-window-glyph-checks/report-v3.json",
+      "bytes": 7716,
+      "sha256": "c148c4b0fd1dfa53730e8a28a8e1af4beed10aec16451189047a6972ab643894"
+    },
+    "root_checks": {
+      "path": "local/research/battle-active-callbacks-v1/glyph-checks-v1.json",
+      "bytes": 1169,
+      "sha256": "1a7c0fc424f740afe0ad9fc763eaad24d185abd3f55f786e6a7e0a7a6ca45ff9"
+    },
+    "original_execution_parity": false
+  },
+  "inspection_tests_latest": {
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-v"
+    ],
+    "tests": 350,
+    "exit_code": 0,
+    "session": 8210,
+    "log": {
+      "path": "local/research/battle-active-callbacks-v1/python-suite-v2.log",
+      "bytes": 36765,
+      "sha256": "911a8163319cd0cc7a50c0defbce5deaf7bd6aa712054a837899a7c1564977fa"
+    }
+  }
 }
