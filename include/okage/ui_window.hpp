@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <map>
 #include <memory>
 #include <optional>
 #include <span>
@@ -14,6 +15,25 @@ namespace okage {
 class RuwResource;
 struct UiLayoutSprite;
 struct Font;
+enum class UiPacketOperationKind { Positions, Colors, UV, Register, Texture,
+                                   Primitive, IndexedVertex, CompilerBoundary };
+struct UiPacketOperation {
+    UiPacketOperationKind kind;
+    std::uint32_t source_helper;
+    std::array<std::uint64_t,4> arguments{};
+    std::vector<std::array<float,4>> values; // UV uses first2 lanes only.
+};
+struct UiPacketBuildContext {
+    std::shared_ptr<const std::vector<Font>> fonts;
+    std::int32_t background_alpha_top=0,background_alpha_bottom=0; //200b58/5c.
+};
+struct UiNativePacket {
+    std::vector<UiPacketOperation> operations;
+    //1a6908 per-slot subpackets; nullopt means source5ec0 entry==-1.
+    std::array<std::optional<std::vector<UiPacketOperation>>,16> elements;
+    std::shared_ptr<const std::vector<Font>> fonts;
+    std::shared_ptr<const void> window_texture;
+};
 struct UiPlacementContext {
     std::int32_t layer;
     std::span<const float> sine;
@@ -45,6 +65,7 @@ private:
     friend class UiWindow;
     friend struct UiWindowSpriteTestAccess;
     friend struct UiWindowGlyphTestAccess;
+    friend struct UiWindowPacketTestAccess;
     UiWindowBuffer(std::size_t bytes,bool cleared);
     void put_word(std::size_t offset,std::uint32_t value);
     std::vector<std::uint8_t> bytes_;
@@ -95,6 +116,13 @@ public:
     bool place_icon(unsigned group,unsigned slot,std::int32_t x,std::int32_t y,
                     std::int32_t depth,std::int32_t selector,const UiPlacementContext&);
 
+    void reset_glyph_packets();
+    void reset_sprite_packets();
+    int build_glyph_packet(const UiPacketBuildContext&);
+    void build_sprite_packet(const UiPacketBuildContext&);
+    const UiNativePacket* glyph_packet(unsigned group,unsigned side) const;
+    const UiNativePacket* sprite_packet(unsigned group,unsigned side) const;
+
     bool configure(const std::array<std::uint32_t,28>& authored,
                    std::span<const AtlasTuple> atlas,
                    std::shared_ptr<const void> texture);
@@ -102,6 +130,7 @@ private:
     friend struct UiWindowClockTestAccess;
     friend struct UiWindowSpriteTestAccess;
     friend struct UiWindowGlyphTestAccess;
+    friend struct UiWindowPacketTestAccess;
     void put(std::size_t offset,std::uint32_t value);
     std::array<std::uint32_t,scalar_bytes/4> words_{};
     std::bitset<scalar_bytes/4> known_;
@@ -111,5 +140,6 @@ private:
     std::array<UiWindowBuffer,2> glyph_,sprite_;
     std::vector<std::array<UiWindowBuffer,2>> glyph_cache_,sprite_cache_;
     std::array<UiWindowBuffer,3> extra_;
+    std::map<std::pair<unsigned,unsigned>,UiNativePacket> glyph_packets_,sprite_packets_;
 };
 }
