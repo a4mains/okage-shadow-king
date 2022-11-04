@@ -67,6 +67,23 @@ def main():
         check(['--battle-callbacks', str(callbacks)], 'Disc input missing')
         callbacks.touch()
         check(['--battle-callbacks', str(callbacks)], 'Refusing existing reference output')
+        layout = root / 'ui-layout.jsonl'
+        check(['--ui-layout'], 'Unknown boot argument')
+        check(['--ui-layout', str(layout), '--ui-layout', str(layout)], 'Duplicate UI-layout')
+        check(['--ui-layout', str(missing_disc)], 'UI-layout output aliases')
+        check(['--ui-layout', str(layout), '--save', str(layout)], 'UI-layout output aliases')
+        check(['--ui-layout', str(layout), '--battle-ui-updates', str(root / 'ui-updates.jsonl')],
+              'cannot be combined with --battle-callbacks')
+        check(['--ui-layout', str(layout), '--battle-callbacks', str(root / 'callbacks.jsonl')],
+              'cannot be combined with --battle-callbacks')
+        check(['--ui-layout', str(layout), '--lifecycle', str(root / 'lifecycle.jsonl')],
+              'cannot be combined with --battle-callbacks')
+        check(['--ui-layout', str(layout), '--order', str(root / 'order.jsonl')],
+              'cannot be combined with --battle-callbacks')
+        check(['--ui-layout', str(layout), '--text', str(root / 'text.jsonl')],
+              'cannot be combined with --battle-callbacks')
+        layout.touch()
+        check(['--ui-layout', str(layout)], 'Refusing existing reference output')
     print('Capture argument tests passed; no VM constructed.')
 
 if __name__ == '__main__':
