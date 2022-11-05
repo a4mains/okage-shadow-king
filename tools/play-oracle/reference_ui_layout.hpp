@@ -164,6 +164,9 @@ private:
     [[noreturn]] static void fail(const char* message) {
         throw std::runtime_error(std::string("UI-layout observer: ")+message);
     }
+    [[noreturn]] static void fail(const std::string& message) {
+        throw std::runtime_error(std::string("UI-layout observer: ")+message);
+    }
     static bool isTargetEntry(uint32 pc) {
         return std::find(entryBreakpoints.begin(),entryBreakpoints.end(),pc)!=entryBreakpoints.end();
     }
@@ -280,9 +283,15 @@ private:
                m.word(layer+0x60)!=(slot?3u:2u))
                 fail("UI layer identity/callback differs from pinned authored row");
             const auto window=m.word(0x200688+handle*4);m.require(window,0x6ec0);
-            if(m.word(window+4)!=handle||m.word(window+0x3c00)!=m.word(record+0x64)||
-               m.word(window+0x3c04)!=m.word(record+0x68)||m.word(window+0x2698)!=window+0x26dc)
-                fail("UI window handle, capacities, or embedded stream differ from authored layer");
+            if(m.word(window+4)!=handle) {
+                std::ostringstream detail;detail<<"UI window handle mismatch at slot "<<slot
+                    <<": actual 0x"<<std::hex<<m.word(window+4)<<", expected 0x"<<handle;fail(detail.str());
+            }
+            if(m.word(window+0x3c00)!=m.word(record+0x64)||m.word(window+0x3c04)!=m.word(record+0x68)) {
+                std::ostringstream detail;detail<<"UI window authored capacity mismatch at slot "<<slot
+                    <<": actual [0x"<<std::hex<<m.word(window+0x3c00)<<",0x"<<m.word(window+0x3c04)
+                    <<"], expected [0x"<<m.word(record+0x64)<<",0x"<<m.word(record+0x68)<<"]";fail(detail.str());
+            }
         }
     }
     void validateWindowIdentity(const Memory& m,uint32 root,uint32 manager,unsigned slot,uint32 window) const {
@@ -290,6 +299,11 @@ private:
         if(m.word(0x200688+slot*4)!=window||m.word(manager+0x40+slot*0xe0)!=slot||
            m.word(window+4)!=slot||m.word(window+0x3bec)!=2)
             fail("mode-2 window does not match source manager/registry slot");
+        const auto expected=window+0x26dc,actual=m.word(window+0x2698);
+        if(actual!=expected) {
+            std::ostringstream detail;detail<<"mode-2 window embedded stream mismatch at slot "<<slot
+                <<": actual 0x"<<std::hex<<actual<<", expected 0x"<<expected;fail(detail.str());
+        }
     }
     void observeParentEntry(Ee::CSubSystem& ee,unsigned frame,uint32 a0,uint32 sp,uint32 ra,
                             const Memory& m,std::vector<uint32>& loaders) {
