@@ -43,6 +43,8 @@ public:
     void select_class_color(std::size_t group,std::int32_t class_id,std::int32_t selection);
     void set_fill_fraction(std::size_t group,std::int32_t authored_id,float);
     void prepare_group_binding(std::size_t group);
+    void set_layout_text_extent(std::size_t group,std::size_t index,
+                                std::int32_t width,std::int32_t height);
 
 private:
     std::vector<RuwWidget>& mutable_group(std::size_t);

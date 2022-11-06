@@ -34,6 +34,7 @@ struct UiNativePacket {
     std::shared_ptr<const std::vector<Font>> fonts;
     std::shared_ptr<const void> window_texture;
 };
+struct UiLayoutContext;
 struct UiPlacementContext {
     std::int32_t layer;
     std::span<const float> sine;
@@ -42,7 +43,7 @@ struct UiPlacementContext {
 enum class UiStreamReference { MenuTransform1f9c00, MenuTransform1f9c2c,
                                RuwMetrics200b78, RuwClip200b88 };
 struct UiWidgetReference {
-    std::shared_ptr<const RuwResource> resource;
+    std::shared_ptr<RuwResource> resource;
     std::size_t group,index;
 };
 struct UiStreamCommand {
@@ -107,6 +108,7 @@ public:
                            const std::array<std::uint32_t,3>& second_bits);
     void advance_clock();
     void bind_ruw(std::shared_ptr<RuwResource>,std::span<const std::size_t> groups);
+    void layout_mode2(UiLayoutContext);
 
     bool place_sprite(unsigned group,unsigned slot,const UiLayoutSprite&);
 

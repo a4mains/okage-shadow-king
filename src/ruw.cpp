@@ -10,6 +10,16 @@
 #pragma STDC FP_CONTRACT OFF
 
 namespace okage {
+void RuwResource::set_layout_text_extent(std::size_t group,std::size_t index,
+                                        std::int32_t width,std::int32_t height) {
+    if(group>=widgets_.size()||index>=widgets_[group].size())
+        throw std::runtime_error("RUW layout text index");
+    auto& widget=widgets_[group][index];
+    if(widget.words[5]!=1||!widget.runtime||!widget.runtime->text)
+        throw std::runtime_error("RUW layout text owner");
+    widget.runtime->words[8]=std::uint32_t(width);
+    widget.runtime->words[9]=std::uint32_t(height);
+}
 namespace {
 struct FillRounding {
     int old=std::fegetround();
