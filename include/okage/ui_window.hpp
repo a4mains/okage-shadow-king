@@ -16,7 +16,8 @@ class RuwResource;
 struct UiLayoutSprite;
 struct Font;
 enum class UiPacketOperationKind { Positions, Colors, UV, Register, Texture,
-                                   Primitive, IndexedVertex, CompilerBoundary };
+                                   Primitive, IndexedVertex, CompilerBoundary,
+                                   AuxiliaryVectors };
 struct UiPacketOperation {
     UiPacketOperationKind kind;
     std::uint32_t source_helper;
@@ -124,6 +125,8 @@ public:
     void build_sprite_packet(const UiPacketBuildContext&);
     const UiNativePacket* glyph_packet(unsigned group,unsigned side) const;
     const UiNativePacket* sprite_packet(unsigned group,unsigned side) const;
+    void build_background_packet();
+    const UiNativePacket* background_packet() const {return background_packet_?&*background_packet_:nullptr;}
 
     bool configure(const std::array<std::uint32_t,28>& authored,
                    std::span<const AtlasTuple> atlas,
@@ -133,6 +136,7 @@ private:
     friend struct UiWindowSpriteTestAccess;
     friend struct UiWindowGlyphTestAccess;
     friend struct UiWindowPacketTestAccess;
+    friend struct UiWindowBackgroundTestAccess;
     void put(std::size_t offset,std::uint32_t value);
     std::array<std::uint32_t,scalar_bytes/4> words_{};
     std::bitset<scalar_bytes/4> known_;
@@ -143,5 +147,6 @@ private:
     std::vector<std::array<UiWindowBuffer,2>> glyph_cache_,sprite_cache_;
     std::array<UiWindowBuffer,3> extra_;
     std::map<std::pair<unsigned,unsigned>,UiNativePacket> glyph_packets_,sprite_packets_;
+    std::optional<UiNativePacket> background_packet_;
 };
 }
