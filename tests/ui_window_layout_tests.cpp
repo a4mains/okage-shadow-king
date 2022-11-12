@@ -72,6 +72,24 @@ void boundaries(){
     try{w.layout_mode2({shared,*f,sine,[](){return 0u;},0,packets});}catch(const std::runtime_error&){failed=true;}
     require(failed,"Unrecovered controls remain explicit errors");
 }
+void preparation(){
+    auto r=resource();r->set_text(0,0,"A");auto w=window(r);auto f=fonts();
+    std::array<float,360> sine{};UiLayoutShared shared;UiPacketBuildContext packets{f};unsigned draws=0;
+    UiLayoutContext context{shared,*f,sine,[&](){++draws;return 1u;},0,packets};
+    w.set_opacity_tween(0,128,0,128);
+    require(w.prepare_mode2(context)&&draws==31,"Dispatcher reaches layout with nonzero current opacity");
+    require(w.background_packet()&&!(w.word(0x1900)&0x201)&&w.word(0x268c)==0&&w.word(0x2694)==0,
+            "Background builds before layout and source packet sides toggle");
+    require(!w.extra_cache(0).known_byte(0),"Background cache no longer falsely known-zero");
+    w.set_layout_enabled(false);draws=0;
+    require(!w.prepare_mode2(context)&&draws==0&&w.word(0x268c)==0,"Completed layout skips with disabled continuous layout");
+    w.set_layout_enabled(true);w.set_opacity_tween(0,0,0,128);
+    require(!w.prepare_mode2(context)&&draws==0&&w.word(0x268c)==1&&!(w.word(0x1900)&1),
+            "Zero opacity and delta skip traversal but retain selector and flag side effects");
+    w.set_opacity_tween(.2f,0,0,128);
+    require(w.prepare_mode2(context)&&draws==31,"Nonzero delta requests layout even at zero current opacity");
+    require(w.opacity()==0,"Preparation does not advance clock or opacity");
+}
 std::vector<std::uint8_t> read(const std::filesystem::path& p){
     std::ifstream in(p,std::ios::binary);require(bool(in),"Owned layout input missing");
     return {std::istreambuf_iterator<char>(in),{}};
@@ -86,10 +104,10 @@ void owned(const char* battle,const char* font_directory){
     BattleUiPad pad;ui.first_update(resource,pad,{},60);
     const auto sine=make_sine_table();UiLayoutShared layout;UiPacketBuildContext packets{fonts};GameRandom random{1};
     for(unsigned i=0;i<2;++i){auto& w=*state.registry[ui.handles()[i]];unsigned draws=0;
-        w.layout_mode2({layout,*fonts,sine,[&](){++draws;return random.next();},0,packets});
+        w.advance_clock();require(w.prepare_mode2({layout,*fonts,sine,[&](){++draws;return random.next();},0,packets}),"Owned dispatcher reaches layout");
         std::cout<<"Owned constructor text slot="<<i<<" glyphs="<<w.word(0xcdc)<<" glyph_groups="<<w.word(0xcc0)
                  <<" sprite_groups="<<w.word(0xcc4)<<" rng_draws="<<draws<<'\n';
     }
 }
 }
-int main(int argc,char** argv){try{traversal();boundaries();if(argc==3)owned(argv[1],argv[2]);else require(argc==1,"usage: ui-window-layout-tests [BATTLE_DIRECTORY FONT_DIRECTORY]");std::cout<<"UI mode2 layout tests passed\n";}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(int argc,char** argv){try{traversal();boundaries();preparation();if(argc==3)owned(argv[1],argv[2]);else require(argc==1,"usage: ui-window-layout-tests [BATTLE_DIRECTORY FONT_DIRECTORY]");std::cout<<"UI mode2 layout tests passed\n";}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

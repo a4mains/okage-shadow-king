@@ -110,6 +110,7 @@ public:
     void advance_clock();
     void bind_ruw(std::shared_ptr<RuwResource>,std::span<const std::size_t> groups);
     void layout_mode2(UiLayoutContext);
+    bool prepare_mode2(UiLayoutContext);
 
     bool place_sprite(unsigned group,unsigned slot,const UiLayoutSprite&);
 

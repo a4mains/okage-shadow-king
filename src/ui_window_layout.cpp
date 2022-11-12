@@ -34,6 +34,27 @@ bool space(unsigned char c){return c==' '||(c>=9&&c<=13);}
 std::uint32_t decimal(std::string_view text){std::size_t i=0;while(i<text.size()&&space(text[i]))++i;
     std::uint32_t v=0;while(i<text.size()&&text[i]>='0'&&text[i]<='9')v=v*10+unsigned(text[i++]-'0');return v;}
 }
+bool UiWindow::prepare_mode2(UiLayoutContext context) {
+    auto flags=word(0x1900);
+    if(!(flags&0x8000))return false;
+    if(flags&0x1000)put(0x1900,(flags&~0x22u)|0x201u);
+    const auto display=word(0x25c)&255u;
+    if(((display>>2)&3)&&(word(0x1900)&0x200)){
+        build_background_packet();put(0x1900,word(0x1900)&~0x200u);
+    }
+    check(!(display&3)||!(word(0x1900)&0x400),"UI border cache construction is unrecovered");
+    bool laid_out=false;
+    flags=word(0x1900);
+    if(((display>>4)&3)&&!(flags&0x20)&&(flags&1)){
+        put(0x268c,word(0x268c)^1u);put(0x2694,word(0x2694)^1u);
+        if(ordinary(__builtin_bit_cast(float, (word(0x27c))))!=0||
+           ordinary(__builtin_bit_cast(float, (word(0x270))))!=0){
+            layout_mode2(context);laid_out=true;
+        }
+        put(0x1900,word(0x1900)&~1u);
+    }
+    put(0x1904,0);return laid_out;
+}
 void UiWindow::layout_mode2(UiLayoutContext context) {
     check(word(0x3bec)==2,"UI layout is not mode2");
     check(!context.fonts.empty()&&bool(context.random)&&context.sine.size()>=360,"UI layout owners missing");
