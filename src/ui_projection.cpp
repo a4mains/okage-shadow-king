@@ -57,14 +57,16 @@ std::array<float,2> ui_projection_uv_cache(const std::array<float,2>& value,
     return out;
 }
 UiProjectedQuad ui_project_quad(const UiProjectionParameters& p,const Matrix4& matrix,
-    const std::array<UiProjectionVertex,4>& input,bool textured){
+    const std::array<UiProjectionVertex,4>& input,bool textured,bool first_positions_upload){
     for(const auto& v:p)validate(v);
     for(const auto& v:matrix)validate(v);
     for(const auto& v:input)validate(v.position);
     Rounding rounding;Matrix4 combined;
-    // 0c48..0ce4: sparse projection times EACH object-matrix column first.
-    for(unsigned c=0;c<4;++c)for(unsigned r=0;r<4;++r)
-        combined[c][r]=add(mul(p[0][r],matrix[c][r<2?r:2]),mul(p[1][r],matrix[c][3]));
+    for(unsigned c=0;c<4;++c){
+        if(c==2&&first_positions_upload){combined[c]=matrix[c];continue;}
+        for(unsigned r=0;r<4;++r)
+            combined[c][r]=add(mul(p[0][r],matrix[c][r<2?r:2]),mul(p[1][r],matrix[c][3]));
+    }
     UiProjectedQuad out;unsigned any=0,common=63;
     for(unsigned i=0;i<4;++i){
         auto& v=out.vertices[i];const auto& source=input[i].position;

@@ -20,11 +20,10 @@ struct UiProjectedQuad {
     std::array<UiProjectedVertex,4> vertices{};
     bool emitted=false;
 };
-// VU0448 and0600 upload arithmetic: bias*1 + scale*input, in that order.
 Float4 ui_projection_color_cache(const Float4& value,
     const Float4& scale={1,1,1,1},const Float4& bias={0,0,0,0});
 std::array<float,2> ui_projection_uv_cache(const std::array<float,2>& value,
     const std::array<float,2>& scale={1,1},const std::array<float,2>& bias={0,0});
 UiProjectedQuad ui_project_quad(const UiProjectionParameters&,const Matrix4&,
-    const std::array<UiProjectionVertex,4>&,bool textured);
+    const std::array<UiProjectionVertex,4>&,bool textured,bool first_positions_upload);
 }
