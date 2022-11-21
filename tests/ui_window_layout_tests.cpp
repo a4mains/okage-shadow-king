@@ -3,6 +3,7 @@
 #include "okage/font.hpp"
 #include "okage/battle_interface.hpp"
 #include "okage/enemy.hpp"
+#include "okage/ui_draw.hpp"
 #include <bit>
 #include <cfenv>
 #include <fstream>
@@ -108,6 +109,15 @@ void owned(const char* battle,const char* font_directory){
         std::cout<<"Owned constructor text slot="<<i<<" glyphs="<<w.word(0xcdc)<<" glyph_groups="<<w.word(0xcc0)
                  <<" sprite_groups="<<w.word(0xcc4)<<" rng_draws="<<draws<<'\n';
     }
+    UiDrawState draw_state;
+    const auto draw_list=build_ui_draw_list(state.registry,draw_state,initial_ui_projection(),sine);
+    std::array<unsigned,3> replay_counts{};
+    for(const auto& command:draw_list.commands())if(const auto* replay=std::get_if<UiDrawReplay>(&command))
+        ++replay_counts[unsigned(replay->family)];
+    require(replay_counts[0]>0&&replay_counts[1]>0&&replay_counts[1]==replay_counts[2],
+            "Owned layout reaches glyph and paired sprite header/element submissions");
+    std::cout<<"Owned draw commands="<<draw_list.commands().size()<<" glyph_replays="<<replay_counts[0]
+             <<" sprite_header_replays="<<replay_counts[1]<<" sprite_element_replays="<<replay_counts[2]<<'\n';
 }
 }
 int main(int argc,char** argv){try{traversal();boundaries();preparation();if(argc==3)owned(argv[1],argv[2]);else require(argc==1,"usage: ui-window-layout-tests [BATTLE_DIRECTORY FONT_DIRECTORY]");std::cout<<"UI mode2 layout tests passed\n";}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

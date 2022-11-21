@@ -68,6 +68,7 @@ private:
     friend struct UiWindowSpriteTestAccess;
     friend struct UiWindowGlyphTestAccess;
     friend struct UiWindowPacketTestAccess;
+    friend struct UiWindowDrawTestAccess;
     UiWindowBuffer(std::size_t bytes,bool cleared);
     void put_word(std::size_t offset,std::uint32_t value);
     std::vector<std::uint8_t> bytes_;
@@ -138,6 +139,8 @@ private:
     friend struct UiWindowGlyphTestAccess;
     friend struct UiWindowPacketTestAccess;
     friend struct UiWindowBackgroundTestAccess;
+    friend struct UiWindowDrawTestAccess;
+    friend struct UiDrawBuilder;
     void put(std::size_t offset,std::uint32_t value);
     std::array<std::uint32_t,scalar_bytes/4> words_{};
     std::bitset<scalar_bytes/4> known_;
