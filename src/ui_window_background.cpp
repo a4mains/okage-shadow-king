@@ -51,6 +51,8 @@ void UiWindow::build_background_packet(){
     append(ops,K::CompilerBoundary,0x1ad1f8);append(ops,K::CompilerBoundary,0x1af978);
     append(ops,K::Positions,0x1ae940,{0,4},{{left,first_top,depth,1},
         {right,second_top,depth,1},{right,bottom,depth,1},{left,bottom,depth,1}});
+    //1a7b78: ad1f8/ad1e0 and af978 set333be4=1 before ae940 consumes it.
+    ops.back().first_positions_upload=true;
     append(ops,K::AuxiliaryVectors,0x1aeb10,{0,1},{{0,0,0,0}});
     std::vector<V> colors;
     for(unsigned i=0;i<4;++i){const auto rgba=word(0x2e0+i*4);V color{};

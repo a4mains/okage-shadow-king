@@ -23,6 +23,7 @@ struct UiPacketOperation {
     std::uint32_t source_helper;
     std::array<std::uint64_t,4> arguments{};
     std::vector<std::array<float,4>> values; // UV uses first2 lanes only.
+    std::optional<bool> first_positions_upload=std::nullopt;
 };
 struct UiPacketBuildContext {
     std::shared_ptr<const std::vector<Font>> fonts;

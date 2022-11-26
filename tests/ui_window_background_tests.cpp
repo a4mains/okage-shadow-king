@@ -26,6 +26,8 @@ void reached_untextured(){auto w=window();put(w,0x2e0,0xff804307);put(w,0x2e4,0x
     const auto side_g=w.word(0x268c),side_s=w.word(0x2690);require(!w.background_packet(),"Background owner starts absent");
     require(w.extra_cache(0).known_byte(0)==0&&w.extra_cache(0).known_byte(0x12bf)==0,"Constructor clears background allocation");
     w.build_background_packet();
+    require(operation(w,K::Positions).first_positions_upload==true,"Background first upload metadata");
+    require(!operation(w,K::Colors).first_positions_upload,"Nonposition metadata absent");
     require(operation(w,K::Positions).values==std::vector<V>{{-77,-27,6,1},{-27,-27,6,1},{-27,47,6,1},{-77,47,6,1}},"Source corner geometry");
     require(operation(w,K::UV).values==std::vector<V>{{0,0,0,0},{.03125f,0,0,0},{.03125f,.046875f,0,0},{0,.046875f,0,0}},"Wrapped dimensions and UV without half texel");
     const auto& c=operation(w,K::Colors).values;

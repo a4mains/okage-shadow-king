@@ -67,6 +67,8 @@ int UiWindow::build_glyph_packet(const UiPacketBuildContext& c){
         for(unsigned corner=0;corner<4;++corner){const auto off=0x868+corner*16;positions.push_back({add(num(corner==0||corner==3?x0:x1),value(*this,off)),add(num(corner<2?y0:y1),value(*this,0x86c)),add(z,value(*this,off+8)),1});}
     }
     array(operations,UiPacketOperationKind::Positions,0x1ae940,64,std::move(positions));
+    //1a5990: ad1f8/ad1e0 and af978 set333be4=1 before ae940 consumes it.
+    operations.back().first_positions_upload=true;
     const auto phase=si(word(0xcd0)),period=si(word(0xcd4));const auto magnitude=period<0?wrap_sub(0,period):period;
     const auto half=mul(num(magnitude),.5f);float reveal_first,reveal_second;
     if(phase<period/2){reveal_first=div(num(phase),half);reveal_second=0;}else{reveal_first=1;reveal_second=div(sub(num(phase),half),half);}
@@ -129,7 +131,9 @@ void UiWindow::build_sprite_packet(const UiPacketBuildContext& c){
         else if(selector==32){x0=sub(value(sprite_[0],at),ox);y0=sub(value(sprite_[0],at+4),oy);z0=sub(value(sprite_[0],at+8),oz);x1=sub(value(sprite_[1],at),ox);y1=sub(value(sprite_[1],at+4),oy);z1=sub(value(sprite_[1],at+12),oz);ordinary_quad=false;positions={{x0,y0,z0,1},{x0,y0,z0,1},{x1,y1,z1,1},{x1,y1,z1,1}};}
         else {ordinary_quad=false;positions.assign(4,{0,0,0,0});}
         if(ordinary_quad)positions={{x0,y0,z0,1},{x1,y0,z0,1},{x1,y1,z0,1},{x0,y1,z0,1}};
-        array(o,UiPacketOperationKind::Positions,0x1ae940,4,std::move(positions));control(o,0x1af978);const unsigned color=5+i,p=i*4;
+        array(o,UiPacketOperationKind::Positions,0x1ae940,4,std::move(positions));
+        //1a6908: each subpacket ad1f8/ad1e0 sets333be4=1 before ae940.
+        o.back().first_positions_upload=true;control(o,0x1af978);const unsigned color=5+i,p=i*4;
         if(selector<32||selector==34){primitive(o,0x1af3e8,0x58);for(unsigned j=0;j<4;++j)vertex(o,j,color,p+j);}
         else if(selector==33){primitive(o,0x1af3e8,0x48);vertex(o,0,1,0);vertex(o,1,1,0);vertex(o,2,2,0);vertex(o,3,2,0);}
         else if(selector==32){primitive(o,0x1af848,0x48,4);for(unsigned j=0;j<4;++j)vertex(o,j,color,0);

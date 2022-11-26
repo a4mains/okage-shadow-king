@@ -35,6 +35,8 @@ void glyph_build_and_ownership(){auto w=window();initialize_glyphs(w);auto c=con
     require(w.build_glyph_packet(c)==1&&w.word(0x3e24)==1,"Glyph build and cursor");
     require((w.word(0x3c08)&6)==2,"Glyph clears available4/sets built2");
     auto* p=w.glyph_packet(0,0);require(p&&p->fonts==c.fonts&&!w.glyph_packet(0,1),"Selected-side owner retains fonts");
+    require(array(p->operations,K::Positions).first_positions_upload==true,"Glyph first upload flag retained at compilation");
+    require(!array(p->operations,K::Colors).first_positions_upload,"Nonposition operation has no upload flag");
     const auto& pos=array(p->operations,K::Positions).values;
     require(pos.size()==64&&pos[0]==V{9,33,6,1}&&pos[1]==V{30,33,7,1}&&pos[2]==V{31,43,8,1}&&pos[3]==V{12,43,9,1},"Geometry truncation and unusual shared Y offset");
     require(pos[4]==V{0,0,0,0}&&pos[5]==V{1,0,0,0},"Hidden glyph placeholder matrices");
@@ -99,6 +101,7 @@ void sprite_build(){auto w=window();bind_texture(w);auto c=context();put(w,0x269
     require(uv[4]==V{10.5f/1024,20.5f/1024,0,0}&&uv[6]==V{12.5f/1024,23.f/1024,0,0},"Packed panel dimensions/UV unpack numerically");
     require(array(*p->elements[0],K::Positions).values==std::vector<V>{{-2,21,-3,1},{43,21,-3,1},{43,47,-3,1},{-2,47,-3,1}},"Icon local geometry");
     require(array(*p->elements[1],K::Positions).values==std::vector<V>{{-2,-3,-4,1},{2,-3,-4,1},{2,6,-4,1},{-2,6,-4,1}},"Panel scaled local geometry");
+    for(unsigned i=0;i<5;++i)require(array(*p->elements[i],K::Positions).first_positions_upload==true,"Every actual sprite subpacket retains its own first-upload flag");
     const auto line=select(*p->elements[2],K::IndexedVertex);require(line.size()==4&&line[3].arguments[0]==3,"Selector32 branches directly to finalize after four vertices");
     const auto gradient=select(*p->elements[3],K::IndexedVertex);require(gradient[0].arguments[2]==1&&gradient[2].arguments[2]==2,"Selector33 two-color primitive");
     require(array(*p->elements[4],K::Positions).values==std::vector<V>(4,V{}),"Other selector has actual degenerate geometry");
