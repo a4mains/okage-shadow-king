@@ -1,7 +1,7 @@
 {
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "native_binary_sha256": "12e3ebe3cbc7148851b8db9bcd2dddf6f9c066d041a6a588c5d2c01542e9842e",
-  "oracle": "Unicorn 1.0.2 MIPS64R2_GENERIC",
+  "oracle": "Unicorn 2.0.1 MIPS64R2_GENERIC",
   "totals": {
     "files": 5578,
     "models": 5578,

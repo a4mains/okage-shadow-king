@@ -7,7 +7,7 @@
     "members": 17524,
     "decoded_bytes": 459694827,
     "all_corpus": true,
-    "oracle": "Unicorn 1.0.2",
+    "oracle": "Unicorn 2.0.1",
     "routine": "0x001bd000"
   },
   "xim": {
@@ -20,11 +20,11 @@
       "psm=19,cpsm=2": 2
     },
     "palette16_pixel_checks": 2,
-    "oracle": "Unicorn 1.0.2 MIPS64R2_GENERIC",
+    "oracle": "Unicorn 2.0.1 MIPS64R2_GENERIC",
     "limits": "All dimensions/formats compared to original accessors; image preview color checks are not in-game GS fidelity tests."
   },
   "source_sha256": {
-    "src/assets.cpp": "d372ed2e743d1e89a7adc84b9617d4a3805e03e7a5ca6880ac73909abdc83d9c",
+    "src/assets.cpp": "3e6836e5a41db314050c7c412744f07a91845bc6929a8e7f795b1dcc2c60d91b",
     "include/okage/assets.hpp": "3b505f379ff52a4036892f7a2b6a47b14ea1e14c8fd88fb0237bdd919863ce9b",
     "tools/verify_xpf.py": "4a544555116061e49cbe36dc4d3ec5f8d6844c6e67b8f3189afbd3ebc4c59364",
     "tools/verify_xim.py": "88cfb276828c221a15406fda7de70b43792d284cb8d76aac915de4219caabb31"

@@ -1,2 +1,2 @@
 # Research oracles only; not linked into the native library or application.
-unicorn==1.0.2
+unicorn==2.0.1.post1
