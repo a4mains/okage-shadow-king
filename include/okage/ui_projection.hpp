@@ -25,5 +25,5 @@ Float4 ui_projection_color_cache(const Float4& value,
 std::array<float,2> ui_projection_uv_cache(const std::array<float,2>& value,
     const std::array<float,2>& scale={1,1},const std::array<float,2>& bias={0,0});
 UiProjectedQuad ui_project_quad(const UiProjectionParameters&,const Matrix4&,
-    const std::array<UiProjectionVertex,4>&,bool textured,bool first_positions_upload);
+    const std::array<UiProjectionVertex,4>&,bool textured);
 }
