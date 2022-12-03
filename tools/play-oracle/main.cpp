@@ -3094,6 +3094,69 @@ public:
         writeFile(output,result.data(),result.size()*4);
         std::cout<<"Original ordinary lighting records: "<<input.size()/stride<<'\n';
     }
+    void uiProjection(const std::vector<uint8>& input,const char* output) {
+        const auto require=[](bool value,const char* why){if(!value)throw std::runtime_error(why);};
+        constexpr unsigned stride=108*4,top=0x350,outputBase=0x300,qwords=13;
+        require(!input.empty()&&input.size()%stride==0&&input.size()<=stride*64,"UI projection fixture extent");
+        require(!std::filesystem::exists(output)&&!std::filesystem::is_symlink(output),"UI projection requires fresh output");
+        const std::vector<uint8> code(ee->m_ram+0x215900,ee->m_ram+0x215900+0x3d98);
+        std::memcpy(ee->m_microMem1,code.data(),code.size());auto& cpu=ee->m_VU1;
+        auto run=[&](unsigned entry,unsigned count=0) {
+            put(0x1900000,0x03000000|top);put(0x1900004,0x02000000);
+            put(0x1900008,0x04000000|count);put(0x190000c,0x14000000|entry);
+            require(ee->m_vpu1->GetVif().ReceiveDMA(0x1900000,1,1,false)==1,"UI projection VIF feed extent");
+            require(ee->m_vpu1->IsVuReady()&&cpu.m_State.nHasException==MIPS_EXCEPTION_VU_EBIT,"UI projection VU entry did not complete");
+        };
+        auto upload=[&](const uint32* data,unsigned words,unsigned entry) {
+            std::memcpy(ee->m_vuMem1+top*16,data,words*4);run(entry);
+            require(!std::memcmp(ee->m_vuMem1+top*16,data,words*4),"UI projection changed upload input");
+        };
+        std::vector<uint32> result;std::vector<uint32> ids;
+        for(unsigned at=0;at<input.size();at+=stride) {
+            std::array<uint32,108> f;std::memcpy(f.data(),input.data()+at,stride);
+            require(f[1]<=1&&f[2]<=1&&f[3]==0,"UI projection fixture header");
+            require(std::find(ids.begin(),ids.end(),f[0])==ids.end(),"UI projection duplicate fixture id");ids.push_back(f[0]);
+            for(unsigned i=4;i<f.size();++i)require((f[i]&0x7f800000)!=0x7f800000,"UI projection nonfinite fixture");
+            std::memset(ee->m_vuMem1,0,0x4000);run(0x0);
+            upload(f.data()+4,32,0x59);upload(f.data()+36,16,0x3d);
+            const uint32 cull[]={0,0,0,0};upload(cull,4,0x37); //1ad268(0), actual VU0140 branch.
+            cpu.m_State.nCOP2VI[9]=0;cpu.m_State.nCOP2VI[8]=0x3f;cpu.m_State.nCOP2VI[11]=0;
+            std::array<uint32,36> payload{};payload[0]=4;payload[2]=f[1];
+            std::copy_n(f.data()+52,16,payload.data()+4);
+            for(unsigned i=4;i<8;++i)payload[4+i*4+3]=0x3f800000; // Bounded normal prefetch vertices.
+            upload(payload.data(),payload.size(),0x189); //0xc48, including real branch-delay pairs.
+            std::array<uint32,112> record{};
+            record[0]=f[0];record[1]=f[1];record[2]=f[2];record[3]=cpu.m_State.nCOP2VI[11];
+            record[4]=cpu.m_State.nCOP2VI[9];record[5]=cpu.m_State.nCOP2VI[8];
+            require(record[3]==0,"UI projection fixture requires unclipped positions");
+            std::memcpy(record.data()+8,ee->m_vuMem1+0x26*16,64);
+            std::memcpy(record.data()+24,ee->m_vuMem1+0x87*16,64);
+            for(unsigned i=0;i<4;++i){
+                std::memcpy(record.data()+40+i,ee->m_vuMem1+(0x1aa+i)*16+12,4);
+                std::memcpy(ee->m_vuMem1+(0x149+i)*16,f.data()+68+i*4,16);
+                std::memcpy(ee->m_vuMem1+(0x20b+i)*16,f.data()+84+i*4,16);
+                std::memcpy(ee->m_vuMem1+(0x1aa+i)*16,f.data()+100+i*2,8);
+            }
+            std::memcpy(record.data()+44,ee->m_vuMem1+0x1aa*16,64);
+            const auto prim=f[2]?0x5du:0x4du;
+            const uint32 header[]={4,0x30004000|(prim<<15)|prim,f[2]?0x412u:0x41fu,0};
+            std::memcpy(ee->m_vuMem1+top*16,header,16);
+            for(unsigned i=0;i<4;++i){const uint32 index[]={i,i,i,i};std::memcpy(ee->m_vuMem1+(top+1+i)*16,index,16);}
+            std::memset(ee->m_vuMem1+(outputBase-1)*16,0xcd,(qwords+2)*16);
+            cpu.m_State.nCOP2VI[12]=0x3ff;cpu.m_State.nCOP2VI[13]=outputBase;
+            run(0x511,qwords); // Original four-vertex fan packing at0x2888.
+            record[6]=cpu.m_State.nCOP2VI[13]-outputBase;record[7]=cpu.m_State.nPC;
+            require(record[6]==qwords&&record[7]==0x2c50,"UI projection quad emission/exit mismatch");
+            for(unsigned i=0;i<16;++i)require(ee->m_vuMem1[(outputBase-1)*16+i]==0xcd&&
+                ee->m_vuMem1[(outputBase+qwords)*16+i]==0xcd,"UI projection output canary changed");
+            std::memcpy(record.data()+60,ee->m_vuMem1+outputBase*16,qwords*16);
+            require(!std::memcmp(ee->m_microMem1,code.data(),code.size())&&
+                !std::memcmp(ee->m_ram+0x215900,code.data(),code.size()),"UI projection changed original VU code");
+            result.insert(result.end(),record.begin(),record.end());
+        }
+        writeFile(output,result.data(),result.size()*4);
+        std::cout<<"Original UI VU projection/quad records: "<<ids.size()<<"; no raster claim\n";
+    }
     void ordinaryDepth(const std::vector<uint8>& input,const char* output) {
         constexpr unsigned stride=29*4,top=0x350,outputBase=0x300,qwords=10;
         if(input.empty()||input.size()%stride||input.size()>stride*64)
@@ -3529,6 +3592,8 @@ int main(int argc,char** argv) {
             reference.mapPacket(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if (command=="ordinary-lighting" && argc==5) {
             reference.ordinaryLighting(readFile(argv[3]),argv[4]);
+        } else if (command=="ui-projection" && argc==5) {
+            reference.uiProjection(readFile(argv[3]),argv[4]);
         } else if (command=="ordinary-depth" && argc==5) {
             reference.ordinaryDepth(readFile(argv[3]),argv[4]);
         } else if (command=="primitive" && argc==8) {
