@@ -67,12 +67,14 @@ void compiled_upload_metadata(){
     auto p=packet();for(auto& v:p->operations[0].values)v[2]=.25f;
     auto pr=projection();pr[0][2]=2;
     auto c=setup();c[1]=UiDrawProjection{pr};c.push_back(replay(p));
-    const auto first=draws(resolve_ui_geometry(c));check(first[0].quad.vertices[0].clip[2]==.25f);
+    const auto first=draws(resolve_ui_geometry(c));check(first[0].quad.vertices[0].clip[2]==.5f);
+    //0xcac is the IBNE delay-slot upper instruction: column2 is transformed
+    //even when first-upload initializes the aggregate clipping registers.
     p->operations[0].first_positions_upload=false;
-    const auto later=draws(resolve_ui_geometry(c));check(later[0].quad.vertices[0].clip[2]==.5f);
+    rejects([&]{resolve_ui_geometry(c);});
     // A replayed compiler reset never overrides explicit compiled metadata.
     p->operations.insert(p->operations.begin(),operation(UiPacketOperationKind::CompilerBoundary,0x1af978));
-    check(draws(resolve_ui_geometry(c))[0].quad.vertices[0].clip[2]==.5f);
+    rejects([&]{resolve_ui_geometry(c);});
 }
 void errors_and_rejection(){
     const auto bad=[](auto change){auto p=packet();change(*p);auto c=setup();c.push_back(replay(p));rejects([&]{resolve_ui_geometry(c);});};
@@ -84,7 +86,7 @@ void errors_and_rejection(){
     bad([](auto& p){p.operations.back().arguments[0]=97;});
     bad([](auto& p){p.operations[p.operations.size()-5].source_helper=0x1af848;});
     bad([](auto& p){p.fonts.reset();});
-    bad([](auto& p){p.operations[0].values[0][0]=-2;});
+    bad([](auto& p){p.operations[0].values[0][2]=-2;}); // Depth clipping remains explicit failure.
     auto p=packet();for(auto& v:p->operations[0].values)v[0]=2;
     auto c=setup();c.push_back(replay(p));const auto rejected=resolve_ui_geometry(c);check(draws(rejected).empty());
     // Common rejection does not drop state changes such as cached TEST.

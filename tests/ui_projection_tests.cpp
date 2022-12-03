@@ -68,7 +68,14 @@ void composition_and_clipping(){
     for(auto& v:q)v.position[0]=2;
     check(!ui_project_quad(p,identity(),q,true).emitted);
     q=quad();q[0].position[0]=-2;
-    rejects([&]{ui_project_quad(p,identity(),q,true);}); //No silently missing partial polygon.
+    const auto mixed=ui_project_quad(p,identity(),q,true);
+    check(mixed.emitted&&mixed.vertices[0].clip_flags==2&&mixed.vertices[0].screen[0]==1408);
+    q=quad();q[0].position[2]=-2;
+    rejects([&]{ui_project_quad(p,identity(),q,true);}); //Depth interpolation remains explicit.
+    q=quad();q[0].position[0]=-2;p[4][0]=656;
+    rejects([&]{ui_project_quad(p,identity(),q,true);});
+    p[4][0]=657;check(ui_project_quad(p,identity(),q,true).emitted);
+    p=orthographic();
     q=quad();for(auto& v:q)v.position[0]=1;
     check(ui_project_quad(p,identity(),q,false).emitted);
 }

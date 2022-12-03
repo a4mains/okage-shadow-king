@@ -4,6 +4,7 @@
 #include "okage/battle_interface.hpp"
 #include "okage/enemy.hpp"
 #include "okage/ui_draw.hpp"
+#include "okage/ui_geometry.hpp"
 #include <bit>
 #include <cfenv>
 #include <fstream>
@@ -118,6 +119,10 @@ void owned(const char* battle,const char* font_directory){
             "Owned layout reaches glyph and paired sprite header/element submissions");
     std::cout<<"Owned draw commands="<<draw_list.commands().size()<<" glyph_replays="<<replay_counts[0]
              <<" sprite_header_replays="<<replay_counts[1]<<" sprite_element_replays="<<replay_counts[2]<<'\n';
+    const auto geometry=resolve_ui_geometry(draw_list);unsigned primitives=0;
+    for(const auto& command:geometry.commands)if(std::holds_alternative<UiResolvedPrimitive>(command))++primitives;
+    require(primitives>0,"Owned UI draw resolves projected primitives");
+    std::cout<<"Owned projected primitives="<<primitives<<'\n';
 }
 }
 int main(int argc,char** argv){try{traversal();boundaries();preparation();if(argc==3)owned(argv[1],argv[2]);else require(argc==1,"usage: ui-window-layout-tests [BATTLE_DIRECTORY FONT_DIRECTORY]");std::cout<<"UI mode2 layout tests passed\n";}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

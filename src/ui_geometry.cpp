@@ -10,7 +10,6 @@ constexpr unsigned capacity=97; // VU26/87/e8/149/1aa/20b, each61 vectors.
 struct PositionUpload {
     UiProjectionParameters projection;
     Matrix4 matrix;
-    bool first;
 };
 struct Position { Float4 value; std::shared_ptr<const PositionUpload> upload; };
 bool same_projection(const UiProjectionParameters& a,const UiProjectionParameters& b){
@@ -64,10 +63,11 @@ struct Resolver {
             switch(op.kind){
             case UiPacketOperationKind::Positions: {
                 check(op.source_helper==0x1ae940&&op.first_positions_upload.has_value(),"UI geometry missing compiled position metadata");
+                check(*op.first_positions_upload,"UI geometry continued clip accumulation is unrecovered");
                 check(projection.has_value()&&matrix.has_value(),"UI geometry position upload without projection/matrix");
                 check(a[1]==op.values.size()&&a[2]==0&&a[3]==0,"UI geometry position upload extent");
                 const auto first=upload_first(a[0],op.values.size());
-                const auto owner=std::make_shared<const PositionUpload>(PositionUpload{*projection,*matrix,*op.first_positions_upload});
+                const auto owner=std::make_shared<const PositionUpload>(PositionUpload{*projection,*matrix});
                 for(unsigned i=0;i<op.values.size();++i)positions[first+i]=Position{op.values[i],owner};
                 break;}
             case UiPacketOperationKind::Colors:
@@ -125,7 +125,13 @@ struct Resolver {
         }
         check(same_projection(*projection,upload->projection),"UI geometry projection changed after position upload");
         if(textured)check(texture.has_value(),"UI geometry textured primitive without texture owner");
-        auto projected=ui_project_quad(upload->projection,upload->matrix,inputs,textured,upload->first);
+        UiProjectedQuad projected;
+        try {projected=ui_project_quad(upload->projection,upload->matrix,inputs,textured);}
+        catch(const std::runtime_error& error){
+            throw std::runtime_error("UI geometry window="+std::to_string(source.window)+
+                " family="+std::to_string(unsigned(source.family))+" group="+std::to_string(source.group)+
+                " element="+std::to_string(source.element)+": "+error.what());
+        }
         if(projected.emitted)emit(UiResolvedPrimitive{source,prim,std::move(projected),textured?texture:std::nullopt});
     }
     UiGeometryList run(std::span<const UiDrawCommand> commands){

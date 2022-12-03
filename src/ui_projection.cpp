@@ -44,6 +44,18 @@ float area(const Float4& a,const Float4& b,const Float4& c){
     const auto cx=sub(c[0],a[0]),cy=sub(c[1],a[1]);
     return sub(add(mul(1.f,__builtin_bit_cast(float, (0xfe967699u))),mul(bx,cy)),mul(cx,by));
 }
+float homogeneous_area(const Float4& a,const Float4& b,const Float4& c,bool complete=true){
+    //3350 replaces clip Z by W, then OPMULA/OPMSUB and biased dot product.
+    const auto az=mul(1.f,a[3]),bz=mul(1.f,b[3]),cz=mul(1.f,c[3]);
+    const Float4 cross{sub(mul(a[1],bz),mul(az,b[1])),
+        sub(mul(az,b[0]),mul(a[0],bz)),sub(mul(a[0],b[1]),mul(a[1],b[0])),0};
+    const auto cy=mul(1.f,c[1]);
+    auto acc=mul(1.f,__builtin_bit_cast(float, (0xfe967699u)));
+    acc=add(acc,mul(c[0],cross[0]));
+    if(!complete)return acc; //3420 branch plus3428/342c delay pair.
+    acc=add(acc,mul(cy,cross[1]));
+    return add(acc,mul(cz,cross[2]));
+}
 }
 Float4 ui_projection_color_cache(const Float4& value,const Float4& scale,const Float4& bias){
     validate(value);validate(scale);validate(bias);Rounding rounding;Float4 out;
@@ -91,10 +103,23 @@ UiProjectedQuad ui_project_quad(const UiProjectionParameters& p,const Matrix4& m
         if(v.screen[3]>255.f)v.screen[3]=255.f;
     }
     if(common)return out;
-    require(!any,"UI projection mixed clipping is unrecovered");
-    const auto a=area(out.vertices[0].screen,out.vertices[1].screen,out.vertices[2].screen);
-    const auto b=area(out.vertices[0].screen,out.vertices[2].screen,out.vertices[3].screen);
-    if(!(a<0)&&!(b<0))return out;
+    if(any){
+        const auto a=homogeneous_area(out.vertices[0].clip,out.vertices[1].clip,out.vertices[2].clip);
+        const auto b=homogeneous_area(out.vertices[0].clip,out.vertices[2].clip,out.vertices[3].clip,!(a<0));
+        if(!(a<0)&&!(b<0))return out;
+        require(!(any&0x30),"UI projection depth clipping is unrecovered");
+        for(unsigned axis=0;axis<2;++axis){
+            float minimum=out.vertices[0].screen[axis],maximum=minimum;
+            for(unsigned i=1;i<4;++i){minimum=std::min(minimum,out.vertices[i].screen[axis]);maximum=std::max(maximum,out.vertices[i].screen[axis]);}
+            //34f0/34f8 FSAND tests both zero and sign: boundaries are strict.
+            require(sub(4080.f,maximum)>0&&sub(minimum,16.f)>0,
+                    "UI projection packed-coordinate clipping is unrecovered");
+        }
+    }else{
+        const auto a=area(out.vertices[0].screen,out.vertices[1].screen,out.vertices[2].screen);
+        const auto b=area(out.vertices[0].screen,out.vertices[2].screen,out.vertices[3].screen);
+        if(!(a<0)&&!(b<0))return out;
+    }
     for(unsigned i=0;i<4;++i){
         auto& v=out.vertices[i];const auto& source=input[i];
         validate(source.source_color);validate(source.auxiliary_color);
