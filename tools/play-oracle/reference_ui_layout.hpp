@@ -6,6 +6,7 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <iomanip>
 #include <optional>
 #include <sstream>
 #include <stdexcept>
@@ -18,12 +19,18 @@ class UiLayoutTrace {
 public:
     static constexpr uint32 parentEntry=0x14a248,firstCallback=0x11fec8,
         secondCallback=0x120ad0,dispatchEntry=0x198390,layoutEntry=0x1a1ad8;
+    static constexpr uint32 drawEntry=0x1a8150;
     static constexpr std::array<uint32,5> entryBreakpoints={
         parentEntry,firstCallback,secondCallback,dispatchEntry,layoutEntry};
+    static constexpr std::array<uint32,13> drawBreakpoints={drawEntry,0x1ad1f8,0x1ad850,0x1ad268,
+        0x1af978,0x1ad3c8,0x1aeb48,0x1aeb10,0x1ae880,0x1aedd8,0x1ad3c0,0x1c9368,0x1c96c0};
     static constexpr unsigned maxRows=6;
     static constexpr std::size_t maxOutputBytes=16*1024*1024;
+    static constexpr std::size_t maxDrawOutputBytes=16*1024*1024;
+    static constexpr unsigned maxDrawEvents=10000;
 
-    explicit UiLayoutTrace(const std::filesystem::path& path) {
+    explicit UiLayoutTrace(const std::filesystem::path& path,
+                           const std::filesystem::path& drawPath={}) : drawEnabled(!drawPath.empty()) {
         if(std::filesystem::exists(path)||std::filesystem::is_symlink(path))
             fail("refusing existing UI-layout output");
         output.open(path);
@@ -38,9 +45,24 @@ public:
               <<"\"stream_cursor\":\"window+0x2edc bounds the embedded stream prefix including terminator (at most 512 words); window+0x269c is captured as scalar state and is not interpreted as the stream word cursor\","
               <<"\"source_elf_sha256\":\"2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5\"}\n";
         writeRaw(header.str());
+        if(drawEnabled) {
+            if(std::filesystem::exists(drawPath)||std::filesystem::is_symlink(drawPath))
+                fail("refusing existing UI-draw output");
+            drawOutput.open(drawPath);
+            if(!drawOutput)fail("cannot create UI-draw output");
+            drawOutput<<"{\"schema\":\"okage-ui-draw-submission-v1\","
+                      <<"\"scope\":\"CPU submission calls inside the first source-gated 1a8150 draw tail-call; no deferred GS vertices or raster output\","
+                      <<"\"continuation\":\"198390 tail-calls 1a8150; draw entry and dispatch completion share the original live RA/SP continuation\","
+                      <<"\"sources\":{\"projection_words\":32,\"outer_vector_upload_words\":32,\"per_element_vector_upload_words\":16,\"element_row\":\"window+0x3e40+group*0x100+element*0x10, 16 bytes\",\"sprite_owner\":\"window+0x3d10+group*8+side*4 points to the selected 0x12c0 sprite cache\"},"
+                      <<"\"source_elf_sha256\":\"2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5\"}\n";
+            drawOutput.flush();if(!drawOutput)fail("UI-draw header write failed");
+        }
     }
 
     bool recognizes(uint32 pc) const {
+        if(drawEnabled && resourceActive && pc==drawEntry)return true;
+        for(const auto& call:drawCalls)if(pc==call.returnPc)return true;
+        if(drawEnabled&&drawActive&&isDrawHelper(pc))return true;
         for(const auto& call:active)if(pc==call.returnPc)return true;
         if(!active.empty()&&isTargetEntry(pc))return true;
         if(complete)return false;
@@ -55,6 +77,30 @@ public:
         const auto pc=uint32(cpu.nPC),sp=uint32(cpu.nGPR[CMIPS::SP].nD0);
         auto reg=[&](unsigned index){return uint32(cpu.nGPR[index].nD0);};
         Memory m{ee};
+
+        if(drawEnabled&&drawActive&&!drawCalls.empty()&&pc==drawCalls.back().returnPc) {
+            const auto call=drawCalls.back();
+            validateDrawContinuation(call,reg(CMIPS::RA),sp,m);
+            emitDrawCall("call_return",frame,pc,reg(CMIPS::RA),sp,cpu,m,call);
+            drawCalls.pop_back();
+            if(call.entry==0x1ad3c0)drawAliasPending=false;
+            if(call.ownsBreakpoint) {
+                ee.m_EE.ToggleBreakpoint(call.returnPc);
+                loaders.erase(std::remove(loaders.begin(),loaders.end(),call.returnPc),loaders.end());
+            }
+            return;
+        }
+        if(drawEnabled&&drawStarted&&!drawActive&&!active.empty()&&pc==active.front().returnPc) {
+            fail("dispatcher continuation reached before the 1a8150 draw entry");
+        }
+        if(drawEnabled&&resourceActive&&!drawStarted&&pc==drawEntry) {
+            observeDrawEntry(frame,pc,sp,reg(CMIPS::RA),m);
+            return;
+        }
+        if(drawEnabled&&drawActive&&isDrawHelper(pc)) {
+            observeDrawCallEntry(ee,frame,pc,sp,reg(CMIPS::RA),reg,cpu,m,loaders);
+            return;
+        }
 
         if(!active.empty()&&pc==active.back().returnPc) {
             const auto call=active.back();
@@ -122,6 +168,14 @@ public:
            !parentReady||!firstDone||!secondDone||layoutEntries[0]!=1||layoutEntries[1]!=1||
            layoutReturns[0]!=1||layoutReturns[1]!=1||firstEntries!=1||secondEntries!=1)
             fail("trace ended before one complete post-callback dispatcher and two mode-2 window pairs");
+        if(drawEnabled) {
+            if(!drawCompleted||drawActive||drawStarted==false||!drawCalls.empty()||outerCallIndex!=4)
+                fail("draw trace ended before complete 1a8150 CPU submission and shared dispatch continuation");
+            drawOutput<<"{\"event\":\"finish\",\"draw_completed\":true,\"helper_calls\":"<<drawHelperCalls
+                      <<",\"events\":"<<drawEvents<<",\"bytes\":"<<drawBytesWritten
+                      <<",\"gs_vertices_observed\":false}\n";
+            drawOutput.flush();if(!drawOutput)fail("UI-draw output flush failed");
+        }
         std::ostringstream row;
         row<<"{\"event\":\"finish\",\"snapshots\":"<<rows
            <<",\"root_parent_attempts\":"<<parentAttempts
@@ -138,6 +192,8 @@ public:
 private:
     enum class Kind {Parent,FirstCallback,SecondCallback,Dispatch,WindowLayout};
     struct Call {Kind kind;uint32 root,manager,window,slot,sp,returnPc;bool ownsBreakpoint;};
+    struct DrawCall {uint32 id,entry,returnPc,sp,ra,windowSlot,cacheFamily,group,side,element,ownerBase;bool ownsBreakpoint;};
+    struct CacheOwner {uint32 window,slot,family,group,side,base;};
     struct Memory {
         Ee::CSubSystem& ee;
         void require(uint32 at,uint32 size) const {
@@ -154,12 +210,20 @@ private:
     };
     struct Region {uint32 at,size;std::string label;};
     std::ofstream output;
+    std::ofstream drawOutput;
     std::vector<Call> active;
+    std::vector<DrawCall> drawCalls;
+    std::vector<CacheOwner> spriteOwners;
+    std::vector<CacheOwner> glyphOwners;
     std::array<unsigned,2> layoutEntries{},layoutReturns{};
     unsigned parentAttempts=0,pendingParentReturns=0,firstEntries=0,secondEntries=0,rows=0;
     std::size_t outputBytes=0;
     bool parentReady=false,firstDone=false,secondDone=false,resourceActive=false,complete=false;
     uint32 candidateRoot=0,parentReadyFrame=0,firstDoneFrame=0,secondDoneFrame=0,dispatchFrame=0;
+    bool drawEnabled=false,drawStarted=false,drawActive=false,drawCompleted=false,drawAliasPending=false;
+    unsigned outerCallIndex=0,drawHelperCalls=0,drawEvents=0;
+    std::size_t drawBytesWritten=0;
+    uint32 drawEntrySp=0,drawReturnPc=0,drawRoot=0,drawManager=0,drawStartFrame=0;
 
     [[noreturn]] static void fail(const char* message) {
         throw std::runtime_error(std::string("UI-layout observer: ")+message);
@@ -169,6 +233,9 @@ private:
     }
     static bool isTargetEntry(uint32 pc) {
         return std::find(entryBreakpoints.begin(),entryBreakpoints.end(),pc)!=entryBreakpoints.end();
+    }
+    static bool isDrawHelper(uint32 pc) {
+        return std::find(drawBreakpoints.begin()+1,drawBreakpoints.end(),pc)!=drawBreakpoints.end() || pc==0x1c96c0;
     }
     void writeRaw(const std::string& text) {
         if(text.empty()||text.size()>8*1024*1024||text.size()>maxOutputBytes-outputBytes)
@@ -305,6 +372,256 @@ private:
                 <<": actual 0x"<<std::hex<<actual<<", expected 0x"<<expected;fail(detail.str());
         }
     }
+    void drawLine(const std::string& text) {
+        if(text.empty()||text.size()>1024*1024||drawEvents>=maxDrawEvents||
+           text.size()>maxDrawOutputBytes-drawBytesWritten)
+            fail("bounded UI-draw event/byte limit exceeded");
+        drawBytesWritten+=text.size();++drawEvents;drawOutput<<text<<'\n';
+        if(!drawOutput)fail("UI-draw event write failed");
+    }
+    static std::string hex32(uint32 value) {
+        std::ostringstream out;out<<"0x"<<std::hex<<std::setw(8)<<std::setfill('0')<<value;return out.str();
+    }
+    static std::string hex64(uint64 value) {
+        std::ostringstream out;out<<"0x"<<std::hex<<std::setw(16)<<std::setfill('0')<<value;return out.str();
+    }
+    void buildDrawOwners(const Memory& m,std::ostringstream& row) {
+        spriteOwners.clear();glyphOwners.clear();
+        row<<",\"windows\":[";
+        for(unsigned slot=0;slot<2;++slot) {
+            if(slot)row<<',';
+            const uint32 window=m.word(0x200688+slot*4);
+            validateWindowIdentity(m,drawRoot,drawManager,slot,window);
+            const uint32 spriteCapacity=m.word(window+0x3c04),spriteGroups=m.word(window+0xcc4);
+            const uint32 glyphCapacity=m.word(window+0x3c00),glyphGroups=m.word(window+0xcc0);
+            if(spriteCapacity<1||spriteCapacity>32||spriteGroups>spriteCapacity||
+               glyphCapacity<1||glyphCapacity>32||glyphGroups>glyphCapacity)
+                fail("draw window cache/group capacity is outside source-owned bounds");
+            const uint32 spriteTable=m.word(window+0x3d10);m.require(spriteTable,spriteCapacity*8);
+            const uint32 glyphTable=m.word(window+0x3d0c);m.require(glyphTable,glyphCapacity*8);
+            row<<"{\"slot\":"<<slot<<",\"window\":"<<window
+               <<",\"flags_1900\":"<<m.word(window+0x1900)
+               <<",\"opacity_270\":"<<m.word(window+0x270)
+               <<",\"delta_27c\":"<<m.word(window+0x27c)
+               <<",\"framebuffer_target_220\":"<<m.word(window+0x220)
+               <<",\"sprite_group_count_cc4\":"<<spriteGroups
+               <<",\"glyph_group_count_cc0\":"<<glyphGroups;
+            if(spriteGroups) {
+                m.bytes(row,"sprite_group_flags",window+0x3c08,spriteGroups*4);
+                m.bytes(row,"element_color_rows",window+0x3e40,spriteGroups*0x100);
+            }
+            if(glyphGroups)m.bytes(row,"glyph_group_flags",window+0x3c08,glyphGroups*4);
+            for(unsigned family=0;family<2;++family) {
+                const auto capacity=family?spriteCapacity:glyphCapacity;
+                const auto table=family?spriteTable:glyphTable;
+                auto& owners=family?spriteOwners:glyphOwners;
+                for(unsigned group=0;group<capacity;++group)for(unsigned side=0;side<2;++side) {
+                    const auto base=m.word(table+group*8+side*4);m.require(base,0x12c0);
+                    for(const auto& owner:spriteOwners) {
+                    const uint64 end=uint64(base)+0x12c0,otherEnd=uint64(owner.base)+0x12c0;
+                    if(uint64(base)<otherEnd&&uint64(owner.base)<end)
+                        fail("sprite cache owners overlap; cannot identify draw packet owner");
+                    }
+                    for(const auto& owner:glyphOwners) {
+                        const uint64 end=uint64(base)+0x12c0,otherEnd=uint64(owner.base)+0x12c0;
+                        if(uint64(base)<otherEnd&&uint64(owner.base)<end)
+                            fail("glyph/sprite cache owners overlap; cannot identify draw packet owner");
+                    }
+                    owners.push_back(CacheOwner{window,slot,family,group,side,base});
+                }
+            }
+            row<<'}';
+        }
+        row<<']';
+    }
+    void observeDrawEntry(unsigned frame,uint32 pc,uint32 sp,uint32 ra,const Memory& m) {
+        if(drawStarted||!resourceActive||active.empty()||active.back().kind!=Kind::Dispatch||
+           layoutEntries[0]!=1||layoutEntries[1]!=1||layoutReturns[0]!=1||layoutReturns[1]!=1)
+            fail("1a8150 entered outside the selected completed mode-2 dispatch");
+        const auto& dispatch=active.back();
+        if(ra!=dispatch.returnPc||sp!=dispatch.sp||m.word(0x1fce60)!=dispatch.root||
+           m.word(dispatch.root+0x8060)!=dispatch.manager)
+            fail("1a8150 did not preserve the 198390 live continuation/root/manager");
+        drawStarted=drawActive=true;drawEntrySp=sp;drawReturnPc=ra;drawRoot=dispatch.root;
+        drawManager=dispatch.manager;drawStartFrame=frame;
+        std::ostringstream row;
+        row<<"{\"event\":\"draw_submission_entry\",\"frame\":"<<frame<<",\"pc\":"<<pc
+           <<",\"ra\":"<<ra<<",\"sp\":"<<sp<<",\"shared_dispatch_return\":"<<ra
+           <<",\"root\":"<<drawRoot<<",\"manager\":"<<drawManager
+           <<",\"root_phase\":"<<m.word(drawRoot+0x24);
+        m.bytes(row,"projection_input_200540",0x200540,128);
+        row<<",\"history_counters\":{\"200b58\":"<<m.word(0x200b58)
+           <<",\"200b5c\":"<<m.word(0x200b5c)<<'}';
+        buildDrawOwners(m,row);
+        drawLine(row.str()+"}");
+    }
+    void emitDrawCall(const char* event,unsigned frame,uint32 pc,uint32 ra,uint32 sp,
+                      const auto& cpu,const Memory& m,const DrawCall& call) {
+        std::ostringstream row;
+        row<<"{\"event\":\""<<event<<"\",\"call_id\":"<<call.id
+           <<",\"callee\":"<<hex32(call.entry)<<",\"frame\":"<<frame<<",\"pc\":"<<pc
+           <<",\"ra\":"<<ra<<",\"sp\":"<<sp<<",\"callsite\":"<<hex32(call.ra-8)
+           <<",\"root\":"<<drawRoot<<",\"manager\":"<<drawManager;
+        if(std::strcmp(event,"call_entry")==0) {
+            row<<",\"a0\":"<<uint32(cpu.nGPR[CMIPS::A0].nD0)
+               <<",\"a1\":"<<uint32(cpu.nGPR[CMIPS::A1].nD0)
+               <<",\"a2\":"<<uint32(cpu.nGPR[CMIPS::A2].nD0)
+               <<",\"a3\":"<<uint32(cpu.nGPR[CMIPS::A3].nD0);
+            if(call.entry==0x1aedd8) {
+                row<<",\"gs_register\":"<<uint32(cpu.nGPR[CMIPS::A0].nD0)
+                   <<",\"gs_value_a1_u64\":"<<hex64(uint64(cpu.nGPR[CMIPS::A1].nD0));
+            }
+            if(call.entry==0x1c96c0) {
+                row<<",\"queue_arg_a0_u64\":"<<hex64(uint64(cpu.nGPR[CMIPS::A0].nD0))
+                   <<",\"queue_arg_a1_u64\":"<<hex64(uint64(cpu.nGPR[CMIPS::A1].nD0));
+            }
+            if(call.entry==0x1aeb48&&call.windowSlot<2) {
+                const auto window=m.word(0x200688+call.windowSlot*4);
+                const auto at=window+0x3e40+call.group*0x100+call.element*0x10;
+                m.bytes(row,"selected_element_color_row",at,16);
+            }
+            if(call.entry==0x1ae880) {
+                row<<",\"f12_f15_bits\":[";
+                for(unsigned i=0;i<4;++i){if(i)row<<',';row<<cpu.nCOP1[12+i];}
+                row<<']';
+                if(call.windowSlot<2) {
+                    const auto window=m.word(0x200688+call.windowSlot*4);
+                    const auto group=call.group,element=call.element;
+                    const uint32 at=window+0x3e40+group*0x100+element*0x10;
+                    m.bytes(row,"element_color_row",at,16);
+                }
+            }
+            if(call.entry==0x1ad850)m.bytes(row,"outer_projection_vectors",uint32(cpu.nGPR[CMIPS::A0].nD0),128);
+            if(call.entry==0x1ad3c8)m.bytes(row,"vector_upload",uint32(cpu.nGPR[CMIPS::A0].nD0),64);
+            if(call.windowSlot<2&&(call.entry==0x1ad3c0||call.entry==0x1c9368)) {
+                row<<",\"packet_owner\":{\"window_slot\":"<<call.windowSlot
+                   <<",\"family\":\""<<(call.cacheFamily?"sprite":"glyph")<<"\",\"group\":"<<call.group<<",\"side\":"<<call.side
+                   <<",\"element\":"<<call.element<<",\"cache_base\":"<<hex32(call.ownerBase)
+                   <<",\"cache_offset\":"<<hex32(uint32(cpu.nGPR[CMIPS::A0].nD0)-call.ownerBase)<<'}';
+            }
+        }
+        drawLine(row.str()+"}");
+    }
+    void validateDrawContinuation(const DrawCall& call,uint32 ra,uint32 sp,const Memory& m) const {
+        if(sp!=call.sp||ra!=call.returnPc||m.word(0x1fce60)!=drawRoot||
+           m.word(drawRoot+0x8060)!=drawManager||!drawActive)
+            fail("UI-draw helper did not restore its live SP/RA/root/manager");
+    }
+    void observeDrawCallEntry(Ee::CSubSystem& ee,unsigned frame,uint32 pc,uint32 sp,uint32 ra,
+                              const auto& reg,const auto& cpu,const Memory& m,std::vector<uint32>& loaders) {
+        if(drawCalls.size()>=32||drawHelperCalls>=5000)fail("draw helper nesting/call bound exceeded");
+        if(pc==0x1c9368&&drawAliasPending&&!drawCalls.empty()&&
+           drawCalls.back().entry==0x1ad3c0&&ra==drawCalls.back().returnPc) {
+            std::ostringstream row;row<<"{\"event\":\"thunk_alias_entry\",\"frame\":"<<frame
+                <<",\"pc\":"<<pc<<",\"ra\":"<<ra<<",\"sp\":"<<sp
+                <<",\"call_id\":"<<drawCalls.back().id<<",\"aliases\":"<<hex32(0x1ad3c0);
+            drawAliasPending=false;drawLine(row.str()+"}");return;
+        }
+        if(pc==0x1c9368&&drawAliasPending)drawAliasPending=false;
+        static constexpr std::array<uint32,4> outer={0x1ad1f8,0x1ad850,0x1ad268,0x1af978};
+        if(outerCallIndex<outer.size()) {
+            if(pc!=outer[outerCallIndex])fail("outer matrix/GS setup calls were not observed in source order");
+            if(pc==0x1ad850&&reg(CMIPS::A0)!=0x200540)fail("1ad850 projection input is not the source 200540 array");
+            if(pc==0x1ad268&&reg(CMIPS::A0)!=0)fail("1ad268 outer reset argument is not zero");
+            ++outerCallIndex;
+        }
+        DrawCall call{};call.id=++drawHelperCalls;call.entry=pc;call.returnPc=ra;call.sp=sp;call.ra=ra;
+        call.windowSlot=2;call.cacheFamily=call.group=call.side=call.element=call.ownerBase=0;call.ownsBreakpoint=false;
+        if(!ra||ra<0x100000||ra>=PS2::EE_RAM_SIZE||(ra&3)||ra==pc)
+            fail("draw helper has invalid live return address");
+        if(pc==0x1ad3c8) {
+            const uint32 site=ra-8;
+            if(site!=0x1a8750&&site!=0x1a8b0c&&site!=0x1a8d9c)
+                fail("1ad3c8 upload came from an unknown source callsite");
+            const uint32 expected=site==0x1a8b0c?sp+0x40:sp;
+            if(reg(CMIPS::A0)!=expected)fail("1ad3c8 upload pointer differs from source temporary");
+        }
+        if(pc==0x1aeb48||(pc==0x1ae880&&(ra-8==0x1a8914||ra-8==0x1a8948))) {
+            const uint32 window=reg(CMIPS::S0),group=reg(CMIPS::S1);
+            unsigned slot=2;for(unsigned i=0;i<2;++i)if(m.word(0x200688+i*4)==window)slot=i;
+            if(slot>=2)fail("element draw helper does not belong to one of the two source windows");
+            const uint32 groupOffset=reg(CMIPS::S3),elementOffset=reg(CMIPS::S4);
+            if(groupOffset%0x100||elementOffset%0x10||groupOffset/0x100!=group||elementOffset/0x10>=16)
+                fail("sprite group/element registers do not match the source loop");
+            call.windowSlot=slot;call.group=group;call.element=elementOffset/0x10;
+            const auto capacity=m.word(window+0x3c04),groups=m.word(window+0xcc4);
+            if(group>=capacity||group>=groups)fail("source sprite group exceeds captured window bounds");
+            const uint32 rowAt=window+0x3e40+group*0x100+call.element*0x10;
+            m.require(rowAt,16);
+            if(pc==0x1aeb48) {
+                if(ra-8!=0x1a88a0||reg(CMIPS::A0)!=call.element+5||reg(CMIPS::A1)!=1)
+                    fail("per-element color selector differs from source 1aeb48 call");
+            }
+            if(pc==0x1ae880) {
+                const auto site=ra-8;
+                if(site==0x1a8914||site==0x1a8948) {
+                    for(unsigned i=0;i<3;++i)if(cpu.nCOP1[12+i]!=m.word(rowAt+i*4))
+                        fail("per-element F12-F14 color does not match its source color row");
+                }
+            }
+        }
+        if(pc==0x1ad3c0||pc==0x1c9368) {
+            const auto site=ra-8;
+            const uint32 window=reg(CMIPS::S0),group=reg(CMIPS::S1),packet=reg(CMIPS::A0);
+            unsigned slot=2;for(unsigned i=0;i<2;++i)if(m.word(0x200688+i*4)==window)slot=i;
+            if(slot>=2)fail("packet replay owner is not one of the selected source windows");
+            call.windowSlot=slot;call.group=group;
+            const CacheOwner* owner=nullptr;
+            uint32 expected=0;
+            if(site==0x1a8894||site==0x1a8b30) {
+                const uint32 groupOffset=reg(CMIPS::S3),elementOffset=reg(CMIPS::S4);
+                if(groupOffset%0x100||elementOffset%0x10||groupOffset/0x100!=group||elementOffset/0x10>=16||
+                   m.word(sp+0x114)!=window+0x5ec0||m.word(sp+0x134)!=group*0x40||
+                   m.word(sp+0x108)!=(elementOffset/0x10)*4)
+                    fail("sprite packet source stack selectors differ from recovered loop");
+                const uint32 sideOffset=m.word(sp+0x120);
+                if(sideOffset!=0&&sideOffset!=0x800)fail("sprite cache side is outside source 0/1");
+                call.cacheFamily=1;call.side=sideOffset>>11;call.element=elementOffset/0x10;
+                if(group>=m.word(window+0x3c04)||group>=m.word(window+0xcc4))
+                    fail("sprite packet group exceeds source window bounds");
+                expected=m.word(window+0x3d10+group*8+call.side*4);
+            } else if(site==0x1a8f20) {
+                call.cacheFamily=0;
+                call.side=m.word(window+0x268c);
+                call.element=m.word(sp+0x118);
+                const auto passes=m.word(sp+0x120),capacity=m.word(window+0x3c00);
+                if(call.side>1||call.element<1||call.element>passes||passes>2||group>=capacity||group>=m.word(window+0xcc0))
+                    fail("glyph cache group/side/pass is outside source-owned bounds");
+                expected=m.word(window+0x3d0c+group*8+call.side*4);
+            } else fail("packet replay came from an unknown source callsite");
+            for(const auto& candidate:(call.cacheFamily?spriteOwners:glyphOwners))
+                if(packet>=candidate.base&&uint64(packet)<uint64(candidate.base)+0x12c0) {
+                    if(owner)fail("packet address maps to multiple cache owners");owner=&candidate;
+                }
+            if(!owner||owner->window!=window||owner->slot!=slot||owner->family!=call.cacheFamily||
+               owner->group!=group||owner->side!=call.side||expected!=owner->base)
+                fail("packet pointer lacks its exact window/cache-family/slot/group/side owner");
+            call.ownerBase=owner->base;
+        }
+        if(pc==0x1aeb10) {
+            const auto site=ra-8;
+            if(site!=0x1a859c&&site!=0x1a8bb4)fail("auxiliary color upload came from an unknown source callsite");
+            const uint32 expectedA1=site==0x1a859c?1:2;
+            if(reg(CMIPS::A0)!=0||reg(CMIPS::A1)!=expectedA1)
+                fail("auxiliary color upload arguments differ from the source branch");
+        }
+        if(pc==0x1ae880) {
+            const auto site=ra-8;
+            if(site!=0x1a8914&&site!=0x1a8948&&site!=0x1a85b0&&site!=0x1a8bc8&&site!=0x1a8bdc)
+                fail("1ae880 color upload came from an unknown source callsite");
+        }
+        if(pc==0x1c96c0&&(((ra-8)!=0x1a9024&&(ra-8)!=0x1a90f0)||reg(CMIPS::A0)!=m.word(0x2005c0)))
+            fail("packet queue operation differs from the two source 1a8150 append sites");
+        if(pc==0x1aedd8&&outerCallIndex!=outer.size())fail("GS register writes began before outer setup completed");
+        if(pc==0x1aeb10&&outerCallIndex!=outer.size())fail("auxiliary uploads began before outer setup completed");
+        if(pc==0x1ad3c8&&outerCallIndex!=outer.size())fail("per-window vector upload preceded outer setup completion");
+        const bool installed=std::find(loaders.begin(),loaders.end(),ra)!=loaders.end();
+        if(ra==drawReturnPc||installed)fail("draw helper return breakpoint aliases another active continuation");
+        if(!installed){ee.m_EE.ToggleBreakpoint(ra);loaders.push_back(ra);call.ownsBreakpoint=true;}
+        drawCalls.push_back(call);
+        emitDrawCall("call_entry",frame,pc,ra,sp,cpu,m,drawCalls.back());
+        if(pc==0x1ad3c0)drawAliasPending=true;
+    }
     void observeParentEntry(Ee::CSubSystem& ee,unsigned frame,uint32 a0,uint32 sp,uint32 ra,
                             const Memory& m,std::vector<uint32>& loaders) {
         if(parentReady||active.size())fail("root parent traversal repeated or nested before selected layout");
@@ -361,6 +678,20 @@ private:
             if(!resourceActive||layoutEntries[0]!=1||layoutEntries[1]!=1||
                layoutReturns[0]!=1||layoutReturns[1]!=1)
                 fail("198390 returned without one ordered mode-2 call for each authored window");
+            if(drawEnabled) {
+                if(!drawStarted||!drawActive||!drawCalls.empty()||outerCallIndex!=4||
+                   ra!=drawReturnPc||sp!=drawEntrySp||call.returnPc!=drawReturnPc||call.sp!=drawEntrySp||
+                   call.root!=drawRoot||m.word(call.root+0x8060)!=drawManager)
+                    fail("shared draw/198390 continuation failed source identity or helper-order checks");
+                std::ostringstream drawRow;
+                drawRow<<"{\"event\":\"draw_dispatch_completion\",\"frame\":"<<frame
+                       <<",\"pc\":"<<pc<<",\"ra\":"<<ra<<",\"sp\":"<<sp
+                       <<",\"shared_return\":"<<drawReturnPc<<",\"root\":"<<drawRoot
+                       <<",\"manager\":"<<drawManager<<",\"draw_entry_frame\":"<<drawStartFrame
+                       <<",\"outer_setup_calls\":"<<outerCallIndex<<",\"helper_calls\":"<<drawHelperCalls
+                       <<",\"layout_pairs\":[1,1],\"deferred_gs_consumption\":true,\"gs_vertices_observed\":false}";
+                drawLine(drawRow.str());drawActive=false;drawCompleted=true;
+            }
             writeSnapshot("resource_dispatch_return_after_1a8150",frame,pc,ra,sp,fcsr,m,call.root,call.manager,0,true);
             resourceActive=false;complete=true;releaseEntryBreakpoints(ee,loaders);return;
         }
@@ -372,6 +703,11 @@ private:
     }
     void releaseEntryBreakpoints(Ee::CSubSystem& ee,std::vector<uint32>& loaders) {
         for(const auto at:entryBreakpoints) {
+            const auto found=std::find(loaders.begin(),loaders.end(),at);
+            if(found==loaders.end())continue;
+            ee.m_EE.ToggleBreakpoint(at);loaders.erase(std::remove(loaders.begin(),loaders.end(),at),loaders.end());
+        }
+        if(drawEnabled)for(const auto at:drawBreakpoints) {
             const auto found=std::find(loaders.begin(),loaders.end(),at);
             if(found==loaders.end())continue;
             ee.m_EE.ToggleBreakpoint(at);loaders.erase(std::remove(loaders.begin(),loaders.end(),at),loaders.end());

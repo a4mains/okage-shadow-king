@@ -72,6 +72,19 @@ def main():
         check(['--ui-layout', str(layout), '--ui-layout', str(layout)], 'Duplicate UI-layout')
         check(['--ui-layout', str(missing_disc)], 'UI-layout output aliases')
         check(['--ui-layout', str(layout), '--save', str(layout)], 'UI-layout output aliases')
+        draw = root / 'ui-draw.jsonl'
+        check(['--ui-draw'], 'Unknown boot argument')
+        check(['--ui-draw', str(draw)], '--ui-draw requires --ui-layout')
+        check(['--ui-layout', str(layout), '--ui-draw', str(draw), '--ui-draw', str(draw)], 'Duplicate UI-draw')
+        check(['--ui-layout', str(layout), '--ui-draw', str(draw), '--rng', str(root / 'rng.jsonl')],
+              'can only be combined with --ui-layout')
+        check(['--ui-layout', str(layout), '--ui-draw', str(layout)], 'UI-draw output aliases')
+        check(['--ui-layout', str(layout), '--ui-draw', str(draw), '--save', str(draw)],
+              'UI-draw output aliases')
+        check(['--ui-layout', str(layout), '--ui-draw', str(draw)], 'Disc input missing')
+        draw.touch()
+        check(['--ui-layout', str(layout), '--ui-draw', str(draw)], 'Refusing existing reference output')
+        draw.unlink()
         check(['--ui-layout', str(layout), '--battle-ui-updates', str(root / 'ui-updates.jsonl')],
               'cannot be combined with --battle-callbacks')
         check(['--ui-layout', str(layout), '--battle-callbacks', str(root / 'callbacks.jsonl')],

@@ -97,10 +97,10 @@ std::vector<unsigned> parseCaptureFrames(std::string_view text,unsigned duration
 }
 int main(int argc,char** argv) {
     try {
-        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX [--capture-frames N,N,...]] [--pad INPUT | --walk-waypoints ROUTE --walk-record INPUT] [--audio WAV [--audio-index JSON]] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--camera-schedule FILE] [--screen-filter FILE] [--movement FILE] [--interaction FILE] [--interaction-wide FILE] [--transition FILE] [--game-mode FILE] [--battle-construction FILE] [--battle-stage FILE] [--battle-ui FILE] [--battle-ui-updates FILE] [--battle-callbacks FILE] [--ui-layout FILE] [--dust FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--wander FILE] [--rng FILE] [--lifecycle FILE] [--order FILE] [--effect-order FILE] [--projection FILE] [--music FILE] [--deadline-seconds 1..7200]");
+        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX [--capture-frames N,N,...]] [--pad INPUT | --walk-waypoints ROUTE --walk-record INPUT] [--audio WAV [--audio-index JSON]] [--trace-files] [--trace-loaders] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--camera-schedule FILE] [--screen-filter FILE] [--movement FILE] [--interaction FILE] [--interaction-wide FILE] [--transition FILE] [--game-mode FILE] [--battle-construction FILE] [--battle-stage FILE] [--battle-ui FILE] [--battle-ui-updates FILE] [--battle-callbacks FILE] [--ui-layout FILE [--ui-draw FILE]] [--dust FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--wander FILE] [--rng FILE] [--lifecycle FILE] [--order FILE] [--effect-order FILE] [--projection FILE] [--music FILE] [--deadline-seconds 1..7200]");
         unsigned deadlineSeconds=0;
         std::string walkWaypoints,walkRecord,captureFramesText,audioIndex;
-        int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false,musicField=false,musicJingle=false,musicNight=false,interactionWide=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,cameraSchedule,music,movement,interaction,transition,gameMode,battleConstruction,battleStage,battleUi,battleUiUpdates,battleCallbacks,uiLayout,npc,wander,rng,dust,screenFilter,effectOrder,projection;
+        int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false,musicField=false,musicJingle=false,musicNight=false,interactionWide=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,cameraSchedule,music,movement,interaction,transition,gameMode,battleConstruction,battleStage,battleUi,battleUiUpdates,battleCallbacks,uiLayout,uiDraw,npc,wander,rng,dust,screenFilter,effectOrder,projection;
         for (int i=3;i<argc;++i) {
             const std::string arg=argv[i];
             if (arg=="--load") load=true;
@@ -157,6 +157,7 @@ int main(int argc,char** argv) {
             else if (arg=="--battle-ui-updates" && i+1<argc) {if(!battleUiUpdates.empty())throw std::runtime_error("Duplicate battle-UI-updates trace output");battleUiUpdates=argv[++i];if(battleUiUpdates.empty())throw std::runtime_error("Empty battle-UI-updates trace output");}
             else if (arg=="--battle-callbacks" && i+1<argc) {if(!battleCallbacks.empty())throw std::runtime_error("Duplicate battle-callbacks trace output");battleCallbacks=argv[++i];if(battleCallbacks.empty())throw std::runtime_error("Empty battle-callbacks trace output");}
             else if (arg=="--ui-layout" && i+1<argc) {if(!uiLayout.empty())throw std::runtime_error("Duplicate UI-layout trace output");uiLayout=argv[++i];if(uiLayout.empty())throw std::runtime_error("Empty UI-layout trace output");}
+            else if (arg=="--ui-draw" && i+1<argc) {if(!uiDraw.empty())throw std::runtime_error("Duplicate UI-draw trace output");uiDraw=argv[++i];if(uiDraw.empty())throw std::runtime_error("Empty UI-draw trace output");}
             else if (arg=="--game-mode" && i+1<argc) {if(!gameMode.empty())throw std::runtime_error("Duplicate game-mode trace output");gameMode=argv[++i];if(gameMode.empty())throw std::runtime_error("Empty game-mode trace output");}
             else if (arg=="--interaction-wide" && i+1<argc) {interaction=argv[++i];interactionWide=true;}
             else if (arg=="--interaction" && i+1<argc) interaction=argv[++i];
@@ -176,6 +177,13 @@ int main(int argc,char** argv) {
             throw std::runtime_error("--battle-callbacks cannot be combined with --battle-ui-updates because both own the 0x120ad0 breakpoint");
         if(!uiLayout.empty()&&(!battleCallbacks.empty()||!battleUiUpdates.empty()||!lifecycle.empty()||!order.empty()||!text.empty()))
             throw std::runtime_error("--ui-layout cannot be combined with --battle-callbacks, --battle-ui-updates, --lifecycle, --order or --text because they share entry/dispatch breakpoints");
+        if(!uiDraw.empty()&&uiLayout.empty())throw std::runtime_error("--ui-draw requires --ui-layout");
+        if(!uiDraw.empty()&&(traceFiles||traceLoaders||!scene.empty()||!events.empty()||!dialogue.empty()||!text.empty()||!controller.empty()||
+           !camera.empty()||!cameraSchedule.empty()||!actor.empty()||!lifecycle.empty()||!order.empty()||!music.empty()||!movement.empty()||
+           !interaction.empty()||!transition.empty()||!gameMode.empty()||!battleConstruction.empty()||!battleStage.empty()||!battleUi.empty()||
+           !battleUiUpdates.empty()||!battleCallbacks.empty()||!npc.empty()||!wander.empty()||!rng.empty()||!dust.empty()||!screenFilter.empty()||
+           !effectOrder.empty()||!projection.empty()))
+            throw std::runtime_error("--ui-draw can only be combined with --ui-layout because its helper breakpoints are source-shared");
         if(!music.empty() && !load)throw std::runtime_error("Music tracing requires a state with RXSNDDRV already loaded");
         if(musicField&&music.empty())throw std::runtime_error("--music-field requires --music");
         if(musicJingle&&(music.empty()||musicField))throw std::runtime_error("--music-jingle requires --music and excludes --music-field");
@@ -307,6 +315,24 @@ int main(int argc,char** argv) {
             for(const auto& prefix:framePrefixes)for(const auto* suffix:{".json",".layer0.png",".layer1.png"})
                 distinct(prefix.string()+suffix);
         }
+        if(!uiDraw.empty()) {
+            vacant(uiDraw);
+            const auto output=std::filesystem::weakly_canonical(uiDraw);
+            auto distinctDraw=[&](const std::filesystem::path& other) {
+                if(!other.empty()&&output==std::filesystem::weakly_canonical(other))
+                    throw std::runtime_error("UI-draw output aliases another requested path");
+            };
+            for(const auto* other:{&uiLayout,&audio,&audioIndex,&saveState,&walkRecord,&dialogue,&controller,&camera,&actor,
+                    &lifecycle,&order,&cameraSchedule,&music,&movement,&interaction,&transition,&gameMode,&battleConstruction,
+                    &battleStage,&battleUi,&battleUiUpdates,&battleCallbacks,&npc,&wander,&rng,&dust,&screenFilter,&effectOrder,&projection})
+                distinctDraw(*other);
+            distinctDraw(state);distinctDraw(pad);distinctDraw(walkWaypoints);distinctDraw(std::filesystem::absolute(argv[1]));
+            if(!controller.empty())distinctDraw(controller+".choices.bin");
+            if(!screenFilter.empty())distinctDraw(screenFilter+".packets.bin");
+            if(!capture.empty())for(const auto* suffix:{".json",".layer0.png",".layer1.png"})distinctDraw(capture+suffix);
+            for(const auto& prefix:framePrefixes)for(const auto* suffix:{".json",".layer0.png",".layer1.png"})
+                distinctDraw(prefix.string()+suffix);
+        }
         if(!captureFrames.empty())vacant(captureDirectory);
         const auto disc=std::filesystem::absolute(argv[1]);
         if (!std::filesystem::is_regular_file(disc)) throw std::runtime_error("Disc input missing");
@@ -339,7 +365,7 @@ int main(int argc,char** argv) {
         auto battleUiTrace=battleUi.empty() ? nullptr : std::make_unique<BattleUiTrace>(battleUi);
         auto battleUiUpdatesTrace=battleUiUpdates.empty() ? nullptr : std::make_unique<BattleUiUpdatesTrace>(battleUiUpdates);
         auto battleCallbacksTrace=battleCallbacks.empty() ? nullptr : std::make_unique<BattleCallbacksTrace>(battleCallbacks);
-        auto uiLayoutTrace=uiLayout.empty() ? nullptr : std::make_unique<UiLayoutTrace>(uiLayout);
+        auto uiLayoutTrace=uiLayout.empty() ? nullptr : std::make_unique<UiLayoutTrace>(uiLayout,uiDraw);
         auto gameModeTrace=gameMode.empty() ? nullptr : std::make_unique<GameModeTrace>(gameMode);
         auto interactionTrace=interaction.empty() ? nullptr : std::make_unique<InteractionTrace>(interaction,interactionWide);
         auto movementTrace=movement.empty() ? nullptr : std::make_unique<MovementTrace>(movement);
@@ -434,6 +460,7 @@ int main(int argc,char** argv) {
         if(battleUiUpdatesTrace)for(auto at:BattleUiUpdatesTrace::entryBreakpoints)loaders.push_back(at);
         if(battleCallbacksTrace)for(auto at:BattleCallbacksTrace::entryBreakpoints)loaders.push_back(at);
         if(uiLayoutTrace)for(auto at:UiLayoutTrace::entryBreakpoints)loaders.push_back(at);
+        if(!uiDraw.empty())for(auto at:UiLayoutTrace::drawBreakpoints)loaders.push_back(at);
         if(interactionTrace)for(auto at:InteractionTrace::breakpoints)loaders.push_back(at);
         if(movementTrace)for(auto at:MovementTrace::breakpoints)loaders.push_back(at);
         if(lifecycleTrace)for(auto at:LifecycleTrace::breakpoints)loaders.push_back(at);
