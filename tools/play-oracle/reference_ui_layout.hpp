@@ -27,7 +27,7 @@ public:
     static constexpr unsigned maxRows=6;
     static constexpr std::size_t maxOutputBytes=16*1024*1024;
     static constexpr std::size_t maxDrawOutputBytes=16*1024*1024;
-    static constexpr unsigned maxDrawEvents=10000;
+    static constexpr unsigned maxDrawEvents=20000;
 
     explicit UiLayoutTrace(const std::filesystem::path& path,
                            const std::filesystem::path& drawPath={}) : drawEnabled(!drawPath.empty()) {
@@ -53,7 +53,7 @@ public:
             drawOutput<<"{\"schema\":\"okage-ui-draw-submission-v1\","
                       <<"\"scope\":\"CPU submission calls inside the first source-gated 1a8150 draw tail-call; no deferred GS vertices or raster output\","
                       <<"\"continuation\":\"198390 tail-calls 1a8150; draw entry and dispatch completion share the original live RA/SP continuation\","
-                      <<"\"sources\":{\"projection_words\":32,\"outer_vector_upload_words\":32,\"per_element_vector_upload_words\":16,\"element_row\":\"window+0x3e40+group*0x100+element*0x10, 16 bytes\",\"sprite_owner\":\"window+0x3d10+group*8+side*4 points to the selected 0x12c0 sprite cache\"},"
+                      <<"\"sources\":{\"projection_words\":32,\"outer_vector_upload_words\":32,\"per_element_vector_upload_words\":16,\"element_row\":\"window+0x3e40+group*0x100+element*0x10, 16 bytes\",\"sprite_owner\":\"window+0x3d10 is the sprite cache pointer table; table[group*8+side*4] selects a 0x12c0 cache\",\"glyph_owner\":\"window+0x3d0c is the glyph cache pointer table; table[group*8+side*4] selects a 0x12c0 cache\"},"
                       <<"\"source_elf_sha256\":\"2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5\"}\n";
             drawOutput.flush();if(!drawOutput)fail("UI-draw header write failed");
         }
@@ -93,8 +93,8 @@ public:
         if(drawEnabled&&drawStarted&&!drawActive&&!active.empty()&&pc==active.front().returnPc) {
             fail("dispatcher continuation reached before the 1a8150 draw entry");
         }
-        if(drawEnabled&&resourceActive&&!drawStarted&&pc==drawEntry) {
-            observeDrawEntry(frame,pc,sp,reg(CMIPS::RA),m);
+        if(drawEnabled&&resourceActive&&pc==drawEntry) {
+            observeDrawEntry(ee,frame,pc,sp,reg(CMIPS::RA),m,loaders);
             return;
         }
         if(drawEnabled&&drawActive&&isDrawHelper(pc)) {
@@ -192,7 +192,7 @@ public:
 private:
     enum class Kind {Parent,FirstCallback,SecondCallback,Dispatch,WindowLayout};
     struct Call {Kind kind;uint32 root,manager,window,slot,sp,returnPc;bool ownsBreakpoint;};
-    struct DrawCall {uint32 id,entry,returnPc,sp,ra,windowSlot,cacheFamily,group,side,element,ownerBase;bool ownsBreakpoint;};
+    struct DrawCall {uint32 id,entry,returnPc,sp,ra,windowSlot,cacheFamily,group,side,element,passIndex,passCount,ownerBase;bool ownsBreakpoint;};
     struct CacheOwner {uint32 window,slot,family,group,side,base;};
     struct Memory {
         Ee::CSubSystem& ee;
@@ -395,38 +395,40 @@ private:
             const uint32 spriteCapacity=m.word(window+0x3c04),spriteGroups=m.word(window+0xcc4);
             const uint32 glyphCapacity=m.word(window+0x3c00),glyphGroups=m.word(window+0xcc0);
             if(spriteCapacity<1||spriteCapacity>32||spriteGroups>spriteCapacity||
-               glyphCapacity<1||glyphCapacity>32||glyphGroups>glyphCapacity)
+               glyphCapacity<1||glyphCapacity>32)
                 fail("draw window cache/group capacity is outside source-owned bounds");
-            const uint32 spriteTable=m.word(window+0x3d10);m.require(spriteTable,spriteCapacity*8);
-            const uint32 glyphTable=m.word(window+0x3d0c);m.require(glyphTable,glyphCapacity*8);
+            const uint32 spriteTable=m.word(window+0x3d10);
+            const uint32 glyphTable=m.word(window+0x3d0c);
+            if(!spriteTable&&spriteGroups)fail("active sprite groups have no source cache pointer table");
+            if(!glyphTable&&glyphGroups)fail("enabled glyph draw has no source cache pointer table");
+            if(spriteTable)m.require(spriteTable,spriteCapacity*8);
+            if(glyphTable)m.require(glyphTable,glyphCapacity*8);
             row<<"{\"slot\":"<<slot<<",\"window\":"<<window
                <<",\"flags_1900\":"<<m.word(window+0x1900)
+               <<",\"flags_4f8\":"<<m.word(window+0x4f8)
                <<",\"opacity_270\":"<<m.word(window+0x270)
                <<",\"delta_27c\":"<<m.word(window+0x27c)
                <<",\"framebuffer_target_220\":"<<m.word(window+0x220)
                <<",\"sprite_group_count_cc4\":"<<spriteGroups
                <<",\"glyph_group_count_cc0\":"<<glyphGroups;
+            if(spriteTable)m.bytes(row,"sprite_cache_pointer_table",spriteTable,spriteCapacity*8);
+            else row<<",\"sprite_cache_pointer_table\":null";
+            if(glyphTable)m.bytes(row,"glyph_cache_pointer_table",glyphTable,glyphCapacity*8);
+            else row<<",\"glyph_cache_pointer_table\":null";
             if(spriteGroups) {
                 m.bytes(row,"sprite_group_flags",window+0x3c08,spriteGroups*4);
                 m.bytes(row,"element_color_rows",window+0x3e40,spriteGroups*0x100);
             }
-            if(glyphGroups)m.bytes(row,"glyph_group_flags",window+0x3c08,glyphGroups*4);
+            if(glyphGroups)m.bytes(row,"glyph_group_flags",window+0x3c08,glyphCapacity*4);
             for(unsigned family=0;family<2;++family) {
                 const auto capacity=family?spriteCapacity:glyphCapacity;
                 const auto table=family?spriteTable:glyphTable;
                 auto& owners=family?spriteOwners:glyphOwners;
                 for(unsigned group=0;group<capacity;++group)for(unsigned side=0;side<2;++side) {
-                    const auto base=m.word(table+group*8+side*4);m.require(base,0x12c0);
-                    for(const auto& owner:spriteOwners) {
-                    const uint64 end=uint64(base)+0x12c0,otherEnd=uint64(owner.base)+0x12c0;
-                    if(uint64(base)<otherEnd&&uint64(owner.base)<end)
-                        fail("sprite cache owners overlap; cannot identify draw packet owner");
-                    }
-                    for(const auto& owner:glyphOwners) {
-                        const uint64 end=uint64(base)+0x12c0,otherEnd=uint64(owner.base)+0x12c0;
-                        if(uint64(base)<otherEnd&&uint64(owner.base)<end)
-                            fail("glyph/sprite cache owners overlap; cannot identify draw packet owner");
-                    }
+                    if(!table)continue;
+                    const auto base=m.word(table+group*8+side*4);
+                    if(base==0)continue;
+                    m.require(base,0x12c0);
                     owners.push_back(CacheOwner{window,slot,family,group,side,base});
                 }
             }
@@ -434,7 +436,8 @@ private:
         }
         row<<']';
     }
-    void observeDrawEntry(unsigned frame,uint32 pc,uint32 sp,uint32 ra,const Memory& m) {
+    void observeDrawEntry(Ee::CSubSystem& ee,unsigned frame,uint32 pc,uint32 sp,uint32 ra,const Memory& m,
+                          std::vector<uint32>& loaders) {
         if(drawStarted||!resourceActive||active.empty()||active.back().kind!=Kind::Dispatch||
            layoutEntries[0]!=1||layoutEntries[1]!=1||layoutReturns[0]!=1||layoutReturns[1]!=1)
             fail("1a8150 entered outside the selected completed mode-2 dispatch");
@@ -442,6 +445,12 @@ private:
         if(ra!=dispatch.returnPc||sp!=dispatch.sp||m.word(0x1fce60)!=dispatch.root||
            m.word(dispatch.root+0x8060)!=dispatch.manager)
             fail("1a8150 did not preserve the 198390 live continuation/root/manager");
+        for(std::size_t i=1;i<drawBreakpoints.size();++i) {
+            const auto at=drawBreakpoints[i];
+            if(std::find(loaders.begin(),loaders.end(),at)!=loaders.end())
+                fail("source-gated draw helper breakpoint conflicts with another observer return");
+            ee.m_EE.ToggleBreakpoint(at);loaders.push_back(at);
+        }
         drawStarted=drawActive=true;drawEntrySp=sp;drawReturnPc=ra;drawRoot=dispatch.root;
         drawManager=dispatch.manager;drawStartFrame=frame;
         std::ostringstream row;
@@ -495,8 +504,12 @@ private:
             if(call.entry==0x1ad3c8)m.bytes(row,"vector_upload",uint32(cpu.nGPR[CMIPS::A0].nD0),64);
             if(call.windowSlot<2&&(call.entry==0x1ad3c0||call.entry==0x1c9368)) {
                 row<<",\"packet_owner\":{\"window_slot\":"<<call.windowSlot
-                   <<",\"family\":\""<<(call.cacheFamily?"sprite":"glyph")<<"\",\"group\":"<<call.group<<",\"side\":"<<call.side
-                   <<",\"element\":"<<call.element<<",\"cache_base\":"<<hex32(call.ownerBase)
+                   <<",\"family\":\""<<(call.cacheFamily?"sprite":"glyph")<<"\",\"draw_type\":\""
+                   <<(call.cacheFamily?"sprite_element":"glyph_pass")<<"\",\"group\":"<<call.group<<",\"side\":"<<call.side
+                   <<",\"element\":";
+                if(call.cacheFamily)row<<call.element;else row<<"null";
+                row<<",\"pass_index\":"<<call.passIndex
+                   <<",\"pass_count\":"<<call.passCount<<",\"cache_base\":"<<hex32(call.ownerBase)
                    <<",\"cache_offset\":"<<hex32(uint32(cpu.nGPR[CMIPS::A0].nD0)-call.ownerBase)<<'}';
             }
         }
@@ -509,9 +522,10 @@ private:
     }
     void observeDrawCallEntry(Ee::CSubSystem& ee,unsigned frame,uint32 pc,uint32 sp,uint32 ra,
                               const auto& reg,const auto& cpu,const Memory& m,std::vector<uint32>& loaders) {
-        if(drawCalls.size()>=32||drawHelperCalls>=5000)fail("draw helper nesting/call bound exceeded");
+        if(drawCalls.size()>=32||drawHelperCalls>=10000)fail("draw helper nesting/call bound exceeded");
         if(pc==0x1c9368&&drawAliasPending&&!drawCalls.empty()&&
            drawCalls.back().entry==0x1ad3c0&&ra==drawCalls.back().returnPc) {
+            if(sp!=drawCalls.back().sp)fail("1ad3c0 direct jump changed source stack pointer before its thunk");
             std::ostringstream row;row<<"{\"event\":\"thunk_alias_entry\",\"frame\":"<<frame
                 <<",\"pc\":"<<pc<<",\"ra\":"<<ra<<",\"sp\":"<<sp
                 <<",\"call_id\":"<<drawCalls.back().id<<",\"aliases\":"<<hex32(0x1ad3c0);
@@ -520,13 +534,16 @@ private:
         if(pc==0x1c9368&&drawAliasPending)drawAliasPending=false;
         static constexpr std::array<uint32,4> outer={0x1ad1f8,0x1ad850,0x1ad268,0x1af978};
         if(outerCallIndex<outer.size()) {
+            static constexpr std::array<uint32,4> outerCallsites={0x1a81ec,0x1a81f8,0x1a8200,0x1a8208};
             if(pc!=outer[outerCallIndex])fail("outer matrix/GS setup calls were not observed in source order");
+            if(ra-8!=outerCallsites[outerCallIndex])fail("outer matrix/GS setup came from an unknown source callsite");
             if(pc==0x1ad850&&reg(CMIPS::A0)!=0x200540)fail("1ad850 projection input is not the source 200540 array");
             if(pc==0x1ad268&&reg(CMIPS::A0)!=0)fail("1ad268 outer reset argument is not zero");
             ++outerCallIndex;
         }
         DrawCall call{};call.id=++drawHelperCalls;call.entry=pc;call.returnPc=ra;call.sp=sp;call.ra=ra;
-        call.windowSlot=2;call.cacheFamily=call.group=call.side=call.element=call.ownerBase=0;call.ownsBreakpoint=false;
+        call.windowSlot=2;call.cacheFamily=call.group=call.side=call.element=call.passIndex=call.passCount=call.ownerBase=0;
+        call.ownsBreakpoint=false;
         if(!ra||ra<0x100000||ra>=PS2::EE_RAM_SIZE||(ra&3)||ra==pc)
             fail("draw helper has invalid live return address");
         if(pc==0x1ad3c8) {
@@ -577,25 +594,30 @@ private:
                 const uint32 sideOffset=m.word(sp+0x120);
                 if(sideOffset!=0&&sideOffset!=0x800)fail("sprite cache side is outside source 0/1");
                 call.cacheFamily=1;call.side=sideOffset>>11;call.element=elementOffset/0x10;
+                call.passIndex=reg(CMIPS::S2);call.passCount=m.word(sp+0x10c)+1;
+                const uint32 expectedPassCount=(m.word(window+0x4f8)&0x40)?3:1;
+                if(call.passCount!=expectedPassCount||call.passIndex>=call.passCount)
+                    fail("sprite replay pass selector differs from the source icon-extra flag");
                 if(group>=m.word(window+0x3c04)||group>=m.word(window+0xcc4))
                     fail("sprite packet group exceeds source window bounds");
-                expected=m.word(window+0x3d10+group*8+call.side*4);
+                expected=m.word(m.word(window+0x3d10)+group*8+call.side*4);
             } else if(site==0x1a8f20) {
-                call.cacheFamily=0;
-                call.side=m.word(window+0x268c);
-                call.element=m.word(sp+0x118);
-                const auto passes=m.word(sp+0x120),capacity=m.word(window+0x3c00);
-                if(call.side>1||call.element<1||call.element>passes||passes>2||group>=capacity||group>=m.word(window+0xcc0))
+                call.cacheFamily=0;call.side=m.word(window+0x268c)?1:0;
+                call.passIndex=m.word(sp+0xf8);call.passCount=m.word(sp+0xf0);
+                const auto capacity=m.word(window+0x3c00),groupCount=m.word(window+0xcc0);
+                if(call.passCount<1||call.passCount>2||call.passIndex<1||call.passIndex>call.passCount||
+                   group>=capacity||groupCount==0)
                     fail("glyph cache group/side/pass is outside source-owned bounds");
-                expected=m.word(window+0x3d0c+group*8+call.side*4);
+                call.element=call.passIndex;
+                expected=m.word(m.word(window+0x3d0c)+group*8+call.side*4);
             } else fail("packet replay came from an unknown source callsite");
             for(const auto& candidate:(call.cacheFamily?spriteOwners:glyphOwners))
-                if(packet>=candidate.base&&uint64(packet)<uint64(candidate.base)+0x12c0) {
-                    if(owner)fail("packet address maps to multiple cache owners");owner=&candidate;
+                if(candidate.window==window&&candidate.slot==slot&&candidate.family==call.cacheFamily&&
+                   candidate.group==group&&candidate.side==call.side&&candidate.base==expected) {
+                    if(owner)fail("selected cache-table row maps to duplicate owner records");owner=&candidate;
                 }
-            if(!owner||owner->window!=window||owner->slot!=slot||owner->family!=call.cacheFamily||
-               owner->group!=group||owner->side!=call.side||expected!=owner->base)
-                fail("packet pointer lacks its exact window/cache-family/slot/group/side owner");
+            if(!expected||!owner||packet!=expected)
+                fail("packet pointer differs from its exact selected window/cache-family/slot/group/side row");
             call.ownerBase=owner->base;
         }
         if(pc==0x1aeb10) {
@@ -613,6 +635,12 @@ private:
         if(pc==0x1c96c0&&(((ra-8)!=0x1a9024&&(ra-8)!=0x1a90f0)||reg(CMIPS::A0)!=m.word(0x2005c0)))
             fail("packet queue operation differs from the two source 1a8150 append sites");
         if(pc==0x1aedd8&&outerCallIndex!=outer.size())fail("GS register writes began before outer setup completed");
+        if(pc==0x1aedd8) {
+            static constexpr std::array<uint32,10> callers={0x1a8214,0x1a8224,0x1a8238,0x1a8244,0x1a8250,
+                0x1a8268,0x1a8274,0x1a8280,0x1a8380,0x1a8ffc};
+            if(std::find(callers.begin(),callers.end(),ra-8)==callers.end())
+                fail("GS register write came from an unknown source callsite");
+        }
         if(pc==0x1aeb10&&outerCallIndex!=outer.size())fail("auxiliary uploads began before outer setup completed");
         if(pc==0x1ad3c8&&outerCallIndex!=outer.size())fail("per-window vector upload preceded outer setup completion");
         const bool installed=std::find(loaders.begin(),loaders.end(),ra)!=loaders.end();

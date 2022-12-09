@@ -460,7 +460,7 @@ int main(int argc,char** argv) {
         if(battleUiUpdatesTrace)for(auto at:BattleUiUpdatesTrace::entryBreakpoints)loaders.push_back(at);
         if(battleCallbacksTrace)for(auto at:BattleCallbacksTrace::entryBreakpoints)loaders.push_back(at);
         if(uiLayoutTrace)for(auto at:UiLayoutTrace::entryBreakpoints)loaders.push_back(at);
-        if(!uiDraw.empty())for(auto at:UiLayoutTrace::drawBreakpoints)loaders.push_back(at);
+        if(!uiDraw.empty())loaders.push_back(UiLayoutTrace::drawEntry);
         if(interactionTrace)for(auto at:InteractionTrace::breakpoints)loaders.push_back(at);
         if(movementTrace)for(auto at:MovementTrace::breakpoints)loaders.push_back(at);
         if(lifecycleTrace)for(auto at:LifecycleTrace::breakpoints)loaders.push_back(at);
@@ -509,7 +509,8 @@ int main(int argc,char** argv) {
                         <<" IOP PC 0x"<<vm.m_iop->m_cpu.m_State.nPC;
                     throw std::runtime_error(error.str());
                 }
-                const auto traceLimit=battleConstructionTrace ? BattleConstructionTrace::maxRngCalls+200000u : (rngTrace ? RngTrace::maxRows+10000u : (eventTrace ? 200000u : 10000u));
+                const auto traceLimit=!uiDraw.empty() ? UiLayoutTrace::maxDrawEvents+1024u :
+                    (battleConstructionTrace ? BattleConstructionTrace::maxRngCalls+200000u : (rngTrace ? RngTrace::maxRows+10000u : (eventTrace ? 200000u : 10000u)));
                 if (++tracedCalls>traceLimit) throw std::runtime_error("Reference trace limit exceeded");
                 const bool observingProjection=projectionTrace&&std::find(ProjectionTrace::breakpoints.begin(),ProjectionTrace::breakpoints.end(),pc)!=ProjectionTrace::breakpoints.end();
                 if(observingProjection)projectionTrace->observe(*vm.m_ee,frames);
