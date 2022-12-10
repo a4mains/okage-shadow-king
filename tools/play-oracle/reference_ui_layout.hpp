@@ -192,7 +192,7 @@ public:
 private:
     enum class Kind {Parent,FirstCallback,SecondCallback,Dispatch,WindowLayout};
     struct Call {Kind kind;uint32 root,manager,window,slot,sp,returnPc;bool ownsBreakpoint;};
-    struct DrawCall {uint32 id,entry,returnPc,sp,ra,windowSlot,cacheFamily,group,side,element,passIndex,passCount,ownerBase;bool ownsBreakpoint;};
+    struct DrawCall {uint32 id,entry,returnPc,sp,ra,windowSlot,cacheFamily,group,side,element,passIndex,rawPassCounter,passCount,ownerBase,drawType;bool ownsBreakpoint;};
     struct CacheOwner {uint32 window,slot,family,group,side,base;};
     struct Memory {
         Ee::CSubSystem& ee;
@@ -505,10 +505,13 @@ private:
             if(call.windowSlot<2&&(call.entry==0x1ad3c0||call.entry==0x1c9368)) {
                 row<<",\"packet_owner\":{\"window_slot\":"<<call.windowSlot
                    <<",\"family\":\""<<(call.cacheFamily?"sprite":"glyph")<<"\",\"draw_type\":\""
-                   <<(call.cacheFamily?"sprite_element":"glyph_pass")<<"\",\"group\":"<<call.group<<",\"side\":"<<call.side
+                   <<(call.drawType==1?"sprite_header":call.drawType==2?"sprite_element":"glyph_pass")
+                   <<"\",\"group\":"<<call.group<<",\"side\":"<<call.side
                    <<",\"element\":";
                 if(call.cacheFamily)row<<call.element;else row<<"null";
-                row<<",\"pass_index\":"<<call.passIndex
+                row<<",\"pass_index\":";
+                row<<call.passIndex;
+                row<<",\"raw_pass_counter\":"<<call.rawPassCounter
                    <<",\"pass_count\":"<<call.passCount<<",\"cache_base\":"<<hex32(call.ownerBase)
                    <<",\"cache_offset\":"<<hex32(uint32(cpu.nGPR[CMIPS::A0].nD0)-call.ownerBase)<<'}';
             }
@@ -542,7 +545,8 @@ private:
             ++outerCallIndex;
         }
         DrawCall call{};call.id=++drawHelperCalls;call.entry=pc;call.returnPc=ra;call.sp=sp;call.ra=ra;
-        call.windowSlot=2;call.cacheFamily=call.group=call.side=call.element=call.passIndex=call.passCount=call.ownerBase=0;
+        call.windowSlot=2;call.cacheFamily=call.group=call.side=call.element=call.passIndex=call.rawPassCounter=0;
+        call.passCount=call.ownerBase=call.drawType=0;
         call.ownsBreakpoint=false;
         if(!ra||ra<0x100000||ra>=PS2::EE_RAM_SIZE||(ra&3)||ra==pc)
             fail("draw helper has invalid live return address");
@@ -594,29 +598,50 @@ private:
                 const uint32 sideOffset=m.word(sp+0x120);
                 if(sideOffset!=0&&sideOffset!=0x800)fail("sprite cache side is outside source 0/1");
                 call.cacheFamily=1;call.side=sideOffset>>11;call.element=elementOffset/0x10;
-                call.passIndex=reg(CMIPS::S2);call.passCount=m.word(sp+0x10c)+1;
+                call.rawPassCounter=reg(CMIPS::S2);call.passCount=m.word(sp+0x10c)+1;
                 const uint32 expectedPassCount=(m.word(window+0x4f8)&0x40)?3:1;
-                if(call.passCount!=expectedPassCount||call.passIndex>=call.passCount)
+                if(call.passCount!=expectedPassCount)
                     fail("sprite replay pass selector differs from the source icon-extra flag");
+                if(site==0x1a8894) {
+                    call.drawType=1;
+                    call.passIndex=call.rawPassCounter;
+                    if(call.rawPassCounter>=call.passCount)
+                        fail("sprite header replay counter exceeds the source pass loop");
+                } else {
+                    call.drawType=2;
+                    if(call.rawPassCounter==0||call.rawPassCounter>call.passCount)
+                        fail("sprite element replay counter is outside the source pass loop");
+                    call.passIndex=call.rawPassCounter-1;
+                }
                 if(group>=m.word(window+0x3c04)||group>=m.word(window+0xcc4))
                     fail("sprite packet group exceeds source window bounds");
                 expected=m.word(m.word(window+0x3d10)+group*8+call.side*4);
+                if(site==0x1a8b30) {
+                    const uint32 selectorAddress=m.word(sp+0x114)+m.word(sp+0x134)+sideOffset+m.word(sp+0x108);
+                    const auto selectedSubpacket=m.word(selectorAddress);
+                    if(packet!=selectedSubpacket||uint64(packet)<expected||uint64(packet)>=uint64(expected)+0x12c0)
+                        fail("sprite element packet differs from the selected source subpacket/cache owner");
+                }
+                if(site==0x1a8894&&packet!=expected)
+                    fail("sprite header packet differs from the selected cache-table row");
             } else if(site==0x1a8f20) {
-                call.cacheFamily=0;call.side=m.word(window+0x268c)?1:0;
-                call.passIndex=m.word(sp+0xf8);call.passCount=m.word(sp+0xf0);
+                call.cacheFamily=0;call.drawType=3;call.side=m.word(window+0x268c)?1:0;
+                call.rawPassCounter=m.word(sp+0xf8);call.passIndex=call.rawPassCounter-1;call.passCount=m.word(sp+0xf0);
                 const auto capacity=m.word(window+0x3c00),groupCount=m.word(window+0xcc0);
-                if(call.passCount<1||call.passCount>2||call.passIndex<1||call.passIndex>call.passCount||
+                if(call.passCount<1||call.passCount>2||call.rawPassCounter<1||call.rawPassCounter>call.passCount||
                    group>=capacity||groupCount==0)
                     fail("glyph cache group/side/pass is outside source-owned bounds");
                 call.element=call.passIndex;
                 expected=m.word(m.word(window+0x3d0c)+group*8+call.side*4);
             } else fail("packet replay came from an unknown source callsite");
-            for(const auto& candidate:(call.cacheFamily?spriteOwners:glyphOwners))
+            for(const auto& candidate:(call.cacheFamily?spriteOwners:glyphOwners)) {
                 if(candidate.window==window&&candidate.slot==slot&&candidate.family==call.cacheFamily&&
                    candidate.group==group&&candidate.side==call.side&&candidate.base==expected) {
-                    if(owner)fail("selected cache-table row maps to duplicate owner records");owner=&candidate;
+                    if(owner)fail("selected cache-table row maps to duplicate owner records");
+                    owner=&candidate;
                 }
-            if(!expected||!owner||packet!=expected)
+            }
+            if(!expected||!owner||(site==0x1a8f20&&packet!=expected))
                 fail("packet pointer differs from its exact selected window/cache-family/slot/group/side row");
             call.ownerBase=owner->base;
         }
