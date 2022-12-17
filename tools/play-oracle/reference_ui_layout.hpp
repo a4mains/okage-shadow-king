@@ -380,10 +380,10 @@ private:
         if(!drawOutput)fail("UI-draw event write failed");
     }
     static std::string hex32(uint32 value) {
-        std::ostringstream out;out<<"0x"<<std::hex<<std::setw(8)<<std::setfill('0')<<value;return out.str();
+        std::ostringstream out;out<<'"'<<"0x"<<std::hex<<std::setw(8)<<std::setfill('0')<<value<<'"';return out.str();
     }
     static std::string hex64(uint64 value) {
-        std::ostringstream out;out<<"0x"<<std::hex<<std::setw(16)<<std::setfill('0')<<value;return out.str();
+        std::ostringstream out;out<<'"'<<"0x"<<std::hex<<std::setw(16)<<std::setfill('0')<<value<<'"';return out.str();
     }
     void buildDrawOwners(const Memory& m,std::ostringstream& row) {
         spriteOwners.clear();glyphOwners.clear();
