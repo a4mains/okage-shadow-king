@@ -131,7 +131,7 @@ struct UiDrawBuilder {
         }
         emit(UiDrawCurrentFramebuffer{});emit(UiDrawControl::EndGif);
         emit(UiDrawControl::FlushVu);emit(UiDrawControl::End);emit(UiDrawControl::Queue);
-        emit(UiDrawControl::QueueFontUploads);
+        emit(UiDrawControl::QueueTextState);
         return std::move(result);
     }
 };

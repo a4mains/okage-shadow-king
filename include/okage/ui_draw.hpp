@@ -7,7 +7,7 @@ struct UiDrawState {
     std::int32_t background_alpha_top=0,background_alpha_bottom=0; //200b58/5c.
 };
 enum class UiDrawControl { Begin, CullModeZero, BeginGif, EndGif, FlushVu,
-                           End, Queue, QueueFontUploads };
+                           End, Queue, QueueTextState };
 struct UiDrawRegister { std::uint32_t index; std::uint64_t value; };
 // Resolve against the actual native render target, never a captured VRAM base.
 struct UiDrawCurrentFramebuffer {};

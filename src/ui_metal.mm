@@ -131,8 +131,12 @@ void UiMetal::encode(id<MTLCommandBuffer> command,id<MTLTexture> color,id<MTLTex
                 if(textured){check(std::isfinite(v.stq[0])&&std::isfinite(v.stq[1])&&std::isfinite(v.stq[2])&&v.stq[2]>0,"UI invalid STQ");
                     for(unsigned j=0;j<2;++j){const double coord=double(v.stq[j])/double(v.stq[2])*1024.;
                         const auto limit=j?texture.texture.height:texture.texture.width;
-                        check(std::isfinite(coord)&&coord>=-double(std::numeric_limits<float>::max())&&coord<=double(limit)-.5,
-                            "UI texture nonzero sampling footprint exceeds owned backing");}
+                        if(!(std::isfinite(coord)&&coord>=-double(std::numeric_limits<float>::max())&&coord<=double(limit)-.5))
+                            throw std::runtime_error("UI texture nonzero sampling footprint exceeds owned backing: window="+
+                                std::to_string(p->source.window)+" family="+std::to_string(unsigned(p->source.family))+
+                                " group="+std::to_string(p->source.group)+" element="+std::to_string(p->source.element)+
+                                " vertex="+std::to_string(i)+" axis="+std::to_string(j)+" font="+std::to_string(binding->font_index)+
+                                " coordinate="+std::to_string(coord)+" limit="+std::to_string(limit));}
                 }
             }
             const unsigned first=unsigned(vertices.size());for(unsigned i:{0u,1u,2u,0u,2u,3u})vertices.push_back(quad[i]);
@@ -140,7 +144,7 @@ void UiMetal::encode(id<MTLCommandBuffer> command,id<MTLTexture> color,id<MTLTex
             auto z=gequal?(baseline.depth_write?gequal_write_:gequal_keep_):(baseline.depth_write?always_write_:always_keep_);
             if(rect.width&&rect.height)submissions.push_back({first,6,{unsigned(textured),unsigned(gequal)},rect,z,textured?texture:UiMetalTexture{}});
         }else if(const auto* control=std::get_if<UiDrawControl>(&commandValue)){
-            check(*control>=UiDrawControl::Begin&&*control<=UiDrawControl::QueueFontUploads,"UI invalid control");
+            check(*control>=UiDrawControl::Begin&&*control<=UiDrawControl::QueueTextState,"UI invalid control");
         }
     }
     if(submissions.empty())return;
