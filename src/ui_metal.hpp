@@ -16,10 +16,20 @@ struct UiMetalTexture {
 };
 using UiMetalTextureResolver=std::function<UiMetalTexture(const UiGeometryTexture&)>;
 id<MTLTexture> upload_ui_gs_texture(id<MTLDevice>,const Texture&);
+class UiMetalValidation {
+public:
+    void validate_completed(id<MTLCommandBuffer>) const;
+private:
+    friend class UiMetal;
+    UiMetalValidation(id<MTLCommandBuffer>,id<MTLBuffer>,std::vector<std::string>);
+    id<MTLCommandBuffer> command_;
+    id<MTLBuffer> errors_;
+    std::vector<std::string> primitive_labels_;
+};
 class UiMetal {
 public:
     explicit UiMetal(id<MTLDevice>);
-    void encode(id<MTLCommandBuffer>,id<MTLTexture> color,id<MTLTexture> depth,
+    [[nodiscard]] UiMetalValidation encode(id<MTLCommandBuffer>,id<MTLTexture> color,id<MTLTexture> depth,
         const UiGeometryList&,const UiMetalBaseline&,const UiMetalTextureResolver&);
 private:
     id<MTLDevice> device_;

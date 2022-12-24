@@ -26,11 +26,13 @@ struct Harness{
         pass.colorAttachments[0].loadAction=MTLLoadActionClear;pass.colorAttachments[0].storeAction=MTLStoreActionStore;
         pass.colorAttachments[0].clearColor=MTLClearColorMake(clear[0]/255.,clear[1]/255.,clear[2]/255.,clear[3]/255.);
         pass.depthAttachment.texture=depth;pass.depthAttachment.loadAction=MTLLoadActionClear;pass.depthAttachment.storeAction=MTLStoreActionStore;pass.depthAttachment.clearDepth=1;
-        auto e=[cb renderCommandEncoderWithDescriptor:pass];[e endEncoding];renderer.encode(cb,color,depth,l,state,resolver);
+        auto e=[cb renderCommandEncoderWithDescriptor:pass];[e endEncoding];auto validation=renderer.encode(cb,color,depth,l,state,resolver);
+        rejects([&]{validation.validate_completed(cb);});
+        rejects([&]{validation.validate_completed([queue commandBuffer]);});
         auto buffer=[device newBufferWithLength:256*16 options:MTLResourceStorageModeShared];auto blit=[cb blitCommandEncoder];
         [blit copyFromTexture:depth sourceSlice:0 sourceLevel:0 sourceOrigin:MTLOriginMake(0,0,0) sourceSize:MTLSizeMake(32,16,1)
             toBuffer:buffer destinationOffset:0 destinationBytesPerRow:256 destinationBytesPerImage:256*16];[blit endEncoding];
-        [cb commit];[cb waitUntilCompleted];check(cb.status==MTLCommandBufferStatusCompleted,"Metal command failed");
+        [cb commit];[cb waitUntilCompleted];check(cb.status==MTLCommandBufferStatusCompleted,"Metal command failed");validation.validate_completed(cb);
         Result result;result.rgba.resize(32*16*4);result.depth.resize(32*16);
         [color getBytes:result.rgba.data() bytesPerRow:32*4 fromRegion:MTLRegionMake2D(0,0,32,16) mipmapLevel:0];
         for(unsigned y=0;y<16;++y)std::memcpy(result.depth.data()+y*32,static_cast<const char*>(buffer.contents)+y*256,32*4);return result;
@@ -61,11 +63,24 @@ void textures(Harness& h){Texture t{2,1,0,0,{128,128,128,255,128,128,128,0}};aut
     r=h.run(perspective,resolver);check(pixel(r)==std::array<unsigned,4>{67,69,71,64},"Perspective STQ division precedes logical1024 addressing");
     r=h.run(make(-.5f),resolver);check(pixel(r)==std::array<unsigned,4>{131,133,135,128},"Logical clamp handles negative half texel");
     r=h.run(make(1.5f),resolver);check(pixel(r)==std::array<unsigned,4>{3,5,7,0}&&r.depth[4*32+4]==1.f-100.f/16777216.f,"Last texel center zero-weight outside tap and transparent depth write");
-    rejects([&]{h.run(make(1.5001f),resolver);});
+    auto beyond=make(.5f);auto& narrow=std::get<UiResolvedPrimitive>(beyond.commands.back());
+    for(unsigned i=0;i<4;++i){const bool right=i==1||i==2;
+        narrow.quad.vertices[i].xyzf[0]=0x6c00+(right?3:2)*16;
+        narrow.quad.vertices[i].stq[0]=(right?2.5f:.5f)/1024.f;}
+    r=h.run(beyond,resolver);check(pixel(r,2,4)==std::array<unsigned,4>{131,133,135,128},"Unsampled outside endpoint is not rejected");
+    auto invalid=make(1.5001f);auto bad_draw=std::get<UiResolvedPrimitive>(invalid.commands.back());
+    bad_draw.source={UiDrawPacketFamily::SpriteElement,1,4,0,7,0,0,{}};
+    invalid.commands.pop_back();invalid.commands.push_back(quad({128,128,128,0}));
+    invalid.commands.push_back(bad_draw);invalid.commands.push_back(bad_draw);
+    bool sampled_error=false;
+    try{h.run(invalid,resolver);}catch(const std::runtime_error& e){const std::string error=e.what();
+        sampled_error=error.find("UI unsupported sampled texture footprint: fragment count=")!=std::string::npos&&
+            error.find("first primitive 1 window 1 family 2 group 4 element 7")!=std::string::npos;}
+    check(sampled_error,"Actual invalid taps report stable first primitive with source context");
     auto bad=t;bad.rgba[3]=127;rejects([&]{upload_ui_gs_texture(h.device,bad);});
     auto q=make(.5f);std::get<UiResolvedPrimitive>(q.commands.back()).quad.vertices[0].stq[2]=0;rejects([&]{h.run(q,resolver);});
 }
-void guards(Harness& h){auto l=list();l.commands[4]=UiDrawRegister{0x42,0x44};l.commands.push_back(quad({128,128,128,128}));rejects([&]{h.run(l);});
+void guards(Harness& h){const auto empty=h.run(list());check(pixel(empty)==std::array<unsigned,4>{3,5,7,255},"Empty submission validation token");auto l=list();l.commands[4]=UiDrawRegister{0x42,0x44};l.commands.push_back(quad({128,128,128,128}));rejects([&]{h.run(l);});
     l=list();l.commands[7]=UiDrawRegister{8,15};rejects([&]{h.run(l);});
     l=list();l.commands.push_back(quad({128,128,128,128}));auto b=baseline;b.colclamp=0;rejects([&]{h.run(l,{},b);});
     l=list();l.commands.push_back(UiDrawRegister{0x40,(3ull<<48)|(3ull<<16)});l.commands.push_back(quad({128,128,128,128}));const auto r=h.run(l);
