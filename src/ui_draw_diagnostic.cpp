@@ -46,7 +46,7 @@ const char* control(UiDrawControl value) {
     case UiDrawControl::FlushVu:return "flush_vu";
     case UiDrawControl::End:return "end";
     case UiDrawControl::Queue:return "queue";
-    case UiDrawControl::QueueFontUploads:return "queue_text_state";
+    case UiDrawControl::QueueTextState:return "queue_text_state";
     }
     throw std::runtime_error("unknown UI draw control");
 }

@@ -5,6 +5,8 @@
 #include "okage/ui_layout.hpp"
 #include "okage/font.hpp"
 #include "okage/enemy.hpp"
+#include "okage/ui_draw_diagnostic.hpp"
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -27,7 +29,7 @@ int main(int argc,const char** argv){@autoreleasepool {try {
     require(argc==5||argc==6,"Usage: okage-ui-owned-draw BATTLE_DIRECTORY FONT_DIRECTORY WINDOW_XIM NEW_PREFIX [--opaque-fixture]");
     const bool opaque=argc==6;require(!opaque||std::string(argv[5])=="--opaque-fixture","Unknown owned UI fixture option");
     const fs::path battle=argv[1],font_directory=argv[2];const std::string prefix=argv[4];
-    for(const auto* suffix:{".rgba",".depth.bin",".png",".json"})fresh(prefix+suffix);
+    for(const auto* suffix:{".rgba",".depth.bin",".png",".json",".draw.json"})fresh(prefix+suffix);
     auto resource=std::make_shared<RuwResource>(read(battle/"BTL.RUW"));
     const BattleUiData definitions(read(battle/"battle-ui.bin"));
     auto fonts=std::make_shared<std::vector<Font>>();
@@ -48,6 +50,11 @@ int main(int argc,const char** argv){@autoreleasepool {try {
         glyphs[i]=window.word(0xcdc);
     }
     UiDrawState draw_state;const auto list=build_ui_draw_list(shared.registry,draw_state,initial_ui_projection(),sine);
+    {
+        std::ofstream report(prefix+".draw.json");
+        write_ui_draw_diagnostic(report,list,0,0,0,opaque?"opaque-owned-constructor-fixture":"owned-constructor-fixture");
+        require(bool(report),"Owned UI draw diagnostic failed");
+    }
     const auto geometry=resolve_ui_geometry(list);
     auto device=MTLCreateSystemDefaultDevice();auto queue=[device newCommandQueue];require(device&&queue,"Owned UI Metal unavailable");
     UiMetal renderer(device);
@@ -66,7 +73,7 @@ int main(int argc,const char** argv){@autoreleasepool {try {
     pass.depthAttachment.storeAction=MTLStoreActionStore;pass.depthAttachment.clearDepth=1;
     [[command renderCommandEncoderWithDescriptor:pass] endEncoding];
     const UiMetalBaseline baseline{0x6c00,0x7900,true,0,1,0,1};
-    renderer.encode(command,target,depth,geometry,baseline,[&](const UiGeometryTexture& texture){
+    const auto validation=renderer.encode(command,target,depth,geometry,baseline,[&](const UiGeometryTexture& texture){
         if(texture.kind==UiGeometryTexture::Kind::Font){
             require(texture.fonts==fonts&&texture.font_index<3,"Owned UI font binding mismatch");
             return UiMetalTexture{font_textures[texture.font_index],fonts};
@@ -82,6 +89,7 @@ int main(int argc,const char** argv){@autoreleasepool {try {
         destinationBytesPerRow:640*4 destinationBytesPerImage:640*224*4];[blit endEncoding];
     [command commit];[command waitUntilCompleted];
     require(command.status==MTLCommandBufferStatusCompleted,"Owned UI Metal command failed");
+    validation.validate_completed(command);
     std::vector<std::uint8_t> rgba(640*224*4);
     [target getBytes:rgba.data() bytesPerRow:640*4 fromRegion:MTLRegionMake2D(0,0,640,224) mipmapLevel:0];
     bytes(prefix+".rgba",rgba.data(),rgba.size());bytes(prefix+".depth.bin",depth_readback.contents,640*224*4);
