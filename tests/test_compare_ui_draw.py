@@ -11,6 +11,7 @@ import compare_ui_draw as verifier
 
 def fixtures():
     header = {"schema": verifier.REFERENCE_SCHEMA,
+              "source_elf_sha256": verifier.SOURCE_ELF_SHA256,
               "scope": "CPU submission calls inside the first source-gated 1a8150 draw tail-call; no deferred GS vertices or raster output"}
     rows = [header,
         {"event": "draw_submission_entry", "frame": 127, "ra": 1234, "sp": 9876,
@@ -42,8 +43,8 @@ def fixtures():
                  "frame": 127, "pc": 0x1c9368, "ra": call_row["ra"], "sp": call_row["sp"]})
     ret(call_row)
     rows.extend([{ "event": "draw_dispatch_completion", "frame": 127, "ra": 1234,
-                   "shared_return": 1234, "sp": 9876, "root": 4000, "manager": 5000 },
-                 {"event": "finish", "draw_completed": True}])
+                   "shared_return": 1234, "sp": 9876, "root": 4000, "manager": 5000, "helper_calls": 10 },
+                 {"event": "finish", "draw_completed": True, "helper_calls": 10}])
     reference = {"rows": rows}
     commands = [
         {"kind": "projection", "float_bits": ["3f800000"] * 32},
@@ -93,6 +94,20 @@ class CompareUiDrawTests(unittest.TestCase):
             diff = verifier.compare(verifier.load_reference(ref), verifier.load_native(nat), 104376, 127)
             replay_diff = next(item for item in diff if item["field"] == "replays")
             self.assertEqual(replay_diff["first_index"], 0)
+
+    def test_source_identity_and_totals_are_required(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "source.jsonl"
+            for change in ("elf", "completion_count", "finish_count"):
+                reference, _ = fixtures()
+                rows = reference["rows"]
+                if change == "elf":
+                    rows[0]["source_elf_sha256"] = "0" * 64
+                else:
+                    rows[-2 if change == "completion_count" else -1]["helper_calls"] = 9
+                path.write_text("\n".join(json.dumps(row) for row in rows) + "\n")
+                with self.subTest(change=change), self.assertRaises(verifier.Invalid):
+                    verifier.load_reference(path)
 
     def test_cross_kind_reorder_fails_unified_stream(self):
         reference, native = fixtures()

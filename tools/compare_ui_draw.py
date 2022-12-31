@@ -11,6 +11,7 @@ from pathlib import Path
 
 REFERENCE_SCHEMA = "okage-ui-draw-submission-v1"
 NATIVE_SCHEMA = "okage-native-ui-draw-list-v1"
+SOURCE_ELF_SHA256 = "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
 MAX_LINES = 25000
 MAX_BYTES = 64 * 1024 * 1024
 
@@ -71,6 +72,8 @@ def load_reference(path: Path):
     header = rows[0]
     if header.get("schema") != REFERENCE_SCHEMA:
         raise Invalid("unsupported reference schema")
+    if header.get("source_elf_sha256") != SOURCE_ELF_SHA256:
+        raise Invalid("reference source ELF does not match the pinned retail image")
     if header.get("scope") != "CPU submission calls inside the first source-gated 1a8150 draw tail-call; no deferred GS vertices or raster output":
         raise Invalid("unexpected reference scope")
     events = rows[1:]
@@ -88,6 +91,8 @@ def load_reference(path: Path):
     if finish.get("draw_completed") is not True:
         raise Invalid("reference draw is incomplete")
     draw_entry, completion = entries[0], completions[0]
+    if events[0] is not draw_entry:
+        raise Invalid("reference helpers precede draw entry")
     frame = _uint(draw_entry.get("frame"), "reference draw frame")
     if _uint(completion.get("frame"), "reference completion frame") != frame:
         raise Invalid("reference draw entry/completion frames differ")
@@ -109,14 +114,13 @@ def load_reference(path: Path):
     aliases = []
     alias_ids = set()
     call_stack = []
-    returned = set()
     allowed = {"draw_submission_entry", "call_entry", "call_return", "thunk_alias_entry", "draw_dispatch_completion", "finish"}
-    for row in events:
+    for event_index, row in enumerate(events):
         event = row.get("event")
         if event not in allowed:
             raise Invalid(f"unknown reference event {event!r}")
         if event in ("call_entry", "call_return"):
-            if events.index(row) >= completion_position or row.get("frame") != frame:
+            if event_index >= completion_position or row.get("frame") != frame:
                 raise Invalid("helper event is outside the aligned source draw boundary")
             cid = _uint(row.get("call_id"), "call_id")
             if event == "call_entry":
@@ -142,7 +146,7 @@ def load_reference(path: Path):
                 call_stack.pop()
                 returned.add(cid)
         elif event == "thunk_alias_entry":
-            if events.index(row) >= completion_position or row.get("frame") != frame:
+            if event_index >= completion_position or row.get("frame") != frame:
                 raise Invalid("thunk alias is outside the aligned source draw boundary")
             cid = _uint(row.get("call_id"), "alias call_id")
             _uint(row.get("frame"), "alias frame")
@@ -159,6 +163,9 @@ def load_reference(path: Path):
         raise Invalid("reference helper calls are unbalanced")
     if call_stack:
         raise Invalid("reference helper stack is not empty at completion")
+    if any(_uint(row.get("helper_calls"), "reported source helper count") != len(calls)
+           for row in (completion, finish)):
+        raise Invalid("reference helper totals disagree with observed pairs")
     for cid, alias in aliases:
         source = calls.get(cid)
         if source is None or _addr(source.get("callee"), "source callee") != "001ad3c0" or source.get("frame") != alias.get("frame") or source.get("sp") != alias.get("sp") or source.get("ra") != alias.get("ra"):
@@ -228,7 +235,6 @@ def load_reference(path: Path):
         if owner_family != ("glyph" if family == "glyph_pass" else "sprite"):
             raise Invalid("source replay family/type disagree")
         replay = {"family": family,
-            "family": family,
             "window": _uint(owner.get("window_slot"), "source replay window", 7),
             "group": _uint(owner.get("group"), "source replay group"),
             "side": _uint(owner.get("side"), "source replay side", 1),
