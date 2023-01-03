@@ -384,7 +384,7 @@
           "bytes_and_pcm_exact": true
         }
       ],
-      "dsp_revision": "b6dafff52464c343ce4a53d54d793e7cbec0696d"
+      "dsp_revision": "26d5ee0c9363da206b9cc9e2e77ed7a542ac80e5"
     },
     {
       "report": "local/finite-stream-set2-native-v2/report.json",
@@ -405,7 +405,7 @@
           "bytes_and_pcm_exact": true
         }
       ],
-      "dsp_revision": "b6dafff52464c343ce4a53d54d793e7cbec0696d"
+      "dsp_revision": "26d5ee0c9363da206b9cc9e2e77ed7a542ac80e5"
     },
     {
       "report": "local/finite-stream-set2-model-sanitize-v2/report.json",
@@ -426,7 +426,7 @@
           "bytes_and_pcm_exact": true
         }
       ],
-      "dsp_revision": "b6dafff52464c343ce4a53d54d793e7cbec0696d"
+      "dsp_revision": "26d5ee0c9363da206b9cc9e2e77ed7a542ac80e5"
     }
   ],
   "native_regression": {

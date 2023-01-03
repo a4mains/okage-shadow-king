@@ -1,7 +1,7 @@
 {
   "scope": "Sample decode before pitch/envelope/mixing; PCSX2 equivalence, not hardware proof",
-  "pcsx2_revision": "b6dafff52464c343ce4a53d54d793e7cbec0696d",
-  "pcsx2_mixer_sha256": "4e3175fc8be4673bd3f897f0b3fd14e00216a1d9341dcd3cea9b3714a06301c5",
+  "pcsx2_revision": "26d5ee0c9363da206b9cc9e2e77ed7a542ac80e5",
+  "pcsx2_mixer_sha256": "77aca1982f992f24dad4a8de220897d458260e36e4e45953fbba377e99ac03dc",
   "bank_sha256": "1c0428b3fcaba0f822da47ff6374ac0bd1e5d90cec1bd2f3dadc567cd95c3654",
   "body_offset": 1312,
   "body_bytes": 297248,

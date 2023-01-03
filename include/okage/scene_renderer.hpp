@@ -5,8 +5,18 @@
 #include "okage/field_shadows.hpp"
 #include <filesystem>
 #include <memory>
+#include <functional>
 namespace okage {
 class MapObjects;
+struct UiGeometryList;
+struct UiGeometryTexture;
+struct UiMetalBaseline;
+struct UiMetalTexture;
+struct SceneUiPass {
+    const UiGeometryList& geometry;
+    const UiMetalBaseline& baseline;
+    const std::function<UiMetalTexture(const UiGeometryTexture&)>& textures;
+};
 struct FieldOrdinaryLighting;
 struct SceneActor {const FieldActor* actor;std::filesystem::path model_path;int alias=0;};
 class SceneRenderer {
@@ -21,7 +31,7 @@ public:
     void set_effect_light_tint(const Float4&);
     void set_clear_rgb(std::array<std::uint8_t,3>);
     void set_stage_environment(const FieldOrdinaryLighting&,const FieldShadowSettings&,const Float4& sky);
-    Texture render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects=nullptr,const Float4& camera_rotation={},float far_clip=1024,const Float4& camera_position={},const FieldProjectionFrame* field_projection=nullptr,float shadow_factor=1);
+    Texture render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects=nullptr,const Float4& camera_rotation={},float far_clip=1024,const Float4& camera_position={},const FieldProjectionFrame* field_projection=nullptr,float shadow_factor=1,const SceneUiPass* ui=nullptr);
     const std::vector<FieldShadowSubmission>& shadow_submissions() const;
     std::size_t placements() const;
     std::size_t omitted_effects() const;

@@ -2,7 +2,7 @@
   "version": 1,
   "implementation_commit": "eca8cbd",
   "retail_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
-  "reference_revision": "5a67bba38bc09fc873c1050599455e08cc6c611c",
+  "reference_revision": "4f413584409017457eff3b7aa9c3c2e662a91e1f",
   "scope": "Synthetic unchanged original EE/GIF construction, pinned host GS raster, and reached native phase11/12.",
   "exact_reference_raster": false,
   "shared_reference_corrections_enabled": false,
@@ -17,14 +17,14 @@
   "sources": [
     {
       "path": "CMakeLists.txt",
-      "bytes": 9668,
-      "sha256": "9643e780c1dc5f69eeaa533f32b969f5bb5625bf3d04cd7934fa4fd45f23e186",
+      "bytes": 17807,
+      "sha256": "5f36bbcf3146f5791ae48ada392ae306b0b5a32ef54d46979902ebfcfcf46700",
       "git_revision": "eca8cbd"
     },
     {
       "path": "src/native_runtime.mm",
-      "bytes": 92751,
-      "sha256": "f8c69a4c213b47041b4116a1007c51088b01a05f6b09ca5d9941735b85e1f84c",
+      "bytes": 102651,
+      "sha256": "3d64eb8ca81fca85244ab39dcb8c6dac16177f6cdfbcccb2437744bbde9c906e",
       "git_revision": "eca8cbd"
     },
     {
@@ -71,8 +71,8 @@
     },
     {
       "path": "tools/play-oracle/main.cpp",
-      "bytes": 240049,
-      "sha256": "2f489bc768ea8c79a4e542d8e12fc423cb01687989e49df19b85fa629da8cc89",
+      "bytes": 245022,
+      "sha256": "e0096597d15959a7db370c59d3b1265bc6160eadcf16d3ecf67ad0226959efae",
       "git_revision": "eca8cbd"
     },
     {

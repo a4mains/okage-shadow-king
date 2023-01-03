@@ -9,6 +9,7 @@
 #include "okage/map_material.hpp"
 #include "okage/field_raster.hpp"
 #include "shadow_metal.hpp"
+#include "ui_metal.hpp"
 #include "metal_preview_shader.hpp"
 #include <algorithm>
 #include <cctype>
@@ -42,6 +43,7 @@ struct SceneRenderer::Impl {
     FieldOrdinaryLighting ordinaryLighting;
     FieldShadowFrame shadowFrame;
     std::unique_ptr<ShadowMetal> shadowMetal;
+    std::unique_ptr<UiMetal> uiMetal;
     std::optional<std::size_t> sky_input;
     Float4 sky_factors{.5f,0,.5f,0};
     std::vector<Texture> textures;
@@ -241,7 +243,8 @@ struct SceneRenderer::Impl {
         }
         effectTexturesLoaded=true;
     }
-    Texture render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor) {
+    Texture render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor,const SceneUiPass* ui) {
+        if(ui&&!fieldProjection)throw std::runtime_error("Scene UI requires GS field projection depth");
         shadowFrame=fieldProjection?field_shadow_frame(shadowActors,view,*fieldProjection,shadowSettings,shadowFactor,sine):FieldShadowFrame{};
         std::vector<Vertex> vertices;
         std::vector<Draw> draws;
@@ -561,8 +564,14 @@ struct SceneRenderer::Impl {
             pass.depthAttachment.loadAction=MTLLoadActionLoad;
             encode(true);
         }
+        std::optional<UiMetalValidation> uiValidation;
+        if(ui){
+            if(!uiMetal)uiMetal=std::make_unique<UiMetal>(device);
+            uiValidation=uiMetal->encode(command,target,depthTarget,ui->geometry,ui->baseline,ui->textures);
+        }
         [command commit]; [command waitUntilCompleted];
         if (command.status!=MTLCommandBufferStatusCompleted) throw std::runtime_error(command.error.localizedDescription.UTF8String);
+        if(uiValidation)uiValidation->validate_completed(command);
         Texture image{640,224,0,0,std::vector<std::uint8_t>(640*224*4)};
         [target getBytes:image.rgba.data() bytesPerRow:640*4 fromRegion:MTLRegionMake2D(0,0,640,224) mipmapLevel:0];
         return image;
@@ -589,7 +598,7 @@ void SceneRenderer::set_stage_environment(const FieldOrdinaryLighting& light,con
 }
 void SceneRenderer::bind_map_effects(const MapEffects* effects){impl_->mapEffects=effects;}
 void SceneRenderer::bind_effect_submissions(const EffectSubmissions* effects){impl_->effectSubmissions=effects;}
-Texture SceneRenderer::render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor){return impl_->render(view,projection,effects,camera,farClip,cameraPosition,fieldProjection,shadowFactor);}
+Texture SceneRenderer::render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor,const SceneUiPass* ui){return impl_->render(view,projection,effects,camera,farClip,cameraPosition,fieldProjection,shadowFactor,ui);}
 const std::vector<FieldShadowSubmission>& SceneRenderer::shadow_submissions() const{return impl_->shadowFrame.submissions;}
 std::size_t SceneRenderer::placements() const{return impl_->inputs.size()-impl_->actorCount;}
 std::size_t SceneRenderer::actors() const{return impl_->actorCount;}

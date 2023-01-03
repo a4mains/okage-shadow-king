@@ -2,6 +2,7 @@
 #import <Foundation/Foundation.h>
 #include "okage/scene_renderer.hpp"
 #include "okage/map_objects.hpp"
+#include "ui_metal.hpp"
 #include <bit>
 #include <cstring>
 #include <fstream>
@@ -69,7 +70,7 @@ static Texture sample(const fs::path& dir,std::span<const Surface> surfaces,bool
         require(binding.actor->render_flags==0);
         binding.actor->animation().set_channel(4,{0,0,0,1});binding.actor->animation().set_channel(5,{0,0,0,1});binding.actor->evaluate();
     }
-    SceneRenderer renderer(dir/"a.xmp",{},&objects);
+    SceneRenderer renderer(dir/"a.xmp",{},&objects);renderer.set_clear_rgb({14,18,24});
     require(renderer.actors()==0&&renderer.placements()==1);
     FieldProjection projection;projection.load_stage(stg);projection.begin_field();projection.begin_effects();projection.begin_deferred();projection.end_effects();
     const Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
@@ -78,15 +79,66 @@ static Texture sample(const fs::path& dir,std::span<const Surface> surfaces,bool
     const auto warm=renderer.render(identity,clip,nullptr,{},1024,{},&projection.frame());
     require(cold.rgba==warm.rgba);
     const auto standalone=renderer.render(identity,clip);
-    SceneRenderer fresh(dir/"a.xmp",{},&objects);
+    SceneRenderer fresh(dir/"a.xmp",{},&objects);fresh.set_clear_rgb({14,18,24});
     require(standalone.rgba==fresh.render(identity,clip).rgba);
     require(cold.rgba==renderer.render(identity,clip,nullptr,{},1024,{},&projection.frame()).rgba);
     return cold;
 }
 static std::array<unsigned,3> center(const Texture& t){const auto n=(112*640+320)*4;return {t.rgba[n],t.rgba[n+1],t.rgba[n+2]};}
+static void ui_bridge(const fs::path& dir) {
+    const std::array<Surface,1> surfaces{{{{.25f,.5f,.75f,1}}}};
+    const auto expected=sample(dir,surfaces,false,false,false);
+    SceneRenderer renderer(dir/"a.xmp");renderer.set_clear_rgb({14,18,24});
+    FieldProjection projection;projection.load_stage(stage({1,1,1,1},{.25f,.25f,.25f,1},false));
+    projection.begin_field();projection.begin_effects();projection.begin_deferred();projection.end_effects();
+    const Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
+    const auto clip=field_clip_projection(projection.frame().ordinary);
+    const UiMetalBaseline baseline{0x6c00,0x7900,true,0,1,0,1};
+    UiMetalTextureResolver resolver;
+    auto list=[] {
+        UiGeometryList l;l.commands={UiDrawControl::Begin,UiDrawRegister{0x49,0},UiDrawRegister{0x47,0x30003},
+            UiDrawRegister{0x3b,0x100008080ull},UiDrawRegister{0x4a,0},UiDrawRegister{0x42,0x48},
+            UiDrawRegister{0x40,(223ull<<48)|(639ull<<16)},UiDrawRegister{0x14,0x60},UiDrawRegister{8,5},UiDrawCurrentFramebuffer{}};
+        return l;
+    };
+    auto quad=[](std::array<unsigned,4> color,unsigned z) {
+        UiResolvedPrimitive p{};p.prim=0x4d;p.quad.emitted=true;
+        constexpr std::array<std::array<unsigned,2>,4> xy={{{300,100},{340,100},{340,124},{300,124}}};
+        for(unsigned i=0;i<4;++i){auto& v=p.quad.vertices[i];v.xyzf={0x6c00+xy[i][0]*16,0x7900+xy[i][1]*16,z<<4,0};
+            for(unsigned j=0;j<4;++j)v.rgba[j]=0x4b000000|color[j];}
+        return p;
+    };
+    auto render=[&](const SceneUiPass* ui=nullptr){return renderer.render(identity,clip,nullptr,{},1024,{},&projection.frame(),1,ui);};
+    require(render().rgba==expected.rgba);
+    auto geometry=list();SceneUiPass pass{geometry,baseline,resolver};
+    require(render(&pass).rgba==expected.rgba); // Empty pass leaves scene untouched.
+    geometry.commands.push_back(quad({129,129,129,127},100));
+    const auto overlay=render(&pass);const auto before=center(expected),after=center(overlay);
+    for(unsigned c=0;c<3;++c)require(after[c]==std::min(255u,before[c]+127));
+    require(overlay.rgba[(112*640+320)*4+3]==127); // Raw GS alpha, no post-UI restore.
+    require(std::equal(expected.rgba.begin(),expected.rgba.begin()+640*4,overlay.rgba.begin()));
+    require(render().rgba==expected.rgba);
+    geometry=list();geometry.commands.push_back(UiDrawRegister{0x47,0x5000d});
+    geometry.commands.push_back(quad({255,255,255,128},0));
+    require(render(&pass).rgba==expected.rgba);
+    geometry=list();geometry.commands.push_back(quad({128,128,128,0},100));
+    geometry.commands.push_back(UiDrawRegister{0x47,0x5000d});geometry.commands.push_back(quad({255,255,255,128},50));
+    const auto depth=render(&pass);require(center(depth)==before&&depth.rgba[(112*640+320)*4+3]==0);
+    auto gpu=upload_ui_gs_texture(MTLCreateSystemDefaultDevice(),Texture{1,1,0,0,{128,128,128,255}});
+    UiGeometryTexture binding{UiGeometryTexture::Kind::Window,0,0x20000006a8000000ull,{},std::make_shared<int>(1)};
+    resolver=[&](const auto&){return UiMetalTexture{gpu,binding.window};};
+    geometry=list();geometry.commands.push_back(binding);auto bad=quad({128,128,128,128},100);bad.prim=0x5d;bad.texture=binding;
+    for(auto& v:bad.quad.vertices)v.stq={1.f/1024.f,.5f/1024.f,1};geometry.commands.push_back(bad);
+    bool caught=false;try{render(&pass);}catch(const std::runtime_error& e){caught=std::string(e.what()).find("UI unsupported sampled texture footprint:")==0;}
+    require(caught);
+    require(render().rgba==expected.rgba);
+    caught=false;try{renderer.render(identity,clip,nullptr,{},1024,{},nullptr,1,&pass);}catch(const std::runtime_error& e){caught=std::string(e.what())=="Scene UI requires GS field projection depth";}
+    require(caught);
+}
 int main(int argc,const char** argv){@autoreleasepool {try {
-    if(argc!=2)throw std::runtime_error("Usage: scene-map-material-tests FRESH_OUTPUT_DIRECTORY");
-    const fs::path out=argv[1];require(!fs::exists(out));require(fs::create_directories(out));
+    if(argc>2)throw std::runtime_error("Usage: scene-map-material-tests [FRESH_OUTPUT_DIRECTORY]");
+    const fs::path out=argc==2?fs::path(argv[1]):fs::temp_directory_path()/("okage-scene-ui-"+std::string([NSUUID UUID].UUIDString.UTF8String));
+    require(!fs::exists(out));require(fs::create_directories(out));
     const Float4 base{.5f,1,.25f,1},ambient{.125f,.25f,.375f,1};
     std::array<Surface,1> one{{{{.75f,.75f,.75f,1}}}};
     const auto untextured=sample(out/"untextured",one,false,false,false,base,ambient);
@@ -110,5 +162,8 @@ int main(int argc,const char** argv){@autoreleasepool {try {
     const auto b=sample(out/"ordered",ordered,false,false,false);
     require(a.rgba==b.rgba);
     const auto c=center(a);require(c[0]>=140&&c[0]<=141&&c[1]==13&&c[2]>=114&&c[2]<=115);
+    ui_bridge(out/"ui-bridge");
+    if(argc==1)fs::remove_all(out);
+    std::cout<<"Scene UI pass: ordered overlay, shared depth, raw alpha, completed validation and recovery passed\n";
     std::cout<<"Scene map material: TME-off selected state, exact GS-unit centers, animated-map stage ambient, bypass and whole-list pass ordering passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}}
