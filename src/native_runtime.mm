@@ -61,6 +61,8 @@ struct DirectionReplay {
 };
 struct Session {
     std::array<okage::Font,3> fonts;
+    // Immutable native font owner retained by queued UI packets across frames.
+    std::shared_ptr<const std::vector<okage::Font>> ui_fonts;
     okage::MessageBank messages;
     fs::path message_directory;
     std::string message_bank,player_name;
@@ -204,6 +206,7 @@ struct Session {
         fonts{okage::read_fnt(readData(directory/"IQ24.FNT")),okage::read_fnt(readData(directory/"BMUI.FNT")),okage::read_fnt(readData(directory/"BM.FNT"))},
         messages(okage::read_pme(readData(pme))),message_directory(pme.parent_path()),
         message_bank(pme.stem().string()),player_name(name),text({}) {
+        ui_fonts=std::make_shared<const std::vector<okage::Font>>(fonts.begin(),fonts.end());
         okage::initialize_game_variables(variables);
         if(player_name.empty() || player_name.size()>12 || std::any_of(player_name.begin(),player_name.end(),[](unsigned char c){return c<32 || c>=127 || c=='\\';}))
             throw std::runtime_error("Diagnostic player name requires 1..12 printable ASCII characters without text escapes");
@@ -592,6 +595,7 @@ struct Session {
             try {battle->tick(retiring_effects?&*retiring_effects:nullptr,projection,scene_clear,
                 {variables,*game_data,ui_party,ui_shared,battle_pad,
                  {input.held,input.pressed,released,input.repeat,128,128},scene_fade,
+                 ui_fonts,battle_capture_sine,random,
                  [this]{if(battle_capture_layer)battle_capture_target=0;}},
                 frame,battle_stage_report,battle_ui_update_report);
                 pad_repeat.delay=battle_pad.controls[0].delay;

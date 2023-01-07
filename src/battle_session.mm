@@ -10,6 +10,7 @@
 #include "okage/scene_renderer.hpp"
 #include "okage/battle_actor.hpp"
 #include "okage/battle_ui_diagnostic.hpp"
+#include "okage/ui_resource.hpp"
 #include "okage/stage_settings.hpp"
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
@@ -77,6 +78,8 @@ struct BattleSession::Impl {
     std::optional<BattleHudData> hud_definitions;
     std::optional<BattleUiCommandData> command_definitions;
     std::unique_ptr<BattleInterface> ui;
+    UiResourceCoordinator ui_resource;
+    std::optional<UiDrawList> ui_draw;
     bool saved_model_range=true;
     std::uint32_t stage_mask=0x18000000,camera_mask=0x18000000;
     std::uint32_t party_mask=0x18000000,enemy_mask=0x18000000;
@@ -253,6 +256,16 @@ struct BattleSession::Impl {
             out<<"]}\n";if(!out)throw std::runtime_error("Cannot write battle stage report");
         }
         if(failure)std::rethrow_exception(failure);
+    }
+    void prepare_resource_ui(BattleUiContext context) {
+        std::vector<UiResourceSlotBinding> bindings;
+        if(ui)for(const auto handle:ui->handles()) {
+            if(handle<0)throw std::runtime_error("Battle UI lost its registry slot");
+            bindings.push_back({unsigned(handle),0});
+        }
+        ui_draw=ui_resource.advance_resource(context.shared.registry,bindings,
+            context.shared.resource_accumulators,context.fonts,context.sine,
+            context.random,ui_projection);
     }
     void construct_ui(BattleUiContext context,unsigned frame,const fs::path& stage_report) {
         saved_model_range=false;stage_mask&=~0x18000000u;camera_mask&=~0x18000000u;
@@ -475,10 +488,13 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
                          BattleUiContext context,unsigned frame,const fs::path& stage_report,const fs::path& ui_update_report) {
     impl_->jobs.check();
     if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
+    if(!impl_->saved_model_range)
+        throw std::runtime_error("Battle active model resource submission is unrecovered");
     const bool effect_pass=!impl_->suppress_effects.load();
     projection.submit_empty_resource_frame(effect_pass,
         impl_->stage_settings->cached_depth_min,impl_->stage_settings->cached_depth_max);
     if(effect_pass&&retiring)retiring->tick();
+    impl_->prepare_resource_ui(context);
     if(impl_->construction!=Impl::Construction::Complete)return;
     if(!impl_->stage_committed) {
         try {impl_->commit_stage(projection,clear,frame,stage_report);}
@@ -490,7 +506,7 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
     }
     impl_->inspect_ui_updates(context,frame,ui_update_report);
     impl_->scheduled_callbacks(context,projection,frame,stage_report);
-    throw std::runtime_error("Battle resource layout, actor submission and framebuffer filter rendering are unrecovered after first child traversal");
+    throw std::runtime_error("Battle global framebuffer filter6 (190a20) is unrecovered after first child traversal; subsequent model/UI resource submission remains guarded");
 }
 void BattleSession::service_loader_after_frame(BattleConstructionContext context,unsigned frame,const fs::path& report){
     impl_->jobs.check();
