@@ -1,0 +1,439 @@
+{
+  "schema": "okage-battle-resource-integration-validation-v1",
+  "revision": "e7b784fa6e4e0232d6af208673a134e7181e47c6",
+  "acceptance_met": false,
+  "scope": "Ordered UI resource ownership wired before native callbacks; optional scene/UI shared-target Metal bridge tested.",
+  "tests": {
+    "configurations": [
+      "Release",
+      "Debug",
+      "ASan/UBSan"
+    ],
+    "ctests_each": 7,
+    "result": "pass",
+    "commands": "local/research/battle-resource-integration-v1/checks-v1.json",
+    "python": "Not rerun; inspection tools unchanged. Prior357 retained."
+  },
+  "native_replay": {
+    "record": "local/native-battle-resource-104615-release-v1.run.json",
+    "exit_code": 1,
+    "first_unsupported_frame": 104453,
+    "completed_battle_frame": false,
+    "actual_session_ui_draw": false,
+    "boundary_comparison": "local/research/battle-resource-integration-v1/native-boundary-regression-v1.json",
+    "timing_limitation": "Loading needs one extra real iteration versus prior replay; not timeline equivalence or gameplay advancement."
+  },
+  "original_execution": "No new VM run. Source-only exports and review; reuse prior draw/projection evidence.",
+  "evidence": [
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 18022,
+      "sha256": "5990c0728d6c7654e0a18aaace2fb9d1cec1f7a5fd6cd6610d9c2402060f085d"
+    },
+    {
+      "path": "include/okage/scene_renderer.hpp",
+      "bytes": 1807,
+      "sha256": "0e530168c77f11cd91bca42e1b1684fceca0b05c5c148b24cf41321bade06b32"
+    },
+    {
+      "path": "include/okage/ui_resource.hpp",
+      "bytes": 1056,
+      "sha256": "bb860abd8e33b0ee11eaa8390b5253a524bf5942de7b7d6a6d9450b59cb82ef8"
+    },
+    {
+      "path": "local/extracted/SCUS_971.29",
+      "bytes": 1374220,
+      "sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
+    },
+    {
+      "path": "local/native-battle-callbacks-104615-release-v2.run.json",
+      "bytes": 6129,
+      "sha256": "bbae9323a0048e09dbb58f18f65d06a6ab94bca022389962d7afa57060c17991"
+    },
+    {
+      "path": "local/native-battle-resource-104615-release-v1.command.txt",
+      "bytes": 5520,
+      "sha256": "028f5a556ab194d2fcdf46cdb6c82719a35d04965ba795724236579bd03cb639"
+    },
+    {
+      "path": "local/native-battle-resource-104615-release-v1.isolated-ui.json",
+      "bytes": 328073,
+      "sha256": "224139eabe7b0c8cc03835e4dbdd94c6f907cc5c9c0fe5698014d667a046d464"
+    },
+    {
+      "path": "local/native-battle-resource-104615-release-v1.log",
+      "bytes": 4556,
+      "sha256": "575c57a2fdca48b187a72d61384323d57a1c9971c85be12f968f10792a9b4b25"
+    },
+    {
+      "path": "local/native-battle-resource-104615-release-v1.png.battle-construction.json",
+      "bytes": 93845,
+      "sha256": "e01d3923d1a3898c4030db724c275cd9dfd0536d067db2dbf44551f0096db6d4"
+    },
+    {
+      "path": "local/native-battle-resource-104615-release-v1.png.battle-stage.callbacks.json",
+      "bytes": 136477,
+      "sha256": "f380a5e9831b17f36b9d9d9475fc770ef81b8ac178ba852a101b37a23daf1e83"
+    },
+    {
+      "path": "local/native-battle-resource-104615-release-v1.png.battle-stage.hud.json",
+      "bytes": 75816,
+      "sha256": "dd22eeb11a033cd694ea0ab50a4ce60eaaa85e999ce1594717d1368e6c889d95"
+    },
+    {
+      "path": "local/native-battle-resource-104615-release-v1.png.battle-stage.json",
+      "bytes": 42439,
+      "sha256": "4d503d9d65436900c9140a04d6e2f2927ecb853441b9223feec7e531441cd1a8"
+    },
+    {
+      "path": "local/native-battle-resource-104615-release-v1.png.battle-stage.scheduled-ui.json",
+      "bytes": 328075,
+      "sha256": "8fafe21df9f4b4db1854b00d141235ad6d4a548a79a0edac4c9d51126f9de936"
+    },
+    {
+      "path": "local/native-battle-resource-104615-release-v1.png.battle-stage.ui.json",
+      "bytes": 32001,
+      "sha256": "c5e7e5e90b8b970e70719a306f7a11addd37cce3a85b87cc7b51187dcca549dc"
+    },
+    {
+      "path": "local/native-battle-resource-104615-release-v1.png.frames/manifest.json",
+      "bytes": 453,
+      "sha256": "99452d99965365e063815fec0c56b2f31ac7ecc2f3e342a82488c9e91993f32e"
+    },
+    {
+      "path": "local/native-battle-resource-104615-release-v1.png.frames/tick-104136.png",
+      "bytes": 283967,
+      "sha256": "f7d224cb5adc3e0db52983d35b7ca8f255e93822b06275e42acb71bb87a6565f"
+    },
+    {
+      "path": "local/native-battle-resource-104615-release-v1.png.frames/tick-104255.png",
+      "bytes": 261546,
+      "sha256": "66b648898d2bb53b3fb3c4e3170dc62634efc66f02936658bd74649955fad853"
+    },
+    {
+      "path": "local/native-battle-resource-104615-release-v1.png.frames/tick-104375.png",
+      "bytes": 198124,
+      "sha256": "951b84732b5e4e99e36275af9ed41606d91a6eaf182cbb55642e53f9f92b3a87"
+    },
+    {
+      "path": "local/native-battle-resource-104615-release-v1.run.json",
+      "bytes": 6212,
+      "sha256": "f1a0ba106c56b03ec1d52f89523c39750675409c150e996ca9241dc9874bc5bc"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-debug-v1/battle-ui-tests",
+      "bytes": 1319792,
+      "sha256": "9e6749e154f10a4a82f8f12d0c1cf8c00212938982f6ed1b60d9ca7e84ae79a9"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-debug-v1/manifest.json",
+      "bytes": 1496,
+      "sha256": "f42c2564cf512aedb96bb0c2b6bd0a3199272a3ef721cf63e96d239472790d62"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-debug-v1/okage-native",
+      "bytes": 7571872,
+      "sha256": "a962ae9d16fbe67a6ca56fb0163d9ffb67bd10cfd1a6c87b3a0c21d8412ac4c1"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-debug-v1/scene-map-material-tests",
+      "bytes": 4089736,
+      "sha256": "ef4bab23a41b7f351a99fd23969e05436f07d479ee73befd1866c54766c5ccd7"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-debug-v1/ui-draw-tests",
+      "bytes": 1466944,
+      "sha256": "20aaeabc34de137b276c067fb72c95c707888acb5dfec371aa1a72f48e043661"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-debug-v1/ui-geometry-tests",
+      "bytes": 905088,
+      "sha256": "138716b37ee93aae76de09d26ec0784a59d8c455aeb5b17e98dd91c080a2dc24"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-debug-v1/ui-metal-tests",
+      "bytes": 540000,
+      "sha256": "456d2d15dfd09fb5a5fe95c49c3b2d273dc1b0ae9f6696f529e93865c967aad5"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-debug-v1/ui-resource-tests",
+      "bytes": 1759216,
+      "sha256": "f56192ef8ca84df09a408fa08fb60fe4515fe9007f55374b51fbc969170c4ba4"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-debug-v1/ui-window-layout-tests",
+      "bytes": 2312312,
+      "sha256": "95d918d15860fc94a5f5294a498f8a2f96b31257f63c500ca270d7d8a8fc4c61"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-release-v1/battle-ui-tests",
+      "bytes": 212320,
+      "sha256": "4127fe0f45b0ac4d97ea425f4110064496afbfba1757124a702adb08270691f5"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-release-v1/manifest.json",
+      "bytes": 1512,
+      "sha256": "d2f71895c07064e620df8b84eeae089e299cf10773c166dd9925af7f456cdbd3"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-release-v1/okage-native",
+      "bytes": 1827488,
+      "sha256": "7b020eb25d59a7509c8fa3f31929f4262d71ac67c24d812d12e73871b7d9e3bb"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-release-v1/scene-map-material-tests",
+      "bytes": 897608,
+      "sha256": "cfa4b532419cf2cca63af81c64e2f102083c13f90ae5d217da33034f8425ada6"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-release-v1/ui-draw-tests",
+      "bytes": 245552,
+      "sha256": "7314b032b515526d86023900eec80bbcdf9b1d0275b3a8ce6facb22265b405dc"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-release-v1/ui-geometry-tests",
+      "bytes": 152992,
+      "sha256": "769aee04d87466579a40133afa274003a0f6a87837fbfb8b255e12712e7c2dec"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-release-v1/ui-metal-tests",
+      "bytes": 144384,
+      "sha256": "6f68fffe8871aa9a6655cd1cdab9ce2d02279e59cbb6982815fe145a3a659dbb"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-release-v1/ui-resource-tests",
+      "bytes": 321360,
+      "sha256": "5c4799483a67b4434a2f6afa71527a786bc356cb655a6c34cf4a40c0e98c515f"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-release-v1/ui-window-layout-tests",
+      "bytes": 416824,
+      "sha256": "fb057021a805bf5018c69a2bc25ca824402588f21c1663fe9ac82812154b3c8b"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-sanitize-v1/battle-ui-tests",
+      "bytes": 3645616,
+      "sha256": "1bc542d51398c4571fc69f977b5ab3b576e71c667f979b547b649834c8df1f7f"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-sanitize-v1/manifest.json",
+      "bytes": 1520,
+      "sha256": "30a24499bb0692f842a6aa4c020307a9127e4e9ead78b66e21e614bc6f4fff51"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-sanitize-v1/okage-native",
+      "bytes": 17257504,
+      "sha256": "65886ecf08b1d164ee113f3800b3b17691f359665fc9f6627471de7ab2cf9e33"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-sanitize-v1/scene-map-material-tests",
+      "bytes": 9295688,
+      "sha256": "bb31fa0f8a761ece79bfa6e65655723a56c759c934fb3e293ca9367e43ba6189"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-sanitize-v1/ui-draw-tests",
+      "bytes": 4003584,
+      "sha256": "a93c8f8101d6f97fa2a14dd73da65613ecfb2894662d3c2350777a2d872cc597"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-sanitize-v1/ui-geometry-tests",
+      "bytes": 2102048,
+      "sha256": "cd38cf71eefed9981d9dcb2c81afa91b0c9441417f0f8dc840e076d40a2cc7c1"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-sanitize-v1/ui-metal-tests",
+      "bytes": 540016,
+      "sha256": "3fc5492d00a6b3108b0b6a469498583956300b086baa4c8875af731f5dc77f3c"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-sanitize-v1/ui-resource-tests",
+      "bytes": 4818176,
+      "sha256": "70f43163b49980e861b4cfc0d025fa3eeb37f1c35a63b1274d6d2fb89a27b560"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/binaries-sanitize-v1/ui-window-layout-tests",
+      "bytes": 6353096,
+      "sha256": "2738e282a9c11c67f0242b8f6a30d30066517daa50f4ba2aa8ba9df78c6d7b03"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/build-debug-v2.log",
+      "bytes": 3108,
+      "sha256": "542769b138e3cb4209c1fcb9c6060f1e89e897b060a1575b2b49005a5e672068"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/build-release-v1.log",
+      "bytes": 2921,
+      "sha256": "9e03f3656005229394aaa3e4bbbba29866ec6d9902c25a77f33373dc2db7238c"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/build-release-v2.log",
+      "bytes": 187,
+      "sha256": "70ac03ca2ce6447f0833cd449ce11568c1d500904e938dbef95fb83c4d60ac48"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/build-sanitize-v2.log",
+      "bytes": 3116,
+      "sha256": "3472ff1cc210698985eed58cabe9e266b9a4aa316b4efc285ba84eef5466302c"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/checks-v1.json",
+      "bytes": 2623,
+      "sha256": "30c6521b65359a178361d05984c8b30106bd3f498a9596f700a44133cb9fcf0d"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/export-v1.log",
+      "bytes": 4805,
+      "sha256": "a9a6a50365ea5f008637aeef0746c4212c5c1ad3c41fd7368b48e6d83c4a0aed"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/export-v1.run.json",
+      "bytes": 622,
+      "sha256": "4653a4f4fdbc2f47584f49dea26232037425a6abc76d499d86fafbaef4ae0f4a"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/exports/00114760.asm",
+      "bytes": 2025,
+      "sha256": "8dd174ab5878641dc8e67e992343c935ac870db25dffc59c2e78e736e547c9a8"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/exports/00114760.c",
+      "bytes": 734,
+      "sha256": "b0207608144cc476cd2d92b2ba14ede03eac62baa95a751ef066eff5e1fffad8"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/exports/0018fdf8.asm",
+      "bytes": 108,
+      "sha256": "6995986800251758da3d9d45a63b23378b3e7516027ca88e5a8f5ff0920ffb2b"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/exports/0018fdf8.c",
+      "bytes": 126,
+      "sha256": "6583b87c7912bf174307ae281cb1b8f106ff8019ee8321847e42e05208fded50"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/exports/0018fe10.asm",
+      "bytes": 5988,
+      "sha256": "97937e4e07b8a0e0fd245b7487d8e7dc1888781e65b6651efff544fdbbaaa6ec"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/exports/0018fe10.c",
+      "bytes": 3123,
+      "sha256": "ea91812e0ccadde45716f6235a9f161a440582f36f117806fc0a7028cd62f0d8"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/exports/00190200.asm",
+      "bytes": 672,
+      "sha256": "e57c39268ffa610044538581d53a370cdace04437dfacc70c4e9449aded1e5e1"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/exports/00190200.c",
+      "bytes": 358,
+      "sha256": "f170f67feb3b2d163a184c5693de5539103f67316f86f73c4be1f65493a258bf"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/exports/00190278.asm",
+      "bytes": 541,
+      "sha256": "a1f3cd9176887cc448d5078cfdc889c5a696b5a1c91cf01ccdde5fe7f87613e4"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/exports/00190278.c",
+      "bytes": 317,
+      "sha256": "18048e6709ff061d47ef500771247225142538b407e55681f3eaef43b16309be"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/exports/001902d8.asm",
+      "bytes": 1975,
+      "sha256": "178891de378dacbe4c409097b32a73f370985c891349cd1e1c60a73eac9d86d7"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/exports/001902d8.c",
+      "bytes": 1293,
+      "sha256": "3bbdbba78af14db13781f05c64559d2cdbe31a6fd203ee9f33fb65ae551c9af4"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/exports/functions.tsv",
+      "bytes": 102530,
+      "sha256": "029360c9e8eedb14327281de8a435ca48320ea32819f559a8026e9a0cb93a9b2"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/native-boundary-regression-v1.json",
+      "bytes": 2253,
+      "sha256": "179303bd6a2d6c85578e1eedf66de04c85b2f5599bfaaed6fcc345dd91b223fe"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/native-regression-v1.json",
+      "bytes": 3006,
+      "sha256": "e1ea59f90c15a57508ab90a22552562a0558cd548b47df36a7df5b7a98d1d7c7"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/tests-debug-v2.log",
+      "bytes": 945,
+      "sha256": "c8bda2fef8c289903363b581416c5b36cac203afe8ecd4f64301d189c911b52a"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/tests-release-v2.log",
+      "bytes": 961,
+      "sha256": "021863dfa5f9f79370748305de9fa74e362582d5082c04cf5836b4092dd3a166"
+    },
+    {
+      "path": "local/research/battle-resource-integration-v1/tests-sanitize-v2.log",
+      "bytes": 961,
+      "sha256": "87cc0907e8fc844b1d981ab505e2d9e1e5c33b26c7436965d198a014b93f9947"
+    },
+    {
+      "path": "local/research/battle-ui-draw-v1/battle-resource-order-review-v1.txt",
+      "bytes": 13846,
+      "sha256": "11b231e4ed7631f0b87b9708327b0701d8c36e9ef7aa3f05b4bed2f3ce008a81"
+    },
+    {
+      "path": "local/worktrees/battle-ui-render-v1/local/validation/report-v1.json",
+      "bytes": 7006,
+      "sha256": "696fc44ffc8b543dae38e51bb21029d6a61cbc368a1b3447af441643ccfc9cbc"
+    },
+    {
+      "path": "src/battle_session.hpp",
+      "bytes": 1915,
+      "sha256": "69b0067eef7d879f6c5ed8bb1844dfe660a1ea8f267ed7a743623d9c431de517"
+    },
+    {
+      "path": "src/battle_session.mm",
+      "bytes": 35333,
+      "sha256": "7d11618508656b0a1c7234b5673c3a913f2c49dbe21e133479ea0ea646ec9f51"
+    },
+    {
+      "path": "src/native_runtime.mm",
+      "bytes": 102941,
+      "sha256": "6614a9dd77488d0d682ffdc716e53ee18e7ae6e0c70e0983beaf2c7e369de2b6"
+    },
+    {
+      "path": "src/scene_renderer.mm",
+      "bytes": 44681,
+      "sha256": "00fa6d4c37a62a6c5810ceb7addbc7b35cbf703641306605b9cc6200246e1b96"
+    },
+    {
+      "path": "src/ui_metal.hpp",
+      "bytes": 1313,
+      "sha256": "84562c51e272492371dd1fd1f50238ea6332847a03c95d335ababc3aa2eb4d94"
+    },
+    {
+      "path": "src/ui_metal.mm",
+      "bytes": 14399,
+      "sha256": "aad256435a8aa0252f648a854c94b0b5ceed1859da2f87b5049962c992dc3ae4"
+    },
+    {
+      "path": "src/ui_resource.cpp",
+      "bytes": 3358,
+      "sha256": "5aec6424ca527d95c8fbb2345779eb4d17432c6b4d11b8d55b6a3b01f68445e5"
+    },
+    {
+      "path": "tests/scene_map_material_tests.mm",
+      "bytes": 11929,
+      "sha256": "959c12705fa3abd99f4181bbd2daa9488e0f1ba06743d9f97ee96ec519414f43"
+    },
+    {
+      "path": "tests/ui_resource_tests.cpp",
+      "bytes": 6736,
+      "sha256": "f04f863fa8c60ee481011073af2c1f8dc4482607324f202321da8d38688379e0"
+    }
+  ]
+}
