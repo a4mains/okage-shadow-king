@@ -9,7 +9,7 @@ struct FieldShadowSettings {
     std::uint32_t threshold=10;
 };
 FieldShadowSettings field_shadow_settings(Bytes stage);
-unsigned field_depth_bucket(const Matrix4& view,const Float4& position,const ShadowScreenSettings&);
+unsigned field_depth_bucket(const Matrix4& view,const Float4& position,const ShadowScreenSettings&,unsigned depth_shift=19);
 unsigned field_ordinary_bucket(std::uint32_t flags,unsigned depth,bool special_actor=false);
 struct FieldShadowActor {
     int alias=0;
@@ -22,6 +22,9 @@ struct FieldShadowActor {
 };
 FieldShadowActor make_field_shadow_actor(int alias,std::string_view model_name,
     const FieldActor&,const ModelFile* companion,bool height_enabled=true);
+// Explicit instance+24 flags and constructor337e70 height mode; no alias rules.
+FieldShadowActor make_instance_shadow_actor(int alias,const FieldActor&,
+    const ModelFile* companion,std::uint32_t flags,bool height_enabled);
 struct FieldShadowDraw {ShadowPrism prism;std::array<std::uint32_t,3> color;};
 struct FieldShadowSubmission {
     int alias;
@@ -32,5 +35,5 @@ struct FieldShadowFrame {
     std::vector<FieldShadowSubmission> submissions; // GPU execution order.
 };
 FieldShadowFrame field_shadow_frame(std::span<const FieldShadowActor>,const Matrix4& view,
-    const FieldProjectionFrame&,const FieldShadowSettings&,float player_factor,const SineTable&);
+    const FieldProjectionFrame&,const FieldShadowSettings&,float player_factor,const SineTable&,unsigned depth_shift=19);
 }

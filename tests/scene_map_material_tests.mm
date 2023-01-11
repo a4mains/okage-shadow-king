@@ -85,6 +85,30 @@ static Texture sample(const fs::path& dir,std::span<const Surface> surfaces,bool
     return cold;
 }
 static std::array<unsigned,3> center(const Texture& t){const auto n=(112*640+320)*4;return {t.rgba[n],t.rgba[n+1],t.rgba[n+2]};}
+static Texture battle_actor_sample(const fs::path& dir,std::span<const Surface> surfaces,unsigned flags,
+        const Float4& base,const Float4& ambient,bool textured=false) {
+    const auto expected=sample(dir,surfaces,true,textured,false,base,ambient);
+    auto hidden=map(false);put(hidden,64+12,0x10000);write(dir/"a.xmp",hidden);
+    Data motion(56);put(motion,0,0x544d58);put(motion,4,24);put(motion,16,0xffffffff);
+    FieldActor actor(read_xmd(model(surfaces,true,textured,false)),motion,{});
+    actor.animation().set_channel(4,{0,0,0,1});actor.animation().set_channel(5,{0,0,0,1});
+    // A decoy channel3 must not replace stage ambient for bit200000.
+    actor.animation().set_channel(3,{0,0,0,0});actor.evaluate();actor.render_flags=flags;
+    SceneActor binding{&actor,dir/"m.xmd",-1,SceneActorDescriptor{flags,false}};
+    SceneRenderer renderer(dir/"a.xmp",std::span(&binding,1));renderer.set_clear_rgb({14,18,24});renderer.set_sort_depth_shift(16);
+    FieldProjection projection;projection.load_stage(stage(base,ambient,false));
+    projection.begin_field();projection.begin_effects();projection.begin_deferred();projection.end_effects();
+    const Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
+    auto render=[&]{return renderer.render(identity,field_clip_projection(projection.frame().ordinary),nullptr,{},1024,{},&projection.frame());};
+    const auto image=render();require(image.rgba==expected.rgba);require(renderer.shadow_submissions().empty());
+    actor.animation().set_channel(3,{.9f,.8f,.7f,.6f});actor.evaluate();require(render().rgba==image.rgba);
+    actor.render_flags=0x300080;bool caught=false;try{render();}catch(const std::runtime_error& e){caught=std::string(e.what())=="Explicit actor flags changed after binding";}require(caught);
+    actor.render_flags=flags;
+    caught=false;try{renderer.set_sort_depth_shift(32);}catch(const std::runtime_error&){caught=true;}require(caught);require(render().rgba==image.rgba);
+    SceneActor invalid{&actor,dir/"m.xmd",-1,SceneActorDescriptor{0x300080,false}};
+    caught=false;try{SceneRenderer unsupported(dir/"a.xmp",std::span(&invalid,1));}catch(const std::runtime_error& e){caught=std::string(e.what())=="Unrecovered explicit actor flags";}require(caught);
+    return image;
+}
 static void ui_bridge(const fs::path& dir) {
     const std::array<Surface,1> surfaces{{{{.25f,.5f,.75f,1}}}};
     const auto expected=sample(dir,surfaces,false,false,false);
@@ -162,6 +186,14 @@ int main(int argc,const char** argv){@autoreleasepool {try {
     const auto b=sample(out/"ordered",ordered,false,false,false);
     require(a.rgba==b.rgba);
     const auto c=center(a);require(c[0]>=140&&c[0]<=141&&c[1]==13&&c[2]>=114&&c[2]<=115);
+    one[0].normal=false;one[0].bypass=false;
+    battle_actor_sample(out/"battle-base",one,0x200080,base,ambient);
+    one[0].normal=true;
+    battle_actor_sample(out/"battle-normal",one,0x2000a0,base,ambient);
+    battle_actor_sample(out/"battle-textured",one,0x200080,base,ambient,true);
+    one[0].bypass=true;
+    battle_actor_sample(out/"battle-bypass",one,0x2000e0,base,ambient);
+    battle_actor_sample(out/"battle-translucent",interleaved,0x200080,base,ambient);
     ui_bridge(out/"ui-bridge");
     if(argc==1)fs::remove_all(out);
     std::cout<<"Scene UI pass: ordered overlay, shared depth, raw alpha, completed validation and recovery passed\n";

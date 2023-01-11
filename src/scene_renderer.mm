@@ -33,7 +33,7 @@ struct SceneRenderer::Impl {
         std::vector<std::optional<PolygonTextureCoordinates>> coordinates;
         std::vector<std::array<PreparedMapBaseColor,4>> mapBaseColors;
     };
-    struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;std::optional<MapTransform> facing;std::optional<std::size_t> placement;bool visible=true;bool afterShadows=false;std::uint32_t flags=0;unsigned ordinal=0;bool special=false;};
+    struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;std::optional<MapTransform> facing;std::optional<std::size_t> placement;bool visible=true;bool afterShadows=false;std::uint32_t flags=0;unsigned ordinal=0;bool special=false;std::optional<SceneActorDescriptor> descriptor{};};
     const MapObjects* mapObjects=nullptr;
     SineTable sine=make_sine_table();
     std::vector<Input> inputs;
@@ -50,6 +50,7 @@ struct SceneRenderer::Impl {
     std::vector<std::size_t> textureOffsets;
     std::size_t omittedEffects=0,actorCount=0;
     unsigned nextFrontOrdinal=0;
+    unsigned sortDepthShift=19;
     std::size_t whiteTexture=0,effectTexture=0;
     bool effectTexturesLoaded=false;
     const MapEffects* mapEffects=nullptr;
@@ -178,10 +179,20 @@ struct SceneRenderer::Impl {
         if(fs::exists(companion_path))companion=read_xmd(read(companion_path));
         auto name=binding.model_path.parent_path().stem().string();
         std::transform(name.begin(),name.end(),name.begin(),[](unsigned char c){return char(std::tolower(c));});
-        auto shadow=make_field_shadow_actor(binding.alias,name,*binding.actor,companion?&*companion:nullptr);
+        if(binding.descriptor) {
+            const auto flags=binding.descriptor->flags;
+            if(flags!=0x200080&&flags!=0x2000a0&&flags!=0x2000e0)
+                throw std::runtime_error("Unrecovered explicit actor flags");
+            if(binding.actor->render_flags!=flags||binding.actor->encounter_model)
+                throw std::runtime_error("Explicit actor descriptor disagrees with instance");
+        }
+        auto shadow=binding.descriptor?make_instance_shadow_actor(binding.alias,*binding.actor,
+            companion?&*companion:nullptr,binding.descriptor->flags,binding.descriptor->height_enabled):
+            make_field_shadow_actor(binding.alias,name,*binding.actor,companion?&*companion:nullptr);
         Input input{binding.model_path,binding.actor->model(),{},binding.actor,{},{},true,shadow.ordinary_after_shadows()};
         input.flags=shadow.flags;input.ordinal=nextFrontOrdinal;
-        input.special=name=="wkumo"||name=="rkumo"||name=="bkumo";
+        input.special=!binding.descriptor&&(name=="wkumo"||name=="rkumo"||name=="bkumo");
+        input.descriptor=binding.descriptor;
         return {std::move(input),std::move(shadow)};
     }
     static std::vector<Texture> inputTextures(const Input& input) {
@@ -201,7 +212,7 @@ struct SceneRenderer::Impl {
             for(const auto& block:part.blocks)
                 blocks.push_back({std::vector<std::optional<PreparedTextureState>>(block.textures.size()),
                     std::vector<std::optional<PolygonTextureCoordinates>>(block.polygons.size()),
-                    input.placement?std::vector<std::array<PreparedMapBaseColor,4>>(block.polygons.size()):std::vector<std::array<PreparedMapBaseColor,4>>{}});
+                    (input.placement||input.descriptor)?std::vector<std::array<PreparedMapBaseColor,4>>(block.polygons.size()):std::vector<std::array<PreparedMapBaseColor,4>>{}});
         }
         return parts;
     }
@@ -245,7 +256,7 @@ struct SceneRenderer::Impl {
     }
     Texture render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor,const SceneUiPass* ui) {
         if(ui&&!fieldProjection)throw std::runtime_error("Scene UI requires GS field projection depth");
-        shadowFrame=fieldProjection?field_shadow_frame(shadowActors,view,*fieldProjection,shadowSettings,shadowFactor,sine):FieldShadowFrame{};
+        shadowFrame=fieldProjection?field_shadow_frame(shadowActors,view,*fieldProjection,shadowSettings,shadowFactor,sine,sortDepthShift):FieldShadowFrame{};
         std::vector<Vertex> vertices;
         std::vector<Draw> draws;
         bool hadOrdinaryGeometry=false;
@@ -255,10 +266,14 @@ struct SceneRenderer::Impl {
             if(input.placement && !(mapObjects?mapObjects->visible(*input.placement):input.visible))continue;
             if(input.actor && !input.actor->visible)continue;
             const bool mapMaterial=input.placement.has_value();
+            const bool explicitActor=input.descriptor.has_value();
+            if(explicitActor&&input.actor->render_flags!=input.descriptor->flags)
+                throw std::runtime_error("Explicit actor flags changed after binding");
+            const bool ordinaryMaterial=mapMaterial||explicitActor;
             const bool ordinaryInstance=input.actor && !input.actor->encounter_model && input.actor->render_flags==0x100000;
             const bool materialActor=input.actor && (input.actor->encounter_model || ordinaryInstance);
             float instanceAlpha=1;
-            if(input.actor && input.actor->render_flags) {
+            if(input.actor && input.actor->render_flags && !explicitActor) {
                 if(!materialActor || input.actor->render_flags!=0x100000)
                     throw std::runtime_error("Actor instance render mode is unrecovered");
                 const auto& ambient=input.actor->channels().at(3);
@@ -281,7 +296,7 @@ struct SceneRenderer::Impl {
                 const auto position=sky_follow_position(cameraPosition,sky_factors);
                 world[3]={position[0],position[1],position[2],1};
             }
-            const unsigned sort=fieldProjection?field_ordinary_bucket(input.flags,field_depth_bucket(view,world[3],fieldProjection->ordinary),input.special):0;
+            const unsigned sort=fieldProjection?field_ordinary_bucket(input.flags,field_depth_bucket(view,world[3],fieldProjection->ordinary,sortDepthShift),input.special):0;
             std::size_t partIndex=0;
             for (const auto& part:input.model.models) {
                 std::vector<Draw> mapTranslucent;
@@ -312,17 +327,17 @@ struct SceneRenderer::Impl {
                             values.at(attr.first+i)=attr.values[i]; defined.at(attr.first+i)=true;
                         }
                     }
-                    const bool mapNormalBlock=mapMaterial&&map_material_block_uses_normals(block);
+                    const bool mapNormalBlock=ordinaryMaterial&&map_material_block_uses_normals(block);
                     std::size_t polygonIndex=0;
                     for (const auto& polygon:block.polygons) {
                         auto& preparedUV=prepared.coordinates.at(polygonIndex++);
                         const auto triangles=okage::triangle_corners(polygon.corners.size());
                         std::array<std::array<float,2>,4> polygonUV{};
                         Draw draw{std::uint32_t(vertices.size()),0,-1,{}};
-                        draw.bucket=sort;draw.ordinal=input.ordinal;draw.phase=sort>517?1:0;draw.mapMaterial=mapMaterial;
+                        draw.bucket=sort;draw.ordinal=input.ordinal;draw.phase=sort>517?1:0;draw.mapMaterial=ordinaryMaterial;
                         const Material* material=nullptr;
                         bool mapTransparent=false;
-                        if(mapMaterial) {
+                        if(ordinaryMaterial) {
                             if(polygon.material<0)throw std::runtime_error("Map polygon has no material");
                             material=&block.materials.at(polygon.material);
                             mapTransparent=map_material_class(*material,-1).translucent;
@@ -337,8 +352,8 @@ struct SceneRenderer::Impl {
                             draw.materialBlend=material_blend_register(*material);
                         }
                         const okage::TextureState* state=nullptr;
-                        const bool textureEnabled=mapMaterial?map_material_textured(polygon):polygon.texture_state>=0;
-                        if(mapMaterial&&textureEnabled&&block.textures.at(polygon.texture_state).texture<0)
+                        const bool textureEnabled=ordinaryMaterial?map_material_textured(polygon):polygon.texture_state>=0;
+                        if(ordinaryMaterial&&textureEnabled&&block.textures.at(polygon.texture_state).texture<0)
                             throw std::runtime_error("Textured map polygon has no image");
                         if (textureEnabled && block.textures.at(polygon.texture_state).texture>=0) {
                             state=&block.textures.at(polygon.texture_state);
@@ -352,7 +367,7 @@ struct SceneRenderer::Impl {
                                 std::uint32_t(clamp)&3,std::uint32_t(clamp>>2)&3,1,0};
                             // Ordinary setup TEXA has TA0=128, AEM=1. PSM24
                             // stores no alpha: RGB zero becomes transparent.
-                            if((mapMaterial||ordinaryInstance) && textures.at(draw.image).pixel_format==1)draw.state[6]|=2;
+                            if((ordinaryMaterial||ordinaryInstance) && textures.at(draw.image).pixel_format==1)draw.state[6]|=2;
                             if(!preparedUV) {
                                 for(std::size_t i=0;i<polygon.corners.size();++i) {
                                     const auto index=polygon.corners[i][3];
@@ -368,12 +383,12 @@ struct SceneRenderer::Impl {
                             Vertex vertex{positions.at(corner[0]),{1,1,1,1},{0,0,0,0}};
                             if (corner[2]>=0 && colorDefined.at(corner[2])) vertex.color=colors.at(corner[2]);
                             else throw std::runtime_error("Missing preview source color");
-                            if(material&&mapMaterial&&(corner[1]<0||(material->words[7]&1))) {
+                            if(material&&ordinaryMaterial&&(corner[1]<0||(material->words[7]&1))) {
                                 vertex.color=prepared.mapBaseColors.at(polygonIndex-1)[index].get(
                                     *material,vertex.color,ordinaryLighting.base,!fieldProjection);
                             } else if(material) {
                                 vertex.color=material_source_color(*material,vertex.color);
-                                if(mapMaterial) {
+                                if(ordinaryMaterial) {
                                     const auto normal=corner[1];
                                     const auto classification=map_material_class(*material,normal);
                                     const Float4* light=&ordinaryLighting.base;
@@ -423,7 +438,7 @@ struct SceneRenderer::Impl {
                             }
                             vertices.push_back(vertex); ++draw.count;
                         }
-                        if(mapMaterial) {
+                        if(ordinaryMaterial) {
                             if(mapTransparent)mapTranslucent.push_back(draw);
                             else {draw.state[7]=3;draws.push_back(draw);}
                         } else if(ordinaryInstance) {
@@ -590,6 +605,10 @@ EffectTextureSizes SceneRenderer::effect_texture_sizes() const {
 }
 void SceneRenderer::set_effect_light_tint(const Float4& tint){impl_->effectTint=tint;}
 void SceneRenderer::set_clear_rgb(std::array<std::uint8_t,3> rgb){impl_->clearRGB=rgb;}
+void SceneRenderer::set_sort_depth_shift(unsigned shift){
+    if(shift>31)throw std::runtime_error("Unsupported sort depth shift");
+    impl_->sortDepthShift=shift;
+}
 void SceneRenderer::set_stage_environment(const FieldOrdinaryLighting& light,const FieldShadowSettings& shadow,const Float4& sky) {
     if(light.base!=impl_->ordinaryLighting.base)
         for(auto& input:impl_->preparation)for(auto& part:input)for(auto& block:part)

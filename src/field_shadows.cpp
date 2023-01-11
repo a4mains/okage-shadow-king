@@ -18,7 +18,8 @@ std::uint32_t word(Bytes b,std::size_t p) {
     return std::uint32_t(b[p])|(std::uint32_t(b[p+1])<<8)|(std::uint32_t(b[p+2])<<16)|(std::uint32_t(b[p+3])<<24);
 }
 }
-unsigned field_depth_bucket(const Matrix4& view,const Float4& position,const ShadowScreenSettings& settings) {
+unsigned field_depth_bucket(const Matrix4& view,const Float4& position,const ShadowScreenSettings& settings,unsigned depth_shift) {
+    if(depth_shift>31)throw std::runtime_error("Unsupported sort depth shift");
     Rounding rounding;
     Float4 p{};
     for(unsigned row=0;row<4;++row) {
@@ -30,7 +31,7 @@ unsigned field_depth_bucket(const Matrix4& view,const Float4& position,const Sha
     const auto cache=shadow_vertex_cache(std::span(&p,1),{identity,identity},shadow_screen_parameters(settings));
     const float z=cache.screen[0][2]*16;
     if(!std::isfinite(z)||z<0||z>=2147483648.f)throw std::runtime_error("Field shadow sort depth overflow");
-    return std::min(512u,static_cast<std::uint32_t>(z)>>19);
+    return std::min(512u,static_cast<std::uint32_t>(z)>>depth_shift);
 }
 unsigned field_ordinary_bucket(std::uint32_t flags,unsigned depth,bool special) {
     if(depth>512)throw std::runtime_error("Invalid field sort depth");
@@ -74,8 +75,12 @@ FieldShadowSettings field_shadow_settings(Bytes stage) {
 }
 FieldShadowActor make_field_shadow_actor(int alias,std::string_view name,const FieldActor& actor,
         const ModelFile* companion,bool height) {
-    FieldShadowActor result;result.alias=alias;result.actor=&actor;
-    result.flags=alias==-3?0xa0:alias==-1?0xc0:(name=="wkumo"||name=="rkumo"||name=="bkumo")?0x40060:0xe0;
+    const auto flags=alias==-3?0xa0:alias==-1?0xc0:(name=="wkumo"||name=="rkumo"||name=="bkumo")?0x40060:0xe0;
+    return make_instance_shadow_actor(alias,actor,companion,flags,height);
+}
+FieldShadowActor make_instance_shadow_actor(int alias,const FieldActor& actor,
+        const ModelFile* companion,std::uint32_t flags,bool height) {
+    FieldShadowActor result;result.alias=alias;result.actor=&actor;result.flags=flags;
     auto classification=(result.flags>>5)&3;
     if(!companion&&classification!=1){result.flags&=~0x60u;classification=0;}
     if(classification<2)return result;
@@ -86,7 +91,7 @@ FieldShadowActor make_field_shadow_actor(int alias,std::string_view name,const F
     return result;
 }
 FieldShadowFrame field_shadow_frame(std::span<const FieldShadowActor> actors,const Matrix4& view,
-        const FieldProjectionFrame& screen,const FieldShadowSettings& settings,float factor,const SineTable& sine) {
+        const FieldProjectionFrame& screen,const FieldShadowSettings& settings,float factor,const SineTable& sine,unsigned depth_shift) {
     const ShadowProjectionContext context(settings.direction,view);
     auto projection=context.base();
     const auto params=shadow_screen_parameters(screen.shadow);
@@ -96,7 +101,7 @@ FieldShadowFrame field_shadow_frame(std::span<const FieldShadowActor> actors,con
     for(auto it=actors.rbegin();it!=actors.rend();++it) {
         const auto& input=*it;
         if(!input.actor||!input.actor->visible||!input.companion||!input.selector)continue;
-        const auto sort=field_depth_bucket(view,input.actor->channels().at(1),screen.ordinary);
+        const auto sort=field_depth_bucket(view,input.actor->channels().at(1),screen.ordinary,depth_shift);
         if(sort<=settings.threshold)continue;
         const auto selector=input.actor->shadow_mode_override.value_or(*input.selector);
         //0x1ba244/0x1ba248 loads the selector as signed16 and skips both

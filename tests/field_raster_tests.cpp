@@ -275,11 +275,36 @@ int main() {
             okage::ModelFile model;model.models.emplace_back();
             okage::FieldActor hero(model,motion,{});
             hero.animation().set_channel(1,{0,0,10,1});hero.evaluate();
+            // Same source instance metadata, independent of field alias/name.
+            auto shadow_model=model;shadow_model.models[0].bones.push_back({{1,1,1,1},{0,0,0,0},{0,0,0,1}});
+            shadow_model.models[0].hierarchy.push_back({0,-1});shadow_model.models[0].names.push_back("root");
+            okage::FieldActor skeleton(shadow_model,motion,{});
+            const auto plain=okage::make_instance_shadow_actor(-1,skeleton,&shadow_model,0x200080,false);
+            check(plain.flags==0x200080&&!plain.selector&&!plain.ordinary_after_shadows());
+            const auto mode1=okage::make_instance_shadow_actor(-1,skeleton,nullptr,0x2000a0,false);
+            check(mode1.flags==0x2000a0&&!mode1.selector&&mode1.ordinary_after_shadows());
+            const auto battle=okage::make_instance_shadow_actor(-1,skeleton,&shadow_model,0x2000e0,false);
+            check(battle.flags==0x2000e0&&battle.selector==1&&battle.ordinary_after_shadows());
+            check(okage::make_instance_shadow_actor(9,skeleton,&shadow_model,0x2000e0,true).selector==5);
+            check(okage::make_instance_shadow_actor(9,skeleton,&shadow_model,0x6000e0,false).selector==3);
+            const auto missing=okage::make_instance_shadow_actor(9,skeleton,nullptr,0x2000e0,false);
+            check(missing.flags==0x200080&&!missing.selector&&!missing.ordinary_after_shadows());
+            check(okage::make_field_shadow_actor(-1,"ari",skeleton,&shadow_model).selector==4);
+            check(okage::field_ordinary_bucket(0x200080,12)==15);
+            check(okage::field_ordinary_bucket(0x2000a0,12)==533);
+            check(okage::field_ordinary_bucket(0x2000e0,12)==533);
             std::array<okage::FieldShadowActor,1> actors;
             actors[0].alias=-1;actors[0].actor=&hero;actors[0].flags=0xc0;
             actors[0].selector=4;actors[0].companion.emplace();
             const okage::Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
             okage::FieldProjectionFrame screen;screen.ordinary=settings;screen.shadow=settings;
+            const auto depth0=okage::field_depth_bucket(identity,{0,0,10,1},settings,0);
+            check(depth0==512);
+            const auto d19=okage::field_depth_bucket(identity,{0,0,10,1},settings,19);
+            const auto d16=okage::field_depth_bucket(identity,{0,0,10,1},settings,16);
+            check(d16>d19&&d19>0);
+            check(okage::field_depth_bucket(identity,{0,0,10,1},settings)==d19);
+            rejects([&]{okage::field_depth_bucket(identity,{0,0,10,1},settings,32);});
             okage::FieldShadowSettings shadows;shadows.threshold=0;
             const auto sine=okage::make_sine_table();
             const auto frame=[&](float factor) {

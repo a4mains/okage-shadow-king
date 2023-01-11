@@ -18,7 +18,8 @@ struct SceneUiPass {
     const std::function<UiMetalTexture(const UiGeometryTexture&)>& textures;
 };
 struct FieldOrdinaryLighting;
-struct SceneActor {const FieldActor* actor;std::filesystem::path model_path;int alias=0;};
+struct SceneActorDescriptor {std::uint32_t flags;bool height_enabled;};
+struct SceneActor {const FieldActor* actor;std::filesystem::path model_path;int alias=0;std::optional<SceneActorDescriptor> descriptor{};};
 class SceneRenderer {
 public:
     explicit SceneRenderer(const std::filesystem::path& map,std::span<const SceneActor> actors={},const MapObjects* objects=nullptr);
@@ -30,6 +31,8 @@ public:
     void bind_effect_submissions(const EffectSubmissions*);
     void set_effect_light_tint(const Float4&);
     void set_clear_rgb(std::array<std::uint8_t,3>);
+    //337e0c from StageSettings.bucket_base; queue division remains source9.
+    void set_sort_depth_shift(unsigned);
     void set_stage_environment(const FieldOrdinaryLighting&,const FieldShadowSettings&,const Float4& sky);
     Texture render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects=nullptr,const Float4& camera_rotation={},float far_clip=1024,const Float4& camera_position={},const FieldProjectionFrame* field_projection=nullptr,float shadow_factor=1,const SceneUiPass* ui=nullptr);
     const std::vector<FieldShadowSubmission>& shadow_submissions() const;
