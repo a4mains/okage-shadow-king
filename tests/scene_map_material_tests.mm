@@ -106,6 +106,9 @@ static Texture battle_actor_sample(const fs::path& dir,std::span<const Surface> 
     actor.animation().set_channel(1,{40,0,0,1});actor.evaluate();actor.visible=false;actor.render_flags=0x300080;
     renderer.set_clear_rgb({1,2,3});renderer.set_sort_depth_shift(19);
     require(renderer.render_prepared(copy).rgba==image.rgba);
+    const auto live_clear=renderer.render_prepared(copy,nullptr,nullptr,std::array<std::uint8_t,4>{1,2,3,255});
+    require(center(live_clear)==center(image));
+    require(live_clear.rgba[0]==1&&live_clear.rgba[1]==2&&live_clear.rgba[2]==3);
     actor.visible=true;actor.render_flags=flags;
     require(render().rgba!=image.rgba);
     require(renderer.render_prepared(snapshot).rgba==image.rgba);
@@ -175,6 +178,18 @@ static void ui_bridge(const fs::path& dir) {
     const SceneGpuPass empty_validator{[](id<MTLCommandBuffer>,id<MTLTexture>,id<MTLTexture>){return std::function<void()>{};}};
     rejected=false;try{renderer.render_prepared(prepared,nullptr,&empty_validator);}catch(const std::runtime_error&){rejected=true;}require(rejected);
     require(renderer.render_prepared(prepared).rgba==expected.rgba);
+    const auto empty=renderer.prepare_empty(projection.frame());
+    const auto cleared=renderer.render_prepared(empty,nullptr,nullptr,std::array<std::uint8_t,4>{8,16,24,0});
+    require(center(cleared)==std::array<unsigned,3>{8,16,24}&&cleared.rgba[3]==64);
+    require(renderer.shadow_submissions().empty());
+    geometry=list();geometry.commands.push_back(UiDrawRegister{0x47,0x5000d});geometry.commands.push_back(quad({129,129,129,127},0));
+    const auto on_empty=renderer.render_prepared(empty,&pass,nullptr,std::array<std::uint8_t,4>{8,16,24,0});
+    require(center(on_empty)==std::array<unsigned,3>{135,143,151}); // Z0 passes freshly cleared depth.
+    const auto depth_override=renderer.render_prepared(empty,&pass,nullptr,std::array<std::uint8_t,4>{8,16,24,0},0);
+    require(center(depth_override)==std::array<unsigned,3>{8,16,24}&&depth_override.rgba[3]==64);
+    rejected=false;try{renderer.render_prepared(empty,nullptr,nullptr,std::nullopt,-1);}catch(const std::runtime_error&){rejected=true;}require(rejected);
+    require(renderer.render_prepared(empty,&pass,&hook).rgba==hooked.rgba); // Empty scene still runs hook before UI.
+
     geometry=list();geometry.commands.push_back(UiDrawRegister{0x47,0x5000d});
     geometry.commands.push_back(quad({255,255,255,128},0));
     require(render(&pass).rgba==expected.rgba);

@@ -36,7 +36,7 @@ struct SceneRenderer::PreparedFrame::Data {
     std::array<std::uint8_t,3> clear;
     NSArray<id<MTLTexture>>* textures;
     std::size_t white_texture;
-    bool field_projection;
+    bool field_projection,restore_shadow_alpha;
 };
 struct SceneRenderer::Impl {
     struct BlockPreparation {
@@ -553,26 +553,36 @@ struct SceneRenderer::Impl {
             const auto p=v.position;
             v.position={p[0]*projection[0],-p[1]*projection[1],(p[2]*projection[2]+projection[3]+p[2])*0.5f,p[2]};
         }
+        return snapshot(std::move(vertices),std::move(draws),fieldProjection);
+    }
+    PreparedFrame snapshot(std::vector<Vertex> vertices,std::vector<Draw> draws,const FieldProjectionFrame* fieldProjection,bool restoreOpaqueAlpha=true) {
         auto data=std::make_shared<PreparedFrame::Data>();
         data->renderer=identity;data->vertices=std::move(vertices);data->draws=std::move(draws);
         data->shadows=shadowFrame;data->clear=clearRGB;data->textures=[gpuTextures copy];
-        data->white_texture=whiteTexture;data->field_projection=fieldProjection!=nullptr;
+        data->white_texture=whiteTexture;data->field_projection=fieldProjection!=nullptr;data->restore_shadow_alpha=restoreOpaqueAlpha;
         if(fieldProjection){data->shadow_mapping.offset_x=fieldProjection->shadow.center_x-320;
             data->shadow_mapping.offset_y=fieldProjection->shadow.center_y-112;}
         PreparedFrame frame;frame.data_=std::move(data);return frame;
     }
-    Texture renderPrepared(const PreparedFrame& frame,const SceneUiPass* ui,const SceneGpuPass* gpuPass) {
+    PreparedFrame prepareEmpty(const FieldProjectionFrame& projection) {
+        //1b9be0 always queues1b1690 ->1b11b0 alpha64, even empty.
+        //1b1ad8 restores registers only; omit the legacy display-alpha255 pass.
+        shadowFrame={};return snapshot({},{},&projection,false);
+    }
+    Texture renderPrepared(const PreparedFrame& frame,const SceneUiPass* ui,const SceneGpuPass* gpuPass,std::optional<std::array<std::uint8_t,4>> executionClear,float depthClear) {
         if(!frame.data_||frame.data_->renderer!=identity)throw std::runtime_error("Prepared scene belongs to another renderer or is empty");
+        if(!std::isfinite(depthClear)||depthClear<0||depthClear>1)throw std::runtime_error("Invalid scene depth clear");
         const auto& data=*frame.data_;
         if(ui&&!data.field_projection)throw std::runtime_error("Scene UI requires GS field projection depth");
         if(gpuPass&&!gpuPass->encode)throw std::runtime_error("Scene GPU pass has no encoder");
         const auto& vertices=data.vertices;const auto& draws=data.draws;
         shadowFrame=data.shadows;
+        const auto clear=executionClear.value_or(std::array<std::uint8_t,4>{data.clear[0],data.clear[1],data.clear[2],255});
         auto pass=[MTLRenderPassDescriptor renderPassDescriptor];
         pass.colorAttachments[0].texture=target; pass.colorAttachments[0].loadAction=MTLLoadActionClear;
         pass.colorAttachments[0].storeAction=MTLStoreActionStore;
-        pass.colorAttachments[0].clearColor=MTLClearColorMake(data.clear[0]/255.,data.clear[1]/255.,data.clear[2]/255.,1);
-        pass.depthAttachment.texture=depthTarget; pass.depthAttachment.loadAction=MTLLoadActionClear; pass.depthAttachment.clearDepth=1;
+        pass.colorAttachments[0].clearColor=MTLClearColorMake(clear[0]/255.,clear[1]/255.,clear[2]/255.,clear[3]/255.);
+        pass.depthAttachment.texture=depthTarget; pass.depthAttachment.loadAction=MTLLoadActionClear; pass.depthAttachment.clearDepth=depthClear;
         pass.depthAttachment.storeAction=MTLStoreActionStore;
         id<MTLCommandBuffer> command=[queue commandBuffer];
         id<MTLBuffer> vertexBuffer=vertices.empty()?nil:[device newBufferWithBytes:vertices.data() length:vertices.size()*sizeof(Vertex) options:MTLResourceStorageModeShared];
@@ -598,7 +608,7 @@ struct SceneRenderer::Impl {
             if(!shadowMetal)shadowMetal=std::make_unique<ShadowMetal>(device);
             std::vector<ShadowRasterDraw> shadowDraws;shadowDraws.reserve(shadowFrame.draws.size());
             for(const auto& draw:shadowFrame.draws)shadowDraws.push_back({draw.prism,draw.color});
-            shadowMetal->encode(command,target,depthTarget,shadowDraws,data.shadow_mapping);
+            shadowMetal->encode(command,target,depthTarget,shadowDraws,data.shadow_mapping,data.restore_shadow_alpha);
             pass.colorAttachments[0].loadAction=MTLLoadActionLoad;
             pass.depthAttachment.loadAction=MTLLoadActionLoad;
             encode(true);
@@ -648,7 +658,8 @@ void SceneRenderer::set_stage_environment(const FieldOrdinaryLighting& light,con
 void SceneRenderer::bind_map_effects(const MapEffects* effects){impl_->mapEffects=effects;}
 void SceneRenderer::bind_effect_submissions(const EffectSubmissions* effects){impl_->effectSubmissions=effects;}
 SceneRenderer::PreparedFrame SceneRenderer::prepare(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor){return impl_->prepare(view,projection,effects,camera,farClip,cameraPosition,fieldProjection,shadowFactor);}
-Texture SceneRenderer::render_prepared(const PreparedFrame& frame,const SceneUiPass* ui,const SceneGpuPass* pass){return impl_->renderPrepared(frame,ui,pass);}
+SceneRenderer::PreparedFrame SceneRenderer::prepare_empty(const FieldProjectionFrame& projection){return impl_->prepareEmpty(projection);}
+Texture SceneRenderer::render_prepared(const PreparedFrame& frame,const SceneUiPass* ui,const SceneGpuPass* pass,std::optional<std::array<std::uint8_t,4>> clear,float depthClear){return impl_->renderPrepared(frame,ui,pass,clear,depthClear);}
 Texture SceneRenderer::render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor,const SceneUiPass* ui){
     if(ui&&!fieldProjection)throw std::runtime_error("Scene UI requires GS field projection depth");
     return render_prepared(prepare(view,projection,effects,camera,farClip,cameraPosition,fieldProjection,shadowFactor),ui);
