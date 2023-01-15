@@ -27,6 +27,17 @@ std::vector<std::uint8_t> read(const fs::path& path) {
 using Vertex=FieldRasterVertex;
 struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;std::uint64_t materialBlend=0;bool depthAlways=false,subtractive=false;unsigned phase=0;float nearClip=3;bool deferred=false;unsigned bucket=0,ordinal=0;bool mapMaterial=false;};
 }
+struct SceneRenderer::PreparedFrame::Data {
+    std::shared_ptr<const int> renderer;
+    std::vector<Vertex> vertices;
+    std::vector<Draw> draws;
+    FieldShadowFrame shadows;
+    ShadowRasterMapping shadow_mapping;
+    std::array<std::uint8_t,3> clear;
+    NSArray<id<MTLTexture>>* textures;
+    std::size_t white_texture;
+    bool field_projection;
+};
 struct SceneRenderer::Impl {
     struct BlockPreparation {
         std::vector<std::optional<PreparedTextureState>> textures;
@@ -51,6 +62,7 @@ struct SceneRenderer::Impl {
     std::size_t omittedEffects=0,actorCount=0;
     unsigned nextFrontOrdinal=0;
     unsigned sortDepthShift=19;
+    const std::shared_ptr<const int> identity=std::make_shared<const int>(0);
     std::size_t whiteTexture=0,effectTexture=0;
     bool effectTexturesLoaded=false;
     const MapEffects* mapEffects=nullptr;
@@ -163,7 +175,7 @@ struct SceneRenderer::Impl {
         targetDesc.usage=MTLTextureUsageRenderTarget; targetDesc.storageMode=MTLStorageModeShared;
         target=[device newTextureWithDescriptor:targetDesc];
         auto depthDesc=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatDepth32Float width:width height:height mipmapped:NO];
-        depthDesc.usage=MTLTextureUsageRenderTarget; depthDesc.storageMode=MTLStorageModePrivate;
+        depthDesc.usage=MTLTextureUsageRenderTarget|MTLTextureUsageShaderRead; depthDesc.storageMode=MTLStorageModePrivate;
         depthTarget=[device newTextureWithDescriptor:depthDesc];
         gpuTextures=[NSMutableArray array];
         whiteTexture=textures.size();textures.push_back({1,1,0,0,{255,255,255,255}});
@@ -254,8 +266,7 @@ struct SceneRenderer::Impl {
         }
         effectTexturesLoaded=true;
     }
-    Texture render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor,const SceneUiPass* ui) {
-        if(ui&&!fieldProjection)throw std::runtime_error("Scene UI requires GS field projection depth");
+    PreparedFrame prepare(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor) {
         shadowFrame=fieldProjection?field_shadow_frame(shadowActors,view,*fieldProjection,shadowSettings,shadowFactor,sine,sortDepthShift):FieldShadowFrame{};
         std::vector<Vertex> vertices;
         std::vector<Draw> draws;
@@ -542,10 +553,25 @@ struct SceneRenderer::Impl {
             const auto p=v.position;
             v.position={p[0]*projection[0],-p[1]*projection[1],(p[2]*projection[2]+projection[3]+p[2])*0.5f,p[2]};
         }
+        auto data=std::make_shared<PreparedFrame::Data>();
+        data->renderer=identity;data->vertices=std::move(vertices);data->draws=std::move(draws);
+        data->shadows=shadowFrame;data->clear=clearRGB;data->textures=[gpuTextures copy];
+        data->white_texture=whiteTexture;data->field_projection=fieldProjection!=nullptr;
+        if(fieldProjection){data->shadow_mapping.offset_x=fieldProjection->shadow.center_x-320;
+            data->shadow_mapping.offset_y=fieldProjection->shadow.center_y-112;}
+        PreparedFrame frame;frame.data_=std::move(data);return frame;
+    }
+    Texture renderPrepared(const PreparedFrame& frame,const SceneUiPass* ui,const SceneGpuPass* gpuPass) {
+        if(!frame.data_||frame.data_->renderer!=identity)throw std::runtime_error("Prepared scene belongs to another renderer or is empty");
+        const auto& data=*frame.data_;
+        if(ui&&!data.field_projection)throw std::runtime_error("Scene UI requires GS field projection depth");
+        if(gpuPass&&!gpuPass->encode)throw std::runtime_error("Scene GPU pass has no encoder");
+        const auto& vertices=data.vertices;const auto& draws=data.draws;
+        shadowFrame=data.shadows;
         auto pass=[MTLRenderPassDescriptor renderPassDescriptor];
         pass.colorAttachments[0].texture=target; pass.colorAttachments[0].loadAction=MTLLoadActionClear;
         pass.colorAttachments[0].storeAction=MTLStoreActionStore;
-        pass.colorAttachments[0].clearColor=MTLClearColorMake(clearRGB[0]/255.,clearRGB[1]/255.,clearRGB[2]/255.,1);
+        pass.colorAttachments[0].clearColor=MTLClearColorMake(data.clear[0]/255.,data.clear[1]/255.,data.clear[2]/255.,1);
         pass.depthAttachment.texture=depthTarget; pass.depthAttachment.loadAction=MTLLoadActionClear; pass.depthAttachment.clearDepth=1;
         pass.depthAttachment.storeAction=MTLStoreActionStore;
         id<MTLCommandBuffer> command=[queue commandBuffer];
@@ -555,29 +581,32 @@ struct SceneRenderer::Impl {
         [encoder setRenderPipelineState:pipeline]; [encoder setDepthStencilState:depth]; [encoder setCullMode:MTLCullModeNone];
         if(vertexBuffer)[encoder setVertexBuffer:vertexBuffer offset:0 atIndex:0];
         for (const auto& draw:draws) {
-            if(fieldProjection&&((draw.phase!=0)!=after))continue;
+            if(data.field_projection&&((draw.phase!=0)!=after))continue;
             if(!draw.count)continue;
             [encoder setFrontFacingWinding:draw.mapMaterial?MTLWindingCounterClockwise:MTLWindingClockwise];
             [encoder setCullMode:draw.materialBlend?MTLCullModeBack:MTLCullModeNone];
             [encoder setRenderPipelineState:draw.materialBlend?(draw.materialBlend==0x48?materialAddPipeline:draw.materialBlend==0x42?materialSubtractPipeline:materialPipeline):draw.subtractive?darkEffectPipeline:draw.dust?dustPipeline:draw.additive?mapEffectPipeline:draw.effect?effectPipeline:pipeline];
             [encoder setDepthStencilState:draw.depthAlways?effectDepth:draw.materialBlend?(draw.state[7]!=2?materialDepth:mapEffectDepth):(draw.additive||draw.dust||draw.subtractive)?mapEffectDepth:draw.effect?effectDepth:depth];
-            [encoder setFragmentTexture:gpuTextures[draw.image<0 ? whiteTexture : draw.image] atIndex:0];
+            [encoder setFragmentTexture:data.textures[draw.image<0 ? data.white_texture : draw.image] atIndex:0];
             [encoder setFragmentBytes:draw.state.data() length:sizeof(draw.state) atIndex:0];
             [encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:draw.first vertexCount:draw.count];
         }
         [encoder endEncoding];
         };
         encode(false);
-        if(fieldProjection){
+        if(data.field_projection){
             if(!shadowMetal)shadowMetal=std::make_unique<ShadowMetal>(device);
             std::vector<ShadowRasterDraw> shadowDraws;shadowDraws.reserve(shadowFrame.draws.size());
             for(const auto& draw:shadowFrame.draws)shadowDraws.push_back({draw.prism,draw.color});
-            ShadowRasterMapping mapping;mapping.offset_x=fieldProjection->shadow.center_x-320;
-            mapping.offset_y=fieldProjection->shadow.center_y-112;
-            shadowMetal->encode(command,target,depthTarget,shadowDraws,mapping);
+            shadowMetal->encode(command,target,depthTarget,shadowDraws,data.shadow_mapping);
             pass.colorAttachments[0].loadAction=MTLLoadActionLoad;
             pass.depthAttachment.loadAction=MTLLoadActionLoad;
             encode(true);
+        }
+        std::function<void()> validatePass;
+        if(gpuPass){
+            validatePass=gpuPass->encode(command,target,depthTarget);
+            if(!validatePass)throw std::runtime_error("Scene GPU pass has no completion validator");
         }
         std::optional<UiMetalValidation> uiValidation;
         if(ui){
@@ -586,6 +615,7 @@ struct SceneRenderer::Impl {
         }
         [command commit]; [command waitUntilCompleted];
         if (command.status!=MTLCommandBufferStatusCompleted) throw std::runtime_error(command.error.localizedDescription.UTF8String);
+        if(validatePass)validatePass();
         if(uiValidation)uiValidation->validate_completed(command);
         Texture image{640,224,0,0,std::vector<std::uint8_t>(640*224*4)};
         [target getBytes:image.rgba.data() bytesPerRow:640*4 fromRegion:MTLRegionMake2D(0,0,640,224) mipmapLevel:0];
@@ -617,7 +647,12 @@ void SceneRenderer::set_stage_environment(const FieldOrdinaryLighting& light,con
 }
 void SceneRenderer::bind_map_effects(const MapEffects* effects){impl_->mapEffects=effects;}
 void SceneRenderer::bind_effect_submissions(const EffectSubmissions* effects){impl_->effectSubmissions=effects;}
-Texture SceneRenderer::render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor,const SceneUiPass* ui){return impl_->render(view,projection,effects,camera,farClip,cameraPosition,fieldProjection,shadowFactor,ui);}
+SceneRenderer::PreparedFrame SceneRenderer::prepare(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor){return impl_->prepare(view,projection,effects,camera,farClip,cameraPosition,fieldProjection,shadowFactor);}
+Texture SceneRenderer::render_prepared(const PreparedFrame& frame,const SceneUiPass* ui,const SceneGpuPass* pass){return impl_->renderPrepared(frame,ui,pass);}
+Texture SceneRenderer::render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor,const SceneUiPass* ui){
+    if(ui&&!fieldProjection)throw std::runtime_error("Scene UI requires GS field projection depth");
+    return render_prepared(prepare(view,projection,effects,camera,farClip,cameraPosition,fieldProjection,shadowFactor),ui);
+}
 const std::vector<FieldShadowSubmission>& SceneRenderer::shadow_submissions() const{return impl_->shadowFrame.submissions;}
 std::size_t SceneRenderer::placements() const{return impl_->inputs.size()-impl_->actorCount;}
 std::size_t SceneRenderer::actors() const{return impl_->actorCount;}

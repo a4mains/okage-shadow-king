@@ -101,6 +101,15 @@ static Texture battle_actor_sample(const fs::path& dir,std::span<const Surface> 
     const Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
     auto render=[&]{return renderer.render(identity,field_clip_projection(projection.frame().ordinary),nullptr,{},1024,{},&projection.frame());};
     const auto image=render();require(image.rgba==expected.rgba);require(renderer.shadow_submissions().empty());
+    const auto snapshot=renderer.prepare(identity,field_clip_projection(projection.frame().ordinary),nullptr,{},1024,{},&projection.frame());
+    const auto copy=snapshot;
+    actor.animation().set_channel(1,{40,0,0,1});actor.evaluate();actor.visible=false;actor.render_flags=0x300080;
+    renderer.set_clear_rgb({1,2,3});renderer.set_sort_depth_shift(19);
+    require(renderer.render_prepared(copy).rgba==image.rgba);
+    actor.visible=true;actor.render_flags=flags;
+    require(render().rgba!=image.rgba);
+    require(renderer.render_prepared(snapshot).rgba==image.rgba);
+    actor.animation().set_channel(1,{0,0,0,1});actor.evaluate();renderer.set_clear_rgb({14,18,24});renderer.set_sort_depth_shift(16);
     actor.animation().set_channel(3,{.9f,.8f,.7f,.6f});actor.evaluate();require(render().rgba==image.rgba);
     actor.render_flags=0x300080;bool caught=false;try{render();}catch(const std::runtime_error& e){caught=std::string(e.what())=="Explicit actor flags changed after binding";}require(caught);
     actor.render_flags=flags;
@@ -142,6 +151,30 @@ static void ui_bridge(const fs::path& dir) {
     require(overlay.rgba[(112*640+320)*4+3]==127); // Raw GS alpha, no post-UI restore.
     require(std::equal(expected.rgba.begin(),expected.rgba.begin()+640*4,overlay.rgba.begin()));
     require(render().rgba==expected.rgba);
+    const auto prepared=renderer.prepare(identity,clip,nullptr,{},1024,{},&projection.frame());
+    require(renderer.render_prepared(prepared,&pass).rgba==overlay.rgba);
+    bool encoded=false,validated=false;
+    const SceneGpuPass hook{[&](id<MTLCommandBuffer> command,id<MTLTexture> color,id<MTLTexture> depth){
+        require((depth.usage&MTLTextureUsageShaderRead)!=0);require(command.status==MTLCommandBufferStatusNotEnqueued);
+        encoded=true;
+        auto descriptor=[MTLRenderPassDescriptor renderPassDescriptor];descriptor.colorAttachments[0].texture=color;
+        descriptor.colorAttachments[0].loadAction=MTLLoadActionClear;descriptor.colorAttachments[0].storeAction=MTLStoreActionStore;
+        descriptor.colorAttachments[0].clearColor=MTLClearColorMake(8/255.,16/255.,24/255.,128/255.);
+        auto encoder=[command renderCommandEncoderWithDescriptor:descriptor];[encoder endEncoding];
+        return [&,command]{require(encoded&&command.status==MTLCommandBufferStatusCompleted);validated=true;};
+    }};
+    const auto hooked=renderer.render_prepared(prepared,&pass,&hook);
+    require(encoded&&validated&&center(hooked)==std::array<unsigned,3>{135,143,151});
+    require(hooked.rgba[0]==8&&hooked.rgba[1]==16&&hooked.rgba[2]==24&&hooked.rgba[3]==128);
+    require(hooked.rgba[(112*640+320)*4+3]==127); // UI follows hook; hook follows scene.
+    const SceneGpuPass failed{[](id<MTLCommandBuffer>,id<MTLTexture>,id<MTLTexture>){return []{throw std::runtime_error("Synthetic filter GPU validation failure");};}};
+    bool rejected=false;try{renderer.render_prepared(prepared,nullptr,&failed);}catch(const std::runtime_error& e){rejected=std::string(e.what())=="Synthetic filter GPU validation failure";}require(rejected);
+    SceneRenderer other(dir/"a.xmp");rejected=false;
+    try{other.render_prepared(prepared);}catch(const std::runtime_error&){rejected=true;}require(rejected);
+    rejected=false;try{renderer.render_prepared({});}catch(const std::runtime_error&){rejected=true;}require(rejected);
+    const SceneGpuPass empty_validator{[](id<MTLCommandBuffer>,id<MTLTexture>,id<MTLTexture>){return std::function<void()>{};}};
+    rejected=false;try{renderer.render_prepared(prepared,nullptr,&empty_validator);}catch(const std::runtime_error&){rejected=true;}require(rejected);
+    require(renderer.render_prepared(prepared).rgba==expected.rgba);
     geometry=list();geometry.commands.push_back(UiDrawRegister{0x47,0x5000d});
     geometry.commands.push_back(quad({255,255,255,128},0));
     require(render(&pass).rgba==expected.rgba);

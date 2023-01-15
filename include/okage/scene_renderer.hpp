@@ -6,6 +6,10 @@
 #include <filesystem>
 #include <memory>
 #include <functional>
+#ifdef __OBJC__
+@protocol MTLCommandBuffer;
+@protocol MTLTexture;
+#endif
 namespace okage {
 class MapObjects;
 struct UiGeometryList;
@@ -17,11 +21,26 @@ struct SceneUiPass {
     const UiMetalBaseline& baseline;
     const std::function<UiMetalTexture(const UiGeometryTexture&)>& textures;
 };
+struct SceneGpuPass;
+#ifdef __OBJC__
+struct SceneGpuPass {
+    std::function<std::function<void()>(id<MTLCommandBuffer>,id<MTLTexture>,id<MTLTexture>)> encode;
+};
+#endif
 struct FieldOrdinaryLighting;
 struct SceneActorDescriptor {std::uint32_t flags;bool height_enabled;};
 struct SceneActor {const FieldActor* actor;std::filesystem::path model_path;int alias=0;std::optional<SceneActorDescriptor> descriptor{};};
 class SceneRenderer {
+    struct Impl;
 public:
+    class PreparedFrame {
+    public:
+        PreparedFrame()=default;
+    private:
+        struct Data;
+        std::shared_ptr<const Data> data_;
+        friend struct Impl;
+    };
     explicit SceneRenderer(const std::filesystem::path& map,std::span<const SceneActor> actors={},const MapObjects* objects=nullptr);
     ~SceneRenderer();
     void add_actor(const SceneActor&);
@@ -34,12 +53,14 @@ public:
     //337e0c from StageSettings.bucket_base; queue division remains source9.
     void set_sort_depth_shift(unsigned);
     void set_stage_environment(const FieldOrdinaryLighting&,const FieldShadowSettings&,const Float4& sky);
+    PreparedFrame prepare(const Matrix4& view,const Float4& projection,const AttachedEffects* effects=nullptr,const Float4& camera_rotation={},float far_clip=1024,const Float4& camera_position={},const FieldProjectionFrame* field_projection=nullptr,float shadow_factor=1);
+    Texture render_prepared(const PreparedFrame&,const SceneUiPass* ui=nullptr,const SceneGpuPass* between_scene_and_ui=nullptr);
     Texture render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects=nullptr,const Float4& camera_rotation={},float far_clip=1024,const Float4& camera_position={},const FieldProjectionFrame* field_projection=nullptr,float shadow_factor=1,const SceneUiPass* ui=nullptr);
     const std::vector<FieldShadowSubmission>& shadow_submissions() const;
     std::size_t placements() const;
     std::size_t omitted_effects() const;
     std::size_t actors() const;
 private:
-    struct Impl;std::unique_ptr<Impl> impl_;
+    std::unique_ptr<Impl> impl_;
 };
 }
