@@ -795,6 +795,7 @@ struct Session {
         okage::Texture image{640,448,0,0,std::vector<std::uint8_t>(640*448*4)};
         for(unsigned y=0;y<448;++y)
             std::copy_n(scene.rgba.data()+(y/2)*640*4,640*4,image.rgba.data()+y*640*4);
+        for(std::size_t i=3;i<image.rgba.size();i+=4)image.rgba[i]=255;
         if(dialogue_active&&controller.window_type!=2) {
             const float opacityAlpha=std::clamp(opacity.value/128.f,0.f,1.f);
             auto glyphs=text.glyphs;
@@ -836,6 +837,8 @@ struct Session {
             throw std::runtime_error("Feedback at native frame="+std::to_string(frame)+" scene="+
                 std::to_string(current_scene)+" event_pc="+std::to_string(field->pc())+": "+e.what());
         }
+        } else if(battle&&battle->rendered_image()) {
+            image=*battle->rendered_image();
         } else {
             for(std::size_t i=0;i<image.rgba.size();i+=4) {
                 for(unsigned c=0;c<3;++c)image.rgba[i+c]=scene_clear.rgb[c];

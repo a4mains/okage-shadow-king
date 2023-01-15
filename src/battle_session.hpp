@@ -46,6 +46,7 @@ public:
     void service_loader_after_frame(BattleConstructionContext,unsigned frame,
                                     const std::filesystem::path& diagnostic_report={});
     const BattleState& state() const;
+    const Texture* rendered_image() const;
     std::array<std::uint32_t,7> observation() const;
 private:
     struct Impl;

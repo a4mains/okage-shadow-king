@@ -102,6 +102,7 @@ void BattleCameraMotion::advance(Animation* channels,const std::function<void(fl
         }
         if(position_phase_==1) {
             for(unsigned j=0;j<4;++j)position_.point[j]+=position_.step[j];
+            if(channels)channels->set_channel(0,position_.point);
             position_.remaining-=timestep_;
             if(position_.remaining<0) {
                 position_.remaining=0;position_.mode=7;flags_|=0x80000000u;position_phase_=0;

@@ -1,4 +1,5 @@
 #include "battle_session.hpp"
+#include "battle_filter_metal.hpp"
 #include "okage/battle_data.hpp"
 #include "okage/battle_ui.hpp"
 #include "okage/load_queue.hpp"
@@ -22,6 +23,7 @@
 #include <cmath>
 #include <fstream>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
 
@@ -105,7 +107,10 @@ struct BattleSession::Impl {
     std::unique_ptr<MapObjects> objects;
     std::optional<CollisionMap> collision;
     std::unique_ptr<SceneRenderer> renderer;
+    std::unique_ptr<BattleFilterMetal> filter_renderer;
+    std::optional<Texture> rendered_image;
     Animation& camera_channels;
+    Float4 resource_camera_position{},resource_camera_rotation{};
     std::optional<BattleCameraMotion> camera;
     std::optional<BattleCameraSequence> camera_sequence;
     std::optional<BattleData> battle_data;
@@ -141,6 +146,7 @@ struct BattleSession::Impl {
             load_step.store(1);
             device=MTLCreateSystemDefaultDevice();
             if(!device)throw std::runtime_error("Battle loader requires Metal");
+            filter_renderer=std::make_unique<BattleFilterMetal>(device);
             const auto main=decoded/"CMNDATA/2D/MAIN.XPF";
             auto atlas_bytes=read(main/(alternate_interface?"bm_ifj.xim":"bm_if.xim"));
             // 18f500 sets image selector bits20..25 before image/CLUT upload.
@@ -490,12 +496,17 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
     if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
     if(!impl_->saved_model_range)
         throw std::runtime_error("Battle active model resource submission is unrecovered");
+    impl_->camera_channels.tick_channels();
+    impl_->resource_camera_position=impl_->camera_channels.value(0);
+    impl_->resource_camera_rotation=impl_->camera_channels.value(1);
     const bool effect_pass=!impl_->suppress_effects.load();
     projection.submit_empty_resource_frame(effect_pass,
         impl_->stage_settings->cached_depth_min,impl_->stage_settings->cached_depth_max);
     if(effect_pass&&retiring)retiring->tick();
     impl_->prepare_resource_ui(context);
     if(impl_->construction!=Impl::Construction::Complete)return;
+    if(impl_->ui_draw)throw std::runtime_error("Saved battle resource unexpectedly has queued UI");
+    const auto prepared=impl_->renderer->prepare_empty(projection.frame());
     if(!impl_->stage_committed) {
         try {impl_->commit_stage(projection,clear,frame,stage_report);}
         catch(...) {impl_->construction_failure=std::current_exception();throw;}
@@ -506,7 +517,28 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
     }
     impl_->inspect_ui_updates(context,frame,ui_update_report);
     impl_->scheduled_callbacks(context,projection,frame,stage_report);
-    throw std::runtime_error("Battle global framebuffer filter6 (190a20) is unrecovered after first child traversal; subsequent model/UI resource submission remains guarded");
+    for(unsigned slot=3;slot<impl_->stage_settings->filters.size();++slot) {
+        const auto& filter=impl_->stage_settings->filters[slot];
+        if(slot!=6&&filter&&(*filter)[0])throw std::runtime_error("Unrecovered battle framebuffer filter slot");
+    }
+    SceneGpuPass postprocess{[&](id<MTLCommandBuffer> command,id<MTLTexture> color,id<MTLTexture> depth) {
+        const auto& filter=impl_->stage_settings->filters[6];
+        if(filter&&(*filter)[0]) {
+            impl_->filter_renderer->encode(command,color,depth,{(*filter)[1],(*filter)[2],
+                __builtin_bit_cast(std::int32_t, (impl_->stage_settings->signed_setting)),true});
+        }
+        return std::function<void()>([]{});
+    }};
+    impl_->rendered_image=impl_->renderer->render_prepared(prepared,nullptr,&postprocess,
+        std::array<std::uint8_t,4>{clear.rgb[0],clear.rgb[1],clear.rgb[2],0});
+    if(!stage_report.empty()) {
+        auto path=stage_report;path.replace_extension(".render.rgba");
+        if(fs::exists(path)||fs::is_symlink(path))throw std::runtime_error("Refusing existing battle resource image");
+        std::ofstream out(path,std::ios::binary);const auto& rgba=impl_->rendered_image->rgba;
+        out.write(reinterpret_cast<const char*>(rgba.data()),rgba.size());out.close();
+        if(!out)throw std::runtime_error("Cannot write battle resource image");
+        std::cout<<"Native battle resource/filter completed frame="<<frame<<" raw_rgba="<<path<<'\n';
+    }
 }
 void BattleSession::service_loader_after_frame(BattleConstructionContext context,unsigned frame,const fs::path& report){
     impl_->jobs.check();
@@ -533,6 +565,7 @@ void BattleSession::service_loader_after_frame(BattleConstructionContext context
     if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
 }
 const BattleState& BattleSession::state() const{return impl_->root;}
+const Texture* BattleSession::rendered_image() const{return impl_->rendered_image?&*impl_->rendered_image:nullptr;}
 std::array<std::uint32_t,7> BattleSession::observation() const {
     return {impl_->phase,unsigned(impl_->construction!=Impl::Construction::Complete),impl_->load_step.load(),
         unsigned(impl_->suppress_effects.load()),1,0x40d,0x40c};

@@ -127,12 +127,13 @@ int main() {
             motion.tick(channels,[&](float value){
                 ++projections;require(value==1.25f);
                 require(channels.value(1)==okage::Float4({11,12,13,37}));
+                require(channels.value(0)==motion.position());
                 require(motion.observation()[51]==1);
             });
             require(projections==1&&motion.observation()[51]==2);
             require(motion.rotation()[3]==37);
             require(channels.value(1)==motion.rotation());
-            require(channels.value(0)==okage::Float4({7,8,9,10}));
+            require(channels.value(0)==motion.position());
             require(channels.value(2)==okage::Float4({14,15,16,17}));
         }
         {
@@ -141,7 +142,16 @@ int main() {
             channels.set_channel(1,{11,12,13,37});
             rejects([&]{motion.tick(channels,[](float){throw std::runtime_error("test sink");});});
             require(motion.observation()[51]==1);
+            require(channels.value(0)==motion.position());
             require(channels.value(1)==okage::Float4({11,12,13,37}));
+        }
+        {
+            okage::BattleCameraSequence seq{};seq[0]=fixed();
+            okage::BattleCameraMotion motion(seq,1);okage::Animation channels(3);
+            channels.set_channel(0,{7,8,9,10});
+            motion.tick(channels,[](float){});
+            //The fixed position callback has no1b4220 publication.
+            require(channels.value(0)==okage::Float4({7,8,9,10}));
         }
         {
             auto b=preset_bytes(fixed());
