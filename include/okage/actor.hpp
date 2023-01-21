@@ -17,6 +17,7 @@ public:
     void tick_channels();
     void evaluate();
     void evaluate_bones();
+    void evaluate_world();
     Matrix4 world(const SineTable& sine) const;
     const ModelFile& model() const{return model_;}
     const TextureBindings& textures() const{return textures_;}

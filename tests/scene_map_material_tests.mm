@@ -156,6 +156,13 @@ static void ui_bridge(const fs::path& dir) {
     require(render().rgba==expected.rgba);
     const auto prepared=renderer.prepare(identity,clip,nullptr,{},1024,{},&projection.frame());
     require(renderer.render_prepared(prepared,&pass).rgba==overlay.rgba);
+    const auto rawPrepared=renderer.prepare(identity,clip,nullptr,{},1024,{},&projection.frame(),1,false);
+    const auto raw=renderer.render_prepared(rawPrepared);
+    require(raw.rgba[3]==64&&expected.rgba[3]==255);
+    for(std::size_t i=0;i<raw.rgba.size();++i)if(i%4!=3)require(raw.rgba[i]==expected.rgba[i]);
+    require(renderer.render_prepared(prepared).rgba==expected.rgba); // Policy belongs to each immutable frame.
+    require(renderer.render_prepared(rawPrepared).rgba==raw.rgba);
+
     bool encoded=false,validated=false;
     const SceneGpuPass hook{[&](id<MTLCommandBuffer> command,id<MTLTexture> color,id<MTLTexture> depth){
         require((depth.usage&MTLTextureUsageShaderRead)!=0);require(command.status==MTLCommandBufferStatusNotEnqueued);

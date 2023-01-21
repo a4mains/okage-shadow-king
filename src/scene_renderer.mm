@@ -266,7 +266,7 @@ struct SceneRenderer::Impl {
         }
         effectTexturesLoaded=true;
     }
-    PreparedFrame prepare(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor) {
+    PreparedFrame prepare(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor,bool restoreShadowAlpha) {
         shadowFrame=fieldProjection?field_shadow_frame(shadowActors,view,*fieldProjection,shadowSettings,shadowFactor,sine,sortDepthShift):FieldShadowFrame{};
         std::vector<Vertex> vertices;
         std::vector<Draw> draws;
@@ -553,7 +553,7 @@ struct SceneRenderer::Impl {
             const auto p=v.position;
             v.position={p[0]*projection[0],-p[1]*projection[1],(p[2]*projection[2]+projection[3]+p[2])*0.5f,p[2]};
         }
-        return snapshot(std::move(vertices),std::move(draws),fieldProjection);
+        return snapshot(std::move(vertices),std::move(draws),fieldProjection,restoreShadowAlpha);
     }
     PreparedFrame snapshot(std::vector<Vertex> vertices,std::vector<Draw> draws,const FieldProjectionFrame* fieldProjection,bool restoreOpaqueAlpha=true) {
         auto data=std::make_shared<PreparedFrame::Data>();
@@ -657,7 +657,7 @@ void SceneRenderer::set_stage_environment(const FieldOrdinaryLighting& light,con
 }
 void SceneRenderer::bind_map_effects(const MapEffects* effects){impl_->mapEffects=effects;}
 void SceneRenderer::bind_effect_submissions(const EffectSubmissions* effects){impl_->effectSubmissions=effects;}
-SceneRenderer::PreparedFrame SceneRenderer::prepare(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor){return impl_->prepare(view,projection,effects,camera,farClip,cameraPosition,fieldProjection,shadowFactor);}
+SceneRenderer::PreparedFrame SceneRenderer::prepare(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor,bool restoreShadowAlpha){return impl_->prepare(view,projection,effects,camera,farClip,cameraPosition,fieldProjection,shadowFactor,restoreShadowAlpha);}
 SceneRenderer::PreparedFrame SceneRenderer::prepare_empty(const FieldProjectionFrame& projection){return impl_->prepareEmpty(projection);}
 Texture SceneRenderer::render_prepared(const PreparedFrame& frame,const SceneUiPass* ui,const SceneGpuPass* pass,std::optional<std::array<std::uint8_t,4>> clear,float depthClear){return impl_->renderPrepared(frame,ui,pass,clear,depthClear);}
 Texture SceneRenderer::render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor,const SceneUiPass* ui){

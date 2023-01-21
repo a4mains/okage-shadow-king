@@ -34,5 +34,8 @@ void FieldActor::evaluate_bones(){
     channels_=animation_.channel_outputs();
     for(std::size_t i=4;i<channels_.size();++i)channels_[i]=animation_.value(i);
 }
+void FieldActor::evaluate_world(){
+    for(std::size_t i=0;i<3;++i)channels_.at(i)=animation_.value(i);
+}
 Matrix4 FieldActor::world(const SineTable& sine) const{return instance_matrix(channels_.at(1),channels_.at(0),channels_.at(2),sine);}
 }
