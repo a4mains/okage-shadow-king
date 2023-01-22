@@ -64,7 +64,8 @@ void BattleFilterMetal::encode(id<MTLCommandBuffer> command,id<MTLTexture> rgba,
        depth.width!=640||depth.height!=224||rgba.pixelFormat!=MTLPixelFormatRGBA8Unorm||
        depth.pixelFormat!=MTLPixelFormatDepth32Float||!(rgba.usage&MTLTextureUsageRenderTarget)||
        !(depth.usage&MTLTextureUsageShaderRead)||rgba.sampleCount!=1||depth.sampleCount!=1||
-       rgba.device!=snapshot_.device||depth.device!=snapshot_.device)
+       rgba.device!=snapshot_.device||depth.device!=snapshot_.device||
+       command.commandQueue.device!=snapshot_.device)
         throw std::runtime_error("Invalid battle filter scene surfaces");
     auto begin=[&](id<MTLRenderPipelineState> pipeline) {
         auto pass=[MTLRenderPassDescriptor renderPassDescriptor];

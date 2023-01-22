@@ -1,5 +1,6 @@
 #include "battle_session.hpp"
 #include "battle_filter_metal.hpp"
+#include "ui_metal.hpp"
 #include "okage/battle_data.hpp"
 #include "okage/battle_ui.hpp"
 #include "okage/load_queue.hpp"
@@ -12,6 +13,7 @@
 #include "okage/battle_actor.hpp"
 #include "okage/battle_ui_diagnostic.hpp"
 #include "okage/ui_resource.hpp"
+#include "okage/ui_draw_diagnostic.hpp"
 #include "okage/stage_settings.hpp"
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
@@ -82,6 +84,11 @@ struct BattleSession::Impl {
     std::unique_ptr<BattleInterface> ui;
     UiResourceCoordinator ui_resource;
     std::optional<UiDrawList> ui_draw;
+    std::optional<UiGeometryList> ui_geometry;
+    std::shared_ptr<UiTextureOwner> window_owner;
+    std::shared_ptr<const std::vector<Font>> font_owner;
+    std::array<id<MTLTexture>,3> font_textures{};
+    bool reported_active_resource=false;
     bool saved_model_range=true;
     std::uint32_t stage_mask=0x18000000,camera_mask=0x18000000;
     std::uint32_t party_mask=0x18000000,enemy_mask=0x18000000;
@@ -152,7 +159,7 @@ struct BattleSession::Impl {
             // 18f500 sets image selector bits20..25 before image/CLUT upload.
             auto header=word(atlas_bytes,0);header=(header&0xfc0fffff)|(0x1bu<<20);
             for(unsigned j=0;j<4;++j)atlas_bytes[j]=header>>(8*j);
-            atlas=upload(decode_xim(atlas_bytes));
+            atlas=upload_ui_gs_texture(device,decode_xim(atlas_bytes));
             auto env_bytes=read(main/"texenv.xim");
             const auto env_image=decode_xim(env_bytes);environment=upload(env_image);
             environment_uv={.5f/1024,.5f/1024,(float(env_image.width)+.5f)/1024,
@@ -272,6 +279,13 @@ struct BattleSession::Impl {
         ui_draw=ui_resource.advance_resource(context.shared.registry,bindings,
             context.shared.resource_accumulators,context.fonts,context.sine,
             context.random,ui_projection);
+        ui_geometry=ui_draw?std::optional(resolve_ui_geometry(*ui_draw)):std::nullopt;
+        if(ui_geometry&&!font_owner) {
+            if(!context.fonts||context.fonts->size()!=3)throw std::runtime_error("Battle font owner extent");
+            font_owner=context.fonts;
+            for(unsigned i=0;i<3;++i)font_textures[i]=upload_ui_gs_texture(device,font_owner->at(i).atlas);
+        }
+        if(font_owner&&font_owner!=context.fonts)throw std::runtime_error("Battle font owner changed");
     }
     void construct_ui(BattleUiContext context,unsigned frame,const fs::path& stage_report) {
         saved_model_range=false;stage_mask&=~0x18000000u;camera_mask&=~0x18000000u;
@@ -282,8 +296,8 @@ struct BattleSession::Impl {
             for(const auto& row:context.party.rows())if(std::any_of(row.begin(),row.end(),[](auto n){return n!=0;}))
                 throw std::runtime_error("UI diagnostic requires zero incoming selection rows");
         }
-        auto texture=std::make_shared<UiTextureOwner>(UiTextureOwner{atlas});
-        ui=std::make_unique<BattleInterface>(context.shared,*ui_definitions,texture,word(root.bytes,0x1c),[&](unsigned type){
+        window_owner=std::make_shared<UiTextureOwner>(UiTextureOwner{atlas});
+        ui=std::make_unique<BattleInterface>(context.shared,*ui_definitions,window_owner,word(root.bytes,0x1c),[&](unsigned type){
             if(type==2)context.shared.hud.initialize_type2(*ui_resources[0],*hud_definitions,context.tables,
                 context.variables,context.party,3,selected);
             else if(type==3)context.shared.hud.initialize_type3(*ui_resources[0],context.tables);
@@ -387,8 +401,13 @@ struct BattleSession::Impl {
         std::string before,after,error;
         std::exception_ptr failure;
         try {
-            events.push_back("parent.activation.entry");activate(context,projection);
-            events.push_back("parent.activation.return");
+            if(phase==0) {
+                events.push_back("parent.activation.entry");activate(context,projection);
+                events.push_back("parent.activation.return");
+            } else if(phase==1) {
+                if(camera->ready())throw std::runtime_error("Battle camera-ready parent transition to14a508 is unrecovered");
+                events.push_back("parent.camera-wait.return");
+            } else throw std::runtime_error("Battle parent phase is unrecovered");
             //152330 sees its constructor's zero command;152368 is empty.
             if(stage_mask&0x18000000u)throw std::runtime_error("Battle stage remains masked");
             events.push_back("stage.first.return");events.push_back("stage.second.return");
@@ -494,19 +513,40 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
                          BattleUiContext context,unsigned frame,const fs::path& stage_report,const fs::path& ui_update_report) {
     impl_->jobs.check();
     if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
-    if(!impl_->saved_model_range)
-        throw std::runtime_error("Battle active model resource submission is unrecovered");
+    const bool active=!impl_->saved_model_range;
+    if(active) {
+        if(!impl_->objects->bindings().empty())throw std::runtime_error("Battle animated map resource ordering is unrecovered");
+        for(const auto& actor:impl_->roster.actors())
+            for(auto* model:{actor->model.get(),actor->bag.get(),actor->box.get()})if(model)model->tick_script();
+    }
     impl_->camera_channels.tick_channels();
     impl_->resource_camera_position=impl_->camera_channels.value(0);
     impl_->resource_camera_rotation=impl_->camera_channels.value(1);
     const bool effect_pass=!impl_->suppress_effects.load();
-    projection.submit_empty_resource_frame(effect_pass,
+    if(active) {
+        projection.begin_field();
+        for(const auto& actor:impl_->roster.actors())
+            for(auto* model:{actor->model.get(),actor->bag.get(),actor->box.get()})if(model&&model->visible) {
+                model->evaluate_bones();model->evaluate_world();
+            }
+        if(!effect_pass)throw std::runtime_error("Active battle resource has unexpected effect suppression");
+        projection.begin_effects();projection.begin_deferred();projection.end_effects();
+    } else projection.submit_empty_resource_frame(effect_pass,
         impl_->stage_settings->cached_depth_min,impl_->stage_settings->cached_depth_max);
     if(effect_pass&&retiring)retiring->tick();
+    if(active&&retiring&&(std::any_of(retiring->map.begin(),retiring->map.end(),[](const auto& p){return bool(p);})||
+                         std::any_of(retiring->attached.begin(),retiring->attached.end(),[](const auto& p){return bool(p);})))
+        throw std::runtime_error("Battle resource retains effects requiring native submission");
     impl_->prepare_resource_ui(context);
     if(impl_->construction!=Impl::Construction::Complete)return;
-    if(impl_->ui_draw)throw std::runtime_error("Saved battle resource unexpectedly has queued UI");
-    const auto prepared=impl_->renderer->prepare_empty(projection.frame());
+    if(!active&&impl_->ui_draw)throw std::runtime_error("Saved battle resource unexpectedly has queued UI");
+    impl_->renderer->set_sort_depth_shift(impl_->stage_settings->bucket_base);
+    const auto& p=impl_->resource_camera_position;const auto& r=impl_->resource_camera_rotation;
+    const Float4 rotation{-r[0],-r[1],-r[2],0};
+    const auto view=camera_matrix({-p[0],-p[1],-p[2],1},rotation,{1,1,1,0},context.sine);
+    const auto& screen=projection.frame().ordinary;
+    const auto prepared=active?impl_->renderer->prepare(view,field_clip_projection(screen),nullptr,rotation,
+        screen.clip_far,p,&projection.frame(),1,false):impl_->renderer->prepare_empty(projection.frame());
     if(!impl_->stage_committed) {
         try {impl_->commit_stage(projection,clear,frame,stage_report);}
         catch(...) {impl_->construction_failure=std::current_exception();throw;}
@@ -515,8 +555,15 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
         try {impl_->construct_ui(context,frame,stage_report);}
         catch(...) {impl_->construction_failure=std::current_exception();throw;}
     }
-    impl_->inspect_ui_updates(context,frame,ui_update_report);
-    impl_->scheduled_callbacks(context,projection,frame,stage_report);
+    if(active&&!impl_->reported_active_resource&&impl_->ui_draw&&!stage_report.empty()) {
+        auto path=stage_report;path.replace_extension(".first-active.draw.json");
+        if(fs::exists(path)||fs::is_symlink(path))throw std::runtime_error("Refusing existing actual battle draw report");
+        std::ofstream out(path);
+        write_ui_draw_diagnostic(out,*impl_->ui_draw,frame,104376,127,"actual-session-first-resource-after-callbacks");
+        if(!out)throw std::runtime_error("Cannot write actual battle draw report");
+    }
+    if(!active)impl_->inspect_ui_updates(context,frame,ui_update_report);
+    impl_->scheduled_callbacks(context,projection,frame,active?fs::path{}:stage_report);
     for(unsigned slot=3;slot<impl_->stage_settings->filters.size();++slot) {
         const auto& filter=impl_->stage_settings->filters[slot];
         if(slot!=6&&filter&&(*filter)[0])throw std::runtime_error("Unrecovered battle framebuffer filter slot");
@@ -529,16 +576,28 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
         }
         return std::function<void()>([]{});
     }};
-    impl_->rendered_image=impl_->renderer->render_prepared(prepared,nullptr,&postprocess,
+    const UiMetalBaseline baseline{0x6c00,0x7900,true,0,1,0,1};
+    const UiMetalTextureResolver textures=[&](const UiGeometryTexture& texture) {
+        if(texture.kind==UiGeometryTexture::Kind::Font) {
+            if(texture.fonts!=impl_->font_owner||texture.font_index>=3)throw std::runtime_error("Battle UI font binding mismatch");
+            return UiMetalTexture{impl_->font_textures[texture.font_index],impl_->font_owner};
+        }
+        if(texture.window!=impl_->window_owner)throw std::runtime_error("Battle UI window binding mismatch");
+        return UiMetalTexture{impl_->atlas,impl_->window_owner};
+    };
+    std::optional<SceneUiPass> ui_pass;
+    if(impl_->ui_geometry)ui_pass.emplace(SceneUiPass{*impl_->ui_geometry,baseline,textures});
+    impl_->rendered_image=impl_->renderer->render_prepared(prepared,ui_pass?&*ui_pass:nullptr,&postprocess,
         std::array<std::uint8_t,4>{clear.rgb[0],clear.rgb[1],clear.rgb[2],0});
-    if(!stage_report.empty()) {
-        auto path=stage_report;path.replace_extension(".render.rgba");
+    if(!stage_report.empty()&&(!active||!impl_->reported_active_resource)) {
+        auto path=stage_report;path.replace_extension(active?".first-active.render.rgba":".render.rgba");
         if(fs::exists(path)||fs::is_symlink(path))throw std::runtime_error("Refusing existing battle resource image");
         std::ofstream out(path,std::ios::binary);const auto& rgba=impl_->rendered_image->rgba;
         out.write(reinterpret_cast<const char*>(rgba.data()),rgba.size());out.close();
         if(!out)throw std::runtime_error("Cannot write battle resource image");
         std::cout<<"Native battle resource/filter completed frame="<<frame<<" raw_rgba="<<path<<'\n';
     }
+    if(active)impl_->reported_active_resource=true;
 }
 void BattleSession::service_loader_after_frame(BattleConstructionContext context,unsigned frame,const fs::path& report){
     impl_->jobs.check();
@@ -557,6 +616,13 @@ void BattleSession::service_loader_after_frame(BattleConstructionContext context
         impl_->load_step.store(5);
         impl_->roster.construct_enemies(impl_->decoded,impl_->formation,impl_->battle_data->formation(impl_->formation),context.tables,
             __builtin_bit_cast(std::int16_t, (context.entry.parameters().argument2)),random);
+        unsigned alias=0;
+        for(const auto& actor:impl_->roster.actors()) {
+            const auto bind=[&](const std::unique_ptr<FieldActor>& model,const fs::path& path) {
+                if(model)impl_->renderer->add_actor({model.get(),path,int(alias++),SceneActorDescriptor{model->render_flags,false}});
+            };
+            bind(actor->model,actor->model_path);bind(actor->bag,actor->bag_path);bind(actor->box,actor->box_path);
+        }
         impl_->load_step.store(6);impl_->construction=Impl::Construction::Complete;
     }catch(const std::exception& e){
         impl_->construction=Impl::Construction::Failed;impl_->construction_failure=std::current_exception();error=e.what();

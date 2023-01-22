@@ -28,7 +28,7 @@ struct BattleUiContext {
     BattleUiPadInput input;
     SceneFade& fade;
     std::shared_ptr<const std::vector<Font>> fonts;
-    std::span<const float> sine;
+    const SineTable& sine;
     GameRandom& random;
     //114df8 mutates the persistent outer capture owner, if it exists.
     std::function<void()> release_capture;

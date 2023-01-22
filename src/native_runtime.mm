@@ -842,7 +842,7 @@ struct Session {
         } else {
             for(std::size_t i=0;i<image.rgba.size();i+=4) {
                 for(unsigned c=0;c<3;++c)image.rgba[i+c]=scene_clear.rgb[c];
-                image.rgba[i+3]=255; // Existing opaque display-alpha policy.
+                image.rgba[i+3]=battle?64:255;
             }
         }
         const auto alpha=scene_fade.alpha(),brightness=128-alpha;
