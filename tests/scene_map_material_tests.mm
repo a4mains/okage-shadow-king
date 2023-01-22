@@ -17,7 +17,7 @@ static void put(Data& b,std::size_t at,std::uint32_t v){for(unsigned i=0;i<4;++i
 static void word(Data& b,std::uint32_t v){const auto at=b.size();b.resize(at+4);put(b,at,v);}
 static void floats(Data& b,const Float4& v){for(float f:v)word(b,__builtin_bit_cast(unsigned, (f)));}
 static void write(const fs::path& p,const Data& b){std::ofstream f(p,std::ios::binary);f.write(reinterpret_cast<const char*>(b.data()),b.size());if(!f)throw std::runtime_error("Fixture write");}
-struct Surface {Float4 color;float transparency=0;bool normal=false,bypass=false;};
+struct Surface {Float4 color;float transparency=0;bool normal=false,bypass=false;unsigned blend=0;};
 static Data model(std::span<const Surface> surfaces,bool selected,bool textured,bool reverse) {
     // One identity bone/node; source color and normal independent per surface.
     Data prefix(28);put(prefix,0,24);put(prefix,4,12);put(prefix,12,1);
@@ -27,7 +27,7 @@ static Data model(std::span<const Surface> surfaces,bool selected,bool textured,
     put(b,72,1);put(b,76,0xffff0000);put(b,80,1);
     word(b,0x0200001c);word(b,0xffff0000);word(b,0x00010001);floats(b,{0,0,1,1});
     word(b,0x03000000|unsigned(4+32*surfaces.size()));
-    for(const auto& s:surfaces){floats(b,{0,0,0,0});word(b,0);word(b,__builtin_bit_cast(unsigned, (s.transparency)));word(b,0);word(b,s.bypass?1:0);}
+    for(const auto& s:surfaces){floats(b,{0,0,0,0});word(b,0);word(b,__builtin_bit_cast(unsigned, (s.transparency)));word(b,s.blend);word(b,s.bypass?1:0);}
     word(b,0x04000008);word(b,0);
     word(b,0x0500004c);word(b,1);word(b,4<<16);
     for(const auto& p:std::array{Float4{-2,-2,10,1},Float4{2,-2,10,1},Float4{2,2,10,1},Float4{-2,2,10,1}})floats(b,p);
@@ -107,7 +107,8 @@ static Texture battle_actor_sample(const fs::path& dir,std::span<const Surface> 
     renderer.set_clear_rgb({1,2,3});renderer.set_sort_depth_shift(19);
     require(renderer.render_prepared(copy).rgba==image.rgba);
     const auto live_clear=renderer.render_prepared(copy,nullptr,nullptr,std::array<std::uint8_t,4>{1,2,3,255});
-    require(center(live_clear)==center(image));
+    if(std::all_of(surfaces.begin(),surfaces.end(),[](const auto& s){return s.blend==0;}))
+        require(center(live_clear)==center(image));
     require(live_clear.rgba[0]==1&&live_clear.rgba[1]==2&&live_clear.rgba[2]==3);
     actor.visible=true;actor.render_flags=flags;
     require(render().rgba!=image.rgba);
@@ -249,6 +250,18 @@ int main(int argc,const char** argv){@autoreleasepool {try {
     one[0].bypass=true;
     battle_actor_sample(out/"battle-bypass",one,0x2000e0,base,ambient);
     battle_actor_sample(out/"battle-translucent",interleaved,0x200080,base,ambient);
+    // Public actor descriptor and loader-mode0 rendering select the material's
+    // GS blend register, not a special JAM ambient or field-alias path.
+    const std::array<Surface,1> additive{{{{.25f,.5f,.75f,1},0,false,false,1}}};
+    const std::array<Surface,1> subtractive{{{{.25f,.5f,.75f,1},0,false,false,2}}};
+    const auto added=battle_actor_sample(out/"battle-additive",additive,0x2000a0,{1,1,1,1},ambient);
+    const auto subtracted=battle_actor_sample(out/"battle-subtractive",subtractive,0x2000a0,{1,1,1,1},ambient);
+    require(center(added)==std::array<unsigned,3>{77,145,215});
+    require(center(subtracted)==std::array<unsigned,3>{0,0,0});
+    const std::array<Surface,1> translucentAdd{{{{.25f,.5f,.75f,1},.5f,false,false,1}}};
+    const auto translucentAdded=battle_actor_sample(out/"battle-additive-translucent",translucentAdd,0x2000a0,{1,1,1,1},ambient);
+    const auto blended=center(translucentAdded);
+    require(blended[0]>=45&&blended[0]<=46&&blended[1]>=81&&blended[1]<=82&&blended[2]>=119&&blended[2]<=120);
     ui_bridge(out/"ui-bridge");
     if(argc==1)fs::remove_all(out);
     std::cout<<"Scene UI pass: ordered overlay, shared depth, raw alpha, completed validation and recovery passed\n";

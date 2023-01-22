@@ -41,7 +41,9 @@ inline MapMaterialClass map_material_class(const Material& material,int normal) 
     if(!std::isfinite(transparency)||transparency<0||transparency>1)
         throw std::runtime_error("Map material transparency outside recovered range");
     if(material.words[7]&~1u)throw std::runtime_error("Unrecovered map material flags");
-    if(material.words[6]!=0)throw std::runtime_error("Unrecovered map material blend class");
+    //0x17fc20 material selection calls0x17c410 on this loader-mode0 path.
+    //Words6=0/1/2 select ALPHA44/48/42 independently of transparency.
+    (void)material_blend_register(material);
     return {transparency>0,normal<0||(material.words[7]&1)!=0};
 }
 inline bool map_material_block_uses_normals(const RenderBlock& block) {

@@ -218,7 +218,16 @@ int main() {
         require(okage::map_material_class(mapMaterial,-1).translucent);
         require(okage::material_source_color(mapMaterial,{1,1,1,1})[3]==127);
         mapMaterial.words[5]=__builtin_bit_cast(unsigned, (-.001f));rejects([&]{okage::map_material_class(mapMaterial,-1);});
-        mapMaterial.words[5]=0;mapMaterial.words[6]=1;rejects([&]{okage::map_material_class(mapMaterial,-1);});
+        for(unsigned blend=0;blend<3;++blend) {
+            mapMaterial.words[6]=blend;mapMaterial.words[5]=0;
+            require(!okage::map_material_class(mapMaterial,-1).translucent);
+            require(okage::map_material_class(mapMaterial,-1).base_lighting);
+            require(okage::material_blend_register(mapMaterial)==std::array<unsigned,3>{0x44,0x48,0x42}[blend]);
+            mapMaterial.words[5]=0x3bff9724;
+            require(okage::map_material_class(mapMaterial,0).translucent);
+            require(!okage::map_material_class(mapMaterial,0).base_lighting);
+        }
+        mapMaterial.words[5]=0;mapMaterial.words[6]=3;rejects([&]{okage::map_material_class(mapMaterial,-1);});
         okage::Polygon polygon{};polygon.flags=0x20;polygon.texture_state=0;
         require(!okage::map_material_textured(polygon)); // Selected image, TME off.
         polygon.flags=0x30;require(okage::map_material_textured(polygon));
