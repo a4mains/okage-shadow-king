@@ -93,6 +93,15 @@ void empty_resource_projection() {
     p.submit_empty_resource_frame(true,101,16777115);
     require(p.current().depth_far==2048&&p.current().clip_far==1024&&p.current().fog_near==0,"unsuppressed resource effect order");
     require(p.effect_parameters()==effects,"empty effect submission changed parameter owner");
+    okage::StageSettings stage;p.synchronize_stage_effects();
+    const auto previous=p.current();
+    apply(stage,p,0x47,{110,0,0,0});
+    p.begin_field(stage.cached_depth_min,stage.cached_depth_max);
+    require(p.frame().shadow.depth_min==previous.depth_min&&p.frame().shadow.depth_max==previous.depth_max,
+        "resource range retroactively changed shadow descriptor");
+    require(p.frame().ordinary.depth_min==stage.cached_depth_min&&p.frame().ordinary.depth_max==stage.cached_depth_max,
+        "resource did not consume47-only depth range");
+    p.begin_effects();p.begin_deferred();p.end_effects();
 }
 void filters_and_packing() {
     okage::StageSettings s;okage::FieldProjection p;

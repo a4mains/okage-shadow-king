@@ -524,7 +524,7 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
     impl_->resource_camera_rotation=impl_->camera_channels.value(1);
     const bool effect_pass=!impl_->suppress_effects.load();
     if(active) {
-        projection.begin_field();
+        projection.begin_field(impl_->stage_settings->cached_depth_min,impl_->stage_settings->cached_depth_max);
         for(const auto& actor:impl_->roster.actors())
             for(auto* model:{actor->model.get(),actor->bag.get(),actor->box.get()})if(model&&model->visible) {
                 model->evaluate_bones();model->evaluate_world();

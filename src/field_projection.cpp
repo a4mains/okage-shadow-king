@@ -96,6 +96,13 @@ void FieldProjection::begin_field() {
     current_.fog_near=field_fog_near_;current_.fog_far=field_fog_far_;
     frame_.ordinary=current_;phase_=Phase::Field;++frames_;
 }
+void FieldProjection::begin_field(float depth_min,float depth_max) {
+    if(!std::isfinite(depth_min)||!std::isfinite(depth_max)||depth_min<0||depth_max<depth_min||depth_max>=16777216.f)
+        throw std::runtime_error("Invalid resource depth cache range");
+    begin_field();
+    current_.depth_min=depth_min;current_.depth_max=depth_max;
+    frame_.ordinary=current_;
+}
 void FieldProjection::begin_effects() {
     if(phase_!=Phase::Field)throw std::runtime_error("Effect projection lifecycle order");
     //0x1b9be0 epilogue, then0x102218. Depth planes survive the effect passes.
