@@ -51,6 +51,12 @@ BattleCameraMotion::BattleCameraMotion(const BattleCameraSequence& sequence,floa
     for(const auto& p:sequence_)if(p)validate(*p);
     Rounding rounding;select(*sequence_[0]);
 }
+void BattleCameraMotion::restart_sequence(const BattleCameraSequence& sequence) {
+    if(!sequence[0])throw std::runtime_error("Battle camera restart requires first preset");
+    for(const auto& p:sequence)if(p)validate(*p);
+    Rounding rounding;
+    sequence_=sequence;sequence_phase_=0;select(*sequence_[0]);
+}
 void BattleCameraMotion::select(const BattleCameraPreset& p) {
     flags_&=~0x40000000u;
     target_.mode=p.target_mode;target_.remaining=p.target_duration;

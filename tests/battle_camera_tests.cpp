@@ -119,6 +119,59 @@ int main() {
 
         {
             okage::BattleCameraSequence seq{};seq[0]=linear(2);
+            okage::BattleCameraMotion motion(seq,.5f);okage::Animation channels(3);
+            channels.set_channel(1,{11,12,13,37});
+            motion.tick(channels,[](float){});
+            const auto before=motion.observation();
+            require(before[53]==1 && before[51]==2);
+            const auto position=channels.value(0),rotation=channels.value(1);
+            okage::BattleCameraSequence next{};next[0]=fixed(3,4);
+            next[0]->position_start={10,20,30,0};
+            next[0]->target_start={13,24,35,7};next[0]->projection_value=9;
+            motion.restart_sequence(next);
+            const auto after=motion.observation();
+            okage::BattleCameraMotion fresh(next,.5f);
+            require(after!=fresh.observation());
+            require(after[53]==1 && after[55]==0 && after[51]==1);
+            require(after[11]==before[11]); //aim W is not initialized by14fc50.
+            for(unsigned i=12;i<20;++i)require(after[i]==before[i]);
+            for(unsigned i=32;i<44;++i)require(after[i]==before[i]);
+            require(motion.position()==next[0]->position_start && motion.target()==next[0]->target_start);
+            require(channels.value(0)==position && channels.value(1)==rotation);
+            unsigned requests=0;
+            motion.tick(channels,[&](float value){++requests;require(value==9);require(channels.value(1)==rotation);});
+            require(requests==1 && channels.value(0)==position); //fixed callback never publishes position.
+            require(motion.observation()[1]==__builtin_bit_cast(std::uint32_t, (2.5f))); //preserved timestep.
+            require(channels.value(1)==motion.rotation() && motion.rotation()[3]==37);
+            motion.tick(channels,[&](float){++requests;});require(requests==1);
+        }
+        {
+            okage::BattleCameraSequence seq{};seq[0]=linear(1);
+            okage::BattleCameraMotion motion(seq,1);
+            motion.tick();motion.tick();motion.tick();require(motion.ready());
+            okage::BattleCameraSequence next{};next[0]=linear(2);next[1]=fixed();
+            next[0]->position_start={20,0,0,0};next[0]->position_end={24,0,0,0};
+            motion.restart_sequence(next);
+            require(!motion.ready() && motion.observation()[55]==0 && motion.observation()[53]==0);
+            require((motion.observation()[52]&0xc0000000u)==0);
+            require(motion.take_projection_request()==std::optional<float>(1.25f));
+            motion.tick();require(motion.position()[0]==22);
+            motion.tick();motion.tick();motion.tick();
+            require(!motion.ready() && motion.observation()[55]==1);
+        }
+        //Validate the complete replacement before changing the live owner.
+        {
+            okage::BattleCameraSequence seq{};seq[0]=linear(2);
+            okage::BattleCameraMotion motion(seq,1);motion.tick();
+            const auto before=motion.observation();
+            rejects([&]{motion.restart_sequence({});});require(motion.observation()==before);
+            auto invalid=seq;invalid[2]=fixed();invalid[2]->target_mode=2;
+            rejects([&]{motion.restart_sequence(invalid);});require(motion.observation()==before);
+            motion.tick();require(motion.position()[0]==2);
+        }
+
+        {
+            okage::BattleCameraSequence seq{};seq[0]=linear(2);
             okage::BattleCameraMotion motion(seq,1);
             okage::Animation channels(3);
             channels.set_channel(0,{7,8,9,10});channels.set_channel(1,{11,12,13,37});

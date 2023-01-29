@@ -20,6 +20,7 @@ using BattleCameraSequence=std::array<std::optional<BattleCameraPreset>,3>;
 class BattleCameraMotion {
 public:
     BattleCameraMotion(const BattleCameraSequence&,float timestep);
+    void restart_sequence(const BattleCameraSequence&);
     void tick();
     void tick(Animation& channels,const std::function<void(float)>& projection);
     Float4 position() const {return position_.point;}
