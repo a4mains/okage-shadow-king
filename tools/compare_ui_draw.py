@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import struct
@@ -104,6 +105,12 @@ def load_reference(path: Path):
     if type(windows) is not list or len(windows) != 2 or [w.get("slot") for w in windows if type(w) is dict] != [0, 1]:
         raise Invalid("reference must identify both selected windows")
     for window in windows:
+        if _uint(window.get("framebuffer_target_220"), "source framebuffer target") != 0xffffffff:
+            raise Invalid("source alternate framebuffer owner is unsupported")
+        opacity = _uint(window.get("opacity_270"), "source opacity bits")
+        delta = _uint(window.get("delta_27c"), "source opacity delta bits")
+        if any((x & 0x7f800000) == 0x7f800000 for x in (opacity, delta)) or not ((opacity | delta) & 0x7fffffff):
+            raise Invalid("source selected window is not an active finite draw owner")
         flags = _uint(window.get("flags_4f8"), "source window draw flags")
         if flags & 1:
             raise Invalid("source history is active and outside this comparison scope")
@@ -219,7 +226,27 @@ def load_reference(path: Path):
         except ValueError as exc:
             raise Invalid("source GS value is malformed") from exc
         gs.append((_uint(row.get("gs_register"), "source GS register", 0xff), value))
+    frame_rows = [(row, pair) for row, pair in zip(gs_rows, gs) if pair[0] == 0x4c]
+    if len(frame_rows) != len(windows) + 1:
+        raise Invalid("source current framebuffer binding count is incomplete")
+    frame_by_call = {}
+    source_frame_registers = []
+    frame_value = None
+    for i, (row, (_, value)) in enumerate(frame_rows):
+        site = "001a8380" if i < len(windows) else "001a8ffc"
+        if _addr(row.get("callsite"), "FRAME callsite") != site or row.get("ra") != int(site, 16) + 8:
+            raise Invalid("unowned source FRAME write")
+        if row.get("a0") != 0x4c or row.get("a1") != (value & 0xffffffff) or value & ~0x1ff != 10 << 16:
+            raise Invalid("source FRAME format, width, mask, or argument is unsupported")
+        if frame_value is not None and value != frame_value:
+            raise Invalid("source current FRAME owner changed during draw")
+        frame_value = value
+        frame_by_call[row["call_id"]] = {"kind": "current_framebuffer", "target": "runtime_current"}
+        source_frame_registers.append({"call_id": row["call_id"], "callsite": site, "value": value})
+    raw_gs = gs
+    gs = [pair for pair in gs if pair[0] != 0x4c]
     replays = []
+    raw_replays = []
     replay_by_call = {}
     for row in call_events:
         callee = _addr(row.get("callee"), "replay callee")
@@ -242,6 +269,9 @@ def load_reference(path: Path):
             "history": 0,
             "pass": _uint(owner.get("pass_index"), "source replay pass", 2),
         }
+        raw_replays.append(dict(replay))
+        if family == "glyph_pass":
+            replay["family"] = "glyph"
         replays.append(replay)
         replay_by_call[_uint(row.get("call_id"), "replay call id")] = replay
     if not replays:
@@ -249,7 +279,7 @@ def load_reference(path: Path):
     projection_by_call = {_uint(row.get("call_id"), "projection call id"): projection.hex() for row in projection_rows}
     matrix_by_call = {_uint(row.get("call_id"), "matrix call id"): value.hex() for row, value in zip(matrix_rows, matrices)}
     color_by_call = {_uint(row.get("call_id"), "color call id"): value.hex() for row, value in zip(color_rows, colors)}
-    gs_by_call = {_uint(row.get("call_id"), "GS call id"): pair for row, pair in zip(gs_rows, gs)}
+    gs_by_call = {_uint(row.get("call_id"), "GS call id"): pair for row, pair in zip(gs_rows, raw_gs)}
     stream = []
     for row in call_events:
         cid = _uint(row.get("call_id"), "stream call id")
@@ -262,6 +292,8 @@ def load_reference(path: Path):
             stream.append({"kind": "auxiliary", "vectors": auxiliary_by_call[cid]})
         elif cid in color_by_call:
             stream.append({"kind": "colors", "bits": color_by_call[cid]})
+        elif cid in frame_by_call:
+            stream.append(frame_by_call[cid])
         elif cid in gs_by_call:
             register, value = gs_by_call[cid]
             stream.append({"kind": "gs_register", "register": register, "value": value})
@@ -269,7 +301,8 @@ def load_reference(path: Path):
             stream.append({"kind": "replay", "owner": replay_by_call[cid]})
     return {"frame": frame, "projection": projection.hex(), "matrices": [x.hex() for x in matrices],
             "colors": [x.hex() for x in colors], "auxiliary": [x.hex() for x in auxiliary_uploads], "gs": gs, "replays": replays,
-            "stream": stream,
+            "stream": stream, "raw_gs": raw_gs, "raw_replays": raw_replays,
+            "source_frame_registers": source_frame_registers,
             "helper_calls": len(call_events), "aliases": len(aliases),
             "source_scope": header["scope"]}
 
@@ -311,6 +344,7 @@ def load_native(path: Path):
         elif kind == "current_framebuffer":
             if command.get("target") != "runtime_current":
                 raise Invalid("native framebuffer target is not runtime resolved")
+            stream.append({"kind": "current_framebuffer", "target": "runtime_current"})
         elif kind == "projection":
             words = command.get("float_bits")
             if type(words) is not list or len(words) != 32:
@@ -345,6 +379,8 @@ def load_native(path: Path):
                 stream.append({"kind": "colors", "bits": colors[-1].hex()})
         elif kind == "gs_register":
             register = _uint(command.get("register"), "native GS register", 0xff)
+            if register == 0x4c:
+                raise Invalid("native FRAME must use a typed current framebuffer owner")
             value = command.get("value_u64")
             if not isinstance(value, str) or len(value) != 16:
                 raise Invalid("native GS value must be 64-bit hex")
@@ -394,6 +430,8 @@ def load_native(path: Path):
                 "pass": _uint(owner.get("pass"), "native replay pass", 2)}
             replays.append(replay)
             stream.append({"kind": "replay", "owner": replay})
+    if sum(item["kind"] == "current_framebuffer" for item in stream) != 3:
+        raise Invalid("native selected-window/final framebuffer binding count is incomplete")
     if len(projections) != 1:
         raise Invalid("native list must contain exactly one projection")
     if _uint(report.get("packet_operation_count"), "native packet_operation_count") != packet_operation_count:
@@ -438,6 +476,26 @@ def main(argv=None):
         reference = load_reference(args.reference)
         native = load_native(args.native)
         differences = compare(reference, native, args.input_anchor, args.original_vblank)
+        #Keep the pre-normalization representation differences reviewable.
+        raw_frames = iter(reference["source_frame_registers"])
+        raw_source_stream = []
+        for item in reference["stream"]:
+            if item["kind"] == "current_framebuffer":
+                raw_source_stream.append({"kind": "gs_register", "register": 0x4c, "value": next(raw_frames)["value"]})
+            elif item["kind"] == "replay" and item["owner"]["family"] == "glyph":
+                raw_source_stream.append({"kind": "replay", "owner": {**item["owner"], "family": "glyph_pass"}})
+            else:
+                raw_source_stream.append(item)
+        reference["raw_stream"] = raw_source_stream
+        raw_native = {**native, "stream": [item for item in native["stream"] if item["kind"] != "current_framebuffer"]}
+        raw_differences = []
+        for field in ("gs", "replays", "stream"):
+            expected, actual = reference["raw_" + field], raw_native[field]
+            if expected != actual:
+                first = next((i for i, (a, b) in enumerate(zip(expected, actual)) if a != b), min(len(expected), len(actual)))
+                raw_differences.append({"field": field, "expected_count": len(expected), "actual_count": len(actual),
+                    "first_index": first, "expected": expected[first] if first < len(expected) else None,
+                    "actual": actual[first] if first < len(actual) else None})
         report = {"schema": "okage-ui-draw-comparison-v1", "input_anchor": args.input_anchor,
             "original_vblank": args.original_vblank,
             "original_frame": reference["frame"], "native_frame": native["frame"],
@@ -445,13 +503,18 @@ def main(argv=None):
             "scope": "exact source/native comparison of projection bits, per-window matrices, selected color uploads, direct GS register writes, and logical replay owner order",
             "compared_counts": {"projection_words": 32, "matrices": len(reference["matrices"]),
                 "color_vectors": len(reference["colors"]), "auxiliary_vectors": len(reference["auxiliary"]),
-                "gs_registers": len(reference["gs"]),
+                "gs_registers": len(reference["gs"]), "current_framebuffer_bindings": len(reference["source_frame_registers"]),
                 "logical_replays": len(reference["replays"]), "source_helper_pairs": reference["helper_calls"],
                 "source_alias_entries_not_double_counted": reference["aliases"]},
+            "input_sha256": {str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in (args.reference, args.native)},
+            "normalization": {"source_frame_registers": reference["source_frame_registers"],
+                "frame_scope": "1a8380 current-window FRAME and1a8ffc final restore: exact width10/PSMCT32/mask0/reserved0, equal source FBP; host target identity replaces FBP only",
+                "replay_scope": "source draw_type glyph_pass is canonical family glyph; group, side, pass, history and order remain compared"},
+            "raw_representation_differences": raw_differences,
             "differences": differences, "difference_count": len(differences),
             "exact_on_compared_channels": not differences,
             "unavailable_or_unsupported": ["source replay packet payload bytes are not captured; packet payloads are not compared",
-                "current-framebuffer binding and control commands are not source-compared",
+                "physical current-framebuffer base address is host-normalized; other control commands are not source-compared",
                 "trailing queue_text_state packet bytes are not captured by the source observer",
                 "no deferred GS packet execution, VU vertices, GPU submission, or raster equivalence"]}
         args.output.parent.mkdir(parents=True, exist_ok=True)

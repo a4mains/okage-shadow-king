@@ -45,6 +45,19 @@ def fixtures():
     rows.extend([{ "event": "draw_dispatch_completion", "frame": 127, "ra": 1234,
                    "shared_return": 1234, "sp": 9876, "root": 4000, "manager": 5000, "helper_calls": 10 },
                  {"event": "finish", "draw_completed": True, "helper_calls": 10}])
+    for window in rows[1]["windows"]:
+        window.update(framebuffer_target_220=0xffffffff, opacity_270=0x3f800000, delta_27c=0)
+    for at, site in reversed([(4, 0x1a8380), (len(rows)-2, 0x1a8380), (len(rows)-2, 0x1a8ffc)]):
+        entry = {"event": "call_entry", "call_id": -1, "callee": "0x001aedd8", "frame": 127,
+                 "pc": 0x1aedd8, "ra": site+8, "sp": 9000, "callsite": hex(site),
+                 "a0": 0x4c, "a1": 0xa0046, "gs_register": 0x4c, "gs_value_a1_u64": "0x00000000000a0046"}
+        retrow = {**entry, "event": "call_return"}
+        rows[at:at] = [entry, retrow]
+    current = 0
+    for row in rows:
+        if row.get("event") == "call_entry":current += 1
+        if row.get("event") in ("call_entry", "call_return", "thunk_alias_entry"):row["call_id"] = current
+        if "helper_calls" in row:row["helper_calls"] = 13
     reference = {"rows": rows}
     commands = [
         {"kind": "projection", "float_bits": ["3f800000"] * 32},
@@ -57,6 +70,8 @@ def fixtures():
           "side": 1, "element": 3, "history": 0, "pass": 0},
          "packet": {"operations": [], "elements": [None] * 16}},
     ]
+    commands.insert(1, {"kind": "current_framebuffer", "target": "runtime_current"})
+    commands.extend([{"kind": "current_framebuffer", "target": "runtime_current"} for _ in range(2)])
     for i, command in enumerate(commands):
         command["index"] = i
     native = {"schema": verifier.NATIVE_SCHEMA,
@@ -85,7 +100,7 @@ class CompareUiDrawTests(unittest.TestCase):
 
     def test_source_and_native_data_corruption_is_reported(self):
         reference, native = fixtures()
-        native["commands"][-1]["owner"]["group"] = 9
+        next(x for x in native["commands"] if x["kind"] == "replay")["owner"]["group"] = 9
         with tempfile.TemporaryDirectory() as directory:
             ref = Path(directory) / "source.jsonl"
             ref.write_text("\n".join(json.dumps(row) for row in reference["rows"]) + "\n")
@@ -111,7 +126,7 @@ class CompareUiDrawTests(unittest.TestCase):
 
     def test_cross_kind_reorder_fails_unified_stream(self):
         reference, native = fixtures()
-        native["commands"][1], native["commands"][4] = native["commands"][4], native["commands"][1]
+        native["commands"][2], native["commands"][5] = native["commands"][5], native["commands"][2]
         for index, command in enumerate(native["commands"]):
             command["index"] = index
         with tempfile.TemporaryDirectory() as directory:
@@ -148,10 +163,50 @@ class CompareUiDrawTests(unittest.TestCase):
             path.write_text('{"schema":"wrong","schema":"wrong"}')
             with self.assertRaises(verifier.Invalid):
                 verifier.load_native(path)
-            native["commands"][-1]["packet"]["elements"] = [None]
+            next(x for x in native["commands"] if x["kind"] == "replay")["packet"]["elements"] = [None]
             path.write_text(json.dumps(native))
             with self.assertRaises(verifier.Invalid):
                 verifier.load_native(path)
+
+    def test_strict_frame_ownership_and_shape(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "source.jsonl"
+            for change in ("mask", "format", "width", "reserved", "changed_owner", "site", "argument", "window_target", "missing"):
+                reference, _ = fixtures()
+                rows = reference["rows"]
+                frames = [row for row in rows if row.get("event") == "call_entry" and row.get("gs_register") == 0x4c]
+                row = frames[0]
+                if change in ("mask", "format", "width", "reserved", "changed_owner"):
+                    bit = {"mask": 32, "format": 24, "width": 16, "reserved": 9, "changed_owner": 0}[change]
+                    value = int(row["gs_value_a1_u64"], 16) ^ (1 << bit)
+                    row["gs_value_a1_u64"] = f"0x{value:016x}";row["a1"] = value & 0xffffffff
+                elif change == "site":row["callsite"] = "0x1a8384"
+                elif change == "argument":row["a1"] = 0
+                elif change == "window_target":rows[1]["windows"][0]["framebuffer_target_220"] = 3
+                else:row["gs_register"] = 7
+                path.write_text("\n".join(json.dumps(row) for row in rows))
+                with self.subTest(change=change), self.assertRaises(verifier.Invalid):verifier.load_reference(path)
+
+    def test_glyph_family_normalization_retains_pass_and_real_matrix_difference(self):
+        reference, native = fixtures()
+        owner = next(r for r in reference["rows"] if r.get("packet_owner"))['packet_owner']
+        owner.update(family="glyph", draw_type="glyph_pass", element=None)
+        replay = next(c for c in native["commands"] if c["kind"] == "replay")
+        replay["owner"].update(family="glyph", element=0)
+        with tempfile.TemporaryDirectory() as directory:
+            ref, nat = Path(directory)/"ref.jsonl", Path(directory)/"native.json"
+            ref.write_text("\n".join(json.dumps(row) for row in reference["rows"]))
+            nat.write_text(json.dumps(native))
+            expected = verifier.load_reference(ref)
+            self.assertEqual(verifier.compare(expected, verifier.load_native(nat), 104376, 127), [])
+            replay["owner"]["pass"] = 1
+            next(c for c in native["commands"] if c["kind"] == "matrix")["float_bits"][12] = "43878000"
+            nat.write_text(json.dumps(native))
+            differences = verifier.compare(expected, verifier.load_native(nat), 104376, 127)
+            self.assertEqual({x["field"] for x in differences}, {"replays", "matrices", "stream"})
+            native["commands"][-1] = {"index": len(native["commands"])-1, "kind": "gs_register", "register": 0x4c, "value_u64": "00000000000a0046"}
+            nat.write_text(json.dumps(native))
+            with self.assertRaises(verifier.Invalid):verifier.load_native(nat)
 
     def test_cli_exit_codes_and_output_clobber_guard(self):
         reference, native = fixtures()
