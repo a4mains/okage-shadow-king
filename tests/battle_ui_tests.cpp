@@ -82,6 +82,18 @@ void first_dispatch() {
     for(unsigned i=0;i<40;++i)ui.first_update(resource,pad,input,60);
     require(words[0xe50/4]==2&&words[0x144/4]==0&&ui.window(1).word(0x554)==0,"source rotation completes on positive crossing");
     require(words[0xe4c/4]==2&&words[0xa4/4]==0xffffffff,"zero-opacity type2 skips interaction");
+    const auto other_opacity=ui.window(0).opacity();
+    const auto prior_words=ui.words();
+    ui.reveal_layer(1,16);
+    require(ui.window(1).opacity()==1&&ui.window(1).word(0x27c)==0x41800000,
+            "parent reveal starts at one without prematurely advancing resource clock");
+    require(ui.window(1).word(0x274)==0x43000000&&ui.window(1).word(0x278)==0,
+            "parent reveal uses source opacity bounds");
+    require(ui.window(0).opacity()==other_opacity&&ui.words()==prior_words,
+            "parent reveal preserves sibling and interface dispatch state");
+    bool invalid_layer=false;
+    try{ui.reveal_layer(2,16);}catch(const std::runtime_error&){invalid_layer=true;}
+    require(invalid_layer&&ui.window(1).opacity()==1,"invalid reveal cannot mutate an owned layer");
     std::fesetround(rounding);
 }
 }

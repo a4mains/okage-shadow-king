@@ -103,6 +103,8 @@ struct BattleSession::Impl {
     Construction construction=Construction::Preparing; //Main thread only.
     std::exception_ptr construction_failure;
     unsigned phase=0;
+    enum class ParentCallback {Intro,Combat};
+    ParentCallback parent_callback=ParentCallback::Intro,previous_parent_callback=ParentCallback::Intro;
     bool loader_resumed=false;
     id<MTLDevice> device;
     id<MTLTexture> atlas,environment;
@@ -120,6 +122,7 @@ struct BattleSession::Impl {
     Float4 resource_camera_position{},resource_camera_rotation{};
     std::optional<BattleCameraMotion> camera;
     std::optional<BattleCameraSequence> camera_sequence;
+    std::optional<BattleCameraSequence> after_intro_sequence;
     std::optional<BattleData> battle_data;
     BattleRoster roster{root};
     // Last member: its destructor joins before any job-captured owners die.
@@ -182,6 +185,7 @@ struct BattleSession::Impl {
             load_step.store(3);
             const BattleCameraData camera_data(read(input/"battle-camera.bin"));
             camera_sequence=camera_data.sequence(stage);
+            after_intro_sequence=camera_data.sequence(stage,true);
             resources_prepared.store(true,std::memory_order_release);
         }
     }
@@ -401,12 +405,24 @@ struct BattleSession::Impl {
         std::string before,after,error;
         std::exception_ptr failure;
         try {
+            if(parent_callback==ParentCallback::Combat)
+                throw std::runtime_error("Battle active parent14a508 entity refresh/command scheduling is unrecovered");
             if(phase==0) {
                 events.push_back("parent.activation.entry");activate(context,projection);
                 events.push_back("parent.activation.return");
             } else if(phase==1) {
-                if(camera->ready())throw std::runtime_error("Battle camera-ready parent transition to14a508 is unrecovered");
-                events.push_back("parent.camera-wait.return");
+                if(camera->ready()) {
+                    if(!after_intro_sequence)throw std::runtime_error("Missing owned after-intro camera sequence");
+                    ui->reveal_layer(1,16);
+                    context.shared.hud.reset_type3(*ui_resources[0]);
+                    camera->restart_sequence(*after_intro_sequence);
+                    put(root.bytes,0x30,0);
+                    previous_parent_callback=parent_callback;
+                    parent_callback=ParentCallback::Combat;
+                    phase=0;put(root.bytes,0x24,0);put(root.bytes,0x81b0,2);
+                    events.push_back("parent.camera-ready.transition");
+                    std::cout<<"Native battle intro complete frame="<<frame<<"; status layer revealed; authored camera restarted\n";
+                } else events.push_back("parent.camera-wait.return");
             } else throw std::runtime_error("Battle parent phase is unrecovered");
             //152330 sees its constructor's zero command;152368 is empty.
             if(stage_mask&0x18000000u)throw std::runtime_error("Battle stage remains masked");

@@ -54,4 +54,10 @@ const UiWindow& BattleInterface::window(unsigned layer) const {
         throw std::runtime_error("Battle interface window lifetime");
     return *shared_.registry[unsigned(handles_[layer])];
 }
+void BattleInterface::reveal_layer(unsigned layer,std::int32_t increment) {
+    (void)window(layer);
+    if(increment < -16777216 || increment > 16777216)
+        throw std::runtime_error("Battle layer opacity increment conversion is unrecovered");
+    shared_.registry[unsigned(handles_[layer])]->set_opacity_tween(float(increment),1.f,0,128);
+}
 }
