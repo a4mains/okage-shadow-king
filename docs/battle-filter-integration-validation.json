@@ -1,0 +1,77 @@
+{
+  "schema": "okage-battle-filter-integration-validation-v1",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "implementation_revision": "3f18d74",
+  "scope": "Native battle scene/filter/UI and intro handoff; not combat or original raster equivalence",
+  "artifacts": [
+    {
+      "path": "local/native-battle-active-104615-release-v2.run.json",
+      "sha256": "72547d1113b16c7fe8590d2370f1073ca69d1ebd22b68826336264cc5496ea7c"
+    },
+    {
+      "path": "local/native-battle-active-105000-release-v1.run.json",
+      "sha256": "dce196c74e503a67bfe811607238ffbc73d5397de59b5b4895ecd58249fa69f6"
+    },
+    {
+      "path": "local/native-battle-intro-105000-release-v1.run.json",
+      "sha256": "09799767b47a30bb1236f585c40052ca5dcf626d02db798afc6531294d7abc25"
+    },
+    {
+      "path": "local/research/battle-filter6-v1/integration-checks-v2/runs.json",
+      "sha256": "44c840fab54e5856e2e13b1344461063de96f8e8869ab222e2ebc421abe19a4d"
+    },
+    {
+      "path": "local/research/battle-filter6-v1/actual-ui-draw-comparison-v2.json",
+      "sha256": "dc3461272b6196dc773af1160700bf0ad9c841dac46fc1d97ab62e7ad52d4fe3"
+    },
+    {
+      "path": "local/research/battle-filter6-v1/interval-audit-v1/game-mode.json",
+      "sha256": "a44e3395e3970fddc20e7098034812b525a5fdd8f5d28968a13cb65ec9f4127d"
+    },
+    {
+      "path": "local/research/battle-filter6-v1/interval-audit-v1/field.log",
+      "sha256": "a6398daeaab039b43bb83f5e601c8074273eb7fb9786160b43ef56e8f537e1b9"
+    },
+    {
+      "path": "local/research/battle-filter6-v1/ui-normalization-runs-v1.json",
+      "sha256": "95636622e9e798f4eb52e31a30fa4ba79db8c291e25a83a3258b6b91ba8407a8"
+    },
+    {
+      "path": "local/native-battle-active-104615-debug-v1.run.json",
+      "sha256": "a1e02e059793855804e9d1175a71b8f4f1945dde92f7d971227ba4c949005265"
+    },
+    {
+      "path": "local/research/battle-filter6-v1/release-debug-artifacts-v1.json",
+      "sha256": "6293991e175ac2baa92e949e948d36090103c245111cf34a22b2fe9b886c6fd1"
+    },
+    {
+      "path": "local/research/battle-filter6-v1/native-fixtures-v1/runs.json",
+      "sha256": "7cd5745b25c64c5a01dc07b95320f010d730e283ff15dcd5adc1bd95d4dd31d7"
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/checks-v1.json",
+      "sha256": "203028e23b5634f32b6f3e6d10f820f6dbcefdf749f03c7edc4d14f9fc6d99f5"
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/next-dependencies-v1.txt",
+      "sha256": "21db289d5a5d34ab0e449a2d79a9b8e889a18090296e2880e0f117e06ebe1adb"
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/export-v2.run.json",
+      "sha256": "25add9582547d1772b2a90bf9db0e3979fa2ccac8b65e783b6d0085f5c5f9d22"
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/export-v3.run.json",
+      "sha256": "c5181f5e025860193aa536ff6808a916d53c4df64705f965c37b0c008d7163a3"
+    }
+  ],
+  "limitations": [
+    "Original filter raster oracle initialization still failing; native per-pass snapshots are an explicit adaptation.",
+    "Native first-active resource and original vblank127 are semantically aligned only, not equal absolute frames.",
+    "Two actual charge-bar matrix translations differ; constructor/RNG/charge debt retained.",
+    "Field-only interval checker cannot audit post-field battle records; full mixed interval remains incomplete.",
+    "Scheduler-only comparison has340 paired rows,0 differing words,1 missing original terminal observation; no other state/raster/audio proof.",
+    "Original progression not captured beyond104615.",
+    "Full playthrough, combat, persistence, cold startup and interactive performance incomplete."
+  ]
+}
