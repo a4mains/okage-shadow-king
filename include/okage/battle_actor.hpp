@@ -27,6 +27,7 @@ struct BattleEntityBinding {
     std::span<std::uint8_t> record;
     unsigned kind=4;
 };
+void battle_refresh_entities(BattleState&,std::span<const BattleEntityBinding>);
 void battle_party_first_update(BattleActor&,const BattleState&);  //153a20
 void battle_party_second_update(BattleActor&,const BattleState&); //153ce8
 void battle_enemy_first_update(BattleActor&,const BattleState&);  //15b9a0
