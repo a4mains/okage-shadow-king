@@ -104,7 +104,8 @@ struct BattleSession::Impl {
     std::exception_ptr construction_failure;
     unsigned phase=0;
     enum class ParentCallback {Intro,Combat};
-    ParentCallback parent_callback=ParentCallback::Intro,previous_parent_callback=ParentCallback::Intro;
+    ParentCallback parent_callback=ParentCallback::Intro;
+    std::optional<ParentCallback> previous_parent_callback;
     bool loader_resumed=false;
     id<MTLDevice> device;
     id<MTLTexture> atlas,environment;
@@ -405,8 +406,10 @@ struct BattleSession::Impl {
         std::string before,after,error;
         std::exception_ptr failure;
         try {
-            if(parent_callback==ParentCallback::Combat)
-                throw std::runtime_error("Battle active parent14a508 entity refresh/command scheduling is unrecovered");
+            if(parent_callback==ParentCallback::Combat) {
+                battle_refresh_entities(root,roster.entities()); //14a508 begins with151290.
+                throw std::runtime_error("Battle active parent14a508 end checks/music/command scheduling is unrecovered after entity refresh");
+            }
             if(phase==0) {
                 events.push_back("parent.activation.entry");activate(context,projection);
                 events.push_back("parent.activation.return");
