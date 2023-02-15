@@ -87,6 +87,42 @@ void null_and_invalid_owners() {
     require(invalid.root.bytes==before,"Out-of-range owner throws before queue mutation");
     rejects([&]{okage::battle_command_push(invalid.root,1,1);});
 }
+void discarded_top_stops_before_base_slot() {
+    for(bool incapacitated:{false,true}) {
+        Fixture f(2);
+        if(incapacitated) {
+            f.statuses[0][0]=6;
+            f.bindings[0].actor=&f.actors[0];
+        } else {
+            f.bindings[0].actor=nullptr;
+        }
+        put32(f.root.bytes,0x80a4,1);put32(f.root.bytes,0x80a8,99);
+        put32(f.root.bytes,0x80ac,incapacitated?0:0);
+        put32(f.root.bytes,0x80b0,incapacitated?55:56);
+        put32(f.root.bytes,0x81a4,1);put32(f.root.bytes,0x81a8,0);
+        std::int32_t owner=73;
+        require(okage::battle_command_pop(f.root,f.bindings,owner)==-1&&owner==73,
+                "Discarding slot1 returns sentinel instead of scanning the populated base slot");
+        require(f.root.bytes[0x81a4]==0&&okage::battle_command_available(f.root)==1,
+                "Discard stops at base index and records unavailable state");
+        require(f.root.bytes[0x80a4]==1&&f.root.bytes[0x80a8]==99,
+                "Base slot remains byte-for-byte unconsumed after discard");
+    }
+}
+void null_base_slot_underflow() {
+    Fixture f(1);f.bindings[0].actor=nullptr;
+    put32(f.root.bytes,0x80a4,0);put32(f.root.bytes,0x80a8,88);
+    put32(f.root.bytes,0x81a4,0);put32(f.root.bytes,0x81a8,0);
+    std::int32_t owner=14;
+    require(okage::battle_command_pop(f.root,f.bindings,owner)==-1&&owner==14,
+            "Null source entry at index0 returns sentinel without output mutation");
+    require(f.root.bytes[0x81a4]==0xff&&f.root.bytes[0x81a5]==0xff&&
+            f.root.bytes[0x81a6]==0xff&&f.root.bytes[0x81a7]==0xff,
+            "Index0 null discard stores signed index-1");
+    require(okage::battle_command_available(f.root)==1&&f.root.bytes[0x80a4]==0&&
+            f.root.bytes[0x80a8]==88,
+            "Index0 null discard does not read a wrapped unsigned stack offset");
+}
 void incapacitated_status_rules() {
     Fixture f(1);std::int32_t owner=-1;
     f.statuses[0][0]=4;put16(f.counters[0],1);
@@ -132,6 +168,7 @@ void binding_validation() {
 int main() {
     try {
         push_and_availability();empty_and_negative_sentinel();null_and_invalid_owners();
+        discarded_top_stops_before_base_slot();null_base_slot_underflow();
         incapacitated_status_rules();binding_validation();
         std::cout<<"Battle command queue source-contract tests passed\n";return 0;
     } catch(const std::exception& e) {std::cerr<<e.what()<<'\n';return 1;}

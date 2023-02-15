@@ -90,12 +90,14 @@ std::int32_t battle_command_pop(BattleState& state,
         if(!actor) {
             put_word(state.bytes,available_flag,1);
             --index;put_word(state.bytes,queue_index,std::uint32_t(index));
+            if(index<=0)return -1;
             continue;
         }
         const auto command=signed_word(word(state.bytes,slot+4));
         if(battle_actor_incapacitated(actor)) {
             put_word(state.bytes,available_flag,1);
             --index;put_word(state.bytes,queue_index,std::uint32_t(index));
+            if(index<=0)return -1;
             continue;
         }
         owner_out=owner;
