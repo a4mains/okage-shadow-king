@@ -23,6 +23,7 @@ public:
                std::uint32_t argument3,std::uint32_t argument4);
     // Constructor prefix reset, preserving all four previously selected args.
     void clear_prefix();
+    void clear_argument1();
     void clear_party_slots();
     BattleEntryParameters parameters() const;
     const Storage& bytes() const {return storage_;}

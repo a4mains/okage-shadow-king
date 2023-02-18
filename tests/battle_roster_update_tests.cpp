@@ -1,0 +1,173 @@
+#include "okage/battle_roster_update.hpp"
+#include "okage/battle_command_queue.hpp"
+#include <bit>
+#include <iostream>
+#include <limits>
+#include <stdexcept>
+
+namespace {
+void require(bool value,const char* message,unsigned at=__builtin_LINE()) {
+    if(!value)throw std::runtime_error(std::string(message)+" at line "+std::to_string(at));
+}
+template<class F> void rejects(F action,const char* expected) {
+    try {action();}catch(const std::runtime_error& e){require(std::string(e.what()).find(expected)!=std::string::npos,"Wrong guard");return;}
+    throw std::runtime_error("Expected explicit branch rejection");
+}
+void put(std::span<std::uint8_t> b,unsigned at,std::uint32_t value,unsigned count=4) {
+    for(unsigned i=0;i<count;++i)b[at+i]=std::uint8_t(value>>(8*i));
+}
+unsigned word(okage::Bytes b,unsigned at) {
+    return unsigned(b[at])|(unsigned(b[at+1])<<8)|(unsigned(b[at+2])<<16)|(unsigned(b[at+3])<<24);
+}
+unsigned half(okage::Bytes b,unsigned at){return b[at]|(unsigned(b[at+1])<<8);}
+void number(std::span<std::uint8_t> b,unsigned at,float value){put(b,at,__builtin_bit_cast(std::uint32_t, (value)));}
+struct Fixture {
+    okage::BattleState root;
+    okage::BattleEntryContext entry;
+    std::array<std::uint8_t,0x1000> variables{};
+    std::array<okage::BattleActor,5> actors;
+    std::array<std::array<std::uint8_t,0x50>,5> records{};
+    std::array<okage::BattleEntityBinding,5> entities;
+    std::array<okage::BattleActor*,3> party;
+    std::array<okage::BattleActor*,1> enemies;
+    std::vector<okage::BattleRosterSound> sounds;
+    unsigned draws=0;
+    okage::BattleRosterUpdateContext context;
+    Fixture():context{root,entry,variables,entities,0,0x40,
+        [&](auto event){sounds.push_back(event);},[&]{++draws;return 123u;}} {
+        root.initialize_root({1,1,17});put(root.bytes,0x50,5);
+        for(unsigned i=0;i<5;++i) {
+            auto& a=actors[i];a.entity_id=i;a.enemy=i==4;a.record=records[i];records[i][0]=1;
+            a.stat_bindings={a.record.subspan(8,4),a.record.subspan(0,1),a.record.subspan(0x4a,2),
+                a.record.subspan(1,1),a.record.subspan(0x4c,2),a.record.subspan(0x4e,2)};
+            put(a.storage,0x130,i,2);put(a.storage,0x21c,1);number(a.storage,0x194,2);number(a.storage,0x198,4);
+            put(root.entity(i),0x1fc,0);entities[i]={&a,a.record,i==4?1u:0u};
+            // Six real script entries; selecting a motion must defer dispatch.
+            std::vector<std::uint8_t> motion(80);put(motion,0,0x544d58);put(motion,4,48);
+            put(motion,16,0xffffffff);put(motion,24,6);
+            for(unsigned j=0;j<6;++j)put(motion,32+j*8,0x00a00002);
+            okage::ModelFile model;model.models.emplace_back();
+            a.model=std::make_unique<okage::FieldActor>(std::move(model),motion,okage::TextureAnimation{},true,true);
+        }
+        for(unsigned i=0;i<3;++i)party[i]=&actors[i];enemies[0]=&actors[4];
+    }
+    void update(){okage::battle_party_roster_update(party,actors[3],context);}
+    void enemy(){okage::battle_enemy_roster_update(enemies,context);}
+    void full(unsigned i){number(actors[i].storage,0x194,4);}
+};
+void waiting_and_ready() {
+    Fixture f;const auto root=f.root.bytes;std::array<std::array<std::uint8_t,0x3e0>,5> before;
+    for(unsigned i=0;i<5;++i)before[i]=f.actors[i].storage;
+    f.update();f.enemy();require(f.root.bytes==root&&f.draws==0&&f.sounds.empty(),"Waiting callbacks preserve queue and RNG");
+    for(unsigned i=0;i<5;++i)require(f.actors[i].storage==before[i],"Waiting predicates have no stores or clock steps");
+    f.full(0);const auto script=f.actors[0].model->animation().script_state();f.update();
+    require(word(f.actors[0].storage,0x21c)==2&&half(f.actors[0].storage,0x220)==2,"Full charge becomes command ready");
+    require(word(f.root.bytes,0x81a4)==1&&word(f.root.bytes,0x80ac)==0&&word(f.root.bytes,0x80b0)==0,
+            "First command uses source stack slot1 and actual entity ID");
+    require(!okage::battle_command_available(f.root)&&f.sounds==std::vector{okage::BattleRosterSound::Ready},"Queue publication precedes ready sound");
+    require(f.actors[0].model->animation().script_state()==script&&f.draws==0,"Roster does not tick scripts or consume ordinary RNG");
+    f.update();require(word(f.root.bytes,0x81a4)==1&&f.sounds.size()==1,"No unconditional repeated enqueue");
+}
+void ordered_selection() {
+    Fixture f;for(unsigned i=0;i<3;++i)f.full(i);put(f.root.bytes,0x81a8,0);
+    f.update();require(half(f.actors[0].storage,0x220)==2&&half(f.actors[1].storage,0x220)==2&&half(f.actors[2].storage,0x220)==1,
+                       "Second ready actor is marked in branch delay slot before break");
+    require(f.sounds.empty(),"Unavailable queue produces no sound");
+    // All already marked: unrelated pad bit does not select; authored selection bit does.
+    put(f.actors[2].storage,0x220,2,2);put(f.root.bytes,0x81a8,1);f.context.pad_pressed=0x80;f.update();
+    require(word(f.root.bytes,0x81a4)==0,"Only source mapping mask triggers manual selection");
+    put(f.actors[0].record,0x26,101,2);f.context.pad_pressed=0x40;f.update();
+    require(word(f.root.bytes,0x80ac)==1&&f.sounds==std::vector{okage::BattleRosterSound::Cycle},"Manual selection skips charge sentinel101 and uses cycle service");
+    Fixture locked;locked.full(0);put(locked.root.bytes,0x81b4,1);locked.update();
+    require(word(locked.actors[0].storage,0x21c)==2&&half(locked.actors[0].storage,0x220)==1&&locked.sounds.empty(),
+            "Root81b4 gates only selection, after actor readiness mutation");
+    Fixture first_sentinel;first_sentinel.full(0);first_sentinel.full(1);put(first_sentinel.actors[0].record,0x26,101,2);
+    first_sentinel.update();require(first_sentinel.sounds.empty()&&half(first_sentinel.actors[1].storage,0x220)==2,
+            "First marked charge sentinel prevents automatically selecting second candidate");
+}
+void status_motion_and_failure_order() {
+    Fixture f;f.full(0);f.records[0][0]=4;put(f.records[0],0x4a,2,2);put(f.actors[0].storage,0x184,1);
+    const auto script=f.actors[0].model->animation().script_state();f.update();
+    require(word(f.actors[0].storage,0x194)==0&&word(f.actors[0].storage,0x21c)==1,"Status4 counter>=2 resets charge without readiness");
+    require(word(f.actors[0].storage,0x184)==0&&f.actors[0].model->motion()==5&&word(f.actors[0].storage,0x12c)==0xbf800000,
+            "Motion request runs even when charge-status returns false");
+    require(f.actors[0].model->animation().script_state()!=script,"Motion selector changes deferred script selection");
+    Fixture recovering;recovering.full(0);recovering.records[0][0]=4;put(recovering.records[0],0x4a,0xffff,2);recovering.update();
+    require(recovering.sounds.size()==1,"Signed negative status4 counter is eligible");
+    Fixture dead;dead.full(0);dead.records[0][0]=6;dead.update();require(word(dead.actors[0].storage,0x194)==0&&dead.sounds.empty(),"Status6 consumes no RNG and clears charge");
+    for(unsigned status:{3u,5u}) {
+        Fixture g;g.full(0);g.records[0][0]=status;const auto before=g.actors[0].storage;
+        rejects([&]{g.update();},"status3/5");require(g.draws==0&&g.actors[0].storage==before,"Unrecovered status helper guards before RNG and writes");
+    }
+    Fixture audio;audio.full(0);audio.context.sound=[&](auto){require(word(audio.root.bytes,0x81a4)==1,"Source enqueue before audio");throw std::runtime_error("sound failure");};
+    rejects([&]{audio.update();},"sound failure");require(word(audio.root.bytes,0x81a8)==0,"Audio failure retains preceding source queue stores");
+    Fixture selected;selected.full(0);put(selected.actors[0].storage,0x220,3,2);put(selected.root.bytes,0x81b4,1);selected.update();
+    require(half(selected.actors[0].storage,0x220)==3,"Existing command selection3 survives readiness");
+    rejects([&]{selected.update();},"157850");
+}
+void stan_context_and_enemy_guards() {
+    Fixture f;f.entry.reset(1,0xaabb,0xccdd,0xeeff);const auto before=f.entry.bytes();
+    rejects([&]{f.update();},"158548");
+    for(unsigned i=0;i<before.size();++i)require(f.entry.bytes()[i]==((i==0x30||i==0x31)?0:before[i]),"Stan consumes persistent+30 only");
+    Fixture half_value;half_value.entry.reset(0xffff,7,8,9);half_value.update();require(half_value.entry.parameters().argument1==0xffff,"Request compares signed halfword to exactly1");
+    Fixture counter;put(counter.actors[0].storage,0x3bc,1,2);put(counter.actors[0].stat_bindings[0],0,100);put(counter.actors[0].storage,0x164,399,2);
+    counter.update();require(half(counter.actors[0].storage,0x3bc)==0&&counter.sounds.empty(),"HERO trigger consumed before ratio<4 return");
+    put(counter.actors[0].storage,0x3bc,1,2);put(counter.actors[0].storage,0x164,400,2);
+    rejects([&]{counter.update();},"1580d0");require(half(counter.actors[3].storage,0x142)==0xcd&&half(counter.actors[3].storage,0x144)==10,"Ratio boundary reaches real action dependency");
+    Fixture alternate;put(alternate.variables,0x574,1);put(alternate.actors[0].storage,0x340,0x1234);
+    rejects([&]{alternate.update();},"1580d0");require(word(alternate.actors[0].storage,0x340)==0&&half(alternate.actors[3].storage,0x142)==0x1234,"Shared variables574 branch consumes queued HERO command");
+    Fixture enemy;enemy.full(4);put(enemy.actors[4].storage,0x184,1);
+    rejects([&]{enemy.enemy();},"157b90");require(word(enemy.actors[4].storage,0x184)==0&&word(enemy.actors[4].storage,0x21c)==1&&enemy.draws==0,"Enemy full charge reaches command selection after source clear");
+    Fixture end;put(end.root.bytes,0x81b8,1);end.update();
+    for(unsigned i=0;i<4;++i)require(word(end.actors[i].storage,0x21c)==100,"End-state getter changes each party and Stan state before switch");
+    require(end.sounds.empty(),"End state does not invent queue command");
+}
+void cleanup_and_source_defaults() {
+    Fixture f;put(f.root.entity(0),0x1fc,0x80000000);put(f.root.entity(0),0x60,7,2);
+    put(f.root.entity(0),0x62,9,2);put(f.root.entity(0),0x68,0x12345678);
+    //158868 invalidates descriptors; it does not clear later compaction inputs.
+    put(f.root.entity(0),0x6c,0x89abcdef);put(f.root.entity(0),0x16c,1,2);
+    number(f.actors[0].storage,0x19c,8);f.update();
+    require(word(f.actors[0].storage,0x194)==0&&word(f.actors[0].storage,0x19c)==0,"Inactive entity clears timers");
+    require(half(f.root.entity(0),0x60)==0xffff&&half(f.root.entity(0),0x62)==0xffff&&word(f.root.entity(0),0x68)==0,"158868 exact descriptor invalidation");
+    require(word(f.root.entity(0),0x6c)==0x89abcdef&&half(f.root.entity(0),0x16c)==1,"Cleanup preserves action list ownership and count");
+    Fixture defaults;put(defaults.actors[0].storage,0x21c,7);number(defaults.actors[0].storage,0x19c,9);
+    put(defaults.actors[4].storage,0x21c,2);number(defaults.actors[4].storage,0x19c,9);
+    defaults.update();defaults.enemy();
+    require(word(defaults.actors[0].storage,0x194)==0&&word(defaults.actors[0].storage,0x19c)==0&&
+            word(defaults.actors[4].storage,0x194)==0&&word(defaults.actors[4].storage,0x19c)==0,"Source default states clear timers instead of unconditional waits");
+    Fixture untouched;put(untouched.actors[0].storage,0x21c,5);put(untouched.actors[4].storage,0x21c,6);
+    auto party=untouched.actors[0].storage,enemy=untouched.actors[4].storage;untouched.update();untouched.enemy();
+    require(untouched.actors[0].storage==party&&untouched.actors[4].storage==enemy,"Source action-owned states return without altering timers");
+}
+void target_gates() {
+    Fixture f;put(f.actors[0].storage,0x21c,3);put(f.actors[0].storage,0x140,0,2);
+    number(f.actors[0].storage,0x19c,0);number(f.actors[0].storage,0x1a0,1);f.update();
+    require(word(f.actors[0].storage,0x21c)==3,"Party action timer gates target scan");
+    number(f.actors[0].storage,0x19c,1);f.update();
+    require(word(f.actors[0].storage,0x21c)==2&&half(f.actors[0].storage,0x220)==4&&half(f.root.entity(0),0x60)==0xffff,
+            "No target returns party to retarget state and invalidates descriptor");
+    put(f.actors[0].storage,0x1d4,0xffffffff);f.update();
+    require(word(f.actors[0].storage,0x21c)==2,"Unselected retarget class returns according to source");
+    Fixture stan;put(stan.actors[3].storage,0x21c,3);number(stan.actors[3].storage,0x1a0,999);
+    stan.update();require(word(stan.actors[3].storage,0x21c)==1&&word(stan.actors[3].storage,0x194)==0,"Stan target scan has no action-timer gate");
+    Fixture enemy;put(enemy.actors[4].storage,0x21c,3);put(enemy.actors[4].storage,0x140,1,2);enemy.actors[4].storage[0x132]=0;
+    enemy.records[0][0]=6;enemy.enemy();
+    require(word(enemy.actors[4].storage,0x21c)==1&&word(enemy.actors[4].storage,0x194)==0,"Enemy targets use incapacity predicate rather than entity flags");
+    Fixture sentinel;put(sentinel.actors[0].storage,0x21c,3);put(sentinel.actors[0].storage,0x140,1,2);sentinel.actors[0].storage[0x132]=3;
+    sentinel.update();require(word(sentinel.actors[0].storage,0x21c)==3,"Target3 has its distinct source return before readiness helper");
+    sentinel.actors[0].storage[0x132]=4;rejects([&]{sentinel.update();},"1588b0");
+}
+void invalid_owners() {
+    Fixture f;f.party[1]=nullptr;rejects([&]{f.update();},"owner missing");
+    Fixture g;put(g.root.bytes,0x50,65);rejects([&]{g.update();},"count/binding");
+    Fixture h;put(h.actors[0].storage,0x130,63,2);rejects([&]{h.update();},"identity");
+    Fixture timer;number(timer.actors[0].storage,0x194,std::numeric_limits<float>::infinity());rejects([&]{timer.update();},"exceptional timer");
+    Fixture missing_status;missing_status.full(0);missing_status.actors[0].stat_bindings[1]={};rejects([&]{missing_status.update();},"status binding");
+}
+}
+int main() {
+    try {waiting_and_ready();ordered_selection();status_motion_and_failure_order();stan_context_and_enemy_guards();cleanup_and_source_defaults();target_gates();invalid_owners();
+        std::cout<<"battle roster update tests passed\n";return 0;
+    }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
+}

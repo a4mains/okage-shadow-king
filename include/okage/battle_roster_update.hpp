@@ -1,0 +1,22 @@
+#pragma once
+#include "okage/battle_actor.hpp"
+#include <functional>
+
+namespace okage {
+enum class BattleRosterSound {Ready,Cycle};
+struct BattleRosterUpdateContext {
+    BattleState& root;
+    BattleEntryContext& entry;
+    Bytes variables;
+    std::span<const BattleEntityBinding> entities;
+    std::uint16_t pad_pressed=0;
+    std::uint32_t selection_buttons=0;
+    std::function<void(BattleRosterSound)> sound;
+    std::function<std::uint32_t()> random;
+};
+void battle_party_roster_update(std::span<BattleActor* const> ordinary,
+                                BattleActor& stan,BattleRosterUpdateContext&);
+//15afa0 phase1:15b0a8 for each non-null authored enemy slot in order.
+void battle_enemy_roster_update(std::span<BattleActor* const> enemies,
+                                BattleRosterUpdateContext&);
+}
