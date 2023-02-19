@@ -18,6 +18,7 @@ struct BattleUiPadControl {
 };
 class BattleUiPad {
 public:
+    static constexpr std::uint32_t selection_buttons=0x10|0x20|0x80|8|2|4|1;
     explicit BattleUiPad(unsigned display_rate=60);
     BattleUiPadMasks normalize(BattleUiPadInput input);
     //123820 returns whether it removed any source conflict bits.

@@ -596,7 +596,17 @@ struct Session {
                 {variables,*game_data,ui_party,ui_shared,battle_pad,
                  {input.held,input.pressed,released,input.repeat,128,128},scene_fade,
                  ui_fonts,battle_capture_sine,random,
-                 [this]{if(battle_capture_layer)battle_capture_target=0;}},
+                 [this]{if(battle_capture_layer)battle_capture_target=0;},battle_entry,
+                 [this](bool alternate){
+                     if(!retain_field_music)return;
+                     throw std::runtime_error("Battle music12da90 enabled variant ownership is unrecovered: "+std::to_string(alternate));
+                 },
+                 [this](okage::BattleRosterSound cue){
+                     auto found=sound_banks.find(0);
+                     if(found==sound_banks.end())throw std::runtime_error("Battle roster sound requires the owned ALL bank");
+                     const bool ready=cue==okage::BattleRosterSound::Ready;
+                     found->second->play(ready?25:11,ready?.8f:1.f,ready?100:80);
+                 }},
                 frame,battle_stage_report,battle_ui_update_report);
                 pad_repeat.delay=battle_pad.controls[0].delay;
                 pad_repeat.interval=battle_pad.controls[0].interval;

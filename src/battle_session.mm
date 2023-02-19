@@ -11,6 +11,7 @@
 #include "okage/animation.hpp"
 #include "okage/scene_renderer.hpp"
 #include "okage/battle_actor.hpp"
+#include "okage/battle_command_queue.hpp"
 #include "okage/battle_ui_diagnostic.hpp"
 #include "okage/ui_resource.hpp"
 #include "okage/ui_draw_diagnostic.hpp"
@@ -103,7 +104,7 @@ struct BattleSession::Impl {
     Construction construction=Construction::Preparing; //Main thread only.
     std::exception_ptr construction_failure;
     unsigned phase=0;
-    enum class ParentCallback {Intro,Combat};
+    enum class ParentCallback {Intro,Combat,CommandMenu,CommandAction};
     ParentCallback parent_callback=ParentCallback::Intro;
     std::optional<ParentCallback> previous_parent_callback;
     bool loader_resumed=false;
@@ -383,6 +384,66 @@ struct BattleSession::Impl {
         context.fade.step=step;context.fade.request(1.f);
         ++phase;put(root.bytes,0x24,phase);
     }
+    bool combat_end_check() {
+        const auto entities=roster.entities();
+        const auto count=word(root.bytes,0x50);
+        if(count>battle_entity_count||entities.size()!=count||count<4)
+            throw std::runtime_error("Battle end-check entity ownership mismatch");
+        const auto state=word(root.bytes,0x81b8);
+        if(state==0) {
+            bool enemies_inactive=true;
+            for(unsigned i=4;i<count;++i)
+                if(!(word(root.entity(i),0x1fc)&0x80000000u))enemies_inactive=false;
+            if(enemies_inactive) {
+                put(root.bytes,0x81b8,1);put(root.bytes,0x81b4,1);
+                return true;
+            }
+            auto* hero=entities[0].actor;
+            bool defeat=!hero;
+            if(hero) {
+                if(hero->stat_bindings[1].empty())throw std::runtime_error("Battle end-check missing HERO status");
+                const auto status=__builtin_bit_cast(std::int8_t, (hero->stat_bindings[1][0]));
+                defeat=status==6||(status==4&&battle_actor_incapacitated(hero)&&
+                    battle_actor_incapacitated(entities[1].actor)&&battle_actor_incapacitated(entities[2].actor));
+            }
+            if(defeat)throw std::runtime_error("Battle defeat14a460 outer mode request and14a9c0 outcome are unrecovered");
+            return false;
+        }
+        if(state!=1)return false;
+        bool ready=true;
+        for(unsigned i=0;i<3;++i)if(auto* actor=entities[i].actor)
+            if(!battle_actor_incapacitated(actor)&&word(actor->storage,0x21c)!=100)ready=false;
+        if(ready)throw std::runtime_error("Battle victory14a780 transition/effect cleanup is unrecovered");
+        return true;
+    }
+    void combat_parent(BattleUiContext& context,std::vector<std::string>& events) {
+        battle_refresh_entities(root,roster.entities()); //14a508 begins with151290.
+        if(combat_end_check()){events.push_back("parent.end-check.return");return;}
+        if(auto* hero=roster.entities()[0].actor) {
+            const auto denominator=__builtin_bit_cast(std::int32_t, (word(hero->stat_bindings[0],0)));
+            if(!denominator)throw std::runtime_error("Battle music ratio denominator is zero (source trap7)");
+            const auto raw=std::uint16_t(hero->storage[0x164]|(unsigned(hero->storage[0x165])<<8));
+            const auto numerator=__builtin_bit_cast(std::int16_t, (raw));
+            const unsigned alternate=(std::int64_t(numerator)/denominator)>=10;
+            if(word(root.bytes,0x81c0)!=alternate) {
+                put(root.bytes,0x81c0,alternate);context.music_variant(alternate!=0);
+            }
+        }
+        auto owner=__builtin_bit_cast(std::int32_t, (word(root.bytes,0x81ac)));
+        const auto command=battle_command_pop(root,roster.entities(),owner);
+        put(root.bytes,0x81ac,__builtin_bit_cast(std::uint32_t, (owner)));
+        if(command==0||command==1) {
+            party_mask|=0x10000000u;enemy_mask|=0x10000000u;
+            previous_parent_callback=parent_callback;
+            parent_callback=command==0?ParentCallback::CommandMenu:ParentCallback::CommandAction;
+            phase=0;put(root.bytes,0x24,0);
+            put(root.bytes,0x30,command==0?0:__builtin_bit_cast(std::uint32_t, (owner)));
+            events.push_back(command==0?"parent.command-menu.transition":"parent.command-action.transition");
+        } else if(command==3||command==4) {
+            throw std::runtime_error("Battle parent special command3/4 transition and effect cleanup are unrecovered");
+        }
+        events.push_back("parent.combat.return");
+    }
     void scheduled_callbacks(BattleUiContext context,FieldProjection& projection,unsigned frame,const fs::path& stage_report) {
         fs::path report_path,ui_path;
         if(!stage_report.empty()) {
@@ -407,10 +468,12 @@ struct BattleSession::Impl {
         std::exception_ptr failure;
         try {
             if(parent_callback==ParentCallback::Combat) {
-                battle_refresh_entities(root,roster.entities()); //14a508 begins with151290.
-                throw std::runtime_error("Battle active parent14a508 end checks/music/command scheduling is unrecovered after entity refresh");
-            }
-            if(phase==0) {
+                combat_parent(context,events);
+            } else if(parent_callback==ParentCallback::CommandMenu) {
+                throw std::runtime_error("Battle command-menu1519f8 UI/camera lifecycle is unrecovered");
+            } else if(parent_callback==ParentCallback::CommandAction) {
+                throw std::runtime_error("Battle command-action151e68 camera/action lifecycle is unrecovered");
+            } else if(phase==0) {
                 events.push_back("parent.activation.entry");activate(context,projection);
                 events.push_back("parent.activation.return");
             } else if(phase==1) {
@@ -438,11 +501,26 @@ struct BattleSession::Impl {
             events.push_back("camera.first.return");events.push_back("camera.second.return"); //14f270 empty.
             for(bool enemy:{false,true}) {
                 auto& child_phase=enemy?enemy_phase:party_phase;
-                if((enemy?enemy_mask:party_mask)&0x18000000u)throw std::runtime_error("Battle roster remains masked");
-                if(child_phase!=0)throw std::runtime_error("Battle roster active command selection is unrecovered");
-                if(word(root.bytes,0x81b0)!=0) {
+                if((enemy?enemy_mask:party_mask)&0x18000000u)continue;
+                if(child_phase==0&&word(root.bytes,0x81b0)!=0) {
                     for(const auto& actor:roster.actors())if(actor->enemy==enemy)put(actor->storage,0x21c,1);
                     ++child_phase;
+                } else if(child_phase==1) {
+                    BattleRosterUpdateContext update{root,context.entry,context.variables,roster.entities(),
+                        context.input.pressed,BattleUiPad::selection_buttons,context.sound,
+                        [&]{return context.random.next();}};
+                    std::vector<BattleActor*> actors;
+                    BattleActor* stan=nullptr;
+                    for(const auto& actor:roster.actors())if(actor->enemy==enemy) {
+                        if(!enemy&&actor->entity_id==3)stan=actor.get();else actors.push_back(actor.get());
+                    }
+                    if(enemy)battle_enemy_roster_update(actors,update);
+                    else {
+                        if(!stan)throw std::runtime_error("Battle party roster lacks its Stan owner");
+                        battle_party_roster_update(actors,*stan,update);
+                    }
+                } else if(child_phase!=0) {
+                    throw std::runtime_error("Battle roster parent phase is unrecovered");
                 }
                 events.push_back(enemy?"enemy.parent.return":"party.parent.return");
                 for(const auto& actor:roster.actors())if(actor->enemy==enemy) {

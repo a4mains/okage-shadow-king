@@ -7,6 +7,7 @@
 #include "okage/enemy.hpp"
 #include "okage/battle_interface.hpp"
 #include "okage/dialogue.hpp"
+#include "okage/battle_roster_update.hpp"
 #include <filesystem>
 #include <memory>
 
@@ -32,6 +33,10 @@ struct BattleUiContext {
     GameRandom& random;
     //114df8 mutates the persistent outer capture owner, if it exists.
     std::function<void()> release_capture;
+    BattleEntryContext& entry;
+    //12da90 uses the persistent12da78 owner in the outer Session.
+    std::function<void(bool)> music_variant;
+    std::function<void(BattleRosterSound)> sound;
 };
 class BattleSession {
 public:
