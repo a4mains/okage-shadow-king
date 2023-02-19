@@ -32,7 +32,7 @@ void battle_party_first_update(BattleActor&,const BattleState&);  //153a20
 void battle_party_second_update(BattleActor&,const BattleState&); //153ce8
 void battle_enemy_first_update(BattleActor&,const BattleState&);  //15b9a0
 void battle_enemy_second_update(BattleActor&,const BattleState&); //15c138
-// Shared154b38 states0/1, including all three model-channel writes.
+// Shared154b38 states0/1/2, including all three model-channel writes.
 void battle_actor_motion_update(BattleActor&);
 void battle_actor_second_suffix(BattleActor&);
 class BattleRoster {

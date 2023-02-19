@@ -100,6 +100,17 @@ void charge_publication() {
     rejects([&]{okage::battle_party_second_update(f.actor,f.root);});
     require(half(f.record,0x26)==77,"Signed32 conversion bounds guarded before narrowing");
 }
+void ready_actor_keeps_charge() {
+    Fixture f;put(f.actor.storage,0x21c,2);put(f.actor.storage,0x20,7);
+    number(f.actor.storage,0x194,3);number(f.actor.storage,0x198,4);
+    number(f.actor.storage,0x19c,5);number(f.actor.storage,0x1a4,20);
+    okage::battle_actor_motion_update(f.actor);
+    require(word(f.actor.storage,0x20)==0&&number(f.actor.storage,0x194)==3&&
+            number(f.actor.storage,0x19c)==5,"Ready actor clears task20 but neither timer advances");
+    const auto position=f.actor.model->animation().value(1);
+    for(unsigned i=0;i<4;++i)require(position[i]==number(f.actor.storage,0x60+4*i),
+        "Ready actor still publishes its world position");
+}
 void channels_and_effect_guards() {
     for(bool visible:{false,true}) {
         Fixture f;f.bone_transition();f.actor.model->visible=visible;
@@ -172,6 +183,6 @@ void floating_environment() {
 }
 }
 int main(){try {
-    first_callback();charge_publication();channels_and_effect_guards();enemy_paths();floating_environment();
+    first_callback();charge_publication();ready_actor_keeps_charge();channels_and_effect_guards();enemy_paths();floating_environment();
     std::cout<<"Battle actor startup callback tests passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

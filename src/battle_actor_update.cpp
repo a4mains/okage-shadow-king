@@ -116,7 +116,8 @@ void battle_actor_motion_update(BattleActor& actor) {
     TowardZero rounding;
     put(actor.storage,0x20,0);
     switch(word(actor.storage,0x21c)) { //B+1dc, not C+1dc.
-    case 0:break;
+    case 0:case 2:
+        break;
     case 1: {
         const float step=single(scalar(actor.storage,0x2c),scalar(actor.storage,0x1a4),Operation::Multiply);
         const float next=single(scalar(actor.storage,0x194),step,Operation::Add);
