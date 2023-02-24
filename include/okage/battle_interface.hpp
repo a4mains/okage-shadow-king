@@ -47,6 +47,10 @@ public:
     const auto& words() const {return words_;}
     const auto& handles() const {return handles_;}
     const UiWindow& window(unsigned layer) const;
+    //11fe28 resets the selected layer commands/state and starts its open tween.
+    void open_layer(unsigned layer);
+    //11fdf8 starts a selected layer's fade tween from opacity128.
+    void fade_layer(unsigned layer,std::int32_t increment);
     //11fdc8 starts the selected layer at opacity1 with the supplied increment.
     void reveal_layer(unsigned layer,std::int32_t increment);
     BattleUiPadMasks first_update(std::shared_ptr<RuwResource>,BattleUiPad&,

@@ -96,6 +96,71 @@ void first_dispatch() {
     require(invalid_layer&&ui.window(1).opacity()==1,"invalid reveal cannot mutate an owned layer");
     std::fesetround(rounding);
 }
+void open_and_fade_layers() {
+    auto b=fixture();const okage::BattleUiData data(b);
+    okage::BattleUiShared shared;
+    okage::BattleInterface ui(shared,data,std::make_shared<int>(1),0,[](unsigned){});
+    auto& words=const_cast<std::array<std::uint32_t,0xef0/4>&>(ui.words());
+    words[0xa4/4]=0x101;words[0xa8/4]=0x102;
+    words[0x184/4]=0x201;words[0x188/4]=0x202;
+    words[0xe4c/4]=71;words[0xe50/4]=72;
+    ui.open_layer(1);
+    require(words[0x184/4]==0&&words[0x188/4]==0,
+            "Open clears selected layer command and argument words");
+    require(words[0xe50/4]==1&&words[0xe4c/4]==71,
+            "Open writes only selected manager state via layer state index");
+    require(words[0xa4/4]==0x101&&words[0xa8/4]==0x102,
+            "Open preserves neighboring layer command words");
+    require(ui.window(1).opacity()==1.f&&ui.window(1).word(0x27c)==0x41800000&&
+            ui.window(1).word(0x274)==0x43000000&&ui.window(1).word(0x278)==0,
+            "Open sets source opacity tween16 from1 with bounds0..128");
+    const auto opacity0=ui.window(0).word(0x270);
+
+    words[0x184/4]=0x211;words[0x188/4]=0x212;words[0xe50/4]=73;
+    ui.reveal_layer(1,8);
+    require(words[0x184/4]==0x211&&words[0x188/4]==0x212&&words[0xe50/4]==73,
+            "Reveal remains opacity-only and leaves command/state words intact");
+    require(ui.window(1).word(0x27c)==0x41000000&&ui.window(0).word(0x270)==opacity0,
+            "Reveal applies its increment only to the selected layer");
+
+    words[0xe4c/4]=74;
+    ui.fade_layer(0,-7);
+    require(ui.window(0).word(0x27c)==__builtin_bit_cast(std::uint32_t, (-7.f))&&
+            ui.window(0).opacity()==128.f&&ui.window(0).word(0x274)==0x43000000&&
+            ui.window(0).word(0x278)==0,
+            "Fade starts at opacity128 using source increment and bounds");
+    require(words[0xe4c/4]==74&&words[0x184/4]==0x211&&ui.window(1).opacity()==1.f,
+            "Fade preserves manager state and the other layer");
+
+    const auto before=words;const auto increment0=ui.window(0).word(0x27c);
+    for(auto invalid:{-16777217,16777217}) {
+        bool rejected=false;
+        try{ui.fade_layer(0,invalid);}catch(const std::runtime_error&){rejected=true;}
+        require(rejected&&words==before&&ui.window(0).word(0x27c)==increment0,
+                "Unsupported fade conversion rejects before mutation");
+    }
+    bool invalid_layer=false;
+    try{ui.open_layer(2);}catch(const std::runtime_error&){invalid_layer=true;}
+    require(invalid_layer&&words==before,"Invalid open layer rejects before mutation");
+    invalid_layer=false;
+    try{ui.fade_layer(2,4);}catch(const std::runtime_error&){invalid_layer=true;}
+    require(invalid_layer&&words==before,"Invalid fade layer rejects before mutation");
+
+    words[0xe90/4+1]=16;const auto invalid_state_words=words;
+    const auto opacity1=ui.window(1).word(0x270);
+    bool invalid_state=false;
+    try{ui.open_layer(1);}catch(const std::runtime_error&){invalid_state=true;}
+    require(invalid_state&&words==invalid_state_words&&ui.window(1).word(0x270)==opacity1,
+            "Invalid selected state index rejects before command or opacity mutation");
+
+    words[0xe90/4+1]=1;
+    const int handle=ui.handles()[1];shared.registry[unsigned(handle)].reset();
+    const auto invalid_window_words=words;
+    bool invalid_owner=false;
+    try{ui.open_layer(1);}catch(const std::runtime_error&){invalid_owner=true;}
+    require(invalid_owner&&words==invalid_window_words,
+            "Missing typed window owner rejects open before manager mutation");
+}
 }
 int main(int argc,char** argv) {
     try {
@@ -131,7 +196,7 @@ int main(int argc,char** argv) {
             std::cout<<"owned battle interface parsed\n";return 0;
         }
         require(argc==1,"usage: battle-ui-tests [--diagnostic owned-battle-ui.bin | --window-diagnostic owned-battle-ui.bin fresh.json]");
-        first_dispatch();
+        first_dispatch();open_and_fade_layers();
         auto b=fixture();const okage::BattleUiData data(b);b.clear();
         require(data.layers()[0].words[4]==0x80000000&&data.layers()[1].words[16]==0x80808080,"owned literal bits changed");
         require(data.layers()[0].stream()==1&&data.layers()[1].type()==3,"host bindings changed");

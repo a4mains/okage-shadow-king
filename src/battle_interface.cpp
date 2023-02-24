@@ -3,6 +3,12 @@
 #include <stdexcept>
 
 namespace okage {
+namespace {
+void validate_layer_increment(std::int32_t increment) {
+    if(increment < -16777216 || increment > 16777216)
+        throw std::runtime_error("Battle layer opacity increment conversion is unrecovered");
+}
+}
 BattleInterface::BattleInterface(BattleUiShared& shared,const BattleUiData& data,
     std::shared_ptr<const void> texture,std::uint32_t parent_flags,
     const std::function<void(unsigned)>& constructor):shared_(shared) {
@@ -54,10 +60,27 @@ const UiWindow& BattleInterface::window(unsigned layer) const {
         throw std::runtime_error("Battle interface window lifetime");
     return *shared_.registry[unsigned(handles_[layer])];
 }
+void BattleInterface::open_layer(unsigned layer) {
+    (void)window(layer);
+    const auto state_index=words_[0xe90/4+layer];
+    constexpr unsigned state_count=(0xe8c-0xe4c)/4;
+    if(state_index>=state_count)
+        throw std::runtime_error("Battle interface open state index outside owner");
+    const unsigned base=(0x40+layer*0xe0)/4;
+    //11fe28 clears command and argument, selects the manager state, then opens.
+    words_[base+0x68/4]=0;
+    words_[base+0x64/4]=0;
+    words_[0xe4c/4+state_index]=1;
+    shared_.registry[unsigned(handles_[layer])]->set_opacity_tween(16.f,1.f,0,128);
+}
+void BattleInterface::fade_layer(unsigned layer,std::int32_t increment) {
+    (void)window(layer);
+    validate_layer_increment(increment);
+    shared_.registry[unsigned(handles_[layer])]->set_opacity_tween(static_cast<float>(increment),128.f,0,128);
+}
 void BattleInterface::reveal_layer(unsigned layer,std::int32_t increment) {
     (void)window(layer);
-    if(increment < -16777216 || increment > 16777216)
-        throw std::runtime_error("Battle layer opacity increment conversion is unrecovered");
+    validate_layer_increment(increment);
     shared_.registry[unsigned(handles_[layer])]->set_opacity_tween(float(increment),1.f,0,128);
 }
 }
