@@ -239,6 +239,7 @@ struct Session {
     fs::path battle_construction_report;
     fs::path battle_stage_report;
     fs::path battle_ui_update_report;
+    std::ostream* battle_live_trace=nullptr;
     std::vector<std::uint32_t> battle_loading_trace;
     std::vector<std::uint32_t> game_mode_trace,retiring_effect_trace;
     bool retain_field_music=false;
@@ -606,7 +607,7 @@ struct Session {
                      if(found==sound_banks.end())throw std::runtime_error("Battle roster sound requires the owned ALL bank");
                      const bool ready=cue==okage::BattleRosterSound::Ready;
                      found->second->play(ready?25:11,ready?.8f:1.f,ready?100:80);
-                 }},
+                 },battle_live_trace},
                 frame,battle_stage_report,battle_ui_update_report);
                 pad_repeat.delay=battle_pad.controls[0].delay;
                 pad_repeat.interval=battle_pad.controls[0].interval;
@@ -1368,7 +1369,8 @@ int main(int argc,const char** argv) {
         if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--performance-report FRESH.jsonl (interactive/preview/UI test)]");
         unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures,battleInput;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         std::optional<fs::path> performancePath;
-        fs::path uiUpdateReport;
+        fs::path uiUpdateReport,battleLivePath;
+        std::ofstream battleLiveTrace;
         std::vector<okage::NativeRenderRange> renderRanges;
         for(int i=3;i<argc;++i) {
             const std::string arg=argv[i];if(++i==argc)throw std::runtime_error("Missing native runtime option value");
@@ -1403,6 +1405,10 @@ int main(int argc,const char** argv) {
             else if(arg=="--effect-data")effectData=argv[i];
             else if(arg=="--effect-textures")effectTextures=argv[i];
             else if(arg=="--battle-input")battleInput=argv[i];
+            else if(arg=="--battle-live") {
+                if(!battleLivePath.empty()||!argv[i][0])throw std::runtime_error("Battle-live requires one nonempty fresh path");
+                battleLivePath=argv[i];
+            }
             else if(arg=="--ui-update-diagnostic") {
                 if(!uiUpdateReport.empty()||!argv[i][0])throw std::runtime_error("UI-update diagnostic requires one nonempty fresh path");
                 uiUpdateReport=argv[i];
@@ -1423,6 +1429,16 @@ int main(int argc,const char** argv) {
         if(!soundDirectory.empty() && musicSequence.empty())throw std::runtime_error("Sound directory requires native music setup");
         if(effectData.empty()!=effectTextures.empty()||(!effectData.empty()&&map.empty()))throw std::runtime_error("Effects require data, texture directory and scene");
         if(map.empty()!=event.empty() || (!actors.empty() && map.empty()))throw std::runtime_error("Scene requires both map and event assets");
+        if(!battleLivePath.empty()) {
+            if(!frames||battleInput.empty())throw std::runtime_error("Native battle-live requires bounded --frames and owned --battle-input");
+            if(fs::exists(battleLivePath)||fs::is_symlink(battleLivePath)||
+                (!output.empty()&&okage::native_capture_family_contains(output,battleLivePath))||
+                (!uiUpdateReport.empty()&&fs::weakly_canonical(uiUpdateReport)==fs::weakly_canonical(battleLivePath)))
+                throw std::runtime_error("Battle-live refuses an existing or aliased output");
+            battleLiveTrace.open(battleLivePath);
+            battleLiveTrace<<"{\"schema\":\"okage-native-battle-live-v1\",\"frame_convention\":\"native tick; callback entry/return; no shifted anchors\",\"scope\":\"root and roster callbacks after native construction; raw pointer slots normalized by typed owners; channels are stored outputs\"}\n";
+            if(!battleLiveTrace)throw std::runtime_error("Cannot create native battle-live trace");
+        }
         const auto runPlan=okage::native_run_plan(frames,previewAt,uiFrames,output,diagnosticFrameLimit);
         const auto replayFrames=runPlan.replay_frames;
         okage::validate_native_capture_selection(runPlan,captureFrames);
@@ -1462,6 +1478,7 @@ int main(int argc,const char** argv) {
             auto& session=*prepared;session.render_from=renderFrom;session.render_until=renderUntil;session.render_ranges=std::move(renderRanges);
             session.battle_input=battleInput;
             session.battle_ui_update_report=uiUpdateReport;
+            session.battle_live_trace=battleLivePath.empty()?nullptr:&battleLiveTrace;
             if(!output.empty())session.battle_construction_report=output.string()+".battle-construction.json";
             if(!output.empty())session.battle_stage_report=output.string()+".battle-stage.json";
             session.live_presentation_enabled=previewAt!=0;
@@ -1489,7 +1506,13 @@ int main(int argc,const char** argv) {
             }
             if(!runPlan.replay_capture.empty())capture(session,runPlan.replay_capture);
             std::cout<<"Native frames="<<session.frame<<" progress="<<session.text.state.progress<<" wait_release="<<session.release_frame<<std::endl;
-            if(frames)return 0;
+            if(frames) {
+                if(!battleLivePath.empty()) {
+                    battleLiveTrace<<"{\"event\":\"finish\",\"frame\":"<<session.frame<<"}\n";battleLiveTrace.flush();
+                    if(!battleLiveTrace)throw std::runtime_error("Native battle-live finish write failed");
+                }
+                return 0;
+            }
             session.render_frame();
         }
         [NSApplication sharedApplication];[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];

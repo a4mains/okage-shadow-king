@@ -107,6 +107,8 @@ struct BattleSession::Impl {
     enum class ParentCallback {Intro,Combat,CommandMenu,CommandAction};
     ParentCallback parent_callback=ParentCallback::Intro;
     std::optional<ParentCallback> previous_parent_callback;
+    unsigned live_trace_rows=0,live_trace_calls=0;
+    std::size_t live_trace_bytes=0;
     bool loader_resumed=false;
     id<MTLDevice> device;
     id<MTLTexture> atlas,environment;
@@ -454,6 +456,60 @@ struct BattleSession::Impl {
         }
         std::vector<std::string> events,actor_snapshots;
         const auto hex=[](Bytes b){std::ostringstream out;for(auto v:b)out<<std::hex<<std::setw(2)<<std::setfill('0')<<unsigned(v);return out.str();};
+        const auto callback_code=[&] {
+            switch(parent_callback) {
+            case ParentCallback::Intro:return 0x14a248u;
+            case ParentCallback::Combat:return 0x14a508u;
+            case ParentCallback::CommandMenu:return 0x1519f8u;
+            case ParentCallback::CommandAction:return 0x151e68u;
+            }
+            throw std::runtime_error("Unknown native battle parent identity");
+        };
+        const auto trace=[&](const char* kind,const char* edge,unsigned call,unsigned entry) {
+            if(!context.live_trace)return;
+            const auto count=word(root.bytes,0x50);
+            if(count>battle_entity_count||count!=roster.entities().size())throw std::runtime_error("Native battle-live entity ownership");
+            std::ostringstream row;
+            row<<"{\"event\":\"callback\",\"kind\":"<<std::quoted(kind)<<",\"edge\":"<<std::quoted(edge)
+               <<",\"frame\":"<<frame<<",\"sequence\":"<<live_trace_rows<<",\"call_id\":"<<call
+               <<",\"entry_pc\":"<<entry<<",\"parent_callback\":"<<callback_code()
+               <<",\"parent_phase\":"<<phase<<",\"party_phase\":"<<party_phase<<",\"enemy_phase\":"<<enemy_phase
+               <<",\"party_mask\":"<<party_mask<<",\"enemy_mask\":"<<enemy_mask
+               <<",\"root_prefix_hex\":"<<std::quoted(hex(Bytes(root.bytes).first(0x60)))
+               <<",\"root_tail_queue_hex\":"<<std::quoted(hex(Bytes(root.bytes).subspan(0x8060)))
+               <<",\"registered_entities_hex\":"<<std::quoted(hex(Bytes(root.bytes).subspan(0x60,count*0x200)))
+               <<",\"entry_hex\":"<<std::quoted(hex(context.entry.bytes()))
+               <<",\"shared_variables_574\":"<<word(context.variables,0x574)
+               <<",\"rng_state_word\":"<<context.random.state
+               <<",\"pad\":["<<context.input.held<<','<<context.input.pressed<<','<<context.input.released<<','<<context.input.repeat
+               <<"],\"actors\":[";
+            bool comma=false;
+            for(const auto& actor:roster.actors()) {
+                if(comma)row<<',';comma=true;
+                row<<"{\"entity_id\":"<<actor->entity_id<<",\"enemy\":"<<(actor->enemy?"true":"false")
+                   <<",\"task_hex\":"<<std::quoted(hex(Bytes(actor->storage).first(actor->enemy?0x3e0:0x3d0)))
+                   <<",\"record_hex\":"<<std::quoted(hex(actor->record))<<",\"stat_bindings\":[";
+                for(unsigned j=0;j<actor->stat_bindings.size();++j) {
+                    if(j)row<<',';
+                    if(actor->stat_bindings[j].empty())row<<"null";
+                    else row<<std::quoted(hex(actor->stat_bindings[j]));
+                }
+                row<<"],\"world_channel_bits\":[";
+                const auto channels=actor->model->animation().channel_outputs();
+                if(channels.size()<3)throw std::runtime_error("Native battle-live missing model channels");
+                for(unsigned j=0;j<std::min<std::size_t>(4,channels.size());++j) {
+                    if(j)row<<',';row<<'[';
+                    for(unsigned k=0;k<4;++k){if(k)row<<',';row<<__builtin_bit_cast(std::uint32_t, (channels[j][k]));}
+                    row<<']';
+                }
+                row<<"]}";
+            }
+            row<<"]}\n";const auto text=row.str();
+            if(live_trace_rows>=65536||text.size()>512*1024||text.size()>1024*1024*1024-live_trace_bytes)
+                throw std::runtime_error("Native battle-live output bound");
+            ++live_trace_rows;live_trace_bytes+=text.size();*context.live_trace<<text;context.live_trace->flush();
+            if(!*context.live_trace)throw std::runtime_error("Native battle-live write failed");
+        };
         const auto actor_snapshot=[&](const BattleActor& actor,const char* boundary) {
             if(report_path.empty())return;
             std::ostringstream out;
@@ -467,6 +523,8 @@ struct BattleSession::Impl {
         std::string before,after,error;
         std::exception_ptr failure;
         try {
+            const auto parent_call=++live_trace_calls,parent_entry=callback_code();
+            trace("parent","entry",parent_call,parent_entry);
             if(parent_callback==ParentCallback::Combat) {
                 combat_parent(context,events);
             } else if(parent_callback==ParentCallback::CommandMenu) {
@@ -490,6 +548,7 @@ struct BattleSession::Impl {
                     std::cout<<"Native battle intro complete frame="<<frame<<"; status layer revealed; authored camera restarted\n";
                 } else events.push_back("parent.camera-wait.return");
             } else throw std::runtime_error("Battle parent phase is unrecovered");
+            trace("parent","return",parent_call,parent_entry);
             //152330 sees its constructor's zero command;152368 is empty.
             if(stage_mask&0x18000000u)throw std::runtime_error("Battle stage remains masked");
             events.push_back("stage.first.return");events.push_back("stage.second.return");
@@ -502,6 +561,8 @@ struct BattleSession::Impl {
             for(bool enemy:{false,true}) {
                 auto& child_phase=enemy?enemy_phase:party_phase;
                 if((enemy?enemy_mask:party_mask)&0x18000000u)continue;
+                const auto roster_call=++live_trace_calls,roster_entry=enemy?0x15afa0u:0x1524e0u;
+                trace(enemy?"enemy_roster":"party_roster","entry",roster_call,roster_entry);
                 if(child_phase==0&&word(root.bytes,0x81b0)!=0) {
                     for(const auto& actor:roster.actors())if(actor->enemy==enemy)put(actor->storage,0x21c,1);
                     ++child_phase;
@@ -523,6 +584,7 @@ struct BattleSession::Impl {
                     throw std::runtime_error("Battle roster parent phase is unrecovered");
                 }
                 events.push_back(enemy?"enemy.parent.return":"party.parent.return");
+                trace(enemy?"enemy_roster":"party_roster","return",roster_call,roster_entry);
                 for(const auto& actor:roster.actors())if(actor->enemy==enemy) {
                     actor_snapshot(*actor,"before");
                     if(enemy)battle_enemy_first_update(*actor,root);else battle_party_first_update(*actor,root);

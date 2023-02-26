@@ -10,6 +10,7 @@
 #include "okage/battle_roster_update.hpp"
 #include <filesystem>
 #include <memory>
+#include <iosfwd>
 
 namespace okage {
 class FieldProjection;
@@ -37,6 +38,7 @@ struct BattleUiContext {
     //12da90 uses the persistent12da78 owner in the outer Session.
     std::function<void(bool)> music_variant;
     std::function<void(BattleRosterSound)> sound;
+    std::ostream* live_trace=nullptr;
 };
 class BattleSession {
 public:
