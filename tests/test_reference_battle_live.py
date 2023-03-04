@@ -49,6 +49,15 @@ int main(int argc,char** argv){
   if(mode=="oversize"){BattleLiveTrace t(path,4097);return 0;}
   BattleLiveTrace t(path,8);
   if(mode=="empty"){t.finish(8);return 0;}
+  if(mode=="enemy-null"||mode=="enemy-invalid-owned"||mode=="enemy-sixth") {
+   f.put(Fixture::party+0x18,0);f.put(Fixture::enemy+0x18,Fixture::task);
+   f.put(Fixture::task+0x14,Fixture::enemy);f.put(Fixture::task+0x40,1,2);
+   f.put(Fixture::enemy+0x38,1);f.put(Fixture::enemy+0x3c,Fixture::task);
+   const unsigned offsets[]={0x3c8,0x3cd,0x3ce,0x3d0,0x3d2};
+   for(unsigned j=0;j<5;++j)f.put(Fixture::task+0x14c+j*4,Fixture::task+offsets[j]);
+   f.put(Fixture::task+0x160,mode=="enemy-sixth"?0x46004e:0);
+   if(mode=="enemy-invalid-owned")f.put(Fixture::task+0x15c,0);
+  }
   if(mode=="count")f.put(Fixture::root+0x50,65);
   if(mode=="three-channels")f.put(0x480006,3,2);
   if(mode=="short-channels")f.put(0x480006,2,2);
@@ -118,6 +127,26 @@ class BattleLiveObserverTests(unittest.TestCase):
         self.assertEqual(actor['model']['world_channels_raw']['bytes'], 4 * 0x90)
         self.assertEqual(rows[-1]['callback_frame_counts'], [[3, 1], [4, 1], [5, 6], [6, 4]])
         self.assertEqual(rows[-1]['pairs'], 6)
+
+    def test_enemy_source_null_binding_and_owned_extent_diagnostics(self):
+        result, rows, _ = self.run_case('enemy-null')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        bindings = rows[1]['actors'][0]['stat_bindings']
+        self.assertEqual([b['present'] for b in bindings], [True]*5+[False])
+        self.assertEqual(bindings[5]['raw_pointer'], 0)
+        self.assertEqual(bindings[5]['pointer_slot'], 0x500160)
+        self.assertNotIn('value', bindings[5])
+        self.assertEqual(bindings[5]['absence'], 'source15b81c-null')
+        result, rows, _ = self.run_case('enemy-invalid-owned')
+        self.assertNotEqual(result.returncode, 0)
+        for context in ['raw extent outside EE RAM', 'key=value', 'address=0x0',
+                        'size=0x2', 'entity=0', 'stat_slot=4', 'task=0x500000',
+                        'callback=0x14a248', 'owner=0x400000', 'frame=3', 'edge=entry']:
+            self.assertIn(context, result.stderr)
+        self.assertEqual(len(rows), 1)
+        result, _, _ = self.run_case('enemy-sixth')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('source-null contract', result.stderr)
 
     def test_shared_breakpoint_is_not_removed(self):
         result, _, _ = self.run_case('shared-return')

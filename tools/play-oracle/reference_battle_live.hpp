@@ -86,14 +86,18 @@ private:
     struct Memory {
         Ee::CSubSystem& ee;
         void require(uint32 at,uint32 n)const {
-            if((at&3)||at<0x100000||n>PS2::EE_RAM_SIZE||at>PS2::EE_RAM_SIZE-n)fail("unaligned/out-of-RAM owned extent");
+            if((at&3)||at<0x100000||n>PS2::EE_RAM_SIZE||at>PS2::EE_RAM_SIZE-n)extentFailure("unaligned/out-of-RAM owned extent","word/owned",at,n);
+        }
+        [[noreturn]] static void extentFailure(const char* reason,const char* key,uint32 at,uint32 n) {
+            std::ostringstream error;error<<reason<<" key="<<key<<" address=0x"<<std::hex<<at<<" size=0x"<<n;
+            throw std::runtime_error(error.str());
         }
         uint32 word(uint32 at)const {require(at,4);uint32 v;std::memcpy(&v,ee.m_ram+at,4);return v;}
         uint16 half(uint32 at)const {if(at&1)fail("unaligned halfword");require(at&~3u,4);uint16 v;std::memcpy(&v,ee.m_ram+at,2);return v;}
         uint32 thread()const {uint32 v;std::memcpy(&v,ee.m_ram+0x4014,4);if(!v)fail("no running Play EE thread");return v;}
         void bytes(std::ostringstream& out,const char* key,uint32 at,uint32 n)const {
             // Stat binding bytes/halfwords can be unaligned to a word.
-            if(at<0x100000||n>PS2::EE_RAM_SIZE||at>PS2::EE_RAM_SIZE-n)fail("raw extent outside EE RAM");
+            if(at<0x100000||n>PS2::EE_RAM_SIZE||at>PS2::EE_RAM_SIZE-n)extentFailure("raw extent outside EE RAM",key,at,n);
             static constexpr char hex[]="0123456789abcdef";
             out<<'"'<<key<<"\":{\"address\":"<<at<<",\"bytes\":"<<n<<",\"raw_hex\":\"";
             for(uint32 i=0;i<n;++i){auto b=ee.m_ram[at+i];out<<hex[b>>4]<<hex[b&15];}out<<"\"}";
@@ -146,7 +150,7 @@ private:
         if(context!=0xffff){if(context>=192)fail("model context outside source table");const auto contexts=m.word(0x337614);m.require(contexts,(context+1)*24);out<<',';m.bytes(out,"script_context",contexts+context*24,24);}
         out<<'}';
     }
-    void snapshot(const Call& c,const char* edge,unsigned frame,uint32 pc,uint32 ra,uint32 sp,uint32 fcsr,const Memory& m) {
+    void snapshot(const Call& c,const char* edge,unsigned frame,uint32 pc,uint32 ra,uint32 sp,uint32 fcsr,const Memory& m) try {
         const auto count=m.word(c.root+0x50);if(count>64)fail("registered entity count exceeds64");
         std::ostringstream out;out<<"{\"event\":\"callback\",\"edge\":\""<<edge<<"\",\"kind\":\""
           <<(c.kind==Kind::Parent?"parent":c.kind==Kind::Party?"party_roster":"enemy_roster")
@@ -178,11 +182,31 @@ private:
             m.bytes(out,"task",task,type==0?0x3d0:0x3e0);out<<',';
             const auto record=m.word(task+0x50);m.bytes(out,"record",record,type==0?0x50:0x6c);
             out<<",\"stat_bindings\":[";constexpr std::array<unsigned,6> lengths={4,1,2,1,2,2};
-            for(unsigned j=0;j<6;++j){if(j)out<<',';out<<'{';m.bytes(out,"value",m.word(task+0x14c+j*4),lengths[j]);out<<'}';}
+            for(unsigned j=0;j<6;++j) {
+                if(j)out<<',';
+                const auto pointer=m.word(task+0x14c+j*4);
+                out<<"{\"slot\":"<<j<<",\"pointer_slot\":"<<(task+0x14c+j*4)<<",\"raw_pointer\":"<<pointer;
+                if(type==1&&j==5) {
+                    if(pointer)fail("enemy sixth stat binding is outside recovered source-null contract");
+                    out<<",\"present\":false,\"absence\":\"source15b81c-null\"}";
+                } else {
+                    out<<",\"present\":true,";
+                    try {m.bytes(out,"value",pointer,lengths[j]);}
+                    catch(const std::exception& error) {
+                        std::ostringstream detail;detail<<error.what()<<" entity="<<i<<" stat_slot="<<j<<" task=0x"<<std::hex<<task;
+                        throw std::runtime_error(detail.str());
+                    }
+                    out<<'}';
+                }
+            }
             out<<"],\"model\":";model(out,m,m.word(task+0x120));out<<'}';
         }
         out<<"]}\n";const auto line=out.str();
         if(rows_>=maxRows||line.size()>512*1024||line.size()>1024*1024*1024-outputBytes_)fail("output bounds exceeded");
         if(!firstFrame_)firstFrame_=frame;++rows_;++frameRows_[frame];outputBytes_+=line.size();output_<<line;flush();
+    } catch(const std::exception& error) {
+        std::ostringstream detail;detail<<"Battle-live snapshot: "<<error.what()<<" callback=0x"<<std::hex<<c.entryPc
+            <<" owner=0x"<<c.owner<<" root=0x"<<c.root<<" pc=0x"<<pc<<std::dec<<" frame="<<frame<<" edge="<<edge;
+        throw std::runtime_error(detail.str());
     }
 };
