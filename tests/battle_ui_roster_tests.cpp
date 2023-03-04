@@ -28,6 +28,9 @@ void available_party() {
         put(actors[i].storage,0x1dc,99);put(actors[i].storage,0x1e0,0xfffe,2);
     }
     require(okage::battle_ui_available_party(entities)==3,"Only first three real bindings are queried");
+    require(okage::battle_ui_ready_party(entities)==std::array<std::int32_t,4>{0,1,2,-1},"Ready IDs retain source order and fourth sentinel");
+    entities[1].actor=nullptr;
+    require(okage::battle_ui_ready_party(entities)==std::array<std::int32_t,4>{0,2,-1,-1},"Ready IDs compact absent actors without inventing ordinals");
     entities[1].actor=nullptr;put(actors[2].storage,0x220,0xfffe,2);
     require(okage::battle_ui_available_party(entities)==1,"Missing child and signed -2 status unavailable");
     put(actors[0].storage,0x21c,0x10002);

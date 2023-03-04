@@ -10,6 +10,7 @@ struct BattleFormationEntry;
 struct BattleState;
 class BattleData;
 unsigned battle_ui_available_party(std::span<const BattleEntityBinding> entities);
+std::array<std::int32_t,4> battle_ui_ready_party(std::span<const BattleEntityBinding> entities);
 unsigned battle_ui_enemy_group_count(const BattleState& root,
     std::span<const BattleActor* const> enemies,std::int32_t group);
 

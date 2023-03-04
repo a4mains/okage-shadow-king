@@ -15,16 +15,21 @@ std::int16_t signed_half(std::span<const std::uint8_t> b,std::size_t at) {
                                                       (std::uint16_t(b[at+1])<<8))));
 }
 }
-unsigned battle_ui_available_party(std::span<const BattleEntityBinding> entities) {
+std::array<std::int32_t,4> battle_ui_ready_party(std::span<const BattleEntityBinding> entities) {
     if(entities.size()<3)throw std::runtime_error("Battle UI requires three represented party bindings");
+    std::array<std::int32_t,4> ready{-1,-1,-1,-1};
     unsigned count=0;
     for(unsigned i=0;i<3;++i) {
         const auto* actor=entities[i].actor;
         //1512f0 registers the body pointer (task+40).154418 dereferences
         // body+1dc/+1e0; BattleActor::storage starts at the task header.
-        if(actor&&word(actor->storage,0x40+0x1dc)==2&&signed_half(actor->storage,0x40+0x1e0)==2)++count;
+        if(actor&&word(actor->storage,0x40+0x1dc)==2&&signed_half(actor->storage,0x40+0x1e0)==2)ready[count++]=std::int32_t(i);
     }
-    return count;
+    return ready;
+}
+unsigned battle_ui_available_party(std::span<const BattleEntityBinding> entities) {
+    const auto ready=battle_ui_ready_party(entities);
+    return unsigned(std::count_if(ready.begin(),ready.end(),[](auto id){return id>=0;}));
 }
 unsigned battle_ui_enemy_group_count(const BattleState& root,
         std::span<const BattleActor* const> enemies,std::int32_t group) {

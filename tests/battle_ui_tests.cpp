@@ -2,6 +2,7 @@
 #include "okage/event.hpp"
 #include "okage/ui_window.hpp"
 #include "okage/battle_interface.hpp"
+#include "okage/battle_actor.hpp"
 #include <algorithm>
 #include <bit>
 #include <cfenv>
@@ -95,6 +96,47 @@ void first_dispatch() {
     try{ui.reveal_layer(2,16);}catch(const std::runtime_error&){invalid_layer=true;}
     require(invalid_layer&&ui.window(1).opacity()==1,"invalid reveal cannot mutate an owned layer");
     std::fesetround(rounding);
+}
+void opening_selection() {
+    const okage::BattleUiData data(fixture());
+    std::vector<std::uint8_t> empty_ruw(48);put(empty_ruw,12,1);put(empty_ruw,16,6);
+    auto resource=std::make_shared<okage::RuwResource>(empty_ruw);
+    okage::BattleUiShared shared;
+    okage::BattleInterface ui(shared,data,std::make_shared<int>(1),0,[](unsigned){});
+    auto& words=const_cast<std::array<std::uint32_t,0xef0/4>&>(ui.words());
+    std::array<okage::BattleActor,3> actors;
+    std::array<okage::BattleEntityBinding,3> entities{};
+    for(unsigned i:{0u,2u}) {
+        entities[i].actor=&actors[i];
+        actors[i].storage[0x21c]=2;actors[i].storage[0x220]=2;
+    }
+    const okage::BattleUiFirstContext context{3,2,entities};
+    shared.hud.type2_work.fill(0xffffffffu);
+    shared.hud.type2_work[128]=3;shared.hud.type2_work[131]=0;
+    shared.hud.type2_work[139]=0;
+    shared.hud.type2_work[144]=7;
+    words[0xd0/4]=23;words[0xd4/4]=24;words[0xd8/4]=25;
+    words[0xe8/4]=77;words[0x64/4]=0xbfc00000;
+    const auto remembered=shared.hud.type2_work;
+    ui.open_layer(0);okage::BattleUiPad pad;
+    const auto rounding=std::fegetround();std::fesetround(FE_UPWARD);
+    ui.first_update(resource,pad,{},60,&context);
+    require(std::fegetround()==FE_UPWARD,"opening restores host rounding");
+    std::fesetround(rounding);
+    require(words[0xe4c/4]==2&&words[0xe8/4]==1,"opening chooses compact ready ordinal, not entity ID");
+    require(words[0x64/4]==0&&ui.window(0).word(0x554)==0,"opening publishes cleared rotation");
+    require(words[0xcc/4]==0&&words[0xd0/4]==23&&words[0xd4/4]==0&&words[0xd8/4]==25,
+            "opening reloads category and preserves sentinel-marked selections");
+    require(shared.hud.type2_work==remembered,"opening reads persistent selections without resetting cache");
+    require(ui.window(0).opacity()==1,"opening callback does not advance resource clock");
+    entities[2].actor=nullptr;words[0xe8/4]=9;ui.open_layer(0);
+    ui.first_update(resource,pad,{},60,&context);
+    require(words[0xe8/4]==9,"no matching ready actor preserves source ordinal");
+    const okage::BattleUiFirstContext demo{4,-1,{}};
+    words[0xcc/4]=3;words[0xd0/4]=19;ui.open_layer(0);
+    ui.first_update(resource,pad,{},60,&demo);
+    require(words[0xe8/4]==0&&words[0xcc/4]==3&&words[0xd0/4]==19,
+            "demo opening resets ordinal without reading party or remembered selections");
 }
 void open_and_fade_layers() {
     auto b=fixture();const okage::BattleUiData data(b);
@@ -196,7 +238,7 @@ int main(int argc,char** argv) {
             std::cout<<"owned battle interface parsed\n";return 0;
         }
         require(argc==1,"usage: battle-ui-tests [--diagnostic owned-battle-ui.bin | --window-diagnostic owned-battle-ui.bin fresh.json]");
-        first_dispatch();open_and_fade_layers();
+        first_dispatch();open_and_fade_layers();opening_selection();
         auto b=fixture();const okage::BattleUiData data(b);b.clear();
         require(data.layers()[0].words[4]==0x80000000&&data.layers()[1].words[16]==0x80808080,"owned literal bits changed");
         require(data.layers()[0].stream()==1&&data.layers()[1].type()==3,"host bindings changed");

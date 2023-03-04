@@ -43,7 +43,8 @@ float rotate(float f) {
 }
 }
 BattleUiPadMasks BattleInterface::first_update(std::shared_ptr<RuwResource> resource,
-    BattleUiPad& pad,const BattleUiPadInput& input,unsigned display_rate) {
+    BattleUiPad& pad,const BattleUiPadInput& input,unsigned display_rate,
+    const BattleUiFirstContext* context) {
     if(!resource)throw std::runtime_error("Battle interface requires owned RUW slot0");
     Rounding rounding;
     BattleUiPadMasks masks{};
@@ -91,6 +92,30 @@ BattleUiPadMasks BattleInterface::first_update(std::shared_ptr<RuwResource> reso
                 words_[base+0x64/4]=0;words_[base+0x68/4]=0;
                 words_[base+0x64/4]=0;state=2;break;
             case -1:w.set_opacity_tween(0.f,0.f,0,128);break;
+            case 1: {
+                if(!context)throw std::runtime_error("Battle type2 opening requires actual selection ownership");
+                words_[base+0x24/4]=__builtin_bit_cast(std::uint32_t, (rotate(__builtin_bit_cast(float, (words_[base+0x24/4])))));
+                words_[base+0x24/4]=0;
+                words_[base+0x64/4]=0;words_[base+0x68/4]=0;words_[base+0x64/4]=0;
+                ++state;
+                if(context->game_mode==4)words_[base+0xa8/4]=0;
+                else {
+                    if(context->selected_entity<0||context->selected_entity>=3)
+                        throw std::runtime_error("Battle type2 selected party entity outside source slots");
+                    const auto ready=battle_ui_ready_party(context->entities);
+                    for(unsigned i=0;i<3;++i)if(ready[i]==context->selected_entity)words_[base+0xa8/4]=i;
+                    const auto selected=unsigned(context->selected_entity)*64;
+                    words_[base+0x8c/4]=shared_.hud.type2_work[selected];
+                    for(unsigned i=0;i<7;++i) {
+                        const auto category=__builtin_bit_cast(std::int32_t, (words_[base+0x8c/4]));
+                        const auto at=std::int64_t(selected)+category+i*8;
+                        if(at<0||std::uint64_t(at)>=shared_.hud.type2_work.size())
+                            throw std::runtime_error("Battle type2 remembered selection outside persistent cache");
+                        if(shared_.hud.type2_work[std::size_t(at)]!=0xffffffffu)words_[base+0x8c/4+i]=0;
+                    }
+                }
+                transform();break;
+            }
             case 2:
                 words_[base+0x64/4]=0xffffffff;words_[base+0x68/4]=0;
                 if(w.opacity()!=0.f)

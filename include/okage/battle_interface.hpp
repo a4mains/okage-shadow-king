@@ -37,6 +37,11 @@ struct BattleUiUpdateContext {
     std::span<const BattleActor* const> enemies;
     unsigned game_mode;
 };
+struct BattleUiFirstContext {
+    unsigned game_mode;
+    std::int32_t selected_entity; //1519d0, actual root81ac.
+    std::span<const BattleEntityBinding> entities;
+};
 class BattleInterface {
 public:
     BattleInterface(BattleUiShared&,const BattleUiData&,std::shared_ptr<const void> texture,
@@ -54,7 +59,8 @@ public:
     //11fdc8 starts the selected layer at opacity1 with the supplied increment.
     void reveal_layer(unsigned layer,std::int32_t increment);
     BattleUiPadMasks first_update(std::shared_ptr<RuwResource>,BattleUiPad&,
-                                 const BattleUiPadInput&,unsigned display_rate);
+                                 const BattleUiPadInput&,unsigned display_rate,
+                                 const BattleUiFirstContext* =nullptr);
     void second_update(RuwResource&,const BattleHudData&,const BattleUiCommandData&,
                        BattleUiUpdateContext);
 private:

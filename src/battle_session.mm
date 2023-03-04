@@ -528,7 +528,12 @@ struct BattleSession::Impl {
             if(parent_callback==ParentCallback::Combat) {
                 combat_parent(context,events);
             } else if(parent_callback==ParentCallback::CommandMenu) {
-                throw std::runtime_error("Battle command-menu1519f8 UI/camera lifecycle is unrecovered");
+                if(phase==0) {
+                    ui->open_layer(0);ui->fade_layer(1,-128);
+                    //151098 is an empty source function; no camera reset.
+                    ++phase;put(root.bytes,0x24,phase);
+                    events.push_back("parent.command-menu.open");
+                } else throw std::runtime_error("Battle command-menu1519f8 selection/camera lifecycle is unrecovered");
             } else if(parent_callback==ParentCallback::CommandAction) {
                 throw std::runtime_error("Battle command-action151e68 camera/action lifecycle is unrecovered");
             } else if(phase==0) {
@@ -594,7 +599,8 @@ struct BattleSession::Impl {
                     events.push_back((enemy?"enemy.child.":"party.child.")+std::to_string(actor->entity_id)+".return");
                 }
             }
-            ui->first_update(ui_resources[0],context.pad,context.input,60);
+            const BattleUiFirstContext first_context{3,__builtin_bit_cast(std::int32_t, (word(root.bytes,0x81ac))),roster.entities()};
+            ui->first_update(ui_resources[0],context.pad,context.input,60,&first_context);
             events.push_back("ui.first.return");
             if(!ui_path.empty())before=battle_ui_update_snapshot(*ui,context.shared,*ui_resources[0],context.variables,context.party,true);
             std::vector<const BattleActor*> enemies;
