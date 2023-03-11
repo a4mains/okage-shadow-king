@@ -32,6 +32,8 @@ private:
     std::vector<std::array<std::uint32_t,27>> units_;
     std::vector<std::array<std::uint32_t,15>> items_;
 };
+void refresh_game_character(const GameDataTables& tables,
+                            std::span<std::uint8_t> variables,unsigned slot);
 void refresh_game_characters(std::span<std::uint8_t> variables,const GameDataTables& tables,unsigned mask);
 // 0x125e10: increment the three inventory counts, equip and refresh one record.
 // This bounded API requires actual item IDs in the inventory range.

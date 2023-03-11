@@ -143,6 +143,12 @@ const std::array<std::uint32_t,15>& GameDataTables::item(int id) const {
     if(id<1||std::size_t(id)>items_.size())throw std::runtime_error("Game item ID bounds");
     return items_[id-1];
 }
+void refresh_game_character(const GameDataTables& tables,std::span<std::uint8_t> variables,unsigned slot) {
+    if(slot>=8)throw std::runtime_error("Game character slot bounds");
+    auto storage=copy_variables(variables);
+    refresh(storage,tables,slot);
+    std::copy(storage.begin(),storage.end(),variables.begin());
+}
 void refresh_game_characters(std::span<std::uint8_t> variables,const GameDataTables& tables,unsigned mask) {
     auto storage=copy_variables(variables);std::span<std::uint8_t> b=storage;
     std::uint32_t capacity=0,current=0,maximum=0;

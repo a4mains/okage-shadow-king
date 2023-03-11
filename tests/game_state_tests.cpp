@@ -112,6 +112,39 @@ okage::GameDataTables tables(std::vector<std::vector<std::uint32_t>> units,
     auto i=make_xdb("item",items,{0,14});
     return okage::GameDataTables(b,i);
 }
+void refresh_one_record() {
+    auto units=make_units(1);units[0][3]=196;
+    auto items=make_items(1);items[0][2]=0x10;items[0][5]=7;
+    const auto data=tables(units,items);
+    std::vector<std::uint8_t> vars(0xda0,0xa5);
+    const unsigned slot=3,at=0x5c4+slot*0x50;
+    std::fill_n(vars.begin()+at,0x50,0);
+    vars[at]=1;vars[at+1]=4;put16(vars,at+2,1);put16(vars,at+4,2);
+    put32(vars,at+8,0x10000);
+    put16(vars,at+0xc,5);put16(vars,at+0x20,1);
+    const auto before=vars;
+    okage::refresh_game_character(data,vars,slot);
+    require(get16(vars,at+0x18)==107); // 100 + 196/98 + bonus5.
+    require(get16(vars,at+0x1a)==57); // equipment adds7 to attack50.
+    require(get32(vars,at+8)==0x10000&&vars[at+1]==4);
+    require(std::equal(vars.begin(),vars.begin()+at,before.begin()));
+    require(std::equal(vars.begin()+at+0x50,vars.end(),before.begin()+at+0x50));
+    require(get32(vars,0x590)==0xa5a5a5a5&&get32(vars,0x598)==0xa5a5a5a5);
+    auto invalid=before;put16(invalid,at+0x24,2);const auto failed=invalid;
+    rejects([&]{okage::refresh_game_character(data,invalid,slot);});require(invalid==failed);
+    invalid=before;invalid[at]=0;const auto inactive=invalid;
+    okage::refresh_game_character(data,invalid,slot);require(invalid==inactive);
+    for(auto selected:{8u,0xffffffffu}) {
+        rejects([&]{okage::refresh_game_character(data,invalid,selected);});require(invalid==inactive);
+    }
+    auto short_backing=std::vector<std::uint8_t>(0xd77,0xa5);const auto short_before=short_backing;
+    rejects([&]{okage::refresh_game_character(data,short_backing,0);});require(short_backing==short_before);
+    // Last supported record exercises full owned bounds and preserves HP0.
+    vars.assign(0xda0,0);const unsigned last=0x5c4+7*0x50;
+    vars[last]=1;put16(vars,last+2,1);put16(vars,last+4,1);
+    okage::refresh_game_character(data,vars,7);
+    require(get16(vars,last+0x18)==100&&get32(vars,last+8)==0);
+}
 void ui_records() {
     auto item=make_xdb("item",make_items(1),{0,14});
     auto prefix=make_units(1);prefix[0][2]=0xaabbccddu;prefix[0][26]=0xffffffffu;
@@ -184,7 +217,7 @@ int main(int argc,char** argv) {
         if(argc==4&&std::string_view(argv[1])=="--diagnostic") {
             diagnostic(argv[2],argv[3]);return 0;
         }
-        require(argc==1);ui_records();
+        require(argc==1);ui_records();refresh_one_record();
         {
             auto b=make_xdb_multi({
                 SectionFixture{"unit",make_units(1),{0,1}},
