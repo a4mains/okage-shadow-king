@@ -92,7 +92,7 @@ def normalize(row, original):
         kind = 'party' if row['kind'] == 'party_roster' else 'enemy'
         owner = raw(row, 'owner_header', 0x38) if original else None
         result[kind+'_phase'] = word(owner, 0x24) if original else row[kind+'_phase']
-        result[kind+'_mask'] = word(owner, 0x20) if original else row[kind+'_mask']
+        result[kind+'_mask'] = (word(owner, 0x1c) if original else row[kind+'_mask']) & 0x18000000
     for lo, hi in ROOT:
         result[f'root[{lo:x}:{hi:x}]'] = prefix[lo:hi].hex()
     for lo, hi in TAIL:
@@ -203,7 +203,7 @@ def main():
     parser.add_argument('--source-anchor', required=True, type=int); parser.add_argument('--report', required=True, type=Path)
     args=parser.parse_args()
     try:
-        need(not args.report.exists(), 'Refusing existing report')
+        need(not args.report.exists() and not args.report.is_symlink(), 'Refusing existing report')
         report=compare(args.original,args.native,args.source_anchor)
         args.report.write_text(json.dumps(report,indent=2)+'\n')
         print(json.dumps({k:report[k] for k in ['equal','field_mismatch_count','first_mismatch','coverage']}))

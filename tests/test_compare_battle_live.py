@@ -81,7 +81,7 @@ class LiveComparisonTests(unittest.TestCase):
         self.assertEqual(r['first_mismatch']['native'],0x80000000)
 
     def test_roster_phase_and_mask_mapping(self):
-        a,b=fixtures();owner=bytearray(0x38);struct.pack_into('<II',owner,0x20,0x10000000,1)
+        a,b=fixtures();owner=bytearray(0x38);struct.pack_into('<III',owner,0x1c,0x10004001,0x18000000,1)
         for row in a[1:3]:row.update(kind='party_roster',entry_pc=0x1524e0,owner_header=blob(owner))
         for row in b[1:3]:row.update(kind='party_roster',entry_pc=0x1524e0,party_phase=1,party_mask=0x10000000)
         self.assertTrue(self.compare(a,b)['equal'])
@@ -98,6 +98,18 @@ class LiveComparisonTests(unittest.TestCase):
                 elif mutation=='enemy_null':a[1]['actors'][0]['stat_bindings'][5]['raw_pointer']=123
                 else:b[2]['call_id']=55
                 with self.assertRaises(tool.Invalid):self.compare(a,b)
+
+    def test_refuses_dangling_report_symlink(self):
+        import subprocess
+        with tempfile.TemporaryDirectory() as d:
+            report=Path(d)/'report.json';target=Path(d)/'absent.json'
+            report.symlink_to(target)
+            result=subprocess.run([sys.executable,str(TOOLS/'compare_battle_live.py'),
+                str(Path(d)/'missing-source'),str(Path(d)/'missing-native'),
+                '--source-anchor','100','--report',str(report)],capture_output=True,text=True)
+            self.assertEqual(result.returncode,2)
+            self.assertIn('Refusing existing report',result.stderr)
+            self.assertFalse(target.exists())
 
     def test_outside_native_interval_counted(self):
         a,b=fixtures()
