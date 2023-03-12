@@ -88,33 +88,37 @@ class BattleResourceImporterTests(unittest.TestCase):
             self.assertFalse(output.exists())
             disc_import.assert_not_called()
 
-    def test_camera_rows_preserve_two_indices_three_slots_and_payloads(self):
+    def test_camera_rows_preserve_five_indices_three_slots_and_payloads(self):
         image = SyntheticImage()
-        initial = bytes((i * 3) & 0xff for i in range(0x90))
-        initial_tail = bytes((i * 5 + 7) & 0xff for i in range(0x90))
-        later = bytes((255 - i) & 0xff for i in range(0x90))
-        image.write(0x2000, initial)
-        image.write(0x2100, initial_tail)
-        image.write(0x2200, later)
+        payloads = [bytes((i * (3 + offset) + offset) & 0xff for i in range(0x90))
+                    for offset in range(5)]
+        for offset, payload in enumerate(payloads):
+            image.write(0x2000 + offset * 0x100, payload)
+        empty_tail = bytes((i * 5 + 7) & 0xff for i in range(0x90))
+        image.write(0x2500, empty_tail)
         put_row(image, 17, 0, (0x2000, 0, 0x2100))
-        put_row(image, 17, 1, (0x2200, 0, 0))
+        for offset in range(1, 5):
+            put_row(image, 17, offset, (0x2000 + offset * 0x100, 0, 0))
+        put_row(image, 17, 0, (0x2000, 0, 0x2500))
 
         digest = bytes(range(32))
         data = m.extract_camera_tables(image, digest)
         self.assertEqual(m.CAMERA_HEADER.unpack_from(data),
-                         (b'OKBTCAM1', 1, 23, digest))
+                         (b'OKBTCAM1', 2, 23, digest))
         row_bytes = 3 * m.CAMERA_SLOT_SIZE
-        stage17 = m.CAMERA_HEADER.size + 16 * 2 * row_bytes
-        self.assertEqual(data[stage17:stage17 + m.CAMERA_SLOT_SIZE], struct.pack('<I', 1) + initial)
+        stage17 = m.CAMERA_HEADER.size + 16 * 5 * row_bytes
+        self.assertEqual(data[stage17:stage17 + m.CAMERA_SLOT_SIZE], struct.pack('<I', 1) + payloads[0])
         self.assertEqual(data[stage17 + m.CAMERA_SLOT_SIZE:
                               stage17 + 2 * m.CAMERA_SLOT_SIZE], bytes(m.CAMERA_SLOT_SIZE))
         self.assertEqual(data[stage17 + 2 * m.CAMERA_SLOT_SIZE:
-                              stage17 + 3 * m.CAMERA_SLOT_SIZE], struct.pack('<I', 1) + initial_tail)
-        later_start = stage17 + row_bytes
-        self.assertEqual(data[later_start:later_start + m.CAMERA_SLOT_SIZE], struct.pack('<I', 1) + later)
-        self.assertEqual(data[later_start + m.CAMERA_SLOT_SIZE:
-                              later_start + 3 * m.CAMERA_SLOT_SIZE], bytes(2 * m.CAMERA_SLOT_SIZE))
-        self.assertEqual(len(data), m.CAMERA_HEADER.size + 23 * 2 * row_bytes)
+                              stage17 + 3 * m.CAMERA_SLOT_SIZE], struct.pack('<I', 1) + empty_tail)
+        for offset in range(1,5):
+            start = stage17 + offset * row_bytes
+            self.assertEqual(data[start:start + m.CAMERA_SLOT_SIZE],
+                             struct.pack('<I', 1) + payloads[offset])
+            self.assertEqual(data[start + m.CAMERA_SLOT_SIZE:
+                                  start + 3 * m.CAMERA_SLOT_SIZE], bytes(2 * m.CAMERA_SLOT_SIZE))
+        self.assertEqual(len(data), m.CAMERA_HEADER.size + 23 * 5 * row_bytes)
 
     def test_camera_rejects_bad_digest_alignment_and_unmapped_payload(self):
         image = SyntheticImage()

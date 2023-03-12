@@ -31,8 +31,10 @@ class BattleCameraData {
 public:
     explicit BattleCameraData(Bytes);
     BattleCameraSequence sequence(int stage,bool after_intro=false) const;
+    BattleCameraSequence sequence_at_offset(int stage,unsigned row_offset) const;
 private:
     using Preset=std::optional<std::array<std::uint8_t,0x90>>;
-    std::array<std::array<std::array<Preset,3>,2>,23> stages_;
+    std::array<std::array<std::array<Preset,3>,5>,23> stages_;
+    unsigned rows_per_stage_=0;
 };
 }

@@ -1,7 +1,9 @@
 #include "okage/battle_data.hpp"
 #include <algorithm>
 #include <bit>
+#include <fstream>
 #include <iostream>
+#include <iterator>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -36,8 +38,21 @@ std::vector<std::uint8_t> fixture() {
     return b;
 }
 }
-int main() {
+int main(int argc,char** argv) {
     try {
+        if(argc==3&&std::string(argv[1])=="--camera-artifact") {
+            std::ifstream stream(argv[2],std::ios::binary);
+            if(!stream)throw std::runtime_error("Cannot read camera artifact");
+            std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(stream)),{});
+            const okage::BattleCameraData camera(bytes);
+            constexpr std::array<float,5> expected{1059.f,1059.f,744.f,744.f,744.f};
+            for(unsigned offset=0;offset<expected.size();++offset) {
+                const auto selected=camera.sequence_at_offset(17,offset);
+                require(selected[0]&&selected[0]->projection_value==expected[offset]);
+            }
+            return 0;
+        }
+        require(argc==1);
         const auto b=fixture();
         okage::BattleData data(b);
         require(!data.has_formation(0) && !data.has_formation(2));
@@ -87,6 +102,29 @@ int main() {
         const auto initial=camera_data.sequence(17),later=camera_data.sequence(17,true);
         require(initial[0]&&initial[0]->projection_value==800&&!initial[1]&&!initial[2]);
         require(later[0]&&later[0]->projection_value==1024);
+        const auto row0=camera_data.sequence_at_offset(17,0),row1=camera_data.sequence_at_offset(17,1);
+        require(row0[0]&&row0[0]->projection_value==800&&row1[0]&&row1[0]->projection_value==1024);
+        rejects([&]{camera_data.sequence_at_offset(17,2);});
+        rejects([&]{camera_data.sequence_at_offset(17,0xffffffffu);});
+
+        constexpr std::size_t camera_header=48,camera_row=3*148;
+        std::vector<std::uint8_t> cameras_v2(camera_header+23*5*camera_row);
+        std::copy(camera_magic.begin(),camera_magic.end(),cameras_v2.begin());
+        put(cameras_v2,8,2);put(cameras_v2,12,23);
+        std::copy_n(b.begin()+24,32,cameras_v2.begin()+16);
+        const unsigned selected_v2=camera_header+16*5*camera_row;
+        constexpr std::array<std::uint32_t,3> focal{0x44960000,0x44c80000,0x44fa0000};
+        for(unsigned offset=2;offset<=4;++offset) {
+            const auto slot=selected_v2+offset*camera_row;
+            put(cameras_v2,slot,1);put(cameras_v2,slot+4+0x70,focal[offset-2]);
+        }
+        okage::BattleCameraData camera_data_v2(cameras_v2);
+        for(unsigned offset=2;offset<=4;++offset) {
+            const auto sequence=camera_data_v2.sequence_at_offset(17,offset);
+            require(sequence[0]&&__builtin_bit_cast(std::uint32_t, (sequence[0]->projection_value))==focal[offset-2]);
+        }
+        require(camera_data_v2.sequence(17)[0]->projection_value==0);
+        rejects([&]{camera_data_v2.sequence_at_offset(17,5);});
         rejects([&]{camera_data.sequence(0);});rejects([&]{camera_data.sequence(24);});
         rejects([&]{camera_data.sequence(1);});
         auto invalid=cameras;put(invalid,selected,2);rejects([&]{okage::BattleCameraData x(invalid);});

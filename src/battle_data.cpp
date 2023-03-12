@@ -71,11 +71,16 @@ const std::string& BattleData::stage_path(int index) const {
 BattleCameraData::BattleCameraData(Bytes b) {
     constexpr std::string_view magic="OKBTCAM1";
     constexpr std::size_t header=48,slot_size=4+0x90;
-    if(b.size()!=header+23*2*3*slot_size||!std::equal(magic.begin(),magic.end(),b.begin())||
-       u32(b,8)!=1||u32(b,12)!=23||!std::equal(source_hash.begin(),source_hash.end(),b.begin()+16))
+    if(b.size()<header||!std::equal(magic.begin(),magic.end(),b.begin())||
+       u32(b,12)!=23||!std::equal(source_hash.begin(),source_hash.end(),b.begin()+16))
+        throw std::runtime_error("Invalid battle camera data artifact");
+    const auto version=u32(b,8);
+    rows_per_stage_=version==1?2:version==2?5:0;
+    if(rows_per_stage_==0||b.size()!=header+23*rows_per_stage_*3*slot_size)
         throw std::runtime_error("Invalid battle camera data artifact");
     std::size_t at=header;
-    for(auto& stage:stages_)for(auto& row:stage)for(auto& slot:row) {
+    for(auto& stage:stages_)for(unsigned row_index=0;row_index<rows_per_stage_;++row_index)
+      for(auto& slot:stage[row_index]) {
         const auto present=u32(b,at);at+=4;
         if(present>1)throw std::runtime_error("Invalid battle camera presence flag");
         if(present)std::copy_n(b.begin()+at,0x90,slot.emplace().begin());
@@ -85,9 +90,14 @@ BattleCameraData::BattleCameraData(Bytes b) {
     }
 }
 BattleCameraSequence BattleCameraData::sequence(int stage,bool after_intro) const {
+    return sequence_at_offset(stage,after_intro?1u:0u);
+}
+BattleCameraSequence BattleCameraData::sequence_at_offset(int stage,unsigned row_offset) const {
     if(stage<1||stage>23)throw std::runtime_error("Battle camera stage index out of range");
+    if(row_offset>=rows_per_stage_)
+        throw std::runtime_error("Battle camera row offset is outside imported authored coverage");
     BattleCameraSequence result;
-    const auto& row=stages_[stage-1][after_intro?1:0];
+    const auto& row=stages_[stage-1][row_offset];
     for(unsigned i=0;i<3;++i)if(row[i])result[i]=read_battle_camera_preset(*row[i]);
     return result;
 }
