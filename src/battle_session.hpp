@@ -38,6 +38,7 @@ struct BattleUiContext {
     //12da90 uses the persistent12da78 owner in the outer Session.
     std::function<void(bool)> music_variant;
     std::function<void(BattleRosterSound)> sound;
+    std::function<void(unsigned)> menu_sound;
     std::ostream* live_trace=nullptr;
 };
 class BattleSession {

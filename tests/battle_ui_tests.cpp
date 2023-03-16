@@ -138,6 +138,39 @@ void opening_selection() {
     require(words[0xe8/4]==0&&words[0xcc/4]==3&&words[0xd0/4]==19,
             "demo opening resets ordinal without reading party or remembered selections");
 }
+void category_input() {
+    const okage::BattleUiData data(fixture());
+    std::vector<std::uint8_t> empty_ruw(48);put(empty_ruw,12,1);put(empty_ruw,16,6);
+    auto resource=std::make_shared<okage::RuwResource>(empty_ruw);
+    okage::BattleUiShared shared;
+    okage::BattleInterface ui(shared,data,std::make_shared<int>(1),0,[](unsigned){});
+    auto& words=const_cast<std::array<std::uint32_t,0xef0/4>&>(ui.words());
+    std::array<okage::BattleActor,3> actors;
+    std::array<okage::BattleEntityBinding,3> entities{};
+    for(unsigned i:{0u,2u}){entities[i].actor=&actors[i];actors[i].storage[0x21c]=2;actors[i].storage[0x220]=2;}
+    std::vector<std::uint8_t> variables(0xd78);okage::UiPartySelection party;party.refresh(variables,3);
+    std::vector<unsigned> sounds;
+    okage::BattleUiFirstContext context{3,0,entities,variables,nullptr,&party,[&](unsigned id){sounds.push_back(id);}};
+    okage::BattleUiPad pad;ui.open_layer(0);ui.first_update(resource,pad,{},60,&context);
+    words[0xd0/4]=77;words[0xe4/4]=88;
+    okage::BattleUiPadInput input;input.held=0x4000;input.repeat=0x4000;input.pressed=8;
+    ui.first_update(resource,pad,input,60,&context);
+    require(words[0xe4c/4]==2&&words[0xa4/4]==0xffffffff&&words[0xa8/4]==0,"navigation stays in actual category state");
+    require(words[0xe8/4]==1&&words[0xc8/4]==1,"party switch publishes ready ordinal to parent argument7");
+    require(words[0xcc/4]==3&&words[0xac/4]==1,"eligibility forces category3 without overwriting earlier directional event");
+    require(words[0xd0/4]==0&&words[0xe4/4]==0&&words[0xb0/4]==0xffffffff,"category update clears six selections and eight event arguments");
+    require(shared.hud.type2_enabled==0&&sounds==std::vector<unsigned>{0,0},"selection and category sounds follow source order");
+    shared.hud.selection_state=51;input.pressed=0x40;
+    ui.first_update(resource,pad,input,60,&context);
+    require(words[0xe4c/4]==2&&words[0xac/4]==0xffffffff&&sounds.size()==2,"shared countdown inhibits normalized input but still runs category update");
+    shared.hud.selection_state=0;input={};input.repeat=0x40;
+    ui.first_update(resource,pad,input,60,&context);
+    require(words[0xe4c/4]==2,"confirm consumes pressed edge, not repeat");
+    input={};input.pressed=0x40;
+    ui.first_update(resource,pad,input,60,&context);
+    require(words[0xe4c/4]==3&&words[0xa4/4]==16&&words[0xa8/4]==16,"confirm advances to actual next menu command");
+    require(shared.hud.type2_work[0]==3&&sounds.back()==3,"confirm persists category and plays owned confirmation cue");
+}
 void open_and_fade_layers() {
     auto b=fixture();const okage::BattleUiData data(b);
     okage::BattleUiShared shared;
@@ -238,7 +271,7 @@ int main(int argc,char** argv) {
             std::cout<<"owned battle interface parsed\n";return 0;
         }
         require(argc==1,"usage: battle-ui-tests [--diagnostic owned-battle-ui.bin | --window-diagnostic owned-battle-ui.bin fresh.json]");
-        first_dispatch();open_and_fade_layers();opening_selection();
+        first_dispatch();open_and_fade_layers();opening_selection();category_input();
         auto b=fixture();const okage::BattleUiData data(b);b.clear();
         require(data.layers()[0].words[4]==0x80000000&&data.layers()[1].words[16]==0x80808080,"owned literal bits changed");
         require(data.layers()[0].stream()==1&&data.layers()[1].type()==3,"host bindings changed");

@@ -125,6 +125,7 @@ struct BattleSession::Impl {
     Animation& camera_channels;
     Float4 resource_camera_position{},resource_camera_rotation{};
     std::optional<BattleCameraMotion> camera;
+    std::optional<BattleCameraData> camera_data;
     std::optional<BattleCameraSequence> camera_sequence;
     std::optional<BattleCameraSequence> after_intro_sequence;
     std::optional<BattleData> battle_data;
@@ -187,9 +188,9 @@ struct BattleSession::Impl {
             held_stage=read(package/"a.stg");
             collision=read_xcl(read(package/"a.xcl"));
             load_step.store(3);
-            const BattleCameraData camera_data(read(input/"battle-camera.bin"));
-            camera_sequence=camera_data.sequence(stage);
-            after_intro_sequence=camera_data.sequence(stage,true);
+            camera_data.emplace(read(input/"battle-camera.bin"));
+            camera_sequence=camera_data->sequence(stage);
+            after_intro_sequence=camera_data->sequence(stage,true);
             resources_prepared.store(true,std::memory_order_release);
         }
     }
@@ -533,7 +534,34 @@ struct BattleSession::Impl {
                     //151098 is an empty source function; no camera reset.
                     ++phase;put(root.bytes,0x24,phase);
                     events.push_back("parent.command-menu.open");
-                } else throw std::runtime_error("Battle command-menu1519f8 selection/camera lifecycle is unrecovered");
+                } else if(phase==1||phase==2) {
+                    if(phase==1) {
+                        const auto selected=__builtin_bit_cast(std::int32_t, (word(root.bytes,0x81ac)));
+                        if(selected<0||selected>=3||!camera_data)
+                            throw std::runtime_error("Battle command menu camera selection ownership");
+                        camera->restart_sequence(camera_data->sequence_at_offset(stage,unsigned(selected)+2));
+                        ++phase;put(root.bytes,0x24,phase);
+                    }
+                    //11fc40(layer0,7), then121a58/154418 on the ready list.
+                    const auto selected_ordinal=__builtin_bit_cast(std::int32_t, (ui->words()[0xc8/4]));
+                    if(selected_ordinal>=0&&selected_ordinal<3) {
+                        const auto ready=battle_ui_ready_party(roster.entities());
+                        if(ready[unsigned(selected_ordinal)]>=0) {
+                            put(root.bytes,0x81ac,std::uint32_t(ready[unsigned(selected_ordinal)]));
+                            phase=1;put(root.bytes,0x24,phase);
+                        }
+                    }
+                    switch(__builtin_bit_cast(std::int32_t, (ui->words()[0xa4/4]))) { //11fc70(layer0)
+                    case 0:phase=1;put(root.bytes,0x24,phase);break;
+                    case 1:case 7:case 9:case 12:
+                        throw std::runtime_error("Battle command menu action-camera151af0 ownership is unrecovered");
+                    case 4:
+                        throw std::runtime_error("Battle command menu completion151c34 action handoff is unrecovered");
+                    default:break;
+                    }
+                    events.push_back("parent.command-menu.selection");
+                } else if(phase==3)throw std::runtime_error("Battle command-menu1519f8 cancellation lifecycle is unrecovered");
+                //Other source phases return without mutation.
             } else if(parent_callback==ParentCallback::CommandAction) {
                 throw std::runtime_error("Battle command-action151e68 camera/action lifecycle is unrecovered");
             } else if(phase==0) {
@@ -599,7 +627,8 @@ struct BattleSession::Impl {
                     events.push_back((enemy?"enemy.child.":"party.child.")+std::to_string(actor->entity_id)+".return");
                 }
             }
-            const BattleUiFirstContext first_context{3,__builtin_bit_cast(std::int32_t, (word(root.bytes,0x81ac))),roster.entities()};
+            const BattleUiFirstContext first_context{3,__builtin_bit_cast(std::int32_t, (word(root.bytes,0x81ac))),roster.entities(),
+                context.variables,&context.tables,&context.party,context.menu_sound};
             ui->first_update(ui_resources[0],context.pad,context.input,60,&first_context);
             events.push_back("ui.first.return");
             if(!ui_path.empty())before=battle_ui_update_snapshot(*ui,context.shared,*ui_resources[0],context.variables,context.party,true);

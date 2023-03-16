@@ -607,6 +607,13 @@ struct Session {
                      if(found==sound_banks.end())throw std::runtime_error("Battle roster sound requires the owned ALL bank");
                      const bool ready=cue==okage::BattleRosterSound::Ready;
                      found->second->play(ready?25:11,ready?.8f:1.f,ready?100:80);
+                 },
+                 [this](unsigned id){
+                     if(id!=0&&id!=3&&id!=4)throw std::runtime_error("Battle menu sound ID outside recovered table scope");
+                     auto found=sound_banks.find(0);
+                     if(found==sound_banks.end())throw std::runtime_error("Battle menu sound requires the owned ALL bank");
+                     //12df80: owned1fb3e0 speeds1; signed1fb388 volumes100/100/110.
+                     found->second->play(id,1.f,id==4?110:100);
                  },battle_live_trace},
                 frame,battle_stage_report,battle_ui_update_report);
                 pad_repeat.delay=battle_pad.controls[0].delay;

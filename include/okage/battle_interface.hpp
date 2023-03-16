@@ -41,6 +41,10 @@ struct BattleUiFirstContext {
     unsigned game_mode;
     std::int32_t selected_entity; //1519d0, actual root81ac.
     std::span<const BattleEntityBinding> entities;
+    std::span<std::uint8_t> variables{};
+    const GameDataTables* tables=nullptr;
+    const UiPartySelection* party=nullptr;
+    std::function<void(unsigned)> sound; //12df80 menu sound ID.
 };
 class BattleInterface {
 public:

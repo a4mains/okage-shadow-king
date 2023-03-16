@@ -116,11 +116,69 @@ BattleUiPadMasks BattleInterface::first_update(std::shared_ptr<RuwResource> reso
                 }
                 transform();break;
             }
-            case 2:
+            case 2: {
                 words_[base+0x64/4]=0xffffffff;words_[base+0x68/4]=0;
-                if(w.opacity()!=0.f)
-                    throw std::runtime_error("Battle type2 interactive input branch unrecovered");
+                if(w.opacity()==0.f)break;
+                if(!context||!context->party)
+                    throw std::runtime_error("Battle type2 category selection requires live party ownership");
+                const auto sound=[&](unsigned id){
+                    if(!context->sound)throw std::runtime_error("Battle type2 input requires source sound owner");
+                    context->sound(id);
+                };
+                const auto signed_word=[](auto value){return __builtin_bit_cast(std::int32_t, (value));};
+                for(unsigned i=1;i<7;++i)words_[base+0x8c/4+i]=0;
+                for(unsigned i=0;i<8;++i)words_[base+0x6c/4+i]=0xffffffffu;
+                auto& category=words_[base+0x8c/4];
+                auto& ordinal=words_[base+0xa8/4];
+                if(masks.repeat&0x1000) {
+                    --category;if(signed_word(category)<0)category=3;
+                    words_[base+0x6c/4]=category;sound(0);
+                }
+                const auto available=battle_ui_available_party(context->entities);
+                if(available>1&&(masks.pressed&8)) {
+                    ++ordinal;ordinal=std::uint32_t(signed_word(ordinal)%std::int32_t(available));
+                    words_[base+0x88/4]=ordinal;sound(0);
+                }
+                if(available>1&&(masks.pressed&4)) {
+                    --ordinal;if(signed_word(ordinal)<0)ordinal+=available;
+                    words_[base+0x88/4]=ordinal;sound(0);
+                }
+                if(masks.repeat&0x4000) {
+                    ++category;if(signed_word(category)>3)category=0;
+                    words_[base+0x6c/4]=category;sound(0);
+                }
+                const auto party_count=context->party->counts()[3];
+                if(shared_.formation.count==0)shared_.hud.type2_enabled=0;
+                if(party_count==0)shared_.hud.type2_enabled=0;
+                bool disabled=shared_.formation.count==0||party_count==0;
+                if(context->selected_entity<0||context->selected_entity>=8)
+                    throw std::runtime_error("Battle type2 selected party ordinal extent");
+                const int slot=context->party->at(3,unsigned(context->selected_entity));
+                if(slot>=0&&slot<8) {
+                    if(!context->tables)throw std::runtime_error("Battle type2 character refresh requires owned game tables");
+                    refresh_game_character(*context->tables,context->variables,unsigned(slot));
+                    const auto at=0x5c4+unsigned(slot)*0x50+8;
+                    const auto hp=std::uint32_t(context->variables[at])|(std::uint32_t(context->variables[at+1])<<8)|
+                                  (std::uint32_t(context->variables[at+2])<<16)|(std::uint32_t(context->variables[at+3])<<24);
+                    if(hp==0){disabled=true;if(slot==0)shared_.hud.type2_enabled=0;}
+                }
+                if(disabled)category=3;
+                if(masks.pressed&0x40) {
+                    switch(signed_word(category)) {
+                    case 0:if(disabled)break;words_[base+0x64/4]=1;break;
+                    case 1:case 2:
+                        if(disabled)break;
+                        throw std::runtime_error("Battle type2 spell/item list preparation is unrecovered");
+                    case 3:words_[base+0x64/4]=16;break;
+                    default:throw std::runtime_error("Battle type2 category outside recovered input scope");
+                    }
+                    if(disabled&&category!=3)break;
+                    if(context->selected_entity>=3)throw std::runtime_error("Battle type2 remembered party selection extent");
+                    shared_.hud.type2_work[unsigned(context->selected_entity)*64]=category;
+                    words_[base+0x68/4]=words_[base+0x64/4];++state;sound(3);
+                }
                 break;
+            }
             default:
                 throw std::runtime_error("Battle type2 state unrecovered: "+
                     std::to_string(__builtin_bit_cast(std::int32_t, (state))));
