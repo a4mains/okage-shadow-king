@@ -113,6 +113,7 @@ int main(int argc,char** argv) {
         put(cameras_v2,8,2);put(cameras_v2,12,23);
         std::copy_n(b.begin()+24,32,cameras_v2.begin()+16);
         const unsigned selected_v2=camera_header+16*5*camera_row;
+        std::copy_n(cameras.begin()+selected,2*camera_row,cameras_v2.begin()+selected_v2);
         constexpr std::array<std::uint32_t,3> focal{0x44960000,0x44c80000,0x44fa0000};
         for(unsigned offset=2;offset<=4;++offset) {
             const auto slot=selected_v2+offset*camera_row;
@@ -123,7 +124,9 @@ int main(int argc,char** argv) {
             const auto sequence=camera_data_v2.sequence_at_offset(17,offset);
             require(sequence[0]&&__builtin_bit_cast(std::uint32_t, (sequence[0]->projection_value))==focal[offset-2]);
         }
-        require(camera_data_v2.sequence(17)[0]->projection_value==0);
+        const auto v2_initial=camera_data_v2.sequence(17),v2_overview=camera_data_v2.sequence(17,true);
+        require(v2_initial[0]&&v2_initial[0]->projection_value==800);
+        require(v2_overview[0]&&v2_overview[0]->projection_value==1024);
         rejects([&]{camera_data_v2.sequence_at_offset(17,5);});
         rejects([&]{camera_data.sequence(0);});rejects([&]{camera_data.sequence(24);});
         rejects([&]{camera_data.sequence(1);});
