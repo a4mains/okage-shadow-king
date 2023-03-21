@@ -1,0 +1,240 @@
+{
+  "schema": "okage-battle-readiness-validation-v2",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "native_runs": [
+    {
+      "manifest": "local/native-battle-roster-105000-release-v1.run.json",
+      "sha256": "a8da2a625b5b6bb90b7636d58061d484e4c8c6cc1a9768ee84913abd0f12eecd",
+      "exit_code": 1,
+      "source_revision": "dbed3e10e3f66d7fc8fa64725d71f5da8e18a8fa",
+      "binary_sha256": "eebf9451ff4677f32d1b9ece8441c9b39d02cc205b523b5d4586a3e911f4dae7"
+    },
+    {
+      "manifest": "local/native-battle-ready-105000-release-v1.run.json",
+      "sha256": "dc60375edcfc1886936631ad72e314048baebe7cb9a85f2b4f21f4eaa68338ad",
+      "exit_code": 1,
+      "source_revision": "2a04ba1ed95d78c55d158fa06f85303d1da9dd1e",
+      "binary_sha256": "312171556fb269d127aa9d13742316d2353b7615ceedc6fff9d9c313f84c8e16"
+    },
+    {
+      "manifest": "local/native-battle-live-105000-release-v1.run.json",
+      "sha256": "207a3eaf29658b7093d4698988d84d530c232ba6a43af74c0a14b3c78ba74bdd",
+      "exit_code": 1,
+      "source_revision": "2643461b001857f4dfe75cee13e5805377d70d15",
+      "binary_sha256": "399e0293fd0720bbae4520d4d791b891a8a3dead358a1e533283b103bc9308b6"
+    },
+    {
+      "manifest": "local/native-battle-menu-open-105000-release-v2.run.json",
+      "sha256": "8cbc8cbe311bab6fac16c7af9365a0b277392453e7605ce66cebb6924e3ad985",
+      "exit_code": 1,
+      "source_revision": "3b2fd5c6672d1a59647071819da3507509c7d967",
+      "binary_sha256": "78fbe196092eb580fa7f976394972e58d3138339a7d75f4d9de5718ce80c2157"
+    },
+    {
+      "manifest": "local/native-battle-category-105215-release-v1.run.json",
+      "sha256": "c3e79f1fe662fa0d4a098cb3279a85e75ddd18ea80fcc9e98c654d820f404206",
+      "exit_code": 0,
+      "source_revision": "4a4ff27",
+      "binary_sha256": "e5c360474a6db594ff033f7b1495b74dcd04d572d313ca111bf5e1ec7b9711a0"
+    },
+    {
+      "manifest": "local/native-battle-confirm-105240-release-v1.run.json",
+      "sha256": "ae872bfc1f6f9051f0ef269067ab301fac01089e2da7f08e0f7bbee16d46bb65",
+      "exit_code": 1,
+      "source_revision": "4a4ff27",
+      "binary_sha256": "e5c360474a6db594ff033f7b1495b74dcd04d572d313ca111bf5e1ec7b9711a0"
+    }
+  ],
+  "source_evidence": [
+    {
+      "path": "local/research/battle-combat-entry-v1/pad-sound-tables-v1.json",
+      "sha256": "fa0e36d43d5e98c728a423d68b08f2f86fb9a2fc848c98bb831367cd62727657"
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/exports-v5/00115a98.asm",
+      "sha256": "6ed0c7bcea274ba307c2586931985fdc61fb910c5850316ba0d039790ab82317"
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/exports-v6/00151098.asm",
+      "sha256": "6ae855c6821bf2f989abfccf91dcfb0f97b4938080be7ced19c9b86cd7db8ae3"
+    },
+    {
+      "path": "local/research/battle-manager-lifecycle-v1/0014a508.asm",
+      "sha256": "7b1f2c656252a73105623e91192d2068f62fc40330358f06e7f10cb02d11dd5c"
+    },
+    {
+      "path": "local/research/battle-manager-lifecycle-v1/0014b020.asm",
+      "sha256": "2820b1bc26cb2bac5e2595495d157dfd9c5b8e6a5ad9aca23a9cfde1e1148f5f"
+    },
+    {
+      "path": "local/research/ui-second-dispatch-v1/party-activation-exports-v1/00154b38.asm",
+      "sha256": "65727297ff485ec0fd6b7e328465bd189be16f88cc3780f18dad285e11b667b8"
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/menu-state2-review-v1.txt",
+      "sha256": "c4dd95246f9bd20b36b0ca13a7455583f34c5aa8ea235b26bb6ec7a081fd75be"
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/menu-sound-tables-v1.json",
+      "sha256": "4b304ec29f31a4aa476572ee1412bd9df4ecca35ff6482bdf71d7185e3bc54cb"
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/exports-v5/001519f8.asm",
+      "sha256": "d2be538b4de4baeee807941699eb68f40c2679b50405fd317ad2c920ac23cc23"
+    },
+    {
+      "path": "local/research/battle-stage-commit-v1/next-ui-constructor-exports/00165b50.asm",
+      "sha256": "06401460204cbce2d7c6b1abc59f034a97aacb09062a56a2109531a56ab65919"
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/exports-v7/00121a58.asm",
+      "sha256": "c63dda304c50a74ad30e3321baf8c8b0865348e0bae87cc8496af1c64ebb692a"
+    },
+    {
+      "path": "local/research/battle-filter6-v1/booted-context-v7/diagnosis.txt",
+      "sha256": "4f187cb10ba7d3a437eedab29c140b0e71e68fde1544a99c56971d76ddde1130"
+    }
+  ],
+  "checks": "local/research/battle-combat-entry-v1/ready-checks-v1/runs.json",
+  "scope": "Source recovery, actual native command menu, and failing fixed-anchor original comparison; no complete combat or raster/audio equivalence",
+  "limitations": [
+    "Confirm reaches command1 UI guard; type2 state3, targeting and action lifecycles remain unrecovered",
+    "Fixed-anchor104616..105215 comparison fails despite both traces finishing",
+    "Music12da90 enabled variant guarded; first battle genuinely disables it",
+    "Status3/5/action target/effect/outcome branches guarded",
+    "Full Debug/sanitizer new route not executed; affected tests and prior104615 routes are separate evidence",
+    "Original filter fixture has unresolved booted-context failures; adaptation not raster proof",
+    "Prior loading, RNG, UI, audio, startup/persistence and playthrough debt remains"
+  ],
+  "artifact_hashes": {
+    "local/research/battle-combat-entry-v1/ready-checks-v1/runs.json": "2aba32d15c78ff3d4a684e24217c96e18ecc5aad98e156707d8a2612e14f6f63",
+    "local/research/battle-combat-entry-v1/ready-checks-v1/debug-tests.log": "843501da09c8c2e192a677cef850c2b1f5a991386a5dddb547fe1b73ca5fe43a",
+    "local/research/battle-combat-entry-v1/ready-checks-v1/sanitize-tests.log": "a3a7db0309299dc71dce11de55e040ea5535eec380d462488f307ccb9d249cfc",
+    "local/research/battle-combat-entry-v1/ready-checks-v1/release-tests.log": "68c32de1c77b9de5cb748826c8cd5e8ab0d036a461a55099c863ffc568f813eb",
+    "local/research/battle-combat-entry-v1/category-checks-v2/runs.json": "28496bdce45481d14d833ef796bfae58ed5b3eefa77fdd6a9ee4a02162c463b0",
+    "local/research/battle-combat-entry-v1/category-comparison-v1.json": "e2663a073733cd86a8e283d4e7bd7da398cb661d5582e14b4401665256f06384",
+    "local/research/battle-combat-entry-v1/original-live-v2/run.json": "b453c0698426512a548ec52eebf64ac8cf1f5f770bba2897dccdc73274c811a4",
+    "local/research/battle-combat-entry-v1/original-live-v2/started.json": "0858b7d16edb5a7589e36afc28f1f806c2c7300c836471a4301a4f0fc9fcf86e",
+    "local/research/battle-combat-entry-v1/original-live-v2/live.jsonl": "c17a788e304285bed7dd5c751fc11795d6e226f756dea8ebdb6d825e4b644b0f",
+    "local/research/battle-combat-entry-v1/original-live-v2/live.game-mode.jsonl": "b4fdf871400ffd1c70a73bb05da8c659a740db8c3c2236fcfc7d4727ea182cc6",
+    "local/research/battle-combat-entry-v1/original-live-v2/live.state.zip": "c6fa6156b30ec9aa69e4868a0532118513a04c8122c37263a3bdf2f9abc6d8a9",
+    "local/research/battle-combat-entry-v1/original-live-v2/live.layer0.png": "73ee7e58de358b929485224e610df5225a3ad959a8dec160279de7a09c6a4505",
+    "local/research/battle-combat-entry-v1/original-live-v2/live.wav": "6702a32c50a7b2342a841325deafabc08cf91708df339bf25bfe29fe3aa996a7",
+    "local/research/battle-combat-entry-v1/original-live-v2/live.audio-index.json": "c5b66409fbe72d0d8df525f120c103acf38fbbd24dc4e96cb019b304b154bc66",
+    "local/research/battle-combat-entry-v1/native-category-v1/live.jsonl": "e992f196204c3e07e03dc6654628174c92f927c11617a4c92541ff6518617a9c",
+    "local/native-battle-category-105215-release-v1.png": "a3810bcc4a79ffe7d9d41d8c385aa25256732c6687d3ad943409952343ccb98c",
+    "local/demos/battle-menu-105215-v1/live.json": "eee8a5789f149aa802a0b58e948f49eba12cd657b4a5ba679b17c17dd7e21783",
+    "local/native-battle-menu-preview-105215-v1.png.view.png": "32b13b978672d88e73f171b2672992c63c30474ec4cad0eaff40bbd5747677f9",
+    "local/battle-input-v3/battle-camera.bin": "2f5aeb4b5ac12427a0d2322f9ba74bee5cccd36702973718d76c4b421837d1d1",
+    "local/research/battle-combat-entry-v1/category-checks-v2/release-tests.log": "9b861a6fe5194f17734971f049edaabdcdd0baa58ba919a0f214de69975c9d14",
+    "local/research/battle-combat-entry-v1/category-checks-v2/release-camera.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/battle-combat-entry-v1/category-checks-v2/release/hashes.json": "84a802d7a71cbc18db13a75f62c6e910ca7d6b8ec56467800b4d4c57a0c32bef",
+    "local/research/battle-combat-entry-v1/category-checks-v2/debug-tests.log": "433086989673b3388983079e3587c8d7f95d6cc10f43c7287d91cfb08e59fb6c",
+    "local/research/battle-combat-entry-v1/category-checks-v2/debug-camera.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/battle-combat-entry-v1/category-checks-v2/debug/hashes.json": "06009022d6a17f18598fa78e2a0e070c7758f79b89b5781813d8e128796d8c21",
+    "local/research/battle-combat-entry-v1/category-checks-v2/sanitize-tests.log": "b75a166dfd27a7578e23823c091f9ae673c34da52decc26de55a835a0eb04e78",
+    "local/research/battle-combat-entry-v1/category-checks-v2/sanitize-camera.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/battle-combat-entry-v1/category-checks-v2/sanitize/hashes.json": "e36f5c401d8af66036c412e45ee7a7d327347a88e9f19241c921424fac419a63",
+    "local/research/battle-combat-entry-v1/category-checks-v2/python.log": "45c61efa958076462c106a1f0f1c8f79b6605b5fe51bd7fdbace1bc706ec51a8"
+  },
+  "baseline_source_revision": "2a04ba1ed95d78c55d158fa06f85303d1da9dd1e",
+  "baseline_source_hashes": {
+    "src/battle_session.mm": "2ab876e61cf00507434aca54cbb71d5cd1a249f4f6f2db40953d49f02aa6f47e",
+    "src/native_runtime.mm": "e52747000ce5c18ec1e03eb820da9a86eb9ced8f850c28b16e2cd97a378cfc3a",
+    "src/battle_actor_update.cpp": "7284dca14590af9ab8a13892b9aa312698e04eef17f47c6cfa2852d2c9af0e62",
+    "src/battle_command_queue.cpp": "8f50f32688fbaebab059e81c2a2177122f1d6a7d632c1e6f585eb6dcfd20a3c0",
+    "src/battle_roster_update.cpp": "abb706e98f1cda28a4165e397890e38c6a93073661fbf594afa317c6aff900c1",
+    "tests/battle_actor_update_tests.cpp": "7b8d479e63663cdc8781c71e55fe67a5c8fdc359429930d762f0da472e621ce0",
+    "tests/battle_command_queue_tests.cpp": "f8bc4899aea816d1bd9263a707584e61cad7f22b32920471f38f7f24ed37f3da",
+    "tests/battle_roster_update_tests.cpp": "00d4a65516db4692ff8213baa5228c9bdf7b978ffc3bcffdf55ef3d0e228d8bd"
+  },
+  "source_revision": "9740baa5e9dc8d1e5ed03c284b6f961e54d8ede2",
+  "current_checks": "local/research/battle-combat-entry-v1/category-checks-v2/runs.json",
+  "comparison": {
+    "report": "local/research/battle-combat-entry-v1/category-comparison-v1.json",
+    "exit_code": 1,
+    "anchor": 104616,
+    "end": 105215,
+    "paired_rows": 1818,
+    "field_mismatches": 22403,
+    "missing_native": 286,
+    "missing_original": 706,
+    "order_difference_frames": 143,
+    "both_finish": true
+  },
+  "source_hashes": {
+    "src/battle_session.mm": "2ab876e61cf00507434aca54cbb71d5cd1a249f4f6f2db40953d49f02aa6f47e",
+    "src/native_runtime.mm": "e52747000ce5c18ec1e03eb820da9a86eb9ced8f850c28b16e2cd97a378cfc3a",
+    "src/battle_actor_update.cpp": "7284dca14590af9ab8a13892b9aa312698e04eef17f47c6cfa2852d2c9af0e62",
+    "src/battle_command_queue.cpp": "8f50f32688fbaebab059e81c2a2177122f1d6a7d632c1e6f585eb6dcfd20a3c0",
+    "src/battle_roster_update.cpp": "abb706e98f1cda28a4165e397890e38c6a93073661fbf594afa317c6aff900c1",
+    "tests/battle_actor_update_tests.cpp": "7b8d479e63663cdc8781c71e55fe67a5c8fdc359429930d762f0da472e621ce0",
+    "tests/battle_command_queue_tests.cpp": "f8bc4899aea816d1bd9263a707584e61cad7f22b32920471f38f7f24ed37f3da",
+    "tests/battle_roster_update_tests.cpp": "00d4a65516db4692ff8213baa5228c9bdf7b978ffc3bcffdf55ef3d0e228d8bd",
+    "include/okage/battle_interface.hpp": "797b993a4b25083907dbef332b5a376e704e8cd03bc31a33ac11804b9d1540a7",
+    "src/battle_interface.cpp": "b7d7472882f6c4bae998d2b6d0637775df20f302047eb9c700fa47fd4c034685",
+    "src/battle_interface_update.cpp": "14f94e153784f690a39f76a2a51805df31b7b16092fed843dfb3d598be4689ed",
+    "src/battle_ui_roster.cpp": "65a2f8594fcf9b4ad45a7ffeffd88578975e17d420ba652cf0906b946d1d84ca",
+    "src/battle_data.cpp": "dacb2405092bcb4c8cc50ca6b9103e16af960cd3a431060fd8cc98e85997ed0a",
+    "src/game_state.cpp": "33a3c64a5dddaa43728cf7b47133f44667c578883241f38282a2ccec501e9a69",
+    "tools/compare_battle_live.py": "f868fbe62f3aab27ba2777bd116f534e2d1572ba7171f9cf6d291df11db16bb9",
+    "tools/play-oracle/reference_battle_live.hpp": "20d68dc7a4fa4669ea87fa41987e3d6f82dca819f4ef4b877195fcb9a64eee10",
+    "tools/play-oracle/boot.cpp": "6e6062eccd7b406c62bbc6fea5ddb71a9e527ec317f93ec122d4e977b995166d",
+    "tools/import_battle_resources.py": "6e68b79a3c64667a6f43c955d2a4e0a9b04cbecbb59a5bc56a809d1e60216506",
+    "tests/battle_ui_tests.cpp": "88ab6fa5bcffcc7a93caada3523232ef922d67b6678aa75b306da1dd6593f11a",
+    "tests/battle_data_tests.cpp": "1ff7c80c4837eba7eb63031c409787633c4bda6036a6f10a75e2a1671db9379d",
+    "tests/game_state_tests.cpp": "b743b4b7d7b538dff8cf102fa526670ea09f3efdd45b7009655d37549c1afc15",
+    "tests/test_compare_battle_live.py": "28865bd76e54488a8ece1c40adfccdd1ef604ecc4f393989a58a1a40a29ef994"
+  },
+  "preview": {
+    "manifest": "local/demos/battle-menu-105215-v1/live.json",
+    "frame": 105215,
+    "source_revision": "9740baa",
+    "pid": 44464,
+    "session_id": 92052,
+    "verified": "scripted full4:3 menu, paused; only one native app running"
+  },
+  "provenance_notes": [
+    "Source hashes under baseline_source_hashes belong to2a04ba1 and were checked withgit show; current source_hashes belong to9740baa.",
+    "original-live-v2/started.json inherited exit_code/seconds from the prior v1 wrapper; only its command/input fields describe the new launch. The terminal run.json records actualexit0/32.804724625s.",
+    "Some filter started.json files likewise inherit prior terminal fields; final run.json is authoritative."
+  ],
+  "filter_research_runs": [
+    {
+      "path": "local/research/battle-filter6-v1/booted-context-v3/run.json",
+      "sha256": "445d336a0b2a8e06a90373f913a7ba427d807a5050fda60d46c5333f510442e2",
+      "exit_code": -6,
+      "source_revision": "f1b24e0",
+      "binary_sha256": "ee9cde67df9583f055db29201780f2db90bb035896fcd30bab353719f5acc3ee"
+    },
+    {
+      "path": "local/research/battle-filter6-v1/booted-context-v4/run.json",
+      "sha256": "f2e459c5a26615c9fe0e75211e047bb26ba77919848e23d894923445119b7199",
+      "exit_code": 1,
+      "source_revision": "f1b24e0",
+      "binary_sha256": "ee9cde67df9583f055db29201780f2db90bb035896fcd30bab353719f5acc3ee"
+    },
+    {
+      "path": "local/research/battle-filter6-v1/booted-context-v5/run.json",
+      "sha256": "4b4605b50481f5d1aceac6c4d5a66bd0acc9f301ce52983c2d9783e45b852e0c",
+      "exit_code": 1,
+      "source_revision": "f0e681aa723c1aa3f49b3219749f95356733e64b",
+      "binary_sha256": "20838e424f258aa5951d7835afc59cfbf02192e0e2a1aa6751246cdf2c95d92a"
+    },
+    {
+      "path": "local/research/battle-filter6-v1/booted-context-v6/run.json",
+      "sha256": "ad6fe21dfb9a0b09c40c5f35b1db9027d6318f921f0e1ad9e6f3d0215914233e",
+      "exit_code": -10,
+      "source_revision": "bc25a1459c7bd727f155acd9195492c5a0daae4a",
+      "binary_sha256": "f5f2622bf9361a1525c5ab53c0e6ca030b290a616a7bfc8238e35251bcc0698e"
+    },
+    {
+      "path": "local/research/battle-filter6-v1/booted-context-v7/run.json",
+      "sha256": "0e2d12517228a3bec5272778d7904fa91902a014bbf360edc35bfcfcaa715d22",
+      "exit_code": -10,
+      "source_revision": "4a4ff275eea61beee2e22ade1bf59f7898e58f1e",
+      "binary_sha256": "e6966ba2e68c99a69c2313ba21586110b825d302edc73253306395a6159365f2"
+    }
+  ],
+  "filter_scope": "All booted fixture attempts remain failures. v7 source allocations succeed, then loadMicro source1b1eb4 SIGBUS; no raster output/parity."
+}
