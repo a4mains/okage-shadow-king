@@ -171,6 +171,63 @@ void category_input() {
     require(words[0xe4c/4]==3&&words[0xa4/4]==16&&words[0xa8/4]==16,"confirm advances to actual next menu command");
     require(shared.hud.type2_work[0]==3&&sounds.back()==3,"confirm persists category and plays owned confirmation cue");
 }
+void attack_submenu_input() {
+    const okage::BattleUiData data(fixture());
+    std::vector<std::uint8_t> empty_ruw(48);put(empty_ruw,12,1);put(empty_ruw,16,6);
+    auto resource=std::make_shared<okage::RuwResource>(empty_ruw);
+    okage::BattleUiShared shared;
+    okage::BattleInterface ui(shared,data,std::make_shared<int>(1),0,[](unsigned){});
+    auto& words=const_cast<std::array<std::uint32_t,0xef0/4>&>(ui.words());
+    std::array<okage::BattleActor,3> actors;
+    std::array<okage::BattleEntityBinding,3> entities{};
+    entities[0].actor=&actors[0];actors[0].storage[0x21c]=2;actors[0].storage[0x220]=2;
+    std::vector<unsigned> sounds;
+    okage::BattleUiFirstContext context{3,0,entities,{},nullptr,nullptr,[&](unsigned id){sounds.push_back(id);}};
+    okage::BattleUiPad pad;
+    words[0xe4c/4]=3;words[0xa8/4]=1;words[0xd0/4]=9;
+    shared.hud.type2_flag_a=7;shared.hud.type2_flag_b=8;
+    okage::BattleUiPadInput input;input.pressed=0x20;input.repeat=0x4000;
+    ui.first_update(resource,pad,input,60,&context);
+    require(words[0xa4/4]==2&&words[0xa8/4]==2&&words[0xd0/4]==0&&words[0xb0/4]==0,
+        "single ready actor automatically opens targeting with real option0");
+    require(words[0xe4c/4]==3&&sounds.empty(),"automatic target opening returns before input/cancel tail");
+    require(shared.hud.type2_flag_a==0&&shared.hud.type2_flag_b==0,"Attack resets shared target flags");
+    shared.formation.count=3;words[0xd4/4]=0;
+    input={};input.repeat=0x1000;
+    ui.first_update(resource,pad,input,60,&context);
+    require(shared.target_count==3&&words[0xd4/4]==2&&words[0xb4/4]==2&&words[0xa4/4]==0xffffffff,
+        "target up wraps actual formation group count and publishes column2");
+    input={};input.pressed=0x40;input.repeat=0x4000;
+    ui.first_update(resource,pad,input,60,&context);
+    require(words[0xa4/4]==5&&words[0xa8/4]==5&&shared.hud.type2_work[16]==2,
+        "target confirmation remembers pre-navigation index in category-specific cache");
+    require(words[0xd4/4]==0&&words[0xb4/4]==0&&sounds==std::vector<unsigned>{0,3,0},
+        "generic tail runs repeat after confirm and preserves sound ordering");
+    words[0xa8/4]=2;words[0xd4/4]=2;input={};input.pressed=0x20;
+    ui.first_update(resource,pad,input,60,&context);
+    require(words[0xa4/4]==0xffffff9c&&words[0xa8/4]==0&&words[0xe4c/4]==1&&words[0xac/4]==0,
+        "single actor target cancel returns through source category opening state");
+    require(sounds.back()==4,"target cancellation plays source cancel cue");
+    words[0xe4c/4]=3;words[0xa8/4]=2;shared.formation.count=0;
+    input={};input.pressed=0x40;
+    const auto before=sounds.size();ui.first_update(resource,pad,input,60,&context);
+    require(words[0xa4/4]==0xffffffff&&words[0xa8/4]==2&&sounds.size()==before,
+        "empty target roster cannot confirm or play success sound");
+    entities[2].actor=&actors[2];actors[2].storage[0x21c]=2;actors[2].storage[0x220]=2;
+    words[0xa8/4]=1;words[0xd0/4]=1;input={};input.repeat=0x4000;
+    ui.first_update(resource,pad,input,60,&context);
+    require(words[0xa8/4]==1&&words[0xd0/4]==0,"multiple ready actors expose two ordinary attack options");
+    actors[0].storage[0x17c]=1;words[0xd0/4]=1;
+    ui.first_update(resource,pad,input,60,&context);
+    require(words[0xd0/4]==2,"selected actor body action flag enables third option");
+    words[0xa8/4]=2;shared.formation.count=3;input={};
+    ui.first_update(resource,pad,input,60,&context);
+    require(words[0xa4/4]==5&&words[0xa8/4]==5&&shared.hud.type2_flag_b==1,
+        "third action option sets source target flag and advances without fake targets");
+    words[0xa8/4]=1;words[0xd0/4]=0;shared.hud.selection_state=51;input.pressed=0x40;
+    ui.first_update(resource,pad,input,60,&context);
+    require(words[0xa4/4]==0xffffffff&&words[0xa8/4]==1,"shared countdown also inhibits submenu input");
+}
 void open_and_fade_layers() {
     auto b=fixture();const okage::BattleUiData data(b);
     okage::BattleUiShared shared;
@@ -271,7 +328,7 @@ int main(int argc,char** argv) {
             std::cout<<"owned battle interface parsed\n";return 0;
         }
         require(argc==1,"usage: battle-ui-tests [--diagnostic owned-battle-ui.bin | --window-diagnostic owned-battle-ui.bin fresh.json]");
-        first_dispatch();open_and_fade_layers();opening_selection();category_input();
+        first_dispatch();open_and_fade_layers();opening_selection();category_input();attack_submenu_input();
         auto b=fixture();const okage::BattleUiData data(b);b.clear();
         require(data.layers()[0].words[4]==0x80000000&&data.layers()[1].words[16]==0x80808080,"owned literal bits changed");
         require(data.layers()[0].stream()==1&&data.layers()[1].type()==3,"host bindings changed");

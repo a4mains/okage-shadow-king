@@ -8,6 +8,7 @@
 #include <functional>
 
 namespace okage {
+class BattleEntryContext;
 struct BattleUiShared {
     BattleHud hud;
     std::array<std::shared_ptr<UiWindowStream>,2> streams{
@@ -26,6 +27,7 @@ struct BattleUiShared {
     std::uint32_t secondary_pulse=0; //1fd7b8
     std::int32_t secondary_pulse_step=1; //1fd7d8
     std::int32_t cost_pulse=0,hp_cost_gate=0; //1fd80c,1fd804
+    std::uint32_t target_count=0;
 };
 struct BattleUiUpdateContext {
     std::span<std::uint8_t> variables;
@@ -36,6 +38,7 @@ struct BattleUiUpdateContext {
     std::span<const BattleEntityBinding> entities;
     std::span<const BattleActor* const> enemies;
     unsigned game_mode;
+    const BattleEntryContext* entry=nullptr; //252a8(7), separate persistent block.
 };
 struct BattleUiFirstContext {
     unsigned game_mode;

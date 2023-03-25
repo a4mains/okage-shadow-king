@@ -343,6 +343,7 @@ struct BattleSession::Impl {
         copy.selected_alpha_step=context.shared.selected_alpha_step;
         copy.secondary_pulse=context.shared.secondary_pulse;copy.secondary_pulse_step=context.shared.secondary_pulse_step;
         copy.cost_pulse=context.shared.cost_pulse;copy.hp_cost_gate=context.shared.hp_cost_gate;
+        copy.target_count=context.shared.target_count;
         copy.resource_accumulators=context.shared.resource_accumulators;
         BattleInterface isolated(copy,*ui_definitions,std::make_shared<UiTextureOwner>(UiTextureOwner{atlas}),
             word(root.bytes,0x1c),[](unsigned){});
@@ -359,7 +360,7 @@ struct BattleSession::Impl {
         std::vector<const BattleActor*> enemies;
         for(const auto& actor:roster.actors())if(actor->enemy)enemies.push_back(actor.get());
         isolated.second_update(*r,*hud_definitions,commands,
-            {vars,context.tables,party,root,*battle_data,roster.entities(),enemies,3});
+            {vars,context.tables,party,root,*battle_data,roster.entities(),enemies,3,&context.entry});
         const auto after=battle_ui_update_snapshot(isolated,copy,*r,vars,party);
         std::ofstream out(path);
         out<<"{\"schema\":\"okage-native-ui-second-update-v1\",\"scope\":\"isolated first and second dispatchers on copies of native Session construction state; no parent activation, resource clock, layout or rendering\",\"frame\":"<<frame
@@ -635,7 +636,7 @@ struct BattleSession::Impl {
             std::vector<const BattleActor*> enemies;
             for(const auto& actor:roster.actors())if(actor->enemy)enemies.push_back(actor.get());
             ui->second_update(*ui_resources[0],*hud_definitions,*command_definitions,
-                {context.variables,context.tables,context.party,root,*battle_data,roster.entities(),enemies,3});
+                {context.variables,context.tables,context.party,root,*battle_data,roster.entities(),enemies,3,&context.entry});
             events.push_back("ui.second.return");
             if(!ui_path.empty())after=battle_ui_update_snapshot(*ui,context.shared,*ui_resources[0],context.variables,context.party,true);
         }catch(const std::exception& e){error=e.what();failure=std::current_exception();}

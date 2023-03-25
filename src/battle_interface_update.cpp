@@ -1,4 +1,5 @@
 #include "okage/battle_interface.hpp"
+#include "okage/battle_actor.hpp"
 #include <algorithm>
 #include <bit>
 #include <cfenv>
@@ -176,6 +177,96 @@ BattleUiPadMasks BattleInterface::first_update(std::shared_ptr<RuwResource> reso
                     if(context->selected_entity>=3)throw std::runtime_error("Battle type2 remembered party selection extent");
                     shared_.hud.type2_work[unsigned(context->selected_entity)*64]=category;
                     words_[base+0x68/4]=words_[base+0x64/4];++state;sound(3);
+                }
+                break;
+            }
+            case 3: {
+                if(!context)throw std::runtime_error("Battle type2 submenu requires live selection ownership");
+                const auto as_signed=[](auto v){return __builtin_bit_cast(std::int32_t, (v));};
+                const auto sound=[&](unsigned id){
+                    if(!context->sound)throw std::runtime_error("Battle type2 input requires source sound owner");
+                    context->sound(id);
+                };
+                bool selected_action=false;
+                if(context->game_mode!=4) {
+                    if(context->selected_entity<0||std::size_t(context->selected_entity)>=context->entities.size())
+                        throw std::runtime_error("Battle type2 submenu selected entity extent");
+                    if(const auto* actor=context->entities[unsigned(context->selected_entity)].actor) {
+                        //154330 reads body13c, hence task17c; no stat refresh.
+                        const auto& b=actor->storage;
+                        selected_action=(unsigned(b[0x17c])|(unsigned(b[0x17d])<<8)|
+                            (unsigned(b[0x17e])<<16)|(unsigned(b[0x17f])<<24))!=0;
+                    }
+                }
+                words_[base+0x64/4]=0xffffffff;
+                for(unsigned i=0;i<8;++i)words_[base+0x6c/4+i]=0xffffffff;
+                unsigned column=0,count=1,next=0,previous=0;
+                const auto available=battle_ui_available_party(context->entities);
+                switch(as_signed(words_[base+0x68/4])) {
+                case 1:
+                    shared_.hud.type2_flag_b=0;shared_.hud.type2_flag_a=0;
+                    if(available<2&&!selected_action) {
+                        words_[base+0x90/4]=0;words_[base+0x70/4]=0;
+                        resource->select_class_color(3,1,0);resource->select_class_color(3,2,0);
+                        words_[base+0x64/4]=2;words_[base+0x68/4]=2;
+                        break;
+                    }
+                    count=available>=2&&selected_action?3:2;column=1;next=2;
+                    goto submenu_input;
+                case 2:
+                    shared_.hud.type2_flag_a=0;shared_.hud.type2_flag_b=0;
+                    if(available<2&&!selected_action&&(masks.pressed&0x20)) {
+                        words_[base+0x64/4]=0xffffff9c;words_[base+0x68/4]=0;
+                        goto submenu_input;
+                    }
+                    if(available>=2)shared_.target_count=shared_.formation.count;
+                    if((available<2&&selected_action&&words_[base+0x90/4]==1)||
+                       (available>=2&&words_[base+0x90/4]==2)) {
+                        shared_.hud.type2_flag_b=1;
+                        words_[base+0x64/4]=5;words_[base+0x68/4]=5;
+                        break;
+                    }
+                    shared_.target_count=shared_.formation.count;
+                    column=2;count=shared_.target_count;next=5;previous=1;
+                    goto submenu_input;
+                default:
+                    throw std::runtime_error("Battle type2 submenu argument unrecovered: "+
+                        std::to_string(as_signed(words_[base+0x68/4])));
+                }
+                break;
+submenu_input:
+                auto& selected=words_[base+0x8c/4+column];
+                auto& changed=words_[base+0x6c/4+column];
+                if(count>8)throw std::runtime_error("Battle type2 submenu count exceeds owned formation");
+                if(count)selected=std::uint32_t(as_signed(selected)%std::int32_t(count));
+                if(count&&(masks.pressed&0x40)) {
+                    if(words_[base+0x68/4]==next)words_[base+0x64/4]=0xffffffff;
+                    else {
+                        const int selected_entity=context->game_mode==4?0:context->selected_entity;
+                        const auto cache=std::int64_t(selected_entity)*64+column*8+
+                            as_signed(words_[base+0x8c/4]);
+                        if(cache<0||std::uint64_t(cache)>=shared_.hud.type2_work.size())
+                            throw std::runtime_error("Battle type2 submenu cache extent");
+                        shared_.hud.type2_work[std::size_t(cache)]=selected;
+                        words_[base+0x64/4]=next;changed=selected;
+                    }
+                    words_[base+0x68/4]=next;sound(3);
+                }
+                if(count>=2) {
+                    if(masks.repeat&0x1000) {
+                        --selected;if(as_signed(selected)<0)selected+=count;
+                        changed=selected;sound(0);
+                    }
+                    if(masks.repeat&0x4000) {
+                        ++selected;selected=std::uint32_t(as_signed(selected)%std::int32_t(count));
+                        changed=selected;sound(0);
+                    }
+                }
+                if(masks.pressed&0x20) {
+                    words_[base+0x64/4]=0xffffff9c;words_[base+0x68/4]=previous;
+                    selected=0;changed=0;
+                    if(previous==0)state=1;
+                    sound(4);
                 }
                 break;
             }
