@@ -21,6 +21,7 @@ class BattleCameraMotion {
 public:
     BattleCameraMotion(const BattleCameraSequence&,float timestep);
     void restart_sequence(const BattleCameraSequence&);
+    void select_command_camera(unsigned selected_entity,const Float4& live_position);
     void tick();
     void tick(Animation& channels,const std::function<void(float)>& projection);
     Float4 position() const {return position_.point;}

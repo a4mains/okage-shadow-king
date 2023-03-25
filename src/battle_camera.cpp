@@ -57,6 +57,29 @@ void BattleCameraMotion::restart_sequence(const BattleCameraSequence& sequence) 
     Rounding rounding;
     sequence_=sequence;sequence_phase_=0;select(*sequence_[0]);
 }
+void BattleCameraMotion::select_command_camera(unsigned selected_entity,const Float4& live_position) {
+    if(selected_entity>=3)throw std::runtime_error("Battle command camera requires selected party entity0..2");
+    for(float f:live_position)if(!std::isfinite(f)||std::fabs(f)>1e6f)
+        throw std::runtime_error("Battle command camera live position bounds");
+    Rounding rounding;
+    //151be8..151c78: separate EE add/sub operations, copied XYZW, then
+    //the endpoint W is overwritten with0x3d4ccccd.236f80's pinned vector
+    //is16 zero bytes; the fixed target's Y alone is replaced with-8.
+    auto start=live_position;
+    start[0]=start[0]+13.5f;start[1]=start[1]-8.f;
+    auto endpoint=start;
+    endpoint[0]=endpoint[0]+60.f;endpoint[1]=endpoint[1]-36.f;
+    if(selected_entity==0)endpoint[2]=endpoint[2]-20.f;
+    endpoint[3]=__builtin_bit_cast(float, (0x3d4ccccdu));
+    flags_&=~0x40000000u;
+    target_.mode=0;target_.remaining=90.f;
+    target_.point={0,-8,0,0};target_.endpoint={0,0,0,0};
+    flags_&=~0x80000000u;
+    position_.mode=6;position_.remaining=90.f;
+    position_.point=start;position_.endpoint=endpoint;position_phase_=0;
+    projection_duration_=0;projection_value_=1024.f;projection_dirty_=0;
+    aim();
+}
 void BattleCameraMotion::select(const BattleCameraPreset& p) {
     flags_&=~0x40000000u;
     target_.mode=p.target_mode;target_.remaining=p.target_duration;
@@ -101,7 +124,19 @@ void BattleCameraMotion::advance(Animation* channels,const std::function<void(fl
         if(target_.mode==1)target_.point=target_.endpoint;
         target_.mode=7;flags_|=0x40000000u;
     }
-    if(position_.mode==1) {
+    bool aimed=false;
+    if(position_.mode==6) {
+        for(unsigned j=0;j<4;++j)position_.step[j]=position_.endpoint[j]-position_.point[j];
+        const float factor=position_.endpoint[3]*timestep_;
+        for(unsigned j=0;j<4;++j)position_.step[j]=position_.step[j]*factor;
+        for(unsigned j=0;j<4;++j)position_.point[j]=position_.point[j]+position_.step[j];
+        if(channels)channels->set_channel(0,position_.point);
+        aim();aimed=true;
+        position_.remaining-=timestep_;
+        if(position_.remaining<0) {
+            position_.remaining=0;position_.mode=7;flags_|=0x80000000u;
+        }
+    } else if(position_.mode==1) {
         if(position_phase_==0) {
             position_.step=increment(position_.point,position_.endpoint,position_.remaining,timestep_);
             ++position_phase_;
@@ -118,7 +153,7 @@ void BattleCameraMotion::advance(Animation* channels,const std::function<void(fl
         position_.remaining-=timestep_;
         if(position_.remaining<0){position_.remaining=0;position_.mode=7;flags_|=0x80000000u;}
     }
-    aim();
+    if(!aimed)aim();
     if(projection&&projection_dirty_==1) {
         (*projection)(projection_value_);
         projection_dirty_=2;

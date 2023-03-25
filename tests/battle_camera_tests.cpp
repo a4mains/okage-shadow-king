@@ -1,6 +1,7 @@
 #include "okage/battle_camera.hpp"
 #include "okage/animation.hpp"
 #include <bit>
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <iostream>
@@ -168,6 +169,63 @@ int main() {
             auto invalid=seq;invalid[2]=fixed();invalid[2]->target_mode=2;
             rejects([&]{motion.restart_sequence(invalid);});require(motion.observation()==before);
             motion.tick();require(motion.position()[0]==2);
+        }
+
+        {
+            okage::BattleCameraSequence seq{};seq[0]=linear(2);
+            okage::BattleCameraMotion m(seq,1);okage::Animation channels(3);
+            channels.set_channel(1,{0,0,0,37});
+            m.tick(channels,[](float){});
+            const auto before=m.observation();
+            const auto old_channels=channels.channel_outputs();
+            const std::vector<okage::Float4> saved(old_channels.begin(),old_channels.end());
+            m.select_command_camera(0,{0,0,10,1});
+            const auto now=m.observation();
+            require(now[0]==6&&now[24]==0&&now[53]==0&&now[55]==before[55]);
+            require(m.position()==okage::Float4({13.5f,-8,10,1}));
+            require(m.target()==okage::Float4({0,-8,0,0}));
+            require(now[20]==__builtin_bit_cast(std::uint32_t, (73.5f)));
+            require(now[21]==__builtin_bit_cast(std::uint32_t, (-44.f)));
+            require(now[22]==__builtin_bit_cast(std::uint32_t, (-10.f))&&now[23]==0x3d4ccccd);
+            for(unsigned i:{12,13,14,15,16,17,18,19,32,33,34,35,36,37,38,39,40,41,42,43})require(now[i]==before[i]);
+            require(now[51]==0&&now[48]==0&&now[49]==0x44800000);
+            require(!m.take_projection_request());
+            require(std::equal(saved.begin(),saved.end(),channels.channel_outputs().begin()));
+            unsigned calls=0;m.tick(channels,[&](float){++calls;});
+            require(calls==0&&m.position()[0]==16.5f); //delta60*.05, not60/90.
+            require(m.position()[2]==9.f&&m.position()[3]<1&&m.position()[3]>.95f);
+            require(m.rotation()[3]==37&&channels.value(0)==m.position());
+            const auto first=m.position();m.tick();
+            require(m.position()[0]-first[0]<3.f&&m.position()[0]>first[0]);
+            require(m.observation()[55]==before[55]);
+        }
+        {
+            okage::BattleCameraSequence seq{};seq[0]=fixed();
+            okage::BattleCameraMotion m(seq,1);
+            //A command selection must cancel even a never-published request.
+            m.select_command_camera(1,{0,0,10,1});require(!m.take_projection_request());
+            require(m.observation()[22]==__builtin_bit_cast(std::uint32_t, (10.f)));
+            for(unsigned i=0;i<90;++i)m.tick();
+            require(m.observation()[0]==6&&m.observation()[24]==0);
+            require(m.observation()[1]==0&&m.observation()[25]==0);
+            m.tick();
+            require(m.observation()[0]==7&&m.observation()[24]==7);
+            require(m.position()[0]<73.5f&&m.position()[0]>70.f);
+            require(m.observation()[53]==0);
+            m.tick();require(m.ready());
+            const auto old_phase=m.observation()[55];
+            m.select_command_camera(2,{20,0,-2,0});
+            require(m.observation()[55]==old_phase&&m.ready());
+            m.tick();require(m.position()[0]==36.5f&&m.position()[2]==-2.f);
+        }
+        {
+            okage::BattleCameraSequence seq{};seq[0]=fixed();
+            okage::BattleCameraMotion m(seq,2);m.select_command_camera(0,{0,0,10,1});m.tick();
+            require(m.position()[0]==19.5f); //end.W*timestep used before lane product.
+            require(m.observation()[1]==__builtin_bit_cast(std::uint32_t, (88.f)));
+            const auto before=m.observation();
+            rejects([&]{m.select_command_camera(3,{0,0,0,1});});require(m.observation()==before);
+            rejects([&]{m.select_command_camera(0,{0,std::numeric_limits<float>::infinity(),0,1});});require(m.observation()==before);
         }
 
         {
