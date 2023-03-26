@@ -43,14 +43,14 @@ static okage::TextureAnimation readActorTextures(const fs::path& path) {
 }
 struct DirectionReplay {
     std::vector<std::pair<unsigned,std::uint16_t>> entries;
-    void load(const fs::path& path){
+    void load(const fs::path& path,unsigned allowed_mask=0xf000u){
         std::ifstream in(path);if(!in)throw std::runtime_error("Cannot read direction replay");
         std::string line;unsigned previous=0;
         while(std::getline(in,line)){
             if(line.empty() || line[0]=='#')continue;
             std::istringstream row(line);unsigned frame,mask;std::string extra;
-            if(!(row>>frame>>std::hex>>mask) || (row>>extra) || frame<=previous || frame>diagnosticFrameLimit || (mask&~0xf000u))
-                throw std::runtime_error("Direction replay requires increasing FRAME and hexadecimal directional mask");
+            if(!(row>>frame>>std::hex>>mask) || (row>>extra) || frame<=previous || frame>diagnosticFrameLimit || (mask&~allowed_mask))
+                throw std::runtime_error("Input replay requires increasing FRAME and an allowed hexadecimal button mask");
             entries.push_back({frame,std::uint16_t(mask)});previous=frame;
         }
     }
@@ -1373,8 +1373,8 @@ static void captureView(NSView* view,const fs::path& path) {
 @end
 int main(int argc,const char** argv) {
     @autoreleasepool {try {
-        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--performance-report FRESH.jsonl (interactive/preview/UI test)]");
-        unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures,battleInput;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
+        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --buttons INPUT (held non-directional masks; bounded replay only) --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--performance-report FRESH.jsonl (interactive/preview/UI test)]");
+        unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions,buttons;bool hasButtons=false;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures,battleInput;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         std::optional<fs::path> performancePath;
         fs::path uiUpdateReport,battleLivePath;
         std::ofstream battleLiveTrace;
@@ -1429,9 +1429,15 @@ int main(int argc,const char** argv) {
                 actors.push_back({alias,value.substr(eq+1)});
             }
             else if(arg=="--player-name")playerName=argv[i];
+            else if(arg=="--buttons") {
+                if(hasButtons)throw std::runtime_error("Duplicate native button replay");
+                buttons.load(argv[i],0x0fffu);hasButtons=true;
+            }
             else if(arg=="--press") {std::istringstream in(argv[i]);std::string n;while(std::getline(in,n,','))presses.push_back(std::stoul(n));}
             else throw std::runtime_error("Unknown native runtime option");
         }
+        if(hasButtons&&((!frames&&!previewAt)||uiFrames))
+            throw std::runtime_error("Button replay requires --frames or --preview-at without --ui-test-frames");
         if(musicSequence.empty()!=musicBank.empty())throw std::runtime_error("Music requires both sequence and bank");
         if(!soundDirectory.empty() && musicSequence.empty())throw std::runtime_error("Sound directory requires native music setup");
         if(effectData.empty()!=effectTextures.empty()||(!effectData.empty()&&map.empty()))throw std::runtime_error("Effects require data, texture directory and scene");
@@ -1496,7 +1502,8 @@ int main(int argc,const char** argv) {
             std::uint16_t previous=0;std::size_t selected=0;
             for(unsigned i=1;i<=replayFrames;++i) {
                 const std::uint16_t mask=std::find(presses.begin(),presses.end(),i)!=presses.end()?0x40:0;
-                const auto held=directions.held(i);session.tick({std::uint16_t(mask|held),std::uint16_t(mask|(held&~previous))});previous=held;
+                const auto held=std::uint16_t(directions.held(i)|buttons.held(i));
+                session.tick({std::uint16_t(mask|held),std::uint16_t(mask|(held&~previous))});previous=held;
                 if(selected<captureFrames.size()&&i==captureFrames[selected]) {
                     const auto filename="tick-"+std::to_string(i)+".png";captureImage(session,frameDirectory/filename);
                     frameManifest<<(selected ? ",\n" : "")<<"    {\"tick\": "<<i<<", \"image\": \""<<filename
