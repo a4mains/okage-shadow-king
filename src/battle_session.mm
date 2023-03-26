@@ -554,8 +554,15 @@ struct BattleSession::Impl {
                     }
                     switch(__builtin_bit_cast(std::int32_t, (ui->words()[0xa4/4]))) { //11fc70(layer0)
                     case 0:phase=1;put(root.bytes,0x24,phase);break;
-                    case 1:case 7:case 9:case 12:
-                        throw std::runtime_error("Battle command menu action-camera151af0 ownership is unrecovered");
+                    case 1:case 7:case 9:case 12: {
+                        const auto selected=__builtin_bit_cast(std::int32_t, (word(root.bytes,0x81ac)));
+                        if(selected<0||selected>=3)throw std::runtime_error("Battle command camera selected entity extent");
+                        const auto* actor=roster.entities()[unsigned(selected)].actor;
+                        if(!actor||!actor->model)
+                            throw std::runtime_error("Battle command camera absent-body channel1 fallback is unrecovered");
+                        camera->select_command_camera(unsigned(selected),actor->model->animation().value(1));
+                        break;
+                    }
                     case 4:
                         throw std::runtime_error("Battle command menu completion151c34 action handoff is unrecovered");
                     default:break;
