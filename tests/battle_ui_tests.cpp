@@ -270,12 +270,18 @@ void attack_commit_input() {
     variables[0x5c5]=1;words[0xd4/4]=0;
     ui.first_update(resource,pad,{},60,&context);ui.first_update(resource,pad,{},60,&context);
     require(draws==2&&shared.pending_action[1]==9,"status1 targeting consumes live RNG on every neutral callback");
+    shared.target_count=0;const auto pending_before=shared.pending_action;bool divisor_guard=false;
+    try{ui.first_update(resource,pad,{},60,&context);}catch(const std::runtime_error&){divisor_guard=true;}
+    require(divisor_guard&&draws==3&&shared.pending_action==pending_before,
+        "zero target divisor preserves the source RNG draw before explicit rejection");
+    shared.target_count=2;
     const auto before=shared.pending_action;okage::BattleUiPadInput input;input.pressed=0x20;
     ui.first_update(resource,pad,input,60,&context);
-    require(words[0xa8/4]==2&&draws==2&&sounds.empty()&&shared.pending_action==before,
+    require(words[0xa8/4]==2&&draws==3&&sounds.empty()&&shared.pending_action==before,
         "arg5 cancellation returns before refresh/RNG/action preparation and generic cancel sound");
     words[0xa8/4]=5;words[0xd0/4]=1;variables[0x5c5]=0;
-    variables[0x5c4+2*0x50+0x26]=70;
+    //Row5 stays the earlier cached membership; charge comparison is signed.
+    variables[0x5c4+2*0x50+0x26]=0xf6;variables[0x5c4+2*0x50+0x27]=0xff;
     input={};input.pressed=0x40;
     ui.first_update(resource,pad,input,60,&context);
     require(shared.pending_action==std::array<std::uint32_t,3>{1,7,0}&&words[0xe4c/4]==5,
