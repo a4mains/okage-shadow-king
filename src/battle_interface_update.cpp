@@ -26,10 +26,10 @@ float checked(float f) {
 }
 float rotate(float f) {
     checked(f);
-    f=checked(f+__builtin_bit_cast(float, (0x3d567451u)));
-    const float lower=__builtin_bit_cast(float, (0xc0490d0cu)),
-                upper=__builtin_bit_cast(float, (0x40490d0cu)),
-                period=__builtin_bit_cast(float, (0x40c90d0cu));
+    f=checked(f+std::bit_cast<float>(0x3d567451u));
+    const float lower=std::bit_cast<float>(0xc0490d0cu),
+                upper=std::bit_cast<float>(0x40490d0cu),
+                period=std::bit_cast<float>(0x40c90d0cu);
     while(f<lower) {
         const float next=checked(f+period);
         if(next==f)throw std::runtime_error("Battle interface angle wrap cannot advance");
@@ -78,7 +78,7 @@ BattleUiPadMasks BattleInterface::first_update(std::shared_ptr<RuwResource> reso
             // 165b50 always executes this prefix, including states 0/-100.
             masks=pad.normalize(input);
             if(shared_.hud.selection_state>50)masks={};
-            switch(__builtin_bit_cast(std::int32_t, (state))) {
+            switch(std::bit_cast<std::int32_t>(state)) {
             case 0: {
                 pad.set_enabled(0,true);pad.set_repeat(0,30,15,display_rate);
                 words_[base+0x64/4]=0xffffffff;
@@ -86,7 +86,7 @@ BattleUiPadMasks BattleInterface::first_update(std::shared_ptr<RuwResource> reso
                 words_[base+0x64/4]=19;
                 w.set_opacity_tween(-128.f,128.f,0,128);
                 constexpr std::array<std::size_t,3> groups{2,3,4};bind(groups);
-                ++state;state=__builtin_bit_cast(std::uint32_t, (std::int32_t(-100)));
+                ++state;state=std::bit_cast<std::uint32_t>(std::int32_t(-100));
                 break; // Unlike type3, no same-call fallthrough.
             }
             case -100:
@@ -95,7 +95,7 @@ BattleUiPadMasks BattleInterface::first_update(std::shared_ptr<RuwResource> reso
             case -1:w.set_opacity_tween(0.f,0.f,0,128);break;
             case 1: {
                 if(!context)throw std::runtime_error("Battle type2 opening requires actual selection ownership");
-                words_[base+0x24/4]=__builtin_bit_cast(std::uint32_t, (rotate(__builtin_bit_cast(float, (words_[base+0x24/4])))));
+                words_[base+0x24/4]=std::bit_cast<std::uint32_t>(rotate(std::bit_cast<float>(words_[base+0x24/4])));
                 words_[base+0x24/4]=0;
                 words_[base+0x64/4]=0;words_[base+0x68/4]=0;words_[base+0x64/4]=0;
                 ++state;
@@ -108,7 +108,7 @@ BattleUiPadMasks BattleInterface::first_update(std::shared_ptr<RuwResource> reso
                     const auto selected=unsigned(context->selected_entity)*64;
                     words_[base+0x8c/4]=shared_.hud.type2_work[selected];
                     for(unsigned i=0;i<7;++i) {
-                        const auto category=__builtin_bit_cast(std::int32_t, (words_[base+0x8c/4]));
+                        const auto category=std::bit_cast<std::int32_t>(words_[base+0x8c/4]);
                         const auto at=std::int64_t(selected)+category+i*8;
                         if(at<0||std::uint64_t(at)>=shared_.hud.type2_work.size())
                             throw std::runtime_error("Battle type2 remembered selection outside persistent cache");
@@ -126,7 +126,7 @@ BattleUiPadMasks BattleInterface::first_update(std::shared_ptr<RuwResource> reso
                     if(!context->sound)throw std::runtime_error("Battle type2 input requires source sound owner");
                     context->sound(id);
                 };
-                const auto signed_word=[](auto value){return __builtin_bit_cast(std::int32_t, (value));};
+                const auto signed_word=[](auto value){return std::bit_cast<std::int32_t>(value);};
                 for(unsigned i=1;i<7;++i)words_[base+0x8c/4+i]=0;
                 for(unsigned i=0;i<8;++i)words_[base+0x6c/4+i]=0xffffffffu;
                 auto& category=words_[base+0x8c/4];
@@ -182,7 +182,7 @@ BattleUiPadMasks BattleInterface::first_update(std::shared_ptr<RuwResource> reso
             }
             case 3: {
                 if(!context)throw std::runtime_error("Battle type2 submenu requires live selection ownership");
-                const auto as_signed=[](auto v){return __builtin_bit_cast(std::int32_t, (v));};
+                const auto as_signed=[](auto v){return std::bit_cast<std::int32_t>(v);};
                 const auto sound=[&](unsigned id){
                     if(!context->sound)throw std::runtime_error("Battle type2 input requires source sound owner");
                     context->sound(id);
@@ -202,6 +202,17 @@ BattleUiPadMasks BattleInterface::first_update(std::shared_ptr<RuwResource> reso
                 for(unsigned i=0;i<8;++i)words_[base+0x6c/4+i]=0xffffffff;
                 unsigned column=0,count=1,next=0,previous=0;
                 const auto available=battle_ui_available_party(context->entities);
+                const auto character_slot=[&]() {
+                    if(!context->party)throw std::runtime_error("Battle action requires live party ownership");
+                    const int entity=context->game_mode==4?0:context->selected_entity;
+                    if(entity<0||entity>=8)throw std::runtime_error("Battle action selected party extent");
+                    return context->party->at(3,unsigned(entity));
+                };
+                const auto refresh_character=[&](unsigned slot) {
+                    if(!context->tables)throw std::runtime_error("Battle action requires owned stat tables");
+                    refresh_game_character(*context->tables,context->variables,slot);
+                    return std::size_t(0x5c4+slot*0x50);
+                };
                 switch(as_signed(words_[base+0x68/4])) {
                 case 1:
                     shared_.hud.type2_flag_b=0;shared_.hud.type2_flag_a=0;
@@ -229,6 +240,39 @@ BattleUiPadMasks BattleInterface::first_update(std::shared_ptr<RuwResource> reso
                     shared_.target_count=shared_.formation.count;
                     column=2;count=shared_.target_count;next=5;previous=1;
                     goto submenu_input;
+                case 5: {
+                    const auto option=words_[base+0x90/4];
+                    if(masks.pressed&0x20) {
+                        words_[base+0x64/4]=0xffffff9c;words_[base+0x68/4]=2;
+                        if(selected_action&&((option==1&&available<2)||option==2))
+                            words_[base+0x68/4]=1;
+                        break;
+                    }
+                    if(words_[base+0x8c/4]!=0)
+                        throw std::runtime_error("Battle target action outside Attack category is unrecovered");
+                    if(option==2||(option==1&&available<2&&selected_action&&shared_.command.values[0]==0)) {
+                        shared_.pending_action={4,10,0xca};
+                    } else if(option<=1) {
+                        auto target=as_signed(words_[base+0x94/4]);
+                        if(target!=10) {
+                            const int slot=character_slot();
+                            if(slot>=0&&slot<8) {
+                                const auto at=refresh_character(unsigned(slot));
+                                if(context->variables[at+1]==1) {
+                                    if(!context->random)throw std::runtime_error("Battle random targeting requires live RNG");
+                                    const auto draw=as_signed(context->random());
+                                    if(as_signed(shared_.target_count)<=0||shared_.target_count>8)
+                                        throw std::runtime_error("Battle random targeting divisor outside owned formation");
+                                    target=draw%as_signed(shared_.target_count);
+                                }
+                            }
+                        }
+                        if(target<0||std::size_t(target)>=shared_.formation.groups.size())
+                            throw std::runtime_error("Battle action target outside owned formation group table");
+                        shared_.pending_action={option,std::uint32_t(shared_.formation.groups[unsigned(target)]),0};
+                    } else throw std::runtime_error("Battle Attack option outside recovered selection");
+                    column=3;previous=2;next=20;goto submenu_input;
+                }
                 default:
                     throw std::runtime_error("Battle type2 submenu argument unrecovered: "+
                         std::to_string(as_signed(words_[base+0x68/4])));
@@ -240,7 +284,23 @@ submenu_input:
                 if(count>8)throw std::runtime_error("Battle type2 submenu count exceeds owned formation");
                 if(count)selected=std::uint32_t(as_signed(selected)%std::int32_t(count));
                 if(count&&(masks.pressed&0x40)) {
-                    if(words_[base+0x68/4]==next)words_[base+0x64/4]=0xffffffff;
+                    if(next==20) {
+                        const int slot=character_slot();
+                        if(slot<0||slot>=8)break; //Source bypasses the rest of the tail.
+                        const auto at=refresh_character(unsigned(slot));
+                        context->variables[at+0x26]=101;context->variables[at+0x27]=0;
+                        if(shared_.pending_action[0]==1) {
+                            for(unsigned i=0;i<context->party->counts()[5];++i) {
+                                const int member=context->party->at(5,i);
+                                if(member<0||member>=8)throw std::runtime_error("Battle combined action party record extent");
+                                const auto record=refresh_character(unsigned(member));
+                                const auto charge=std::bit_cast<std::int16_t>(std::uint16_t(
+                                    unsigned(context->variables[record+0x26])|(unsigned(context->variables[record+0x27])<<8)));
+                                if(charge<101){context->variables[record+0x26]=100;context->variables[record+0x27]=0;}
+                            }
+                        }
+                        state=5;words_[base+0xa8/4]=0;
+                    } else if(words_[base+0x68/4]==next)words_[base+0x64/4]=0xffffffff;
                     else {
                         const int selected_entity=context->game_mode==4?0:context->selected_entity;
                         const auto cache=std::int64_t(selected_entity)*64+column*8+
@@ -250,7 +310,8 @@ submenu_input:
                         shared_.hud.type2_work[std::size_t(cache)]=selected;
                         words_[base+0x64/4]=next;changed=selected;
                     }
-                    words_[base+0x68/4]=next;sound(3);
+                    if(next!=20)words_[base+0x68/4]=next;
+                    sound(3);
                 }
                 if(count>=2) {
                     if(masks.repeat&0x1000) {
@@ -270,9 +331,16 @@ submenu_input:
                 }
                 break;
             }
+            case 5:
+                if(w.opacity()==0.f) {
+                    words_[base+0x64/4]=4;words_[base+0x68/4]=4;state=6;
+                }
+                if(w.opacity()==128.f)w.set_opacity_tween(-16.f,128.f,0,128);
+                break;
+            case 6:words_[base+0x64/4]=0xffffffff;break;
             default:
                 throw std::runtime_error("Battle type2 state unrecovered: "+
-                    std::to_string(__builtin_bit_cast(std::int32_t, (state))));
+                    std::to_string(std::bit_cast<std::int32_t>(state)));
             }
             ++cursor;break;
         }
@@ -284,8 +352,8 @@ submenu_input:
                 words_[base+0x64/4]=0;++state;
             }
             if(state==1) {
-                float angle=rotate(__builtin_bit_cast(float, (words_[base+0x24/4])));
-                words_[base+0x24/4]=__builtin_bit_cast(std::uint32_t, (angle));
+                float angle=rotate(std::bit_cast<float>(words_[base+0x24/4]));
+                words_[base+0x24/4]=std::bit_cast<std::uint32_t>(angle);
                 if(angle>0.f) {
                     words_[base+0x24/4]=0;
                     words_[base+0x64/4]=0;words_[base+0x68/4]=0;
@@ -296,7 +364,7 @@ submenu_input:
             ++cursor;break;
         default:throw std::runtime_error("Battle interface first callback type unrecovered");
         }
-        if(__builtin_bit_cast(std::int32_t, (cursor))>15)cursor=0;
+        if(std::bit_cast<std::int32_t>(cursor)>15)cursor=0;
     }
     return masks;
 }

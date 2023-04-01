@@ -206,7 +206,7 @@ struct BattleSession::Impl {
             out<<'[';bool comma=false;for(auto v:values){if(comma)out<<',';comma=true;out<<v;}out<<']';
         };
         const auto float_bits=[](const auto& values) {
-            std::vector<std::uint32_t> result;for(float v:values)result.push_back(__builtin_bit_cast(std::uint32_t, (v)));return result;
+            std::vector<std::uint32_t> result;for(float v:values)result.push_back(std::bit_cast<std::uint32_t>(v));return result;
         };
         const auto snapshot=[&](const char* event,unsigned index,const StageSettingRecord* record=nullptr) {
             if(path.empty())return;
@@ -217,8 +217,8 @@ struct BattleSession::Impl {
             out<<",\"effects\":";array(out,float_bits(projection.effect_parameters()));
             out<<",\"base\":";array(out,float_bits(s.lighting.base));
             std::vector<std::uint32_t> colors,directions;
-            for(const auto& v:s.lighting.colors)for(float f:v)colors.push_back(__builtin_bit_cast(std::uint32_t, (f)));
-            for(const auto& v:s.lighting.directions)for(float f:v)directions.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+            for(const auto& v:s.lighting.colors)for(float f:v)colors.push_back(std::bit_cast<std::uint32_t>(f));
+            for(const auto& v:s.lighting.directions)for(float f:v)directions.push_back(std::bit_cast<std::uint32_t>(f));
             out<<",\"colors\":";array(out,colors);out<<",\"directions\":";array(out,directions);
             out<<",\"sky\":";array(out,float_bits(s.sky));
             out<<",\"shadow_direction\":";array(out,float_bits(s.shadows.direction));
@@ -298,7 +298,7 @@ struct BattleSession::Impl {
     }
     void construct_ui(BattleUiContext context,unsigned frame,const fs::path& stage_report) {
         saved_model_range=false;stage_mask&=~0x18000000u;camera_mask&=~0x18000000u;
-        const int selected=__builtin_bit_cast(std::int32_t, (word(root.bytes,0x81ac)));
+        const int selected=std::bit_cast<std::int32_t>(word(root.bytes,0x81ac));
         if(!stage_report.empty()) {
             if(selected||std::any_of(context.party.counts().begin(),context.party.counts().end(),[](auto n){return n!=0;}))
                 throw std::runtime_error("UI diagnostic requires the first-battle zero selection cache");
@@ -344,6 +344,7 @@ struct BattleSession::Impl {
         copy.secondary_pulse=context.shared.secondary_pulse;copy.secondary_pulse_step=context.shared.secondary_pulse_step;
         copy.cost_pulse=context.shared.cost_pulse;copy.hp_cost_gate=context.shared.hp_cost_gate;
         copy.target_count=context.shared.target_count;
+        copy.pending_action=context.shared.pending_action;
         copy.resource_accumulators=context.shared.resource_accumulators;
         BattleInterface isolated(copy,*ui_definitions,std::make_shared<UiTextureOwner>(UiTextureOwner{atlas}),
             word(root.bytes,0x1c),[](unsigned){});
@@ -373,13 +374,13 @@ struct BattleSession::Impl {
         party_mask&=~0x18000000u;enemy_mask&=~0x18000000u;
         context.release_capture(); //114df8, before the stage selectors.
         const auto setting=[&](unsigned kind,float value) {
-            stage_settings->apply({kind,{__builtin_bit_cast(std::uint32_t, (value)),0,0,0}},projection);
+            stage_settings->apply({kind,{std::bit_cast<std::uint32_t>(value),0,0,0}},projection);
         };
         setting(0x47,110.f);setting(0x4d,64.f);
         std::fenv_t saved;
         if(std::fegetenv(&saved)||std::fesetround(FE_TOWARDZERO))
             throw std::runtime_error("Battle activation rounding unavailable");
-        const float scale=__builtin_bit_cast(float, (word(root.bytes,0x2c)));
+        const float scale=std::bit_cast<float>(word(root.bytes,0x2c));
         volatile float factor=.05f;
         const float step=scale*factor;
         std::fesetenv(&saved);
@@ -406,7 +407,7 @@ struct BattleSession::Impl {
             bool defeat=!hero;
             if(hero) {
                 if(hero->stat_bindings[1].empty())throw std::runtime_error("Battle end-check missing HERO status");
-                const auto status=__builtin_bit_cast(std::int8_t, (hero->stat_bindings[1][0]));
+                const auto status=std::bit_cast<std::int8_t>(hero->stat_bindings[1][0]);
                 defeat=status==6||(status==4&&battle_actor_incapacitated(hero)&&
                     battle_actor_incapacitated(entities[1].actor)&&battle_actor_incapacitated(entities[2].actor));
             }
@@ -424,24 +425,24 @@ struct BattleSession::Impl {
         battle_refresh_entities(root,roster.entities()); //14a508 begins with151290.
         if(combat_end_check()){events.push_back("parent.end-check.return");return;}
         if(auto* hero=roster.entities()[0].actor) {
-            const auto denominator=__builtin_bit_cast(std::int32_t, (word(hero->stat_bindings[0],0)));
+            const auto denominator=std::bit_cast<std::int32_t>(word(hero->stat_bindings[0],0));
             if(!denominator)throw std::runtime_error("Battle music ratio denominator is zero (source trap7)");
             const auto raw=std::uint16_t(hero->storage[0x164]|(unsigned(hero->storage[0x165])<<8));
-            const auto numerator=__builtin_bit_cast(std::int16_t, (raw));
+            const auto numerator=std::bit_cast<std::int16_t>(raw);
             const unsigned alternate=(std::int64_t(numerator)/denominator)>=10;
             if(word(root.bytes,0x81c0)!=alternate) {
                 put(root.bytes,0x81c0,alternate);context.music_variant(alternate!=0);
             }
         }
-        auto owner=__builtin_bit_cast(std::int32_t, (word(root.bytes,0x81ac)));
+        auto owner=std::bit_cast<std::int32_t>(word(root.bytes,0x81ac));
         const auto command=battle_command_pop(root,roster.entities(),owner);
-        put(root.bytes,0x81ac,__builtin_bit_cast(std::uint32_t, (owner)));
+        put(root.bytes,0x81ac,std::bit_cast<std::uint32_t>(owner));
         if(command==0||command==1) {
             party_mask|=0x10000000u;enemy_mask|=0x10000000u;
             previous_parent_callback=parent_callback;
             parent_callback=command==0?ParentCallback::CommandMenu:ParentCallback::CommandAction;
             phase=0;put(root.bytes,0x24,0);
-            put(root.bytes,0x30,command==0?0:__builtin_bit_cast(std::uint32_t, (owner)));
+            put(root.bytes,0x30,command==0?0:std::bit_cast<std::uint32_t>(owner));
             events.push_back(command==0?"parent.command-menu.transition":"parent.command-action.transition");
         } else if(command==3||command==4) {
             throw std::runtime_error("Battle parent special command3/4 transition and effect cleanup are unrecovered");
@@ -501,7 +502,7 @@ struct BattleSession::Impl {
                 if(channels.size()<3)throw std::runtime_error("Native battle-live missing model channels");
                 for(unsigned j=0;j<std::min<std::size_t>(4,channels.size());++j) {
                     if(j)row<<',';row<<'[';
-                    for(unsigned k=0;k<4;++k){if(k)row<<',';row<<__builtin_bit_cast(std::uint32_t, (channels[j][k]));}
+                    for(unsigned k=0;k<4;++k){if(k)row<<',';row<<std::bit_cast<std::uint32_t>(channels[j][k]);}
                     row<<']';
                 }
                 row<<"]}";
@@ -519,7 +520,7 @@ struct BattleSession::Impl {
                <<",\"enemy\":"<<(actor.enemy?"true":"false")
                <<",\"task_hex\":"<<std::quoted(hex(Bytes(actor.storage).first(actor.enemy?0x3e0:0x3d0)))
                <<",\"record_hex\":"<<std::quoted(hex(actor.record))<<",\"channels\":[";
-            bool comma=false;for(const auto& channel:actor.model->animation().channel_outputs())for(float f:channel){if(comma)out<<',';comma=true;out<<__builtin_bit_cast(std::uint32_t, (f));}
+            bool comma=false;for(const auto& channel:actor.model->animation().channel_outputs())for(float f:channel){if(comma)out<<',';comma=true;out<<std::bit_cast<std::uint32_t>(f);}
             out<<"]}";actor_snapshots.push_back(out.str());
         };
         std::string before,after,error;
@@ -537,14 +538,14 @@ struct BattleSession::Impl {
                     events.push_back("parent.command-menu.open");
                 } else if(phase==1||phase==2) {
                     if(phase==1) {
-                        const auto selected=__builtin_bit_cast(std::int32_t, (word(root.bytes,0x81ac)));
+                        const auto selected=std::bit_cast<std::int32_t>(word(root.bytes,0x81ac));
                         if(selected<0||selected>=3||!camera_data)
                             throw std::runtime_error("Battle command menu camera selection ownership");
                         camera->restart_sequence(camera_data->sequence_at_offset(stage,unsigned(selected)+2));
                         ++phase;put(root.bytes,0x24,phase);
                     }
                     //11fc40(layer0,7), then121a58/154418 on the ready list.
-                    const auto selected_ordinal=__builtin_bit_cast(std::int32_t, (ui->words()[0xc8/4]));
+                    const auto selected_ordinal=std::bit_cast<std::int32_t>(ui->words()[0xc8/4]);
                     if(selected_ordinal>=0&&selected_ordinal<3) {
                         const auto ready=battle_ui_ready_party(roster.entities());
                         if(ready[unsigned(selected_ordinal)]>=0) {
@@ -552,10 +553,10 @@ struct BattleSession::Impl {
                             phase=1;put(root.bytes,0x24,phase);
                         }
                     }
-                    switch(__builtin_bit_cast(std::int32_t, (ui->words()[0xa4/4]))) { //11fc70(layer0)
+                    switch(std::bit_cast<std::int32_t>(ui->words()[0xa4/4])) { //11fc70(layer0)
                     case 0:phase=1;put(root.bytes,0x24,phase);break;
                     case 1:case 7:case 9:case 12: {
-                        const auto selected=__builtin_bit_cast(std::int32_t, (word(root.bytes,0x81ac)));
+                        const auto selected=std::bit_cast<std::int32_t>(word(root.bytes,0x81ac));
                         if(selected<0||selected>=3)throw std::runtime_error("Battle command camera selected entity extent");
                         const auto* actor=roster.entities()[unsigned(selected)].actor;
                         if(!actor||!actor->model)
@@ -596,7 +597,7 @@ struct BattleSession::Impl {
             if(camera_mask&0x18000000u)throw std::runtime_error("Battle camera remains masked");
             camera->tick(camera_channels,[&](float value) {
                 stage_settings->apply({0x44,{0x3f800000,0x3ef0a3d7,
-                    __builtin_bit_cast(std::uint32_t, (value)),0x43e10000}},projection);
+                    std::bit_cast<std::uint32_t>(value),0x43e10000}},projection);
             });
             events.push_back("camera.first.return");events.push_back("camera.second.return"); //14f270 empty.
             for(bool enemy:{false,true}) {
@@ -635,8 +636,8 @@ struct BattleSession::Impl {
                     events.push_back((enemy?"enemy.child.":"party.child.")+std::to_string(actor->entity_id)+".return");
                 }
             }
-            const BattleUiFirstContext first_context{3,__builtin_bit_cast(std::int32_t, (word(root.bytes,0x81ac))),roster.entities(),
-                context.variables,&context.tables,&context.party,context.menu_sound};
+            const BattleUiFirstContext first_context{3,std::bit_cast<std::int32_t>(word(root.bytes,0x81ac)),roster.entities(),
+                context.variables,&context.tables,&context.party,context.menu_sound,[&]{return context.random.next();}};
             ui->first_update(ui_resources[0],context.pad,context.input,60,&first_context);
             events.push_back("ui.first.return");
             if(!ui_path.empty())before=battle_ui_update_snapshot(*ui,context.shared,*ui_resources[0],context.variables,context.party,true);
@@ -654,8 +655,8 @@ struct BattleSession::Impl {
                <<",\"complete\":"<<(failure?"false":"true")<<",\"error\":"<<std::quoted(error)
                <<",\"scope\":\"first eligible native parent and child traversal; no resource layout, rendering or combat\",\"root_hex\":"<<std::quoted(hex(root.bytes))
                <<",\"camera\":";array(out,camera->observation());
-            out<<",\"fade\":";array(out,std::array{__builtin_bit_cast(std::uint32_t, (context.fade.current)),__builtin_bit_cast(std::uint32_t, (context.fade.target)),__builtin_bit_cast(std::uint32_t, (context.fade.step)),unsigned(context.fade.enabled),unsigned(context.fade.hold)});
-            out<<",\"projection\":";std::vector<std::uint32_t> projection_bits;for(float f:field_projection_words(projection.current()))projection_bits.push_back(__builtin_bit_cast(std::uint32_t, (f)));array(out,projection_bits);
+            out<<",\"fade\":";array(out,std::array{std::bit_cast<std::uint32_t>(context.fade.current),std::bit_cast<std::uint32_t>(context.fade.target),std::bit_cast<std::uint32_t>(context.fade.step),unsigned(context.fade.enabled),unsigned(context.fade.hold)});
+            out<<",\"projection\":";std::vector<std::uint32_t> projection_bits;for(float f:field_projection_words(projection.current()))projection_bits.push_back(std::bit_cast<std::uint32_t>(f));array(out,projection_bits);
             out<<",\"stage_selector\":"<<stage_settings->selector<<",\"stage_signed_setting\":"<<stage_settings->signed_setting
                <<",\"roster_phases\":["<<party_phase<<','<<enemy_phase<<"],\"events\":[";
             for(unsigned i=0;i<events.size();++i){if(i)out<<',';out<<std::quoted(events[i]);}
@@ -686,7 +687,7 @@ struct BattleSession::Impl {
             if(!a){out<<"null";return;}
             out<<"{\"has_motion\":"<<(a->has_motion()?"true":"false")<<",\"motion\":"<<a->motion()<<",\"pc\":"<<a->animation().pc()<<",\"script_state\":"<<a->animation().script_state()
                <<",\"flags\":"<<a->render_flags<<",\"visible\":"<<(a->visible?"true":"false")<<",\"channels\":[";
-            bool separate=false;for(const auto& v:a->animation().channel_outputs())for(float f:v){if(separate)out<<',';separate=true;out<<__builtin_bit_cast(std::uint32_t, (f));}
+            bool separate=false;for(const auto& v:a->animation().channel_outputs())for(float f:v){if(separate)out<<',';separate=true;out<<std::bit_cast<std::uint32_t>(f);}
             out<<"]}";
         };
         for(const auto& owner:roster.actors()) {
@@ -774,7 +775,7 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
         const auto& filter=impl_->stage_settings->filters[6];
         if(filter&&(*filter)[0]) {
             impl_->filter_renderer->encode(command,color,depth,{(*filter)[1],(*filter)[2],
-                __builtin_bit_cast(std::int32_t, (impl_->stage_settings->signed_setting)),true});
+                std::bit_cast<std::int32_t>(impl_->stage_settings->signed_setting),true});
         }
         return std::function<void()>([]{});
     }};
@@ -817,7 +818,7 @@ void BattleSession::service_loader_after_frame(BattleConstructionContext context
         impl_->roster.construct_party(impl_->decoded,context.variables,context.tables,context.entry,random);
         impl_->load_step.store(5);
         impl_->roster.construct_enemies(impl_->decoded,impl_->formation,impl_->battle_data->formation(impl_->formation),context.tables,
-            __builtin_bit_cast(std::int16_t, (context.entry.parameters().argument2)),random);
+            std::bit_cast<std::int16_t>(context.entry.parameters().argument2),random);
         unsigned alias=0;
         for(const auto& actor:impl_->roster.actors()) {
             const auto bind=[&](const std::unique_ptr<FieldActor>& model,const fs::path& path) {

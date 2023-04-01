@@ -28,6 +28,7 @@ struct BattleUiShared {
     std::int32_t secondary_pulse_step=1; //1fd7d8
     std::int32_t cost_pulse=0,hp_cost_gate=0; //1fd80c,1fd804
     std::uint32_t target_count=0;
+    std::array<std::uint32_t,3> pending_action{};
 };
 struct BattleUiUpdateContext {
     std::span<std::uint8_t> variables;
@@ -48,6 +49,7 @@ struct BattleUiFirstContext {
     const GameDataTables* tables=nullptr;
     const UiPartySelection* party=nullptr;
     std::function<void(unsigned)> sound; //12df80 menu sound ID.
+    std::function<std::uint32_t()> random;
 };
 class BattleInterface {
 public:

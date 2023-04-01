@@ -228,6 +228,72 @@ void attack_submenu_input() {
     ui.first_update(resource,pad,input,60,&context);
     require(words[0xa4/4]==0xffffffff&&words[0xa8/4]==1,"shared countdown also inhibits submenu input");
 }
+void attack_commit_input() {
+    const okage::BattleUiData data(fixture());
+    std::vector<std::uint8_t> empty_ruw(48);put(empty_ruw,12,1);put(empty_ruw,16,6);
+    auto resource=std::make_shared<okage::RuwResource>(empty_ruw);
+    okage::BattleUiShared shared;
+    okage::BattleInterface ui(shared,data,std::make_shared<int>(1),0,[](unsigned){});
+    auto& words=const_cast<std::array<std::uint32_t,0xef0/4>&>(ui.words());
+    const auto xdb=[](bool unit) {
+        const unsigned columns=unit?27:15;
+        std::vector<std::uint8_t> b(48+columns*4+10);
+        put(b,0,0x424458);put(b,4,columns*4);put(b,8,10);put(b,12,1);put(b,16,0xffffffff);
+        put(b,40,columns);put(b,48,5);put(b,48+(unit?1:14)*4,5);
+        if(unit)put(b,56,40);
+        const std::string name=unit?"unit":"item";
+        std::copy(name.begin(),name.end(),b.begin()+48+columns*4);
+        const std::string text="test";std::copy(text.begin(),text.end(),b.begin()+53+columns*4);
+        return b;
+    };
+    const okage::GameDataTables tables(xdb(true),xdb(false));
+    std::vector<std::uint8_t> variables(0xd78);
+    for(unsigned slot:{0u,2u}) {
+        put(variables,0x570+slot*4,3);const auto at=0x5c4+slot*0x50;
+        put(variables,at,0x10001);put(variables,at+4,1);put(variables,at+8,32);
+        variables[at+0x26]=100;
+    }
+    okage::UiPartySelection party;party.refresh(variables,3);
+    std::array<okage::BattleActor,3> actors;
+    std::array<okage::BattleEntityBinding,3> entities{};
+    for(unsigned i:{0u,2u}){entities[i].actor=&actors[i];actors[i].storage[0x21c]=2;actors[i].storage[0x220]=2;}
+    std::vector<unsigned> sounds;unsigned draws=0;
+    okage::BattleUiFirstContext context{3,0,entities,variables,&tables,&party,
+        [&](unsigned id){sounds.push_back(id);},[&]{++draws;return 5u;}};
+    okage::BattleUiPad pad;words[0xe4c/4]=3;words[0xa8/4]=5;
+    words[0xd4/4]=1;shared.formation.groups[0]=7;shared.formation.groups[1]=9;shared.target_count=2;
+    ui.first_update(resource,pad,{},60,&context);
+    require(shared.pending_action==std::array<std::uint32_t,3>{0,9,0}&&words[0xe4c/4]==3,
+        "Attack prepares real group action on neutral callback without committing");
+    require(variables[0x5c4+0x18]==40&&variables[0x5c4+0x26]==100&&draws==0,
+        "target preparation refreshes exactly one character without consuming normal-target RNG");
+    variables[0x5c5]=1;words[0xd4/4]=0;
+    ui.first_update(resource,pad,{},60,&context);ui.first_update(resource,pad,{},60,&context);
+    require(draws==2&&shared.pending_action[1]==9,"status1 targeting consumes live RNG on every neutral callback");
+    const auto before=shared.pending_action;okage::BattleUiPadInput input;input.pressed=0x20;
+    ui.first_update(resource,pad,input,60,&context);
+    require(words[0xa8/4]==2&&draws==2&&sounds.empty()&&shared.pending_action==before,
+        "arg5 cancellation returns before refresh/RNG/action preparation and generic cancel sound");
+    words[0xa8/4]=5;words[0xd0/4]=1;variables[0x5c5]=0;
+    variables[0x5c4+2*0x50+0x26]=70;
+    input={};input.pressed=0x40;
+    ui.first_update(resource,pad,input,60,&context);
+    require(shared.pending_action==std::array<std::uint32_t,3>{1,7,0}&&words[0xe4c/4]==5,
+        "combined Attack publishes action triple and enters real fade state");
+    require(variables[0x5c4+0x26]==101&&variables[0x5c4+2*0x50+0x26]==100&&variables[0x5c4+8]==32,
+        "commit writes charge101 and cached participating charges100 without changing HP");
+    require(words[0xa4/4]==0xffffffff&&words[0xa8/4]==5&&words[0xe8/4]==0&&sounds==std::vector<unsigned>{3},
+        "final commit does not emit internal next20 as a parent command");
+    shared.registry[0]->set_opacity_tween(0,128,0,128);input={};
+    ui.first_update(resource,pad,input,60,&context);
+    require(ui.window(0).opacity()==128&&ui.window(0).word(0x27c)==std::bit_cast<std::uint32_t>(-16.f),
+        "state5 requests source fade without directly advancing opacity");
+    for(unsigned i=0;i<8;++i)shared.registry[0]->advance_clock();
+    ui.first_update(resource,pad,input,60,&context);
+    require(words[0xa4/4]==4&&words[0xa8/4]==4&&words[0xe4c/4]==6,"zero opacity publishes actual action handoff command");
+    ui.first_update(resource,pad,input,60,&context);
+    require(words[0xa4/4]==0xffffffff&&words[0xa8/4]==4,"state6 clears only the one-shot command");
+}
 void open_and_fade_layers() {
     auto b=fixture();const okage::BattleUiData data(b);
     okage::BattleUiShared shared;
@@ -257,7 +323,7 @@ void open_and_fade_layers() {
 
     words[0xe4c/4]=74;
     ui.fade_layer(0,-7);
-    require(ui.window(0).word(0x27c)==__builtin_bit_cast(std::uint32_t, (-7.f))&&
+    require(ui.window(0).word(0x27c)==std::bit_cast<std::uint32_t>(-7.f)&&
             ui.window(0).opacity()==128.f&&ui.window(0).word(0x274)==0x43000000&&
             ui.window(0).word(0x278)==0,
             "Fade starts at opacity128 using source increment and bounds");
@@ -328,7 +394,7 @@ int main(int argc,char** argv) {
             std::cout<<"owned battle interface parsed\n";return 0;
         }
         require(argc==1,"usage: battle-ui-tests [--diagnostic owned-battle-ui.bin | --window-diagnostic owned-battle-ui.bin fresh.json]");
-        first_dispatch();open_and_fade_layers();opening_selection();category_input();attack_submenu_input();
+        first_dispatch();open_and_fade_layers();opening_selection();category_input();attack_submenu_input();attack_commit_input();
         auto b=fixture();const okage::BattleUiData data(b);b.clear();
         require(data.layers()[0].words[4]==0x80000000&&data.layers()[1].words[16]==0x80808080,"owned literal bits changed");
         require(data.layers()[0].stream()==1&&data.layers()[1].type()==3,"host bindings changed");
