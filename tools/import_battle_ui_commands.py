@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Import authored command-panel constants and shared UI defaults.
 
-OKBCMD1\0 is a pointer-free 144-byte artifact. Its 80-byte header is
+OKBCMD2\0 is a pointer-free 384-byte artifact (native retains v1 support). Its 80-byte header is
 <8sII32s32s> (magic, version, payload size, pinned ELF SHA256, payload SHA256).
 The 64-byte payload is three little-endian signed-int tables in source order:
 two words at 0x247ba0, two at 0x247ba8, four at 0x247bb0; then four words
 from each authored shared default at 0x200b78 (metrics) and 0x200b88 (clip).
-The last two records are ELF-authored initial contents only; source pointers
+The v2 suffix adds four RGB triples at247ae8 and three NUL-terminated strings
+from247878/247b18/247b38, each padded to64 bytes.
+The last two default records are ELF-authored initial contents only; source pointers
 refer to the shared globals, and this import does not assert runtime immutability.
 """
 import argparse
@@ -17,10 +19,10 @@ from pathlib import Path
 
 from import_battle_data import ELF_SHA256, ElfImage
 
-MAGIC = b'OKBCMD1\0'
-VERSION = 1
+MAGIC = b'OKBCMD2\0'
+VERSION = 2
 HEADER = struct.Struct('<8sII32s32s')
-PAYLOAD_BYTES = 64
+PAYLOAD_BYTES = 304
 OUTPUT_BYTES = HEADER.size + PAYLOAD_BYTES
 TABLES = ((0x247ba0, 2, 'category_zero'),
           (0x247ba8, 2, 'category_nonzero'),
@@ -53,6 +55,22 @@ def extract_payload(image, source_digest):
                           'sha256': sha256(raw), 'signed_words': list(words),
                           'ownership': 'authored ELF initial contents; runtime global may mutate'}
         payload.extend(raw)
+    palette = image.read(0x247ae8, 48)
+    if len(palette) != 48:
+        raise ValueError('Truncated target palette')
+    payload.extend(palette)
+    target_sources = {'palette': {'vaddr': '0x00247ae8', 'bytes': 48, 'sha256': sha256(palette)}, 'formats': []}
+    for address in (0x247878, 0x247b18, 0x247b38):
+        raw = image.read(address, 64)
+        end = raw.find(b'\0')
+        if len(raw) != 64 or end < 0:
+            raise ValueError('Target format extent/terminator')
+        text = raw[:end]
+        if (address == 0x247878 and b'%' in text) or (address != 0x247878 and (text.count(b'%') != 1 or b'%s' not in text)):
+            raise ValueError('Unrecovered target format conversion')
+        padded = text + bytes(64-len(text))
+        payload.extend(padded)
+        target_sources['formats'].append({'vaddr': hex(address), 'source_string_sha256': sha256(raw[:end+1]), 'padded_sha256': sha256(padded)})
     if len(payload) != PAYLOAD_BYTES:
         raise ValueError('Unexpected command data payload extent')
     # Pin the observed authored values so a different table revision fails closed.
@@ -61,7 +79,7 @@ def extract_payload(image, source_digest):
     if actual != expected:
         raise ValueError('Command tables or UI defaults differ from the supported authored values')
     return bytes(payload), {
-        'schema': 'okage-battle-ui-command-import-v1',
+        'schema': 'okage-battle-ui-command-import-v2',
         'elf_sha256': source_digest.hex(),
         'payload_sha256': sha256(payload),
         'output_bytes': HEADER.size + len(payload),
@@ -70,6 +88,7 @@ def extract_payload(image, source_digest):
             'command_tables': '0x00247ba0, 0x00247ba8, 0x00247bb0',
             'shared_default_references': '0x001a9a48 installs 0x00200b78 and 0x00200b88 in embedded command stream',
         },
+        'target_sources': target_sources,
         'tables': tables,
         'shared_defaults': defaults,
     }

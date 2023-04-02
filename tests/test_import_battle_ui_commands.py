@@ -17,6 +17,9 @@ class Image:
             0x200b78: struct.pack('<4i', 12, 24, 6, 18),
             0x200b88: struct.pack('<4i', -1000, 0, 512, 2048),
         }
+        self.values.setdefault(0x247ae8, struct.pack('<12i', *range(12)))
+        for address, text in ((0x247878, b' '), (0x247b18, b'count:%s'), (0x247b38, b'name:%s')):
+            self.values.setdefault(address, text + bytes(64-len(text)))
         self.reads = []
 
     def read(self, address, size):
@@ -32,9 +35,12 @@ class ImportBattleUiCommandTests(unittest.TestCase):
         digest = bytes.fromhex(importer.ELF_SHA256)
         payload, metadata = importer.extract_payload(image, digest)
         self.assertEqual(image.reads, [(0x247ba0, 8), (0x247ba8, 8),
-                                      (0x247bb0, 16), (0x200b78, 16), (0x200b88, 16)])
-        self.assertEqual(len(payload), 64)
-        self.assertEqual(struct.unpack('<16i', payload),
+                                      (0x247bb0, 16), (0x200b78, 16), (0x200b88, 16),
+                                      (0x247ae8,48), (0x247878,64), (0x247b18,64), (0x247b38,64)])
+        self.assertEqual(len(payload), 304)
+        self.assertEqual(struct.unpack('<12i', payload[64:112]), tuple(range(12)))
+        self.assertEqual(payload[112:176], b' '+bytes(63))
+        self.assertEqual(struct.unpack('<16i', payload[:64]),
                          (5, 19, 20, 6, 2, 0, 4, 6, 12, 24, 6, 18, -1000, 0, 512, 2048))
         self.assertEqual(metadata['shared_defaults']['metrics']['ownership'],
                          'authored ELF initial contents; runtime global may mutate')
@@ -46,6 +52,18 @@ class ImportBattleUiCommandTests(unittest.TestCase):
             importer.extract_payload(Image(values), bytes(32))
         with self.assertRaises(ValueError):
             importer.extract_payload(Image(), b'bad')
+
+    def test_target_format_rejects_unknown_conversion_and_preserves_only_string(self):
+        values = Image().values.copy()
+        values[0x247b18] = b'%d' + bytes(62)
+        with self.assertRaisesRegex(ValueError, 'conversion'):
+            importer.extract_payload(Image(values), bytes(32))
+        values[0x247b18] = b'%s\0' + b'X'*61
+        payload, _ = importer.extract_payload(Image(values), bytes(32))
+        self.assertEqual(payload[176:240], b'%s'+bytes(62))
+        values[0x247b18] = b'X'*64
+        with self.assertRaisesRegex(ValueError, 'terminator'):
+            importer.extract_payload(Image(values), bytes(32))
 
     def test_import_elf_hash_pinned(self):
         with self.assertRaisesRegex(ValueError, 'SHA256'):
