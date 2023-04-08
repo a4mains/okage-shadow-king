@@ -564,8 +564,35 @@ struct BattleSession::Impl {
                         camera->select_command_camera(unsigned(selected),actor->model->animation().value(1));
                         break;
                     }
-                    case 4:
-                        throw std::runtime_error("Battle command menu completion151c34 action handoff is unrecovered");
+                    case 4: {
+                        put(root.bytes,0x81a8,1);
+                        party_mask&=~0x10000000u;enemy_mask&=~0x10000000u;
+                        battle_refresh_entities(root,roster.entities());
+                        ui->reveal_layer(1,16);
+                        context.shared.hud.reset_type3(*ui_resources[0]);
+                        if(!after_intro_sequence)throw std::runtime_error("Missing owned return-to-combat camera sequence");
+                        camera->restart_sequence(*after_intro_sequence);
+                        put(root.bytes,0x34,0);phase=0;put(root.bytes,0x24,0);
+                        parent_callback=previous_parent_callback;
+                        const auto& action=context.shared.pending_action;
+                        if(action[0]!=11) {
+                            const auto selected=std::bit_cast<std::int32_t>(word(root.bytes,0x81ac));
+                            if(selected<0||std::size_t(selected)>=roster.entities().size()||
+                               !roster.entities()[unsigned(selected)].actor)
+                                throw std::runtime_error("Battle command handoff selected actor ownership");
+                            auto& storage=roster.entities()[unsigned(selected)].actor->storage;
+                            const auto half=[&](unsigned at,std::uint32_t value) {
+                                if(at>=storage.size()||storage.size()-at<2)
+                                    throw std::runtime_error("Battle action descriptor extent");
+                                storage[at]=std::uint8_t(value);storage[at+1]=std::uint8_t(value>>8);
+                            };
+                            half(0x220,3);
+                            for(unsigned j=0;j<3;++j)half(0x222+j*2,action[j]);
+                            if(action[0]==2)half(0x226,202);
+                        }
+                        events.push_back("parent.command-menu.action-handoff");
+                        break;
+                    }
                     default:break;
                     }
                     events.push_back("parent.command-menu.selection");
