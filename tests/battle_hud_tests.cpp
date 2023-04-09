@@ -8,6 +8,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <tuple>
 
 namespace {
 void require(bool v,const char* what){if(!v)throw std::runtime_error(what);}
@@ -19,7 +20,7 @@ std::vector<std::uint8_t> fixture() {
     const std::string hash="2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5";
     for(unsigned i=0;i<32;++i)b[16+i]=std::stoul(hash.substr(i*2,2),nullptr,16);
     for(unsigned i=0;i<18;++i)put(b,80+i*4,i+1);
-    const auto ratio=__builtin_bit_cast(std::uint64_t, (0.1));put(b,152,std::uint32_t(ratio));put(b,156,std::uint32_t(ratio>>32));
+    const auto ratio=std::bit_cast<std::uint64_t>(0.1);put(b,152,std::uint32_t(ratio));put(b,156,std::uint32_t(ratio>>32));
     unsigned at=160;
     for(const std::string s:{"\\f[1]\\c[%d]00\\c[0]0","%03d","\\f[1]\\c[%d]%s\\c[0]%s"}) {
         std::copy(s.begin(),s.end(),b.begin()+at);at+=64;
@@ -92,8 +93,8 @@ std::vector<std::uint8_t> type3_update_ruw() {
 std::vector<std::uint8_t> command_ruw() {
     std::vector<std::uint8_t> b(48);put(b,12,1);put(b,16,6);
     for(unsigned group=0;group<6;++group) {
-        put(b,24+group*4,64);
-        for(unsigned id=0;id<64;++id) {
+        put(b,24+group*4,80);
+        for(unsigned id=0;id<80;++id) {
             const unsigned at=b.size();b.resize(at+68);put(b,at+8,0x80203040);put(b,at+12,0x80506070);
             put(b,at+16,0x41);put(b,at+20,1);put(b,at+32,id==53||id==54?5:0xffffffff);
             put(b,at+48,123);put(b,at+52,100);put(b,at+56,100);put(b,at+60,id);
@@ -255,6 +256,80 @@ void command_checks() {
     h.initialize_type2(r,data,tables,vars,party,3,0);
     require(h.type2_work[0]==0&&!h.type2_flag_a&&!h.type2_flag_b&&h.type2_enabled==1,"constructor retains wrapper writes");
 }
+void command_state_one_checks() {
+    okage::RuwResource r(command_ruw());okage::BattleHud hud;
+    r.set_class_rgba(2,-1,{-3000,-3000,-3000,73});
+    r.set_class_rgba(3,1,{-3000,-3000,-3000,91});
+    r.set_class_rgba(3,2,{-3000,-3000,-3000,92});
+    r.set_position(2,22,-3000,123);r.set_position(2,23,-3000,124);
+    r.set_position(2,52,-3000,125);r.set_position(2,34,-3000,126);
+    hud.display_command_state_one(r);
+    for(unsigned group_id:{2u,3u})for(const auto& widget:r.widgets()[group_id]) {
+        const auto cls=std::bit_cast<std::int32_t>(widget.words[8]);
+        if((group_id==2&&cls==-1)||(group_id==3&&(cls==1||cls==2))) {
+            require(widget.runtime&&widget.runtime->words[4]>>24==0,
+                    "command state1 clears only the authored classes");
+        }
+    }
+    for(const auto [id,x,y]:{std::tuple{22,474,123},std::tuple{23,490,124},
+                             std::tuple{52,506,125},std::tuple{34,526,126}}) {
+        require(r.widget(2,id).runtime->words[6]==std::uint32_t(x)&&
+                r.widget(2,id).runtime->words[7]==std::uint32_t(y),
+                "1626d8 position preserves Y and writes authored X");
+    }
+    require(r.widget(2,14).runtime->words[0]==28,"1626d8 updates widget14 runtime selector");
+}
+void target_menu_one_checks() {
+    okage::RuwResource r(command_ruw());okage::BattleHud hud;
+    std::vector<std::uint8_t> vars(0xd78);
+    hud.type2_enabled=1;hud.row_flags.fill(0);hud.flag_a8=0;
+    hud.update_target_menu_one(r,vars,3,0,true,1,0,0);
+    require(hud.flag_a8==1,"15dec0 wraps and advances its command animation timer");
+    require(hud.row_flags[3]==0x3f7ae148u,
+            "15dec0 uses the owned 0.98 target-row increment");
+    require(r.widget(3,14).runtime->words[6]==8&&
+            r.widget(3,14).runtime->words[7]==131,
+            "single-party target1 geometry adds source deltas");
+    require(r.widget(2,2).runtime->words[7]==131&&
+            r.widget(2,3).runtime->words[7]==131,
+            "selected target0 geometry adds source deltas to both rows");
+    require(r.widget(2,9).runtime->words[6]==26&&
+            r.widget(2,9).runtime->words[8]==108,
+            "160f18 applies extent pulse then authored selector position");
+    require(r.widget(2,11).runtime->words[4]>>24==124,
+            "160f18 subtracts four from selector label alpha");
+    rejects([&]{hud.update_target_menu_one(r,vars,4,0,true,1,0,0);});
+    rejects([&]{hud.update_target_menu_one(r,vars,3,4,true,1,0,0);});
+}
+void target_menu_two_motion_checks() {
+    okage::RuwResource r(command_ruw());okage::BattleHud hud;
+    hud.flag_a0=std::bit_cast<std::uint32_t>(1.96f);
+    const auto clamp=hud.update_target_menu_two_motion(r,1);
+    require(clamp==2,"15eaf8 returns its first position's actual clamp bits");
+    require(r.widget(3,3).runtime->words[7]==0x144&&r.widget(3,14).runtime->words[7]==124,
+            "15eaf8 moves by CVT.W.S of the old float lane");
+    require(r.widget(3,39).runtime->words[7]==125&&r.widget(3,46).runtime->words[7]==125,
+            "15eaf8 applies the incremented lane to the opposite target pair");
+    require(hud.flag_a0==std::bit_cast<std::uint32_t>(2.94f),
+            "15eaf8 stores its rounded binary32 lane after the old-value movement");
+    hud.position_target_menu_two(r,1,1,0,false,2);
+    require(r.widget(3,15).runtime->words[6]==161&&r.widget(3,15).runtime->words[7]==327,
+            "15dc40 option1 keeps its source zero Y delta in bank1 mode1");
+    hud.position_target_menu_two(r,1,0,0,false,2);
+    require(r.widget(3,15).runtime->words[6]==151&&r.widget(3,15).runtime->words[7]==327,
+            "15dc40 option1 preserves its Y coordinate in both bank1 modes");
+    hud.flag_a0=0;hud.target_pulse=0;hud.target_pulse_step=1;hud.selection_state=0;
+    r.set_position(3,5,123,321);
+    r.add_extent(3,5,256,okage::RuwResource::preserve_component,
+                 okage::RuwResource::preserve_component,okage::RuwResource::preserve_component);
+    r.add_extent(3,5,okage::RuwResource::preserve_component,0x40,
+                 okage::RuwResource::preserve_component,0x4c);
+    require(hud.update_target_menu_two_rows(r,1),"1611b0 continues only after all three clamps");
+    require(hud.target_pulse==40&&hud.target_pulse_step==2&&hud.selection_state==2,
+            "161fe8 applies the lower pulse edge and raises the shared countdown to2");
+    require(r.widget(3,21).runtime->words[4]>>24==40,
+            "161fe8 stores the pulse alpha at the zero-pulse owner");
+}
 void owned_checks(const okage::BattleHudData& data,const okage::GameDataTables& tables,okage::Bytes raw,std::vector<std::uint8_t> vars) {
     okage::RuwResource r(raw);okage::BattleHud h;okage::UiPartySelection party;
     // This independent branch exercise uses native variables, not reference RAM.
@@ -309,7 +384,7 @@ int main(int argc,char** argv) {
         require(data2.number(12)==data.number(12),"v2 preserves constructor formatting");
         require(data2.number2(0)==start+"0\\c[0]0"&&data2.number2(-100)==data2.number2(0),"two-digit nonpositive");
         require(data2.number2(1)==start+"0\\c[0]1"&&data2.number2(12)==start+"\\c[0]12"&&data2.number2(999)==start+"\\c[0]99","two-digit source format/clamp");
-        type3_checks();type3_update_checks();command_checks();
+        type3_checks();type3_update_checks();command_checks();command_state_one_checks();target_menu_one_checks();target_menu_two_motion_checks();
         for(unsigned n:{0u,8u,79u,351u,353u}){b=fixture();b.resize(n);rejects([&]{okage::BattleHudData bad(b);});}
         for(unsigned at:{0u,8u,12u,16u}){b=fixture();put(b,at,0);rejects([&]{okage::BattleHudData bad(b);});}
         b=fixture();put(b,156,0x7ff00000);rejects([&]{okage::BattleHudData bad(b);});

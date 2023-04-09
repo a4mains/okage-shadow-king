@@ -19,7 +19,7 @@ std::uint32_t word(Bytes b,unsigned at) {
     return unsigned(b[at])|(unsigned(b[at+1])<<8)|(unsigned(b[at+2])<<16)|(unsigned(b[at+3])<<24);
 }
 int half(Bytes b,unsigned at) {
-    return __builtin_bit_cast(std::int16_t, (std::uint16_t(unsigned(b[at])|(unsigned(b[at+1])<<8))));
+    return std::bit_cast<std::int16_t>(std::uint16_t(unsigned(b[at])|(unsigned(b[at+1])<<8)));
 }
 struct Rounding {
     int old=std::fegetround();
@@ -53,8 +53,8 @@ template<std::size_t N> std::string_view text(const std::array<char,N>& value) {
 void alpha(RuwResource& r,unsigned group,int id,int value) {r.set_rgba(group,id,{keep,keep,keep,value});}
 void color(RuwResource& r,unsigned group,int id,std::array<int,3> rgb) {r.set_rgba(group,id,{rgb[0],rgb[1],rgb[2],keep});}
 void icons(RuwResource& r,const BattleHudData& data,unsigned row,Bytes c,bool selected) {
-    const int category=__builtin_bit_cast(std::int8_t, (c[0])),first=half(c,0x4a),
-        second=__builtin_bit_cast(std::int8_t, (c[1])),third=half(c,0x32);
+    const int category=std::bit_cast<std::int8_t>(c[0]),first=half(c,0x4a),
+        second=std::bit_cast<std::int8_t>(c[1]),third=half(c,0x32);
     std::array<int,3> rgb{195,191,215};int icon=38;
     if(!first) {if(category==6)rgb={0,0,0};}
     else {
@@ -85,6 +85,32 @@ void row_visibility(RuwResource& r,unsigned row,int value) {
     for(unsigned id:{42+row,45+row})r.set_secondary_rgba(2,id,{keep,keep,keep,value});
     for(unsigned id:{14+row*3,15+row*3,16+row*3})alpha(r,5,id,value);
 }
+std::int32_t signed_word(std::uint32_t value) {return std::bit_cast<std::int32_t>(value);}
+std::uint32_t add_position_limited(RuwResource& r,unsigned group,int id,
+        std::int32_t dx,std::int32_t dy,std::int32_t limit_x,std::int32_t limit_y) {
+    return r.add_position(group,id,dx,dy,limit_x,limit_y);
+}
+void source_float_step(std::uint32_t& bits) {
+    const auto current=std::bit_cast<float>(bits);
+    if(!std::isfinite(current)||std::fpclassify(current)==FP_SUBNORMAL)
+        throw std::runtime_error("HUD target animation float outside recovered scope");
+    volatile double sum;
+    {
+        Rounding nearest(FE_TONEAREST);
+        sum=double(current)+std::bit_cast<double>(0x3fef5c28f5c28f5cULL); // owned DAT_00247870
+    }
+    if(!std::isfinite(double(sum))||std::abs(double(sum))>std::numeric_limits<float>::max())
+        throw std::runtime_error("HUD target animation conversion overflow");
+    float next;
+    {
+        Rounding nearest(FE_TONEAREST);
+        volatile float narrowed=static_cast<float>(sum);
+        next=narrowed;
+    }
+    if(!std::isfinite(next)||std::fpclassify(next)==FP_SUBNORMAL)
+        throw std::runtime_error("HUD target animation result outside recovered scope");
+    bits=std::bit_cast<std::uint32_t>(next);
+}
 }
 BattleHudData::BattleHudData(Bytes b) {
     constexpr std::array<std::uint8_t,6> magic={'O','K','B','H','U','D'};
@@ -97,8 +123,8 @@ BattleHudData::BattleHudData(Bytes b) {
     for(unsigned i=0;i<64;++i)if(hash[i]!=digits[(b[16+i/2]>>(i%2?0:4))&15])
         throw std::runtime_error("Unsupported battle HUD source revision");
     for(unsigned row=0;row<6;++row)for(unsigned col=0;col<3;++col)
-        palette_[row][col]=__builtin_bit_cast(std::int32_t, (word(b,80+row*12+col*4)));
-    warning_fraction_=__builtin_bit_cast(double, (std::uint64_t(word(b,152))|(std::uint64_t(word(b,156))<<32)));
+        palette_[row][col]=std::bit_cast<std::int32_t>(word(b,80+row*12+col*4));
+    warning_fraction_=std::bit_cast<double>(std::uint64_t(word(b,152))|(std::uint64_t(word(b,156))<<32));
     if(!std::isfinite(warning_fraction_)||warning_fraction_<0||warning_fraction_>1)
         throw std::runtime_error("HUD warning threshold outside recovered scope");
     if(v2)short_formats_.emplace();
@@ -157,7 +183,7 @@ void BattleHud::refresh(RuwResource& r,const BattleHudData& data,const GameDataT
             copied_unit=tables.ui_unit(unit);
             if(slot<0||slot>=8)continue;
             const auto c=vars.subspan(0x5c4+unsigned(slot)*0x50,0x50);
-            const auto hp=__builtin_bit_cast(std::int32_t, (word(c,8)));const int max=half(c,0x18),charge=half(c,0x26);
+            const auto hp=std::bit_cast<std::int32_t>(word(c,8));const int max=half(c,0x18),charge=half(c,0x26);
             if(!max)throw std::runtime_error("HUD zero maximum HP division is unrecovered");
             float hp_fraction,charge_fraction;
             {
@@ -190,7 +216,7 @@ void BattleHud::refresh(RuwResource& r,const BattleHudData& data,const GameDataT
             std::copy(name.begin(),name.end(),padded_name.begin());(void)text(padded_name);
             icons(r,data,row,c,selected==int(row));row_visibility(r,row,128);
             if(!selection_state)selection_state=2;
-            alpha(r,2,35+row,selected==int(row)?__builtin_bit_cast(std::int32_t, (selected_alpha)):128);
+            alpha(r,2,35+row,selected==int(row)?std::bit_cast<std::int32_t>(selected_alpha):128);
         }
         const std::array args{std::string(text(padded_name))};const std::array<std::string_view,1> spec{"%s"};
         copy(formatted,format_reached(tables.system_message(0x90),args,spec));
@@ -222,9 +248,9 @@ void BattleHud::refresh_command_costs(RuwResource& r,const BattleHudData& data,c
     const int slot=party.at(3,selected);if(slot<0||slot>=8)return;
     if(vars.size()<0xd78)throw std::runtime_error("HUD shared variable extent");
     const auto c=vars.subspan(0x5c4+unsigned(slot)*0x50,0x50);
-    const auto subtract=[](std::int32_t a,std::int32_t b){return __builtin_bit_cast(std::int32_t, (std::uint32_t(a)-std::uint32_t(b)));};
-    const auto resources=std::min(__builtin_bit_cast(std::int32_t, (word(vars,0x590))),99);
-    const auto maximum=std::min(__builtin_bit_cast(std::int32_t, (word(vars,0x594))),99);
+    const auto subtract=[](std::int32_t a,std::int32_t b){return std::bit_cast<std::int32_t>(std::uint32_t(a)-std::uint32_t(b));};
+    const auto resources=std::min(std::bit_cast<std::int32_t>(word(vars,0x590)),99);
+    const auto maximum=std::min(std::bit_cast<std::int32_t>(word(vars,0x594)),99);
     const auto format=[&](bool resource,std::int32_t current,std::int32_t max) {
         copy(current_number,resource?data.number2(current):data.number(current));
         copy(maximum_number,resource?data.number2(max):data.number(max));
@@ -242,7 +268,7 @@ void BattleHud::refresh_command_costs(RuwResource& r,const BattleHudData& data,c
         // Source bltz15ef78 preserves the previous resource colors.
     } else paint(true,{255,255,255});
     r.set_text(2,41,text(formatted));r.set_text(4,26,text(formatted));
-    const auto hp=__builtin_bit_cast(std::int32_t, (word(c,8)));const auto max_hp=half(c,0x18);
+    const auto hp=std::bit_cast<std::int32_t>(word(c,8));const auto max_hp=half(c,0x18);
     format(false,hp,max_hp);
     if(kind==0&&pulse%120<60&&cost>0&&subtract(hp,hp_gate)>0) {
         format(false,subtract(hp,cost),max_hp);paint(false,{230,160,40});
@@ -270,7 +296,7 @@ void BattleHud::refresh_command_party(RuwResource& r,const BattleHudData& data,c
         }
     }
     const int slot=party.at(3,selected);
-    const auto unit=__builtin_bit_cast(std::int32_t, (std::uint32_t(slot)+170u));
+    const auto unit=std::bit_cast<std::int32_t>(std::uint32_t(slot)+170u);
     copied_unit=tables.ui_unit(unit);
     const std::array<std::string,0> no_args{};const std::array<std::string_view,0> no_spec{};
     copy(padded_name,format_reached(tables.system_message(0x7e),no_args,no_spec));
@@ -292,15 +318,239 @@ void BattleHud::refresh_command_party(RuwResource& r,const BattleHudData& data,c
         const std::array<std::string_view,2> spec{"%s","%s"};
         copy(formatted,format_reached(tables.system_message(resource?0x8f:0x55),args,spec));
     };
-    format(true,std::min(__builtin_bit_cast(std::int32_t, (word(vars,0x590))),99),
-                std::min(__builtin_bit_cast(std::int32_t, (word(vars,0x594))),99));
+    format(true,std::min(std::bit_cast<std::int32_t>(word(vars,0x590)),99),
+                std::min(std::bit_cast<std::int32_t>(word(vars,0x594)),99));
     color(r,2,41,{255,255,255});color(r,4,26,{255,255,255});
     r.set_text(2,41,text(formatted));r.set_text(4,26,text(formatted));
     if(slot<0||slot>=8)return;
     const auto c=vars.subspan(0x5c4+unsigned(slot)*0x50,0x50);
-    format(false,__builtin_bit_cast(std::int32_t, (word(c,8))),half(c,0x18));
+    format(false,std::bit_cast<std::int32_t>(word(c,8)),half(c,0x18));
     r.set_text(2,49,text(formatted));r.set_text(4,25,text(formatted));
     color(r,2,49,{255,255,255});color(r,4,25,{255,255,255});
+}
+void BattleHud::display_command_state_one(RuwResource& r) {
+    constexpr auto keep=RuwResource::preserve_component;
+    r.set_class_rgba(2,-1,{keep,keep,keep,0});
+    r.set_class_rgba(3,1,{keep,keep,keep,0});
+    r.set_class_rgba(3,2,{keep,keep,keep,0});
+    r.set_position(2,22,474,keep);
+    r.set_position(2,23,490,keep);
+    r.set_position(2,52,506,keep);
+    r.set_position(2,34,526,keep);
+    r.set_runtime_word0(2,14,28);
+}
+void BattleHud::update_target_menu_one(RuwResource& r,Bytes variables,unsigned mode,
+        int category,bool selected_action,unsigned available,std::uint8_t bank1_mode,
+        std::int16_t bank7_state) {
+    if(mode!=3)throw std::runtime_error("Target menu1 supports the reached non-demo game mode only");
+    if(variables.size()<0xd78)throw std::runtime_error("Target menu1 variable extent");
+    if(category<0||category>3)throw std::runtime_error("Target menu1 category extent");
+    std::int32_t title_y=4,title_height=5,offset=-4;
+    if(bank1_mode==1)title_y=14;
+    if(available<2&&selected_action&&category==0) {
+        title_height=8;title_y=14;offset=0;
+    }
+    r.add_class_rgba(2,5,{keep,keep,keep,128});
+    add_position_limited(r,3,2,8,keep,0x8e,keep);
+    add_position_limited(r,3,14,8,8,title_height+0x93,0x147);
+    add_position_limited(r,3,15,8,keep,title_y+0x93,keep);
+    r.add_rgba(3,2,{keep,keep,keep,4});
+    r.add_rgba(3,39,{keep,keep,keep,-128});
+    r.add_rgba(3,46,{keep,keep,keep,-128});
+    r.add_rgba(3,36,{keep,keep,keep,4});
+    const auto position_result=add_position_limited(r,3,3,8,keep,0x8e,keep);
+    if(position_result==0) {
+        add_position_limited(r,3,39,keep,4,keep,0x157);
+        add_position_limited(r,3,46,keep,4,keep,0x159);
+    } else {
+        add_position_limited(r,3,3,keep,4,keep,0x15b);
+        add_position_limited(r,3,15,keep,4,keep,0x15f);
+        add_position_limited(r,3,39,-4,4,0x8e,0x173);
+        add_position_limited(r,3,46,4,4,offset+0xa2,0x175);
+        if(available>=2&&selected_action&&category==0) {
+            r.add_rgba(3,39,{keep,keep,keep,128});
+            r.add_rgba(3,46,{keep,keep,keep,128});
+        }
+        if(bank7_state==0&&type2_enabled==1&&category==3) {
+            r.add_rgba(3,39,{keep,keep,keep,128});
+            r.add_rgba(3,46,{keep,keep,keep,128});
+        }
+        if(r.add_rgba(3,14,{keep,keep,keep,4})!=0)
+            r.add_rgba(3,15,{keep,keep,keep,4});
+        r.add_rgba(3,3,{keep,keep,keep,4});
+    }
+
+    ++flag_a8;
+    constexpr std::array<std::array<int,2>,4> pair_ids{{{{2,3}},{{0,1}},{{4,5}},{{6,7}}}};
+    constexpr std::array<std::array<int,2>,4> selected_y{{{{8,8}},{{-8,-8}},{{-8,-8}},{{-8,-8}}}};
+    constexpr std::array<std::array<int,2>,4> selected_height{{{{0x143,0x146}},{{0x142,0x144}},{{0x142,0x145}},{{0x143,0x146}}}};
+    for(unsigned row=0;row<4;++row) {
+        const auto a=pair_ids[row][0],b=pair_ids[row][1];
+        if(int(row)==category) {
+            add_position_limited(r,2,a,keep,selected_y[row][0],0x1a,selected_height[row][0]);
+            add_position_limited(r,2,b,keep,selected_y[row][1],0x1a,selected_height[row][1]);
+        } else {
+            const auto threshold=std::int32_t((3-int(row))*4);
+            if(signed_word(flag_a8)<threshold)continue;
+            const auto value=std::bit_cast<float>(row_flags[row]);
+            if(!std::isfinite(value)||std::fpclassify(value)==FP_SUBNORMAL||
+               value>=2147483648.0f||value<-2147483648.0f)
+                throw std::runtime_error("HUD target row conversion outside recovered CVT.W.S scope");
+            std::int32_t y;
+            {
+                Rounding toward_zero(FE_TOWARDZERO);
+                volatile auto converted=static_cast<std::int32_t>(value);
+                y=converted;
+            }
+            add_position_limited(r,2,a,keep,y,keep,keep);
+            add_position_limited(r,2,b,keep,y,keep,keep);
+            r.add_rgba(2,a,{keep,keep,keep,-8});r.add_rgba(2,b,{keep,keep,keep,-8});
+            source_float_step(row_flags[row]);
+        }
+    }
+
+    update_target_menu_selector(r);
+}
+void BattleHud::update_target_menu_selector(RuwResource& r) {
+    //160f18: extent pulse precedes the clamped position and its gated style.
+    r.add_extent(2,9,8,keep,0x24d,keep);
+    if(add_position_limited(r,2,9,-8,keep,0x1a,keep)!=0) {
+        r.add_class_rgba(2,4,{keep,keep,keep,8});
+        r.add_rgba(2,11,{keep,keep,keep,-4});
+    }
+}
+std::uint32_t BattleHud::update_target_menu_two_motion(RuwResource& r,int category) {
+    if(category<0||category>3)throw std::runtime_error("Target menu2 category extent");
+    const auto old_value=std::bit_cast<float>(flag_a0); // persistent DAT_001fd8a0
+    if(!std::isfinite(old_value)||std::fpclassify(old_value)==FP_SUBNORMAL||
+       old_value>=2147483648.0f||old_value<-2147483648.0f)
+        throw std::runtime_error("HUD menu2 CVT.W.S value outside reached range");
+    std::int32_t old_integer;
+    {
+        Rounding toward_zero(FE_TOWARDZERO);
+        volatile auto converted=static_cast<std::int32_t>(old_value);
+        old_integer=converted;
+    }
+    std::uint32_t first_clamp{};
+    if(category==2) {
+        first_clamp=add_position_limited(r,3,39,keep,-4,keep,0x142);
+        add_position_limited(r,3,46,keep,-4,keep,0x144);
+        add_position_limited(r,3,2,keep,old_integer,keep,keep);
+        add_position_limited(r,3,3,keep,old_integer,keep,keep);
+        add_position_limited(r,3,14,keep,-4,keep,0x147);
+        add_position_limited(r,3,15,keep,old_integer,keep,keep);
+        for(int id:{2,3,14,15})r.add_rgba(3,id,{keep,keep,keep,-8});
+        source_float_step(flag_a0);
+        return first_clamp;
+    }
+    first_clamp=add_position_limited(r,3,category+2,keep,-4,keep,0x144);
+    add_position_limited(r,3,3-category,keep,old_integer,keep,keep);
+    add_position_limited(r,3,category+14,keep,-4,keep,0x147);
+    add_position_limited(r,3,15-category,keep,old_integer,keep,keep);
+    for(int id:{3-category,15-category})r.add_rgba(3,id,{keep,keep,keep,-8});
+    source_float_step(flag_a0);
+    const auto next=std::bit_cast<float>(flag_a0);
+    if(!std::isfinite(next)||std::fpclassify(next)==FP_SUBNORMAL||
+       next>=2147483648.0f||next<-2147483648.0f)
+        throw std::runtime_error("HUD menu2 next CVT.W.S value outside reached range");
+    std::int32_t next_integer;
+    {
+        Rounding toward_zero(FE_TOWARDZERO);
+        volatile auto converted=static_cast<std::int32_t>(next);
+        next_integer=converted;
+    }
+    add_position_limited(r,3,39,keep,next_integer,keep,keep);
+    add_position_limited(r,3,46,keep,next_integer,keep,keep);
+    return first_clamp;
+}
+bool BattleHud::update_target_menu_two_rows(RuwResource& r,int category) {
+    if(category<0||category>3)throw std::runtime_error("Target menu2 category extent");
+    r.add_rgba(3,5,{keep,keep,keep,4});
+    r.add_rgba(3,12,{keep,keep,keep,4});
+    r.set_rgba(3,5,{0x28,0x32,0x55,keep});
+    r.add_rgba(3,38,{keep,keep,keep,-4});
+    r.add_rgba(3,8,{keep,keep,keep,4});
+    const int y_limit=category==0?0x144:0x142;
+    if(add_position_limited(r,3,5,8,8,0x101,y_limit)==0)return false;
+    if(r.add_extent(3,5,0x10,keep,0x165,keep)==0)return false;
+    if(r.add_extent(3,5,keep,8,keep,0x4c)==0)return false;
+    if(command_state_timer!=0)
+        throw std::runtime_error("Target menu2 nonzero 1fd7f8 pulse styling is unrecovered");
+    r.add_class_rgba(3,0,{keep,keep,keep,4});
+    target_pulse+=std::uint32_t(target_pulse_step);
+    if(std::bit_cast<std::int32_t>(target_pulse)>0x80) {
+        target_pulse=0x80;target_pulse_step=-2;
+    }
+    if(std::bit_cast<std::int32_t>(target_pulse)<0x28) {
+        target_pulse=0x28;target_pulse_step=2;
+    }
+    if(selection_state==0)selection_state=2;
+    r.set_rgba(3,21,{keep,keep,keep,std::bit_cast<std::int32_t>(target_pulse)});
+    for(int row=0;row<4;++row) {
+        const auto y=0x14a+row*0x12;
+        add_position_limited(r,3,25+row,keep,4,keep,y);
+        add_position_limited(r,3,30+row,keep,4,keep,y+6);
+        add_position_limited(r,3,68+row,keep,4,keep,y+6);
+        if(row<3) {
+            const auto row_y=0x148+row*0x12;
+            for(int id:{47+row*3,48+row*3,49+row*3,56+row})
+                add_position_limited(r,3,id,keep,4,keep,row_y);
+            for(int id:{30+row,68+row,59+row*2,60+row*2})
+                add_position_limited(r,3,id,keep,4,keep,row_y+6);
+        }
+    }
+    add_position_limited(r,3,16,keep,4,keep,0x17d);
+    add_position_limited(r,3,18,keep,4,keep,0x180);
+    add_position_limited(r,3,20,keep,4,keep,0x186);
+    add_position_limited(r,3,67,keep,4,keep,0x186);
+    r.set_position(3,20,0x18e,keep);
+    r.add_rgba(3,20,{keep,keep,keep,4});
+    return true;
+}
+void BattleHud::update_target_menu_two_animation(RuwResource& r,int category) {
+    if(category<0||category>3)throw std::runtime_error("Target menu2 animation category extent");
+    r.add_class_rgba(2,5,{keep,keep,keep,128});
+    ++flag_a8;
+    constexpr std::array<std::array<int,2>,4> pair_ids{{{{2,3}},{{0,1}},{{4,5}},{{6,7}}}};
+    for(unsigned row=0;row<4;++row) {
+        const auto [a,b]=pair_ids[row];
+        if(int(row)==category) {
+            constexpr std::array<int,4> selected_y{8,-8,-8,-8};
+            constexpr std::array<int,4> selected_height_a{0x143,0x142,0x142,0x143};
+            constexpr std::array<int,4> selected_height_b{0x146,0x144,0x145,0x146};
+            add_position_limited(r,2,a,keep,selected_y[row],0x1a,selected_height_a[row]);
+            add_position_limited(r,2,b,keep,selected_y[row],0x1a,selected_height_b[row]);
+        } else {
+            if(std::bit_cast<std::int32_t>(flag_a8)<(3-int(row))*4)continue;
+            const auto value=std::bit_cast<float>(row_flags[row]);
+            if(!std::isfinite(value)||std::fpclassify(value)==FP_SUBNORMAL||
+               value>=2147483648.0f||value<-2147483648.0f)
+                throw std::runtime_error("HUD target row conversion outside recovered CVT.W.S scope");
+            std::int32_t y;
+            {Rounding toward_zero(FE_TOWARDZERO);volatile auto converted=static_cast<std::int32_t>(value);y=converted;}
+            add_position_limited(r,2,a,keep,y,keep,keep);add_position_limited(r,2,b,keep,y,keep,keep);
+            r.add_rgba(2,a,{keep,keep,keep,-8});r.add_rgba(2,b,{keep,keep,keep,-8});
+            source_float_step(row_flags[row]);
+        }
+    }
+}
+void BattleHud::position_target_menu_two(RuwResource& r,int option,std::uint8_t bank1_mode,
+        int category,bool selected_action,unsigned available) {
+    if(option<0||option>2||category<0||category>3)
+        throw std::runtime_error("Target menu2 selection extent");
+    if(option==2) {
+        r.set_position(3,39,0x8e,0x142);
+        r.set_position(3,46,0x9e,0x144);
+        return;
+    }
+    int x=option==0?7:4;
+    int delta=option==0?-1:0;
+    if(option==1) {
+        if(bank1_mode==1)x=14;
+    }
+    if(available<2&&selected_action&&category==0&&option==1)x=14;
+    r.set_position(3,option+2,0x8e,0x144);
+    r.set_position(3,option+14,x+0x93,delta+0x147);
 }
 void BattleHud::reset_type3(RuwResource& r) {
     type3_reset=0;r.add_class_rgba(5,-1,{keep,keep,keep,128});
@@ -331,7 +581,7 @@ void BattleHud::refresh_type3(RuwResource& r,const BattleHudData& data,const Gam
             const auto& copied=tables.ui_unit(unit);
             if(slot<0||slot>=8)continue;
             const auto c=vars.subspan(0x5c4+unsigned(slot)*0x50,0x50);
-            const auto hp=__builtin_bit_cast(std::int32_t, (word(c,8)));
+            const auto hp=std::bit_cast<std::int32_t>(word(c,8));
             const int maximum=half(c,0x18),charge=half(c,0x26);
             copy(type3_current_number,data.number(hp));copy(type3_maximum_number,data.number(maximum));
             const std::array args{std::string(text(type3_current_number)),std::string(text(type3_maximum_number))};
@@ -361,8 +611,8 @@ void BattleHud::refresh_type3(RuwResource& r,const BattleHudData& data,const Gam
         r.set_text(5,23+row,text(type3_formatted));
     }
     // Source performs the upper clamp before124200, which also clamps to99.
-    const auto current=std::min(__builtin_bit_cast(std::int32_t, (word(vars,0x590))),99);
-    const auto maximum=std::min(__builtin_bit_cast(std::int32_t, (word(vars,0x594))),99);
+    const auto current=std::min(std::bit_cast<std::int32_t>(word(vars,0x590)),99);
+    const auto maximum=std::min(std::bit_cast<std::int32_t>(word(vars,0x594)),99);
     copy(type3_current_number,data.number2(current));copy(type3_maximum_number,data.number2(maximum));
     const std::array args{std::string(text(type3_current_number)),std::string(text(type3_maximum_number))};
     copy(type3_formatted,format_reached(tables.system_message(0xa5),args,two_strings));
@@ -387,7 +637,7 @@ void BattleHud::update_type3(RuwResource& r,const BattleHudData& data,const Game
     }
     if(mode==4)throw std::runtime_error("Type3 HUD demo callback is unrecovered");
     if(type3_reset)return;
-    type3_blink=std::uint32_t(__builtin_bit_cast(std::int32_t, (type3_blink+1u))%60);
+    type3_blink=std::uint32_t(std::bit_cast<std::int32_t>(type3_blink+1u)%60);
     for(unsigned row=0;row<3;++row) {
         for(unsigned id:{14+row*3,15+row*3,16+row*3,8+row*2,9+row*2})
             r.add_rgba(5,id,{keep,keep,keep,-128});
@@ -403,14 +653,14 @@ void BattleHud::update_type3(RuwResource& r,const BattleHudData& data,const Game
         for(unsigned id:{8+row*2,9+row*2})r.add_secondary_rgba(5,id,{keep,keep,keep,128});
         alpha(r,5,54+row,128);
         icons(r,data,row,c,false);
-        const auto hp=__builtin_bit_cast(std::int32_t, (word(c,8)));const auto maximum=half(c,0x18);
+        const auto hp=std::bit_cast<std::int32_t>(word(c,8));const auto maximum=half(c,0x18);
         bool low;
         {
             Rounding rounding(FE_TONEAREST);
             low=double(hp)<double(maximum)*data.warning_fraction();
         }
         std::array<int,3> rgb{255,255,255};
-        if(low&&__builtin_bit_cast(std::int32_t, (type3_blink))%60<30)rgb={190,40,45};
+        if(low&&std::bit_cast<std::int32_t>(type3_blink)%60<30)rgb={190,40,45};
         color(r,5,26+row,rgb);
         if(hp==0)color(r,5,26+row,{190,40,45});
     }

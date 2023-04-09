@@ -22,11 +22,13 @@ private:
 };
 struct BattleHud {
     std::uint32_t menu_state=0,mode_counter=0,selected_alpha=128;
+    std::int32_t command_state_timer=0; //1fd7f8; independent of command1fd860.
     std::int32_t selection_state=0;
     bool bank2_bound=false;
     std::uint32_t type2_flag_a=0,type2_flag_b=0,type2_enabled=1;
     std::array<std::uint32_t,4> row_flags{};
     std::uint32_t flag_a0=0,flag_a8=0;
+    std::uint32_t target_pulse=0;std::int32_t target_pulse_step=1; //1fd7bc/1fd7dc
     std::array<std::uint32_t,512> type2_work{};
     std::uint32_t type3_ready=0,type3_reset=0,type3_animation=0,type3_cursor=0;
     std::uint32_t type3_blink=0;
@@ -51,6 +53,17 @@ struct BattleHud {
         Bytes,const UiPartySelection&,unsigned game_mode,int selected_row2,
         std::int32_t display_mode,std::int32_t available_count,
         std::int32_t& command_countdown,std::int32_t command_alpha);
+    //164090 command/state1: its unconditional widget prelude (1626d8).
+    void display_command_state_one(RuwResource&);
+    void update_target_menu_one(RuwResource&,Bytes variables,unsigned game_mode,
+        int category,bool selected_action,unsigned available_count,
+        std::uint8_t bank1_mode,std::int16_t bank7_state);
+    void update_target_menu_selector(RuwResource&);
+    std::uint32_t update_target_menu_two_motion(RuwResource&,int category);
+    bool update_target_menu_two_rows(RuwResource&,int category);
+    void update_target_menu_two_animation(RuwResource&,int category);
+    void position_target_menu_two(RuwResource&,int option,std::uint8_t bank1_mode,
+        int category,bool selected_action,unsigned available_count);
     void reset_type3(RuwResource&);
     void initialize_type3(RuwResource&,const GameDataTables&);
     void refresh_type3(RuwResource&,const BattleHudData&,const GameDataTables&,

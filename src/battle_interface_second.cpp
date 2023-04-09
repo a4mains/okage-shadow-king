@@ -1,5 +1,6 @@
 #include "okage/battle_interface.hpp"
 #include "okage/battle_actor.hpp"
+#include "okage/battle_hud_targets.hpp"
 #include <bit>
 #include <limits>
 #include <stdexcept>
@@ -7,7 +8,7 @@
 namespace okage {
 namespace {
 constexpr auto keep=RuwResource::preserve_component;
-std::int32_t signed_word(std::uint32_t v){return __builtin_bit_cast(std::int32_t, (v));}
+std::int32_t signed_word(std::uint32_t v){return std::bit_cast<std::int32_t>(v);}
 std::uint32_t word(Bytes b,unsigned at) {
     if(at>b.size()||b.size()-at<4)throw std::runtime_error("Battle UI state word extent");
     return unsigned(b[at])|(unsigned(b[at+1])<<8)|(unsigned(b[at+2])<<16)|(unsigned(b[at+3])<<24);
@@ -60,6 +61,20 @@ void BattleInterface::second_update(RuwResource& r,const BattleHudData& data,
             r.set_runtime_word0(3,15,std::uint32_t(icons[1]));
             switch(signed_word(shared_.command.command)) {
             case 0:case 17:break;
+            case 1:
+                h.display_command_state_one(r);
+                break;
+            case 2: {
+                const auto panel_y=category==0?0x144:0x142;
+                r.set_position(3,5,0x8d,panel_y);
+                r.add_extent(3,5,-0x448,-0x448,0x60,0x14);
+                update_battle_target_list(r,h,data,commands,context.tables,shared_.formation);
+                if(h.menu_state==2)
+                    h.position_target_menu_two(r,signed_word(shared_.command.values[1]),
+                        context.variables[0x0c],category,selected_action,
+                        battle_ui_available_party(context.entities));
+                break;
+            }
             case 4:case 19:
                 h.reset_type2_widgets(r,data,context.tables,context.variables,context.party,context.game_mode,selected);
                 break;
@@ -81,6 +96,44 @@ void BattleInterface::second_update(RuwResource& r,const BattleHudData& data,
                 r.select_class_color(2,0,category);r.select_class_color(2,1,category);
                 alpha(r,2,pair,signed_word(h.selected_alpha));alpha(r,2,pair+1,signed_word(h.selected_alpha));
                 break;
+            case 1: {
+                if(!context.entry)throw std::runtime_error("Battle target menu1 requires the owned entry context");
+                h.command_state_timer=0;
+                h.type2_flag_a=0;
+                const auto available=battle_ui_available_party(context.entities);
+                h.refresh_command_party(r,data,context.tables,context.variables,context.party,
+                    context.game_mode,selected,1,std::int32_t(available),h.selection_state,
+                    signed_word(h.selected_alpha));
+                const auto target=signed_word(shared_.command.values[1]);
+                r.select_class_color(3,1,target);r.select_class_color(3,2,target);
+                const auto& entry=context.entry->bytes();
+                const auto bank7_bits=std::uint16_t(std::uint16_t(entry[0x36])|
+                    (std::uint16_t(entry[0x37])<<8));
+                const auto bank7=std::bit_cast<std::int16_t>(bank7_bits);
+                h.update_target_menu_one(r,context.variables,context.game_mode,category,
+                    selected_action,available,context.variables[0x0c],bank7);
+                break;
+            }
+            case 2: {
+                if(context.game_mode!=3)
+                    throw std::runtime_error("Battle target menu2 supports only the reached mode3 path");
+                const auto option=signed_word(shared_.command.values[1]);
+                const auto target_row=signed_word(shared_.command.values[2]);
+                if(target_row<0||target_row>3)
+                    throw std::runtime_error("Battle target menu2 row extent");
+                r.set_position(3,21,keep,target_row*0x12+0x14a);
+                r.set_position(3,65,keep,target_row*0x12+0x14a);
+                if(h.update_target_menu_two_motion(r,option)!=0)
+                    (void)h.update_target_menu_two_rows(r,category);
+                h.update_target_menu_selector(r);
+                h.update_target_menu_two_animation(r,category);
+                update_battle_target_list(r,h,data,commands,context.tables,shared_.formation);
+                r.add_class_rgba(3,3,{keep,keep,keep,4});
+                r.add_rgba(2,51,{keep,keep,keep,-16});
+                override_battle_target_display(r,commands,context.tables,category,option,
+                    std::int32_t(battle_ui_available_party(context.entities)),selected_action);
+                break;
+            }
             default:throw std::runtime_error("Battle UI menu branch unrecovered: "+std::to_string(signed_word(h.menu_state)));
             }
             if(battle_ui_available_party(context.entities)<2&&selected_action&&category==0) {
@@ -90,10 +143,16 @@ void BattleInterface::second_update(RuwResource& r,const BattleHudData& data,
             } else {
                 r.set_runtime_word0(3,15,19);r.set_runtime_word0(3,46,77);
             }
-            // The reached menu0 body. Preserve add/clamp semantics and order.
-            r.add_rgba(2,55,{keep,keep,keep,4});
-            r.add_extent(2,10,323,keep,323,keep);r.add_position(2,10,291,keep,291,keep);
-            for(int id:{11,12,13,24})alpha(r,2,id,127);
+            if(h.menu_state==0) {
+                r.add_rgba(2,55,{keep,keep,keep,4});
+                r.add_extent(2,10,0x143,keep,0x143,keep);
+                r.add_position(2,10,0x123,keep,0x123,keep);
+                for(int id:{11,12,13,24})alpha(r,2,id,127);
+            } else if(h.menu_state!=0) {
+                r.add_rgba(2,55,{keep,keep,keep,-128});
+                r.add_extent(2,10,0x143,keep,0xf3,keep);
+                r.add_position(2,10,0x123,keep,0x173,keep);
+            }
             if(category==0||category==3) {
                 r.set_position(3,12,252,332);r.set_position(3,36,135,333);
                 r.add_extent(3,12,20,keep,20,keep);r.add_extent(4,1,22,keep,22,keep);
