@@ -573,7 +573,8 @@ struct BattleSession::Impl {
                         if(!after_intro_sequence)throw std::runtime_error("Missing owned return-to-combat camera sequence");
                         camera->restart_sequence(*after_intro_sequence);
                         put(root.bytes,0x34,0);phase=0;put(root.bytes,0x24,0);
-                        parent_callback=previous_parent_callback;
+                        if(!previous_parent_callback)throw std::runtime_error("Battle command handoff has no saved parent");
+                        parent_callback=*previous_parent_callback;
                         const auto& action=context.shared.pending_action;
                         if(action[0]!=11) {
                             const auto selected=std::bit_cast<std::int32_t>(word(root.bytes,0x81ac));
