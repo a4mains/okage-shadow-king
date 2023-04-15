@@ -28,6 +28,11 @@ struct BattleEntityBinding {
     unsigned kind=4;
 };
 void battle_refresh_entities(BattleState&,std::span<const BattleEntityBinding>);
+void battle_register_action(BattleState&,unsigned owner,unsigned target,
+                            std::optional<std::uint16_t> action_record);
+void battle_clear_action(BattleState&,unsigned owner); //158868, preserves links/counter.
+//158b70: fixed 64 passes, indexes0..62 only; slot0 null returns immediately.
+void battle_compact_actions(BattleState&,unsigned entity);
 void battle_party_first_update(BattleActor&,const BattleState&);  //153a20
 void battle_party_second_update(BattleActor&,const BattleState&); //153ce8
 void battle_enemy_first_update(BattleActor&,const BattleState&);  //15b9a0

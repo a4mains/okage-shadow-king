@@ -22,6 +22,10 @@ std::uint64_t mask(Bytes b,unsigned at) {
 void mask(std::span<std::uint8_t> b,unsigned at,std::uint64_t value) {
     for(unsigned i=0;i<8;++i)b[at+i]=std::uint8_t(value>>(8*i));
 }
+std::uint16_t half(Bytes b,unsigned at){return std::uint16_t(b[at]|(unsigned(b[at+1])<<8));}
+void half(std::span<std::uint8_t> b,unsigned at,std::uint16_t value) {
+    b[at]=std::uint8_t(value);b[at+1]=std::uint8_t(value>>8);
+}
 class Rounding {
 public:
     Rounding() {
@@ -35,7 +39,7 @@ private:
     std::fenv_t saved_{};
 };
 float supported(float value) {
-    const auto bits=__builtin_bit_cast(std::uint32_t, (value)),exponent=bits&0x7f800000u;
+    const auto bits=std::bit_cast<std::uint32_t>(value),exponent=bits&0x7f800000u;
     require(exponent!=0x7f800000u&&(exponent!=0||(bits&0x7fffffu)==0),
             "Battle entity nonfinite/subnormal arithmetic is unrecovered");
     return value;
@@ -57,8 +61,8 @@ float single(float left,float right,Operation operation) {
 void refresh_pair(BattleState& root,std::span<const BattleEntityBinding> bindings,unsigned i,unsigned j) {
     auto* a=bindings[i].actor;auto* b=bindings[j].actor;
     if(!a||!b)return;
-    const float half_b=single(__builtin_bit_cast(float, (word(b->storage,0x4c))),.5f,Operation::Multiply);
-    const float half_a=single(__builtin_bit_cast(float, (word(a->storage,0x4c))),.5f,Operation::Multiply);
+    const float half_b=single(std::bit_cast<float>(word(b->storage,0x4c)),.5f,Operation::Multiply);
+    const float half_a=single(std::bit_cast<float>(word(a->storage,0x4c)),.5f,Operation::Multiply);
     const float radius=single(half_a,half_b,Operation::Add);
     const auto pa=a->model->animation().value(1);
     const float radius_squared=single(radius,radius,Operation::Multiply);
@@ -76,15 +80,53 @@ void refresh_pair(BattleState& root,std::span<const BattleEntityBinding> binding
     } else {ei[j]=0;ej[i]=0;}
 }
 }
+void battle_register_action(BattleState& root,unsigned owner,unsigned target,
+                            std::optional<std::uint16_t> action_record) {
+    auto node=root.entity(owner);
+    (void)root.entity(target);
+    half(node,0x60,std::uint16_t(owner));half(node,0x62,std::uint16_t(target));
+    root.action_records[owner]=action_record;
+    for(unsigned i=0;i<4;++i)node[0x68+i]=0;
+    half(node,0x64,std::uint16_t(half(node,0x64)+1));
+    const auto append=[&](unsigned destination) {
+        auto e=root.entity(destination);
+        const auto count=half(e,0x16c);
+        half(e,0x16c,std::uint16_t(count+1)); // Source stores before indexing.
+        const auto index=std::bit_cast<std::int16_t>(count);
+        require(index>=0&&index<64,"Battle action append would write outside owned link storage");
+        require(word(e,0x6c+unsigned(index)*4)==0,"Battle action link contains an unnormalized guest pointer");
+        root.action_links[destination][unsigned(index)]=std::uint8_t(owner);
+    };
+    append(target);append(owner);
+}
+void battle_clear_action(BattleState& root,unsigned owner) {
+    auto node=root.entity(owner);
+    half(node,0x60,0xffff);half(node,0x62,0xffff);
+    root.action_records[owner].reset();
+    for(unsigned i=0;i<4;++i)node[0x68+i]=0;
+}
+void battle_compact_actions(BattleState& root,unsigned entity) {
+    auto e=root.entity(entity);auto& links=root.action_links[entity];
+    if(!links[0])return;
+    for(unsigned pass=0;pass<64;++pass)for(unsigned i=0;i<63;++i) {
+        if(!links[i])continue;
+        const auto node=root.entity(*links[i]);
+        if(std::bit_cast<std::int16_t>(half(node,0x60))>=0)continue;
+        for(unsigned j=i;j<63;++j)links[j]=links[j+1];
+        links[63].reset();half(e,0x16c,std::uint16_t(half(e,0x16c)-1));
+    }
+}
 void battle_refresh_entities(BattleState& root,std::span<const BattleEntityBinding> bindings) {
     const auto count=word(root.bytes,0x50);
     require(count<=battle_entity_count&&bindings.size()==count,"Battle entity refresh count/binding mismatch");
     for(unsigned i=0;i<count;++i) {
         const auto e=root.entity(i);
         require(word(e,0x1f4)==0&&word(e,0x1f8)==0,"Battle entity contains unnormalized guest links");
+        require(word(e,0x68)==0,"Battle action descriptor contains an unnormalized guest pointer");
         for(unsigned offset=0x6c;offset<=0x168;offset+=4)
-            require(word(e,offset)==0,"Battle entity action/effect list compaction is unrecovered");
-        require(e[0x16c]==0&&e[0x16d]==0,"Battle entity action/effect list count is unrecovered");
+            require(word(e,offset)==0,"Battle entity action list contains an unnormalized guest pointer");
+        for(const auto link:root.action_links[i])
+            require(!link||*link<64,"Battle entity action link owner extent");
         if(const auto* actor=bindings[i].actor) {
             require(actor->entity_id==i&&actor->model,"Battle entity typed actor/model binding mismatch");
         }
@@ -96,6 +138,7 @@ void battle_refresh_entities(BattleState& root,std::span<const BattleEntityBindi
         for(unsigned j=0;j<i;++j)refresh_pair(root,bindings,i,j);
         for(unsigned j=i+1;j<count;++j)refresh_pair(root,bindings,i,j);
         const auto current=mask(e,0x50);mask(e,0x58,(old^current)&current);
+        battle_compact_actions(root,i);
     }
 }
 }

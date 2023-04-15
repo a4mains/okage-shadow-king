@@ -2,6 +2,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <span>
 
 namespace okage {
@@ -25,11 +26,15 @@ void initialize_battle_root(std::span<std::uint8_t> root,const BattleRootParamet
 // Native ownership only; no guest addresses, callbacks or battle scheduler.
 struct BattleState {
     std::array<std::uint8_t,battle_state_size> bytes{};
+    std::array<std::array<std::optional<std::uint8_t>,64>,64> action_links{};
+    std::array<std::optional<std::uint16_t>,64> action_records{}; // Owned waza row IDs; source +68.
     void initialize_root(const BattleRootParameters& parameters) {
         initialize_battle_root(bytes,parameters);
+        action_links={};action_records={};
     }
     void initialize_entities(std::span<const std::uint8_t> defaults) {
         initialize_battle_entities(bytes,defaults);
+        action_links={};action_records={};
     }
     void initialize_secondary() {initialize_battle_secondary(bytes);}
     std::span<std::uint8_t,battle_entity_size> entity(std::size_t index);

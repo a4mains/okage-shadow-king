@@ -11,10 +11,10 @@ std::uint32_t word(Bytes b,unsigned at) {
     check(at<=b.size()&&b.size()-at>=4,"Battle roster word extent");
     return unsigned(b[at])|(unsigned(b[at+1])<<8)|(unsigned(b[at+2])<<16)|(unsigned(b[at+3])<<24);
 }
-std::int32_t signed_word(Bytes b,unsigned at){return __builtin_bit_cast(std::int32_t, (word(b,at)));}
+std::int32_t signed_word(Bytes b,unsigned at){return std::bit_cast<std::int32_t>(word(b,at));}
 std::int16_t half(Bytes b,unsigned at) {
     check(at<=b.size()&&b.size()-at>=2,"Battle roster halfword extent");
-    return __builtin_bit_cast(std::int16_t, (std::uint16_t(b[at]|(unsigned(b[at+1])<<8))));
+    return std::bit_cast<std::int16_t>(std::uint16_t(b[at]|(unsigned(b[at+1])<<8)));
 }
 void put(std::span<std::uint8_t> b,unsigned at,std::uint32_t v,unsigned count=4) {
     check(at<=b.size()&&b.size()-at>=count,"Battle roster write extent");
@@ -22,7 +22,7 @@ void put(std::span<std::uint8_t> b,unsigned at,std::uint32_t v,unsigned count=4)
 }
 int status(const BattleActor& a) {
     check(!a.stat_bindings[1].empty(),"Battle roster primary status binding missing");
-    return __builtin_bit_cast(std::int8_t, (a.stat_bindings[1][0]));
+    return std::bit_cast<std::int8_t>(a.stat_bindings[1][0]);
 }
 unsigned entity_id(const BattleActor& a,const BattleRosterUpdateContext& c) {
     const int id=half(a.storage,0x130);
@@ -35,8 +35,8 @@ void validate(const BattleRosterUpdateContext& c) {
     check(count<=64&&c.entities.size()==count,"Battle roster entity count/binding mismatch");
 }
 bool elapsed(const BattleActor& a,unsigned value,unsigned limit) {
-    const auto x=__builtin_bit_cast(float, (word(a.storage,value)));
-    const auto y=__builtin_bit_cast(float, (word(a.storage,limit)));
+    const auto x=std::bit_cast<float>(word(a.storage,value));
+    const auto y=std::bit_cast<float>(word(a.storage,limit));
     check(std::isfinite(x)&&std::isfinite(y)&&std::fpclassify(x)!=FP_SUBNORMAL&&std::fpclassify(y)!=FP_SUBNORMAL,
           "Battle roster exceptional timer comparison is unrecovered");
     return y<=x;
@@ -58,14 +58,14 @@ bool charge_status(BattleActor& a) {
     }
 }
 void clear_action(unsigned id,const BattleRosterUpdateContext& c) {
-    auto e=c.root.entity(id);put(e,0x60,0xffff,2);put(e,0x62,0xffff,2);put(e,0x68,0);
+    battle_clear_action(c.root,id);
 }
 bool any_target(BattleActor& a,BattleRosterUpdateContext& c,bool status_gate) {
     const int count=half(a.storage,0x140);
     check(count<=10,"Battle roster target count exceeds authored target storage");
     bool any=false;
     for(int j=0;j<count;++j) {
-        const int id=__builtin_bit_cast(std::int8_t, (a.storage[0x132+j]));
+        const int id=std::bit_cast<std::int8_t>(a.storage[0x132+j]);
         check(id>=0&&id<64,"Battle roster target index outside entity records");
         if(status_gate) {
             check(unsigned(id)<c.entities.size(),"Battle roster target has no registered binding");
@@ -129,7 +129,7 @@ void stan_actor(BattleActor& stan,BattleActor* hero,BattleRosterUpdateContext& c
     if(word(c.root.bytes,0x81b8)==1){put(stan.storage,0x21c,100);return;}
     switch(word(stan.storage,0x21c)) {
     case 1:case 2:
-        if(__builtin_bit_cast(std::int16_t, (c.entry.parameters().argument1))==1) {
+        if(std::bit_cast<std::int16_t>(c.entry.parameters().argument1)==1) {
             c.entry.clear_argument1();
             missing("Battle Stan158548 request target construction is unrecovered");
         }
