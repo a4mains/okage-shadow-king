@@ -12,6 +12,11 @@ struct GameUnitUiRecord {
     std::string name;
     std::string model_name;
 };
+//1254a0: zero-based BKDATA waza row; words0/12 retain asset string offsets.
+struct GameActionRecord {
+    std::array<std::uint32_t,13> words{};
+    std::string name,description;
+};
 // Owned XDB records used by 0x125400/0x125360. Unit model names are copied
 // from BKDATA at parse time; no guest addresses or reference snapshots enter
 // this state. Actor numeric row IDs remain one-based.
@@ -24,7 +29,11 @@ public:
     // 0x1256a8 resolves the zero-based BKDATA sysmes table (battle UI uses 0xa6).
     const std::string& system_message(unsigned index) const;
     const std::array<std::uint32_t,15>& item(int id) const;
+    // Optional absent waza preserves nonbattle component fixtures; access fails.
+    const GameActionRecord& action(int zero_based_id) const;
+    std::size_t action_count() const {return actions_.size();}
 private:
+    std::vector<GameActionRecord> actions_;
     std::vector<std::string> unit_model_names_;
     std::vector<GameUnitUiRecord> ui_units_;
     std::optional<GameUnitUiRecord> preceding_ui_unit_;

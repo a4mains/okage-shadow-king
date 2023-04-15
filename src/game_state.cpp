@@ -69,7 +69,7 @@ std::optional<GameUnitUiRecord> ui_record(Bytes b,std::size_t at) {
     return result;
 }
 std::uint16_t half(Bytes b,std::size_t at) {return unsigned(b[at])|(unsigned(b[at+1])<<8);}
-int signed_half(Bytes b,std::size_t at) {return __builtin_bit_cast(std::int16_t, (half(b,at)));}
+int signed_half(Bytes b,std::size_t at) {return std::bit_cast<std::int16_t>(half(b,at));}
 void half(std::span<std::uint8_t> b,std::size_t at,std::uint32_t value) {b[at]=value;b[at+1]=value>>8;}
 void word(std::span<std::uint8_t> b,std::size_t at,std::uint32_t value) {for(unsigned i=0;i<4;++i)b[at+i]=value>>(i*8);}
 std::vector<std::uint8_t> copy_variables(Bytes variables) {
@@ -86,7 +86,7 @@ void refresh(std::span<std::uint8_t> b,const GameDataTables& tables,unsigned slo
         std::uint32_t value=unit[2+j*2];
         if(level>=2) {
             const auto product=unit[3+j*2]*std::uint32_t(level-1);
-            value+=std::uint32_t(__builtin_bit_cast(std::int32_t, (product))/98);
+            value+=std::uint32_t(std::bit_cast<std::int32_t>(product)/98);
         }
         half(b,at+0x18+j*2,value+half(b,at+0xc+j*2));
     }
@@ -111,6 +111,11 @@ GameDataTables::GameDataTables(Bytes battle_data,Bytes item_data) {
     units_=records<27>(battle_data,"unit",{0,1},1,&unit_model_names_,false,&unit_start);
     items_=records<15>(item_data,"item",{0,14});
     (void)records<1>(battle_data,"sysmes",{0},0,&system_messages_,true);
+    std::vector<std::string> names,descriptions;
+    const auto actions=records<13>(battle_data,"waza",{0,12},0,&names,true);
+    (void)records<13>(battle_data,"waza",{0,12},12,&descriptions,true);
+    for(std::size_t i=0;i<actions.size();++i)
+        actions_.push_back({actions[i],std::move(names[i]),std::move(descriptions[i])});
     ui_units_.reserve(units_.size());
     for(std::size_t i=0;i<units_.size();++i) {
         auto record=ui_record(battle_data,unit_start+i*108);
@@ -143,6 +148,10 @@ const std::array<std::uint32_t,15>& GameDataTables::item(int id) const {
     if(id<1||std::size_t(id)>items_.size())throw std::runtime_error("Game item ID bounds");
     return items_[id-1];
 }
+const GameActionRecord& GameDataTables::action(int id) const {
+    if(id<0||std::size_t(id)>=actions_.size())throw std::runtime_error("Game waza action bounds/owner");
+    return actions_[unsigned(id)];
+}
 void refresh_game_character(const GameDataTables& tables,std::span<std::uint8_t> variables,unsigned slot) {
     if(slot>=8)throw std::runtime_error("Game character slot bounds");
     auto storage=copy_variables(variables);
@@ -163,10 +172,10 @@ void refresh_game_characters(std::span<std::uint8_t> variables,const GameDataTab
         if(mask&8)b[at+1]=0;
         current+=word(b,at+8);
     }
-    if(__builtin_bit_cast(std::int32_t, (capacity))>99)capacity=99;
+    if(std::bit_cast<std::int32_t>(capacity)>99)capacity=99;
     word(b,0x598,current);word(b,0x59c,maximum);word(b,0x594,capacity);
     if(mask&1)word(b,0x590,capacity);
-    if(__builtin_bit_cast(std::int32_t, (word(b,0x590)))>__builtin_bit_cast(std::int32_t, (capacity)))word(b,0x590,capacity);
+    if(std::bit_cast<std::int32_t>(word(b,0x590))>std::bit_cast<std::int32_t>(capacity))word(b,0x590,capacity);
     std::copy(storage.begin(),storage.end(),variables.begin());
 }
 void grant_and_equip_game_character(std::span<std::uint8_t> variables,const GameDataTables& tables,
@@ -177,7 +186,7 @@ void grant_and_equip_game_character(std::span<std::uint8_t> variables,const Game
         if(id<1||id>255)throw std::runtime_error("Game inventory ID bounds");
         (void)tables.item(id);
         const auto at=0x410+id;
-        b[at]=std::clamp(int(__builtin_bit_cast(std::int8_t, (b[at])))+1,0,99);
+        b[at]=std::clamp(int(std::bit_cast<std::int8_t>(b[at]))+1,0,99);
     }
     const auto at=0x5c4+slot*0x50;
     if(b[at]) {
