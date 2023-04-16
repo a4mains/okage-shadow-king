@@ -90,14 +90,14 @@ std::vector<std::uint8_t> type3_update_ruw() {
     }
     return b;
 }
-std::vector<std::uint8_t> command_ruw() {
+std::vector<std::uint8_t> command_ruw(std::uint32_t target_height=100) {
     std::vector<std::uint8_t> b(48);put(b,12,1);put(b,16,6);
     for(unsigned group=0;group<6;++group) {
         put(b,24+group*4,80);
         for(unsigned id=0;id<80;++id) {
             const unsigned at=b.size();b.resize(at+68);put(b,at+8,0x80203040);put(b,at+12,0x80506070);
             put(b,at+16,0x41);put(b,at+20,1);put(b,at+32,id==53||id==54?5:0xffffffff);
-            put(b,at+48,123);put(b,at+52,100);put(b,at+56,100);put(b,at+60,id);
+            put(b,at+48,123);put(b,at+52,100);put(b,at+56,group==3&&id==5?target_height:100);put(b,at+60,id);
         }
     }
     return b;
@@ -329,6 +329,56 @@ void target_menu_two_motion_checks() {
             "161fe8 applies the lower pulse edge and raises the shared countdown to2");
     require(r.widget(3,21).runtime->words[4]>>24==40,
             "161fe8 stores the pulse alpha at the zero-pulse owner");
+    okage::RuwResource option_two(command_ruw());okage::BattleHud option_hud;
+    option_hud.flag_a0=std::bit_cast<std::uint32_t>(1.96f);
+    option_hud.update_target_menu_two_motion(option_two,2);
+    require(option_two.widget(3,39).runtime->words[7]==0x142&&
+            option_two.widget(3,2).runtime->words[7]==124&&
+            option_two.widget(3,14).runtime->words[7]==0x147&&
+            option_hud.flag_a0==std::bit_cast<std::uint32_t>(2.94f),
+            "15eaf8 option2 moves its fixed rows, clamps, and advances DAT_1fd8a0");
+    rejects([&]{option_hud.update_target_menu_two_motion(option_two,3);});
+}
+void target_confirm_checks() {
+    okage::RuwResource r(command_ruw(std::uint32_t(-100)));okage::BattleHud hud;
+    hud.begin_target_confirm(r,0);
+    require(r.widget(3,5).runtime->words[7]==0x144&&
+            r.widget(3,25).runtime->words[7]==0x148&&
+            r.widget(3,30).runtime->words[7]==0x150&&
+            r.widget(3,67).runtime->words[7]==0x188,
+            "161c88 sets category0 panel and ordered confirmation rows");
+    hud.type2_flag_a=0;
+    hud.update_target_confirm(r,0,1);
+    require(r.widget(3,31).runtime->words[7]==0x15a,"1616a0 applies the selected first-row Y delta");
+    require(r.widget(3,69).runtime->words[7]==0x15a,"1616a0 applies the selected second-row Y delta");
+    hud.update_target_confirm(r,0,1);hud.update_target_confirm(r,0,1);
+    require(r.widget(3,31).runtime->words[7]==0x14c&&
+            r.widget(3,69).runtime->words[7]==0x14c,
+            "1616a0 reaches category0 lower limits after repeated source deltas");
+    hud.clear_target_confirm_cursor(r);
+    require(r.widget(3,21).runtime->words[7]==0x148,"1616a0 first cursor Y");
+    require(r.widget(3,21).runtime->words[4]>>24==0,"163648 clears first cursor alpha");
+    require(r.widget(3,65).runtime->words[4]>>24==0,"163648 clears second cursor alpha");
+    okage::RuwResource alternate(command_ruw(std::uint32_t(-100)));okage::BattleHud other;
+    other.begin_target_confirm(alternate,3);other.type2_flag_a=1;
+    other.update_target_confirm(alternate,3,2);
+    require(alternate.widget(3,5).runtime->words[7]==0x142&&
+            alternate.widget(3,32).runtime->words[7]==0x16c&&
+            alternate.widget(3,70).runtime->words[7]==0x16c&&
+            alternate.widget(3,58).runtime->words[7]==0x164&&
+            alternate.widget(3,63).runtime->words[7]==0x16c&&
+            alternate.widget(3,16).runtime->words[7]==0x179&&
+            alternate.widget(3,18).runtime->words[7]==0x17a&&
+            alternate.widget(3,20).runtime->words[7]==0x180&&
+            alternate.widget(3,67).runtime->words[7]==0x180&&
+            alternate.widget(3,27).runtime->words[4]>>24==0,
+            "161c88/1616a0 apply category3 panel and selected-row placement");
+    hud.command_state_timer=1;
+    rejects([&]{hud.begin_target_confirm(r,0);});
+    rejects([&]{hud.update_target_confirm(r,0,1);});
+    hud.command_state_timer=0;
+    rejects([&]{hud.begin_target_confirm(r,4);});
+    rejects([&]{hud.update_target_confirm(r,0,4);});
 }
 void owned_checks(const okage::BattleHudData& data,const okage::GameDataTables& tables,okage::Bytes raw,std::vector<std::uint8_t> vars) {
     okage::RuwResource r(raw);okage::BattleHud h;okage::UiPartySelection party;
@@ -384,7 +434,7 @@ int main(int argc,char** argv) {
         require(data2.number(12)==data.number(12),"v2 preserves constructor formatting");
         require(data2.number2(0)==start+"0\\c[0]0"&&data2.number2(-100)==data2.number2(0),"two-digit nonpositive");
         require(data2.number2(1)==start+"0\\c[0]1"&&data2.number2(12)==start+"\\c[0]12"&&data2.number2(999)==start+"\\c[0]99","two-digit source format/clamp");
-        type3_checks();type3_update_checks();command_checks();command_state_one_checks();target_menu_one_checks();target_menu_two_motion_checks();
+        type3_checks();type3_update_checks();command_checks();command_state_one_checks();target_menu_one_checks();target_menu_two_motion_checks();target_confirm_checks();
         for(unsigned n:{0u,8u,79u,351u,353u}){b=fixture();b.resize(n);rejects([&]{okage::BattleHudData bad(b);});}
         for(unsigned at:{0u,8u,12u,16u}){b=fixture();put(b,at,0);rejects([&]{okage::BattleHudData bad(b);});}
         b=fixture();put(b,156,0x7ff00000);rejects([&]{okage::BattleHudData bad(b);});

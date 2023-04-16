@@ -59,11 +59,14 @@ struct BattleHud {
         int category,bool selected_action,unsigned available_count,
         std::uint8_t bank1_mode,std::int16_t bank7_state);
     void update_target_menu_selector(RuwResource&);
-    std::uint32_t update_target_menu_two_motion(RuwResource&,int category);
+    std::uint32_t update_target_menu_two_motion(RuwResource&,int option);
     bool update_target_menu_two_rows(RuwResource&,int category);
     void update_target_menu_two_animation(RuwResource&,int category);
     void position_target_menu_two(RuwResource&,int option,std::uint8_t bank1_mode,
         int category,bool selected_action,unsigned available_count);
+    void begin_target_confirm(RuwResource&,int category);
+    void update_target_confirm(RuwResource&,int category,int selected_row);
+    void clear_target_confirm_cursor(RuwResource&);
     void reset_type3(RuwResource&);
     void initialize_type3(RuwResource&,const GameDataTables&);
     void refresh_type3(RuwResource&,const BattleHudData&,const GameDataTables&,

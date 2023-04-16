@@ -78,6 +78,14 @@ void BattleInterface::second_update(RuwResource& r,const BattleHudData& data,
             case 4:case 19:
                 h.reset_type2_widgets(r,data,context.tables,context.variables,context.party,context.game_mode,selected);
                 break;
+            case 5:
+                //164090 command5: update target labels before the one-shot
+                //161c88 confirmation-panel setup.
+                if(category<0||category>3)
+                    throw std::runtime_error("Battle target confirmation category extent");
+                update_battle_target_list(r,h,data,commands,context.tables,shared_.formation);
+                h.begin_target_confirm(r,category);
+                break;
             case -1:break;
             default:throw std::runtime_error("Battle UI command branch unrecovered: "+
                 std::to_string(signed_word(shared_.command.command)));
@@ -132,6 +140,31 @@ void BattleInterface::second_update(RuwResource& r,const BattleHudData& data,
                 r.add_rgba(2,51,{keep,keep,keep,-16});
                 override_battle_target_display(r,commands,context.tables,category,option,
                     std::int32_t(battle_ui_available_party(context.entities)),selected_action);
+                break;
+            }
+            case 5: {
+                const auto selected_row=signed_word(shared_.command.values[2]);
+                if(selected_row<0||selected_row>3)
+                    throw std::runtime_error("Battle target confirmation row extent");
+                r.add_position(4,2,-0x20,keep,0x80,keep);
+                r.add_extent(4,2,-0x20,-8,0x78,0x13);
+                const int row_selector=signed_word(shared_.command.values[1]);
+                if(row_selector<0||row_selector>2)
+                    throw std::runtime_error("Battle target confirmation selector extent");
+                const int bounded=row_selector<0?row_selector+7:row_selector;
+                const int id=row_selector-(bounded>>3)*8+0x1b;
+                r.add_position(4,id,-0x20,-8,0x92,0x14a);
+                if(h.update_target_menu_two_motion(r,row_selector)!=0)
+                    r.add_class_rgba(3,0,{keep,keep,keep,4});
+                h.update_target_menu_selector(r);
+                h.update_target_menu_two_animation(r,category);
+                alpha(r,2,51,0);r.add_rgba(2,51,{keep,keep,keep,-16});
+                h.update_target_confirm(r,category,selected_row);
+                r.add_rgba(3,7,{keep,keep,keep,128});
+                // FUN_001620b8 has a one-instruction no-op body.
+                override_battle_target_display(r,commands,context.tables,category,
+                    row_selector,std::int32_t(battle_ui_available_party(context.entities)),selected_action);
+                h.clear_target_confirm_cursor(r);
                 break;
             }
             default:throw std::runtime_error("Battle UI menu branch unrecovered: "+std::to_string(signed_word(h.menu_state)));

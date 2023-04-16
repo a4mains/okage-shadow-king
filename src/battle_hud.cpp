@@ -419,8 +419,8 @@ void BattleHud::update_target_menu_selector(RuwResource& r) {
         r.add_rgba(2,11,{keep,keep,keep,-4});
     }
 }
-std::uint32_t BattleHud::update_target_menu_two_motion(RuwResource& r,int category) {
-    if(category<0||category>3)throw std::runtime_error("Target menu2 category extent");
+std::uint32_t BattleHud::update_target_menu_two_motion(RuwResource& r,int option) {
+    if(option<0||option>2)throw std::runtime_error("Target menu2 option extent");
     const auto old_value=std::bit_cast<float>(flag_a0); // persistent DAT_001fd8a0
     if(!std::isfinite(old_value)||std::fpclassify(old_value)==FP_SUBNORMAL||
        old_value>=2147483648.0f||old_value<-2147483648.0f)
@@ -432,7 +432,7 @@ std::uint32_t BattleHud::update_target_menu_two_motion(RuwResource& r,int catego
         old_integer=converted;
     }
     std::uint32_t first_clamp{};
-    if(category==2) {
+    if(option==2) {
         first_clamp=add_position_limited(r,3,39,keep,-4,keep,0x142);
         add_position_limited(r,3,46,keep,-4,keep,0x144);
         add_position_limited(r,3,2,keep,old_integer,keep,keep);
@@ -443,11 +443,11 @@ std::uint32_t BattleHud::update_target_menu_two_motion(RuwResource& r,int catego
         source_float_step(flag_a0);
         return first_clamp;
     }
-    first_clamp=add_position_limited(r,3,category+2,keep,-4,keep,0x144);
-    add_position_limited(r,3,3-category,keep,old_integer,keep,keep);
-    add_position_limited(r,3,category+14,keep,-4,keep,0x147);
-    add_position_limited(r,3,15-category,keep,old_integer,keep,keep);
-    for(int id:{3-category,15-category})r.add_rgba(3,id,{keep,keep,keep,-8});
+    first_clamp=add_position_limited(r,3,option+2,keep,-4,keep,0x144);
+    add_position_limited(r,3,3-option,keep,old_integer,keep,keep);
+    add_position_limited(r,3,option+14,keep,-4,keep,0x147);
+    add_position_limited(r,3,15-option,keep,old_integer,keep,keep);
+    for(int id:{3-option,15-option})r.add_rgba(3,id,{keep,keep,keep,-8});
     source_float_step(flag_a0);
     const auto next=std::bit_cast<float>(flag_a0);
     if(!std::isfinite(next)||std::fpclassify(next)==FP_SUBNORMAL||
@@ -551,6 +551,83 @@ void BattleHud::position_target_menu_two(RuwResource& r,int option,std::uint8_t 
     if(available<2&&selected_action&&category==0&&option==1)x=14;
     r.set_position(3,option+2,0x8e,0x144);
     r.set_position(3,option+14,x+0x93,delta+0x147);
+}
+void BattleHud::begin_target_confirm(RuwResource& r,int category) {
+    if(category<0||category>3)throw std::runtime_error("Target confirmation category extent");
+    if(command_state_timer!=0)
+        throw std::runtime_error("Target confirmation nonzero 1fd7f8 setup is unrecovered");
+    r.set_rgba(3,5,{keep,keep,keep,128});
+    r.set_rgba(3,12,{keep,keep,keep,128});
+    r.set_rgba(3,5,{0x28,0x32,0x55,keep});
+    r.set_position(3,5,0x101,category==0?0x144:0x142);
+    r.add_extent(3,5,0xbb8,keep,0x165,keep);
+    r.add_extent(3,5,keep,100,keep,0x4c);
+    r.add_class_rgba(3,0,{keep,keep,keep,128});
+    for(int row=0;row<4;++row) {
+        const int y=0x148+row*0x12;
+        r.set_position(3,25+row,keep,y);
+        r.set_position(3,30+row,keep,y+8);
+        r.set_position(3,68+row,keep,y+8);
+        if(row<3) {
+            for(int id:{47+row*3,48+row*3,49+row*3,56+row})
+                r.set_position(3,id,keep,y);
+            for(int id:{59+row*2,60+row*2})r.set_position(3,id,keep,y+8);
+        }
+    }
+    r.set_position(3,16,keep,0x181);
+    r.set_position(3,18,keep,0x182);
+    r.set_position(3,20,keep,0x188);
+    r.set_position(3,67,keep,0x188);
+}
+void BattleHud::update_target_confirm(RuwResource& r,int category,int selected_row) {
+    if(category<0||category>3||selected_row<0||selected_row>3)
+        throw std::runtime_error("Target confirmation selection extent");
+    if(command_state_timer!=0)
+        throw std::runtime_error("Target confirmation nonzero 1fd7f8 animation is unrecovered");
+    r.add_rgba(3,38,{keep,keep,keep,4});
+    r.add_rgba(3,8,{keep,keep,keep,-4});
+    for(int row=0;row<4;++row) {
+        if(type2_flag_a==1) {
+            alpha(r,3,row+25,0);
+            r.set_position(3,20,0x18e,keep);
+        } else {
+            r.set_position(3,20,0x18e,keep);
+        }
+        if(row!=selected_row) {
+            r.add_rgba(3,row+25,{keep,keep,keep,-4});
+            if(row<3) {
+                for(int id:{47+row*3,48+row*3,49+row*3,56+row,59+row*2,60+row*2})
+                    r.add_rgba(3,id,{keep,keep,keep,-4});
+            }
+            r.add_rgba(3,row+68,{keep,keep,keep,-4});
+            r.add_rgba(3,row+30,{keep,keep,keep,-4});
+        }
+    }
+    r.add_rgba(3,5,{keep,keep,keep,4});
+    r.add_rgba(3,12,{keep,keep,keep,4});
+    if(r.add_extent(3,5,keep,-8,keep,0x14)==0)return;
+    r.add_class_rgba(3,0,{keep,keep,keep,-4});
+    r.set_rgba(3,5,{0xe6,0xa0,0x28,keep});
+    const bool first_category=category==0;
+    const int row=selected_row;
+    const auto move_y=[&](int id,int limit) {
+        add_position_limited(r,3,id,keep,-8,keep,limit);
+    };
+    move_y(row+30,first_category?0x14c:0x14a);
+    move_y(row+68,first_category?0x14c:0x14a);
+    move_y(row+56,0x145);
+    move_y(row*2+59,0x14a);move_y(row*2+60,0x14a);
+    move_y(row+25,0x147);
+    move_y(row*3+47,0x146);move_y(row*3+48,0x146);move_y(row*3+49,0x146);
+    move_y(16,first_category?0x146:0x144);
+    move_y(17,first_category?0x146:0x144);
+    move_y(18,first_category?0x147:0x145);
+    move_y(20,first_category?0x14d:0x14b);
+    move_y(67,first_category?0x14e:0x14c);
+    move_y(21,0x148);move_y(65,0x148);
+}
+void BattleHud::clear_target_confirm_cursor(RuwResource& r) {
+    alpha(r,3,21,0);alpha(r,3,65,0);
 }
 void BattleHud::reset_type3(RuwResource& r) {
     type3_reset=0;r.add_class_rgba(5,-1,{keep,keep,keep,128});
