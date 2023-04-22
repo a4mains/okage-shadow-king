@@ -142,6 +142,8 @@ void BattleInterface::second_update(RuwResource& r,const BattleHudData& data,
                     std::int32_t(battle_ui_available_party(context.entities)),selected_action);
                 break;
             }
+            case 4:
+                break;
             case 5: {
                 const auto selected_row=signed_word(shared_.command.values[2]);
                 if(selected_row<0||selected_row>3)
