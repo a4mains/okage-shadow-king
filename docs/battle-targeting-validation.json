@@ -1,0 +1,230 @@
+{
+  "schema": "okage-battle-targeting-validation-v1",
+  "date": "2023-04-23",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "native_success": {
+    "revision": "3adb941a0675a24c55b28cfd3e8bb4211e2d752c",
+    "frame": 105275,
+    "exit_code": 0,
+    "binary_sha256": "9dac8319dc31f982ed8b8589029e5ee2199678be3e6b20e5ab98abc3155eeb0f",
+    "seconds": 32.30514375,
+    "fps_claim": false
+  },
+  "target_comparison": {
+    "anchor": 105216,
+    "end": 105275,
+    "paired_rows": 120,
+    "equal_rows": 0,
+    "field_mismatches": 1200,
+    "missing_native": 0,
+    "missing_source": 0,
+    "order_mismatch_frames": 0,
+    "first_difference": 105216,
+    "fidelity_pass": false
+  },
+  "validation": {
+    "16cb472_affected_ctests_per_build": 19,
+    "builds": [
+      "Release",
+      "Debug",
+      "ASan+UBSan"
+    ],
+    "2098ed8_followup_ctests_per_build": 2,
+    "python_tests": 381,
+    "action_graph_ctests_per_build": 3,
+    "owned_action_data_fixture_smoke_all_builds": true,
+    "full_new_debug_sanitizer_gameplay_replay": false
+  },
+  "preview": {
+    "path": "local/demos/battle-target-105275-v1/live.json",
+    "source_revision": "3adb941",
+    "pid_at_launch": 73783,
+    "session": 94030,
+    "paused_frame": 105275,
+    "full_4_3_verified": true,
+    "different_async_loading_from_headless": true
+  },
+  "retained_negatives": [
+    "target-checks-v1: parent callback optional needed dereference; compile failure corrected",
+    "target-checks-v2: app built; wrapper used wrong executable path; corrected to .app/Contents/MacOS",
+    "original-target-25-v1: one-vblank physical confirm never consumed",
+    "native-attack-105395-v1: reached unimplemented menu4 after real fade; source default now implemented",
+    "battle-action-data harness: synthetic XDB fixture string length corrected; initial Python failure retained",
+    "earlier category comparison and filter booted-context-v3..v7 failures remain unresolved"
+  ],
+  "artifacts": [
+    {
+      "path": "local/research/battle-combat-entry-v1/native-target-105275-v1/run.json",
+      "sha256": "c72c8f2d107061c07608eba4e8daf93fae4471743682052804584a3fc4b47915",
+      "bytes": 6673
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-target-105275-v1/consumed-input.json",
+      "sha256": "2f0c62ff57768048e729c93d88c330d773c230a513377915211327cc844e665d",
+      "bytes": 624
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-target-105275-v1/okage-native",
+      "sha256": "9dac8319dc31f982ed8b8589029e5ee2199678be3e6b20e5ab98abc3155eeb0f",
+      "bytes": 2047232
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/original-target-25-v1/run.json",
+      "sha256": "8059287692b331dec426ee1006b6b1aadf861adb541f6f852380608bf42e57d6",
+      "bytes": 1552
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/original-target-60-v2/run.json",
+      "sha256": "c9a1fcab4c5db344515ea0b10964ed0eac977749011898bf8d78888c934411ab",
+      "bytes": 1722
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/original-attack-120-v1/run.json",
+      "sha256": "d5f97ab64e788476d6a18ac0d31906410f58745488e65b8619d228bafe0ad362",
+      "bytes": 1716
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/target-comparison-v1.json",
+      "sha256": "e82536890796d80efa13a882f07434046366cea18c42fbaccf234c49f495141b",
+      "bytes": 81392
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/target-image-comparison-v1/comparison.json",
+      "sha256": "88423d4ffb414cc4133dd80e74095c1891491c8c80bcc871d1d41a9bb2e59230",
+      "bytes": 1642
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/target-selected-images-v1/runs.json",
+      "sha256": "3ce7719d0d5b6352101d033f80379e235979554570fac52b475cd57d0b199cee",
+      "bytes": 3989
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/target-audio-comparison-v1.json",
+      "sha256": "3b47a673397f6f8a87c437fc98fea784b753737985654745d5c47fa1451d414b",
+      "bytes": 5112
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/target-checks-v3/runs.json",
+      "sha256": "193592017114d91fea26375726b92f91fc19c219a19ec1d7e2cd7fb12c0cae34",
+      "bytes": 4921
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/target-checks-v4/runs.json",
+      "sha256": "a5474890e6e68c70046380636df341cfa40b74bf3706326ba3d8e0e5984a458b",
+      "bytes": 5241
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/target-checks-v5/runs.json",
+      "sha256": "7ca2df01e5d591c3bf4a19187555fe7dc316f3c6be353cc33ce46142a11e6d13",
+      "bytes": 1846
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/target-checks-v3/python-final.run.json",
+      "sha256": "62e6a0b23a8c635af21a1999f01984b3961aee1c0a044635072113af1f9a5a4d",
+      "bytes": 163
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/action-graph-checks-v1/runs.json",
+      "sha256": "9ca3e0e2adf731cd319eb248907982030914e2d6c1d66f78cef15f8a09c5c943",
+      "bytes": 1610
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/attack-processing-v13-addendum.txt",
+      "sha256": "5d90d318435c4a02efc1cedb855255810c360b0e5478a218cfabeaea07b75ceb",
+      "bytes": 4543
+    },
+    {
+      "path": "local/battle-input-v4/manifest.json",
+      "sha256": "8d94e57d7812d8c6d625181a5d9c41967689997831f08fc2eeb36965ebedfdfb",
+      "bytes": 8991
+    },
+    {
+      "path": "local/battle-input-v4/battle-actions.bin.manifest.json",
+      "sha256": "7c9057dc86e8cc1498122a1fa734055dc856726fb2cb6233ef304af5f377b371",
+      "bytes": 1471
+    },
+    {
+      "path": "local/worktrees/battle-action-data-v1/local/checks/report.json",
+      "sha256": "eaac0b9ee379a80118ef7cd1a2666e8b744c1a3d57b37c936abd0c279e23f6c0",
+      "bytes": 2425
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-attack-105395-v1/run.json",
+      "sha256": "a891972963399376f84e56a40688b75ec5037c4ee24337c1d7c8b3b426829bad",
+      "bytes": 6609
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-attack-105395-v2/run.json",
+      "sha256": "c59bc3a8aa389e713820238f52b4332dbf18180b785c36efc83e552354bf3d42",
+      "bytes": 6615
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-attack-105395-v2/consumed-input.json",
+      "sha256": "6b28887c0530b1e2cf8ca8f3850ecfa33a82ad1598ec29b550f476450f92c5ea",
+      "bytes": 770
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/attack-comparison-v1.json",
+      "sha256": "4dfc68660a10c52bbf1eb7a5061a665bf0033c3d01be10b2beab74872e0b3bd6",
+      "bytes": 163470
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/attack-comparison-v2.json",
+      "sha256": "12a60a253bef80affc57d784a15efd89f5c69424f37212b9adebfb6e61dd21df",
+      "bytes": 163565
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/attack-selected-images-v2/runs.json",
+      "sha256": "ebc5f873dae39a86bcb7087db50e3fd6f5b5cf05330de4e29dfd2545b197697a",
+      "bytes": 3206
+    }
+  ],
+  "completion": {
+    "full_playthrough": false,
+    "complete_combat": false,
+    "persistence": false,
+    "original_raster_audio_parity": false,
+    "interactive_performance_measured": false
+  },
+  "native_action_attempt": {
+    "source_revision": "2098ed8c1c3cf61af14fd3439ea7eafc7513a14b",
+    "run": "local/research/battle-combat-entry-v1/native-attack-105395-v2/run.json",
+    "exit_code": 1,
+    "stopped_frame": 105326,
+    "guard": "Battle party157850 selected command processing is unrecovered",
+    "verified_parent_return": {
+      "frame": 105326,
+      "callback": "0x14a508",
+      "phase": 0,
+      "ari_readiness_state": 2,
+      "ari_descriptor_selector_action_target_parameter": [
+        3,
+        0,
+        0,
+        0
+      ]
+    },
+    "full_interval_complete": false
+  },
+  "action_comparison": {
+    "anchor": 105276,
+    "end": 105395,
+    "paired_rows": 103,
+    "equal_rows": 0,
+    "field_mismatches": 1030,
+    "missing_native": 417,
+    "missing_source": 0,
+    "order_mismatch_frames": 70,
+    "first_difference": 105276,
+    "first_missing": 105326,
+    "native_finish_present": false,
+    "native_unpaired_entry": [
+      1658,
+      "party_roster",
+      1385696
+    ],
+    "images_available": 4,
+    "audio_comparison": "unavailable: guarded native run did not write final PCM capture",
+    "fidelity_pass": false
+  }
+}
