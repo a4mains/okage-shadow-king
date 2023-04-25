@@ -1,6 +1,6 @@
 {
   "schema": "okage-battle-targeting-validation-v1",
-  "date": "2023-04-23",
+  "date": "2023-04-24",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "native_success": {
     "revision": "3adb941a0675a24c55b28cfd3e8bb4211e2d752c",
@@ -226,5 +226,27 @@
     "images_available": 4,
     "audio_comparison": "unavailable: guarded native run did not write final PCM capture",
     "fidelity_pass": false
+  },
+  "registration_flag_correction": {
+    "base_revision": "8589e62",
+    "source_semantics": "Entity+68 is the raw32-bit registration flag, not a waza pointer. Attack passes0; action208 passes1. Main descriptor is actor TASK1a8.",
+    "ctests_per_build": 3,
+    "builds": [
+      "Release",
+      "Debug",
+      "ASan+UBSan"
+    ],
+    "all_exit_codes": 0,
+    "native_route_advanced": false,
+    "source_and_evidence_sha256": {
+      "include/okage/battle_actor.hpp": "071ad81890bd7727171110384d39a4c181e80998aff82bb359788d6425efcc71",
+      "include/okage/battle_state.hpp": "d1e61caaadc24117a755433a7863eddce7eb29f8c1359f64379b6396afadac98",
+      "src/battle_entity_update.cpp": "2cf2bb4fb1faeb9f74701f907cb880bd6c7bc11d75896e449758ae2c87067568",
+      "tests/battle_entity_update_tests.cpp": "e7b78d4ed700fc7b6ed692394b29c7609afcac77f49aa3eff7fea7a142a75908",
+      "local/research/battle-combat-entry-v1/action-flag-checks-v2/run.json": "4ee385eaea8cf6c9c96a270fec1e05da62e81ce828ba5520dd2cd729bb86f556",
+      "local/research/battle-combat-entry-v1/exports-v12/00158490.c": "e83b582444305ccd9c7d4b91f9398a40cdeeb3db0f43a1762b29075252f4f9b0",
+      "local/research/battle-combat-entry-v1/exports-v4/00158868.c": "15e11e40bc26ba199c86db3bf4943e0c244356893268afc19c943a05dda52f81",
+      "local/research/battle-combat-entry-v1/exports-v4/001580d0.c": "fce2cceb444ad15d621da496ae4ed5060f0419a82dbb542cb52c848326f9aea1"
+    }
   }
 }

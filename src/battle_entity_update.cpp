@@ -81,12 +81,11 @@ void refresh_pair(BattleState& root,std::span<const BattleEntityBinding> binding
 }
 }
 void battle_register_action(BattleState& root,unsigned owner,unsigned target,
-                            std::optional<std::uint16_t> action_record) {
+                            std::uint32_t registration_flag) {
     auto node=root.entity(owner);
     (void)root.entity(target);
     half(node,0x60,std::uint16_t(owner));half(node,0x62,std::uint16_t(target));
-    root.action_records[owner]=action_record;
-    for(unsigned i=0;i<4;++i)node[0x68+i]=0;
+    for(unsigned i=0;i<4;++i)node[0x68+i]=std::uint8_t(registration_flag>>(8*i));
     half(node,0x64,std::uint16_t(half(node,0x64)+1));
     const auto append=[&](unsigned destination) {
         auto e=root.entity(destination);
@@ -102,7 +101,6 @@ void battle_register_action(BattleState& root,unsigned owner,unsigned target,
 void battle_clear_action(BattleState& root,unsigned owner) {
     auto node=root.entity(owner);
     half(node,0x60,0xffff);half(node,0x62,0xffff);
-    root.action_records[owner].reset();
     for(unsigned i=0;i<4;++i)node[0x68+i]=0;
 }
 void battle_compact_actions(BattleState& root,unsigned entity) {
@@ -122,7 +120,6 @@ void battle_refresh_entities(BattleState& root,std::span<const BattleEntityBindi
     for(unsigned i=0;i<count;++i) {
         const auto e=root.entity(i);
         require(word(e,0x1f4)==0&&word(e,0x1f8)==0,"Battle entity contains unnormalized guest links");
-        require(word(e,0x68)==0,"Battle action descriptor contains an unnormalized guest pointer");
         for(unsigned offset=0x6c;offset<=0x168;offset+=4)
             require(word(e,offset)==0,"Battle entity action list contains an unnormalized guest pointer");
         for(const auto link:root.action_links[i])

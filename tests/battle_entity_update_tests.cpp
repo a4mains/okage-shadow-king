@@ -83,7 +83,7 @@ void masks_missing_and_preservation() {
     Fixture empty(0);const auto empty_before=empty.root.bytes;empty.run();require(empty.root.bytes==empty_before,"Zero entities preserves root");
 }
 void validation_and_rounding() {
-    for(unsigned at:{0x68u,0x6cu,0x100u,0x168u,0x1f4u,0x1f8u}) {
+    for(unsigned at:{0x6cu,0x100u,0x168u,0x1f4u,0x1f8u}) {
         Fixture f(2);f.actor(0,{0,0,0,1});f.actor(1,{1,0,0,1});f.root.entity(1)[at]=1;
         const auto before=f.root.bytes;rejects([&]{f.run();});require(f.root.bytes==before,"Unsupported lists and links reject before mutation");
     }
@@ -106,22 +106,25 @@ void validation_and_rounding() {
 unsigned half(okage::Bytes b,unsigned at){return unsigned(b[at])|(unsigned(b[at+1])<<8);}
 void action_aliases_and_compaction() {
     Fixture f(4);
-    okage::battle_register_action(f.root,0,1,200);
+    okage::battle_register_action(f.root,0,1,0);
     require(f.root.action_links[1][0]==0&&f.root.action_links[0][0]==0,"Target and source alias the same embedded node");
-    require(half(f.root.entity(0),0x64)==1&&f.root.action_records[0]==200,"Descriptor and counter recorded once");
-    okage::battle_register_action(f.root,0,2,201);
+    require(half(f.root.entity(0),0x64)==1&&half(f.root.entity(0),0x68)==0,"Ordinary Attack scalar and counter recorded once");
+    okage::battle_register_action(f.root,0,2,1);
     require(f.root.action_links[1][0]==0&&half(f.root.entity(*f.root.action_links[1][0]),0x62)==2&&
-            f.root.action_records[*f.root.action_links[1][0]]==201,"Old aliases see re-registration of the same node");
+            half(f.root.entity(*f.root.action_links[1][0]),0x68)==1,"Old aliases see re-registration of the same node");
     require(f.root.action_links[0][1]==0&&half(f.root.entity(0),0x16c)==2,"Duplicate aliases are retained");
+    f.run();
+    require(half(f.root.entity(0),0x68)==1,"Entity refresh accepts and preserves the nonzero registration scalar");
     put(f.root.entity(0),0x66,0xabcdu,2);
     okage::battle_clear_action(f.root,0);
     require(half(f.root.entity(0),0x60)==0xffff&&half(f.root.entity(0),0x62)==0xffff&&
             half(f.root.entity(0),0x64)==2&&half(f.root.entity(0),0x66)==0xabcd&&
-            half(f.root.entity(0),0x16c)==2&&!f.root.action_records[0],"Invalidation preserves counter, untouched lane and all links");
+            half(f.root.entity(0),0x16c)==2&&half(f.root.entity(0),0x68)==0,"Invalidation preserves counter, untouched lane and all links");
     f.run();
     require(!f.root.action_links[0][0]&&!f.root.action_links[1][0]&&!f.root.action_links[2][0]&&
             half(f.root.entity(0),0x16c)==0,"Refresh compacts all duplicate invalid aliases");
-    okage::battle_register_action(f.root,3,3,std::nullopt);
+    okage::battle_register_action(f.root,3,3,0xfedcba98u);
+    require((mask(f.root.entity(3),0x64)>>32)==0xfedcba98u,"Registration retains all32 scalar bits without narrowing to a row ID");
     require(f.root.action_links[3][0]==3&&f.root.action_links[3][1]==3&&half(f.root.entity(3),0x16c)==2,"Self-target appends twice");
 
     //A null head suppresses compaction even with later invalid references.
@@ -136,23 +139,26 @@ void action_aliases_and_compaction() {
     links={};links[0]=0;put(f.root.entity(1),0x16c,0,2);okage::battle_compact_actions(f.root,1);
     require(half(f.root.entity(1),0x16c)==0xffff,"Compaction count subtraction wraps at16 bits");
     f.run();require(half(f.root.entity(1),0x16c)==0xffff,"Actual refresh preserves wrapped count with a null head");
-    f.root.initialize_root({1,0,1});require(!f.root.action_links[3][0]&&!f.root.action_records[0],"Fresh root clears typed ownership");
+    require((mask(f.root.entity(3),0x64)>>32)==0xfedcba98u,"Refresh and compaction preserve the complete scalar");
+    okage::battle_clear_action(f.root,3);
+    require((mask(f.root.entity(3),0x64)>>32)==0,"Invalidation clears all32 scalar bits");
+    f.root.initialize_root({1,0,1});require(!f.root.action_links[3][0]&&half(f.root.entity(0),0x68)==0,"Fresh root clears typed ownership");
 }
 void action_capacity_prefixes() {
     Fixture f(2);put(f.root.entity(1),0x16c,64,2);put(f.root.entity(0),0x64,0xffff,2);
-    rejects([&]{okage::battle_register_action(f.root,0,1,200);});
+    rejects([&]{okage::battle_register_action(f.root,0,1,0);});
     require(half(f.root.entity(1),0x16c)==65&&half(f.root.entity(0),0x16c)==0&&
-            half(f.root.entity(0),0x64)==0&&half(f.root.entity(0),0x62)==1&&f.root.action_records[0]==200,
+            half(f.root.entity(0),0x64)==0&&half(f.root.entity(0),0x62)==1&&half(f.root.entity(0),0x68)==0,
             "Target capacity guard preserves descriptor, wrapping counter and incremented target count");
     Fixture g(2);put(g.root.entity(0),0x16c,64,2);
-    rejects([&]{okage::battle_register_action(g.root,0,1,std::nullopt);});
+    rejects([&]{okage::battle_register_action(g.root,0,1,0);});
     require(g.root.action_links[1][0]==0&&half(g.root.entity(1),0x16c)==1&&half(g.root.entity(0),0x16c)==65,
             "Target append completes before source capacity guard");
     Fixture self(1);put(self.root.entity(0),0x16c,63,2);
-    rejects([&]{okage::battle_register_action(self.root,0,0,200);});
+    rejects([&]{okage::battle_register_action(self.root,0,0,0);});
     require(self.root.action_links[0][63]==0&&half(self.root.entity(0),0x16c)==65,"Self target rereads count and preserves first append");
     Fixture negative(2);put(negative.root.entity(1),0x16c,0xffff,2);
-    rejects([&]{okage::battle_register_action(negative.root,0,1,std::nullopt);});
+    rejects([&]{okage::battle_register_action(negative.root,0,1,0);});
     require(half(negative.root.entity(1),0x16c)==0,"Signed negative index guards after wrapping count increment");
 }
 }
