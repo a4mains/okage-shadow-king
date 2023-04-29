@@ -19,7 +19,12 @@ PCS = {'parent': {0x14a248, 0x14a508, 0x1519f8, 0x151e68},
        'party_roster': {0x1524e0}, 'enemy_roster': {0x15afa0}}
 ROOT = [(0x2c, 0x30), (0x3c, 0x48), (0x50, 0x54)]
 TAIL = [(0x807c, 0x8084), (0x80a0, 0x81c4)]
-ENTITY = [(0, 0x16e), (0x170, 0x1f4), (0x1fc, 0x200)]
+ENTITY = [(0, 0x6c), (0x16c, 0x16e), (0x170, 0x1f4), (0x1fc, 0x200)]
+ACTION_SCALARS = [(0x1b0, 0x1dc), (0x1e0, 0x200), (0x204, 0x21c)]
+ACTOR_EXTRA = {kind: [r for r in ranges if r not in [(0x1a8, 0x1ac), (0x1d4, 0x1d8), (0x1fc, 0x1fe)]]
+               for kind, ranges in EXTRA.items()}
+DESCRIPTORS = [(0x237578, 0x23dd98, 0), (0x23df98, 0x243410, 196),
+               (0x243410, 0x243c08, 355)]
 
 class Invalid(ValueError):
     pass
@@ -44,6 +49,49 @@ def raw(row, key, size):
 
 def word(data, offset):
     return struct.unpack_from('<I', data, offset)[0]
+
+def descriptor_id(pointer, label):
+    if pointer == 0:
+        return None
+    for start, end, base in DESCRIPTORS:
+        if start <= pointer < end and (pointer-start) % 0x88 == 0:
+            return base + (pointer-start)//0x88
+    raise Invalid(f'{label}: unrepresentable source descriptor pointer 0x{pointer:08x}')
+
+def typed_id(actor, key, limit):
+    value = actor.get(key)
+    need(value is None or type(value) is int and 0 <= value < limit, key + ': invalid identity')
+    return value
+
+def graph_links(row, entities, count, original):
+    if original:
+        root = row.get('root')
+        need(type(root) is int and 0 <= root <= 0x2000000-0x81d0, 'Invalid source root extent')
+        for key, offset in [('root_prefix', 0), ('root_tail_queue', 0x8060), ('registered_entities', 0x60)]:
+            need(row[key].get('address') == root+offset, key + ': inconsistent root provenance')
+        links = []
+        for entity in range(count):
+            values = []
+            for slot in range(64):
+                pointer = word(entities, entity*0x200+0x6c+slot*4)
+                delta = pointer-(root+0xc0)
+                need(pointer == 0 or 0 <= delta < 64*0x200 and delta % 0x200 == 0,
+                     f'entity[{entity}].links[{slot}]: unrepresentable source node pointer 0x{pointer:08x}')
+                values.append(None if pointer == 0 else delta//0x200)
+            links.append(values)
+        return links, True
+    #Guest addresses must never be serialized as native owner identities.
+    need(all(entities[i*0x200+0x6c:i*0x200+0x16c] == bytes(256) for i in range(count)),
+         'Native graph pointer lanes are not normalized')
+    links = row.get('action_graph_links')
+    if links is None:
+        empty = all(entities[i*0x200+0x16c:i*0x200+0x16e] == bytes(2) for i in range(count))
+        return [[None]*64 for _ in range(count)], empty
+    need(isinstance(links, list) and len(links) == count, 'Native graph entity extent')
+    for values in links:
+        need(isinstance(values, list) and len(values) == 64, 'Native graph slot extent')
+        need(all(v is None or type(v) is int and 0 <= v < 64 for v in values), 'Native graph node identity')
+    return links, True
 
 def load(path, original):
     try:
@@ -102,7 +150,11 @@ def normalize(row, original):
     if original:
         need(row.get('entity_count') == count, 'Entity count disagrees')
     entities = raw(row, 'registered_entities', count*0x200) if original else unhex(row.get('registered_entities_hex'), count*0x200, 'entities')
+    links, observed = graph_links(row, entities, count, original)
+    result['action_graph_observed'] = observed
     for i in range(count):
+        for slot, value in enumerate(links[i]):
+            result[f'entity[{i}].links[{slot}]'] = value
         for lo, hi in ENTITY:
             result[f'entity[{i}][{lo:x}:{hi:x}]'] = entities[i*0x200+lo:i*0x200+hi].hex()
     result['entry'] = (raw(row, 'battle_entry', 0x38) if original else unhex(row.get('entry_hex'), 0x38, 'entry')).hex()
@@ -119,8 +171,24 @@ def normalize(row, original):
         result[name+'.enemy'] = enemy
         task_size, record_size = (0x3e0, 0x6c) if enemy else (0x3d0, 0x50)
         task = raw(actor, 'task', task_size) if original else unhex(actor.get('task_hex'), task_size, name)
-        for lo, hi in COMMON + EXTRA['enemy' if enemy else 'party']:
+        #PARTY EXTRA's old1a8..1ab span becomes a pointer once1580d0 runs.
+        ranges = COMMON + ACTOR_EXTRA['enemy' if enemy else 'party']
+        for lo, hi in ranges + ACTION_SCALARS:
             result[f'{name}.task[{lo:x}:{hi:x}]'] = task[lo:hi].hex()
+        if original:
+            motion = descriptor_id(word(task, 0x1a8), name+'.action_motion')
+            secondary = descriptor_id(word(task, 0x200), name+'.action_secondary')
+            record_id = struct.unpack_from('<h', task, 0x1fc)[0] if motion is not None else None
+            need(record_id is None or 0 <= record_id < 256, name+': unsupported owned waza identity')
+        else:
+            need(all(word(task, at) == 0 for at in (0x1a8, 0x1ac, 0x1dc, 0x200)),
+                 name+': native action pointer lanes are not normalized')
+            motion = typed_id(actor, 'action_motion_id', 370)
+            secondary = typed_id(actor, 'action_secondary_id', 370)
+            record_id = typed_id(actor, 'action_record_id', 256)
+        result[name+'.action_motion_id'] = motion
+        result[name+'.action_secondary_id'] = secondary
+        result[name+'.action_record_id'] = record_id
         result[name+'.record'] = (raw(actor, 'record', record_size) if original else unhex(actor.get('record_hex'), record_size, name+'.record')).hex()
         bindings = actor.get('stat_bindings')
         need(isinstance(bindings, list) and len(bindings) == 6, 'Binding count')
@@ -165,6 +233,8 @@ def compare(original, native, anchor):
         return out, orders
     a, ao = indexed(source, anchor); b, bo = indexed(target, 0)
     missing_native = sorted(a.keys()-b.keys()); missing_original = sorted(b.keys()-a.keys())
+    normalized_a = {key: normalize(row, True) for key, row in a.items()}
+    normalized_b = {key: normalize(row, False) for key, row in b.items()}
     differences = []; total = 0; counts = Counter(); matched_rows = 0
     phase_changes = {'original': [], 'native': []}
     for side, rows, shift in [('original', source, anchor), ('native', target, 0)]:
@@ -174,7 +244,7 @@ def compare(original, native, anchor):
             value = [row['entry_pc'], word(raw(row, 'root_prefix', 0x60), 0x24) if side == 'original' else row['parent_phase']]
             if value != last: phase_changes[side].append({'frame':row['frame']+shift,'entry_pc':value[0],'phase':value[1]}); last=value
     for key in sorted(a.keys() & b.keys(), key=lambda key:(key[0], a[key]['sequence'])):
-        av, bv = normalize(a[key], True), normalize(b[key], False)
+        av, bv = normalized_a[key], normalized_b[key]
         row_equal = True
         for field in sorted(av.keys() | bv.keys()):
             if av.get(field) != bv.get(field):
@@ -189,11 +259,16 @@ def compare(original, native, anchor):
     return {'schema':'okage-battle-live-comparison-v1','anchor':anchor,'end':end,
             'inputs':{str(p):hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in [original,native]},
             'coverage':{'original':oc,'native':nc,'original_rows_in_interval':len(a),'native_rows_in_interval':len(b),
-                        'native_rows_outside_interval':len(target)-len(b),'paired_rows':len(a.keys()&b.keys()),'equal_rows':matched_rows},
+                        'native_rows_outside_interval':len(target)-len(b),'paired_rows':len(a.keys()&b.keys()),'equal_rows':matched_rows,
+                        'validated_original_rows':len(normalized_a),'validated_native_rows':len(normalized_b),
+                        'native_rows_missing_nonempty_graph':sum(not r['action_graph_observed'] for r in normalized_b.values())},
             'missing_native':missing_native,'missing_original':missing_original,'order_differences':order_differences,
             'first_observation_mismatch':first_observation,'phase_changes':phase_changes,'field_mismatch_count':total,'field_counts':dict(counts),
             'first_mismatch':differences[0] if differences else None,'mismatch_examples':differences,
-            'scope':{'actor_ranges':COMMON,'actor_extra':EXTRA,'root_ranges':ROOT+TAIL,'entity_ranges':ENTITY,
+            'scope':{'actor_ranges':COMMON,'actor_extra':ACTOR_EXTRA,'root_ranges':ROOT+TAIL,'entity_ranges':ENTITY,
+                     'action_scalar_ranges':ACTION_SCALARS,'descriptor_regions':DESCRIPTORS,
+                     'action_graph':'All64 slots per registered entity; node identity=root+c0+index*200, index0..63; +68 remains scalar',
+                     'action_record':'ID inferred from TASK1fc only with initialized motion; relocated name/description pointer bytes excluded; string contents are not captured',
                      'excluded':'Guest pointers, untouched bytes outside named ranges, full animation cache/contexts, pad latches (serializer mappings differ), noncurrent roster phase/mask; no floats tolerance, shift, interpolation or inferred callbacks'},
             'equal':not(total or missing_native or missing_original or order_differences or not nc['finish_present'])}
 

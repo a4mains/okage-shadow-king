@@ -23,7 +23,9 @@ def fixtures(enemy=False):
     actor={'entity_id':0,'type':int(enemy),'task':blob(task),'record':blob(record),'stat_bindings':bindings,
            'model':{'captured_channels':3,'world_channels_raw':blob(bytes(3*0x90))}}
     a={'event':'callback','kind':'parent','edge':'entry','sequence':0,'call_id':1,'frame':0,'entry_pc':0x14a248,
-       'root_prefix':blob(prefix),'root_tail_queue':blob(tail),'registered_entities':blob(entities),'entity_count':1,
+       'root':0x400000,'root_prefix':blob(prefix),
+       'root_tail_queue':dict(blob(tail),address=0x408060),
+       'registered_entities':dict(blob(entities),address=0x400060),'entity_count':1,
        'battle_entry':blob(bytes(0x38)),'shared_variables_574':blob(bytes(4)),'rng_state_word':123,'actors':[actor]}
     b={'event':'callback','kind':'parent','edge':'entry','sequence':0,'call_id':8,'frame':100,'entry_pc':0x14a248,
        'parent_callback':0x14a248,'parent_phase':0,'party_phase':0,'enemy_phase':0,'party_mask':0,'enemy_mask':0,
@@ -54,6 +56,126 @@ class LiveComparisonTests(unittest.TestCase):
         b[1]['rng_state_word']=124
         r=self.compare(a,b);self.assertFalse(r['equal']);self.assertEqual(r['first_mismatch']['field'],'rng_state_word')
         self.assertEqual(r['first_mismatch']['key'][0],100)
+
+    @staticmethod
+    def graph(a, b, links, count=0, scalar_flag=0):
+        source = bytearray.fromhex(a[1]['registered_entities']['raw_hex'])
+        native = bytearray.fromhex(b[1]['registered_entities_hex'])
+        for data in (source, native):
+            struct.pack_into('<I', data, 0x68, scalar_flag)
+            struct.pack_into('<H', data, 0x16c, count)
+        for slot, owner in links.items():
+            struct.pack_into('<I', source, 0x6c+4*slot, a[1]['root']+0xc0+owner*0x200)
+        a[1]['registered_entities']['raw_hex'] = source.hex()
+        b[1]['registered_entities_hex'] = native.hex()
+        b[1]['action_graph_links'] = [[links.get(slot) for slot in range(64)]]
+
+    def test_aliases_duplicate_and_stale_last_slot_normalize_exactly(self):
+        a,b=fixtures()
+        #All64 embedded nodes exist, even if only entity0 is registered. Source
+        #158b70 scans/copies beyond logical count; stale tails must be compared.
+        self.graph(a,b,{0:0,1:0,63:63},count=2,scalar_flag=1)
+        self.assertTrue(self.compare(a,b)['equal'])
+        b[1]['action_graph_links'][0][63]=None
+        r=self.compare(a,b)
+        self.assertEqual(r['field_mismatch_count'],1)
+        self.assertEqual(r['first_mismatch']['field'],'entity[0].links[63]')
+        self.assertEqual(r['first_mismatch']['original'],63)
+
+    def test_node_flag_is_scalar_not_waza_pointer(self):
+        a,b=fixtures();self.graph(a,b,{0:0},count=1,scalar_flag=0xffffffff)
+        self.assertTrue(self.compare(a,b)['equal'])
+        native=bytearray.fromhex(b[1]['registered_entities_hex'])
+        struct.pack_into('<I',native,0x68,0);b[1]['registered_entities_hex']=native.hex()
+        self.assertIn('entity[0][0:6c]',self.compare(a,b)['field_counts'])
+
+    def test_missing_nonempty_graph_reports_coverage_not_success(self):
+        a,b=fixtures();self.graph(a,b,{0:0},count=1);del b[1]['action_graph_links']
+        r=self.compare(a,b)
+        self.assertEqual(r['coverage']['paired_rows'],2)
+        self.assertIn('action_graph_observed',r['field_counts'])
+        self.assertIn('entity[0].links[0]',r['field_counts'])
+        self.assertFalse(r['equal'])
+
+    def test_graph_bounds_and_source_owner_provenance(self):
+        for case in ['unaligned','outside','root','address','shape','identity','bool','native_pointer']:
+            with self.subTest(case=case):
+                a,b=fixtures();self.graph(a,b,{0:0},count=1)
+                if case in ['unaligned','outside']:
+                    data=bytearray.fromhex(a[1]['registered_entities']['raw_hex'])
+                    pointer=a[1]['root']+0xc0+(1 if case=='unaligned' else 64*0x200)
+                    struct.pack_into('<I',data,0x6c,pointer)
+                    a[1]['registered_entities']['raw_hex']=data.hex()
+                elif case=='root':a[1]['root']=0x1fff000
+                elif case=='address':a[1]['registered_entities']['address']+=16
+                elif case=='shape':b[1]['action_graph_links'][0].pop()
+                elif case=='identity':b[1]['action_graph_links'][0][0]=64
+                elif case=='bool':b[1]['action_graph_links'][0][0]=True
+                else:
+                    data=bytearray.fromhex(b[1]['registered_entities_hex']);struct.pack_into('<I',data,0x6c,1)
+                    b[1]['registered_entities_hex']=data.hex()
+                with self.assertRaises(tool.Invalid):self.compare(a,b)
+
+    def test_descriptor_id_boundaries(self):
+        for pointer,identity in [(0,None),(0x237578,0),(0x23dd10,195),
+                                 (0x23df98,196),(0x243388,354),(0x243410,355),(0x243b80,369)]:
+            self.assertEqual(tool.descriptor_id(pointer,'test'),identity)
+        for pointer in [0x237577,0x237579,0x23dd98,0x23df97,0x243c08]:
+            with self.assertRaisesRegex(tool.Invalid,'unrepresentable'):tool.descriptor_id(pointer,'test')
+
+    def test_action_record_and_descriptor_identities_and_all_numeric_words(self):
+        a,b=fixtures();source=bytearray.fromhex(a[1]['actors'][0]['task']['raw_hex'])
+        native=bytearray.fromhex(b[1]['actors'][0]['task_hex'])
+        for data in (source,native):
+            struct.pack_into('<h',data,0x1fc,200)
+            struct.pack_into('<I',data,0x1d8,0x12345678) #last numeric waza word
+            struct.pack_into('<I',data,0x204,0x80000000) #exact signed-zero bits
+        for at,value in [(0x1a8,0x23cda8),(0x1ac,0x100000),(0x1dc,0x110000),(0x200,0x243410)]:
+            struct.pack_into('<I',source,at,value)
+        a[1]['actors'][0]['task']=blob(source)
+        actor=b[1]['actors'][0];actor.update(task_hex=native.hex(),action_record_id=200,action_motion_id=166,action_secondary_id=355)
+        self.assertTrue(self.compare(a,b)['equal'])
+        actor['action_record_id']=201
+        r=self.compare(a,b);self.assertEqual(r['first_mismatch']['field'],'actor[0].action_record_id')
+        actor['action_record_id']=200;native[0x1d8]^=1;actor['task_hex']=native.hex()
+        self.assertEqual(self.compare(a,b)['first_mismatch']['field'],'actor[0].task[1b0:1dc]')
+
+    def test_no_motion_does_not_infer_waza_row_and_missing_identity_is_difference(self):
+        a,b=fixtures()
+        for original,row in [(True,a[1]),(False,b[1])]:
+            actor=row['actors'][0];data=bytearray.fromhex(actor['task']['raw_hex'] if original else actor['task_hex'])
+            struct.pack_into('<h',data,0x1fc,200)
+            if original:actor['task']=blob(data)
+            else:actor['task_hex']=data.hex()
+        self.assertTrue(self.compare(a,b)['equal'])
+        source=bytearray.fromhex(a[1]['actors'][0]['task']['raw_hex']);struct.pack_into('<I',source,0x1a8,0x237578)
+        a[1]['actors'][0]['task']=blob(source)
+        r=self.compare(a,b)
+        self.assertIn('actor[0].action_motion_id',r['field_counts'])
+        self.assertIn('actor[0].action_record_id',r['field_counts'])
+
+    def test_unpaired_source_rows_still_validate_graph_identity(self):
+        a,b=fixtures();self.graph(a,b,{0:0},count=1)
+        source=bytearray.fromhex(a[1]['registered_entities']['raw_hex'])
+        struct.pack_into('<I',source,0x6c,0x123456)
+        a[1]['registered_entities']['raw_hex']=source.hex()
+        for row in b[1:3]:row['frame']=101
+        with self.assertRaisesRegex(tool.Invalid,'unrepresentable source node'):self.compare(a,b)
+
+    def test_action_pointer_and_identity_rejections(self):
+        for case in ['source','native','bool','extent','waza']:
+            with self.subTest(case=case):
+                a,b=fixtures()
+                if case in ['source','waza']:
+                    task=bytearray.fromhex(a[1]['actors'][0]['task']['raw_hex'])
+                    struct.pack_into('<I',task,0x1a8,0x237578 if case=='waza' else 0x123456)
+                    if case=='waza':struct.pack_into('<h',task,0x1fc,-1)
+                    a[1]['actors'][0]['task']=blob(task)
+                elif case=='native':
+                    task=bytearray.fromhex(b[1]['actors'][0]['task_hex']);struct.pack_into('<I',task,0x1ac,4)
+                    b[1]['actors'][0]['task_hex']=task.hex()
+                else:b[1]['actors'][0]['action_secondary_id']=True if case=='bool' else 370
+                with self.assertRaises(tool.Invalid):self.compare(a,b)
 
     def test_no_shift_fits_mismatched_callback_frames(self):
         a,b=fixtures();b[1]['frame']=101;b[2]['frame']=101
