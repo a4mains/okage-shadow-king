@@ -22,8 +22,8 @@ std::uint32_t word(okage::Bytes b,unsigned at) {
     return unsigned(b[at])|(unsigned(b[at+1])<<8)|(unsigned(b[at+2])<<16)|(unsigned(b[at+3])<<24);
 }
 unsigned half(okage::Bytes b,unsigned at) {return b[at]|(unsigned(b[at+1])<<8);}
-void number(std::span<std::uint8_t> b,unsigned at,float value){put(b,at,__builtin_bit_cast(std::uint32_t, (value)));}
-float number(okage::Bytes b,unsigned at){return __builtin_bit_cast(float, (word(b,at)));}
+void number(std::span<std::uint8_t> b,unsigned at,float value){put(b,at,std::bit_cast<std::uint32_t>(value));}
+float number(okage::Bytes b,unsigned at){return std::bit_cast<float>(word(b,at));}
 struct Fixture {
     okage::BattleState root;
     std::array<std::uint8_t,0x50> record{};
@@ -71,7 +71,7 @@ void first_callback() {
     number(f.actor.storage,0x12c,0);put(f.actor.storage,0x20,55);
     rejects([&]{okage::battle_party_first_update(f.actor,f.root);});
     require(number(f.actor.storage,0x12c)==-.5f&&word(f.actor.storage,0x20)==55,"Expiry guard preserves preceding remainder store before common callback");
-    number(f.actor.storage,0x12c,-1);put(f.actor.storage,0x21c,99);
+    number(f.actor.storage,0x12c,-1);put(f.actor.storage,0x21c,98);
     rejects([&]{okage::battle_party_first_update(f.actor,f.root);});
     require(word(f.actor.storage,0x20)==0,"Unsupported common state rejects after source clear");
 }
@@ -110,6 +110,42 @@ void ready_actor_keeps_charge() {
     const auto position=f.actor.model->animation().value(1);
     for(unsigned i=0;i<4;++i)require(position[i]==number(f.actor.storage,0x60+4*i),
         "Ready actor still publishes its world position");
+}
+void action_wait_callbacks() {
+    for(unsigned state:{3u,4u}) {
+        Fixture f;f.bone_transition();put(f.actor.storage,0x21c,state);
+        number(f.actor.storage,0x19c,2);number(f.actor.storage,0x1a0,2.5f);
+        number(f.actor.storage,0x1a4,100); // Ignored by this timer.
+        const auto script=f.actor.model->animation().script_state();
+        okage::battle_party_first_update(f.actor,f.root);
+        require(number(f.actor.storage,0x19c)==2.5f&&number(f.actor.storage,0x194)==1,
+                "Action elapsed clamps; charge and multiplier are untouched");
+        require(f.actor.model->animation().value(4)[0]==.0625f&&word(f.actor.storage,0x20)==0,
+                "Action first callback really steps model and leaves marker0");
+        okage::battle_party_second_update(f.actor,f.root);
+        require(f.actor.model->animation().value(4)[0]==.125f,
+                "Second callback advances again; no invented double-step suppression");
+        require(f.actor.model->animation().script_state()==script&&word(f.actor.storage,0x21c)==state,
+                "Waiting preserves state and does not dispatch model script");
+        const auto position=f.actor.model->animation().value(1);
+        for(unsigned i=0;i<4;++i)require(position[i]==number(f.actor.storage,0x60+i*4),"Action wait still publishes world channels");
+    }
+    Fixture fraction;fraction.bone_transition();put(fraction.actor.storage,0x21c,3);
+    number(fraction.actor.storage,0x2c,.5f);number(fraction.actor.storage,0x1a0,10);
+    okage::battle_party_first_update(fraction.actor,fraction.root);
+    require(number(fraction.actor.storage,0x19c)==.5f&&number(fraction.actor.storage,0x11c)==.5f,
+            "Fractional action timestep accumulates real model step time");
+    okage::battle_party_second_update(fraction.actor,fraction.root);
+    require(word(fraction.actor.storage,0x11c)==0&&fraction.actor.model->animation().value(4)[0]==.0625f,
+            "Two half steps cross source model accumulator threshold");
+    Fixture special;special.bone_transition();put(special.actor.storage,0x21c,99);put(special.actor.storage,0x20,99);
+    const auto before=special.actor.storage;okage::battle_party_first_update(special.actor,special.root);
+    for(unsigned i=0;i<before.size();++i)if(i<0x20||i>=0x24)require(special.actor.storage[i]==before[i],"State99 only clears marker before channel tail");
+    require(special.actor.model->animation().value(4)[0]==0,"State99 first callback does not step");
+    Fixture failure;put(failure.actor.storage,0x21c,3);number(failure.actor.storage,0x1a0,10);
+    failure.actor.model.reset();rejects([&]{okage::battle_actor_motion_update(failure.actor);});
+    require(number(failure.actor.storage,0x19c)==1&&word(failure.actor.storage,0x11c)==0,
+            "Model failure preserves preceding elapsed and accumulator writes");
 }
 void channels_and_effect_guards() {
     for(bool visible:{false,true}) {
@@ -183,6 +219,6 @@ void floating_environment() {
 }
 }
 int main(){try {
-    first_callback();charge_publication();ready_actor_keeps_charge();channels_and_effect_guards();enemy_paths();floating_environment();
+    first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();channels_and_effect_guards();enemy_paths();floating_environment();
     std::cout<<"Battle actor startup callback tests passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

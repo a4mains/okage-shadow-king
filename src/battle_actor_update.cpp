@@ -18,20 +18,20 @@ std::uint32_t word(Bytes b,unsigned at) {
 }
 std::int16_t half(Bytes b,unsigned at) {
     check(at<=b.size()&&b.size()-at>=2,"Battle actor update halfword extent");
-    return __builtin_bit_cast(std::int16_t, (std::uint16_t(b[at]|(unsigned(b[at+1])<<8))));
+    return std::bit_cast<std::int16_t>(std::uint16_t(b[at]|(unsigned(b[at+1])<<8)));
 }
 void put(std::span<std::uint8_t> b,unsigned at,std::uint32_t value,unsigned size=4) {
     check(at<=b.size()&&b.size()-at>=size,"Battle actor update write extent");
     for(unsigned i=0;i<size;++i)b[at+i]=std::uint8_t(value>>(8*i));
 }
 float supported(float value) {
-    const auto bits=__builtin_bit_cast(std::uint32_t, (value)),exponent=bits&0x7f800000u;
+    const auto bits=std::bit_cast<std::uint32_t>(value),exponent=bits&0x7f800000u;
     check(exponent!=0x7f800000u&&(exponent!=0||(bits&0x7fffffu)==0),
           "Battle actor update nonfinite/subnormal arithmetic is unsupported");
     return value;
 }
-float scalar(Bytes b,unsigned at) {return supported(__builtin_bit_cast(float, (word(b,at))));}
-void scalar(std::span<std::uint8_t> b,unsigned at,float value) {put(b,at,__builtin_bit_cast(std::uint32_t, (value)));}
+float scalar(Bytes b,unsigned at) {return supported(std::bit_cast<float>(word(b,at)));}
+void scalar(std::span<std::uint8_t> b,unsigned at,float value) {put(b,at,std::bit_cast<std::uint32_t>(value));}
 class TowardZero {
 public:
     TowardZero() {
@@ -63,12 +63,12 @@ float single(float left,float right,Operation operation) {
     return supported(result);
 }
 Float4 vector(Bytes b,unsigned at) {
-    Float4 value{};for(unsigned i=0;i<4;++i)value[i]=__builtin_bit_cast(float, (word(b,at+i*4)));
+    Float4 value{};for(unsigned i=0;i<4;++i)value[i]=std::bit_cast<float>(word(b,at+i*4));
     return value;
 }
 std::int8_t status(const BattleActor& actor,unsigned binding) {
     check(!actor.stat_bindings[binding].empty(),"Battle actor live status binding is missing");
-    return __builtin_bit_cast(std::int8_t, (actor.stat_bindings[binding][0]));
+    return std::bit_cast<std::int8_t>(actor.stat_bindings[binding][0]);
 }
 FieldActor& model(BattleActor& actor) {
     check(bool(actor.model),"Battle actor model owner is missing");return *actor.model;
@@ -116,7 +116,7 @@ void battle_actor_motion_update(BattleActor& actor) {
     TowardZero rounding;
     put(actor.storage,0x20,0);
     switch(word(actor.storage,0x21c)) { //B+1dc, not C+1dc.
-    case 0:case 2:
+    case 0:case 2:case 99:
         break;
     case 1: {
         const float step=single(scalar(actor.storage,0x2c),scalar(actor.storage,0x1a4),Operation::Multiply);
@@ -124,6 +124,16 @@ void battle_actor_motion_update(BattleActor& actor) {
         const float maximum=scalar(actor.storage,0x198);
         scalar(actor.storage,0x194,next);
         if(maximum<=next)scalar(actor.storage,0x194,maximum);
+        break;
+    }
+    case 3:case 4: {
+        const float current=scalar(actor.storage,0x19c);
+        const float timestep=scalar(actor.storage,0x2c);
+        const float maximum=scalar(actor.storage,0x1a0);
+        const float next=single(current,timestep,Operation::Add);
+        scalar(actor.storage,0x19c,next);
+        if(maximum<=next)scalar(actor.storage,0x19c,maximum);
+        step_model(actor);
         break;
     }
     default:throw std::runtime_error("Unrecovered battle actor motion/action state");
