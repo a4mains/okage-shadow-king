@@ -9,6 +9,8 @@ namespace okage {
 // Consumers must recover each field they use; no animation execution implied.
 struct BattleActionDescriptor {
     std::array<std::uint8_t,0x88> bytes{};
+    // Stable imported record index: paired0..195, generic196..354, secondary355..369.
+    std::uint16_t identity=0xffff;
     std::int16_t half(std::size_t offset) const;
 };
 struct BattleSecondaryActionSelection {

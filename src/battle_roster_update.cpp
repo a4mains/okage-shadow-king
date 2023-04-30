@@ -1,5 +1,6 @@
 #include "okage/battle_roster_update.hpp"
 #include "okage/battle_command_queue.hpp"
+#include "okage/battle_action_setup.hpp"
 #include <bit>
 #include <cmath>
 #include <stdexcept>
@@ -97,7 +98,18 @@ void party_actor(BattleActor& a,BattleRosterUpdateContext& c) {
         if(half(a.storage,0x220)==3) {
             if(half(a.storage,0x44)==4&&signed_word(a.storage,0x344)!=-1)
                 missing("Battle party101648 selected actor effect stop is unrecovered");
-            missing("Battle party157850 selected command processing is unrecovered");
+            battle_decode_command(a,c.root,c.entities,c.random);
+            const auto action=half(a.storage,0x142);
+            if(action>=22&&action<=24) {
+                put(a.storage,0x21c,99);put(a.storage,0x340,std::uint32_t(action));
+                put(a.storage,0x304,word(a.storage,0x304)+1);put(a.storage,0x220,0,2);
+                put(a.storage,0x194,0);return;
+            }
+            if(action==208)missing("Battle party153388 combo setup is unrecovered");
+            check(c.tables&&c.action_data,"Battle1580d0 owned action data missing");
+            const auto duration=battle_setup_action(a,c.root,*c.tables,*c.action_data);
+            put(a.storage,0x1a0,std::bit_cast<std::uint32_t>(duration));
+            put(a.storage,0x21c,3);put(a.storage,0x220,0,2);put(a.storage,0x19c,0);return;
         }
         if(half(a.storage,0x220)==4) {
             const auto selector=signed_word(a.storage,0x1d4);

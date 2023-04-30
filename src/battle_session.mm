@@ -129,6 +129,7 @@ struct BattleSession::Impl {
     std::optional<BattleCameraSequence> camera_sequence;
     std::optional<BattleCameraSequence> after_intro_sequence;
     std::optional<BattleData> battle_data;
+    std::optional<BattleActionData> action_data;
     BattleRoster roster{root};
     // Last member: its destructor joins before any job-captured owners die.
     NativeLoadQueue jobs;
@@ -158,6 +159,7 @@ struct BattleSession::Impl {
             ui_definitions.emplace(read(input/"battle-ui.bin"));
             hud_definitions.emplace(read(input/"battle-hud.bin"));
             command_definitions.emplace(read(input/"battle-ui-commands.bin"));
+            action_data.emplace(read(input/"battle-actions.bin"));
             load_step.store(1);
             device=MTLCreateSystemDefaultDevice();
             if(!device)throw std::runtime_error("Battle loader requires Metal");
@@ -485,13 +487,29 @@ struct BattleSession::Impl {
                <<",\"shared_variables_574\":"<<word(context.variables,0x574)
                <<",\"rng_state_word\":"<<context.random.state
                <<",\"pad\":["<<context.input.held<<','<<context.input.pressed<<','<<context.input.released<<','<<context.input.repeat
-               <<"],\"actors\":[";
+               <<"],\"action_graph_links\":[";
+            for(unsigned i=0;i<count;++i) {
+                if(i)row<<',';row<<'[';
+                for(unsigned j=0;j<64;++j) {
+                    if(j)row<<',';
+                    if(root.action_links[i][j])row<<unsigned(*root.action_links[i][j]);else row<<"null";
+                }
+                row<<']';
+            }
+            row<<"],\"actors\":[";
             bool comma=false;
             for(const auto& actor:roster.actors()) {
                 if(comma)row<<',';comma=true;
                 row<<"{\"entity_id\":"<<actor->entity_id<<",\"enemy\":"<<(actor->enemy?"true":"false")
                    <<",\"task_hex\":"<<std::quoted(hex(Bytes(actor->storage).first(actor->enemy?0x3e0:0x3d0)))
-                   <<",\"record_hex\":"<<std::quoted(hex(actor->record))<<",\"stat_bindings\":[";
+                   <<",\"record_hex\":"<<std::quoted(hex(actor->record));
+                row<<",\"action_record_id\":";
+                if(actor->action_record_id)row<<*actor->action_record_id;else row<<"null";
+                row<<",\"action_motion_id\":";
+                if(actor->action_motion)row<<actor->action_motion->identity;else row<<"null";
+                row<<",\"action_secondary_id\":";
+                if(actor->action_secondary)row<<actor->action_secondary->identity;else row<<"null";
+                row<<",\"stat_bindings\":[";
                 for(unsigned j=0;j<actor->stat_bindings.size();++j) {
                     if(j)row<<',';
                     if(actor->stat_bindings[j].empty())row<<"null";
@@ -639,7 +657,7 @@ struct BattleSession::Impl {
                 } else if(child_phase==1) {
                     BattleRosterUpdateContext update{root,context.entry,context.variables,roster.entities(),
                         context.input.pressed,BattleUiPad::selection_buttons,context.sound,
-                        [&]{return context.random.next();}};
+                        [&]{return context.random.next();},&context.tables,action_data?&*action_data:nullptr};
                     std::vector<BattleActor*> actors;
                     BattleActor* stan=nullptr;
                     for(const auto& actor:roster.actors())if(actor->enemy==enemy) {

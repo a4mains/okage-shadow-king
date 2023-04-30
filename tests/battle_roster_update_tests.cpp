@@ -20,7 +20,7 @@ unsigned word(okage::Bytes b,unsigned at) {
     return unsigned(b[at])|(unsigned(b[at+1])<<8)|(unsigned(b[at+2])<<16)|(unsigned(b[at+3])<<24);
 }
 unsigned half(okage::Bytes b,unsigned at){return b[at]|(unsigned(b[at+1])<<8);}
-void number(std::span<std::uint8_t> b,unsigned at,float value){put(b,at,__builtin_bit_cast(std::uint32_t, (value)));}
+void number(std::span<std::uint8_t> b,unsigned at,float value){put(b,at,std::bit_cast<std::uint32_t>(value));}
 struct Fixture {
     okage::BattleState root;
     okage::BattleEntryContext entry;
@@ -103,7 +103,7 @@ void status_motion_and_failure_order() {
     rejects([&]{audio.update();},"sound failure");require(word(audio.root.bytes,0x81a8)==0,"Audio failure retains preceding source queue stores");
     Fixture selected;selected.full(0);put(selected.actors[0].storage,0x220,3,2);put(selected.root.bytes,0x81b4,1);selected.update();
     require(half(selected.actors[0].storage,0x220)==3,"Existing command selection3 survives readiness");
-    rejects([&]{selected.update();},"157850");
+    rejects([&]{selected.update();},"1580d0");
 }
 void stan_context_and_enemy_guards() {
     Fixture f;f.entry.reset(1,0xaabb,0xccdd,0xeeff);const auto before=f.entry.bytes();

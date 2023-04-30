@@ -1,6 +1,7 @@
 #pragma once
 #include "okage/actor.hpp"
 #include "okage/battle_data.hpp"
+#include "okage/battle_action_data.hpp"
 #include "okage/battle_entry.hpp"
 #include "okage/battle_state.hpp"
 #include "okage/game_state.hpp"
@@ -18,6 +19,9 @@ struct BattleActor {
     std::vector<std::uint8_t> record_before;
     std::vector<std::uint32_t> constructor_random_draws;
     std::filesystem::path model_path,bag_path,box_path;
+    std::optional<GameActionRecord> action_record;
+    std::optional<std::uint16_t> action_record_id;
+    std::optional<BattleActionDescriptor> action_motion,action_secondary;
     unsigned entity_id=0;
     bool dead_callback=false;
     bool enemy=false;

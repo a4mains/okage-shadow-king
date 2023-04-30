@@ -40,8 +40,9 @@ BattleActionData::BattleActionData(Bytes b) {
         }
     };
     map(unit_map_,98);map(action_map_,159);
+    std::uint16_t identity=0;
     const auto records=[&](std::vector<BattleActionDescriptor>& out,unsigned count) {
-        out.resize(count);for(auto& r:out){std::copy_n(b.begin()+at,r.bytes.size(),r.bytes.begin());at+=r.bytes.size();}
+        out.resize(count);for(auto& r:out){r.identity=identity++;std::copy_n(b.begin()+at,r.bytes.size(),r.bytes.begin());at+=r.bytes.size();}
     };
     records(paired_,196);records(generic_,159);records(secondary_,15);
 }

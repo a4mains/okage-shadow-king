@@ -12,7 +12,10 @@ struct BattleRosterUpdateContext {
     std::uint16_t pad_pressed=0;
     std::uint32_t selection_buttons=0;
     std::function<void(BattleRosterSound)> sound;
+    //157ce8 consumes once for a nonempty target group. Status3/5 still guard.
     std::function<std::uint32_t()> random;
+    const GameDataTables* tables=nullptr;
+    const BattleActionData* action_data=nullptr;
 };
 void battle_party_roster_update(std::span<BattleActor* const> ordinary,
                                 BattleActor& stan,BattleRosterUpdateContext&);
