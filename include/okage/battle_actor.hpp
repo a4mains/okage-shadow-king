@@ -34,6 +34,8 @@ struct BattleEntityBinding {
 void battle_refresh_entities(BattleState&,std::span<const BattleEntityBinding>);
 void battle_register_action(BattleState&,unsigned owner,unsigned target,
                             std::uint32_t registration_flag);
+//1588b0: inspect live graph heads and signed target bytes; no mutation.
+unsigned battle_action_readiness(const BattleState&,unsigned owner,Bytes target_descriptor);
 void battle_clear_action(BattleState&,unsigned owner); //158868, preserves links/counter.
 //158b70: fixed 64 passes, indexes0..62 only; slot0 null returns immediately.
 void battle_compact_actions(BattleState&,unsigned entity);

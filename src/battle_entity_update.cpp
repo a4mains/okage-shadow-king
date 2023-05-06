@@ -98,6 +98,25 @@ void battle_register_action(BattleState& root,unsigned owner,unsigned target,
     };
     append(target);append(owner);
 }
+unsigned battle_action_readiness(const BattleState& root,unsigned owner,Bytes descriptor) {
+    (void)root.entity(owner);
+    const auto source_head=root.action_links[owner][0];
+    if(!source_head)return 2;
+    require(descriptor.size()>=16,"Battle action readiness descriptor extent");
+    const int count=std::bit_cast<std::int16_t>(half(descriptor,14));
+    require(count<=14,"Battle action readiness target extent");
+    bool matched=false;
+    for(int i=0;i<count;++i) {
+        const int target=std::bit_cast<std::int8_t>(descriptor[unsigned(i)]);
+        require(target>=0&&target<64,"Battle action readiness signed target extent");
+        const auto target_head=root.action_links[unsigned(target)][0];
+        if(!target_head)continue;
+        if(std::bit_cast<std::int16_t>(half(root.entity(*source_head),0x60))!=int(owner)||
+           std::bit_cast<std::int16_t>(half(root.entity(*target_head),0x60))!=int(owner))return 0;
+        matched=true;
+    }
+    return matched?1:3;
+}
 void battle_clear_action(BattleState& root,unsigned owner) {
     auto node=root.entity(owner);
     half(node,0x60,0xffff);half(node,0x62,0xffff);

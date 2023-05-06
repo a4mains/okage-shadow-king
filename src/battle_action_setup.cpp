@@ -71,6 +71,18 @@ void battle_decode_command(BattleActor& actor,const BattleState& root,
     default:put(b,0x144,12,2);put(b,0x146,0xffff,2);put(b,0x142,action,2);return;
     }
 }
+void battle_setup_secondary_action(BattleActor& actor,const BattleActionData& data,std::int16_t action,std::int16_t mode) {
+    auto& b=actor.storage;
+    put(b,0x218,action,2);
+    const auto secondary=data.secondary(action,mode);
+    //Special selectors store the type before the descriptor; ordinary does the reverse.
+    if(secondary.type!=12)put(b,0x21a,std::uint16_t(secondary.type),2);
+    actor.action_secondary=secondary.descriptor;put(b,0x200,0);
+    if(secondary.type==12)put(b,0x21a,std::uint16_t(secondary.type),2);
+    put(b,0x208,0);
+    const auto aux_first=actor.action_secondary->half(0x1a);put(b,0x210,0);number(b,0x204,float(aux_first));
+    const auto aux_second=actor.action_secondary->half(0x3a);put(b,0x214,0);number(b,0x20c,float(aux_second));
+}
 float battle_setup_action(BattleActor& actor,BattleState& root,const GameDataTables& tables,const BattleActionData& data) {
     auto& b=actor.storage;
     const auto action=half(b,0x142);
@@ -104,15 +116,7 @@ float battle_setup_action(BattleActor& actor,BattleState& root,const GameDataTab
         const int identity=half(b,0x44);
         mode=identity>=203&&identity<=205?0:identity==207?2:1;
     }
-    put(b,0x218,half(b,0x1fc),2);
-    const auto secondary=data.secondary(half(b,0x1fc),mode);
-    //Special selectors store the type before the descriptor; ordinary does the reverse.
-    if(secondary.type!=12)put(b,0x21a,std::uint16_t(secondary.type),2);
-    actor.action_secondary=secondary.descriptor;put(b,0x200,0);
-    if(secondary.type==12)put(b,0x21a,std::uint16_t(secondary.type),2);
-    put(b,0x208,0);
-    const auto aux_first=actor.action_secondary->half(0x1a);put(b,0x210,0);number(b,0x204,float(aux_first));
-    const auto aux_second=actor.action_secondary->half(0x3a);put(b,0x214,0);number(b,0x20c,float(aux_second));
+    battle_setup_secondary_action(actor,data,half(b,0x1fc),std::int16_t(mode));
     Rounding rounding;
     volatile std::int32_t delay=std::bit_cast<std::int32_t>(word(b,0x1d8));
     volatile float converted=static_cast<float>(delay),factor=5.f;

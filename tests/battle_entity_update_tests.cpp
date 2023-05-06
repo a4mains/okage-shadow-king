@@ -144,6 +144,29 @@ void action_aliases_and_compaction() {
     require((mask(f.root.entity(3),0x64)>>32)==0,"Invalidation clears all32 scalar bits");
     f.root.initialize_root({1,0,1});require(!f.root.action_links[3][0]&&half(f.root.entity(0),0x68)==0,"Fresh root clears typed ownership");
 }
+void action_readiness_heads() {
+    Fixture f(4);std::array<std::uint8_t,16> targets{};
+    require(okage::battle_action_readiness(f.root,0,{})==2,"Null source head returns before target descriptor access");
+    okage::battle_register_action(f.root,0,1,0);targets[0]=1;put(targets,14,1,2);
+    require(okage::battle_action_readiness(f.root,0,targets)==1,"Both heads refer to the requesting owner");
+    const auto before=f.root.bytes;const auto links=f.root.action_links;
+    targets[1]=2;put(targets,14,2,2);
+    require(okage::battle_action_readiness(f.root,0,targets)==1,"Null target head skips while retaining another match");
+    require(f.root.bytes==before&&f.root.action_links==links,"Readiness never mutates graph or scalars");
+    put(f.root.entity(0),0x60,0xffff,2);targets[0]=2;put(targets,14,1,2);
+    require(okage::battle_action_readiness(f.root,0,targets)==3,"Empty target head bypasses even invalid source owner");
+    targets[0]=1;require(okage::battle_action_readiness(f.root,0,targets)==0,"Nonnull target then tests source head owner");
+    put(f.root.entity(0),0x60,0,2);okage::battle_register_action(f.root,3,2,0);
+    targets[0]=1;targets[1]=2;put(targets,14,2,2);
+    require(okage::battle_action_readiness(f.root,0,targets)==0,"Later conflicting head overrides earlier match");
+    for(unsigned count:{0u,0xffffu}) {
+        put(targets,14,count,2);require(okage::battle_action_readiness(f.root,0,targets)==3,"Signed nonpositive target count returns3");
+    }
+    targets.fill(1);put(targets,14,14,2);
+    require(okage::battle_action_readiness(f.root,0,targets)==1,"Fourteen target bytes precede the count");
+    targets[13]=255;rejects([&]{okage::battle_action_readiness(f.root,0,targets);});
+    put(targets,14,15,2);rejects([&]{okage::battle_action_readiness(f.root,0,targets);});
+}
 void action_capacity_prefixes() {
     Fixture f(2);put(f.root.entity(1),0x16c,64,2);put(f.root.entity(0),0x64,0xffff,2);
     rejects([&]{okage::battle_register_action(f.root,0,1,0);});
@@ -164,7 +187,7 @@ void action_capacity_prefixes() {
 }
 int main() {
     try {geometry_and_live_channels();masks_missing_and_preservation();validation_and_rounding();
-        action_aliases_and_compaction();action_capacity_prefixes();
+        action_aliases_and_compaction();action_readiness_heads();action_capacity_prefixes();
         std::cout<<"battle entity update tests passed\n";return 0;
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }

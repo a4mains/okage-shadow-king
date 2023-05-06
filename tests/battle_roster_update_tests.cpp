@@ -156,7 +156,8 @@ void target_gates() {
     require(word(enemy.actors[4].storage,0x21c)==1&&word(enemy.actors[4].storage,0x194)==0,"Enemy targets use incapacity predicate rather than entity flags");
     Fixture sentinel;put(sentinel.actors[0].storage,0x21c,3);put(sentinel.actors[0].storage,0x140,1,2);sentinel.actors[0].storage[0x132]=3;
     sentinel.update();require(word(sentinel.actors[0].storage,0x21c)==3,"Target3 has its distinct source return before readiness helper");
-    sentinel.actors[0].storage[0x132]=4;rejects([&]{sentinel.update();},"1588b0");
+    sentinel.actors[0].storage[0x132]=4;sentinel.update();
+    require(word(sentinel.actors[0].storage,0x21c)==3,"Absent source graph head waits without inventing a registration");
 }
 void invalid_owners() {
     Fixture f;f.party[1]=nullptr;rejects([&]{f.update();},"owner missing");

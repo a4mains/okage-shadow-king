@@ -131,11 +131,29 @@ void roster_integration() {
         }
     }
 }
+void ready_transition() {
+    okage::BattleActionData data(descriptors());
+    for(unsigned action:{200u,201u,208u,203u,35u,47u,34u,48u,3u}) {
+        Fixture f;okage::BattleEntryContext entry;std::array<std::uint8_t,0x1000> variables{};
+        auto& a=f.actors[0];auto& b=a.storage;put(b,0x21c,3);put(b,0x142,action,2);
+        put(b,0x140,1,2);b[0x132]=2;put(b,0x19c,0x42200000);put(b,0x1a0,0x42200000);
+        put(b,0x194,0x42c80000);put(b,0x304,0xffffffff);put(f.actors[3].storage,0x21c,5);put(f.root.bytes,0x81b4,1);
+        okage::battle_register_action(f.root,0,2,0);
+        std::array<okage::BattleActor*,1> party{&a};
+        okage::BattleRosterUpdateContext c{f.root,entry,variables,f.bindings,0,0,{},[&]{++f.draws;return 0u;},nullptr,&data};
+        okage::battle_party_roster_update(party,f.actors[3],c);
+        const unsigned expected=action==200||action==201||action==208?5:action==203?10:action>=35&&action<=47?9:8;
+        require(word(b,0x21c)==expected&&word(b,0x194)==0&&word(b,0x304)==0&&word(b,0x19c)==0x42200000,"Ready state transition, charge reset and wrapping action counter");
+        require(f.draws==0&&half(f.root.entity(0),0x64)==1,"Readiness consumes neither RNG nor duplicate registration");
+        if(expected==9)require(a.action_secondary&&half(b,0x218)==action&&half(b,0x21a)==12,"Special ready action initializes auxiliary descriptor");
+        else require(!a.action_secondary,"Other ready actions do not reinitialize auxiliary state");
+    }
+}
 std::vector<std::uint8_t> read(const char* p){std::ifstream f(p,std::ios::binary);require(bool(f),"Owned input missing");return {std::istreambuf_iterator<char>(f),{}};}
 }
 int main(int argc,char** argv) {
     try {
-        decode_and_rng();setup_and_failures();roster_integration();
+        decode_and_rng();setup_and_failures();roster_integration();ready_transition();
         if(argc==4) {
             okage::BattleActionData data(read(argv[1]));okage::GameDataTables tables(read(argv[2]),read(argv[3]));
             Fixture f;auto& a=f.actors[0];put(a.storage,0x142,200,2);put(a.storage,0x146,2,2);

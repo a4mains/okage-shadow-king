@@ -63,7 +63,7 @@ void clear_action(unsigned id,const BattleRosterUpdateContext& c) {
 }
 bool any_target(BattleActor& a,BattleRosterUpdateContext& c,bool status_gate) {
     const int count=half(a.storage,0x140);
-    check(count<=10,"Battle roster target count exceeds authored target storage");
+    check(count<=14,"Battle roster target count exceeds authored target storage");
     bool any=false;
     for(int j=0;j<count;++j) {
         const int id=std::bit_cast<std::int8_t>(a.storage[0x132+j]);
@@ -125,7 +125,23 @@ void party_actor(BattleActor& a,BattleRosterUpdateContext& c) {
             put(a.storage,0x21c,2);put(a.storage,0x220,4,2);return;
         }
         if(a.storage[0x132]==3)return;
-        missing("Battle party target/action readiness1588b0/153460 is unrecovered");
+        if(state==4)missing("Battle party153460 combo readiness is unrecovered");
+        switch(battle_action_readiness(c.root,id,Bytes(a.storage).subspan(0x132,16))) {
+        case 1: {
+            const auto action=half(a.storage,0x142);
+            put(a.storage,0x194,0);put(a.storage,0x304,word(a.storage,0x304)+1);
+            if(action==200||action==201||action==208)put(a.storage,0x21c,5);
+            else if(action==203)put(a.storage,0x21c,10);
+            else if(action>=35&&action<=47) {
+                put(a.storage,0x21c,9);
+                check(c.action_data,"Battle157ed0 owned secondary action data missing");
+                battle_setup_secondary_action(a,*c.action_data,action,0);
+            } else put(a.storage,0x21c,8);
+            return;
+        }
+        case 3:clear_action(id,c);put(a.storage,0x21c,2);put(a.storage,0x220,4,2);return;
+        default:return;
+        }
     case 5:case 6:case 8:case 9:return;
     case 10:case 99:
         put(a.storage,0x21c,1);clear_action(id,c);
