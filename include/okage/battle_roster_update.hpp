@@ -3,6 +3,7 @@
 #include <functional>
 
 namespace okage {
+class BattleEnemyCommands;
 enum class BattleRosterSound {Ready,Cycle};
 struct BattleRosterUpdateContext {
     BattleState& root;
@@ -16,6 +17,7 @@ struct BattleRosterUpdateContext {
     std::function<std::uint32_t()> random;
     const GameDataTables* tables=nullptr;
     const BattleActionData* action_data=nullptr;
+    const BattleEnemyCommands* enemy_commands=nullptr;
 };
 void battle_party_roster_update(std::span<BattleActor* const> ordinary,
                                 BattleActor& stan,BattleRosterUpdateContext&);

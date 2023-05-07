@@ -1,6 +1,7 @@
 #include "okage/battle_roster_update.hpp"
 #include "okage/battle_command_queue.hpp"
 #include "okage/battle_action_setup.hpp"
+#include "okage/battle_enemy_action.hpp"
 #include <bit>
 #include <cmath>
 #include <stdexcept>
@@ -224,7 +225,14 @@ void enemy_actor(BattleActor& a,BattleRosterUpdateContext& c) {
     case 1:
         if(!elapsed(a,0x194,0x198)||!charge_status(a))return;
         if(word(a.storage,0x184)!=0)put(a.storage,0x184,0);
-        missing("Battle enemy157b90 command/target selection is unrecovered");
+        check(c.tables&&c.enemy_commands,"Battle enemy157b90 owned command data missing");
+        battle_decode_enemy_command(a,c.root,c.entities,*c.tables,*c.enemy_commands,c.random);
+        check(c.action_data,"Battle enemy1580d0 owned action data missing");
+        {
+            const auto duration=battle_setup_action(a,c.root,*c.tables,*c.action_data);
+            put(a.storage,0x1a0,std::bit_cast<std::uint32_t>(duration));
+            put(a.storage,0x21c,3);put(a.storage,0x19c,0);return;
+        }
     case 3:
         if(!elapsed(a,0x19c,0x1a0))return;
         if(!any_target(a,c,true)) {

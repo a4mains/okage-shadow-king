@@ -1,5 +1,6 @@
 #include "okage/battle_action_setup.hpp"
 #include "okage/battle_roster_update.hpp"
+#include "okage/battle_enemy_action.hpp"
 #include <algorithm>
 #include <bit>
 #include <cfenv>
@@ -49,11 +50,16 @@ std::vector<std::uint8_t> xdb(bool battle,unsigned target=0,std::int32_t delay=8
 struct Fixture {
     okage::BattleState root;
     std::array<okage::BattleActor,18> actors;
+    std::array<std::array<std::uint8_t,8>,18> stats{};
     std::vector<okage::BattleEntityBinding> bindings;
     unsigned draws=0,draw=32;
     Fixture(unsigned count=4):bindings(count) {
         root.initialize_root({1,1,17});put(root.bytes,0x50,count);
-        for(unsigned i=0;i<count;++i){actors[i].entity_id=i;put(actors[i].storage,0x130,i,2);put(actors[i].storage,0x46,i<2?1:0,2);put(root.entity(i),0x1fc,0);bindings[i].actor=&actors[i];}
+        for(unsigned i=0;i<count;++i){actors[i].entity_id=i;put(actors[i].storage,0x130,i,2);put(actors[i].storage,0x46,i<2?1:0,2);put(root.entity(i),0x1fc,0);bindings[i].actor=&actors[i];
+            actors[i].stat_bindings[0]=std::span(stats[i]).first(4);
+            actors[i].stat_bindings[1]=std::span(stats[i]).subspan(4,1);
+            actors[i].stat_bindings[2]=std::span(stats[i]).subspan(6,2);put(stats[i],0,100);stats[i][4]=1;
+        }
     }
     void decode(){okage::battle_decode_command(actors[0],root,bindings,[&]{++draws;return draw;});}
 };
@@ -149,11 +155,90 @@ void ready_transition() {
         else require(!a.action_secondary,"Other ready actions do not reinitialize auxiliary state");
     }
 }
+std::vector<std::uint8_t> enemy_commands(unsigned action=200) {
+    std::vector<std::uint8_t> b(56+84*7*4);const std::string magic="OKBECMD1";
+    std::copy(magic.begin(),magic.end(),b.begin());
+    put(b,8,1);put(b,12,84);put(b,16,7);put(b,20,4);
+    const std::string hash="2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5";
+    for(unsigned i=0;i<32;++i)b[24+i]=std::stoul(hash.substr(i*2,2),nullptr,16);
+    for(unsigned i=0;i<84*7;++i)put(b,56+i*4,0xdead0000u|action);
+    return b;
+}
+void enemy_selection() {
+    okage::BattleEnemyCommands commands(enemy_commands());okage::GameDataTables tables(xdb(true),xdb(false));
+    for(unsigned mode=0;mode<=10;++mode) {
+        Fixture f(6);auto& a=f.actors[4];auto& b=a.storage;
+        put(b,0x188,mode,2);put(b,0x18c,3,2);put(b,0x164,100,2);
+        for(unsigned i=0;i<2;++i)put(f.actors[i].storage,0x46,11,2);
+        std::fill(b.begin()+0x132,b.begin()+0x140,0xa5);
+        const std::array<unsigned,4> draws{32,64,96,0};unsigned used=0;
+        okage::battle_decode_enemy_command(a,f.root,f.bindings,tables,commands,[&]{return draws.at(used++);});
+        const unsigned base=mode==3?2:mode==4?4:mode==5?2:mode==7?1:mode==8?6:mode==9?0:3;
+        require(half(b,0x18c)==base&&half(b,0x18e)==(mode==3?4:base),"Authored enemy mode, base and jitter");
+        require(used==(mode==3?4:3)&&half(b,0x142)==200&&half(b,0x144)==11&&half(b,0x146)==(mode==3?0:1),"Chooser then target RNG order");
+        for(unsigned i=0;i<10;++i)require(b[0x132+i]==255,"Enemy request clears exactly ten target bytes");
+        for(unsigned i=10;i<14;++i)require(b[0x132+i]==0xa5,"Enemy request preserves target tail");
+    }
+    Fixture f(6);auto& a=f.actors[4];auto& b=a.storage;
+    put(f.actors[0].storage,0x46,11,2);put(f.actors[1].storage,0x46,11,2);
+    put(f.root.entity(1),0x1fc,0x80000000);f.stats[0][4]=6;
+    unsigned used=0;const auto random=[&]{++used;return 0u;};
+    okage::battle_decode_enemy_command(a,f.root,f.bindings,tables,commands,random);
+    require(used==3&&half(b,0x146)==1,"Enemy picker excludes status6 but ignores root dead bit");
+    f.stats[1][4]=6;used=0;okage::battle_decode_enemy_command(a,f.root,f.bindings,tables,commands,random);
+    require(used==2&&half(b,0x146)==3,"Empty enemy target list returns3 without target RNG");
+    for(unsigned override:{1u,5u,0xffffu,0x8000u}) {
+        put(b,0x190,override,2);used=0;
+        okage::battle_decode_enemy_command(a,f.root,f.bindings,tables,commands,random);
+        const unsigned target=override==1?0:override==0xffff?0xfffe:2;
+        require(used==2&&half(b,0x146)==target,"Override wraps signed16 then clamps only upper bound");
+    }
+    put(b,0x190,0,2);put(b,0x188,6,2);put(b,0x18c,2,2);put(f.root.entity(5),0x1fc,0x80000000);
+    f.bindings[4].actor=nullptr;okage::battle_decode_enemy_command(a,f.root,f.bindings,tables,commands,random);
+    require(half(b,0x18c)==6,"Mode6 counts alive entity flags even without actor binding");
+    put(b,0x188,4,2);put(b,0x18c,0x7fff,2);okage::battle_decode_enemy_command(a,f.root,f.bindings,tables,commands,random);
+    require(half(b,0x18c)==0,"Mode increment wraps signed16 before clamp");
+    put(b,0x188,0,2);put(b,0x18a,0xffff,2);used=0;
+    rejects([&]{okage::battle_decode_enemy_command(a,f.root,f.bindings,tables,commands,random);},"authored region");
+    require(used==2&&half(b,0x140)==0,"Command table failure retains preceding RNG and request writes");
+}
+void enemy_costs_and_setup() {
+    constexpr unsigned action=35;
+    okage::BattleEnemyCommands commands(enemy_commands(action));okage::BattleActionData data(descriptors());
+    for(bool hp:{true,false})for(unsigned resource:{7u,8u,9u}) {
+        Fixture f(6);auto& a=f.actors[4];auto& b=a.storage;put(b,0x190,1,2);
+        auto bk=xdb(true);const unsigned row=64+27*4+action*52;
+        put(bk,row+4,hp?8:0);put(bk,row+8,hp?0:8);
+        okage::GameDataTables tables(bk,xdb(false));put(f.stats[4],0,resource);put(f.root.bytes,0x8078,resource);
+        okage::battle_decode_enemy_command(a,f.root,f.bindings,tables,commands,[&]{++f.draws;return 0u;});
+        const bool spent=hp?resource>8:resource>=8;
+        require(half(b,0x142)==(spent?action:200)&&word(hp?okage::Bytes(f.stats[4]):okage::Bytes(f.root.bytes),hp?0:0x8078)==(spent?resource-8:resource),"HP cannot spend last point; shared resource can spend exactly zero");
+        require(f.draws==2,"Direct target override avoids RNG after cost handling");
+    }
+    Fixture f(6);auto& a=f.actors[4];auto& b=a.storage;auto bk=xdb(true);const unsigned row=64+27*4+action*52;
+    put(bk,row+4,110);put(bk,row+8,0);put(b,0x164,100,2);put(b,0x190,1,2);
+    okage::GameDataTables tables(bk,xdb(false));
+    okage::battle_decode_enemy_command(a,f.root,f.bindings,tables,commands,[]{return 0u;});
+    require(word(f.stats[4],0)==90&&half(b,0x142)==action,"Percentage HP cost uses authored maximum");
+    f.stats[4][4]=5;put(f.stats[4],6,2,2);
+    okage::battle_decode_enemy_command(a,f.root,f.bindings,tables,commands,[]{return 0u;});
+    require(word(f.stats[4],0)==90&&half(b,0x142)==200,"Status5 counter2 prevents HP spending");
+    //Real roster state1 uses decode before setup and preserves charge and selector.
+    Fixture live(6);auto& e=live.actors[4];e.enemy=true;put(e.storage,0x40,1,2);
+    put(e.storage,0x21c,1);put(e.storage,0x194,0x40800000);put(e.storage,0x198,0x40800000);
+    put(e.storage,0x220,0xbeef,2);put(e.storage,0x190,1,2);put(e.storage,0x19c,0x42c80000);
+    okage::BattleEntryContext entry;std::array<std::uint8_t,0x1000> vars{};
+    okage::GameDataTables ordinary(xdb(true),xdb(false));okage::BattleEnemyCommands attack(enemy_commands());
+    okage::BattleRosterUpdateContext c{live.root,entry,vars,live.bindings,0,0,{},[&]{++live.draws;return 0u;},&ordinary,&data,&attack};
+    std::array<okage::BattleActor*,1> enemies{&e};okage::battle_enemy_roster_update(enemies,c);
+    require(word(e.storage,0x21c)==3&&number(e.storage,0x1a0)==40&&word(e.storage,0x19c)==0&&word(e.storage,0x194)==0x40800000&&half(e.storage,0x220)==0xbeef,"Enemy caller commits delay/state/timer without party selector reset");
+    require(live.draws==2&&live.root.action_links[0][0]==4&&live.root.action_links[4][0]==4,"Enemy authored action registers real target after chooser");
+}
 std::vector<std::uint8_t> read(const char* p){std::ifstream f(p,std::ios::binary);require(bool(f),"Owned input missing");return {std::istreambuf_iterator<char>(f),{}};}
 }
 int main(int argc,char** argv) {
     try {
-        decode_and_rng();setup_and_failures();roster_integration();ready_transition();
+        decode_and_rng();setup_and_failures();roster_integration();ready_transition();enemy_selection();enemy_costs_and_setup();
         if(argc==4) {
             okage::BattleActionData data(read(argv[1]));okage::GameDataTables tables(read(argv[2]),read(argv[3]));
             Fixture f;auto& a=f.actors[0];put(a.storage,0x142,200,2);put(a.storage,0x146,2,2);

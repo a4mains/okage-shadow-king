@@ -11,6 +11,7 @@
 #include "okage/animation.hpp"
 #include "okage/scene_renderer.hpp"
 #include "okage/battle_actor.hpp"
+#include "okage/battle_enemy_commands.hpp"
 #include "okage/battle_command_queue.hpp"
 #include "okage/battle_ui_diagnostic.hpp"
 #include "okage/ui_resource.hpp"
@@ -130,6 +131,7 @@ struct BattleSession::Impl {
     std::optional<BattleCameraSequence> after_intro_sequence;
     std::optional<BattleData> battle_data;
     std::optional<BattleActionData> action_data;
+    std::optional<BattleEnemyCommands> enemy_commands;
     BattleRoster roster{root};
     // Last member: its destructor joins before any job-captured owners die.
     NativeLoadQueue jobs;
@@ -160,6 +162,7 @@ struct BattleSession::Impl {
             hud_definitions.emplace(read(input/"battle-hud.bin"));
             command_definitions.emplace(read(input/"battle-ui-commands.bin"));
             action_data.emplace(read(input/"battle-actions.bin"));
+            enemy_commands.emplace(read(input/"battle-enemy-commands.bin"));
             load_step.store(1);
             device=MTLCreateSystemDefaultDevice();
             if(!device)throw std::runtime_error("Battle loader requires Metal");
@@ -657,7 +660,7 @@ struct BattleSession::Impl {
                 } else if(child_phase==1) {
                     BattleRosterUpdateContext update{root,context.entry,context.variables,roster.entities(),
                         context.input.pressed,BattleUiPad::selection_buttons,context.sound,
-                        [&]{return context.random.next();},&context.tables,action_data?&*action_data:nullptr};
+                        [&]{return context.random.next();},&context.tables,action_data?&*action_data:nullptr,enemy_commands?&*enemy_commands:nullptr};
                     std::vector<BattleActor*> actors;
                     BattleActor* stan=nullptr;
                     for(const auto& actor:roster.actors())if(actor->enemy==enemy) {
