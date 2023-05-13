@@ -238,7 +238,22 @@ void enemy_actor(BattleActor& a,BattleRosterUpdateContext& c) {
         if(!any_target(a,c,true)) {
             put(a.storage,0x194,0);put(a.storage,0x19c,0);put(a.storage,0x21c,1);clear_action(id,c);return;
         }
-        missing("Battle enemy target/action readiness1588b0 is unrecovered");
+        switch(battle_action_readiness(c.root,id,Bytes(a.storage).subspan(0x132,16))) {
+        case 0:return;
+        case 2:case 3:
+            put(a.storage,0x21c,1);clear_action(id,c);return; //Timers survive.
+        case 1: {
+            put(c.root.bytes,0xc6+id*0x200,0,2); //158aa8, before state selection.
+            switch(half(a.storage,0x142)) {
+            case 200:case 201:
+                put(a.storage,0x21c,half(a.storage,0x142)==200?5:6);
+                missing("Battle enemy action grouping15b388 is unrecovered");
+            case 203:put(a.storage,0x21c,10);return;
+            default:put(a.storage,0x21c,8);return;
+            }
+        }
+        default:return;
+        }
     case 5:case 6:case 8:return;
     case 10:case 99:
         put(a.storage,0x21c,1);clear_action(id,c);

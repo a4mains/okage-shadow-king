@@ -159,6 +159,30 @@ void target_gates() {
     sentinel.actors[0].storage[0x132]=4;sentinel.update();
     require(word(sentinel.actors[0].storage,0x21c)==3,"Absent source graph head waits without inventing a registration");
 }
+void enemy_action_readiness() {
+    Fixture f;auto& actor=f.actors[4];put(actor.storage,0x21c,3);
+    put(actor.storage,0x140,1,2);actor.storage[0x132]=0;
+    put(actor.storage,0x194,0x42f60000);put(actor.storage,0x19c,0x41a00000);
+    put(actor.storage,0x1a0,0x41200000);put(actor.storage,0x142,200,2);
+    //Earlier party action owns both heads, so enemy must defer without RNG.
+    okage::battle_register_action(f.root,0,4,0);
+    const auto before=actor.storage;f.enemy();
+    require(actor.storage==before&&f.draws==0,"Enemy waits on actual conflicting graph head without resetting timers");
+    //Null owner head yields2; state reset precedes invalidation; timers survive.
+    f.root.action_links[4][0].reset();f.enemy();
+    require(word(actor.storage,0x21c)==1&&word(actor.storage,0x194)==0x42f60000&&word(actor.storage,0x19c)==0x41a00000,
+            "Readiness2 clears action but preserves both timers");
+    put(actor.storage,0x21c,3);f.root.action_links[4][0]=4;f.root.action_links[0][0]=4;
+    put(f.root.bytes,0xc0+4*0x200,4,2); //Embedded node signed owner.
+    put(f.root.bytes,0xc6+4*0x200,7,2);
+    rejects([&]{f.enemy();},"15b388");
+    require(word(actor.storage,0x21c)==5&&half(f.root.bytes,0xc6+4*0x200)==0,
+            "Successful enemy readiness clears node flag and selects state before grouping guard");
+    for(const auto command:{203u,202u}) {
+        put(actor.storage,0x21c,3);put(actor.storage,0x142,command,2);f.enemy();
+        require(word(actor.storage,0x21c)==(command==203?10u:8u),"Enemy action selects source state without extra timer writes");
+    }
+}
 void invalid_owners() {
     Fixture f;f.party[1]=nullptr;rejects([&]{f.update();},"owner missing");
     Fixture g;put(g.root.bytes,0x50,65);rejects([&]{g.update();},"count/binding");
@@ -168,7 +192,7 @@ void invalid_owners() {
 }
 }
 int main() {
-    try {waiting_and_ready();ordered_selection();status_motion_and_failure_order();stan_context_and_enemy_guards();cleanup_and_source_defaults();target_gates();invalid_owners();
+    try {waiting_and_ready();ordered_selection();status_motion_and_failure_order();stan_context_and_enemy_guards();cleanup_and_source_defaults();target_gates();enemy_action_readiness();invalid_owners();
         std::cout<<"battle roster update tests passed\n";return 0;
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }

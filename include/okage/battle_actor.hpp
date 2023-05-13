@@ -11,6 +11,9 @@
 
 namespace okage {
 struct BattleActor {
+    enum class FirstCallback {Roster,ApproachAttack};
+    FirstCallback first_callback=FirstCallback::Roster;
+    std::optional<FirstCallback> saved_first_callback;
     std::array<std::uint8_t,0x3e0> storage{};
     std::span<std::uint8_t> record;
     std::array<std::span<std::uint8_t>,6> stat_bindings;
@@ -39,12 +42,13 @@ unsigned battle_action_readiness(const BattleState&,unsigned owner,Bytes target_
 void battle_clear_action(BattleState&,unsigned owner); //158868, preserves links/counter.
 //158b70: fixed 64 passes, indexes0..62 only; slot0 null returns immediately.
 void battle_compact_actions(BattleState&,unsigned entity);
-void battle_party_first_update(BattleActor&,const BattleState&);  //153a20
+void battle_party_first_update(BattleActor&,const BattleState&,std::span<const BattleEntityBinding> = {});  //153a20
 void battle_party_second_update(BattleActor&,const BattleState&); //153ce8
-void battle_enemy_first_update(BattleActor&,const BattleState&);  //15b9a0
+void battle_enemy_first_update(BattleActor&,const BattleState&,std::span<const BattleEntityBinding> = {});  //15b9a0
 void battle_enemy_second_update(BattleActor&,const BattleState&); //15c138
-// Shared154b38 states0/1/2/3/4/99, including all three model-channel writes.
-void battle_actor_motion_update(BattleActor&);
+// Dispatch the typed first callback selected by the previous task invocation.
+void battle_actor_first_update(BattleActor&,const BattleState&,std::span<const BattleEntityBinding>);
+void battle_actor_motion_update(BattleActor&,std::span<const BattleEntityBinding> = {});
 void battle_actor_second_suffix(BattleActor&);
 class BattleRoster {
 public:

@@ -34,9 +34,10 @@ struct Fixture {
         number(actor.storage,0x2c,1);number(actor.storage,0x12c,-1);
         number(actor.storage,0x194,1);number(actor.storage,0x198,4);number(actor.storage,0x1a4,1);
         for(unsigned at:{0x60,0x90,0xc0})for(unsigned i=0;i<4;++i)number(actor.storage,at+4*i,float(at+i));
-        std::vector<std::uint8_t> motion(56);
-        put(motion,0,0x544d58);put(motion,4,24);put(motion,16,0xffffffff);put(motion,24,1);
+        std::vector<std::uint8_t> motion(104);
+        put(motion,0,0x544d58);put(motion,4,72);put(motion,16,0xffffffff);put(motion,24,1);
         put(motion,32,48);put(motion,48,0x00a00002);put(motion,52,0);
+        put(motion,96,0x00a00002); //Entry8 has its own real wait/end script.
         okage::ModelFile model;model.models.emplace_back().bones.resize(1);
         actor.model=std::make_unique<okage::FieldActor>(std::move(model),motion,okage::TextureAnimation{},true,true);
     }
@@ -147,6 +148,57 @@ void action_wait_callbacks() {
     require(number(failure.actor.storage,0x19c)==1&&word(failure.actor.storage,0x11c)==0,
             "Model failure preserves preceding elapsed and accumulator writes");
 }
+void attack_dispatch_and_approach() {
+    using Callback=okage::BattleActor::FirstCallback;
+    Fixture f,target;
+    std::array<okage::BattleEntityBinding,2> entities{{{&f.actor,f.record,0},{&target.actor,target.record,1}}};
+    f.actor.action_motion.emplace();put(f.actor.storage,0x21c,5);f.actor.storage[0x132]=1;
+    for(unsigned i=0;i<4;++i)number(f.actor.storage,0x60+4*i,okage::Float4{0,0,0,1}[i]);
+    target.actor.model->animation().set_channel(1,{0,0,60,1});
+    number(f.actor.storage,0x9c,7);put(f.actor.storage,0x24,19);
+    f.bone_transition();
+    okage::battle_actor_first_update(f.actor,f.root,entities);
+    require(f.actor.first_callback==Callback::ApproachAttack&&f.actor.saved_first_callback==Callback::Roster,
+            "Reached action installs native callback and saves roster owner");
+    require(word(f.actor.storage,0x24)==0&&word(f.actor.storage,0x30)==0&&word(f.actor.storage,0)==0&&word(f.actor.storage,0x28)==0,
+            "Header phase/owner written; guest pointer lanes normalized");
+    require(f.actor.model->motion()==0&&!f.actor.model->animation().moving(1,0)&&word(f.actor.storage,0x20)==0,
+            "Selection does not invoke new callback immediately");
+    okage::battle_party_second_update(f.actor,f.root);
+    require(f.actor.model->animation().value(4)[0]==.0625f,"Selection frame second suffix still steps model");
+    okage::battle_actor_first_update(f.actor,f.root,entities);
+    require(word(f.actor.storage,0x24)==1&&word(f.actor.storage,0x300)==1&&word(f.actor.storage,0x20)==1,
+            "Approach phase zero falls through once and marks model stepped");
+    require(f.actor.model->motion()==8&&number(f.actor.storage,0x12c)==48&&number(f.actor.storage,0x9c)==7,
+            "Authored approach motion/duration selected and rotation W preserved");
+    require(number(f.actor.storage,0xf8)==48&&number(f.actor.storage,0xfc)==1&&number(f.actor.storage,0x68)==0,
+            "Approach ends twelve units short and preserves baseline position");
+    auto& animation=f.actor.model->animation();const auto script=animation.script_state();
+    const auto moved=animation.value(1);
+    require(moved[2]>0&&moved[2]<48,"First approach advances actual movement channel");
+    okage::battle_party_second_update(f.actor,f.root);
+    require(animation.value(1)==moved,"Second suffix does not duplicate approach model step");
+    //Completion follows actual channel state. No synthetic48-frame counter.
+    unsigned calls=0;
+    while(word(f.actor.storage,0x24)==1&&calls++<100)okage::battle_actor_first_update(f.actor,f.root,entities);
+    require(word(f.actor.storage,0x24)==2&&word(f.actor.storage,0x300)==0&&animation.value(1)[2]==48,
+            "Channel completion advances callback phase and clears substate");
+    require(animation.script_state()==script&&number(f.actor.storage,0x12c)==48,
+            "Action handler does not execute roster prefix or model script");
+    require(animation.value(0)[3]==7,"Polling orientation preserves channel W");
+    rejects([&]{okage::battle_actor_first_update(f.actor,f.root,entities);});
+    require(word(f.actor.storage,0x24)==2,"Attack motion remains a reached explicit guard");
+    //Shorter-than12 separation keeps the source negative travel, rather than clamping.
+    f.actor.first_callback=Callback::ApproachAttack;put(f.actor.storage,0x24,0);
+    animation.set_channel(1,{0,0,0,1});target.actor.model->animation().set_channel(1,{0,0,6,1});
+    okage::battle_actor_first_update(f.actor,f.root,entities);
+    require(number(f.actor.storage,0xf8)==-6,"Negative travel is retained");
+    //Unsupported categories stop before changing callback ownership/phase.
+    f.actor.first_callback=Callback::Roster;put(f.actor.storage,0x24,13);put(target.actor.storage,0x48,1,2);
+    rejects([&]{okage::battle_actor_first_update(f.actor,f.root,entities);});
+    require(f.actor.first_callback==Callback::Roster&&word(f.actor.storage,0x24)==13,
+            "Unsupported callback choice cannot silently install approach");
+}
 void channels_and_effect_guards() {
     for(bool visible:{false,true}) {
         Fixture f;f.bone_transition();f.actor.model->visible=visible;
@@ -219,6 +271,6 @@ void floating_environment() {
 }
 }
 int main(){try {
-    first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();channels_and_effect_guards();enemy_paths();floating_environment();
+    first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();channels_and_effect_guards();enemy_paths();floating_environment();
     std::cout<<"Battle actor startup callback tests passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

@@ -19,6 +19,7 @@ public:
     void write_channel_output(std::size_t index,const Float4& value);
     void set_component(std::size_t index,unsigned component,float value);
     void turn_component(std::size_t index,unsigned component,float target,int duration);
+    void move_channel(std::size_t index,const Float4& target,int duration);
     bool moving(std::size_t index,unsigned component) const;
     void set_channel_target(Animation* target){channel_target_=target;}
     // Start a recovered script segment. This is not a whole-scene initializer.

@@ -506,6 +506,15 @@ struct BattleSession::Impl {
                 row<<"{\"entity_id\":"<<actor->entity_id<<",\"enemy\":"<<(actor->enemy?"true":"false")
                    <<",\"task_hex\":"<<std::quoted(hex(Bytes(actor->storage).first(actor->enemy?0x3e0:0x3d0)))
                    <<",\"record_hex\":"<<std::quoted(hex(actor->record));
+                const auto actor_pc=[&](BattleActor::FirstCallback callback) {
+                    switch(callback) {
+                    case BattleActor::FirstCallback::Roster:return actor->enemy?0x15b9a0u:0x153a20u;
+                    case BattleActor::FirstCallback::ApproachAttack:return 0x1562b0u;
+                    }
+                    throw std::runtime_error("Unknown native battle actor callback");
+                };
+                row<<",\"first_callback_pc\":"<<actor_pc(actor->first_callback)<<",\"saved_first_callback_pc\":";
+                if(actor->saved_first_callback)row<<actor_pc(*actor->saved_first_callback);else row<<"null";
                 row<<",\"action_record_id\":";
                 if(actor->action_record_id)row<<*actor->action_record_id;else row<<"null";
                 row<<",\"action_motion_id\":";
@@ -678,7 +687,7 @@ struct BattleSession::Impl {
                 trace(enemy?"enemy_roster":"party_roster","return",roster_call,roster_entry);
                 for(const auto& actor:roster.actors())if(actor->enemy==enemy) {
                     actor_snapshot(*actor,"before");
-                    if(enemy)battle_enemy_first_update(*actor,root);else battle_party_first_update(*actor,root);
+                    battle_actor_first_update(*actor,root,roster.entities());
                     actor_snapshot(*actor,"after-first");
                     if(enemy)battle_enemy_second_update(*actor,root);else battle_party_second_update(*actor,root);
                     actor_snapshot(*actor,"after-second");

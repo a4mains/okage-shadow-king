@@ -22,7 +22,7 @@ std::uint32_t Animation::word(std::size_t at) const {
         (std::uint32_t(bytes_[at+2])<<16)|(std::uint32_t(bytes_[at+3])<<24);
 }
 float Animation::number(std::size_t at) const {
-    const auto value=__builtin_bit_cast(float, (word(at)));
+    const auto value=std::bit_cast<float>(word(at));
     if (!std::isfinite(value)) throw std::runtime_error("Non-finite XMT sample");
     return value;
 }
@@ -33,7 +33,7 @@ float Animation::sample(std::uint64_t index) const {
 }
 std::uint32_t Animation::relative(std::uint32_t at) const {
     if (at<code_ || std::uint64_t(at)+4>samples_) throw std::runtime_error("Truncated XMT relative offset");
-    const auto target=std::int64_t(at)+__builtin_bit_cast(std::int32_t, (word(at)));
+    const auto target=std::int64_t(at)+std::bit_cast<std::int32_t>(word(at));
     if (target<code_ || target>=samples_ || (target&3)) throw std::runtime_error("XMT relative target out of code bounds");
     return static_cast<std::uint32_t>(target);
 }
@@ -68,7 +68,7 @@ void Animation::run() {
     for (unsigned instructions=0;instructions<100000;++instructions) {
         if (pc_<code_ || pc_+4>samples_ || (pc_&3)) throw std::runtime_error("XMT PC out of bounds");
         const auto w=word(pc_), op=w&255, a=(w>>8)&0xfff;
-        const auto b=__builtin_bit_cast(std::int32_t, (w))>>20;
+        const auto b=std::bit_cast<std::int32_t>(w)>>20;
         const auto p=pc_+4;
         if (op==0) { flags_&=~0x100; pc_=resume_pc; return; } // Retail stores PC only on yield.
         if (op==1) { pc_=relative(p); continue; }
@@ -161,6 +161,19 @@ void Animation::turn_component(std::size_t index,unsigned component,float value,
 bool Animation::moving(std::size_t index,unsigned component) const {
     if(component>=4)throw std::runtime_error("Invalid channel component");
     return channels_.at(index).step[component]!=0;
+}
+void Animation::move_channel(std::size_t index,const Float4& target,int duration) {
+    Rounding rounding;
+    if(duration<=0)throw std::runtime_error("Unsupported nonpositive channel movement duration");
+    for(float value:target)if(!std::isfinite(value))throw std::runtime_error("Non-finite channel movement");
+    auto& ch=channels_.at(index);
+    const float rate=1.f/static_cast<float>(duration);
+    for(unsigned i=0;i<4;++i) {
+        if(ch.step[i]==0) {ch.b[i]=target[i];ch.step[i]=rate;ch.c[i]=target[i];ch.next_step[i]=1;}
+        else {ch.c[i]=target[i];ch.next_step[i]=rate;}
+        ch.component[i]&=~0x400;
+    }
+    ch.flags=ch.mode|0x100;
 }
 void Animation::read_track(Channel& ch) {
     for (unsigned instructions=0;instructions<100000;++instructions) {

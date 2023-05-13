@@ -18,7 +18,7 @@ std::vector<std::uint8_t> fixture() {
     put(b,0,0x544d58); put(b,4,40); put(b,16,0xffffffff); put(b,24,1);
     put(b,32,0x30);
     put(b,48,0x00200042);
-    for (unsigned i=0;i<3;++i) put(b,52+i*4,__builtin_bit_cast(std::uint32_t, (0.25f)));
+    for (unsigned i=0;i<3;++i) put(b,52+i*4,std::bit_cast<std::uint32_t>(0.25f));
     put(b,64,0x00100002); put(b,68,0);
     return b;
 }
@@ -30,6 +30,23 @@ template<class F> void rejects(F action) {
 int main() {
     try {
         std::fesetround(FE_TONEAREST);
+        {
+            okage::Animation movement(1);
+            movement.set_channel(0,{0,0,0,1});movement.value(0);
+            movement.move_channel(0,{8,16,24,5},4);
+            movement.tick_channels();
+            require(movement.value(0)==okage::Float4({2,4,6,2}));
+            movement.move_channel(0,{16,32,48,9},2); //Keep active segment; queue next.
+            for(unsigned n=0;n<3;++n)movement.tick_channels();
+            require(movement.value(0)==okage::Float4({8,16,24,5}));
+            movement.tick_channels();require(movement.value(0)==okage::Float4({12,24,36,7}));
+            movement.tick_channels();require(movement.value(0)==okage::Float4({16,32,48,9}));
+            for(unsigned lane=0;lane<4;++lane)require(!movement.moving(0,lane));
+            rejects([&]{movement.move_channel(0,{0,0,0,1},0);});
+            movement.set_channel_mode(0,0x10);movement.set_channel(0,{0,0,0,1});
+            movement.move_channel(0,{8,16,24,5},2);movement.tick_channels();
+            require(movement.value(0)==okage::Float4({5,10,15,3.5f}));
+        }
         auto data=fixture(); okage::Animation animation(data,1); animation.start(0);
         {
             //Bone consumers must not evaluate a pending world transform.
@@ -86,8 +103,8 @@ int main() {
         auto nan=data; put(nan,36,0x7fc00000);
         rejects([&]{okage::Animation a(nan,1);a.start(0);});
         require(std::fegetround()==FE_TONEAREST);
-        auto route=fixture();put(route,32,0x0010002e);put(route,36,__builtin_bit_cast(std::uint32_t, (.75f)));
-        put(route,40,0x00400140);put(route,44,__builtin_bit_cast(std::uint32_t, (.125f)));
+        auto route=fixture();put(route,32,0x0010002e);put(route,36,std::bit_cast<std::uint32_t>(.75f));
+        put(route,40,0x00400140);put(route,44,std::bit_cast<std::uint32_t>(.125f));
         put(route,48,0x00100008);put(route,52,0);
         okage::Animation actor(route,1),event(route,1);
         actor.set_channel(0,{0,0,0,1});actor.values();event.set_channel_target(&actor);
