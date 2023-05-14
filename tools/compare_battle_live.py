@@ -173,6 +173,32 @@ def normalize(row, original):
         task = raw(actor, 'task', task_size) if original else unhex(actor.get('task_hex'), task_size, name)
         #PARTY EXTRA's old1a8..1ab span becomes a pointer once1580d0 runs.
         ranges = COMMON + ACTOR_EXTRA['enemy' if enemy else 'party']
+        for lo, hi in [(0x30, 0x38), (0xf0, 0x110)]:
+            result[f'{name}.task[{lo:x}:{hi:x}]'] = task[lo:hi].hex()
+        callback_supported = not original and (
+            'first_callback_pc' in actor or 'saved_first_callback_pc' in actor)
+        if original:
+            first_callback = word(task, 0)
+            saved_callback = word(task, 0x28)
+            need(first_callback != 0 and first_callback % 4 == 0,
+                 name + ': invalid source first callback PC')
+            need(saved_callback % 4 == 0, name + ': invalid source saved callback PC')
+            result[name+'.first_callback_pc'] = first_callback
+            result[name+'.saved_first_callback_pc'] = saved_callback or None
+        elif callback_supported:
+            need('first_callback_pc' in actor and 'saved_first_callback_pc' in actor,
+                 name + ': incomplete native callback identity fields')
+            first_callback = actor.get('first_callback_pc')
+            saved_callback = actor.get('saved_first_callback_pc')
+            need(type(first_callback) is int and 0 < first_callback <= 0xffffffff and first_callback % 4 == 0,
+                 name + ': invalid native first callback identity')
+            need(saved_callback is None or type(saved_callback) is int and
+                 0 < saved_callback <= 0xffffffff and saved_callback % 4 == 0,
+                 name + ': invalid native saved callback identity')
+            need(word(task, 0) == 0 and word(task, 0x28) == 0,
+                 name + ': native callback pointer lanes are not normalized')
+            result[name+'.first_callback_pc'] = first_callback
+            result[name+'.saved_first_callback_pc'] = saved_callback
         for lo, hi in ranges + ACTION_SCALARS:
             result[f'{name}.task[{lo:x}:{hi:x}]'] = task[lo:hi].hex()
         if original:
@@ -235,6 +261,23 @@ def compare(original, native, anchor):
     missing_native = sorted(a.keys()-b.keys()); missing_original = sorted(b.keys()-a.keys())
     normalized_a = {key: normalize(row, True) for key, row in a.items()}
     normalized_b = {key: normalize(row, False) for key, row in b.items()}
+    callback_rows = [row for row in b.values()]
+    has_callback_ids = []
+    for row in callback_rows:
+        actors = row.get('actors', [])
+        if not actors:
+            continue
+        states = [('first_callback_pc' in actor or 'saved_first_callback_pc' in actor) for actor in actors]
+        need(not any(states) or all(states), 'Native actor callback identity fields are only partially present')
+        has_callback_ids.append(any(states))
+    need(not any(has_callback_ids) or all(has_callback_ids),
+         'Native callback identity fields are only partially present')
+    callback_identity_supported = bool(has_callback_ids and all(has_callback_ids))
+    if not callback_identity_supported:
+        for values in normalized_a.values():
+            for field in list(values):
+                if field.endswith('.first_callback_pc') or field.endswith('.saved_first_callback_pc'):
+                    del values[field]
     differences = []; total = 0; counts = Counter(); matched_rows = 0
     phase_changes = {'original': [], 'native': []}
     for side, rows, shift in [('original', source, anchor), ('native', target, 0)]:
@@ -261,7 +304,8 @@ def compare(original, native, anchor):
             'coverage':{'original':oc,'native':nc,'original_rows_in_interval':len(a),'native_rows_in_interval':len(b),
                         'native_rows_outside_interval':len(target)-len(b),'paired_rows':len(a.keys()&b.keys()),'equal_rows':matched_rows,
                         'validated_original_rows':len(normalized_a),'validated_native_rows':len(normalized_b),
-                        'native_rows_missing_nonempty_graph':sum(not r['action_graph_observed'] for r in normalized_b.values())},
+                        'native_rows_missing_nonempty_graph':sum(not r['action_graph_observed'] for r in normalized_b.values()),
+                        'callback_identity_supported':callback_identity_supported},
             'missing_native':missing_native,'missing_original':missing_original,'order_differences':order_differences,
             'first_observation_mismatch':first_observation,'phase_changes':phase_changes,'field_mismatch_count':total,'field_counts':dict(counts),
             'first_mismatch':differences[0] if differences else None,'mismatch_examples':differences,
@@ -269,6 +313,7 @@ def compare(original, native, anchor):
                      'action_scalar_ranges':ACTION_SCALARS,'descriptor_regions':DESCRIPTORS,
                      'action_graph':'All64 slots per registered entity; node identity=root+c0+index*200, index0..63; +68 remains scalar',
                      'action_record':'ID inferred from TASK1fc only with initialized motion; relocated name/description pointer bytes excluded; string contents are not captured',
+                     'task_additions':'TASK+30..37 and +f0..10f are compared; +300..307 is already in COMMON. First callback identity compares source TASK+00 with native first_callback_pc; saved identity compares TASK+28 with native saved_first_callback_pc, source zero normalizes to null. Legacy native traces without these typed fields are supported with callback_identity_supported=false; callback equality is not claimed.',
                      'excluded':'Guest pointers, untouched bytes outside named ranges, full animation cache/contexts, pad latches (serializer mappings differ), noncurrent roster phase/mask; no floats tolerance, shift, interpolation or inferred callbacks'},
             'equal':not(total or missing_native or missing_original or order_differences or not nc['finish_present'])}
 

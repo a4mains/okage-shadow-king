@@ -17,9 +17,11 @@ def blob(data):
 
 def fixtures(enemy=False):
     prefix=bytearray(0x60);struct.pack_into('<I',prefix,0,0x14a248);struct.pack_into('<I',prefix,0x50,1)
-    tail=bytes(0x170);entities=bytes(0x200);task=bytes(0x3e0 if enemy else 0x3d0);record=bytes(0x6c if enemy else 0x50)
+    tail=bytes(0x170);entities=bytes(0x200);task=bytearray(0x3e0 if enemy else 0x3d0);record=bytes(0x6c if enemy else 0x50)
     bindings=[{'value':blob(bytes(n))} for n in [4,1,2,1,2,2]]
     if enemy:bindings[5]={'present':False,'raw_pointer':0}
+    callback_pc=0x15b9a0 if enemy else 0x153a20
+    struct.pack_into('<I',task,0,callback_pc)
     actor={'entity_id':0,'type':int(enemy),'task':blob(task),'record':blob(record),'stat_bindings':bindings,
            'model':{'captured_channels':3,'world_channels_raw':blob(bytes(3*0x90))}}
     a={'event':'callback','kind':'parent','edge':'entry','sequence':0,'call_id':1,'frame':0,'entry_pc':0x14a248,
@@ -31,9 +33,10 @@ def fixtures(enemy=False):
        'parent_callback':0x14a248,'parent_phase':0,'party_phase':0,'enemy_phase':0,'party_mask':0,'enemy_mask':0,
        'root_prefix_hex':bytes(0x60).hex(),'root_tail_queue_hex':tail.hex(),'registered_entities_hex':entities.hex(),
        'entry_hex':bytes(0x38).hex(),'shared_variables_574':0,'rng_state_word':123,
-       'actors':[{'entity_id':0,'enemy':enemy,'task_hex':task.hex(),'record_hex':record.hex(),
+       'actors':[{'entity_id':0,'enemy':enemy,'task_hex':bytes(len(task)).hex(),'record_hex':record.hex(),
                   'stat_bindings':[bytes(n).hex() if not(enemy and j==5) else None for j,n in enumerate([4,1,2,1,2,2])],
-                  'world_channel_bits':[[0]*4 for _ in range(3)]}]}
+                  'world_channel_bits':[[0]*4 for _ in range(3)],
+                  'first_callback_pc':callback_pc,'saved_first_callback_pc':None}]}
     nativeprefix=bytearray(0x60);struct.pack_into('<I',nativeprefix,0x50,1);b['root_prefix_hex']=nativeprefix.hex()
     ar=copy.deepcopy(a);ar.update(edge='return',sequence=1)
     br=copy.deepcopy(b);br.update(edge='return',sequence=1)
@@ -56,6 +59,68 @@ class LiveComparisonTests(unittest.TestCase):
         b[1]['rng_state_word']=124
         r=self.compare(a,b);self.assertFalse(r['equal']);self.assertEqual(r['first_mismatch']['field'],'rng_state_word')
         self.assertEqual(r['first_mismatch']['key'][0],100)
+
+    def test_callback_ids_and_saved_zero_normalization(self):
+        a,b=fixtures()
+        for row in a[1:3]:
+            task=bytearray.fromhex(row['actors'][0]['task']['raw_hex'])
+            struct.pack_into('<I',task,0,0x1562b0)
+            struct.pack_into('<I',task,0x28,0x1562b0)
+            row['actors'][0]['task']=blob(task)
+        for row in b[1:3]:
+            row['actors'][0]['first_callback_pc']=0x1562b0
+            row['actors'][0]['saved_first_callback_pc']=0x1562b0
+        report=self.compare(a,b)
+        self.assertTrue(report['equal'])
+        self.assertTrue(report['coverage']['callback_identity_supported'])
+        #Original zero at TASK+28 normalizes to native null.
+        a,b=fixtures()
+        self.assertTrue(self.compare(a,b)['equal'])
+
+    def test_callback_timing_is_compared_per_boundary(self):
+        a,b=fixtures()
+        source=bytearray.fromhex(a[2]['actors'][0]['task']['raw_hex'])
+        struct.pack_into('<I',source,0,0x1562b0)
+        a[2]['actors'][0]['task']=blob(source)
+        b[1]['actors'][0]['first_callback_pc']=0x1562b0
+        r=self.compare(a,b)
+        self.assertFalse(r['equal'])
+        self.assertEqual(r['field_mismatch_count'],2)
+        self.assertEqual(r['mismatch_examples'][0]['field'],'actor[0].first_callback_pc')
+
+    def test_callback_identity_rejects_malformed_ids_and_native_pointer_lanes(self):
+        for value in [-4,True,0x153a21,0x100000000]:
+            with self.subTest(value=value):
+                a,b=fixtures();b[1]['actors'][0]['first_callback_pc']=value
+                with self.assertRaises(tool.Invalid):self.compare(a,b)
+        for offset in (0,0x28):
+            with self.subTest(offset=offset):
+                a,b=fixtures();task=bytearray.fromhex(b[1]['actors'][0]['task_hex'])
+                struct.pack_into('<I',task,offset,0x153a20);b[1]['actors'][0]['task_hex']=task.hex()
+                with self.assertRaisesRegex(tool.Invalid,'not normalized'):
+                    self.compare(a,b)
+
+    def test_legacy_native_trace_reports_callback_identity_unsupported(self):
+        a,b=fixtures()
+        for row in b[1:3]:
+            row['actors'][0].pop('first_callback_pc')
+            row['actors'][0].pop('saved_first_callback_pc')
+        report=self.compare(a,b)
+        self.assertTrue(report['equal'])
+        self.assertFalse(report['coverage']['callback_identity_supported'])
+        self.assertIn('Legacy native traces',report['scope']['task_additions'])
+
+    def test_additional_task_vector_and_state_ranges(self):
+        a,b=fixtures()
+        for lo,hi in [(0x30,0x38),(0xf0,0x110),(0x300,0x308)]:
+            source=bytearray.fromhex(a[1]['actors'][0]['task']['raw_hex'])
+            native=bytearray.fromhex(b[1]['actors'][0]['task_hex'])
+            for at in range(lo,hi): source[at]=native[at]=(at+lo)&0xff
+            a[1]['actors'][0]['task']=blob(source);b[1]['actors'][0]['task_hex']=native.hex()
+        self.assertTrue(self.compare(a,b)['equal'])
+        native=bytearray.fromhex(b[1]['actors'][0]['task_hex']);native[0xf0]^=1
+        b[1]['actors'][0]['task_hex']=native.hex()
+        self.assertEqual(self.compare(a,b)['first_mismatch']['field'],'actor[0].task[f0:110]')
 
     @staticmethod
     def graph(a, b, links, count=0, scalar_flag=0):
