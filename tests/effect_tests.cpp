@@ -1,4 +1,8 @@
 #include "okage/effect.hpp"
+#include "okage/assets.hpp"
+#include <algorithm>
+#include <filesystem>
+#include <fstream>
 #include <bit>
 #include <cfenv>
 #include <iostream>
@@ -7,13 +11,13 @@ using Data=std::vector<std::uint8_t>;
 void check(bool v){if(!v)throw std::runtime_error("Effect test failed");}
 void put(Data& b,std::size_t p,std::uint32_t v){for(unsigned j=0;j<4;++j)b.at(p+j)=v>>(j*8);}
 template<class F>void rejects(F f){try{f();}catch(const std::runtime_error&){return;}throw std::runtime_error("Invalid effect accepted");}
-int main(){try{
+int main(int argc,char** argv){try{
     Data b(16+48+2*116);put(b,0,0x20444645);put(b,4,1);put(b,16,30);put(b,20,250);
     put(b,24,0x8400);put(b,32,2);put(b,36,64);
     for(unsigned i=0;i<2;++i){const auto p=64+i*116;
         put(b,p,i?0x241:1);put(b,p+4,i+1);put(b,p+8,34);put(b,p+12,i?0x140:0x40);
         put(b,p+16,i?29:25);put(b,p+20,i?0x1961e000:0x600000);put(b,p+24,14+i);
-        put(b,p+28,__builtin_bit_cast(std::uint32_t, (1.1f)));put(b,p+104,__builtin_bit_cast(std::uint32_t, (1.0f)));
+        put(b,p+28,std::bit_cast<std::uint32_t>(1.1f));put(b,p+104,std::bit_cast<std::uint32_t>(1.0f));
     }
     const auto bank=okage::read_efd(b);check(bank.size()==1&&bank[0].elements.size()==2);
     for(std::size_t n=0;n<b.size();++n)rejects([&]{okage::read_efd(okage::Bytes(b).first(n));});
@@ -28,7 +32,7 @@ int main(){try{
     rejects([&]{okage::BubbleEffect e(unsupported,0);});
     okage::BubbleEffect e(bank[0],0);const auto rounding=std::fegetround();
     e.tick({0,0,0,0});check(std::fegetround()==rounding);
-    rejects([&]{e.tick({__builtin_bit_cast(float, (0x7fc00000u)),0,0,0});});
+    rejects([&]{e.tick({std::bit_cast<float>(0x7fc00000u),0,0,0});});
     e.request_removal();rejects([&]{e.tick({0,0,0,0});});
     okage::EffectDefinition map;map.id=25;map.duration=400;map.flags=0x9000;map.elements.resize(8);
     for(unsigned i=0;i<8;++i){map.elements[i].shape=i<3?24:29;map.elements[i].primitive_flags=i<3?1:0x101;}
@@ -175,7 +179,7 @@ int main(){try{
     const auto phase=flame.phase;
     flame.tick(random,false);check(flame.phase==phase);
     rejects([&]{flame.tick(random);});
-    const okage::Float4 invalid_eye{__builtin_bit_cast(float, (0x7fc00000u)),0,0,1};
+    const okage::Float4 invalid_eye{std::bit_cast<float>(0x7fc00000u),0,0,1};
     rejects([&]{flame.tick(random,true,&invalid_eye);});
     const okage::Float4 eye{3,-4,5,1};flame.tick(random,true,&eye);
     check(flame.phase==phase+1&&flame.elements[3].rendered[0][3]==0);
@@ -227,6 +231,83 @@ int main(){try{
     check(rings.phase==71&&!(rings.flags&0x100)&&dark_rng==0);
     rings.tick(dark_random);check((rings.flags&0x100)&&dark_draw().empty()&&dark_rng==0);
     rejects([&]{rings.tick(dark_random);});
+    okage::EffectDefinition strike;strike.id=38;strike.duration=35;strike.flags=0x400;
+    strike.elements.resize(3);
+    for(unsigned i=0;i<3;++i) {
+        auto& part=strike.elements[i];part.id=i+1;part.shape=i==2?30:31;
+        part.flags=0x401;part.primitive_flags=i==0?0x100:0;part.channels=25;
+        part.program=((i==2?23u:6u)<<18)|(4u<<6)|(i==0?17u:i==1?20u:5u);
+        part.change_time=1.1f;part.values[0]={.3f,.4f,.5f,.75f};
+        part.values[3]={2,5,7,.25f};part.values[4]={0,1,1,0};
+        part.texture=5;
+    }
+    auto strike_sizes=sizes;strike_sizes[17]={64,24};strike_sizes[1]={48,40};strike_sizes[6]={32,16};
+    unsigned strike_rng=0;const auto strike_random=[&]{return (++strike_rng)*91u;};
+    okage::MapEffect hit(strike,{9,-7.5f,11,1},{},{1,1,1,1},strike_sizes,strike_random,okage::EffectStart::FirstFrame);
+    check(strike_rng==0&&hit.phase==1&&hit.elements[2].texture==6);
+    hit.tick(strike_random,false);check(strike_rng==0&&hit.phase==1);
+    const auto draw_hit=[&]{return okage::map_effect_draws(hit,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);};
+    rejects([&]{okage::map_effect_draws(hit,identity,{},450,sine);});
+    hit.tick(strike_random);check(strike_rng==3&&hit.phase==2);
+    const auto hit_rounding=std::fegetround();check(std::fesetround(FE_TOWARDZERO)==0);
+    for(unsigned i=0;i<3;++i) {
+        volatile float degrees=float((i+1)*91+360);
+        const float expected=degrees*.00278f;
+        check(hit.elements[i].rendered[1][2]==expected);
+    }
+    check(std::fesetround(hit_rounding)==0);
+    check(hit.elements[0].texture==1&&hit.elements[1].texture==17&&hit.elements[2].texture==6);
+    check(hit.elements[0].quad_uv[2]==std::array<std::uint16_t,2>{1536,1325});
+    check(hit.elements[1].quad_uv[2]==std::array<std::uint16_t,2>{2048,800});
+    const auto initial_hit=hit;const auto draws_hit=draw_hit();check(draws_hit.size()==3&&strike_rng==3);
+    for(unsigned i=0;i<3;++i) {
+        check(draws_hit[i].additive&&!draws_hit[i].subtractive&&!draws_hit[i].depth_test);
+        check(draws_hit[i].vertices.size()==6);
+        //Original B,A,C,A,C,D triangle order and centeredshape30 height.
+        const std::array<okage::Float4,6> expected={okage::Float4{.5f,-.5f,0,1},
+            {-.5f,-.5f,0,1},{.5f,.5f,0,1},{-.5f,-.5f,0,1},{.5f,.5f,0,1},{-.5f,.5f,0,1}};
+        for(unsigned j=0;j<6;++j)check(draws_hit[i].vertices[j].position==expected[j]);
+    }
+    check(draws_hit[0].vertices[2].uv==okage::Float4({1536/32768.f,1325/32768.f,0,0}));
+    check(draws_hit[2].vertices[2].uv==okage::Float4({1024/32768.f,544/32768.f,0,0}));
+    auto scale_hit=hit;scale_hit.duration=4;scale_hit.inverse_duration=.25f;scale_hit.phase=1;
+    scale_hit.tick(strike_random);
+    check(scale_hit.elements[2].rendered[2]==okage::Float4({1.5f,1.5f,1.5f,.25f}));
+    check(strike_rng==3);
+    for(unsigned i=1;i<35;++i)hit.tick(strike_random);
+    check(hit.phase==36&&!(hit.flags&0x100)&&strike_rng==3);
+    check(hit.elements[0].quad_uv==initial_hit.elements[0].quad_uv);
+    for(unsigned i=0;i<3;++i)check(hit.elements[i].rendered[1]==initial_hit.elements[i].rendered[1]);
+    hit.tick(strike_random);check((hit.flags&0x100)&&draw_hit().empty()&&strike_rng==3);
+    auto bad_strike=initial_hit;bad_strike.elements[0].primitive_flags=0x40;
+    rejects([&]{okage::map_effect_draws(bad_strike,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);});
+    rejects([&]{okage::MapEffect bad(strike,{},{},{1,1,1,1},sizes,strike_random);});
+    if(argc!=1) {
+        check(argc==3);
+        const auto read=[](const std::filesystem::path& path){
+            std::ifstream in(path,std::ios::binary);if(!in)throw std::runtime_error("Cannot read owned effect fixture");
+            return Data(std::istreambuf_iterator<char>(in),{});
+        };
+        const auto definitions=okage::resolve_effect_references(okage::read_efd(read(argv[1])));
+        const auto definition=std::find_if(definitions.begin(),definitions.end(),[](const auto& d){return d.id==38;});
+        check(definition!=definitions.end()&&definition->duration==35&&definition->flags==0x400);
+        okage::EffectTextureSizes owned_sizes;
+        for(unsigned i=0;i<owned_sizes.size();++i) {
+            const auto image=okage::decode_xim(read(std::filesystem::path(argv[2])/okage::effect_texture_names[i]));
+            owned_sizes[i]={image.width,image.height};
+        }
+        unsigned draws=0;const auto rng=[&]{return ++draws;};
+        okage::MapEffect owned(*definition,{0,-7.5f,0,1},{},{1,1,1,1},owned_sizes,rng,okage::EffectStart::FirstFrame);
+        for(unsigned i=0;i<35;++i) {
+            owned.tick(rng);
+            const auto packets=okage::map_effect_draws(owned,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);
+            check(packets.size()==3&&draws==3);
+            check(packets[0].texture==1&&packets[1].texture==17&&packets[2].texture==6);
+            for(const auto& packet:packets)check(packet.vertices.size()==6&&packet.additive&&!packet.depth_test);
+        }
+        owned.tick(rng);check((owned.flags&0x100)&&draws==3);
+        std::cout<<"Owned effect38 lifetime and geometry smoke passed\n";
+    }
     okage::EffectDefinition base=dust;base.id=19;base.flags=0x8000;base.duration=300;
     base.parameters={.03f,-.05f,0,.1f};
     okage::EffectDefinition reference;reference.id=98;reference.flags=0x800;
