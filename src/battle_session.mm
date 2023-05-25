@@ -11,6 +11,7 @@
 #include "okage/animation.hpp"
 #include "okage/scene_renderer.hpp"
 #include "okage/battle_actor.hpp"
+#include "okage/battle_damage.hpp"
 #include "okage/battle_enemy_commands.hpp"
 #include "okage/battle_command_queue.hpp"
 #include "okage/battle_ui_diagnostic.hpp"
@@ -132,12 +133,20 @@ struct BattleSession::Impl {
     std::optional<BattleData> battle_data;
     std::optional<BattleActionData> action_data;
     std::optional<BattleEnemyCommands> enemy_commands;
+    std::vector<EffectDefinition> effect_definitions;
+    fs::path effect_textures;
+    std::shared_ptr<const EffectTemplatePreparation> effect_preparation;
+    MapEffects effects;
+    EffectSubmissions effect_submissions;
     BattleRoster roster{root};
     // Last member: its destructor joins before any job-captured owners die.
     NativeLoadQueue jobs;
-    Impl(unsigned f,int s,fs::path i,fs::path d,Bytes variables,BattleEntryContext& entry,Animation& channels):
+    Impl(unsigned f,int s,fs::path i,fs::path d,Bytes variables,BattleEntryContext& entry,Animation& channels,
+         Bytes effect_data,fs::path textures,std::shared_ptr<const EffectTemplatePreparation> preparation):
         formation(f),stage(s),input(std::move(i)),decoded(std::move(d)),
-        alternate_interface(variables.size()>12&&variables[12]!=0),camera_channels(channels) {
+        alternate_interface(variables.size()>12&&variables[12]!=0),camera_channels(channels),
+        effect_definitions(resolve_effect_references(read_efd(effect_data))),effect_textures(std::move(textures)),
+        effect_preparation(std::move(preparation)) {
         if(variables.size()<0xd78)throw std::runtime_error("Battle shared variable extent");
         if(event_variable(variables,0x40005)!=0)
             throw std::runtime_error("Battle wrapper bypass branch is unrecovered");
@@ -190,6 +199,8 @@ struct BattleSession::Impl {
                 throw std::runtime_error("Battle stage model collision-definition ownership is unrecovered");
             objects=std::make_unique<MapObjects>(map);
             renderer=std::make_unique<SceneRenderer>(map,std::span<const SceneActor>{},objects.get());
+            renderer->load_effect_textures(effect_textures);
+            renderer->bind_effect_submissions(&effect_submissions);
             held_stage=read(package/"a.stg");
             collision=read_xcl(read(package/"a.xcl"));
             load_step.store(3);
@@ -198,6 +209,45 @@ struct BattleSession::Impl {
             after_intro_sequence=camera_data->sequence(stage,true);
             resources_prepared.store(true,std::memory_order_release);
         }
+    }
+    unsigned spawn_effect(int id,const Float4& point,GameRandom& random) {
+        const auto definition=std::find_if(effect_definitions.begin(),effect_definitions.end(),
+            [&](const auto& value){return int(value.id)==id;});
+        if(definition==effect_definitions.end())throw std::runtime_error("Missing owned battle effect template");
+        unsigned slot=0;while(slot<effects.size()&&effects[slot])++slot;
+        if(slot==effects.size())throw std::runtime_error("Battle effect pool exhausted");
+        auto effect=std::make_unique<MapEffect>(*definition,point,Float4{},Float4{1,1,1,1},
+            renderer->effect_texture_sizes(),[&]{return random.next();},EffectStart::FirstFrame);
+        for(const auto& element:effect->elements)if(element.shape==55) {
+            if(!effect_preparation||!effect_preparation->geometry[55])
+                throw std::runtime_error("Battle effect lacks shared prepared geometry");
+            const auto& geometry=effect_preparation->geometry[55];
+            effect->shape55_geometry=std::shared_ptr<const std::vector<MapEffectVertex>>(geometry,&geometry->vertices);
+            break;
+        }
+        effects[slot]=std::move(effect);return slot;
+    }
+    void advance_effects(FieldProjection& projection,GameRandom& random) {
+        effect_submissions.clear();projection.begin_effects();
+        std::array<unsigned,84> deferred{};unsigned count=0;
+        const auto update=[&](unsigned slot) {
+            auto& effect=*effects[slot];
+            if(effect.actor_alias)throw std::runtime_error("Battle attached effect binding is unrecovered");
+            effect.tick([&]{return random.next();},true,&resource_camera_position);
+            if(!(effect.flags&0x100)) {
+                projection.select_effect_near(effect.near_clip);
+                effect_submissions.push_back({slot,effect});
+            }
+        };
+        for(unsigned slot=0;slot<effects.size();++slot)if(auto& effect=effects[slot]) {
+            if(effect->flags&0x200){effect.reset();continue;}
+            if(effect->flags&0x100){effect->flags|=0x200;continue;}
+            if(effect->flags&0x4000)continue;
+            if(effect->flags&0x400)deferred[count++]=slot;else update(slot);
+        }
+        projection.begin_deferred();
+        for(unsigned i=0;i<count;++i)update(deferred[i]);
+        projection.end_effects();
     }
     void commit_stage(FieldProjection& projection,SceneClearColor& clear,unsigned frame,const fs::path& path) {
         if(!path.empty()&&(fs::exists(path)||fs::is_symlink(path)))
@@ -687,7 +737,11 @@ struct BattleSession::Impl {
                 trace(enemy?"enemy_roster":"party_roster","return",roster_call,roster_entry);
                 for(const auto& actor:roster.actors())if(actor->enemy==enemy) {
                     actor_snapshot(*actor,"before");
-                    battle_actor_first_update(*actor,root,roster.entities());
+                    battle_actor_first_update(*actor,root,roster.entities(),{
+                        context.strike_sound,
+                        [&](int id,const Float4& point){return spawn_effect(id,point,context.random);},
+                        [&](int command,int owner,int target){battle_queue_damage_event(root,roster.entities(),
+                            std::int16_t(command),std::int16_t(owner),std::int16_t(target),[&]{return context.random.next();});}});
                     actor_snapshot(*actor,"after-first");
                     if(enemy)battle_enemy_second_update(*actor,root);else battle_party_second_update(*actor,root);
                     actor_snapshot(*actor,"after-second");
@@ -767,8 +821,11 @@ struct BattleSession::Impl {
     }
 };
 BattleSession::BattleSession(unsigned formation,int stage,const fs::path& input,
-                            const fs::path& decoded,Bytes variables,BattleEntryContext& entry,Animation& camera):
-    impl_(std::make_unique<Impl>(formation,stage,input,decoded,variables,entry,camera)) {}
+                            const fs::path& decoded,Bytes variables,BattleEntryContext& entry,Animation& camera,
+                            Bytes effect_data,const fs::path& effect_textures,
+                            std::shared_ptr<const EffectTemplatePreparation> effect_preparation):
+    impl_(std::make_unique<Impl>(formation,stage,input,decoded,variables,entry,camera,effect_data,
+                                effect_textures,std::move(effect_preparation))) {}
 BattleSession::~BattleSession()=default;
 void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& projection,SceneClearColor& clear,
                          BattleUiContext context,unsigned frame,const fs::path& stage_report,const fs::path& ui_update_report) {
@@ -791,7 +848,7 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
                 model->evaluate_bones();model->evaluate_world();
             }
         if(!effect_pass)throw std::runtime_error("Active battle resource has unexpected effect suppression");
-        projection.begin_effects();projection.begin_deferred();projection.end_effects();
+        impl_->advance_effects(projection,context.random);
     } else projection.submit_empty_resource_frame(effect_pass,
         impl_->stage_settings->cached_depth_min,impl_->stage_settings->cached_depth_max);
     if(effect_pass&&retiring)retiring->tick();

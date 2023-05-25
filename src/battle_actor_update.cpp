@@ -183,7 +183,122 @@ bool approach_target(BattleActor& actor,std::span<const BattleEntityBinding> ent
     animation.set_channel(0,vector(actor.storage,0x100));
     return done;
 }
-void approach_attack_update(BattleActor& task,std::span<const BattleEntityBinding> entities) {
+const BattleActionDescriptor& strike_descriptor(const BattleActor& actor) {
+    check(bool(actor.action_motion),"Battle strike has no motion descriptor");
+    return *actor.action_motion;
+}
+bool schedule_ready(const BattleActor& actor,unsigned counter,unsigned limit,unsigned time) {
+    const auto index=std::bit_cast<std::int32_t>(word(actor.storage,counter));
+    if(index>=int(limit))return false;
+    if(!(scalar(actor.storage,time)<=scalar(actor.storage,0x1f8)))return false;
+    check(index>=0,"Battle strike negative schedule index is unsupported");
+    return true;
+}
+void advance_schedule(BattleActor& actor,unsigned counter,unsigned limit,unsigned time,unsigned base,unsigned stride) {
+    const auto next=word(actor.storage,counter)+1;
+    put(actor.storage,counter,next);
+    const auto index=std::bit_cast<std::int32_t>(next);
+    if(index<int(limit)) {
+        check(index>=0,"Battle strike wrapped negative schedule index");
+        const auto value=strike_descriptor(actor).half(base+unsigned(index)*stride);
+        scalar(actor.storage,time,float(value));
+        if(value<0)put(actor.storage,counter,limit);
+    }
+}
+bool target_active(const BattleState& root,int target) {
+    check(target>=0&&unsigned(target)<word(root.bytes,0x50)&&unsigned(target)<battle_entity_count,
+          "Battle strike target outside registered entities");
+    return std::bit_cast<std::int32_t>(word(root.bytes,0x25c+unsigned(target)*0x200))>=0;
+}
+int scheduled_target(const BattleActor& actor,unsigned index) {
+    check(index<14,"Battle strike target list exceeds embedded descriptor");
+    return std::bit_cast<std::int8_t>(actor.storage[0x132+index]);
+}
+void strike_damage(BattleActor& actor,const BattleState& root,const BattleStrikeServices& services) {
+    if(!schedule_ready(actor,0x1e4,4,0x1e0))return;
+    for(unsigned i=0;int(i)<half(actor.storage,0x140);++i) {
+        const int target=scheduled_target(actor,i);
+        if(!target_active(root,target))continue;
+        const auto& descriptor=strike_descriptor(actor);
+        check(word(descriptor.bytes,4)==0,"Unrecovered ranged strike156920");
+        check(bool(services.damage_event),"Battle strike damage158ca8 service missing");
+        const auto index=std::bit_cast<std::int32_t>(word(actor.storage,0x1e4));
+        check(index>=0&&index<4,"Battle strike damage schedule index");
+        services.damage_event(descriptor.half(0xa+unsigned(index)*4),half(actor.storage,0x130),target);
+    }
+    advance_schedule(actor,0x1e4,4,0x1e0,8,4);
+}
+void strike_sound(BattleActor& actor,const BattleStrikeServices& services) {
+    if(!schedule_ready(actor,0x1ec,8,0x1e8))return;
+    check(bool(services.sound),"Battle strike sound12df80 service missing");
+    services.sound(strike_descriptor(actor).half(0x18+word(actor.storage,0x1ec)*4));
+    advance_schedule(actor,0x1ec,8,0x1e8,0x1a,4);
+}
+void strike_effect(BattleActor& actor,const BattleState& root,std::span<const BattleEntityBinding> entities,
+                   const BattleStrikeServices& services) {
+    if(!schedule_ready(actor,0x1f4,4,0x1f0))return;
+    const auto entry=[&]() {
+        const auto index=std::bit_cast<std::int32_t>(word(actor.storage,0x1f4));
+        check(index>=0&&index<4,"Battle strike effect schedule index");
+        return Bytes(strike_descriptor(actor).bytes).subspan(0x38+unsigned(index)*20,20);
+    };
+    const auto create=[&](int target,bool absolute) {
+        const auto data=entry();
+        Float4 point=absolute?Float4{0,0,0,1}:model(bound_actor(entities,target)).animation().value(1);
+        for(unsigned i=0;i<3;++i)point[i]=absolute?scalar(data,8+i*4):single(point[i],scalar(data,8+i*4),Operation::Add);
+        check(bool(services.positioned_effect),"Battle strike effect1012f8 service missing");
+        const unsigned handle=services.positioned_effect(half(data,0),point);
+        put(actor.storage,0x30c,handle);
+    };
+    const auto type=word(entry(),4);
+    switch(type) {
+    case 0:create(0,true);break;
+    case 1:create(half(actor.storage,0x130),false);break;
+    case 5:
+        check(bool(services.sound),"Battle strike auxiliary sound12df80 service missing");
+        services.sound(39);
+        [[fallthrough]];
+    case 2:
+        for(unsigned i=0;int(i)<half(actor.storage,0x140);++i) {
+            const auto target=scheduled_target(actor,i);
+            if(target_active(root,target))create(target,false);
+        }
+        break;
+    case 3:
+        create(half(actor.storage,0x130),false);
+        throw std::runtime_error("Unrecovered strike effect scale101758");
+    case 4:
+        for(unsigned i=0;int(i)<half(actor.storage,0x140);++i) {
+            const auto target=scheduled_target(actor,i);
+            if(target_active(root,target)) {
+                create(target,false);
+                throw std::runtime_error("Unrecovered strike effect scale101758");
+            }
+        }
+        break;
+    default:break;
+    }
+    advance_schedule(actor,0x1f4,4,0x1f0,0x3a,20);
+}
+bool strike_update(BattleActor& actor,const BattleState& root,std::span<const BattleEntityBinding> entities,
+                   const BattleStrikeServices& services) {
+    if(word(actor.storage,0x300)!=1) {
+        const auto selected=word(actor.storage,0x21c)==5||half(actor.storage,0x1fc)==206?3u:7u;
+        const float duration=scalar(strike_descriptor(actor).bytes,0);
+        put(actor.storage,0x128,selected);model(actor).select_motion(selected);
+        scalar(actor.storage,0x12c,duration);put(actor.storage,0x300,word(actor.storage,0x300)+1);
+    }
+    const auto remaining=single(scalar(actor.storage,0x12c),scalar(actor.storage,0x2c),Operation::Subtract);
+    scalar(actor.storage,0x12c,remaining);
+    if(remaining<0) {put(actor.storage,0x300,0);return true;}
+    const auto elapsed=single(scalar(actor.storage,0x1f8),scalar(actor.storage,0x2c),Operation::Add);
+    scalar(actor.storage,0x1f8,elapsed);
+    if(scalar(strike_descriptor(actor).bytes,0)<elapsed) {put(actor.storage,0x300,0);return true;}
+    strike_damage(actor,root,services);strike_sound(actor,services);strike_effect(actor,root,entities,services);
+    return false;
+}
+void approach_attack_update(BattleActor& task,const BattleState& root,std::span<const BattleEntityBinding> entities,
+                            const BattleStrikeServices& services) {
     auto& actor=bound_actor(entities,std::bit_cast<std::int32_t>(word(task.storage,0x30)));
     put(task.storage,0x20,1);
     switch(word(task.storage,0x24)) {
@@ -195,7 +310,11 @@ void approach_attack_update(BattleActor& task,std::span<const BattleEntityBindin
             put(actor.storage,0x300,0);put(task.storage,0x24,word(task.storage,0x24)+1);
         }
         break;
-    case 2:throw std::runtime_error("Unrecovered battle attack motion154ea8");
+    case 2:
+        if(strike_update(actor,root,entities,services)) {
+            put(actor.storage,0x300,0);put(task.storage,0x24,word(task.storage,0x24)+1);
+        }
+        break;
     case 3:throw std::runtime_error("Unrecovered battle attack return156670");
     default:break; //156300/156318 go directly to model step.
     }
@@ -240,13 +359,14 @@ void battle_party_first_update(BattleActor& actor,const BattleState& root,std::s
     if(half(actor.storage,0x42)!=3)initial_status_and_motion(actor,root);
     battle_actor_motion_update(actor,entities);
 }
-void battle_actor_first_update(BattleActor& actor,const BattleState& root,std::span<const BattleEntityBinding> entities) {
+void battle_actor_first_update(BattleActor& actor,const BattleState& root,std::span<const BattleEntityBinding> entities,
+                               const BattleStrikeServices& services) {
     TowardZero rounding;
     switch(actor.first_callback) {
     case BattleActor::FirstCallback::Roster:
         if(actor.enemy)battle_enemy_first_update(actor,root,entities);else battle_party_first_update(actor,root,entities);
         break;
-    case BattleActor::FirstCallback::ApproachAttack:approach_attack_update(actor,entities);break;
+    case BattleActor::FirstCallback::ApproachAttack:approach_attack_update(actor,root,entities,services);break;
     }
 }
 void battle_actor_second_suffix(BattleActor& actor) {

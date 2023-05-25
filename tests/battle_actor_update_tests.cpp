@@ -186,8 +186,9 @@ void attack_dispatch_and_approach() {
     require(animation.script_state()==script&&number(f.actor.storage,0x12c)==48,
             "Action handler does not execute roster prefix or model script");
     require(animation.value(0)[3]==7,"Polling orientation preserves channel W");
+    okage::battle_actor_first_update(f.actor,f.root,entities);
+    require(word(f.actor.storage,0x24)==3,"Zero authored strike duration completes without schedules");
     rejects([&]{okage::battle_actor_first_update(f.actor,f.root,entities);});
-    require(word(f.actor.storage,0x24)==2,"Attack motion remains a reached explicit guard");
     //Shorter-than12 separation keeps the source negative travel, rather than clamping.
     f.actor.first_callback=Callback::ApproachAttack;put(f.actor.storage,0x24,0);
     animation.set_channel(1,{0,0,0,1});target.actor.model->animation().set_channel(1,{0,0,6,1});
@@ -198,6 +199,56 @@ void attack_dispatch_and_approach() {
     rejects([&]{okage::battle_actor_first_update(f.actor,f.root,entities);});
     require(f.actor.first_callback==Callback::Roster&&word(f.actor.storage,0x24)==13,
             "Unsupported callback choice cannot silently install approach");
+}
+void strike_schedules() {
+    Fixture f,target,excluded;auto& a=f.actor;auto& b=a.storage;
+    std::array<okage::BattleEntityBinding,3> entities{{{&a,f.record,0},{&target.actor,target.record,1},{&excluded.actor,excluded.record,1}}};
+    put(f.root.bytes,0x50,3);put(f.root.bytes,0x25c+2*0x200,0x80000000);
+    a.first_callback=okage::BattleActor::FirstCallback::ApproachAttack;
+    put(b,0x24,2);put(b,0x21c,5);put(b,0x140,2,2);b[0x132]=1;b[0x133]=2;
+    a.action_motion.emplace();auto& d=a.action_motion->bytes;number(d,0,10);
+    put(d,8,1,2);put(d,10,16,2);put(d,12,1,2);put(d,14,17,2);put(d,16,0xffff,2);
+    put(d,0x18,40,2);put(d,0x1a,1,2);put(d,0x1c,41,2);put(d,0x1e,1,2);put(d,0x22,0xffff,2);
+    put(d,0x38,38,2);put(d,0x3a,1,2);put(d,0x3c,2);
+    number(d,0x40,2);number(d,0x44,-7.5f);number(d,0x48,3);
+    put(d,0x4c,39,2);put(d,0x4e,1,2);put(d,0x50,0);number(d,0x54,7);
+    put(d,0x62,0xffff,2);
+    for(unsigned at:{0x1e0,0x1e8,0x1f0})number(b,at,1);
+    target.actor.model->animation().set_channel(1,{10,20,30,5});
+    std::vector<int> events;std::vector<okage::Float4> points;
+    okage::BattleStrikeServices services;
+    services.damage_event=[&](int command,int owner,int recipient){require(owner==0&&recipient==1,"Damage filters disabled target and uses signed owner");events.push_back(command);};
+    services.sound=[&](int id){events.push_back(id);};
+    services.positioned_effect=[&](int id,const okage::Float4& point){events.push_back(id);points.push_back(point);return unsigned(points.size()+10);};
+    okage::battle_actor_first_update(a,f.root,entities,services);
+    require(events==std::vector<int>({16,40,38}),"Damage then sound then effects, one entry each per callback");
+    require(points[0]==okage::Float4({12,12.5f,33,5})&&word(b,0x30c)==11,"Effect uses live target channel plus authored offsets, retains W and returned handle");
+    require(a.model->motion()==3&&number(b,0x12c)==9&&number(b,0x1f8)==1&&word(b,0x300)==1,
+            "Strike selects motion then immediately advances duration and shared elapsed");
+    require(word(b,0x1e4)==1&&word(b,0x1ec)==1&&word(b,0x1f4)==1,"Due subsequent entries wait for next invocation");
+    okage::battle_actor_first_update(a,f.root,entities,services);
+    require(events==std::vector<int>({16,40,38,17,41,39}),"Each next schedule entry runs on the following callback");
+    require(points[1]==okage::Float4({7,0,0,1}),"Absolute effect has authored coordinates and W1");
+    require(word(b,0x1e4)==4&&word(b,0x1ec)==8&&word(b,0x1f4)==4,"Negative next times terminate each schedule");
+    //Failure after sound retains elapsed, sound counter and previous effect handle.
+    put(b,0x1ec,0);put(b,0x1f4,0);number(b,0x1e8,1);number(b,0x1f0,1);
+    services.positioned_effect=[](int,const okage::Float4&)->unsigned{throw std::runtime_error("synthetic effect service failure");};
+    rejects([&]{okage::battle_actor_first_update(a,f.root,entities,services);});
+    require(number(b,0x1f8)==3&&word(b,0x1ec)==1&&word(b,0x1f4)==0&&word(b,0x30c)==12,
+            "Service failure retains ordered prior stores without consuming effect entry");
+    put(b,0x1ec,8);put(d,0x3c,3);
+    services.positioned_effect=[](int,const okage::Float4&){return 27u;};
+    rejects([&]{okage::battle_actor_first_update(a,f.root,entities,services);});
+    require(word(b,0x30c)==27&&word(b,0x1f4)==0,"Unsupported scale retains preceding spawn and handle store");
+    put(d,0x3c,4);put(b,0x140,0,2);
+    okage::battle_actor_first_update(a,f.root,entities,services);
+    require(word(b,0x1f4)==1&&word(b,0x30c)==27,"Scaled effect with no targets advances without invoking scale");
+    //Equality is not expiry; negative remaining skips elapsed and every service.
+    put(b,0x1ec,8);put(b,0x1f4,4);number(b,0x12c,1);number(b,0x1f8,9);
+    okage::battle_actor_first_update(a,f.root,entities,services);
+    require(number(b,0x12c)==0&&number(b,0x1f8)==10&&word(b,0x24)==2,"Duration equality remains in strike phase");
+    okage::battle_actor_first_update(a,f.root,entities,services);
+    require(number(b,0x1f8)==10&&word(b,0x300)==0&&word(b,0x24)==3,"Negative duration completes before incrementing elapsed");
 }
 void channels_and_effect_guards() {
     for(bool visible:{false,true}) {
@@ -271,6 +322,6 @@ void floating_environment() {
 }
 }
 int main(){try {
-    first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();channels_and_effect_guards();enemy_paths();floating_environment();
+    first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();strike_schedules();channels_and_effect_guards();enemy_paths();floating_environment();
     std::cout<<"Battle actor startup callback tests passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

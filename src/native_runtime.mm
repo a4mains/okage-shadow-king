@@ -177,7 +177,7 @@ struct Session {
                 throw std::runtime_error("Sound cue frame "+std::to_string(frame)+", bank "+std::to_string(bank)+
                     ", record "+std::to_string(index)+": "+e.what());
             }
-            sound_trace.insert(sound_trace.end(),{frame,bank,unsigned(index),__builtin_bit_cast(unsigned, (speed)),volume});return true;
+            sound_trace.insert(sound_trace.end(),{frame,bank,unsigned(index),std::bit_cast<unsigned>(speed),volume});return true;
         };
     }
 
@@ -283,7 +283,7 @@ struct Session {
             controller.actor_motion_request=[this](int alias,int entry){
                 //0x148240 handler21 skips only battle mode4. This controller
                 // belongs to the field; battle dialogue dispatch is separate.
-                if(!field||!field->request_actor_motion(alias,__builtin_bit_cast(unsigned, (entry))))
+                if(!field||!field->request_actor_motion(alias,std::bit_cast<unsigned>(entry)))
                     throw std::runtime_error("Dialogue actor motion target is unavailable");
             };
             wait.countdown=wait.observed=wait.accumulated=0;
@@ -292,7 +292,7 @@ struct Session {
             if(!dialogue_active && request!=-1)throw std::runtime_error("Field wait before dialogue initialization");
             const std::array<std::uint32_t,2> layers={0x50,controller.layer_flags};
             const bool released=okage::poll_dialogue_wait(wait,request,
-                {true,__builtin_bit_cast(std::int32_t, (closure.message_flags)),layers,std::int32_t(text.state.progress)})==0;
+                {true,std::bit_cast<std::int32_t>(closure.message_flags),layers,std::int32_t(text.state.progress)})==0;
             if(released && !release_frame)release_frame=frame;
             if(released && request==0 && !close_release_frame)close_release_frame=frame;
             return released;
@@ -332,9 +332,9 @@ struct Session {
         field->observe_wander=[this](int alias,bool after,const okage::WanderingNpc& npc,const okage::Animation& animation) {
             const auto channels=animation.channel_outputs();
             wander_trace.insert(wander_trace.end(),{frame,std::uint32_t(okage::event_variable(variables,0x40000)),
-                __builtin_bit_cast(std::uint32_t, (alias)),unsigned(after),__builtin_bit_cast(std::uint32_t, (npc.counter)),random.state,unsigned(channels.size())});
-            for(float value:npc.velocity)wander_trace.push_back(__builtin_bit_cast(std::uint32_t, (value)));
-            for(const auto& channel:channels)for(float value:channel)wander_trace.push_back(__builtin_bit_cast(std::uint32_t, (value)));
+                std::bit_cast<std::uint32_t>(alias),unsigned(after),std::bit_cast<std::uint32_t>(npc.counter),random.state,unsigned(channels.size())});
+            for(float value:npc.velocity)wander_trace.push_back(std::bit_cast<std::uint32_t>(value));
+            for(const auto& channel:channels)for(float value:channel)wander_trace.push_back(std::bit_cast<std::uint32_t>(value));
         };
         field->exterior_camera=&exterior_camera;
         field->collision_mask=&collision_mask;
@@ -382,7 +382,7 @@ struct Session {
                 retain_field_music=battle_return->secondary_music!=28; // 0x12da78.
                 pending_game_command={13,0,0}; // 0x1248d8; persists for field return.
                 battle_entry.reset(0,0,okage::event_variable(variables,0x80010)==0x83,request.return_token);
-                game_mode->request({3,request.formation,__builtin_bit_cast(std::uint32_t, (request.stage))});
+                game_mode->request({3,request.formation,std::bit_cast<std::uint32_t>(request.stage)});
                 return; // 0x124930 queues only; do not destroy the field here.
             }
             throw std::runtime_error("Native battle transition phase is unrecovered (field phase "+
@@ -536,11 +536,11 @@ struct Session {
         const std::array<std::array<std::uint32_t,4>,2> defaults={{{0x415170a4,0xc1200000,0xc3510000,0x3f800000},
             {0x3f79c77a,0x3d1ba5e3,0,0x3f800000}}};
         for(unsigned i=0;i<2;++i) {
-            okage::Float4 v;for(unsigned c=0;c<4;++c)v[c]=__builtin_bit_cast(float, (defaults[i][c]));
+            okage::Float4 v;for(unsigned c=0;c<4;++c)v[c]=std::bit_cast<float>(defaults[i][c]);
             reset_camera->set_channel(i,v);
         }
         messages={};message_bank.clear();
-        scene_fade.step=__builtin_bit_cast(float, (0x3ca3d70au));
+        scene_fade.step=std::bit_cast<float>(0x3ca3d70au);
     }
     void observe_game_mode(unsigned point) {
         if(!game_mode||(!game_mode->requested()&&!game_mode->has_dead_allocation()&&game_mode->current()[0]==2))return;
@@ -548,7 +548,7 @@ struct Session {
         game_mode_trace.insert(game_mode_trace.end(),{frame,point,game_mode->phase(),current[0],current[1],current[2],
             request[0],request[1],request[2],unsigned(game_mode->has_child()),unsigned(game_mode->has_dead_allocation()),
             unsigned(bool(field)),pending_game_command[0],pending_game_command[1],pending_game_command[2],
-            __builtin_bit_cast(unsigned, (scene_fade.current)),__builtin_bit_cast(unsigned, (scene_fade.target)),__builtin_bit_cast(unsigned, (scene_fade.step)),
+            std::bit_cast<unsigned>(scene_fade.current),std::bit_cast<unsigned>(scene_fade.target),std::bit_cast<unsigned>(scene_fade.step),
             battle_capture_alpha,battle_capture_target,battle_capture_frame,completed_game_frame,
             scene_clear.rgb[0],scene_clear.rgb[1],scene_clear.rgb[2]});
         if(retiring_effects) {
@@ -585,11 +585,11 @@ struct Session {
                     throw std::runtime_error("Native mode construction requires mode3 and --battle-input at frame="+
                         std::to_string(frame));
                 //149e60 clamps the signed stage and sets fade CURRENT/target0.
-                const int stage=std::clamp(__builtin_bit_cast(std::int32_t, (selection[2])),1,23);
+                const int stage=std::clamp(std::bit_cast<std::int32_t>(selection[2]),1,23);
                 scene_fade.current=0;scene_fade.request(0);
                 scene_clear.rgb={0,0,0};scene_fade.color=0; //100ef8 fresh resource.
                 battle=std::make_unique<okage::BattleSession>(selection[1],stage,battle_input,
-                    field_root.parent_path(),variables,battle_entry,*reset_camera);
+                    field_root.parent_path(),variables,battle_entry,*reset_camera,effect_bytes,effect_textures,effect_preparation);
             });
         }
         if(battle) {
@@ -614,7 +614,13 @@ struct Session {
                      if(found==sound_banks.end())throw std::runtime_error("Battle menu sound requires the owned ALL bank");
                      //12df80: owned1fb3e0 speeds1; signed1fb388 volumes100/100/110.
                      found->second->play(id,1.f,id==4?110:100);
-                 },battle_live_trace},
+                 },battle_live_trace,[this](int id){
+                     if(id!=40)throw std::runtime_error("Battle strike sound outside recovered12df80 table scope");
+                     auto found=sound_banks.find(0);
+                     if(found==sound_banks.end())throw std::runtime_error("Battle strike sound requires the owned ALL bank");
+                     //Pinned speed1fb480=1.0 and signed volume1fb3b0=100.
+                     found->second->play(unsigned(id),1.f,100);
+                 }},
                 frame,battle_stage_report,battle_ui_update_report);
                 pad_repeat.delay=battle_pad.controls[0].delay;
                 pad_repeat.interval=battle_pad.controls[0].interval;
@@ -640,7 +646,7 @@ struct Session {
             if(const auto& battle=field->battle_request()) {
                 const unsigned phase=battle->phase?battle->phase:(field->exploration_ready()?0u:5u);
                 battle_transition_trace.insert(battle_transition_trace.end(),{frame,phase,battle->formation,
-                    __builtin_bit_cast(std::uint32_t, (battle->stage)),battle->return_token,unsigned(battle->dispatched),
+                    std::bit_cast<std::uint32_t>(battle->stage),battle->return_token,unsigned(battle->dispatched),
                     field->pc(),unsigned(field->event_running())});
             }
             const auto request=field->transition();
@@ -696,7 +702,7 @@ struct Session {
         narration.update(dialogue_active && !closure.finished() ? text.state.description : "",fonts[2],player_name);
         dialogue_trace.insert(dialogue_trace.end(),{frame,std::uint32_t(message_id),text.state.flags,text.state.phase,
             text.state.period,text.state.delay,text.state.progress,controller.advance_count,controller.layer_advance,
-            controller.layer_flags,controller.stage,__builtin_bit_cast(std::uint32_t, (opacity.delta))});
+            controller.layer_flags,controller.stage,std::bit_cast<std::uint32_t>(opacity.delta)});
         }
         if(field) {
             interaction_trace.insert(interaction_trace.end(),{frame,input.pressed,
@@ -709,11 +715,11 @@ struct Session {
                 m.camera_area,m.upper_material,m.effect_counter,m.run_delay,m.footstep_clock,
                 m.footstep_period,m.dust_effect,m.contact_bubble});
             camera_state_trace.insert(camera_state_trace.end(),{frame,field->camera_mode(),
-                field->event_running()?1u:0u,__builtin_bit_cast(std::uint32_t, (field->blend.phase)),
-                __builtin_bit_cast(std::uint32_t, (field->blend.step))});
+                field->event_running()?1u:0u,std::bit_cast<std::uint32_t>(field->blend.phase),
+                std::bit_cast<std::uint32_t>(field->blend.step)});
             scene_trace.insert(scene_trace.end(),{frame,field->pc(),field->pending_opcode,release_frame});
             for(const auto& values:{field->position,field->target,field->rotation})
-                for(float v:values)scene_trace.push_back(__builtin_bit_cast(std::uint32_t, (v)));
+                for(float v:values)scene_trace.push_back(std::bit_cast<std::uint32_t>(v));
             if(effects_loaded) {
                 const auto& submitted=field->effect_submissions();
                 effect_submission_trace.insert(effect_submission_trace.end(),{frame,unsigned(submitted.size())});
@@ -729,19 +735,19 @@ struct Session {
                 map_effect_trace.insert(map_effect_trace.end(),{frame,jobs_count});
                 for(unsigned i=0;i<jobs.size();++i)if(const auto& e=jobs[i]) {
                     map_effect_trace.insert(map_effect_trace.end(),{i,e->id,e->flags,e->phase,e->duration,unsigned(e->elements.size())});
-                    for(const auto& v:{e->position,e->rotation,e->scale,e->color})for(float f:v)map_effect_trace.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+                    for(const auto& v:{e->position,e->rotation,e->scale,e->color})for(float f:v)map_effect_trace.push_back(std::bit_cast<std::uint32_t>(f));
                     for(const auto& element:e->elements) {
                         map_effect_trace.insert(map_effect_trace.end(),{element.id,element.program,element.texture,element.render_flags});
-                        for(const auto& v:element.rendered)for(float f:v)map_effect_trace.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+                        for(const auto& v:element.rendered)for(float f:v)map_effect_trace.push_back(std::bit_cast<std::uint32_t>(f));
                     }
                 }
                 const auto& all=field->effects();unsigned count=0;for(const auto& e:all)if(e)++count;
                 effect_trace.insert(effect_trace.end(),{frame,field->pc(),count});
                 for(unsigned i=0;i<all.size();++i)if(const auto& e=all[i]) {
                     effect_trace.insert(effect_trace.end(),{i,unsigned(e->actor_alias),e->animation.phase,e->animation.flags});
-                    for(float f:e->position)effect_trace.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+                    for(float f:e->position)effect_trace.push_back(std::bit_cast<std::uint32_t>(f));
                     for(const auto& s:e->animation.sprites) {
-                        for(const auto& v:{s.position,s.scale})for(float f:v)effect_trace.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+                        for(const auto& v:{s.position,s.scale})for(float f:v)effect_trace.push_back(std::bit_cast<std::uint32_t>(f));
                         effect_trace.push_back(s.texture);effect_trace.push_back(s.uv[0]|(std::uint32_t(s.uv[1])<<16));effect_trace.push_back(s.uv[2]|(std::uint32_t(s.uv[3])<<16));
                     }
                 }
@@ -750,27 +756,27 @@ struct Session {
         if(field&&field->player_shadow()) {
             const auto& shadow=*field->player_shadow();
             shadow_trace.insert(shadow_trace.end(),{frame,field->player_movement().mask,shadow.phase,shadow.locked,
-                shadow.follow_disabled,__builtin_bit_cast(std::uint32_t, (shadow.voice)),__builtin_bit_cast(std::uint32_t, (shadow.factor)),
-                shadow.hero_shadow,unsigned(shadow.stun_visible),__builtin_bit_cast(std::uint32_t, (shadow.projection_factor))});
+                shadow.follow_disabled,std::bit_cast<std::uint32_t>(shadow.voice),std::bit_cast<std::uint32_t>(shadow.factor),
+                shadow.hero_shadow,unsigned(shadow.stun_visible),std::bit_cast<std::uint32_t>(shadow.projection_factor)});
             for(const auto& v:{shadow.stun_rotation,shadow.stun_position,shadow.stun_scale})
-                for(float f:v)shadow_trace.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+                for(float f:v)shadow_trace.push_back(std::bit_cast<std::uint32_t>(f));
             const auto hero=std::find_if(actor_bindings.begin(),actor_bindings.end(),[](const auto& a){return a.alias==-1;})->actor;
             const auto hero_channels=hero->animation().values();
-            for(unsigned ch:{0u,1u})for(float f:hero_channels.at(ch))shadow_trace.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+            for(unsigned ch:{0u,1u})for(float f:hero_channels.at(ch))shadow_trace.push_back(std::bit_cast<std::uint32_t>(f));
         }
         for(const auto& binding:actor_bindings) {
             const auto* actor=binding.actor;auto& actor_trace=actor_traces[binding.alias];
             actor_trace.insert(actor_trace.end(),{frame,field->pc(),actor->animation().pc(),actor->animation().script_state(),
                 actor->motion(),std::uint32_t(actor->channels().size()),std::uint32_t(actor->textures().images().size()),actor->visible ? 1u : 0u});
-            for(const auto& channel:actor->channels())for(float v:channel)actor_trace.push_back(__builtin_bit_cast(std::uint32_t, (v)));
-            for(auto image:actor->textures().images())actor_trace.push_back(__builtin_bit_cast(std::uint32_t, (image)));
+            for(const auto& channel:actor->channels())for(float v:channel)actor_trace.push_back(std::bit_cast<std::uint32_t>(v));
+            for(auto image:actor->textures().images())actor_trace.push_back(std::bit_cast<std::uint32_t>(image));
         }
         if(field) {
             const auto& p=projection.frame();
             projection_trace.insert(projection_trace.end(),{frame,unsigned(current_scene),unsigned(projection.frames()),
-                __builtin_bit_cast(std::uint32_t, (projection.effect_near()))});
+                std::bit_cast<std::uint32_t>(projection.effect_near())});
             for(const auto* s:{&p.shadow,&p.ordinary,&p.field_end,&p.effects,&p.deferred,&p.ending})
-                for(float f:okage::field_projection_words(*s))projection_trace.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+                for(float f:okage::field_projection_words(*s))projection_trace.push_back(std::bit_cast<std::uint32_t>(f));
         }
         observe_game_mode(1);
         if(battle_capture_layer) {
@@ -943,14 +949,14 @@ static void capture(const Session& session,const fs::path& path) {
         const auto output=fs::path(path.string()+".battle-return.bin");
         if(fs::exists(output)||fs::is_symlink(output))throw std::runtime_error("Refusing existing battle return capture");
         const auto& saved=*session.battle_return;
-        std::vector<std::uint32_t> words={__builtin_bit_cast(std::uint32_t, (saved.scene)),
-            __builtin_bit_cast(std::uint32_t, (saved.secondary_music)),unsigned(session.retain_field_music)};
+        std::vector<std::uint32_t> words={std::bit_cast<std::uint32_t>(saved.scene),
+            std::bit_cast<std::uint32_t>(saved.secondary_music),unsigned(session.retain_field_music)};
         words.insert(words.end(),session.pending_game_command.begin(),session.pending_game_command.end());
         if(!session.game_mode)throw std::runtime_error("Battle return capture has no mode parent");
         const auto selection=session.game_mode->requested().value_or(session.game_mode->current());
         words.insert(words.end(),selection.begin(),selection.end());
         for(const auto& v:{saved.player_position,saved.player_rotation,saved.raw_camera_position})
-            for(float f:v)words.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+            for(float f:v)words.push_back(std::bit_cast<std::uint32_t>(f));
         std::ofstream return_state(output,std::ios::binary);
         const auto& context=session.battle_entry.bytes();
         if(!return_state.write(reinterpret_cast<const char*>(words.data()),words.size()*4)||
@@ -1029,7 +1035,7 @@ static void capture(const Session& session,const fs::path& path) {
         bool firstWord=true;
         for(const auto& channel:actor.animation().channel_outputs())for(float value:channel) {
             if(!firstWord)actors<<',';
-            actors<<__builtin_bit_cast(std::uint32_t, (value));firstWord=false;
+            actors<<std::bit_cast<std::uint32_t>(value);firstWord=false;
         }
         actors<<"]}";firstActor=false;
     }

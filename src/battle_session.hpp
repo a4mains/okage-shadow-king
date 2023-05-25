@@ -40,12 +40,15 @@ struct BattleUiContext {
     std::function<void(BattleRosterSound)> sound;
     std::function<void(unsigned)> menu_sound;
     std::ostream* live_trace=nullptr;
+    std::function<void(int)> strike_sound;
 };
 class BattleSession {
 public:
     BattleSession(unsigned formation,int stage,const std::filesystem::path& input,
                   const std::filesystem::path& decoded,Bytes shared_variables,
-                  BattleEntryContext& entry,Animation& scene_camera);
+                  BattleEntryContext& entry,Animation& scene_camera,Bytes effect_data,
+                  const std::filesystem::path& effect_textures,
+                  std::shared_ptr<const EffectTemplatePreparation> effect_preparation);
     ~BattleSession();
     BattleSession(const BattleSession&)=delete;
     BattleSession& operator=(const BattleSession&)=delete;

@@ -34,6 +34,11 @@ struct BattleEntityBinding {
     std::span<std::uint8_t> record;
     unsigned kind=4;
 };
+struct BattleStrikeServices {
+    std::function<void(int)> sound;
+    std::function<unsigned(int,const Float4&)> positioned_effect;
+    std::function<void(int,int,int)> damage_event;
+};
 void battle_refresh_entities(BattleState&,std::span<const BattleEntityBinding>);
 void battle_register_action(BattleState&,unsigned owner,unsigned target,
                             std::uint32_t registration_flag);
@@ -47,7 +52,8 @@ void battle_party_second_update(BattleActor&,const BattleState&); //153ce8
 void battle_enemy_first_update(BattleActor&,const BattleState&,std::span<const BattleEntityBinding> = {});  //15b9a0
 void battle_enemy_second_update(BattleActor&,const BattleState&); //15c138
 // Dispatch the typed first callback selected by the previous task invocation.
-void battle_actor_first_update(BattleActor&,const BattleState&,std::span<const BattleEntityBinding>);
+void battle_actor_first_update(BattleActor&,const BattleState&,std::span<const BattleEntityBinding>,
+                               const BattleStrikeServices& = {});
 void battle_actor_motion_update(BattleActor&,std::span<const BattleEntityBinding> = {});
 void battle_actor_second_suffix(BattleActor&);
 class BattleRoster {
