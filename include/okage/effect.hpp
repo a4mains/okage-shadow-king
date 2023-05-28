@@ -63,6 +63,8 @@ struct MapEffectElement {
     std::vector<std::array<std::uint16_t,2>> strip_uv;
     std::optional<std::uint32_t> strip_source_id;
     std::shared_ptr<EffectWaterSurface> water;
+    //Shape33: three tagged quads, each retaining its four packed UV pairs.
+    std::array<std::array<std::uint16_t,2>,12> number_uv{};
 };
 enum class EffectStart {RandomPhase, FirstFrame};
 struct MapEffectVertex {Float4 position,color,uv;};
@@ -84,14 +86,24 @@ struct EffectTemplatePreparation {
     EffectTemplatePreparation(const std::vector<EffectDefinition>&,const EffectTextureSizes&,
         const SineTable&,const std::function<std::uint32_t()>& random);
 };
+//0x1086c4: actual live view and1842a0 projection parameter records.
+//The caller supplies the current resource state before the job near setter.
+struct EffectProjectionContext {
+    Matrix4 view;
+    std::array<Float4,8> screen;
+    float focal; //0x183e88
+};
 class MapEffect {
 public:
     MapEffect(const EffectDefinition&,const Float4& position,const Float4& rotation,
               const Float4& scale,const EffectTextureSizes&,
               const std::function<std::uint32_t()>& random,EffectStart start=EffectStart::RandomPhase);
     void set_parameter(unsigned selector,const Float4& payload);
+    //0x1016a8 writes signed integer -> float into job parameters+50..5f.
+    void set_numeric_parameter(std::int32_t);
     void tick(const std::function<std::uint32_t()>& random,bool clock_enabled=true,
-              const Float4* camera_world_position=nullptr);
+              const Float4* camera_world_position=nullptr,
+              const EffectProjectionContext* projection=nullptr);
     void request_removal(){flags|=0x100;}
     const EffectTextureSizes& texture_sizes() const{return texture_sizes_;}
     std::uint32_t id=0,flags=0,duration=0,phase=0;

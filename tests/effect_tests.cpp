@@ -282,6 +282,110 @@ int main(int argc,char** argv){try{
     auto bad_strike=initial_hit;bad_strike.elements[0].primitive_flags=0x40;
     rejects([&]{okage::map_effect_draws(bad_strike,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);});
     rejects([&]{okage::MapEffect bad(strike,{},{},{1,1,1,1},sizes,strike_random);});
+    okage::EffectProjectionContext numeric_projection{identity,{},40};
+    numeric_projection.screen[0]={1,1,1,0};
+    numeric_projection.screen[1]={0,0,0,1};
+    numeric_projection.screen[4]={2048,2048,0,0};
+    numeric_projection.screen[5]={1,1,1,0};
+    okage::EffectDefinition numbers;numbers.id=35;numbers.duration=90;numbers.flags=0x400;
+    numbers.parameters={0,0,0,573};numbers.elements.resize(1);
+    auto& number_part=numbers.elements[0];number_part.id=4;number_part.shape=33;
+    number_part.flags=0x245;number_part.primitive_flags=0x40;number_part.channels=13;
+    number_part.program=0x1a03201e;number_part.change_time=1.1f;number_part.texture=12;
+    number_part.values[0]={.7f,.7f,.7f,.5f};number_part.values[2]={0,-1.5f,0,0};
+    number_part.values[3]={.7f,.7f,1,1};
+    auto number_sizes=sizes;number_sizes[12]={256,32};number_sizes[6]={32,16};
+    unsigned numeric_rng=0;const auto numeric_random=[&]{++numeric_rng;return 50u;};
+    const auto make_number=[&](int amount){
+        okage::MapEffect result(numbers,{40,0,10,99},{.25f,.5f,0,1},{3,4,5,1},number_sizes,numeric_random,okage::EffectStart::FirstFrame);
+        result.set_numeric_parameter(amount);return result;
+    };
+    auto digits=make_number(573);
+    check(digits.parameters==okage::Float4({573,573,573,573})&&digits.scale==okage::Float4({3,4,5,1}));
+    digits.tick(numeric_random,false);check(numeric_rng==0&&digits.phase==1);
+    rejects([&]{digits.tick(numeric_random);});check(numeric_rng==0&&digits.phase==1);
+    digits.tick(numeric_random,true,nullptr,&numeric_projection);
+    check(numeric_rng==1&&digits.phase==2&&!(digits.elements[0].program&0x3f000000));
+    check(digits.elements[0].rendered[0]==okage::Float4({1,0,1,0}));
+    for(unsigned q=0;q<3;++q) {
+        const unsigned cell=std::array<unsigned,3>{5,7,3}[q];
+        const auto& uv=digits.elements[0].number_uv;
+        check(uv[q*4]==std::array<std::uint16_t,2>{std::uint16_t(cell*512),0});
+        check(uv[q*4+2]==std::array<std::uint16_t,2>{std::uint16_t(cell*512+512),528});
+    }
+    const auto draw_number=[&](const okage::MapEffect& job,const okage::Matrix4& view){
+        return okage::map_effect_draws(job,view,{.4f,.3f,0,1},450,sine,nullptr,okage::EffectDrawPass::Deferred);
+    };
+    rejects([&]{okage::map_effect_draws(digits,identity,{},450,sine);});
+    auto shifted_view=identity;shifted_view[3]={99,88,77,1};
+    const auto numeric_draws=draw_number(digits,shifted_view);
+    check(numeric_draws.size()==1&&numeric_draws[0].vertices.size()==18);
+    check(numeric_draws[0].matrix==draw_number(digits,identity)[0].matrix);
+    check(numeric_draws[0].matrix[3]==okage::Float4({1,0,1,1})); //No second job/view transform.
+    check(!numeric_draws[0].depth_test&&!numeric_draws[0].additive&&!numeric_draws[0].subtractive);
+    for(unsigned q=0;q<3;++q) {
+        const auto& vertices=numeric_draws[0].vertices;
+        check(vertices[q*6].position==okage::Float4({float(q)-.5f,-.5f,0,1}));
+        check(vertices[q*6+1].position==okage::Float4({float(q)-1.5f,-.5f,0,1}));
+        check(vertices[q*6+2].position==okage::Float4({float(q)-.5f,.5f,0,1}));
+    }
+    const auto first_number_uv=digits.elements[0].number_uv;
+    digits.set_numeric_parameter(999);digits.position[0]=80;
+    digits.tick(numeric_random,true,nullptr,&numeric_projection);
+    check(numeric_rng==1&&digits.elements[0].number_uv==first_number_uv);
+    check(digits.elements[0].rendered[0][0]==2);
+    for(unsigned i=2;i<90;++i)digits.tick(numeric_random,true,nullptr,&numeric_projection);
+    check(digits.phase==91&&!(digits.flags&0x100)&&numeric_rng==1);
+    digits.tick(numeric_random,true,nullptr,&numeric_projection);
+    check((digits.flags&0x100)&&draw_number(digits,identity).empty()&&numeric_rng==1);
+    for(const auto& [amount,cells]:std::array<std::pair<int,std::array<unsigned,3>>,5>{{
+            {0,{11,11,0}},{7,{11,11,7}},{10,{11,1,0}},{-573,{5,7,3}},{1234,{2,3,4}}}}) {
+        auto example=make_number(amount);example.tick(numeric_random,true,nullptr,&numeric_projection);
+        for(unsigned q=0;q<3;++q)check(example.elements[0].number_uv[q*4][0]==cells[q]*512);
+        if(amount<0)check(example.elements[0].color==okage::Float4({.2f,.7f,.2f,.5f}));
+    }
+    auto conversion=make_number(16777217);check(conversion.parameters[3]==16777216.f);
+    conversion.set_numeric_parameter(-16777217);check(conversion.parameters[3]==-16777216.f);
+    check(std::fegetround()==rounding_before);
+    //Source color30 equality preserves prior RGB; it only clears alpha.
+    auto terminal_number=make_number(9);terminal_number.inverse_duration=.25f;terminal_number.duration=4;
+    terminal_number.phase=2;terminal_number.tick(numeric_random,true,nullptr,&numeric_projection);
+    const auto earlier_color=terminal_number.elements[0].rendered[3];
+    check(earlier_color[0]<.7f&&earlier_color[2]>.7f&&earlier_color[3]<.5f);
+    terminal_number.phase=4;terminal_number.tick(numeric_random,true,nullptr,&numeric_projection);
+    for(unsigned i=0;i<3;++i)check(terminal_number.elements[0].rendered[3][i]==earlier_color[i]);
+    check(terminal_number.elements[0].rendered[3][3]==0);
+    auto clipped_number=make_number(1);clipped_number.position[2]=-2;
+    clipped_number.tick(numeric_random,true,nullptr,&numeric_projection);
+    check(clipped_number.elements[0].rendered[0]==okage::Float4({2088,100,-1,0}));
+    auto projected_number=make_number(1);auto altered_projection=numeric_projection;
+    altered_projection.view[3][0]=40;altered_projection.screen[1][3]=2;
+    projected_number.tick(numeric_random,true,nullptr,&altered_projection);
+    check(projected_number.elements[0].rendered[0][0]==1); //View X80 divided byW2.
+    auto invalid_projection=numeric_projection;invalid_projection.focal=0;
+    auto rejected_number=make_number(1);const auto before_invalid=numeric_rng;
+    rejects([&]{rejected_number.tick(numeric_random,true,nullptr,&invalid_projection);});
+    check(numeric_rng==before_invalid);
+    auto miss=numbers;miss.id=36;miss.parameters={1,1,1,1};
+    auto& miss_part=miss.elements[0];miss_part.id=1;miss_part.shape=30;miss_part.texture=5;
+    miss_part.primitive_flags=0x140;miss_part.channels=29;miss_part.program=0x1b03201e;
+    miss_part.values[0]={.5f,.5f,.5f,.5f};miss_part.values[3]={2.1f,.7f,1.2f,1};
+    miss_part.values[4]={0,1,12,0};
+    okage::MapEffect missed(miss,{0,0,10,1},{},{1,1,1,1},number_sizes,numeric_random,okage::EffectStart::FirstFrame);
+    check(missed.elements[0].texture==6);const auto before_miss=numeric_rng;
+    missed.tick(numeric_random,true,nullptr,&numeric_projection);
+    check(numeric_rng==before_miss+1&&missed.elements[0].texture==12);
+    check(missed.elements[0].quad_uv==std::array<std::array<std::uint16_t,2>,4>{{{6144,0},{6841,0},{6841,68},{6144,68}}});
+    const auto miss_draw=draw_number(missed,identity);check(miss_draw.size()==1&&miss_draw[0].vertices.size()==6);
+    check(miss_draw[0].vertices[2].uv==okage::Float4({6841/32768.f,68/32768.f,0,0}));
+    auto tiny_sizes=number_sizes;tiny_sizes[12]={1,32};
+    okage::MapEffect tiny_miss(miss,{0,0,10,1},{},{1,1,1,1},tiny_sizes,numeric_random,okage::EffectStart::FirstFrame);
+    tiny_miss.tick(numeric_random,true,nullptr,&numeric_projection);
+    check(tiny_miss.elements[0].quad_uv==std::array<std::array<std::uint16_t,2>,4>{{{0,0},{32,0},{32,1088},{0,1088}}});
+    const auto miss_uv=missed.elements[0].quad_uv;
+    for(unsigned i=1;i<90;++i)missed.tick(numeric_random,true,nullptr,&numeric_projection);
+    check(missed.elements[0].quad_uv==miss_uv&&numeric_rng==before_miss+2);
+    missed.tick(numeric_random,true,nullptr,&numeric_projection);check(missed.flags&0x100);
     if(argc!=1) {
         check(argc==3);
         const auto read=[](const std::filesystem::path& path){
@@ -306,7 +410,22 @@ int main(int argc,char** argv){try{
             for(const auto& packet:packets)check(packet.vertices.size()==6&&packet.additive&&!packet.depth_test);
         }
         owned.tick(rng);check((owned.flags&0x100)&&draws==3);
-        std::cout<<"Owned effect38 lifetime and geometry smoke passed\n";
+        for(unsigned id:{35u,36u}) {
+            const auto def=std::find_if(definitions.begin(),definitions.end(),[&](const auto& d){return d.id==id;});
+            check(def!=definitions.end()&&def->duration==90&&def->flags==0x400);
+            const auto before=draws;
+            okage::MapEffect owned_numeric(*def,{0,0,10,1},{},{1,1,1,1},owned_sizes,rng,okage::EffectStart::FirstFrame);
+            if(id==35)owned_numeric.set_numeric_parameter(-573);
+            for(unsigned i=0;i<90;++i) {
+                owned_numeric.tick(rng,true,nullptr,&numeric_projection);
+                const auto packets=draw_number(owned_numeric,identity);
+                check(draws==before+1&&packets.size()==1&&packets[0].texture==12);
+                check(packets[0].vertices.size()==(id==35?18:6)&&!packets[0].depth_test&&!packets[0].additive);
+            }
+            owned_numeric.tick(rng,true,nullptr,&numeric_projection);
+            check((owned_numeric.flags&0x100)&&draws==before+1);
+        }
+        std::cout<<"Owned effects35/36/38 lifetime and geometry smoke passed\n";
     }
     okage::EffectDefinition base=dust;base.id=19;base.flags=0x8000;base.duration=300;
     base.parameters={.03f,-.05f,0,.1f};
