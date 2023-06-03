@@ -282,6 +282,51 @@ int main(int argc,char** argv){try{
     auto bad_strike=initial_hit;bad_strike.elements[0].primitive_flags=0x40;
     rejects([&]{okage::map_effect_draws(bad_strike,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);});
     rejects([&]{okage::MapEffect bad(strike,{},{},{1,1,1,1},sizes,strike_random);});
+    okage::EffectDefinition impact;impact.id=39;impact.duration=35;impact.flags=0x400;
+    impact.elements.resize(4);
+    for(unsigned i=0;i<4;++i) {
+        auto& part=impact.elements[i];part.id=std::array<unsigned,4>{4,5,33,34}[i];
+        part.shape=i<2?31:30;part.flags=i<2?0x501:0x401;
+        part.primitive_flags=i==1?0x100:0;part.channels=31;part.change_time=1.1f;
+        part.program=(6u<<18)|((i==3?8u:4u)<<6)|(i<2?(2u<<12)|20u:24u);
+        part.values[0]={.7f,.3f,.1f,.4f};part.values[2]={2,3,4,5};
+        part.values[3]={20,18,2,.1f};part.values[4]={0,1,1,0};
+        if(i==3)part.values[1]={.125f,.25f,.5f,33};
+    }
+    unsigned impact_rng=0;const auto impact_random=[&]{return impact_rng++;};
+    okage::MapEffect impact_job(impact,{5,6,7,1},{},{1,1,1,1},strike_sizes,impact_random,okage::EffectStart::FirstFrame);
+    check(impact_rng==0);impact_job.tick(impact_random);
+    check(impact_rng==9&&impact_job.phase==2);
+    check(impact_job.elements[0].rendered[0]==okage::Float4({-40,-52,-72,5}));
+    check(impact_job.elements[1].rendered[0]==okage::Float4({-32,-40,-56,5}));
+    check(impact_job.elements[0].texture==17&&impact_job.elements[1].texture==1);
+    check(impact_job.elements[2].texture==6&&impact_job.elements[3].texture==6);
+    check(impact_job.elements[1].quad_uv[2]==std::array<std::uint16_t,2>{1536,1325});
+    check(std::fesetround(FE_TOWARDZERO)==0);
+    volatile float first_angle=363,second_angle=367,third_angle=368;
+    check(impact_job.elements[0].rendered[1][2]==first_angle*.00278f);
+    check(impact_job.elements[1].rendered[1][2]==second_angle*.00278f);
+    check(impact_job.elements[2].rendered[1][2]==third_angle*.00278f);
+    const auto linked=impact_job.elements[2].rendered[1];
+    check(impact_job.elements[3].rendered[1]==okage::Float4({linked[0]+.125f,linked[1]+.25f,linked[2]+.5f,33}));
+    check(std::fesetround(rounding_before)==0);
+    const auto first_impact=impact_job;
+    const auto impact_draw=[&]{return okage::map_effect_draws(impact_job,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);};
+    const auto impact_packets=impact_draw();check(impact_packets.size()==4&&impact_rng==9);
+    for(const auto& packet:impact_packets)check(packet.vertices.size()==6&&packet.additive&&!packet.depth_test&&!packet.subtractive);
+    rejects([&]{okage::map_effect_draws(impact_job,identity,{},450,sine);});
+    for(unsigned i=1;i<35;++i)impact_job.tick(impact_random);
+    check(impact_rng==9&&impact_job.phase==36&&!(impact_job.flags&0x100));
+    for(unsigned i=0;i<4;++i) {
+        check(impact_job.elements[i].rendered[0]==first_impact.elements[i].rendered[0]);
+        check(impact_job.elements[i].rendered[1]==first_impact.elements[i].rendered[1]);
+    }
+    impact_job.tick(impact_random);check((impact_job.flags&0x100)&&impact_draw().empty());
+    auto missing_rotation=impact;missing_rotation.elements[3].values[1][3]=99;
+    okage::MapEffect broken_link(missing_rotation,{},{},{1,1,1,1},sizes,impact_random,okage::EffectStart::FirstFrame);
+    rejects([&]{broken_link.tick(impact_random);});
+    auto future_impact=impact;future_impact.id=40;
+    rejects([&]{okage::MapEffect unsupported(future_impact,{},{},{1,1,1,1},sizes,impact_random,okage::EffectStart::FirstFrame);});
     okage::EffectProjectionContext numeric_projection{identity,{},40};
     numeric_projection.screen[0]={1,1,1,0};
     numeric_projection.screen[1]={0,0,0,1};
@@ -425,7 +470,18 @@ int main(int argc,char** argv){try{
             owned_numeric.tick(rng,true,nullptr,&numeric_projection);
             check((owned_numeric.flags&0x100)&&draws==before+1);
         }
-        std::cout<<"Owned effects35/36/38 lifetime and geometry smoke passed\n";
+        const auto impact_def=std::find_if(definitions.begin(),definitions.end(),[](const auto& d){return d.id==39;});
+        check(impact_def!=definitions.end()&&impact_def->duration==35&&impact_def->elements.size()==4);
+        const auto before_impact=draws;
+        okage::MapEffect owned_impact(*impact_def,{0,-7.5f,0,1},{},{1,1,1,1},owned_sizes,rng,okage::EffectStart::FirstFrame);
+        for(unsigned i=0;i<35;++i) {
+            owned_impact.tick(rng);
+            const auto packets=okage::map_effect_draws(owned_impact,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);
+            check(draws==before_impact+9&&packets.size()==4);
+            for(const auto& packet:packets)check(packet.vertices.size()==6&&packet.additive&&!packet.depth_test);
+        }
+        owned_impact.tick(rng);check((owned_impact.flags&0x100)&&draws==before_impact+9);
+        std::cout<<"Owned effects35/36/38/39 lifetime and geometry smoke passed\n";
     }
     okage::EffectDefinition base=dust;base.id=19;base.flags=0x8000;base.duration=300;
     base.parameters={.03f,-.05f,0,.1f};
