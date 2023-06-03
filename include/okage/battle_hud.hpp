@@ -6,6 +6,7 @@
 #include <string>
 
 namespace okage {
+class BattleData;
 class BattleHudData {
 public:
     explicit BattleHudData(Bytes);
@@ -69,6 +70,10 @@ struct BattleHud {
     void clear_target_confirm_cursor(RuwResource&);
     void reset_type3(RuwResource&);
     void initialize_type3(RuwResource&,const GameDataTables&);
+    void append_history_event(RuwResource&,const BattleHudData&,const GameDataTables&,
+        const BattleData&,unsigned formation_index,unsigned kind,
+        std::uint32_t code,std::int32_t display_value,bool display_value_known,
+        std::optional<std::string_view> special_name=std::nullopt);
     void refresh_type3(RuwResource&,const BattleHudData&,const GameDataTables&,
                        Bytes variables,const UiPartySelection&);
     void update_type3(RuwResource&,const BattleHudData&,const GameDataTables&,
