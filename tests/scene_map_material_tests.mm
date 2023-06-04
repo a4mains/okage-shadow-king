@@ -15,7 +15,7 @@ static void require(bool v,unsigned at=__builtin_LINE()) {
 }
 static void put(Data& b,std::size_t at,std::uint32_t v){for(unsigned i=0;i<4;++i)b.at(at+i)=v>>(8*i);}
 static void word(Data& b,std::uint32_t v){const auto at=b.size();b.resize(at+4);put(b,at,v);}
-static void floats(Data& b,const Float4& v){for(float f:v)word(b,__builtin_bit_cast(unsigned, (f)));}
+static void floats(Data& b,const Float4& v){for(float f:v)word(b,std::bit_cast<unsigned>(f));}
 static void write(const fs::path& p,const Data& b){std::ofstream f(p,std::ios::binary);f.write(reinterpret_cast<const char*>(b.data()),b.size());if(!f)throw std::runtime_error("Fixture write");}
 struct Surface {Float4 color;float transparency=0;bool normal=false,bypass=false;unsigned blend=0;};
 static Data model(std::span<const Surface> surfaces,bool selected,bool textured,bool reverse) {
@@ -27,7 +27,7 @@ static Data model(std::span<const Surface> surfaces,bool selected,bool textured,
     put(b,72,1);put(b,76,0xffff0000);put(b,80,1);
     word(b,0x0200001c);word(b,0xffff0000);word(b,0x00010001);floats(b,{0,0,1,1});
     word(b,0x03000000|unsigned(4+32*surfaces.size()));
-    for(const auto& s:surfaces){floats(b,{0,0,0,0});word(b,0);word(b,__builtin_bit_cast(unsigned, (s.transparency)));word(b,s.blend);word(b,s.bypass?1:0);}
+    for(const auto& s:surfaces){floats(b,{0,0,0,0});word(b,0);word(b,std::bit_cast<unsigned>(s.transparency));word(b,s.blend);word(b,s.bypass?1:0);}
     word(b,0x04000008);word(b,0);
     word(b,0x0500004c);word(b,1);word(b,4<<16);
     for(const auto& p:std::array{Float4{-2,-2,10,1},Float4{2,-2,10,1},Float4{2,2,10,1},Float4{-2,2,10,1}})floats(b,p);
@@ -115,7 +115,15 @@ static Texture battle_actor_sample(const fs::path& dir,std::span<const Surface> 
     require(renderer.render_prepared(snapshot).rgba==image.rgba);
     actor.animation().set_channel(1,{0,0,0,1});actor.evaluate();renderer.set_clear_rgb({14,18,24});renderer.set_sort_depth_shift(16);
     actor.animation().set_channel(3,{.9f,.8f,.7f,.6f});actor.evaluate();require(render().rgba==image.rgba);
-    actor.render_flags=0x300080;bool caught=false;try{render();}catch(const std::runtime_error& e){caught=std::string(e.what())=="Explicit actor flags changed after binding";}require(caught);
+    for(unsigned phase=0;phase<3;++phase) {
+        const Float4 dying{.25f,.25f,.25f,1.f-float(phase)*.5f};
+        actor.animation().set_channel(3,dying);actor.evaluate();actor.render_flags=flags|0x100000;
+        const auto overrideExpected=sample(dir/("ambient-"+std::to_string(phase)),surfaces,true,textured,false,base,dying);
+        require(render().rgba==overrideExpected.rgba);
+        require(renderer.render_prepared(snapshot).rgba==image.rgba);
+        actor.render_flags=flags;require(render().rgba==image.rgba);
+    }
+    actor.render_flags=flags^0x40;bool caught=false;try{render();}catch(const std::runtime_error& e){caught=std::string(e.what())=="Explicit actor flags changed after binding";}require(caught);
     actor.render_flags=flags;
     caught=false;try{renderer.set_sort_depth_shift(32);}catch(const std::runtime_error&){caught=true;}require(caught);require(render().rgba==image.rgba);
     SceneActor invalid{&actor,dir/"m.xmd",-1,SceneActorDescriptor{0x300080,false}};

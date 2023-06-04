@@ -57,6 +57,8 @@ public:
     void service_loader_after_frame(BattleConstructionContext,unsigned frame,
                                     const std::filesystem::path& diagnostic_report={});
     const BattleState& state() const;
+    //Read-only endpoint observation; float lanes are raw bits, no simulation.
+    void write_effect_observation(std::ostream&,unsigned frame) const;
     const Texture* rendered_image() const;
     std::array<std::uint32_t,7> observation() const;
 private:

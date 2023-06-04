@@ -1,4 +1,5 @@
 #include "okage/battle_actor.hpp"
+#include "okage/battle_hit.hpp"
 #include "okage/camera.hpp"
 #include <bit>
 #include <cfenv>
@@ -112,6 +113,62 @@ void initial_status_and_motion(BattleActor& actor,const BattleState& root) {
         const float next=single(remaining,scalar(actor.storage,0x2c),Operation::Subtract);
         scalar(actor.storage,0x12c,next);
         check(next>=0.0f,"Unrecovered battle actor motion expiry/effect cleanup");
+    }
+}
+void enemy_status_and_motion(BattleActor& actor,BattleState& root,const BattleHitServices* services) {
+    int index=half(actor.storage,0x130);
+    check(index>=0&&unsigned(index)<battle_entity_count,"Battle enemy entity outside native root");
+    auto entity=root.entity(unsigned(index));
+    const auto slot=[&]() {
+        const int cursor=half(entity,0x172);
+        check(cursor>=0&&cursor<16,"Battle enemy event queue cursor outside storage");
+        return 0x174+unsigned(cursor)*8;
+    };
+    if(half(entity,0x172)!=0) {
+        const auto category=half(entity,slot()),amount=half(entity,slot()+2);
+        check(services!=nullptr,"Battle enemy queued hit services missing");
+        const int result=battle_apply_hit(actor,category,amount,*services);
+        index=half(actor.storage,0x130);
+        check(index>=0&&unsigned(index)<battle_entity_count,"Battle enemy post-hit entity outside native root");
+        entity=root.entity(unsigned(index));
+        if(result==6||result==9) {
+            if(result==9)put(actor.storage,0x178,0xffff,2);
+            battle_clear_action(root,unsigned(index));
+            put(entity,0x1fc,word(entity,0x1fc)|0x80000000u);
+            check(!actor.stat_bindings[1].empty(),"Battle enemy primary binding missing");
+            actor.stat_bindings[1][0]=6;
+            put(actor.storage,0x21c,0xffffffff);put(actor.storage,0x30,0);
+            const auto previous=actor.first_callback;
+            actor.first_callback=BattleActor::FirstCallback::EnemyDeath;put(actor.storage,0,0);
+            actor.saved_first_callback=previous;put(actor.storage,0x28,0);
+            actor.dead_callback=true;put(actor.storage,0x24,0);
+            //159590 clears only slots cursor..0, preserving each fourth halfword.
+            for(int cursor=half(entity,0x172);cursor>=0;--cursor) {
+                check(cursor<16,"Battle enemy reset queue cursor outside storage");
+                const auto at=0x174+unsigned(cursor)*8;
+                put(entity,at,0xffff,2);put(entity,at+2,0,2);put(entity,at+4,0,2);
+            }
+            put(entity,0x172,0,2);return;
+        }
+        if(result==3||result==4) {
+            put(actor.storage,0x194,0);put(actor.storage,0x21c,99);put(actor.storage,0x19c,0);
+        }
+        //159508 reloads the mutable cursor at each source store.
+        put(entity,slot(),0xffff,2);put(entity,slot()+2,0,2);put(entity,slot()+4,0,2);
+        const auto next=std::uint16_t(half(entity,0x172)-1);
+        put(entity,0x172,next,2);
+        if(std::bit_cast<std::int16_t>(next)<0)put(entity,0x172,0,2);
+    }
+    const float remaining=scalar(actor.storage,0x12c);
+    if(remaining>=0) {
+        const float next=single(remaining,scalar(actor.storage,0x2c),Operation::Subtract);
+        scalar(actor.storage,0x12c,next);
+        if(next<0) {
+            const auto primary=status(actor,1);
+            const auto motion=primary>1&&primary<6?5u:1u;
+            put(actor.storage,0x128,motion);model(actor).select_motion(motion);
+            scalar(actor.storage,0x12c,-1.f);
+        }
     }
 }
 void primary_effect(BattleActor& actor) {
@@ -297,6 +354,65 @@ bool strike_update(BattleActor& actor,const BattleState& root,std::span<const Ba
     strike_damage(actor,root,services);strike_sound(actor,services);strike_effect(actor,root,entities,services);
     return false;
 }
+bool return_to_baseline(BattleActor& actor) {
+    auto& animation=model(actor).animation();
+    const auto duration=[&]() {
+        const float value=single(24.f,scalar(actor.storage,0x2c),Operation::Divide);
+        check(double(value)>=double(INT32_MIN)&&double(value)<=double(INT32_MAX),"Battle return duration outside signed32 scope");
+        return static_cast<std::int32_t>(value);
+    };
+    if(word(actor.storage,0x300)!=1) {
+        animation.move_channel(1,vector(actor.storage,0x60),duration());
+        vector(actor.storage,0x90,{0,.25f,0,0});
+        animation.move_channel(0,vector(actor.storage,0x90),duration());
+        put(actor.storage,0x128,8);model(actor).select_motion(8);
+        scalar(actor.storage,0x12c,24.f);put(actor.storage,0x300,word(actor.storage,0x300)+1);
+        return false;
+    }
+    if(animation.moving(1,0))return false;
+    const auto primary=status(actor,1);const auto motion=primary>1&&primary<6?5u:1u;
+    put(actor.storage,0x128,motion);model(actor).select_motion(motion);scalar(actor.storage,0x12c,-1.f);
+    put(actor.storage,0x21c,99);
+    for(int i=9;i>=0;--i)actor.storage[0x132+unsigned(i)]=0xff;
+    for(unsigned at:{0x146u,0x140u,0x142u,0x144u})put(actor.storage,at,0,2);
+    put(actor.storage,0x300,0);return true;
+}
+void enemy_death_update(BattleActor& actor,const BattleStrikeServices& services,const BattleHitServices* hits) {
+    put(actor.storage,0x20,3);
+    switch(word(actor.storage,0x24)) {
+    case 0: {
+        auto& instance=model(actor);
+        instance.render_flags|=0x100000;instance.shadow_mode_override=0xffff;
+        scalar(actor.storage,0xe8,.25f);scalar(actor.storage,0xec,1.f);
+        scalar(actor.storage,0xe0,.25f);scalar(actor.storage,0xe4,.25f);
+        instance.animation().set_channel(3,vector(actor.storage,0xe0));
+        scalar(actor.storage,0xec,0.f);
+        const float duration=single(60.f,scalar(actor.storage,0x2c),Operation::Divide);
+        check(double(duration)>=double(INT32_MIN)&&double(duration)<=double(INT32_MAX),
+              "Battle death duration outside signed32 scope");
+        instance.animation().move_channel(3,vector(actor.storage,0xe0),static_cast<std::int32_t>(duration));
+        put(actor.storage,0x24,word(actor.storage,0x24)+1);
+        break;
+    }
+    case 1:
+        if(!model(actor).animation().moving(3,0)) {
+            check(hits&&bool(hits->attached_effect),"Battle death attached effect service missing");
+            hits->attached_effect(20,actor);
+            check(bool(services.sound),"Battle death sound service missing");services.sound(66);
+            model(actor).visible=false;
+            put(actor.storage,0x24,word(actor.storage,0x24)+1);scalar(actor.storage,0x3c4,30.f);
+        }
+        break;
+    case 2: {
+        const float remaining=single(scalar(actor.storage,0x3c4),scalar(actor.storage,0x2c),Operation::Subtract);
+        scalar(actor.storage,0x3c4,remaining);
+        check(remaining>=0,"Unrecovered enemy death rewards15bb90/15bfd8");
+        break;
+    }
+    default:break;
+    }
+    step_model(actor);
+}
 void approach_attack_update(BattleActor& task,const BattleState& root,std::span<const BattleEntityBinding> entities,
                             const BattleStrikeServices& services) {
     auto& actor=bound_actor(entities,std::bit_cast<std::int32_t>(word(task.storage,0x30)));
@@ -315,7 +431,14 @@ void approach_attack_update(BattleActor& task,const BattleState& root,std::span<
             put(actor.storage,0x300,0);put(task.storage,0x24,word(task.storage,0x24)+1);
         }
         break;
-    case 3:throw std::runtime_error("Unrecovered battle attack return156670");
+    case 3:
+        if(return_to_baseline(actor)) {
+            put(task.storage,0x34,0);
+            check(task.saved_first_callback.has_value(),"Battle return lacks saved first callback");
+            task.first_callback=*task.saved_first_callback;put(task.storage,0,0);
+            put(task.storage,0x24,0);
+        }
+        break;
     default:break; //156300/156318 go directly to model step.
     }
     step_model(actor);
@@ -325,7 +448,7 @@ void battle_actor_motion_update(BattleActor& actor,std::span<const BattleEntityB
     TowardZero rounding;
     put(actor.storage,0x20,0);
     switch(word(actor.storage,0x21c)) { //B+1dc, not C+1dc.
-    case 0:case 2:case 99:
+    case 0:case 2:case 99:case 0xffffffffu:
         break;
     case 1: {
         const float step=single(scalar(actor.storage,0x2c),scalar(actor.storage,0x1a4),Operation::Multiply);
@@ -359,14 +482,15 @@ void battle_party_first_update(BattleActor& actor,const BattleState& root,std::s
     if(half(actor.storage,0x42)!=3)initial_status_and_motion(actor,root);
     battle_actor_motion_update(actor,entities);
 }
-void battle_actor_first_update(BattleActor& actor,const BattleState& root,std::span<const BattleEntityBinding> entities,
-                               const BattleStrikeServices& services) {
+void battle_actor_first_update(BattleActor& actor,BattleState& root,std::span<const BattleEntityBinding> entities,
+                               const BattleStrikeServices& services,const BattleHitServices* hits) {
     TowardZero rounding;
     switch(actor.first_callback) {
     case BattleActor::FirstCallback::Roster:
-        if(actor.enemy)battle_enemy_first_update(actor,root,entities);else battle_party_first_update(actor,root,entities);
+        if(actor.enemy)battle_enemy_first_update(actor,root,entities,hits);else battle_party_first_update(actor,root,entities);
         break;
     case BattleActor::FirstCallback::ApproachAttack:approach_attack_update(actor,root,entities,services);break;
+    case BattleActor::FirstCallback::EnemyDeath:enemy_death_update(actor,services,hits);break;
     }
 }
 void battle_actor_second_suffix(BattleActor& actor) {
@@ -394,11 +518,12 @@ void battle_party_second_update(BattleActor& actor,const BattleState& root) {
     if(half(actor.record,0x26)<100||charge<100)put(actor.record,0x26,std::uint32_t(charge),2);
     battle_actor_second_suffix(actor);
 }
-void battle_enemy_first_update(BattleActor& actor,const BattleState& root,std::span<const BattleEntityBinding> entities) {
+void battle_enemy_first_update(BattleActor& actor,BattleState& root,std::span<const BattleEntityBinding> entities,
+                               const BattleHitServices* hits) {
     check(actor.enemy&&!actor.dead_callback,"Unrecovered enemy first callback identity");
     TowardZero rounding;
     put(actor.storage,0x20,0);
-    initial_status_and_motion(actor,root);
+    enemy_status_and_motion(actor,root,hits);
     battle_actor_motion_update(actor,entities); //154b38 writes C+20 a second time.
 }
 void battle_enemy_second_update(BattleActor& actor,const BattleState& root) {

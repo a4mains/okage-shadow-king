@@ -278,7 +278,7 @@ struct SceneRenderer::Impl {
             if(input.actor && !input.actor->visible)continue;
             const bool mapMaterial=input.placement.has_value();
             const bool explicitActor=input.descriptor.has_value();
-            if(explicitActor&&input.actor->render_flags!=input.descriptor->flags)
+            if(explicitActor&&((input.actor->render_flags^input.descriptor->flags)&~0x100000u))
                 throw std::runtime_error("Explicit actor flags changed after binding");
             const bool ordinaryMaterial=mapMaterial||explicitActor;
             const bool ordinaryInstance=input.actor && !input.actor->encounter_model && input.actor->render_flags==0x100000;
@@ -296,6 +296,8 @@ struct SceneRenderer::Impl {
             auto lightColors=ordinaryLighting.colors;
             if(ordinaryInstance) {
                 directionMatrix=ordinary_direction_matrix(ordinaryLighting.directions,view);
+            }
+            if(ordinaryInstance||(explicitActor&&(input.actor->render_flags&0x100000))) {
                 lightColors[3]=input.actor->channels().at(3);
             }
             std::vector<Draw> translucent;
@@ -357,7 +359,7 @@ struct SceneRenderer::Impl {
                         } else if(materialActor) {
                             if(polygon.material<0)throw std::runtime_error("Special actor has no material");
                             material=&block.materials.at(polygon.material);
-                            const float transparency=__builtin_bit_cast(float, (material->words[5]));
+                            const float transparency=std::bit_cast<float>(material->words[5]);
                             if((ordinaryInstance ? transparency!=0 : !(transparency>0)) || material->words[7])
                                 throw std::runtime_error("Unrecovered special-actor material class");
                             draw.materialBlend=material_blend_register(*material);

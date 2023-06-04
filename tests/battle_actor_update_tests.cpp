@@ -1,4 +1,5 @@
 #include "okage/battle_actor.hpp"
+#include "okage/battle_hit.hpp"
 #include <bit>
 #include <cfenv>
 #include <iostream>
@@ -188,14 +189,28 @@ void attack_dispatch_and_approach() {
     require(animation.value(0)[3]==7,"Polling orientation preserves channel W");
     okage::battle_actor_first_update(f.actor,f.root,entities);
     require(word(f.actor.storage,0x24)==3,"Zero authored strike duration completes without schedules");
-    rejects([&]{okage::battle_actor_first_update(f.actor,f.root,entities);});
+    for(unsigned i=0;i<4;++i)f.actor.storage[0x13c+i]=std::uint8_t(40+i);
+    okage::battle_actor_first_update(f.actor,f.root,entities);
+    require(word(f.actor.storage,0x24)==3&&word(f.actor.storage,0x300)==1&&f.actor.model->motion()==8,
+            "Return queues position and rotation before motion8");
+    require(number(f.actor.storage,0x94)==.25f&&number(f.actor.storage,0x9c)==0&&number(f.actor.storage,0x12c)==24,
+            "Return uses authored quarter-turn and duration24");
+    calls=0;
+    while(f.actor.first_callback==Callback::ApproachAttack&&calls++<100)okage::battle_actor_first_update(f.actor,f.root,entities);
+    require(f.actor.first_callback==Callback::Roster&&word(f.actor.storage,0x24)==0&&word(f.actor.storage,0x21c)==99,
+            "Actual position completion restores saved roster callback");
+    require(animation.value(1)==okage::Float4({0,0,0,1})&&f.actor.model->motion()==1&&number(f.actor.storage,0x12c)==-1,
+            "Return reaches baseline and selects normal motion");
+    require(half(f.actor.storage,0x140)==0&&half(f.actor.storage,0x146)==0&&f.actor.storage[0x132]==255&&f.actor.storage[0x13b]==255&&f.actor.storage[0x13c]==40,
+            "Return clears exactly source ten target bytes and count halfwords");
     //Shorter-than12 separation keeps the source negative travel, rather than clamping.
     f.actor.first_callback=Callback::ApproachAttack;put(f.actor.storage,0x24,0);
+    f.actor.storage[0x132]=1;
     animation.set_channel(1,{0,0,0,1});target.actor.model->animation().set_channel(1,{0,0,6,1});
     okage::battle_actor_first_update(f.actor,f.root,entities);
     require(number(f.actor.storage,0xf8)==-6,"Negative travel is retained");
     //Unsupported categories stop before changing callback ownership/phase.
-    f.actor.first_callback=Callback::Roster;put(f.actor.storage,0x24,13);put(target.actor.storage,0x48,1,2);
+    f.actor.first_callback=Callback::Roster;put(f.actor.storage,0x21c,5);put(f.actor.storage,0x24,13);put(target.actor.storage,0x48,1,2);
     rejects([&]{okage::battle_actor_first_update(f.actor,f.root,entities);});
     require(f.actor.first_callback==Callback::Roster&&word(f.actor.storage,0x24)==13,
             "Unsupported callback choice cannot silently install approach");
@@ -320,8 +335,60 @@ void floating_environment() {
     }
     std::fesetenv(&original);
 }
+void queued_enemy_hit() {
+    Fixture f;auto& a=f.actor;a.enemy=true;
+    a.stat_bindings[0]=std::span(f.record).subspan(8,4);put(f.record,8,40);
+    number(a.storage,0x4c,5);put(f.root.bytes,0x50,1);
+    auto e=f.root.entity(0);put(e,0x172,2,2);
+    put(e,0x17c,0,2);put(e,0x17e,3,2); //Earlier event must survive one callback.
+    put(e,0x184,0,2);put(e,0x186,9,2);put(e,0x188,7,2);put(e,0x18a,0xabcd,2);
+    std::vector<int> events;
+    okage::BattleHitServices services{
+        [&](int id,okage::BattleActor&){events.push_back(id);return 4u;},
+        [&](unsigned handle,int amount){require(handle==4&&amount==9,"Queued amount reaches number effect");events.push_back(amount);},
+        [&](okage::BattleActor&,std::int16_t delta,std::int16_t category){require(delta==-9&&category==0,"Queued category and negative history");events.push_back(100);},
+        [&](okage::BattleActor&){events.push_back(200);},
+        [&](int id,const okage::Float4&){events.push_back(id);return 5u;}};
+    okage::battle_enemy_first_update(a,f.root,{},&services);
+    require(events==std::vector<int>({35,9,100,38})&&word(f.record,8)==31,"Source-ordered hit services and HP update");
+    require(half(e,0x172)==1&&half(e,0x184)==0xffff&&half(e,0x186)==0&&half(e,0x188)==0&&half(e,0x18a)==0xabcd,
+            "One LIFO event cleared; unused fourth halfword survives");
+    require(half(e,0x17e)==3&&number(a.storage,0x12c)==29&&a.model->motion()==4,"Earlier event retained and new reaction timer decremented same callback");
+    put(e,0x172,0,2);number(a.storage,0x12c,0);
+    okage::battle_enemy_first_update(a,f.root,{},&services);
+    require(a.model->motion()==1&&number(a.storage,0x12c)==-1,"Reaction expiry restores normal motion immediately");
+    put(e,0x172,2,2);put(e,0x184,0,2);put(e,0x186,9,2);put(f.record,8,9);
+    okage::battle_enemy_first_update(a,f.root,{},&services);
+    require(word(f.record,8)==0&&f.record[0]==6&&a.first_callback==okage::BattleActor::FirstCallback::EnemyDeath,
+            "Lethal hit changes HP/status and installs actual death callback");
+    require(a.saved_first_callback==okage::BattleActor::FirstCallback::Roster&&word(a.storage,0x21c)==0xffffffff&&word(a.storage,0x24)==0,
+            "Death preserves prior callback and resets phase");
+    require(half(e,0x172)==0&&half(e,0x174)==0xffff&&half(e,0x17c)==0xffff&&half(e,0x184)==0xffff&&half(e,0x18a)==0xabcd,
+            "Death resets active queue slots through zero without touching padding");
+    require((word(e,0x1fc)&0x80000000)!=0,"Death marks source target inactive");
+    a.model->render_flags=0x41;
+    const auto position=a.model->animation().value(1);
+    okage::battle_actor_first_update(a,f.root,{}, {},&services);
+    require(word(a.storage,0x20)==3&&word(a.storage,0x24)==1,"Death installs fade without phase fallthrough");
+    require(a.model->render_flags==0x100041&&a.model->shadow_mode_override==0xffff,"Death preserves model flags and disables shadow override");
+    require(a.model->animation().moving(3,0)&&number(a.storage,0xec)==0,"Death fades real color channel");
+    require(a.model->animation().value(1)==position,"Death tail does not republish baseline transforms");
+    for(unsigned i=0;i<59;++i)okage::battle_actor_first_update(a,f.root,{}, {},&services);
+    require(word(a.storage,0x24)==1&&a.model->animation().moving(3,0),"Rounded duration keeps the real channel pending at 60 advances");
+    for(unsigned i=0;i<2;++i)okage::battle_actor_first_update(a,f.root,{}, {},&services);
+    require(word(a.storage,0x24)==1&&!a.model->animation().moving(3,0),"Death completion is polled on next callback");
+    events.clear();
+    okage::BattleStrikeServices sounds{[&](int id){events.push_back(id);},{},{}};
+    okage::battle_actor_first_update(a,f.root,{},sounds,&services);
+    require(events==std::vector<int>({20,66})&&!a.model->visible&&word(a.storage,0x24)==2&&number(a.storage,0x3c4)==30,
+            "Death creates attached effect then sound before hiding and starting reward delay");
+    number(a.storage,0x3c4,1);okage::battle_actor_first_update(a,f.root,{},sounds,&services);
+    require(number(a.storage,0x3c4)==0,"Reward delay equality does not complete");
+    rejects([&]{okage::battle_actor_first_update(a,f.root,{},sounds,&services);});
+    require(number(a.storage,0x3c4)==-1,"Unrecovered reward guard retains preceding timer subtraction");
+}
 }
 int main(){try {
-    first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();strike_schedules();channels_and_effect_guards();enemy_paths();floating_environment();
+    first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();strike_schedules();channels_and_effect_guards();enemy_paths();floating_environment();queued_enemy_hit();
     std::cout<<"Battle actor startup callback tests passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

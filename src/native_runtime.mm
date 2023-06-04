@@ -930,6 +930,21 @@ static void capture(const Session& session,const fs::path& path) {
     if(fs::exists(shadowsPath)||fs::is_symlink(shadowsPath))throw std::runtime_error("Refusing existing shadow-submission capture");
     if(!path.parent_path().empty())fs::create_directories(path.parent_path());
     if(session.battle) {
+        const auto effectsPath=fs::path(path.string()+".battle-effects.json");
+        if(fs::exists(effectsPath)||fs::is_symlink(effectsPath))throw std::runtime_error("Refusing existing battle effect observation");
+        std::ofstream effectsOut(effectsPath);
+        session.battle->write_effect_observation(effectsOut,session.frame);
+        const auto historyPath=fs::path(path.string()+".battle-history.json");
+        if(fs::exists(historyPath)||fs::is_symlink(historyPath))throw std::runtime_error("Refusing existing battle history observation");
+        std::ofstream historyOut(historyPath);
+        const auto& hud=session.ui_shared.hud;
+        historyOut<<"{\"schema\":\"okage-native-battle-history-v1\",\"frame\":"<<session.frame
+                  <<",\"cursor\":"<<hud.type3_cursor<<",\"animation\":"<<hud.type3_animation<<",\"slots\":[";
+        for(unsigned i=0;i<hud.type3_slots.size();++i){if(i)historyOut<<',';historyOut<<hud.type3_slots[i];}
+        historyOut<<"],\"current_number_bytes\":[";
+        for(unsigned i=0;i<hud.type3_current_number.size();++i){if(i)historyOut<<',';historyOut<<unsigned(std::uint8_t(hud.type3_current_number[i]));}
+        historyOut<<"]}\n";
+        if(!historyOut)throw std::runtime_error("Cannot write battle history observation");
         const auto& bytes=session.battle->state().bytes;
         std::ofstream root(battlePath,std::ios::binary);
         if(!root.write(reinterpret_cast<const char*>(bytes.data()),bytes.size()))

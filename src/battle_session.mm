@@ -12,6 +12,7 @@
 #include "okage/scene_renderer.hpp"
 #include "okage/battle_actor.hpp"
 #include "okage/battle_damage.hpp"
+#include "okage/battle_hit.hpp"
 #include "okage/battle_enemy_commands.hpp"
 #include "okage/battle_command_queue.hpp"
 #include "okage/battle_ui_diagnostic.hpp"
@@ -216,8 +217,10 @@ struct BattleSession::Impl {
         if(definition==effect_definitions.end())throw std::runtime_error("Missing owned battle effect template");
         unsigned slot=0;while(slot<effects.size()&&effects[slot])++slot;
         if(slot==effects.size())throw std::runtime_error("Battle effect pool exhausted");
-        auto effect=std::make_unique<MapEffect>(*definition,point,Float4{},Float4{1,1,1,1},
-            renderer->effect_texture_sizes(),[&]{return random.next();},EffectStart::FirstFrame);
+        std::unique_ptr<MapEffect> effect;
+        try {effect=std::make_unique<MapEffect>(*definition,point,Float4{},Float4{1,1,1,1},
+            renderer->effect_texture_sizes(),[&]{return random.next();},EffectStart::FirstFrame);}
+        catch(const std::exception& error){throw std::runtime_error("Battle positioned effect"+std::to_string(id)+": "+error.what());}
         for(const auto& element:effect->elements)if(element.shape==55) {
             if(!effect_preparation||!effect_preparation->geometry[55])
                 throw std::runtime_error("Battle effect lacks shared prepared geometry");
@@ -227,13 +230,37 @@ struct BattleSession::Impl {
         }
         effects[slot]=std::move(effect);return slot;
     }
-    void advance_effects(FieldProjection& projection,GameRandom& random) {
+    unsigned spawn_attached_effect(int id,BattleActor& actor,GameRandom& random) {
+        const auto definition=std::find_if(effect_definitions.begin(),effect_definitions.end(),
+            [&](const auto& value){return int(value.id)==id;});
+        if(definition==effect_definitions.end())throw std::runtime_error("Missing owned attached battle effect template");
+        unsigned slot=0;while(slot<effects.size()&&effects[slot])++slot;
+        if(slot==effects.size())throw std::runtime_error("Battle attached effect pool exhausted");
+        //101558/1015e8 preserve the authored transforms until101118 runs.
+        std::unique_ptr<MapEffect> effect;
+        try {effect=std::make_unique<MapEffect>(*definition,definition->position,definition->rotation,definition->scale,
+            renderer->effect_texture_sizes(),[&]{return random.next();},EffectStart::FirstFrame);}
+        catch(const std::exception& error){throw std::runtime_error("Battle attached effect"+std::to_string(id)+": "+error.what());}
+        effect->actor_alias=int(actor.entity_id);effects[slot]=std::move(effect);return slot;
+    }
+    void advance_effects(FieldProjection& projection,GameRandom& random,const SineTable& sine) {
         effect_submissions.clear();projection.begin_effects();
+        const auto& p=resource_camera_position;const auto& r=resource_camera_rotation;
+        const auto view=camera_matrix({-p[0],-p[1],-p[2],1},{-r[0],-r[1],-r[2],0},{1,1,1,0},sine);
         std::array<unsigned,84> deferred{};unsigned count=0;
         const auto update=[&](unsigned slot) {
             auto& effect=*effects[slot];
-            if(effect.actor_alias)throw std::runtime_error("Battle attached effect binding is unrecovered");
-            effect.tick([&]{return random.next();},true,&resource_camera_position);
+            if(effect.actor_alias) {
+                const auto index=*effect.actor_alias;
+                if(index<0||unsigned(index)>=roster.entities().size()||!roster.entities()[unsigned(index)].actor)
+                    throw std::runtime_error("Battle attached effect actor is missing");
+                auto& actor=*roster.entities()[unsigned(index)].actor;
+                if(!actor.model)throw std::runtime_error("Battle attached effect model is missing");
+                effect.position=actor.model->animation().value(1);
+                effect.rotation=actor.model->animation().value(0);
+            }
+            const EffectProjectionContext screen{view,shadow_screen_parameters(projection.current()),projection.current().focal};
+            effect.tick([&]{return random.next();},true,&resource_camera_position,&screen);
             if(!(effect.flags&0x100)) {
                 projection.select_effect_near(effect.near_clip);
                 effect_submissions.push_back({slot,effect});
@@ -560,6 +587,7 @@ struct BattleSession::Impl {
                     switch(callback) {
                     case BattleActor::FirstCallback::Roster:return actor->enemy?0x15b9a0u:0x153a20u;
                     case BattleActor::FirstCallback::ApproachAttack:return 0x1562b0u;
+                    case BattleActor::FirstCallback::EnemyDeath:return 0x15bb90u;
                     }
                     throw std::runtime_error("Unknown native battle actor callback");
                 };
@@ -737,11 +765,42 @@ struct BattleSession::Impl {
                 trace(enemy?"enemy_roster":"party_roster","return",roster_call,roster_entry);
                 for(const auto& actor:roster.actors())if(actor->enemy==enemy) {
                     actor_snapshot(*actor,"before");
+                    const auto history=[&](BattleActor& target,unsigned kind,std::int32_t amount){
+                            const auto half=[&](unsigned at){return std::bit_cast<std::int16_t>(
+                                std::uint16_t(unsigned(target.storage.at(at))|(unsigned(target.storage.at(at+1))<<8)));};
+                            //15ae38 reads BODY=TASK+40, including signed halves.
+                            const auto code=half(0x40)!=0?
+                                std::uint32_t(std::int32_t(half(0x42)))|(std::uint32_t(std::int32_t(half(0x46)))<<4):
+                                std::uint32_t(std::int32_t(half(0x44))+0xaa);
+                            if(context.variables.size()<=0x844)
+                                throw std::runtime_error("Battle history player name owner is absent");
+                            const auto first=context.variables.begin()+0x844;
+                            const auto end=std::find(first,context.variables.end(),0);
+                            if(end==context.variables.end())throw std::runtime_error("Battle history player name lacks terminator");
+                            const std::string_view name(reinterpret_cast<const char*>(&*first),std::size_t(end-first));
+                            context.shared.hud.append_history_event(*ui_resources[0],*hud_definitions,context.tables,
+                                *battle_data,word(root.bytes,0x3c),kind,code,amount,true,name);
+                    };
+                    const BattleHitServices hits{
+                        [&](int id,BattleActor& target){return spawn_attached_effect(id,target,context.random);},
+                        [&](unsigned handle,int value){
+                            if(handle>=effects.size())throw std::runtime_error("Battle number effect handle outside pool");
+                            if(effects[handle])effects[handle]->set_numeric_parameter(value);
+                        },
+                        [&](BattleActor& target,std::int16_t amount,std::int16_t category){
+                            if(category!=0&&category!=1)
+                                throw std::runtime_error("Battle hit history category is unrecovered");
+                            history(target,0,amount);
+                        },
+                        [&](BattleActor& target){
+                            history(target,5,0);
+                        },
+                        [&](int id,const Float4& point){return spawn_effect(id,point,context.random);}};
                     battle_actor_first_update(*actor,root,roster.entities(),{
                         context.strike_sound,
                         [&](int id,const Float4& point){return spawn_effect(id,point,context.random);},
                         [&](int command,int owner,int target){battle_queue_damage_event(root,roster.entities(),
-                            std::int16_t(command),std::int16_t(owner),std::int16_t(target),[&]{return context.random.next();});}});
+                            std::int16_t(command),std::int16_t(owner),std::int16_t(target),[&]{return context.random.next();});}},&hits);
                     actor_snapshot(*actor,"after-first");
                     if(enemy)battle_enemy_second_update(*actor,root);else battle_party_second_update(*actor,root);
                     actor_snapshot(*actor,"after-second");
@@ -848,7 +907,7 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
                 model->evaluate_bones();model->evaluate_world();
             }
         if(!effect_pass)throw std::runtime_error("Active battle resource has unexpected effect suppression");
-        impl_->advance_effects(projection,context.random);
+        impl_->advance_effects(projection,context.random,context.sine);
     } else projection.submit_empty_resource_frame(effect_pass,
         impl_->stage_settings->cached_depth_min,impl_->stage_settings->cached_depth_max);
     if(effect_pass&&retiring)retiring->tick();
@@ -949,6 +1008,31 @@ void BattleSession::service_loader_after_frame(BattleConstructionContext context
     if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
 }
 const BattleState& BattleSession::state() const{return impl_->root;}
+void BattleSession::write_effect_observation(std::ostream& out,unsigned frame) const {
+    const auto lanes=[&](const Float4& values) {
+        out<<'[';for(unsigned i=0;i<4;++i){if(i)out<<',';out<<std::bit_cast<std::uint32_t>(values[i]);}out<<']';
+    };
+    out<<"{\"schema\":\"okage-native-battle-effects-v1\",\"frame\":"<<frame<<",\"slots\":[";
+    bool comma=false;
+    for(unsigned slot=0;slot<impl_->effects.size();++slot)if(const auto& e=impl_->effects[slot]) {
+        if(comma)out<<',';comma=true;
+        out<<"{\"slot\":"<<slot<<",\"id\":"<<e->id<<",\"flags\":"<<e->flags<<",\"phase\":"<<e->phase
+           <<",\"duration\":"<<e->duration<<",\"actor_entity\":";
+        if(e->actor_alias)out<<*e->actor_alias;else out<<"null";
+        out<<",\"position_bits\":";lanes(e->position);out<<",\"rotation_bits\":";lanes(e->rotation);
+        out<<",\"scale_bits\":";lanes(e->scale);out<<",\"parameter_bits\":";lanes(e->parameters);
+        out<<",\"elements\":[";bool element_comma=false;
+        for(const auto& element:e->elements) {
+            if(element_comma)out<<',';element_comma=true;
+            out<<"{\"id\":"<<element.id<<",\"shape\":"<<element.shape<<",\"flags\":"<<element.flags
+               <<",\"program\":"<<element.program<<",\"texture\":"<<element.texture<<",\"rendered_bits\":[";
+            for(unsigned i=0;i<4;++i){if(i)out<<',';lanes(element.rendered[i]);}out<<"]}";
+        }
+        out<<"]}";
+    }
+    out<<"]}\n";
+    if(!out)throw std::runtime_error("Cannot write battle effect observation");
+}
 const Texture* BattleSession::rendered_image() const{return impl_->rendered_image?&*impl_->rendered_image:nullptr;}
 std::array<std::uint32_t,7> BattleSession::observation() const {
     return {impl_->phase,unsigned(impl_->construction!=Impl::Construction::Complete),impl_->load_step.load(),
