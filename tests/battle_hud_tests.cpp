@@ -124,7 +124,7 @@ void type3_checks() {
     okage::UiPartySelection party;party.refresh(vars,3);const auto vars_before=vars;const auto party_before=party.rows();
     okage::BattleHud h;h.formatted.fill('F');h.padded_name.fill('P');h.current_number.fill('C');h.maximum_number.fill('M');
     h.type3_formatted.fill('x');h.type3_padded_name.fill('y');h.type3_current_number.fill('z');h.type3_maximum_number.fill('w');
-    h.menu_state=19;h.mode_counter=77;h.type3_cursor=23;
+    h.menu_state=19;h.mode_counter=77;h.type3_demo_counter=23;
     const auto original_rounding=std::fegetround();require(std::fesetround(FE_UPWARD)==0,"set hostile rounding");
     h.refresh_type3(r,data,tables,vars,party);
     require(std::fegetround()==FE_UPWARD,"type3 restores rounding");require(std::fesetround(original_rounding)==0,"restore test rounding");
@@ -138,7 +138,7 @@ void type3_checks() {
         const auto alpha=id<12?128u:0u;
         require(r.widget(5,id).runtime->words[4]>>24==alpha&&r.widget(5,id).runtime->words[5]>>24==alpha,"both bar colors");
     }
-    require(h.type3_ready==1&&h.menu_state==19&&h.mode_counter==77&&h.type3_cursor==23&&!h.bank2_bound&&!h.copied_unit,"helper owns only its source globals");
+    require(h.type3_ready==1&&h.menu_state==19&&h.mode_counter==77&&h.type3_demo_counter==23&&!h.bank2_bound&&!h.copied_unit,"helper owns only its source globals");
     require(h.formatted[0]=='F'&&h.padded_name[0]=='P'&&h.current_number[0]=='C'&&h.maximum_number[0]=='M',"type2 scratch remains separate");
     require(h.type3_formatted.back()=='x'&&h.type3_padded_name[13]=='y'&&h.type3_current_number.back()=='z'&&h.type3_maximum_number.back()=='w',"scratch tails preserved");
     require(vars==vars_before&&party.rows()==party_before,"refresh consumes but does not rebuild party or variables");
@@ -158,7 +158,7 @@ void type3_update_checks() {
     }
     vars[0x5c5]=0xff;party.refresh(vars,3);const auto before=vars;const auto cache=party.rows();
     okage::RuwResource r(type3_update_ruw());okage::BattleHud h;
-    h.type3_blink=59;h.type3_cursor=72;h.mode_counter=81;
+    h.type3_blink=59;h.type3_demo_counter=72;h.mode_counter=81;
     std::vector<bool> calls;const auto initial_text=text(r,5,44);
     const auto setter=[&](bool enabled) {
         calls.push_back(enabled);
@@ -167,7 +167,7 @@ void type3_update_checks() {
     };
     h.update_type3(r,data,tables,vars,party,3,setter);
     require(calls==std::vector<bool>({false,true})&&!h.type3_ready,"layout order and consumed readiness");
-    require(h.type3_blink==0&&h.type3_cursor==72&&h.mode_counter==81,"distinct blink counter wraps at60");
+    require(h.type3_blink==0&&h.type3_demo_counter==72&&h.mode_counter==81,"distinct blink counter wraps at60");
     const auto rgb=[&](unsigned id){return r.widget(5,id).runtime->words[4]&0xffffff;};
     const auto a=[&](unsigned id,unsigned color=4){return r.widget(5,id).runtime->words[color]>>24;};
     require(rgb(26)==0x2d28be&&rgb(27)==0xffffff&&rgb(28)==0x2d28be,"strict threshold and zeroHP warning");
@@ -197,7 +197,7 @@ void type3_update_checks() {
     require(a(0)==128&&a(1)==0&&h.type3_blink==17&&r.widget(2,26).runtime->words==icons_before,"alternate class skips normal row/blink work");
     h.type3_reset=0;calls.clear();
     rejects([&]{h.update_type3(r,data,tables,vars,party,4,[&](bool e){calls.push_back(e);});});
-    require(calls==std::vector<bool>({false,true})&&!h.type3_ready&&h.type3_blink==17&&h.type3_cursor==72&&a(52)==64,"demo guard follows known prefix and precedes demo mutation");
+    require(calls==std::vector<bool>({false,true})&&!h.type3_ready&&h.type3_blink==17&&h.type3_demo_counter==72&&a(52)==64,"demo guard follows known prefix and precedes demo mutation");
     h.type3_ready=77;rejects([&]{h.update_type3(r,data,tables,vars,party,3,{});});
     require(h.type3_ready==77,"missing host setter rejects before mutation");
     for(unsigned i=0;i<4;++i){put(vars,0x570+i*4,3);vars[0x5c6+i*0x50]=1;vars[0x5dc+i*0x50]=50;}

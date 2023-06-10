@@ -31,7 +31,9 @@ struct BattleHud {
     std::uint32_t flag_a0=0,flag_a8=0;
     std::uint32_t target_pulse=0;std::int32_t target_pulse_step=1; //1fd7bc/1fd7dc
     std::array<std::uint32_t,512> type2_work{};
-    std::uint32_t type3_ready=0,type3_reset=0,type3_animation=0,type3_cursor=0;
+    std::uint32_t type3_ready=0,type3_reset=0; //1fdb78/1fdb7c
+    std::uint32_t type3_history_cursor=0; //2e18a4, five-row insertion cursor
+    std::uint32_t type3_demo_counter=0; //2e18a8, mode4 only
     std::uint32_t type3_blink=0;
     std::array<std::int32_t,15> type3_slots{};
     std::array<char,256> formatted{},padded_name{};

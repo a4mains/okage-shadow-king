@@ -634,7 +634,7 @@ void BattleHud::reset_type3(RuwResource& r) {
     r.set_class_rgba(5,0,{keep,keep,keep,0});type3_ready=1;
 }
 void BattleHud::initialize_type3(RuwResource& r,const GameDataTables& tables) {
-    reset_type3(r);type3_ready=1;type3_animation=0;type3_slots.fill(-1);type3_cursor=0;
+    reset_type3(r);type3_ready=1;type3_history_cursor=0;type3_slots.fill(-1);type3_demo_counter=0;
     for(unsigned i=0;i<5;++i) {
         r.set_text(5,29+i,tables.system_message(0xa6));r.set_text(5,39+i,tables.system_message(0xa6));
         r.set_runtime_word0(5,34+i,71);
@@ -753,8 +753,8 @@ std::string BattleHud::diagnostic(const RuwResource& r,Bytes vars,std::string_vi
        "163fb8 and 168228 RUW/stat side effects only; zero incoming party cache; no manager or callbacks")
        <<"\",\"execution\":\""<<execution<<"\",\"game_mode\":3,\"selected\":0,\"vars_hex\":\""<<hex(vars)<<"\",\"globals\":{";
     out<<"\"type2_flag_a\":"<<h.type2_flag_a<<",\"type2_flag_b\":"<<h.type2_flag_b<<",\"type2_enabled\":"<<h.type2_enabled
-       <<",\"type3_ready\":"<<h.type3_ready<<",\"type3_reset\":"<<h.type3_reset<<",\"type3_animation\":"<<h.type3_animation
-       <<",\"type3_selection\":"<<h.type3_cursor<<",\"ui_menu_state\":"<<h.menu_state<<",\"ui_mode_counter\":"<<h.mode_counter
+       <<",\"type3_ready\":"<<h.type3_ready<<",\"type3_reset\":"<<h.type3_reset<<",\"type3_animation\":"<<h.type3_history_cursor
+       <<",\"type3_selection\":"<<h.type3_demo_counter<<",\"ui_menu_state\":"<<h.menu_state<<",\"ui_mode_counter\":"<<h.mode_counter
        <<",\"ui_selection_pointer\":"<<h.selection_state<<"},\"groups\":[";
     bool group_comma=false;
     for(const auto& group:r.widgets()) {

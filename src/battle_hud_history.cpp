@@ -150,11 +150,11 @@ void BattleHud::append_history_event(RuwResource& r,const BattleHudData& hud_dat
     if(kind!=0&&kind!=5)throw std::runtime_error("Battle history event kind is outside reached 0/5 scope");
     if(!display_value_known)
         throw std::runtime_error("Battle history display word is unknown; refusing to normalize source stack residue");
-    if(type3_cursor>4)throw std::runtime_error("Battle history cursor outside five-row source extent");
+    if(type3_history_cursor>4)throw std::runtime_error("Battle history cursor outside five-row source extent");
     if(code>=0xfffffffcu)throw std::runtime_error("Battle history event code is a source-reserved sentinel");
 
-    const auto cursor=type3_cursor;
-    type3_animation=1;
+    const auto cursor=type3_history_cursor;
+    type3_ready=1;
     type3_slots[cursor*3]=std::bit_cast<std::int32_t>(code);
     type3_slots[cursor*3+1]=kind==0?0x16:0x56; // DAT_00248090 + kind*4.
     type3_slots[cursor*3+2]=display_value;
@@ -193,15 +193,15 @@ void BattleHud::append_history_event(RuwResource& r,const BattleHudData& hud_dat
         if(current.style==0x56)r.set_rgba(5,int(number_id),{10,10,10,0x7f});
         r.set_runtime_word0(5,int(number_id),std::uint32_t(current.style));
     }
-    if(cursor<4)type3_cursor=cursor+1;
+    if(cursor<4)type3_history_cursor=cursor+1;
     else {
         for(unsigned row=0;row<4;++row) {
             type3_slots[row*3]=type3_slots[(row+1)*3];
             type3_slots[row*3+1]=type3_slots[(row+1)*3+1];
             type3_slots[row*3+2]=type3_slots[(row+1)*3+2];
         }
-        type3_cursor=4;
+        type3_history_cursor=4;
     }
-    type3_animation=1;
+    type3_ready=1;
 }
 }

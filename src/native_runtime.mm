@@ -939,7 +939,7 @@ static void capture(const Session& session,const fs::path& path) {
         std::ofstream historyOut(historyPath);
         const auto& hud=session.ui_shared.hud;
         historyOut<<"{\"schema\":\"okage-native-battle-history-v1\",\"frame\":"<<session.frame
-                  <<",\"cursor\":"<<hud.type3_cursor<<",\"animation\":"<<hud.type3_animation<<",\"slots\":[";
+                  <<",\"cursor\":"<<hud.type3_history_cursor<<",\"animation\":"<<hud.type3_ready<<",\"slots\":[";
         for(unsigned i=0;i<hud.type3_slots.size();++i){if(i)historyOut<<',';historyOut<<hud.type3_slots[i];}
         historyOut<<"],\"current_number_bytes\":[";
         for(unsigned i=0;i<hud.type3_current_number.size();++i){if(i)historyOut<<',';historyOut<<unsigned(std::uint8_t(hud.type3_current_number[i]));}

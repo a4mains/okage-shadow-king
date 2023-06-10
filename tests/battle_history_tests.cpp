@@ -102,10 +102,10 @@ void event_zero_direct_name() {
     auto t=tables();okage::BattleHudData data(make_hud_data());
     constexpr std::array formation{okage::BattleFormationEntry{1,1,0,0,0},okage::BattleFormationEntry{2,2,0,0,0}};
     const auto artifact=make_battle_data(formation);const okage::BattleData battle(artifact);
-    okage::RuwResource r(make_ruw());okage::BattleHud hud;hud.initialize_type3(r,t);
+    okage::RuwResource r(make_ruw());okage::BattleHud hud;hud.initialize_type3(r,t);hud.type3_ready=0;hud.type3_demo_counter=77;
     hud.append_history_event(r,data,t,battle,0,0,0xaa,-23,true,"Slime");
     require(hud.type3_slots[0]==0xaa&&hud.type3_slots[1]==0x16&&hud.type3_slots[2]==-23,"kind0 source triplet");
-    require(hud.type3_cursor==1&&hud.type3_animation==1,"source cursor and animation word");
+    require(hud.type3_history_cursor==1&&hud.type3_ready==1&&hud.type3_demo_counter==77,"source cursor and animation word");
     require(text(r,29)=="Hit:Slime"&&text(r,39)=="Amount:\\f[1]\\c[510543555]0\\c[0]23","real formatted row strings");
     require(r.widget(5,39).runtime->words[4]==0x7f202080,"negative-value source color");
     require(r.widget(5,34).runtime->words[4]==0x7fffffff,"number style alpha/color");
@@ -119,7 +119,7 @@ void event_zero_formation_lookup() {
     auto t=tables();okage::BattleHudData data(make_hud_data());
     constexpr std::array formation{okage::BattleFormationEntry{1,1,0,0,0},okage::BattleFormationEntry{1,1,0,0,0}};
     const auto artifact=make_battle_data(formation);const okage::BattleData battle(artifact);
-    okage::RuwResource r(make_ruw());okage::BattleHud hud;hud.initialize_type3(r,t);
+    okage::RuwResource r(make_ruw());okage::BattleHud hud;hud.initialize_type3(r,t);hud.type3_ready=0;hud.type3_demo_counter=77;
     hud.append_history_event(r,data,t,battle,0,0,0x11,0,true);
     require(text(r,29)=="Slime(B)","group and duplicate character formatting");
     require(text(r,39)=="No value","zero value branch keeps authored message");
@@ -130,29 +130,29 @@ void event_five_and_ring() {
     auto t=tables();okage::BattleHudData data(make_hud_data());
     constexpr std::array formation{okage::BattleFormationEntry{1,1,0,0,0}};
     const auto artifact=make_battle_data(formation);const okage::BattleData battle(artifact);
-    okage::RuwResource r(make_ruw());okage::BattleHud hud;hud.initialize_type3(r,t);
+    okage::RuwResource r(make_ruw());okage::BattleHud hud;hud.initialize_type3(r,t);hud.type3_ready=0;hud.type3_demo_counter=77;
     rejects([&]{hud.append_history_event(r,data,t,battle,0,5,0xaa,77,false,"Slime");});
-    require(hud.type3_slots[0]==-1&&hud.type3_animation==0,"unknown stack residue rejects transactionally");
+    require(hud.type3_slots[0]==-1&&hud.type3_ready==0,"unknown stack residue rejects transactionally");
     for(int i=1;i<=6;++i)hud.append_history_event(r,data,t,battle,0,i==5?5:0,0xaa,-i,true,"Slime");
     require(hud.type3_slots[0]==0xaa&&hud.type3_slots[2]==-3,"full history shifts oldest entry");
     require(hud.type3_slots[7]==0x56&&hud.type3_slots[8]==-5,"death event uses source kind style and explicit value");
     require(hud.type3_slots[12]==0xaa&&hud.type3_slots[14]==-6,"latest row remains at cursor after source shift");
-    require(hud.type3_cursor==4,"history cursor saturates at final row");
+    require(hud.type3_history_cursor==4,"history cursor saturates at final row");
 }
 
 void unsupported_inputs_are_atomic() {
     auto t=tables();okage::BattleHudData data(make_hud_data());
     constexpr std::array formation{okage::BattleFormationEntry{1,1,0,0,0}};
     const auto artifact=make_battle_data(formation);const okage::BattleData battle(artifact);
-    okage::RuwResource r(make_ruw());okage::BattleHud hud;hud.initialize_type3(r,t);
+    okage::RuwResource r(make_ruw());okage::BattleHud hud;hud.initialize_type3(r,t);hud.type3_ready=0;hud.type3_demo_counter=77;
     const auto slots=hud.type3_slots;const auto row=text(r,29);
     rejects([&]{hud.append_history_event(r,data,t,battle,0,7,0xaa,1,true,"Slime");});
-    require(hud.type3_slots==slots&&text(r,29)==row&&hud.type3_animation==0,"unsupported event kind rejects before mutation");
+    require(hud.type3_slots==slots&&text(r,29)==row&&hud.type3_ready==0,"unsupported event kind rejects before mutation");
     rejects([&]{hud.append_history_event(r,data,t,battle,0,0,0x20,1,true);});
-    require(hud.type3_slots[0]==0x20&&hud.type3_animation==1,"source writes the event before a later group lookup fails");
-    okage::RuwResource r2(make_ruw());okage::BattleHud hud2;hud2.initialize_type3(r2,t);
+    require(hud.type3_slots[0]==0x20&&hud.type3_ready==1,"source writes the event before a later group lookup fails");
+    okage::RuwResource r2(make_ruw());okage::BattleHud hud2;hud2.initialize_type3(r2,t);hud2.type3_ready=0;
     rejects([&]{hud2.append_history_event(r2,data,t,battle,0,0,0xaa,1,true);});
-    require(hud2.type3_slots[0]==0xaa&&hud2.type3_animation==1,"late special-name guard retains source-ordered history stores");
+    require(hud2.type3_slots[0]==0xaa&&hud2.type3_ready==1,"late special-name guard retains source-ordered history stores");
 }
 }
 
