@@ -1,17 +1,17 @@
 {
   "schema": "okage-battle-targeting-validation-v1",
-  "date": "2023-05-27",
+  "date": "2023-06-10",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "native_success": {
-    "revision": "1d4684e3def7661e4869db2f953c99bfaae7db72",
-    "source_diff_sha256": "debd839a1967eabf69be6bb4fbf75a4ef13861a7b43969f2ec05e8895b494ecc",
-    "frame": 105455,
+    "source_revision": "c399e988cf38a479bd04a52035b0f6f765f1d02d",
+    "source_diff_sha256": "c71db902d88d88dda10734cfb204211f5e19f77ac57bd0ea8d4fb31f6dec7a0c",
+    "binary_sha256": "b0ba988f6ca52a57f79fe7c82f03a20a2b261c0ad663ff17d046a355d9930678",
     "exit_code": 0,
-    "binary_sha256": "2a586597ecef8b9ffe6af53cfdb5e041de2cdf7437e5dde654caddbc8132fa26",
-    "seconds": 29.922702667,
+    "seconds": 32.003730833,
+    "frame": 105575,
+    "final_runtime_revision": "52f8d5a",
     "fps_claim": false,
-    "final_runtime_revision": "f290b5a",
-    "final_runtime_followup": "unreached effect3/4 partial-store correction; tested all3builds"
+    "inputs": "owned startup plus ordinary inputs; no reference state"
   },
   "target_comparison": {
     "anchor": 105216,
@@ -45,17 +45,25 @@
     "strike_checks": "local/research/battle-combat-entry-v1/strike-checks-v1",
     "strike_ctests_per_build": 13,
     "strike_owned_effect_smoke_all_builds": true,
-    "strike_new_python_run": false
+    "strike_new_python_run": false,
+    "hit_checks": "local/research/battle-combat-entry-v1/hit-checks-v3",
+    "hit_affected_ctests_per_build": 20,
+    "hit_owned_effect_smoke_all_builds": true,
+    "hit_python_tests": 400,
+    "hit_full_debug_sanitizer_startup_replay": false,
+    "hit_python_log": "local/research/battle-combat-entry-v1/hit-python-v2.log"
   },
   "preview": {
-    "path": "local/demos/battle-strike-105455-v1/live.json",
-    "source_revision": "f290b5a",
-    "pid_at_launch": 13240,
-    "session": 66719,
-    "paused_frame": 105455,
-    "full_4_3_verified": true,
+    "path": "local/demos/battle-hit-105575-v1/live.json",
+    "source_revision": "c399e98",
+    "pid_at_launch": 29363,
+    "session": 26403,
+    "paused_frame": 105575,
+    "full_4_3_appkit_capture_verified": true,
+    "direct_desktop_inspection": "cua cgWindowNotFound",
     "different_async_loading_from_headless": true,
-    "previous_pid_3073_terminal_exit_code": 0
+    "history_owner_fix_in_live_binary": false,
+    "current_runtime_revision": "52f8d5a"
   },
   "retained_negatives": [
     "target-checks-v1: parent callback optional needed dereference; compile failure corrected",
@@ -71,7 +79,11 @@
     "damage-consumer-review-v1: rejected category0/0x3a switch fallthrough interpretation; corrected v2 checks actual branches",
     "physical damage initial sanitizer detect_leaks=1 run rejected on macOS; leak-disabled ASan+UBSan passed",
     "strike-hit-queue-observations-v1 omitted native schema; v2 parses both hex layouts explicitly",
-    "damage-consumer-review-v2: wrong number-effect sign and premature surviving-hit return; primary v3 checked159d60 and common159e00 impact path"
+    "damage-consumer-review-v2: wrong number-effect sign and premature surviving-hit return; primary v3 checked159d60 and common159e00 impact path",
+    "hit-v2 runner missing rewritten button path before startup",
+    "hit-v3 impact39 guard105537",
+    "hit-v4 live renderer flag guard105539",
+    "death callback test v1 assumed60 instead of62 channel advances; runtime interpolation unchanged"
   ],
   "artifacts": [
     {
@@ -823,6 +835,856 @@
       "path": "local/research/battle-combat-entry-v1/damage-consumer-review-v3.txt",
       "sha256": "c60207fd15a6f65fb8f28a9ea4e9c0118043a285eb741e54215087122c2daf3c",
       "bytes": 2696
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-history-and-callback-review-v1.txt",
+      "sha256": "7bdb7806f7892e465d10e6a8c40f2635f5f92efa865ba1742aa772abd32c30a5",
+      "bytes": 6684
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-python-v1.log",
+      "sha256": "42b548f3ef8e1ea6003151750b99037e134f772067ee38c63d22ffa0fdaf18c9",
+      "bytes": 41896
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-death-tests-v1.log",
+      "sha256": "1356596d31987e375bdc6e98fb1ed8fc530f840ac114b603b415933efbc12d39",
+      "bytes": 93
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-death-tests-v2.log",
+      "sha256": "058d5ffc7a047583410f1628f922f4fc5ca39dbddfe14d0a3d0ca3384a7f6ce2",
+      "bytes": 43
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-comparison-v3.json",
+      "sha256": "1c945f65f56982449a3b4b6577b974df55698a6eb327c8b17a2918af5389c6bd",
+      "bytes": 111006
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-comparison-v5.json",
+      "sha256": "39e258fa19f48b085f0e187ceeada00607fb14eceeb468dca5c4e44133be1c92",
+      "bytes": 71393
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-comparison-v5.runs.json",
+      "sha256": "807093a21888ad6f2f8d0ee6d49b3e3920eda09ecdab564519edf0979393bcb4",
+      "bytes": 9140
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-audio-comparison-v5.json",
+      "sha256": "a2bfdf010a8d8faeb0579a89e708651dfccc84c4fbab59aa03ceba63e8fc11b0",
+      "bytes": 5123
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v2/run.json",
+      "sha256": "7bb994eb1d0365925051335804fc21f8c69b1786d2cd903663eb3f1a86862792",
+      "bytes": 6438
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v2/source.diff",
+      "sha256": "bc3ad1fbe761f6bc2daacb62afc8585e4e815784abd37124df2772c74aaaf276",
+      "bytes": 31395
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v2/stdout.log",
+      "sha256": "57227496b8fbe67d7572b261191c09804e182b7ffdcb71f242be740e4ad9b2bd",
+      "bytes": 29
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v3/run.json",
+      "sha256": "6a6e846ad0a13970a28f988f486b2f2429d2828bf24093f8af7f264763359ed9",
+      "bytes": 6439
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v3/source.diff",
+      "sha256": "bc3ad1fbe761f6bc2daacb62afc8585e4e815784abd37124df2772c74aaaf276",
+      "bytes": 31395
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v3/stdout.log",
+      "sha256": "bb1bc96f52bf71ae71bc26696fbf9c6490b03430352e5765bd99e8ebeea4e382",
+      "bytes": 4882
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v4/run.json",
+      "sha256": "be6239b160d92552db9871911d503de8e81eea01d65c8f642bc5a14b71c4cc66",
+      "bytes": 6439
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v4/source.diff",
+      "sha256": "ca46bddc5fc6d1f8e737a70b3960132b57e7801c1a1cf7c4e8ebda6672867485",
+      "bytes": 36419
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v4/stdout.log",
+      "sha256": "32513d57d7685fba3d3cbc491f764be93f043a6a9951b0f5ddcdfcaa323e33c2",
+      "bytes": 4893
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v5/run.json",
+      "sha256": "df6e7854c3f67cd4eba6b3129c1ba9670cef93ad0b60d8cd0c947c5c467c3b88",
+      "bytes": 6439
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v5/source.diff",
+      "sha256": "69e6bd7fadb18c52eabb8597afb35480b2b0ee641641838b582cc38502788c11",
+      "bytes": 40295
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v5/stdout.log",
+      "sha256": "d3ff063b8286bc7a3bf63e2afc485392714b8d7670139008afd4c6ae6be66112",
+      "bytes": 4871
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-hit-next-105635-v1/run.json",
+      "sha256": "5a2cc0d60f30dda5b33f5a361997f26fcfe00c7e0a60db751333da7083be01ea",
+      "bytes": 6389
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-hit-next-105635-v1/source.diff",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-hit-next-105635-v1/stdout.log",
+      "sha256": "a8c14761681494c0147859d80d0b350b690757faadaf9b3c8e04088a17b2a6ac",
+      "bytes": 4904
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v5/okage-native",
+      "sha256": "46f448d908cd253611b73130d56280e13ef8df95460ff370ea254ce8cb318eed",
+      "bytes": 2196688
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v5/native.png",
+      "sha256": "54628a31749e89514e87afd79fb0326d4138d82e34df11e91f69100cb6ec9d47",
+      "bytes": 191923
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v5/native.png.battle-effects.json",
+      "sha256": "e841b5fe7031fa6402edd90b20a5f84467b6507d76a54ebf04095909e7683443",
+      "bytes": 603
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v5/native.png.battle-history.json",
+      "sha256": "24411ad4e89800758ae69cf6939ad82e227824c59081cb25194943cbc6a2f393",
+      "bytes": 315
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v5/native.png.frames/manifest.json",
+      "sha256": "4d7618318fe4b83b1c496a4c4eb2397d1413eebcb91591b1aa9ee3d776c93d6a",
+      "bytes": 1173
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/replay_next.py",
+      "sha256": "e4d941f4372c84ccccb54047ccfa300fa9616cc89302fe2ce871e6d763c0db2f",
+      "bytes": 1359
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/replay_v5.py",
+      "sha256": "9e31b3cfb4677d83424f7d4130a0b1f23b387e0633ba943c0390b578749f7cf3",
+      "bytes": 1247
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/release-owned-effects.log",
+      "sha256": "9ad2ef023aae0bab2883b7311570a66a82d6e593c098d5f7e7249fd109a070b2",
+      "bytes": 133
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/replay_v4.py",
+      "sha256": "67aeafdeb60bbe1ae9d5c9e4cd9e5c76f1b0523133c94e027c03471bfbdc4ff4",
+      "bytes": 1247
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/debug-tests.log",
+      "sha256": "b5fa49d7cb8be8a91c21d200da564fa3b855e3ebca4588ee90bb02b5c79c8214",
+      "bytes": 2090
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/debug-owned-effects.log",
+      "sha256": "9ad2ef023aae0bab2883b7311570a66a82d6e593c098d5f7e7249fd109a070b2",
+      "bytes": 133
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/debug-build.log",
+      "sha256": "29f0bb83d4d9737278a4e4be7750be4b0f64ebc846af98095d74dfffca873f02",
+      "bytes": 8848
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/commands.json",
+      "sha256": "df3d111d79f3aec38de5b594d45f797b2bdbb4418580659540a60ab45981be49",
+      "bytes": 2073
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/release-build.log",
+      "sha256": "8332b14fd6038338049c64ecc9a99362379620e7a5864a647b24a4e390cbd23a",
+      "bytes": 5738
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/replay.py",
+      "sha256": "098ec0dd22c1d3f30a8692f1ed88565ada2d24f053a61d3b3d950534de78c955",
+      "bytes": 1154
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/sanitize-tests.log",
+      "sha256": "85981eccbdb21aefb50c5b904162c259b0950927d010ea6aaf9118a7492fd44c",
+      "bytes": 2106
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/run_checks.py",
+      "sha256": "f01e69170cdd5b9c92c6b5c4af77b19208936c93f83a156ee143b375797e8993",
+      "bytes": 1364
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/manifest.json",
+      "sha256": "07067a2a97d9d209163380e7b0cb2df1e229b9de60cf71294da91e7bd5ecb074",
+      "bytes": 2953
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/source.diff",
+      "sha256": "bc3ad1fbe761f6bc2daacb62afc8585e4e815784abd37124df2772c74aaaf276",
+      "bytes": 31395
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/release-tests.log",
+      "sha256": "bab523f668bb90032a677179502b86c3918502099492b7ef602af470962df685",
+      "bytes": 2106
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/replay_v3.py",
+      "sha256": "ff768113a2e3ce764ade7208a696f8cf55a7200febdf101bba6cccd563194940",
+      "bytes": 1215
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/sanitize-build.log",
+      "sha256": "cffe7f0a305fe6738f0b54b76443e50cabc48b83369eb1b28cd2536fd2da47db",
+      "bytes": 8856
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/runs.json",
+      "sha256": "8b181fd18357c9cd18c7fee8aa087d5b25f734961e0ce972010359ece45f7dee",
+      "bytes": 2558
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/sanitize-owned-effects.log",
+      "sha256": "9ad2ef023aae0bab2883b7311570a66a82d6e593c098d5f7e7249fd109a070b2",
+      "bytes": 133
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/sanitize/hashes.json",
+      "sha256": "899cf0834b00b226f2aedf8f3d34a7901775457c7b2e260e93c989907a7139d5",
+      "bytes": 458
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/release/hashes.json",
+      "sha256": "9dd5662856cd802935b78972f8d7e0f89a98ec4f2c5d8dc569dd3c2c269d6155",
+      "bytes": 458
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v1/debug/hashes.json",
+      "sha256": "ed78dcbf45ce5e9e80496d0e0f53cbc7b3bfa405dc19cbec3ca97b068d3219ee",
+      "bytes": 458
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v2/release-owned-effects.log",
+      "sha256": "83d31a3dacc22a63ea298f29409d777595f091b083ec13c37f0b2ee674021e6c",
+      "bytes": 136
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v2/debug-tests.log",
+      "sha256": "13269f78c9e767b172478ff5ac55cb5708de89185efa61e1997fbdb18ee6b575",
+      "bytes": 2422
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v2/debug-owned-effects.log",
+      "sha256": "83d31a3dacc22a63ea298f29409d777595f091b083ec13c37f0b2ee674021e6c",
+      "bytes": 136
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v2/debug-build.log",
+      "sha256": "b9916b00b04373a5a35209e639799a1bc108356638711b9cea3b1b256f75c1e0",
+      "bytes": 5036
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v2/commands.json",
+      "sha256": "cf3d9883aad665b07c204977a5fd58d15bbd926239176de28e13eb60dd6d10ca",
+      "bytes": 2214
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v2/release-build.log",
+      "sha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794",
+      "bytes": 22
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v2/sanitize-tests.log",
+      "sha256": "99e38bad162de7c9b8ebca2c86e0f5fa88d756fb4f02bff0f1651eacb063601a",
+      "bytes": 2438
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v2/run_checks.py",
+      "sha256": "f01e69170cdd5b9c92c6b5c4af77b19208936c93f83a156ee143b375797e8993",
+      "bytes": 1364
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v2/manifest.json",
+      "sha256": "3e18adc0620711f3ff12d85d5ee7882a8a7895c621eb01ef378d458acfda0b0b",
+      "bytes": 3101
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v2/source.diff",
+      "sha256": "69e6bd7fadb18c52eabb8597afb35480b2b0ee641641838b582cc38502788c11",
+      "bytes": 40295
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v2/release-tests.log",
+      "sha256": "f1d188e429224be67a617824a42860d6f5fd8aee3bc301dcb3ea4bbf0b531026",
+      "bytes": 2438
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v2/compare.py",
+      "sha256": "c823caed0dd7bfd5b848628d1e3630ee86986ee142f71ab0d872b41fcbd0638a",
+      "bytes": 1475
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v2/sanitize-build.log",
+      "sha256": "2d9393dab6a7e202088afc633d917168a4bd77426b85e198acdb2bcdb393ab45",
+      "bytes": 5036
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v2/runs.json",
+      "sha256": "8050b5eba565b2f06197037cbcd325a386c2abc8a5dabc6ee2d731826273f2d0",
+      "bytes": 2706
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v2/sanitize-owned-effects.log",
+      "sha256": "83d31a3dacc22a63ea298f29409d777595f091b083ec13c37f0b2ee674021e6c",
+      "bytes": 136
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v2/sanitize/hashes.json",
+      "sha256": "784198d2ac75d3d895785b80cf521187fa55ade05199ac17de123dce83379454",
+      "bytes": 458
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v2/release/hashes.json",
+      "sha256": "aa37f61a2ec3dd60f266310c72d53f164634896b4dd7a3271cf36510e5716de0",
+      "bytes": 458
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v2/debug/hashes.json",
+      "sha256": "ee11b36d92511727353b441d01ed2085a24b5272f8f3e0b8f16657f79548dbb1",
+      "bytes": 458
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-100/absolute-rgb-difference.png",
+      "sha256": "65c3027cb59d1b9a5aee753a097d1bddb4ca1d25a163cc1c5b16949a60d0a2ef",
+      "bytes": 216015
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-100/side-by-side.png",
+      "sha256": "b3276ef0f85a138268d26b63617a16f65160ddb47089466855fbd2e9c6fa600b",
+      "bytes": 438667
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-100/comparison.json",
+      "sha256": "d6e281ea739755e9179404dc04f6392e42f1b5249bcfbce5d297cab63a1c1cd3",
+      "bytes": 1696
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-080/absolute-rgb-difference.png",
+      "sha256": "0ed439de1fb853761be5252a7ec5cc921ae2a7b85a2c2488b8a62591d690ac78",
+      "bytes": 211979
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-080/side-by-side.png",
+      "sha256": "c1bcd16c46c7e08f47de06cc9b920e8a9363b4980a11d5ab3e69fe64c81b0c3f",
+      "bytes": 430811
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-080/comparison.json",
+      "sha256": "24f29d26ce55dfab81635127e12747d4b9d12e38f88376713da3e7dac793e7e4",
+      "bytes": 1697
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-060/absolute-rgb-difference.png",
+      "sha256": "61151226835375968a024ced373251f28351c76676bc6de0555ae5114c8654d6",
+      "bytes": 212135
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-060/side-by-side.png",
+      "sha256": "70f52c4a9159057ddb3ddbb946e96ff1871c2fc268a10fa830dbec187baa1717",
+      "bytes": 444705
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-060/comparison.json",
+      "sha256": "06be947f70d484c3dcc327629ad984de7cc0f5e7779467b0f189a4489ca1d93f",
+      "bytes": 1697
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-082/absolute-rgb-difference.png",
+      "sha256": "36b6b9b6dbb920a275e65b53a5f67b25368c58d30d4366b7ac39819269e6bea5",
+      "bytes": 211099
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-082/side-by-side.png",
+      "sha256": "61e45ac6b7dff6ebca35363bed0c1471c7623f268a23ccf8ef36b740932a8dd7",
+      "bytes": 429009
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-082/comparison.json",
+      "sha256": "0bdc6b06557b894789ccc913ce5195c40976a9975b8b66408b2b3be8d1133189",
+      "bytes": 1696
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-001/absolute-rgb-difference.png",
+      "sha256": "2bac56513a65ea1feb06f411b5fb68e89672a01902929390c5e5d2dffc465863",
+      "bytes": 232257
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-001/side-by-side.png",
+      "sha256": "80214fbc70b75738aea0c6a9ea852d7fd27a77d79e82446c5e46ddeb7349dd9b",
+      "bytes": 466861
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-001/comparison.json",
+      "sha256": "af6aea6038d8611eb92d32a676929a327af5ad9c02226fd1b516098ca5c2d352",
+      "bytes": 1696
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-030/absolute-rgb-difference.png",
+      "sha256": "d746102ee51dda7f06d3b4498823cacd325b8a1711738e65fafcbaeff56ce4ac",
+      "bytes": 228781
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-030/side-by-side.png",
+      "sha256": "7a9bd699efd5383ccfdcdcfc2a2d3834ee02d5d0d079811ed5ad85c3d287aa2d",
+      "bytes": 460306
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-030/comparison.json",
+      "sha256": "eb3320b3daf109e522f623ebc3a682fdb37e3036ac722b97b839ebc974729289",
+      "bytes": 1696
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-090/absolute-rgb-difference.png",
+      "sha256": "cdd2877947be3d9c97379f7437ac55b000508af041ce2a721de801e509ebb176",
+      "bytes": 216649
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-090/side-by-side.png",
+      "sha256": "e1f25621c8530676b810900321c0b506ff2ab90c00ed50102249384cec10cdb9",
+      "bytes": 436518
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-090/comparison.json",
+      "sha256": "fb95b729b1cd7bbdf2b6b7e845a219af237d9436453d5567025fd789388ded41",
+      "bytes": 1697
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-120/absolute-rgb-difference.png",
+      "sha256": "da91c7da5736449c1e7a984c731ed7ef5d406a164c816fe861b44cdbbade101a",
+      "bytes": 204416
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-120/side-by-side.png",
+      "sha256": "718edbbb9117a3fa4a41866fcd31d1ce07c61de1042b67359878ae6a4eeb5180",
+      "bytes": 413986
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v5/pair-120/comparison.json",
+      "sha256": "e8f3ba6f8e8de215437917ad3ce6dedb3f162e536878f31a6714d32704187632",
+      "bytes": 1697
+    },
+    {
+      "path": "local/worktrees/effect-impacts-v1/local/checks/hit-endpoint-compare-v5/audit.txt",
+      "sha256": "3bebff7399ef17a218e4a11e9075841615e92db23bacf4c728c9a0b8173d95fa",
+      "bytes": 3345
+    },
+    {
+      "path": "local/worktrees/effect-impacts-v1/local/checks/hit-endpoint-compare-v5/hashes.json",
+      "sha256": "26a08cc5d966286d6e29d9a229e3e55ea9bd17891b74761ea8b37e1d6c01941f",
+      "bytes": 980
+    },
+    {
+      "path": "local/worktrees/effect-impacts-v1/local/checks/hit-endpoint-compare-v5/comparison.json",
+      "sha256": "d9ff05dd8d5f7481a9ddcaac0465d71054032577a435bd52741d0740278e8941",
+      "bytes": 17682
+    },
+    {
+      "path": "local/worktrees/effect-impacts-v1/local/checks/hit-endpoint-compare-v5/compare.py",
+      "sha256": "00b5ff4ae22c6181005970cb4484e62ff096b38d824f587637bb179b9a55de44",
+      "bytes": 4071
+    },
+    {
+      "path": "local/worktrees/effect-numbers-v1/local/checks/hit-endpoint-v1/audit.txt",
+      "sha256": "2c0805cde168339a93e14c5619bc5060d9cb06105db17bdc342e0c602edfdc97",
+      "bytes": 4468
+    },
+    {
+      "path": "local/worktrees/effect-numbers-v1/local/checks/hit-endpoint-v1/template-scale-correction.txt",
+      "sha256": "de83f714ce478b073da3a4aaf2d0d69fd032e4a977b15d3c0626f9f8768bf52f",
+      "bytes": 1895
+    },
+    {
+      "path": "local/worktrees/effect-numbers-v1/local/checks/hit-endpoint-v1/original-effects.json",
+      "sha256": "f2fac245935977afff8eea7a26f4b0f68c203ba9a229eb4a8d9339f48cde3b80",
+      "bytes": 27000
+    },
+    {
+      "path": "local/worktrees/effect-numbers-v1/local/checks/hit-endpoint-v1/read_hud.py",
+      "sha256": "de9f03fac5aa62d3ad2efc2051ba471108496892344a639dbc4d31d8bb96638c",
+      "bytes": 1449
+    },
+    {
+      "path": "local/worktrees/effect-numbers-v1/local/checks/hit-endpoint-v1/hashes.json",
+      "sha256": "13d6e15f8a21b0e4aa83f6b7cf4621d54be84ad0a9fd7010c2376e5fad43fa25",
+      "bytes": 2107
+    },
+    {
+      "path": "local/worktrees/effect-numbers-v1/local/checks/hit-endpoint-v1/endpoint-hud.json",
+      "sha256": "3c21bafecff0bcb9ace8ee27b8f5c668ccd3af10c66e2b61f5f0442c0f17c17e",
+      "bytes": 1789
+    },
+    {
+      "path": "local/worktrees/effect-numbers-v1/local/checks/hit-endpoint-v1/read_endpoint.py",
+      "sha256": "2a94e5f292c93cd83314b1203763ee0b8675b66b7cd7eecdc12d4be13e01ef9e",
+      "bytes": 5438
+    },
+    {
+      "path": "local/worktrees/effect-numbers-v1/local/checks/hit-endpoint-v1/template-scale-source.json",
+      "sha256": "9a31f4ba768fafaa27140d3584de07ec6ba21f21e28fc70d1b5e9c93b6072dee",
+      "bytes": 2953
+    },
+    {
+      "path": "local/demos/battle-hit-105575-v1/command.json",
+      "sha256": "5d5ed4493eea4648d492cc1b2f56d34e4374e7ed74333f716803df2b3678fd10",
+      "bytes": 5873
+    },
+    {
+      "path": "local/demos/battle-hit-105575-v1/live.json",
+      "sha256": "5587ff26f6782e754eaec7360ebd4c9742db6479c12366656c565958d483f68d",
+      "bytes": 6063
+    },
+    {
+      "path": "local/demos/battle-hit-105575-v1/native.png.view.png",
+      "sha256": "1683d8b1204988f9c977eab26708abdded41718d1c3d06de52bcb51eaf689406",
+      "bytes": 298831
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/history-owner-correction-v1.txt",
+      "sha256": "54a9c52f698cde60e709c1a3e47658e384a5b6f3bb68846cb079f97d8791a58a",
+      "bytes": 1729
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/history-animation-consumer-review-v1.txt",
+      "sha256": "4a3fc0bf4251f212ad37195b2e1cb4f40d8bf60b1aeeb6d8b78060ef90ece8fb",
+      "bytes": 3321
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-python-v2.log",
+      "sha256": "b4b91253f4efcc1e861b6f396750a42f0730c26af583a4909f96d9449ef85c36",
+      "bytes": 41896
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-history-owner-build-v1.log",
+      "sha256": "466d3fad79a94fb1f708a975049ac0b3a371c29bdcf803ebcf97ac3d26f6d7cd",
+      "bytes": 5567
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-history-owner-tests-v1.log",
+      "sha256": "117ab7da97bdc43213dd04e52881838f7b5eae6886a0568556480ae17e52365f",
+      "bytes": 1097
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-comparison-v6.json",
+      "sha256": "529cdf7becf108ccc3c86506682584993e471ea94cfb1be21f9ae80ee3d90fec",
+      "bytes": 71393
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-comparison-v6.runs.json",
+      "sha256": "5593dec3522e984d8b00220551060f5e02674ed4b9cc588d6c4b5eb2cbf66fe9",
+      "bytes": 9140
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-audio-comparison-v6.json",
+      "sha256": "6946adf83e6261a97e10e50f4aff8cc8d864770267b87bd0f365411fbf4b9901",
+      "bytes": 5123
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v6/run.json",
+      "sha256": "81b39aba52e9bdb31d769b0c55b3666e90c82967efd8f1d5e2ec0fe36e633086",
+      "bytes": 6439
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v6/source.diff",
+      "sha256": "c71db902d88d88dda10734cfb204211f5e19f77ac57bd0ea8d4fb31f6dec7a0c",
+      "bytes": 68695
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v6/stdout.log",
+      "sha256": "b3c7dfad17c799f4e6f70d7695a9215e970781a97f8117d0445226091a093d04",
+      "bytes": 4871
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v6/okage-native",
+      "sha256": "b0ba988f6ca52a57f79fe7c82f03a20a2b261c0ad663ff17d046a355d9930678",
+      "bytes": 2196688
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v6/native.png",
+      "sha256": "54628a31749e89514e87afd79fb0326d4138d82e34df11e91f69100cb6ec9d47",
+      "bytes": 191923
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v6/native.png.battle-effects.json",
+      "sha256": "e841b5fe7031fa6402edd90b20a5f84467b6507d76a54ebf04095909e7683443",
+      "bytes": 603
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v6/native.png.battle-history.json",
+      "sha256": "78381f2a9ecea841031c94b16956b1a0ad6b66dcfc4bbf1989997a47db28ccce",
+      "bytes": 315
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-strike-hit-105575-v6/native.png.frames/manifest.json",
+      "sha256": "4d7618318fe4b83b1c496a4c4eb2397d1413eebcb91591b1aa9ee3d776c93d6a",
+      "bytes": 1173
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v3/release-owned-effects.log",
+      "sha256": "83d31a3dacc22a63ea298f29409d777595f091b083ec13c37f0b2ee674021e6c",
+      "bytes": 136
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v3/debug-tests.log",
+      "sha256": "0f6bcd569d4a6d1fb99fcc0e4c13b4ee4100d389482b3096c44d1de0f3892d8d",
+      "bytes": 2422
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v3/debug-owned-effects.log",
+      "sha256": "83d31a3dacc22a63ea298f29409d777595f091b083ec13c37f0b2ee674021e6c",
+      "bytes": 136
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v3/debug-build.log",
+      "sha256": "deb1c89fa6e46f103d7a2aa64f0c168716dc61ec215c8706a3d948db335f5938",
+      "bytes": 5567
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v3/commands.json",
+      "sha256": "cf3d9883aad665b07c204977a5fd58d15bbd926239176de28e13eb60dd6d10ca",
+      "bytes": 2214
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v3/release-build.log",
+      "sha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794",
+      "bytes": 22
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v3/sanitize-tests.log",
+      "sha256": "b56560902544f972154b5945dd2012cdd1d7875af988cfd0db6d083a0d281c19",
+      "bytes": 2438
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v3/run_checks.py",
+      "sha256": "f01e69170cdd5b9c92c6b5c4af77b19208936c93f83a156ee143b375797e8993",
+      "bytes": 1364
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v3/manifest.json",
+      "sha256": "be53b3ee3464ca04d1b3b6632aa397ecc3aeb47bda5c8b3af15600e06962d2ba",
+      "bytes": 3083
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v3/source.diff",
+      "sha256": "c71db902d88d88dda10734cfb204211f5e19f77ac57bd0ea8d4fb31f6dec7a0c",
+      "bytes": 68695
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v3/release-tests.log",
+      "sha256": "76921656807e2393dc677c55da8de762c4f4a3191d28364a58ec57b2d6f79768",
+      "bytes": 2438
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v3/compare.py",
+      "sha256": "a6524a6bd82d51eae92852fdc0a5c45aa1c5236f03cf2cb4e85f4f98a5198c14",
+      "bytes": 1475
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v3/sanitize-build.log",
+      "sha256": "86f650d457f3e13205d96c1feb14704e23c57e2b6845226eb3fbaf6843d4253e",
+      "bytes": 5567
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v3/runs.json",
+      "sha256": "d4c4ada66743d578ff9474532bd3f24c2429b36e5508257893735fbe47a77b36",
+      "bytes": 2688
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v3/sanitize-owned-effects.log",
+      "sha256": "83d31a3dacc22a63ea298f29409d777595f091b083ec13c37f0b2ee674021e6c",
+      "bytes": 136
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v3/sanitize/hashes.json",
+      "sha256": "aec6bddf7d8a56fb1868d3fd3930ec1596395c4b3ad97b5a46aaacbc36c48a1f",
+      "bytes": 458
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v3/release/hashes.json",
+      "sha256": "2f757d4d86820573478c31c0dbca760f481187012d6da2b1374db0cd3593bd72",
+      "bytes": 458
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-checks-v3/debug/hashes.json",
+      "sha256": "6d7fe6e52e4f558a498aa2741bdc3ea3a867b609ff5409a8e64df308a4cce33c",
+      "bytes": 458
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-endpoint-compare-v6/comparison.json",
+      "sha256": "2b6cbac2e02544fc3e44d05387be17a538f41a4ae096b96be9508f5a010c5168",
+      "bytes": 17681
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/hit-endpoint-compare-v6/compare.py",
+      "sha256": "7823858d1ff78c3dca151d06a8c14036e18544bcd6dc9ef1a737fe0f050dc7dd",
+      "bytes": 4062
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-100/absolute-rgb-difference.png",
+      "sha256": "65c3027cb59d1b9a5aee753a097d1bddb4ca1d25a163cc1c5b16949a60d0a2ef",
+      "bytes": 216015
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-100/side-by-side.png",
+      "sha256": "b3276ef0f85a138268d26b63617a16f65160ddb47089466855fbd2e9c6fa600b",
+      "bytes": 438667
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-100/comparison.json",
+      "sha256": "4c55e8175cab229acad662e825bad5680758be68b095011bc5acb8c347e60b62",
+      "bytes": 1696
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-080/absolute-rgb-difference.png",
+      "sha256": "0ed439de1fb853761be5252a7ec5cc921ae2a7b85a2c2488b8a62591d690ac78",
+      "bytes": 211979
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-080/side-by-side.png",
+      "sha256": "c1bcd16c46c7e08f47de06cc9b920e8a9363b4980a11d5ab3e69fe64c81b0c3f",
+      "bytes": 430811
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-080/comparison.json",
+      "sha256": "39564565c761ff1b0a2345edbf52b749e5b82e83293a4f3aff46a83def9d2eee",
+      "bytes": 1697
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-060/absolute-rgb-difference.png",
+      "sha256": "61151226835375968a024ced373251f28351c76676bc6de0555ae5114c8654d6",
+      "bytes": 212135
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-060/side-by-side.png",
+      "sha256": "70f52c4a9159057ddb3ddbb946e96ff1871c2fc268a10fa830dbec187baa1717",
+      "bytes": 444705
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-060/comparison.json",
+      "sha256": "0822a9f0f8e46356e01f1e8c62c89fddd83f51c12769f89d70a7472c3f3add0d",
+      "bytes": 1697
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-082/absolute-rgb-difference.png",
+      "sha256": "36b6b9b6dbb920a275e65b53a5f67b25368c58d30d4366b7ac39819269e6bea5",
+      "bytes": 211099
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-082/side-by-side.png",
+      "sha256": "61e45ac6b7dff6ebca35363bed0c1471c7623f268a23ccf8ef36b740932a8dd7",
+      "bytes": 429009
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-082/comparison.json",
+      "sha256": "a9b032e74f4685571871f232f8997359ee067c28f2aeeb8e5397c96507d1662c",
+      "bytes": 1696
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-001/absolute-rgb-difference.png",
+      "sha256": "2bac56513a65ea1feb06f411b5fb68e89672a01902929390c5e5d2dffc465863",
+      "bytes": 232257
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-001/side-by-side.png",
+      "sha256": "80214fbc70b75738aea0c6a9ea852d7fd27a77d79e82446c5e46ddeb7349dd9b",
+      "bytes": 466861
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-001/comparison.json",
+      "sha256": "3c14adaaa22435cf0a3433096ad8ed4aede54b2c1a4af6b3dea99e2421c42ed7",
+      "bytes": 1696
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-030/absolute-rgb-difference.png",
+      "sha256": "d746102ee51dda7f06d3b4498823cacd325b8a1711738e65fafcbaeff56ce4ac",
+      "bytes": 228781
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-030/side-by-side.png",
+      "sha256": "7a9bd699efd5383ccfdcdcfc2a2d3834ee02d5d0d079811ed5ad85c3d287aa2d",
+      "bytes": 460306
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-030/comparison.json",
+      "sha256": "7906907a135497be7545db5bc4b6c057e7e25c8f3f927d00e7239dbe3ea7be15",
+      "bytes": 1696
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-090/absolute-rgb-difference.png",
+      "sha256": "cdd2877947be3d9c97379f7437ac55b000508af041ce2a721de801e509ebb176",
+      "bytes": 216649
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-090/side-by-side.png",
+      "sha256": "e1f25621c8530676b810900321c0b506ff2ab90c00ed50102249384cec10cdb9",
+      "bytes": 436518
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-090/comparison.json",
+      "sha256": "7a61a7577602faa583668ba944b831d3fa3ad80feb0da448aa2a49d1c9138646",
+      "bytes": 1697
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-120/absolute-rgb-difference.png",
+      "sha256": "da91c7da5736449c1e7a984c731ed7ef5d406a164c816fe861b44cdbbade101a",
+      "bytes": 204416
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-120/side-by-side.png",
+      "sha256": "718edbbb9117a3fa4a41866fcd31d1ce07c61de1042b67359878ae6a4eeb5180",
+      "bytes": 413986
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/strike-hit-selected-images-v6/pair-120/comparison.json",
+      "sha256": "d7b1a5d3c9cac6c44a648130d58fa3e05710e919bb7323b6ca5d46390158cd93",
+      "bytes": 1697
+    },
+    {
+      "path": "local/worktrees/effect-impacts-v1/local/checks/report.json",
+      "sha256": "2eb8e3b7cfe77fd431f4c575eeb2c45b546cd167758c12842ca5f78e5d212d60",
+      "bytes": 4810
+    },
+    {
+      "path": "local/worktrees/effect-impacts-v1/local/checks/source-contract.txt",
+      "sha256": "95bf16f6e8d5df37bddd99964ca6233a42a02b21b6f291eec58ac7a5193e576e",
+      "bytes": 3011
+    },
+    {
+      "path": "local/worktrees/physical-hit-consumer/local/hit-checks/manifest.json",
+      "sha256": "6900369712a0f245e5a006b3b8b71de1e6c31e5c310fd894f743ae4a8a8e6dc4",
+      "bytes": 2821
     }
   ],
   "completion": {
@@ -885,7 +1747,7 @@
     "all_exit_codes": 0,
     "native_route_advanced": false,
     "source_and_evidence_sha256": {
-      "include/okage/battle_actor.hpp": "8453327d8d665e72ce345562a7f7e1b732f20e4630a1ddbfef5f2625996f29af",
+      "include/okage/battle_actor.hpp": "91e21875171af4af0733c6a4bb140a86898a0adf3bfcc2ee6b517a0dcf92df01",
       "include/okage/battle_state.hpp": "d1e61caaadc24117a755433a7863eddce7eb29f8c1359f64379b6396afadac98",
       "src/battle_entity_update.cpp": "88e1c0857cf294b65543fb25439a614d91117658ec5778d45b2dc5aec091a019",
       "tests/battle_entity_update_tests.cpp": "473bce94c72e158f5ca292b5d4f43f150c1895251f2a26a76b3cbef1e6e59752",
@@ -997,8 +1859,8 @@
     },
     {
       "path": "include/okage/battle_actor.hpp",
-      "sha256": "8453327d8d665e72ce345562a7f7e1b732f20e4630a1ddbfef5f2625996f29af",
-      "bytes": 3689
+      "sha256": "91e21875171af4af0733c6a4bb140a86898a0adf3bfcc2ee6b517a0dcf92df01",
+      "bytes": 3814
     },
     {
       "path": "local/battle-input-v4/battle-actions.bin",
@@ -2117,8 +2979,8 @@
     },
     {
       "path": "src/battle_actor_update.cpp",
-      "sha256": "76f757962901c252688ae158f2499f4821b8219f52ed9b55fef08148396523d1",
-      "bytes": 20968
+      "sha256": "75dfeef37f299a2b5a95c29017ccd0ea878974270c1a8059397fba13f95842db",
+      "bytes": 27572
     },
     {
       "path": "src/battle_roster_update.cpp",
@@ -2127,8 +2989,8 @@
     },
     {
       "path": "src/battle_session.mm",
-      "sha256": "86c1e0c68d9e67f4134aad937dad83b4168e5e520abd9084759c2fe7ab81a1da",
-      "bytes": 62880
+      "sha256": "63b810490887fca625931178193ce51265dfe706dd0baeec15ed55b7d80cb124",
+      "bytes": 69195
     },
     {
       "path": "tests/animation_tests.cpp",
@@ -2137,8 +2999,8 @@
     },
     {
       "path": "tests/battle_actor_update_tests.cpp",
-      "sha256": "c2e8c0d14017dac8a84fc437d5e1f25235dc74caee8da2e134725497f95dc044",
-      "bytes": 24517
+      "sha256": "1431062ce211bf87a46b47cab43c8d3c5c11154ed9c92fe66a3001a2ac1fb054",
+      "bytes": 30172
     },
     {
       "path": "tests/battle_roster_update_tests.cpp",
@@ -2211,5 +3073,104 @@
     "fidelity_pass": false,
     "full_native_pcm": false,
     "next_original_anchor": 105576
+  },
+  "historical_strike_native_success": {
+    "revision": "1d4684e3def7661e4869db2f953c99bfaae7db72",
+    "source_diff_sha256": "debd839a1967eabf69be6bb4fbf75a4ef13861a7b43969f2ec05e8895b494ecc",
+    "frame": 105455,
+    "exit_code": 0,
+    "binary_sha256": "2a586597ecef8b9ffe6af53cfdb5e041de2cdf7437e5dde654caddbc8132fa26",
+    "seconds": 29.922702667,
+    "fps_claim": false,
+    "final_runtime_revision": "f290b5a",
+    "final_runtime_followup": "unreached effect3/4 partial-store correction; tested all3builds"
+  },
+  "historical_strike_preview": {
+    "path": "local/demos/battle-strike-105455-v1/live.json",
+    "source_revision": "f290b5a",
+    "pid_at_launch": 13240,
+    "session": 66719,
+    "paused_frame": 105455,
+    "full_4_3_verified": true,
+    "different_async_loading_from_headless": true,
+    "previous_pid_3073_terminal_exit_code": 0,
+    "terminal_child_exit_code": -15,
+    "terminal_wrapper_exit_code": 0
+  },
+  "hit_comparison_v5": {
+    "anchor": 105456,
+    "end": 105575,
+    "paired_rows": 720,
+    "equal_rows": 0,
+    "field_mismatches": 14831,
+    "missing_native": 0,
+    "missing_original": 0,
+    "order_differences": 0,
+    "first_difference": "105456 parent entry actor3 record",
+    "fidelity_pass": false,
+    "endpoint_exact": 121,
+    "endpoint_checks": 123,
+    "endpoint_differences": [
+      "effect35 rendered X",
+      "history animation"
+    ],
+    "images": 8,
+    "images_equal": 0,
+    "endpoint_rgb_mae": 14.160665457589285,
+    "endpoint_alpha_differing_pixels": 143360,
+    "audio_original_sample_frames": 85500,
+    "audio_original_hz": 44100,
+    "audio_native_sample_frames": 96000,
+    "audio_native_hz": 48000,
+    "audio_alignment_proven": false,
+    "listening_validation": false,
+    "history_comparison_correction": "New producer/report used wrong native HUD owners;52f8d5a fixes mapping. Existing1684d0 consumer was correct."
+  },
+  "next_native_boundary": {
+    "run": "local/research/battle-combat-entry-v1/native-hit-next-105635-v1/run.json",
+    "frame": 105600,
+    "exit_code": 1,
+    "guard": "Battle attached effect20: Unrecovered map effect template",
+    "original_comparison": false,
+    "next_uncaptured_original_frame": 105576,
+    "source_revision": "c399e98"
+  },
+  "historical_hit_native_success_v5": {
+    "source_revision": "2b7c5116093d2d19fc24eca925a5437c46ad8639",
+    "source_diff_sha256": "69e6bd7fadb18c52eabb8597afb35480b2b0ee641641838b582cc38502788c11",
+    "binary_sha256": "46f448d908cd253611b73130d56280e13ef8df95460ff370ea254ce8cb318eed",
+    "exit_code": 0,
+    "seconds": 31.729371292,
+    "frame": 105575,
+    "final_runtime_revision": "c399e98",
+    "fps_claim": false,
+    "inputs": "owned startup plus ordinary inputs; no reference state"
+  },
+  "hit_comparison_v6": {
+    "anchor": 105456,
+    "end": 105575,
+    "paired_rows": 720,
+    "equal_rows": 0,
+    "field_mismatches": 14831,
+    "missing_native": 0,
+    "missing_original": 0,
+    "order_differences": 0,
+    "first_difference": "105456 parent entry actor3 record",
+    "fidelity_pass": false,
+    "endpoint_exact": 122,
+    "endpoint_checks": 123,
+    "endpoint_differences": [
+      "effect35 rendered X"
+    ],
+    "images": 8,
+    "images_equal": 0,
+    "endpoint_rgb_mae": 14.160665457589285,
+    "endpoint_alpha_differing_pixels": 143360,
+    "audio_original_sample_frames": 85500,
+    "audio_original_hz": 44100,
+    "audio_native_sample_frames": 96000,
+    "audio_native_hz": 48000,
+    "audio_alignment_proven": false,
+    "listening_validation": false
   }
 }
