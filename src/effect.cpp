@@ -119,7 +119,7 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
     parameters(d.parameters),texture_sizes_(sizes) {
     require(!(d.flags&0x800),"Unresolved effect reference");
     require((id==25&&d.elements.size()==8)||(id==34&&d.elements.size()==14)||(id==19&&d.elements.size()==9)||
-            ((id==17||id==33)&&d.elements.size()==9&&start==EffectStart::FirstFrame)||
+            ((id==17||id==20||id==33)&&d.elements.size()==9&&start==EffectStart::FirstFrame)||
             (id==115&&d.elements.size()==5&&start==EffectStart::FirstFrame)||
             (id==26&&d.elements.size()==2&&start==EffectStart::FirstFrame)||
             (id==6&&d.elements.size()==4&&start==EffectStart::FirstFrame)||
@@ -225,7 +225,7 @@ void MapEffect::set_parameter(unsigned selector,const Float4& payload) {
 std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix4& view,
         const Float4& camera,float far_clip,const SineTable& sine,const Float4* light_tint,EffectDrawPass pass) {
     if(effect.flags&0x4300)return {};
-    require((effect.id==25&&effect.elements.size()==8)||((effect.id==17||effect.id==19)&&effect.elements.size()==9)||
+    require((effect.id==25&&effect.elements.size()==8)||((effect.id==17||effect.id==19||effect.id==20)&&effect.elements.size()==9)||
             (effect.id==106&&effect.elements.size()==1)||(effect.id==105&&effect.elements.size()==16)||(effect.id==90&&effect.elements.size()==1)||(effect.id==91&&effect.elements.size()==4)||(effect.id==16&&effect.elements.size()==3)||
             (effect.id==33&&effect.elements.size()==9)||(effect.id==115&&effect.elements.size()==5)||
             (effect.id==26&&effect.elements.size()==2)||(effect.id==6&&effect.elements.size()==4)||
@@ -247,7 +247,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
     std::vector<MapEffectDraw> result;
     for(const auto& e:effect.elements) {
         require(effect.id==35?e.primitive_flags==0x40:effect.id==36?e.primitive_flags==0x140:(effect.id==38||effect.id==39)?(e.primitive_flags==0||e.primitive_flags==0x100):effect.id==106?e.primitive_flags==0x41:effect.id==105?(e.primitive_flags==0x41||e.primitive_flags==0x141||e.primitive_flags==0x341):effect.id==14?(e.primitive_flags==0||e.primitive_flags==0x20||e.primitive_flags==0x300):effect.id==24?(e.primitive_flags&255)==0x21:effect.id==6?e.primitive_flags==0x20:effect.id==16?e.primitive_flags==8:effect.id==115?e.primitive_flags==0x40:
-                (e.primitive_flags&255)==1||((effect.id==17||effect.id==19||effect.id==26)&&e.primitive_flags==0x41),
+                (e.primitive_flags&255)==1||((effect.id==17||effect.id==19||effect.id==20||effect.id==26)&&e.primitive_flags==0x41),
                 "Unrecovered map effect material");
         require(!(e.flags&0x400000)||light_tint,"Effect requires owned field light tint");
         //0x105a40 sets render+0x58 bit0 when switching programs. It records
@@ -445,7 +445,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
                     {clear,white,white,clear},
                     {lower_uv(i),uv(a,1),uv(b,1),lower_uv(i+1)});
             }
-        } else if(e.shape==29||((effect.id==17||effect.id==19||effect.id==24||effect.id==105||effect.id==115||effect.id==38||effect.id==39)&&e.shape==31)||
+        } else if(e.shape==29||((effect.id==17||effect.id==19||effect.id==20||effect.id==24||effect.id==105||effect.id==115||effect.id==38||effect.id==39)&&e.shape==31)||
                   (effect.id==115&&e.shape==32)||((effect.id==38||effect.id==39||effect.id==36)&&e.shape==30)) {
             const float bottom=e.shape==29?-1:-.5f,top=e.shape==29?0:.5f;
             const auto quad_uv=[&](unsigned i,float u,float v){return (effect.id==24||effect.id==105||((effect.id==38||effect.id==39)&&e.shape==31)||(effect.id==36&&e.shape==30))?
@@ -474,7 +474,7 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
                      const EffectProjectionContext* projection) {
     if(!clock_enabled)return;
     require(!(flags&0x100),"Cannot update a removed map effect");
-    require(id==35||id==36||id==38||id==39||id==6||id==14||id==24||id==25||id==26||id==17||id==19||id==33||id==105||id==106||id==115||id==90||id==91||id==16,"Unrecovered map effect update program");
+    require(id==35||id==36||id==38||id==39||id==6||id==14||id==24||id==25||id==26||id==17||id==19||id==20||id==33||id==105||id==106||id==115||id==90||id==91||id==16,"Unrecovered map effect update program");
     if(id==35||id==36) {
         require(projection,"Numeric effect requires live projection context");
         require(std::isfinite(projection->focal)&&projection->focal>0,"Invalid numeric effect focal length");
@@ -630,10 +630,10 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         }
         if(timing==17) {
             //0x105518 links geometry to the element with the preceding ID.
-            // Template17's shape31 packets are identical immutable quads.
+            // Templates17/20's shape31 packets are identical immutable quads.
             const auto previous=std::find_if(elements.begin(),elements.end(),[&](const auto& p){return p.id+1==e.id;});
             require(previous!=elements.end()&&previous->texture==e.texture&&
-                    ((id==17&&previous->shape==31&&e.shape==31)||
+                    (((id==17||id==20)&&previous->shape==31&&e.shape==31)||
                      (id==26&&previous->shape==24&&e.shape==24&&previous->cylinder_t.size()==17)),
                     "Unrecovered effect geometry sharing");
             if(id==26)e.cylinder_source_id=previous->id;

@@ -170,6 +170,59 @@ int main(int argc,char** argv){try{
     puff.tick(random);check(puff.phase==31&&(puff.flags&0x100));
     check(okage::map_effect_draws(puff,identity,{},450,sine,&tint).empty());
     rejects([&]{puff.tick(random);});
+    okage::EffectDefinition vanish;vanish.id=20;vanish.duration=30;
+    vanish.parameters={.6f,.3f,.6f,0};vanish.elements.resize(9);
+    for(unsigned i=0;i<9;++i) {
+        auto& part=vanish.elements[i];part.id=i+1;part.shape=31;part.flags=i?0x601:0x401;
+        part.primitive_flags=0x41;part.channels=13;part.program=i?0x1104c114:0x4c114;
+        part.texture=17;part.change_time=1.1f;part.values[0]={.5f,.5f,.5f,.2f};
+        part.values[2]={1,1,1,7};part.values[3]={1,.7f,1,3.5f};
+    }
+    unsigned vanish_rng=0;const auto vanish_random=[&]{return vanish_rng++;};
+    okage::MapEffect disappearing(vanish,{4,5,6,1},{},{1,1,1,1},sizes,vanish_random,okage::EffectStart::FirstFrame);
+    check(vanish_rng==0&&disappearing.phase==1);
+    disappearing.tick(vanish_random,false);check(vanish_rng==0&&disappearing.phase==1);
+    const auto initial_draws=okage::map_effect_draws(disappearing,identity,{},450,sine);
+    check(initial_draws.size()==9&&vanish_rng==0);
+    for(const auto& d:initial_draws)check(d.texture==17&&!d.additive&&!d.subtractive&&d.depth_test&&d.vertices.size()==6);
+    rejects([&]{okage::map_effect_draws(disappearing,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);});
+    disappearing.tick(vanish_random);check(vanish_rng==36&&disappearing.phase==2);
+    const auto first_disappearance=disappearing;
+    check(std::fesetround(FE_TOWARDZERO)==0);
+    for(unsigned i=0;i<9;++i) {
+        const auto& part=disappearing.elements[i];
+        check(part.rendered[0]==okage::Float4({1,1,1,7}));
+        for(unsigned axis=0;axis<3;++axis) {
+            volatile float sample=float(int(i*4+axis)-20);
+            const float expected=(sample*.2f)*vanish.parameters[axis]+1;
+            check(part.position[axis]==expected);
+        }
+        check(part.position[3]==7);
+        volatile float degree=float(i*4+3+360);
+        check(part.rendered[1][2]==degree*.00278f);
+        check((part.program&0x3f000fc0)==0); //First-only timing17 and rotation4 clear.
+    }
+    check(std::fesetround(rounding_before)==0);
+    disappearing.position={9,10,11,1};
+    disappearing.tick(vanish_random);check(vanish_rng==36&&disappearing.phase==3);
+    check(std::fesetround(FE_TOWARDZERO)==0);
+    const float second_t=2.f*disappearing.inverse_duration;
+    for(unsigned i=0;i<9;++i)for(unsigned axis=0;axis<3;++axis)
+        check(disappearing.elements[i].rendered[0][axis]==(first_disappearance.elements[i].position[axis]*second_t)*vanish.parameters[axis]);
+    check(std::fesetround(rounding_before)==0);
+    const auto neutral_draws=okage::map_effect_draws(disappearing,identity,{},450,sine);
+    const okage::Float4 zero_tint{};
+    const auto untinted_draws=okage::map_effect_draws(disappearing,identity,{},450,sine,&zero_tint);
+    for(unsigned i=0;i<9;++i)check(neutral_draws[i].color==untinted_draws[i].color);
+    for(unsigned i=2;i<30;++i)disappearing.tick(vanish_random);
+    check(vanish_rng==36&&disappearing.phase==31&&!(disappearing.flags&0x100));
+    for(unsigned i=0;i<9;++i)check(disappearing.elements[i].rendered[1]==first_disappearance.elements[i].rendered[1]);
+    disappearing.tick(vanish_random);check((disappearing.flags&0x100)&&vanish_rng==36);
+    check(okage::map_effect_draws(disappearing,identity,{},450,sine).empty());
+    auto missing_predecessor=vanish;missing_predecessor.elements[1].id=99;
+    okage::MapEffect invalid_vanish(missing_predecessor,{},{},{1,1,1,1},sizes,vanish_random,okage::EffectStart::FirstFrame);
+    rejects([&]{invalid_vanish.tick(vanish_random);});
+    rejects([&]{okage::MapEffect invalid_start(vanish,{},{},{1,1,1,1},sizes,vanish_random);});
     okage::EffectDefinition torch;torch.id=91;torch.duration=9900;torch.flags=0x8000;
     torch.elements.resize(4);
     for(unsigned i=0;i<4;++i){auto& e=torch.elements[i];e.shape=i==3?40:28;
@@ -481,7 +534,18 @@ int main(int argc,char** argv){try{
             for(const auto& packet:packets)check(packet.vertices.size()==6&&packet.additive&&!packet.depth_test);
         }
         owned_impact.tick(rng);check((owned_impact.flags&0x100)&&draws==before_impact+9);
-        std::cout<<"Owned effects35/36/38/39 lifetime and geometry smoke passed\n";
+        const auto vanish_def=std::find_if(definitions.begin(),definitions.end(),[](const auto& d){return d.id==20;});
+        check(vanish_def!=definitions.end()&&vanish_def->duration==30&&vanish_def->elements.size()==9&&vanish_def->flags==0);
+        const auto before_vanish=draws;
+        okage::MapEffect owned_vanish(*vanish_def,{0,-7.5f,0,1},{},{1,1,1,1},owned_sizes,rng,okage::EffectStart::FirstFrame);
+        for(unsigned i=0;i<30;++i) {
+            owned_vanish.tick(rng);
+            const auto packets=okage::map_effect_draws(owned_vanish,identity,{},450,sine);
+            check(draws==before_vanish+36&&packets.size()==9);
+            for(const auto& packet:packets)check(packet.texture==17&&packet.vertices.size()==6&&!packet.additive&&packet.depth_test);
+        }
+        owned_vanish.tick(rng);check((owned_vanish.flags&0x100)&&draws==before_vanish+36);
+        std::cout<<"Owned effects20/35/36/38/39 lifetime and geometry smoke passed\n";
     }
     okage::EffectDefinition base=dust;base.id=19;base.flags=0x8000;base.duration=300;
     base.parameters={.03f,-.05f,0,.1f};
