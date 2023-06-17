@@ -13,6 +13,7 @@
 #include "okage/battle_actor.hpp"
 #include "okage/battle_damage.hpp"
 #include "okage/battle_hit.hpp"
+#include "okage/battle_reward.hpp"
 #include "okage/battle_enemy_commands.hpp"
 #include "okage/battle_command_queue.hpp"
 #include "okage/battle_ui_diagnostic.hpp"
@@ -800,7 +801,9 @@ struct BattleSession::Impl {
                         context.strike_sound,
                         [&](int id,const Float4& point){return spawn_effect(id,point,context.random);},
                         [&](int command,int owner,int target){battle_queue_damage_event(root,roster.entities(),
-                            std::int16_t(command),std::int16_t(owner),std::int16_t(target),[&]{return context.random.next();});}},&hits);
+                            std::int16_t(command),std::int16_t(owner),std::int16_t(target),[&]{return context.random.next();});},
+                        [&](BattleActor& target){battle_enemy_reward(target,roster.entities(),context.entry.reward_storage(),
+                            [&]{return context.random.next();});}},&hits);
                     actor_snapshot(*actor,"after-first");
                     if(enemy)battle_enemy_second_update(*actor,root);else battle_party_second_update(*actor,root);
                     actor_snapshot(*actor,"after-second");

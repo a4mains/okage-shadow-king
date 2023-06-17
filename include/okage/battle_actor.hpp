@@ -39,6 +39,7 @@ struct BattleStrikeServices {
     std::function<void(int)> sound;
     std::function<unsigned(int,const Float4&)> positioned_effect;
     std::function<void(int,int,int)> damage_event;
+    std::function<void(BattleActor&)> enemy_reward;
 };
 void battle_refresh_entities(BattleState&,std::span<const BattleEntityBinding>);
 void battle_register_action(BattleState&,unsigned owner,unsigned target,

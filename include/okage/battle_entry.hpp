@@ -27,6 +27,7 @@ public:
     void clear_party_slots();
     BattleEntryParameters parameters() const;
     const Storage& bytes() const {return storage_;}
+    std::span<std::uint8_t> reward_storage() {return storage_;}
 private:
     Storage storage_{};
 };

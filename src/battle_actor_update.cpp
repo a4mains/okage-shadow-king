@@ -406,7 +406,12 @@ void enemy_death_update(BattleActor& actor,const BattleStrikeServices& services,
     case 2: {
         const float remaining=single(scalar(actor.storage,0x3c4),scalar(actor.storage,0x2c),Operation::Subtract);
         scalar(actor.storage,0x3c4,remaining);
-        check(remaining>=0,"Unrecovered enemy death rewards15bb90/15bfd8");
+        if(remaining<0) {
+            check(bool(services.enemy_reward),"Battle death reward service missing");
+            services.enemy_reward(actor);
+            check(bool(services.sound),"Battle death reward sound service missing");
+            services.sound(65);put(actor.storage,0x24,99);
+        }
         break;
     }
     default:break;

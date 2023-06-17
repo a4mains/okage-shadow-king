@@ -385,7 +385,22 @@ void queued_enemy_hit() {
     number(a.storage,0x3c4,1);okage::battle_actor_first_update(a,f.root,{},sounds,&services);
     require(number(a.storage,0x3c4)==0,"Reward delay equality does not complete");
     rejects([&]{okage::battle_actor_first_update(a,f.root,{},sounds,&services);});
-    require(number(a.storage,0x3c4)==-1,"Unrecovered reward guard retains preceding timer subtraction");
+    require(number(a.storage,0x3c4)==-1,"Missing reward service retains preceding timer subtraction");
+    events.clear();
+    sounds.enemy_reward=[&](okage::BattleActor& target) {
+        require(&target==&a&&word(a.storage,0x24)==2&&number(a.storage,0x3c4)==-2,
+                "Reward service follows strict-negative subtraction before phase99");
+        events.push_back(300);
+    };
+    sounds.sound=[&](int id){events.push_back(id);throw std::runtime_error("Sound test interruption");};
+    rejects([&]{okage::battle_actor_first_update(a,f.root,{},sounds,&services);});
+    require(events==std::vector<int>({300,65})&&word(a.storage,0x24)==2,"Reward precedes sound and failed sound preserves phase2");
+    sounds.enemy_reward=[&](okage::BattleActor&){events.push_back(300);};
+    sounds.sound=[&](int id){events.push_back(id);};events.clear();
+    okage::battle_actor_first_update(a,f.root,{},sounds,&services);
+    require(events==std::vector<int>({300,65})&&word(a.storage,0x24)==99,"Successful reward and sound advance phase99");
+    events.clear();okage::battle_actor_first_update(a,f.root,{},sounds,&services);
+    require(events.empty(),"Completed death callback does not award repeatedly");
 }
 }
 int main(){try {
