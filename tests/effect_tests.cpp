@@ -7,8 +7,13 @@
 #include <cfenv>
 #include <iostream>
 #include <stdexcept>
+#pragma STDC FENV_ACCESS ON
+#pragma STDC FP_CONTRACT OFF
+
 using Data=std::vector<std::uint8_t>;
-void check(bool v){if(!v)throw std::runtime_error("Effect test failed");}
+void check(bool v,unsigned where=__builtin_LINE()){
+    if(!v)throw std::runtime_error("Effect test failed at line "+std::to_string(where));
+}
 void put(Data& b,std::size_t p,std::uint32_t v){for(unsigned j=0;j<4;++j)b.at(p+j)=v>>(j*8);}
 template<class F>void rejects(F f){try{f();}catch(const std::runtime_error&){return;}throw std::runtime_error("Invalid effect accepted");}
 int main(int argc,char** argv){try{
