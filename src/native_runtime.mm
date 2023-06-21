@@ -929,6 +929,10 @@ static void capture(const Session& session,const fs::path& path) {
     if(fs::exists(shadowsPath)||fs::is_symlink(shadowsPath))throw std::runtime_error("Refusing existing shadow-submission capture");
     if(!path.parent_path().empty())fs::create_directories(path.parent_path());
     if(session.battle) {
+        const auto battleActorsPath=fs::path(path.string()+".battle-actors.json");
+        if(fs::exists(battleActorsPath)||fs::is_symlink(battleActorsPath))throw std::runtime_error("Refusing existing battle actor observation");
+        std::ofstream battleActorsOut(battleActorsPath);
+        session.battle->write_actor_observation(battleActorsOut,session.frame);
         const auto effectsPath=fs::path(path.string()+".battle-effects.json");
         if(fs::exists(effectsPath)||fs::is_symlink(effectsPath))throw std::runtime_error("Refusing existing battle effect observation");
         std::ofstream effectsOut(effectsPath);

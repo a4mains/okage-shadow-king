@@ -1011,6 +1011,22 @@ void BattleSession::service_loader_after_frame(BattleConstructionContext context
     if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
 }
 const BattleState& BattleSession::state() const{return impl_->root;}
+void BattleSession::write_actor_observation(std::ostream& out,unsigned frame) const {
+    const auto model=[&](const FieldActor* actor) {
+        if(!actor){out<<"null";return;}
+        out<<"{\"visible\":"<<(actor->visible?"true":"false")<<",\"render_flags\":"<<actor->render_flags<<'}';
+    };
+    out<<"{\"schema\":\"okage-native-battle-actors-v1\",\"frame\":"<<frame<<",\"actors\":[";
+    bool comma=false;
+    for(const auto& owner:impl_->roster.actors()) {
+        const auto& actor=*owner;if(comma)out<<',';comma=true;
+        out<<"{\"entity_id\":"<<actor.entity_id<<",\"enemy\":"<<(actor.enemy?"true":"false")
+           <<",\"task_type\":"<<word(actor.storage,0x20)<<",\"task_phase\":"<<word(actor.storage,0x24)
+           <<",\"death_timer_bits\":"<<word(actor.storage,0x3c4)<<",\"model\":";
+        model(actor.model.get());out<<",\"bag\":";model(actor.bag.get());out<<",\"box\":";model(actor.box.get());out<<'}';
+    }
+    out<<"]}\n";if(!out)throw std::runtime_error("Cannot write battle actor observation");
+}
 void BattleSession::write_effect_observation(std::ostream& out,unsigned frame) const {
     const auto lanes=[&](const Float4& values) {
         out<<'[';for(unsigned i=0;i<4;++i){if(i)out<<',';out<<std::bit_cast<std::uint32_t>(values[i]);}out<<']';
