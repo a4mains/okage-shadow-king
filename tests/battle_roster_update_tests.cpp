@@ -1,6 +1,7 @@
 #include "okage/battle_roster_update.hpp"
 #include "okage/battle_command_queue.hpp"
 #include <bit>
+#include <cfenv>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -183,6 +184,108 @@ void enemy_action_readiness() {
         require(word(actor.storage,0x21c)==(command==203?10u:8u),"Enemy action selects source state without extra timer writes");
     }
 }
+void post_action_timer_and_flags() {
+    struct Timer {int speed;unsigned bits;};
+    //154600: independently evaluated binary32 toward-zero at each operation.
+    const Timer timers[]={{0,0x4449e4d8},{34,0x43be0000},{99,0x42484d92},
+        {100,0x42480000},{-32768,0x4c9c199a},{32767,0x4c9a3256}};
+    for(bool enemy:{false,true})for(unsigned state:{10u,99u})for(const auto t:timers) {
+        Fixture f;const unsigned id=enemy?4:0;auto& a=f.actors[id];
+        put(a.storage,0x21c,state);put(a.storage,0x16c,std::uint32_t(t.speed),2);
+        put(a.storage,0x180,1);put(a.storage,0x17c,7);put(a.storage,0x184,9);
+        number(a.storage,0x194,22);number(a.storage,0x19c,23);number(a.storage,0x1a4,.5f);
+        put(f.root.entity(id),0x60,200,2);put(f.root.entity(id),0x62,4,2);put(f.root.entity(id),0x68,1);
+        put(f.root.entity(id),0x16c,1,2);f.root.action_links[id][0]=id;
+        const auto script=a.model->animation().script_state();
+        const int round=std::fegetround();std::fesetround(FE_UPWARD);
+        if(enemy)f.enemy();else f.update();
+        require(std::fegetround()==FE_UPWARD,"Post-action timer restores caller rounding");std::fesetround(round);
+        require(word(a.storage,0x21c)==1&&word(a.storage,0x198)==t.bits,"Source post-action timer/state reset");
+        require(word(a.storage,0x194)==0&&word(a.storage,0x19c)==0,"Both elapsed timers reset");
+        require(word(a.storage,0x180)==0&&word(a.storage,0x17c)==0&&word(a.storage,0x184)==9,"Only exact flag1 clears paired flags");
+        require(word(a.storage,0x1a4)==std::bit_cast<unsigned>(.5f),"Reset does not overwrite constructor multiplier");
+        require(half(f.root.entity(id),0x60)==0xffff&&half(f.root.entity(id),0x62)==0xffff&&word(f.root.entity(id),0x68)==0,"Post-action invalidates action descriptor");
+        require(half(f.root.entity(id),0x16c)==1&&f.root.action_links[id][0]==id,"Reset retains graph list/count");
+        require(f.draws==0&&f.sounds.empty()&&a.model->animation().script_state()==script,"No RNG, sound, or motion on reset");
+    }
+    for(unsigned flag:{0u,2u,0xffffffffu}) {
+        Fixture f;put(f.actors[0].storage,0x21c,99);put(f.actors[0].storage,0x180,flag);put(f.actors[0].storage,0x17c,11);f.update();
+        require(word(f.actors[0].storage,0x180)==flag&&word(f.actors[0].storage,0x17c)==11,"Non1 paired flags survive");
+    }
+    for(bool enemy:{false,true}) {
+        Fixture f;const unsigned id=enemy?4:1;auto& a=f.actors[id];
+        put(a.storage,0x21c,99);put(a.storage,0x16c,34,2);put(f.actors[0].storage,0x16c,100,2);put(f.root.bytes,0x807c,5);
+        if(enemy)f.enemy();else f.update();require(word(a.storage,0x198)==0x42480000,"Mode5 borrows entity0 signed speed");
+        put(a.storage,0x21c,99);f.entities[0].actor=nullptr;
+        if(enemy)f.enemy();else okage::battle_party_roster_update(std::span(f.party).subspan(1),f.actors[3],f.context);
+        require(word(a.storage,0x198)==0x43be0000,"Mode5 absent entity0 uses own speed");
+    }
+}
+void post_action_secondary() {
+    for(unsigned old:{998u,999u,32767u,65535u}) {
+        Fixture f;auto& a=f.actors[0];put(a.storage,0x21c,99);f.records[0][1]=5;put(f.records[0],0x4c,old,2);f.update();
+        const unsigned expected=old==998||old==999?999:old==32767?32768:0;
+        require(half(f.records[0],0x4c)==expected,"Secondary5 narrows before signed1000 cap");
+    }
+    for(int selector:{-1,0,1,2,3})for(int hp:{160,-17,-1,std::numeric_limits<int>::max(),std::numeric_limits<int>::min()}) {
+        Fixture f;auto& a=f.actors[0];put(a.storage,0x21c,99);f.records[0][1]=3;
+        put(a.storage,0x1d4,std::uint32_t(selector));put(f.records[0],8,std::uint32_t(hp));f.update();
+        const bool queued=selector>=0&&selector<3;
+        require(half(f.root.entity(0),0x172)==unsigned(queued),"Secondary3 selector is signed range0..2");
+        if(queued) {
+            const unsigned amount=hp==160?10:hp==-17||hp==std::numeric_limits<int>::max()?65535:0;
+            require(half(f.root.entity(0),0x17c)==3&&half(f.root.entity(0),0x17e)==amount&&half(f.root.entity(0),0x180)==0,"Secondary3 self-event command/sign/narrowing");
+        }
+    }
+    for(unsigned old:{2u,1u,0u,32768u}) {
+        Fixture f;auto& a=f.actors[0];put(a.storage,0x21c,99);f.records[0][1]=6;
+        put(a.storage,0x178,old,2);put(f.records[0],0x4a,3,2);put(f.records[0],8,100);f.update();
+        const bool exhausted=old==1||old==0;
+        require(half(a.storage,0x178)==std::uint16_t(old-1),"Secondary6 counter wraps16 before signed test");
+        require(f.records[0][0]==(exhausted?2:1)&&half(f.records[0],0x4a)==(exhausted?0:3),"Exhaustion installs primary2/counter0");
+        require(half(f.root.entity(0),0x172)==unsigned(exhausted),"Primary2 producer runs after secondary6 transition");
+        if(exhausted)require(half(f.root.entity(0),0x17c)==2&&half(f.root.entity(0),0x17e)==101,"New primary2 queues fullHP+1");
+    }
+    Fixture enemy;put(enemy.actors[4].storage,0x21c,99);enemy.actors[4].stat_bindings[3]={};enemy.actors[4].stat_bindings[4]={};enemy.enemy();
+    require(word(enemy.actors[4].storage,0x21c)==1&&half(enemy.root.entity(4),0x172)==0,"Enemy omits party secondary-status block");
+}
+void post_action_primary_queue() {
+    const unsigned expected[]={161,6,11,21};
+    for(bool enemy:{false,true})for(unsigned counter=0;counter<4;++counter) {
+        Fixture f;const unsigned id=enemy?4:0;auto& a=f.actors[id];put(a.storage,0x21c,10);f.records[id][0]=2;
+        put(f.records[id],0x4a,counter,2);put(f.records[id],8,160);
+        auto e=f.root.entity(id);put(e,0x182,0xabcd,2);
+        if(enemy)f.enemy();else f.update();
+        require(half(e,0x172)==1&&half(e,0x17c)==2&&half(e,0x17e)==expected[counter]&&half(e,0x180)==id,"Primary2 source divisor table and self owner");
+        require(half(e,0x182)==0xabcd,"Event fourth halfword survives");
+    }
+    for(int hp:{-33,-1,std::numeric_limits<int>::max(),std::numeric_limits<int>::min()}) {
+        Fixture f;auto& a=f.actors[0];put(a.storage,0x21c,99);f.records[0][0]=2;put(f.records[0],8,std::uint32_t(hp));
+        put(f.records[0],0x4a,hp<0&&hp!=std::numeric_limits<int>::min()?1:0,2);f.update();
+        const unsigned amount=hp==-33?0:hp==-1||hp==std::numeric_limits<int>::min()?1:0;
+        require(half(f.root.entity(0),0x17e)==amount,"Primary2 signed division/add wrap and low16 event");
+    }
+    Fixture both;put(both.actors[0].storage,0x21c,99);both.records[0][0]=2;both.records[0][1]=3;put(both.records[0],8,160);both.update();
+    require(half(both.root.entity(0),0x172)==2&&half(both.root.entity(0),0x17c)==3&&half(both.root.entity(0),0x184)==2,"Secondary event precedes primary event");
+    for(unsigned old:{15u,16u,65535u}) {
+        Fixture f;put(f.actors[0].storage,0x21c,99);f.records[0][0]=2;put(f.root.entity(0),0x172,old,2);f.update();
+        const unsigned cursor=old==65535?0:15;
+        require(half(f.root.entity(0),0x172)==cursor&&half(f.root.entity(0),0x174+cursor*8)==2,"Queue wraps16 then caps signed positive overflow");
+    }
+}
+void post_action_failure_order() {
+    Fixture missing;auto& a=missing.actors[0];put(a.storage,0x21c,99);a.stat_bindings[3]={};
+    rejects([&]{missing.update();},"secondary status");
+    require(word(a.storage,0x21c)==1&&half(missing.root.entity(0),0x60)==0xffff&&word(a.storage,0x194)==std::bit_cast<unsigned>(2.f),"Status guard follows state/invalidation before timer clear");
+    Fixture exhausted;auto& b=exhausted.actors[0];put(b.storage,0x21c,99);exhausted.records[0][1]=6;put(b.storage,0x178,1,2);b.stat_bindings[2]={};
+    rejects([&]{exhausted.update();},"write extent");
+    require(half(b.storage,0x178)==0&&exhausted.records[0][0]==2,"Secondary6 decrement and primary store survive missing counter");
+    Fixture counter;auto& c=counter.actors[0];put(c.storage,0x21c,99);counter.records[0][0]=2;put(counter.records[0],0x4a,4,2);
+    rejects([&]{counter.update();},"divisor table");require(half(counter.root.entity(0),0x172)==0&&word(c.storage,0x198)==std::bit_cast<unsigned>(4.f),"Invalid table index fails before event/duration");
+    Fixture queue;auto& d=queue.actors[0];put(d.storage,0x21c,99);queue.records[0][0]=2;put(queue.root.entity(0),0x172,32767,2);
+    rejects([&]{queue.update();},"queue cursor");
+    require(half(queue.root.entity(0),0x172)==32768&&word(d.storage,0x198)==std::bit_cast<unsigned>(4.f),"Unsupported negative cursor preserves count write before payload/timer");
+}
 void invalid_owners() {
     Fixture f;f.party[1]=nullptr;rejects([&]{f.update();},"owner missing");
     Fixture g;put(g.root.bytes,0x50,65);rejects([&]{g.update();},"count/binding");
@@ -192,7 +295,7 @@ void invalid_owners() {
 }
 }
 int main() {
-    try {waiting_and_ready();ordered_selection();status_motion_and_failure_order();stan_context_and_enemy_guards();cleanup_and_source_defaults();target_gates();enemy_action_readiness();invalid_owners();
+    try {waiting_and_ready();ordered_selection();status_motion_and_failure_order();stan_context_and_enemy_guards();cleanup_and_source_defaults();target_gates();enemy_action_readiness();post_action_timer_and_flags();post_action_secondary();post_action_primary_queue();post_action_failure_order();invalid_owners();
         std::cout<<"battle roster update tests passed\n";return 0;
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }

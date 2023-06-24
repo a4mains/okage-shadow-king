@@ -4,7 +4,11 @@
 #include "okage/battle_enemy_action.hpp"
 #include <bit>
 #include <cmath>
+#include <cfenv>
 #include <stdexcept>
+
+#pragma STDC FENV_ACCESS ON
+#pragma STDC FP_CONTRACT OFF
 
 namespace okage {
 namespace {
@@ -61,6 +65,84 @@ bool charge_status(BattleActor& a) {
 }
 void clear_action(unsigned id,const BattleRosterUpdateContext& c) {
     battle_clear_action(c.root,id);
+}
+void self_event(BattleActor& a,BattleRosterUpdateContext& c,std::uint16_t amount,std::int16_t category) {
+    const int id=half(a.storage,0x130);
+    if(id<0)return;
+    check(id<64,"Battle post-action event target outside root");
+    auto entity=c.root.entity(unsigned(id));
+    const auto next=std::uint16_t(std::uint16_t(half(entity,0x172))+1u);
+    put(entity,0x172,next,2);
+    if(std::bit_cast<std::int16_t>(next)>=16)put(entity,0x172,15,2);
+    const auto slot=[&]() {
+        const int cursor=half(entity,0x172);
+        check(cursor>=0&&cursor<16,"Battle post-action event queue cursor outside storage");
+        return 0x174+unsigned(cursor)*8;
+    };
+    put(entity,slot()+4,std::uint16_t(id),2);
+    put(entity,slot(),std::uint16_t(category),2);
+    put(entity,slot()+2,amount,2);
+}
+void primary_post_action(BattleActor& a,BattleRosterUpdateContext& c) {
+    if(status(a)!=2)return; //15ab58.
+    const int index=half(a.stat_bindings[2],0);
+    const auto hp=signed_word(a.stat_bindings[0],0);
+    //Pinned244bc0, signed32 entries. Source indexes this four-word stack copy.
+    constexpr std::int32_t divisors[]={1,32,16,8};
+    check(index>=0&&index<4,"Battle post-action primary counter outside divisor table");
+    const auto amount=std::uint32_t(hp/divisors[index])+1u;
+    self_event(a,c,std::uint16_t(amount),2);
+}
+void secondary_post_action(BattleActor& a,BattleRosterUpdateContext& c) {
+    check(!a.stat_bindings[3].empty(),"Battle post-action secondary status binding missing");
+    const int secondary=std::bit_cast<std::int8_t>(a.stat_bindings[3][0]);
+    if(secondary==5) {
+        const auto next=std::uint16_t(std::uint16_t(half(a.stat_bindings[4],0))+1u);
+        put(a.stat_bindings[4],0,next,2);
+        if(std::bit_cast<std::int16_t>(next)>=1000)put(a.stat_bindings[4],0,999,2);
+    } else if(secondary==3) {
+        const auto selector=signed_word(a.storage,0x1d4);
+        if(selector>=0&&selector<3) {
+            const auto hp=signed_word(a.stat_bindings[0],0);
+            const auto adjusted=std::uint32_t(hp)+(hp<0?15u:0u);
+            //SLL12/SRA16: wrap32 before extracting signed low16 of HP/16.
+            const auto amount=std::bit_cast<std::int32_t>(adjusted<<12)>>16;
+            self_event(a,c,std::uint16_t(amount),3);
+        }
+    } else if(secondary==6) {
+        const auto next=std::uint16_t(std::uint16_t(half(a.storage,0x178))-1u);
+        put(a.storage,0x178,next,2);
+        if(std::bit_cast<std::int16_t>(next)<=0) {
+            check(!a.stat_bindings[1].empty(),"Battle post-action primary status binding missing");
+            a.stat_bindings[1][0]=2;
+            put(a.stat_bindings[2],0,0,2);
+        }
+    }
+}
+void reset_charge_duration(BattleActor& a,int parameter) {
+    const int saved=std::fegetround();
+    check(saved>=0&&std::fesetround(FE_TOWARDZERO)==0,"Battle post-action rounding unavailable");
+    volatile float input=float(parameter);
+    volatile float difference=100.f-input;
+    volatile float square=difference*difference;
+    volatile float quotient=square/66.f;
+    volatile float added=quotient+10.f;
+    volatile float duration=added*5.f;
+    std::fesetround(saved);
+    put(a.storage,0x198,std::bit_cast<std::uint32_t>(float(duration)));
+}
+void post_action(BattleActor& a,BattleRosterUpdateContext& c,bool party) {
+    put(a.storage,0x21c,1);clear_action(entity_id(a,c),c);
+    if(party)secondary_post_action(a,c);
+    primary_post_action(a,c);
+    int parameter=half(a.storage,0x16c);
+    if(signed_word(c.root.bytes,0x807c)==5&&!c.entities.empty()&&c.entities[0].actor)
+        parameter=half(c.entities[0].actor->storage,0x16c);
+    reset_charge_duration(a,parameter);
+    if(word(a.storage,0x180)==1) {
+        put(a.storage,0x180,0);put(a.storage,0x17c,0);
+    }
+    put(a.storage,0x19c,0);put(a.storage,0x194,0);
 }
 bool any_target(BattleActor& a,BattleRosterUpdateContext& c,bool status_gate) {
     const int count=half(a.storage,0x140);
@@ -145,8 +227,7 @@ void party_actor(BattleActor& a,BattleRosterUpdateContext& c) {
         }
     case 5:case 6:case 8:case 9:return;
     case 10:case 99:
-        put(a.storage,0x21c,1);clear_action(id,c);
-        missing("Battle party post-action status/timer reset is unrecovered");
+        post_action(a,c,true);return;
     default:put(a.storage,0x19c,0);put(a.storage,0x194,0);return;
     }
 }
@@ -256,8 +337,7 @@ void enemy_actor(BattleActor& a,BattleRosterUpdateContext& c) {
         }
     case 5:case 6:case 8:return;
     case 10:case 99:
-        put(a.storage,0x21c,1);clear_action(id,c);
-        missing("Battle enemy post-action status/timer reset is unrecovered");
+        post_action(a,c,false);return;
     default:put(a.storage,0x19c,0);put(a.storage,0x194,0);return;
     }
 }
