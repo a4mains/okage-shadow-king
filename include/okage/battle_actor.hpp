@@ -12,7 +12,7 @@
 namespace okage {
 struct BattleHitServices;
 struct BattleActor {
-    enum class FirstCallback {Roster,ApproachAttack,EnemyDeath};
+    enum class FirstCallback {Roster,ApproachAttack,BallisticAttack,EnemyDeath};
     FirstCallback first_callback=FirstCallback::Roster;
     std::optional<FirstCallback> saved_first_callback;
     std::array<std::uint8_t,0x3e0> storage{};
@@ -40,6 +40,7 @@ struct BattleStrikeServices {
     std::function<unsigned(int,const Float4&)> positioned_effect;
     std::function<void(int,int,int)> damage_event;
     std::function<void(BattleActor&)> enemy_reward;
+    std::function<float(const BattleActor&)> approach_offset_w;
 };
 void battle_refresh_entities(BattleState&,std::span<const BattleEntityBinding>);
 void battle_register_action(BattleState&,unsigned owner,unsigned target,

@@ -7,6 +7,7 @@
 #include <stdexcept>
 
 #pragma STDC FENV_ACCESS ON
+#pragma STDC FP_CONTRACT OFF
 
 namespace {
 void require(bool value,const char* message,unsigned at=__builtin_LINE()) {
@@ -210,10 +211,95 @@ void attack_dispatch_and_approach() {
     okage::battle_actor_first_update(f.actor,f.root,entities);
     require(number(f.actor.storage,0xf8)==-6,"Negative travel is retained");
     //Unsupported categories stop before changing callback ownership/phase.
-    f.actor.first_callback=Callback::Roster;put(f.actor.storage,0x21c,5);put(f.actor.storage,0x24,13);put(target.actor.storage,0x48,1,2);
+    f.actor.first_callback=Callback::Roster;put(f.actor.storage,0x21c,5);put(f.actor.storage,0x24,13);put(f.actor.storage,0x40,1,2);put(f.actor.storage,0x44,207,2);
     rejects([&]{okage::battle_actor_first_update(f.actor,f.root,entities);});
     require(f.actor.first_callback==Callback::Roster&&word(f.actor.storage,0x24)==13,
             "Unsupported callback choice cannot silently install approach");
+}
+void ballistic_attack() {
+    using Callback=okage::BattleActor::FirstCallback;
+    Fixture f,target;auto& a=f.actor;auto& b=a.storage;
+    std::array<okage::BattleEntityBinding,2> entities{{{&a,f.record,1},{&target.actor,target.record,0}}};
+    put(b,0x40,1,2);put(b,0x44,23,2);put(b,0x21c,6);b[0x132]=1;
+    a.action_motion.emplace();number(a.action_motion->bytes,0,0);
+    for(unsigned i=0;i<4;++i) {
+        number(b,0x60+4*i,okage::Float4{0,0,0,1}[i]);
+        number(b,0x90+4*i,okage::Float4{0,.25f,0,7}[i]);
+    }
+    number(b,0x4c,10);number(b,0x8c,0);
+    target.actor.model->animation().set_channel(1,{30,4,0,1});
+    put(f.root.entity(0),0x66,0,2);
+    okage::battle_actor_motion_update(a,entities);
+    require(a.first_callback==Callback::BallisticAttack&&a.saved_first_callback==Callback::Roster&&word(b,0x24)==0,
+            "Enemy state6 selects155558 before executing its phases");
+    okage::BattleStrikeServices services;
+    unsigned scratch_reads=0;
+    services.approach_offset_w=[&](const okage::BattleActor& owner) {require(&owner==&a,"Scratch owner explicit");++scratch_reads;return .5f;};
+    okage::battle_actor_first_update(a,f.root,entities,services);
+    require(word(b,0x24)==1&&word(b,0x300)==1&&a.model->motion()==2&&number(b,0x12c)==119,
+            "155558 phase0 falls through; approach selects motion2 and subtracts timestep immediately");
+    const auto approach_script=a.model->animation().script_state();
+    for(unsigned i=0;i<23;++i)okage::battle_actor_first_update(a,f.root,entities,services);
+    require(a.model->animation().script_state()==approach_script,"Waiting callback steps channels, not model scripts");
+    require(number(b,0x12c)==96&&scratch_reads==0&&word(b,0x300)==1,"Approach preparation waits while remaining exceeds96");
+    okage::battle_actor_first_update(a,f.root,entities,services);
+    require(word(b,0x300)==2&&scratch_reads==1&&number(b,0x12c)==95&&number(b,0xfc)==1.5f,
+            "Threshold equality prepares target with explicitly supplied W and then decrements");
+    require(number(b,0x104)==-.125f&&a.model->animation().moving(0,0),
+            "Group0 yaw-.25 plus target1 offset.125 queues76/timestep turn");
+    const auto velocity=number(b,0x70),oldx=a.model->animation().value(1)[0];
+    okage::battle_actor_first_update(a,f.root,entities,services);
+    require(a.model->animation().value(1)[0]==oldx+velocity&&number(b,0x12c)==94,
+            "Ballistic motion adds stored velocity rather than interpolation");
+    unsigned calls=0;
+    while(word(b,0x24)==1&&calls++<150)okage::battle_actor_first_update(a,f.root,entities,services);
+    require(word(b,0x24)==2&&number(b,0x12c)==-1&&word(b,0x300)==0&&number(b,0xf4)==0,
+            "Ground clamp then countdown completion advance only on following callbacks");
+    okage::battle_actor_first_update(a,f.root,entities,services);
+    require(word(b,0x24)==3,"Ballistic callback delegates actual zero-duration strike scheduler");
+    okage::battle_actor_first_update(a,f.root,entities,services);
+    require(word(b,0x300)==1&&number(b,0x12c)==40&&a.model->motion()==2,"Return initialization does not decrement duration");
+    for(unsigned i=0;i<39;++i)okage::battle_actor_first_update(a,f.root,entities,services);
+    require(a.first_callback==Callback::BallisticAttack&&number(b,0x12c)==1,"Return remains active before equality");
+    okage::battle_actor_first_update(a,f.root,entities,services);
+    require(a.first_callback==Callback::Roster&&word(b,0x24)==0&&word(b,0x21c)==99&&word(b,0x300)==0,
+            "Return equality restores saved callback and resets exact action state");
+    require(a.model->animation().value(1)==okage::Float4({0,0,0,1})&&a.model->motion()==1&&number(b,0x12c)==-1,
+            "Return publishes original full baseline position and idle motion");
+    require(scratch_reads==1,"Approach offset scratch is read only at actual launch");
+    for(unsigned i=0;i<10;++i)require(b[0x132+i]==255,"Return clears ten targets");
+
+    //An unavailable stack lane is never inferred from model W or defaulted.
+    a.first_callback=Callback::BallisticAttack;put(b,0x24,1);put(b,0x300,1);number(b,0x12c,96);b[0x132]=1;
+    services.approach_offset_w={};
+    rejects([&]{okage::battle_actor_first_update(a,f.root,entities,services);});
+    require(word(b,0x300)==1&&number(b,0x12c)==96&&number(b,0x104)==-.125f,
+            "Missing scratch guards after orientation writes but before offset addition or countdown");
+    services.approach_offset_w=[](const okage::BattleActor&){return 0.f;};
+    //Diagonal bit0 chooses live target radius and facing, ignoring group angle.
+    f.root.bytes[0x60]=1;put(f.root.entity(0),0x66,99,2);number(target.actor.storage,0x4c,20);
+    target.actor.model->animation().set_channel(1,{0,0,60,1});
+    okage::battle_actor_first_update(a,f.root,entities,services);
+    require(number(b,0xf8)==42.5f&&word(b,0x300)==2,"Diagonal path offsets by half TARGET radius plus7.5");
+    //Preserved accelerationW is scaled by actual timestep squared.
+    put(b,0x300,1);number(b,0x12c,96);number(b,0x2c,.5f);number(b,0x8c,8);
+    okage::battle_actor_first_update(a,f.root,entities,services);
+    require(number(b,0x8c)==2&&number(b,0x12c)==95.5f,"Ballistic accelerationW has a real retained owner and scales by dt squared");
+    put(b,0x4a,2,2);const float before_failure=number(b,0x74);
+    rejects([&]{okage::battle_actor_first_update(a,f.root,entities,services);});
+    require(number(b,0x74)!=before_failure&&number(b,0x12c)==95.5f,
+            "Phase2 table guard follows actual position and velocity writes, before countdown");
+    put(b,0x300,3);number(b,0x12c,0);
+    okage::battle_actor_first_update(a,f.root,entities,services);
+    require(word(b,0x24)==2&&number(b,0x12c)==-.5f,"Phase3 does not read the unused invalid timing row");
+    put(b,0x24,1);put(b,0x300,0);put(b,0x4a,1,2);number(b,0x2c,1);
+    okage::battle_actor_first_update(a,f.root,entities,services);
+    require(number(b,0x12c)==179&&word(b,0x300)==1,"Authored second timing row starts180");
+    number(b,0x12c,120);f.root.bytes[0x60]=0;put(f.root.entity(0),0x66,0xffff,2);
+    services.approach_offset_w={};
+    okage::battle_actor_first_update(a,f.root,entities,services);
+    require(word(b,0x300)==2&&number(b,0x12c)==119&&number(b,0xf8)==60,
+            "Negative grouping ordinal skips offset and scratch read at second-row equality");
 }
 void strike_schedules() {
     Fixture f,target,excluded;auto& a=f.actor;auto& b=a.storage;
@@ -404,6 +490,6 @@ void queued_enemy_hit() {
 }
 }
 int main(){try {
-    first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();strike_schedules();channels_and_effect_guards();enemy_paths();floating_environment();queued_enemy_hit();
+    first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();ballistic_attack();strike_schedules();channels_and_effect_guards();enemy_paths();floating_environment();queued_enemy_hit();
     std::cout<<"Battle actor startup callback tests passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
