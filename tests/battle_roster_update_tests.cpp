@@ -176,13 +176,75 @@ void enemy_action_readiness() {
     put(actor.storage,0x21c,3);f.root.action_links[4][0]=4;f.root.action_links[0][0]=4;
     put(f.root.bytes,0xc0+4*0x200,4,2); //Embedded node signed owner.
     put(f.root.bytes,0xc6+4*0x200,7,2);
-    rejects([&]{f.enemy();},"15b388");
+    f.enemy();
     require(word(actor.storage,0x21c)==5&&half(f.root.bytes,0xc6+4*0x200)==0,
-            "Successful enemy readiness clears node flag and selects state before grouping guard");
+            "Successful enemy readiness clears node flag and selects state before grouping");
     for(const auto command:{203u,202u}) {
         put(actor.storage,0x21c,3);put(actor.storage,0x142,command,2);f.enemy();
         require(word(actor.storage,0x21c)==(command==203?10u:8u),"Enemy action selects source state without extra timer writes");
     }
+}
+struct GroupFixture:Fixture {
+    std::array<okage::BattleActor*,4> group;
+    GroupFixture() {
+        group={&actors[4],&actors[0],&actors[1],&actors[2]};
+        for(unsigned id:{0u,1u,2u,4u}) {
+            auto& a=actors[id];a.enemy=true;entities[id].kind=1;
+            put(a.storage,0x21c,3);put(a.storage,0x142,200,2);a.storage[0x132]=3;
+            put(a.storage,0x140,1,2);number(a.storage,0x19c,1);number(a.storage,0x1a0,1000);
+            put(root.entity(id),0x60,id,2);put(root.entity(id),0x66,0xabcd,2);
+            root.action_links[id][0]=id;
+        }
+        number(actors[4].storage,0x19c,1000);root.action_links[3][0]=4;
+    }
+    void run(){okage::battle_enemy_roster_update(group,context);}
+};
+void enemy_grouping() {
+    for(unsigned action:{200u,201u}) {
+        GroupFixture f;put(f.actors[4].storage,0x142,action,2);put(f.actors[0].storage,0x142,201,2);
+        //Grouping does not run candidate timer/count/status/active-flag tests.
+        number(f.actors[0].storage,0x19c,std::numeric_limits<float>::quiet_NaN());
+        put(f.actors[0].storage,0x140,0,2);f.records[0][0]=6;put(f.root.entity(0),0x1fc,0x80000000);
+        const auto before0=f.actors[0].storage,before1=f.actors[1].storage,before2=f.actors[2].storage;
+        f.run();
+        require(word(f.actors[4].storage,0x21c)==(action==200?5u:6u)&&half(f.root.entity(4),0x66)==0,"Initiator state and group ordinal0");
+        require(word(f.actors[0].storage,0x21c)==5&&word(f.actors[1].storage,0x21c)==5&&
+                half(f.root.entity(0),0x66)==1&&half(f.root.entity(1),0x66)==2,"Enroll two in source order; grouped201 also becomes5");
+        for(unsigned i=0;i<before0.size();++i)if(i<0x21c||i>=0x220) {
+            require(f.actors[0].storage[i]==before0[i]&&f.actors[1].storage[i]==before1[i],"Grouping preserves candidate timers, descriptors, and other fields");
+        }
+        require(f.actors[2].storage==before2&&half(f.root.entity(2),0x66)==0xabcd,"Third eligible candidate remains pending");
+        require(f.draws==0&&f.sounds.empty(),"Grouping consumes no RNG or sound");
+    }
+    GroupFixture order;order.group={&order.actors[1],&order.actors[4],&order.actors[0],&order.actors[2]};order.run();
+    require(half(order.root.entity(1),0x66)==1&&half(order.root.entity(0),0x66)==2,"Scan includes earlier parent slots, not only following initiator");
+    for(unsigned action:{199u,202u,0xffffu}) {
+        GroupFixture f;put(f.actors[0].storage,0x142,action,2);f.run();
+        require(word(f.actors[0].storage,0x21c)==3&&half(f.root.entity(1),0x66)==1&&half(f.root.entity(2),0x66)==2,"Unsigned16 action filter accepts only200/201");
+    }
+    GroupFixture target;target.actors[0].storage[0x132]=0xff;target.run();
+    require(word(target.actors[0].storage,0x21c)==3&&half(target.root.entity(1),0x66)==1,"Signed first-target mismatch skips candidate");
+    GroupFixture state;put(state.actors[0].storage,0x21c,6);state.run();
+    require(word(state.actors[0].storage,0x21c)==6&&half(state.root.entity(1),0x66)==1,"Only state3 enrolls");
+}
+void enemy_grouping_graph_and_failure() {
+    GroupFixture owner;owner.root.action_links[0][0].reset();owner.run();
+    require(word(owner.actors[0].storage,0x21c)==3&&half(owner.root.entity(1),0x66)==1,"Missing owner head prevents grouping");
+    GroupFixture wrong;wrong.root.action_links[0][0]=2;wrong.run();
+    require(word(wrong.actors[0].storage,0x21c)==3&&half(wrong.root.entity(1),0x66)==1,"Owner head descriptor must name candidate");
+    GroupFixture alias;alias.root.action_links[0][0]=2;put(alias.root.entity(2),0x60,0,2);alias.run();
+    require(word(alias.actors[0].storage,0x21c)==5&&half(alias.root.entity(0),0x66)==1&&
+            word(alias.actors[2].storage,0x21c)==3,"Head descriptor contents, not typed row identity, decide owner match");
+    GroupFixture null_after;null_after.group[3]=nullptr;null_after.run();
+    require(half(null_after.root.entity(0),0x66)==1&&half(null_after.root.entity(1),0x66)==2,"After two enrollments source reads no further actor fields");
+    GroupFixture null_before;null_before.group={&null_before.actors[4],&null_before.actors[0],nullptr,&null_before.actors[1]};
+    rejects([&]{null_before.run();},"source slot");
+    require(word(null_before.actors[4].storage,0x21c)==5&&half(null_before.root.entity(4),0x66)==0&&
+            word(null_before.actors[0].storage,0x21c)==5&&half(null_before.root.entity(0),0x66)==1&&
+            word(null_before.actors[1].storage,0x21c)==3,"Unsupported null slot preserves leader and earlier enrollment writes");
+    GroupFixture corrupt;corrupt.root.action_links[1][0]=255;
+    rejects([&]{corrupt.run();},"entity");
+    require(word(corrupt.actors[0].storage,0x21c)==5&&half(corrupt.root.entity(0),0x66)==1&&word(corrupt.actors[1].storage,0x21c)==3,"Invalid later descriptor fails after earlier grouping prefix");
 }
 void post_action_timer_and_flags() {
     struct Timer {int speed;unsigned bits;};
@@ -295,7 +357,7 @@ void invalid_owners() {
 }
 }
 int main() {
-    try {waiting_and_ready();ordered_selection();status_motion_and_failure_order();stan_context_and_enemy_guards();cleanup_and_source_defaults();target_gates();enemy_action_readiness();post_action_timer_and_flags();post_action_secondary();post_action_primary_queue();post_action_failure_order();invalid_owners();
+    try {waiting_and_ready();ordered_selection();status_motion_and_failure_order();stan_context_and_enemy_guards();cleanup_and_source_defaults();target_gates();enemy_action_readiness();enemy_grouping();enemy_grouping_graph_and_failure();post_action_timer_and_flags();post_action_secondary();post_action_primary_queue();post_action_failure_order();invalid_owners();
         std::cout<<"battle roster update tests passed\n";return 0;
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }

@@ -300,7 +300,34 @@ void ready_queue(std::span<BattleActor* const> ordinary,BattleRosterUpdateContex
         }
     }
 }
-void enemy_actor(BattleActor& a,BattleRosterUpdateContext& c) {
+bool grouping_ready(const BattleState& root,int owner,int target) {
+    check(owner>=0&&owner<64,"Battle enemy grouping owner outside root");
+    const auto head=root.action_links[unsigned(owner)][0];
+    if(!head)return false;
+    check(target>=0&&target<64,"Battle enemy grouping target outside root");
+    if(!root.action_links[unsigned(target)][0])return false;
+    return half(root.entity(*head),0x60)==owner;
+}
+void group_enemies(std::span<BattleActor* const> enemies,BattleRosterUpdateContext& c,int target) {
+    unsigned grouped=0;
+    for(auto* candidate:enemies) {
+        //15b388 skips every candidate field once two others have enrolled.
+        if(grouped>=2)continue;
+        check(candidate!=nullptr,"Battle enemy grouping source slot has no actor");
+        auto& a=*candidate;
+        if(word(a.storage,0x21c)!=3)continue;
+        const auto action=std::uint16_t(half(a.storage,0x142));
+        if(action!=200&&action!=201)continue;
+        const int first=std::bit_cast<std::int8_t>(a.storage[0x132]);
+        if(first!=target)continue;
+        if(!grouping_ready(c.root,half(a.storage,0x130),first))continue;
+        ++grouped;
+        const int id=half(a.storage,0x130);
+        put(a.storage,0x21c,5);
+        put(c.root.entity(unsigned(id)),0x66,grouped,2); //158aa8 follows state.
+    }
+}
+void enemy_actor(BattleActor& a,BattleRosterUpdateContext& c,std::span<BattleActor* const> enemies) {
     const unsigned id=entity_id(a,c);
     switch(word(a.storage,0x21c)) {
     case 1:
@@ -328,7 +355,7 @@ void enemy_actor(BattleActor& a,BattleRosterUpdateContext& c) {
             switch(half(a.storage,0x142)) {
             case 200:case 201:
                 put(a.storage,0x21c,half(a.storage,0x142)==200?5:6);
-                missing("Battle enemy action grouping15b388 is unrecovered");
+                group_enemies(enemies,c,std::bit_cast<std::int8_t>(a.storage[0x132]));return;
             case 203:put(a.storage,0x21c,10);return;
             default:put(a.storage,0x21c,8);return;
             }
@@ -353,6 +380,6 @@ void battle_party_roster_update(std::span<BattleActor* const> ordinary,BattleAct
 void battle_enemy_roster_update(std::span<BattleActor* const> enemies,BattleRosterUpdateContext& c) {
     validate(c);
     for(auto* a:enemies)if(a){check(a->enemy,"Battle enemy owner type mismatch");entity_id(*a,c);}
-    for(auto* a:enemies)if(a)enemy_actor(*a,c);
+    for(auto* a:enemies)if(a)enemy_actor(*a,c,enemies);
 }
 }
