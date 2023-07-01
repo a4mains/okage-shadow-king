@@ -314,7 +314,7 @@ struct SceneRenderer::Impl {
             for (const auto& part:input.model.models) {
                 std::vector<Draw> mapTranslucent;
                 auto& preparedBlocks=preparation.at(inputIndex).at(partIndex++);
-                auto pose=input.actor ? okage::animated_pose(part,input.actor->channels(),sine,input.actor->animation().scale_channels()) : okage::rest_pose(part,sine);
+                auto pose=input.actor&&input.actor->has_motion() ? okage::animated_pose(part,input.actor->channels(),sine,input.actor->animation().scale_channels()) : okage::rest_pose(part,sine);
                 {
                     const auto viewWorld=okage::compose_pose(view,std::span(&world,1));
                     pose=okage::compose_pose(viewWorld[0],pose);
