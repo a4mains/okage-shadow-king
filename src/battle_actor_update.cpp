@@ -103,16 +103,74 @@ void step_model(BattleActor& actor) {
         }
     }
 }
-void initial_status_and_motion(BattleActor& actor,const BattleState& root) {
-    const auto index=half(actor.storage,0x130);
-    check(index>=0&&unsigned(index)<battle_entity_count,"Battle actor entity index outside native root");
-    check(half(root.bytes,0x1d2+unsigned(index)*0x200)==0,
-          "Unrecovered battle actor queued status/action");
+void party_status_and_motion(BattleActor& actor,BattleState& root,const BattleHitServices* services) {
+    const auto entity=[&]() {
+        const int index=half(actor.storage,0x130);
+        check(index>=0&&unsigned(index)<battle_entity_count,"Battle party entity outside native root");
+        return root.entity(unsigned(index));
+    };
+    const auto slot=[](Bytes e) {
+        const int cursor=half(e,0x172);
+        check(cursor>=0&&cursor<16,"Battle party event queue cursor outside storage");
+        return 0x174+unsigned(cursor)*8;
+    };
+    if(half(entity(),0x172)!=0) {
+        const auto category=half(entity(),slot(entity()));
+        const auto amount=half(entity(),slot(entity())+2);
+        check(services!=nullptr,"Battle party queued hit services missing");
+        const int result=battle_apply_hit(actor,category,amount,*services);
+        if(result==6) {
+            //153b88..153bb8: retain graph/status writes before callback installation.
+            const int index=half(actor.storage,0x130);
+            check(index>=0&&unsigned(index)<battle_entity_count,"Battle party post-hit entity outside native root");
+            battle_clear_action(root,unsigned(index));
+            check(!actor.stat_bindings[1].empty(),"Battle party primary binding missing");
+            actor.stat_bindings[1][0]=6;
+            put(actor.stat_bindings[2],0,0,2);
+            //153550(TASK+14c) clears the three live secondary bindings in order.
+            put(actor.stat_bindings[3],0,0,1);put(actor.stat_bindings[4],0,0,2);
+            put(actor.stat_bindings[5],0,0,2);
+            put(actor.storage,0x21c,99);put(actor.storage,0x30,0);
+            throw std::runtime_error("Unrecovered party lethal callback154120 installation");
+        }
+        if(result==3||result==4) {
+            put(actor.storage,0x142,200,2);put(actor.storage,0x21c,99);
+            put(actor.storage,0x194,0);put(actor.storage,0x19c,0);
+        } else if(result==10) {
+            if(status(actor,3)==4) {
+                const auto next=std::uint16_t(std::uint16_t(half(actor.stat_bindings[4],0))+1);
+                put(actor.stat_bindings[4],0,next,2);
+                if(std::bit_cast<std::int16_t>(next)>=1000)put(actor.stat_bindings[4],0,999,2);
+                const auto remaining=std::uint16_t(std::uint16_t(half(actor.record,0x1c))-
+                                                  std::uint16_t(half(actor.stat_bindings[4],0)));
+                put(actor.storage,0x168,remaining,2);
+                if(std::bit_cast<std::int16_t>(remaining)<=0)put(actor.storage,0x168,0,2);
+            }
+            put(actor.storage,0x3bc,std::uint16_t(half(actor.storage,0x3bc))+1,2);
+            //1596e0 reloads the live entity and queue cursor after hit services.
+            const auto e=entity();
+            put(actor.storage,0x148,half(e,slot(e)+4),2);
+        }
+        //159508 reloads the cursor at each store; the fourth halfword survives.
+        auto e=entity();
+        put(e,slot(e),0xffff,2);put(e,slot(e)+2,0,2);put(e,slot(e)+4,0,2);
+        const auto next=std::uint16_t(half(e,0x172)-1);
+        put(e,0x172,next,2);
+        if(std::bit_cast<std::int16_t>(next)<0)put(e,0x172,0,2);
+    }
     const float remaining=scalar(actor.storage,0x12c);
     if(remaining>=0.0f) {
         const float next=single(remaining,scalar(actor.storage,0x2c),Operation::Subtract);
         scalar(actor.storage,0x12c,next);
-        check(next>=0.0f,"Unrecovered battle actor motion expiry/effect cleanup");
+        if(next<0.0f) {
+            check(word(actor.storage,0x344)==0xffffffffu,"Unrecovered party motion expiry effect stop101648");
+            unsigned motion=14;
+            if(word(actor.storage,0x184)!=1) {
+                const auto primary=status(actor,1);motion=primary>=2&&primary<=5?5u:1u;
+            }
+            put(actor.storage,0x128,motion);model(actor).select_motion(motion);
+            scalar(actor.storage,0x12c,-1.f);
+        }
     }
 }
 void enemy_status_and_motion(BattleActor& actor,BattleState& root,const BattleHitServices* services) {
@@ -636,10 +694,11 @@ void battle_actor_motion_update(BattleActor& actor,std::span<const BattleEntityB
     animation.set_channel(1,vector(actor.storage,0x60));
     animation.set_channel(2,vector(actor.storage,0xc0));
 }
-void battle_party_first_update(BattleActor& actor,const BattleState& root,std::span<const BattleEntityBinding> entities) {
+void battle_party_first_update(BattleActor& actor,BattleState& root,std::span<const BattleEntityBinding> entities,
+                               const BattleHitServices* hits) {
     check(!actor.enemy&&!actor.dead_callback,"Unrecovered party first callback identity");
     TowardZero rounding;
-    if(half(actor.storage,0x42)!=3)initial_status_and_motion(actor,root);
+    if(half(actor.storage,0x42)!=3)party_status_and_motion(actor,root,hits);
     battle_actor_motion_update(actor,entities);
 }
 void battle_actor_first_update(BattleActor& actor,BattleState& root,std::span<const BattleEntityBinding> entities,
@@ -647,7 +706,7 @@ void battle_actor_first_update(BattleActor& actor,BattleState& root,std::span<co
     TowardZero rounding;
     switch(actor.first_callback) {
     case BattleActor::FirstCallback::Roster:
-        if(actor.enemy)battle_enemy_first_update(actor,root,entities,hits);else battle_party_first_update(actor,root,entities);
+        if(actor.enemy)battle_enemy_first_update(actor,root,entities,hits);else battle_party_first_update(actor,root,entities,hits);
         break;
     case BattleActor::FirstCallback::ApproachAttack:approach_attack_update(actor,root,entities,services);break;
     case BattleActor::FirstCallback::BallisticAttack:ballistic_attack_update(actor,root,entities,services);break;

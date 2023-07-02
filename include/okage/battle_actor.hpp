@@ -50,7 +50,8 @@ unsigned battle_action_readiness(const BattleState&,unsigned owner,Bytes target_
 void battle_clear_action(BattleState&,unsigned owner); //158868, preserves links/counter.
 //158b70: fixed 64 passes, indexes0..62 only; slot0 null returns immediately.
 void battle_compact_actions(BattleState&,unsigned entity);
-void battle_party_first_update(BattleActor&,const BattleState&,std::span<const BattleEntityBinding> = {});  //153a20
+void battle_party_first_update(BattleActor&,BattleState&,std::span<const BattleEntityBinding> = {},
+                               const BattleHitServices* =nullptr);  //153a20
 void battle_party_second_update(BattleActor&,const BattleState&); //153ce8
 void battle_enemy_first_update(BattleActor&,BattleState&,std::span<const BattleEntityBinding> = {},
                                const BattleHitServices* =nullptr);  //15b9a0

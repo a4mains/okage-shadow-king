@@ -36,8 +36,8 @@ struct Fixture {
         number(actor.storage,0x2c,1);number(actor.storage,0x12c,-1);
         number(actor.storage,0x194,1);number(actor.storage,0x198,4);number(actor.storage,0x1a4,1);
         for(unsigned at:{0x60,0x90,0xc0})for(unsigned i=0;i<4;++i)number(actor.storage,at+4*i,float(at+i));
-        std::vector<std::uint8_t> motion(104);
-        put(motion,0,0x544d58);put(motion,4,72);put(motion,16,0xffffffff);put(motion,24,1);
+        std::vector<std::uint8_t> motion(152);
+        put(motion,0,0x544d58);put(motion,4,120);put(motion,16,0xffffffff);put(motion,24,1);
         put(motion,32,48);put(motion,48,0x00a00002);put(motion,52,0);
         put(motion,96,0x00a00002); //Entry8 has its own real wait/end script.
         okage::ModelFile model;model.models.emplace_back().bones.resize(1);
@@ -421,6 +421,92 @@ void floating_environment() {
     }
     std::fesetenv(&original);
 }
+void queued_party_hit() {
+    const auto prepare=[](Fixture& f,int amount=9) {
+        auto& a=f.actor;
+        a.stat_bindings[0]=std::span(f.record).subspan(8,4);
+        a.stat_bindings[2]=std::span(f.record).subspan(0x4a,2);
+        a.stat_bindings[4]=std::span(f.record).subspan(0x4c,2);
+        a.stat_bindings[5]=std::span(f.record).subspan(0x4e,2);
+        put(f.record,8,40);number(a.storage,0x4c,5);put(a.storage,0x344,0xffffffff);
+        auto e=f.root.entity(0);put(e,0x172,2,2);
+        put(e,0x17c,1,2);put(e,0x17e,3,2);
+        put(e,0x184,0,2);put(e,0x186,amount,2);put(e,0x188,0xfffe,2);put(e,0x18a,0xabcd,2);
+    };
+    std::vector<int> events;
+    okage::BattleHitServices services{
+        [&](int id,okage::BattleActor&){events.push_back(id);return 4u;},
+        [&](unsigned,int amount){events.push_back(amount);},
+        [&](okage::BattleActor&,std::int16_t delta,std::int16_t){events.push_back(delta);},
+        [&](okage::BattleActor&){events.push_back(200);},
+        [&](int id,const okage::Float4&){events.push_back(id);return 5u;}};
+    Fixture f;prepare(f);put(f.actor.storage,0x3bc,0xffff,2);
+    okage::battle_actor_first_update(f.actor,f.root,{}, {},&services);
+    auto e=f.root.entity(0);
+    require(events==std::vector<int>({35,9,-9,38})&&word(f.record,8)==31,"Party uses shared hit effects/history and HP semantics");
+    require(half(f.actor.storage,0x3bc)==0&&half(f.actor.storage,0x148)==0xfffe,"Party count wraps and signed attacker owner is retained");
+    require(half(e,0x172)==1&&half(e,0x184)==0xffff&&half(e,0x186)==0&&half(e,0x188)==0&&half(e,0x18a)==0xabcd&&half(e,0x17e)==3,
+            "Party consumes exactly the newest event and preserves padding/older event");
+    require(number(f.actor.storage,0x12c)==29&&f.actor.model->motion()==4,"Party reaction decrements in the same first callback");
+    struct CounterCase {unsigned old,base,counter,remaining;};
+    for(const auto c:{CounterCase{998,1200,999,201},CounterCase{999,1200,999,201},
+                      CounterCase{32767,20,32768,0},CounterCase{65535,20,0,20},
+                      CounterCase{0,0,1,0},CounterCase{0,32769,1,0}}) {
+        Fixture x;prepare(x);x.record[1]=4;put(x.record,0x4c,c.old,2);put(x.record,0x1c,c.base,2);
+        put(x.actor.storage,0x168,0xbeef,2);put(x.actor.storage,0x128,77);
+        okage::battle_party_first_update(x.actor,x.root,{},&services);
+        require(half(x.record,0x4c)==c.counter&&half(x.actor.storage,0x168)==c.remaining,"Status4 uses signed narrowed counter and signed narrowed subtraction");
+        require(word(x.actor.storage,0x128)==4,"Status4 derived stat writes TASK168, not motion TASK128");
+    }
+    Fixture alias;prepare(alias);alias.record[1]=4;
+    alias.actor.stat_bindings[4]=std::span(alias.record).subspan(0x1c,2);put(alias.record,0x1c,20,2);
+    put(alias.root.entity(0),0x184,1,2);
+    okage::battle_party_first_update(alias.actor,alias.root,{},&services);
+    require(half(alias.record,0x1c)==21&&half(alias.actor.storage,0x168)==0,"Category1 and aliased counter read source baseline after increment store");
+    for(unsigned cursor:{16u,65535u}) {
+        Fixture invalid;prepare(invalid);put(invalid.root.entity(0),0x172,cursor,2);events.clear();
+        rejects([&]{okage::battle_party_first_update(invalid.actor,invalid.root,{},&services);});
+        require(events.empty()&&half(invalid.root.entity(0),0x172)==cursor,"Invalid signed queue cursor rejects before hit services or stores");
+    }
+    Fixture miss;prepare(miss,0);events.clear();put(miss.actor.storage,0x148,33,2);
+    okage::battle_party_first_update(miss.actor,miss.root,{},&services);
+    require(events==std::vector<int>({36})&&word(miss.record,8)==40&&half(miss.actor.storage,0x3bc)==0&&half(miss.actor.storage,0x148)==33,
+            "Nonpositive miss pops without counting a hit or replacing attacker");
+    Fixture moved;prepare(moved);auto movedqueue=moved.root.entity(1);
+    put(movedqueue,0x172,1,2);put(movedqueue,0x17c,1,2);put(movedqueue,0x17e,88,2);put(movedqueue,0x180,23,2);
+    auto mutable_services=services;mutable_services.positioned_effect=[&](int,const okage::Float4&) {
+        put(moved.actor.storage,0x130,1,2);return 1u;
+    };
+    okage::battle_party_first_update(moved.actor,moved.root,{},&mutable_services);
+    require(half(moved.actor.storage,0x148)==23&&half(movedqueue,0x172)==0&&half(moved.root.entity(0),0x172)==2,
+            "Party reloads entity and cursor after mutable hit services");
+    Fixture failure;prepare(failure);auto fail_services=services;
+    fail_services.positioned_effect=[](int,const okage::Float4&)->unsigned {throw std::runtime_error("Interrupted impact");};
+    rejects([&]{okage::battle_party_first_update(failure.actor,failure.root,{},&fail_services);});
+    require(word(failure.record,8)==31&&number(failure.actor.storage,0x12c)==30&&half(failure.root.entity(0),0x172)==2&&half(failure.actor.storage,0x3bc)==0,
+            "Impact failure retains HP/motion but precedes party counters, pop and timer");
+    Fixture unsupported;prepare(unsupported);put(unsupported.root.entity(0),0x184,2,2);
+    rejects([&]{okage::battle_party_first_update(unsupported.actor,unsupported.root,{},&services);});
+    require(word(unsupported.record,8)==40&&half(unsupported.root.entity(0),0x172)==2,"Unsupported category never silently pops");
+    Fixture lethal;prepare(lethal,40);put(lethal.record,0x4a,12,2);lethal.record[1]=4;put(lethal.record,0x4c,7,2);put(lethal.record,0x4e,9,2);put(lethal.actor.storage,0x30,17);put(lethal.root.entity(0),0x60,17,2);put(lethal.root.entity(0),0x68,9);
+    rejects([&]{okage::battle_party_first_update(lethal.actor,lethal.root,{},&services);});
+    require(word(lethal.record,8)==0&&lethal.record[0]==6&&half(lethal.record,0x4a)==0&&half(lethal.root.entity(0),0x60)==0xffff&&word(lethal.root.entity(0),0x68)==0,
+            "Lethal unresolved boundary retains preceding HP, graph and live status writes");
+    require(half(lethal.root.entity(0),0x172)==2&&!lethal.actor.dead_callback&&word(lethal.actor.storage,0x21c)==99,
+            "Lethal guard does not invent callback completion or queue reset");
+    require(lethal.record[1]==0&&half(lethal.record,0x4c)==0&&half(lethal.record,0x4e)==0&&word(lethal.actor.storage,0x30)==0,
+            "153550 clears live secondary status and both counters before death callback guard");
+    for(unsigned primary:{0u,1u,2u,5u,6u,255u}) {
+        Fixture expiry;put(expiry.actor.storage,0x344,0xffffffff);expiry.record[0]=primary;number(expiry.actor.storage,0x12c,0);
+        okage::battle_party_first_update(expiry.actor,expiry.root);
+        require(expiry.actor.model->motion()==(primary>=2&&primary<=5?5u:1u)&&number(expiry.actor.storage,0x12c)==-1,
+                "Party expiry selects motion from signed primary status");
+    }
+    Fixture special;put(special.actor.storage,0x344,0xffffffff);put(special.actor.storage,0x184,1);number(special.actor.storage,0x12c,0);
+    special.actor.stat_bindings[1]={};
+    okage::battle_party_first_update(special.actor,special.root);
+    require(special.actor.model->motion()==14&&number(special.actor.storage,0x12c)==-1,"Special expiry selects14 without reading primary binding");
+}
 void queued_enemy_hit() {
     Fixture f;auto& a=f.actor;a.enemy=true;
     a.stat_bindings[0]=std::span(f.record).subspan(8,4);put(f.record,8,40);
@@ -490,6 +576,6 @@ void queued_enemy_hit() {
 }
 }
 int main(){try {
-    first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();ballistic_attack();strike_schedules();channels_and_effect_guards();enemy_paths();floating_environment();queued_enemy_hit();
+    first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();ballistic_attack();strike_schedules();channels_and_effect_guards();enemy_paths();floating_environment();queued_party_hit();queued_enemy_hit();
     std::cout<<"Battle actor startup callback tests passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
