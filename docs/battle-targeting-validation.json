@@ -1,17 +1,18 @@
 {
   "schema": "okage-battle-targeting-validation-v1",
-  "date": "2023-06-10",
+  "date": "2023-07-02",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "native_success": {
-    "source_revision": "c399e988cf38a479bd04a52035b0f6f765f1d02d",
-    "source_diff_sha256": "c71db902d88d88dda10734cfb204211f5e19f77ac57bd0ea8d4fb31f6dec7a0c",
-    "binary_sha256": "b0ba988f6ca52a57f79fe7c82f03a20a2b261c0ad663ff17d046a355d9930678",
+    "source_revision": "5b66d27385531565868e94bc18a42a06a17cb826",
+    "binary_sha256": "2329232cc9fd9f684805722a5e12395914162bbfdb657ea7833803367cce01ec",
+    "source_diff_sha256": "87323d528675225ce200b4d0774f73f79650a785dd070404c689b4f3aad49601",
     "exit_code": 0,
-    "seconds": 32.003730833,
-    "frame": 105575,
-    "final_runtime_revision": "52f8d5a",
+    "seconds": 31.761247375,
+    "frame": 105631,
+    "inputs": "owned startup and ordinary inputs",
     "fps_claim": false,
-    "inputs": "owned startup plus ordinary inputs; no reference state"
+    "run": "local/research/battle-combat-entry-v1/native-death-105631-v1/run.json",
+    "current_runtime": "a1a25d3 (party consumer not reached)"
   },
   "target_comparison": {
     "anchor": 105216,
@@ -51,19 +52,25 @@
     "hit_owned_effect_smoke_all_builds": true,
     "hit_python_tests": 400,
     "hit_full_debug_sanitizer_startup_replay": false,
-    "hit_python_log": "local/research/battle-combat-entry-v1/hit-python-v2.log"
+    "hit_python_log": "local/research/battle-combat-entry-v1/hit-python-v2.log",
+    "death_checks": "local/research/battle-combat-entry-v1/death-checks-v6",
+    "death_affected_ctests_per_build": 21,
+    "death_owned_effect_smoke_all_builds": true,
+    "death_python_tests": 400,
+    "death_python_log": "local/research/battle-combat-entry-v1/death-python-v3.log",
+    "death_full_debug_sanitizer_startup_replay": false
   },
   "preview": {
-    "path": "local/demos/battle-hit-105575-v1/live.json",
-    "source_revision": "c399e98",
-    "pid_at_launch": 29363,
-    "session": 26403,
-    "paused_frame": 105575,
+    "path": "local/demos/battle-reward-105631-v1/live.json",
+    "source_revision": "5b66d27",
+    "pid_at_launch": 51411,
+    "session": 23921,
+    "paused_frame": 105631,
     "full_4_3_appkit_capture_verified": true,
-    "direct_desktop_inspection": "cua cgWindowNotFound",
+    "direct_desktop_inspection": false,
     "different_async_loading_from_headless": true,
-    "history_owner_fix_in_live_binary": false,
-    "current_runtime_revision": "52f8d5a"
+    "enemy_reward_entity": 5,
+    "old_preview_terminal": "local/demos/battle-hit-105575-v1/terminal.json"
   },
   "retained_negatives": [
     "target-checks-v1: parent callback optional needed dereference; compile failure corrected",
@@ -83,7 +90,17 @@
     "hit-v2 runner missing rewritten button path before startup",
     "hit-v3 impact39 guard105537",
     "hit-v4 live renderer flag guard105539",
-    "death callback test v1 assumed60 instead of62 channel advances; runtime interpolation unchanged"
+    "death callback test v1 assumed60 instead of62 channel advances; runtime interpolation unchanged",
+    "death-checks-v1: optimized effect-test FP contraction mismatch; test TU corrected without changed runtime or assertions",
+    "native-death-105695-v1: sound66 guard105600",
+    "native-death-105695-v2: post-action reset guard105606",
+    "native-death-105695-v3: grouping guard105607",
+    "native-death-105695-v4: static BAG/BOX animated bone-channel mismatch105632",
+    "native-death-105695-v5/v6: unknown155c10 stack W105632",
+    "static-reward-render-v1: synthetic pre-fix bone-channel failure",
+    "party-hit-consumption: synthetic entry14 fixture missing; corrected motion extent",
+    "W observability initial claim omitted inheritedA1 read by1e23c0; corrected source review; W guard retained",
+    "W observability v2 incorrectly inferred VU fallthrough; primary raw instruction check finds E bit at2a4 ends entry80 after2a8, before31c"
   ],
   "artifacts": [
     {
@@ -1685,6 +1702,3141 @@
       "path": "local/worktrees/physical-hit-consumer/local/hit-checks/manifest.json",
       "sha256": "6900369712a0f245e5a006b3b8b71de1e6c31e5c310fd894f743ae4a8a8e6dc4",
       "bytes": 2821
+    },
+    {
+      "path": "local/demos/battle-hit-105575-v1/terminal.json",
+      "sha256": "c8d6508553196bef0913f6d7defddf6acb907daab1351212960e80c08145eb23",
+      "bytes": 19
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/command.json",
+      "sha256": "76a38e051a2d405c226129d17352476c8440fe9b36d05df2272fdc00079775cb",
+      "bytes": 5847
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/isolated-ui.json",
+      "sha256": "5207a97645d575e8f8b76f518a06e962185b680a15250519fe55968ec6811643",
+      "bytes": 328073
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/launch.py",
+      "sha256": "a12e41b26351032ba7ca233504393af2e6917b97ea195484cf3a29e7331f3559",
+      "bytes": 574
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/live.json",
+      "sha256": "f19c9ca4cb04ddfedefaecb7273a715c4445046ec76e825a19b8cc4ee799d4eb",
+      "bytes": 6028
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/live.log",
+      "sha256": "c91af483ba47ff9c7fa98b1d532fe4e31eee4577c2c91c27ad6661dc685308d1",
+      "bytes": 4924
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/manifest.json",
+      "sha256": "630de092ec83c1335a7748e2902c1cbca1856367d2105a85605e5f54d5561668",
+      "bytes": 274
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png",
+      "sha256": "52158c2137345302531335db1c8b02656062c5e58a8ea1ed4ed2a423b745ecc7",
+      "bytes": 181133
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-1.bin",
+      "sha256": "172b1d1dab0bc5aee522af1f3829964abcac7e3d52afc253067c522ece592151",
+      "bytes": 395219880
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-10.bin",
+      "sha256": "57d9bc430ab92bee91cbf7aca263afa6dc24c8ed943c637c538342ac4945089d",
+      "bytes": 132576264
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-11.bin",
+      "sha256": "4629103173c59322e9522a730b5b3eccbe7287d50c23a0ae5125e218ed00f705",
+      "bytes": 136853824
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-12.bin",
+      "sha256": "68a9bcff20f7d7e60e37fb65935d1938844789d76300413865451e2914de5c53",
+      "bytes": 144604016
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-13.bin",
+      "sha256": "e9f1f56b2721058b895130c92165e5735684594b0f8d2a297a77ab3dfe71001c",
+      "bytes": 49279016
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-14.bin",
+      "sha256": "6d2936b01a1bed2c25f9a5b97786f55f0464f7345d484feb2050d43de9ed2357",
+      "bytes": 66584816
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-15.bin",
+      "sha256": "2bcd0c12298d3cc221fc7e457b989a494fbfac90ad12e8e7c02c448da3ee6058",
+      "bytes": 37445628
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-16.bin",
+      "sha256": "5961086c82f6a197809701d17e7439ea5727e832cfcf5d9c27b20cb6c1f89c12",
+      "bytes": 29671296
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-17.bin",
+      "sha256": "c08e69f357347498ca979cf7912c43679b62ebf6c0625778e2e3e2830ce93ae4",
+      "bytes": 39818628
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-18.bin",
+      "sha256": "676076011c79733ecc8e79520d3ef21b671c2b57cf57c6035b8c7167c0019e4b",
+      "bytes": 51517408
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-19.bin",
+      "sha256": "a730c160cae9f40aed861ee2e7e869db46a8a685c0c77ad90b4fced359a2e54e",
+      "bytes": 46262560
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-20.bin",
+      "sha256": "2cfd2913e543a91d7bda5defc2e6b78e703925a5d9d7a6d9149190660c3abab6",
+      "bytes": 37562132
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-21.bin",
+      "sha256": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3",
+      "bytes": 17490792
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-22.bin",
+      "sha256": "52ced2ad7d11087e23f17eec62ef9a12152e22819f3c90aae92d7f002c447da5",
+      "bytes": 30136560
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-23.bin",
+      "sha256": "1f9f59b044fba236b222258b5fdbd317ef825b3377ea0ae87b520961dcc705db",
+      "bytes": 49360176
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-24.bin",
+      "sha256": "32874905d2185e72ec34ff09170557e7b69b725cdd985cccf26d5f7cd6711677",
+      "bytes": 46690108
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-25.bin",
+      "sha256": "fdc89a50be91af9e191e45c69fe02da0b2e142974b27839eb0451c4f9728cf70",
+      "bytes": 63071336
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-26.bin",
+      "sha256": "af41cfef8c84ff73ab49d785a6d91101f8f3b3e5d8b3979f627dfab41274cb3b",
+      "bytes": 48205552
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-27.bin",
+      "sha256": "bbe4332ed86616c2b3baac9fcb220e9796a384a3f7bb57ced729d31a9ba06a1f",
+      "bytes": 43514892
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-28.bin",
+      "sha256": "90d96a56ce093691b3c09d5d70b05bcdf347d023450189eb7dcb927d5ea0eef9",
+      "bytes": 44525188
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-29.bin",
+      "sha256": "04b9a8a807d6759bd955f6b61efeed04fb3268c2fd0917ff08112a94d400f18b",
+      "bytes": 44525188
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-3.bin",
+      "sha256": "cb292c32db2b080619c19ab7c6733622439016b7742b7b8916cf144f87f1aa71",
+      "bytes": 332135100
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-37.bin",
+      "sha256": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd",
+      "bytes": 6669448
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-38.bin",
+      "sha256": "76ba34c261405d19131ff08afd76466bd58b75955ea5d5be4f94b432248fb11e",
+      "bytes": 1867760
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-45.bin",
+      "sha256": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921",
+      "bytes": 8950128
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-7.bin",
+      "sha256": "970ba83d9cbc0ea19838e938b2e23f6846fec527c18919568f79912f5ea0efb2",
+      "bytes": 31953320
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-80.bin",
+      "sha256": "c3a1d74820a3d85bf67f30081c73a98a7b47f89e94e9320bccc2ea5e5de87470",
+      "bytes": 50081816
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor-9.bin",
+      "sha256": "46617611f711119a98f32fdb1028d81cf6dabd5dc86fdb903c90660a32022d3a",
+      "bytes": 156199680
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actor.bin",
+      "sha256": "0b00844a886f5bb2afa28d7e08be4de98d5e0b7fde4a631f3f2e2b4dfedf4cd3",
+      "bytes": 164262784
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.actors-state.json",
+      "sha256": "3cd0a7c6ff296cf1b0c12b9db1daf64db93b86493bab2f34fc6d80ac76c9ccd2",
+      "bytes": 422
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.audio.json",
+      "sha256": "18e3ee616e4fc21a5ecbb9ba2c3a7bc5aae766cc7ddd97315145b8d423e8f8d3",
+      "bytes": 164
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.battle-actors.json",
+      "sha256": "25ca6aa05ee6056b38e860d7ed9fbc0000efda5e64b5a474b94efb8ce4854359",
+      "bytes": 1042
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.battle-capture.bin",
+      "sha256": "c1b4039adf95ea780ab8b2a0d4a772da8bb0cf2c2ef83e6499fbaadafc5981c0",
+      "bytes": 6908
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.battle-construction.json",
+      "sha256": "313974f8e4db9a3eb54a4c055b64a7e1f5d3cd2da7c339b4e0cf4169d6c6483e",
+      "bytes": 93845
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.battle-effects.json",
+      "sha256": "968551c62b54b60de9b85e7754c1f8691f7d8e8ef42eebdfe9b682c643afc94e",
+      "bytes": 2498
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.battle-history.json",
+      "sha256": "b09a479dc87c1c4b1e25d02bd4ff08ab8cfefa12481df3ce44efa337aa1a1e97",
+      "bytes": 315
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.battle-loading.bin",
+      "sha256": "96901bb3bd0973effe5067f5f61c84f80246f57bd5da17d2375174cdb884f7cd",
+      "bytes": 37888
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.battle-return.bin",
+      "sha256": "9f9060ddde716b5872a323b1cf16a523126a6f71b5cf6c53a03874e3bdac717a",
+      "bytes": 140
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.battle-root.bin",
+      "sha256": "4fe6fce735d6857495902e88d7d697f933dabde539b5b82eed0909c74edf4687",
+      "bytes": 33232
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.battle-stage.callbacks.json",
+      "sha256": "2caaae7900946e3577054b888299704f3cdf2f61b21e7b5869015eb25f67c0a1",
+      "bytes": 136477
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.battle-stage.first-active.draw.json",
+      "sha256": "e83c7a60f38876ec6107e25c29396cb73fc181a910181f75ccc3cb20d6572772",
+      "bytes": 9975028
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.battle-stage.hud.json",
+      "sha256": "dd22eeb11a033cd694ea0ab50a4ce60eaaa85e999ce1594717d1368e6c889d95",
+      "bytes": 75816
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.battle-stage.json",
+      "sha256": "7818500526b56cbaa2f8455cb95183d783d2fa91afd64f0f7f437d2c4ddfae87",
+      "bytes": 42439
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.battle-stage.scheduled-ui.json",
+      "sha256": "cfaf2ab7c0aa17a396e43ff79b951c9d9a6ab4b9e212a855849574c73ce19868",
+      "bytes": 328075
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.battle-stage.ui.json",
+      "sha256": "6f3baddf31ab8734a254ebebbe525c645f6019fd350e2d86202d59bf0da0a5d4",
+      "bytes": 32001
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.battle-transition.bin",
+      "sha256": "77e2aa2c94b9e04c46d9912f7b96820809f6bb8e9d500d4db2689e90779bf51e",
+      "bytes": 192
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.camera-state.bin",
+      "sha256": "62a331f5e3ca2634f1b4bfea5d3d2f260e0180b77b4bcb6a3beac376cdfc815d",
+      "bytes": 2088900
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.camera.bin",
+      "sha256": "678ad6edd65d812d690c9c42e3c29290652041f2c885d3ac5735682624faa971",
+      "bytes": 6684480
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.choices.bin",
+      "sha256": "dfc147adabc0e6fb8f96d23090138d6ffbd844ab4f8ff5dc0942b8e940b60a27",
+      "bytes": 5013360
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.dialogue.bin",
+      "sha256": "14b2085e3db44ef8b9c5245fa92b370df8f0e21f6572522140a5a3e002ec21ec",
+      "bytes": 5013360
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.effect-submissions.bin",
+      "sha256": "ecb724f4367a602eabe1f0ef5ca66d7e76680bcd0faa2f12159632f066a97f80",
+      "bytes": 23266184
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.effects.bin",
+      "sha256": "b4c880dc5130ad8f5dd8e3f40858bd600f22c3025740d505783aca20e3d506aa",
+      "bytes": 2906580
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.game-mode.bin",
+      "sha256": "481f539082cc9bbc55c2df921be711e8c25b595ce6014e0ef454ed84e9571551",
+      "bytes": 237300
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.interaction.bin",
+      "sha256": "85326abf8548e08cd767c345e30266630a21c59563ec41bbce881b078c0c4c89",
+      "bytes": 3342240
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.json",
+      "sha256": "64914a1576d70aa6ed9ad267709e043be7e8056ea515f70d2888073051379f1a",
+      "bytes": 967
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.map-effects.bin",
+      "sha256": "485ca1679a9f7de483952c24c5387ad8139feff2da03cecfac5bbe92812c6d66",
+      "bytes": 621254272
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.movement.bin",
+      "sha256": "6ab4e2852381a6fa58689d6123eb5ab1f9f1ed94e743704e0bfbd029c271a7cf",
+      "bytes": 6684480
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.music.bin",
+      "sha256": "a804252813d8a46219c4c40441f58b4ca74f9aab8bdc45bd850100da0fc8922a",
+      "bytes": 2112620
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.projection.bin",
+      "sha256": "b29f0c8f5b6b413824171585c53962786eb85267dcfe42148099515b5f248db5",
+      "bytes": 39271320
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.retiring-effects.bin",
+      "sha256": "c69a7d44303e50087e9269ddbf6e9f04895493c2d9c8b4d216745cefe57a902e",
+      "bytes": 815624
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.screen-filter.bin",
+      "sha256": "4e6be36c86e5b901b785c9c6020d5e02bd7d9dd1a1e03ef137ccd727c68ef946",
+      "bytes": 1671120
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.shadow.bin",
+      "sha256": "a4b8c78aebf2ab1e4db0f8555d1b2f8fa69288cf3c711a45652a46eb98a8f45b",
+      "bytes": 12533400
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.sound.bin",
+      "sha256": "fa5f933241c63e3cd2f9930ffc4cef34dd37f580cf0ba7c4a645615e8ce2847a",
+      "bytes": 11740
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.transition.bin",
+      "sha256": "6ad9cf64321f32f9b7dff9abd0520b5f211aa2f23a462e9f4dc7db8519721626",
+      "bytes": 3342240
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.ui-party.bin",
+      "sha256": "0f9ff4f984aa4de91bf35ce579a6d5b06ec7b0764d6c865d119258b02f707eaf",
+      "bytes": 288
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.variables.bin",
+      "sha256": "3a5b29b31ed27d71a0a314e8ca1892a31ef54a3e99de65b92b5053dccaa68da6",
+      "bytes": 4096
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.view.png",
+      "sha256": "e90f7526841d92b0d7e44ae52a20f4cb37188072e0099d6d27b2ba2107704c0b",
+      "bytes": 284508
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/native.png.wander.bin",
+      "sha256": "5b55e6e820bea76c2e2bcf52bdcafbd89811307cd9d200ea85fd1088ff98c7a3",
+      "bytes": 7551248
+    },
+    {
+      "path": "local/demos/battle-reward-105631-v1/okage-native.app/Contents/MacOS/okage-native",
+      "sha256": "2329232cc9fd9f684805722a5e12395914162bbfdb657ea7833803367cce01ec",
+      "bytes": 2232688
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/approach-offset-w-observability-v1.txt",
+      "sha256": "892beedabf4d2e01f0795a10d454aab59cbb20274c464b3158a53702b2192d62",
+      "bytes": 5851
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/approach-offset-w-observability-v2.txt",
+      "sha256": "c4522f0fb57e6791d8ea526b5e39d1b7e9ba47a3cb148467e09f89188a0ffa44",
+      "bytes": 3329
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/approach-offset-w-review-v1.txt",
+      "sha256": "799740ed65940948662e4c1c272e492c934b1f9494903acd5b27666995d618aa",
+      "bytes": 2480
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v1/initial-release-build.log",
+      "sha256": "13ea90710d7d003ffe0bfa547cf960e72ae397d94d6271aebf1c45a9703dd723",
+      "bytes": 6933
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v1/initial-tests.log",
+      "sha256": "4f678694272f4073180b7a1f6f8c80e857cd53fde368f98e14e34d339acd7027",
+      "bytes": 764
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v1/reference.py",
+      "sha256": "3e03fc04ac8c64b6da756e3c1f25e4fc71f4a671503975c06fef9d946634a520",
+      "bytes": 1319
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v1/replay.py",
+      "sha256": "8347cfe51fb9e8d45ec5a5410ea9bc8fb0f750849c7a9afb657d1c31fb71d466",
+      "bytes": 1405
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/commands.json",
+      "sha256": "d1f7e186067e3fd4671239aa665d2184c55ef4d9aaa20c8911ed33f03556c748",
+      "bytes": 2235
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/compare.py",
+      "sha256": "fa4b4290081e8dd5112dd006f9300bac03dd38820f7e6e08ac40944bc731eca5",
+      "bytes": 1447
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/comparison.log",
+      "sha256": "d1a0c06a37ea2c19f418b9970ffc0c21858df7e01ae70e6ca5a812045e08791b",
+      "bytes": 1930
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/debug/battle-reward-tests",
+      "sha256": "2e41becb17d34f5eda2f1936d57ef9454c0ba03c02d8df8d1813f93b8f355b56",
+      "bytes": 561648
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/debug/hashes.json",
+      "sha256": "1a62c60bb06b1b77ee538c209bab69ca1b4f11e89c814702eb47c76e9976172e",
+      "bytes": 551
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/debug/okage-native",
+      "sha256": "6ceeee67001a5f3ab7ba06a1b03bfd4a5f5d1f87a567cbaf914de940c796248f",
+      "bytes": 8617232
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/debug-build.log",
+      "sha256": "dfe0d580b9eab027985a40b2928646801da204617d8a706e60b9d3b8f08179a3",
+      "bytes": 7075
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/debug-owned-effects.log",
+      "sha256": "f5ab32e4ce2b6b1698a86516aa367ab9f7323ab48357f0fbb42b9b0eef1bf5b1",
+      "bytes": 139
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/debug-tests.log",
+      "sha256": "f978b1995a01f9c7d6d4b166fe481d1476c4e435a9d32879d05765f43a4f4009",
+      "bytes": 2530
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/manifest.json",
+      "sha256": "1212e4b84d186cf4f8af9911d4c80617f9ecdccdc86b76f5b8bb9505cc2da42f",
+      "bytes": 3118
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/release/battle-reward-tests",
+      "sha256": "f0a7ae62f394f0f62cc1b8cfcca989e1ca6da427fce3ea1606074de8b9d5a1f8",
+      "bytes": 133168
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/release/hashes.json",
+      "sha256": "390318da1e2ba2dae49b88c5ac8b6c1e0b8a354ec62769c3cf0e6182e09cbda6",
+      "bytes": 551
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/release/okage-native",
+      "sha256": "fc731441ef570caf9cd0ce1057d847b3d73139e87c53e323f77e2b4c4ce2fade",
+      "bytes": 2208416
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/release-build.log",
+      "sha256": "682cda72d7fd7d110a099c7ad8bfe90117d5e6011b28b9d908b9ae527af4982f",
+      "bytes": 589
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/release-owned-effects.log",
+      "sha256": "f5ab32e4ce2b6b1698a86516aa367ab9f7323ab48357f0fbb42b9b0eef1bf5b1",
+      "bytes": 139
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/release-tests.log",
+      "sha256": "caa715a8de60def44e268b849238ec80f579570e8f8a9a62564f80fe8d7d2a91",
+      "bytes": 2546
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/replay.py",
+      "sha256": "2189f6ac393b566170929bbeb78f9fb3ecd3109f5bb14fc2537d98ca44cb56be",
+      "bytes": 1405
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/run_checks.py",
+      "sha256": "2345c2fae398cdae75aaabc8de74feaa7012ba0afdc7cffb1ba769947ade8382",
+      "bytes": 1386
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/runs.json",
+      "sha256": "1e5cecc1fa3ecc358c6d0b81ce9fd74ba1edf0f7db2385e48c5ed9db171bbef2",
+      "bytes": 2723
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/sanitize/battle-reward-tests",
+      "sha256": "54aba0ffb75830bb9b59a5eda54595165bfb458542d9f3d62083bacaaed4cee8",
+      "bytes": 1604256
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/sanitize/hashes.json",
+      "sha256": "103553db4dec0b01261046fffd324a9d0b70cbe63002575ccdbdab2adebccebd",
+      "bytes": 551
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/sanitize/okage-native",
+      "sha256": "9f2e23d49a13c88441f689ed5723cdf430da63e0fb324d135f06caf2326cd21e",
+      "bytes": 19571056
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/sanitize-build.log",
+      "sha256": "403a8193938341bd726d7d10d4d93483cdc0ebd2320a2fa15af2817daca03a0a",
+      "bytes": 7083
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/sanitize-owned-effects.log",
+      "sha256": "f5ab32e4ce2b6b1698a86516aa367ab9f7323ab48357f0fbb42b9b0eef1bf5b1",
+      "bytes": 139
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/sanitize-tests.log",
+      "sha256": "9c5fc77a3bd0ef4412ba0231c965cd9c9fa67d14ad325116290feb1733d591d0",
+      "bytes": 2546
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v2/source.diff",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/commands.json",
+      "sha256": "d1f7e186067e3fd4671239aa665d2184c55ef4d9aaa20c8911ed33f03556c748",
+      "bytes": 2235
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/compare.py",
+      "sha256": "167abac1eef46dd1f6a5f42c86cdd629dfe1851dd72626fad680fa7c008466b6",
+      "bytes": 1447
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/comparison.log",
+      "sha256": "0597b2a170af486ac2d91ea82641ea34a49386dd47c82316255c90ecadee1f0b",
+      "bytes": 1930
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/debug/battle-reward-tests",
+      "sha256": "2e41becb17d34f5eda2f1936d57ef9454c0ba03c02d8df8d1813f93b8f355b56",
+      "bytes": 561648
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/debug/hashes.json",
+      "sha256": "b6f4f5d693a6d57654323fb8acbc8ba6b5b74724e0436ab624758e40af694009",
+      "bytes": 551
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/debug/okage-native",
+      "sha256": "f1c4cf6113d9f2f91679369c9607e64433b6b2ae6629a9799f3cdc28491c50d4",
+      "bytes": 8618784
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/debug-build.log",
+      "sha256": "7290e2668615a96e8b42c8e67a28cac9adf53843ae3856182323e03131ecfb1c",
+      "bytes": 4553
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/debug-owned-effects.log",
+      "sha256": "f5ab32e4ce2b6b1698a86516aa367ab9f7323ab48357f0fbb42b9b0eef1bf5b1",
+      "bytes": 139
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/debug-tests.log",
+      "sha256": "15bb8f79fe5bbf49d99741cf237d8b76921065184276d36196c7a2e3cc8fa82a",
+      "bytes": 2530
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/manifest.json",
+      "sha256": "757d37333ce3f41acc855f599636dc0c9d30fe2df7484ac68705a82ebd85a564",
+      "bytes": 3116
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/release/battle-reward-tests",
+      "sha256": "f0a7ae62f394f0f62cc1b8cfcca989e1ca6da427fce3ea1606074de8b9d5a1f8",
+      "bytes": 133168
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/release/hashes.json",
+      "sha256": "82aad91559eefb3eec4769d441d93be9ed0f07745e6052fb038c7c07c18c74ea",
+      "bytes": 551
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/release/okage-native",
+      "sha256": "53166c23f6cab46400591b7b33f4fd14f26d533604b6f59c4454c521e560a0c2",
+      "bytes": 2210944
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/release-build.log",
+      "sha256": "e19af6e4d13f7b769fd336c8284d2c1269c00d7fe4f5cc24f4869e759ead636f",
+      "bytes": 4553
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/release-owned-effects.log",
+      "sha256": "f5ab32e4ce2b6b1698a86516aa367ab9f7323ab48357f0fbb42b9b0eef1bf5b1",
+      "bytes": 139
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/release-tests.log",
+      "sha256": "7dac1d0986419bb6e8c52694b4386a94a2c381dcb7f25eea3a7c69ec5ff4e5e9",
+      "bytes": 2546
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/replay.py",
+      "sha256": "2dfd201b3e792e257b492b4dc21dc9bb5d90ceb69a37d6690f402a8caf025011",
+      "bytes": 1405
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/run_checks.py",
+      "sha256": "2345c2fae398cdae75aaabc8de74feaa7012ba0afdc7cffb1ba769947ade8382",
+      "bytes": 1386
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/runs.json",
+      "sha256": "5dac4f41de8277f807976c39db5669c2ffbfe0cfc5a32f2ab3bece156017dced",
+      "bytes": 2721
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/sanitize/battle-reward-tests",
+      "sha256": "54aba0ffb75830bb9b59a5eda54595165bfb458542d9f3d62083bacaaed4cee8",
+      "bytes": 1604256
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/sanitize/hashes.json",
+      "sha256": "af5063384ef65f0ce62b41739461a75a8b54a377a0a2953b4579831f25c8441f",
+      "bytes": 551
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/sanitize/okage-native",
+      "sha256": "cccc2aecf80ff6b9b757ad9b6a5e6e7e5d8917f985097f9da778becf2093877b",
+      "bytes": 19590192
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/sanitize-build.log",
+      "sha256": "77224442aad699108256a67db652f2630a5ed85b02e5b68b7a2552b900a25060",
+      "bytes": 4553
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/sanitize-owned-effects.log",
+      "sha256": "f5ab32e4ce2b6b1698a86516aa367ab9f7323ab48357f0fbb42b9b0eef1bf5b1",
+      "bytes": 139
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/sanitize-tests.log",
+      "sha256": "66a8d11dff4a286c1aa2d3d9163ef01248f399ec4beaf4052c3db78d7885e1d9",
+      "bytes": 2546
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v3/source.diff",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/commands.json",
+      "sha256": "d1f7e186067e3fd4671239aa665d2184c55ef4d9aaa20c8911ed33f03556c748",
+      "bytes": 2235
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/compare.py",
+      "sha256": "580f3d6d9472ed1231bff3c8b0096577f9cabcc6801eb0857eb8d7df50fef009",
+      "bytes": 1447
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/debug/battle-reward-tests",
+      "sha256": "585027c5dd1ad2392f5685c1af017fadfdc4b1fdaaa634e64558899206cb6345",
+      "bytes": 561648
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/debug/hashes.json",
+      "sha256": "a52c4de34b8615482cf351ba35b164c158bc3ccb535ee8ebaf0a475d7ade3d96",
+      "bytes": 551
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/debug/okage-native",
+      "sha256": "29db22f9dad098c7ef7889ac154d969764d078ff1a436538c72c971383358e1d",
+      "bytes": 8640096
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/debug-build.log",
+      "sha256": "527694a5d3706628ff6e28b639f23e92db646aed52c1fb78f5605b7a2df73d14",
+      "bytes": 6907
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/debug-owned-effects.log",
+      "sha256": "f5ab32e4ce2b6b1698a86516aa367ab9f7323ab48357f0fbb42b9b0eef1bf5b1",
+      "bytes": 139
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/debug-tests.log",
+      "sha256": "9be2fb131d8c031d7eb5b4e5e22406c90330c54cf158c84ca390b9e2e915d346",
+      "bytes": 2530
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/manifest.json",
+      "sha256": "1cf41e1d8227c8717502d30473f35ee9704abe5fce1a318c1e7f1f58c5d5e779",
+      "bytes": 3119
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/release/battle-reward-tests",
+      "sha256": "f0a7ae62f394f0f62cc1b8cfcca989e1ca6da427fce3ea1606074de8b9d5a1f8",
+      "bytes": 133168
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/release/hashes.json",
+      "sha256": "bfc52c68aa1c22c3deedf9762ed3b147c968010c924440ee0be0efc0269fb9b2",
+      "bytes": 551
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/release/okage-native",
+      "sha256": "8bb685f4e24a61081c27d5e284f5afa982c03dc283614edcbeacd2e0176495dc",
+      "bytes": 2232688
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/release-build.log",
+      "sha256": "5523409500e5029b71f7ea05f4a815f6c144e65144c6d76970779fe0d63a2492",
+      "bytes": 6907
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/release-owned-effects.log",
+      "sha256": "f5ab32e4ce2b6b1698a86516aa367ab9f7323ab48357f0fbb42b9b0eef1bf5b1",
+      "bytes": 139
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/release-tests.log",
+      "sha256": "8979da3a16528cc304df7b1cc169545b35a485b3214d38eedab37c715844369e",
+      "bytes": 2546
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/replay.py",
+      "sha256": "1a7d3b2079d4b31a3bbd44811d81374bea55602ff7f74c34a10ef35ed3e8f5bb",
+      "bytes": 1405
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/run_checks.py",
+      "sha256": "2345c2fae398cdae75aaabc8de74feaa7012ba0afdc7cffb1ba769947ade8382",
+      "bytes": 1386
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/runs.json",
+      "sha256": "eb11db5bde1382b5669be20201a01769fabecb8f8ef06d5cd6576d969335c051",
+      "bytes": 2724
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/sanitize/battle-reward-tests",
+      "sha256": "d2fa689cac9c867cfb9a3a7ad5734e29ca7259a7a135ad3f74f36af96a41b69a",
+      "bytes": 1604256
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/sanitize/hashes.json",
+      "sha256": "6a48f4ce5627104466c9fd37ccdd0fc45c77afc9b86c264af08796dcda64f343",
+      "bytes": 551
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/sanitize/okage-native",
+      "sha256": "33074f7395bd45baf787e5319a550514481c1639181e78dfef7ae8ce314535bf",
+      "bytes": 19631520
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/sanitize-build.log",
+      "sha256": "cc8303019f5d62ff226d80751471d010449e4fea96420761475b55b42b4a22c4",
+      "bytes": 6907
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/sanitize-owned-effects.log",
+      "sha256": "f5ab32e4ce2b6b1698a86516aa367ab9f7323ab48357f0fbb42b9b0eef1bf5b1",
+      "bytes": 139
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/sanitize-tests.log",
+      "sha256": "a7db0aacc1e6a58ecaeab84d01be58fd80ae43cf883306de2bfbb1325a92e814",
+      "bytes": 2546
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v4/source.diff",
+      "sha256": "87323d528675225ce200b4d0774f73f79650a785dd070404c689b4f3aad49601",
+      "bytes": 2873
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/commands.json",
+      "sha256": "d1f7e186067e3fd4671239aa665d2184c55ef4d9aaa20c8911ed33f03556c748",
+      "bytes": 2235
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/compare-prefix.py",
+      "sha256": "796362cce5a385a0600baa5a27ef093dc88fc3a40869b56e44bc0b1cb963743a",
+      "bytes": 1475
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/compare.py",
+      "sha256": "7a141ef31c1f56075191dfe1929a4b5129925b1a7f8645e4539850f05ccb02f7",
+      "bytes": 1447
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/debug/battle-reward-tests",
+      "sha256": "585027c5dd1ad2392f5685c1af017fadfdc4b1fdaaa634e64558899206cb6345",
+      "bytes": 561648
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/debug/hashes.json",
+      "sha256": "4d7cdb50e860aea7e264af157d31274f286b018e220fa432371f7683daa1c1cd",
+      "bytes": 649
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/debug/okage-native",
+      "sha256": "616450e322c2ac8153ff05c1e31816da472fba9f0cf9b84c90c592ab097d7512",
+      "bytes": 8640096
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/debug/scene-map-material-tests",
+      "sha256": "c69de6973a76a878eeb2f1503cebe61688b99efec9c5cf2f25c0b76e3543371f",
+      "bytes": 4260568
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/debug-build.log",
+      "sha256": "867e6a967904f1d718b1ecf5371008ccc1e2c13ea84c4a78fbb439546c45d1cf",
+      "bytes": 683
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/debug-owned-effects.log",
+      "sha256": "f5ab32e4ce2b6b1698a86516aa367ab9f7323ab48357f0fbb42b9b0eef1bf5b1",
+      "bytes": 139
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/debug-tests.log",
+      "sha256": "ddb6d734c4836df3087c5d2c473a4266eed25aadd6ae0b9782b850a05ccfcd4c",
+      "bytes": 2530
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/manifest.json",
+      "sha256": "417cfd80409631e69b5fda4519441c012fa11de07a37ab9b1574631e6d5cf398",
+      "bytes": 3107
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/release/battle-reward-tests",
+      "sha256": "f0a7ae62f394f0f62cc1b8cfcca989e1ca6da427fce3ea1606074de8b9d5a1f8",
+      "bytes": 133168
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/release/hashes.json",
+      "sha256": "54b98c9c0031d8b5c8a6e841c5f5c12ee7c65526ff5aefe804ab5ef78cac7144",
+      "bytes": 649
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/release/okage-native",
+      "sha256": "2329232cc9fd9f684805722a5e12395914162bbfdb657ea7833803367cce01ec",
+      "bytes": 2232688
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/release/scene-map-material-tests",
+      "sha256": "2d3bc6fc6e638bf45c22bb22c9d090893fad532a9ca01a76391f9d018431541c",
+      "bytes": 951544
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/release-build.log",
+      "sha256": "207b2b7c1b41ae110dd0fb2eb2152555d4730f46b8c4b954ff7ad8df86b4cea5",
+      "bytes": 578
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/release-owned-effects.log",
+      "sha256": "f5ab32e4ce2b6b1698a86516aa367ab9f7323ab48357f0fbb42b9b0eef1bf5b1",
+      "bytes": 139
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/release-tests.log",
+      "sha256": "bd0499e0760be88b53e16405a41bc1b897f07dba7df81762ab489916ecfd10c4",
+      "bytes": 2546
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/replay-prefix.py",
+      "sha256": "d9d775781627e0cd8a93a58f4169d7081ef8a5ef7f23f1d7f68668b3c369a4b0",
+      "bytes": 1384
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/replay.py",
+      "sha256": "b08c3f5b59cbdbd82c6b3876957f3f9f51393b87ac0022fcd0460b73c46288b0",
+      "bytes": 1405
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/run_checks.py",
+      "sha256": "2cdd3a516271ff5da35a02ad80e1f0cd26508912c9be29f076b0d862832a15e2",
+      "bytes": 1413
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/runs.json",
+      "sha256": "05bff55ed0a845b9f44b53a68ac48dcb267601888f9fb6f9aa3c2cf5cbd07a5b",
+      "bytes": 2712
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/sanitize/battle-reward-tests",
+      "sha256": "d2fa689cac9c867cfb9a3a7ad5734e29ca7259a7a135ad3f74f36af96a41b69a",
+      "bytes": 1604256
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/sanitize/hashes.json",
+      "sha256": "3d9ff26daa8a73ba4a9d8d6ed66b8bc570ee673e671ed8ad93301b4cdc07c325",
+      "bytes": 649
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/sanitize/okage-native",
+      "sha256": "843486d9e38033dbf2e540c504fbada117b1542d262d811b21c4d366c1e1b5a5",
+      "bytes": 19631520
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/sanitize/scene-map-material-tests",
+      "sha256": "af3aa20a91c38bf3c3cf8cb3982065965545d430d956be556375f7548fa103f3",
+      "bytes": 9519048
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/sanitize-build.log",
+      "sha256": "49d1b0744688c29b4cf92ad60713480619f0032f3fcf3bb26de305e85eaa57a6",
+      "bytes": 683
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/sanitize-owned-effects.log",
+      "sha256": "f5ab32e4ce2b6b1698a86516aa367ab9f7323ab48357f0fbb42b9b0eef1bf5b1",
+      "bytes": 139
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/sanitize-tests.log",
+      "sha256": "ab38c014b3e9bccff38aa5e1af0169580f3aff770570dd0cecdbfbfa52342130",
+      "bytes": 2546
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v5/source.diff",
+      "sha256": "de8240a4e272854556be9c020e302c541007cabe41e7bc45c300f15b2e235146",
+      "bytes": 6852
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/commands.json",
+      "sha256": "d1f7e186067e3fd4671239aa665d2184c55ef4d9aaa20c8911ed33f03556c748",
+      "bytes": 2235
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/compare.py",
+      "sha256": "6f2d7eba151029840267978003e49037110849fbc4b8458850bad71358bbfb35",
+      "bytes": 1447
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/debug/battle-reward-tests",
+      "sha256": "9e61bd44a741acf823963fe81278358ebb46d0e0718d32e64a5f65c003fa6818",
+      "bytes": 561648
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/debug/hashes.json",
+      "sha256": "473c7acd7f6bc0394e77f008e83b1a9083d769336e9c8cc45b5450d7bab5ad8b",
+      "bytes": 649
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/debug/okage-native",
+      "sha256": "f721ca8fc626465e3e27ebead7d50dbb3847cf2632255b46eeb2d1f16430ad6b",
+      "bytes": 8640656
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/debug/scene-map-material-tests",
+      "sha256": "c69de6973a76a878eeb2f1503cebe61688b99efec9c5cf2f25c0b76e3543371f",
+      "bytes": 4260568
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/debug-build.log",
+      "sha256": "a0887fd791c080d90c87a35d3bc185ec4cfffde0175b28e16a57e63c8dac3ebc",
+      "bytes": 6907
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/debug-owned-effects.log",
+      "sha256": "f5ab32e4ce2b6b1698a86516aa367ab9f7323ab48357f0fbb42b9b0eef1bf5b1",
+      "bytes": 139
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/debug-tests.log",
+      "sha256": "77935ec25915acb97e0683480a002943acdc7a5f862c6becce0f1495ed59272a",
+      "bytes": 2530
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/manifest.json",
+      "sha256": "d9478f64e99b780caf8fd21ba74fdbf2c633c6c65b890cae8f88563a485e0c45",
+      "bytes": 3112
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/release/battle-reward-tests",
+      "sha256": "f0a7ae62f394f0f62cc1b8cfcca989e1ca6da427fce3ea1606074de8b9d5a1f8",
+      "bytes": 133168
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/release/hashes.json",
+      "sha256": "20cf5afb430f605ee2d7800ea1ffe502f000d4d928656720ca6b99d353307f77",
+      "bytes": 649
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/release/okage-native",
+      "sha256": "6a59a8256a0eada9ee47ae6e6f465a788c6eda175d3362d15508206cd1d5aaa4",
+      "bytes": 2233120
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/release/scene-map-material-tests",
+      "sha256": "2d3bc6fc6e638bf45c22bb22c9d090893fad532a9ca01a76391f9d018431541c",
+      "bytes": 951544
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/release-build.log",
+      "sha256": "ce577da3885c335bef1d31d802f3e941bc4ea8aa71d405a2d01abeca7b581fdb",
+      "bytes": 6907
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/release-owned-effects.log",
+      "sha256": "f5ab32e4ce2b6b1698a86516aa367ab9f7323ab48357f0fbb42b9b0eef1bf5b1",
+      "bytes": 139
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/release-tests.log",
+      "sha256": "e28d68b366ada8ed6a97dd3b32662814d5422377a4b3c43dcd485329dc2c15e5",
+      "bytes": 2546
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/replay.py",
+      "sha256": "0d8cd724b7f66e8a1b97c00fd878fc7094551ecf4343220277fb48771b403a0f",
+      "bytes": 1405
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/run_checks.py",
+      "sha256": "2cdd3a516271ff5da35a02ad80e1f0cd26508912c9be29f076b0d862832a15e2",
+      "bytes": 1413
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/runs.json",
+      "sha256": "a97e4e09eb597b1def8f09574b7c42896081166bf2336beb703f4bd31332df08",
+      "bytes": 2717
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/sanitize/battle-reward-tests",
+      "sha256": "44f696f1e042650a18ec0cedc34fb54f534f071c85fd7f2667070db8152c1905",
+      "bytes": 1604256
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/sanitize/hashes.json",
+      "sha256": "528298a2eaf521c54af31d21f800089007be3b277c2c968fc8c63b5167a84b48",
+      "bytes": 649
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/sanitize/okage-native",
+      "sha256": "081161b6153fbc576d8d429219ff00ef8a9f9d8a6eb839b3d566be994b1ac16e",
+      "bytes": 19649712
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/sanitize/scene-map-material-tests",
+      "sha256": "af3aa20a91c38bf3c3cf8cb3982065965545d430d956be556375f7548fa103f3",
+      "bytes": 9519048
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/sanitize-build.log",
+      "sha256": "805a6d42a4e15c50b0547ea6dbb8dc5080394ef6ac5a9df867b271d63e63fc65",
+      "bytes": 6907
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/sanitize-owned-effects.log",
+      "sha256": "f5ab32e4ce2b6b1698a86516aa367ab9f7323ab48357f0fbb42b9b0eef1bf5b1",
+      "bytes": 139
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/sanitize-tests.log",
+      "sha256": "0e831d9a34367dad91aa2ffc686ca1e576a03c6618f41f0a45989d73e35341f7",
+      "bytes": 2546
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-checks-v6/source.diff",
+      "sha256": "87323d528675225ce200b4d0774f73f79650a785dd070404c689b4f3aad49601",
+      "bytes": 2873
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-comparison-prefix-v1.json",
+      "sha256": "a795db4905cd7d78981cc062ac681ec37afb266ecc0654b3cc618c856908b130",
+      "bytes": 149573
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-comparison-prefix-v1.log",
+      "sha256": "d8b774daaf0f922804e14bc5af13d4f1f62fdb38ee31b433797ed2915d8f6a87",
+      "bytes": 2394
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-comparison-prefix-v1.runs.json",
+      "sha256": "fcb86b084af4d8f540352a34f487da20e17cb8bb62b8af71c3bcc8566f7b1818",
+      "bytes": 10580
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-comparison-v2.json",
+      "sha256": "181debfaff61419e7c75cc6e6643a0184bb7974b4e7be0be7cbaaf414bce52e9",
+      "bytes": 180063
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-comparison-v2.runs.json",
+      "sha256": "5d53a550fac28f9d64508485780f96f0d781add0e8d600eb70c319f04fb90c3b",
+      "bytes": 10688
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-comparison-v3.json",
+      "sha256": "408f391121de4cb4c6bd45480a3e84a49fa9f68a2bfe0c442b2b3733dfd8fb1c",
+      "bytes": 178915
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-comparison-v3.runs.json",
+      "sha256": "c9c37f5a01fa27e02b0b311e5249820dd9369830823e69f1da0aae06ced8aa83",
+      "bytes": 10688
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-comparison-v4.json",
+      "sha256": "75dbf73e35e20fe582c20a28b1575f08507b6e85b71fc2f765f5a963a4f2b940",
+      "bytes": 150285
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-comparison-v4.log",
+      "sha256": "8474d9ecd344b37d6e810d7b15a3253792e970d8157c49202751e839fe2da19d",
+      "bytes": 2397
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-comparison-v4.runs.json",
+      "sha256": "6ca9e43fbe0a9250ad7ca9a5d8159e62ebf80ccdfe59666813c360c9bf3d0ffb",
+      "bytes": 10547
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-comparison-v5.json",
+      "sha256": "6735216302eb0eee3f3ff3b5d3d8338bb262f1c9353c166a496c4170a4fbeced",
+      "bytes": 148405
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-comparison-v5.log",
+      "sha256": "3268404166d98efb1a68666f3b401a035a7755e840b0281d464fbc457bd41a47",
+      "bytes": 2395
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-comparison-v5.runs.json",
+      "sha256": "28af5333b72a785ac99db2366cc980a2b2508f8a1b4a454d2ab8810a9cb83e7d",
+      "bytes": 10545
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-comparison-v6.json",
+      "sha256": "df1fa0bbc67de26d78c235cfe0788bf3fcc091a316b7ee85c878c8df1b782e6f",
+      "bytes": 149132
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-comparison-v6.log",
+      "sha256": "8162a8cdc4498dde35a73431661fc9e3970dca8378b40e00a98cd3a93108011f",
+      "bytes": 2397
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-comparison-v6.runs.json",
+      "sha256": "b0387121848bea426f54d476d1d00b2827a22b0cd00ef1acd02683e7035c709c",
+      "bytes": 10547
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-endpoint-v1/compare_native_endpoint.py",
+      "sha256": "7661813858c0f2cace3f489547f02db77cee3db89358aa30b8e19f61abce0c4e",
+      "bytes": 12163
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-endpoint-v1/compare_prefix105631.py",
+      "sha256": "cf714ab5a40daa0045a25c7812cbcdfbb4df2a8bdc177ba864632bfe7eedaf36",
+      "bytes": 3674
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-endpoint-v1/compare_v4_boundaries.py",
+      "sha256": "5534d606d7045137b6f20096bcc1bb559b00377f380fe04de872281f948c00d0",
+      "bytes": 4219
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-endpoint-v1/compare_v5_boundaries.py",
+      "sha256": "169a5b96ee517fe5a25eb0c1fa4628cd4c02a0aba1f65f08c1a4b834f202394d",
+      "bytes": 4219
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-endpoint-v1/extract_death_endpoint.py",
+      "sha256": "0fa5ae468f7a2e99a90a05543d6e5fda129e611c6ff09055f80338e6afd3eda3",
+      "bytes": 13917
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-endpoint-v1/native-prefix105631-comparison.json",
+      "sha256": "48438237be2d59866e4b5c0616ab1ea9740f8c915fe545d8f2f4230b3aff7e57",
+      "bytes": 4399
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-endpoint-v1/native-prefix105631-comparison.log",
+      "sha256": "48438237be2d59866e4b5c0616ab1ea9740f8c915fe545d8f2f4230b3aff7e57",
+      "bytes": 4399
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-endpoint-v1/native-v3-comparison.json",
+      "sha256": "fddb794f06b677642303e2fea859eaebfd8cc16e8bcd15d9bb281ab08ed7ad48",
+      "bytes": 4025
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-endpoint-v1/native-v4-audit.txt",
+      "sha256": "c6111957ff58163f797d9e04b049e8e43f1ddebb7135b434b1b1dbd07f791506",
+      "bytes": 2720
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-endpoint-v1/native-v4-boundaries.json",
+      "sha256": "305ca8d5fea7fd943c04b4a2168cdc436cd81d3492c7e580a54d29e45d0e9e27",
+      "bytes": 54209
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-endpoint-v1/native-v4-boundaries.log",
+      "sha256": "1138f6f1ff04a05891f530f7a3179e3901c2ea17298832a509cf12182f870184",
+      "bytes": 2071
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-endpoint-v1/native-v4-comparison.json",
+      "sha256": "4e362205b80715088548abb3b000f26294fa5909d5b4dd22067a0bc5436d34b5",
+      "bytes": 3737
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-endpoint-v1/native-v4-hashes.json",
+      "sha256": "9db16849903495e18885110d6ae12aba2455d42290d423ca4797aff64f340e7e",
+      "bytes": 772
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-endpoint-v1/native-v5-audit.txt",
+      "sha256": "5e91dedb2e2205d8002649fd8080e4f227a0298996a8cbcdf573f8d46173f262",
+      "bytes": 2681
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-endpoint-v1/native-v5-boundaries.json",
+      "sha256": "b1db53763039e7445c43d6dcf0e5168f6e389cca7aa0645528e46f363332a022",
+      "bytes": 54322
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-endpoint-v1/native-v5-boundaries.log",
+      "sha256": "9ee8f381dd8a31eeb8555701bf4471fdba03d7e3b0df6ee3d02183bbcc5b2e81",
+      "bytes": 2860
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-endpoint-v1/native-v5-comparison.json",
+      "sha256": "2c669d26fa40a211d9ad577729d5fab8b482dfb72b028e95b5c4a0ccb4c78a16",
+      "bytes": 3725
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-endpoint-v1/native-v5-hashes.json",
+      "sha256": "15e3e586768f2bfcbc1d134debacbb36c1a6286ebd7a68df63735924b758f89e",
+      "bytes": 934
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-endpoint-v1/original-endpoint-v1.json",
+      "sha256": "876cdd8ac6dae7d85ff9867e3a4a3d0a4ca5f36a874be8d00b954f1f28462ee3",
+      "bytes": 19159
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-endpoint-v1/original-endpoint-v2.json",
+      "sha256": "ae3e86ad5c2e9dbcf2695af679125cce6b8330b5778905139e09d278cf83261b",
+      "bytes": 21974
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-python-v1.log",
+      "sha256": "39ed479ba9272afbf47997b75702c5e1aeb1f31fd9d2321b3200d83e7a862d79",
+      "bytes": 41896
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-python-v2.log",
+      "sha256": "e7b822f000021ac5e3f8b37d93e892867ce7276034692c03c6c23dfdcb6046b3",
+      "bytes": 41896
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-python-v3.log",
+      "sha256": "ef87a5f4f1f396d3cdd9d07021ccc7638aa16dfeb1cfa33df15b95aaabe16fc2",
+      "bytes": 41896
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-prefix-v1/pair-001/absolute-rgb-difference.png",
+      "sha256": "006da718d6f34f280941de335302a45d211d227612b99690e696ae17797651a4",
+      "bytes": 220730
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-prefix-v1/pair-001/comparison.json",
+      "sha256": "a1aba57de48f53908c89c283ec332e1af939fd15aa856afe729e3040a3eadd25",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-prefix-v1/pair-001/side-by-side.png",
+      "sha256": "8c3485e7c3d7744ac4000b2c8e422bee63af7bd439d83a4184ebfe33b2655b4e",
+      "bytes": 414607
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-prefix-v1/pair-024/absolute-rgb-difference.png",
+      "sha256": "b802afe8c9e6d4bc48fb1b12c60d006f61b29b7028902fec0d75d2d2c4014a29",
+      "bytes": 204769
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-prefix-v1/pair-024/comparison.json",
+      "sha256": "5923c4628f2d1a1bc2039c76faec5bc6c244be59f5fe7057e40bfb6ebab998dc",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-prefix-v1/pair-024/side-by-side.png",
+      "sha256": "15b4b8ffb207ba2a65f5121d36704a9066da00cf80a9942e9e63ff85c611fe71",
+      "bytes": 403896
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-prefix-v1/pair-025/absolute-rgb-difference.png",
+      "sha256": "2843271729756f1bff054d3dfb192b842d8083eb69ee27623d474f8f9d9b2358",
+      "bytes": 218820
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-prefix-v1/pair-025/comparison.json",
+      "sha256": "280b09b0baa88be51baf28e1b6950e4ffb7eaeef6325a8d105b9ce6e69838f69",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-prefix-v1/pair-025/side-by-side.png",
+      "sha256": "3f0f3aadfcb31631534cb517c9e4706a569bb668677b31b8de5527a3e874ebff",
+      "bytes": 403898
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-prefix-v1/pair-030/absolute-rgb-difference.png",
+      "sha256": "9475085be33d923f9c5bf3cb6d65e3d0496a105956504b24b63d332d07b07a03",
+      "bytes": 202059
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-prefix-v1/pair-030/comparison.json",
+      "sha256": "1cc37ff9ea915daec91e6fd4ed2ba2dcb9910a844a037d1215d9a2fd99c1ce04",
+      "bytes": 1684
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-prefix-v1/pair-030/side-by-side.png",
+      "sha256": "0a091da4d542eb10f3c74727a438e16e11aae256403f9c036deed11df1c9c4d9",
+      "bytes": 400793
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-prefix-v1/pair-055/absolute-rgb-difference.png",
+      "sha256": "efcd8de498db8943f0371617ff6a893d38c4d46c44a339b861b9e459b0586ffa",
+      "bytes": 211558
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-prefix-v1/pair-055/comparison.json",
+      "sha256": "69b9a7e0a97d6c2bc691a61ac2ead65f74254ea5f32455f6e92f9da7c98dc598",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-prefix-v1/pair-055/side-by-side.png",
+      "sha256": "088cec0e41d27600d4a3423f2c0adc28f7dab687dafd609670a425e293da99e0",
+      "bytes": 387841
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-prefix-v1/pair-056/absolute-rgb-difference.png",
+      "sha256": "d3b521948c6b5a40cad7b4efb950a69cda395726d1e92593ce4cce5c8f922f37",
+      "bytes": 182154
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-prefix-v1/pair-056/comparison.json",
+      "sha256": "9419c807973812e5b80bf83698111d2c9451ce3934a44e6a49d67e17223216dd",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-prefix-v1/pair-056/side-by-side.png",
+      "sha256": "a1d67f4ad81188776737f52252a80e2f122cbdbedca4c69df55316ca6956c7bf",
+      "bytes": 386555
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v2/pair-001/absolute-rgb-difference.png",
+      "sha256": "006da718d6f34f280941de335302a45d211d227612b99690e696ae17797651a4",
+      "bytes": 220730
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v2/pair-001/comparison.json",
+      "sha256": "33ea5a894a604198da68f58093f68d77e1415245b625ff85195098f54173ee4f",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v2/pair-001/side-by-side.png",
+      "sha256": "8c3485e7c3d7744ac4000b2c8e422bee63af7bd439d83a4184ebfe33b2655b4e",
+      "bytes": 414607
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v2/pair-024/absolute-rgb-difference.png",
+      "sha256": "b802afe8c9e6d4bc48fb1b12c60d006f61b29b7028902fec0d75d2d2c4014a29",
+      "bytes": 204769
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v2/pair-024/comparison.json",
+      "sha256": "4d01cb886ad3f12d35b6ecfeb99b0ae991d79ba0f66b8c627774666cc9ad49ea",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v2/pair-024/side-by-side.png",
+      "sha256": "15b4b8ffb207ba2a65f5121d36704a9066da00cf80a9942e9e63ff85c611fe71",
+      "bytes": 403896
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v2/pair-025/absolute-rgb-difference.png",
+      "sha256": "2843271729756f1bff054d3dfb192b842d8083eb69ee27623d474f8f9d9b2358",
+      "bytes": 218820
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v2/pair-025/comparison.json",
+      "sha256": "d6f2d3aa54cb945441ab615fd8b9a48e50999fe47b55fb616dc0519f04454255",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v2/pair-025/side-by-side.png",
+      "sha256": "3f0f3aadfcb31631534cb517c9e4706a569bb668677b31b8de5527a3e874ebff",
+      "bytes": 403898
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v2/pair-030/absolute-rgb-difference.png",
+      "sha256": "9475085be33d923f9c5bf3cb6d65e3d0496a105956504b24b63d332d07b07a03",
+      "bytes": 202059
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v2/pair-030/comparison.json",
+      "sha256": "bb42b906cd4e6161388bf7d3bfdb08d8d5760869f215d4171cf009945f60d659",
+      "bytes": 1684
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v2/pair-030/side-by-side.png",
+      "sha256": "0a091da4d542eb10f3c74727a438e16e11aae256403f9c036deed11df1c9c4d9",
+      "bytes": 400793
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v3/pair-001/absolute-rgb-difference.png",
+      "sha256": "006da718d6f34f280941de335302a45d211d227612b99690e696ae17797651a4",
+      "bytes": 220730
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v3/pair-001/comparison.json",
+      "sha256": "dc5465599cd438f4873c4b9bb9066c273355eba857c9d06c64bbd6ae95271c93",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v3/pair-001/side-by-side.png",
+      "sha256": "8c3485e7c3d7744ac4000b2c8e422bee63af7bd439d83a4184ebfe33b2655b4e",
+      "bytes": 414607
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v3/pair-024/absolute-rgb-difference.png",
+      "sha256": "b802afe8c9e6d4bc48fb1b12c60d006f61b29b7028902fec0d75d2d2c4014a29",
+      "bytes": 204769
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v3/pair-024/comparison.json",
+      "sha256": "13303fad288164f473fb993694a3d2d15d782b6c3c464cda3762115324ecce7e",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v3/pair-024/side-by-side.png",
+      "sha256": "15b4b8ffb207ba2a65f5121d36704a9066da00cf80a9942e9e63ff85c611fe71",
+      "bytes": 403896
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v3/pair-025/absolute-rgb-difference.png",
+      "sha256": "2843271729756f1bff054d3dfb192b842d8083eb69ee27623d474f8f9d9b2358",
+      "bytes": 218820
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v3/pair-025/comparison.json",
+      "sha256": "1a9ba34f9fc351c1e070625de3e6e208645e3db331831ad2f5eb685ad7e01296",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v3/pair-025/side-by-side.png",
+      "sha256": "3f0f3aadfcb31631534cb517c9e4706a569bb668677b31b8de5527a3e874ebff",
+      "bytes": 403898
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v3/pair-030/absolute-rgb-difference.png",
+      "sha256": "9475085be33d923f9c5bf3cb6d65e3d0496a105956504b24b63d332d07b07a03",
+      "bytes": 202059
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v3/pair-030/comparison.json",
+      "sha256": "25ced8cc865c047b2996bccbf7fc6258c49b778388482b0d13b26077a2e6b60c",
+      "bytes": 1684
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v3/pair-030/side-by-side.png",
+      "sha256": "0a091da4d542eb10f3c74727a438e16e11aae256403f9c036deed11df1c9c4d9",
+      "bytes": 400793
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v4/pair-001/absolute-rgb-difference.png",
+      "sha256": "fae7b79e7018d11b69962be599bd45f40bf03522d3f7d9f794f6def6c87abc12",
+      "bytes": 220828
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v4/pair-001/comparison.json",
+      "sha256": "46101df990ab5fae36ef444d197cd3b97b64dc73d8112f94526fcf8d44942c62",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v4/pair-001/side-by-side.png",
+      "sha256": "77f3e3bb1b8d2d40ccb3fa04cb1b7215f1e1f6bc12a8369873445cf91a996da8",
+      "bytes": 414604
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v4/pair-024/absolute-rgb-difference.png",
+      "sha256": "7f23b800def76feac39536bee148a134ddd84251d308161c37453d19a00f3ec6",
+      "bytes": 204936
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v4/pair-024/comparison.json",
+      "sha256": "ddd6a525132461a9c40fad6039090d778ff8fd6c1763c8da99f782164a2bcbfa",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v4/pair-024/side-by-side.png",
+      "sha256": "b8a45a18c9d297e8f80df84de69328107499d6f11cff7eaeac58fdc52862703a",
+      "bytes": 403890
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v4/pair-025/absolute-rgb-difference.png",
+      "sha256": "92852f253ce6d6738a92c96cf0853e9b256db54c024950afe2698026a6fbfa88",
+      "bytes": 218946
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v4/pair-025/comparison.json",
+      "sha256": "53ca459b6e7a86190b3e0d2013942a2fa7086fc14dbc513567e1ff39a35625b6",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v4/pair-025/side-by-side.png",
+      "sha256": "981b7420638bdef3d1fe52a731e77ed31852a30c66f814c89846a7522847b803",
+      "bytes": 403894
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v4/pair-030/absolute-rgb-difference.png",
+      "sha256": "202be57ee3696d581cda9a04a98c92c07906eb2097ddf698dd279d0837908a06",
+      "bytes": 202251
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v4/pair-030/comparison.json",
+      "sha256": "2d7290d2aae366d48fcd00435820631f5ad41f480264670a954192fc0ee3b05f",
+      "bytes": 1686
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v4/pair-030/side-by-side.png",
+      "sha256": "14308aa9150eff280fa7b0d43f96cc0b37928d28832b992bb9bc8affbcad1310",
+      "bytes": 400778
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v4/pair-055/absolute-rgb-difference.png",
+      "sha256": "a160a2302fe6f52c7dffecac88c64339e155dd3762343c8d63fa77020552d0df",
+      "bytes": 211584
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v4/pair-055/comparison.json",
+      "sha256": "f8808d8bc6e2150e6ce030f9a77269a28b26973720ea3cf0dd776158a982c3ba",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v4/pair-055/side-by-side.png",
+      "sha256": "7cf23a845e704c5767ed5d5375c536bc2b7cb179227657f18d7795086267464c",
+      "bytes": 387754
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v4/pair-056/absolute-rgb-difference.png",
+      "sha256": "3ac69499f8c678bf00941f697d1db5365f0f85ba0c4405d11340cda0c6da414e",
+      "bytes": 182248
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v4/pair-056/comparison.json",
+      "sha256": "f62897ae1f913bf95b88b2a2f494f95b671df6b09d256717e5648caedfb23639",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v4/pair-056/side-by-side.png",
+      "sha256": "9cbc516ed12a17964f6414ae7d6d59bd75d1e5902bb0981696867cde81a30ef8",
+      "bytes": 386469
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v5/pair-001/absolute-rgb-difference.png",
+      "sha256": "006da718d6f34f280941de335302a45d211d227612b99690e696ae17797651a4",
+      "bytes": 220730
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v5/pair-001/comparison.json",
+      "sha256": "0962856751102820f6f0205f3f22b7516ca99a510a246f9178e84d01d863e87c",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v5/pair-001/side-by-side.png",
+      "sha256": "8c3485e7c3d7744ac4000b2c8e422bee63af7bd439d83a4184ebfe33b2655b4e",
+      "bytes": 414607
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v5/pair-024/absolute-rgb-difference.png",
+      "sha256": "b802afe8c9e6d4bc48fb1b12c60d006f61b29b7028902fec0d75d2d2c4014a29",
+      "bytes": 204769
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v5/pair-024/comparison.json",
+      "sha256": "2492d45eaa5728296669f35fb814d4728daf2d60ae9040d5641750d1ea36e7f6",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v5/pair-024/side-by-side.png",
+      "sha256": "15b4b8ffb207ba2a65f5121d36704a9066da00cf80a9942e9e63ff85c611fe71",
+      "bytes": 403896
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v5/pair-025/absolute-rgb-difference.png",
+      "sha256": "2843271729756f1bff054d3dfb192b842d8083eb69ee27623d474f8f9d9b2358",
+      "bytes": 218820
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v5/pair-025/comparison.json",
+      "sha256": "f6c200039b3b6aedc5b3d0675ca8df1ea4aad0386f8efc2dea447310968fab68",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v5/pair-025/side-by-side.png",
+      "sha256": "3f0f3aadfcb31631534cb517c9e4706a569bb668677b31b8de5527a3e874ebff",
+      "bytes": 403898
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v5/pair-030/absolute-rgb-difference.png",
+      "sha256": "9475085be33d923f9c5bf3cb6d65e3d0496a105956504b24b63d332d07b07a03",
+      "bytes": 202059
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v5/pair-030/comparison.json",
+      "sha256": "9db0893ae7463e40d52067b27a4bb053c94abc5a8b146f8d28fb5291ae80ce81",
+      "bytes": 1684
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v5/pair-030/side-by-side.png",
+      "sha256": "0a091da4d542eb10f3c74727a438e16e11aae256403f9c036deed11df1c9c4d9",
+      "bytes": 400793
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v5/pair-055/absolute-rgb-difference.png",
+      "sha256": "efcd8de498db8943f0371617ff6a893d38c4d46c44a339b861b9e459b0586ffa",
+      "bytes": 211558
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v5/pair-055/comparison.json",
+      "sha256": "3d5a1aedd6cafac260d60eade348019a4dfbefe9853850615a7451ab37e3de16",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v5/pair-055/side-by-side.png",
+      "sha256": "088cec0e41d27600d4a3423f2c0adc28f7dab687dafd609670a425e293da99e0",
+      "bytes": 387841
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v5/pair-056/absolute-rgb-difference.png",
+      "sha256": "d3b521948c6b5a40cad7b4efb950a69cda395726d1e92593ce4cce5c8f922f37",
+      "bytes": 182154
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v5/pair-056/comparison.json",
+      "sha256": "6b82025644afd01a3220976b213297332bc711c454563f183157cf8f8049bf0a",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v5/pair-056/side-by-side.png",
+      "sha256": "a1d67f4ad81188776737f52252a80e2f122cbdbedca4c69df55316ca6956c7bf",
+      "bytes": 386555
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v6/pair-001/absolute-rgb-difference.png",
+      "sha256": "fae7b79e7018d11b69962be599bd45f40bf03522d3f7d9f794f6def6c87abc12",
+      "bytes": 220828
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v6/pair-001/comparison.json",
+      "sha256": "1d84636ae32ce139b761bcffc208649fd12f73cac0d5b2580b2d7a5cb8eec92a",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v6/pair-001/side-by-side.png",
+      "sha256": "77f3e3bb1b8d2d40ccb3fa04cb1b7215f1e1f6bc12a8369873445cf91a996da8",
+      "bytes": 414604
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v6/pair-024/absolute-rgb-difference.png",
+      "sha256": "7f23b800def76feac39536bee148a134ddd84251d308161c37453d19a00f3ec6",
+      "bytes": 204936
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v6/pair-024/comparison.json",
+      "sha256": "6d78653166f771efcea3980fd93b8a082b26220971e21b85881c8417153c76cd",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v6/pair-024/side-by-side.png",
+      "sha256": "b8a45a18c9d297e8f80df84de69328107499d6f11cff7eaeac58fdc52862703a",
+      "bytes": 403890
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v6/pair-025/absolute-rgb-difference.png",
+      "sha256": "92852f253ce6d6738a92c96cf0853e9b256db54c024950afe2698026a6fbfa88",
+      "bytes": 218946
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v6/pair-025/comparison.json",
+      "sha256": "3da0b45f9b4179cc4a40bb9ffda6968a8f59fc217ec5f2a1737af2da581848c1",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v6/pair-025/side-by-side.png",
+      "sha256": "981b7420638bdef3d1fe52a731e77ed31852a30c66f814c89846a7522847b803",
+      "bytes": 403894
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v6/pair-030/absolute-rgb-difference.png",
+      "sha256": "202be57ee3696d581cda9a04a98c92c07906eb2097ddf698dd279d0837908a06",
+      "bytes": 202251
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v6/pair-030/comparison.json",
+      "sha256": "867072be39364f8dbb9f68ad5cfecea07e70443d36c9ac317505b369ad48349d",
+      "bytes": 1686
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v6/pair-030/side-by-side.png",
+      "sha256": "14308aa9150eff280fa7b0d43f96cc0b37928d28832b992bb9bc8affbcad1310",
+      "bytes": 400778
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v6/pair-055/absolute-rgb-difference.png",
+      "sha256": "a160a2302fe6f52c7dffecac88c64339e155dd3762343c8d63fa77020552d0df",
+      "bytes": 211584
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v6/pair-055/comparison.json",
+      "sha256": "e6687519164549f6496a4e05c81b9939e8ad83ac1971eadb2b7be01124a36b7b",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v6/pair-055/side-by-side.png",
+      "sha256": "7cf23a845e704c5767ed5d5375c536bc2b7cb179227657f18d7795086267464c",
+      "bytes": 387754
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v6/pair-056/absolute-rgb-difference.png",
+      "sha256": "3ac69499f8c678bf00941f697d1db5365f0f85ba0c4405d11340cda0c6da414e",
+      "bytes": 182248
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v6/pair-056/comparison.json",
+      "sha256": "23a91132e851afccb815fd2f58880ce06145e6c0757bbdd7786c704b3826316a",
+      "bytes": 1687
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-selected-images-v6/pair-056/side-by-side.png",
+      "sha256": "9cbc516ed12a17964f6414ae7d6d59bd75d1e5902bb0981696867cde81a30ef8",
+      "bytes": 386469
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/death-sound-tables-v1.json",
+      "sha256": "cdf9de274103395280c54d688b74b4b1a5afaa0b257d4c17a101a71dedddc7cb",
+      "bytes": 345
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/export-v22.log",
+      "sha256": "f4211311d4a62064d7bf06f7433cf27b267fb6c31cf6d500aafc95777a6a8087",
+      "bytes": 4678
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/export-v22.run.json",
+      "sha256": "8c842047652c46e301b2904573f71c75b6b889036f45d6ae0218cb1304149851",
+      "bytes": 658
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/export-v23.log",
+      "sha256": "b3122d4585394b93c94d8e15a680d8a254d76cc19e8f74e0d3a4c4de390e9404",
+      "bytes": 4667
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/export-v23.run.json",
+      "sha256": "9080bfa7d6fe0d6cee0e5ca60d8edd424def377118a6593afeccf914ec7408b5",
+      "bytes": 582
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/export-v24.log",
+      "sha256": "56aa4013e9b594fe9be281dc38c2f33720d33f96eb2d3821e5b3422408273f94",
+      "bytes": 4689
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/export-v24.run.json",
+      "sha256": "2b74f66d7e01b61e3ed431c638edac6914b5e68a7216a8d6843d61fab5183fbd",
+      "bytes": 614
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/export-v25.log",
+      "sha256": "8107f9565b2a8ab943c382f3009df6bc3df4cb36285791352fdd014a509937e5",
+      "bytes": 4689
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/export-v25.run.json",
+      "sha256": "fd7f2827554b1d753432e40df46aa45b8f70857bc49f2607b42db48ef491f933",
+      "bytes": 621
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/export-v26.log",
+      "sha256": "3ca8b94b07315551544a8e1ba12d695dce5f65c9d60e8ef11a6761360715b61f",
+      "bytes": 4678
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/export-v26.run.json",
+      "sha256": "68e4ff1716c20a584c35e9a2cff4edeb1df09d0f35067e7fba26cfd83bb42151",
+      "bytes": 598
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/export-v27.log",
+      "sha256": "d331964f495e33f223642cd87d14f724325ceb3868fa726517c5d40f7d1827b9",
+      "bytes": 4667
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/export-v27.run.json",
+      "sha256": "4c6fbb5d473f244b71e1d44ee0ba64f4a883595bab8cc02373f825c069a9e99a",
+      "bytes": 582
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/export-v28.log",
+      "sha256": "774484b8d8b8fcdc01636132dc7a2cc8d4c61039a84789175c7bee45aef37364",
+      "bytes": 4678
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/export-v28.run.json",
+      "sha256": "f883f694d01bbdf5434c26c24bfe58ef4adb8dfcea73287ebfd5fb3d4cf36a43",
+      "bytes": 598
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/isolated-ui.json",
+      "sha256": "20728973f55f9ab77eb1f4ac05a657247c8f634262e308ddbb1dab57f7cf0d66",
+      "bytes": 328073
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/live.jsonl",
+      "sha256": "eab376021f46ae43d6acf13a95d500d84c75098da1b0b6d35d40f0065df74f0c",
+      "bytes": 122646487
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png",
+      "sha256": "8cdad37975070f1b229452694daebc373b4bc3081559586f5b815ff4b7c2d3cd",
+      "bytes": 181872
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-1.bin",
+      "sha256": "172b1d1dab0bc5aee522af1f3829964abcac7e3d52afc253067c522ece592151",
+      "bytes": 395219880
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-10.bin",
+      "sha256": "57d9bc430ab92bee91cbf7aca263afa6dc24c8ed943c637c538342ac4945089d",
+      "bytes": 132576264
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-11.bin",
+      "sha256": "4629103173c59322e9522a730b5b3eccbe7287d50c23a0ae5125e218ed00f705",
+      "bytes": 136853824
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-12.bin",
+      "sha256": "68a9bcff20f7d7e60e37fb65935d1938844789d76300413865451e2914de5c53",
+      "bytes": 144604016
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-13.bin",
+      "sha256": "e9f1f56b2721058b895130c92165e5735684594b0f8d2a297a77ab3dfe71001c",
+      "bytes": 49279016
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-14.bin",
+      "sha256": "6d2936b01a1bed2c25f9a5b97786f55f0464f7345d484feb2050d43de9ed2357",
+      "bytes": 66584816
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-15.bin",
+      "sha256": "2bcd0c12298d3cc221fc7e457b989a494fbfac90ad12e8e7c02c448da3ee6058",
+      "bytes": 37445628
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-16.bin",
+      "sha256": "5961086c82f6a197809701d17e7439ea5727e832cfcf5d9c27b20cb6c1f89c12",
+      "bytes": 29671296
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-17.bin",
+      "sha256": "c08e69f357347498ca979cf7912c43679b62ebf6c0625778e2e3e2830ce93ae4",
+      "bytes": 39818628
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-18.bin",
+      "sha256": "676076011c79733ecc8e79520d3ef21b671c2b57cf57c6035b8c7167c0019e4b",
+      "bytes": 51517408
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-19.bin",
+      "sha256": "a730c160cae9f40aed861ee2e7e869db46a8a685c0c77ad90b4fced359a2e54e",
+      "bytes": 46262560
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-20.bin",
+      "sha256": "2cfd2913e543a91d7bda5defc2e6b78e703925a5d9d7a6d9149190660c3abab6",
+      "bytes": 37562132
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-21.bin",
+      "sha256": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3",
+      "bytes": 17490792
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-22.bin",
+      "sha256": "52ced2ad7d11087e23f17eec62ef9a12152e22819f3c90aae92d7f002c447da5",
+      "bytes": 30136560
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-23.bin",
+      "sha256": "1f9f59b044fba236b222258b5fdbd317ef825b3377ea0ae87b520961dcc705db",
+      "bytes": 49360176
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-24.bin",
+      "sha256": "32874905d2185e72ec34ff09170557e7b69b725cdd985cccf26d5f7cd6711677",
+      "bytes": 46690108
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-25.bin",
+      "sha256": "fdc89a50be91af9e191e45c69fe02da0b2e142974b27839eb0451c4f9728cf70",
+      "bytes": 63071336
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-26.bin",
+      "sha256": "af41cfef8c84ff73ab49d785a6d91101f8f3b3e5d8b3979f627dfab41274cb3b",
+      "bytes": 48205552
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-27.bin",
+      "sha256": "bbe4332ed86616c2b3baac9fcb220e9796a384a3f7bb57ced729d31a9ba06a1f",
+      "bytes": 43514892
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-28.bin",
+      "sha256": "90d96a56ce093691b3c09d5d70b05bcdf347d023450189eb7dcb927d5ea0eef9",
+      "bytes": 44525188
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-29.bin",
+      "sha256": "04b9a8a807d6759bd955f6b61efeed04fb3268c2fd0917ff08112a94d400f18b",
+      "bytes": 44525188
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-3.bin",
+      "sha256": "cb292c32db2b080619c19ab7c6733622439016b7742b7b8916cf144f87f1aa71",
+      "bytes": 332135100
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-37.bin",
+      "sha256": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd",
+      "bytes": 6669448
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-38.bin",
+      "sha256": "76ba34c261405d19131ff08afd76466bd58b75955ea5d5be4f94b432248fb11e",
+      "bytes": 1867760
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-45.bin",
+      "sha256": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921",
+      "bytes": 8950128
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-7.bin",
+      "sha256": "970ba83d9cbc0ea19838e938b2e23f6846fec527c18919568f79912f5ea0efb2",
+      "bytes": 31953320
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-80.bin",
+      "sha256": "c3a1d74820a3d85bf67f30081c73a98a7b47f89e94e9320bccc2ea5e5de87470",
+      "bytes": 50081816
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor-9.bin",
+      "sha256": "46617611f711119a98f32fdb1028d81cf6dabd5dc86fdb903c90660a32022d3a",
+      "bytes": 156199680
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actor.bin",
+      "sha256": "0b00844a886f5bb2afa28d7e08be4de98d5e0b7fde4a631f3f2e2b4dfedf4cd3",
+      "bytes": 164262784
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.actors-state.json",
+      "sha256": "3cd0a7c6ff296cf1b0c12b9db1daf64db93b86493bab2f34fc6d80ac76c9ccd2",
+      "bytes": 422
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.audio.json",
+      "sha256": "18e3ee616e4fc21a5ecbb9ba2c3a7bc5aae766cc7ddd97315145b8d423e8f8d3",
+      "bytes": 164
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.battle-actors.json",
+      "sha256": "c31ea6dba9a805feba79f770e0887bc1b5d96ddc3421b692d2d0cfb6e566695e",
+      "bytes": 1042
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.battle-capture.bin",
+      "sha256": "5c0bf0d5a8f1370746a940a5e14ac8e9b89ff7d7a647cdfe3636e7654d863256",
+      "bytes": 1848
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.battle-construction.json",
+      "sha256": "69152968e95c4446acc48b6773f977ad9ee8eb6b6cecbc75d055b581cbceb5e3",
+      "bytes": 93845
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.battle-effects.json",
+      "sha256": "6949a7e818dfebc1183aba4dd67f2fc187f8eb86b2e2bea40fb0d463480105c0",
+      "bytes": 2498
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.battle-history.json",
+      "sha256": "925d0c37ac4153ce3f45290418a1657f50fc9f404791c0b9769995e2128caa61",
+      "bytes": 315
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.battle-loading.bin",
+      "sha256": "8c1ff785f4e785f9eefe8be03ad6c99a44a0035d0bd6a2d5ef0af290feb0c0b3",
+      "bytes": 37888
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.battle-return.bin",
+      "sha256": "9f9060ddde716b5872a323b1cf16a523126a6f71b5cf6c53a03874e3bdac717a",
+      "bytes": 140
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.battle-root.bin",
+      "sha256": "2a0e906b202008df3a5439a7c857b19967badd30928c544d0ef14b4b24ad8502",
+      "bytes": 33232
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.battle-stage.callbacks.json",
+      "sha256": "3dab24cdaa7d66c78dd0b90f8e1513fd229b69eb9519348634430cd81f8f2bbc",
+      "bytes": 136477
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.battle-stage.first-active.draw.json",
+      "sha256": "f8963efdc5261603f160dac4ae2fc6ac6be3f566f60662e60a4147d7895181c2",
+      "bytes": 9975028
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.battle-stage.hud.json",
+      "sha256": "dd22eeb11a033cd694ea0ab50a4ce60eaaa85e999ce1594717d1368e6c889d95",
+      "bytes": 75816
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.battle-stage.json",
+      "sha256": "11ee2172c871854b879d7aff716894d086e6962a15ac4d152b05f29175d06398",
+      "bytes": 42439
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.battle-stage.scheduled-ui.json",
+      "sha256": "7b05496366fc479823a589d0fef360bc6abf74b0fd547d432b63ca40e4e7c5c0",
+      "bytes": 328075
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.battle-stage.ui.json",
+      "sha256": "186331d14df03dd8e655f7a848af36a1b103629b5efa5a15b678316ad3a8e0b6",
+      "bytes": 32001
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.battle-transition.bin",
+      "sha256": "77e2aa2c94b9e04c46d9912f7b96820809f6bb8e9d500d4db2689e90779bf51e",
+      "bytes": 192
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.camera-state.bin",
+      "sha256": "62a331f5e3ca2634f1b4bfea5d3d2f260e0180b77b4bcb6a3beac376cdfc815d",
+      "bytes": 2088900
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.camera.bin",
+      "sha256": "678ad6edd65d812d690c9c42e3c29290652041f2c885d3ac5735682624faa971",
+      "bytes": 6684480
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.choices.bin",
+      "sha256": "dfc147adabc0e6fb8f96d23090138d6ffbd844ab4f8ff5dc0942b8e940b60a27",
+      "bytes": 5013360
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.dialogue.bin",
+      "sha256": "14b2085e3db44ef8b9c5245fa92b370df8f0e21f6572522140a5a3e002ec21ec",
+      "bytes": 5013360
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.effect-submissions.bin",
+      "sha256": "ecb724f4367a602eabe1f0ef5ca66d7e76680bcd0faa2f12159632f066a97f80",
+      "bytes": 23266184
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.effects.bin",
+      "sha256": "b4c880dc5130ad8f5dd8e3f40858bd600f22c3025740d505783aca20e3d506aa",
+      "bytes": 2906580
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.frames/manifest.json",
+      "sha256": "b6087d1215f03a8fd276e20d62999e3bd75ac5f2abf5e99b4cc6e247ed77e893",
+      "bytes": 939
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.game-mode.bin",
+      "sha256": "96b8ab66175eb51425c3cbd8ca14039a93c2bb87fa8461e814f080617cc19a31",
+      "bytes": 237300
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.interaction.bin",
+      "sha256": "85326abf8548e08cd767c345e30266630a21c59563ec41bbce881b078c0c4c89",
+      "bytes": 3342240
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.json",
+      "sha256": "86f63aa83c342bd8a399371006925bd8d2c3ea2da2b957aa57ca1502cf079d35",
+      "bytes": 966
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.map-effects.bin",
+      "sha256": "485ca1679a9f7de483952c24c5387ad8139feff2da03cecfac5bbe92812c6d66",
+      "bytes": 621254272
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.movement.bin",
+      "sha256": "6ab4e2852381a6fa58689d6123eb5ab1f9f1ed94e743704e0bfbd029c271a7cf",
+      "bytes": 6684480
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.music.bin",
+      "sha256": "a804252813d8a46219c4c40441f58b4ca74f9aab8bdc45bd850100da0fc8922a",
+      "bytes": 2112620
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.projection.bin",
+      "sha256": "b29f0c8f5b6b413824171585c53962786eb85267dcfe42148099515b5f248db5",
+      "bytes": 39271320
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.retiring-effects.bin",
+      "sha256": "c69a7d44303e50087e9269ddbf6e9f04895493c2d9c8b4d216745cefe57a902e",
+      "bytes": 815624
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.screen-filter.bin",
+      "sha256": "4e6be36c86e5b901b785c9c6020d5e02bd7d9dd1a1e03ef137ccd727c68ef946",
+      "bytes": 1671120
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.shadow.bin",
+      "sha256": "a4b8c78aebf2ab1e4db0f8555d1b2f8fa69288cf3c711a45652a46eb98a8f45b",
+      "bytes": 12533400
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.sound.bin",
+      "sha256": "fa5f933241c63e3cd2f9930ffc4cef34dd37f580cf0ba7c4a645615e8ce2847a",
+      "bytes": 11740
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.transition.bin",
+      "sha256": "6ad9cf64321f32f9b7dff9abd0520b5f211aa2f23a462e9f4dc7db8519721626",
+      "bytes": 3342240
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.ui-party.bin",
+      "sha256": "0f9ff4f984aa4de91bf35ce579a6d5b06ec7b0764d6c865d119258b02f707eaf",
+      "bytes": 288
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.variables.bin",
+      "sha256": "3a5b29b31ed27d71a0a314e8ca1892a31ef54a3e99de65b92b5053dccaa68da6",
+      "bytes": 4096
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/native.png.wander.bin",
+      "sha256": "5b55e6e820bea76c2e2bcf52bdcafbd89811307cd9d200ea85fd1088ff98c7a3",
+      "bytes": 7551248
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/okage-native",
+      "sha256": "2329232cc9fd9f684805722a5e12395914162bbfdb657ea7833803367cce01ec",
+      "bytes": 2232688
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/run.json",
+      "sha256": "cd6bcd780704ac792d85fa9554e6cb3e7b4e422190dd4fa6f52f4b6b4cc18f93",
+      "bytes": 6405
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/source.diff",
+      "sha256": "87323d528675225ce200b4d0774f73f79650a785dd070404c689b4f3aad49601",
+      "bytes": 2873
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105631-v1/stdout.log",
+      "sha256": "666572c70de409207a93cb23b95ea7dc6c27cbaf8cb25b936739df109bcab916",
+      "bytes": 4861
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v1/isolated-ui.json",
+      "sha256": "0fd90e1d7e18834c872c033f77e851e19b16ca716290809ee1346c3d89bb72d7",
+      "bytes": 328073
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v1/live.jsonl",
+      "sha256": "9cdfa33b31b82cb28bb5f0ecd2ea945efaab8736a02e9e8f5d30e3125133206b",
+      "bytes": 113109231
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v1/native.png.battle-construction.json",
+      "sha256": "56e494b4e1781820abca1a694099663b95f00af305d586a61d5be8fe969bf43c",
+      "bytes": 93845
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v1/native.png.battle-stage.callbacks.json",
+      "sha256": "4db74cb7dc48b7fa3ed75e5fcf340519f127a0db2f2b7970dfa647bdd621b16c",
+      "bytes": 136477
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v1/native.png.battle-stage.first-active.draw.json",
+      "sha256": "d8d59b5dee1816453b48a9604a48a54776c508761248b60c419e5288ea025f8d",
+      "bytes": 9975028
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v1/native.png.battle-stage.hud.json",
+      "sha256": "dd22eeb11a033cd694ea0ab50a4ce60eaaa85e999ce1594717d1368e6c889d95",
+      "bytes": 75816
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v1/native.png.battle-stage.json",
+      "sha256": "cd72319a2cd56c587e4eac18788ef4b05fb9da9bfad7d4c06cc65e453a17e8a2",
+      "bytes": 42439
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v1/native.png.battle-stage.scheduled-ui.json",
+      "sha256": "9dee3d7e0bb2c2139c177c519687016739f0a7d444f4b8cdbeda3fbe5a33f244",
+      "bytes": 328075
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v1/native.png.battle-stage.ui.json",
+      "sha256": "bdf76344dab59d1ad92fe3b205435f95e6a71b76171a5ca3bb67501cb6b391a3",
+      "bytes": 32001
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v1/native.png.frames/manifest.json",
+      "sha256": "f48cb95f8caa5b25060a823799a26e320bddabbd58e464e7cc994338e4b595c8",
+      "bytes": 444
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v1/okage-native",
+      "sha256": "2cc8e8ae87a2a84288facc7ff7362af20ea4ee439d0d5ecac99ab4f7ca0fe2ed",
+      "bytes": 2208416
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v1/run.json",
+      "sha256": "62ee6fde4145e8c3bdf5ba7091d45a2696e89675766a7436db16a1c5369c42aa",
+      "bytes": 6432
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v1/source.diff",
+      "sha256": "7584104b7a2b7e2985fd65784e197527fede1d6026259738ef9cb7b4cc11d9d5",
+      "bytes": 6394
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v1/stdout.log",
+      "sha256": "611e813be6f9776f40b6d63b158cce52cb7c363f083b4bed19a067f0934c014d",
+      "bytes": 4896
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v2/isolated-ui.json",
+      "sha256": "20728973f55f9ab77eb1f4ac05a657247c8f634262e308ddbb1dab57f7cf0d66",
+      "bytes": 328073
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v2/live.jsonl",
+      "sha256": "7a8a5dc1e826e82c75ed53713039b686b9fc519454157c20cbc01cc519539f10",
+      "bytes": 119001406
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v2/native.png.battle-construction.json",
+      "sha256": "69152968e95c4446acc48b6773f977ad9ee8eb6b6cecbc75d055b581cbceb5e3",
+      "bytes": 93845
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v2/native.png.battle-stage.callbacks.json",
+      "sha256": "3dab24cdaa7d66c78dd0b90f8e1513fd229b69eb9519348634430cd81f8f2bbc",
+      "bytes": 136477
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v2/native.png.battle-stage.first-active.draw.json",
+      "sha256": "f8963efdc5261603f160dac4ae2fc6ac6be3f566f60662e60a4147d7895181c2",
+      "bytes": 9975028
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v2/native.png.battle-stage.hud.json",
+      "sha256": "dd22eeb11a033cd694ea0ab50a4ce60eaaa85e999ce1594717d1368e6c889d95",
+      "bytes": 75816
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v2/native.png.battle-stage.json",
+      "sha256": "11ee2172c871854b879d7aff716894d086e6962a15ac4d152b05f29175d06398",
+      "bytes": 42439
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v2/native.png.battle-stage.scheduled-ui.json",
+      "sha256": "7b05496366fc479823a589d0fef360bc6abf74b0fd547d432b63ca40e4e7c5c0",
+      "bytes": 328075
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v2/native.png.battle-stage.ui.json",
+      "sha256": "186331d14df03dd8e655f7a848af36a1b103629b5efa5a15b678316ad3a8e0b6",
+      "bytes": 32001
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v2/native.png.frames/manifest.json",
+      "sha256": "7626fbfe7f93db311ace9cd35bde4b0a635d77c95d0277e8cb3ba5d4c471e7a3",
+      "bytes": 678
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v2/okage-native",
+      "sha256": "fc731441ef570caf9cd0ce1057d847b3d73139e87c53e323f77e2b4c4ce2fade",
+      "bytes": 2208416
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v2/run.json",
+      "sha256": "c19bf32b57bf1631f2fad0b257cdb0f2d444d7117d52f0880a12ef27704ec654",
+      "bytes": 6426
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v2/source.diff",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v2/stdout.log",
+      "sha256": "560c56947d813fa1c3f62b70f2205d895186c2659ec664dde52789461e7c9608",
+      "bytes": 4899
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v3/isolated-ui.json",
+      "sha256": "20728973f55f9ab77eb1f4ac05a657247c8f634262e308ddbb1dab57f7cf0d66",
+      "bytes": 328073
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v3/live.jsonl",
+      "sha256": "c8a22a7c040214ef18e7da342b30ca4a62011b86904bfbb65438470c99ac2e18",
+      "bytes": 119191934
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v3/native.png.battle-construction.json",
+      "sha256": "69152968e95c4446acc48b6773f977ad9ee8eb6b6cecbc75d055b581cbceb5e3",
+      "bytes": 93845
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v3/native.png.battle-stage.callbacks.json",
+      "sha256": "3dab24cdaa7d66c78dd0b90f8e1513fd229b69eb9519348634430cd81f8f2bbc",
+      "bytes": 136477
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v3/native.png.battle-stage.first-active.draw.json",
+      "sha256": "f8963efdc5261603f160dac4ae2fc6ac6be3f566f60662e60a4147d7895181c2",
+      "bytes": 9975028
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v3/native.png.battle-stage.hud.json",
+      "sha256": "dd22eeb11a033cd694ea0ab50a4ce60eaaa85e999ce1594717d1368e6c889d95",
+      "bytes": 75816
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v3/native.png.battle-stage.json",
+      "sha256": "11ee2172c871854b879d7aff716894d086e6962a15ac4d152b05f29175d06398",
+      "bytes": 42439
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v3/native.png.battle-stage.scheduled-ui.json",
+      "sha256": "7b05496366fc479823a589d0fef360bc6abf74b0fd547d432b63ca40e4e7c5c0",
+      "bytes": 328075
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v3/native.png.battle-stage.ui.json",
+      "sha256": "186331d14df03dd8e655f7a848af36a1b103629b5efa5a15b678316ad3a8e0b6",
+      "bytes": 32001
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v3/native.png.frames/manifest.json",
+      "sha256": "7626fbfe7f93db311ace9cd35bde4b0a635d77c95d0277e8cb3ba5d4c471e7a3",
+      "bytes": 678
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v3/okage-native",
+      "sha256": "53166c23f6cab46400591b7b33f4fd14f26d533604b6f59c4454c521e560a0c2",
+      "bytes": 2210944
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v3/run.json",
+      "sha256": "63a73be8ae50f4e212a7817bf599b2ecde667543bb303ac5e1bf980d7ac15fdb",
+      "bytes": 6424
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v3/source.diff",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v3/stdout.log",
+      "sha256": "20e7f32ecec7a5120d0639814cdbb10df7347f46f02fd9f8866713373cd22dc3",
+      "bytes": 4890
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v4/isolated-ui.json",
+      "sha256": "145990125042adb90ea03956813745f862f9409917f7630cda9738d763fa48b9",
+      "bytes": 328073
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v4/live.jsonl",
+      "sha256": "54c488ba7c474b6c20c56edbb486a4d94973d7746cf849312e0bb332dfcdac1b",
+      "bytes": 122598786
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v4/native.png.battle-construction.json",
+      "sha256": "90ded53862663f2f08e2997a14a3e788f9a4b3ee5a5d21fc3219cbd078ff7314",
+      "bytes": 93845
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v4/native.png.battle-stage.callbacks.json",
+      "sha256": "1a1a507579a742d7e661b5b4c7d535846b98b156fc8c19771681bb1dc0e523bb",
+      "bytes": 136477
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v4/native.png.battle-stage.first-active.draw.json",
+      "sha256": "ba66aab8243995e441b8181c7c87068c3b09d30734c55be3081bb060f7004c2e",
+      "bytes": 9975028
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v4/native.png.battle-stage.hud.json",
+      "sha256": "dd22eeb11a033cd694ea0ab50a4ce60eaaa85e999ce1594717d1368e6c889d95",
+      "bytes": 75816
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v4/native.png.battle-stage.json",
+      "sha256": "9ccd250556510d47c8b44c268277a86e191675d8db7cb101e975a3ce6dbe4edf",
+      "bytes": 42439
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v4/native.png.battle-stage.scheduled-ui.json",
+      "sha256": "4ca6a57e23db2c15ffc62ca35920ff56f6269be646d9724c4a52bb062e66b5fb",
+      "bytes": 328075
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v4/native.png.battle-stage.ui.json",
+      "sha256": "26f48bcb43ccff48524eccb55007c06a2f8e93054b427f6b63f55a0d10b18026",
+      "bytes": 32001
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v4/native.png.frames/manifest.json",
+      "sha256": "1dc5aa20bf4cbb342bf89c1a49a9e85eef020314eb9434499832ef2a9bfa9d84",
+      "bytes": 912
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v4/okage-native",
+      "sha256": "8bb685f4e24a61081c27d5e284f5afa982c03dc283614edcbeacd2e0176495dc",
+      "bytes": 2232688
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v4/run.json",
+      "sha256": "156efb897f8acf2b7a6f7d8fe14670b0a63f4570e0610731ec83fffa9cb16fbc",
+      "bytes": 6424
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v4/source.diff",
+      "sha256": "87323d528675225ce200b4d0774f73f79650a785dd070404c689b4f3aad49601",
+      "bytes": 2873
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v4/stdout.log",
+      "sha256": "f976ba28530a2a0bf69f8cff044c3ea64e64da6ace7f1480e4a6cd5ef5edc58c",
+      "bytes": 4878
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v5/isolated-ui.json",
+      "sha256": "20728973f55f9ab77eb1f4ac05a657247c8f634262e308ddbb1dab57f7cf0d66",
+      "bytes": 328073
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v5/live.jsonl",
+      "sha256": "d39454b3dbf64cf5136d8fb8f13fb488d2636f291ff0c8cbe330b6be9c1ee510",
+      "bytes": 122789400
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v5/native.png.battle-construction.json",
+      "sha256": "69152968e95c4446acc48b6773f977ad9ee8eb6b6cecbc75d055b581cbceb5e3",
+      "bytes": 93845
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v5/native.png.battle-stage.callbacks.json",
+      "sha256": "3dab24cdaa7d66c78dd0b90f8e1513fd229b69eb9519348634430cd81f8f2bbc",
+      "bytes": 136477
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v5/native.png.battle-stage.first-active.draw.json",
+      "sha256": "f8963efdc5261603f160dac4ae2fc6ac6be3f566f60662e60a4147d7895181c2",
+      "bytes": 9975028
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v5/native.png.battle-stage.hud.json",
+      "sha256": "dd22eeb11a033cd694ea0ab50a4ce60eaaa85e999ce1594717d1368e6c889d95",
+      "bytes": 75816
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v5/native.png.battle-stage.json",
+      "sha256": "11ee2172c871854b879d7aff716894d086e6962a15ac4d152b05f29175d06398",
+      "bytes": 42439
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v5/native.png.battle-stage.scheduled-ui.json",
+      "sha256": "7b05496366fc479823a589d0fef360bc6abf74b0fd547d432b63ca40e4e7c5c0",
+      "bytes": 328075
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v5/native.png.battle-stage.ui.json",
+      "sha256": "186331d14df03dd8e655f7a848af36a1b103629b5efa5a15b678316ad3a8e0b6",
+      "bytes": 32001
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v5/native.png.frames/manifest.json",
+      "sha256": "1dc5aa20bf4cbb342bf89c1a49a9e85eef020314eb9434499832ef2a9bfa9d84",
+      "bytes": 912
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v5/okage-native",
+      "sha256": "2329232cc9fd9f684805722a5e12395914162bbfdb657ea7833803367cce01ec",
+      "bytes": 2232688
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v5/run.json",
+      "sha256": "6a70386e59e3af8777ad10cb8f5efcec02396e3c2b293357718c9a8fc6f3291e",
+      "bytes": 6423
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v5/source.diff",
+      "sha256": "de8240a4e272854556be9c020e302c541007cabe41e7bc45c300f15b2e235146",
+      "bytes": 6852
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v5/stdout.log",
+      "sha256": "79b6faecccce463c36fba9e257ea541a54bd8221772fc0c19b208130829bfdee",
+      "bytes": 4884
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v6/isolated-ui.json",
+      "sha256": "145990125042adb90ea03956813745f862f9409917f7630cda9738d763fa48b9",
+      "bytes": 328073
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v6/live.jsonl",
+      "sha256": "ae424ac18f14f1bbdacaa63b28b4a243a998c56867edd37fb864ba55395bb01e",
+      "bytes": 122741733
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v6/native.png.battle-construction.json",
+      "sha256": "90ded53862663f2f08e2997a14a3e788f9a4b3ee5a5d21fc3219cbd078ff7314",
+      "bytes": 93845
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v6/native.png.battle-stage.callbacks.json",
+      "sha256": "1a1a507579a742d7e661b5b4c7d535846b98b156fc8c19771681bb1dc0e523bb",
+      "bytes": 136477
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v6/native.png.battle-stage.first-active.draw.json",
+      "sha256": "ba66aab8243995e441b8181c7c87068c3b09d30734c55be3081bb060f7004c2e",
+      "bytes": 9975028
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v6/native.png.battle-stage.hud.json",
+      "sha256": "dd22eeb11a033cd694ea0ab50a4ce60eaaa85e999ce1594717d1368e6c889d95",
+      "bytes": 75816
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v6/native.png.battle-stage.json",
+      "sha256": "9ccd250556510d47c8b44c268277a86e191675d8db7cb101e975a3ce6dbe4edf",
+      "bytes": 42439
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v6/native.png.battle-stage.scheduled-ui.json",
+      "sha256": "4ca6a57e23db2c15ffc62ca35920ff56f6269be646d9724c4a52bb062e66b5fb",
+      "bytes": 328075
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v6/native.png.battle-stage.ui.json",
+      "sha256": "26f48bcb43ccff48524eccb55007c06a2f8e93054b427f6b63f55a0d10b18026",
+      "bytes": 32001
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v6/native.png.frames/manifest.json",
+      "sha256": "1dc5aa20bf4cbb342bf89c1a49a9e85eef020314eb9434499832ef2a9bfa9d84",
+      "bytes": 912
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v6/okage-native",
+      "sha256": "6a59a8256a0eada9ee47ae6e6f465a788c6eda175d3362d15508206cd1d5aaa4",
+      "bytes": 2233120
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v6/run.json",
+      "sha256": "f7c848f9c8655e2868ba6aa0e95a26417855d8bbb0549444c7821d04ed8e407c",
+      "bytes": 6432
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v6/source.diff",
+      "sha256": "87323d528675225ce200b4d0774f73f79650a785dd070404c689b4f3aad49601",
+      "bytes": 2873
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/native-death-105695-v6/stdout.log",
+      "sha256": "2db4b9f62df929d445662830be1e72f1f0150a0e09ff751093c67973b8a37bb9",
+      "bytes": 4884
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/original-death-120-v1/live.audio-index.json",
+      "sha256": "d63783a87a34c8605932e71f916a3e0bcb85677ee6f39e6c13050fb609bc1db9",
+      "bytes": 7053
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/original-death-120-v1/live.controller.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/original-death-120-v1/live.controller.jsonl.choices.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/original-death-120-v1/live.frames/manifest.json",
+      "sha256": "edbccf4e398f7c1d195cc8b6b295b454af63ee4b6b7557701cefa6d9adb91ec0",
+      "bytes": 1481
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/original-death-120-v1/live.game-mode.jsonl",
+      "sha256": "dbc1ca483449e19b167d03bba986df6a0a946899a85229c755fe9bdc17fce6a8",
+      "bytes": 375942
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/original-death-120-v1/live.json",
+      "sha256": "b6dd5f0eb0093d81527476dc565aa7662fb9c6218974599bbf7ee316187d9e57",
+      "bytes": 379
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/original-death-120-v1/live.jsonl",
+      "sha256": "ed022f5f445f4c2b4ee256eef32944777d32318712c88ba19efbb944fee0b709",
+      "bytes": 23989604
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/original-death-120-v1/live.layer0.png",
+      "sha256": "cff49092e50ae8f26af7e759d34c6131648d7ecc4cb25cf5e9bf4a67213663d3",
+      "bytes": 165927
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/original-death-120-v1/live.state.zip",
+      "sha256": "9ffcb96a54eed0f62999b662f48b6a81713420a1ab2217c420f170796b3b3870",
+      "bytes": 11335783
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/original-death-120-v1/pending.json",
+      "sha256": "d9bb615a31e3ebeb3ccf0af7e6001873b57f532d2a686864cbb02549a95d5508",
+      "bytes": 1681
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/original-death-120-v1/run.json",
+      "sha256": "acc52c8c9bd75174dab17e1516a455a666dd6c33c6beee2dbfcce551d8109c5f",
+      "bytes": 1726
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/original-death-120-v1/run.log",
+      "sha256": "857f7313b5eb044ff99cb3f805eca8f18f9dfabe5491141f0e736a3f9e9a3e60",
+      "bytes": 14347
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/reward-owner-review-v1.txt",
+      "sha256": "05481ab2bde416d57c413f9a3f04be3e11b8e701514795499f9ec3131dd9f41c",
+      "bytes": 7239
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/static-reward-render-v1/hashes.json",
+      "sha256": "905c64454d8f1c99a59e692159156e30f587e0e5389a35c185849d4dd1ebbd47",
+      "bytes": 803
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/static-reward-render-v1/negative-build.log",
+      "sha256": "c999ff3d296ab43ee6e49c15f9ad01d085904442d85e89c5e18a689a0c0f3767",
+      "bytes": 159
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/static-reward-render-v1/negative.json",
+      "sha256": "7b817f894271b9f8d872e08003b75c790949bc5d0d2137d1c8dafe7b3afeed73",
+      "bytes": 206
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/static-reward-render-v1/negative.log",
+      "sha256": "8d12145a3230ffc036c48b425b47276d3a7567891f5af9e446c7ce0751c867ed",
+      "bytes": 38
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/static-reward-render-v1/source-review.txt",
+      "sha256": "e63a50620b26986df703e7b85f9733b3fb3268dcd122f51e0a7a9df32fa3a14d",
+      "bytes": 1030
+    },
+    {
+      "path": "local/worktrees/effect-disappearance-v1/local/checks/cmake-fp-v1/debug-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/worktrees/effect-disappearance-v1/local/checks/cmake-fp-v1/debug-owned.log",
+      "sha256": "f5ab32e4ce2b6b1698a86516aa367ab9f7323ab48357f0fbb42b9b0eef1bf5b1",
+      "bytes": 139
+    },
+    {
+      "path": "local/worktrees/effect-disappearance-v1/local/checks/cmake-fp-v1/debug-synthetic.log",
+      "sha256": "5c225dddd08d9a61a02cd2b60397d91748ff4480fbadf969eeb483dac1dd70e6",
+      "bytes": 76
+    },
+    {
+      "path": "local/worktrees/effect-disappearance-v1/local/checks/cmake-fp-v1/diagnosis.txt",
+      "sha256": "98fa8c5c5f67d7c528a0e37acd627d55085d3614a58ba1cbfb1881f06f685503",
+      "bytes": 1894
+    },
+    {
+      "path": "local/worktrees/effect-disappearance-v1/local/checks/cmake-fp-v1/fixed-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/worktrees/effect-disappearance-v1/local/checks/cmake-fp-v1/fixed-owned.log",
+      "sha256": "f5ab32e4ce2b6b1698a86516aa367ab9f7323ab48357f0fbb42b9b0eef1bf5b1",
+      "bytes": 139
+    },
+    {
+      "path": "local/worktrees/effect-disappearance-v1/local/checks/cmake-fp-v1/fixed-results.json",
+      "sha256": "e109b4ac99d28f4b69c3ff3d5dbfb57e091a185e302773986144e77f14490ec2",
+      "bytes": 464
+    },
+    {
+      "path": "local/worktrees/effect-disappearance-v1/local/checks/cmake-fp-v1/fixed-synthetic.log",
+      "sha256": "5c225dddd08d9a61a02cd2b60397d91748ff4480fbadf969eeb483dac1dd70e6",
+      "bytes": 76
+    },
+    {
+      "path": "local/worktrees/effect-disappearance-v1/local/checks/cmake-fp-v1/hashes.json",
+      "sha256": "4f83ff019bfd9d86207360547ec20d9228d4ef3f7da653bca9035ee11df21a0e",
+      "bytes": 2764
+    },
+    {
+      "path": "local/worktrees/effect-disappearance-v1/local/checks/cmake-fp-v1/negative-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/worktrees/effect-disappearance-v1/local/checks/cmake-fp-v1/negative-test.log",
+      "sha256": "64ee54648c3aa4fa1155b447a873e46c74c2451e34ed1a23f213977a799ff5c0",
+      "bytes": 31
+    },
+    {
+      "path": "local/worktrees/effect-disappearance-v1/local/checks/cmake-fp-v1/no-contract-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/worktrees/effect-disappearance-v1/local/checks/cmake-fp-v1/no-contract-test.log",
+      "sha256": "5c225dddd08d9a61a02cd2b60397d91748ff4480fbadf969eeb483dac1dd70e6",
+      "bytes": 76
+    },
+    {
+      "path": "local/worktrees/effect-disappearance-v1/local/checks/cmake-fp-v1/release-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/worktrees/effect-disappearance-v1/local/checks/cmake-fp-v1/release-owned.log",
+      "sha256": "f5ab32e4ce2b6b1698a86516aa367ab9f7323ab48357f0fbb42b9b0eef1bf5b1",
+      "bytes": 139
+    },
+    {
+      "path": "local/worktrees/effect-disappearance-v1/local/checks/cmake-fp-v1/release-synthetic.log",
+      "sha256": "5c225dddd08d9a61a02cd2b60397d91748ff4480fbadf969eeb483dac1dd70e6",
+      "bytes": 76
+    },
+    {
+      "path": "local/worktrees/effect-disappearance-v1/local/checks/cmake-fp-v1/sanitize-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/worktrees/effect-disappearance-v1/local/checks/cmake-fp-v1/sanitize-owned.log",
+      "sha256": "f5ab32e4ce2b6b1698a86516aa367ab9f7323ab48357f0fbb42b9b0eef1bf5b1",
+      "bytes": 139
+    },
+    {
+      "path": "local/worktrees/effect-disappearance-v1/local/checks/cmake-fp-v1/sanitize-synthetic.log",
+      "sha256": "5c225dddd08d9a61a02cd2b60397d91748ff4480fbadf969eeb483dac1dd70e6",
+      "bytes": 76
+    },
+    {
+      "path": "local/worktrees/effect-disappearance-v1/local/checks/cmake-fp-v1/three-config-results.json",
+      "sha256": "379fbc617799cedca2836a0c0eaafa8ef8be3f4564918d8305864c2fe0d629c1",
+      "bytes": 3521
+    },
+    {
+      "path": "local/worktrees/enemy-action-grouping/local/grouping-checks/debug/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/worktrees/enemy-action-grouping/local/grouping-checks/debug/result.json",
+      "sha256": "7a1a5da4cbbc6ea000fe2c363c59aec50e2ffa769f7489061f8b124c0fa3c222",
+      "bytes": 494
+    },
+    {
+      "path": "local/worktrees/enemy-action-grouping/local/grouping-checks/debug/test.log",
+      "sha256": "599c5ef5188b1aff2355fef7928441d76ff5b3b7edad61c1e00438cb49d6467b",
+      "bytes": 34
+    },
+    {
+      "path": "local/worktrees/enemy-action-grouping/local/grouping-checks/manifest.json",
+      "sha256": "270df93d87448be21a402052614cf6a0a5071d66df4917df84737d0be1f4ebc2",
+      "bytes": 2878
+    },
+    {
+      "path": "local/worktrees/enemy-action-grouping/local/grouping-checks/release/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/worktrees/enemy-action-grouping/local/grouping-checks/release/result.json",
+      "sha256": "a39ad033ee68f31542376309a870b39184a022d9b0959ebc2c1959eae00b78bf",
+      "bytes": 544
+    },
+    {
+      "path": "local/worktrees/enemy-action-grouping/local/grouping-checks/release/test.log",
+      "sha256": "599c5ef5188b1aff2355fef7928441d76ff5b3b7edad61c1e00438cb49d6467b",
+      "bytes": 34
+    },
+    {
+      "path": "local/worktrees/enemy-action-grouping/local/grouping-checks/sanitize/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/worktrees/enemy-action-grouping/local/grouping-checks/sanitize/result.json",
+      "sha256": "a50d3434cb7538004c61bbff4eb7191fe556d03b37dfc4d8eee11be0eab6f22d",
+      "bytes": 746
+    },
+    {
+      "path": "local/worktrees/enemy-action-grouping/local/grouping-checks/sanitize/test.log",
+      "sha256": "599c5ef5188b1aff2355fef7928441d76ff5b3b7edad61c1e00438cb49d6467b",
+      "bytes": 34
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/debug-build.log",
+      "sha256": "80ccc2c12db459759c37fcbc12c0d6b4b69a8ba70e34d04414022ff9162cb4d6",
+      "bytes": 6959
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/debug-configure.log",
+      "sha256": "8f95d1d074cc537fdc2649b4e06b6b8adb5556d3f83bfc5c8aa9a4deecd708af",
+      "bytes": 817
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/debug-final-build.log",
+      "sha256": "721ec51ebe94341686de3f67e649a937e190740f019a2ce2eff95ec126c8a831",
+      "bytes": 378
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/debug-final-tests.log",
+      "sha256": "058d5ffc7a047583410f1628f922f4fc5ca39dbddfe14d0a3d0ca3384a7f6ce2",
+      "bytes": 43
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/debug-tests.log",
+      "sha256": "058d5ffc7a047583410f1628f922f4fc5ca39dbddfe14d0a3d0ca3384a7f6ce2",
+      "bytes": 43
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/enemy-attack-build-release.log",
+      "sha256": "0cc2a37a7ca666ed78140f4a658bf30553b3e620ca296c145d79ffb57e1ed73b",
+      "bytes": 6959
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/enemy-attack-cmake-release.log",
+      "sha256": "92a55c3b607ddc02078743b08f22242ed87cbdb4bce3be9b7051ea23af3ebc4f",
+      "bytes": 819
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/initial-test-negative.txt",
+      "sha256": "dd54a08d70ee246e6be3b4174afc5186f0e410feb07de14e67bad7aa084a86b7",
+      "bytes": 437
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/release-final-build.log",
+      "sha256": "721ec51ebe94341686de3f67e649a937e190740f019a2ce2eff95ec126c8a831",
+      "bytes": 378
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/release-final-tests.log",
+      "sha256": "6b70ce6c6b5301dd76aec6e069892aef85524c384da6a87eb3de9312be875496",
+      "bytes": 93
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/release-final2-build.log",
+      "sha256": "9b0f963e1ed138fccae2ee576502bc93606ed19de006925346c5e7722f87f159",
+      "bytes": 241
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/release-final2-tests.log",
+      "sha256": "058d5ffc7a047583410f1628f922f4fc5ca39dbddfe14d0a3d0ca3384a7f6ce2",
+      "bytes": 43
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/release-rebuild.log",
+      "sha256": "9b0f963e1ed138fccae2ee576502bc93606ed19de006925346c5e7722f87f159",
+      "bytes": 241
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/release-tests.log",
+      "sha256": "058d5ffc7a047583410f1628f922f4fc5ca39dbddfe14d0a3d0ca3384a7f6ce2",
+      "bytes": 43
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/results.json",
+      "sha256": "d33604ac05ecceac57580669bd10d4547f601c9207c3586e3394b8a84df876d3",
+      "bytes": 1335
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/sanitize-build.log",
+      "sha256": "86aaf19f21ed5431e4be041dfac3b6f05125bee56c55878ff3aaab4bdc1796f2",
+      "bytes": 6959
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/sanitize-configure.log",
+      "sha256": "c2d763966af0834185d5d4fa32c62597ff47d43bbf57b52ac604b44bc333dd2c",
+      "bytes": 820
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/sanitize-final-build.log",
+      "sha256": "721ec51ebe94341686de3f67e649a937e190740f019a2ce2eff95ec126c8a831",
+      "bytes": 378
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/sanitize-final-tests.log",
+      "sha256": "058d5ffc7a047583410f1628f922f4fc5ca39dbddfe14d0a3d0ca3384a7f6ce2",
+      "bytes": 43
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/sanitize-tests.log",
+      "sha256": "058d5ffc7a047583410f1628f922f4fc5ca39dbddfe14d0a3d0ca3384a7f6ce2",
+      "bytes": 43
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/source-contract.txt",
+      "sha256": "1975ada8e80795911148cbb0b3a96857e53b27e13ca7c82d76488d59a58a3f43",
+      "bytes": 2545
+    },
+    {
+      "path": "local/worktrees/enemy-attack-v1/local/checks/source-hashes.json",
+      "sha256": "6eea90c7606828d663b6204ebee3341402650297adae16a44fb74eab1b29835f",
+      "bytes": 1668
+    },
+    {
+      "path": "local/worktrees/party-hit-consumption/local/party-hit-evidence/debug-build.log",
+      "sha256": "2b7be01b374c041e1f4ed0b8ef56dfd926b6a5e8c63480437b437be908621ee4",
+      "bytes": 325
+    },
+    {
+      "path": "local/worktrees/party-hit-consumption/local/party-hit-evidence/debug-test.log",
+      "sha256": "058d5ffc7a047583410f1628f922f4fc5ca39dbddfe14d0a3d0ca3384a7f6ce2",
+      "bytes": 43
+    },
+    {
+      "path": "local/worktrees/party-hit-consumption/local/party-hit-evidence/negative-fixture-entry14.log",
+      "sha256": "42adf57d8a4fb616c99d808c67379ac6bd90022222c08233aefb4fdc39e4c97c",
+      "bytes": 24
+    },
+    {
+      "path": "local/worktrees/party-hit-consumption/local/party-hit-evidence/release-build.log",
+      "sha256": "2b7be01b374c041e1f4ed0b8ef56dfd926b6a5e8c63480437b437be908621ee4",
+      "bytes": 325
+    },
+    {
+      "path": "local/worktrees/party-hit-consumption/local/party-hit-evidence/release-test.log",
+      "sha256": "058d5ffc7a047583410f1628f922f4fc5ca39dbddfe14d0a3d0ca3384a7f6ce2",
+      "bytes": 43
+    },
+    {
+      "path": "local/worktrees/party-hit-consumption/local/party-hit-evidence/results.json",
+      "sha256": "ce06666408b07ea329a0c31ccf7a0831b7114fc8e9d00c7b0882246b14473458",
+      "bytes": 4288
+    },
+    {
+      "path": "local/worktrees/party-hit-consumption/local/party-hit-evidence/sanitize-build.log",
+      "sha256": "2b7be01b374c041e1f4ed0b8ef56dfd926b6a5e8c63480437b437be908621ee4",
+      "bytes": 325
+    },
+    {
+      "path": "local/worktrees/party-hit-consumption/local/party-hit-evidence/sanitize-test.log",
+      "sha256": "058d5ffc7a047583410f1628f922f4fc5ca39dbddfe14d0a3d0ca3384a7f6ce2",
+      "bytes": 43
+    },
+    {
+      "path": "local/worktrees/post-action-reset/local/post-action-checks/debug/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/worktrees/post-action-reset/local/post-action-checks/debug/result.json",
+      "sha256": "b34844eb26c19327ecebc6f9f65b37100c844e7832ab3bab15569b49e80de7d2",
+      "bytes": 497
+    },
+    {
+      "path": "local/worktrees/post-action-reset/local/post-action-checks/debug/test.log",
+      "sha256": "599c5ef5188b1aff2355fef7928441d76ff5b3b7edad61c1e00438cb49d6467b",
+      "bytes": 34
+    },
+    {
+      "path": "local/worktrees/post-action-reset/local/post-action-checks/manifest.json",
+      "sha256": "9f92025d9343e656a7885678513590eb4bcb9cb43a2982ff7e001242afac297e",
+      "bytes": 2903
+    },
+    {
+      "path": "local/worktrees/post-action-reset/local/post-action-checks/release/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/worktrees/post-action-reset/local/post-action-checks/release/result.json",
+      "sha256": "54c1082124b973930998c87c58f4dfbfbf8a7f713ece8ffaafff3415f11d49b8",
+      "bytes": 547
+    },
+    {
+      "path": "local/worktrees/post-action-reset/local/post-action-checks/release/test.log",
+      "sha256": "599c5ef5188b1aff2355fef7928441d76ff5b3b7edad61c1e00438cb49d6467b",
+      "bytes": 34
+    },
+    {
+      "path": "local/worktrees/post-action-reset/local/post-action-checks/sanitize/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/worktrees/post-action-reset/local/post-action-checks/sanitize/result.json",
+      "sha256": "aa2d028df16834ab1fed4414609bbe38349beb0b46618f21613255cd60d9a73d",
+      "bytes": 749
+    },
+    {
+      "path": "local/worktrees/post-action-reset/local/post-action-checks/sanitize/test.log",
+      "sha256": "599c5ef5188b1aff2355fef7928441d76ff5b3b7edad61c1e00438cb49d6467b",
+      "bytes": 34
+    },
+    {
+      "path": "local/worktrees/reward-contract-tests/local/reward-checks/debug/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/worktrees/reward-contract-tests/local/reward-checks/debug/result.json",
+      "sha256": "ac81157cafb5c806faafcc84c20edc23ad312f201295ae9b979a58bcf035cda8",
+      "bytes": 453
+    },
+    {
+      "path": "local/worktrees/reward-contract-tests/local/reward-checks/debug/test.log",
+      "sha256": "82fd8427d4eb1c62dca552782e4cb89f650504151d3d0332b5a1d52b06e3bbb4",
+      "bytes": 27
+    },
+    {
+      "path": "local/worktrees/reward-contract-tests/local/reward-checks/manifest.json",
+      "sha256": "452ecfe7eea5a0bec93ffaccc14f4b0674dfdfc12303064d799f3e00d5995632",
+      "bytes": 2806
+    },
+    {
+      "path": "local/worktrees/reward-contract-tests/local/reward-checks/release/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/worktrees/reward-contract-tests/local/reward-checks/release/result.json",
+      "sha256": "56679919572cea37c16c6eea49ea7709f27a60b9385b43a4f77a77e4eb38026d",
+      "bytes": 461
+    },
+    {
+      "path": "local/worktrees/reward-contract-tests/local/reward-checks/release/test.log",
+      "sha256": "82fd8427d4eb1c62dca552782e4cb89f650504151d3d0332b5a1d52b06e3bbb4",
+      "bytes": 27
+    },
+    {
+      "path": "local/worktrees/reward-contract-tests/local/reward-checks/sanitize/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/worktrees/reward-contract-tests/local/reward-checks/sanitize/result.json",
+      "sha256": "aa264c0cc6874ebbcdfd0b0adfe06d33bbd4adc89f4693fcee0b7cb91c3cac6b",
+      "bytes": 697
+    },
+    {
+      "path": "local/worktrees/reward-contract-tests/local/reward-checks/sanitize/test.log",
+      "sha256": "82fd8427d4eb1c62dca552782e4cb89f650504151d3d0332b5a1d52b06e3bbb4",
+      "bytes": 27
+    },
+    {
+      "path": "local/research/battle-combat-entry-v1/approach-offset-w-observability-v3.txt",
+      "sha256": "27ef8dc9cfac6f569d3a0fa3ef571d5274711e68919c77fc97d74b228d14c4aa",
+      "bytes": 4585
     }
   ],
   "completion": {
@@ -1747,7 +4899,7 @@
     "all_exit_codes": 0,
     "native_route_advanced": false,
     "source_and_evidence_sha256": {
-      "include/okage/battle_actor.hpp": "91e21875171af4af0733c6a4bb140a86898a0adf3bfcc2ee6b517a0dcf92df01",
+      "include/okage/battle_actor.hpp": "a7679762d88f48f349ce74c3743e8abf857cab2813ab1a9196e6508383d6c5b0",
       "include/okage/battle_state.hpp": "d1e61caaadc24117a755433a7863eddce7eb29f8c1359f64379b6396afadac98",
       "src/battle_entity_update.cpp": "88e1c0857cf294b65543fb25439a614d91117658ec5778d45b2dc5aec091a019",
       "tests/battle_entity_update_tests.cpp": "473bce94c72e158f5ca292b5d4f43f150c1895251f2a26a76b3cbef1e6e59752",
@@ -1859,8 +5011,10 @@
     },
     {
       "path": "include/okage/battle_actor.hpp",
-      "sha256": "91e21875171af4af0733c6a4bb140a86898a0adf3bfcc2ee6b517a0dcf92df01",
-      "bytes": 3814
+      "sha256": "a7679762d88f48f349ce74c3743e8abf857cab2813ab1a9196e6508383d6c5b0",
+      "bytes": 4006,
+      "git_revision": "c314e4badfab31b2afaa6ba626a68fb07a2f92bc",
+      "verification": "historical Git object, not current worktree"
     },
     {
       "path": "local/battle-input-v4/battle-actions.bin",
@@ -1895,7 +5049,9 @@
     {
       "path": "local/demos/battle-approach-105395-v1/live.json",
       "sha256": "f3bd26ba5801d9e787ae6b4c18acebe3a6edd0d24b270c65d7dec95f4710d082",
-      "bytes": 6282
+      "bytes": 6282,
+      "verification": "historical hash no longer matches mutable local file; retained as unavailable, not a pass",
+      "observed_current_sha256": "5fa21dcffc9fa8dcfa9b4b4e6d199cecf7e5d59d7af9f53389c0ccfe39fb8e5b"
     },
     {
       "path": "local/demos/battle-approach-105395-v1/native.png.view.png",
@@ -2979,18 +6135,24 @@
     },
     {
       "path": "src/battle_actor_update.cpp",
-      "sha256": "75dfeef37f299a2b5a95c29017ccd0ea878974270c1a8059397fba13f95842db",
-      "bytes": 27572
+      "sha256": "364067c0830f3366b3e0ebeb6e3e010dbdb01fb753981e1d0370a7a5a3009314",
+      "bytes": 40463,
+      "git_revision": "c314e4badfab31b2afaa6ba626a68fb07a2f92bc",
+      "verification": "historical Git object, not current worktree"
     },
     {
       "path": "src/battle_roster_update.cpp",
-      "sha256": "7e539f00f78bfb2e9b3bfbb8bfb5f797c5c437f8ec035961fff2bffb574399e3",
-      "bytes": 13590
+      "sha256": "ba34a6e004c821ac3dceccd0ba8b0a8457a9768554a84f1d06f1a8d70e38325e",
+      "bytes": 18665,
+      "git_revision": "c314e4badfab31b2afaa6ba626a68fb07a2f92bc",
+      "verification": "historical Git object, not current worktree"
     },
     {
       "path": "src/battle_session.mm",
-      "sha256": "63b810490887fca625931178193ce51265dfe706dd0baeec15ed55b7d80cb124",
-      "bytes": 69195
+      "sha256": "496cb7139ad44172b30445200538e0f7d66e9e6b16f6174897f568a04d8e3e86",
+      "bytes": 70535,
+      "git_revision": "c314e4badfab31b2afaa6ba626a68fb07a2f92bc",
+      "verification": "historical Git object, not current worktree"
     },
     {
       "path": "tests/animation_tests.cpp",
@@ -2999,13 +6161,17 @@
     },
     {
       "path": "tests/battle_actor_update_tests.cpp",
-      "sha256": "1431062ce211bf87a46b47cab43c8d3c5c11154ed9c92fe66a3001a2ac1fb054",
-      "bytes": 30172
+      "sha256": "09cfc6db3350eebebfe1cd8d307a816b0be201004b8808ccb00ab513668b3239",
+      "bytes": 44948,
+      "git_revision": "c314e4badfab31b2afaa6ba626a68fb07a2f92bc",
+      "verification": "historical Git object, not current worktree"
     },
     {
       "path": "tests/battle_roster_update_tests.cpp",
-      "sha256": "f7248b90cac9d98a96d48dee9b960bcf0d3720fec9d0585d869cd7e15971f592",
-      "bytes": 15719
+      "sha256": "b76ad534b94897419458b50784040d429a627b118e33ed53feb57625f66dc459",
+      "bytes": 29149,
+      "git_revision": "c314e4badfab31b2afaa6ba626a68fb07a2f92bc",
+      "verification": "historical Git object, not current worktree"
     },
     {
       "path": "tests/test_compare_battle_live.py",
@@ -3127,13 +6293,15 @@
     "history_comparison_correction": "New producer/report used wrong native HUD owners;52f8d5a fixes mapping. Existing1684d0 consumer was correct."
   },
   "next_native_boundary": {
-    "run": "local/research/battle-combat-entry-v1/native-hit-next-105635-v1/run.json",
-    "frame": 105600,
+    "run": "local/research/battle-combat-entry-v1/native-death-105695-v6/run.json",
+    "source_revision": "a1a25d3",
+    "frame": 105632,
     "exit_code": 1,
-    "guard": "Battle attached effect20: Unrecovered map effect template",
-    "original_comparison": false,
-    "next_uncaptured_original_frame": 105576,
-    "source_revision": "c399e98"
+    "guard": "Unrecovered155c10 stack offset W provenance",
+    "original_comparison": true,
+    "next_uncaptured_original_frame": 105696,
+    "advance_original_allowed": false,
+    "reason": "captured120-frame native interval incomplete"
   },
   "historical_hit_native_success_v5": {
     "source_revision": "2b7c5116093d2d19fc24eca925a5437c46ad8639",
@@ -3172,5 +6340,208 @@
     "audio_native_hz": 48000,
     "audio_alignment_proven": false,
     "listening_validation": false
+  },
+  "historical_hit_native_success_v6": {
+    "source_revision": "c399e988cf38a479bd04a52035b0f6f765f1d02d",
+    "source_diff_sha256": "c71db902d88d88dda10734cfb204211f5e19f77ac57bd0ea8d4fb31f6dec7a0c",
+    "binary_sha256": "b0ba988f6ca52a57f79fe7c82f03a20a2b261c0ad663ff17d046a355d9930678",
+    "exit_code": 0,
+    "seconds": 32.003730833,
+    "frame": 105575,
+    "final_runtime_revision": "52f8d5a",
+    "fps_claim": false,
+    "inputs": "owned startup plus ordinary inputs; no reference state"
+  },
+  "historical_hit_preview_v6": {
+    "path": "local/demos/battle-hit-105575-v1/live.json",
+    "source_revision": "c399e98",
+    "pid_at_launch": 29363,
+    "session": 26403,
+    "paused_frame": 105575,
+    "full_4_3_appkit_capture_verified": true,
+    "direct_desktop_inspection": "cua cgWindowNotFound",
+    "different_async_loading_from_headless": true,
+    "history_owner_fix_in_live_binary": false,
+    "current_runtime_revision": "52f8d5a"
+  },
+  "historical_hit_boundary": {
+    "run": "local/research/battle-combat-entry-v1/native-hit-next-105635-v1/run.json",
+    "frame": 105600,
+    "exit_code": 1,
+    "guard": "Battle attached effect20: Unrecovered map effect template",
+    "original_comparison": false,
+    "next_uncaptured_original_frame": 105576,
+    "source_revision": "c399e98"
+  },
+  "death_comparison_v2": {
+    "anchor": 105576,
+    "end": 105695,
+    "paired_rows": 183,
+    "field_mismatches": 2403,
+    "missing_native": 537,
+    "missing_original": 0,
+    "order_differences": 90,
+    "first_difference": {
+      "key": [
+        105576,
+        "parent",
+        1352968,
+        "entry",
+        0
+      ],
+      "field": "actor[3].record",
+      "original": "0100b000010000000000000000006900000000000000000000000500000000000000000000004f00000000006300ff00ffff00009999ffffffffffffff0fffffffffffffffff00000000000000000000",
+      "native": "0100b000010000000000000000006900000000000000000000000500000000000000000000003600000000006300ff00ffff00009999ffffffffffffff0fffffffffffffffff00000000000000000000"
+    },
+    "fidelity_pass": false
+  },
+  "death_comparison_v3": {
+    "anchor": 105576,
+    "end": 105695,
+    "paired_rows": 191,
+    "field_mismatches": 2507,
+    "missing_native": 529,
+    "missing_original": 0,
+    "order_differences": 89,
+    "first_difference": {
+      "key": [
+        105576,
+        "parent",
+        1352968,
+        "entry",
+        0
+      ],
+      "field": "actor[3].record",
+      "original": "0100b000010000000000000000006900000000000000000000000500000000000000000000004f00000000006300ff00ffff00009999ffffffffffffff0fffffffffffffffff00000000000000000000",
+      "native": "0100b000010000000000000000006900000000000000000000000500000000000000000000003600000000006300ff00ffff00009999ffffffffffffff0fffffffffffffffff00000000000000000000"
+    },
+    "fidelity_pass": false
+  },
+  "death_comparison_v4": {
+    "anchor": 105576,
+    "end": 105695,
+    "paired_rows": 336,
+    "field_mismatches": 4056,
+    "missing_native": 384,
+    "missing_original": 0,
+    "order_differences": 64,
+    "first_difference": {
+      "key": [
+        105576,
+        "parent",
+        1352968,
+        "entry",
+        0
+      ],
+      "field": "actor[3].record",
+      "original": "0100b000010000000000000000006900000000000000000000000500000000000000000000004f00000000006300ff00ffff00009999ffffffffffffff0fffffffffffffffff00000000000000000000",
+      "native": "0100b000010000000000000000006900000000000000000000000500000000000000000000003600000000006300ff00ffff00009999ffffffffffffff0fffffffffffffffff00000000000000000000"
+    },
+    "fidelity_pass": false
+  },
+  "death_comparison_v5": {
+    "anchor": 105576,
+    "end": 105695,
+    "paired_rows": 342,
+    "field_mismatches": 4470,
+    "missing_native": 378,
+    "missing_original": 0,
+    "order_differences": 63,
+    "first_difference": {
+      "key": [
+        105576,
+        "parent",
+        1352968,
+        "entry",
+        0
+      ],
+      "field": "actor[3].record",
+      "original": "0100b000010000000000000000006900000000000000000000000500000000000000000000004f00000000006300ff00ffff00009999ffffffffffffff0fffffffffffffffff00000000000000000000",
+      "native": "0100b000010000000000000000006900000000000000000000000500000000000000000000003600000000006300ff00ffff00009999ffffffffffffff0fffffffffffffffff00000000000000000000"
+    },
+    "fidelity_pass": false
+  },
+  "death_comparison_v6": {
+    "anchor": 105576,
+    "end": 105695,
+    "paired_rows": 342,
+    "field_mismatches": 4134,
+    "missing_native": 378,
+    "missing_original": 0,
+    "order_differences": 63,
+    "first_difference": {
+      "key": [
+        105576,
+        "parent",
+        1352968,
+        "entry",
+        0
+      ],
+      "field": "actor[3].record",
+      "original": "0100b000010000000000000000006900000000000000000000000500000000000000000000004f00000000006300ff00ffff00009999ffffffffffffff0fffffffffffffffff00000000000000000000",
+      "native": "0100b000010000000000000000006900000000000000000000000500000000000000000000003600000000006300ff00ffff00009999ffffffffffffff0fffffffffffffffff00000000000000000000"
+    },
+    "fidelity_pass": false
+  },
+  "death_comparison_prefix-v1": {
+    "anchor": 105576,
+    "end": 105695,
+    "paired_rows": 336,
+    "field_mismatches": 4392,
+    "missing_native": 384,
+    "missing_original": 0,
+    "order_differences": 64,
+    "first_difference": {
+      "key": [
+        105576,
+        "parent",
+        1352968,
+        "entry",
+        0
+      ],
+      "field": "actor[3].record",
+      "original": "0100b000010000000000000000006900000000000000000000000500000000000000000000004f00000000006300ff00ffff00009999ffffffffffffff0fffffffffffffffff00000000000000000000",
+      "native": "0100b000010000000000000000006900000000000000000000000500000000000000000000003600000000006300ff00ffff00009999ffffffffffffff0fffffffffffffffff00000000000000000000"
+    },
+    "fidelity_pass": false
+  },
+  "death_endpoint": {
+    "report": "local/research/battle-combat-entry-v1/death-endpoint-v1/native-prefix105631-comparison.json",
+    "exact": 9,
+    "total": 9,
+    "native_completed_frame": 105631,
+    "original_parent_entry": 105632,
+    "bank7_bytes": 56,
+    "reward": {
+      "item_id": 1,
+      "count": 1,
+      "xp": [
+        189,
+        0,
+        0
+      ],
+      "currency": 0
+    },
+    "prop_exact_time_parity": false,
+    "prop_later_save_corroboration": true,
+    "whole_interval_parity": false
+  },
+  "death_images_audio": {
+    "available_image_pairs": 6,
+    "missing_image_pairs": 3,
+    "equal_image_pairs": 0,
+    "endpoint_rgb_mae": 12.311921037946428,
+    "endpoint_alpha_differing_pixels": 143360,
+    "full_audio_interval_available": false,
+    "listening_validation": false
+  },
+  "artifact_audit_note": "Historical approach source hashes bind Git revisions; one prior mutable preview live.json no longer matches its recorded hash. This evidence gap is retained explicitly.",
+  "w_review": {
+    "current_note": "local/research/battle-combat-entry-v1/approach-offset-w-observability-v3.txt",
+    "stack_value_proven": false,
+    "normal_effect_translation_uses_position_w": false,
+    "conditional_effect_flag_1000_uses_w": true,
+    "native_guard_retained": true,
+    "rejected_note": "approach-offset-w-observability-v2.txt (ignored VU E bit)"
   }
 }
