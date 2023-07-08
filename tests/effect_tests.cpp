@@ -53,6 +53,34 @@ int main(int argc,char** argv){try{
     }
     const okage::Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
     const auto sine=okage::make_sine_table();
+    const auto fade_ignores_job_w=[&](okage::MapEffect source,okage::EffectDrawPass pass) {
+        source.flags=0x1000|(pass==okage::EffectDrawPass::Deferred?0x400:0);
+        source.position={0,0,400,1};source.color={1,1,1,1};
+        for(auto& element:source.elements)element.rendered[3]={1,1,1,1};
+        for(auto [translation,expected]:{std::pair{10.f,1.f},{20.f,.75f},{50.f,0.f},{60.f,0.f}}) {
+            auto view=identity;view[3][2]=translation;
+            const auto baseline=okage::map_effect_draws(source,view,{},450,sine,nullptr,pass);
+            check(!baseline.empty());
+            for(const auto& draw:baseline)check(draw.color[3]==expected);
+            for(float w:{0.f,2.f,-3.f}) {
+                auto different=source;different.position[3]=w;
+                const auto draws=okage::map_effect_draws(different,view,{},450,sine,nullptr,pass);
+                check(draws.size()==baseline.size());
+                for(unsigned i=0;i<draws.size();++i) {
+                    const auto& a=draws[i];const auto& b=baseline[i];
+                    check(a.matrix==b.matrix&&a.color==b.color&&a.texture==b.texture&&a.uv==b.uv);
+                    check(a.additive==b.additive&&a.subtractive==b.subtractive&&a.depth_test==b.depth_test&&a.clamp_mode==b.clamp_mode);
+                    check(a.vertices.size()==b.vertices.size());
+                    for(unsigned v=0;v<a.vertices.size();++v)
+                        check(a.vertices[v].position==b.vertices[v].position&&a.vertices[v].color==b.vertices[v].color&&a.vertices[v].uv==b.vertices[v].uv);
+                }
+            }
+        }
+        source.flags&=~0x1000u;source.position[3]=-3;
+        auto translated=identity;translated[3][2]=100;
+        for(const auto& draw:okage::map_effect_draws(source,translated,{},450,sine,nullptr,pass))
+            check(draw.color[3]==1); //Flag clear bypasses distance fade.
+    };
     okage::EffectDefinition water;water.id=106;water.duration=600;water.flags=0x8400;
     water.parameters={32,32,3,1};water.elements.resize(1);
     auto& water_part=water.elements[0];water_part.id=1;water_part.shape=65;
@@ -185,6 +213,7 @@ int main(int argc,char** argv){try{
     }
     unsigned vanish_rng=0;const auto vanish_random=[&]{return vanish_rng++;};
     okage::MapEffect disappearing(vanish,{4,5,6,1},{},{1,1,1,1},sizes,vanish_random,okage::EffectStart::FirstFrame);
+    fade_ignores_job_w(disappearing,okage::EffectDrawPass::Ordinary);
     check(vanish_rng==0&&disappearing.phase==1);
     disappearing.tick(vanish_random,false);check(vanish_rng==0&&disappearing.phase==1);
     const auto initial_draws=okage::map_effect_draws(disappearing,identity,{},450,sine);
@@ -302,6 +331,7 @@ int main(int argc,char** argv){try{
     auto strike_sizes=sizes;strike_sizes[17]={64,24};strike_sizes[1]={48,40};strike_sizes[6]={32,16};
     unsigned strike_rng=0;const auto strike_random=[&]{return (++strike_rng)*91u;};
     okage::MapEffect hit(strike,{9,-7.5f,11,1},{},{1,1,1,1},strike_sizes,strike_random,okage::EffectStart::FirstFrame);
+    fade_ignores_job_w(hit,okage::EffectDrawPass::Deferred);
     check(strike_rng==0&&hit.phase==1&&hit.elements[2].texture==6);
     hit.tick(strike_random,false);check(strike_rng==0&&hit.phase==1);
     const auto draw_hit=[&]{return okage::map_effect_draws(hit,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);};
