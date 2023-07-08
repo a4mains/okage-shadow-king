@@ -29,6 +29,7 @@ struct BattleActor {
     unsigned entity_id=0;
     bool dead_callback=false;
     bool enemy=false;
+    bool cartesian_motion=false;
 };
 struct BattleEntityBinding {
     BattleActor* actor=nullptr;
@@ -37,7 +38,7 @@ struct BattleEntityBinding {
 };
 struct BattleStrikeServices {
     std::function<void(int)> sound;
-    std::function<unsigned(int,const Float4&)> positioned_effect;
+    std::function<unsigned(int,const Float4&,bool source_w_available)> positioned_effect;
     std::function<void(int,int,int)> damage_event;
     std::function<void(BattleActor&)> enemy_reward;
     std::function<float(const BattleActor&)> approach_offset_w;

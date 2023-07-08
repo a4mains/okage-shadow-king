@@ -363,7 +363,8 @@ void strike_effect(BattleActor& actor,const BattleState& root,std::span<const Ba
         Float4 point=absolute?Float4{0,0,0,1}:model(bound_actor(entities,target)).animation().value(1);
         for(unsigned i=0;i<3;++i)point[i]=absolute?scalar(data,8+i*4):single(point[i],scalar(data,8+i*4),Operation::Add);
         check(bool(services.positioned_effect),"Battle strike effect1012f8 service missing");
-        const unsigned handle=services.positioned_effect(half(data,0),point);
+        const unsigned handle=services.positioned_effect(half(data,0),point,
+            absolute||!bound_actor(entities,target).cartesian_motion);
         put(actor.storage,0x30c,handle);
     };
     const auto type=word(entry(),4);
@@ -440,8 +441,9 @@ bool return_to_baseline(BattleActor& actor) {
 void ballistic_velocity(BattleActor& actor,const Float4& displacement,float gravity,float duration) {
     scalar(actor.storage,0x84,gravity);put(actor.storage,0x80,0);put(actor.storage,0x88,0);
     const float reciprocal=single(1.f,duration,Operation::Divide);
-    Float4 velocity{};
-    for(unsigned i=0;i<4;++i)velocity[i]=single(displacement[i],reciprocal,Operation::Multiply);
+    auto velocity=vector(actor.storage,0x70);
+    const unsigned lanes=actor.cartesian_motion?3:4;
+    for(unsigned i=0;i<lanes;++i)velocity[i]=single(displacement[i],reciprocal,Operation::Multiply);
     vector(actor.storage,0x70,velocity);
     const float dt=scalar(actor.storage,0x2c);
     float adjustment=single(duration,dt,Operation::Subtract);
@@ -449,7 +451,7 @@ void ballistic_velocity(BattleActor& actor,const Float4& displacement,float grav
     adjustment=single(adjustment,.5f,Operation::Multiply);
     scalar(actor.storage,0x74,single(velocity[1],adjustment,Operation::Subtract));
     velocity=vector(actor.storage,0x70);
-    for(auto& value:velocity)value=single(value,dt,Operation::Multiply);
+    for(unsigned i=0;i<lanes;++i)velocity[i]=single(velocity[i],dt,Operation::Multiply);
     vector(actor.storage,0x70,velocity);
     auto acceleration=vector(actor.storage,0x80);
     const float dt2=single(dt,dt,Operation::Multiply);
@@ -466,11 +468,14 @@ void select_timed_motion(BattleActor& actor,unsigned motion,float duration) {
     put(actor.storage,0x128,motion);model(actor).select_motion(motion);scalar(actor.storage,0x12c,duration);
 }
 void add_ballistic_step(BattleActor& actor) {
-    auto position=model(actor).animation().value(1);vector(actor.storage,0xf0,position);
-    auto velocity=vector(actor.storage,0x70);const auto acceleration=vector(actor.storage,0x80);
-    for(unsigned i=0;i<4;++i)position[i]=single(position[i],velocity[i],Operation::Add);
+    auto position=model(actor).animation().value(1);
+    if(actor.cartesian_motion)position[3]=std::bit_cast<float>(word(actor.storage,0xfc));
     vector(actor.storage,0xf0,position);
-    for(unsigned i=0;i<4;++i)velocity[i]=single(velocity[i],acceleration[i],Operation::Add);
+    auto velocity=vector(actor.storage,0x70);const auto acceleration=vector(actor.storage,0x80);
+    const unsigned lanes=actor.cartesian_motion?3:4;
+    for(unsigned i=0;i<lanes;++i)position[i]=single(position[i],velocity[i],Operation::Add);
+    vector(actor.storage,0xf0,position);
+    for(unsigned i=0;i<lanes;++i)velocity[i]=single(velocity[i],acceleration[i],Operation::Add);
     vector(actor.storage,0x70,velocity);
 }
 void ballistic_target(BattleActor& actor,const BattleState& root,
@@ -505,11 +510,16 @@ void ballistic_target(BattleActor& actor,const BattleState& root,
     const unsigned index=(angle>>1)&0x3fff;
     Float4 offset{single(distance,sine[index],Operation::Multiply),0,
                   single(distance,sine[(index+4096)&0x3fff],Operation::Multiply),0};
-    check(bool(services.approach_offset_w),"Unrecovered155c10 stack offset W provenance");
-    offset[3]=supported(services.approach_offset_w(actor));
+    if(!services.approach_offset_w)actor.cartesian_motion=true;
+    if(!actor.cartesian_motion)offset[3]=supported(services.approach_offset_w(actor));
     auto position=vector(actor.storage,0xf0);
-    for(unsigned i=0;i<4;++i)position[i]=single(position[i],offset[i],Operation::Add);
+    for(unsigned i=0;i<(actor.cartesian_motion?3u:4u);++i)position[i]=single(position[i],offset[i],Operation::Add);
     vector(actor.storage,0xf0,position);
+}
+void publish_ballistic_position(BattleActor& actor) {
+    auto point=vector(actor.storage,0xf0);
+    if(actor.cartesian_motion)point[3]=1;
+    model(actor).animation().set_channel(1,point);
 }
 bool ballistic_approach(BattleActor& actor,const BattleState& root,
                         std::span<const BattleEntityBinding> entities,const BattleStrikeServices& services) {
@@ -530,14 +540,14 @@ bool ballistic_approach(BattleActor& actor,const BattleState& root,
             vector(actor.storage,0xf0,model(bound_actor(entities,std::bit_cast<std::int8_t>(actor.storage[0x132]))).animation().value(1));
             ballistic_target(actor,root,entities,services);
             Float4 displacement{};const auto target=vector(actor.storage,0xf0),origin=vector(actor.storage,0x60);
-            for(unsigned i=0;i<4;++i)displacement[i]=single(target[i],origin[i],Operation::Subtract);
+            for(unsigned i=0;i<(actor.cartesian_motion?3u:4u);++i)displacement[i]=single(target[i],origin[i],Operation::Subtract);
             ballistic_velocity(actor,displacement,std::bit_cast<float>(0x3cf5c28fu),times()[2]);
             put(actor.storage,0x300,2);
         }
     } else if(phase==2) {
         add_ballistic_step(actor);
         if(scalar(actor.storage,0x12c)<=times()[3]) {put(actor.storage,0xf4,0);put(actor.storage,0x300,3);}
-        model(actor).animation().set_channel(1,vector(actor.storage,0xf0));
+        publish_ballistic_position(actor);
     } else if(phase==3&&scalar(actor.storage,0x12c)<=0) {put(actor.storage,0x300,0);done=true;}
     scalar(actor.storage,0x12c,single(scalar(actor.storage,0x12c),scalar(actor.storage,0x2c),Operation::Subtract));
     return done;
@@ -549,7 +559,7 @@ bool ballistic_return(BattleActor& actor) {
         //156130 uses baseline rotation+50, not the freshly written+c0.
         model(actor).animation().move_channel(0,vector(actor.storage,0x90),motion_duration(actor,40.f));
         Float4 displacement{};const auto origin=vector(actor.storage,0x60),position=vector(actor.storage,0xf0);
-        for(unsigned i=0;i<4;++i)displacement[i]=single(origin[i],position[i],Operation::Subtract);
+        for(unsigned i=0;i<(actor.cartesian_motion?3u:4u);++i)displacement[i]=single(origin[i],position[i],Operation::Subtract);
         ballistic_velocity(actor,displacement,std::bit_cast<float>(0x3d4ccccdu),40.f);
         select_timed_motion(actor,2,40.f);put(actor.storage,0x300,1);return false;
     }
@@ -565,7 +575,7 @@ bool ballistic_return(BattleActor& actor) {
         for(unsigned at:{0x146u,0x140u,0x142u,0x144u})put(actor.storage,at,0,2);
         model(actor).animation().set_channel(1,vector(actor.storage,0x60));return true;
     }
-    model(actor).animation().set_channel(1,vector(actor.storage,0xf0));return false;
+    publish_ballistic_position(actor);return false;
 }
 void ballistic_attack_update(BattleActor& task,const BattleState& root,std::span<const BattleEntityBinding> entities,
                              const BattleStrikeServices& services) {

@@ -53,7 +53,7 @@ void impact(BattleActor& actor,const BattleHitServices& services) {
     check(!(std::fetestexcept(FE_OVERFLOW|FE_UNDERFLOW)),"Battle hit impact arithmetic overflow/underflow");
     point[1]=supported(adjusted);
     check(bool(services.positioned_effect),"Battle hit positioned effect1012f8 service missing");
-    services.positioned_effect(effect,point);
+    services.positioned_effect(effect,point,!actor.cartesian_motion);
 }
 }
 int battle_apply_hit(BattleActor& actor,std::int16_t category,std::int16_t amount,

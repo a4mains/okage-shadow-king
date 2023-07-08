@@ -129,6 +129,7 @@ struct BattleSession::Impl {
     Animation& camera_channels;
     Float4 resource_camera_position{},resource_camera_rotation{};
     std::optional<BattleCameraMotion> camera;
+    bool source_camera_w_available=true;
     std::optional<BattleCameraData> camera_data;
     std::optional<BattleCameraSequence> camera_sequence;
     std::optional<BattleCameraSequence> after_intro_sequence;
@@ -212,7 +213,7 @@ struct BattleSession::Impl {
             resources_prepared.store(true,std::memory_order_release);
         }
     }
-    unsigned spawn_effect(int id,const Float4& point,GameRandom& random) {
+    unsigned spawn_effect(int id,const Float4& point,GameRandom& random,bool source_w_available) {
         const auto definition=std::find_if(effect_definitions.begin(),effect_definitions.end(),
             [&](const auto& value){return int(value.id)==id;});
         if(definition==effect_definitions.end())throw std::runtime_error("Missing owned battle effect template");
@@ -229,6 +230,7 @@ struct BattleSession::Impl {
             effect->shape55_geometry=std::shared_ptr<const std::vector<MapEffectVertex>>(geometry,&geometry->vertices);
             break;
         }
+        effect->source_position_w_available=source_w_available;
         effects[slot]=std::move(effect);return slot;
     }
     unsigned spawn_attached_effect(int id,BattleActor& actor,GameRandom& random) {
@@ -258,6 +260,7 @@ struct BattleSession::Impl {
                 auto& actor=*roster.entities()[unsigned(index)].actor;
                 if(!actor.model)throw std::runtime_error("Battle attached effect model is missing");
                 effect.position=actor.model->animation().value(1);
+                effect.source_position_w_available=!actor.cartesian_motion;
                 effect.rotation=actor.model->animation().value(0);
             }
             const EffectProjectionContext screen{view,shadow_screen_parameters(projection.current()),projection.current().focal};
@@ -561,6 +564,7 @@ struct BattleSession::Impl {
                <<",\"entry_pc\":"<<entry<<",\"parent_callback\":"<<callback_code()
                <<",\"parent_phase\":"<<phase<<",\"party_phase\":"<<party_phase<<",\"enemy_phase\":"<<enemy_phase
                <<",\"party_mask\":"<<party_mask<<",\"enemy_mask\":"<<enemy_mask
+               <<",\"source_camera_w_available\":"<<(source_camera_w_available?"true":"false")
                <<",\"root_prefix_hex\":"<<std::quoted(hex(Bytes(root.bytes).first(0x60)))
                <<",\"root_tail_queue_hex\":"<<std::quoted(hex(Bytes(root.bytes).subspan(0x8060)))
                <<",\"registered_entities_hex\":"<<std::quoted(hex(Bytes(root.bytes).subspan(0x60,count*0x200)))
@@ -582,6 +586,7 @@ struct BattleSession::Impl {
             for(const auto& actor:roster.actors()) {
                 if(comma)row<<',';comma=true;
                 row<<"{\"entity_id\":"<<actor->entity_id<<",\"enemy\":"<<(actor->enemy?"true":"false")
+                   <<",\"cartesian_motion\":"<<(actor->cartesian_motion?"true":"false")
                    <<",\"task_hex\":"<<std::quoted(hex(Bytes(actor->storage).first(actor->enemy?0x3e0:0x3d0)))
                    <<",\"record_hex\":"<<std::quoted(hex(actor->record));
                 const auto actor_pc=[&](BattleActor::FirstCallback callback) {
@@ -628,6 +633,7 @@ struct BattleSession::Impl {
             std::ostringstream out;
             out<<"{\"entity_id\":"<<actor.entity_id<<",\"boundary\":"<<std::quoted(boundary)
                <<",\"enemy\":"<<(actor.enemy?"true":"false")
+               <<",\"cartesian_motion\":"<<(actor.cartesian_motion?"true":"false")
                <<",\"task_hex\":"<<std::quoted(hex(Bytes(actor.storage).first(actor.enemy?0x3e0:0x3d0)))
                <<",\"record_hex\":"<<std::quoted(hex(actor.record))<<",\"channels\":[";
             bool comma=false;for(const auto& channel:actor.model->animation().channel_outputs())for(float f:channel){if(comma)out<<',';comma=true;out<<std::bit_cast<std::uint32_t>(f);}
@@ -672,6 +678,7 @@ struct BattleSession::Impl {
                         if(!actor||!actor->model)
                             throw std::runtime_error("Battle command camera absent-body channel1 fallback is unrecovered");
                         camera->select_command_camera(unsigned(selected),actor->model->animation().value(1));
+                        source_camera_w_available&=!actor->cartesian_motion;
                         break;
                     }
                     case 4: {
@@ -797,10 +804,10 @@ struct BattleSession::Impl {
                         [&](BattleActor& target){
                             history(target,5,0);
                         },
-                        [&](int id,const Float4& point){return spawn_effect(id,point,context.random);}};
+                        [&](int id,const Float4& point,bool exact_w){return spawn_effect(id,point,context.random,exact_w);}};
                     battle_actor_first_update(*actor,root,roster.entities(),{
                         context.strike_sound,
-                        [&](int id,const Float4& point){return spawn_effect(id,point,context.random);},
+                        [&](int id,const Float4& point,bool exact_w){return spawn_effect(id,point,context.random,exact_w);},
                         [&](int command,int owner,int target){battle_queue_damage_event(root,roster.entities(),
                             std::int16_t(command),std::int16_t(owner),std::int16_t(target),[&]{return context.random.next();});},
                         [&](BattleActor& target){battle_enemy_reward(target,roster.entities(),context.entry.reward_storage(),
@@ -829,6 +836,7 @@ struct BattleSession::Impl {
             out<<"{\"schema\":\"okage-native-battle-callbacks-v1\",\"frame\":"<<frame
                <<",\"complete\":"<<(failure?"false":"true")<<",\"error\":"<<std::quoted(error)
                <<",\"scope\":\"first eligible native parent and child traversal; no resource layout, rendering or combat\",\"root_hex\":"<<std::quoted(hex(root.bytes))
+               <<",\"source_camera_w_available\":"<<(source_camera_w_available?"true":"false")
                <<",\"camera\":";array(out,camera->observation());
             out<<",\"fade\":";array(out,std::array{std::bit_cast<std::uint32_t>(context.fade.current),std::bit_cast<std::uint32_t>(context.fade.target),std::bit_cast<std::uint32_t>(context.fade.step),unsigned(context.fade.enabled),unsigned(context.fade.hold)});
             out<<",\"projection\":";std::vector<std::uint32_t> projection_bits;for(float f:field_projection_words(projection.current()))projection_bits.push_back(std::bit_cast<std::uint32_t>(f));array(out,projection_bits);
@@ -1022,6 +1030,7 @@ void BattleSession::write_actor_observation(std::ostream& out,unsigned frame) co
     for(const auto& owner:impl_->roster.actors()) {
         const auto& actor=*owner;if(comma)out<<',';comma=true;
         out<<"{\"entity_id\":"<<actor.entity_id<<",\"enemy\":"<<(actor.enemy?"true":"false")
+           <<",\"cartesian_motion\":"<<(actor.cartesian_motion?"true":"false")
            <<",\"task_type\":"<<word(actor.storage,0x20)<<",\"task_phase\":"<<word(actor.storage,0x24)
            <<",\"death_timer_bits\":"<<word(actor.storage,0x3c4)<<",\"model\":";
         model(actor.model.get());out<<",\"bag\":";model(actor.bag.get());out<<",\"box\":";model(actor.box.get());out<<'}';
@@ -1039,6 +1048,7 @@ void BattleSession::write_effect_observation(std::ostream& out,unsigned frame) c
         out<<"{\"slot\":"<<slot<<",\"id\":"<<e->id<<",\"flags\":"<<e->flags<<",\"phase\":"<<e->phase
            <<",\"duration\":"<<e->duration<<",\"actor_entity\":";
         if(e->actor_alias)out<<*e->actor_alias;else out<<"null";
+        out<<",\"source_position_w_available\":"<<(e->source_position_w_available?"true":"false");
         out<<",\"position_bits\":";lanes(e->position);out<<",\"rotation_bits\":";lanes(e->rotation);
         out<<",\"scale_bits\":";lanes(e->scale);out<<",\"parameter_bits\":";lanes(e->parameters);
         out<<",\"elements\":[";bool element_comma=false;

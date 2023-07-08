@@ -29,6 +29,7 @@ struct Fixture {
     std::vector<std::string> calls;
     int fail=0,number_value=0,history_delta=0,history_category=-1,impact_id=0;
     okage::Float4 point{};
+    bool source_w=true;
     Fixture() {
         actor.stat_bindings[0]=hp;actor.stat_bindings[1]=primary;put(hp,0,100);
         number(actor.storage,0x4c,5);number(actor.storage,0x12c,-1);
@@ -50,8 +51,8 @@ struct Fixture {
         services.death_history=[&](okage::BattleActor& a) {
             require(&a==&actor&&word(a.stat_bindings[0])==0,"Death history after HP zero");event("death");
         };
-        services.positioned_effect=[&](int id,const okage::Float4& p) {
-            impact_id=id;point=p;event("impact");return 99u;
+        services.positioned_effect=[&](int id,const okage::Float4& p,bool exact_w) {
+            impact_id=id;point=p;source_w=exact_w;event("impact");return 99u;
         };
     }
     void event(std::string name) {
@@ -86,6 +87,8 @@ void ordinary() {
         require(f.point==okage::Float4{11,20-size*.5f,33,7},"Impact uses live channel and preserves W");
         require(f.actor.model->animation().value(1)==okage::Float4{11,20,33,7},"Impact does not overwrite model position");
     }
+    Fixture cartesian;cartesian.actor.cartesian_motion=true;cartesian.hit();
+    require(!cartesian.source_w,"Impact propagates unavailable source W from Cartesian actor");
     for(unsigned hp:{0u,1u,20u,0xffffffffu}) {
         Fixture f;put(f.hp,0,hp);const auto before=f.actor.storage;
         require(f.hit()==6&&word(f.hp)==0,"Lethal clamps HP zero");

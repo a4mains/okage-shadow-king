@@ -111,6 +111,7 @@ public:
     float near_clip=3; // Job constructor0x10d338, +0x78.
     unsigned clamp_mode=2; // Job+0x74; water initializer switches to region repeat.
     Float4 position{},rotation{},scale{},color{1,1,1,1},parameters{};
+    bool source_position_w_available=true;
     // Mode0 attachment0x101118 copies this actor's position/rotation before
     // the effect update. Ownership follows the job, including removal/reuse.
     std::optional<int> actor_alias;

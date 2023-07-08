@@ -269,12 +269,18 @@ void ballistic_attack() {
     require(scratch_reads==1,"Approach offset scratch is read only at actual launch");
     for(unsigned i=0;i<10;++i)require(b[0x132+i]==255,"Return clears ten targets");
 
-    //An unavailable stack lane is never inferred from model W or defaulted.
+    //Unavailable source W selects native XYZ motion; it never supplies a scratch value.
     a.first_callback=Callback::BallisticAttack;put(b,0x24,1);put(b,0x300,1);number(b,0x12c,96);b[0x132]=1;
     services.approach_offset_w={};
-    rejects([&]{okage::battle_actor_first_update(a,f.root,entities,services);});
-    require(word(b,0x300)==1&&number(b,0x12c)==96&&number(b,0x104)==-.125f,
-            "Missing scratch guards after orientation writes but before offset addition or countdown");
+    number(b,0x7c,13);
+    okage::battle_actor_first_update(a,f.root,entities,services);
+    require(a.cartesian_motion&&word(b,0x300)==2&&number(b,0x12c)==95&&number(b,0x7c)==13,
+            "Cartesian adapter launches without evaluating unavailable velocity W");
+    put(b,0xfc,0x7fc12345);
+    okage::battle_actor_first_update(a,f.root,entities,services);
+    require(a.model->animation().value(1)[3]==1&&number(b,0x7c)==13&&word(b,0xfc)==0x7fc12345,
+            "Native model point is homogeneous while scratch W remains uninterpreted");
+    a.cartesian_motion=false;put(b,0x300,1);number(b,0x12c,96);
     services.approach_offset_w=[](const okage::BattleActor&){return 0.f;};
     //Diagonal bit0 chooses live target radius and facing, ignoring group angle.
     f.root.bytes[0x60]=1;put(f.root.entity(0),0x66,99,2);number(target.actor.storage,0x4c,20);
@@ -301,6 +307,71 @@ void ballistic_attack() {
     require(word(b,0x300)==2&&number(b,0x12c)==119&&number(b,0xf8)==60,
             "Negative grouping ordinal skips offset and scratch read at second-row equality");
 }
+void ballistic_cartesian_equivalence() {
+    using Callback=okage::BattleActor::FirstCallback;
+    const auto sine=okage::make_sine_table();
+    for(float scratch_w:{-3.f,.5f,4.f}) {
+        Fixture spatial,exact,spatial_target,exact_target;
+        const auto prepare=[](Fixture& f,Fixture& target) {
+            auto& a=f.actor;auto& b=a.storage;
+            put(b,0x40,1,2);put(b,0x44,23,2);put(b,0x21c,6);b[0x132]=1;
+            a.action_motion.emplace();number(a.action_motion->bytes,0,0);
+            for(unsigned i=0;i<4;++i) {
+                number(b,0x60+4*i,okage::Float4{3,-2,7,1}[i]);
+                number(b,0x90+4*i,okage::Float4{0,.25f,0,1}[i]);
+                number(b,0xc0+4*i,1);
+            }
+            number(b,0x4c,10);number(b,0x7c,0);number(b,0x8c,0);
+            target.actor.model->animation().set_channel(1,{30,4,-8,1});
+            put(f.root.entity(0),0x66,1,2);
+        };
+        prepare(spatial,spatial_target);prepare(exact,exact_target);
+        std::array<okage::BattleEntityBinding,2> spatial_bindings{{{&spatial.actor,spatial.record,1},{&spatial_target.actor,spatial_target.record,0}}};
+        std::array<okage::BattleEntityBinding,2> exact_bindings{{{&exact.actor,exact.record,1},{&exact_target.actor,exact_target.record,0}}};
+        okage::BattleStrikeServices spatial_services,exact_services;
+        unsigned explicit_reads=0;
+        exact_services.approach_offset_w=[&](const okage::BattleActor&){++explicit_reads;return scratch_w;};
+        okage::battle_actor_motion_update(spatial.actor,spatial_bindings);
+        okage::battle_actor_motion_update(exact.actor,exact_bindings);
+        bool introduced=false,saw_raw_difference=false,saw_channel_difference=false;
+        std::array<bool,4> phases{};unsigned ticks=0;
+        do {
+            require(++ticks<250,"Cartesian comparison must finish actual callback lifecycle");
+            okage::battle_actor_first_update(spatial.actor,spatial.root,spatial_bindings,spatial_services);
+            okage::battle_actor_first_update(exact.actor,exact.root,exact_bindings,exact_services);
+            auto& a=spatial.actor;auto& b=exact.actor;
+            if(word(a.storage,0x24)<phases.size())phases[word(a.storage,0x24)]=true;
+            require(a.first_callback==b.first_callback&&a.saved_first_callback==b.saved_first_callback,
+                    "Cartesian and explicit-W callbacks restore at identical source boundaries");
+            require(a.model->motion()==b.model->motion()&&a.model->animation().script_state()==b.model->animation().script_state(),
+                    "Cartesian policy preserves motion selection and script state");
+            for(unsigned i=0;i<a.storage.size();++i) {
+                if((i>=0x7c&&i<0x80)||(i>=0xfc&&i<0x100))continue;
+                require(a.storage[i]==b.storage[i],"Cartesian task scalars and all XYZ lanes remain bit-exact");
+            }
+            require(spatial.root.bytes==exact.root.bytes&&spatial.record==exact.record,
+                    "Cartesian policy changes no root or live stat bytes");
+            introduced|=a.cartesian_motion;
+            require(!b.cartesian_motion,"Explicit supplied W retains four-lane source mode");
+            if(introduced)require(a.cartesian_motion,"Source-W unavailable marker persists after introduction");
+            const auto ap=a.model->animation().value(1),bp=b.model->animation().value(1);
+            for(unsigned axis=0;axis<3;++axis)
+                require(std::bit_cast<std::uint32_t>(ap[axis])==std::bit_cast<std::uint32_t>(bp[axis]),
+                        "Every evaluated spatial channel XYZ remains bit-exact");
+            require(ap[3]==1,"Cartesian native point has defined homogeneous W1");
+            saw_channel_difference|=ap[3]!=bp[3];
+            saw_raw_difference|=word(a.storage,0xfc)!=word(b.storage,0xfc)||word(a.storage,0x7c)!=word(b.storage,0x7c);
+            a.model->evaluate_world();b.model->evaluate_world();
+            require(a.model->world(sine)==b.model->world(sine),"Source-derived world transform is independent of raw position W");
+        } while(spatial.actor.first_callback!=Callback::Roster);
+        require(introduced&&saw_raw_difference&&saw_channel_difference&&explicit_reads==1,
+                "Test distinguishes Cartesian representation from three different supplied raw W values");
+        require(phases[1]&&phases[2]&&phases[3]&&word(spatial.actor.storage,0x21c)==99,
+                "Comparison covers whole approach, zero-duration strike and return");
+        require(spatial.actor.model->animation().value(1)==okage::Float4({3,-2,7,1}),
+                "Return restores real baseline XYZ and homogeneous point");
+    }
+}
 void strike_schedules() {
     Fixture f,target,excluded;auto& a=f.actor;auto& b=a.storage;
     std::array<okage::BattleEntityBinding,3> entities{{{&a,f.record,0},{&target.actor,target.record,1},{&excluded.actor,excluded.record,1}}};
@@ -316,11 +387,11 @@ void strike_schedules() {
     put(d,0x62,0xffff,2);
     for(unsigned at:{0x1e0,0x1e8,0x1f0})number(b,at,1);
     target.actor.model->animation().set_channel(1,{10,20,30,5});
-    std::vector<int> events;std::vector<okage::Float4> points;
+    std::vector<int> events;std::vector<okage::Float4> points;std::vector<bool> source_w;
     okage::BattleStrikeServices services;
     services.damage_event=[&](int command,int owner,int recipient){require(owner==0&&recipient==1,"Damage filters disabled target and uses signed owner");events.push_back(command);};
     services.sound=[&](int id){events.push_back(id);};
-    services.positioned_effect=[&](int id,const okage::Float4& point){events.push_back(id);points.push_back(point);return unsigned(points.size()+10);};
+    services.positioned_effect=[&](int id,const okage::Float4& point,bool exact_w){events.push_back(id);points.push_back(point);source_w.push_back(exact_w);return unsigned(points.size()+10);};
     okage::battle_actor_first_update(a,f.root,entities,services);
     require(events==std::vector<int>({16,40,38}),"Damage then sound then effects, one entry each per callback");
     require(points[0]==okage::Float4({12,12.5f,33,5})&&word(b,0x30c)==11,"Effect uses live target channel plus authored offsets, retains W and returned handle");
@@ -331,14 +402,19 @@ void strike_schedules() {
     require(events==std::vector<int>({16,40,38,17,41,39}),"Each next schedule entry runs on the following callback");
     require(points[1]==okage::Float4({7,0,0,1}),"Absolute effect has authored coordinates and W1");
     require(word(b,0x1e4)==4&&word(b,0x1ec)==8&&word(b,0x1f4)==4,"Negative next times terminate each schedule");
+    require(source_w==std::vector<bool>({true,true}),"Exact target and authored absolute effects retain W provenance");
+    target.actor.cartesian_motion=true;put(b,0x1f4,0);number(b,0x1f0,0);
+    okage::battle_actor_first_update(a,f.root,entities,services);
+    require(!source_w.back(),"Targeted effect marks source W unavailable for Cartesian owner");
+    put(b,0x30c,12);number(b,0x1f8,2);
     //Failure after sound retains elapsed, sound counter and previous effect handle.
     put(b,0x1ec,0);put(b,0x1f4,0);number(b,0x1e8,1);number(b,0x1f0,1);
-    services.positioned_effect=[](int,const okage::Float4&)->unsigned{throw std::runtime_error("synthetic effect service failure");};
+    services.positioned_effect=[](int,const okage::Float4&,bool)->unsigned{throw std::runtime_error("synthetic effect service failure");};
     rejects([&]{okage::battle_actor_first_update(a,f.root,entities,services);});
     require(number(b,0x1f8)==3&&word(b,0x1ec)==1&&word(b,0x1f4)==0&&word(b,0x30c)==12,
             "Service failure retains ordered prior stores without consuming effect entry");
     put(b,0x1ec,8);put(d,0x3c,3);
-    services.positioned_effect=[](int,const okage::Float4&){return 27u;};
+    services.positioned_effect=[](int,const okage::Float4&,bool){return 27u;};
     rejects([&]{okage::battle_actor_first_update(a,f.root,entities,services);});
     require(word(b,0x30c)==27&&word(b,0x1f4)==0,"Unsupported scale retains preceding spawn and handle store");
     put(d,0x3c,4);put(b,0x140,0,2);
@@ -439,7 +515,7 @@ void queued_party_hit() {
         [&](unsigned,int amount){events.push_back(amount);},
         [&](okage::BattleActor&,std::int16_t delta,std::int16_t){events.push_back(delta);},
         [&](okage::BattleActor&){events.push_back(200);},
-        [&](int id,const okage::Float4&){events.push_back(id);return 5u;}};
+        [&](int id,const okage::Float4&,bool){events.push_back(id);return 5u;}};
     Fixture f;prepare(f);put(f.actor.storage,0x3bc,0xffff,2);
     okage::battle_actor_first_update(f.actor,f.root,{}, {},&services);
     auto e=f.root.entity(0);
@@ -474,14 +550,14 @@ void queued_party_hit() {
             "Nonpositive miss pops without counting a hit or replacing attacker");
     Fixture moved;prepare(moved);auto movedqueue=moved.root.entity(1);
     put(movedqueue,0x172,1,2);put(movedqueue,0x17c,1,2);put(movedqueue,0x17e,88,2);put(movedqueue,0x180,23,2);
-    auto mutable_services=services;mutable_services.positioned_effect=[&](int,const okage::Float4&) {
+    auto mutable_services=services;mutable_services.positioned_effect=[&](int,const okage::Float4&,bool) {
         put(moved.actor.storage,0x130,1,2);return 1u;
     };
     okage::battle_party_first_update(moved.actor,moved.root,{},&mutable_services);
     require(half(moved.actor.storage,0x148)==23&&half(movedqueue,0x172)==0&&half(moved.root.entity(0),0x172)==2,
             "Party reloads entity and cursor after mutable hit services");
     Fixture failure;prepare(failure);auto fail_services=services;
-    fail_services.positioned_effect=[](int,const okage::Float4&)->unsigned {throw std::runtime_error("Interrupted impact");};
+    fail_services.positioned_effect=[](int,const okage::Float4&,bool)->unsigned {throw std::runtime_error("Interrupted impact");};
     rejects([&]{okage::battle_party_first_update(failure.actor,failure.root,{},&fail_services);});
     require(word(failure.record,8)==31&&number(failure.actor.storage,0x12c)==30&&half(failure.root.entity(0),0x172)==2&&half(failure.actor.storage,0x3bc)==0,
             "Impact failure retains HP/motion but precedes party counters, pop and timer");
@@ -520,7 +596,7 @@ void queued_enemy_hit() {
         [&](unsigned handle,int amount){require(handle==4&&amount==9,"Queued amount reaches number effect");events.push_back(amount);},
         [&](okage::BattleActor&,std::int16_t delta,std::int16_t category){require(delta==-9&&category==0,"Queued category and negative history");events.push_back(100);},
         [&](okage::BattleActor&){events.push_back(200);},
-        [&](int id,const okage::Float4&){events.push_back(id);return 5u;}};
+        [&](int id,const okage::Float4&,bool){events.push_back(id);return 5u;}};
     okage::battle_enemy_first_update(a,f.root,{},&services);
     require(events==std::vector<int>({35,9,100,38})&&word(f.record,8)==31,"Source-ordered hit services and HP update");
     require(half(e,0x172)==1&&half(e,0x184)==0xffff&&half(e,0x186)==0&&half(e,0x188)==0&&half(e,0x18a)==0xabcd,
@@ -576,6 +652,6 @@ void queued_enemy_hit() {
 }
 }
 int main(){try {
-    first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();ballistic_attack();strike_schedules();channels_and_effect_guards();enemy_paths();floating_environment();queued_party_hit();queued_enemy_hit();
+    first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();ballistic_attack();ballistic_cartesian_equivalence();strike_schedules();channels_and_effect_guards();enemy_paths();floating_environment();queued_party_hit();queued_enemy_hit();
     std::cout<<"Battle actor startup callback tests passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
