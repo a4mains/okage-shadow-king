@@ -318,6 +318,57 @@ int main(int argc,char** argv){try{
     check(rings.phase==71&&!(rings.flags&0x100)&&dark_rng==0);
     rings.tick(dark_random);check((rings.flags&0x100)&&dark_draw().empty()&&dark_rng==0);
     rejects([&]{rings.tick(dark_random);});
+    {
+        okage::EffectDefinition pulse;pulse.id=22;pulse.duration=90;pulse.flags=0x400;
+        pulse.elements.resize(4);
+        for(unsigned i=0;i<4;++i) {
+            auto& part=pulse.elements[i];part.id=i<3?1+4*i:20;part.shape=30;
+            part.flags=i<3?0x141:0x51;part.primitive_flags=i<3?0x120:0x100;
+            part.channels=i<3?31:25;part.program=i<3?0x0628000e:0x00280011;
+            part.texture=i<3?4:5;part.change_time=1.1f;
+            part.values[0]=i<3?okage::Float4{.7f,.7f,.7f,.5f}:okage::Float4{1,.05f,.05f,.7f};
+            part.values[1]={0,0,i==1?.5f:0,0};part.values[2]={};
+            part.values[3]=i<3?okage::Float4{15,30,1,1}:okage::Float4{8,16,8,4};
+            part.values[4]={0,1,i<3?17.f:28.f,i==1?.33f:i==2?.66f:0};
+        }
+        auto asymmetric=sizes;asymmetric[6]={37,23};asymmetric[17]={53,41};asymmetric[28]={19,11};
+        unsigned calls=0;const auto rng=[&]{++calls;return 123u;};
+        okage::MapEffect pulse_job(pulse,{0,0,10,1},{},{1,1,1,1},asymmetric,rng,okage::EffectStart::FirstFrame);
+        check(calls==0&&pulse_job.phase==1);
+        for(const auto& part:pulse_job.elements)check(part.texture==6&&part.quad_uv[2]==std::array<std::uint16_t,2>{1184,768});
+        rejects([&]{okage::map_effect_draws(pulse_job,identity,{},450,sine);});
+        for(unsigned tick=1;tick<=90;++tick) {
+            pulse_job.tick(rng);check(calls==0&&!(pulse_job.flags&0x100)&&pulse_job.phase==tick+1);
+            const auto packets=okage::map_effect_draws(pulse_job,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);
+            check(packets.size()==4);
+            for(unsigned i=0;i<4;++i) {
+                const auto& part=pulse_job.elements[i];const auto& draw=packets[i];
+                const auto packed=i<3?std::array<std::uint16_t,2>{1665,1368}:std::array<std::uint16_t,2>{592,360};
+                check(part.texture==(i<3?17u:28u)&&part.quad_uv[2]==packed);
+                check(draw.texture==part.texture&&draw.vertices.size()==6&&!draw.depth_test);
+                check(draw.subtractive==(i<3)&&draw.additive==(i==3));
+                check(draw.vertices[0].position==okage::Float4({.5f,-.5f,0,1}));
+                check(draw.vertices[1].position==okage::Float4({-.5f,-.5f,0,1}));
+                check(draw.vertices[2].uv==okage::Float4({packed[0]/32768.f,packed[1]/32768.f,0,0}));
+                if(i<3)check(part.rendered[3][3]==.5f); //Color14 changes RGB only.
+            }
+        }
+        pulse_job.tick(rng);check(calls==0&&(pulse_job.flags&0x100));
+        pulse.duration=4;
+        okage::MapEffect sample(pulse,{},{},{1,1,1,1},asymmetric,rng,okage::EffectStart::FirstFrame);
+        sample.tick(rng);sample.tick(rng);
+        check(sample.elements[0].rendered[2]==okage::Float4({15,15,1,1}));
+        check(sample.elements[0].rendered[3]==okage::Float4({.7f,.7f,.7f,.5f}));
+        check(sample.elements[3].rendered[2]==okage::Float4({8,8,8,4}));
+        check(sample.elements[3].rendered[3]==okage::Float4({1,.05f,.05f,.7f}));
+        sample.tick(rng);sample.tick(rng);
+        check(sample.elements[0].rendered[2]==okage::Float4({0,0,0,1})); //u==3 wraps; >3 clamps.
+        check(sample.elements[1].rendered[2]==okage::Float4({0,30,0,1}));
+        check(sample.elements[2].rendered[2]==okage::Float4({0,30,0,1}));
+        check(sample.elements[0].rendered[3]==okage::Float4({0,0,0,.5f}));
+        check(sample.elements[3].rendered[3]==okage::Float4({1,.05f,.05f,0}));
+        check(calls==0);
+    }
     okage::EffectDefinition strike;strike.id=38;strike.duration=35;strike.flags=0x400;
     strike.elements.resize(3);
     for(unsigned i=0;i<3;++i) {
@@ -580,7 +631,21 @@ int main(int argc,char** argv){try{
             for(const auto& packet:packets)check(packet.texture==17&&packet.vertices.size()==6&&!packet.additive&&packet.depth_test);
         }
         owned_vanish.tick(rng);check((owned_vanish.flags&0x100)&&draws==before_vanish+36);
-        std::cout<<"Owned effects20/35/36/38/39 lifetime and geometry smoke passed\n";
+        {
+            const auto def=std::find_if(definitions.begin(),definitions.end(),[](const auto& d){return d.id==22;});
+            check(def!=definitions.end()&&def->duration==90&&def->elements.size()==4&&def->flags==0x400);
+            const auto before=draws;
+            okage::MapEffect pulse(*def,{0,0,10,1},{},{1,1,1,1},owned_sizes,rng,okage::EffectStart::FirstFrame);
+            for(unsigned frame=0;frame<90;++frame) {
+                pulse.tick(rng);
+                const auto packets=okage::map_effect_draws(pulse,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);
+                check(packets.size()==4&&draws==before);
+                for(unsigned i=0;i<4;++i)check(packets[i].texture==(i<3?17u:28u)&&packets[i].vertices.size()==6&&
+                    packets[i].subtractive==(i<3)&&packets[i].additive==(i==3)&&!packets[i].depth_test);
+            }
+            pulse.tick(rng);check((pulse.flags&0x100)&&draws==before);
+        }
+        std::cout<<"Owned effects20/22/35/36/38/39 lifetime and geometry smoke passed\n";
     }
     okage::EffectDefinition base=dust;base.id=19;base.flags=0x8000;base.duration=300;
     base.parameters={.03f,-.05f,0,.1f};
