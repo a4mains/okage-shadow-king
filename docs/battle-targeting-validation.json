@@ -1,6 +1,6 @@
 {
   "schema": "okage-battle-targeting-validation-v1",
-  "date": "2023-07-02",
+  "date": "2023-07-15",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "native_success": {
     "source_revision": "5b66d27385531565868e94bc18a42a06a17cb826",
@@ -4899,7 +4899,7 @@
     "all_exit_codes": 0,
     "native_route_advanced": false,
     "source_and_evidence_sha256": {
-      "include/okage/battle_actor.hpp": "a7679762d88f48f349ce74c3743e8abf857cab2813ab1a9196e6508383d6c5b0",
+      "include/okage/battle_actor.hpp": "30ab2ae2a0e3834cecf648b8a4244c4390dd9efa7d5eafa810b710922ce207ce",
       "include/okage/battle_state.hpp": "d1e61caaadc24117a755433a7863eddce7eb29f8c1359f64379b6396afadac98",
       "src/battle_entity_update.cpp": "88e1c0857cf294b65543fb25439a614d91117658ec5778d45b2dc5aec091a019",
       "tests/battle_entity_update_tests.cpp": "473bce94c72e158f5ca292b5d4f43f150c1895251f2a26a76b3cbef1e6e59752",
@@ -5011,8 +5011,8 @@
     },
     {
       "path": "include/okage/battle_actor.hpp",
-      "sha256": "a7679762d88f48f349ce74c3743e8abf857cab2813ab1a9196e6508383d6c5b0",
-      "bytes": 4006,
+      "sha256": "30ab2ae2a0e3834cecf648b8a4244c4390dd9efa7d5eafa810b710922ce207ce",
+      "bytes": 4063,
       "git_revision": "c314e4badfab31b2afaa6ba626a68fb07a2f92bc",
       "verification": "historical Git object, not current worktree"
     },
@@ -6135,8 +6135,8 @@
     },
     {
       "path": "src/battle_actor_update.cpp",
-      "sha256": "364067c0830f3366b3e0ebeb6e3e010dbdb01fb753981e1d0370a7a5a3009314",
-      "bytes": 40463,
+      "sha256": "003f192ec77073e0c78f88d1f2b9d98cea587554aa4f96c57dcc60c1e5477cc5",
+      "bytes": 40998,
       "git_revision": "c314e4badfab31b2afaa6ba626a68fb07a2f92bc",
       "verification": "historical Git object, not current worktree"
     },
@@ -6149,8 +6149,8 @@
     },
     {
       "path": "src/battle_session.mm",
-      "sha256": "496cb7139ad44172b30445200538e0f7d66e9e6b16f6174897f568a04d8e3e86",
-      "bytes": 70535,
+      "sha256": "0abb49e4bf493ab46cd30a1a199539efdd0f7725eb0070a0cb659edc5086edb5",
+      "bytes": 71398,
       "git_revision": "c314e4badfab31b2afaa6ba626a68fb07a2f92bc",
       "verification": "historical Git object, not current worktree"
     },
@@ -6161,8 +6161,8 @@
     },
     {
       "path": "tests/battle_actor_update_tests.cpp",
-      "sha256": "09cfc6db3350eebebfe1cd8d307a816b0be201004b8808ccb00ab513668b3239",
-      "bytes": 44948,
+      "sha256": "b1a4c8061713c20740f345d8895a08c8dfdfa039a5b7e1303735a1abbda875af",
+      "bytes": 50517,
       "git_revision": "c314e4badfab31b2afaa6ba626a68fb07a2f92bc",
       "verification": "historical Git object, not current worktree"
     },
@@ -6543,5 +6543,11 @@
     "conditional_effect_flag_1000_uses_w": true,
     "native_guard_retained": true,
     "rejected_note": "approach-offset-w-observability-v2.txt (ignored VU E bit)"
+  },
+  "latest_checkpoint": {
+    "manifest": "docs/battle-cartesian-validation.json",
+    "runtime": "2e19dbf",
+    "frame": 105815,
+    "scope": "Later complete intervals retain state/image/audio fidelity failures; prior entries in this manifest are historical."
   }
 }
