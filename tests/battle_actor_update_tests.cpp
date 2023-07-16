@@ -497,6 +497,41 @@ void floating_environment() {
     }
     std::fesetenv(&original);
 }
+void victory_actor_states() {
+    for(unsigned outcome:{0u,1u,3u,0xffffffffu}) {
+        Fixture f;put(f.actor.storage,0x21c,100);put(f.actor.storage,0x20,0xbeef);
+        put(f.actor.storage,0x128,7);number(f.actor.storage,0x12c,17);put(f.root.bytes,0x81b8,outcome);
+        const auto script=f.actor.model->animation().script_state();
+        okage::battle_actor_motion_update(f.actor,{},&f.root);
+        require(word(f.actor.storage,0x20)==0&&word(f.actor.storage,0x21c)==100&&word(f.actor.storage,0x128)==7&&number(f.actor.storage,0x12c)==17,
+                "State100 waits on exact live outcome2 without changing motion or duration");
+        require(f.actor.model->animation().script_state()==script,"Waiting state100 does not advance script");
+        require(f.actor.model->animation().value(1)[3]==number(f.actor.storage,0x6c),"Waiting state100 publishes common world channel W");
+    }
+    Fixture f;put(f.actor.storage,0x21c,100);put(f.actor.storage,0x20,99);put(f.root.bytes,0x81b8,2);
+    rejects([&]{okage::battle_actor_motion_update(f.actor);});
+    require(word(f.actor.storage,0x20)==0&&word(f.actor.storage,0x21c)==100,"Missing state100 root rejects after source TASK20 clear");
+    okage::battle_actor_first_update(f.actor,f.root,{});
+    require(word(f.actor.storage,0x128)==13&&f.actor.model->motion()==13&&number(f.actor.storage,0x12c)==360&&word(f.actor.storage,0x21c)==102,
+            "Party first callback supplies live root and selects victory13 duration360 before state102");
+    put(f.actor.storage,0x344,0xffffffff);
+    okage::battle_actor_first_update(f.actor,f.root,{});
+    require(number(f.actor.storage,0x12c)==359&&word(f.actor.storage,0x21c)==102,"State102 does not restart victory motion; party prefix keeps its timer");
+    put(f.actor.storage,0x20,99);const auto script=f.actor.model->animation().script_state();
+    okage::battle_actor_motion_update(f.actor);
+    require(word(f.actor.storage,0x20)==0&&f.actor.model->animation().script_state()==script&&number(f.actor.storage,0x12c)==359,
+            "State102 common tail requires no root and does not advance script or timer");
+    Fixture enemy;enemy.actor.enemy=true;put(enemy.actor.storage,0x21c,100);put(enemy.root.bytes,0x81b8,2);
+    okage::battle_enemy_first_update(enemy.actor,enemy.root);
+    require(word(enemy.actor.storage,0x21c)==102&&enemy.actor.model->motion()==13,"Enemy first wrapper also supplies actual root");
+    Fixture failed;put(failed.actor.storage,0x21c,100);put(failed.root.bytes,0x81b8,2);number(failed.actor.storage,0x12c,17);failed.actor.model.reset();
+    rejects([&]{okage::battle_actor_motion_update(failed.actor,{},&failed.root);});
+    require(word(failed.actor.storage,0x128)==13&&number(failed.actor.storage,0x12c)==17&&word(failed.actor.storage,0x21c)==100,
+            "Model failure preserves motion-ID store but precedes duration/state writes");
+    Fixture unknown;put(unknown.actor.storage,0x21c,103);
+    rejects([&]{okage::battle_actor_motion_update(unknown.actor,{},&unknown.root);});
+    require(word(unknown.actor.storage,0x20)==0,"Bounded recovery does not accept unrelated unknown states");
+}
 void queued_party_hit() {
     const auto prepare=[](Fixture& f,int amount=9) {
         auto& a=f.actor;
@@ -652,6 +687,6 @@ void queued_enemy_hit() {
 }
 }
 int main(){try {
-    first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();ballistic_attack();ballistic_cartesian_equivalence();strike_schedules();channels_and_effect_guards();enemy_paths();floating_environment();queued_party_hit();queued_enemy_hit();
+    first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();ballistic_attack();ballistic_cartesian_equivalence();strike_schedules();channels_and_effect_guards();enemy_paths();floating_environment();victory_actor_states();queued_party_hit();queued_enemy_hit();
     std::cout<<"Battle actor startup callback tests passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

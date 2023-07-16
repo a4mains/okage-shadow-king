@@ -672,11 +672,21 @@ void approach_attack_update(BattleActor& task,const BattleState& root,std::span<
     step_model(actor);
 }
 }
-void battle_actor_motion_update(BattleActor& actor,std::span<const BattleEntityBinding> entities) {
+void battle_actor_motion_update(BattleActor& actor,std::span<const BattleEntityBinding> entities,const BattleState* root) {
     TowardZero rounding;
     put(actor.storage,0x20,0);
     switch(word(actor.storage,0x21c)) { //B+1dc, not C+1dc.
-    case 0:case 2:case 99:case 0xffffffffu:
+    case 0:case 2:case 99:case 102:case 0xffffffffu:
+        break;
+    case 100:
+        //243eb0[99] ->154dec;14af88 reads the live root end-state.
+        check(root!=nullptr,"Battle victory actor state100 requires live root");
+        if(word(root->bytes,0x81b8)==2) {
+            //1546a0 publishes motion before calling the model, then duration.
+            put(actor.storage,0x128,13);model(actor).select_motion(13);
+            scalar(actor.storage,0x12c,360.f);
+            put(actor.storage,0x20,0);put(actor.storage,0x21c,102);
+        }
         break;
     case 1: {
         const float step=single(scalar(actor.storage,0x2c),scalar(actor.storage,0x1a4),Operation::Multiply);
@@ -709,7 +719,7 @@ void battle_party_first_update(BattleActor& actor,BattleState& root,std::span<co
     check(!actor.enemy&&!actor.dead_callback,"Unrecovered party first callback identity");
     TowardZero rounding;
     if(half(actor.storage,0x42)!=3)party_status_and_motion(actor,root,hits);
-    battle_actor_motion_update(actor,entities);
+    battle_actor_motion_update(actor,entities,&root);
 }
 void battle_actor_first_update(BattleActor& actor,BattleState& root,std::span<const BattleEntityBinding> entities,
                                const BattleStrikeServices& services,const BattleHitServices* hits) {
@@ -754,7 +764,7 @@ void battle_enemy_first_update(BattleActor& actor,BattleState& root,std::span<co
     TowardZero rounding;
     put(actor.storage,0x20,0);
     enemy_status_and_motion(actor,root,hits);
-    battle_actor_motion_update(actor,entities); //154b38 writes C+20 a second time.
+    battle_actor_motion_update(actor,entities,&root); //154b38 writes C+20 a second time.
 }
 void battle_enemy_second_update(BattleActor& actor,const BattleState& root) {
     check(actor.enemy,"Enemy second callback received party actor");

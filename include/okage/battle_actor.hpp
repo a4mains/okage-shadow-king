@@ -60,7 +60,8 @@ void battle_enemy_second_update(BattleActor&,const BattleState&); //15c138
 // Dispatch the typed first callback selected by the previous task invocation.
 void battle_actor_first_update(BattleActor&,BattleState&,std::span<const BattleEntityBinding>,
                                const BattleStrikeServices& = {},const BattleHitServices* =nullptr);
-void battle_actor_motion_update(BattleActor&,std::span<const BattleEntityBinding> = {});
+void battle_actor_motion_update(BattleActor&,std::span<const BattleEntityBinding> = {},
+                                const BattleState* =nullptr);
 void battle_actor_second_suffix(BattleActor&);
 class BattleRoster {
 public:
