@@ -497,6 +497,32 @@ void floating_environment() {
     }
     std::fesetenv(&original);
 }
+void victory_status_reset() {
+    for(unsigned primary:{0u,1u,4u,7u,128u,255u}) {
+        Fixture f;f.record[0]=primary;f.actor.stat_bindings[2]=std::span(f.record).subspan(0x4a,2);
+        put(f.record,0x4a,0xabcd,2);f.record[0x49]=0x56;f.record[0x4c]=0x78;
+        const auto task=f.actor.storage;auto expected=f.record;expected[0]=1;expected[0x4a]=expected[0x4b]=0;
+        okage::battle_actor_reset_after_victory(f.actor);
+        require(f.record==expected&&f.actor.storage==task,"Victory reset writes only live primary/counter, including negative primary");
+    }
+    Fixture dead;dead.record[0]=6;put(dead.record,0x4a,0xabcd,2);
+    const auto record=dead.record;dead.actor.stat_bindings[2]={};
+    okage::battle_actor_reset_after_victory(dead.actor);
+    require(dead.record==record,"Primary6 preserves counter and does not require its binding");
+    for(unsigned offset:{0u,1u}) {
+        Fixture alias;std::array<std::uint8_t,2> shared{9,9};
+        alias.actor.stat_bindings[1]=std::span(shared).subspan(offset,1);alias.actor.stat_bindings[2]=shared;
+        okage::battle_actor_reset_after_victory(alias.actor);
+        require(shared==std::array<std::uint8_t,2>{0,0},"Aliased counter clear follows and can overwrite primary1");
+    }
+    Fixture short_counter;short_counter.record[0]=255;std::array<std::uint8_t,1> short_bytes{0xab};
+    short_counter.actor.stat_bindings[2]=short_bytes;
+    rejects([&]{okage::battle_actor_reset_after_victory(short_counter.actor);});
+    require(short_counter.record[0]==1&&short_bytes[0]==0xab,"Short counter failure retains preceding primary store without partial halfword");
+    Fixture missing;std::array<std::uint8_t,2> counter{0xab,0xcd};missing.actor.stat_bindings[1]={};missing.actor.stat_bindings[2]=counter;
+    rejects([&]{okage::battle_actor_reset_after_victory(missing.actor);});
+    require(counter==std::array<std::uint8_t,2>{0xab,0xcd},"Missing primary rejects before counter mutation");
+}
 void victory_actor_states() {
     for(unsigned outcome:{0u,1u,3u,0xffffffffu}) {
         Fixture f;put(f.actor.storage,0x21c,100);put(f.actor.storage,0x20,0xbeef);
@@ -687,6 +713,6 @@ void queued_enemy_hit() {
 }
 }
 int main(){try {
-    first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();ballistic_attack();ballistic_cartesian_equivalence();strike_schedules();channels_and_effect_guards();enemy_paths();floating_environment();victory_actor_states();queued_party_hit();queued_enemy_hit();
+    first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();ballistic_attack();ballistic_cartesian_equivalence();strike_schedules();channels_and_effect_guards();enemy_paths();floating_environment();victory_status_reset();victory_actor_states();queued_party_hit();queued_enemy_hit();
     std::cout<<"Battle actor startup callback tests passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

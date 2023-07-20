@@ -672,6 +672,11 @@ void approach_attack_update(BattleActor& task,const BattleState& root,std::span<
     step_model(actor);
 }
 }
+void battle_actor_reset_after_victory(BattleActor& actor) {
+    if(status(actor,1)==6)return;
+    actor.stat_bindings[1][0]=1;
+    put(actor.stat_bindings[2],0,0,2);
+}
 void battle_actor_motion_update(BattleActor& actor,std::span<const BattleEntityBinding> entities,const BattleState* root) {
     TowardZero rounding;
     put(actor.storage,0x20,0);
