@@ -50,6 +50,12 @@ int main(int argc,char** argv) {
                 const auto selected=camera.sequence_at_offset(17,offset);
                 require(selected[0]&&selected[0]->projection_value==expected[offset]);
             }
+            constexpr std::array<unsigned,5> indices{0x28,0x2b,0x2c,0x2d,0x2e};
+            constexpr std::array<float,5> victory_projection{1024.f,744.f,744.f,744.f,595.f};
+            for(unsigned i=0;i<indices.size();++i) {
+                const auto selected=camera.sequence_by_index(indices[i]);
+                require(selected[0]&&selected[0]->projection_value==victory_projection[i]);
+            }
             return 0;
         }
         require(argc==1);
@@ -58,8 +64,8 @@ int main(int argc,char** argv) {
         require(!data.has_formation(0) && !data.has_formation(2));
         const auto one=data.formation(1);
         require(one.size()==2 && one[0].unit_id==-32768 && one[0].field_2==-128 && one[0].field_3==127);
-        require(__builtin_bit_cast(std::uint32_t, (one[0].x))==0x80000000);
-        require(__builtin_bit_cast(std::uint32_t, (one[0].z))==0x7fc12345);
+        require(std::bit_cast<std::uint32_t>(one[0].x)==0x80000000);
+        require(std::bit_cast<std::uint32_t>(one[0].z)==0x7fc12345);
         require(one[1].unit_id==-1 && one[1].field_2==-1 && one[1].x==1.25f && one[1].z==-2.5f);
         const auto last=data.formation(255);
         require(last.size()==1 && last[0].unit_id==32767 && last[0].field_3==-3 && last[0].x==3);
@@ -122,12 +128,45 @@ int main(int argc,char** argv) {
         okage::BattleCameraData camera_data_v2(cameras_v2);
         for(unsigned offset=2;offset<=4;++offset) {
             const auto sequence=camera_data_v2.sequence_at_offset(17,offset);
-            require(sequence[0]&&__builtin_bit_cast(std::uint32_t, (sequence[0]->projection_value))==focal[offset-2]);
+            require(sequence[0]&&std::bit_cast<std::uint32_t>(sequence[0]->projection_value)==focal[offset-2]);
         }
         const auto v2_initial=camera_data_v2.sequence(17),v2_overview=camera_data_v2.sequence(17,true);
         require(v2_initial[0]&&v2_initial[0]->projection_value==800);
         require(v2_overview[0]&&v2_overview[0]->projection_value==1024);
         rejects([&]{camera_data_v2.sequence_at_offset(17,5);});
+        constexpr std::array<unsigned,5> indexed{0x28,0x2b,0x2c,0x2d,0x2e};
+        constexpr std::size_t v3_header=48,v3_row=3*148;
+        std::vector<std::uint8_t> cameras_v3(v3_header+(23*5+indexed.size())*v3_row);
+        std::copy(camera_magic.begin(),camera_magic.end(),cameras_v3.begin());
+        put(cameras_v3,8,3);put(cameras_v3,12,23);
+        std::copy_n(b.begin()+24,32,cameras_v3.begin()+16);
+        std::copy(cameras_v2.begin()+v3_header,cameras_v2.end(),cameras_v3.begin()+v3_header);
+        constexpr std::array<std::uint32_t,5> indexed_focal{
+            0x43a00000,0x43b00000,0x43c00000,0x43d00000,0x43e00000};
+        for(unsigned i=0;i<indexed.size();++i) {
+            const auto slot=v3_header+(23*5+i)*v3_row;
+            put(cameras_v3,slot,1);put(cameras_v3,slot+4+0x70,indexed_focal[i]);
+        }
+        okage::BattleCameraData camera_data_v3(cameras_v3);
+        for(unsigned i=0;i<indexed.size();++i) {
+            const auto sequence=camera_data_v3.sequence_by_index(indexed[i]);
+            require(sequence[0]&&std::bit_cast<std::uint32_t>(sequence[0]->projection_value)==indexed_focal[i]);
+        }
+        const unsigned stage17_initial=17*8+0x5c;
+        const auto by_stage_index=camera_data_v3.sequence_by_index(stage17_initial+2);
+        require(by_stage_index[0]&&std::bit_cast<std::uint32_t>(by_stage_index[0]->projection_value)==focal[0]);
+        rejects([&]{camera_data_v3.sequence_by_index(0x29);});
+        rejects([&]{camera_data_v3.sequence_by_index(0xffffffffu);});
+        rejects([&]{camera_data.sequence_by_index(0x28);});
+        rejects([&]{camera_data_v2.sequence_by_index(0x2b);});
+        auto invalid_v3=cameras_v3;
+        const auto indexed_start=v3_header+23*5*v3_row;
+        put(invalid_v3,indexed_start,2);
+        rejects([&]{okage::BattleCameraData x(invalid_v3);});
+        invalid_v3=cameras_v3;
+        put(invalid_v3,indexed_start,0);
+        rejects([&]{okage::BattleCameraData x(invalid_v3);});
+        rejects([&]{okage::BattleCameraData x(okage::Bytes(cameras_v3).first(cameras_v3.size()-1));});
         rejects([&]{camera_data.sequence(0);});rejects([&]{camera_data.sequence(24);});
         rejects([&]{camera_data.sequence(1);});
         auto invalid=cameras;put(invalid,selected,2);rejects([&]{okage::BattleCameraData x(invalid);});

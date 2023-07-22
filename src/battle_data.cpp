@@ -7,6 +7,7 @@
 namespace okage {
 namespace {
 constexpr std::size_t header_size=56, directory_size=256*8, stage_size=23*64;
+constexpr std::array<unsigned,5> indexed_camera_rows{0x28,0x2b,0x2c,0x2d,0x2e};
 constexpr std::array<std::uint8_t,32> source_hash{
     0x2a,0x90,0xb6,0xaf,0x1b,0x5e,0x0a,0xb5,0x77,0xe8,0x99,0x11,0x3d,0x7d,0x35,0xd9,
     0x76,0x69,0xa5,0xc1,0x3a,0xee,0x2a,0xe8,0x48,0x31,0x2b,0xd0,0x46,0x69,0xaa,0xa5};
@@ -51,8 +52,8 @@ BattleData::BattleData(Bytes b) {
     for(std::size_t i=0;i<count;++i) {
         const auto p=entry_base+i*12;
         const auto id=std::uint16_t(std::uint16_t(b[p]) | std::uint16_t(b[p+1])<<8);
-        entries_.push_back({__builtin_bit_cast(std::int16_t, (id)),__builtin_bit_cast(std::int8_t, (b[p+2])),
-            __builtin_bit_cast(std::int8_t, (b[p+3])),__builtin_bit_cast(float, (u32(b,p+4))),__builtin_bit_cast(float, (u32(b,p+8)))});
+        entries_.push_back({std::bit_cast<std::int16_t>(id),std::bit_cast<std::int8_t>(b[p+2]),
+            std::bit_cast<std::int8_t>(b[p+3]),std::bit_cast<float>(u32(b,p+4)),std::bit_cast<float>(u32(b,p+8))});
     }
 }
 bool BattleData::has_formation(int index) const {
@@ -75,19 +76,25 @@ BattleCameraData::BattleCameraData(Bytes b) {
        u32(b,12)!=23||!std::equal(source_hash.begin(),source_hash.end(),b.begin()+16))
         throw std::runtime_error("Invalid battle camera data artifact");
     const auto version=u32(b,8);
-    rows_per_stage_=version==1?2:version==2?5:0;
-    if(rows_per_stage_==0||b.size()!=header+23*rows_per_stage_*3*slot_size)
+    rows_per_stage_=version==1?2:version==2||version==3?5:0;
+    indexed_row_count_=version==3?indexed_camera_rows.size():0;
+    if(rows_per_stage_==0||b.size()!=header+(23*rows_per_stage_+indexed_row_count_)*3*slot_size)
         throw std::runtime_error("Invalid battle camera data artifact");
     std::size_t at=header;
-    for(auto& stage:stages_)for(unsigned row_index=0;row_index<rows_per_stage_;++row_index)
-      for(auto& slot:stage[row_index]) {
+    auto read_row=[&](auto& row) {
+      for(auto& slot:row) {
         const auto present=u32(b,at);at+=4;
         if(present>1)throw std::runtime_error("Invalid battle camera presence flag");
         if(present)std::copy_n(b.begin()+at,0x90,slot.emplace().begin());
         else if(!std::all_of(b.begin()+at,b.begin()+at+0x90,[](auto v){return v==0;}))
             throw std::runtime_error("Nonempty absent battle camera preset");
         at+=0x90;
-    }
+      }
+    };
+    for(auto& stage:stages_)for(unsigned row_index=0;row_index<rows_per_stage_;++row_index)
+        read_row(stage[row_index]);
+    for(unsigned row_index=0;row_index<indexed_row_count_;++row_index)
+        read_row(indexed_rows_[row_index]);
 }
 BattleCameraSequence BattleCameraData::sequence(int stage,bool after_intro) const {
     return sequence_at_offset(stage,after_intro?1u:0u);
@@ -99,6 +106,20 @@ BattleCameraSequence BattleCameraData::sequence_at_offset(int stage,unsigned row
     BattleCameraSequence result;
     const auto& row=stages_[stage-1][row_offset];
     for(unsigned i=0;i<3;++i)if(row[i])result[i]=read_battle_camera_preset(*row[i]);
+    return result;
+}
+BattleCameraSequence BattleCameraData::sequence_by_index(unsigned table_index) const {
+    BattleCameraSequence result;
+    const std::array<Preset,3>* row=nullptr;
+    for(unsigned stage=1;stage<=23&&!row;++stage) {
+        const unsigned first=stage*8+0x5c;
+        if(table_index>=first&&table_index-first<rows_per_stage_)
+            row=&stages_[stage-1][table_index-first];
+    }
+    for(unsigned i=0;i<indexed_row_count_&&!row;++i)
+        if(table_index==indexed_camera_rows[i])row=&indexed_rows_[i];
+    if(!row)throw std::runtime_error("Battle camera table index is outside imported authored coverage");
+    for(unsigned i=0;i<3;++i)if((*row)[i])result[i]=read_battle_camera_preset(*(*row)[i]);
     return result;
 }
 }

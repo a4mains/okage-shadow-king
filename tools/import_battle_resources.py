@@ -5,15 +5,15 @@ The output directory contains battle-data.bin (OKBTDAT1), BTL.RUW,
 battle-ui.bin (OKBTUI1), battle-camera.bin (OKBTCAM1), and battle-hud.bin
 (OKBHUD2), plus battle-ui-commands.bin (OKBCMD1).
 See import_battle_ui.py for the pointer-free authored interface schema.
-Camera format v2 is little endian: header <8sII32s> = magic, version 2,
-stage count 23, source ELF SHA256 bytes. Then, for stages 1..23 and in that
-order, five table rows are serialized: the initial camera row at
-stage*8+0x5c and offsets 0 through 4. Each row has three fixed-width slots.
-A slot is presence u32 (0 or 1), then 0x90 preset bytes; absent slots contain
-0x90 zero bytes. Each table pointer is resolved during import and never
-appears in the artifact. One 0x90 preset contains the three 0x30 camera lanes
-consumed by 0x14efa0/0x14f0d8. The parser also accepts legacy v1 artifacts,
-which contain offsets 0 and 1 only.
+Camera format v3 is little endian: header <8sII32s> = magic, version 3,
+stage count 23, source ELF SHA256 bytes. It retains the v2 rows (stages 1..23,
+initial index stage*8+0x5c and offsets 0 through 4), then adds exact global
+table indices 0x28, 0x2b, 0x2c, 0x2d, and 0x2e for the source victory-camera
+selector. Each row has three fixed-width slots: presence u32 (0 or 1), then
+0x90 preset bytes; absent slots contain 0x90 zero bytes. Table pointers are
+resolved during import and never appear in the artifact. One 0x90 preset
+contains the three 0x30 camera lanes consumed by 0x14efa0/0x14f0d8. The parser
+continues to accept legacy v1 and v2 artifacts.
 
 All inputs are checked against the owned USA retail ELF/disc hashes and the
 loose BTL.RUW file hash. The output directory must not already exist.
@@ -36,12 +36,13 @@ from inspect_disc import Disc
 DISC_SHA256 = '08623a1400e2610aecd0247ae7440c97501495c6f819f675494e44de20b62d2a'
 BTL_RUW_SHA256 = '2bc4de13d79919a53e7962250ea40acca28bb0e027ee750f35a87b6903dc8800'
 CAMERA_MAGIC = b'OKBTCAM1'
-CAMERA_VERSION = 2
+CAMERA_VERSION = 3
 CAMERA_TABLE = 0x235ea0
 CAMERA_HEADER = struct.Struct('<8sII32s')
 CAMERA_SLOT_SIZE = 4 + 0x90
 CAMERA_SLOTS_PER_ROW = 3
 CAMERA_ROWS_PER_STAGE = 5
+CAMERA_INDEXED_ROWS = (0x28, 0x2b, 0x2c, 0x2d, 0x2e)
 RUW_PATH = 'CMNDATA/WIN/BTL.RUW'
 
 def sha256(data):
@@ -68,6 +69,19 @@ def extract_camera_tables(image, source_digest):
                     preset = image.read(pointer, 0x90)
                     result.extend(struct.pack('<I', 1))
                     result.extend(preset)
+    for row_index in CAMERA_INDEXED_ROWS:
+        row_addr = CAMERA_TABLE + row_index * 12
+        pointers = struct.unpack('<3I', image.read(row_addr, 12))
+        for pointer in pointers:
+            if pointer == 0:
+                result.extend(struct.pack('<I', 0))
+                result.extend(bytes(0x90))
+            else:
+                if pointer & 3:
+                    raise ValueError(f'Unaligned camera preset pointer {pointer:#x}')
+                preset = image.read(pointer, 0x90)
+                result.extend(struct.pack('<I', 1))
+                result.extend(preset)
     return bytes(result)
 
 def extract_owned_ruw(disc_path):
@@ -179,7 +193,8 @@ def import_resources(elf_data, disc_path):
             'magic': CAMERA_MAGIC.decode('ascii'),
             'version': CAMERA_VERSION,
             'stage_count': STAGE_COUNT,
-            'row_indices': 'stage*8+0x5c through +4; each row has 3 optional 0x90-byte presets with u32 presence',
+            'stage_row_indices': 'stage*8+0x5c through +4; each row has 3 optional 0x90-byte presets with u32 presence',
+            'indexed_row_indices': list(CAMERA_INDEXED_ROWS),
         },
         'ui_format': ui_manifest,
         'hud_format': hud_manifest,

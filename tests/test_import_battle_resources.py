@@ -104,7 +104,7 @@ class BattleResourceImporterTests(unittest.TestCase):
         digest = bytes(range(32))
         data = m.extract_camera_tables(image, digest)
         self.assertEqual(m.CAMERA_HEADER.unpack_from(data),
-                         (b'OKBTCAM1', 2, 23, digest))
+                         (b'OKBTCAM1', 3, 23, digest))
         row_bytes = 3 * m.CAMERA_SLOT_SIZE
         stage17 = m.CAMERA_HEADER.size + 16 * 5 * row_bytes
         self.assertEqual(data[stage17:stage17 + m.CAMERA_SLOT_SIZE], struct.pack('<I', 1) + payloads[0])
@@ -118,7 +118,23 @@ class BattleResourceImporterTests(unittest.TestCase):
                              struct.pack('<I', 1) + payloads[offset])
             self.assertEqual(data[start + m.CAMERA_SLOT_SIZE:
                                   start + 3 * m.CAMERA_SLOT_SIZE], bytes(2 * m.CAMERA_SLOT_SIZE))
-        self.assertEqual(len(data), m.CAMERA_HEADER.size + 23 * 5 * row_bytes)
+        indexed_payloads = []
+        for ordinal, index in enumerate(m.CAMERA_INDEXED_ROWS):
+            payload = bytes((i * (ordinal + 11) + 3) & 0xff for i in range(0x90))
+            image.write(0x2700 + ordinal * 0x100, payload)
+            indexed_payloads.append(payload)
+        for ordinal, index in enumerate(m.CAMERA_INDEXED_ROWS):
+            image.write(m.CAMERA_TABLE + index * 12,
+                        struct.pack('<3I', 0x2700 + ordinal * 0x100, 0, 0))
+        data = m.extract_camera_tables(image, digest)
+        stage_extent = m.CAMERA_HEADER.size + 23 * 5 * row_bytes
+        for ordinal, payload in enumerate(indexed_payloads):
+            start = stage_extent + ordinal * row_bytes
+            self.assertEqual(data[start:start + m.CAMERA_SLOT_SIZE],
+                             struct.pack('<I', 1) + payload)
+            self.assertEqual(data[start + m.CAMERA_SLOT_SIZE:start + row_bytes],
+                             bytes(2 * m.CAMERA_SLOT_SIZE))
+        self.assertEqual(len(data), m.CAMERA_HEADER.size + (23 * 5 + 5) * row_bytes)
 
     def test_camera_rejects_bad_digest_alignment_and_unmapped_payload(self):
         image = SyntheticImage()
@@ -128,6 +144,13 @@ class BattleResourceImporterTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Unaligned'):
             m.extract_camera_tables(image, bytes(32))
         put_row(image, 1, 0, (0x500000, 0, 0))
+        with self.assertRaisesRegex(ValueError, 'Unmapped'):
+            m.extract_camera_tables(image, bytes(32))
+        image = SyntheticImage()
+        image.write(m.CAMERA_TABLE + 0x28 * 12, struct.pack('<3I', 0x2001, 0, 0))
+        with self.assertRaisesRegex(ValueError, 'Unaligned'):
+            m.extract_camera_tables(image, bytes(32))
+        image.write(m.CAMERA_TABLE + 0x28 * 12, struct.pack('<3I', 0x500000, 0, 0))
         with self.assertRaisesRegex(ValueError, 'Unmapped'):
             m.extract_camera_tables(image, bytes(32))
 
