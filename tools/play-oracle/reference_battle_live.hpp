@@ -14,7 +14,7 @@
 
 class BattleLiveTrace {
 public:
-    static constexpr std::array<uint32,6> entryBreakpoints={0x14a248,0x14a508,0x1519f8,0x151e68,0x1524e0,0x15afa0};
+    static constexpr std::array<uint32,7> entryBreakpoints={0x14a248,0x14a508,0x14a780,0x1519f8,0x151e68,0x1524e0,0x15afa0};
     static constexpr unsigned maxFrames=4096,maxRows=65536;
     explicit BattleLiveTrace(const std::filesystem::path& path,unsigned requested):requested_(requested) {
         if(!requested||requested>maxFrames)fail("requested frame bound must be1..4096");
@@ -23,7 +23,7 @@ public:
         output_<<"{\"schema\":\"okage-battle-live-v1\",\"requested_vblanks\":"<<requested
           <<",\"source_elf_sha256\":\"2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5\","
           <<"\"frame_convention\":\"unmodified boot frames counter:0 before first OnNewFrame; rows may span vblanks; absolute anchor is supplied by the invoking replay, never inferred\","
-          <<"\"scope\":\"every observed root callback14a248/14a508/1519f8/151e68 and roster1524e0/15afa0 entry/return; no actor callback boundaries\","
+          <<"\"scope\":\"every observed root callback14a248/14a508/14a780/1519f8/151e68 and roster1524e0/15afa0 entry/return; no actor callback boundaries\","
           <<"\"pairing\":\"live RA and restored SP, same Play EE OS thread, root and scheduler lineage; callback slots may transition only within observed root set\","
           <<"\"raw_data\":\"pointer slots and unknown bytes remain raw; only registered entity records are emitted; model channels are existing stored records, never lazy-evaluated\","
           <<"\"thread_provenance\":\"Play PS2OS.cpp BIOS_ADDRESS_STATE_BASE4000 + BIOS_STATE.currentThreadId14; research OS identity only\","
@@ -108,7 +108,7 @@ private:
     std::array<unsigned,maxFrames> frameRows_{};
     [[noreturn]] static void fail(const char* text){throw std::runtime_error(std::string("Battle-live observer: ")+text);}
     void flush(){output_.flush();if(!output_)fail("output write failed");}
-    static bool isParent(uint32 pc){return pc==0x14a248||pc==0x14a508||pc==0x1519f8||pc==0x151e68;}
+    static bool isParent(uint32 pc){return pc==0x14a248||pc==0x14a508||pc==0x14a780||pc==0x1519f8||pc==0x151e68;}
     static bool isEntry(uint32 pc){return std::find(entryBreakpoints.begin(),entryBreakpoints.end(),pc)!=entryBreakpoints.end();}
     static Links links(uint32 p,const Memory& m){m.require(p,0x20);return {m.word(p+4),m.word(p+8),m.word(p+0xc),m.word(p+0x10),m.word(p+0x14)};}
     static bool reachable(uint32 root,uint32 target,const Memory& m) {

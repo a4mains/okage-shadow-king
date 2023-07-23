@@ -67,18 +67,18 @@ int main(int argc,char** argv){
   f.stop(0x14a248,Fixture::root);t.observe(f.ee,3,f.bps);
   if(mode=="partial"){t.finish(8);return 0;}
   if(mode=="nested"){f.stop(0x1524e0,Fixture::party);t.observe(f.ee,3,f.bps);return 0;}
-  f.put(Fixture::root,mode=="unknown-next"?0x123456:0x14a508);f.put(Fixture::root+0x24,0);f.put(0x450058,0x98765432);
+  f.put(Fixture::root,mode=="unknown-next"?0x123456:0x14a780);f.put(Fixture::root+0x24,0);f.put(0x450058,0x98765432);
   f.stop(Fixture::ra,0);if(mode=="thread")f.put(0x4014,3);if(mode=="stack")f.ee.m_EE.m_State.nGPR[CMIPS::SP].nD0-=16;
   if(mode=="root")f.put(0x1fce60,0x410000);
   t.observe(f.ee,4,f.bps);
   if(mode=="backwards"){f.stop(0x14a508,Fixture::root);t.observe(f.ee,2,f.bps);return 0;}
-  for(auto pc:{0x14a508u,0x1519f8u,0x151e68u}) {
+  for(auto pc:{0x14a508u,0x14a780u,0x1519f8u,0x151e68u}) {
    f.put(Fixture::root,pc);f.stop(pc,Fixture::root);t.observe(f.ee,5,f.bps);f.stop(Fixture::ra,0);t.observe(f.ee,5,f.bps);
   }
   for(auto pair:{std::pair{0x1524e0u,Fixture::party},std::pair{0x15afa0u,Fixture::enemy}}){f.stop(pair.first,pair.second);t.observe(f.ee,6,f.bps);f.stop(Fixture::ra,0);t.observe(f.ee,6,f.bps);}
   t.finish(mode=="short-run"?7:8);
   if(mode=="shared-return"&&!f.ee.m_EE.toggles.empty())throw std::runtime_error("Shared return breakpoint changed");
-  if(mode!="shared-return"&&f.ee.m_EE.toggles.size()!=12)throw std::runtime_error("Return breakpoint ownership count");
+  if(mode!="shared-return"&&f.ee.m_EE.toggles.size()!=14)throw std::runtime_error("Return breakpoint ownership count");
   return 0;
  }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }
@@ -113,9 +113,9 @@ class BattleLiveObserverTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(rows[0]['schema'], 'okage-battle-live-v1')
         callbacks = rows[1:-1]
-        self.assertEqual(len(callbacks), 12)
+        self.assertEqual(len(callbacks), 14)
         self.assertEqual([r['entry_pc'] for r in callbacks[::2]],
-                         [0x14a248, 0x14a508, 0x1519f8, 0x151e68, 0x1524e0, 0x15afa0])
+                         [0x14a248, 0x14a508, 0x14a780, 0x1519f8, 0x151e68, 0x1524e0, 0x15afa0])
         self.assertEqual(callbacks[0]['frame'], 3)
         self.assertEqual(callbacks[1]['frame'], 4)
         self.assertEqual(callbacks[0]['rng_state_word'], 0x12345678)
@@ -125,8 +125,13 @@ class BattleLiveObserverTests(unittest.TestCase):
         self.assertEqual(actor['body_pointer'], 0x500040)
         self.assertEqual(actor['stat_bindings'][0]['value']['raw_hex'], 'e7030000')
         self.assertEqual(actor['model']['world_channels_raw']['bytes'], 4 * 0x90)
-        self.assertEqual(rows[-1]['callback_frame_counts'], [[3, 1], [4, 1], [5, 6], [6, 4]])
-        self.assertEqual(rows[-1]['pairs'], 6)
+        self.assertEqual(rows[-1]['callback_frame_counts'], [[3, 1], [4, 1], [5, 8], [6, 4]])
+        self.assertEqual(rows[-1]['pairs'], 7)
+        self.assertIn('14a780', rows[0]['scope'])
+        victory = [r for r in callbacks if r['entry_pc'] == 0x14a780]
+        self.assertEqual([r['edge'] for r in victory], ['entry', 'return'])
+        self.assertTrue(all(r['kind'] == 'parent' and r['owner'] == 0x400000 for r in victory))
+        self.assertEqual(int.from_bytes(bytes.fromhex(callbacks[1]['owner_header']['raw_hex'])[:4], 'little'), 0x14a780)
 
     def test_enemy_source_null_binding_and_owned_extent_diagnostics(self):
         result, rows, _ = self.run_case('enemy-null')

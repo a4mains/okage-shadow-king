@@ -15,7 +15,7 @@ import sys
 from compare_battle_construction import COMMON, EXTRA
 
 ELF = '2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5'
-PCS = {'parent': {0x14a248, 0x14a508, 0x1519f8, 0x151e68},
+PCS = {'parent': {0x14a248, 0x14a508, 0x14a780, 0x1519f8, 0x151e68},
        'party_roster': {0x1524e0}, 'enemy_roster': {0x15afa0}}
 ROOT = [(0x2c, 0x30), (0x3c, 0x48), (0x50, 0x54)]
 TAIL = [(0x807c, 0x8084), (0x80a0, 0x81c4)]
