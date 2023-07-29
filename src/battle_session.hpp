@@ -41,6 +41,8 @@ struct BattleUiContext {
     std::function<void(unsigned)> menu_sound;
     std::ostream* live_trace=nullptr;
     std::function<void(int)> strike_sound;
+    std::function<void()> stop_music;
+    std::function<void(unsigned)> jingle;
 };
 class BattleSession {
 public:

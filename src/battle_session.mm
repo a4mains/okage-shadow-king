@@ -14,6 +14,7 @@
 #include "okage/battle_damage.hpp"
 #include "okage/battle_hit.hpp"
 #include "okage/battle_reward.hpp"
+#include "okage/battle_victory.hpp"
 #include "okage/battle_enemy_commands.hpp"
 #include "okage/battle_command_queue.hpp"
 #include "okage/battle_ui_diagnostic.hpp"
@@ -108,7 +109,7 @@ struct BattleSession::Impl {
     Construction construction=Construction::Preparing; //Main thread only.
     std::exception_ptr construction_failure;
     unsigned phase=0;
-    enum class ParentCallback {Intro,Combat,CommandMenu,CommandAction};
+    enum class ParentCallback {Intro,Combat,CommandMenu,CommandAction,Victory};
     ParentCallback parent_callback=ParentCallback::Intro;
     std::optional<ParentCallback> previous_parent_callback;
     unsigned live_trace_rows=0,live_trace_calls=0;
@@ -504,7 +505,14 @@ struct BattleSession::Impl {
         bool ready=true;
         for(unsigned i=0;i<3;++i)if(auto* actor=entities[i].actor)
             if(!battle_actor_incapacitated(actor)&&word(actor->storage,0x21c)!=100)ready=false;
-        if(ready)throw std::runtime_error("Battle victory14a780 transition/effect cleanup is unrecovered");
+        if(ready) {
+            phase=0;put(root.bytes,0x24,0);
+            previous_parent_callback=parent_callback;parent_callback=ParentCallback::Victory;
+            put(root.bytes,0x30,0);
+            for(unsigned i=0;i<3;++i)if(auto* actor=roster.entities()[i].actor)
+                battle_actor_reset_after_victory(*actor);
+            put(root.bytes,0x81b0,3);
+        }
         return true;
     }
     void combat_parent(BattleUiContext& context,std::vector<std::string>& events) {
@@ -551,6 +559,7 @@ struct BattleSession::Impl {
             case ParentCallback::Combat:return 0x14a508u;
             case ParentCallback::CommandMenu:return 0x1519f8u;
             case ParentCallback::CommandAction:return 0x151e68u;
+            case ParentCallback::Victory:return 0x14a780u;
             }
             throw std::runtime_error("Unknown native battle parent identity");
         };
@@ -646,6 +655,18 @@ struct BattleSession::Impl {
             trace("parent","entry",parent_call,parent_entry);
             if(parent_callback==ParentCallback::Combat) {
                 combat_parent(context,events);
+            } else if(parent_callback==ParentCallback::Victory) {
+                try {
+                    battle_victory_update(root,roster.entities(),context.fade,context.entry.reward_storage(),{
+                        [&]{return context.random.next();},
+                        [&](unsigned row){camera->restart_sequence(camera_data->sequence_by_index(row));},
+                        context.stop_music,context.jingle,
+                        [&](unsigned layer,int speed){ui->fade_layer(layer,speed);}});
+                } catch(...) {phase=word(root.bytes,0x24);throw;}
+                phase=word(root.bytes,0x24);
+                if(word(root.bytes,0x1c)&0x80000000u)
+                    throw std::runtime_error("Battle victory scheduler retirement and field return are unrecovered");
+                events.push_back("parent.victory.return");
             } else if(parent_callback==ParentCallback::CommandMenu) {
                 if(phase==0) {
                     ui->open_layer(0);ui->fade_layer(1,-128);
@@ -1035,6 +1056,16 @@ void BattleSession::write_actor_observation(std::ostream& out,unsigned frame) co
            <<",\"death_timer_bits\":"<<word(actor.storage,0x3c4)<<",\"model\":";
         model(actor.model.get());out<<",\"bag\":";model(actor.bag.get());out<<",\"box\":";model(actor.box.get());out<<'}';
     }
+    out<<"],\"stage\":"<<impl_->stage<<",\"source_camera_w_available\":"
+       <<(impl_->source_camera_w_available?"true":"false")<<",\"camera_words\":[";
+    if(impl_->camera) {
+        const auto words=impl_->camera->observation();
+        for(unsigned i=0;i<words.size();++i){if(i)out<<',';out<<words[i];}
+    }
+    out<<"],\"resource_camera_bits\":[";
+    bool camera_comma=false;
+    for(const auto& values:{impl_->resource_camera_position,impl_->resource_camera_rotation})
+        for(float value:values){if(camera_comma)out<<',';camera_comma=true;out<<std::bit_cast<std::uint32_t>(value);}
     out<<"]}\n";if(!out)throw std::runtime_error("Cannot write battle actor observation");
 }
 void BattleSession::write_effect_observation(std::ostream& out,unsigned frame) const {

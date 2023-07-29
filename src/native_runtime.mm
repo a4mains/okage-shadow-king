@@ -622,6 +622,12 @@ struct Session {
                      //12df80 owned tables1fb3e0/1fb388: speeds1, volumes
                      //18=120,40=100,58=110,65=80,66=100.
                      found->second->play(unsigned(id),1.f,id==18?120:id==58?110:id==65?80:100);
+                 },[this]{
+                     if(!music)throw std::runtime_error("Victory requires live music owner");
+                     music->stop();
+                 },[this](unsigned slot){
+                     if(!music||slot!=4)throw std::runtime_error("Victory jingle owner/slot unavailable");
+                     music->select(33); //12e0b0(4), owned installed jingle slot4.
                  }},
                 frame,battle_stage_report,battle_ui_update_report);
                 pad_repeat.delay=battle_pad.controls[0].delay;
