@@ -231,7 +231,13 @@ void party_actor(BattleActor& a,BattleRosterUpdateContext& c) {
     default:put(a.storage,0x19c,0);put(a.storage,0x194,0);return;
     }
 }
-void action_duration(BattleActor&) {missing("Battle roster1580d0 action duration is unrecovered");}
+void action_duration(BattleActor& actor,BattleRosterUpdateContext& c) {
+    check(c.tables&&c.action_data,"Battle roster1580d0 owned action data missing");
+    const auto duration=battle_setup_action(actor,c.root,*c.tables,*c.action_data);
+    //152ff8..153004: completion writes happen only after real1580d0 returns.
+    put(actor.storage,0x1a0,std::bit_cast<std::uint32_t>(duration));
+    put(actor.storage,0x21c,3);put(actor.storage,0x19c,0);
+}
 void stan_actor(BattleActor& stan,BattleActor* hero,BattleRosterUpdateContext& c) {
     const unsigned id=entity_id(stan,c);
     //152dc0 gets both persistent owners before checking the shared mode.
@@ -266,12 +272,23 @@ void stan_actor(BattleActor& stan,BattleActor* hero,BattleRosterUpdateContext& c
                     if(signed_word(c.root.entity(i),0x1fc)>=0)put(stan.storage,0x146,i,2);
             }
         }
-        action_duration(stan);return;
+        action_duration(stan,c);return;
     case 3:
         if(!any_target(stan,c,false)) {
             put(stan.storage,0x194,0);put(stan.storage,0x19c,0);put(stan.storage,0x21c,1);clear_action(id,c);return;
         }
-        missing("Battle Stan target/action readiness1588b0 is unrecovered");
+        {
+            const int ready=battle_action_readiness(c.root,id,Bytes(stan.storage).subspan(0x132,16));
+            if(ready==1) {
+                put(stan.storage,0x194,0);
+                put(stan.storage,0x21c,half(stan.storage,0x142)==206?9u:8u);
+                put(stan.storage,0x304,word(stan.storage,0x304)+1);
+            } else if(ready==2||ready==3) {
+                put(stan.storage,0x194,0);put(stan.storage,0x19c,0);
+                put(stan.storage,0x21c,1);clear_action(id,c);
+            }
+            return;
+        }
     case 5:case 6:case 8:case 9:return;
     case 99:put(stan.storage,0x21c,1);clear_action(id,c);[[fallthrough]];
     default:put(stan.storage,0x19c,0);put(stan.storage,0x194,0);return;

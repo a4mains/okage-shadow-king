@@ -1,5 +1,6 @@
 #include "okage/battle_roster_update.hpp"
 #include "okage/battle_command_queue.hpp"
+#include <algorithm>
 #include <bit>
 #include <cfenv>
 #include <iostream>
@@ -22,6 +23,33 @@ unsigned word(okage::Bytes b,unsigned at) {
 }
 unsigned half(okage::Bytes b,unsigned at){return b[at]|(unsigned(b[at+1])<<8);}
 void number(std::span<std::uint8_t> b,unsigned at,float value){put(b,at,std::bit_cast<std::uint32_t>(value));}
+std::vector<std::uint8_t> stan_descriptors() {
+    std::vector<std::uint8_t> b(51480);const std::string magic="OKBACT1";std::copy(magic.begin(),magic.end(),b.begin());
+    unsigned at=8;for(unsigned v:{1u,256u,256u,98u,159u,15u,136u,51344u}){put(b,at,v);at+=4;}
+    const auto hash=[&](unsigned at,std::string_view hex){for(unsigned i=0;i<32;++i)b[at+i]=std::stoul(std::string(hex.substr(i*2,2)),nullptr,16);};
+    hash(40,"2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5");
+    hash(72,"973964019ddb24d033b0e10f4f3e2cf72fafdee9bdb25ee143ee87c832b0aff4");
+    for(unsigned i=0;i<370;++i) {
+        at=1160+i*136;put(b,at+8,120,2);put(b,at+0x1a,i>=355?0xffff:20,2);put(b,at+0x3a,i>=355?0:21,2);
+    }
+    return b;
+}
+std::vector<std::uint8_t> stan_xdb(bool battle,unsigned target=0,std::int32_t delay=8) {
+    const std::string strings("unit\0item\0waza\0Name\0Model\0Description\0",38);
+    const unsigned columns=battle?27:15,sections=battle?2:1,base=32+16*sections,words=columns+(battle?256*13:0);
+    std::vector<std::uint8_t>b(base+words*4+strings.size());
+    for(auto [at,v]:{std::pair{0u,0x424458u},{4u,words*4},{8u,unsigned(strings.size())},{12u,sections},{16u,0xffffffffu},{32u,battle?0u:5u},{40u,columns}})put(b,at,v);
+    put(b,base,15);put(b,base+(battle?1:14)*4,20);
+    if(battle) {
+        put(b,48,10);put(b,52,columns*4);put(b,56,256*13);
+        for(unsigned row=0;row<256;++row) {
+            const auto at=base+columns*4+row*52;put(b,at,15);put(b,at+48,26);
+            for(unsigned j=1;j<10;++j)put(b,at+j*4,0xf0000000+row+j);
+            put(b,at+40,target);put(b,at+44,std::uint32_t(delay));
+        }
+    }
+    std::copy(strings.begin(),strings.end(),b.begin()+base+words*4);return b;
+}
 struct Fixture {
     okage::BattleState root;
     okage::BattleEntryContext entry;
@@ -122,6 +150,54 @@ void stan_context_and_enemy_guards() {
     Fixture end;put(end.root.bytes,0x81b8,1);end.update();
     for(unsigned i=0;i<4;++i)require(word(end.actors[i].storage,0x21c)==100,"End-state getter changes each party and Stan state before switch");
     require(end.sounds.empty(),"End state does not invent queue command");
+}
+void stan_setup_and_readiness() {
+    okage::BattleActionData data(stan_descriptors());okage::GameDataTables tables(stan_xdb(true),stan_xdb(false));
+    const auto bind=[&](Fixture& f){f.context.tables=&tables;f.context.action_data=&data;};
+    Fixture f;bind(f);auto& stan=f.actors[3];
+    put(f.actors[0].storage,0x3bc,1,2);put(f.records[0],8,100);put(f.actors[0].storage,0x164,400,2);
+    number(stan.storage,0x194,17);number(stan.storage,0x19c,23);number(stan.storage,0x1a0,99);
+    f.update();
+    require(half(stan.storage,0x142)==205&&half(stan.storage,0x144)==10&&half(stan.storage,0x146)==0&&half(f.actors[0].storage,0x3bc)==0,
+            "Stan ratio trigger consumes HERO hit before authoring205 direct target0");
+    require(stan.action_record_id==205&&stan.action_motion&&stan.action_secondary&&half(stan.storage,0x140)==1&&stan.storage[0x132]==0,
+            "Stan calls real action setup with owned waza/descriptors and graph registration");
+    require(word(stan.storage,0x1a0)==std::bit_cast<unsigned>(40.f)&&word(stan.storage,0x21c)==3&&word(stan.storage,0x19c)==0&&word(stan.storage,0x194)==std::bit_cast<unsigned>(17.f),
+            "Stan setup stores returned delay then state3 and zero wait timer, preserving charge timer");
+    require(f.draws==0&&f.sounds.empty(),"Stan automatic setup consumes no decoder RNG or ready sound");
+    //No elapsed check: despite delay40 and wait0, actual graph readiness controls Stan.
+    put(stan.storage,0x304,0xffffffff);f.update();
+    require(word(stan.storage,0x21c)==8&&word(stan.storage,0x194)==0&&word(stan.storage,0x304)==0&&f.draws==0,
+            "Ready205 enters8 and wraps action count without waiting for duration");
+    Fixture queued;bind(queued);put(queued.variables,0x574,1);put(queued.actors[0].storage,0x340,0x10016);
+    queued.update();require(queued.actors[3].action_record_id==22&&word(queued.actors[0].storage,0x340)==0&&word(queued.actors[3].storage,0x21c)==3,
+            "Queued HERO word is consumed and narrowed before real Stan setup");
+    Fixture retaliation;bind(retaliation);put(retaliation.variables,0x574,1);put(retaliation.actors[0].storage,0x3bc,7,2);put(retaliation.actors[0].storage,0x148,4,2);
+    put(retaliation.actors[3].storage,0x144,0xbeef,2);retaliation.update();
+    require(retaliation.actors[3].action_record_id==206&&half(retaliation.actors[3].storage,0x144)==10&&half(retaliation.actors[3].storage,0x146)==4,
+            "Seven-hit retaliation authors206 group10 and real remembered attacker");
+    retaliation.update();require(word(retaliation.actors[3].storage,0x21c)==9,"Only ready action206 selects Stan state9");
+    for(unsigned result:{0u,2u,3u}) {
+        Fixture wait;auto& a=wait.actors[3];put(a.storage,0x21c,3);put(a.storage,0x140,1,2);a.storage[0x132]=4;
+        put(a.storage,0x142,205,2);number(a.storage,0x194,17);number(a.storage,0x19c,19);put(a.storage,0x304,7);
+        okage::battle_register_action(wait.root,3,4,0);
+        if(result==0) {wait.root.action_links[4][0]=0;put(wait.root.entity(0),0x60,0,2);}
+        if(result==2)wait.root.action_links[3][0].reset();
+        if(result==3)wait.root.action_links[4][0].reset();
+        const auto before=a.storage;wait.update();
+        if(result==0)require(a.storage==before,"Conflicting Stan heads wait with no timer/counter writes");
+        else require(word(a.storage,0x21c)==1&&word(a.storage,0x194)==0&&word(a.storage,0x19c)==0&&half(wait.root.entity(3),0x60)==0xffff&&word(a.storage,0x304)==7,
+                     "Stan readiness2/3 clears both timers, sets1 and invalidates action without count increment");
+        require(wait.draws==0,"Stan readiness never draws RNG");
+    }
+    okage::GameDataTables multi(stan_xdb(true,7),stan_xdb(false));Fixture partial;bind(partial);partial.context.tables=&multi;
+    put(partial.variables,0x574,1);put(partial.actors[0].storage,0x340,205);auto& a=partial.actors[3];
+    number(a.storage,0x1a0,99);number(a.storage,0x19c,23);
+    rejects([&]{partial.update();},"158548");
+    require(word(partial.actors[0].storage,0x340)==0&&a.action_record_id==205&&a.action_motion&&half(a.storage,0x1fc)==205,
+            "Setup failure retains trigger consumption and preceding action/waza/motion writes");
+    require(word(a.storage,0x21c)==1&&word(a.storage,0x1a0)==std::bit_cast<unsigned>(99.f)&&word(a.storage,0x19c)==std::bit_cast<unsigned>(23.f)&&partial.draws==0,
+            "Failed1580d0 does not fabricate return duration or caller completion stores");
 }
 void cleanup_and_source_defaults() {
     Fixture f;put(f.root.entity(0),0x1fc,0x80000000);put(f.root.entity(0),0x60,7,2);
@@ -357,7 +433,7 @@ void invalid_owners() {
 }
 }
 int main() {
-    try {waiting_and_ready();ordered_selection();status_motion_and_failure_order();stan_context_and_enemy_guards();cleanup_and_source_defaults();target_gates();enemy_action_readiness();enemy_grouping();enemy_grouping_graph_and_failure();post_action_timer_and_flags();post_action_secondary();post_action_primary_queue();post_action_failure_order();invalid_owners();
+    try {waiting_and_ready();ordered_selection();status_motion_and_failure_order();stan_context_and_enemy_guards();stan_setup_and_readiness();cleanup_and_source_defaults();target_gates();enemy_action_readiness();enemy_grouping();enemy_grouping_graph_and_failure();post_action_timer_and_flags();post_action_secondary();post_action_primary_queue();post_action_failure_order();invalid_owners();
         std::cout<<"battle roster update tests passed\n";return 0;
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }
