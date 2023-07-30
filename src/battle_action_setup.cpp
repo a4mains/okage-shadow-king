@@ -37,6 +37,38 @@ unsigned choose(std::int16_t group,const BattleState& root,std::span<const Battl
     check(index>=0,"Battle157ce8 RNG produced negative candidate index");
     return candidates[unsigned(index)];
 }
+void register_target_group(BattleActor& actor,BattleState& root,int owner,std::uint32_t flag) {
+    check(owner>=0,"Battle group action signed owner outside entity storage");
+    auto node=root.entity(unsigned(owner));
+    put(node,0x60,unsigned(owner),2);put(node,0x62,0xffff,2);
+    const auto previous=std::uint16_t(half(node,0x16c));
+    const auto registrations=std::uint16_t(half(node,0x64));
+    put(node,0x68,flag);put(node,0x16c,std::uint16_t(previous+1),2);
+    put(node,0x64,std::uint16_t(registrations+1),2);
+    const auto store_link=[&](unsigned destination,std::uint16_t previous) {
+        const auto index=std::bit_cast<std::int16_t>(previous);
+        check(index>=0&&index<64,"Battle group action append outside owned link storage");
+        check(word(root.entity(destination),0x6c+unsigned(index)*4)==0,
+              "Battle group action link contains an unnormalized guest pointer");
+        root.action_links[destination][unsigned(index)]=std::uint8_t(owner);
+    };
+    store_link(unsigned(owner),previous);
+    auto& b=actor.storage;put(b,0x140,0,2);
+    const int group=half(b,0x144);
+    check(group==10||group==11,"Battle158548 actor-filtered target group is unrecovered");
+    //158688/158714 fixed ranges, independent of root+50 and actor pointers.
+    for(unsigned target=group==10?4:0;target<(group==10?14u:3u);++target) {
+        auto target_node=root.entity(target);
+        if(word(target_node,0x1fc)&0x80000000u)continue;
+        const int count=half(b,0x140);
+        put(b,0x140,std::uint16_t(count+1),2);
+        check(count>=0&&count<10,"Battle group action target storage extent");
+        b[0x132+unsigned(count)]=std::uint8_t(target);
+        const auto old=std::uint16_t(half(target_node,0x16c));
+        put(target_node,0x16c,std::uint16_t(old+1),2);
+        store_link(target,old);
+    }
+}
 class Rounding {
     std::fenv_t saved_{};
 public:
@@ -100,6 +132,8 @@ float battle_setup_action(BattleActor& actor,BattleState& root,const GameDataTab
     case 0:case 3:
         put(b,0x140,1,2);b[0x132]=b[0x146];
         register_target(std::bit_cast<std::int8_t>(b[0x146]));break;
+    case 2:
+        register_target_group(actor,root,owner,action==208?1u:0u);break;
     case 5:case 6:
         b[0x132]=std::uint8_t(owner);put(b,0x140,1,2);
         register_target(std::bit_cast<std::int8_t>(b[0x132]));break;

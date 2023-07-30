@@ -119,6 +119,55 @@ void setup_and_failures() {
     }
     std::fesetround(old);
 }
+void group_target_registration() {
+    okage::BattleActionData data(descriptors());
+    okage::GameDataTables tables(xdb(true,2),xdb(false));
+    const auto prepare=[](Fixture& f,unsigned owner,int group) -> okage::BattleActor& {
+        auto& a=f.actors[owner];put(a.storage,0x142,205,2);put(a.storage,0x144,std::uint16_t(group),2);
+        std::fill(a.storage.begin()+0x132,a.storage.begin()+0x140,0xa5);
+        put(a.storage,0x140,0x5678,2);put(a.storage,0x146,0xbeef,2);
+        for(unsigned i=0;i<14;++i)put(f.root.entity(i),0x1fc,0x80000000);
+        return a;
+    };
+    Fixture f(14);auto& a=prepare(f,3,10);
+    //158688 ignores actor pointers and root's active count; tests exactly4..13.
+    put(f.root.bytes,0x50,0);for(auto& b:f.bindings)b.actor=nullptr;
+    for(unsigned i:{0u,3u,4u,6u,13u,14u})put(f.root.entity(i),0x1fc,0x7fffffffu);
+    f.root.action_links[6][0]=9;put(f.root.entity(6),0x16c,1,2);
+    require(okage::battle_setup_action(a,f.root,tables,data)==40,"Type2 completes authored setup");
+    require(half(a.storage,0x140)==3&&a.storage[0x132]==4&&a.storage[0x133]==6&&a.storage[0x134]==13,"Fixed range and source ascending target order");
+    for(unsigned i=3;i<14;++i)require(a.storage[0x132+i]==0xa5,"Group construction preserves unused target bytes");
+    require(half(a.storage,0x146)==0xbeef,"Group registration leaves direct selected target unchanged");
+    const auto owner=f.root.entity(3);
+    require(half(owner,0x60)==3&&half(owner,0x62)==0xffff&&half(owner,0x64)==1&&word(owner,0x68)==0&&half(owner,0x16c)==1,"One embedded owner node and self append independent of target count");
+    require(f.root.action_links[3][0]==3&&f.root.action_links[4][0]==3&&f.root.action_links[6][0]==9&&f.root.action_links[6][1]==3&&f.root.action_links[13][0]==3,"Targets append same live owner identity without replacing existing links");
+    require(!f.root.action_links[0][0]&&!f.root.action_links[14][0]&&!f.root.action_links[5][0],"No out-of-range or dead-target registration");
+    Fixture full(14);auto& all=prepare(full,3,10);
+    for(unsigned i=4;i<14;++i)put(full.root.entity(i),0x1fc,0);
+    okage::battle_setup_action(all,full.root,tables,data);
+    require(half(all.storage,0x140)==10,"Enemy range reaches exact ten-byte target capacity");
+    for(unsigned i=0;i<10;++i)require(all.storage[0x132+i]==i+4&&full.root.action_links[i+4][0]==3,"Full fixed-range target order");
+    for(unsigned i=10;i<14;++i)require(all.storage[0x132+i]==0xa5,"Full list preserves adjacent four-byte tail");
+    Fixture party(3);auto& p=prepare(party,1,11);
+    for(unsigned i=0;i<3;++i)put(party.root.entity(i),0x1fc,0);
+    put(party.root.entity(1),0x64,0xffff,2);
+    okage::battle_setup_action(p,party.root,tables,data);
+    require(half(p.storage,0x140)==3&&p.storage[0x132]==0&&p.storage[0x133]==1&&p.storage[0x134]==2,"Group11 uses0..2 including owner");
+    require(half(party.root.entity(1),0x16c)==2&&half(party.root.entity(1),0x64)==0&&party.root.action_links[1][0]==1&&party.root.action_links[1][1]==1,"Self target duplicates link, not registration counter; halfword wraps");
+    Fixture empty;auto& e=prepare(empty,0,10);okage::battle_setup_action(e,empty.root,tables,data);
+    require(half(e.storage,0x140)==0&&empty.root.action_links[0][0]==0&&half(empty.root.entity(0),0x64)==1&&e.action_secondary,"Empty range retains real self registration and finishes setup");
+    Fixture invalid;auto& v=prepare(invalid,0,12);
+    rejects([&]{okage::battle_setup_action(v,invalid.root,tables,data);},"actor-filtered");
+    require(half(v.storage,0x140)==0&&invalid.root.action_links[0][0]==0&&half(invalid.root.entity(0),0x62)==0xffff&&!v.action_secondary,"Unsupported actor-filtered group retains158548 common prefix");
+    Fixture overflow;auto& o=prepare(overflow,0,10);put(overflow.root.entity(0),0x16c,64,2);
+    rejects([&]{okage::battle_setup_action(o,overflow.root,tables,data);},"append outside");
+    require(half(overflow.root.entity(0),0x16c)==65&&half(overflow.root.entity(0),0x64)==1&&half(o.storage,0x140)==0x5678&&!o.action_secondary,"Owner append failure precedes target-count reset and later timers");
+    Fixture partial;auto& q=prepare(partial,0,10);
+    put(partial.root.entity(4),0x1fc,0);put(partial.root.entity(6),0x1fc,0);put(partial.root.entity(6),0x16c,64,2);
+    rejects([&]{okage::battle_setup_action(q,partial.root,tables,data);},"append outside");
+    require(half(q.storage,0x140)==2&&q.storage[0x132]==4&&q.storage[0x133]==6&&half(partial.root.entity(6),0x16c)==65,"Target count/byte and target append counter precede capacity failure");
+    require(partial.root.action_links[0][0]==0&&partial.root.action_links[4][0]==0&&!partial.root.action_links[6][0]&&!q.action_secondary,"Earlier owner/target stores survive later target failure");
+}
 void roster_integration() {
     okage::BattleActionData data(descriptors());okage::GameDataTables tables(xdb(true),xdb(false));
     for(unsigned category:{0u,1u,3u}) {
@@ -238,7 +287,7 @@ std::vector<std::uint8_t> read(const char* p){std::ifstream f(p,std::ios::binary
 }
 int main(int argc,char** argv) {
     try {
-        decode_and_rng();setup_and_failures();roster_integration();ready_transition();enemy_selection();enemy_costs_and_setup();
+        decode_and_rng();setup_and_failures();group_target_registration();roster_integration();ready_transition();enemy_selection();enemy_costs_and_setup();
         if(argc==4) {
             okage::BattleActionData data(read(argv[1]));okage::GameDataTables tables(read(argv[2]),read(argv[3]));
             Fixture f;auto& a=f.actors[0];put(a.storage,0x142,200,2);put(a.storage,0x146,2,2);
