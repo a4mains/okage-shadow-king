@@ -65,5 +65,61 @@ void fractional(){
  for(unsigned state:{4u,0xffffffffu}){Fixture g;put(g.root,0x24,state);const auto before=g.root.bytes;g.tick();check(g.root.bytes==before&&g.calls.empty(),"Unknown phase source no-op");}
  for(unsigned flag:{0u,2u}){Fixture g;put(g.root,0x24,2);put(g.root,0x8080,flag);scalar(g.root,0x81bc,0);g.reward[2]=17;g.tick();check(g.reward[2]==17,"Reward multiplier exact flag1 only");}
 }
+void defeat_parent(){
+ BattleState root;SceneFade fade;scalar(root,0x2c,1.f);put(root,0x1c,0x123);
+ std::vector<int> calls;
+ auto fade_ui=[&](unsigned layer,int speed){
+  check(layer==1&&speed==-128,"Defeat UI fade arguments");
+  check(word(root,0x24)==0&&word(root,0x81bc)==0,"UI fade precedes timer and phase stores");
+  calls.push_back(1);
+ };
+ battle_defeat_update(root,fade,fade_ui);
+ check(calls==std::vector<int>{1}&&word(root,0x24)==1&&scalar(root,0x81bc)==179,
+       "Defeat phase0 initializes180 then falls through countdown");
+ scalar(root,0x81bc,1);battle_defeat_update(root,fade,fade_ui);
+ check(word(root,0x24)==1&&scalar(root,0x81bc)==0&&fade.target==0,
+       "Defeat countdown equality waits");
+ scalar(root,0x81bc,0);battle_defeat_update(root,fade,fade_ui);
+ check(word(root,0x24)==2&&scalar(root,0x81bc)==-1&&
+       std::bit_cast<std::uint32_t>(fade.step)==0x3ba3d70a&&fade.target==0,
+       "Defeat strict-negative requests the authored scene fade");
+ fade.current=1;battle_defeat_update(root,fade,fade_ui);
+ check(word(root,0x24)==2&&word(root,0x1c)==0x123,
+       "Defeat deletion waits for actual fade equality");
+ fade.current=0;battle_defeat_update(root,fade,fade_ui);
+ check(word(root,0x24)==3&&word(root,0x1c)==0x80000123,
+       "Defeat marks deletion and advances phase preserving scheduler bits");
+ const auto final=root.bytes;battle_defeat_update(root,fade,fade_ui);
+ check(root.bytes==final,"Defeat phases beyond2 remain source no-op");
 }
-int main(){try{countdown();cameras();failures();fractional();std::cout<<"Battle victory lifecycle tests passed\n";return 0;}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
+void defeat_failures_and_rounding(){
+ BattleState root;SceneFade fade;
+ rejects([&]{battle_defeat_update(root,fade,{});});
+ check(word(root,0x24)==0&&word(root,0x81bc)==0,
+       "Missing phase0 service fails before source delay-slot timer store");
+ auto throwing=[](unsigned,int){throw std::runtime_error("service");};
+ rejects([&]{battle_defeat_update(root,fade,throwing);});
+ check(word(root,0x24)==0&&word(root,0x81bc)==0,
+       "Failed fade service leaves phase0 timer/phase untouched");
+ auto noop=[](unsigned,int){};
+ battle_defeat_update(root,fade,noop);
+ scalar(root,0x81bc,2.f);scalar(root,0x2c,.1f);put(root,0x24,1);
+ std::fenv_t saved;std::fegetenv(&saved);std::fesetround(FE_UPWARD);
+ std::feclearexcept(FE_ALL_EXCEPT);std::feraiseexcept(FE_INVALID);
+ battle_defeat_update(root,fade,noop);
+ check(std::fegetround()==FE_UPWARD&&std::fetestexcept(FE_ALL_EXCEPT)==FE_INVALID,
+       "Defeat timer restores caller floating environment");
+ std::fesetenv(&saved);
+ check(word(root,0x24)==1&&word(root,0x81bc)==0x3ff33333,
+       "Defeat timer uses toward-zero subtraction");
+ for(float bad:{std::numeric_limits<float>::quiet_NaN(),std::numeric_limits<float>::infinity(),
+                std::numeric_limits<float>::denorm_min()}) {
+  BattleState invalid;put(invalid,0x24,1);scalar(invalid,0x81bc,bad);scalar(invalid,0x2c,1.f);
+  const auto before=invalid.bytes;SceneFade untouched;
+  rejects([&]{battle_defeat_update(invalid,untouched,noop);});
+  check(invalid.bytes==before&&untouched.target==0,
+        "Unsupported defeat timer fails before phase/fade mutation");
+ }
+}
+}
+int main(){try{countdown();cameras();failures();fractional();defeat_parent();defeat_failures_and_rounding();std::cout<<"Battle victory lifecycle tests passed\n";return 0;}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

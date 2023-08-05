@@ -65,4 +65,33 @@ void battle_victory_update(BattleState& r,std::span<const BattleEntityBinding> e
     require(bool(services.jingle),"Victory jingle service missing");services.jingle(4);
     require(bool(services.fade_ui),"Victory UI fade missing");services.fade_ui(1,-128);
 }
+void battle_defeat_update(BattleState& r,SceneFade& fade,
+                          const std::function<void(unsigned,int)>& fade_ui) {
+    const auto phase=std::bit_cast<std::int32_t>(word(r,0x24));
+    if(phase==0) {
+        require(bool(fade_ui),"Defeat UI fade missing");
+        fade_ui(1,-128);
+        put(r,0x81bc,0x43340000); //180
+        put(r,0x24,word(r,0x24)+1);
+    } else if(phase==1) {
+        if(!(decrement(r)<0))return;
+        fade.step=std::bit_cast<float>(0x3ba3d70au); //149f98 -> 114c90
+        fade.request(0.f); //149f98 -> 114cc0
+        put(r,0x24,word(r,0x24)+1);
+        return;
+    } else if(phase==2) {
+        if(fade.current!=fade.target)return; //114d20 raw source equality
+        put(r,0x1c,word(r,0x1c)|0x80000000u);
+        put(r,0x24,word(r,0x24)+1);
+        return;
+    } else if(phase!=0) {
+        return;
+    }
+
+    // Phase zero falls through into the same subtract/strict-negative test.
+    if(!(decrement(r)<0))return;
+    fade.step=std::bit_cast<float>(0x3ba3d70au);
+    fade.request(0.f);
+    put(r,0x24,word(r,0x24)+1);
+}
 }

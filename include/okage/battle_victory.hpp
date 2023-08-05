@@ -13,4 +13,6 @@ struct BattleVictoryServices {
 void battle_victory_update(BattleState&,std::span<const BattleEntityBinding>,
                            SceneFade&,std::span<std::uint8_t> reward,
                            const BattleVictoryServices&);
+void battle_defeat_update(BattleState&,SceneFade&,
+                          const std::function<void(unsigned,int)>& fade_ui);
 }
