@@ -70,7 +70,7 @@ void defeat_parent(){
  std::vector<int> calls;
  auto fade_ui=[&](unsigned layer,int speed){
   check(layer==1&&speed==-128,"Defeat UI fade arguments");
-  check(word(root,0x24)==0&&word(root,0x81bc)==0,"UI fade precedes timer and phase stores");
+  check(word(root,0x24)==0&&word(root,0x81bc)==0x43340000,"Delay-slot timer store precedes UI fade callee");
   calls.push_back(1);
  };
  battle_defeat_update(root,fade,fade_ui);
@@ -99,8 +99,8 @@ void defeat_failures_and_rounding(){
        "Missing phase0 service fails before source delay-slot timer store");
  auto throwing=[](unsigned,int){throw std::runtime_error("service");};
  rejects([&]{battle_defeat_update(root,fade,throwing);});
- check(word(root,0x24)==0&&word(root,0x81bc)==0,
-       "Failed fade service leaves phase0 timer/phase untouched");
+ check(word(root,0x24)==0&&word(root,0x81bc)==0x43340000,
+       "Failed fade service retains delay-slot timer but not phase increment");
  auto noop=[](unsigned,int){};
  battle_defeat_update(root,fade,noop);
  scalar(root,0x81bc,2.f);scalar(root,0x2c,.1f);put(root,0x24,1);
