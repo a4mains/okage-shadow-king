@@ -626,13 +626,24 @@ void queued_party_hit() {
     rejects([&]{okage::battle_party_first_update(unsupported.actor,unsupported.root,{},&services);});
     require(word(unsupported.record,8)==40&&half(unsupported.root.entity(0),0x172)==2,"Unsupported category never silently pops");
     Fixture lethal;prepare(lethal,40);put(lethal.record,0x4a,12,2);lethal.record[1]=4;put(lethal.record,0x4c,7,2);put(lethal.record,0x4e,9,2);put(lethal.actor.storage,0x30,17);put(lethal.root.entity(0),0x60,17,2);put(lethal.root.entity(0),0x68,9);
-    rejects([&]{okage::battle_party_first_update(lethal.actor,lethal.root,{},&services);});
+    okage::battle_party_first_update(lethal.actor,lethal.root,{},&services);
     require(word(lethal.record,8)==0&&lethal.record[0]==6&&half(lethal.record,0x4a)==0&&half(lethal.root.entity(0),0x60)==0xffff&&word(lethal.root.entity(0),0x68)==0,
-            "Lethal unresolved boundary retains preceding HP, graph and live status writes");
-    require(half(lethal.root.entity(0),0x172)==2&&!lethal.actor.dead_callback&&word(lethal.actor.storage,0x21c)==99,
-            "Lethal guard does not invent callback completion or queue reset");
+            "Lethal installation retains preceding HP, graph and live status writes");
+    require(half(lethal.root.entity(0),0x172)==0&&lethal.actor.dead_callback&&word(lethal.actor.storage,0x21c)==99,
+            "Lethal caller clears source queue after installing death callback");
     require(lethal.record[1]==0&&half(lethal.record,0x4c)==0&&half(lethal.record,0x4e)==0&&word(lethal.actor.storage,0x30)==0,
-            "153550 clears live secondary status and both counters before death callback guard");
+            "153550 clears live secondary status and both counters before death callback installation");
+    require(lethal.actor.first_callback==okage::BattleActor::FirstCallback::PartyDeath&&
+            lethal.actor.saved_first_callback==okage::BattleActor::FirstCallback::Roster&&word(lethal.actor.storage,0x24)==0&&half(lethal.actor.storage,0x142)==200,
+            "Lethal caller saves callback and initializes phase/action before returning to common motion tail");
+    require(half(lethal.root.entity(0),0x174)==0xffff&&half(lethal.root.entity(0),0x17c)==0xffff&&half(lethal.root.entity(0),0x184)==0xffff&&half(lethal.root.entity(0),0x18a)==0xabcd,
+            "Lethal queue clear visits newest through slot0 and preserves padding");
+    require((word(lethal.root.entity(0),0x1fc)&0x80000000u)==0,"Party lethal caller does not use enemy inactive flag store");
+    Fixture stop;prepare(stop,40);put(stop.actor.storage,0x344,3);put(stop.actor.storage,0x20,77);
+    rejects([&]{okage::battle_party_first_update(stop.actor,stop.root,{},&services);});
+    require(stop.actor.first_callback==okage::BattleActor::FirstCallback::PartyDeath&&stop.actor.dead_callback&&
+            half(stop.root.entity(0),0x172)==2&&word(stop.actor.storage,0x20)==77&&half(stop.actor.storage,0x142)==200,
+            "Unsupported lethal effect stop rejects after installation but before queue reset and common tail");
     for(unsigned primary:{0u,1u,2u,5u,6u,255u}) {
         Fixture expiry;put(expiry.actor.storage,0x344,0xffffffff);expiry.record[0]=primary;number(expiry.actor.storage,0x12c,0);
         okage::battle_party_first_update(expiry.actor,expiry.root);
@@ -643,6 +654,89 @@ void queued_party_hit() {
     special.actor.stat_bindings[1]={};
     okage::battle_party_first_update(special.actor,special.root);
     require(special.actor.model->motion()==14&&number(special.actor.storage,0x12c)==-1,"Special expiry selects14 without reading primary binding");
+}
+void party_death_lifecycle() {
+    using Callback=okage::BattleActor::FirstCallback;
+    const auto prepare=[](Fixture& f) {
+        f.actor.first_callback=Callback::PartyDeath;f.actor.dead_callback=true;
+        f.actor.saved_first_callback=Callback::Roster;f.record[0]=6;
+        put(f.actor.storage,0x180,17);put(f.actor.storage,0x17c,19);
+        put(f.actor.storage,0x128,77);number(f.actor.storage,0x12c,88);
+    };
+    okage::BattleStrikeServices services;unsigned refreshes=0;
+    services.refresh_hud=[&]{++refreshes;};
+    constexpr float durations[]={40,100,120,30,240,30,-1,0};
+    for(unsigned id=0;id<8;++id) {
+        Fixture f;prepare(f);put(f.actor.storage,0x44,id,2);f.bone_transition();
+        const auto world=f.actor.model->animation().value(1);
+        okage::battle_actor_first_update(f.actor,f.root,{},services);
+        require(word(f.actor.storage,0x20)==3&&word(f.actor.storage,0x180)==0&&word(f.actor.storage,0x17c)==0,
+                "Death entry writes3 and clears TASK180/17c");
+        require(f.actor.model->motion()==(id<6?10u:9u)&&word(f.actor.storage,0x24)==(id<6?1u:2u)&&
+                number(f.actor.storage,0x12c)==(id<6?durations[id]-1:-1),
+                "All eight death table entries fall through same-callback strict-negative timer");
+        require(f.actor.model->animation().value(1)==world&&f.actor.model->animation().value(4)[0]>0,
+                "Death tail advances real bone channel without publishing ordinary world channel");
+    }
+    require(refreshes==8,"Every entry invokes HUD refresh exactly once");
+    Fixture f;prepare(f);okage::battle_actor_first_update(f.actor,f.root,{},services);
+    number(f.actor.storage,0x12c,1);okage::battle_actor_first_update(f.actor,f.root,{},services);
+    require(word(f.actor.storage,0x24)==1&&number(f.actor.storage,0x12c)==0,"Death timer equality does not advance");
+    okage::battle_actor_first_update(f.actor,f.root,{},services);
+    require(word(f.actor.storage,0x24)==2&&f.actor.model->motion()==9&&number(f.actor.storage,0x12c)==-1,"Negative timer installs indefinite dead motion");
+    const auto count=refreshes;okage::battle_actor_first_update(f.actor,f.root,{},services);
+    require(refreshes==count&&word(f.actor.storage,0x24)==2&&number(f.actor.storage,0x12c)==-1,"Empty dead queue performs only channel tail");
+    auto e=f.root.entity(0);put(e,0x172,1,2);put(e,0x17c,0,2);put(e,0x17e,4,2);
+    okage::BattleHitServices hits;
+    rejects([&]{okage::battle_actor_first_update(f.actor,f.root,{},services,&hits);});
+    require(half(e,0x172)==1&&half(e,0x17e)==4&&word(f.actor.storage,0x24)==2,"Unrecovered dead hit remains queued at shared primary6 guard");
+    Fixture pop;prepare(pop);put(pop.actor.storage,0x24,2);pop.record[0]=1;
+    auto oldqueue=pop.root.entity(0),newqueue=pop.root.entity(1);
+    put(oldqueue,0x172,1,2);put(oldqueue,0x17c,0,2);put(oldqueue,0x17e,0,2);
+    put(newqueue,0x172,1,2);put(newqueue,0x17c,7,2);put(newqueue,0x17e,8,2);put(newqueue,0x180,9,2);put(newqueue,0x182,0xabcd,2);
+    okage::BattleHitServices moved_hits;
+    moved_hits.attached_effect=[&](int id,okage::BattleActor& target){require(id==36,"Death ordinary miss uses shared effect");put(target.storage,0x130,1,2);return 0u;};
+    okage::battle_actor_first_update(pop.actor,pop.root,{},services,&moved_hits);
+    require(half(oldqueue,0x172)==1&&half(newqueue,0x172)==0&&half(newqueue,0x17c)==0xffff&&half(newqueue,0x17e)==0&&half(newqueue,0x180)==0&&half(newqueue,0x182)==0xabcd,
+            "Death queue pop reloads live entity after services and preserves slot padding");
+    // Independently source-check phase3; no fabricated revival result drives it.
+    put(f.actor.storage,0x24,3);number(f.actor.storage,0x12c,1);put(f.actor.storage,0x34,99);
+    put(f.actor.storage,0x130,2,2);put(f.root.entity(2),0x1fc,0x81234567);put(e,0x1fc,0x87654321);
+    okage::battle_actor_first_update(f.actor,f.root,{},services);
+    require(f.actor.first_callback==Callback::PartyDeath&&word(f.root.entity(2),0x1fc)==0x81234567,"Revival timer equality preserves callback and flags");
+    okage::battle_actor_first_update(f.actor,f.root,{},services);
+    require(f.actor.first_callback==Callback::Roster&&!f.actor.dead_callback&&word(f.actor.storage,0x24)==0&&word(f.actor.storage,0x34)==0&&
+            f.actor.model->motion()==1&&number(f.actor.storage,0x12c)==-1&&word(f.root.entity(2),0x1fc)==0x01234567&&word(e,0x1fc)==0x87654321,
+            "Revival expiry uses live entity then restores callback before idle motion");
+    Fixture missing;prepare(missing);
+    rejects([&]{okage::battle_actor_first_update(missing.actor,missing.root,{});});
+    require(word(missing.actor.storage,0x20)==3&&word(missing.actor.storage,0x128)==77&&word(missing.actor.storage,0x180)==17,"Missing refresh rejects after only entry task20 store");
+    auto failed_refresh=services;
+    failed_refresh.refresh_hud=[&]{++refreshes;throw std::runtime_error("Interrupted refresh");};
+    rejects([&]{okage::battle_actor_first_update(missing.actor,missing.root,{},failed_refresh);});
+    require(word(missing.actor.storage,0x24)==0&&word(missing.actor.storage,0x128)==77&&word(missing.actor.storage,0x180)==17,
+            "Failed HUD refresh cannot select motion or clear flags");
+    for(unsigned id:{65535u,8u}) {
+        Fixture invalid;prepare(invalid);put(invalid.actor.storage,0x44,id,2);auto before=refreshes;
+        rejects([&]{okage::battle_actor_first_update(invalid.actor,invalid.root,{},services);});
+        require(refreshes==before+1&&word(invalid.actor.storage,0x128)==77&&word(invalid.actor.storage,0x180)==17,"Signed table guard follows source refresh and precedes motion");
+    }
+    Fixture failed;prepare(failed);failed.actor.model.reset();
+    rejects([&]{okage::battle_actor_first_update(failed.actor,failed.root,{},services);});
+    require(word(failed.actor.storage,0x128)==10&&number(failed.actor.storage,0x12c)==88&&word(failed.actor.storage,0x180)==17,"Model failure retains selected motion store before duration and clears");
+    Fixture restored;prepare(restored);put(restored.actor.storage,0x24,3);number(restored.actor.storage,0x12c,0);
+    put(restored.root.entity(0),0x1fc,0x80000003);put(restored.actor.storage,0x34,99);restored.actor.saved_first_callback.reset();
+    rejects([&]{okage::battle_actor_first_update(restored.actor,restored.root,{},services);});
+    require(number(restored.actor.storage,0x12c)==-1&&word(restored.root.entity(0),0x1fc)==3&&word(restored.actor.storage,0x34)==0&&word(restored.actor.storage,0x24)==3,
+            "Missing saved callback preserves preceding timer, active flag and task34 writes");
+    Fixture rounding;prepare(rounding);put(rounding.actor.storage,0x24,1);number(rounding.actor.storage,0x12c,1);number(rounding.actor.storage,0x2c,0x1p-25f);
+    const int old_round=std::fegetround();std::fesetround(FE_UPWARD);
+    okage::battle_actor_first_update(rounding.actor,rounding.root,{},services);
+    require(word(rounding.actor.storage,0x12c)==0x3f7fffffu&&std::fegetround()==FE_UPWARD,"Death subtraction is separate toward-zero single and restores host rounding");
+    std::fesetround(old_round);
+    Fixture other;prepare(other);put(other.actor.storage,0x24,99);other.bone_transition();
+    okage::battle_actor_first_update(other.actor,other.root,{});
+    require(word(other.actor.storage,0x24)==99&&word(other.actor.storage,0x20)==3&&other.actor.model->animation().value(4)[0]>0,"Source default phase only advances channel tail");
 }
 void queued_enemy_hit() {
     Fixture f;auto& a=f.actor;a.enemy=true;
@@ -687,7 +781,7 @@ void queued_enemy_hit() {
     for(unsigned i=0;i<2;++i)okage::battle_actor_first_update(a,f.root,{}, {},&services);
     require(word(a.storage,0x24)==1&&!a.model->animation().moving(3,0),"Death completion is polled on next callback");
     events.clear();
-    okage::BattleStrikeServices sounds{[&](int id){events.push_back(id);},{},{}};
+    okage::BattleStrikeServices sounds;sounds.sound=[&](int id){events.push_back(id);};
     okage::battle_actor_first_update(a,f.root,{},sounds,&services);
     require(events==std::vector<int>({20,66})&&!a.model->visible&&word(a.storage,0x24)==2&&number(a.storage,0x3c4)==30,
             "Death creates attached effect then sound before hiding and starting reward delay");
@@ -713,6 +807,6 @@ void queued_enemy_hit() {
 }
 }
 int main(){try {
-    first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();ballistic_attack();ballistic_cartesian_equivalence();strike_schedules();channels_and_effect_guards();enemy_paths();floating_environment();victory_status_reset();victory_actor_states();queued_party_hit();queued_enemy_hit();
+    first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();ballistic_attack();ballistic_cartesian_equivalence();strike_schedules();channels_and_effect_guards();enemy_paths();floating_environment();victory_status_reset();victory_actor_states();queued_party_hit();party_death_lifecycle();queued_enemy_hit();
     std::cout<<"Battle actor startup callback tests passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

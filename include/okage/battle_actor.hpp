@@ -12,7 +12,7 @@
 namespace okage {
 struct BattleHitServices;
 struct BattleActor {
-    enum class FirstCallback {Roster,ApproachAttack,BallisticAttack,EnemyDeath};
+    enum class FirstCallback {Roster,ApproachAttack,BallisticAttack,EnemyDeath,PartyDeath};
     FirstCallback first_callback=FirstCallback::Roster;
     std::optional<FirstCallback> saved_first_callback;
     std::array<std::uint8_t,0x3e0> storage{};
@@ -42,6 +42,8 @@ struct BattleStrikeServices {
     std::function<void(int,int,int)> damage_event;
     std::function<void(BattleActor&)> enemy_reward;
     std::function<float(const BattleActor&)> approach_offset_w;
+    //1684c0 writes the live HUD dirty flag; death entry cannot omit it.
+    std::function<void()> refresh_hud;
 };
 void battle_refresh_entities(BattleState&,std::span<const BattleEntityBinding>);
 void battle_register_action(BattleState&,unsigned owner,unsigned target,

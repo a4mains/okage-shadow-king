@@ -120,7 +120,7 @@ void party_status_and_motion(BattleActor& actor,BattleState& root,const BattleHi
         check(services!=nullptr,"Battle party queued hit services missing");
         const int result=battle_apply_hit(actor,category,amount,*services);
         if(result==6) {
-            //153b88..153bb8: retain graph/status writes before callback installation.
+            //153b88..153bf0: graph/status reset precedes callback and queue writes.
             const int index=half(actor.storage,0x130);
             check(index>=0&&unsigned(index)<battle_entity_count,"Battle party post-hit entity outside native root");
             battle_clear_action(root,unsigned(index));
@@ -131,7 +131,19 @@ void party_status_and_motion(BattleActor& actor,BattleState& root,const BattleHi
             put(actor.stat_bindings[3],0,0,1);put(actor.stat_bindings[4],0,0,2);
             put(actor.stat_bindings[5],0,0,2);
             put(actor.storage,0x21c,99);put(actor.storage,0x30,0);
-            throw std::runtime_error("Unrecovered party lethal callback154120 installation");
+            const auto previous=actor.first_callback;
+            actor.first_callback=BattleActor::FirstCallback::PartyDeath;put(actor.storage,0,0);
+            actor.saved_first_callback=previous;put(actor.storage,0x28,0);
+            actor.dead_callback=true;put(actor.storage,0x24,0);put(actor.storage,0x142,200,2);
+            check(word(actor.storage,0x344)==0xffffffffu,"Unrecovered party lethal effect stop101648");
+            //159590 clears cursor..0, with each unused fourth halfword intact.
+            auto e=entity();
+            for(int cursor=half(e,0x172);cursor>=0;--cursor) {
+                check(cursor<16,"Battle party reset queue cursor outside storage");
+                const auto at=0x174+unsigned(cursor)*8;
+                put(e,at,0xffff,2);put(e,at+2,0,2);put(e,at+4,0,2);
+            }
+            put(e,0x172,0,2);return;
         }
         if(result==3||result==4) {
             put(actor.storage,0x142,200,2);put(actor.storage,0x21c,99);
@@ -600,6 +612,82 @@ void ballistic_attack_update(BattleActor& task,const BattleState& root,std::span
     }
     step_model(actor);
 }
+void party_death_update(BattleActor& actor,BattleState& root,const BattleStrikeServices& services,
+                        const BattleHitServices* hits) {
+    put(actor.storage,0x20,3);
+    const auto refresh=[&] {
+        check(bool(services.refresh_hud),"Battle party death HUD refresh service missing");
+        services.refresh_hud();
+    };
+    const auto select=[&](unsigned motion,float duration) {
+        put(actor.storage,0x128,motion);model(actor).select_motion(motion);
+        scalar(actor.storage,0x12c,duration);
+    };
+    const auto duration=[&](bool revive) {
+        constexpr float death[]={40,100,120,30,240,30,-1,0};
+        constexpr float revival[]={40,100,150,40,120,120,-1,0};
+        const int character=half(actor.storage,0x44);
+        check(character>=0&&character<8,"Battle party death character table index unrecovered");
+        return revive?revival[character]:death[character];
+    };
+    const auto entity=[&] {
+        const int index=half(actor.storage,0x130);
+        check(index>=0&&unsigned(index)<battle_entity_count,"Battle party death entity outside native root");
+        return root.entity(unsigned(index));
+    };
+    const auto slot=[](Bytes e) {
+        const int cursor=half(e,0x172);
+        check(cursor>=0&&cursor<16,"Battle party death event cursor outside storage");
+        return 0x174+unsigned(cursor)*8;
+    };
+    switch(word(actor.storage,0x24)) {
+    case 0:
+        refresh();select(10,duration(false));
+        put(actor.storage,0x180,0);put(actor.storage,0x17c,0);
+        put(actor.storage,0x24,word(actor.storage,0x24)+1);
+        [[fallthrough]];
+    case 1: {
+        const float remaining=single(scalar(actor.storage,0x12c),scalar(actor.storage,0x2c),Operation::Subtract);
+        scalar(actor.storage,0x12c,remaining);
+        if(remaining<0) {
+            select(9,-1);put(actor.storage,0x24,word(actor.storage,0x24)+1);
+        }
+        break;
+    }
+    case 2:
+        if(half(entity(),0x172)!=0) {
+            const auto category=half(entity(),slot(entity()));
+            const auto amount=half(entity(),slot(entity())+2);
+            check(hits!=nullptr,"Battle party death queued hit services missing");
+            const int result=battle_apply_hit(actor,category,amount,*hits);
+            if(result==7||result==8) {
+                refresh();select(11,duration(true));
+                put(actor.storage,0x24,word(actor.storage,0x24)+1);
+            }
+            auto e=entity();
+            put(e,slot(e),0xffff,2);put(e,slot(e)+2,0,2);put(e,slot(e)+4,0,2);
+            const auto next=std::uint16_t(half(e,0x172)-1);
+            put(e,0x172,next,2);
+            if(std::bit_cast<std::int16_t>(next)<0)put(e,0x172,0,2);
+        }
+        break;
+    case 3: {
+        const float remaining=single(scalar(actor.storage,0x12c),scalar(actor.storage,0x2c),Operation::Subtract);
+        scalar(actor.storage,0x12c,remaining);
+        if(remaining<0) {
+            auto e=entity();put(e,0x1fc,word(e,0x1fc)&0x7fffffffu);
+            put(actor.storage,0x34,0);
+            check(actor.saved_first_callback.has_value(),"Battle party revival lacks saved callback");
+            const auto callback=*actor.saved_first_callback;
+            put(actor.storage,0x24,0);actor.first_callback=callback;put(actor.storage,0,0);
+            actor.dead_callback=false;select(1,-1);
+        }
+        break;
+    }
+    default:break;
+    }
+    step_model(actor);
+}
 void enemy_death_update(BattleActor& actor,const BattleStrikeServices& services,const BattleHitServices* hits) {
     put(actor.storage,0x20,3);
     switch(word(actor.storage,0x24)) {
@@ -736,6 +824,7 @@ void battle_actor_first_update(BattleActor& actor,BattleState& root,std::span<co
     case BattleActor::FirstCallback::ApproachAttack:approach_attack_update(actor,root,entities,services);break;
     case BattleActor::FirstCallback::BallisticAttack:ballistic_attack_update(actor,root,entities,services);break;
     case BattleActor::FirstCallback::EnemyDeath:enemy_death_update(actor,services,hits);break;
+    case BattleActor::FirstCallback::PartyDeath:party_death_update(actor,root,services,hits);break;
     }
 }
 void battle_actor_second_suffix(BattleActor& actor) {
