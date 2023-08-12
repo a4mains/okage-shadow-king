@@ -43,6 +43,8 @@ struct BattleUiContext {
     std::function<void(int)> strike_sound;
     std::function<void()> stop_music;
     std::function<void(unsigned)> jingle;
+    //1248d8 publishes the persistent game command, distinct from mode selection.
+    std::function<void(std::array<std::uint32_t,3>)> game_command;
 };
 class BattleSession {
 public:

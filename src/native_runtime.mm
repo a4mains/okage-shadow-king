@@ -628,7 +628,7 @@ struct Session {
                  },[this](unsigned slot){
                      if(!music||slot!=4)throw std::runtime_error("Victory jingle owner/slot unavailable");
                      music->select(33); //12e0b0(4), owned installed jingle slot4.
-                 }},
+                 },[this](std::array<std::uint32_t,3> command){pending_game_command=command;}},
                 frame,battle_stage_report,battle_ui_update_report);
                 pad_repeat.delay=battle_pad.controls[0].delay;
                 pad_repeat.interval=battle_pad.controls[0].interval;

@@ -109,7 +109,7 @@ struct BattleSession::Impl {
     Construction construction=Construction::Preparing; //Main thread only.
     std::exception_ptr construction_failure;
     unsigned phase=0;
-    enum class ParentCallback {Intro,Combat,CommandMenu,CommandAction,Victory};
+    enum class ParentCallback {Intro,Combat,CommandMenu,CommandAction,Victory,Defeat};
     ParentCallback parent_callback=ParentCallback::Intro;
     std::optional<ParentCallback> previous_parent_callback;
     unsigned live_trace_rows=0,live_trace_calls=0;
@@ -476,7 +476,7 @@ struct BattleSession::Impl {
         context.fade.step=step;context.fade.request(1.f);
         ++phase;put(root.bytes,0x24,phase);
     }
-    bool combat_end_check() {
+    bool combat_end_check(BattleUiContext& context) {
         const auto entities=roster.entities();
         const auto count=word(root.bytes,0x50);
         if(count>battle_entity_count||entities.size()!=count||count<4)
@@ -498,7 +498,16 @@ struct BattleSession::Impl {
                 defeat=status==6||(status==4&&battle_actor_incapacitated(hero)&&
                     battle_actor_incapacitated(entities[1].actor)&&battle_actor_incapacitated(entities[2].actor));
             }
-            if(defeat)throw std::runtime_error("Battle defeat14a460 outer mode request and14a9c0 outcome are unrecovered");
+            if(defeat) {
+                if(!context.game_command)throw std::runtime_error("Battle defeat game-command owner missing");
+                context.game_command({2,0,0}); //14a460 ->1248d8, not124930.
+                for(unsigned i=0;i<3;++i)if(auto* actor=entities[i].actor)
+                    battle_actor_reset_after_victory(*actor); //14b498 shared reset.
+                previous_parent_callback=parent_callback;parent_callback=ParentCallback::Defeat;
+                phase=0;put(root.bytes,0x24,0);put(root.bytes,0x30,0);
+                put(root.bytes,0x81b0,4);put(root.bytes,0x81b4,2);
+                return true;
+            }
             return false;
         }
         if(state!=1)return false;
@@ -517,7 +526,7 @@ struct BattleSession::Impl {
     }
     void combat_parent(BattleUiContext& context,std::vector<std::string>& events) {
         battle_refresh_entities(root,roster.entities()); //14a508 begins with151290.
-        if(combat_end_check()){events.push_back("parent.end-check.return");return;}
+        if(combat_end_check(context)){events.push_back("parent.end-check.return");return;}
         if(auto* hero=roster.entities()[0].actor) {
             const auto denominator=std::bit_cast<std::int32_t>(word(hero->stat_bindings[0],0));
             if(!denominator)throw std::runtime_error("Battle music ratio denominator is zero (source trap7)");
@@ -560,6 +569,7 @@ struct BattleSession::Impl {
             case ParentCallback::CommandMenu:return 0x1519f8u;
             case ParentCallback::CommandAction:return 0x151e68u;
             case ParentCallback::Victory:return 0x14a780u;
+            case ParentCallback::Defeat:return 0x14a9c0u;
             }
             throw std::runtime_error("Unknown native battle parent identity");
         };
@@ -604,6 +614,7 @@ struct BattleSession::Impl {
                     case BattleActor::FirstCallback::ApproachAttack:return 0x1562b0u;
                     case BattleActor::FirstCallback::BallisticAttack:return 0x155558u;
                     case BattleActor::FirstCallback::EnemyDeath:return 0x15bb90u;
+                    case BattleActor::FirstCallback::PartyDeath:return 0x154120u;
                     }
                     throw std::runtime_error("Unknown native battle actor callback");
                 };
@@ -667,6 +678,15 @@ struct BattleSession::Impl {
                 if(word(root.bytes,0x1c)&0x80000000u)
                     throw std::runtime_error("Battle victory scheduler retirement and field return are unrecovered");
                 events.push_back("parent.victory.return");
+            } else if(parent_callback==ParentCallback::Defeat) {
+                try {
+                    battle_defeat_update(root,context.fade,
+                        [&](unsigned layer,int speed){ui->fade_layer(layer,speed);});
+                } catch(...) {phase=word(root.bytes,0x24);throw;}
+                phase=word(root.bytes,0x24);
+                if(word(root.bytes,0x1c)&0x80000000u)
+                    throw std::runtime_error("Battle defeat scheduler retirement and game-over return are unrecovered");
+                events.push_back("parent.defeat.return");
             } else if(parent_callback==ParentCallback::CommandMenu) {
                 if(phase==0) {
                     ui->open_layer(0);ui->fade_layer(1,-128);
@@ -832,7 +852,8 @@ struct BattleSession::Impl {
                         [&](int command,int owner,int target){battle_queue_damage_event(root,roster.entities(),
                             std::int16_t(command),std::int16_t(owner),std::int16_t(target),[&]{return context.random.next();});},
                         [&](BattleActor& target){battle_enemy_reward(target,roster.entities(),context.entry.reward_storage(),
-                            [&]{return context.random.next();});}},&hits);
+                            [&]{return context.random.next();});},{},
+                        [&]{context.shared.hud.type3_ready=1;}},&hits);
                     actor_snapshot(*actor,"after-first");
                     if(enemy)battle_enemy_second_update(*actor,root);else battle_party_second_update(*actor,root);
                     actor_snapshot(*actor,"after-second");

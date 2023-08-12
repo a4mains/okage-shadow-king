@@ -69,10 +69,10 @@ void battle_defeat_update(BattleState& r,SceneFade& fade,
                           const std::function<void(unsigned,int)>& fade_ui) {
     const auto phase=std::bit_cast<std::int32_t>(word(r,0x24));
     if(phase==0) {
-        require(bool(fade_ui),"Defeat UI fade missing");
         // 0x14aa28 is the JAL delay slot, so the timer store precedes entry to
-        // 0x1fdf8. Preserve that partial-write behavior if the UI service fails.
+        // 0x11fdf8. Preserve that partial-write behavior if the UI service fails.
         put(r,0x81bc,0x43340000); //180
+        require(bool(fade_ui),"Defeat UI fade missing");
         fade_ui(1,-128);
         put(r,0x24,word(r,0x24)+1);
     } else if(phase==1) {

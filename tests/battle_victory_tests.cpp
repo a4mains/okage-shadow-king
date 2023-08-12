@@ -95,8 +95,8 @@ void defeat_parent(){
 void defeat_failures_and_rounding(){
  BattleState root;SceneFade fade;
  rejects([&]{battle_defeat_update(root,fade,{});});
- check(word(root,0x24)==0&&word(root,0x81bc)==0,
-       "Missing phase0 service fails before source delay-slot timer store");
+ check(word(root,0x24)==0&&word(root,0x81bc)==0x43340000,
+       "Missing phase0 service retains preceding delay-slot timer store");
  auto throwing=[](unsigned,int){throw std::runtime_error("service");};
  rejects([&]{battle_defeat_update(root,fade,throwing);});
  check(word(root,0x24)==0&&word(root,0x81bc)==0x43340000,

@@ -22,13 +22,13 @@ unsigned half(Bytes b,unsigned at) {
     if(at>b.size()||b.size()-at<2)throw std::runtime_error("Battle actor half bounds");
     return unsigned(b[at])|(unsigned(b[at+1])<<8);
 }
-int signed_half(Bytes b,unsigned at){return __builtin_bit_cast(std::int16_t, (std::uint16_t(half(b,at))));}
+int signed_half(Bytes b,unsigned at){return std::bit_cast<std::int16_t>(std::uint16_t(half(b,at)));}
 void put(Mutable b,unsigned at,std::uint32_t v,unsigned n=4) {
     if(at>b.size()||b.size()-at<n)throw std::runtime_error("Battle actor write bounds");
     for(unsigned j=0;j<n;++j)b[at+j]=v>>(8*j);
 }
 void vector(Mutable b,unsigned at,const Float4& value) {
-    for(unsigned j=0;j<4;++j)put(b,at+j*4,__builtin_bit_cast(std::uint32_t, (value[j])));
+    for(unsigned j=0;j<4;++j)put(b,at+j*4,std::bit_cast<std::uint32_t>(value[j]));
 }
 std::vector<std::uint8_t> read(const std::filesystem::path& path) {
     const auto size=std::filesystem::file_size(path);
@@ -138,15 +138,15 @@ void BattleRoster::construct_party(const std::filesystem::path& decoded,Mutable 
         put(c,0x178,9,2);for(unsigned at:{0x17c,0x180,0x184})put(c,at,0);
         for(unsigned at:{0x188,0x18a,0x18c,0x18e,0x190})put(c,at,0,2);
         if(a.record[0]!=6){a.record[0]=1;put(a.record,0x4a,0,2);}
-        const int status=__builtin_bit_cast(std::int8_t, (a.record[1]));
+        const int status=std::bit_cast<std::int8_t>(a.record[1]);
         if(status==6) {
-            const auto value=__builtin_bit_cast(std::int16_t, (std::uint16_t(half(a.record,0x4c)+1)));
+            const auto value=std::bit_cast<std::int16_t>(std::uint16_t(half(a.record,0x4c)+1));
             put(a.record,0x4c,value>999?999:value,2);
-            auto remain=__builtin_bit_cast(std::int16_t, (std::uint16_t(9-half(a.record,0x4c))));
+            auto remain=std::bit_cast<std::int16_t>(std::uint16_t(9-half(a.record,0x4c)));
             put(c,0x178,remain<=0?1:remain,2);
         } else if(status==7||status==8){a.record[0]=status==7?3:4;put(a.record,0x4a,1,2);}
         select(a,a.record[0]==1?1:a.record[0]==6?9:5);
-        if(a.record[0]==6){a.dead_callback=true;put(c,0x24,2);put(c,0x30,0);}
+        if(a.record[0]==6){a.dead_callback=true;a.first_callback=BattleActor::FirstCallback::PartyDeath;put(c,0x24,2);put(c,0x30,0);}
         a.model->tick_channels(); //1b7108: no ordinary script tick here.
         initialize_battle_actor_timer(c.subspan(0x194,0x14),signed_half(c,0x16c),0,signed_half(entry.bytes(),0x32),draw);
         common_tail(a);put(c,0x132,4,1);put(c,0x220,0,2);put(a.record,0x26,0,2);
@@ -175,7 +175,7 @@ void BattleRoster::construct_enemies(const std::filesystem::path& decoded,unsign
         a.record=c.subspan(0x350,27*4);
         a.record_before.assign(a.record.begin(),a.record.end());
         float radius=5;switch(unit[25]){case 1:case 3:radius=10;break;case 2:radius=15;break;case 4:radius=60;put(c,0x4a,1,2);break;}
-        put(c,0x4c,__builtin_bit_cast(std::uint32_t, (radius)));
+        put(c,0x4c,std::bit_cast<std::uint32_t>(radius));
         const auto old_round=std::fegetround();if(std::fesetround(FE_TOWARDZERO))throw std::runtime_error("Battle position rounding unavailable");
         const Float4 position={authored.x*5,0,authored.z*5,1};std::fesetround(old_round);
         vector(c,0x60,position);a.model_path=model_path(decoded,tables.unit_model_name(authored.unit_id));
@@ -189,9 +189,9 @@ void BattleRoster::construct_enemies(const std::filesystem::path& decoded,unsign
         for(unsigned j=0;j<offsets.size();++j)put(c,0x164+j*2,half(a.record,offsets[j]),2);
         put(c,0x178,9,2);for(unsigned at:{0x17c,0x180,0x184})put(c,at,0);
         put(c,0x188,half(a.record,0x48),2);put(c,0x18a,half(a.record,0x4c),2);
-        initialize_battle_enemy_selector(c.subspan(0x14c,0x44),__builtin_bit_cast(std::int32_t, (word(c,0x3c8))),int(formation.size()),draw);
+        initialize_battle_enemy_selector(c.subspan(0x14c,0x44),std::bit_cast<std::int32_t>(word(c,0x3c8)),int(formation.size()),draw);
         put(c,0x190,0,2);
-        initialize_battle_actor_timer(c.subspan(0x194,0x14),__builtin_bit_cast(std::int32_t, (unit[10])),1,entry_half32,draw);
+        initialize_battle_actor_timer(c.subspan(0x194,0x14),std::bit_cast<std::int32_t>(unit[10]),1,entry_half32,draw);
         common_tail(a);put(c,0x220,0xffff,2);put(c,0x132,0,1);
         a.bag_path=model_path(decoded,"bag",true);a.bag=model(a.bag_path,position,0x200080);a.bag->visible=false;
         a.box_path=model_path(decoded,"box",true);a.box=model(a.box_path,position,0x200080);a.box->visible=false;

@@ -67,8 +67,24 @@ class LiveComparisonTests(unittest.TestCase):
         b[2]['parent_phase'] = 3
         self.assertEqual(self.compare(a, b)['first_mismatch']['field'], 'parent_phase')
 
+    def test_defeat_parent_boundaries_and_phase_are_compared(self):
+        a, b = fixtures()
+        for row in a[1:3]:
+            row['entry_pc'] = 0x14a9c0
+            prefix = bytearray.fromhex(row['root_prefix']['raw_hex'])
+            struct.pack_into('<II', prefix, 0x20, 0, 2)
+            struct.pack_into('<I', prefix, 0, 0x14a9c0)
+            row['root_prefix'] = blob(prefix)
+        for row in b[1:3]:
+            row.update(entry_pc=0x14a9c0, parent_callback=0x14a9c0, parent_phase=2)
+        report = self.compare(a, b)
+        self.assertTrue(report['equal'])
+        self.assertEqual(report['coverage']['paired_rows'], 2)
+        b[2]['parent_phase'] = 3
+        self.assertEqual(self.compare(a, b)['first_mismatch']['field'], 'parent_phase')
+
     def test_parent_identity_scope_remains_exact(self):
-        for pc in (0x14a784, 0x14a9c0, 0x123456):
+        for pc in (0x14a784, 0x14a9c4, 0x123456):
             for side in ('original', 'native'):
                 with self.subTest(pc=hex(pc), side=side):
                     a, b = fixtures()
