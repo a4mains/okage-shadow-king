@@ -137,6 +137,9 @@ void Animation::set_channel(std::size_t index,const Float4& value) {
     for(float v:value)if(!std::isfinite(v))throw std::runtime_error("Non-finite channel value");
     auto& ch=channels_.at(index);ch.a=value;ch.step={};ch.flags=0x201;
 }
+void Animation::release_channel(std::size_t index) {
+    channels_.at(index).flags=0;
+}
 void Animation::set_channel_mode(std::size_t index,unsigned mode) {
     if(mode!=1&&mode!=2&&mode!=0x10)throw std::runtime_error("Unrecovered channel mode");
     channels_.at(index).mode=std::uint16_t(mode);

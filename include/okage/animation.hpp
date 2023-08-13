@@ -12,6 +12,9 @@ public:
     void start(std::size_t entry);
     void select(std::size_t entry); // Select for the next script dispatch (0x1b4da8).
     void set_channel(std::size_t index,const Float4& value);
+    // 0x1b47c8 clears only the channel's leading flags word. The authored
+    // mode, output, interpolation state, and sampled-track pointer remain owned.
+    void release_channel(std::size_t index);
     // 0x1b4700 changes the mode used by subsequent channel transitions.
     void set_channel_mode(std::size_t index,unsigned mode);
     // Collision records point to evaluated output (retail channel +0x20).

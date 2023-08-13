@@ -47,6 +47,34 @@ int main() {
             movement.move_channel(0,{8,16,24,5},2);movement.tick_channels();
             require(movement.value(0)==okage::Float4({5,10,15,3.5f}));
         }
+        {
+            auto two_channel=fixture();
+            okage::Animation released(two_channel,2);
+            released.start(0);
+            released.tick();
+            released.set_channel(1,{2,3,4,1});
+            released.value(1);
+            released.move_channel(1,{8,9,10,1},2);
+            require(released.moving(1,0));
+            const auto stored=released.value(1);
+            require(released.moving(0,0));
+            const auto pc=released.pc();
+            const auto script_state=released.script_state();
+            released.release_channel(1);
+            require(released.channel_outputs()[1]==stored);
+            require(released.value(1)==stored);
+            require(released.pc()==pc && released.script_state()==script_state);
+            released.tick_channels();
+            require(released.moving(1,0));
+            require(released.value(1)==stored);
+            require(released.moving(0,0));
+            released.tick_script();
+            require(released.pc()!=pc || released.script_state()!=script_state);
+            bool invalid_index=false;
+            try { released.release_channel(2); }
+            catch (const std::out_of_range&) { invalid_index=true; }
+            require(invalid_index);
+        }
         auto data=fixture(); okage::Animation animation(data,1); animation.start(0);
         {
             //Bone consumers must not evaluate a pending world transform.
