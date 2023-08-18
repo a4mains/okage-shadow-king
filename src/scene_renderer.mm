@@ -252,6 +252,11 @@ struct SceneRenderer::Impl {
         inputs.push_back(std::move(input));shadowActors.push_back(std::move(shadow));
         ++actorCount;++nextFrontOrdinal;
     }
+    void retireInstances() {
+        inputs.clear();preparation.clear();textureOffsets.clear();
+        shadowActors.clear();sky_input.reset();mapObjects=nullptr;
+        actorCount=0;nextFrontOrdinal=0;omittedEffects=0;
+    }
     void loadEffects(const fs::path& directory) {
         if(effectTexturesLoaded)throw std::runtime_error("Effect textures already loaded");
         effectTexture=textures.size();
@@ -540,7 +545,7 @@ struct SceneRenderer::Impl {
             }
         }
         }
-        if (vertices.empty()&&!hadOrdinaryGeometry) throw std::runtime_error("Empty preview geometry");
+        if (!inputs.empty()&&vertices.empty()&&!hadOrdinaryGeometry) throw std::runtime_error("Empty preview geometry");
         if(fieldProjection){
             std::vector<Vertex> projected;
             for(auto& draw:draws){
@@ -638,6 +643,7 @@ SceneRenderer::SceneRenderer(const fs::path& map,std::span<const SceneActor> act
     impl_(std::make_unique<Impl>(map,actors,objects)){}
 SceneRenderer::~SceneRenderer()=default;
 void SceneRenderer::add_actor(const SceneActor& actor){impl_->addActor(actor);}
+void SceneRenderer::retire_instances(){impl_->retireInstances();}
 void SceneRenderer::load_effect_textures(const fs::path& path){impl_->loadEffects(path);}
 EffectTextureSizes SceneRenderer::effect_texture_sizes() const {
     if(!impl_->effectTexturesLoaded)throw std::runtime_error("Effect textures are unavailable");

@@ -44,6 +44,7 @@ public:
     explicit SceneRenderer(const std::filesystem::path& map,std::span<const SceneActor> actors={},const MapObjects* objects=nullptr);
     ~SceneRenderer();
     void add_actor(const SceneActor&);
+    void retire_instances();
     void load_effect_textures(const std::filesystem::path&);
     EffectTextureSizes effect_texture_sizes() const;
     void bind_map_effects(const MapEffects*);
