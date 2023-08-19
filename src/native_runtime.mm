@@ -531,7 +531,13 @@ struct Session {
         actor_bindings.clear();field.reset();map_objects.reset();actor_objects.clear();
         next_instance=0;instance_limit=640; // Numeric alias table survives.
         projection.reset_scene();
-        reset_camera=std::make_unique<okage::Animation>(3);
+        reset_scene_camera();
+        messages={};message_bank.clear();
+        scene_fade.step=std::bit_cast<float>(0x3ca3d70au);
+    }
+    void reset_scene_camera() {
+        if(reset_camera)*reset_camera=okage::Animation(3);
+        else reset_camera=std::make_unique<okage::Animation>(3);
         //0x1b8028 ->0x1b4220, reviewed ELF constants24a480/24a490.
         const std::array<std::array<std::uint32_t,4>,2> defaults={{{0x415170a4,0xc1200000,0xc3510000,0x3f800000},
             {0x3f79c77a,0x3d1ba5e3,0,0x3f800000}}};
@@ -539,8 +545,18 @@ struct Session {
             okage::Float4 v;for(unsigned c=0;c<4;++c)v[c]=std::bit_cast<float>(defaults[i][c]);
             reset_camera->set_channel(i,v);
         }
-        messages={};message_bank.clear();
-        scene_fade.step=std::bit_cast<float>(0x3ca3d70au);
+    }
+    void retire_battle() {
+        if(!battle||field||renderer)throw std::runtime_error("Battle retirement mode ownership");
+        if(retiring_effects) {
+            const auto flags=retiring_effects->flags();
+            if(std::any_of(flags.begin(),flags.end(),[](auto f){return f!=0;}))
+                throw std::runtime_error("Prior resource effects still occupy battle retirement pool");
+        }
+        retiring_effects.emplace(battle->retire_resource(ui_shared,projection));
+        next_instance=0;instance_limit=640;
+        reset_scene_camera();
+        std::cout<<"Native battle resource destroyed frame="<<frame<<'\n';
     }
     void observe_game_mode(unsigned point) {
         if(!game_mode||(!game_mode->requested()&&!game_mode->has_dead_allocation()&&game_mode->current()[0]==2))return;
@@ -577,7 +593,12 @@ struct Session {
         scene_fade.tick();
         if(game_mode) {
             observe_game_mode(0);
-            game_mode->tick([this]{retire_field();},[this]{
+            game_mode->tick([this]{if(battle)retire_battle();else retire_field();},[this]{
+                if(battle) {
+                    if(battle->resource_live())throw std::runtime_error("Battle wrapper freed before resource destructor");
+                    battle.reset();
+                    std::cout<<"Native battle wrapper freed frame="<<frame<<'\n';
+                }
                 if(field||renderer||!actor_bindings.empty()||!actor_objects.empty()||map_objects)
                     throw std::runtime_error("Field borrowers survived mode retirement");
             },[this](okage::GameModeSelection selection){
@@ -592,7 +613,7 @@ struct Session {
                     field_root.parent_path(),variables,battle_entry,*reset_camera,effect_bytes,effect_textures,effect_preparation);
             });
         }
-        if(battle) {
+        if(battle&&battle->resource_live()) {
             try {battle->tick(retiring_effects?&*retiring_effects:nullptr,projection,scene_clear,
                 {variables,*game_data,ui_party,ui_shared,battle_pad,
                  {input.held,input.pressed,released,input.repeat,128,128},scene_fade,
@@ -628,7 +649,12 @@ struct Session {
                  },[this](unsigned slot){
                      if(!music||slot!=4)throw std::runtime_error("Victory jingle owner/slot unavailable");
                      music->select(33); //12e0b0(4), owned installed jingle slot4.
-                 },[this](std::array<std::uint32_t,3> command){pending_game_command=command;}},
+                 },[this](std::array<std::uint32_t,3> command){pending_game_command=command;},
+                 [this](okage::GameModeSelection selection){
+                     if(!game_mode)throw std::runtime_error("Battle mode-request owner missing");
+                     game_mode->request(selection);
+                     std::cout<<"Native battle wrapper requested mode="<<selection[0]<<" frame="<<frame<<'\n';
+                 }},
                 frame,battle_stage_report,battle_ui_update_report);
                 pad_repeat.delay=battle_pad.controls[0].delay;
                 pad_repeat.interval=battle_pad.controls[0].interval;
@@ -874,7 +900,7 @@ struct Session {
         } else {
             for(std::size_t i=0;i<image.rgba.size();i+=4) {
                 for(unsigned c=0;c<3;++c)image.rgba[i+c]=scene_clear.rgb[c];
-                image.rgba[i+3]=battle?64:255;
+                image.rgba[i+3]=battle&&battle->resource_live()?64:255;
             }
         }
         const auto alpha=scene_fade.alpha(),brightness=128-alpha;

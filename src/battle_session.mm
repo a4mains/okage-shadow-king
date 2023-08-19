@@ -15,6 +15,7 @@
 #include "okage/battle_hit.hpp"
 #include "okage/battle_reward.hpp"
 #include "okage/battle_victory.hpp"
+#include "okage/battle_lifecycle.hpp"
 #include "okage/battle_enemy_commands.hpp"
 #include "okage/battle_command_queue.hpp"
 #include "okage/battle_ui_diagnostic.hpp"
@@ -81,6 +82,8 @@ struct BattleSession::Impl {
     fs::path input,decoded;
     bool alternate_interface;
     BattleState root;
+    BattleRootLifetime root_lifetime;
+    bool root_retired=false,resource_retired=false;
     StageScratch scratch;
     ShadowScreenParameters ui_projection=initial_ui_projection();
     std::array<std::shared_ptr<RuwResource>,16> ui_resources;
@@ -145,6 +148,18 @@ struct BattleSession::Impl {
     BattleRoster roster{root};
     // Last member: its destructor joins before any job-captured owners die.
     NativeLoadQueue jobs;
+    void retire_root() {
+        if(root_retired||jobs.pending()!=0||construction!=Construction::Complete)
+            throw std::runtime_error("Battle root retirement ownership order");
+        for(const auto& actor:roster.actors())
+            put(actor->storage,0x1c,word(actor->storage,0x1c)|0xc0000000u);
+        ui.reset();
+        ui_draw.reset();ui_geometry.reset();
+        //14aac8: interface atlas, BTL.RUW slot0, then1b84b0 registrations.
+        atlas=nil;window_owner.reset();ui_resources[0].reset();
+        renderer->retire_instances();camera_channels.release_channel(0);
+        root_retired=true;
+    }
     Impl(unsigned f,int s,fs::path i,fs::path d,Bytes variables,BattleEntryContext& entry,Animation& channels,
          Bytes effect_data,fs::path textures,std::shared_ptr<const EffectTemplatePreparation> preparation):
         formation(f),stage(s),input(std::move(i)),decoded(std::move(d)),
@@ -675,8 +690,6 @@ struct BattleSession::Impl {
                         [&](unsigned layer,int speed){ui->fade_layer(layer,speed);}});
                 } catch(...) {phase=word(root.bytes,0x24);throw;}
                 phase=word(root.bytes,0x24);
-                if(word(root.bytes,0x1c)&0x80000000u)
-                    throw std::runtime_error("Battle victory scheduler retirement and field return are unrecovered");
                 events.push_back("parent.victory.return");
             } else if(parent_callback==ParentCallback::Defeat) {
                 try {
@@ -684,8 +697,6 @@ struct BattleSession::Impl {
                         [&](unsigned layer,int speed){ui->fade_layer(layer,speed);});
                 } catch(...) {phase=word(root.bytes,0x24);throw;}
                 phase=word(root.bytes,0x24);
-                if(word(root.bytes,0x1c)&0x80000000u)
-                    throw std::runtime_error("Battle defeat scheduler retirement and game-over return are unrecovered");
                 events.push_back("parent.defeat.return");
             } else if(parent_callback==ParentCallback::CommandMenu) {
                 if(phase==0) {
@@ -777,6 +788,7 @@ struct BattleSession::Impl {
                 } else events.push_back("parent.camera-wait.return");
             } else throw std::runtime_error("Battle parent phase is unrecovered");
             trace("parent","return",parent_call,parent_entry);
+            if(word(root.bytes,0x1c)&0x80000000u)return;
             //152330 sees its constructor's zero command;152368 is empty.
             if(stage_mask&0x18000000u)throw std::runtime_error("Battle stage remains masked");
             events.push_back("stage.first.return");events.push_back("stage.second.return");
@@ -942,8 +954,10 @@ BattleSession::BattleSession(unsigned formation,int stage,const fs::path& input,
 BattleSession::~BattleSession()=default;
 void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& projection,SceneClearColor& clear,
                          BattleUiContext context,unsigned frame,const fs::path& stage_report,const fs::path& ui_update_report) {
+    if(impl_->resource_retired)throw std::runtime_error("Battle callback after resource retirement");
     impl_->jobs.check();
     if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
+    impl_->root_lifetime.wrapper_update(impl_->root,context.request_mode);
     const bool active=!impl_->saved_model_range;
     if(active) {
         if(!impl_->objects->bindings().empty())throw std::runtime_error("Battle animated map resource ordering is unrecovered");
@@ -956,10 +970,11 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
     const bool effect_pass=!impl_->suppress_effects.load();
     if(active) {
         projection.begin_field(impl_->stage_settings->cached_depth_min,impl_->stage_settings->cached_depth_max);
-        for(const auto& actor:impl_->roster.actors())
-            for(auto* model:{actor->model.get(),actor->bag.get(),actor->box.get()})if(model&&model->visible) {
-                model->evaluate_bones();model->evaluate_world();
-            }
+        if(!impl_->root_retired)
+            for(const auto& actor:impl_->roster.actors())
+                for(auto* model:{actor->model.get(),actor->bag.get(),actor->box.get()})if(model&&model->visible) {
+                    model->evaluate_bones();model->evaluate_world();
+                }
         if(!effect_pass)throw std::runtime_error("Active battle resource has unexpected effect suppression");
         impl_->advance_effects(projection,context.random,context.sine);
     } else projection.submit_empty_resource_frame(effect_pass,
@@ -982,7 +997,7 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
         try {impl_->commit_stage(projection,clear,frame,stage_report);}
         catch(...) {impl_->construction_failure=std::current_exception();throw;}
     }
-    if(!impl_->ui) {
+    if(!impl_->ui&&!impl_->root_retired) {
         try {impl_->construct_ui(context,frame,stage_report);}
         catch(...) {impl_->construction_failure=std::current_exception();throw;}
     }
@@ -994,7 +1009,16 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
         if(!out)throw std::runtime_error("Cannot write actual battle draw report");
     }
     if(!active)impl_->inspect_ui_updates(context,frame,ui_update_report);
-    impl_->scheduled_callbacks(context,projection,frame,active?fs::path{}:stage_report);
+    auto frame_ui_geometry=std::move(impl_->ui_geometry);
+    const auto frame_window_owner=impl_->window_owner;
+    const auto frame_atlas=impl_->atlas;
+    impl_->root_lifetime.traverse_root(impl_->root,
+        [&]{impl_->scheduled_callbacks(context,projection,frame,active?fs::path{}:stage_report);},
+        [&]{impl_->retire_root();std::cout<<"Native battle root destroyed frame="<<frame<<'\n';},
+        [&]{
+            if(!impl_->root_retired)throw std::runtime_error("Battle root freed before destruction");
+            std::cout<<"Native battle root unlinked frame="<<frame<<'\n';
+        });
     for(unsigned slot=3;slot<impl_->stage_settings->filters.size();++slot) {
         const auto& filter=impl_->stage_settings->filters[slot];
         if(slot!=6&&filter&&(*filter)[0])throw std::runtime_error("Unrecovered battle framebuffer filter slot");
@@ -1013,11 +1037,11 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
             if(texture.fonts!=impl_->font_owner||texture.font_index>=3)throw std::runtime_error("Battle UI font binding mismatch");
             return UiMetalTexture{impl_->font_textures[texture.font_index],impl_->font_owner};
         }
-        if(texture.window!=impl_->window_owner)throw std::runtime_error("Battle UI window binding mismatch");
-        return UiMetalTexture{impl_->atlas,impl_->window_owner};
+        if(texture.window!=frame_window_owner)throw std::runtime_error("Battle UI window binding mismatch");
+        return UiMetalTexture{frame_atlas,frame_window_owner};
     };
     std::optional<SceneUiPass> ui_pass;
-    if(impl_->ui_geometry)ui_pass.emplace(SceneUiPass{*impl_->ui_geometry,baseline,textures});
+    if(frame_ui_geometry)ui_pass.emplace(SceneUiPass{*frame_ui_geometry,baseline,textures});
     impl_->rendered_image=impl_->renderer->render_prepared(prepared,ui_pass?&*ui_pass:nullptr,&postprocess,
         std::array<std::uint8_t,4>{clear.rgb[0],clear.rgb[1],clear.rgb[2],0});
     if(!stage_report.empty()&&(!active||!impl_->reported_active_resource)) {
@@ -1031,6 +1055,7 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
     if(active)impl_->reported_active_resource=true;
 }
 void BattleSession::service_loader_after_frame(BattleConstructionContext context,unsigned frame,const fs::path& report){
+    if(impl_->resource_retired)return;
     impl_->jobs.check();
     if(!impl_->loader_resumed){impl_->jobs.resume();impl_->loader_resumed=true;return;}
     if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
@@ -1062,12 +1087,37 @@ void BattleSession::service_loader_after_frame(BattleConstructionContext context
     if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
 }
 const BattleState& BattleSession::state() const{return impl_->root;}
+bool BattleSession::resource_live() const{return !impl_->resource_retired;}
+RetiringSceneEffects BattleSession::retire_resource(BattleUiShared& shared,FieldProjection& projection) {
+    impl_->jobs.check();
+    if(impl_->resource_retired||!impl_->root_retired||impl_->root_lifetime.linked()||impl_->jobs.pending()!=0)
+        throw std::runtime_error("Battle resource retirement ownership order");
+    RetiringSceneEffects retired{std::move(impl_->effects),{}};retired.mark();
+    for(auto& window:shared.registry)window.reset();
+    impl_->ui_draw.reset();impl_->ui_geometry.reset();
+    impl_->effect_submissions.clear();
+    impl_->renderer.reset();
+    impl_->filter_renderer.reset();impl_->rendered_image.reset();
+    impl_->objects.reset();impl_->collision.reset();
+    impl_->environment=nil;impl_->atlas=nil;impl_->window_owner.reset();
+    for(auto& resource:impl_->ui_resources)resource.reset();
+    impl_->held_stage.clear();impl_->stage_data.reset();
+    //Source filters1/2 are retained by Session, not these battle-owned slots.
+    const auto clear=impl_->stage_settings->clear;
+    impl_->stage_settings.emplace(clear);
+    projection.reset_scene();
+    impl_->resource_retired=true;
+    return retired;
+}
 void BattleSession::write_actor_observation(std::ostream& out,unsigned frame) const {
     const auto model=[&](const FieldActor* actor) {
         if(!actor){out<<"null";return;}
         out<<"{\"visible\":"<<(actor->visible?"true":"false")<<",\"render_flags\":"<<actor->render_flags<<'}';
     };
-    out<<"{\"schema\":\"okage-native-battle-actors-v1\",\"frame\":"<<frame<<",\"actors\":[";
+    out<<"{\"schema\":\"okage-native-battle-actors-v1\",\"frame\":"<<frame
+       <<",\"root_linked\":"<<(impl_->root_lifetime.linked()?"true":"false")
+       <<",\"root_retired\":"<<(impl_->root_retired?"true":"false")
+       <<",\"resource_live\":"<<(resource_live()?"true":"false")<<",\"actors\":[";
     bool comma=false;
     for(const auto& owner:impl_->roster.actors()) {
         const auto& actor=*owner;if(comma)out<<',';comma=true;

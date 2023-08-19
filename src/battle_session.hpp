@@ -8,6 +8,7 @@
 #include "okage/battle_interface.hpp"
 #include "okage/dialogue.hpp"
 #include "okage/battle_roster_update.hpp"
+#include "okage/game_mode.hpp"
 #include <filesystem>
 #include <memory>
 #include <iosfwd>
@@ -45,6 +46,7 @@ struct BattleUiContext {
     std::function<void(unsigned)> jingle;
     //1248d8 publishes the persistent game command, distinct from mode selection.
     std::function<void(std::array<std::uint32_t,3>)> game_command;
+    std::function<void(GameModeSelection)> request_mode;
 };
 class BattleSession {
 public:
@@ -61,6 +63,8 @@ public:
     void service_loader_after_frame(BattleConstructionContext,unsigned frame,
                                     const std::filesystem::path& diagnostic_report={});
     const BattleState& state() const;
+    RetiringSceneEffects retire_resource(BattleUiShared&,FieldProjection&);
+    bool resource_live() const;
     //Read-only endpoint observation; float lanes are raw bits, no simulation.
     void write_effect_observation(std::ostream&,unsigned frame) const;
     void write_actor_observation(std::ostream&,unsigned frame) const;
