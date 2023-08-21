@@ -227,6 +227,72 @@ static void ui_bridge(const fs::path& dir) {
     caught=false;try{renderer.render(identity,clip,nullptr,{},1024,{},nullptr,1,&pass);}catch(const std::runtime_error& e){caught=std::string(e.what())=="Scene UI requires GS field projection depth";}
     require(caught);
 }
+static void retired_instances(const fs::path& dir) {
+    const auto check=[](bool valid,const char* reason,unsigned at=__builtin_LINE()) {
+        if(!valid)throw std::runtime_error(std::string("Scene retirement: ")+reason+" at line "+std::to_string(at));
+    };
+    const std::array<Surface,1> surfaces{{{{.25f,.5f,.75f,1}}}};
+    sample(dir,surfaces,true,true,true);
+    auto objects=std::make_unique<MapObjects>(dir/"a.xmp");
+    for(const auto& b:objects->bindings()) {
+        b.actor->animation().set_channel(4,{0,0,0,1});b.actor->animation().set_channel(5,{0,0,0,1});b.actor->evaluate();
+    }
+    auto actor=std::make_unique<FieldActor>(read_xmd(model(surfaces,true,true,false)));
+    actor->render_flags=0x200080;actor->evaluate();
+    SceneActor binding{actor.get(),dir/"m.xmd",-1,SceneActorDescriptor{0x200080,false}};
+    SceneRenderer renderer(dir/"a.xmp",std::span(&binding,1),objects.get());renderer.set_clear_rgb({14,18,24});
+    FieldProjection projection;projection.load_stage(stage({1,1,1,1},{.25f,.25f,.25f,1},false));
+    projection.begin_field();projection.begin_effects();projection.begin_deferred();projection.end_effects();
+    const Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
+    const auto clip=field_clip_projection(projection.frame().ordinary);
+    auto prepare=[&]{return renderer.prepare(identity,clip,nullptr,{},1024,{},&projection.frame(),1,false);};
+    const auto pending=prepare();const auto expected=renderer.render_prepared(pending);
+    check(renderer.placements()==1&&renderer.actors()==1,"fixture must bind both map and actor inputs");
+    const auto texdir=dir/"effects";fs::create_directory(texdir);
+    Data xim(32+64*64*4);put(xim,24,64);put(xim,28,64);
+    for(unsigned i=32;i<xim.size();i+=4){xim[i]=80;xim[i+1]=160;xim[i+2]=240;xim[i+3]=128;}
+    for(const auto name:effect_texture_names)write(texdir/name,xim);
+    renderer.load_effect_textures(texdir);const auto sizes=renderer.effect_texture_sizes();
+    EffectDefinition vanish;vanish.id=20;vanish.duration=30;vanish.parameters={.6f,.3f,.6f,0};vanish.elements.resize(9);
+    for(unsigned i=0;i<9;++i) {
+        auto& part=vanish.elements[i];part.id=i+1;part.shape=31;part.flags=i?0x601:0x401;
+        part.primitive_flags=0x41;part.channels=13;part.program=i?0x1104c114:0x4c114;
+        part.texture=17;part.change_time=1.1f;part.values[0]={.5f,.5f,.5f,.8f};
+        part.values[2]={0,0,0,1};part.values[3]={1,1,1,1};
+    }
+    MapEffects effects;effects[0]=std::make_unique<MapEffect>(vanish,Float4{0,0,10,1},Float4{},Float4{8,8,8,1},sizes,[]{return 0u;},EffectStart::FirstFrame);
+    renderer.bind_map_effects(&effects);
+    renderer.retire_instances();renderer.retire_instances();
+    check(renderer.actors()==0&&renderer.placements()==0&&renderer.omitted_effects()==0&&renderer.effect_texture_sizes()==sizes,
+          "retirement must clear counts and preserve effect texture dimensions");
+    actor.reset();objects.reset();
+    check(renderer.render_prepared(pending).rgba==expected.rgba,"prepared frame changed after retirement or later preparation");
+    const auto withEffects=renderer.render_prepared(prepare());
+    check(renderer.shadow_submissions().empty(),"retired actors still submitted shadows");
+    renderer.bind_map_effects(nullptr);
+    const auto empty=renderer.render_prepared(prepare());
+    check(center(empty)==std::array<unsigned,3>{14,18,24}&&empty.rgba[3]==64,"empty range lost clear color or raw alpha64");
+    check(withEffects.rgba!=empty.rgba,"fixture must expose a visible textured effect after retirement");
+    EffectSubmissions submissions{{0,*effects[0]}};renderer.bind_effect_submissions(&submissions);
+    check(renderer.render_prepared(prepare()).rgba==withEffects.rgba,"effect-only preparation changed after rebinding or retirement");
+    renderer.retire_instances();check(renderer.render_prepared(prepare()).rgba==withEffects.rgba,"effect-only preparation changed after rebinding or retirement");
+    check(renderer.render_prepared(pending).rgba==expected.rgba,"prepared frame changed after retirement or later preparation");
+    // Different model texture prefix must not change effect texture resolution.
+    write(dir/"a.xmp",map(false));
+    SceneRenderer other(dir/"a.xmp");other.set_clear_rgb({14,18,24});other.retire_instances();
+    other.load_effect_textures(texdir);other.bind_effect_submissions(&submissions);
+    const auto alternate=other.prepare(identity,clip,nullptr,{},1024,{},&projection.frame(),1,false);
+    check(other.render_prepared(alternate).rgba==withEffects.rgba,"different model texture prefixes shifted effect texture indices");
+    auto rebound=std::make_unique<FieldActor>(read_xmd(model(surfaces,true,true,false)));
+    rebound->render_flags=0x200080;rebound->evaluate();
+    renderer.add_actor({rebound.get(),dir/"m.xmd",-1,SceneActorDescriptor{0x200080,false}});
+    check(renderer.placements()==0&&renderer.actors()==1&&renderer.effect_texture_sizes()==sizes,
+          "appending after retirement broke counts or effect texture indices");
+    renderer.render_prepared(prepare());
+    renderer.retire_instances();rebound.reset();
+    check(renderer.render_prepared(prepare()).rgba==withEffects.rgba,"effect-only preparation changed after rebinding or retirement");
+    check(renderer.render_prepared(pending).rgba==expected.rgba,"prepared frame changed after retirement or later preparation");
+}
 int main(int argc,const char** argv){@autoreleasepool {try {
     if(argc>2)throw std::runtime_error("Usage: scene-map-material-tests [FRESH_OUTPUT_DIRECTORY]");
     const fs::path out=argc==2?fs::path(argv[1]):fs::temp_directory_path()/("okage-scene-ui-"+std::string([NSUUID UUID].UUIDString.UTF8String));
@@ -277,7 +343,9 @@ int main(int argc,const char** argv){@autoreleasepool {try {
     const auto blended=center(translucentAdded);
     require(blended[0]>=45&&blended[0]<=46&&blended[1]>=81&&blended[1]<=82&&blended[2]>=119&&blended[2]<=120);
     ui_bridge(out/"ui-bridge");
+    retired_instances(out/"retired-instances");
     if(argc==1)fs::remove_all(out);
+    std::cout<<"Scene retirement: retained snapshots, detached owners, empty range and effect texture indices passed\n";
     std::cout<<"Scene UI pass: ordered overlay, shared depth, raw alpha, completed validation and recovery passed\n";
     std::cout<<"Scene map material: TME-off selected state, exact GS-unit centers, animated-map stage ambient, bypass and whole-list pass ordering passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}}
