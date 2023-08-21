@@ -900,7 +900,7 @@ struct Session {
         } else {
             for(std::size_t i=0;i<image.rgba.size();i+=4) {
                 for(unsigned c=0;c<3;++c)image.rgba[i+c]=scene_clear.rgb[c];
-                image.rgba[i+3]=battle&&battle->resource_live()?64:255;
+                image.rgba[i+3]=battle&&battle->resource_live()?64:0;
             }
         }
         const auto alpha=scene_fade.alpha(),brightness=128-alpha;
