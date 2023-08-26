@@ -22,6 +22,7 @@
 #include "okage/ui_resource.hpp"
 #include "okage/ui_draw_diagnostic.hpp"
 #include "okage/stage_settings.hpp"
+#include "okage/scene_resource.hpp"
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 #include <algorithm>
@@ -64,16 +65,7 @@ fs::path archive_path(const fs::path& root,std::string path) {
     std::transform(path.begin(),path.end(),path.begin(),[](unsigned char c){return char(std::toupper(c));});
     return root/path;
 }
-struct StageScratch {
-    std::array<std::uint8_t,0x278> first{};
-    std::array<std::array<std::uint8_t,0x348>,3> other{};
-    std::array<std::uint32_t,10> selectors{0x22,0x1c};
-    std::string name="LOAD_DEFAULT";
-    unsigned camera_settings_count=0;
-    StageScratch() {
-        first[0]='S';first[1]='T';first[2]='G';first[4]=0x20;first[8]=0x20;
-    }
-};
+using StageScratch=SceneStageScratch;
 struct UiTextureOwner {id<MTLTexture> texture;};
 }
 struct BattleSession::Impl {
@@ -91,7 +83,6 @@ struct BattleSession::Impl {
     std::optional<BattleHudData> hud_definitions;
     std::optional<BattleUiCommandData> command_definitions;
     std::unique_ptr<BattleInterface> ui;
-    UiResourceCoordinator ui_resource;
     std::optional<UiDrawList> ui_draw;
     std::optional<UiGeometryList> ui_geometry;
     std::shared_ptr<UiTextureOwner> window_owner;
@@ -387,7 +378,7 @@ struct BattleSession::Impl {
             if(handle<0)throw std::runtime_error("Battle UI lost its registry slot");
             bindings.push_back({unsigned(handle),0});
         }
-        ui_draw=ui_resource.advance_resource(context.shared.registry,bindings,
+        ui_draw=context.shared.resource.advance_resource(context.shared.registry,bindings,
             context.shared.resource_accumulators,context.fonts,context.sine,
             context.random,ui_projection);
         ui_geometry=ui_draw?std::optional(resolve_ui_geometry(*ui_draw)):std::nullopt;

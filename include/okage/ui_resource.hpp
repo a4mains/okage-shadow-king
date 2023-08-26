@@ -18,6 +18,7 @@ struct UiResourceSlotBinding {
 class UiResourceCoordinator {
 public:
     using Registry = std::array<std::shared_ptr<UiWindow>, 8>;
+    void initialize_scene() {layout_shared_.sprite_groups=0;layout_shared_.layer=0;}
 
     std::optional<UiDrawList> advance_resource(
         const Registry&, std::span<const UiResourceSlotBinding>,

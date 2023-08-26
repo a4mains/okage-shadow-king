@@ -4,6 +4,7 @@
 #include "okage/game_state.hpp"
 #include "okage/battle_ui.hpp"
 #include "okage/game_mode.hpp"
+#include "okage/scene_resource.hpp"
 #include "battle_session.hpp"
 #include "okage/field.hpp"
 #include "okage/music.hpp"
@@ -235,6 +236,7 @@ struct Session {
     std::array<std::uint32_t,3> pending_game_command{};
     std::optional<okage::GameModeParent> game_mode;
     std::unique_ptr<okage::BattleSession> battle;
+    std::unique_ptr<okage::DefeatFieldReturn> defeat_return;
     fs::path battle_input;
     fs::path battle_construction_report;
     fs::path battle_stage_report;
@@ -536,15 +538,8 @@ struct Session {
         scene_fade.step=std::bit_cast<float>(0x3ca3d70au);
     }
     void reset_scene_camera() {
-        if(reset_camera)*reset_camera=okage::Animation(3);
-        else reset_camera=std::make_unique<okage::Animation>(3);
-        //0x1b8028 ->0x1b4220, reviewed ELF constants24a480/24a490.
-        const std::array<std::array<std::uint32_t,4>,2> defaults={{{0x415170a4,0xc1200000,0xc3510000,0x3f800000},
-            {0x3f79c77a,0x3d1ba5e3,0,0x3f800000}}};
-        for(unsigned i=0;i<2;++i) {
-            okage::Float4 v;for(unsigned c=0;c<4;++c)v[c]=std::bit_cast<float>(defaults[i][c]);
-            reset_camera->set_channel(i,v);
-        }
+        if(!reset_camera)reset_camera=std::make_unique<okage::Animation>(3);
+        okage::reset_scene_camera(*reset_camera);
     }
     void retire_battle() {
         if(!battle||field||renderer)throw std::runtime_error("Battle retirement mode ownership");
@@ -563,7 +558,7 @@ struct Session {
         const auto current=game_mode->current(),request=game_mode->queue_words();
         game_mode_trace.insert(game_mode_trace.end(),{frame,point,game_mode->phase(),current[0],current[1],current[2],
             request[0],request[1],request[2],unsigned(game_mode->has_child()),unsigned(game_mode->has_dead_allocation()),
-            unsigned(bool(field)),pending_game_command[0],pending_game_command[1],pending_game_command[2],
+            unsigned(bool(field)||bool(defeat_return)),pending_game_command[0],pending_game_command[1],pending_game_command[2],
             std::bit_cast<unsigned>(scene_fade.current),std::bit_cast<unsigned>(scene_fade.target),std::bit_cast<unsigned>(scene_fade.step),
             battle_capture_alpha,battle_capture_target,battle_capture_frame,completed_game_frame,
             scene_clear.rgb[0],scene_clear.rgb[1],scene_clear.rgb[2]});
@@ -593,25 +588,54 @@ struct Session {
         scene_fade.tick();
         if(game_mode) {
             observe_game_mode(0);
-            game_mode->tick([this]{if(battle)retire_battle();else retire_field();},[this]{
+            game_mode->tick([this]{
+                if(battle)retire_battle();
+                else if(defeat_return) {
+                    defeat_return->retire(*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,ui_shared,scene_fade);
+                    std::cout<<"Native defeat return resource/field destroyed frame="<<frame<<'\n';
+                } else retire_field();
+            },[this]{
                 if(battle) {
                     if(battle->resource_live())throw std::runtime_error("Battle wrapper freed before resource destructor");
                     battle.reset();
                     std::cout<<"Native battle wrapper freed frame="<<frame<<'\n';
                 }
+                if(defeat_return) {
+                    if(defeat_return->resource().live())throw std::runtime_error("Defeat return field freed before destruction");
+                    defeat_return.reset();
+                    std::cout<<"Native defeat return field freed frame="<<frame<<'\n';
+                }
                 if(field||renderer||!actor_bindings.empty()||!actor_objects.empty()||map_objects)
                     throw std::runtime_error("Field borrowers survived mode retirement");
             },[this](okage::GameModeSelection selection){
-                if(selection[0]!=3||battle||field||!reset_camera||battle_input.empty())
-                    throw std::runtime_error("Native mode construction requires mode3 and --battle-input at frame="+
-                        std::to_string(frame));
+                if(battle||field||defeat_return||!reset_camera)
+                    throw std::runtime_error("Native mode construction has surviving scene owners");
+                if(selection[0]==2&&pending_game_command[0]==2) {
+                    defeat_return=std::make_unique<okage::DefeatFieldReturn>(variables,pending_game_command,
+                        scene_fade,scene_clear,ui_shared);
+                    std::cout<<"Native defeat return field constructed frame="<<frame<<'\n';
+                    return;
+                }
+                if(selection[0]!=3||battle_input.empty())
+                    throw std::runtime_error("Native mode constructor unrecovered: mode="+std::to_string(selection[0])+
+                        " arg="+std::to_string(selection[1])+" game_command="+std::to_string(pending_game_command[0])+
+                        " frame="+std::to_string(frame));
                 //149e60 clamps the signed stage and sets fade CURRENT/target0.
                 const int stage=std::clamp(std::bit_cast<std::int32_t>(selection[2]),1,23);
                 scene_fade.current=0;scene_fade.request(0);
                 scene_clear.rgb={0,0,0};scene_fade.color=0; //100ef8 fresh resource.
+                okage::initialize_scene_ui(ui_shared);
                 battle=std::make_unique<okage::BattleSession>(selection[1],stage,battle_input,
                     field_root.parent_path(),variables,battle_entry,*reset_camera,effect_bytes,effect_textures,effect_preparation);
             });
+        }
+        if(defeat_return&&defeat_return->resource().live()) {
+            defeat_return->tick([this](okage::GameModeSelection selection){
+                game_mode->request(selection);
+                std::cout<<"Native defeat return requested mode="<<selection[0]<<" arg="<<selection[1]<<" frame="<<frame<<'\n';
+            });
+            defeat_return->resource().tick(*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,
+                ui_shared,ui_fonts,battle_capture_sine,random);
         }
         if(battle&&battle->resource_live()) {
             try {battle->tick(retiring_effects?&*retiring_effects:nullptr,projection,scene_clear,
@@ -897,6 +921,8 @@ struct Session {
         }
         } else if(battle&&battle->rendered_image()) {
             image=*battle->rendered_image();
+        } else if(defeat_return&&defeat_return->resource().rendered_image()) {
+            image=*defeat_return->resource().rendered_image();
         } else {
             for(std::size_t i=0;i<image.rgba.size();i+=4) {
                 for(unsigned c=0;c<3;++c)image.rgba[i+c]=scene_clear.rgb[c];

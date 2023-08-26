@@ -5,11 +5,13 @@
 #include "okage/battle_ui_roster.hpp"
 #include "okage/battle_ui_command_state.hpp"
 #include "okage/battle_ui_command_data.hpp"
+#include "okage/ui_resource.hpp"
 #include <functional>
 
 namespace okage {
 class BattleEntryContext;
 struct BattleUiShared {
+    UiResourceCoordinator resource;
     BattleHud hud;
     std::array<std::shared_ptr<UiWindowStream>,2> streams{
         std::make_shared<UiWindowStream>(UiWindowStream{1,{}}),
