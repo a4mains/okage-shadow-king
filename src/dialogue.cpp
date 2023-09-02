@@ -40,7 +40,7 @@ DialogueInputEffects DialogueController::update(DialogueText& text,DialogueButto
     const bool flag_branch=option && text.state.option.starts_with("FFF(");
     if(option && !comparison && !flag_branch && text.state.option!="CC" && text.state.option!="BC" && text.state.option!="BC=0")
         throw std::runtime_error("Dialogue option outside recovered scope");
-    auto resume=[&]{text.resume();text.state.period=__builtin_bit_cast(std::uint32_t, (normal_period));++effects.resume_calls;};
+    auto resume=[&]{text.resume();text.state.period=std::bit_cast<std::uint32_t>(normal_period);++effects.resume_calls;};
     auto& command=text.state.window;
     if(!command.empty() && static_cast<unsigned char>(command[0])!=255) {
         // 0x148240 parses concatenated metadata in order. Some commands
@@ -69,7 +69,7 @@ DialogueInputEffects DialogueController::update(DialogueText& text,DialogueButto
             } else if(part.starts_with("SHADOW(")) {
                 const auto value=arguments(part,"SHADOW(",1)[0];
                 if(!shadow_request)throw std::runtime_error("Dialogue shadow service unavailable");
-                shadow_request(__builtin_bit_cast(std::uint32_t, (value)));
+                shadow_request(std::bit_cast<std::uint32_t>(value));
             } else if(part.starts_with("CHANI(")) {
                 const auto values=arguments(part,"CHANI(",2);
                 if(!actor_motion_request)throw std::runtime_error("Dialogue actor motion service unavailable");
@@ -85,8 +85,8 @@ DialogueInputEffects DialogueController::update(DialogueText& text,DialogueButto
                 // wraps at32 bits, then the handler clamps signed-negative values.
                 for(unsigned i=0;i<6;++i) {
                     const unsigned delta=code && unsigned((code-1)%6)==i ? unsigned((code-1)/6+1) : 0;
-                    const auto value=__builtin_bit_cast(std::int32_t, (
-                        __builtin_bit_cast(std::uint32_t, (get_variable(16+i,4)))+delta));
+                    const auto value=std::bit_cast<std::int32_t>(
+                        std::bit_cast<std::uint32_t>(get_variable(16+i,4))+delta);
                     set_variable(16+i,4,std::max(0,value));
                 }
                 handler=11;
@@ -104,7 +104,7 @@ DialogueInputEffects DialogueController::update(DialogueText& text,DialogueButto
         }
     }
     if(window_type<0 || window_type>2)throw std::runtime_error("Dialogue window type not implemented");
-    const auto delay=__builtin_bit_cast(std::int32_t, (text.state.delay));
+    const auto delay=std::bit_cast<std::int32_t>(text.state.delay);
     // Original status getter: positive delay=3, negative delay/pause=2, else 1.
     const unsigned status=delay>0 ? 3 : (delay<0 || (text.state.flags&0x910)) ? 2 : 1;
     if(status==2) {
@@ -141,7 +141,7 @@ DialogueInputEffects DialogueController::update(DialogueText& text,DialogueButto
             int branch=2,cursor=2;
             if(get_variable(values[2],values[3])!=1) {
                 const auto first=get_variable(values[0],values[1]);
-                branch=__builtin_bit_cast(std::int16_t, (std::uint16_t(first)));
+                branch=std::bit_cast<std::int16_t>(std::uint16_t(first));
                 cursor=get_variable(values[0],values[1]);
             }
             text.set_option_cursor(cursor);
@@ -178,7 +178,7 @@ DialogueInputEffects DialogueController::update(DialogueText& text,DialogueButto
     if(status==3)effects.stop_voice=true;
     // Re-evaluate status after a resume, as the original does for end handling.
     if((text.state.flags&2) && !text.state.delay && !(text.state.flags&0x910)) {
-        text.state.period=__builtin_bit_cast(std::uint32_t, (normal_period));
+        text.state.period=std::bit_cast<std::uint32_t>(normal_period);
         effects.stop_voice=true;effects.close=true;
         if(window_type==0)effects.cue=12;
         ++stage;
@@ -186,8 +186,21 @@ DialogueInputEffects DialogueController::update(DialogueText& text,DialogueButto
     return effects;
 }
 void SceneFade::request(float value) {
-    if(!std::isfinite(value)||value<0||value>1)throw std::runtime_error("Scene fade range");
+    if(!std::isfinite(value))throw std::runtime_error("Nonfinite scene fade");
     enabled=true;hold=value!=1;target=value;
+    publish();
+}
+void SceneFade::immediate(float value) {
+    if(!std::isfinite(value))throw std::runtime_error("Nonfinite immediate scene fade");
+    current=value;request(value);
+}
+void SceneFade::publish() {
+    const double scaled=double(current)*128;
+    if(!std::isfinite(scaled)||scaled<-2147483648.0||scaled>2147483647.0)
+        throw std::runtime_error("Scene fade conversion outside recovered range");
+    const auto converted=std::int32_t(scaled);
+    const auto alpha=(128u-std::uint32_t(std::min(127,converted)))&255u;
+    published_rgba_=(alpha<<24)|color;
 }
 void SceneFade::script_request(unsigned percent,int color_mode) {
     if(percent>100)throw std::runtime_error("Unrecovered event fade percentage");
@@ -195,9 +208,9 @@ void SceneFade::script_request(unsigned percent,int color_mode) {
     if(std::fesetround(FE_TOWARDZERO))throw std::runtime_error("Unable to set event fade rounding");
     const float target=float(percent)*.01f;
     std::fesetround(rounding);
-    request(target);
     if(color_mode==0)color=0;
     else if(color_mode==1)color=0xffffff;
+    request(target);
 }
 void SceneFade::tick() {
     if(!enabled)return;
@@ -207,8 +220,9 @@ void SceneFade::tick() {
     else if(current>target){current-=step;if(current<target)current=target;}
     else if(!hold)enabled=false;
     std::fesetround(rounding);
+    publish();
 }
-unsigned SceneFade::alpha() const {return enabled ? 128-std::min(127,int(current*128.f)) : 0;}
+unsigned SceneFade::alpha() const {return enabled ? published_rgba_>>24 : 0;}
 void DialogueOpening::initialize(DialogueText& text,TextClock& clock,DialogueController& controller,
                                 DialogueOpacity& body,DialogueClosure& closure) {
     // Text allocator/default style plus field descriptor: body font2,
@@ -236,7 +250,7 @@ bool DialogueOpening::update(DialogueText& text,TextClock& clock,DialogueControl
     case 2: // Decoration2->3 followed by body3->4.
         controller.stage=4;return true;
     case 4:
-        text.state.period=__builtin_bit_cast(std::uint32_t, (controller.normal_period));
+        text.state.period=std::bit_cast<std::uint32_t>(controller.normal_period);
         controller.stage=5;return true;
     case 5:
         decoration_ticks=std::min(8u,decoration_ticks+1);
@@ -308,8 +322,8 @@ std::vector<TextGlyph> Narration::glyphs(const Font& font) const {
             const auto* found=font.find(c);if(!found)throw std::runtime_error("Missing narration glyph");
             const auto& m=found->metrics;const auto advance=narration_advance(c,font);
             if(c!=' '){
-                const int px=int(x-__builtin_bit_cast(std::int16_t, (m[2]))*3.f/32.f)+24;
-                const int py=int(y-(__builtin_bit_cast(std::int16_t, (m[1]))>>2)*.75f)+36;
+                const int px=int(x-std::bit_cast<std::int16_t>(m[2])*3.f/32.f)+24;
+                const int py=int(y-(std::bit_cast<std::int16_t>(m[1])>>2)*.75f)+36;
                 const int height=int((m[9]>>2)*.75f);
                 result.push_back({c,2,0x00ffffffu|(line.alpha<<24),px,py/2,int(m[8]*3/32),height/2});
             }
@@ -344,8 +358,8 @@ std::vector<TextGlyph> ChoiceMenu::glyphs(const Font& font) const {
             const auto& m=found->metrics;
             const int advance=c==' '?10:(c>='0' && c<='9')?14:m[8]/16;
             if(c!=' '){
-                const int px=x-__builtin_bit_cast(std::int16_t, (m[2]))/16+24;
-                const int py=y-(__builtin_bit_cast(std::int16_t, (m[1]))>>2)/2+36;
+                const int px=x-std::bit_cast<std::int16_t>(m[2])/16+24;
+                const int py=y-(std::bit_cast<std::int16_t>(m[1])>>2)/2+36;
                 result.push_back({c,2,0x00ffffffu|(alpha<<24),px,py/2,int(m[8]/16),int((m[9]>>2)/4)});
             }
             x+=advance;

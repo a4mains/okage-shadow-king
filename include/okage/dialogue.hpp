@@ -39,9 +39,15 @@ struct SceneFade {
     bool enabled=false,hold=false;
     std::uint32_t color=0;
     void request(float);
+    void immediate(float);
     void script_request(unsigned percent,int color_mode);
     void tick();
     unsigned alpha() const;
+    std::uint32_t published_color() const {return published_rgba_&0xffffffu;}
+private:
+    //114cb0 changes only color;114a70 publishes the separately queued layer.
+    std::uint32_t published_rgba_=0;
+    void publish();
 };
 // Three description widgets from 0x146ee8, using the USA sysmes[0x106]
 // font-2 style. Diagnostic rasterization omits GS filtering/subpixel coverage.

@@ -49,9 +49,8 @@ SceneClearColor& DefeatFieldReturn::initialize(std::span<std::uint8_t> variables
     const std::array<std::uint32_t,3>& command,SceneFade& fade,SceneClearColor& clear) {
     if(command[0]!=2||variables.size()<0x110)
         throw std::runtime_error("Defeat field constructor requires game command2 and bank0");
-    if(fade.color!=0)throw std::runtime_error("Colored immediate defeat-return fade publication is unrecovered");
     for(unsigned at=0x110;at>0x10;)variables[--at]=0;
-    fade.current=0;fade.request(0);
+    fade.immediate(0);
     return clear;
 }
 DefeatFieldReturn::DefeatFieldReturn(std::span<std::uint8_t> variables,std::array<std::uint32_t,3>& command,

@@ -94,16 +94,17 @@ void update_generic_prefix(GameOverTaskState& task, GameOverInputState& input,
 
 void update_mode4(GameOverTaskState& task, const GameOverUpdateServices& services) {
     ++task.tick_counter; // MIPS addiu wraparound.
+    const auto ticks=std::bit_cast<std::int32_t>(task.tick_counter); //SLT is signed.
     if (task.mode_state == 0) {
-        if (task.tick_counter > 0x3c) {
+        if (ticks > 0x3c) {
             task.mode_state = 10;
             task.tick_counter = 0;
         }
     } else if (task.mode_state == 10) {
         if (as_float(task.image_alpha_bits) < 1.0f)
             task.image_alpha_bits = bits(add_single(task.image_alpha_bits, image_fade_in_step));
-        if (task.tick_counter > 0x2d0) task.mode_state = 0x14;
-        if (task.tick_counter > 0x78 && (task.pressed_word & exit_mask) != 0)
+        if (ticks > 0x2d0) task.mode_state = 0x14;
+        if (ticks > 0x78 && (task.pressed_word & exit_mask) != 0)
             task.mode_state = 0x14;
     } else if (task.mode_state == 0x14) {
         if (as_float(task.image_alpha_bits) > 0.0f) {

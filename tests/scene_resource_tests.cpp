@@ -68,6 +68,14 @@ int main(){try{
     EmptySceneResource next(clear,fade,shared);
     next.tick(camera,projection,&effects,shared,{},sine,random);check(!effects.map[4]);
     check(random.state==random_before&&shared.resource.draw_state().background_alpha_top==17);
+    effects.map[4]=std::make_unique<MapEffect>(definition,Float4{0,0,420,1},Float4{},Float4{1,1,1,1},sizes,[]{return 1u;});
+    effects.map[4]->flags=0x4020;
+    rejects([&]{next.tick(camera,projection,&effects,shared,{},sine,random);});
+    effects.map[4].reset();
+    command={2,0,0};fade.color=0x123456;
+    DefeatFieldReturn colored(variables,command,fade,clear,shared);
+    check(fade.color==0&&fade.published_color()==0x123456&&fade.alpha()==128);
+    fade.tick();check(fade.published_color()==0);
     command={1,0,0};rejects([&]{DefeatFieldReturn bad(variables,command,fade,clear,shared);});
     command={2,0,0};rejects([&]{DefeatFieldReturn bad(std::span(variables).first(0x10f),command,fade,clear,shared);});
     shared.registry[0]=std::make_shared<UiWindow>(4,4,0,stream);

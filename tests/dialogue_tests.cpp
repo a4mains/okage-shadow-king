@@ -249,7 +249,11 @@ int main() {try {
     fade.request(1);for(unsigned i=0;i<26;++i)fade.tick();
     require(fade.current==1 && fade.enabled && fade.alpha()==1);
     fade.tick();require(!fade.enabled && fade.alpha()==0);
-    rejects([&]{fade.request(2);});
+    fade.immediate(1.002f);require(fade.current==1.002f&&fade.target==1.002f&&fade.alpha()==1);
+    fade.immediate(-.009f);require(fade.current==-.009f&&fade.alpha()==129);
+    fade.color=0x123456;fade.immediate(0);fade.color=0;
+    require(fade.published_color()==0x123456&&fade.alpha()==128);
+    fade.tick();require(fade.published_color()==0&&fade.alpha()==128);
     fade.current=.5f;fade.color=0x123456;fade.script_request(0,0);
     require(fade.target==0&&fade.color==0&&fade.enabled&&fade.hold);
     fade.script_request(50,1);require(fade.color==0xffffff&&fade.target>.49f&&fade.target<=.5f);

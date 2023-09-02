@@ -622,7 +622,7 @@ struct Session {
                         " frame="+std::to_string(frame));
                 //149e60 clamps the signed stage and sets fade CURRENT/target0.
                 const int stage=std::clamp(std::bit_cast<std::int32_t>(selection[2]),1,23);
-                scene_fade.current=0;scene_fade.request(0);
+                scene_fade.immediate(0);
                 scene_clear.rgb={0,0,0};scene_fade.color=0; //100ef8 fresh resource.
                 okage::initialize_scene_ui(ui_shared);
                 battle=std::make_unique<okage::BattleSession>(selection[1],stage,battle_input,
@@ -929,9 +929,12 @@ struct Session {
                 image.rgba[i+3]=battle&&battle->resource_live()?64:0;
             }
         }
-        const auto alpha=scene_fade.alpha(),brightness=128-alpha;
-        for(std::size_t i=0;i<image.rgba.size();i+=4)for(unsigned c=0;c<3;++c)
-            image.rgba[i+c]=(unsigned(image.rgba[i+c])*brightness+((scene_fade.color>>(c*8))&255)*alpha)/128;
+        const auto alpha=scene_fade.alpha();
+        for(std::size_t i=0;i<image.rgba.size();i+=4)for(unsigned c=0;c<3;++c) {
+            const int source=(scene_fade.published_color()>>(c*8))&255;
+            const int destination=image.rgba[i+c];
+            image.rgba[i+c]=std::clamp(destination+((source-destination)*int(alpha)>>7),0,255);
+        }
         if(choices.highlighted){
             const int top=(336+27*choices.cursor)/2,bottom=(363+27*choices.cursor)/2;
             for(int y=top;y<bottom;++y)for(int x=162;x<599;++x)for(unsigned c=0;c<3;++c){

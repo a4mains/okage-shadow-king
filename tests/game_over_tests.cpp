@@ -61,6 +61,11 @@ void strict_state_boundaries(){
     check(timeout.task.mode_state==10&&timeout.task.tick_counter==720,"Timeout equality720 waits");
     timeout.tick();check(timeout.task.mode_state==0x14&&timeout.task.tick_counter==721,
                          "Automatic transition occurs strictly above720");
+    Fixture wrapped;wrapped.task.tick_counter=0x7fffffffu;wrapped.tick();
+    check(wrapped.task.tick_counter==0x80000000u&&wrapped.task.mode_state==0,
+          "Signed counter overflow does not become a large positive timeout");
+    wrapped.task.mode_state=10;wrapped.task.image_alpha_bits=bits(1.f);wrapped.pad.pressed_word=0x40;
+    wrapped.tick();check(wrapped.task.mode_state==10,"Negative counter does not open input or timeout gates");
 }
 
 void input_and_alpha_order(){
@@ -91,7 +96,7 @@ void input_and_alpha_order(){
 void fade_out_and_request_order(){
     Fixture f;f.task.mode_state=0x14;f.task.tick_counter=10;f.task.image_alpha_bits=bits(.005f);
     f.tick();
-    check(f.task.image_alpha_bits==bits(.005f)-0x3c23d70au || value(f.task.image_alpha_bits)<0,
+    check(f.task.image_alpha_bits==bits(-.005f),
           "Fade-out subtracts without clamping");
     check(f.fades.size()==2&&f.fades[1]==value(f.task.image_alpha_bits)&&f.fades[1]<0,
           "Mode fade service receives raw negative overshoot");
