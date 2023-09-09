@@ -223,6 +223,21 @@ void SceneFade::tick() {
     publish();
 }
 unsigned SceneFade::alpha() const {return enabled ? published_rgba_>>24 : 0;}
+void SceneFade::apply(Texture& image) const {
+    if(!enabled)return;
+    if(published_rgba_==0xffffffffu)throw std::runtime_error("Per-grid scene fade colors are unrecovered");
+    if(image.rgba.size()!=std::size_t(image.width)*image.height*4)
+        throw std::runtime_error("Scene fade target extent");
+    const int a=alpha();
+    for(std::size_t i=0;i<image.rgba.size();i+=4) {
+        for(unsigned c=0;c<3;++c) {
+            const int source=(published_rgba_>>(c*8))&255;
+            const int destination=image.rgba[i+c];
+            image.rgba[i+c]=std::clamp(destination+((source-destination)*a>>7),0,255);
+        }
+        image.rgba[i+3]=a;
+    }
+}
 void DialogueOpening::initialize(DialogueText& text,TextClock& clock,DialogueController& controller,
                                 DialogueOpacity& body,DialogueClosure& closure) {
     // Text allocator/default style plus field descriptor: body font2,

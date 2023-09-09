@@ -43,6 +43,7 @@ struct SceneFade {
     void script_request(unsigned percent,int color_mode);
     void tick();
     unsigned alpha() const;
+    void apply(Texture&) const; //Layer2's full-target ALPHA44 RGBA write.
     std::uint32_t published_color() const {return published_rgba_&0xffffffu;}
 private:
     //114cb0 changes only color;114a70 publishes the separately queued layer.

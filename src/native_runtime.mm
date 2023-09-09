@@ -6,6 +6,7 @@
 #include "okage/game_mode.hpp"
 #include "okage/scene_resource.hpp"
 #include "battle_session.hpp"
+#include "game_over_session.hpp"
 #include "okage/field.hpp"
 #include "okage/music.hpp"
 #include "okage/audio_output.hpp"
@@ -237,6 +238,8 @@ struct Session {
     std::optional<okage::GameModeParent> game_mode;
     std::unique_ptr<okage::BattleSession> battle;
     std::unique_ptr<okage::DefeatFieldReturn> defeat_return;
+    std::unique_ptr<okage::GameOverSession> game_over;
+    okage::GameOverShared game_over_shared;
     fs::path battle_input;
     fs::path battle_construction_report;
     fs::path battle_stage_report;
@@ -590,6 +593,10 @@ struct Session {
             observe_game_mode(0);
             game_mode->tick([this]{
                 if(battle)retire_battle();
+                else if(game_over) {
+                    game_over->retire(*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,ui_shared);
+                    std::cout<<"Native game-over resource/task destroyed frame="<<frame<<'\n';
+                }
                 else if(defeat_return) {
                     defeat_return->retire(*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,ui_shared,scene_fade);
                     std::cout<<"Native defeat return resource/field destroyed frame="<<frame<<'\n';
@@ -605,15 +612,28 @@ struct Session {
                     defeat_return.reset();
                     std::cout<<"Native defeat return field freed frame="<<frame<<'\n';
                 }
+                if(game_over) {
+                    if(game_over->resource_live())throw std::runtime_error("Game-over task freed before resource destructor");
+                    game_over.reset();
+                    std::cout<<"Native game-over task freed frame="<<frame<<'\n';
+                }
                 if(field||renderer||!actor_bindings.empty()||!actor_objects.empty()||map_objects)
                     throw std::runtime_error("Field borrowers survived mode retirement");
             },[this](okage::GameModeSelection selection){
-                if(battle||field||defeat_return||!reset_camera)
+                if(battle||field||defeat_return||game_over||!reset_camera)
                     throw std::runtime_error("Native mode construction has surviving scene owners");
                 if(selection[0]==2&&pending_game_command[0]==2) {
                     defeat_return=std::make_unique<okage::DefeatFieldReturn>(variables,pending_game_command,
                         scene_fade,scene_clear,ui_shared);
                     std::cout<<"Native defeat return field constructed frame="<<frame<<'\n';
+                    return;
+                }
+                if(selection==okage::GameModeSelection{8,4,0}) {
+                    game_over=std::make_unique<okage::GameOverSession>(scene_clear,scene_fade,ui_shared,game_over_shared,
+                        okage::GameOverConstruction{[this]{if(music)music->stop();},[this]{
+                            return readData(field_root.parent_path()/"CMNDATA/2D/SCR.XPF/gameover.xim");
+                        }});
+                    std::cout<<"Native game-over task constructed frame="<<frame<<'\n';
                     return;
                 }
                 if(selection[0]!=3||battle_input.empty())
@@ -636,6 +656,14 @@ struct Session {
             });
             defeat_return->resource().tick(*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,
                 ui_shared,ui_fonts,battle_capture_sine,random);
+        }
+        if(game_over&&game_over->resource_live()) {
+            game_over->tick({input.repeat,input.pressed,{128,128,128,128}},game_over_shared,scene_fade,
+                *reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,ui_shared,
+                ui_fonts,battle_capture_sine,random,[this](okage::GameModeSelection selection){
+                    game_mode->request(selection);
+                    std::cout<<"Native game-over requested mode="<<selection[0]<<" arg="<<selection[1]<<" frame="<<frame<<'\n';
+                });
         }
         if(battle&&battle->resource_live()) {
             try {battle->tick(retiring_effects?&*retiring_effects:nullptr,projection,scene_clear,
@@ -923,18 +951,15 @@ struct Session {
             image=*battle->rendered_image();
         } else if(defeat_return&&defeat_return->resource().rendered_image()) {
             image=*defeat_return->resource().rendered_image();
+        } else if(game_over&&game_over->rendered_image()) {
+            image=*game_over->rendered_image();
         } else {
             for(std::size_t i=0;i<image.rgba.size();i+=4) {
                 for(unsigned c=0;c<3;++c)image.rgba[i+c]=scene_clear.rgb[c];
                 image.rgba[i+3]=battle&&battle->resource_live()?64:0;
             }
         }
-        const auto alpha=scene_fade.alpha();
-        for(std::size_t i=0;i<image.rgba.size();i+=4)for(unsigned c=0;c<3;++c) {
-            const int source=(scene_fade.published_color()>>(c*8))&255;
-            const int destination=image.rgba[i+c];
-            image.rgba[i+c]=std::clamp(destination+((source-destination)*int(alpha)>>7),0,255);
-        }
+        scene_fade.apply(image);
         if(choices.highlighted){
             const int top=(336+27*choices.cursor)/2,bottom=(363+27*choices.cursor)/2;
             for(int y=top;y<bottom;++y)for(int x=162;x<599;++x)for(unsigned c=0;c<3;++c){
@@ -1090,6 +1115,10 @@ static void capture(const Session& session,const fs::path& path) {
          <<",\n  \"game_mode\": "<<(session.game_mode?session.game_mode->current()[0]:0)
          <<",\n  \"game_mode_parent_phase\": "<<(session.game_mode?session.game_mode->phase():0)
          <<",\n  \"game_mode_dead_allocation\": "<<(session.game_mode&&session.game_mode->has_dead_allocation()?"true":"false")
+         <<",\n  \"game_over_resource_live\": "<<(session.game_over&&session.game_over->resource_live()?"true":"false")
+         <<",\n  \"game_over_state\": "<<(session.game_over?session.game_over->state().mode_state:0)
+         <<",\n  \"game_over_ticks\": "<<(session.game_over?session.game_over->state().tick_counter:0)
+         <<",\n  \"game_over_image_alpha_bits\": "<<(session.game_over?session.game_over->state().image_alpha_bits:0)
          <<",\n  \"field_camera_mode\": "<<(session.field?session.field->camera_mode():0)
          <<",\n  \"interaction_alias\": "<<(session.field?session.field->interaction_alias():0)
          <<",\n  \"interaction_event\": "<<(session.field?session.field->interaction_event():0)

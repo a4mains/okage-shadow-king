@@ -254,6 +254,13 @@ int main() {try {
     fade.color=0x123456;fade.immediate(0);fade.color=0;
     require(fade.published_color()==0x123456&&fade.alpha()==128);
     fade.tick();require(fade.published_color()==0&&fade.alpha()==128);
+    okage::Texture faded{1,1,0,0,{255,100,1,64}};
+    fade.immediate(.5f);fade.apply(faded);
+    require(faded.rgba==std::vector<std::uint8_t>{127,50,0,64});
+    fade.immediate(-.009f);fade.apply(faded);
+    require(faded.rgba==std::vector<std::uint8_t>{0,0,0,129});
+    fade.enabled=false;faded.rgba={1,2,3,128};fade.apply(faded);
+    require(faded.rgba==std::vector<std::uint8_t>{1,2,3,128});
     fade.current=.5f;fade.color=0x123456;fade.script_request(0,0);
     require(fade.target==0&&fade.color==0&&fade.enabled&&fade.hold);
     fade.script_request(50,1);require(fade.color==0xffffff&&fade.target>.49f&&fade.target<=.5f);
