@@ -29,6 +29,7 @@
 #include <atomic>
 #include <bit>
 #include <cctype>
+#include <chrono>
 #include <cfenv>
 #include <cmath>
 #include <fstream>
@@ -67,6 +68,7 @@ fs::path archive_path(const fs::path& root,std::string path) {
 }
 using StageScratch=SceneStageScratch;
 struct UiTextureOwner {id<MTLTexture> texture;};
+constexpr LoadJobIdentity battle_load_identity{0x14a118,0};
 }
 struct BattleSession::Impl {
     unsigned formation;
@@ -137,6 +139,8 @@ struct BattleSession::Impl {
     MapEffects effects;
     EffectSubmissions effect_submissions;
     BattleRoster roster{root};
+    const bool observe_loading;
+    std::uint64_t load_job_id=0;
     // Last member: its destructor joins before any job-captured owners die.
     NativeLoadQueue jobs;
     void retire_root() {
@@ -152,17 +156,19 @@ struct BattleSession::Impl {
         root_retired=true;
     }
     Impl(unsigned f,int s,fs::path i,fs::path d,Bytes variables,BattleEntryContext& entry,Animation& channels,
-         Bytes effect_data,fs::path textures,std::shared_ptr<const EffectTemplatePreparation> preparation):
+         Bytes effect_data,fs::path textures,std::shared_ptr<const EffectTemplatePreparation> preparation,
+         std::size_t observation_capacity):
         formation(f),stage(s),input(std::move(i)),decoded(std::move(d)),
         alternate_interface(variables.size()>12&&variables[12]!=0),camera_channels(channels),
         effect_definitions(resolve_effect_references(read_efd(effect_data))),effect_textures(std::move(textures)),
-        effect_preparation(std::move(preparation)) {
+        effect_preparation(std::move(preparation)),observe_loading(observation_capacity!=0),
+        jobs(observation_capacity) {
         if(variables.size()<0xd78)throw std::runtime_error("Battle shared variable extent");
         if(event_variable(variables,0x40005)!=0)
             throw std::runtime_error("Battle wrapper bypass branch is unrecovered");
         root.initialize_root({1.f,formation,stage});entry.clear_prefix();
         stage_settings.emplace(SceneClearColor{{0,0,0}}); //100ef8 fresh resource clear.
-        jobs.enqueue([this]{load();});
+        load_job_id=jobs.enqueue([this]{load();},battle_load_identity);
     }
     id<MTLTexture> upload(const Texture& image) {
         auto descriptor=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm
@@ -218,6 +224,7 @@ struct BattleSession::Impl {
             camera_sequence=camera_data->sequence(stage);
             after_intro_sequence=camera_data->sequence(stage,true);
             resources_prepared.store(true,std::memory_order_release);
+            if(observe_loading)jobs.observe(LoadEventKind::Prepared,load_job_id,battle_load_identity);
         }
     }
     unsigned spawn_effect(int id,const Float4& point,GameRandom& random,bool source_w_available) {
@@ -939,9 +946,10 @@ struct BattleSession::Impl {
 BattleSession::BattleSession(unsigned formation,int stage,const fs::path& input,
                             const fs::path& decoded,Bytes variables,BattleEntryContext& entry,Animation& camera,
                             Bytes effect_data,const fs::path& effect_textures,
-                            std::shared_ptr<const EffectTemplatePreparation> effect_preparation):
+                            std::shared_ptr<const EffectTemplatePreparation> effect_preparation,
+                            std::size_t observation_capacity):
     impl_(std::make_unique<Impl>(formation,stage,input,decoded,variables,entry,camera,effect_data,
-                                effect_textures,std::move(effect_preparation))) {}
+                                effect_textures,std::move(effect_preparation),observation_capacity)) {}
 BattleSession::~BattleSession()=default;
 void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& projection,SceneClearColor& clear,
                          BattleUiContext context,unsigned frame,const fs::path& stage_report,const fs::path& ui_update_report) {
@@ -1047,11 +1055,15 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
 }
 void BattleSession::service_loader_after_frame(BattleConstructionContext context,unsigned frame,const fs::path& report){
     if(impl_->resource_retired)return;
+    if(impl_->observe_loading&&impl_->construction==Impl::Construction::Preparing)
+        impl_->jobs.observe(LoadEventKind::Poll,impl_->load_job_id,battle_load_identity,frame);
     impl_->jobs.check();
     if(!impl_->loader_resumed){impl_->jobs.resume();impl_->loader_resumed=true;return;}
     if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
     if(impl_->construction!=Impl::Construction::Preparing||!impl_->resources_prepared.load(std::memory_order_acquire))return;
     if(impl_->jobs.pending()!=0)return;
+    if(impl_->observe_loading)
+        impl_->jobs.observe(LoadEventKind::MainContinuation,impl_->load_job_id,battle_load_identity,frame);
     impl_->construction=Impl::Construction::Constructing;
     const auto rng_before=context.random.state;
     std::string error;
@@ -1078,6 +1090,44 @@ void BattleSession::service_loader_after_frame(BattleConstructionContext context
     if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
 }
 const BattleState& BattleSession::state() const{return impl_->root;}
+void BattleSession::write_load_observation(std::ostream& destination) const {
+    const auto snapshot=impl_->jobs.observation();
+    const auto name=[](LoadEventKind kind)->const char* {
+        switch(kind) {
+            case LoadEventKind::Enqueue:return "enqueue";
+            case LoadEventKind::Resume:return "resume";
+            case LoadEventKind::WorkStart:return "work_start";
+            case LoadEventKind::WorkComplete:return "work_complete";
+            case LoadEventKind::WorkFailure:return "work_failure";
+            case LoadEventKind::Poll:return "poll";
+            case LoadEventKind::Prepared:return "prepared";
+            case LoadEventKind::MainContinuation:return "main_continuation";
+        }
+        throw std::runtime_error("Unknown loader observation event");
+    };
+    std::ostringstream out;
+    out<<"{\"schema\":\"okage-native-battle-load-v1\",\"enabled\":"
+       <<(impl_->observe_loading?"true":"false")
+       <<",\"clock\":\"host steady_clock; unspecified epoch; observation only\""
+       <<",\"dropped\":"<<snapshot.dropped<<",\"events\":[";
+    bool comma=false;
+    for(const auto& event:snapshot.events) {
+        if(comma)out<<',';comma=true;
+        std::ostringstream thread;thread<<event.thread;
+        out<<"{\"seq\":"<<event.sequence<<",\"kind\":"<<std::quoted(name(event.kind))
+           <<",\"job\":"<<event.job<<",\"source\":"<<event.identity.source
+           <<",\"task\":"<<event.identity.task<<",\"pending\":"<<event.pending
+           <<",\"running\":"<<event.running_job<<",\"resumed\":"<<(event.resumed?"true":"false")
+           <<",\"failed\":"<<(event.failed?"true":"false")<<",\"tick\":";
+        if(event.logical_tick)out<<*event.logical_tick;else out<<"null";
+        out<<",\"host_monotonic_ns\":"
+           <<std::chrono::duration_cast<std::chrono::nanoseconds>(event.host_time.time_since_epoch()).count()
+           <<",\"thread\":"<<std::quoted(thread.str())<<'}';
+    }
+    out<<"]}\n";
+    destination<<out.str();
+    if(!destination)throw std::runtime_error("Cannot write battle loader observation");
+}
 bool BattleSession::resource_live() const{return !impl_->resource_retired;}
 RetiringSceneEffects BattleSession::retire_resource(BattleUiShared& shared,FieldProjection& projection) {
     impl_->jobs.check();

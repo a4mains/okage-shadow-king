@@ -54,7 +54,8 @@ public:
                   const std::filesystem::path& decoded,Bytes shared_variables,
                   BattleEntryContext& entry,Animation& scene_camera,Bytes effect_data,
                   const std::filesystem::path& effect_textures,
-                  std::shared_ptr<const EffectTemplatePreparation> effect_preparation);
+                  std::shared_ptr<const EffectTemplatePreparation> effect_preparation,
+                  std::size_t observation_capacity=0);
     ~BattleSession();
     BattleSession(const BattleSession&)=delete;
     BattleSession& operator=(const BattleSession&)=delete;
@@ -68,6 +69,7 @@ public:
     //Read-only endpoint observation; float lanes are raw bits, no simulation.
     void write_effect_observation(std::ostream&,unsigned frame) const;
     void write_actor_observation(std::ostream&,unsigned frame) const;
+    void write_load_observation(std::ostream&) const;
     const Texture* rendered_image() const;
     std::array<std::uint32_t,7> observation() const;
 private:
