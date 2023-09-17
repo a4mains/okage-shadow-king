@@ -245,6 +245,16 @@ struct Session {
     fs::path battle_stage_report;
     fs::path battle_ui_update_report;
     std::ostream* battle_live_trace=nullptr;
+    std::ostream* load_observation_trace=nullptr;
+    bool load_observation_written=false;
+    void write_load_observation(const char* boundary) {
+        if(!load_observation_trace||!battle||load_observation_written)return;
+        auto& out=*load_observation_trace;
+        out<<"{\"frame\":"<<frame<<",\"boundary\":\""<<boundary<<"\",\"queue\":";
+        battle->write_load_observation(out);out<<"}\n";out.flush();
+        if(!out)throw std::runtime_error("Native loader observation write failed");
+        load_observation_written=true;
+    }
     std::vector<std::uint32_t> battle_loading_trace;
     std::vector<std::uint32_t> game_mode_trace,retiring_effect_trace;
     bool retain_field_music=false;
@@ -604,6 +614,7 @@ struct Session {
             },[this]{
                 if(battle) {
                     if(battle->resource_live())throw std::runtime_error("Battle wrapper freed before resource destructor");
+                    write_load_observation("wrapper_free");
                     battle.reset();
                     std::cout<<"Native battle wrapper freed frame="<<frame<<'\n';
                 }
@@ -646,7 +657,9 @@ struct Session {
                 scene_clear.rgb={0,0,0};scene_fade.color=0; //100ef8 fresh resource.
                 okage::initialize_scene_ui(ui_shared);
                 battle=std::make_unique<okage::BattleSession>(selection[1],stage,battle_input,
-                    field_root.parent_path(),variables,battle_entry,*reset_camera,effect_bytes,effect_textures,effect_preparation);
+                    field_root.parent_path(),variables,battle_entry,*reset_camera,effect_bytes,effect_textures,effect_preparation,
+                    load_observation_trace?8192:0);
+                load_observation_written=false;
             });
         }
         if(defeat_return&&defeat_return->resource().live()) {
@@ -889,6 +902,8 @@ struct Session {
             catch(const std::exception& error) {
                 throw std::runtime_error("Native battle construction frame="+std::to_string(frame)+": "+error.what());
             }
+            if(load_observation_trace&&!load_observation_written&&battle->observation()[2]==6)
+                write_load_observation("constructed");
         }
     }
     void render_frame() {
@@ -1490,11 +1505,11 @@ static void captureView(NSView* view,const fs::path& path) {
 @end
 int main(int argc,const char** argv) {
     @autoreleasepool {try {
-        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --buttons INPUT (held non-directional masks; bounded replay only) --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--performance-report FRESH.jsonl (interactive/preview/UI test)]");
+        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --buttons INPUT (held non-directional masks; bounded replay only) --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--load-observation FRESH.jsonl (bounded replay; host scheduling diagnostics)] [--performance-report FRESH.jsonl (interactive/preview/UI test)]");
         unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions,buttons;bool hasButtons=false;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures,battleInput;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         std::optional<fs::path> performancePath;
-        fs::path uiUpdateReport,battleLivePath;
-        std::ofstream battleLiveTrace;
+        fs::path uiUpdateReport,battleLivePath,loadObservationPath;
+        std::ofstream battleLiveTrace,loadObservationTrace;
         std::vector<okage::NativeRenderRange> renderRanges;
         for(int i=3;i<argc;++i) {
             const std::string arg=argv[i];if(++i==argc)throw std::runtime_error("Missing native runtime option value");
@@ -1533,6 +1548,10 @@ int main(int argc,const char** argv) {
                 if(!battleLivePath.empty()||!argv[i][0])throw std::runtime_error("Battle-live requires one nonempty fresh path");
                 battleLivePath=argv[i];
             }
+            else if(arg=="--load-observation") {
+                if(!loadObservationPath.empty()||!argv[i][0])throw std::runtime_error("Loader observation requires one nonempty fresh path");
+                loadObservationPath=argv[i];
+            }
             else if(arg=="--ui-update-diagnostic") {
                 if(!uiUpdateReport.empty()||!argv[i][0])throw std::runtime_error("UI-update diagnostic requires one nonempty fresh path");
                 uiUpdateReport=argv[i];
@@ -1559,6 +1578,19 @@ int main(int argc,const char** argv) {
         if(!soundDirectory.empty() && musicSequence.empty())throw std::runtime_error("Sound directory requires native music setup");
         if(effectData.empty()!=effectTextures.empty()||(!effectData.empty()&&map.empty()))throw std::runtime_error("Effects require data, texture directory and scene");
         if(map.empty()!=event.empty() || (!actors.empty() && map.empty()))throw std::runtime_error("Scene requires both map and event assets");
+        if(!loadObservationPath.empty()) {
+            if(!frames||previewAt||uiFrames||battleInput.empty())
+                throw std::runtime_error("Loader observation requires bounded --frames and owned --battle-input");
+            if(fs::exists(loadObservationPath)||fs::is_symlink(loadObservationPath)||
+                (!output.empty()&&okage::native_capture_family_contains(output,loadObservationPath))||
+                (!uiUpdateReport.empty()&&fs::weakly_canonical(uiUpdateReport)==fs::weakly_canonical(loadObservationPath))||
+                (!battleLivePath.empty()&&fs::weakly_canonical(battleLivePath)==fs::weakly_canonical(loadObservationPath))||
+                (performancePath&&fs::weakly_canonical(*performancePath)==fs::weakly_canonical(loadObservationPath)))
+                throw std::runtime_error("Loader observation refuses an existing or aliased output");
+            loadObservationTrace.open(loadObservationPath);
+            loadObservationTrace<<"{\"schema\":\"okage-native-loader-observation-v1\",\"capacity_per_battle\":8192,\"scope\":\"opt-in native host events; may perturb scheduling; worker events have no guessed simulation tick; no original timing equivalence\"}\n";
+            if(!loadObservationTrace)throw std::runtime_error("Cannot create native loader observation");
+        }
         if(!battleLivePath.empty()) {
             if(!frames||battleInput.empty())throw std::runtime_error("Native battle-live requires bounded --frames and owned --battle-input");
             if(fs::exists(battleLivePath)||fs::is_symlink(battleLivePath)||
@@ -1609,6 +1641,7 @@ int main(int argc,const char** argv) {
             session.battle_input=battleInput;
             session.battle_ui_update_report=uiUpdateReport;
             session.battle_live_trace=battleLivePath.empty()?nullptr:&battleLiveTrace;
+            session.load_observation_trace=loadObservationPath.empty()?nullptr:&loadObservationTrace;
             if(!output.empty())session.battle_construction_report=output.string()+".battle-construction.json";
             if(!output.empty())session.battle_stage_report=output.string()+".battle-stage.json";
             session.live_presentation_enabled=previewAt!=0;
@@ -1617,7 +1650,7 @@ int main(int argc,const char** argv) {
             if(!musicSequence.empty())session.load_music(musicSequence,musicBank,!output.empty(),soundDirectory);
             if(!effectData.empty())session.load_effects(effectData,effectTextures);
             std::uint16_t previous=0;std::size_t selected=0;
-            for(unsigned i=1;i<=replayFrames;++i) {
+            try {for(unsigned i=1;i<=replayFrames;++i) {
                 const std::uint16_t mask=std::find(presses.begin(),presses.end(),i)!=presses.end()?0x40:0;
                 const auto held=std::uint16_t(directions.held(i)|buttons.held(i));
                 session.tick({std::uint16_t(mask|held),std::uint16_t(mask|(held&~previous))});previous=held;
@@ -1630,7 +1663,13 @@ int main(int argc,const char** argv) {
                     frameManifest<<"}";
                     ++selected;
                 }
+            }} catch(...) {
+                const auto failure=std::current_exception();
+                try {session.write_load_observation("replay_failure");}
+                catch(const std::exception& error){std::cerr<<error.what()<<'\n';}
+                std::rethrow_exception(failure);
             }
+            session.write_load_observation("replay_end");
             if(!captureFrames.empty()) {
                 frameManifest<<"\n  ],\n  \"complete\": true\n}\n";frameManifest.close();
                 if(!frameManifest||selected!=captureFrames.size())throw std::runtime_error("Incomplete native frame capture");
@@ -1638,6 +1677,10 @@ int main(int argc,const char** argv) {
             if(!runPlan.replay_capture.empty())capture(session,runPlan.replay_capture);
             std::cout<<"Native frames="<<session.frame<<" progress="<<session.text.state.progress<<" wait_release="<<session.release_frame<<std::endl;
             if(frames) {
+                if(!loadObservationPath.empty()) {
+                    loadObservationTrace<<"{\"event\":\"finish\",\"frame\":"<<session.frame<<"}\n";loadObservationTrace.flush();
+                    if(!loadObservationTrace)throw std::runtime_error("Native loader observation finish write failed");
+                }
                 if(!battleLivePath.empty()) {
                     battleLiveTrace<<"{\"event\":\"finish\",\"frame\":"<<session.frame<<"}\n";battleLiveTrace.flush();
                     if(!battleLiveTrace)throw std::runtime_error("Native battle-live finish write failed");

@@ -1124,7 +1124,7 @@ void BattleSession::write_load_observation(std::ostream& destination) const {
            <<std::chrono::duration_cast<std::chrono::nanoseconds>(event.host_time.time_since_epoch()).count()
            <<",\"thread\":"<<std::quoted(thread.str())<<'}';
     }
-    out<<"]}\n";
+    out<<"]}";
     destination<<out.str();
     if(!destination)throw std::runtime_error("Cannot write battle loader observation");
 }
