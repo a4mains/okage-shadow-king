@@ -109,7 +109,7 @@ void refresh(std::span<std::uint8_t> b,const GameDataTables& tables,unsigned slo
 GameDataTables::GameDataTables(Bytes battle_data,Bytes item_data) {
     std::size_t unit_start=0;
     units_=records<27>(battle_data,"unit",{0,1},1,&unit_model_names_,false,&unit_start);
-    items_=records<15>(item_data,"item",{0,14});
+    items_=records<15>(item_data,"item",{0,14},0,&item_names_);
     (void)records<1>(battle_data,"sysmes",{0},0,&system_messages_,true);
     std::vector<std::string> names,descriptions;
     const auto actions=records<13>(battle_data,"waza",{0,12},0,&names,true);
@@ -148,6 +148,10 @@ const std::array<std::uint32_t,15>& GameDataTables::item(int id) const {
     if(id<1||std::size_t(id)>items_.size())throw std::runtime_error("Game item ID bounds");
     return items_[id-1];
 }
+const std::string& GameDataTables::item_name(int id) const {
+    if(id<1||std::size_t(id)>item_names_.size())throw std::runtime_error("Game item ID bounds");
+    return item_names_[id-1];
+}
 const GameActionRecord& GameDataTables::action(int id) const {
     if(id<0||std::size_t(id)>=actions_.size())throw std::runtime_error("Game waza action bounds/owner");
     return actions_[unsigned(id)];
@@ -157,6 +161,26 @@ void refresh_game_character(const GameDataTables& tables,std::span<std::uint8_t>
     auto storage=copy_variables(variables);
     refresh(storage,tables,slot);
     std::copy(storage.begin(),storage.end(),variables.begin());
+}
+std::array<std::uint8_t,0x52> snapshot_game_character_at_level(
+    std::span<std::uint8_t> variables,const GameDataTables& tables,
+    unsigned slot,std::int16_t level) {
+    if(slot>=8)throw std::runtime_error("Game character slot bounds");
+    const auto at=std::size_t(0x5c4)+std::size_t(slot)*0x50;
+    if(at>variables.size()||variables.size()-at<0x52)
+        throw std::runtime_error("Game character snapshot bounds");
+
+    std::vector<std::uint8_t> storage(variables.begin(),variables.end());
+    const auto saved_level=half(storage,at+4);
+    half(storage,at+4,std::bit_cast<std::uint16_t>(level));
+    refresh(storage,tables,slot);
+    std::array<std::uint8_t,0x52> result{};
+    std::copy_n(storage.begin()+at,result.size(),result.begin());
+
+    half(storage,at+4,saved_level);
+    refresh(storage,tables,slot);
+    std::copy(storage.begin(),storage.end(),variables.begin());
+    return result;
 }
 void refresh_game_characters(std::span<std::uint8_t> variables,const GameDataTables& tables,unsigned mask) {
     auto storage=copy_variables(variables);std::span<std::uint8_t> b=storage;

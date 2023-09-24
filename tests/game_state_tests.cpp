@@ -145,6 +145,99 @@ void refresh_one_record() {
     okage::refresh_game_character(data,vars,7);
     require(get16(vars,last+0x18)==100&&get32(vars,last+8)==0);
 }
+void owned_item_names() {
+    auto units=make_xdb("unit",make_units(1),{0,1});
+    auto items=make_xdb("item",make_items(2),{0,14});
+    okage::GameDataTables parsed(units,items);
+    const auto first_record=parsed.item(1);
+    require(parsed.item_name(1)=="item-row-1-word-0");
+    require(parsed.item_name(2)=="item-row-2-word-0");
+    for(int id:{0,-1,3,2147483647})rejects([&]{(void)parsed.item_name(id);});
+
+    auto malformed=items;
+    put32(malformed,48,0xffffffffu); // First item's name offset is invalid.
+    rejects([&]{okage::GameDataTables bad(units,malformed);});
+    malformed=items;
+    put32(malformed,48,get32(malformed,8)-1);
+    malformed.back()='X';
+    rejects([&]{okage::GameDataTables bad(units,malformed);});
+
+    std::fill(units.begin(),units.end(),0);
+    std::fill(items.begin(),items.end(),0);
+    require(parsed.item(1)==first_record);
+    require(parsed.item_name(1)=="item-row-1-word-0");
+    require(parsed.item_name(2)=="item-row-2-word-0");
+    const auto after_buffers_die=[] {
+        const auto owned_units=make_xdb("unit",make_units(1),{0,1});
+        const auto owned_items=make_xdb("item",make_items(2),{0,14});
+        return okage::GameDataTables(owned_units,owned_items);
+    }();
+    require(after_buffers_die.item_name(1)=="item-row-1-word-0");
+    require(after_buffers_die.item_name(2)=="item-row-2-word-0");
+}
+void snapshot_at_temporary_level() {
+    auto units=make_units(1);
+    units[0][2]=100; units[0][3]=196;
+    units[0][4]=50; units[0][5]=98;
+    auto items=make_items(1);
+    items[0][2]=0x10; items[0][5]=7;
+    const auto data=tables(units,items);
+    std::vector<std::uint8_t> vars(0xd78,0xa5);
+    constexpr unsigned slot=2;
+    const std::size_t at=0x5c4+slot*0x50;
+    std::fill_n(vars.begin()+at,0x50,0);
+    vars[at]=1; vars[at+1]=4;
+    put16(vars,at+2,1); put16(vars,at+4,1);
+    put32(vars,at+8,0x12345678); // Snapshot/refresh must not heal HP.
+    put16(vars,at+0xc,5);
+    put16(vars,at+0x14,2);
+    put16(vars,at+0x20,1); // Authored equipment adds seven to attack.
+    vars[at+0x50]=0x3c; vars[at+0x51]=0xd2; // Next record's first two bytes.
+    const auto before=vars;
+
+    const auto snapshot=okage::snapshot_game_character_at_level(vars,data,slot,3);
+    require(get16(std::vector<std::uint8_t>(snapshot.begin(),snapshot.end()),4)==3);
+    require(get16(std::vector<std::uint8_t>(snapshot.begin(),snapshot.end()),0x18)==109);
+    require(get16(std::vector<std::uint8_t>(snapshot.begin(),snapshot.end()),0x1a)==59);
+    require(snapshot[0x50]==0x3c&&snapshot[0x51]==0xd2);
+
+    // The owner's level is restored and its last derived refresh is at level 1.
+    require(get16(vars,at+4)==1);
+    require(get16(vars,at+0x18)==105);
+    require(get16(vars,at+0x1a)==57);
+    require(get32(vars,at+8)==0x12345678);
+    require(get16(vars,at+0x20)==1);
+    require(std::equal(vars.begin(),vars.begin()+at,before.begin()));
+    require(std::equal(vars.begin()+at+0x50,vars.end(),before.begin()+at+0x50));
+
+    for(unsigned bad_slot:{8u,0xffffffffu}) {
+        const auto unchanged=vars;
+        rejects([&]{(void)okage::snapshot_game_character_at_level(vars,data,bad_slot,3);});
+        require(vars==unchanged);
+    }
+    const auto unchanged=vars;
+    auto too_short=std::span<std::uint8_t>(vars).first(at+0x51);
+    rejects([&]{(void)okage::snapshot_game_character_at_level(too_short,data,slot,3);});
+    require(vars==unchanged);
+    auto invalid=vars;
+    put16(invalid,at+2,2);
+    const auto invalid_before=invalid;
+    rejects([&]{(void)okage::snapshot_game_character_at_level(invalid,data,slot,3);});
+    require(invalid==invalid_before);
+
+    constexpr unsigned last_slot=7;
+    constexpr std::size_t last_at=0x5c4+last_slot*0x50;
+    std::fill_n(vars.begin()+last_at,0x50,0);
+    vars[last_at]=1; put16(vars,last_at+2,1); put16(vars,last_at+4,1);
+    put32(vars,last_at+8,0x87654321);
+    vars[last_at+0x50]=0x6e; vars[last_at+0x51]=0xa9;
+    const auto last_snapshot=okage::snapshot_game_character_at_level(vars,data,last_slot,2);
+    require(last_snapshot.size()==0x52);
+    require(last_snapshot[0x50]==0x6e&&last_snapshot[0x51]==0xa9);
+    require(get32(vars,last_at+8)==0x87654321&&get16(vars,last_at+4)==1);
+    auto last_short=std::span<std::uint8_t>(vars).first(last_at+0x51);
+    rejects([&]{(void)okage::snapshot_game_character_at_level(last_short,data,last_slot,2);});
+}
 void ui_records() {
     auto item=make_xdb("item",make_items(1),{0,14});
     auto prefix=make_units(1);prefix[0][2]=0xaabbccddu;prefix[0][26]=0xffffffffu;
@@ -217,7 +310,7 @@ int main(int argc,char** argv) {
         if(argc==4&&std::string_view(argv[1])=="--diagnostic") {
             diagnostic(argv[2],argv[3]);return 0;
         }
-        require(argc==1);ui_records();refresh_one_record();
+        require(argc==1);ui_records();refresh_one_record();owned_item_names();snapshot_at_temporary_level();
         {
             auto b=make_xdb_multi({
                 SectionFixture{"unit",make_units(1),{0,1}},

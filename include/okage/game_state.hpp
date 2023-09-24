@@ -29,6 +29,7 @@ public:
     // 0x1256a8 resolves the zero-based BKDATA sysmes table (battle UI uses 0xa6).
     const std::string& system_message(unsigned index) const;
     const std::array<std::uint32_t,15>& item(int id) const;
+    const std::string& item_name(int id) const;
     // Optional absent waza preserves nonbattle component fixtures; access fails.
     const GameActionRecord& action(int zero_based_id) const;
     std::size_t action_count() const {return actions_.size();}
@@ -38,11 +39,15 @@ private:
     std::vector<GameUnitUiRecord> ui_units_;
     std::optional<GameUnitUiRecord> preceding_ui_unit_;
     std::vector<std::string> system_messages_;
+    std::vector<std::string> item_names_;
     std::vector<std::array<std::uint32_t,27>> units_;
     std::vector<std::array<std::uint32_t,15>> items_;
 };
 void refresh_game_character(const GameDataTables& tables,
                             std::span<std::uint8_t> variables,unsigned slot);
+std::array<std::uint8_t,0x52> snapshot_game_character_at_level(
+    std::span<std::uint8_t> variables,const GameDataTables& tables,
+    unsigned slot,std::int16_t level);
 void refresh_game_characters(std::span<std::uint8_t> variables,const GameDataTables& tables,unsigned mask);
 // 0x125e10: increment the three inventory counts, equip and refresh one record.
 // This bounded API requires actual item IDs in the inventory range.
