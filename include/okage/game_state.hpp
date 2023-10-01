@@ -33,6 +33,7 @@ public:
     // Optional absent waza preserves nonbattle component fixtures; access fails.
     const GameActionRecord& action(int zero_based_id) const;
     std::size_t action_count() const {return actions_.size();}
+    std::int32_t learned_skill(int unit_id,int level) const;
 private:
     std::vector<GameActionRecord> actions_;
     std::vector<std::string> unit_model_names_;
@@ -42,6 +43,7 @@ private:
     std::vector<std::string> item_names_;
     std::vector<std::array<std::uint32_t,27>> units_;
     std::vector<std::array<std::uint32_t,15>> items_;
+    std::vector<std::array<std::uint32_t,6>> learned_skills_;
 };
 void refresh_game_character(const GameDataTables& tables,
                             std::span<std::uint8_t> variables,unsigned slot);

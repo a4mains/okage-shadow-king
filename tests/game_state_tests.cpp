@@ -175,6 +175,29 @@ void owned_item_names() {
     require(after_buffers_die.item_name(1)=="item-row-1-word-0");
     require(after_buffers_die.item_name(2)=="item-row-2-word-0");
 }
+void learned_skill_table() {
+    auto items=make_xdb("item",make_items(1),{0,14});
+    auto battle=make_xdb_multi({
+        {"unit",make_units(1),{0,1}},
+        {"learn",{{11,0,0x80000001u,14,15,16},{21,22,23,24,25,26}}, {}}
+    });
+    const okage::GameDataTables parsed(battle,items);
+    require(parsed.learned_skill(0xaa,0)==11);
+    require(parsed.learned_skill(0xab,0)==-1);
+    require(parsed.learned_skill(0xac,0)==-1); // signed negative table word
+    require(parsed.learned_skill(0xaf,0)==16);
+    require(parsed.learned_skill(0xad,1)==24);
+    require(parsed.learned_skill(0xa9,0)==-1 && parsed.learned_skill(0xb0,0)==-1);
+    rejects([&]{(void)parsed.learned_skill(0xaa,-1);});
+    rejects([&]{(void)parsed.learned_skill(0xaa,2);});
+    rejects([&]{(void)parsed.learned_skill(0xa9,2);}); // row read precedes unit-ID rejection
+
+    const auto absent=okage::GameDataTables(make_xdb("unit",make_units(1),{0,1}),items);
+    rejects([&]{(void)absent.learned_skill(0xaa,0);});
+    auto malformed=battle;
+    put32(malformed,32+16+8,11);
+    rejects([&]{okage::GameDataTables bad(malformed,items);});
+}
 void snapshot_at_temporary_level() {
     auto units=make_units(1);
     units[0][2]=100; units[0][3]=196;
@@ -310,7 +333,7 @@ int main(int argc,char** argv) {
         if(argc==4&&std::string_view(argv[1])=="--diagnostic") {
             diagnostic(argv[2],argv[3]);return 0;
         }
-        require(argc==1);ui_records();refresh_one_record();owned_item_names();snapshot_at_temporary_level();
+        require(argc==1);ui_records();refresh_one_record();owned_item_names();learned_skill_table();snapshot_at_temporary_level();
         {
             auto b=make_xdb_multi({
                 SectionFixture{"unit",make_units(1),{0,1}},

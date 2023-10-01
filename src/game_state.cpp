@@ -110,6 +110,7 @@ GameDataTables::GameDataTables(Bytes battle_data,Bytes item_data) {
     std::size_t unit_start=0;
     units_=records<27>(battle_data,"unit",{0,1},1,&unit_model_names_,false,&unit_start);
     items_=records<15>(item_data,"item",{0,14},0,&item_names_);
+    learned_skills_=records<6>(battle_data,"learn",{},-1,nullptr,true);
     (void)records<1>(battle_data,"sysmes",{0},0,&system_messages_,true);
     std::vector<std::string> names,descriptions;
     const auto actions=records<13>(battle_data,"waza",{0,12},0,&names,true);
@@ -155,6 +156,13 @@ const std::string& GameDataTables::item_name(int id) const {
 const GameActionRecord& GameDataTables::action(int id) const {
     if(id<0||std::size_t(id)>=actions_.size())throw std::runtime_error("Game waza action bounds/owner");
     return actions_[unsigned(id)];
+}
+std::int32_t GameDataTables::learned_skill(int unit_id,int level) const {
+    if(level<0||std::size_t(level)>=learned_skills_.size())
+        throw std::runtime_error("Game learn level bounds/owner");
+    if(unit_id<0xaa||unit_id>0xaf)return -1;
+    const auto value=std::bit_cast<std::int32_t>(learned_skills_[std::size_t(level)][unsigned(unit_id-0xaa)]);
+    return value>0?value:-1;
 }
 void refresh_game_character(const GameDataTables& tables,std::span<std::uint8_t> variables,unsigned slot) {
     if(slot>=8)throw std::runtime_error("Game character slot bounds");
