@@ -172,11 +172,11 @@ bool ResultsProgress::update_character(unsigned row,bool initial,
         show(0,fmt(0x96,{first_name}),-1,true);
         show(1,fmt(0x97,{value_text(hud,bank(0,0x18))}),-1,true);
 
-        const auto current_level=bank(1,0x18);
-        r.set_text(13,idbase+2,fmt(0x98,{value_text(hud,current_level)}));
-        const auto next_level=advance(bank_offsets[1]+base+0x18,bank(5,0x18));
-        set_alpha(r,idbase+2,next_level!=bank(0,0x18));
-        set_alpha(r,int(row*6+0x16),next_level!=bank(0,0x18));
+        const auto current_hp=bank(1,0x18);
+        r.set_text(13,idbase+2,fmt(0x98,{value_text(hud,current_hp)}));
+        const auto next_hp=advance(bank_offsets[1]+base+0x18,bank(5,0x18));
+        set_alpha(r,idbase+2,next_hp!=bank(0,0x18));
+        set_alpha(r,int(row*6+0x16),next_hp!=bank(0,0x18));
 
         show(3,fmt(0x99,{value_text(hud,bank(0,6)%1000)}),-1,true);
 
