@@ -9,15 +9,15 @@
 namespace okage {
 struct UiWindowPacketTestAccess {
     static void set(UiWindow& w,unsigned at,std::uint32_t v){w.put(at,v);}
-    static void glyph(UiWindow& w,unsigned group,unsigned slot,std::array<float,4> p,std::array<float,4> m){for(unsigned i=0;i<4;++i){w.glyph_[0].put_word((group*16+slot)*16+i*4,__builtin_bit_cast(std::uint32_t, (p[i])));w.glyph_[1].put_word((group*16+slot)*16+i*4,__builtin_bit_cast(std::uint32_t, (m[i])));}}
-    static void sprite(UiWindow& w,unsigned slot,std::array<float,4> p,std::array<float,4> m){for(unsigned i=0;i<4;++i){w.sprite_[0].put_word(slot*16+i*4,__builtin_bit_cast(std::uint32_t, (p[i])));w.sprite_[1].put_word(slot*16+i*4,__builtin_bit_cast(std::uint32_t, (m[i])));}}
+    static void glyph(UiWindow& w,unsigned group,unsigned slot,std::array<float,4> p,std::array<float,4> m){for(unsigned i=0;i<4;++i){w.glyph_[0].put_word((group*16+slot)*16+i*4,std::bit_cast<std::uint32_t>(p[i]));w.glyph_[1].put_word((group*16+slot)*16+i*4,std::bit_cast<std::uint32_t>(m[i]));}}
+    static void sprite(UiWindow& w,unsigned slot,std::array<float,4> p,std::array<float,4> m){for(unsigned i=0;i<4;++i){w.sprite_[0].put_word(slot*16+i*4,std::bit_cast<std::uint32_t>(p[i]));w.sprite_[1].put_word(slot*16+i*4,std::bit_cast<std::uint32_t>(m[i]));}}
 };
 }
 namespace {
 using namespace okage;using K=UiPacketOperationKind;using V=std::array<float,4>;
 void require(bool b,const char* s){if(!b)throw std::runtime_error(s);}
 template<class F>void rejects(F f){try{f();}catch(const std::runtime_error&){return;}throw std::runtime_error("Expected packet guard");}
-std::uint32_t bits(float f){return __builtin_bit_cast(std::uint32_t, (f));}
+std::uint32_t bits(float f){return std::bit_cast<std::uint32_t>(f);}
 void put(UiWindow& w,unsigned at,std::uint32_t v){UiWindowPacketTestAccess::set(w,at,v);}
 void fput(UiWindow& w,unsigned at,float f){put(w,at,bits(f));}
 UiWindow window(){return UiWindow(2,2,0,std::make_shared<UiWindowStream>(UiWindowStream{1,{}}));}
@@ -58,6 +58,17 @@ void cursor_and_hidden(){auto w=window();auto c=context();
     require(w.build_glyph_packet({})==0&&w.word(0x3e24)==1,"Unavailable current group searches from group0");
     require(!w.glyph_packet(0,0)&&!w.glyph_packet(0,1),"Hidden scan creates no cache");
     put(w,0x3e24,0xffffffff);rejects([&]{w.build_glyph_packet(c);});
+}
+void results_glyph_capacity() {
+    UiWindow w(33,17,0,std::make_shared<UiWindowStream>(UiWindowStream{1,{}}));
+    for(unsigned g=0;g<33;++g)for(unsigned slot=0;slot<16;++slot)
+        UiWindowPacketTestAccess::glyph(w,g,slot,{0,0,0,0},{0,0,-1,0});
+    const auto c=context();put(w,0x3e24,32);put(w,0x268c,0);
+    UiWindowPacketTestAccess::glyph(w,32,0,{10,30,7,8521760},{20,10,65,0});
+    require(w.build_glyph_packet(c)==1,"Results33rd glyph group builds");
+    require(w.word(0x3e24)==33&&(w.word(0x3c88)&6)==2,"Results33rd glyph cursor/flags");
+    require(w.glyph_packet(32,0)&&w.glyph_packet(32,0)->fonts==c.fonts,"Results33rd glyph cache retains font");
+    require(!w.glyph_packet(31,0),"Results33rd group does not alias its neighbor");
 }
 void glyph_special_branches(){auto w=window();initialize_glyphs(w);auto c=context();put(w,0x268c,0);fput(w,0x560,0);fput(w,0x564,0);
     UiWindowPacketTestAccess::glyph(w,0,0,{0,12,0,8521760},{10,20,256,0});put(w,0x4f8,4);
@@ -111,4 +122,4 @@ void sprite_build(){auto w=window();bind_texture(w);auto c=context();put(w,0x269
     put(w,0x3e28,2);rejects([&]{w.build_sprite_packet(c);});
 }
 }
-int main(int argc,char** argv){try{glyph_build_and_ownership();cursor_and_hidden();glyph_special_branches();reveal_colors();sprite_build();for(int i=1;i<argc;++i)owned_font(argv[i]);std::cout<<"UI window packet tests passed\n";return 0;}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(int argc,char** argv){try{glyph_build_and_ownership();cursor_and_hidden();results_glyph_capacity();glyph_special_branches();reveal_colors();sprite_build();for(int i=1;i<argc;++i)owned_font(argv[i]);std::cout<<"UI window packet tests passed\n";return 0;}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

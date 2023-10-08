@@ -10,16 +10,16 @@ namespace okage {
 namespace {
 using I=std::int32_t;using V=std::array<float,4>;using Ops=std::vector<UiPacketOperation>;
 void check(bool b,const char* s){if(!b)throw std::runtime_error(s);}
-I si(std::uint32_t v){return __builtin_bit_cast(I, (v));}
+I si(std::uint32_t v){return std::bit_cast<I>(v);}
 I wrap_sub(I a,I b){return si(std::uint32_t(a)-std::uint32_t(b));}
-float ordinary(float f){auto v=__builtin_bit_cast(std::uint32_t, (f)),e=v&0x7f800000;check(e!=0x7f800000&&(e!=0||(v&0x7fffff)==0),"UI packet exceptional float");return f;}
+float ordinary(float f){auto v=std::bit_cast<std::uint32_t>(f),e=v&0x7f800000;check(e!=0x7f800000&&(e!=0||(v&0x7fffff)==0),"UI packet exceptional float");return f;}
 struct Rounding{std::fenv_t saved;Rounding(){check(std::fegetenv(&saved)==0,"UI packet save fenv");if(std::fesetround(FE_TOWARDZERO)){std::fesetenv(&saved);throw std::runtime_error("UI packet rounding");}}~Rounding(){std::fesetenv(&saved);}};
 float num(I v){volatile float f=static_cast<float>(v);return f;}
 I integer(float f){ordinary(f);check(double(f)>=-2147483648.&&double(f)<2147483648.,"UI packet CVT overflow");return static_cast<I>(f);}
 float calc(float a,float b,char op){volatile float x=ordinary(a),y=ordinary(b),z;check(std::feclearexcept(FE_OVERFLOW|FE_UNDERFLOW)==0,"UI packet clear exceptions");if(op=='+')z=x+y;else if(op=='-')z=x-y;else if(op=='*')z=x*y;else{check(y!=0,"UI packet zero divisor");z=x/y;}check(!(std::fetestexcept(FE_OVERFLOW|FE_UNDERFLOW)&(FE_OVERFLOW|FE_UNDERFLOW)),"UI packet overflow/underflow");return ordinary(z);}
 float add(float a,float b){return calc(a,b,'+');}float sub(float a,float b){return calc(a,b,'-');}float mul(float a,float b){return calc(a,b,'*');}float div(float a,float b){return calc(a,b,'/');}
-float value(const UiWindow& w,unsigned at){return ordinary(__builtin_bit_cast(float, (w.word(at))));}
-float value(const UiWindowBuffer& b,unsigned at){return ordinary(__builtin_bit_cast(float, (b.word(at))));}
+float value(const UiWindow& w,unsigned at){return ordinary(std::bit_cast<float>(w.word(at)));}
+float value(const UiWindowBuffer& b,unsigned at){return ordinary(std::bit_cast<float>(b.word(at)));}
 float uv(I v,bool half=true){return mul(half?add(num(v),.5f):num(v),1.f/1024.f);} //19c320/348.
 void op(Ops& o,UiPacketOperationKind k,unsigned helper,std::array<std::uint64_t,4> a={}){o.push_back({k,helper,a,{}});}
 void control(Ops& o,unsigned helper,std::uint64_t a=0){op(o,UiPacketOperationKind::CompilerBoundary,helper,{a});}
@@ -44,7 +44,7 @@ void UiWindow::reset_sprite_packets(){for(unsigned i=0;i<word(0x3c04);++i)put(0x
 const UiNativePacket* UiWindow::glyph_packet(unsigned g,unsigned s)const{check(g<word(0x3c00)&&s<2,"UI glyph packet owner bounds");const auto i=glyph_packets_.find({g,s});return i==glyph_packets_.end()?nullptr:&i->second;}
 const UiNativePacket* UiWindow::sprite_packet(unsigned g,unsigned s)const{check(g<word(0x3c04)&&s<2,"UI sprite packet owner bounds");const auto i=sprite_packets_.find({g,s});return i==sprite_packets_.end()?nullptr:&i->second;}
 int UiWindow::build_glyph_packet(const UiPacketBuildContext& c){
-    const I capacity=si(word(0x3c00)),cursor=si(word(0x3e24));check(capacity>0&&capacity<=32&&cursor>=0,"UI glyph packet cursor");
+    const I capacity=si(word(0x3c00)),cursor=si(word(0x3e24));check(capacity>0&&capacity<=33&&cursor>=0,"UI glyph packet cursor");
     unsigned group=unsigned(cursor%capacity);
     if(!(word(0x3c08+group*4)&4))for(unsigned i=0;i<unsigned(capacity);++i)if(word(0x3c08+i*4)&4){group=i;break;}
     const unsigned base=group*256;Rounding rounding;const bool encoded=(word(0x4f8)&4)!=0;

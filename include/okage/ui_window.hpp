@@ -103,6 +103,7 @@ public:
     void set_opacity_tween(float increment,float current,
                            std::uint32_t lower,std::uint32_t upper);
     float opacity() const;
+    void reset_for_open();
     // 1a5488: change bit0x1000 only. No layout pass runs in this setter.
     void set_layout_enabled(bool enabled);
     //1a56d0: raw scalar write to4f8; registry lookup belongs to the caller.

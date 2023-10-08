@@ -1,7 +1,7 @@
 #include "okage/results_data.hpp"
 #include <algorithm>
 #include <array>
-#include <cassert>
+#include <iostream>
 #include <cstdint>
 #include <stdexcept>
 #include <string_view>
@@ -9,6 +9,7 @@
 
 using namespace okage;
 namespace {
+void require(bool condition) {if(!condition)throw std::runtime_error("Results data test failed");}
 constexpr unsigned header=88;
 constexpr unsigned data_size=1080;
 void put32(std::vector<std::uint8_t>& data,unsigned at,std::uint32_t value) {
@@ -17,7 +18,7 @@ void put32(std::vector<std::uint8_t>& data,unsigned at,std::uint32_t value) {
 void put_hex(std::vector<std::uint8_t>& data,unsigned at,std::string_view hex) {
     constexpr std::string_view digits="0123456789abcdef";
     for(unsigned i=0;i<hex.size()/2;++i) {
-        const auto nibble=[&](char c){auto p=digits.find(c);assert(p!=digits.npos);return unsigned(p);};
+        const auto nibble=[&](char c){auto p=digits.find(c);require(p!=digits.npos);return unsigned(p);};
         data[at+i]=std::uint8_t((nibble(hex[i*2])<<4)|nibble(hex[i*2+1]));
     }
 }
@@ -65,32 +66,32 @@ std::vector<std::uint8_t> fixture() {
 int main() {
     auto bytes=fixture();
     ResultsUiData results{Bytes(bytes)};
-    assert(results.definition().type()==11);
-    assert(results.definition().glyph_capacity()==33);
-    assert(results.definition().sprite_capacity()==17);
-    assert(results.widget_ids()[0]==0x40&&results.widget_ids()[15]==0x79);
-    assert(results.animation_records().size()==49);
-    assert(results.animation_table(0).size()==14);
-    assert(results.animation_table(1).size()==24);
-    assert(results.animation_table(2).size()==6);
-    assert(results.animation_table(3).size()==5);
-    assert((results.stream_constants()[0]==std::array<std::uint32_t,4>{12,24,6,18}));
+    require(results.definition().type()==11);
+    require(results.definition().glyph_capacity()==33);
+    require(results.definition().sprite_capacity()==17);
+    require(results.widget_ids()[0]==0x40&&results.widget_ids()[15]==0x79);
+    require(results.animation_records().size()==49);
+    require(results.animation_table(0).size()==14);
+    require(results.animation_table(1).size()==24);
+    require(results.animation_table(2).size()==6);
+    require(results.animation_table(3).size()==5);
+    require((results.stream_constants()[0]==std::array<std::uint32_t,4>{12,24,6,18}));
     bool bounds=false;try { (void)results.animation_table(4); } catch(const std::runtime_error&) {bounds=true;}
-    assert(bounds);
+    require(bounds);
 
     auto malformed=bytes; malformed[0]='X';
     bool rejected=false;try { ResultsUiData bad{Bytes(malformed)}; } catch(const std::runtime_error&) {rejected=true;}
-    assert(rejected);
+    require(rejected);
     malformed=bytes; put32(malformed,8,2);
     rejected=false;try { ResultsUiData bad{Bytes(malformed)}; } catch(const std::runtime_error&) {rejected=true;}
-    assert(rejected);
+    require(rejected);
     malformed=bytes; put32(malformed,header,2);
     rejected=false;try { ResultsUiData bad{Bytes(malformed)}; } catch(const std::runtime_error&) {rejected=true;}
-    assert(rejected);
+    require(rejected);
     malformed=bytes; malformed[56]^=1;
     rejected=false;try { ResultsUiData bad{Bytes(malformed)}; } catch(const std::runtime_error&) {rejected=true;}
-    assert(rejected);
+    require(rejected);
     malformed=bytes; malformed.pop_back();
     rejected=false;try { ResultsUiData bad{Bytes(malformed)}; } catch(const std::runtime_error&) {rejected=true;}
-    assert(rejected);
+    require(rejected);
 }

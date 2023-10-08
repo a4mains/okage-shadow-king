@@ -35,7 +35,7 @@ std::uint32_t word(Bytes b,std::size_t at) {
         (std::uint32_t(b[at+2])<<16)|(std::uint32_t(b[at+3])<<24);
 }
 unsigned count(Bytes b,std::size_t at) {
-    const auto value=__builtin_bit_cast(std::int16_t, (std::uint16_t(word(b,at))));
+    const auto value=std::bit_cast<std::int16_t>(std::uint16_t(word(b,at)));
     if(value<0)throw std::runtime_error("Negative RUW count");
     return unsigned(value);
 }
@@ -64,7 +64,7 @@ std::uint32_t add_color(RuwWidget& widget,const std::array<std::int32_t,4>& delt
     for(unsigned c=0;c<4;++c) {
         if(delta[c]==RuwResource::preserve_component)continue;
         // EE ADDU wraps before signed comparisons, including extreme deltas.
-        const auto sum=__builtin_bit_cast(std::int32_t, (((w[4+color]>>(8*c))&255u)+std::uint32_t(delta[c])));
+        const auto sum=std::bit_cast<std::int32_t>(((w[4+color]>>(8*c))&255u)+std::uint32_t(delta[c]));
         std::uint32_t value;
         if(sum<0){value=0;clipped|=1u<<c;}else value=std::uint32_t(sum);
         if(c==3&&(widget.words[4]&0x20)) {
@@ -91,7 +91,7 @@ std::uint32_t add_pair(RuwWidget& widget,unsigned first,std::array<std::int32_t,
         auto& target=widget.runtime->words[first+axis];
         target+=std::uint32_t(delta[axis]); // EE ADDU before signed comparison.
         if(limit[axis]==RuwResource::preserve_component)continue;
-        const auto value=__builtin_bit_cast(std::int32_t, (target));
+        const auto value=std::bit_cast<std::int32_t>(target);
         if(delta[axis]>0?value>limit[axis]:value<limit[axis]) {
             target=std::uint32_t(limit[axis]);clipped|=1u<<axis;
         }
@@ -235,6 +235,13 @@ std::uint32_t RuwResource::add_position(std::size_t group,std::int32_t id,
     std::int32_t dx,std::int32_t dy,std::int32_t lx,std::int32_t ly) {
     return add_pair(mutable_widget(group,id),6,{dx,dy},{lx,ly});
 }
+std::uint32_t RuwResource::add_class_position(std::size_t group,std::int32_t class_id,
+    std::int32_t dx,std::int32_t dy,std::int32_t lx,std::int32_t ly) {
+    std::uint32_t clipped=0;
+    for(auto& widget:mutable_group(group))if(widget.words[8]==std::uint32_t(class_id))
+        clipped|=add_pair(widget,6,{dx,dy},{lx,ly});
+    return clipped;
+}
 void RuwResource::set_runtime_word0(std::size_t group,std::int32_t id,std::uint32_t value) {
     auto& widget=mutable_widget(group,id);if(widget.runtime)widget.runtime->words[0]=value;
 }
@@ -244,7 +251,7 @@ void RuwResource::set_fill_fraction(std::size_t group,std::int32_t id,float frac
         throw std::runtime_error("Unsupported RUW fill fraction");
     if(fraction>1.f)fraction=1.f;
     if(fraction<-1.f)fraction=-1.f;
-    const auto capacity=__builtin_bit_cast(std::int32_t, (widget.words[fraction<0.f?14:13]));
+    const auto capacity=std::bit_cast<std::int32_t>(widget.words[fraction<0.f?14:13]);
     FillRounding rounding;
     // Preserve separate CVT.S.W then MUL.S, including capacities beyond the
     // exactly representable integer range. UI FCSR observed 0x01000001.
@@ -255,8 +262,8 @@ void RuwResource::set_fill_fraction(std::size_t group,std::int32_t id,float frac
     widget.words[6]=std::uint32_t(std::int32_t(product)); // CVT.W.S toward zero.
 }
 ShadowScreenParameters initial_ui_projection() {
-    return shadow_screen_parameters({256,__builtin_bit_cast(float, (0x3f828f5cu)),
-        __builtin_bit_cast(float, (0x3f028f5cu)),2048,2048,-99,
-        __builtin_bit_cast(float, (0x4b7fff9bu)),16,65536,16,65536,16,65536,320,112});
+    return shadow_screen_parameters({256,std::bit_cast<float>(0x3f828f5cu),
+        std::bit_cast<float>(0x3f028f5cu),2048,2048,-99,
+        std::bit_cast<float>(0x4b7fff9bu),16,65536,16,65536,16,65536,320,112});
 }
 }

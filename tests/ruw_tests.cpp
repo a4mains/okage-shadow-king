@@ -95,6 +95,27 @@ void additive_pair_tests() {
         rejects([&]{(r.*method)(3,99,1,2,3,4);});
     }
 }
+void class_position_tests() {
+    auto bytes=mutable_fixture();
+    put(bytes,108+11*4,10);put(bytes,108+12*4,20);
+    put(bytes,176+11*4,0);put(bytes,176+12*4,0);
+    okage::RuwResource r(bytes);
+    const auto before=r.widgets()[3];
+    require(r.add_class_position(3,-1,6,-6,15,-5)==3);
+    require(r.widget(3,9).runtime->words[6]==15&&r.widget(3,9).runtime->words[7]==14);
+    require(r.widget(3,2).runtime->words[6]==6&&r.widget(3,2).runtime->words[7]==std::uint32_t(-5));
+    for(unsigned i=0;i<before.size();++i) {
+        const auto& a=before[i];const auto& b=r.widgets()[3][i];
+        require(a.words==b.words&&a.runtime.has_value()==b.runtime.has_value());
+        if(a.runtime&&a.words[8]!=0xffffffffu)require(a.runtime->words==b.runtime->words);
+    }
+    const auto selected=r.widget(3,9).runtime->words;
+    require(r.add_class_position(3,99,1,1,0,0)==0);
+    require(r.widget(3,9).runtime->words==selected);
+    require(r.add_class_position(3,-1,keep,keep,0,0)==0);
+    require(r.widget(3,9).runtime->words==selected);
+    rejects([&]{r.add_class_position(4,-1,1,2,3,4);});
+}
 void additive_secondary_tests() {
     constexpr auto high=std::numeric_limits<std::int32_t>::max();
     struct Case {
@@ -174,8 +195,8 @@ void fill_tests() {
         Case{std::numeric_limits<std::int32_t>::min(),0,1.f,std::numeric_limits<std::int32_t>::min()},
         Case{16777218,16777218,.75f,12582913},Case{16777218,16777218,-.75f,-12582913},
         // CVT.S.W first gives16777216, whose product here is16777215.
-        Case{16777217,16777217,__builtin_bit_cast(float, (0x3f7fffffu)),16777215},
-        Case{16777217,16777217,-__builtin_bit_cast(float, (0x3f7fffffu)),-16777215},
+        Case{16777217,16777217,std::bit_cast<float>(0x3f7fffffu),16777215},
+        Case{16777217,16777217,-std::bit_cast<float>(0x3f7fffffu),-16777215},
         Case{1,1,std::numeric_limits<float>::min(),0},Case{0,0,-1.f,0}};
     const auto original_rounding=std::fegetround();
     for(auto mode:{FE_TONEAREST,FE_TOWARDZERO,FE_UPWARD,FE_DOWNWARD}) {
@@ -312,7 +333,7 @@ int main(int argc,char** argv){try {
     if(argc==3&&std::string_view(argv[1])=="--diagnostic") {
         diagnostic(argv[2]);std::cout<<"Owned RUW mutation diagnostic passed\n";return 0;
     }
-    require(argc==1);mutation_tests();fill_tests();binding_tests();additive_pair_tests();additive_secondary_tests();class_selection_tests();
+    require(argc==1);mutation_tests();fill_tests();binding_tests();additive_pair_tests();additive_secondary_tests();class_selection_tests();class_position_tests();
     std::vector<std::uint8_t> b(32+16+7*68);
     put(b,8,1);put(b,12,1);put(b,16,2);
     put(b,20,1);put(b,24,2);put(b,28,4);

@@ -39,6 +39,8 @@ public:
         std::int32_t delta_x,std::int32_t delta_y,std::int32_t limit_x,std::int32_t limit_y);
     std::uint32_t add_position(std::size_t group,std::int32_t authored_id,
         std::int32_t delta_x,std::int32_t delta_y,std::int32_t limit_x,std::int32_t limit_y);
+    std::uint32_t add_class_position(std::size_t group,std::int32_t class_id,
+        std::int32_t delta_x,std::int32_t delta_y,std::int32_t limit_x,std::int32_t limit_y);
     void set_runtime_word0(std::size_t group,std::int32_t authored_id,std::uint32_t);
     void select_class_color(std::size_t group,std::int32_t class_id,std::int32_t selection);
     void set_fill_fraction(std::size_t group,std::int32_t authored_id,float);

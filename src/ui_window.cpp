@@ -19,7 +19,7 @@ std::size_t index(std::size_t offset,std::size_t bytes) {
     return offset/4;
 }
 unsigned capacity(unsigned value) {
-    check(value>=1&&value<=32,"Unsupported UI window capacity");return value;
+    check(value>=1&&value<=33,"Unsupported UI window capacity");return value;
 }
 std::array<std::uint32_t,4> scan(const UiWindowStream& stream) {
     check(stream.binding_id!=0,"Missing UI stream binding");
@@ -126,12 +126,12 @@ std::uint32_t UiWindow::word(std::size_t at) const {
 }
 void UiWindow::set_opacity_tween(float increment,float current,
                                  std::uint32_t lower,std::uint32_t upper) {
-    put(0x27c,__builtin_bit_cast(std::uint32_t, (increment)));
-    put(0x270,__builtin_bit_cast(std::uint32_t, (current)));
-    put(0x274,__builtin_bit_cast(std::uint32_t, (static_cast<float>(upper&0xff))));
-    put(0x278,__builtin_bit_cast(std::uint32_t, (static_cast<float>(lower&0xff))));
+    put(0x27c,std::bit_cast<std::uint32_t>(increment));
+    put(0x270,std::bit_cast<std::uint32_t>(current));
+    put(0x274,std::bit_cast<std::uint32_t>(static_cast<float>(upper&0xff)));
+    put(0x278,std::bit_cast<std::uint32_t>(static_cast<float>(lower&0xff)));
 }
-float UiWindow::opacity() const {return __builtin_bit_cast(float, (word(0x270)));}
+float UiWindow::opacity() const {return std::bit_cast<float>(word(0x270));}
 void UiWindow::set_transform_xyz(const std::array<std::uint32_t,3>& first,
                                  const std::array<std::uint32_t,3>& second) {
     put(0x4f4,1);
@@ -147,6 +147,25 @@ const UiWindowBuffer& UiWindow::sprite_cache(unsigned i,unsigned side) const {
     check(i<sprite_cache_.size()&&side<2,"UI sprite cache bounds");return sprite_cache_[i][side];
 }
 const UiWindowBuffer& UiWindow::extra_cache(unsigned i) const {check(i<3,"UI extra cache bounds");return extra_[i];}
+void UiWindow::reset_for_open() {
+    put(0x4f0,1);reset_glyph_packets();reset_sprite_packets();
+    put(0x22c,0x80808080);put(0x268,word(0x26c));put(0x258,word(0x250));
+    put(0x228,0x3f800000);known_.reset(0x3bf0/4);
+    put(0x1900,(word(0x1900)&0xfffff6c5u)|1);
+    for(auto at:{0xce8,0x264,0x260,0xcd0,0x269c,0xcb0,0xcb4,
+                 0x1968,0x196c,0xcf8,0x3e34,0x3bf4})put(at,0);
+    put(0x254,word(0x250));put(0x224,0x3f800000);
+    const auto count=word(0x3c00);
+    for(unsigned i=0;i<count*16;++i) {
+        // Source remainder is by group count, not by the total glyph count.
+        glyph_[1].put_word((i%count)*16+8,0xbf800000);
+        const auto at=i&~3u,shift=(i&3)*8;
+        flags_.put_word(at,flags_.word(at)&~(2u<<shift));
+        put(0x3c08+(i%count)*4,word(0x3c08+(i%count)*4)|1);
+    }
+    for(unsigned i=0;i<count;++i)put(0x3c08+i*4,word(0x3c08+i*4)|4);
+    put(0xce8,0);put(0xcc0,0);put(0x3e24,0);
+}
 bool UiWindow::configure(const std::array<std::uint32_t,28>& w,std::span<const AtlasTuple> atlas,
                          std::shared_ptr<const void> texture) {
     check(w[0]==stream_->binding_id&&w[25]==word(0x3c00)&&w[26]==word(0x3c04),"UI configuration owner mismatch");

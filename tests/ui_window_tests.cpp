@@ -93,11 +93,30 @@ void stream_scan_and_lifetime() {
     auto bytes=std::vector<std::uint8_t>(4098,'A');bytes.back()=0;
     malformed->entries={okage::UiStreamText{bytes}};rejects([&]{okage::UiWindow bad(1,1,0,malformed);});
     malformed->entries.clear();malformed->binding_id=0;rejects([&]{okage::UiWindow bad(1,1,0,malformed);});
-    for(unsigned c:{0u,33u,0xffffffffu}) {
+    for(unsigned c:{0u,34u,0xffffffffu}) {
         rejects([&]{okage::UiWindow bad(c,1,0,stream());});rejects([&]{okage::UiWindow bad(1,c,0,stream());});
     }
     rejects([&]{okage::UiWindow bad(1,1,8,stream());});rejects([&]{okage::UiWindow bad(1,1,0,nullptr);});
-    okage::UiWindow edge(32,32,7,stream());require(edge.word(0x3c84)==13,"Bounded maximum capacity");
+    okage::UiWindow edge(33,33,7,stream());require(edge.word(0x3c88)==13,"Results capacity33 flag storage");
+    require(edge.glyph_buffer(0).size()==34*256&&edge.sprite_buffer(0).size()==34*256,"Results sentinel allocation");
+}
+void reset_open() {
+    auto s=stream();okage::UiWindow w(29,17,0,s);auto a=authored();
+    auto texture=std::make_shared<int>(123);
+    w.configure(a,std::array<okage::UiWindow::AtlasTuple,1>{},texture);
+    w.set_opacity_tween(8.f,1.f,0,128);
+    w.advance_clock();w.advance_clock();
+    const auto alpha=w.opacity();const auto transform=w.word(0x2f0);
+    w.reset_for_open();
+    require(w.opacity()==alpha,"Opening reset does not perform tween");
+    require(w.word(0x4f0)==1&&w.word(0x22c)==0x80808080,"Opening reset style/history");
+    require(w.word(0x224)==0x3f800000&&w.word(0x228)==0x3f800000,"Opening reset scale");
+    require(w.word(0x2f0)==transform&&w.texture_owner()==texture&&&w.stream()==s.get(),"Opening reset retains owners/configuration");
+    for(auto at:{0xce8,0x264,0x260,0xcd0,0x269c,0xcb0,0xcb4,0x1968,0x196c,0xcf8,0x3e34,0x3bf4,0xcc0,0xcc4,0x3e24})
+        require(w.word(at)==0,"Opening reset counters");
+    require(w.word(0x254)==6&&w.word(0x258)==6,"Opening reset copies configured speed");
+    for(unsigned i=0;i<29;++i)require((w.word(0x3c08+i*4)&5)==5,"Opening reset glyph flags");
+    for(unsigned i=0;i<17;++i)require(w.word(0x3c08+i*4)&8,"Opening reset sprite flags");
 }
 void configuration() {
     auto s=stream();okage::UiWindow w(29,17,0,s);auto a=authored();
@@ -159,13 +178,13 @@ void scalar_mutators() {
         expected[0x27c/4]=0x80000000;expected[0x270/4]=0x43802000;
         expected[0x274/4]=0x43000000;expected[0x278/4]=0x437f0000;
         require(snapshot(w)==expected,"Opacity changes exactly four scalar words/masks");
-        require(__builtin_bit_cast(std::uint32_t, (w.opacity()))==0x43802000,"Fractional opacity getter is a float copy");
+        require(std::bit_cast<std::uint32_t>(w.opacity())==0x43802000,"Fractional opacity getter is a float copy");
         w.set_opacity_tween(-128.0f,-0.0f,0x100,0x200);
         expected[0x27c/4]=0xc3000000;expected[0x270/4]=0x80000000;
         expected[0x274/4]=0;expected[0x278/4]=0;
-        require(snapshot(w)==expected&&__builtin_bit_cast(std::uint32_t, (w.opacity()))==0x80000000,
+        require(snapshot(w)==expected&&std::bit_cast<std::uint32_t>(w.opacity())==0x80000000,
                 "Repeated opacity writes preserve negative zero and masked zero bounds");
-        w.set_opacity_tween(__builtin_bit_cast(float, (0x7fc12345u)),12.75f,0,128);
+        w.set_opacity_tween(std::bit_cast<float>(0x7fc12345u),12.75f,0,128);
         expected[0x27c/4]=0x7fc12345;expected[0x270/4]=0x414c0000;
         expected[0x274/4]=0x43000000;
         require(snapshot(w)==expected&&w.opacity()==12.75f,"Opaque increment bits and fractional getter");
@@ -404,8 +423,8 @@ void clock_exceptional_addition_and_environment() {
                 Access::set(w,0x2a0,0x3f800000); // Previously clamps overflow to1.
             } else if(path==1) {
                 destination=0x270;
-                w.set_opacity_tween(__builtin_bit_cast(float, (0x7f7fffffu)),
-                                    __builtin_bit_cast(float, (0x7f7fffffu)),0,128);
+                w.set_opacity_tween(std::bit_cast<float>(0x7f7fffffu),
+                                    std::bit_cast<float>(0x7f7fffffu),0,128);
             } else {
                 destination=0x264;
                 Access::set(w,0x260,1);Access::set(w,destination,0xff7fffff);
@@ -438,7 +457,7 @@ void clock_exceptional_addition_and_environment() {
 }
 }
 int main(){try {
-    defaults_and_allocations();stream_scan_and_lifetime();configuration();scalar_mutators();ruw_binding();
+    defaults_and_allocations();stream_scan_and_lifetime();configuration();scalar_mutators();ruw_binding();reset_open();
     clock_opacity_and_rounding();clock_vectors_and_history();clock_counter_and_gates();
     clock_rejects_unsupported_float_before_mutation();
     clock_channel_table_bounds();clock_exceptional_addition_and_environment();

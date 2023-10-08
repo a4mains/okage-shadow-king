@@ -2,7 +2,7 @@
 """Import the authored results interface literals as pointer-free data.
 
 OKRSUI1\0 v1 has an 88-byte header (<8sIIII32s32s), followed by one 28-word
-interface row, 16 widget IDs, 48 four-word animation records, and two blocks of
+interface row, 16 widget IDs, 49 four-word animation records, and two blocks of
 four stream constants. The source digest covers the terminated interface row,
 widget IDs, animation bytes, and both stream-constant blocks in that order.
 
