@@ -549,24 +549,20 @@ void OpeningField::prepare(FieldDefinition definition,Bytes stg,Bytes xcl) {
     prepared_=true;
 }
 void OpeningField::activate_pose(const Float4& player_position,const Float4& player_rotation,
-                                 bool returning,const std::optional<Float4>& raw_camera_position) {
+                                 const std::optional<Float4>& raw_camera_position) {
     if(!prepared_||activated_||!definition_)throw std::runtime_error("Field activation lifecycle");
     Rounding rounding;
     auto* hero=actor(-1);hero->animation().set_channel(0,player_rotation);hero->animation().set_channel(1,player_position);
     build_collision(staged_xcl_);
-    // Ordinary 0x132720 settles one unit upward. The negative-entrance return
-    // branch restores the saved pose directly through 0x130220.
-    auto desired=player_position;if(!returning)desired[1]+=1;
+    // Both 0x132720 branches pass through 0x135300. The return branch starts
+    // from the saved pose supplied by 0x130220, then performs the same +1Y
+    // collision settle as ordinary entrance.
+    auto desired=player_position;desired[1]+=1;
     MapCollisionSettings settings;settings.wall_iterations=3;settings.disabled_mask=collision_mask->bits;
     resolve_collision(*collision_,bodies_,bodies_.size()-1,desired,settings,std::bit_cast<float>(0x3efff17du));
     auto& body=bodies_.back();
-    if(returning) {
-        body.position=body.previous=player_position;hero->animation().set_channel(1,player_position);
-        player_.history.fill(player_position);
-    } else {
-        body.position=body.previous=desired;hero->animation().set_channel(1,desired);
-        player_.history.fill(desired);
-    }
+    body.position=body.previous=desired;hero->animation().set_channel(1,desired);
+    player_.history.fill(desired);
     player_.floor_contact=(body.contact.flags&1)?body.contact.materials[0]:-1;
     player_.camera_area=(std::uint32_t(player_.floor_contact)&0x38)>>3;
     // 0x135458 enables the initial automatic-contact latch; 0x135300 records
@@ -576,24 +572,18 @@ void OpeningField::activate_pose(const Float4& player_position,const Float4& pla
     player_.mask=0;player_.motion=1;exploration_handoff_=true;
     if(definition_->type==0) {
         camera_settings_=field_camera_settings(staged_stg_);
-        if(!returning) {
-            script_.set_channel(0,exterior_camera->begin(desired));
-            configure_exterior_camera(player_.camera_area);
-        }
+        script_.set_channel(0,exterior_camera->begin(desired));
+        configure_exterior_camera(player_.camera_area);
         exterior_camera_enabled_=true;
     } else {
         load_exploration_camera(staged_stg_);
-    }
-    if(!returning) {
-        if(definition_->type!=0) {
         const auto camera=anchored_camera(desired,*exploration_camera_,angles_,sine_);
         script_.set_channel(0,camera.position);requested_target_=camera.target;camera_mode_=2;
-        }
     }
     if(raw_camera_position) {
         // 0x130248 restores the raw camera channel, independently of the
         // rendered position after CameraBlend.
-        script_.set_channel(0,*raw_camera_position);position=*raw_camera_position;
+        script_.set_channel(0,*raw_camera_position);
     }
     if(!get_variable||!set_variable)throw std::runtime_error("Field entry requires native variables");
     if(definition_->startup) {
@@ -613,16 +603,17 @@ void OpeningField::activate_pose(const Float4& player_position,const Float4& pla
 void OpeningField::activate(unsigned entrance) {
     if(!prepared_||!definition_)throw std::runtime_error("Field activation before preparation");
     const auto placement=field_entrance(staged_stg_,entrance);
-    activate_pose(placement.position,placement.rotation,false,std::nullopt);
+    activate_pose(placement.position,placement.rotation,std::nullopt);
 }
-void OpeningField::activate_return(const FieldBattleReturnSnapshot& saved) {
+void OpeningField::activate_return(const FieldBattleReturnSnapshot& saved,ExplorationInput input) {
     if(!prepared_||!definition_||saved.scene!=definition_->scene)
         throw std::runtime_error("Field return activation scene mismatch");
     if(!std::all_of(saved.player_position.begin(),saved.player_position.end(),[](float v){return std::isfinite(v);})||
        !std::all_of(saved.player_rotation.begin(),saved.player_rotation.end(),[](float v){return std::isfinite(v);})||
        !std::all_of(saved.raw_camera_position.begin(),saved.raw_camera_position.end(),[](float v){return std::isfinite(v);}))
         throw std::runtime_error("Field return pose contains non-finite values");
-    activate_pose(saved.player_position,saved.player_rotation,true,saved.raw_camera_position);
+    activate_pose(saved.player_position,saved.player_rotation,saved.raw_camera_position);
+    tick_callbacks(input,false);
 }
 void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned entrance,ExplorationInput input) {
     prepare(std::move(definition),stg,xcl);

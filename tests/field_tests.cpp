@@ -487,14 +487,20 @@ int main(){try {
         okage::FieldDefinition entry;entry.scene=37;entry.type=1;
         entry.npcs.push_back({-8,"enemy",5,0,0,{10,0,20,1},.25f,1});
         scene.prepare(entry,stage,empty_map);require(random_calls==1&&scene.collision_bodies().empty());
-        const okage::FieldBattleReturnSnapshot saved{{13,-7,29,2.5f},{-.125f,-0.f,.5f,-2},
+        const okage::FieldBattleReturnSnapshot saved{{13,-7,29,1},{-.125f,-0.f,.5f,-2},
             {101,202,303,1},37,28,-1};
         scene.activate_return(saved);
         require(random_calls==1);
-        require(hero.animation().values()[1]==saved.player_position);
+        auto settled=saved.player_position;settled[1]+=2;settled[3]+=1;
+        require(hero.animation().values()[1]==settled);
         require(hero.animation().values()[0]==saved.player_rotation);
         require(scene.position==saved.raw_camera_position);
-        for(const auto& sample:scene.player_movement().history)require(sample==saved.player_position);
+        require(scene.camera_mode()==2);
+        const auto expected_camera=okage::anchored_camera({13,-6,29,1},
+            okage::field_anchored_camera(stage),angles,sine);
+        require(scene.target==expected_camera.target);
+        for(unsigned i=0;i<scene.player_movement().history.size();++i)
+            require(scene.player_movement().history[i]==okage::Float4{13,-6,29,1});
         require(scene.collision_bodies().size()==2);
         rejects([&]{scene.activate_return(saved);});
     }

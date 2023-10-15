@@ -83,7 +83,7 @@ public:
     // of the STG/XCL bytes so the activation can happen in a later manager turn.
     void prepare(FieldDefinition definition,Bytes stg,Bytes xcl);
     void activate(unsigned entrance);
-    void activate_return(const FieldBattleReturnSnapshot& saved);
+    void activate_return(const FieldBattleReturnSnapshot& saved,ExplorationInput input={});
     const std::optional<FieldTransition>& transition() const {return transition_;}
     const std::optional<FieldEncounter>& encounter() const {return encounter_;}
     const std::optional<FieldBattleRequest>& battle_request() const {return battle_request_;}
@@ -188,7 +188,7 @@ private:
     bool rear_attack_=false;
     void initialize_npcs();
     void activate_pose(const Float4& player_position,const Float4& player_rotation,
-                       bool returning,const std::optional<Float4>& raw_camera_position);
+                       const std::optional<Float4>& raw_camera_position);
     void update_npcs();
     void clear_contact();
     void build_collision(Bytes xcl);
