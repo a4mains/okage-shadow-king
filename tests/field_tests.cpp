@@ -3,9 +3,10 @@
 #include <bit>
 #include <cfenv>
 #include <iostream>
+#include <source_location>
 #include <stdexcept>
-void require(bool value,unsigned where=__builtin_LINE()){
-    if(!value)throw std::runtime_error("Field test failed at line "+std::to_string(where));
+void require(bool value,const std::source_location& where=std::source_location::current()){
+    if(!value)throw std::runtime_error("Field test failed at line "+std::to_string(where.line()));
 }
 template<class F> void rejects(F f){try{f();}catch(const std::runtime_error&){return;}throw std::runtime_error("Expected field rejection");}
 int main(){try {
@@ -15,7 +16,7 @@ int main(){try {
         std::vector<std::uint8_t> stg(72);
         auto put=[&](unsigned at,unsigned v){for(unsigned j=0;j<4;++j)stg[at+j]=v>>(8*j);};
         put(0,0x475453);put(8,32);put(12,2);
-        auto fp=[&](unsigned at,float v){put(at,__builtin_bit_cast(unsigned, (v)));};
+        auto fp=[&](unsigned at,float v){put(at,std::bit_cast<unsigned>(v));};
         put(32,0x60);fp(36,9);fp(40,10);fp(44,11);
         // Authored floats convert first, then selector60 uses low bytes.
         put(52,0x60);fp(56,4660);fp(60,-1);fp(64,256);fp(68,0);
@@ -37,7 +38,7 @@ int main(){try {
     }
     {
         const auto angles=okage::make_atan_table();
-        const auto floats=[](std::array<std::uint32_t,4> bits){okage::Float4 out;for(unsigned i=0;i<4;++i)out[i]=__builtin_bit_cast(float, (bits[i]));return out;};
+        const auto floats=[](std::array<std::uint32_t,4> bits){okage::Float4 out;for(unsigned i=0;i<4;++i)out[i]=std::bit_cast<float>(bits[i]);return out;};
         const std::array<std::array<std::uint32_t,4>,2> positions={{{0x4146147b,0,0xc0db3333,0x3f800000},{0x41175a05,0xba83126f,0xc0980332,0x3f800000}}};
         const std::array<std::array<std::uint32_t,4>,2> velocities={{{0xbccf0cb7,0,0x3c96b0de,0xbf800000},{0xbcdcc6cb,0x357e3343,0xbc85d0ad,0xbf800000}}};
         for(unsigned i=0;i<2;++i) {
@@ -45,8 +46,8 @@ int main(){try {
             const auto rotation=npc.begin_leg(floats(positions[i]),0,[&]{return random.next();},angles);
             require(npc.counter==(i?1056:2112));
             require(random.state==(i?0x497e9b90u:0xe9ce4642u));
-            for(unsigned k=0;k<4;++k)require(__builtin_bit_cast(std::uint32_t, (npc.velocity[k]))==velocities[i][k]);
-            require(__builtin_bit_cast(std::uint32_t, (rotation[1]))==(i?0x3e273000u:0x3eb34800u));
+            for(unsigned k=0;k<4;++k)require(std::bit_cast<std::uint32_t>(npc.velocity[k])==velocities[i][k]);
+            require(std::bit_cast<std::uint32_t>(rotation[1])==(i?0x3e273000u:0x3eb34800u));
             npc.finish_move(floats(positions[i]),floats(positions[i]));require(npc.counter==-1);
         }
         // Sub-unit horizontal distance truncates before multiplication by32.
@@ -63,7 +64,7 @@ int main(){try {
         filter.select(0x49,1);filter.tick(200);require(filter.alpha==127);
         filter.tick(.9f);require(filter.alpha==0);
         rejects([&]{filter.select(0x48,1);});rejects([&]{filter.select(0x49,2);});
-        rejects([&]{filter.tick(-1);});rejects([&]{filter.tick(__builtin_bit_cast(float, (0x7fc00000u)));});
+        rejects([&]{filter.tick(-1);});rejects([&]{filter.tick(std::bit_cast<float>(0x7fc00000u));});
         okage::FrameFeedback history;
         okage::Texture previous{1,2,0,0,{255,0,1,255,17,18,19,255}};
         okage::Texture current{1,1,0,0,{0,255,0,255}};
@@ -81,7 +82,7 @@ int main(){try {
         auto put=[&](unsigned at,unsigned value){for(unsigned i=0;i<4;++i)script[at+i]=value>>(8*i);};
         put(0,0x544d58);put(4,script.size()-32);put(16,0xffffffff);
         put(0xb88,0xffe00007);put(0xb8c,0x30);
-        put(0xb9c,0x0080002e);put(0xba0,__builtin_bit_cast(unsigned, (80.f)));
+        put(0xb9c,0x0080002e);put(0xba0,std::bit_cast<unsigned>(80.f));
         put(0xba4,0x0010493d);put(0xba8,0x00100002); // Enable, wait one frame.
         put(0xbac,0x0000003d);put(0xbb0,0x0080002e);put(0xbb4,0);put(0xbb8,0x20000a);
         put(0xbbc,0x00100002);put(0xbc0,0x0010493d);put(0xbc4,0x0ff00002);
@@ -103,7 +104,7 @@ int main(){try {
     const int rounding=std::fegetround();okage::camera_angle(1,3,angles);require(std::fegetround()==rounding);
     std::vector<std::uint8_t> b(0xc00);
     auto word=[&](unsigned at,std::uint32_t v){for(unsigned i=0;i<4;++i)b.at(at+i)=v>>(i*8);};
-    auto point=[&](unsigned at,okage::Float4 v){for(unsigned i=0;i<3;++i)word(at+4*i,__builtin_bit_cast(std::uint32_t, (v[i])));};
+    auto point=[&](unsigned at,okage::Float4 v){for(unsigned i=0;i<3;++i)word(at+4*i,std::bit_cast<std::uint32_t>(v[i]));};
     word(0,0x544d58);word(4,b.size()-32);word(16,0xffffffff);
     word(0xb88,0xffe00007);word(0xb8c,0x30);point(0xb90,{2,3,4,1});
     word(0xb9c,0x10004b);point(0xba0,{0,0,0,1});word(0xbac,0x3c00002);
@@ -290,17 +291,17 @@ int main(){try {
     word(0xb88,0);rejects([&]{okage::OpeningField bad(b,[](int){},[](int){return true;});});
     rejects([&]{okage::field_projection({});});
     b.assign(52,0);word(0,0x475453);word(8,32);word(12,1);word(32,0x44);
-    word(36,__builtin_bit_cast(unsigned, (1.f)));word(40,__builtin_bit_cast(unsigned, (.47f)));word(44,__builtin_bit_cast(unsigned, (1024.f)));
+    word(36,std::bit_cast<unsigned>(1.f));word(40,std::bit_cast<unsigned>(.47f));word(44,std::bit_cast<unsigned>(1024.f));
     const auto default_projection=okage::field_projection(b);
-    word(48,__builtin_bit_cast(unsigned, (9.99f)));require(okage::field_projection(b)==default_projection);
+    word(48,std::bit_cast<unsigned>(9.99f));require(okage::field_projection(b)==default_projection);
     float far_clip=0;
-    word(48,__builtin_bit_cast(unsigned, (450.f)));const auto outdoor_projection=okage::field_projection(b,&far_clip);
+    word(48,std::bit_cast<unsigned>(450.f));const auto outdoor_projection=okage::field_projection(b,&far_clip);
     require(far_clip==450);
     require(outdoor_projection[0]==default_projection[0]&&outdoor_projection[1]==default_projection[1]);
     require(outdoor_projection[2]!=default_projection[2]&&outdoor_projection[3]!=default_projection[3]);
-    word(48,__builtin_bit_cast(unsigned, (10.f)));require(okage::field_projection(b)!=default_projection);
+    word(48,std::bit_cast<unsigned>(10.f));require(okage::field_projection(b)!=default_projection);
     {
-        word(48,__builtin_bit_cast(unsigned, (450.f)));
+        word(48,std::bit_cast<unsigned>(450.f));
         okage::FieldProjection projection;projection.load_stage(b);
         require(projection.current().depth_far==450&&projection.current().clip_far==450);
         require(projection.current().fog_near==4096&&projection.effect_near()==3);
@@ -338,7 +339,7 @@ int main(){try {
         // Apply duplicate records in file order; far<10 preserves the last far.
         auto repeated=b;repeated.resize(72);repeated[12]=2;
         for(unsigned j=0;j<20;++j)repeated[52+j]=b[32+j];
-        auto put=[&](unsigned at,float v){const auto u=__builtin_bit_cast(unsigned, (v));
+        auto put=[&](unsigned at,float v){const auto u=std::bit_cast<unsigned>(v);
             for(unsigned j=0;j<4;++j)repeated.at(at+j)=u>>(j*8);};
         put(64,800);put(68,0);projection.load_stage(repeated);
         require(projection.current().focal==800&&projection.current().clip_far==450);
@@ -365,19 +366,19 @@ int main(){try {
     b.assign(72,0);word(0,0x475453);word(8,32);word(12,0);
     require(okage::field_sky_follow(b)==okage::Float4({.5f,0,.5f,0}));
     word(12,2);word(32,0x46);word(52,0x46);
-    for(unsigned i=0;i<4;++i){word(36+i*4,__builtin_bit_cast(unsigned, (1.f)));word(56+i*4,__builtin_bit_cast(unsigned, (float(i)*.25f)));}
+    for(unsigned i=0;i<4;++i){word(36+i*4,std::bit_cast<unsigned>(1.f));word(56+i*4,std::bit_cast<unsigned>(float(i)*.25f));}
     require(okage::field_sky_follow(b)==okage::Float4({0,.25f,.5f,.75f}));
     word(56,0x7fc00000);rejects([&]{okage::field_sky_follow(b);});
     word(12,3);rejects([&]{okage::field_sky_follow(b);});
     b.assign(88,0);word(0,0x475453);word(16,32);word(20,1);word(24,88);
-    point(36,{0,0,0,1});point(64,{10,.5f,-2,1});word(76,__builtin_bit_cast(std::uint32_t, (1.f)));
+    point(36,{0,0,0,1});point(64,{10,.5f,-2,1});word(76,std::bit_cast<std::uint32_t>(1.f));
     const auto settings=okage::field_anchored_camera(b);
     const auto anchored=okage::anchored_camera({0,0,10,1},settings,angles,sine);
     require(anchored.position==okage::Float4({0,0,15,1})&&anchored.target==okage::Float4({0,-2,10,1}));
     require(std::fegetround()==rounding);
     word(24,87);rejects([&]{okage::field_anchored_camera(b);});word(24,88);
     word(20,31);rejects([&]{okage::field_anchored_camera(b);});word(20,1);
-    word(76,0);rejects([&]{okage::field_anchored_camera(b);});word(76,__builtin_bit_cast(std::uint32_t, (1.f)));
+    word(76,0);rejects([&]{okage::field_anchored_camera(b);});word(76,std::bit_cast<std::uint32_t>(1.f));
     word(60,0x10000);rejects([&]{okage::field_anchored_camera(b);});word(60,0);
     word(64,0x7fc00000);rejects([&]{okage::field_anchored_camera(b);});
     b.assign(88,0);word(0,0x475453);word(24,32);word(28,2);
@@ -394,7 +395,7 @@ int main(){try {
     b.assign(48+84+strings.size(),0);word(0,0x424458);word(4,84);word(8,strings.size());word(12,1);word(16,0xffffffff);
     word(32,0);word(36,0);word(40,21);word(52,1);word(68,7);word(76,12);
     word(96,19);word(100,0);word(104,std::uint32_t(-30));word(108,0);
-    point(112,{1,2,3,1});word(124,__builtin_bit_cast(std::uint32_t, (.5f)));
+    point(112,{1,2,3,1});word(124,std::bit_cast<std::uint32_t>(.5f));
     std::copy(strings.begin(),strings.end(),b.begin()+132);
     const auto definition=okage::read_field_definition(b,"room");
     require(definition.type==1&&definition.event=="e_room"&&definition.npcs.size()==1);
@@ -457,18 +458,52 @@ int main(){try {
         require(solo.party==0&&solo.followers.empty()&&okage::event_variable(vars,0x40006)==1);
         rejects([&]{okage::prepare_field_entry(b,std::span(vars).first(0x587),construction,0);});
     }
+    {
+        std::array<std::uint8_t,0x1000> vars{};
+        for(unsigned i=0x10;i<0x110;++i)vars[i]=std::uint8_t(i*13u+7u);
+        std::array<std::uint8_t,0x100> flags{};std::copy_n(vars.begin()+0x10,0x100,flags.begin());
+        construction.scene=37;construction.party=1;
+        const auto returned=okage::prepare_field_return(b,vars,construction);
+        require(returned.scene==37&&okage::event_variable(vars,0x40000)==37);
+        require(okage::event_variable(vars,0x40001)==-1&&okage::event_variable(vars,0x40006)==0);
+        require(std::equal(flags.begin(),flags.end(),vars.begin()+0x10));
+        rejects([&]{okage::prepare_field_return(b,std::span(vars).first(0x587),construction);});
+    }
     auto put=[](auto& data,unsigned at,std::uint32_t value){for(unsigned i=0;i<4;++i)data.at(at+i)=value>>(i*8);};
     std::vector<std::uint8_t> stage(116),empty_map(69),idle(56),startup(56);
     put(stage,0,0x475453);put(stage,16,32);put(stage,20,1);put(stage,24,88);put(stage,28,1);
-    put(stage,64,__builtin_bit_cast(std::uint32_t, (10.f)));put(stage,76,__builtin_bit_cast(std::uint32_t, (1.f)));
+    put(stage,64,std::bit_cast<std::uint32_t>(10.f));put(stage,76,std::bit_cast<std::uint32_t>(1.f));
     for(unsigned i=0;i<3;++i)put(empty_map,i*4,1);put(empty_map,65,64);
     for(auto* data:{&idle,&startup}){put(*data,0,0x544d58);put(*data,4,24);put(*data,16,0xffffffff);}
+    {
+        okage::ModelFile hero_model,npc_model;hero_model.models.emplace_back();npc_model.models.emplace_back();
+        okage::FieldActor hero(std::move(hero_model),idle,{}),npc(std::move(npc_model),idle,{});
+        const std::array<okage::ActorBinding,2> bindings={{{-8,&npc},{-1,&hero}}};
+        okage::OpeningField scene(idle,[](int){},[](int){return true;},bindings,false);
+        std::array<std::uint8_t,0x1000> vars{};
+        scene.get_variable=[&](auto selector){return okage::event_variable(vars,selector);};
+        scene.set_variable=[&](auto index,auto bank,auto value){okage::set_event_variable(vars,index,bank,value);};
+        unsigned random_calls=0;scene.random_value=[&]{++random_calls;return 0x12345678u;};
+        okage::FieldDefinition entry;entry.scene=37;entry.type=1;
+        entry.npcs.push_back({-8,"enemy",5,0,0,{10,0,20,1},.25f,1});
+        scene.prepare(entry,stage,empty_map);require(random_calls==1&&scene.collision_bodies().empty());
+        const okage::FieldBattleReturnSnapshot saved{{13,-7,29,2.5f},{-.125f,-0.f,.5f,-2},
+            {101,202,303,1},37,28,-1};
+        scene.activate_return(saved);
+        require(random_calls==1);
+        require(hero.animation().values()[1]==saved.player_position);
+        require(hero.animation().values()[0]==saved.player_rotation);
+        require(scene.position==saved.raw_camera_position);
+        for(const auto& sample:scene.player_movement().history)require(sample==saved.player_position);
+        require(scene.collision_bodies().size()==2);
+        rejects([&]{scene.activate_return(saved);});
+    }
     {
         auto event=startup;
         put(event,40,0x00700162);put(event,44,17);put(event,48,0x00200002);put(event,52,0);
         auto hero_motion=idle;hero_motion.resize(76);put(hero_motion,4,44);
         put(hero_motion,56,2);put(hero_motion,60,0x0040002e);
-        put(hero_motion,64,__builtin_bit_cast(std::uint32_t, (99.f)));put(hero_motion,68,0);
+        put(hero_motion,64,std::bit_cast<std::uint32_t>(99.f));put(hero_motion,68,0);
         okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),hero_motion,{});
         const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
         okage::OpeningField scene(event,[](int){},[](int){return true;},player,false);
@@ -509,7 +544,7 @@ int main(){try {
         scene.tick();require(saved.has_value());
         require(saved->scene==96&&saved->secondary_music==28);
         auto equal_bits=[](const okage::Float4& a,const okage::Float4& b) {
-            for(unsigned i=0;i<4;++i)require(__builtin_bit_cast(std::uint32_t, (a[i]))==__builtin_bit_cast(std::uint32_t, (b[i])));
+            for(unsigned i=0;i<4;++i)require(std::bit_cast<std::uint32_t>(a[i])==std::bit_cast<std::uint32_t>(b[i]));
         };
         equal_bits(saved->player_position,player_position);equal_bits(saved->player_rotation,player_rotation);
         equal_bits(saved->raw_camera_position,before.raw_camera_position);
@@ -529,8 +564,8 @@ int main(){try {
         put(event,88,0x00100002);put(event,92,0);
         std::vector<std::uint8_t> camera(72);
         put(camera,0,0x544d58);put(camera,4,40);put(camera,16,0xffffffff);
-        put(camera,32,0x30);put(camera,36,__builtin_bit_cast(unsigned, (4.f)));
-        put(camera,40,__builtin_bit_cast(unsigned, (-5.f)));put(camera,44,__builtin_bit_cast(unsigned, (6.f)));
+        put(camera,32,0x30);put(camera,36,std::bit_cast<unsigned>(4.f));
+        put(camera,40,std::bit_cast<unsigned>(-5.f));put(camera,44,std::bit_cast<unsigned>(6.f));
         put(camera,48,0x00400030);put(camera,64,0x00200002);put(camera,68,0);
         auto motions=idle;motions.resize(80);put(motions,4,48);
         okage::ModelFile hm,em,nm;hm.models.emplace_back();em.models.emplace_back();nm.models.emplace_back();
@@ -551,7 +586,7 @@ int main(){try {
         require(hat.channels()[1]==okage::Float4({1,1,1,1}));
         scene.tick();require(hat.visible&&scene.camera_mode()==1);
         require(scene.position==okage::Float4({4,-5,6,1}));
-        require(hat.channels()[1]==okage::Float4({42.5f,__builtin_bit_cast(float, (0x401eb852u)),757.f,1}));
+        require(hat.channels()[1]==okage::Float4({42.5f,std::bit_cast<float>(0x401eb852u),757.f,1}));
         require(scene.rotation==okage::camera_look_at(scene.position,scene.target,angles,sine));
         scene.tick();scene.tick();scene.tick();require(scene.camera_mode()==0);
         for(unsigned i=0;i<5;++i)scene.tick();require(!hat.visible&&loads==1);
@@ -565,9 +600,9 @@ int main(){try {
     {
         auto event=startup;event.resize(68);put(event,4,36);
         put(event,40,0xfff00007);put(event,44,0x00400433);
-        put(event,48,__builtin_bit_cast(std::uint32_t, (8.f)));
-        put(event,52,__builtin_bit_cast(std::uint32_t, (1.f)));
-        put(event,56,__builtin_bit_cast(std::uint32_t, (10.f)));
+        put(event,48,std::bit_cast<std::uint32_t>(8.f));
+        put(event,52,std::bit_cast<std::uint32_t>(1.f));
+        put(event,56,std::bit_cast<std::uint32_t>(10.f));
         put(event,60,0x00400008);put(event,64,0);
         okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
         const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
@@ -646,10 +681,10 @@ int main(){try {
     idle.resize(80);put(idle,4,48);
     {
         auto room=stage;
-        put(room,36,__builtin_bit_cast(unsigned, (5.f)));put(room,40,__builtin_bit_cast(unsigned, (-10.f)));
-        put(room,44,__builtin_bit_cast(unsigned, (-7.f)));put(room,68,__builtin_bit_cast(unsigned, (.8f)));
-        put(room,72,__builtin_bit_cast(unsigned, (-3.f)));
-        put(room,92,__builtin_bit_cast(unsigned, (4.f)));put(room,100,__builtin_bit_cast(unsigned, (8.f)));
+        put(room,36,std::bit_cast<unsigned>(5.f));put(room,40,std::bit_cast<unsigned>(-10.f));
+        put(room,44,std::bit_cast<unsigned>(-7.f));put(room,68,std::bit_cast<unsigned>(.8f));
+        put(room,72,std::bit_cast<unsigned>(-3.f));
+        put(room,92,std::bit_cast<unsigned>(4.f));put(room,100,std::bit_cast<unsigned>(8.f));
         okage::ModelFile moving_model,still_model;moving_model.models.emplace_back();still_model.models.emplace_back();
         okage::FieldActor moving(std::move(moving_model),idle,{}),still(std::move(still_model),idle,{});
         const std::array<okage::ActorBinding,1> moving_binding={{{-1,&moving}}},still_binding={{{-1,&still}}};
@@ -796,12 +831,12 @@ int main(){try {
         std::vector<std::uint8_t> efd(64+8*116),map(64+148+3*80),event(96);
         put(efd,0,0x20444645);put(efd,4,1);put(efd,16,25);put(efd,20,10);put(efd,24,0x8000);
         put(efd,32,8);put(efd,36,64);
-        for(unsigned i=0;i<8;++i){const auto at=64+116*i;put(efd,at+8,29);put(efd,at+28,__builtin_bit_cast(std::uint32_t, (2.f)));}
+        for(unsigned i=0;i<8;++i){const auto at=64+116*i;put(efd,at+8,29);put(efd,at+28,std::bit_cast<std::uint32_t>(2.f));}
         put(map,8,212);put(map,12,3);put(map,40,64);put(map,44,1);map[64]='e';
-        for(unsigned i=0;i<3;++i){const auto at=212+80*i;put(map,at+12,0x19100000);put(map,at+16,__builtin_bit_cast(std::uint32_t, (float(i))));}
+        for(unsigned i=0;i<3;++i){const auto at=212+80*i;put(map,at+12,0x19100000);put(map,at+16,std::bit_cast<std::uint32_t>(float(i)));}
         put(event,0,0x544d58);put(event,4,event.size()-32);put(event,16,0xffffffff);
-        put(event,40,0x102ffd5d);put(event,44,__builtin_bit_cast(std::uint32_t, (.75f)));
-        put(event,48,__builtin_bit_cast(std::uint32_t, (.25f)));put(event,52,__builtin_bit_cast(std::uint32_t, (.25f)));
+        put(event,40,0x102ffd5d);put(event,44,std::bit_cast<std::uint32_t>(.75f));
+        put(event,48,std::bit_cast<std::uint32_t>(.25f));put(event,52,std::bit_cast<std::uint32_t>(.25f));
         put(event,56,0x1001005c);put(event,60,0x1011005c);put(event,64,0x20003f);
         put(event,68,0x100061);
         okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
@@ -849,13 +884,13 @@ int main(){try {
         put(efd,0,0x20444645);put(efd,4,1);put(efd,16,25);put(efd,20,10);
         put(efd,32,8);put(efd,36,64);
         for(unsigned i=0;i<8;++i){const auto at=64+116*i;
-            put(efd,at+8,29);put(efd,at+28,__builtin_bit_cast(std::uint32_t, (2.f)));}
+            put(efd,at+8,29);put(efd,at+28,std::bit_cast<std::uint32_t>(2.f));}
         put(event,0,0x544d58);put(event,4,event.size()-32);put(event,16,0xffffffff);
         for(unsigned i=0;i<17;++i){const auto at=40+i*16;
             put(event,at,0x0191233e); // A is deliberately nonzero and ignored.
-            put(event,at+4,__builtin_bit_cast(std::uint32_t, (float(i))));
-            put(event,at+8,__builtin_bit_cast(std::uint32_t, (-1.25f)));
-            put(event,at+12,__builtin_bit_cast(std::uint32_t, (3.5f)));}
+            put(event,at+4,std::bit_cast<std::uint32_t>(float(i)));
+            put(event,at+8,std::bit_cast<std::uint32_t>(-1.25f));
+            put(event,at+12,std::bit_cast<std::uint32_t>(3.5f));}
         put(event,312,0x1005c);put(event,316,0x00f1005c);put(event,320,0x100061);
         okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
         const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
@@ -881,7 +916,7 @@ int main(){try {
         put(efd,32,4);put(efd,36,64);
         for(unsigned i=0;i<4;++i){const auto at=64+116*i;
             put(efd,at+4,i+1);put(efd,at+8,i%2?9:7);put(efd,at+12,0x20);
-            put(efd,at+28,__builtin_bit_cast(std::uint32_t, (2.f)));}
+            put(efd,at+28,std::bit_cast<std::uint32_t>(2.f));}
         put(event,0,0x544d58);put(event,4,event.size()-32);put(event,16,0xffffffff);
         for(unsigned i=0;i<17;++i)put(event,40+i*4,((i%2?89u:0xfecu)<<20)|0x639);
         put(event,108,0x1005c);put(event,112,0x00f1005c);put(event,116,0x100061);
@@ -916,7 +951,7 @@ int main(){try {
         put(efd,0,0x20444645);put(efd,4,1);put(efd,16,24);put(efd,20,80);put(efd,32,8);put(efd,36,64);
         for(unsigned i=0;i<8;++i) {
             const auto at=64+116*i;put(efd,at+4,i+1);put(efd,at+8,i<3?25:i==3?3:i==4?55:31);
-            put(efd,at+12,0x21);put(efd,at+24,0xffffffff);put(efd,at+28,__builtin_bit_cast(std::uint32_t, (2.f)));
+            put(efd,at+12,0x21);put(efd,at+24,0xffffffff);put(efd,at+28,std::bit_cast<std::uint32_t>(2.f));
         }
         put(event,0,0x544d58);put(event,4,event.size()-32);put(event,16,0xffffffff);
         put(event,40,(24u<<20)|0x3e);put(event,56,0x100061);
@@ -1070,14 +1105,14 @@ int main(){try {
     auto light_word=[&](unsigned at,std::uint32_t v){for(unsigned j=0;j<4;++j)lighting.at(at+j)=v>>(j*8);};
     light_word(0,0x475453);light_word(8,32);light_word(12,3);
     for(unsigned i=0;i<3;++i){light_word(32+i*20,i==0?1:i==1?0x40:0x41);
-        for(unsigned c=0;c<4;++c)light_word(36+i*20+c*4,__builtin_bit_cast(std::uint32_t, (c==3?1.f:float(c+1))));}
+        for(unsigned c=0;c<4;++c)light_word(36+i*20+c*4,std::bit_cast<std::uint32_t>(c==3?1.f:float(c+1)));}
     auto tint=okage::field_effect_tint(lighting);require(tint[0]<tint[1]&&tint[1]<tint[2]&&tint[2]==1&&tint[3]==1);
     light_word(12,2);rejects([&]{okage::field_effect_tint(lighting);});
     light_word(52,0x45);tint=okage::field_effect_tint(lighting);require(tint[2]==1);
     light_word(36,0x7fc00000);rejects([&]{okage::field_effect_tint(lighting);});
     // Independent ordered light setters: direction W is forced0, opcode45
     // sets base plus quarter ambient RGB, and later setters act independently.
-    light_word(36,__builtin_bit_cast(std::uint32_t, (1.f)));
+    light_word(36,std::bit_cast<std::uint32_t>(1.f));
     light_word(12,0);auto ordinary=okage::field_ordinary_lighting(lighting);
     require(ordinary.directions[0]==okage::Float4({0,0,1,0}));
     require(ordinary.colors[3]==okage::Float4({.25f,.25f,.25f,1}));
@@ -1090,7 +1125,7 @@ int main(){try {
     light_word(12,3);ordinary=okage::field_ordinary_lighting(lighting);
     require(ordinary.colors[3]==okage::Float4({1,2,3,1}));
     require(ordinary.base==okage::Float4({1,2,3,1}));
-    light_word(72,0x40);light_word(76,__builtin_bit_cast(unsigned, (.5f)));light_word(88,__builtin_bit_cast(unsigned, (.75f)));
+    light_word(72,0x40);light_word(76,std::bit_cast<unsigned>(.5f));light_word(88,std::bit_cast<unsigned>(.75f));
     ordinary=okage::field_ordinary_lighting(lighting);
     require(ordinary.base==okage::Float4({.5f,2,3,.75f}));
     require(ordinary.colors[3]==okage::Float4({.25f,.5f,.75f,1}));

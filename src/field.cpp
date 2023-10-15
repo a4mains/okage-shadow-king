@@ -23,7 +23,7 @@ struct Rounding {
 }
 std::uint32_t OpeningField::word(std::size_t at) const{return get(bytes_,at);}
 Float4 OpeningField::point(std::size_t at) const {
-    Float4 p{0,0,0,1};for(unsigned i=0;i<3;++i){p[i]=__builtin_bit_cast(float, (word(at+4*i)));if(!std::isfinite(p[i]))throw std::runtime_error("Invalid field point");}return p;
+    Float4 p{0,0,0,1};for(unsigned i=0;i<3;++i){p[i]=std::bit_cast<float>(word(at+4*i));if(!std::isfinite(p[i]))throw std::runtime_error("Invalid field point");}return p;
 }
 OpeningField::OpeningField(Bytes bytes,std::function<void(int)> start,std::function<bool(int)> wait,std::span<const ActorBinding> actors,bool diagnostic):
     bytes_(bytes.begin(),bytes.end()),script_(bytes,3),start_dialogue_(std::move(start)),wait_dialogue_(std::move(wait)) {
@@ -165,17 +165,17 @@ static FieldDefinition read_definition(Bytes data,const std::string& room,int sc
         if(number.empty()||number.size()>6||!std::all_of(number.begin(),number.end(),[](char c){return c>='0'&&c<='9';}))
             throw std::runtime_error("Invalid field scene identifier");
         result.scene=std::stoi(number);result.party=get(data,at);result.startup=get(data,at+12);result.field_flags=get(data,at+8);
-        result.music=__builtin_bit_cast(std::int32_t, (get(data,at+40)));result.secondary_music=__builtin_bit_cast(std::int32_t, (get(data,at+44)));
+        result.music=std::bit_cast<std::int32_t>(get(data,at+40));result.secondary_music=std::bit_cast<std::int32_t>(get(data,at+44));
         result.room_directory=string(get(data,at+16));result.room=string(get(data,at+20));result.message=string(get(data,at+24));
         unsigned index=12;
         for(;index<words && get(data,at+index*4);index+=8) {
             if(index+8>words || result.npcs.size()>=256)throw std::runtime_error("Field NPC definition bounds");
             const auto p=at+index*4;FieldNpcDefinition npc;
             npc.alias=-8-int(result.npcs.size());npc.model=string(get(data,p));
-            npc.state=__builtin_bit_cast(std::int32_t, (get(data,p+4)));npc.talk=__builtin_bit_cast(std::int32_t, (get(data,p+8)));
-            npc.alternate_talk=__builtin_bit_cast(std::int32_t, (get(data,p+12)));npc.position[3]=1;
-            for(unsigned k=0;k<3;++k)npc.position[k]=__builtin_bit_cast(float, (get(data,p+16+k*4)));
-            npc.facing=__builtin_bit_cast(float, (get(data,p+28)));
+            npc.state=std::bit_cast<std::int32_t>(get(data,p+4));npc.talk=std::bit_cast<std::int32_t>(get(data,p+8));
+            npc.alternate_talk=std::bit_cast<std::int32_t>(get(data,p+12));npc.position[3]=1;
+            for(unsigned k=0;k<3;++k)npc.position[k]=std::bit_cast<float>(get(data,p+16+k*4));
+            npc.facing=std::bit_cast<float>(get(data,p+28));
             if(!std::all_of(npc.position.begin(),npc.position.end(),[](float v){return std::isfinite(v);})||!std::isfinite(npc.facing))
                 throw std::runtime_error("Non-finite field NPC definition");
             result.npcs.push_back(std::move(npc));
@@ -220,8 +220,8 @@ FieldDefinition prepare_field_definition(Bytes script,Bytes variables,FieldDefin
     definition.room_directory=directory.substr(8,directory.size()-9);
     definition.type=get(setup,0x408);definition.startup=get(setup,0x410);
     definition.field_flags=get(setup,0x40c);
-    definition.music=__builtin_bit_cast(std::int32_t, (get(setup,0x400)));definition.secondary_music=__builtin_bit_cast(std::int32_t, (get(setup,0x404)));
-    definition.battle_record_selection=__builtin_bit_cast(std::int32_t, (get(setup,0x428)));
+    definition.music=std::bit_cast<std::int32_t>(get(setup,0x400));definition.secondary_music=std::bit_cast<std::int32_t>(get(setup,0x404));
+    definition.battle_record_selection=std::bit_cast<std::int32_t>(get(setup,0x428));
     definition.footstep=get(setup,0x42c);definition.dust=get(setup,0x414);
     for(auto& npc:definition.npcs)npc.flags=setup[0x1a8+(-8-npc.alias)];
     std::erase_if(definition.npcs,[](const auto& npc){return !npc.flags;});
@@ -236,6 +236,23 @@ FieldDefinition prepare_field_entry(Bytes script,std::span<std::uint8_t> variabl
     std::fill(variables.begin()+0x10,variables.begin()+0x110,0);
     set_event_variable(variables,0,4,definition.scene);
     set_event_variable(variables,1,4,int(entrance));
+    if(event_variable(variables,0x40005))definition.party=0;
+    set_event_variable(variables,6,4,definition.party==0);
+    definition=prepare_field_definition(script,variables,std::move(definition));
+    definition.followers.clear();
+    if(definition.party)for(unsigned index=25;index<30;++index)
+        if(event_variable(variables,0x40000|index)==3)definition.followers.push_back(index);
+    return definition;
+}
+FieldDefinition prepare_field_return(Bytes script,std::span<std::uint8_t> variables,
+                                     FieldDefinition definition) {
+    // 0x132720 interprets a negative entrance as the saved-pose path. Unlike
+    // ordinary entry, the command-13 path does not call 0x125ad0, so preserve
+    // the temporary flag block byte-for-byte.
+    if(variables.size()<0x588||definition.scene<0)
+        throw std::runtime_error("Invalid field return variables/scene");
+    set_event_variable(variables,0,4,definition.scene);
+    set_event_variable(variables,1,4,-1);
     if(event_variable(variables,0x40005))definition.party=0;
     set_event_variable(variables,6,4,definition.party==0);
     definition=prepare_field_definition(script,variables,std::move(definition));
@@ -282,7 +299,7 @@ void OpeningField::update_npcs() {
                 sync_collision_positions();const auto body_index=actor_collision_indices_.at(index);
                 auto desired=before;for(unsigned k=0;k<4;++k)desired[k]+=wander.velocity[k];
                 MapCollisionSettings settings;settings.wall_iterations=3;settings.disabled_mask=collision_mask->bits;
-                const bool corrected=resolve_collision(*collision_,bodies_,body_index,desired,settings,__builtin_bit_cast(float, (0x3efff17du)));
+                const bool corrected=resolve_collision(*collision_,bodies_,body_index,desired,settings,std::bit_cast<float>(0x3efff17du));
                 if(!corrected||!(bodies_[body_index].flags&1)||desired[3]!=1)
                     throw std::runtime_error("Uncorrected NPC wander W semantics are unrecovered");
                 bodies_[body_index].position=desired;commit_collision_positions(body_index);
@@ -312,7 +329,7 @@ void OpeningField::update_npcs() {
             sync_collision_positions();const auto body_index=actor_collision_indices_.at(index);
             auto desired=bodies_[body_index].position;for(unsigned k=0;k<4;++k)desired[k]+=(*action.displacement)[k];
             MapCollisionSettings settings;settings.wall_iterations=3;settings.disabled_mask=collision_mask->bits;
-            resolve_collision(*collision_,bodies_,body_index,desired,settings,__builtin_bit_cast(float, (0x3efff17du)));
+            resolve_collision(*collision_,bodies_,body_index,desired,settings,std::bit_cast<float>(0x3efff17du));
             bodies_[body_index].position=desired;
             commit_collision_positions(body_index);
         }
@@ -475,7 +492,7 @@ void OpeningField::configure_exterior_camera(unsigned area) {
     const auto setting=std::find_if(camera_settings_.begin(),camera_settings_.end(),[&](const auto& s){return s.id==int(area)-1;});
     // 0x138a50 provides these defaults when a settings ID is absent.
     const auto value=setting==camera_settings_.end()?FieldCameraSetting{0,
-        __builtin_bit_cast(float, (0xc1a01449u)),__builtin_bit_cast(float, (0x3f7c2917u)),__builtin_bit_cast(float, (0xc11028d4u)),0}:*setting;
+        std::bit_cast<float>(0xc1a01449u),std::bit_cast<float>(0x3f7c2917u),std::bit_cast<float>(0xc11028d4u),0}:*setting;
     if(value.mode!=0)throw std::runtime_error("Alternate exterior camera mode is unrecovered");
     exterior_camera->configure(value.height,value.scale,value.target);
 }
@@ -497,22 +514,23 @@ void OpeningField::build_collision(Bytes xcl) {
         if(!actors_[i].collidable)continue;
         actor_collision_indices_[i]=unsigned(bodies_.size());
         CollisionBody body;body.id=unsigned(bodies_.size());body.priority=10;body.floor_reach=4;
-        const float radius=__builtin_bit_cast(float, (0x3ff33333u));body.broad_radius=radius+radius;
+        const float radius=std::bit_cast<float>(0x3ff33333u);body.broad_radius=radius+radius;
         body.shapes={{8,{{0,0,0,1},{},0}},{0x72,{{0,-2.5f,0,1},{0,-5,0,1},radius}}};
         body.position=body.previous=actors_[i].actor->animation().values().at(1);
         if(body.id&&!actors_[i].actor->visible)body.flags|=2;
         bodies_.push_back(std::move(body));
     }
 }
-void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned entrance,ExplorationInput input) {
+void OpeningField::prepare(FieldDefinition definition,Bytes stg,Bytes xcl) {
     Rounding rounding;
     if(definition_||actors_.empty()||actors_.back().alias!=-1||definition.type>1)
         throw std::runtime_error("Unrecovered field entry construction");
+    if(prepared_||activated_)throw std::runtime_error("Field staging lifecycle");
     if(!definition.followers.empty())throw std::runtime_error("Field follower construction is unrecovered");
     if(definition.type==0&&!exterior_camera)throw std::runtime_error("Exterior field requires session camera state");
     if(definition.npcs.size()+1+unsigned(shadow_.has_value())!=actors_.size())throw std::runtime_error("Field entry NPC bindings differ");
     if(exterior_camera)exterior_camera->snap_target=true;
-    const auto placement=field_entrance(stg,entrance);
+    staged_stg_.assign(stg.begin(),stg.end());staged_xcl_.assign(xcl.begin(),xcl.end());
     for(const auto& npc:definition.npcs) {
         auto* object=actor(npc.alias);
         if(!object||(npc.state!=0&&npc.state!=1&&npc.state!=5)||(npc.flags&~15u))
@@ -528,30 +546,54 @@ void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned
     }
     definition_=std::move(definition);player_.footstep_sound=definition_->footstep;player_.dust_effect=definition_->dust;
     initialize_npcs();
-    auto* hero=actor(-1);hero->animation().set_channel(0,placement.rotation);hero->animation().set_channel(1,placement.position);
-    build_collision(xcl);
-    // 0x135300: settle with a Y=1 collision move, then finish placement
-    // by reading back the corrected output and initializing all 32 history entries.
-    auto& body=bodies_.back();auto desired=placement.position;desired[1]+=1;
+    prepared_=true;
+}
+void OpeningField::activate_pose(const Float4& player_position,const Float4& player_rotation,
+                                 bool returning,const std::optional<Float4>& raw_camera_position) {
+    if(!prepared_||activated_||!definition_)throw std::runtime_error("Field activation lifecycle");
+    Rounding rounding;
+    auto* hero=actor(-1);hero->animation().set_channel(0,player_rotation);hero->animation().set_channel(1,player_position);
+    build_collision(staged_xcl_);
+    // Ordinary 0x132720 settles one unit upward. The negative-entrance return
+    // branch restores the saved pose directly through 0x130220.
+    auto desired=player_position;if(!returning)desired[1]+=1;
     MapCollisionSettings settings;settings.wall_iterations=3;settings.disabled_mask=collision_mask->bits;
-    resolve_collision(*collision_,bodies_,bodies_.size()-1,desired,settings,__builtin_bit_cast(float, (0x3efff17du)));
-    body.position=body.previous=desired;hero->animation().set_channel(1,desired);
+    resolve_collision(*collision_,bodies_,bodies_.size()-1,desired,settings,std::bit_cast<float>(0x3efff17du));
+    auto& body=bodies_.back();
+    if(returning) {
+        body.position=body.previous=player_position;hero->animation().set_channel(1,player_position);
+        player_.history.fill(player_position);
+    } else {
+        body.position=body.previous=desired;hero->animation().set_channel(1,desired);
+        player_.history.fill(desired);
+    }
     player_.floor_contact=(body.contact.flags&1)?body.contact.materials[0]:-1;
     player_.camera_area=(std::uint32_t(player_.floor_contact)&0x38)>>3;
     // 0x135458 enables the initial automatic-contact latch; 0x135300 records
     // its index without arming it, so spawning inside one does not retrigger it.
     if((std::uint32_t(player_.floor_contact)&0x83)==0x81)
         player_.trigger_index=std::uint32_t(player_.floor_contact)>>8;
-    player_.history.fill(desired);
     player_.mask=0;player_.motion=1;exploration_handoff_=true;
     if(definition_->type==0) {
-        camera_settings_=field_camera_settings(stg);
-        script_.set_channel(0,exterior_camera->begin(desired));
-        configure_exterior_camera(player_.camera_area);exterior_camera_enabled_=true;
+        camera_settings_=field_camera_settings(staged_stg_);
+        if(!returning) {
+            script_.set_channel(0,exterior_camera->begin(desired));
+            configure_exterior_camera(player_.camera_area);
+        }
+        exterior_camera_enabled_=true;
     } else {
-        load_exploration_camera(stg);
+        load_exploration_camera(staged_stg_);
+    }
+    if(!returning) {
+        if(definition_->type!=0) {
         const auto camera=anchored_camera(desired,*exploration_camera_,angles_,sine_);
         script_.set_channel(0,camera.position);requested_target_=camera.target;camera_mode_=2;
+        }
+    }
+    if(raw_camera_position) {
+        // 0x130248 restores the raw camera channel, independently of the
+        // rendered position after CameraBlend.
+        script_.set_channel(0,*raw_camera_position);position=*raw_camera_position;
     }
     if(!get_variable||!set_variable)throw std::runtime_error("Field entry requires native variables");
     if(definition_->startup) {
@@ -566,6 +608,25 @@ void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned
         }
         else restore_event_gate();
     }
+    activated_=true;
+}
+void OpeningField::activate(unsigned entrance) {
+    if(!prepared_||!definition_)throw std::runtime_error("Field activation before preparation");
+    const auto placement=field_entrance(staged_stg_,entrance);
+    activate_pose(placement.position,placement.rotation,false,std::nullopt);
+}
+void OpeningField::activate_return(const FieldBattleReturnSnapshot& saved) {
+    if(!prepared_||!definition_||saved.scene!=definition_->scene)
+        throw std::runtime_error("Field return activation scene mismatch");
+    if(!std::all_of(saved.player_position.begin(),saved.player_position.end(),[](float v){return std::isfinite(v);})||
+       !std::all_of(saved.player_rotation.begin(),saved.player_rotation.end(),[](float v){return std::isfinite(v);})||
+       !std::all_of(saved.raw_camera_position.begin(),saved.raw_camera_position.end(),[](float v){return std::isfinite(v);}))
+        throw std::runtime_error("Field return pose contains non-finite values");
+    activate_pose(saved.player_position,saved.player_rotation,true,saved.raw_camera_position);
+}
+void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned entrance,ExplorationInput input) {
+    prepare(std::move(definition),stg,xcl);
+    activate(entrance);
     tick_callbacks(input,false);
 }
 void OpeningField::remember_player() {
@@ -602,7 +663,7 @@ void OpeningField::move_player(ExplorationInput input) {
         auto& body=bodies_.back();body.previous=body.position;Float4 desired;
         for(unsigned i=0;i<4;++i)desired[i]=body.position[i]+delta[i];
         MapCollisionSettings settings;settings.wall_iterations=3;settings.disabled_mask=collision_mask->bits;
-        resolve_collision(*collision_,bodies_,bodies_.size()-1,desired,settings,__builtin_bit_cast(float, (0x3efff17du)));
+        resolve_collision(*collision_,bodies_,bodies_.size()-1,desired,settings,std::bit_cast<float>(0x3efff17du));
         body.position=desired;
         // 0x1ba948 commits the mover and copies every current position to history.
         // Pushed NPC positions are native animation channels, not detached copies.
@@ -631,11 +692,11 @@ void OpeningField::move_player(ExplorationInput input) {
             throw std::runtime_error("Field contact camera area is unrecovered");
     }
     if(motion==3) {
-        if(__builtin_bit_cast(std::int32_t, (state.run_delay))<24){if(state.motion>=0)motion=state.motion;++state.run_delay;}
+        if(std::bit_cast<std::int32_t>(state.run_delay)<24){if(state.motion>=0)motion=state.motion;++state.run_delay;}
         else state.run_delay=0;
     } else ++state.run_delay;
     if(motion==state.motion) {
-        const auto counter=__builtin_bit_cast(std::int32_t, (state.effect_counter));
+        const auto counter=std::bit_cast<std::int32_t>(state.effect_counter);
         if((motion==2&&counter<0)||(motion==3)) {
             if(state.dust_effect && ((motion==2&&!(state.effect_counter&3)) ||
                (motion==3&&counter<40&&!(state.effect_counter&7))))
@@ -668,12 +729,12 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
                 throw std::runtime_error("Unrecovered field mode request "+std::to_string(b));
             if(battle_request_||transition_||encounter_)
                 throw std::runtime_error("Overlapping field battle request");
-            battle_request_=FieldBattleRequest{a,__builtin_bit_cast(std::int32_t, (word(pc+4))),
+            battle_request_=FieldBattleRequest{a,std::bit_cast<std::int32_t>(word(pc+4)),
                 battle_return_value_|0x1000u}; // 0x131390 reads field+28, not scene.
             pending_opcode=0;return {pc+8};
         case 11: {
             if(!get_variable)return pending();
-            const auto value=get_variable(word(pc+4)),expected=__builtin_bit_cast(std::int32_t, (word(pc+8)));
+            const auto value=get_variable(word(pc+4)),expected=std::bit_cast<std::int32_t>(word(pc+8));
             bool take=true;
             switch(a){case 1:take=value==expected;break;case 2:take=value!=expected;break;
                 case 3:take=value>expected;break;case 4:take=value<expected;break;
@@ -743,7 +804,7 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             scene_fade(a,b);pending_opcode=0;return {pc+4};
         case 0x4c:
             if(a || b)throw std::runtime_error("Field dialogue mode not yet implemented");
-            start_dialogue_(__builtin_bit_cast(std::int32_t, (word(pc+4))));return {pc+8};
+            start_dialogue_(std::bit_cast<std::int32_t>(word(pc+4)));return {pc+8};
         case 0x4d:
             //0x1308c0 only writes the manager sentinel. Construction happens
             // on the following mode5 manager callback, not in this script pass.
@@ -831,7 +892,7 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             if(audio_service && audio_service(a,b)){pending_opcode=0;return {pc+4};}
             return pending();
         case 0x68:
-            if(sound_cue && sound_cue(a,b,__builtin_bit_cast(float, (word(pc+4))),word(pc+8))){pending_opcode=0;return {pc+12};}
+            if(sound_cue && sound_cue(a,b,std::bit_cast<float>(word(pc+4)),word(pc+8))){pending_opcode=0;return {pc+12};}
             return pending();
         case 0x67:
             // 0x130ab8 -> 0x12dea0 uses speed1, volume128. Negative indices
@@ -846,8 +907,8 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
                 throw std::runtime_error("Unrecovered field variable addition storage");
             if(bank>1) {
                 if(!get_variable||!set_variable)return pending();
-                const auto sum=__builtin_bit_cast(std::uint32_t, (get_variable(selector)))+std::uint32_t(b);
-                set_variable(index,bank,__builtin_bit_cast(std::int32_t, (sum)));
+                const auto sum=std::bit_cast<std::uint32_t>(get_variable(selector))+std::uint32_t(b);
+                set_variable(index,bank,std::bit_cast<std::int32_t>(sum));
             }
             pending_opcode=0;return {pc+8};
         }
@@ -980,8 +1041,8 @@ void OpeningField::tick(ExplorationInput input) {
         motion->start(0); //0x1b5c38 ->0x1b5bd8 initializes the separate context.
         camera_motion_=std::move(motion);camera_mode_=0; //0x1baf50(-1).
         hat_actor_=resources.actor;alias7_actor_=hat_actor_;
-        hat_actor_->animation().set_channel(1,{__builtin_bit_cast(float, (0x422a0000u)),
-            __builtin_bit_cast(float, (0x401eb852u)),__builtin_bit_cast(float, (0x443d4000u)),1});
+        hat_actor_->animation().set_channel(1,{std::bit_cast<float>(0x422a0000u),
+            std::bit_cast<float>(0x401eb852u),std::bit_cast<float>(0x443d4000u),1});
         hat_actor_->visible=false;hat_requested_=false;
     }
     if(!was_transitioning&&(exploration_camera_||exterior)&&!event_running()) {
@@ -1144,7 +1205,7 @@ void SceneClearColor::load_stage(Bytes stg) {
         // 0x1bb088 then takes each integer's low byte. Reading STG bitpatterns
         // directly bypasses the first operation (invisible only for zero).
         for(unsigned c=0;c<4;++c) {
-            const auto value=__builtin_bit_cast(float, (get(stg,begin+i*20+4+c*4)));
+            const auto value=std::bit_cast<float>(get(stg,begin+i*20+4+c*4));
             if(!std::isfinite(value)||value < -2147483648.f||value >= 2147483648.f)
                 throw std::runtime_error("STG clear-color conversion range");
             if(std::trunc(value)!=value)
@@ -1165,7 +1226,7 @@ FieldOrdinaryLighting field_ordinary_lighting(Bytes stg) {
         if(!(kind>=1&&kind<=3)&&!(kind>=0x11&&kind<=0x13)&&kind!=0x40&&kind!=0x41&&kind!=0x45)continue;
         Float4 value;
         for(unsigned c=0;c<4;++c) {
-            value[c]=__builtin_bit_cast(float, (get(stg,at+4+c*4)));
+            value[c]=std::bit_cast<float>(get(stg,at+4+c*4));
             if(!std::isfinite(value[c]))throw std::runtime_error("Non-finite STG ordinary lighting");
         }
         if(kind<=3)result.colors[kind-1]=value;
@@ -1190,7 +1251,7 @@ Float4 field_effect_tint(Bytes stg) {
     for(unsigned i=0;i<count;++i) {
         const auto at=begin+i*20,kind=get(stg,at);
         if(kind!=1&&kind!=0x40&&kind!=0x41&&kind!=0x45)continue;
-        Float4 v;for(unsigned k=0;k<4;++k){v[k]=__builtin_bit_cast(float, (get(stg,at+4+k*4)));if(!std::isfinite(v[k]))throw std::runtime_error("Invalid STG lighting");}
+        Float4 v;for(unsigned k=0;k<4;++k){v[k]=std::bit_cast<float>(get(stg,at+4+k*4));if(!std::isfinite(v[k]))throw std::runtime_error("Invalid STG lighting");}
         if(kind==1)light=v;
         else if(kind==0x40)base=v;
         else if(kind==0x41)ambient=v;
@@ -1206,7 +1267,7 @@ Float4 field_sky_follow(Bytes stg) {
         throw std::runtime_error("STG sky settings bounds");
     Float4 factors{.5f,0,.5f,0}; // 0x1b8028 defaults; later records overwrite.
     for(unsigned i=0;i<count;++i)if(get(stg,begin+i*20)==0x46)
-        for(unsigned j=0;j<4;++j){factors[j]=__builtin_bit_cast(float, (get(stg,begin+i*20+4+j*4)));
+        for(unsigned j=0;j<4;++j){factors[j]=std::bit_cast<float>(get(stg,begin+i*20+4+j*4));
             if(!std::isfinite(factors[j]))throw std::runtime_error("Non-finite STG sky factor");}
     return factors;
 }
@@ -1223,7 +1284,7 @@ AnchoredCamera field_anchored_camera(Bytes stg) {
        (end-begin-count*28)%28||(end-begin-count*28)/28>30)
         throw std::runtime_error("Invalid STG camera tables");
     auto number=[&](std::size_t at) {
-        const auto v=__builtin_bit_cast(float, (get(stg,at)));
+        const auto v=std::bit_cast<float>(get(stg,at));
         if(!std::isfinite(v))throw std::runtime_error("Non-finite STG camera setting");
         return v;
     };
@@ -1244,9 +1305,9 @@ std::vector<FieldCameraSetting> field_camera_settings(Bytes stg) {
        (end-begin-count*28)%28||(end-begin-count*28)/28>30)throw std::runtime_error("Invalid STG camera tables");
     std::vector<FieldCameraSetting> result;
     for(auto at=begin+count*28;at<end;at+=28) {
-        FieldCameraSetting setting;setting.id=__builtin_bit_cast(std::int16_t, (std::uint16_t(get(stg,at)>>16)));
+        FieldCameraSetting setting;setting.id=std::bit_cast<std::int16_t>(std::uint16_t(get(stg,at)>>16));
         std::array<float*,4> fields{&setting.height,&setting.scale,&setting.target,&setting.mode};
-        for(unsigned i=0;i<4;++i){*fields[i]=__builtin_bit_cast(float, (get(stg,at+4+i*4)));if(!std::isfinite(*fields[i]))throw std::runtime_error("Invalid STG camera setting");}
+        for(unsigned i=0;i<4;++i){*fields[i]=std::bit_cast<float>(get(stg,at+4+i*4));if(!std::isfinite(*fields[i]))throw std::runtime_error("Invalid STG camera setting");}
         result.push_back(setting);
     }
     return result;
@@ -1258,7 +1319,7 @@ FieldEntrance field_entrance(Bytes stg,unsigned entrance) {
         throw std::runtime_error("Invalid STG entrance table/index");
     FieldEntrance result;result.position[3]=result.rotation[3]=1;
     for(unsigned i=0;i<6;++i) {
-        const float value=__builtin_bit_cast(float, (get(stg,start+entrance*28+4+i*4)));
+        const float value=std::bit_cast<float>(get(stg,start+entrance*28+4+i*4));
         if(!std::isfinite(value))throw std::runtime_error("Non-finite STG entrance");
         (i<3?result.position:result.rotation)[i%3]=value;
     }

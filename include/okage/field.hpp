@@ -33,6 +33,10 @@ std::array<std::uint8_t,0x800> field_setup_state(Bytes script,Bytes variables,co
 FieldDefinition prepare_field_definition(Bytes script,Bytes variables,FieldDefinition definition);
 FieldDefinition prepare_field_entry(Bytes script,std::span<std::uint8_t> variables,
                                     FieldDefinition definition,unsigned entrance);
+// Command-13 return preparation: keep temporary flags, select the current
+// scene, and use signed entrance -1 so 0x132720 restores the saved pose.
+FieldDefinition prepare_field_return(Bytes script,std::span<std::uint8_t> variables,
+                                     FieldDefinition definition);
 struct FieldEntrance {Float4 position{},rotation{};};
 FieldEntrance field_entrance(Bytes stg,unsigned entrance);
 struct FieldTransition {int scene;unsigned entrance,countdown=2;bool ready=false;};
@@ -75,6 +79,11 @@ public:
     void load_exploration_collision(Bytes xcl,Bytes variables);
     void load_interactions(Bytes database,const std::string& room,Bytes variables);
     void enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned entrance,ExplorationInput input={});
+    // Split 0x131d28 construction from 0x132720 activation. Staging owns copies
+    // of the STG/XCL bytes so the activation can happen in a later manager turn.
+    void prepare(FieldDefinition definition,Bytes stg,Bytes xcl);
+    void activate(unsigned entrance);
+    void activate_return(const FieldBattleReturnSnapshot& saved);
     const std::optional<FieldTransition>& transition() const {return transition_;}
     const std::optional<FieldEncounter>& encounter() const {return encounter_;}
     const std::optional<FieldBattleRequest>& battle_request() const {return battle_request_;}
@@ -162,6 +171,8 @@ private:
     std::optional<ShadowTransition> shadow_;
     void update_player_shadow();
     std::optional<FieldDefinition> definition_;
+    std::vector<std::uint8_t> staged_stg_,staged_xcl_;
+    bool prepared_=false,activated_=false;
     int interaction_alias_=0,interaction_event_=0;
     std::int32_t saved_input_gate_=0;
     bool input_gate_saved_=false;
@@ -176,6 +187,8 @@ private:
     std::vector<std::optional<WanderingNpc>> wanderers_;
     bool rear_attack_=false;
     void initialize_npcs();
+    void activate_pose(const Float4& player_position,const Float4& player_rotation,
+                       bool returning,const std::optional<Float4>& raw_camera_position);
     void update_npcs();
     void clear_contact();
     void build_collision(Bytes xcl);
