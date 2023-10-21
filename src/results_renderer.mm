@@ -39,7 +39,7 @@ struct ResultsRenderer::Impl {
         depth=[device newTextureWithDescriptor:descriptor];
         require(color&&depth,"Results renderer target allocation failed");
     }
-    const Texture& render(const std::optional<UiDrawList>& draw) {
+    const Texture& render(const std::optional<UiDrawList>& draw,const SceneFade& fade) {
         std::optional<UiGeometryList> geometry;
         if(draw)geometry=resolve_ui_geometry(*draw);
         auto command=[queue commandBuffer];
@@ -48,7 +48,11 @@ struct ResultsRenderer::Impl {
         pass.colorAttachments[0].texture=color;
         pass.colorAttachments[0].loadAction=MTLLoadActionClear;
         pass.colorAttachments[0].storeAction=MTLStoreActionStore;
-        pass.colorAttachments[0].clearColor=MTLClearColorMake(0,0,0,64.0/255.0);
+        Texture background{1,1,0,0,{0,0,0,64}};
+        fade.apply(background);
+        const auto& rgba=background.rgba;
+        pass.colorAttachments[0].clearColor=MTLClearColorMake(
+            rgba[0]/255.0,rgba[1]/255.0,rgba[2]/255.0,rgba[3]/255.0);
         pass.depthAttachment.texture=depth;
         pass.depthAttachment.loadAction=MTLLoadActionClear;
         pass.depthAttachment.storeAction=MTLStoreActionStore;
@@ -58,7 +62,7 @@ struct ResultsRenderer::Impl {
         [clear endEncoding];
         std::optional<UiMetalValidation> validation;
         if(geometry) {
-            const UiMetalBaseline baseline{0x6c00,0x7900,true,0,1,0,1};
+            const UiMetalBaseline baseline{0x6c00,0x7900,!fade.enabled,0,1,0,1};
             validation=renderer->encode(command,color,depth,*geometry,baseline,
                 [this](const UiGeometryTexture& texture)->UiMetalTexture {
                     if(texture.kind==UiGeometryTexture::Kind::Font) {
@@ -83,7 +87,7 @@ ResultsRenderer::ResultsRenderer(std::shared_ptr<const std::vector<Font>> fonts,
     @autoreleasepool {impl_=std::make_unique<Impl>(std::move(fonts),std::move(window_atlas));}
 }
 ResultsRenderer::~ResultsRenderer()=default;
-const Texture& ResultsRenderer::render(const std::optional<UiDrawList>& draw) {
-    @autoreleasepool {return impl_->render(draw);}
+const Texture& ResultsRenderer::render(const std::optional<UiDrawList>& draw,const SceneFade& fade) {
+    @autoreleasepool {return impl_->render(draw,fade);}
 }
 }
