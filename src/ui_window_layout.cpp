@@ -93,20 +93,24 @@ void UiWindow::layout_constructor_stream(UiLayoutContext context) {
     const unsigned glyph_capacity=word(0x3c00);
     check(glyph_capacity>0,"UI mode0 zero glyph capacity");
     for(unsigned group=0;group<glyph_capacity;++group) {
-        put(0x3c08+group*4,word(0x3c08+group*4)|4u);
-        for(unsigned slot=0;slot<16;++slot)
+        for(unsigned slot=0;slot<16;++slot) {
+            put(0x3c08+slot*4,word(0x3c08+slot*4)|4u);
             glyph_[1].put_word((group*16+slot)*16+8,0xbf800000);
+        }
     }
 
-    if(!has_flag(0)) {put(0x218,12);put(0x21c,24);set_flag(0);}
-    put(0x269c,word(0x269c)+1);
+    put(0x218,12);put(0x21c,24);set_flag(0); //14 writes even when already flagged.
+    put(0x269c,word(0x269c)+2);
     if(!has_flag(1)) {put(0xcd4,0xfffffc18u);set_flag(1);}
-    put(0x269c,word(0x269c)+1);
+    put(0x269c,word(0x269c)+2);
+
+    put(0x1900,word(0x1900)|0x22u);put(0xcb0,24);
+    const auto last_line=sub(si(word(0x250)),1);
+    put(0xcb4,last_line>0?0u:std::uint32_t(last_line)*word(0x21c));
+    put(0xcec,0);put(0xcf0,0);put(0xcf4,0xffffffffu);
 
     reset_glyph_packets();reset_sprite_packets();put(0x3e24,0);
     put(0x3e24,1);put(0x3c08,word(0x3c08)|4u);put(0xcc0,word(0x3e24));
-    put(0x268,word(0x26c));put(0x258,word(0x250));put(0x254,word(0x250));
-    put(0xcec,0);put(0xcf0,0);put(0xcf4,0xffffffffu);put(0xcb0,24);put(0xcb4,0);
 
     for(unsigned slot=0;slot<16;++slot)
         shared.sprite_dirty=place_icon(0,slot,0,0,0,-1,
@@ -116,7 +120,7 @@ void UiWindow::layout_constructor_stream(UiLayoutContext context) {
     check(previous_groups<word(0x3c04)+1,"UI mode0 previous sprite groups");
     for(unsigned group=0;group<=previous_groups;++group)
         put(0x3c08+group*4,word(0x3c08+group*4)&~8u);
-    put(0xcc4,previous_groups);put(0x1900,word(0x1900)|0x22u);
+    put(0xcc4,previous_groups);put(0x1900,word(0x1900)|0x80u);
     shared.sprite_groups=0;shared.layer=0;
 }
 void UiWindow::layout_mode2(UiLayoutContext context) {

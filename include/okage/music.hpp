@@ -78,7 +78,8 @@ public:
     MusicChannelLevels channels;
     void install(unsigned slot,int id,MusicResource resource);
     void install_jingle(unsigned slot,MusicResource resource);
-    void enter(int primary,int secondary,const Loader& load);
+    //Phase12 prepares score slots while results keep playback deferred.
+    void enter(int primary,int secondary,const Loader& load,bool defer_primary=false);
     // Event task0x12fec8 stops the ordinary score, then0x12d898 ensures slot1.
     // Completion scheduling belongs to the caller, not this resource operation.
     void load_secondary(int id,const Loader& load);

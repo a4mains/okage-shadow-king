@@ -118,7 +118,7 @@ def _read_battle_bundle(directory):
                'sha256': sha256(data), 'size': len(data)}
         for name, data in artifacts.items()
     }
-    provenance['manifest.json'] = {
+    provenance['battle-manifest.json'] = {
         'source_path': str(manifest_path.absolute()),
         'sha256': source_manifest_hash,
         'size': len(artifacts['battle-manifest.json']),

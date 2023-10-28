@@ -62,6 +62,8 @@ class ResultsResourcesTests(unittest.TestCase):
             self.assertEqual(artifacts['results-text.bin'], b'results-text')
             self.assertEqual(artifacts['FLD.RUW'], b'field-data')
             self.assertEqual(artifacts['battle-manifest.json'], source_manifest)
+            self.assertEqual(manifest['sources']['battle-manifest.json']['source_path'],
+                             str((bundle / 'manifest.json').absolute()))
             self.assertEqual(manifest['sources']['elf']['source_path'], str((root / 'game.elf').absolute()))
             for name, data in artifacts.items():
                 self.assertEqual(manifest['artifacts'][name], {'size': len(data), 'sha256': sha(data)})

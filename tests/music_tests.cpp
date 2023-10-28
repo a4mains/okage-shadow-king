@@ -86,6 +86,17 @@ int main(){try{
     require(ramp.current==0 && ramp.target==0 && ramp.stopped,"Stop resets target");
     ramp.request(128,0);ramp.tick();require(ramp.current==0 && !ramp.stopped,"Zero-rate request");
     rejects([&]{ramp.request(129,1);});rejects([&]{ramp.request(80,32768);});
+    {
+        okage::MusicRouter returning;unsigned loaded=0;
+        auto load=[&](int){++loaded;return okage::MusicResource{score,bank(),bank(),{}};};
+        returning.enter(51,26,load,true);
+        require(loaded==2&&returning.loaded_id(0)==51&&returning.loaded_id(1)==26&&returning.current_id()==-1,
+            "Results preparation must load both slots without starting field music");
+        returning.select(51);returning.render(std::span<std::int16_t>{});
+        require(returning.current_id()==51,"Results dismissal starts prepared primary");
+        const auto* playing=returning.player();returning.enter(51,26,load,true);
+        require(loaded==2&&returning.player()==playing,"Deferred same-ID entry preserves resource/playback owners");
+    }
     okage::MusicRouter router;std::vector<int> loads;
     auto loader=[&](int id){loads.push_back(id);return okage::MusicResource{score,bank(),bank(),id==26?score:std::vector<std::uint8_t>{}};};
     std::array<std::int16_t,1600> frame{};

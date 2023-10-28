@@ -190,11 +190,11 @@ void MusicRouter::ensure(unsigned slot,int id,const Loader& load) {
     if(!load)throw std::runtime_error("Music resource loader is not bound");
     install(slot,id,load(id));
 }
-void MusicRouter::enter(int primary,int secondary,const Loader& load) {
+void MusicRouter::enter(int primary,int secondary,const Loader& load,bool defer_primary) {
     if(primary>0&&ids_[0]!=primary&&current_!=-1)volume.request(0,8);
     if(secondary>0&&ids_[1]!=secondary)unload(1);
     if(primary<0)stop();
-    if(primary>0){ensure(0,primary,load);select(primary);}
+    if(primary>0){ensure(0,primary,load);if(!defer_primary)select(primary);}
     if(secondary>0)ensure(1,secondary,load);
 }
 void MusicRouter::load_secondary(int id,const Loader& load) {

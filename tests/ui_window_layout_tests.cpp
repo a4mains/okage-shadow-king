@@ -108,9 +108,9 @@ void constructor_stream(){
     require(w.prepare_mode2({shared,*f,sine,random,0,packets}),"Dispatcher runs the bounded constructor stream");
     require(w.word(0x218)==12&&w.word(0x21c)==24&&w.word(0xcd4)==0xfffffc18u,
             "Constructor14/6 applies authored metrics and signed reveal period");
-    require(w.word(0x269c)==2&&w.word(0x2edc)==0&&w.flags().word(0)==0x202,
+    require(w.word(0x269c)==4&&w.word(0x2edc)==0&&w.flags().word(0)==0x202,
             "Mode0 advances its command cursor, leaves the later RUW cursor untouched, and marks both source command bytes");
-    require(w.word(0xcc0)==1&&w.word(0xcc4)==0&&w.word(0x1900)&0x22,
+    require(w.word(0xcc0)==1&&w.word(0xcc4)==0&&(w.word(0x1900)&0xa2)==0xa2,
             "Mode0 runs the empty glyph/sprite footer and terminal flags");
     require(draws==32&&shared.layer==0&&!shared.sprite_dirty,
             "Sixteen sentinel icon placements retain their two source RNG draws each");
