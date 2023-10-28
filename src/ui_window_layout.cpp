@@ -14,10 +14,10 @@ namespace okage {
 namespace {
 using I=std::int32_t;
 void check(bool value,const char* message){if(!value)throw std::runtime_error(message);}
-I si(std::uint32_t v){return __builtin_bit_cast(I, (v));}
+I si(std::uint32_t v){return std::bit_cast<I>(v);}
 I add(I a,I b){return si(std::uint32_t(a)+std::uint32_t(b));}
 I sub(I a,I b){return si(std::uint32_t(a)-std::uint32_t(b));}
-std::uint32_t bits(float f){return __builtin_bit_cast(std::uint32_t, (f));}
+std::uint32_t bits(float f){return std::bit_cast<std::uint32_t>(f);}
 float ordinary(float f){const auto b=bits(f),e=b&0x7f800000u;
     check(e!=0x7f800000u&&(e!=0||(b&0x7fffffu)==0),"UI mode2 exceptional float");return f;}
 float number(I i){volatile I v=i;volatile float f=static_cast<float>(v);return f;}
@@ -47,13 +47,77 @@ bool UiWindow::prepare_mode2(UiLayoutContext context) {
     flags=word(0x1900);
     if(((display>>4)&3)&&!(flags&0x20)&&(flags&1)){
         put(0x268c,word(0x268c)^1u);put(0x2694,word(0x2694)^1u);
-        if(ordinary(__builtin_bit_cast(float, (word(0x27c))))!=0||
-           ordinary(__builtin_bit_cast(float, (word(0x270))))!=0){
-            layout_mode2(context);laid_out=true;
+        if(ordinary(std::bit_cast<float>(word(0x27c)))!=0||
+           ordinary(std::bit_cast<float>(word(0x270)))!=0){
+            const auto mode=word(0x3bec);
+            if(mode==2)layout_mode2(context);
+            else if(mode==0)layout_constructor_stream(context);
+            else throw std::runtime_error("Unsupported UI dispatcher layout mode");
+            laid_out=true;
         }
         put(0x1900,word(0x1900)&~1u);
     }
     put(0x1904,0);return laid_out;
+}
+void UiWindow::layout_constructor_stream(UiLayoutContext context) {
+    check(word(0x3bec)==0,"UI constructor layout is not mode0");
+    check(stream_->entries.size()==2,"UI mode0 only supports constructor14/6 stream");
+    const auto* metrics=std::get_if<UiStreamCommand>(&stream_->entries[0]);
+    const auto* period=std::get_if<UiStreamCommand>(&stream_->entries[1]);
+    check(metrics&&metrics->opcode==14&&
+          std::get_if<UiStreamReference>(&metrics->argument)&&
+          std::get<UiStreamReference>(metrics->argument)==UiStreamReference::MenuTransform1f9c00,
+          "UI mode0 constructor metrics binding");
+    check(period&&period->opcode==6&&
+          std::get_if<UiStreamReference>(&period->argument)&&
+          std::get<UiStreamReference>(period->argument)==UiStreamReference::MenuTransform1f9c2c,
+          "UI mode0 constructor period binding");
+    check(bool(context.random)&&context.sine.size()>=360,"UI mode0 placement owners missing");
+
+    auto& shared=context.shared;
+    const auto set_flag=[&](unsigned byte_index) {
+        const unsigned at=(byte_index/4)*4;
+        const unsigned shift=(byte_index%4)*8;
+        flags_.put_word(at,flags_.word(at)|(2u<<shift));
+    };
+    const auto has_flag=[&](unsigned byte_index) {
+        const unsigned at=(byte_index/4)*4;
+        return ((flags_.word(at)>>((byte_index%4)*8))&2u)!=0;
+    };
+
+    put(0x22c,0x80808080);put(0xcf8,0);put(0xcfc,0);put(0xcb0,24);
+    put(0x228,0x3f800000);put(0x224,0x3f800000);
+    for(auto at:{0xcdc,0x269c,0xcb4,0x1968,0x196c})put(at,0);
+    shared.sprite_groups=0;shared.layer=1;shared.sprite_dirty=false;shared.glyph_metric.reset();
+
+    const unsigned glyph_capacity=word(0x3c00);
+    check(glyph_capacity>0,"UI mode0 zero glyph capacity");
+    for(unsigned group=0;group<glyph_capacity;++group) {
+        put(0x3c08+group*4,word(0x3c08+group*4)|4u);
+        for(unsigned slot=0;slot<16;++slot)
+            glyph_[1].put_word((group*16+slot)*16+8,0xbf800000);
+    }
+
+    if(!has_flag(0)) {put(0x218,12);put(0x21c,24);set_flag(0);}
+    put(0x269c,word(0x269c)+1);
+    if(!has_flag(1)) {put(0xcd4,0xfffffc18u);set_flag(1);}
+    put(0x269c,word(0x269c)+1);
+
+    reset_glyph_packets();reset_sprite_packets();put(0x3e24,0);
+    put(0x3e24,1);put(0x3c08,word(0x3c08)|4u);put(0xcc0,word(0x3e24));
+    put(0x268,word(0x26c));put(0x258,word(0x250));put(0x254,word(0x250));
+    put(0xcec,0);put(0xcf0,0);put(0xcf4,0xffffffffu);put(0xcb0,24);put(0xcb4,0);
+
+    for(unsigned slot=0;slot<16;++slot)
+        shared.sprite_dirty=place_icon(0,slot,0,0,0,-1,
+            {shared.layer,context.sine,context.random})||shared.sprite_dirty;
+    check(!shared.sprite_dirty,"UI mode0 sprite packet rebuild is outside constructor stream");
+    const auto previous_groups=word(0x3e28);
+    check(previous_groups<word(0x3c04)+1,"UI mode0 previous sprite groups");
+    for(unsigned group=0;group<=previous_groups;++group)
+        put(0x3c08+group*4,word(0x3c08+group*4)&~8u);
+    put(0xcc4,previous_groups);put(0x1900,word(0x1900)|0x22u);
+    shared.sprite_groups=0;shared.layer=0;
 }
 void UiWindow::layout_mode2(UiLayoutContext context) {
     check(word(0x3bec)==2,"UI layout is not mode2");
@@ -64,7 +128,7 @@ void UiWindow::layout_mode2(UiLayoutContext context) {
     check(capacity>0,"UI mode2 zero glyph capacity");
     Rounding rounding;
     auto& shared=context.shared;
-    const auto floating=[&](unsigned at){return ordinary(__builtin_bit_cast(float, (word(at))));};
+    const auto floating=[&](unsigned at){return ordinary(std::bit_cast<float>(word(at)));};
     const auto put_i=[&](unsigned at,I v){put(at,std::uint32_t(v));};
     put(0x22c,0x80808080);put(0xcf8,0);put(0xcfc,0);put(0xcb0,24);
     put(0x224,bits(1));put(0x228,bits(1));
@@ -151,7 +215,7 @@ void UiWindow::layout_mode2(UiLayoutContext context) {
             if(number(y)<=op(floating(0x264),24.f,'-'))code=-1;
             check(si(word(0x3be4))<1,"UI mode2 line break marker is unrecovered");
             const auto offset=(glyph_group*16+glyph_slot)*16;
-            const auto old=integer(__builtin_bit_cast(float, (glyph_[1].word(offset+8))));
+            const auto old=integer(std::bit_cast<float>(glyph_[1].word(offset+8)));
             glyph_[1].put_word(offset+8,bits(number(code)));
             if(old==code)++unchanged;
             place_glyph(glyph_group,glyph_slot,x,y,width,height,context.fonts,placement());
@@ -214,7 +278,7 @@ void UiWindow::layout_mode2(UiLayoutContext context) {
         }
     }
     put(0x1900,word(0x1900)|0x22);set_cursor();put(0xcec,glyph_slot);
-    put_i(0xcf4,integer(__builtin_bit_cast(float, (glyph_[1].word((glyph_group*16+glyph_slot)*16+8)))));
+    put_i(0xcf4,integer(std::bit_cast<float>(glyph_[1].word((glyph_group*16+glyph_slot)*16+8))));
     for(unsigned j=next_slot;j<16;++j)glyph_[1].put_word((glyph_group*16+j)*16+8,bits(-1));
     put(0xcf0,glyph_group);
     reset_glyph_packets();reset_sprite_packets();put(0x3e24,0);

@@ -16,7 +16,7 @@ namespace {
 using namespace okage;
 void require(bool b,const char* why){if(!b)throw std::runtime_error(why);}
 void put(std::vector<std::uint8_t>& b,unsigned at,std::uint32_t w){for(unsigned i=0;i<4;++i)b.at(at+i)=w>>(8*i);}
-std::uint32_t bits(float f){return __builtin_bit_cast(std::uint32_t, (f));}
+std::uint32_t bits(float f){return std::bit_cast<std::uint32_t>(f);}
 std::shared_ptr<RuwResource> resource(unsigned text_count=1,unsigned sprite_count=1){
     // One style, one template group, one widget group. Generic authored data.
     const unsigned count=text_count+sprite_count;
@@ -92,6 +92,43 @@ void preparation(){
     require(w.prepare_mode2(context)&&draws==31,"Nonzero delta requests layout even at zero current opacity");
     require(w.opacity()==0,"Preparation does not advance clock or opacity");
 }
+void constructor_stream(){
+    auto f=fonts();std::array<float,360> sine{};UiLayoutShared shared;UiPacketBuildContext packets{f};
+    auto stream=std::make_shared<UiWindowStream>(UiWindowStream{1,{
+        UiStreamCommand{14,UiStreamReference::MenuTransform1f9c00},
+        UiStreamCommand{6,UiStreamReference::MenuTransform1f9c2c}}});
+    UiWindow w(4,4,0,stream);
+    std::array<std::uint32_t,28> settings{};settings[0]=1;settings[1]=40;settings[2]=6;
+    settings[20]=1;settings[21]=1;settings[25]=4;settings[26]=4;
+    const std::array<UiWindow::AtlasTuple,2> atlas{{{0,0,16,16},{}}};
+    w.configure(settings,atlas,std::make_shared<int>(1));
+    w.set_opacity_tween(0,128,0,128);
+    unsigned draws=0;auto random=[&](){++draws;return 1u;};
+    require(w.word(0x3bec)==0,"Initial results constructor stream remains mode0 before RUW binding");
+    require(w.prepare_mode2({shared,*f,sine,random,0,packets}),"Dispatcher runs the bounded constructor stream");
+    require(w.word(0x218)==12&&w.word(0x21c)==24&&w.word(0xcd4)==0xfffffc18u,
+            "Constructor14/6 applies authored metrics and signed reveal period");
+    require(w.word(0x269c)==2&&w.word(0x2edc)==0&&w.flags().word(0)==0x202,
+            "Mode0 advances its command cursor, leaves the later RUW cursor untouched, and marks both source command bytes");
+    require(w.word(0xcc0)==1&&w.word(0xcc4)==0&&w.word(0x1900)&0x22,
+            "Mode0 runs the empty glyph/sprite footer and terminal flags");
+    require(draws==32&&shared.layer==0&&!shared.sprite_dirty,
+            "Sixteen sentinel icon placements retain their two source RNG draws each");
+    require(!w.glyph_packet(0,0),"An all-sentinel glyph pass does not fabricate a packet");
+
+    auto r=resource();r->set_text(0,0,"A");const std::array<std::size_t,1> groups{0};w.bind_ruw(r,groups);
+    w.set_opacity_tween(0,128,0,128);draws=0;
+    require(w.word(0x3bec)==2&&w.prepare_mode2({shared,*f,sine,random,0,packets}),
+            "The same window reuses mode2 after its later RUW bind");
+    require(w.word(0x218)==12&&w.word(0x21c)==24&&w.word(0x269c)==7,
+            "Later mode2 still applies its separate typed stream semantics");
+
+    auto wrong=std::make_shared<UiWindowStream>(*stream);wrong->entries.push_back(UiStreamText{{0}});
+    UiWindow unsupported(4,4,0,wrong);unsupported.configure(settings,atlas,std::make_shared<int>(1));
+    unsupported.set_opacity_tween(0,128,0,128);bool failed=false;
+    try{unsupported.prepare_mode2({shared,*f,sine,random,0,packets});}catch(const std::runtime_error&){failed=true;}
+    require(failed,"Other pre-bind mode0 stream shapes remain explicitly guarded");
+}
 std::vector<std::uint8_t> read(const std::filesystem::path& p){
     std::ifstream in(p,std::ios::binary);require(bool(in),"Owned layout input missing");
     return {std::istreambuf_iterator<char>(in),{}};
@@ -125,4 +162,4 @@ void owned(const char* battle,const char* font_directory){
     std::cout<<"Owned projected primitives="<<primitives<<'\n';
 }
 }
-int main(int argc,char** argv){try{traversal();boundaries();preparation();if(argc==3)owned(argv[1],argv[2]);else require(argc==1,"usage: ui-window-layout-tests [BATTLE_DIRECTORY FONT_DIRECTORY]");std::cout<<"UI mode2 layout tests passed\n";}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(int argc,char** argv){try{traversal();boundaries();preparation();constructor_stream();if(argc==3)owned(argv[1],argv[2]);else require(argc==1,"usage: ui-window-layout-tests [BATTLE_DIRECTORY FONT_DIRECTORY]");std::cout<<"UI mode0/2 layout tests passed\n";}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
