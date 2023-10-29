@@ -1,0 +1,165 @@
+{
+  "schema": "okage-battle-results-validation-v1",
+  "runtime_revision": "88cf2c8454b7d32a70dce334568bb8ae47b99aba",
+  "acceptance_met": false,
+  "native_checks": [
+    {
+      "configuration": "Release",
+      "tests": 21,
+      "build": {
+        "path": "local/research/results-interface-v1/return-release-build-v5.log",
+        "sha256": "f15a2ceaf209b5a77dad780375f5ad5a0434acd2fdedc81294bb209066a636d5"
+      },
+      "ctest": {
+        "path": "local/research/results-interface-v1/return-release-tests-v5.log",
+        "sha256": "5af6e21bbf1ff255160b11c4e740e56ff6c52dd6bf003055ee63fa84a4be36a6"
+      },
+      "exit_code": 0,
+      "scope": "Affected component, UI, field and music tests; full native app built."
+    },
+    {
+      "configuration": "Debug",
+      "tests": 21,
+      "build": {
+        "path": "local/research/results-interface-v1/return-debug-build-v2.log",
+        "sha256": "7a68cac0f564574879121addad946b39364b9a104e4cfe9c69058b7e71b96993"
+      },
+      "ctest": {
+        "path": "local/research/results-interface-v1/return-debug-tests-v2.log",
+        "sha256": "480987a580d039d7380523b2cfe2c4b96d400badd8056e931a342bd102f95870"
+      },
+      "exit_code": 0,
+      "scope": "Affected component, UI, field and music tests; full native app built."
+    },
+    {
+      "configuration": "ASan_UBSan",
+      "tests": 21,
+      "build": {
+        "path": "local/research/results-interface-v1/return-sanitize-build-v2.log",
+        "sha256": "252ac1fd80de2cf54d2b7a1f2e51ace4e3c5975c62d122bc926da772f2203d49"
+      },
+      "ctest": {
+        "path": "local/research/results-interface-v1/return-sanitize-tests-v2.log",
+        "sha256": "78bfb4a685716688d9774ea8305ebb20d66951f3f044c0bef4e0bddb034ddf88"
+      },
+      "exit_code": 0,
+      "scope": "Affected component, UI, field and music tests; full native app built."
+    }
+  ],
+  "python": {
+    "tests": 414,
+    "exit_code": 0,
+    "log": {
+      "path": "local/research/results-interface-v1/python-suite-v2.log",
+      "sha256": "77ef2acf4724f96d3241723b63faa00f6b101a068eae48d8a66ae575a5b04a7e"
+    }
+  },
+  "owned_import": {
+    "path": "local/battle-input-v6/manifest.json",
+    "sha256": "fe38af168d63594355bb258f1aa88f142afe8d38ff46f9f6e0f7a538d2fd710a"
+  },
+  "native_replay": {
+    "run": {
+      "path": "local/research/battle-combat-entry-v1/native-results-followup-108575-v2/run.json",
+      "sha256": "9009f8ebc4709f901d0c1b299ce207e406b5bdfe380f4147cd6ed6887eccb5b7"
+    },
+    "source_diff": {
+      "path": "local/research/battle-combat-entry-v1/native-results-followup-108575-v2/source.diff",
+      "sha256": "6f8fe4f919a469cdf3bcca96ff748d5bcdcc96f74921205c5fbad999295ccaf7"
+    },
+    "binary_sha256": "5ce7f3246c759bfcc39a7ebff1f1150b769480f9c09ab46597b4cf80fa0d3c9b",
+    "exit_code": 0,
+    "end_frame": 108575,
+    "milestones": {
+      "victory_return_queued": 108336,
+      "results_constructed": 108352,
+      "loader_complete": 108367
+    },
+    "results_trace": {
+      "path": "local/research/battle-combat-entry-v1/native-results-followup-108575-v2/native.png.results.bin",
+      "sha256": "199b727765c8a0fc14a5249fa900a06150ac6dc195cd9a71c31c3deda9312d2a"
+    },
+    "endpoint_image": {
+      "path": "local/research/battle-combat-entry-v1/native-results-followup-108575-v2/native.png",
+      "sha256": "b9d801990886da96af3f5c704b09a7140e4b3f7aa35e32e71812317d39a0da0a"
+    },
+    "endpoint_visually_inspected": true,
+    "scope": "Native startup, ordinary recorded inputs, authentic battle victory and initial results animation."
+  },
+  "comparison": {
+    "anchor": 107976,
+    "end": 108575,
+    "battle_report": {
+      "path": "local/research/battle-combat-entry-v1/results-followup-comparison-v2.json",
+      "sha256": "2e1a5496c6c336b3a027c54e9e76f4513ec9924d010f946dc69f0562a56073c3"
+    },
+    "commands": {
+      "path": "local/research/battle-combat-entry-v1/results-followup-comparison-v2.runs.json",
+      "sha256": "0ce72f2be4a918b7202dc410fbb911c49b756750d661ddc35626cc11cbe507c0"
+    },
+    "paired_battle_rows": 2138,
+    "missing_battle_rows": 0,
+    "order_differences": 0,
+    "field_mismatches": 40689,
+    "first_mismatch": {
+      "frame": 107976,
+      "field": "actor[3].record"
+    },
+    "results_tail_state_observed": false,
+    "images": [
+      {
+        "path": "local/research/battle-combat-entry-v1/results-followup-selected-images-v2/pair-001/comparison.json",
+        "sha256": "242663947a96b0f5bac03804adb30a977aa4e33ffae5e9f0e673c33e6c2733ab"
+      },
+      {
+        "path": "local/research/battle-combat-entry-v1/results-followup-selected-images-v2/pair-120/comparison.json",
+        "sha256": "d88f81f74ece77a2b8dc3299ed9c55b435dbc6c95eab84956eebac75c86fb4fd"
+      },
+      {
+        "path": "local/research/battle-combat-entry-v1/results-followup-selected-images-v2/pair-240/comparison.json",
+        "sha256": "480b0f297589206665b7802e73f3cdf59ddd6ed474e3d581f4bb43dacd2e6fdd"
+      },
+      {
+        "path": "local/research/battle-combat-entry-v1/results-followup-selected-images-v2/pair-360/comparison.json",
+        "sha256": "4f0583a034227f24f9e871175c54e8368d81dc6877d4192d550f50afaa78f5c4"
+      },
+      {
+        "path": "local/research/battle-combat-entry-v1/results-followup-selected-images-v2/pair-480/comparison.json",
+        "sha256": "9d1461e55f72d5837c3fd6576ead80dbd92c4d0eac7dc22a462ddcdf41575b66"
+      },
+      {
+        "path": "local/research/battle-combat-entry-v1/results-followup-selected-images-v2/pair-600/comparison.json",
+        "sha256": "35c2e3e6842a94b60fd0d50cb080cf14b00bc0f321a9617353042450b82f6016"
+      }
+    ],
+    "audio": {
+      "path": "local/research/battle-combat-entry-v1/results-followup-audio-comparison-v2.json",
+      "sha256": "9068a1a68849e87542b087839bc6533ffa2a8528ed465cec55e3422c09e03b30"
+    },
+    "audio_status": "captured_segments_unaligned",
+    "fidelity_pass": false
+  },
+  "negative_evidence": [
+    {
+      "run": {
+        "path": "local/research/battle-combat-entry-v1/native-results-followup-108575-v1/run.json",
+        "sha256": "ad88385c0703553c7f657a15fd3f17c11ac112188934a44bc28743b9393ca264"
+      },
+      "reason": "Stopped at first constructor mode0 UI layout; corrected source dispatcher preserves resource-before-results order."
+    },
+    {
+      "run": {
+        "path": "local/research/battle-combat-entry-v1/original-results-confirm-600-v1/run.json",
+        "sha256": "6407a9ce168568ec6d9709a940759199229ebe0be6ff65d30cc80f8a6311ccc3"
+      },
+      "reason": "Reached all600 requested vblanks and level-up notice image, but battle-only observer rejected zero callback pairs at finish. No save emitted. Retain exit1; next reference must use results observation."
+    }
+  ],
+  "limitations": [
+    "Host loading timing is not EE semaphore/DMA timing.",
+    "Bounded constructor mode0 supports exact typed14/6 stream only; other streams remain guarded.",
+    "No original results-state comparison or executed saved-field activation yet.",
+    "Earlier full-interval battle, rendering, RNG, loader and audio failures remain.",
+    "No listening, live FPS, persistence or complete game playthrough claimed."
+  ]
+}
