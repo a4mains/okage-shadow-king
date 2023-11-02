@@ -8,24 +8,30 @@
 #include <iomanip>
 #include <string>
 #include <cstdint>
+#include <cstring>
+#include <stdexcept>
 
 class GameModeTrace {
 public:
-    static constexpr std::array<uint32,8> breakpoints={
-        0x124818,0x101058,0x1354b8,0x133a38,0x149e60,0x149ec8,0x149fd8,0x12e018
+    static constexpr std::array<uint32,11> breakpoints={
+        0x124818,0x101058,0x1354b8,0x133a38,0x149e60,0x149ec8,0x149fd8,0x12e018,0x169900,0x16b8f8,0x16b6c8
     };
     explicit GameModeTrace(const std::filesystem::path& path) {
         if(std::filesystem::exists(path)||std::filesystem::is_symlink(path))
             throw std::runtime_error("Refusing existing game-mode trace");
         output.open(path);if(!output)throw std::runtime_error("Cannot create game-mode trace");
-        output<<"{\"schema\":\"okage-game-mode-observer-v1\",\"format\":\"JSONL; hex values are strings\"}\n";
+        output<<"{\"schema\":\"okage-game-mode-observer-v1\",\"format\":\"JSONL; hex values are strings\","
+              <<"\"results_extension\":\"source-results-entry-v1\",\"row_limit\":8000,"
+              <<"\"results_timing\":\"124818 is global-parent entry before descendants;169900 constructor entry;16b8f8 first handler entry before1c0160(0);16b6c8 second handler entry before16a0c0 copies command. No completed-callback claim.\","
+              <<"\"pad_source\":\"1c0160(0) reads unsignedhalf33958e;16b8f8 masks with word1f85dc. Parent samples are not consumed-input observations.\","
+              <<"\"elf_sha256\":\"2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5\"}\n";
     }
     void finish() const {
         if(!count)throw std::runtime_error("Game-mode capture observed no requested callbacks");
-        if(count>2000)throw std::runtime_error("Game-mode capture exceeded observation limit");
+        if(count>8000)throw std::runtime_error("Game-mode capture exceeded observation limit");
     }
     void observe(Ee::CSubSystem& ee,unsigned frame) {
-        if(++count>2000)throw std::runtime_error("Game-mode observation limit exceeded");
+        if(++count>8000)throw std::runtime_error("Game-mode observation limit exceeded");
         const auto& cpu=ee.m_EE.m_State;const auto pc=cpu.nPC;
         auto valid=[](uint32 at,unsigned size){return at>=0x100000&&size<=PS2::EE_RAM_SIZE&&at<=PS2::EE_RAM_SIZE-size;};
         auto word=[&](uint32 at)->uint32 {if(!valid(at,4))throw std::runtime_error("Game-mode trace read outside EE RAM");uint32 v;std::memcpy(&v,ee.m_ram+at,4);return v;};
@@ -47,6 +53,7 @@ public:
             const auto h=word(a0+0x26c);output<<",\"player\":\""<<hex(a0)<<"\",\"sound_handle_26c\":"<<int32_t(h);
         }
         if(parent && !valid(parent,0x54))throw std::runtime_error("Game-mode parent pointer outside EE RAM");
+        uint32 resultsField=0;
         if(parent) {
             field("parent",parent);field("parent_flags",word(parent+0x1c));
             field("parent_phase20",word(parent+0x20));field("parent_child38",word(parent+0x38));
@@ -59,6 +66,10 @@ public:
                 if(!valid(node,0x20))throw std::runtime_error("Game-mode linked object pointer outside EE RAM");
                 if(!seen.insert(node).second)throw std::runtime_error("Game-mode child tree cycle or duplicate link");
                 if(++totalNodes>64)throw std::runtime_error("Game-mode child tree exceeds 64 nodes");
+                if(word(node+4)==0x133a98&&word(node+8)==0x133a38) {
+                    if(resultsField&&resultsField!=node)throw std::runtime_error("Multiple linked field owners in game-mode trace");
+                    resultsField=node;
+                }
                 output<<",\""<<label<<"\":{\"ptr\":\""<<hex(node)<<"\",\"callback0\":\""<<hex(word(node))
                       <<"\",\"callback1\":\""<<hex(word(node+4))<<"\",\"destructor\":\""<<hex(word(node+8))
                       <<"\",\"prev\":\""<<hex(word(node+0xc))<<"\",\"next\":\""<<hex(word(node+0x10))
@@ -77,6 +88,45 @@ public:
                 child=word(child+0x10);++childIndex;
             }
             output<<",\"child_count\":"<<childIndex<<",\"tree_node_count\":"<<totalNodes;
+        }
+        if(pc==0x124818||pc==0x169900||pc==0x16b8f8||pc==0x16b6c8) {
+            const char* edge=pc==0x124818?"parent_entry":pc==0x169900?"constructor_entry":
+                pc==0x16b8f8?"first_handler_entry":"second_handler_entry";
+            output<<",\"results\":{\"edge\":\""<<edge<<"\"";
+            field("timer_1fdda8",word(0x1fdda8));field("advance_1fddac",word(0x1fddac));
+            field("loader_ready_2e1974",word(0x2e1974));field("notice_1fddd4",word(0x1fddd4));
+            field("notice_row_1fddc0",word(0x1fddc0));field("notice_wait_1fddc4",word(0x1fddc4));
+            field("reward_display_1fddb4",word(0x1fddb4));field("money_display_1fddb8",word(0x1fddb8));
+            field("copied_command_2e1970",word(0x2e1970));
+            const auto vars=word(0x24f788),rng=word(0x2151b4);
+            if(vars)field("currency_bank4_index3",word(vars+0x51c));
+            else output<<",\"currency_bank4_index3\":null";
+            if(rng)field("rng_state",word(rng+0x58));else output<<",\"rng_state\":null";
+            const auto pad=word(0x33958c),mask=word(0x1f85dc);
+            field("pad0_339588",word(0x339588));field("pad0_33958c",pad);
+            field("pad0_339590",word(0x339590));field("confirm_mask_1f85dc",mask);
+            field("pressed_half_33958e",pad>>16);
+            output<<",\"input_scope\":\""<<(pc==0x16b8f8?"first_handler_consumes_1c0160":"snapshot_only")<<"\"";
+            uint32 manager=0;
+            if(resultsField) {
+                if(!valid(resultsField,0x54))throw std::runtime_error("Results field extent outside EE RAM");
+                field("field_raw_pointer",resultsField);
+                field("field_phase48",word(resultsField+0x48));field("field_complete30",word(resultsField+0x30));
+                field("field_ui_stage34",word(resultsField+0x34));field("field_counter38",word(resultsField+0x38));
+                if(word(resultsField+0x48)==0x12)manager=word(resultsField+0x50);
+            } else output<<",\"field_raw_pointer\":null";
+            if(manager) {
+                if(!valid(manager,0xef0)||word(manager)!=0x11fec8||word(manager+4)!=0x120ad0||word(manager+8)!=0x120b48)
+                    throw std::runtime_error("Results manager header/extent mismatch");
+                if(word(manager+0xe40)==1&&word(manager+0xa0)==11) {
+                    if(pc==0x16b8f8&&a0!=manager)throw std::runtime_error("Results first handler owner mismatch");
+                    field("manager_raw_pointer",manager);field("manager_flags1c",word(manager+0x1c));
+                    field("state_e4c",word(manager+0xe4c));field("command_a8",word(manager+0xa8));
+                    field("previous_a4",word(manager+0xa4));field("dispatch_cursor_e8c",word(manager+0xe8c));
+                    field("selected_layer_e48",word(manager+0xe48));
+                } else output<<",\"manager_raw_pointer\":null";
+            } else output<<",\"manager_raw_pointer\":null";
+            output<<"}";
         }
         output<<"}\n";if(!output)throw std::runtime_error("Cannot write game-mode trace");
     }
