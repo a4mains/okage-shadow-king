@@ -8,6 +8,7 @@ import pathlib
 import struct
 import sys
 from collections import Counter
+from dataclasses import dataclass
 from typing import Optional
 
 SCHEMA = "okage-game-mode-observer-v1"
@@ -42,6 +43,12 @@ ORIGINAL_FIELDS = {
 
 class ComparisonError(ValueError):
     pass
+
+@dataclass(frozen=True)
+class NativeTrace:
+    selected: dict[int, tuple[int, ...]]
+    total_records: int
+    outside_frames: tuple[int, ...]
 
 def _u32_hex(value: object, label: str) -> int:
     if not isinstance(value, str) or not value.startswith("0x"):
@@ -117,7 +124,7 @@ def load_reference(path: pathlib.Path, source_anchor: int, source_frames: int) -
         raise ComparisonError(f"Original JSONL has no parent-entry observations at {PARENT_ENTRY_PC}")
     return parents
 
-def load_native(path: pathlib.Path, source_anchor: int, source_frames: int) -> dict[int, tuple[int, ...]]:
+def load_native(path: pathlib.Path, source_anchor: int, source_frames: int) -> NativeTrace:
     try:
         data = path.read_bytes()
     except OSError as exc:
@@ -131,18 +138,22 @@ def load_native(path: pathlib.Path, source_anchor: int, source_frames: int) -> d
     if first_frame < 0 or last_frame > 0xFFFFFFFF:
         raise ComparisonError("Requested native frame interval is outside u32 range")
     records: dict[int, tuple[int, ...]] = {}
+    outside: list[int] = []
     previous = -1
+    total_records = 0
     for index, row in enumerate(struct.iter_unpack("<16I", data)):
         frame = row[0]
         if frame <= previous:
             raise ComparisonError(f"Native frames are duplicate or out of order at record {index}: {frame}")
         previous = frame
+        total_records += 1
         if frame < first_frame or frame > last_frame:
-            raise ComparisonError(f"Native record {index} frame {frame} is outside requested interval [{first_frame},{last_frame}]")
-        records[frame] = tuple(row)
-    return records
+            outside.append(frame)
+        else:
+            records[frame] = tuple(row)
+    return NativeTrace(records, total_records, tuple(outside))
 
-def compare(reference: dict[int, dict[str, Optional[int]]], native: dict[int, tuple[int, ...]],
+def compare(reference: dict[int, dict[str, Optional[int]]], native: NativeTrace,
             source_anchor: int, source_frames: int) -> dict:
     missing_source = []
     missing_native = []
@@ -151,11 +162,12 @@ def compare(reference: dict[int, dict[str, Optional[int]]], native: dict[int, tu
     counts: Counter[str] = Counter()
     first_difference = None
     checks = []
+    compared_frames = 0
     for raw_frame in range(source_frames):
         source_frame = source_anchor + raw_frame
         native_frame = source_frame - 1
         original = reference.get(raw_frame)
-        actual = native.get(native_frame)
+        actual = native.selected.get(native_frame)
         item = {
             "raw_frame": raw_frame,
             "source_parent_entry_frame": source_frame,
@@ -167,6 +179,7 @@ def compare(reference: dict[int, dict[str, Optional[int]]], native: dict[int, tu
         if actual is None:
             missing_native.append({"raw_frame": raw_frame, "native_frame": native_frame})
         if original is not None and actual is not None:
+            compared_frames += 1
             word_map = dict(zip(NATIVE_FIELDS, actual[1:]))
             per_frame = []
             for name in COMPARE_FIELDS:
@@ -201,18 +214,22 @@ def compare(reference: dict[int, dict[str, Optional[int]]], native: dict[int, tu
         "source_anchor": source_anchor,
         "source_frames": source_frames,
         "native_frame_interval": {"first": source_anchor - 1, "last": source_anchor + source_frames - 2},
-        "scope": "Results state fields compared at original global-parent entry and the preceding completed native frame.",
+        "scope": "Results state fields compared at original global-parent entry and the preceding native results trace row.",
         "boundary_limitations": [
-            "The original sample is before parent descendants; native rows are after a completed host frame, so ready/state values may differ across these boundaries.",
+            "Original rows are sampled at global-parent entry before descendants. Native rows are sampled after results callbacks but before the after-frame loader service; these boundaries can expose different ready/state values.",
             "Native pending-job count has no matching original field and is excluded.",
             "Raw pointers are never compared. Missing source values remain unknown and prevent a complete/equal result.",
             "Only the listed results fields are covered; battle actor/live observers do not establish results-tail UI or state equivalence.",
         ],
-        "native_records": len(native),
+        "native_records": native.total_records,
+        "native_selected_records": len(native.selected),
+        "native_records_outside_interval": len(native.outside_frames),
+        "native_outside_interval_first": native.outside_frames[0] if native.outside_frames else None,
+        "native_outside_interval_last": native.outside_frames[-1] if native.outside_frames else None,
         "expected_native_records": expected_native_frames,
         "original_parent_entry_records": len(reference),
         "expected_original_parent_entry_records": source_frames,
-        "compared_frames": len(checks) - len(missing_source) - len(missing_native),
+        "compared_frames": compared_frames,
         "missing_source_records": missing_source,
         "missing_native_records": missing_native,
         "unknown_field_count": len(unknowns),

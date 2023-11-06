@@ -118,10 +118,41 @@ class ResultsLiveComparisonTests(unittest.TestCase):
         self.assertEqual(report["unknown_field_count"], 2)
         self.assertEqual([x["field"] for x in report["unknown_fields"]], ["state", "command"])
 
-    def test_wrong_native_frame_boundary_is_rejected(self):
+    def test_valid_native_prefix_and_suffix_are_validated_but_not_compared(self):
+        rows = [native_row(ANCHOR - 3, 90), native_row(ANCHOR - 2, 91),
+                native_row(ANCHOR - 1, 0), native_row(ANCHOR, 1),
+                native_row(ANCHOR + 1, 92)]
+        write_native(self.native_path, rows)
+        loaded = compare.load_native(self.native_path, ANCHOR, 2)
+        report = compare.compare(compare.load_reference(self.reference_path, ANCHOR, 2),
+                                 loaded, ANCHOR, 2)
+        self.assertTrue(report["equal"])
+        self.assertEqual(report["native_records"], 5)
+        self.assertEqual(report["native_selected_records"], 2)
+        self.assertEqual(report["native_records_outside_interval"], 3)
+        self.assertEqual(report["native_outside_interval_first"], ANCHOR - 3)
+        self.assertEqual(report["native_outside_interval_last"], ANCHOR + 1)
+
+    def test_shifted_native_rows_report_missing_requested_boundary_without_alignment(self):
         write_native(self.native_path, [native_row(ANCHOR, 0), native_row(ANCHOR + 1, 1)])
-        with self.assertRaisesRegex(compare.ComparisonError, "outside requested interval"):
-            compare.load_native(self.native_path, ANCHOR, 2)
+        loaded = compare.load_native(self.native_path, ANCHOR, 2)
+        report = compare.compare(compare.load_reference(self.reference_path, ANCHOR, 2),
+                                 loaded, ANCHOR, 2)
+        self.assertFalse(report["complete"])
+        self.assertEqual(report["missing_native_records"],
+                         [{"raw_frame": 0, "native_frame": ANCHOR - 1}])
+        self.assertEqual(report["native_records_outside_interval"], 1)
+        self.assertEqual(report["checks"][0]["native_preceding_completed_frame"], ANCHOR - 1)
+
+    def test_frame_missing_from_both_sides_counts_one_matched_frame(self):
+        write_reference(self.reference_path, [source_row(0)])
+        write_native(self.native_path, [native_row(ANCHOR - 1, 0)])
+        reference = compare.load_reference(self.reference_path, ANCHOR, 2)
+        native = compare.load_native(self.native_path, ANCHOR, 2)
+        report = compare.compare(reference, native, ANCHOR, 2)
+        self.assertEqual(report["missing_source_records"], [{"raw_frame": 1, "source_frame": ANCHOR + 1}])
+        self.assertEqual(report["missing_native_records"], [{"raw_frame": 1, "native_frame": ANCHOR}])
+        self.assertEqual(report["compared_frames"], 1)
 
     def test_duplicate_and_out_of_order_source_frames_are_rejected(self):
         write_reference(self.reference_path, [source_row(0), source_row(0)])
