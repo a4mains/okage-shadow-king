@@ -16,6 +16,7 @@
 #include <cmath>
 #include <bit>
 #include <fstream>
+#include <mutex>
 namespace okage {
 namespace fs=std::filesystem;
 namespace {
@@ -24,99 +25,14 @@ std::vector<std::uint8_t> read(const fs::path& path) {
     std::vector<std::uint8_t> b(n);std::ifstream in(path,std::ios::binary);
     if(!in.read(reinterpret_cast<char*>(b.data()),b.size()))throw std::runtime_error("Cannot read scene input");return b;
 }
-using Vertex=FieldRasterVertex;
-struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;std::uint64_t materialBlend=0;bool depthAlways=false,subtractive=false;unsigned phase=0;float nearClip=3;bool deferred=false;unsigned bucket=0,ordinal=0;bool mapMaterial=false;};
-}
-struct SceneRenderer::PreparedFrame::Data {
-    std::shared_ptr<const int> renderer;
-    std::vector<Vertex> vertices;
-    std::vector<Draw> draws;
-    FieldShadowFrame shadows;
-    ShadowRasterMapping shadow_mapping;
-    std::array<std::uint8_t,3> clear;
-    NSArray<id<MTLTexture>>* textures;
-    std::size_t white_texture;
-    bool field_projection,restore_shadow_alpha;
-};
-struct SceneRenderer::Impl {
-    struct BlockPreparation {
-        std::vector<std::optional<PreparedTextureState>> textures;
-        std::vector<std::optional<PolygonTextureCoordinates>> coordinates;
-        std::vector<std::array<PreparedMapBaseColor,4>> mapBaseColors;
-    };
-    struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;std::optional<MapTransform> facing;std::optional<std::size_t> placement;bool visible=true;bool afterShadows=false;std::uint32_t flags=0;unsigned ordinal=0;bool special=false;std::optional<SceneActorDescriptor> descriptor{};};
-    const MapObjects* mapObjects=nullptr;
-    SineTable sine=make_sine_table();
-    std::vector<Input> inputs;
-    std::vector<std::vector<std::vector<BlockPreparation>>> preparation;
-    std::vector<FieldShadowActor> shadowActors;
-    FieldShadowSettings shadowSettings;
-    FieldOrdinaryLighting ordinaryLighting;
-    FieldShadowFrame shadowFrame;
-    std::unique_ptr<ShadowMetal> shadowMetal;
-    std::unique_ptr<UiMetal> uiMetal;
-    std::optional<std::size_t> sky_input;
-    Float4 sky_factors{.5f,0,.5f,0};
-    std::vector<Texture> textures;
-    std::vector<std::size_t> textureOffsets;
-    std::size_t omittedEffects=0,actorCount=0;
-    unsigned nextFrontOrdinal=0;
-    unsigned sortDepthShift=19;
-    const std::shared_ptr<const int> identity=std::make_shared<const int>(0);
-    std::size_t whiteTexture=0,effectTexture=0;
-    bool effectTexturesLoaded=false;
-    const MapEffects* mapEffects=nullptr;
-    const EffectSubmissions* effectSubmissions=nullptr;
-    std::optional<Float4> effectTint;
-    std::array<std::uint8_t,3> clearRGB{64,64,64};
+struct SceneBackend {
     id<MTLDevice> device;
     id<MTLRenderPipelineState> pipeline,effectPipeline,mapEffectPipeline,dustPipeline,darkEffectPipeline,materialPipeline,materialAddPipeline,materialSubtractPipeline;
     id<MTLDepthStencilState> depth,effectDepth,mapEffectDepth,materialDepth;
-    id<MTLTexture> target,depthTarget;
-    NSMutableArray<id<MTLTexture>>* gpuTextures;
-    id<MTLCommandQueue> queue;
-    explicit Impl(const fs::path& path,std::span<const SceneActor> actors,const MapObjects* objects) {
-        mapObjects=objects;
-        const auto map=read_xmp(read(path));
-        unsigned back=640;
-        for(std::size_t index=0;index<map.placements.size();++index) {
-            const auto& placement=map.placements[index];
-            if(placement.handler()) {++omittedEffects;continue;}
-            const auto& definition=map.definitions.at(placement.definition());
-            const auto* object=objects?objects->placement(index):nullptr;
-            if((definition.flags()&8)&&!object)throw std::runtime_error("Animated map model requires native object bindings");
-            const auto transform=map_transform(placement,definition);
-            if((transform.flags&1)&&object)throw std::runtime_error("Animated camera-facing map model requires channel integration");
-            if((transform.flags&0x100000) && (transform.scale[0]!=1 || transform.scale[1]!=1 || transform.scale[2]!=1))
-                throw std::runtime_error("Optimized map scale unsupported");
-            // 0x1b8a80 selects the last eligible0x20000 instance. Foreground
-            // optimized0x80 and terrain0x80000 classifications take precedence.
-            if(!(transform.flags&0x80080)&&(transform.flags&0x20000))sky_input=inputs.size();
-            const auto file=path.parent_path()/definition.name;
-            inputs.push_back({file,object?object->model():read_xmd(read(file)),instance_matrix(transform.position,transform.rotation,transform.scale,sine),object,
-                (transform.flags&1)?std::optional<MapTransform>(transform):std::nullopt,index,(transform.flags&0x10000)==0});
-            inputs.back().flags=transform.flags;
-            inputs.back().ordinal=transform.flags&0x100000?640+--back:nextFrontOrdinal++;
-        }
-        if(inputs.empty())throw std::runtime_error("Empty field map");
-        if(sky_input){auto stage=path;stage.replace_extension(".stg");sky_factors=field_sky_follow(read(stage));}
-        {auto stage=path;stage.replace_extension(".stg");const auto bytes=read(stage);shadowSettings=field_shadow_settings(bytes);ordinaryLighting=field_ordinary_lighting(bytes);}
-        for(const auto& binding:actors) {
-            auto [input,shadow]=actorInput(binding);
-            inputs.push_back(std::move(input));shadowActors.push_back(std::move(shadow));
-            ++actorCount;++nextFrontOrdinal;
-        }
-        for(const auto& input:inputs) {
-            textureOffsets.push_back(textures.size());
-            auto images=inputTextures(input);
-            for(auto& image:images)textures.push_back(std::move(image));
-            preparation.push_back(inputPreparation(input));
-        }
-        constexpr unsigned width=640,height=224;
-        device=MTLCreateSystemDefaultDevice();
-        if (!device) throw std::runtime_error("No native Metal device");
+    id<MTLLibrary> library;
+    explicit SceneBackend(id<MTLDevice> value):device(value) {
         NSError* error=nil;
-        id<MTLLibrary> library=[device newLibraryWithSource:[NSString stringWithUTF8String:shader] options:nil error:&error];
+        library=[device newLibraryWithSource:[NSString stringWithUTF8String:shader] options:nil error:&error];
         if (!library) throw std::runtime_error(error.localizedDescription.UTF8String);
         auto descriptor=[MTLRenderPipelineDescriptor new];
         descriptor.vertexFunction=[library newFunctionWithName:@"field_vertex"];
@@ -171,6 +87,124 @@ struct SceneRenderer::Impl {
         effectDepth=[device newDepthStencilStateWithDescriptor:depthState];
         depthState.depthCompareFunction=MTLCompareFunctionLessEqual;
         mapEffectDepth=[device newDepthStencilStateWithDescriptor:depthState];
+    }
+};
+struct SceneBackendCache {
+    std::mutex mutex;
+    std::vector<std::shared_ptr<const SceneBackend>> entries;
+};
+SceneBackendCache& backendCache() {
+    static SceneBackendCache cache;
+    return cache;
+}
+std::shared_ptr<const SceneBackend> acquireBackend(id<MTLDevice> device) {
+    if(!device)throw std::runtime_error("No native Metal device");
+    auto& cache=backendCache();
+    std::lock_guard lock(cache.mutex);
+    for(const auto& entry:cache.entries)if(entry->device==device)return entry;
+    auto entry=std::make_shared<const SceneBackend>(device);
+    cache.entries.push_back(entry);
+    return entry;
+}
+using Vertex=FieldRasterVertex;
+struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;std::uint64_t materialBlend=0;bool depthAlways=false,subtractive=false;unsigned phase=0;float nearClip=3;bool deferred=false;unsigned bucket=0,ordinal=0;bool mapMaterial=false;};
+}
+struct SceneRenderer::PreparedFrame::Data {
+    std::shared_ptr<const int> renderer;
+    std::vector<Vertex> vertices;
+    std::vector<Draw> draws;
+    FieldShadowFrame shadows;
+    ShadowRasterMapping shadow_mapping;
+    std::array<std::uint8_t,3> clear;
+    NSArray<id<MTLTexture>>* textures;
+    std::size_t white_texture;
+    bool field_projection,restore_shadow_alpha;
+};
+struct SceneRenderer::Impl {
+    struct BlockPreparation {
+        std::vector<std::optional<PreparedTextureState>> textures;
+        std::vector<std::optional<PolygonTextureCoordinates>> coordinates;
+        std::vector<std::array<PreparedMapBaseColor,4>> mapBaseColors;
+    };
+    struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;std::optional<MapTransform> facing;std::optional<std::size_t> placement;bool visible=true;bool afterShadows=false;std::uint32_t flags=0;unsigned ordinal=0;bool special=false;std::optional<SceneActorDescriptor> descriptor{};};
+    const MapObjects* mapObjects=nullptr;
+    SineTable sine=make_sine_table();
+    std::vector<Input> inputs;
+    std::vector<std::vector<std::vector<BlockPreparation>>> preparation;
+    std::vector<FieldShadowActor> shadowActors;
+    FieldShadowSettings shadowSettings;
+    FieldOrdinaryLighting ordinaryLighting;
+    FieldShadowFrame shadowFrame;
+    std::unique_ptr<ShadowMetal> shadowMetal;
+    std::unique_ptr<UiMetal> uiMetal;
+    std::optional<std::size_t> sky_input;
+    Float4 sky_factors{.5f,0,.5f,0};
+    std::vector<Texture> textures;
+    std::vector<std::size_t> textureOffsets;
+    std::size_t omittedEffects=0,actorCount=0;
+    unsigned nextFrontOrdinal=0;
+    unsigned sortDepthShift=19;
+    const std::shared_ptr<const int> identity=std::make_shared<const int>(0);
+    std::size_t whiteTexture=0,effectTexture=0;
+    bool effectTexturesLoaded=false;
+    const MapEffects* mapEffects=nullptr;
+    const EffectSubmissions* effectSubmissions=nullptr;
+    std::optional<Float4> effectTint;
+    std::array<std::uint8_t,3> clearRGB{64,64,64};
+    std::shared_ptr<const SceneBackend> backend;
+    id<MTLDevice> device;
+    id<MTLRenderPipelineState> pipeline,effectPipeline,mapEffectPipeline,dustPipeline,darkEffectPipeline,materialPipeline,materialAddPipeline,materialSubtractPipeline;
+    id<MTLDepthStencilState> depth,effectDepth,mapEffectDepth,materialDepth;
+    id<MTLTexture> target,depthTarget;
+    NSMutableArray<id<MTLTexture>>* gpuTextures;
+    id<MTLCommandQueue> queue;
+    explicit Impl(const fs::path& path,std::span<const SceneActor> actors,const MapObjects* objects) {
+        mapObjects=objects;
+        const auto map=read_xmp(read(path));
+        unsigned back=640;
+        for(std::size_t index=0;index<map.placements.size();++index) {
+            const auto& placement=map.placements[index];
+            if(placement.handler()) {++omittedEffects;continue;}
+            const auto& definition=map.definitions.at(placement.definition());
+            const auto* object=objects?objects->placement(index):nullptr;
+            if((definition.flags()&8)&&!object)throw std::runtime_error("Animated map model requires native object bindings");
+            const auto transform=map_transform(placement,definition);
+            if((transform.flags&1)&&object)throw std::runtime_error("Animated camera-facing map model requires channel integration");
+            if((transform.flags&0x100000) && (transform.scale[0]!=1 || transform.scale[1]!=1 || transform.scale[2]!=1))
+                throw std::runtime_error("Optimized map scale unsupported");
+            // 0x1b8a80 selects the last eligible0x20000 instance. Foreground
+            // optimized0x80 and terrain0x80000 classifications take precedence.
+            if(!(transform.flags&0x80080)&&(transform.flags&0x20000))sky_input=inputs.size();
+            const auto file=path.parent_path()/definition.name;
+            inputs.push_back({file,object?object->model():read_xmd(read(file)),instance_matrix(transform.position,transform.rotation,transform.scale,sine),object,
+                (transform.flags&1)?std::optional<MapTransform>(transform):std::nullopt,index,(transform.flags&0x10000)==0});
+            inputs.back().flags=transform.flags;
+            inputs.back().ordinal=transform.flags&0x100000?640+--back:nextFrontOrdinal++;
+        }
+        if(inputs.empty())throw std::runtime_error("Empty field map");
+        if(sky_input){auto stage=path;stage.replace_extension(".stg");sky_factors=field_sky_follow(read(stage));}
+        {auto stage=path;stage.replace_extension(".stg");const auto bytes=read(stage);shadowSettings=field_shadow_settings(bytes);ordinaryLighting=field_ordinary_lighting(bytes);}
+        for(const auto& binding:actors) {
+            auto [input,shadow]=actorInput(binding);
+            inputs.push_back(std::move(input));shadowActors.push_back(std::move(shadow));
+            ++actorCount;++nextFrontOrdinal;
+        }
+        for(const auto& input:inputs) {
+            textureOffsets.push_back(textures.size());
+            auto images=inputTextures(input);
+            for(auto& image:images)textures.push_back(std::move(image));
+            preparation.push_back(inputPreparation(input));
+        }
+        constexpr unsigned width=640,height=224;
+        device=MTLCreateSystemDefaultDevice();
+        if (!device) throw std::runtime_error("No native Metal device");
+        backend=acquireBackend(device);
+        pipeline=backend->pipeline;effectPipeline=backend->effectPipeline;
+        mapEffectPipeline=backend->mapEffectPipeline;dustPipeline=backend->dustPipeline;
+        darkEffectPipeline=backend->darkEffectPipeline;materialPipeline=backend->materialPipeline;
+        materialAddPipeline=backend->materialAddPipeline;materialSubtractPipeline=backend->materialSubtractPipeline;
+        depth=backend->depth;effectDepth=backend->effectDepth;
+        mapEffectDepth=backend->mapEffectDepth;materialDepth=backend->materialDepth;
         auto targetDesc=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:width height:height mipmapped:NO];
         targetDesc.usage=MTLTextureUsageRenderTarget; targetDesc.storageMode=MTLStorageModeShared;
         target=[device newTextureWithDescriptor:targetDesc];
@@ -639,6 +673,14 @@ struct SceneRenderer::Impl {
         return image;
     }
 };
+void SceneRenderer::prepare_backend() {
+    @autoreleasepool { (void)acquireBackend(MTLCreateSystemDefaultDevice()); }
+}
+std::size_t SceneRenderer::cached_backend_count() {
+    auto& cache=backendCache();
+    std::lock_guard lock(cache.mutex);
+    return cache.entries.size();
+}
 SceneRenderer::SceneRenderer(const fs::path& map,std::span<const SceneActor> actors,const MapObjects* objects):
     impl_(std::make_unique<Impl>(map,actors,objects)){}
 SceneRenderer::~SceneRenderer()=default;

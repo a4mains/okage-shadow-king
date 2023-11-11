@@ -41,6 +41,9 @@ public:
         std::shared_ptr<const Data> data_;
         friend struct Impl;
     };
+    static void prepare_backend();
+    // Diagnostic snapshot; no reset API and no scene/asset initialization.
+    static std::size_t cached_backend_count();
     explicit SceneRenderer(const std::filesystem::path& map,std::span<const SceneActor> actors={},const MapObjects* objects=nullptr);
     ~SceneRenderer();
     void add_actor(const SceneActor&);
