@@ -10,6 +10,7 @@ struct BattleFilter6State {
 };
 class BattleFilterMetal {
 public:
+    static void prepare_backend(id<MTLDevice>);
     explicit BattleFilterMetal(id<MTLDevice>);
     void encode(id<MTLCommandBuffer>,id<MTLTexture> rgba,id<MTLTexture> depth,
         const BattleFilter6State&);

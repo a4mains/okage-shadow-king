@@ -4,6 +4,17 @@
 #include <limits>
 #include <stdexcept>
 
+@interface UiPipelineBundle : NSObject
+@property(nonatomic,strong) id<MTLDevice> device;
+@property(nonatomic,strong) id<MTLRenderPipelineState> pipeline;
+@property(nonatomic,strong) id<MTLDepthStencilState> alwaysWrite;
+@property(nonatomic,strong) id<MTLDepthStencilState> alwaysKeep;
+@property(nonatomic,strong) id<MTLDepthStencilState> gequalWrite;
+@property(nonatomic,strong) id<MTLDepthStencilState> gequalKeep;
+@end
+@implementation UiPipelineBundle
+@end
+
 namespace okage {
 namespace {
 void check(bool v,const char* why){if(!v)throw std::runtime_error(why);}
@@ -71,6 +82,43 @@ struct Submission {
 bool same_binding(const UiGeometryTexture& a,const UiGeometryTexture& b){
     return a.kind==b.kind&&a.font_index==b.font_index&&a.tex0==b.tex0&&a.fonts==b.fonts&&a.window==b.window;
 }
+
+NSMutableDictionary<NSValue*,UiPipelineBundle*>* pipeline_cache() {
+    static NSMutableDictionary<NSValue*,UiPipelineBundle*>* cache = [NSMutableDictionary dictionary];
+    return cache;
+}
+
+UiPipelineBundle* acquire_pipeline_bundle(id<MTLDevice> device) {
+    check(device&&[device supportsFamily:MTLGPUFamilyApple1],"UI programmable blending requires Apple GPU");
+    auto* cache=pipeline_cache();
+    auto* key=[NSValue valueWithPointer:(__bridge const void*)device];
+    @synchronized(cache) {
+        auto* cached=cache[key];
+        if(cached)return cached;
+        NSError* error=nil;auto options=[MTLCompileOptions new];options.fastMathEnabled=NO;
+        auto library=[device newLibraryWithSource:[NSString stringWithUTF8String:source] options:options error:&error];
+        if(!library)throw std::runtime_error(error.localizedDescription.UTF8String);
+        auto descriptor=[MTLRenderPipelineDescriptor new];descriptor.vertexFunction=[library newFunctionWithName:@"ui_vertex"];
+        descriptor.fragmentFunction=[library newFunctionWithName:@"ui_fragment"];
+        descriptor.colorAttachments[0].pixelFormat=MTLPixelFormatRGBA8Unorm;
+        descriptor.depthAttachmentPixelFormat=MTLPixelFormatDepth32Float;
+        auto* pipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
+        if(!pipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
+        auto depth=[MTLDepthStencilDescriptor new];depth.depthCompareFunction=MTLCompareFunctionAlways;depth.depthWriteEnabled=YES;
+        auto* always_write=[device newDepthStencilStateWithDescriptor:depth];depth.depthWriteEnabled=NO;
+        auto* always_keep=[device newDepthStencilStateWithDescriptor:depth];
+        depth.depthCompareFunction=MTLCompareFunctionLessEqual;
+        auto* gequal_keep=[device newDepthStencilStateWithDescriptor:depth];depth.depthWriteEnabled=YES;
+        auto* gequal_write=[device newDepthStencilStateWithDescriptor:depth];
+        if(!always_write||!always_keep||!gequal_keep||!gequal_write)
+            throw std::runtime_error("UI depth state allocation failed");
+        auto* bundle=[UiPipelineBundle new];bundle.device=device;bundle.pipeline=pipeline;
+        bundle.alwaysWrite=always_write;bundle.alwaysKeep=always_keep;
+        bundle.gequalWrite=gequal_write;bundle.gequalKeep=gequal_keep;
+        cache[key]=bundle;
+        return bundle;
+    }
+}
 }
 UiMetalValidation::UiMetalValidation(id<MTLCommandBuffer> command,id<MTLBuffer> errors,std::vector<std::string> labels)
     :command_(command),errors_(errors),primitive_labels_(std::move(labels)){}
@@ -93,20 +141,14 @@ id<MTLTexture> upload_ui_gs_texture(id<MTLDevice> device,const Texture& image){
     auto texture=[device newTextureWithDescriptor:d];check(texture,"UI texture allocation");
     [texture replaceRegion:MTLRegionMake2D(0,0,image.width,image.height) mipmapLevel:0 withBytes:bytes.data() bytesPerRow:image.width*4];return texture;
 }
+void UiMetal::prepare_backend(id<MTLDevice> device) {
+    (void)acquire_pipeline_bundle(device);
+}
 UiMetal::UiMetal(id<MTLDevice> device):device_(device){
-    check(device&&[device supportsFamily:MTLGPUFamilyApple1],"UI programmable blending requires Apple GPU");
-    NSError* error=nil;auto options=[MTLCompileOptions new];options.fastMathEnabled=NO;
-    auto library=[device newLibraryWithSource:[NSString stringWithUTF8String:source] options:options error:&error];
-    if(!library)throw std::runtime_error(error.localizedDescription.UTF8String);
-    auto d=[MTLRenderPipelineDescriptor new];d.vertexFunction=[library newFunctionWithName:@"ui_vertex"];
-    d.fragmentFunction=[library newFunctionWithName:@"ui_fragment"];
-    d.colorAttachments[0].pixelFormat=MTLPixelFormatRGBA8Unorm;d.depthAttachmentPixelFormat=MTLPixelFormatDepth32Float;
-    pipeline_=[device newRenderPipelineStateWithDescriptor:d error:&error];if(!pipeline_)throw std::runtime_error(error.localizedDescription.UTF8String);
+    auto* bundle=acquire_pipeline_bundle(device);
+    pipeline_=bundle.pipeline;always_write_=bundle.alwaysWrite;always_keep_=bundle.alwaysKeep;
+    gequal_write_=bundle.gequalWrite;gequal_keep_=bundle.gequalKeep;
     Texture fallback{1,1,0,0,{255,255,255,255}};fallback_=upload_ui_gs_texture(device,fallback);
-    auto depth=[MTLDepthStencilDescriptor new];depth.depthCompareFunction=MTLCompareFunctionAlways;depth.depthWriteEnabled=YES;
-    always_write_=[device newDepthStencilStateWithDescriptor:depth];depth.depthWriteEnabled=NO;always_keep_=[device newDepthStencilStateWithDescriptor:depth];
-    depth.depthCompareFunction=MTLCompareFunctionLessEqual;gequal_keep_=[device newDepthStencilStateWithDescriptor:depth];
-    depth.depthWriteEnabled=YES;gequal_write_=[device newDepthStencilStateWithDescriptor:depth];
 }
 UiMetalValidation UiMetal::encode(id<MTLCommandBuffer> command,id<MTLTexture> color,id<MTLTexture> depth,
         const UiGeometryList& geometry,const UiMetalBaseline& baseline,const UiMetalTextureResolver& resolver){

@@ -2,6 +2,14 @@
 #include <array>
 #include <stdexcept>
 
+@interface BattleFilterPipelineBundle : NSObject
+@property(nonatomic,strong) id<MTLDevice> device;
+@property(nonatomic,strong) id<MTLRenderPipelineState> alpha;
+@property(nonatomic,strong) id<MTLRenderPipelineState> blur;
+@end
+@implementation BattleFilterPipelineBundle
+@end
+
 namespace okage {
 namespace {
 constexpr const char* source=R"metal(
@@ -33,23 +41,45 @@ fragment float4 filter_blur(Fragment f [[stage_in]],constant float2& offset [[bu
     return float4(int4(rgb,d.a))/255.0f;
 }
 )metal";
+
+NSMutableDictionary<NSValue*,BattleFilterPipelineBundle*>* pipeline_cache() {
+    static NSMutableDictionary<NSValue*,BattleFilterPipelineBundle*>* cache = [NSMutableDictionary dictionary];
+    return cache;
 }
-BattleFilterMetal::BattleFilterMetal(id<MTLDevice> device) {
+
+BattleFilterPipelineBundle* acquire_pipeline_bundle(id<MTLDevice> device) {
     if(!device||![device supportsFamily:MTLGPUFamilyApple1])
         throw std::runtime_error("Battle filter requires an Apple GPU");
-    NSError* error=nil;auto options=[MTLCompileOptions new];options.fastMathEnabled=NO;
-    auto library=[device newLibraryWithSource:[NSString stringWithUTF8String:source] options:options error:&error];
-    if(!library)throw std::runtime_error(error.localizedDescription.UTF8String);
-    auto pipeline=[&](NSString* name) {
-        auto descriptor=[MTLRenderPipelineDescriptor new];
-        descriptor.vertexFunction=[library newFunctionWithName:@"filter_vertex"];
-        descriptor.fragmentFunction=[library newFunctionWithName:name];
-        descriptor.colorAttachments[0].pixelFormat=MTLPixelFormatRGBA8Unorm;
-        auto result=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
-        if(!result)throw std::runtime_error(error.localizedDescription.UTF8String);
-        return result;
-    };
-    alpha_=pipeline(@"filter_alpha");blur_=pipeline(@"filter_blur");
+    auto* cache=pipeline_cache();
+    auto* key=[NSValue valueWithPointer:(__bridge const void*)device];
+    @synchronized(cache) {
+        auto* cached=cache[key];
+        if(cached)return cached;
+        NSError* error=nil;auto options=[MTLCompileOptions new];options.fastMathEnabled=NO;
+        auto library=[device newLibraryWithSource:[NSString stringWithUTF8String:source] options:options error:&error];
+        if(!library)throw std::runtime_error(error.localizedDescription.UTF8String);
+        auto pipeline=[&](NSString* name) {
+            auto descriptor=[MTLRenderPipelineDescriptor new];
+            descriptor.vertexFunction=[library newFunctionWithName:@"filter_vertex"];
+            descriptor.fragmentFunction=[library newFunctionWithName:name];
+            descriptor.colorAttachments[0].pixelFormat=MTLPixelFormatRGBA8Unorm;
+            auto result=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
+            if(!result)throw std::runtime_error(error.localizedDescription.UTF8String);
+            return result;
+        };
+        auto* bundle=[BattleFilterPipelineBundle new];bundle.device=device;
+        bundle.alpha=pipeline(@"filter_alpha");bundle.blur=pipeline(@"filter_blur");
+        cache[key]=bundle;
+        return bundle;
+    }
+}
+}
+void BattleFilterMetal::prepare_backend(id<MTLDevice> device) {
+    (void)acquire_pipeline_bundle(device);
+}
+BattleFilterMetal::BattleFilterMetal(id<MTLDevice> device) {
+    auto* bundle=acquire_pipeline_bundle(device);
+    alpha_=bundle.alpha;blur_=bundle.blur;
     auto descriptor=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm
         width:640 height:224 mipmapped:NO];
     descriptor.storageMode=MTLStorageModePrivate;descriptor.usage=MTLTextureUsageShaderRead;

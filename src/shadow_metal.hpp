@@ -13,6 +13,7 @@ struct ShadowRasterDraw {
 };
 class ShadowMetal {
 public:
+    static void prepare_backend(id<MTLDevice>);
     explicit ShadowMetal(id<MTLDevice>);
     void encode(id<MTLCommandBuffer>,id<MTLTexture> color,id<MTLTexture> depth,
         std::span<const ShadowRasterDraw>,const ShadowRasterMapping&,

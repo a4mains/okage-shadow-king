@@ -3,6 +3,16 @@
 #include <stdexcept>
 #include <vector>
 
+@interface ShadowPipelineBundle : NSObject
+@property(nonatomic,strong) id<MTLDevice> device;
+@property(nonatomic,strong) id<MTLRenderPipelineState> pipeline;
+@property(nonatomic,strong) id<MTLRenderPipelineState> alphaPipeline;
+@property(nonatomic,strong) id<MTLDepthStencilState> depth;
+@property(nonatomic,strong) id<MTLDepthStencilState> always;
+@end
+@implementation ShadowPipelineBundle
+@end
+
 namespace okage {
 namespace {
 // GS PRIM4/0x44 has neither perspective color interpolation nor fog enabled.
@@ -38,29 +48,54 @@ fragment float4 alpha_fragment(constant uint& alpha [[buffer(0)]],
 }
 )metal";
 struct State {std::array<std::uint32_t,4> color_stage;Float4 depth_mapping;};
+
+NSMutableDictionary<NSValue*,ShadowPipelineBundle*>* pipeline_cache() {
+    static NSMutableDictionary<NSValue*,ShadowPipelineBundle*>* cache = [NSMutableDictionary dictionary];
+    return cache;
+}
+
+ShadowPipelineBundle* acquire_pipeline_bundle(id<MTLDevice> device) {
+    if(!device||![device supportsFamily:MTLGPUFamilyApple1])
+        throw std::runtime_error("Native shadow framebuffer blending requires an Apple GPU");
+    auto* cache=pipeline_cache();
+    auto* key=[NSValue valueWithPointer:(__bridge const void*)device];
+    @synchronized(cache) {
+        auto* cached=cache[key];
+        if(cached)return cached;
+        NSError* error=nil;
+        auto library=[device newLibraryWithSource:[NSString stringWithUTF8String:source] options:nil error:&error];
+        if(!library)throw std::runtime_error(error.localizedDescription.UTF8String);
+        auto descriptor=[MTLRenderPipelineDescriptor new];
+        descriptor.vertexFunction=[library newFunctionWithName:@"shadow_vertex"];
+        descriptor.fragmentFunction=[library newFunctionWithName:@"shadow_fragment"];
+        descriptor.colorAttachments[0].pixelFormat=MTLPixelFormatRGBA8Unorm;
+        descriptor.depthAttachmentPixelFormat=MTLPixelFormatDepth32Float;
+        auto* pipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
+        if(!pipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
+        descriptor.vertexFunction=[library newFunctionWithName:@"alpha_vertex"];
+        descriptor.fragmentFunction=[library newFunctionWithName:@"alpha_fragment"];
+        auto* alpha_pipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
+        if(!alpha_pipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
+        auto depth=[MTLDepthStencilDescriptor new];
+        depth.depthCompareFunction=MTLCompareFunctionLessEqual;depth.depthWriteEnabled=NO;
+        auto* depth_state=[device newDepthStencilStateWithDescriptor:depth];
+        depth.depthCompareFunction=MTLCompareFunctionAlways;
+        auto* always_state=[device newDepthStencilStateWithDescriptor:depth];
+        if(!depth_state||!always_state)throw std::runtime_error("Shadow depth state allocation failed");
+        auto* bundle=[ShadowPipelineBundle new];bundle.device=device;bundle.pipeline=pipeline;
+        bundle.alphaPipeline=alpha_pipeline;bundle.depth=depth_state;bundle.always=always_state;
+        cache[key]=bundle;
+        return bundle;
+    }
+}
+}
+void ShadowMetal::prepare_backend(id<MTLDevice> device) {
+    (void)acquire_pipeline_bundle(device);
 }
 ShadowMetal::ShadowMetal(id<MTLDevice> device):device_(device) {
-    if(!device || ![device supportsFamily:MTLGPUFamilyApple1])
-        throw std::runtime_error("Native shadow framebuffer blending requires an Apple GPU");
-    NSError* error=nil;
-    auto library=[device newLibraryWithSource:[NSString stringWithUTF8String:source] options:nil error:&error];
-    if(!library)throw std::runtime_error(error.localizedDescription.UTF8String);
-    auto descriptor=[MTLRenderPipelineDescriptor new];
-    descriptor.vertexFunction=[library newFunctionWithName:@"shadow_vertex"];
-    descriptor.fragmentFunction=[library newFunctionWithName:@"shadow_fragment"];
-    descriptor.colorAttachments[0].pixelFormat=MTLPixelFormatRGBA8Unorm;
-    descriptor.depthAttachmentPixelFormat=MTLPixelFormatDepth32Float;
-    pipeline_=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
-    if(!pipeline_)throw std::runtime_error(error.localizedDescription.UTF8String);
-    descriptor.vertexFunction=[library newFunctionWithName:@"alpha_vertex"];
-    descriptor.fragmentFunction=[library newFunctionWithName:@"alpha_fragment"];
-    alpha_pipeline_=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
-    if(!alpha_pipeline_)throw std::runtime_error(error.localizedDescription.UTF8String);
-    auto depth=[MTLDepthStencilDescriptor new];
-    depth.depthCompareFunction=MTLCompareFunctionLessEqual;depth.depthWriteEnabled=NO;
-    depth_=[device newDepthStencilStateWithDescriptor:depth];
-    depth.depthCompareFunction=MTLCompareFunctionAlways;
-    always_=[device newDepthStencilStateWithDescriptor:depth];
+    auto* bundle=acquire_pipeline_bundle(device);
+    pipeline_=bundle.pipeline;alpha_pipeline_=bundle.alphaPipeline;
+    depth_=bundle.depth;always_=bundle.always;
 }
 void ShadowMetal::encode(id<MTLCommandBuffer> command,id<MTLTexture> color,id<MTLTexture> depth,
         std::span<const ShadowRasterDraw> draws,const ShadowRasterMapping& mapping,bool restore) {

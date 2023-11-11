@@ -28,6 +28,7 @@ private:
 };
 class UiMetal {
 public:
+    static void prepare_backend(id<MTLDevice>);
     explicit UiMetal(id<MTLDevice>);
     [[nodiscard]] UiMetalValidation encode(id<MTLCommandBuffer>,id<MTLTexture> color,id<MTLTexture> depth,
         const UiGeometryList&,const UiMetalBaseline&,const UiMetalTextureResolver&);

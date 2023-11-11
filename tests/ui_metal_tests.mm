@@ -17,8 +17,10 @@ UiResolvedPrimitive quad(std::array<unsigned,4> rgba,unsigned z=100){UiResolvedP
         for(unsigned j=0;j<4;++j)v.rgba[j]=0x4b000000|rgba[j];}return p;}
 struct Result{std::vector<std::uint8_t> rgba;std::vector<float> depth;};
 struct Harness{
-    id<MTLDevice> device=MTLCreateSystemDefaultDevice();id<MTLCommandQueue> queue=[device newCommandQueue];UiMetal renderer{device};
-    Result run(const UiGeometryList& l,const UiMetalTextureResolver& resolver={},UiMetalBaseline state=baseline,std::array<unsigned,4> clear={3,5,7,255}){
+    id<MTLDevice> device;id<MTLCommandQueue> queue;UiMetal renderer;
+    explicit Harness(id<MTLDevice> d):device(d),queue([d newCommandQueue]),renderer(d){}
+    Result run(const UiGeometryList& l,const UiMetalTextureResolver& resolver={},UiMetalBaseline state=baseline,
+        std::array<unsigned,4> clear={3,5,7,255},UiMetal* backend=nullptr){
         auto d=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:32 height:16 mipmapped:NO];
         d.storageMode=MTLStorageModeShared;d.usage=MTLTextureUsageRenderTarget;auto color=[device newTextureWithDescriptor:d];
         d.pixelFormat=MTLPixelFormatDepth32Float;d.storageMode=MTLStorageModePrivate;auto depth=[device newTextureWithDescriptor:d];
@@ -26,7 +28,8 @@ struct Harness{
         pass.colorAttachments[0].loadAction=MTLLoadActionClear;pass.colorAttachments[0].storeAction=MTLStoreActionStore;
         pass.colorAttachments[0].clearColor=MTLClearColorMake(clear[0]/255.,clear[1]/255.,clear[2]/255.,clear[3]/255.);
         pass.depthAttachment.texture=depth;pass.depthAttachment.loadAction=MTLLoadActionClear;pass.depthAttachment.storeAction=MTLStoreActionStore;pass.depthAttachment.clearDepth=1;
-        auto e=[cb renderCommandEncoderWithDescriptor:pass];[e endEncoding];auto validation=renderer.encode(cb,color,depth,l,state,resolver);
+        auto e=[cb renderCommandEncoderWithDescriptor:pass];[e endEncoding];
+        auto validation=(backend?backend:&renderer)->encode(cb,color,depth,l,state,resolver);
         rejects([&]{validation.validate_completed(cb);});
         rejects([&]{validation.validate_completed([queue commandBuffer]);});
         auto buffer=[device newBufferWithLength:256*16 options:MTLResourceStorageModeShared];auto blit=[cb blitCommandEncoder];
@@ -86,6 +89,15 @@ void guards(Harness& h){const auto empty=h.run(list());check(pixel(empty)==std::
     l=list();l.commands.push_back(UiDrawRegister{0x40,(3ull<<48)|(3ull<<16)});l.commands.push_back(quad({128,128,128,128}));const auto r=h.run(l);
     check(pixel(r,3,3)==std::array<unsigned,4>{131,133,135,128}&&pixel(r,4,3)==std::array<unsigned,4>{3,5,7,255},"Inclusive GS SCISSOR");
 }
+void prepared_backend_reuse(Harness& h,UiMetal& second){
+    UiMetal::prepare_backend(h.device);
+    auto geometry=list();geometry.commands.push_back(quad({129,129,129,127}));
+    const auto first=h.run(geometry);
+    const auto repeated=h.run(geometry,{},baseline,{3,5,7,255},&second);
+    check(first.rgba==repeated.rgba&&first.depth==repeated.depth,
+        "Prewarmed shared UI backend preserves independent renderer output");
 }
-int main(){@autoreleasepool{try{Harness h;arithmetic(h);textures(h);guards(h);std::cout<<"UI Metal offscreen tests passed\n";return 0;}
+}
+int main(){@autoreleasepool{try{auto device=MTLCreateSystemDefaultDevice();UiMetal::prepare_backend(device);
+Harness h(device);UiMetal second{device};prepared_backend_reuse(h,second);arithmetic(h);textures(h);guards(h);std::cout<<"UI Metal offscreen tests passed\n";return 0;}
 catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}}
