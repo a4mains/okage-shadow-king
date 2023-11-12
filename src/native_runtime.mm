@@ -20,6 +20,9 @@
 #include "okage/native_run.hpp"
 #include "okage/live_scheduler.hpp"
 #include "battle_capture_metal.hpp"
+#include "battle_filter_metal.hpp"
+#include "shadow_metal.hpp"
+#include "ui_metal.hpp"
 #include "okage/battle_entry.hpp"
 #include <bit>
 #include <algorithm>
@@ -1808,6 +1811,11 @@ int main(int argc,const char** argv) {
         std::unique_ptr<okage::LivePerformance> performance;
         if(performancePath)performance=std::make_unique<okage::LivePerformance>(*performancePath,
             uiFrames?std::optional<okage::PerformanceTestRange>({replayFrames,uiFrames}):std::nullopt);
+        okage::SceneRenderer::prepare_backend();
+        const auto backendDevice=MTLCreateSystemDefaultDevice();
+        okage::BattleFilterMetal::prepare_backend(backendDevice);
+        okage::ShadowMetal::prepare_backend(backendDevice);
+        okage::UiMetal::prepare_backend(backendDevice);
         std::unique_ptr<Session> prepared;
         if(replayFrames) {
             const auto frameDirectory=fs::path(output.string()+".frames");std::ofstream frameManifest;
