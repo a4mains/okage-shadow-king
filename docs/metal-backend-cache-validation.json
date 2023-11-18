@@ -1,0 +1,78 @@
+{
+  "schema": "okage-metal-backend-cache-validation-v1",
+  "revision": "54a078c",
+  "scope": "Immutable native Metal library/pipeline/depth construction cached per exact strongly retained device identity; startup prewarm before first Session construction/tick.",
+  "tests": [
+    {
+      "configuration": "Release",
+      "build": {
+        "path": "local/research/metal-backend-cache-v1/release-build.log",
+        "sha256": "d2e45a31211eecb9631074e5c9abdd43e0e267c6df9b5ff452e67fc1ab0420ff"
+      },
+      "ctest": {
+        "path": "local/research/metal-backend-cache-v1/release-tests.log",
+        "sha256": "538cb2d02af60ff360dee486499c2f817285e17cb8d5262e4c8ce5991f0d32e7"
+      },
+      "tests": 7,
+      "exit_code": 0
+    },
+    {
+      "configuration": "Debug",
+      "build": {
+        "path": "local/research/metal-backend-cache-v1/debug-build.log",
+        "sha256": "dee27a6a8257d797313974d1e30d8772223f44d23cc0943abec880f4a4cdfd78"
+      },
+      "ctest": {
+        "path": "local/research/metal-backend-cache-v1/debug-tests.log",
+        "sha256": "aa3d3fdf966f1a7f2c6f5c368f4f6098d73524ee4945c7753d5c3d7d1666af42"
+      },
+      "tests": 7,
+      "exit_code": 0
+    },
+    {
+      "configuration": "ASan_UBSan",
+      "build": {
+        "path": "local/research/metal-backend-cache-v1/sanitize-build.log",
+        "sha256": "be7e0ab8e0ad90597efe0c8f5b4bb865df832ae31ae3da91d84801ab71d56e68"
+      },
+      "ctest": {
+        "path": "local/research/metal-backend-cache-v1/sanitize-tests.log",
+        "sha256": "776a87f8645a45b707263a41b4b105a61daf2a992cd94438bcf17ef3440aa6a7"
+      },
+      "tests": 7,
+      "exit_code": 0
+    }
+  ],
+  "runs": [
+    {
+      "commit": "dcc48cbe",
+      "integrated": "dcc48cb",
+      "scope": "BattleFilter, ShadowMetal, UiMetal; repeated prewarmed UI instance pixel regression."
+    },
+    {
+      "commit": "dbd4185",
+      "integrated": "dbd4185",
+      "scope": "SceneRenderer eight pipelines/four depth states/library; eight concurrent prewarm callers retain one cache entry after their autorelease pools/threads exit."
+    }
+  ],
+  "limitations": [
+    "No deterministic loading or original timing equivalence claim.",
+    "No live FPS or uncontended performance benchmark.",
+    "Only the default Apple device was available; physical multiple-device testing not performed.",
+    "Process-lifetime caches hold each exact device identity; mutable snapshots/fallbacks/targets remain instance owned."
+  ],
+  "replay": {
+    "path": "local/research/battle-combat-entry-v1/native-results-dismiss-109775-v2",
+    "run": {
+      "path": "local/research/battle-combat-entry-v1/native-results-dismiss-109775-v2/run.json",
+      "sha256": "b9a9ae55ff54a87646f4cc2614b1830f8a69990555ecd28ed4753a07d37344d0"
+    },
+    "status": "completed",
+    "handle": null,
+    "exit_code": 0,
+    "source_revision": "54a078c37925d3c8c693806a27c59677e30ac631",
+    "saved_field_restored_frame": 109450,
+    "endpoint_frame": 109775,
+    "scope": "Completed Release replay after pipeline caching; results dismissal and saved-field return execute."
+  }
+}

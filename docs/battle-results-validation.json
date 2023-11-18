@@ -1,6 +1,6 @@
 {
   "schema": "okage-battle-results-validation-v1",
-  "runtime_revision": "88cf2c8454b7d32a70dce334568bb8ae47b99aba",
+  "runtime_revision": "54a078c37925d3c8c693806a27c59677e30ac631",
   "acceptance_met": false,
   "native_checks": [
     {
@@ -47,12 +47,9 @@
     }
   ],
   "python": {
-    "tests": 414,
+    "tests": 432,
     "exit_code": 0,
-    "log": {
-      "path": "local/research/results-interface-v1/python-suite-v2.log",
-      "sha256": "77ef2acf4724f96d3241723b63faa00f6b101a068eae48d8a66ae575a5b04a7e"
-    }
+    "log": "local/research/results-interface-v1/python-suite-v3.log"
   },
   "owned_import": {
     "path": "local/battle-input-v6/manifest.json",
@@ -60,31 +57,47 @@
   },
   "native_replay": {
     "run": {
-      "path": "local/research/battle-combat-entry-v1/native-results-followup-108575-v2/run.json",
-      "sha256": "9009f8ebc4709f901d0c1b299ce207e406b5bdfe380f4147cd6ed6887eccb5b7"
+      "path": "local/research/battle-combat-entry-v1/native-results-dismiss-109775-v2/run.json",
+      "sha256": "b9a9ae55ff54a87646f4cc2614b1830f8a69990555ecd28ed4753a07d37344d0"
     },
     "source_diff": {
-      "path": "local/research/battle-combat-entry-v1/native-results-followup-108575-v2/source.diff",
-      "sha256": "6f8fe4f919a469cdf3bcca96ff748d5bcdcc96f74921205c5fbad999295ccaf7"
+      "path": "local/research/battle-combat-entry-v1/native-results-dismiss-109775-v2/source.diff",
+      "sha256": "9bc1e1b0dc2ce3669cf35e534933b90a9ad7f33082bfb6ca12015a9b0a92759f"
     },
-    "binary_sha256": "5ce7f3246c759bfcc39a7ebff1f1150b769480f9c09ab46597b4cf80fa0d3c9b",
+    "source_revision": "54a078c37925d3c8c693806a27c59677e30ac631",
+    "binary_sha256": "a76ec1e53b03cc2624a38be7a2ff2c861f375550eb7ca68046da1b47a3342195",
     "exit_code": 0,
-    "end_frame": 108575,
+    "end_frame": 109775,
     "milestones": {
-      "victory_return_queued": 108336,
-      "results_constructed": 108352,
-      "loader_complete": 108367
+      "results_constructed": 108350,
+      "loader_complete": 108364,
+      "saved_field_restored": 109450,
+      "child_retired": 109449
     },
     "results_trace": {
-      "path": "local/research/battle-combat-entry-v1/native-results-followup-108575-v2/native.png.results.bin",
-      "sha256": "199b727765c8a0fc14a5249fa900a06150ac6dc195cd9a71c31c3deda9312d2a"
+      "comparison": {
+        "path": "local/research/battle-combat-entry-v1/results-dismiss-state-comparison-v2.json",
+        "sha256": "4d9c234e9aa01633ed4ccaf9e73601c1554dc5824c66a8810db219532d18a136"
+      },
+      "requested_source_frames": 600,
+      "compared_native_rows": 275,
+      "field_differences": 1409,
+      "missing_native_rows": 325,
+      "missing_native_range": [
+        109450,
+        109774
+      ],
+      "unsupported_field_tail_rows": 325,
+      "macro_observer_mode2_coverage": false,
+      "complete": false,
+      "equal": false
     },
-    "endpoint_image": {
-      "path": "local/research/battle-combat-entry-v1/native-results-followup-108575-v2/native.png",
-      "sha256": "b9d801990886da96af3f5c704b09a7140e4b3f7aa35e32e71812317d39a0da0a"
+    "endpoint": {
+      "frame": 109775,
+      "scene": 96,
+      "dialogue_pc": "0x5b4"
     },
-    "endpoint_visually_inspected": true,
-    "scope": "Native startup, ordinary recorded inputs, authentic battle victory and initial results animation."
+    "scope": "Successful ordinary-input victory/results confirmation, child retirement and saved-field return."
   },
   "comparison": {
     "anchor": 107976,
@@ -152,14 +165,314 @@
         "path": "local/research/battle-combat-entry-v1/original-results-confirm-600-v1/run.json",
         "sha256": "6407a9ce168568ec6d9709a940759199229ebe0be6ff65d30cc80f8a6311ccc3"
       },
-      "reason": "Reached all600 requested vblanks and level-up notice image, but battle-only observer rejected zero callback pairs at finish. No save emitted. Retain exit1; next reference must use results observation."
+      "reason": "Reached all600 requested vblanks and level-up notice image, but battle-only observer rejected zero callback pairs at finish. No save emitted. Retain exit1; next reference must use results observation. Superseded for current progress by original-results-confirm-600-v2, which emitted a save; the v1 failure remains historical."
+    },
+    {
+      "run": {
+        "path": "local/research/battle-combat-entry-v1/native-results-dismiss-109775-v1/run.json",
+        "sha256": "62a0589ea4f3b6bfe8f472d5e7e2b498c8d42262b30ea219e404a3d89bb0840e"
+      },
+      "reason": "Historical fixed-input dismissal attempt naturally lost the battle and exited at unrecovered mode8/arg1; superseded by the successful v2 route, retained as evidence."
     }
   ],
   "limitations": [
     "Host loading timing is not EE semaphore/DMA timing.",
     "Bounded constructor mode0 supports exact typed14/6 stream only; other streams remain guarded.",
-    "No original results-state comparison or executed saved-field activation yet.",
     "Earlier full-interval battle, rendering, RNG, loader and audio failures remain.",
-    "No listening, live FPS, persistence or complete game playthrough claimed."
-  ]
+    "No listening, live FPS, persistence or complete game playthrough claimed.",
+    "The latest 600-frame dismissal comparison has1,409 differences in275 compared rows and325 unsupported post-child rows; macro observer mode2 coverage is absent.",
+    "The same fixed native inputs can win or lose as host loading alters RNG/order. Both defeat and victory routes are retained; no repeat-to-win claim."
+  ],
+  "results_observation": {
+    "revision": "d940c67",
+    "build_log": {
+      "path": "local/research/results-interface-v1/results-observer-build-v1.log",
+      "sha256": "3f6213f730e3251cab718f09502cc955965945a118ef310acc6c6df6b663bb2b"
+    },
+    "original_run": {
+      "path": "local/research/battle-combat-entry-v1/original-results-confirm-600-v2/run.json",
+      "sha256": "630517381c53dd763683bec68ffedf147bf6dc3808e443758adcf818ed30f9b6"
+    },
+    "native_run": {
+      "path": "local/research/battle-combat-entry-v1/native-results-confirm-109175-v1/run.json",
+      "sha256": "1ecc5bc3da9e8069d304fbb194e8b37b46a7a079f0bcf207fd3213086af909d1"
+    },
+    "input_mapping": {
+      "path": "local/research/results-interface-v1/results-confirm-input-v1.json",
+      "sha256": "bada6e04e1f2e01a4b07837b090bf841a168f5c8dece7a75c83cdc562c560d3b"
+    },
+    "state_comparison": {
+      "path": "local/research/battle-combat-entry-v1/results-confirm-state-comparison-v1.json",
+      "sha256": "77b97b1fdcbb7308da4e4d71e38d96c8ae03fc229d6bc1d30e82232c817283fd"
+    },
+    "media_comparison": {
+      "path": "local/research/battle-combat-entry-v1/results-confirm-media-comparison-v1.runs.json",
+      "sha256": "6be0d51bd49d2741efcd9d1f828d082c15e24e6a1b1c6be43e712191c9ab6d51"
+    },
+    "frames": 600,
+    "compared_frames": 600,
+    "field_differences": 2825,
+    "first_difference": {
+      "source_parent_frame": 108576,
+      "native_trace_frame": 108575,
+      "field": "counter",
+      "original": 239,
+      "native": 240
+    },
+    "observed_reward_difference": {
+      "original_money": 11,
+      "native_money": 14
+    },
+    "scope": "Original and native notice confirmation comparison covers600 parent-entry frames and has2825 field differences."
+  },
+  "interactive_return": {
+    "observation": {
+      "path": "local/demos/results-108575-v1/interactive-return-observation.json",
+      "sha256": "8343f545b4f5dce22c44a9cb8c422a8c817bf456730f9bfbfc97b7b8b5a64b79"
+    },
+    "executed": true,
+    "paused_frame": 112126,
+    "scope": "Actual native preview Session resumed via keyboard, level notice and final results confirmed, field and next dialogue visually inspected."
+  },
+  "startup_replay": {
+    "run": {
+      "path": "local/research/battle-combat-entry-v1/native-results-followup-108575-v2/run.json",
+      "sha256": "9009f8ebc4709f901d0c1b299ce207e406b5bdfe380f4147cd6ed6887eccb5b7"
+    },
+    "source_diff": {
+      "path": "local/research/battle-combat-entry-v1/native-results-followup-108575-v2/source.diff",
+      "sha256": "6f8fe4f919a469cdf3bcca96ff748d5bcdcc96f74921205c5fbad999295ccaf7"
+    },
+    "binary_sha256": "5ce7f3246c759bfcc39a7ebff1f1150b769480f9c09ab46597b4cf80fa0d3c9b",
+    "exit_code": 0,
+    "end_frame": 108575,
+    "milestones": {
+      "victory_return_queued": 108336,
+      "results_constructed": 108352,
+      "loader_complete": 108367
+    },
+    "results_trace": {
+      "path": "local/research/battle-combat-entry-v1/native-results-followup-108575-v2/native.png.results.bin",
+      "sha256": "199b727765c8a0fc14a5249fa900a06150ac6dc195cd9a71c31c3deda9312d2a"
+    },
+    "endpoint_image": {
+      "path": "local/research/battle-combat-entry-v1/native-results-followup-108575-v2/native.png",
+      "sha256": "b9d801990886da96af3f5c704b09a7140e4b3f7aa35e32e71812317d39a0da0a"
+    },
+    "endpoint_visually_inspected": true,
+    "scope": "Native startup, ordinary recorded inputs, authentic battle victory and initial results animation."
+  },
+  "historical_dismissal_attempt": {
+    "original_run": {
+      "path": "local/research/battle-combat-entry-v1/original-results-dismiss-600-v1/run.json",
+      "sha256": "30e5897ecdd21b17c7564391f0f0b283f675b03771f18bbd74fba34d32787f01"
+    },
+    "original_anchor": 109176,
+    "original_frames": 600,
+    "source_input": {
+      "path": "local/research/results-interface-v1/results-dismiss-input-v1.json",
+      "sha256": "2290f12c9995abaeb9e3bf615ca1615efef65c7869f38410d034fa1d2eab3d40"
+    },
+    "original_saved_field_restored": true,
+    "original_endpoint": "Stan dialogue in scene96; original currency1011.",
+    "native_run": {
+      "path": "local/research/battle-combat-entry-v1/native-results-dismiss-109775-v1/run.json",
+      "sha256": "62a0589ea4f3b6bfe8f472d5e7e2b498c8d42262b30ea219e404a3d89bb0840e"
+    },
+    "native_exit_code": 1,
+    "native_reason": "Natural defeat instead of victory: loader resource104455/first-active104456; battle root destroyed107806, game-over task107813, requested title108696, unrecovered mode8/arg1 at108699. No results reached.",
+    "requested_native_endpoint": 109775,
+    "missing_native_results_frames": 600,
+    "missing_native_selected_images": 6,
+    "native_final_pcm_missing": true,
+    "native_saved_field_restored": false,
+    "policy": "No favorable-retry selection or source timing/RNG fitting. Investigate immutable pipeline setup and source loader coordination.",
+    "superseded_by": "native-results-dismiss-109775-v2 (exit 0)",
+    "historical_status": "Preserved failed native v1 route; natural defeat, no results interval."
+  },
+  "dismissal_replay": {
+    "original_run": {
+      "path": "local/research/battle-combat-entry-v1/original-results-dismiss-600-v1/run.json",
+      "sha256": "30e5897ecdd21b17c7564391f0f0b283f675b03771f18bbd74fba34d32787f01"
+    },
+    "original_anchor": 109176,
+    "original_frames": 600,
+    "original_exit_code": 0,
+    "native_run": {
+      "path": "local/research/battle-combat-entry-v1/native-results-dismiss-109775-v2/run.json",
+      "sha256": "b9a9ae55ff54a87646f4cc2614b1830f8a69990555ecd28ed4753a07d37344d0"
+    },
+    "native_exit_code": 0,
+    "source_revision": "54a078c37925d3c8c693806a27c59677e30ac631",
+    "binary_sha256": "a76ec1e53b03cc2624a38be7a2ff2c861f375550eb7ca68046da1b47a3342195",
+    "saved_field_restored": true,
+    "saved_field_restored_frame": 109450,
+    "requested_endpoint": 109775,
+    "endpoint_scene": 96,
+    "endpoint_dialogue_pc": "0x5b4",
+    "results_trace_ends_frame": 109449,
+    "state_comparison": {
+      "path": "local/research/battle-combat-entry-v1/results-dismiss-state-comparison-v2.json",
+      "sha256": "4d9c234e9aa01633ed4ccaf9e73601c1554dc5824c66a8810db219532d18a136"
+    },
+    "state_comparison_exit_code": 1,
+    "source_frames_requested": 600,
+    "native_rows_compared": 275,
+    "field_differences": 1409,
+    "native_rows_missing": 325,
+    "native_missing_range": [
+      109450,
+      109774
+    ],
+    "missing_rows_scope": "Unsupported field tail after results child retirement; no macro observer mode2 coverage. The comparison was not cropped.",
+    "media_comparison": {
+      "path": "local/research/battle-combat-entry-v1/results-dismiss-media-comparison-v2.runs.json",
+      "sha256": "efbc33b4af658023a4b257ef65333067d680f3612085f0cda355b76ba790e457"
+    },
+    "audio_report": {
+      "path": "local/research/battle-combat-entry-v1/results-dismiss-audio-comparison-v2.json",
+      "sha256": "ccd6337ace3baec4a573a13a5a7db01ae92fa593e5dff068a4582f583812acb6"
+    },
+    "audio_status": "captured_segments_unaligned",
+    "audio_segments": {
+      "original_frames": 441000,
+      "original_rate_hz": 44100,
+      "native_frames": 480000,
+      "native_rate_hz": 48000,
+      "duration_seconds_each": 10.0,
+      "temporal_alignment_proven": false,
+      "waveform_equivalence_asserted": false
+    },
+    "selected_image_pairs": 6,
+    "fidelity_pass": false,
+    "image_metrics": [
+      {
+        "original_vblank": 1,
+        "native_tick": 109176,
+        "width": 640,
+        "height": 224,
+        "exact_different_pixel_count": 143360,
+        "rgb_mae": 6.017706008184524,
+        "rgb_max_absolute_difference": 255,
+        "alpha_different_pixel_count": 143360,
+        "alpha_mae": 156.98778599330356,
+        "alpha_max_absolute_difference": 255
+      },
+      {
+        "original_vblank": 120,
+        "native_tick": 109295,
+        "width": 640,
+        "height": 224,
+        "exact_different_pixel_count": 143360,
+        "rgb_mae": 1.4865536644345239,
+        "rgb_max_absolute_difference": 77,
+        "alpha_different_pixel_count": 143360,
+        "alpha_mae": 157.1733189174107,
+        "alpha_max_absolute_difference": 255
+      },
+      {
+        "original_vblank": 240,
+        "native_tick": 109415,
+        "width": 640,
+        "height": 224,
+        "exact_different_pixel_count": 143360,
+        "rgb_mae": 1.4865536644345239,
+        "rgb_max_absolute_difference": 77,
+        "alpha_different_pixel_count": 143360,
+        "alpha_mae": 157.1733189174107,
+        "alpha_max_absolute_difference": 255
+      },
+      {
+        "original_vblank": 360,
+        "native_tick": 109535,
+        "width": 640,
+        "height": 224,
+        "exact_different_pixel_count": 112720,
+        "rgb_mae": 10.670012555803572,
+        "rgb_max_absolute_difference": 255,
+        "alpha_different_pixel_count": 0,
+        "alpha_mae": 0.0,
+        "alpha_max_absolute_difference": 0
+      },
+      {
+        "original_vblank": 480,
+        "native_tick": 109655,
+        "width": 640,
+        "height": 224,
+        "exact_different_pixel_count": 136440,
+        "rgb_mae": 14.488836960565477,
+        "rgb_max_absolute_difference": 255,
+        "alpha_different_pixel_count": 0,
+        "alpha_mae": 0.0,
+        "alpha_max_absolute_difference": 0
+      },
+      {
+        "original_vblank": 600,
+        "native_tick": 109775,
+        "width": 640,
+        "height": 224,
+        "exact_different_pixel_count": 136417,
+        "rgb_mae": 14.785911923363095,
+        "rgb_max_absolute_difference": 255,
+        "alpha_different_pixel_count": 0,
+        "alpha_mae": 0.0,
+        "alpha_max_absolute_difference": 0
+      }
+    ]
+  },
+  "metal_backend_cache_checks": {
+    "tests_per_configuration": 7,
+    "configurations": [
+      {
+        "configuration": "Release",
+        "build": {
+          "path": "local/research/metal-backend-cache-v1/release-build.log",
+          "sha256": "d2e45a31211eecb9631074e5c9abdd43e0e267c6df9b5ff452e67fc1ab0420ff"
+        },
+        "ctest": {
+          "path": "local/research/metal-backend-cache-v1/release-tests.log",
+          "sha256": "538cb2d02af60ff360dee486499c2f817285e17cb8d5262e4c8ce5991f0d32e7"
+        },
+        "exit_code": 0
+      },
+      {
+        "configuration": "Debug",
+        "build": {
+          "path": "local/research/metal-backend-cache-v1/debug-build.log",
+          "sha256": "dee27a6a8257d797313974d1e30d8772223f44d23cc0943abec880f4a4cdfd78"
+        },
+        "ctest": {
+          "path": "local/research/metal-backend-cache-v1/debug-tests.log",
+          "sha256": "aa3d3fdf966f1a7f2c6f5c368f4f6098d73524ee4945c7753d5c3d7d1666af42"
+        },
+        "exit_code": 0
+      },
+      {
+        "configuration": "ASan_UBSan",
+        "build": {
+          "path": "local/research/metal-backend-cache-v1/sanitize-build.log",
+          "sha256": "be7e0ab8e0ad90597efe0c8f5b4bb865df832ae31ae3da91d84801ab71d56e68"
+        },
+        "ctest": {
+          "path": "local/research/metal-backend-cache-v1/sanitize-tests.log",
+          "sha256": "776a87f8645a45b707263a41b4b105a61daf2a992cd94438bcf17ef3440aa6a7"
+        },
+        "exit_code": 0
+      }
+    ],
+    "limitations": "Cache tests validate immutable backend reuse; they do not establish deterministic loading or original timing."
+  },
+  "live_preview": {
+    "observation": {
+      "path": "local/demos/results-108575-v1/interactive-return-observation.json",
+      "sha256": "8343f545b4f5dce22c44a9cb8c422a8c817bf456730f9bfbfc97b7b8b5a64b79"
+    },
+    "pid": 63851,
+    "session_id": 32234,
+    "paused_frame": 112126,
+    "binary_sha256": "5ce7f3246c759bfcc39a7ebff1f1150b769480f9c09ab46597b4cf80fa0d3c9b",
+    "status": "root verified as sole live native preview",
+    "scope": "Manual keyboard observation demonstrates saved-field route and dialogue; not an exact input tape, numeric original comparison or fidelity result."
+  },
+  "next_original_anchor": 109776
 }
