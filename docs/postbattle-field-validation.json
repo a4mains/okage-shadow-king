@@ -1,0 +1,105 @@
+{
+  "schema": "okage-postbattle-field-validation-v1",
+  "status": "interactive_progress_and_failed_fixed_replay",
+  "runtime_revision": "54a078c37925d3c8c693806a27c59677e30ac631",
+  "original": {
+    "anchor": 109776,
+    "frames": 600,
+    "exit_code": 0,
+    "controller_entries": 516,
+    "camera_records": 600,
+    "manager_player_missing_frames": 600,
+    "run": {
+      "path": "local/research/battle-combat-entry-v1/original-postbattle-dialogue-600-v2/run.json",
+      "sha256": "c8a36e541d407c0974d71f44841d5f2d01db66e258c8ceb0efae2c95ca13158a"
+    },
+    "log": {
+      "path": "local/research/battle-combat-entry-v1/original-postbattle-dialogue-600-v2/run.log",
+      "sha256": "56744219f0c5aaaf2e2865722a8dea9c271447ec540de9010a31505948d38c98"
+    },
+    "output_state": {
+      "path": "local/research/battle-combat-entry-v1/original-postbattle-dialogue-600-v2/live.state.zip",
+      "sha256": "d892b9101f49114e08e1a3f025aa6770aae76a64bc25fc0f3cc62afeda69b2ab"
+    },
+    "initial_setup_failure": {
+      "path": "local/research/battle-combat-entry-v1/original-postbattle-dialogue-600-v1/run.json",
+      "sha256": "8bea9dfabfb62e1a123c157dae5482d6ec4bbfb8954fbf1319e5c27768c0310a"
+    }
+  },
+  "native": {
+    "requested_endpoint": 110375,
+    "exit_code": 1,
+    "stop_frame": 108699,
+    "reason": "Unrecovered mode8/arg1 after genuine defeat/gameover",
+    "run": {
+      "path": "local/research/battle-combat-entry-v1/native-postbattle-dialogue-110375-v1/run.json",
+      "sha256": "d7c1c3132ad389f16ab7c68e54bbc31154e52b5103bfcca9fdf91648a33b8400"
+    },
+    "log": {
+      "path": "local/research/battle-combat-entry-v1/native-postbattle-dialogue-110375-v1/stdout.log",
+      "sha256": "4b4e3881b258261beb657f5d4be09040d31afe061ca70307a1516d76309be9c5"
+    },
+    "inputs": {
+      "path": "local/research/battle-combat-entry-v1/native-postbattle-dialogue-110375-v1/input.json",
+      "sha256": "7ba05781885efdc8f45b1495b1c86bdfcb01846faeb2912a4e7ee4d1865c146e"
+    },
+    "buttons": {
+      "path": "local/research/battle-combat-entry-v1/native-postbattle-dialogue-110375-v1/buttons.txt",
+      "sha256": "1156069f4f9bd403e3cdb962b357e8166966f45338f1bcc8be1ae30552961e39"
+    },
+    "missing_comparison_frames": 600,
+    "missing_selected_images": 6,
+    "final_pcm_present": false
+  },
+  "comparison": {
+    "state": "not_compared_missing_native_interval",
+    "images": "all_six_native_images_missing",
+    "audio": "native_final_pcm_missing",
+    "availability": {
+      "path": "local/research/postbattle-dialogue-comparison-v1/availability.json",
+      "sha256": "2c39224d5329565dc53e920cac34ab28c78b9b06713c1fa9fd3b1a7ce6ea0069"
+    },
+    "failed_precondition": {
+      "path": "local/research/postbattle-dialogue-comparison-v1/wrapper-precondition.log",
+      "sha256": "ad96f044266b9892080c8b3a46e36a71ac2ed9db9abb9af5bca1a9bce2ae4354"
+    },
+    "wrapper_scope": "Ignored ad hoc wrapper only; syntax and failed-run rejection checked, no complete successful interval invocation"
+  },
+  "interactive": {
+    "observation": {
+      "path": "local/demos/results-108575-v1/interactive-treasure-observation.json",
+      "sha256": "2fe2b5531b374d42cc95f4a41c31379e2e78011845ad10c524f9230f3af6e5e8"
+    },
+    "pid": 63851,
+    "session": 32234,
+    "paused_frame": 116648,
+    "executed": "Chest open, Odd Glass Tube acquisition message and conversation completion via ordinary keyboard input",
+    "limitations": [
+      "No exact consumed live input timestamps",
+      "No inventory-byte inspection",
+      "No matched reference interval or saved gameplay state",
+      "No listening/performance claim"
+    ]
+  },
+  "source_review": {
+    "loader": {
+      "path": "local/research/first-battle-source-v1/0014a118.c",
+      "sha256": "bd1e175804f08b4ef6017e9f8abe393c3d80318ce8a012af630031bc88ed2af3"
+    },
+    "scheduler_constructor_wrapper": {
+      "path": "local/research/npc-wander-source-v1/jobs/001153a8.asm",
+      "sha256": "fecb5fd6f3b48ef8a44e58b4a98746d175448d483fc29c9b8b8eeb256033bf90"
+    },
+    "existing_coordination_review": {
+      "path": "local/research/battle-combat-entry-v1/loading-coordination-source-v1/review.txt",
+      "sha256": "a983b7b1f0f33b1f6ed0ed14a418b23c024113f9e1c1e489e8797fb59cac1a58"
+    },
+    "finding": "Wrapper releases critical section at115458 before constructor invocation11546c; do not treat all constructors as source-atomic"
+  },
+  "checks": {
+    "new_runtime_changes": false,
+    "new_builds_or_test_suites": false,
+    "prior_tests": "Unchanged results21 and cache7 CTests per3builds;Python432 remain historical executed evidence"
+  },
+  "full_acceptance_met": false
+}
