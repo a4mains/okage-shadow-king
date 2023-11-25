@@ -1,0 +1,72 @@
+{
+  "schema": "okage-input-journal-validation-v1",
+  "runtime_revision": "9fbd529",
+  "component_revision": "ae51c24",
+  "checks": [
+    {
+      "configuration": "release",
+      "tests": 2,
+      "tests_log": {
+        "path": "local/research/input-journal-v1/release-tests.log",
+        "sha256": "7ded3a5e29ea0eec8955882e727f6bffcbd096c529d6222f9119d9aa8e3223c2"
+      },
+      "initial_build": {
+        "path": "local/research/input-journal-v1/release-build.log",
+        "sha256": "cd4035dcfa21a6d8f9d84f1a8c7a0755373ec60675eabc1806fd50c5f4fe2992"
+      },
+      "final_build": {
+        "path": "local/research/input-journal-v1/release-build-v2.log",
+        "sha256": "309ef32b37c52021b77a8112081594900f3a8418ed9b4c119ac41477efbf51d7"
+      }
+    },
+    {
+      "configuration": "debug",
+      "tests": 2,
+      "tests_log": {
+        "path": "local/research/input-journal-v1/debug-tests.log",
+        "sha256": "7a155cdce92e18b83e873c57481e60cd69deb8c8273a662e58936ddc63ceb6f2"
+      },
+      "initial_build": {
+        "path": "local/research/input-journal-v1/debug-build.log",
+        "sha256": "e434491296040ca82522c8bb3fb8ae9e86f53394dd99a55bc2d0095ce39326d6"
+      },
+      "final_build": {
+        "path": "local/research/input-journal-v1/debug-build-v2.log",
+        "sha256": "309ef32b37c52021b77a8112081594900f3a8418ed9b4c119ac41477efbf51d7"
+      }
+    },
+    {
+      "configuration": "sanitize",
+      "tests": 2,
+      "tests_log": {
+        "path": "local/research/input-journal-v1/sanitize-tests.log",
+        "sha256": "c0e8c84ff715ac4d0cb5673d69901258fe4d7b7d296cef74cd5cd75996468320"
+      },
+      "initial_build": {
+        "path": "local/research/input-journal-v1/sanitize-build.log",
+        "sha256": "6369e2c389e216c3756d15475e72dcca3f6b6cbc7f835376850f3649921fe612"
+      },
+      "final_build": {
+        "path": "local/research/input-journal-v1/sanitize-build-v2.log",
+        "sha256": "309ef32b37c52021b77a8112081594900f3a8418ed9b4c119ac41477efbf51d7"
+      }
+    }
+  ],
+  "runtime": {
+    "path": "local/research/input-journal-v1/runtime-v3/report.json",
+    "sha256": "8ac960b6becd377529a94156525beae0b28523392b24be7e9a83db687a6aa1a1"
+  },
+  "binary_sha256": "3603a2d83283ae0036a3c89047fb61aeed2d0ce036297705bfb045e967dd0237",
+  "matching_capture_artifacts": 15,
+  "cli_cases": 11,
+  "failed_harness": {
+    "path": "local/research/input-journal-v1/runtime-check.log",
+    "sha256": "45d15b48893f1c81cf5588283d2e259b863c8452e73045e25bf97809586b87a1"
+  },
+  "limitations": [
+    "No actual AppKit journal/pause capture test; sole existing native Session preserved",
+    "Six-tick text fixture is not battle/loading/performance validation",
+    "No journal replay reader or native save/load",
+    "Prior Python432 corpus unchanged; no inspection-tool source changed in this runtime integration"
+  ]
+}
