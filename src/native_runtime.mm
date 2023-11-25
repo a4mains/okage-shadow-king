@@ -19,6 +19,7 @@
 #include "okage/live_performance.hpp"
 #include "okage/native_run.hpp"
 #include "okage/live_scheduler.hpp"
+#include "okage/input_journal.hpp"
 #include "battle_capture_metal.hpp"
 #include "battle_filter_metal.hpp"
 #include "shadow_metal.hpp"
@@ -278,6 +279,7 @@ struct Session {
     fs::path battle_ui_update_report;
     std::ostream* battle_live_trace=nullptr;
     std::ostream* load_observation_trace=nullptr;
+    okage::InputJournal* input_journal=nullptr;
     bool load_observation_written=false;
     void write_load_observation(const char* boundary) {
         if(!load_observation_trace||!battle||load_observation_written)return;
@@ -760,6 +762,7 @@ struct Session {
         }
     }
     void tick(okage::DialogueButtons input) {
+        if(input_journal)input_journal->begin_tick(frame+1,input.held,input.pressed);
         ++frame;
         const auto released=std::uint16_t(previous_held&~input.held);previous_held=input.held;
         input.repeat=pad_repeat.update(input.held,input.pressed);
@@ -1086,6 +1089,7 @@ struct Session {
             if(load_observation_trace&&!load_observation_written&&battle->observation()[2]==6)
                 write_load_observation("constructed");
         }
+        if(input_journal)input_journal->complete_tick(frame);
     }
     void render_frame() {
         if(rendered_surface&&rendered_frame==frame)return;
@@ -1515,6 +1519,8 @@ static void captureView(NSView* view,const fs::path& path) {
 @public DirectionReplay directions;
 @public std::uint16_t replayDirections;
 @public fs::path testCapture,pausedViewCapture;
+@public fs::path pauseCaptureDirectory;
+@public unsigned pauseCaptureCount;
 @public std::unique_ptr<okage::LivePerformance> performance;
 @public okage::LiveTickClock tickClock;
 }
@@ -1524,6 +1530,21 @@ static void captureView(NSView* view,const fs::path& path) {
 @property double previousTime;
 @end
 @implementation NativeApp
+- (okage::InputJournalContext)journalContext {
+    return {session->current_scene,session->field?std::optional<unsigned>(session->field->pc()):std::nullopt};
+}
+- (void)capturePausedSession {
+    if(pauseCaptureDirectory.empty())return;
+    const auto path=pauseCaptureDirectory/("pause-"+std::to_string(++pauseCaptureCount)+
+        "-frame-"+std::to_string(session->frame)+".png");
+    capture(*session,path);
+    captureView(self.view,path.string()+".view.png");
+    std::cout<<"Paused native diagnostic capture frame="<<session->frame<<" path="<<path<<std::endl;
+}
+- (void)finishInputJournal {
+    if(session->input_journal&&!session->input_journal->terminal())
+        session->input_journal->finish(session->frame,[self journalContext]);
+}
 - (void)applicationDidFinishLaunching:(NSNotification*)notification {
     (void)notification;
     self.window=[[NSWindow alloc] initWithContentRect:NSMakeRect(0,0,960,session->game_mode ? 720 : 336)
@@ -1539,12 +1560,18 @@ static void captureView(NSView* view,const fs::path& path) {
     if(paused) {
         try {
             [self refreshImage];
+            if(session->input_journal)session->input_journal->pause(session->frame,[self journalContext]);
             if(!pausedViewCapture.empty()) {
                 captureView(self.view,pausedViewCapture);
                 std::cout<<"Paused AppKit view capture at native frame="<<session->frame
                     <<" path="<<pausedViewCapture<<std::endl;
             }
+            [self capturePausedSession];
         }catch(const std::exception& e) {
+            if(session->input_journal&&!session->input_journal->terminal()) {
+                try {session->input_journal->error(session->input_journal->frame(),e.what(),[self journalContext]);}
+                catch(const std::exception& journalError){std::cerr<<journalError.what()<<'\n';}
+            }
             failureStatus=1;std::cerr<<e.what()<<'\n';[NSApp stop:nil];return;
         }
     }
@@ -1595,7 +1622,12 @@ static void captureView(NSView* view,const fs::path& path) {
             if(!paused&&session->music&&!session->audio_output)
                 session->audio_output=std::make_unique<okage::AudioOutput>();
             if(paused&&performance)performance->finish(now,session->frame,okage::PerformanceEnd::pause);
+            if(session->input_journal) {
+                if(paused)session->input_journal->pause(session->frame,[self journalContext]);
+                else session->input_journal->resume(session->frame,[self journalContext]);
+            }
             [self refreshImage];
+            if(paused)[self capturePausedSession];
         }
         if(paused){tickClock.reset();self.view.held=self.view.pressed=0;return;}
         bool changed=false;
@@ -1649,10 +1681,16 @@ static void captureView(NSView* view,const fs::path& path) {
             }
             capture(*session,testCapture);
             captureView(self.view,testCapture.string()+".view.png");
+            [self finishInputJournal];
             std::cout<<"AppKit keyDown events="<<self.view.injectedKeyDowns<<" native progress="<<session->text.state.progress<<" wait_release="<<session->release_frame<<std::endl;
             [NSApp terminate:nil];
         }
     }catch(const std::exception& e) {
+        failureStatus=1;
+        if(session->input_journal&&!session->input_journal->terminal()) {
+            try {session->input_journal->error(session->frame,e.what(),[self journalContext]);}
+            catch(const std::exception& journalError){std::cerr<<journalError.what()<<'\n';}
+        }
         const double failedAt=performance?NSProcessInfo.processInfo.systemUptime:0;
         if(performance&&performance->interval.active()) {
             performance->interval.scheduler_pending(tickClock.pending());
@@ -1681,18 +1719,22 @@ static void captureView(NSView* view,const fs::path& path) {
 }
 - (void)windowWillClose:(NSNotification*)notification {
     (void)notification;[self finishPerformance:okage::PerformanceEnd::window_close];
+    try {[self finishInputJournal];}catch(const std::exception& e){failureStatus=1;std::cerr<<e.what()<<'\n';}
 }
 - (void)applicationWillTerminate:(NSNotification*)notification {
     (void)notification;[self finishPerformance:okage::PerformanceEnd::application_terminate];
+    try {[self finishInputJournal];}catch(const std::exception& e){failureStatus=1;std::cerr<<e.what()<<'\n';}
 }
 - (void)windowDidResignKey:(NSNotification*)notification {(void)notification;self.view.held=0;self.view.pressed=0;}
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)app {(void)app;return YES;}
 @end
 int main(int argc,const char** argv) {
-    @autoreleasepool {try {
-        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --buttons INPUT (held non-directional masks; bounded replay only) --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--load-observation FRESH.jsonl (bounded replay; host scheduling diagnostics)] [--performance-report FRESH.jsonl (interactive/preview/UI test)]");
+    @autoreleasepool {
+    std::unique_ptr<okage::InputJournal> inputJournal;
+    try {
+        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --buttons INPUT (held non-directional masks; bounded replay only) --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--load-observation FRESH.jsonl (bounded replay; host scheduling diagnostics)] [--performance-report FRESH.jsonl (interactive/preview/UI test)] [--input-journal FRESH.jsonl] [--pause-captures FRESH_DIRECTORY (interactive diagnostics, not saved games)]");
         unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions,buttons;bool hasButtons=false;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures,battleInput;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
-        std::optional<fs::path> performancePath;
+        std::optional<fs::path> performancePath,inputJournalPath,pauseCapturePath;
         fs::path uiUpdateReport,battleLivePath,loadObservationPath;
         std::ofstream battleLiveTrace,loadObservationTrace;
         std::vector<okage::NativeRenderRange> renderRanges;
@@ -1709,6 +1751,14 @@ int main(int argc,const char** argv) {
             else if(arg=="--performance-report") {
                 if(performancePath||!argv[i][0])throw std::runtime_error("Performance report requires one nonempty path");
                 performancePath=argv[i];
+            }
+            else if(arg=="--input-journal") {
+                if(inputJournalPath||!argv[i][0])throw std::runtime_error("Input journal requires one nonempty fresh path");
+                inputJournalPath=argv[i];
+            }
+            else if(arg=="--pause-captures") {
+                if(pauseCapturePath||!argv[i][0])throw std::runtime_error("Pause captures require one nonempty fresh directory");
+                pauseCapturePath=argv[i];
             }
             else if(arg=="--capture-frames") {
                 if(!captureFrames.empty())throw std::runtime_error("Duplicate native frame selection");
@@ -1763,6 +1813,12 @@ int main(int argc,const char** argv) {
         if(!soundDirectory.empty() && musicSequence.empty())throw std::runtime_error("Sound directory requires native music setup");
         if(effectData.empty()!=effectTextures.empty()||(!effectData.empty()&&map.empty()))throw std::runtime_error("Effects require data, texture directory and scene");
         if(map.empty()!=event.empty() || (!actors.empty() && map.empty()))throw std::runtime_error("Scene requires both map and event assets");
+        // Check aliases before either trace reserves its output file.
+        if(inputJournalPath) {
+            for(const auto& path:{uiUpdateReport,battleLivePath,loadObservationPath,performancePath.value_or(fs::path{})})
+                if(!path.empty()&&fs::weakly_canonical(path)==fs::weakly_canonical(*inputJournalPath))
+                    throw std::runtime_error("Input journal overlaps another report");
+        }
         if(!loadObservationPath.empty()) {
             if(!frames||previewAt||uiFrames||battleInput.empty())
                 throw std::runtime_error("Loader observation requires bounded --frames and owned --battle-input");
@@ -1794,6 +1850,7 @@ int main(int argc,const char** argv) {
         if(renderUntil&&(!renderFrom||renderUntil<renderFrom||renderUntil>replayFrames))
             throw std::runtime_error("Render end requires a bounded headless render interval");
         if(performancePath&&frames)throw std::runtime_error("Performance report requires interactive, preview-at or UI-test mode");
+        if(pauseCapturePath&&frames)throw std::runtime_error("Pause captures require an interactive or preview session");
         if(runPlan.bounded_handoff) {
             okage::require_fresh_native_capture_family(output);
             if(performancePath&&okage::native_capture_family_contains(output,*performancePath))
@@ -1808,6 +1865,28 @@ int main(int argc,const char** argv) {
                 throw std::runtime_error("Performance report overlaps the paused view capture");
         }
         // Reserve the fresh report before loading assets or preparing a preview.
+        if(inputJournalPath) {
+            for(const auto& path:{output,runPlan.replay_capture,runPlan.live_capture})
+                if(!path.empty()&&okage::native_capture_family_contains(path,*inputJournalPath))
+                    throw std::runtime_error("Input journal overlaps native capture output");
+        }
+        if(pauseCapturePath) {
+            const auto directory=fs::weakly_canonical(fs::absolute(*pauseCapturePath));
+            for(const auto& path:{output,runPlan.replay_capture,runPlan.live_capture})
+                if(!path.empty()&&okage::native_capture_family_contains(path,directory))
+                    throw std::runtime_error("Pause capture directory overlaps a native capture family");
+            for(const auto& path:{output,uiUpdateReport,battleLivePath,loadObservationPath,
+                                performancePath.value_or(fs::path{}),inputJournalPath.value_or(fs::path{})}) {
+                if(path.empty())continue;
+                const auto relative=fs::weakly_canonical(fs::absolute(path)).lexically_relative(directory);
+                if(!relative.empty()&&*relative.begin()!="..")
+                    throw std::runtime_error("Pause capture directory overlaps another output");
+            }
+            if(fs::exists(directory)||fs::is_symlink(directory)||!fs::create_directory(directory))
+                throw std::runtime_error("Pause captures require a fresh directory");
+            pauseCapturePath=directory;
+        }
+        if(inputJournalPath)inputJournal=std::make_unique<okage::InputJournal>(*inputJournalPath);
         std::unique_ptr<okage::LivePerformance> performance;
         if(performancePath)performance=std::make_unique<okage::LivePerformance>(*performancePath,
             uiFrames?std::optional<okage::PerformanceTestRange>({replayFrames,uiFrames}):std::nullopt);
@@ -1828,6 +1907,7 @@ int main(int argc,const char** argv) {
             }
             prepared=std::make_unique<Session>(argv[1],argv[2],playerName);
             auto& session=*prepared;session.render_from=renderFrom;session.render_until=renderUntil;session.render_ranges=std::move(renderRanges);
+            session.input_journal=inputJournal.get();
             session.battle_input=battleInput;
             session.battle_ui_update_report=uiUpdateReport;
             session.battle_live_trace=battleLivePath.empty()?nullptr:&battleLiveTrace;
@@ -1875,6 +1955,8 @@ int main(int argc,const char** argv) {
                     battleLiveTrace<<"{\"event\":\"finish\",\"frame\":"<<session.frame<<"}\n";battleLiveTrace.flush();
                     if(!battleLiveTrace)throw std::runtime_error("Native battle-live finish write failed");
                 }
+                if(inputJournal)inputJournal->finish(session.frame,
+                    {session.current_scene,session.field?std::optional<unsigned>(session.field->pc()):std::nullopt});
                 return 0;
             }
             session.render_frame();
@@ -1882,8 +1964,10 @@ int main(int argc,const char** argv) {
         [NSApplication sharedApplication];[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
         NativeApp* app=[NativeApp new];app->paused=runPlan.starts_paused;app->session=std::move(prepared);
         app->performance=std::move(performance);app->pausedViewCapture=pausedViewCapture;
+        app->pauseCaptureDirectory=pauseCapturePath.value_or(fs::path{});
         if(!app->session) {
         app->session=std::make_unique<Session>(argv[1],argv[2],playerName);
+        app->session->input_journal=inputJournal.get();
         app->session->battle_input=battleInput;
         app->session->battle_ui_update_report=uiUpdateReport;
         if(!output.empty())app->session->battle_construction_report=output.string()+".battle-construction.json";
@@ -1898,5 +1982,11 @@ int main(int argc,const char** argv) {
         app->testFrames=uiFrames;app->testPresses=presses;app->directions=directions;app->testCapture=runPlan.live_capture;
         if(runPlan.bounded_handoff)app->replayDirections=directions.held(replayFrames);
         [NSApp setDelegate:app];[NSApp run];return app->failureStatus;
-    }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
+    }catch(const std::exception& e){
+        if(inputJournal&&!inputJournal->terminal()) {
+            try {inputJournal->error(inputJournal->frame(),e.what());}
+            catch(const std::exception& journalError){std::cerr<<journalError.what()<<'\n';}
+        }
+        std::cerr<<e.what()<<'\n';return 1;
+    }}
 }
