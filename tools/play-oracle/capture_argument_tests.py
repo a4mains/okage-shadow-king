@@ -97,6 +97,18 @@ def main():
               'cannot be combined with --battle-callbacks')
         layout.touch()
         check(['--ui-layout', str(layout)], 'Refusing existing reference output')
+        loader = root / 'loader-windows.jsonl'
+        check(['--loader-windows'], 'Unknown boot argument')
+        check(['--loader-windows', str(loader), '--loader-windows', str(loader)],
+              'Duplicate loader-windows')
+        check(['--loader-windows', str(missing_disc)], 'Loader-windows output aliases')
+        check(['--loader-windows', str(loader), '--save', str(loader)],
+              'Loader-windows output aliases')
+        check(['--loader-windows', str(loader), '--battle-live', str(root / 'battle-live.jsonl')],
+              '--loader-windows is exclusive')
+        check(['--loader-windows', str(loader)], 'Disc input missing')
+        loader.touch()
+        check(['--loader-windows', str(loader)], 'Refusing existing reference output')
     print('Capture argument tests passed; no VM constructed.')
 
 if __name__ == '__main__':
