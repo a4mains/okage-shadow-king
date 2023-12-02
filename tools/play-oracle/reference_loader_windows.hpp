@@ -17,7 +17,7 @@
 class LoaderWindowsTrace {
 public:
     static constexpr uint32 loadWindow=0x178b50;
-    static constexpr uint32 windowResumeCall=0x178bfc;
+    static constexpr uint32 windowResumeCall=0x178bf0;
     static constexpr uint32 windowAfterResume=0x178c04;
     static constexpr uint32 windowBeforeSuspend=0x178c10;
     static constexpr uint32 windowAfterSuspend=0x178c18;
@@ -95,7 +95,7 @@ public:
             });
             const auto mainThread=m.word(0x31fa4c);
             if(thread!=mainThread)fail("178b50 main-window inner boundary reached by a non-main thread");
-            const char* label=pc==windowResumeCall?"resume_call_entry_before_delay_slot":
+            const char* label=pc==windowResumeCall?"resume_block_entry_before_argument_setup":
                               pc==windowAfterResume?"resume_return_before_wait_sema":
                               pc==windowBeforeSuspend?"wait_sema_return_before_suspend_call":
                               "suspend_return_before_active_clear";
