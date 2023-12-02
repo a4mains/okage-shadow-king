@@ -1,0 +1,81 @@
+{
+  "schema": "okage-loader-windows-validation-v1",
+  "observer_revision": "a956328c910de5bfc0b7a2233c256263e01e28fa",
+  "initial_observer_revision": "24a3ce7d0da8b1edc2b53f78c3005a286d17d1b6",
+  "play_revision": "4f413584409017457eff3b7aa9c3c2e662a91e1f",
+  "play_status": [
+    " M Source/gs/GSH_Vulkan/GSH_VulkanDrawDesktop.cpp",
+    " M Source/gs/GSH_Vulkan/GSH_VulkanDrawMobile.cpp",
+    " m deps/libchdr"
+  ],
+  "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "validation": {
+    "oracle_build": "pass",
+    "cli_arguments": "pass; no VM constructed",
+    "python_tests": {
+      "count": 432,
+      "result": "pass",
+      "final_seconds": 14.787
+    },
+    "original_v1": {
+      "exit_code": 1,
+      "reason": "interior breakpoint178bfc stopped at containing block178bf0"
+    },
+    "original_v2": {
+      "exit_code": 0,
+      "vblanks": 240,
+      "events": 8604,
+      "pending_calls": 3,
+      "unpaired_prefix_rows": 2,
+      "balanced_observed_calls": false
+    },
+    "native_runtime_changed": false,
+    "fidelity_pass": false
+  },
+  "analysis": "local/research/loader-windows-v1/analysis.json",
+  "evidence_sha256": {
+    "local/research/loader-windows-v1/oracle-build.log": "3f6213f730e3251cab718f09502cc955965945a118ef310acc6c6df6b663bb2b",
+    "local/research/loader-windows-v1/oracle-build-v2.log": "3f6213f730e3251cab718f09502cc955965945a118ef310acc6c6df6b663bb2b",
+    "local/research/loader-windows-v1/cli-tests.log": "e1829b0b520e8fd23c4c9c57d225ab4d0f556281df869a9f7d4ea5527284eccc",
+    "local/research/loader-windows-v1/python-tests.log": "07ebcf5a3a20bebceb091e14a66958cfbe8c3245e541374bccc01e4d3d7b8e6a",
+    "local/research/loader-windows-v1/python-tests-v2.log": "6c9ace156d953fb6a7fd4d646869aa6d5e866d9d247f2258a2ba707b66c4d8a9",
+    "local/research/loader-windows-v1/run_original.py": "42f83b686899b6d7d902791c67ee8f82d36a5c2a4891072ad4304e1ae98384a2",
+    "local/research/loader-windows-v1/run_original_v2.py": "4afd7411095a00176426e31091fd61c91626e9a8a8468e177637f2f6cc20c958",
+    "local/research/loader-windows-v1/analyze.py": "cfa3a77d0792a0946c483c774fc3de516be6a3ff0ac7c1a9c2daea667d612f66",
+    "local/research/loader-windows-v1/analysis.json": "5c8541072007257cf17141b7f928121f149ab7e12c49d5c92305578405da4c98",
+    "local/research/loader-windows-v1/play-source.diff": "df5def55227c7ce107f819d28d72c6ed1f8cd75a42ad23b40ebc9f597d3ff84f",
+    "local/research/loader-windows-v1/original-v1/run.json": "9ba129327d88c2bc72699c3054a7668ecb99daa7e391a56240d20abad1e3d67c",
+    "local/research/loader-windows-v1/original-v1/run.log": "3949429163433e62ba936766d29e3443d6db5549bbf5a24a127fff49dd293b7e",
+    "local/research/loader-windows-v1/original-v1/windows.jsonl": "6fe87e084ab841d7f12a314c0c2f645e81448606e537fa0251dec910a213aa13",
+    "local/research/loader-windows-v1/original-v1/okage-boot-oracle": "8bf6460c3f53fa79c8d65bbd819179b56ff090fdc72115c70685def9a8541cdf",
+    "local/research/loader-windows-v1/original-v1/libMoltenVK.dylib": "aef00b13bcc808adf15b85bef9ae67393d92be7ed5dfe41cad16fa809e4a4c5f",
+    "local/research/loader-windows-v1/original-v2/run.json": "8ce786ec9856d1728d089553fec9c8efa294ff05dbdb55b1578fb1f0326656e3",
+    "local/research/loader-windows-v1/original-v2/run.log": "f838accae3234a32ecd131f45ee5331443d64a820574fa9fb9abeada35ed2ce6",
+    "local/research/loader-windows-v1/original-v2/windows.jsonl": "739cc2e0fe3ea53de0fd9abb6e17176c6509a9856c8f909daf4a4a871c7f3a33",
+    "local/research/loader-windows-v1/original-v2/okage-boot-oracle": "cf1e95062696b876ced866247a2e475d93eacd5138eb98376e0a3f2ad86ca3f5",
+    "local/research/loader-windows-v1/original-v2/libMoltenVK.dylib": "aef00b13bcc808adf15b85bef9ae67393d92be7ed5dfe41cad16fa809e4a4c5f",
+    "local/research/loader-windows-v1/original-v2/live.json": "b6dd5f0eb0093d81527476dc565aa7662fb9c6218974599bbf7ee316187d9e57",
+    "local/research/loader-windows-v1/original-v2/live.layer0.png": "472f7b519b28c13c3ab361c5fcc5cf87966ab62354d01dde0ac66aad9db74dbf",
+    "local/reference-field1d-tenel-first-ghost-stand-240-v1.state.zip": "100ab685c68a5a7153093f5f5865be83dde9fe05af56bac71625997bff564eef",
+    "local/reference-field1d-tenel-first-ghost-last-warning-240-v1.input": "c357717e839b7fcc7cbbe76ebd2c007afb140d6a898ec289c748fe2ffdcb2ac5",
+    "local/research/battle-party-constructor-v1/natural-original-v2.constructors.jsonl": "18d479ebfffe224a41cc15f25c57f19179c56f67523b6a4251b5b1de191005d0",
+    "references/Play/Source/ee/PS2OS.h": "80039b77e4b7450f52681700384c09be36d66639032564ee01738463fcc20a07",
+    "references/Play/Source/ee/PS2OS.cpp": "fbb325b28566b247d8618795e43354990d15913286e0bfe96f8f2ad2ae94f1dd",
+    "references/Play/Source/BasicBlock.cpp": "9aeec84a93218e5294ed1592ab125ae86cc77fed33b4161c1e3d9ab4e4ef2c55",
+    "references/Play/Source/GenericMipsExecutor.h": "395d28100e18bf49d09669680d248e04065d1ab8d4fc71def6439b0b6637b337",
+    "local/research/battle-combat-entry-v1/native-results-dismiss-109775-v2/run.json": "b9a9ae55ff54a87646f4cc2614b1830f8a69990555ecd28ed4753a07d37344d0",
+    "local/research/battle-combat-entry-v1/native-results-dismiss-109775-v2/native.png.battle-construction.json": "21aa98b9ce3bc622a8e710eae293523d45d864bd3003116b89e18195e9dc782e",
+    "local/research/battle-combat-entry-v1/native-results-dismiss-109775-v2/stdout.log": "6a50cb292f1d6bbe195050479501356ca20c5fb32747894f6b3ce9f422ed8d55",
+    "local/research/battle-combat-entry-v1/native-postbattle-dialogue-110375-v1/run.json": "d7c1c3132ad389f16ab7c68e54bbc31154e52b5103bfcca9fdf91648a33b8400",
+    "local/research/battle-combat-entry-v1/native-postbattle-dialogue-110375-v1/native.png.battle-construction.json": "90ded53862663f2f08e2997a14a3e788f9a4b3ee5a5d21fc3219cbd078ff7314",
+    "local/research/battle-combat-entry-v1/native-postbattle-dialogue-110375-v1/stdout.log": "4b4e3881b258261beb657f5d4be09040d31afe061ca70307a1516d76309be9c5",
+    "local/research/results-interface-v1/results-dismiss-buttons-v1.txt": "7dbfbeaf1cb58080e32a16426855edb84013ed6d6c7e2c646a29a46f582133a6",
+    "local/research/battle-combat-entry-v1/native-postbattle-dialogue-110375-v1/buttons.txt": "1156069f4f9bd403e3cdb962b357e8166966f45338f1bcc8be1ae30552961e39",
+    "local/research/loader-windows-v1/libchdr-source.diff": "a95b895f36e163ff64a7442bc8b512d23038b1536f183587292da6da7fc60739"
+  },
+  "play_libchdr_revision": "284e38b6e53e0a7270cc234934e45230ed915a25",
+  "play_libchdr_status": [
+    " D deps/zlib-1.3.1/zconf.h",
+    "?? deps/zlib-1.3.1/zconf.h.included"
+  ]
+}
