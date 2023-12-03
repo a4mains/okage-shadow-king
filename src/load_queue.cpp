@@ -9,6 +9,10 @@ NativeLoadQueue::NativeLoadQueue(std::size_t capacity):observation_capacity_(cap
     worker_=std::jthread([this](std::stop_token stop){run(stop);});
 }
 NativeLoadQueue::~NativeLoadQueue() {
+    {
+        std::lock_guard lock(mutex_);
+        stopping_=true;
+    }
     worker_.request_stop();
     changed_.notify_all();
     worker_.join();
@@ -36,10 +40,52 @@ void NativeLoadQueue::resume() {
     {
         std::lock_guard lock(mutex_);
         if(failure_)std::rethrow_exception(failure_);
+        if(stopping_)throw std::logic_error("Native load queue is stopping");
+        if(pause_requested_&&!pause_acknowledged_)
+            throw std::logic_error("Cannot resume before the loader pause is acknowledged");
+        pause_requested_=false;
+        pause_acknowledged_=false;
         resumed_=true;
         record(LoadEventKind::Resume,0,{});
     }
     changed_.notify_one();
+}
+void NativeLoadQueue::pause_and_wait() {
+    std::unique_lock lock(mutex_);
+    if(std::this_thread::get_id()==worker_thread_)
+        throw std::logic_error("Native load worker cannot wait for its own pause");
+    if(failure_)std::rethrow_exception(failure_);
+    if(stopping_)throw std::logic_error("Native load queue is stopping");
+    if(!pause_requested_) {
+        pause_requested_=true;
+        pause_acknowledged_=false;
+        resumed_=false;
+    }
+    record(LoadEventKind::PauseRequest,running_job_,running_identity_);
+    changed_.notify_all();
+    changed_.wait(lock,[this]{return pause_acknowledged_||failure_||stopping_;});
+    if(failure_)std::rethrow_exception(failure_);
+    if(stopping_)throw std::logic_error("Native load queue stopped before acknowledging pause");
+}
+bool NativeLoadQueue::checkpoint() {
+    std::unique_lock lock(mutex_);
+    if(std::this_thread::get_id()!=worker_thread_||!running_job_)
+        throw std::logic_error("Loader checkpoint must run inside the active worker callback");
+    record(LoadEventKind::Checkpoint,running_job_,running_identity_);
+    if(stopping_||worker_.get_stop_token().stop_requested())return false;
+    if(!pause_requested_)return true;
+    if(!pause_acknowledged_) {
+        pause_acknowledged_=true;
+        record(LoadEventKind::PauseAcknowledged,running_job_,running_identity_);
+    }
+    changed_.notify_all();
+    changed_.wait(lock,[this]{return stopping_||worker_.get_stop_token().stop_requested()||!pause_requested_;});
+    if(stopping_||worker_.get_stop_token().stop_requested()) {
+        changed_.notify_all();
+        return false;
+    }
+    pause_acknowledged_=false;
+    return true;
 }
 std::size_t NativeLoadQueue::pending() const {
     std::lock_guard lock(mutex_);
@@ -72,15 +118,40 @@ void NativeLoadQueue::observe(LoadEventKind kind,std::uint64_t job,LoadJobIdenti
     record(kind,job,identity,tick);
 }
 void NativeLoadQueue::run(std::stop_token stop) {
+    {
+        std::lock_guard lock(mutex_);
+        worker_thread_=std::this_thread::get_id();
+        changed_.notify_all();
+    }
     for(;;) {
         Job job;
         {
             std::unique_lock lock(mutex_);
-            changed_.wait(lock,stop,[this]{return resumed_&&!jobs_.empty();});
-            if(stop.stop_requested())return;
+            for(;;) {
+                if(stop.stop_requested()||stopping_||failure_)return;
+                if(pause_requested_) {
+                    if(!pause_acknowledged_) {
+                        pause_acknowledged_=true;
+                        record(LoadEventKind::PauseAcknowledged,0,{});
+                        changed_.notify_all();
+                    }
+                    changed_.wait(lock,stop,[this,&stop]{
+                        return stop.stop_requested()||stopping_||!pause_requested_;
+                    });
+                    if(stop.stop_requested()||stopping_)return;
+                    pause_acknowledged_=false;
+                    continue;
+                }
+                if(resumed_&&!jobs_.empty())break;
+                changed_.wait(lock,stop,[this,&stop]{
+                    return stop.stop_requested()||stopping_||pause_requested_||(resumed_&&!jobs_.empty());
+                });
+            }
+            if(stop.stop_requested()||stopping_)return;
             job=std::move(jobs_.front());
             jobs_.pop_front();
             running_job_=job.id;
+            running_identity_=job.identity;
             record(LoadEventKind::WorkStart,job.id,job.identity);
         }
         try {job.callback();}
@@ -88,15 +159,25 @@ void NativeLoadQueue::run(std::stop_token stop) {
             std::lock_guard lock(mutex_);
             failure_=std::current_exception();
             running_job_=0;
+            running_identity_={};
             record(LoadEventKind::WorkFailure,job.id,job.identity);
+            changed_.notify_all();
             return;
         }
         {
             std::lock_guard lock(mutex_);
+            if(stop.stop_requested()||stopping_) {
+                running_job_=0;
+                running_identity_={};
+                changed_.notify_all();
+                return;
+            }
             --pending_;
             running_job_=0;
+            running_identity_={};
             record(LoadEventKind::WorkComplete,job.id,job.identity);
         }
+        changed_.notify_all();
     }
 }
 }

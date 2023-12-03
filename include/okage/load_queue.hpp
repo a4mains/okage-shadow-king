@@ -16,8 +16,9 @@ struct LoadJobIdentity {
     std::uint64_t source=0,task=0;
     bool operator==(const LoadJobIdentity&) const = default;
 };
-enum class LoadEventKind {Enqueue, Resume, WorkStart, WorkComplete, WorkFailure,
-                         Poll, Prepared, MainContinuation};
+enum class LoadEventKind {Enqueue, Resume, PauseRequest, PauseAcknowledged, Checkpoint,
+                         WorkStart, WorkComplete, WorkFailure, Poll, Prepared,
+                         MainContinuation};
 struct LoadEvent {
     std::uint64_t sequence=0,job=0;
     LoadEventKind kind{};
@@ -47,6 +48,8 @@ public:
     // Same queue operation, with provenance and a stable job ID for markers.
     std::uint64_t enqueue(std::function<void()>,LoadJobIdentity);
     void resume();
+    void pause_and_wait();
+    [[nodiscard]] bool checkpoint();
     std::size_t pending() const;
     void check() const;
     LoadObservation observation() const;
@@ -61,9 +64,11 @@ private:
     std::condition_variable_any changed_;
     std::deque<Job> jobs_;
     std::size_t pending_=0;
-    bool resumed_=false;
+    bool resumed_=false,pause_requested_=false,pause_acknowledged_=false,stopping_=false;
     std::exception_ptr failure_;
     std::uint64_t next_job_=1,running_job_=0;
+    LoadJobIdentity running_identity_{};
+    std::thread::id worker_thread_{};
     std::size_t observation_capacity_=0;
     mutable std::vector<LoadEvent> events_;
     mutable std::uint64_t next_event_=1,dropped_=0;

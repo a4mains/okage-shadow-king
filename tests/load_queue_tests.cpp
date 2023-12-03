@@ -4,12 +4,16 @@
 #include <barrier>
 #include <iostream>
 #include <memory>
+#include <source_location>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
 namespace {
-void require(bool value) {if(!value)throw std::runtime_error("Load queue assertion failed");}
+void require(bool value,std::source_location location=std::source_location::current()) {
+    if(!value)throw std::runtime_error("Load queue assertion failed at line "+
+                                       std::to_string(location.line()));
+}
 struct Signal {
     std::mutex mutex;
     std::condition_variable cv;
@@ -27,6 +31,152 @@ template<class F> void rejects(F&& f) {
     require(failed);
 }
 struct LoadFailure:std::runtime_error {using std::runtime_error::runtime_error;};
+
+void wait_for_event(const okage::NativeLoadQueue& queue,okage::LoadEventKind kind) {
+    for(;;) {
+        const auto snapshot=queue.observation();
+        for(const auto& event:snapshot.events)if(event.kind==kind)return;
+        std::this_thread::yield();
+    }
+}
+
+std::size_t event_index(const okage::LoadObservation& snapshot,okage::LoadEventKind kind,
+                        std::uint64_t job=0) {
+    for(std::size_t i=0;i<snapshot.events.size();++i)
+        if(snapshot.events[i].kind==kind&&(!job||snapshot.events[i].job==job))return i;
+    throw std::runtime_error("Expected loader event was not recorded");
+}
+
+void cooperative_pause_and_checkpoint() {
+    using namespace okage;
+    NativeLoadQueue queue(128);
+    Signal entered,finished;
+    std::atomic<bool> second_ran=false;
+    const LoadJobIdentity first_identity{14,118},second_identity{15,222};
+    const auto first=queue.enqueue([&]{
+        entered.notify();
+        wait_for_event(queue,LoadEventKind::PauseRequest);
+        require(queue.checkpoint());
+        require(queue.checkpoint()); // A checkpoint without a pause is a no-op.
+    },first_identity);
+    const auto second=queue.enqueue([&]{second_ran=true;},second_identity);
+    queue.resume();entered.wait();
+    queue.pause_and_wait();
+    auto paused=queue.observation();
+    const auto pause=event_index(paused,LoadEventKind::PauseRequest);
+    const auto ack=event_index(paused,LoadEventKind::PauseAcknowledged);
+    require(paused.events[pause].job==first&&paused.events[pause].identity==first_identity);
+    require(paused.events[ack].job==first&&paused.events[ack].identity==first_identity);
+    require(paused.events[ack].pending==2&&paused.events[ack].running_job==first);
+    require(paused.events[event_index(paused,LoadEventKind::Checkpoint,first)].thread!=
+            std::this_thread::get_id());
+    require(queue.pending()==2&&!second_ran);
+    // A new enqueue while paused remains behind the already-pending second job.
+    const auto third=queue.enqueue([done=std::make_shared<OnRelease>(finished)]{},LoadJobIdentity{16,333});
+    require(third==second+1&&queue.pending()==3&&!second_ran);
+    queue.resume();finished.wait();queue.check();
+    require(queue.pending()==0&&second_ran);
+    const auto complete=queue.observation();
+    require(event_index(complete,LoadEventKind::WorkComplete,first)<
+            event_index(complete,LoadEventKind::WorkStart,second));
+    require(event_index(complete,LoadEventKind::WorkStart,second)<
+            event_index(complete,LoadEventKind::WorkStart,third));
+}
+
+void pause_completion_and_failure_races() {
+    using namespace okage;
+    {
+        NativeLoadQueue queue(64);
+        Signal entered,release,finished;
+        std::atomic<bool> later_ran=false;
+        const auto first=queue.enqueue([&]{entered.notify();release.wait();},{});
+        const auto second=queue.enqueue([&]{later_ran=true;},{});
+        queue.resume();entered.wait();
+        std::jthread pauser([&]{queue.pause_and_wait();});
+        wait_for_event(queue,LoadEventKind::PauseRequest);
+        release.notify();
+        pauser.join();
+        const auto paused=queue.observation();
+        require(event_index(paused,LoadEventKind::WorkComplete,first)<
+                event_index(paused,LoadEventKind::PauseAcknowledged));
+        require(paused.events[event_index(paused,LoadEventKind::PauseAcknowledged)].job==0);
+        require(queue.pending()==1&&!later_ran);
+        queue.enqueue([done=std::make_shared<OnRelease>(finished)]{});
+        queue.resume();finished.wait();queue.check();
+        require(later_ran&&queue.pending()==0);
+        require(event_index(queue.observation(),LoadEventKind::WorkStart,second)<
+                event_index(queue.observation(),LoadEventKind::WorkStart,second+1));
+    }
+    {
+        NativeLoadQueue queue(64);
+        Signal entered,release;
+        const auto failed_id=queue.enqueue([&]{entered.notify();release.wait();throw LoadFailure("pause race");},{});
+        queue.enqueue([]{throw std::runtime_error("must remain queued");});
+        queue.resume();entered.wait();
+        std::atomic<bool> caught=false;
+        std::jthread pauser([&]{try{queue.pause_and_wait();}catch(const LoadFailure&){caught=true;}});
+        wait_for_event(queue,LoadEventKind::PauseRequest);
+        release.notify();pauser.join();
+        require(caught&&queue.pending()==2);
+        const auto failed=queue.observation();
+        require(event_index(failed,LoadEventKind::WorkFailure,failed_id)>0);
+        for(const auto& event:failed.events)require(event.kind!=LoadEventKind::PauseAcknowledged&&
+                                                    event.kind!=LoadEventKind::WorkComplete);
+        rejects([&]{queue.resume();});
+        rejects([&]{queue.enqueue([]{});});
+    }
+}
+
+void pause_shutdown_and_thread_ownership() {
+    using namespace okage;
+    {
+        auto queue=std::make_unique<NativeLoadQueue>(64);
+        auto* const raw_queue=queue.get();
+        Signal entered,parked;
+        std::atomic<bool> checkpoint_result=true,queued_ran=false;
+        LoadObservation at_shutdown;
+        const auto running=queue->enqueue([&]{
+            entered.notify();
+            wait_for_event(*raw_queue,LoadEventKind::PauseRequest);
+            checkpoint_result=raw_queue->checkpoint();
+            if(!checkpoint_result)at_shutdown=raw_queue->observation();
+            parked.notify();
+        },{});
+        queue->enqueue([&]{queued_ran=true;});
+        queue->resume();entered.wait();
+        queue->pause_and_wait();
+        const auto before=queue->observation();
+        require(event_index(before,LoadEventKind::PauseAcknowledged)>0&&queue->pending()==2);
+        std::jthread destroyer([&]{queue.reset();});
+        parked.wait();destroyer.join();
+        require(!checkpoint_result&&!queued_ran);
+        for(const auto& event:at_shutdown.events) {
+            require(event.kind!=LoadEventKind::WorkComplete);
+            if(event.kind==LoadEventKind::WorkStart)require(event.job==running);
+        }
+    }
+    {
+        NativeLoadQueue queue;
+        bool checkpoint_rejected=false;
+        queue.pause_and_wait();
+        try{(void)queue.checkpoint();}catch(const std::logic_error&){checkpoint_rejected=true;}
+        require(checkpoint_rejected);
+        queue.resume();
+    }
+    {
+        NativeLoadQueue queue;
+        Signal entered,finished;
+        std::atomic<bool> rejected=false;
+        queue.enqueue([&]{
+            entered.notify();
+            try{queue.pause_and_wait();}catch(const std::logic_error&){rejected=true;}
+            require(queue.checkpoint());
+            finished.notify();
+        });
+        queue.resume();entered.wait();finished.wait();
+        require(rejected);queue.check();
+    }
+}
 
 void observed_lifecycle() {
     using namespace okage;
@@ -117,6 +267,9 @@ void observed_failure_and_saturation() {
 int main() {
     try {
         observed_lifecycle();observed_failure_and_saturation();
+        cooperative_pause_and_checkpoint();
+        pause_completion_and_failure_races();
+        pause_shutdown_and_thread_ownership();
         {
             okage::NativeLoadQueue queue;
             std::atomic<unsigned> executions=0;
