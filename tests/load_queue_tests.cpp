@@ -127,6 +127,40 @@ void pause_completion_and_failure_races() {
     }
 }
 
+void rapid_resume_and_repause() {
+    using namespace okage;
+    NativeLoadQueue queue(64);
+    Signal finished;
+    queue.pause_and_wait();
+    queue.resume();
+    queue.pause_and_wait();
+    auto paused=queue.observation();
+    unsigned requests=0,acknowledgements=0;
+    for(const auto& event:paused.events) {
+        if(event.kind==LoadEventKind::PauseRequest)++requests;
+        if(event.kind==LoadEventKind::PauseAcknowledged)++acknowledgements;
+    }
+    require(requests==2&&acknowledgements==2);
+    const auto job=queue.enqueue([done=std::make_shared<OnRelease>(finished)]{},{});
+    require(job==1&&queue.pending()==1);
+    queue.resume();finished.wait();queue.check();
+    require(queue.pending()==0);
+
+    NativeLoadQueue callback_queue(64);
+    Signal entered,checkpoint_finished;
+    callback_queue.enqueue([&]{
+        entered.notify();
+        require(callback_queue.checkpoint());
+        checkpoint_finished.notify();
+    });
+    callback_queue.resume();entered.wait();
+    callback_queue.pause_and_wait();
+    callback_queue.resume();
+    callback_queue.pause_and_wait();
+    callback_queue.resume();
+    checkpoint_finished.wait();callback_queue.check();
+}
+
 void pause_shutdown_and_thread_ownership() {
     using namespace okage;
     {
@@ -269,6 +303,7 @@ int main() {
         observed_lifecycle();observed_failure_and_saturation();
         cooperative_pause_and_checkpoint();
         pause_completion_and_failure_races();
+        rapid_resume_and_repause();
         pause_shutdown_and_thread_ownership();
         {
             okage::NativeLoadQueue queue;

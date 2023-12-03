@@ -41,10 +41,10 @@ void NativeLoadQueue::resume() {
         std::lock_guard lock(mutex_);
         if(failure_)std::rethrow_exception(failure_);
         if(stopping_)throw std::logic_error("Native load queue is stopping");
-        if(pause_requested_&&!pause_acknowledged_)
+        if(pause_requested_&&acknowledged_pause_generation_<pause_generation_)
             throw std::logic_error("Cannot resume before the loader pause is acknowledged");
         pause_requested_=false;
-        pause_acknowledged_=false;
+        ++resume_generation_;
         resumed_=true;
         record(LoadEventKind::Resume,0,{});
     }
@@ -58,12 +58,15 @@ void NativeLoadQueue::pause_and_wait() {
     if(stopping_)throw std::logic_error("Native load queue is stopping");
     if(!pause_requested_) {
         pause_requested_=true;
-        pause_acknowledged_=false;
+        ++pause_generation_;
         resumed_=false;
     }
+    const auto requested_generation=pause_generation_;
     record(LoadEventKind::PauseRequest,running_job_,running_identity_);
     changed_.notify_all();
-    changed_.wait(lock,[this]{return pause_acknowledged_||failure_||stopping_;});
+    changed_.wait(lock,[this,requested_generation]{
+        return acknowledged_pause_generation_>=requested_generation||failure_||stopping_;
+    });
     if(failure_)std::rethrow_exception(failure_);
     if(stopping_)throw std::logic_error("Native load queue stopped before acknowledging pause");
 }
@@ -73,18 +76,22 @@ bool NativeLoadQueue::checkpoint() {
         throw std::logic_error("Loader checkpoint must run inside the active worker callback");
     record(LoadEventKind::Checkpoint,running_job_,running_identity_);
     if(stopping_||worker_.get_stop_token().stop_requested())return false;
-    if(!pause_requested_)return true;
-    if(!pause_acknowledged_) {
-        pause_acknowledged_=true;
-        record(LoadEventKind::PauseAcknowledged,running_job_,running_identity_);
+    while(pause_requested_) {
+        if(acknowledged_pause_generation_<pause_generation_) {
+            acknowledged_pause_generation_=pause_generation_;
+            record(LoadEventKind::PauseAcknowledged,running_job_,running_identity_);
+            changed_.notify_all();
+        }
+        const auto resumed_generation=resume_generation_;
+        changed_.wait(lock,[this,resumed_generation]{
+            return stopping_||worker_.get_stop_token().stop_requested()||
+                   resume_generation_!=resumed_generation;
+        });
+        if(stopping_||worker_.get_stop_token().stop_requested()) {
+            changed_.notify_all();
+            return false;
+        }
     }
-    changed_.notify_all();
-    changed_.wait(lock,[this]{return stopping_||worker_.get_stop_token().stop_requested()||!pause_requested_;});
-    if(stopping_||worker_.get_stop_token().stop_requested()) {
-        changed_.notify_all();
-        return false;
-    }
-    pause_acknowledged_=false;
     return true;
 }
 std::size_t NativeLoadQueue::pending() const {
@@ -130,16 +137,17 @@ void NativeLoadQueue::run(std::stop_token stop) {
             for(;;) {
                 if(stop.stop_requested()||stopping_||failure_)return;
                 if(pause_requested_) {
-                    if(!pause_acknowledged_) {
-                        pause_acknowledged_=true;
+                    if(acknowledged_pause_generation_<pause_generation_) {
+                        acknowledged_pause_generation_=pause_generation_;
                         record(LoadEventKind::PauseAcknowledged,0,{});
                         changed_.notify_all();
                     }
-                    changed_.wait(lock,stop,[this,&stop]{
-                        return stop.stop_requested()||stopping_||!pause_requested_;
+                    const auto resumed_generation=resume_generation_;
+                    changed_.wait(lock,stop,[this,&stop,resumed_generation]{
+                        return stop.stop_requested()||stopping_||
+                               resume_generation_!=resumed_generation;
                     });
                     if(stop.stop_requested()||stopping_)return;
-                    pause_acknowledged_=false;
                     continue;
                 }
                 if(resumed_&&!jobs_.empty())break;
