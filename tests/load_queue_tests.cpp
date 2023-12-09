@@ -92,10 +92,9 @@ void pause_completion_and_failure_races() {
         const auto first=queue.enqueue([&]{entered.notify();release.wait();},{});
         const auto second=queue.enqueue([&]{later_ran=true;},{});
         queue.resume();entered.wait();
-        std::jthread pauser([&]{queue.pause_and_wait();});
-        wait_for_event(queue,LoadEventKind::PauseRequest);
-        release.notify();
-        pauser.join();
+        std::jthread releaser([&]{wait_for_event(queue,LoadEventKind::PauseRequest);release.notify();});
+        queue.pause_and_wait();
+        releaser.join();
         const auto paused=queue.observation();
         require(event_index(paused,LoadEventKind::WorkComplete,first)<
                 event_index(paused,LoadEventKind::PauseAcknowledged));
@@ -195,6 +194,13 @@ void pause_shutdown_and_thread_ownership() {
         queue.pause_and_wait();
         try{(void)queue.checkpoint();}catch(const std::logic_error&){checkpoint_rejected=true;}
         require(checkpoint_rejected);
+        std::atomic<unsigned> wrong_controller_rejections=0;
+        std::jthread wrong_controller([&]{
+            try{queue.pause_and_wait();}catch(const std::logic_error&){++wrong_controller_rejections;}
+            try{queue.resume();}catch(const std::logic_error&){++wrong_controller_rejections;}
+        });
+        wrong_controller.join();
+        require(wrong_controller_rejections==2);
         queue.resume();
     }
     {
@@ -301,10 +307,8 @@ void observed_failure_and_saturation() {
 int main() {
     try {
         observed_lifecycle();observed_failure_and_saturation();
-        cooperative_pause_and_checkpoint();
-        pause_completion_and_failure_races();
-        rapid_resume_and_repause();
-        pause_shutdown_and_thread_ownership();
+        cooperative_pause_and_checkpoint();pause_completion_and_failure_races();
+        rapid_resume_and_repause();pause_shutdown_and_thread_ownership();
         {
             okage::NativeLoadQueue queue;
             std::atomic<unsigned> executions=0;

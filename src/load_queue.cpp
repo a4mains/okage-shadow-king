@@ -41,8 +41,11 @@ void NativeLoadQueue::resume() {
         std::lock_guard lock(mutex_);
         if(failure_)std::rethrow_exception(failure_);
         if(stopping_)throw std::logic_error("Native load queue is stopping");
+        if(pause_requested_&&pause_controller_!=std::this_thread::get_id())
+            throw std::logic_error("Only the pause controller may resume the loader");
         if(pause_requested_&&acknowledged_pause_generation_<pause_generation_)
             throw std::logic_error("Cannot resume before the loader pause is acknowledged");
+        if(pause_requested_)pause_controller_={};
         pause_requested_=false;
         ++resume_generation_;
         resumed_=true;
@@ -56,9 +59,12 @@ void NativeLoadQueue::pause_and_wait() {
         throw std::logic_error("Native load worker cannot wait for its own pause");
     if(failure_)std::rethrow_exception(failure_);
     if(stopping_)throw std::logic_error("Native load queue is stopping");
+    if(pause_requested_&&pause_controller_!=std::this_thread::get_id())
+        throw std::logic_error("Only the pause controller may join the loader pause");
     if(!pause_requested_) {
         pause_requested_=true;
         ++pause_generation_;
+        pause_controller_=std::this_thread::get_id();
         resumed_=false;
     }
     const auto requested_generation=pause_generation_;

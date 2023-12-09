@@ -66,6 +66,7 @@ private:
     std::size_t pending_=0;
     bool resumed_=false,pause_requested_=false,stopping_=false;
     std::uint64_t pause_generation_=0,acknowledged_pause_generation_=0,resume_generation_=0;
+    std::thread::id pause_controller_{};
     std::exception_ptr failure_;
     std::uint64_t next_job_=1,running_job_=0;
     LoadJobIdentity running_identity_{};
