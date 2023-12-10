@@ -182,6 +182,7 @@ struct BattleSession::Impl {
     }
     void load() {
         @autoreleasepool {
+            if(!jobs.checkpoint())return;
             ui_resources[0]=std::make_shared<RuwResource>(read(input/"BTL.RUW"));
             ui_definitions.emplace(read(input/"battle-ui.bin"));
             hud_definitions.emplace(read(input/"battle-hud.bin"));
@@ -189,6 +190,7 @@ struct BattleSession::Impl {
             action_data.emplace(read(input/"battle-actions.bin"));
             enemy_commands.emplace(read(input/"battle-enemy-commands.bin"));
             load_step.store(1);
+            if(!jobs.checkpoint())return;
             device=MTLCreateSystemDefaultDevice();
             if(!device)throw std::runtime_error("Battle loader requires Metal");
             filter_renderer=std::make_unique<BattleFilterMetal>(device);
@@ -198,11 +200,13 @@ struct BattleSession::Impl {
             auto header=word(atlas_bytes,0);header=(header&0xfc0fffff)|(0x1bu<<20);
             for(unsigned j=0;j<4;++j)atlas_bytes[j]=header>>(8*j);
             atlas=upload_ui_gs_texture(device,decode_xim(atlas_bytes));
+            if(!jobs.checkpoint())return;
             auto env_bytes=read(main/"texenv.xim");
             const auto env_image=decode_xim(env_bytes);environment=upload(env_image);
             environment_uv={.5f/1024,.5f/1024,(float(env_image.width)+.5f)/1024,
                 (float(env_image.height)+.5f)/1024};
             load_step.store(2);
+            if(!jobs.checkpoint())return;
             battle_data.emplace(read(input/"battle-data.bin"));
             (void)battle_data->formation(int(formation));
             const auto package=archive_path(decoded,battle_data->stage_path(stage));
@@ -214,12 +218,15 @@ struct BattleSession::Impl {
             if(std::any_of(map_data.definitions.begin(),map_data.definitions.end(),[](const auto& d){return d.words[0x80/4]!=0;}))
                 throw std::runtime_error("Battle stage model collision-definition ownership is unrecovered");
             objects=std::make_unique<MapObjects>(map);
+            if(!jobs.checkpoint())return;
             renderer=std::make_unique<SceneRenderer>(map,std::span<const SceneActor>{},objects.get());
+            if(!jobs.checkpoint())return;
             renderer->load_effect_textures(effect_textures);
             renderer->bind_effect_submissions(&effect_submissions);
             held_stage=read(package/"a.stg");
             collision=read_xcl(read(package/"a.xcl"));
             load_step.store(3);
+            if(!jobs.checkpoint())return;
             camera_data.emplace(read(input/"battle-camera.bin"));
             camera_sequence=camera_data->sequence(stage);
             after_intro_sequence=camera_data->sequence(stage,true);
@@ -1053,12 +1060,23 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
     }
     if(active)impl_->reported_active_resource=true;
 }
-void BattleSession::service_loader_after_frame(BattleConstructionContext context,unsigned frame,const fs::path& report){
+void BattleSession::pause_loader(){
+    if(impl_->construction==Impl::Construction::Preparing)impl_->jobs.pause_and_wait();
+    else impl_->jobs.check();
+}
+void BattleSession::resume_loader(){
+    if(!impl_->resource_retired&&impl_->construction==Impl::Construction::Preparing)impl_->jobs.resume();
+}
+void BattleSession::service_loader_after_frame(BattleConstructionContext context,unsigned frame,const fs::path& report,
+                                             bool external_loading_windows){
     if(impl_->resource_retired)return;
     if(impl_->observe_loading&&impl_->construction==Impl::Construction::Preparing)
         impl_->jobs.observe(LoadEventKind::Poll,impl_->load_job_id,battle_load_identity,frame);
     impl_->jobs.check();
-    if(!impl_->loader_resumed){impl_->jobs.resume();impl_->loader_resumed=true;return;}
+    if(!impl_->loader_resumed){
+        if(!external_loading_windows)impl_->jobs.resume();
+        impl_->loader_resumed=true;return;
+    }
     if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
     if(impl_->construction!=Impl::Construction::Preparing||!impl_->resources_prepared.load(std::memory_order_acquire))return;
     if(impl_->jobs.pending()!=0)return;
@@ -1102,6 +1120,9 @@ void BattleSession::write_load_observation(std::ostream& destination) const {
             case LoadEventKind::Poll:return "poll";
             case LoadEventKind::Prepared:return "prepared";
             case LoadEventKind::MainContinuation:return "main_continuation";
+            case LoadEventKind::PauseRequest:return "pause_request";
+            case LoadEventKind::PauseAcknowledged:return "pause_acknowledged";
+            case LoadEventKind::Checkpoint:return "checkpoint";
         }
         throw std::runtime_error("Unknown loader observation event");
     };

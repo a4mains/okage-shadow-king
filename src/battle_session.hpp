@@ -62,7 +62,10 @@ public:
     void tick(RetiringSceneEffects*,FieldProjection&,SceneClearColor&,BattleUiContext,unsigned frame,
               const std::filesystem::path& stage_report={},const std::filesystem::path& ui_update_report={});
     void service_loader_after_frame(BattleConstructionContext,unsigned frame,
-                                    const std::filesystem::path& diagnostic_report={});
+                                    const std::filesystem::path& diagnostic_report={},
+                                    bool external_loading_windows=false);
+    void pause_loader();
+    void resume_loader();
     const BattleState& state() const;
     RetiringSceneEffects retire_resource(BattleUiShared&,FieldProjection&);
     bool resource_live() const;

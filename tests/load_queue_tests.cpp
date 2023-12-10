@@ -145,17 +145,22 @@ void rapid_resume_and_repause() {
     queue.resume();finished.wait();queue.check();
     require(queue.pending()==0);
 
-    NativeLoadQueue callback_queue(64);
+    NativeLoadQueue callback_queue;
     Signal entered,checkpoint_finished;
+    std::atomic<bool> leave_callback=false;
     callback_queue.enqueue([&]{
         entered.notify();
-        require(callback_queue.checkpoint());
+        while(!leave_callback.load())require(callback_queue.checkpoint());
         checkpoint_finished.notify();
     });
     callback_queue.resume();entered.wait();
     callback_queue.pause_and_wait();
-    callback_queue.resume();
-    callback_queue.pause_and_wait();
+    for(unsigned i=0;i<128;++i) {
+        require(callback_queue.pending()==1);
+        callback_queue.resume();
+        callback_queue.pause_and_wait();
+    }
+    leave_callback=true;
     callback_queue.resume();
     checkpoint_finished.wait();callback_queue.check();
 }

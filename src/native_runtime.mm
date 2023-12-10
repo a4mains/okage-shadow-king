@@ -93,6 +93,7 @@ struct FieldReturnLoad {
     okage::NativeLoadQueue jobs;
 };
 struct Session {
+    bool live_loading_windows=false;
     std::array<okage::Font,3> fonts;
     // Immutable native font owner retained by queued UI packets across frames.
     std::shared_ptr<const std::vector<okage::Font>> ui_fonts;
@@ -284,7 +285,9 @@ struct Session {
     void write_load_observation(const char* boundary) {
         if(!load_observation_trace||!battle||load_observation_written)return;
         auto& out=*load_observation_trace;
-        out<<"{\"frame\":"<<frame<<",\"boundary\":\""<<boundary<<"\",\"queue\":";
+        out<<"{\"frame\":"<<frame<<",\"boundary\":\""<<boundary
+           <<"\",\"loading_policy\":\""<<(live_loading_windows?"live_host_windows":"accelerated_continuous")
+           <<"\",\"queue\":";
         battle->write_load_observation(out);out<<"}\n";out.flush();
         if(!out)throw std::runtime_error("Native loader observation write failed");
         load_observation_written=true;
@@ -593,15 +596,19 @@ struct Session {
         auto* f=field_return.get();const auto input=battle_input,decoded=field_root.parent_path();
         const auto owned_fonts=ui_fonts;const bool alternate=variables[12]!=0;
         f->jobs.enqueue([f,input,decoded,owned_fonts,alternate]{@autoreleasepool {
+            if(!f->jobs.checkpoint())return;
             f->definitions.emplace(readData(input/"results-ui.bin"));
             f->text.emplace(readData(input/"results-text.bin"));
             f->numbers.emplace(readData(input/"battle-hud.bin"));
+            if(!f->jobs.checkpoint())return;
             auto bytes=readData(decoded/"CMNDATA/2D/MAIN.XPF"/(alternate?"bm_ifj.xim":"bm_if.xim"));
             if(bytes.size()<4)throw std::runtime_error("Field UI atlas header");
             unsigned header=0;for(unsigned i=0;i<4;++i)header|=unsigned(bytes[i])<<(8*i);
             header=(header&0xfc0fffff)|(0x1bu<<20);for(unsigned i=0;i<4;++i)bytes[i]=header>>(8*i);
             f->atlas=std::make_shared<const okage::Texture>(okage::decode_xim(bytes));
+            if(!f->jobs.checkpoint())return;
             f->ruw=std::make_shared<okage::RuwResource>(readData(input/"FLD.RUW"));
+            if(!f->jobs.checkpoint())return;
             f->drawing=std::make_unique<okage::ResultsRenderer>(owned_fonts,f->atlas);
         }},{0x132688,0x131d28});
         std::cout<<"Native victory return queued scene="<<current_scene<<" frame="<<frame<<'\n';
@@ -609,7 +616,7 @@ struct Session {
     void service_field_return_loader() {
         if(!field_return)return;
         auto& f=*field_return;f.jobs.check();
-        if(!f.resumed){f.jobs.resume();f.resumed=true;return;}
+        if(!f.resumed){if(!live_loading_windows)f.jobs.resume();f.resumed=true;return;}
         if(f.jobs.pending())return;
         if(!f.world_queued) {
             f.ui_stage=1;
@@ -628,19 +635,23 @@ struct Session {
             f.world_queued=true;
             f.jobs.enqueue([target,root,textures]{@autoreleasepool {
                 auto& w=*target;
+                if(!w.jobs.checkpoint())return;
                 auto stage=w.map,collision=w.map;stage.replace_extension(".stg");collision.replace_extension(".xcl");
                 w.stage=readData(stage);w.collision=readData(collision);
                 w.objects=std::make_unique<okage::MapObjects>(w.map);
+                if(!w.jobs.checkpoint())return;
                 std::vector<okage::SceneActor> scene_actors;
                 const auto add=[&](int alias,const std::string& model) {
                     const auto path=root/"OBJ"/(field_asset_component(model)+".XPF")/"a.xmd";
                     auto motion=path,texture=path;motion.replace_extension(".xmt");texture.replace_extension(".xta");
                     auto actor=std::make_unique<okage::FieldActor>(okage::read_xmd(readData(path)),readData(motion),readActorTextures(texture));
                     w.bindings.push_back({alias,actor.get(),alias!=-3});scene_actors.push_back({actor.get(),path,alias});w.actors.push_back(std::move(actor));
+                    return w.jobs.checkpoint();
                 };
-                for(const auto& npc:w.definition.npcs)add(npc.alias,npc.model);
-                add(-3,"stun");add(-1,"hero");
+                for(const auto& npc:w.definition.npcs)if(!add(npc.alias,npc.model))return;
+                if(!add(-3,"stun")||!add(-1,"hero"))return;
                 w.renderer=std::make_unique<okage::SceneRenderer>(w.map,scene_actors,w.objects.get());
+                if(!w.jobs.checkpoint())return;
                 w.renderer->load_effect_textures(textures);
             }},{0x132688,0x131d28});
             return;
@@ -761,7 +772,19 @@ struct Session {
             retiring_effect_trace.insert(retiring_effect_trace.end(),flags.begin(),flags.end());
         }
     }
+    void close_loader_window() {
+        if(!live_loading_windows)return;
+        if(battle)battle->pause_loader();
+        if(field_return)field_return->jobs.pause_and_wait();
+    }
+    void open_loader_window() {
+        if(!live_loading_windows)return;
+        // Resolve current owners now: tick can replace or retire either one.
+        if(battle)battle->resume_loader();
+        if(field_return&&field_return->jobs.pending())field_return->jobs.resume();
+    }
     void tick(okage::DialogueButtons input) {
+        close_loader_window();
         if(input_journal)input_journal->begin_tick(frame+1,input.held,input.pressed);
         ++frame;
         const auto released=std::uint16_t(previous_held&~input.held);previous_held=input.held;
@@ -1082,7 +1105,7 @@ struct Session {
         service_field_return_loader();
         if(battle) {
             if(!game_data)throw std::runtime_error("Battle construction requires owned game tables");
-            try {battle->service_loader_after_frame({variables,*game_data,battle_entry,random},frame,battle_construction_report);}
+            try {battle->service_loader_after_frame({variables,*game_data,battle_entry,random},frame,battle_construction_report,live_loading_windows);}
             catch(const std::exception& error) {
                 throw std::runtime_error("Native battle construction frame="+std::to_string(frame)+": "+error.what());
             }
@@ -1616,6 +1639,7 @@ static void captureView(NSView* view,const fs::path& path) {
                 }
             }
             if(paused) {
+                session->close_loader_window();
                 if(performance&&performance->interval.active()&&session->audio_output)performance->interval.audio_sample(session->audio_output->stats());
                 session->audio_output.reset();
             }
@@ -1685,8 +1709,11 @@ static void captureView(NSView* view,const fs::path& path) {
             std::cout<<"AppKit keyDown events="<<self.view.injectedKeyDowns<<" native progress="<<session->text.state.progress<<" wait_release="<<session->release_frame<<std::endl;
             [NSApp terminate:nil];
         }
+        else session->open_loader_window();
     }catch(const std::exception& e) {
         failureStatus=1;
+        try {session->close_loader_window();}
+        catch(const std::exception& loadingError){std::cerr<<loadingError.what()<<'\n';}
         if(session->input_journal&&!session->input_journal->terminal()) {
             try {session->input_journal->error(session->frame,e.what(),[self journalContext]);}
             catch(const std::exception& journalError){std::cerr<<journalError.what()<<'\n';}
@@ -1719,11 +1746,11 @@ static void captureView(NSView* view,const fs::path& path) {
 }
 - (void)windowWillClose:(NSNotification*)notification {
     (void)notification;[self finishPerformance:okage::PerformanceEnd::window_close];
-    try {[self finishInputJournal];}catch(const std::exception& e){failureStatus=1;std::cerr<<e.what()<<'\n';}
+    try {session->close_loader_window();[self finishInputJournal];}catch(const std::exception& e){failureStatus=1;std::cerr<<e.what()<<'\n';}
 }
 - (void)applicationWillTerminate:(NSNotification*)notification {
     (void)notification;[self finishPerformance:okage::PerformanceEnd::application_terminate];
-    try {[self finishInputJournal];}catch(const std::exception& e){failureStatus=1;std::cerr<<e.what()<<'\n';}
+    try {session->close_loader_window();[self finishInputJournal];}catch(const std::exception& e){failureStatus=1;std::cerr<<e.what()<<'\n';}
 }
 - (void)windowDidResignKey:(NSNotification*)notification {(void)notification;self.view.held=0;self.view.pressed=0;}
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)app {(void)app;return YES;}
@@ -1979,6 +2006,8 @@ int main(int argc,const char** argv) {
         if(!effectData.empty())app->session->load_effects(effectData,effectTextures);
         }
         app->session->render_from=1;app->session->render_until=0;app->session->render_ranges.clear();
+        app->session->live_loading_windows=true;
+        app->session->close_loader_window(); // Also closes the replay-to-live handoff.
         app->testFrames=uiFrames;app->testPresses=presses;app->directions=directions;app->testCapture=runPlan.live_capture;
         if(runPlan.bounded_handoff)app->replayDirections=directions.held(replayFrames);
         [NSApp setDelegate:app];[NSApp run];return app->failureStatus;
