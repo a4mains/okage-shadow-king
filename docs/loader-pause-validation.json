@@ -1,0 +1,61 @@
+{
+  "schema": "okage-loader-pause-validation-v1",
+  "runtime_revision": "7b6dbe7392f9f9b9364bd94962a97bbdceb43dd1",
+  "queue_revisions": [
+    "87bbdd5",
+    "83a4e64",
+    "d76d000"
+  ],
+  "native_binary_sha256": "45de89cb61ea50bbbfed5a8df42f579983f9cf3a9632bea5f06d3e6ddcc0f982",
+  "validation": {
+    "builds": [
+      "Release",
+      "Debug",
+      "ASan/UBSan"
+    ],
+    "tests_per_build": 3,
+    "tests": [
+      "load-queue-tests",
+      "input-journal-tests",
+      "live-performance-tests"
+    ],
+    "headless_replay": {
+      "run_exit_code": 0,
+      "constructor_report_equal_to_retained_success": true,
+      "construction_frame": 104455,
+      "rng_before": 2937105372,
+      "rng_after": 3263693977,
+      "loader_policy": "accelerated_continuous",
+      "checkpoint_events": 7,
+      "live_window_execution": false,
+      "limitations": [
+        "No AppKit policy execution; preserved existing live Session.",
+        "No original fidelity or deterministic loading claim."
+      ]
+    },
+    "live_appkit_policy": "compiled and reviewed, not executed; existing Session preserved",
+    "original_timing_fidelity": false,
+    "performance_measurement": false
+  },
+  "evidence_sha256": {
+    "local/research/native-loader-pause-v1/checks.json": "f4db7726a062eb4ce9de8ce129a10b870caed8da86406e398137edf422c16b49",
+    "local/research/native-loader-pause-v1/replay.py": "c7aadae4a980f74b4b992ac6e7b36fb48f21d04aaf89f96eb223af53e02287ac",
+    "local/research/native-loader-pause-v1/replay-check.json": "4198b981a150864a2ea26fbb966b81fae6c797adea5de8cc2dc7c538ecb735fa",
+    "local/research/native-loader-pause-v1/replay-wrapper.log": "1e224213ae960806cc3767dc26200831a19e4328a50e3ce3d014636d6c7421f2",
+    "local/research/native-loader-pause-v1/release-build-v2.log": "2a0d43dd2e5484c7f2780eb47cc9ffdffc5b0bf48cb726d5f3e329edd46a6dea",
+    "local/research/native-loader-pause-v1/release-tests-v2.log": "883ab4561c991a9fb882458ee9714691776cad5527908d9ae22b673f884c9179",
+    "local/research/native-loader-pause-v1/debug-build-v2.log": "8dcb7c55c5ab4ec616928c235b274a13954b2f2be480254b7f3050329e5309d8",
+    "local/research/native-loader-pause-v1/debug-tests-v2.log": "7046b577e01f8954c0779d785344a5ab2905ec8610b66d49364b5b5abc6e083c",
+    "local/research/native-loader-pause-v1/sanitize-build-v2.log": "8dcb7c55c5ab4ec616928c235b274a13954b2f2be480254b7f3050329e5309d8",
+    "local/research/native-loader-pause-v1/sanitize-tests-v2.log": "759458f5a4cda14957ffe55fbbba7a78167715eaceef63799c145dbcf2cb6c89",
+    "local/research/native-loader-pause-v1/headless-104975-v1/run.json": "7b04c54a9e5a9f57df8105d855af9668d3878af1089a37782abf84acaa81f850",
+    "local/research/native-loader-pause-v1/headless-104975-v1/stdout.log": "87f80cd6159744ce5b93085ff8fefdb8b17a2569e15e512962327ac33415df64",
+    "local/research/native-loader-pause-v1/headless-104975-v1/loader.jsonl": "23627bc70a2b0fd78e60dd255a2dac981f727045d60e48b64bbfad7e4fb0c5a8",
+    "local/research/native-loader-pause-v1/headless-104975-v1/native.png.battle-construction.json": "21aa98b9ce3bc622a8e710eae293523d45d864bd3003116b89e18195e9dc782e",
+    "local/research/native-loader-pause-v1/headless-104975-v1/native.png.json": "db8325a3f3120ed997c4b9ed73599de57182bdf66b4bfd969d1ada250c19d4f6",
+    "local/research/native-loader-pause-v1/headless-104975-v1/native.png": "f2f0fce30c073e9b9a86023b9c574997456f50c8e102a8c594c3556c80c2c792",
+    "local/research/native-loader-pause-v1/headless-104975-v1/native.png.frames/manifest.json": "3a64dbabd63d6f7f9182e1ef519affd5406c334ac3ebb5852233b69eb3d1329e",
+    "local/research/native-loader-pause-v1/headless-104975-v1/okage-native": "45de89cb61ea50bbbfed5a8df42f579983f9cf3a9632bea5f06d3e6ddcc0f982",
+    "local/research/battle-combat-entry-v1/native-results-dismiss-109775-v2/native.png.battle-construction.json": "21aa98b9ce3bc622a8e710eae293523d45d864bd3003116b89e18195e9dc782e"
+  }
+}
