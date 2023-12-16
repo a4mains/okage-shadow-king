@@ -17,6 +17,7 @@
 #include <bit>
 #include <fstream>
 #include <mutex>
+#include <condition_variable>
 namespace okage {
 namespace fs=std::filesystem;
 namespace {
@@ -120,6 +121,24 @@ struct SceneRenderer::PreparedFrame::Data {
     std::size_t white_texture;
     bool field_projection,restore_shadow_alpha;
 };
+struct SceneRenderer::SubmittedFrame::State {
+    id<MTLDevice> device;
+    id<MTLCommandQueue> queue;
+    id<MTLCommandBuffer> command;
+    id<MTLTexture> color,depth;
+    id<MTLBuffer> vertices;
+    std::shared_ptr<const SceneBackend> backend;
+    std::shared_ptr<ShadowMetal> shadow_metal;
+    std::shared_ptr<UiMetal> ui_metal;
+    std::shared_ptr<const void> prepared_owner;
+    std::shared_ptr<std::vector<std::shared_ptr<const void>>> ui_owners;
+    std::vector<std::function<void()>> validators;
+    mutable std::mutex mutex;
+    mutable std::condition_variable changed;
+    mutable bool validation_in_progress=false;
+    mutable std::optional<Texture> image;
+    mutable std::exception_ptr failure;
+};
 struct SceneRenderer::Impl {
     struct BlockPreparation {
         std::vector<std::optional<PreparedTextureState>> textures;
@@ -135,8 +154,8 @@ struct SceneRenderer::Impl {
     FieldShadowSettings shadowSettings;
     FieldOrdinaryLighting ordinaryLighting;
     FieldShadowFrame shadowFrame;
-    std::unique_ptr<ShadowMetal> shadowMetal;
-    std::unique_ptr<UiMetal> uiMetal;
+    std::shared_ptr<ShadowMetal> shadowMetal;
+    std::shared_ptr<UiMetal> uiMetal;
     std::optional<std::size_t> sky_input;
     Float4 sky_factors{.5f,0,.5f,0};
     std::vector<Texture> textures;
@@ -155,9 +174,9 @@ struct SceneRenderer::Impl {
     id<MTLDevice> device;
     id<MTLRenderPipelineState> pipeline,effectPipeline,mapEffectPipeline,dustPipeline,darkEffectPipeline,materialPipeline,materialAddPipeline,materialSubtractPipeline;
     id<MTLDepthStencilState> depth,effectDepth,mapEffectDepth,materialDepth;
-    id<MTLTexture> target,depthTarget;
     NSMutableArray<id<MTLTexture>>* gpuTextures;
     id<MTLCommandQueue> queue;
+    Impl(){initializeMetal();}
     explicit Impl(const fs::path& path,std::span<const SceneActor> actors,const MapObjects* objects) {
         mapObjects=objects;
         const auto map=read_xmp(read(path));
@@ -195,7 +214,9 @@ struct SceneRenderer::Impl {
             for(auto& image:images)textures.push_back(std::move(image));
             preparation.push_back(inputPreparation(input));
         }
-        constexpr unsigned width=640,height=224;
+        initializeMetal();
+    }
+    void initializeMetal() {
         device=MTLCreateSystemDefaultDevice();
         if (!device) throw std::runtime_error("No native Metal device");
         backend=acquireBackend(device);
@@ -205,12 +226,6 @@ struct SceneRenderer::Impl {
         materialAddPipeline=backend->materialAddPipeline;materialSubtractPipeline=backend->materialSubtractPipeline;
         depth=backend->depth;effectDepth=backend->effectDepth;
         mapEffectDepth=backend->mapEffectDepth;materialDepth=backend->materialDepth;
-        auto targetDesc=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:width height:height mipmapped:NO];
-        targetDesc.usage=MTLTextureUsageRenderTarget; targetDesc.storageMode=MTLStorageModeShared;
-        target=[device newTextureWithDescriptor:targetDesc];
-        auto depthDesc=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatDepth32Float width:width height:height mipmapped:NO];
-        depthDesc.usage=MTLTextureUsageRenderTarget|MTLTextureUsageShaderRead; depthDesc.storageMode=MTLStorageModePrivate;
-        depthTarget=[device newTextureWithDescriptor:depthDesc];
         gpuTextures=[NSMutableArray array];
         whiteTexture=textures.size();textures.push_back({1,1,0,0,{255,255,255,255}});
         for(const auto& image:textures)[gpuTextures addObject:uploadTexture(image)];
@@ -610,7 +625,7 @@ struct SceneRenderer::Impl {
         //1b1ad8 restores registers only; omit the legacy display-alpha255 pass.
         shadowFrame={};return snapshot({},{},&projection,false);
     }
-    Texture renderPrepared(const PreparedFrame& frame,const SceneUiPass* ui,const SceneGpuPass* gpuPass,std::optional<std::array<std::uint8_t,4>> executionClear,float depthClear) {
+    SubmittedFrame submitPrepared(const PreparedFrame& frame,const SceneUiPass* ui,const SceneGpuPass* gpuPass,std::optional<std::array<std::uint8_t,4>> executionClear,float depthClear) {
         if(!frame.data_||frame.data_->renderer!=identity)throw std::runtime_error("Prepared scene belongs to another renderer or is empty");
         if(!std::isfinite(depthClear)||depthClear<0||depthClear>1)throw std::runtime_error("Invalid scene depth clear");
         const auto& data=*frame.data_;
@@ -619,13 +634,21 @@ struct SceneRenderer::Impl {
         const auto& vertices=data.vertices;const auto& draws=data.draws;
         shadowFrame=data.shadows;
         const auto clear=executionClear.value_or(std::array<std::uint8_t,4>{data.clear[0],data.clear[1],data.clear[2],255});
+        auto targetDesc=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:640 height:224 mipmapped:NO];
+        targetDesc.usage=MTLTextureUsageRenderTarget;targetDesc.storageMode=MTLStorageModeShared;
+        id<MTLTexture> ticketColor=[device newTextureWithDescriptor:targetDesc];
+        auto depthDesc=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatDepth32Float width:640 height:224 mipmapped:NO];
+        depthDesc.usage=MTLTextureUsageRenderTarget|MTLTextureUsageShaderRead;depthDesc.storageMode=MTLStorageModePrivate;
+        id<MTLTexture> ticketDepth=[device newTextureWithDescriptor:depthDesc];
+        if(!ticketColor||!ticketDepth)throw std::runtime_error("Scene frame target allocation failed");
         auto pass=[MTLRenderPassDescriptor renderPassDescriptor];
-        pass.colorAttachments[0].texture=target; pass.colorAttachments[0].loadAction=MTLLoadActionClear;
+        pass.colorAttachments[0].texture=ticketColor; pass.colorAttachments[0].loadAction=MTLLoadActionClear;
         pass.colorAttachments[0].storeAction=MTLStoreActionStore;
         pass.colorAttachments[0].clearColor=MTLClearColorMake(clear[0]/255.,clear[1]/255.,clear[2]/255.,clear[3]/255.);
-        pass.depthAttachment.texture=depthTarget; pass.depthAttachment.loadAction=MTLLoadActionClear; pass.depthAttachment.clearDepth=depthClear;
+        pass.depthAttachment.texture=ticketDepth; pass.depthAttachment.loadAction=MTLLoadActionClear; pass.depthAttachment.clearDepth=depthClear;
         pass.depthAttachment.storeAction=MTLStoreActionStore;
         id<MTLCommandBuffer> command=[queue commandBuffer];
+        if(!command||!command.retainedReferences)throw std::runtime_error("Scene frame requires a retaining Metal command buffer");
         id<MTLBuffer> vertexBuffer=vertices.empty()?nil:[device newBufferWithBytes:vertices.data() length:vertices.size()*sizeof(Vertex) options:MTLResourceStorageModeShared];
         auto encode=[&](bool after){
         id<MTLRenderCommandEncoder> encoder=[command renderCommandEncoderWithDescriptor:pass];
@@ -646,41 +669,97 @@ struct SceneRenderer::Impl {
         };
         encode(false);
         if(data.field_projection){
-            if(!shadowMetal)shadowMetal=std::make_unique<ShadowMetal>(device);
+            if(!shadowMetal)shadowMetal=std::make_shared<ShadowMetal>(device);
             std::vector<ShadowRasterDraw> shadowDraws;shadowDraws.reserve(shadowFrame.draws.size());
             for(const auto& draw:shadowFrame.draws)shadowDraws.push_back({draw.prism,draw.color});
-            shadowMetal->encode(command,target,depthTarget,shadowDraws,data.shadow_mapping,data.restore_shadow_alpha);
+            shadowMetal->encode(command,ticketColor,ticketDepth,shadowDraws,data.shadow_mapping,data.restore_shadow_alpha);
             pass.colorAttachments[0].loadAction=MTLLoadActionLoad;
             pass.depthAttachment.loadAction=MTLLoadActionLoad;
             encode(true);
         }
         std::function<void()> validatePass;
         if(gpuPass){
-            validatePass=gpuPass->encode(command,target,depthTarget);
+            validatePass=gpuPass->encode(command,ticketColor,ticketDepth);
             if(!validatePass)throw std::runtime_error("Scene GPU pass has no completion validator");
         }
         std::optional<UiMetalValidation> uiValidation;
+        auto uiOwners=std::make_shared<std::vector<std::shared_ptr<const void>>>();
         if(ui){
-            if(!uiMetal)uiMetal=std::make_unique<UiMetal>(device);
-            uiValidation=uiMetal->encode(command,target,depthTarget,ui->geometry,ui->baseline,ui->textures);
+            if(!uiMetal)uiMetal=std::make_shared<UiMetal>(device);
+            auto retainResolver=[owners=uiOwners,resolver=ui->textures](const UiGeometryTexture& binding) {
+                auto resolved=resolver(binding);
+                if(resolved.owner)owners->push_back(resolved.owner);
+                return resolved;
+            };
+            uiValidation=uiMetal->encode(command,ticketColor,ticketDepth,ui->geometry,ui->baseline,retainResolver);
         }
-        [command commit]; [command waitUntilCompleted];
-        if (command.status!=MTLCommandBufferStatusCompleted) throw std::runtime_error(command.error.localizedDescription.UTF8String);
-        if(validatePass)validatePass();
-        if(uiValidation)uiValidation->validate_completed(command);
-        Texture image{640,224,0,0,std::vector<std::uint8_t>(640*224*4)};
-        [target getBytes:image.rgba.data() bytesPerRow:640*4 fromRegion:MTLRegionMake2D(0,0,640,224) mipmapLevel:0];
-        return image;
+        auto state=std::make_shared<SubmittedFrame::State>();
+        state->device=device;state->queue=queue;state->command=command;
+        state->color=ticketColor;state->depth=ticketDepth;state->vertices=vertexBuffer;
+        state->backend=backend;state->shadow_metal=shadowMetal;state->ui_metal=uiMetal;
+        state->prepared_owner=frame.data_;state->ui_owners=std::move(uiOwners);
+        if(validatePass)state->validators.push_back(std::move(validatePass));
+        if(uiValidation)state->validators.push_back([validation=std::move(*uiValidation),command]{
+            validation.validate_completed(command);
+        });
+        [command commit];
+        return SubmittedFrame(std::move(state));
     }
 };
 void SceneRenderer::prepare_backend() {
     @autoreleasepool { (void)acquireBackend(MTLCreateSystemDefaultDevice()); }
 }
+bool SceneRenderer::SubmittedFrame::ready() const noexcept {
+    if(!state_||!state_->command)return false;
+    const auto status=state_->command.status;
+    return status==MTLCommandBufferStatusCompleted||status==MTLCommandBufferStatusError;
+}
+Texture SceneRenderer::SubmittedFrame::readback() const {
+    if(!state_)throw std::runtime_error("Empty submitted scene frame");
+    const auto state=state_;
+    {
+        std::unique_lock lock(state->mutex);
+        state->changed.wait(lock,[&]{return !state->validation_in_progress;});
+        if(state->failure)std::rethrow_exception(state->failure);
+        if(state->image)return *state->image;
+        state->validation_in_progress=true;
+    }
+    try {
+        [state->command waitUntilCompleted];
+        if(state->command.status!=MTLCommandBufferStatusCompleted) {
+            const char* description=state->command.error.localizedDescription.UTF8String;
+            throw std::runtime_error(description?description:"Scene Metal command failed");
+        }
+        for(const auto& validate:state->validators)validate();
+        Texture image{640,224,0,0,std::vector<std::uint8_t>(640*224*4)};
+        [state->color getBytes:image.rgba.data() bytesPerRow:640*4
+            fromRegion:MTLRegionMake2D(0,0,640,224) mipmapLevel:0];
+        {
+            std::lock_guard lock(state->mutex);
+            state->image=std::move(image);
+            state->validation_in_progress=false;
+        }
+        state->changed.notify_all();
+        std::lock_guard lock(state->mutex);
+        return *state->image;
+    } catch(...) {
+        const auto failure=std::current_exception();
+        {
+            std::lock_guard lock(state->mutex);
+            state->failure=failure;
+            state->validation_in_progress=false;
+        }
+        state->changed.notify_all();
+        std::rethrow_exception(failure);
+    }
+}
+Texture SceneRenderer::SubmittedFrame::wait() const{return readback();}
 std::size_t SceneRenderer::cached_backend_count() {
     auto& cache=backendCache();
     std::lock_guard lock(cache.mutex);
     return cache.entries.size();
 }
+SceneRenderer::SceneRenderer():impl_(std::make_unique<Impl>()){}
 SceneRenderer::SceneRenderer(const fs::path& map,std::span<const SceneActor> actors,const MapObjects* objects):
     impl_(std::make_unique<Impl>(map,actors,objects)){}
 SceneRenderer::~SceneRenderer()=default;
@@ -709,7 +788,8 @@ void SceneRenderer::bind_map_effects(const MapEffects* effects){impl_->mapEffect
 void SceneRenderer::bind_effect_submissions(const EffectSubmissions* effects){impl_->effectSubmissions=effects;}
 SceneRenderer::PreparedFrame SceneRenderer::prepare(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor,bool restoreShadowAlpha){return impl_->prepare(view,projection,effects,camera,farClip,cameraPosition,fieldProjection,shadowFactor,restoreShadowAlpha);}
 SceneRenderer::PreparedFrame SceneRenderer::prepare_empty(const FieldProjectionFrame& projection){return impl_->prepareEmpty(projection);}
-Texture SceneRenderer::render_prepared(const PreparedFrame& frame,const SceneUiPass* ui,const SceneGpuPass* pass,std::optional<std::array<std::uint8_t,4>> clear,float depthClear){return impl_->renderPrepared(frame,ui,pass,clear,depthClear);}
+SceneRenderer::SubmittedFrame SceneRenderer::submit_prepared(const PreparedFrame& frame,const SceneUiPass* ui,const SceneGpuPass* pass,std::optional<std::array<std::uint8_t,4>> clear,float depthClear){return impl_->submitPrepared(frame,ui,pass,clear,depthClear);}
+Texture SceneRenderer::render_prepared(const PreparedFrame& frame,const SceneUiPass* ui,const SceneGpuPass* pass,std::optional<std::array<std::uint8_t,4>> clear,float depthClear){return submit_prepared(frame,ui,pass,clear,depthClear).wait();}
 Texture SceneRenderer::render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor,const SceneUiPass* ui){
     if(ui&&!fieldProjection)throw std::runtime_error("Scene UI requires GS field projection depth");
     return render_prepared(prepare(view,projection,effects,camera,farClip,cameraPosition,fieldProjection,shadowFactor),ui);

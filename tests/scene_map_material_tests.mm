@@ -7,11 +7,12 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <source_location>
 using namespace okage;
 namespace fs=std::filesystem;
 using Data=std::vector<std::uint8_t>;
-static void require(bool v,unsigned at=__builtin_LINE()) {
-    if(!v)throw std::runtime_error("Scene map material assertion line "+std::to_string(at));
+static void require(bool v,const std::source_location at=std::source_location::current()) {
+    if(!v)throw std::runtime_error("Scene map material assertion line "+std::to_string(at.line()));
 }
 static void put(Data& b,std::size_t at,std::uint32_t v){for(unsigned i=0;i<4;++i)b.at(at+i)=v>>(8*i);}
 static void word(Data& b,std::uint32_t v){const auto at=b.size();b.resize(at+4);put(b,at,v);}
@@ -227,9 +228,90 @@ static void ui_bridge(const fs::path& dir) {
     caught=false;try{renderer.render(identity,clip,nullptr,{},1024,{},nullptr,1,&pass);}catch(const std::runtime_error& e){caught=std::string(e.what())=="Scene UI requires GS field projection depth";}
     require(caught);
 }
+static void submitted_frame_tickets() {
+    FieldProjection projection;projection.load_stage(stage({1,1,1,1},{.25f,.25f,.25f,1},false));
+    projection.begin_field();projection.begin_effects();projection.begin_deferred();projection.end_effects();
+    SceneRenderer::SubmittedFrame empty_ticket;
+    require(!empty_ticket.ready());
+    bool caught=false;try{(void)empty_ticket.wait();}catch(const std::runtime_error& e){caught=std::string(e.what())=="Empty submitted scene frame";}require(caught);
+
+    SceneRenderer renderer;
+    const auto prepared=renderer.prepare_empty(projection.frame());
+    unsigned validation_a=0,validation_b=0;
+    const SceneGpuPass pass_a{[&](id<MTLCommandBuffer>,id<MTLTexture>,id<MTLTexture>){return [&]{++validation_a;};}};
+    const SceneGpuPass pass_b{[&](id<MTLCommandBuffer>,id<MTLTexture>,id<MTLTexture>){return [&]{++validation_b;};}};
+    auto red=renderer.submit_prepared(prepared,nullptr,&pass_a,std::array<std::uint8_t,4>{20,30,40,200});
+    auto blue=renderer.submit_prepared(prepared,nullptr,&pass_b,std::array<std::uint8_t,4>{3,7,11,190});
+    require(validation_a==0&&validation_b==0);
+    auto blue_copy=blue;
+    const auto blue_image=blue_copy.readback();
+    require(validation_b==1&&validation_a==0);
+    require(blue_image.rgba[0]==3&&blue_image.rgba[1]==7&&blue_image.rgba[2]==11&&blue_image.rgba[3]==64);
+    const auto red_image=red.wait();
+    require(validation_a==1&&red_image.rgba[0]==20&&red_image.rgba[1]==30&&red_image.rgba[2]==40&&red_image.rgba[3]==64);
+    require(blue.readback().rgba==blue_image.rgba&&red.readback().rgba==red_image.rgba);
+    require(validation_a==1&&validation_b==1);
+
+    unsigned failing_validation=0;
+    const SceneGpuPass failing{[&](id<MTLCommandBuffer>,id<MTLTexture>,id<MTLTexture>){
+        return [&]{++failing_validation;throw std::runtime_error("Ticket completion validation failed");};
+    }};
+    const auto failed=renderer.submit_prepared(prepared,nullptr,&failing);
+    (void)failed.ready();
+    require(failing_validation==0);
+    for(unsigned i=0;i<2;++i) {
+        caught=false;try{(void)failed.readback();}
+        catch(const std::runtime_error& e){caught=std::string(e.what())=="Ticket completion validation failed";}
+        require(caught);
+    }
+    require(failing_validation==1);
+
+    SceneRenderer::SubmittedFrame detached;
+    {
+        SceneRenderer temporary;
+        const auto temporary_frame=temporary.prepare_empty(projection.frame());
+        detached=temporary.submit_prepared(temporary_frame,nullptr,nullptr,std::array<std::uint8_t,4>{41,43,47,211});
+    }
+    const auto detached_image=detached.readback();
+    require(detached_image.rgba[0]==41&&detached_image.rgba[1]==43&&detached_image.rgba[2]==47&&detached_image.rgba[3]==64);
+
+    SceneRenderer::SubmittedFrame ui_ticket;
+    std::weak_ptr<int> weak_owner;
+    bool ui_rejected=false;
+    {
+        auto owner=std::make_shared<int>(7);weak_owner=owner;
+        const auto gpu=upload_ui_gs_texture(MTLCreateSystemDefaultDevice(),Texture{1,1,0,0,{128,128,128,255}});
+        UiGeometryTexture binding{UiGeometryTexture::Kind::Window,0,0x20000006a8000000ull,{},owner};
+        UiGeometryList geometry;
+        geometry.commands={UiDrawControl::Begin,UiDrawRegister{0x49,0},UiDrawRegister{0x47,0x30003},
+            UiDrawRegister{0x3b,0x100008080ull},UiDrawRegister{0x4a,0},UiDrawRegister{0x42,0x48},
+            UiDrawRegister{0x40,(223ull<<48)|(639ull<<16)},UiDrawRegister{0x14,0x60},UiDrawRegister{8,5},
+            UiDrawCurrentFramebuffer{},binding};
+        UiResolvedPrimitive primitive{};primitive.prim=0x5d;primitive.quad.emitted=true;primitive.texture=binding;
+        constexpr std::array<std::array<unsigned,2>,4> xy={{{300,100},{340,100},{340,124},{300,124}}};
+        for(unsigned i=0;i<4;++i) {
+            auto& vertex=primitive.quad.vertices[i];
+            vertex.xyzf={0x6c00+xy[i][0]*16,0x7900+xy[i][1]*16,100u<<4,0};
+            vertex.stq={2,2,1};vertex.rgba={128,128,128,128};
+        }
+        geometry.commands.push_back(primitive);
+        const UiMetalBaseline baseline{0x6c00,0x7900,true,0,1,0,1};
+        UiMetalTextureResolver resolver=[gpu,owner](const UiGeometryTexture&){return UiMetalTexture{gpu,owner};};
+        const SceneUiPass ui{geometry,baseline,resolver};
+        ui_ticket=renderer.submit_prepared(prepared,&ui);
+    }
+    require(!weak_owner.expired());
+    try{(void)ui_ticket.readback();}
+    catch(const std::runtime_error& e){ui_rejected=std::string(e.what()).find("UI unsupported sampled texture footprint:")==0;}
+    require(ui_rejected);
+    try{(void)ui_ticket.wait();}
+    catch(const std::runtime_error& e){ui_rejected=ui_rejected&&std::string(e.what()).find("UI unsupported sampled texture footprint:")==0;}
+    require(ui_rejected&&!weak_owner.expired());
+    ui_ticket={};require(weak_owner.expired());
+}
 static void retired_instances(const fs::path& dir) {
-    const auto check=[](bool valid,const char* reason,unsigned at=__builtin_LINE()) {
-        if(!valid)throw std::runtime_error(std::string("Scene retirement: ")+reason+" at line "+std::to_string(at));
+    const auto check=[](bool valid,const char* reason,const std::source_location at=std::source_location::current()) {
+        if(!valid)throw std::runtime_error(std::string("Scene retirement: ")+reason+" at line "+std::to_string(at.line()));
     };
     const std::array<Surface,1> surfaces{{{{.25f,.5f,.75f,1}}}};
     sample(dir,surfaces,true,true,true);
@@ -343,6 +425,7 @@ int main(int argc,const char** argv){@autoreleasepool {try {
     const auto blended=center(translucentAdded);
     require(blended[0]>=45&&blended[0]<=46&&blended[1]>=81&&blended[1]<=82&&blended[2]>=119&&blended[2]<=120);
     ui_bridge(out/"ui-bridge");
+    submitted_frame_tickets();
     retired_instances(out/"retired-instances");
     if(argc==1)fs::remove_all(out);
     std::cout<<"Scene retirement: retained snapshots, detached owners, empty range and effect texture indices passed\n";
