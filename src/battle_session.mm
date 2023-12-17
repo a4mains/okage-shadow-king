@@ -123,6 +123,16 @@ struct BattleSession::Impl {
     std::unique_ptr<SceneRenderer> renderer;
     std::unique_ptr<BattleFilterMetal> filter_renderer;
     std::optional<Texture> rendered_image;
+    // Main-owned loading pass must not borrow the worker's partial renderer.
+    std::unique_ptr<SceneRenderer> loading_renderer;
+    struct PendingRender {
+        SceneRenderer::SubmittedFrame ticket;
+        unsigned frame;
+        fs::path report;
+    };
+    std::optional<PendingRender> pending_render;
+    unsigned submitted_frames=0,completed_frames=0,empty_submissions=0;
+
     Animation& camera_channels;
     Float4 resource_camera_position{},resource_camera_rotation{};
     std::optional<BattleCameraMotion> camera;
@@ -959,7 +969,8 @@ BattleSession::BattleSession(unsigned formation,int stage,const fs::path& input,
                                 effect_textures,std::move(effect_preparation),observation_capacity)) {}
 BattleSession::~BattleSession()=default;
 void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& projection,SceneClearColor& clear,
-                         BattleUiContext context,unsigned frame,const fs::path& stage_report,const fs::path& ui_update_report) {
+                         BattleUiContext context,unsigned frame,const fs::path& stage_report,const fs::path& ui_update_report,bool defer_readback) {
+    if(impl_->pending_render)throw std::runtime_error("Battle callback before prior GPU frame completion");
     if(impl_->resource_retired)throw std::runtime_error("Battle callback after resource retirement");
     impl_->jobs.check();
     if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
@@ -990,7 +1001,17 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
                          std::any_of(retiring->attached.begin(),retiring->attached.end(),[](const auto& p){return bool(p);})))
         throw std::runtime_error("Battle resource retains effects requiring native submission");
     impl_->prepare_resource_ui(context);
-    if(impl_->construction!=Impl::Construction::Complete)return;
+    if(impl_->construction!=Impl::Construction::Complete) {
+        if(defer_readback) {
+            if(!impl_->loading_renderer)impl_->loading_renderer=std::make_unique<SceneRenderer>();
+            const auto empty=impl_->loading_renderer->prepare_empty(projection.frame());
+            impl_->pending_render.emplace(Impl::PendingRender{
+                impl_->loading_renderer->submit_prepared(empty,nullptr,nullptr,
+                    std::array<std::uint8_t,4>{clear.rgb[0],clear.rgb[1],clear.rgb[2],0}),frame,{}});
+            ++impl_->submitted_frames;++impl_->empty_submissions;
+        }
+        return;
+    }
     if(!active&&impl_->ui_draw)throw std::runtime_error("Saved battle resource unexpectedly has queued UI");
     impl_->renderer->set_sort_depth_shift(impl_->stage_settings->bucket_base);
     const auto& p=impl_->resource_camera_position;const auto& r=impl_->resource_camera_rotation;
@@ -1048,18 +1069,36 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
     };
     std::optional<SceneUiPass> ui_pass;
     if(frame_ui_geometry)ui_pass.emplace(SceneUiPass{*frame_ui_geometry,baseline,textures});
-    impl_->rendered_image=impl_->renderer->render_prepared(prepared,ui_pass?&*ui_pass:nullptr,&postprocess,
-        std::array<std::uint8_t,4>{clear.rgb[0],clear.rgb[1],clear.rgb[2],0});
+    fs::path image_report;
     if(!stage_report.empty()&&(!active||!impl_->reported_active_resource)) {
-        auto path=stage_report;path.replace_extension(active?".first-active.render.rgba":".render.rgba");
+        image_report=stage_report;
+        image_report.replace_extension(active?".first-active.render.rgba":".render.rgba");
+    }
+    impl_->pending_render.emplace(Impl::PendingRender{
+        impl_->renderer->submit_prepared(prepared,ui_pass?&*ui_pass:nullptr,&postprocess,
+            std::array<std::uint8_t,4>{clear.rgb[0],clear.rgb[1],clear.rgb[2],0}),frame,std::move(image_report)});
+    ++impl_->submitted_frames;
+    if(!defer_readback)complete_render(frame);
+    if(active)impl_->reported_active_resource=true;
+}
+bool BattleSession::render_pending() const{return bool(impl_->pending_render);}
+void BattleSession::complete_render(unsigned frame) {
+    if(!impl_->pending_render)return;
+    const auto& pending=*impl_->pending_render;
+    if(pending.frame!=frame)throw std::runtime_error("Battle GPU frame completed with different Session state");
+    // Keep the ticket after a failure so later calls cannot silently succeed.
+    impl_->rendered_image=pending.ticket.wait();
+    if(!pending.report.empty()) {
+        const auto& path=pending.report;
         if(fs::exists(path)||fs::is_symlink(path))throw std::runtime_error("Refusing existing battle resource image");
         std::ofstream out(path,std::ios::binary);const auto& rgba=impl_->rendered_image->rgba;
         out.write(reinterpret_cast<const char*>(rgba.data()),rgba.size());out.close();
         if(!out)throw std::runtime_error("Cannot write battle resource image");
         std::cout<<"Native battle resource/filter completed frame="<<frame<<" raw_rgba="<<path<<'\n';
     }
-    if(active)impl_->reported_active_resource=true;
+    impl_->pending_render.reset();++impl_->completed_frames;
 }
+
 void BattleSession::pause_loader(){
     if(impl_->construction==Impl::Construction::Preparing)impl_->jobs.pause_and_wait();
     else impl_->jobs.check();
@@ -1130,6 +1169,8 @@ void BattleSession::write_load_observation(std::ostream& destination) const {
     out<<"{\"schema\":\"okage-native-battle-load-v1\",\"enabled\":"
        <<(impl_->observe_loading?"true":"false")
        <<",\"clock\":\"host steady_clock; unspecified epoch; observation only\""
+       <<",\"gpu_submitted\":"<<impl_->submitted_frames<<",\"gpu_completed\":"<<impl_->completed_frames
+       <<",\"gpu_loading_empty\":"<<impl_->empty_submissions<<",\"gpu_pending\":"<<(impl_->pending_render?"true":"false")
        <<",\"dropped\":"<<snapshot.dropped<<",\"events\":[";
     bool comma=false;
     for(const auto& event:snapshot.events) {
@@ -1152,6 +1193,7 @@ void BattleSession::write_load_observation(std::ostream& destination) const {
 bool BattleSession::resource_live() const{return !impl_->resource_retired;}
 RetiringSceneEffects BattleSession::retire_resource(BattleUiShared& shared,FieldProjection& projection) {
     impl_->jobs.check();
+    if(impl_->pending_render)throw std::runtime_error("Battle retirement before GPU frame completion");
     if(impl_->resource_retired||!impl_->root_retired||impl_->root_lifetime.linked()||impl_->jobs.pending()!=0)
         throw std::runtime_error("Battle resource retirement ownership order");
     RetiringSceneEffects retired{std::move(impl_->effects),{}};retired.mark();
@@ -1159,7 +1201,7 @@ RetiringSceneEffects BattleSession::retire_resource(BattleUiShared& shared,Field
     impl_->ui_draw.reset();impl_->ui_geometry.reset();
     impl_->effect_submissions.clear();
     impl_->renderer.reset();
-    impl_->filter_renderer.reset();impl_->rendered_image.reset();
+    impl_->filter_renderer.reset();impl_->loading_renderer.reset();impl_->rendered_image.reset();
     impl_->objects.reset();impl_->collision.reset();
     impl_->environment=nil;impl_->atlas=nil;impl_->window_owner.reset();
     for(auto& resource:impl_->ui_resources)resource.reset();
@@ -1227,7 +1269,10 @@ void BattleSession::write_effect_observation(std::ostream& out,unsigned frame) c
     out<<"]}\n";
     if(!out)throw std::runtime_error("Cannot write battle effect observation");
 }
-const Texture* BattleSession::rendered_image() const{return impl_->rendered_image?&*impl_->rendered_image:nullptr;}
+const Texture* BattleSession::rendered_image() const{
+    if(impl_->pending_render)throw std::runtime_error("Battle image requested before GPU completion");
+    return impl_->rendered_image?&*impl_->rendered_image:nullptr;
+}
 std::array<std::uint32_t,7> BattleSession::observation() const {
     return {impl_->phase,unsigned(impl_->construction!=Impl::Construction::Complete),impl_->load_step.load(),
         unsigned(impl_->suppress_effects.load()),1,0x40d,0x40c};

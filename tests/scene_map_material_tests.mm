@@ -304,8 +304,9 @@ static void submitted_frame_tickets() {
     try{(void)ui_ticket.readback();}
     catch(const std::runtime_error& e){ui_rejected=std::string(e.what()).find("UI unsupported sampled texture footprint:")==0;}
     require(ui_rejected);
+    ui_rejected=false;
     try{(void)ui_ticket.wait();}
-    catch(const std::runtime_error& e){ui_rejected=ui_rejected&&std::string(e.what()).find("UI unsupported sampled texture footprint:")==0;}
+    catch(const std::runtime_error& e){ui_rejected=std::string(e.what()).find("UI unsupported sampled texture footprint:")==0;}
     require(ui_rejected&&!weak_owner.expired());
     ui_ticket={};require(weak_owner.expired());
 }

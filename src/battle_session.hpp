@@ -60,7 +60,8 @@ public:
     BattleSession(const BattleSession&)=delete;
     BattleSession& operator=(const BattleSession&)=delete;
     void tick(RetiringSceneEffects*,FieldProjection&,SceneClearColor&,BattleUiContext,unsigned frame,
-              const std::filesystem::path& stage_report={},const std::filesystem::path& ui_update_report={});
+              const std::filesystem::path& stage_report={},const std::filesystem::path& ui_update_report={},
+              bool defer_readback=false);
     void service_loader_after_frame(BattleConstructionContext,unsigned frame,
                                     const std::filesystem::path& diagnostic_report={},
                                     bool external_loading_windows=false);
@@ -73,6 +74,8 @@ public:
     void write_effect_observation(std::ostream&,unsigned frame) const;
     void write_actor_observation(std::ostream&,unsigned frame) const;
     void write_load_observation(std::ostream&) const;
+    bool render_pending() const;
+    void complete_render(unsigned frame);
     const Texture* rendered_image() const;
     std::array<std::uint32_t,7> observation() const;
 private:
