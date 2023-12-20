@@ -93,7 +93,9 @@ struct FieldReturnLoad {
     okage::NativeLoadQueue jobs;
 };
 struct Session {
-    bool live_loading_windows=false;
+    enum class LoadingPolicy {Continuous,LiveWindows,ReplayWindows};
+    LoadingPolicy loading_policy=LoadingPolicy::Continuous;
+    unsigned replay_presentations=0,replay_delayed_presentations=0;
     bool deferred_battle_readback=false;
     std::array<okage::Font,3> fonts;
     // Immutable native font owner retained by queued UI packets across frames.
@@ -284,12 +286,15 @@ struct Session {
     okage::InputJournal* input_journal=nullptr;
     bool load_observation_written=false;
     void write_load_observation(const char* boundary) {
-        if(!load_observation_trace||!battle||(load_observation_written&&std::string_view(boundary)!="replay_end"))return;
+        if(!load_observation_trace||!battle||(load_observation_written&&std::string_view(boundary)=="constructed"))return;
         auto& out=*load_observation_trace;
         out<<"{\"frame\":"<<frame<<",\"boundary\":\""<<boundary
-           <<"\",\"loading_policy\":\""<<(live_loading_windows?"live_host_windows":"accelerated_continuous")
+           <<"\",\"loading_policy\":\""<<(loading_policy==LoadingPolicy::Continuous?"accelerated_continuous":
+               loading_policy==LoadingPolicy::LiveWindows?"live_host_windows":"replay_host_windows")
            <<"\",\"battle_readback\":\""<<(deferred_battle_readback?"deferred":"synchronous")
-           <<"\",\"queue\":";
+           <<"\",\"replay_presentations\":"<<replay_presentations
+           <<",\"replay_delayed_presentations\":"<<replay_delayed_presentations
+           <<",\"queue\":";
         battle->write_load_observation(out);out<<"}\n";out.flush();
         if(!out)throw std::runtime_error("Native loader observation write failed");
         load_observation_written=true;
@@ -618,7 +623,7 @@ struct Session {
     void service_field_return_loader() {
         if(!field_return)return;
         auto& f=*field_return;f.jobs.check();
-        if(!f.resumed){if(!live_loading_windows)f.jobs.resume();f.resumed=true;return;}
+        if(!f.resumed){if(loading_policy==LoadingPolicy::Continuous)f.jobs.resume();f.resumed=true;return;}
         if(f.jobs.pending())return;
         if(!f.world_queued) {
             f.ui_stage=1;
@@ -775,12 +780,12 @@ struct Session {
         }
     }
     void close_loader_window() {
-        if(!live_loading_windows)return;
+        if(loading_policy==LoadingPolicy::Continuous)return;
         if(battle)battle->pause_loader();
         if(field_return)field_return->jobs.pause_and_wait();
     }
     void open_loader_window() {
-        if(!live_loading_windows)return;
+        if(loading_policy==LoadingPolicy::Continuous)return;
         // Resolve current owners now: tick can replace or retire either one.
         if(battle)battle->resume_loader();
         if(field_return&&field_return->jobs.pending())field_return->jobs.resume();
@@ -1112,7 +1117,7 @@ struct Session {
         service_field_return_loader();
         if(battle) {
             if(!game_data)throw std::runtime_error("Battle construction requires owned game tables");
-            try {battle->service_loader_after_frame({variables,*game_data,battle_entry,random},frame,battle_construction_report,live_loading_windows);}
+            try {battle->service_loader_after_frame({variables,*game_data,battle_entry,random},frame,battle_construction_report,loading_policy!=LoadingPolicy::Continuous);}
             catch(const std::exception& error) {
                 throw std::runtime_error("Native battle construction frame="+std::to_string(frame)+": "+error.what());
             }
@@ -1136,6 +1141,15 @@ struct Session {
             completed_game_image->rgba.resize(640*224*4);completed_game_frame=frame;
         }
         rendered_surface=std::move(image);rendered_frame=frame;
+    }
+    std::pair<okage::Texture,unsigned> presentation() {
+        if(pending_battle_frame()&&!rendered_surface)finish_battle_frame();
+        const bool pending=pending_battle_frame();
+        const auto diagnostic=pending?*rendered_surface:surface();
+        const auto displayed_frame=pending?rendered_frame:frame;
+        if(pending&&displayed_frame+1!=frame)
+            throw std::runtime_error("Deferred presentation lost its preceding completed frame");
+        return {game_mode&&live_image?*live_image:diagnostic,displayed_frame};
     }
     okage::Texture live_frame(const okage::Texture& scene) const {
         okage::Texture image{640,448,0,0,std::vector<std::uint8_t>(640*448*4)};
@@ -1620,10 +1634,7 @@ static void captureView(NSView* view,const fs::path& path) {
 - (void)refreshImage {
     const bool measured=performance&&performance->interval.active();
     const double started=measured?NSProcessInfo.processInfo.systemUptime:0;
-    if(session->pending_battle_frame()&&!session->rendered_surface)session->finish_battle_frame();
-    const auto diagnostic=session->pending_battle_frame()?*session->rendered_surface:session->surface();
-    const auto displayedFrame=session->pending_battle_frame()?session->rendered_frame:session->frame;
-    const auto& displayed=session->game_mode&&session->live_image?*session->live_image:diagnostic;
+    const auto [displayed,displayedFrame]=session->presentation();
     NSImage* image=[[NSImage alloc] initWithSize:NSMakeSize(displayed.width,displayed.height)];[image addRepresentation:bitmap(displayed)];
     self.view.image=image;self.view.opacity=session->game_mode ? 128 : session->opacity.value;self.view.needsDisplay=YES;
     self.window.title=[NSString stringWithFormat:@"Okage native — frame %u — %@ — P: pause/resume — Arrows, Return/Space",
@@ -1793,11 +1804,12 @@ int main(int argc,const char** argv) {
     @autoreleasepool {
     std::unique_ptr<okage::InputJournal> inputJournal;
     try {
-        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --buttons INPUT (held non-directional masks; bounded replay only) --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--load-observation FRESH.jsonl (bounded replay; host scheduling diagnostics)] [--battle-readback synchronous|deferred (replay policy; live always deferred)] [--performance-report FRESH.jsonl (interactive/preview/UI test)] [--input-journal FRESH.jsonl] [--pause-captures FRESH_DIRECTORY (interactive diagnostics, not saved games)]");
+        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --buttons INPUT (held non-directional masks; bounded replay only) --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--load-observation FRESH.jsonl (bounded replay; host scheduling diagnostics)] [--battle-readback synchronous|deferred (replay policy; live always deferred)] [--replay-loading continuous|cooperative (cooperative requires deferred readback; no display timing)] [--performance-report FRESH.jsonl (interactive/preview/UI test)] [--input-journal FRESH.jsonl] [--pause-captures FRESH_DIRECTORY (interactive diagnostics, not saved games)]");
         unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions,buttons;bool hasButtons=false;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures,battleInput;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         std::optional<fs::path> performancePath,inputJournalPath,pauseCapturePath;
         fs::path uiUpdateReport,battleLivePath,loadObservationPath;
         bool deferredBattleReadback=false;
+        std::optional<bool> cooperativeReplay;
         std::ofstream battleLiveTrace,loadObservationTrace;
         std::vector<okage::NativeRenderRange> renderRanges;
         for(int i=3;i<argc;++i) {
@@ -1808,6 +1820,12 @@ int main(int argc,const char** argv) {
                 const std::string policy=argv[i];
                 if(policy!="synchronous"&&policy!="deferred")throw std::runtime_error("Battle readback must be synchronous or deferred");
                 deferredBattleReadback=policy=="deferred";
+            }
+            else if(arg=="--replay-loading") {
+                if(cooperativeReplay)throw std::runtime_error("Duplicate replay loading policy");
+                const std::string policy=argv[i];
+                if(policy!="continuous"&&policy!="cooperative")throw std::runtime_error("Replay loading must be continuous or cooperative");
+                cooperativeReplay=policy=="cooperative";
             }
             else if(arg=="--render-from")renderFrom=std::stoul(argv[i]);
             else if(arg=="--render-until")renderUntil=std::stoul(argv[i]);
@@ -1874,6 +1892,10 @@ int main(int argc,const char** argv) {
             else if(arg=="--press") {std::istringstream in(argv[i]);std::string n;while(std::getline(in,n,','))presses.push_back(std::stoul(n));}
             else throw std::runtime_error("Unknown native runtime option");
         }
+        if(cooperativeReplay&&(!frames&&!previewAt))
+            throw std::runtime_error("Replay loading policy requires --frames or --preview-at");
+        if(cooperativeReplay.value_or(false)&&!deferredBattleReadback)
+            throw std::runtime_error("Cooperative replay requires --battle-readback deferred");
         if(hasButtons&&((!frames&&!previewAt)||uiFrames))
             throw std::runtime_error("Button replay requires --frames or --preview-at without --ui-test-frames");
         if(musicSequence.empty()!=musicBank.empty())throw std::runtime_error("Music requires both sequence and bank");
@@ -1976,13 +1998,14 @@ int main(int argc,const char** argv) {
             auto& session=*prepared;session.render_from=renderFrom;session.render_until=renderUntil;session.render_ranges=std::move(renderRanges);
             session.input_journal=inputJournal.get();
             session.deferred_battle_readback=deferredBattleReadback;
+            if(cooperativeReplay.value_or(false))session.loading_policy=Session::LoadingPolicy::ReplayWindows;
             session.battle_input=battleInput;
             session.battle_ui_update_report=uiUpdateReport;
             session.battle_live_trace=battleLivePath.empty()?nullptr:&battleLiveTrace;
             session.load_observation_trace=loadObservationPath.empty()?nullptr:&loadObservationTrace;
             if(!output.empty())session.battle_construction_report=output.string()+".battle-construction.json";
             if(!output.empty())session.battle_stage_report=output.string()+".battle-stage.json";
-            session.live_presentation_enabled=previewAt!=0;
+            session.live_presentation_enabled=previewAt!=0||cooperativeReplay.value_or(false);
             if(!effectData.empty())session.prepare_effects(effectData,effectTextures);
             if(!map.empty())session.load_scene(map,event,actors);
             if(!musicSequence.empty())session.load_music(musicSequence,musicBank,!output.empty(),soundDirectory);
@@ -2001,14 +2024,27 @@ int main(int argc,const char** argv) {
                     frameManifest<<"}";
                     ++selected;
                 }
-            }} catch(...) {
+                if(cooperativeReplay.value_or(false)) {
+                    if(session.battle&&session.battle->resource_live()) {
+                        const auto shown=session.presentation();
+                        ++session.replay_presentations;
+                        if(shown.second<session.frame)++session.replay_delayed_presentations;
+                    }
+                    if(i<replayFrames)session.open_loader_window();
+                }
+            }
+            session.finish_battle_frame();
+            session.close_loader_window();
+            session.write_load_observation("replay_end");
+            } catch(...) {
                 const auto failure=std::current_exception();
+                // Closing remains mandatory after a failed drain or capture.
+                try {session.close_loader_window();}
+                catch(const std::exception& error){std::cerr<<error.what()<<'\n';}
                 try {session.write_load_observation("replay_failure");}
                 catch(const std::exception& error){std::cerr<<error.what()<<'\n';}
                 std::rethrow_exception(failure);
             }
-            session.finish_battle_frame();
-            session.write_load_observation("replay_end");
             if(!captureFrames.empty()) {
                 frameManifest<<"\n  ],\n  \"complete\": true\n}\n";frameManifest.close();
                 if(!frameManifest||selected!=captureFrames.size())throw std::runtime_error("Incomplete native frame capture");
@@ -2048,7 +2084,7 @@ int main(int argc,const char** argv) {
         if(!effectData.empty())app->session->load_effects(effectData,effectTextures);
         }
         app->session->render_from=1;app->session->render_until=0;app->session->render_ranges.clear();
-        app->session->live_loading_windows=true;
+        app->session->loading_policy=Session::LoadingPolicy::LiveWindows;
         app->session->deferred_battle_readback=true;
         app->session->close_loader_window(); // Also closes the replay-to-live handoff.
         app->testFrames=uiFrames;app->testPresses=presses;app->directions=directions;app->testCapture=runPlan.live_capture;
