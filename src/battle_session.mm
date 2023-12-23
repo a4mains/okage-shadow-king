@@ -120,11 +120,29 @@ struct BattleSession::Impl {
     bool stage_committed=false;
     std::unique_ptr<MapObjects> objects;
     std::optional<CollisionMap> collision;
-    std::unique_ptr<SceneRenderer> renderer;
-    std::unique_ptr<BattleFilterMetal> filter_renderer;
+    std::shared_ptr<SceneRenderer> renderer;
+    std::shared_ptr<BattleFilterMetal> filter_renderer;
     std::optional<Texture> rendered_image;
     // Main-owned loading pass must not borrow the worker's partial renderer.
-    std::unique_ptr<SceneRenderer> loading_renderer;
+    std::shared_ptr<SceneRenderer> loading_renderer;
+    struct FrameDraft {
+        std::shared_ptr<SceneRenderer> renderer;
+        SceneRenderer::PreparedFrame prepared;
+        std::optional<UiGeometryList> geometry;
+        std::shared_ptr<UiTextureOwner> window_owner;
+        id<MTLTexture> atlas=nil;
+        std::shared_ptr<const std::vector<Font>> font_owner;
+        std::array<id<MTLTexture>,3> font_textures{};
+        std::shared_ptr<BattleFilterMetal> filter_renderer;
+        std::optional<BattleFilter6State> filter;
+        UiMetalBaseline baseline{};
+        std::array<std::uint8_t,4> clear{};
+        unsigned frame=0;
+        fs::path report;
+        bool active=false;
+        bool loading=false;
+    };
+    std::optional<FrameDraft> frame_draft;
     struct PendingRender {
         SceneRenderer::SubmittedFrame ticket;
         unsigned frame;
@@ -203,7 +221,7 @@ struct BattleSession::Impl {
             if(!jobs.checkpoint())return;
             device=MTLCreateSystemDefaultDevice();
             if(!device)throw std::runtime_error("Battle loader requires Metal");
-            filter_renderer=std::make_unique<BattleFilterMetal>(device);
+            filter_renderer=std::make_shared<BattleFilterMetal>(device);
             const auto main=decoded/"CMNDATA/2D/MAIN.XPF";
             auto atlas_bytes=read(main/(alternate_interface?"bm_ifj.xim":"bm_if.xim"));
             // 18f500 sets image selector bits20..25 before image/CLUT upload.
@@ -229,7 +247,7 @@ struct BattleSession::Impl {
                 throw std::runtime_error("Battle stage model collision-definition ownership is unrecovered");
             objects=std::make_unique<MapObjects>(map);
             if(!jobs.checkpoint())return;
-            renderer=std::make_unique<SceneRenderer>(map,std::span<const SceneActor>{},objects.get());
+            renderer=std::make_shared<SceneRenderer>(map,std::span<const SceneActor>{},objects.get());
             if(!jobs.checkpoint())return;
             renderer->load_effect_textures(effect_textures);
             renderer->bind_effect_submissions(&effect_submissions);
@@ -969,8 +987,9 @@ BattleSession::BattleSession(unsigned formation,int stage,const fs::path& input,
                                 effect_textures,std::move(effect_preparation),observation_capacity)) {}
 BattleSession::~BattleSession()=default;
 void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& projection,SceneClearColor& clear,
-                         BattleUiContext context,unsigned frame,const fs::path& stage_report,const fs::path& ui_update_report,bool defer_readback) {
-    if(impl_->pending_render)throw std::runtime_error("Battle callback before prior GPU frame completion");
+                         BattleUiContext context,unsigned frame,const fs::path& stage_report,const fs::path& ui_update_report,bool prepare_loading_frame) {
+    if(impl_->frame_draft)throw std::runtime_error("Battle callback before prior prepared frame submission");
+    if(impl_->pending_render&&!prepare_loading_frame)throw std::runtime_error("Battle callback before prior GPU frame completion");
     if(impl_->resource_retired)throw std::runtime_error("Battle callback after resource retirement");
     impl_->jobs.check();
     if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
@@ -1002,13 +1021,15 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
         throw std::runtime_error("Battle resource retains effects requiring native submission");
     impl_->prepare_resource_ui(context);
     if(impl_->construction!=Impl::Construction::Complete) {
-        if(defer_readback) {
-            if(!impl_->loading_renderer)impl_->loading_renderer=std::make_unique<SceneRenderer>();
-            const auto empty=impl_->loading_renderer->prepare_empty(projection.frame());
-            impl_->pending_render.emplace(Impl::PendingRender{
-                impl_->loading_renderer->submit_prepared(empty,nullptr,nullptr,
-                    std::array<std::uint8_t,4>{clear.rgb[0],clear.rgb[1],clear.rgb[2],0}),frame,{}});
-            ++impl_->submitted_frames;++impl_->empty_submissions;
+        if(prepare_loading_frame) {
+            if(!impl_->loading_renderer)impl_->loading_renderer=std::make_shared<SceneRenderer>();
+            Impl::FrameDraft draft;
+            draft.renderer=impl_->loading_renderer;
+            draft.prepared=draft.renderer->prepare_empty(projection.frame());
+            draft.clear={clear.rgb[0],clear.rgb[1],clear.rgb[2],0};
+            draft.frame=frame;
+            draft.loading=true;
+            impl_->frame_draft.emplace(std::move(draft));
         }
         return;
     }
@@ -1050,36 +1071,73 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
         const auto& filter=impl_->stage_settings->filters[slot];
         if(slot!=6&&filter&&(*filter)[0])throw std::runtime_error("Unrecovered battle framebuffer filter slot");
     }
-    SceneGpuPass postprocess{[&](id<MTLCommandBuffer> command,id<MTLTexture> color,id<MTLTexture> depth) {
-        const auto& filter=impl_->stage_settings->filters[6];
-        if(filter&&(*filter)[0]) {
-            impl_->filter_renderer->encode(command,color,depth,{(*filter)[1],(*filter)[2],
-                std::bit_cast<std::int32_t>(impl_->stage_settings->signed_setting),true});
-        }
-        return std::function<void()>([]{});
-    }};
-    const UiMetalBaseline baseline{0x6c00,0x7900,true,0,1,0,1};
-    const UiMetalTextureResolver textures=[&](const UiGeometryTexture& texture) {
-        if(texture.kind==UiGeometryTexture::Kind::Font) {
-            if(texture.fonts!=impl_->font_owner||texture.font_index>=3)throw std::runtime_error("Battle UI font binding mismatch");
-            return UiMetalTexture{impl_->font_textures[texture.font_index],impl_->font_owner};
-        }
-        if(texture.window!=frame_window_owner)throw std::runtime_error("Battle UI window binding mismatch");
-        return UiMetalTexture{frame_atlas,frame_window_owner};
-    };
-    std::optional<SceneUiPass> ui_pass;
-    if(frame_ui_geometry)ui_pass.emplace(SceneUiPass{*frame_ui_geometry,baseline,textures});
     fs::path image_report;
     if(!stage_report.empty()&&(!active||!impl_->reported_active_resource)) {
         image_report=stage_report;
         image_report.replace_extension(active?".first-active.render.rgba":".render.rgba");
     }
-    impl_->pending_render.emplace(Impl::PendingRender{
-        impl_->renderer->submit_prepared(prepared,ui_pass?&*ui_pass:nullptr,&postprocess,
-            std::array<std::uint8_t,4>{clear.rgb[0],clear.rgb[1],clear.rgb[2],0}),frame,std::move(image_report)});
+    Impl::FrameDraft draft;
+    draft.renderer=impl_->renderer;
+    draft.prepared=prepared;
+    draft.geometry=std::move(frame_ui_geometry);
+    draft.window_owner=frame_window_owner;
+    draft.atlas=frame_atlas;
+    draft.font_owner=impl_->font_owner;
+    draft.font_textures=impl_->font_textures;
+    draft.filter_renderer=impl_->filter_renderer;
+    const auto& filter=impl_->stage_settings->filters[6];
+    if(filter&&(*filter)[0]) {
+        if(!draft.filter_renderer)throw std::runtime_error("Battle filter owner unavailable at frame preparation");
+        draft.filter=BattleFilter6State{(*filter)[1],(*filter)[2],
+            std::bit_cast<std::int32_t>(impl_->stage_settings->signed_setting),true};
+    }
+    draft.baseline={0x6c00,0x7900,true,0,1,0,1};
+    draft.clear={clear.rgb[0],clear.rgb[1],clear.rgb[2],0};
+    draft.frame=frame;
+    draft.report=std::move(image_report);
+    draft.active=active;
+    impl_->frame_draft.emplace(std::move(draft));
+    if(!prepare_loading_frame)submit_frame(frame,false);
+}
+bool BattleSession::frame_prepared() const{return bool(impl_->frame_draft);}
+void BattleSession::submit_frame(unsigned frame,bool defer_readback) {
+    if(!impl_->frame_draft)throw std::runtime_error("Battle frame submission without a prepared frame");
+    if(impl_->pending_render)throw std::runtime_error("Battle frame submission before prior GPU frame completion");
+    auto& draft=*impl_->frame_draft;
+    if(draft.frame!=frame)throw std::runtime_error("Battle prepared frame submitted with different Session frame");
+    if(!draft.renderer)throw std::runtime_error("Battle prepared frame lost its renderer owner");
+    SceneGpuPass postprocess{[filter_renderer=draft.filter_renderer,filter=draft.filter](id<MTLCommandBuffer> command,id<MTLTexture> color,id<MTLTexture> depth) {
+        if(filter) {
+            if(!filter_renderer)throw std::runtime_error("Battle frame filter owner expired before encoding");
+            filter_renderer->encode(command,color,depth,*filter);
+        }
+        return std::function<void()>([]{ });
+    }};
+    const auto window_owner=draft.window_owner;
+    const auto atlas=draft.atlas;
+    const auto font_owner=draft.font_owner;
+    const auto font_textures=draft.font_textures;
+    const UiMetalTextureResolver textures=[window_owner,atlas,font_owner,font_textures](const UiGeometryTexture& texture) {
+        if(texture.kind==UiGeometryTexture::Kind::Font) {
+            if(texture.fonts!=font_owner||texture.font_index>=font_textures.size())throw std::runtime_error("Battle UI font binding mismatch");
+            return UiMetalTexture{font_textures[texture.font_index],font_owner};
+        }
+        if(texture.window!=window_owner)throw std::runtime_error("Battle UI window binding mismatch");
+        return UiMetalTexture{atlas,window_owner};
+    };
+    std::optional<SceneUiPass> ui_pass;
+    if(draft.geometry)ui_pass.emplace(SceneUiPass{*draft.geometry,draft.baseline,textures});
+    auto ticket=draft.renderer->submit_prepared(draft.prepared,ui_pass?&*ui_pass:nullptr,&postprocess,draft.clear);
+    const auto submitted_frame=draft.frame;
+    const auto report=std::move(draft.report);
+    const bool active=draft.active;
+    const bool loading=draft.loading;
+    impl_->frame_draft.reset();
+    impl_->pending_render.emplace(Impl::PendingRender{std::move(ticket),submitted_frame,report});
     ++impl_->submitted_frames;
-    if(!defer_readback)complete_render(frame);
+    if(loading)++impl_->empty_submissions;
     if(active)impl_->reported_active_resource=true;
+    if(!defer_readback)complete_render(frame);
 }
 bool BattleSession::render_pending() const{return bool(impl_->pending_render);}
 void BattleSession::complete_render(unsigned frame) {
@@ -1193,6 +1251,7 @@ void BattleSession::write_load_observation(std::ostream& destination) const {
 bool BattleSession::resource_live() const{return !impl_->resource_retired;}
 RetiringSceneEffects BattleSession::retire_resource(BattleUiShared& shared,FieldProjection& projection) {
     impl_->jobs.check();
+    if(impl_->frame_draft)throw std::runtime_error("Battle resource retirement before prepared frame submission");
     if(impl_->pending_render)throw std::runtime_error("Battle retirement before GPU frame completion");
     if(impl_->resource_retired||!impl_->root_retired||impl_->root_lifetime.linked()||impl_->jobs.pending()!=0)
         throw std::runtime_error("Battle resource retirement ownership order");

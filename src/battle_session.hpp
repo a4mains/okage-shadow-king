@@ -61,7 +61,9 @@ public:
     BattleSession& operator=(const BattleSession&)=delete;
     void tick(RetiringSceneEffects*,FieldProjection&,SceneClearColor&,BattleUiContext,unsigned frame,
               const std::filesystem::path& stage_report={},const std::filesystem::path& ui_update_report={},
-              bool defer_readback=false);
+              bool prepare_loading_frame=false);
+    bool frame_prepared() const;
+    void submit_frame(unsigned frame,bool defer_readback=false);
     void service_loader_after_frame(BattleConstructionContext,unsigned frame,
                                     const std::filesystem::path& diagnostic_report={},
                                     bool external_loading_windows=false);
