@@ -989,7 +989,6 @@ BattleSession::~BattleSession()=default;
 void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& projection,SceneClearColor& clear,
                          BattleUiContext context,unsigned frame,const fs::path& stage_report,const fs::path& ui_update_report,bool prepare_loading_frame) {
     if(impl_->frame_draft)throw std::runtime_error("Battle callback before prior prepared frame submission");
-    if(impl_->pending_render&&!prepare_loading_frame)throw std::runtime_error("Battle callback before prior GPU frame completion");
     if(impl_->resource_retired)throw std::runtime_error("Battle callback after resource retirement");
     impl_->jobs.check();
     if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
@@ -1097,7 +1096,6 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
     draft.report=std::move(image_report);
     draft.active=active;
     impl_->frame_draft.emplace(std::move(draft));
-    if(!prepare_loading_frame)submit_frame(frame,false);
 }
 bool BattleSession::frame_prepared() const{return bool(impl_->frame_draft);}
 void BattleSession::submit_frame(unsigned frame,bool defer_readback) {
