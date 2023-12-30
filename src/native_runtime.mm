@@ -20,6 +20,7 @@
 #include "okage/native_run.hpp"
 #include "okage/live_scheduler.hpp"
 #include "okage/input_journal.hpp"
+#include "okage/frame_composition.hpp"
 #include "battle_capture_metal.hpp"
 #include "battle_filter_metal.hpp"
 #include "shadow_metal.hpp"
@@ -97,6 +98,7 @@ struct Session {
     LoadingPolicy loading_policy=LoadingPolicy::Continuous;
     unsigned replay_presentations=0,replay_delayed_presentations=0;
     bool deferred_battle_readback=false;
+    std::shared_ptr<const okage::FrameComposition> pending_composition;
     std::array<okage::Font,3> fonts;
     // Immutable native font owner retained by queued UI packets across frames.
     std::shared_ptr<const std::vector<okage::Font>> ui_fonts;
@@ -265,7 +267,7 @@ struct Session {
     unsigned battle_capture_alpha=0,battle_capture_target=0;
     std::optional<okage::BattleCaptureLayer> battle_capture_layer;
     std::optional<okage::BattleCaptureDraw> battle_capture_draw;
-    std::unique_ptr<okage::BattleCaptureSurface> battle_capture_surface;
+    std::shared_ptr<okage::BattleCaptureSurface> battle_capture_surface;
     okage::SineTable battle_capture_sine=okage::make_sine_table();
     std::optional<okage::FieldBattleReturnSnapshot> battle_return;
     okage::BattleEntryContext battle_entry;
@@ -420,7 +422,7 @@ struct Session {
                     throw std::runtime_error("Battle capture requires recovered live follower return state");
                 battle_capture_image=*completed_game_image;battle_capture_frame=completed_game_frame;
                 battle_followers_saved=true; // 0x131828 marks even an empty roster saved.
-                battle_capture_surface=std::make_unique<okage::BattleCaptureSurface>();
+                battle_capture_surface=std::make_shared<okage::BattleCaptureSurface>();
                 return;
             }
             if(phase==12) {
@@ -792,7 +794,7 @@ struct Session {
     }
     bool pending_battle_frame() const {return battle&&battle->render_pending();}
     void finish_battle_frame() {
-        if(pending_battle_frame())render_frame();
+        if(pending_battle_frame()||pending_composition)render_frame();
     }
     void tick(okage::DialogueButtons input) {
         finish_battle_frame();
@@ -1113,6 +1115,14 @@ struct Session {
                     " scene="+std::to_string(current_scene)+" event_pc="+std::to_string(field->pc())+
                     "; extend the headless render interval or --render-range");
         }
+        if(battle&&battle->frame_prepared()) {
+            if(pending_composition)throw std::runtime_error("Battle submission before prior composition");
+            auto composition=deferred_battle_readback
+                ? std::make_shared<const okage::FrameComposition>(capture_composition())
+                : std::shared_ptr<const okage::FrameComposition>{};
+            battle->submit_frame(frame,deferred_battle_readback);
+            pending_composition=std::move(composition);
+        }
         if(render_tick&&!pending_battle_frame())render_frame();
         service_field_return_loader();
         if(battle) {
@@ -1126,21 +1136,30 @@ struct Session {
         }
         if(input_journal)input_journal->complete_tick(frame);
     }
+    void publish_composed(okage::ComposedFrame result) {
+        feedback.retain(result.diagnostic,result.frame,224);
+        if(result.retain_game) {
+            completed_game_image=result.diagnostic;completed_game_image->height=224;
+            completed_game_image->rgba.resize(640*224*4);completed_game_frame=result.frame;
+        }
+        if(result.live)live_image=std::move(result.live);
+        rendered_surface=std::move(result.diagnostic);rendered_frame=result.frame;
+    }
     void render_frame() {
         if(pending_battle_frame()) {
-            try {battle->complete_render(frame);}
+            if(!pending_composition)throw std::runtime_error("Battle GPU frame lost its compositor snapshot");
+            try {battle->complete_render(pending_composition->frame);}
             catch(const std::exception& e) {
-                throw std::runtime_error("Native battle GPU frame="+std::to_string(frame)+": "+e.what());
+                throw std::runtime_error("Native battle GPU frame="+std::to_string(pending_composition->frame)+": "+e.what());
             }
         }
-        if(rendered_surface&&rendered_frame==frame)return;
-        auto image=surface();
-        feedback.retain(image,frame,224);
-        if(battle_capture_image||(field&&field->battle_request())) {
-            completed_game_image=image;completed_game_image->height=224;
-            completed_game_image->rgba.resize(640*224*4);completed_game_frame=frame;
+        if(pending_composition) {
+            if(!battle||!battle->rendered_image())throw std::runtime_error("Battle compositor lost its completed image");
+            auto result=pending_composition->compose(*battle->rendered_image());
+            publish_composed(std::move(result));pending_composition.reset();return;
         }
-        rendered_surface=std::move(image);rendered_frame=frame;
+        if(rendered_surface&&rendered_frame==frame)return;
+        publish_composed(capture_composition().compose(base_surface()));
     }
     std::pair<okage::Texture,unsigned> presentation() {
         if(pending_battle_frame()&&!rendered_surface)finish_battle_frame();
@@ -1151,42 +1170,60 @@ struct Session {
             throw std::runtime_error("Deferred presentation lost its preceding completed frame");
         return {game_mode&&live_image?*live_image:diagnostic,displayed_frame};
     }
-    okage::Texture live_frame(const okage::Texture& scene) const {
-        okage::Texture image{640,448,0,0,std::vector<std::uint8_t>(640*448*4)};
-        for(unsigned y=0;y<448;++y)
-            std::copy_n(scene.rgba.data()+(y/2)*640*4,640*4,image.rgba.data()+y*640*4);
-        for(std::size_t i=3;i<image.rgba.size();i+=4)image.rgba[i]=255;
+    okage::FrameComposition capture_composition() const {
+        okage::FrameComposition snapshot;
+        snapshot.frame=frame;
+        snapshot.game_view=bool(renderer)||bool(game_mode);
+        snapshot.retain_game=bool(battle_capture_image)||(field&&field->battle_request());
+        snapshot.dialogue=okage::rasterize_text(fonts,text.glyphs,640,224);
+        if(!snapshot.game_view)return snapshot;
+        snapshot.live_enabled=live_presentation_enabled;
+        //Layer2 OT40e precedes results UI OT40f; results already applied it.
+        snapshot.apply_fade=!(field_return&&field_return->rendered);
+        snapshot.fade=scene_fade;
+        if(choices.highlighted)snapshot.choice_cursor=choices.cursor;
+        auto glyphs=narration.glyphs(fonts[2]);const auto choiceGlyphs=choices.glyphs(fonts[2]);
+        glyphs.insert(glyphs.end(),choiceGlyphs.begin(),choiceGlyphs.end());
+        snapshot.narration=okage::rasterize_text(fonts,glyphs,640,224);
         if(dialogue_active&&controller.window_type!=2) {
-            const float opacityAlpha=std::clamp(opacity.value/128.f,0.f,1.f);
-            auto glyphs=text.glyphs;
-            for(auto& glyph:glyphs){
-                if(glyph.x>INT32_MAX-25||glyph.y>INT32_MAX-(332-24))
-                    throw std::runtime_error("Live dialogue placement overflow");
-                glyph.x+=25;glyph.y+=332-24;
-            }
-            const auto overlay=okage::rasterize_text(fonts,glyphs,640,448);
-            for(unsigned y=332;y<431;++y)for(unsigned x=25;x<610;++x) {
-                const auto i=(y*640+x)*4;
-                const float ink=overlay.rgba[i+3]/255.f*opacityAlpha;
-                for(unsigned c=0;c<3;++c) {
-                    const float background=image.rgba[i+c]*(1-.75f*opacityAlpha)+16.f*.75f*opacityAlpha;
-                    image.rgba[i+c]=std::uint8_t(overlay.rgba[i+c]*ink+background*(1-ink));
+            snapshot.dialogue_alpha=std::clamp(opacity.value/128.f,0.f,1.f);
+            if(snapshot.live_enabled) {
+                auto live_glyphs=text.glyphs;
+                for(auto& glyph:live_glyphs) {
+                    if(glyph.x>INT32_MAX-25||glyph.y>INT32_MAX-(332-24))
+                        throw std::runtime_error("Live dialogue placement overflow");
+                    glyph.x+=25;glyph.y+=332-24;
                 }
+                snapshot.live_dialogue=okage::rasterize_text(fonts,live_glyphs,640,448);
             }
         }
+        snapshot.transition_alpha=transition_alpha;
         if(transition_alpha) {
-            if(!transition_live_image||transition_live_image->rgba.size()!=image.rgba.size())
-                throw std::runtime_error("Missing live transition framebuffer");
-            for(std::size_t i=0;i<image.rgba.size();i+=4)for(unsigned c=0;c<3;++c)
-                image.rgba[i+c]=(unsigned(transition_live_image->rgba[i+c])*transition_alpha+unsigned(image.rgba[i+c])*(128-transition_alpha))/128;
+            snapshot.transition_diagnostic=transition_image;
+            if(snapshot.live_enabled)snapshot.transition_live=transition_live_image;
         }
-        return image;
+        if(battle_capture_draw) {
+            if(!battle_capture_surface||!battle_capture_image||!completed_game_image||completed_game_frame+1!=frame)
+                throw std::runtime_error("Battle capture lost consecutive native framebuffer history");
+            snapshot.capture_pass=[owner=battle_capture_surface,capture=*battle_capture_image,
+                                   history=*completed_game_image,draw=*battle_capture_draw](okage::Texture& image) {
+                owner->apply(image,capture,history,draw);
+            };
+        }
+        return snapshot;
     }
     okage::Texture surface() const {
-        if(pending_battle_frame())throw std::runtime_error("Surface composition before battle frame completion");
+        if(pending_battle_frame()||pending_composition||(battle&&battle->frame_prepared()))
+            throw std::runtime_error("Surface composition before battle frame completion");
         if(rendered_surface&&rendered_frame==frame)return *rendered_surface;
-        auto text_image=okage::rasterize_text(fonts,text.glyphs,640,224);
-        if(!renderer&&!game_mode)return text_image;
+        auto result=capture_composition().compose(base_surface());
+        if(result.live)live_image=std::move(result.live);
+        return std::move(result.diagnostic);
+    }
+    okage::Texture base_surface() const {
+        if(pending_battle_frame()||(battle&&battle->frame_prepared()))
+            throw std::runtime_error("Scene readback before battle frame completion");
+        if(!renderer&&!game_mode)return {};
         okage::Texture image{640,224,0,0,std::vector<std::uint8_t>(640*224*4)};
         if(renderer) {
         if(!field)throw std::runtime_error("Field renderer has no mode owner");
@@ -1211,37 +1248,6 @@ struct Session {
                 for(unsigned c=0;c<3;++c)image.rgba[i+c]=scene_clear.rgb[c];
                 image.rgba[i+3]=(battle&&battle->resource_live())||field_return?64:0;
             }
-        }
-        //Layer2 OT40e precedes results UI OT40f; its renderer already applied it.
-        if(!(field_return&&field_return->rendered))scene_fade.apply(image);
-        if(choices.highlighted){
-            const int top=(336+27*choices.cursor)/2,bottom=(363+27*choices.cursor)/2;
-            for(int y=top;y<bottom;++y)for(int x=162;x<599;++x)for(unsigned c=0;c<3;++c){
-                auto& pixel=image.rgba[(y*640+x)*4+c];pixel=(255u*48+unsigned(pixel)*80)/128;
-            }
-        }
-        auto glyphs=narration.glyphs(fonts[2]);const auto choiceGlyphs=choices.glyphs(fonts[2]);glyphs.insert(glyphs.end(),choiceGlyphs.begin(),choiceGlyphs.end());
-        const auto overlay=okage::rasterize_text(fonts,glyphs,640,224);
-        for(std::size_t i=0;i<overlay.rgba.size();i+=4){
-            const unsigned alpha=overlay.rgba[i+3];
-            for(unsigned c=0;c<3;++c)image.rgba[i+c]=(unsigned(overlay.rgba[i+c])*alpha+unsigned(image.rgba[i+c])*(255-alpha)+127)/255;
-        }
-        if(battle_capture_draw) {
-            if(!battle_capture_surface||!battle_capture_image||!completed_game_image||completed_game_frame+1!=frame)
-                throw std::runtime_error("Battle capture lost consecutive native framebuffer history");
-            battle_capture_surface->apply(image,*battle_capture_image,*completed_game_image,*battle_capture_draw);
-        }
-        if(live_presentation_enabled)live_image=live_frame(image);
-        image.height=448;image.rgba.resize(640*448*4);
-        for(std::size_t i=0;i<text_image.rgba.size();i+=4) {
-            const float a=dialogue_active && controller.window_type!=2 ? (text_image.rgba[i+3]/255.f)*std::clamp(opacity.value/128.f,0.f,1.f) : 0;
-            for(unsigned c=0;c<3;++c)image.rgba[640*224*4+i+c]=std::uint8_t(text_image.rgba[i+c]*a+16.f*(1-a));
-            image.rgba[640*224*4+i+3]=255;
-        }
-        if(transition_alpha) {
-            if(!transition_image||transition_image->rgba.size()!=image.rgba.size())throw std::runtime_error("Missing transition framebuffer");
-            for(std::size_t i=0;i<image.rgba.size();i+=4)for(unsigned c=0;c<3;++c)
-                image.rgba[i+c]=(unsigned(transition_image->rgba[i+c])*transition_alpha+unsigned(image.rgba[i+c])*(128-transition_alpha))/128;
         }
         return image;
     }
