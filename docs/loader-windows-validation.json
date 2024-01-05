@@ -2,7 +2,7 @@
   "schema": "okage-loader-windows-validation-v1",
   "observer_revision": "a956328c910de5bfc0b7a2233c256263e01e28fa",
   "initial_observer_revision": "24a3ce7d0da8b1edc2b53f78c3005a286d17d1b6",
-  "play_revision": "4f413584409017457eff3b7aa9c3c2e662a91e1f",
+  "play_revision": "cf579172517ede5ae8cee7bb07594766e620a56e",
   "play_status": [
     " M Source/gs/GSH_Vulkan/GSH_VulkanDrawDesktop.cpp",
     " M Source/gs/GSH_Vulkan/GSH_VulkanDrawMobile.cpp",

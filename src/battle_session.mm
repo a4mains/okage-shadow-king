@@ -35,6 +35,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <mutex>
 #include <sstream>
 #include <stdexcept>
 
@@ -43,6 +44,62 @@
 
 namespace okage {
 namespace fs=std::filesystem;
+namespace {
+struct BattleRenderAccounting {
+    std::atomic<unsigned> submitted{0},completed{0},loading_empty{0};
+};
+}
+struct BattleFrameCompletion::State {
+    enum class Status : unsigned {Pending,Success,Failure};
+    unsigned frame=0;
+    SceneRenderer::SubmittedFrame ticket;
+    fs::path report;
+    bool loading=false;
+    std::shared_ptr<BattleRenderAccounting> accounting;
+    mutable std::mutex mutex;
+    std::atomic<Status> status{Status::Pending};
+    std::optional<Texture> pixels;
+    std::exception_ptr failure;
+
+    const Texture& complete() {
+        auto current=status.load(std::memory_order_acquire);
+        if(current==Status::Success)return *pixels;
+        if(current==Status::Failure)std::rethrow_exception(failure);
+        std::lock_guard lock(mutex);
+        current=status.load(std::memory_order_relaxed);
+        if(current==Status::Success)return *pixels;
+        if(current==Status::Failure)std::rethrow_exception(failure);
+        try {
+            auto result=ticket.wait();
+            if(!report.empty()) {
+                if(fs::exists(report)||fs::is_symlink(report))throw std::runtime_error("Refusing existing battle resource image");
+                std::ofstream out(report,std::ios::binary);const auto& rgba=result.rgba;
+                out.write(reinterpret_cast<const char*>(rgba.data()),rgba.size());out.close();
+                if(!out)throw std::runtime_error("Cannot write battle resource image");
+                std::cout<<"Native battle resource/filter completed frame="<<frame<<" raw_rgba="<<report<<'\n';
+            }
+            pixels.emplace(std::move(result));
+            accounting->completed.fetch_add(1,std::memory_order_relaxed);
+            status.store(Status::Success,std::memory_order_release);
+            return *pixels;
+        } catch(...) {
+            failure=std::current_exception();
+            status.store(Status::Failure,std::memory_order_release);
+            throw;
+        }
+    }
+};
+
+BattleFrameCompletion::BattleFrameCompletion(std::shared_ptr<State> state):state_(std::move(state)){}
+unsigned BattleFrameCompletion::frame() const noexcept{return state_->frame;}
+bool BattleFrameCompletion::ready() const noexcept{return state_->ticket.ready();}
+const Texture& BattleFrameCompletion::complete() const{return state_->complete();}
+bool BattleFrameCompletion::completed() const noexcept{return state_->status.load(std::memory_order_acquire)!=State::Status::Pending;}
+bool BattleFrameCompletion::succeeded() const noexcept{return state_->status.load(std::memory_order_acquire)==State::Status::Success;}
+const Texture* BattleFrameCompletion::image_if_success() const noexcept{
+    return succeeded()?&*state_->pixels:nullptr;
+}
+
 namespace {
 std::vector<std::uint8_t> read(const fs::path& path) {
     const auto size=fs::file_size(path);
@@ -143,13 +200,8 @@ struct BattleSession::Impl {
         bool loading=false;
     };
     std::optional<FrameDraft> frame_draft;
-    struct PendingRender {
-        SceneRenderer::SubmittedFrame ticket;
-        unsigned frame;
-        fs::path report;
-    };
-    std::optional<PendingRender> pending_render;
-    unsigned submitted_frames=0,completed_frames=0,empty_submissions=0;
+    std::shared_ptr<BattleFrameCompletion> pending_render;
+    std::shared_ptr<BattleRenderAccounting> render_accounting=std::make_shared<BattleRenderAccounting>();
 
     Animation& camera_channels;
     Float4 resource_camera_position{},resource_camera_rotation{};
@@ -1098,12 +1150,16 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
     impl_->frame_draft.emplace(std::move(draft));
 }
 bool BattleSession::frame_prepared() const{return bool(impl_->frame_draft);}
-void BattleSession::submit_frame(unsigned frame,bool defer_readback) {
+std::shared_ptr<BattleFrameCompletion> BattleSession::submit_frame(unsigned frame,bool defer_readback) {
     if(!impl_->frame_draft)throw std::runtime_error("Battle frame submission without a prepared frame");
-    if(impl_->pending_render)throw std::runtime_error("Battle frame submission before prior GPU frame completion");
     auto& draft=*impl_->frame_draft;
     if(draft.frame!=frame)throw std::runtime_error("Battle prepared frame submitted with different Session frame");
     if(!draft.renderer)throw std::runtime_error("Battle prepared frame lost its renderer owner");
+    if(impl_->pending_render) {
+        if(!impl_->pending_render->succeeded())throw std::runtime_error("Battle frame submission before prior GPU frame completion");
+        impl_->rendered_image=impl_->pending_render->complete();
+        impl_->pending_render.reset();
+    }
     SceneGpuPass postprocess{[filter_renderer=draft.filter_renderer,filter=draft.filter](id<MTLCommandBuffer> command,id<MTLTexture> color,id<MTLTexture> depth) {
         if(filter) {
             if(!filter_renderer)throw std::runtime_error("Battle frame filter owner expired before encoding");
@@ -1126,33 +1182,30 @@ void BattleSession::submit_frame(unsigned frame,bool defer_readback) {
     std::optional<SceneUiPass> ui_pass;
     if(draft.geometry)ui_pass.emplace(SceneUiPass{*draft.geometry,draft.baseline,textures});
     auto ticket=draft.renderer->submit_prepared(draft.prepared,ui_pass?&*ui_pass:nullptr,&postprocess,draft.clear);
-    const auto submitted_frame=draft.frame;
-    const auto report=std::move(draft.report);
+    auto state=std::make_shared<BattleFrameCompletion::State>();
+    state->frame=draft.frame;
+    state->ticket=std::move(ticket);
+    state->report=std::move(draft.report);
+    state->loading=draft.loading;
+    state->accounting=impl_->render_accounting;
     const bool active=draft.active;
     const bool loading=draft.loading;
     impl_->frame_draft.reset();
-    impl_->pending_render.emplace(Impl::PendingRender{std::move(ticket),submitted_frame,report});
-    ++impl_->submitted_frames;
-    if(loading)++impl_->empty_submissions;
+    auto completion=std::shared_ptr<BattleFrameCompletion>(new BattleFrameCompletion(std::move(state)));
+    impl_->pending_render=completion;
+    impl_->render_accounting->submitted.fetch_add(1,std::memory_order_relaxed);
+    if(loading)impl_->render_accounting->loading_empty.fetch_add(1,std::memory_order_relaxed);
     if(active)impl_->reported_active_resource=true;
     if(!defer_readback)complete_render(frame);
+    return completion;
 }
-bool BattleSession::render_pending() const{return bool(impl_->pending_render);}
+bool BattleSession::render_pending() const{return impl_->pending_render&&!impl_->pending_render->succeeded();}
 void BattleSession::complete_render(unsigned frame) {
     if(!impl_->pending_render)return;
-    const auto& pending=*impl_->pending_render;
-    if(pending.frame!=frame)throw std::runtime_error("Battle GPU frame completed with different Session state");
-    // Keep the ticket after a failure so later calls cannot silently succeed.
-    impl_->rendered_image=pending.ticket.wait();
-    if(!pending.report.empty()) {
-        const auto& path=pending.report;
-        if(fs::exists(path)||fs::is_symlink(path))throw std::runtime_error("Refusing existing battle resource image");
-        std::ofstream out(path,std::ios::binary);const auto& rgba=impl_->rendered_image->rgba;
-        out.write(reinterpret_cast<const char*>(rgba.data()),rgba.size());out.close();
-        if(!out)throw std::runtime_error("Cannot write battle resource image");
-        std::cout<<"Native battle resource/filter completed frame="<<frame<<" raw_rgba="<<path<<'\n';
-    }
-    impl_->pending_render.reset();++impl_->completed_frames;
+    auto completion=impl_->pending_render;
+    if(completion->frame()!=frame)throw std::runtime_error("Battle GPU frame completed with different Session state");
+    impl_->rendered_image=completion->complete();
+    if(impl_->pending_render==completion)impl_->pending_render.reset();
 }
 
 void BattleSession::pause_loader(){
@@ -1225,8 +1278,10 @@ void BattleSession::write_load_observation(std::ostream& destination) const {
     out<<"{\"schema\":\"okage-native-battle-load-v1\",\"enabled\":"
        <<(impl_->observe_loading?"true":"false")
        <<",\"clock\":\"host steady_clock; unspecified epoch; observation only\""
-       <<",\"gpu_submitted\":"<<impl_->submitted_frames<<",\"gpu_completed\":"<<impl_->completed_frames
-       <<",\"gpu_loading_empty\":"<<impl_->empty_submissions<<",\"gpu_pending\":"<<(impl_->pending_render?"true":"false")
+       <<",\"gpu_submitted\":"<<impl_->render_accounting->submitted.load(std::memory_order_relaxed)
+       <<",\"gpu_completed\":"<<impl_->render_accounting->completed.load(std::memory_order_relaxed)
+       <<",\"gpu_loading_empty\":"<<impl_->render_accounting->loading_empty.load(std::memory_order_relaxed)
+       <<",\"gpu_pending\":"<<(render_pending()?"true":"false")
        <<",\"dropped\":"<<snapshot.dropped<<",\"events\":[";
     bool comma=false;
     for(const auto& event:snapshot.events) {
@@ -1250,10 +1305,12 @@ bool BattleSession::resource_live() const{return !impl_->resource_retired;}
 RetiringSceneEffects BattleSession::retire_resource(BattleUiShared& shared,FieldProjection& projection) {
     impl_->jobs.check();
     if(impl_->frame_draft)throw std::runtime_error("Battle resource retirement before prepared frame submission");
-    if(impl_->pending_render)throw std::runtime_error("Battle retirement before GPU frame completion");
+    if(impl_->pending_render&&!impl_->pending_render->succeeded()&&impl_->pending_render.use_count()==1)
+        throw std::runtime_error("Battle retirement before independent GPU completion ownership");
     if(impl_->resource_retired||!impl_->root_retired||impl_->root_lifetime.linked()||impl_->jobs.pending()!=0)
         throw std::runtime_error("Battle resource retirement ownership order");
     RetiringSceneEffects retired{std::move(impl_->effects),{}};retired.mark();
+    impl_->pending_render.reset();
     for(auto& window:shared.registry)window.reset();
     impl_->ui_draw.reset();impl_->ui_geometry.reset();
     impl_->effect_submissions.clear();
@@ -1327,7 +1384,10 @@ void BattleSession::write_effect_observation(std::ostream& out,unsigned frame) c
     if(!out)throw std::runtime_error("Cannot write battle effect observation");
 }
 const Texture* BattleSession::rendered_image() const{
-    if(impl_->pending_render)throw std::runtime_error("Battle image requested before GPU completion");
+    if(impl_->pending_render) {
+        if(!impl_->pending_render->succeeded())throw std::runtime_error("Battle image requested before GPU completion");
+        return impl_->pending_render->image_if_success();
+    }
     return impl_->rendered_image?&*impl_->rendered_image:nullptr;
 }
 std::array<std::uint32_t,7> BattleSession::observation() const {

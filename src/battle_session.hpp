@@ -48,6 +48,21 @@ struct BattleUiContext {
     std::function<void(std::array<std::uint32_t,3>)> game_command;
     std::function<void(GameModeSelection)> request_mode;
 };
+class BattleFrameCompletion {
+    struct State;
+public:
+    unsigned frame() const noexcept;
+    bool ready() const noexcept;
+    const Texture& complete() const;
+    // True after either successful completion or a cached terminal failure.
+    bool completed() const noexcept;
+private:
+    explicit BattleFrameCompletion(std::shared_ptr<State>);
+    bool succeeded() const noexcept;
+    const Texture* image_if_success() const noexcept;
+    std::shared_ptr<State> state_;
+    friend class BattleSession;
+};
 class BattleSession {
 public:
     BattleSession(unsigned formation,int stage,const std::filesystem::path& input,
@@ -63,7 +78,7 @@ public:
               const std::filesystem::path& stage_report={},const std::filesystem::path& ui_update_report={},
               bool prepare_loading_frame=false);
     bool frame_prepared() const;
-    void submit_frame(unsigned frame,bool defer_readback=false);
+    std::shared_ptr<BattleFrameCompletion> submit_frame(unsigned frame,bool defer_readback=false);
     void service_loader_after_frame(BattleConstructionContext,unsigned frame,
                                     const std::filesystem::path& diagnostic_report={},
                                     bool external_loading_windows=false);

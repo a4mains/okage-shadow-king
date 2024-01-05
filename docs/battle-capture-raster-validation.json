@@ -2,7 +2,7 @@
   "version": 1,
   "implementation_commit": "eca8cbd",
   "retail_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
-  "reference_revision": "4f413584409017457eff3b7aa9c3c2e662a91e1f",
+  "reference_revision": "cf579172517ede5ae8cee7bb07594766e620a56e",
   "scope": "Synthetic unchanged original EE/GIF construction, pinned host GS raster, and reached native phase11/12.",
   "exact_reference_raster": false,
   "shared_reference_corrections_enabled": false,
@@ -17,14 +17,14 @@
   "sources": [
     {
       "path": "CMakeLists.txt",
-      "bytes": 17807,
-      "sha256": "5f36bbcf3146f5791ae48ada392ae306b0b5a32ef54d46979902ebfcfcf46700",
+      "bytes": 26459,
+      "sha256": "ca6d0ac3c6d0974449fd1fb0dfd614b5829db21a08d5f6591bba1869304eb07e",
       "git_revision": "eca8cbd"
     },
     {
       "path": "src/native_runtime.mm",
-      "bytes": 102651,
-      "sha256": "3d64eb8ca81fca85244ab39dcb8c6dac16177f6cdfbcccb2437744bbde9c906e",
+      "bytes": 142899,
+      "sha256": "914c94329fe33b9b884b040a55924f8f955c3e87ce091b6f169c206c56594a91",
       "git_revision": "eca8cbd"
     },
     {

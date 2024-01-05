@@ -994,7 +994,7 @@
       "scope": "Audit original EE finite-stream preparation and native dry voice output.",
       "native_sha256": "18a035f417d21ab394bc045d536daaa2a56303672acf44236a9c7e2cb4e20b8c",
       "oracle_sha256": "5f4ebbd9c5170e1d2e808602388348a96ad5d722cdad1e6b5878d0f2357dd998",
-      "dsp_revision": "26d5ee0c9363da206b9cc9e2e77ed7a542ac80e5",
+      "dsp_revision": "2e0988ff03f4aa372a8421479c9751cfb3d892b6",
       "dsp_source_hashes": {
         "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
         "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
@@ -1020,7 +1020,7 @@
       "scope": "Audit original EE finite-stream preparation and native dry voice output.",
       "native_sha256": "2c04e8329183b003c9398999a455f80ec201e3d25eea4be14c5b55d9db66cfdc",
       "oracle_sha256": "5f4ebbd9c5170e1d2e808602388348a96ad5d722cdad1e6b5878d0f2357dd998",
-      "dsp_revision": "26d5ee0c9363da206b9cc9e2e77ed7a542ac80e5",
+      "dsp_revision": "2e0988ff03f4aa372a8421479c9751cfb3d892b6",
       "dsp_source_hashes": {
         "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
         "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
@@ -1046,7 +1046,7 @@
       "scope": "Audit original EE finite-stream preparation and native dry voice output.",
       "native_sha256": "da21eaddf27745afcf169f256b08e48686dfbd39a21df24db6da18a0a19653a9",
       "oracle_sha256": "5f4ebbd9c5170e1d2e808602388348a96ad5d722cdad1e6b5878d0f2357dd998",
-      "dsp_revision": "26d5ee0c9363da206b9cc9e2e77ed7a542ac80e5",
+      "dsp_revision": "2e0988ff03f4aa372a8421479c9751cfb3d892b6",
       "dsp_source_hashes": {
         "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
         "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",

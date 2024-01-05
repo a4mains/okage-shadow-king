@@ -87,15 +87,15 @@
     "src/ui_draw.cpp": "2ee786f6414d5feee03a11c2682f4e517a3d6c176d77e31d9a26ba9ee92f60a8",
     "src/ui_geometry.cpp": "a51e4de4901c8d93433913440eb704f8f809f663ff2f6f0e6af7b18d2bde9f2e",
     "src/ui_draw_diagnostic.cpp": "0009b84ed298a7983c95bff2f79ed69c2e359e11eadc2a7dea8ee7116f511932",
-    "src/ui_metal.hpp": "84562c51e272492371dd1fd1f50238ea6332847a03c95d335ababc3aa2eb4d94",
-    "src/ui_metal.mm": "aad256435a8aa0252f648a854c94b0b5ceed1859da2f87b5049962c992dc3ae4",
+    "src/ui_metal.hpp": "e68ce5c0670b1b0e6783bc0bb8e6030915903acb10e3954216d0884119549ba3",
+    "src/ui_metal.mm": "0a8283dfc527df67717e407cd99e32b7adb393de5ccc5bfdf1f60544077cef36",
     "tools/ui_projection_check.cpp": "ed5312e5891bf82f42d9a56f507e22d0a543454cc79feb0db14ccd652a89d7bf",
     "tools/ui_owned_draw.mm": "89d1d00bcf47964238876f4fcced2d34f782e29dc79eb77a0e571bc8ae120ec3",
-    "tools/compare_ui_draw.py": "e20aed943b1585956460e7384f8378a710536e7811b13c823d9c8908ab938a2d",
+    "tools/compare_ui_draw.py": "237387120701d44daa2c806da087c2faa8589563f49d002b0b9c92c1f9073af2",
     "tools/play-oracle/main.cpp": "e0096597d15959a7db370c59d3b1265bc6160eadcf16d3ecf67ad0226959efae",
     "tools/play-oracle/reference_ui_layout.hpp": "c1ffdc71f5d950935953f9f2d419ef108ee3d23bcb9b9a333477665f1048f043",
-    "tools/play-oracle/boot.cpp": "64e4bab292aa73f14930a2000b4dda361f67a4c426facea6063a5f694410e6d6",
-    "CMakeLists.txt": "5f36bbcf3146f5791ae48ada392ae306b0b5a32ef54d46979902ebfcfcf46700"
+    "tools/play-oracle/boot.cpp": "cf6cbc15462958ee0cb9df146636eeb8eb3f4125aaead16b3e44a6740db67b26",
+    "CMakeLists.txt": "ca6d0ac3c6d0974449fd1fb0dfd614b5829db21a08d5f6591bba1869304eb07e"
   },
   "input_sha256": {
     "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
@@ -223,7 +223,7 @@
     "local/worktrees/ui-projection-oracle-v1/local/play-build/CMakeCache.txt": "248d36f789c58b75b6e62d500d8e7a4476f5bd4d629f905588c8f4ec20198820"
   },
   "source_backend": {
-    "play_revision": "4f413584409017457eff3b7aa9c3c2e662a91e1f",
+    "play_revision": "cf579172517ede5ae8cee7bb07594766e620a56e",
     "vulkan": true,
     "capture_filter_corrections": false,
     "moltenvk": "1.4.2",
