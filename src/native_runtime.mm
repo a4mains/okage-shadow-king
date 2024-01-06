@@ -98,7 +98,17 @@ struct Session {
     LoadingPolicy loading_policy=LoadingPolicy::Continuous;
     unsigned replay_presentations=0,replay_delayed_presentations=0;
     bool deferred_battle_readback=false;
-    std::shared_ptr<const okage::FrameComposition> pending_composition;
+    struct PendingBattleFrame {
+        std::shared_ptr<okage::BattleFrameCompletion> completion;
+        std::shared_ptr<const okage::FrameComposition> composition;
+    };
+    std::optional<PendingBattleFrame> pending_battle;
+    bool prepared_tick=false,prepared_render_tick=false;
+    struct FrameEvent {unsigned frame;const char* kind;unsigned image;};
+    std::vector<FrameEvent> frame_events;
+    void frame_event(const char* kind,unsigned image=0) {
+        if(load_observation_trace)frame_events.push_back({frame,kind,image});
+    }
     std::array<okage::Font,3> fonts;
     // Immutable native font owner retained by queued UI packets across frames.
     std::shared_ptr<const std::vector<okage::Font>> ui_fonts;
@@ -288,7 +298,7 @@ struct Session {
     okage::InputJournal* input_journal=nullptr;
     bool load_observation_written=false;
     void write_load_observation(const char* boundary) {
-        if(!load_observation_trace||!battle||(load_observation_written&&std::string_view(boundary)=="constructed"))return;
+        if(!load_observation_trace||(load_observation_written&&std::string_view(boundary)=="constructed"))return;
         auto& out=*load_observation_trace;
         out<<"{\"frame\":"<<frame<<",\"boundary\":\""<<boundary
            <<"\",\"loading_policy\":\""<<(loading_policy==LoadingPolicy::Continuous?"accelerated_continuous":
@@ -297,7 +307,15 @@ struct Session {
            <<"\",\"replay_presentations\":"<<replay_presentations
            <<",\"replay_delayed_presentations\":"<<replay_delayed_presentations
            <<",\"queue\":";
-        battle->write_load_observation(out);out<<"}\n";out.flush();
+        if(battle)battle->write_load_observation(out);else out<<"null";
+        out<<",\"tick_pending\":"<<(prepared_tick?"true":"false")
+           <<",\"composition_pending\":"<<(pending_battle?"true":"false")<<",\"frame_events\":[";
+        bool comma=false;
+        for(const auto& event:frame_events) {
+            if(comma)out<<',';comma=true;
+            out<<"{\"frame\":"<<event.frame<<",\"kind\":\""<<event.kind<<"\",\"image\":"<<event.image<<'}';
+        }
+        out<<"]}\n";out.flush();
         if(!out)throw std::runtime_error("Native loader observation write failed");
         load_observation_written=true;
     }
@@ -761,6 +779,7 @@ struct Session {
             if(std::any_of(flags.begin(),flags.end(),[](auto f){return f!=0;}))
                 throw std::runtime_error("Prior resource effects still occupy battle retirement pool");
         }
+        if(pending_battle)frame_event("retire_with_prior",pending_battle->completion->frame());
         retiring_effects.emplace(battle->retire_resource(ui_shared,projection));
         next_instance=0;instance_limit=640;
         reset_scene_camera();
@@ -792,15 +811,23 @@ struct Session {
         if(battle)battle->resume_loader();
         if(field_return&&field_return->jobs.pending())field_return->jobs.resume();
     }
-    bool pending_battle_frame() const {return battle&&battle->render_pending();}
+    bool pending_battle_frame() const {return bool(pending_battle);}
+    bool tick_pending() const {return prepared_tick;}
     void finish_battle_frame() {
-        if(pending_battle_frame()||pending_composition)render_frame();
+        if(prepared_tick)finish_prepared_tick(true);
+        if(pending_battle)complete_battle_frame();
     }
-    void tick(okage::DialogueButtons input) {
-        finish_battle_frame();
+    bool tick(okage::DialogueButtons input,bool block=true) {
+        if(prepared_tick)throw std::runtime_error("Scheduler advanced before prepared tick submission");
+        if(field)finish_battle_frame();
         close_loader_window();
+        if(pending_battle) {
+            if(pending_battle->completion->frame()!=frame)
+                throw std::runtime_error("Scheduler lost its previous submitted frame");
+        }
         if(input_journal)input_journal->begin_tick(frame+1,input.held,input.pressed);
         ++frame;
+        if(pending_battle)frame_event("scheduler_with_prior",pending_battle->completion->frame());
         const auto released=std::uint16_t(previous_held&~input.held);previous_held=input.held;
         input.repeat=pad_repeat.update(input.held,input.pressed);
         if(battle_capture_layer) {
@@ -833,6 +860,7 @@ struct Session {
                 if(battle) {
                     if(battle->resource_live())throw std::runtime_error("Battle wrapper freed before resource destructor");
                     write_load_observation("wrapper_free");
+                    if(pending_battle)frame_event("free_with_prior",pending_battle->completion->frame());
                     battle.reset();
                     std::cout<<"Native battle wrapper freed frame="<<frame<<'\n';
                 }
@@ -1115,15 +1143,32 @@ struct Session {
                     " scene="+std::to_string(current_scene)+" event_pc="+std::to_string(field->pc())+
                     "; extend the headless render interval or --render-range");
         }
+        prepared_tick=true;prepared_render_tick=render_tick;
+        if(battle||pending_battle)frame_event("prepared",pending_battle?pending_battle->completion->frame():0);
+        return finish_prepared_tick(block);
+    }
+    bool finish_prepared_tick(bool block) {
+        if(!prepared_tick)return true;
+        if(pending_battle) {
+            if(pending_battle->completion->frame()+1!=frame)
+                throw std::runtime_error("Prepared tick lost preceding GPU frame");
+            if(!pending_battle->completion->ready()) {
+                open_loader_window();
+                if(!block) {frame_event("gpu_yield",pending_battle->completion->frame());return false;}
+            }
+            complete_battle_frame();
+        }
+        // A resumed callback must park before current submission/continuations.
+        close_loader_window();
         if(battle&&battle->frame_prepared()) {
-            if(pending_composition)throw std::runtime_error("Battle submission before prior composition");
             auto composition=deferred_battle_readback
                 ? std::make_shared<const okage::FrameComposition>(capture_composition())
                 : std::shared_ptr<const okage::FrameComposition>{};
-            battle->submit_frame(frame,deferred_battle_readback);
-            pending_composition=std::move(composition);
+            auto completion=battle->submit_frame(frame,deferred_battle_readback);
+            if(composition)pending_battle.emplace(PendingBattleFrame{std::move(completion),std::move(composition)});
+            frame_event("submitted",frame);
         }
-        if(render_tick&&!pending_battle_frame())render_frame();
+        if(prepared_render_tick&&!pending_battle_frame())render_frame();
         service_field_return_loader();
         if(battle) {
             if(!game_data)throw std::runtime_error("Battle construction requires owned game tables");
@@ -1135,6 +1180,9 @@ struct Session {
                 write_load_observation("constructed");
         }
         if(input_journal)input_journal->complete_tick(frame);
+        prepared_tick=false;
+        if(battle||pending_battle)frame_event("tick_complete",frame);
+        return true;
     }
     void publish_composed(okage::ComposedFrame result) {
         feedback.retain(result.diagnostic,result.frame,224);
@@ -1145,29 +1193,35 @@ struct Session {
         if(result.live)live_image=std::move(result.live);
         rendered_surface=std::move(result.diagnostic);rendered_frame=result.frame;
     }
+    void complete_battle_frame() {
+        if(!pending_battle)return;
+        auto& pending=*pending_battle;
+        const auto image_frame=pending.completion->frame();
+        if(image_frame!=pending.composition->frame)
+            throw std::runtime_error("Battle GPU/compositor frame mismatch");
+        try {
+            const auto& image=pending.completion->complete();
+            close_loader_window();
+            auto result=pending.composition->compose(image);
+            publish_composed(std::move(result));
+        } catch(const std::exception& e) {
+            throw std::runtime_error("Native battle GPU/composition frame="+std::to_string(image_frame)+": "+e.what());
+        }
+        frame_event("published",image_frame);
+        pending_battle.reset();
+    }
     void render_frame() {
-        if(pending_battle_frame()) {
-            if(!pending_composition)throw std::runtime_error("Battle GPU frame lost its compositor snapshot");
-            try {battle->complete_render(pending_composition->frame);}
-            catch(const std::exception& e) {
-                throw std::runtime_error("Native battle GPU frame="+std::to_string(pending_composition->frame)+": "+e.what());
-            }
-        }
-        if(pending_composition) {
-            if(!battle||!battle->rendered_image())throw std::runtime_error("Battle compositor lost its completed image");
-            auto result=pending_composition->compose(*battle->rendered_image());
-            publish_composed(std::move(result));pending_composition.reset();return;
-        }
+        if(pending_battle) {complete_battle_frame();return;}
         if(rendered_surface&&rendered_frame==frame)return;
         publish_composed(capture_composition().compose(base_surface()));
     }
     std::pair<okage::Texture,unsigned> presentation() {
-        if(pending_battle_frame()&&!rendered_surface)finish_battle_frame();
-        const bool pending=pending_battle_frame();
+        if((pending_battle||prepared_tick)&&!rendered_surface)finish_battle_frame();
+        const bool pending=pending_battle||prepared_tick;
         const auto diagnostic=pending?*rendered_surface:surface();
         const auto displayed_frame=pending?rendered_frame:frame;
-        if(pending&&displayed_frame+1!=frame)
-            throw std::runtime_error("Deferred presentation lost its preceding completed frame");
+        if(pending&&(displayed_frame>frame||frame-displayed_frame>(prepared_tick?2u:1u)))
+            throw std::runtime_error("Deferred presentation lost its completed frame history");
         return {game_mode&&live_image?*live_image:diagnostic,displayed_frame};
     }
     okage::FrameComposition capture_composition() const {
@@ -1213,7 +1267,7 @@ struct Session {
         return snapshot;
     }
     okage::Texture surface() const {
-        if(pending_battle_frame()||pending_composition||(battle&&battle->frame_prepared()))
+        if(pending_battle_frame()||prepared_tick||(battle&&battle->frame_prepared()))
             throw std::runtime_error("Surface composition before battle frame completion");
         if(rendered_surface&&rendered_frame==frame)return *rendered_surface;
         auto result=capture_composition().compose(base_surface());
@@ -2020,7 +2074,15 @@ int main(int argc,const char** argv) {
             try {for(unsigned i=1;i<=replayFrames;++i) {
                 const std::uint16_t mask=std::find(presses.begin(),presses.end(),i)!=presses.end()?0x40:0;
                 const auto held=std::uint16_t(directions.held(i)|buttons.held(i));
-                session.tick({std::uint16_t(mask|held),std::uint16_t(mask|(held&~previous))});previous=held;
+                const bool completed=session.tick({std::uint16_t(mask|held),std::uint16_t(mask|(held&~previous))},
+                    !cooperativeReplay.value_or(false));
+                previous=held;
+                if(!completed) {
+                    const auto shown=session.presentation();
+                    ++session.replay_presentations;
+                    if(shown.second<session.frame)++session.replay_delayed_presentations;
+                    session.finish_prepared_tick(true);
+                }
                 if(selected<captureFrames.size()&&i==captureFrames[selected]) {
                     const auto filename="tick-"+std::to_string(i)+".png";captureImage(session,frameDirectory/filename);
                     frameManifest<<(selected ? ",\n" : "")<<"    {\"tick\": "<<i<<", \"image\": \""<<filename
