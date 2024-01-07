@@ -31,6 +31,7 @@ public:
     void audio_sample(const AudioOutputStats& stats);
     void update_end(double now);
     void tick(double start,double end,bool rendered);
+    void deferred_tick(double start,double end,bool rendered);
     void refresh(double start,double end);
     void draw(double now);
     std::string finish(double now,std::uint64_t frame,PerformanceEnd reason,std::uint64_t index);

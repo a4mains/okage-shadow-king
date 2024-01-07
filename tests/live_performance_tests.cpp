@@ -8,13 +8,14 @@
 #include <iostream>
 #include <limits>
 #include <numeric>
+#include <source_location>
 #include <stdexcept>
 #include <vector>
 #include <unistd.h>
 
 namespace fs=std::filesystem;
-void check(bool value,unsigned where=__builtin_LINE()) {
-    if(!value)throw std::runtime_error("Performance test failed at line "+std::to_string(where));
+void check(bool value,const std::source_location where=std::source_location::current()) {
+    if(!value)throw std::runtime_error("Performance test failed at line "+std::to_string(where.line()));
 }
 template<class F> void rejects(F f) {
     bool threw=false;try {f();}catch(const std::runtime_error&){threw=true;}check(threw);
@@ -76,6 +77,40 @@ void interval_checks() {
     check(failed.find("\"frame_counter_matches_completed_ticks\":false")!=failed.npos);
     interval.begin(400,44);interval.update_begin(400,0);interval.tick(400,400.125,true);interval.update_end(400.25);
     rejects([&]{interval.finish(400.25,44,okage::PerformanceEnd::pause,4);});
+}
+void deferred_tick_checks() {
+    okage::PerformanceInterval interval;
+    rejects([&]{interval.deferred_tick(1,1,true);});
+
+    interval.begin(10,20);
+    interval.update_begin(10.125,0);
+    interval.deferred_tick(10.0625,10.25,true);
+    interval.update_end(10.3125);
+    const auto cross_callback=interval.finish(10.375,21,okage::PerformanceEnd::pause,1);
+    check(number(cross_callback,"completed_simulation_ticks")==1);
+    check(number(cross_callback,"rendered_ticks")==1);
+    check(number(cross_callback,"max_ticks_per_update")==1);
+    check(cross_callback.find("\"completed_tick_wall\":{\"count\":1,\"sum_ms\":187.5")!=cross_callback.npos);
+
+    interval.begin(20,30);
+    interval.update_begin(20.125,0);
+    interval.update_end(20.1875);
+    interval.deferred_tick(20.0625,20.25,false);
+    const auto pause_boundary=interval.finish(20.3125,31,okage::PerformanceEnd::pause,2);
+    check(number(pause_boundary,"completed_simulation_ticks")==1);
+    check(number(pause_boundary,"rendered_ticks")==0);
+    check(number(pause_boundary,"update_callbacks")==1);
+    check(number(pause_boundary,"max_ticks_per_update")==0);
+
+    interval.begin(40,50);
+    rejects([&]{interval.deferred_tick(40,std::numeric_limits<double>::infinity(),false);});
+    rejects([&]{interval.deferred_tick(std::numeric_limits<double>::quiet_NaN(),40,false);});
+    rejects([&]{interval.deferred_tick(39.999,40,false);});
+    rejects([&]{interval.deferred_tick(40,39.999,false);});
+    interval.update_begin(40.125,0);
+    rejects([&]{interval.deferred_tick(40.0625,40.0625,false);});
+    interval.update_end(40.25);
+    interval.finish(40.25,50,okage::PerformanceEnd::window_close,3);
 }
 void scheduler_checks() {
     okage::LiveTickClock clock;
@@ -309,7 +344,7 @@ void bounded_interval_checks(const fs::path& directory) {
 int main() {
     fs::path directory;
     try {
-        render_range_checks();interval_checks();distribution_checks();scheduler_checks();audio_ring_checks();scheduler_audio_interval_checks();
+        render_range_checks();interval_checks();deferred_tick_checks();distribution_checks();scheduler_checks();audio_ring_checks();scheduler_audio_interval_checks();
         auto pattern=(fs::temp_directory_path()/"okage-performance-XXXXXX").string();
         const auto created=::mkdtemp(pattern.data());check(created);directory=created;
         output_checks(directory);run_plan_checks(directory);bounded_interval_checks(directory);fs::remove_all(directory);

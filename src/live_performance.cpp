@@ -92,6 +92,14 @@ void PerformanceInterval::tick(double start,double end,bool rendered) {
     require(std::isfinite(start)&&start>=update_start_&&end>=start,"Invalid performance tick timestamps");observe(end);
     tick_wall_.add(end-start);++ticks_;++update_ticks_;if(rendered)++rendered_;
 }
+void PerformanceInterval::deferred_tick(double start,double end,bool rendered) {
+    require(active_,"Performance tick outside interval");
+    require(std::isfinite(start)&&std::isfinite(end)&&start>=start_&&end>=start,
+            "Invalid deferred performance tick timestamps");
+    if(update_open_)require(end>=update_start_,"Deferred performance tick ends before update");
+    observe(end);
+    tick_wall_.add(end-start);++ticks_;if(update_open_)++update_ticks_;if(rendered)++rendered_;
+}
 void PerformanceInterval::refresh(double start,double end) {
     require(std::isfinite(start)&&start>=start_&&end>=start,"Invalid performance refresh timestamps");observe(end);refresh_wall_.add(end-start);
 }
