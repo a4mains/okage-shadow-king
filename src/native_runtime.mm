@@ -1636,6 +1636,9 @@ static void captureView(NSView* view,const fs::path& path) {
 @public unsigned pauseCaptureCount;
 @public std::unique_ptr<okage::LivePerformance> performance;
 @public okage::LiveTickClock tickClock;
+// One admitted scheduler invocation may span multiple host callbacks.
+@public bool admittedTick=false,admittedTickMeasured=false;
+@public double admittedTickStarted=0;
 }
 @property(strong) NSWindow* window;
 @property(strong) NativeTextView* view;
@@ -1703,6 +1706,15 @@ static void captureView(NSView* view,const fs::path& path) {
         self.window.title=[self.window.title stringByAppendingString:@" — service pending (partial scene)"];
     if(measured)performance->interval.refresh(started,NSProcessInfo.processInfo.systemUptime);
 }
+- (void)completeAdmittedTickAt:(double)finished {
+    if(!admittedTick)return;
+    if(session->tick_pending())throw std::runtime_error("Completing an unfinished native tick");
+    if(admittedTickMeasured&&performance&&performance->interval.active())
+        performance->interval.deferred_tick(admittedTickStarted,finished,
+            session->rendered_surface&&session->rendered_frame==session->frame);
+    tickClock.complete_tick();
+    admittedTick=false;admittedTickMeasured=false;
+}
 - (void)update:(NSTimer*)timer {
     (void)timer;
     bool measured=false;
@@ -1716,7 +1728,7 @@ static void captureView(NSView* view,const fs::path& path) {
             performance->interval.update_begin(now,std::max(0.,elapsed-.25));measured=true;
         }
         if(self.view.pauseRequested) {
-            self.view.pauseRequested=NO;paused=!paused;tickClock.reset();
+            self.view.pauseRequested=NO;paused=!paused;
             self.view.held=self.view.pressed=0;
             if(performance) {
                 if(paused) {
@@ -1729,10 +1741,13 @@ static void captureView(NSView* view,const fs::path& path) {
             }
             if(paused) {
                 session->finish_battle_frame();
+                [self completeAdmittedTickAt:now];
                 session->close_loader_window();
                 if(performance&&performance->interval.active()&&session->audio_output)performance->interval.audio_sample(session->audio_output->stats());
                 session->audio_output.reset();
             }
+            // Finish/debit an admitted tick before pause discards remaining debt.
+            tickClock.reset();
             if(!paused&&session->music&&!session->audio_output)
                 session->audio_output=std::make_unique<okage::AudioOutput>();
             if(paused&&performance)performance->finish(now,session->frame,okage::PerformanceEnd::pause);
@@ -1745,7 +1760,22 @@ static void captureView(NSView* view,const fs::path& path) {
         }
         if(paused){tickClock.reset();self.view.held=self.view.pressed=0;return;}
         bool changed=false;
-        while(tickClock.tick_due()) {
+        if(session->tick_pending()) {
+            if(!admittedTick)throw std::runtime_error("Native tick has no AppKit admission");
+            if(session->finish_prepared_tick(false)) {
+                [self completeAdmittedTickAt:NSProcessInfo.processInfo.systemUptime];
+                changed=true;
+            } else {
+                if(measured) {
+                    performance->interval.scheduler_pending(tickClock.pending());
+                    if(session->audio_output)performance->interval.audio_sample(session->audio_output->stats());
+                    performance->interval.update_end(NSProcessInfo.processInfo.systemUptime);measured=false;
+                }
+                return;
+            }
+        }
+        // No scheduler, sound generation, or test-key reinjection while waiting.
+        if(!changed&&tickClock.tick_due()) {
             if(testFrames){
                 const auto next=directions.held(session->frame+1);
                 for(const auto [mask,code]:{std::pair<unsigned,unsigned>{0x1000,126},{0x4000,125},{0x8000,123},{0x2000,124}}){
@@ -1765,17 +1795,21 @@ static void captureView(NSView* view,const fs::path& path) {
                     windowNumber:self.window.windowNumber context:nil characters:@"\r" charactersIgnoringModifiers:@"\r" isARepeat:NO keyCode:36];
                 [self.window sendEvent:event];
             }
-            const double tickStarted=measured?NSProcessInfo.processInfo.systemUptime:0;
-            session->tick({self.view.held,self.view.pressed});self.view.pressed=0;
-            if(measured)performance->interval.tick(tickStarted,NSProcessInfo.processInfo.systemUptime,
-                session->rendered_surface&&session->rendered_frame==session->frame);
+            if(admittedTick)throw std::runtime_error("Native tick admitted twice");
+            admittedTick=true;admittedTickMeasured=measured;
+            admittedTickStarted=measured?NSProcessInfo.processInfo.systemUptime:0;
+            const auto input=okage::DialogueButtons{self.view.held,self.view.pressed};
+            self.view.pressed=0; // Consume only this scheduler's latch.
+            const bool complete=session->tick(input,false);
             if(press) {
                 NSEvent* event=[NSEvent keyEventWithType:NSEventTypeKeyUp location:NSZeroPoint modifierFlags:0 timestamp:now
                     windowNumber:self.window.windowNumber context:nil characters:@"\r" charactersIgnoringModifiers:@"\r" isARepeat:NO keyCode:36];
                 [self.window sendEvent:event];
             }
-            tickClock.complete_tick();changed=true;
-            if(testFrames && session->frame==testFrames)break;
+            if(complete) {
+                [self completeAdmittedTickAt:NSProcessInfo.processInfo.systemUptime];
+                changed=true;
+            }
         }
         if(measured) {
             performance->interval.scheduler_pending(tickClock.pending());
@@ -1803,6 +1837,8 @@ static void captureView(NSView* view,const fs::path& path) {
         else session->open_loader_window();
     }catch(const std::exception& e) {
         failureStatus=1;
+        // Failed scheduler work must not later be counted as a completed tick.
+        admittedTick=false;admittedTickMeasured=false;
         try {session->close_loader_window();}
         catch(const std::exception& loadingError){std::cerr<<loadingError.what()<<'\n';}
         if(session->input_journal&&!session->input_journal->terminal()) {
@@ -1837,7 +1873,10 @@ static void captureView(NSView* view,const fs::path& path) {
 }
 - (void)finishSession {
     std::string failure;
-    try {session->finish_battle_frame();}
+    try {
+        session->finish_battle_frame();
+        [self completeAdmittedTickAt:NSProcessInfo.processInfo.systemUptime];
+    }
     catch(const std::exception& e){failure=e.what();}
     // A failed GPU ticket must not skip parking the background worker.
     try {session->close_loader_window();}
@@ -1850,12 +1889,12 @@ static void captureView(NSView* view,const fs::path& path) {
     if(!failure.empty()){failureStatus=1;std::cerr<<failure<<'\n';}
 }
 - (void)windowWillClose:(NSNotification*)notification {
-    (void)notification;[self finishPerformance:okage::PerformanceEnd::window_close];
-    [self finishSession];
+    (void)notification;[self finishSession];
+    [self finishPerformance:okage::PerformanceEnd::window_close];
 }
 - (void)applicationWillTerminate:(NSNotification*)notification {
-    (void)notification;[self finishPerformance:okage::PerformanceEnd::application_terminate];
-    [self finishSession];
+    (void)notification;[self finishSession];
+    [self finishPerformance:okage::PerformanceEnd::application_terminate];
 }
 - (void)windowDidResignKey:(NSNotification*)notification {(void)notification;self.view.held=0;self.view.pressed=0;}
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)app {(void)app;return YES;}
