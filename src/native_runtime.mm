@@ -1637,8 +1637,8 @@ static void captureView(NSView* view,const fs::path& path) {
 @public std::unique_ptr<okage::LivePerformance> performance;
 @public okage::LiveTickClock tickClock;
 // One admitted scheduler invocation may span multiple host callbacks.
-@public bool admittedTick=false,admittedTickMeasured=false;
-@public double admittedTickStarted=0;
+@public bool admittedTick,admittedTickMeasured;
+@public double admittedTickStarted;
 }
 @property(strong) NSWindow* window;
 @property(strong) NativeTextView* view;
