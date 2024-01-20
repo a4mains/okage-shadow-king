@@ -207,6 +207,23 @@ void scheduler_audio_interval_checks() {
     check(number(resumed,"accumulator_discarded_on_pause_s")==0);
     check(number(resumed,"accumulator_accounting_error_s")==0);
 }
+void deferred_debt_checks() {
+    for(const auto reason:{okage::PerformanceEnd::pause,okage::PerformanceEnd::window_close}) {
+        okage::PerformanceInterval interval;okage::LiveTickClock clock;
+        interval.begin(30,100);
+        const auto first=clock.admit(.1);interval.scheduler_admit(first,clock.pending());
+        interval.update_begin(30.1,0);interval.update_end(30.12);
+        const auto admitted=clock.admit(.05);
+        interval.scheduler_admit(admitted,clock.pending());
+        interval.deferred_tick(30.1,30.15,false);clock.complete_tick();
+        interval.scheduler_pending(clock.pending());
+        if(reason==okage::PerformanceEnd::pause)clock.reset();
+        const auto json=interval.finish(30.15,101,reason,1);
+        check(number(json,"ticks")==1);
+        check(std::abs(number(json,"accumulator_accounting_error_s"))<1e-12);
+        check(std::abs(number(json,"accumulator_pending_end_s")-(.15-1./60))<1e-12);
+    }
+}
 void distribution_checks() {
     okage::PerformanceDistribution distribution;
     rejects([&]{distribution.add(-1);});
@@ -344,7 +361,7 @@ void bounded_interval_checks(const fs::path& directory) {
 int main() {
     fs::path directory;
     try {
-        render_range_checks();interval_checks();deferred_tick_checks();distribution_checks();scheduler_checks();audio_ring_checks();scheduler_audio_interval_checks();
+        render_range_checks();interval_checks();deferred_tick_checks();distribution_checks();scheduler_checks();audio_ring_checks();scheduler_audio_interval_checks();deferred_debt_checks();
         auto pattern=(fs::temp_directory_path()/"okage-performance-XXXXXX").string();
         const auto created=::mkdtemp(pattern.data());check(created);directory=created;
         output_checks(directory);run_plan_checks(directory);bounded_interval_checks(directory);fs::remove_all(directory);

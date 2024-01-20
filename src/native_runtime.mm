@@ -1713,6 +1713,8 @@ static void captureView(NSView* view,const fs::path& path) {
         performance->interval.deferred_tick(admittedTickStarted,finished,
             session->rendered_surface&&session->rendered_frame==session->frame);
     tickClock.complete_tick();
+    if(performance&&performance->interval.active())
+        performance->interval.scheduler_pending(tickClock.pending());
     admittedTick=false;admittedTickMeasured=false;
 }
 - (void)update:(NSTimer*)timer {
