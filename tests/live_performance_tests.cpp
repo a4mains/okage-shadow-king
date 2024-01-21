@@ -219,7 +219,7 @@ void deferred_debt_checks() {
         interval.scheduler_pending(clock.pending());
         if(reason==okage::PerformanceEnd::pause)clock.reset();
         const auto json=interval.finish(30.15,101,reason,1);
-        check(number(json,"ticks")==1);
+        check(number(json,"completed_simulation_ticks")==1);
         check(std::abs(number(json,"accumulator_accounting_error_s"))<1e-12);
         check(std::abs(number(json,"accumulator_pending_end_s")-(.15-1./60))<1e-12);
     }
