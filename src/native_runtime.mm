@@ -70,6 +70,7 @@ struct DirectionReplay {
     }
 };
 struct FieldReturnLoad {
+    explicit FieldReturnLoad(bool observe):jobs(observe?65536:0) {}
     unsigned phase=0x12,ui_stage=0,complete=0,counter=0;
     bool resumed=false,world_queued=false,world_prepared=false;
     std::optional<okage::ResultsUiData> definitions;
@@ -308,6 +309,15 @@ struct Session {
            <<",\"replay_delayed_presentations\":"<<replay_delayed_presentations
            <<",\"queue\":";
         if(battle)battle->write_load_observation(out);else out<<"null";
+        out<<",\"field_return\":";
+        if(field_return) {
+            const auto& f=*field_return;
+            out<<"{\"phase\":"<<f.phase<<",\"ui_stage\":"<<f.ui_stage
+               <<",\"complete\":"<<f.complete<<",\"counter\":"<<f.counter
+               <<",\"queue\":";
+            okage::write_load_observation(out,f.jobs.observation());
+            out<<'}';
+        } else out<<"null";
         out<<",\"tick_pending\":"<<(prepared_tick?"true":"false")
            <<",\"composition_pending\":"<<(pending_battle?"true":"false")<<",\"frame_events\":[";
         bool comma=false;
@@ -619,7 +629,7 @@ struct Session {
         scene_fade.immediate(0);scene_clear.rgb={0,0,0};scene_fade.color=0;
         okage::initialize_scene_ui(ui_shared);exterior_camera.snap_target=true;
         current_scene=battle_return->scene;current_entrance=-1;pending_game_command={};
-        field_return=std::make_unique<FieldReturnLoad>();
+        field_return=std::make_unique<FieldReturnLoad>(load_observation_trace!=nullptr);
         auto* f=field_return.get();const auto input=battle_input,decoded=field_root.parent_path();
         const auto owned_fonts=ui_fonts;const bool alternate=variables[12]!=0;
         f->jobs.enqueue([f,input,decoded,owned_fonts,alternate]{@autoreleasepool {
@@ -643,6 +653,7 @@ struct Session {
     void service_field_return_loader() {
         if(!field_return)return;
         auto& f=*field_return;f.jobs.check();
+        if(load_observation_trace)f.jobs.observe(okage::LoadEventKind::Poll,0,{},frame);
         if(!f.resumed){if(loading_policy==LoadingPolicy::Continuous)f.jobs.resume();f.resumed=true;return;}
         if(f.jobs.pending())return;
         if(!f.world_queued) {
@@ -725,6 +736,7 @@ struct Session {
             if(f.ui->window().opacity()!=0.f)throw std::runtime_error("Dead results window has nonzero opacity");
             (void)ui_shared.resource.advance_resource(ui_shared.registry,bindings,ui_shared.resource_accumulators,
                 ui_fonts,battle_capture_sine,random,okage::initial_ui_projection());
+            write_load_observation("field_return_retired");
             f.ui.reset();field_return.reset();
             std::cout<<"Native saved field restored scene="<<current_scene<<" frame="<<frame<<'\n';
             return true;
