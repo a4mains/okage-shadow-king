@@ -6,6 +6,7 @@
 #include <deque>
 #include <exception>
 #include <functional>
+#include <iosfwd>
 #include <mutex>
 #include <optional>
 #include <thread>
@@ -35,6 +36,8 @@ struct LoadObservation {
     std::vector<LoadEvent> events;
     std::uint64_t dropped=0;
 };
+void write_load_observation(std::ostream&,const LoadObservation&);
+void write_load_observation_fields(std::ostream&,const LoadObservation&);
 class NativeLoadQueue {
 public:
     static constexpr std::size_t capacity=31;

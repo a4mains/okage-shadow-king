@@ -2,6 +2,7 @@
 #include <array>
 #include <atomic>
 #include <barrier>
+#include <iomanip>
 #include <iostream>
 #include <memory>
 #include <source_location>
@@ -31,6 +32,41 @@ template<class F> void rejects(F&& f) {
     require(failed);
 }
 struct LoadFailure:std::runtime_error {using std::runtime_error::runtime_error;};
+
+void serialized_observation() {
+    using namespace okage;
+    LoadEvent event;
+    event.sequence=17;event.job=29;event.kind=LoadEventKind::MainContinuation;
+    event.identity={0x123,456};event.pending=3;event.running_job=29;
+    event.resumed=true;event.failed=false;event.logical_tick=987;
+    event.host_time=std::chrono::steady_clock::time_point(std::chrono::nanoseconds(123456789));
+    event.thread=std::this_thread::get_id();
+    LoadObservation observation{{event},4};
+
+    std::ostringstream thread;
+    thread<<event.thread;
+    std::ostringstream expected;
+    expected<<"{\"dropped\":4,\"events\":[{\"seq\":17,\"kind\":\"main_continuation\",\"job\":29"
+            <<",\"source\":291,\"task\":456,\"pending\":3,\"running\":29,\"resumed\":true"
+            <<",\"failed\":false,\"tick\":987,\"host_monotonic_ns\":123456789,\"thread\":"
+            <<std::quoted(thread.str())<<"}]}";
+    std::ostringstream serialized;
+    serialized<<std::hex<<std::boolalpha;
+    write_load_observation(serialized,observation);
+    require(serialized.str()==expected.str());
+
+    std::ostringstream fields;
+    write_load_observation_fields(fields,observation);
+    require(fields.str()==expected.str().substr(1,expected.str().size()-2));
+
+    event.kind=LoadEventKind::Poll;event.logical_tick.reset();event.failed=true;
+    observation.events={event};
+    std::ostringstream without_tick;
+    write_load_observation(without_tick,observation);
+    require(without_tick.str().find("\"kind\":\"poll\"")!=std::string::npos);
+    require(without_tick.str().find("\"failed\":true")!=std::string::npos);
+    require(without_tick.str().find("\"tick\":null")!=std::string::npos);
+}
 
 void wait_for_event(const okage::NativeLoadQueue& queue,okage::LoadEventKind kind) {
     for(;;) {
@@ -311,7 +347,7 @@ void observed_failure_and_saturation() {
 }
 int main() {
     try {
-        observed_lifecycle();observed_failure_and_saturation();
+        serialized_observation();observed_lifecycle();observed_failure_and_saturation();
         cooperative_pause_and_checkpoint();pause_completion_and_failure_races();
         rapid_resume_and_repause();pause_shutdown_and_thread_ownership();
         {

@@ -1,8 +1,89 @@
 #include "okage/load_queue.hpp"
+#include <iomanip>
+#include <ostream>
+#include <sstream>
 #include <stdexcept>
 #include <utility>
 
 namespace okage {
+namespace {
+const char* event_name(LoadEventKind kind) {
+    switch(kind) {
+        case LoadEventKind::Enqueue:return "enqueue";
+        case LoadEventKind::Resume:return "resume";
+        case LoadEventKind::WorkStart:return "work_start";
+        case LoadEventKind::WorkComplete:return "work_complete";
+        case LoadEventKind::WorkFailure:return "work_failure";
+        case LoadEventKind::Poll:return "poll";
+        case LoadEventKind::Prepared:return "prepared";
+        case LoadEventKind::MainContinuation:return "main_continuation";
+        case LoadEventKind::PauseRequest:return "pause_request";
+        case LoadEventKind::PauseAcknowledged:return "pause_acknowledged";
+        case LoadEventKind::Checkpoint:return "checkpoint";
+    }
+    throw std::runtime_error("Unknown loader observation event");
+}
+
+std::string json_string(const std::string& value) {
+    static constexpr char hex[]="0123456789abcdef";
+    std::string result;
+    result.reserve(value.size()+2);
+    result.push_back('"');
+    for(const unsigned char c:value) {
+        switch(c) {
+            case '"':result+="\\\"";break;
+            case '\\':result+="\\\\";break;
+            case '\b':result+="\\b";break;
+            case '\f':result+="\\f";break;
+            case '\n':result+="\\n";break;
+            case '\r':result+="\\r";break;
+            case '\t':result+="\\t";break;
+            default:
+                if(c<0x20) {
+                    result+="\\u00";
+                    result.push_back(hex[c>>4]);
+                    result.push_back(hex[c&0x0f]);
+                } else result.push_back(static_cast<char>(c));
+        }
+    }
+    result.push_back('"');
+    return result;
+}
+}
+
+void write_load_observation_fields(std::ostream& destination,const LoadObservation& snapshot) {
+    std::ostringstream out;
+    out<<"\"dropped\":"<<snapshot.dropped<<",\"events\":[";
+    bool comma=false;
+    for(const auto& event:snapshot.events) {
+        if(comma)out<<',';
+        comma=true;
+        std::ostringstream thread;
+        thread<<event.thread;
+        out<<"{\"seq\":"<<event.sequence<<",\"kind\":"<<json_string(event_name(event.kind))
+           <<",\"job\":"<<event.job<<",\"source\":"<<event.identity.source
+           <<",\"task\":"<<event.identity.task<<",\"pending\":"<<event.pending
+           <<",\"running\":"<<event.running_job<<",\"resumed\":"<<(event.resumed?"true":"false")
+           <<",\"failed\":"<<(event.failed?"true":"false")<<",\"tick\":";
+        if(event.logical_tick)out<<*event.logical_tick;else out<<"null";
+        out<<",\"host_monotonic_ns\":"
+           <<std::chrono::duration_cast<std::chrono::nanoseconds>(event.host_time.time_since_epoch()).count()
+           <<",\"thread\":"<<json_string(thread.str())<<'}';
+    }
+    out<<']';
+    destination<<out.str();
+    if(!destination)throw std::runtime_error("Cannot write loader observation");
+}
+
+void write_load_observation(std::ostream& destination,const LoadObservation& snapshot) {
+    std::ostringstream out;
+    out<<'{';
+    write_load_observation_fields(out,snapshot);
+    out<<'}';
+    destination<<out.str();
+    if(!destination)throw std::runtime_error("Cannot write loader observation");
+}
+
 NativeLoadQueue::NativeLoadQueue():NativeLoadQueue(0) {}
 NativeLoadQueue::NativeLoadQueue(std::size_t capacity):observation_capacity_(capacity) {
     events_.reserve(capacity);

@@ -1258,22 +1258,6 @@ void BattleSession::service_loader_after_frame(BattleConstructionContext context
 const BattleState& BattleSession::state() const{return impl_->root;}
 void BattleSession::write_load_observation(std::ostream& destination) const {
     const auto snapshot=impl_->jobs.observation();
-    const auto name=[](LoadEventKind kind)->const char* {
-        switch(kind) {
-            case LoadEventKind::Enqueue:return "enqueue";
-            case LoadEventKind::Resume:return "resume";
-            case LoadEventKind::WorkStart:return "work_start";
-            case LoadEventKind::WorkComplete:return "work_complete";
-            case LoadEventKind::WorkFailure:return "work_failure";
-            case LoadEventKind::Poll:return "poll";
-            case LoadEventKind::Prepared:return "prepared";
-            case LoadEventKind::MainContinuation:return "main_continuation";
-            case LoadEventKind::PauseRequest:return "pause_request";
-            case LoadEventKind::PauseAcknowledged:return "pause_acknowledged";
-            case LoadEventKind::Checkpoint:return "checkpoint";
-        }
-        throw std::runtime_error("Unknown loader observation event");
-    };
     std::ostringstream out;
     out<<"{\"schema\":\"okage-native-battle-load-v1\",\"enabled\":"
        <<(impl_->observe_loading?"true":"false")
@@ -1282,22 +1266,9 @@ void BattleSession::write_load_observation(std::ostream& destination) const {
        <<",\"gpu_completed\":"<<impl_->render_accounting->completed.load(std::memory_order_relaxed)
        <<",\"gpu_loading_empty\":"<<impl_->render_accounting->loading_empty.load(std::memory_order_relaxed)
        <<",\"gpu_pending\":"<<(render_pending()?"true":"false")
-       <<",\"dropped\":"<<snapshot.dropped<<",\"events\":[";
-    bool comma=false;
-    for(const auto& event:snapshot.events) {
-        if(comma)out<<',';comma=true;
-        std::ostringstream thread;thread<<event.thread;
-        out<<"{\"seq\":"<<event.sequence<<",\"kind\":"<<std::quoted(name(event.kind))
-           <<",\"job\":"<<event.job<<",\"source\":"<<event.identity.source
-           <<",\"task\":"<<event.identity.task<<",\"pending\":"<<event.pending
-           <<",\"running\":"<<event.running_job<<",\"resumed\":"<<(event.resumed?"true":"false")
-           <<",\"failed\":"<<(event.failed?"true":"false")<<",\"tick\":";
-        if(event.logical_tick)out<<*event.logical_tick;else out<<"null";
-        out<<",\"host_monotonic_ns\":"
-           <<std::chrono::duration_cast<std::chrono::nanoseconds>(event.host_time.time_since_epoch()).count()
-           <<",\"thread\":"<<std::quoted(thread.str())<<'}';
-    }
-    out<<"]}";
+       <<',';
+    write_load_observation_fields(out,snapshot);
+    out<<'}';
     destination<<out.str();
     if(!destination)throw std::runtime_error("Cannot write battle loader observation");
 }
