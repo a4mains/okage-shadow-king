@@ -85,6 +85,7 @@ if(APPLE)
     target_compile_options(okage-shadow-raster PRIVATE -fobjc-arc -Wall -Wextra)
     target_link_libraries(okage-shadow-raster PRIVATE okage_assets "-framework Foundation" "-framework Metal")
     add_executable(okage-native MACOSX_BUNDLE src/native_runtime.mm src/results_renderer.mm src/battle_session.mm src/game_over_session.mm src/image_metal.mm src/scene_renderer.mm src/shadow_metal.mm src/ui_metal.mm src/battle_capture_metal.mm src/battle_filter_metal.mm src/audio_output.cpp)
+    target_link_libraries(okage-native PRIVATE okage_display_link)
     target_compile_options(okage-native PRIVATE -fobjc-arc -Wall -Wextra)
     target_link_libraries(okage-native PRIVATE okage_assets "-framework AppKit" "-framework Metal" "-framework AudioToolbox")
     set_target_properties(okage-native PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Okage Native Integration"
