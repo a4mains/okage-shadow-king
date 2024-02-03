@@ -2183,8 +2183,8 @@ int main(int argc,const char** argv) {
                     !cooperativeReplay.value_or(false));
                 previous=held;
                 if(!completed) {
-                    if(session.pending_battle_frame()||(session.rendered_surface&&
-                        session.rendered_frame+2>=session.frame)) {
+                    if(session.rendered_surface&&session.rendered_frame<=session.frame&&
+                        session.frame-session.rendered_frame<=2) {
                         const auto shown=session.presentation();
                         ++session.replay_presentations;
                         if(shown.second<session.frame)++session.replay_delayed_presentations;
