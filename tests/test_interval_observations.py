@@ -144,5 +144,124 @@ class IntervalObservationTests(unittest.TestCase):
                     with self.assertRaises(ValueError):
                         summarize(result)
 
+NATIVE_CHANNELS = ('managers', 'movement', 'dialogue', 'choices', 'cameras', 'camera_states', 'actors')
+
+class SparseNativeObservationTests(unittest.TestCase):
+    def test_complete_strict_results_unchanged(self):
+        args = fixture()
+        strict = compare_observations(**args)
+        sparse = compare_observations(**args, sparse_native=True)
+        self.assertEqual(strict, {key: sparse[key] for key in strict})
+        self.assertTrue(sparse['complete_native_observation_coverage'])
+        self.assertFalse(sparse['full_timeline_equivalence'])
+        self.assertEqual(sparse['observable_coverage']['hero_position'], dict(
+            expected_observations=6, compared_observations=6, missing_native_observations=0))
+
+    def test_middle_battle_gap_uses_labels_and_exact_prior(self):
+        args = fixture()
+        for name in NATIVE_CHANNELS:
+            args[name] = [r for r in args[name] if r[0] not in (3, 4)]
+        with self.assertRaisesRegex(ValueError, 'frame sequence'):
+            compare_observations(**args)
+        result = compare_observations(**args, sparse_native=True)
+        self.assertTrue(result['compared_observables_agree'])
+        self.assertFalse(result['complete_native_observation_coverage'])
+        self.assertFalse(result['complete_observation_coverage'])
+        self.assertEqual(result['missing_native_frames_by_channel']['actor'], [1, 2])
+        self.assertEqual(result['missing_native_observable_frames']['hero_position'], [2, 3])
+        self.assertEqual(result['compared_observable_frames']['hero_position'], [0, 1, 4, 5])
+        self.assertEqual(result['compared_observable_frames']['camera_position'], [0, 3, 4, 5])
+        self.assertEqual(result['matching_tail'], dict(first_original_frame=4, frames=2, controller_samples=0))
+        self.assertEqual(result['missing_native_dependencies']['hero_position'], [
+            dict(original_frame=2, dependencies=[dict(channel='actor', native_frame=3)]),
+            dict(original_frame=3, dependencies=[dict(channel='actor', native_frame=4)])])
+
+    def test_channel_specific_missing_current_and_prior(self):
+        args = fixture()
+        args['actors'] = [r for r in args['actors'] if r[0] != 1]
+        args['camera_states'] = [r for r in args['camera_states'] if r[0] != 4]
+        args['cameras'][3] = record(16, 4, {4: word(99)})
+        result = compare_observations(**args, sparse_native=True)
+        self.assertEqual(result['difference_frames']['camera_position'], [2])
+        self.assertEqual(result['missing_native_frames_by_channel']['actor'], [])
+        self.assertEqual(result['missing_native_observable_frames']['hero_position'], [0])
+        self.assertEqual(result['missing_native_observable_frames']['camera_mode_phase'], [2])
+        self.assertEqual(result['missing_native_observable_frames']['camera_unblended_target'], [2, 3])
+        self.assertEqual(result['unblended_target_compared_frames'], [1, 4, 5])
+        self.assertEqual(result['observable_coverage']['hero_position']['compared_observations'], 5)
+        self.assertFalse(result['complete_native_observation_coverage'])
+
+    def test_late_returned_field_has_no_synthetic_prefix_or_reanchoring(self):
+        args = fixture()
+        offset = 109774
+        args['first_frame'] += offset
+        for name in NATIVE_CHANNELS:
+            args[name] = [(r[0]+offset,) + r[1:] for r in args[name] if r[0] >= 5]
+        result = compare_observations(**args, sparse_native=True)
+        self.assertEqual(result['compared_observable_frames']['camera_position'], [3, 4, 5])
+        self.assertEqual(result['compared_observable_frames']['hero_position'], [4, 5])
+        self.assertTrue(result['compared_observables_agree'])
+        self.assertEqual(result['native_observation_coverage']['camera'], dict(
+            expected_frames=6, observed_frames=3, missing_frames=3))
+        self.assertEqual(result['missing_native_dependencies']['hero_position'][0],
+                         dict(original_frame=0, dependencies=[dict(channel='actor', native_frame=109775)]))
+        self.assertEqual(result['matching_tail']['frames'], 2)
+
+    def test_native_labels_reject_duplicates_reordering_and_invalid_types(self):
+        for name in NATIVE_CHANNELS:
+            for labels in ([1, 2, 2], [2, 1], [0, 1], [-1, 1], [True, 2], [1.5, 2]):
+                with self.subTest(channel=name, labels=labels):
+                    args = fixture()
+                    args[name] = [(f,) + args[name][0][1:] for f in labels]
+                    with self.assertRaisesRegex(ValueError, 'positive and strictly increasing'):
+                        compare_observations(**args, sparse_native=True)
+
+    def test_empty_native_never_produces_matching_tail(self):
+        args = fixture()
+        for name in NATIVE_CHANNELS:
+            args[name] = []
+        result = compare_observations(**args, sparse_native=True)
+        self.assertEqual(result['matching_tail']['frames'], 0)
+        self.assertFalse(result['complete_observation_coverage'])
+        self.assertTrue(all(not f for f in result['compared_observable_frames'].values()))
+        self.assertEqual(result['missing_native_observable_frames']['hero_position'], list(range(6)))
+
+    def test_missing_original_manager_and_player_still_cover_full_interval(self):
+        args = fixture(total=600)
+        args['transitions'] = []
+        for name in NATIVE_CHANNELS:
+            args[name] = [r for r in args[name] if r[0] >= 500]
+        result = compare_observations(**args, sparse_native=True)
+        self.assertEqual(result['missing_original_manager_frames'], list(range(600)))
+        self.assertEqual(result['original_observation_coverage']['player']['observed_frames'], 0)
+        self.assertEqual(result['missing_original_player_frames'], [])  # historical payload-only meaning
+        self.assertEqual(result['missing_native_observable_frames']['hero_position'], [])
+        self.assertEqual(result['compared_observable_frames']['hero_position'], [])
+        self.assertEqual(result['matching_tail']['frames'], 0)
+        self.assertEqual(result['native_observation_coverage']['camera']['observed_frames'], 102)
+
+    def test_controller_dependencies_are_independent(self):
+        args = fixture()
+        args['controller'] = [record(64, 1, {1: 0x148dc8}), record(64, 1, {1: 0x11ff38})]
+        args['original_choices'] = [record(16, 1, {1: 0x148dc8}), record(16, 1, {1: 0x11ff38})]
+        args['dialogue'] = [r for r in args['dialogue'] if r[0] != 3]
+        args['managers'] = [r for r in args['managers'] if r[0] != 3]
+        args['choices'][2] = record(12, 3, {2: 9})
+        result = compare_observations(**args, sparse_native=True)
+        self.assertEqual(result['controller_samples'], 1)  # observed source samples
+        self.assertEqual(result['compared_observable_frames']['controller'], [])
+        self.assertEqual(result['missing_native_observable_frames']['controller'], [1])
+        self.assertEqual(result['missing_native_observable_frames']['controller_manager_pad_gate'], [1])
+        self.assertEqual(result['difference_frames']['choice'], [1])
+        self.assertEqual(result['compared_observable_frames']['choice'], [1])
+
+    def test_sparse_mode_retains_real_controller_pad_invariant(self):
+        args = fixture()
+        args['controller'] = [record(64, 1, {1: 0x148dc8}), record(64, 1, {1: 0x11ff38})]
+        args['original_choices'] = [record(16, 1, {1: 0x148dc8}), record(16, 1, {1: 0x11ff38})]
+        args['managers'][2] = record(8, 3, {1: 42})
+        with self.assertRaisesRegex(ValueError, 'Controller/manager pad disagreement'):
+            compare_observations(**args, sparse_native=True)
+
 if __name__ == '__main__':
     unittest.main()
