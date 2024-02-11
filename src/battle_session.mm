@@ -165,7 +165,7 @@ struct BattleSession::Impl {
     enum class ParentCallback {Intro,Combat,CommandMenu,CommandAction,Victory,Defeat};
     ParentCallback parent_callback=ParentCallback::Intro;
     std::optional<ParentCallback> previous_parent_callback;
-    unsigned live_trace_rows=0,live_trace_calls=0;
+    unsigned live_trace_rows=0,live_trace_calls=0,live_observation_rows=0;
     std::size_t live_trace_bytes=0;
     bool loader_resumed=false;
     id<MTLDevice> device;
@@ -652,6 +652,74 @@ struct BattleSession::Impl {
         }
         events.push_back("parent.combat.return");
     }
+    void write_live_observation(BattleUiContext& context,const std::string& text) {
+        if(!context.live_trace)return;
+        if(live_observation_rows>=262144||text.size()>64*1024||
+           text.size()>1024*1024*1024-live_trace_bytes)
+            throw std::runtime_error("Native battle-live observation bound");
+        ++live_observation_rows;live_trace_bytes+=text.size();
+        *context.live_trace<<text;context.live_trace->flush();
+        if(!*context.live_trace)throw std::runtime_error("Native battle-live observation write failed");
+    }
+    void trace_rng_boundary(BattleUiContext& context,unsigned frame,const char* boundary) {
+        if(!context.live_trace)return;
+        std::ostringstream row;
+        row<<"{\"event\":\"rng_boundary\",\"observation_sequence\":"<<live_observation_rows
+           <<",\"frame\":"<<frame<<",\"boundary\":"<<std::quoted(boundary)
+           <<",\"rng_state_word\":"<<context.random.state<<"}\n";
+        write_live_observation(context,row.str());
+    }
+    void trace_ui(BattleUiContext& context,unsigned frame,const char* boundary,
+                  std::optional<BattleUiPadMasks> masks=std::nullopt) {
+        if(!context.live_trace)return;
+        if(!ui)throw std::runtime_error("Native battle-live UI observation without owner");
+        std::ostringstream row;
+        const auto array=[&](const auto& values) {
+            row<<'[';bool comma=false;for(auto value:values){if(comma)row<<',';comma=true;row<<value;}row<<']';
+        };
+        const auto& words=ui->words();
+        const auto count=words[0xe40/4];
+        if(count>ui->handles().size())throw std::runtime_error("Native battle-live UI layer extent");
+        bool normalization_ran=false;
+        for(unsigned layer=0;layer<count;++layer) {
+            const auto base=(0x40+layer*0xe0)/4;
+            if((words[base+0x50/4]&0x40)&&words[base+0x60/4]==2)normalization_ran=true;
+        }
+        const bool first=std::string_view(boundary).starts_with("first_");
+        row<<"{\"event\":\"ui_callback\",\"observation_sequence\":"<<live_observation_rows
+           <<",\"frame\":"<<frame<<",\"boundary\":"<<std::quoted(boundary)
+           <<",\"entry_pc\":"<<(first?0x11fec8u:0x120ad0u)
+           <<",\"normalization_ran\":"<<(masks&&normalization_ran?"true":"false")
+           <<",\"rng_state_word\":"<<context.random.state<<",\"raw_pad\":["
+           <<context.input.held<<','<<context.input.pressed<<','<<context.input.released<<','<<context.input.repeat
+           <<','<<unsigned(context.input.left_x)<<','<<unsigned(context.input.left_y)<<"],\"normalized_masks\":";
+        if(masks)row<<"{\"repeat\":"<<masks->repeat<<",\"pressed\":"<<masks->pressed
+                    <<",\"released\":"<<masks->released<<'}';
+        else row<<"null";
+        row<<",\"analog_ticks\":["<<context.pad.analog_x_ticks<<','<<context.pad.analog_y_ticks
+           <<"],\"selected_entity\":"<<std::bit_cast<std::int32_t>(word(root.bytes,0x81ac))
+           <<",\"selection_state\":"<<context.shared.hud.selection_state
+           <<",\"menu_state\":"<<context.shared.hud.menu_state<<",\"target_count\":"<<context.shared.target_count
+           <<",\"pending_action\":";array(context.shared.pending_action);
+        row<<",\"shared_command\":"<<context.shared.command.command<<",\"shared_values\":";array(context.shared.command.values);
+        row<<",\"shared_changed\":";array(context.shared.command.changed);
+        row<<",\"formation_count\":"<<context.shared.formation.count<<",\"formation_groups\":";array(context.shared.formation.groups);
+        row<<",\"formation_alive_counts\":";array(context.shared.formation.counts);
+        row<<",\"state_cursor\":"<<words[0xe8c/4]<<",\"current_layer\":"<<words[0xe48/4]
+           <<",\"states\":";array(std::span(words).subspan(0xe4c/4,16));
+        row<<",\"layers\":[";
+        for(unsigned layer=0;layer<count;++layer) {
+            if(layer)row<<',';
+            const auto base=(0x40+layer*0xe0)/4;
+            row<<"{\"index\":"<<layer<<",\"flags\":"<<words[base+0x50/4]
+               <<",\"type\":"<<words[base+0x60/4]<<",\"command\":"<<words[base+0x64/4]
+               <<",\"argument\":"<<words[base+0x68/4]<<",\"opacity_bits\":"
+               <<std::bit_cast<std::uint32_t>(ui->window(layer).opacity())<<",\"changed\":";
+            array(std::span(words).subspan(base+0x6c/4,8));
+            row<<",\"selection\":";array(std::span(words).subspan(base+0x8c/4,8));row<<'}';
+        }
+        row<<"]}\n";write_live_observation(context,row.str());
+    }
     void scheduled_callbacks(BattleUiContext context,FieldProjection& projection,unsigned frame,const fs::path& stage_report) {
         fs::path report_path,ui_path;
         if(!stage_report.empty()) {
@@ -959,13 +1027,17 @@ struct BattleSession::Impl {
             }
             const BattleUiFirstContext first_context{3,std::bit_cast<std::int32_t>(word(root.bytes,0x81ac)),roster.entities(),
                 context.variables,&context.tables,&context.party,context.menu_sound,[&]{return context.random.next();}};
-            ui->first_update(ui_resources[0],context.pad,context.input,60,&first_context);
+            trace_ui(context,frame,"first_entry");
+            const auto normalized_masks=ui->first_update(ui_resources[0],context.pad,context.input,60,&first_context);
+            trace_ui(context,frame,"first_return",normalized_masks);
             events.push_back("ui.first.return");
             if(!ui_path.empty())before=battle_ui_update_snapshot(*ui,context.shared,*ui_resources[0],context.variables,context.party,true);
             std::vector<const BattleActor*> enemies;
             for(const auto& actor:roster.actors())if(actor->enemy)enemies.push_back(actor.get());
+            trace_ui(context,frame,"second_entry");
             ui->second_update(*ui_resources[0],*hud_definitions,*command_definitions,
                 {context.variables,context.tables,context.party,root,*battle_data,roster.entities(),enemies,3,&context.entry});
+            trace_ui(context,frame,"second_return");
             events.push_back("ui.second.return");
             if(!ui_path.empty())after=battle_ui_update_snapshot(*ui,context.shared,*ui_resources[0],context.variables,context.party,true);
         }catch(const std::exception& e){error=e.what();failure=std::current_exception();}
@@ -1045,6 +1117,7 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
     impl_->jobs.check();
     if(impl_->construction_failure)std::rethrow_exception(impl_->construction_failure);
     impl_->root_lifetime.wrapper_update(impl_->root,context.request_mode);
+    impl_->trace_rng_boundary(context,frame,"resource_entry");
     const bool active=!impl_->saved_model_range;
     if(active) {
         if(!impl_->objects->bindings().empty())throw std::runtime_error("Battle animated map resource ordering is unrecovered");
@@ -1070,7 +1143,9 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
     if(active&&retiring&&(std::any_of(retiring->map.begin(),retiring->map.end(),[](const auto& p){return bool(p);})||
                          std::any_of(retiring->attached.begin(),retiring->attached.end(),[](const auto& p){return bool(p);})))
         throw std::runtime_error("Battle resource retains effects requiring native submission");
+    impl_->trace_rng_boundary(context,frame,"effects_return");
     impl_->prepare_resource_ui(context);
+    impl_->trace_rng_boundary(context,frame,"resource_ui_return");
     if(impl_->construction!=Impl::Construction::Complete) {
         if(prepare_loading_frame) {
             if(!impl_->loading_renderer)impl_->loading_renderer=std::make_shared<SceneRenderer>();
