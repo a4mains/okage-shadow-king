@@ -93,6 +93,50 @@ def graph_links(row, entities, count, original):
         need(all(v is None or type(v) is int and 0 <= v < 64 for v in values), 'Native graph node identity')
     return links, True
 
+def validate_native_observation(row, sequence):
+    """Validate native-only diagnostics; these have no paired source channel."""
+    def integer(value, lo=0, hi=0xffffffff):
+        return type(value) is int and lo <= value <= hi
+    def array(value, size, lo=0, hi=0xffffffff):
+        return isinstance(value, list) and len(value) == size and all(integer(v, lo, hi) for v in value)
+    need(type(row.get('observation_sequence')) is int and row['observation_sequence'] == sequence,
+         'Missing/duplicate/out-of-order native observation sequence')
+    need(integer(row.get('rng_state_word')), 'Invalid native observation RNG')
+    boundary = row.get('boundary')
+    if row['event'] == 'rng_boundary':
+        need(boundary in ('resource_entry', 'effects_return', 'resource_ui_return'),
+             'Unknown native resource observation boundary')
+        return
+    first = boundary in ('first_entry', 'first_return')
+    need(first or boundary in ('second_entry', 'second_return'), 'Unknown native UI observation boundary')
+    need(row.get('entry_pc') == (0x11fec8 if first else 0x120ad0), 'Invalid native UI observation PC')
+    need(array(row.get('raw_pad'), 6, 0, 65535) and all(v <= 255 for v in row['raw_pad'][4:]),
+         'Invalid native UI observation pad')
+    need(type(row.get('normalization_ran')) is bool, 'Invalid native UI normalization presence')
+    masks = row.get('normalized_masks')
+    if boundary == 'first_return':
+        need(isinstance(masks, dict) and set(masks) == {'repeat', 'pressed', 'released'}
+             and all(integer(v) for v in masks.values()), 'Invalid native normalized masks')
+    else:
+        need(masks is None and not row['normalization_ran'], 'Unexpected native normalized masks')
+    for name, size in [('analog_ticks', 2), ('pending_action', 3), ('shared_values', 8),
+                       ('shared_changed', 8), ('states', 16)]:
+        need(array(row.get(name), size), 'Invalid native UI observation ' + name)
+    for name in ('formation_groups', 'formation_alive_counts'):
+        need(array(row.get(name), 8, -0x80000000, 0x7fffffff), 'Invalid native UI observation ' + name)
+    for name in ('selected_entity', 'selection_state', 'menu_state', 'target_count',
+                 'shared_command', 'formation_count', 'state_cursor', 'current_layer'):
+        need(integer(row.get(name), -0x80000000), 'Invalid native UI observation ' + name)
+    layers = row.get('layers')
+    need(isinstance(layers, list) and len(layers) <= 2, 'Invalid native UI observation layers')
+    for index, layer in enumerate(layers):
+        need(isinstance(layer, dict) and type(layer.get('index')) is int and layer['index'] == index,
+             'Invalid native UI observation layer identity')
+        for name in ('flags', 'type', 'command', 'argument', 'opacity_bits'):
+            need(integer(layer.get(name)), 'Invalid native UI observation layer ' + name)
+        for name in ('changed', 'selection'):
+            need(array(layer.get(name), 8), 'Invalid native UI observation layer ' + name)
+
 def load(path, original):
     try:
         rows = [json.loads(line) for line in Path(path).read_text().splitlines()]
@@ -107,13 +151,22 @@ def load(path, original):
     finish = rows.pop() if rows and rows[-1].get('event') == 'finish' else None
     pending = None
     previous = -1
-    for index, row in enumerate(rows):
-        need(row.get('event') == 'callback' and row.get('sequence') == index, 'Missing/duplicate/out-of-order sequence')
+    callbacks = []
+    auxiliary = Counter()
+    for row in rows:
+        need(isinstance(row, dict), 'Invalid trace row')
         frame = row.get('frame')
         need(type(frame) is int and frame >= previous, 'Invalid/backward frame')
         if original:
             need(frame < header['requested_vblanks'], 'Source frame exceeds interval')
         previous = frame
+        if not original and row.get('event') in ('ui_callback', 'rng_boundary'):
+            need(pending is None, 'Native observation inside callback pair')
+            validate_native_observation(row, sum(auxiliary.values()))
+            auxiliary[row['event']] += 1
+            continue
+        need(row.get('event') == 'callback' and row.get('sequence') == len(callbacks), 'Missing/duplicate/out-of-order sequence')
+        callbacks.append(row)
         need(row.get('entry_pc') in PCS.get(row.get('kind'), set()), 'Unknown callback kind/PC')
         identity = (row.get('call_id'), row['kind'], row['entry_pc'])
         if row.get('edge') == 'entry':
@@ -128,7 +181,11 @@ def load(path, original):
             need(finish.get('rows') == len(rows) and finish.get('pairs')*2 == len(rows), 'Finish row counts')
             need(finish.get('completed_vblanks') == header['requested_vblanks'], 'Incomplete original finish')
     need(not original or finish is not None, 'Original missing finish')
-    return header, rows, {'finish_present': finish is not None, 'unpaired_entry': pending}
+    coverage = {'finish_present': finish is not None, 'unpaired_entry': pending}
+    if auxiliary:
+        coverage['auxiliary_observations'] = dict(auxiliary)
+        coverage['auxiliary_original_comparison_supported'] = False
+    return header, callbacks, coverage
 
 def normalize(row, original):
     result = {}

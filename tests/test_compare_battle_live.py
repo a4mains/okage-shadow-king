@@ -51,6 +51,67 @@ class LiveComparisonTests(unittest.TestCase):
             for p,rows in zip(paths,[a,b]):p.write_text(''.join(json.dumps(r)+'\n' for r in rows))
             return tool.compare(*paths,anchor)
 
+    @staticmethod
+    def observation(event='rng_boundary', sequence=0, boundary='resource_entry'):
+        row = {'event':event, 'frame':100, 'observation_sequence':sequence,
+               'boundary':boundary, 'rng_state_word':123}
+        if event == 'ui_callback':
+            row.update(entry_pc=0x11fec8, raw_pad=[64,64,0,0,128,128],
+                       normalization_ran=boundary == 'first_return',
+                       normalized_masks={'repeat':0,'pressed':64,'released':0} if boundary == 'first_return' else None,
+                       analog_ticks=[0,0], selected_entity=0, selection_state=-1, menu_state=0,
+                       target_count=1, pending_action=[0,11,0], shared_command=0,
+                       shared_values=[0]*8, shared_changed=[0]*8, formation_count=1,
+                       formation_groups=[-1]*8, formation_alive_counts=[0]*8,
+                       state_cursor=0, current_layer=0, states=[0xffffffff]*16,
+                       layers=[{'index':0,'flags':64,'type':2,'command':0xffffffff,'argument':0,
+                                'opacity_bits':0x43000000,'changed':[0]*8,'selection':[0]*8}])
+        return row
+
+    def test_native_observations_preserve_paired_callback_comparison(self):
+        a,b=fixtures()
+        baseline=self.compare(a,b)
+        b.insert(1,self.observation())
+        b.insert(-1,self.observation('ui_callback',1,'first_return'))
+        report=self.compare(a,b)
+        self.assertTrue(report['equal'])
+        self.assertEqual(report['field_mismatch_count'],baseline['field_mismatch_count'])
+        self.assertEqual(report['coverage']['paired_rows'],2)
+        coverage=report['coverage']['native']
+        self.assertEqual(coverage['auxiliary_observations'],{'rng_boundary':1,'ui_callback':1})
+        self.assertFalse(coverage['auxiliary_original_comparison_supported'])
+
+    def test_native_observations_do_not_conceal_callback_errors(self):
+        for case in ('sequence','nested','backward','unknown','source'):
+            with self.subTest(case=case):
+                a,b=fixtures();obs=self.observation()
+                if case=='sequence':b[2]['sequence']=3
+                if case=='backward':obs['frame']=99
+                if case=='unknown':obs['event']='unrecognized'
+                if case=='source':a.insert(1,dict(obs,frame=0))
+                else:b.insert(2 if case=='nested' else -1,obs)
+                with self.assertRaises(tool.Invalid):self.compare(a,b)
+
+    def test_native_observation_identity_and_payload_reject_malformed_values(self):
+        changes=[('observation_sequence',1),('observation_sequence',True),('rng_state_word',-1),
+                 ('boundary','unknown'),('entry_pc',0x120ad0),('raw_pad',[0]*5),
+                 ('raw_pad',[0,0,0,0,256,128]),('normalization_ran',1),
+                 ('normalized_masks',None),('analog_ticks',[False,0]),('pending_action',[0]),
+                 ('formation_groups',[0x80000000]*8),('selection_state',-0x80000001),
+                 ('layers',[{'index':0}])]
+        for key,value in changes:
+            with self.subTest(key=key,value=value):
+                a,b=fixtures();obs=self.observation('ui_callback',0,'first_return');obs[key]=value
+                b.insert(-1,obs)
+                with self.assertRaises(tool.Invalid):self.compare(a,b)
+
+    def test_missing_finish_remains_failure_with_auxiliary_prefix(self):
+        a,b=fixtures();b[-1]=self.observation('ui_callback',0,'first_entry')
+        report=self.compare(a,b)
+        self.assertFalse(report['equal'])
+        self.assertFalse(report['coverage']['native']['finish_present'])
+        self.assertEqual(report['coverage']['paired_rows'],2)
+
     def test_victory_parent_boundaries_and_phase_are_compared(self):
         a, b = fixtures()
         for row in a[1:3]:
