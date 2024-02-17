@@ -1,0 +1,3116 @@
+{
+  "schema": "okage-combat-display-divergence-validation-v1",
+  "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "runtime_revision": "795bc4a",
+  "comparison_revision": "ec66286",
+  "runtime_semantics_changed": false,
+  "scope": "Opt-in UI/resource observation integration and fixed-input causal audit; no completed playthrough, performance, original equality, title implementation or new full outcome claim.",
+  "builds": [
+    {
+      "build": "release",
+      "kind": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/native-release",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 2.9845453330000002
+    },
+    {
+      "build": "release",
+      "kind": "tests",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/native-release",
+        "--output-on-failure",
+        "-R",
+        "^(battle-interface|battle-interface-update|battle-ui-pad|battle-ui-command-state|battle-ui-targeting|battle-action-setup|battle-enemy-action|battle-roster-update|battle-damage|battle-hit|battle-lifecycle|battle-entity-update|battle-command-queue)-tests$"
+      ],
+      "exit_code": 0,
+      "seconds": 0.8759850419999999
+    },
+    {
+      "build": "debug",
+      "kind": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/native",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 2.275894958
+    },
+    {
+      "build": "debug",
+      "kind": "tests",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/native",
+        "--output-on-failure",
+        "-R",
+        "^(battle-interface|battle-interface-update|battle-ui-pad|battle-ui-command-state|battle-ui-targeting|battle-action-setup|battle-enemy-action|battle-roster-update|battle-damage|battle-hit|battle-lifecycle|battle-entity-update|battle-command-queue)-tests$"
+      ],
+      "exit_code": 0,
+      "seconds": 0.8139763330000003
+    },
+    {
+      "build": "sanitize",
+      "kind": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/model-sanitize",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 2.465244082999999
+    },
+    {
+      "build": "sanitize",
+      "kind": "tests",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/model-sanitize",
+        "--output-on-failure",
+        "-R",
+        "^(battle-interface|battle-interface-update|battle-ui-pad|battle-ui-command-state|battle-ui-targeting|battle-action-setup|battle-enemy-action|battle-roster-update|battle-damage|battle-hit|battle-lifecycle|battle-entity-update|battle-command-queue)-tests$"
+      ],
+      "exit_code": 0,
+      "seconds": 1.1338631249999995
+    }
+  ],
+  "python_tests": {
+    "count": 445,
+    "exit_code": 0,
+    "log": "local/research/combat-display-divergence-v1/python-tests-final.log"
+  },
+  "runtime_runs": [
+    {
+      "command": [
+        "local/research/combat-display-divergence-v1/display-105575-v1/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "105575",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538,61658,61777,61897,62018,62137,62257,62377,62498,62617,62737,63578,63697,63817,63937,64058,64177,64298,64418,64537,64778,64898,65017,65137,65258,65377,65497,65617,65737,65857,65978,66097,66218,66338,66457,66577,66697,66817,66937,67057,67178,67297,67417,67537,67657,67777,67897,68017,68138,68257,68377,68497,68618,68738,68857,68978,69097,69217,69337,69458,69577,69697,69818,69937,70057,70177,70298,70417,70537,70657,70777,70898,71018,71137,71257,71378,71497,71618,71737,71857,71977,72098,72217,72337,72457,72578,72697,72817,72938,73088,73359,73654,74437,74557,74677,74798,74917,75038,75158,75277,75397,75517,75637,75758,75877,75997,76118,76237,76357,76477,76598,76717,77142,77262,77383,77502,77622,77742,77862,77982,78102,78222,78337,78457,78577,78698,78817,78937,79058,79177,79297,79417,80831,81037,81157,81277,81397,81517,81637,81967,82327,82447,82567,82687,82807,82927,83047,83167,83287,83407,83527,83767,83887,84007,84127,84367,84487,84858,85377,85597,85717,85837,85957,86077,86197,86317,86437,86557,87187,87397,87517,87638,87758,88297,88507,88627,88748,88867,88987,89107,89228,89347,89917,90186,90246,90307,90366,90426,90486,90546,90607,90666,90726,90787,90846,90906,90967,91026,91086,91146,91206,91267,91326,91386,91446,91506,91566,92166,92226,92286,92346,92406,92467,92526,92586,93107,93276,93336,93396,93456,93516,93576,93636,93697,93756,93816,93877,93936,93996,94056,94116,94176,94236,94297,94356,94416,94476,94536,94597,94656,94716,94776,94836,94896,94956,95016,95077,95136,95196,97327,97787,97958,98017,98077,98137,98197,98258,98317,98378,98452,98511,98572,98812,99457,99517,99577,99651,99712,99771,99831,99891,99937,99997,100057,100117,100177,100238,100297,100357,100418,100477,100537,100597,100837,101086,101265,101784,101930,102697,103057,103117,103177,103237,103357,103417,103537,103597,103717,103777,103837,103897,104017,104077,104197,104257,104317,104377",
+        "--directions",
+        "local/native-ui-dispatch-104615-release-v1.directions",
+        "--capture",
+        "local/research/combat-display-divergence-v1/display-105575-v1/native.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "--render-from",
+        "11310",
+        "--render-until",
+        "11542",
+        "--capture-frames",
+        "104447,104615,104616,104795,104975,105215,105575",
+        "--render-range",
+        "91547:91698",
+        "--battle-input",
+        "local/battle-input-v6",
+        "--ui-update-diagnostic",
+        "local/research/combat-display-divergence-v1/display-105575-v1/isolated-ui.json",
+        "--battle-live",
+        "local/research/combat-display-divergence-v1/display-105575-v1/live.jsonl",
+        "--buttons",
+        "local/research/battle-combat-entry-v1/native-postbattle-dialogue-110375-v1/buttons.txt",
+        "--load-observation",
+        "local/research/combat-display-divergence-v1/display-105575-v1/loader.jsonl",
+        "--battle-readback",
+        "deferred",
+        "--replay-loading",
+        "cooperative",
+        "--input-journal",
+        "local/research/combat-display-divergence-v1/display-105575-v1/inputs.jsonl",
+        "--replay-display-from",
+        "104447"
+      ],
+      "source_revision": "ec662860e2fe5aa220da09573387654b6e8a4166",
+      "binary_sha256": "4b4450d9c1c6666c95d6f02e843ee815162d0b71ef8fc99318ea4bfcc2b3108b",
+      "scope": "Battle UI and RNG observer validation; retained fixed inputs to105575.",
+      "exit_code": 0,
+      "seconds": 33.65774175,
+      "original_comparisons": [
+        {
+          "path": "local/research/combat-display-divergence-v1/display-comparison/original-attack-120-v1.json",
+          "anchor": 105276,
+          "end": 105395,
+          "equal": false,
+          "differences": 14824,
+          "paired": 520,
+          "equal_rows": 0,
+          "missing_native": 0,
+          "missing_original": 0,
+          "order_differences": 0,
+          "first_mismatch": {
+            "key": [
+              105276,
+              "parent",
+              1382904,
+              "entry",
+              0
+            ],
+            "field": "actor[3].record",
+            "original": "0100b000010000000000000000006900000000000000000000000500000000000000000000004f00000000006300ff00ffff00009999ffffffffffffff0fffffffffffffffff00000000000000000000",
+            "native": "0100b000010000000000000000006900000000000000000000000500000000000000000000003600000000006300ff00ffff00009999ffffffffffffff0fffffffffffffffff00000000000000000000"
+          }
+        },
+        {
+          "path": "local/research/combat-display-divergence-v1/display-comparison/original-live-v2.json",
+          "anchor": 104616,
+          "end": 105215,
+          "equal": false,
+          "differences": 24655,
+          "paired": 1994,
+          "equal_rows": 0,
+          "missing_native": 110,
+          "missing_original": 106,
+          "order_differences": 54,
+          "first_mismatch": {
+            "key": [
+              104616,
+              "parent",
+              1352264,
+              "entry",
+              0
+            ],
+            "field": "actor[0].record",
+            "original": "0100aa0001000000200000000000050000000000000000002000090003000a008300ae00f00051003700010000000000ffff03003333ffffffffffffff0fffffffffffffffff00000000000000000000",
+            "native": "0100aa0001000000200000000000050000000000000000002000090003000a008300ae00f00038003700010000000000ffff03003333ffffffffffffff0fffffffffffffffff00000000000000000000"
+          }
+        },
+        {
+          "path": "local/research/combat-display-divergence-v1/display-comparison/original-strike-60-v2.json",
+          "anchor": 105396,
+          "end": 105455,
+          "equal": false,
+          "differences": 12755,
+          "paired": 360,
+          "equal_rows": 0,
+          "missing_native": 0,
+          "missing_original": 0,
+          "order_differences": 0,
+          "first_mismatch": {
+            "key": [
+              105396,
+              "parent",
+              1352968,
+              "entry",
+              0
+            ],
+            "field": "actor[0].channel[0][1]",
+            "original": 1047326720,
+            "native": 1051858944
+          }
+        },
+        {
+          "path": "local/research/combat-display-divergence-v1/display-comparison/original-strike-hit-120-v1.json",
+          "anchor": 105456,
+          "end": 105575,
+          "equal": false,
+          "differences": 28508,
+          "paired": 720,
+          "equal_rows": 0,
+          "missing_native": 0,
+          "missing_original": 0,
+          "order_differences": 0,
+          "first_mismatch": {
+            "key": [
+              105456,
+              "parent",
+              1352968,
+              "entry",
+              0
+            ],
+            "field": "actor[0].channel[0][1]",
+            "original": 1047326720,
+            "native": 1051858944
+          }
+        },
+        {
+          "path": "local/research/combat-display-divergence-v1/display-comparison/original-target-60-v2.json",
+          "anchor": 105216,
+          "end": 105275,
+          "equal": false,
+          "differences": 1200,
+          "paired": 120,
+          "equal_rows": 0,
+          "missing_native": 0,
+          "missing_original": 0,
+          "order_differences": 0,
+          "first_mismatch": {
+            "key": [
+              105216,
+              "parent",
+              1382904,
+              "entry",
+              0
+            ],
+            "field": "actor[3].record",
+            "original": "0100b000010000000000000000006900000000000000000000000500000000000000000000004f00000000006300ff00ffff00009999ffffffffffffff0fffffffffffffffff00000000000000000000",
+            "native": "0100b000010000000000000000006900000000000000000000000500000000000000000000003600000000006300ff00ffff00009999ffffffffffffff0fffffffffffffffff00000000000000000000"
+          }
+        }
+      ]
+    },
+    {
+      "command": [
+        "local/research/combat-display-divergence-v1/cooperative-105575-v1/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "105575",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538,61658,61777,61897,62018,62137,62257,62377,62498,62617,62737,63578,63697,63817,63937,64058,64177,64298,64418,64537,64778,64898,65017,65137,65258,65377,65497,65617,65737,65857,65978,66097,66218,66338,66457,66577,66697,66817,66937,67057,67178,67297,67417,67537,67657,67777,67897,68017,68138,68257,68377,68497,68618,68738,68857,68978,69097,69217,69337,69458,69577,69697,69818,69937,70057,70177,70298,70417,70537,70657,70777,70898,71018,71137,71257,71378,71497,71618,71737,71857,71977,72098,72217,72337,72457,72578,72697,72817,72938,73088,73359,73654,74437,74557,74677,74798,74917,75038,75158,75277,75397,75517,75637,75758,75877,75997,76118,76237,76357,76477,76598,76717,77142,77262,77383,77502,77622,77742,77862,77982,78102,78222,78337,78457,78577,78698,78817,78937,79058,79177,79297,79417,80831,81037,81157,81277,81397,81517,81637,81967,82327,82447,82567,82687,82807,82927,83047,83167,83287,83407,83527,83767,83887,84007,84127,84367,84487,84858,85377,85597,85717,85837,85957,86077,86197,86317,86437,86557,87187,87397,87517,87638,87758,88297,88507,88627,88748,88867,88987,89107,89228,89347,89917,90186,90246,90307,90366,90426,90486,90546,90607,90666,90726,90787,90846,90906,90967,91026,91086,91146,91206,91267,91326,91386,91446,91506,91566,92166,92226,92286,92346,92406,92467,92526,92586,93107,93276,93336,93396,93456,93516,93576,93636,93697,93756,93816,93877,93936,93996,94056,94116,94176,94236,94297,94356,94416,94476,94536,94597,94656,94716,94776,94836,94896,94956,95016,95077,95136,95196,97327,97787,97958,98017,98077,98137,98197,98258,98317,98378,98452,98511,98572,98812,99457,99517,99577,99651,99712,99771,99831,99891,99937,99997,100057,100117,100177,100238,100297,100357,100418,100477,100537,100597,100837,101086,101265,101784,101930,102697,103057,103117,103177,103237,103357,103417,103537,103597,103717,103777,103837,103897,104017,104077,104197,104257,104317,104377",
+        "--directions",
+        "local/native-ui-dispatch-104615-release-v1.directions",
+        "--capture",
+        "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "--render-from",
+        "11310",
+        "--render-until",
+        "11542",
+        "--capture-frames",
+        "104447,104615,104616,104795,104975,105215,105575",
+        "--render-range",
+        "91547:91698",
+        "--battle-input",
+        "local/battle-input-v6",
+        "--ui-update-diagnostic",
+        "local/research/combat-display-divergence-v1/cooperative-105575-v1/isolated-ui.json",
+        "--battle-live",
+        "local/research/combat-display-divergence-v1/cooperative-105575-v1/live.jsonl",
+        "--buttons",
+        "local/research/battle-combat-entry-v1/native-postbattle-dialogue-110375-v1/buttons.txt",
+        "--load-observation",
+        "local/research/combat-display-divergence-v1/cooperative-105575-v1/loader.jsonl",
+        "--battle-readback",
+        "deferred",
+        "--replay-loading",
+        "cooperative",
+        "--input-journal",
+        "local/research/combat-display-divergence-v1/cooperative-105575-v1/inputs.jsonl"
+      ],
+      "source_revision": "ec662860e2fe5aa220da09573387654b6e8a4166",
+      "binary_sha256": "4b4450d9c1c6666c95d6f02e843ee815162d0b71ef8fc99318ea4bfcc2b3108b",
+      "scope": "Battle UI and RNG observer validation; retained fixed inputs to105575.",
+      "exit_code": 0,
+      "seconds": 28.475785916,
+      "original_comparisons": [
+        {
+          "path": "local/research/combat-display-divergence-v1/cooperative-comparison/original-attack-120-v1.json",
+          "anchor": 105276,
+          "end": 105395,
+          "equal": false,
+          "differences": 14824,
+          "paired": 520,
+          "equal_rows": 0,
+          "missing_native": 0,
+          "missing_original": 0,
+          "order_differences": 0,
+          "first_mismatch": {
+            "key": [
+              105276,
+              "parent",
+              1382904,
+              "entry",
+              0
+            ],
+            "field": "actor[3].record",
+            "original": "0100b000010000000000000000006900000000000000000000000500000000000000000000004f00000000006300ff00ffff00009999ffffffffffffff0fffffffffffffffff00000000000000000000",
+            "native": "0100b000010000000000000000006900000000000000000000000500000000000000000000003600000000006300ff00ffff00009999ffffffffffffff0fffffffffffffffff00000000000000000000"
+          }
+        },
+        {
+          "path": "local/research/combat-display-divergence-v1/cooperative-comparison/original-live-v2.json",
+          "anchor": 104616,
+          "end": 105215,
+          "equal": false,
+          "differences": 24695,
+          "paired": 2002,
+          "equal_rows": 0,
+          "missing_native": 102,
+          "missing_original": 110,
+          "order_differences": 52,
+          "first_mismatch": {
+            "key": [
+              104616,
+              "parent",
+              1352264,
+              "entry",
+              0
+            ],
+            "field": "actor[0].record",
+            "original": "0100aa0001000000200000000000050000000000000000002000090003000a008300ae00f00051003700010000000000ffff03003333ffffffffffffff0fffffffffffffffff00000000000000000000",
+            "native": "0100aa0001000000200000000000050000000000000000002000090003000a008300ae00f00038003700010000000000ffff03003333ffffffffffffff0fffffffffffffffff00000000000000000000"
+          }
+        },
+        {
+          "path": "local/research/combat-display-divergence-v1/cooperative-comparison/original-strike-60-v2.json",
+          "anchor": 105396,
+          "end": 105455,
+          "equal": false,
+          "differences": 13020,
+          "paired": 360,
+          "equal_rows": 0,
+          "missing_native": 0,
+          "missing_original": 0,
+          "order_differences": 0,
+          "first_mismatch": {
+            "key": [
+              105396,
+              "parent",
+              1352968,
+              "entry",
+              0
+            ],
+            "field": "actor[0].channel[0][1]",
+            "original": 1047326720,
+            "native": 1051858944
+          }
+        },
+        {
+          "path": "local/research/combat-display-divergence-v1/cooperative-comparison/original-strike-hit-120-v1.json",
+          "anchor": 105456,
+          "end": 105575,
+          "equal": false,
+          "differences": 29228,
+          "paired": 720,
+          "equal_rows": 0,
+          "missing_native": 0,
+          "missing_original": 0,
+          "order_differences": 0,
+          "first_mismatch": {
+            "key": [
+              105456,
+              "parent",
+              1352968,
+              "entry",
+              0
+            ],
+            "field": "actor[0].channel[0][1]",
+            "original": 1047326720,
+            "native": 1051858944
+          }
+        },
+        {
+          "path": "local/research/combat-display-divergence-v1/cooperative-comparison/original-target-60-v2.json",
+          "anchor": 105216,
+          "end": 105275,
+          "equal": false,
+          "differences": 1200,
+          "paired": 120,
+          "equal_rows": 0,
+          "missing_native": 0,
+          "missing_original": 0,
+          "order_differences": 0,
+          "first_mismatch": {
+            "key": [
+              105216,
+              "parent",
+              1382904,
+              "entry",
+              0
+            ],
+            "field": "actor[3].record",
+            "original": "0100b000010000000000000000006900000000000000000000000500000000000000000000004f00000000006300ff00ffff00009999ffffffffffffff0fffffffffffffffff00000000000000000000",
+            "native": "0100b000010000000000000000006900000000000000000000000500000000000000000000003600000000006300ff00ffff00009999ffffffffffffff0fffffffffffffffff00000000000000000000"
+          }
+        }
+      ]
+    }
+  ],
+  "observation_checks": [
+    {
+      "policy": "display",
+      "live_sha256": "d404bc26af82f110e4675f942a2ff096a971cd2398dbc5409e3d562ca9a4d387",
+      "input_sha256": "9940a2dfea4eac296340f76cb93c8e3e3edc9c4cf812a2aac01d7ea4a1eed529",
+      "coverage": {
+        "finish_present": true,
+        "unpaired_entry": null,
+        "auxiliary_observations": {
+          "rng_boundary": 3384,
+          "ui_callback": 4504
+        },
+        "auxiliary_original_comparison_supported": false
+      },
+      "callbacks": 4816,
+      "resource_frames": 1128,
+      "resource_interval": [
+        104448,
+        105575
+      ],
+      "ui_frames": 1126,
+      "ui_interval": [
+        104450,
+        105575
+      ],
+      "complete_resource_boundary_order": true,
+      "complete_ui_boundary_order": true,
+      "ui_frames_equal_parent_callbacks": true,
+      "input_attempts": 105575,
+      "input_completions": 105575,
+      "resource_rng_draw_histograms": {
+        "effects_return": {
+          "0": 1123,
+          "3": 4,
+          "10": 1
+        },
+        "resource_ui_return": {
+          "0": 305,
+          "222": 1,
+          "134": 301,
+          "224": 1,
+          "90": 384,
+          "29": 1,
+          "35": 10,
+          "49": 1,
+          "34": 2,
+          "48": 1,
+          "50": 1,
+          "52": 2,
+          "36": 4,
+          "38": 2,
+          "116": 19,
+          "118": 47,
+          "120": 6,
+          "45": 2,
+          "143": 38
+        }
+      },
+      "ui_rng_draw_histograms": {
+        "first_return": {
+          "0": 1126
+        },
+        "second_return": {
+          "0": 1126
+        }
+      },
+      "normalized_pressed_edges": [
+        {
+          "frame": 105227,
+          "raw": 64,
+          "pressed": 64,
+          "selection_state_before": 1,
+          "state_before": 2,
+          "state_after": 3,
+          "pending_before": [
+            0,
+            0,
+            0
+          ],
+          "pending_after": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "frame": 105286,
+          "raw": 64,
+          "pressed": 64,
+          "selection_state_before": 2,
+          "state_before": 3,
+          "state_after": 3,
+          "pending_before": [
+            0,
+            0,
+            0
+          ],
+          "pending_after": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "frame": 105316,
+          "raw": 64,
+          "pressed": 64,
+          "selection_state_before": 30,
+          "state_before": 3,
+          "state_after": 5,
+          "pending_before": [
+            0,
+            0,
+            0
+          ],
+          "pending_after": [
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "scope": "Executed native trace completeness and inferred bounded LCG transition counts, not original-fidelity proof or per-draw caller instrumentation."
+    },
+    {
+      "policy": "cooperative",
+      "live_sha256": "37e5a7c96d32ed50f75dc763722b2722ad2391e5f5e3015643086457a6fa9841",
+      "input_sha256": "9940a2dfea4eac296340f76cb93c8e3e3edc9c4cf812a2aac01d7ea4a1eed529",
+      "coverage": {
+        "finish_present": true,
+        "unpaired_entry": null,
+        "auxiliary_observations": {
+          "rng_boundary": 3384,
+          "ui_callback": 4492
+        },
+        "auxiliary_original_comparison_supported": false
+      },
+      "callbacks": 4810,
+      "resource_frames": 1128,
+      "resource_interval": [
+        104448,
+        105575
+      ],
+      "ui_frames": 1123,
+      "ui_interval": [
+        104453,
+        105575
+      ],
+      "complete_resource_boundary_order": true,
+      "complete_ui_boundary_order": true,
+      "ui_frames_equal_parent_callbacks": true,
+      "input_attempts": 105575,
+      "input_completions": 105575,
+      "resource_rng_draw_histograms": {
+        "effects_return": {
+          "0": 1123,
+          "3": 4,
+          "10": 1
+        },
+        "resource_ui_return": {
+          "0": 308,
+          "222": 1,
+          "134": 301,
+          "224": 1,
+          "90": 381,
+          "29": 1,
+          "35": 10,
+          "49": 1,
+          "34": 2,
+          "48": 1,
+          "50": 1,
+          "52": 2,
+          "36": 4,
+          "38": 2,
+          "116": 19,
+          "118": 47,
+          "120": 6,
+          "45": 2,
+          "143": 38
+        }
+      },
+      "ui_rng_draw_histograms": {
+        "first_return": {
+          "0": 1123
+        },
+        "second_return": {
+          "0": 1123
+        }
+      },
+      "normalized_pressed_edges": [
+        {
+          "frame": 105227,
+          "raw": 64,
+          "pressed": 64,
+          "selection_state_before": 0,
+          "state_before": 2,
+          "state_after": 3,
+          "pending_before": [
+            0,
+            0,
+            0
+          ],
+          "pending_after": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "frame": 105286,
+          "raw": 64,
+          "pressed": 64,
+          "selection_state_before": 2,
+          "state_before": 3,
+          "state_after": 3,
+          "pending_before": [
+            0,
+            0,
+            0
+          ],
+          "pending_after": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "frame": 105316,
+          "raw": 64,
+          "pressed": 64,
+          "selection_state_before": 30,
+          "state_before": 3,
+          "state_after": 5,
+          "pending_before": [
+            0,
+            0,
+            0
+          ],
+          "pending_after": [
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "scope": "Executed native trace completeness and inferred bounded LCG transition counts, not original-fidelity proof or per-draw caller instrumentation."
+    }
+  ],
+  "target_checks": {
+    "single_draw_and_target_assertions": true,
+    "native_trace_original_equivalence_claimed": false,
+    "new_pair": {
+      "start": 4058573423,
+      "steps": 270,
+      "calculated": 1294414009,
+      "observed": 1294414009,
+      "equal": true
+    },
+    "old_pair": {
+      "start": 253002465,
+      "steps": 360,
+      "calculated": 1294414009,
+      "observed": 1294414009,
+      "equal": true
+    },
+    "through105326_ui_layout": {
+      "display": {
+        "total_ui_layout_draws": 56544,
+        "ninety_draw_frames": [
+          104844,
+          104845,
+          104846,
+          104847,
+          104848,
+          104849,
+          104850,
+          104851,
+          104852,
+          104853,
+          104854,
+          104855,
+          104856,
+          104857,
+          104858,
+          104859,
+          104860,
+          104861,
+          104862,
+          104863,
+          104864,
+          104865,
+          104866,
+          104867,
+          104868,
+          104869,
+          104870,
+          104871,
+          104872,
+          104873,
+          104874,
+          104875,
+          104876,
+          104877,
+          104878,
+          104879,
+          104880,
+          104881,
+          104882,
+          104883,
+          104884,
+          104885,
+          104886,
+          104887,
+          104888,
+          104889,
+          104890,
+          104891,
+          104892,
+          104893,
+          104894,
+          104895,
+          104896,
+          104897,
+          104898,
+          104899,
+          104900,
+          104901,
+          104902,
+          104903,
+          104904,
+          104905,
+          104906,
+          104907,
+          104908,
+          104909,
+          104910,
+          104911,
+          104912,
+          104913,
+          104914,
+          104915,
+          104916,
+          104917,
+          104918,
+          104919,
+          104920,
+          104921,
+          104922,
+          104923,
+          104924,
+          104925,
+          104926,
+          104927,
+          104928,
+          104929,
+          104930,
+          104931,
+          104932,
+          104933,
+          104934,
+          104935,
+          104936,
+          104937,
+          104938,
+          104939,
+          104940,
+          104941,
+          104942,
+          104943,
+          104944,
+          104945,
+          104946,
+          104947,
+          104948,
+          104949,
+          104950,
+          104951,
+          104952,
+          104953,
+          104954,
+          104955,
+          104956,
+          104957,
+          104958,
+          104959,
+          104960,
+          104961,
+          104962,
+          104963,
+          104964,
+          104965,
+          104966,
+          104967,
+          104968,
+          104969,
+          104970,
+          104971,
+          104972,
+          104973,
+          104974,
+          104975,
+          104976,
+          104977,
+          104978,
+          104979,
+          104980,
+          104981,
+          104982,
+          104983,
+          104984,
+          104985,
+          104986,
+          104987,
+          104988,
+          104989,
+          104990,
+          104991,
+          104992,
+          104993,
+          104994,
+          104995,
+          104996,
+          104997,
+          104998,
+          104999,
+          105000,
+          105001,
+          105002,
+          105003,
+          105004,
+          105005,
+          105006,
+          105007,
+          105008,
+          105009,
+          105010,
+          105011,
+          105012,
+          105013,
+          105014,
+          105015,
+          105016,
+          105017,
+          105018,
+          105019,
+          105020,
+          105021,
+          105022,
+          105023,
+          105024,
+          105025,
+          105026,
+          105027,
+          105028,
+          105029,
+          105030,
+          105031,
+          105032,
+          105033,
+          105034,
+          105035,
+          105036,
+          105037,
+          105038,
+          105039,
+          105040,
+          105041,
+          105042,
+          105043,
+          105044,
+          105045,
+          105046,
+          105047,
+          105048,
+          105049,
+          105050,
+          105051,
+          105052,
+          105053,
+          105054,
+          105055,
+          105056,
+          105057,
+          105058,
+          105059,
+          105060,
+          105061,
+          105062,
+          105063,
+          105064,
+          105065,
+          105066,
+          105067,
+          105068,
+          105069,
+          105070,
+          105071,
+          105072,
+          105073,
+          105074,
+          105075,
+          105076,
+          105077,
+          105078,
+          105079,
+          105080,
+          105081,
+          105082,
+          105083,
+          105084,
+          105085,
+          105086,
+          105087,
+          105088,
+          105089,
+          105090,
+          105091,
+          105092,
+          105093,
+          105094,
+          105095,
+          105096,
+          105097,
+          105098,
+          105099,
+          105100,
+          105101,
+          105102,
+          105103,
+          105104,
+          105105,
+          105106,
+          105107,
+          105108,
+          105109,
+          105110,
+          105111,
+          105112,
+          105113,
+          105114,
+          105115,
+          105116,
+          105117,
+          105118,
+          105119,
+          105120,
+          105121,
+          105122,
+          105123,
+          105124,
+          105125,
+          105126,
+          105127,
+          105128,
+          105129,
+          105130,
+          105131,
+          105132,
+          105133,
+          105134,
+          105135,
+          105136,
+          105137,
+          105138,
+          105139,
+          105140,
+          105141,
+          105142,
+          105143,
+          105144,
+          105145,
+          105146,
+          105147,
+          105148,
+          105149,
+          105150,
+          105151,
+          105152,
+          105153,
+          105154,
+          105155,
+          105156,
+          105157,
+          105158,
+          105159,
+          105160,
+          105161,
+          105162,
+          105163,
+          105164,
+          105165,
+          105166,
+          105167,
+          105168,
+          105169,
+          105170,
+          105171,
+          105172,
+          105173,
+          105174,
+          105175,
+          105176,
+          105177,
+          105178,
+          105179,
+          105180,
+          105181,
+          105182,
+          105183,
+          105184,
+          105185,
+          105186,
+          105187,
+          105188,
+          105189,
+          105190,
+          105191,
+          105192,
+          105193,
+          105194,
+          105195,
+          105196,
+          105197,
+          105198,
+          105199,
+          105200,
+          105201,
+          105202,
+          105203,
+          105204,
+          105205,
+          105206,
+          105207,
+          105208,
+          105209,
+          105210,
+          105211,
+          105212,
+          105213,
+          105214,
+          105215,
+          105216,
+          105217,
+          105218,
+          105219,
+          105220,
+          105221,
+          105222,
+          105223,
+          105224,
+          105225,
+          105226,
+          105227
+        ]
+      },
+      "cooperative": {
+        "total_ui_layout_draws": 56274,
+        "ninety_draw_frames": [
+          104847,
+          104848,
+          104849,
+          104850,
+          104851,
+          104852,
+          104853,
+          104854,
+          104855,
+          104856,
+          104857,
+          104858,
+          104859,
+          104860,
+          104861,
+          104862,
+          104863,
+          104864,
+          104865,
+          104866,
+          104867,
+          104868,
+          104869,
+          104870,
+          104871,
+          104872,
+          104873,
+          104874,
+          104875,
+          104876,
+          104877,
+          104878,
+          104879,
+          104880,
+          104881,
+          104882,
+          104883,
+          104884,
+          104885,
+          104886,
+          104887,
+          104888,
+          104889,
+          104890,
+          104891,
+          104892,
+          104893,
+          104894,
+          104895,
+          104896,
+          104897,
+          104898,
+          104899,
+          104900,
+          104901,
+          104902,
+          104903,
+          104904,
+          104905,
+          104906,
+          104907,
+          104908,
+          104909,
+          104910,
+          104911,
+          104912,
+          104913,
+          104914,
+          104915,
+          104916,
+          104917,
+          104918,
+          104919,
+          104920,
+          104921,
+          104922,
+          104923,
+          104924,
+          104925,
+          104926,
+          104927,
+          104928,
+          104929,
+          104930,
+          104931,
+          104932,
+          104933,
+          104934,
+          104935,
+          104936,
+          104937,
+          104938,
+          104939,
+          104940,
+          104941,
+          104942,
+          104943,
+          104944,
+          104945,
+          104946,
+          104947,
+          104948,
+          104949,
+          104950,
+          104951,
+          104952,
+          104953,
+          104954,
+          104955,
+          104956,
+          104957,
+          104958,
+          104959,
+          104960,
+          104961,
+          104962,
+          104963,
+          104964,
+          104965,
+          104966,
+          104967,
+          104968,
+          104969,
+          104970,
+          104971,
+          104972,
+          104973,
+          104974,
+          104975,
+          104976,
+          104977,
+          104978,
+          104979,
+          104980,
+          104981,
+          104982,
+          104983,
+          104984,
+          104985,
+          104986,
+          104987,
+          104988,
+          104989,
+          104990,
+          104991,
+          104992,
+          104993,
+          104994,
+          104995,
+          104996,
+          104997,
+          104998,
+          104999,
+          105000,
+          105001,
+          105002,
+          105003,
+          105004,
+          105005,
+          105006,
+          105007,
+          105008,
+          105009,
+          105010,
+          105011,
+          105012,
+          105013,
+          105014,
+          105015,
+          105016,
+          105017,
+          105018,
+          105019,
+          105020,
+          105021,
+          105022,
+          105023,
+          105024,
+          105025,
+          105026,
+          105027,
+          105028,
+          105029,
+          105030,
+          105031,
+          105032,
+          105033,
+          105034,
+          105035,
+          105036,
+          105037,
+          105038,
+          105039,
+          105040,
+          105041,
+          105042,
+          105043,
+          105044,
+          105045,
+          105046,
+          105047,
+          105048,
+          105049,
+          105050,
+          105051,
+          105052,
+          105053,
+          105054,
+          105055,
+          105056,
+          105057,
+          105058,
+          105059,
+          105060,
+          105061,
+          105062,
+          105063,
+          105064,
+          105065,
+          105066,
+          105067,
+          105068,
+          105069,
+          105070,
+          105071,
+          105072,
+          105073,
+          105074,
+          105075,
+          105076,
+          105077,
+          105078,
+          105079,
+          105080,
+          105081,
+          105082,
+          105083,
+          105084,
+          105085,
+          105086,
+          105087,
+          105088,
+          105089,
+          105090,
+          105091,
+          105092,
+          105093,
+          105094,
+          105095,
+          105096,
+          105097,
+          105098,
+          105099,
+          105100,
+          105101,
+          105102,
+          105103,
+          105104,
+          105105,
+          105106,
+          105107,
+          105108,
+          105109,
+          105110,
+          105111,
+          105112,
+          105113,
+          105114,
+          105115,
+          105116,
+          105117,
+          105118,
+          105119,
+          105120,
+          105121,
+          105122,
+          105123,
+          105124,
+          105125,
+          105126,
+          105127,
+          105128,
+          105129,
+          105130,
+          105131,
+          105132,
+          105133,
+          105134,
+          105135,
+          105136,
+          105137,
+          105138,
+          105139,
+          105140,
+          105141,
+          105142,
+          105143,
+          105144,
+          105145,
+          105146,
+          105147,
+          105148,
+          105149,
+          105150,
+          105151,
+          105152,
+          105153,
+          105154,
+          105155,
+          105156,
+          105157,
+          105158,
+          105159,
+          105160,
+          105161,
+          105162,
+          105163,
+          105164,
+          105165,
+          105166,
+          105167,
+          105168,
+          105169,
+          105170,
+          105171,
+          105172,
+          105173,
+          105174,
+          105175,
+          105176,
+          105177,
+          105178,
+          105179,
+          105180,
+          105181,
+          105182,
+          105183,
+          105184,
+          105185,
+          105186,
+          105187,
+          105188,
+          105189,
+          105190,
+          105191,
+          105192,
+          105193,
+          105194,
+          105195,
+          105196,
+          105197,
+          105198,
+          105199,
+          105200,
+          105201,
+          105202,
+          105203,
+          105204,
+          105205,
+          105206,
+          105207,
+          105208,
+          105209,
+          105210,
+          105211,
+          105212,
+          105213,
+          105214,
+          105215,
+          105216,
+          105217,
+          105218,
+          105219,
+          105220,
+          105221,
+          105222,
+          105223,
+          105224,
+          105225,
+          105226,
+          105227
+        ]
+      }
+    },
+    "scope": "Exact algebraic RNG relation at actual105326 party entry."
+  },
+  "compatibility_audit": "local/research/combat-display-divergence-v1/compatibility-audit.json",
+  "evidence": [
+    {
+      "path": "local/research/combat-display-divergence-v1/analyze_native_pair.py",
+      "bytes": 13358,
+      "sha256": "a1074dee2c4f2dfe2dc53bc41332765d17dc8d00ec1b184a2acff7f7e4d33c87"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/audit_ui_rng_target.py",
+      "bytes": 9809,
+      "sha256": "9f0dbc77e5d44367955b28c0258be8799172390d3e3cc1768c896acd20801b08"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/build-v1/checks.json",
+      "bytes": 2095,
+      "sha256": "bbd6d1d1be98a9a13e11d84532656ce5293ce3e517fb2240a504e88f988073c2"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/build-v1/debug-build.log",
+      "bytes": 155,
+      "sha256": "0977387cf896a39fe20b02e42b3731ef0337e14cdba9049a585c6583bead573b"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/build-v1/debug-tests.log",
+      "bytes": 1201,
+      "sha256": "d6947d72a67d30f50977a8d99e90321d81eea6a6a4511ef177b976828a8a8110"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/build-v1/release-build.log",
+      "bytes": 155,
+      "sha256": "0977387cf896a39fe20b02e42b3731ef0337e14cdba9049a585c6583bead573b"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/build-v1/release-tests.log",
+      "bytes": 1217,
+      "sha256": "6bec4d67acecc1b0b7a010e26a63f978908cbebf50b581ba01c9028ec47d7b04"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/build-v1/sanitize-build.log",
+      "bytes": 155,
+      "sha256": "0977387cf896a39fe20b02e42b3731ef0337e14cdba9049a585c6583bead573b"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/build-v1/sanitize-tests.log",
+      "bytes": 1217,
+      "sha256": "de3aa99eba6a3f6215d73896786c6454a3a31523a6f8e50f31d80003c72df778"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/build_checks.py",
+      "bytes": 1041,
+      "sha256": "5ee6a9b48653548d9bf28b96c43e3396b28c2b5a1c82a3e714fecaee02e6cdc6"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/check_observations.py",
+      "bytes": 3583,
+      "sha256": "b2df765a67007746914782bb0cd595c82976fc77c3ef9aa4c1976bc627a323da"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/check_target.py",
+      "bytes": 2257,
+      "sha256": "9004d93ba963f5c9a76a5c26a16e4569856c455e84a81235efd74870cc8a60a7"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/compare.py",
+      "bytes": 2062,
+      "sha256": "3365ba5662e428a6de83db44d6cbc06b5c519b2540d2722c2cf7489ac280bcde"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/comparison-commands.json",
+      "bytes": 12819,
+      "sha256": "36455a99b30a348b8cc4c4188e2d8f1057b9b0eba0b866c7b1a674351d51983d"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/compatibility-audit.json",
+      "bytes": 8080,
+      "sha256": "246dc5a3cffad179072a7b9c4c3c10edb3758cf1f720e4c61c680a600dc040fb"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/compatibility-audit.py",
+      "bytes": 9490,
+      "sha256": "c2d54e5ca7e360c985a589678891011395043e22b3543ee22a01c0f6fa13b76f"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/constructor-input-audit.json",
+      "bytes": 22226,
+      "sha256": "4355d42d837223d9d7a4de563c7282c285688891eef2049f7bff0798e20eb210"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/constructor-input-audit.py",
+      "bytes": 11618,
+      "sha256": "27c97d19179774a3e5e0f2f1c7961d55882d36842717ceefcd1b579d5675640c"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/inputs.jsonl",
+      "bytes": 10372775,
+      "sha256": "9940a2dfea4eac296340f76cb93c8e3e3edc9c4cf812a2aac01d7ea4a1eed529"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/isolated-ui.json",
+      "bytes": 328073,
+      "sha256": "224139eabe7b0c8cc03835e4dbdd94c6f907cc5c9c0fe5698014d667a046d464"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/live.jsonl",
+      "bytes": 120926113,
+      "sha256": "37e5a7c96d32ed50f75dc763722b2722ad2391e5f5e3015643086457a6fa9841"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/loader.jsonl",
+      "bytes": 325554,
+      "sha256": "3e38d6f9836f803426690bb8bc2bff62f06e74dc7a7fec05ee47ac3390a01841"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png",
+      "bytes": 190356,
+      "sha256": "9cda7688eff85c8fe6f45829e7864c63a765d0a7e3f3adfb1ed172f10044d705"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-1.bin",
+      "bytes": 395219880,
+      "sha256": "172b1d1dab0bc5aee522af1f3829964abcac7e3d52afc253067c522ece592151"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-10.bin",
+      "bytes": 132576264,
+      "sha256": "57d9bc430ab92bee91cbf7aca263afa6dc24c8ed943c637c538342ac4945089d"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-11.bin",
+      "bytes": 136853824,
+      "sha256": "4629103173c59322e9522a730b5b3eccbe7287d50c23a0ae5125e218ed00f705"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-12.bin",
+      "bytes": 144604016,
+      "sha256": "68a9bcff20f7d7e60e37fb65935d1938844789d76300413865451e2914de5c53"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-13.bin",
+      "bytes": 49279016,
+      "sha256": "e9f1f56b2721058b895130c92165e5735684594b0f8d2a297a77ab3dfe71001c"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-14.bin",
+      "bytes": 66584816,
+      "sha256": "6d2936b01a1bed2c25f9a5b97786f55f0464f7345d484feb2050d43de9ed2357"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-15.bin",
+      "bytes": 37445628,
+      "sha256": "2bcd0c12298d3cc221fc7e457b989a494fbfac90ad12e8e7c02c448da3ee6058"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-16.bin",
+      "bytes": 29671296,
+      "sha256": "5961086c82f6a197809701d17e7439ea5727e832cfcf5d9c27b20cb6c1f89c12"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-17.bin",
+      "bytes": 39818628,
+      "sha256": "c08e69f357347498ca979cf7912c43679b62ebf6c0625778e2e3e2830ce93ae4"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-18.bin",
+      "bytes": 51517408,
+      "sha256": "676076011c79733ecc8e79520d3ef21b671c2b57cf57c6035b8c7167c0019e4b"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-19.bin",
+      "bytes": 46262560,
+      "sha256": "a730c160cae9f40aed861ee2e7e869db46a8a685c0c77ad90b4fced359a2e54e"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-20.bin",
+      "bytes": 37562132,
+      "sha256": "2cfd2913e543a91d7bda5defc2e6b78e703925a5d9d7a6d9149190660c3abab6"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-21.bin",
+      "bytes": 17490792,
+      "sha256": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-22.bin",
+      "bytes": 30136560,
+      "sha256": "52ced2ad7d11087e23f17eec62ef9a12152e22819f3c90aae92d7f002c447da5"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-23.bin",
+      "bytes": 49360176,
+      "sha256": "1f9f59b044fba236b222258b5fdbd317ef825b3377ea0ae87b520961dcc705db"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-24.bin",
+      "bytes": 46690108,
+      "sha256": "32874905d2185e72ec34ff09170557e7b69b725cdd985cccf26d5f7cd6711677"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-25.bin",
+      "bytes": 63071336,
+      "sha256": "fdc89a50be91af9e191e45c69fe02da0b2e142974b27839eb0451c4f9728cf70"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-26.bin",
+      "bytes": 48205552,
+      "sha256": "af41cfef8c84ff73ab49d785a6d91101f8f3b3e5d8b3979f627dfab41274cb3b"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-27.bin",
+      "bytes": 43514892,
+      "sha256": "bbe4332ed86616c2b3baac9fcb220e9796a384a3f7bb57ced729d31a9ba06a1f"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-28.bin",
+      "bytes": 44525188,
+      "sha256": "90d96a56ce093691b3c09d5d70b05bcdf347d023450189eb7dcb927d5ea0eef9"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-29.bin",
+      "bytes": 44525188,
+      "sha256": "04b9a8a807d6759bd955f6b61efeed04fb3268c2fd0917ff08112a94d400f18b"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-3.bin",
+      "bytes": 332135100,
+      "sha256": "cb292c32db2b080619c19ab7c6733622439016b7742b7b8916cf144f87f1aa71"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-37.bin",
+      "bytes": 6669448,
+      "sha256": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-38.bin",
+      "bytes": 1867760,
+      "sha256": "76ba34c261405d19131ff08afd76466bd58b75955ea5d5be4f94b432248fb11e"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-45.bin",
+      "bytes": 8950128,
+      "sha256": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-7.bin",
+      "bytes": 31953320,
+      "sha256": "970ba83d9cbc0ea19838e938b2e23f6846fec527c18919568f79912f5ea0efb2"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-80.bin",
+      "bytes": 50081816,
+      "sha256": "c3a1d74820a3d85bf67f30081c73a98a7b47f89e94e9320bccc2ea5e5de87470"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor-9.bin",
+      "bytes": 156199680,
+      "sha256": "46617611f711119a98f32fdb1028d81cf6dabd5dc86fdb903c90660a32022d3a"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actor.bin",
+      "bytes": 164262784,
+      "sha256": "0b00844a886f5bb2afa28d7e08be4de98d5e0b7fde4a631f3f2e2b4dfedf4cd3"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.actors-state.json",
+      "bytes": 422,
+      "sha256": "69a240523f8a676e7dcd6e5e83b5e4dd4ec7dbc04e99889529631786268ef606"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.audio.json",
+      "bytes": 164,
+      "sha256": "7112aed01e5a228938a0cd1fa55ca1824dd7f507fe1ca7362b5e00b8b0cadd5a"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.audio.pcm",
+      "bytes": 337840000,
+      "sha256": "adccf7e05e85a149a0d29171abc95cdc6e0ec7a2c4806513de9410f2030b9b86"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.battle-actors.json",
+      "bytes": 1693,
+      "sha256": "4edd06511d770c11cf4f552553f9f349fa0325d68de26d6ff4e228cdb5cb44a6"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.battle-capture.bin",
+      "bytes": 1804,
+      "sha256": "b5c544434d93cc6b447a2243bfa4c15c3f33d818ce55eef1b616d068a2c7aad0"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.battle-construction.json",
+      "bytes": 93845,
+      "sha256": "e01d3923d1a3898c4030db724c275cd9dfd0536d067db2dbf44551f0096db6d4"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.battle-effects.json",
+      "bytes": 638,
+      "sha256": "0220fa7c248efaf5a7fc6263e4979321132ffcb967e20f13d18be112e6623202"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.battle-frozen.rgba",
+      "bytes": 573440,
+      "sha256": "109143bbbb53bac9106da5eba964a69c056abd8317e952da471088220235c903"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.battle-history.json",
+      "bytes": 315,
+      "sha256": "bf0b8d717d191329ea92116dccba58af863dcf59b3551d010afd950cefb9b2db"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.battle-loading.bin",
+      "bytes": 36096,
+      "sha256": "d4bf95600e8e58b2fe21c14e9af5d3682aa50731acd8f8ae962b4214eddd197a"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.battle-return.bin",
+      "bytes": 140,
+      "sha256": "668c2f6540ea219c70f25ce857990c2c118847228ee0c3958f8bdd9127e268cb"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.battle-root.bin",
+      "bytes": 33232,
+      "sha256": "09f629db60d134607c36083fbde50b06cd48ab3be8462b7a190b5d2c3dd4ac7e"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.battle-stage.callbacks.json",
+      "bytes": 136885,
+      "sha256": "ac0ec41a8d8159b0f3e309fe920a463f20d3e1c979e3d5cb9a17b60173427a35"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.battle-stage.first-active.draw.json",
+      "bytes": 9975028,
+      "sha256": "9b6e174d33f84117845e4137d019346e6d134b8bbff190af685775f009d8767a"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.battle-stage.first-active.render.rgba",
+      "bytes": 573440,
+      "sha256": "460cf4213eb5c653df6d2a6c713ffed0410b95ada41af73f59d5daecf2d4dccc"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.battle-stage.hud.json",
+      "bytes": 75816,
+      "sha256": "dd22eeb11a033cd694ea0ab50a4ce60eaaa85e999ce1594717d1368e6c889d95"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.battle-stage.json",
+      "bytes": 42439,
+      "sha256": "4d503d9d65436900c9140a04d6e2f2927ecb853441b9223feec7e531441cd1a8"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.battle-stage.render.rgba",
+      "bytes": 573440,
+      "sha256": "33a090e7e2934b64523be807948673768877bb6a54f6ec5e7081267fa7ed96f4"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.battle-stage.scheduled-ui.json",
+      "bytes": 328075,
+      "sha256": "8fafe21df9f4b4db1854b00d141235ad6d4a548a79a0edac4c9d51126f9de936"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.battle-stage.ui.json",
+      "bytes": 32001,
+      "sha256": "c5e7e5e90b8b970e70719a306f7a11addd37cce3a85b87cc7b51187dcca549dc"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.battle-transition.bin",
+      "bytes": 192,
+      "sha256": "77e2aa2c94b9e04c46d9912f7b96820809f6bb8e9d500d4db2689e90779bf51e"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.camera-state.bin",
+      "bytes": 2088900,
+      "sha256": "62a331f5e3ca2634f1b4bfea5d3d2f260e0180b77b4bcb6a3beac376cdfc815d"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.camera.bin",
+      "bytes": 6684480,
+      "sha256": "678ad6edd65d812d690c9c42e3c29290652041f2c885d3ac5735682624faa971"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.choices.bin",
+      "bytes": 5013360,
+      "sha256": "dfc147adabc0e6fb8f96d23090138d6ffbd844ab4f8ff5dc0942b8e940b60a27"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.dialogue.bin",
+      "bytes": 5013360,
+      "sha256": "14b2085e3db44ef8b9c5245fa92b370df8f0e21f6572522140a5a3e002ec21ec"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.effect-submissions.bin",
+      "bytes": 23266184,
+      "sha256": "ecb724f4367a602eabe1f0ef5ca66d7e76680bcd0faa2f12159632f066a97f80"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.effects.bin",
+      "bytes": 2906580,
+      "sha256": "b4c880dc5130ad8f5dd8e3f40858bd600f22c3025740d505783aca20e3d506aa"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.frames/manifest.json",
+      "bytes": 939,
+      "sha256": "7a11835805136b3940ccf7cc69ba6b1252fc7749c3829ee75428c0ef2663f87a"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.frames/tick-104447.png",
+      "bytes": 234923,
+      "sha256": "c6541d8f48eb92cbf12280422753eab2fb7bcc6e243ad4bbcbeb4652a01e849e"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.frames/tick-104615.png",
+      "bytes": 203101,
+      "sha256": "d9932446f10b7530f42635e7a9caba0956ef622d9883a4b9d6f75a04ea5bcbb8"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.frames/tick-104616.png",
+      "bytes": 203164,
+      "sha256": "74c0331b0a30d712eb10f0045f3db293472a01a7d05dc38766405003a44856c1"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.frames/tick-104795.png",
+      "bytes": 227673,
+      "sha256": "a551bc52a8db1f88a0bd87c0476972e15eb503432de37e431a63ba9c7ac648d3"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.frames/tick-104975.png",
+      "bytes": 128642,
+      "sha256": "424b37e398e21399e02d797d7fb4ec741fbb63869e0e5c3c8097a835899b0e03"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.frames/tick-105215.png",
+      "bytes": 102694,
+      "sha256": "3e04abadc86677d2a79ac8a989cdeaab1f5f33634925bf243f51a1a9bb4b21f5"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.frames/tick-105575.png",
+      "bytes": 190356,
+      "sha256": "9cda7688eff85c8fe6f45829e7864c63a765d0a7e3f3adfb1ed172f10044d705"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.game-mode.bin",
+      "bytes": 226100,
+      "sha256": "22856b19dab346e68b3dc0bb44f136c70f7521aed6fed159b832b0ffb1aaa5c3"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.interaction.bin",
+      "bytes": 3342240,
+      "sha256": "85326abf8548e08cd767c345e30266630a21c59563ec41bbce881b078c0c4c89"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.json",
+      "bytes": 1086,
+      "sha256": "1c4cf01c9f473422b68865902596e320347c9d9de4476b5e911766fb838a69a6"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.map-effects.bin",
+      "bytes": 621254272,
+      "sha256": "485ca1679a9f7de483952c24c5387ad8139feff2da03cecfac5bbe92812c6d66"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.movement.bin",
+      "bytes": 6684480,
+      "sha256": "6ab4e2852381a6fa58689d6123eb5ab1f9f1ed94e743704e0bfbd029c271a7cf"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.music.bin",
+      "bytes": 2111500,
+      "sha256": "814ef8410e3ac1e19d45252668e1cdf922ce95da39e8977f2ebda07c7602405e"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.projection.bin",
+      "bytes": 39271320,
+      "sha256": "b29f0c8f5b6b413824171585c53962786eb85267dcfe42148099515b5f248db5"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.results.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.retiring-effects.bin",
+      "bytes": 777096,
+      "sha256": "e5173167fa2775f050cd47336d648aa9d3a903ccdf71b60b8574bf74566c7021"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.screen-filter.bin",
+      "bytes": 1671120,
+      "sha256": "4e6be36c86e5b901b785c9c6020d5e02bd7d9dd1a1e03ef137ccd727c68ef946"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.shadow.bin",
+      "bytes": 12533400,
+      "sha256": "a4b8c78aebf2ab1e4db0f8555d1b2f8fa69288cf3c711a45652a46eb98a8f45b"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.sound.bin",
+      "bytes": 11740,
+      "sha256": "fa5f933241c63e3cd2f9930ffc4cef34dd37f580cf0ba7c4a645615e8ce2847a"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.transition.bin",
+      "bytes": 3342240,
+      "sha256": "6ad9cf64321f32f9b7dff9abd0520b5f211aa2f23a462e9f4dc7db8519721626"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.ui-party.bin",
+      "bytes": 288,
+      "sha256": "0f9ff4f984aa4de91bf35ce579a6d5b06ec7b0764d6c865d119258b02f707eaf"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "b01b6a3d459fdccb7eded11fa8d787d293fb16ccb348a6f3a77f75041826f92b"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/native.png.wander.bin",
+      "bytes": 7551248,
+      "sha256": "5b55e6e820bea76c2e2bcf52bdcafbd89811307cd9d200ea85fd1088ff98c7a3"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/okage-native",
+      "bytes": 2651296,
+      "sha256": "4b4450d9c1c6666c95d6f02e843ee815162d0b71ef8fc99318ea4bfcc2b3108b"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/pending.json",
+      "bytes": 6839,
+      "sha256": "733581051aacf9c267df5a4908babfcf04b3bde80b43248942399b94bcd44190"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/run.json",
+      "bytes": 6884,
+      "sha256": "2f8f063f6257fd1fcadcb0a5d1ffd7a311f8d137bbe30ec7935f51fa6dc98c79"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-105575-v1/stdout.log",
+      "bytes": 4871,
+      "sha256": "1f81d9f9a32286477be4b109ea99c997c5f401ab6cb0c14415824710b4b7e314"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/audio-boundaries.json",
+      "bytes": 5144,
+      "sha256": "f02cb872893e1a721f030fbc50cc8248f47bb27902be7cabd1d075eb060a8e90"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/audio-boundaries.native.wav",
+      "bytes": 1916844,
+      "sha256": "dfa113d742c7c74d3d1951474b29f9961db1c9a5cb07bb7f771506553459bcba"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/audio-boundaries.original.wav",
+      "bytes": 1764044,
+      "sha256": "6702a32c50a7b2342a841325deafabc08cf91708df339bf25bfe29fe3aa996a7"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/command-0.log",
+      "bytes": 1037,
+      "sha256": "3cd0a6a7ce38eb7839cf24264f7e2717b4bb359bd47ea652a6cd9e65632eb7f8"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/command-1.log",
+      "bytes": 1031,
+      "sha256": "3379623c3840e1b61dc6896821f1f07ab15372cfc984c9c2f51aff61b068d38b"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/command-10.log",
+      "bytes": 245,
+      "sha256": "13e658d952d0d98bc3ef85b19f1123fbbf12405d7793d4624c47c12db8036967"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/command-11.log",
+      "bytes": 252,
+      "sha256": "1b7fc01a2dc4951e99457d023c1839bf000f9e554890573e25eb4c04d15f49cf"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/command-2.log",
+      "bytes": 1032,
+      "sha256": "d0b3306a3f57032557b89885d4fc4a3bc357eada46ee1a55d08b550d51fe48bb"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/command-3.log",
+      "bytes": 735,
+      "sha256": "da127c2b8a580122e08921846a8ee82553bdf76fbbc959443c01f611fbe6b374"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/command-4.log",
+      "bytes": 735,
+      "sha256": "caeb883a504db6eeeb8c6d778fc3ee9d90770bf1ccf25a65335fe579076efa67"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/command-5.log",
+      "bytes": 245,
+      "sha256": "277d2669bafabe74b28621c5d29ea360464551808f104bca8a49643dd0e686bd"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/command-6.log",
+      "bytes": 243,
+      "sha256": "f6045b5f5743e4f62aaa13aee3d8476d4a7b59aae78d0fe57d82c3b24cd8a97b"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/command-7.log",
+      "bytes": 246,
+      "sha256": "0caeafb089ab21984066deb3acd5167c5b471b7ca65e6c09c9f921a9f6aa0ed7"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/command-8.log",
+      "bytes": 245,
+      "sha256": "e7286558e6c9f2098667b6ff8b202ec050e23cd19272e3dcc8ceef26e41812dc"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/command-9.log",
+      "bytes": 246,
+      "sha256": "c4480325a948c63c5fb6084e781940abad3e0195f2b0e7659f7953daf3bd2c78"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/image-104615/absolute-rgb-difference.png",
+      "bytes": 353330,
+      "sha256": "a7d294c580a5e4fe4e5cdd2d68688afbf05bfdfe9bde27a33fce11d5dba042cb"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/image-104615/comparison.json",
+      "bytes": 1687,
+      "sha256": "8679a0873e16217a8c83fbf2d02140b1bcc0ce9da2b8422ef75ee71dcc2d0047"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/image-104615/side-by-side.png",
+      "bytes": 489080,
+      "sha256": "648b45bcb612d87bbdb6446f785d640d43c6240d0adf3a6ede8a3721be3ed6a6"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/image-104616/absolute-rgb-difference.png",
+      "bytes": 353730,
+      "sha256": "286d307dccdfdc46723d04a83b1f6baa7a67accdb04eecbe471452f6c0d49e4f"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/image-104616/comparison.json",
+      "bytes": 1684,
+      "sha256": "7d524bb7855c1d4fed2797402fd3c76c2b8141beddaa5624b01e758614208719"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/image-104616/side-by-side.png",
+      "bytes": 490820,
+      "sha256": "35ee504939fb63695d2f31f1bb46cac351659ff9bfa4e371961a9ee9356320c6"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/image-104795/absolute-rgb-difference.png",
+      "bytes": 285633,
+      "sha256": "ed0ebd63c6ff4e84525ac01e8b0c1ab71aca5e196027d89a1126cbab73cf5d18"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/image-104795/comparison.json",
+      "bytes": 1687,
+      "sha256": "4ddd8686d3e717f909ec0ccf39cc16dd1f8ed61acea10adaf67221d9fbdf65ea"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/image-104795/side-by-side.png",
+      "bytes": 530809,
+      "sha256": "60d1b4591bf3ecd1fc31a24cbb2707bbcd60293318c613c8f11fdd0c7c7c25c3"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/image-104975/absolute-rgb-difference.png",
+      "bytes": 169419,
+      "sha256": "93ac5e90dcee4c6358169da285b9e8758616aa9cbe8a1b7c5d95b8212891d844"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/image-104975/comparison.json",
+      "bytes": 1686,
+      "sha256": "2a60a96d738f35232805f44a7c76f84621df60440050c3c71a79d7a42c608be8"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/image-104975/side-by-side.png",
+      "bytes": 282839,
+      "sha256": "373956589a44ef1c3468d479dd8695faec17cdae458028025279fd1664da1d4d"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/image-105215/absolute-rgb-difference.png",
+      "bytes": 125894,
+      "sha256": "f30ba0ca612245478876fd6d29f268cca297882a0f12f1b8b37e9c0ba2343404"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/image-105215/comparison.json",
+      "bytes": 1687,
+      "sha256": "add39e18f7dbb07fe2d42a53a869a57feffcbe8f3c3b021d2133ffe9c2819cfe"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/image-105215/side-by-side.png",
+      "bytes": 212827,
+      "sha256": "e88b81d50cdbcce4ff938b22fd1cc0f8031714e14be8eda5c0e2391a89bd6ec4"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/image-105575/absolute-rgb-difference.png",
+      "bytes": 205532,
+      "sha256": "c8d1bd5c870e5c4a32f2c6ad61f1550b74f3341d5b5eba558e4957908f1ba4dd"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/image-105575/comparison.json",
+      "bytes": 1696,
+      "sha256": "24c139c034b0fb3de0172c434d483270c946dc4a27109f6f8a3747a7bbd2ae13"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/image-105575/side-by-side.png",
+      "bytes": 412659,
+      "sha256": "dd97003e6493adda3624a278dc4fcb1e2aebe01cf30f22f88aa4a6e8b108c8b8"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/original-attack-120-v1.json",
+      "bytes": 84115,
+      "sha256": "d8afe57f32764130982a76dbb3bbf5dc6e6e431b7ba3d171a17e3d569a159a9d"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/original-live-v2.json",
+      "bytes": 164415,
+      "sha256": "37a3c77225c6e0ea912bd3c5f3e6732c1452080527b17e73771f3fe65d8eb8de"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/original-strike-60-v2.json",
+      "bytes": 67924,
+      "sha256": "0a8e5bddf267e2409a947100773e9727a3de67846a7806a8364346939c08ce61"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/original-strike-hit-120-v1.json",
+      "bytes": 67399,
+      "sha256": "5c2a63687d79d23cd5c56f97b3d3583ab7263ab9e18ee6842a4d39fd49a100a0"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/cooperative-comparison/original-target-60-v2.json",
+      "bytes": 82771,
+      "sha256": "ce8b9707b3f5381d616812f21c38189062e8d6aaea85273fdabe4d3e85d0f75e"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/defeat-mode-inventory.md",
+      "bytes": 9424,
+      "sha256": "56eb7a7b0fffc15a3c2a84c6a911b32992eda5cfc1470e833b16d5a16289dda3"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/inputs.jsonl",
+      "bytes": 10372775,
+      "sha256": "9940a2dfea4eac296340f76cb93c8e3e3edc9c4cf812a2aac01d7ea4a1eed529"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/isolated-ui.json",
+      "bytes": 328073,
+      "sha256": "5f656615b8e5119b2d7150a7da5a84719561d9e0df959c71fb24bc682d6a19c5"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/live.jsonl",
+      "bytes": 121083889,
+      "sha256": "d404bc26af82f110e4675f942a2ff096a971cd2398dbc5409e3d562ca9a4d387"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/loader.jsonl",
+      "bytes": 541406,
+      "sha256": "d53e97f2c7bca756f8ab609870c365a7d64cbc40e076090b32e851ed02d1834e"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png",
+      "bytes": 190243,
+      "sha256": "d9e5768a24b22d096de6b7ae73eb5e35c29c65f06a223b536ee01866ade99113"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-1.bin",
+      "bytes": 395219880,
+      "sha256": "172b1d1dab0bc5aee522af1f3829964abcac7e3d52afc253067c522ece592151"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-10.bin",
+      "bytes": 132576264,
+      "sha256": "57d9bc430ab92bee91cbf7aca263afa6dc24c8ed943c637c538342ac4945089d"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-11.bin",
+      "bytes": 136853824,
+      "sha256": "4629103173c59322e9522a730b5b3eccbe7287d50c23a0ae5125e218ed00f705"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-12.bin",
+      "bytes": 144604016,
+      "sha256": "68a9bcff20f7d7e60e37fb65935d1938844789d76300413865451e2914de5c53"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-13.bin",
+      "bytes": 49279016,
+      "sha256": "e9f1f56b2721058b895130c92165e5735684594b0f8d2a297a77ab3dfe71001c"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-14.bin",
+      "bytes": 66584816,
+      "sha256": "6d2936b01a1bed2c25f9a5b97786f55f0464f7345d484feb2050d43de9ed2357"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-15.bin",
+      "bytes": 37445628,
+      "sha256": "2bcd0c12298d3cc221fc7e457b989a494fbfac90ad12e8e7c02c448da3ee6058"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-16.bin",
+      "bytes": 29671296,
+      "sha256": "5961086c82f6a197809701d17e7439ea5727e832cfcf5d9c27b20cb6c1f89c12"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-17.bin",
+      "bytes": 39818628,
+      "sha256": "c08e69f357347498ca979cf7912c43679b62ebf6c0625778e2e3e2830ce93ae4"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-18.bin",
+      "bytes": 51517408,
+      "sha256": "676076011c79733ecc8e79520d3ef21b671c2b57cf57c6035b8c7167c0019e4b"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-19.bin",
+      "bytes": 46262560,
+      "sha256": "a730c160cae9f40aed861ee2e7e869db46a8a685c0c77ad90b4fced359a2e54e"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-20.bin",
+      "bytes": 37562132,
+      "sha256": "2cfd2913e543a91d7bda5defc2e6b78e703925a5d9d7a6d9149190660c3abab6"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-21.bin",
+      "bytes": 17490792,
+      "sha256": "b531242e627fe7145ee682ee1e55902fb1913f277a6b79dced88848b2b390db3"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-22.bin",
+      "bytes": 30136560,
+      "sha256": "52ced2ad7d11087e23f17eec62ef9a12152e22819f3c90aae92d7f002c447da5"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-23.bin",
+      "bytes": 49360176,
+      "sha256": "1f9f59b044fba236b222258b5fdbd317ef825b3377ea0ae87b520961dcc705db"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-24.bin",
+      "bytes": 46690108,
+      "sha256": "32874905d2185e72ec34ff09170557e7b69b725cdd985cccf26d5f7cd6711677"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-25.bin",
+      "bytes": 63071336,
+      "sha256": "fdc89a50be91af9e191e45c69fe02da0b2e142974b27839eb0451c4f9728cf70"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-26.bin",
+      "bytes": 48205552,
+      "sha256": "af41cfef8c84ff73ab49d785a6d91101f8f3b3e5d8b3979f627dfab41274cb3b"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-27.bin",
+      "bytes": 43514892,
+      "sha256": "bbe4332ed86616c2b3baac9fcb220e9796a384a3f7bb57ced729d31a9ba06a1f"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-28.bin",
+      "bytes": 44525188,
+      "sha256": "90d96a56ce093691b3c09d5d70b05bcdf347d023450189eb7dcb927d5ea0eef9"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-29.bin",
+      "bytes": 44525188,
+      "sha256": "04b9a8a807d6759bd955f6b61efeed04fb3268c2fd0917ff08112a94d400f18b"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-3.bin",
+      "bytes": 332135100,
+      "sha256": "cb292c32db2b080619c19ab7c6733622439016b7742b7b8916cf144f87f1aa71"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-37.bin",
+      "bytes": 6669448,
+      "sha256": "dae68e9181d4fe5b961c406b1d8f601928cad2fb819a64ec1543092618df54cd"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-38.bin",
+      "bytes": 1867760,
+      "sha256": "76ba34c261405d19131ff08afd76466bd58b75955ea5d5be4f94b432248fb11e"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-45.bin",
+      "bytes": 8950128,
+      "sha256": "2ddb11262b8810bf80ab783b8938daafe9b7d9147bfed2ef6aeaeb2cc11e8921"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-7.bin",
+      "bytes": 31953320,
+      "sha256": "970ba83d9cbc0ea19838e938b2e23f6846fec527c18919568f79912f5ea0efb2"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-80.bin",
+      "bytes": 50081816,
+      "sha256": "c3a1d74820a3d85bf67f30081c73a98a7b47f89e94e9320bccc2ea5e5de87470"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor-9.bin",
+      "bytes": 156199680,
+      "sha256": "46617611f711119a98f32fdb1028d81cf6dabd5dc86fdb903c90660a32022d3a"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actor.bin",
+      "bytes": 164262784,
+      "sha256": "0b00844a886f5bb2afa28d7e08be4de98d5e0b7fde4a631f3f2e2b4dfedf4cd3"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.actors-state.json",
+      "bytes": 422,
+      "sha256": "69a240523f8a676e7dcd6e5e83b5e4dd4ec7dbc04e99889529631786268ef606"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.audio.json",
+      "bytes": 164,
+      "sha256": "7112aed01e5a228938a0cd1fa55ca1824dd7f507fe1ca7362b5e00b8b0cadd5a"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.audio.pcm",
+      "bytes": 337840000,
+      "sha256": "c49728f5761ceb2222b0ee4f49b31c69edcd1bd2ba810c81987dcb772b0da66d"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.battle-actors.json",
+      "bytes": 1693,
+      "sha256": "4edd06511d770c11cf4f552553f9f349fa0325d68de26d6ff4e228cdb5cb44a6"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.battle-capture.bin",
+      "bytes": 1672,
+      "sha256": "d6f3975ec00f4276703450f10b66ed173f38082f65455b6686c0053cd1a040bb"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.battle-construction.json",
+      "bytes": 93845,
+      "sha256": "a2cda0ca5ad1c2ae422cdc4dcc9c30ed9400aebe6e0faf6976e8a7bf37059604"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.battle-effects.json",
+      "bytes": 638,
+      "sha256": "3eb4588691bd25fb4840cca2fcb67f69fa52e0955c376ad3f80ff4ba615b6546"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.battle-frozen.rgba",
+      "bytes": 573440,
+      "sha256": "109143bbbb53bac9106da5eba964a69c056abd8317e952da471088220235c903"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.battle-history.json",
+      "bytes": 316,
+      "sha256": "1ace83c84648664fa6d18f2985709321c10da06d0f09e1efc744735d39c3708e"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.battle-loading.bin",
+      "bytes": 36096,
+      "sha256": "2fe12c6aac11df96a17b0c1cbaae381827bd6c35e793272949339b819cd94bf9"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.battle-return.bin",
+      "bytes": 140,
+      "sha256": "668c2f6540ea219c70f25ce857990c2c118847228ee0c3958f8bdd9127e268cb"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.battle-root.bin",
+      "bytes": 33232,
+      "sha256": "09f629db60d134607c36083fbde50b06cd48ab3be8462b7a190b5d2c3dd4ac7e"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.battle-stage.callbacks.json",
+      "bytes": 136885,
+      "sha256": "d1723530ceb45924886ac604ad745caed7e8a8cf0b98bd0d9979d256ae85d1e2"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.battle-stage.first-active.draw.json",
+      "bytes": 9975028,
+      "sha256": "8b9b2294ec7e36abd5a86a600aa0fad3cad776b1af2c98cc4aa5cd861ebd014f"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.battle-stage.first-active.render.rgba",
+      "bytes": 573440,
+      "sha256": "460cf4213eb5c653df6d2a6c713ffed0410b95ada41af73f59d5daecf2d4dccc"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.battle-stage.hud.json",
+      "bytes": 75816,
+      "sha256": "dd22eeb11a033cd694ea0ab50a4ce60eaaa85e999ce1594717d1368e6c889d95"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.battle-stage.json",
+      "bytes": 42439,
+      "sha256": "9831ce14a76eaf23f3929e2b77e723cbcb7a3df75c10642b3bda0a9931b56242"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.battle-stage.render.rgba",
+      "bytes": 573440,
+      "sha256": "33a090e7e2934b64523be807948673768877bb6a54f6ec5e7081267fa7ed96f4"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.battle-stage.scheduled-ui.json",
+      "bytes": 328075,
+      "sha256": "b3e87256e2fa9122614506de179bc972c3c768c6162763d789456513931e7c71"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.battle-stage.ui.json",
+      "bytes": 32001,
+      "sha256": "f835b273b0d0c3bbeb175253936aea4c2895a83f8436471be39a9d3bb9f93e38"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.battle-transition.bin",
+      "bytes": 192,
+      "sha256": "77e2aa2c94b9e04c46d9912f7b96820809f6bb8e9d500d4db2689e90779bf51e"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.camera-state.bin",
+      "bytes": 2088900,
+      "sha256": "62a331f5e3ca2634f1b4bfea5d3d2f260e0180b77b4bcb6a3beac376cdfc815d"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.camera.bin",
+      "bytes": 6684480,
+      "sha256": "678ad6edd65d812d690c9c42e3c29290652041f2c885d3ac5735682624faa971"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.choices.bin",
+      "bytes": 5013360,
+      "sha256": "dfc147adabc0e6fb8f96d23090138d6ffbd844ab4f8ff5dc0942b8e940b60a27"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.dialogue.bin",
+      "bytes": 5013360,
+      "sha256": "14b2085e3db44ef8b9c5245fa92b370df8f0e21f6572522140a5a3e002ec21ec"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.effect-submissions.bin",
+      "bytes": 23266184,
+      "sha256": "ecb724f4367a602eabe1f0ef5ca66d7e76680bcd0faa2f12159632f066a97f80"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.effects.bin",
+      "bytes": 2906580,
+      "sha256": "b4c880dc5130ad8f5dd8e3f40858bd600f22c3025740d505783aca20e3d506aa"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.frames/manifest.json",
+      "bytes": 939,
+      "sha256": "7a11835805136b3940ccf7cc69ba6b1252fc7749c3829ee75428c0ef2663f87a"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.frames/tick-104447.png",
+      "bytes": 234923,
+      "sha256": "c6541d8f48eb92cbf12280422753eab2fb7bcc6e243ad4bbcbeb4652a01e849e"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.frames/tick-104615.png",
+      "bytes": 202142,
+      "sha256": "3dee9d6ee15cfa149b95b5bff6d8676173af6cb039f3d5487b3619b43c9dbc4b"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.frames/tick-104616.png",
+      "bytes": 202199,
+      "sha256": "b286735e61c0680283fe23d1bcb2ad39e05a6044fc0d83aa03bad37bc5661cd2"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.frames/tick-104795.png",
+      "bytes": 227221,
+      "sha256": "4d26b3805d20a9f02dbe29a8d1b53995dcf0b89db88a70be88b617d6e0f563b1"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.frames/tick-104975.png",
+      "bytes": 127219,
+      "sha256": "fbeb8a5530a67b6060e3c8883189ebaff442d65f32b485784786019a0e31139c"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.frames/tick-105215.png",
+      "bytes": 102840,
+      "sha256": "b23fff3b88f7f3f67557f2de7e602c60befd4b32104039a1f8af5c23c3b94205"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.frames/tick-105575.png",
+      "bytes": 190243,
+      "sha256": "d9e5768a24b22d096de6b7ae73eb5e35c29c65f06a223b536ee01866ade99113"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.game-mode.bin",
+      "bytes": 226100,
+      "sha256": "869167979997eed52b8060933470ec4413b93209c7224a055fa5b0b2a24c6eae"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.interaction.bin",
+      "bytes": 3342240,
+      "sha256": "85326abf8548e08cd767c345e30266630a21c59563ec41bbce881b078c0c4c89"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.json",
+      "bytes": 1086,
+      "sha256": "56872b41c776bcbe77e9ef295dd95a4928a079255b39ac204036941a9bb4c76e"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.map-effects.bin",
+      "bytes": 621254272,
+      "sha256": "485ca1679a9f7de483952c24c5387ad8139feff2da03cecfac5bbe92812c6d66"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.movement.bin",
+      "bytes": 6684480,
+      "sha256": "6ab4e2852381a6fa58689d6123eb5ab1f9f1ed94e743704e0bfbd029c271a7cf"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.music.bin",
+      "bytes": 2111500,
+      "sha256": "814ef8410e3ac1e19d45252668e1cdf922ce95da39e8977f2ebda07c7602405e"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.projection.bin",
+      "bytes": 39271320,
+      "sha256": "b29f0c8f5b6b413824171585c53962786eb85267dcfe42148099515b5f248db5"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.results.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.retiring-effects.bin",
+      "bytes": 777096,
+      "sha256": "38681db4d955bd8124a4b8c96cb29c36f81e668195e52508cf533697c8e24d35"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.screen-filter.bin",
+      "bytes": 1671120,
+      "sha256": "4e6be36c86e5b901b785c9c6020d5e02bd7d9dd1a1e03ef137ccd727c68ef946"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.shadow.bin",
+      "bytes": 12533400,
+      "sha256": "a4b8c78aebf2ab1e4db0f8555d1b2f8fa69288cf3c711a45652a46eb98a8f45b"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.sound.bin",
+      "bytes": 11740,
+      "sha256": "fa5f933241c63e3cd2f9930ffc4cef34dd37f580cf0ba7c4a645615e8ce2847a"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.transition.bin",
+      "bytes": 3342240,
+      "sha256": "6ad9cf64321f32f9b7dff9abd0520b5f211aa2f23a462e9f4dc7db8519721626"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.ui-party.bin",
+      "bytes": 288,
+      "sha256": "0f9ff4f984aa4de91bf35ce579a6d5b06ec7b0764d6c865d119258b02f707eaf"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "b01b6a3d459fdccb7eded11fa8d787d293fb16ccb348a6f3a77f75041826f92b"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/native.png.wander.bin",
+      "bytes": 7551248,
+      "sha256": "5b55e6e820bea76c2e2bcf52bdcafbd89811307cd9d200ea85fd1088ff98c7a3"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/okage-native",
+      "bytes": 2651296,
+      "sha256": "4b4450d9c1c6666c95d6f02e843ee815162d0b71ef8fc99318ea4bfcc2b3108b"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/pending.json",
+      "bytes": 6854,
+      "sha256": "5ebe12a85ddbd3fad7ab1b674109e40b812b637e783f74c60e3a8ac8d2f48d2d"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/run.json",
+      "bytes": 6898,
+      "sha256": "fdd4b4b57404a8d42a3f00826fa42bb96039d1b47e47835d58c59eafadd1d51f"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-105575-v1/stdout.log",
+      "bytes": 4863,
+      "sha256": "ba68fc08e7132e97cbf1d6654bc64ebe0561d8743b02e101b19fc5ae1cb8f0fd"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/audio-boundaries.json",
+      "bytes": 5124,
+      "sha256": "0c1223cc494036e0900445557960daaf72878d29b94b28f6bb95baaba0619890"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/audio-boundaries.native.wav",
+      "bytes": 1916844,
+      "sha256": "05559d82da9f789428ed3f5e9c8edd689625daabcdc6fe9ff594e37a8573b80e"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/audio-boundaries.original.wav",
+      "bytes": 1764044,
+      "sha256": "6702a32c50a7b2342a841325deafabc08cf91708df339bf25bfe29fe3aa996a7"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/command-0.log",
+      "bytes": 1037,
+      "sha256": "271a65953567c2de38c4e0b21be09df61be81fa34f3a6e20cdcd7a0db5dc86a8"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/command-1.log",
+      "bytes": 1031,
+      "sha256": "b42deb0c2fbfa61f29c2b9d984598899961d8e6a8cfd3e4ece1634718edd97cf"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/command-10.log",
+      "bytes": 246,
+      "sha256": "1f78cdbd666c17a331154d21ffc3d9a037cbadf2b6b18a8a2f0a0245c0347df8"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/command-11.log",
+      "bytes": 252,
+      "sha256": "1b7fc01a2dc4951e99457d023c1839bf000f9e554890573e25eb4c04d15f49cf"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/command-2.log",
+      "bytes": 1032,
+      "sha256": "cc3faa384074faa1622e78d261d8b1e00a030141e5c3bbe05c75255437a9f15b"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/command-3.log",
+      "bytes": 735,
+      "sha256": "087c90c1ce9ee54b64e4c6482b0b8d1d4f8c0103f543b43abb691af64be53b6d"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/command-4.log",
+      "bytes": 735,
+      "sha256": "ed7c2adaa1afddb4ec53b9b24572f1084608c3fb035b7f93c02ae5f3048e2867"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/command-5.log",
+      "bytes": 246,
+      "sha256": "25e6e90967bcf20d3d62b302ab8f63dbb48312f90c4bfa7e247631f872edd030"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/command-6.log",
+      "bytes": 245,
+      "sha256": "7546d94b7942372906cc89234fa6bbe7795be704908bad93c74cc1b9edc752e8"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/command-7.log",
+      "bytes": 245,
+      "sha256": "f950dfb6e0fc43d293f96f3b1f811e41616aa0d1adaa4865d44f6ef79a8c9069"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/command-8.log",
+      "bytes": 246,
+      "sha256": "9d6d7b2e42ab2792b9db506e8526546b94361a785d31be88d77ab3d40a8cbc41"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/command-9.log",
+      "bytes": 243,
+      "sha256": "d320cb41f95b33522a853a0da7cd445b1282510effffc0f2044f70d7c50a758c"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/image-104615/absolute-rgb-difference.png",
+      "bytes": 354287,
+      "sha256": "c9a2bc322d8022ef6bf4054633306e8990c05eef8872b76d21c2121d959fa6ca"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/image-104615/comparison.json",
+      "bytes": 1684,
+      "sha256": "1464f04931a798ffca2ec121a18a3ea7df374ea3e60a78a08fc7a6ea4b8c2dea"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/image-104615/side-by-side.png",
+      "bytes": 488031,
+      "sha256": "182db4d1a1398d1962bc2bf60ff0e3e0b9d00d7383e4c7f28ce9056f2663a3c1"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/image-104616/absolute-rgb-difference.png",
+      "bytes": 354932,
+      "sha256": "49190c5b5b1d80d592d2c06c1bec6074150a6a6c8e7e7034a30d1f8e1cf486be"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/image-104616/comparison.json",
+      "bytes": 1682,
+      "sha256": "e6bc63aeda8da5a91f61bb152867c7f9eee02335b99a7aa37a9d1220116061a9"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/image-104616/side-by-side.png",
+      "bytes": 489508,
+      "sha256": "3b8651b9d0ed1865957da664a3458e956915f24b2d9630b6470fcc9f6dcce408"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/image-104795/absolute-rgb-difference.png",
+      "bytes": 285097,
+      "sha256": "6652601c9aadee128deef69b47a57d937eeb2c5c63a84769553badaba9f2afc6"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/image-104795/comparison.json",
+      "bytes": 1682,
+      "sha256": "5ee5c5316a348ccae1168f67a579e15cf1c0de1d395fd61522df2d5b9fb48f4e"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/image-104795/side-by-side.png",
+      "bytes": 529593,
+      "sha256": "a20adf9dba21e7b5ce70beb224d911fc29ed3926ea8a727a207721e7d7640119"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/image-104975/absolute-rgb-difference.png",
+      "bytes": 185984,
+      "sha256": "a7337380c5e9d0e252f4c9c3ca8e05827b2c70a7063585a68a8bda59f3e30b20"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/image-104975/comparison.json",
+      "bytes": 1683,
+      "sha256": "bf6a98d6b2b95a4dda8a0179383b4462d0acabc7c07ffe5560d615fc82d33bf0"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/image-104975/side-by-side.png",
+      "bytes": 281173,
+      "sha256": "8f2098627274b101feaea5e8886d4a4fdcc31d62935e2c2dfe7cc153ab415677"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/image-105215/absolute-rgb-difference.png",
+      "bytes": 125948,
+      "sha256": "3405272360435c27744ef528a590e08620c31dce7415ffc7df8c921264660123"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/image-105215/comparison.json",
+      "bytes": 1680,
+      "sha256": "bd5475bbfb5d8405727a45f6a64d7e528620fda9297ddc4c094caf078d7f2e7f"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/image-105215/side-by-side.png",
+      "bytes": 212716,
+      "sha256": "79647be772987bc0c90540a32f9032c7a2583d1198d1b4ceac633c063e446937"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/image-105575/absolute-rgb-difference.png",
+      "bytes": 205601,
+      "sha256": "1ed864feec25f9d061f46d686c9aa175ef9b6b3d9947f9933494dea1aad09727"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/image-105575/comparison.json",
+      "bytes": 1693,
+      "sha256": "73e1d79c5720a12e9619316c172b9a2b5f990231fe4f5cea9b84fd55946f3e83"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/image-105575/side-by-side.png",
+      "bytes": 412644,
+      "sha256": "59d41077fb8f69d6f0a9c584c86fa22d94f3ff3660b9414123618850281d2bdf"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/original-attack-120-v1.json",
+      "bytes": 84111,
+      "sha256": "b4083285622f32e6f9d69af7f6a2a65cf0e9bcd9fe912173d5dd45c268331b0f"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/original-live-v2.json",
+      "bytes": 167575,
+      "sha256": "5011cd9140293d3563ab05bae110ec591fca47d51257475fdc561f15a4ebdf22"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/original-strike-60-v2.json",
+      "bytes": 67919,
+      "sha256": "9336395b893221852b0d08dff9f044f4d5f93bc3bc8abb371171815716b3af0e"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/original-strike-hit-120-v1.json",
+      "bytes": 67512,
+      "sha256": "c7eb89b552283d82c96a4b8d68690d520b407f66262ee4be3d2efc33ccfdb8a2"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/display-comparison/original-target-60-v2.json",
+      "bytes": 82771,
+      "sha256": "a36538b51d2eb3610737afc5ccf08122ad1764027715cf6e219da8aa86cc6d56"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/export_title.py",
+      "bytes": 814,
+      "sha256": "26f908a1133ede7e802a9ff5379244ee45a96a4852b484df980af194f24cb87d"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/export_title_v2.py",
+      "bytes": 798,
+      "sha256": "907226ab8f6efce84eb57544f9cd59c69d78663101094fff1174225ee4428c57"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/manifest.py",
+      "bytes": 3043,
+      "sha256": "48de84debc6ba3f5e2dd995116ecebca4ae53d99c554d8e9ca3eda2a46c49e69"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/native-pair-report.json",
+      "bytes": 40090,
+      "sha256": "971e2ab5c0da782b6f312ff64166780f6de6817752303ed7b6064f80820d0ef2"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/observation-checks.json",
+      "bytes": 5329,
+      "sha256": "ba98b66e1d2f1abaaed45928225ab80715f87dba3a6ae29d63ef1c843cbea6c6"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/observation-checks.log",
+      "bytes": 3557,
+      "sha256": "2408f3f1fad4acdcdd6565d00547da27c9390c7709ba616f164c427e1dea1152"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/python-tests-final.log",
+      "bytes": 47058,
+      "sha256": "fa5e77be9440a0d0d3f3c992f1ad5e85b5f46fd78707b26a292119795658a2f6"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/python-tests.log",
+      "bytes": 47058,
+      "sha256": "179acee03790805f9862002c60db1860ee039d5e5e1bc16a98a54d83671e9c52"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/replay.py",
+      "bytes": 1988,
+      "sha256": "bfa2f5d94e4a94cf79cd1bbbe173bf529ff1ea5cca17f98da5351244c6393cca"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/target-root-check.json",
+      "bytes": 13087,
+      "sha256": "3b7af479036703597002b0cecd7f0a863a0aac0e67c0fa8ceeaa9aa3d3324a79"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-export-preflight-failure.txt",
+      "bytes": 244,
+      "sha256": "dfe160ad88f62a7efbc82de6d24ba77b136f3f8b10a47deb01276a397eb6cde1"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-export-v2.log",
+      "bytes": 4732,
+      "sha256": "b075d610eda48b548b5bb5b1088d00d8f4ad8724a55583996583655025e3e155"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-export-v2.run.json",
+      "bytes": 646,
+      "sha256": "18fca239e19f666956e214b8719b7ef02330eecc37ea88d133f970430b3be060"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-export.log",
+      "bytes": 4768,
+      "sha256": "b503fd81ca0a58b523f8573c137781135ee2091e567f501426cb6280cf8a9b85"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-export.run.json",
+      "bytes": 690,
+      "sha256": "f7c91460564f21bd8bd4004726ef64d514a651f64a23c3b5bb594c12a7c9bdbc"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-exports-v1/0010c188.asm",
+      "bytes": 2549,
+      "sha256": "e271682a097ce2d21c0f16b52751af50c5ddd207694e414af3eaf439f1aadb50"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-exports-v1/0010c188.c",
+      "bytes": 1495,
+      "sha256": "73ff588e193f8580f8371f7237904f7ccb43eb6bec2947ed2bb6708f7f71bf81"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-exports-v1/001294b0.asm",
+      "bytes": 1140,
+      "sha256": "a963ab1199f517c4c532b853b8d0825d95f381c30d55b9eac94d5b1da424df37"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-exports-v1/001294b0.c",
+      "bytes": 1560,
+      "sha256": "480928c678cd817ec1acb41e963734750153288a305f5154ad9f086a2c01d8a6"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-exports-v1/0012db50.asm",
+      "bytes": 2055,
+      "sha256": "d60cd21c911dde6d040a53d8ec24acc529336cf7a59659d6aede331ba6149807"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-exports-v1/0012db50.c",
+      "bytes": 869,
+      "sha256": "b11ec133f8afcb75894774df2b325d63726b55f7c0ba7df27ddc78a334a729de"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-exports-v1/0012dd50.asm",
+      "bytes": 199,
+      "sha256": "75e46db1896da504aacfab38f9c7c67fc87f26748367b5e38379388da69c1dee"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-exports-v1/0012dd50.c",
+      "bytes": 124,
+      "sha256": "a310b4cf3a541655e57ab2c3b44502a306e6b6fc9cd4ead2f41c28df7fb28c77"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-exports-v1/001b36c0.asm",
+      "bytes": 152,
+      "sha256": "09d0186b7604ca111640eda81adf8346b02d02e9ce69a7a44df1dc3ef65cd575"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-exports-v1/001b36c0.c",
+      "bytes": 105,
+      "sha256": "bae91f775dfd9d97b3a357cef286fffb679a32a8a2e9ff8ed2c3c50c65f7cbd3"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-exports-v1/functions.tsv",
+      "bytes": 102530,
+      "sha256": "029360c9e8eedb14327281de8a435ca48320ea32819f559a8026e9a0cb93a9b2"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-exports-v2/0010bec0.asm",
+      "bytes": 2061,
+      "sha256": "868f29b65d3b79b068dd7e7a5fcc9deec72e7627350db9e19232feb79568f0a4"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-exports-v2/0010bec0.c",
+      "bytes": 1164,
+      "sha256": "9715fe785b7ba151daec2179b3669b68a3dae62c891bebaf70db8cdb5b0a9272"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-exports-v2/0012de98.asm",
+      "bytes": 45,
+      "sha256": "be27c6f41212c3c09bb84cc9bdef245bcb9ab2948f550255a6d34d50c6e63fc8"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-exports-v2/0012de98.c",
+      "bytes": 60,
+      "sha256": "f1bca5ad84174d4fc874d4b7d049ce37e604c89d6e1a40804d0f3d5e23ac4f3a"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-exports-v2/00174b48.asm",
+      "bytes": 933,
+      "sha256": "efcaf48043ea1efb9ef43623d5dfc8e2335d81597085ea7e43ed4ea91daa370a"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-exports-v2/00174b48.c",
+      "bytes": 467,
+      "sha256": "04b18db87f5e2b61740229044e8d0171c1121ec72af20b7a921ddf2ba68c9ed0"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-exports-v2/functions.tsv",
+      "bytes": 102530,
+      "sha256": "029360c9e8eedb14327281de8a435ca48320ea32819f559a8026e9a0cb93a9b2"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/title-update-recovery.md",
+      "bytes": 18492,
+      "sha256": "b644e30f3c69233cce3096ce55f6c8fc4afda305a3c15d56f250b38ecf553655"
+    },
+    {
+      "path": "local/research/combat-display-divergence-v1/ui-rng-target-audit-v1.json",
+      "bytes": 97384,
+      "sha256": "49eb43ad1a8164519cd27666bd46aeb17f7c3e9010807461a62e4c2200eeee69"
+    }
+  ],
+  "source_files": [
+    {
+      "path": "src/battle_session.mm",
+      "bytes": 92025,
+      "sha256": "71b63ce7156b2659cf39cb5e5694223b9a7a9dd41314c481c36e2cdb7f593521"
+    },
+    {
+      "path": "src/battle_interface_update.cpp",
+      "bytes": 20468,
+      "sha256": "a214261092e0acce779bb3e739d609fb5a89d217914beffa0b48666b61d6983a"
+    },
+    {
+      "path": "src/battle_ui_command_state.cpp",
+      "bytes": 2993,
+      "sha256": "0abc034307effbf17ee6bd76239eaf00bd2b082fb68e25698fa0fca596f12773"
+    },
+    {
+      "path": "src/battle_action_setup.cpp",
+      "bytes": 8167,
+      "sha256": "7fde48324d08f97e20fb2dda7752762d05a15c3ec869102ee8180d7a63aaf8ce"
+    },
+    {
+      "path": "src/battle_roster_update.cpp",
+      "bytes": 19484,
+      "sha256": "92460f269bc224dd620319d8dc93f2b1360c118e330c153b16bb234cb158f2d8"
+    },
+    {
+      "path": "src/ui_window_glyph.cpp",
+      "bytes": 7640,
+      "sha256": "47e6c36b6c39962c272713f4948d0dd809f0e1bc60e343fbdabfa91dad02cc14"
+    },
+    {
+      "path": "include/okage/enemy.hpp",
+      "bytes": 1669,
+      "sha256": "213381c21b9d171289e0846cbb00f6a52d540388b72136e235127fd0c097d14c"
+    },
+    {
+      "path": "tools/compare_battle_live.py",
+      "bytes": 23893,
+      "sha256": "7a5353f71fc7031684dc503c26c481ac93c442c75acaa7ec20e6b9b81eb39ad8"
+    },
+    {
+      "path": "tests/test_compare_battle_live.py",
+      "bytes": 23378,
+      "sha256": "f74f1a42b740bbf8fd7191dc7c77c8b86c0b2ab33a8099371fef1295f3dfd206"
+    },
+    {
+      "path": "tools/ghidra/ExportResearch.java",
+      "bytes": 2692,
+      "sha256": "8ef6934faa854f0d88d4a20004af0a44b0d99bf7a3e9237364a570acf6ca993a"
+    }
+  ],
+  "limitations": [
+    "Old full-display loss remains retained at108699 mode8 argument1 guard.",
+    "Both new runs stop at105575; neither establishes a later battle outcome.",
+    "Auxiliary channels are native-only; five complete original intervals per run all fail.",
+    "Images differ; PCM durations differ and are unaligned; no listening or physical-controller tests.",
+    "No new AppKit interaction or reference VM; sole old live preview preserved.",
+    "Title exports and disc asset locations are static evidence, not a native title/save implementation."
+  ]
+}
