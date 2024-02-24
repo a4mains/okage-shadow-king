@@ -1,15 +1,12 @@
 #pragma once
 #import <Metal/Metal.h>
 #include "okage/assets.hpp"
+#include "okage/image_quad.hpp"
 #include <array>
 #include <memory>
 
 namespace okage {
-struct ImageMetalQuad {
-    std::array<std::array<std::uint32_t,2>,4> xy16;
-    std::array<float,4> st;
-    std::uint32_t rgba, z;
-};
+using ImageMetalQuad=ImageQuad;
 // Inherited source environment; SCISSOR endpoints are inclusive GS pixels.
 // TEST0x0f disables depth test/writes regardless of the inherited ZBUF mask.
 struct ImageMetalBaseline {

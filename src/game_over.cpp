@@ -122,6 +122,13 @@ void update_mode4(GameOverTaskState& task, const GameOverUpdateServices& service
 }
 } // namespace
 
+void mode8_update_prefix(GameOverTaskState& task, GameOverInputState& input,
+                         GameOverPadSample sample,
+                         const GameOverUpdateServices& services) {
+    TowardZero rounding;
+    update_generic_prefix(task, input, sample, services);
+}
+
 void game_over_submode4_update(GameOverTaskState& task,
                                GameOverInputState& input,
                                GameOverPadSample sample,

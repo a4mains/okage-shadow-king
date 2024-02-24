@@ -45,6 +45,10 @@ struct GameOverUpdateServices {
     std::function<void(const GameOverImageCall&)> submit_image;
 };
 
+void mode8_update_prefix(GameOverTaskState& task, GameOverInputState& input,
+                         GameOverPadSample sample,
+                         const GameOverUpdateServices& services);
+
 void game_over_submode4_update(GameOverTaskState& task,
                                GameOverInputState& input,
                                GameOverPadSample sample,

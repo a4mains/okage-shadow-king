@@ -118,11 +118,11 @@ int main(int argc,char** argv){try{
     check(rebound.elements[0].water!=initial_pool.elements[0].water);
     check(rebound.elements[0].water->initialized&&rebound.elements[0].water->selected_packet==1);
     check(rebound.elements[0].water->packed_uv==factory_uv);
-    auto& prepared=*rebound.elements[0].water;
-    prepared.active=0;prepared.heights[0].fill(1056);prepared.heights[1].fill(320);
-    prepared.heights[0][1]=std::bit_cast<std::uint32_t>(std::int32_t(-33));
+    auto& prepared_water=*rebound.elements[0].water;
+    prepared_water.active=0;prepared_water.heights[0].fill(1056);prepared_water.heights[1].fill(320);
+    prepared_water.heights[0][1]=std::bit_cast<std::uint32_t>(std::int32_t(-33));
     const auto before_rebind=rebound;
-    const auto rate_before=prepared.rate_counter,period_before=prepared.period_counter;
+    const auto rate_before=prepared_water.rate_counter,period_before=prepared_water.period_counter;
     rebound.rebind_water_texture(0,70001,98,54);
     const auto& rebound_grid=*rebound.elements[0].water;
     check(rebound.elements[0].water!=before_rebind.elements[0].water);

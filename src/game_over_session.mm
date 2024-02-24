@@ -16,8 +16,6 @@ Texture decode_game_over(Bytes bytes) {
         check(bytes[32+unsigned(index)*4+3]<=128,"Game-over preview cannot recover source alpha above128");
     return image;
 }
-constexpr ImageMetalQuad authored_quad{{{{27648,30976},{37888,30976},{37888,34560},{27648,34560}}},
-    {.5f/1024,.5f/1024,639.5f/1024,447.5f/1024},0x80808080,0xffff};
 constexpr ImageMetalBaseline baseline{0x6c00,0x7900,0,639,0,223,0,1,0,1};
 }
 struct GameOverSession::Impl {
@@ -29,6 +27,7 @@ struct GameOverSession::Impl {
     id<MTLCommandQueue> commands;
     id<MTLTexture> texture,color,depth;
     std::unique_ptr<ImageMetal> renderer;
+    ImageMetalQuad image_quad{};
     Texture output{640,224,0,0,std::vector<std::uint8_t>(640*224*4)};
     bool ready=false;
     Impl(SceneClearColor& clear,SceneFade& fade,BattleUiShared& ui,GameOverShared& shared,GameOverConstruction services)
@@ -37,6 +36,8 @@ struct GameOverSession::Impl {
         check(bool(services.stop_music)&&bool(services.load_image),"Game-over constructor services");
         services.stop_music(); //12d470, before SCR.XPF loading.
         const auto bytes=services.load_image();const auto image=decode_game_over(bytes);
+        image_quad=axis_aligned_image_quad(image.width,image.height,
+            {0,0,0x3f800000,0x3f800000,0,0x3f800000});
         device=MTLCreateSystemDefaultDevice();check(device,"Game-over Metal device");
         commands=[device newCommandQueue];check(commands,"Game-over command queue");
         texture=upload_image_gs_texture(device,image,ImageMetalPreviewAlpha::SourceAtMost128);
@@ -67,7 +68,7 @@ struct GameOverSession::Impl {
         pass.depthAttachment.storeAction=MTLStoreActionStore;pass.depthAttachment.clearDepth=1;
         auto encoder=[command renderCommandEncoderWithDescriptor:pass];check(encoder,"Game-over clear encoder");[encoder endEncoding];
         std::vector<ImageMetalValidation> validations;
-        for(unsigned i=0;i<count;++i)validations.push_back(renderer->encode(command,color,depth,authored_quad,baseline,{texture,{}}));
+        for(unsigned i=0;i<count;++i)validations.push_back(renderer->encode(command,color,depth,image_quad,baseline,{texture,{}}));
         [command commit];[command waitUntilCompleted];
         check(command.status==MTLCommandBufferStatusCompleted,"Game-over rendering failed");
         for(const auto& validation:validations)validation.validate_completed(command);
