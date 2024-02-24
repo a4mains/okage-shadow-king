@@ -7,12 +7,13 @@
 #include <cfenv>
 #include <iostream>
 #include <stdexcept>
+#include <source_location>
 #pragma STDC FENV_ACCESS ON
 #pragma STDC FP_CONTRACT OFF
 
 using Data=std::vector<std::uint8_t>;
-void check(bool v,unsigned where=__builtin_LINE()){
-    if(!v)throw std::runtime_error("Effect test failed at line "+std::to_string(where));
+void check(bool v,const std::source_location where=std::source_location::current()){
+    if(!v)throw std::runtime_error("Effect test failed at line "+std::to_string(where.line()));
 }
 void put(Data& b,std::size_t p,std::uint32_t v){for(unsigned j=0;j<4;++j)b.at(p+j)=v>>(j*8);}
 template<class F>void rejects(F f){try{f();}catch(const std::runtime_error&){return;}throw std::runtime_error("Invalid effect accepted");}
@@ -103,6 +104,72 @@ int main(int argc,char** argv){try{
     const auto water_draw=okage::map_effect_draws(pool,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);
     check(water_draw.size()==1&&water_draw[0].vertices.size()==31*31*6&&water_draw[0].clamp_mode==3);
     check(water_draw[0].depth_test&&!water_draw[0].additive&&!water_draw[0].subtractive);
+    //10c188 before lazy10c388 allocation changes binding/UV metadata only.
+    auto rebound=initial_pool;
+    const auto factory_uv=rebound.elements[0].water->packed_uv;
+    const auto rng_before_rebind=water_rng;
+    rebound.rebind_water_texture(0,70000,98,54);
+    check(rebound.elements[0].texture==70000&&rebound.elements[0].uv==
+          std::array<std::uint16_t,4>{0,0,97,53});
+    check(rebound.elements[0].water==initial_pool.elements[0].water);
+    check(rebound.elements[0].water->packed_uv==factory_uv&&water_rng==rng_before_rebind);
+    check(initial_pool.elements[0].texture==2&&initial_pool.elements[0].uv[2]==63);
+    rebound.tick(water_random);
+    check(rebound.elements[0].water!=initial_pool.elements[0].water);
+    check(rebound.elements[0].water->initialized&&rebound.elements[0].water->selected_packet==1);
+    check(rebound.elements[0].water->packed_uv==factory_uv);
+    auto& prepared=*rebound.elements[0].water;
+    prepared.active=0;prepared.heights[0].fill(1056);prepared.heights[1].fill(320);
+    prepared.heights[0][1]=std::bit_cast<std::uint32_t>(std::int32_t(-33));
+    const auto before_rebind=rebound;
+    const auto rate_before=prepared.rate_counter,period_before=prepared.period_counter;
+    rebound.rebind_water_texture(0,70001,98,54);
+    const auto& rebound_grid=*rebound.elements[0].water;
+    check(rebound.elements[0].water!=before_rebind.elements[0].water);
+    check(before_rebind.elements[0].texture==70000&&before_rebind.elements[0].water->packed_uv==factory_uv);
+    check(rebound_grid.active==0&&rebound_grid.selected_packet==1&&
+          rebound_grid.rate_counter==rate_before&&rebound_grid.period_counter==period_before);
+    check(rebound_grid.coordinates[1]==std::array<std::int32_t,2>{3,53});
+    check(rebound_grid.coordinates[30]==std::array<std::int32_t,2>{93,53});
+    check(rebound_grid.coordinates[32]==std::array<std::int32_t,2>{0,52});
+    check(rebound_grid.coordinates[30*32]==std::array<std::int32_t,2>{0,2});
+    check(rebound_grid.coordinates[1023]==std::array<std::int32_t,2>{97,0});
+    for(const auto& cache:rebound_grid.packets) {
+        check(cache.y[1]==-2&&cache.y[0]==33);
+        check(cache.uv[1]==std::array<std::uint16_t,2>{96,1696});
+        check(cache.uv[1023]==std::array<std::uint16_t,2>{3104,0});
+        check(cache.y==rebound_grid.packed_y&&cache.uv==rebound_grid.packed_uv);
+    }
+    const auto rebound_draw=okage::map_effect_draws(rebound,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);
+    check(rebound_draw.size()==1&&rebound_draw[0].texture==70001);
+    check(rebound_draw[0].vertices[0].position[1]==-2.f/64&&
+          rebound_draw[0].vertices[0].uv[0]==96.f/32768&&rebound_draw[0].vertices[0].uv[1]==1696.f/32768);
+    const auto submitted_rebind=rebound;
+    rebound.tick(water_random);rebound.tick(water_random);
+    check(rebound.elements[0].water!=submitted_rebind.elements[0].water);
+    check(rebound.elements[0].water->active==1&&rebound.elements[0].water->selected_packet==1);
+    check(rebound.elements[0].water->packed_y[1]==-2); //Time32 still packs OLD active height.
+    check(submitted_rebind.elements[0].water->coordinates[1][0]==3&&
+          submitted_rebind.elements[0].water->packed_uv[1][0]==96);
+    check(rebound.elements[0].water->packets[0].uv==submitted_rebind.elements[0].water->packets[0].uv);
+    //Descriptor fields are12-bit before subtract1;4096 gives signedLH -1.
+    auto signed_rebind=submitted_rebind;
+    signed_rebind.rebind_water_texture(0,42,4096,4096);
+    const auto& negative=*signed_rebind.elements[0].water;
+    check(negative.coordinates[30]==std::array<std::int32_t,2>{0,-1}); //Divide truncates toward zero.
+    check(negative.coordinates[31]==std::array<std::int32_t,2>{-1,-1});
+    check(negative.coordinates[1023]==std::array<std::int32_t,2>{-1,0});
+    check(negative.packed_uv[31]==std::array<std::uint16_t,2>{65504,65504});
+    signed_rebind.tick(water_random);signed_rebind.tick(water_random);
+    check(signed_rebind.elements[0].water->coordinates[2*32+2][1]==-1); //Ordered source clamp, not clamp(0,-1).
+    auto one_pixel=submitted_rebind;one_pixel.rebind_water_texture(0,0,1,1);
+    check(one_pixel.elements[0].water->packed_uv[1023]==std::array<std::uint16_t,2>{0,0});
+    const auto unchanged=rebound.elements[0].water;
+    rejects([&]{rebound.rebind_water_texture(1,9,32,32);});
+    rejects([&]{rebound.rebind_water_texture(0,0xffffffffu,32,32);});
+    rejects([&]{rebound.rebind_water_texture(0,9,0,32);});
+    rejects([&]{rebound.rebind_water_texture(0,9,32,4097);});
+    check(rebound.elements[0].water==unchanged&&rebound.elements[0].texture==70001&&water_rng==rng_before_rebind);
     auto unsupported_water=pool;unsupported_water.parameters[3]=2;
     rejects([&]{unsupported_water.tick(water_random);});
     unsigned shape_rng=0;

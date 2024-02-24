@@ -27,6 +27,18 @@ struct Rounding {
     ~Rounding(){std::fesetround(old);}
 };
 unsigned angle(float t){return (static_cast<std::uint32_t>(static_cast<std::int32_t>(t*32768.0f))>>1)&16383;}
+void pack_water(EffectWaterSurface& water,unsigned packet,
+                const std::array<std::uint32_t,1024>& heights) {
+    require(packet<2,"Invalid water packet selector");
+    auto& cache=water.packets[packet];
+    for(unsigned i=0;i<1024;++i) {
+        cache.y[i]=std::bit_cast<std::int16_t>(std::uint16_t(std::bit_cast<std::int32_t>(heights[i])>>5));
+        for(unsigned axis=0;axis<2;++axis)
+            cache.uv[i][axis]=std::uint16_t(std::uint32_t(water.coordinates[i][axis])<<5);
+    }
+    water.selected_packet=packet;
+    water.packed_y=cache.y;water.packed_uv=cache.uv;
+}
 void update_water(EffectWaterSurface& water,const MapEffectElement& e,const Float4& parameters) {
     require(parameters[0]==32&&parameters[1]==32&&parameters[3]==1&&e.interval[3]==0,
             "Unrecovered water dimensions or impulse mode");
@@ -36,7 +48,8 @@ void update_water(EffectWaterSurface& water,const MapEffectElement& e,const Floa
         water.rate=unsigned(parameters[2]);water.period=50;
         for(int y=0;y<32;++y)for(int x=0;x<32;++x)
             water.coordinates[y*32+x]={right*x/31,bottom-bottom*y/31};
-        water.initialized=true;
+        for(auto& packet:water.packets){packet.y=water.packed_y;packet.uv=water.packed_uv;}
+        water.selected_packet=1;water.initialized=true;
     }
     ++water.rate_counter;++water.period_counter;
     if(water.rate_counter<water.rate)return;
@@ -61,14 +74,13 @@ void update_water(EffectWaterSurface& water,const MapEffectElement& e,const Floa
         const auto nw=source[at-33],ne=source[at-31],sw=source[at+31],se=source[at+33];
         const auto dx=std::uint32_t(signed_word(ne+se-nw-sw)>>1)+source[at+1]-source[at-1];
         const auto dy=std::uint32_t(signed_word(sw+se-nw-ne)>>1)+source[at+32]-source[at-32];
-        water.coordinates[at]={right*(x-1)/29+(signed_word(dx)>>6),
-            std::clamp(bottom-(bottom*(y-1)/29+(signed_word(dy)>>6)),0,bottom)};
+        auto v=bottom-(bottom*(y-1)/29+(signed_word(dy)>>6));
+        //10cc68..84: ordered comparisons, including signed negative bounds.
+        if(v<0)v=0;
+        if(v>bottom)v=bottom;
+        water.coordinates[at]={right*(x-1)/29+(signed_word(dx)>>6),v};
     }
-    for(unsigned i=0;i<1024;++i) {
-        water.packed_y[i]=std::int16_t(signed_word(source[i])>>5);
-        for(unsigned axis=0;axis<2;++axis)
-            water.packed_uv[i][axis]=std::uint16_t(std::uint32_t(water.coordinates[i][axis])<<5);
-    }
+    pack_water(water,water.active,source);
 }
 }
 std::vector<EffectDefinition> read_efd(Bytes bytes) {
@@ -209,6 +221,27 @@ void MapEffect::set_texture(MapEffectElement& e,unsigned texture) {
     require(size[0]>0&&size[1]>0&&size[0]<=4096&&size[1]<=4096,"Missing effect texture dimensions");
     e.texture=texture;e.uv={0,0,std::uint16_t(size[0]-1),std::uint16_t(size[1]-1)};
 }
+void MapEffect::rebind_water_texture(unsigned element,std::uint32_t texture,
+                                     std::uint32_t width,std::uint32_t height) {
+    require(id==106&&element<elements.size(),"Water texture rebind owner/element extent");
+    auto& e=elements[element];
+    require(e.shape==65&&bool(e.water),"Water texture rebind requires shape65 geometry");
+    require(texture!=0xffffffffu,"Water texture rebind requires a native textured slot");
+    require(width>=1&&width<=4096&&height>=1&&height<=4096,"Water texture descriptor dimensions");
+    require(e.water->active<2,"Water texture rebind height-grid selector");
+    //Prepare COW storage before publishing metadata; no RNG or clock mutation.
+    if(e.water->initialized&&e.water.use_count()!=1)
+        e.water=std::make_shared<EffectWaterSurface>(*e.water);
+    e.texture=texture;
+    e.uv={0,0,std::uint16_t((width&0xfffu)-1u),std::uint16_t((height&0xfffu)-1u)};
+    if(!e.water->initialized)return; //10c248: source element+7c is still null.
+    auto& water=*e.water;
+    const int right=std::bit_cast<std::int16_t>(e.uv[2]),bottom=std::bit_cast<std::int16_t>(e.uv[3]);
+    for(int y=0;y<32;++y)for(int x=0;x<32;++x)
+        water.coordinates[y*32+x]={right*x/31,bottom-bottom*y/31};
+    pack_water(water,0,water.heights[water.active]);
+    pack_water(water,1,water.heights[water.active]);
+}
 void MapEffect::set_numeric_parameter(std::int32_t value) {
     Rounding rounding;parameters.fill(float(value));
 }
@@ -300,7 +333,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
             result.push_back(std::move(draw));continue;
         }
         if(e.shape==65) {
-            require(effect.id==106&&e.water&&e.texture==2,"Missing native water geometry");
+            require(effect.id==106&&e.water&&e.texture!=0xffffffffu,"Missing native water geometry or texture binding");
             for(unsigned y=0;y<31;++y)for(unsigned x=0;x<31;++x) {
                 const std::array<unsigned,4> corners={y*32+x,y*32+x+1,(y+1)*32+x+1,(y+1)*32+x};
                 // Factory0x112d20 emits B,A,C,D with the A-C diagonal.

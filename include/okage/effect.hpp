@@ -37,11 +37,17 @@ inline constexpr std::array<std::string_view,31> effect_texture_names={
     "thunderball.xim","6eff01.xim","6eff02.xim","5sen.xim","exp_c.xim","heart.xim",
     "onnpu.xim","wind.xim","treasure.xim","page.xim","odoro.xim","aura.xim","kyusyu16.xim"};
 using EffectTextureSizes=std::array<std::array<std::uint32_t,2>,31>;
+struct EffectWaterPacket {
+    std::array<std::int16_t,1024> y{};
+    std::array<std::array<std::uint16_t,2>,1024> uv{};
+};
 struct EffectWaterSurface {
     std::array<std::array<std::uint32_t,1024>,2> heights{};
     std::array<std::array<std::int32_t,2>,1024> coordinates{};
     std::array<std::int16_t,1024> packed_y{};
     std::array<std::array<std::uint16_t,2>,1024> packed_uv{};
+    std::array<EffectWaterPacket,2> packets{};
+    unsigned selected_packet=0;
     unsigned active=0,rate=0,rate_counter=0,period=0,period_counter=0;
     bool initialized=false;
 };
@@ -101,6 +107,8 @@ public:
     void set_parameter(unsigned selector,const Float4& payload);
     //0x1016a8 writes signed integer -> float into job parameters+50..5f.
     void set_numeric_parameter(std::int32_t);
+    void rebind_water_texture(unsigned element,std::uint32_t native_texture_slot,
+                              std::uint32_t width,std::uint32_t height);
     void tick(const std::function<std::uint32_t()>& random,bool clock_enabled=true,
               const Float4* camera_world_position=nullptr,
               const EffectProjectionContext* projection=nullptr);
