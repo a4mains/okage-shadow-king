@@ -42,7 +42,21 @@ int main(int argc,const char** argv) {@autoreleasepool {try {
     const auto sine=make_sine_table();
     for(auto* actor:{&first,&second,&third}){actor->visible=false;actor->animation().set_channel(1,{0,0,0,1});actor->evaluate();}
     SceneRenderer constructed(map,bindings),appended(map,std::span(bindings,1));
+    auto duplicateImage=decode_xim(read(fs::path(argv[3])/effect_texture_names[17]));
+    rejects([&]{appended.add_effect_texture(duplicateImage);},"Effect textures are unavailable");
     constructed.load_effect_textures(argv[3]);appended.load_effect_textures(argv[3]);
+    auto invalidImage=duplicateImage;invalidImage.width=0;
+    rejects([&]{appended.add_effect_texture(invalidImage);},"Invalid effect texture extent or RGBA size");
+    invalidImage=duplicateImage;invalidImage.height=4097;
+    rejects([&]{appended.add_effect_texture(invalidImage);},"Invalid effect texture extent or RGBA size");
+    invalidImage=duplicateImage;invalidImage.rgba.pop_back();
+    rejects([&]{appended.add_effect_texture(invalidImage);},"Invalid effect texture extent or RGBA size");
+    invalidImage=duplicateImage;invalidImage.rgba.push_back(0);
+    rejects([&]{appended.add_effect_texture(invalidImage);},"Invalid effect texture extent or RGBA size");
+    const auto externalSlot=appended.add_effect_texture(duplicateImage);
+    require(externalSlot==31,"Failed registration published a logical slot");
+    std::fill(duplicateImage.rgba.begin(),duplicateImage.rgba.end(),0); //Renderer owns a copy.
+
     const auto sizes=appended.effect_texture_sizes();
     const auto placements=appended.placements(),omitted=appended.omitted_effects();
     FieldProjection projection;projection.load_stage(read(stage));projection.begin_field();projection.begin_effects();projection.begin_deferred();projection.end_effects();
@@ -71,7 +85,14 @@ int main(int argc,const char** argv) {@autoreleasepool {try {
     MapEffects effects;
     effects[0]=std::make_unique<MapEffect>(*definition,Float4{5,0,0,1},Float4{0,0,0,1},Float4{1,1,1,1},sizes,random,EffectStart::FirstFrame);
     effects[0]->shape55_geometry=std::make_shared<const std::vector<MapEffectVertex>>(make_shadow_effect_shape(55,sine,random));
-    constructed.bind_map_effects(&effects);appended.bind_map_effects(&effects);
+    MapEffects remappedEffects;
+    auto remap=[&](std::uint32_t slot){
+        remappedEffects[0]=std::make_unique<MapEffect>(*effects[0]);
+        unsigned mapped=0;
+        for(auto& element:remappedEffects[0]->elements)if(element.texture==17){element.texture=slot;++mapped;}
+        require(mapped>0,"Fixture did not reference the registered texture");
+    };
+    constructed.bind_map_effects(&effects);appended.bind_map_effects(&remappedEffects);
     std::size_t comparisons=0,shadowComparisons=0;bool changed=false;
     for(unsigned tick=0;tick<12;++tick) {
         unsigned index=0;
@@ -80,6 +101,7 @@ int main(int argc,const char** argv) {@autoreleasepool {try {
             actor->animation().set_channel(1,{float(index++)*3-3,0,float(tick)*.125f,1});actor->evaluate();
         }
         effects[0]->tick(random,true,&eye);
+        remap(externalSlot);
         const auto a=render(constructed),b=render(appended);
         require(a.rgba==b.rgba,"Constructed/appended RGBA differs");
         require(same_submissions(constructed.shadow_submissions(),appended.shadow_submissions()),"Constructed/appended shadow order differs");
@@ -92,11 +114,27 @@ int main(int argc,const char** argv) {@autoreleasepool {try {
     SceneRenderer early(map);for(const auto& binding:bindings)early.add_actor(binding);
     early.load_effect_textures(argv[3]);early.bind_map_effects(&effects);
     const auto visible=render(constructed);
+    // Snapshot a genuinely rendered external effect before further pool growth.
+    const auto retained=appended.prepare(view,clip,nullptr,camera,projection.frame().ordinary.clip_far,eye,&projection.frame());
+    require(appended.render_prepared(retained).rgba==visible.rgba,"Remapped prepared frame differs");
+    duplicateImage=decode_xim(read(fs::path(argv[3])/effect_texture_names[17]));
+    const auto laterSlot=appended.add_effect_texture(duplicateImage); //After actor texture insertions.
+    require(laterSlot==32,"Actor insertion disrupted logical texture slots");
+    remap(laterSlot);
+    require(render(appended).rgba==visible.rgba,"External texture appended after actors differs");
+    require(appended.render_prepared(retained).rgba==visible.rgba,"Texture append invalidated retained frame");
+    require(appended.effect_texture_sizes()==sizes,"External registration changed ENV_TEX sizes");
+    // Isolate the duplicated texture's contribution, not merely other effects.
+    for(auto& element:remappedEffects[0]->elements)if(element.texture==laterSlot)element.rendered[3][3]=0;
+    require(render(appended).rgba!=visible.rgba,"Fixture did not expose the remapped textured elements");
+    require(appended.render_prepared(retained).rgba==visible.rgba,"Prepared frame borrowed mutable effect state");
+    remap(laterSlot);
+
     require(visible.rgba==render(early).rgba,"Append before effects differs");++comparisons;
     for(auto* actor:{&first,&second,&third})actor->visible=false;
     require(render(constructed).rgba!=visible.rgba,"Fixture did not expose actor geometry or shadows");
     for(auto* actor:{&first,&second,&third})actor->visible=true;
     constructed.bind_map_effects(nullptr);
     require(render(constructed).rgba!=visible.rgba,"Fixture did not expose the textured effect");
-    std::cout<<"Passed "<<comparisons<<" exact RGBA pairs; "<<shadowComparisons<<" ordered shadow submissions; hidden append and failure recovery\n";
+    std::cout<<"Passed "<<comparisons<<" exact RGBA pairs; "<<shadowComparisons<<" ordered shadow submissions; external effect texture mapping, retained frames, hidden append and failure recovery\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}}

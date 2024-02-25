@@ -164,7 +164,8 @@ struct SceneRenderer::Impl {
     unsigned nextFrontOrdinal=0;
     unsigned sortDepthShift=19;
     const std::shared_ptr<const int> identity=std::make_shared<const int>(0);
-    std::size_t whiteTexture=0,effectTexture=0;
+    std::size_t whiteTexture=0;
+    std::vector<std::size_t> effectTextureSlots;
     bool effectTexturesLoaded=false;
     const MapEffects* mapEffects=nullptr;
     const EffectSubmissions* effectSubmissions=nullptr;
@@ -306,18 +307,44 @@ struct SceneRenderer::Impl {
         shadowActors.clear();sky_input.reset();mapObjects=nullptr;
         actorCount=0;nextFrontOrdinal=0;omittedEffects=0;
     }
+    static void validateEffectTexture(const Texture& image) {
+        if(!image.width||!image.height||image.width>4096||image.height>4096||
+           image.rgba.size()!=std::size_t(image.width)*image.height*4)
+            throw std::runtime_error("Invalid effect texture extent or RGBA size");
+    }
+    std::uint32_t addEffectTexture(const Texture& source) {
+        if(!effectTexturesLoaded)throw std::runtime_error("Effect textures are unavailable");
+        validateEffectTexture(source);
+        if(effectTextureSlots.size()>=0xffffffffu||textures.size()>0x7fffffffu)
+            throw std::runtime_error("Effect texture identity limit");
+        Texture image=source;
+        auto uploaded=uploadTexture(image);
+        auto nextGpu=[gpuTextures mutableCopy];
+        [nextGpu addObject:uploaded];
+        textures.reserve(textures.size()+1);
+        effectTextureSlots.reserve(effectTextureSlots.size()+1);
+        const auto slot=std::uint32_t(effectTextureSlots.size());
+        effectTextureSlots.push_back(textures.size());
+        textures.push_back(std::move(image));
+        gpuTextures=nextGpu;
+        return slot;
+    }
     void loadEffects(const fs::path& directory) {
         if(effectTexturesLoaded)throw std::runtime_error("Effect textures already loaded");
-        effectTexture=textures.size();
+        std::vector<Texture> images;
+        std::vector<std::size_t> slots;
+        images.reserve(effect_texture_names.size());slots.reserve(effect_texture_names.size());
+        auto nextGpu=[gpuTextures mutableCopy];
         for(const auto name:effect_texture_names) {
             auto image=decode_xim(read(directory/name));
-            auto td=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:image.width height:image.height mipmapped:NO];
-            td.storageMode=MTLStorageModeShared;td.usage=MTLTextureUsageShaderRead;
-            id<MTLTexture> texture=[device newTextureWithDescriptor:td];
-            if(!texture)throw std::runtime_error("Effect texture allocation failed");
-            [texture replaceRegion:MTLRegionMake2D(0,0,image.width,image.height) mipmapLevel:0 withBytes:image.rgba.data() bytesPerRow:image.width*4];
-            [gpuTextures addObject:texture];textures.push_back(std::move(image));
+            validateEffectTexture(image);
+            slots.push_back(textures.size()+images.size());
+            [nextGpu addObject:uploadTexture(image)];
+            images.push_back(std::move(image));
         }
+        textures.reserve(textures.size()+images.size());
+        for(auto& image:images)textures.push_back(std::move(image));
+        effectTextureSlots=std::move(slots);gpuTextures=nextGpu;
         effectTexturesLoaded=true;
     }
     PreparedFrame prepare(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor,bool restoreShadowAlpha) {
@@ -544,7 +571,7 @@ struct SceneRenderer::Impl {
             for(const auto& e:map_effect_draws(*effect,view,camera,farClip,sine,effectTint?&*effectTint:nullptr,
                     effect->flags&0x400?EffectDrawPass::Deferred:EffectDrawPass::Ordinary)){
                 const bool untextured=e.texture==0xffffffffu;
-                const auto texture=untextured?-1:std::int32_t(effectTexture+e.texture);
+                const auto texture=untextured?-1:std::int32_t(effectTextureSlots.at(e.texture));
                 if(!untextured){const auto& image=textures.at(texture);
                     if(e.uv[2]>=image.width||e.uv[3]>=image.height)throw std::runtime_error("Map effect texture bounds");}
                 if(e.clamp_mode!=2&&e.clamp_mode!=3)throw std::runtime_error("Unrecovered effect texture addressing");
@@ -578,7 +605,7 @@ struct SceneRenderer::Impl {
                 const auto matrix=compose_pose(view,std::span(&world,1))[0];
                 const std::array<Float4,4> corners={Float4{0,-1,0,1},Float4{1,-1,0,1},Float4{1,0,0,1},Float4{0,0,0,1}};
                 if(sprite.texture<14||sprite.texture>16)throw std::runtime_error("Unsupported effect texture");
-                const auto texture=effectTexture+sprite.texture;const auto& image=textures.at(texture);
+                const auto texture=effectTextureSlots.at(sprite.texture);const auto& image=textures.at(texture);
                 const unsigned left=sprite.uv[0],top=sprite.uv[1],right=sprite.uv[2],bottom=sprite.uv[3];
                 Draw draw{std::uint32_t(vertices.size()),6,std::int32_t(texture),{left,std::min(right,image.width-1),top,std::min(bottom,image.height-1),2,2,1,0},true};
                 draw.phase=2;draw.nearClip=attached->near_clip;
@@ -766,10 +793,11 @@ SceneRenderer::~SceneRenderer()=default;
 void SceneRenderer::add_actor(const SceneActor& actor){impl_->addActor(actor);}
 void SceneRenderer::retire_instances(){impl_->retireInstances();}
 void SceneRenderer::load_effect_textures(const fs::path& path){impl_->loadEffects(path);}
+std::uint32_t SceneRenderer::add_effect_texture(const Texture& image){return impl_->addEffectTexture(image);}
 EffectTextureSizes SceneRenderer::effect_texture_sizes() const {
     if(!impl_->effectTexturesLoaded)throw std::runtime_error("Effect textures are unavailable");
     EffectTextureSizes result{};
-    for(unsigned i=0;i<result.size();++i){const auto& t=impl_->textures.at(impl_->effectTexture+i);result[i]={t.width,t.height};}
+    for(unsigned i=0;i<result.size();++i){const auto& t=impl_->textures.at(impl_->effectTextureSlots.at(i));result[i]={t.width,t.height};}
     return result;
 }
 void SceneRenderer::set_effect_light_tint(const Float4& tint){impl_->effectTint=tint;}

@@ -64,6 +64,7 @@ public:
     void add_actor(const SceneActor&);
     void retire_instances();
     void load_effect_textures(const std::filesystem::path&);
+    std::uint32_t add_effect_texture(const Texture&);
     EffectTextureSizes effect_texture_sizes() const;
     void bind_map_effects(const MapEffects*);
     void bind_effect_submissions(const EffectSubmissions*);
