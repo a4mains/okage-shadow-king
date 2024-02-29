@@ -42,7 +42,18 @@ int main(int argc,const char** argv) {@autoreleasepool {try {
     const auto sine=make_sine_table();
     for(auto* actor:{&first,&second,&third}){actor->visible=false;actor->animation().set_channel(1,{0,0,0,1});actor->evaluate();}
     SceneRenderer constructed(map,bindings),appended(map,std::span(bindings,1));
-    auto duplicateImage=decode_xim(read(fs::path(argv[3])/effect_texture_names[17]));
+    const auto bank=read_efd(read(argv[4]));
+    const auto definition=std::find_if(bank.begin(),bank.end(),[](const auto& d){return d.id==24;});
+    require(definition!=bank.end(),"Missing effect24 definition");
+    const auto textured=std::find_if(definition->elements.begin(),definition->elements.end(),[](const auto& e){
+        return e.shape==31&&(e.primitive_flags&0x300)==0x100&&(e.channels&0x10);
+    });
+    require(textured!=definition->elements.end(),"Missing authored effect24 texture replacement");
+    const float authoredSlot=textured->values[4][2];
+    require(authoredSlot>=0&&authoredSlot<effect_texture_names.size(),"Effect24 texture replacement outside ENV_TEX");
+    const auto sourceSlot=static_cast<unsigned>(authoredSlot);
+    require(float(sourceSlot)==authoredSlot,"Nonintegral authored effect24 texture replacement");
+    auto duplicateImage=decode_xim(read(fs::path(argv[3])/effect_texture_names[sourceSlot]));
     rejects([&]{appended.add_effect_texture(duplicateImage);},"Effect textures are unavailable");
     constructed.load_effect_textures(argv[3]);appended.load_effect_textures(argv[3]);
     auto invalidImage=duplicateImage;invalidImage.width=0;
@@ -78,9 +89,6 @@ int main(int argc,const char** argv) {@autoreleasepool {try {
     rejects([&]{appended.add_actor(bindings[2]);},"Scene actor already registered");
     const SceneActor duplicate[]{bindings[0],bindings[0]};
     rejects([&]{SceneRenderer invalid(map,duplicate);},"Scene actor already registered");
-    const auto bank=read_efd(read(argv[4]));
-    const auto definition=std::find_if(bank.begin(),bank.end(),[](const auto& d){return d.id==24;});
-    require(definition!=bank.end(),"Missing effect24 definition");
     GameRandom rng{1};const auto random=[&]{return rng.next();};
     MapEffects effects;
     effects[0]=std::make_unique<MapEffect>(*definition,Float4{5,0,0,1},Float4{0,0,0,1},Float4{1,1,1,1},sizes,random,EffectStart::FirstFrame);
@@ -89,7 +97,7 @@ int main(int argc,const char** argv) {@autoreleasepool {try {
     auto remap=[&](std::uint32_t slot){
         remappedEffects[0]=std::make_unique<MapEffect>(*effects[0]);
         unsigned mapped=0;
-        for(auto& element:remappedEffects[0]->elements)if(element.texture==17){element.texture=slot;++mapped;}
+        for(auto& element:remappedEffects[0]->elements)if(element.texture==sourceSlot){element.texture=slot;++mapped;}
         require(mapped>0,"Fixture did not reference the registered texture");
     };
     constructed.bind_map_effects(&effects);appended.bind_map_effects(&remappedEffects);
@@ -117,7 +125,7 @@ int main(int argc,const char** argv) {@autoreleasepool {try {
     // Snapshot a genuinely rendered external effect before further pool growth.
     const auto retained=appended.prepare(view,clip,nullptr,camera,projection.frame().ordinary.clip_far,eye,&projection.frame());
     require(appended.render_prepared(retained).rgba==visible.rgba,"Remapped prepared frame differs");
-    duplicateImage=decode_xim(read(fs::path(argv[3])/effect_texture_names[17]));
+    duplicateImage=decode_xim(read(fs::path(argv[3])/effect_texture_names[sourceSlot]));
     const auto laterSlot=appended.add_effect_texture(duplicateImage); //After actor texture insertions.
     require(laterSlot==32,"Actor insertion disrupted logical texture slots");
     remap(laterSlot);
