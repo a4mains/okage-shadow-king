@@ -2,12 +2,14 @@
 """Verify title assets and optionally import title streaming audio from owned USA media.
 
 This records provenance for the eight authored SCR.XPF images, NIGHT_V/a.xmd,
-and direct THEMA_1.XWH/XWB disc files. It does not decode or play audio.
+direct THEMA_1.XWH/XWB disc files, and the RXSNDDRV IOP PCM gain table. It
+does not decode or play audio.
 """
 import argparse
 import hashlib
 import json
 from pathlib import Path
+import struct
 
 from inspect_disc import Disc
 from prepare_assets import ELF_HASH
@@ -23,6 +25,11 @@ AUDIO = (
     {'path': 'SNDDATA/STR/THEMA_1.XWH', 'lba': 163585, 'size': 112},
     {'path': 'SNDDATA/STR/THEMA_1.XWB', 'lba': 163586, 'size': 23186288},
 )
+IOP_IRX_SHA256 = '7fe8b5a33c2f8700d1f964cf5ce2f66942f8f97d952e86e6dc0ad5d4f74becb2'
+IOP_GAIN_TABLE_VADDR = 0xd120
+IOP_GAIN_TABLE_BYTES = 257 * 2
+IOP_GAIN_TABLE_SHA256 = 'e3a871b43473890b490905a38568e92a11b4ab2601140dbfb0a202006e71c2db'
+IOP_GAIN_TABLE_FILENAME = 'PCM_GAIN_Q12.bin'
 TITLE_ASSETS = (
     ('SCR.XPF', 'title_sample4.xim', 313392, '6accf8e52612c27a71e3e0802651d15d645c2ea4adcf19d60f5ddc42135910f1'),
     ('SCR.XPF', 'push.xim', 4528, '765fe72e8c1c7fbdc88e768bcf740fee71a07ed2bfa0f3ccc9528b4ebe116dfd'),
@@ -64,6 +71,52 @@ def verify_title_strings(elf, segments):
             raise ValueError(f'Unexpected title resource string at 0x{address:x}')
         strings[f'0x{address:06x}'] = actual[:-1].decode('ascii')
     return strings
+
+def verify_iop_gain_table(elf_path):
+    """Read the owned IRX table through its ELF PT_LOAD virtual mapping."""
+    from inspect_disc import inspect_elf
+
+    path = Path(elf_path)
+    if path.is_symlink() or not path.is_file():
+        raise ValueError(f'Missing or unsafe RXSNDDRV IRX: {path}')
+    elf = path.read_bytes()
+    elf_sha = sha256_bytes(elf)
+    if elf_sha != IOP_IRX_SHA256:
+        raise ValueError('RXSNDDRV IRX hash differs from the pinned owned module')
+    info = inspect_elf(elf)
+    table = address_bytes(elf, info['segments'], IOP_GAIN_TABLE_VADDR,
+                          IOP_GAIN_TABLE_BYTES)
+    table_sha = sha256_bytes(table)
+    if table_sha != IOP_GAIN_TABLE_SHA256:
+        raise ValueError('RXSNDDRV PCM gain table hash differs from pinned table')
+    if len(table) != IOP_GAIN_TABLE_BYTES:
+        raise ValueError('Truncated RXSNDDRV PCM gain table')
+    selected = next(segment for segment in info['segments']
+                    if segment['type'] == 1
+                    and int(segment['vaddr'], 16) <= IOP_GAIN_TABLE_VADDR
+                    and IOP_GAIN_TABLE_VADDR + IOP_GAIN_TABLE_BYTES <=
+                    int(segment['vaddr'], 16) + segment['filesz'])
+    file_offset = selected['offset'] + IOP_GAIN_TABLE_VADDR - int(selected['vaddr'], 16)
+    if file_offset < selected['offset'] or file_offset + len(table) > selected['offset'] + selected['filesz']:
+        raise ValueError('RXSNDDRV PCM gain table escapes its file-backed PT_LOAD segment')
+    gains = struct.unpack('<257h', table)
+    examples = {str(gain): gains[gain + 128] for gain in (127, 128, -128, -127)}
+    if examples != {'127': 4096, '128': 4096, '-128': -4096, '-127': -4032}:
+        raise ValueError('RXSNDDRV PCM gain table sample values differ from pinned observations')
+    return {
+        'path': str(path),
+        'sha256': elf_sha,
+        'elf_format': 'ELF32 little-endian MIPS IOP module',
+        'selected_pt_load': {'vaddr': selected['vaddr'], 'offset': selected['offset'],
+                             'filesz': selected['filesz']},
+        'table_vaddr': f'0x{IOP_GAIN_TABLE_VADDR:08x}',
+        'table_file_offset': file_offset,
+        'table_bytes': len(table),
+        'table_sha256': table_sha,
+        'encoding': '257 signed little-endian int16 Q12 gain entries; nonlinear lookup table',
+        'input_gain_index': 'index = signed_gain + 128; valid signed_gain range is -128..128',
+        'examples': examples,
+    }, table
 
 def index_disc_files(report):
     entries = {}
@@ -142,7 +195,8 @@ def install_audio_resources(audio_root, payloads):
     return installed
 
 def audit_title_resources(disc_path, disc_report_path, elf_path, xpf_verification_path,
-                          decoded_root, audio_root, install_audio=False, disc_factory=Disc):
+                          decoded_root, audio_root, install_audio=False, disc_factory=Disc,
+                          iop_irx_path=Path('local/extracted/MODULES/RXSNDDRV.IRX')):
     disc_report = json.loads(Path(disc_report_path).read_text())
     if disc_report.get('image_sha256') != DISC_SHA256:
         raise ValueError('Disc index is not for the pinned owned USA image')
@@ -158,6 +212,7 @@ def audit_title_resources(disc_path, disc_report_path, elf_path, xpf_verificatio
     from inspect_disc import inspect_elf
     elf_info = inspect_elf(elf)
     strings = verify_title_strings(elf, elf_info['segments'])
+    gain_provenance, gain_table = verify_iop_gain_table(iop_irx_path)
     verification = json.loads(Path(xpf_verification_path).read_text())
     assets = verify_decoded_assets(decoded_root, verification)
     entries = index_disc_files(disc_report)
@@ -166,13 +221,15 @@ def audit_title_resources(disc_path, disc_report_path, elf_path, xpf_verificatio
         audio, payloads = read_audio_resources(disc, entries)
     finally:
         disc.close()
+    payloads.append((IOP_GAIN_TABLE_FILENAME, gain_table))
     installed = install_audio_resources(audio_root, payloads) if install_audio else []
     return {
         'schema': 'okage-native-title-resource-import-v1',
-        'scope': "Pinned source/resource verification; XWH/XWB payload inventory and optional direct audio installation.",
+        'scope': "Pinned source/resource verification; XWH/XWB payload inventory, RXSNDDRV PCM gain-table provenance, and optional direct audio installation.",
         'disc': {'path': str(disc_path), 'sha256': actual_disc_hash,
                  'disc_index': str(disc_report_path), 'elf_sha256': ELF_HASH},
         'elf_strings': strings,
+        'iop_pcm_gain_table': gain_provenance,
         'xpf_verification': {'path': str(xpf_verification_path),
                              'native_binary_sha256': verification['native_binary_sha256'],
                              'archives': verification['archives'], 'members': verification['members']},
@@ -187,6 +244,8 @@ def main():
     parser.add_argument('--disc', type=Path, default=Path('local/disc/Okage - Shadow King (USA).bin'))
     parser.add_argument('--disc-report', type=Path, default=Path('docs/disc-report.json'))
     parser.add_argument('--elf', type=Path, default=Path('local/extracted/SCUS_971.29'))
+    parser.add_argument('--iop-irx', type=Path, default=Path('local/extracted/MODULES/RXSNDDRV.IRX'),
+                        help='Pinned RXSNDDRV IOP module containing the native PCM gain table')
     parser.add_argument('--xpf-verification', type=Path, default=Path('local/xpf-verification.json'))
     parser.add_argument('--decoded-root', type=Path, default=Path('local/xpf-decoded'))
     parser.add_argument('--audio-root', type=Path, default=Path('local/audio-input/SNDDATA/STR'))
@@ -198,11 +257,12 @@ def main():
         raise RuntimeError('Refusing existing title import report: ' + str(args.output))
     report = audit_title_resources(args.disc, args.disc_report, args.elf,
                                    args.xpf_verification, args.decoded_root,
-                                   args.audio_root, args.install_audio)
+                                   args.audio_root, args.install_audio,
+                                   iop_irx_path=args.iop_irx)
     output = args.output
     output.parent.mkdir(parents=True, exist_ok=True)
     write_exact(output, (json.dumps(report, indent=2) + '\n').encode())
-    print(f"Verified {len(report['title_assets'])} title assets and {len(report['audio_resources'])} stream files")
+    print(f"Verified {len(report['title_assets'])} title assets, {len(report['audio_resources'])} stream files, and the RXSNDDRV PCM gain table")
     if args.install_audio:
         print(f'Installed audio files under {args.audio_root}')
     print(f'Report: {output}')

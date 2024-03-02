@@ -2,9 +2,11 @@
 import hashlib
 import importlib.util
 from pathlib import Path
+import struct
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 TOOLS = Path(__file__).resolve().parents[1] / 'tools'
 sys.path.insert(0, str(TOOLS))
@@ -94,6 +96,69 @@ class TitleResourceImportTests(unittest.TestCase):
             symlink.symlink_to(root / 'missing')
             with self.assertRaisesRegex(RuntimeError, 'symlink output'):
                 resources.install_audio_resources(root, payloads)
+
+    def test_gain_table_uses_elf_load_mapping_and_records_source_provenance(self):
+        values = [0] * 257
+        values[255], values[256], values[0], values[1] = 4096, 4096, -4096, -4032
+        table = struct.pack('<257h', *values)
+        file_offset = 176 + resources.IOP_GAIN_TABLE_VADDR
+        elf = bytearray(file_offset + len(table))
+        elf[file_offset:file_offset + len(table)] = table
+        segment = {'type': 1, 'offset': 176, 'vaddr': '0x00000000',
+                   'filesz': len(elf) - 176, 'memsz': len(elf) - 176}
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / 'RXSNDDRV.IRX'
+            path.write_bytes(elf)
+            with patch('inspect_disc.inspect_elf', return_value={'segments': [segment]}), \
+                 patch.object(resources, 'IOP_IRX_SHA256', hashlib.sha256(elf).hexdigest()), \
+                 patch.object(resources, 'IOP_GAIN_TABLE_SHA256', hashlib.sha256(table).hexdigest()):
+                provenance, actual = resources.verify_iop_gain_table(path)
+        self.assertEqual(actual, table)
+        self.assertEqual(provenance['table_file_offset'], 0xd1d0)
+        self.assertEqual(provenance['table_vaddr'], '0x0000d120')
+        self.assertEqual(provenance['selected_pt_load']['offset'], 176)
+        self.assertEqual(provenance['table_bytes'], 514)
+        self.assertEqual(provenance['table_sha256'], hashlib.sha256(table).hexdigest())
+        self.assertEqual(provenance['examples'], {'127': 4096, '128': 4096,
+                                                   '-128': -4096, '-127': -4032})
+
+    def test_gain_table_rejects_wrong_module_hash_and_non_file_backed_extent(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / 'RXSNDDRV.IRX'
+            path.write_bytes(b'not the pinned module')
+            with self.assertRaisesRegex(ValueError, 'hash differs'):
+                resources.verify_iop_gain_table(path)
+
+            path.write_bytes(b'fixture')
+            segment = {'type': 1, 'offset': 0, 'vaddr': '0x00000000', 'filesz': 1, 'memsz': 1}
+            with patch('inspect_disc.inspect_elf', return_value={'segments': [segment]}), \
+                 patch.object(resources, 'IOP_IRX_SHA256', hashlib.sha256(b'fixture').hexdigest()):
+                with self.assertRaisesRegex(ValueError, 'outside file-backed'):
+                    resources.verify_iop_gain_table(path)
+
+            table_end = 176 + resources.IOP_GAIN_TABLE_VADDR + resources.IOP_GAIN_TABLE_BYTES
+            bounded = bytearray(table_end)
+            path.write_bytes(bounded)
+            bounded_segment = {'type': 1, 'offset': 176, 'vaddr': '0x00000000',
+                               'filesz': len(bounded) - 176, 'memsz': len(bounded) - 176}
+            with patch('inspect_disc.inspect_elf', return_value={'segments': [bounded_segment]}), \
+                 patch.object(resources, 'IOP_IRX_SHA256', hashlib.sha256(bounded).hexdigest()):
+                with self.assertRaisesRegex(ValueError, 'table hash differs'):
+                    resources.verify_iop_gain_table(path)
+
+    def test_gain_table_install_conflict_preflights_streams(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            conflict = root / resources.IOP_GAIN_TABLE_FILENAME
+            conflict.write_bytes(b'changed gain table')
+            payloads = [('SNDDATA/STR/THEMA_1.XWH', b'new header'),
+                        ('SNDDATA/STR/THEMA_1.XWB', b'new bank'),
+                        (resources.IOP_GAIN_TABLE_FILENAME, b'verified table')]
+            with self.assertRaisesRegex(RuntimeError, 'Refusing changed output'):
+                resources.install_audio_resources(root, payloads)
+            self.assertFalse((root / 'THEMA_1.XWH').exists())
+            self.assertFalse((root / 'THEMA_1.XWB').exists())
+            self.assertEqual(conflict.read_bytes(), b'changed gain table')
 
     def test_disc_index_rejects_duplicate_paths(self):
         with self.assertRaisesRegex(ValueError, 'duplicate disc path'):
