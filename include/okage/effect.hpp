@@ -146,9 +146,10 @@ struct MapEffectDraw {
     unsigned clamp_mode=2;
 };
 enum class EffectDrawPass {Ordinary, Deferred};
+using EffectTextureSizeResolver=std::function<std::array<std::uint32_t,2>(std::uint32_t)>;
 std::vector<MapEffectDraw> map_effect_draws(const MapEffect&,const Matrix4& view,
     const Float4& camera_rotation,float far_clip,const SineTable&,const Float4* light_tint=nullptr,
-    EffectDrawPass pass=EffectDrawPass::Ordinary);
+    EffectDrawPass pass=EffectDrawPass::Ordinary,const EffectTextureSizeResolver& texture_size={});
 Float4 effect_light_tint(const Float4& base,const Float4& ambient,const Float4& light);
 
 struct EffectSprite {

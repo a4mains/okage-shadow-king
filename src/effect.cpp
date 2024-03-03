@@ -256,7 +256,7 @@ void MapEffect::set_parameter(unsigned selector,const Float4& payload) {
     }
 }
 std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix4& view,
-        const Float4& camera,float far_clip,const SineTable& sine,const Float4* light_tint,EffectDrawPass pass) {
+        const Float4& camera,float far_clip,const SineTable& sine,const Float4* light_tint,EffectDrawPass pass,const EffectTextureSizeResolver& texture_size) {
     if(effect.flags&0x4300)return {};
     require((effect.id==25&&effect.elements.size()==8)||((effect.id==17||effect.id==19||effect.id==20)&&effect.elements.size()==9)||
             (effect.id==106&&effect.elements.size()==1)||(effect.id==105&&effect.elements.size()==16)||(effect.id==90&&effect.elements.size()==1)||(effect.id==91&&effect.elements.size()==4)||(effect.id==16&&effect.elements.size()==3)||
@@ -406,7 +406,6 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
         }
         const bool textured=e.texture!=0xffffffffu;
         const auto base=effect.texture_sizes().at(e.shape==24?20:e.shape==31?17:e.shape==30?6:e.shape==59?25:5);
-        const auto current=textured?effect.texture_sizes().at(e.texture):std::array<std::uint32_t,2>{};
         const bool replace=(e.program>>30)==1;
         //0x1122e8 constructs T using height+1.0x1055d8 rescales the
         // original packed UVs with truncated5-bit fixed ratios on replacement.
@@ -414,7 +413,12 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
             if(!textured)return Float4{};
             int s=int(u*float(base[0])*32),t=int(v*float(base[1]+1)*32);
             require(s>=0&&s<=32767&&t>=0&&t<=32767,"Unrecovered effect UV packing range");
-            if(replace){s=(s*int((current[0]<<5)/base[0]))>>5;t=(t*int((current[1]<<5)/base[1]))>>5;}
+            if(replace){
+                const auto current=texture_size?texture_size(e.texture):effect.texture_sizes().at(e.texture);
+                require(current[0]&&current[1]&&current[0]<=4096&&current[1]<=4096,
+                        "Invalid effect replacement texture dimensions");
+                s=(s*int((current[0]<<5)/base[0]))>>5;t=(t*int((current[1]<<5)/base[1]))>>5;
+            }
             return Float4{float(std::uint16_t(s))/32768,float(std::uint16_t(t))/32768,0,0};
         };
         auto quad=[&](const std::array<Float4,4>& p,const std::array<Float4,4>& c,const std::array<Float4,4>& uv) {

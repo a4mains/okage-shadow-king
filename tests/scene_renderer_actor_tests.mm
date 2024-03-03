@@ -138,6 +138,27 @@ int main(int argc,const char** argv) {@autoreleasepool {try {
     require(appended.render_prepared(retained).rgba==visible.rgba,"Prepared frame borrowed mutable effect state");
     remap(laterSlot);
 
+    const auto cylinderDefinition=std::find_if(bank.begin(),bank.end(),[](const auto& d){return d.id==26;});
+    require(cylinderDefinition!=bank.end(),"Missing effect26 definition");
+    auto cylinderSizes=sizes;cylinderSizes[20]={64,32};
+    MapEffect cylinder(*cylinderDefinition,{0,0,0,1},{0,0,0,1},{1,1,1,1},cylinderSizes,random,EffectStart::FirstFrame);
+    Texture nonSquare{37,23,0,0,std::vector<std::uint8_t>(37*23*4,128)};
+    const auto nonSquareSlot=appended.add_effect_texture(nonSquare);
+    auto& cylinderElement=cylinder.elements[0];
+    cylinderElement.program=(cylinderElement.program&0x3fffffffu)|0x40000000u;
+    cylinderElement.texture=nonSquareSlot;cylinderElement.uv={0,0,36,22};
+    unsigned resolved=0;
+    const auto cylinderDraws=map_effect_draws(cylinder,view,camera,450,sine,nullptr,EffectDrawPass::Ordinary,
+        [&](std::uint32_t slot){require(slot==nonSquareSlot,"Resolved an unrelated effect slot");++resolved;
+            return std::array<std::uint32_t,2>{nonSquare.width,nonSquare.height};});
+    require(resolved>0&&!cylinderDraws.empty(),"Generic UV path did not consult the texture owner");
+    float maximumU=0,maximumV=0;
+    for(const auto& vertex:cylinderDraws.front().vertices){maximumU=std::max(maximumU,vertex.uv[0]);maximumV=std::max(maximumV,vertex.uv[1]);}
+    require(maximumU==1152.f/32768&&maximumV==759.f/32768,"External non-square UV rescale differs");
+    rejects([&]{map_effect_draws(cylinder,view,camera,450,sine);}); //No external owner supplied.
+    rejects([&]{map_effect_draws(cylinder,view,camera,450,sine,nullptr,EffectDrawPass::Ordinary,
+        [](std::uint32_t){return std::array<std::uint32_t,2>{0,23};});},"Invalid effect replacement texture dimensions");
+
     require(visible.rgba==render(early).rgba,"Append before effects differs");++comparisons;
     for(auto* actor:{&first,&second,&third})actor->visible=false;
     require(render(constructed).rgba!=visible.rgba,"Fixture did not expose actor geometry or shadows");

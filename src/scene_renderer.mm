@@ -569,7 +569,11 @@ struct SceneRenderer::Impl {
         if(const auto* effect=std::get_if<MapEffect>(&submission.effect)) {
             if(!effectTexturesLoaded)throw std::runtime_error("Map effect textures are unavailable");
             for(const auto& e:map_effect_draws(*effect,view,camera,farClip,sine,effectTint?&*effectTint:nullptr,
-                    effect->flags&0x400?EffectDrawPass::Deferred:EffectDrawPass::Ordinary)){
+                    effect->flags&0x400?EffectDrawPass::Deferred:EffectDrawPass::Ordinary,
+                    [&](std::uint32_t logical){
+                        const auto& image=textures.at(effectTextureSlots.at(logical));
+                        return std::array<std::uint32_t,2>{image.width,image.height};
+                    })){
                 const bool untextured=e.texture==0xffffffffu;
                 const auto texture=untextured?-1:std::int32_t(effectTextureSlots.at(e.texture));
                 if(!untextured){const auto& image=textures.at(texture);
