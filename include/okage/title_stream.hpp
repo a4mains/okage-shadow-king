@@ -14,6 +14,8 @@ struct TitleStreamState {
     bool stop_pending = false;
     unsigned slot = 0;
     std::uint32_t stop_countdown = 0;
+    bool service_ready = false;
+    int requested_volume = 0;
     int stream_volume = 0;
     std::uint64_t cursor_frame = 0;
 };
@@ -46,6 +48,9 @@ private:
     std::unique_ptr<TitlePcmStream> stream_;
     bool stop_pending_ = false;
     std::uint32_t stop_countdown_ = 0;
+    bool service_ready_ = false;
+    bool gain_update_pending_ = false;
+    int requested_volume_ = 0;
     int stream_volume_ = 0;
 };
 

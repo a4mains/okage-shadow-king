@@ -56,10 +56,18 @@ int main() {
         owner.start(1,f.xwh,f.xwb,f.gains);
         auto state=owner.state();
         check(state.registered&&!state.stop_pending&&state.slot==1&&
-              state.stop_countdown==0&&state.stream_volume==128&&state.cursor_frame==0,
-              "title start binds slot 1 with source startup gain");
+              state.stop_countdown==0&&!state.service_ready&&
+              state.requested_volume==128&&state.stream_volume==0&&state.cursor_frame==0,
+              "title start binds slot 1 and queues source startup gain");
 
         std::array<std::int16_t,2> first{};
+        owner.mix(first);
+        check(first==std::array<std::int16_t,2>{0,0}&&owner.state().cursor_frame==0,
+              "mix before first source service neither emits nor advances samples");
+        owner.advance_main_loop();
+        state=owner.state();
+        check(state.service_ready&&state.requested_volume==128&&state.stream_volume==128,
+              "first source service publishes startup gain without a frame delay");
         owner.mix(first);
         check(first==std::array<std::int16_t,2>{1000,-1000}&&owner.state().cursor_frame==1,
               "started title stream mixes owned stereo PCM");
@@ -76,13 +84,23 @@ int main() {
         owner.advance_main_loop();
         state=owner.state();
         check(state.registered&&state.stop_pending&&state.stop_countdown==127&&
-              state.stream_volume==127,"first 12ce20 update decrements before gain write");
+              state.requested_volume==127&&state.stream_volume==128,
+              "12ce20 queues first reduced gain after the service pass");
+        std::array<std::int16_t,2> before_gain_service{};
+        owner.mix(before_gain_service);
+        check(before_gain_service==std::array<std::int16_t,2>{3000,-3000},
+              "queued stop gain is not applied before the next service pass");
+        owner.advance_main_loop();
+        state=owner.state();
+        check(state.stop_countdown==126&&state.requested_volume==126&&
+              state.stream_volume==127,
+              "next source service applies the prior stop gain then queues another");
         std::array<std::int16_t,2> faded{};
         owner.mix(faded);
-        check(faded==std::array<std::int16_t,2>{1500,-1500},
-              "first deferred-stop update publishes reduced stream gain");
+        check(faded==std::array<std::int16_t,2>{2000,-2000},
+              "published source gain is used for subsequent PCM samples");
 
-        for(unsigned i=1;i<128;++i) owner.advance_main_loop();
+        for(unsigned i=2;i<128;++i) owner.advance_main_loop();
         state=owner.state();
         check(!state.registered&&!state.stop_pending&&state.slot==0&&
               state.stop_countdown==0&&state.stream_volume==0,
@@ -100,9 +118,14 @@ int main() {
         owner.start(1,replacement.xwh,replacement.xwb,replacement.gains);
         state=owner.state();
         check(state.registered&&!state.stop_pending&&state.stop_countdown==0&&
-              state.stream_volume==128&&state.cursor_frame==0,
-              "12db50 replacement synchronously clears a pending stop");
+              !state.service_ready&&state.requested_volume==128&&
+              state.stream_volume==0&&state.cursor_frame==0,
+              "12db50 replacement clears a pending stop and waits for service");
         std::array<std::int16_t,2> replaced{};
+        owner.mix(replaced);
+        check(replaced==std::array<std::int16_t,2>{0,0}&&owner.state().cursor_frame==0,
+              "replacement is registered but inaudible before stream service");
+        owner.advance_main_loop();
         owner.mix(replaced);
         check(replaced==std::array<std::int16_t,2>{7000,-7000},
               "replacement starts at its own sample cursor");
