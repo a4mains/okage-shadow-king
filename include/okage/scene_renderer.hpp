@@ -26,6 +26,7 @@ struct SceneGpuPass;
 #ifdef __OBJC__
 struct SceneGpuPass {
     std::function<std::function<void()>(id<MTLCommandBuffer>,id<MTLTexture>,id<MTLTexture>)> encode;
+    bool before_deferred_effects=false;
 };
 #endif
 struct FieldOrdinaryLighting;

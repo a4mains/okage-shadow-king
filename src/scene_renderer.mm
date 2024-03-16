@@ -243,7 +243,7 @@ struct SceneRenderer::Impl {
         std::transform(name.begin(),name.end(),name.begin(),[](unsigned char c){return char(std::tolower(c));});
         if(binding.descriptor) {
             const auto flags=binding.descriptor->flags;
-            if(flags!=0x200080&&flags!=0x2000a0&&flags!=0x2000e0)
+            if(flags!=0&&flags!=0x200080&&flags!=0x2000a0&&flags!=0x2000e0)
                 throw std::runtime_error("Unrecovered explicit actor flags");
             if(binding.actor->render_flags!=flags||binding.actor->encounter_model)
                 throw std::runtime_error("Explicit actor descriptor disagrees with instance");
@@ -663,6 +663,16 @@ struct SceneRenderer::Impl {
         if(ui&&!data.field_projection)throw std::runtime_error("Scene UI requires GS field projection depth");
         if(gpuPass&&!gpuPass->encode)throw std::runtime_error("Scene GPU pass has no encoder");
         const auto& vertices=data.vertices;const auto& draws=data.draws;
+        const bool beforeDeferred=gpuPass&&gpuPass->before_deferred_effects;
+        if(beforeDeferred) {
+            if(!data.field_projection)throw std::runtime_error("Title GPU pass requires GS field projection");
+            for(const auto& draw:draws) {
+                if(!draw.effect&&draw.bucket>=0x40d)
+                    throw std::runtime_error("Title GPU pass model bucket overlaps images");
+                if(draw.effect&&(!draw.deferred||draw.phase!=2))
+                    throw std::runtime_error("Title GPU pass requires deferred effects only");
+            }
+        }
         shadowFrame=data.shadows;
         const auto clear=executionClear.value_or(std::array<std::uint8_t,4>{data.clear[0],data.clear[1],data.clear[2],255});
         auto targetDesc=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:640 height:224 mipmapped:NO];
@@ -681,12 +691,16 @@ struct SceneRenderer::Impl {
         id<MTLCommandBuffer> command=[queue commandBuffer];
         if(!command||!command.retainedReferences)throw std::runtime_error("Scene frame requires a retaining Metal command buffer");
         id<MTLBuffer> vertexBuffer=vertices.empty()?nil:[device newBufferWithBytes:vertices.data() length:vertices.size()*sizeof(Vertex) options:MTLResourceStorageModeShared];
-        auto encode=[&](bool after){
+        auto encode=[&](unsigned stage){
         id<MTLRenderCommandEncoder> encoder=[command renderCommandEncoderWithDescriptor:pass];
         [encoder setRenderPipelineState:pipeline]; [encoder setDepthStencilState:depth]; [encoder setCullMode:MTLCullModeNone];
         if(vertexBuffer)[encoder setVertexBuffer:vertexBuffer offset:0 atIndex:0];
         for (const auto& draw:draws) {
-            if(data.field_projection&&((draw.phase!=0)!=after))continue;
+            if(data.field_projection) {
+                if(stage==0&&draw.phase!=0)continue;
+                if(stage==1&&(draw.phase==0||(beforeDeferred&&draw.effect)))continue;
+                if(stage==2&&(!draw.effect||!draw.deferred))continue;
+            }
             if(!draw.count)continue;
             [encoder setFrontFacingWinding:draw.mapMaterial?MTLWindingCounterClockwise:MTLWindingClockwise];
             [encoder setCullMode:draw.materialBlend?MTLCullModeBack:MTLCullModeNone];
@@ -698,7 +712,7 @@ struct SceneRenderer::Impl {
         }
         [encoder endEncoding];
         };
-        encode(false);
+        encode(0);
         if(data.field_projection){
             if(!shadowMetal)shadowMetal=std::make_shared<ShadowMetal>(device);
             std::vector<ShadowRasterDraw> shadowDraws;shadowDraws.reserve(shadowFrame.draws.size());
@@ -706,13 +720,14 @@ struct SceneRenderer::Impl {
             shadowMetal->encode(command,ticketColor,ticketDepth,shadowDraws,data.shadow_mapping,data.restore_shadow_alpha);
             pass.colorAttachments[0].loadAction=MTLLoadActionLoad;
             pass.depthAttachment.loadAction=MTLLoadActionLoad;
-            encode(true);
+            encode(1);
         }
         std::function<void()> validatePass;
         if(gpuPass){
             validatePass=gpuPass->encode(command,ticketColor,ticketDepth);
             if(!validatePass)throw std::runtime_error("Scene GPU pass has no completion validator");
         }
+        if(beforeDeferred)encode(2);
         std::optional<UiMetalValidation> uiValidation;
         auto uiOwners=std::make_shared<std::vector<std::shared_ptr<const void>>>();
         if(ui){
