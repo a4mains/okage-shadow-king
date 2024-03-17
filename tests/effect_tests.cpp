@@ -104,6 +104,14 @@ int main(int argc,char** argv){try{
     const auto water_draw=okage::map_effect_draws(pool,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);
     check(water_draw.size()==1&&water_draw[0].vertices.size()==31*31*6&&water_draw[0].clamp_mode==3);
     check(water_draw[0].depth_test&&!water_draw[0].additive&&!water_draw[0].subtractive);
+    auto unknown_color=pool;unknown_color.source_color_rgb_available=false;
+    const auto nan=std::bit_cast<float>(0x7fc00000u);
+    unknown_color.color={nan,nan,nan,0};
+    check(okage::map_effect_draws(unknown_color,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred).empty());
+    unknown_color.color[3]=1;
+    rejects([&]{okage::map_effect_draws(unknown_color,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);});
+    unknown_color.color[3]=0;unknown_color.elements[0].texture=0xffffffffu;
+    rejects([&]{okage::map_effect_draws(unknown_color,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);});
     //10c188 before lazy10c388 allocation changes binding/UV metadata only.
     auto rebound=initial_pool;
     const auto factory_uv=rebound.elements[0].water->packed_uv;

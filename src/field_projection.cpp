@@ -38,7 +38,7 @@ void FieldProjection::load_stage(Bytes bytes) {
         if(kind!=0x43&&kind!=0x44)continue;
         Float4 v;
         for(unsigned j=0;j<4;++j) {
-            v[j]=__builtin_bit_cast(float, (word(bytes,at+4+j*4)));
+            v[j]=std::bit_cast<float>(word(bytes,at+4+j*4));
             if(!std::isfinite(v[j]))throw std::runtime_error("Nonfinite projection STG value");
         }
         //0x1bb088 applies records in order, including repeated records.
@@ -88,12 +88,19 @@ void FieldProjection::submit_empty_resource_frame(bool effect_pass,float depth_m
     }
 }
 void FieldProjection::begin_field() {
-    if(!loaded_||phase_!=Phase::Idle)throw std::runtime_error("Field projection lifecycle order");
+    if(!loaded_)throw std::runtime_error("Field projection lifecycle order");
+    begin_resource(current_.depth_min,current_.depth_max);
+}
+void FieldProjection::begin_resource(float depth_min,float depth_max) {
+    if(phase_!=Phase::Idle)throw std::runtime_error("Resource projection lifecycle order");
+    if(!std::isfinite(depth_min)||!std::isfinite(depth_max)||depth_min<0||depth_max<depth_min||depth_max>=16777216.f)
+        throw std::runtime_error("Invalid resource depth cache range");
     //0x1b9288 copies the previous descriptor before ordinary settings change.
     frame_.shadow=current_;
     current_.depth_near=3;current_.depth_far=2048;
     current_.clip_near=3;current_.clip_far=field_far_;
     current_.fog_near=field_fog_near_;current_.fog_far=field_fog_far_;
+    current_.depth_min=depth_min;current_.depth_max=depth_max;
     frame_.ordinary=current_;phase_=Phase::Field;++frames_;
 }
 void FieldProjection::begin_field(float depth_min,float depth_max) {

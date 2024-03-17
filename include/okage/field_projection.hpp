@@ -18,6 +18,7 @@ public:
     void begin_field();
     //1b9be0 consumes the live337e30/34 range after copying shadow settings.
     void begin_field(float depth_min,float depth_max);
+    void begin_resource(float depth_min,float depth_max);
     void begin_effects();
     void select_effect_near(float);
     void begin_deferred();

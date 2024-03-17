@@ -8,6 +8,8 @@
 #include "battle_session.hpp"
 #include "display_link.hpp"
 #include "game_over_session.hpp"
+#include "title_session.hpp"
+#include "okage/title_stream.hpp"
 #include "results_renderer.hpp"
 #include "okage/results_interface.hpp"
 #include "okage/load_queue.hpp"
@@ -292,6 +294,8 @@ struct Session {
     std::unique_ptr<okage::BattleSession> battle;
     std::unique_ptr<okage::DefeatFieldReturn> defeat_return;
     std::unique_ptr<okage::GameOverSession> game_over;
+    std::unique_ptr<okage::TitleSession> title;
+    okage::TitleStreamOwner title_stream;
     okage::GameOverShared game_over_shared;
     okage::ResultsUiShared results_shared;
     std::unique_ptr<FieldReturnLoad> field_return;
@@ -355,7 +359,7 @@ struct Session {
         load_observation_written=true;
     }
     std::vector<std::uint32_t> battle_loading_trace;
-    std::vector<std::uint32_t> game_mode_trace,retiring_effect_trace,results_trace;
+    std::vector<std::uint32_t> game_mode_trace,retiring_effect_trace,results_trace,title_trace;
     bool retain_field_music=false;
     std::optional<okage::Texture> transition_image;
     // AppKit presentation is separate from research captures and feedback.
@@ -885,6 +889,11 @@ struct Session {
             observe_game_mode(0);
             game_mode->tick([this]{
                 if(battle)retire_battle();
+                else if(title) {
+                    retiring_effects.emplace(title->retire(*reset_camera,projection,ui_shared));
+                    title_stream.request_stop(1);
+                    std::cout<<"Native title resource/task destroyed frame="<<frame<<'\n';
+                }
                 else if(game_over) {
                     game_over->retire(*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,ui_shared);
                     std::cout<<"Native game-over resource/task destroyed frame="<<frame<<'\n';
@@ -906,6 +915,10 @@ struct Session {
                     defeat_return.reset();
                     std::cout<<"Native defeat return field freed frame="<<frame<<'\n';
                 }
+                if(title) {
+                    if(title->resource_live())throw std::runtime_error("Title freed before resource retirement");
+                    title.reset();
+                }
                 if(game_over) {
                     if(game_over->resource_live())throw std::runtime_error("Game-over task freed before resource destructor");
                     game_over.reset();
@@ -914,7 +927,7 @@ struct Session {
                 if(field||renderer||!actor_bindings.empty()||!actor_objects.empty()||map_objects)
                     throw std::runtime_error("Field borrowers survived mode retirement");
             },[this](okage::GameModeSelection selection){
-                if(battle||field||field_return||defeat_return||game_over||!reset_camera)
+                if(battle||field||field_return||defeat_return||game_over||title||!reset_camera)
                     throw std::runtime_error("Native mode construction has surviving scene owners");
                 if(selection[0]==2&&pending_game_command[0]==13) {begin_field_return();return;}
                 if(selection[0]==2&&pending_game_command[0]==2) {
@@ -922,6 +935,20 @@ struct Session {
                         scene_fade,scene_clear,ui_shared);
                     std::cout<<"Native defeat return field constructed frame="<<frame<<'\n';
                     return;
+                }
+                if(selection==okage::GameModeSelection{8,1,0}) {
+                    title=std::make_unique<okage::TitleSession>(scene_clear,scene_fade,ui_shared,game_over_shared,
+                        okage::TitleConstruction{field_root.parent_path()/"CMNDATA",effect_textures,effect_bytes,
+                        [this]{if(music)music->stop();},[this]{
+                            if(music_directory.empty())throw std::runtime_error("Title theme needs imported SNDDATA directory");
+                            const auto root=music_directory.parent_path()/"STR";
+                            const auto header=readData(root/"THEMA_1.XWH"),body=readData(root/"THEMA_1.XWB"),table=readData(root/"PCM_GAIN_Q12.bin");
+                            if(table.size()!=514)throw std::runtime_error("Title PCM gain table extent");
+                            std::array<std::int16_t,257> gain;
+                            for(unsigned i=0;i<gain.size();++i)gain[i]=std::bit_cast<std::int16_t>(std::uint16_t(table[i*2]|unsigned(table[i*2+1])<<8));
+                            title_stream.start(1,header,body,gain);
+                        }});
+                    std::cout<<"Native title constructed frame="<<frame<<'\n';return;
                 }
                 if(selection==okage::GameModeSelection{8,4,0}) {
                     game_over=std::make_unique<okage::GameOverSession>(scene_clear,scene_fade,ui_shared,game_over_shared,
@@ -961,6 +988,25 @@ struct Session {
                 ui_fonts,battle_capture_sine,random,[this](okage::GameModeSelection selection){
                     game_mode->request(selection);
                     std::cout<<"Native game-over requested mode="<<selection[0]<<" arg="<<selection[1]<<" frame="<<frame<<'\n';
+                });
+        }
+        if(title&&title->resource_live()) {
+            title->tick({input.repeat,input.pressed,{128,128,128,128}},0x40,
+                game_over_shared,scene_fade,*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,
+                ui_shared,ui_fonts,battle_capture_sine,random,okage::TitleActions{
+                    [this](auto selection){game_mode->request(selection);},
+                    [this](unsigned sound){
+                        if(sound!=3&&sound!=7)throw std::runtime_error("Unrecovered title sound ID");
+                        const auto bank=sound_banks.find(0);
+                        if(bank==sound_banks.end())throw std::runtime_error("Title requires owned ALL sound bank");
+                        bank->second->play(sound,1.f,sound==7?80:100);
+                    },
+                    [this]{okage::initialize_game_variables(variables);},
+                    [this]{if(!game_data)throw std::runtime_error("Title reset requires game tables");
+                        okage::refresh_game_characters(variables,*game_data,15);
+                        okage::grant_and_equip_game_character(variables,*game_data,0,{131,174,240});},
+                    [](unsigned){throw std::runtime_error("Native title saved-field selection is unrecovered");},
+                    [](unsigned)->std::array<std::uint32_t,2>{throw std::runtime_error("Native title saved-field lookup is unrecovered");}
                 });
         }
         if(battle&&battle->resource_live()) {
@@ -1045,15 +1091,24 @@ struct Session {
                 }
             }
         }
-        if(music){
-            std::array<std::int16_t,1600> pcm{};music->render(pcm);
+        if(title&&title->resource_live()) {
+            const auto& t=title->state();const auto& c=t.common;
+            title_trace.insert(title_trace.end(),{frame,c.submode,c.mode_state,c.tick_counter,c.pressed_word,
+                c.generic_alpha_bits,c.generic_alpha_rate_bits,c.image_alpha_bits,t.yaw,t.selection});
+            for(const auto* values:{&t.x,&t.y,&t.alpha,&t.visible})title_trace.insert(title_trace.end(),values->begin(),values->end());
+            title_trace.insert(title_trace.end(),{t.pulse,t.pulse_rising,t.pulse_channel,t.water,t.texture});
+        }
+        title_stream.advance_main_loop();
+        if(music||title_stream.state().registered){
+            std::array<std::int16_t,1600> pcm{};if(music)music->render(pcm);
+            title_stream.mix(pcm);
             std::array<std::int32_t,1600> stream{};
             for(auto& [bank,player]:sound_banks)player->mix(stream);
             for(unsigned i=0;i<pcm.size();++i)pcm[i]=std::clamp(int(pcm[i])+stream[i],-32768,32767);
             if(audio_output)audio_output->submit(pcm);
             if(record_audio){audio_capture.insert(audio_capture.end(),pcm.begin(),pcm.end());
-                music_trace.insert(music_trace.end(),{frame,unsigned(music->volume.current),unsigned(music->volume.target),
-                    unsigned(music->volume.step),music->player()?music->player()->peak_voices():0});}
+                music_trace.insert(music_trace.end(),{frame,music?unsigned(music->volume.current):0,music?unsigned(music->volume.target):0,
+                    music?unsigned(music->volume.step):0,music&&music->player()?music->player()->peak_voices():0});}
         }
         if(!game_mode && !release_frame && okage::poll_dialogue_wait(wait,2,{true,0,layers,std::int32_t(text.state.progress)})==0)release_frame=frame;
         if(!game_mode||field) {
@@ -1285,7 +1340,7 @@ struct Session {
         if(!snapshot.game_view)return snapshot;
         snapshot.live_enabled=live_presentation_enabled;
         //Layer2 OT40e precedes results UI OT40f; results already applied it.
-        snapshot.apply_fade=!(field_return&&field_return->rendered);
+        snapshot.apply_fade=!(field_return&&field_return->rendered)&&!(title&&title->rendered_image());
         snapshot.fade=scene_fade;
         if(choices.highlighted)snapshot.choice_cursor=choices.cursor;
         auto glyphs=narration.glyphs(fonts[2]);const auto choiceGlyphs=choices.glyphs(fonts[2]);
@@ -1347,6 +1402,8 @@ struct Session {
             image=*battle->rendered_image();
         } else if(defeat_return&&defeat_return->resource().rendered_image()) {
             image=*defeat_return->resource().rendered_image();
+        } else if(title&&title->rendered_image()) {
+            image=*title->rendered_image();
         } else if(game_over&&game_over->rendered_image()) {
             image=*game_over->rendered_image();
         } else {
@@ -1546,6 +1603,7 @@ static void capture(Session& session,const fs::path& path) {
         std::pair{".battle-transition.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.battle_transition_trace.data()),session.battle_transition_trace.size()*4)},
         std::pair{".battle-capture.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.battle_capture_trace.data()),session.battle_capture_trace.size()*4)},
         std::pair{".game-mode.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.game_mode_trace.data()),session.game_mode_trace.size()*4)},
+        std::pair{".title-state.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.title_trace.data()),session.title_trace.size()*4)},
         std::pair{".results.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.results_trace.data()),session.results_trace.size()*4)},
         std::pair{".battle-loading.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.battle_loading_trace.data()),session.battle_loading_trace.size()*4)},
         std::pair{".retiring-effects.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.retiring_effect_trace.data()),session.retiring_effect_trace.size()*4)},

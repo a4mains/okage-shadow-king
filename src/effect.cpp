@@ -287,6 +287,16 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
         //the captured channel transition;0x102cf8 does not test that bit.
         const unsigned allowed_render_flags=effect.id==24||effect.id==33||effect.id==115?1u:0u;
         require(e.uv[0]==0&&e.uv[1]==0&&!(e.render_flags&~allowed_render_flags),"Unrecovered map effect texture region");
+        if(!effect.source_color_rgb_available) {
+            require(effect.id==106&&e.shape==65&&e.primitive_flags==0x41&&
+                !(effect.flags&0x1000)&&!(e.flags&0x400000)&&effect.color[3]==0&&
+                std::isfinite(e.rendered[3][3])&&e.water&&e.water->initialized&&
+                e.texture!=0xffffffffu,"Unrecovered unavailable effect color");
+            const auto extent=texture_size?texture_size(e.texture):effect.texture_sizes().at(e.texture);
+            require(extent[0]&&extent[1]&&e.uv[2]<extent[0]&&e.uv[3]<extent[1],
+                "Unavailable-color effect texture bounds");
+            continue;
+        }
         auto rotation=e.rendered[1];
         switch(e.flags&15){case 0:break;case 1:
             rotation[0]=(1-camera[0])-effect.rotation[0];
