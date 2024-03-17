@@ -351,12 +351,13 @@ struct SceneRenderer::Impl {
         shadowFrame=fieldProjection?field_shadow_frame(shadowActors,view,*fieldProjection,shadowSettings,shadowFactor,sine,sortDepthShift):FieldShadowFrame{};
         std::vector<Vertex> vertices;
         std::vector<Draw> draws;
-        bool hadOrdinaryGeometry=false;
+        bool hadOrdinaryGeometry=false,hadEligibleInput=false;
         okage::Float4 low{INFINITY,INFINITY,INFINITY,0},high{-INFINITY,-INFINITY,-INFINITY,0};
         for(std::size_t inputIndex=0;inputIndex<inputs.size();++inputIndex) {
             const auto& input=inputs[inputIndex];const auto textureOffset=textureOffsets[inputIndex];
             if(input.placement && !(mapObjects?mapObjects->visible(*input.placement):input.visible))continue;
             if(input.actor && !input.actor->visible)continue;
+            hadEligibleInput=true;
             const bool mapMaterial=input.placement.has_value();
             const bool explicitActor=input.descriptor.has_value();
             if(explicitActor&&((input.actor->render_flags^input.descriptor->flags)&~0x100000u))
@@ -625,7 +626,7 @@ struct SceneRenderer::Impl {
             }
         }
         }
-        if (!inputs.empty()&&vertices.empty()&&!hadOrdinaryGeometry) throw std::runtime_error("Empty preview geometry");
+        if (hadEligibleInput&&vertices.empty()&&!hadOrdinaryGeometry) throw std::runtime_error("Empty preview geometry");
         if(fieldProjection){
             std::vector<Vertex> projected;
             for(auto& draw:draws){
