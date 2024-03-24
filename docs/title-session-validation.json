@@ -1,0 +1,1235 @@
+{
+  "schema": "okage-title-session-validation-v1",
+  "source_revision": "5832add75ce92452304fd2e088f9a73f3e19eb54",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "scope": "Native integrated title entry, Start/Left/menu and next-mode boundary.",
+  "sources": [
+    {
+      "path": "CMakeLists.txt",
+      "size": 27839,
+      "sha256": "16f57a2ac58e35b4dd5972904c02c3feeb2e007c4698dbc9bcb10bb42984abd0"
+    },
+    {
+      "path": "include/okage/effect.hpp",
+      "size": 12441,
+      "sha256": "54c45b36eb9c36c05746185d2ad251421eee8037a2a56a29a17ba3e453851d15"
+    },
+    {
+      "path": "include/okage/field_projection.hpp",
+      "size": 2796,
+      "sha256": "3b4f5d099c6d072bc7b168dbf0c394ccde668fa6bcf1c01abb4755df964ec32b"
+    },
+    {
+      "path": "include/okage/scene_renderer.hpp",
+      "size": 8338,
+      "sha256": "a88d9ddb9d0c270be8a7e03513a160d2f3929f2d2fa2afc3a7466ea2ab11b989"
+    },
+    {
+      "path": "include/okage/title_stream.hpp",
+      "size": 2229,
+      "sha256": "75577f2976e5a52cd1c2b41abe0bfe2b9e41e4e556d9ca8d9b2e2c2919491a57"
+    },
+    {
+      "path": "src/effect.cpp",
+      "size": 62406,
+      "sha256": "c2fc47fb2c8296a73a0a020863673a5352d590d481b3745ef8ce6ee161e7b536"
+    },
+    {
+      "path": "src/field_projection.cpp",
+      "size": 8438,
+      "sha256": "4970771aadc0ec683a2f3431519ab1241f8a9ef69bf1f26df447213b5c5bb428"
+    },
+    {
+      "path": "src/native_runtime.mm",
+      "size": 165673,
+      "sha256": "13bac0a6fc216bbdf166fda0148ea623523cd7d2eb637d6a17be86bc7c92b906"
+    },
+    {
+      "path": "src/scene_renderer.mm",
+      "size": 62663,
+      "sha256": "5c393a15bc311303138cda1588038f2692380f4fc4f454114cad4db46f3d789e"
+    },
+    {
+      "path": "src/title_session.hpp",
+      "size": 1248,
+      "sha256": "cf9dd137b01b9aee2970725b3051a6165138c74f928ea934257b9706b2df0292"
+    },
+    {
+      "path": "src/title_session.mm",
+      "size": 11822,
+      "sha256": "d8abbeed70f034e31b1a45623898a25d06eb2f94af05d8343d8763988bb4aec5"
+    },
+    {
+      "path": "src/title_stream.cpp",
+      "size": 3513,
+      "sha256": "11f6811441c06e264a8883f67638fc08aea5bf948b24fcc2a5af8a6bb010999a"
+    },
+    {
+      "path": "tests/effect_tests.cpp",
+      "size": 55945,
+      "sha256": "3d260e9188971bdfaf97d702a2ac8d861bf21c02ee62387528ebcd45651fde0f"
+    },
+    {
+      "path": "tests/title_model_tests.mm",
+      "size": 6730,
+      "sha256": "9f66656b3919d41e4e2d56d377066ee06a897ba401d3c91e4e52da8fba753c44"
+    },
+    {
+      "path": "tests/title_stream_tests.cpp",
+      "size": 7291,
+      "sha256": "0f3ad72b25db22136cbbea99acafcb7bd173e9ef9b34d9229006aea869e25955"
+    }
+  ],
+  "checks": [
+    {
+      "label": "release",
+      "kind": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/native-release",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 4.137749916,
+      "log": "local/research/title-session-v1/release-build-v3.log"
+    },
+    {
+      "label": "release",
+      "kind": "tests",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/native-release",
+        "--output-on-failure",
+        "-R",
+        "^(pcm-stream-tests|title-stream-tests|title-tests|game-over-tests|game-over-session-tests|image-metal-tests|effect-tests|frame-composition-tests|game-mode-tests|scene-map-material-tests|scene-backend-tests|field-tests)$"
+      ],
+      "exit_code": 0,
+      "seconds": 1.5188254160000003,
+      "log": "local/research/title-session-v1/release-tests-v3.log"
+    },
+    {
+      "label": "release",
+      "kind": "title-model-build",
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-fobjc-arc",
+        "-Iinclude",
+        "-Isrc",
+        "-O3",
+        "-DNDEBUG",
+        "tests/title_model_tests.mm",
+        "src/scene_renderer.mm",
+        "src/shadow_metal.mm",
+        "src/ui_metal.mm",
+        "build/native-release/libokage_assets.a",
+        "-framework",
+        "Foundation",
+        "-framework",
+        "Metal",
+        "-o",
+        "local/research/title-session-v1/title-model-release-v3"
+      ],
+      "exit_code": 0,
+      "seconds": 5.1352065829999995,
+      "log": "local/research/title-session-v1/release-title-model-build-v3.log"
+    },
+    {
+      "label": "release",
+      "kind": "title-model-run",
+      "command": [
+        "local/research/title-session-v1/title-model-release-v3",
+        "local/xpf-decoded/CMNDATA/2D/NIGHT_V.XPF/a.xmd"
+      ],
+      "exit_code": 0,
+      "seconds": 0.21170979199999884,
+      "log": "local/research/title-session-v1/release-title-model-run-v3.log"
+    },
+    {
+      "label": "release",
+      "kind": "scene-actor-build",
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-fobjc-arc",
+        "-Iinclude",
+        "-Isrc",
+        "-O3",
+        "-DNDEBUG",
+        "tests/scene_renderer_actor_tests.mm",
+        "src/scene_renderer.mm",
+        "src/shadow_metal.mm",
+        "src/ui_metal.mm",
+        "build/native-release/libokage_assets.a",
+        "-framework",
+        "Foundation",
+        "-framework",
+        "Metal",
+        "-o",
+        "local/research/title-session-v1/scene-actor-release-v3"
+      ],
+      "exit_code": 0,
+      "seconds": 5.242531583,
+      "log": "local/research/title-session-v1/release-scene-actor-build-v3.log"
+    },
+    {
+      "label": "release",
+      "kind": "scene-actor-run",
+      "command": [
+        "local/research/title-session-v1/scene-actor-release-v3",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOMEB1B.XPF/a.xmp",
+        "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "local/effect-input/CMNDATA/2D/TES.EFD"
+      ],
+      "exit_code": 0,
+      "seconds": 0.44325975000000284,
+      "log": "local/research/title-session-v1/release-scene-actor-run-v3.log"
+    },
+    {
+      "label": "debug",
+      "kind": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/native",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 5.719571875,
+      "log": "local/research/title-session-v1/debug-build-v3.log"
+    },
+    {
+      "label": "debug",
+      "kind": "tests",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/native",
+        "--output-on-failure",
+        "-R",
+        "^(pcm-stream-tests|title-stream-tests|title-tests|game-over-tests|game-over-session-tests|image-metal-tests|effect-tests|frame-composition-tests|game-mode-tests|scene-map-material-tests|scene-backend-tests|field-tests)$"
+      ],
+      "exit_code": 0,
+      "seconds": 5.748342125000001,
+      "log": "local/research/title-session-v1/debug-tests-v3.log"
+    },
+    {
+      "label": "debug",
+      "kind": "title-model-build",
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-fobjc-arc",
+        "-Iinclude",
+        "-Isrc",
+        "-O0",
+        "-g",
+        "tests/title_model_tests.mm",
+        "src/scene_renderer.mm",
+        "src/shadow_metal.mm",
+        "src/ui_metal.mm",
+        "build/native/libokage_assets.a",
+        "-framework",
+        "Foundation",
+        "-framework",
+        "Metal",
+        "-o",
+        "local/research/title-session-v1/title-model-debug-v3"
+      ],
+      "exit_code": 0,
+      "seconds": 4.682744,
+      "log": "local/research/title-session-v1/debug-title-model-build-v3.log"
+    },
+    {
+      "label": "debug",
+      "kind": "title-model-run",
+      "command": [
+        "local/research/title-session-v1/title-model-debug-v3",
+        "local/xpf-decoded/CMNDATA/2D/NIGHT_V.XPF/a.xmd"
+      ],
+      "exit_code": 0,
+      "seconds": 0.7153023750000003,
+      "log": "local/research/title-session-v1/debug-title-model-run-v3.log"
+    },
+    {
+      "label": "debug",
+      "kind": "scene-actor-build",
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-fobjc-arc",
+        "-Iinclude",
+        "-Isrc",
+        "-O0",
+        "-g",
+        "tests/scene_renderer_actor_tests.mm",
+        "src/scene_renderer.mm",
+        "src/shadow_metal.mm",
+        "src/ui_metal.mm",
+        "build/native/libokage_assets.a",
+        "-framework",
+        "Foundation",
+        "-framework",
+        "Metal",
+        "-o",
+        "local/research/title-session-v1/scene-actor-debug-v3"
+      ],
+      "exit_code": 0,
+      "seconds": 4.789084291999998,
+      "log": "local/research/title-session-v1/debug-scene-actor-build-v3.log"
+    },
+    {
+      "label": "debug",
+      "kind": "scene-actor-run",
+      "command": [
+        "local/research/title-session-v1/scene-actor-debug-v3",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOMEB1B.XPF/a.xmp",
+        "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "local/effect-input/CMNDATA/2D/TES.EFD"
+      ],
+      "exit_code": 0,
+      "seconds": 1.9800779170000027,
+      "log": "local/research/title-session-v1/debug-scene-actor-run-v3.log"
+    },
+    {
+      "label": "sanitize",
+      "kind": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/model-sanitize",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 7.158575458000001,
+      "log": "local/research/title-session-v1/sanitize-build-v3.log"
+    },
+    {
+      "label": "sanitize",
+      "kind": "tests",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/model-sanitize",
+        "--output-on-failure",
+        "-R",
+        "^(pcm-stream-tests|title-stream-tests|title-tests|game-over-tests|game-over-session-tests|image-metal-tests|effect-tests|frame-composition-tests|game-mode-tests|scene-map-material-tests|scene-backend-tests|field-tests)$"
+      ],
+      "exit_code": 0,
+      "seconds": 7.524832832999998,
+      "log": "local/research/title-session-v1/sanitize-tests-v3.log"
+    },
+    {
+      "label": "sanitize",
+      "kind": "title-model-build",
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-fobjc-arc",
+        "-Iinclude",
+        "-Isrc",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "tests/title_model_tests.mm",
+        "src/scene_renderer.mm",
+        "src/shadow_metal.mm",
+        "src/ui_metal.mm",
+        "build/model-sanitize/libokage_assets.a",
+        "-framework",
+        "Foundation",
+        "-framework",
+        "Metal",
+        "-o",
+        "local/research/title-session-v1/title-model-sanitize-v3"
+      ],
+      "exit_code": 0,
+      "seconds": 9.616285749999996,
+      "log": "local/research/title-session-v1/sanitize-title-model-build-v3.log"
+    },
+    {
+      "label": "sanitize",
+      "kind": "title-model-run",
+      "command": [
+        "local/research/title-session-v1/title-model-sanitize-v3",
+        "local/xpf-decoded/CMNDATA/2D/NIGHT_V.XPF/a.xmd"
+      ],
+      "exit_code": 0,
+      "seconds": 1.2832512499999922,
+      "log": "local/research/title-session-v1/sanitize-title-model-run-v3.log"
+    },
+    {
+      "label": "sanitize",
+      "kind": "scene-actor-build",
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-fobjc-arc",
+        "-Iinclude",
+        "-Isrc",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "tests/scene_renderer_actor_tests.mm",
+        "src/scene_renderer.mm",
+        "src/shadow_metal.mm",
+        "src/ui_metal.mm",
+        "build/model-sanitize/libokage_assets.a",
+        "-framework",
+        "Foundation",
+        "-framework",
+        "Metal",
+        "-o",
+        "local/research/title-session-v1/scene-actor-sanitize-v3"
+      ],
+      "exit_code": 0,
+      "seconds": 9.853679166000006,
+      "log": "local/research/title-session-v1/sanitize-scene-actor-build-v3.log"
+    },
+    {
+      "label": "sanitize",
+      "kind": "scene-actor-run",
+      "command": [
+        "local/research/title-session-v1/scene-actor-sanitize-v3",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOMEB1B.XPF/a.xmp",
+        "local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "local/effect-input/CMNDATA/2D/TES.EFD"
+      ],
+      "exit_code": 0,
+      "seconds": 3.441633957999997,
+      "log": "local/research/title-session-v1/sanitize-scene-actor-run-v3.log"
+    }
+  ],
+  "runs": [
+    {
+      "command": [
+        "local/research/title-session-v1/defeat-title-109025-v1/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "109025",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538,61658,61777,61897,62018,62137,62257,62377,62498,62617,62737,63578,63697,63817,63937,64058,64177,64298,64418,64537,64778,64898,65017,65137,65258,65377,65497,65617,65737,65857,65978,66097,66218,66338,66457,66577,66697,66817,66937,67057,67178,67297,67417,67537,67657,67777,67897,68017,68138,68257,68377,68497,68618,68738,68857,68978,69097,69217,69337,69458,69577,69697,69818,69937,70057,70177,70298,70417,70537,70657,70777,70898,71018,71137,71257,71378,71497,71618,71737,71857,71977,72098,72217,72337,72457,72578,72697,72817,72938,73088,73359,73654,74437,74557,74677,74798,74917,75038,75158,75277,75397,75517,75637,75758,75877,75997,76118,76237,76357,76477,76598,76717,77142,77262,77383,77502,77622,77742,77862,77982,78102,78222,78337,78457,78577,78698,78817,78937,79058,79177,79297,79417,80831,81037,81157,81277,81397,81517,81637,81967,82327,82447,82567,82687,82807,82927,83047,83167,83287,83407,83527,83767,83887,84007,84127,84367,84487,84858,85377,85597,85717,85837,85957,86077,86197,86317,86437,86557,87187,87397,87517,87638,87758,88297,88507,88627,88748,88867,88987,89107,89228,89347,89917,90186,90246,90307,90366,90426,90486,90546,90607,90666,90726,90787,90846,90906,90967,91026,91086,91146,91206,91267,91326,91386,91446,91506,91566,92166,92226,92286,92346,92406,92467,92526,92586,93107,93276,93336,93396,93456,93516,93576,93636,93697,93756,93816,93877,93936,93996,94056,94116,94176,94236,94297,94356,94416,94476,94536,94597,94656,94716,94776,94836,94896,94956,95016,95077,95136,95196,97327,97787,97958,98017,98077,98137,98197,98258,98317,98378,98452,98511,98572,98812,99457,99517,99577,99651,99712,99771,99831,99891,99937,99997,100057,100117,100177,100238,100297,100357,100418,100477,100537,100597,100837,101086,101265,101784,101930,102697,103057,103117,103177,103237,103357,103417,103537,103597,103717,103777,103837,103897,104017,104077,104197,104257,104317,104377",
+        "--directions",
+        "local/native-ui-dispatch-104615-release-v1.directions",
+        "--capture",
+        "local/research/title-session-v1/defeat-title-109025-v1/native.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "--render-from",
+        "11310",
+        "--render-until",
+        "11542",
+        "--capture-frames",
+        "108698,108699,108700,108720,108800,109025",
+        "--render-range",
+        "91547:91698",
+        "--battle-input",
+        "local/battle-input-v6",
+        "--ui-update-diagnostic",
+        "local/research/title-session-v1/defeat-title-109025-v1/isolated-ui.json",
+        "--battle-live",
+        "local/research/title-session-v1/defeat-title-109025-v1/live.jsonl",
+        "--buttons",
+        "local/research/battle-combat-entry-v1/native-postbattle-dialogue-110375-v1/buttons.txt",
+        "--load-observation",
+        "local/research/title-session-v1/defeat-title-109025-v1/loader.jsonl",
+        "--battle-readback",
+        "deferred",
+        "--replay-loading",
+        "cooperative",
+        "--input-journal",
+        "local/research/title-session-v1/defeat-title-109025-v1/inputs.jsonl",
+        "--replay-display-from",
+        "104447"
+      ],
+      "binary_sha256": "c32165ed0346be31c58d01c995f39f4f41ca26b54503e70b7900e0021e0edb8b",
+      "source_revision": "ad743e440481cd49d9a71df3f0248c7aac50b806",
+      "scope": "Ordinary retained defeat input, shortened endpoint; no inputs changed, no timing/performance or original fidelity claim.",
+      "exit_code": 0,
+      "seconds": 67.311288458,
+      "name": "defeat-title-109025-v1",
+      "artifacts": [
+        {
+          "path": "local/research/title-session-v1/defeat-title-109025-v1/native.png.audio.json",
+          "size": 161,
+          "sha256": "53b012eb4f93dca456f84cac675d4fd144440d23f9e55c68e38e3d592b37ab8a"
+        },
+        {
+          "path": "local/research/title-session-v1/defeat-title-109025-v1/native.png.frames/manifest.json",
+          "size": 822,
+          "sha256": "c3e22d23dbe5efb65beca3ce7f5d8834e2ba5257999d5c18778a8505d28a7b43"
+        },
+        {
+          "path": "local/research/title-session-v1/defeat-title-109025-v1/native.png.frames/tick-108698.png",
+          "size": 6031,
+          "sha256": "6156d7d7a2141270653ba09aa69aa4437a47b83e89542c2383fed287678a0d41"
+        },
+        {
+          "path": "local/research/title-session-v1/defeat-title-109025-v1/native.png.frames/tick-108699.png",
+          "size": 6031,
+          "sha256": "6a3988ce27f723ca6f6316ee876d6592aea8ad51647fee8eeade7c1691550bc5"
+        },
+        {
+          "path": "local/research/title-session-v1/defeat-title-109025-v1/native.png.frames/tick-108700.png",
+          "size": 6031,
+          "sha256": "6a3988ce27f723ca6f6316ee876d6592aea8ad51647fee8eeade7c1691550bc5"
+        },
+        {
+          "path": "local/research/title-session-v1/defeat-title-109025-v1/native.png.frames/tick-108720.png",
+          "size": 54596,
+          "sha256": "74968299c8dd5a33f6857cc2ca1c3a216940f59ce7c32193aeaa3b08b5c983bf"
+        },
+        {
+          "path": "local/research/title-session-v1/defeat-title-109025-v1/native.png.frames/tick-108800.png",
+          "size": 126887,
+          "sha256": "e5d7f6e957ab00f851a9ad64702f2aa33a4f0d652f529361f4442dca3e7cace1"
+        },
+        {
+          "path": "local/research/title-session-v1/defeat-title-109025-v1/native.png.frames/tick-109025.png",
+          "size": 140345,
+          "sha256": "28a3a2728dea32781fb07cd05e0bb8ddd8dab9de423b5243a77335702d3ad222"
+        },
+        {
+          "path": "local/research/title-session-v1/defeat-title-109025-v1/native.png.game-mode.bin",
+          "size": 916100,
+          "sha256": "8a67e528069dd30862ce1f16d138a2cd410487a02c4def53c399f4c612dcbaaa"
+        },
+        {
+          "path": "local/research/title-session-v1/defeat-title-109025-v1/native.png.title-state.bin",
+          "size": 56244,
+          "sha256": "86f4004fe696de15a6fa757823ea3f32844c81c6e7217725e1a40a83ccfbb571"
+        },
+        {
+          "path": "local/research/title-session-v1/defeat-title-109025-v1/okage-native",
+          "size": 2835312,
+          "sha256": "c32165ed0346be31c58d01c995f39f4f41ca26b54503e70b7900e0021e0edb8b"
+        },
+        {
+          "path": "local/research/title-session-v1/defeat-title-109025-v1/run.json",
+          "size": 6752,
+          "sha256": "1e35c88a2079bbb9f8cce13a415a3674fbda2a68898957e7d8f389e2a743469f"
+        },
+        {
+          "path": "local/research/title-session-v1/defeat-title-109025-v1/run.log",
+          "size": 5518,
+          "sha256": "d927e1f35dee6f48c5f3d94851c61f9ec9ed08bb22998c0aab56e8fc00269f17"
+        }
+      ]
+    },
+    {
+      "command": [
+        "local/research/title-session-v1/title-menu-109005-v1/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "109005",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538,61658,61777,61897,62018,62137,62257,62377,62498,62617,62737,63578,63697,63817,63937,64058,64177,64298,64418,64537,64778,64898,65017,65137,65258,65377,65497,65617,65737,65857,65978,66097,66218,66338,66457,66577,66697,66817,66937,67057,67178,67297,67417,67537,67657,67777,67897,68017,68138,68257,68377,68497,68618,68738,68857,68978,69097,69217,69337,69458,69577,69697,69818,69937,70057,70177,70298,70417,70537,70657,70777,70898,71018,71137,71257,71378,71497,71618,71737,71857,71977,72098,72217,72337,72457,72578,72697,72817,72938,73088,73359,73654,74437,74557,74677,74798,74917,75038,75158,75277,75397,75517,75637,75758,75877,75997,76118,76237,76357,76477,76598,76717,77142,77262,77383,77502,77622,77742,77862,77982,78102,78222,78337,78457,78577,78698,78817,78937,79058,79177,79297,79417,80831,81037,81157,81277,81397,81517,81637,81967,82327,82447,82567,82687,82807,82927,83047,83167,83287,83407,83527,83767,83887,84007,84127,84367,84487,84858,85377,85597,85717,85837,85957,86077,86197,86317,86437,86557,87187,87397,87517,87638,87758,88297,88507,88627,88748,88867,88987,89107,89228,89347,89917,90186,90246,90307,90366,90426,90486,90546,90607,90666,90726,90787,90846,90906,90967,91026,91086,91146,91206,91267,91326,91386,91446,91506,91566,92166,92226,92286,92346,92406,92467,92526,92586,93107,93276,93336,93396,93456,93516,93576,93636,93697,93756,93816,93877,93936,93996,94056,94116,94176,94236,94297,94356,94416,94476,94536,94597,94656,94716,94776,94836,94896,94956,95016,95077,95136,95196,97327,97787,97958,98017,98077,98137,98197,98258,98317,98378,98452,98511,98572,98812,99457,99517,99577,99651,99712,99771,99831,99891,99937,99997,100057,100117,100177,100238,100297,100357,100418,100477,100537,100597,100837,101086,101265,101784,101930,102697,103057,103117,103177,103237,103357,103417,103537,103597,103717,103777,103837,103897,104017,104077,104197,104257,104317,104377",
+        "--directions",
+        "local/research/title-session-v1/title-menu-109005-v1/directions.txt",
+        "--capture",
+        "local/research/title-session-v1/title-menu-109005-v1/native.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "--render-from",
+        "11310",
+        "--render-until",
+        "11542",
+        "--capture-frames",
+        "108899,108900,108940,108980,108990,109005",
+        "--render-range",
+        "91547:91698",
+        "--battle-input",
+        "local/battle-input-v6",
+        "--ui-update-diagnostic",
+        "local/research/title-session-v1/title-menu-109005-v1/isolated-ui.json",
+        "--battle-live",
+        "local/research/title-session-v1/title-menu-109005-v1/live.jsonl",
+        "--buttons",
+        "local/research/title-session-v1/title-menu-109005-v1/buttons.txt",
+        "--load-observation",
+        "local/research/title-session-v1/title-menu-109005-v1/loader.jsonl",
+        "--battle-readback",
+        "deferred",
+        "--replay-loading",
+        "cooperative",
+        "--input-journal",
+        "local/research/title-session-v1/title-menu-109005-v1/inputs.jsonl",
+        "--replay-display-from",
+        "104447"
+      ],
+      "binary_sha256": "c32165ed0346be31c58d01c995f39f4f41ca26b54503e70b7900e0021e0edb8b",
+      "source_revision": "ad743e440481cd49d9a71df3f0248c7aac50b806",
+      "scope": "Same retained defeat prefix; append ordinary Start108900 and Left108990, no seed/state injection.",
+      "exit_code": 0,
+      "seconds": 67.295775375,
+      "name": "title-menu-109005-v1",
+      "artifacts": [
+        {
+          "path": "local/research/title-session-v1/title-menu-109005-v1/buttons.txt",
+          "size": 429,
+          "sha256": "52ba31bcb6aad6c0b9655f1c2f84f6e215eea522cafee4349d53abe69bd19498"
+        },
+        {
+          "path": "local/research/title-session-v1/title-menu-109005-v1/directions.txt",
+          "size": 8469,
+          "sha256": "b011447c6227a13c0cbf703dd684a8a045f4ab157eee74c3d6b0691a324c4f4f"
+        },
+        {
+          "path": "local/research/title-session-v1/title-menu-109005-v1/native.png.audio.json",
+          "size": 161,
+          "sha256": "5922f3cde91fbefae52e182c1f5d1333aa1772cb125960b113605aec50a43dee"
+        },
+        {
+          "path": "local/research/title-session-v1/title-menu-109005-v1/native.png.frames/manifest.json",
+          "size": 822,
+          "sha256": "c8c3dea74b201390b531c815b0f1a914fe5d1414adc96e0c5e816a477f906b71"
+        },
+        {
+          "path": "local/research/title-session-v1/title-menu-109005-v1/native.png.frames/tick-108899.png",
+          "size": 144135,
+          "sha256": "814503ab10698c77cc720bb76e2e166c3413d5b6143084509176191cc5e4e383"
+        },
+        {
+          "path": "local/research/title-session-v1/title-menu-109005-v1/native.png.frames/tick-108900.png",
+          "size": 142961,
+          "sha256": "a0d98003818437129f8917d2af72e8e006648dc838b3edec7d6ef4dd149b213d"
+        },
+        {
+          "path": "local/research/title-session-v1/title-menu-109005-v1/native.png.frames/tick-108940.png",
+          "size": 149749,
+          "sha256": "540507a57399ae57d3f2643c1263b92da4dc735fd215601fc7dde0123f659fbc"
+        },
+        {
+          "path": "local/research/title-session-v1/title-menu-109005-v1/native.png.frames/tick-108980.png",
+          "size": 155678,
+          "sha256": "32a14632412a514e0bea7e1144de915a21286e8e989f27f6a3eb0be28a6975ff"
+        },
+        {
+          "path": "local/research/title-session-v1/title-menu-109005-v1/native.png.frames/tick-108990.png",
+          "size": 153362,
+          "sha256": "b573454da43dab7f0a60f7c33dcc56bdcf040f6deed6f50d76020508d2b11b6a"
+        },
+        {
+          "path": "local/research/title-session-v1/title-menu-109005-v1/native.png.frames/tick-109005.png",
+          "size": 148576,
+          "sha256": "2207dca978f17b68de10dab3f6549d3513ad0f3094f536f4c8332e271e1ea66e"
+        },
+        {
+          "path": "local/research/title-session-v1/title-menu-109005-v1/native.png.game-mode.bin",
+          "size": 912100,
+          "sha256": "43d70ace3740f427e599012018ae3fe1ea2561617b24d72c36fd497d599d22b4"
+        },
+        {
+          "path": "local/research/title-session-v1/title-menu-109005-v1/native.png.title-state.bin",
+          "size": 52804,
+          "sha256": "f4bf5b4f94699f8278a6cca061ea9a7b5fc3b78037e15161c7bf5e09e4c61e64"
+        },
+        {
+          "path": "local/research/title-session-v1/title-menu-109005-v1/okage-native",
+          "size": 2835312,
+          "sha256": "c32165ed0346be31c58d01c995f39f4f41ca26b54503e70b7900e0021e0edb8b"
+        },
+        {
+          "path": "local/research/title-session-v1/title-menu-109005-v1/run.json",
+          "size": 6709,
+          "sha256": "4a0611ceb9ac5947345c411729efd705a6cfa9ea642603d1a4acdb4b4e9eb073"
+        },
+        {
+          "path": "local/research/title-session-v1/title-menu-109005-v1/run.log",
+          "size": 5514,
+          "sha256": "35d5df41c2e55f930324cd70bf044a215c05bc541046b075a0128101e7e7eacd"
+        }
+      ]
+    },
+    {
+      "command": [
+        "local/research/title-session-v1/newgame-boundary-109200-v1/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "109200",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538,61658,61777,61897,62018,62137,62257,62377,62498,62617,62737,63578,63697,63817,63937,64058,64177,64298,64418,64537,64778,64898,65017,65137,65258,65377,65497,65617,65737,65857,65978,66097,66218,66338,66457,66577,66697,66817,66937,67057,67178,67297,67417,67537,67657,67777,67897,68017,68138,68257,68377,68497,68618,68738,68857,68978,69097,69217,69337,69458,69577,69697,69818,69937,70057,70177,70298,70417,70537,70657,70777,70898,71018,71137,71257,71378,71497,71618,71737,71857,71977,72098,72217,72337,72457,72578,72697,72817,72938,73088,73359,73654,74437,74557,74677,74798,74917,75038,75158,75277,75397,75517,75637,75758,75877,75997,76118,76237,76357,76477,76598,76717,77142,77262,77383,77502,77622,77742,77862,77982,78102,78222,78337,78457,78577,78698,78817,78937,79058,79177,79297,79417,80831,81037,81157,81277,81397,81517,81637,81967,82327,82447,82567,82687,82807,82927,83047,83167,83287,83407,83527,83767,83887,84007,84127,84367,84487,84858,85377,85597,85717,85837,85957,86077,86197,86317,86437,86557,87187,87397,87517,87638,87758,88297,88507,88627,88748,88867,88987,89107,89228,89347,89917,90186,90246,90307,90366,90426,90486,90546,90607,90666,90726,90787,90846,90906,90967,91026,91086,91146,91206,91267,91326,91386,91446,91506,91566,92166,92226,92286,92346,92406,92467,92526,92586,93107,93276,93336,93396,93456,93516,93576,93636,93697,93756,93816,93877,93936,93996,94056,94116,94176,94236,94297,94356,94416,94476,94536,94597,94656,94716,94776,94836,94896,94956,95016,95077,95136,95196,97327,97787,97958,98017,98077,98137,98197,98258,98317,98378,98452,98511,98572,98812,99457,99517,99577,99651,99712,99771,99831,99891,99937,99997,100057,100117,100177,100238,100297,100357,100418,100477,100537,100597,100837,101086,101265,101784,101930,102697,103057,103117,103177,103237,103357,103417,103537,103597,103717,103777,103837,103897,104017,104077,104197,104257,104317,104377",
+        "--directions",
+        "local/research/title-session-v1/newgame-boundary-109200-v1/directions.txt",
+        "--capture",
+        "local/research/title-session-v1/newgame-boundary-109200-v1/native.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "--render-from",
+        "11310",
+        "--render-until",
+        "11542",
+        "--capture-frames",
+        "109005,109006,109050,109100,109140",
+        "--render-range",
+        "91547:91698",
+        "--battle-input",
+        "local/battle-input-v6",
+        "--ui-update-diagnostic",
+        "local/research/title-session-v1/newgame-boundary-109200-v1/isolated-ui.json",
+        "--battle-live",
+        "local/research/title-session-v1/newgame-boundary-109200-v1/live.jsonl",
+        "--buttons",
+        "local/research/title-session-v1/newgame-boundary-109200-v1/buttons.txt",
+        "--load-observation",
+        "local/research/title-session-v1/newgame-boundary-109200-v1/loader.jsonl",
+        "--battle-readback",
+        "deferred",
+        "--replay-loading",
+        "cooperative",
+        "--input-journal",
+        "local/research/title-session-v1/newgame-boundary-109200-v1/inputs.jsonl",
+        "--replay-display-from",
+        "104447"
+      ],
+      "binary_sha256": "7531f975cf2e9986e9015a676366b774ce3a7740a049ab555d94ce56300e8c7e",
+      "source_revision": "5832add75ce92452304fd2e088f9a73f3e19eb54",
+      "scope": "Same retained defeat prefix and title Start/Left; append normal confirm109006, release109007.",
+      "exit_code": 1,
+      "seconds": 0.09409683299999999,
+      "name": "newgame-boundary-109200-v1",
+      "artifacts": [
+        {
+          "path": "local/research/title-session-v1/newgame-boundary-109200-v1/buttons.txt",
+          "size": 453,
+          "sha256": "2f4332601c0b230cf59025cd3dfd6cf0a0ee6a55b30fe6794f6cc77f0c08b2cd"
+        },
+        {
+          "path": "local/research/title-session-v1/newgame-boundary-109200-v1/directions.txt",
+          "size": 8469,
+          "sha256": "b011447c6227a13c0cbf703dd684a8a045f4ab157eee74c3d6b0691a324c4f4f"
+        },
+        {
+          "path": "local/research/title-session-v1/newgame-boundary-109200-v1/okage-native",
+          "size": 2835312,
+          "sha256": "7531f975cf2e9986e9015a676366b774ce3a7740a049ab555d94ce56300e8c7e"
+        },
+        {
+          "path": "local/research/title-session-v1/newgame-boundary-109200-v1/run.json",
+          "size": 6813,
+          "sha256": "c24424fc295e74080d84035d8368d7964f9573ea8afd68a841ddae2e45dfc95a"
+        },
+        {
+          "path": "local/research/title-session-v1/newgame-boundary-109200-v1/run.log",
+          "size": 78,
+          "sha256": "a1d7a780facb48c1d94d4b35d85ae0fa67325ab876807457582c62e25ca0152d"
+        }
+      ]
+    },
+    {
+      "command": [
+        "local/research/title-session-v1/newgame-boundary-109200-v2/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "109200",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538,61658,61777,61897,62018,62137,62257,62377,62498,62617,62737,63578,63697,63817,63937,64058,64177,64298,64418,64537,64778,64898,65017,65137,65258,65377,65497,65617,65737,65857,65978,66097,66218,66338,66457,66577,66697,66817,66937,67057,67178,67297,67417,67537,67657,67777,67897,68017,68138,68257,68377,68497,68618,68738,68857,68978,69097,69217,69337,69458,69577,69697,69818,69937,70057,70177,70298,70417,70537,70657,70777,70898,71018,71137,71257,71378,71497,71618,71737,71857,71977,72098,72217,72337,72457,72578,72697,72817,72938,73088,73359,73654,74437,74557,74677,74798,74917,75038,75158,75277,75397,75517,75637,75758,75877,75997,76118,76237,76357,76477,76598,76717,77142,77262,77383,77502,77622,77742,77862,77982,78102,78222,78337,78457,78577,78698,78817,78937,79058,79177,79297,79417,80831,81037,81157,81277,81397,81517,81637,81967,82327,82447,82567,82687,82807,82927,83047,83167,83287,83407,83527,83767,83887,84007,84127,84367,84487,84858,85377,85597,85717,85837,85957,86077,86197,86317,86437,86557,87187,87397,87517,87638,87758,88297,88507,88627,88748,88867,88987,89107,89228,89347,89917,90186,90246,90307,90366,90426,90486,90546,90607,90666,90726,90787,90846,90906,90967,91026,91086,91146,91206,91267,91326,91386,91446,91506,91566,92166,92226,92286,92346,92406,92467,92526,92586,93107,93276,93336,93396,93456,93516,93576,93636,93697,93756,93816,93877,93936,93996,94056,94116,94176,94236,94297,94356,94416,94476,94536,94597,94656,94716,94776,94836,94896,94956,95016,95077,95136,95196,97327,97787,97958,98017,98077,98137,98197,98258,98317,98378,98452,98511,98572,98812,99457,99517,99577,99651,99712,99771,99831,99891,99937,99997,100057,100117,100177,100238,100297,100357,100418,100477,100537,100597,100837,101086,101265,101784,101930,102697,103057,103117,103177,103237,103357,103417,103537,103597,103717,103777,103837,103897,104017,104077,104197,104257,104317,104377",
+        "--directions",
+        "local/research/title-session-v1/newgame-boundary-109200-v2/directions.txt",
+        "--capture",
+        "local/research/title-session-v1/newgame-boundary-109200-v2/native.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "--render-from",
+        "11310",
+        "--render-until",
+        "11542",
+        "--capture-frames",
+        "109005,109006,109050,109100,109140",
+        "--render-range",
+        "91547:91698",
+        "--battle-input",
+        "local/battle-input-v6",
+        "--ui-update-diagnostic",
+        "local/research/title-session-v1/newgame-boundary-109200-v2/isolated-ui.json",
+        "--battle-live",
+        "local/research/title-session-v1/newgame-boundary-109200-v2/live.jsonl",
+        "--buttons",
+        "local/research/title-session-v1/newgame-boundary-109200-v2/buttons.txt",
+        "--load-observation",
+        "local/research/title-session-v1/newgame-boundary-109200-v2/loader.jsonl",
+        "--battle-readback",
+        "deferred",
+        "--replay-loading",
+        "cooperative",
+        "--input-journal",
+        "local/research/title-session-v1/newgame-boundary-109200-v2/inputs.jsonl",
+        "--replay-display-from",
+        "104447"
+      ],
+      "binary_sha256": "7531f975cf2e9986e9015a676366b774ce3a7740a049ab555d94ce56300e8c7e",
+      "source_revision": "5832add75ce92452304fd2e088f9a73f3e19eb54",
+      "scope": "Same retained defeat prefix and title Start/Left; append normal confirm109006, release109007.",
+      "exit_code": 1,
+      "seconds": 67.501525292,
+      "name": "newgame-boundary-109200-v2",
+      "artifacts": [
+        {
+          "path": "local/research/title-session-v1/newgame-boundary-109200-v2/buttons.txt",
+          "size": 453,
+          "sha256": "a9cc2dffcbf7c7a9b2e00dc66a38bc4965d3dad39d196ccfda47d43d4c2d016b"
+        },
+        {
+          "path": "local/research/title-session-v1/newgame-boundary-109200-v2/directions.txt",
+          "size": 8469,
+          "sha256": "b011447c6227a13c0cbf703dd684a8a045f4ab157eee74c3d6b0691a324c4f4f"
+        },
+        {
+          "path": "local/research/title-session-v1/newgame-boundary-109200-v2/native.png.frames/manifest.json",
+          "size": 561,
+          "sha256": "9b8c8b243ac6f44091c1f321017cbe07d4d9509829faff551921e7e631d7ac86"
+        },
+        {
+          "path": "local/research/title-session-v1/newgame-boundary-109200-v2/native.png.frames/tick-109005.png",
+          "size": 148576,
+          "sha256": "2207dca978f17b68de10dab3f6549d3513ad0f3094f536f4c8332e271e1ea66e"
+        },
+        {
+          "path": "local/research/title-session-v1/newgame-boundary-109200-v2/native.png.frames/tick-109006.png",
+          "size": 148902,
+          "sha256": "b037b4c07703838ca7c4c3a7bb0041a7d173ebf9fb3cac408b4145e0f35eafec"
+        },
+        {
+          "path": "local/research/title-session-v1/newgame-boundary-109200-v2/native.png.frames/tick-109050.png",
+          "size": 142834,
+          "sha256": "cd26876f47891a7a841fe76bbaf3db97a09d84c0dcad369b86b9bddc073a8be8"
+        },
+        {
+          "path": "local/research/title-session-v1/newgame-boundary-109200-v2/native.png.frames/tick-109100.png",
+          "size": 140450,
+          "sha256": "fcd87845fbb7132cb96e364201681ca6447760a0084758b81fd0f5f131140b80"
+        },
+        {
+          "path": "local/research/title-session-v1/newgame-boundary-109200-v2/okage-native",
+          "size": 2835312,
+          "sha256": "7531f975cf2e9986e9015a676366b774ce3a7740a049ab555d94ce56300e8c7e"
+        },
+        {
+          "path": "local/research/title-session-v1/newgame-boundary-109200-v2/run.json",
+          "size": 6806,
+          "sha256": "c8ec0e773905071e477cb525c75e71c644cd790308687396470c6a3e83c15ab1"
+        },
+        {
+          "path": "local/research/title-session-v1/newgame-boundary-109200-v2/run.log",
+          "size": 5605,
+          "sha256": "dac9470378a3119dafc2ec4e96799f9985f7c02423041597713f154483e06469"
+        }
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "path": "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",
+      "size": 22239568,
+      "sha256": "375ae87bef20a6aee12415519192c1c2bf5eefe7b7f36677ccb4d8d24011b8a1"
+    },
+    {
+      "path": "build/native/okage-native.app/Contents/MacOS/okage-native",
+      "size": 10326576,
+      "sha256": "e85c26d49d7e7754621828b4576fafd08c6092694bb3186971e44a4c4babce2d"
+    },
+    {
+      "path": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+      "size": 2835312,
+      "sha256": "7531f975cf2e9986e9015a676366b774ce3a7740a049ab555d94ce56300e8c7e"
+    },
+    {
+      "path": "local/research/title-session-v1/check-integration-v3.py",
+      "size": 1914,
+      "sha256": "28984ddf8911e3d95addc8d3787803363b22c7512fbe5da922973714c533970a"
+    },
+    {
+      "path": "local/research/title-session-v1/debug-build-v3.log",
+      "size": 10413,
+      "sha256": "da6789e7b0548c7db2b6c626a2285b0782379b6def3800359855a6cce227d091"
+    },
+    {
+      "path": "local/research/title-session-v1/debug-scene-actor-build-v3.log",
+      "size": 1172,
+      "sha256": "f4f4fc2053fb462f02709176afd950d60b2d5935e844747c20ee335fd11294da"
+    },
+    {
+      "path": "local/research/title-session-v1/debug-scene-actor-run-v3.log",
+      "size": 144,
+      "sha256": "e9e1445318fc54bca1d702aefb4232624584783f939f501a82a4fc04221b48b8"
+    },
+    {
+      "path": "local/research/title-session-v1/debug-tests-v3.log",
+      "size": 1501,
+      "sha256": "6c9af880f42446e977c3f88b125c46e7ed78728fa101ba556436e4ae5765d40c"
+    },
+    {
+      "path": "local/research/title-session-v1/debug-title-model-build-v3.log",
+      "size": 1172,
+      "sha256": "f4f4fc2053fb462f02709176afd950d60b2d5935e844747c20ee335fd11294da"
+    },
+    {
+      "path": "local/research/title-session-v1/debug-title-model-run-v3.log",
+      "size": 76,
+      "sha256": "e61e97366b10fff189b69d6d0aed99ac9bf369a53a15e26338711339552ca238"
+    },
+    {
+      "path": "local/research/title-session-v1/integration-checks-v3.json",
+      "size": 8971,
+      "sha256": "000f989fe1afb0d9bd3ea05d0f8159b59dd7f2902804ecd21edca603330f2768"
+    },
+    {
+      "path": "local/research/title-session-v1/integration-diff-v1.patch",
+      "size": 32475,
+      "sha256": "95f06a97f6c26d517ea7ac0f925b893c59865fcfa58cf7e0c8c061c0eb031956"
+    },
+    {
+      "path": "local/research/title-session-v1/newgame-export-v1.log",
+      "size": 4830,
+      "sha256": "59e58b9baa8cbecd48691766727c42e450024c5481eea4c092adaba545385746"
+    },
+    {
+      "path": "local/research/title-session-v1/newgame-export-v1.run.json",
+      "size": 659,
+      "sha256": "cec0e6b36f0db7706b48a292df9b83780e67f1a141de6d9a4e86a15bc6ed5463"
+    },
+    {
+      "path": "local/research/title-session-v1/newgame-exports-v1/001243c8.asm",
+      "size": 740,
+      "sha256": "f50935a715d35f3c986674704e832acbe86b025e4efc8d95728fd05b8ca279de"
+    },
+    {
+      "path": "local/research/title-session-v1/newgame-exports-v1/001243c8.c",
+      "size": 318,
+      "sha256": "2c5556eefc885431fb66ded163a923a702893eae89530c162bc445b2018418c7"
+    },
+    {
+      "path": "local/research/title-session-v1/newgame-exports-v1/00124448.asm",
+      "size": 308,
+      "sha256": "02e6e2922f383ffede6ef729e4852486b9f1ed47c015938f776e10b3457731b4"
+    },
+    {
+      "path": "local/research/title-session-v1/newgame-exports-v1/00124448.c",
+      "size": 141,
+      "sha256": "8ac1b1e9b0857d244ac9b034e94bfd592b5bb586a7b972402e10b91f1a5523af"
+    },
+    {
+      "path": "local/research/title-session-v1/newgame-exports-v1/00124548.asm",
+      "size": 1236,
+      "sha256": "9f02cf026a562a217abc2a76295567029be64c26e240a6d5b9f7bd35930b0261"
+    },
+    {
+      "path": "local/research/title-session-v1/newgame-exports-v1/00124548.c",
+      "size": 865,
+      "sha256": "f0d15e0d093bd1eecc27fe1fe22cbb842eec0ea1c1511b40422d2f9e5a1257c1"
+    },
+    {
+      "path": "local/research/title-session-v1/newgame-exports-v1/00124630.asm",
+      "size": 1871,
+      "sha256": "4c343deaa86f59503fb31bbc59ea277d4f44fef4e5e856444dd019f60af54e61"
+    },
+    {
+      "path": "local/research/title-session-v1/newgame-exports-v1/00124630.c",
+      "size": 1126,
+      "sha256": "c48118846915c888fed69b9e788aa628ee0fb511c9cae379e4e4f8cbb0be591b"
+    },
+    {
+      "path": "local/research/title-session-v1/newgame-exports-v1/functions.tsv",
+      "size": 102530,
+      "sha256": "029360c9e8eedb14327281de8a435ca48320ea32819f559a8026e9a0cb93a9b2"
+    },
+    {
+      "path": "local/research/title-session-v1/reference-inventory-v1.md",
+      "size": 3889,
+      "sha256": "1fa532f08d5c103c348e1e856e9d16076416b60c7e8271a7a57be725a5bd86b6"
+    },
+    {
+      "path": "local/research/title-session-v1/release-build-v3.log",
+      "size": 155,
+      "sha256": "309ef32b37c52021b77a8112081594900f3a8418ed9b4c119ac41477efbf51d7"
+    },
+    {
+      "path": "local/research/title-session-v1/release-scene-actor-build-v3.log",
+      "size": 1172,
+      "sha256": "f4f4fc2053fb462f02709176afd950d60b2d5935e844747c20ee335fd11294da"
+    },
+    {
+      "path": "local/research/title-session-v1/release-scene-actor-run-v3.log",
+      "size": 144,
+      "sha256": "e9e1445318fc54bca1d702aefb4232624584783f939f501a82a4fc04221b48b8"
+    },
+    {
+      "path": "local/research/title-session-v1/release-tests-v3.log",
+      "size": 1517,
+      "sha256": "e60ed52e097b1a0ee72ef19de1951e383e9c43745b6cd114840ea9ee419a7e64"
+    },
+    {
+      "path": "local/research/title-session-v1/release-title-model-build-v3.log",
+      "size": 1172,
+      "sha256": "f4f4fc2053fb462f02709176afd950d60b2d5935e844747c20ee335fd11294da"
+    },
+    {
+      "path": "local/research/title-session-v1/release-title-model-run-v3.log",
+      "size": 76,
+      "sha256": "e61e97366b10fff189b69d6d0aed99ac9bf369a53a15e26338711339552ca238"
+    },
+    {
+      "path": "local/research/title-session-v1/run-newgame-boundary-v1.py",
+      "size": 1513,
+      "sha256": "58b217ce9323e014b8d9a825d6a8227c120bccc3af59fa696a4dc7ddb992f706"
+    },
+    {
+      "path": "local/research/title-session-v1/run-newgame-boundary-v2.py",
+      "size": 1627,
+      "sha256": "935a3ca69e9ad0d5a20dff711ce373be9e1ffe0ae494375e28047eeb12aeb550"
+    },
+    {
+      "path": "local/research/title-session-v1/sanitize-build-v3.log",
+      "size": 10421,
+      "sha256": "ba132814ecfe0b60b3eae5bfcdf9a241388ad90c33d4b528c8352793d7bc9df4"
+    },
+    {
+      "path": "local/research/title-session-v1/sanitize-scene-actor-build-v3.log",
+      "size": 1172,
+      "sha256": "f4f4fc2053fb462f02709176afd950d60b2d5935e844747c20ee335fd11294da"
+    },
+    {
+      "path": "local/research/title-session-v1/sanitize-scene-actor-run-v3.log",
+      "size": 144,
+      "sha256": "e9e1445318fc54bca1d702aefb4232624584783f939f501a82a4fc04221b48b8"
+    },
+    {
+      "path": "local/research/title-session-v1/sanitize-tests-v3.log",
+      "size": 1517,
+      "sha256": "8bec1f45c506335245995ff3b3dd1811657b99a168d68676f88f35476dbc4513"
+    },
+    {
+      "path": "local/research/title-session-v1/sanitize-title-model-build-v3.log",
+      "size": 1172,
+      "sha256": "f4f4fc2053fb462f02709176afd950d60b2d5935e844747c20ee335fd11294da"
+    },
+    {
+      "path": "local/research/title-session-v1/sanitize-title-model-run-v3.log",
+      "size": 76,
+      "sha256": "e61e97366b10fff189b69d6d0aed99ac9bf369a53a15e26338711339552ca238"
+    },
+    {
+      "path": "local/research/title-session-v1/scene-actor-debug-v3",
+      "size": 4195832,
+      "sha256": "e7411e1511dfc09cfbe63d21dcfd043e3758f10b9ea4a8808856b775d32ae253"
+    },
+    {
+      "path": "local/research/title-session-v1/scene-actor-release-v3",
+      "size": 954824,
+      "sha256": "9ac96ab2fd5c5f4ccf646888a7a6bded14b745e901e561ddc28d3198db44478c"
+    },
+    {
+      "path": "local/research/title-session-v1/scene-actor-sanitize-v3",
+      "size": 10481848,
+      "sha256": "20226d38f397c86244ff7dffad4f4866542604e8569ab940c4379f411a39315b"
+    },
+    {
+      "path": "local/research/title-session-v1/title-audio-prefix-v1.json",
+      "size": 425,
+      "sha256": "7a39ddc3dae523f93dcf07c9e815ad05a68264def22c28abdff88907e4434d06"
+    },
+    {
+      "path": "local/research/title-session-v1/title-audio-prefix-v1.wav",
+      "size": 1046444,
+      "sha256": "12f1bfe9f09275270c1418efc57f117e34a7bd085bbb4ed73ffcf8998e9738c5"
+    },
+    {
+      "path": "local/research/title-session-v1/title-menu-state-check-v1.json",
+      "size": 849,
+      "sha256": "65f3f189ae66274a679c729eb8e9d2df5d8ef8ad4c09c241ae7dd7db0ab0c9fc"
+    },
+    {
+      "path": "local/research/title-session-v1/title-model-debug-v3",
+      "size": 4166040,
+      "sha256": "cdd273ce6a0bcebe93dde1857734047cdfc59c00ab3bfc05b276961ef880acfb"
+    },
+    {
+      "path": "local/research/title-session-v1/title-model-release-v3",
+      "size": 938456,
+      "sha256": "4ccbb74dca96e89439c907a05ccb0b427bdce60465a728dcefa28da6d30b3b4b"
+    },
+    {
+      "path": "local/research/title-session-v1/title-model-run-v1.log",
+      "size": 23,
+      "sha256": "117490f22da5906390181cb91406af2d93eecbbaf611ff7d951162f1fbedce15"
+    },
+    {
+      "path": "local/research/title-session-v1/title-model-run-v2.log",
+      "size": 76,
+      "sha256": "e61e97366b10fff189b69d6d0aed99ac9bf369a53a15e26338711339552ca238"
+    },
+    {
+      "path": "local/research/title-session-v1/title-model-sanitize-v3",
+      "size": 10406184,
+      "sha256": "8c63a101029b4fef725b9e38cf422ee38c54d6b8e0c01bf792f2d37ff835c234"
+    },
+    {
+      "path": "local/research/title-session-v1/title-model-source-review.txt",
+      "size": 2847,
+      "sha256": "b8b087eca1f5aec465ec93ce42618d62ba9d35b08a8dd5834955412ba31414c5"
+    },
+    {
+      "path": "local/research/title-session-v1/title-model-source-hashes.json",
+      "size": 729,
+      "sha256": "30cbf7b9c4ad63c5abea93314aa9cfe732787cffd461c202d665125a90143d2a"
+    },
+    {
+      "path": "docs/title-validation.json",
+      "size": 75163,
+      "sha256": "86881c642e716ae731e67faeec50a7b0d96afae51634f65fb31059953e220928"
+    },
+    {
+      "path": "local/research/title-session-v1/newgame-export-v2.run.json",
+      "size": 636,
+      "sha256": "c6a4e45bd030420e63f0573a1a8d7f1996df1335855d6abbe2de066cedcd5178"
+    },
+    {
+      "path": "local/research/title-session-v1/newgame-export-v2.log",
+      "size": 4812,
+      "sha256": "3631eea41e20779aa0ced5eb9b9f2a11aa10ac0b612f54ad607410dfc0d4241c"
+    },
+    {
+      "path": "local/research/title-session-v1/newgame-exports-v2/001196a0.asm",
+      "size": 539,
+      "sha256": "56fa811592d2bc535be4c28899e03d21314d26945b480642cb4e6448fb052fc0"
+    },
+    {
+      "path": "local/research/title-session-v1/newgame-exports-v2/001196a0.c",
+      "size": 189,
+      "sha256": "de4c549de017f82f66d78df87cbb7bc3a54ba7d8a3b628388e5c6ab340db3cc5"
+    },
+    {
+      "path": "local/research/title-session-v1/newgame-exports-v2/00119700.asm",
+      "size": 15478,
+      "sha256": "bd5f44ac625529e4bfcec70c1ed02e6f6047d7cbec62847a4f44bcccb673c85f"
+    },
+    {
+      "path": "local/research/title-session-v1/newgame-exports-v2/00119700.c",
+      "size": 7699,
+      "sha256": "dafba4fc79c6c0a603b2d1b48d5e5b84f42525ec915cae127fc70a9c9bfdfb5b"
+    },
+    {
+      "path": "local/research/title-session-v1/newgame-exports-v2/0011a1c8.asm",
+      "size": 26162,
+      "sha256": "9fc9a4bd06eba396d659aa1f41210426f7f1c4514ac04fc57074439e7c1119f7"
+    },
+    {
+      "path": "local/research/title-session-v1/newgame-exports-v2/0011a1c8.c",
+      "size": 19550,
+      "sha256": "4efef93825a5223bbdcc547731e1c8b685aa64210d2fb00b009cd9c8f1d72ede"
+    },
+    {
+      "path": "local/research/title-session-v1/newgame-exports-v2/functions.tsv",
+      "size": 102530,
+      "sha256": "029360c9e8eedb14327281de8a435ca48320ea32819f559a8026e9a0cb93a9b2"
+    },
+    {
+      "path": "local/research/title-session-v1/newgame-recovery-v1.md",
+      "size": 6375,
+      "sha256": "5d84ca5dd44c5e03a15815b414c8d5c532c9a60006095bcbb21720d2994af871"
+    }
+  ],
+  "original_comparison": {
+    "status": "missing",
+    "reason": "Only cold-boot title/menu original capture exists; no retained matching defeat-to-title interval. Do not shift anchors."
+  },
+  "limits": [
+    "Whole native title routes ran only in Release",
+    "S keyboard mapping compiled, AppKit key path not exercised",
+    "No listening/hardware audio check",
+    "Mode9/10/11 not implemented",
+    "No general cold startup or native save/load restart",
+    "Existing combat comparisons still fail",
+    "Sole user preview preserved on older immutable executable",
+    "Failed boundary capture manifest is an unfinished JSON stream; retained PNGs and run.log are authoritative, endpoint artifacts absent"
+  ],
+  "task_runs": {
+    "field_shadow_roster": "completed renderer/hidden-model fixes; reviewed and integrated",
+    "mode_observer": "completed bounded mode9 source recovery; read-only",
+    "native_save_inventory": "completed original title reference inventory; read-only"
+  },
+  "jobs": "All new build/test/replay/export jobs terminal and polled; sole pre-existing user preview remains live"
+}
