@@ -1694,13 +1694,13 @@ static void capture(Session& session,const fs::path& path) {
 - (void)keyDown:(NSEvent*)event {
     if(event.isARepeat)return;
     if(event.keyCode==35){self.pauseRequested=YES;return;} // P: diagnostic pause, no game input.
-    const unsigned mask=(event.keyCode==36 || event.keyCode==49)?0x40:event.keyCode==126?0x1000:event.keyCode==125?0x4000:event.keyCode==123?0x8000:event.keyCode==124?0x2000:0;
+    const unsigned mask=(event.keyCode==36 || event.keyCode==49)?0x40:event.keyCode==126?0x1000:event.keyCode==125?0x4000:event.keyCode==123?0x8000:event.keyCode==124?0x2000:event.keyCode==1?0x800:0;
     if(mask){self.pressed|=mask;self.held|=mask;++self.injectedKeyDowns;}
     else [super keyDown:event];
 }
 - (void)keyUp:(NSEvent*)event {
     if(event.keyCode==35)return;
-    const unsigned mask=(event.keyCode==36 || event.keyCode==49)?0x40:event.keyCode==126?0x1000:event.keyCode==125?0x4000:event.keyCode==123?0x8000:event.keyCode==124?0x2000:0;
+    const unsigned mask=(event.keyCode==36 || event.keyCode==49)?0x40:event.keyCode==126?0x1000:event.keyCode==125?0x4000:event.keyCode==123?0x8000:event.keyCode==124?0x2000:event.keyCode==1?0x800:0;
     if(mask)self.held&=~mask;
     else [super keyUp:event];
 }
@@ -1810,7 +1810,7 @@ static void captureView(NSView* view,const fs::path& path) {
     const auto [displayed,displayedFrame]=session->presentation();
     NSImage* image=[[NSImage alloc] initWithSize:NSMakeSize(displayed.width,displayed.height)];[image addRepresentation:bitmap(displayed)];
     self.view.image=image;self.view.opacity=session->game_mode ? 128 : session->opacity.value;self.view.needsDisplay=YES;
-    self.window.title=[NSString stringWithFormat:@"Okage native — frame %u — %@ — P: pause/resume — Arrows, Return/Space",
+    self.window.title=[NSString stringWithFormat:@"Okage native — frame %u — %@ — P: pause/resume — Arrows, Return/Space, S: Start",
         displayedFrame,paused ? @"paused" : @"running"];
     if(session->field && session->field->pending_opcode)
         self.window.title=[self.window.title stringByAppendingString:@" — service pending (partial scene)"];
