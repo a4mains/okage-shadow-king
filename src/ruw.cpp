@@ -227,6 +227,16 @@ void RuwResource::set_position(std::size_t group,std::int32_t id,std::int32_t x,
     if(x!=preserve_component)widget.runtime->words[6]=std::uint32_t(x);
     if(y!=preserve_component)widget.runtime->words[7]=std::uint32_t(y);
 }
+void RuwResource::set_runtime_float_pair(std::size_t group,std::int32_t id,float first,float second) {
+    auto& widget=mutable_widget(group,id);if(!widget.runtime)return;
+    if(first!=-3000.0f)widget.runtime->words[2]=std::bit_cast<std::uint32_t>(first);
+    if(second!=-3000.0f)widget.runtime->words[3]=std::bit_cast<std::uint32_t>(second);
+}
+void RuwResource::set_extent(std::size_t group,std::int32_t id,std::int32_t width,std::int32_t height) {
+    auto& widget=mutable_widget(group,id);if(!widget.runtime)return;
+    if(width!=preserve_component)widget.runtime->words[8]=std::uint32_t(width);
+    if(height!=preserve_component)widget.runtime->words[9]=std::uint32_t(height);
+}
 std::uint32_t RuwResource::add_extent(std::size_t group,std::int32_t id,
     std::int32_t dx,std::int32_t dy,std::int32_t lx,std::int32_t ly) {
     return add_pair(mutable_widget(group,id),8,{dx,dy},{lx,ly});

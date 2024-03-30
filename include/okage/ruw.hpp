@@ -35,6 +35,8 @@ public:
     void reset_widget(std::size_t group,std::int32_t authored_id);
     void set_text(std::size_t group,std::int32_t authored_id,std::string_view);
     void set_position(std::size_t group,std::int32_t authored_id,std::int32_t x,std::int32_t y);
+    void set_runtime_float_pair(std::size_t group,std::int32_t authored_id,float first,float second);
+    void set_extent(std::size_t group,std::int32_t authored_id,std::int32_t width,std::int32_t height);
     std::uint32_t add_extent(std::size_t group,std::int32_t authored_id,
         std::int32_t delta_x,std::int32_t delta_y,std::int32_t limit_x,std::int32_t limit_y);
     std::uint32_t add_position(std::size_t group,std::int32_t authored_id,

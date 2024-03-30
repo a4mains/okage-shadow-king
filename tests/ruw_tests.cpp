@@ -53,6 +53,46 @@ void class_selection_tests() {
     require(r.widget(3,2).runtime->words[4]==0&&(r.widget(3,2).words[4]&1));
     rejects([&]{r.select_class_color(4,0,0);});
 }
+void direct_runtime_setter_tests() {
+    auto bytes=mutable_fixture();
+    put(bytes,108+13*4,0x12345678);put(bytes,108+14*4,0x87654321);
+    okage::RuwResource r(bytes);
+    const auto before=r.widget(3,9);const auto neighbor=r.widget(3,2);
+    const auto runtime_address=&*r.widget(3,9).runtime;
+    const auto text_address=r.widget(3,9).runtime->text->data();
+    r.set_extent(3,9,28,26);
+    auto expected=before.runtime->words;expected[8]=28;expected[9]=26;
+    require(r.widget(3,9).runtime->words==expected);
+    r.set_extent(3,9,keep,-17);expected[9]=std::uint32_t(-17);
+    require(r.widget(3,9).runtime->words==expected);
+    r.set_extent(3,9,keep,keep);require(r.widget(3,9).runtime->words==expected);
+
+    constexpr auto preserved_float=-3000.0f;
+    const auto initial2=expected[2],initial3=expected[3];
+    r.set_runtime_float_pair(3,9,1.2f,1.0f);
+    expected[2]=std::bit_cast<std::uint32_t>(1.2f);
+    expected[3]=std::bit_cast<std::uint32_t>(1.0f);
+    require(r.widget(3,9).runtime->words==expected);
+    r.set_runtime_float_pair(3,9,preserved_float,0.5f);
+    expected[3]=std::bit_cast<std::uint32_t>(0.5f);
+    require(expected[2]!=initial2||expected[3]!=initial3);
+    require(r.widget(3,9).runtime->words==expected);
+    r.set_runtime_float_pair(3,9,preserved_float,preserved_float);
+    require(r.widget(3,9).runtime->words==expected);
+    require(&*r.widget(3,9).runtime==runtime_address&&r.widget(3,9).runtime->text->data()==text_address);
+    require(r.widget(3,9).words==before.words&&r.widget(3,2).words==neighbor.words&&
+            r.widget(3,2).runtime->words==neighbor.runtime->words);
+
+    const auto nonruntime=r.widget(3,1).words;
+    r.set_extent(3,1,2,3);r.set_runtime_float_pair(3,1,2.0f,3.0f);
+    require(!r.widget(3,1).runtime&&r.widget(3,1).words==nonruntime);
+    rejects([&]{r.set_extent(4,9,1,2);});
+    rejects([&]{r.set_extent(3,-1,1,2);});
+    rejects([&]{r.set_extent(3,99,1,2);});
+    rejects([&]{r.set_runtime_float_pair(4,9,1,2);});
+    rejects([&]{r.set_runtime_float_pair(3,-1,1,2);});
+    rejects([&]{r.set_runtime_float_pair(3,99,1,2);});
+}
 void additive_pair_tests() {
     constexpr auto low=std::numeric_limits<std::int32_t>::min();
     constexpr auto high=std::numeric_limits<std::int32_t>::max();
@@ -333,7 +373,7 @@ int main(int argc,char** argv){try {
     if(argc==3&&std::string_view(argv[1])=="--diagnostic") {
         diagnostic(argv[2]);std::cout<<"Owned RUW mutation diagnostic passed\n";return 0;
     }
-    require(argc==1);mutation_tests();fill_tests();binding_tests();additive_pair_tests();additive_secondary_tests();class_selection_tests();class_position_tests();
+    require(argc==1);mutation_tests();fill_tests();binding_tests();additive_pair_tests();additive_secondary_tests();class_selection_tests();class_position_tests();direct_runtime_setter_tests();
     std::vector<std::uint8_t> b(32+16+7*68);
     put(b,8,1);put(b,12,1);put(b,16,2);
     put(b,20,1);put(b,24,2);put(b,28,4);
