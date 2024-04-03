@@ -52,6 +52,7 @@ public:
 
 private:
     std::vector<RuwWidget>& mutable_group(std::size_t);
+    std::array<std::size_t,2> physical_widget(std::size_t,std::int32_t) const;
     RuwWidget& mutable_widget(std::size_t,std::int32_t);
     std::vector<std::array<std::uint32_t,4>> styles_;
     std::vector<std::vector<RuwWidget>> templates_,widgets_;

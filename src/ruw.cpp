@@ -161,11 +161,24 @@ std::size_t RuwResource::widget_index(std::size_t group,std::int32_t id) const {
     for(std::size_t i=0;i<records.size();++i)if(records[i].words[15]==key)return i;
     throw std::runtime_error("RUW authored widget ID missing");
 }
+std::array<std::size_t,2> RuwResource::physical_widget(std::size_t group,std::int32_t id) const {
+    if(group>=widgets_.size()||id<0)throw std::runtime_error("RUW authored widget ID bounds");
+    std::size_t probeGroup=group,probeIndex=std::uint32_t(id);
+    while(probeGroup<widgets_.size()&&probeIndex>=widgets_[probeGroup].size()) {
+        probeIndex-=widgets_[probeGroup].size();++probeGroup;
+    }
+    if(probeGroup==widgets_.size())throw std::runtime_error("RUW widget probe outside physical allocation");
+    const auto key=std::uint32_t(id);
+    if(widgets_[probeGroup][probeIndex].words[15]==key)return {probeGroup,probeIndex};
+    const auto& records=widgets_[group];
+    for(std::size_t i=0;i<records.size();++i)if(records[i].words[15]==key)return {group,i};
+    return {probeGroup,probeIndex};
+}
 const RuwWidget& RuwResource::widget(std::size_t group,std::int32_t id) const {
-    const auto index=widget_index(group,id);return widgets_[group][index];
+    const auto physical=physical_widget(group,id);return widgets_[physical[0]][physical[1]];
 }
 RuwWidget& RuwResource::mutable_widget(std::size_t group,std::int32_t id) {
-    const auto index=widget_index(group,id);return widgets_[group][index];
+    const auto physical=physical_widget(group,id);return widgets_[physical[0]][physical[1]];
 }
 void RuwResource::set_rgba(std::size_t group,std::int32_t id,std::array<std::int32_t,4> values) {
     set_color(mutable_widget(group,id),values,0);

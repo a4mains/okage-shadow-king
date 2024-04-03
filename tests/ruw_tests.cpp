@@ -20,8 +20,9 @@ void put(std::vector<std::uint8_t>& b,unsigned at,std::uint32_t v) {
 }
 
 std::vector<std::uint8_t> mutable_fixture() {
-    std::vector<std::uint8_t> b(40+9*68);
-    put(b,12,1);put(b,16,4);put(b,20,1);put(b,36,8);
+    std::vector<std::uint8_t> b(40+11*68);
+    put(b,12,1);put(b,16,4);put(b,20,1);put(b,36,10);
+    for(unsigned i=8;i<10;++i){put(b,108+i*68+20,4);put(b,108+i*68+60,100+i);}
     const std::array<unsigned,8> ids={9,2,7,1,0,8,3,4};
     const std::array<unsigned,8> types={1,0,2,0,3,1,1,0};
     const std::array<unsigned,8> flags={0x61,0x41,0x40,1,0x41,0x41,0x41,0x41};
@@ -36,6 +37,54 @@ std::vector<std::uint8_t> mutable_fixture() {
     return b;
 }
 constexpr auto keep=okage::RuwResource::preserve_component;
+void physical_lookup_tests() {
+    std::vector<std::uint8_t> bytes(36+8*68);
+    put(bytes,12,1);put(bytes,16,3);put(bytes,20,1);
+    put(bytes,24,3);put(bytes,28,0);put(bytes,32,4);
+    constexpr unsigned records=104;
+    const std::array<unsigned,7> ids={4,5,9,10,4,222,6};
+    for(unsigned i=0;i<ids.size();++i) {
+        put(bytes,records+i*68+16,0x41);put(bytes,records+i*68+20,1);
+        put(bytes,records+i*68+60,ids[i]);
+    }
+    //One source-unsupported record has no runtime allocation; preserve it.
+    put(bytes,records+5*68+20,4);
+    okage::RuwResource r(bytes);
+    const auto& groups=r.widgets();
+    require(r.widget_index(0,4)==0); //Logical API cannot return another group.
+    require(&r.widget(0,4)==&groups[2][1]); //Fast probe wins over local duplicate.
+    require(&r.widget(0,5)==&groups[0][1]); //Failed physical probe then local scan.
+    require(&r.widget(0,3)==&groups[2][0]); //No match: physical fallback.
+    require(&r.widget(1,0)==&groups[2][0]); //Empty source group still has a start.
+    require(&r.widget(0,6)==&groups[2][3]); //Last allocated record is allowed.
+    rejects([&]{(void)r.widget_index(0,3);});
+    rejects([&]{(void)r.widget_index(1,0);});
+    //The first read is out of bounds even though ID9 exists in the local scan.
+    rejects([&]{(void)r.widget(0,9);});
+    rejects([&]{(void)r.widget(0,7);});
+    rejects([&]{(void)r.widget(2,4);});
+    rejects([&]{(void)r.widget(3,0);});
+    rejects([&]{(void)r.widget(0,-1);});
+    const auto* runtime=&*groups[2][0].runtime;
+    const auto* text=runtime->text->data();
+    const auto prior=groups;
+    r.set_position(0,3,123,-45);r.set_text(1,0,"cross-group owner");
+    auto expected=prior[2][0].runtime->words;expected[6]=123;expected[7]=std::uint32_t(-45);
+    require(groups[2][0].runtime->words==expected);
+    require(&*groups[2][0].runtime==runtime&&runtime->text->data()==text);
+    require(std::string(text)=="cross-group owner");
+    require(groups[0][0].words==prior[0][0].words&&groups[0][0].runtime->words==prior[0][0].runtime->words);
+    r.set_rgba(0,4,{keep,keep,keep,0}); //Mutates next-group duplicate only.
+    require(!(groups[2][1].words[4]&1)&&(groups[0][0].words[4]&1));
+    const auto absent=groups[2][2].words;r.set_rgba(2,2,{1,2,3,4});
+    require(groups[2][2].words==absent&&!groups[2][2].runtime);
+    const auto untouched=groups[2][0].runtime->words;
+    rejects([&]{r.set_position(0,7,9,9);});require(groups[2][0].runtime->words==untouched);
+    //Fast-path priority also applies to duplicate IDs inside one group.
+    put(bytes,records+60,1);put(bytes,records+68+60,1);
+    okage::RuwResource duplicate(bytes);
+    require(&duplicate.widget(0,1)==&duplicate.widgets()[0][1]);
+}
 void class_selection_tests() {
     okage::RuwResource r(mutable_fixture());
     const auto before=r.widgets()[3];
@@ -373,7 +422,7 @@ int main(int argc,char** argv){try {
     if(argc==3&&std::string_view(argv[1])=="--diagnostic") {
         diagnostic(argv[2]);std::cout<<"Owned RUW mutation diagnostic passed\n";return 0;
     }
-    require(argc==1);mutation_tests();fill_tests();binding_tests();additive_pair_tests();additive_secondary_tests();class_selection_tests();class_position_tests();direct_runtime_setter_tests();
+    require(argc==1);physical_lookup_tests();mutation_tests();fill_tests();binding_tests();additive_pair_tests();additive_secondary_tests();class_selection_tests();class_position_tests();direct_runtime_setter_tests();
     std::vector<std::uint8_t> b(32+16+7*68);
     put(b,8,1);put(b,12,1);put(b,16,2);
     put(b,20,1);put(b,24,2);put(b,28,4);
