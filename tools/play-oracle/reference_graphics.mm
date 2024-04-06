@@ -5,17 +5,31 @@
 #include "gs/GSH_Vulkan/GSH_Vulkan.h"
 #include <fstream>
 #include <iostream>
+#include <array>
 
 namespace {
 class OffscreenGS final : public CGSH_Vulkan {
     ResearchTraffic& traffic;
+    struct RegisterWrite {uint8 index;uint64 value;};
+    static constexpr unsigned historyCapacity=65536;
+    std::vector<RegisterWrite> history;
+    uint64 historyCount=0;
 public:
-    explicit OffscreenGS(ResearchTraffic& value):traffic(value) {}
+    explicit OffscreenGS(ResearchTraffic& value):traffic(value) {if(traffic.retain_register_tail)history.resize(historyCapacity);}
+    void WriteHistory(const std::filesystem::path& path) {
+        if(history.empty())throw std::runtime_error("GS register retention was not enabled");
+        std::ofstream out(path);if(!out)throw std::runtime_error("Cannot create GS register history");
+        const uint64 count=std::min<uint64>(historyCount,historyCapacity),first=historyCount-count;
+        out<<"{\"schema\":\"okage-gs-register-tail-v1\",\"scope\":\"Ordered writes observed by the pinned Vulkan GS handler; no VBlank alignment or initial-state completeness claim\",\"total_writes\":"<<historyCount<<",\"omitted_prefix_writes\":"<<first<<",\"writes\":[";
+        for(uint64 i=first;i<historyCount;++i){const auto& r=history[i%historyCapacity];if(i!=first)out<<',';out<<'['<<i<<','<<unsigned(r.index)<<','<<r.value<<']';}
+        out<<"]}\n";if(!out)throw std::runtime_error("GS register history write failure");
+    }
     void ProcessHostToLocalTransfer() override {++traffic.uploads;CGSH_Vulkan::ProcessHostToLocalTransfer();}
 protected:
     void InitializeImpl() override {m_instance=CreateInstance(false);CGSH_Vulkan::InitializeImpl();}
     void PresentBackbuffer() override {}
     void WriteRegisterImpl(uint8 reg,uint64 value) override {
+        if(!history.empty()){history[historyCount%historyCapacity]={reg,value};++historyCount;}
         ++traffic.registers;
         if (reg==GS_REG_XYZ2 || reg==GS_REG_XYZF2) ++traffic.vertices;
         CGSH_Vulkan::WriteRegisterImpl(reg,value);
@@ -28,6 +42,12 @@ void vacant(const std::filesystem::path& path) {
 }
 CGSHandler::FactoryFunction vulkanReference(ResearchTraffic& traffic) {
     return [&traffic](){return new OffscreenGS(traffic);};
+}
+void captureReferenceRegisters(CGSHandler* base,const std::filesystem::path& path) {
+    auto* gs=dynamic_cast<OffscreenGS*>(base);
+    if(!gs)throw std::runtime_error("GS register history requires offscreen Vulkan research backend");
+    vacant(path);gs->FlushWriteBuffer();
+    gs->SendGSCall([&]{gs->WriteHistory(path);},true);
 }
 std::vector<uint8> captureShadowPixels(CGSHandler* base) {
     auto* gs=dynamic_cast<CGSH_Vulkan*>(base);

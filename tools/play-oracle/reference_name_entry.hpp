@@ -137,6 +137,15 @@ private:
             const auto window=m.word(0x200688+4*handle);m.require(window,0x6ec0,"window");
             s<<",\"window_handle\":"<<handle<<",\"window_pointer\":"<<window
              <<",\"opacity_bits\":"<<m.word(window+0x270)<<",\"opacity_delta_bits\":"<<m.word(window+0x27c);
+            if(pc==secondReturn) {
+                const auto glyphs=m.word(window+0x3c00),sprites=m.word(window+0x3c04);
+                if(glyphs!=32||sprites!=16)fail("type9 window allocation capacities");
+                m.raw(s,"window_raw",window,0x6ec0);
+                m.raw(s,"glyph_positions",m.word(window+0x650),(glyphs+1)*0x100);
+                m.raw(s,"glyph_metrics",m.word(window+0x654),(glyphs+1)*0x100);
+                m.raw(s,"sprite_positions",m.word(window+0x658),(sprites+1)*0x100);
+                m.raw(s,"sprite_metrics",m.word(window+0x65c),(sprites+1)*0x100);
+            }
         }
         if(pc==padRead||pc==padNormalized) {
             m.require(sp,0x20,"handler pad stack");

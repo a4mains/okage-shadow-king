@@ -100,9 +100,9 @@ std::vector<unsigned> parseCaptureFrames(std::string_view text,unsigned duration
 }
 int main(int argc,char** argv) {
     try {
-        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX [--capture-frames N,N,...]] [--pad INPUT | --walk-waypoints ROUTE --walk-record INPUT] [--audio WAV [--audio-index JSON]] [--trace-files] [--trace-loaders] [--loader-windows FRESH.jsonl] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--camera-schedule FILE] [--screen-filter FILE] [--movement FILE] [--interaction FILE] [--interaction-wide FILE] [--transition FILE] [--game-mode FILE] [--name-entry FRESH.jsonl] [--battle-construction FILE] [--battle-stage FILE] [--battle-ui FILE] [--battle-ui-updates FILE] [--battle-callbacks FILE] [--battle-live FILE] [--ui-layout FILE [--ui-draw FILE]] [--dust FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--wander FILE] [--rng FILE] [--lifecycle FILE] [--order FILE] [--effect-order FILE] [--projection FILE] [--music FILE] [--deadline-seconds 1..7200]");
+        if (argc<3) throw std::runtime_error("Usage: okage-boot-oracle DISC.cue VBLANKS [STATE.zip [--load]] [--save STATE] [--capture PREFIX [--capture-frames N,N,...] [--gs-registers FRESH.json]] [--pad INPUT | --walk-waypoints ROUTE --walk-record INPUT] [--audio WAV [--audio-index JSON]] [--trace-files] [--trace-loaders] [--loader-windows FRESH.jsonl] [--scene DIRECTORY] [--events DIRECTORY] [--dialogue FILE] [--text FILE] [--controller FILE] [--camera FILE] [--camera-schedule FILE] [--screen-filter FILE] [--movement FILE] [--interaction FILE] [--interaction-wide FILE] [--transition FILE] [--game-mode FILE] [--name-entry FRESH.jsonl] [--battle-construction FILE] [--battle-stage FILE] [--battle-ui FILE] [--battle-ui-updates FILE] [--battle-callbacks FILE] [--battle-live FILE] [--ui-layout FILE [--ui-draw FILE]] [--dust FILE] [--actor FILE --actor-alias -1|-8|-9|0..2047] [--npc FILE] [--wander FILE] [--rng FILE] [--lifecycle FILE] [--order FILE] [--effect-order FILE] [--projection FILE] [--music FILE] [--deadline-seconds 1..7200]");
         unsigned deadlineSeconds=0;
-        std::string walkWaypoints,walkRecord,captureFramesText,audioIndex;
+        std::string walkWaypoints,walkRecord,captureFramesText,audioIndex,gsRegisters;
         int actorAlias=-8;bool load=false,traceFiles=false,traceLoaders=false,musicField=false,musicJingle=false,musicNight=false,interactionWide=false;std::string state,capture,pad,audio,saveState,scene,events,dialogue,text,controller,camera,actor,lifecycle,order,cameraSchedule,music,movement,interaction,transition,gameMode,nameEntry,battleConstruction,battleStage,battleUi,battleUiUpdates,battleCallbacks,battleLive,loaderWindows,uiLayout,uiDraw,npc,wander,rng,dust,screenFilter,effectOrder,projection;
         for (int i=3;i<argc;++i) {
             const std::string arg=argv[i];
@@ -110,6 +110,10 @@ int main(int argc,char** argv) {
             else if (arg=="--trace-files") traceFiles=true;
             else if (arg=="--trace-loaders") traceLoaders=true;
             else if (arg=="--capture" && i+1<argc) capture=argv[++i];
+            else if (arg=="--gs-registers" && i+1<argc) {
+                if(!gsRegisters.empty())throw std::runtime_error("Duplicate GS register output");
+                gsRegisters=argv[++i];if(gsRegisters.empty())throw std::runtime_error("Empty GS register output");
+            }
             else if (arg=="--capture-frames" && i+1<argc) {
                 if(!captureFramesText.empty())throw std::runtime_error("Duplicate capture frame selection");
                 captureFramesText=argv[++i];
@@ -214,6 +218,7 @@ int main(int argc,char** argv) {
         const auto requested=std::stoul(argv[2]);
         if (!requested || requested>36000) throw std::runtime_error("Boot experiment requires 1..36000 vblanks");
         if(!captureFramesText.empty() && capture.empty())throw std::runtime_error("--capture-frames requires --capture");
+        if(!gsRegisters.empty()&&capture.empty())throw std::runtime_error("--gs-registers requires --capture");
         if(!audioIndex.empty() && audio.empty())throw std::runtime_error("--audio-index requires --audio");
         const auto captureFrames=captureFramesText.empty() ? std::vector<unsigned>{} : parseCaptureFrames(captureFramesText,unsigned(requested));
         const auto captureDirectory=std::filesystem::path(capture+".frames");
@@ -226,6 +231,7 @@ int main(int argc,char** argv) {
             if(std::filesystem::exists(path)||std::filesystem::is_symlink(path))
                 throw std::runtime_error("Refusing existing reference output: "+path.string());
         };
+        if(!gsRegisters.empty())vacant(gsRegisters);
         if(!capture.empty())for(const auto* suffix:{".json",".layer0.png",".layer1.png"})vacant(capture+suffix);
         if(!audioIndex.empty())vacant(audioIndex);
         if(!wander.empty())vacant(wander);
@@ -448,6 +454,7 @@ int main(int argc,char** argv) {
             throw std::runtime_error("Could not create fresh selected-frame capture directory");
         RecordedAudio* recordedAudio=nullptr;
         Traffic traffic; std::atomic<unsigned> frames{0}; std::atomic<bool> exited{false};
+        traffic.retain_register_tail=!gsRegisters.empty();
         std::exception_ptr frameObservationFailure;
         std::atomic<bool> frameObservationFailed{false};
         std::size_t nextCaptureFrame=0;
@@ -730,6 +737,7 @@ int main(int argc,char** argv) {
         if(!audioIndex.empty())recordedAudio->finishVblankIndex(audioIndex);
 #ifdef OKAGE_REFERENCE_VULKAN
         if (!capture.empty()) captureReference(vm.GetGSHandler(),capture);
+        if (!gsRegisters.empty()) captureReferenceRegisters(vm.GetGSHandler(),gsRegisters);
         if(!captureFrames.empty()) {
             const auto manifest=captureDirectory/"manifest.json";vacant(manifest);
             std::ofstream out(manifest);

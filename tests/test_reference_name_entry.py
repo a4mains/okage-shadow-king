@@ -31,6 +31,9 @@ int main(int argc,char** argv){try {
  put(manager+0x90,0x50);put(manager+0x114,manager);put(manager+0xe4c,0xffffffff);put(manager+0xa4,0xfffffffd);
  put(owner+0x14,parent);put(owner+0x24,9);put(owner+0x34,manager);put(parent+0x4c,9);
  put(0x200688,window);put(window+0x270,0x43000000);put(0x24f788,0x440000);
+ put(window+0x3c00,32);put(window+0x3c04,16);
+ put(window+0x650,0x460000);put(window+0x654,0x470000);
+ put(window+0x658,0x480000);put(window+0x65c,0x490000);
  put(0x440844,0x00697241);put(0x33958c,0x00400010);put(0x339590,0x00800020);
  put(0x2151b4,0x450000);put(0x450058,0x12345678);put(0x24eb98,0x00000041);
  const std::string mode=argv[1];NameEntryTrace trace(argv[2]);
@@ -56,6 +59,8 @@ int main(int argc,char** argv){try {
  stop(NameEntryTrace::firstReturn,0,mode=="stack"?sp-16:sp,NameEntryTrace::firstReturn);
  if(mode=="thread"){trace.finish();return 0;}
  stop(NameEntryTrace::second,manager+0x40,sp,NameEntryTrace::secondReturn);
+ if(mode=="bad-capacity")put(window+0x3c00,33);
+ if(mode=="bad-buffer")put(window+0x650,PS2::EE_RAM_SIZE-4);
  stop(NameEntryTrace::secondReturn,0,sp,NameEntryTrace::secondReturn);
  trace.finish();return 0;
 }catch(const std::exception& e){std::cerr<<e.what();return 1;}}
@@ -104,13 +109,17 @@ class NameEntryObserverTests(unittest.TestCase):
         self.assertEqual(bytes.fromhex(rows[2]['name_bytes']['hex']), b'Ari\0\0\0\0\0')
         self.assertEqual(rows[-1]['first_pairs'], 1)
         self.assertEqual(rows[-1]['second_pairs'], 1)
+        self.assertEqual(rows[-2]['window_raw']['size'], 0x6ec0)
+        self.assertEqual(rows[-2]['glyph_positions']['size'], 33*256)
+        self.assertEqual(rows[-2]['sprite_metrics']['size'], 17*256)
         self.assertEqual([r['sequence'] for r in rows[1:-1]], list(range(7)))
 
     def test_identity_extents_pairing_and_missing_observations_fail(self):
         for mode, error in [('bad-owner', 'identity'), ('bad-vars', 'outside RAM'),
                             ('bad-window', 'registry handle'), ('stack', 'PC/SP/RA'),
                             ('partial', 'incomplete'), ('thread', 'incomplete'),
-                            ('missing-pad', 'missing consumed'), ('pad-order', 'continuation order')]:
+                            ('missing-pad', 'missing consumed'), ('pad-order', 'continuation order'),
+                            ('bad-capacity', 'capacities'), ('bad-buffer', 'outside RAM')]:
             with self.subTest(mode=mode):
                 run, _ = self.fixture(mode)
                 self.assertNotEqual(run.returncode, 0)
