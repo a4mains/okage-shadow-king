@@ -14,7 +14,7 @@ struct PositionUpload {
 struct Position { Float4 value; std::shared_ptr<const PositionUpload> upload; };
 bool same_projection(const UiProjectionParameters& a,const UiProjectionParameters& b){
     for(unsigned i=0;i<a.size();++i)for(unsigned j=0;j<4;++j)
-        if(__builtin_bit_cast(std::uint32_t, (a[i][j]))!=__builtin_bit_cast(std::uint32_t, (b[i][j])))return false;
+        if(std::bit_cast<std::uint32_t>(a[i][j])!=std::bit_cast<std::uint32_t>(b[i][j]))return false;
     return true;
 }
 struct Resolver {
@@ -26,6 +26,8 @@ struct Resolver {
     std::array<std::optional<std::array<float,2>>,capacity> uv;
     std::optional<UiGeometryTexture> texture;
     bool cull_zero=false;
+    bool compiling=false;
+    std::vector<UiGeometryCommand> pending_registers;
     template<class T> void emit(T v){result.commands.emplace_back(std::move(v));}
     static unsigned bounded(std::uint64_t n){check(n<capacity,"UI geometry cache index bounds");return unsigned(n);}
     static unsigned upload_first(std::uint64_t first,std::size_t count){
@@ -136,11 +138,24 @@ struct Resolver {
     }
     UiGeometryList run(std::span<const UiDrawCommand> commands){
         for(const auto& c:commands)std::visit([&](const auto& v){consume(v);},c);
+        check(!compiling&&pending_registers.empty(),"UI geometry unflushed outer register batch");
         return std::move(result);
     }
-    void consume(UiDrawControl c){if(c==UiDrawControl::CullModeZero)cull_zero=true;emit(c);}
-    void consume(const UiDrawRegister& r){check(r.index<=0x7f&&r.index!=6&&r.index!=7&&r.index!=0x4c&&r.index!=0x4d,"UI geometry raw owned GS register");emit(r);}
-    void consume(UiDrawCurrentFramebuffer r){emit(r);}
+    void consume(UiDrawControl c){
+        if(c==UiDrawControl::CullModeZero)cull_zero=true;
+        if(c==UiDrawControl::BeginGif){check(!compiling,"UI nested outer compiler");compiling=true;}
+        if(c==UiDrawControl::EndGif){
+            check(compiling,"UI outer compiler end without begin");
+            result.commands.insert(result.commands.end(),pending_registers.begin(),pending_registers.end());
+            pending_registers.clear();compiling=false;
+        }
+        if(c==UiDrawControl::QueueTextState){
+            result.commands.insert(result.commands.begin(),c);return;
+        }
+        emit(c);
+    }
+    void consume(const UiDrawRegister& r){check(r.index<=0x7f&&r.index!=6&&r.index!=7&&r.index!=0x4c&&r.index!=0x4d,"UI geometry raw owned GS register");if(compiling)pending_registers.emplace_back(r);else emit(r);}
+    void consume(UiDrawCurrentFramebuffer r){if(compiling)pending_registers.emplace_back(r);else emit(r);}
     void consume(const UiDrawProjection& p){projection=p.value;}
     void consume(const UiDrawMatrix& m){matrix=m.value;}
     void consume(const UiDrawVectors& v){vectors(v.kind,v.first,v.values);}

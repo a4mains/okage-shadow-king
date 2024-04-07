@@ -64,7 +64,45 @@ void traversal(){
     draws=0;w.layout_mode2({shared,*f,sine,[&](){++draws;return 2u;},7,packets});
     require(draws==33&&!shared.sprite_dirty,"Unchanged sprite cache still performs placement RNG");
 }
+void missing_multibyte(){
+    auto r=resource(1,0);auto w=window(r);auto f=fonts();std::array<float,360> sine{};
+    UiLayoutShared shared;UiPacketBuildContext packets{f};unsigned draws=0;
+    r->set_text(0,0,std::string("A")+"\x81\x75"+"B"+"\x81\x76");
+    const auto layout=[&](){w.layout_mode2({shared,*f,sine,[&](){++draws;return draws;},0,packets});};
+    layout();
+    require(w.word(0xcdc)==4&&draws==36,"Two-byte missing characters each retain one RNG-consuming glyph slot");
+    const auto& meta=w.glyph_buffer(1);const auto& positions=w.glyph_buffer(0);
+    require(meta.word(8)==bits(65)&&meta.word(24)==bits(-1)&&meta.word(40)==bits(66)&&meta.word(56)==bits(-1),
+            "Wide punctuation consumes two bytes and leaves null slots between real glyphs");
+    for(unsigned i=0;i<4;++i){
+        require(meta.word(i*16)==bits(12)&&meta.word(i*16+4)==bits(i%2?24.f:48.f),
+                "Null wide glyph retains parser dimensions independently of real glyph output height");
+        if(i)require(std::bit_cast<float>(positions.word(i*16))-std::bit_cast<float>(positions.word((i-1)*16))==12,
+                     "Missing glyph advances by prior width without collapsing following text");
+    }
+    require(!shared.glyph_metric,"Last null wide metric clears shared metric ownership");
+    draws=0;layout();require(draws==36,"Unchanged missing glyph slots still consume placement RNG");
+    r->set_text(0,0,"\x81\x75");draws=0;layout();
+    require(w.word(0xcdc)==1&&draws==33&&meta.word(8)==bits(-1)&&meta.word(0)==bits(0)&&meta.word(4)==bits(0),
+            "Initial null wide glyph retains zero initial dimensions and still places a slot");
+    r->set_text(0,0,"\x81");draws=0;layout();
+    require(w.word(0xcdc)==1&&draws==33&&meta.word(8)==bits(-1),"Zero trail is consumed as a wide code, not ASCII termination");
+    w.set_transform_parameter(4);draws=0;bool rejected=false;
+    try{layout();}catch(const std::runtime_error&){rejected=true;}
+    require(rejected&&draws==0,"Alternate multibyte encoding rejects before glyph placement or RNG");
+}
 void boundaries(){
+    {
+        auto r=resource(1,0);auto w=window(r);auto f=fonts();std::array<float,360> sine{};
+        UiLayoutShared shared;UiPacketBuildContext packets{f};
+        r->set_text(0,0,"\\h[29,0]\\f[2]AB");w.set_transform_parameter(128);
+        w.layout_mode2({shared,*f,sine,[](){return 0u;},0,packets});
+        require(w.word(0x244)==29&&w.word(0x218)==29&&w.word(0x248)==0&&w.word(0x21c)==0,"Metric control updates saved/current pairs");
+        const auto a=std::bit_cast<float>(w.glyph_buffer(0).word(0)),b=std::bit_cast<float>(w.glyph_buffer(0).word(16));
+        require(b-a==29,"Centered text uses authored horizontal advance");
+        r->set_text(0,0,"\\h[ -3,+7]A");w.layout_mode2({shared,*f,sine,[](){return 0u;},0,packets});
+        require(w.word(0x218)==std::uint32_t(-3)&&w.word(0x21c)==7,"Metrics parse signed decimal");
+    }
     auto r=resource(1,0);auto f=fonts();std::array<float,360> sine{};UiLayoutShared shared;UiPacketBuildContext packets{f};
     r->set_text(0,0,"AAAAAAAAAAAAAAAA");auto w=window(r);unsigned draws=0;
     w.layout_mode2({shared,*f,sine,[&](){++draws;return 3u;},0,packets});
@@ -162,4 +200,4 @@ void owned(const char* battle,const char* font_directory){
     std::cout<<"Owned projected primitives="<<primitives<<'\n';
 }
 }
-int main(int argc,char** argv){try{traversal();boundaries();preparation();constructor_stream();if(argc==3)owned(argv[1],argv[2]);else require(argc==1,"usage: ui-window-layout-tests [BATTLE_DIRECTORY FONT_DIRECTORY]");std::cout<<"UI mode0/2 layout tests passed\n";}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(int argc,char** argv){try{traversal();missing_multibyte();boundaries();preparation();constructor_stream();if(argc==3)owned(argv[1],argv[2]);else require(argc==1,"usage: ui-window-layout-tests [BATTLE_DIRECTORY FONT_DIRECTORY]");std::cout<<"UI mode0/2 layout tests passed\n";}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

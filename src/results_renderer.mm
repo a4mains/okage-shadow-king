@@ -62,7 +62,7 @@ struct ResultsRenderer::Impl {
         [clear endEncoding];
         std::optional<UiMetalValidation> validation;
         if(geometry) {
-            const UiMetalBaseline baseline{0x6c00,0x7900,!fade.enabled,0,1,0,1};
+            const UiMetalBaseline baseline{0x6c00,0x7900,!fade.enabled,0,1,0,1,0xdf0000027f0000ull};
             validation=renderer->encode(command,color,depth,*geometry,baseline,
                 [this](const UiGeometryTexture& texture)->UiMetalTexture {
                     if(texture.kind==UiGeometryTexture::Kind::Font) {

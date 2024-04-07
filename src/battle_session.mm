@@ -1217,7 +1217,7 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
         draft.filter=BattleFilter6State{(*filter)[1],(*filter)[2],
             std::bit_cast<std::int32_t>(impl_->stage_settings->signed_setting),true};
     }
-    draft.baseline={0x6c00,0x7900,true,0,1,0,1};
+    draft.baseline={0x6c00,0x7900,true,0,1,0,1,0xdf0000027f0000ull};
     draft.clear={clear.rgb[0],clear.rgb[1],clear.rgb[2],0};
     draft.frame=frame;
     draft.report=std::move(image_report);

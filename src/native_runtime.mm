@@ -9,6 +9,7 @@
 #include "display_link.hpp"
 #include "game_over_session.hpp"
 #include "title_session.hpp"
+#include "name_entry_session.hpp"
 #include "okage/title_stream.hpp"
 #include "results_renderer.hpp"
 #include "okage/results_interface.hpp"
@@ -295,6 +296,8 @@ struct Session {
     std::unique_ptr<okage::DefeatFieldReturn> defeat_return;
     std::unique_ptr<okage::GameOverSession> game_over;
     std::unique_ptr<okage::TitleSession> title;
+    okage::NameEntryShared name_entry_shared;
+    std::unique_ptr<okage::NameEntrySession> name_entry;
     okage::TitleStreamOwner title_stream;
     okage::GameOverShared game_over_shared;
     okage::ResultsUiShared results_shared;
@@ -359,7 +362,7 @@ struct Session {
         load_observation_written=true;
     }
     std::vector<std::uint32_t> battle_loading_trace;
-    std::vector<std::uint32_t> game_mode_trace,retiring_effect_trace,results_trace,title_trace;
+    std::vector<std::uint32_t> game_mode_trace,retiring_effect_trace,results_trace,title_trace,name_entry_trace;
     bool retain_field_music=false;
     std::optional<okage::Texture> transition_image;
     // AppKit presentation is separate from research captures and feedback.
@@ -889,6 +892,10 @@ struct Session {
             observe_game_mode(0);
             game_mode->tick([this]{
                 if(battle)retire_battle();
+                else if(name_entry) {
+                    name_entry->retire(*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,ui_shared);
+                    std::cout<<"Native name entry retired frame="<<frame<<'\n';
+                }
                 else if(title) {
                     retiring_effects.emplace(title->retire(*reset_camera,projection,ui_shared));
                     title_stream.request_stop(1);
@@ -915,6 +922,10 @@ struct Session {
                     defeat_return.reset();
                     std::cout<<"Native defeat return field freed frame="<<frame<<'\n';
                 }
+                if(name_entry) {
+                    if(name_entry->resource_live())throw std::runtime_error("Name entry free before retirement");
+                    name_entry.reset();
+                }
                 if(title) {
                     if(title->resource_live())throw std::runtime_error("Title freed before resource retirement");
                     title.reset();
@@ -927,7 +938,7 @@ struct Session {
                 if(field||renderer||!actor_bindings.empty()||!actor_objects.empty()||map_objects)
                     throw std::runtime_error("Field borrowers survived mode retirement");
             },[this](okage::GameModeSelection selection){
-                if(battle||field||field_return||defeat_return||game_over||title||!reset_camera)
+                if(battle||field||field_return||defeat_return||game_over||title||name_entry||!reset_camera)
                     throw std::runtime_error("Native mode construction has surviving scene owners");
                 if(selection[0]==2&&pending_game_command[0]==13) {begin_field_return();return;}
                 if(selection[0]==2&&pending_game_command[0]==2) {
@@ -935,6 +946,11 @@ struct Session {
                         scene_fade,scene_clear,ui_shared);
                     std::cout<<"Native defeat return field constructed frame="<<frame<<'\n';
                     return;
+                }
+                if(selection==okage::GameModeSelection{9,0,0}) {
+                    name_entry=std::make_unique<okage::NameEntrySession>(scene_clear,scene_fade,ui_shared,name_entry_shared,
+                        okage::NameEntryConstruction{field_root.parent_path()/"CMNDATA",battle_input,ui_fonts,[this]{if(music)music->stop();}});
+                    std::cout<<"Native name entry constructed frame="<<frame<<'\n';return;
                 }
                 if(selection==okage::GameModeSelection{8,1,0}) {
                     title=std::make_unique<okage::TitleSession>(scene_clear,scene_fade,ui_shared,game_over_shared,
@@ -989,6 +1005,25 @@ struct Session {
                     game_mode->request(selection);
                     std::cout<<"Native game-over requested mode="<<selection[0]<<" arg="<<selection[1]<<" frame="<<frame<<'\n';
                 });
+        }
+        if(name_entry&&name_entry->resource_live()) {
+            if(!game_data)throw std::runtime_error("Name entry needs owned game tables");
+            name_entry->tick(battle_pad,{input.held,input.pressed,released,input.repeat,128,128},variables,*game_data,
+                scene_fade,*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,ui_shared,
+                game_over_shared.image_frame_counter,battle_capture_sine,random,[this](unsigned id){
+                    if(id!=0&&id!=3&&id!=4)throw std::runtime_error("Name entry sound ID");
+                    const auto bank=sound_banks.find(0);if(bank==sound_banks.end())throw std::runtime_error("Name entry requires ALL bank");
+                    bank->second->play(id,1.f,id==4?110:100);
+                },[this]{
+                    const auto first=variables.begin()+0x844;
+                    const auto end=std::find(first,first+8,0);
+                    if(end==first+8)throw std::runtime_error("Confirmed player name lacks terminator");
+                    player_name.assign(first,end);
+                    pending_game_command={14,1,0};game_mode->request({2,72,0});
+                    std::cout<<"Native name entry requests opening field frame="<<frame<<'\n';
+                });
+            const auto observation=name_entry->observation();name_entry_trace.push_back(frame);
+            name_entry_trace.insert(name_entry_trace.end(),observation.begin(),observation.end());
         }
         if(title&&title->resource_live()) {
             title->tick({input.repeat,input.pressed,{128,128,128,128}},0x40,
@@ -1340,7 +1375,7 @@ struct Session {
         if(!snapshot.game_view)return snapshot;
         snapshot.live_enabled=live_presentation_enabled;
         //Layer2 OT40e precedes results UI OT40f; results already applied it.
-        snapshot.apply_fade=!(field_return&&field_return->rendered)&&!(title&&title->rendered_image());
+        snapshot.apply_fade=!(field_return&&field_return->rendered)&&!(title&&title->rendered_image())&&!(name_entry&&name_entry->rendered_image());
         snapshot.fade=scene_fade;
         if(choices.highlighted)snapshot.choice_cursor=choices.cursor;
         auto glyphs=narration.glyphs(fonts[2]);const auto choiceGlyphs=choices.glyphs(fonts[2]);
@@ -1402,6 +1437,8 @@ struct Session {
             image=*battle->rendered_image();
         } else if(defeat_return&&defeat_return->resource().rendered_image()) {
             image=*defeat_return->resource().rendered_image();
+        } else if(name_entry&&name_entry->rendered_image()) {
+            image=*name_entry->rendered_image();
         } else if(title&&title->rendered_image()) {
             image=*title->rendered_image();
         } else if(game_over&&game_over->rendered_image()) {
@@ -1603,6 +1640,7 @@ static void capture(Session& session,const fs::path& path) {
         std::pair{".battle-transition.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.battle_transition_trace.data()),session.battle_transition_trace.size()*4)},
         std::pair{".battle-capture.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.battle_capture_trace.data()),session.battle_capture_trace.size()*4)},
         std::pair{".game-mode.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.game_mode_trace.data()),session.game_mode_trace.size()*4)},
+        std::pair{".name-entry-state.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.name_entry_trace.data()),session.name_entry_trace.size()*4)},
         std::pair{".title-state.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.title_trace.data()),session.title_trace.size()*4)},
         std::pair{".results.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.results_trace.data()),session.results_trace.size()*4)},
         std::pair{".battle-loading.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.battle_loading_trace.data()),session.battle_loading_trace.size()*4)},

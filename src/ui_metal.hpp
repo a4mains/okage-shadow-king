@@ -9,6 +9,7 @@ struct UiMetalBaseline {
     std::uint32_t offset_x16,offset_y16;
     bool depth_write;
     std::uint32_t framebuffer_mask,colclamp,dither,prmodecont;
+    std::optional<std::uint64_t> inherited_scissor;
 };
 struct UiMetalTexture {
     id<MTLTexture> texture;

@@ -33,6 +33,15 @@ bool space(unsigned char c){return c==' '||(c>=9&&c<=13);}
 //19bd00: whitespace then unsigned decimal digits; sign is not consumed.
 std::uint32_t decimal(std::string_view text){std::size_t i=0;while(i<text.size()&&space(text[i]))++i;
     std::uint32_t v=0;while(i<text.size()&&text[i]>='0'&&text[i]<='9')v=v*10+unsigned(text[i++]-'0');return v;}
+std::uint32_t signed_decimal(std::string_view text){
+    std::size_t i=0;while(i<text.size()&&space(text[i]))++i;
+    const bool negative=i<text.size()&&text[i]=='-';if(i<text.size()&&(text[i]=='-'||text[i]=='+'))++i;
+    std::uint32_t value=0;const std::uint32_t limit=negative?0x80000000u:0x7fffffffu;
+    while(i<text.size()&&text[i]>='0'&&text[i]<='9'){
+        const unsigned digit=text[i++]-'0';check(value<=(limit-digit)/10,"UI metric integer overflow");value=value*10+digit;
+    }
+    return negative?0u-value:value;
+}
 }
 bool UiWindow::prepare_mode2(UiLayoutContext context) {
     auto flags=word(0x1900);
@@ -168,7 +177,8 @@ void UiWindow::layout_mode2(UiLayoutContext context) {
             if(data[at]=='\\'){
                 check(at+1<data.size(),"UI mode2 truncated control");
                 const auto control=data[at+1];at+=2;
-                check(control=='c'||control=='f'||control=='s',"UI mode2 unrecovered text control");
+                if(control!='c'&&control!='f'&&control!='s'&&control!='h')throw std::runtime_error(
+                    "UI mode2 unrecovered text control byte="+std::to_string(control)+" offset="+std::to_string(start));
                 check(at<data.size(),"UI mode2 truncated control arguments");
                 if(data[at]=='['){
                     const auto begin=++at;
@@ -181,10 +191,14 @@ void UiWindow::layout_mode2(UiLayoutContext context) {
                         if(color==0)put(0x22c,previous_color);
                         else{previous_color=word(0x22c);put(0x22c,color+0x80u);}
                     }else if(control=='f')put(0x20c,decimal(argument));
-                    else{
+                    else if(control=='s'){
                         const auto comma=argument.find(',');check(comma!=argument.npos,"UI mode2 scale pair");
                         put(0x224,bits(parse_ui_text_number(argument.substr(0,comma))));
                         put(0x228,bits(parse_ui_text_number(argument.substr(comma+1))));
+                    }else{
+                        const auto comma=argument.find(',');check(comma!=argument.npos,"UI mode2 metric pair");
+                        const auto horizontal=signed_decimal(argument.substr(0,comma)),vertical=signed_decimal(argument.substr(comma+1));
+                        put(0x244,horizontal);put(0x218,horizontal);put(0x248,vertical);put(0x21c,vertical);
                     }
                 }
                 if(at<data.size()&&data[at]<32)++at;
@@ -192,21 +206,28 @@ void UiWindow::layout_mode2(UiLayoutContext context) {
                 continue;
             }
             if(data[at]<32){++at;++source_characters;continue;}
-            check(data[at]<128,"UI mode2 multibyte text is unrecovered");
+            std::uint32_t character=data[at];
+            const bool multibyte=character>=128;
+            if(multibyte){
+                check(!(word(0x4f8)&4),"UI mode2 alternate multibyte encoding is unrecovered");
+                check(at+1<data.size(),"UI mode2 truncated multibyte text");
+                character=(character<<8)|data[at+1];
+            }
             const auto font_index=si(word(0x20c));
             check(font_index>=0&&std::size_t(font_index)<context.fonts.size(),"UI mode2 font handle");
-            const auto* metric=context.fonts[font_index].find(data[at]);
-            I code=I(data[at]);
+            const auto* metric=context.fonts[font_index].find(character);
+            I code=I(character);
             if(!metric){code=-1;shared.glyph_metric.reset();}
             else{
-                shared.glyph_metric=std::array{std::uint32_t(font_index),std::uint32_t(data[at])};
-                if(data[at]==32){put_i(0xcb0,add(x,10));const auto last=sub(si(word(0x250)),1);
+                shared.glyph_metric=std::array{std::uint32_t(font_index),character};
+                if(character==32){put_i(0xcb0,add(x,10));const auto last=sub(si(word(0x250)),1);
                     put_i(0xcb4,line<last?y:si(std::uint32_t(last)*word(0x21c)));height=si(word(0x21c));width=10;
                 }else{
                     height=integer(op(number(metric->metrics[9]),.0625f,'*'));
                     width=integer(op(op(number(metric->metrics[8]),floating(0x224),'*'),.0625f,'*'));
                 }
             }
+            if(multibyte)++at;
             const auto flags=word(0x1900);
             if((flags&0x40)&&si(word(0x24c)*24u)<add(x,width)){
                 x=0;y=add(y,si(word(0x21c)));

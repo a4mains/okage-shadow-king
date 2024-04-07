@@ -53,6 +53,12 @@ void arithmetic(Harness& h){auto l=list();l.commands.push_back(quad({129,129,129
     auto keep=baseline;keep.depth_write=false;r=h.run(zero,{},keep);check(pixel(r)==std::array<unsigned,4>{255,255,255,128}&&r.depth[4*32+4]==1,"ZMSK baseline preserves depth");
     auto alpha_test=list();alpha_test.commands.push_back(UiDrawRegister{0x47,0x5000d});alpha_test.commands.push_back(quad({240,240,240,0},100));
     r=h.run(alpha_test);check(pixel(r)==std::array<unsigned,4>{3,5,7,255}&&r.depth[4*32+4]==1,"Source alpha-positive TEST discards all writes");
+    auto blend=list();blend.commands.push_back(UiDrawRegister{0x42,0x44});
+    blend.commands.push_back(quad({0,0,64,128}));r=h.run(blend,{},baseline,{255,255,255,128});
+    check(pixel(r)==std::array<unsigned,4>{0,0,64,128},"ALPHA44 can place dark glyphs on white buttons");
+    blend=list();blend.commands.push_back(UiDrawControl::QueueTextState);
+    blend.commands.push_back(quad({0,0,0,1}));r=h.run(blend);
+    check(pixel(r)==std::array<unsigned,4>{2,4,6,1},"Queued text ALPHA44 uses signed arithmetic shift for negative differences");
 }
 void textures(Harness& h){Texture t{2,1,0,0,{128,128,128,255,128,128,128,0}};auto gpu=upload_ui_gs_texture(h.device,t);
     std::array<unsigned char,8> bytes{};[gpu getBytes:bytes.data() bytesPerRow:8 fromRegion:MTLRegionMake2D(0,0,2,1) mipmapLevel:0];check(bytes[3]==128,"GS alpha restored before filtering");
@@ -83,7 +89,7 @@ void textures(Harness& h){Texture t{2,1,0,0,{128,128,128,255,128,128,128,0}};aut
     auto bad=t;bad.rgba[3]=127;rejects([&]{upload_ui_gs_texture(h.device,bad);});
     auto q=make(.5f);std::get<UiResolvedPrimitive>(q.commands.back()).quad.vertices[0].stq[2]=0;rejects([&]{h.run(q,resolver);});
 }
-void guards(Harness& h){const auto empty=h.run(list());check(pixel(empty)==std::array<unsigned,4>{3,5,7,255},"Empty submission validation token");auto l=list();l.commands[4]=UiDrawRegister{0x42,0x44};l.commands.push_back(quad({128,128,128,128}));rejects([&]{h.run(l);});
+void guards(Harness& h){const auto empty=h.run(list());check(pixel(empty)==std::array<unsigned,4>{3,5,7,255},"Empty submission validation token");auto l=list();l.commands[4]=UiDrawRegister{0x42,0x54};l.commands.push_back(quad({128,128,128,128}));rejects([&]{h.run(l);});
     l=list();l.commands[7]=UiDrawRegister{8,15};rejects([&]{h.run(l);});
     l=list();l.commands.push_back(quad({128,128,128,128}));auto b=baseline;b.colclamp=0;rejects([&]{h.run(l,{},b);});
     l=list();l.commands.push_back(UiDrawRegister{0x40,(3ull<<48)|(3ull<<16)});l.commands.push_back(quad({128,128,128,128}));const auto r=h.run(l);

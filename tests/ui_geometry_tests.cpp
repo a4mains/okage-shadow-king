@@ -38,7 +38,7 @@ void basic(){
     const auto result=resolve_ui_geometry(commands);const auto d=draws(result);check(d.size()==1&&d[0].prim==0x5d);
     const auto& v=d[0].quad.vertices[0];check(v.xyzf==std::array<std::uint32_t,4>{30208,31872,1024,2048});
     check(v.rgba==std::array<std::uint32_t,4>{0x4b000040,0x4b000020,0x4b0000ff,0x4b000040});
-    check(__builtin_bit_cast(std::uint32_t, (v.stq[0]))==0x80000000u&&v.stq[1]==.75f&&v.stq[2]==1);
+    check(std::bit_cast<std::uint32_t>(v.stq[0])==0x80000000u&&v.stq[1]==.75f&&v.stq[2]==1);
     check(d[0].texture&&d[0].texture->fonts==p->fonts&&d[0].source.packet==p);
     std::vector<std::uint64_t> tests;for(const auto& c:result.commands)if(const auto* r=std::get_if<UiDrawRegister>(&c))tests.push_back(r->value);
     check(tests==std::vector<std::uint64_t>{0x5000d,0x30003});
@@ -46,6 +46,24 @@ void basic(){
     check(std::get<UiDrawControl>(result.commands.back())==UiDrawControl::End);
     auto no=packet(false);no->fonts.reset();commands=setup();commands.push_back(replay(no));
     const auto untextured=draws(resolve_ui_geometry(commands));check(untextured.size()==1&&untextured[0].prim==0x4d&&!untextured[0].texture);
+}
+void deferred_outer_registers(){
+    auto c=setup();c.insert(c.begin()+4,UiDrawControl::BeginGif);
+    c.push_back(UiDrawRegister{0x42,0x48});c.push_back(replay(packet()));
+    c.push_back(UiDrawControl::EndGif);c.push_back(UiDrawControl::Queue);
+    c.push_back(UiDrawControl::QueueTextState);
+    const auto g=resolve_ui_geometry(c);
+    check(std::get<UiDrawControl>(g.commands.front())==UiDrawControl::QueueTextState);
+    bool drawn=false,saw_alpha=false;std::vector<std::uint64_t> tests;
+    for(const auto& command:g.commands){
+        if(std::holds_alternative<UiResolvedPrimitive>(command))drawn=true;
+        if(const auto* r=std::get_if<UiDrawRegister>(&command)){
+            if(r->index==0x42){check(drawn&&r->value==0x48);saw_alpha=true;}
+            if(r->index==0x47)tests.push_back(r->value);
+        }
+    }
+    check(drawn&&saw_alpha&&tests==std::vector<std::uint64_t>{0x30003,0x5000d});
+    c.erase(c.end()-3,c.end());rejects([&]{resolve_ui_geometry(c);});
 }
 void cache_and_lifetime(){
     auto full=packet();auto uploaded=std::make_shared<UiNativePacket>(*full),primitive=std::make_shared<UiNativePacket>();
@@ -99,5 +117,5 @@ void errors_and_rejection(){
     overwrite->operations[0].values.resize(1);overwrite->operations[0].arguments[1]=1;c.push_back(replay(overwrite));c.push_back(replay(body));rejects([&]{resolve_ui_geometry(c);});
 }
 }
-int main(){try{basic();cache_and_lifetime();compiled_upload_metadata();errors_and_rejection();std::cout<<"UI geometry tests passed\n";return 0;}
+int main(){try{basic();deferred_outer_registers();cache_and_lifetime();compiled_upload_metadata();errors_and_rejection();std::cout<<"UI geometry tests passed\n";return 0;}
 catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

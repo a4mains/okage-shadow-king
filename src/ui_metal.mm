@@ -24,7 +24,7 @@ using namespace metal;
 struct Vertex {float4 position;float4 color;float4 stq;};
 struct Fragment {float4 position [[position]];float4 color [[center_no_perspective]];
     float3 stq [[center_no_perspective]];float z [[center_no_perspective]];};
-struct State {uint textured;uint alpha_positive;uint primitive;uint padding;};
+struct State {uint textured;uint alpha_positive;uint primitive;uint subtract_destination;};
 struct Errors {atomic_uint count;atomic_uint first_primitive;};
 struct Output {float4 color [[color(0),raster_order_group(0)]];float depth [[depth(any)]];};
 vertex Fragment ui_vertex(uint id [[vertex_id]],device const Vertex* v [[buffer(0)]]) {
@@ -66,12 +66,13 @@ fragment Output ui_fragment(Fragment v [[stage_in]],constant State& state [[buff
     int4 s=int4(clamp(modulated,0.0f,255.0f));
     if(state.alpha_positive&&s.a==0)discard_fragment();
     int4 d=int4(round(destination*255.0f));
-    int3 rgb=clamp(((s.rgb*s.a)>>7)+d.rgb,0,255);
+    int3 difference=s.rgb-(state.subtract_destination?d.rgb:int3(0));
+    int3 rgb=clamp(((difference*s.a)>>7)+d.rgb,0,255);
     return {float4(int4(rgb,s.a))/255.0f,1.0f-floor(v.z)/16777216.0f};
 }
 )metal";
 struct Vertex {Float4 position,color,stq;};
-struct ShaderState {std::uint32_t textured,alpha_positive,primitive,padding;};
+struct ShaderState {std::uint32_t textured,alpha_positive,primitive,subtract_destination;};
 struct Submission {
     unsigned first,count;
     ShaderState state;
@@ -160,13 +161,15 @@ UiMetalValidation UiMetal::encode(id<MTLCommandBuffer> command,id<MTLTexture> co
         baseline.dither==0&&baseline.prmodecont==1,"UI unsupported inherited framebuffer state");
     // All state necessary for a primitive must be explicitly emitted or supplied.
     std::optional<std::uint64_t> test,alpha,scissor,tex1,clamp,texa,pabe,fba;
-    std::optional<UiGeometryTexture> binding;UiMetalTexture texture{};bool framebuffer=false;
+    scissor=baseline.inherited_scissor;
+    if(scissor)check(!(*scissor&0xf800f800f800f800ull),"UI invalid inherited SCISSOR");
+    std::optional<UiGeometryTexture> binding;UiMetalTexture texture{};bool framebuffer=scissor.has_value();
     std::vector<Vertex> vertices;std::vector<Submission> submissions;std::vector<std::string> labels;
     for(const auto& commandValue:geometry.commands){
         if(const auto* r=std::get_if<UiDrawRegister>(&commandValue)){
             switch(r->index){
             case 0x47:check(r->value==0x30003||r->value==0x5000d,"UI unsupported TEST");test=r->value;break;
-            case 0x42:check(r->value==0x48,"UI unsupported ALPHA");alpha=r->value;break;
+            case 0x42:check(r->value==0x48||r->value==0x44,"UI unsupported ALPHA");alpha=r->value;break;
             case 0x40:check(!(r->value&0xf800f800f800f800ull),"UI invalid SCISSOR");scissor=r->value;break;
             case 0x14:check(r->value==0x60,"UI unsupported TEX1");tex1=r->value;break;
             case 8:check(r->value==5,"UI unsupported CLAMP");clamp=r->value;break;
@@ -212,9 +215,12 @@ UiMetalValidation UiMetal::encode(id<MTLCommandBuffer> command,id<MTLTexture> co
             const unsigned first=unsigned(vertices.size());for(unsigned i:{0u,1u,2u,0u,2u,3u})vertices.push_back(quad[i]);
             const bool gequal=*test==0x5000d;
             auto z=gequal?(baseline.depth_write?gequal_write_:gequal_keep_):(baseline.depth_write?always_write_:always_keep_);
-            if(rect.width&&rect.height)submissions.push_back({first,6,{unsigned(textured),unsigned(gequal),ordinal,0},rect,z,textured?texture:UiMetalTexture{}});
+            if(rect.width&&rect.height)submissions.push_back({first,6,{unsigned(textured),unsigned(gequal),ordinal,unsigned(*alpha==0x44)},rect,z,textured?texture:UiMetalTexture{}});
         }else if(const auto* control=std::get_if<UiDrawControl>(&commandValue)){
             check(*control>=UiDrawControl::Begin&&*control<=UiDrawControl::QueueTextState,"UI invalid control");
+            if(*control==UiDrawControl::QueueTextState){
+                alpha=0x44;pabe=0;fba=0;texa=0x810000807full;tex1=0x60;clamp=5;
+            }
         }
     }
     const std::array<std::uint32_t,4> initial_errors{0,std::numeric_limits<std::uint32_t>::max(),0,0};

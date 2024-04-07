@@ -72,7 +72,7 @@ int main(int argc,const char** argv){@autoreleasepool {try {
     pass.depthAttachment.texture=depth;pass.depthAttachment.loadAction=MTLLoadActionClear;
     pass.depthAttachment.storeAction=MTLStoreActionStore;pass.depthAttachment.clearDepth=1;
     [[command renderCommandEncoderWithDescriptor:pass] endEncoding];
-    const UiMetalBaseline baseline{0x6c00,0x7900,true,0,1,0,1};
+    const UiMetalBaseline baseline{0x6c00,0x7900,true,0,1,0,1,0xdf0000027f0000ull};
     const auto validation=renderer.encode(command,target,depth,geometry,baseline,[&](const UiGeometryTexture& texture){
         if(texture.kind==UiGeometryTexture::Kind::Font){
             require(texture.fonts==fonts&&texture.font_index<3,"Owned UI font binding mismatch");
