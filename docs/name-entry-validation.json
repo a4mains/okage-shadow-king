@@ -1,0 +1,460 @@
+{
+  "schema": "okage-name-entry-validation-v1",
+  "status": "native mode9 reaches command14 boundary; full port incomplete",
+  "runtime_revision": "07b8fac1e84ace5c67e1452055f108a933dd3783",
+  "observer_revision": "6f36f2d",
+  "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "runtime_asset": {
+    "path": "local/battle-input-v6/NAME_ENTRY.bin",
+    "sha256": "2a794e47ba4315522594de8a3b318b1e0e1ee3e46cbed710c30cc82b472c7f0a",
+    "bytes": 265
+  },
+  "full_native_run": {
+    "command": [
+      "local/research/name-entry-v1/native-109500-v5/okage-native",
+      "local/font-input/CMNDATA/FONT",
+      "local/text-input/FLDDATA/MES/FIELD.PME",
+      "--scene",
+      "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+      "--event",
+      "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+      "--actor",
+      "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+      "--actor-bind",
+      "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+      "--actor-bind",
+      "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+      "--frames",
+      "109500",
+      "--press",
+      "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538,61658,61777,61897,62018,62137,62257,62377,62498,62617,62737,63578,63697,63817,63937,64058,64177,64298,64418,64537,64778,64898,65017,65137,65258,65377,65497,65617,65737,65857,65978,66097,66218,66338,66457,66577,66697,66817,66937,67057,67178,67297,67417,67537,67657,67777,67897,68017,68138,68257,68377,68497,68618,68738,68857,68978,69097,69217,69337,69458,69577,69697,69818,69937,70057,70177,70298,70417,70537,70657,70777,70898,71018,71137,71257,71378,71497,71618,71737,71857,71977,72098,72217,72337,72457,72578,72697,72817,72938,73088,73359,73654,74437,74557,74677,74798,74917,75038,75158,75277,75397,75517,75637,75758,75877,75997,76118,76237,76357,76477,76598,76717,77142,77262,77383,77502,77622,77742,77862,77982,78102,78222,78337,78457,78577,78698,78817,78937,79058,79177,79297,79417,80831,81037,81157,81277,81397,81517,81637,81967,82327,82447,82567,82687,82807,82927,83047,83167,83287,83407,83527,83767,83887,84007,84127,84367,84487,84858,85377,85597,85717,85837,85957,86077,86197,86317,86437,86557,87187,87397,87517,87638,87758,88297,88507,88627,88748,88867,88987,89107,89228,89347,89917,90186,90246,90307,90366,90426,90486,90546,90607,90666,90726,90787,90846,90906,90967,91026,91086,91146,91206,91267,91326,91386,91446,91506,91566,92166,92226,92286,92346,92406,92467,92526,92586,93107,93276,93336,93396,93456,93516,93576,93636,93697,93756,93816,93877,93936,93996,94056,94116,94176,94236,94297,94356,94416,94476,94536,94597,94656,94716,94776,94836,94896,94956,95016,95077,95136,95196,97327,97787,97958,98017,98077,98137,98197,98258,98317,98378,98452,98511,98572,98812,99457,99517,99577,99651,99712,99771,99831,99891,99937,99997,100057,100117,100177,100238,100297,100357,100418,100477,100537,100597,100837,101086,101265,101784,101930,102697,103057,103117,103177,103237,103357,103417,103537,103597,103717,103777,103837,103897,104017,104077,104197,104257,104317,104377",
+      "--directions",
+      "local/research/name-entry-v1/native-109500-v5/directions.txt",
+      "--capture",
+      "local/research/name-entry-v1/native-109500-v5/native.png",
+      "--music-dry",
+      "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+      "--music-bank",
+      "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+      "--sound-dir",
+      "local/audio-input/SNDDATA/SE",
+      "--effect-data",
+      "local/effect-input/CMNDATA/2D/TES.EFD",
+      "--effect-textures",
+      "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+      "--render-from",
+      "11310",
+      "--render-until",
+      "11542",
+      "--capture-frames",
+      "109140,109180,109340,109351,109361,109371,109381,109400,109414,109500",
+      "--render-range",
+      "91547:91698",
+      "--battle-input",
+      "local/battle-input-v6",
+      "--ui-update-diagnostic",
+      "local/research/name-entry-v1/native-109500-v5/isolated-ui.json",
+      "--battle-live",
+      "local/research/name-entry-v1/native-109500-v5/live.jsonl",
+      "--buttons",
+      "local/research/name-entry-v1/native-109500-v5/buttons.txt",
+      "--load-observation",
+      "local/research/name-entry-v1/native-109500-v5/loader.jsonl",
+      "--battle-readback",
+      "deferred",
+      "--replay-loading",
+      "cooperative",
+      "--input-journal",
+      "local/research/name-entry-v1/native-109500-v5/inputs.jsonl",
+      "--replay-display-from",
+      "104447"
+    ],
+    "binary_sha256": "af6fa39a84c9658e9475f60397c28771c8f28d55196e70951973a94cd8e138fe",
+    "source_revision": "89f741a87898b9f15b1ea11705d72583e258b62f",
+    "scope": "Retained ordinary defeat/title/New Game inputs plus explicit Start/confirm/Up/Yes at109350/360/370/380.",
+    "exit_code": 1,
+    "seconds": 70.071838792
+  },
+  "next_guard": {
+    "frame": 109418,
+    "mode": 2,
+    "arg": 72,
+    "command": 14
+  },
+  "native_handoff": {
+    "constructor": 109140,
+    "field_request": 109415,
+    "retirement": 109416
+  },
+  "checks": [
+    {
+      "label": "release",
+      "kind": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/native-release",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 3.998967792,
+      "log": "local/research/name-entry-v1/integration-v1/release-build.log"
+    },
+    {
+      "label": "release",
+      "kind": "tests",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/native-release",
+        "--output-on-failure",
+        "-R",
+        "^(name-entry|ruw|ui-.*|battle-ui-pad|results-interface|results-progress|scene-resource|game-mode|frame-composition|scene-map-material|scene-backend|title|game-over-session)-tests$"
+      ],
+      "exit_code": 0,
+      "seconds": 3.410106541,
+      "log": "local/research/name-entry-v1/integration-v1/release-tests.log"
+    },
+    {
+      "label": "release",
+      "kind": "component-neutral",
+      "command": [
+        "build/native-release/okage-name-entry-component",
+        "local/battle-input-v6",
+        "local/xpf-decoded/CMNDATA",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/CMNDATA/XDB",
+        "local/research/name-entry-v1/neutral-201.txt",
+        "local/research/name-entry-v1/integration-v1/release-neutral"
+      ],
+      "exit_code": 0,
+      "seconds": 0.7013946669999989,
+      "log": "local/research/name-entry-v1/integration-v1/release-component-neutral.log"
+    },
+    {
+      "label": "release",
+      "kind": "component-accept",
+      "command": [
+        "build/native-release/okage-name-entry-component",
+        "local/battle-input-v6",
+        "local/xpf-decoded/CMNDATA",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/CMNDATA/XDB",
+        "local/research/name-entry-v1/original-accept-consumed-v2.txt",
+        "local/research/name-entry-v1/integration-v1/release-accept"
+      ],
+      "exit_code": 0,
+      "seconds": 0.7078815000000009,
+      "log": "local/research/name-entry-v1/integration-v1/release-component-accept.log"
+    },
+    {
+      "label": "debug",
+      "kind": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/native",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 9.187845542,
+      "log": "local/research/name-entry-v1/integration-v1/debug-build.log"
+    },
+    {
+      "label": "debug",
+      "kind": "tests",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/native",
+        "--output-on-failure",
+        "-R",
+        "^(name-entry|ruw|ui-.*|battle-ui-pad|results-interface|results-progress|scene-resource|game-mode|frame-composition|scene-map-material|scene-backend|title|game-over-session)-tests$"
+      ],
+      "exit_code": 0,
+      "seconds": 7.390704250000002,
+      "log": "local/research/name-entry-v1/integration-v1/debug-tests.log"
+    },
+    {
+      "label": "debug",
+      "kind": "component-neutral",
+      "command": [
+        "build/native/okage-name-entry-component",
+        "local/battle-input-v6",
+        "local/xpf-decoded/CMNDATA",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/CMNDATA/XDB",
+        "local/research/name-entry-v1/neutral-201.txt",
+        "local/research/name-entry-v1/integration-v1/debug-neutral"
+      ],
+      "exit_code": 0,
+      "seconds": 1.9406757500000005,
+      "log": "local/research/name-entry-v1/integration-v1/debug-component-neutral.log"
+    },
+    {
+      "label": "debug",
+      "kind": "component-accept",
+      "command": [
+        "build/native/okage-name-entry-component",
+        "local/battle-input-v6",
+        "local/xpf-decoded/CMNDATA",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/CMNDATA/XDB",
+        "local/research/name-entry-v1/original-accept-consumed-v2.txt",
+        "local/research/name-entry-v1/integration-v1/debug-accept"
+      ],
+      "exit_code": 0,
+      "seconds": 1.909087249999999,
+      "log": "local/research/name-entry-v1/integration-v1/debug-component-accept.log"
+    },
+    {
+      "label": "sanitize",
+      "kind": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/model-sanitize",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 10.511669542,
+      "log": "local/research/name-entry-v1/integration-v1/sanitize-build.log"
+    },
+    {
+      "label": "sanitize",
+      "kind": "tests",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/model-sanitize",
+        "--output-on-failure",
+        "-R",
+        "^(name-entry|ruw|ui-.*|battle-ui-pad|results-interface|results-progress|scene-resource|game-mode|frame-composition|scene-map-material|scene-backend|title|game-over-session)-tests$"
+      ],
+      "exit_code": 0,
+      "seconds": 9.384653999999998,
+      "log": "local/research/name-entry-v1/integration-v1/sanitize-tests.log"
+    },
+    {
+      "label": "sanitize",
+      "kind": "component-neutral",
+      "command": [
+        "build/model-sanitize/okage-name-entry-component",
+        "local/battle-input-v6",
+        "local/xpf-decoded/CMNDATA",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/CMNDATA/XDB",
+        "local/research/name-entry-v1/neutral-201.txt",
+        "local/research/name-entry-v1/integration-v1/sanitize-neutral"
+      ],
+      "exit_code": 0,
+      "seconds": 3.9338915410000013,
+      "log": "local/research/name-entry-v1/integration-v1/sanitize-component-neutral.log"
+    },
+    {
+      "label": "sanitize",
+      "kind": "component-accept",
+      "command": [
+        "build/model-sanitize/okage-name-entry-component",
+        "local/battle-input-v6",
+        "local/xpf-decoded/CMNDATA",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/CMNDATA/XDB",
+        "local/research/name-entry-v1/original-accept-consumed-v2.txt",
+        "local/research/name-entry-v1/integration-v1/sanitize-accept"
+      ],
+      "exit_code": 0,
+      "seconds": 4.033771584,
+      "log": "local/research/name-entry-v1/integration-v1/sanitize-component-accept.log"
+    }
+  ],
+  "cross_build": {
+    "neutral.state.bin": {
+      "sha256": {
+        "release": "47f784d8c7dd97f994fc6470fadd2c6d8e6bd9c3923441965e0332a5ff199b8d",
+        "debug": "47f784d8c7dd97f994fc6470fadd2c6d8e6bd9c3923441965e0332a5ff199b8d",
+        "sanitize": "47f784d8c7dd97f994fc6470fadd2c6d8e6bd9c3923441965e0332a5ff199b8d"
+      },
+      "equal": true
+    },
+    "neutral.rgba": {
+      "sha256": {
+        "release": "aebb4d811a020430bc4e1892df9fe5976150deb2191b9cb943832bdbe672710d",
+        "debug": "aebb4d811a020430bc4e1892df9fe5976150deb2191b9cb943832bdbe672710d",
+        "sanitize": "aebb4d811a020430bc4e1892df9fe5976150deb2191b9cb943832bdbe672710d"
+      },
+      "equal": true
+    },
+    "neutral.png": {
+      "sha256": {
+        "release": "cc409a5a5eca3413b352fba0349e4c28363943fcf5afcd58803c8039bc8145e8",
+        "debug": "cc409a5a5eca3413b352fba0349e4c28363943fcf5afcd58803c8039bc8145e8",
+        "sanitize": "cc409a5a5eca3413b352fba0349e4c28363943fcf5afcd58803c8039bc8145e8"
+      },
+      "equal": true
+    },
+    "neutral.window.txt": {
+      "sha256": {
+        "release": "162b99b1f06e099db9359561f32312b8e0bdb26ccc64155c72b66e8543aaa06e",
+        "debug": "162b99b1f06e099db9359561f32312b8e0bdb26ccc64155c72b66e8543aaa06e",
+        "sanitize": "162b99b1f06e099db9359561f32312b8e0bdb26ccc64155c72b66e8543aaa06e"
+      },
+      "equal": true
+    },
+    "accept.state.bin": {
+      "sha256": {
+        "release": "f3c6416fa505f6228c18e6ada59d2ae8cddda0aa8640c8ebf55bcf8526807658",
+        "debug": "f3c6416fa505f6228c18e6ada59d2ae8cddda0aa8640c8ebf55bcf8526807658",
+        "sanitize": "f3c6416fa505f6228c18e6ada59d2ae8cddda0aa8640c8ebf55bcf8526807658"
+      },
+      "equal": true
+    },
+    "accept.rgba": {
+      "sha256": {
+        "release": "3579130b98ccaab72a12e7c46a0c99e8948033281c06be0469f36e5dab64ecb3",
+        "debug": "3579130b98ccaab72a12e7c46a0c99e8948033281c06be0469f36e5dab64ecb3",
+        "sanitize": "3579130b98ccaab72a12e7c46a0c99e8948033281c06be0469f36e5dab64ecb3"
+      },
+      "equal": true
+    },
+    "accept.png": {
+      "sha256": {
+        "release": "77b61ecad86a02de3cb142f2296ebae6eab403bed1757eed60ff1072ef0eff8c",
+        "debug": "77b61ecad86a02de3cb142f2296ebae6eab403bed1757eed60ff1072ef0eff8c",
+        "sanitize": "77b61ecad86a02de3cb142f2296ebae6eab403bed1757eed60ff1072ef0eff8c"
+      },
+      "equal": true
+    },
+    "accept.window.txt": {
+      "sha256": {
+        "release": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "debug": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sanitize": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "equal": true
+    }
+  },
+  "component_comparisons": {
+    "neutral-comparison-v1.json": {
+      "scope": "Neutral name-entry component, paired by callback ordinal.",
+      "callback_pairs": 201,
+      "manager_excluded_raw_identity_offsets": [
+        "0x0",
+        "0x4",
+        "0x8",
+        "0xc",
+        "0x10",
+        "0x14",
+        "0x18",
+        "0x44",
+        "0x94",
+        "0x9c",
+        "0x114"
+      ],
+      "state_word_checks": 191151,
+      "state_differences": 0,
+      "first_differences": [],
+      "last_window_counts": {
+        "scalar": 6783,
+        "glyph0": 8448,
+        "sprite0": 4352,
+        "glyph1": 8448,
+        "sprite1": 4352
+      },
+      "last_window_differences": {
+        "scalar": 0,
+        "glyph0": 0,
+        "sprite0": 0,
+        "glyph1": 0,
+        "sprite1": 0
+      },
+      "image_verdict": "See neutral-media-v1: numeric diagnostic, not parity pass",
+      "sha256": {
+        "local/research/name-entry-v1/original-open-v3/name.jsonl": "1f16bb588bda60e97b097dfd0dd9cb8dc2fdec64662ca545b3de910d4d894dad",
+        "local/research/name-entry-v1/component-neutral-v5.state.bin": "47f784d8c7dd97f994fc6470fadd2c6d8e6bd9c3923441965e0332a5ff199b8d",
+        "local/research/name-entry-v1/component-neutral-v5.window.txt": "162b99b1f06e099db9359561f32312b8e0bdb26ccc64155c72b66e8543aaa06e",
+        "local/research/name-entry-v1/component-neutral-v5.png": "cc409a5a5eca3413b352fba0349e4c28363943fcf5afcd58803c8039bc8145e8",
+        "local/research/name-entry-v1/original-open-v3/image.layer0.png": "916cf8c68dedddcc7491d921ca3e38da5b7f2d21b12edb9971c9d84e060ddb1e"
+      }
+    },
+    "confirmation-comparison-v1.json": {
+      "scope": "Component-only exact consumed pad sequence from original; callback ordinal, no nativeRAM/saves.",
+      "callback_pairs": 291,
+      "state_checks": 276741,
+      "state_differences": 0,
+      "first_differences": []
+    },
+    "accept-comparison-v2.json": {
+      "scope": "Component exact consumed pad callback sequence, through source death flag.",
+      "callback_pairs": 256,
+      "state_checks": 243454,
+      "state_differences": 0,
+      "missing_retired_window_words": 2,
+      "first_differences": [],
+      "excluded_manager_offsets": [
+        "0x0",
+        "0x4",
+        "0x8",
+        "0xc",
+        "0x10",
+        "0x14",
+        "0x18",
+        "0x44",
+        "0x94",
+        "0x9c",
+        "0x114"
+      ]
+    }
+  },
+  "python_tests": {
+    "command": "python3 -m unittest discover -s tests -v",
+    "tests": 462,
+    "exit_code": 0,
+    "log": "local/research/name-entry-v1/python-v4.log"
+  },
+  "retained_negatives": [
+    "native-109200-v1: strict RUW lookup",
+    "native-109400-v2: h control",
+    "native-109500-v3: directional bit in button tape",
+    "native-109500-v4: retired PME binding",
+    "original-accept-v1: one-VBlank final Cross not consumed",
+    "component-build-v4: wrong test target",
+    "component-build-v5: incorrect synthetic ASCII height expectation",
+    "oracle-build-v3: vacant lambda used before declaration"
+  ],
+  "limitations": [
+    "Callback-ordinal component comparison is not VBlank/loading/RNG/audio alignment",
+    "Images differ; neutral-media-v1 preserves unthresholded full-image comparison",
+    "Shared UI ordering change does not resolve earlier full battle comparisons",
+    "Command14 chapter and ordinary command0 field load remain unimplemented",
+    "No new GUI, controller test, listening check, native save or full playthrough"
+  ],
+  "evidence_sha256": {
+    "local/research/name-entry-v1/import-v1.json": "ea5f8e20b186a92b564aba6298dc8b9b2896a1c84fa04747ac7c93de2565a018",
+    "local/research/name-entry-v1/neutral-comparison-v1.json": "33f21fa905bcb0e1b930c409f27a0ec416fe2a3dea58848a768c96ef8164e927",
+    "local/research/name-entry-v1/confirmation-comparison-v1.json": "ca20d85690e90afc5e946033f30eab8f725068191127a8d83f2b7700fc4d4010",
+    "local/research/name-entry-v1/accept-comparison-v2.json": "087932f4020b1e4c51160ee2d367b66c8092004089199bb3327318a2ff6be45e",
+    "local/research/name-entry-v1/integration-v1/checks.json": "79236149b91666bf91bc28cf506ef5ab36b1309d8d109c19c73cfdcbe53e8bba",
+    "local/research/name-entry-v1/integration-v1/cross-build.json": "282df9ca49b125b31a5b4775ed49aa1b386f75d8c66efb05762679f3e1004e6c",
+    "local/research/name-entry-v1/original-open-v3/run.json": "95be820707662b954ae5b2ebe3f7eb148dac99706f4833e792a1f68371b0e750",
+    "local/research/name-entry-v1/original-accept-v1/run.json": "4dc2e24459ecd6c8e16a684bf7f78980051dfb89e4fd73a248d2d6bc238baa77",
+    "local/research/name-entry-v1/original-accept-v2/run.json": "1679c02cebd94001263b64aead214f1a331fdef5d210ce8d5a628b159f43265f",
+    "local/research/name-entry-v1/native-109500-v5/run.json": "ed2d7266d9938b782f26bbfaf676d348d1c24e2a9894de083dfb43a77a4bde8b",
+    "local/research/name-entry-v1/python-v4.log": "922021a637577c98e9e4fd95f8822c39ec4222fcd30061cc6a22b096afb8b043",
+    "local/research/name-entry-v1/chapter-alpha-source-v1.md": "01afd79835c96a0909bd3dfbd5a9e33e2dceae04981e154d73279f66be9f1cef",
+    "local/research/name-entry-v1/spacing-helper-v1/review.txt": "246aa762d05786d314c61d85f3cb8a85893dfede84e18c678c3332c6a2db2ff5"
+  },
+  "source_sha256": {
+    "src/name_entry.cpp": "1e62421d23c9e4a4443bf7f66caad335e27aa6ea16d726df804b3bfeef616d8d",
+    "src/name_entry_data.cpp": "7afffe607319cbdd968934d239759c7c3248412596e13ac50ed9dc3a8746981a",
+    "src/name_entry_layout.cpp": "45a36f5bd529f82eebad872b44955fea21fea88fbaf3b6f6b9ada156bdba461e",
+    "src/name_entry_session.mm": "b3e5fd30e56fe59368a8c5fb27f2d4158814b71642f554cb450e4c6d7969b724",
+    "src/native_runtime.mm": "85b113bda61302e6a4aed69bb4be5f9e592a3b0b3aaf7387a4d0dce18dbb6d8f",
+    "src/ui_geometry.cpp": "2e1cae3052d1721191a63b741f283363b3bb306f9c8d86cb272aeffdf3154959",
+    "src/ui_metal.mm": "8201ab1b266c7578c211ca3605e2e81efd3cdc904112534de06ef65229949626",
+    "src/ui_window_layout.cpp": "bbe239a68533e8799087a4ba9d3ab5a98bd9c6fed42bfd69461981a4844dfd38",
+    "tools/play-oracle/reference_name_entry.hpp": "3671cf5ded68c15015872befdd1cd1a157d71369433639ad7f0205c714a02ef3",
+    "tools/play-oracle/reference_graphics.mm": "38a7de5b50e4db7aa45be43919f61a4e1f1b5379b47295b712a9be8da36c379c",
+    "tools/play-oracle/boot.cpp": "b2a2b36462acc97b68b1f922698879465b81b2a4044f1ab608afeb200f69625a"
+  }
+}
