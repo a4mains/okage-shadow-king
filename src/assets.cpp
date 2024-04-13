@@ -107,11 +107,13 @@ Decoded decompress_xpf(Bytes packed, std::size_t output_limit) {
     }
 }
 
-Texture decode_xim(Bytes data, Alpha16 alpha16) {
+static Texture decode_xim_impl(Bytes data, Alpha16 alpha16, bool raw_alpha) {
     if (data.size() < 32) fail("Truncated XIM header");
     const auto psm = (le32(data, 0) >> 20) & 63;
     const auto cpsm = (le32(data, 4) >> 19) & 15;
     const bool indexed = psm >= 16;
+    if(raw_alpha && !(psm==0 || ((psm==19||psm==20||psm==27)&&cpsm==0)))
+        fail("Raw XIM alpha requires PSMCT32 pixels or palette");
     unsigned bits;
     switch (psm) {
         case 0: bits = 32; break;
@@ -144,7 +146,7 @@ Texture decode_xim(Bytes data, Alpha16 alpha16) {
         fail("XIM dimensions do not match pixel payload");
     Texture result{width, height, psm, cpsm, {}};
     result.rgba.reserve(pixels * 4);
-    auto alpha = [](unsigned value) { return static_cast<std::uint8_t>(std::min(255u, value * 2)); };
+    auto alpha = [raw_alpha](unsigned value) { return static_cast<std::uint8_t>(raw_alpha?value:std::min(255u, value * 2)); };
     for (std::size_t i = 0; i < pixels; ++i) {
         std::array<std::uint8_t, 4> color{};
         if (!indexed) {
@@ -171,4 +173,6 @@ Texture decode_xim(Bytes data, Alpha16 alpha16) {
     }
     return result;
 }
+Texture decode_xim(Bytes data, Alpha16 alpha16) {return decode_xim_impl(data,alpha16,false);}
+Texture decode_xim_gs32(Bytes data) {return decode_xim_impl(data,Alpha16::BlackTransparent,true);}
 }

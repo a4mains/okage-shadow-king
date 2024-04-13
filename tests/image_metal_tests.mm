@@ -87,6 +87,21 @@ void sampling(Harness& h){Texture t{4,4,19,0,{}};
     bool footprint=false;try{h.run(q,gpu);}catch(const std::runtime_error& e){footprint=std::string(e.what()).find("Image unsupported sampled texture footprint:")!=std::string::npos;}
     check(footprint,"Actual nonzero-weight missing texel must fail command validation");
 }
+void raw_source_alpha(Harness& h){
+    std::vector<std::uint8_t> bytes(40,0);bytes[24]=1;bytes[28]=2;
+    const std::array<std::uint8_t,8> pixels{100,150,200,255,100,150,200,129};
+    std::copy(pixels.begin(),pixels.end(),bytes.begin()+32);
+    ImageMetalTexture gpu{upload_image_gs_source(h.device,bytes),{}};
+    std::array<std::uint8_t,8> uploaded{};
+    [gpu.texture getBytes:uploaded.data() bytesPerRow:8 fromRegion:MTLRegionMake2D(0,0,2,1) mipmapLevel:0];
+    check(uploaded==pixels,"Raw texture upload preserves all alpha bits");
+    auto q=quad();auto r=h.run(q,gpu,baseline(),{200,100,0,64});
+    check(pixel(r)==std::array<unsigned,4>{0,199,255,255},"Raw alpha255 extrapolates positive and negative differences");
+    q.st={1.f/1024,.5f/1024,1.f/1024,.5f/1024};r=h.run(q,gpu,baseline(),{200,100,0,64});
+    check(pixel(r)==std::array<unsigned,4>{50,175,255,192},"Raw alpha filtering occurs before modulation and blend");
+    q.rgba=0x40808080;r=h.run(q,gpu,baseline(),{200,100,0,64});
+    check(pixel(r)==std::array<unsigned,4>{125,137,150,96},"Raw alpha times vertex alpha retains source MODULATE order");
+}
 void authored_extent(Harness& h){Texture t{640,448,19,0,{}};t.rgba.resize(640*448*4);
     for(unsigned y=0;y<448;++y)for(unsigned x=0;x<640;++x){auto* p=t.rgba.data()+(y*640+x)*4;p[0]=std::uint8_t(x/4);p[1]=std::uint8_t(y/2);p[2]=64;p[3]=255;}
     ImageMetalQuad q{{{{27648,30976},{37888,30976},{37888,34560},{27648,34560}}},
@@ -111,6 +126,6 @@ void guards(Harness& h){auto t=h.texture({1,1,0,0,{16,32,64,255}});auto q=quad()
     rejects([&]{h.run(q,{});},"Missing texture must reject");
 }
 }
-int main(){@autoreleasepool{try{Harness h;blend_and_edges(h);sampling(h);authored_extent(h);guards(h);
+int main(){@autoreleasepool{try{Harness h;blend_and_edges(h);sampling(h);raw_source_alpha(h);authored_extent(h);guards(h);
     std::cout<<"Image Metal offscreen tests passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}}

@@ -50,7 +50,16 @@ fragment Output image_fragment(Fragment v [[stage_in]],constant uint4& rgba [[bu
 }
 )metal";
 struct Vertex {std::array<float,4> position,st;};
+id<MTLTexture> upload_raw(id<MTLDevice> device,const Texture& image){
+    check(device&&image.width&&image.height&&image.width<=1024&&image.height<=1024&&
+        image.rgba.size()==std::size_t(image.width)*image.height*4,"Image raw texture upload extent");
+    auto d=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:image.width height:image.height mipmapped:NO];
+    d.storageMode=MTLStorageModeShared;d.usage=MTLTextureUsageShaderRead;
+    auto texture=[device newTextureWithDescriptor:d];check(texture,"Image texture allocation");
+    [texture replaceRegion:MTLRegionMake2D(0,0,image.width,image.height) mipmapLevel:0 withBytes:image.rgba.data() bytesPerRow:image.width*4];return texture;
 }
+}
+id<MTLTexture> upload_image_gs_source(id<MTLDevice> device,Bytes bytes){return upload_raw(device,decode_xim_gs32(bytes));}
 id<MTLTexture> upload_image_gs_texture(id<MTLDevice> device,const Texture& image,ImageMetalPreviewAlpha alpha){
     check(alpha==ImageMetalPreviewAlpha::SourceAtMost128,"Image preview upload requires proven source alpha range");
     check(device&&image.width&&image.height&&image.width<=1024&&image.height<=1024&&
@@ -62,10 +71,7 @@ id<MTLTexture> upload_image_gs_texture(id<MTLDevice> device,const Texture& image
         check(bytes[i]==255||!(bytes[i]&1),"Image texture alpha is not reversibly expanded GS alpha");
         bytes[i]=bytes[i]==255?128:bytes[i]/2;
     }
-    auto d=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:image.width height:image.height mipmapped:NO];
-    d.storageMode=MTLStorageModeShared;d.usage=MTLTextureUsageShaderRead;
-    auto texture=[device newTextureWithDescriptor:d];check(texture,"Image texture allocation");
-    [texture replaceRegion:MTLRegionMake2D(0,0,image.width,image.height) mipmapLevel:0 withBytes:bytes.data() bytesPerRow:image.width*4];return texture;
+    auto raw=image;raw.rgba=std::move(bytes);return upload_raw(device,raw);
 }
 ImageMetalValidation::ImageMetalValidation(id<MTLCommandBuffer> command,id<MTLBuffer> errors,ImageMetalTexture texture)
     :command_(command),errors_(errors),texture_(std::move(texture)){}

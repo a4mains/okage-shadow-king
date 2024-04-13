@@ -10,6 +10,7 @@
 #include "game_over_session.hpp"
 #include "title_session.hpp"
 #include "name_entry_session.hpp"
+#include "chapter_session.hpp"
 #include "okage/title_stream.hpp"
 #include "results_renderer.hpp"
 #include "okage/results_interface.hpp"
@@ -298,6 +299,7 @@ struct Session {
     std::unique_ptr<okage::TitleSession> title;
     okage::NameEntryShared name_entry_shared;
     std::unique_ptr<okage::NameEntrySession> name_entry;
+    std::unique_ptr<okage::ChapterSession> chapter;
     okage::TitleStreamOwner title_stream;
     okage::GameOverShared game_over_shared;
     okage::ResultsUiShared results_shared;
@@ -362,7 +364,7 @@ struct Session {
         load_observation_written=true;
     }
     std::vector<std::uint32_t> battle_loading_trace;
-    std::vector<std::uint32_t> game_mode_trace,retiring_effect_trace,results_trace,title_trace,name_entry_trace;
+    std::vector<std::uint32_t> game_mode_trace,retiring_effect_trace,results_trace,title_trace,name_entry_trace,chapter_trace;
     bool retain_field_music=false;
     std::optional<okage::Texture> transition_image;
     // AppKit presentation is separate from research captures and feedback.
@@ -892,6 +894,10 @@ struct Session {
             observe_game_mode(0);
             game_mode->tick([this]{
                 if(battle)retire_battle();
+                else if(chapter) {
+                    chapter->retire(*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,ui_shared,scene_fade);
+                    std::cout<<"Native chapter retired frame="<<frame<<'\n';
+                }
                 else if(name_entry) {
                     name_entry->retire(*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,ui_shared);
                     std::cout<<"Native name entry retired frame="<<frame<<'\n';
@@ -926,6 +932,10 @@ struct Session {
                     if(name_entry->resource_live())throw std::runtime_error("Name entry free before retirement");
                     name_entry.reset();
                 }
+                if(chapter) {
+                    if(chapter->resource_live())throw std::runtime_error("Chapter free before retirement");
+                    chapter.reset();
+                }
                 if(title) {
                     if(title->resource_live())throw std::runtime_error("Title freed before resource retirement");
                     title.reset();
@@ -938,9 +948,17 @@ struct Session {
                 if(field||renderer||!actor_bindings.empty()||!actor_objects.empty()||map_objects)
                     throw std::runtime_error("Field borrowers survived mode retirement");
             },[this](okage::GameModeSelection selection){
-                if(battle||field||field_return||defeat_return||game_over||title||name_entry||!reset_camera)
+                if(battle||field||field_return||defeat_return||game_over||title||name_entry||chapter||!reset_camera)
                     throw std::runtime_error("Native mode construction has surviving scene owners");
                 if(selection[0]==2&&pending_game_command[0]==13) {begin_field_return();return;}
+                if(selection[0]==2&&pending_game_command[0]==14) {
+                    chapter=std::make_unique<okage::ChapterSession>(variables,pending_game_command,selection,
+                        scene_clear,scene_fade,ui_shared,[this](unsigned id){
+                            if(id!=1)throw std::runtime_error("Unrecovered chapter image selection");
+                            return readData(field_root.parent_path()/"CMNDATA/2D/CHP_01.XIM");
+                        });
+                    std::cout<<"Native chapter constructed frame="<<frame<<'\n';return;
+                }
                 if(selection[0]==2&&pending_game_command[0]==2) {
                     defeat_return=std::make_unique<okage::DefeatFieldReturn>(variables,pending_game_command,
                         scene_fade,scene_clear,ui_shared);
@@ -990,6 +1008,17 @@ struct Session {
             });
         }
         const bool returned_this_tick=tick_field_return(input.pressed,{input.held,128,128,input.pressed});
+        if(chapter&&chapter->resource_live()) {
+            chapter->tick(pending_game_command,scene_fade,*reset_camera,projection,
+                retiring_effects?&*retiring_effects:nullptr,ui_shared,ui_fonts,battle_capture_sine,random,
+                game_over_shared.image_frame_counter,[this](auto selection){
+                    game_mode->request(selection);
+                    std::cout<<"Native chapter requests ordinary field frame="<<frame<<'\n';
+                });
+            const auto& s=chapter->state();
+            chapter_trace.insert(chapter_trace.end(),{frame,s.counter,std::bit_cast<std::uint32_t>(scene_fade.current),
+                std::bit_cast<std::uint32_t>(scene_fade.target),pending_game_command[0],game_over_shared.image_frame_counter});
+        }
         if(defeat_return&&defeat_return->resource().live()) {
             defeat_return->tick([this](okage::GameModeSelection selection){
                 game_mode->request(selection);
@@ -1439,6 +1468,8 @@ struct Session {
             image=*defeat_return->resource().rendered_image();
         } else if(name_entry&&name_entry->rendered_image()) {
             image=*name_entry->rendered_image();
+        } else if(chapter&&chapter->rendered_image()) {
+            image=*chapter->rendered_image();
         } else if(title&&title->rendered_image()) {
             image=*title->rendered_image();
         } else if(game_over&&game_over->rendered_image()) {
@@ -1641,6 +1672,7 @@ static void capture(Session& session,const fs::path& path) {
         std::pair{".battle-capture.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.battle_capture_trace.data()),session.battle_capture_trace.size()*4)},
         std::pair{".game-mode.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.game_mode_trace.data()),session.game_mode_trace.size()*4)},
         std::pair{".name-entry-state.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.name_entry_trace.data()),session.name_entry_trace.size()*4)},
+        std::pair{".chapter-state.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.chapter_trace.data()),session.chapter_trace.size()*4)},
         std::pair{".title-state.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.title_trace.data()),session.title_trace.size()*4)},
         std::pair{".results.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.results_trace.data()),session.results_trace.size()*4)},
         std::pair{".battle-loading.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.battle_loading_trace.data()),session.battle_loading_trace.size()*4)},

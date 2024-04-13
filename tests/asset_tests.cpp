@@ -58,6 +58,14 @@ int main() {
         const auto high=okage::decode_xim(xim);
         require(high.pixel_format==27&&high.rgba==ordinary.rgba);
         require(high.rgba==std::vector<std::uint8_t>({17,0,0,255,0,91,0,128}));
+        xim[32+7]=255;xim[32+255*4+3]=129;
+        const auto raw=okage::decode_xim_gs32(xim);
+        require(raw.rgba==std::vector<std::uint8_t>({17,0,0,255,0,91,0,129}));
+        require(okage::decode_xim(xim).rgba[7]==255);
+        xim.assign(32+4,0);xim[24]=1;xim[28]=1;
+        xim[32]=19;xim[33]=29;xim[34]=39;xim[35]=193;
+        require(okage::decode_xim_gs32(xim).rgba==std::vector<std::uint8_t>({19,29,39,193}));
+        xim[2]=0x10;rejects([&]{okage::decode_xim_gs32(xim);});
         std::cout << "Native asset boundary tests passed\n";
     } catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

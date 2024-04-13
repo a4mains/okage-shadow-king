@@ -20,6 +20,7 @@ struct ImageMetalTexture {
 };
 enum class ImageMetalPreviewAlpha { SourceAtMost128 };
 id<MTLTexture> upload_image_gs_texture(id<MTLDevice>,const Texture&,ImageMetalPreviewAlpha);
+id<MTLTexture> upload_image_gs_source(id<MTLDevice>,Bytes);
 class ImageMetalValidation {
 public:
     void validate_completed(id<MTLCommandBuffer>) const;

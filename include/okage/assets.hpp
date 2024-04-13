@@ -26,4 +26,5 @@ struct Texture {
 // Preview RGBA8 output. PS2 alpha 0x80 maps to opaque. Direct 24-bit data is
 // displayed opaque; game TEXA/material blending is a separate rendering concern.
 Texture decode_xim(Bytes data, Alpha16 alpha16 = Alpha16::BlackTransparent);
+Texture decode_xim_gs32(Bytes data);
 }
