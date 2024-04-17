@@ -1,0 +1,668 @@
+{
+  "schema": "okage-chapter-transition-validation-v1",
+  "runtime_revision": "79177af57271b241d4d520073c80a4330decb050",
+  "status": "native chapter reached and retired; command0 ordinary field constructor still guarded",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "asset": {
+    "source": "local/research/name-entry-v1/chapter-assets-v1/CHP_01.XIM",
+    "destination": "local/xpf-decoded/CMNDATA/2D/CHP_01.XIM",
+    "sha256": "94ef3841f0b5f1c619b9cb92bc332bf443cdd0b776537f307f320a3d26b16b97"
+  },
+  "runs": {
+    "native-109750-v1": {
+      "command": [
+        "local/research/chapter-session-v1/native-109750-v1/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "109750",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538,61658,61777,61897,62018,62137,62257,62377,62498,62617,62737,63578,63697,63817,63937,64058,64177,64298,64418,64537,64778,64898,65017,65137,65258,65377,65497,65617,65737,65857,65978,66097,66218,66338,66457,66577,66697,66817,66937,67057,67178,67297,67417,67537,67657,67777,67897,68017,68138,68257,68377,68497,68618,68738,68857,68978,69097,69217,69337,69458,69577,69697,69818,69937,70057,70177,70298,70417,70537,70657,70777,70898,71018,71137,71257,71378,71497,71618,71737,71857,71977,72098,72217,72337,72457,72578,72697,72817,72938,73088,73359,73654,74437,74557,74677,74798,74917,75038,75158,75277,75397,75517,75637,75758,75877,75997,76118,76237,76357,76477,76598,76717,77142,77262,77383,77502,77622,77742,77862,77982,78102,78222,78337,78457,78577,78698,78817,78937,79058,79177,79297,79417,80831,81037,81157,81277,81397,81517,81637,81967,82327,82447,82567,82687,82807,82927,83047,83167,83287,83407,83527,83767,83887,84007,84127,84367,84487,84858,85377,85597,85717,85837,85957,86077,86197,86317,86437,86557,87187,87397,87517,87638,87758,88297,88507,88627,88748,88867,88987,89107,89228,89347,89917,90186,90246,90307,90366,90426,90486,90546,90607,90666,90726,90787,90846,90906,90967,91026,91086,91146,91206,91267,91326,91386,91446,91506,91566,92166,92226,92286,92346,92406,92467,92526,92586,93107,93276,93336,93396,93456,93516,93576,93636,93697,93756,93816,93877,93936,93996,94056,94116,94176,94236,94297,94356,94416,94476,94536,94597,94656,94716,94776,94836,94896,94956,95016,95077,95136,95196,97327,97787,97958,98017,98077,98137,98197,98258,98317,98378,98452,98511,98572,98812,99457,99517,99577,99651,99712,99771,99831,99891,99937,99997,100057,100117,100177,100238,100297,100357,100418,100477,100537,100597,100837,101086,101265,101784,101930,102697,103057,103117,103177,103237,103357,103417,103537,103597,103717,103777,103837,103897,104017,104077,104197,104257,104317,104377",
+        "--directions",
+        "local/research/chapter-session-v1/native-109750-v1/directions.txt",
+        "--capture",
+        "local/research/chapter-session-v1/native-109750-v1/native.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "--render-from",
+        "11310",
+        "--render-until",
+        "11542",
+        "--capture-frames",
+        "109418,109450,109500,109501,109600,109657,109680,109710,109750",
+        "--render-range",
+        "91547:91698",
+        "--battle-input",
+        "local/battle-input-v6",
+        "--ui-update-diagnostic",
+        "local/research/chapter-session-v1/native-109750-v1/isolated-ui.json",
+        "--battle-live",
+        "local/research/chapter-session-v1/native-109750-v1/live.jsonl",
+        "--buttons",
+        "local/research/chapter-session-v1/native-109750-v1/buttons.txt",
+        "--load-observation",
+        "local/research/chapter-session-v1/native-109750-v1/loader.jsonl",
+        "--battle-readback",
+        "deferred",
+        "--replay-loading",
+        "cooperative",
+        "--input-journal",
+        "local/research/chapter-session-v1/native-109750-v1/inputs.jsonl",
+        "--replay-display-from",
+        "104447"
+      ],
+      "binary_sha256": "ec74f57da319ed3fd6ca40280dc7ff85c5b72a467afd80643aae31cd44cd14bb",
+      "source_revision": "400e1ae1a18c44cef8d5446d6eaa166eb1b6f6b2",
+      "scope": "Unchanged ordinary input route; native chapter implementation, command0 still guarded.",
+      "exit_code": 1,
+      "seconds": 72.88811525
+    },
+    "native-109709-v2": {
+      "command": [
+        "local/research/chapter-session-v1/native-109709-v2/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "109709",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538,61658,61777,61897,62018,62137,62257,62377,62498,62617,62737,63578,63697,63817,63937,64058,64177,64298,64418,64537,64778,64898,65017,65137,65258,65377,65497,65617,65737,65857,65978,66097,66218,66338,66457,66577,66697,66817,66937,67057,67178,67297,67417,67537,67657,67777,67897,68017,68138,68257,68377,68497,68618,68738,68857,68978,69097,69217,69337,69458,69577,69697,69818,69937,70057,70177,70298,70417,70537,70657,70777,70898,71018,71137,71257,71378,71497,71618,71737,71857,71977,72098,72217,72337,72457,72578,72697,72817,72938,73088,73359,73654,74437,74557,74677,74798,74917,75038,75158,75277,75397,75517,75637,75758,75877,75997,76118,76237,76357,76477,76598,76717,77142,77262,77383,77502,77622,77742,77862,77982,78102,78222,78337,78457,78577,78698,78817,78937,79058,79177,79297,79417,80831,81037,81157,81277,81397,81517,81637,81967,82327,82447,82567,82687,82807,82927,83047,83167,83287,83407,83527,83767,83887,84007,84127,84367,84487,84858,85377,85597,85717,85837,85957,86077,86197,86317,86437,86557,87187,87397,87517,87638,87758,88297,88507,88627,88748,88867,88987,89107,89228,89347,89917,90186,90246,90307,90366,90426,90486,90546,90607,90666,90726,90787,90846,90906,90967,91026,91086,91146,91206,91267,91326,91386,91446,91506,91566,92166,92226,92286,92346,92406,92467,92526,92586,93107,93276,93336,93396,93456,93516,93576,93636,93697,93756,93816,93877,93936,93996,94056,94116,94176,94236,94297,94356,94416,94476,94536,94597,94656,94716,94776,94836,94896,94956,95016,95077,95136,95196,97327,97787,97958,98017,98077,98137,98197,98258,98317,98378,98452,98511,98572,98812,99457,99517,99577,99651,99712,99771,99831,99891,99937,99997,100057,100117,100177,100238,100297,100357,100418,100477,100537,100597,100837,101086,101265,101784,101930,102697,103057,103117,103177,103237,103357,103417,103537,103597,103717,103777,103837,103897,104017,104077,104197,104257,104317,104377",
+        "--directions",
+        "local/research/chapter-session-v1/native-109709-v2/directions.txt",
+        "--capture",
+        "local/research/chapter-session-v1/native-109709-v2/native.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "--render-from",
+        "11310",
+        "--render-until",
+        "11542",
+        "--capture-frames",
+        "109418,109446,109496,109596,109653,109676,109706,109709",
+        "--render-range",
+        "91547:91698",
+        "--battle-input",
+        "local/battle-input-v6",
+        "--ui-update-diagnostic",
+        "local/research/chapter-session-v1/native-109709-v2/isolated-ui.json",
+        "--battle-live",
+        "local/research/chapter-session-v1/native-109709-v2/live.jsonl",
+        "--buttons",
+        "local/research/chapter-session-v1/native-109709-v2/buttons.txt",
+        "--load-observation",
+        "local/research/chapter-session-v1/native-109709-v2/loader.jsonl",
+        "--battle-readback",
+        "deferred",
+        "--replay-loading",
+        "cooperative",
+        "--input-journal",
+        "local/research/chapter-session-v1/native-109709-v2/inputs.jsonl",
+        "--replay-display-from",
+        "104447"
+      ],
+      "binary_sha256": "ec74f57da319ed3fd6ca40280dc7ff85c5b72a467afd80643aae31cd44cd14bb",
+      "source_revision": "400e1ae1a18c44cef8d5446d6eaa166eb1b6f6b2",
+      "scope": "Unchanged ordinary input route; native chapter implementation, command0 still guarded.",
+      "exit_code": 0,
+      "seconds": 72.718502917
+    },
+    "original-v1": {
+      "command": [
+        "local/research/chapter-session-v1/original-v1/okage-boot-oracle",
+        "local/disc/Okage - Shadow King (USA).cue",
+        "750",
+        "local/reference-title-menu.state.zip",
+        "--load",
+        "--pad",
+        "local/research/chapter-session-v1/original-v1/pad.txt",
+        "--game-mode",
+        "local/research/chapter-session-v1/original-v1/mode.jsonl",
+        "--capture",
+        "local/research/chapter-session-v1/original-v1/image",
+        "--capture-frames",
+        "450,500,600,657,680,710,750",
+        "--gs-registers",
+        "local/research/chapter-session-v1/original-v1/gs.json",
+        "--deadline-seconds",
+        "300"
+      ],
+      "binary_sha256": "a50a12f4968eead31003e37ce26363036c847d8da8850df2a0bf702bd4e6d632",
+      "input_state_sha256": "28d457a064301f66b8eac7df5e32d9e25de431ee4376668b0ddda898f08a6bf5",
+      "pad_sha256": "47322bb500929c31e858139a875068c8b650fdde28487d4a741ba3c5ba1b6a41",
+      "scope": "Unchanged four-VBlank held name-accept inputs; extended through chapter to ordinary field load.",
+      "exit_code": -6,
+      "seconds": 0.42536291699999995
+    },
+    "original-v2": {
+      "command": [
+        "build/play-research/okage-oracle/okage-boot-oracle",
+        "local/disc/Okage - Shadow King (USA).cue",
+        "750",
+        "local/reference-title-menu.state.zip",
+        "--load",
+        "--pad",
+        "local/research/chapter-session-v1/original-v2/pad.txt",
+        "--game-mode",
+        "local/research/chapter-session-v1/original-v2/mode.jsonl",
+        "--capture",
+        "local/research/chapter-session-v1/original-v2/image",
+        "--capture-frames",
+        "450,500,600,657,680,710,750",
+        "--gs-registers",
+        "local/research/chapter-session-v1/original-v2/gs.json",
+        "--deadline-seconds",
+        "300"
+      ],
+      "binary_sha256": "a50a12f4968eead31003e37ce26363036c847d8da8850df2a0bf702bd4e6d632",
+      "input_state_sha256": "28d457a064301f66b8eac7df5e32d9e25de431ee4376668b0ddda898f08a6bf5",
+      "pad_sha256": "47322bb500929c31e858139a875068c8b650fdde28487d4a741ba3c5ba1b6a41",
+      "scope": "Unchanged four-VBlank held name-accept inputs; extended through chapter to ordinary field load.",
+      "exit_code": 0,
+      "seconds": 24.992525875
+    }
+  },
+  "builds_and_tests": [
+    {
+      "label": "release",
+      "kind": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/native-release",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 14.965704833,
+      "log": "local/research/chapter-session-v1/checks-v1/release-build.log"
+    },
+    {
+      "label": "release",
+      "kind": "tests",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/native-release",
+        "--output-on-failure",
+        "-R",
+        "^(chapter|chapter-session|asset|image-metal|game-over-session|game-over|title|name-entry|scene-resource|game-mode|frame-composition)-tests$"
+      ],
+      "exit_code": 0,
+      "seconds": 1.1904195410000007,
+      "log": "local/research/chapter-session-v1/checks-v1/release-tests.log"
+    },
+    {
+      "label": "debug",
+      "kind": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/native",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 20.277732459000003,
+      "log": "local/research/chapter-session-v1/checks-v1/debug-build.log"
+    },
+    {
+      "label": "debug",
+      "kind": "tests",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/native",
+        "--output-on-failure",
+        "-R",
+        "^(chapter|chapter-session|asset|image-metal|game-over-session|game-over|title|name-entry|scene-resource|game-mode|frame-composition)-tests$"
+      ],
+      "exit_code": 0,
+      "seconds": 3.1451114170000025,
+      "log": "local/research/chapter-session-v1/checks-v1/debug-tests.log"
+    },
+    {
+      "label": "sanitize",
+      "kind": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/model-sanitize",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 23.313071666,
+      "log": "local/research/chapter-session-v1/checks-v1/sanitize-build.log"
+    },
+    {
+      "label": "sanitize",
+      "kind": "tests",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/model-sanitize",
+        "--output-on-failure",
+        "-R",
+        "^(chapter|chapter-session|asset|image-metal|game-over-session|game-over|title|name-entry|scene-resource|game-mode|frame-composition)-tests$"
+      ],
+      "exit_code": 0,
+      "seconds": 4.488409875000002,
+      "log": "local/research/chapter-session-v1/checks-v1/sanitize-tests.log"
+    }
+  ],
+  "python_tests": {
+    "count": 462,
+    "seconds": 21.964,
+    "exit_code": 0,
+    "log": "local/research/chapter-session-v1/python-v1.log"
+  },
+  "component": {
+    "scope": "Component only: pair first completed chapter callback, source parent entry sees preceding update.",
+    "native_rows": 290,
+    "source_live_rows": 290,
+    "counter_and_command_word_checks": 580,
+    "differences": [],
+    "source_dead_rows": 1,
+    "missing_source_fade_observations": 290,
+    "native_first": [
+      109418,
+      1,
+      0,
+      1065353216,
+      14,
+      1600
+    ],
+    "native_at240": [
+      109657,
+      240,
+      1065353216,
+      0,
+      14,
+      1839
+    ],
+    "native_last": [
+      109707,
+      290,
+      0,
+      0,
+      0,
+      1889
+    ]
+  },
+  "images": {
+    "image-450": {
+      "purpose": "Explicitly paired numeric diagnostic; not a fidelity pass.",
+      "temporal_alignment": false,
+      "threshold_or_pass_assertion": false,
+      "automatic_resize_or_crop": false,
+      "alpha_note": "RGB metrics exclude alpha; alpha differences are reported separately.",
+      "sample_basis": "Raw encoded 8-bit channel samples after PNG decoding to RGBA; no ICC profile, gamma, transfer-function, or color-space transforms are applied.",
+      "inputs": {
+        "original": {
+          "path": "local/research/chapter-session-v1/original-v2/image.frames/vblank-000450.layer0.png",
+          "sha256": "ed703f345ec39b324123d519d0ca0f630dff266ef3aad6d672f9251174768471",
+          "width": 640,
+          "height": 224
+        },
+        "native": {
+          "path": "local/research/chapter-session-v1/native-109709-v2/native.png.frames/tick-109446.png",
+          "sha256": "3681fb5b038c1b6bc3b9c6f09cac1cb5c832f7e87ce65e45b292b92960912c2d",
+          "width": 640,
+          "height": 448
+        }
+      },
+      "declared_native_region": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 224
+      },
+      "compared_rgba_extent": {
+        "width": 640,
+        "height": 224
+      },
+      "metrics": {
+        "width": 640,
+        "height": 224,
+        "exact_different_pixel_count": 143360,
+        "rgb_mae": 0.5834821428571428,
+        "rgb_max_absolute_difference": 16,
+        "alpha_different_pixel_count": 143360,
+        "alpha_mae": 198.0,
+        "alpha_max_absolute_difference": 198
+      },
+      "outputs": {
+        "side_by_side": {
+          "file": "side-by-side.png",
+          "width": 1280,
+          "height": 254
+        },
+        "absolute_rgb_difference": {
+          "file": "absolute-rgb-difference.png",
+          "width": 640,
+          "height": 224
+        }
+      }
+    },
+    "image-500": {
+      "purpose": "Explicitly paired numeric diagnostic; not a fidelity pass.",
+      "temporal_alignment": false,
+      "threshold_or_pass_assertion": false,
+      "automatic_resize_or_crop": false,
+      "alpha_note": "RGB metrics exclude alpha; alpha differences are reported separately.",
+      "sample_basis": "Raw encoded 8-bit channel samples after PNG decoding to RGBA; no ICC profile, gamma, transfer-function, or color-space transforms are applied.",
+      "inputs": {
+        "original": {
+          "path": "local/research/chapter-session-v1/original-v2/image.frames/vblank-000500.layer0.png",
+          "sha256": "03ba61e8bd4d1ebe255cce833a22b0ffce390dd61e7a6297214ed43b20e25b11",
+          "width": 640,
+          "height": 224
+        },
+        "native": {
+          "path": "local/research/chapter-session-v1/native-109709-v2/native.png.frames/tick-109496.png",
+          "sha256": "7d04e184ed1e88840c503ab06d1aa66fd54844afc0a15dc02fc3d0c4933d90fa",
+          "width": 640,
+          "height": 448
+        }
+      },
+      "declared_native_region": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 224
+      },
+      "compared_rgba_extent": {
+        "width": 640,
+        "height": 224
+      },
+      "metrics": {
+        "width": 640,
+        "height": 224,
+        "exact_different_pixel_count": 94503,
+        "rgb_mae": 0.004115513392857143,
+        "rgb_max_absolute_difference": 2,
+        "alpha_different_pixel_count": 94208,
+        "alpha_mae": 125.51428571428572,
+        "alpha_max_absolute_difference": 191
+      },
+      "outputs": {
+        "side_by_side": {
+          "file": "side-by-side.png",
+          "width": 1280,
+          "height": 254
+        },
+        "absolute_rgb_difference": {
+          "file": "absolute-rgb-difference.png",
+          "width": 640,
+          "height": 224
+        }
+      }
+    },
+    "image-600": {
+      "purpose": "Explicitly paired numeric diagnostic; not a fidelity pass.",
+      "temporal_alignment": false,
+      "threshold_or_pass_assertion": false,
+      "automatic_resize_or_crop": false,
+      "alpha_note": "RGB metrics exclude alpha; alpha differences are reported separately.",
+      "sample_basis": "Raw encoded 8-bit channel samples after PNG decoding to RGBA; no ICC profile, gamma, transfer-function, or color-space transforms are applied.",
+      "inputs": {
+        "original": {
+          "path": "local/research/chapter-session-v1/original-v2/image.frames/vblank-000600.layer0.png",
+          "sha256": "03ba61e8bd4d1ebe255cce833a22b0ffce390dd61e7a6297214ed43b20e25b11",
+          "width": 640,
+          "height": 224
+        },
+        "native": {
+          "path": "local/research/chapter-session-v1/native-109709-v2/native.png.frames/tick-109596.png",
+          "sha256": "7d04e184ed1e88840c503ab06d1aa66fd54844afc0a15dc02fc3d0c4933d90fa",
+          "width": 640,
+          "height": 448
+        }
+      },
+      "declared_native_region": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 224
+      },
+      "compared_rgba_extent": {
+        "width": 640,
+        "height": 224
+      },
+      "metrics": {
+        "width": 640,
+        "height": 224,
+        "exact_different_pixel_count": 94503,
+        "rgb_mae": 0.004115513392857143,
+        "rgb_max_absolute_difference": 2,
+        "alpha_different_pixel_count": 94208,
+        "alpha_mae": 125.51428571428572,
+        "alpha_max_absolute_difference": 191
+      },
+      "outputs": {
+        "side_by_side": {
+          "file": "side-by-side.png",
+          "width": 1280,
+          "height": 254
+        },
+        "absolute_rgb_difference": {
+          "file": "absolute-rgb-difference.png",
+          "width": 640,
+          "height": 224
+        }
+      }
+    },
+    "image-657": {
+      "purpose": "Explicitly paired numeric diagnostic; not a fidelity pass.",
+      "temporal_alignment": false,
+      "threshold_or_pass_assertion": false,
+      "automatic_resize_or_crop": false,
+      "alpha_note": "RGB metrics exclude alpha; alpha differences are reported separately.",
+      "sample_basis": "Raw encoded 8-bit channel samples after PNG decoding to RGBA; no ICC profile, gamma, transfer-function, or color-space transforms are applied.",
+      "inputs": {
+        "original": {
+          "path": "local/research/chapter-session-v1/original-v2/image.frames/vblank-000657.layer0.png",
+          "sha256": "b7f5cfb63c0a4985d6a85200e67f8a580d1d3d94020fdb59a0d60b1ac7b60b62",
+          "width": 640,
+          "height": 224
+        },
+        "native": {
+          "path": "local/research/chapter-session-v1/native-109709-v2/native.png.frames/tick-109653.png",
+          "sha256": "7d04e184ed1e88840c503ab06d1aa66fd54844afc0a15dc02fc3d0c4933d90fa",
+          "width": 640,
+          "height": 448
+        }
+      },
+      "declared_native_region": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 224
+      },
+      "compared_rgba_extent": {
+        "width": 640,
+        "height": 224
+      },
+      "metrics": {
+        "width": 640,
+        "height": 224,
+        "exact_different_pixel_count": 95878,
+        "rgb_mae": 1.131884765625,
+        "rgb_max_absolute_difference": 255,
+        "alpha_different_pixel_count": 94208,
+        "alpha_mae": 125.51428571428572,
+        "alpha_max_absolute_difference": 191
+      },
+      "outputs": {
+        "side_by_side": {
+          "file": "side-by-side.png",
+          "width": 1280,
+          "height": 254
+        },
+        "absolute_rgb_difference": {
+          "file": "absolute-rgb-difference.png",
+          "width": 640,
+          "height": 224
+        }
+      }
+    },
+    "image-680": {
+      "purpose": "Explicitly paired numeric diagnostic; not a fidelity pass.",
+      "temporal_alignment": false,
+      "threshold_or_pass_assertion": false,
+      "automatic_resize_or_crop": false,
+      "alpha_note": "RGB metrics exclude alpha; alpha differences are reported separately.",
+      "sample_basis": "Raw encoded 8-bit channel samples after PNG decoding to RGBA; no ICC profile, gamma, transfer-function, or color-space transforms are applied.",
+      "inputs": {
+        "original": {
+          "path": "local/research/chapter-session-v1/original-v2/image.frames/vblank-000680.layer0.png",
+          "sha256": "a964fe05a0ef96d46ac862e367cafc4f08d26377a94374db7176645f8e2e268c",
+          "width": 640,
+          "height": 224
+        },
+        "native": {
+          "path": "local/research/chapter-session-v1/native-109709-v2/native.png.frames/tick-109676.png",
+          "sha256": "81dfc032ad46f782d1250bc4a4161116098d4cf5e32b827623f8d4896e4e3231",
+          "width": 640,
+          "height": 448
+        }
+      },
+      "declared_native_region": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 224
+      },
+      "compared_rgba_extent": {
+        "width": 640,
+        "height": 224
+      },
+      "metrics": {
+        "width": 640,
+        "height": 224,
+        "exact_different_pixel_count": 143360,
+        "rgb_mae": 0.5880789620535715,
+        "rgb_max_absolute_difference": 17,
+        "alpha_different_pixel_count": 143360,
+        "alpha_mae": 206.0,
+        "alpha_max_absolute_difference": 206
+      },
+      "outputs": {
+        "side_by_side": {
+          "file": "side-by-side.png",
+          "width": 1280,
+          "height": 254
+        },
+        "absolute_rgb_difference": {
+          "file": "absolute-rgb-difference.png",
+          "width": 640,
+          "height": 224
+        }
+      }
+    },
+    "image-710": {
+      "purpose": "Explicitly paired numeric diagnostic; not a fidelity pass.",
+      "temporal_alignment": false,
+      "threshold_or_pass_assertion": false,
+      "automatic_resize_or_crop": false,
+      "alpha_note": "RGB metrics exclude alpha; alpha differences are reported separately.",
+      "sample_basis": "Raw encoded 8-bit channel samples after PNG decoding to RGBA; no ICC profile, gamma, transfer-function, or color-space transforms are applied.",
+      "inputs": {
+        "original": {
+          "path": "local/research/chapter-session-v1/original-v2/image.frames/vblank-000710.layer0.png",
+          "sha256": "4233ddad01e62b3978ae59734a62b57f7fceb4b96f1b7003f810fee5068e627f",
+          "width": 640,
+          "height": 224
+        },
+        "native": {
+          "path": "local/research/chapter-session-v1/native-109709-v2/native.png.frames/tick-109706.png",
+          "sha256": "33747166e09cb8d9d7dbd9e067798c9cf2c8649114876157d407f8c0c382909f",
+          "width": 640,
+          "height": 448
+        }
+      },
+      "declared_native_region": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 224
+      },
+      "compared_rgba_extent": {
+        "width": 640,
+        "height": 224
+      },
+      "metrics": {
+        "width": 640,
+        "height": 224,
+        "exact_different_pixel_count": 143360,
+        "rgb_mae": 0.5853934151785715,
+        "rgb_max_absolute_difference": 16,
+        "alpha_different_pixel_count": 143360,
+        "alpha_mae": 129.0,
+        "alpha_max_absolute_difference": 129
+      },
+      "outputs": {
+        "side_by_side": {
+          "file": "side-by-side.png",
+          "width": 1280,
+          "height": 254
+        },
+        "absolute_rgb_difference": {
+          "file": "absolute-rgb-difference.png",
+          "width": 640,
+          "height": 224
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Chapter-entry component alignment does not align full native and original routes",
+    "No source fade scalar observations; audio comparison not captured in this chapter run",
+    "Original PNG alpha is forced opaque; raw alpha parity unavailable",
+    "Raster differences retained without tolerance pass",
+    "No cold-start, persistence, interactive performance or full-playthrough completion claim"
+  ],
+  "evidence_sha256": {
+    "local/research/chapter-session-v1/asset-install.json": "7420a19f86bd520bbb2ae1ce3cb8091373712fba83bfc75edc475078d0f0ab45",
+    "local/research/chapter-session-v1/paired-v2/state.json": "2326b27d0baed9fca87570dfaf6a92ecfb4db58c018b05b22e39eaade718a715",
+    "local/research/chapter-session-v1/compare-v1.py": "26323038bd894aa7e408f49599d5df5844075771c170fdea890f5741cad011c1",
+    "local/research/chapter-session-v1/check-builds-v1.py": "7f0f926ec0767ac89a163782ca3dc9949a89ca3e2256dfdaded8dbf0634c361f",
+    "local/research/chapter-session-v1/checks-v1/checks.json": "3bb8e10671c92f360eb0c3b4b5d2c889b62832456f1b2253605fcca857c78c95",
+    "local/research/chapter-session-v1/python-v1.log": "10c820bc69ba4b374b9bd008013b2d200fbbd969be1cd962049936940e0e2f75",
+    "local/research/chapter-session-v1/native-109709-v2/native.png.chapter-state.bin": "d3986b94690dbe96275de2d9d9c33aa47588b92b7eb76741d6804c9e96c445e6",
+    "local/research/chapter-session-v1/original-v2/mode.jsonl": "206dd47e3d3ebf6a34995016d208d44cc3e3f72da6770462c46bdf474f1ce240",
+    "local/research/name-entry-v1/command0-field-load-v1/review.md": "3f5468827a0246fda2bf9631e6828d0955e6817d1077acd8b54d060337015060"
+  }
+}
