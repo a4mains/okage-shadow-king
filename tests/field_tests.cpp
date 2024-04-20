@@ -449,6 +449,34 @@ int main(){try {
         require(okage::event_variable(vars,3)==0&&okage::event_variable(vars,0x10003)==1);
         require(okage::event_variable(vars,0x4001a)==3); // Roster is never forced or cleared.
     }
+    for(int disabled:{0,1}) {
+        std::array<std::uint8_t,0x1000> staged{};
+        for(unsigned i=0x10;i<0x110;++i)staged[i]=std::uint8_t(i*13u+7u);
+        const std::array<std::uint8_t,8> name{'N','a','m','e','d',0,0xab,0xcd};
+        std::copy(name.begin(),name.end(),staged.begin()+0x844);
+        okage::set_event_variable(staged,5,4,disabled);
+        okage::set_event_variable(staged,6,4,17);
+        okage::set_event_variable(staged,26,4,3);
+        auto ordinary=staged;const auto before=staged;
+        const auto loaded=okage::prepare_field_load(b,staged,construction,7);
+        const auto entered=okage::prepare_field_entry(b,ordinary,construction,7);
+        require(loaded.scene==entered.scene&&loaded.party==entered.party&&loaded.dust==entered.dust&&
+                loaded.followers==entered.followers&&loaded.room==entered.room&&loaded.music==entered.music);
+        require(loaded.party==unsigned(!disabled)&&loaded.dust==(disabled?17u:9u));
+        require(okage::event_variable(staged,0x40000)==1&&okage::event_variable(staged,0x40001)==7&&
+                okage::event_variable(staged,0x40006)==bool(disabled));
+        for(unsigned i=0;i<staged.size();++i) {
+            if(i>=0x10&&i<0x110)require(staged[i]==before[i]&&ordinary[i]==0);
+            else require(staged[i]==ordinary[i]);
+        }
+        require(std::equal(name.begin(),name.end(),staged.begin()+0x844));
+        const auto valid=staged;
+        rejects([&]{okage::prepare_field_load(b,std::span(staged).first(0x587),construction,7);});
+        rejects([&]{okage::prepare_field_load(b,staged,construction,0x80000000u);});
+        auto invalid=construction;invalid.scene=-1;
+        rejects([&]{okage::prepare_field_load(b,staged,invalid,7);});
+        require(staged==valid);
+    }
     {
         std::array<std::uint8_t,0x1000> vars{};
         const auto entry=okage::prepare_field_entry(b,vars,construction,0);

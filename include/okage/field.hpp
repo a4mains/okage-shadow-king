@@ -31,6 +31,9 @@ FieldDefinition read_field_definition(Bytes database,int scene);
 // not cold game initialization; inputs must already contain scene/entrance/gate.
 std::array<std::uint8_t,0x800> field_setup_state(Bytes script,Bytes variables,const FieldDefinition& definition);
 FieldDefinition prepare_field_definition(Bytes script,Bytes variables,FieldDefinition definition);
+FieldDefinition prepare_field_load(Bytes script,std::span<std::uint8_t> variables,
+                                   FieldDefinition definition,unsigned entrance);
+// Convenience entry path retains its original125ad0 clear before preparation.
 FieldDefinition prepare_field_entry(Bytes script,std::span<std::uint8_t> variables,
                                     FieldDefinition definition,unsigned entrance);
 // Command-13 return preparation: keep temporary flags, select the current

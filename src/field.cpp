@@ -227,13 +227,12 @@ FieldDefinition prepare_field_definition(Bytes script,Bytes variables,FieldDefin
     std::erase_if(definition.npcs,[](const auto& npc){return !npc.flags;});
     return definition;
 }
-FieldDefinition prepare_field_entry(Bytes script,std::span<std::uint8_t> variables,
+FieldDefinition prepare_field_load(Bytes script,std::span<std::uint8_t> variables,
                                     FieldDefinition definition,unsigned entrance) {
-    // 0x125ad0 clears temporary flags. 0x131d28 applies the persistent party
-    // disable and writes the encounter gate BEFORE executing entry zero.
+    // 0x131d28 applies the persistent party disable and writes the encounter
+    // gate BEFORE entry zero. The constructor owns the earlier125ad0 clear.
     if(variables.size()<0x588 || definition.scene<0 || entrance>0x7fffffff)
         throw std::runtime_error("Invalid field entry variables/scene/entrance");
-    std::fill(variables.begin()+0x10,variables.begin()+0x110,0);
     set_event_variable(variables,0,4,definition.scene);
     set_event_variable(variables,1,4,int(entrance));
     if(event_variable(variables,0x40005))definition.party=0;
@@ -243,6 +242,14 @@ FieldDefinition prepare_field_entry(Bytes script,std::span<std::uint8_t> variabl
     if(definition.party)for(unsigned index=25;index<30;++index)
         if(event_variable(variables,0x40000|index)==3)definition.followers.push_back(index);
     return definition;
+}
+FieldDefinition prepare_field_entry(Bytes script,std::span<std::uint8_t> variables,
+                                    FieldDefinition definition,unsigned entrance) {
+    // Preserve the original convenience API's validation/clear ordering.
+    if(variables.size()<0x588 || definition.scene<0 || entrance>0x7fffffff)
+        throw std::runtime_error("Invalid field entry variables/scene/entrance");
+    std::fill(variables.begin()+0x10,variables.begin()+0x110,0); //125ad0
+    return prepare_field_load(script,variables,std::move(definition),entrance);
 }
 FieldDefinition prepare_field_return(Bytes script,std::span<std::uint8_t> variables,
                                      FieldDefinition definition) {
