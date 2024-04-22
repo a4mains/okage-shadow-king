@@ -86,6 +86,7 @@ public:
     // of the STG/XCL bytes so the activation can happen in a later manager turn.
     void prepare(FieldDefinition definition,Bytes stg,Bytes xcl);
     void activate(unsigned entrance);
+    void activate_entry(unsigned entrance,ExplorationInput input={});
     void activate_return(const FieldBattleReturnSnapshot& saved,ExplorationInput input={});
     const std::optional<FieldTransition>& transition() const {return transition_;}
     const std::optional<FieldEncounter>& encounter() const {return encounter_;}

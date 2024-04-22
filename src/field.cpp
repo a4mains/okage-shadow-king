@@ -622,10 +622,13 @@ void OpeningField::activate_return(const FieldBattleReturnSnapshot& saved,Explor
     activate_pose(saved.player_position,saved.player_rotation,saved.raw_camera_position);
     tick_callbacks(input,false);
 }
-void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned entrance,ExplorationInput input) {
-    prepare(std::move(definition),stg,xcl);
+void OpeningField::activate_entry(unsigned entrance,ExplorationInput input) {
     activate(entrance);
     tick_callbacks(input,false);
+}
+void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned entrance,ExplorationInput input) {
+    prepare(std::move(definition),stg,xcl);
+    activate_entry(entrance,input);
 }
 void OpeningField::remember_player() {
     const auto position=actor(-1)->animation().values().at(1);

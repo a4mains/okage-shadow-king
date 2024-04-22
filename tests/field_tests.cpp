@@ -588,7 +588,7 @@ int main(){try {
         require(scene.battle_request()->phase==13&&scene.battle_request()->dispatched);
         rejects([&]{scene.tick();});require(phases.size()==3);
     }
-    {
+    for(bool staged:{false,true}) {
         auto event=startup;event.resize(100);put(event,4,68);
         put(event,40,1);put(event,44,20); // Entry1 jumps to the hat request.
         put(event,48,0xff91003b);put(event,52,0x00200002); // Entry2 hides alias7.
@@ -615,7 +615,12 @@ int main(){try {
         okage::FieldDefinition entry;entry.type=1;entry.startup=1;
         okage::FieldNpcDefinition person;person.alias=-8;person.talk=-2;person.position={3,0,0,1};
         entry.npcs.push_back(person);
-        scene.enter(entry,stage,empty_map,0);require(loads==0);
+        if(staged) {
+            scene.prepare(entry,stage,empty_map);
+            require(loads==0&&scene.collision_bodies().empty());
+            scene.activate_entry(0);
+        } else scene.enter(entry,stage,empty_map,0);
+        require(loads==0);
         scene.tick();require(loads==1&&!hat.visible&&scene.collision_bodies().size()==2);
         require(hat.channels()[1]==okage::Float4({1,1,1,1}));
         scene.tick();require(hat.visible&&scene.camera_mode()==1);
