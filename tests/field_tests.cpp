@@ -615,12 +615,24 @@ int main(){try {
         okage::FieldDefinition entry;entry.type=1;entry.startup=1;
         okage::FieldNpcDefinition person;person.alias=-8;person.talk=-2;person.position={3,0,0,1};
         entry.npcs.push_back(person);
+        const auto before_startup=scene.pc();unsigned ready_calls=0;
+        scene.activation_ready=[&]{
+            ++ready_calls;
+            require(loads==0&&scene.pc()==before_startup); //Startup has not dispatched4d.
+            require(scene.camera_mode()==2&&scene.collision_bodies().size()==2);
+            const auto pose=hero.animation().value(1);
+            auto expected=okage::field_entrance(stage,0).position;expected[1]+=1;
+            require(pose==expected&&scene.collision_bodies().back().position==pose);
+            for(const auto& saved:scene.player_movement().history)require(saved==pose);
+            require(okage::event_variable(vars,0x40006)==0); //Startup gate not yet set.
+        };
         if(staged) {
             scene.prepare(entry,stage,empty_map);
             require(loads==0&&scene.collision_bodies().empty());
             scene.activate_entry(0);
         } else scene.enter(entry,stage,empty_map,0);
-        require(loads==0);
+        require(loads==0&&ready_calls==1);
+        rejects([&]{scene.activate_entry(0);});require(ready_calls==1);
         scene.tick();require(loads==1&&!hat.visible&&scene.collision_bodies().size()==2);
         require(hat.channels()[1]==okage::Float4({1,1,1,1}));
         scene.tick();require(hat.visible&&scene.camera_mode()==1);

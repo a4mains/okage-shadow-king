@@ -127,6 +127,7 @@ public:
     std::function<std::optional<int>(int)> resolve_instance_alias;
     std::function<void(int,FieldActor*)> set_instance_alias;
     std::function<void(unsigned,int)> scene_fade;
+    std::function<void()> activation_ready;
     std::function<bool(int,bool)> map_visibility;
     std::function<bool(unsigned,std::int32_t,float,unsigned)> sound_cue;
     std::function<void(unsigned,unsigned,std::int32_t)> set_variable;

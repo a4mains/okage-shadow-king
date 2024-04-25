@@ -593,6 +593,7 @@ void OpeningField::activate_pose(const Float4& player_position,const Float4& pla
         script_.set_channel(0,*raw_camera_position);
     }
     if(!get_variable||!set_variable)throw std::runtime_error("Field entry requires native variables");
+    if(activation_ready)activation_ready();
     if(definition_->startup) {
         saved_input_gate_=get_variable(0x40006);set_variable(6,4,1);input_gate_saved_=true;
         // Entry0x132720 calls0x1326e8: execute immediately, then freeze follow
