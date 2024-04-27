@@ -1,0 +1,402 @@
+{
+  "schema": "okage-ordinary-field-validation-v1",
+  "runtime_revision": "62779e86f0277ff47b177d609a0f62c8f1772255",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "status": "Native ordinary New Game field activation executed; original comparison fails; cold startup and full goal incomplete",
+  "runs": {
+    "native-110400-v1": {
+      "binary_sha256": "9f38cfce8be10a3df3d448604c79458d069134316b692fe65f6e5c32e48ff307",
+      "source_revision": "729517977e7e05ceb5a7d20d47d120cb0b718888",
+      "scope": "Unchanged ordinary defeat/title/name/chapter input route through command0 field preparation and startup; no native state imported.",
+      "exit_code": 0,
+      "seconds": 79.46210025,
+      "command_file": "local/research/ordinary-field-v1/native-110400-v1/run.json"
+    },
+    "native-110400-v2": {
+      "binary_sha256": "bfeb16f0d8f2f5433052da1c5d8bb982a0a164c3150d7269b2cab91508f6ea40",
+      "source_revision": "729517977e7e05ceb5a7d20d47d120cb0b718888",
+      "scope": "Unchanged ordinary defeat/title/name/chapter input route through command0 field preparation and startup; no native state imported.",
+      "exit_code": 0,
+      "seconds": 78.5463005,
+      "command_file": "local/research/ordinary-field-v1/native-110400-v2/run.json"
+    },
+    "native-110400-v3": {
+      "binary_sha256": "8ed8aaa0b6c108a03e7e413a302f5c19cc0306ee0df19ab79fc03bc0c81c4423",
+      "source_revision": "729517977e7e05ceb5a7d20d47d120cb0b718888",
+      "scope": "Unchanged ordinary defeat/title/name/chapter input route through command0 field preparation and startup; no native state imported.",
+      "exit_code": 0,
+      "seconds": 79.21392275,
+      "command_file": "local/research/ordinary-field-v1/native-110400-v3/run.json"
+    },
+    "original-v1": {
+      "binary_sha256": "a50a12f4968eead31003e37ce26363036c847d8da8850df2a0bf702bd4e6d632",
+      "input_state_sha256": "28d457a064301f66b8eac7df5e32d9e25de431ee4376668b0ddda898f08a6bf5",
+      "pad_sha256": "47322bb500929c31e858139a875068c8b650fdde28487d4a741ba3c5ba1b6a41",
+      "scope": "Unchanged name-accept input extended through ordinary field load/startup; original-only save for future research.",
+      "exit_code": 0,
+      "seconds": 39.252157999999994,
+      "command_file": "local/research/ordinary-field-v1/original-v1/run.json"
+    },
+    "original-v2": {
+      "binary_sha256": "a50a12f4968eead31003e37ce26363036c847d8da8850df2a0bf702bd4e6d632",
+      "input_state_sha256": "28d457a064301f66b8eac7df5e32d9e25de431ee4376668b0ddda898f08a6bf5",
+      "pad_sha256": "66ffdb7417a96450bfcef036b8b8a9201bc036bb757234e1a0d48b71848d44a0",
+      "scope": "Original name-accept prefix plus native post-constructor held buttons mapped once by fixed constructor anchor109710=714; no delay fitting.",
+      "exit_code": 0,
+      "seconds": 40.806485208999995,
+      "command_file": "local/research/ordinary-field-v1/original-v2/run.json"
+    }
+  },
+  "comparison": {
+    "interval_source": [
+      714,
+      1404
+    ],
+    "interval_native": [
+      109710,
+      110400
+    ],
+    "anchor_offset": 108996,
+    "interval_frames": 691,
+    "camera_paired_rows": 686,
+    "missing_native_camera_frames": [
+      109710,
+      109711,
+      109712,
+      109713,
+      109714
+    ],
+    "camera_mode_phase_word_differences": 376,
+    "camera_position_word_differences": 1401,
+    "camera_rotation_word_differences": 1027,
+    "camera_max_float_position_error": 188.8799991607666,
+    "camera_first_divergence": {
+      "mode_phase": {
+        "native": "0x00000002",
+        "native_frame": 109715,
+        "source": "0x00000000",
+        "source_frame": 719,
+        "word": "mode"
+      },
+      "position_words": {
+        "native": "0x40f80000",
+        "native_frame": 109715,
+        "source": "0x415170a4",
+        "source_frame": 719,
+        "word": "x"
+      },
+      "rotation_words": {
+        "native": "0x3f789400",
+        "native_frame": 109715,
+        "source": "0x00000000",
+        "source_frame": 719,
+        "word": "x"
+      }
+    },
+    "controller_samples": 485,
+    "controller_word_differences": 2411,
+    "choice_word_differences": 947,
+    "source_controller_unobserved_frames": 206,
+    "controller_first_divergence": {
+      "native": "0x000080c0",
+      "native_frame": 109871,
+      "source": "0x000084c5",
+      "source_frame": 875,
+      "word": "message_id"
+    },
+    "choice_first_divergence": {
+      "native": "0x00000003",
+      "native_frame": 109871,
+      "source": "0x00000000",
+      "source_frame": 875,
+      "word": "fragment"
+    },
+    "held_pad_differences": [
+      {
+        "native_frame": 110076,
+        "native_held": "0x00000040",
+        "source_frame": 1080,
+        "source_held": "0x00000000"
+      }
+    ],
+    "pressed_pad_differences": [
+      {
+        "native_frame": 110076,
+        "native_pressed": "0x00000040",
+        "source_frame": 1080,
+        "source_pressed": "0x00000000"
+      },
+      {
+        "native_frame": 110077,
+        "native_pressed": "0x00000000",
+        "source_frame": 1081,
+        "source_pressed": "0x00000040"
+      }
+    ],
+    "parent_missing_native_source_frames": 690,
+    "load_state_parity": "Unsupported: native load rows are pre-commit observations, not completed ticks. Retained mixed-edge diagnostic is not evidence of equivalent state.",
+    "images": [
+      {
+        "source_frame": 754,
+        "native_frame": 109750,
+        "metrics": {
+          "alpha_different_pixel_count": 143360,
+          "alpha_mae": 216.0,
+          "alpha_max_absolute_difference": 216,
+          "exact_different_pixel_count": 143360,
+          "height": 224,
+          "rgb_mae": 34.46669921875,
+          "rgb_max_absolute_difference": 177,
+          "width": 640
+        }
+      },
+      {
+        "source_frame": 804,
+        "native_frame": 109800,
+        "metrics": {
+          "alpha_different_pixel_count": 0,
+          "alpha_mae": 0.0,
+          "alpha_max_absolute_difference": 0,
+          "exact_different_pixel_count": 140969,
+          "height": 224,
+          "rgb_mae": 50.00074869791667,
+          "rgb_max_absolute_difference": 255,
+          "width": 640
+        }
+      },
+      {
+        "source_frame": 854,
+        "native_frame": 109850,
+        "metrics": {
+          "alpha_different_pixel_count": 0,
+          "alpha_mae": 0.0,
+          "alpha_max_absolute_difference": 0,
+          "exact_different_pixel_count": 140844,
+          "height": 224,
+          "rgb_mae": 14.906075613839286,
+          "rgb_max_absolute_difference": 209,
+          "width": 640
+        }
+      },
+      {
+        "source_frame": 904,
+        "native_frame": 109900,
+        "metrics": {
+          "alpha_different_pixel_count": 0,
+          "alpha_mae": 0.0,
+          "alpha_max_absolute_difference": 0,
+          "exact_different_pixel_count": 126823,
+          "height": 224,
+          "rgb_mae": 13.112139601934524,
+          "rgb_max_absolute_difference": 255,
+          "width": 640
+        }
+      },
+      {
+        "source_frame": 1004,
+        "native_frame": 110000,
+        "metrics": {
+          "alpha_different_pixel_count": 0,
+          "alpha_mae": 0.0,
+          "alpha_max_absolute_difference": 0,
+          "exact_different_pixel_count": 143328,
+          "height": 224,
+          "rgb_mae": 46.36743861607143,
+          "rgb_max_absolute_difference": 255,
+          "width": 640
+        }
+      },
+      {
+        "source_frame": 1104,
+        "native_frame": 110100,
+        "metrics": {
+          "alpha_different_pixel_count": 0,
+          "alpha_mae": 0.0,
+          "alpha_max_absolute_difference": 0,
+          "exact_different_pixel_count": 143335,
+          "height": 224,
+          "rgb_mae": 78.10997256324404,
+          "rgb_max_absolute_difference": 255,
+          "width": 640
+        }
+      },
+      {
+        "source_frame": 1204,
+        "native_frame": 110200,
+        "metrics": {
+          "alpha_different_pixel_count": 0,
+          "alpha_mae": 0.0,
+          "alpha_max_absolute_difference": 0,
+          "exact_different_pixel_count": 131626,
+          "height": 224,
+          "rgb_mae": 18.369986979166665,
+          "rgb_max_absolute_difference": 254,
+          "width": 640
+        }
+      },
+      {
+        "source_frame": 1304,
+        "native_frame": 110300,
+        "metrics": {
+          "alpha_different_pixel_count": 0,
+          "alpha_mae": 0.0,
+          "alpha_max_absolute_difference": 0,
+          "exact_different_pixel_count": 143332,
+          "height": 224,
+          "rgb_mae": 70.22474888392857,
+          "rgb_max_absolute_difference": 255,
+          "width": 640
+        }
+      },
+      {
+        "source_frame": 1404,
+        "native_frame": 110400,
+        "metrics": {
+          "alpha_different_pixel_count": 0,
+          "alpha_mae": 0.0,
+          "alpha_max_absolute_difference": 0,
+          "exact_different_pixel_count": 141557,
+          "height": 224,
+          "rgb_mae": 63.02520228794643,
+          "rgb_max_absolute_difference": 255,
+          "width": 640
+        }
+      }
+    ],
+    "source_field_manager_player_audio_missing": true
+  },
+  "checks": [
+    {
+      "name": "native-release-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/native-release",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 0.029454957999999996
+    },
+    {
+      "name": "native-release-tests",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/native-release",
+        "--output-on-failure",
+        "-R",
+        "field-tests|game-mode|game-state|scene-resource|load-queue|frame-composition|results|chapter|title|name-entry"
+      ],
+      "exit_code": 0,
+      "seconds": 0.29151499999999997
+    },
+    {
+      "name": "native-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/native",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 2.810226958
+    },
+    {
+      "name": "native-tests",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/native",
+        "--output-on-failure",
+        "-R",
+        "field-tests|game-mode|game-state|scene-resource|load-queue|frame-composition|results|chapter|title|name-entry"
+      ],
+      "exit_code": 0,
+      "seconds": 1.303929583
+    },
+    {
+      "name": "model-sanitize-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/model-sanitize",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 2.7536302079999997
+    },
+    {
+      "name": "model-sanitize-tests",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/model-sanitize",
+        "--output-on-failure",
+        "-R",
+        "field-tests|game-mode|game-state|scene-resource|load-queue|frame-composition|results|chapter|title|name-entry"
+      ],
+      "exit_code": 0,
+      "seconds": 2.396995125000001
+    },
+    {
+      "name": "python",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 22.584381375
+    }
+  ],
+  "artifacts_sha256": {
+    "local/research/ordinary-field-v1/native-110400-v1/run.json": "645d4251e4874570154ec30c395b272c6e8c7a4f2a363d20cbccbf6e988b9631",
+    "local/research/ordinary-field-v1/native-110400-v2/run.json": "2a8e24f7e87ed4ad6f83799cb1d10642ea6484d621b7d6052b99c2de85d04408",
+    "local/research/ordinary-field-v1/native-110400-v3/run.json": "3ca080e1f87ff6d650b39489ea6a9470034b1e884223446b29fbd81dcffc1fcf",
+    "local/research/ordinary-field-v1/original-v1/run.json": "18960c7a822f63063d5135bb86987dfeba56fa120f222922dd4d465084870021",
+    "local/research/ordinary-field-v1/original-v2/run.json": "646c0c95f2afeda004945a93e0bb7a9cc17d62e96bb71e43e972dc7f5be36468",
+    "local/research/ordinary-field-v1/native-110400-v3/source.diff": "f2e9fc06d8117db0b2e89b6e89749f3e01f5c8c3ef71393e9e28232268487425",
+    "local/research/ordinary-field-v1/native-110400-v3/buttons.txt": "cf35090467f4bdf4a5953a5da5e882e05fc6aa8584ec12d3d82c486a64f1801d",
+    "local/research/ordinary-field-v1/native-110400-v3/directions.txt": "53531acedbc197aa19f3d55d476349f15f5afd1612f3d768c6dffbb90abc8564",
+    "local/research/ordinary-field-v1/native-110400-v3/native.png.json": "864ed45c9a77f4c9fb06fdacb6a646bbdcd2db7dde8cf102996484cc50c485ed",
+    "local/research/ordinary-field-v1/native-110400-v3/native.png.variables.bin": "1e675713529866f878001443fd47a0b7b01d8f78d0309c33de2df77bf3eee3d9",
+    "local/research/ordinary-field-v1/native-110400-v3/native.png.ordinary-load.bin": "a521a7c049f42aa09aff8b5dfafa9537921816b37726f212b044c7b5557145d9",
+    "local/research/ordinary-field-v1/native-110400-v3/native.png": "50ac4c184f682f084a8cbe0b4bcd0b58107fe36514b8ecfcf07904e7de201c62",
+    "local/research/ordinary-field-v1/native-110400-v3/inputs.jsonl": "24c908bd4e3a42a2230d4b8174e0938551efe8f609c6bbdd1151f83b850d7152",
+    "local/research/ordinary-field-v1/paired-v2/comparison.json": "672d2c64faab2176b1377b7367fb31e2015515b169326f330c9e8f09e28e8be6",
+    "local/research/ordinary-field-v1/paired-v2/compare_ordinary_field.py": "3c86b2fe456001424d97c3d679e4b3bfc8c497ec74ac8e806d08b266ce915eb5",
+    "local/research/ordinary-field-v1/v2-v3-regression.json": "c91ecd13e347740af5e1f6d48cbafa0b2931425dd7fd9ffbd9b8856b96a96af2",
+    "local/research/ordinary-field-v1/checks-v2/checks.json": "13e83c75ae0b91bb94062c8400a7b376cd1c4aa35636d12ac12e2dc03ca36d18",
+    "local/research/native-title-v1/cold-entry-review-v1/review.txt": "659e5dcbeac65fd47f8c6843daf37bc7dc6dfbfd9fa09710f689d5dcd0d5b3ed",
+    "local/research/ordinary-field-v1/python-final.log": "5e5815c51bef41584d0c9a14c2544c2b9df6072bb99b4cd3aa7afd3adb222fc4"
+  },
+  "limits": [
+    "This compares the constructor component interval, not the full ordinary-field route.",
+    "Source manager/HERO and audio traces are absent; source event instructions have no equivalent native handler trace.",
+    "Source dialogue callbacks and text snapshots are different-boundary schemas from native per-frame dialogue/choice rows.",
+    "The source controller observer samples 485 return frames only; input/cross-channel results are limited to those samples.",
+    "Fixed +108996 mapping only; inherited state, load timing, and RNG may differ.",
+    "Reference PNG alpha forcedopaque; no raster tolerance pass.",
+    "17 affected CTests in each of three builds; no full native playthrough/cold launch/save/load claim.",
+    "The current live user preview is an older immutable binary, paused116648."
+  ],
+  "final_python_recheck": {
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-v"
+    ],
+    "exit_code": 0,
+    "tests": 462,
+    "log": "local/research/ordinary-field-v1/python-final.log",
+    "reason": "After comparison adapter label/boundary review"
+  }
+}
