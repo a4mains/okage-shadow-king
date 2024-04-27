@@ -34,6 +34,7 @@
 #include <bit>
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <charconv>
 #include <filesystem>
 #include <fstream>
@@ -76,8 +77,11 @@ struct DirectionReplay {
 };
 struct FieldReturnLoad {
     explicit FieldReturnLoad(bool observe):jobs(observe?65536:0) {}
-    unsigned phase=0x12,ui_stage=0,complete=0,counter=0;
+    unsigned phase=0x12,ui_stage=0,complete=0;
+    std::atomic<unsigned> counter{0};
     bool resumed=false,world_queued=false,world_prepared=false;
+    bool ordinary=false;
+    unsigned entrance=0;
     std::optional<okage::ResultsUiData> definitions;
     std::optional<okage::ResultsTextData> text;
     std::optional<okage::BattleHudData> numbers;
@@ -247,6 +251,9 @@ struct Session {
     int next_instance=0,instance_limit=640;
     std::unique_ptr<okage::MapObjects> map_objects;
     std::unique_ptr<okage::OpeningField> field;
+    //Field resource ownership survives destruction of the temporary loader.
+    std::shared_ptr<okage::RuwResource> field_ruw;
+    std::shared_ptr<const okage::Texture> field_ui_atlas;
     std::unique_ptr<okage::SceneRenderer> renderer;
     okage::FieldProjection projection;
     okage::SceneClearColor scene_clear;
@@ -346,7 +353,7 @@ struct Session {
         out<<",\"field_return\":";
         if(field_return) {
             const auto& f=*field_return;
-            out<<"{\"phase\":"<<f.phase<<",\"ui_stage\":"<<f.ui_stage
+            out<<"{\"ordinary\":"<<(f.ordinary?"true":"false")<<",\"phase\":"<<f.phase<<",\"ui_stage\":"<<f.ui_stage
                <<",\"complete\":"<<f.complete<<",\"counter\":"<<f.counter
                <<",\"queue\":";
             okage::write_load_observation(out,f.jobs.observation());
@@ -364,7 +371,7 @@ struct Session {
         load_observation_written=true;
     }
     std::vector<std::uint32_t> battle_loading_trace;
-    std::vector<std::uint32_t> game_mode_trace,retiring_effect_trace,results_trace,title_trace,name_entry_trace,chapter_trace;
+    std::vector<std::uint32_t> game_mode_trace,retiring_effect_trace,results_trace,title_trace,name_entry_trace,chapter_trace,ordinary_load_trace;
     bool retain_field_music=false;
     std::optional<okage::Texture> transition_image;
     // AppKit presentation is separate from research captures and feedback.
@@ -684,6 +691,31 @@ struct Session {
         }},{0x132688,0x131d28});
         std::cout<<"Native victory return queued scene="<<current_scene<<" frame="<<frame<<'\n';
     }
+    void begin_ordinary_field(okage::GameModeSelection selection) {
+        if(selection[0]!=2||selection[1]>0x7fffffff||selection[2]>0x7fffffff||
+            pending_game_command!=std::array<std::uint32_t,3>{}||field_return||battle_input.empty())
+            throw std::runtime_error("Ordinary field constructor requires explicit nonnegative destination and command0");
+        std::fill(variables.begin()+0x10,variables.begin()+0x110,0);
+        scene_fade.immediate(0);scene_clear.rgb={0,0,0};scene_fade.color=0;
+        okage::initialize_scene_ui(ui_shared);exterior_camera.snap_target=true;
+        current_scene=int(selection[1]);current_entrance=int(selection[2]);
+        field_return=std::make_unique<FieldReturnLoad>(load_observation_trace!=nullptr);
+        auto* f=field_return.get();f->ordinary=true;f->phase=7;f->entrance=selection[2];
+        const auto input=battle_input,decoded=field_root.parent_path();
+        const bool alternate=variables[12]!=0;
+        f->jobs.enqueue([f,input,decoded,alternate]{@autoreleasepool {
+            f->counter.store(0); //132688, before the first loader service.
+            if(!f->jobs.checkpoint())return;
+            auto bytes=readData(decoded/"CMNDATA/2D/MAIN.XPF"/(alternate?"bm_ifj.xim":"bm_if.xim"));
+            if(bytes.size()<4)throw std::runtime_error("Ordinary field UI atlas header");
+            unsigned header=0;for(unsigned i=0;i<4;++i)header|=unsigned(bytes[i])<<(8*i);
+            header=(header&0xfc0fffff)|(0x1bu<<20);for(unsigned i=0;i<4;++i)bytes[i]=header>>(8*i);
+            f->atlas=std::make_shared<const okage::Texture>(okage::decode_xim(bytes));
+            if(!f->jobs.checkpoint())return;
+            f->ruw=std::make_shared<okage::RuwResource>(readData(input/"FLD.RUW"));
+        }},{0x132688,0x131d28});
+        std::cout<<"Native ordinary field queued scene="<<current_scene<<" entrance="<<current_entrance<<" frame="<<frame<<'\n';
+    }
     void service_field_return_loader() {
         if(!field_return)return;
         auto& f=*field_return;f.jobs.check();
@@ -695,13 +727,19 @@ struct Session {
             f.definition=okage::read_field_definition(readData(field_root/"FLDSET.XDB"),current_scene);
             field_asset_component(f.definition.event);
             f.script=readData(event_directory/(f.definition.event+".xmt"));
-            f.definition=okage::prepare_field_return(f.script,variables,std::move(f.definition));
+            f.definition=f.ordinary?okage::prepare_field_load(f.script,variables,std::move(f.definition),f.entrance):
+                okage::prepare_field_return(f.script,variables,std::move(f.definition));
             if(f.definition.type>1||!f.definition.followers.empty())
                 throw std::runtime_error("Return field type/followers unrecovered");
             const auto bank=field_asset_component(f.definition.message);
             auto replacement=okage::read_pme(readData(message_directory/(bank+".PME")));
             if(!replacement.bind("############",player_name))throw std::runtime_error("Return PME name binding missing");
             messages=std::move(replacement);message_bank=bank;
+            if(f.ordinary) {
+                if(!music)throw std::runtime_error("Ordinary field requires persistent music owner");
+                music->enter(f.definition.music,f.definition.secondary_music,
+                    [this](int id){return read_music_resource(id);});
+            }
             f.map=field_root/field_asset_component(f.definition.room_directory)/(field_asset_component(f.definition.room)+".XPF")/"a.xmp";
             const auto root=field_root,textures=effect_textures;auto* target=&f;
             f.world_queued=true;
@@ -731,7 +769,7 @@ struct Session {
         if(f.world_prepared)return;
         if(!music||!effects_loaded)throw std::runtime_error("Return requires persistent music/effect owners");
         //Phase12 loads both score slots but defers primary playback until commit.
-        music->enter(f.definition.music,f.definition.secondary_music,[this](int id){return read_music_resource(id);},true);
+        if(!f.ordinary)music->enter(f.definition.music,f.definition.secondary_music,[this](int id){return read_music_resource(id);},true);
         map_objects=std::move(f.objects);actor_objects=std::move(f.actors);actor_bindings=std::move(f.bindings);
         renderer=std::move(f.renderer);bind_scene_instances();create_field(f.script,false);bind_audio_services();
         field->load_effects(effect_bytes,effect_preparation);
@@ -742,13 +780,36 @@ struct Session {
         f.prepared_field=std::move(field);f.objects=std::move(map_objects);f.actors=std::move(actor_objects);
         f.bindings=std::move(actor_bindings);f.renderer=std::move(renderer);
         f.world_prepared=true;f.complete=1;
-        std::cout<<"Native return loader complete frame="<<frame<<'\n';
+        std::cout<<"Native "<<(f.ordinary?"ordinary":"return")<<" loader complete frame="<<frame<<'\n';
     }
     bool tick_field_return(std::uint32_t pressed,okage::ExplorationInput input) {
         if(!field_return)return false;
         auto& f=*field_return;f.jobs.check();++f.counter;
+        if(f.ordinary) {
+            ordinary_load_trace.insert(ordinary_load_trace.end(),{frame,f.phase,f.ui_stage,f.complete,f.counter,
+                unsigned(f.jobs.pending()),unsigned(current_scene),f.entrance,random.state});
+            if(f.complete==1&&f.jobs.pending()==0) {
+                renderer=std::move(f.renderer);field=std::move(f.prepared_field);map_objects=std::move(f.objects);
+                actor_objects=std::move(f.actors);actor_bindings=std::move(f.bindings);scene_map=f.map;
+                field_ruw=std::move(f.ruw);field_ui_atlas=std::move(f.atlas);
+                projection.load_stage(f.stage);scene_clear.load_stage(f.stage);renderer->set_clear_rgb(scene_clear.rgb);
+                f.phase=0;
+                field->activation_ready=[this]{
+                    scene_fade.request(1.f);
+                    if(transition_alpha)transition_target=0;
+                    if(battle_capture_layer)battle_capture_target=0;
+                };
+                field->activate_entry(f.entrance,input);
+                battle_followers_saved=false;
+                write_load_observation("ordinary_field_activated");
+                field_return.reset();
+                std::cout<<"Native ordinary field activated scene="<<current_scene<<" entrance="<<current_entrance
+                         <<" frame="<<frame<<" pc="<<field->pc()<<'\n';
+                return true;
+            }
+        }
         //133a98 phase12 creates UI before polling loader completion.
-        if(f.ui_stage==1) {
+        if(!f.ordinary&&f.ui_stage==1) {
             f.ui_stage=2;
             f.ui=std::make_unique<okage::ResultsInterface>(ui_shared.registry,ui_shared.resource,
                 ui_shared.resource_accumulators,results_shared,*f.definitions,f.ruw,f.atlas,0,results_context());
@@ -759,10 +820,12 @@ struct Session {
             //100c08/range0 then132720; retain GameModeParent and saved entrance.
             renderer=std::move(f.renderer);field=std::move(f.prepared_field);map_objects=std::move(f.objects);
             actor_objects=std::move(f.actors);actor_bindings=std::move(f.bindings);scene_map=f.map;
+            field_ruw=f.ruw;field_ui_atlas=f.atlas;
             projection.load_stage(f.stage);scene_clear.load_stage(f.stage);renderer->set_clear_rgb(scene_clear.rgb);
             if(f.definition.music>0)music->select(f.definition.music);
             scene_fade.request(1.f);battle_capture_target=0;
             field->activate_return(*battle_return,input);
+            battle_followers_saved=false; //131a80 consumes the saved empty roster.
             //The parent commits before visiting resource then dead manager.
             //Keep its zero-opacity window registered for that final resource
             //clock/layout pass, preserving persistent draw counters.
@@ -790,7 +853,7 @@ struct Session {
                 ui_fonts,battle_capture_sine,random,okage::initial_ui_projection());
             if(f.draw)throw std::runtime_error("Return resource has unexpected preloader UI");
         }
-        results_trace.insert(results_trace.end(),{frame,f.phase,f.ui_stage,f.complete,f.counter,
+        if(!f.ordinary)results_trace.insert(results_trace.end(),{frame,f.phase,f.ui_stage,f.complete,f.counter,
             unsigned(f.jobs.pending()),f.ui?f.ui->words()[0xe4c/4]:0xffffffffu,
             f.ui?f.ui->words()[(0x40+0x68)/4]:0xffffffffu,
             results_shared.loader_ready,results_shared.progress.notice,results_shared.progress.notice_row,
@@ -808,6 +871,7 @@ struct Session {
         text=okage::DialogueText({});text.fonts=fonts;
         opacity={};closure={};
         actor_bindings.clear();field.reset();map_objects.reset();actor_objects.clear();
+        field_ruw.reset();field_ui_atlas.reset();
         next_instance=0;instance_limit=640; // Numeric alias table survives.
         projection.reset_scene();
         reset_scene_camera();
@@ -951,6 +1015,7 @@ struct Session {
                 if(battle||field||field_return||defeat_return||game_over||title||name_entry||chapter||!reset_camera)
                     throw std::runtime_error("Native mode construction has surviving scene owners");
                 if(selection[0]==2&&pending_game_command[0]==13) {begin_field_return();return;}
+                if(selection[0]==2&&pending_game_command[0]==0) {begin_ordinary_field(selection);return;}
                 if(selection[0]==2&&pending_game_command[0]==14) {
                     chapter=std::make_unique<okage::ChapterSession>(variables,pending_game_command,selection,
                         scene_clear,scene_fade,ui_shared,[this](unsigned id){
@@ -1673,6 +1738,7 @@ static void capture(Session& session,const fs::path& path) {
         std::pair{".game-mode.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.game_mode_trace.data()),session.game_mode_trace.size()*4)},
         std::pair{".name-entry-state.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.name_entry_trace.data()),session.name_entry_trace.size()*4)},
         std::pair{".chapter-state.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.chapter_trace.data()),session.chapter_trace.size()*4)},
+        std::pair{".ordinary-load.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.ordinary_load_trace.data()),session.ordinary_load_trace.size()*4)},
         std::pair{".title-state.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.title_trace.data()),session.title_trace.size()*4)},
         std::pair{".results.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.results_trace.data()),session.results_trace.size()*4)},
         std::pair{".battle-loading.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.battle_loading_trace.data()),session.battle_loading_trace.size()*4)},

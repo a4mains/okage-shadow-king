@@ -622,7 +622,10 @@ int main(){try {
             require(scene.camera_mode()==2&&scene.collision_bodies().size()==2);
             const auto pose=hero.animation().value(1);
             auto expected=okage::field_entrance(stage,0).position;expected[1]+=1;
-            require(pose==expected&&scene.collision_bodies().back().position==pose);
+            const auto& body=scene.collision_bodies().back();
+            require(body.contact.hit&&body.other_body==0&&pose[0]<expected[0]);
+            require(pose[1]==expected[1]&&pose[2]==expected[2]&&pose[3]==expected[3]);
+            require(body.position==pose&&body.previous==pose);
             for(const auto& saved:scene.player_movement().history)require(saved==pose);
             require(okage::event_variable(vars,0x40006)==0); //Startup gate not yet set.
         };
