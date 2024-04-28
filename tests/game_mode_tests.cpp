@@ -7,6 +7,33 @@ void require(bool b){if(!b)throw std::runtime_error("Game mode lifecycle asserti
 }
 int main() {
     try {
+        auto startup=okage::GameModeParent::startup();
+        const okage::GameModeSelection initial{8,3,0};
+        require(startup.current()==okage::GameModeSelection{}&&startup.phase()==0);
+        require(!startup.has_child()&&!startup.has_dead_allocation());
+        require(startup.requested()==initial&&startup.queue_words()==initial);
+        unsigned constructed=0,child_updates=0;
+        auto forbidden=[] {throw std::runtime_error("Startup manufactured retirement/free");};
+        auto build=[&](okage::GameModeSelection selection){
+            require(selection==initial&&startup.current()==initial&&startup.requested()==initial);
+            require(startup.phase()==1&&!startup.has_child()&&!startup.has_dead_allocation());
+            ++constructed;
+        };
+        auto boot_tick=[&]{startup.tick(forbidden,forbidden,build);if(startup.has_child())++child_updates;};
+        boot_tick();
+        require(startup.phase()==1&&!startup.has_child()&&constructed==0&&child_updates==0);
+        require(startup.current()==okage::GameModeSelection{}&&startup.requested()==initial);
+        boot_tick();
+        require(startup.phase()==0&&startup.has_child()&&constructed==1&&child_updates==1);
+        require(!startup.requested()&&startup.queue_words()==okage::GameModeSelection{0,3,0});
+        boot_tick();require(constructed==1&&child_updates==2);
+        auto blocked=okage::GameModeParent::startup();
+        blocked.tick(forbidden,forbidden,[](auto){throw std::runtime_error("early constructor");});
+        bool blocked_error=false;
+        try{blocked.tick(forbidden,forbidden,[](auto){throw std::runtime_error("unsupported selector3");});}
+        catch(const std::runtime_error& e){blocked_error=std::string(e.what())=="unsupported selector3";}
+        require(blocked_error&&blocked.phase()==1&&!blocked.has_child()&&!blocked.has_dead_allocation());
+        require(blocked.current()==initial&&blocked.requested()==initial&&blocked.queue_words()==initial);
         okage::GameModeParent parent({2,96,0});
         std::vector<unsigned> callbacks;
         unsigned field_ticks=0,battle_ticks=0;

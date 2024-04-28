@@ -1,6 +1,12 @@
 #include "okage/game_mode.hpp"
 #include <stdexcept>
 namespace okage {
+GameModeParent GameModeParent::startup() {
+    GameModeParent parent({0,0,0});
+    parent.child_=false;
+    parent.request({8,3,0});
+    return parent;
+}
 void GameModeParent::request(GameModeSelection selection) {
     if(!selection[0])throw std::runtime_error("Game mode zero is not a request");
     requested_=selection;queue_words_=selection; //0x124930 replaces the pending selection.

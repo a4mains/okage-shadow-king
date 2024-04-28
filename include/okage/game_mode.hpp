@@ -8,7 +8,9 @@ namespace okage {
 using GameModeSelection=std::array<std::uint32_t,3>;
 class GameModeParent {
 public:
+    // Existing-child boundary (diagnostic entry or an already constructed mode).
     explicit GameModeParent(GameModeSelection initial):current_(initial) {}
+    static GameModeParent startup();
     void request(GameModeSelection);
     void tick(const std::function<void()>& destroy_child,
               const std::function<void()>& release_child,
