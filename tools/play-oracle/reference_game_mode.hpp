@@ -13,8 +13,8 @@
 
 class GameModeTrace {
 public:
-    static constexpr std::array<uint32,11> breakpoints={
-        0x124818,0x101058,0x1354b8,0x133a38,0x149e60,0x149ec8,0x149fd8,0x12e018,0x169900,0x16b8f8,0x16b6c8
+    static constexpr std::array<uint32,12> breakpoints={
+        0x124818,0x101058,0x1354b8,0x133a38,0x149e60,0x149ec8,0x149fd8,0x12e018,0x169900,0x16b8f8,0x16b6c8,0x12c8f8
     };
     explicit GameModeTrace(const std::filesystem::path& path) {
         if(std::filesystem::exists(path)||std::filesystem::is_symlink(path))
@@ -22,6 +22,7 @@ public:
         output.open(path);if(!output)throw std::runtime_error("Cannot create game-mode trace");
         output<<"{\"schema\":\"okage-game-mode-observer-v1\",\"format\":\"JSONL; hex values are strings\","
               <<"\"results_extension\":\"source-results-entry-v1\",\"row_limit\":8000,"
+              <<"\"mode8_extension\":\"12c8f8 callback snapshots child+24/+30/+3c/+40/+44, device words2597a8/ac/b0, continuation2597ca and pointed thread context control/pending/result words. Only emitted for the linked current child.\","
               <<"\"results_timing\":\"124818 is global-parent entry before descendants;169900 constructor entry;16b8f8 first handler entry before1c0160(0);16b6c8 second handler entry before16a0c0 copies command. No completed-callback claim.\","
               <<"\"pad_source\":\"1c0160(0) reads unsignedhalf33958e;16b8f8 masks with word1f85dc. Parent samples are not consumed-input observations.\","
               <<"\"elf_sha256\":\"2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5\"}\n";
@@ -35,7 +36,9 @@ public:
         const auto& cpu=ee.m_EE.m_State;const auto pc=cpu.nPC;
         auto valid=[](uint32 at,unsigned size){return at>=0x100000&&size<=PS2::EE_RAM_SIZE&&at<=PS2::EE_RAM_SIZE-size;};
         auto word=[&](uint32 at)->uint32 {if(!valid(at,4))throw std::runtime_error("Game-mode trace read outside EE RAM");uint32 v;std::memcpy(&v,ee.m_ram+at,4);return v;};
+        auto half=[&](uint32 at)->uint16_t {if(!valid(at,2))throw std::runtime_error("Game-mode trace halfword read outside EE RAM");uint16_t v;std::memcpy(&v,ee.m_ram+at,2);return v;};
         auto hex=[](uint32 v){std::ostringstream s;s<<"0x"<<std::hex<<std::setw(8)<<std::setfill('0')<<v;return s.str();};
+        auto hex16=[](uint16_t v){std::ostringstream s;s<<"0x"<<std::hex<<std::setw(4)<<std::setfill('0')<<v;return s.str();};
         auto field=[&](const char* name,uint32 v){output<<",\""<<name<<"\":\""<<hex(v)<<"\"";};
         const uint32 a0=uint32(cpu.nGPR[CMIPS::A0].nD0);
         if(pc==0x124818)parent=a0;
@@ -51,6 +54,30 @@ public:
         if(pc==0x1354b8) {
             if(!valid(a0,0x270))throw std::runtime_error("Game-mode player destructor object outside EE RAM");
             const auto h=word(a0+0x26c);output<<",\"player\":\""<<hex(a0)<<"\",\"sound_handle_26c\":"<<int32_t(h);
+        }
+        if(pc==0x12c8f8) {
+            if(!parent||!valid(parent,0x54))throw std::runtime_error("Mode8 callback has no captured game-mode parent");
+            const auto current=word(parent+0x38);
+            if(!current||!valid(current,0x48))throw std::runtime_error("Mode8 callback current child is null/outside EE RAM");
+            if(a0!=current)throw std::runtime_error("Mode8 callback does not own parent current child");
+            if(word(current+4)!=0x12c8f8||word(current+8)!=0x12c8d8)
+                throw std::runtime_error("Mode8 callback child descriptor mismatch");
+            output<<",\"mode8_child\":{\"ptr\":\""<<hex(current)<<"\"";
+            field("selector_24",word(current+0x24));field("counter_30",word(current+0x30));
+            field("alpha_3c",word(current+0x3c));field("rate_40",word(current+0x40));
+            field("image_44",word(current+0x44));output<<"}";
+            output<<",\"storage_device\":{\"type_2597a8\":\""<<hex(word(0x2597a8))
+                  <<"\",\"value_2597ac\":\""<<hex(word(0x2597ac))
+                  <<"\",\"capacity_2597b0\":\""<<hex(word(0x2597b0))
+                  <<"\",\"continuation_2597ca\":\""<<hex16(half(0x2597ca))<<"\"}";
+            const auto context=word(0x2e27c0);field("storage_context_pointer_2e27c0",context);
+            if(context==0)output<<",\"storage_context\":null";
+            else {
+                if(!valid(context,0xc))throw std::runtime_error("Storage worker context pointer outside EE RAM");
+                output<<",\"storage_context\":{\"control\":\""<<hex(word(context))
+                      <<"\",\"pending\":\""<<hex(word(context+4))
+                      <<"\",\"result\":\""<<hex(word(context+8))<<"\"}";
+            }
         }
         if(parent && !valid(parent,0x54))throw std::runtime_error("Game-mode parent pointer outside EE RAM");
         uint32 resultsField=0;
