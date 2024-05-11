@@ -11,6 +11,7 @@
 #include "title_session.hpp"
 #include "name_entry_session.hpp"
 #include "chapter_session.hpp"
+#include "startup_session.hpp"
 #include "okage/title_stream.hpp"
 #include "results_renderer.hpp"
 #include "okage/results_interface.hpp"
@@ -268,12 +269,17 @@ struct Session {
     int message_id=10100;unsigned messages_started=0;
     std::optional<okage::DialogueOpening> opening;
     std::uint64_t service_request_count=0;
-    Session(const fs::path& directory,const fs::path& pme,const std::string& name):
+    Session(const fs::path& directory,const fs::path& pme,const std::string& name,bool diagnostic=true):
         fonts{okage::read_fnt(readData(directory/"IQ24.FNT")),okage::read_fnt(readData(directory/"BMUI.FNT")),okage::read_fnt(readData(directory/"BM.FNT"))},
-        messages(okage::read_pme(readData(pme))),message_directory(pme.parent_path()),
+        message_directory(pme.parent_path()),
         message_bank(pme.stem().string()),player_name(name),text({}) {
         ui_fonts=std::make_shared<const std::vector<okage::Font>>(fonts.begin(),fonts.end());
         okage::initialize_game_variables(variables);
+        if(!diagnostic) {
+            text.fonts=fonts;dialogue_active=false;message_id=0;
+            return;
+        }
+        messages=okage::read_pme(readData(pme));
         if(player_name.empty() || player_name.size()>12 || std::any_of(player_name.begin(),player_name.end(),[](unsigned char c){return c<32 || c>=127 || c=='\\';}))
             throw std::runtime_error("Diagnostic player name requires 1..12 printable ASCII characters without text escapes");
         if(!messages.bind("############",player_name))throw std::runtime_error("Player-name tag missing from message bank");
@@ -304,6 +310,9 @@ struct Session {
     std::unique_ptr<okage::DefeatFieldReturn> defeat_return;
     std::unique_ptr<okage::GameOverSession> game_over;
     std::unique_ptr<okage::TitleSession> title;
+    std::unique_ptr<okage::StartupSession> startup;
+    fs::path save_directory;
+    bool startup_audio_initialized=false;
     okage::NameEntryShared name_entry_shared;
     std::unique_ptr<okage::NameEntrySession> name_entry;
     std::unique_ptr<okage::ChapterSession> chapter;
@@ -371,7 +380,7 @@ struct Session {
         load_observation_written=true;
     }
     std::vector<std::uint32_t> battle_loading_trace;
-    std::vector<std::uint32_t> game_mode_trace,retiring_effect_trace,results_trace,title_trace,name_entry_trace,chapter_trace,ordinary_load_trace;
+    std::vector<std::uint32_t> game_mode_trace,retiring_effect_trace,results_trace,title_trace,name_entry_trace,chapter_trace,ordinary_load_trace,startup_trace;
     bool retain_field_music=false;
     std::optional<okage::Texture> transition_image;
     // AppKit presentation is separate from research captures and feedback.
@@ -521,6 +530,37 @@ struct Session {
         };
     }
     fs::path scene_map;
+    void initialize_cold_start(const fs::path& root,const fs::path& saves,bool record) {
+        if(game_data||game_mode||field||effect_preparation)throw std::runtime_error("Cold startup ownership already exists");
+        field_root=root/"FLDDATA";event_directory=field_root/"EVENT/EVDATA.XPF";
+        message_directory=field_root/"MES";message_bank.clear();messages={};
+        game_data.emplace(readData(root/"CMNDATA/XDB/BKDATA.XDB"),readData(root/"CMNDATA/XDB/ITEM.XDB"));
+        //125130 also loads the actual field database before1251d8 refresh.
+        (void)okage::read_field_definition(readData(field_root/"FLDSET.XDB"),72);
+        okage::initialize_new_game_variables(variables,*game_data);
+        music_directory=root/"SNDDATA/BGM";sound_directory=root/"SNDDATA/SE";
+        music=std::make_unique<okage::MusicRouter>();record_audio=record;
+        battle_input=root/"NATIVE_UI";save_directory=saves;reset_scene_camera();
+        prepare_effects(root/"CMNDATA/2D/TES.EFD",root/"CMNDATA/2D/ENV_TEX.XPF");
+        effects_loaded=true;
+        game_mode.emplace(okage::GameModeParent::startup());
+        sound_banks.emplace(0,std::make_unique<okage::StreamPlayer>(
+            okage::read_stream_bank(readData(sound_directory/"ALL.XWS"))));
+        std::cout<<"Native cold startup queued mode8 selector3\n";
+    }
+    void initialize_startup_audio_and_cache() {
+        if(startup_audio_initialized||!music)throw std::runtime_error("Startup shared service lifecycle");
+        //12cde8 loads JGL_BSC0.XV and the six shared jingle sequences.
+        for(int jingle:{20,21,22,23,33,34})
+            music->install_jingle(*okage::music_jingle_index(jingle),read_music_resource(jingle));
+        //1bc538 registers archives for later lookup. The native data tree has
+        //already decoded them; validate the actual backing inputs at this point.
+        (void)readData(event_directory/"e_home1c.xmt");
+        for(const auto* name:{"HERO","STUN","RKUMO","WKUMO","BKUMO"})
+            (void)readData(field_root/"OBJ"/(std::string(name)+".XPF")/"a.xmd");
+        startup_audio_initialized=true;
+        std::cout<<"Native startup shared sound/archive service frame="<<frame<<'\n';
+    }
     void load_scene(const fs::path& map,const fs::path& event,const std::vector<std::pair<int,fs::path>>& assets) {
         if(game_data)throw std::runtime_error("Initial game data already prepared");
         const auto data_root=message_directory.parent_path().parent_path()/"CMNDATA"/"XDB";
@@ -958,6 +998,9 @@ struct Session {
             observe_game_mode(0);
             game_mode->tick([this]{
                 if(battle)retire_battle();
+                else if(startup) {
+                    startup->retire(*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,ui_shared);
+                }
                 else if(chapter) {
                     chapter->retire(*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,ui_shared,scene_fade);
                     std::cout<<"Native chapter retired frame="<<frame<<'\n';
@@ -1000,6 +1043,10 @@ struct Session {
                     if(chapter->resource_live())throw std::runtime_error("Chapter free before retirement");
                     chapter.reset();
                 }
+                if(startup) {
+                    if(startup->resource_live())throw std::runtime_error("Startup freed before resource retirement");
+                    startup.reset();
+                }
                 if(title) {
                     if(title->resource_live())throw std::runtime_error("Title freed before resource retirement");
                     title.reset();
@@ -1012,7 +1059,7 @@ struct Session {
                 if(field||renderer||!actor_bindings.empty()||!actor_objects.empty()||map_objects)
                     throw std::runtime_error("Field borrowers survived mode retirement");
             },[this](okage::GameModeSelection selection){
-                if(battle||field||field_return||defeat_return||game_over||title||name_entry||chapter||!reset_camera)
+                if(battle||field||field_return||defeat_return||game_over||title||name_entry||chapter||startup||!reset_camera)
                     throw std::runtime_error("Native mode construction has surviving scene owners");
                 if(selection[0]==2&&pending_game_command[0]==13) {begin_field_return();return;}
                 if(selection[0]==2&&pending_game_command[0]==0) {begin_ordinary_field(selection);return;}
@@ -1034,6 +1081,14 @@ struct Session {
                     name_entry=std::make_unique<okage::NameEntrySession>(scene_clear,scene_fade,ui_shared,name_entry_shared,
                         okage::NameEntryConstruction{field_root.parent_path()/"CMNDATA",battle_input,ui_fonts,[this]{if(music)music->stop();}});
                     std::cout<<"Native name entry constructed frame="<<frame<<'\n';return;
+                }
+                if(selection==okage::GameModeSelection{8,3,0}||selection==okage::GameModeSelection{8,0,0}) {
+                    startup=std::make_unique<okage::StartupSession>(scene_clear,scene_fade,ui_shared,game_over_shared,
+                        okage::StartupConstruction{selection[1],save_directory,[this]{if(music)music->stop();},
+                        [this]{initialize_startup_audio_and_cache();},[this](unsigned index){
+                            return readData(field_root.parent_path()/"CMNDATA/2D/SCR.XPF"/(index==0?"scea.xim":"zener.xim"));
+                        }});
+                    std::cout<<"Native startup constructed selector="<<selection[1]<<" frame="<<frame<<'\n';return;
                 }
                 if(selection==okage::GameModeSelection{8,1,0}) {
                     title=std::make_unique<okage::TitleSession>(scene_clear,scene_fade,ui_shared,game_over_shared,
@@ -1073,6 +1128,16 @@ struct Session {
             });
         }
         const bool returned_this_tick=tick_field_return(input.pressed,{input.held,128,128,input.pressed});
+        if(startup&&startup->resource_live()) {
+            startup->tick({input.repeat,input.pressed,{128,128,128,128}},game_over_shared,scene_fade,*reset_camera,projection,
+                retiring_effects?&*retiring_effects:nullptr,ui_shared,ui_fonts,battle_capture_sine,random,
+                [this](auto selection){game_mode->request(selection);
+                    std::cout<<"Native startup requested selector="<<selection[1]<<" frame="<<frame<<'\n';});
+            const auto& s=startup->state();const auto storage=startup->storage_observation();
+            startup_trace.insert(startup_trace.end(),{frame,s.common.submode,s.common.tick_counter,
+                s.common.generic_alpha_bits,s.common.generic_alpha_rate_bits,s.image_index,
+                storage[0],storage[1],storage[2],storage[3],game_over_shared.image_frame_counter,random.state});
+        }
         if(chapter&&chapter->resource_live()) {
             chapter->tick(pending_game_command,scene_fade,*reset_camera,projection,
                 retiring_effects?&*retiring_effects:nullptr,ui_shared,ui_fonts,battle_capture_sine,random,
@@ -1535,6 +1600,8 @@ struct Session {
             image=*name_entry->rendered_image();
         } else if(chapter&&chapter->rendered_image()) {
             image=*chapter->rendered_image();
+        } else if(startup&&startup->rendered_image()) {
+            image=*startup->rendered_image();
         } else if(title&&title->rendered_image()) {
             image=*title->rendered_image();
         } else if(game_over&&game_over->rendered_image()) {
@@ -1738,6 +1805,7 @@ static void capture(Session& session,const fs::path& path) {
         std::pair{".game-mode.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.game_mode_trace.data()),session.game_mode_trace.size()*4)},
         std::pair{".name-entry-state.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.name_entry_trace.data()),session.name_entry_trace.size()*4)},
         std::pair{".chapter-state.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.chapter_trace.data()),session.chapter_trace.size()*4)},
+        std::pair{".startup.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.startup_trace.data()),session.startup_trace.size()*4)},
         std::pair{".ordinary-load.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.ordinary_load_trace.data()),session.ordinary_load_trace.size()*4)},
         std::pair{".title-state.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.title_trace.data()),session.title_trace.size()*4)},
         std::pair{".results.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.results_trace.data()),session.results_trace.size()*4)},
@@ -2151,7 +2219,10 @@ int main(int argc,const char** argv) {
     @autoreleasepool {
     std::unique_ptr<okage::InputJournal> inputJournal;
     try {
-        if(argc<3)throw std::runtime_error("Usage: okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --buttons INPUT (held non-directional masks; bounded replay only) --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--load-observation FRESH.jsonl (bounded replay; host scheduling diagnostics)] [--battle-readback synchronous|deferred (replay policy; live always deferred)] [--replay-loading continuous|cooperative (cooperative requires deferred readback)] [--replay-display-from N (bounded cooperative replay; real host display callbacks and full rendering from N)] [--performance-report FRESH.jsonl (interactive/preview/UI test)] [--input-journal FRESH.jsonl] [--pause-captures FRESH_DIRECTORY (interactive diagnostics, not saved games)]");
+        if(argc<3)throw std::runtime_error("Usage: okage-native --game-data DIRECTORY [--save-directory DIRECTORY] OR okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --buttons INPUT (held non-directional masks; bounded replay only) --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--load-observation FRESH.jsonl (bounded replay; host scheduling diagnostics)] [--battle-readback synchronous|deferred (replay policy; live always deferred)] [--replay-loading continuous|cooperative (cooperative requires deferred readback)] [--replay-display-from N (bounded cooperative replay; real host display callbacks and full rendering from N)] [--performance-report FRESH.jsonl (interactive/preview/UI test)] [--input-journal FRESH.jsonl] [--pause-captures FRESH_DIRECTORY (interactive diagnostics, not saved games)]");
+        const bool coldStart=std::string_view(argv[1])=="--game-data";
+        fs::path gameDataRoot,saveDirectory;
+        fs::path fontDirectory=coldStart?fs::path{}:fs::path(argv[1]),messagePath=coldStart?fs::path{}:fs::path(argv[2]);
         unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions,buttons;bool hasButtons=false;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures,battleInput;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         std::optional<fs::path> performancePath,inputJournalPath,pauseCapturePath;
         fs::path uiUpdateReport,battleLivePath,loadObservationPath;
@@ -2160,9 +2231,14 @@ int main(int argc,const char** argv) {
         std::optional<unsigned> replayDisplayFrom;
         std::ofstream battleLiveTrace,loadObservationTrace;
         std::vector<okage::NativeRenderRange> renderRanges;
-        for(int i=3;i<argc;++i) {
+        for(int i=coldStart?1:3;i<argc;++i) {
             const std::string arg=argv[i];if(++i==argc)throw std::runtime_error("Missing native runtime option value");
-            if(arg=="--frames")frames=std::stoul(argv[i]);
+            if(arg=="--game-data") {
+                if(!coldStart||!gameDataRoot.empty())throw std::runtime_error("Game data requires one standalone cold-start root");
+                gameDataRoot=argv[i];
+            }
+            else if(arg=="--save-directory")saveDirectory=argv[i];
+            else if(arg=="--frames")frames=std::stoul(argv[i]);
             else if(arg=="--preview-at")previewAt=std::stoul(argv[i]);
             else if(arg=="--battle-readback") {
                 const std::string policy=argv[i];
@@ -2247,6 +2323,18 @@ int main(int argc,const char** argv) {
             else if(arg=="--press") {std::istringstream in(argv[i]);std::string n;while(std::getline(in,n,','))presses.push_back(std::stoul(n));}
             else throw std::runtime_error("Unknown native runtime option");
         }
+        if(coldStart) {
+            if(gameDataRoot.empty()||!map.empty()||!event.empty()||!actors.empty()||!musicSequence.empty()||
+               !musicBank.empty()||!effectData.empty()||!effectTextures.empty()||!battleInput.empty()||!soundDirectory.empty()||playerName!="Ari")
+                throw std::runtime_error("Cold startup uses the owned game-data root without diagnostic scene/audio/name overrides");
+            fontDirectory=gameDataRoot/"CMNDATA/FONT";messagePath=gameDataRoot/"FLDDATA/MES/FIELD.PME";
+            battleInput=gameDataRoot/"NATIVE_UI";
+            if(saveDirectory.empty()) {
+                const auto support=NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory,NSUserDomainMask,YES);
+                if(!support.count)throw std::runtime_error("Native Application Support directory unavailable");
+                saveDirectory=fs::path(support[0].UTF8String)/"Okage Shadow King/Saves";
+            }
+        } else if(!saveDirectory.empty())throw std::runtime_error("Save directory requires cold startup");
         if(cooperativeReplay&&(!frames&&!previewAt))
             throw std::runtime_error("Replay loading policy requires --frames or --preview-at");
         if(cooperativeReplay.value_or(false)&&!deferredBattleReadback)
@@ -2351,7 +2439,7 @@ int main(int argc,const char** argv) {
                 frameManifest<<"{\n  \"boundary\": \"after completed native Session::tick, before the next input\",\n  \"captures\": [\n";
                 if(!frameManifest)throw std::runtime_error("Cannot open native frame manifest");
             }
-            prepared=std::make_unique<Session>(argv[1],argv[2],playerName);
+            prepared=std::make_unique<Session>(fontDirectory,messagePath,playerName,!coldStart);
             auto& session=*prepared;session.render_from=renderFrom;session.render_until=renderUntil;session.render_ranges=std::move(renderRanges);
             session.input_journal=inputJournal.get();
             session.deferred_battle_readback=deferredBattleReadback;
@@ -2363,6 +2451,7 @@ int main(int argc,const char** argv) {
             if(!output.empty())session.battle_construction_report=output.string()+".battle-construction.json";
             if(!output.empty())session.battle_stage_report=output.string()+".battle-stage.json";
             session.live_presentation_enabled=previewAt!=0||cooperativeReplay.value_or(false);
+            if(coldStart)session.initialize_cold_start(gameDataRoot,saveDirectory,!output.empty());
             if(!effectData.empty())session.prepare_effects(effectData,effectTextures);
             if(!map.empty())session.load_scene(map,event,actors);
             if(!musicSequence.empty())session.load_music(musicSequence,musicBank,!output.empty(),soundDirectory);
@@ -2441,13 +2530,14 @@ int main(int argc,const char** argv) {
         app->performance=std::move(performance);app->pausedViewCapture=pausedViewCapture;
         app->pauseCaptureDirectory=pauseCapturePath.value_or(fs::path{});
         if(!app->session) {
-        app->session=std::make_unique<Session>(argv[1],argv[2],playerName);
+        app->session=std::make_unique<Session>(fontDirectory,messagePath,playerName,!coldStart);
         app->session->input_journal=inputJournal.get();
         app->session->battle_input=battleInput;
         app->session->battle_ui_update_report=uiUpdateReport;
         if(!output.empty())app->session->battle_construction_report=output.string()+".battle-construction.json";
         if(!output.empty())app->session->battle_stage_report=output.string()+".battle-stage.json";
         app->session->live_presentation_enabled=true;
+        if(coldStart)app->session->initialize_cold_start(gameDataRoot,saveDirectory,!output.empty());
         if(!effectData.empty())app->session->prepare_effects(effectData,effectTextures);
         if(!map.empty())app->session->load_scene(map,event,actors);
         if(!musicSequence.empty())app->session->load_music(musicSequence,musicBank,!output.empty(),soundDirectory);
