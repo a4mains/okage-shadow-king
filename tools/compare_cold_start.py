@@ -19,6 +19,7 @@ import sys
 from collections import Counter
 
 SOURCE_SCHEMA = "okage-game-mode-observer-v1"
+ELF_SHA256 = "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
 PARENT_PC = "0x00124818"
 MODE8_CALLBACK_PC = "0x0012c8f8"
 GAME_MODE_WORDS = 25
@@ -97,6 +98,8 @@ def load_source(path: Path) -> tuple[dict, list[dict], dict[int, dict], dict[int
         raise ComparisonError(f"source header is invalid JSON: {exc}") from exc
     if not isinstance(header, dict) or header.get("schema") != SOURCE_SCHEMA:
         raise ComparisonError(f"source schema must be {SOURCE_SCHEMA}")
+    if header.get("elf_sha256") != ELF_SHA256:
+        raise ComparisonError("source observer ELF hash differs from supported retail revision")
 
     all_rows: list[dict] = []
     parent: dict[int, dict] = {}
@@ -267,7 +270,7 @@ def _source_mode8(row: dict) -> dict[str, int]:
     device = row["storage_device"]
     values["source_storage_type"] = _u32_hex(device["type_2597a8"], "storage type")
     values["source_storage_value"] = _u32_hex(device["value_2597ac"], "storage value")
-    values["source_free_capacity"] = _u32_hex(device["capacity_2597b0"], "storage capacity")
+    values["source_cluster_bytes"] = _u32_hex(device["capacity_2597b0"], "storage capacity")
     values["storage_continuation"] = _u32_hex(device["continuation_2597ca"], "storage continuation")
     return values
 
@@ -311,12 +314,9 @@ def compare(source_header: dict, parents: dict[int, dict], callbacks: dict[int, 
     out_of_overlap_native_frames = [frame for frame in native_frames if frame > overlap_native_high]
     mapped_source_frames = {frame + offset for frame in overlap_native_frames}
     compared_parent = []
-    source_gaps = []
     counts: Counter[str] = Counter()
     first_parent_difference = None
     missing_source_parent = []
-    source_only_parent = [frame for frame in parents
-                          if frame < capture_source_low or frame > capture_source_high]
     missing_native_parent = []
     expected_source_frames = set(range(capture_source_low, capture_source_high + 1))
     for source_frame in sorted(expected_source_frames):
@@ -466,7 +466,7 @@ def compare(source_header: dict, parents: dict[int, dict], callbacks: dict[int, 
                         "missing_source_count": len(startup_missing_source),
                         "missing_source_frame_ranges": _ranges(startup_missing_source),
                         "storage_capacity_direct_equality": "excluded; native host filesystem and original card capacities differ",
-                        "storage_comparison": "source continuation word compared with native service-state word; device type/value and free capacity are retained, not asserted equal",
+                        "storage_comparison": "raw storage observations only; the original persistent coroutine and native per-resource host service have different ownership and are not asserted equal",
                         "storage_observations_retained": True},
             "title": {"pairs": title_pairs,
                       "difference_words": sum(title_diff_counts.values()),
@@ -499,14 +499,14 @@ def compare(source_header: dict, parents: dict[int, dict], callbacks: dict[int, 
                 "pairs": ordinal,
             },
         },
-        "storage_note": "Original device type/value/capacity/continuation and native state/completion/type/free-capacity are retained per paired startup callback. Only source continuation versus native state is compared; free-capacity words are not directly compared.",
+        "storage_note": "Original device type/free-cluster count/cluster-byte size/continuation and native state/completion/type/free-KiB are retained per paired startup callback. Storage is a native platform adaptation; none of these storage fields is asserted equal.",
         "limitations": [
             "No original raster or audio normalization/parity is attempted.",
             "Source callback gaps are unobserved intervals, not held prior values.",
             "Source manager/HERO/audio side effects and constructor-only state are outside these traces.",
         ],
         "semantic_equal": parent_equal and not callbacks_have_missing and not callbacks_have_diffs,
-        "ordinal_logo_equal": not logo_has_diffs and len(source_logo) == len(native_logo),
+        "ordinal_logo_equal": not logo_has_diffs and len(ordinal) == len(source_logo) == len(native_logo) and bool(ordinal),
     }
 
 def _compare_callback_channel(source_rows: dict[int, dict], native_rows: dict[int, tuple[int, ...]],
@@ -524,10 +524,7 @@ def _compare_callback_channel(source_rows: dict[int, dict], native_rows: dict[in
         source_values = _source_mode8(row)
         if channel == "startup":
             native_values = _native_startup(native)
-            names = ("selector", "counter", "alpha_bits", "rate_bits", "image_index", "storage_state")
-            # The source continuation and native storage-state words share the
-            # observed 0x687/0x69a continuation values.
-            source_values["storage_state"] = source_values["storage_continuation"]
+            names = ("selector", "counter", "alpha_bits", "rate_bits", "image_index")
         else:
             native_values = _native_title(native)
             names = ("selector", "counter", "alpha_bits", "rate_bits")
@@ -538,7 +535,7 @@ def _compare_callback_channel(source_rows: dict[int, dict], native_rows: dict[in
         if channel == "startup":
             storage = {"source": {"device_type": source_values["source_storage_type"],
                                    "device_value": source_values["source_storage_value"],
-                                   "free_capacity": source_values["source_free_capacity"],
+                                   "cluster_bytes": source_values["source_cluster_bytes"],
                                    "continuation": source_values["storage_continuation"]},
                        "native": {"state": native_values["storage_state"],
                                   "complete": native_values["storage_complete"],
@@ -575,7 +572,9 @@ def _stop_boundary_from_run(reference: Path, override: int | None) -> tuple[int,
             run = json.loads(run_path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
             raise ComparisonError(f"cannot read original run.json: {exc}") from exc
-        command = run.get("command") if isinstance(run, dict) else None
+        if not isinstance(run, dict) or run.get("exit_code") != 0:
+            raise ComparisonError("original run.json is not a completed successful capture")
+        command = run.get("command")
         if isinstance(command, list) and all(isinstance(value, str) for value in command):
             try:
                 option = command.index("--game-mode")
@@ -593,6 +592,8 @@ def _stop_boundary_from_run(reference: Path, override: int | None) -> tuple[int,
             raise ComparisonError("original stop boundary must be a positive VBlank count")
         source = "explicit --original-stop-boundary"
         if inferred is not None:
+            if override != inferred:
+                raise ComparisonError("explicit original stop boundary contradicts completed run.json")
             source += f"; run.json requested {inferred}"
         return override, source, run_path if run_path.exists() else None
     if inferred is None:

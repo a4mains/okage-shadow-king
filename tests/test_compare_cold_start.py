@@ -77,7 +77,7 @@ class ColdStartComparisonTests(unittest.TestCase):
 
     def _write_fixture(self):
         rows = [
-            {"schema": "okage-game-mode-observer-v1", "elf_sha256": "a" * 64},
+            {"schema": "okage-game-mode-observer-v1", "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"},
             *[source_parent(frame, phase=1 if frame == 76 else 0)
               for frame in [75, 76, *range(78, 100)]],
             source_callback(81, 3, counter=0, storage_type=2, storage_value=8192,
@@ -143,9 +143,10 @@ class ColdStartComparisonTests(unittest.TestCase):
                          [(81, 6), (82, 7), (83, 8)])
         self.assertEqual([(p["source_callback_frame"], p["native_completed_frame"]) for p in title], [(90, 15)])
         self.assertTrue(title[0]["equal"])
-        self.assertEqual(startup[1]["storage_observations"]["source"]["free_capacity"], 1024)
+        self.assertEqual(startup[1]["storage_observations"]["source"]["cluster_bytes"], 1024)
         self.assertEqual(startup[1]["storage_observations"]["native"]["free_capacity"], 999)
-        self.assertFalse(any(d["field"] == "storage_capacity" for d in startup[1]["differences"]))
+        self.assertFalse(any(d["field"].startswith("storage") for d in startup[1]["differences"]))
+        self.assertFalse(report["ordinal_logo_equal"])
 
     def test_logo_ordinal_is_separate_and_does_not_fill_source_gaps(self):
         report, _ = make_report(self.reference, self.prefix)
@@ -191,6 +192,15 @@ class ColdStartComparisonTests(unittest.TestCase):
         data[1]["frame"] = 74
         self.reference.write_text("\n".join(json.dumps(row) for row in data) + "\n")
         with self.assertRaisesRegex(ComparisonError, "requires fixed frame 75"):
+            make_report(self.reference, self.prefix)
+
+    def test_source_revision_and_completed_boundary_cannot_be_substituted(self):
+        with self.assertRaisesRegex(ComparisonError, "contradicts completed run"):
+            make_report(self.reference, self.prefix, 99)
+        data = [json.loads(line) for line in self.reference.read_text().splitlines()]
+        data[0]["elf_sha256"] = "a" * 64
+        self.reference.write_text("\n".join(json.dumps(row) for row in data) + "\n")
+        with self.assertRaisesRegex(ComparisonError, "ELF hash differs"):
             make_report(self.reference, self.prefix)
 
     def test_native_trace_beyond_capture_frame_count_fails_closed(self):
