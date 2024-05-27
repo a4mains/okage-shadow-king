@@ -177,10 +177,21 @@ void UiWindow::layout_mode2(UiLayoutContext context) {
             if(data[at]=='\\'){
                 check(at+1<data.size(),"UI mode2 truncated control");
                 const auto control=data[at+1];at+=2;
-                if(control!='c'&&control!='f'&&control!='s'&&control!='h')throw std::runtime_error(
+                if(control!='c'&&control!='f'&&control!='s'&&control!='h'&&control!='n')throw std::runtime_error(
                     "UI mode2 unrecovered text control byte="+std::to_string(control)+" offset="+std::to_string(start));
                 check(at<data.size(),"UI mode2 truncated control arguments");
-                if(data[at]=='['){
+                if(control=='n'){
+                    const auto marker=si(word(0x3be4));
+                    if(marker<1||marker<si(source_characters)){
+                        set_cursor();
+                        y=add(y,si(word(0x21c)));x=si(word(0x1968));
+                        check(!(word(0x1900)&0x20),"UI mode2 newline auto extent is unrecovered");
+                        line=add(line,1);
+                        if(si(word(0x254))<=line){
+                            put(0x254,word(0x254)+1);put(0x260,word(0x260)+word(0x21c));
+                        }
+                    }
+                }else if(data[at]=='['){
                     const auto begin=++at;
                     while(at<data.size()&&data[at]!=']'&&data[at]!=0)++at;
                     check(at<data.size()&&data[at]==']',"UI mode2 unterminated control arguments");

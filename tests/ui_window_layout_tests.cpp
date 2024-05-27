@@ -35,9 +35,9 @@ std::shared_ptr<std::vector<Font>> fonts(){
         for(unsigned i=0;i<95;++i)f.glyphs[i].metrics={std::uint16_t(i+32),0,0,192,8,8,200,392,192,384};
     }return out;
 }
-UiWindow window(std::shared_ptr<RuwResource> r,unsigned a=4,unsigned b=4){
+UiWindow window(std::shared_ptr<RuwResource> r,unsigned a=4,unsigned b=4,unsigned lines=6){
     UiWindow w(a,b,0,std::make_shared<UiWindowStream>(UiWindowStream{1,{}}));
-    std::array<std::uint32_t,28> settings{};settings[0]=1;settings[1]=40;settings[2]=6;
+    std::array<std::uint32_t,28> settings{};settings[0]=1;settings[1]=40;settings[2]=lines;
     settings[3]=0;settings[20]=1;settings[21]=1;settings[25]=a;settings[26]=b;
     const std::array<UiWindow::AtlasTuple,2> atlas{{{0,0,16,16},{}}};
     w.configure(settings,atlas,std::make_shared<int>(1));
@@ -90,6 +90,45 @@ void missing_multibyte(){
     w.set_transform_parameter(4);draws=0;bool rejected=false;
     try{layout();}catch(const std::runtime_error&){rejected=true;}
     require(rejected&&draws==0,"Alternate multibyte encoding rejects before glyph placement or RNG");
+}
+void newlines(){
+    auto r=resource(1,0);auto f=fonts();std::array<float,360> sine{};
+    r->set_position(0,0,47,58);
+    r->set_text(0,0,"\\h[17,9]\\s[1,0.5]AB\\nC\\n\\n");
+    auto w=window(r,4,4,2);UiLayoutShared shared;UiPacketBuildContext packets{f};unsigned draws=0;
+    w.layout_mode2({shared,*f,sine,[&](){++draws;return 1u;},0,packets});
+    const auto& p=w.glyph_buffer(0);const auto& m=w.glyph_buffer(1);
+    require(p.word(0)==bits(43)&&p.word(16)==bits(55)&&p.word(32)==bits(43),
+            "Newline restores widget X without consuming a glyph slot");
+    require(p.word(4)==bits(67)&&p.word(20)==bits(67)&&p.word(36)==bits(76),
+            "Newline uses the integer line metric independently of vertical glyph scaling");
+    require(m.word(8)==bits(65)&&m.word(24)==bits(66)&&m.word(40)==bits(67)&&m.word(36)==bits(24),
+            "Newline preserves the selected font and glyph dimensions");
+    require(w.word(0xcdc)==3&&w.word(0xcec)==3&&draws==35,
+            "Only three glyphs and sixteen sentinel icons consume RNG");
+    require(w.word(0x250)==2&&w.word(0x254)==4&&w.word(0x260)==18,
+            "Consecutive trailing newlines extend line count and scroll extent at the source threshold");
+    require(w.word(0xcb0)==43&&w.word(0xcb4)==9,
+            "Final cursor reflects trailing newline X and clamps Y to the configured last line");
+    require(r->widget(0,0).runtime->words[8]==std::uint32_t(-16)&&r->widget(0,0).runtime->words[9]==18,
+            "Trailing newline does not fabricate a per-glyph widget extent update");
+    require(w.word(0x269c)==5,"Newlines do not add typed stream entries");
+
+    r=resource(1,0);r->set_text(0,0,"\\n");auto empty=window(r);draws=0;
+    empty.layout_mode2({shared,*f,sine,[&](){++draws;return 1u;},0,packets});
+    require(empty.word(0xcdc)==0&&empty.word(0xcec)==0&&draws==32,
+            "A terminal newline allocates no glyph and consumes only sentinel RNG");
+    require(empty.word(0xcb0)==24&&empty.word(0xcb4)==48&&empty.word(0x260)==0,
+            "Empty terminal newline advances from widget Y using the default line metric");
+    require(!empty.glyph_packet(0,empty.word(0x268c)),"Empty newline emits no glyph packet");
+
+    r=resource(1,0);r->set_text(0,0,"A\\n" "\x81\x75");auto missing=window(r);draws=0;
+    missing.layout_mode2({shared,*f,sine,[&](){++draws;return 1u;},0,packets});
+    require(missing.glyph_buffer(1).word(24)==bits(-1)&&missing.glyph_buffer(1).word(16)==bits(12)&&
+            missing.glyph_buffer(1).word(20)==bits(24),
+            "Newline preserves parser width and height for a following missing wide glyph");
+    require(missing.glyph_buffer(0).word(20)==bits(84)&&draws==34,
+            "Missing glyph occupies the new line and retains its actual RNG call");
 }
 void boundaries(){
     {
@@ -200,4 +239,4 @@ void owned(const char* battle,const char* font_directory){
     std::cout<<"Owned projected primitives="<<primitives<<'\n';
 }
 }
-int main(int argc,char** argv){try{traversal();missing_multibyte();boundaries();preparation();constructor_stream();if(argc==3)owned(argv[1],argv[2]);else require(argc==1,"usage: ui-window-layout-tests [BATTLE_DIRECTORY FONT_DIRECTORY]");std::cout<<"UI mode0/2 layout tests passed\n";}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(int argc,char** argv){try{traversal();missing_multibyte();newlines();boundaries();preparation();constructor_stream();if(argc==3)owned(argv[1],argv[2]);else require(argc==1,"usage: ui-window-layout-tests [BATTLE_DIRECTORY FONT_DIRECTORY]");std::cout<<"UI mode0/2 layout tests passed\n";}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
