@@ -42,6 +42,17 @@ std::vector<uint8> readFile(const char* path) {
     if (!in.read(reinterpret_cast<char*>(bytes.data()),bytes.size())) throw std::runtime_error("Short input");
     return bytes;
 }
+std::vector<uint8> readFileBounded(const char* path,size_t maximum) {
+    std::ifstream in(path,std::ios::binary|std::ios::ate);
+    if (!in) throw std::runtime_error("Cannot open input");
+    const auto size=in.tellg();
+    if (size<0 || size>static_cast<std::streamoff>(maximum)) throw std::runtime_error("Input exceeds fixture bound");
+    std::vector<uint8> bytes(static_cast<size_t>(size));
+    in.seekg(0);
+    if (!bytes.empty() && !in.read(reinterpret_cast<char*>(bytes.data()),static_cast<std::streamsize>(bytes.size())))
+        throw std::runtime_error("Short input");
+    return bytes;
+}
 void writeFile(const char* path,const void* bytes,size_t size) {
     if (std::filesystem::is_symlink(path)) throw std::runtime_error("Refusing symlink output");
     if (std::filesystem::exists(path)) {
@@ -3377,7 +3388,7 @@ public:
 
 int main(int argc,char** argv) {
     try {
-        if (argc<4) throw std::runtime_error("Usage: okage-pose-oracle sine ELF OUTPUT | vu-asm ELF OUTPUT | pose ELF XMD OUTPUT | pose-corpus ELF DIRECTORY OUTDIR");
+        if (argc<4) throw std::runtime_error("Usage: okage-pose-oracle sine ELF OUTPUT | vu-asm ELF OUTPUT | pose ELF XMD OUTPUT | pose-corpus ELF DIRECTORY OUTDIR | save-checksum ELF INPUT OUTPUT");
         if(std::string(argv[1])=="iop-pitch" && argc==5) {
             const auto lib=readFile(argv[2]),input=readFile(argv[3]);
             if(hash(lib)!="71596ef4029f672205e1523dedbd8dacfe5dfa50132c8a747b81289cd24f1db6" || input.empty() || input.size()%16)
@@ -3446,9 +3457,38 @@ int main(int argc,char** argv) {
             }
             writeFile(argv[4],output.data(),output.size()*4);return 0;
         }
-        Reference reference(readFile(argv[2]));
+        const auto elf=readFile(argv[2]);
+        Reference reference(elf);
         const std::string command=argv[1];
-        if(command=="material-colors" && argc==5) {
+        if(command=="save-checksum" && argc==5) {
+            constexpr uint32 inputAddress=0x80000;
+            constexpr uint32 guardSize=16;
+            constexpr uint32 guardByte=0xa5;
+            const auto input=readFileBounded(argv[3],0xd78);
+            if(reference.get(0x1fde8c)!=0)throw std::runtime_error("Checksum initialization flag was not zero at fresh boot");
+            for(uint32 offset=0;offset<512;++offset)
+                if(reference.ee->m_ram[0x2e27e8+offset]!=0)throw std::runtime_error("Checksum table was not zero at fresh boot");
+            auto* ram=reference.ee->m_ram;
+            std::memset(ram+inputAddress-guardSize,guardByte,guardSize);
+            if(!input.empty())std::memcpy(ram+inputAddress,input.data(),input.size());
+            std::memset(ram+inputAddress+input.size(),guardByte,guardSize);
+            reference.call(0x16d838,{inputAddress,static_cast<uint32>(input.size())});
+            for(uint32 i=0;i<guardSize;++i) {
+                if(ram[inputAddress-guardSize+i]!=guardByte || ram[inputAddress+input.size()+i]!=guardByte)
+                    throw std::runtime_error("Checksum oracle changed bounded input guard");
+            }
+            const uint32 result=reference.ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0];
+            const uint8 littleEndian[4]={static_cast<uint8>(result),static_cast<uint8>(result>>8),
+                static_cast<uint8>(result>>16),static_cast<uint8>(result>>24)};
+            writeFile(argv[4],littleEndian,sizeof(littleEndian));
+            std::ostringstream json;
+            json<<"{\"schema\":\"okage-original-save-checksum-v1\",\"function\":\"0x0016d838\","
+                <<"\"source_elf_sha256\":\""<<hash(elf)<<"\",\"input_sha256\":\""<<hash(input)
+                <<"\",\"input_size\":"<<input.size()<<",\"return_u32\":"<<result
+                <<",\"return_hex\":\"0x"<<std::hex<<std::setw(8)<<std::setfill('0')<<result<<"\"}\n";
+            const auto details=json.str();
+            writeFile((std::string(argv[4])+".json").c_str(),details.data(),details.size());
+        } else if(command=="material-colors" && argc==5) {
             reference.materialColors(readFile(argv[3]),argv[4]);
         } else if(command=="relationship" && argc==6) {
             reference.relationship(readFile(argv[3]),readFile(argv[4]),argv[5]);
