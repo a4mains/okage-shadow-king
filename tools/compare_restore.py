@@ -161,8 +161,8 @@ def compare(source_restore: dict[int, dict], source_parent: dict[int, int],
     restore_missing_source: list[int] = []
     restore_missing_native: list[int] = []
     restore_both_absent: list[int] = []
-    expected_retired_absence: list[int] = []
-    other_both_absent: list[int] = []
+    both_absent_with_retirement_evidence: list[int] = []
+    both_absent_after_last_observation: list[int] = []
     first_restore_difference = None
     compared_restore = 0
     source_active_frames = [frame for frame in source_restore if 0 <= frame < source_stop]
@@ -170,6 +170,9 @@ def compare(source_restore: dict[int, dict], source_parent: dict[int, int],
                                    if 0 <= frame - native_offset < source_stop and row[2] == 1]
     last_source_active = max(source_active_frames) if source_active_frames else None
     last_native_active = max(native_active_source_frames) if native_active_source_frames else None
+    last_source_dead = source_restore[last_source_active]["dead"] if last_source_active is not None else None
+    last_native_dead = (native_restore[last_native_active + native_offset][3]
+                        if last_native_active is not None else None)
     for source_frame in range(source_stop):
         native_frame = source_frame + native_offset
         source = source_restore.get(source_frame)
@@ -182,14 +185,18 @@ def compare(source_restore: dict[int, dict], source_parent: dict[int, int],
             restore_missing_native.append(source_frame)
         if source is None and native is None:
             restore_both_absent.append(source_frame)
-            check["status"] = "both_absent_after_retirement" if (
+            retirement_observed = (
                 last_source_active is not None and last_native_active is not None and
-                source_frame > last_source_active and source_frame > last_native_active
-            ) else "both_unobserved"
-            if check["status"] == "both_absent_after_retirement":
-                expected_retired_absence.append(source_frame)
+                source_frame > last_source_active and source_frame > last_native_active and
+                last_source_dead == 1 and last_native_dead == 1 and native_row is not None and
+                native_row[2] == 0 and native_row[3] == 1
+            )
+            if retirement_observed:
+                check["status"] = "both_absent_with_observed_retirement_evidence"
+                both_absent_with_retirement_evidence.append(source_frame)
             else:
-                other_both_absent.append(source_frame)
+                check["status"] = "both_absent_after_last_observation"
+                both_absent_after_last_observation.append(source_frame)
             restore_checks.append(check)
             continue
         if source is None:
@@ -255,9 +262,9 @@ def compare(source_restore: dict[int, dict], source_parent: dict[int, int],
                                                "native_phase": f"0x{native_value:08x}"}
         parent_checks.append(check)
 
-    manager_value_equal = not restore_mismatches
+    manager_value_equal = compared_restore > 0 and not restore_mismatches
     manager_coverage_ok = not restore_missing_source and not restore_missing_native
-    parent_value_equal = parent_mismatches == 0
+    parent_value_equal = compared_parent > 0 and parent_mismatches == 0
     parent_coverage_ok = not parent_missing_source and not parent_missing_native
     return {
         "schema": "okage-restore-component-comparison-v1",
@@ -278,12 +285,16 @@ def compare(source_restore: dict[int, dict], source_parent: dict[int, int],
             "first_difference": first_restore_difference,
             "missing_source_count": len(restore_missing_source),
             "missing_native_or_retired_count": len(restore_missing_native),
-            "both_absent_or_retired_count": len(restore_both_absent),
-            "expected_post_retirement_absence_count": len(expected_retired_absence),
-            "expected_post_retirement_absence_source_frames": expected_retired_absence,
+            "both_absent_count": len(restore_both_absent),
+            "both_absent_with_observed_retirement_evidence_count": len(both_absent_with_retirement_evidence),
+            "both_absent_with_observed_retirement_evidence_source_frames": both_absent_with_retirement_evidence,
+            "both_absent_after_last_observation_count": len(both_absent_after_last_observation),
+            "both_absent_after_last_observation_source_frames": both_absent_after_last_observation,
             "last_source_manager_observation_frame": last_source_active,
+            "last_source_manager_dead_flag": last_source_dead,
             "last_native_manager_observation_source_frame": last_native_active,
-            "other_both_unobserved_count": len(other_both_absent),
+            "last_native_manager_dead_flag": last_native_dead,
+            "retirement_interpretation": "Absence after the final observation is not itself proof of retirement. Only frames with both last-active dead flags set and a same-frame native manager-present=0/dead=1 record are labeled with observed retirement evidence.",
             "missing_source_frames": restore_missing_source,
             "missing_native_or_retired_source_frames": restore_missing_native,
             "both_absent_or_retired_source_frames": restore_both_absent,
@@ -354,7 +365,7 @@ def main(argv: list[str] | None = None) -> int:
     state = report["restore_state"]
     parent = report["parent_phase"]
     print(f"restore_compared={state['compared_records']} restore_differences={state['difference_words']} "
-          f"restore_both_absent={state['both_absent_or_retired_count']} "
+          f"restore_both_absent={state['both_absent_count']} "
           f"parent_compared={parent['compared_records']} parent_differences={parent['difference_records']} "
           f"output={args.output}")
     return 0 if report["component_values_equal_when_paired"] else 1

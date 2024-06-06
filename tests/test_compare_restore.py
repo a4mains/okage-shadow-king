@@ -97,7 +97,8 @@ class CompareRestoreTests(unittest.TestCase):
         self.assertEqual(report["parent_phase"]["difference_records"], 0)
         self.assertEqual(report["restore_state"]["checks"][0]["native_frame"], 1200)
         self.assertEqual(report["alignment"]["native_offset"], 1200)
-        self.assertEqual(report["restore_state"]["expected_post_retirement_absence_source_frames"], [2])
+        self.assertEqual(report["restore_state"]["both_absent_after_last_observation_source_frames"], [2])
+        self.assertEqual(report["restore_state"]["both_absent_with_observed_retirement_evidence_source_frames"], [])
 
     def test_reports_field_mismatches_and_first_difference(self):
         self.write_source([source_restore_row(0, selected=2), source_parent_row(0, phase=7)])
@@ -117,10 +118,28 @@ class CompareRestoreTests(unittest.TestCase):
         state = report["restore_state"]
         self.assertEqual(state["missing_source_frames"], [1, 2])
         self.assertEqual(state["missing_native_or_retired_source_frames"], [1, 2])
-        self.assertEqual(state["expected_post_retirement_absence_source_frames"], [1, 2])
+        self.assertEqual(state["both_absent_after_last_observation_source_frames"], [1, 2])
+        self.assertEqual(state["both_absent_with_observed_retirement_evidence_source_frames"], [])
         parent = report["parent_phase"]
         self.assertEqual(parent["missing_source_frames"], [1, 2])
         self.assertEqual(parent["missing_native_source_frames"], [1, 2])
+
+    def test_retirement_evidence_requires_dead_flags_and_native_absence_record(self):
+        self.write_source([source_restore_row(0, dead=True)])
+        self.restore.write_bytes(native_restore_row(1200, dead=1) + native_restore_row(1201, dead=1, present=0))
+        self.mode.write_bytes(native_parent_row(1200))
+        report = self.compare(source_stop=3)
+        state = report["restore_state"]
+        self.assertEqual(state["last_source_manager_dead_flag"], 1)
+        self.assertEqual(state["last_native_manager_dead_flag"], 1)
+        self.assertEqual(state["both_absent_with_observed_retirement_evidence_source_frames"], [1])
+        self.assertEqual(state["both_absent_after_last_observation_source_frames"], [2])
+
+    def test_zero_paired_records_are_not_reported_equal(self):
+        report = MODULE.compare({}, {}, {}, {}, native_offset=1200, source_stop=1)
+        self.assertFalse(report["restore_state"]["values_equal_when_paired"])
+        self.assertFalse(report["parent_phase"]["values_equal_when_paired"])
+        self.assertFalse(report["component_values_equal_when_paired"])
 
     def test_fixed_offset_required_and_source_schema_hash_validated(self):
         self.write_source([source_restore_row(0)], schema="wrong")
