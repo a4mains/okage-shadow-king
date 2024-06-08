@@ -114,7 +114,14 @@ void newlines(){
             "Trailing newline does not fabricate a per-glyph widget extent update");
     require(w.word(0x269c)==5,"Newlines do not add typed stream entries");
 
-    r=resource(1,0);r->set_text(0,0,"\\n");auto empty=window(r);draws=0;
+    r=resource(1,0);r->set_text(0,0,"\\n");auto retained=window(r);draws=0;
+    retained.layout_mode2({shared,*f,sine,[&](){++draws;return 1u;},0,packets});
+    require(retained.word(0xcdc)==9&&draws==41&&retained.glyph_buffer(1).word(8)==bits(49)&&
+            retained.glyph_buffer(1).word(8*16+8)==bits(103),
+            "Terminal control consumes its NUL and parses the source-preserved previous text tail");
+    require(retained.glyph_buffer(0).word(4)==bits(84),"Retained text begins on the advanced line");
+
+    r=resource(1,0);r->set_text(0,0,"ABC");r->set_text(0,0,"\\n");auto empty=window(r);draws=0;
     empty.layout_mode2({shared,*f,sine,[&](){++draws;return 1u;},0,packets});
     require(empty.word(0xcdc)==0&&empty.word(0xcec)==0&&draws==32,
             "A terminal newline allocates no glyph and consumes only sentinel RNG");
