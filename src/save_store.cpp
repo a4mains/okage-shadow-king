@@ -83,10 +83,11 @@ void read_all(int fd, std::span<std::uint8_t> bytes, const std::filesystem::path
 Fd open_directory(const std::filesystem::path& path) {
     const int fd = ::open(path.c_str(), O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
     if (fd < 0) throw SaveIoError("open save directory", path, errno);
+    Fd directory(fd);
     struct stat st{};
     if (::fstat(fd, &st) != 0) throw SaveIoError("stat save directory", path, errno);
     if (!S_ISDIR(st.st_mode)) throw SaveIoError("save path is not a directory", path, ENOTDIR);
-    return Fd(fd);
+    return directory;
 }
 
 void validate_slot(unsigned slot) {
@@ -159,7 +160,7 @@ std::optional<SavePayload> NativeSaveStore::read(unsigned slot) const {
     }
     if (S_ISLNK(root_stat.st_mode)) throw SaveIoError("save directory is a symlink", directory_, ELOOP);
     auto root = open_directory(directory_);
-    const int fd = ::openat(root.get(), name.c_str(), O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+    const int fd = ::openat(root.get(), name.c_str(), O_RDONLY | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK);
     if (fd < 0) {
         if (errno == ENOENT) return std::nullopt;
         throw SaveIoError("open save file", directory_ / name, errno);

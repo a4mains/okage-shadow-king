@@ -1,0 +1,32 @@
+#pragma once
+#include "okage/scene_resource.hpp"
+#include "okage/battle_ui_pad.hpp"
+#include <filesystem>
+namespace okage {
+struct RestoreShared {
+    int state=0,selected=0,repeat_delay=0;
+    std::array<int,3> alpha{};
+    float previous_opacity=0;
+};
+struct RestoreConstruction {
+    std::filesystem::path common_root,ui_root,save_directory;
+    std::shared_ptr<const std::vector<Font>> fonts;
+    std::function<void()> stop_music;
+};
+class RestoreSession {
+public:
+    RestoreSession(SceneClearColor&,SceneFade&,BattleUiShared&,RestoreShared&,RestoreConstruction);
+    ~RestoreSession();
+    void tick(BattleUiPadInput,std::span<std::uint8_t>,const GameDataTables&,
+        SceneFade&,Animation&,FieldProjection&,RetiringSceneEffects*,BattleUiShared&,
+        unsigned& image_counter,const SineTable&,GameRandom&,
+        const std::function<void(unsigned)>& sound,const std::function<void(bool)>& finish);
+    void retire(Animation&,FieldProjection&,RetiringSceneEffects*,BattleUiShared&);
+    bool resource_live() const;
+    const Texture* rendered_image() const;
+    std::vector<std::uint32_t> observation() const;
+private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
+};
+}

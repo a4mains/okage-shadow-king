@@ -86,8 +86,11 @@ public:
         }
         if(pc==0x11e480||pc==0x11c2c8) {
             if(!parent||!valid(parent,0x54))throw std::runtime_error("Restore callback has no captured game-mode parent");
-            if(word(parent+0x24)!=10)throw std::runtime_error("Restore callback is not owned by a live mode-10 parent");
-            const auto manager=word(parent+0x34);
+            const auto wrapper=word(parent+0x38);
+            if(word(parent+0x40)!=10||!wrapper||!valid(wrapper,0x38)||word(wrapper+0x24)!=10||
+               word(wrapper+4)!=0x124630||word(wrapper+8)!=0x124628)
+                throw std::runtime_error("Restore callback is not owned by the live mode-10 wrapper");
+            const auto manager=word(wrapper+0x34);
             if(!manager||!valid(manager,0xef0))throw std::runtime_error("Restore parent manager is null/outside EE RAM");
             const std::array<uint32,4> expected_descriptor={0x11f668,0x11fec8,0x120ad0,0x120b48};
             for(unsigned i=0;i<expected_descriptor.size();++i)
@@ -113,7 +116,7 @@ public:
             if(!valid(layer,0xe0)||layer+0xe0>manager+0xef0)throw std::runtime_error("Restore manager layer record outside manager extent");
             output<<",\"restore\":{\"edge\":\""<<edge<<"\",\"input_handler_ordinal\":"<<restore_input_count
                   <<",\"second_callback_ordinal\":"<<restore_second_count;
-            field("parent_mode24",word(parent+0x24));field("parent_manager34",manager);
+            field("wrapper",wrapper);field("parent_mode24",word(wrapper+0x24));field("parent_manager34",manager);
             field("manager_flags1c",word(manager+0x1c));field("manager_layer_count_e40",layer_count);
             field("manager_layer_index_e48",layer_index);field("manager_dispatch_state_e4c",word(manager+0xe4c));
             field("manager_layer_state_prefix_e90",word(manager+0xe90));
@@ -137,7 +140,7 @@ public:
             field("storage_type_24ee78",word(0x24ee78));field("storage_result_24ee7c",word(0x24ee7c));
             field("storage_continuation_24ee9a",half(0x24ee9a));
             output<<",\"controller\":{\"word_339588\":\""<<hex(word(0x339588))
-                  <<"\",\"held_33958c\":\""<<hex(word(0x33958c))
+                  <<"\",\"held_33958c\":\""<<hex16(half(0x33958c))
                   <<"\",\"pressed_33958e\":\""<<hex16(half(0x33958e))
                   <<"\",\"word_339590\":\""<<hex(word(0x339590))<<"\"}";
             const auto context=word(0x2e27c0);field("storage_context_pointer_2e27c0",context);

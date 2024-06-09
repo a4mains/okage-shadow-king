@@ -26,6 +26,7 @@ SOURCE_LAYOUT = (
     ("local/effect-input/CMNDATA/2D", "CMNDATA/2D", "owned_effect_data"),
     ("local/audio-input/SNDDATA", "SNDDATA", "owned_audio"),
     ("local/battle-input-v6", "NATIVE_UI", "owned_native_ui"),
+    ("local/restore-data-v1", "NATIVE_UI", "owned_restore_ui"),
 )
 
 def _sha256(path: Path) -> str:

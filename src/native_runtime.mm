@@ -10,6 +10,7 @@
 #include "game_over_session.hpp"
 #include "title_session.hpp"
 #include "name_entry_session.hpp"
+#include "restore_session.hpp"
 #include "chapter_session.hpp"
 #include "startup_session.hpp"
 #include "okage/title_stream.hpp"
@@ -315,6 +316,8 @@ struct Session {
     bool startup_audio_initialized=false;
     okage::NameEntryShared name_entry_shared;
     std::unique_ptr<okage::NameEntrySession> name_entry;
+    okage::RestoreShared restore_shared;
+    std::unique_ptr<okage::RestoreSession> restore;
     std::unique_ptr<okage::ChapterSession> chapter;
     okage::TitleStreamOwner title_stream;
     okage::GameOverShared game_over_shared;
@@ -380,7 +383,7 @@ struct Session {
         load_observation_written=true;
     }
     std::vector<std::uint32_t> battle_loading_trace;
-    std::vector<std::uint32_t> game_mode_trace,retiring_effect_trace,results_trace,title_trace,name_entry_trace,chapter_trace,ordinary_load_trace,startup_trace;
+    std::vector<std::uint32_t> game_mode_trace,retiring_effect_trace,results_trace,title_trace,name_entry_trace,chapter_trace,ordinary_load_trace,startup_trace,restore_trace;
     bool retain_field_music=false;
     std::optional<okage::Texture> transition_image;
     // AppKit presentation is separate from research captures and feedback.
@@ -1005,6 +1008,10 @@ struct Session {
                     chapter->retire(*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,ui_shared,scene_fade);
                     std::cout<<"Native chapter retired frame="<<frame<<'\n';
                 }
+                else if(restore) {
+                    restore->retire(*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,ui_shared);
+                    std::cout<<"Native Restore retired frame="<<frame<<'\n';
+                }
                 else if(name_entry) {
                     name_entry->retire(*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,ui_shared);
                     std::cout<<"Native name entry retired frame="<<frame<<'\n';
@@ -1035,6 +1042,10 @@ struct Session {
                     defeat_return.reset();
                     std::cout<<"Native defeat return field freed frame="<<frame<<'\n';
                 }
+                if(restore) {
+                    if(restore->resource_live())throw std::runtime_error("Restore free before retirement");
+                    restore.reset();
+                }
                 if(name_entry) {
                     if(name_entry->resource_live())throw std::runtime_error("Name entry free before retirement");
                     name_entry.reset();
@@ -1059,7 +1070,7 @@ struct Session {
                 if(field||renderer||!actor_bindings.empty()||!actor_objects.empty()||map_objects)
                     throw std::runtime_error("Field borrowers survived mode retirement");
             },[this](okage::GameModeSelection selection){
-                if(battle||field||field_return||defeat_return||game_over||title||name_entry||chapter||startup||!reset_camera)
+                if(battle||field||field_return||defeat_return||game_over||title||name_entry||restore||chapter||startup||!reset_camera)
                     throw std::runtime_error("Native mode construction has surviving scene owners");
                 if(selection[0]==2&&pending_game_command[0]==13) {begin_field_return();return;}
                 if(selection[0]==2&&pending_game_command[0]==0) {begin_ordinary_field(selection);return;}
@@ -1076,6 +1087,11 @@ struct Session {
                         scene_fade,scene_clear,ui_shared);
                     std::cout<<"Native defeat return field constructed frame="<<frame<<'\n';
                     return;
+                }
+                if(selection==okage::GameModeSelection{10,0,0}) {
+                    restore=std::make_unique<okage::RestoreSession>(scene_clear,scene_fade,ui_shared,restore_shared,
+                        okage::RestoreConstruction{field_root.parent_path()/"CMNDATA",battle_input,save_directory,ui_fonts,[this]{if(music)music->stop();}});
+                    std::cout<<"Native Restore constructed frame="<<frame<<'\n';return;
                 }
                 if(selection==okage::GameModeSelection{9,0,0}) {
                     name_entry=std::make_unique<okage::NameEntrySession>(scene_clear,scene_fade,ui_shared,name_entry_shared,
@@ -1164,6 +1180,28 @@ struct Session {
                     game_mode->request(selection);
                     std::cout<<"Native game-over requested mode="<<selection[0]<<" arg="<<selection[1]<<" frame="<<frame<<'\n';
                 });
+        }
+        if(restore&&restore->resource_live()) {
+            if(!game_data)throw std::runtime_error("Restore needs owned game tables");
+            restore->tick({input.held,input.pressed,released,input.repeat,128,128},variables,*game_data,
+                scene_fade,*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,ui_shared,
+                game_over_shared.image_frame_counter,battle_capture_sine,random,[this](unsigned id){
+                    if(id!=3&&id!=4&&id!=7)throw std::runtime_error("Restore sound ID");
+                    const auto bank=sound_banks.find(0);if(bank==sound_banks.end())throw std::runtime_error("Restore requires ALL bank");
+                    bank->second->play(id,1.f,id==4?110:100);
+                },[this](bool loaded){
+                    pending_game_command={loaded?3u:4u,0,0};
+                    if(loaded) {
+                        const auto first=variables.begin()+0x844,end=std::find(first,first+8,0);
+                        if(end==first+8)throw std::runtime_error("Restored player name lacks terminator");
+                        player_name.assign(first,end);
+                        const auto word=[this](unsigned at){return unsigned(variables[at])|unsigned(variables[at+1])<<8|unsigned(variables[at+2])<<16|unsigned(variables[at+3])<<24;};
+                        game_mode->request({2,word(0x510),word(0x514)});
+                    } else game_mode->request({8,1,0});
+                    std::cout<<"Native Restore requested "<<(loaded?"saved field":"title")<<" frame="<<frame<<'\n';
+                });
+            const auto observation=restore->observation();restore_trace.push_back(frame);
+            restore_trace.insert(restore_trace.end(),observation.begin(),observation.end());
         }
         if(name_entry&&name_entry->resource_live()) {
             if(!game_data)throw std::runtime_error("Name entry needs owned game tables");
@@ -1534,7 +1572,7 @@ struct Session {
         if(!snapshot.game_view)return snapshot;
         snapshot.live_enabled=live_presentation_enabled;
         //Layer2 OT40e precedes results UI OT40f; results already applied it.
-        snapshot.apply_fade=!(field_return&&field_return->rendered)&&!(title&&title->rendered_image())&&!(name_entry&&name_entry->rendered_image());
+        snapshot.apply_fade=!(field_return&&field_return->rendered)&&!(title&&title->rendered_image())&&!(name_entry&&name_entry->rendered_image())&&!(restore&&restore->rendered_image());
         snapshot.fade=scene_fade;
         if(choices.highlighted)snapshot.choice_cursor=choices.cursor;
         auto glyphs=narration.glyphs(fonts[2]);const auto choiceGlyphs=choices.glyphs(fonts[2]);
@@ -1596,6 +1634,8 @@ struct Session {
             image=*battle->rendered_image();
         } else if(defeat_return&&defeat_return->resource().rendered_image()) {
             image=*defeat_return->resource().rendered_image();
+        } else if(restore&&restore->rendered_image()) {
+            image=*restore->rendered_image();
         } else if(name_entry&&name_entry->rendered_image()) {
             image=*name_entry->rendered_image();
         } else if(chapter&&chapter->rendered_image()) {
@@ -1803,6 +1843,7 @@ static void capture(Session& session,const fs::path& path) {
         std::pair{".battle-transition.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.battle_transition_trace.data()),session.battle_transition_trace.size()*4)},
         std::pair{".battle-capture.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.battle_capture_trace.data()),session.battle_capture_trace.size()*4)},
         std::pair{".game-mode.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.game_mode_trace.data()),session.game_mode_trace.size()*4)},
+        std::pair{".restore-state.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.restore_trace.data()),session.restore_trace.size()*4)},
         std::pair{".name-entry-state.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.name_entry_trace.data()),session.name_entry_trace.size()*4)},
         std::pair{".chapter-state.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.chapter_trace.data()),session.chapter_trace.size()*4)},
         std::pair{".startup.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.startup_trace.data()),session.startup_trace.size()*4)},
@@ -1898,13 +1939,13 @@ static void capture(Session& session,const fs::path& path) {
 - (void)keyDown:(NSEvent*)event {
     if(event.isARepeat)return;
     if(event.keyCode==35){self.pauseRequested=YES;return;} // P: diagnostic pause, no game input.
-    const unsigned mask=(event.keyCode==36 || event.keyCode==49)?0x40:event.keyCode==126?0x1000:event.keyCode==125?0x4000:event.keyCode==123?0x8000:event.keyCode==124?0x2000:event.keyCode==1?0x800:0;
+    const unsigned mask=(event.keyCode==36 || event.keyCode==49)?0x40:event.keyCode==126?0x1000:event.keyCode==125?0x4000:event.keyCode==123?0x8000:event.keyCode==124?0x2000:event.keyCode==1?0x800:event.keyCode==53?0x20:0;
     if(mask){self.pressed|=mask;self.held|=mask;++self.injectedKeyDowns;}
     else [super keyDown:event];
 }
 - (void)keyUp:(NSEvent*)event {
     if(event.keyCode==35)return;
-    const unsigned mask=(event.keyCode==36 || event.keyCode==49)?0x40:event.keyCode==126?0x1000:event.keyCode==125?0x4000:event.keyCode==123?0x8000:event.keyCode==124?0x2000:event.keyCode==1?0x800:0;
+    const unsigned mask=(event.keyCode==36 || event.keyCode==49)?0x40:event.keyCode==126?0x1000:event.keyCode==125?0x4000:event.keyCode==123?0x8000:event.keyCode==124?0x2000:event.keyCode==1?0x800:event.keyCode==53?0x20:0;
     if(mask)self.held&=~mask;
     else [super keyUp:event];
 }

@@ -33,6 +33,7 @@ class StageGameDataTests(unittest.TestCase):
         effect = self.put("local/effect-input/CMNDATA/2D", "TES.EFD", b"effects")
         audio = self.put("local/audio-input/SNDDATA", "BGM/JGL_BSC0.XV", b"audio")
         native_ui = self.put("local/battle-input-v6", "NAME_ENTRY.bin", b"ui")
+        restore_ui = self.put("local/restore-data-v1", "RESTORE.bin", b"restore")
         destination = Path(self.temp.name) / "run" / "game-data"
 
         result = stage_game_data(self.repo, destination)
@@ -45,6 +46,7 @@ class StageGameDataTests(unittest.TestCase):
             "CMNDATA/2D/TES.EFD": effect,
             "SNDDATA/BGM/JGL_BSC0.XV": audio,
             "NATIVE_UI/NAME_ENTRY.bin": native_ui,
+            "NATIVE_UI/RESTORE.bin": restore_ui,
         }
         for relative, source in expected.items():
             staged = result / relative

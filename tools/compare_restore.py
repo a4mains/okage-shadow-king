@@ -163,6 +163,7 @@ def compare(source_restore: dict[int, dict], source_parent: dict[int, int],
     restore_both_absent: list[int] = []
     both_absent_with_retirement_evidence: list[int] = []
     both_absent_after_last_observation: list[int] = []
+    both_unobserved: list[int] = []
     first_restore_difference = None
     compared_restore = 0
     source_active_frames = [frame for frame in source_restore if 0 <= frame < source_stop]
@@ -194,9 +195,13 @@ def compare(source_restore: dict[int, dict], source_parent: dict[int, int],
             if retirement_observed:
                 check["status"] = "both_absent_with_observed_retirement_evidence"
                 both_absent_with_retirement_evidence.append(source_frame)
-            else:
+            elif (last_source_active is not None and last_native_active is not None and
+                  source_frame > last_source_active and source_frame > last_native_active):
                 check["status"] = "both_absent_after_last_observation"
                 both_absent_after_last_observation.append(source_frame)
+            else:
+                check["status"] = "both_unobserved"
+                both_unobserved.append(source_frame)
             restore_checks.append(check)
             continue
         if source is None:
@@ -289,6 +294,8 @@ def compare(source_restore: dict[int, dict], source_parent: dict[int, int],
             "both_absent_with_observed_retirement_evidence_count": len(both_absent_with_retirement_evidence),
             "both_absent_with_observed_retirement_evidence_source_frames": both_absent_with_retirement_evidence,
             "both_absent_after_last_observation_count": len(both_absent_after_last_observation),
+            "both_unobserved_count": len(both_unobserved),
+            "both_unobserved_source_frames": both_unobserved,
             "both_absent_after_last_observation_source_frames": both_absent_after_last_observation,
             "last_source_manager_observation_frame": last_source_active,
             "last_source_manager_dead_flag": last_source_dead,

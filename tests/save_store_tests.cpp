@@ -8,6 +8,8 @@
 #include <stdexcept>
 #include <string>
 #include <unistd.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
 #include <vector>
 
 namespace {
@@ -54,6 +56,10 @@ void checksum_and_envelope() {
     SavePayload payload{};
     for (std::size_t i = 0; i < payload.size(); ++i) payload[i] = static_cast<std::uint8_t>((i * 37 + 11) & 0xff);
     const auto file = encode_source_save(payload);
+    std::array<std::uint8_t,256> all_bytes{};
+    for(unsigned i=0;i<256;++i)all_bytes[i]=std::uint8_t(i);
+    check(source_save_checksum(all_bytes)==0x1c09f2d6u,"original all-byte checksum");
+    check(source_save_checksum(payload)==0x7ab6c48fu,"original full-payload checksum");
     check(file.size() == source_save_file_size && file.size() == 0xd84, "one source save file has exact framed size");
     check(file[0] == '!' && file[1] == 'c' && file[2] == 'r' && file[3] == 'c', "source magic bytes");
     check(file[4] == 0x78 && file[5] == 0x0d && file[6] == 0 && file[7] == 0, "source block size is 0xd78 little endian");
@@ -93,6 +99,11 @@ void native_slots_and_failures() {
     for (const auto& entry : std::filesystem::directory_iterator(root))
         check(entry.path().filename() == "bkmo0.dat", "temporary file is removed after successful rename");
 
+    const auto child=::fork();check(child>=0,"save subprocess creation");
+    if(child==0){try{NativeSaveStore(root).write(2,first);::_exit(0);}catch(...){::_exit(1);}}
+    int status=0;check(::waitpid(child,&status,0)==child&&WIFEXITED(status)&&WEXITSTATUS(status)==0,"save subprocess write");
+    check(NativeSaveStore(root).read(2)==first,"fresh owner reads completed other-process save");
+
     auto corrupt = read_bytes(root / "bkmo0.dat");
     corrupt[30] ^= 0x80;
     write_bytes(root / "bkmo0.dat", corrupt);
@@ -102,6 +113,10 @@ void native_slots_and_failures() {
     std::filesystem::create_symlink(temp.path / "outside", root / "bkmo0.dat");
     rejects([&] { (void)store.read(0); }, "symlink slot is rejected");
     rejects([&] { store.write(0, first); }, "symlink destination is rejected");
+
+    check(::mkfifo((root / "bkmo1.dat").c_str(),0600)==0,"create non-regular slot fixture");
+    rejects([&] { (void)store.read(1); }, "FIFO slot rejects without waiting for a writer");
+    rejects([&] { store.write(1, first); }, "FIFO destination is rejected");
 
     const auto bad_root = temp.path / "not-a-directory";
     { std::ofstream f(bad_root); f << "keep"; }
