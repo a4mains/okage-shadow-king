@@ -110,6 +110,15 @@ class CompareRestoreTests(unittest.TestCase):
         self.assertEqual(report["parent_phase"]["difference_records"], 1)
         self.assertFalse(report["component_values_equal_when_paired"])
 
+    def test_internal_gap_is_not_a_trailing_absence(self):
+        self.write_source([source_restore_row(0), source_restore_row(2)])
+        self.restore.write_bytes(native_restore_row(1200) + native_restore_row(1202))
+        self.mode.write_bytes(native_parent_row(1200))
+        state = self.compare(source_stop=3)["restore_state"]
+        self.assertEqual(state["both_unobserved_source_frames"], [1])
+        self.assertEqual(state["both_absent_after_last_observation_count"], 0)
+        self.assertEqual(state["checks"][1]["status"], "both_unobserved")
+
     def test_missing_rows_are_not_filled_and_both_retirement_tails_are_separate(self):
         self.write_source([source_restore_row(0), source_parent_row(0)])
         self.restore.write_bytes(native_restore_row(1200))
