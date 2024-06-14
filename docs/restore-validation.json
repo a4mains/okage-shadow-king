@@ -1,0 +1,2872 @@
+{
+  "schema": "okage-native-restore-validation-v1",
+  "date": "2024-06-14",
+  "runtime_revision": "54d6480",
+  "acceptance_met": false,
+  "scope": "Cold startup to empty Restore and cancel; source-framed storage only.",
+  "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "owned_stage": {
+    "path": "local/game-data-stage-v2/.owned-game-data-manifest.json",
+    "bytes": 5421429,
+    "sha256": "6eae02dc8e05da0288a013400d02265c6f3db5af22da164d1fa1479a6a2dd578"
+  },
+  "imported_restore": {
+    "manifest": {
+      "path": "local/restore-data-v1/RESTORE.bin.manifest.json",
+      "bytes": 20013,
+      "sha256": "f8a55f2c13907686830e24199edd05687cf94e840d17f0ff4141d1f585cc70d5"
+    },
+    "binding_meanings": {
+      "atlas_id_1": "terminated tuple list at 0x001f8e98",
+      "constructor_handler_id_1": "source constructor 0x0011b518",
+      "stream_id_1": "source stream address 0x0024f6d0; initialized by 0x0011b518",
+      "type8_dispatch_handler_id_1": "source table 0x001f8f48[8] target 0x0011e480",
+      "update_handler_id_1": "source updater 0x0011c2c8"
+    },
+    "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "notes": [
+      "The source stream address 0x0024f6d0 is not file-backed in the ELF; no guest pointer or memory image is serialized.",
+      "Only the first zero atlas tuple is imported; consumer 0x0011f7a0 stops at that tuple.",
+      "Literal bytes are preserved without conversion; strings use the game byte encoding.",
+      "No save format, memory-card service behavior, or callback behavior is implemented by this artifact."
+    ],
+    "output_bytes": 1696,
+    "output_sha256": "48579faaf622833570ef06b22ef8c0d5ecc1d1e4166c8af610372db72ca9d188",
+    "record": {
+      "bindings": {
+        "atlas_id": 1,
+        "constructor_handler_id": 1,
+        "stream_id": 1,
+        "type8_dispatch_handler_id": 1,
+        "update_handler_id": 1
+      },
+      "capacities": [
+        17,
+        16
+      ],
+      "type": 8
+    },
+    "schema": "okage-restore-data-import-v1",
+    "scope": "Pointer-free Restore descriptor and referenced static literal bytes; no native save behavior or callback implementation.",
+    "source_bytes": 1264,
+    "source_ranges": [
+      {
+        "bytes_including_terminator": 116,
+        "vaddr": "0x002233f0"
+      },
+      {
+        "bytes": 16,
+        "meaning": "first all-zero 16-byte tuple terminates the atlas list",
+        "vaddr": "0x001f8e98"
+      },
+      {
+        "bytes": 4,
+        "meaning": "type-8 dispatch target 0x0011e480",
+        "vaddr": "0x001f8f68"
+      },
+      {
+        "bytes_hex": "2f00",
+        "bytes_including_nul": 2,
+        "key": "Slash",
+        "string_id": 1,
+        "vaddr": "0x00222c00"
+      },
+      {
+        "bytes_hex": "4241534355532d393731323900",
+        "bytes_including_nul": 13,
+        "key": "ProductCode",
+        "string_id": 2,
+        "vaddr": "0x00222c08"
+      },
+      {
+        "bytes_hex": "5c665b325d2000",
+        "bytes_including_nul": 7,
+        "key": "TextPrefix",
+        "string_id": 3,
+        "vaddr": "0x00222c48"
+      },
+      {
+        "bytes_hex": "466f726d61743f20202020202059657320204e6f00",
+        "bytes_including_nul": 21,
+        "key": "FormatYesNo",
+        "string_id": 4,
+        "vaddr": "0x00222c50"
+      },
+      {
+        "bytes_hex": "59657320204e6f00",
+        "bytes_including_nul": 8,
+        "key": "YesNo",
+        "string_id": 5,
+        "vaddr": "0x00222c68"
+      },
+      {
+        "bytes_hex": "5c665b325d5361766520696e20776869636820736c6f743f00",
+        "bytes_including_nul": 25,
+        "key": "SaveSlotPrompt",
+        "string_id": 6,
+        "vaddr": "0x00222c70"
+      },
+      {
+        "bytes_hex": "5c665b325d57686963682066696c6520646f20796f752077616e7420746f20726561643f00",
+        "bytes_including_nul": 37,
+        "key": "ReadSlotPrompt",
+        "string_id": 7,
+        "vaddr": "0x00222c90"
+      },
+      {
+        "bytes_hex": "5c665b325d2046696c652031202046696c652032202046696c65203300",
+        "bytes_including_nul": 29,
+        "key": "SlotLabels",
+        "string_id": 8,
+        "vaddr": "0x00222cb8"
+      },
+      {
+        "bytes_hex": "00",
+        "bytes_including_nul": 1,
+        "key": "Empty",
+        "string_id": 9,
+        "vaddr": "0x00222cd8"
+      },
+      {
+        "bytes_hex": "5c665b325d5c735b302e392c312e305d257300",
+        "bytes_including_nul": 19,
+        "key": "NameFormat",
+        "string_id": 10,
+        "vaddr": "0x00222ce0"
+      },
+      {
+        "bytes_hex": "5c665b325d4e616d658146257300",
+        "bytes_including_nul": 14,
+        "key": "PlayerNameFormat",
+        "string_id": 11,
+        "vaddr": "0x00222cf8"
+      },
+      {
+        "bytes_hex": "5c665b305d253032643a2530326400",
+        "bytes_including_nul": 15,
+        "key": "PlayTimeFormat",
+        "string_id": 12,
+        "vaddr": "0x00222d08"
+      },
+      {
+        "bytes_hex": "253033642f2530336400",
+        "bytes_including_nul": 10,
+        "key": "HitPointsFormat",
+        "string_id": 13,
+        "vaddr": "0x00222d18"
+      },
+      {
+        "bytes_hex": "4c562530326400",
+        "bytes_including_nul": 7,
+        "key": "LevelFormat",
+        "string_id": 14,
+        "vaddr": "0x00222d28"
+      },
+      {
+        "bytes_hex": "5c735b312e302c312e305d5c665b325d4e65757472616c00",
+        "bytes_including_nul": 24,
+        "key": "NeutralStatus",
+        "string_id": 15,
+        "vaddr": "0x00222d30"
+      },
+      {
+        "bytes_hex": "5c665b325d257300",
+        "bytes_including_nul": 8,
+        "key": "GenericStringFormat",
+        "string_id": 16,
+        "vaddr": "0x00222d48"
+      },
+      {
+        "bytes_hex": "5c735b302e382c312e305d5c665b325d8ef482a281465c665b325d257300",
+        "bytes_including_nul": 30,
+        "key": "CurseStatusFormat",
+        "string_id": 17,
+        "vaddr": "0x00222d50"
+      },
+      {
+        "bytes_hex": "5c665b305d256400",
+        "bytes_including_nul": 8,
+        "key": "SlotNumberFormat",
+        "string_id": 18,
+        "vaddr": "0x00222d70"
+      },
+      {
+        "bytes_hex": "5c665b315d256400",
+        "bytes_including_nul": 8,
+        "key": "MenuNumberFormat",
+        "string_id": 19,
+        "vaddr": "0x00222d78"
+      },
+      {
+        "bytes_hex": "5c665b315d2f2530326400",
+        "bytes_including_nul": 11,
+        "key": "ProgressNumberFormat",
+        "string_id": 20,
+        "vaddr": "0x00222d80"
+      },
+      {
+        "bytes_hex": "5c665b325d436865636b696e67204d656d6f727920436172642028505332292e5c6e446f206e6f742072656d6f7665204d656d6f727920436172642028505332292e00",
+        "bytes_including_nul": 67,
+        "key": "CheckingCardNotice",
+        "string_id": 21,
+        "vaddr": "0x00222d90"
+      },
+      {
+        "bytes_hex": "5c665b325d4e6f204d656d6f7279204361726420285053322920696e7365727465642e00",
+        "bytes_including_nul": 36,
+        "key": "NoCardNotice",
+        "string_id": 22,
+        "vaddr": "0x00222dd8"
+      },
+      {
+        "bytes_hex": "5c665b325d4d656d6f72792043617264202850533229206973206e6f7420666f726d61747465642e00",
+        "bytes_including_nul": 41,
+        "key": "UnformattedCardNotice",
+        "string_id": 23,
+        "vaddr": "0x00222e00"
+      },
+      {
+        "bytes_hex": "5c665b325d52657475726e20746f20612067616d6520776974686f757420736176696e673f00",
+        "bytes_including_nul": 38,
+        "key": "CancelSaveNotice",
+        "string_id": 24,
+        "vaddr": "0x00222e30"
+      },
+      {
+        "bytes_hex": "5c665b325d466f726d617474696e672e2e2e5c6e446f206e6f742072656d6f7665204d656d6f727920436172642028505332292e00",
+        "bytes_including_nul": 53,
+        "key": "FormattingNotice",
+        "string_id": 25,
+        "vaddr": "0x00222e58"
+      },
+      {
+        "bytes_hex": "5c665b325d466f726d6174206661696c65642e00",
+        "bytes_including_nul": 20,
+        "key": "FormatFailedNotice",
+        "string_id": 26,
+        "vaddr": "0x00222e90"
+      },
+      {
+        "bytes_hex": "25732f626b6d6f25642e64617400",
+        "bytes_including_nul": 14,
+        "key": "SaveFilePathFormat",
+        "string_id": 27,
+        "vaddr": "0x00222ea8"
+      },
+      {
+        "bytes_hex": "5c665b325d4e6f7420656e6f75676820737061636520696e20746865204d656d6f727920436172642028505332292e5c6e2a203135304b42206f72206d6f726520737061636520726571756972656420666f722061206e657720736176652e00",
+        "bytes_including_nul": 96,
+        "key": "NewSaveSpaceNotice",
+        "string_id": 28,
+        "vaddr": "0x00222ed0"
+      },
+      {
+        "bytes_hex": "25732f69636f6e2e73797300",
+        "bytes_including_nul": 12,
+        "key": "IconSysPathFormat",
+        "string_id": 29,
+        "vaddr": "0x00222f30"
+      },
+      {
+        "bytes_hex": "25732f626b6d6f312e69636f00",
+        "bytes_including_nul": 13,
+        "key": "SaveIcon1PathFormat",
+        "string_id": 30,
+        "vaddr": "0x00222f40"
+      },
+      {
+        "bytes_hex": "25732f626b6d6f322e69636f00",
+        "bytes_including_nul": 13,
+        "key": "SaveIcon2PathFormat",
+        "string_id": 31,
+        "vaddr": "0x00222f50"
+      },
+      {
+        "bytes_hex": "25732f626b6d6f332e69636f00",
+        "bytes_including_nul": 13,
+        "key": "SaveIcon3PathFormat",
+        "string_id": 32,
+        "vaddr": "0x00222f60"
+      },
+      {
+        "bytes_hex": "25732f257300",
+        "bytes_including_nul": 6,
+        "key": "PathJoinFormat",
+        "string_id": 33,
+        "vaddr": "0x00222f70"
+      },
+      {
+        "bytes_hex": "5c665b325d53797374656d2066696c6520636f727275707465642e5c6e2a20313530204b42206f72206d6f726520737061636520726571756972656420746f20736176652e00",
+        "bytes_including_nul": 70,
+        "key": "CorruptSaveNotice",
+        "string_id": 34,
+        "vaddr": "0x00222f78"
+      },
+      {
+        "bytes_hex": "5c665b325d4461746120696e207468652066696c652025642e205265706c6163653f00",
+        "bytes_including_nul": 35,
+        "key": "ReplaceSavePrompt",
+        "string_id": 35,
+        "vaddr": "0x00222fc0"
+      },
+      {
+        "bytes_hex": "5c665b325d4e6f7420656e6f75676820737061636520696e204d656d6f727920436172642028505332292e5c6e2a354b42206f72206d6f726520737061636520726571756972656420666f722061206e657720736176652e00",
+        "bytes_including_nul": 89,
+        "key": "ExistingSaveSpaceNotice",
+        "string_id": 36,
+        "vaddr": "0x00222fe8"
+      },
+      {
+        "bytes_hex": "5c665b325d536176696e672e2e2e5c6e446f206e6f742072656d6f7665204d656d6f727920436172642028505332292e00",
+        "bytes_including_nul": 49,
+        "key": "SavingNotice",
+        "string_id": 37,
+        "vaddr": "0x00223048"
+      },
+      {
+        "bytes_hex": "636d6e646174612f32642f00",
+        "bytes_including_nul": 12,
+        "key": "DataDirectory",
+        "string_id": 38,
+        "vaddr": "0x00223080"
+      },
+      {
+        "bytes_hex": "5c665b325d536176696e6720636f6d706c657465642e00",
+        "bytes_including_nul": 23,
+        "key": "SaveCompleteNotice",
+        "string_id": 39,
+        "vaddr": "0x00223090"
+      },
+      {
+        "bytes_hex": "5c665b325d536176696e67206661696c65642e00",
+        "bytes_including_nul": 20,
+        "key": "SaveFailedNotice",
+        "string_id": 40,
+        "vaddr": "0x002230a8"
+      },
+      {
+        "bytes_hex": "5c665b325d4e6f20736176656420646174612020666f7220224f6b61676520536861646f77204b696e67222e00",
+        "bytes_including_nul": 45,
+        "key": "NoSavedDataNotice",
+        "string_id": 41,
+        "vaddr": "0x002230c0"
+      },
+      {
+        "bytes_hex": "5c665b325d526561642066696c65202564203f00",
+        "bytes_including_nul": 20,
+        "key": "ReadFilePrompt",
+        "string_id": 42,
+        "vaddr": "0x00223130"
+      },
+      {
+        "bytes_hex": "5c665b325d4c6f6164696e67207375636365737366756c2e00",
+        "bytes_including_nul": 25,
+        "key": "LoadSuccessNotice",
+        "string_id": 43,
+        "vaddr": "0x00223148"
+      },
+      {
+        "bytes_hex": "5c665b325d4c6f6164696e67206661696c65642e00",
+        "bytes_including_nul": 21,
+        "key": "LoadFailedNotice",
+        "string_id": 44,
+        "vaddr": "0x00223168"
+      }
+    ],
+    "source_sha256": "35df7df98ca463c9e9a7e5e326bd56d4384b3cb48d770b1c08b849ad0c5a4f1f",
+    "stream_initialization": [
+      {
+        "opcode": 14,
+        "reference": "MenuTransform1f9c00",
+        "source_helper": "0x001215e0"
+      },
+      {
+        "opcode": 6,
+        "reference": "MenuTransform1f9c2c",
+        "source_helper": "0x001215e0"
+      }
+    ],
+    "strings": [
+      {
+        "bytes_hex": "2f00",
+        "bytes_including_nul": 2,
+        "id": 1,
+        "key": "Slash",
+        "source_vaddr": "0x00222c00"
+      },
+      {
+        "bytes_hex": "4241534355532d393731323900",
+        "bytes_including_nul": 13,
+        "id": 2,
+        "key": "ProductCode",
+        "source_vaddr": "0x00222c08"
+      },
+      {
+        "bytes_hex": "5c665b325d2000",
+        "bytes_including_nul": 7,
+        "id": 3,
+        "key": "TextPrefix",
+        "source_vaddr": "0x00222c48"
+      },
+      {
+        "bytes_hex": "466f726d61743f20202020202059657320204e6f00",
+        "bytes_including_nul": 21,
+        "id": 4,
+        "key": "FormatYesNo",
+        "source_vaddr": "0x00222c50"
+      },
+      {
+        "bytes_hex": "59657320204e6f00",
+        "bytes_including_nul": 8,
+        "id": 5,
+        "key": "YesNo",
+        "source_vaddr": "0x00222c68"
+      },
+      {
+        "bytes_hex": "5c665b325d5361766520696e20776869636820736c6f743f00",
+        "bytes_including_nul": 25,
+        "id": 6,
+        "key": "SaveSlotPrompt",
+        "source_vaddr": "0x00222c70"
+      },
+      {
+        "bytes_hex": "5c665b325d57686963682066696c6520646f20796f752077616e7420746f20726561643f00",
+        "bytes_including_nul": 37,
+        "id": 7,
+        "key": "ReadSlotPrompt",
+        "source_vaddr": "0x00222c90"
+      },
+      {
+        "bytes_hex": "5c665b325d2046696c652031202046696c652032202046696c65203300",
+        "bytes_including_nul": 29,
+        "id": 8,
+        "key": "SlotLabels",
+        "source_vaddr": "0x00222cb8"
+      },
+      {
+        "bytes_hex": "00",
+        "bytes_including_nul": 1,
+        "id": 9,
+        "key": "Empty",
+        "source_vaddr": "0x00222cd8"
+      },
+      {
+        "bytes_hex": "5c665b325d5c735b302e392c312e305d257300",
+        "bytes_including_nul": 19,
+        "id": 10,
+        "key": "NameFormat",
+        "source_vaddr": "0x00222ce0"
+      },
+      {
+        "bytes_hex": "5c665b325d4e616d658146257300",
+        "bytes_including_nul": 14,
+        "id": 11,
+        "key": "PlayerNameFormat",
+        "source_vaddr": "0x00222cf8"
+      },
+      {
+        "bytes_hex": "5c665b305d253032643a2530326400",
+        "bytes_including_nul": 15,
+        "id": 12,
+        "key": "PlayTimeFormat",
+        "source_vaddr": "0x00222d08"
+      },
+      {
+        "bytes_hex": "253033642f2530336400",
+        "bytes_including_nul": 10,
+        "id": 13,
+        "key": "HitPointsFormat",
+        "source_vaddr": "0x00222d18"
+      },
+      {
+        "bytes_hex": "4c562530326400",
+        "bytes_including_nul": 7,
+        "id": 14,
+        "key": "LevelFormat",
+        "source_vaddr": "0x00222d28"
+      },
+      {
+        "bytes_hex": "5c735b312e302c312e305d5c665b325d4e65757472616c00",
+        "bytes_including_nul": 24,
+        "id": 15,
+        "key": "NeutralStatus",
+        "source_vaddr": "0x00222d30"
+      },
+      {
+        "bytes_hex": "5c665b325d257300",
+        "bytes_including_nul": 8,
+        "id": 16,
+        "key": "GenericStringFormat",
+        "source_vaddr": "0x00222d48"
+      },
+      {
+        "bytes_hex": "5c735b302e382c312e305d5c665b325d8ef482a281465c665b325d257300",
+        "bytes_including_nul": 30,
+        "id": 17,
+        "key": "CurseStatusFormat",
+        "source_vaddr": "0x00222d50"
+      },
+      {
+        "bytes_hex": "5c665b305d256400",
+        "bytes_including_nul": 8,
+        "id": 18,
+        "key": "SlotNumberFormat",
+        "source_vaddr": "0x00222d70"
+      },
+      {
+        "bytes_hex": "5c665b315d256400",
+        "bytes_including_nul": 8,
+        "id": 19,
+        "key": "MenuNumberFormat",
+        "source_vaddr": "0x00222d78"
+      },
+      {
+        "bytes_hex": "5c665b315d2f2530326400",
+        "bytes_including_nul": 11,
+        "id": 20,
+        "key": "ProgressNumberFormat",
+        "source_vaddr": "0x00222d80"
+      },
+      {
+        "bytes_hex": "5c665b325d436865636b696e67204d656d6f727920436172642028505332292e5c6e446f206e6f742072656d6f7665204d656d6f727920436172642028505332292e00",
+        "bytes_including_nul": 67,
+        "id": 21,
+        "key": "CheckingCardNotice",
+        "source_vaddr": "0x00222d90"
+      },
+      {
+        "bytes_hex": "5c665b325d4e6f204d656d6f7279204361726420285053322920696e7365727465642e00",
+        "bytes_including_nul": 36,
+        "id": 22,
+        "key": "NoCardNotice",
+        "source_vaddr": "0x00222dd8"
+      },
+      {
+        "bytes_hex": "5c665b325d4d656d6f72792043617264202850533229206973206e6f7420666f726d61747465642e00",
+        "bytes_including_nul": 41,
+        "id": 23,
+        "key": "UnformattedCardNotice",
+        "source_vaddr": "0x00222e00"
+      },
+      {
+        "bytes_hex": "5c665b325d52657475726e20746f20612067616d6520776974686f757420736176696e673f00",
+        "bytes_including_nul": 38,
+        "id": 24,
+        "key": "CancelSaveNotice",
+        "source_vaddr": "0x00222e30"
+      },
+      {
+        "bytes_hex": "5c665b325d466f726d617474696e672e2e2e5c6e446f206e6f742072656d6f7665204d656d6f727920436172642028505332292e00",
+        "bytes_including_nul": 53,
+        "id": 25,
+        "key": "FormattingNotice",
+        "source_vaddr": "0x00222e58"
+      },
+      {
+        "bytes_hex": "5c665b325d466f726d6174206661696c65642e00",
+        "bytes_including_nul": 20,
+        "id": 26,
+        "key": "FormatFailedNotice",
+        "source_vaddr": "0x00222e90"
+      },
+      {
+        "bytes_hex": "25732f626b6d6f25642e64617400",
+        "bytes_including_nul": 14,
+        "id": 27,
+        "key": "SaveFilePathFormat",
+        "source_vaddr": "0x00222ea8"
+      },
+      {
+        "bytes_hex": "5c665b325d4e6f7420656e6f75676820737061636520696e20746865204d656d6f727920436172642028505332292e5c6e2a203135304b42206f72206d6f726520737061636520726571756972656420666f722061206e657720736176652e00",
+        "bytes_including_nul": 96,
+        "id": 28,
+        "key": "NewSaveSpaceNotice",
+        "source_vaddr": "0x00222ed0"
+      },
+      {
+        "bytes_hex": "25732f69636f6e2e73797300",
+        "bytes_including_nul": 12,
+        "id": 29,
+        "key": "IconSysPathFormat",
+        "source_vaddr": "0x00222f30"
+      },
+      {
+        "bytes_hex": "25732f626b6d6f312e69636f00",
+        "bytes_including_nul": 13,
+        "id": 30,
+        "key": "SaveIcon1PathFormat",
+        "source_vaddr": "0x00222f40"
+      },
+      {
+        "bytes_hex": "25732f626b6d6f322e69636f00",
+        "bytes_including_nul": 13,
+        "id": 31,
+        "key": "SaveIcon2PathFormat",
+        "source_vaddr": "0x00222f50"
+      },
+      {
+        "bytes_hex": "25732f626b6d6f332e69636f00",
+        "bytes_including_nul": 13,
+        "id": 32,
+        "key": "SaveIcon3PathFormat",
+        "source_vaddr": "0x00222f60"
+      },
+      {
+        "bytes_hex": "25732f257300",
+        "bytes_including_nul": 6,
+        "id": 33,
+        "key": "PathJoinFormat",
+        "source_vaddr": "0x00222f70"
+      },
+      {
+        "bytes_hex": "5c665b325d53797374656d2066696c6520636f727275707465642e5c6e2a20313530204b42206f72206d6f726520737061636520726571756972656420746f20736176652e00",
+        "bytes_including_nul": 70,
+        "id": 34,
+        "key": "CorruptSaveNotice",
+        "source_vaddr": "0x00222f78"
+      },
+      {
+        "bytes_hex": "5c665b325d4461746120696e207468652066696c652025642e205265706c6163653f00",
+        "bytes_including_nul": 35,
+        "id": 35,
+        "key": "ReplaceSavePrompt",
+        "source_vaddr": "0x00222fc0"
+      },
+      {
+        "bytes_hex": "5c665b325d4e6f7420656e6f75676820737061636520696e204d656d6f727920436172642028505332292e5c6e2a354b42206f72206d6f726520737061636520726571756972656420666f722061206e657720736176652e00",
+        "bytes_including_nul": 89,
+        "id": 36,
+        "key": "ExistingSaveSpaceNotice",
+        "source_vaddr": "0x00222fe8"
+      },
+      {
+        "bytes_hex": "5c665b325d536176696e672e2e2e5c6e446f206e6f742072656d6f7665204d656d6f727920436172642028505332292e00",
+        "bytes_including_nul": 49,
+        "id": 37,
+        "key": "SavingNotice",
+        "source_vaddr": "0x00223048"
+      },
+      {
+        "bytes_hex": "636d6e646174612f32642f00",
+        "bytes_including_nul": 12,
+        "id": 38,
+        "key": "DataDirectory",
+        "source_vaddr": "0x00223080"
+      },
+      {
+        "bytes_hex": "5c665b325d536176696e6720636f6d706c657465642e00",
+        "bytes_including_nul": 23,
+        "id": 39,
+        "key": "SaveCompleteNotice",
+        "source_vaddr": "0x00223090"
+      },
+      {
+        "bytes_hex": "5c665b325d536176696e67206661696c65642e00",
+        "bytes_including_nul": 20,
+        "id": 40,
+        "key": "SaveFailedNotice",
+        "source_vaddr": "0x002230a8"
+      },
+      {
+        "bytes_hex": "5c665b325d4e6f20736176656420646174612020666f7220224f6b61676520536861646f77204b696e67222e00",
+        "bytes_including_nul": 45,
+        "id": 41,
+        "key": "NoSavedDataNotice",
+        "source_vaddr": "0x002230c0"
+      },
+      {
+        "bytes_hex": "5c665b325d526561642066696c65202564203f00",
+        "bytes_including_nul": 20,
+        "id": 42,
+        "key": "ReadFilePrompt",
+        "source_vaddr": "0x00223130"
+      },
+      {
+        "bytes_hex": "5c665b325d4c6f6164696e67207375636365737366756c2e00",
+        "bytes_including_nul": 25,
+        "id": 43,
+        "key": "LoadSuccessNotice",
+        "source_vaddr": "0x00223148"
+      },
+      {
+        "bytes_hex": "5c665b325d4c6f6164696e67206661696c65642e00",
+        "bytes_including_nul": 21,
+        "id": 44,
+        "key": "LoadFailedNotice",
+        "source_vaddr": "0x00223168"
+      }
+    ]
+  },
+  "input_tapes": [
+    {
+      "path": "local/research/restore-session-v1/cancel-buttons-v1.txt",
+      "bytes": 56,
+      "sha256": "12a12f219f17735fd949617a97866a6daed6156d15173e6e445373f9daab7bd8"
+    },
+    {
+      "path": "local/research/restore-session-v1/original-cancel-pad-v1.txt",
+      "bytes": 178,
+      "sha256": "225d4ff25f34077279fce8019fd2bcbd53215b8dc20d2e9c5a4a97faa925490d"
+    }
+  ],
+  "runs": [
+    {
+      "manifest": {
+        "path": "local/research/restore-session-v1/native-cancel-1500-v1.run.json",
+        "bytes": 620,
+        "sha256": "54791a746f935a695b7098ababd8fdb79b40850bc659e76acef38a398de18610"
+      },
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "--game-data",
+        "local/game-data-stage-v2",
+        "--save-directory",
+        "local/research/restore-session-v1/saves-empty-v1",
+        "--frames",
+        "1500",
+        "--buttons",
+        "local/research/restore-session-v1/cancel-buttons-v1.txt",
+        "--capture",
+        "local/research/restore-session-v1/native-cancel-1500-v1.png",
+        "--capture-frames",
+        "1200,1208,1209,1219,1241,1249,1349,1499"
+      ],
+      "exit_code": 0,
+      "seconds": 9.931988208,
+      "binary_sha256": "0047eb93cf5fa03fb00258eeef03b22298de5415027c38473846dec097c45bb1"
+    },
+    {
+      "manifest": {
+        "path": "local/research/restore-session-v1/native-cancel-debug-v2.run.json",
+        "bytes": 614,
+        "sha256": "4bd04f46c2dbb60811915d2464bde9e055ec5a9fe6dbb99cd848300efaf9ab9d"
+      },
+      "command": [
+        "build/native/okage-native.app/Contents/MacOS/okage-native",
+        "--game-data",
+        "local/game-data-stage-v2",
+        "--save-directory",
+        "local/research/restore-session-v1/saves-empty-v1",
+        "--frames",
+        "1500",
+        "--buttons",
+        "local/research/restore-session-v1/cancel-buttons-v1.txt",
+        "--capture",
+        "local/research/restore-session-v1/native-cancel-debug-v2.png",
+        "--capture-frames",
+        "1200,1208,1209,1219,1241,1249,1349,1499"
+      ],
+      "exit_code": 0,
+      "seconds": 74.817325458,
+      "binary_sha256": "07b0d8b85f504215d163ab053eba44d75c3fc89b8cbf6809568010a834eab93f"
+    },
+    {
+      "manifest": {
+        "path": "local/research/restore-session-v1/native-cancel-release-v2.run.json",
+        "bytes": 624,
+        "sha256": "5049bf047b2935bdab19a9602a55f41fce0f5b28d2e1038622e9b6e7f0946be8"
+      },
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "--game-data",
+        "local/game-data-stage-v2",
+        "--save-directory",
+        "local/research/restore-session-v1/saves-empty-v1",
+        "--frames",
+        "1500",
+        "--buttons",
+        "local/research/restore-session-v1/cancel-buttons-v1.txt",
+        "--capture",
+        "local/research/restore-session-v1/native-cancel-release-v2.png",
+        "--capture-frames",
+        "1200,1208,1209,1219,1241,1249,1349,1499"
+      ],
+      "exit_code": 0,
+      "seconds": 10.366167542,
+      "binary_sha256": "9fd564c032ac1f24ea0b0522af66a82684c0557cba64fcf8523cfb653dd6ea5b"
+    },
+    {
+      "manifest": {
+        "path": "local/research/restore-session-v1/native-cancel-sanitize-v2.run.json",
+        "bytes": 626,
+        "sha256": "d1255f2f7e17c29679826429b2b5aaeec3566437857d314d2ed2fbb681e09843"
+      },
+      "command": [
+        "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",
+        "--game-data",
+        "local/game-data-stage-v2",
+        "--save-directory",
+        "local/research/restore-session-v1/saves-empty-v1",
+        "--frames",
+        "1500",
+        "--buttons",
+        "local/research/restore-session-v1/cancel-buttons-v1.txt",
+        "--capture",
+        "local/research/restore-session-v1/native-cancel-sanitize-v2.png",
+        "--capture-frames",
+        "1200,1208,1209,1219,1241,1249,1349,1499"
+      ],
+      "exit_code": 0,
+      "seconds": 142.023453625,
+      "binary_sha256": "7372f4b75300a4a538b3fa6a7a47aa40fce59cdcdbe60ede88dc4891e5dac325"
+    },
+    {
+      "manifest": {
+        "path": "local/research/restore-session-v1/native-corrupt-release-v1.run.json",
+        "bytes": 668,
+        "sha256": "8d3ed5179626dd9950e6fe3ae3cbdc61fd29bd104a6ca69c7482c6d42b354e41"
+      },
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "--game-data",
+        "local/game-data-stage-v2",
+        "--save-directory",
+        "local/research/restore-session-v1/saves-corrupt-v1",
+        "--frames",
+        "1500",
+        "--buttons",
+        "local/research/restore-session-v1/cancel-buttons-v1.txt",
+        "--capture",
+        "local/research/restore-session-v1/native-corrupt-release-v1.png",
+        "--capture-frames",
+        "1200,1208,1209,1219,1241,1249,1349,1499"
+      ],
+      "exit_code": 0,
+      "seconds": 10.353100124999997,
+      "binary_sha256": "9fd564c032ac1f24ea0b0522af66a82684c0557cba64fcf8523cfb653dd6ea5b",
+      "corrupt_input_unchanged": true
+    },
+    {
+      "manifest": {
+        "path": "local/research/restore-session-v1/native-empty-1200-v1.run.json",
+        "bytes": 544,
+        "sha256": "bf6e599e47ec7234cbf4d896dc234472b6475a48e3454112c92906cf30842679"
+      },
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "--game-data",
+        "local/game-data-stage-v2",
+        "--save-directory",
+        "local/research/restore-session-v1/saves-empty-v1",
+        "--frames",
+        "1200",
+        "--buttons",
+        "local/research/cold-start-v1/restore-buttons-v1.txt",
+        "--capture",
+        "local/research/restore-session-v1/native-empty-1200-v1.png"
+      ],
+      "exit_code": 1,
+      "seconds": 6.213335333,
+      "binary_sha256": "46635cd55732efed58a56eda66b101940bec06c174168d4b0d0cbd6a113d0883"
+    },
+    {
+      "manifest": {
+        "path": "local/research/restore-session-v1/native-empty-1200-v2.run.json",
+        "bytes": 544,
+        "sha256": "db73935000a38211dded4bd5383e897dcb4465290922c71bdccd71cdeed8a280"
+      },
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "--game-data",
+        "local/game-data-stage-v2",
+        "--save-directory",
+        "local/research/restore-session-v1/saves-empty-v1",
+        "--frames",
+        "1200",
+        "--buttons",
+        "local/research/cold-start-v1/restore-buttons-v1.txt",
+        "--capture",
+        "local/research/restore-session-v1/native-empty-1200-v2.png"
+      ],
+      "exit_code": 0,
+      "seconds": 6.423795333,
+      "binary_sha256": "0047eb93cf5fa03fb00258eeef03b22298de5415027c38473846dec097c45bb1"
+    },
+    {
+      "manifest": {
+        "path": "local/research/restore-session-v1/native-newgame-release-v1.run.json",
+        "bytes": 717,
+        "sha256": "3fa586d4e483bd3f561545609cd88f778e652d4e55680e406fa57c1fbf93146d"
+      },
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "--game-data",
+        "local/game-data-stage-v2",
+        "--save-directory",
+        "local/research/cold-start-v1/saves-v1",
+        "--frames",
+        "2800",
+        "--capture",
+        "local/research/restore-session-v1/native-newgame-release-v1.png",
+        "--capture-frames",
+        "800,1050,1320,1619,2000,2309,2800",
+        "--buttons",
+        "local/research/cold-start-v1/buttons-v1.txt",
+        "--directions",
+        "local/research/cold-start-v1/directions-v1.txt",
+        "--press",
+        "2400,2520,2640,2760"
+      ],
+      "exit_code": 0,
+      "seconds": 7.417016458000006,
+      "binary_sha256": "9fd564c032ac1f24ea0b0522af66a82684c0557cba64fcf8523cfb653dd6ea5b"
+    }
+  ],
+  "original": {
+    "manifest": {
+      "path": "local/research/restore-session-v1/original-cancel-v1/run.json",
+      "bytes": 871,
+      "sha256": "bbc5c269106d738705646d0f857f1115f70f644d5ac817bd9f09437875f36a68"
+    },
+    "command": [
+      "build/play-research/okage-oracle/okage-boot-oracle",
+      "local/disc/Okage - Shadow King (USA).cue",
+      "300",
+      "local/research/cold-start-v1/original-2875-v2/endpoint.state.zip",
+      "--load",
+      "--pad",
+      "local/research/restore-session-v1/original-cancel-pad-v1.txt",
+      "--game-mode",
+      "local/research/restore-session-v1/original-cancel-v1/mode.jsonl",
+      "--capture",
+      "local/research/restore-session-v1/original-cancel-v1/image",
+      "--capture-frames",
+      "1,9,10,20,42,50,150,300",
+      "--deadline-seconds",
+      "180"
+    ],
+    "exit_code": 0,
+    "seconds": 18.265029625,
+    "binary_sha256": "374dff89d2a300f2b05089afc739fca4a3a62e2dc8c8666d1017266233562fea",
+    "scope": "Oracle-only snapshot continuation from original empty Restore2875, fixed declared native1200/source0 component anchor."
+  },
+  "checks": [
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "build/native-release",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 1.6165740000000002
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/native-release",
+        "--output-on-failure",
+        "-R",
+        "save-store|startup|title|name-entry|game-mode|scene-resource|load-queue|frame-composition|ui-window|ui-resource|ui-scheduled|ui-layout|ui-text|ruw|results-text"
+      ],
+      "exit_code": 0,
+      "seconds": 1.4640451250000002
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "build/native",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 2.003507
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/native",
+        "--output-on-failure",
+        "-R",
+        "save-store|startup|title|name-entry|game-mode|scene-resource|load-queue|frame-composition|ui-window|ui-resource|ui-scheduled|ui-layout|ui-text|ruw|results-text"
+      ],
+      "exit_code": 0,
+      "seconds": 2.1901565000000005
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "build/model-sanitize",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 2.8091367919999994
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/model-sanitize",
+        "--output-on-failure",
+        "-R",
+        "save-store|startup|title|name-entry|game-mode|scene-resource|load-queue|frame-composition|ui-window|ui-resource|ui-scheduled|ui-layout|ui-text|ruw|results-text"
+      ],
+      "exit_code": 0,
+      "seconds": 3.397726834
+    }
+  ],
+  "python": {
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-v"
+    ],
+    "exit_code": 0,
+    "tests": 493,
+    "seconds": 23.568,
+    "log": {
+      "path": "local/research/restore-session-v1/python-v3.log",
+      "bytes": 52442,
+      "sha256": "e87ef5c89f695afd96130c0eceea5a3287bdae6178579fde76611608a71e218a"
+    }
+  },
+  "checksum": {
+    "manifest": {
+      "path": "local/research/restore-session-v1/checksum-v1/runs.json",
+      "bytes": 2268,
+      "sha256": "1d39813f0a6a74d62c9d0dc39d42f0e8738ee6db5054c161c7c762b814cd4813"
+    },
+    "binary_sha256": "e131a46a5090f477cf538cba6ee4dceeca724cb0ee90efc0b03d2998dcf7b4c1",
+    "runs": [
+      {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "save-checksum",
+          "local/extracted/SCUS_971.29",
+          "local/research/restore-session-v1/checksum-v1/empty.bin",
+          "local/research/restore-session-v1/checksum-v1/empty.original"
+        ],
+        "exit_code": 0,
+        "seconds": 1.428250792
+      },
+      {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "save-checksum",
+          "local/extracted/SCUS_971.29",
+          "local/research/restore-session-v1/checksum-v1/zero.bin",
+          "local/research/restore-session-v1/checksum-v1/zero.original"
+        ],
+        "exit_code": 0,
+        "seconds": 1.0634344580000001
+      },
+      {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "save-checksum",
+          "local/extracted/SCUS_971.29",
+          "local/research/restore-session-v1/checksum-v1/one.bin",
+          "local/research/restore-session-v1/checksum-v1/one.original"
+        ],
+        "exit_code": 0,
+        "seconds": 1.068729292
+      },
+      {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "save-checksum",
+          "local/extracted/SCUS_971.29",
+          "local/research/restore-session-v1/checksum-v1/sequence.bin",
+          "local/research/restore-session-v1/checksum-v1/sequence.original"
+        ],
+        "exit_code": 0,
+        "seconds": 1.0633648749999995
+      },
+      {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "save-checksum",
+          "local/extracted/SCUS_971.29",
+          "local/research/restore-session-v1/checksum-v1/all-bytes.bin",
+          "local/research/restore-session-v1/checksum-v1/all-bytes.original"
+        ],
+        "exit_code": 0,
+        "seconds": 1.059664917
+      },
+      {
+        "command": [
+          "build/play-research/okage-oracle/okage-pose-oracle",
+          "save-checksum",
+          "local/extracted/SCUS_971.29",
+          "local/research/restore-session-v1/checksum-v1/payload.bin",
+          "local/research/restore-session-v1/checksum-v1/payload.original"
+        ],
+        "exit_code": 0,
+        "seconds": 1.065036375
+      }
+    ]
+  },
+  "checksum_outputs": [
+    {
+      "path": "local/research/restore-session-v1/checksum-v1/all-bytes.original.json",
+      "bytes": 304,
+      "sha256": "966b9066fd3ee8f8b03a81e8624b667d1bad37252d9e526ae92e546dd6caaf38"
+    },
+    {
+      "path": "local/research/restore-session-v1/checksum-v1/empty.original.json",
+      "bytes": 303,
+      "sha256": "c526c95bcc796d1f9df4d63bc11b199c4cea92f469a83158c14654fe94ed5b70"
+    },
+    {
+      "path": "local/research/restore-session-v1/checksum-v1/one.original.json",
+      "bytes": 303,
+      "sha256": "46aef4c13583de11e4c362bc20e5dad96fab1ff3e93b3a8094b9418d12531371"
+    },
+    {
+      "path": "local/research/restore-session-v1/checksum-v1/payload.original.json",
+      "bytes": 306,
+      "sha256": "901bbb338b6ad8569f784787e827f29b84aa84c54c6d94bfd09159f4106745e5"
+    },
+    {
+      "path": "local/research/restore-session-v1/checksum-v1/sequence.original.json",
+      "bytes": 302,
+      "sha256": "ca9ee516413aa5f5d1d4065b158c74c863da6cdf6bcdfc8a0da76bcb7789a996"
+    },
+    {
+      "path": "local/research/restore-session-v1/checksum-v1/zero.original.json",
+      "bytes": 303,
+      "sha256": "a6acfba6f33e9ae3a210d37edd9da0b95b36cc3aec9361f744d29a8d8b0efb83"
+    }
+  ],
+  "state_comparison": {
+    "manifest": {
+      "path": "local/research/restore-session-v1/paired-state-release-v2.json",
+      "bytes": 108768,
+      "sha256": "9cf7b1fea527a8f487051f5c1c37f478abd112a4fd3b4c3cc30d6886b3bbe860"
+    },
+    "restore": {
+      "both_absent_after_last_observation_count": 255,
+      "both_absent_after_last_observation_source_frames": [
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166,
+        167,
+        168,
+        169,
+        170,
+        171,
+        172,
+        173,
+        174,
+        175,
+        176,
+        177,
+        178,
+        179,
+        180,
+        181,
+        182,
+        183,
+        184,
+        185,
+        186,
+        187,
+        188,
+        189,
+        190,
+        191,
+        192,
+        193,
+        194,
+        195,
+        196,
+        197,
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        206,
+        207,
+        208,
+        209,
+        210,
+        211,
+        212,
+        213,
+        214,
+        215,
+        216,
+        217,
+        218,
+        219,
+        220,
+        221,
+        222,
+        223,
+        224,
+        225,
+        226,
+        227,
+        228,
+        229,
+        230,
+        231,
+        232,
+        233,
+        234,
+        235,
+        236,
+        237,
+        238,
+        239,
+        240,
+        241,
+        242,
+        243,
+        244,
+        245,
+        246,
+        247,
+        248,
+        249,
+        250,
+        251,
+        252,
+        253,
+        254,
+        255,
+        256,
+        257,
+        258,
+        259,
+        260,
+        261,
+        262,
+        263,
+        264,
+        265,
+        266,
+        267,
+        268,
+        269,
+        270,
+        271,
+        272,
+        273,
+        274,
+        275,
+        276,
+        277,
+        278,
+        279,
+        280,
+        281,
+        282,
+        283,
+        284,
+        285,
+        286,
+        287,
+        288,
+        289,
+        290,
+        291,
+        292,
+        293,
+        294,
+        295,
+        296,
+        297,
+        298,
+        299
+      ],
+      "both_absent_count": 257,
+      "both_absent_or_retired_source_frames": [
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166,
+        167,
+        168,
+        169,
+        170,
+        171,
+        172,
+        173,
+        174,
+        175,
+        176,
+        177,
+        178,
+        179,
+        180,
+        181,
+        182,
+        183,
+        184,
+        185,
+        186,
+        187,
+        188,
+        189,
+        190,
+        191,
+        192,
+        193,
+        194,
+        195,
+        196,
+        197,
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        206,
+        207,
+        208,
+        209,
+        210,
+        211,
+        212,
+        213,
+        214,
+        215,
+        216,
+        217,
+        218,
+        219,
+        220,
+        221,
+        222,
+        223,
+        224,
+        225,
+        226,
+        227,
+        228,
+        229,
+        230,
+        231,
+        232,
+        233,
+        234,
+        235,
+        236,
+        237,
+        238,
+        239,
+        240,
+        241,
+        242,
+        243,
+        244,
+        245,
+        246,
+        247,
+        248,
+        249,
+        250,
+        251,
+        252,
+        253,
+        254,
+        255,
+        256,
+        257,
+        258,
+        259,
+        260,
+        261,
+        262,
+        263,
+        264,
+        265,
+        266,
+        267,
+        268,
+        269,
+        270,
+        271,
+        272,
+        273,
+        274,
+        275,
+        276,
+        277,
+        278,
+        279,
+        280,
+        281,
+        282,
+        283,
+        284,
+        285,
+        286,
+        287,
+        288,
+        289,
+        290,
+        291,
+        292,
+        293,
+        294,
+        295,
+        296,
+        297,
+        298,
+        299
+      ],
+      "both_absent_with_observed_retirement_evidence_count": 2,
+      "both_absent_with_observed_retirement_evidence_source_frames": [
+        43,
+        44
+      ],
+      "both_unobserved_count": 0,
+      "both_unobserved_source_frames": [],
+      "compared_records": 43,
+      "coverage_complete": false,
+      "difference_counts_by_field": {},
+      "difference_words": 0,
+      "excluded_native_fields": [
+        {
+          "index": 10,
+          "name": "opacity",
+          "reason": "Different source second-callback-entry and native completed-tick edges."
+        },
+        {
+          "index": 13,
+          "name": "slot0_alpha",
+          "reason": "Different callback edges."
+        },
+        {
+          "index": 16,
+          "name": "slot1_alpha",
+          "reason": "Different callback edges."
+        },
+        {
+          "index": 19,
+          "name": "slot2_alpha",
+          "reason": "Different callback edges."
+        },
+        {
+          "index": 8,
+          "name": "native_io_enum",
+          "reason": "Host storage service is not PS2 asynchronous I/O state."
+        },
+        {
+          "index": 9,
+          "name": "success_ticks",
+          "reason": "Host storage service has no PS2 asynchronous I/O equivalent."
+        }
+      ],
+      "first_difference": null,
+      "last_native_manager_dead_flag": 1,
+      "last_native_manager_observation_source_frame": 42,
+      "last_source_manager_dead_flag": 1,
+      "last_source_manager_observation_frame": 42,
+      "missing_native_or_retired_count": 257,
+      "missing_native_or_retired_source_frames": [
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166,
+        167,
+        168,
+        169,
+        170,
+        171,
+        172,
+        173,
+        174,
+        175,
+        176,
+        177,
+        178,
+        179,
+        180,
+        181,
+        182,
+        183,
+        184,
+        185,
+        186,
+        187,
+        188,
+        189,
+        190,
+        191,
+        192,
+        193,
+        194,
+        195,
+        196,
+        197,
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        206,
+        207,
+        208,
+        209,
+        210,
+        211,
+        212,
+        213,
+        214,
+        215,
+        216,
+        217,
+        218,
+        219,
+        220,
+        221,
+        222,
+        223,
+        224,
+        225,
+        226,
+        227,
+        228,
+        229,
+        230,
+        231,
+        232,
+        233,
+        234,
+        235,
+        236,
+        237,
+        238,
+        239,
+        240,
+        241,
+        242,
+        243,
+        244,
+        245,
+        246,
+        247,
+        248,
+        249,
+        250,
+        251,
+        252,
+        253,
+        254,
+        255,
+        256,
+        257,
+        258,
+        259,
+        260,
+        261,
+        262,
+        263,
+        264,
+        265,
+        266,
+        267,
+        268,
+        269,
+        270,
+        271,
+        272,
+        273,
+        274,
+        275,
+        276,
+        277,
+        278,
+        279,
+        280,
+        281,
+        282,
+        283,
+        284,
+        285,
+        286,
+        287,
+        288,
+        289,
+        290,
+        291,
+        292,
+        293,
+        294,
+        295,
+        296,
+        297,
+        298,
+        299
+      ],
+      "missing_source_count": 257,
+      "missing_source_frames": [
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166,
+        167,
+        168,
+        169,
+        170,
+        171,
+        172,
+        173,
+        174,
+        175,
+        176,
+        177,
+        178,
+        179,
+        180,
+        181,
+        182,
+        183,
+        184,
+        185,
+        186,
+        187,
+        188,
+        189,
+        190,
+        191,
+        192,
+        193,
+        194,
+        195,
+        196,
+        197,
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        206,
+        207,
+        208,
+        209,
+        210,
+        211,
+        212,
+        213,
+        214,
+        215,
+        216,
+        217,
+        218,
+        219,
+        220,
+        221,
+        222,
+        223,
+        224,
+        225,
+        226,
+        227,
+        228,
+        229,
+        230,
+        231,
+        232,
+        233,
+        234,
+        235,
+        236,
+        237,
+        238,
+        239,
+        240,
+        241,
+        242,
+        243,
+        244,
+        245,
+        246,
+        247,
+        248,
+        249,
+        250,
+        251,
+        252,
+        253,
+        254,
+        255,
+        256,
+        257,
+        258,
+        259,
+        260,
+        261,
+        262,
+        263,
+        264,
+        265,
+        266,
+        267,
+        268,
+        269,
+        270,
+        271,
+        272,
+        273,
+        274,
+        275,
+        276,
+        277,
+        278,
+        279,
+        280,
+        281,
+        282,
+        283,
+        284,
+        285,
+        286,
+        287,
+        288,
+        289,
+        290,
+        291,
+        292,
+        293,
+        294,
+        295,
+        296,
+        297,
+        298,
+        299
+      ],
+      "native_manager_records_in_interval": 43,
+      "retirement_interpretation": "Absence after the final observation is not itself proof of retirement. Only frames with both last-active dead flags set and a same-frame native manager-present=0/dead=1 record are labeled with observed retirement evidence.",
+      "source_observation_records_in_interval": 43,
+      "values_equal_when_paired": true
+    },
+    "parent": {
+      "both_missing_count": 0,
+      "both_missing_source_frames": [],
+      "compared_records": 222,
+      "coverage_complete": false,
+      "difference_records": 0,
+      "first_difference": null,
+      "missing_native_count": 0,
+      "missing_native_source_frames": [],
+      "missing_source_count": 78,
+      "missing_source_frames": [
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125
+      ],
+      "values_equal_when_paired": true
+    },
+    "alignment": {
+      "native_offset": 1200,
+      "parent_phase_edges": "Source 0x124818 parent entry is before parent update; native game-mode point 0 is sampled in the same update.",
+      "restore_edges": "Source value is second_callback_entry before original 0x11c2c8 (after input handler); native value is completed tick state.",
+      "rule": "Source frame f maps only to native completed tick f+1200; no anchor fitting or later realignment.",
+      "source_interval": [
+        0,
+        300
+      ]
+    }
+  },
+  "image_comparisons": [
+    {
+      "manifest": {
+        "path": "local/research/restore-session-v1/paired-images-v2/001/comparison.json",
+        "bytes": 1661,
+        "sha256": "28ab18428933c1146e4d49511c54a811c90b5a8f970c5c29ece676d5b06dab29"
+      },
+      "report": {
+        "purpose": "Explicitly paired numeric diagnostic; not a fidelity pass.",
+        "temporal_alignment": false,
+        "threshold_or_pass_assertion": false,
+        "automatic_resize_or_crop": false,
+        "alpha_note": "RGB metrics exclude alpha; alpha differences are reported separately.",
+        "sample_basis": "Raw encoded 8-bit channel samples after PNG decoding to RGBA; no ICC profile, gamma, transfer-function, or color-space transforms are applied.",
+        "inputs": {
+          "original": {
+            "path": "local/research/restore-session-v1/original-cancel-v1/image.frames/vblank-000001.layer0.png",
+            "sha256": "54a451b96026c263d92cd32a9bae58fc0485eaf6b4f4eb12b7614260343a8997",
+            "width": 640,
+            "height": 224
+          },
+          "native": {
+            "path": "local/research/restore-session-v1/native-cancel-release-v2.png.frames/tick-1200.png",
+            "sha256": "3bfb73c9f061004a39f4335f45114ae8569b7d315d24e1ee2f4c837e8031ff01",
+            "width": 640,
+            "height": 448
+          }
+        },
+        "declared_native_region": {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 224
+        },
+        "compared_rgba_extent": {
+          "width": 640,
+          "height": 224
+        },
+        "metrics": {
+          "width": 640,
+          "height": 224,
+          "exact_different_pixel_count": 143360,
+          "rgb_mae": 0.6419898623511905,
+          "rgb_max_absolute_difference": 59,
+          "alpha_different_pixel_count": 143360,
+          "alpha_mae": 196.471875,
+          "alpha_max_absolute_difference": 255
+        },
+        "outputs": {
+          "side_by_side": {
+            "file": "side-by-side.png",
+            "width": 1280,
+            "height": 254
+          },
+          "absolute_rgb_difference": {
+            "file": "absolute-rgb-difference.png",
+            "width": 640,
+            "height": 224
+          }
+        }
+      }
+    },
+    {
+      "manifest": {
+        "path": "local/research/restore-session-v1/paired-images-v2/009/comparison.json",
+        "bytes": 1660,
+        "sha256": "d1fd165f2a9a30046d8dbe89bd0ed31f2bf169229601426e94987525f5645d98"
+      },
+      "report": {
+        "purpose": "Explicitly paired numeric diagnostic; not a fidelity pass.",
+        "temporal_alignment": false,
+        "threshold_or_pass_assertion": false,
+        "automatic_resize_or_crop": false,
+        "alpha_note": "RGB metrics exclude alpha; alpha differences are reported separately.",
+        "sample_basis": "Raw encoded 8-bit channel samples after PNG decoding to RGBA; no ICC profile, gamma, transfer-function, or color-space transforms are applied.",
+        "inputs": {
+          "original": {
+            "path": "local/research/restore-session-v1/original-cancel-v1/image.frames/vblank-000009.layer0.png",
+            "sha256": "0f1b28ed63a82e63f6d1d3afdbe4aea4d8266921ac47074462689af18f416c74",
+            "width": 640,
+            "height": 224
+          },
+          "native": {
+            "path": "local/research/restore-session-v1/native-cancel-release-v2.png.frames/tick-1208.png",
+            "sha256": "3bfb73c9f061004a39f4335f45114ae8569b7d315d24e1ee2f4c837e8031ff01",
+            "width": 640,
+            "height": 448
+          }
+        },
+        "declared_native_region": {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 224
+        },
+        "compared_rgba_extent": {
+          "width": 640,
+          "height": 224
+        },
+        "metrics": {
+          "width": 640,
+          "height": 224,
+          "exact_different_pixel_count": 143360,
+          "rgb_mae": 0.6263369605654762,
+          "rgb_max_absolute_difference": 4,
+          "alpha_different_pixel_count": 143360,
+          "alpha_mae": 196.471875,
+          "alpha_max_absolute_difference": 255
+        },
+        "outputs": {
+          "side_by_side": {
+            "file": "side-by-side.png",
+            "width": 1280,
+            "height": 254
+          },
+          "absolute_rgb_difference": {
+            "file": "absolute-rgb-difference.png",
+            "width": 640,
+            "height": 224
+          }
+        }
+      }
+    },
+    {
+      "manifest": {
+        "path": "local/research/restore-session-v1/paired-images-v2/010/comparison.json",
+        "bytes": 1661,
+        "sha256": "5e9daf819c8e9017eb593f10f19a099faec7b27234ef3b649d4d4095ea4bb966"
+      },
+      "report": {
+        "purpose": "Explicitly paired numeric diagnostic; not a fidelity pass.",
+        "temporal_alignment": false,
+        "threshold_or_pass_assertion": false,
+        "automatic_resize_or_crop": false,
+        "alpha_note": "RGB metrics exclude alpha; alpha differences are reported separately.",
+        "sample_basis": "Raw encoded 8-bit channel samples after PNG decoding to RGBA; no ICC profile, gamma, transfer-function, or color-space transforms are applied.",
+        "inputs": {
+          "original": {
+            "path": "local/research/restore-session-v1/original-cancel-v1/image.frames/vblank-000010.layer0.png",
+            "sha256": "fd317e1bd6d44540cadc9e95b93e3c5ad3f65387860765965ba95f50cc9a9651",
+            "width": 640,
+            "height": 224
+          },
+          "native": {
+            "path": "local/research/restore-session-v1/native-cancel-release-v2.png.frames/tick-1209.png",
+            "sha256": "3bfb73c9f061004a39f4335f45114ae8569b7d315d24e1ee2f4c837e8031ff01",
+            "width": 640,
+            "height": 448
+          }
+        },
+        "declared_native_region": {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 224
+        },
+        "compared_rgba_extent": {
+          "width": 640,
+          "height": 224
+        },
+        "metrics": {
+          "width": 640,
+          "height": 224,
+          "exact_different_pixel_count": 143360,
+          "rgb_mae": 3.659858630952381,
+          "rgb_max_absolute_difference": 254,
+          "alpha_different_pixel_count": 143360,
+          "alpha_mae": 196.471875,
+          "alpha_max_absolute_difference": 255
+        },
+        "outputs": {
+          "side_by_side": {
+            "file": "side-by-side.png",
+            "width": 1280,
+            "height": 254
+          },
+          "absolute_rgb_difference": {
+            "file": "absolute-rgb-difference.png",
+            "width": 640,
+            "height": 224
+          }
+        }
+      }
+    },
+    {
+      "manifest": {
+        "path": "local/research/restore-session-v1/paired-images-v2/020/comparison.json",
+        "bytes": 1669,
+        "sha256": "a6a68a870b0db7e39881c9bede064c1dbdd39971a382a7de7939eeed02611ff8"
+      },
+      "report": {
+        "purpose": "Explicitly paired numeric diagnostic; not a fidelity pass.",
+        "temporal_alignment": false,
+        "threshold_or_pass_assertion": false,
+        "automatic_resize_or_crop": false,
+        "alpha_note": "RGB metrics exclude alpha; alpha differences are reported separately.",
+        "sample_basis": "Raw encoded 8-bit channel samples after PNG decoding to RGBA; no ICC profile, gamma, transfer-function, or color-space transforms are applied.",
+        "inputs": {
+          "original": {
+            "path": "local/research/restore-session-v1/original-cancel-v1/image.frames/vblank-000020.layer0.png",
+            "sha256": "5319fcc7aefa947b1c5eb19f9b18b391d65190288d02654877e36b29b8160c87",
+            "width": 640,
+            "height": 224
+          },
+          "native": {
+            "path": "local/research/restore-session-v1/native-cancel-release-v2.png.frames/tick-1219.png",
+            "sha256": "8d25497d7add613bd5ec4d5ae79cc664db37306a8f8afae8723bdd882c40124b",
+            "width": 640,
+            "height": 448
+          }
+        },
+        "declared_native_region": {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 224
+        },
+        "compared_rgba_extent": {
+          "width": 640,
+          "height": 224
+        },
+        "metrics": {
+          "width": 640,
+          "height": 224,
+          "exact_different_pixel_count": 143360,
+          "rgb_mae": 3.740322730654762,
+          "rgb_max_absolute_difference": 230,
+          "alpha_different_pixel_count": 143360,
+          "alpha_mae": 209.20329241071428,
+          "alpha_max_absolute_difference": 255
+        },
+        "outputs": {
+          "side_by_side": {
+            "file": "side-by-side.png",
+            "width": 1280,
+            "height": 254
+          },
+          "absolute_rgb_difference": {
+            "file": "absolute-rgb-difference.png",
+            "width": 640,
+            "height": 224
+          }
+        }
+      }
+    },
+    {
+      "manifest": {
+        "path": "local/research/restore-session-v1/paired-images-v2/042/comparison.json",
+        "bytes": 1668,
+        "sha256": "a18e0260d8a1d1e6d77e0887c17a8c4d5bda3ca0d68a716ecb07fd1405a702fb"
+      },
+      "report": {
+        "purpose": "Explicitly paired numeric diagnostic; not a fidelity pass.",
+        "temporal_alignment": false,
+        "threshold_or_pass_assertion": false,
+        "automatic_resize_or_crop": false,
+        "alpha_note": "RGB metrics exclude alpha; alpha differences are reported separately.",
+        "sample_basis": "Raw encoded 8-bit channel samples after PNG decoding to RGBA; no ICC profile, gamma, transfer-function, or color-space transforms are applied.",
+        "inputs": {
+          "original": {
+            "path": "local/research/restore-session-v1/original-cancel-v1/image.frames/vblank-000042.layer0.png",
+            "sha256": "ba91eacda1ca2762384f07d581cb2e4e1bc05bfa62995ecf87eb735e68d09ac5",
+            "width": 640,
+            "height": 224
+          },
+          "native": {
+            "path": "local/research/restore-session-v1/native-cancel-release-v2.png.frames/tick-1241.png",
+            "sha256": "2050533b79e0976cfd185191d97bedea41745f2868570c66047f64cb84e5d75b",
+            "width": 640,
+            "height": 448
+          }
+        },
+        "declared_native_region": {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 224
+        },
+        "compared_rgba_extent": {
+          "width": 640,
+          "height": 224
+        },
+        "metrics": {
+          "width": 640,
+          "height": 224,
+          "exact_different_pixel_count": 143360,
+          "rgb_mae": 1.8209867931547619,
+          "rgb_max_absolute_difference": 47,
+          "alpha_different_pixel_count": 143360,
+          "alpha_mae": 240.4543666294643,
+          "alpha_max_absolute_difference": 255
+        },
+        "outputs": {
+          "side_by_side": {
+            "file": "side-by-side.png",
+            "width": 1280,
+            "height": 254
+          },
+          "absolute_rgb_difference": {
+            "file": "absolute-rgb-difference.png",
+            "width": 640,
+            "height": 224
+          }
+        }
+      }
+    },
+    {
+      "manifest": {
+        "path": "local/research/restore-session-v1/paired-images-v2/050/comparison.json",
+        "bytes": 1657,
+        "sha256": "49ffae42a782b157809941500676374a8cb0ebeb1829c423b2c89afd16b8da3a"
+      },
+      "report": {
+        "purpose": "Explicitly paired numeric diagnostic; not a fidelity pass.",
+        "temporal_alignment": false,
+        "threshold_or_pass_assertion": false,
+        "automatic_resize_or_crop": false,
+        "alpha_note": "RGB metrics exclude alpha; alpha differences are reported separately.",
+        "sample_basis": "Raw encoded 8-bit channel samples after PNG decoding to RGBA; no ICC profile, gamma, transfer-function, or color-space transforms are applied.",
+        "inputs": {
+          "original": {
+            "path": "local/research/restore-session-v1/original-cancel-v1/image.frames/vblank-000050.layer0.png",
+            "sha256": "77b61ecad86a02de3cb142f2296ebae6eab403bed1757eed60ff1072ef0eff8c",
+            "width": 640,
+            "height": 224
+          },
+          "native": {
+            "path": "local/research/restore-session-v1/native-cancel-release-v2.png.frames/tick-1249.png",
+            "sha256": "a9fbf6183a2401b1fe12d8fdcce461f805fab09a24f031d9f7a0832e18f4b36c",
+            "width": 640,
+            "height": 448
+          }
+        },
+        "declared_native_region": {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 224
+        },
+        "compared_rgba_extent": {
+          "width": 640,
+          "height": 224
+        },
+        "metrics": {
+          "width": 640,
+          "height": 224,
+          "exact_different_pixel_count": 143360,
+          "rgb_mae": 0.012583705357142858,
+          "rgb_max_absolute_difference": 1,
+          "alpha_different_pixel_count": 143360,
+          "alpha_mae": 128.0,
+          "alpha_max_absolute_difference": 128
+        },
+        "outputs": {
+          "side_by_side": {
+            "file": "side-by-side.png",
+            "width": 1280,
+            "height": 254
+          },
+          "absolute_rgb_difference": {
+            "file": "absolute-rgb-difference.png",
+            "width": 640,
+            "height": 224
+          }
+        }
+      }
+    },
+    {
+      "manifest": {
+        "path": "local/research/restore-session-v1/paired-images-v2/150/comparison.json",
+        "bytes": 1655,
+        "sha256": "83c1fdfea2d10b2ebd052c89c37ebcf45717e9f9e4fa18af751376cc8b50a134"
+      },
+      "report": {
+        "purpose": "Explicitly paired numeric diagnostic; not a fidelity pass.",
+        "temporal_alignment": false,
+        "threshold_or_pass_assertion": false,
+        "automatic_resize_or_crop": false,
+        "alpha_note": "RGB metrics exclude alpha; alpha differences are reported separately.",
+        "sample_basis": "Raw encoded 8-bit channel samples after PNG decoding to RGBA; no ICC profile, gamma, transfer-function, or color-space transforms are applied.",
+        "inputs": {
+          "original": {
+            "path": "local/research/restore-session-v1/original-cancel-v1/image.frames/vblank-000150.layer0.png",
+            "sha256": "bceaf5bf6bae6827a1c23ce73d7feb8b6a9796087ec8968c34ece16d3ece3848",
+            "width": 640,
+            "height": 224
+          },
+          "native": {
+            "path": "local/research/restore-session-v1/native-cancel-release-v2.png.frames/tick-1349.png",
+            "sha256": "5bbd9a3fc8bc947ddcd257b9fde4ca846847449b9ea9744ece3523788b05e491",
+            "width": 640,
+            "height": 448
+          }
+        },
+        "declared_native_region": {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 224
+        },
+        "compared_rgba_extent": {
+          "width": 640,
+          "height": 224
+        },
+        "metrics": {
+          "width": 640,
+          "height": 224,
+          "exact_different_pixel_count": 143360,
+          "rgb_mae": 8.210414341517858,
+          "rgb_max_absolute_difference": 72,
+          "alpha_different_pixel_count": 143360,
+          "alpha_mae": 166.0,
+          "alpha_max_absolute_difference": 166
+        },
+        "outputs": {
+          "side_by_side": {
+            "file": "side-by-side.png",
+            "width": 1280,
+            "height": 254
+          },
+          "absolute_rgb_difference": {
+            "file": "absolute-rgb-difference.png",
+            "width": 640,
+            "height": 224
+          }
+        }
+      }
+    },
+    {
+      "manifest": {
+        "path": "local/research/restore-session-v1/paired-images-v2/300/comparison.json",
+        "bytes": 1657,
+        "sha256": "91f514aaa0f2a0b6f8846773c2e5eb9ede3d321d56e991acf7616d1afd20256e"
+      },
+      "report": {
+        "purpose": "Explicitly paired numeric diagnostic; not a fidelity pass.",
+        "temporal_alignment": false,
+        "threshold_or_pass_assertion": false,
+        "automatic_resize_or_crop": false,
+        "alpha_note": "RGB metrics exclude alpha; alpha differences are reported separately.",
+        "sample_basis": "Raw encoded 8-bit channel samples after PNG decoding to RGBA; no ICC profile, gamma, transfer-function, or color-space transforms are applied.",
+        "inputs": {
+          "original": {
+            "path": "local/research/restore-session-v1/original-cancel-v1/image.frames/vblank-000300.layer0.png",
+            "sha256": "b674bf6fec7bf6a09e1c063140252cfbc1843eb33e173700e7c0ec69526fc2b7",
+            "width": 640,
+            "height": 224
+          },
+          "native": {
+            "path": "local/research/restore-session-v1/native-cancel-release-v2.png.frames/tick-1499.png",
+            "sha256": "47c8a0707928d3a8ca70344412dad3867588e2aa13dee88612838043bc027a27",
+            "width": 640,
+            "height": 448
+          }
+        },
+        "declared_native_region": {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 224
+        },
+        "compared_rgba_extent": {
+          "width": 640,
+          "height": 224
+        },
+        "metrics": {
+          "width": 640,
+          "height": 224,
+          "exact_different_pixel_count": 143360,
+          "rgb_mae": 21.853503999255953,
+          "rgb_max_absolute_difference": 134,
+          "alpha_different_pixel_count": 143360,
+          "alpha_mae": 224.0,
+          "alpha_max_absolute_difference": 224
+        },
+        "outputs": {
+          "side_by_side": {
+            "file": "side-by-side.png",
+            "width": 1280,
+            "height": 254
+          },
+          "absolute_rgb_difference": {
+            "file": "absolute-rgb-difference.png",
+            "width": 640,
+            "height": 224
+          }
+        }
+      }
+    }
+  ],
+  "image_commands": {
+    "path": "local/research/restore-session-v1/paired-images-v2/runs.json",
+    "bytes": 6317,
+    "sha256": "8b68e03acf9f866f9b795fa8cbc8e39912992a108508701375b7c7ff85eeef49"
+  },
+  "negatives": [
+    {
+      "path": "local/research/restore-session-v1/native-empty-1200-v1.run.json",
+      "bytes": 544,
+      "sha256": "bf6e599e47ec7234cbf4d896dc234472b6475a48e3454112c92906cf30842679"
+    },
+    {
+      "path": "local/research/restore-session-v1/native-release-tests-final.log",
+      "bytes": 2554,
+      "sha256": "7e5d1b18cb597ae19959caef22aa5c8552a31bc293498f7bb86635193d5f0da4"
+    },
+    {
+      "path": "local/research/restore-session-v1/checks.json",
+      "bytes": 571,
+      "sha256": "3427b1a17364e0914b10bd07e07fdcc2d546c08ddb3c4d21ccef2f7c6252f7cf"
+    }
+  ],
+  "next_source_review": {
+    "path": "local/research/restore-session-v1/load-path-review.md",
+    "bytes": 10305,
+    "sha256": "a321711472af40c4561b9c99244f5435784dde14274129b6b4b27d62d858b996"
+  },
+  "limitations": [
+    "No gameplay save-point writer or command3 restored field activation",
+    "Nonempty valid slot path implemented but unexecuted",
+    "Failed-read retry and removable-card/low-space UI incomplete",
+    "Fixed-anchor whole cold-start failure remains",
+    "Image fade/title and raw alpha differences remain",
+    "No new audio alignment, listening, physical controls, live FPS or full-playthrough proof",
+    "Staged data is not a fresh-disc import",
+    "Original execution is emulator research, not physical PS2 proof"
+  ],
+  "gui": {
+    "pid": 63851,
+    "immutable_bundle": "local/demos/results-108575-v1/okage-native.app",
+    "paused_tick": 116648,
+    "preserved_unsaved_progress": true
+  }
+}
