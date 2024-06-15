@@ -13,7 +13,8 @@ public:
     ~ResultsRenderer();
     ResultsRenderer(const ResultsRenderer&)=delete;
     ResultsRenderer& operator=(const ResultsRenderer&)=delete;
-    const Texture& render(const std::optional<UiDrawList>&,const SceneFade&);
+    const Texture& render(const std::optional<UiDrawList>&,const SceneFade&,
+                          const Texture* captured_background=nullptr);
 private:
     struct Impl;
     std::unique_ptr<Impl> impl_;

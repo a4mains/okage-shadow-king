@@ -39,20 +39,35 @@ struct ResultsRenderer::Impl {
         depth=[device newTextureWithDescriptor:descriptor];
         require(color&&depth,"Results renderer target allocation failed");
     }
-    const Texture& render(const std::optional<UiDrawList>& draw,const SceneFade& fade) {
+    const Texture& render(const std::optional<UiDrawList>& draw,const SceneFade& fade,
+                          const Texture* captured_background) {
+        std::optional<Texture> background_copy;
+        if(captured_background) {
+            require(captured_background->width==640&&captured_background->height==224&&
+                    captured_background->rgba.size()==640*224*4,
+                    "Results renderer captured background must be 640x224 RGBA");
+            background_copy=*captured_background;
+            fade.apply(*background_copy);
+        }
         std::optional<UiGeometryList> geometry;
         if(draw)geometry=resolve_ui_geometry(*draw);
         auto command=[queue commandBuffer];
         require(bool(command),"Results renderer command buffer unavailable");
         auto pass=[MTLRenderPassDescriptor renderPassDescriptor];
         pass.colorAttachments[0].texture=color;
-        pass.colorAttachments[0].loadAction=MTLLoadActionClear;
+        pass.colorAttachments[0].loadAction=background_copy?MTLLoadActionLoad:MTLLoadActionClear;
         pass.colorAttachments[0].storeAction=MTLStoreActionStore;
-        Texture background{1,1,0,0,{0,0,0,64}};
-        fade.apply(background);
-        const auto& rgba=background.rgba;
-        pass.colorAttachments[0].clearColor=MTLClearColorMake(
-            rgba[0]/255.0,rgba[1]/255.0,rgba[2]/255.0,rgba[3]/255.0);
+        if(background_copy) {
+            [color replaceRegion:MTLRegionMake2D(0,0,640,224) mipmapLevel:0
+                withBytes:background_copy->rgba.data() bytesPerRow:640*4];
+        }
+        if(!background_copy) {
+            Texture background{1,1,0,0,{0,0,0,64}};
+            fade.apply(background);
+            const auto& rgba=background.rgba;
+            pass.colorAttachments[0].clearColor=MTLClearColorMake(
+                rgba[0]/255.0,rgba[1]/255.0,rgba[2]/255.0,rgba[3]/255.0);
+        }
         pass.depthAttachment.texture=depth;
         pass.depthAttachment.loadAction=MTLLoadActionClear;
         pass.depthAttachment.storeAction=MTLStoreActionStore;
@@ -87,7 +102,8 @@ ResultsRenderer::ResultsRenderer(std::shared_ptr<const std::vector<Font>> fonts,
     @autoreleasepool {impl_=std::make_unique<Impl>(std::move(fonts),std::move(window_atlas));}
 }
 ResultsRenderer::~ResultsRenderer()=default;
-const Texture& ResultsRenderer::render(const std::optional<UiDrawList>& draw,const SceneFade& fade) {
-    @autoreleasepool {return impl_->render(draw,fade);}
+const Texture& ResultsRenderer::render(const std::optional<UiDrawList>& draw,const SceneFade& fade,
+    const Texture* captured_background) {
+    @autoreleasepool {return impl_->render(draw,fade,captured_background);}
 }
 }
