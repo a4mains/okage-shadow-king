@@ -27,7 +27,7 @@ public:
               <<"\"results_timing\":\"124818 is global-parent entry before descendants;169900 constructor entry;16b8f8 first handler entry before1c0160(0);16b6c8 second handler entry before16a0c0 copies command. No completed-callback claim.\","
               <<"\"pad_source\":\"1c0160(0) reads unsignedhalf33958e;16b8f8 masks with word1f85dc. Parent samples are not consumed-input observations.\","
               <<"\"restore_extension\":\"Mode-10 Restore snapshots at 11e480 input-handler and 11c2c8 window callback; manager identity is resolved from the live mode-10 wrapper and checked against descriptor2234f0.\","
-              <<"\"save_extension\":\"For game mode 0 only: 133a98 field child -> field+50 manager created by 133450 case 0xC via 11f5f8(field,2233f0); manager is also linked under that field. 11e480 dispatch is window type 8 via table1f8f48; 11c2c8 is the window callback at manager+0x9c. Save owner and source globals are validated/captured separately from mode-10 Restore.\","
+              <<"\"save_extension\":\"For field game mode 2: 133a98 field child -> field+50 manager created by 133450 case 0xC via 11f5f8(field,2233f0); manager is also linked under that field. 11e480 dispatch is window type 8 via table1f8f48; 11c2c8 is the window callback at manager+0x9c. Save selector 1f89a0 is captured independently from parent game mode; Save owner and source globals are validated/captured separately from mode-10 Restore.\","
               <<"\"elf_sha256\":\"2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5\"}\n";
     }
     void finish() const {
@@ -160,7 +160,7 @@ public:
                           <<"\",\"result\":\""<<hex(word(context+8))<<"\"}";
                 }
                 output<<"}";
-            } else if(mode==0) {
+            } else if(mode==2) {
                 //133450 case 0xC creates this manager from 2233f0 and stores
                 //it at field+0x50. 1152a8 links the returned manager below
                 //that field owner; 11f668 creates its sole window from 2233f0.
@@ -176,7 +176,7 @@ public:
                     child=word(child+0x10);
                 }
                 if(!field_owner)throw std::runtime_error("Save callback has no linked 133a98 field owner");
-                if(word(0x24f738)!=0)throw std::runtime_error("Save field hierarchy is not the active mode-0 source owner");
+                if(word(0x1f89a0)!=0)throw std::runtime_error("Field mode-2 Save callback has a non-Save selector at1f89a0");
                 const auto manager=word(field_owner+0x50);
                 if(!manager||!valid(manager,0xef0))throw std::runtime_error("Save field+50 manager is null/outside EE RAM");
                 if(word(manager+0x14)!=field_owner)throw std::runtime_error("Save manager parent does not identify its field owner");
@@ -214,11 +214,11 @@ public:
                     if(a0!=manager+0x40)throw std::runtime_error("Save window callback A0 is not the sole window record");
                     ++save_second_count;
                 }
-                output<<",\"save\":{\"owner_kind\":\"field_mode0_save\",\"edge\":\""<<edge
+                output<<",\"save\":{\"owner_kind\":\"field_mode2_save\",\"edge\":\""<<edge
                       <<"\",\"input_handler_ordinal\":"<<save_input_count
                       <<",\"second_callback_ordinal\":"<<save_second_count;
                 field("field_owner",field_owner);field("field_phase48",word(field_owner+0x48));
-                field("parent_mode40",mode);field("global_mode24f738",word(0x24f738));
+                field("parent_mode40",mode);field("save_selector_1f89a0",word(0x1f89a0));
                 field("field_child_manager50",manager);field("manager_parent14",word(manager+0x14));
                 field("manager_window_count_e40",window_count);field("window_callback_9c",window_callback);
                 field("window_type_a0",window_type);field("manager_flags1c",word(manager+0x1c));
@@ -231,8 +231,7 @@ public:
                 output<<"],\"source_globals\":{";
                 auto save_word=[&](const char* name,uint32 address){output<<'"'<<name<<"\":\""<<hex(word(address))<<"\",";};
                 save_word("1f89a0",0x1f89a0);save_word("1f89a4",0x1f89a4);save_word("1f89a8",0x1f89a8);
-                save_word("1f89ac",0x1f89ac);save_word("1f89b4",0x1f89b4);save_word("1f89bc",0x1f89bc);
-                save_word("1f89c0",0x1f89c0);save_word("1f9ca0",0x1f9ca0);save_word("1f9ca4",0x1f9ca4);
+                save_word("1f89ac",0x1f89ac);save_word("1f9ca0",0x1f9ca0);save_word("1f9ca4",0x1f9ca4);
                 save_word("24ecc0",0x24ecc0);save_word("24ecc4",0x24ecc4);save_word("24ecc8",0x24ecc8);
                 save_word("24eccc",0x24eccc);save_word("24ecd4",0x24ecd4);save_word("24ecd8",0x24ecd8);
                 save_word("24ed00",0x24ed00);save_word("24ed04",0x24ed04);save_word("24ed08",0x24ed08);
@@ -241,7 +240,7 @@ public:
                 save_word("24ee1c",0x24ee1c);save_word("24ee20",0x24ee20);save_word("24ee24",0x24ee24);
                 save_word("24ee28",0x24ee28);save_word("24ee6c",0x24ee6c);save_word("24ee70",0x24ee70);
                 save_word("24ee74",0x24ee74);save_word("24ee78",0x24ee78);save_word("24ee7c",0x24ee7c);
-                save_word("24eea8",0x24eea8);save_word("24f6c4",0x24f6c4);save_word("24f6c8",0x24f6c8);
+                save_word("24eea8",0x24eea8);
                 save_word("1f85dc",0x1f85dc);save_word("1f85e0",0x1f85e0);save_word("1f85f8",0x1f85f8);
                 save_word("1f85fc",0x1f85fc);save_word("1f8600",0x1f8600);save_word("1f8604",0x1f8604);
                 auto save_words=[&](const char* name,uint32 address,unsigned count){
@@ -266,7 +265,7 @@ public:
                       <<"\",\"pressed_33958e\":\""<<hex16(half(0x33958e))
                       <<"\",\"word_339590\":\""<<hex(word(0x339590))<<"\"}";
                 output<<"}";
-            } else throw std::runtime_error("Save/Restore callback owner kind is outside mode0 Save and mode10 Restore");
+            } else throw std::runtime_error("Save/Restore callback owner kind is outside mode2 Save and mode10 Restore");
         }
         if(parent && !valid(parent,0x54))throw std::runtime_error("Game-mode parent pointer outside EE RAM");
         uint32 resultsField=0;
