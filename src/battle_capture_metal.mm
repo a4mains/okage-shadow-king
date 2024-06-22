@@ -8,7 +8,7 @@ constexpr const char* source=R"metal(
 using namespace metal;
 struct Vertex {float4 position;float4 uv;};
 struct Fragment {float4 position [[position]];float2 uv [[center_no_perspective]];};
-struct State {uint4 rgba;uint history;};
+struct State {uint4 rgba;uint history;int fixed_alpha;};
 vertex Fragment capture_vertex(uint id [[vertex_id]],device const Vertex* v [[buffer(0)]]) {
     return {v[id].position,v[id].uv.xy};
 }
@@ -29,13 +29,13 @@ fragment float4 capture_fragment(Fragment v [[stage_in]],constant State& s [[buf
     int4 source=int4(clamp(sampled*float4(s.rgba)/128.0f,0.0f,255.0f));
     if(!s.history)source.a=int(s.rgba.a); // First TEX0 is RGB only (TCC0).
     int4 dest=int4(round(destination*255.0f));
-    const int alpha=s.history?124:source.a;
+    const int alpha=s.fixed_alpha>=0?s.fixed_alpha:(s.history?124:source.a);
     const int3 rgb=clamp(((source.rgb-dest.rgb)*alpha >> 7)+dest.rgb,0,255);
     return float4(int4(rgb,source.a))/255.0f;
 }
 )metal";
 struct Vertex {Float4 position,uv;};
-struct State {std::array<std::uint32_t,4> rgba;std::uint32_t history;};
+struct State {std::array<std::uint32_t,4> rgba;std::uint32_t history;std::int32_t fixed_alpha;};
 }
 BattleCaptureMetal::BattleCaptureMetal(id<MTLDevice> device) {
     if(!device||![device supportsFamily:MTLGPUFamilyApple1])
@@ -52,6 +52,19 @@ BattleCaptureMetal::BattleCaptureMetal(id<MTLDevice> device) {
 }
 void BattleCaptureMetal::encode(id<MTLCommandBuffer> command,id<MTLTexture> target,
         id<MTLTexture> capture,id<MTLTexture> history,const BattleCaptureDraw& draw) {
+    encode_passes(command,target,capture,history,draw,false);
+}
+void BattleCaptureMetal::encode_frozen(id<MTLCommandBuffer> command,id<MTLTexture> target,
+        id<MTLTexture> capture,bool field_nonzero) {
+    //1928a8 ->192040: XYOFFSET6c00/7900, UV last endpoint minus16.
+    const std::uint64_t y=0x78f0+(field_nonzero?0:8);
+    BattleCaptureDraw draw{};draw.count=2;draw.rgba=0x80808080;
+    draw.vertices[0]={0,0xffff00000000ull|(y<<16)|0x6bf0};
+    draw.vertices[1]={0x0df027f0,0xffff00000000ull|((y+0xe10)<<16)|0x9400};
+    encode_passes(command,target,capture,capture,draw,true);
+}
+void BattleCaptureMetal::encode_passes(id<MTLCommandBuffer> command,id<MTLTexture> target,
+        id<MTLTexture> capture,id<MTLTexture> history,const BattleCaptureDraw& draw,bool frozen) {
     if(!command||!target||!capture||!history||target==capture||target==history||
        target.width!=640||target.height!=224||target.pixelFormat!=MTLPixelFormatRGBA8Unorm||
        (draw.count!=2&&draw.count!=4))throw std::runtime_error("Invalid native battle capture target/geometry");
@@ -63,7 +76,7 @@ void BattleCaptureMetal::encode(id<MTLCommandBuffer> command,id<MTLTexture> targ
     pass.colorAttachments[0].storeAction=MTLStoreActionStore;
     auto encoder=[command renderCommandEncoderWithDescriptor:pass];
     [encoder setRenderPipelineState:pipeline_];[encoder setCullMode:MTLCullModeNone];
-    auto submit=[&](const std::array<BattleCaptureVertex,4>& packed,unsigned count,id<MTLTexture> texture,std::uint32_t rgba,bool feedback) {
+    auto submit=[&](const std::array<BattleCaptureVertex,4>& packed,unsigned count,id<MTLTexture> texture,std::uint32_t rgba,bool feedback,int fixed_alpha=-1) {
         std::array<Vertex,4> vertices;
         for(unsigned i=0;i<count;++i) {
             const auto& p=packed[i];
@@ -77,16 +90,22 @@ void BattleCaptureMetal::encode(id<MTLCommandBuffer> command,id<MTLTexture> targ
             vertices[2]=last;vertices[3]=first;vertices[3].position[1]=last.position[1];vertices[3].uv[1]=last.uv[1];
         }
         const std::array<Vertex,6> triangles={vertices[0],vertices[1],vertices[2],vertices[0],vertices[2],vertices[3]};
-        const State state{{rgba&255,(rgba>>8)&255,(rgba>>16)&255,rgba>>24},unsigned(feedback)};
+        const State state{{rgba&255,(rgba>>8)&255,(rgba>>16)&255,rgba>>24},unsigned(feedback),fixed_alpha};
         [encoder setVertexBytes:triangles.data() length:sizeof(triangles) atIndex:0];
         [encoder setFragmentBytes:&state length:sizeof(state) atIndex:0];
         [encoder setFragmentTexture:texture atIndex:0];
         [encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:6];
     };
-    submit(draw.vertices,draw.count,capture,draw.rgba,false);
-    const std::array<BattleCaptureVertex,4> previous={BattleCaptureVertex{0,0xffff78f86bf0},
-        BattleCaptureVertex{0x0e002800,0xffff87009400}};
-    submit(previous,2,history,0x80808080,true);
+    submit(draw.vertices,draw.count,capture,draw.rgba,false,frozen?128:-1);
+    if(frozen) {
+        auto shifted=draw.vertices;
+        for(unsigned i=0;i<2;++i)shifted[i].xyz+=std::uint64_t(16)<<16;
+        submit(shifted,2,capture,0x80808080,false,96);
+    } else {
+        const std::array<BattleCaptureVertex,4> previous={BattleCaptureVertex{0,0xffff78f86bf0},
+            BattleCaptureVertex{0x0e002800,0xffff87009400}};
+        submit(previous,2,history,0x80808080,true);
+    }
     [encoder endEncoding];
 }
 BattleCaptureSurface::BattleCaptureSurface():device_(MTLCreateSystemDefaultDevice()),
@@ -113,4 +132,18 @@ void BattleCaptureSurface::apply(Texture& destination,const Texture& capture,con
         throw std::runtime_error(command.error.localizedDescription.UTF8String);
     [target_ getBytes:destination.rgba.data() bytesPerRow:640*4 fromRegion:region mipmapLevel:0];
 }
+void BattleCaptureSurface::apply_frozen(Texture& destination,const Texture& capture,bool field_nonzero) {
+    for(const auto* image:std::array<const Texture*,2>{&destination,&capture})
+        if(image->width!=640||image->height!=224||image->rgba.size()!=640*224*4)
+            throw std::runtime_error("Native frozen capture requires complete 640x224 game surfaces");
+    const auto region=MTLRegionMake2D(0,0,640,224);
+    [target_ replaceRegion:region mipmapLevel:0 withBytes:destination.rgba.data() bytesPerRow:640*4];
+    [capture_ replaceRegion:region mipmapLevel:0 withBytes:capture.rgba.data() bytesPerRow:640*4];
+    auto command=[queue_ commandBuffer];renderer_.encode_frozen(command,target_,capture_,field_nonzero);
+    [command commit];[command waitUntilCompleted];
+    if(command.status!=MTLCommandBufferStatusCompleted)
+        throw std::runtime_error(command.error.localizedDescription.UTF8String);
+    [target_ getBytes:destination.rgba.data() bytesPerRow:640*4 fromRegion:region mipmapLevel:0];
+}
+
 }
