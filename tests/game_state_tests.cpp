@@ -503,7 +503,54 @@ int main(int argc,char** argv) {
             require(vars[0x410+131]==1 && vars[0x410+174]==1 && vars[0x410+240]==1);
             require(get32(vars,0x598)==700 && get32(vars,0x59c)==700);
         }
-        std::cout<<"Game XDB parsing, signed growth, halfword math, aggregates, equipment and transactional failures passed\n";
+        {
+            okage::GamePlayTimeCounter cadence;
+            std::vector<std::uint8_t> vars(0xd78,0xa5);
+            put32(vars,0x520,41);
+            for(unsigned i=0;i<59;++i)require(!cadence.main_loop_pass(vars));
+            require(get32(vars,0x520)==41);
+            require(cadence.main_loop_pass(vars));
+            require(get32(vars,0x520)==42);
+            for(unsigned i=0;i<59;++i)require(!cadence.main_loop_pass(vars));
+            require(cadence.main_loop_pass(vars));
+            require(get32(vars,0x520)==43);
+            require(vars[0x51f]==0xa5&&vars[0x524]==0xa5);
+        }
+        {
+            okage::GamePlayTimeCounter cap;
+            std::vector<std::uint8_t> vars(0xd78);
+            put32(vars,0x520,359998);
+            for(unsigned i=0;i<60;++i)cap.main_loop_pass(vars);
+            require(get32(vars,0x520)==359999);
+            for(unsigned i=0;i<120;++i)cap.main_loop_pass(vars);
+            require(get32(vars,0x520)==359999);
+            put32(vars,0x520,360000);
+            for(unsigned i=0;i<60;++i)cap.main_loop_pass(vars);
+            require(get32(vars,0x520)==360000);
+        }
+        {
+            okage::GamePlayTimeCounter signed_math;
+            std::vector<std::uint8_t> vars(0xd78);
+            put32(vars,0x520,0xffffffffu);
+            for(unsigned i=0;i<60;++i)signed_math.main_loop_pass(vars);
+            require(get32(vars,0x520)==0); // negative signed source count increments
+            put32(vars,0x520,0x7fffffffu);
+            for(unsigned i=0;i<60;++i)signed_math.main_loop_pass(vars);
+            require(get32(vars,0x520)==0x80000000u); // ADDIU wrap then signed SLT
+        }
+        {
+            okage::GamePlayTimeCounter survives_restore;
+            std::vector<std::uint8_t> live(0xd78),restored(0xd78);
+            put32(live,0x520,9);
+            for(unsigned i=0;i<59;++i)require(!survives_restore.main_loop_pass(live));
+            put32(restored,0x520,900);
+            require(survives_restore.main_loop_pass(restored));
+            require(get32(restored,0x520)==901);
+            const auto before=restored;
+            rejects([&]{survives_restore.main_loop_pass(std::span<std::uint8_t>(restored).first(0xd77));});
+            require(restored==before);
+        }
+        std::cout<<"Game XDB parsing, signed growth, halfword math, aggregates, equipment, playtime cadence and transactional failures passed\n";
     } catch(const std::exception& e) {
         std::cerr<<e.what()<<'\n';
         return 1;

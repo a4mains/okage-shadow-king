@@ -7,6 +7,15 @@
 #include <vector>
 
 namespace okage {
+class GamePlayTimeCounter {
+public:
+    static constexpr std::uint32_t passes_per_increment=60;
+    // Returns true exactly on every 60th completed pass, when the original
+    // capped signed-32-bit increment is attempted at variables+0x520.
+    bool main_loop_pass(std::span<std::uint8_t> variables);
+private:
+    std::uint32_t partial_passes_=0;
+};
 struct GameUnitUiRecord {
     std::array<std::uint32_t,27> words{};
     std::string name;

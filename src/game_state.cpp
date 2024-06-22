@@ -8,6 +8,19 @@
 #include <utility>
 
 namespace okage {
+bool GamePlayTimeCounter::main_loop_pass(std::span<std::uint8_t> variables) {
+    if(variables.size()<0xd78)throw std::runtime_error("Playtime save payload bounds");
+    ++partial_passes_;
+    if(partial_passes_<passes_per_increment)return false;
+    partial_passes_=0;
+
+    std::uint32_t current=0;
+    for(unsigned i=0;i<4;++i)current|=std::uint32_t(variables[0x520+i])<<(i*8);
+    const auto next=current+std::uint32_t(1);
+    if(std::bit_cast<std::int32_t>(next)<360000)
+        for(unsigned i=0;i<4;++i)variables[0x520+i]=std::uint8_t(next>>(i*8));
+    return true;
+}
 namespace {
 std::uint32_t word(Bytes b,std::size_t at) {
     if(at>b.size()||b.size()-at<4)throw std::runtime_error("Truncated game data word");
