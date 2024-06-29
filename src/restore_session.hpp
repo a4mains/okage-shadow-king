@@ -12,6 +12,9 @@ struct RestoreConstruction {
     std::filesystem::path common_root,ui_root,save_directory;
     std::shared_ptr<const std::vector<Font>> fonts;
     std::function<void()> stop_music;
+    bool save=false;
+    std::shared_ptr<RuwResource> field_ruw;
+    std::shared_ptr<const Texture> field_atlas;
 };
 class RestoreSession {
 public:
@@ -21,6 +24,10 @@ public:
         SceneFade&,Animation&,FieldProjection&,RetiringSceneEffects*,BattleUiShared&,
         unsigned& image_counter,const SineTable&,GameRandom&,
         const std::function<void(unsigned)>& sound,const std::function<void(bool)>& finish);
+    void tick_save(BattleUiPadInput,std::span<std::uint8_t>,const GameDataTables&,
+        SceneFade&,const Texture& captured_background,const SineTable&,GameRandom&,
+        const std::function<void(unsigned)>& sound,const std::function<void(bool)>& publish_result);
+    bool dead() const;
     void retire(Animation&,FieldProjection&,RetiringSceneEffects*,BattleUiShared&);
     bool resource_live() const;
     const Texture* rendered_image() const;

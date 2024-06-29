@@ -724,7 +724,23 @@ void OpeningField::move_player(ExplorationInput input) {
 Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32_t b,std::uint32_t pc) {
     auto pending=[&] {pending_opcode=op;pending_actor=b;pending_animation=a;return Animation::ServiceResult{pc,true};};
     switch(op) {
+        case 0x59: {
+            if(b!=0x111||!set_save_caption)
+                throw std::runtime_error("Unrecovered live field string service");
+            const std::uint64_t base=32ull+word(4)+word(8),at=base+word(pc+4);
+            if(at>=bytes_.size())throw std::runtime_error("Field save caption string bounds");
+            const auto first=bytes_.begin()+at,last=std::find(first,bytes_.end(),0);
+            if(last==bytes_.end())throw std::runtime_error("Unterminated field save caption");
+            set_save_caption(std::string_view(reinterpret_cast<const char*>(&*first),last-first));
+            pending_opcode=0;return {pc+8};
+        }
         case 0x62:
+            if(b==12) {
+                if(!open_save_menu||!definition_)throw std::runtime_error("Save request needs field manager service");
+                if(save_requested_||save_menu_active_||battle_request_||transition_||encounter_)
+                    throw std::runtime_error("Overlapping Save field request");
+                save_requested_=true;pending_opcode=0;return {pc+8};
+            }
             // 0x131338 ->0x1248d8. Only the reached scripted mode7 is
             // implemented; its payload is a stage index, not another opcode.
             if(b!=7||!battle_transition_service||!definition_)
@@ -1000,7 +1016,14 @@ void OpeningField::evaluate() {
         requested_target_=target;
     }
 }
+void OpeningField::close_save_menu() {
+    if(!save_menu_active_)throw std::runtime_error("Closing absent field Save menu");
+    save_menu_active_=false;save_resuming_=true;
+}
 void OpeningField::tick(ExplorationInput input) {
+    if(save_menu_active_) {
+        tick_callbacks(input,false,true,true);return;
+    }
     if(encounter_)throw std::runtime_error("Pending native battle request was not consumed");
     // Field manager 0x133a98 runs before the event pass. Case 5 detects the
     // ended script and selects the room camera; case 0 updates it next frame.
@@ -1015,6 +1038,11 @@ void OpeningField::tick(ExplorationInput input) {
                                                 *collision_,angles_,sine_,collision_mask->bits);
         script_.set_channel(0,camera.position);requested_target_=camera.target;camera_mode_=2;
     };
+    if(save_resuming_) {
+        save_resuming_=false;
+        if(exterior&&exterior_camera_enabled_)update_exterior_camera();
+        tick_callbacks(input,!exterior);return;
+    }
     bool move=false;
     if(battle_transitioning) {
         if(battle_request_->dispatched)
@@ -1049,7 +1077,10 @@ void OpeningField::tick(ExplorationInput input) {
     }
     if(!was_transitioning&&(exploration_camera_||exterior)&&!event_running()) {
         if(exploration_handoff_) {
-            if(battle_request_) {
+            if(save_requested_) {
+                save_requested_=false;save_menu_active_=true;
+                open_save_menu();
+            } else if(battle_request_) {
                 // 0x133450 consumes queued mode7 before camera/interactions.
                 battle_request_->phase=11;
             } else {
@@ -1073,9 +1104,9 @@ void OpeningField::tick(ExplorationInput input) {
             }
         }
     }
-    tick_callbacks(input,move&&!exterior);
+    tick_callbacks(input,move&&!exterior,save_menu_active_,false);
 }
-void OpeningField::tick_callbacks(ExplorationInput input,bool interior_camera) {
+void OpeningField::tick_callbacks(ExplorationInput input,bool interior_camera,bool pause_actors,bool frozen_resource) {
     // Manager0x133a98 updates the anchored camera from the preceding player
     // position. Global scripts and scene evaluation precede player callbacks.
     if(interior_camera) {
@@ -1087,6 +1118,7 @@ void OpeningField::tick_callbacks(ExplorationInput input,bool interior_camera) {
     for(const auto& binding:actors_)binding.actor->tick_script();
     if(camera_motion_)camera_motion_->tick_script();
     if(hat_actor_)hat_actor_->tick_script();
+    if(!frozen_resource) {
     if(camera_mode_==1)camera_motion_->tick_channels();
     else script_.tick_channels();
     evaluate();
@@ -1101,6 +1133,8 @@ void OpeningField::tick_callbacks(ExplorationInput input,bool interior_camera) {
     // mode, including the handoff update and transition countdown.
     if(render_projection)render_projection->begin_field();
     advance_effects();
+    }
+    if(pause_actors)return;
     update_npcs();
     if(encounter_)return;
     move_player(input);

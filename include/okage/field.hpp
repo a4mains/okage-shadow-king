@@ -97,6 +97,12 @@ public:
     void validate_retirement() const;
     RetiringSceneEffects retire_effects();
     bool exploration_ready() const {return exploration_handoff_;}
+    std::function<void()> open_save_menu;
+    std::function<void(std::string_view)> set_save_caption;
+    bool save_requested() const {return save_requested_;}
+    bool save_menu_active() const {return save_menu_active_;}
+    void close_save_menu();
+    std::int32_t persistent_map_index() const {return definition_?definition_->battle_record_selection:-1;}
     std::function<void(unsigned,const FieldBattleRequest&)> battle_transition_service;
     std::function<std::uint32_t()> random_value;
     // Optional read-only research observer, before/after a state-1 callback.
@@ -180,6 +186,7 @@ private:
     bool prepared_=false,activated_=false;
     int interaction_alias_=0,interaction_event_=0;
     std::int32_t saved_input_gate_=0;
+    bool save_requested_=false,save_menu_active_=false,save_resuming_=false;
     bool input_gate_saved_=false;
     void restore_event_gate();
     std::optional<FieldTransition> transition_;
@@ -201,7 +208,7 @@ private:
     void interact(ExplorationInput);
     void move_player(ExplorationInput);
     void remember_player();
-    void tick_callbacks(ExplorationInput input,bool interior_camera);
+    void tick_callbacks(ExplorationInput input,bool interior_camera,bool pause_actors=false,bool frozen_resource=false);
     std::vector<EffectDefinition> effect_definitions_;
     std::shared_ptr<const EffectTemplatePreparation> effect_preparation_;
     void bind_effect_geometry(MapEffect&) const;

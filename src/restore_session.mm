@@ -43,15 +43,20 @@ std::string format(std::string_view source,std::initializer_list<std::string> va
         const bool zero=source[i]=='0';unsigned width=0;
         while(i<source.size()&&source[i]>='0'&&source[i]<='9'){width=width*10+source[i++]-'0';check(width<128,"Restore text width");}
         check(i<source.size()&&(source[i]=='s'||source[i]=='d')&&arg!=values.end(),"Restore text arguments");
-        if(width>arg->size())out.append(width-arg->size(),zero?'0':' ');
-        out+=*arg++;++i;
+        if(zero&&width>arg->size()&&!arg->empty()&&(*arg)[0]=='-') {
+            out+='-';out.append(width-arg->size(),'0');out+=arg->substr(1);
+        } else {
+            if(width>arg->size())out.append(width-arg->size(),zero?'0':' ');
+            out+=*arg;
+        }
+        ++arg;++i;
     }
     check(arg==values.end()&&out.size()<128,"Restore text length/arguments");return out;
 }
 }
 struct RestoreSession::Impl {
-    enum Io : unsigned {None,Checking,Scanning,Ready,Reading,Loaded,Failed};
-    bool live=true,manager=true,dead=false,completed=false;
+    enum Io : unsigned {None,Checking,Scanning,Ready,Reading,Loaded,Failed,Writing,Written};
+    bool live=true,manager=true,dead=false,completed=false,save=false;
     unsigned phase=0,confirmation=0,success_ticks=0;
     Io io=None;
     RestoreShared& shared;BattleUiShared& ui;
@@ -76,10 +81,16 @@ struct RestoreSession::Impl {
     Impl(SceneClearColor& clear,SceneFade& fade,BattleUiShared& u,RestoreShared& s,RestoreConstruction c)
         :shared(s),ui(u),fonts(std::move(c.fonts)),data(read(c.ui_root/"RESTORE.bin")),
          numbers(read(c.ui_root/"results-text.bin")),store(c.save_directory),save_directory(c.save_directory) {
-        clear.rgb={0,0,0};fade.color=0;initialize_scene_ui(ui);fade.immediate(0);
-        check(bool(c.stop_music),"Restore music owner");c.stop_music();
-        atlas=std::make_shared<const Texture>(decode_xim(read(c.common_root/"2D/MAIN.XPF/bm_if.xim")));
-        ruw=std::make_shared<RuwResource>(read(c.ui_root/"FLD.RUW"));
+        save=c.save;
+        if(save) {
+            check(c.field_ruw&&c.field_atlas,"Save requires live field UI resources");
+            ruw=std::move(c.field_ruw);atlas=std::move(c.field_atlas);
+        } else {
+            clear.rgb={0,0,0};fade.color=0;initialize_scene_ui(ui);fade.immediate(0);
+            check(bool(c.stop_music),"Restore music owner");c.stop_music();
+            atlas=std::make_shared<const Texture>(decode_xim(read(c.common_root/"2D/MAIN.XPF/bm_if.xim")));
+            ruw=std::make_shared<RuwResource>(read(c.ui_root/"FLD.RUW"));
+        }
         renderer=std::make_unique<ResultsRenderer>(fonts,atlas);
         const auto free=std::find(ui.registry.begin(),ui.registry.end(),nullptr);
         check(free!=ui.registry.end(),"Restore UI registry exhausted");handle=int(free-ui.registry.begin());
@@ -101,7 +112,7 @@ struct RestoreSession::Impl {
             words[0x8c/4]=words[0xed8/4]=words[0x168/4]=words[0x16c/4]=words[0x88/4]=0xffffffff;
             words[0xe44/4]=words[0x180/4];
             for(int i=0;i<3;++i)ruw->set_text(8,0x6b+i,data.string(Text::TextPrefix));
-            fade.immediate(1);
+            if(!save)fade.immediate(1);
         }catch(...){destroy_window();throw;}
     }
     ~Impl(){destroy_window();}
@@ -118,7 +129,7 @@ struct RestoreSession::Impl {
             up=y< -100||(input.repeat&0x1000);down=y>100||(input.repeat&0x4000);
             left=x< -100||(input.repeat&0x8000);right=x>100||(input.repeat&0x2000);
             if(up||down||left||right)shared.repeat_delay=8;
-        } else {--shared.repeat_delay;if(x>=-99&&x<99&&y>=-99&&y<100)shared.repeat_delay=0;}
+        } else {--shared.repeat_delay;if(x>=-99&&x<100&&y>=-99&&y<100)shared.repeat_delay=0;}
         if(window().opacity()==0)shared.state=-2;
         if(shared.state==0)completed=false;
         ruw->set_text(8,7,data.string(Text::Empty));ruw->set_position(8,0x10,-193,keep); //11b7c0
@@ -128,33 +139,46 @@ struct RestoreSession::Impl {
         const bool buttons_centered=x>=-99&&x<=99&&y>=-99&&y<=99&&(input.held==0x20||input.held==0x40);
         switch(shared.state) {
         case 0:
-            window().reset_for_open();window().set_opacity_tween(8,1,0,128);bind();shared.state=510;confirmation=0;break;
-        case 510:case 540:
+            window().reset_for_open();window().set_opacity_tween(8,1,0,128);bind();shared.state=save?10:510;if(!save)confirmation=0;break;
+        case 510:case 540:case 10:
             if(input.pressed&0x20)close(sound);break;
-        case 550:
-            status=text(Text::ReadSlotPrompt);ruw->set_text(8,7,data.string(Text::SlotLabels));
+        case 50:case 550:
+            check(save==(shared.state==50),"Save/Restore selection state owner");
+            status=text(save?Text::SaveSlotPrompt:Text::ReadSlotPrompt);ruw->set_text(8,7,data.string(Text::SlotLabels));
             ruw->set_position(8,7,47,keep);ruw->set_position(8,0x10,shared.selected*75+43,keep);words[0xa4/4]=0xffffffff;
             for(int i=0;i<3;++i)ruw->set_secondary_rgba(8,0x12+i*22,i==shared.selected?std::array<int,4>{230,160,40,90}:std::array<int,4>{40,45,190,90});
-            if(buttons_centered) {
-                if(input.pressed&0x20)close(sound);
-                if((input.pressed&0x40)&&slots[shared.selected]){shared.state=560;confirmation=1;sound(3);}
+            //Save selection changes precede confirm; Restore does the reverse.
+            if(save) {
+                if(up||left){sound(7);shared.selected=(shared.selected+2)%3;}
+                if(down||right){sound(7);shared.selected=(shared.selected+1)%3;}
             }
-            if(up||left){sound(7);shared.selected=(shared.selected+2)%3;}
-            if(down||right){sound(7);shared.selected=(shared.selected+1)%3;}break;
-        case 560:
+            if(buttons_centered) {
+                if(save) {
+                    if(input.pressed&0x40){shared.state=60;confirmation=1;sound(3);}
+                    if(input.pressed&0x20)close(sound);
+                } else {
+                    if(input.pressed&0x20)close(sound);
+                    if((input.pressed&0x40)&&slots[shared.selected]){shared.state=560;confirmation=1;sound(3);}
+                }
+            }
+            if(!save) {
+                if(up||left){sound(7);shared.selected=(shared.selected+2)%3;}
+                if(down||right){sound(7);shared.selected=(shared.selected+1)%3;}
+            }break;
+        case 70:case 560:
             ruw->set_text(8,7,data.string(Text::YesNo));ruw->set_position(8,7,61,keep);ruw->set_position(8,0x10,int(confirmation)*65+43,keep);
             if(left){confirmation=0;sound(7);}if(right){confirmation=1;sound(7);}
             if(buttons_centered) {
-                if(input.pressed&0x20){shared.state=550;sound(4);}
-                if(input.pressed&0x40){shared.state=confirmation?550:700;sound(confirmation?4:3);}
+                if(input.pressed&0x20){shared.state=save?50:550;sound(4);}
+                if(input.pressed&0x40){shared.state=confirmation?(save?50:550):(save?100:700);sound(confirmation?4:3);}
             }break;
-        case 710:case 720:
+        case 130:case 710:case 720:
             if(input.pressed&0x60){shared.state=10;sound(4);}break;
-        case 999:shared.state=-1;window().set_opacity_tween(-4,128,0,128);break;
+        case 151:case 999:shared.state=-1;window().set_opacity_tween(-4,128,0,128);break;
         case -1:break;
         case -2:
             shared.state=0;dead=true;words[0x1c/4]|=0x80000000u;break;
-        case 10:case 530:case 700:break;
+        case 30:case 40:case 60:case 100:case 530:case 700:break;
         default:throw std::runtime_error("Restore input state unrecovered: "+std::to_string(shared.state));
         }
         ++words[0xe8c/4];
@@ -179,7 +203,9 @@ struct RestoreSession::Impl {
         for(int i=0;i<2;++i){ruw->set_runtime_word0(8,slot*2+0x5f+i,std::uint32_t(-58));ruw->set_rgba(8,slot*2+0x5f+i,{128,128,128,keep});}
         int icon=slot*2+0x5f;
         for(unsigned i=1;i<6;++i)if(word(bytes,0x570+i*4)==3&&word(bytes,0x524)==0){ruw->set_runtime_word0(8,icon,i+0x38);ruw->set_rgba(8,icon++,{255,255,255,keep});}
-        (void)tables.ui_unit(half(bytes,0x5c6));
+        const auto unit=std::bit_cast<std::int16_t>(std::uint16_t(half(bytes,0x5c6)));
+        check(unit>=0,"Save preview unit ID is negative");
+        (void)tables.ui_unit(unsigned(unit));
         ruw->set_rgba(8,slot+0x59,{255,255,255,keep});
         ruw->set_text(8,b+0x14,text(Text::PlayerNameFormat,{string_field(bytes,0x844,0x854)}));
         const int seconds=signed_word(bytes,0x520);int hours=seconds>0?seconds/3600:0,minutes=seconds>0?(seconds/60)%60:0;
@@ -187,10 +213,10 @@ struct RestoreSession::Impl {
         ruw->set_text(8,b+0x15,text(Text::PlayTimeFormat,{std::to_string(hours),std::to_string(minutes)}));
         for(int id:{0x1d,0x26,0x1b,0x1c,0x1e,0x1f,0x23,0x20,0x24,0x25,0x22})ruw->set_rgba(8,b+id,{255,255,255,keep});
         ruw->set_runtime_word0(8,b+0x1e,0x16);
-        ruw->set_text(8,b+0x16,text(Text::HitPointsFormat,{std::to_string(signed_word(bytes,0x5cc)),std::to_string(half(bytes,0x5dc))}));
+        ruw->set_text(8,b+0x16,text(Text::HitPointsFormat,{std::to_string(signed_word(bytes,0x5cc)),std::to_string(std::bit_cast<std::int16_t>(std::uint16_t(half(bytes,0x5dc))))}));
         const auto maximum=std::bit_cast<std::int16_t>(std::uint16_t(half(bytes,0x5dc)));check(maximum!=0,"Restore saved HP maximum is zero");
         ruw->set_fill_fraction(8,b+0x27,hp_fraction(signed_word(bytes,0x5cc),maximum));ruw->set_position(8,b+0x27,253,slot*94+110);
-        ruw->set_text(8,b+0x17,text(Text::LevelFormat,{std::to_string(half(bytes,0x5c8))}));
+        ruw->set_text(8,b+0x17,text(Text::LevelFormat,{std::to_string(std::bit_cast<std::int16_t>(std::uint16_t(half(bytes,0x5c8))))}));
         ruw->set_text(8,b+0x18,data.string(Text::NeutralStatus));
         const int status_id=std::bit_cast<std::int8_t>(bytes[0x5c4])+0x38,curse=std::bit_cast<std::int8_t>(bytes[0x5c5]);
         check(status_id>=0&&curse+0x2f>=0,"Restore saved status message index");
@@ -209,12 +235,17 @@ struct RestoreSession::Impl {
             ruw->set_text(8,i+0x68,text(Text::MenuNumberFormat,{std::to_string(i+1)}));
         }
         const auto& selected=slots.at(shared.selected);
-        ruw->set_text(8,4,text(Text::ProgressNumberFormat,{std::to_string(selected?std::min(signed_word(*selected,0x590),99):0)}));
-        ruw->set_text(8,5,numbers.money_summary(selected?std::max(signed_word(*selected,0x51c),0):0));
+        const Bytes summary=save?Bytes(variables):selected?Bytes(*selected):Bytes{};
+        ruw->set_text(8,4,text(Text::ProgressNumberFormat,{std::to_string(summary.empty()?0:std::min(signed_word(summary,0x590),99))}));
+        ruw->set_text(8,5,numbers.money_summary(summary.empty()?0:std::max(signed_word(summary,0x51c),0)));
         ruw->set_text(8,6,status);
+        if(save&&io==Failed&&shared.state==10) {
+            slots={};slot_errors={};pending_slots={};pending_errors={};loaded.reset();load_error.clear();io=None;
+        }
         if(io==None) {
             empty_slots();status=text(Text::CheckingCardNotice);
             jobs.enqueue([this]{
+                if(save)std::filesystem::create_directories(save_directory);
                 check(std::filesystem::is_directory(save_directory),"Restore storage directory unavailable");
                 check(std::filesystem::space(save_directory).available!=std::uintmax_t(-1),"Restore storage capacity unavailable");
             },{0x16d580,0x11c9b8});
@@ -222,7 +253,7 @@ struct RestoreSession::Impl {
         }
         if(io==Checking) {
             jobs.check();if(jobs.pending()||dead||shared.state<0)return;
-            shared.state=530;
+            shared.state=save?30:530;
             jobs.enqueue([this]{for(unsigned i=0;i<3;++i){try{pending_slots[i]=store.read(i);}catch(const std::exception& e){pending_errors[i]=e.what();}}},{0x16cdb8,0x11c2c8});
             jobs.resume();io=Scanning;
         }
@@ -231,8 +262,37 @@ struct RestoreSession::Impl {
             slots=std::move(pending_slots);slot_errors=std::move(pending_errors);
             bool any=false;
             for(unsigned i=0;i<3;++i){if(!slot_errors[i].empty())std::cerr<<"Native Restore slot "<<i<<": "<<slot_errors[i]<<'\n';if(slots[i]){slot_layout(i,tables);any=true;}}
-            if(!dead&&shared.state>=0)shared.state=any?550:540;
-            status=any?text(Text::ReadSlotPrompt):text(Text::NoSavedDataNotice);io=Ready;
+            if(!dead&&shared.state>=0)shared.state=save?50:any?550:540;
+            status=save?text(Text::SaveSlotPrompt):any?text(Text::ReadSlotPrompt):text(Text::NoSavedDataNotice);io=Ready;
+        }
+        if(save) {
+            if(io==Ready&&shared.state==60) {
+                check(std::filesystem::space(save_directory).available>=source_save_file_size,"Save storage has insufficient free space");
+                if(slots[shared.selected]) {shared.state=70;status=text(Text::ReplaceSavePrompt,{std::to_string(shared.selected+1)});}
+                else shared.state=100;
+            }
+            if(io==Ready&&shared.state==100) {
+                check(variables.size()>=save_payload_size,"Save variable payload extent");
+                SavePayload snapshot;std::copy_n(variables.begin(),snapshot.size(),snapshot.begin());
+                const unsigned slot=shared.selected;status=text(Text::SavingNotice);load_error.clear();loaded.reset();
+                jobs.enqueue([this,slot,snapshot]{try{store.write(slot,snapshot);}catch(const std::exception& e){load_error=e.what();}},{0x16cfb0,0x11d904});
+                jobs.resume();io=Writing;
+            }
+            if(io==Writing) {
+                jobs.check();if(jobs.pending())return;
+                if(!load_error.empty()){shared.state=130;status=text(Text::SaveFailedNotice);io=Failed;return;}
+                const unsigned slot=shared.selected;
+                jobs.enqueue([this,slot]{try{loaded=store.read(slot);if(!loaded)load_error="Written native save disappeared before readback";}catch(const std::exception& e){load_error=e.what();}},{0x16d788,0x11daf0});
+                jobs.resume();io=Written;
+            }
+            if(io==Written) {
+                jobs.check();if(jobs.pending())return;
+                check(load_error.empty()&&loaded,"Save readback failure remains unrecovered");
+                slots[shared.selected]=*loaded;slot_layout(shared.selected,tables);
+                success_ticks=0;status=text(Text::SaveCompleteNotice);io=Loaded;return;
+            }
+            if(io==Loaded&&shared.state==100) {if(++success_ticks>=180){completed=true;shared.state=151;}}
+            return;
         }
         if(io==Ready&&shared.state==560)status=text(Text::ReadFilePrompt,{std::to_string(shared.selected+1)});
         if(io==Ready&&shared.state==700) {
@@ -269,6 +329,19 @@ void RestoreSession::tick(BattleUiPadInput input,std::span<std::uint8_t> variabl
     if(unlink)p.manager=false;
     else if(p.manager){p.first(input,sound);p.second(variables,tables);if(p.dead)p.destroy_window();}
 }
+void RestoreSession::tick_save(BattleUiPadInput input,std::span<std::uint8_t> variables,const GameDataTables& tables,
+    SceneFade& fade,const Texture& background,const SineTable& sine,GameRandom& random,
+    const std::function<void(unsigned)>& sound,const std::function<void(bool)>& publish_result) {
+    auto& p=*impl_;check(p.live&&p.save&&p.manager&&!p.dead,"Save manager lifetime");
+    const std::array<UiResourceSlotBinding,1> bindings{{{unsigned(p.handle),0}}};
+    const auto draw=p.ui.resource.advance_resource(p.ui.registry,bindings,p.ui.resource_accumulators,p.fonts,sine,random,p.ui_projection);
+    p.output=&p.renderer->render(draw,fade,&background);
+    p.first(input,sound);
+    if(p.dead)publish_result(p.completed); //11e480 publishes before11c2c8.
+    p.second(variables,tables);
+    if(p.dead)p.destroy_window();
+}
+bool RestoreSession::dead() const{return impl_->dead;}
 void RestoreSession::retire(Animation& camera,FieldProjection& projection,RetiringSceneEffects* effects,BattleUiShared& ui) {
     auto& p=*impl_;check(p.live,"Restore retired twice");if(effects)effects->mark();
     p.destroy_window();for(auto& w:ui.registry)w.reset();projection.reset_scene();reset_scene_camera(camera);

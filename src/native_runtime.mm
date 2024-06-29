@@ -256,6 +256,7 @@ struct Session {
     //Field resource ownership survives destruction of the temporary loader.
     std::shared_ptr<okage::RuwResource> field_ruw;
     std::shared_ptr<const okage::Texture> field_ui_atlas;
+    okage::GamePlayTimeCounter playtime;
     std::unique_ptr<okage::SceneRenderer> renderer;
     okage::FieldProjection projection;
     okage::SceneClearColor scene_clear;
@@ -317,7 +318,10 @@ struct Session {
     okage::NameEntryShared name_entry_shared;
     std::unique_ptr<okage::NameEntrySession> name_entry;
     okage::RestoreShared restore_shared;
-    std::unique_ptr<okage::RestoreSession> restore;
+    std::unique_ptr<okage::RestoreSession> restore,field_save;
+    std::optional<okage::Texture> save_background;
+    std::unique_ptr<okage::BattleCaptureSurface> save_capture_surface;
+    unsigned save_open_frame=0;
     std::unique_ptr<okage::ChapterSession> chapter;
     okage::TitleStreamOwner title_stream;
     okage::GameOverShared game_over_shared;
@@ -383,7 +387,7 @@ struct Session {
         load_observation_written=true;
     }
     std::vector<std::uint32_t> battle_loading_trace;
-    std::vector<std::uint32_t> game_mode_trace,retiring_effect_trace,results_trace,title_trace,name_entry_trace,chapter_trace,ordinary_load_trace,startup_trace,restore_trace;
+    std::vector<std::uint32_t> game_mode_trace,retiring_effect_trace,results_trace,title_trace,name_entry_trace,chapter_trace,ordinary_load_trace,startup_trace,restore_trace,save_trace;
     bool retain_field_music=false;
     std::optional<okage::Texture> transition_image;
     // AppKit presentation is separate from research captures and feedback.
@@ -489,6 +493,28 @@ struct Session {
             }
             else if(countdown==0){transition_alpha=transition_target=128;}
         };
+        field->set_save_caption=[this](std::string_view caption) {
+            if(caption.size()>=0x14)throw std::runtime_error("Save location caption extent");
+            std::copy(caption.begin(),caption.end(),variables.begin()+0x864);
+            variables[0x864+caption.size()]=0; //strcpy preserves the following tail.
+        };
+        field->open_save_menu=[this] {
+            if(field_save||restore||field_return||!field_ruw||!field_ui_atlas||save_directory.empty())
+                throw std::runtime_error("Field Save requires exclusive menu and owned UI/storage resources");
+            if(dialogue_active&&!closure.finished()&&opacity.value>0)
+                throw std::runtime_error("Field Save opening requires recovered concurrent dialogue composition");
+            if(field->persistent_map_index()!=-1)
+                throw std::runtime_error("Field Save minimap bitset owner remains unrecovered");
+            if(!completed_game_image||completed_game_frame+1!=frame)
+                throw std::runtime_error("Save opening requires preceding completed native frame");
+            field_save=std::make_unique<okage::RestoreSession>(scene_clear,scene_fade,ui_shared,restore_shared,
+                okage::RestoreConstruction{field_root.parent_path()/"CMNDATA",battle_input,save_directory,ui_fonts,{},true,field_ruw,field_ui_atlas});
+            save_capture_surface=std::make_unique<okage::BattleCaptureSurface>();
+            scene_fade.immediate(std::bit_cast<float>(0x3f4ccccdu));
+            save_background=*completed_game_image;save_open_frame=frame;
+            pending_game_command={0,0,0};
+            std::cout<<"Native field Save constructed frame="<<frame<<'\n';
+        };
         field->battle_transition_service=[this](unsigned phase,const okage::FieldBattleRequest& request) {
             if(phase==11) {
                 // 0x192bf0 copies the other framebuffer, completed last tick.
@@ -564,6 +590,16 @@ struct Session {
         startup_audio_initialized=true;
         std::cout<<"Native startup shared sound/archive service frame="<<frame<<'\n';
     }
+    void load_synchronous_field_ui() {
+        if(battle_input.empty())return;
+        auto bytes=readData(field_root.parent_path()/"CMNDATA/2D/MAIN.XPF"/(variables[12]?"bm_ifj.xim":"bm_if.xim"));
+        if(bytes.size()<4)throw std::runtime_error("Field UI atlas header");
+        unsigned header=0;for(unsigned i=0;i<4;++i)header|=unsigned(bytes[i])<<(8*i);
+        header=(header&0xfc0fffff)|(0x1bu<<20);for(unsigned i=0;i<4;++i)bytes[i]=header>>(8*i);
+        field_ui_atlas=std::make_shared<const okage::Texture>(okage::decode_xim(bytes));
+        field_ruw=std::make_shared<okage::RuwResource>(readData(battle_input/"FLD.RUW"));
+        okage::initialize_scene_ui(ui_shared);
+    }
     void load_scene(const fs::path& map,const fs::path& event,const std::vector<std::pair<int,fs::path>>& assets) {
         if(game_data)throw std::runtime_error("Initial game data already prepared");
         const auto data_root=message_directory.parent_path().parent_path()/"CMNDATA"/"XDB";
@@ -593,6 +629,7 @@ struct Session {
             auto room=map.parent_path().stem().string();
             std::transform(room.begin(),room.end(),room.begin(),[](unsigned char c){return char(std::tolower(c));});
             field_root=event.parent_path().parent_path().parent_path();event_directory=event.parent_path();
+            load_synchronous_field_ui();
             const auto database=readData(field_root/"FLDSET.XDB");
             const auto definition=okage::read_field_definition(database,room);
             current_scene=definition.scene;
@@ -660,6 +697,7 @@ struct Session {
         const auto map=field_root/upper(definition.room_directory)/(upper(definition.room)+".XPF")/"a.xmp";
         std::vector<okage::SceneActor> scene_actors;
         renderer.reset();field.reset();map_objects.reset();actor_bindings.clear();actor_objects.clear();
+        load_synchronous_field_ui();
         auto add=[&](int alias,const std::string& model){
             const auto path=field_root/"OBJ"/(upper(model)+".XPF")/"a.xmd";
             auto motion=path,xta=path;motion.replace_extension(".xmt");xta.replace_extension(".xta");
@@ -736,8 +774,8 @@ struct Session {
     }
     void begin_ordinary_field(okage::GameModeSelection selection) {
         if(selection[0]!=2||selection[1]>0x7fffffff||selection[2]>0x7fffffff||
-            pending_game_command!=std::array<std::uint32_t,3>{}||field_return||battle_input.empty())
-            throw std::runtime_error("Ordinary field constructor requires explicit nonnegative destination and command0");
+            (pending_game_command!=std::array<std::uint32_t,3>{}&&pending_game_command!=std::array<std::uint32_t,3>{3,0,0})||field_return||battle_input.empty())
+            throw std::runtime_error("Ordinary field constructor requires explicit nonnegative destination and command0/3");
         std::fill(variables.begin()+0x10,variables.begin()+0x110,0);
         scene_fade.immediate(0);scene_clear.rgb={0,0,0};scene_fade.color=0;
         okage::initialize_scene_ui(ui_shared);exterior_camera.snap_target=true;
@@ -1073,7 +1111,7 @@ struct Session {
                 if(battle||field||field_return||defeat_return||game_over||title||name_entry||restore||chapter||startup||!reset_camera)
                     throw std::runtime_error("Native mode construction has surviving scene owners");
                 if(selection[0]==2&&pending_game_command[0]==13) {begin_field_return();return;}
-                if(selection[0]==2&&pending_game_command[0]==0) {begin_ordinary_field(selection);return;}
+                if(selection[0]==2&&(pending_game_command[0]==0||pending_game_command[0]==3)) {begin_ordinary_field(selection);return;}
                 if(selection[0]==2&&pending_game_command[0]==14) {
                     chapter=std::make_unique<okage::ChapterSession>(variables,pending_game_command,selection,
                         scene_clear,scene_fade,ui_shared,[this](unsigned id){
@@ -1298,6 +1336,11 @@ struct Session {
         }
         const std::array<std::uint32_t,2> layers={0x50,controller.layer_flags};
         if(field) {
+            if(field_save&&field_save->dead()) {
+                field_save.reset();save_background.reset();save_capture_surface.reset();field->close_save_menu();
+                pending_game_command={0,0,0};scene_fade.request(1.f);
+                std::cout<<"Native field Save retired frame="<<frame<<'\n';
+            }
             try {if(!returned_this_tick)field->tick({input.held,128,128,input.pressed});}
             catch(const std::exception& e) {
                 throw std::runtime_error("Native frame="+std::to_string(frame)+" field PC="+
@@ -1322,6 +1365,24 @@ struct Session {
                         std::to_string(request->scene)+" entrance="+std::to_string(request->entrance)+": "+e.what());
                 }
             }
+        }
+        if(field_save) {
+            if(!game_data||!save_background||!save_capture_surface)throw std::runtime_error("Save field owners missing");
+            auto background=save_open_frame==frame?base_surface():*save_background;
+            if(save_open_frame!=frame) {
+                save_capture_surface->apply_frozen(background,*save_background,true);
+            }
+            field_save->tick_save({input.held,input.pressed,released,input.repeat,128,128},variables,*game_data,
+                scene_fade,background,battle_capture_sine,random,[this](unsigned id){
+                    const auto bank=sound_banks.find(0);if(bank==sound_banks.end())throw std::runtime_error("Save requires ALL sound bank");
+                    bank->second->play(id,1.f,id==4?110:100);
+                },[this](bool written){pending_game_command={written?3u:4u,0,0};});
+            if(save_open_frame+1==frame) {
+                if(!completed_game_image||completed_game_frame+1!=frame)
+                    throw std::runtime_error("Save freeze requires consecutive framebuffer history");
+                save_background=*completed_game_image;
+            }
+            save_trace.push_back(frame);const auto state=field_save->observation();save_trace.insert(save_trace.end(),state.begin(),state.end());
         }
         if(title&&title->resource_live()) {
             const auto& t=title->state();const auto& c=t.common;
@@ -1457,7 +1518,7 @@ struct Session {
                 completed_game_frame,1,draw.mode,draw.rgba,draw.scale,draw.count,
                 battle_capture_layer->mode,battle_capture_layer->rgba,battle_capture_layer->progress});
         }
-        const bool render_tick=bool(display_link)||(field&&field->battle_request())||battle_capture_layer||
+        const bool render_tick=bool(display_link)||field_save||(field&&field->save_requested())||(field&&field->battle_request())||battle_capture_layer||
             okage::native_render_tick(frame,render_from,render_until,render_ranges);
         if(field) {
             const auto& filter=field->screen_filter;
@@ -1518,6 +1579,7 @@ struct Session {
             if(load_observation_trace&&!load_observation_written&&battle->observation()[2]==6)
                 write_load_observation("constructed");
         }
+        playtime.main_loop_pass(variables);
         if(input_journal)input_journal->complete_tick(frame);
         prepared_tick=false;
         if(battle||pending_battle||display_link)frame_event("tick_complete",frame);
@@ -1567,12 +1629,12 @@ struct Session {
         okage::FrameComposition snapshot;
         snapshot.frame=frame;
         snapshot.game_view=bool(renderer)||bool(game_mode);
-        snapshot.retain_game=bool(battle_capture_image)||(field&&field->battle_request());
+        snapshot.retain_game=bool(battle_capture_image)||field_save||(field&&(field->battle_request()||field->save_requested()));
         snapshot.dialogue=okage::rasterize_text(fonts,text.glyphs,640,224);
         if(!snapshot.game_view)return snapshot;
         snapshot.live_enabled=live_presentation_enabled;
         //Layer2 OT40e precedes results UI OT40f; results already applied it.
-        snapshot.apply_fade=!(field_return&&field_return->rendered)&&!(title&&title->rendered_image())&&!(name_entry&&name_entry->rendered_image())&&!(restore&&restore->rendered_image());
+        snapshot.apply_fade=!(field_save&&field_save->rendered_image())&&!(field_return&&field_return->rendered)&&!(title&&title->rendered_image())&&!(name_entry&&name_entry->rendered_image())&&!(restore&&restore->rendered_image());
         snapshot.fade=scene_fade;
         if(choices.highlighted)snapshot.choice_cursor=choices.cursor;
         auto glyphs=narration.glyphs(fonts[2]);const auto choiceGlyphs=choices.glyphs(fonts[2]);
@@ -1618,7 +1680,9 @@ struct Session {
             throw std::runtime_error("Scene readback before battle frame completion");
         if(!renderer&&!game_mode)return {};
         okage::Texture image{640,224,0,0,std::vector<std::uint8_t>(640*224*4)};
-        if(renderer) {
+        if(field_save&&field_save->rendered_image()) {
+            image=*field_save->rendered_image();
+        } else if(renderer) {
         if(!field)throw std::runtime_error("Field renderer has no mode owner");
         const auto& r=field->rotation;
         const auto& screen=projection.frame().ordinary;
@@ -1843,6 +1907,7 @@ static void capture(Session& session,const fs::path& path) {
         std::pair{".battle-transition.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.battle_transition_trace.data()),session.battle_transition_trace.size()*4)},
         std::pair{".battle-capture.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.battle_capture_trace.data()),session.battle_capture_trace.size()*4)},
         std::pair{".game-mode.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.game_mode_trace.data()),session.game_mode_trace.size()*4)},
+        std::pair{".save-state.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.save_trace.data()),session.save_trace.size()*4)},
         std::pair{".restore-state.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.restore_trace.data()),session.restore_trace.size()*4)},
         std::pair{".name-entry-state.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.name_entry_trace.data()),session.name_entry_trace.size()*4)},
         std::pair{".chapter-state.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(session.chapter_trace.data()),session.chapter_trace.size()*4)},
@@ -2375,7 +2440,7 @@ int main(int argc,const char** argv) {
                 if(!support.count)throw std::runtime_error("Native Application Support directory unavailable");
                 saveDirectory=fs::path(support[0].UTF8String)/"Okage Shadow King/Saves";
             }
-        } else if(!saveDirectory.empty())throw std::runtime_error("Save directory requires cold startup");
+        }
         if(cooperativeReplay&&(!frames&&!previewAt))
             throw std::runtime_error("Replay loading policy requires --frames or --preview-at");
         if(cooperativeReplay.value_or(false)&&!deferredBattleReadback)
@@ -2492,6 +2557,7 @@ int main(int argc,const char** argv) {
             if(!output.empty())session.battle_construction_report=output.string()+".battle-construction.json";
             if(!output.empty())session.battle_stage_report=output.string()+".battle-stage.json";
             session.live_presentation_enabled=previewAt!=0||cooperativeReplay.value_or(false);
+            session.save_directory=saveDirectory;
             if(coldStart)session.initialize_cold_start(gameDataRoot,saveDirectory,!output.empty());
             if(!effectData.empty())session.prepare_effects(effectData,effectTextures);
             if(!map.empty())session.load_scene(map,event,actors);
@@ -2578,6 +2644,7 @@ int main(int argc,const char** argv) {
         if(!output.empty())app->session->battle_construction_report=output.string()+".battle-construction.json";
         if(!output.empty())app->session->battle_stage_report=output.string()+".battle-stage.json";
         app->session->live_presentation_enabled=true;
+        app->session->save_directory=saveDirectory;
         if(coldStart)app->session->initialize_cold_start(gameDataRoot,saveDirectory,!output.empty());
         if(!effectData.empty())app->session->prepare_effects(effectData,effectTextures);
         if(!map.empty())app->session->load_scene(map,event,actors);
