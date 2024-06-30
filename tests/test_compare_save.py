@@ -128,6 +128,28 @@ class CompareSaveTests(unittest.TestCase):
         self.assertIsNone(state["first_comparable_difference"])
         self.assertFalse(report["paired_state_equal"])
 
+    def test_missing_native_record_and_inactive_manager_are_distinct(self):
+        rows = [parent_event(0), source_event(0, "second_callback_entry"),
+                parent_event(1), source_event(1, "second_callback_entry")]
+        self.write_source(rows)
+        self.native.write_bytes(native_event(73655, manager=0))
+        source_save, source_parent = MODULE.load_source(self.source, 240)
+        report = MODULE.compare(source_save, source_parent, MODULE.load_native(self.native), case="choice",
+                                native_offset=73655, source_stop=240)
+        state = report["save_state"]
+        self.assertEqual(state["missing_native_count"], 2)
+        self.assertEqual(state["missing_native_by_reason"], {
+            "native_record_absent": 1,
+            "save_manager_absent": 1,
+        })
+        self.assertEqual(state["missing_native_record_by_position"], {
+            "after_last_native_record": 1,
+        })
+        self.assertEqual(state["missing_native"][0]["status"], "save_manager_absent")
+        self.assertEqual(state["missing_native"][1]["status"], "native_record_absent")
+        self.assertEqual(report["native"]["source_active_frames_missing_native_record"], [1])
+        self.assertEqual(report["native"]["source_active_frames_with_record_but_no_save_manager"], [0])
+
     def test_rejects_schema_owner_selector_and_extent_errors(self):
         self.write_source([parent_event(0), source_event(0, "second_callback_entry")], schema="bad")
         with self.assertRaisesRegex(MODULE.ComparisonError, "schema"):

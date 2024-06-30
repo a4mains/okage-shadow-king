@@ -253,6 +253,8 @@ def compare(source_save: dict[int, dict], source_parent: dict[int, int], native:
     boundary_diffs: Counter[str] = Counter()
     missing_source: list[dict] = []
     missing_native: list[dict] = []
+    missing_native_reasons: Counter[str] = Counter()
+    missing_native_positions: Counter[str] = Counter()
     first_difference = None
     first_comparable_difference = None
     compared = 0
@@ -272,9 +274,25 @@ def compare(source_save: dict[int, dict], source_parent: dict[int, int], native:
                 check["status"] = "source_save_observation_missing"
                 events.append(check)
                 continue
-            if native_row is None or not native_row[2]:
+            if native_row is None:
+                missing_native_reasons["native_record_absent"] += 1
+                if native and native_frame < min(native):
+                    position = "before_first_native_record"
+                elif native and native_frame > max(native):
+                    position = "after_last_native_record"
+                else:
+                    position = "inside_native_trace_gap"
+                missing_native_positions[position] += 1
+                check["status"] = "native_record_absent"
+                check["reason"] = position
                 missing_native.append(check.copy())
-                check["status"] = "native_save_manager_missing"
+                events.append(check)
+                continue
+            if not native_row[2]:
+                missing_native_reasons["save_manager_absent"] += 1
+                check["status"] = "save_manager_absent"
+                check["reason"] = "A native record exists at this frame, but its Save manager is absent."
+                missing_native.append(check.copy())
                 events.append(check)
                 continue
             compared += 1
@@ -331,6 +349,13 @@ def compare(source_save: dict[int, dict], source_parent: dict[int, int], native:
     source_active_native_frames = sorted(source_active_set & set(native_active_source_frames))
     missing_native_manager_frames = sorted(source_active_set - set(native_active_source_frames))
     unexpected_native_manager_frames = sorted(set(native_active_source_frames) - source_active_set)
+    missing_native_record_frames = sorted(
+        frame for frame in source_active_set if frame + native_offset not in native
+    )
+    native_record_without_manager_frames = sorted(
+        frame for frame in source_active_set
+        if frame + native_offset in native and native[frame + native_offset][2] == 0
+    )
     native_interval = [frame for frame in native if native_offset <= frame < native_offset + source_stop]
     paired_value_equal = compared > 0 and not diffs
     same_input_replay = bool(anchor["input_match"])
@@ -371,7 +396,9 @@ def compare(source_save: dict[int, dict], source_parent: dict[int, int], native:
             "records_in_source_interval": len(native_interval),
             "save_manager_records_in_source_interval": sum(native[f][2] == 1 for f in native_interval),
             "active_source_frames_with_native_manager": source_active_native_frames,
-            "source_active_frames_missing_native_manager": missing_native_manager_frames,
+            "source_active_frames_without_native_manager_record": missing_native_manager_frames,
+            "source_active_frames_missing_native_record": missing_native_record_frames,
+            "source_active_frames_with_record_but_no_save_manager": native_record_without_manager_frames,
             "unexpected_native_manager_source_frames": unexpected_native_manager_frames,
             "native_preinterval_records_excluded": sum(frame < native_offset for frame in native),
         },
@@ -390,6 +417,10 @@ def compare(source_save: dict[int, dict], source_parent: dict[int, int], native:
             "first_comparable_difference": first_comparable_difference,
             "missing_source_count": len(missing_source),
             "missing_native_count": len(missing_native),
+            "missing_native_by_reason": dict(sorted(missing_native_reasons.items())),
+            "missing_native_record_count": missing_native_reasons["native_record_absent"],
+            "native_record_without_manager_count": missing_native_reasons["save_manager_absent"],
+            "missing_native_record_by_position": dict(sorted(missing_native_positions.items())),
             "missing_source": missing_source,
             "missing_native": missing_native,
             "values_equal_when_paired": paired_value_equal,
