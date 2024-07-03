@@ -1,0 +1,1899 @@
+{
+  "schema": "okage-native-save-validation-v1",
+  "date": "2024-07-02",
+  "runtime_revision": "927ee87",
+  "comparator_revision": "fb3bb0e",
+  "frozen_renderer_revision": "ba2b771",
+  "playtime_revision": "cf39a53",
+  "acceptance_met": false,
+  "scope": "Executed bedroom gameplay Save and fresh-process cold Restore; bounded persistence route, not full-game save coverage or fidelity parity",
+  "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "owned_stage": {
+    "path": "local/game-data-stage-v2/.owned-game-data-manifest.json",
+    "bytes": 5421429,
+    "sha256": "6eae02dc8e05da0288a013400d02265c6f3db5af22da164d1fa1479a6a2dd578"
+  },
+  "native_runs": {
+    "native-write-v2": {
+      "artifact": {
+        "path": "local/research/save-session-v1/native-write-v2/run.json",
+        "bytes": 4729,
+        "sha256": "e040ffc347ffd809c24229863694857ae74deec9eb967b16b8e9eeafcf90c802"
+      },
+      "data": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "74495",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538,61658,61777,61897,62018,62137,62257,62377,62498,62617,62737,63578,63697,63817,63937,64058,64177,64298,64418,64537,64778,64898,65017,65137,65258,65377,65497,65617,65737,65857,65978,66097,66218,66338,66457,66577,66697,66817,66937,67057,67178,67297,67417,67537,67657,67777,67897,68017,68138,68257,68377,68497,68618,68738,68857,68978,69097,69217,69337,69458,69577,69697,69818,69937,70057,70177,70298,70417,70537,70657,70777,70898,71018,71137,71257,71378,71497,71618,71737,71857,71977,72098,72217,72337,72457,72578,72697,72817,72938,73088,73305,73395,73495",
+          "--directions",
+          "local/research/save-session-v1/native-save-choice-v1/directions.txt",
+          "--capture",
+          "local/research/save-session-v1/native-write-v2/image.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310",
+          "--render-until",
+          "11542",
+          "--battle-input",
+          "local/game-data-stage-v2/NATIVE_UI",
+          "--save-directory",
+          "local/research/save-session-v1/native-write-v2/saves",
+          "--capture-frames",
+          "73930,73970,74030,74180,74300,74495",
+          "--buttons",
+          "local/research/save-session-v1/native-write-v1/buttons.txt"
+        ],
+        "exit_code": 0,
+        "seconds": 15.177994792,
+        "binary_sha256": "c38f29e9b9fff20f91b3fb94e696350b731c31d0144b0b9876636824d9de20d1"
+      },
+      "log": {
+        "path": "local/research/save-session-v1/native-write-v2/run.log",
+        "bytes": 3279,
+        "sha256": "12e7dadaf3c2be0bbe6b3eeb656677e58d8d92bbfde94e3852e901b1e44dad3e"
+      },
+      "input_files": [
+        {
+          "path": "local/research/save-session-v1/native-write-v1/buttons.txt",
+          "bytes": 66,
+          "sha256": "a42d4b9856e488f403f17a5689277cf30b2bb8ee957424e03b5cea1865c3f9bb"
+        },
+        {
+          "path": "local/research/save-session-v1/native-save-choice-v1/directions.txt",
+          "bytes": 5366,
+          "sha256": "ad35160bfb28568efe2669e8b765805d8078280be33592647c824b7a52571142"
+        }
+      ],
+      "image.png.actor-1.bin": {
+        "path": "local/research/save-session-v1/native-write-v2/image.png.actor-1.bin",
+        "bytes": 281889080,
+        "sha256": "7bb14aaad3f90b868390de2e63373a336f8a4fdc080a3d232ed6e74ec4a58af3"
+      },
+      "image.png.movement.bin": {
+        "path": "local/research/save-session-v1/native-write-v2/image.png.movement.bin",
+        "bytes": 4767680,
+        "sha256": "6ef1e50095c9673ea312395f577a4cc0c9bcccba6f89940a573323e33c061446"
+      },
+      "image.png.camera.bin": {
+        "path": "local/research/save-session-v1/native-write-v2/image.png.camera.bin",
+        "bytes": 4767680,
+        "sha256": "9e92c75611745cd82b3cc6757de01b95e5d6e9b29e9072a840294820bc873025"
+      },
+      "image.png.variables.bin": {
+        "path": "local/research/save-session-v1/native-write-v2/image.png.variables.bin",
+        "bytes": 4096,
+        "sha256": "dd37701a5f6b998ea0a49f8237842355e918ef1c544683f664f945c60c32f92f"
+      },
+      "image.png.save-state.bin": {
+        "path": "local/research/save-session-v1/native-write-v2/image.png.save-state.bin",
+        "bytes": 1193160,
+        "sha256": "98e59204603f9cda29037c17abcd067a0cf76d51c442211df702e2fc045ddd90"
+      },
+      "image.png.restore-state.bin": {
+        "path": "local/research/save-session-v1/native-write-v2/image.png.restore-state.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "image.png.actors-state.json": {
+        "path": "local/research/save-session-v1/native-write-v2/image.png.actors-state.json",
+        "bytes": 12617,
+        "sha256": "31ea2a498400f764fbba3f299c3d96c89ab05def81eeb2497f78b35981f3d4fe"
+      },
+      "saves/bkmo0.dat": {
+        "path": "local/research/save-session-v1/native-write-v2/saves/bkmo0.dat",
+        "bytes": 3460,
+        "sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+      }
+    },
+    "native-restore-release-v2": {
+      "artifact": {
+        "path": "local/research/save-session-v1/native-restore-release-v2/run.json",
+        "bytes": 727,
+        "sha256": "3c013f57103347f2a62aefeccf224320e5df5f74afd89f1c022b504de10ffd3c"
+      },
+      "data": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "--game-data",
+          "local/game-data-stage-v2",
+          "--save-directory",
+          "local/research/save-session-v1/native-write-v2/saves",
+          "--frames",
+          "2800",
+          "--buttons",
+          "local/research/save-session-v1/native-restore-v1/buttons.txt",
+          "--directions",
+          "local/research/save-session-v1/native-restore-v1/directions.txt",
+          "--capture",
+          "local/research/save-session-v1/native-restore-release-v2/image.png",
+          "--capture-frames",
+          "1200,1300,1400,1600,2200,2399,2420,2800"
+        ],
+        "exit_code": 0,
+        "seconds": 7.676401083,
+        "binary_sha256": "c38f29e9b9fff20f91b3fb94e696350b731c31d0144b0b9876636824d9de20d1"
+      },
+      "log": {
+        "path": "local/research/save-session-v1/native-restore-release-v2/run.log",
+        "bytes": 756,
+        "sha256": "96db8d70f2d3589d8da855d9741ac562c3dec2600d019df6cef4a813f7afad17"
+      },
+      "input_files": [
+        {
+          "path": "local/research/save-session-v1/native-restore-v1/buttons.txt",
+          "bytes": 76,
+          "sha256": "82b3258ab7c8e366081b13b2d4dbc187345c6892ea01ec70d0f85afe01a0fd7a"
+        },
+        {
+          "path": "local/research/save-session-v1/native-restore-v1/directions.txt",
+          "bytes": 40,
+          "sha256": "6e88e67c0bd0f480b7264e958085bea43495a8b0274afb20aba8f98e6a64d46d"
+        }
+      ],
+      "image.png.actor-1.bin": {
+        "path": "local/research/save-session-v1/native-restore-release-v2/image.png.actor-1.bin",
+        "bytes": 2996928,
+        "sha256": "f85602c0203896902b8654eba445e3d29c0922f48c4622afce592a0782dc95ab"
+      },
+      "image.png.movement.bin": {
+        "path": "local/research/save-session-v1/native-restore-release-v2/image.png.movement.bin",
+        "bytes": 50688,
+        "sha256": "49738bf93b400faf0de7ac949099c5e68ea8273111867b3f1432842a0aa4ef9c"
+      },
+      "image.png.camera.bin": {
+        "path": "local/research/save-session-v1/native-restore-release-v2/image.png.camera.bin",
+        "bytes": 50688,
+        "sha256": "4722bcd90e6fdd998f04f1dffbab52bb9b77889858db46f6144c076fdf1c9216"
+      },
+      "image.png.variables.bin": {
+        "path": "local/research/save-session-v1/native-restore-release-v2/image.png.variables.bin",
+        "bytes": 4096,
+        "sha256": "e243a03cb96b8a5d2d39a61a442b231f4728817cdef03b112a2206611fdc5ec0"
+      },
+      "image.png.save-state.bin": {
+        "path": "local/research/save-session-v1/native-restore-release-v2/image.png.save-state.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "image.png.restore-state.bin": {
+        "path": "local/research/save-session-v1/native-restore-release-v2/image.png.restore-state.bin",
+        "bytes": 1795608,
+        "sha256": "a8655fcdeb629edac1bdd0ed449fdb5a10ff9adc529140936e569fe6e11f25a0"
+      },
+      "image.png.actors-state.json": {
+        "path": "local/research/save-session-v1/native-restore-release-v2/image.png.actors-state.json",
+        "bytes": 12769,
+        "sha256": "932fc74e985f97b8b8ff1c3d589e9cea2e734a6e1b19f5a2c7e593ccb2e2466e"
+      }
+    },
+    "native-write-debug-v1": {
+      "artifact": {
+        "path": "local/research/save-session-v1/native-write-debug-v1/run.json",
+        "bytes": 4734,
+        "sha256": "7b2110d713fb742b6ff463975c759fe98ce5905a2f7c16c6da3d247f766bb260"
+      },
+      "data": {
+        "command": [
+          "build/native/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "74495",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538,61658,61777,61897,62018,62137,62257,62377,62498,62617,62737,63578,63697,63817,63937,64058,64177,64298,64418,64537,64778,64898,65017,65137,65258,65377,65497,65617,65737,65857,65978,66097,66218,66338,66457,66577,66697,66817,66937,67057,67178,67297,67417,67537,67657,67777,67897,68017,68138,68257,68377,68497,68618,68738,68857,68978,69097,69217,69337,69458,69577,69697,69818,69937,70057,70177,70298,70417,70537,70657,70777,70898,71018,71137,71257,71378,71497,71618,71737,71857,71977,72098,72217,72337,72457,72578,72697,72817,72938,73088,73305,73395,73495",
+          "--directions",
+          "local/research/save-session-v1/native-save-choice-v1/directions.txt",
+          "--capture",
+          "local/research/save-session-v1/native-write-debug-v1/image.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310",
+          "--render-until",
+          "11542",
+          "--battle-input",
+          "local/game-data-stage-v2/NATIVE_UI",
+          "--save-directory",
+          "local/research/save-session-v1/native-write-debug-v1/saves",
+          "--capture-frames",
+          "73930,73970,74030,74180,74300,74495",
+          "--buttons",
+          "local/research/save-session-v1/native-write-v1/buttons.txt"
+        ],
+        "exit_code": 0,
+        "seconds": 174.778477041,
+        "binary_sha256": "1fbd436b0df0a9a5f5ecf817249e845e11ce8835753c51d7dbe8253c45e6d0b5"
+      },
+      "log": {
+        "path": "local/research/save-session-v1/native-write-debug-v1/run.log",
+        "bytes": 3279,
+        "sha256": "12e7dadaf3c2be0bbe6b3eeb656677e58d8d92bbfde94e3852e901b1e44dad3e"
+      },
+      "input_files": [
+        {
+          "path": "local/research/save-session-v1/native-write-v1/buttons.txt",
+          "bytes": 66,
+          "sha256": "a42d4b9856e488f403f17a5689277cf30b2bb8ee957424e03b5cea1865c3f9bb"
+        },
+        {
+          "path": "local/research/save-session-v1/native-save-choice-v1/directions.txt",
+          "bytes": 5366,
+          "sha256": "ad35160bfb28568efe2669e8b765805d8078280be33592647c824b7a52571142"
+        }
+      ],
+      "image.png.actor-1.bin": {
+        "path": "local/research/save-session-v1/native-write-debug-v1/image.png.actor-1.bin",
+        "bytes": 281889080,
+        "sha256": "7bb14aaad3f90b868390de2e63373a336f8a4fdc080a3d232ed6e74ec4a58af3"
+      },
+      "image.png.movement.bin": {
+        "path": "local/research/save-session-v1/native-write-debug-v1/image.png.movement.bin",
+        "bytes": 4767680,
+        "sha256": "6ef1e50095c9673ea312395f577a4cc0c9bcccba6f89940a573323e33c061446"
+      },
+      "image.png.camera.bin": {
+        "path": "local/research/save-session-v1/native-write-debug-v1/image.png.camera.bin",
+        "bytes": 4767680,
+        "sha256": "9e92c75611745cd82b3cc6757de01b95e5d6e9b29e9072a840294820bc873025"
+      },
+      "image.png.variables.bin": {
+        "path": "local/research/save-session-v1/native-write-debug-v1/image.png.variables.bin",
+        "bytes": 4096,
+        "sha256": "dd37701a5f6b998ea0a49f8237842355e918ef1c544683f664f945c60c32f92f"
+      },
+      "image.png.save-state.bin": {
+        "path": "local/research/save-session-v1/native-write-debug-v1/image.png.save-state.bin",
+        "bytes": 1193160,
+        "sha256": "98e59204603f9cda29037c17abcd067a0cf76d51c442211df702e2fc045ddd90"
+      },
+      "image.png.restore-state.bin": {
+        "path": "local/research/save-session-v1/native-write-debug-v1/image.png.restore-state.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "image.png.actors-state.json": {
+        "path": "local/research/save-session-v1/native-write-debug-v1/image.png.actors-state.json",
+        "bytes": 12617,
+        "sha256": "31ea2a498400f764fbba3f299c3d96c89ab05def81eeb2497f78b35981f3d4fe"
+      },
+      "saves/bkmo0.dat": {
+        "path": "local/research/save-session-v1/native-write-debug-v1/saves/bkmo0.dat",
+        "bytes": 3460,
+        "sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+      }
+    },
+    "native-restore-debug-v2": {
+      "artifact": {
+        "path": "local/research/save-session-v1/native-restore-debug-v2/run.json",
+        "bytes": 724,
+        "sha256": "07c90fbb4465d7d05e06a66a4b864b43e1a26add759acd540d57a574f6c71c24"
+      },
+      "data": {
+        "command": [
+          "build/native/okage-native.app/Contents/MacOS/okage-native",
+          "--game-data",
+          "local/game-data-stage-v2",
+          "--save-directory",
+          "local/research/save-session-v1/native-write-debug-v1/saves",
+          "--frames",
+          "2800",
+          "--buttons",
+          "local/research/save-session-v1/native-restore-v1/buttons.txt",
+          "--directions",
+          "local/research/save-session-v1/native-restore-v1/directions.txt",
+          "--capture",
+          "local/research/save-session-v1/native-restore-debug-v2/image.png",
+          "--capture-frames",
+          "1200,1300,1400,1600,2200,2399,2420,2800"
+        ],
+        "exit_code": 0,
+        "seconds": 51.527455417,
+        "binary_sha256": "1fbd436b0df0a9a5f5ecf817249e845e11ce8835753c51d7dbe8253c45e6d0b5"
+      },
+      "log": {
+        "path": "local/research/save-session-v1/native-restore-debug-v2/run.log",
+        "bytes": 754,
+        "sha256": "335ebc9c2d58b87f5237a367230efbe8e45daac64cb8a2cb0a6f9192d1d93488"
+      },
+      "input_files": [
+        {
+          "path": "local/research/save-session-v1/native-restore-v1/buttons.txt",
+          "bytes": 76,
+          "sha256": "82b3258ab7c8e366081b13b2d4dbc187345c6892ea01ec70d0f85afe01a0fd7a"
+        },
+        {
+          "path": "local/research/save-session-v1/native-restore-v1/directions.txt",
+          "bytes": 40,
+          "sha256": "6e88e67c0bd0f480b7264e958085bea43495a8b0274afb20aba8f98e6a64d46d"
+        }
+      ],
+      "image.png.actor-1.bin": {
+        "path": "local/research/save-session-v1/native-restore-debug-v2/image.png.actor-1.bin",
+        "bytes": 2959088,
+        "sha256": "cd10ac741846a578b5a62071d875c6ec966bea90799dd44211f3093cb911fe12"
+      },
+      "image.png.movement.bin": {
+        "path": "local/research/save-session-v1/native-restore-debug-v2/image.png.movement.bin",
+        "bytes": 50048,
+        "sha256": "5fd666d639de187033ded07837001dad42206bb2965e50eea64ec037489e842e"
+      },
+      "image.png.camera.bin": {
+        "path": "local/research/save-session-v1/native-restore-debug-v2/image.png.camera.bin",
+        "bytes": 50048,
+        "sha256": "1f17623c14a430b7862f07b505bf308492c2ba53b0f575d98ef746defebe9a6f"
+      },
+      "image.png.variables.bin": {
+        "path": "local/research/save-session-v1/native-restore-debug-v2/image.png.variables.bin",
+        "bytes": 4096,
+        "sha256": "e243a03cb96b8a5d2d39a61a442b231f4728817cdef03b112a2206611fdc5ec0"
+      },
+      "image.png.save-state.bin": {
+        "path": "local/research/save-session-v1/native-restore-debug-v2/image.png.save-state.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "image.png.restore-state.bin": {
+        "path": "local/research/save-session-v1/native-restore-debug-v2/image.png.restore-state.bin",
+        "bytes": 1795608,
+        "sha256": "a8655fcdeb629edac1bdd0ed449fdb5a10ff9adc529140936e569fe6e11f25a0"
+      },
+      "image.png.actors-state.json": {
+        "path": "local/research/save-session-v1/native-restore-debug-v2/image.png.actors-state.json",
+        "bytes": 12769,
+        "sha256": "932fc74e985f97b8b8ff1c3d589e9cea2e734a6e1b19f5a2c7e593ccb2e2466e"
+      }
+    },
+    "native-write-sanitize-v1": {
+      "artifact": {
+        "path": "local/research/save-session-v1/native-write-sanitize-v1/run.json",
+        "bytes": 4748,
+        "sha256": "649de37aa248a6c7bb32172402b7e3a5d611fbd3adce14202fde23b792223b9b"
+      },
+      "data": {
+        "command": [
+          "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "74495",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538,61658,61777,61897,62018,62137,62257,62377,62498,62617,62737,63578,63697,63817,63937,64058,64177,64298,64418,64537,64778,64898,65017,65137,65258,65377,65497,65617,65737,65857,65978,66097,66218,66338,66457,66577,66697,66817,66937,67057,67178,67297,67417,67537,67657,67777,67897,68017,68138,68257,68377,68497,68618,68738,68857,68978,69097,69217,69337,69458,69577,69697,69818,69937,70057,70177,70298,70417,70537,70657,70777,70898,71018,71137,71257,71378,71497,71618,71737,71857,71977,72098,72217,72337,72457,72578,72697,72817,72938,73088,73305,73395,73495",
+          "--directions",
+          "local/research/save-session-v1/native-save-choice-v1/directions.txt",
+          "--capture",
+          "local/research/save-session-v1/native-write-sanitize-v1/image.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310",
+          "--render-until",
+          "11542",
+          "--battle-input",
+          "local/game-data-stage-v2/NATIVE_UI",
+          "--save-directory",
+          "local/research/save-session-v1/native-write-sanitize-v1/saves",
+          "--capture-frames",
+          "73930,73970,74030,74180,74300,74495",
+          "--buttons",
+          "local/research/save-session-v1/native-write-v1/buttons.txt"
+        ],
+        "exit_code": 0,
+        "seconds": 380.361065042,
+        "binary_sha256": "4dfc963303bd2435634ced82e12d51124f9727ddceaab121a37e497018be8c64"
+      },
+      "log": {
+        "path": "local/research/save-session-v1/native-write-sanitize-v1/run.log",
+        "bytes": 3279,
+        "sha256": "12e7dadaf3c2be0bbe6b3eeb656677e58d8d92bbfde94e3852e901b1e44dad3e"
+      },
+      "input_files": [
+        {
+          "path": "local/research/save-session-v1/native-write-v1/buttons.txt",
+          "bytes": 66,
+          "sha256": "a42d4b9856e488f403f17a5689277cf30b2bb8ee957424e03b5cea1865c3f9bb"
+        },
+        {
+          "path": "local/research/save-session-v1/native-save-choice-v1/directions.txt",
+          "bytes": 5366,
+          "sha256": "ad35160bfb28568efe2669e8b765805d8078280be33592647c824b7a52571142"
+        }
+      ],
+      "image.png.actor-1.bin": {
+        "path": "local/research/save-session-v1/native-write-sanitize-v1/image.png.actor-1.bin",
+        "bytes": 281889080,
+        "sha256": "7bb14aaad3f90b868390de2e63373a336f8a4fdc080a3d232ed6e74ec4a58af3"
+      },
+      "image.png.movement.bin": {
+        "path": "local/research/save-session-v1/native-write-sanitize-v1/image.png.movement.bin",
+        "bytes": 4767680,
+        "sha256": "6ef1e50095c9673ea312395f577a4cc0c9bcccba6f89940a573323e33c061446"
+      },
+      "image.png.camera.bin": {
+        "path": "local/research/save-session-v1/native-write-sanitize-v1/image.png.camera.bin",
+        "bytes": 4767680,
+        "sha256": "9e92c75611745cd82b3cc6757de01b95e5d6e9b29e9072a840294820bc873025"
+      },
+      "image.png.variables.bin": {
+        "path": "local/research/save-session-v1/native-write-sanitize-v1/image.png.variables.bin",
+        "bytes": 4096,
+        "sha256": "dd37701a5f6b998ea0a49f8237842355e918ef1c544683f664f945c60c32f92f"
+      },
+      "image.png.save-state.bin": {
+        "path": "local/research/save-session-v1/native-write-sanitize-v1/image.png.save-state.bin",
+        "bytes": 1193160,
+        "sha256": "98e59204603f9cda29037c17abcd067a0cf76d51c442211df702e2fc045ddd90"
+      },
+      "image.png.restore-state.bin": {
+        "path": "local/research/save-session-v1/native-write-sanitize-v1/image.png.restore-state.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "image.png.actors-state.json": {
+        "path": "local/research/save-session-v1/native-write-sanitize-v1/image.png.actors-state.json",
+        "bytes": 12617,
+        "sha256": "31ea2a498400f764fbba3f299c3d96c89ab05def81eeb2497f78b35981f3d4fe"
+      },
+      "saves/bkmo0.dat": {
+        "path": "local/research/save-session-v1/native-write-sanitize-v1/saves/bkmo0.dat",
+        "bytes": 3460,
+        "sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+      }
+    },
+    "native-restore-sanitize-v2": {
+      "artifact": {
+        "path": "local/research/save-session-v1/native-restore-sanitize-v2/run.json",
+        "bytes": 743,
+        "sha256": "a5671d63304d7f41199bff19350cfedf9814f968d31db81e11e1f29cc034905c"
+      },
+      "data": {
+        "command": [
+          "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",
+          "--game-data",
+          "local/game-data-stage-v2",
+          "--save-directory",
+          "local/research/save-session-v1/native-write-sanitize-v1/saves",
+          "--frames",
+          "2800",
+          "--buttons",
+          "local/research/save-session-v1/native-restore-v1/buttons.txt",
+          "--directions",
+          "local/research/save-session-v1/native-restore-v1/directions.txt",
+          "--capture",
+          "local/research/save-session-v1/native-restore-sanitize-v2/image.png",
+          "--capture-frames",
+          "1200,1300,1400,1600,2200,2399,2420,2800"
+        ],
+        "exit_code": 0,
+        "seconds": 97.40372620799997,
+        "binary_sha256": "4dfc963303bd2435634ced82e12d51124f9727ddceaab121a37e497018be8c64"
+      },
+      "log": {
+        "path": "local/research/save-session-v1/native-restore-sanitize-v2/run.log",
+        "bytes": 754,
+        "sha256": "91a33a05f1d33fe7d8a2a0e8f0846972b4d17ab9941cb1b9eb10cc8354447f37"
+      },
+      "input_files": [
+        {
+          "path": "local/research/save-session-v1/native-restore-v1/buttons.txt",
+          "bytes": 76,
+          "sha256": "82b3258ab7c8e366081b13b2d4dbc187345c6892ea01ec70d0f85afe01a0fd7a"
+        },
+        {
+          "path": "local/research/save-session-v1/native-restore-v1/directions.txt",
+          "bytes": 40,
+          "sha256": "6e88e67c0bd0f480b7264e958085bea43495a8b0274afb20aba8f98e6a64d46d"
+        }
+      ],
+      "image.png.actor-1.bin": {
+        "path": "local/research/save-session-v1/native-restore-sanitize-v2/image.png.actor-1.bin",
+        "bytes": 4007256,
+        "sha256": "d51507d0d5216dd9856fa3cba8718ee155e4c18c1a9cff6ef3f0a7c18e4283f8"
+      },
+      "image.png.movement.bin": {
+        "path": "local/research/save-session-v1/native-restore-sanitize-v2/image.png.movement.bin",
+        "bytes": 67776,
+        "sha256": "c716e63c41e238607572f84b4f35521c16ea5fe1f2dab28f5d8a692c77ef90c6"
+      },
+      "image.png.camera.bin": {
+        "path": "local/research/save-session-v1/native-restore-sanitize-v2/image.png.camera.bin",
+        "bytes": 67776,
+        "sha256": "dee13b2ae127f72e833c677db0882de66969525765e0ea65ff0003b62ae62aad"
+      },
+      "image.png.variables.bin": {
+        "path": "local/research/save-session-v1/native-restore-sanitize-v2/image.png.variables.bin",
+        "bytes": 4096,
+        "sha256": "e243a03cb96b8a5d2d39a61a442b231f4728817cdef03b112a2206611fdc5ec0"
+      },
+      "image.png.save-state.bin": {
+        "path": "local/research/save-session-v1/native-restore-sanitize-v2/image.png.save-state.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "image.png.restore-state.bin": {
+        "path": "local/research/save-session-v1/native-restore-sanitize-v2/image.png.restore-state.bin",
+        "bytes": 1795608,
+        "sha256": "a8655fcdeb629edac1bdd0ed449fdb5a10ff9adc529140936e569fe6e11f25a0"
+      },
+      "image.png.actors-state.json": {
+        "path": "local/research/save-session-v1/native-restore-sanitize-v2/image.png.actors-state.json",
+        "bytes": 12769,
+        "sha256": "932fc74e985f97b8b8ff1c3d589e9cea2e734a6e1b19f5a2c7e593ccb2e2466e"
+      }
+    },
+    "native-cancel-release-v1": {
+      "artifact": {
+        "path": "local/research/save-session-v1/native-cancel-release-v1/run.json",
+        "bytes": 4756,
+        "sha256": "f4fcc6f0f8e4090cde5a2fc56fb6dc9aa8aff7523688a254aff115f5cb1b4f3b"
+      },
+      "data": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "74495",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538,61658,61777,61897,62018,62137,62257,62377,62498,62617,62737,63578,63697,63817,63937,64058,64177,64298,64418,64537,64778,64898,65017,65137,65258,65377,65497,65617,65737,65857,65978,66097,66218,66338,66457,66577,66697,66817,66937,67057,67178,67297,67417,67537,67657,67777,67897,68017,68138,68257,68377,68497,68618,68738,68857,68978,69097,69217,69337,69458,69577,69697,69818,69937,70057,70177,70298,70417,70537,70657,70777,70898,71018,71137,71257,71378,71497,71618,71737,71857,71977,72098,72217,72337,72457,72578,72697,72817,72938,73088,73305,73395,73495",
+          "--directions",
+          "local/research/save-session-v1/native-save-choice-v1/directions.txt",
+          "--capture",
+          "local/research/save-session-v1/native-cancel-release-v1/image.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310",
+          "--render-until",
+          "11542",
+          "--battle-input",
+          "local/game-data-stage-v2/NATIVE_UI",
+          "--save-directory",
+          "local/research/save-session-v1/native-cancel-release-v1/saves",
+          "--capture-frames",
+          "73930,73970,74030,74180,74300,74495",
+          "--buttons",
+          "local/research/save-session-v1/native-cancel-release-v1/buttons.txt"
+        ],
+        "exit_code": 0,
+        "seconds": 13.934572709,
+        "binary_sha256": "c38f29e9b9fff20f91b3fb94e696350b731c31d0144b0b9876636824d9de20d1"
+      },
+      "log": {
+        "path": "local/research/save-session-v1/native-cancel-release-v1/run.log",
+        "bytes": 3279,
+        "sha256": "3826b8110057e9881f4d7a21623095d2ecdc26a2e005e5372c4ab5fc32918cbc"
+      },
+      "input_files": [
+        {
+          "path": "local/research/save-session-v1/native-cancel-release-v1/buttons.txt",
+          "bytes": 66,
+          "sha256": "298e98750a76ffcf96212fd5171e5b60fc50e90d5614f1ae13d9d0abdc6f1cc5"
+        },
+        {
+          "path": "local/research/save-session-v1/native-save-choice-v1/directions.txt",
+          "bytes": 5366,
+          "sha256": "ad35160bfb28568efe2669e8b765805d8078280be33592647c824b7a52571142"
+        }
+      ],
+      "image.png.actor-1.bin": {
+        "path": "local/research/save-session-v1/native-cancel-release-v1/image.png.actor-1.bin",
+        "bytes": 281889080,
+        "sha256": "2aca82fc9afd4219c0964e05dbf537374607c41e86e4fae73f7440f2024f7520"
+      },
+      "image.png.movement.bin": {
+        "path": "local/research/save-session-v1/native-cancel-release-v1/image.png.movement.bin",
+        "bytes": 4767680,
+        "sha256": "d316f6516f706cd7b02875d274511fd593c4fc1b6de5f7efc121708fa5a99e54"
+      },
+      "image.png.camera.bin": {
+        "path": "local/research/save-session-v1/native-cancel-release-v1/image.png.camera.bin",
+        "bytes": 4767680,
+        "sha256": "a160a1fa91eb73429089c76a6f9f772c460e60a03abcf09cdf16fefe5b8d29c4"
+      },
+      "image.png.variables.bin": {
+        "path": "local/research/save-session-v1/native-cancel-release-v1/image.png.variables.bin",
+        "bytes": 4096,
+        "sha256": "dd37701a5f6b998ea0a49f8237842355e918ef1c544683f664f945c60c32f92f"
+      },
+      "image.png.save-state.bin": {
+        "path": "local/research/save-session-v1/native-cancel-release-v1/image.png.save-state.bin",
+        "bytes": 477264,
+        "sha256": "84918108c28d422fdbfa54eaa2a10e20b7b50c7344189d7b9fe4a58b2b3f14bd"
+      },
+      "image.png.restore-state.bin": {
+        "path": "local/research/save-session-v1/native-cancel-release-v1/image.png.restore-state.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "image.png.actors-state.json": {
+        "path": "local/research/save-session-v1/native-cancel-release-v1/image.png.actors-state.json",
+        "bytes": 12758,
+        "sha256": "18d9dcbd184e0c7d51fcdb8f015ab303dbb4139886df6b2b16e02c87cc017ec8"
+      },
+      "branch-check.json": {
+        "path": "local/research/save-session-v1/native-cancel-release-v1/branch-check.json",
+        "bytes": 245,
+        "sha256": "0e21665732efce969073b8f101aca2e0fe4035d1fc6239f675c2587ece8901b5"
+      }
+    },
+    "native-overwrite-release-v2": {
+      "artifact": {
+        "path": "local/research/save-session-v1/native-overwrite-release-v2/run.json",
+        "bytes": 4771,
+        "sha256": "ee60e4e2329b26934f09015cb6af7b60d401702a9617b4359e900a866c30cd49"
+      },
+      "data": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "local/font-input/CMNDATA/FONT",
+          "local/text-input/FLDDATA/MES/FIELD.PME",
+          "--scene",
+          "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+          "--event",
+          "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+          "--actor",
+          "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+          "--actor-bind",
+          "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+          "--actor-bind",
+          "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+          "--frames",
+          "74495",
+          "--press",
+          "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538,61658,61777,61897,62018,62137,62257,62377,62498,62617,62737,63578,63697,63817,63937,64058,64177,64298,64418,64537,64778,64898,65017,65137,65258,65377,65497,65617,65737,65857,65978,66097,66218,66338,66457,66577,66697,66817,66937,67057,67178,67297,67417,67537,67657,67777,67897,68017,68138,68257,68377,68497,68618,68738,68857,68978,69097,69217,69337,69458,69577,69697,69818,69937,70057,70177,70298,70417,70537,70657,70777,70898,71018,71137,71257,71378,71497,71618,71737,71857,71977,72098,72217,72337,72457,72578,72697,72817,72938,73088,73305,73395,73495",
+          "--directions",
+          "local/research/save-session-v1/native-overwrite-release-v2/directions.txt",
+          "--capture",
+          "local/research/save-session-v1/native-overwrite-release-v2/image.png",
+          "--music-dry",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+          "--music-bank",
+          "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+          "--sound-dir",
+          "local/audio-input/SNDDATA/SE",
+          "--effect-data",
+          "local/effect-input/CMNDATA/2D/TES.EFD",
+          "--effect-textures",
+          "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+          "--render-from",
+          "11310",
+          "--render-until",
+          "11542",
+          "--battle-input",
+          "local/game-data-stage-v2/NATIVE_UI",
+          "--save-directory",
+          "local/research/save-session-v1/native-overwrite-release-v2/saves",
+          "--capture-frames",
+          "73930,73970,74030,74180,74300,74495",
+          "--buttons",
+          "local/research/save-session-v1/native-overwrite-release-v2/buttons.txt"
+        ],
+        "exit_code": 0,
+        "seconds": 15.323862666,
+        "binary_sha256": "c38f29e9b9fff20f91b3fb94e696350b731c31d0144b0b9876636824d9de20d1"
+      },
+      "log": {
+        "path": "local/research/save-session-v1/native-overwrite-release-v2/run.log",
+        "bytes": 3279,
+        "sha256": "2ed0d5e9ab9fb85f16388c5a18d3b585cc662a13f865805d3fc17d3c3ec5eae4"
+      },
+      "input_files": [
+        {
+          "path": "local/research/save-session-v1/native-overwrite-release-v2/buttons.txt",
+          "bytes": 88,
+          "sha256": "0ff91f7e8943a740b82e7223928dc79501b9ca5873df8b9933c06f7925c051b7"
+        },
+        {
+          "path": "local/research/save-session-v1/native-overwrite-release-v2/directions.txt",
+          "bytes": 5388,
+          "sha256": "6956b04ec5b922a9fd8af5847d7ef21cc6b2e31dbc2e6f87eb3316f1e7658f1b"
+        }
+      ],
+      "image.png.actor-1.bin": {
+        "path": "local/research/save-session-v1/native-overwrite-release-v2/image.png.actor-1.bin",
+        "bytes": 281889080,
+        "sha256": "903a1005129d64563064ed2cf2a003b9dac6dadac6460748bd6ea5feff45593f"
+      },
+      "image.png.movement.bin": {
+        "path": "local/research/save-session-v1/native-overwrite-release-v2/image.png.movement.bin",
+        "bytes": 4767680,
+        "sha256": "b9edfbe75b9649a02e375699cd60563257fa69e66ee9f30f7a4a8ad7ddf4e1ee"
+      },
+      "image.png.camera.bin": {
+        "path": "local/research/save-session-v1/native-overwrite-release-v2/image.png.camera.bin",
+        "bytes": 4767680,
+        "sha256": "a2103c3e630e2c0c4a82be9a7c6406a41cbeec754d7bb4f07c774ac030427d33"
+      },
+      "image.png.variables.bin": {
+        "path": "local/research/save-session-v1/native-overwrite-release-v2/image.png.variables.bin",
+        "bytes": 4096,
+        "sha256": "dd37701a5f6b998ea0a49f8237842355e918ef1c544683f664f945c60c32f92f"
+      },
+      "image.png.save-state.bin": {
+        "path": "local/research/save-session-v1/native-overwrite-release-v2/image.png.save-state.bin",
+        "bytes": 1388760,
+        "sha256": "038635a523e17b9f28e63cad1ee83ed76534853a686a064d329620284f76bbcf"
+      },
+      "image.png.restore-state.bin": {
+        "path": "local/research/save-session-v1/native-overwrite-release-v2/image.png.restore-state.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "image.png.actors-state.json": {
+        "path": "local/research/save-session-v1/native-overwrite-release-v2/image.png.actors-state.json",
+        "bytes": 12772,
+        "sha256": "69d2169c0b22b90a67495a4dbc4e497b3cb516d107ef219cee7dc13a7660862a"
+      },
+      "branch-check.json": {
+        "path": "local/research/save-session-v1/native-overwrite-release-v2/branch-check.json",
+        "bytes": 398,
+        "sha256": "a7e5e1dc6f26d8692597d181c9dd12697d440625942ed51e6a572d609c5c3b25"
+      },
+      "saves/bkmo0.dat": {
+        "path": "local/research/save-session-v1/native-overwrite-release-v2/saves/bkmo0.dat",
+        "bytes": 3460,
+        "sha256": "e21e08d912736e32d9281e7c58c0c0332d186672e1c7b7486faf672b4859c4fd"
+      },
+      "seed-provenance.json": {
+        "path": "local/research/save-session-v1/native-overwrite-release-v2/seed-provenance.json",
+        "bytes": 221,
+        "sha256": "8f7f3cf6d72854649ceaac0d54337a189c8b037f4b57fc6d48ebbedf122de065"
+      }
+    }
+  },
+  "source_runs": {
+    "original-reenter-v1": {
+      "artifact": {
+        "path": "local/research/save-session-v1/original-reenter-v1/run.json",
+        "bytes": 1034,
+        "sha256": "4a4cfb0eac5f42cb3a9c2b1f8d5546f212c88f6def92c79e31061b2668131c06"
+      },
+      "data": {
+        "command": [
+          "build/play-research/okage-oracle/okage-boot-oracle",
+          "local/disc/Okage - Shadow King (USA).cue",
+          "360",
+          "local/reference-home2b-door-240-v1.state.zip",
+          "--load",
+          "--pad",
+          "local/research/save-session-v1/original-reenter-v1/pad.txt",
+          "--game-mode",
+          "local/research/save-session-v1/original-reenter-v1/mode.jsonl",
+          "--events",
+          "local/research/save-session-v1/original-reenter-v1/events",
+          "--transition",
+          "local/research/save-session-v1/original-reenter-v1/transition.bin",
+          "--controller",
+          "local/research/save-session-v1/original-reenter-v1/controller.bin",
+          "--capture",
+          "local/research/save-session-v1/original-reenter-v1/image",
+          "--capture-frames",
+          "1,60,120,240,360",
+          "--save",
+          "local/research/save-session-v1/original-reenter-v1/endpoint.state.zip",
+          "--deadline-seconds",
+          "180"
+        ],
+        "exit_code": 0,
+        "seconds": 16.009509916000003,
+        "binary_sha256": "3eea5831c2e6fbe6bcff2f570fb72e0f7e6f528fca81f96ce6c5aae510d299e8"
+      }
+    },
+    "original-save-choice-v2": {
+      "artifact": {
+        "path": "local/research/save-session-v1/original-save-choice-v2/run.json",
+        "bytes": 984,
+        "sha256": "559333626f01793001d138a882d7e3555d84ec46aa48ad32fa70dd7eb6f7d049"
+      },
+      "data": {
+        "command": [
+          "build/play-research/okage-oracle/okage-boot-oracle",
+          "local/disc/Okage - Shadow King (USA).cue",
+          "240",
+          "local/research/save-session-v1/original-reenter-v1/endpoint.state.zip",
+          "--load",
+          "--pad",
+          "local/research/save-session-v1/original-save-choice-v2/pad.txt",
+          "--game-mode",
+          "local/research/save-session-v1/original-save-choice-v2/mode.jsonl",
+          "--events",
+          "local/research/save-session-v1/original-save-choice-v2/events",
+          "--controller",
+          "local/research/save-session-v1/original-save-choice-v2/controller.bin",
+          "--capture",
+          "local/research/save-session-v1/original-save-choice-v2/image",
+          "--capture-frames",
+          "1,60,120,180,240",
+          "--save",
+          "local/research/save-session-v1/original-save-choice-v2/endpoint.state.zip",
+          "--deadline-seconds",
+          "180"
+        ],
+        "exit_code": 0,
+        "seconds": 11.877960583,
+        "binary_sha256": "3eea5831c2e6fbe6bcff2f570fb72e0f7e6f528fca81f96ce6c5aae510d299e8"
+      }
+    },
+    "original-paired-write-v1": {
+      "artifact": {
+        "path": "local/research/save-session-v1/original-paired-write-v1/run.json",
+        "bytes": 1014,
+        "sha256": "916b7b0b1949d980f3086e1edbb560bcb10c1c96a6fee7afd93e5e5254e23cef"
+      },
+      "data": {
+        "command": [
+          "build/play-research/okage-oracle/okage-boot-oracle",
+          "local/disc/Okage - Shadow King (USA).cue",
+          "840",
+          "local/research/save-session-v1/original-reenter-v1/endpoint.state.zip",
+          "--load",
+          "--pad",
+          "local/research/save-session-v1/original-paired-write-v1/pad.txt",
+          "--game-mode",
+          "local/research/save-session-v1/original-paired-write-v1/mode.jsonl",
+          "--events",
+          "local/research/save-session-v1/original-paired-write-v1/events",
+          "--controller",
+          "local/research/save-session-v1/original-paired-write-v1/controller.bin",
+          "--capture",
+          "local/research/save-session-v1/original-paired-write-v1/image",
+          "--capture-frames",
+          "1,60,120,180,240,275,315,375,525,645,840",
+          "--save",
+          "local/research/save-session-v1/original-paired-write-v1/endpoint.state.zip",
+          "--deadline-seconds",
+          "180"
+        ],
+        "exit_code": 0,
+        "seconds": 22.318894417,
+        "binary_sha256": "3eea5831c2e6fbe6bcff2f570fb72e0f7e6f528fca81f96ce6c5aae510d299e8"
+      }
+    }
+  },
+  "checks": {
+    "artifact": {
+      "path": "local/research/save-session-v1/checks-final-v1.json",
+      "bytes": 3002,
+      "sha256": "80d13c40b135994221d384efdbd7b5cfd19a306bfe3e4c11dc37ef887888b8ac"
+    },
+    "data": [
+      {
+        "build": "release",
+        "kind": "tests",
+        "command": [
+          "ctest",
+          "--test-dir",
+          "build/native-release",
+          "--output-on-failure",
+          "-R",
+          "^(save-store|startup|chapter|frame-composition|results-text|ui-metal|scene-resource|ui-resource|ui-window|battle-ui|load-queue|ruw|game-mode|game-state|field|event|effect|animation|ui-layout-geometry|ui-geometry)-tests$"
+        ],
+        "exit_code": 0,
+        "seconds": 1.9991875,
+        "log": "local/research/save-session-v1/tests-release-final-v1.log"
+      },
+      {
+        "build": "release",
+        "kind": "frozen",
+        "command": [
+          "build/native-release/okage-battle-capture-raster",
+          "--self-test-frozen"
+        ],
+        "exit_code": 0,
+        "seconds": 0.4753052499999999,
+        "log": "local/research/save-session-v1/frozen-release-final-v1.log"
+      },
+      {
+        "build": "debug",
+        "kind": "build",
+        "command": [
+          "cmake",
+          "--build",
+          "build/native",
+          "-j8"
+        ],
+        "exit_code": 0,
+        "seconds": 10.066432417,
+        "log": "local/research/save-session-v1/build-debug-final-v1.log"
+      },
+      {
+        "build": "debug",
+        "kind": "tests",
+        "command": [
+          "ctest",
+          "--test-dir",
+          "build/native",
+          "--output-on-failure",
+          "-R",
+          "^(save-store|startup|chapter|frame-composition|results-text|ui-metal|scene-resource|ui-resource|ui-window|battle-ui|load-queue|ruw|game-mode|game-state|field|event|effect|animation|ui-layout-geometry|ui-geometry)-tests$"
+        ],
+        "exit_code": 0,
+        "seconds": 2.3846240000000005,
+        "log": "local/research/save-session-v1/tests-debug-final-v1.log"
+      },
+      {
+        "build": "debug",
+        "kind": "frozen",
+        "command": [
+          "build/native/okage-battle-capture-raster",
+          "--self-test-frozen"
+        ],
+        "exit_code": 0,
+        "seconds": 0.48367749999999887,
+        "log": "local/research/save-session-v1/frozen-debug-final-v1.log"
+      },
+      {
+        "build": "sanitize",
+        "kind": "build",
+        "command": [
+          "cmake",
+          "--build",
+          "build/model-sanitize",
+          "-j8"
+        ],
+        "exit_code": 0,
+        "seconds": 12.151527332999999,
+        "log": "local/research/save-session-v1/build-sanitize-final-v1.log"
+      },
+      {
+        "build": "sanitize",
+        "kind": "tests",
+        "command": [
+          "ctest",
+          "--test-dir",
+          "build/model-sanitize",
+          "--output-on-failure",
+          "-R",
+          "^(save-store|startup|chapter|frame-composition|results-text|ui-metal|scene-resource|ui-resource|ui-window|battle-ui|load-queue|ruw|game-mode|game-state|field|event|effect|animation|ui-layout-geometry|ui-geometry)-tests$"
+        ],
+        "exit_code": 0,
+        "seconds": 4.026475708000003,
+        "log": "local/research/save-session-v1/tests-sanitize-final-v1.log"
+      },
+      {
+        "build": "sanitize",
+        "kind": "frozen",
+        "command": [
+          "build/model-sanitize/okage-battle-capture-raster",
+          "--self-test-frozen"
+        ],
+        "exit_code": 0,
+        "seconds": 0.29205458299999876,
+        "log": "local/research/save-session-v1/frozen-sanitize-final-v1.log"
+      }
+    ]
+  },
+  "python": {
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-v"
+    ],
+    "exit_code": 0,
+    "tests": 501,
+    "seconds": 23.026,
+    "log": {
+      "path": "local/research/save-session-v1/python-final-v2.log",
+      "bytes": 53242,
+      "sha256": "f981948b926610f5ccddc50b775b4dac02c52969f594c6c3d818cecea5ceb3c8"
+    }
+  },
+  "retained_rejected_input_run": {
+    "artifact": {
+      "path": "local/research/save-session-v1/native-overwrite-release-v1/run.json",
+      "bytes": 4773,
+      "sha256": "171a02fedce9cc942cab23766f810744c7a4dd756f258eb103a09eb0871c4f4a"
+    },
+    "data": {
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "local/font-input/CMNDATA/FONT",
+        "local/text-input/FLDDATA/MES/FIELD.PME",
+        "--scene",
+        "local/xpf-decoded/FLDDATA/ROOM/HOUSE/HOME1C.XPF/a.xmp",
+        "--event",
+        "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1c.xmt",
+        "--actor",
+        "local/xpf-decoded/FLDDATA/OBJ/MAM.XPF/a.xmd",
+        "--actor-bind",
+        "-9=local/xpf-decoded/FLDDATA/OBJ/IMO.XPF/a.xmd",
+        "--actor-bind",
+        "-1=local/xpf-decoded/FLDDATA/OBJ/HERO.XPF/a.xmd",
+        "--frames",
+        "74495",
+        "--press",
+        "100,140,180,220,260,300,340,380,420,460,500,540,580,620,660,700,740,780,2460,2500,2540,2580,2720,2760,2800,2840,2880,2920,2960,3000,3040,3080,3120,3160,3200,3240,3280,3320,3360,3400,3440,3480,3520,3560,3600,3640,3680,3720,3760,3800,3840,3880,3920,3960,4000,4040,4080,4120,4160,4200,4240,4280,4320,4360,4400,4440,4480,4520,4560,4600,4640,4680,4720,4760,4800,4840,4880,4920,4960,5000,5040,5110,5274,5435,5730,5780,5851,5891,5931,5971,6012,6051,6092,6131,6160,6200,6240,6280,6320,6360,6392,6431,6472,6512,6551,6592,6631,6671,6701,6740,6781,6820,6860,6901,8002,8142,9751,9842,9883,9923,9962,10031,10071,10112,10151,10192,10231,10271,10311,10353,10392,10432,10472,10512,10571,10612,10651,10691,10732,10771,10811,10851,10892,10931,10972,11011,11311,12101,12221,12262,12303,12344,12385,12442,12881,13111,13282,13323,13364,13404,13445,13561,13602,13643,13684,13725,13766,13841,13882,13923,13964,14005,14046,14088,14129,14170,14211,14461,14671,14961,15002,15043,15084,15125,15166,15261,15302,15343,15385,15425,15466,15582,15622,16783,17062,17103,17144,17185,17226,17482,17563,17782,17863,18082,18123,18164,18205,18246,18287,18328,18369,18410,18451,18503,18544,18622,18742,18783,18824,18865,18906,18947,18988,19029,19070,19166,19283,19324,19365,19406,19447,19488,19529,19570,19611,19672,19712,19754,19794,19835,19876,19917,19958,20032,20072,20114,20154,20195,20236,20277,20318,20362,20403,20444,20485,20526,20567,20608,20649,20690,20731,20811,20852,20893,21022,21142,21327,21656,26378,26417,26457,26497,26538,26577,26618,26657,26697,26738,26777,26818,26857,27457,27498,27537,27578,27617,27657,27697,27737,27778,27817,27858,27897,27937,28297,28537,28617,28697,28777,28897,29017,29138,29338,29457,29577,29677,31117,31477,32437,32797,33397,34357,35197,35317,35497,35677,35857,36057,36217,36297,36517,36758,36997,37177,37418,37657,37897,38077,38217,38458,38697,38918,39098,39277,39517,39757,40057,40237,40477,40617,40858,40937,41198,41317,41577,41657,41918,42157,42217,42817,43058,43357,43598,43677,43837,44078,44257,44337,44537,44778,44957,45158,45358,45458,45698,46057,46657,47018,47378,47858,49057,49657,49837,50017,50197,50377,50558,50737,50858,51038,51217,51397,51577,51757,51937,52057,52238,52418,52597,52777,52957,53137,53266,53437,53617,53797,53977,54157,54337,54458,54637,54818,54997,55177,55357,55537,55658,55837,56017,56197,56378,56558,56737,56858,56977,57097,57217,57338,57457,57577,57697,57818,57937,58066,58177,58297,58417,58537,58657,58778,58897,59018,59137,59437,59557,59677,59797,59918,60037,60157,60277,60397,60457,60577,60698,60817,60937,61057,61177,61297,61417,61538,61658,61777,61897,62018,62137,62257,62377,62498,62617,62737,63578,63697,63817,63937,64058,64177,64298,64418,64537,64778,64898,65017,65137,65258,65377,65497,65617,65737,65857,65978,66097,66218,66338,66457,66577,66697,66817,66937,67057,67178,67297,67417,67537,67657,67777,67897,68017,68138,68257,68377,68497,68618,68738,68857,68978,69097,69217,69337,69458,69577,69697,69818,69937,70057,70177,70298,70417,70537,70657,70777,70898,71018,71137,71257,71378,71497,71618,71737,71857,71977,72098,72217,72337,72457,72578,72697,72817,72938,73088,73305,73395,73495",
+        "--directions",
+        "local/research/save-session-v1/native-save-choice-v1/directions.txt",
+        "--capture",
+        "local/research/save-session-v1/native-overwrite-release-v1/image.png",
+        "--music-dry",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH.XSQ",
+        "--music-bank",
+        "local/audio-input/SNDDATA/BGM/EVS_MSH0.XV",
+        "--sound-dir",
+        "local/audio-input/SNDDATA/SE",
+        "--effect-data",
+        "local/effect-input/CMNDATA/2D/TES.EFD",
+        "--effect-textures",
+        "local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF",
+        "--render-from",
+        "11310",
+        "--render-until",
+        "11542",
+        "--battle-input",
+        "local/game-data-stage-v2/NATIVE_UI",
+        "--save-directory",
+        "local/research/save-session-v1/native-overwrite-release-v1/saves",
+        "--capture-frames",
+        "73930,73970,74030,74180,74300,74495",
+        "--buttons",
+        "local/research/save-session-v1/native-overwrite-release-v1/buttons.txt"
+      ],
+      "exit_code": 1,
+      "seconds": 0.007215499999999153,
+      "binary_sha256": "c38f29e9b9fff20f91b3fb94e696350b731c31d0144b0b9876636824d9de20d1"
+    }
+  },
+  "persistence": {
+    "artifact": {
+      "path": "local/research/save-session-v1/restart-check-final-v1.json",
+      "bytes": 20681,
+      "sha256": "dfb6f99e98705d0203c53fcdfc3258ad1c136a3c571a62c9ec5e7eb3a7724483"
+    },
+    "data": {
+      "schema": "native-persistence-final-matrix-v1",
+      "scope": "Read-only evidence audit of one authentic original Save request, a separate native Save, and fresh-process native Restore under Release, Debug, and sanitizer builds.",
+      "source_original_save": {
+        "run": "local/research/save-session-v1/original-paired-write-v1/run.json",
+        "run_exit_code": 0,
+        "run_json_sha256": "916b7b0b1949d980f3086e1edbb560bcb10c1c96a6fee7afd93e5e5254e23cef",
+        "mode_jsonl": "local/research/save-session-v1/original-paired-write-v1/mode.jsonl",
+        "mode_jsonl_sha256": "a9379a03df3b3936945237e653f87e0cbfde4fb63cd32324ac9362adc0830746",
+        "instructions_tsv": "local/research/save-session-v1/original-paired-write-v1/events/instructions.tsv",
+        "instructions_tsv_sha256": "f9ff970db752ecba052b00ee6fabdde449b6b26880acee7d5083bfd4fddcb89b",
+        "cards_after_json": "local/research/save-session-v1/original-paired-write-v1/cards-after.json",
+        "cards_after_json_sha256": "15a9d30caa0608256b43f00cdedf75041f4e90830d86f62a724a7fd6194f6d64",
+        "save_request": {
+          "vblank": 234,
+          "script": 0,
+          "pc": "0x0c14",
+          "instruction_word": "0x00c00062",
+          "handler": "0x00131338",
+          "opcode": "0x62",
+          "a": 0,
+          "b": 12,
+          "payload": 0
+        },
+        "observed_success_command3": {
+          "triplet": [
+            "0x00000003",
+            "0x00000000",
+            "0x00000000"
+          ],
+          "observed_frames": [
+            561,
+            562
+          ],
+          "callbacks": [
+            "0x0011c2c8",
+            "0x00124818"
+          ],
+          "zero_again_frame": 563,
+          "interpretation": "global pending command 3; not process exit code; parent consume occurs between observer samples and its exact instruction is not captured"
+        },
+        "original_card": {
+          "path": "local/play-boot-config/vfs/mc0/BASCUS-97129/bkmo0.dat",
+          "bytes": 3460,
+          "sha256": "33bde96469248e43c61393b07520f0614a4d8109ca52d4ecfb851df922173560",
+          "magic": "!crc",
+          "block_size": 3448,
+          "stored_checksum": "0xffffffff",
+          "independent_checksum": "0xffffffff",
+          "payload_sha256": "3cb2b88f86d21f1ebda20b08229c777717b07bd60e42bf0f8cf4afda584ab062"
+        },
+        "pinned_retail_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13eea2ae848312bd04669aaa5",
+        "original_emulator_binary_sha256": "3eea5831c2e6fbe6bcff2f570fb72e0f7e6f528fca81f96ce6c5aae510d299e8"
+      },
+      "source_original_vs_native_saved_payload": {
+        "source_card_sha256": "33bde96469248e43c61393b07520f0614a4d8109ca52d4ecfb851df922173560",
+        "native_save_file_sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "payload_bytes_each": 3448,
+        "differing_payload_offsets": [
+          1312,
+          1313
+        ],
+        "source_playtime_word": "0x51e",
+        "native_playtime_word": "0x4d0",
+        "all_other_payload_bytes_equal": true,
+        "separate_runs_and_inputs": true
+      },
+      "build_pairs": [
+        {
+          "configuration": "release",
+          "write_run": "local/research/save-session-v1/native-write-v2/run.json",
+          "write_run_json_sha256": "e040ffc347ffd809c24229863694857ae74deec9eb967b16b8e9eeafcf90c802",
+          "write_exit_code": 0,
+          "write_seconds": 15.177994792,
+          "write_binary_sha256": "c38f29e9b9fff20f91b3fb94e696350b731c31d0144b0b9876636824d9de20d1",
+          "restore_run": "local/research/save-session-v1/native-restore-release-v2/run.json",
+          "restore_run_json_sha256": "3c013f57103347f2a62aefeccf224320e5df5f74afd89f1c022b504de10ffd3c",
+          "restore_exit_code": 0,
+          "restore_seconds": 7.676401083,
+          "restore_binary_sha256": "c38f29e9b9fff20f91b3fb94e696350b731c31d0144b0b9876636824d9de20d1",
+          "same_binary_for_write_and_restore": true,
+          "write_log_sha256": "12e7dadaf3c2be0bbe6b3eeb656677e58d8d92bbfde94e3852e901b1e44dad3e",
+          "restore_log_sha256": "96db8d70f2d3589d8da855d9741ac562c3dec2600d019df6cef4a813f7afad17",
+          "write_route_log_observations": {
+            "save_constructed": "Native field Save constructed frame=73891",
+            "save_retired": "Native field Save retired frame=74196"
+          },
+          "restore_route_log_observations": {
+            "restore_constructed": "Native Restore constructed frame=1048",
+            "saved_field_requested": "Native Restore requested saved field frame=1506",
+            "restore_retired": "Native Restore retired frame=1507",
+            "ordinary_field_activated": "Native ordinary field activated scene=74 entrance=1 frame=2009 pc=432"
+          },
+          "save_file": "local/research/save-session-v1/native-write-v2/saves/bkmo0.dat",
+          "save_file_bytes": 3460,
+          "save_file_sha256_after_restore": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+          "save_payload_sha256": "50da36a83848b19438cb1d50ea7a10da9dd6e4e9977588fdc34343365528134c",
+          "magic": "!crc",
+          "declared_payload_size": 3448,
+          "stored_checksum": "0xe1e4a3a5",
+          "independent_source_checksum": "0xe1e4a3a5",
+          "endpoint_variables_file": "local/research/save-session-v1/native-restore-release-v2/image.png.variables.bin",
+          "endpoint_variables_bytes": 4096,
+          "endpoint_variables_sha256": "e243a03cb96b8a5d2d39a61a442b231f4728817cdef03b112a2206611fdc5ec0",
+          "compared_variable_payload_bytes": 3448,
+          "payload_vs_endpoint_diff_byte_offsets": [
+            1312
+          ],
+          "save_time_word": "0x4d0",
+          "restored_endpoint_time_word": "0x4e8",
+          "non_time_payload_bytes_equal": true,
+          "movement_trace": {
+            "file": "local/research/save-session-v1/native-restore-release-v2/image.png.movement.bin",
+            "sha256": "49738bf93b400faf0de7ac949099c5e68ea8273111867b3f1432842a0aa4ef9c",
+            "record_words": 16,
+            "rows": 792,
+            "first_frame": 2009,
+            "last_frame": 2800
+          },
+          "player_actor_trace": {
+            "alias": -1,
+            "file": "local/research/save-session-v1/native-restore-release-v2/image.png.actor-1.bin",
+            "sha256": "f85602c0203896902b8654eba445e3d29c0922f48c4622afce592a0782dc95ab",
+            "record_words": 946,
+            "rows": 792,
+            "first_frame": 2009,
+            "last_frame": 2800,
+            "channel1_position_samples": [
+              {
+                "frame": 2399,
+                "held_input_mask_hex": "0x0",
+                "movement_mask_hex": "0x0",
+                "movement_motion": 1,
+                "actor_motion": 1,
+                "player_actor_channel1_position": [
+                  0.04029613733291626,
+                  -0.0010000000474974513,
+                  2.201119899749756,
+                  1.0
+                ]
+              },
+              {
+                "frame": 2400,
+                "held_input_mask_hex": "0x2000",
+                "movement_mask_hex": "0x0",
+                "movement_motion": 3,
+                "actor_motion": 3,
+                "player_actor_channel1_position": [
+                  0.44109591841697693,
+                  -0.0010000000474974513,
+                  2.577761650085449,
+                  1.0
+                ]
+              },
+              {
+                "frame": 2419,
+                "held_input_mask_hex": "0x2000",
+                "movement_mask_hex": "0x0",
+                "movement_motion": 3,
+                "actor_motion": 3,
+                "player_actor_channel1_position": [
+                  7.437798023223877,
+                  -0.0010000000474974513,
+                  6.190158367156982,
+                  1.0
+                ]
+              },
+              {
+                "frame": 2420,
+                "held_input_mask_hex": "0x0",
+                "movement_mask_hex": "0x0",
+                "movement_motion": 1,
+                "actor_motion": 1,
+                "player_actor_channel1_position": [
+                  7.437798023223877,
+                  -0.0010000000474974513,
+                  6.190158367156982,
+                  1.0
+                ]
+              }
+            ]
+          },
+          "restore_input_files": {
+            "buttons": "local/research/save-session-v1/native-restore-v1/buttons.txt",
+            "buttons_sha256": "82b3258ab7c8e366081b13b2d4dbc187345c6892ea01ec70d0f85afe01a0fd7a",
+            "directions": "local/research/save-session-v1/native-restore-v1/directions.txt",
+            "directions_sha256": "6e88e67c0bd0f480b7264e958085bea43495a8b0274afb20aba8f98e6a64d46d"
+          }
+        },
+        {
+          "configuration": "debug",
+          "write_run": "local/research/save-session-v1/native-write-debug-v1/run.json",
+          "write_run_json_sha256": "7b2110d713fb742b6ff463975c759fe98ce5905a2f7c16c6da3d247f766bb260",
+          "write_exit_code": 0,
+          "write_seconds": 174.778477041,
+          "write_binary_sha256": "1fbd436b0df0a9a5f5ecf817249e845e11ce8835753c51d7dbe8253c45e6d0b5",
+          "restore_run": "local/research/save-session-v1/native-restore-debug-v2/run.json",
+          "restore_run_json_sha256": "07c90fbb4465d7d05e06a66a4b864b43e1a26add759acd540d57a574f6c71c24",
+          "restore_exit_code": 0,
+          "restore_seconds": 51.527455417,
+          "restore_binary_sha256": "1fbd436b0df0a9a5f5ecf817249e845e11ce8835753c51d7dbe8253c45e6d0b5",
+          "same_binary_for_write_and_restore": true,
+          "write_log_sha256": "12e7dadaf3c2be0bbe6b3eeb656677e58d8d92bbfde94e3852e901b1e44dad3e",
+          "restore_log_sha256": "335ebc9c2d58b87f5237a367230efbe8e45daac64cb8a2cb0a6f9192d1d93488",
+          "write_route_log_observations": {
+            "save_constructed": "Native field Save constructed frame=73891",
+            "save_retired": "Native field Save retired frame=74196"
+          },
+          "restore_route_log_observations": {
+            "restore_constructed": "Native Restore constructed frame=1048",
+            "saved_field_requested": "Native Restore requested saved field frame=1506",
+            "restore_retired": "Native Restore retired frame=1507",
+            "ordinary_field_activated": "Native ordinary field activated scene=74 entrance=1 frame=2019 pc=432"
+          },
+          "save_file": "local/research/save-session-v1/native-write-debug-v1/saves/bkmo0.dat",
+          "save_file_bytes": 3460,
+          "save_file_sha256_after_restore": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+          "save_payload_sha256": "50da36a83848b19438cb1d50ea7a10da9dd6e4e9977588fdc34343365528134c",
+          "magic": "!crc",
+          "declared_payload_size": 3448,
+          "stored_checksum": "0xe1e4a3a5",
+          "independent_source_checksum": "0xe1e4a3a5",
+          "endpoint_variables_file": "local/research/save-session-v1/native-restore-debug-v2/image.png.variables.bin",
+          "endpoint_variables_bytes": 4096,
+          "endpoint_variables_sha256": "e243a03cb96b8a5d2d39a61a442b231f4728817cdef03b112a2206611fdc5ec0",
+          "compared_variable_payload_bytes": 3448,
+          "payload_vs_endpoint_diff_byte_offsets": [
+            1312
+          ],
+          "save_time_word": "0x4d0",
+          "restored_endpoint_time_word": "0x4e8",
+          "non_time_payload_bytes_equal": true,
+          "movement_trace": {
+            "file": "local/research/save-session-v1/native-restore-debug-v2/image.png.movement.bin",
+            "sha256": "5fd666d639de187033ded07837001dad42206bb2965e50eea64ec037489e842e",
+            "record_words": 16,
+            "rows": 782,
+            "first_frame": 2019,
+            "last_frame": 2800
+          },
+          "player_actor_trace": {
+            "alias": -1,
+            "file": "local/research/save-session-v1/native-restore-debug-v2/image.png.actor-1.bin",
+            "sha256": "cd10ac741846a578b5a62071d875c6ec966bea90799dd44211f3093cb911fe12",
+            "record_words": 946,
+            "rows": 782,
+            "first_frame": 2019,
+            "last_frame": 2800,
+            "channel1_position_samples": [
+              {
+                "frame": 2399,
+                "held_input_mask_hex": "0x0",
+                "movement_mask_hex": "0x0",
+                "movement_motion": 1,
+                "actor_motion": 1,
+                "player_actor_channel1_position": [
+                  0.04029613733291626,
+                  -0.0010000000474974513,
+                  2.201119899749756,
+                  1.0
+                ]
+              },
+              {
+                "frame": 2400,
+                "held_input_mask_hex": "0x2000",
+                "movement_mask_hex": "0x0",
+                "movement_motion": 3,
+                "actor_motion": 3,
+                "player_actor_channel1_position": [
+                  0.44109591841697693,
+                  -0.0010000000474974513,
+                  2.577761650085449,
+                  1.0
+                ]
+              },
+              {
+                "frame": 2419,
+                "held_input_mask_hex": "0x2000",
+                "movement_mask_hex": "0x0",
+                "movement_motion": 3,
+                "actor_motion": 3,
+                "player_actor_channel1_position": [
+                  7.437798023223877,
+                  -0.0010000000474974513,
+                  6.190158367156982,
+                  1.0
+                ]
+              },
+              {
+                "frame": 2420,
+                "held_input_mask_hex": "0x0",
+                "movement_mask_hex": "0x0",
+                "movement_motion": 1,
+                "actor_motion": 1,
+                "player_actor_channel1_position": [
+                  7.437798023223877,
+                  -0.0010000000474974513,
+                  6.190158367156982,
+                  1.0
+                ]
+              }
+            ]
+          },
+          "restore_input_files": {
+            "buttons": "local/research/save-session-v1/native-restore-v1/buttons.txt",
+            "buttons_sha256": "82b3258ab7c8e366081b13b2d4dbc187345c6892ea01ec70d0f85afe01a0fd7a",
+            "directions": "local/research/save-session-v1/native-restore-v1/directions.txt",
+            "directions_sha256": "6e88e67c0bd0f480b7264e958085bea43495a8b0274afb20aba8f98e6a64d46d"
+          }
+        },
+        {
+          "configuration": "sanitize",
+          "write_run": "local/research/save-session-v1/native-write-sanitize-v1/run.json",
+          "write_run_json_sha256": "649de37aa248a6c7bb32172402b7e3a5d611fbd3adce14202fde23b792223b9b",
+          "write_exit_code": 0,
+          "write_seconds": 380.361065042,
+          "write_binary_sha256": "4dfc963303bd2435634ced82e12d51124f9727ddceaab121a37e497018be8c64",
+          "restore_run": "local/research/save-session-v1/native-restore-sanitize-v2/run.json",
+          "restore_run_json_sha256": "a5671d63304d7f41199bff19350cfedf9814f968d31db81e11e1f29cc034905c",
+          "restore_exit_code": 0,
+          "restore_seconds": 97.40372620799997,
+          "restore_binary_sha256": "4dfc963303bd2435634ced82e12d51124f9727ddceaab121a37e497018be8c64",
+          "same_binary_for_write_and_restore": true,
+          "write_log_sha256": "12e7dadaf3c2be0bbe6b3eeb656677e58d8d92bbfde94e3852e901b1e44dad3e",
+          "restore_log_sha256": "91a33a05f1d33fe7d8a2a0e8f0846972b4d17ab9941cb1b9eb10cc8354447f37",
+          "write_route_log_observations": {
+            "save_constructed": "Native field Save constructed frame=73891",
+            "save_retired": "Native field Save retired frame=74196"
+          },
+          "restore_route_log_observations": {
+            "restore_constructed": "Native Restore constructed frame=1048",
+            "saved_field_requested": "Native Restore requested saved field frame=1506",
+            "restore_retired": "Native Restore retired frame=1507",
+            "ordinary_field_activated": "Native ordinary field activated scene=74 entrance=1 frame=1742 pc=432"
+          },
+          "save_file": "local/research/save-session-v1/native-write-sanitize-v1/saves/bkmo0.dat",
+          "save_file_bytes": 3460,
+          "save_file_sha256_after_restore": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+          "save_payload_sha256": "50da36a83848b19438cb1d50ea7a10da9dd6e4e9977588fdc34343365528134c",
+          "magic": "!crc",
+          "declared_payload_size": 3448,
+          "stored_checksum": "0xe1e4a3a5",
+          "independent_source_checksum": "0xe1e4a3a5",
+          "endpoint_variables_file": "local/research/save-session-v1/native-restore-sanitize-v2/image.png.variables.bin",
+          "endpoint_variables_bytes": 4096,
+          "endpoint_variables_sha256": "e243a03cb96b8a5d2d39a61a442b231f4728817cdef03b112a2206611fdc5ec0",
+          "compared_variable_payload_bytes": 3448,
+          "payload_vs_endpoint_diff_byte_offsets": [
+            1312
+          ],
+          "save_time_word": "0x4d0",
+          "restored_endpoint_time_word": "0x4e8",
+          "non_time_payload_bytes_equal": true,
+          "movement_trace": {
+            "file": "local/research/save-session-v1/native-restore-sanitize-v2/image.png.movement.bin",
+            "sha256": "c716e63c41e238607572f84b4f35521c16ea5fe1f2dab28f5d8a692c77ef90c6",
+            "record_words": 16,
+            "rows": 1059,
+            "first_frame": 1742,
+            "last_frame": 2800
+          },
+          "player_actor_trace": {
+            "alias": -1,
+            "file": "local/research/save-session-v1/native-restore-sanitize-v2/image.png.actor-1.bin",
+            "sha256": "d51507d0d5216dd9856fa3cba8718ee155e4c18c1a9cff6ef3f0a7c18e4283f8",
+            "record_words": 946,
+            "rows": 1059,
+            "first_frame": 1742,
+            "last_frame": 2800,
+            "channel1_position_samples": [
+              {
+                "frame": 2399,
+                "held_input_mask_hex": "0x0",
+                "movement_mask_hex": "0x0",
+                "movement_motion": 1,
+                "actor_motion": 1,
+                "player_actor_channel1_position": [
+                  0.04029613733291626,
+                  -0.0010000000474974513,
+                  2.201119899749756,
+                  1.0
+                ]
+              },
+              {
+                "frame": 2400,
+                "held_input_mask_hex": "0x2000",
+                "movement_mask_hex": "0x0",
+                "movement_motion": 3,
+                "actor_motion": 3,
+                "player_actor_channel1_position": [
+                  0.44109591841697693,
+                  -0.0010000000474974513,
+                  2.577761650085449,
+                  1.0
+                ]
+              },
+              {
+                "frame": 2419,
+                "held_input_mask_hex": "0x2000",
+                "movement_mask_hex": "0x0",
+                "movement_motion": 3,
+                "actor_motion": 3,
+                "player_actor_channel1_position": [
+                  7.437798023223877,
+                  -0.0010000000474974513,
+                  6.190158367156982,
+                  1.0
+                ]
+              },
+              {
+                "frame": 2420,
+                "held_input_mask_hex": "0x0",
+                "movement_mask_hex": "0x0",
+                "movement_motion": 1,
+                "actor_motion": 1,
+                "player_actor_channel1_position": [
+                  7.437798023223877,
+                  -0.0010000000474974513,
+                  6.190158367156982,
+                  1.0
+                ]
+              }
+            ]
+          },
+          "restore_input_files": {
+            "buttons": "local/research/save-session-v1/native-restore-v1/buttons.txt",
+            "buttons_sha256": "82b3258ab7c8e366081b13b2d4dbc187345c6892ea01ec70d0f85afe01a0fd7a",
+            "directions": "local/research/save-session-v1/native-restore-v1/directions.txt",
+            "directions_sha256": "6e88e67c0bd0f480b7264e958085bea43495a8b0274afb20aba8f98e6a64d46d"
+          }
+        }
+      ],
+      "matrix_checks": {
+        "all_run_exit_codes_zero": true,
+        "each_pair_uses_matching_binary": true,
+        "all_three_native_save_hashes_identical": true,
+        "all_three_payload_hashes_identical": true,
+        "all_three_restored_variables_hashes_identical": true,
+        "all_three_payloads_match_endpoint_except_time": true,
+        "same_input_tape_hashes": true
+      },
+      "save_file_immutability_evidence": {
+        "observed_post_restore_sha256": [
+          "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+          "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+          "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+        ],
+        "common_post_restore_sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "limitation": "The run manifests do not include a separately timestamped pre-restore save hash. The current save files after restore match the native write output hash and each other; this is post-run evidence, not an independently recorded before/after hash pair."
+      },
+      "limitations": [
+        "Native write/restore runs are fresh native processes and do not use original emulator RAM, snapshots, or the original card as native inputs.",
+        "The original source card and native-created card are compared as separate outputs. They differ in the playtime word only in the 3448-byte payload; no original card is loaded by native Restore.",
+        "The three builds match saved bytes and restored variable payload except for elapsed playtime; trace record counts/start frame differ by build and are not claimed identical.",
+        "Movement evidence is the native held-input mask, native movement mask, movement motion field, and actor motion. The field named motion is not a mask. The player transform is channel 1 for actor alias -1, supported by the native trace layout and Field implementation; it is not inferred from the camera trace.",
+        "This covers one scene74/entrance1 Save/Restore route and subsequent movement. It does not establish compatibility with arbitrary original saves, all fields, every persistent subsystem, or complete game parity."
+      ]
+    }
+  },
+  "persistence_review": {
+    "path": "local/research/save-session-v1/persistence-final-review.md",
+    "bytes": 3504,
+    "sha256": "4168ff328eefeed490177bff721ab5c285ae230870c0586644b4315384c4bba5"
+  },
+  "source_card_provenance": {
+    "artifact": {
+      "path": "local/research/save-session-v1/original-paired-write-v1/card-provenance.json",
+      "bytes": 219,
+      "sha256": "710dbed3e6e399248097122b7a998c6341e46dcacb4e7f27ca7c7b18a0943fca"
+    },
+    "data": {
+      "before": "fresh empty research mc0, matching original-save-choice-v2 entry condition",
+      "previous_card_preserved": "local/research/save-session-v1/original-write-v1/mc0-after",
+      "no_guest_state_modified": true
+    }
+  },
+  "state_comparison": {
+    "report": {
+      "path": "local/research/save-session-v1/paired-save-v1/native-write-v2-final4.json",
+      "bytes": 177052,
+      "sha256": "28e23d27a0dfd4f1692c2cb30b0ce4eb9e91822f921a1a5471fc1453f33c2016"
+    },
+    "command": [
+      "python3",
+      "tools/compare_save.py",
+      "--case",
+      "paired-write",
+      "--source",
+      "local/research/save-session-v1/original-paired-write-v1/mode.jsonl",
+      "--native-save-state",
+      "local/research/save-session-v1/native-write-v2/image.png.save-state.bin",
+      "--output",
+      "local/research/save-session-v1/paired-save-v1/native-write-v2-final4.json"
+    ],
+    "exit_code": 1,
+    "alignment": {
+      "boundary": "The Save input-handler edge precedes the source second callback. The native trace is sampled after RestoreSession::tick_save has run both handlers; the distinct one-tick mapping preserves this callback order.",
+      "input_caveat": null,
+      "native_offset": 73655,
+      "rule": "Fixed per-capture anchor only; source second_callback_entry at frame f maps to native completed tick f+offset, while source input_handler_entry maps to f+offset-1. No value fitting or later realignment.",
+      "same_input_replay": true,
+      "source_interval": [
+        0,
+        840
+      ],
+      "source_owner": "Original parent_current40=2, linked Save manager type 8, selector 1f89a0=0."
+    },
+    "paired_state_equal": false,
+    "save_state": {
+      "callback_boundary_policy": {
+        "meaning": "Raw differences remain in difference_words and checks. Differences on the listed fields at second_callback_entry are reported separately because the two samples straddle handler writes; they are not counted as comparable behavioral differences.",
+        "native_point": "Native records are sampled after both Save callbacks return.",
+        "second_callback_entry_sensitive_fields": [
+          "alpha_0",
+          "alpha_1",
+          "alpha_2",
+          "completed",
+          "confirmation",
+          "state"
+        ],
+        "source_points": "Original records are callback entry snapshots; 0x0011e480 precedes the first handler and 0x0011c2c8 precedes the second handler."
+      },
+      "callback_boundary_sensitive_difference_counts_by_field": {
+        "alpha_0": 26,
+        "alpha_1": 1,
+        "alpha_2": 1,
+        "completed": 22,
+        "confirmation": 1,
+        "state": 32
+      },
+      "callback_boundary_sensitive_difference_words": 83,
+      "comparable_difference_counts_by_field": {
+        "completed": 21,
+        "dead": 2,
+        "manager_flags1c": 2,
+        "state": 30
+      },
+      "comparable_difference_words": 55,
+      "compared_by_edge": {
+        "input_handler_entry": 305,
+        "second_callback_entry": 305
+      },
+      "compared_fields": [
+        "state",
+        "selected",
+        "completed",
+        "previous_opacity",
+        "repeat_delay",
+        "confirmation",
+        "alpha_0",
+        "alpha_1",
+        "alpha_2",
+        "manager_flags1c",
+        "manager_window_count_e40",
+        "manager_layer_index_e48",
+        "manager_dispatch_state_e4c",
+        "manager_layer_state_cursor_e8c",
+        "dead"
+      ],
+      "compared_records": 610,
+      "coverage_complete": false,
+      "difference_counts_by_field": {
+        "alpha_0": 26,
+        "alpha_1": 1,
+        "alpha_2": 1,
+        "completed": 43,
+        "confirmation": 1,
+        "dead": 2,
+        "manager_flags1c": 2,
+        "state": 62
+      },
+      "difference_words": 138,
+      "excluded": [
+        {
+          "field": "1f89a0 selector and definition pointers",
+          "reason": "The native Save owner is selected by construction; its host record has no original EE address or selector field."
+        },
+        {
+          "field": "storage_context, 2597a8/ac/b0 and 24ee storage globals",
+          "reason": "Native filesystem worker state is not PS2 asynchronous storage-device state."
+        },
+        {
+          "field": "window opacity and widget/RUW state",
+          "reason": "This native record does not serialize the original callback-entry window state."
+        },
+        {
+          "field": "manager_layer_state_cursor_e8c at input_handler_entry",
+          "reason": "Original generic dispatch resets this cursor before the input-handler boundary; the native record is sampled after its completed input callback and retains the incremented value. The second_callback_entry value is compared."
+        },
+        {
+          "field": "parent/request pointers, callback pointers, and manager/field addresses",
+          "reason": "Host ownership addresses are not comparable to original EE pointers."
+        },
+        {
+          "field": "input/controller snapshot",
+          "reason": "Original input is sampled at the handler boundary, while the native record is after the completed callback pair."
+        }
+      ],
+      "first_comparable_difference": {
+        "difference": {
+          "classification": "comparable_at_sampled_boundary",
+          "field": "state",
+          "native": "0x0000001e",
+          "source": "0x00000014"
+        },
+        "edge": "input_handler_entry",
+        "native_frame": 73892,
+        "source_frame": 238
+      },
+      "first_difference": {
+        "difference": {
+          "classification": "callback_boundary_sensitive",
+          "field": "confirmation",
+          "native": "0x00000001",
+          "source": "0x00000000"
+        },
+        "edge": "second_callback_entry",
+        "native_frame": 73891,
+        "source_frame": 236
+      },
+      "missing_native_by_reason": {
+        "native_record_absent": 42
+      },
+      "missing_native_count": 42,
+      "missing_native_record_by_position": {
+        "after_last_native_record": 41,
+        "before_first_native_record": 1
+      },
+      "missing_native_record_count": 42,
+      "missing_source_count": 0,
+      "native_record_without_manager_count": 0,
+      "values_equal_when_paired": false
+    },
+    "inputs": {
+      "native_save_state_sha256": "98e59204603f9cda29037c17abcd067a0cf76d51c442211df702e2fc045ddd90",
+      "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "source_jsonl_sha256": "a9379a03df3b3936945237e653f87e0cbfde4fb63cd32324ac9362adc0830746"
+    }
+  },
+  "image_comparisons": {
+    "artifact": {
+      "path": "local/research/save-session-v1/paired-images-v1/runs.json",
+      "bytes": 4405,
+      "sha256": "8c0c90333d25b1d100f8565c6176bd3f5839c3fd3ff520aeadd5c75b780353cb"
+    },
+    "data": [
+      {
+        "command": [
+          "python3",
+          "tools/compare_frame_images.py",
+          "--original",
+          "local/research/save-session-v1/original-paired-write-v1/image.frames/vblank-000275.layer0.png",
+          "--native",
+          "local/research/save-session-v1/native-write-v2/image.png.frames/tick-73930.png",
+          "--output",
+          "local/research/save-session-v1/paired-images-v1/275",
+          "--native-region",
+          "0,0,640,224"
+        ],
+        "exit_code": 0,
+        "output": "{\"alpha_different_pixel_count\": 143360, \"alpha_mae\": 204.47401646205358, \"alpha_max_absolute_difference\": 255, \"exact_different_pixel_count\": 143360, \"height\": 224, \"rgb_mae\": 5.660702659970238, \"rgb_max_absolute_difference\": 254, \"width\": 640}\n"
+      },
+      {
+        "command": [
+          "python3",
+          "tools/compare_frame_images.py",
+          "--original",
+          "local/research/save-session-v1/original-paired-write-v1/image.frames/vblank-000315.layer0.png",
+          "--native",
+          "local/research/save-session-v1/native-write-v2/image.png.frames/tick-73970.png",
+          "--output",
+          "local/research/save-session-v1/paired-images-v1/315",
+          "--native-region",
+          "0,0,640,224"
+        ],
+        "exit_code": 0,
+        "output": "{\"alpha_different_pixel_count\": 143360, \"alpha_mae\": 204.47401646205358, \"alpha_max_absolute_difference\": 255, \"exact_different_pixel_count\": 143360, \"height\": 224, \"rgb_mae\": 5.660702659970238, \"rgb_max_absolute_difference\": 254, \"width\": 640}\n"
+      },
+      {
+        "command": [
+          "python3",
+          "tools/compare_frame_images.py",
+          "--original",
+          "local/research/save-session-v1/original-paired-write-v1/image.frames/vblank-000375.layer0.png",
+          "--native",
+          "local/research/save-session-v1/native-write-v2/image.png.frames/tick-74030.png",
+          "--output",
+          "local/research/save-session-v1/paired-images-v1/375",
+          "--native-region",
+          "0,0,640,224"
+        ],
+        "exit_code": 0,
+        "output": "{\"alpha_different_pixel_count\": 143360, \"alpha_mae\": 204.99019252232142, \"alpha_max_absolute_difference\": 255, \"exact_different_pixel_count\": 143360, \"height\": 224, \"rgb_mae\": 7.400811476934524, \"rgb_max_absolute_difference\": 254, \"width\": 640}\n"
+      },
+      {
+        "command": [
+          "python3",
+          "tools/compare_frame_images.py",
+          "--original",
+          "local/research/save-session-v1/original-paired-write-v1/image.frames/vblank-000525.layer0.png",
+          "--native",
+          "local/research/save-session-v1/native-write-v2/image.png.frames/tick-74180.png",
+          "--output",
+          "local/research/save-session-v1/paired-images-v1/525",
+          "--native-region",
+          "0,0,640,224"
+        ],
+        "exit_code": 0,
+        "output": "{\"alpha_different_pixel_count\": 143360, \"alpha_mae\": 228.7258091517857, \"alpha_max_absolute_difference\": 255, \"exact_different_pixel_count\": 143360, \"height\": 224, \"rgb_mae\": 16.124944196428572, \"rgb_max_absolute_difference\": 246, \"width\": 640}\n"
+      },
+      {
+        "command": [
+          "python3",
+          "tools/compare_frame_images.py",
+          "--original",
+          "local/research/save-session-v1/original-paired-write-v1/image.frames/vblank-000645.layer0.png",
+          "--native",
+          "local/research/save-session-v1/native-write-v2/image.png.frames/tick-74300.png",
+          "--output",
+          "local/research/save-session-v1/paired-images-v1/645",
+          "--native-region",
+          "0,0,640,224"
+        ],
+        "exit_code": 0,
+        "output": "{\"alpha_different_pixel_count\": 0, \"alpha_mae\": 0.0, \"alpha_max_absolute_difference\": 0, \"exact_different_pixel_count\": 126749, \"height\": 224, \"rgb_mae\": 6.943161737351191, \"rgb_max_absolute_difference\": 242, \"width\": 640}\n"
+      },
+      {
+        "command": [
+          "python3",
+          "tools/compare_frame_images.py",
+          "--original",
+          "local/research/save-session-v1/original-paired-write-v1/image.frames/vblank-000840.layer0.png",
+          "--native",
+          "local/research/save-session-v1/native-write-v2/image.png.frames/tick-74495.png",
+          "--output",
+          "local/research/save-session-v1/paired-images-v1/840",
+          "--native-region",
+          "0,0,640,224"
+        ],
+        "exit_code": 0,
+        "output": "{\"alpha_different_pixel_count\": 0, \"alpha_mae\": 0.0, \"alpha_max_absolute_difference\": 0, \"exact_different_pixel_count\": 111457, \"height\": 224, \"rgb_mae\": 3.207591610863095, \"rgb_max_absolute_difference\": 247, \"width\": 640}\n"
+      }
+    ]
+  },
+  "limitations": [
+    "Save writer replay begins from owned-data diagnostic opening; cold Restore is a fresh process. Neither uses reference RAM, saves or output as native input.",
+    "Fixed original/native state comparison fails; retain raw mismatches and callback-boundary sensitivity, absent observations and image differences.",
+    "Nonnegative persistent map flag owner, negative saved entrances, some storage errors and concurrent Save/dialogue remain guarded.",
+    "Host asynchronous filesystem timings are not PS2 memory-card protocol parity; replay durations are not live FPS.",
+    "No new audio/listening, physical-control, full-game, fresh-disc import or shipping dependency proof.",
+    "Preserve sole immutable paused user GUI PID63851; no native save/input tape for its later user interaction.",
+    "Research shared mc0 now contains the original paired Save. Prior card retained in original-write-v1/mc0-after.",
+    "Ghidra export-v4 has exit0 but Java argument exception/no requested export; use successful export-v5."
+  ]
+}
