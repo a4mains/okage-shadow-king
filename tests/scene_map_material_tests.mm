@@ -7,6 +7,7 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <source_location>
 using namespace okage;
 namespace fs=std::filesystem;
@@ -134,6 +135,26 @@ static Texture battle_actor_sample(const fs::path& dir,std::span<const Surface> 
     SceneActor invalid{&actor,dir/"m.xmd",-1,SceneActorDescriptor{0x300080,false}};
     caught=false;try{SceneRenderer unsupported(dir/"a.xmp",std::span(&invalid,1));}catch(const std::runtime_error& e){caught=std::string(e.what())=="Unrecovered explicit actor flags";}require(caught);
     return image;
+}
+static Texture ordinary_field_actor_sample(const fs::path& dir,std::span<const Surface> surfaces,
+        bool textured=false,const Float4& base={1,1,1,1},const Float4& ambient={.125f,.25f,.375f,1},
+        const Float4& channel3={.9f,.8f,.7f,.6f},const std::array<std::uint8_t,3>& clear={14,18,24}) {
+    fs::create_directory(dir);
+    auto hidden=map(false);put(hidden,64+12,0x10000);write(dir/"a.xmp",hidden);
+    write(dir/"m.xmd",model(surfaces,true,textured,false));
+    const auto stg=stage(base,ambient,false);write(dir/"a.stg",stg);
+    Data xim(36);put(xim,24,1);put(xim,28,1);xim[32]=32;xim[33]=64;xim[34]=96;xim[35]=128;
+    write(dir/"t.xim",xim);
+    auto owner=std::make_unique<FieldActor>(read_xmd(model(surfaces,true,textured,false)));
+    auto& actor=*owner;
+    require(actor.render_flags==0&&!actor.has_motion());
+    actor.animation().set_channel(3,channel3);actor.evaluate();
+    SceneActor binding{&actor,dir/"m.xmd",2};
+    SceneRenderer renderer(dir/"a.xmp",std::span(&binding,1));renderer.set_clear_rgb(clear);
+    FieldProjection projection;projection.load_stage(stg);projection.begin_field();
+    projection.begin_effects();projection.begin_deferred();projection.end_effects();
+    const Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
+    return renderer.render(identity,field_clip_projection(projection.frame().ordinary),nullptr,{},1024,{},&projection.frame());
 }
 static void ui_bridge(const fs::path& dir) {
     const std::array<Surface,1> surfaces{{{{.25f,.5f,.75f,1}}}};
@@ -425,6 +446,43 @@ int main(int argc,const char** argv){@autoreleasepool {try {
     const auto translucentAdded=battle_actor_sample(out/"battle-additive-translucent",translucentAdd,0x2000a0,{1,1,1,1},ambient);
     const auto blended=center(translucentAdded);
     require(blended[0]>=45&&blended[0]<=46&&blended[1]>=81&&blended[1]<=82&&blended[2]>=119&&blended[2]<=120);
+    const std::array<Surface,1> ghostBlack{{{{0,0,0,.75f},0}}};
+    const auto blackImage=ordinary_field_actor_sample(out/"mode0-black-alpha",ghostBlack,false,
+        {1,1,1,1},{.125f,.25f,.375f,1},{.9f,.8f,.7f,.6f},{40,80,120});
+    const auto blackCenter=center(blackImage);
+    require(blackCenter[0]>=9&&blackCenter[0]<=11&&blackCenter[1]>=19&&blackCenter[1]<=21&&blackCenter[2]>=29&&blackCenter[2]<=31);
+    const std::array<Surface,1> zeroAlpha{{{{.9f,.4f,.2f,0},0}}};
+    const auto zeroImage=ordinary_field_actor_sample(out/"mode0-zero-alpha",zeroAlpha,false,
+        {1,1,1,1},{.125f,.25f,.375f,1},{0,0,0,0},{40,80,120});
+    require(center(zeroImage)==std::array<unsigned,3>{40,80,120});
+
+    const std::array<Surface,1> normalLit{{{{.75f,.75f,.75f,1},0,true}}};
+    const auto normalStage=ordinary_field_actor_sample(out/"mode0-normal-stage",normalLit,false,
+        {.5f,1,.25f,1},{.125f,.25f,.375f,1},{0,0,0,0});
+    require(center(normalStage)==std::array<unsigned,3>{23,47,71});
+    const auto normalDifferentChannel=ordinary_field_actor_sample(out/"mode0-normal-channel3",normalLit,false,
+        {.5f,1,.25f,1},{.125f,.25f,.375f,1},{1,1,1,1});
+    require(center(normalDifferentChannel)==std::array<unsigned,3>{23,47,71});
+
+    const std::array tinyTransparency{
+        Surface{{1,0,0,1},std::numeric_limits<float>::denorm_min()},
+        Surface{{0,1,0,1},0}};
+    const auto tinyImage=ordinary_field_actor_sample(out/"mode0-tiny-transparency",tinyTransparency);
+    require(center(tinyImage)==std::array<unsigned,3>{255,0,0});
+
+    const std::array<Surface,1> textureSurface{{{{.75f,.75f,.75f,1},0}}};
+    const auto actorUntextured=ordinary_field_actor_sample(out/"mode0-tme-off",textureSurface,false,
+        {.5f,1,.25f,1},{.125f,.25f,.375f,1});
+    const auto actorTextured=ordinary_field_actor_sample(out/"mode0-tme-on",textureSurface,true,
+        {.5f,1,.25f,1},{.125f,.25f,.375f,1});
+    require(center(actorUntextured)==std::array<unsigned,3>{95,191,47});
+    require(center(actorTextured)==std::array<unsigned,3>{23,95,35});
+
+    const std::array<Surface,1> actorAdditive{{{{.25f,.5f,.75f,.75f},0,false,false,1}}};
+    const auto actorAdd=ordinary_field_actor_sample(out/"mode0-additive-edge",actorAdditive,false,
+        {1,1,1,1},{.125f,.25f,.375f,1},{1,1,1,1},{10,20,30});
+    const auto addCenter=center(actorAdd);
+    require(addCenter[0]>=56&&addCenter[0]<=59&&addCenter[1]>=114&&addCenter[1]<=117&&addCenter[2]>=171&&addCenter[2]<=175);
     ui_bridge(out/"ui-bridge");
     submitted_frame_tickets();
     retired_instances(out/"retired-instances");
@@ -432,4 +490,5 @@ int main(int argc,const char** argv){@autoreleasepool {try {
     std::cout<<"Scene retirement: retained snapshots, detached owners, empty range and effect texture indices passed\n";
     std::cout<<"Scene UI pass: ordered overlay, shared depth, raw alpha, completed validation and recovery passed\n";
     std::cout<<"Scene map material: TME-off selected state, exact GS-unit centers, animated-map stage ambient, bypass and whole-list pass ordering passed\n";
+    std::cout<<"Scene map material: descriptor-free mode0 actor alpha, stage normals, tiny-transparency order, TME and additive compositing passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}}
