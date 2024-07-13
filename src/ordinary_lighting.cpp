@@ -71,7 +71,8 @@ OrdinaryLightingResult ordinary_light_normal(const Float4& normal_cache,
         throw std::runtime_error("Unknown ordinary lighting path");
     validate(normal_cache); validate(direction_matrix); validate(light_colors);
     Rounding rounding;
-    const float q = inverse_length(normal_cache, true);
+    const bool zero = normal_cache[0]==0 && normal_cache[1]==0 && normal_cache[2]==0;
+    const float q = zero ? std::numeric_limits<float>::max() : inverse_length(normal_cache, true);
     Float4 weights = transform(direction_matrix, normal_cache, OrdinaryNormalOperation::direct, {});
     // VU MAX's second operand is +0, including when the first is -0.
     for (unsigned i = 0; i < 3; ++i) weights[i] = mul(weights[i] > 0 ? weights[i] : 0.f, q);

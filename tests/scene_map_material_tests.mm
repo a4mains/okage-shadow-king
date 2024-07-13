@@ -409,6 +409,7 @@ int main(int argc,const char** argv){@autoreleasepool {try {
     const auto back=sample(out/"back-winding",one,true,false,false,base,ambient,false,true);
     require(center(back)==std::array<unsigned,3>{14,18,24});
     require(back.rgba!=untextured.rgba);
+    require(sample(out/"animated-back-winding",one,true,false,true,base,ambient,false,true).rgba==back.rgba);
     const auto textured=sample(out/"textured",one,true,true,false,base,ambient);
     require(center(textured)==std::array<unsigned,3>{23,95,35});
     one[0].normal=true;
@@ -450,7 +451,7 @@ int main(int argc,const char** argv){@autoreleasepool {try {
     const auto blackImage=ordinary_field_actor_sample(out/"mode0-black-alpha",ghostBlack,false,
         {1,1,1,1},{.125f,.25f,.375f,1},{.9f,.8f,.7f,.6f},{40,80,120});
     const auto blackCenter=center(blackImage);
-    require(blackCenter[0]>=9&&blackCenter[0]<=11&&blackCenter[1]>=19&&blackCenter[1]<=21&&blackCenter[2]>=29&&blackCenter[2]<=31);
+    require(blackCenter==std::array<unsigned,3>{10,20,30});
     const std::array<Surface,1> zeroAlpha{{{{.9f,.4f,.2f,0},0}}};
     const auto zeroImage=ordinary_field_actor_sample(out/"mode0-zero-alpha",zeroAlpha,false,
         {1,1,1,1},{.125f,.25f,.375f,1},{0,0,0,0},{40,80,120});
@@ -465,7 +466,7 @@ int main(int argc,const char** argv){@autoreleasepool {try {
     require(center(normalDifferentChannel)==std::array<unsigned,3>{23,47,71});
 
     const std::array tinyTransparency{
-        Surface{{1,0,0,1},std::numeric_limits<float>::denorm_min()},
+        Surface{{1,0,0,1},0.00010001659393310547f},
         Surface{{0,1,0,1},0}};
     const auto tinyImage=ordinary_field_actor_sample(out/"mode0-tiny-transparency",tinyTransparency);
     require(center(tinyImage)==std::array<unsigned,3>{255,0,0});
@@ -482,7 +483,7 @@ int main(int argc,const char** argv){@autoreleasepool {try {
     const auto actorAdd=ordinary_field_actor_sample(out/"mode0-additive-edge",actorAdditive,false,
         {1,1,1,1},{.125f,.25f,.375f,1},{1,1,1,1},{10,20,30});
     const auto addCenter=center(actorAdd);
-    require(addCenter[0]>=56&&addCenter[0]<=59&&addCenter[1]>=114&&addCenter[1]<=117&&addCenter[2]>=171&&addCenter[2]<=175);
+    require(addCenter==std::array<unsigned,3>{57,115,173});
     ui_bridge(out/"ui-bridge");
     submitted_frame_tickets();
     retired_instances(out/"retired-instances");

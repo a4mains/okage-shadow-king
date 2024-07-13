@@ -17,8 +17,8 @@ template<class F> void rejects(F f) {
     require(threw);
 }
 bool same(const Float4& a, const Float4& b) {
-    return __builtin_bit_cast(std::array<std::uint32_t, 4>, (a)) ==
-           __builtin_bit_cast(std::array<std::uint32_t, 4>, (b));
+    return std::bit_cast<std::array<std::uint32_t, 4>>(a) ==
+           std::bit_cast<std::array<std::uint32_t, 4>>(b);
 }
 constexpr Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
 constexpr std::array<Float4, 3> directions{{{-1,0,0,17},{0,-2,0,19},{0,0,-4,23}}};
@@ -117,7 +117,13 @@ void rounding_and_failures() {
         require(same(ordinary_transform_normal(direction, n, OrdinaryNormalOperation::accumulate, n), expected_transform));
         require(same(ordinary_material_color({123.1f,43.2f,65.3f,76.4f}, actual.lighting_cache), expected_color));
         require(std::fegetround() == mode);
-        rejects([&] { ordinary_light_normal({}, identity, identity, OrdinaryLightingPath::deferred); });
+        Matrix4 zero_colors=identity;zero_colors[3]={.5f,.25f,.75f,1};
+        for(const auto path:{OrdinaryLightingPath::direct,OrdinaryLightingPath::deferred}) {
+            const auto zero=ordinary_light_normal({-0.f,0,-0.f,1},identity,zero_colors,path);
+            require(same(zero.normalized_normal,{-0.f,0,-0.f,std::numeric_limits<float>::max()}));
+            require(same(zero.lighting_cache,zero_colors[3]));
+            require(std::fegetround()==mode);
+        }
         require(std::fegetround() == mode);
         Matrix4 zero_directions{};zero_directions[3][3]=1;
         for(unsigned mask=0;mask<8;++mask) {

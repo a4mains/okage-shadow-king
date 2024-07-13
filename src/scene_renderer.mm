@@ -108,7 +108,7 @@ std::shared_ptr<const SceneBackend> acquireBackend(id<MTLDevice> device) {
     return entry;
 }
 using Vertex=FieldRasterVertex;
-struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;std::uint64_t materialBlend=0;bool depthAlways=false,subtractive=false;unsigned phase=0;float nearClip=3;bool deferred=false;unsigned bucket=0,ordinal=0;bool mapMaterial=false;};
+struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;std::uint64_t materialBlend=0;bool depthAlways=false,subtractive=false;unsigned phase=0;float nearClip=3;bool deferred=false;unsigned bucket=0,ordinal=0;bool mapMaterial=false,unculledFieldActor=false;};
 }
 struct SceneRenderer::PreparedFrame::Data {
     std::shared_ptr<const int> renderer;
@@ -274,7 +274,8 @@ struct SceneRenderer::Impl {
             for(const auto& block:part.blocks)
                 blocks.push_back({std::vector<std::optional<PreparedTextureState>>(block.textures.size()),
                     std::vector<std::optional<PolygonTextureCoordinates>>(block.polygons.size()),
-                    (input.placement||input.descriptor)?std::vector<std::array<PreparedMapBaseColor,4>>(block.polygons.size()):std::vector<std::array<PreparedMapBaseColor,4>>{}});
+                    (input.placement||input.descriptor||(input.actor&&!input.actor->encounter_model))?
+                        std::vector<std::array<PreparedMapBaseColor,4>>(block.polygons.size()):std::vector<std::array<PreparedMapBaseColor,4>>{}});
         }
         return parts;
     }
@@ -362,7 +363,8 @@ struct SceneRenderer::Impl {
             const bool explicitActor=input.descriptor.has_value();
             if(explicitActor&&((input.actor->render_flags^input.descriptor->flags)&~0x100000u))
                 throw std::runtime_error("Explicit actor flags changed after binding");
-            const bool ordinaryMaterial=mapMaterial||explicitActor;
+            const bool fieldMode0=input.actor&&!mapMaterial&&!explicitActor&&!input.actor->encounter_model&&input.actor->render_flags==0;
+            const bool ordinaryMaterial=mapMaterial||explicitActor||fieldMode0;
             const bool ordinaryInstance=input.actor && !input.actor->encounter_model && input.actor->render_flags==0x100000;
             const bool materialActor=input.actor && (input.actor->encounter_model || ordinaryInstance);
             float instanceAlpha=1;
@@ -429,7 +431,8 @@ struct SceneRenderer::Impl {
                         const auto triangles=okage::triangle_corners(polygon.corners.size());
                         std::array<std::array<float,2>,4> polygonUV{};
                         Draw draw{std::uint32_t(vertices.size()),0,-1,{}};
-                        draw.bucket=sort;draw.ordinal=input.ordinal;draw.phase=sort>517?1:0;draw.mapMaterial=ordinaryMaterial;
+                        draw.bucket=sort;draw.ordinal=input.ordinal;draw.phase=sort>517?1:0;draw.mapMaterial=mapMaterial||explicitActor;
+                        draw.unculledFieldActor=fieldMode0;
                         const Material* material=nullptr;
                         bool mapTransparent=false;
                         if(ordinaryMaterial) {
@@ -704,7 +707,7 @@ struct SceneRenderer::Impl {
             }
             if(!draw.count)continue;
             [encoder setFrontFacingWinding:draw.mapMaterial?MTLWindingCounterClockwise:MTLWindingClockwise];
-            [encoder setCullMode:draw.materialBlend?MTLCullModeBack:MTLCullModeNone];
+            [encoder setCullMode:draw.materialBlend&&!draw.unculledFieldActor?MTLCullModeBack:MTLCullModeNone];
             [encoder setRenderPipelineState:draw.materialBlend?(draw.materialBlend==0x48?materialAddPipeline:draw.materialBlend==0x42?materialSubtractPipeline:materialPipeline):draw.subtractive?darkEffectPipeline:draw.dust?dustPipeline:draw.additive?mapEffectPipeline:draw.effect?effectPipeline:pipeline];
             [encoder setDepthStencilState:draw.depthAlways?effectDepth:draw.materialBlend?(draw.state[7]!=2?materialDepth:mapEffectDepth):(draw.additive||draw.dust||draw.subtractive)?mapEffectDepth:draw.effect?effectDepth:depth];
             [encoder setFragmentTexture:data.textures[draw.image<0 ? data.white_texture : draw.image] atIndex:0];
