@@ -943,8 +943,13 @@ struct Session {
         return false;
     }
     void retire_field() {
-        if(!field||!renderer||!battle_return||!battle_capture_layer||retiring_effects)
+        if(!field||!renderer||!battle_return||!battle_capture_layer)
             throw std::runtime_error("Field retirement requires a complete battle handoff");
+        if(retiring_effects) {
+            const auto flags=retiring_effects->flags();
+            if(std::any_of(flags.begin(),flags.end(),[](auto f){return f!=0;}))
+                throw std::runtime_error("Prior resource effects still occupy field retirement pool");
+        }
         field->validate_retirement();
         renderer.reset();
         retiring_effects.emplace(field->retire_effects());
