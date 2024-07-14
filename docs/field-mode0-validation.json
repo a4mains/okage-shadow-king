@@ -1,0 +1,1291 @@
+{
+  "runtime_revision": "185731f",
+  "scope": "Common ordinary mode0 field actor material integration and reached exact-zero VU normal behavior.",
+  "runs": {
+    "release": {
+      "run": "local/research/post-restore-v1/native-mode0-release-v3/run.json",
+      "metadata": {
+        "command": [
+          "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+          "--game-data",
+          "local/game-data-stage-v2",
+          "--save-directory",
+          "local/research/post-restore-v1/native-mode0-release-v3/saves",
+          "--frames",
+          "6066",
+          "--buttons",
+          "local/research/post-restore-v1/native-paired-restore-v2/buttons.txt",
+          "--directions",
+          "local/research/post-restore-v1/native-outdoor-v1/directions.txt",
+          "--capture",
+          "local/research/post-restore-v1/native-mode0-release-v3/image.png",
+          "--capture-frames",
+          "3726,3966,4266,4866,6066",
+          "--press",
+          "3790,4085,4868,4988,5108,5229,5348,5469,5589,5708,5828,5948"
+        ],
+        "binary_sha256": "756661be99e3f7a46772913fb77366c26c64747f58258a25745a10cd27dbbcf8",
+        "save_before": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "alignment": "Unchanged original continuation0 -> nativecompleted3726. Original2340 -> native6066. Same ordinary inputs; no timing adjustment.",
+        "exit_code": 0,
+        "seconds": 24.098721042,
+        "save_after": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+      },
+      "endpoint": {
+        "frames": 6066,
+        "message_id": 14005,
+        "rng_state": 322421399,
+        "text_progress": 1,
+        "field_event_running": true,
+        "field_present": true,
+        "progression_flag_2": 0
+      },
+      "png": "local/research/post-restore-v1/native-mode0-release-v3/image.png",
+      "png_sha256": "e2981402c0524cd1352a1235a302d5a9a91b5b6aa6e2cc606e0d54e718f31f70",
+      "field_activation": [
+        "Native ordinary field activated scene=74 entrance=1 frame=3275 pc=432"
+      ]
+    },
+    "debug": {
+      "run": "local/research/post-restore-v1/native-mode0-debug-v3/run.json",
+      "metadata": {
+        "command": [
+          "build/native/okage-native.app/Contents/MacOS/okage-native",
+          "--game-data",
+          "local/game-data-stage-v2",
+          "--save-directory",
+          "local/research/post-restore-v1/native-mode0-debug-v3/saves",
+          "--frames",
+          "6066",
+          "--buttons",
+          "local/research/post-restore-v1/native-paired-restore-v2/buttons.txt",
+          "--directions",
+          "local/research/post-restore-v1/native-outdoor-v1/directions.txt",
+          "--capture",
+          "local/research/post-restore-v1/native-mode0-debug-v3/image.png",
+          "--capture-frames",
+          "3726,3966,4266,4866,6066",
+          "--press",
+          "3790,4085,4868,4988,5108,5229,5348,5469,5589,5708,5828,5948"
+        ],
+        "binary_sha256": "621d83e0dda0a172b8988f701a32de29b86aa4b20144ab5df2ee35bda2a197b5",
+        "save_before": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "alignment": "Unchanged original continuation0 -> nativecompleted3726. Original2340 -> native6066. Same ordinary inputs; no timing adjustment.",
+        "exit_code": 0,
+        "seconds": 180.457779292,
+        "save_after": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+      },
+      "endpoint": {
+        "frames": 6066,
+        "message_id": 14005,
+        "rng_state": 3218686955,
+        "text_progress": 1,
+        "field_event_running": true,
+        "field_present": true,
+        "progression_flag_2": 0
+      },
+      "png": "local/research/post-restore-v1/native-mode0-debug-v3/image.png",
+      "png_sha256": "e2981402c0524cd1352a1235a302d5a9a91b5b6aa6e2cc606e0d54e718f31f70",
+      "field_activation": [
+        "Native ordinary field activated scene=74 entrance=1 frame=3255 pc=432"
+      ]
+    },
+    "sanitize": {
+      "run": "local/research/post-restore-v1/native-mode0-sanitize-v3/run.json",
+      "metadata": {
+        "command": [
+          "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",
+          "--game-data",
+          "local/game-data-stage-v2",
+          "--save-directory",
+          "local/research/post-restore-v1/native-mode0-sanitize-v3/saves",
+          "--frames",
+          "6066",
+          "--buttons",
+          "local/research/post-restore-v1/native-paired-restore-v2/buttons.txt",
+          "--directions",
+          "local/research/post-restore-v1/native-outdoor-v1/directions.txt",
+          "--capture",
+          "local/research/post-restore-v1/native-mode0-sanitize-v3/image.png",
+          "--capture-frames",
+          "3726,3966,4266,4866,6066",
+          "--press",
+          "3790,4085,4868,4988,5108,5229,5348,5469,5589,5708,5828,5948"
+        ],
+        "binary_sha256": "a35fb8f177724e15602cd9f5a920db350fd425a344817a1582ce09a6cef9a707",
+        "save_before": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "alignment": "Unchanged original continuation0 -> nativecompleted3726. Original2340 -> native6066. Same ordinary inputs; no timing adjustment.",
+        "exit_code": 0,
+        "seconds": 345.10709262499995,
+        "save_after": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+      },
+      "endpoint": {
+        "frames": 6066,
+        "message_id": 14005,
+        "rng_state": 4292950991,
+        "text_progress": 1,
+        "field_event_running": true,
+        "field_present": true,
+        "progression_flag_2": 0
+      },
+      "png": "local/research/post-restore-v1/native-mode0-sanitize-v3/image.png",
+      "png_sha256": "e2981402c0524cd1352a1235a302d5a9a91b5b6aa6e2cc606e0d54e718f31f70",
+      "field_activation": [
+        "Native ordinary field activated scene=74 entrance=1 frame=2942 pc=432"
+      ]
+    }
+  },
+  "checks": [
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "build/native-release",
+        "--target",
+        "okage-native",
+        "okage-assets",
+        "scene-map-material-tests",
+        "scene-backend-tests",
+        "ordinary-lighting-tests",
+        "field-raster-tests",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 2.685182,
+      "log": "local/research/post-restore-v1/mode0-release-final-0.log"
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/native-release",
+        "-R",
+        "^(scene-map-material|scene-backend|ordinary-lighting|field-raster)-tests$",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "seconds": 1.2462498750000002,
+      "log": "local/research/post-restore-v1/mode0-release-final-1.log"
+    },
+    {
+      "command": [
+        "build/native-release/okage-assets",
+        "ordinary-lighting",
+        "local/research/post-restore-v1/zero-normal-v1/cases.bin",
+        "local/research/post-restore-v1/zero-normal-v1/release-final.bin"
+      ],
+      "exit_code": 0,
+      "seconds": 0.004281250000000014,
+      "log": "local/research/post-restore-v1/mode0-release-final-2.log",
+      "zero_normal_differences": []
+    },
+    {
+      "command": [
+        "python3",
+        "local/research/post-restore-v1/run-mode0-native.py",
+        "native-mode0-release-v3",
+        "native-release"
+      ],
+      "exit_code": 0,
+      "seconds": 24.147085957999998,
+      "log": "local/research/post-restore-v1/mode0-release-final-3.log",
+      "native_exit_code": 0
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "build/native",
+        "--target",
+        "okage-native",
+        "okage-assets",
+        "scene-map-material-tests",
+        "scene-backend-tests",
+        "ordinary-lighting-tests",
+        "field-raster-tests",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 2.025106333,
+      "log": "local/research/post-restore-v1/mode0-debug-final-0.log"
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/native",
+        "-R",
+        "^(scene-map-material|scene-backend|ordinary-lighting|field-raster)-tests$",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "seconds": 3.8817583750000004,
+      "log": "local/research/post-restore-v1/mode0-debug-final-1.log"
+    },
+    {
+      "command": [
+        "build/native/okage-assets",
+        "ordinary-lighting",
+        "local/research/post-restore-v1/zero-normal-v1/cases.bin",
+        "local/research/post-restore-v1/zero-normal-v1/debug-final.bin"
+      ],
+      "exit_code": 0,
+      "seconds": 0.12310283400000088,
+      "log": "local/research/post-restore-v1/mode0-debug-final-2.log",
+      "zero_normal_differences": []
+    },
+    {
+      "command": [
+        "python3",
+        "local/research/post-restore-v1/run-mode0-native.py",
+        "native-mode0-debug-v3",
+        "native"
+      ],
+      "exit_code": 0,
+      "seconds": 180.526036,
+      "log": "local/research/post-restore-v1/mode0-debug-final-3.log",
+      "native_exit_code": 0
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "build/model-sanitize",
+        "--target",
+        "okage-native",
+        "okage-assets",
+        "scene-map-material-tests",
+        "scene-backend-tests",
+        "ordinary-lighting-tests",
+        "field-raster-tests",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 2.1127988749999815,
+      "log": "local/research/post-restore-v1/mode0-sanitize-final-0.log"
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/model-sanitize",
+        "-R",
+        "^(scene-map-material|scene-backend|ordinary-lighting|field-raster)-tests$",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "seconds": 4.575215915999991,
+      "log": "local/research/post-restore-v1/mode0-sanitize-final-1.log"
+    },
+    {
+      "command": [
+        "build/model-sanitize/okage-assets",
+        "ordinary-lighting",
+        "local/research/post-restore-v1/zero-normal-v1/cases.bin",
+        "local/research/post-restore-v1/zero-normal-v1/sanitize-final.bin"
+      ],
+      "exit_code": 0,
+      "seconds": 0.2790404579999972,
+      "log": "local/research/post-restore-v1/mode0-sanitize-final-2.log",
+      "zero_normal_differences": []
+    },
+    {
+      "command": [
+        "python3",
+        "local/research/post-restore-v1/run-mode0-native.py",
+        "native-mode0-sanitize-v3",
+        "model-sanitize"
+      ],
+      "exit_code": 0,
+      "seconds": 345.190174708,
+      "log": "local/research/post-restore-v1/mode0-sanitize-final-3.log",
+      "native_exit_code": 0
+    }
+  ],
+  "zero_normal_original": {
+    "command": [
+      "build/play-research/okage-oracle/okage-pose-oracle",
+      "ordinary-lighting",
+      "local/extracted/SCUS_971.29",
+      "local/research/post-restore-v1/zero-normal-v1/cases.bin",
+      "local/research/post-restore-v1/zero-normal-v1/original.bin"
+    ],
+    "exit_code": 0,
+    "seconds": 1.062488834,
+    "sha256": {
+      "build/play-research/okage-oracle/okage-pose-oracle": "e131a46a5090f477cf538cba6ee4dceeca724cb0ee90efc0b03d2998dcf7b4c1",
+      "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "local/research/post-restore-v1/zero-normal-v1/cases.bin": "be4ab2c36e20cb384cf311795b1a9f014c789c4f2aef2ce4540b9391cf93c6c0"
+    }
+  },
+  "zero_normal_cases": 16,
+  "zero_normal_output_words_per_build": 1088,
+  "state_comparison": {
+    "first_native_frame": 3726,
+    "original_frames": 2340,
+    "compared_observables_agree": false,
+    "full_timeline_equivalence": false,
+    "matching_tail": {
+      "first_original_frame": 1873,
+      "frames": 467,
+      "controller_samples": 467
+    },
+    "hero_position_maximum_error": 24.980010986328125,
+    "camera_position_maximum_error": 910.0499877929688,
+    "original_observation_coverage": {
+      "manager": {
+        "expected_frames": 2340,
+        "observed_frames": 2335
+      },
+      "camera": {
+        "expected_frames": 2340,
+        "observed_frames": 2335
+      },
+      "player": {
+        "expected_frames": 2340,
+        "observed_frames": 1935
+      }
+    },
+    "native_observation_coverage": {
+      "manager": {
+        "expected_frames": 2340,
+        "observed_frames": 2340,
+        "missing_frames": 0
+      },
+      "movement": {
+        "expected_frames": 2340,
+        "observed_frames": 2340,
+        "missing_frames": 0
+      },
+      "dialogue": {
+        "expected_frames": 2340,
+        "observed_frames": 2340,
+        "missing_frames": 0
+      },
+      "choice": {
+        "expected_frames": 2340,
+        "observed_frames": 2340,
+        "missing_frames": 0
+      },
+      "camera": {
+        "expected_frames": 2340,
+        "observed_frames": 2340,
+        "missing_frames": 0
+      },
+      "camera-state": {
+        "expected_frames": 2340,
+        "observed_frames": 2340,
+        "missing_frames": 0
+      },
+      "actor": {
+        "expected_frames": 2340,
+        "observed_frames": 2340,
+        "missing_frames": 0
+      }
+    },
+    "observable_coverage": {
+      "controller": {
+        "expected_observations": 1062,
+        "compared_observations": 1062,
+        "missing_native_observations": 0
+      },
+      "choice": {
+        "expected_observations": 1062,
+        "compared_observations": 1062,
+        "missing_native_observations": 0
+      },
+      "manager_running_pc_gate": {
+        "expected_observations": 2335,
+        "compared_observations": 2335,
+        "missing_native_observations": 0
+      },
+      "pad_latch": {
+        "expected_observations": 2335,
+        "compared_observations": 2335,
+        "missing_native_observations": 0
+      },
+      "direction_latch": {
+        "expected_observations": 2335,
+        "compared_observations": 2335,
+        "missing_native_observations": 0
+      },
+      "player_mask": {
+        "expected_observations": 1935,
+        "compared_observations": 1935,
+        "missing_native_observations": 0
+      },
+      "hero_facing_w": {
+        "expected_observations": 1935,
+        "compared_observations": 1935,
+        "missing_native_observations": 0
+      },
+      "hero_position": {
+        "expected_observations": 1935,
+        "compared_observations": 1935,
+        "missing_native_observations": 0
+      },
+      "camera_rotation": {
+        "expected_observations": 2335,
+        "compared_observations": 2335,
+        "missing_native_observations": 0
+      },
+      "camera_mode_phase": {
+        "expected_observations": 2335,
+        "compared_observations": 2335,
+        "missing_native_observations": 0
+      },
+      "camera_position": {
+        "expected_observations": 2335,
+        "compared_observations": 2335,
+        "missing_native_observations": 0
+      },
+      "camera_unblended_target": {
+        "expected_observations": 0,
+        "compared_observations": 0,
+        "missing_native_observations": 0
+      },
+      "controller_manager_pad_gate": {
+        "expected_observations": 1062,
+        "compared_observations": 1062,
+        "missing_native_observations": 0
+      }
+    },
+    "differences": {
+      "controller": {
+        "frames": 49,
+        "first_original_frame": 1083
+      },
+      "choice": {
+        "frames": 49,
+        "first_original_frame": 1083
+      },
+      "manager_running_pc_gate": {
+        "frames": 809,
+        "first_original_frame": 70
+      },
+      "pad_latch": {
+        "frames": 0,
+        "first_original_frame": null
+      },
+      "direction_latch": {
+        "frames": 1,
+        "first_original_frame": 62
+      },
+      "player_mask": {
+        "frames": 0,
+        "first_original_frame": null
+      },
+      "hero_facing_w": {
+        "frames": 159,
+        "first_original_frame": 63
+      },
+      "hero_position": {
+        "frames": 259,
+        "first_original_frame": 63
+      },
+      "camera_rotation": {
+        "frames": 796,
+        "first_original_frame": 63
+      },
+      "camera_mode_phase": {
+        "frames": 384,
+        "first_original_frame": 70
+      },
+      "camera_position": {
+        "frames": 796,
+        "first_original_frame": 63
+      },
+      "camera_unblended_target": {
+        "frames": 0,
+        "first_original_frame": null
+      }
+    },
+    "missing_original": {
+      "manager": 5,
+      "camera": 5,
+      "player_with_manager": 400,
+      "player_total": 405
+    },
+    "report": "local/research/post-restore-v1/mode0-outdoor-interval-v3.json"
+  },
+  "image_comparisons": {
+    "before": {
+      "purpose": "Explicitly paired numeric diagnostic; not a fidelity pass.",
+      "temporal_alignment": false,
+      "threshold_or_pass_assertion": false,
+      "automatic_resize_or_crop": false,
+      "alpha_note": "RGB metrics exclude alpha; alpha differences are reported separately.",
+      "sample_basis": "Raw encoded 8-bit channel samples after PNG decoding to RGBA; no ICC profile, gamma, transfer-function, or color-space transforms are applied.",
+      "inputs": {
+        "original": {
+          "path": "local/research/post-restore-v1/original-outdoor-v1/image.layer0.png",
+          "sha256": "8de2d0845bf7ae3ea923f6f3612015442ae4cfef86b05d39ff8e9506116621de",
+          "width": 640,
+          "height": 224
+        },
+        "native": {
+          "path": "local/research/post-restore-v1/native-outdoor-v1/image.png",
+          "sha256": "4caca8ea64b4e00e963f4a5f7cc7c865924df865b6508d68616ca8fdcdb06925",
+          "width": 640,
+          "height": 448
+        }
+      },
+      "declared_native_region": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 224
+      },
+      "compared_rgba_extent": {
+        "width": 640,
+        "height": 224
+      },
+      "metrics": {
+        "width": 640,
+        "height": 224,
+        "exact_different_pixel_count": 137300,
+        "rgb_mae": 23.81864769345238,
+        "rgb_max_absolute_difference": 255,
+        "alpha_different_pixel_count": 0,
+        "alpha_mae": 0.0,
+        "alpha_max_absolute_difference": 0
+      },
+      "outputs": {
+        "side_by_side": {
+          "file": "side-by-side.png",
+          "width": 1280,
+          "height": 254
+        },
+        "absolute_rgb_difference": {
+          "file": "absolute-rgb-difference.png",
+          "width": 640,
+          "height": 224
+        }
+      }
+    },
+    "frame-240": {
+      "purpose": "Explicitly paired numeric diagnostic; not a fidelity pass.",
+      "temporal_alignment": false,
+      "threshold_or_pass_assertion": false,
+      "automatic_resize_or_crop": false,
+      "alpha_note": "RGB metrics exclude alpha; alpha differences are reported separately.",
+      "sample_basis": "Raw encoded 8-bit channel samples after PNG decoding to RGBA; no ICC profile, gamma, transfer-function, or color-space transforms are applied.",
+      "inputs": {
+        "original": {
+          "path": "local/research/post-restore-v1/original-outdoor-v1/image.frames/vblank-000240.layer0.png",
+          "sha256": "c89f4290f889098a086c3d6ef27bc8f363e0656b1727fd8e2ea71788d420e67d",
+          "width": 640,
+          "height": 224
+        },
+        "native": {
+          "path": "local/research/post-restore-v1/native-mode0-release-v3/image.png.frames/tick-3966.png",
+          "sha256": "6820418ee4179aa514b658014d577f88788208ccd4e9dcf233175c1c9b2cf85c",
+          "width": 640,
+          "height": 448
+        }
+      },
+      "declared_native_region": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 224
+      },
+      "compared_rgba_extent": {
+        "width": 640,
+        "height": 224
+      },
+      "metrics": {
+        "width": 640,
+        "height": 224,
+        "exact_different_pixel_count": 120923,
+        "rgb_mae": 2.050520833333333,
+        "rgb_max_absolute_difference": 251,
+        "alpha_different_pixel_count": 0,
+        "alpha_mae": 0.0,
+        "alpha_max_absolute_difference": 0
+      },
+      "outputs": {
+        "side_by_side": {
+          "file": "side-by-side.png",
+          "width": 1280,
+          "height": 254
+        },
+        "absolute_rgb_difference": {
+          "file": "absolute-rgb-difference.png",
+          "width": 640,
+          "height": 224
+        }
+      }
+    },
+    "frame-540": {
+      "purpose": "Explicitly paired numeric diagnostic; not a fidelity pass.",
+      "temporal_alignment": false,
+      "threshold_or_pass_assertion": false,
+      "automatic_resize_or_crop": false,
+      "alpha_note": "RGB metrics exclude alpha; alpha differences are reported separately.",
+      "sample_basis": "Raw encoded 8-bit channel samples after PNG decoding to RGBA; no ICC profile, gamma, transfer-function, or color-space transforms are applied.",
+      "inputs": {
+        "original": {
+          "path": "local/research/post-restore-v1/original-outdoor-v1/image.frames/vblank-000540.layer0.png",
+          "sha256": "c8200f6e210dfb8957239317369e29ac56f22c16b1ab401167da15e9ff67f188",
+          "width": 640,
+          "height": 224
+        },
+        "native": {
+          "path": "local/research/post-restore-v1/native-mode0-release-v3/image.png.frames/tick-4266.png",
+          "sha256": "3c1365dbbb1c6b676165577a87991c8de4eedc5e037c7b72b20148fb0638b695",
+          "width": 640,
+          "height": 448
+        }
+      },
+      "declared_native_region": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 224
+      },
+      "compared_rgba_extent": {
+        "width": 640,
+        "height": 224
+      },
+      "metrics": {
+        "width": 640,
+        "height": 224,
+        "exact_different_pixel_count": 143348,
+        "rgb_mae": 119.78989025297619,
+        "rgb_max_absolute_difference": 255,
+        "alpha_different_pixel_count": 0,
+        "alpha_mae": 0.0,
+        "alpha_max_absolute_difference": 0
+      },
+      "outputs": {
+        "side_by_side": {
+          "file": "side-by-side.png",
+          "width": 1280,
+          "height": 254
+        },
+        "absolute_rgb_difference": {
+          "file": "absolute-rgb-difference.png",
+          "width": 640,
+          "height": 224
+        }
+      }
+    },
+    "frame-1140": {
+      "purpose": "Explicitly paired numeric diagnostic; not a fidelity pass.",
+      "temporal_alignment": false,
+      "threshold_or_pass_assertion": false,
+      "automatic_resize_or_crop": false,
+      "alpha_note": "RGB metrics exclude alpha; alpha differences are reported separately.",
+      "sample_basis": "Raw encoded 8-bit channel samples after PNG decoding to RGBA; no ICC profile, gamma, transfer-function, or color-space transforms are applied.",
+      "inputs": {
+        "original": {
+          "path": "local/research/post-restore-v1/original-outdoor-v1/image.frames/vblank-001140.layer0.png",
+          "sha256": "5b39c31ae6e87ccbfeecca6f8b5b9ab31ecfdb3a7e2c37f290bbd0be706f62c9",
+          "width": 640,
+          "height": 224
+        },
+        "native": {
+          "path": "local/research/post-restore-v1/native-mode0-release-v3/image.png.frames/tick-4866.png",
+          "sha256": "be1c631c071fd243ae6fd27de2c3ae97702a94648b3a81fea7a446bb232faf80",
+          "width": 640,
+          "height": 448
+        }
+      },
+      "declared_native_region": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 224
+      },
+      "compared_rgba_extent": {
+        "width": 640,
+        "height": 224
+      },
+      "metrics": {
+        "width": 640,
+        "height": 224,
+        "exact_different_pixel_count": 138452,
+        "rgb_mae": 25.663220796130954,
+        "rgb_max_absolute_difference": 243,
+        "alpha_different_pixel_count": 0,
+        "alpha_mae": 0.0,
+        "alpha_max_absolute_difference": 0
+      },
+      "outputs": {
+        "side_by_side": {
+          "file": "side-by-side.png",
+          "width": 1280,
+          "height": 254
+        },
+        "absolute_rgb_difference": {
+          "file": "absolute-rgb-difference.png",
+          "width": 640,
+          "height": 224
+        }
+      }
+    },
+    "after": {
+      "purpose": "Explicitly paired numeric diagnostic; not a fidelity pass.",
+      "temporal_alignment": false,
+      "threshold_or_pass_assertion": false,
+      "automatic_resize_or_crop": false,
+      "alpha_note": "RGB metrics exclude alpha; alpha differences are reported separately.",
+      "sample_basis": "Raw encoded 8-bit channel samples after PNG decoding to RGBA; no ICC profile, gamma, transfer-function, or color-space transforms are applied.",
+      "inputs": {
+        "original": {
+          "path": "local/research/post-restore-v1/original-outdoor-v1/image.layer0.png",
+          "sha256": "8de2d0845bf7ae3ea923f6f3612015442ae4cfef86b05d39ff8e9506116621de",
+          "width": 640,
+          "height": 224
+        },
+        "native": {
+          "path": "local/research/post-restore-v1/native-mode0-release-v3/image.png",
+          "sha256": "e2981402c0524cd1352a1235a302d5a9a91b5b6aa6e2cc606e0d54e718f31f70",
+          "width": 640,
+          "height": 448
+        }
+      },
+      "declared_native_region": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 224
+      },
+      "compared_rgba_extent": {
+        "width": 640,
+        "height": 224
+      },
+      "metrics": {
+        "width": 640,
+        "height": 224,
+        "exact_different_pixel_count": 135395,
+        "rgb_mae": 20.634705171130953,
+        "rgb_max_absolute_difference": 253,
+        "alpha_different_pixel_count": 0,
+        "alpha_mae": 0.0,
+        "alpha_max_absolute_difference": 0
+      },
+      "outputs": {
+        "side_by_side": {
+          "file": "side-by-side.png",
+          "width": 1280,
+          "height": 254
+        },
+        "absolute_rgb_difference": {
+          "file": "absolute-rgb-difference.png",
+          "width": 640,
+          "height": 224
+        }
+      }
+    }
+  },
+  "cold_restore_prior_audit": {
+    "integrity": {
+      "ELF_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "native_runtime_sha256": "c38f29e9b9fff20f91b3fb94e696350b731c31d0144b0b9876636824d9de20d1",
+      "note": "Run records, persistent save files, endpoint state archives and comparison traces are distinct artifacts.",
+      "source_oracle_sha256": "b23638e133f0ba6e783b616fae6cc1376ba756774eb1fe815ddc09700523b8ac"
+    },
+    "outdoor_interval_v1": {
+      "alignment": {
+        "native_completed_tick": 3726,
+        "source_continuation_start_completed_frame": 3800,
+        "source_frame_to_native_tick": "source frame N maps to native completed tick 3726+N; same predeclared input plan, no value-based alignment"
+      },
+      "native_run": {
+        "completed_ticks": 6066,
+        "exit_code": 0,
+        "native_save_sha256_after": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "native_save_sha256_before": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "path": "local/research/post-restore-v1/native-outdoor-v1/run.json",
+        "run_json_sha256": "01b881b0770b47771830e8727dd5492a9d809460e577dd8e2457658230d50e11",
+        "runtime_sha256": "c38f29e9b9fff20f91b3fb94e696350b731c31d0144b0b9876636824d9de20d1"
+      },
+      "original_run": {
+        "exit_code": 0,
+        "mc0_sha256_after": "33bde96469248e43c61393b07520f0614a4d8109ca52d4ecfb851df922173560",
+        "mc0_sha256_before": "33bde96469248e43c61393b07520f0614a4d8109ca52d4ecfb851df922173560",
+        "oracle_sha256": "b23638e133f0ba6e783b616fae6cc1376ba756774eb1fe815ddc09700523b8ac",
+        "path": "local/research/post-restore-v1/original-outdoor-v1/run.json",
+        "run_json_sha256": "780e955ddf7c81f5ebe76197857a6ce1197a20667ee9962f20e0932da5efa63e",
+        "source_state_input": "local/research/post-restore-v1/original-paired-restore-v2/endpoint.state.zip",
+        "state_input_sha256": "a0979550e0b115985a5319750145ca4c7a281f9de18a3083c1c61df1c8dd3f57",
+        "vblanks": 2340
+      },
+      "outcome": {
+        "camera_position_maximum_error": 910.0499877929688,
+        "compared_observables_agree": false,
+        "coverage_note": "Confirmed by tools/diagnose_home1b_interval.py: the historical missing_original_player_frames list counts transitions with a present manager but no player payload (400 frames). Player coverage also unions all 5 missing-manager frames, so total player coverage is 405/2340 missing and observed1935/2340. Source manager/camera each have 5 unobserved frames. Native component traces are complete for their declared channels, but complete source coverage is false; trace omission is not observed manager absence.",
+        "difference_frame_counts_by_observable": {
+          "camera_mode_phase": 384,
+          "camera_position": 796,
+          "camera_rotation": 796,
+          "camera_unblended_target": 0,
+          "choice": 49,
+          "controller": 49,
+          "direction_latch": 1,
+          "hero_facing_w": 159,
+          "hero_position": 259,
+          "manager_running_pc_gate": 809,
+          "pad_latch": 0,
+          "player_mask": 0
+        },
+        "first_difference_frame_by_observable": {
+          "camera_mode_phase": 70,
+          "camera_position": 63,
+          "camera_rotation": 63,
+          "camera_unblended_target": null,
+          "choice": 1083,
+          "controller": 1083,
+          "direction_latch": 62,
+          "hero_facing_w": 63,
+          "hero_position": 63,
+          "manager_running_pc_gate": 70,
+          "pad_latch": null,
+          "player_mask": null
+        },
+        "full_timeline_equivalence": false,
+        "hero_position_maximum_error": 24.980010986328125,
+        "image_pairing_note": "Fixed source VBlanks 240/540/1140/2340 map by the declared +3726 continuation offset to native ticks 3966/4266/4866/6066. Native tick3726 is an extra continuation-start capture with no source frame-0 image. The outdoor interval report has no image metric comparison; paired Restore v3 contains the separate seven-pair raw image metrics.",
+        "matching_tail": {
+          "controller_samples": 467,
+          "first_original_frame": 1873,
+          "frames": 467
+        },
+        "native_capture_ticks": [
+          3726,
+          3966,
+          4266,
+          4866,
+          6066
+        ],
+        "native_coverage": {
+          "actor": {
+            "expected_frames": 2340,
+            "missing_frames": 0,
+            "observed_frames": 2340
+          },
+          "camera": {
+            "expected_frames": 2340,
+            "missing_frames": 0,
+            "observed_frames": 2340
+          },
+          "camera-state": {
+            "expected_frames": 2340,
+            "missing_frames": 0,
+            "observed_frames": 2340
+          },
+          "choice": {
+            "expected_frames": 2340,
+            "missing_frames": 0,
+            "observed_frames": 2340
+          },
+          "dialogue": {
+            "expected_frames": 2340,
+            "missing_frames": 0,
+            "observed_frames": 2340
+          },
+          "manager": {
+            "expected_frames": 2340,
+            "missing_frames": 0,
+            "observed_frames": 2340
+          },
+          "movement": {
+            "expected_frames": 2340,
+            "missing_frames": 0,
+            "observed_frames": 2340
+          }
+        },
+        "original_coverage": {
+          "camera": {
+            "expected_frames": 2340,
+            "observed_frames": 2335
+          },
+          "manager": {
+            "expected_frames": 2340,
+            "observed_frames": 2335
+          },
+          "player": {
+            "expected_frames": 2340,
+            "observed_frames": 1935
+          }
+        },
+        "original_missing_lists": {
+          "camera": 5,
+          "manager": 5,
+          "player_coverage_total_missing": 405,
+          "player_payload_missing_on_present_manager": 400
+        },
+        "position_tolerance": 2e-05,
+        "source_capture_vblanks": [
+          240,
+          540,
+          1140,
+          2340
+        ],
+        "unblended_target_check": false
+      },
+      "report": "local/research/post-restore-v1/outdoor-interval-v1.json",
+      "report_sha256": "faa936a2cdf2cdd6dd07c3cf2486adee0ff41a5f6b8230f7c31fe1bc21d0c6a9",
+      "state_and_save_hashes": {
+        "native_save_sha256_after": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "native_save_sha256_before": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "source_input_state_sha256": "a0979550e0b115985a5319750145ca4c7a281f9de18a3083c1c61df1c8dd3f57",
+        "source_output_state": {
+          "path": "local/research/post-restore-v1/original-outdoor-v1/endpoint.state.zip",
+          "sha256": "12928ac5f332a5119efa05d9cbee865f678a908913bf1b9afb15478ddc4d94a7"
+        }
+      }
+    },
+    "paired_cold_restore_v2": {
+      "alignment": {
+        "fixed_rule": "source input frame N maps to native completed tick N-74; no mode-specific shift or value-based fitting.",
+        "input_handler_edge": "Original 0x11e480 snapshot is before this frame input handler; compare to native completed tick N-75.",
+        "native_parent_point0": "In src/native_runtime.mm, observe_game_mode(0) runs after native frame increment, pad-repeat and fade/capture updates, immediately before game_mode->tick. Source 0x124818 is captured at parent function entry. Point 1 is after native Session updates and is not used here.",
+        "second_callback_edge": "Original 0x11c2c8 snapshot is before the second callback but after input handler; compare to native completed tick N-74 and retain callback-written fields as boundary-sensitive.",
+        "source_interval": [
+          75,
+          3800
+        ]
+      },
+      "comparison": {
+        "audit_v2_preserved": {
+          "difference_words_by_field": {
+            "completed": 4,
+            "confirmation": 1,
+            "dead": 1,
+            "previous_opacity": 16,
+            "signed_state": 13
+          },
+          "path": "local/research/post-restore-v1/paired-restore-v2-audit.json",
+          "raw_restore_differences": 35,
+          "sha256": "7399e6da6c7fbed1f541050acc24ad2daa66ca095d522265b54161de34bf3a9b",
+          "status": "retained earlier raw comparison; superseded in edge interpretation by v3, not erased"
+        },
+        "audit_v3": {
+          "path": "local/research/post-restore-v1/paired-restore-v3-boundary-audit.json",
+          "sha256": "e202b243711ef1e8f62115e0d22af24b300168ef051f05e5870e26b028927ff4",
+          "source_input_to_native_tick": "N -> N-74; fixed from first source parent VBlank75/native tick1; no mode-specific shifts",
+          "source_interval": [
+            75,
+            3800
+          ]
+        },
+        "parent_phase": {
+          "difference_count": 7,
+          "first_difference": {
+            "native_phase": "0x00000001",
+            "native_tick": 10,
+            "source_frame": 84,
+            "source_phase": "0x00000000"
+          },
+          "interpretation": "Missing native trace rows after tick2675 are not evidence that the manager is absent; native run continues to tick3726.",
+          "native_record_missing_rows": 1050,
+          "paired_rows": 2530,
+          "source_observation_missing_rows": 145
+        },
+        "restore_callback_edges": {
+          "input_handler_edge": {
+            "edge_rule": "input_handler_entry",
+            "first_comparable_difference": {
+              "difference": {
+                "classification": "comparable_at_mapped_edge",
+                "field": "signed_state",
+                "native": "0x00000226",
+                "source": "0x00000000"
+              },
+              "native_tick": 2187,
+              "source_frame": 2262
+            },
+            "raw_difference_counts_by_field": {
+              "completed": 3,
+              "confirmation": 1,
+              "dead": 1,
+              "previous_opacity": 17,
+              "signed_state": 13
+            },
+            "status_counts": {
+              "both_unobserved": 3234,
+              "native_record_present_inactive": 2,
+              "paired": 484,
+              "source_observation_missing": 5
+            }
+          },
+          "limitation": "Source second_callback_entry is before the original handler; native record is after completed Session tick and both callbacks. Boundary-sensitive fields are kept separate from comparable differences.",
+          "native_restore_records": 491,
+          "second_callback_edge": {
+            "boundary_sensitive_difference_counts_by_field": {
+              "completed": 4,
+              "confirmation": 1,
+              "dead": 1,
+              "previous_opacity": 16,
+              "signed_state": 13
+            },
+            "edge_rule": "second_callback_entry",
+            "exact_equal_frames": 462,
+            "exact_equal_source_frame_runs": [
+              [
+                2278,
+                2710
+              ],
+              [
+                2715,
+                2743
+              ]
+            ],
+            "first_comparable_difference": null,
+            "first_raw_difference": {
+              "difference": {
+                "classification": "second_callback_boundary_sensitive",
+                "field": "signed_state",
+                "native": "0x00000226",
+                "source": "0x000001fe"
+              },
+              "native_tick": 2188,
+              "source_frame": 2262
+            },
+            "raw_difference_counts_by_field": {},
+            "status_counts": {
+              "both_unobserved": 3233,
+              "native_record_missing": 1,
+              "native_record_present_inactive": 2,
+              "paired": 483,
+              "source_observation_missing": 6
+            }
+          },
+          "source_input_handler_entries": 486,
+          "source_second_callback_entries": 486
+        }
+      },
+      "images": {
+        "fixed_pairs": 7,
+        "limitation": "Source images are before source interval N update; native is after completed Session tick N-74. Metrics are raw encoded RGBA, not a parity pass. Cropped native game region is 640x224; no visual parity pass.",
+        "raw_metrics": [
+          {
+            "comparison": {
+              "alpha_different_pixel_count": 143360,
+              "alpha_mae": 197.18636997767857,
+              "alpha_max_absolute_difference": 255,
+              "exact_different_pixel_count": 143360,
+              "height": 224,
+              "rgb_mae": 0.701260230654762,
+              "rgb_max_absolute_difference": 240,
+              "width": 640
+            },
+            "native_tick": 2326,
+            "source_vblank": 2400
+          },
+          {
+            "comparison": {
+              "alpha_different_pixel_count": 143360,
+              "alpha_mae": 196.83791852678573,
+              "alpha_max_absolute_difference": 255,
+              "exact_different_pixel_count": 143360,
+              "height": 224,
+              "rgb_mae": 0.70322265625,
+              "rgb_max_absolute_difference": 240,
+              "width": 640
+            },
+            "native_tick": 2476,
+            "source_vblank": 2550
+          },
+          {
+            "comparison": {
+              "alpha_different_pixel_count": 143360,
+              "alpha_mae": 127.0,
+              "alpha_max_absolute_difference": 127,
+              "exact_different_pixel_count": 143360,
+              "height": 224,
+              "rgb_mae": 0.0,
+              "rgb_max_absolute_difference": 0,
+              "width": 640
+            },
+            "native_tick": 2726,
+            "source_vblank": 2800
+          },
+          {
+            "comparison": {
+              "alpha_different_pixel_count": 143360,
+              "alpha_mae": 127.0,
+              "alpha_max_absolute_difference": 127,
+              "exact_different_pixel_count": 143360,
+              "height": 224,
+              "rgb_mae": 48.362390718005955,
+              "rgb_max_absolute_difference": 255,
+              "width": 640
+            },
+            "native_tick": 3126,
+            "source_vblank": 3200
+          },
+          {
+            "comparison": {
+              "alpha_different_pixel_count": 0,
+              "alpha_mae": 0.0,
+              "alpha_max_absolute_difference": 0,
+              "exact_different_pixel_count": 120419,
+              "height": 224,
+              "rgb_mae": 4.103076171875,
+              "rgb_max_absolute_difference": 251,
+              "width": 640
+            },
+            "native_tick": 3426,
+            "source_vblank": 3500
+          },
+          {
+            "comparison": {
+              "alpha_different_pixel_count": 0,
+              "alpha_mae": 0.0,
+              "alpha_max_absolute_difference": 0,
+              "exact_different_pixel_count": 139651,
+              "height": 224,
+              "rgb_mae": 27.50619884672619,
+              "rgb_max_absolute_difference": 253,
+              "width": 640
+            },
+            "native_tick": 3526,
+            "source_vblank": 3600
+          },
+          {
+            "comparison": {
+              "alpha_different_pixel_count": 0,
+              "alpha_mae": 0.0,
+              "alpha_max_absolute_difference": 0,
+              "exact_different_pixel_count": 110391,
+              "height": 224,
+              "rgb_mae": 2.1402692522321427,
+              "rgb_max_absolute_difference": 254,
+              "width": 640
+            },
+            "native_tick": 3726,
+            "source_vblank": 3800
+          }
+        ]
+      },
+      "native": {
+        "completed_ticks": 3726,
+        "exit_code": 0,
+        "game_mode_trace_sha256": "e40a6ec0ca530d1350f938731b8a9131f55c1f5902152940c14896d95e99a960",
+        "native_save": {
+          "path": "local/research/post-restore-v1/native-paired-restore-v2/saves/bkmo0.dat",
+          "sha256_after": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+          "sha256_before": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+          "unchanged": true
+        },
+        "restore_trace_sha256": "87c29d24b0a27ef133ac29259f91b9358e213faf2ea5b0eeed38ef5cdedca70e",
+        "run_json": "local/research/post-restore-v1/native-paired-restore-v2/run.json",
+        "run_json_sha256": "8b83675c6ec83bd82e45905208a035120e460582b4ac8bafb8677127de74e5d6",
+        "runtime_sha256": "c38f29e9b9fff20f91b3fb94e696350b731c31d0144b0b9876636824d9de20d1"
+      },
+      "original": {
+        "exit_code": 0,
+        "mode_trace_sha256": "119c5c4b5081cf442f474ff62d327cbe9c433e338da35e2abe003cac663bc59f",
+        "oracle_sha256": "b23638e133f0ba6e783b616fae6cc1376ba756774eb1fe815ddc09700523b8ac",
+        "output_state": {
+          "path": "local/research/post-restore-v1/original-paired-restore-v2/endpoint.state.zip",
+          "sha256": "a0979550e0b115985a5319750145ca4c7a281f9de18a3083c1c61df1c8dd3f57"
+        },
+        "requested_vblanks": 3800,
+        "run_json": "local/research/post-restore-v1/original-paired-restore-v2/run.json",
+        "run_json_sha256": "53f637e13efc2d914b3040a5fa20ec8370d0ef085986630bc21ef25e51d375b3",
+        "run_source_save": {
+          "path": "local/play-boot-config/vfs/mc0/BASCUS-97129/bkmo0.dat",
+          "sha256_after": "33bde96469248e43c61393b07520f0614a4d8109ca52d4ecfb851df922173560",
+          "sha256_before": "33bde96469248e43c61393b07520f0614a4d8109ca52d4ecfb851df922173560",
+          "unchanged": true
+        }
+      },
+      "save_identity": {
+        "native_save_sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "note": "Independent genuine source and native saves; the source/native payloads are not treated as identical (playtime differs). Neither is a captured RAM state supplied to the other runtime.",
+        "original_save_sha256": "33bde96469248e43c61393b07520f0614a4d8109ca52d4ecfb851df922173560",
+        "same_payload_established": false
+      }
+    },
+    "retained_failures_and_limits": [
+      {
+        "artifact": "local/research/post-restore-v1/native-mode0-outdoor-v1/run.json",
+        "exit_code": 1,
+        "reason": "Earlier mode0 renderer run failed on GRM.XPF block 0 zero ordinary lighting normal/direction; retained separately, not the successful outdoor_interval_v1 run.",
+        "run_json_sha256": "54b94a477b3e85749fcb08ae12f665403d8be88dc190a75265b41754cf12ad85"
+      },
+      {
+        "artifact": "local/research/post-restore-v1/native-mode0-outdoor-v2/run.json",
+        "exit_code": 0,
+        "reason": "Later retry completed the 6066-tick route; latest mode0-specific outputs remain separate.",
+        "run_json_sha256": "2450be937fa4e737eef00c1efa79b6a5989f268f343ca1e7687cdbd836bc8f01"
+      }
+    ],
+    "schema": "okage-post-restore-checkpoint-audit-v1",
+    "scope": "Read-only audit of cold paired Restore v2 and fixed-anchor outdoor interval v1 evidence.",
+    "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
+  },
+  "limitations": [
+    "Source captures before update; native after completed tick. Fixed anchors never fitted.",
+    "Cold Restore host readiness changes activation ticks and RNG; same endpoint images are not startup parity.",
+    "Field mode0 cull-none retained; source actor packet/culling integration still required.",
+    "Map/battle explicit descriptors and mode2/encounter paths retain existing behavior. Arbitrary multiblock ordering unproved.",
+    "Authored UI, raster/filter/blend precision, audio, full playthrough, fresh owned-disc install and physical controls/performance audit incomplete.",
+    "Sole immutable GUI preserved with unsaved user chest progress; all new route tests headless."
+  ],
+  "artifacts_sha256": {
+    "local/research/post-restore-v1/native-mode0-release-v3/run.json": "ad02912cd8f767079e0781b24bec99f245318edb72f844fc0f7b11a62fac0623",
+    "local/research/post-restore-v1/native-mode0-release-v3/image.png": "e2981402c0524cd1352a1235a302d5a9a91b5b6aa6e2cc606e0d54e718f31f70",
+    "local/research/post-restore-v1/native-mode0-release-v3/run.log": "2008ca8c038966b79fc5c674099bb3fca13d8616830a692b54a8a51038b84169",
+    "local/research/post-restore-v1/native-mode0-release-v3/image.png.json": "2746a017cb0df383d08df4ef6791f2c339f6dd770b0243eaee5736c9f001dc33",
+    "local/research/post-restore-v1/native-mode0-release-v3/image.png.actors-state.json": "90ede8f3e9087c0434f3efd94bf062f93de1d76b7b9a3599631bf1a3ecff84ab",
+    "local/research/post-restore-v1/native-mode0-release-v3/saves/bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+    "local/research/post-restore-v1/native-mode0-debug-v3/run.json": "927327360be5239d45022af8cad0ebcba05747a8ce07a30152bcfaa02234ac4e",
+    "local/research/post-restore-v1/native-mode0-debug-v3/image.png": "e2981402c0524cd1352a1235a302d5a9a91b5b6aa6e2cc606e0d54e718f31f70",
+    "local/research/post-restore-v1/native-mode0-debug-v3/run.log": "abfb738c6ec259ae78f0538d4a1d1ee37e66d84107c92b49b5dce50f16adc547",
+    "local/research/post-restore-v1/native-mode0-debug-v3/image.png.json": "e7eebe505537336b118179a482b0f1c7ee84155c16ea92de645905418765e0f6",
+    "local/research/post-restore-v1/native-mode0-debug-v3/image.png.actors-state.json": "90ede8f3e9087c0434f3efd94bf062f93de1d76b7b9a3599631bf1a3ecff84ab",
+    "local/research/post-restore-v1/native-mode0-debug-v3/saves/bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+    "local/research/post-restore-v1/native-mode0-sanitize-v3/run.json": "bb57075dcb2e8fdc2d8b1ca638cf714b21ccfc531624011f236846b9b0e8094c",
+    "local/research/post-restore-v1/native-mode0-sanitize-v3/image.png": "e2981402c0524cd1352a1235a302d5a9a91b5b6aa6e2cc606e0d54e718f31f70",
+    "local/research/post-restore-v1/native-mode0-sanitize-v3/run.log": "919fe352dbe5ab5e36567c281fcc44f78e4c374c622046af7b9b0040fc00a967",
+    "local/research/post-restore-v1/native-mode0-sanitize-v3/image.png.json": "3b911c98bd1e8c0d23de1900c12d4b1dac910dda79252c1bd2da235d35fc792b",
+    "local/research/post-restore-v1/native-mode0-sanitize-v3/image.png.actors-state.json": "90ede8f3e9087c0434f3efd94bf062f93de1d76b7b9a3599631bf1a3ecff84ab",
+    "local/research/post-restore-v1/native-mode0-sanitize-v3/saves/bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+    "local/research/post-restore-v1/mode0-release-final-0.log": "e45babd417f298048a9bb5d0fd999bc9960688b2c7f0eeef07b0b05ac2a50c44",
+    "local/research/post-restore-v1/mode0-release-final-1.log": "cc88fdfb41b269d0367a9035e7f5b88df4a0afce1983337831f33cf30564e3b1",
+    "local/research/post-restore-v1/mode0-release-final-2.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/post-restore-v1/mode0-release-final-3.log": "2ca07d08ea5bec9c54eaeada4d3e1658a402b3ad4a290d284e64daf430a6a968",
+    "local/research/post-restore-v1/mode0-debug-final-0.log": "69694acf3fc77e59bc4951c04a6c7fef6310ee3667337c8d573af06ba054acc4",
+    "local/research/post-restore-v1/mode0-debug-final-1.log": "b0d7d75bde65e01a24f35129f16026fbe7121668f360f4457f45a0073c657a90",
+    "local/research/post-restore-v1/mode0-debug-final-2.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/post-restore-v1/mode0-debug-final-3.log": "1c22e071fe4e2e899bd0e37cd2ff7a63badc0de71443dc7837c1f5f13fd441b7",
+    "local/research/post-restore-v1/mode0-sanitize-final-0.log": "82816951a7b4df252e3cd75d37bda07de25a0feb4e73de82a65f7832916c1f9c",
+    "local/research/post-restore-v1/mode0-sanitize-final-1.log": "6cb9cd9e346a66b0a7665054610323d10b1b4ecbba55b56a81a02548c87358d1",
+    "local/research/post-restore-v1/mode0-sanitize-final-2.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/post-restore-v1/mode0-sanitize-final-3.log": "0165fab5ce206ccb359def35e8e01902c89b78ca379d80d501cc27cb49c6a8c8",
+    "local/research/post-restore-v1/mode0-outdoor-interval-v3.json": "ac7a69ec574418813fdd5cd7be5f4302f83b384455496394d4141f05f76344ca",
+    "local/research/post-restore-v1/run-mode0-native.py": "50e39c43ffcca7094daad5a85c8a1ff7c4c4ba1836b9d29311a96dbe6229c6f7",
+    "local/research/post-restore-v1/check-mode0-v2.py": "53fba23a5b0f0f2eaabaa20b93195192c3c28db2e942753962ebc58713caf57c",
+    "local/research/post-restore-v1/mode0-final-checks-v2.json": "da36144e886412d7cf7bf71ce164c48d08f5c6ac64dd9680c66f61d7fbae7972",
+    "local/research/post-restore-v1/checkpoint-audit.json": "0ffb6124116cd17815ddd2b36727945fa8192269d47a0f3afb608a35bbcfccd0",
+    "local/research/post-restore-v1/stan-alpha-review.md": "596c78ef3e0f08029b9f8827beca09d7d9f4f1100e28edab58dde0273247f9f6",
+    "local/research/post-restore-v1/mode0-integration-review.md": "1401d078cc8c426a680ab9df6d3d7424de4aedef06b2f12dc6abb057519e2db7",
+    "local/research/post-restore-v1/actor-cull-review.md": "67121e60c1ec8143ed68d94bdd7978293948c3e92fbb3c6480cae884f9d0ea21",
+    "local/research/post-restore-v1/zero-normal-v1/reproduce.py": "ae4e8b755d508a0716e4ccc8beeddaf87dbf058c08474c4bebde5064e14084fe",
+    "local/research/post-restore-v1/zero-normal-v1/cases.bin": "be4ab2c36e20cb384cf311795b1a9f014c789c4f2aef2ce4540b9391cf93c6c0",
+    "local/research/post-restore-v1/zero-normal-v1/original.bin": "97904e36bc880c1db3506a2ab3556afde047b58e2980f83e6f96f431d963871c",
+    "local/research/post-restore-v1/zero-normal-v1/run.json": "27111574940fe4deebff7f27b2d8a9fe34f57ce257b9cd0d487e7233369fbde0",
+    "local/research/post-restore-v1/mode0-images-v1/commands.json": "0ab90adef687c6b015e4adc65cbfd50f6ad1cc936b1c2f71c2967f347bb8c685",
+    "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "local/game-data-stage-v2/FLDDATA/OBJ/STUN.XPF/a.xmd": "8fc5dd71eac75745bdf12ea774b5f1e744a9c7cf3cf3fa7435741f3904218351",
+    "local/game-data-stage-v2/FLDDATA/OBJ/GRM.XPF/a.xmd": "3a5b81daada47406aef96b4e21a8c04cedb9554ff185483ae62b6fa7a220c289",
+    "src/scene_renderer.mm": "386250575cce1c92b3a929a09224db0f1e8347ba0d5e171ad9e8a6d84f74c026",
+    "src/ordinary_lighting.cpp": "1a1328b5a13f2a1dc298509a9ba8896c8dbd8fc8c3d9de1f808cd2fb8661d7be",
+    "tests/scene_map_material_tests.mm": "fe8ac3fc0e6aebe604d8ca5f67e9658a5694ccdd3b9f3de9e16aff0019eda01d",
+    "tests/ordinary_lighting_tests.cpp": "4fde16b4bc1c26f014794f90da90359e1ce0417562b48c778c9551c83f4f5dc8",
+    "local/research/post-restore-v1/zero-normal-v1/release-final.bin": "97904e36bc880c1db3506a2ab3556afde047b58e2980f83e6f96f431d963871c",
+    "local/research/post-restore-v1/zero-normal-v1/debug-final.bin": "97904e36bc880c1db3506a2ab3556afde047b58e2980f83e6f96f431d963871c",
+    "local/research/post-restore-v1/zero-normal-v1/sanitize-final.bin": "97904e36bc880c1db3506a2ab3556afde047b58e2980f83e6f96f431d963871c",
+    "local/research/post-restore-v1/mode0-images-v1/frame-1140/comparison.json": "55ab7ca0d0187a84946e524175c3d7b93a29160a21c614b237b19af5f9926b91",
+    "local/research/post-restore-v1/mode0-images-v1/before/comparison.json": "4add5bd5f67eada5c65a22cdc2552ac7fd912f4fb5bd754d2ef814c5c557d673",
+    "local/research/post-restore-v1/mode0-images-v1/frame-540/comparison.json": "0424d34dd15865978ef41870dc747d1b010b5911ccb3b84e67920fdb9f4e34bf",
+    "local/research/post-restore-v1/mode0-images-v1/after/comparison.json": "3ea3f7ea853111d2073d873b66f8b0b7d302ae2a47dc5ac3d4c75134b9e8ab63",
+    "local/research/post-restore-v1/mode0-images-v1/frame-240/comparison.json": "f07dc8ae5d4e2f2fc245d7d3533cf408e74d0af4e6cbb2c6ed5a0ee007fbeac3"
+  }
+}

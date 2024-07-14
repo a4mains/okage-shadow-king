@@ -1,0 +1,653 @@
+{
+  "runtime_revision": "c56d06b",
+  "scope": "Ordinary play from a genuine native saved bedroom through first battle.",
+  "runs": {
+    "native-cold-progress-v1": {
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "--game-data",
+        "local/game-data-stage-v2",
+        "--save-directory",
+        "local/research/post-restore-v1/native-cold-progress-v1/saves",
+        "--frames",
+        "40806",
+        "--buttons",
+        "local/research/post-restore-v1/native-cold-progress-v1/buttons.txt",
+        "--directions",
+        "local/research/post-restore-v1/native-cold-progress-v1/directions.txt",
+        "--capture",
+        "local/research/post-restore-v1/native-cold-progress-v1/image.png",
+        "--capture-frames",
+        "6066,9000,14000,18000,21978,22129,26000,30000,34878,35658,37807,39006,40206,40806",
+        "--press",
+        "3790,4085,4868,4988,5108,5229,5348,5469,5589,5708,5828,5948,6068,6189,6308,6428,6549,6668,6788,6908,7029,7148,7573,7693,7814,7933,8053,8173,8293,8413,8533,8653,8768,8888,9008,9129,9248,9368,9489,9608,9728,9848,11262,11468,11588,11708,11828,11948,12068,12398,12758,12878,12998,13118,13238,13358,13478,13598,13718,13838,13958,14198,14318,14438,14558,14798,14918,15289,15808,16028,16148,16268,16388,16508,16628,16748,16868,16988,17618,17828,17948,18069,18189,18728,18938,19058,19179,19298,19418,19538,19659,19778,20348,20617,20677,20738,20797,20857,20917,20977,21038,21097,21157,21218,21277,21337,21398,21457,21517,21577,21637,21698,21757,21817,21877,21937,21997,22597,22657,22717,22777,22837,22898,22957,23017,23538,23707,23767,23827,23887,23947,24007,24067,24128,24187,24247,24308,24367,24427,24487,24547,24607,24667,24728,24787,24847,24907,24967,25028,25087,25147,25207,25267,25327,25387,25447,25508,25567,25627,27758,28218,28389,28448,28508,28568,28628,28689,28748,28809,28883,28942,29003,29243,29888,29948,30008,30082,30143,30202,30262,30322,30368,30428,30488,30548,30608,30669,30728,30788,30849,30908,30968,31028,31268,31517,31696,32215,32361,33128,33488,33548,33608,33668,33788,33848,33968,34028,34148,34208,34268,34328,34448,34508,34628,34688,34748,34808",
+        "--render-range",
+        "21978:22129",
+        "--ui-update-diagnostic",
+        "local/research/post-restore-v1/native-cold-progress-v1/isolated-ui.json",
+        "--battle-live",
+        "local/research/post-restore-v1/native-cold-progress-v1/battle.jsonl"
+      ],
+      "binary_sha256": "756661be99e3f7a46772913fb77366c26c64747f58258a25745a10cd27dbbcf8",
+      "save_before": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+      "input_plan": "Retained ordinary inputs old73295 -> native3726, fixed shift-69569; coldRestore/bedroom-exit plan unchanged. Reuses actionplan, not RNG or captured state. No new original fullinterval comparison.",
+      "exit_code": 1,
+      "seconds": 31.797058125,
+      "save_after": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+    },
+    "native-cold-progress-v2": {
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "--game-data",
+        "local/game-data-stage-v2",
+        "--save-directory",
+        "local/research/post-restore-v1/native-cold-progress-v2/saves",
+        "--frames",
+        "40806",
+        "--buttons",
+        "local/research/post-restore-v1/native-cold-progress-v2/buttons.txt",
+        "--directions",
+        "local/research/post-restore-v1/native-cold-progress-v2/directions.txt",
+        "--capture",
+        "local/research/post-restore-v1/native-cold-progress-v2/image.png",
+        "--capture-frames",
+        "6066,9000,14000,18000,21978,22129,26000,30000,34878,35658,37807,39006,40206,40806",
+        "--press",
+        "3790,4085,4868,4988,5108,5229,5348,5469,5589,5708,5828,5948,6068,6189,6308,6428,6549,6668,6788,6908,7029,7148,7573,7693,7814,7933,8053,8173,8293,8413,8533,8653,8768,8888,9008,9129,9248,9368,9489,9608,9728,9848,11262,11468,11588,11708,11828,11948,12068,12398,12758,12878,12998,13118,13238,13358,13478,13598,13718,13838,13958,14198,14318,14438,14558,14798,14918,15289,15808,16028,16148,16268,16388,16508,16628,16748,16868,16988,17618,17828,17948,18069,18189,18728,18938,19058,19179,19298,19418,19538,19659,19778,20348,20617,20677,20738,20797,20857,20917,20977,21038,21097,21157,21218,21277,21337,21398,21457,21517,21577,21637,21698,21757,21817,21877,21937,21997,22597,22657,22717,22777,22837,22898,22957,23017,23538,23707,23767,23827,23887,23947,24007,24067,24128,24187,24247,24308,24367,24427,24487,24547,24607,24667,24728,24787,24847,24907,24967,25028,25087,25147,25207,25267,25327,25387,25447,25508,25567,25627,27758,28218,28389,28448,28508,28568,28628,28689,28748,28809,28883,28942,29003,29243,29888,29948,30008,30082,30143,30202,30262,30322,30368,30428,30488,30548,30608,30669,30728,30788,30849,30908,30968,31028,31268,31517,31696,32215,32361,33128,33488,33548,33608,33668,33788,33848,33968,34028,34148,34208,34268,34328,34448,34508,34628,34688,34748,34808",
+        "--render-range",
+        "21978:22129",
+        "--ui-update-diagnostic",
+        "local/research/post-restore-v1/native-cold-progress-v2/isolated-ui.json",
+        "--battle-live",
+        "local/research/post-restore-v1/native-cold-progress-v2/battle.jsonl"
+      ],
+      "binary_sha256": "e90850b833fb6a7aefbb4aa9a8505c37c8806fcabef3be8d47396b39cbe58d00",
+      "save_before": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+      "input_plan": "Retained ordinary inputs old73295 -> native3726, fixed shift-69569; coldRestore/bedroom-exit plan unchanged. Reuses actionplan, not RNG or captured state. No new original fullinterval comparison.",
+      "exit_code": 1,
+      "seconds": 78.90595537499999,
+      "save_after": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+    },
+    "native-cold-progress-v3": {
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "--game-data",
+        "local/game-data-stage-v2",
+        "--save-directory",
+        "local/research/post-restore-v1/native-cold-progress-v3/saves",
+        "--frames",
+        "40806",
+        "--buttons",
+        "local/research/post-restore-v1/native-cold-progress-v3/buttons.txt",
+        "--directions",
+        "local/research/post-restore-v1/native-cold-progress-v3/directions.txt",
+        "--capture",
+        "local/research/post-restore-v1/native-cold-progress-v3/image.png",
+        "--capture-frames",
+        "6066,9000,14000,18000,21978,22129,26000,30000,34878,35658,37807,39006,40206,40806",
+        "--press",
+        "3790,4085,4868,4988,5108,5229,5348,5469,5589,5708,5828,5948,6068,6189,6308,6428,6549,6668,6788,6908,7029,7148,7573,7693,7814,7933,8053,8173,8293,8413,8533,8653,8768,8888,9008,9129,9248,9368,9489,9608,9728,9848,11262,11468,11588,11708,11828,11948,12068,12398,12758,12878,12998,13118,13238,13358,13478,13598,13718,13838,13958,14198,14318,14438,14558,14798,14918,15289,15808,16028,16148,16268,16388,16508,16628,16748,16868,16988,17618,17828,17948,18069,18189,18728,18938,19058,19179,19298,19418,19538,19659,19778,20348,20617,20677,20738,20797,20857,20917,20977,21038,21097,21157,21218,21277,21337,21398,21457,21517,21577,21637,21698,21757,21817,21877,21937,21997,22597,22657,22717,22777,22837,22898,22957,23017,23538,23707,23767,23827,23887,23947,24007,24067,24128,24187,24247,24308,24367,24427,24487,24547,24607,24667,24728,24787,24847,24907,24967,25028,25087,25147,25207,25267,25327,25387,25447,25508,25567,25627,27758,28218,28389,28448,28508,28568,28628,28689,28748,28809,28883,28942,29003,29243,29888,29948,30008,30082,30143,30202,30262,30322,30368,30428,30488,30548,30608,30669,30728,30788,30849,30908,30968,31028,31268,31517,31696,32215,32361,33128,33488,33548,33608,33668,33788,33848,33968,34028,34148,34208,34268,34328,34448,34508,34628,34688,34748,34808,35190,35220,35250,35280,35310,35340,35370,35400,35430,35460,35490,35520,35550,35580,35610,35640,35670,35700,35730,35760,35790,35820,35850,35880,35910,35940,35970,36000,36030,36060,36090,36120,36150,36180,36210,36240,36270,36300,36330,36360,36390,36420,36450,36480,36510,36540,36570,36600,36630,36660,36690,36720,36750,36780,36810,36840,36870,36900,36930,36960,36990,37020,37050,37080,37110,37140,37170,37200,37230,37260,37290,37320,37350,37380,37410,37440,37470,37500,37530,37560,37590,37620,37650,37680,37710,37740,37770,37800,37830,37860,37890,37920,37950,37980,38010,38040,38070,38100,38130,38160,38190,38220,38250,38280,38310,38340,38370,38400,38430,38460,38490,38520,38550,38580,38610,38640,38670,38700,38730,38760,38790,38820,38850,38880,38910,38940,38970",
+        "--render-range",
+        "21978:22129",
+        "--ui-update-diagnostic",
+        "local/research/post-restore-v1/native-cold-progress-v3/isolated-ui.json",
+        "--battle-live",
+        "local/research/post-restore-v1/native-cold-progress-v3/battle.jsonl"
+      ],
+      "binary_sha256": "e90850b833fb6a7aefbb4aa9a8505c37c8806fcabef3be8d47396b39cbe58d00",
+      "save_before": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+      "input_plan": "Retained ordinary inputs old73295 -> native3726, fixed shift-69569; coldRestore/bedroom-exit plan unchanged. Field route retains original actionplan; battle uses defaultConfirm every30ticks from35190through38970. No RNG/state injection. No original fullinterval comparison.",
+      "exit_code": 0,
+      "seconds": 55.882981083000004,
+      "save_after": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+    }
+  },
+  "handoff_checks": [
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "build/native-release",
+        "--target",
+        "okage-native",
+        "effect-tests",
+        "scene-resource-tests",
+        "game-mode-tests",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 0.07323400000000001,
+      "log": "local/research/post-restore-v1/field-handoff-release-0.log"
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/native-release",
+        "-R",
+        "^(effect|scene-resource|game-mode)-tests$",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "seconds": 0.391556042,
+      "log": "local/research/post-restore-v1/field-handoff-release-1.log"
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "build/native",
+        "--target",
+        "okage-native",
+        "effect-tests",
+        "scene-resource-tests",
+        "game-mode-tests",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 2.73736775,
+      "log": "local/research/post-restore-v1/field-handoff-debug-0.log"
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/native",
+        "-R",
+        "^(effect|scene-resource|game-mode)-tests$",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "seconds": 0.42495020900000036,
+      "log": "local/research/post-restore-v1/field-handoff-debug-1.log"
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "build/model-sanitize",
+        "--target",
+        "okage-native",
+        "effect-tests",
+        "scene-resource-tests",
+        "game-mode-tests",
+        "-j8"
+      ],
+      "exit_code": 0,
+      "seconds": 2.7366349590000003,
+      "log": "local/research/post-restore-v1/field-handoff-sanitize-0.log"
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/model-sanitize",
+        "-R",
+        "^(effect|scene-resource|game-mode)-tests$",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "seconds": 0.5751374999999994,
+      "log": "local/research/post-restore-v1/field-handoff-sanitize-1.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 22.789223958,
+      "log": "local/research/post-restore-v1/python-final.log"
+    }
+  ],
+  "native_events": {
+    "battle_resource_completed": 34887,
+    "first_active_battle_resource": 34888,
+    "intro_complete": 35189,
+    "battle_root_destroyed": 38237,
+    "battle_wrapper_freed": 38240,
+    "defeat_return": 38241,
+    "game_over_constructed": 38244,
+    "title_constructed": 39130,
+    "unsupported_mode11": 40718
+  },
+  "title_idle_explanation": "src/title.cpp case10 advances tick_counter past1500 into12; fade then requests11. Later Confirm does not substitute for literal Start0x800.",
+  "save_sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+  "artifacts_sha256": {
+    "local/research/post-restore-v1/native-cold-progress-v1/run.json": "1eb8fa5196abeac34da9bff6bb73c91a166459746071aaef19594ffd7959f3d5",
+    "local/research/post-restore-v1/native-cold-progress-v2/run.json": "b26bb3e5b0f95652933f5eaf1bb3519e0c2ffb6e9467cf5c8e4bbfe0bf7c85c3",
+    "local/research/post-restore-v1/field-handoff-checks.json": "a176195ab729054528cd0c1f3795fc740065e77c7b794b57972d6b31fc1290f4",
+    "local/research/post-restore-v1/run-cold-progress-v1.py": "ef2f373a18d53474b81220f668f6231fd680a9bca11e84c46271eafc8787f816",
+    "local/research/post-restore-v1/run-cold-progress-v2.py": "642d9ec2bf90043a96758dba154afaea4aac67505b32ce4757b07e4a8cd811e9",
+    "local/research/post-restore-v1/native-cold-progress-v2/battle.jsonl": "66b07adf1b1a2a2f8435c42b40bc7e972e6b749c16662e571a9831a7c5c4f8d2",
+    "local/research/post-restore-v1/native-cold-progress-v2/run.log": "1053cbcd9b980bc55f3c12e63fe81df71dfbe4c188aa7d78404f11dc666dad1f",
+    "local/research/post-restore-v1/native-cold-progress-v2/buttons.txt": "b5da99d2e21c63b9ee4b16aa2b783a42b23429c89e4b029f44d5d5a51689366d",
+    "local/research/post-restore-v1/native-cold-progress-v2/directions.txt": "1c58c00adee2dea540e2f5abfab2f177e00753459ce62b163a4fc9296c53ec45",
+    "local/research/post-restore-v1/run-cold-progress-v3.py": "a8067ae0c3f0e0a25db865622fe33287ca1077919e3afade33757189c9ade23c",
+    "local/research/post-restore-v1/native-cold-progress-v3/run.json": "8e6e8fbbcf522f18e2214c4a520dd81988c293d1f287254be050e8b2508bddb1",
+    "local/research/post-restore-v1/native-cold-progress-v3/run.log": "880fbe66da4f7d6c66a3bcc997b5d103ed83f59b65cd1c8880582e9843402481",
+    "local/research/post-restore-v1/native-cold-progress-v3/buttons.txt": "75723cbd880ea03a237bb25ce80dc23d7961043a0dfde5914a69f9da14380306",
+    "local/research/post-restore-v1/native-cold-progress-v3/directions.txt": "1c58c00adee2dea540e2f5abfab2f177e00753459ce62b163a4fc9296c53ec45",
+    "local/research/post-restore-v1/native-cold-progress-v3/battle.jsonl": "edae07c98b20981b435d45acf0ae013389b7c36f1452622ef91049ce5a14c094",
+    "local/research/post-restore-v1/native-cold-progress-v3/image.png": "e85e8ef5969d5d0c9e7913df0e68d62aa978bc87e2005a9f7dc1c3e903b6c57e",
+    "local/research/post-restore-v1/native-cold-progress-v3/image.png.json": "171b5cdca3e505bd98bdc14132920a4046e12498f63c8fef1a944b6f4592e9c0",
+    "local/research/post-restore-v1/native-cold-progress-v3/image.png.results.bin": "021521d133c830d017b8edfcb2b23a65b485a349f330c13e9d43b3abbcd579b6",
+    "local/research/post-restore-v1/native-cold-progress-v3/image.png.variables.bin": "3b02e6526b0e6586b937a24d6d4ed1a97d08f9eb4f2347ac0ab4aed514dbdc07",
+    "local/research/post-restore-v1/native-cold-progress-v3/saves/bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+    "local/research/post-restore-v1/cold-battle-input-review.json": "547520f5a29c08ef3d6ca653eeb720f62f153b63b94425b6dbe613158d7702e3",
+    "src/native_runtime.mm": "52c02b95a0844e0bbeed28eeabe277963f8b3fa4131a61993865cbf3af41eb28",
+    "src/effect.cpp": "c2fc47fb2c8296a73a0a020863673a5352d590d481b3745ef8ce6ee161e7b536",
+    "src/field.cpp": "ad4612caec33ea75a3ecff30b30a1fa0c47dbda8cf50465241f037053e0bd7a1",
+    "src/title.cpp": "224491253d4fa53eebfaa20d0b5a45607942dd822c7d7202464772a5f56d386a",
+    "local/research/post-restore-v1/field-handoff-release-0.log": "6559a48815e31a808c820e411b329ee934d6de378801a194563188e5042b82a0",
+    "local/research/post-restore-v1/field-handoff-release-1.log": "5ef53d5c08f4b4c7789d374231574da9e30f1ee113dec9c986e02fd7bac76ef1",
+    "local/research/post-restore-v1/field-handoff-debug-0.log": "5237bd86657ae25716e6445b730cdeef8001891848ebc6d5b43699192293266c",
+    "local/research/post-restore-v1/field-handoff-debug-1.log": "f15f857de23b331507f35e08877710819aa0d724e3d532eff751b8343cea129f",
+    "local/research/post-restore-v1/field-handoff-sanitize-0.log": "5237bd86657ae25716e6445b730cdeef8001891848ebc6d5b43699192293266c",
+    "local/research/post-restore-v1/field-handoff-sanitize-1.log": "6c2e39898a1de66ad737397edae7b19a4a725fcc7f71ae612b47e1809a676622",
+    "local/research/post-restore-v1/python-final.log": "6638a3732b0d9cc055c98b8e1feb011b27bdd2c4ad3f8e920e3906e991f06a2e"
+  },
+  "native_events_v3": {
+    "battle_resource_completed": 34885,
+    "first_active_battle_resource": 34886,
+    "intro_complete": 35187,
+    "battle_root_destroyed": 38145,
+    "battle_wrapper_freed": 38148,
+    "victory_return_queued": 38149,
+    "results_constructed": 38165,
+    "field_restored": 38794,
+    "endpoint": 40806,
+    "scene": 96,
+    "event_pc": "0x604",
+    "message_id": 14902
+  },
+  "limitations": [
+    "Only Release executes the longer cold-save battle route. Three builds execute short outdoor route and affected component tests.",
+    "Cold startup readiness and RNG differ between runs; v2/v3 are not a controlled input-only A/B experiment.",
+    "New input plan uses ordinary Confirm every30ticks; no seed, hit, HP, story flag or outcome modification.",
+    "Original fullinterval comparison covers the earlier outdoor interval, not the entire long continuation.",
+    "No new save was made after victory; further-progress persistence still requires testing.",
+    "Mode11 title idle remains unsupported; prior v2 reaches it and exits1."
+  ],
+  "battle_input_audit": {
+    "schema": "okage-cold-battle-input-review-v1",
+    "scope": "Read-only audit of one native cold-Restore battle attempt.",
+    "artifacts": {
+      "run": {
+        "path": "local/research/post-restore-v1/native-cold-progress-v2/run.json",
+        "sha256": "b26bb3e5b0f95652933f5eaf1bb3519e0c2ffb6e9467cf5c8e4bbfe0bf7c85c3"
+      },
+      "log": {
+        "path": "local/research/post-restore-v1/native-cold-progress-v2/run.log",
+        "sha256": "1053cbcd9b980bc55f3c12e63fe81df71dfbe4c188aa7d78404f11dc666dad1f"
+      },
+      "buttons": {
+        "path": "local/research/post-restore-v1/native-cold-progress-v2/buttons.txt",
+        "sha256": "b5da99d2e21c63b9ee4b16aa2b783a42b23429c89e4b029f44d5d5a51689366d"
+      },
+      "directions": {
+        "path": "local/research/post-restore-v1/native-cold-progress-v2/directions.txt",
+        "sha256": "1c58c00adee2dea540e2f5abfab2f177e00753459ce62b163a4fc9296c53ec45"
+      },
+      "battle_trace": {
+        "path": "local/research/post-restore-v1/native-cold-progress-v2/battle.jsonl",
+        "sha256": "66b07adf1b1a2a2f8435c42b40bc7e972e6b749c16662e571a9831a7c5c4f8d2",
+        "bytes": 407029396,
+        "rows": {
+          "ui_callback": 13400,
+          "parent_or_roster_callback": 16286,
+          "rng_boundary": 10080
+        }
+      }
+    },
+    "execution": {
+      "binary_sha256": "e90850b833fb6a7aefbb4aa9a8505c37c8806fcabef3be8d47396b39cbe58d00",
+      "exit_code": 1,
+      "native_frames_requested": 40806,
+      "battle_resource_complete_frame": 34887,
+      "intro_complete_frame": 35189,
+      "battle_root_destroyed_frame": 38237,
+      "defeat_return_requested": {
+        "frame": 38241,
+        "mode": 8,
+        "arg": 4
+      },
+      "game_over_requested": {
+        "frame": 39127,
+        "mode": 8,
+        "arg": 1
+      },
+      "title_constructed_frame": 39130,
+      "title_task_destroyed_frame": 40716,
+      "unimplemented_mode11_guard": {
+        "frame": 40718,
+        "arg": 0,
+        "game_command": 0
+      },
+      "saved_game_hash_before_after": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+    },
+    "battle_state_observations": {
+      "first_nonempty_enemy_formation": {
+        "frame": 35658,
+        "group_count": 2,
+        "group_ids": [
+          0,
+          1
+        ],
+        "enemy_counts_per_group": [
+          2,
+          1
+        ]
+      },
+      "enemy_group_progression": [
+        {
+          "frame": 36257,
+          "group_count": 2,
+          "group_ids": [
+            0,
+            1
+          ],
+          "enemy_counts_per_group": [
+            1,
+            1
+          ]
+        },
+        {
+          "frame": 36979,
+          "group_count": 1,
+          "group_ids": [
+            1
+          ],
+          "enemy_counts_per_group": [
+            1
+          ]
+        }
+      ],
+      "final_observation": {
+        "frame": 38236,
+        "remaining_group_ids": [
+          1
+        ],
+        "enemy_counts_per_group": [
+          1
+        ],
+        "pending_action": [
+          0,
+          1,
+          0
+        ]
+      },
+      "hp_and_damage": {
+        "available": false,
+        "reason": "battle-live rows expose target-group occupancy, not current/max HP or damage receipts; the retained HUD snapshot is not live combat HP."
+      },
+      "loss_cause": {
+        "available": false,
+        "reason": "run.log establishes the defeat-return path, but retained observations do not identify party HP, damage source, or exact defeat frame. The last battle observation still has one enemy in group1."
+      },
+      "interpretation": "The two enemies in group0 disappear over the first two menu/action windows; group1 remains. This is evidence of gameplay progress, but does not bind a particular enemy disappearance to an individual confirm edge."
+    },
+    "input_and_menu_evidence": {
+      "control": "buttons.txt uses mask 0x40 for the confirmation edge used by the real battle UI. Each listed pulse is consumed by ui_callback normalized_masks.pressed; the UI advances, so these are not merely requested-but-unobserved inputs.",
+      "observed_sequences": [
+        {
+          "menu_lifecycle_frames": [
+            35259,
+            35758
+          ],
+          "confirm_frames": [
+            35658,
+            35717,
+            35747
+          ],
+          "enemy_counts_before_after": [
+            [
+              2,
+              1
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "observation": "The source-backed command menu is active between these parent callbacks. 35658 opens the UI, 35717 advances to menu state5 with target_count2; 35747 is another confirm while target selection animates. By the next menu entry, group0 drops from2 to1."
+        },
+        {
+          "menu_lifecycle_frames": [
+            36243,
+            36358
+          ],
+          "confirm_frames": [
+            36257,
+            36318,
+            36347
+          ],
+          "enemy_counts_before_after": [
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "observation": "A second command-menu lifecycle returns to combat. Group0 later reaches0 before the next lifecycle; exact hit-to-frame attribution is not captured."
+        },
+        {
+          "menu_lifecycle_frames": [
+            36874,
+            37079
+          ],
+          "confirm_frames": [
+            36977,
+            37037,
+            37068
+          ],
+          "enemy_counts_before_after": [
+            [
+              1
+            ],
+            [
+              1
+            ]
+          ],
+          "observation": "The target set is now only group1. pending_action becomes [0,1,0] at37038, and the parent menu returns to combat at37079."
+        },
+        {
+          "menu_lifecycle_frames": [
+            37664,
+            37799
+          ],
+          "confirm_frames": [
+            37697,
+            37758,
+            37788
+          ],
+          "enemy_counts_before_after": [
+            [
+              1
+            ],
+            [
+              1
+            ]
+          ],
+          "observation": "A fourth command-menu lifecycle returns to combat, but the last captured enemy-group occupancy is still one in group1."
+        }
+      ],
+      "pending_action_interpretation": "In src/battle_interface_update.cpp, option0 prepares [option, formation.groups[target], targetIndex]; [0,1,0] is option0 aimed at group1. src/battle_session.mm copies this descriptor to the selected actor when the command-menu layer returns command4. The trace shows command-menu lifecycles and group0 occupancy falling 2\u21921\u21920, but lacks a per-action damage receipt, so it cannot prove which input pulse caused each kill.",
+      "later_pulses": "Further confirmation pulses occur at 37697, 37758, 37788 and after the title has begun. The battle UI already retains [0,1,0]; do not count these as additional distinct successful attacks without a fresh command transition/action receipt.",
+      "cause_of_mode11": "Do not attribute mode11 at40718 to the late Cross pulses. Root source review establishes title case10 counter>1500 -> case12 fade -> mode11; this is the idle attract transition. Source Start uses mask0x800, and Cross is ignored in the press-Start state."
+    },
+    "recommendation_for_next_ordinary_input_trial": {
+      "plan": "Replace the fixed repeated submenu script with sparse, state-gated confirmation pulses during battle only: wait until intro ends and command UI is observably active; send one fresh confirm edge to select default Attack, wait for target_count/state5, send one edge to accept the sole enemy target, then wait for the UI to return to combat and a fresh command opportunity before repeating. Keep each pulse short and separated by release frames. Stop battle inputs once the root returns to defeat/menu/title.",
+      "why": "The trace shows enemy group0 occupancy fall from2 to1 to0 across the first two command windows; the last group1 enemy remains through the final observation and the native takes the defeat-return path. The retained plan repeats fixed taps during long selection fades and keeps sending buttons through the title. A state-gated loop should preserve the observed early progress and avoid treating stale title pulses as battle input.",
+      "limits": "No claim this alone wins: HP/damage, enemy turn attribution, and per-action completion are not captured. Add/inspect a live HP/action receipt observation before interpreting an outcome as an accepted hit or tuning combat strategy.",
+      "status": "Superseded for immediate play strategy by native_cold_progress_v3, which wins and restores scene96. The v3 run uses the real repeated-confirm schedule; future comparison must account for its different battle-entry RNG state."
+    },
+    "source_paths_consulted": [
+      "src/battle_interface_update.cpp",
+      "src/battle_session.mm"
+    ],
+    "native_cold_progress_v3": {
+      "scope": "Bounded follow-up using the final ordinary-confirm-tap replay.",
+      "artifacts": {
+        "run": {
+          "path": "local/research/post-restore-v1/native-cold-progress-v3/run.json",
+          "sha256": "8e6e8fbbcf522f18e2214c4a520dd81988c293d1f287254be050e8b2508bddb1"
+        },
+        "log": {
+          "path": "local/research/post-restore-v1/native-cold-progress-v3/run.log",
+          "sha256": "880fbe66da4f7d6c66a3bcc997b5d103ed83f59b65cd1c8880582e9843402481"
+        },
+        "buttons": {
+          "path": "local/research/post-restore-v1/native-cold-progress-v3/buttons.txt",
+          "sha256": "75723cbd880ea03a237bb25ce80dc23d7961043a0dfde5914a69f9da14380306"
+        },
+        "directions": {
+          "path": "local/research/post-restore-v1/native-cold-progress-v3/directions.txt",
+          "sha256": "1c58c00adee2dea540e2f5abfab2f177e00753459ce62b163a4fc9296c53ec45"
+        },
+        "battle_trace": {
+          "path": "local/research/post-restore-v1/native-cold-progress-v3/battle.jsonl",
+          "sha256": "edae07c98b20981b435d45acf0ae013389b7c36f1452622ef91049ce5a14c094",
+          "bytes": 449540194,
+          "rows": {
+            "ui_callback": 13040,
+            "parent_or_roster_callback": 18078,
+            "rng_boundary": 9804,
+            "finish": 1
+          }
+        }
+      },
+      "execution": {
+        "binary_sha256": "e90850b833fb6a7aefbb4aa9a8505c37c8806fcabef3be8d47396b39cbe58d00",
+        "exit_code": 0,
+        "save_before_after": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "intro_complete_frame": 35187,
+        "battle_root_destroyed_frame": 38145,
+        "victory_return_queued_scene96_frame": 38149,
+        "results_constructed_frame": 38165,
+        "saved_field_scene96_restored_frame": 38794,
+        "endpoint_frame": 40806,
+        "endpoint_field_event_pc": "0x604"
+      },
+      "battle_observations": {
+        "enemy_formation_progression": [
+          {
+            "frame": 34886,
+            "group_ids": [
+              0,
+              1
+            ],
+            "enemy_counts_per_group": [
+              2,
+              1
+            ]
+          },
+          {
+            "frame": 35532,
+            "group_ids": [
+              0,
+              1
+            ],
+            "enemy_counts_per_group": [
+              1,
+              1
+            ]
+          },
+          {
+            "frame": 36133,
+            "group_ids": [
+              1
+            ],
+            "enemy_counts_per_group": [
+              1
+            ]
+          },
+          {
+            "frame": 37492,
+            "group_ids": [],
+            "enemy_counts_per_group": []
+          }
+        ],
+        "command_menu_lifecycles": [
+          {
+            "enter_frame": 35224,
+            "return_to_combat_frame": 35321
+          },
+          {
+            "enter_frame": 35806,
+            "return_to_combat_frame": 35891
+          },
+          {
+            "enter_frame": 36407,
+            "return_to_combat_frame": 36491
+          },
+          {
+            "enter_frame": 37076,
+            "return_to_combat_frame": 37181
+          }
+        ],
+        "victory_path": "Enemy-group occupancy reaches zero at37492; parent enters the victory callback at37494, then queues scene96 and restores it. The retained trace contains no HP/damage receipt to attribute the final enemy defeat to a particular tap or actor.",
+        "input_schedule": "The run command requested confirmation presses every30 ticks from35190 through38970 (127 scheduled edges). Battle UI trace shows presses normalized as confirmation. This continues after battle root destruction38145; 28 scheduled presses remain afterward, including six after saved field restoration at38794. The run still completes with exit0; no save bytes changed."
+      },
+      "comparison_limitations": {
+        "rng_boundary_v2_frame34879": 3728734788,
+        "rng_boundary_v3_frame34879": 2472684673,
+        "causal_claim": "The runs share the binary and save payload but have different PRNG states at battle entry. The v3 win therefore proves this real cold-start replay completes a battle with the recorded ordinary input schedule; it does not isolate confirmation cadence as the sole cause of the difference from v2.",
+        "hp_and_defeat_cause": "Still unobserved in these traces; v2 defeat ended with group1 occupancy1, but no party HP or damage source was captured."
+      }
+    },
+    "v2_disposition": "Retained v2 battle ends along defeat path with one group1 enemy still alive; group0 occupancy falls2\u21921\u21920 over the earlier action windows."
+  },
+  "results_trace_v3": {
+    "record_words": 16,
+    "records": 645,
+    "first": [
+      38149,
+      18,
+      0,
+      0,
+      1,
+      1,
+      4294967295,
+      4294967295,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1000,
+      3100961315
+    ],
+    "last": [
+      38793,
+      18,
+      3,
+      1,
+      645,
+      0,
+      4294967294,
+      11,
+      1,
+      2,
+      0,
+      363,
+      14,
+      14,
+      1014,
+      3611918467
+    ],
+    "money_bank4_index3_first": 1000,
+    "money_bank4_index3_last": 1014,
+    "reward_display_last": 14,
+    "money_display_last": 14
+  }
+}
