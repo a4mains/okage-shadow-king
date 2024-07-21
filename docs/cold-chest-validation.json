@@ -1,0 +1,1209 @@
+{
+  "schema": "okage-cold-chest-save-validation-v1",
+  "date": "2024-07-21",
+  "runtime_revision": "258448d",
+  "headless_verifier_revision": "862679b",
+  "acceptance_met": false,
+  "scope": "Native cold Save restore, first victory/chest, ordinary return home, new File2 Save, separate cold Restore and movement.",
+  "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "source_iop_RXSNDDRV_sha256": "7fe8b5a33c2f8700d1f964cf5ce2f66942f8f97d952e86e6dc0ad5d4f74becb2",
+  "source_files": [
+    {
+      "path": "src/native_runtime.mm",
+      "bytes": 186727,
+      "sha256": "7d04117e6dc54585b890fb2a2cb598c696cf47c2bed92ef42445cb30c5869ca6"
+    },
+    {
+      "path": "src/field.cpp",
+      "bytes": 80313,
+      "sha256": "4ee13866523b87b1a9bff90c29c9e79778d0e1d41093e3be3681f4f5fda14d8d"
+    },
+    {
+      "path": "include/okage/headless_control.hpp",
+      "bytes": 1782,
+      "sha256": "6b55c6ea619bc84bcc087820e62747ba8a384db2f679161eb10282aa1caa9331"
+    },
+    {
+      "path": "tools/verify_headless_control.py",
+      "bytes": 9026,
+      "sha256": "69ee70401f462932eb598a81d915aaeed06177e68bd91273dfabddfa99b08029"
+    },
+    {
+      "path": "src/save_store.cpp",
+      "bytes": 10266,
+      "sha256": "161e4f6f899efde267cfe1aa27127c135b7bd43b0c00bf67912f1ff9d6f75a59"
+    }
+  ],
+  "research_notes": [
+    {
+      "path": "local/research/cold-chest-v1/sound-stop-review.md",
+      "bytes": 8670,
+      "sha256": "d65eb1d0d099582cbdecd91f9e963595d4db8f1b44981b9aa349b937d7c8bb69"
+    },
+    {
+      "path": "local/research/cold-chest-v1/route-evidence-v2.json",
+      "bytes": 33135,
+      "sha256": "eecf1191bfae7e098239ca5d12bf9ca6d8997aced9c373521a589850e09a518d"
+    },
+    {
+      "path": "local/research/post-restore-v1/route-contact-review.md",
+      "bytes": 5929,
+      "sha256": "7970c4135bb786549c4b659cff8557d8349a7ffae1262c9809d1a733a414f16a"
+    },
+    {
+      "path": "local/research/post-restore-v1/field1d-topdown/field1d-topdown.json",
+      "bytes": 2156,
+      "sha256": "824336eca942e4d8577c8dac3c87579dfd7851024993ee79bb38bcb4c479f610"
+    },
+    {
+      "path": "local/research/cold-chest-v1/next-story-review.md",
+      "bytes": 4115,
+      "sha256": "3110dee0532eb8a4f44c4c86cf3867f2fb3c2ce59ffe7525ed9b9522d058c7d0"
+    }
+  ],
+  "runs": {
+    "native-v1": {
+      "metadata": {
+        "path": "local/research/cold-chest-v1/native-v1/run.json",
+        "bytes": 3507,
+        "sha256": "f10866a0c10e7793702f3bb7d81a214dccec1dac58d1d7c58f5e1afd77778555"
+      },
+      "result": {
+        "binary_sha256": "e90850b833fb6a7aefbb4aa9a8505c37c8806fcabef3be8d47396b39cbe58d00",
+        "save_before": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "input_plan": "Cold-save-v3 ordinary history preserved; append Confirm40926..455... every120ticks to advance postbattle dialogue. No source RAM/save or state injection.",
+        "exit_code": 0,
+        "seconds": 56.470524792,
+        "save_after": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+      },
+      "command": {
+        "retained_in": "local/research/cold-chest-v1/native-v1/run.json"
+      },
+      "run.log": {
+        "path": "local/research/cold-chest-v1/native-v1/run.log",
+        "bytes": 3082,
+        "sha256": "c4c36659beb22c22eaa012067f2e9f3da25963ede35cfbe5f333824c4bcb84b5"
+      },
+      "buttons.txt": {
+        "path": "local/research/cold-chest-v1/native-v1/buttons.txt",
+        "bytes": 100,
+        "sha256": "75723cbd880ea03a237bb25ce80dc23d7961043a0dfde5914a69f9da14380306"
+      },
+      "directions.txt": {
+        "path": "local/research/cold-chest-v1/native-v1/directions.txt",
+        "bytes": 3163,
+        "sha256": "1c58c00adee2dea540e2f5abfab2f177e00753459ce62b163a4fc9296c53ec45"
+      }
+    },
+    "native-v2": {
+      "metadata": {
+        "path": "local/research/cold-chest-v1/native-v2/run.json",
+        "bytes": 3558,
+        "sha256": "72c55da0b1577a603b95a29b14040d66e457fd9bf4398b83dec20a8ebca52a58"
+      },
+      "result": {
+        "binary_sha256": "e90850b833fb6a7aefbb4aa9a8505c37c8806fcabef3be8d47396b39cbe58d00",
+        "save_before": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "input_plan": "Cold-chest-v1 ordinary history preserved; append Down45630..45749 to walk toward foreground exit; inferred ordinary movement plan, not reference-aligned. No source RAM/save or state injection.",
+        "exit_code": 0,
+        "seconds": 57.066629999999996,
+        "save_after": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+      },
+      "command": {
+        "retained_in": "local/research/cold-chest-v1/native-v2/run.json"
+      },
+      "run.log": {
+        "path": "local/research/cold-chest-v1/native-v2/run.log",
+        "bytes": 3082,
+        "sha256": "f9ef48c5e1d4d51964a0af34680094b87733064e77b631167d18550991895999"
+      },
+      "buttons.txt": {
+        "path": "local/research/cold-chest-v1/native-v2/buttons.txt",
+        "bytes": 100,
+        "sha256": "75723cbd880ea03a237bb25ce80dc23d7961043a0dfde5914a69f9da14380306"
+      },
+      "directions.txt": {
+        "path": "local/research/cold-chest-v1/native-v2/directions.txt",
+        "bytes": 3185,
+        "sha256": "481173c339f16325e9780d6ae40219775213cb7e9d8f7526b2e5864d8480fe66"
+      }
+    },
+    "native-v3": {
+      "metadata": {
+        "path": "local/research/cold-chest-v1/native-v3/run.json",
+        "bytes": 3548,
+        "sha256": "fe082e9f5db02e8f26c8eed774af0b4b22583cee4e5c6b5e4a40b713b74b9987"
+      },
+      "result": {
+        "binary_sha256": "e90850b833fb6a7aefbb4aa9a8505c37c8806fcabef3be8d47396b39cbe58d00",
+        "save_before": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "input_plan": "Cold-chest-v2 preserved; Confirm46230..47310 every120ticks at the observed exit contact bubble. No source RAM/save or state injection.",
+        "exit_code": 0,
+        "seconds": 57.506002791,
+        "save_after": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+      },
+      "command": {
+        "retained_in": "local/research/cold-chest-v1/native-v3/run.json"
+      },
+      "run.log": {
+        "path": "local/research/cold-chest-v1/native-v3/run.log",
+        "bytes": 3342,
+        "sha256": "d92e4444a6f7d62106449c14895b795de5737921cd6e588ea0afc456b58e0195"
+      },
+      "buttons.txt": {
+        "path": "local/research/cold-chest-v1/native-v3/buttons.txt",
+        "bytes": 100,
+        "sha256": "75723cbd880ea03a237bb25ce80dc23d7961043a0dfde5914a69f9da14380306"
+      },
+      "directions.txt": {
+        "path": "local/research/cold-chest-v1/native-v3/directions.txt",
+        "bytes": 3185,
+        "sha256": "481173c339f16325e9780d6ae40219775213cb7e9d8f7526b2e5864d8480fe66"
+      }
+    },
+    "control-native-v1": {
+      "metadata": {
+        "path": "local/research/cold-chest-v1/control-native-v1/run.json",
+        "bytes": 3877,
+        "sha256": "c15e2dcab79addef6964dbb493efdba5a528296e8eca5682e4d754ad8235c1af"
+      },
+      "result": {
+        "binary_sha256": "d296dab4e07e038a9636aa65541de28886cc664cb889d2f861bb95e507a6686b",
+        "save_before": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "input_plan": "Cold chest v2 + single Confirm46230; stop46326 in stairwell; retain native Session for ordinary controller steps only.",
+        "exit_code": 0,
+        "exit_observed_via": "exec session68322 terminal0",
+        "endpoint_frame": 46576,
+        "endpoint_scene": 97,
+        "endpoint_event_pc": "0xb4",
+        "pending_opcode": "0x67",
+        "scope": "Controlled native Session from genuine native Save; stopped at unsupported authored stream-stop command.",
+        "save_after": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+      },
+      "command": {
+        "retained_in": "local/research/cold-chest-v1/control-native-v1/run.json"
+      },
+      "buttons.txt": {
+        "path": "local/research/cold-chest-v1/control-native-v1/buttons.txt",
+        "bytes": 100,
+        "sha256": "75723cbd880ea03a237bb25ce80dc23d7961043a0dfde5914a69f9da14380306"
+      },
+      "directions.txt": {
+        "path": "local/research/cold-chest-v1/control-native-v1/directions.txt",
+        "bytes": 3185,
+        "sha256": "481173c339f16325e9780d6ae40219775213cb7e9d8f7526b2e5864d8480fe66"
+      },
+      "commands.txt": {
+        "path": "local/research/cold-chest-v1/control-native-v1/control/commands.txt",
+        "bytes": 489,
+        "sha256": "204fe83f53e3e5c998d494e39269156852631c826c4282f6de13010ca3437827"
+      },
+      "inputs.jsonl": {
+        "path": "local/research/cold-chest-v1/control-native-v1/control/inputs.jsonl",
+        "bytes": 4557101,
+        "sha256": "454779365d0670e47d73a78da3400f11e625bce47d56b14a3b30588bb72ced2c"
+      }
+    },
+    "control-native-v2": {
+      "metadata": {
+        "path": "local/research/cold-chest-v1/control-native-v2/run.json",
+        "bytes": 3619,
+        "sha256": "45f27aea51f57cae9ad9879e294424201767fdcc65cc7269cd598bd92f8a787a"
+      },
+      "result": {
+        "binary_sha256": "2320110b532cc42b0c313f83729c97f3b9f8f1272251b1e7ef5dab87ff5af3a0",
+        "save_before": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "scope": "Native coldsave + retained ordinary controls; globalstreamstopintegration.",
+        "exit_code": 1,
+        "seconds_including_control_waits": 2027.5913942089999,
+        "save_after": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+      },
+      "command": {
+        "retained_in": "local/research/cold-chest-v1/control-native-v2/run.json"
+      },
+      "run.log": {
+        "path": "local/research/cold-chest-v1/control-native-v2/run.log",
+        "bytes": 21452,
+        "sha256": "627a2464299be50dbbb2aacf254b453c20329aef48d315697ec69c3cdb2feb0c"
+      },
+      "buttons.txt": {
+        "path": "local/research/cold-chest-v1/control-native-v2/buttons.txt",
+        "bytes": 100,
+        "sha256": "75723cbd880ea03a237bb25ce80dc23d7961043a0dfde5914a69f9da14380306"
+      },
+      "directions.txt": {
+        "path": "local/research/cold-chest-v1/control-native-v2/directions.txt",
+        "bytes": 3185,
+        "sha256": "481173c339f16325e9780d6ae40219775213cb7e9d8f7526b2e5864d8480fe66"
+      },
+      "commands.txt": {
+        "path": "local/research/cold-chest-v1/control-native-v2/control/commands.txt",
+        "bytes": 5531,
+        "sha256": "84443b3e250567263296c1418ae82d8ecc631b751d55b1be9caa5d2080a83c32"
+      },
+      "inputs.jsonl": {
+        "path": "local/research/cold-chest-v1/control-native-v2/control/inputs.jsonl",
+        "bytes": 5324045,
+        "sha256": "c450ca3c958cdc153bd432e3ed903debf4d31976d9296b921c0e771509395b3a"
+      }
+    },
+    "control-native-v3": {
+      "metadata": {
+        "path": "local/research/cold-chest-v1/control-native-v3/run.json",
+        "bytes": 3800,
+        "sha256": "ec3b7b03061824b11daa1aa93b6ebf8c4b2055a5e352c8c90fc3e90a8d28e64f"
+      },
+      "result": {
+        "binary_sha256": "917759826d24ca5c8afed534604fb9f4409542f440bcd22b1cf3a259b2b0f1b3",
+        "save_before": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "replayed_commands_sha256": "908f465dad4da78cb6aae9ac383899cef05136192746e0e3e125c5a262fb2554",
+        "scope": "Fresh native coldsave, v2 ordinary step commands through54018, extraDown selectingSave; prior captures omitted, no serializedstate.",
+        "exit_code": 0,
+        "seconds_including_control_waits": 264.627298667,
+        "save_after": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+      },
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "--game-data",
+        "local/game-data-stage-v2",
+        "--save-directory",
+        "local/research/cold-chest-v1/control-native-v3/saves",
+        "--frames",
+        "46326",
+        "--buttons",
+        "local/research/cold-chest-v1/control-native-v3/buttons.txt",
+        "--directions",
+        "local/research/cold-chest-v1/control-native-v3/directions.txt",
+        "--capture",
+        "local/research/cold-chest-v1/control-native-v3/prelude.png",
+        "--capture-frames",
+        "45606,46206,46326",
+        "--press",
+        "3790,4085,4868,4988,5108,5229,5348,5469,5589,5708,5828,5948,6068,6189,6308,6428,6549,6668,6788,6908,7029,7148,7573,7693,7814,7933,8053,8173,8293,8413,8533,8653,8768,8888,9008,9129,9248,9368,9489,9608,9728,9848,11262,11468,11588,11708,11828,11948,12068,12398,12758,12878,12998,13118,13238,13358,13478,13598,13718,13838,13958,14198,14318,14438,14558,14798,14918,15289,15808,16028,16148,16268,16388,16508,16628,16748,16868,16988,17618,17828,17948,18069,18189,18728,18938,19058,19179,19298,19418,19538,19659,19778,20348,20617,20677,20738,20797,20857,20917,20977,21038,21097,21157,21218,21277,21337,21398,21457,21517,21577,21637,21698,21757,21817,21877,21937,21997,22597,22657,22717,22777,22837,22898,22957,23017,23538,23707,23767,23827,23887,23947,24007,24067,24128,24187,24247,24308,24367,24427,24487,24547,24607,24667,24728,24787,24847,24907,24967,25028,25087,25147,25207,25267,25327,25387,25447,25508,25567,25627,27758,28218,28389,28448,28508,28568,28628,28689,28748,28809,28883,28942,29003,29243,29888,29948,30008,30082,30143,30202,30262,30322,30368,30428,30488,30548,30608,30669,30728,30788,30849,30908,30968,31028,31268,31517,31696,32215,32361,33128,33488,33548,33608,33668,33788,33848,33968,34028,34148,34208,34268,34328,34448,34508,34628,34688,34748,34808,35190,35220,35250,35280,35310,35340,35370,35400,35430,35460,35490,35520,35550,35580,35610,35640,35670,35700,35730,35760,35790,35820,35850,35880,35910,35940,35970,36000,36030,36060,36090,36120,36150,36180,36210,36240,36270,36300,36330,36360,36390,36420,36450,36480,36510,36540,36570,36600,36630,36660,36690,36720,36750,36780,36810,36840,36870,36900,36930,36960,36990,37020,37050,37080,37110,37140,37170,37200,37230,37260,37290,37320,37350,37380,37410,37440,37470,37500,37530,37560,37590,37620,37650,37680,37710,37740,37770,37800,37830,37860,37890,37920,37950,37980,38010,38040,38070,38100,38130,38160,38190,38220,38250,38280,38310,38340,38370,38400,38430,38460,38490,38520,38550,38580,38610,38640,38670,38700,38730,38760,38790,38820,38850,38880,38910,38940,38970,40926,41046,41166,41286,41406,41526,41646,41766,41886,42006,42126,42246,42366,42486,42606,42726,42846,42966,43086,43206,43326,43446,43566,43686,43806,43926,44046,44166,44286,44406,44526,44646,44766,44886,45006,45126,45246,45366,45486,46230",
+        "--render-range",
+        "21978:22129",
+        "--ui-update-diagnostic",
+        "local/research/cold-chest-v1/control-native-v3/isolated-ui.json",
+        "--battle-live",
+        "local/research/cold-chest-v1/control-native-v3/battle.jsonl",
+        "--headless-control",
+        "local/research/cold-chest-v1/control-native-v3/control"
+      ],
+      "run.log": {
+        "path": "local/research/cold-chest-v1/control-native-v3/run.log",
+        "bytes": 15171,
+        "sha256": "7b392ed8cc02630de28f71d58f3862a24a9114be5511cae37c1275c7cc65a5fe"
+      },
+      "buttons.txt": {
+        "path": "local/research/cold-chest-v1/control-native-v3/buttons.txt",
+        "bytes": 100,
+        "sha256": "75723cbd880ea03a237bb25ce80dc23d7961043a0dfde5914a69f9da14380306"
+      },
+      "directions.txt": {
+        "path": "local/research/cold-chest-v1/control-native-v3/directions.txt",
+        "bytes": 3185,
+        "sha256": "481173c339f16325e9780d6ae40219775213cb7e9d8f7526b2e5864d8480fe66"
+      },
+      "commands.txt": {
+        "path": "local/research/cold-chest-v1/control-native-v3/control/commands.txt",
+        "bytes": 3718,
+        "sha256": "824ef2dda760cb86a20c626049a17d9db1dcc523046484485da0f07cd7eb75f4"
+      },
+      "inputs.jsonl": {
+        "path": "local/research/cold-chest-v1/control-native-v3/control/inputs.jsonl",
+        "bytes": 5368407,
+        "sha256": "2cb7ed10bb6ab3e96a72403705f1de6d81a5cf31c7c9ed28e54c53152ffb406d"
+      },
+      "replayed-commands.txt": {
+        "path": "local/research/cold-chest-v1/control-native-v3/replayed-commands.txt",
+        "bytes": 2279,
+        "sha256": "908f465dad4da78cb6aae9ac383899cef05136192746e0e3e125c5a262fb2554"
+      }
+    },
+    "restart-native-v1": {
+      "metadata": {
+        "path": "local/research/cold-chest-v1/restart-native-v1/run.json",
+        "bytes": 1192,
+        "sha256": "900e6155c99547fe5a7bc7a52463d3c0d9b9dca2fc6539f525b1555581db420c"
+      },
+      "result": {
+        "binary_sha256": "917759826d24ca5c8afed534604fb9f4409542f440bcd22b1cf3a259b2b0f1b3",
+        "saves_before": {
+          "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+          "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+        },
+        "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+        "exit_code": 0,
+        "seconds_including_control_waits": 94.365588666,
+        "saves_after": {
+          "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+          "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+        }
+      },
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "--game-data",
+        "local/game-data-stage-v2",
+        "--save-directory",
+        "local/research/cold-chest-v1/restart-native-v1/saves",
+        "--frames",
+        "1200",
+        "--buttons",
+        "local/research/cold-chest-v1/restart-native-v1/buttons.txt",
+        "--capture",
+        "local/research/cold-chest-v1/restart-native-v1/prelude.png",
+        "--headless-control",
+        "local/research/cold-chest-v1/restart-native-v1/control"
+      ],
+      "run.log": {
+        "path": "local/research/cold-chest-v1/restart-native-v1/run.log",
+        "bytes": 1728,
+        "sha256": "1c7a67e723fc2ea3c9ac246b49a512f900f30f7c3ab1a2437f81ab3fe8f59b0d"
+      },
+      "buttons.txt": {
+        "path": "local/research/cold-chest-v1/restart-native-v1/buttons.txt",
+        "bytes": 36,
+        "sha256": "52a6eb3d46bb6c66d5e65fca754212e1293bfb671e274ebc6b9638e3889e5dac"
+      },
+      "commands.txt": {
+        "path": "local/research/cold-chest-v1/restart-native-v1/control/commands.txt",
+        "bytes": 499,
+        "sha256": "934b41bca9ed3f98e486204cc6caade504e518e24a79ad4f3d8ca34318d13de7"
+      },
+      "inputs.jsonl": {
+        "path": "local/research/cold-chest-v1/restart-native-v1/control/inputs.jsonl",
+        "bytes": 222803,
+        "sha256": "a26b85048cd2a6aedb5395529ae676ab5c44898c3d3121a6143a351fe30a34b4"
+      }
+    }
+  },
+  "reproduction": {
+    "game_data": "local/game-data-stage-v2",
+    "starting_save": {
+      "path": "local/research/cold-chest-v1/control-native-v3/saves/bkmo0.dat",
+      "bytes": 3460,
+      "sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+    },
+    "save_provenance": "Genuine bedroom Save from native-write-v2; see docs/save-validation.json. Original source RAM, source saves and rendered output are never native inputs.",
+    "input_files": [
+      {
+        "path": "local/research/cold-chest-v1/control-native-v3/buttons.txt",
+        "bytes": 100,
+        "sha256": "75723cbd880ea03a237bb25ce80dc23d7961043a0dfde5914a69f9da14380306",
+        "contents": "1926 0800\n1930 0000\n2046 0040\n2050 0000\n2406 0040\n2410 0000\n2516 0040\n2520 0000\n3456 0040\n3460 0000\n"
+      },
+      {
+        "path": "local/research/cold-chest-v1/control-native-v3/directions.txt",
+        "bytes": 3185,
+        "sha256": "481173c339f16325e9780d6ae40219775213cb7e9d8f7526b2e5864d8480fe66",
+        "contents": "2486 8000\n2490 0000\n3426 4000\n3431 c000\n3456 0000\n3729 6000\n3788 0000\n3968 c000\n3998 6000\n4068 2000\n4079 6000\n4084 0000\n7568 8000\n7573 0000\n9969 8000\n9998 0000\n10028 9000\n10044 0000\n10088 9000\n10101 0000\n10149 c000\n10170 0000\n10208 c000\n10229 0000\n10269 8000\n10278 9000\n10288 0000\n10328 1000\n10352 0000\n10388 9000\n10401 1000\n10413 0000\n10449 9000\n10472 0000\n10538 9000\n10567 0000\n10629 1000\n10658 0000\n10718 1000\n10754 0000\n10808 1000\n10868 0000\n10929 1000\n10954 9000\n10988 0000\n11048 1000\n11079 0000\n11138 9000\n11175 0000\n11228 9000\n11244 0000\n12308 8000\n12321 1000\n12355 0000\n15519 4000\n15639 0000\n15669 6000\n15713 2000\n15742 0000\n15778 1000\n15798 0000\n17158 3000\n17253 0000\n17278 3000\n17343 0000\n17379 2000\n17449 0000\n17479 9000\n17549 0000\n17579 3000\n17592 1000\n17602 0000\n18298 6000\n18378 0000\n18408 1000\n18528 0000\n18558 1000\n18658 0000\n18688 1000\n18712 0000\n20189 8000\n20205 9000\n20244 0000\n20289 3000\n20310 0000\n21557 4000\n21560 0000\n23349 4000\n23378 0000\n23408 6000\n23442 4000\n23454 0000\n23499 3000\n23520 0000\n25718 3000\n25779 0000\n25808 1000\n25899 0000\n25929 8000\n25954 1000\n26013 0000\n26048 2000\n26075 3000\n26077 2000\n26079 3000\n26083 2000\n26084 3000\n26086 2000\n26088 3000\n26090 1000\n26216 0000\n26528 8000\n26546 9000\n26550 8000\n26552 9000\n26554 8000\n26555 9000\n26557 1000\n26564 3000\n26566 1000\n26569 3000\n26570 1000\n26573 3000\n26575 1000\n26578 3000\n26579 1000\n26582 3000\n26584 1000\n26586 3000\n26587 1000\n26589 3000\n26591 1000\n26594 3000\n26595 1000\n26598 3000\n26600 1000\n26602 3000\n26603 1000\n26604 3000\n26605 1000\n26607 3000\n26609 1000\n26611 3000\n26612 1000\n26613 3000\n26614 1000\n26655 3000\n26657 1000\n26675 3000\n26676 1000\n26678 3000\n26680 1000\n26816 0000\n27008 4000\n27023 c000\n27025 4000\n27026 2000\n27058 1000\n27110 9000\n27112 1000\n27115 9000\n27116 1000\n27119 9000\n27121 1000\n27125 9000\n27126 1000\n27128 9000\n27130 1000\n27132 9000\n27133 1000\n27135 9000\n27137 1000\n27139 9000\n27140 1000\n27141 9000\n27142 1000\n27144 9000\n27146 1000\n27148 9000\n27149 1000\n27167 9000\n27168 1000\n27169 9000\n27171 1000\n27174 9000\n27176 1000\n27178 9000\n27180 1000\n27208 9000\n27210 1000\n27213 9000\n27214 1000\n27215 9000\n27216 1000\n27217 9000\n27219 1000\n27257 9000\n27258 1000\n27259 9000\n27260 1000\n27262 9000\n27264 1000\n27288 9000\n27289 1000\n27290 9000\n27292 1000\n27326 9000\n27328 1000\n27329 9000\n27330 1000\n27380 9000\n27381 1000\n27383 9000\n27385 0000\n27608 1000\n27626 9000\n27628 1000\n27629 9000\n27631 1000\n27635 9000\n27637 1000\n27638 9000\n27640 1000\n27642 9000\n27643 1000\n27644 9000\n27645 1000\n27660 9000\n27661 0000\n28148 3000\n28150 1000\n28152 3000\n28153 1000\n28154 3000\n28155 1000\n28157 3000\n28159 1000\n28160 3000\n28161 1000\n28162 3000\n28166 1000\n28168 3000\n28170 2000\n28171 3000\n28180 2000\n28181 3000\n28187 2000\n28188 3000\n28194 2000\n28195 3000\n28198 2000\n28200 1000\n28202 3000\n28203 2000\n28204 3000\n28207 3000\n28209 0000\n28868 4000\n28871 0000\n29048 4000\n29054 c000\n29055 4000\n29061 0000\n29228 4000\n29232 0000\n29708 6000\n29745 2000\n29758 3000\n29759 0000\n31509 1000\n31516 0000\n31689 2000\n31692 0000\n31928 8000\n31958 0000\n32049 1000\n32078 0000\n32168 1000\n32186 9000\n32210 0000\n32348 9000\n32356 0000\n32589 4000\n32633 0000\n32769 8000\n32808 0000\n32948 1000\n32969 9000\n32978 0000\n45630 4000\n45750 0000\n"
+      }
+    ],
+    "retained_controller_commands": [
+      "step 100 2000",
+      "step 1 0000",
+      "step 35 2000",
+      "step 1 0000",
+      "step 40 4000",
+      "step 1 0000",
+      "step 60 3000",
+      "step 1 0000",
+      "step 1 0040",
+      "step 120 0000",
+      "step 100 4000",
+      "step 1 0000",
+      "step 1 0040",
+      "step 180 0000",
+      "step 300 4000",
+      "step 1 0000",
+      "step 55 8000",
+      "step 1 0000",
+      "step 25 1000",
+      "step 45 8000",
+      "step 90 4000",
+      "step 1 0000",
+      "step 25 2000",
+      "step 160 4000",
+      "step 1 0000",
+      "step 40 8000",
+      "step 100 c000",
+      "step 1 0000",
+      "step 90 9000",
+      "step 1 0000",
+      "step 16 1000",
+      "step 130 9000",
+      "step 1 0000",
+      "step 180 1000",
+      "step 1 0000",
+      "step 45 9000",
+      "step 170 1000",
+      "step 1 0000",
+      "step 45 2000",
+      "step 1 0000",
+      "step 70 4000",
+      "step 1 0000",
+      "step 70 1000",
+      "step 65 2000",
+      "step 1 0000",
+      "step 130 9000",
+      "step 1 0000",
+      "step 50 2000",
+      "step 100 1000",
+      "step 1 0000",
+      "step 135 9000",
+      "step 1 0000",
+      "step 55 8000",
+      "step 1 0000",
+      "step 45 c000",
+      "step 1 0000",
+      "step 35 4000",
+      "step 75 8000",
+      "step 1 0000",
+      "step 120 1000",
+      "step 1 0000",
+      "step 130 1000",
+      "step 1 0000",
+      "step 26 2000",
+      "step 1 0000",
+      "step 1 0040",
+      "step 150 0000",
+      "step 42 4000",
+      "step 32 2000",
+      "step 58 1000",
+      "step 1 0000",
+      "step 40 9000",
+      "step 1 0000",
+      "step 1 0040",
+      "step 140 0000",
+      "step 100 0000",
+      "step 140 6000",
+      "step 1 0000",
+      "step 180 1000",
+      "step 1 0000",
+      "step 35 2000",
+      "step 150 3000",
+      "step 1 0000",
+      "step 150 8000",
+      "step 1 0000",
+      "step 100 1000",
+      "step 1 0000",
+      "step 45 2000",
+      "step 80 3000",
+      "step 1 0000",
+      "step 150 1000",
+      "step 1 0000",
+      "step 110 8000",
+      "step 1 0000",
+      "step 65 4000",
+      "step 1 0000",
+      "step 65 8000",
+      "step 1 0000",
+      "step 40 3000",
+      "step 1 0000",
+      "step 65 9000",
+      "step 1 0000",
+      "step 42 3000",
+      "step 1 0000",
+      "step 80 1000",
+      "step 1 0000",
+      "step 70 8000",
+      "step 1 0000",
+      "step 80 1000",
+      "step 1 0000",
+      "step 60 3000",
+      "step 1 0000",
+      "step 80 9000",
+      "step 1 0000",
+      "step 40 3000",
+      "step 80 1000",
+      "step 1 0000",
+      "step 65 9000",
+      "step 1 0000",
+      "step 28 8000",
+      "step 1 0000",
+      "step 1 0040",
+      "step 100 0000",
+      "step 22 4000",
+      "step 35 8000",
+      "step 60 9000",
+      "step 1 0000",
+      "step 30 2000",
+      "step 65 1000",
+      "step 1 0000",
+      "step 1 0040",
+      "step 120 0000",
+      "step 65 9000",
+      "step 1 0000",
+      "step 25 3000",
+      "step 65 1000",
+      "step 1 0000",
+      "step 30 2000",
+      "step 90 1000",
+      "step 1 0000",
+      "step 65 9000",
+      "step 1 0000",
+      "step 35 c000",
+      "step 65 9000",
+      "step 1 0000",
+      "step 68 3000",
+      "step 1 0000",
+      "step 28 9000",
+      "step 1 0000",
+      "step 1 0040",
+      "step 150 0000",
+      "step 70 9000",
+      "step 1 0000",
+      "step 14 c000",
+      "step 45 9000",
+      "step 1 0000",
+      "step 30 3000",
+      "step 10 9000",
+      "step 1 0000",
+      "step 1 0040",
+      "step 140 0000",
+      "step 58 9000",
+      "step 1 0000",
+      "step 7 3000",
+      "step 1 0000",
+      "step 1 0040",
+      "step 160 0000",
+      "step 1 0040",
+      "step 60 0000",
+      "step 1 0040",
+      "step 45 0000",
+      "step 1 4000",
+      "step 20 0000",
+      "step 1 4000",
+      "step 20 0000",
+      "step 1 4000",
+      "step 20 0000",
+      "capture save-choice-ready",
+      "step 1 0040",
+      "step 160 0000",
+      "capture save-slots",
+      "step 1 2000",
+      "step 20 0000",
+      "capture save-new-slot",
+      "step 1 0040",
+      "step 300 0000",
+      "capture saved-progress",
+      "quit"
+    ],
+    "restart_controller_commands": [
+      "step 1 2000",
+      "step 20 0000",
+      "capture restore-file2",
+      "step 1 0040",
+      "step 70 0000",
+      "capture restore-confirm",
+      "step 1 8000",
+      "step 20 0000",
+      "step 1 0040",
+      "step 1000 0000",
+      "capture restored-progress",
+      "step 20 2000",
+      "capture restored-moving",
+      "step 1 0000",
+      "capture restored-released",
+      "quit"
+    ],
+    "instructions": "Use each recorded command with fresh output/save paths and unchanged starting save copies. Feed retained_controller_commands after the prelude. Captures do not tick; waiting permits real asynchronous asset jobs to finish. Host readiness and cold RNG are not fixed, so route success is recorded execution, not a deterministic fidelity guarantee."
+  },
+  "persistence": {
+    "old_file": {
+      "path": "local/research/cold-chest-v1/control-native-v3/saves/bkmo0.dat",
+      "bytes": 3460,
+      "sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+    },
+    "new_file": {
+      "path": "local/research/cold-chest-v1/control-native-v3/saves/bkmo1.dat",
+      "bytes": 3460,
+      "sha256": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    },
+    "old_values": {
+      "money": 1000,
+      "odd_glass_tube_item114": 0,
+      "progression_bank1_decimal_index40": false,
+      "playtime": 1232
+    },
+    "saved_values": {
+      "money": 1011,
+      "odd_glass_tube_item114": 1,
+      "progression_bank1_decimal_index40": true,
+      "playtime": 2094
+    },
+    "restored_values": {
+      "money": 1011,
+      "odd_glass_tube_item114": 1,
+      "progression_bank1_decimal_index40": true,
+      "playtime": 2111
+    },
+    "saved_vs_restored_differing_payload_bytes": [
+      {
+        "offset": "0x520",
+        "saved": 46,
+        "restored": 63,
+        "owner": "playtime"
+      }
+    ],
+    "matching_payload_bytes": 3447,
+    "total_payload_bytes": 3448,
+    "Save_constructed_frame": 54096,
+    "File2_confirm_frame": 54222,
+    "Save_retired_frame": 54438,
+    "writer_completed_frame": 54522,
+    "Restore_requested_frame": 1470,
+    "field_activated_frame": 1504,
+    "restored_observation_frame": 2314,
+    "movement_frame": 2334,
+    "release_frame": 2335,
+    "before_after_both_restart_files_unchanged": true,
+    "artifacts": [
+      {
+        "path": "local/research/cold-chest-v1/restart-native-v1/control/restored-progress.png",
+        "bytes": 288179,
+        "sha256": "5a7b97898134018843bb971708d02fbb9c0455e799005f4ae599d4078ea03346"
+      },
+      {
+        "path": "local/research/cold-chest-v1/restart-native-v1/control/restored-progress.png.variables.bin",
+        "bytes": 4096,
+        "sha256": "ad6c5847783f662cbb7758fcc24fc762e3d33aa8944364d6ddcc0d67311784d7"
+      },
+      {
+        "path": "local/research/cold-chest-v1/restart-native-v1/control/restored-moving.png.actors-state.json",
+        "bytes": 13136,
+        "sha256": "09edeb951d64bc8260133b9acfd6c47718722d635c3caac1babae5ac78c6fac5"
+      },
+      {
+        "path": "local/research/cold-chest-v1/restart-native-v1/control/restored-released.png.actors-state.json",
+        "bytes": 13154,
+        "sha256": "ce36277fa654d4d7f36bd967598d756ec4e99313dd2577945eec2e85b2de760b"
+      },
+      {
+        "path": "local/research/cold-chest-v1/restart-native-v1/control/final.png",
+        "bytes": 223869,
+        "sha256": "47c772f439d70e633527e7a27d873075dbdb67be3eadf38d8e0b9eed239f6706"
+      },
+      {
+        "path": "local/research/cold-chest-v1/restart-native-v1/control/final.png.variables.bin",
+        "bytes": 4096,
+        "sha256": "ad6c5847783f662cbb7758fcc24fc762e3d33aa8944364d6ddcc0d67311784d7"
+      }
+    ],
+    "independent_audit": {
+      "path": "local/research/cold-chest-v1/persistence-evidence-v1.json",
+      "bytes": 23039,
+      "sha256": "56e21dc3665314b18f73ad0bd94a5fb852b20b7780a8f3e551012558d6c95271"
+    },
+    "Save_readback_success_frame": 54224,
+    "source_mappings": {
+      "items": "signed byte event bank3 at410+ID;114=Odd Glass Tube",
+      "bit40": "bank1 decimal40, offset115 mask80",
+      "money": "signed32 bank4 index3 at51c",
+      "playtime": "u32 bank4 index4 at520; GamePlayTimeCounter increments every60 main-loop passes, count17 reflects elapsed after restored state publication, not total new-process frames",
+      "hero": "record0 at5c4; signed16 level+4; signed32 currentHP+8; signed16 maxHP+18"
+    },
+    "saved_hero": {
+      "hero_level": 2,
+      "hero_hp": 1,
+      "hero_max_hp": 36
+    },
+    "movement": {
+      "path": "local/research/cold-chest-v1/restart-native-v1/control/restored-released.png.movement.bin",
+      "bytes": 53248,
+      "sha256": "0ff7a1866ab20fc81c1933c4e777571b992794999e0a5896c4984a8f724489fe",
+      "row_words": 16,
+      "selected_rows_frame_held_mask_motion": [
+        [
+          2314,
+          0,
+          0,
+          1
+        ],
+        [
+          2315,
+          8192,
+          0,
+          3
+        ],
+        [
+          2316,
+          8192,
+          0,
+          3
+        ],
+        [
+          2317,
+          8192,
+          0,
+          3
+        ],
+        [
+          2318,
+          8192,
+          0,
+          3
+        ],
+        [
+          2319,
+          8192,
+          0,
+          3
+        ],
+        [
+          2320,
+          8192,
+          0,
+          3
+        ],
+        [
+          2321,
+          8192,
+          0,
+          3
+        ],
+        [
+          2322,
+          8192,
+          0,
+          3
+        ],
+        [
+          2323,
+          8192,
+          0,
+          3
+        ],
+        [
+          2324,
+          8192,
+          0,
+          3
+        ],
+        [
+          2325,
+          8192,
+          0,
+          3
+        ],
+        [
+          2326,
+          8192,
+          0,
+          3
+        ],
+        [
+          2327,
+          8192,
+          0,
+          3
+        ],
+        [
+          2328,
+          8192,
+          0,
+          3
+        ],
+        [
+          2329,
+          8192,
+          0,
+          3
+        ],
+        [
+          2330,
+          8192,
+          0,
+          3
+        ],
+        [
+          2331,
+          8192,
+          0,
+          3
+        ],
+        [
+          2332,
+          8192,
+          0,
+          3
+        ],
+        [
+          2333,
+          8192,
+          0,
+          3
+        ],
+        [
+          2334,
+          8192,
+          0,
+          3
+        ],
+        [
+          2335,
+          0,
+          0,
+          1
+        ]
+      ],
+      "position_changed": true,
+      "position_stable_on_release": true,
+      "description": "20 actual held2000 ticks2315..2334 with motion3; release2335 input0/motion1, channel1 position unchanged from2334."
+    },
+    "temporary_bank0_note": {
+      "range": "[0x10,0x110)",
+      "saved_all_zero": true,
+      "restored_all_zero": true,
+      "source": "Restore copies full0xd78 payload; ordinary field constructor then125ad0 clears only bank0 temp flags before prepare_field_load. Bank1 starts110 and is not cleared. This zero-input case confirms no unexpected difference but does not test clearing nonzero temp bits."
+    },
+    "runtime_buffer_tail_outside_saved_payload_bytes": 648
+  },
+  "headless_checks": [
+    {
+      "path": "local/worktrees/headless-verifier-v1/local/checks/release-v1/report.json",
+      "sha256": "84b40e86865485521edc515c328d09a3b68b744f950d2683b516eb7da1aba148",
+      "configuration": "Release",
+      "executed_native_sha256": "d296dab4e07e038a9636aa65541de28886cc664cb889d2f861bb95e507a6686b",
+      "native_hash_stable_during_run": true,
+      "tool_sha256": "b43ba12205a1fa9b7329c5ddc7dab3691867a62731c68619989becb2c9d76553",
+      "cases": [
+        {
+          "name": "eof_edges",
+          "exit_code": 0,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 120
+        },
+        {
+          "name": "quit",
+          "exit_code": 0,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 62
+        },
+        {
+          "name": "extra_token",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 33
+        },
+        {
+          "name": "zero_ticks",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 33
+        },
+        {
+          "name": "excess_ticks",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 33
+        },
+        {
+          "name": "overflow_ticks",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 33
+        },
+        {
+          "name": "overflow_mask",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 33
+        },
+        {
+          "name": "duplicate_capture",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 62
+        },
+        {
+          "name": "reserved_case",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 33
+        },
+        {
+          "name": "existing_directory",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 3
+        }
+      ]
+    },
+    {
+      "path": "local/research/cold-chest-v1/control-check-debug-v1/report.json",
+      "sha256": "c4bc36d85ad31d8c2edeec46c8a9244e0bc69bf5151d023cd1cbb9fe527ffe4a",
+      "configuration": "Debug",
+      "executed_native_sha256": "7bf54fdea1f8be77bbcf553785abe572cd340b03513dd4547045379af0c9f462",
+      "native_hash_stable_during_run": true,
+      "tool_sha256": "b43ba12205a1fa9b7329c5ddc7dab3691867a62731c68619989becb2c9d76553",
+      "cases": [
+        {
+          "name": "eof_edges",
+          "exit_code": 0,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 120
+        },
+        {
+          "name": "quit",
+          "exit_code": 0,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 62
+        },
+        {
+          "name": "extra_token",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 33
+        },
+        {
+          "name": "zero_ticks",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 33
+        },
+        {
+          "name": "excess_ticks",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 33
+        },
+        {
+          "name": "overflow_ticks",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 33
+        },
+        {
+          "name": "overflow_mask",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 33
+        },
+        {
+          "name": "duplicate_capture",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 62
+        },
+        {
+          "name": "reserved_case",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 33
+        },
+        {
+          "name": "existing_directory",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 3
+        }
+      ]
+    },
+    {
+      "path": "local/research/cold-chest-v1/control-check-sanitize-v1/report.json",
+      "sha256": "0e279a968865afa111899f0f9d6d74ed95fc95fa75227c0519d102efadaddfcf",
+      "configuration": "Sanitizer",
+      "executed_native_sha256": "9b41ddfc1638ae2e98d8ac1b8eb463a6f3b0b4ceb93f3a7499ece44c7ee04286",
+      "native_hash_stable_during_run": true,
+      "tool_sha256": "b43ba12205a1fa9b7329c5ddc7dab3691867a62731c68619989becb2c9d76553",
+      "cases": [
+        {
+          "name": "eof_edges",
+          "exit_code": 0,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 120
+        },
+        {
+          "name": "quit",
+          "exit_code": 0,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 62
+        },
+        {
+          "name": "extra_token",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 33
+        },
+        {
+          "name": "zero_ticks",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 33
+        },
+        {
+          "name": "excess_ticks",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 33
+        },
+        {
+          "name": "overflow_ticks",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 33
+        },
+        {
+          "name": "overflow_mask",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 33
+        },
+        {
+          "name": "duplicate_capture",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 62
+        },
+        {
+          "name": "reserved_case",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 33
+        },
+        {
+          "name": "existing_directory",
+          "exit_code": 1,
+          "passed": true,
+          "retained_artifact_hashes_rechecked": 3
+        }
+      ]
+    }
+  ],
+  "test_evidence": {
+    "path": "local/research/cold-chest-v1/test-evidence.json",
+    "bytes": 69444,
+    "sha256": "6242dc622061c3d3894bd3d36f4583a6b677a212c8de62b4e7b6397185bcb057"
+  },
+  "final_builds_and_focused_tests": [
+    {
+      "configuration": "release",
+      "build_log": {
+        "path": "local/research/cold-chest-v1/title-guard-build-release.log",
+        "bytes": 9159,
+        "sha256": "5d399a0e868172e27f88b45a1e931ac883277e14363f36f656f9ebc494a4ada0"
+      },
+      "test_log": {
+        "path": "local/research/cold-chest-v1/title-guard-tests-release.log",
+        "bytes": 653,
+        "sha256": "ce85c9c1ba63a494366e373f5a7006a76a036ed9f54385e3fb335d42038cea78"
+      },
+      "native_binary": {
+        "path": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "bytes": 3159248,
+        "sha256": "917759826d24ca5c8afed534604fb9f4409542f440bcd22b1cf3a259b2b0f1b3"
+      },
+      "passed_tests": [
+        "input-journal-tests",
+        "headless-control-tests",
+        "stream-bank-tests",
+        "field-tests"
+      ]
+    },
+    {
+      "configuration": "debug",
+      "build_log": {
+        "path": "local/research/cold-chest-v1/title-guard-build-debug.log",
+        "bytes": 9159,
+        "sha256": "61738cb4ec888919c46fc12515d926f5774edee4e87e129b4badcfcdf075f2f7"
+      },
+      "test_log": {
+        "path": "local/research/cold-chest-v1/title-guard-tests-debug.log",
+        "bytes": 637,
+        "sha256": "cec2ecefa6397f66ed070608e581bd3bb96ba4df61520281062b6d5062ef2a19"
+      },
+      "native_binary": {
+        "path": "build/native/okage-native.app/Contents/MacOS/okage-native",
+        "bytes": 11120448,
+        "sha256": "ddfbab8d1a56790190b4292904836be86be13420b9df86112874fe4ff5c84e7e"
+      },
+      "passed_tests": [
+        "input-journal-tests",
+        "headless-control-tests",
+        "stream-bank-tests",
+        "field-tests"
+      ]
+    },
+    {
+      "configuration": "sanitize",
+      "build_log": {
+        "path": "local/research/cold-chest-v1/title-guard-build-sanitize.log",
+        "bytes": 9159,
+        "sha256": "7d97eed56d2f522c72f0b343747d75adaafd91c025aae71ac6a98eee17401fe1"
+      },
+      "test_log": {
+        "path": "local/research/cold-chest-v1/title-guard-tests-sanitize.log",
+        "bytes": 653,
+        "sha256": "31009d571c99eac43d31728234c62f6dc8b6a53a2f2e291c4eb5548b402d68b0"
+      },
+      "native_binary": {
+        "path": "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",
+        "bytes": 23509248,
+        "sha256": "8906117b0cf5af4a8d28fa73307aea83ecb8eb9497edb4c1b60b7c75ab78aa6f"
+      },
+      "passed_tests": [
+        "input-journal-tests",
+        "headless-control-tests",
+        "stream-bank-tests",
+        "field-tests"
+      ]
+    }
+  ],
+  "python": {
+    "command": "python3 -m unittest discover -s tests -v",
+    "tests": 501,
+    "result": "OK",
+    "seconds": 23.234,
+    "log": {
+      "path": "local/research/cold-chest-v1/python-final.log",
+      "bytes": 53242,
+      "sha256": "36759fdc0330ee64310e6b7a8e914ee9624dd1cc7a965035bcd8ebe1c58a14d7"
+    }
+  },
+  "negatives": [
+    "native-v3 repeats Confirm and loops back97\u219296; preserved as unsuccessful route selection, although process exits0.",
+    "control-native-v1 exits0 by quit while negative67 remains pending at97/PCb4: clean shutdown is not dependency success.",
+    "control-native-v2 reaches bedroom but firstDown arms choice, secondDown selectsChange party1; attempted tick54073 fails field mode11 after54072 complete. Saveunchanged.",
+    "control-native-v3 adds thirdDown, checks cursor2 then selects Save. It earns11money versus14in v2; cold RNG/loading not heldconstant.",
+    "IOP bank-stop owner initially misidentified as per-channel volume rows; corrected to09df0\u219209180\u21920a130. Earlier inference is not used."
+  ],
+  "limitations": [
+    "No aligned original full-interval replay of this extended chest/home/save route; prior coldRestore/outdoor whole-interval comparisons remain failing.",
+    "Reached streamstop observed zero active cue voices; dispatch/lifecycle evidence only. Multipleactive voices/silence/reuse have unit coverage, not audible IOP/SPU timing proof.",
+    "Concurrent registered native title stream is guarded. BGM remains separate; general multiowner audio/listening fidelity remains open.",
+    "Long gameplay/save/restart proof is Release-only. Debug/sanitizer validate focused tests and short controller cases, not this whole route.",
+    "Headless waits/replay durations do not measure AppKit FPS or game-speed fidelity.",
+    "Development game-data-stage-v2 is not a fresh-disc import/package audit.",
+    "Party-change request11 and title idle mode11 remain reached unsupported services; navigation core is unwired, culling/UI/audio/general fidelity/fullgame coverage remain open.",
+    "Sole user GUI63851 remains paused116648 with unsaved progress; untouched by these headless sessions."
+  ],
+  "next_story": {
+    "status": "Static candidate only; not executed after new File2 Restore",
+    "scene": 0,
+    "contact": 11,
+    "bounds_x": [
+      9.336,
+      16.447
+    ],
+    "bounds_z": [
+      246.019,
+      253.467
+    ],
+    "entry11_target": "0xccc",
+    "conditions_observed_in_saved_payload": {
+      "bank2_index0": 2,
+      "bank1_flags_set": [
+        22,
+        31,
+        36,
+        40
+      ],
+      "bank1_flags_clear": [
+        41
+      ]
+    },
+    "later_branch": "0xf3c/0xf48 compares flags41/40; audio45/A3/B64 then transition69/entrance0",
+    "limitations": "Confirm real contact/event and continuation through ordinary input; do not turn this static candidate into an executed story claim."
+  }
+}
