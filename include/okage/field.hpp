@@ -136,6 +136,7 @@ public:
     std::function<void()> activation_ready;
     std::function<bool(int,bool)> map_visibility;
     std::function<bool(unsigned,std::int32_t,float,unsigned)> sound_cue;
+    std::function<bool()> stop_sound_cues;
     std::function<void(unsigned,unsigned,std::int32_t)> set_variable;
     std::function<std::int32_t(std::uint32_t)> get_variable;
     int interaction_alias() const {return interaction_alias_;}

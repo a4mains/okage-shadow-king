@@ -27,6 +27,7 @@
 #include "okage/native_run.hpp"
 #include "okage/live_scheduler.hpp"
 #include "okage/input_journal.hpp"
+#include "okage/headless_control.hpp"
 #include "okage/frame_composition.hpp"
 #include "battle_capture_metal.hpp"
 #include "battle_filter_metal.hpp"
@@ -243,6 +244,15 @@ struct Session {
                     ", record "+std::to_string(index)+": "+e.what());
             }
             sound_trace.insert(sound_trace.end(),{frame,bank,unsigned(index),std::bit_cast<unsigned>(speed),volume});return true;
+        };
+        if(field)field->stop_sound_cues=[this] {
+            if(title_stream.state().registered)
+                throw std::runtime_error("Field global stream stop overlaps an unrecovered live title stream");
+            unsigned active=0;
+            for(auto& [bank,player]:sound_banks){(void)bank;active+=player->active();player->stop();}
+            std::cout<<"Native streamed cues stopped frame="<<frame<<" voices="<<active
+                     <<" registered_banks="<<sound_banks.size()<<'\n';
+            return true;
         };
     }
 
@@ -2330,12 +2340,12 @@ int main(int argc,const char** argv) {
     @autoreleasepool {
     std::unique_ptr<okage::InputJournal> inputJournal;
     try {
-        if(argc<3)throw std::runtime_error("Usage: okage-native --game-data DIRECTORY [--save-directory DIRECTORY] OR okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --buttons INPUT (held non-directional masks; bounded replay only) --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--load-observation FRESH.jsonl (bounded replay; host scheduling diagnostics)] [--battle-readback synchronous|deferred (replay policy; live always deferred)] [--replay-loading continuous|cooperative (cooperative requires deferred readback)] [--replay-display-from N (bounded cooperative replay; real host display callbacks and full rendering from N)] [--performance-report FRESH.jsonl (interactive/preview/UI test)] [--input-journal FRESH.jsonl] [--pause-captures FRESH_DIRECTORY (interactive diagnostics, not saved games)]");
+        if(argc<3)throw std::runtime_error("Usage: okage-native --game-data DIRECTORY [--save-directory DIRECTORY] OR okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --buttons INPUT (held non-directional masks; bounded replay only) --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--load-observation FRESH.jsonl (bounded replay; host scheduling diagnostics)] [--battle-readback synchronous|deferred (replay policy; live always deferred)] [--replay-loading continuous|cooperative (cooperative requires deferred readback)] [--replay-display-from N (bounded cooperative replay; real host display callbacks and full rendering from N)] [--performance-report FRESH.jsonl (interactive/preview/UI test)] [--input-journal FRESH.jsonl] [--pause-captures FRESH_DIRECTORY (interactive diagnostics, not saved games)] [--headless-control FRESH_DIRECTORY (stdin controller steps after --frames; no window)]");
         const bool coldStart=std::string_view(argv[1])=="--game-data";
         fs::path gameDataRoot,saveDirectory;
         fs::path fontDirectory=coldStart?fs::path{}:fs::path(argv[1]),messagePath=coldStart?fs::path{}:fs::path(argv[2]);
         unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions,buttons;bool hasButtons=false;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures,battleInput;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
-        std::optional<fs::path> performancePath,inputJournalPath,pauseCapturePath;
+        std::optional<fs::path> performancePath,inputJournalPath,pauseCapturePath,headlessControlPath;
         fs::path uiUpdateReport,battleLivePath,loadObservationPath;
         bool deferredBattleReadback=false;
         std::optional<bool> cooperativeReplay;
@@ -2350,6 +2360,10 @@ int main(int argc,const char** argv) {
             }
             else if(arg=="--save-directory")saveDirectory=argv[i];
             else if(arg=="--frames")frames=std::stoul(argv[i]);
+            else if(arg=="--headless-control") {
+                if(headlessControlPath||!argv[i][0])throw std::runtime_error("Headless control requires one fresh directory");
+                headlessControlPath=argv[i];
+            }
             else if(arg=="--preview-at")previewAt=std::stoul(argv[i]);
             else if(arg=="--battle-readback") {
                 const std::string policy=argv[i];
@@ -2450,6 +2464,8 @@ int main(int argc,const char** argv) {
             throw std::runtime_error("Replay loading policy requires --frames or --preview-at");
         if(cooperativeReplay.value_or(false)&&!deferredBattleReadback)
             throw std::runtime_error("Cooperative replay requires --battle-readback deferred");
+        if(headlessControlPath&&(!frames||previewAt||uiFrames||cooperativeReplay.value_or(false)||replayDisplayFrom))
+            throw std::runtime_error("Headless control requires --frames with continuous replay loading and no UI/display mode");
         if(replayDisplayFrom&&(!frames||previewAt||*replayDisplayFrom>frames||!cooperativeReplay.value_or(false)))
             throw std::runtime_error("Replay display start requires a frame within a bounded cooperative replay");
         if(hasButtons&&((!frames&&!previewAt)||uiFrames))
@@ -2530,6 +2546,21 @@ int main(int argc,const char** argv) {
             if(fs::exists(directory)||fs::is_symlink(directory)||!fs::create_directory(directory))
                 throw std::runtime_error("Pause captures require a fresh directory");
             pauseCapturePath=directory;
+        }
+        if(headlessControlPath) {
+            const auto directory=fs::weakly_canonical(fs::absolute(*headlessControlPath));
+            for(const auto& path:{output,uiUpdateReport,battleLivePath,loadObservationPath,
+                                inputJournalPath.value_or(fs::path{})}) {
+                if(path.empty())continue;
+                const auto absolute=fs::weakly_canonical(fs::absolute(path));
+                const auto relative=absolute.lexically_relative(directory);
+                if((!relative.empty()&&*relative.begin()!="..")||okage::native_capture_family_contains(path,directory))
+                    throw std::runtime_error("Headless control directory overlaps another output");
+            }
+            if(fs::exists(*headlessControlPath)||fs::is_symlink(*headlessControlPath)||!fs::create_directory(directory))
+                throw std::runtime_error("Headless control requires a fresh directory");
+            headlessControlPath=directory;
+            if(!inputJournalPath)inputJournalPath=directory/"inputs.jsonl";
         }
         if(inputJournalPath)inputJournal=std::make_unique<okage::InputJournal>(*inputJournalPath);
         std::unique_ptr<okage::LivePerformance> performance;
@@ -2622,6 +2653,55 @@ int main(int argc,const char** argv) {
             }
             if(!runPlan.replay_capture.empty())capture(session,runPlan.replay_capture);
             std::cout<<"Native frames="<<session.frame<<" progress="<<session.text.state.progress<<" wait_release="<<session.release_frame<<std::endl;
+            if(headlessControlPath) {
+                session.render_from=1;session.render_until=0;session.render_ranges.clear();
+                std::ofstream commands(*headlessControlPath/"commands.txt");
+                if(!commands)throw std::runtime_error("Cannot record headless commands");
+                commands<<"# Native digital controller steps; continuous asynchronous loaders can finish\n"
+                        <<"# while simulation waits for input. No AppKit timing or deterministic readiness claim.\n";
+                auto park=[&] {
+                    std::exception_ptr failure;
+                    try {session.finish_battle_frame();}catch(...){failure=std::current_exception();}
+                    try {session.close_loader_window();}catch(...){if(!failure)failure=std::current_exception();}
+                    if(failure)std::rethrow_exception(failure);
+                };
+                auto status=[&] {
+                    std::cout<<"Headless ready frame="<<session.frame<<" scene="<<session.current_scene
+                             <<" pc="<<(session.field?session.field->pc():0)<<" message="<<session.message_id
+                             <<std::endl;
+                };
+                try {
+                    park();inputJournal->pause(session.frame);status();
+                    std::string line;
+                    while(std::getline(std::cin,line)) {
+                        commands<<session.frame<<' '<<line<<'\n';commands.flush();
+                        if(!commands)throw std::runtime_error("Cannot record headless command");
+                        const auto command=okage::parse_headless_command(line,diagnosticFrameLimit-session.frame);
+                        if(command.kind==okage::HeadlessCommand::Kind::Quit)break;
+                        if(command.kind==okage::HeadlessCommand::Kind::Capture) {
+                            const auto path=*headlessControlPath/(command.name+".png");
+                            okage::require_fresh_native_capture_family(path);capture(session,path);
+                        } else {
+                            inputJournal->resume(session.frame);
+                            for(unsigned n=0;n<command.ticks;++n) {
+                                const auto pressed=std::uint16_t(command.held&~session.previous_held);
+                                if(!session.tick({command.held,pressed},true))session.finish_prepared_tick(true);
+                            }
+                            park();inputJournal->pause(session.frame);
+                        }
+                        status();
+                    }
+                    if(std::cin.bad())throw std::runtime_error("Headless command input failed");
+                    park();const auto final=*headlessControlPath/"final.png";
+                    okage::require_fresh_native_capture_family(final);capture(session,final);
+                    session.write_load_observation("control_end");
+                } catch(...) {
+                    const auto failure=std::current_exception();
+                    try {park();}catch(const std::exception& e){std::cerr<<e.what()<<'\n';}
+                    try {session.write_load_observation("control_failure");}catch(const std::exception& e){std::cerr<<e.what()<<'\n';}
+                    std::rethrow_exception(failure);
+                }
+            }
             if(frames) {
                 if(!loadObservationPath.empty()) {
                     loadObservationTrace<<"{\"event\":\"finish\",\"frame\":"<<session.frame<<"}\n";loadObservationTrace.flush();

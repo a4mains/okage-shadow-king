@@ -237,6 +237,17 @@ int main(){try {
     stop.sound_cue=[&](auto,auto,auto,auto){throw std::runtime_error("Stop routed as play");return false;};
     for(unsigned i=0;i<180;++i)stop.tick();
     require(stop.pc()==0xbe4&&stop.pending_opcode==0x67);
+    unsigned stops=0;stop.stop_sound_cues=[&]{++stops;return false;};
+    stop.tick();require(stops==1&&stop.pc()==0xbe4&&stop.pending_opcode==0x67);
+    stop.stop_sound_cues=[&]{++stops;return true;};
+    stop.tick();require(stops==2&&stop.pc()==0xbe8);
+    // All negative B values ignore the nominal bank A and share stop-all.
+    word(0xbe4,0xffefff67);
+    okage::OpeningField stop_other(b,[](int){},[](int){return true;});
+    stop_other.stop_sound_cues=[&]{++stops;return true;};
+    stop_other.sound_cue=stop.sound_cue;
+    for(unsigned i=0;i<180;++i)stop_other.tick();
+    require(stops==3&&stop_other.pc()==0xbe8);
     std::vector<std::uint8_t> motion(56);
     auto motion_word=[&](unsigned at,std::uint32_t value){for(unsigned i=0;i<4;++i)motion.at(at+i)=value>>(8*i);};
     motion_word(0,0x544d58);motion_word(4,24);motion_word(16,0xffffffff);

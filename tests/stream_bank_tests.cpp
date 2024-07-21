@@ -2,9 +2,10 @@
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
+#include <source_location>
 
-void require(bool ok,unsigned where=__builtin_LINE()){
-    if(!ok)throw std::runtime_error("RXWS assertion at line "+std::to_string(where));
+void require(bool ok,std::source_location where=std::source_location::current()){
+    if(!ok)throw std::runtime_error("RXWS assertion at line "+std::to_string(where.line()));
 }
 template<class F> void rejects(F f){bool bad=false;try{f();}catch(const std::exception&){bad=true;}require(bad);}
 void put(std::vector<std::uint8_t>& b,unsigned at,unsigned v){for(unsigned i=0;i<4;++i)b.at(at+i)=v>>(i*8);}
@@ -41,7 +42,10 @@ int main(){try{
     okage::StreamPlayer player(bank);player.play(0,1,128);require(player.active()==1);
     std::vector<std::int32_t> mix(400);player.mix(mix);require(player.active()==0);
     require(std::any_of(mix.begin(),mix.end(),[](auto v){return v!=0;}));
-    player.play(0,1,128);player.stop();require(player.active()==0);
+    player.play(0,1,128);player.play(0,1,128);player.stop();require(player.active()==0);
+    std::vector<std::int32_t> after_stop(400);player.mix(after_stop);
+    require(std::all_of(after_stop.begin(),after_stop.end(),[](auto value){return value==0;}));
+    player.play(0,1,128);player.mix(after_stop);require(after_stop==mix); // Bank remains usable.
     rejects([&]{player.play(-1,1,128);});rejects([&]{player.play(0,-1,128);});rejects([&]{player.play(0,1,129);});
     auto invalid=bank;invalid.bytes[45]=2;rejects([&]{okage::stream_tone(invalid,0);});
     invalid=bank;put(invalid.bytes,56,32);rejects([&]{okage::stream_tone(invalid,0);});

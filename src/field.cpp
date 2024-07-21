@@ -913,8 +913,10 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             if(sound_cue && sound_cue(a,b,std::bit_cast<float>(word(pc+4)),word(pc+8))){pending_opcode=0;return {pc+12};}
             return pending();
         case 0x67:
-            // 0x130ab8 -> 0x12dea0 uses speed1, volume128. Negative indices
-            // use a separate stop service; do not pretend they are play calls.
+            // 0x130ab8: every negative B calls12de98 ->1756c0(0),
+            // retiring all registered stream voices, independent of A.
+            // Music sequences have a separate owner/stop service.
+            if(b<0&&stop_sound_cues&&stop_sound_cues()){pending_opcode=0;return {pc+4};}
             if(b>=0&&sound_cue&&sound_cue(a,b,1,128)){pending_opcode=0;return {pc+4};}
             return pending();
         case 0x48: {
