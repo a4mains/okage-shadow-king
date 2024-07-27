@@ -1,0 +1,1523 @@
+{
+  "schema": "okage-rest-validation-v1",
+  "runtime_commit": "0ed85d4",
+  "acceptance_met": false,
+  "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "implemented": [
+    "Field request10: immediate refresh15 and second refresh at field manager consumption after event completion/handoff",
+    "Event51/B4 signed maximum/index over bank4[16..23]; zero/-1 initialization; last index wins ties; consumes two outputselectors"
+  ],
+  "runs": {
+    "native-v1": {
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "--game-data",
+        "local/game-data-stage-v2",
+        "--save-directory",
+        "local/research/post-chest-story-v1/native-v1/saves",
+        "--frames",
+        "1200",
+        "--buttons",
+        "local/research/post-chest-story-v1/native-v1/buttons.txt",
+        "--capture",
+        "local/research/post-chest-story-v1/native-v1/prelude.png",
+        "--headless-control",
+        "local/research/post-chest-story-v1/native-v1/control"
+      ],
+      "binary_sha256": "917759826d24ca5c8afed534604fb9f4409542f440bcd22b1cf3a259b2b0f1b3",
+      "saves_before": {
+        "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+      },
+      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+      "exit_code": 1,
+      "seconds_including_control_waits": 100.417789083,
+      "saves_after": {
+        "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+      },
+      "controller_commands": "# Native digital controller steps; continuous asynchronous loaders can finish\n# while simulation waits for input. No AppKit timing or deterministic readiness claim.\n1200 step 1 2000\n1201 step 20 0000\n1221 step 1 0040\n1222 step 70 0000\n1292 step 1 8000\n1293 step 20 0000\n1313 step 1 0040\n1314 step 1000 0000\n2314 capture restored\n2314 step 25 c000\n2339 step 1 0000\n2340 capture bedroom-door\n2340 step 5 a000\n2345 step 1 0000\n2346 step 1 0040\n2347 step 140 0000\n2487 capture hall\n2487 step 5 3000\n2492 step 1 0000\n2493 step 1 0040\n2494 step 140 0000\n2634 capture hall-v2\n2634 step 10 4000\n2644 step 1 0000\n2645 capture door-contact\n2645 step 5 c000\n2650 step 1 0000\n2651 step 1 0040\n2652 step 140 0000\n2792 capture hall-v3\n2792 step 7 3000\n2799 step 1 0000\n2800 step 1 0040\n2801 step 160 0000\n2961 capture bedroom-menu\n2961 step 1 0040\n2962 step 60 0000\n3022 step 1 0040\n3023 step 45 0000\n3068 capture bedroom-choice\n3068 step 1 0040\n3069 step 20 0000\n3089 capture rest-armed\n3089 step 1 0040\n3090 step 600 0000\n3690 capture rest-result\n3690 step 1 4000\n3691 step 20 0000\n3711 capture rest-selected\n3711 step 1 0040\n3712 step 600 0000\n"
+    },
+    "native-v2": {
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "--game-data",
+        "local/game-data-stage-v2",
+        "--save-directory",
+        "local/research/post-chest-story-v1/native-v2/saves",
+        "--frames",
+        "1200",
+        "--buttons",
+        "local/research/post-chest-story-v1/native-v2/buttons.txt",
+        "--capture",
+        "local/research/post-chest-story-v1/native-v2/prelude.png",
+        "--headless-control",
+        "local/research/post-chest-story-v1/native-v2/control"
+      ],
+      "binary_sha256": "6ba16dca81cbd8d6e50eab1d508c699301d09a2ec8d8031b36a931b84b678f7c",
+      "saves_before": {
+        "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+      },
+      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+      "exit_code": 1,
+      "seconds_including_control_waits": 19.393955332999997,
+      "saves_after": {
+        "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+      },
+      "controller_commands": "# Native digital controller steps; continuous asynchronous loaders can finish\n# while simulation waits for input. No AppKit timing or deterministic readiness claim.\n1200 step 1 2000\n1201 step 20 0000\n1221 step 1 0040\n1222 step 70 0000\n1292 step 1 8000\n1293 step 20 0000\n1313 step 1 0040\n1314 step 1000 0000\n2314 step 25 c000\n2339 step 1 0000\n2340 step 5 a000\n2345 step 1 0000\n2346 step 1 0040\n2347 step 140 0000\n2487 step 5 3000\n2492 step 1 0000\n2493 step 1 0040\n2494 step 140 0000\n2634 step 10 4000\n2644 step 1 0000\n2645 step 5 c000\n2650 step 1 0000\n2651 step 1 0040\n2652 step 140 0000\n2792 step 7 3000\n2799 step 1 0000\n2800 step 1 0040\n2801 step 160 0000\n2961 step 1 0040\n2962 step 60 0000\n3022 step 1 0040\n3023 step 45 0000\n3068 step 1 0040\n3069 step 20 0000\n3089 step 1 0040\n3090 step 600 0000\n3690 step 1 4000\n3691 step 20 0000\n3711 step 1 0040\n3712 step 600 0000\n"
+    },
+    "native-v3": {
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "--game-data",
+        "local/game-data-stage-v2",
+        "--save-directory",
+        "local/research/post-chest-story-v1/native-v3/saves",
+        "--frames",
+        "1200",
+        "--buttons",
+        "local/research/post-chest-story-v1/native-v3/buttons.txt",
+        "--capture",
+        "local/research/post-chest-story-v1/native-v3/prelude.png",
+        "--headless-control",
+        "local/research/post-chest-story-v1/native-v3/control"
+      ],
+      "binary_sha256": "984443303467af434fe036bb4145d9f9c3472b03ede0d22500679ca4336adf02",
+      "saves_before": {
+        "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+      },
+      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+      "exit_code": 0,
+      "seconds_including_control_waits": 21.186321958,
+      "saves_after": {
+        "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+      },
+      "controller_commands": "# Native digital controller steps; continuous asynchronous loaders can finish\n# while simulation waits for input. No AppKit timing or deterministic readiness claim.\n1200 step 1 2000\n1201 step 20 0000\n1221 step 1 0040\n1222 step 70 0000\n1292 step 1 8000\n1293 step 20 0000\n1313 step 1 0040\n1314 step 1000 0000\n2314 step 25 c000\n2339 step 1 0000\n2340 step 5 a000\n2345 step 1 0000\n2346 step 1 0040\n2347 step 140 0000\n2487 step 5 3000\n2492 step 1 0000\n2493 step 1 0040\n2494 step 140 0000\n2634 step 10 4000\n2644 step 1 0000\n2645 step 5 c000\n2650 step 1 0000\n2651 step 1 0040\n2652 step 140 0000\n2792 step 7 3000\n2799 step 1 0000\n2800 step 1 0040\n2801 step 160 0000\n2961 step 1 0040\n2962 step 60 0000\n3022 step 1 0040\n3023 step 45 0000\n3068 step 1 0040\n3069 step 20 0000\n3089 step 1 0040\n3090 step 600 0000\n3690 step 1 4000\n3691 step 20 0000\n3711 step 1 0040\n3712 step 600 0000\n4312 capture rested\n4312 step 20 2000\n4332 step 1 0000\n4333 capture rested-moving\n4333 quit\n"
+    },
+    "native-v4": {
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "--game-data",
+        "local/game-data-stage-v2",
+        "--save-directory",
+        "local/research/post-chest-story-v1/native-v4/saves",
+        "--frames",
+        "1200",
+        "--buttons",
+        "local/research/post-chest-story-v1/native-v4/buttons.txt",
+        "--capture",
+        "local/research/post-chest-story-v1/native-v4/prelude.png",
+        "--headless-control",
+        "local/research/post-chest-story-v1/native-v4/control"
+      ],
+      "binary_sha256": "984443303467af434fe036bb4145d9f9c3472b03ede0d22500679ca4336adf02",
+      "saves_before": {
+        "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+      },
+      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+      "exit_code": 0,
+      "seconds_including_control_waits": 58.753903333000004,
+      "saves_after": {
+        "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+      },
+      "controller_commands": "# Native digital controller steps; continuous asynchronous loaders can finish\n# while simulation waits for input. No AppKit timing or deterministic readiness claim.\n1200 step 1 2000\n1201 step 20 0000\n1221 step 1 0040\n1222 step 70 0000\n1292 step 1 8000\n1293 step 20 0000\n1313 step 1 0040\n1314 step 1000 0000\n2314 step 25 c000\n2339 step 1 0000\n2340 step 5 a000\n2345 step 1 0000\n2346 step 1 0040\n2347 step 140 0000\n2487 step 5 3000\n2492 step 1 0000\n2493 step 1 0040\n2494 step 140 0000\n2634 step 10 4000\n2644 step 1 0000\n2645 step 5 c000\n2650 step 1 0000\n2651 step 1 0040\n2652 step 140 0000\n2792 step 7 3000\n2799 step 1 0000\n2800 step 1 0040\n2801 step 160 0000\n2961 step 1 0040\n2962 step 60 0000\n3022 step 1 0040\n3023 step 45 0000\n3068 step 1 0040\n3069 step 20 0000\n3089 step 1 0040\n3090 step 600 0000\n3690 step 1 4000\n3691 step 20 0000\n3711 step 1 0040\n3712 step 600 0000\n4312 capture rested\n4312 step 8 4000\n4320 step 26 c000\n4346 step 1 0000\n4347 capture exit-contact\n4347 step 1 0040\n4348 step 140 0000\n4488 capture hall\n4488 step 7 3000\n4495 step 1 0000\n4496 step 1 0040\n4497 step 160 0000\n4657 step 1 0040\n4658 step 60 0000\n4718 step 1 0040\n4719 step 45 0000\n4764 step 1 4000\n4765 step 20 0000\n4785 step 1 4000\n4786 step 20 0000\n4806 step 1 4000\n4807 step 20 0000\n4827 capture save-selected\n4827 step 1 0040\n4828 step 160 0000\n4988 capture save-menu\n4988 step 1 2000\n4989 step 20 0000\n5009 step 1 2000\n5010 step 20 0000\n5030 capture file3-selected\n5030 step 1 0040\n5031 step 300 0000\n5331 capture saved-rested\n5331 quit\n"
+    },
+    "native-v5": {
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "--game-data",
+        "local/game-data-stage-v2",
+        "--save-directory",
+        "local/research/post-chest-story-v1/native-v5/saves",
+        "--frames",
+        "1200",
+        "--buttons",
+        "local/research/post-chest-story-v1/native-v5/buttons.txt",
+        "--capture",
+        "local/research/post-chest-story-v1/native-v5/prelude.png",
+        "--headless-control",
+        "local/research/post-chest-story-v1/native-v5/control"
+      ],
+      "binary_sha256": "984443303467af434fe036bb4145d9f9c3472b03ede0d22500679ca4336adf02",
+      "saves_before": {
+        "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+      },
+      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+      "exit_code": 0,
+      "seconds_including_control_waits": 58.257077959,
+      "saves_after": {
+        "bkmo2.dat": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84",
+        "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+      },
+      "controller_commands": "# Native digital controller steps; continuous asynchronous loaders can finish\n# while simulation waits for input. No AppKit timing or deterministic readiness claim.\n1200 step 1 2000\n1201 step 20 0000\n1221 step 1 0040\n1222 step 70 0000\n1292 step 1 8000\n1293 step 20 0000\n1313 step 1 0040\n1314 step 1000 0000\n2314 step 25 c000\n2339 step 1 0000\n2340 step 5 a000\n2345 step 1 0000\n2346 step 1 0040\n2347 step 140 0000\n2487 step 5 3000\n2492 step 1 0000\n2493 step 1 0040\n2494 step 140 0000\n2634 step 10 4000\n2644 step 1 0000\n2645 step 5 c000\n2650 step 1 0000\n2651 step 1 0040\n2652 step 140 0000\n2792 step 7 3000\n2799 step 1 0000\n2800 step 1 0040\n2801 step 160 0000\n2961 step 1 0040\n2962 step 60 0000\n3022 step 1 0040\n3023 step 45 0000\n3068 step 1 0040\n3069 step 20 0000\n3089 step 1 0040\n3090 step 600 0000\n3690 step 1 4000\n3691 step 20 0000\n3711 step 1 0040\n3712 step 600 0000\n4312 step 8 4000\n4320 step 26 c000\n4346 step 1 0000\n4347 step 1 0040\n4348 step 140 0000\n4488 step 7 3000\n4495 step 1 0000\n4496 step 1 0040\n4497 step 160 0000\n4657 step 1 0040\n4658 step 60 0000\n4718 step 1 0040\n4719 step 45 0000\n4764 step 1 4000\n4765 step 20 0000\n4785 step 1 4000\n4786 step 20 0000\n4806 step 1 4000\n4807 step 20 0000\n4827 step 1 0040\n4828 step 160 0000\n4988 step 240 0000\n5228 capture save-ready\n5228 step 1 2000\n5229 step 20 0000\n5249 capture file2\n5249 step 1 0040\n5250 step 300 0000\n5550 capture saved-rested\n5550 quit\n"
+    },
+    "restart-file3-v1": {
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "--game-data",
+        "local/game-data-stage-v2",
+        "--save-directory",
+        "local/research/post-chest-story-v1/restart-file3-v1/saves",
+        "--frames",
+        "1200",
+        "--buttons",
+        "local/research/post-chest-story-v1/restart-file3-v1/buttons.txt",
+        "--capture",
+        "local/research/post-chest-story-v1/restart-file3-v1/prelude.png",
+        "--headless-control",
+        "local/research/post-chest-story-v1/restart-file3-v1/control"
+      ],
+      "binary_sha256": "984443303467af434fe036bb4145d9f9c3472b03ede0d22500679ca4336adf02",
+      "saves_before": {
+        "bkmo2.dat": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84",
+        "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+      },
+      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+      "exit_code": 0,
+      "seconds_including_control_waits": 13.383174458,
+      "saves_after": {
+        "bkmo2.dat": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84",
+        "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+      },
+      "controller_commands": "# Native digital controller steps; continuous asynchronous loaders can finish\n# while simulation waits for input. No AppKit timing or deterministic readiness claim.\n1200 step 1 2000\n1201 step 20 0000\n1221 step 1 2000\n1222 step 20 0000\n1242 capture file3-selected\n1242 step 1 0040\n1243 step 70 0000\n1313 step 1 8000\n1314 step 20 0000\n1334 step 1 0040\n1335 step 1000 0000\n2335 capture restored-file3\n2335 step 20 2000\n2355 step 1 0000\n2356 capture restored-moving\n2356 quit\n"
+    },
+    "original-rest-v1": {
+      "command": [
+        "build/play-research/okage-oracle/okage-boot-oracle",
+        "local/disc/Okage - Shadow King (USA).cue",
+        "900",
+        "local/research/save-session-v1/original-reenter-v1/endpoint.state.zip",
+        "--load",
+        "--pad",
+        "local/research/post-chest-story-v1/original-rest-v1/input.pad",
+        "--game-mode",
+        "local/research/post-chest-story-v1/original-rest-v1/mode.jsonl",
+        "--events",
+        "local/research/post-chest-story-v1/original-rest-v1/events",
+        "--transition",
+        "local/research/post-chest-story-v1/original-rest-v1/transition.bin",
+        "--camera",
+        "local/research/post-chest-story-v1/original-rest-v1/camera.bin",
+        "--controller",
+        "local/research/post-chest-story-v1/original-rest-v1/controller.bin",
+        "--audio",
+        "local/research/post-chest-story-v1/original-rest-v1/audio.wav",
+        "--audio-index",
+        "local/research/post-chest-story-v1/original-rest-v1/audio-index.json",
+        "--capture",
+        "local/research/post-chest-story-v1/original-rest-v1/image",
+        "--save",
+        "local/research/post-chest-story-v1/original-rest-v1/endpoint.state.zip",
+        "--capture-frames",
+        "1,60,110,170,230,350,600,900",
+        "--deadline-seconds",
+        "180"
+      ],
+      "binary_sha256": "b23638e133f0ba6e783b616fae6cc1376ba756774eb1fe815ddc09700523b8ac",
+      "state_sha256": "1eb7b4463750fe8ace0633cacdff0b3d1c084cd4fff53de4dabf2059b98863c0",
+      "pad_sha256": "b7583fe568ebaa2238d646bfeab00469f7da93e291bc46c560dcd1cd4da1832a",
+      "scope": "Original Rest from earlier story state; not paired post-chest progression.",
+      "exit_code": 0,
+      "seconds": 24.093091041
+    }
+  },
+  "comparison": {
+    "scope": [
+      "Retained original earlier-story Rest versus native post-chest Rest. Different initial story, HP and held-input history; not whole-state equivalence.",
+      "Entire requested source110..710 inclusive compared to native3712..4312, constant+3602. No fitted shifts or mismatch cropping.",
+      "API uses relative0..600 internally solely by subtracting110 from every source label. All requested frames and missing observations retained.",
+      "Unmodified diagnose_home1b_interval.compare_observations executed successfully and its entire report equals the prior audit-adapted comparator report. No adaptation is needed for this evidence.",
+      "Original pad file holds Cross at110..113 and releases114; native journal holds only3712 and releases3713. Mapped source111..113 thus differs by three held ticks; scoped state agreement does not prove input schedule identity.",
+      "Full3448-byte variable comparison uses genuine Save payload as baseline; no pre-Rest3711 variable snapshot exists, so intervening field-entry/story changes cannot all be attributed to Rest.",
+      "Original/native audio retained but not compared. Images retained at different endpoints; no pixel-alignment claim."
+    ],
+    "mapping": {
+      "source_first": 110,
+      "source_last": 710,
+      "native_first": 3712,
+      "native_last": 4312,
+      "offset": 3602,
+      "inclusive_frames": 601
+    },
+    "absolute_difference_summary": {
+      "controller": {
+        "count": 0,
+        "first_source": null,
+        "first_native": null,
+        "source_frames": []
+      },
+      "choice": {
+        "count": 0,
+        "first_source": null,
+        "first_native": null,
+        "source_frames": []
+      },
+      "manager_running_pc_gate": {
+        "count": 0,
+        "first_source": null,
+        "first_native": null,
+        "source_frames": []
+      },
+      "pad_latch": {
+        "count": 0,
+        "first_source": null,
+        "first_native": null,
+        "source_frames": []
+      },
+      "direction_latch": {
+        "count": 0,
+        "first_source": null,
+        "first_native": null,
+        "source_frames": []
+      },
+      "player_mask": {
+        "count": 0,
+        "first_source": null,
+        "first_native": null,
+        "source_frames": []
+      },
+      "hero_facing_w": {
+        "count": 0,
+        "first_source": null,
+        "first_native": null,
+        "source_frames": []
+      },
+      "hero_position": {
+        "count": 0,
+        "first_source": null,
+        "first_native": null,
+        "source_frames": []
+      },
+      "camera_rotation": {
+        "count": 0,
+        "first_source": null,
+        "first_native": null,
+        "source_frames": []
+      },
+      "camera_mode_phase": {
+        "count": 0,
+        "first_source": null,
+        "first_native": null,
+        "source_frames": []
+      },
+      "camera_position": {
+        "count": 0,
+        "first_source": null,
+        "first_native": null,
+        "source_frames": []
+      },
+      "camera_unblended_target": {
+        "count": 0,
+        "first_source": null,
+        "first_native": null,
+        "source_frames": []
+      }
+    },
+    "unmodified_comparator_proof": {
+      "executed": true,
+      "entire_report_equal_to_prior_audit_adaptation": true,
+      "controller_manager_pad_disagreements": 0
+    },
+    "input_schedule_difference": {
+      "original_cross_held": [
+        110,
+        111,
+        112,
+        113
+      ],
+      "native_cross_held": [
+        3712
+      ],
+      "mapped_different_source_frames": [
+        111,
+        112,
+        113
+      ],
+      "mapped_different_native_frames": [
+        3713,
+        3714,
+        3715
+      ],
+      "basis": "Original input.pad requested hold/release edges and native input journal actual tick attempts; not source handler latch identity."
+    }
+  },
+  "native_payload": {
+    "save": {
+      "path": "local/research/post-chest-story-v1/native-v3/saves/bkmo1.dat",
+      "bytes": 3460,
+      "sha256": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    },
+    "saved_values": {
+      "money": 1011,
+      "item7": 0,
+      "item114": 1,
+      "bank1_index40": true,
+      "playtime": 2094,
+      "hero_level": 2,
+      "hero_hp": 1,
+      "hero_maxhp": 36
+    },
+    "rested_values": {
+      "money": 1011,
+      "item7": 0,
+      "item114": 1,
+      "bank1_index40": true,
+      "playtime": 2144,
+      "hero_level": 2,
+      "hero_hp": 36,
+      "hero_maxhp": 36
+    },
+    "compared_bytes": 3448,
+    "equal_bytes": 3442,
+    "changed_bytes": [
+      {
+        "offset": "0x21a",
+        "saved": 0,
+        "rested": 3
+      },
+      {
+        "offset": "0x21b",
+        "saved": 2,
+        "rested": 0
+      },
+      {
+        "offset": "0x514",
+        "saved": 1,
+        "rested": 0
+      },
+      {
+        "offset": "0x520",
+        "saved": 46,
+        "rested": 96
+      },
+      {
+        "offset": "0x598",
+        "saved": 150,
+        "rested": 185
+      },
+      {
+        "offset": "0x5cc",
+        "saved": 1,
+        "rested": 36
+      }
+    ],
+    "tail_bytes_uncompared": 648,
+    "save_file_unchanged": true,
+    "change_interpretation": [
+      {
+        "offsets": [
+          "0x21a",
+          "0x21b"
+        ],
+        "meaning": "Bank2 byte indices10/11; semantic names and timing unestablished. Do not attribute to Rest from this saved baseline."
+      },
+      {
+        "offsets": [
+          "0x514"
+        ],
+        "meaning": "Bank4 index1 entrance1 to0; prepare_field_load writes current entrance. Saved baseline predates entry; not a Rest-only mutation."
+      },
+      {
+        "offsets": [
+          "0x520"
+        ],
+        "meaning": "Playtime uint32 2094 to2144 (+50). GamePlayTimeCounter source-labelled main-loop counter."
+      },
+      {
+        "offsets": [
+          "0x598"
+        ],
+        "meaning": "Aggregate current HP150 to185 (+35); refresh_game_characters sums active character HP."
+      },
+      {
+        "offsets": [
+          "0x5cc"
+        ],
+        "meaning": "Character0 current HP1 to36 (+35), matching unchanged maxHP36. Session Rest callback invokes refresh_game_characters(mask15)."
+      }
+    ],
+    "preserved_progression": {
+      "item114": 1,
+      "item7": 0,
+      "money": 1011,
+      "bank1_decimal_index40": true,
+      "hero_level": 2,
+      "hero_maxhp": 36,
+      "all_other_payload_bytes_equal": true
+    }
+  },
+  "persistence_audit": {
+    "schema": "okage-native-cold-restart-persistence-audit-v1",
+    "scope": "Read-only audit of native-v5 Save File 3 and a separate cold ordinary-input Restore/movement process; no source save, RAM image, or captured variables were used as native input.",
+    "save_writer_run": {
+      "path": "local/research/post-chest-story-v1/native-v5/run.json",
+      "exit_code": 0,
+      "binary_sha256": "984443303467af434fe036bb4145d9f9c3472b03ede0d22500679ca4336adf02",
+      "file3_path": "local/research/post-chest-story-v1/native-v5/saves/bkmo2.dat",
+      "file3_sha256": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84",
+      "file3_bytes": 3460,
+      "saved_playtime_u32_at_0x520": 2160,
+      "hero_current_hp_u32_at_0x5cc": 36,
+      "hero_max_hp_u16_at_0x5dc": 36
+    },
+    "cold_restart_run": {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/run.json",
+      "exit_code": 0,
+      "binary_sha256": "984443303467af434fe036bb4145d9f9c3472b03ede0d22500679ca4336adf02",
+      "seconds_including_control_waits": 13.383174458,
+      "seconds_are_not_performance_measurement": true,
+      "capture_frames": {
+        "file3_selected": 1242,
+        "restored_file3": 2335,
+        "restored_moving": 2356
+      },
+      "save_slot_hashes": {
+        "bkmo0.dat": {
+          "before_sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+          "after_sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+          "actual_sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+          "unchanged_before_after": true,
+          "matches_after_hash": true,
+          "size_bytes": 3460
+        },
+        "bkmo1.dat": {
+          "before_sha256": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795",
+          "after_sha256": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795",
+          "actual_sha256": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795",
+          "unchanged_before_after": true,
+          "matches_after_hash": true,
+          "size_bytes": 3460
+        },
+        "bkmo2.dat": {
+          "before_sha256": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84",
+          "after_sha256": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84",
+          "actual_sha256": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84",
+          "unchanged_before_after": true,
+          "matches_after_hash": true,
+          "size_bytes": 3460
+        }
+      },
+      "all_three_files_unchanged": true
+    },
+    "save_envelope": {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/saves/bkmo2.dat",
+      "size_bytes": 3460,
+      "header_hex": "21637263780d000075e139bc",
+      "magic": "!crc",
+      "payload_length_u32": 3448,
+      "payload_bytes": 3448,
+      "stored_checksum_u32": "0xbc39e175",
+      "source_checksum_recomputed_u32": "0xbc39e175",
+      "checksum_valid": true,
+      "payload_sha256": "7ae455c9809065d1dacddb53e27bc6e09268e6381e28988e825640aea56627be",
+      "matches_writer_output": true
+    },
+    "restore_payload_comparison": {
+      "restored-file3": {
+        "frame": 2335,
+        "snapshot_size_bytes": 4096,
+        "compared_payload_bytes": 3448,
+        "matching_bytes": 3447,
+        "differing_offsets": [
+          "0x520"
+        ],
+        "saved_playtime_u32": 2160,
+        "restored_playtime_u32": 2176,
+        "snapshot_payload_sha256": "2c0931a8f24ed077184bdb2ee946d2162d953e4e17e2f0e09cad4ffbb846c9dd",
+        "variables_capture_sha256": "d838ac2ec11d8871da4f24704de8cfbe1fc48d3507bd4e3834fe67333dbf9dec"
+      },
+      "restored-moving": {
+        "frame": 2356,
+        "snapshot_size_bytes": 4096,
+        "compared_payload_bytes": 3448,
+        "matching_bytes": 3447,
+        "differing_offsets": [
+          "0x520"
+        ],
+        "saved_playtime_u32": 2160,
+        "restored_playtime_u32": 2177,
+        "snapshot_payload_sha256": "37c4a9aff2d4b585bf28c2e2f4c4e02dd8302da97269242cb7855d1ad51ff647",
+        "variables_capture_sha256": "eb7e0d1a03e729aa47b6c8ff6eb5801565e635a6ca77b30d71da4a44452361ee"
+      }
+    },
+    "movement": {
+      "input_journal_sha256": "9f18360091b62aaa115c43626456bafabef8e19bed50ac5cfee6313b5bcba6c2",
+      "held_mask": "0x2000",
+      "held_ticks": [
+        2336,
+        2355
+      ],
+      "held_tick_count": 20,
+      "release_tick": 2356,
+      "movement_trace_sha256": "9a87a7821cb86c6e920fd70da35593d2dda634a8e47d4ade71e8925c1d191f21",
+      "actor_minus1_trace_sha256": "a96ec71825c4f6006514f5570aee9b6cef2dda27b92f9c963cf1ddb6ff9c7c9f",
+      "hero_translation_channel": 1,
+      "hero_positions_by_completed_frame": {
+        "2335": [
+          0.04029613733291626,
+          -0.0010000000474974513,
+          2.201119899749756,
+          1.0
+        ],
+        "2355": [
+          7.437798023223877,
+          -0.0010000000474974513,
+          6.190158367156982,
+          1.0
+        ],
+        "2356": [
+          7.437798023223877,
+          -0.0010000000474974513,
+          6.190158367156982,
+          1.0
+        ]
+      },
+      "held_input_and_movement_evidence": true,
+      "position_unchanged_after_release_tick": true
+    },
+    "artifact_hashes": {
+      "run.json": "371c624bd76addbeb2845fd8630c77c1e42b074ebfc9a56ea1372a7982996355",
+      "commands.txt": "7225bfc0861993b9f5172a6ff910798a8d994f273c55760861fd07f203633d2d",
+      "inputs.jsonl": "9f18360091b62aaa115c43626456bafabef8e19bed50ac5cfee6313b5bcba6c2",
+      "file3-selected.png.json": "0f14f90c484c7cefa9d503613015600faf4910eab93706022a525396416894bf",
+      "restored-file3.png.json": "94af66539bc99eb87f36288cdc299e78e62974d2b1b1857aa04153b4fcb35f76",
+      "restored-moving.png.json": "2dbe20e7e65fa28cfe0e4018bb5b75337ca035b96971a468baafea4515ed9187",
+      "restored-file3.png.variables.bin": "d838ac2ec11d8871da4f24704de8cfbe1fc48d3507bd4e3834fe67333dbf9dec",
+      "restored-moving.png.variables.bin": "eb7e0d1a03e729aa47b6c8ff6eb5801565e635a6ca77b30d71da4a44452361ee",
+      "restored-moving.png.movement.bin": "9a87a7821cb86c6e920fd70da35593d2dda634a8e47d4ade71e8925c1d191f21",
+      "restored-moving.png.actor-1.bin": "a96ec71825c4f6006514f5570aee9b6cef2dda27b92f9c963cf1ddb6ff9c7c9f",
+      "bkmo2.dat": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84"
+    },
+    "limits": [
+      "This verifies self-produced native Save/Restore behavior and movement, not original emulator parity.",
+      "Only File 3 and one ordinary 20-tick Right movement segment are covered.",
+      "Save framing/checksum and captured persistent payload are validated; this does not validate every save slot/error branch or other saved fields independently."
+    ]
+  },
+  "tests": {
+    "release": "test-release-v4.log",
+    "debug": "test-debug-v3.log",
+    "sanitize": "test-sanitize-v3.log",
+    "targets": [
+      "field-tests",
+      "game-state-tests"
+    ],
+    "passed_per_build": 2,
+    "python": {
+      "passed": 501,
+      "seconds": 23.787,
+      "log": "python-tests.log"
+    },
+    "negative_fixture": "test-release-v2.log: field entry needed native variables; fixed missing fixture callbacks, then pass",
+    "python_final": {
+      "passed": 501,
+      "seconds": 22.467,
+      "log": "local/research/post-chest-story-v1/python-final.log"
+    }
+  },
+  "limitations": [
+    "Entire start-to-finish playthrough incomplete",
+    "Original Rest begins from earlier story and differs in raw Confirm hold duration; scoped601tick observedstate agreement is not whole-state/input equality",
+    "Image/audio unaligned and uncompared; previous cold/outdoor fidelity failures remain",
+    "Full Rest route Release-only; other builds focusedtests only",
+    "No new GUI/physicalcontroller/listening/performance/freshimport proof",
+    "51 othermodes and fieldpartychange11 guarded"
+  ],
+  "artifact_hashes": [
+    {
+      "path": "docs/new-game-state-validation.json",
+      "bytes": 25135,
+      "sha256": "23d5a182e05af36ea302c1772dbd79b7915979bbcff9cf6d9ad4a376860f4e11"
+    },
+    {
+      "path": "local/extracted/SCUS_971.29",
+      "bytes": 1374220,
+      "sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
+    },
+    {
+      "path": "local/research/00133450.c",
+      "bytes": 3757,
+      "sha256": "f4613830bde7c994ee30cfdc32d0fd0f9b27568f89ceca3a7d2d7834fd129740"
+    },
+    {
+      "path": "local/research/00133a98.c",
+      "bytes": 13391,
+      "sha256": "ed6b5fee8cde2d92ec2b788227e95b1731bdf8bfe5b2bdae0cf267b9f100e288"
+    },
+    {
+      "path": "local/research/first-battle-source-v1/00131338.c",
+      "bytes": 427,
+      "sha256": "e17678f7777468a8709f0cb422cbcee13a1953bf64998a3847e52c13cb7a456d"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/build-debug-v3.log",
+      "bytes": 5830,
+      "sha256": "f9014bfc48090f2ae7d83ca50002d071047c8041c6ba859246fec30d9fac1183"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/build-release-v3.log",
+      "bytes": 5830,
+      "sha256": "c1fb21923a9c1cef034cf8117dcdb17edddba441b85bff9324a194ff6497079d"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/build-sanitize-v3.log",
+      "bytes": 5830,
+      "sha256": "dc8f72b234f76b91bd2b6630611912bd637217346e1fa387007ac6cb51e44f70"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v1/buttons.txt",
+      "bytes": 36,
+      "sha256": "52a6eb3d46bb6c66d5e65fca754212e1293bfb671e274ebc6b9638e3889e5dac"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v1/control/commands.txt",
+      "bytes": 1133,
+      "sha256": "1feb11f951c995cf7a3dfdb3b19a3526fdb5b740de042492437d26b38fd000b9"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v1/control/inputs.jsonl",
+      "bytes": 362259,
+      "sha256": "af2b4cd3cd73b4982393e7ed2afce3733602b9b31695d5603de69737f2d4e022"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v1/run.json",
+      "bytes": 1185,
+      "sha256": "812b67933b74bfe4065fabe015a837b937d01fc81a75b58cbe1105c787c09580"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v1/run.log",
+      "bytes": 4340,
+      "sha256": "3b1d2b0e853dcdd5cf6bac888b3034f447f4c8c1cde38dc84bd8de2d06d37e0d"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v1/saves/bkmo0.dat",
+      "bytes": 3460,
+      "sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v1/saves/bkmo1.dat",
+      "bytes": 3460,
+      "sha256": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v2/buttons.txt",
+      "bytes": 36,
+      "sha256": "52a6eb3d46bb6c66d5e65fca754212e1293bfb671e274ebc6b9638e3889e5dac"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v2/control/commands.txt",
+      "bytes": 869,
+      "sha256": "ffcf13e02d60f0a20acce95636b18b8d211d256eb80d829dea86c1c7cbd8a608"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v2/control/inputs.jsonl",
+      "bytes": 368132,
+      "sha256": "a41a052b86aa0322ea6ca953d342ba3fd2a0fe96052b19f99d6fbdce08163c80"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v2/run.json",
+      "bytes": 1190,
+      "sha256": "2f06dda567956fecb907c2c455a8cb363ebd634dc76f388ea1d6f4b710e359a7"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v2/run.log",
+      "bytes": 3212,
+      "sha256": "5be80174e46a8565c7b62c89a9cdbe3a2aabc5c5e74c0da8e5b8d3f8cd6b9be5"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v2/saves/bkmo0.dat",
+      "bytes": 3460,
+      "sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v2/saves/bkmo1.dat",
+      "bytes": 3460,
+      "sha256": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/buttons.txt",
+      "bytes": 36,
+      "sha256": "52a6eb3d46bb6c66d5e65fca754212e1293bfb671e274ebc6b9638e3889e5dac"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/commands.txt",
+      "bytes": 961,
+      "sha256": "b3863cdb622b34935f9ba37deddd8634cf470449a1e576b2704591aa4e509355"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/final.png",
+      "bytes": 225743,
+      "sha256": "58035fa8d295cd133aae36a5935cdd3c992f9c34ab9c0a018f6497184b6944fb"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/final.png.actor-1.bin",
+      "bytes": 10716288,
+      "sha256": "b8565f5ac76c18c455048429a6b2aa82e30296d2ac7c004f54ee6f9d20d561b8"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/final.png.actors-state.json",
+      "bytes": 13154,
+      "sha256": "1926c604f3992bf0c987f51d92f2c838a3fd594e21a684a0c8caaea9502d43b2"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/final.png.audio.json",
+      "bytes": 163,
+      "sha256": "0143ef128834b598c564d83362bc55792ef4ec5257d69c476a815c3748f6c758"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/final.png.json",
+      "bytes": 1086,
+      "sha256": "84ca015e7020456f5214d697591681b0adbdca31732fc9512a95d41113ab4ce3"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/final.png.movement.bin",
+      "bytes": 181248,
+      "sha256": "10b4c6b3064376626fb0e600f6c435a76c03876d3a7fe9bf350237f1505357ae"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/final.png.save-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/final.png.shadow-submissions.json",
+      "bytes": 165,
+      "sha256": "13f0061a4547756574d459277191a85863523481aea27ffec8171f10b958494e"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/final.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "c1d32ef860df8969ff1de880984226fe75f202be8bf4e50f07e2df80798aca55"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/inputs.jsonl",
+      "bytes": 416842,
+      "sha256": "01fa70ada88b3eb7afbad225dd895c8f74bebc26d3dbcd33fd97ef9fe09c162e"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/rested-moving.png",
+      "bytes": 225743,
+      "sha256": "58035fa8d295cd133aae36a5935cdd3c992f9c34ab9c0a018f6497184b6944fb"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/rested-moving.png.actor-1.bin",
+      "bytes": 10716288,
+      "sha256": "b8565f5ac76c18c455048429a6b2aa82e30296d2ac7c004f54ee6f9d20d561b8"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/rested-moving.png.actors-state.json",
+      "bytes": 13154,
+      "sha256": "1926c604f3992bf0c987f51d92f2c838a3fd594e21a684a0c8caaea9502d43b2"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/rested-moving.png.audio.json",
+      "bytes": 163,
+      "sha256": "0143ef128834b598c564d83362bc55792ef4ec5257d69c476a815c3748f6c758"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/rested-moving.png.json",
+      "bytes": 1086,
+      "sha256": "84ca015e7020456f5214d697591681b0adbdca31732fc9512a95d41113ab4ce3"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/rested-moving.png.movement.bin",
+      "bytes": 181248,
+      "sha256": "10b4c6b3064376626fb0e600f6c435a76c03876d3a7fe9bf350237f1505357ae"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/rested-moving.png.save-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/rested-moving.png.shadow-submissions.json",
+      "bytes": 165,
+      "sha256": "13f0061a4547756574d459277191a85863523481aea27ffec8171f10b958494e"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/rested-moving.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "c1d32ef860df8969ff1de880984226fe75f202be8bf4e50f07e2df80798aca55"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/rested.png",
+      "bytes": 286037,
+      "sha256": "8d9b1bfac66e36df9119f16fa1d37d0838acc876a1a813386e7175a23d097b9c"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/rested.png.actor-1.bin",
+      "bytes": 10636824,
+      "sha256": "5179a5b85cb37c005df8d72f88290adddc6026dcdb37b2de10b962983ab0e39e"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/rested.png.actors-state.json",
+      "bytes": 12751,
+      "sha256": "43114f4b79ce22da04a0165c8883eda8c216d47046ac37c4d436122f5439df1d"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/rested.png.audio.json",
+      "bytes": 163,
+      "sha256": "1b3a24bc1b31ca412f1045f0ea54113ae8cbde35a6d4cd782fc4dc83a64ad0d1"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/rested.png.json",
+      "bytes": 1086,
+      "sha256": "b6144bf451320b77e4c122599240c499c2852d8ffe70f45868e70d60b2e3d0f4"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/rested.png.movement.bin",
+      "bytes": 179904,
+      "sha256": "aef42ade974fa0475c1224c1bc1b1d46a9611bd18615a2fb5a9a88f3a17e84e4"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/rested.png.save-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/rested.png.shadow-submissions.json",
+      "bytes": 165,
+      "sha256": "ac1fe2457c9df2ca6d2eb02c9449de0f07192da9ae8d62f38d49911599847e5d"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/control/rested.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "b382ee32d8ad942f5ee1aa80f3bf3564f52100015c4869e104124f8a62532491"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/run.json",
+      "bytes": 1184,
+      "sha256": "c370a16154c61ec2b9bab7699b2ba036adb92a049c81f935dd93cf2621eb90c0"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/run.log",
+      "bytes": 3620,
+      "sha256": "e8fc2831a8c65fe8c42d2e0462a06959cb1ec8a2409c332a5d34a4221fc9d16f"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/saves/bkmo0.dat",
+      "bytes": 3460,
+      "sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v3/saves/bkmo1.dat",
+      "bytes": 3460,
+      "sha256": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v4/buttons.txt",
+      "bytes": 36,
+      "sha256": "52a6eb3d46bb6c66d5e65fca754212e1293bfb671e274ebc6b9638e3889e5dac"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v4/control/commands.txt",
+      "bytes": 1522,
+      "sha256": "112384c93ede8277cccfb70aa9501e312ce6f5bf4ce901fa7b3b56a2bb70a5de"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v4/control/inputs.jsonl",
+      "bytes": 514336,
+      "sha256": "43457d246cb076a232997472c1b5c942c831df2be76f5d7ec492d099cd815af6"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v4/run.json",
+      "bytes": 1190,
+      "sha256": "08727d2d7cd2063916227f1aad6108ef542757538961587209c857bfab167533"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v4/run.log",
+      "bytes": 5892,
+      "sha256": "78edcd067df0b5be50241d5fdfba51473cd5227bdf53fd49915aee085ff5d9a9"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v4/saves/bkmo0.dat",
+      "bytes": 3460,
+      "sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v4/saves/bkmo1.dat",
+      "bytes": 3460,
+      "sha256": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/buttons.txt",
+      "bytes": 36,
+      "sha256": "52a6eb3d46bb6c66d5e65fca754212e1293bfb671e274ebc6b9638e3889e5dac"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/commands.txt",
+      "bytes": 1407,
+      "sha256": "6e71994a22ea9f3a9dee7edea3a98ebedada57fd367c5df6cee3a3071e8ae49d"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/file2.png",
+      "bytes": 235299,
+      "sha256": "783d6426533027de97672d2460ba79c42850b805ae29c052a4546e601e69c487"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/file2.png.actor-1.bin",
+      "bytes": 14174864,
+      "sha256": "2e77a622ac3e73fd62f722c9b6fefc13c249bcddfd822a4418a846290e4023dd"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/file2.png.actors-state.json",
+      "bytes": 12746,
+      "sha256": "3f8bf279c144b8ded817d1102b1c039fa51e64f2b6f7436e7338dca0edde4df2"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/file2.png.audio.json",
+      "bytes": 163,
+      "sha256": "2b779018ecb5dd8b3f6b15f0ee391ba1eccd7819622237ea22703bfb49ed689c"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/file2.png.json",
+      "bytes": 1088,
+      "sha256": "3f9ff021e4f683160b5627de7b8932f261fe8cb7351378c8f71da762e7ff8539"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/file2.png.movement.bin",
+      "bytes": 239744,
+      "sha256": "46755d07ffbce49d5ddc671a0785f773b18662a5471addb8eb1951c3a28ec9d5"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/file2.png.save-state.bin",
+      "bytes": 1431792,
+      "sha256": "dc13e3513b989f94550ec3ebfbd771f3192a43e59d95dbfa22f97d4e704be46c"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/file2.png.shadow-submissions.json",
+      "bytes": 165,
+      "sha256": "40af0013ac322a5c19f0020984de1bbb5752703a6a45d263a533173c27c0fe16"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/file2.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "8aceea64dffba316895a1038e94bba22aabd4d6762178bd600f6f1db090c7f7d"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/final.png",
+      "bytes": 275899,
+      "sha256": "c754cb31b3d3039f05db42e03216314c752609803fcb80897f8a9cc09e18ebcc"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/final.png.actor-1.bin",
+      "bytes": 15313848,
+      "sha256": "c25a6758db918246848eb92cb6e59280a17ec75462f321c53a1d74abcf7846ce"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/final.png.actors-state.json",
+      "bytes": 12738,
+      "sha256": "c942983522af674ac9b44e63d5197bf9301c0f0c7bf722ed957ed7ba528c8ce5"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/final.png.audio.json",
+      "bytes": 163,
+      "sha256": "c5a4e798fa1eb402ff9f8cfe457d0e34651fb940b07123b9e2c4069e587f9189"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/final.png.json",
+      "bytes": 1087,
+      "sha256": "992d9a2c6153d6d4e968f1944610422f98abf18b046e48796b42446def2a5ecc"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/final.png.movement.bin",
+      "bytes": 259008,
+      "sha256": "26c48e2b917dfd76211f8c28f87f52eb6a4fa26dcab66bc78fe97d9f31075b09"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/final.png.save-state.bin",
+      "bytes": 2276784,
+      "sha256": "8e37ee1a516bc532bc0c4f316b35d111d19c732e314148caeeb658baf32858a9"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/final.png.shadow-submissions.json",
+      "bytes": 165,
+      "sha256": "0fc62a74e3d0799776a734efc6641ca894098edaabdc03cbac9297d1369ad820"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/final.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "9b91b9349f25dfd9b36621f366a3ef0d1d1513a59138885977e2de59998049eb"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/inputs.jsonl",
+      "bytes": 535293,
+      "sha256": "ec4b2c2d5ea0facab5b7c10f3b638446686f0b00f1b8ef5ce5e55e53a3e771f3"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/save-ready.png",
+      "bytes": 237518,
+      "sha256": "32df1aecba2ec983b14d0b711f1f9392f4814f8bb5081981a17a110e5c61fc16"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/save-ready.png.actor-1.bin",
+      "bytes": 14095400,
+      "sha256": "023025bb400a71a408e182870203324e55d9fb00c24ca27ec326992d665b152f"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/save-ready.png.actors-state.json",
+      "bytes": 12746,
+      "sha256": "36ff25ce9ae4f6114f10a22534977398ae89a2230e992e39b2e3950238da73f0"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/save-ready.png.audio.json",
+      "bytes": 163,
+      "sha256": "4354ebc0c41f3e96da9f94328a3924be323268d0b2bd3d4672559679bf8c08e7"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/save-ready.png.json",
+      "bytes": 1089,
+      "sha256": "a96a1d3f10d5de31764870748e6c8e4c4d4588050e3fbd8675345a0033b2e2d8"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/save-ready.png.movement.bin",
+      "bytes": 238400,
+      "sha256": "6ef06dde8121864713799d04110d2d2aad4e6409c712e031989b4c9e6756bc70"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/save-ready.png.save-state.bin",
+      "bytes": 1349640,
+      "sha256": "828fd4e6f9c41d39917406a1e38d3736d8c341cfb2e95ade25123a374a6dc904"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/save-ready.png.shadow-submissions.json",
+      "bytes": 165,
+      "sha256": "118a82458990fb83af05b7b474b876fbb1aaadc083923306525d364c406872f0"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/save-ready.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "8aceea64dffba316895a1038e94bba22aabd4d6762178bd600f6f1db090c7f7d"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/saved-rested.png",
+      "bytes": 275899,
+      "sha256": "c754cb31b3d3039f05db42e03216314c752609803fcb80897f8a9cc09e18ebcc"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/saved-rested.png.actor-1.bin",
+      "bytes": 15313848,
+      "sha256": "c25a6758db918246848eb92cb6e59280a17ec75462f321c53a1d74abcf7846ce"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/saved-rested.png.actors-state.json",
+      "bytes": 12738,
+      "sha256": "c942983522af674ac9b44e63d5197bf9301c0f0c7bf722ed957ed7ba528c8ce5"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/saved-rested.png.audio.json",
+      "bytes": 163,
+      "sha256": "c5a4e798fa1eb402ff9f8cfe457d0e34651fb940b07123b9e2c4069e587f9189"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/saved-rested.png.json",
+      "bytes": 1087,
+      "sha256": "992d9a2c6153d6d4e968f1944610422f98abf18b046e48796b42446def2a5ecc"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/saved-rested.png.movement.bin",
+      "bytes": 259008,
+      "sha256": "26c48e2b917dfd76211f8c28f87f52eb6a4fa26dcab66bc78fe97d9f31075b09"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/saved-rested.png.save-state.bin",
+      "bytes": 2276784,
+      "sha256": "8e37ee1a516bc532bc0c4f316b35d111d19c732e314148caeeb658baf32858a9"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/saved-rested.png.shadow-submissions.json",
+      "bytes": 165,
+      "sha256": "0fc62a74e3d0799776a734efc6641ca894098edaabdc03cbac9297d1369ad820"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/control/saved-rested.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "9b91b9349f25dfd9b36621f366a3ef0d1d1513a59138885977e2de59998049eb"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/run.json",
+      "bytes": 1269,
+      "sha256": "903eb11900c67c1f6c561f40794a8a0f6886aef532f279d155a18c557d825a33"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/run.log",
+      "bytes": 5429,
+      "sha256": "73b0248a0ba6962529972426ff856da24048d3474a28b030538fd02362e2adec"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/saves/bkmo0.dat",
+      "bytes": 3460,
+      "sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/saves/bkmo1.dat",
+      "bytes": 3460,
+      "sha256": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/saves/bkmo2.dat",
+      "bytes": 3460,
+      "sha256": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/original-anchor-inventory.md",
+      "bytes": 8263,
+      "sha256": "0bb8233e5e9abcc9dbb604d2898e81e5887f3d35def40fbddae94e6f5e854724"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/original-rest-v1/input.pad",
+      "bytes": 66,
+      "sha256": "b7583fe568ebaa2238d646bfeab00469f7da93e291bc46c560dcd1cd4da1832a"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/original-rest-v1/run.json",
+      "bytes": 1600,
+      "sha256": "92981c1b1a4eb9358f10d7064b15ffd6fafefbf8f779fdcd74f287d34fbb60ee"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/original-rest-v1/run.log",
+      "bytes": 15610,
+      "sha256": "4ccc3aa33fd4b9fce8db8fe801c21b5e5d3e8051a5ae7d36d637fa1b0a76fdd4"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/persistence-audit.json",
+      "bytes": 6494,
+      "sha256": "16896c6bb1663550f2b7d18bba5c5c618956edd81d19d0e334d4990bf38d890a"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/persistence-audit.py",
+      "bytes": 10073,
+      "sha256": "41354e6804a9e045881cab210d8d181c497df02c62df14bc165757dd04b2ffa7"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/python-tests.log",
+      "bytes": 53242,
+      "sha256": "245c5951897134cb7c552618ab1cefeb6533cab1ba9eae1b0606b9e3864cdc98"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/replay-v1-steps.txt",
+      "bytes": 504,
+      "sha256": "18922ae77fa52463c6a2e4855d59d0e7b3a5cfb7a4643af15c315ada7f26ce4d"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/replay-v4-to-save.txt",
+      "bytes": 801,
+      "sha256": "f8613c4014fdb6e29bd259662e462ecd58564b4f10f72d484cff86c5c5a5a518"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/rest-comparison-audit.json",
+      "bytes": 101409,
+      "sha256": "2ac7088d94897d684e05478676dd7004b92292c257d122bfa7c77cf49035c74f"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/rest-comparison-audit.py",
+      "bytes": 9647,
+      "sha256": "29b1136a098021612969871fbcb74b7b12cba87b3e4b7fbd0d57fb32c0bffa69"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/rest-source-review.md",
+      "bytes": 8635,
+      "sha256": "e358f280ee428ebc73954de9d9b336dbf5be38ca8c1353ddd2fa405a8d950f46"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/buttons.txt",
+      "bytes": 36,
+      "sha256": "52a6eb3d46bb6c66d5e65fca754212e1293bfb671e274ebc6b9638e3889e5dac"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/commands.txt",
+      "bytes": 472,
+      "sha256": "7225bfc0861993b9f5172a6ff910798a8d994f273c55760861fd07f203633d2d"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/file3-selected.png",
+      "bytes": 69788,
+      "sha256": "0879a201514b2dbce14e2ea862076f028e0a19d5691ccb240413d1f8f658c319"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/file3-selected.png.actors-state.json",
+      "bytes": 397,
+      "sha256": "de80b8e843e65bd951f1c67c2212f9cb16073709d00a86d3f8fe87fe078e13b4"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/file3-selected.png.audio.json",
+      "bytes": 159,
+      "sha256": "6bf257dcf69daf6347878cab9a2399e809e71c1d353a6cb4ed0f173f971490ca"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/file3-selected.png.json",
+      "bytes": 1064,
+      "sha256": "0f14f90c484c7cefa9d503613015600faf4910eab93706022a525396416894bf"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/file3-selected.png.save-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/file3-selected.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "749b847646a2d7d2dce036848af79769c2f4449bbe5608d6c9416f33d2201bb0"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/final.png",
+      "bytes": 223871,
+      "sha256": "cc9ed9c78d84365974ec6c104f6f5f251d050de6fad1e47b30e1b62f5cffd183"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/final.png.actor-1.bin",
+      "bytes": 3152072,
+      "sha256": "a96ec71825c4f6006514f5570aee9b6cef2dda27b92f9c963cf1ddb6ff9c7c9f"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/final.png.actors-state.json",
+      "bytes": 13154,
+      "sha256": "aa1b5cdc504122a3c097e97524b6aeb1ef31d5fbbf6ef02155528d873bdcb8d7"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/final.png.audio.json",
+      "bytes": 162,
+      "sha256": "f8055be715fe9cf72b2821387a79ef233ba84f646ef229810421ed8841c1dc21"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/final.png.json",
+      "bytes": 1061,
+      "sha256": "2dbe20e7e65fa28cfe0e4018bb5b75337ca035b96971a468baafea4515ed9187"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/final.png.movement.bin",
+      "bytes": 53312,
+      "sha256": "9a87a7821cb86c6e920fd70da35593d2dda634a8e47d4ade71e8925c1d191f21"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/final.png.save-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/final.png.shadow-submissions.json",
+      "bytes": 165,
+      "sha256": "ca5a3ac15e6c284ddb8b8e977021f559e206f392aef6720d13b5932e30592bfb"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/final.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "eb7e0d1a03e729aa47b6c8ff6eb5801565e635a6ca77b30d71da4a44452361ee"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/inputs.jsonl",
+      "bytes": 224947,
+      "sha256": "9f18360091b62aaa115c43626456bafabef8e19bed50ac5cfee6313b5bcba6c2"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/restored-file3.png",
+      "bytes": 288081,
+      "sha256": "1e4b08a91bcefac6736196e3ab1d9014e1513291768848cf22d5626500a0158a"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/restored-file3.png.actor-1.bin",
+      "bytes": 3072608,
+      "sha256": "a42d5768b34f31e3e2b3ed215657944effcde36a24eff0cb0b3fc1d55a9d733b"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/restored-file3.png.actors-state.json",
+      "bytes": 12755,
+      "sha256": "98c4fb194991ef4f098e22c8afa480b0bfd0bf1b276ec01665d6a30f2ce72aa8"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/restored-file3.png.audio.json",
+      "bytes": 162,
+      "sha256": "ead486ea74ca19923a31c54335a854550bd7fa329b039b668a343d81c6d45837"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/restored-file3.png.json",
+      "bytes": 1062,
+      "sha256": "94af66539bc99eb87f36288cdc299e78e62974d2b1b1857aa04153b4fcb35f76"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/restored-file3.png.movement.bin",
+      "bytes": 51968,
+      "sha256": "e2d9829cad926473dfa9adc92f6ad2375484f22b34c7351315dc804322be71ee"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/restored-file3.png.save-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/restored-file3.png.shadow-submissions.json",
+      "bytes": 165,
+      "sha256": "b4b433e6488b0bf068828821a6d5589f9603c93a34b33ede452bfbf0bd319c78"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/restored-file3.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "d838ac2ec11d8871da4f24704de8cfbe1fc48d3507bd4e3834fe67333dbf9dec"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/restored-moving.png",
+      "bytes": 223871,
+      "sha256": "cc9ed9c78d84365974ec6c104f6f5f251d050de6fad1e47b30e1b62f5cffd183"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/restored-moving.png.actor-1.bin",
+      "bytes": 3152072,
+      "sha256": "a96ec71825c4f6006514f5570aee9b6cef2dda27b92f9c963cf1ddb6ff9c7c9f"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/restored-moving.png.actors-state.json",
+      "bytes": 13154,
+      "sha256": "aa1b5cdc504122a3c097e97524b6aeb1ef31d5fbbf6ef02155528d873bdcb8d7"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/restored-moving.png.audio.json",
+      "bytes": 162,
+      "sha256": "f8055be715fe9cf72b2821387a79ef233ba84f646ef229810421ed8841c1dc21"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/restored-moving.png.json",
+      "bytes": 1061,
+      "sha256": "2dbe20e7e65fa28cfe0e4018bb5b75337ca035b96971a468baafea4515ed9187"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/restored-moving.png.movement.bin",
+      "bytes": 53312,
+      "sha256": "9a87a7821cb86c6e920fd70da35593d2dda634a8e47d4ade71e8925c1d191f21"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/restored-moving.png.save-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/restored-moving.png.shadow-submissions.json",
+      "bytes": 165,
+      "sha256": "ca5a3ac15e6c284ddb8b8e977021f559e206f392aef6720d13b5932e30592bfb"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/control/restored-moving.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "eb7e0d1a03e729aa47b6c8ff6eb5801565e635a6ca77b30d71da4a44452361ee"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/run.json",
+      "bytes": 1382,
+      "sha256": "371c624bd76addbeb2845fd8630c77c1e42b074ebfc9a56ea1372a7982996355"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/run.log",
+      "bytes": 1673,
+      "sha256": "ebc2811afd5159d9540961319f78d2743423df489a11a9b9ee54eeeaa632f6b5"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/saves/bkmo0.dat",
+      "bytes": 3460,
+      "sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/saves/bkmo1.dat",
+      "bytes": 3460,
+      "sha256": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/restart-file3-v1/saves/bkmo2.dat",
+      "bytes": 3460,
+      "sha256": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/run-native-v1.py",
+      "bytes": 1420,
+      "sha256": "e6be55f37d7f829810ed67c2fe5d60cf03b4cabb34603ea74bf0ef64a942f591"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/run-native-v2.py",
+      "bytes": 1662,
+      "sha256": "ccda8aaaf907ba710afc62deea6ed27b91f6079c911e09a1ddd731c4aa3d3dd3"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/run-native-v3.py",
+      "bytes": 1662,
+      "sha256": "5ae30b362a4f6c69eb29dc31c1b4528bc4c24c41941e9004e5471233cb3a5ef7"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/run-native-v4.py",
+      "bytes": 1662,
+      "sha256": "a0a9a1fbb1a84f2fe0a4cdaf35e26efe61c8246efcb8d88976c109e9b961f966"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/run-native-v5.py",
+      "bytes": 1664,
+      "sha256": "bac35b1179190d6bf1dbff537a91e5c5f5c7b761db063beb7ccec9015d3d73bf"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/run-original-rest-v1.py",
+      "bytes": 1423,
+      "sha256": "be78f4968692cbffe58c53c7af37969a302ea1d0e89688ef1834c99f5829346d"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/run-restart-file3-v1.py",
+      "bytes": 1400,
+      "sha256": "b28939656e39ce72f969b337a812e4531ebf23f5ce82f02916892fae731720bb"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/service51/001311f8.asm",
+      "bytes": 1867,
+      "sha256": "c6ec37ba962810569fcf5e1c0532ef46ac9bb1221d8b4cb709d09b08083eba5f"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/service51/001311f8.c",
+      "bytes": 1244,
+      "sha256": "e4bc7b94c7d46beb0a17699ce908a357adbd8017eafa669501fff7e4fa31320a"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/service51/manifest.json",
+      "bytes": 2946,
+      "sha256": "d25a580b9c1d8de8132e5191987cfb2a5d8476b49539c34fbe36a1aa2a10a9a1"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/service51/review.md",
+      "bytes": 4212,
+      "sha256": "8609fcfb2481440e31df16972f3d70bf887c20f351f602c0817e0a1ee160825e"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/test-debug-v3.log",
+      "bytes": 425,
+      "sha256": "0a903dab19e8a52665b9de009cb91ca2a8724e97f528d14d9cef756a8b67e699"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/test-release-v2.log",
+      "bytes": 563,
+      "sha256": "a3218f266d09c6480c39b57a1c3adfa61853129f410feae46eb445c54b378e5e"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/test-release-v4.log",
+      "bytes": 441,
+      "sha256": "fe507114f9d5303313e53e84e660fc4a035dde07b483ff4894236c0cff36ca6e"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/test-sanitize-v3.log",
+      "bytes": 441,
+      "sha256": "a20e530e852550acb254e7f7ff9c9e23ea4d740ec43f70a0ab40d3db19952395"
+    },
+    {
+      "path": "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home2b.xmt",
+      "bytes": 4666,
+      "sha256": "3a770ac6de7ec7d870ace84b663ef904d12941e0e12faba2507e1f7771f2af63"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/python-final.log",
+      "bytes": 53242,
+      "sha256": "aa93f31874db71145c9b41bb86ad4eef1f91ea2544912a9d7daa99bfc1b20dc8"
+    }
+  ]
+}
