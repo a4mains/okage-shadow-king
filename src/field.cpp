@@ -735,6 +735,13 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             pending_opcode=0;return {pc+8};
         }
         case 0x62:
+            if(b==10) {
+                if(!recover_party||!definition_)throw std::runtime_error("Rest request needs field party service");
+                if(rest_requested_||save_requested_||save_menu_active_||battle_request_||transition_||encounter_)
+                    throw std::runtime_error("Overlapping Rest field request");
+                recover_party();rest_requested_=true;
+                pending_opcode=0;return {pc+8};
+            }
             if(b==12) {
                 if(!open_save_menu||!definition_)throw std::runtime_error("Save request needs field manager service");
                 if(save_requested_||save_menu_active_||battle_request_||transition_||encounter_)
@@ -932,6 +939,19 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             }
             pending_opcode=0;return {pc+8};
         }
+        case 0x51: {
+            if(b!=4)throw std::runtime_error("Unrecovered field variable operation "+std::to_string(b));
+            if(!get_variable||!set_variable)return pending();
+            const auto first=word(pc+4),second=word(pc+8);
+            std::int32_t maximum=0,index=-1;
+            for(unsigned i=0;i<8;++i) {
+                const auto value=get_variable(0x40010+i);
+                if(value>=maximum){maximum=value;index=i;}
+            }
+            set_variable(first&0xffff,first>>16,maximum);
+            set_variable(second&0xffff,second>>16,index);
+            pending_opcode=0;return {pc+12};
+        }
         case 0x47: {
             const auto selector=word(pc+4),index=selector&0xffff,bank=selector>>16;
             if((bank>4 && (bank<8 || bank>15)) || (bank>=8 && index>=0x28))
@@ -1079,6 +1099,10 @@ void OpeningField::tick(ExplorationInput input) {
     }
     if(!was_transitioning&&(exploration_camera_||exterior)&&!event_running()) {
         if(exploration_handoff_) {
+            if(rest_requested_) {
+                if(!recover_party)throw std::runtime_error("Rest completion needs field party service");
+                recover_party();rest_requested_=false;
+            }
             if(save_requested_) {
                 save_requested_=false;save_menu_active_=true;
                 open_save_menu();

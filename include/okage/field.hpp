@@ -98,6 +98,7 @@ public:
     RetiringSceneEffects retire_effects();
     bool exploration_ready() const {return exploration_handoff_;}
     std::function<void()> open_save_menu;
+    std::function<void()> recover_party;
     std::function<void(std::string_view)> set_save_caption;
     bool save_requested() const {return save_requested_;}
     bool save_menu_active() const {return save_menu_active_;}
@@ -188,6 +189,7 @@ private:
     int interaction_alias_=0,interaction_event_=0;
     std::int32_t saved_input_gate_=0;
     bool save_requested_=false,save_menu_active_=false,save_resuming_=false;
+    bool rest_requested_=false;
     bool input_gate_saved_=false;
     void restore_event_gate();
     std::optional<FieldTransition> transition_;

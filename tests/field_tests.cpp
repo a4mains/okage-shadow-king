@@ -248,6 +248,22 @@ int main(){try {
     stop_other.sound_cue=stop.sound_cue;
     for(unsigned i=0;i<180;++i)stop_other.tick();
     require(stops==3&&stop_other.pc()==0xbe8);
+    for(const auto& values:std::array<std::array<std::int32_t,8>,3>{{
+        {{0,0,0,0,0,0,0,0}},{{-8,-7,-6,-5,-4,-3,-2,-1}},{{4,99,7,99,-1,5,8,2}}}}) {
+        word(0xbe4,0x004fff51);word(0xbe8,0x2000a);word(0xbec,0x20009);word(0xbf0,0xff800236);
+        okage::OpeningField maximum(b,[](int){},[](int){return true;});
+        for(unsigned i=0;i<180;++i)maximum.tick();
+        require(maximum.pc()==0xbe4&&maximum.pending_opcode==0x51);
+        unsigned reads=0;std::vector<std::int32_t> writes;
+        maximum.get_variable=[&](auto selector){require(selector==0x40010+reads);return values.at(reads++);};
+        maximum.set_variable=[&](auto index,auto bank,auto value){
+            require(bank==2&&index==(writes.empty()?10u:9u));writes.push_back(value);
+        };
+        maximum.tick();require(reads==8&&maximum.pc()==0xbf0);
+        const auto expected=values[0]==0?std::vector<std::int32_t>{0,7}:
+            values[0]<0?std::vector<std::int32_t>{0,-1}:std::vector<std::int32_t>{99,3};
+        require(writes==expected);
+    }
     std::vector<std::uint8_t> motion(56);
     auto motion_word=[&](unsigned at,std::uint32_t value){for(unsigned i=0;i<4;++i)motion.at(at+i)=value>>(8*i);};
     motion_word(0,0x544d58);motion_word(4,24);motion_word(16,0xffffffff);
@@ -542,6 +558,30 @@ int main(){try {
             require(scene.player_movement().history[i]==okage::Float4{13,-6,29,1});
         require(scene.collision_bodies().size()==2);
         rejects([&]{scene.activate_return(saved);});
+    }
+    {
+        auto event=startup;
+        put(event,40,0x00a00562);put(event,44,123);put(event,48,0x00200002);put(event,52,0);
+        okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
+        const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
+        okage::OpeningField scene(event,[](int){},[](int){return true;},player,false);
+        unsigned heals=0;
+        std::array<std::uint8_t,0x1000> vars{};
+        scene.get_variable=[&](auto s){return okage::event_variable(vars,s);};
+        scene.set_variable=[&](auto i,auto b,auto v){okage::set_event_variable(vars,i,b,v);};
+        scene.recover_party=[&]{++heals;};
+        okage::FieldDefinition entry;entry.scene=74;entry.type=1;entry.startup=1;
+        scene.enter(entry,stage,empty_map,0);
+        require(heals==1&&scene.pc()==52&&scene.event_running());
+        for(unsigned i=0;i<4&&scene.event_running();++i){scene.tick();require(heals==1);}
+        require(!scene.event_running()&&!scene.exploration_ready());
+        scene.tick();require(scene.exploration_ready()&&heals==1);
+        scene.recover_party={};rejects([&]{scene.tick();});
+        scene.recover_party=[&]{++heals;};scene.tick();require(heals==2);
+        scene.tick();require(heals==2&&!scene.save_menu_active()&&!scene.battle_request());
+        okage::OpeningField unavailable(event,[](int){},[](int){return true;},player,false);
+        unavailable.get_variable=scene.get_variable;unavailable.set_variable=scene.set_variable;
+        rejects([&]{unavailable.enter(entry,stage,empty_map,0);});
     }
     {
         auto event=startup;

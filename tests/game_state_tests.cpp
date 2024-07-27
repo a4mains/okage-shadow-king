@@ -461,6 +461,15 @@ int main(int argc,char** argv) {
             vars[c0+1]=0x7f; vars[c1+1]=0x55;
             okage::refresh_game_characters(vars,data,8);
             require(vars[c0+1]==0 && vars[c1+1]==0);
+            vars[c0]=2;vars[c0+1]=0x7f;vars[c1+1]=0x55;
+            put32(vars,c0+8,1);put32(vars,c1+8,0);put32(vars,0x590,0);
+            const auto empty=std::vector<std::uint8_t>(vars.begin()+c1+0x50,vars.begin()+c1+0xa0);
+            okage::refresh_game_characters(vars,data,15);
+            require(get32(vars,c0+8)==100&&get32(vars,c1+8)==999);
+            require(vars[c0]==1&&vars[c1]==1&&vars[c0+1]==0&&vars[c1+1]==0);
+            require(get32(vars,0x590)==99&&get32(vars,0x598)==1099&&get32(vars,0x59c)==1099);
+            require(std::equal(empty.begin(),empty.end(),vars.begin()+c1+0x50));
+            const auto healed=vars;okage::refresh_game_characters(vars,data,15);require(vars==healed);
         }
         {
             const auto data=tables(make_units(2),make_items(3));

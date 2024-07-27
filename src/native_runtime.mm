@@ -525,6 +525,12 @@ struct Session {
             pending_game_command={0,0,0};
             std::cout<<"Native field Save constructed frame="<<frame<<'\n';
         };
+        field->recover_party=[this] {
+            if(!game_data)throw std::runtime_error("Field Rest requires owned character and item tables");
+            //126370 is126228 with all four refresh/reset bits enabled.
+            okage::refresh_game_characters(variables,*game_data,15);
+            std::cout<<"Native field Rest recovered party frame="<<frame<<'\n';
+        };
         field->battle_transition_service=[this](unsigned phase,const okage::FieldBattleRequest& request) {
             if(phase==11) {
                 // 0x192bf0 copies the other framebuffer, completed last tick.
