@@ -51,23 +51,37 @@ StreamTone stream_tone(const StreamBank& bank,int index,float speed,unsigned vol
     const auto r=bank.record(index);
     // Original 0x1769b0 ignores byte 3 when flags byte 2 has bit 1 set,
     // passing -1 for voice selection. Footsteps use byte 3=0x80 here.
-    if(r.size()!=28 || r[0]!=0 || r[2]!=2 || r[6] || r[7] || r[8] || r[9]!=1 || word(r,12) || word(r,24)!=0xffffffff || bank.chunks[2] || bank.chunks[3])
+    if(r.size()!=28 || r[0]!=0 || (r[2]!=2&&r[2]!=3) || r[6] || r[7] || r[8] || r[9]!=1 || word(r,12) || bank.chunks[2] || bank.chunks[3])
         throw std::runtime_error("Unrecovered RXWS codec/channels/loop/markers");
     if(!std::isfinite(speed) || speed<0 || speed>=8 || volume>128)throw std::runtime_error("RXWS cue speed/volume range");
     StreamTone t;t.offset=word(r,16);t.size=word(r,20);t.sample_rate=unsigned(r[10])|(unsigned(r[11])<<8);
     if(!t.sample_rate || t.offset%16 || !t.size || t.size%16 || t.offset>bank.body_size || t.size>bank.body_size-t.offset)
         throw std::runtime_error("RXWS sample payload bounds");
+    if(r[2]&1) {
+        t.loop_offset=word(r,24);
+        if(*t.loop_offset>=t.size||*t.loop_offset%16)
+            throw std::runtime_error("RXWS loop offset outside aligned sample");
+    } else if(word(r,24)!=0xffffffff)throw std::runtime_error("RXWS finite loop metadata");
     t.offset+=bank.chunks[4];
     // EE0x172bf8 rate conversion, IOP0x9398 speed multiplication, and
     // EE0x176738's staged gains with recovered default global gains128.
     t.pitch=((t.sample_rate*4096/48000)*unsigned(speed*4096))>>12;
-    t.left=(int(volume)*__builtin_bit_cast(std::int8_t, (r[4])))>>7;
-    t.right=(int(volume)*__builtin_bit_cast(std::int8_t, (r[5])))>>7;
+    t.left=(int(volume)*std::bit_cast<std::int8_t>(r[4]))>>7;
+    t.right=(int(volume)*std::bit_cast<std::int8_t>(r[5]))>>7;
     return t;
 }
-std::vector<std::uint8_t> prepare_stream_sample(Bytes blocks){
+std::vector<std::uint8_t> prepare_stream_sample(Bytes blocks,std::optional<std::uint32_t> loop_offset){
     if(blocks.empty()||blocks.size()%16||blocks.size()>2*1024*1024-128)
         throw std::runtime_error("RXWS finite sample extent");
+    if(loop_offset) {
+        if(*loop_offset>=blocks.size()||*loop_offset%16)
+            throw std::runtime_error("RXWS loop offset outside aligned sample");
+        std::vector<std::uint8_t> result(blocks.begin(),blocks.end());
+        for(std::size_t i=1;i<result.size();i+=16)result[i]=0;
+        result[*loop_offset+1]=4;result[result.size()-15]|=3;
+        (void)decode_spu_sample(result);
+        return result;
+    }
     const auto aligned=(blocks.size()+63)&~std::size_t(63);
     std::vector<std::uint8_t> result(aligned+64);
     std::copy(blocks.begin(),blocks.end(),result.begin());
@@ -78,7 +92,7 @@ std::vector<std::uint8_t> prepare_stream_sample(Bytes blocks){
 }
 void StreamPlayer::play(int index,float speed,unsigned volume){
     const auto tone=stream_tone(bank_,index,speed,volume);
-    auto sample=prepare_stream_sample(Bytes(bank_.bytes).subspan(tone.offset,tone.size));
+    auto sample=prepare_stream_sample(Bytes(bank_.bytes).subspan(tone.offset,tone.size),tone.loop_offset);
     std::erase_if(voices_,[](const auto& v){return v->voice.ended();});
     if(voices_.size()>=48)throw std::runtime_error("RXWS shared voice allocation not recovered");
     voices_.push_back(std::make_unique<Playing>(std::move(sample),tone));

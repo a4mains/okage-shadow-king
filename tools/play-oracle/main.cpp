@@ -205,6 +205,43 @@ public:
             <<" A1="<<cpu.m_State.nGPR[CMIPS::A1].nV[0]<<" A2="<<cpu.m_State.nGPR[CMIPS::A2].nV[0];
         throw std::runtime_error(error.str());
     }
+    void streamLoopSource(const std::vector<uint8>& ram,unsigned cue,const char* output) {
+        if(ram.size()!=32*1024*1024||cue>65535)throw std::runtime_error("Stream loop RAM fixture extent");
+        std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
+        for(auto address:{0x178538u,0x178548u}){put(address,0x03e00008);put(address+4,0);}
+        uint32 source=0xffffffff;unsigned found=0;
+        for(uint32 p=get(0x31bcd8),count=0;p;p=get(p)) {
+            if(++count>48||p>32*1024*1024-32)throw std::runtime_error("Stream owner list bounds");
+            const auto object=get(p+8);
+            if(object>32*1024*1024-80)throw std::runtime_error("Stream object bounds");
+            if(get(object+8)==0&&get(object+12)==cue){source=get(p+12);++found;}
+        }
+        if(found!=1||source>=256||ee->m_ram[0x31bce6+source*12]!=1)
+            throw std::runtime_error("Expected one memory-stream cue owner");
+        call(0x174f28,{0,cue});const auto record=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+        if(record>32*1024*1024-28||ee->m_ram[record+2]!=3||ee->m_ram[record+9]!=1)
+            throw std::runtime_error("Expected mono FORM loop");
+        const auto start=get(record+16),size=get(record+20),loop=get(record+24);
+        if(!size||size>512*1024||size%16||loop>=size||loop%16)
+            throw std::runtime_error("Stream loop fixture range");
+        call(0x1771f0,{source,start});
+        const auto total=size+3*(size-loop);std::vector<uint8> bytes;
+        std::vector<uint32> rows{source,start,size,loop};
+        while(bytes.size()<total) {
+            call(0x1773b8,{source,std::min<uint32>(4096,total-bytes.size())});
+            const auto count=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+            if(!count||count>4096)throw std::runtime_error("Stream loop source availability");
+            call(0x177658,{source});const auto pointer=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+            if(pointer>32*1024*1024-count)throw std::runtime_error("Stream loop data bounds");
+            bytes.insert(bytes.end(),ee->m_ram+pointer,ee->m_ram+pointer+count);
+            call(0x1775f0,{source,count});call(0x1776c8,{source});
+            const auto eof=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+            rows.insert(rows.end(),{uint32(bytes.size()),pointer,count,eof});
+            if(eof)throw std::runtime_error("Looping source unexpectedly ended");
+        }
+        writeFile(output,bytes.data(),bytes.size());
+        writeFile((std::string(output)+".rows.bin").c_str(),rows.data(),rows.size()*4);
+    }
     void streamPrepare(const std::vector<uint8>& source,unsigned ring,const char* output) {
         if(source.empty()||source.size()%16||source.size()>512*1024||ring<64||ring>0x10000||ring%64)
             throw std::runtime_error("Stream prepare fixture bounds");
@@ -3512,6 +3549,8 @@ int main(int argc,char** argv) {
             reference.mapEffectGeometry(readFile(argv[3]),readFile(argv[4]),argv[5],command=="church14-effect-geometry"?14:command=="dark6-effect-geometry"?6:command=="cylinder26-effect-geometry"?26:command=="summon33-effect-geometry"?33:command=="summon115-effect-geometry"?115:command=="flame16-effect-geometry"?16:command=="torch-effect-geometry"?91:25);
         } else if(command=="effect-reference-probe" && argc==6) {
             reference.effectReferenceProbe(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="stream-loop-source" && argc==6) {
+            reference.streamLoopSource(readFile(argv[3]),std::stoul(argv[4]),argv[5]);
         } else if(command=="stream-prepare" && argc==6) {
             reference.streamPrepare(readFile(argv[3]),std::stoul(argv[4]),argv[5]);
         } else if(command=="exterior-camera-step" && argc==6) {

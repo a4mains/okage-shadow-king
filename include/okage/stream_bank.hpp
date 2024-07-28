@@ -3,6 +3,7 @@
 #include "okage/voice.hpp"
 #include <array>
 #include <memory>
+#include <optional>
 
 namespace okage {
 struct StreamBank {
@@ -18,11 +19,12 @@ struct StreamTone {
     std::uint32_t offset=0,size=0;
     unsigned sample_rate=0,pitch=0;
     int left=0,right=0;
+    std::optional<std::uint32_t> loop_offset;
     static constexpr std::uint16_t adsr1=0x8000,adsr2=0x8026;
 };
-// Recovered mono ADPCM, no MARK/BRCH or loop behavior. Unsupported forms throw.
+// Recovered mono ADPCM with an optional FORM content loop; no MARK/BRCH.
 StreamTone stream_tone(const StreamBank&,int index,float speed=1,unsigned volume=128);
-std::vector<std::uint8_t> prepare_stream_sample(Bytes);
+std::vector<std::uint8_t> prepare_stream_sample(Bytes,std::optional<std::uint32_t> loop_offset=std::nullopt);
 class StreamPlayer {
 public:
     explicit StreamPlayer(StreamBank bank):bank_(std::move(bank)){}

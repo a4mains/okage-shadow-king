@@ -102,7 +102,7 @@ int main(int argc, char** argv) {
                 output.insert(output.end(),{shape,unsigned(g->vertices.size())});
                 for(unsigned i=0;i<g->vertices.size();++i) {
                     const auto& v=g->vertices[i];
-                    for(const auto& channel:{v.position,v.color,v.uv})for(float x:channel)output.push_back(__builtin_bit_cast(std::uint32_t, (x)));
+                    for(const auto& channel:{v.position,v.color,v.uv})for(float x:channel)output.push_back(std::bit_cast<std::uint32_t>(x));
                     output.push_back(g->position_tags[i]);output.push_back(g->uv_tags[i]);
                 }
             }
@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
                 output.insert(output.end(),{f[0],f[1],f[2],rng.state,unsigned(geometry.vertices.size())});
                 for(unsigned i=0;i<geometry.vertices.size();++i) {
                     const auto& v=geometry.vertices[i];
-                    for(const auto& channel:{v.position,v.color,v.uv})for(float x:channel)output.push_back(__builtin_bit_cast(std::uint32_t, (x)));
+                    for(const auto& channel:{v.position,v.color,v.uv})for(float x:channel)output.push_back(std::bit_cast<std::uint32_t>(x));
                     output.push_back(geometry.position_tags[i]);output.push_back(geometry.uv_tags[i]);
                 }
             }
@@ -142,7 +142,7 @@ int main(int argc, char** argv) {
                     const auto vertices=okage::make_effect_noise_shape(shape,grid);
                     output.insert(output.end(),{shape,rng.state,unsigned(vertices.size())});
                     for(const auto& v:vertices)for(const auto& channel:{v.position,v.color,v.uv})
-                        for(float x:channel)output.push_back(__builtin_bit_cast(std::uint32_t, (x)));
+                        for(float x:channel)output.push_back(std::bit_cast<std::uint32_t>(x));
                 }
             }
             write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
@@ -156,7 +156,7 @@ int main(int argc, char** argv) {
                 const auto vertices=okage::make_shadow_effect_shape(f[1],sine,[&]{return rng.next();});
                 output.insert(output.end(),{f[0],f[1],f[2],rng.state,unsigned(vertices.size())});
                 for(const auto& v:vertices)for(const auto& channel:{v.position,v.color,v.uv})
-                    for(float x:channel)output.push_back(__builtin_bit_cast(std::uint32_t, (x)));
+                    for(float x:channel)output.push_back(std::bit_cast<std::uint32_t>(x));
             }
             write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
         }
@@ -164,7 +164,7 @@ int main(int argc, char** argv) {
             const auto bytes=read(argv[2]);std::size_t at=0;
             auto word=[&]() {if(at+4>bytes.size())throw std::runtime_error("Truncated model visibility fixture");
                 std::uint32_t v;std::memcpy(&v,bytes.data()+at,4);at+=4;return v;};
-            auto scalar=[&](){return __builtin_bit_cast(float, (word()));};
+            auto scalar=[&](){return std::bit_cast<float>(word());};
             std::vector<std::uint32_t> output;
             while(at<bytes.size()) {
                 const auto id=word(),culling=word(),count=word(),nodes=word();
@@ -179,7 +179,7 @@ int main(int argc, char** argv) {
                 }
                 const auto selected=okage::visible_model_blocks(blocks,pose,settings,culling);
                 output.insert(output.end(),{id,static_cast<unsigned>(selected.size())});
-                for(const auto& entry:selected)output.insert(output.end(),{entry.block,__builtin_bit_cast(std::uint32_t, (entry.depth))});
+                for(const auto& entry:selected)output.insert(output.end(),{entry.block,std::bit_cast<std::uint32_t>(entry.depth)});
             }
             write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
         }
@@ -191,8 +191,8 @@ int main(int argc, char** argv) {
                 const auto bounds=okage::model_block_bounds(block,mode==1);
                 output.push_back(static_cast<unsigned>(bounds.size()));
                 for(const auto& bound:bounds) {
-                    for(float f:bound.center)output.push_back(__builtin_bit_cast(std::uint32_t, (f)));
-                    output.push_back(__builtin_bit_cast(std::uint32_t, (bound.radius)));output.push_back(bound.hierarchy_node);
+                    for(float f:bound.center)output.push_back(std::bit_cast<std::uint32_t>(f));
+                    output.push_back(std::bit_cast<std::uint32_t>(bound.radius));output.push_back(bound.hierarchy_node);
                 }
             }
             write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
@@ -207,7 +207,7 @@ int main(int argc, char** argv) {
             std::vector<std::uint32_t> output;
             for(unsigned at=0;at<input.size();at+=stride) {
                 std::array<std::uint32_t,58> row;std::memcpy(row.data(),input.data()+at,stride);
-                auto value=[&](unsigned i){return __builtin_bit_cast(float, (row[i]));};
+                auto value=[&](unsigned i){return std::bit_cast<float>(row[i]);};
                 okage::Matrix4 view,world;std::memcpy(view.data(),row.data()+8,64);std::memcpy(world.data(),row.data()+24,64);
                 const okage::ShadowScreenSettings settings{value(40),value(41),value(42),value(43),value(44),value(45),value(46),value(47),value(48),value(49),value(50),value(51),value(52),value(53),value(54)};
                 const okage::ShadowProjectionContext context({value(4),value(5),value(6),value(7)},view);
@@ -216,7 +216,7 @@ int main(int argc, char** argv) {
                 const auto pose=okage::compose_pose(parent[0],rest);
                 const auto draws=okage::shadow_draws(bound,pose,projection,okage::shadow_screen_parameters(settings),context.view_direction);
                 output.insert(output.end(),{row[0],static_cast<unsigned>(pose.size()),static_cast<unsigned>(draws.size())});
-                for(const auto& matrix:pose)for(const auto& col:matrix)for(float f:col)output.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+                for(const auto& matrix:pose)for(const auto& col:matrix)for(float f:col)output.push_back(std::bit_cast<std::uint32_t>(f));
                 for(const auto& draw:draws) {
                     output.insert(output.end(),{draw.block,draw.batch,draw.triangle,unsigned(draw.prism.emitted)});
                     if(draw.prism.emitted)for(const auto& pass:draw.prism.passes)for(const auto& vertex:pass)output.insert(output.end(),vertex.begin(),vertex.end());
@@ -241,7 +241,7 @@ int main(int argc, char** argv) {
             std::vector<std::uint32_t> output{static_cast<unsigned>(bound.hierarchy.size()),static_cast<unsigned>(bound.blocks.size()),static_cast<unsigned>(textures.images().size())};
             for(const auto& block:bound.blocks)output.push_back(block.attribute_extents[0]);
             auto append=[&](const auto& values) {
-                for(const auto& v:values)for(float f:v)output.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+                for(const auto& v:values)for(float f:v)output.push_back(std::bit_cast<std::uint32_t>(f));
             };
             for(unsigned frame=0;frame<=frames;++frame) {
                 if(frame)animation.tick();
@@ -276,7 +276,7 @@ int main(int argc, char** argv) {
             std::vector<std::uint32_t> output{static_cast<unsigned>(bound.hierarchy.size())};
             for(const auto& node:bound.hierarchy)output.push_back(node.bone);
             for(const auto& matrix:okage::rest_pose(bound,okage::make_sine_table()))
-                for(const auto& v:matrix)for(float f:v)output.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+                for(const auto& v:matrix)for(float f:v)output.push_back(std::bit_cast<std::uint32_t>(f));
             write(argv[4],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
         }
         if(command=="field-screen" && argc==4) {
@@ -294,9 +294,9 @@ int main(int argc, char** argv) {
                 if(f[1]&2)for(const auto& p:points)vertices.push_back({{},p,0});
                 else vertices=okage::field_screen_vertices(points,params);
                 output.insert(output.end(),{f[0],f[1]});
-                for(const auto& p:params)for(float value:p)output.push_back(__builtin_bit_cast(std::uint32_t, (value)));
-                for(const auto& p:vertices)for(float value:p.clip)output.push_back(__builtin_bit_cast(std::uint32_t, (value)));
-                for(const auto& p:vertices)for(float value:p.screen)output.push_back(__builtin_bit_cast(std::uint32_t, (value)));
+                for(const auto& p:params)for(float value:p)output.push_back(std::bit_cast<std::uint32_t>(value));
+                for(const auto& p:vertices)for(float value:p.clip)output.push_back(std::bit_cast<std::uint32_t>(value));
+                for(const auto& p:vertices)for(float value:p.screen)output.push_back(std::bit_cast<std::uint32_t>(value));
                 for(const auto& p:vertices)output.push_back(p.flags);
                 for(const auto& p:vertices){const auto packed=okage::field_pack_xyzf(p.screen);output.insert(output.end(),packed.begin(),packed.end());}
                 for(const auto& p:vertices){const auto packed=okage::field_pack_xyzf(p.screen);output.insert(output.end(),{packed[0]&0xffff,packed[1]&0xffff,(packed[2]&0x0ffffff0)>>4,(packed[3]&0xff0)>>4});}
@@ -316,12 +316,12 @@ int main(int argc, char** argv) {
                 std::array<okage::Matrix4,2> projections;std::memcpy(projections.data(),f.data()+17,128);
                 std::array<okage::Float4,6> positions;std::memcpy(positions.data(),f.data()+49,96);
                 const auto cache=okage::shadow_vertex_cache(std::span(positions).first(f[1]),projections,params);
-                output.insert(output.end(),{f[0],f[1],__builtin_bit_cast(std::uint32_t, (cache.clip_status))});
-                for(const auto& p:params)for(float value:p)output.push_back(__builtin_bit_cast(std::uint32_t, (value)));
+                output.insert(output.end(),{f[0],f[1],std::bit_cast<std::uint32_t>(cache.clip_status)});
+                for(const auto& p:params)for(float value:p)output.push_back(std::bit_cast<std::uint32_t>(value));
                 for(unsigned i=0;i<cache.camera.size();++i) {
-                    for(unsigned j=0;j<3;++j)output.push_back(__builtin_bit_cast(std::uint32_t, (cache.camera[i][j])));
+                    for(unsigned j=0;j<3;++j)output.push_back(std::bit_cast<std::uint32_t>(cache.camera[i][j]));
                     output.push_back(cache.clip[i]);
-                    for(float value:cache.screen[i])output.push_back(__builtin_bit_cast(std::uint32_t, (value)));
+                    for(float value:cache.screen[i])output.push_back(std::bit_cast<std::uint32_t>(value));
                 }
             }
             write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
@@ -332,7 +332,7 @@ int main(int argc, char** argv) {
             std::vector<std::uint32_t> output;
             for(unsigned at=0;at<input.size();at+=stride) {
                 std::array<std::uint32_t,54> f;std::memcpy(f.data(),input.data()+at,stride);
-                okage::ShadowPrismInput values;values.clip_status=__builtin_bit_cast(std::int32_t, (f[1]));
+                okage::ShadowPrismInput values;values.clip_status=std::bit_cast<std::int32_t>(f[1]);
                 std::memcpy(values.direction.data(),f.data()+2,16);
                 std::memcpy(values.camera.data(),f.data()+6,96);
                 std::memcpy(values.screen.data(),f.data()+30,96);
@@ -353,8 +353,8 @@ int main(int argc, char** argv) {
                 okage::Float4 light;okage::Matrix4 view;
                 std::memcpy(light.data(),f.data()+4,16);std::memcpy(view.data(),f.data()+8,64);
                 const okage::ShadowProjectionContext context(light,view);
-                const auto result=context.project(f[1],__builtin_bit_cast(float, (f[2])),__builtin_bit_cast(float, (f[3])),{f[24],f[25],f[26]});
-                const auto vector=[&](auto& out,const auto& v){for(float x:v)out.push_back(__builtin_bit_cast(std::uint32_t, (x)));};
+                const auto result=context.project(f[1],std::bit_cast<float>(f[2]),std::bit_cast<float>(f[3]),{f[24],f[25],f[26]});
+                const auto vector=[&](auto& out,const auto& v){for(float x:v)out.push_back(std::bit_cast<std::uint32_t>(x));};
                 setup.push_back(f[0]);
                 for(const auto& m:{context.inverse,context.planes[0],context.planes[1]})for(const auto& v:m)vector(setup,v);
                 vector(setup,context.world_direction);vector(setup,context.view_direction);
@@ -374,17 +374,17 @@ int main(int argc, char** argv) {
                 std::array<std::uint32_t,30> f;std::memcpy(f.data(),input.data()+at,stride);
                 if(f[1]>5||f[6]>65535||f[7]>1||f[9]>128)throw std::runtime_error("Shadow update fixture bounds");
                 okage::ShadowTransition state;
-                state.phase=f[1];state.locked=f[2];state.follow_disabled=f[3];state.voice=__builtin_bit_cast(std::int32_t, (f[4]));
-                state.factor=__builtin_bit_cast(float, (f[5]));state.hero_shadow=f[6];state.stun_visible=f[7];state.projection_factor=__builtin_bit_cast(float, (f[8]));
+                state.phase=f[1];state.locked=f[2];state.follow_disabled=f[3];state.voice=std::bit_cast<std::int32_t>(f[4]);
+                state.factor=std::bit_cast<float>(f[5]);state.hero_shadow=f[6];state.stun_visible=f[7];state.projection_factor=std::bit_cast<float>(f[8]);
                 okage::Float4 hero_rotation,hero_position;
                 std::memcpy(hero_rotation.data(),f.data()+10,16);std::memcpy(hero_position.data(),f.data()+14,16);
                 std::memcpy(state.stun_rotation.data(),f.data()+18,16);std::memcpy(state.stun_position.data(),f.data()+22,16);
                 std::memcpy(state.stun_scale.data(),f.data()+26,16);
                 const auto capture=[&](unsigned step) {
-                    out.insert(out.end(),{f[0],step,state.phase,state.locked,state.follow_disabled,__builtin_bit_cast(std::uint32_t, (state.voice)),
-                        __builtin_bit_cast(std::uint32_t, (state.factor)),state.hero_shadow,unsigned(state.stun_visible),__builtin_bit_cast(std::uint32_t, (state.projection_factor))});
+                    out.insert(out.end(),{f[0],step,state.phase,state.locked,state.follow_disabled,std::bit_cast<std::uint32_t>(state.voice),
+                        std::bit_cast<std::uint32_t>(state.factor),state.hero_shadow,unsigned(state.stun_visible),std::bit_cast<std::uint32_t>(state.projection_factor)});
                     for(const auto& v:{state.stun_rotation,state.stun_position,state.stun_scale})
-                        for(float x:v)out.push_back(__builtin_bit_cast(std::uint32_t, (x)));
+                        for(float x:v)out.push_back(std::bit_cast<std::uint32_t>(x));
                 };
                 capture(0);for(unsigned step=1;step<=f[9];++step){state.tick(hero_rotation,hero_position);capture(step);}
             }
@@ -484,8 +484,8 @@ int main(int argc, char** argv) {
                 if(contact.hit) {
                     const auto& chunk=map.chunks.at(contact.chunk);
                     row[2]=contact.material;row[3]=chunk.source_offset;row[4]=contact.polygon;row[5]=contact.candidate;
-                    for(unsigned j=0;j<4;++j)row[6+j]=__builtin_bit_cast(std::uint32_t, (contact.correction[j]));
-                    for(unsigned j=0;j<3;++j)row[10+j]=__builtin_bit_cast(std::uint32_t, (contact.normal[j]));
+                    for(unsigned j=0;j<4;++j)row[6+j]=std::bit_cast<std::uint32_t>(contact.correction[j]);
+                    for(unsigned j=0;j<3;++j)row[10+j]=std::bit_cast<std::uint32_t>(contact.normal[j]);
                     std::memcpy(&row[13],map.payload.data()+chunk.source_offset+4,8);row[15]=chunk.polygons.size();
                 }
                 for(auto n:row)for(unsigned j=0;j<4;++j)out.push_back(n>>(j*8));
@@ -506,8 +506,8 @@ int main(int argc, char** argv) {
                 std::array<std::uint32_t,10> row{};row[0]=contact.hit;row[1]=contact.hit?4:0;
                 if(contact.hit) {
                     row[2]=contact.material;
-                    for(unsigned j=0;j<4;++j)row[3+j]=__builtin_bit_cast(std::uint32_t, (contact.correction[j]));
-                    for(unsigned j=0;j<3;++j)row[7+j]=__builtin_bit_cast(std::uint32_t, (contact.normal[j]));
+                    for(unsigned j=0;j<4;++j)row[3+j]=std::bit_cast<std::uint32_t>(contact.correction[j]);
+                    for(unsigned j=0;j<3;++j)row[7+j]=std::bit_cast<std::uint32_t>(contact.normal[j]);
                 }
                 for(auto n:row)for(unsigned j=0;j<4;++j)out.push_back(n>>(j*8));
             }
@@ -519,15 +519,15 @@ int main(int argc, char** argv) {
             std::vector<std::uint32_t> output;
             for(unsigned at=0;at<data.size();at+=48) {
                 auto word=[&](unsigned n){std::uint32_t v;std::memcpy(&v,data.data()+at+4*n,4);return v;};
-                auto point=[&](unsigned n){okage::Float4 v;for(unsigned k=0;k<4;++k)v[k]=__builtin_bit_cast(float, (word(n+k)));return v;};
-                const auto first=point(0);auto second=point(4);const auto mode=word(8),mask=word(10);const float radius=__builtin_bit_cast(float, (word(9)));
+                auto point=[&](unsigned n){okage::Float4 v;for(unsigned k=0;k<4;++k)v[k]=std::bit_cast<float>(word(n+k));return v;};
+                const auto first=point(0);auto second=point(4);const auto mode=word(8),mask=word(10);const float radius=std::bit_cast<float>(word(9));
                 if(mode>2||word(11)>16384||(mode==2&&(radius!=4.5f||word(11)!=8190)))throw std::runtime_error("Camera collision fixture settings");
                 okage::MapContact contact;
                 if(mode==2)contact=map.camera_move(first,second,mask);
                 else {
                     const auto surface=mode?map.sphere_wall_contact(first,second,{0,0,0,1},radius,word(11),mask):map.segment_contact(first,second,mask);
                     if(surface.hit) {
-                        const float threshold=__builtin_bit_cast(float, (0x3efff17du));
+                        const float threshold=std::bit_cast<float>(0x3efff17du);
                         const unsigned kind=mode?2:(surface.normal[1]< -threshold?0:(surface.normal[1]>threshold?1:2));
                         contact.hit=true;contact.flags=1u<<kind;contact.materials[kind]=surface.material;
                         contact.correction=surface.correction;contact.normals[kind]=surface.normal;
@@ -535,10 +535,10 @@ int main(int argc, char** argv) {
                 }
                 std::array<std::uint32_t,22> row{};row[0]=contact.hit;row[1]=contact.flags;
                 for(unsigned i=0;i<3;++i)row[2+i]=contact.materials[i];
-                if(contact.hit)for(unsigned i=0;i<4;++i)row[5+i]=__builtin_bit_cast(std::uint32_t, (contact.correction[i]));
+                if(contact.hit)for(unsigned i=0;i<4;++i)row[5+i]=std::bit_cast<std::uint32_t>(contact.correction[i]);
                 for(unsigned kind=0;kind<3;++kind)if(contact.flags&(1u<<kind))
-                    for(unsigned i=0;i<3;++i)row[9+kind*3+i]=__builtin_bit_cast(std::uint32_t, (contact.normals[kind][i]));
-                for(unsigned i=0;i<4;++i)row[18+i]=__builtin_bit_cast(std::uint32_t, (second[i]));
+                    for(unsigned i=0;i<3;++i)row[9+kind*3+i]=std::bit_cast<std::uint32_t>(contact.normals[kind][i]);
+                for(unsigned i=0;i<4;++i)row[18+i]=std::bit_cast<std::uint32_t>(second[i]);
                 output.insert(output.end(),row.begin(),row.end());
             }
             write(argv[4],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
@@ -557,9 +557,9 @@ int main(int argc, char** argv) {
                 const auto contact=map.move_contact(previous,desired,shapes,settings);
                 std::array<std::uint32_t,18> row{};row[0]=contact.hit;row[1]=contact.flags;
                 for(unsigned j=0;j<3;++j)row[2+j]=contact.materials[j];
-                if(contact.hit)for(unsigned j=0;j<4;++j)row[5+j]=__builtin_bit_cast(std::uint32_t, (contact.correction[j]));
+                if(contact.hit)for(unsigned j=0;j<4;++j)row[5+j]=std::bit_cast<std::uint32_t>(contact.correction[j]);
                 for(unsigned kind=0;kind<3;++kind)if(contact.flags&(1u<<kind))
-                    for(unsigned j=0;j<3;++j)row[9+kind*3+j]=__builtin_bit_cast(std::uint32_t, (contact.normals[kind][j]));
+                    for(unsigned j=0;j<3;++j)row[9+kind*3+j]=std::bit_cast<std::uint32_t>(contact.normals[kind][j]);
                 for(auto n:row)for(unsigned j=0;j<4;++j)out.push_back(n>>(j*8));
             }
             write(argv[4],out);return 0;
@@ -575,9 +575,9 @@ int main(int argc, char** argv) {
                 copy(other.first,84,16);copy(other.second,100,16);copy(other.radius,116,4);copy(reach,120,4);copy(threshold,124,4);
                 const auto contact=okage::capsule_pair_contact(previous,desired,moving,other_position,other,reach,threshold);
                 std::array<std::uint32_t,14> row{};row[0]=contact.hit;row[1]=contact.flags;
-                if(contact.hit)for(unsigned j=0;j<3;++j)row[2+j]=__builtin_bit_cast(std::uint32_t, (contact.correction[j]));
+                if(contact.hit)for(unsigned j=0;j<3;++j)row[2+j]=std::bit_cast<std::uint32_t>(contact.correction[j]);
                 for(unsigned kind=0;kind<3;++kind)if(contact.flags&(1u<<kind))
-                    for(unsigned j=0;j<3;++j)row[5+kind*3+j]=__builtin_bit_cast(std::uint32_t, (contact.normals[kind][j]));
+                    for(unsigned j=0;j<3;++j)row[5+kind*3+j]=std::bit_cast<std::uint32_t>(contact.normals[kind][j]);
                 for(auto n:row)for(unsigned j=0;j<4;++j)out.push_back(n>>(j*8));
             }
             write(argv[3],out);return 0;
@@ -588,7 +588,7 @@ int main(int argc, char** argv) {
             std::vector<std::uint8_t> out;
             for(std::size_t at=0;at<queries.size();at+=396) {
                 auto word=[&](unsigned off){std::uint32_t n;std::memcpy(&n,queries.data()+at+off,4);return n;};
-                auto scalar=[&](unsigned off){return __builtin_bit_cast(float, (word(off)));};
+                auto scalar=[&](unsigned off){return std::bit_cast<float>(word(off));};
                 auto vector=[&](unsigned off){return okage::Float4{scalar(off),scalar(off+4),scalar(off+8),scalar(off+12)};};
                 if(word(4)!=3)throw std::runtime_error("Collision world body count");
                 okage::MapCollisionSettings settings;settings.disabled_mask=word(8);settings.normal_threshold=word(12);
@@ -601,9 +601,9 @@ int main(int argc, char** argv) {
                     b.broad_radius=scalar(off+84);b.floor_reach=scalar(off+88);b.flags=word(off+92);
                     b.priority=word(off+96);b.id=word(off+100);b.registered=word(off+112)!=0;
                 }
-                const auto hit=okage::resolve_collision(map,bodies,word(0),desired,settings,scalar(28),__builtin_bit_cast(std::int32_t, (word(20))));
+                const auto hit=okage::resolve_collision(map,bodies,word(0),desired,settings,scalar(28),std::bit_cast<std::int32_t>(word(20)));
                 std::vector<std::uint32_t> row{std::uint32_t(hit)};
-                auto floats=[&](const okage::Float4& v,unsigned count){for(unsigned j=0;j<count;++j)row.push_back(__builtin_bit_cast(std::uint32_t, (v[j])));};
+                auto floats=[&](const okage::Float4& v,unsigned count){for(unsigned j=0;j<count;++j)row.push_back(std::bit_cast<std::uint32_t>(v[j]));};
                 floats(desired,4);
                 for(const auto& b:bodies) {
                     floats(b.position,4);row.push_back(b.contact.flags);
@@ -655,7 +655,7 @@ int main(int argc, char** argv) {
                 okage::BattleCameraSequence sequence;
                 for(unsigned i=0;i<3;++i)if(mask&(1u<<i))
                     sequence[i]=okage::read_battle_camera_preset(okage::Bytes(input).subspan(at+16+i*144,144));
-                okage::BattleCameraMotion camera(sequence,__builtin_bit_cast(float, (word(0))));
+                okage::BattleCameraMotion camera(sequence,std::bit_cast<float>(word(0)));
                 auto observe=[&]{for(auto n:camera.observation())for(unsigned i=0;i<4;++i)output.push_back(n>>(i*8));};
                 observe();for(unsigned i=0;i<ticks;++i){camera.tick();observe();}
             }
@@ -693,8 +693,8 @@ int main(int argc, char** argv) {
                 std::cout<<"formation "<<i<<" count "<<formation.size()<<'\n';
                 for(const auto& entry:formation)
                     std::cout<<entry.unit_id<<' '<<int(entry.field_2)<<' '<<int(entry.field_3)<<' '
-                             <<std::hex<<__builtin_bit_cast(std::uint32_t, (entry.x))<<' '
-                             <<__builtin_bit_cast(std::uint32_t, (entry.z))<<std::dec<<'\n';
+                             <<std::hex<<std::bit_cast<std::uint32_t>(entry.x)<<' '
+                             <<std::bit_cast<std::uint32_t>(entry.z)<<std::dec<<'\n';
             }
             for(int i=1;i<=23;++i)std::cout<<"stage "<<i<<' '<<data.stage_path(i)<<'\n';
             std::cout<<formations<<" formations; "<<entries<<" entries\n";return 0;
@@ -748,10 +748,10 @@ int main(int argc, char** argv) {
                 if(op>2||bank<8||bank>15||index>=40)
                     throw std::runtime_error("Unsupported event short fixture");
                 if(op) {
-                    const auto value=op==1?row[2]:row[2]+__builtin_bit_cast(std::uint32_t, (okage::event_variable(variables,row[1])));
-                    okage::set_event_variable(variables,index,bank,__builtin_bit_cast(std::int32_t, (value)));
+                    const auto value=op==1?row[2]:row[2]+std::bit_cast<std::uint32_t>(okage::event_variable(variables,row[1]));
+                    okage::set_event_variable(variables,index,bank,std::bit_cast<std::int32_t>(value));
                 }
-                const auto value=__builtin_bit_cast(std::uint32_t, (okage::event_variable(variables,row[1])));
+                const auto value=std::bit_cast<std::uint32_t>(okage::event_variable(variables,row[1]));
                 for(unsigned i=0;i<4;++i)out.push_back(value>>(8*i));
                 out.insert(out.end(),variables.begin(),variables.end());
             }
@@ -778,11 +778,11 @@ int main(int argc, char** argv) {
                 std::uint32_t row[4];std::memcpy(row,input.data()+at,16);
                 if(row[0]>3||(row[1]!=0&&row[1]!=1&&row[1]!=4))throw std::runtime_error("Comparison fixture scope");
                 okage::MessageBank bank;
-                const auto option="CMP(0/"+std::to_string(row[1])+"/"+std::to_string(__builtin_bit_cast(std::int32_t, (row[3])))+")"+operators[row[0]];
+                const auto option="CMP(0/"+std::to_string(row[1])+"/"+std::to_string(std::bit_cast<std::int32_t>(row[3]))+")"+operators[row[0]];
                 bank.strings={"system","42","\\o["+option+"]\\v","True\\e","False\\e"};
                 bank.nodes={{0,0},{0,1},{1,2},{2,3},{2,4}};
                 okage::DialogueText text(bank,42);okage::DialogueController controller;
-                std::array<std::uint8_t,0x1000> variables{};okage::set_event_variable(variables,0,row[1],__builtin_bit_cast(std::int32_t, (row[2])));
+                std::array<std::uint8_t,0x1000> variables{};okage::set_event_variable(variables,0,row[1],std::bit_cast<std::int32_t>(row[2]));
                 controller.get_variable=[&](unsigned index,unsigned storage){return okage::event_variable(variables,(storage<<16)|index);};
                 text.state.flags=0x8001;text.step();const auto effect=controller.update(text,{});
                 if(!effect.reset_text_clock||effect.resume_calls!=1||controller.advance_count!=0||text.state.delay)
@@ -800,7 +800,7 @@ int main(int argc, char** argv) {
                 controller.window_type=1;controller.advance_count=controller.layer_advance=4;
                 text.state.flags=f[6];text.state.phase=9;text.state.period=0xfffffffe;
                 text.state.delay=f[5];text.state.progress=5;
-                text.state.window="SHADOW("+std::to_string(__builtin_bit_cast(std::int32_t, (f[1])))+")";
+                text.state.window="SHADOW("+std::to_string(std::bit_cast<std::int32_t>(f[1]))+")";
                 unsigned calls=0,request=0;
                 controller.shadow_request=[&](auto value){++calls;request=value;};
                 const auto effects=controller.update(text,{});
@@ -817,17 +817,17 @@ int main(int argc, char** argv) {
                 std::uint32_t row[10];std::memcpy(row,input.data()+at,40);
                 okage::DialogueText text({""});okage::DialogueController controller;
                 controller.window_type=1;controller.advance_count=controller.layer_advance=4;
-                text.choice_result=__builtin_bit_cast(std::int32_t, (row[0]));
+                text.choice_result=std::bit_cast<std::int32_t>(row[0]);
                 text.state.flags=0x8910;text.state.phase=9;text.state.period=0xfffffffe;
                 text.state.delay=7;text.state.progress=5;
                 text.state.window="LA("+std::to_string(row[1])+"/"+std::to_string(row[2])+"/"+std::to_string(row[3])+")";
                 controller.get_variable=[&](unsigned index,unsigned bank){
                     if(bank!=4||index<16||index>21)throw std::runtime_error("Relationship read outside fixture");
-                    return __builtin_bit_cast(std::int32_t, (row[4+index-16]));
+                    return std::bit_cast<std::int32_t>(row[4+index-16]);
                 };
                 controller.set_variable=[&](unsigned index,unsigned bank,std::int32_t value){
                     if(bank!=4||index<16||index>21)throw std::runtime_error("Relationship write outside fixture");
-                    row[4+index-16]=__builtin_bit_cast(std::uint32_t, (value));
+                    row[4+index-16]=std::bit_cast<std::uint32_t>(value);
                 };
                 controller.update(text,{});
                 output.insert(output.end(),row+4,row+10);
@@ -867,7 +867,7 @@ int main(int argc, char** argv) {
         if(command=="map-collision"&&argc==4) {
             const auto bindings=okage::map_collision_bodies(okage::read_xmp(read(argv[2])));
             std::vector<std::uint32_t> output;
-            auto scalar=[&](float f){output.push_back(__builtin_bit_cast(std::uint32_t, (f)));};
+            auto scalar=[&](float f){output.push_back(std::bit_cast<std::uint32_t>(f));};
             auto vector=[&](const okage::Float4& v){for(float f:v)scalar(f);};
             for(const auto& binding:bindings) {
                 const auto& b=binding.body;
@@ -900,7 +900,7 @@ int main(int argc, char** argv) {
                 for(unsigned frame=0;frame<=60;++frame) {
                     if(frame)fade.tick();
                     output.insert(output.end(),{unsigned(fade.enabled),unsigned(fade.hold),
-                        __builtin_bit_cast(std::uint32_t, (fade.current)),__builtin_bit_cast(std::uint32_t, (fade.target)),fade.color});
+                        std::bit_cast<std::uint32_t>(fade.current),std::bit_cast<std::uint32_t>(fade.target),fade.color});
                 }
             }
             write(argv[2],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
@@ -911,10 +911,10 @@ int main(int argc, char** argv) {
             std::vector<std::uint32_t> output;
             for(std::size_t at=0;at<input.size();at+=16) {
                 std::array<std::uint32_t,4> row{};std::memcpy(row.data(),input.data()+at,16);
-                okage::SceneFade fade;fade.color=row[2];fade.current=__builtin_bit_cast(float, (row[3]));
-                fade.script_request(row[0],__builtin_bit_cast(std::int32_t, (row[1])));
+                okage::SceneFade fade;fade.color=row[2];fade.current=std::bit_cast<float>(row[3]);
+                fade.script_request(row[0],std::bit_cast<std::int32_t>(row[1]));
                 output.insert(output.end(),{unsigned(fade.enabled),unsigned(fade.hold),
-                    __builtin_bit_cast(std::uint32_t, (fade.current)),__builtin_bit_cast(std::uint32_t, (fade.target)),
+                    std::bit_cast<std::uint32_t>(fade.current),std::bit_cast<std::uint32_t>(fade.target),
                     fade.color,(fade.alpha()<<24)|fade.color});
             }
             write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
@@ -929,13 +929,13 @@ int main(int argc, char** argv) {
             const auto capture=[&]{
                 const auto& s=text.state;
                 output.insert(output.end(),{controller.stage,0x50,controller.layer_flags,
-                    __builtin_bit_cast(std::uint32_t, (controller.window_type)),controller.advance_count,
+                    std::bit_cast<std::uint32_t>(controller.window_type),controller.advance_count,
                     s.flags,s.font,s.line_height,s.color,s.phase,s.period,s.delay,s.progress,s.x,s.y,s.line_origin,
-                    clock.revealed,__builtin_bit_cast(std::uint32_t, (clock.scroll_target)),
-                    __builtin_bit_cast(std::uint32_t, (clock.scroll)),__builtin_bit_cast(std::uint32_t, (clock.scroll_step)),
-                    __builtin_bit_cast(std::uint32_t, (clock.scroll_base_step)),clock.glyph_flags});
+                    clock.revealed,std::bit_cast<std::uint32_t>(clock.scroll_target),
+                    std::bit_cast<std::uint32_t>(clock.scroll),std::bit_cast<std::uint32_t>(clock.scroll_step),
+                    std::bit_cast<std::uint32_t>(clock.scroll_base_step),clock.glyph_flags});
                 for(const auto& o:{body,closure.decoration})for(float f:{o.value,o.upper,o.lower,o.delta})
-                    output.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+                    output.push_back(std::bit_cast<std::uint32_t>(f));
             };
             capture();body.tick();closure.decoration.tick();opening.bootstrap(text,clock);capture();
             opening.update(text,clock,controller,body,closure);capture();
@@ -964,7 +964,7 @@ int main(int argc, char** argv) {
             okage::EffectTextureSizes sizes{};
             for(unsigned i=0;i<sizes.size();++i){const auto image=okage::decode_xim(read(fs::path(argv[3])/okage::effect_texture_names[i]));sizes[i]={image.width,image.height};}
             std::vector<std::uint32_t> out,geometry,materials;const auto sine=okage::make_sine_table();
-            auto append=[](auto& dest,const auto& v){for(float f:v)dest.push_back(__builtin_bit_cast(std::uint32_t, (f)));};
+            auto append=[](auto& dest,const auto& v){for(float f:v)dest.push_back(std::bit_cast<std::uint32_t>(f));};
             for(unsigned at=0;at<input.size();at+=stride){
                 std::uint32_t identity;std::memcpy(&identity,input.data()+at,4);
                 std::array<okage::Float4,5> channels;std::memcpy(channels.data(),input.data()+at+4,80);
@@ -999,7 +999,7 @@ int main(int argc, char** argv) {
                     if((id==33&&i==1)||(id==24&&i<3))for(unsigned v=0;v<30;++v) {
                         std::uint32_t y;std::memcpy(&y,input.data()+at+152+count*80+(v+(id==24?i*30:0))*4,4);
                         if(y>65535)throw std::runtime_error("Summoning ring signed16 fixture extent");
-                        e.ring_y[v]=__builtin_bit_cast(std::int16_t, (std::uint16_t(y)));
+                        e.ring_y[v]=std::bit_cast<std::int16_t>(std::uint16_t(y));
                     }
                 }
                 out.push_back(identity);
@@ -1022,7 +1022,7 @@ int main(int argc, char** argv) {
             for(unsigned i=0;i<raw.size();++i)if(raw[i].flags&0x800) {
                 const auto& d=bank[i];out.insert(out.end(),{d.id,d.runtime_id.value_or(d.id),d.flags,d.duration,unsigned(d.elements.size())});
                 for(const auto& v:{d.position,d.rotation,d.scale,d.color,d.parameters})
-                    for(float f:v)out.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+                    for(float f:v)out.push_back(std::bit_cast<std::uint32_t>(f));
             }
             write(argv[3],{reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4});return 0;
         }
@@ -1052,12 +1052,12 @@ int main(int argc, char** argv) {
                 attached?found->scale:positioned?okage::Float4{1,1,1,1}:vectors[2],sizes,random,
                 positioned?okage::EffectStart::FirstFrame:okage::EffectStart::RandomPhase);
             std::vector<std::uint32_t> out,deformation,torchGeometry,cylinderUV,shadowUV,stripGeometry,stripUV,waterGeometry;
-            const auto vector=[&](const okage::Float4& v){for(float f:v)out.push_back(__builtin_bit_cast(std::uint32_t, (f)));};
+            const auto vector=[&](const okage::Float4& v){for(float f:v)out.push_back(std::bit_cast<std::uint32_t>(f));};
             const auto capture=[&](unsigned step){
                 if(request[0]==106) {
                     const auto& water=effect.elements.at(0).water;
                     if(!water)throw std::runtime_error("Missing water probe geometry");
-                    waterGeometry.insert(waterGeometry.end(),{step,32,32,effect.clamp_mode,__builtin_bit_cast(std::uint32_t, (effect.near_clip))});
+                    waterGeometry.insert(waterGeometry.end(),{step,32,32,effect.clamp_mode,std::bit_cast<std::uint32_t>(effect.near_clip)});
                     for(unsigned y=0;y<32;++y)for(unsigned x=0;x<32;++x) {
                         const auto i=y*32+x;const auto& uv=water->packed_uv[i];
                         waterGeometry.insert(waterGeometry.end(),{
@@ -1117,10 +1117,10 @@ int main(int argc, char** argv) {
 
                 out.insert(out.end(),{step,0,effect.id,effect.flags,unsigned(effect.elements.size()),effect.duration,effect.phase,rng.state});
                 for(const auto& v:{effect.position,effect.rotation,effect.scale,effect.color,effect.parameters})vector(v);
-                out.push_back(__builtin_bit_cast(std::uint32_t, (effect.inverse_duration)));
+                out.push_back(std::bit_cast<std::uint32_t>(effect.inverse_duration));
                 for(const auto& e:effect.elements){
                     for(const auto& v:{e.position,e.rotation,e.scale,e.color,e.interval})vector(v);
-                    out.insert(out.end(),{e.flags,e.program,__builtin_bit_cast(std::uint32_t, (e.change_time)),e.next_program});
+                    out.insert(out.end(),{e.flags,e.program,std::bit_cast<std::uint32_t>(e.change_time),e.next_program});
                     for(const auto& v:e.rendered)vector(v);
                     out.insert(out.end(),{e.texture,e.uv[0]|(std::uint32_t(e.uv[1])<<16),e.uv[2]|(std::uint32_t(e.uv[3])<<16),e.render_flags});
                 }
@@ -1138,7 +1138,7 @@ int main(int argc, char** argv) {
                 for(const auto& draw:okage::map_effect_draws(effect,identity,{},450,okage::make_sine_table(),&tint)) {
                     geometry.insert(geometry.end(),{element++,unsigned(draw.vertices.size()),draw.texture});
                     for(const auto& vertex:draw.vertices)for(const auto& v:{vertex.position,vertex.color,vertex.uv})
-                        for(float f:v)geometry.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+                        for(float f:v)geometry.push_back(std::bit_cast<std::uint32_t>(f));
                 }
                 write(std::string(argv[6])+".vertices.bin",{reinterpret_cast<const std::uint8_t*>(geometry.data()),geometry.size()*4});
             }
@@ -1170,14 +1170,14 @@ int main(int argc, char** argv) {
             okage::BubbleEffect effect(*found,std::stoi(argv[4]));const auto frames=std::stoul(argv[5]);
             if(frames>1000)throw std::runtime_error("Effect probe frame bounds");
             std::vector<std::uint32_t> out;
-            for(float f:camera)out.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+            for(float f:camera)out.push_back(std::bit_cast<std::uint32_t>(f));
             for(unsigned frame=0;frame<=frames;++frame) {
                 if(frame)effect.tick(camera);
                 out.push_back(effect.phase);out.push_back(effect.flags);
                 for(const auto& s:effect.sprites) {
-                    for(const auto& v:{s.position,s.rotation})for(unsigned j=0;j<3;++j)out.push_back(__builtin_bit_cast(std::uint32_t, (v[j])));
-                    for(const auto& v:{s.scale,s.color})for(float f:v)out.push_back(__builtin_bit_cast(std::uint32_t, (f)));
-                    out.push_back(__builtin_bit_cast(std::uint32_t, (s.damping)));out.push_back(__builtin_bit_cast(std::uint32_t, (s.previous_time)));
+                    for(const auto& v:{s.position,s.rotation})for(unsigned j=0;j<3;++j)out.push_back(std::bit_cast<std::uint32_t>(v[j]));
+                    for(const auto& v:{s.scale,s.color})for(float f:v)out.push_back(std::bit_cast<std::uint32_t>(f));
+                    out.push_back(std::bit_cast<std::uint32_t>(s.damping));out.push_back(std::bit_cast<std::uint32_t>(s.previous_time));
                     out.push_back(s.program);out.push_back(s.texture);
                     out.push_back(s.uv[0]|(std::uint32_t(s.uv[1])<<16));out.push_back(s.uv[2]|(std::uint32_t(s.uv[3])<<16));
                 }
@@ -1195,7 +1195,7 @@ int main(int argc, char** argv) {
         if(command=="stream-prepare" && argc==5) {
             const auto bank=okage::read_stream_bank(read(argv[2]));
             const auto tone=okage::stream_tone(bank,std::stoi(argv[3]));
-            const auto sample=okage::prepare_stream_sample(okage::Bytes(bank.bytes).subspan(tone.offset,tone.size));
+            const auto sample=okage::prepare_stream_sample(okage::Bytes(bank.bytes).subspan(tone.offset,tone.size),tone.loop_offset);
             write(argv[4],sample);return 0;
         }
         if(command=="stream-cue" && argc==8) {
@@ -1300,7 +1300,7 @@ int main(int argc, char** argv) {
             const auto ticks=std::stoul(argv[3]);if(!ticks || ticks>12000)throw std::runtime_error("Music tick budget");
             okage::MusicSequence sequence(read(argv[2]));std::vector<std::uint32_t> output;
             for(unsigned tick=1;tick<=ticks && !sequence.ended();++tick)sequence.tick([&](unsigned phase,const auto& s){
-                const std::array<std::uint32_t,10> row={tick,phase,s.cursor(),__builtin_bit_cast(std::uint32_t, (s.remaining())),
+                const std::array<std::uint32_t,10> row={tick,phase,s.cursor(),std::bit_cast<std::uint32_t>(s.remaining()),
                     s.tempo(),s.delta_scale(),s.clock_step(),s.status(),phase==1 ? s.next_status() : 0u,std::uint32_t(s.ended())};
                 output.insert(output.end(),row.begin(),row.end());
                 for(const auto& channel:s.channels){const auto words=channel.words();output.insert(output.end(),words.begin(),words.end());}
@@ -1347,33 +1347,33 @@ int main(int argc, char** argv) {
             if(r[1]!=0x1980f8)throw std::runtime_error("Dialogue replay initial text state");
             text.state.flags=r[10];text.state.progress=r[12];text.state.phase=r[16];text.state.period=r[17];text.state.delay=r[18];
             text.state.x=r[29];text.state.y=r[30];text.state.color=r[31];text.state.font=r[35];text.seek({r[13],r[14],r[15]!=0});
-            okage::TextClock clock;clock.display_modes=r[11];clock.revealed=r[19];clock.scroll_target=__builtin_bit_cast(std::int32_t, (r[20]));
-            clock.scroll=__builtin_bit_cast(float, (r[21]));clock.scroll_step=__builtin_bit_cast(float, (r[22]));clock.scroll_base_step=__builtin_bit_cast(float, (r[23]));clock.glyph_flags=r[32];
+            okage::TextClock clock;clock.display_modes=r[11];clock.revealed=r[19];clock.scroll_target=std::bit_cast<std::int32_t>(r[20]);
+            clock.scroll=std::bit_cast<float>(r[21]);clock.scroll_step=std::bit_cast<float>(r[22]);clock.scroll_base_step=std::bit_cast<float>(r[23]);clock.glyph_flags=r[32];
             std::array<std::uint32_t,64> c;std::memcpy(c.data(),control.data(),256);
-            okage::DialogueController controller;controller.stage=c[7];controller.normal_period=__builtin_bit_cast(std::int32_t, (c[12]));
-            controller.automatic=c[13]!=0;controller.window_type=__builtin_bit_cast(std::int32_t, (c[15]));
+            okage::DialogueController controller;controller.stage=c[7];controller.normal_period=std::bit_cast<std::int32_t>(c[12]);
+            controller.automatic=c[13]!=0;controller.window_type=std::bit_cast<std::int32_t>(c[15]);
             controller.advance_count=c[16];controller.layer_flags=c[17];controller.layer_advance=c[21];
             if(c[18] || c[62])throw std::runtime_error("Dialogue replay choices outside scope");
             if((c[63]&255)==255)text.state.window.assign(1,char(255));
             else if(c[63]&255)throw std::runtime_error("Dialogue initial window command outside scope");
-            okage::DialogueOpacity opacity;opacity.set(__builtin_bit_cast(float, (c[40])),__builtin_bit_cast(float, (c[43])),__builtin_bit_cast(float, (c[42])),__builtin_bit_cast(float, (c[41])));
+            okage::DialogueOpacity opacity;opacity.set(std::bit_cast<float>(c[40]),std::bit_cast<float>(c[43]),std::bit_cast<float>(c[42]),std::bit_cast<float>(c[41]));
             okage::DialogueWaitState wait{5,1};std::array<std::uint32_t,2> layers={c[22],c[23]};bool released=false;
             std::vector<std::uint32_t> result,wait_result;
             for(std::size_t at=0;at<control.size();at+=512) {
                 std::memcpy(c.data(),control.data()+at,256);
                 if(c[0]!=at/512 || c[1]!=0x148dc8)throw std::runtime_error("Dialogue input sequence mismatch");
                 if(!released) {
-                    const auto value=okage::poll_dialogue_wait(wait,2,{true,0,layers,__builtin_bit_cast(std::int32_t, (text.state.progress))});
-                    wait_result.insert(wait_result.end(),{wait.countdown,wait.observed,wait.accumulated,__builtin_bit_cast(std::uint32_t, (value))});released=value==0;
+                    const auto value=okage::poll_dialogue_wait(wait,2,{true,0,layers,std::bit_cast<std::int32_t>(text.state.progress)});
+                    wait_result.insert(wait_result.end(),{wait.countdown,wait.observed,wait.accumulated,std::bit_cast<std::uint32_t>(value)});released=value==0;
                 }
                 opacity.tick();text.frame(clock,opacity.visible());
                 const auto pos=text.position();
                 result.insert(result.end(),{text.state.flags,text.state.progress,std::uint32_t(pos.fragment),std::uint32_t(pos.cursor),pos.loaded?1u:0u,
-                    text.state.phase,text.state.period,text.state.delay,clock.revealed,__builtin_bit_cast(std::uint32_t, (clock.scroll_target)),__builtin_bit_cast(std::uint32_t, (clock.scroll)),text.state.x,text.state.y});
+                    text.state.phase,text.state.period,text.state.delay,clock.revealed,std::bit_cast<std::uint32_t>(clock.scroll_target),std::bit_cast<std::uint32_t>(clock.scroll),text.state.x,text.state.y});
                 const auto effects=controller.update(text,{std::uint16_t(c[8]),std::uint16_t(c[9])});
                 if(effects.close)opacity.set(128,-4);
                 result.insert(result.end(),{text.state.flags,text.state.phase,text.state.period,text.state.delay,text.state.progress,
-                    controller.advance_count,controller.layer_advance,controller.layer_flags,controller.stage,__builtin_bit_cast(std::uint32_t, (opacity.delta))});
+                    controller.advance_count,controller.layer_advance,controller.layer_flags,controller.stage,std::bit_cast<std::uint32_t>(opacity.delta)});
             }
             write(fs::path(argv[7])/"frames.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(result.data()),result.size()*4));
             write(fs::path(argv[7])/"wait.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(wait_result.data()),wait_result.size()*4));return 0;
@@ -1383,14 +1383,14 @@ int main(int argc, char** argv) {
             if(input.size()!=40)throw std::runtime_error("Dialogue closing fixture requires ten words");
             std::array<std::uint32_t,10> row;std::memcpy(row.data(),input.data(),40);
             unsigned stage=row[0];okage::DialogueClosure closure;closure.message_flags=row[1];
-            auto seed=[&](okage::DialogueOpacity& o,unsigned at){o.set(__builtin_bit_cast(float, (row[at])),__builtin_bit_cast(float, (row[at+3])),__builtin_bit_cast(float, (row[at+2])),__builtin_bit_cast(float, (row[at+1])));};
+            auto seed=[&](okage::DialogueOpacity& o,unsigned at){o.set(std::bit_cast<float>(row[at]),std::bit_cast<float>(row[at+3]),std::bit_cast<float>(row[at+2]),std::bit_cast<float>(row[at+1]));};
             seed(closure.decoration,2);okage::DialogueOpacity body;seed(body,6);
             const auto frames=std::stoul(argv[3]);if(frames>10000)throw std::runtime_error("Dialogue close frame limit");
             std::vector<std::uint32_t> output;
             for(unsigned frame=0;frame<=frames;++frame) {
                 output.insert(output.end(),{stage,closure.message_flags});
                 for(const auto& opacity:{closure.decoration,body})
-                    for(float v:{opacity.value,opacity.upper,opacity.lower,opacity.delta})output.push_back(__builtin_bit_cast(std::uint32_t, (v)));
+                    for(float v:{opacity.value,opacity.upper,opacity.lower,opacity.delta})output.push_back(std::bit_cast<std::uint32_t>(v));
                 if(frame<frames){closure.decoration.tick();body.tick();closure.update(stage);}
             }
             write(argv[4],okage::Bytes(reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4));return 0;
@@ -1448,10 +1448,10 @@ int main(int argc, char** argv) {
                 std::array<std::uint32_t,10> r;std::memcpy(r.data(),source.data()+at,40);
                 okage::TextState state;state.flags=r[0];state.phase=r[2];state.period=r[3];state.delay=r[4];
                 okage::TextClock clock;clock.display_modes=r[1];clock.revealed=r[5];
-                clock.scroll_target=__builtin_bit_cast(std::int32_t, (r[6]));clock.scroll=__builtin_bit_cast(float, (r[7]));
-                clock.scroll_step=__builtin_bit_cast(float, (r[8]));clock.scroll_base_step=__builtin_bit_cast(float, (r[9]));
+                clock.scroll_target=std::bit_cast<std::int32_t>(r[6]);clock.scroll=std::bit_cast<float>(r[7]);
+                clock.scroll_step=std::bit_cast<float>(r[8]);clock.scroll_base_step=std::bit_cast<float>(r[9]);
                 okage::tick_text_clock(state,clock);
-                output.insert(output.end(),{state.flags,state.phase,state.period,state.delay,clock.revealed,__builtin_bit_cast(std::uint32_t, (clock.scroll))});
+                output.insert(output.end(),{state.flags,state.phase,state.period,state.delay,clock.revealed,std::bit_cast<std::uint32_t>(clock.scroll)});
             }
             write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4));return 0;
         }
@@ -1480,8 +1480,8 @@ int main(int argc, char** argv) {
                     text.state.flags=r[10];text.state.progress=r[12];text.state.phase=r[16];text.state.period=r[17];text.state.delay=r[18];
                     text.state.x=r[29];text.state.y=r[30];text.state.color=r[31];text.state.font=r[35];
                     text.seek({r[13],r[14],r[15]!=0});
-                    clock.display_modes=r[11];clock.revealed=r[19];clock.scroll_target=__builtin_bit_cast(std::int32_t, (r[20]));
-                    clock.scroll=__builtin_bit_cast(float, (r[21]));clock.scroll_step=__builtin_bit_cast(float, (r[22]));clock.scroll_base_step=__builtin_bit_cast(float, (r[23]));
+                    clock.display_modes=r[11];clock.revealed=r[19];clock.scroll_target=std::bit_cast<std::int32_t>(r[20]);
+                    clock.scroll=std::bit_cast<float>(r[21]);clock.scroll_step=std::bit_cast<float>(r[22]);clock.scroll_base_step=std::bit_cast<float>(r[23]);
                     clock.glyph_flags=r[32];initialized=true;
                     layers={r[7],r[8]};
                 }
@@ -1489,14 +1489,14 @@ int main(int argc, char** argv) {
                 else if(r[1]==0x1a51a0)text.state.period=r[4];
                 else if(r[1]==0x1980f8) {
                     if(argc==8 && !released) {
-                        const auto result=okage::poll_dialogue_wait(wait,request,{true,0,layers,__builtin_bit_cast(std::int32_t, (text.state.progress))});
-                        wait_output.insert(wait_output.end(),{wait.countdown,wait.observed,wait.accumulated,__builtin_bit_cast(std::uint32_t, (result))});
+                        const auto result=okage::poll_dialogue_wait(wait,request,{true,0,layers,std::bit_cast<std::int32_t>(text.state.progress)});
+                        wait_output.insert(wait_output.end(),{wait.countdown,wait.observed,wait.accumulated,std::bit_cast<std::uint32_t>(result)});
                         released=result==0;
                     }
                     text.frame(clock,r[24]!=0 || r[25]!=0);
                     const auto p=text.position();
                     output.insert(output.end(),{text.state.flags,text.state.progress,std::uint32_t(p.fragment),std::uint32_t(p.cursor),p.loaded ? 1u : 0u,
-                        text.state.phase,text.state.period,text.state.delay,clock.revealed,__builtin_bit_cast(std::uint32_t, (clock.scroll_target)),__builtin_bit_cast(std::uint32_t, (clock.scroll))});
+                        text.state.phase,text.state.period,text.state.delay,clock.revealed,std::bit_cast<std::uint32_t>(clock.scroll_target),std::bit_cast<std::uint32_t>(clock.scroll)});
                     if(layout)output.insert(output.end(),{text.state.x,text.state.y});
                 }
             }
@@ -1504,7 +1504,7 @@ int main(int argc, char** argv) {
             if(layout) {
                 std::vector<std::uint32_t> glyphs;
                 for(const auto& g:text.glyphs)glyphs.insert(glyphs.end(),{g.code,g.font,g.color,
-                    __builtin_bit_cast(std::uint32_t, (g.x)),__builtin_bit_cast(std::uint32_t, (g.y)),std::uint32_t(g.width),std::uint32_t(g.height)});
+                    std::bit_cast<std::uint32_t>(g.x),std::bit_cast<std::uint32_t>(g.y),std::uint32_t(g.width),std::uint32_t(g.height)});
                 write(std::string(argv[6])+".glyphs.bin",okage::Bytes(reinterpret_cast<const std::uint8_t*>(glyphs.data()),glyphs.size()*4));
                 const auto t=okage::rasterize_text(fonts,text.glyphs,640,224);
                 const std::string header="P7\nWIDTH 640\nHEIGHT 224\nDEPTH 4\nMAXVAL 255\nTUPLTYPE RGB_ALPHA\nENDHDR\n";
@@ -1559,8 +1559,8 @@ int main(int argc, char** argv) {
             std::vector<std::uint32_t> output;
             for(unsigned step=0;step<100000;++step) {
                 const auto kind=text.step();
-                const auto result=okage::poll_dialogue_wait(wait,request,{true,0,layers,__builtin_bit_cast(std::int32_t, (text.state.progress))});
-                output.insert(output.end(),{step,std::uint32_t(kind),text.state.progress,__builtin_bit_cast(std::uint32_t, (result)),
+                const auto result=okage::poll_dialogue_wait(wait,request,{true,0,layers,std::bit_cast<std::int32_t>(text.state.progress)});
+                output.insert(output.end(),{step,std::uint32_t(kind),text.state.progress,std::bit_cast<std::uint32_t>(result),
                                             wait.countdown,wait.observed,wait.accumulated});
                 if(result==0) {
                     write(argv[5],okage::Bytes(reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4));
@@ -1608,10 +1608,10 @@ int main(int argc, char** argv) {
                 std::vector<std::uint32_t> layers;
                 for(unsigned i=0;i<in[8];++i)layers.push_back((in[9]&(1u<<i)) ? 0x40 : 0);
                 okage::DialogueWaitState state{in[1],in[2],in[3],in[4],in[5]};
-                const okage::DialogueObservation dialogue{in[6]!=0,__builtin_bit_cast(std::int32_t, (in[7])),layers,
-                    in[10]==0 ? __builtin_bit_cast(std::int32_t, (in[11])) : -1};
-                const auto result=okage::poll_dialogue_wait(state,__builtin_bit_cast(std::int32_t, (in[0])),dialogue);
-                output.insert(output.end(),{state.countdown,state.observed,state.accumulated,__builtin_bit_cast(std::uint32_t, (result))});
+                const okage::DialogueObservation dialogue{in[6]!=0,std::bit_cast<std::int32_t>(in[7]),layers,
+                    in[10]==0 ? std::bit_cast<std::int32_t>(in[11]) : -1};
+                const auto result=okage::poll_dialogue_wait(state,std::bit_cast<std::int32_t>(in[0]),dialogue);
+                output.insert(output.end(),{state.countdown,state.observed,state.accumulated,std::bit_cast<std::uint32_t>(result)});
             }
             write(argv[3],okage::Bytes(reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4));return 0;
         }
@@ -1622,10 +1622,10 @@ int main(int argc, char** argv) {
             std::vector<std::uint32_t> output;
             for(unsigned at=0;at<data.size();at+=184) {
                 std::array<std::uint32_t,46> row;std::memcpy(row.data(),data.data()+at,184);
-                auto f=[&](unsigned i){return __builtin_bit_cast(float, (row[i]));};
-                auto n=[&](unsigned i){return __builtin_bit_cast(std::int32_t, (row[i]));};
+                auto f=[&](unsigned i){return std::bit_cast<float>(row[i]);};
+                auto n=[&](unsigned i){return std::bit_cast<std::int32_t>(row[i]);};
                 auto point=[&](unsigned i){return okage::Float4{f(i),f(i+1),f(i+2),f(i+3)};};
-                auto number=[&](unsigned i,float value){row[i]=__builtin_bit_cast(std::uint32_t, (value));};
+                auto number=[&](unsigned i,float value){row[i]=std::bit_cast<std::uint32_t>(value);};
                 auto store=[&](unsigned i,const okage::Float4& value){for(unsigned k=0;k<4;++k)number(i+k,value[k]);};
                 okage::ExteriorCamera c;
                 c.preset=n(0);c.obstruction_clock=n(1);c.fast_turn=row[2]!=0;c.distance=n(4);
@@ -1652,15 +1652,15 @@ int main(int argc, char** argv) {
                 std::array<std::uint32_t,36> row;
                 for(unsigned i=0;i<36;++i)row[i]=std::uint32_t(bytes[at+4*i])|(std::uint32_t(bytes[at+4*i+1])<<8)|
                     (std::uint32_t(bytes[at+4*i+2])<<16)|(std::uint32_t(bytes[at+4*i+3])<<24);
-                auto point=[&](unsigned i){okage::Float4 p;for(unsigned k=0;k<4;++k)p[k]=__builtin_bit_cast(float, (row[i+k]));return p;};
-                auto store=[&](unsigned i,const okage::Float4& p){for(unsigned k=0;k<4;++k)row[i+k]=__builtin_bit_cast(std::uint32_t, (p[k]));};
-                okage::EncounterEnemy enemy{__builtin_bit_cast(std::int32_t, (row[0])),__builtin_bit_cast(std::int32_t, (row[1])),__builtin_bit_cast(float, (row[2]))};
+                auto point=[&](unsigned i){okage::Float4 p;for(unsigned k=0;k<4;++k)p[k]=std::bit_cast<float>(row[i+k]);return p;};
+                auto store=[&](unsigned i,const okage::Float4& p){for(unsigned k=0;k<4;++k)row[i+k]=std::bit_cast<std::uint32_t>(p[k]);};
+                okage::EncounterEnemy enemy{std::bit_cast<std::int32_t>(row[0]),std::bit_cast<std::int32_t>(row[1]),std::bit_cast<float>(row[2])};
                 okage::GameRandom random{row[3]};
                 okage::EnemyObservation in{point(12),point(16),point(20),point(24),point(28),point(32),
-                    __builtin_bit_cast(std::int32_t, (row[4])),__builtin_bit_cast(std::int32_t, (row[5])),__builtin_bit_cast(std::int32_t, (row[6])),__builtin_bit_cast(std::int32_t, (row[7]))};
+                    std::bit_cast<std::int32_t>(row[4]),std::bit_cast<std::int32_t>(row[5]),std::bit_cast<std::int32_t>(row[6]),std::bit_cast<std::int32_t>(row[7])};
                 const auto action=enemy.tick(in,[&]{return random.next();},angles,sine);
-                row[0]=__builtin_bit_cast(std::uint32_t, (enemy.counter));row[1]=__builtin_bit_cast(std::uint32_t, (enemy.cooldown));
-                row[2]=__builtin_bit_cast(std::uint32_t, (enemy.speed));row[3]=random.state;
+                row[0]=std::bit_cast<std::uint32_t>(enemy.counter);row[1]=std::bit_cast<std::uint32_t>(enemy.cooldown);
+                row[2]=std::bit_cast<std::uint32_t>(enemy.speed);row[3]=random.state;
                 if(action.visible)row[8]=*action.visible;
                 if(action.translucent)row[9]|=0x100000;
                 if(action.rear_attack)row[10]=1;
@@ -1668,7 +1668,7 @@ int main(int argc, char** argv) {
                 if(action.position)store(12,*action.position);
                 if(action.rotation)store(16,*action.rotation);
                 if(action.color)store(20,*action.color);
-                if(action.alpha)row[23]=__builtin_bit_cast(std::uint32_t, (*action.alpha));
+                if(action.alpha)row[23]=std::bit_cast<std::uint32_t>(*action.alpha);
                 if(action.displacement){auto p=point(12);for(unsigned k=0;k<4;++k)p[k]+=(*action.displacement)[k];store(12,p);}
                 output.insert(output.end(),row.begin(),row.end());
             }
@@ -1696,7 +1696,7 @@ int main(int argc, char** argv) {
                 if(selection<selections.size()&&selections[selection].first==i)object.select_motion(selections[selection++].second);
                 object.tick_script();if(object.visible){object.tick_channels();object.evaluate();}
                 out.insert(out.end(),{i,object.animation().pc(),object.animation().script_state(),unsigned(object.visible),unsigned(id),unsigned(channels)});
-                for(const auto& v:object.channels())for(float f:v)out.push_back(__builtin_bit_cast(std::uint32_t, (f)));
+                for(const auto& v:object.channels())for(float f:v)out.push_back(std::bit_cast<std::uint32_t>(f));
             }
             write(argv[7],{reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4});return 0;
         }
@@ -1777,7 +1777,7 @@ int main(int argc, char** argv) {
                     for (const auto& v:{t.position,t.rotation,t.scale}) for (auto x:v) std::cout<<'\t'<<x;
                     std::cout<<'\n';
                 }
-                for (const auto& v:{t.position,t.rotation,t.scale}) for(auto x:v) append(__builtin_bit_cast(std::uint32_t, (x)));
+                for (const auto& v:{t.position,t.rotation,t.scale}) for(auto x:v) append(std::bit_cast<std::uint32_t>(x));
                 append(t.flags);
             }
             if (command=="map-transforms") write(argv[3],result);
@@ -1813,9 +1813,9 @@ int main(int argc, char** argv) {
                         if (corner[3]<0 || !defined.at(corner[3])) throw std::runtime_error("Missing polygon UV");
                         append(image.width); append(image.height);
                         append(std::uint32_t(std::int32_t(state.u_mode))); append(std::uint32_t(std::int32_t(state.v_mode)));
-                        for (float value:state.region) append(__builtin_bit_cast(std::uint32_t, (value)));
-                        append(__builtin_bit_cast(std::uint32_t, (coords.at(corner[3])[0])));
-                        append(__builtin_bit_cast(std::uint32_t, (coords.at(corner[3])[1])));
+                        for (float value:state.region) append(std::bit_cast<std::uint32_t>(value));
+                        append(std::bit_cast<std::uint32_t>(coords.at(corner[3])[0]));
+                        append(std::bit_cast<std::uint32_t>(coords.at(corner[3])[1]));
                     }
                 }
             }
@@ -1831,19 +1831,19 @@ int main(int argc, char** argv) {
             };
             std::vector<std::uint8_t> result;
             for (std::size_t at=0;at<cases.size();at+=40) {
-                const auto u=__builtin_bit_cast(std::int32_t, (word(at+8))),v=__builtin_bit_cast(std::int32_t, (word(at+12)));
+                const auto u=std::bit_cast<std::int32_t>(word(at+8)),v=std::bit_cast<std::int32_t>(word(at+12));
                 if (u<-32768 || u>32767 || v<-32768 || v>32767) throw std::runtime_error("UV fixture mode overflow");
                 okage::TextureState state{0,0,std::int16_t(u),std::int16_t(v),{}};
-                for (unsigned i=0;i<4;++i) state.region[i]=__builtin_bit_cast(float, (word(at+16+i*4)));
+                for (unsigned i=0;i<4;++i) state.region[i]=std::bit_cast<float>(word(at+16+i*4));
                 if (command=="texture-clamp-cases") {
                     const auto bits=okage::texture_clamp(state,word(at),word(at+4));
                     for (unsigned i=0;i<8;++i) result.push_back(bits>>(i*8));
                     continue;
                 }
                 const auto uv=okage::texture_coordinates(state,word(at),word(at+4),
-                    {__builtin_bit_cast(float, (word(at+32))),__builtin_bit_cast(float, (word(at+36)))});
+                    {std::bit_cast<float>(word(at+32)),std::bit_cast<float>(word(at+36))});
                 for (float value:uv) {
-                    auto bits=__builtin_bit_cast(std::uint32_t, (value));
+                    auto bits=std::bit_cast<std::uint32_t>(value);
                     for (unsigned i=0;i<4;++i) result.push_back(bits>>(i*8));
                 }
             }

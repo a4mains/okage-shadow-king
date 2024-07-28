@@ -73,5 +73,33 @@ int main(){try{
         for(unsigned i=0;i<n;++i)require(prepared[i*16]==0x0c && prepared[i*16+1]==0 && prepared[i*16+2]==i);
         for(unsigned i=n*16;i<prepared.size();++i)if(i!=aligned+1)require(prepared[i]==0);
     }
-    std::cout<<"RXWS owned records, optional chunks, bounds and malformed input passed\n";
+    auto looping=cue;looping.resize(144);put(looping,4,128);put(looping,56,64);put(looping,68,64);
+    looping[38]=3;put(looping,60,16);
+    for(unsigned n=0;n<4;++n) {
+        looping[80+n*16]=0x28;looping[81+n*16]=0xff;
+        for(unsigned j=2;j<16;++j)looping[80+n*16+j]=std::uint8_t(19*n+j);
+    }
+    const auto loop_bank=okage::read_stream_bank(looping);const auto loop_tone=okage::stream_tone(loop_bank,0);
+    require(loop_tone.loop_offset==16);
+    std::vector<std::uint8_t> linear(looping.begin()+80,looping.end());
+    for(unsigned n=0;n<100;++n)linear.insert(linear.end(),looping.begin()+96,looping.end());
+    linear=okage::prepare_stream_sample(linear);
+    okage::SampleVoice unrolled(linear,okage::StreamTone::adsr1,okage::StreamTone::adsr2);
+    unrolled.parameters(loop_tone.pitch,loop_tone.left,loop_tone.right);
+    okage::StreamPlayer repeated(loop_bank);repeated.play(0,1,128);
+    std::vector<std::int32_t> loop_pcm(6000*2);repeated.mix(loop_pcm);require(repeated.active()==1);
+    for(unsigned n=0;n<6000;++n){const auto sample=unrolled.tick();require(loop_pcm[n*2]==sample[0]&&loop_pcm[n*2+1]==sample[1]);}
+    repeated.stop();require(repeated.active()==0);
+    for(unsigned offset:{1u,63u,64u,0xffffffffu}) {
+        auto invalid_loop=loop_bank;put(invalid_loop.bytes,60,offset);
+        rejects([&]{okage::stream_tone(invalid_loop,0);});
+        rejects([&]{okage::prepare_stream_sample(okage::Bytes(looping).subspan(80),offset);});
+    }
+    // Zero and final-block loop starts are legal; source flags are ignored.
+    for(unsigned offset:{0u,48u}) {
+        const auto prepared=okage::prepare_stream_sample(okage::Bytes(looping).subspan(80),offset);
+        okage::SampleVoice loop(prepared,0x8000,0x8026);loop.parameters(4096,127,127);
+        for(unsigned i=0;i<1000;++i)loop.tick();require(!loop.ended()&&loop.loop_count>1);
+    }
+    std::cout<<"RXWS records, finite/looping playback, bounds and malformed input passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
