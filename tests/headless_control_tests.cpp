@@ -7,11 +7,15 @@ int main(){try {
     require(step.kind==K::Step&&step.ticks==6000&&step.held==0xf840);
     require(okage::parse_headless_command("step 1 0000",1).held==0);
     require(okage::parse_headless_command("capture after-save_2",0).name=="after-save_2");
+    require(okage::parse_headless_command("status",0).kind==K::Status);
+    require(okage::parse_headless_command("view post-chest_2",0).kind==K::View);
     require(okage::parse_headless_command("quit",0).kind==K::Quit);
     for(auto line:{"", "step 0 40", "step -1 40", "step 6001 0", "step 2 0",
                   "step 1 10000", "step 1 -1", "step 1 0x40", "step 1 40x",
                   "step 1 40 extra", "capture ../save", "capture /tmp/x", "capture final",
-                  "capture FINAL", "capture Final", "capture foo.png", "capture foo bar", "quit now", "load snapshot"}) {
+                  "capture FINAL", "capture Final", "capture foo.png", "capture foo bar",
+                  "status now", "view ../save", "view /tmp/x", "view final", "view FINAL",
+                  "view foo.png", "view foo bar", "quit now", "load snapshot"}) {
         bool rejected=false;try{okage::parse_headless_command(line,1);}catch(const std::runtime_error&){rejected=true;}
         require(rejected);
     }

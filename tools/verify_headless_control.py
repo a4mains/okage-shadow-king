@@ -64,6 +64,38 @@ def check_capture(path, frame):
     require(len(variables) >= 0xd78, 'Truncated variables capture')
     return state, variables
 
+def check_view(path):
+    data = path.read_bytes()
+    require(data.startswith(b'\x89PNG\r\n\x1a\n'), 'Invalid live-view PNG signature')
+    require(data[12:16] == b'IHDR', 'Missing PNG IHDR')
+    width = int.from_bytes(data[16:20], 'big')
+    height = int.from_bytes(data[20:24], 'big')
+    require((width, height) == (640, 448), f'Unexpected live-view extent {(width, height)!r}')
+    require(not list(path.parent.glob(path.name + '.*')), 'Live view emitted capture-family sidecars')
+
+def check_status_rows(log_path, frame):
+    rows = []
+    for line in log_path.read_text(errors='replace').splitlines():
+        if line.startswith('{'):
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if 'hero_position' in row:
+                rows.append(row)
+    require(len(rows) == 2, f'Expected two status JSON responses, got {len(rows)}')
+    for row in rows:
+        require(row['frame'] == frame, 'Status observation advanced or misreported frame')
+        require(set(row) == {'frame', 'scene', 'entrance', 'event_running', 'pc', 'message',
+                             'choice', 'camera_yaw', 'hero_position', 'guard_pending_opcode'},
+                'Status JSON fields differ from the lightweight schema')
+    require(rows[0] == rows[1], 'Status observations changed between read-only commands')
+
+def capture_family_hashes(path):
+    prefix = path.name
+    return {item.name[len(prefix):]: digest(item)
+            for item in path.parent.glob(prefix + '*') if item.is_file()}
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--native', type=Path, required=True)
@@ -88,6 +120,8 @@ def main():
               'cases': []}
     prelude = [(1, 64, 64)]
     cases = [
+        ('observations', 'status\nview panel\ncapture before\nstatus\nview panel2\ncapture after\nquit\n',
+         prelude, None),
         ('eof_edges', 'capture a\ncapture b\nstep 2 0040\nstep 1 0000\nstep 1 0040\n',
          prelude + [(2, 64, 0), (3, 64, 0), (4, 0, 0), (5, 64, 64)], None),
         ('quit', 'quit\nstep 1 0040\n', prelude, None),
@@ -97,6 +131,9 @@ def main():
         ('overflow_ticks', 'step 4294967296 0040\n', prelude, 'Step requires'),
         ('overflow_mask', 'step 1 10000\n', prelude, 'Step requires'),
         ('duplicate_capture', 'capture a\ncapture a\n', prelude, 'fresh output family'),
+        ('duplicate_view', 'view panel\nview panel\n', prelude, 'reused headless observation name'),
+        ('cross_kind_name', 'view shared\ncapture shared\n', prelude, 'reused headless observation name'),
+        ('reserved_view', 'view FINAL\n', prelude, 'reserved view name'),
         ('reserved_case', 'capture FINAL\n', prelude, 'reserved capture name'),
         ('existing_directory', '', [], 'fresh directory'),
     ]
@@ -148,6 +185,24 @@ def main():
                             'Repeated same-frame captures changed image')
                 if name == 'duplicate_capture':
                     check_capture(control / 'a.png', 1)
+                if name == 'observations':
+                    check_status_rows(case / 'run.log', 1)
+                    check_view(control / 'panel.view.png')
+                    check_view(control / 'panel2.view.png')
+                    before, before_vars = check_capture(control / 'before.png', 1)
+                    after, after_vars = check_capture(control / 'after.png', 1)
+                    require(before == after and before_vars == after_vars,
+                            'Read-only observations changed captured Session state')
+                    require(capture_family_hashes(control / 'before.png') ==
+                            capture_family_hashes(control / 'after.png'),
+                            'Read-only observations changed capture, trace or audio bytes')
+                    kinds = [row['kind'] for row in journal(control / 'inputs.jsonl')]
+                    require(kinds.count('tick_attempt') == 1 and kinds.count('tick_complete') == 1,
+                            'Status/view admitted an input-journal tick')
+                if name == 'duplicate_view':
+                    check_view(control / 'panel.view.png')
+                if name == 'cross_kind_name':
+                    check_view(control / 'shared.view.png')
             require(not saves.exists() or not any(saves.rglob('*')),
                     'Short cold control unexpectedly wrote save data')
             result['passed'] = True

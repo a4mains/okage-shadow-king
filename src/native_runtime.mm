@@ -39,11 +39,14 @@
 #include <array>
 #include <atomic>
 #include <charconv>
+#include <cmath>
 #include <filesystem>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <memory>
 #include <map>
+#include <set>
 #include <sstream>
 
 namespace fs=std::filesystem;
@@ -1739,6 +1742,41 @@ struct Session {
         }
         return image;
     }
+    std::string headless_status_json() const {
+        std::ostringstream out;
+        out<<std::setprecision(9)<<"{\"frame\":"<<frame<<",\"scene\":";
+        if(field)out<<current_scene;else out<<"null";
+        out<<",\"entrance\":";if(field)out<<current_entrance;else out<<"null";
+        out<<",\"event_running\":"<<(field&&field->event_running()?"true":"false")
+           <<",\"pc\":";if(field)out<<field->pc();else out<<"null";
+        out<<",\"message\":"<<message_id<<",\"choice\":"<<text.choice_cursor
+           <<",\"camera_yaw\":";
+        const auto number=[&](float value){if(std::isfinite(value))out<<value;else out<<"null";};
+        if(field)number(field->rotation[1]);else out<<"null";
+        out<<",\"hero_position\":";
+        const auto hero=std::find_if(actor_bindings.begin(),actor_bindings.end(),
+            [](const auto& binding){return binding.alias==-1;});
+        if(field&&hero!=actor_bindings.end()&&hero->actor&&hero->actor->channels().size()>1) {
+            const auto& p=hero->actor->channels()[1];out<<'[';
+            for(unsigned i=0;i<3;++i){if(i)out<<',';number(p[i]);}out<<']';
+        } else out<<"null";
+        out<<",\"guard_pending_opcode\":";
+        if(field)out<<field->pending_opcode;else out<<"null";
+        out<<'}';
+        return out.str();
+    }
+    okage::Texture headless_live_view() const {
+        if(prepared_tick||pending_battle_frame()||(battle&&battle->frame_prepared()))
+            throw std::runtime_error("Cannot view an uncompleted native frame");
+        auto composition=capture_composition();
+        if(!composition.live_enabled)
+            throw std::runtime_error("Headless live compositor was not enabled before the prelude");
+        auto result=composition.compose(base_surface());
+        if(!result.live||result.live->width!=640||result.live->height!=448||
+           result.live->rgba.size()!=std::size_t(640)*448*4)
+            throw std::runtime_error("Native live view has an invalid 640x448 extent");
+        return std::move(*result.live);
+    }
 };
 static NSBitmapImageRep* bitmap(const okage::Texture& image) {
     NSBitmapImageRep* rep=[[NSBitmapImageRep alloc] initWithBitmapDataPlanes:nullptr pixelsWide:image.width pixelsHigh:image.height
@@ -1754,6 +1792,18 @@ static void captureImage(Session& session,const fs::path& path) {
     NSError* error=nil;
     if(!data || ![data writeToFile:[NSString stringWithUTF8String:path.c_str()] options:NSDataWritingWithoutOverwriting error:&error])
         throw std::runtime_error("Cannot write native frame image");
+}
+static void writeView(Session& session,const fs::path& path) {
+    if(fs::exists(path)||fs::is_symlink(path))throw std::runtime_error("Refusing existing native live view");
+    const auto image=session.headless_live_view();
+    const auto data=[bitmap(image) representationUsingType:NSBitmapImageFileTypePNG properties:@{}];
+    NSError* error=nil;
+    if(!data || ![data writeToFile:[NSString stringWithUTF8String:path.c_str()] options:NSDataWritingWithoutOverwriting error:&error])
+        throw std::runtime_error("Cannot write native live view");
+}
+static void reserve_observation_name(std::set<std::string>& names,const std::string& name) {
+    if(!names.insert(name).second)
+        throw std::runtime_error("Refusing reused headless observation name");
 }
 static void capture(Session& session,const fs::path& path) {
     session.finish_battle_frame();
@@ -2598,7 +2648,7 @@ int main(int argc,const char** argv) {
             session.load_observation_trace=loadObservationPath.empty()?nullptr:&loadObservationTrace;
             if(!output.empty())session.battle_construction_report=output.string()+".battle-construction.json";
             if(!output.empty())session.battle_stage_report=output.string()+".battle-stage.json";
-            session.live_presentation_enabled=previewAt!=0||cooperativeReplay.value_or(false);
+            session.live_presentation_enabled=previewAt!=0||cooperativeReplay.value_or(false)||bool(headlessControlPath);
             session.save_directory=saveDirectory;
             if(coldStart)session.initialize_cold_start(gameDataRoot,saveDirectory,!output.empty());
             if(!effectData.empty())session.prepare_effects(effectData,effectTextures);
@@ -2676,6 +2726,7 @@ int main(int argc,const char** argv) {
                              <<" pc="<<(session.field?session.field->pc():0)<<" message="<<session.message_id
                              <<std::endl;
                 };
+                std::set<std::string> observation_names;
                 try {
                     park();inputJournal->pause(session.frame);status();
                     std::string line;
@@ -2686,7 +2737,15 @@ int main(int argc,const char** argv) {
                         if(command.kind==okage::HeadlessCommand::Kind::Quit)break;
                         if(command.kind==okage::HeadlessCommand::Kind::Capture) {
                             const auto path=*headlessControlPath/(command.name+".png");
-                            okage::require_fresh_native_capture_family(path);capture(session,path);
+                            okage::require_fresh_native_capture_family(path);
+                            reserve_observation_name(observation_names,command.name);capture(session,path);
+                        } else if(command.kind==okage::HeadlessCommand::Kind::Status) {
+                            std::cout<<session.headless_status_json()<<std::endl;
+                            continue;
+                        } else if(command.kind==okage::HeadlessCommand::Kind::View) {
+                            const auto path=*headlessControlPath/(command.name+".view.png");
+                            reserve_observation_name(observation_names,command.name);
+                            okage::require_fresh_native_capture_family(path);writeView(session,path);
                         } else {
                             inputJournal->resume(session.frame);
                             for(unsigned n=0;n<command.ticks;++n) {
