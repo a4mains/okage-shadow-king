@@ -1768,6 +1768,12 @@ struct Session {
     okage::Texture headless_live_view() const {
         if(prepared_tick||pending_battle_frame()||(battle&&battle->frame_prepared()))
             throw std::runtime_error("Cannot view an uncompleted native frame");
+        if(live_image&&rendered_frame==frame) {
+            if(live_image->width!=640||live_image->height!=448||
+               live_image->rgba.size()!=std::size_t(640)*448*4)
+                throw std::runtime_error("Published native live view has an invalid 640x448 extent");
+            return *live_image;
+        }
         auto composition=capture_composition();
         if(!composition.live_enabled)
             throw std::runtime_error("Headless live compositor was not enabled before the prelude");

@@ -8,10 +8,14 @@ host loading may progress while stdin is idle; this is not a timing test.
 import argparse
 import hashlib
 import json
+import math
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import time
+
+from compare_frame_images import decode_png
 
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -64,7 +68,7 @@ def check_capture(path, frame):
     require(len(variables) >= 0xd78, 'Truncated variables capture')
     return state, variables
 
-def check_view(path):
+def check_view(path, populated_lower_half=False):
     data = path.read_bytes()
     require(data.startswith(b'\x89PNG\r\n\x1a\n'), 'Invalid live-view PNG signature')
     require(data[12:16] == b'IHDR', 'Missing PNG IHDR')
@@ -72,8 +76,16 @@ def check_view(path):
     height = int.from_bytes(data[20:24], 'big')
     require((width, height) == (640, 448), f'Unexpected live-view extent {(width, height)!r}')
     require(not list(path.parent.glob(path.name + '.*')), 'Live view emitted capture-family sidecars')
+    if populated_lower_half:
+        decoded_width, decoded_height, rgba = decode_png(data)
+        require((decoded_width, decoded_height) == (640, 448), 'Decoded view extent changed')
+        lower = 224 * decoded_width * 4
+        colors = {rgba[lower + y * decoded_width * 4 + x * 4:
+                       lower + y * decoded_width * 4 + x * 4 + 3]
+                  for y in range(0, 224, 3) for x in range(0, 640, 3)}
+        require(len(colors) >= 8, 'Live field view lower half is not populated')
 
-def check_status_rows(log_path, frame):
+def read_status_rows(log_path):
     rows = []
     for line in log_path.read_text(errors='replace').splitlines():
         if line.startswith('{'):
@@ -85,22 +97,85 @@ def check_status_rows(log_path, frame):
                 rows.append(row)
     require(len(rows) == 2, f'Expected two status JSON responses, got {len(rows)}')
     for row in rows:
-        require(row['frame'] == frame, 'Status observation advanced or misreported frame')
         require(set(row) == {'frame', 'scene', 'entrance', 'event_running', 'pc', 'message',
                              'choice', 'camera_yaw', 'hero_position', 'guard_pending_opcode'},
                 'Status JSON fields differ from the lightweight schema')
-    require(rows[0] == rows[1], 'Status observations changed between read-only commands')
+    return rows
 
 def capture_family_hashes(path):
     prefix = path.name
     return {item.name[len(prefix):]: digest(item)
             for item in path.parent.glob(prefix + '*') if item.is_file()}
 
+def run_field_case(args, output, native, game_data):
+    source_save = args.field_save.resolve(strict=True)
+    source_buttons = args.field_buttons.resolve(strict=True)
+    source_directions = args.field_directions.resolve(strict=True)
+    require(source_save.is_file() and source_buttons.is_file() and source_directions.is_file(),
+            'Field verification inputs must be regular files')
+    field_case = output / 'field-observation'
+    field_case.mkdir()
+    saves = field_case / 'saves'
+    saves.mkdir()
+    save_copy = saves / 'bkmo0.dat'
+    shutil.copy2(source_save, save_copy)
+    buttons_copy = field_case / 'buttons.txt'
+    directions_copy = field_case / 'directions.txt'
+    shutil.copy2(source_buttons, buttons_copy)
+    shutil.copy2(source_directions, directions_copy)
+    control = field_case / 'control'
+    commands = 'status\nview field-before\nstep 20 1000\nstatus\nview field-after\nquit\n'
+    command = [str(native), '--game-data', str(game_data), '--save-directory', str(saves),
+               '--frames', '2800', '--buttons', str(buttons_copy), '--directions', str(directions_copy),
+               '--headless-control', str(control)]
+    started = time.monotonic()
+    with (field_case / 'run.log').open('wb') as log:
+        run = subprocess.run(command, input=commands.encode(), stdout=log, stderr=subprocess.STDOUT,
+                             cwd=field_case, timeout=300)
+    log_text = (field_case / 'run.log').read_text(errors='replace')
+    require(run.returncode == 0, f'Field observation native exit={run.returncode}: {log_text[-2000:]}')
+    statuses = read_status_rows(field_case / 'run.log')
+    require([row['frame'] for row in statuses] == [2800, 2820], 'Field status frame changed unexpectedly')
+    for row in statuses:
+        require(row['scene'] == 74 and row['entrance'] == 1,
+                'Native save did not restore to the retained ordinary bedroom field entry')
+        require(row['hero_position'] is not None and len(row['hero_position']) == 3 and
+                all(isinstance(value, (int, float)) and math.isfinite(value)
+                    for value in row['hero_position']), 'Field status omitted HERO position')
+        require(isinstance(row['camera_yaw'], (int, float)) and math.isfinite(row['camera_yaw']),
+                'Field status omitted camera yaw')
+    displacement = math.sqrt(sum((a - b) ** 2 for a, b in zip(statuses[0]['hero_position'],
+                                                                statuses[1]['hero_position'])))
+    require(displacement > 1e-5, 'Ordinary field movement did not change the reported HERO position')
+    check_view(control / 'field-before.view.png', populated_lower_half=True)
+    check_view(control / 'field-after.view.png', populated_lower_half=True)
+    rows = journal(control / 'inputs.jsonl')
+    attempts = [row['frame'] for row in rows if row.get('kind') == 'tick_attempt']
+    completed = [row['frame'] for row in rows if row.get('kind') == 'tick_complete']
+    require(attempts == list(range(1, 2821)) and completed == attempts,
+            'Field status/view commands admitted or omitted simulation ticks')
+    return {
+        'passed': True, 'command': command, 'input': commands,
+        'save_source': str(source_save), 'save_source_sha256': digest(source_save),
+        'save_copy_sha256': digest(save_copy),
+        'buttons_sha256': digest(buttons_copy), 'directions_sha256': digest(directions_copy),
+        'statuses': statuses, 'hero_displacement': displacement,
+        'view_extents': [[640, 448], [640, 448]], 'lower_half_populated': True,
+        'tick_attempts': len(attempts), 'tick_completions': len(completed),
+        'exit_code': run.returncode, 'elapsed_seconds': time.monotonic() - started,
+    }
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--native', type=Path, required=True)
     parser.add_argument('--game-data', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--field-save', type=Path,
+                        help='Optional genuine native bkmo0.dat for a Restore-to-field observation check')
+    parser.add_argument('--field-buttons', type=Path,
+                        help='Retained ordinary Restore input tape; required with --field-save')
+    parser.add_argument('--field-directions', type=Path,
+                        help='Retained ordinary Restore direction tape; required with --field-save')
     args = parser.parse_args()
     native = args.native.resolve(strict=True)
     if not args.game_data.is_absolute():
@@ -108,6 +183,9 @@ def main():
     game_data = args.game_data.resolve(strict=True)
     if not native.is_file() or not game_data.is_dir():
         parser.error('Native executable and game-data directory are required')
+    field_inputs = (args.field_save, args.field_buttons, args.field_directions)
+    if any(field_inputs) and not all(field_inputs):
+        parser.error('--field-save, --field-buttons and --field-directions must be supplied together')
     if args.output.exists() or args.output.is_symlink():
         parser.error('--output must be a fresh directory (including no symlink)')
     output = args.output.absolute()
@@ -186,7 +264,11 @@ def main():
                 if name == 'duplicate_capture':
                     check_capture(control / 'a.png', 1)
                 if name == 'observations':
-                    check_status_rows(case / 'run.log', 1)
+                    statuses = read_status_rows(case / 'run.log')
+                    require([row['frame'] for row in statuses] == [1, 1],
+                            'Status observation advanced or misreported frame')
+                    require(statuses[0] == statuses[1],
+                            'Status observations changed between read-only commands')
                     check_view(control / 'panel.view.png')
                     check_view(control / 'panel2.view.png')
                     before, before_vars = check_capture(control / 'before.png', 1)
@@ -216,6 +298,15 @@ def main():
         report['passed'] = all(c['passed'] for c in report['cases'])
         (output / 'report.json').write_text(json.dumps(report, indent=2) + '\n')
         print(f"{name}: {'PASS' if result['passed'] else 'FAIL'}", flush=True)
+    if args.field_save:
+        try:
+            report['field_case'] = run_field_case(args, output, native, game_data)
+            print('field_observation: PASS', flush=True)
+        except Exception as exc:
+            report['field_case'] = {'passed': False, 'error': f'{type(exc).__name__}: {exc}'}
+            report['passed'] = False
+            print('field_observation: FAIL', flush=True)
+        (output / 'report.json').write_text(json.dumps(report, indent=2) + '\n')
     report['native_sha256_after'] = digest(native)
     report['passed'] = report['passed'] and report['native_sha256_after'] == report['native_sha256']
     (output / 'report.json').write_text(json.dumps(report, indent=2) + '\n')
