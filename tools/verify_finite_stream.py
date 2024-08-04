@@ -77,7 +77,7 @@ def bank_payload(bank, index):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--bank', choices=['ALL','SET2','SET10','SET11','SET12','SET13','SET14','SET15','SET16'], action='append', help='Select reviewed banks; defaults to the earlier ALL/SET10 corpus')
+    p.add_argument('--bank', choices=['ALL','SET2','SET10','SET11','SET12','SET13','SET14','SET15','SET16','SET17'], action='append', help='Select reviewed banks; defaults to the earlier ALL/SET10 corpus')
     p.add_argument('--native', type=Path, default=Path('build/native/okage-assets'))
     p.add_argument('--oracle', type=Path, default=Path('build/play-research/okage-oracle/okage-pose-oracle'))
     p.add_argument('--original', type=Path, default=Path('local/finite-stream-original-v1'))
@@ -95,7 +95,8 @@ def main():
              ('SET13', [0], '467e05cbad272ab6428b8bdf2dab44b8754beb0b99504f24b6eb4efbf6da7011'),
              ('SET14', [0], 'f269d17f17bb1e6520455cb50df6bb3fa810d168ca1702956fab4608c1d0591b'),
              ('SET15', [0], '1018e38b81009c73f4febcce0542a173292a0ace17977420ddf50b9ca09de740'),
-             ('SET16', [0], '2b7eb9599b9432f548d0ebe11e79755fe88b8aaa67b6a6cd923fa06e06b988cf')]
+             ('SET16', [0], '2b7eb9599b9432f548d0ebe11e79755fe88b8aaa67b6a6cd923fa06e06b988cf'),
+             ('SET17', [0], 'b70885de8e8c14e7e92e00254b8f4c2837a8fb49ac89c946f6db95488077f667')]
     selected=args.bank or ['ALL','SET10']
     banks=[bank for bank in banks if bank[0] in selected]
     for name, indices, expected_hash in banks:
@@ -130,7 +131,7 @@ def main():
             pitch = rate*4096//48000
             volume = 60 if key == 'ALL-35' else 128
             gain = volume*127 >> 7
-            frames = 400000 if name in ('SET13','SET15') else (280000 if name in ('SET10','SET11','SET12','SET14','SET16') else (100000 if index == 38 or name=='SET2' else 48000))
+            frames = 400000 if name in ('SET13','SET15') else (280000 if name in ('SET10','SET11','SET12','SET14','SET16','SET17') else (100000 if index == 38 or name=='SET2' else 48000))
             ref_pcm = args.original/(key+'.reference.pcm')
             if not ref_pcm.exists():
                 if reference is None:

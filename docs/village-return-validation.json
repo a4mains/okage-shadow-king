@@ -1,0 +1,706 @@
+{
+  "schema": "okage-village-return-validation-v1",
+  "date": "2024-08-04",
+  "runtime_commit": "77c430a",
+  "runtime_sha256": "8df077dc846a4ec43157323270a0876d1e3906c196311037a8eeb65b5a4cebad",
+  "objective_complete": false,
+  "set17": {
+    "import": {
+      "path": "SNDDATA/SE/SET17.XWS",
+      "lba": 196549,
+      "size": 116000,
+      "sha256": "b70885de8e8c14e7e92e00254b8f4c2837a8fb49ac89c946f6db95488077f667",
+      "destination": "local/audio-input/SNDDATA/SE/SET17.XWS"
+    },
+    "checks": [
+      {
+        "build": "release",
+        "report": "local/research/village-return-v1/set17-release-v1/report.json",
+        "sha256": "2cc1c4d8548a4621935a94127a9e76f8dad7509e19ab7bd5c6752e6936f7a3e8",
+        "result": {
+          "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+          "native_sha256": "62077b45c4c13380b9b60808924ee9627a48d9e6f9c9bb2e9afa674dde2ab7d1",
+          "oracle_sha256": "e30c938866e51b5aab6651b3a98f01a2bfe8d9d4ffd066fd656b6a603a697dd9",
+          "dsp_revision": "2e0988ff03f4aa372a8421479c9751cfb3d892b6",
+          "dsp_source_hashes": {
+            "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
+            "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
+            "defs.h": "c99bb3de5ed27243abdaf18384f2d3cf6ce7578fb01fd2b6616da2d99c418960",
+            "interpolate_table.h": "3c2f96bdb8aee61a6f988ed508d45811ea8f5bd1f8dac8825c59552bbd2c865a"
+          },
+          "cases": [
+            {
+              "cue": "SET17-0",
+              "source_sha256": "44e64736b96e5a915be21958a42fabd2265f7c950936f3bf6a2b2629d8ef5017",
+              "source_bytes": 115888,
+              "prepared_bytes": 115968,
+              "prepared_sha256": "8f94a871518ec2aed38010a3bc22002736e9a7ba5c6ac58fb293f52094fa2f2d",
+              "original": "local/research/village-return-v1/set17-original-v1/SET17-0.original.bin",
+              "original_sha256": "9634fb680992367bbef3dd634e753229a00d1454b2ace929c3d38be8828a6cba",
+              "frames": 280000,
+              "pcm_sha256": "be3264e45cdc45d4c3ec85e62f087f71e151cf8a34fef061375b6d3a02165320",
+              "bytes_and_pcm_exact": true
+            }
+          ]
+        }
+      },
+      {
+        "build": "debug",
+        "report": "local/research/village-return-v1/set17-debug-v1/report.json",
+        "sha256": "a81916327ce8babd414a1b48a2aa7ff3a6fbdf09e9dc9090f88af79b73e18a52",
+        "result": {
+          "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+          "native_sha256": "6d268d7998965139eb3182dc2e54607f527f841988c6deaa8a7872888bf62b36",
+          "oracle_sha256": "e30c938866e51b5aab6651b3a98f01a2bfe8d9d4ffd066fd656b6a603a697dd9",
+          "dsp_revision": "2e0988ff03f4aa372a8421479c9751cfb3d892b6",
+          "dsp_source_hashes": {
+            "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
+            "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
+            "defs.h": "c99bb3de5ed27243abdaf18384f2d3cf6ce7578fb01fd2b6616da2d99c418960",
+            "interpolate_table.h": "3c2f96bdb8aee61a6f988ed508d45811ea8f5bd1f8dac8825c59552bbd2c865a"
+          },
+          "cases": [
+            {
+              "cue": "SET17-0",
+              "source_sha256": "44e64736b96e5a915be21958a42fabd2265f7c950936f3bf6a2b2629d8ef5017",
+              "source_bytes": 115888,
+              "prepared_bytes": 115968,
+              "prepared_sha256": "8f94a871518ec2aed38010a3bc22002736e9a7ba5c6ac58fb293f52094fa2f2d",
+              "original": "local/research/village-return-v1/set17-original-v1/SET17-0.original.bin",
+              "original_sha256": "9634fb680992367bbef3dd634e753229a00d1454b2ace929c3d38be8828a6cba",
+              "frames": 280000,
+              "pcm_sha256": "be3264e45cdc45d4c3ec85e62f087f71e151cf8a34fef061375b6d3a02165320",
+              "bytes_and_pcm_exact": true
+            }
+          ]
+        }
+      },
+      {
+        "build": "sanitize",
+        "report": "local/research/village-return-v1/set17-sanitize-v1/report.json",
+        "sha256": "e3974f97ec642a4e4643be1cdb8233733927a78ec8ee50c66163351984f03845",
+        "result": {
+          "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+          "native_sha256": "94736452fea1c4382409aa57e35bdb9bad369bead9680a22bfa56ccfaacdceb3",
+          "oracle_sha256": "e30c938866e51b5aab6651b3a98f01a2bfe8d9d4ffd066fd656b6a603a697dd9",
+          "dsp_revision": "2e0988ff03f4aa372a8421479c9751cfb3d892b6",
+          "dsp_source_hashes": {
+            "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
+            "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
+            "defs.h": "c99bb3de5ed27243abdaf18384f2d3cf6ce7578fb01fd2b6616da2d99c418960",
+            "interpolate_table.h": "3c2f96bdb8aee61a6f988ed508d45811ea8f5bd1f8dac8825c59552bbd2c865a"
+          },
+          "cases": [
+            {
+              "cue": "SET17-0",
+              "source_sha256": "44e64736b96e5a915be21958a42fabd2265f7c950936f3bf6a2b2629d8ef5017",
+              "source_bytes": 115888,
+              "prepared_bytes": 115968,
+              "prepared_sha256": "8f94a871518ec2aed38010a3bc22002736e9a7ba5c6ac58fb293f52094fa2f2d",
+              "original": "local/research/village-return-v1/set17-original-v1/SET17-0.original.bin",
+              "original_sha256": "9634fb680992367bbef3dd634e753229a00d1454b2ace929c3d38be8828a6cba",
+              "frames": 280000,
+              "pcm_sha256": "be3264e45cdc45d4c3ec85e62f087f71e151cf8a34fef061375b6d3a02165320",
+              "bytes_and_pcm_exact": true
+            }
+          ]
+        }
+      }
+    ],
+    "commands": [
+      [
+        "python3",
+        "tools/import_sound_set.py",
+        "--set",
+        "17",
+        "--output",
+        "local/research/village-return-v1/set17-import-v1.json"
+      ],
+      [
+        "python3",
+        "tools/stage_game_data.py",
+        "local/game-data-stage-v4"
+      ],
+      [
+        "python3",
+        "tools/verify_finite_stream.py",
+        "--bank",
+        "SET17",
+        "--native",
+        "build/native-release/okage-assets",
+        "--original",
+        "local/research/village-return-v1/set17-original-v1",
+        "--output",
+        "local/research/village-return-v1/set17-release-v1"
+      ],
+      [
+        "python3",
+        "tools/verify_finite_stream.py",
+        "--bank",
+        "SET17",
+        "--native",
+        "build/native/okage-assets",
+        "--original",
+        "local/research/village-return-v1/set17-original-v1",
+        "--output",
+        "local/research/village-return-v1/set17-debug-v1"
+      ],
+      [
+        "python3",
+        "tools/verify_finite_stream.py",
+        "--bank",
+        "SET17",
+        "--native",
+        "build/model-sanitize/okage-assets",
+        "--original",
+        "local/research/village-return-v1/set17-original-v1",
+        "--output",
+        "local/research/village-return-v1/set17-sanitize-v1"
+      ]
+    ],
+    "limits": "Original finite producer fixture and pinned DSP; no live DMA, mixed-scene, reverb or listening parity."
+  },
+  "native_negative": {
+    "command": [
+      "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+      "--game-data",
+      "local/game-data-stage-v3",
+      "--save-directory",
+      "local/research/progressed-church-v1/native-v5/saves",
+      "--frames",
+      "1200",
+      "--buttons",
+      "local/research/progressed-church-v1/native-v5/buttons.txt",
+      "--capture",
+      "local/research/progressed-church-v1/native-v5/prelude.png",
+      "--headless-control",
+      "local/research/progressed-church-v1/native-v5/control"
+    ],
+    "binary_sha256": "8df077dc846a4ec43157323270a0876d1e3906c196311037a8eeb65b5a4cebad",
+    "saves_before": {
+      "bkmo2.dat": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84",
+      "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+      "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    },
+    "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+    "exit_code": 1,
+    "seconds_including_control_waits": 500.68493125,
+    "saves_after": {
+      "bkmo2.dat": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84",
+      "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+      "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    }
+  },
+  "negative_summary": "Completed15814, failed attempted15815 at PC0x2c8c because SET17 was not imported. No state override.",
+  "native_v6_pending": {
+    "command": [
+      "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+      "--game-data",
+      "local/game-data-stage-v4",
+      "--save-directory",
+      "local/research/village-return-v1/native-v6/saves",
+      "--frames",
+      "1200",
+      "--buttons",
+      "local/research/village-return-v1/native-v6/buttons.txt",
+      "--capture",
+      "local/research/village-return-v1/native-v6/prelude.png",
+      "--headless-control",
+      "local/research/village-return-v1/native-v6/control"
+    ],
+    "binary_sha256": "8df077dc846a4ec43157323270a0876d1e3906c196311037a8eeb65b5a4cebad",
+    "saves_before": {
+      "bkmo2.dat": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84",
+      "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+      "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    },
+    "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput."
+  },
+  "native_v6_status": "Live session20803 independently queried at17520; celebration complete17499 and normal movement17520; no process exit or post-event Save claim.",
+  "artifacts": [
+    {
+      "path": "local/research/village-return-v1/set17-import-v1.json",
+      "bytes": 211,
+      "sha256": "58b671ff5bd8fd89c9a827be8db4fcee988fd6798ac9889b3e44113bab966413"
+    },
+    {
+      "path": "local/research/village-return-v1/python-set17-v1.log",
+      "bytes": 53516,
+      "sha256": "206eebdbfa313f2a895d3c12e03163c1a06fdb34a54fbb7a1b1918e3a3f26021"
+    },
+    {
+      "path": "local/research/village-return-v1/stage-v4.log",
+      "bytes": 269,
+      "sha256": "2439103bdc5381c71dbc5a53a0d7f9b5bcaa092ad4c5beff728be91865abd1ee"
+    },
+    {
+      "path": "local/research/village-return-v1/run-native-v6.py",
+      "bytes": 1550,
+      "sha256": "33fd026198702beebcbca03532b58a630d6b36746d78bca0baec2495be9355d0"
+    },
+    {
+      "path": "local/research/village-return-v1/replay-through-set17-v1.txt",
+      "bytes": 4842,
+      "sha256": "bc08486a44e3e1eff8be451b59e9e4cd8ba47acb14bae629dacd80ed31e7c678"
+    },
+    {
+      "path": "local/game-data-stage-v4/.owned-game-data-manifest.json",
+      "bytes": 5422221,
+      "sha256": "aad7c26c2654a9a945237ac91df66a5b2808ccb2f2058f94efab464e52686ca0"
+    },
+    {
+      "path": "local/research/progressed-church-v1/native-v5/run.json",
+      "bytes": 1358,
+      "sha256": "3c060fef5614147e760579a622a3cb4466898f8e7799fced6b93eba859dd9ca4"
+    },
+    {
+      "path": "local/research/progressed-church-v1/native-v5/control/inputs.jsonl",
+      "bytes": 1561660,
+      "sha256": "8783852859505a194bf1f0aa07fe4276f83f15d8545989db9b30de4824c7afea"
+    },
+    {
+      "path": "local/research/progressed-church-v1/native-v5/control/commands.txt",
+      "bytes": 7253,
+      "sha256": "2cac63a85010d0666543ae292fbf853c4b25496e458e6c155a4bfa07623e61b8"
+    },
+    {
+      "path": "local/research/village-return-v1/set17-original-v1/SET17-0.source.adpcm",
+      "bytes": 115888,
+      "sha256": "44e64736b96e5a915be21958a42fabd2265f7c950936f3bf6a2b2629d8ef5017"
+    },
+    {
+      "path": "local/research/village-return-v1/set17-original-v1/SET17-0.original.bin.run.json",
+      "bytes": 499,
+      "sha256": "c64c0530ce09a52e241f20c2714cf033624fe7bd575e6fb82bc176ac84ac4e2f"
+    },
+    {
+      "path": "local/research/village-return-v1/set17-original-v1/SET17-0.linear.adpcm",
+      "bytes": 115968,
+      "sha256": "8f94a871518ec2aed38010a3bc22002736e9a7ba5c6ac58fb293f52094fa2f2d"
+    },
+    {
+      "path": "local/research/village-return-v1/set17-original-v1/SET17-0.original.bin.context.bin",
+      "bytes": 64,
+      "sha256": "ff31325edb09664aa4626bd10a33793443791bea10e84501607775f9e5bc7185"
+    },
+    {
+      "path": "local/research/village-return-v1/set17-original-v1/SET17-0.original.bin.commands.bin",
+      "bytes": 620,
+      "sha256": "1cbea37216404146ff6a749f896e609657d2105a1c1159b2cb8843792788ebf3"
+    },
+    {
+      "path": "local/research/village-return-v1/set17-original-v1/SET17-0.original.bin",
+      "bytes": 115968,
+      "sha256": "9634fb680992367bbef3dd634e753229a00d1454b2ace929c3d38be8828a6cba"
+    },
+    {
+      "path": "local/research/village-return-v1/set17-original-v1/SET17-0.reference.pcm",
+      "bytes": 1120000,
+      "sha256": "be3264e45cdc45d4c3ec85e62f087f71e151cf8a34fef061375b6d3a02165320"
+    }
+  ],
+  "native_completion_audit": {
+    "path": "local/research/village-return-v1/native-completion-audit.json",
+    "sha256": "7cc4a36efa03b03373d4b54764a25a7bca88f2dac7bda60b8aadb2d2354cad2d",
+    "report": {
+      "schema": "okage-native-village-completion-v1",
+      "scope": "Genuine cold Restore and ordinary inputs only.",
+      "saved_values": {
+        "story": 2,
+        "flags": {
+          "40": true,
+          "41": false,
+          "42": false,
+          "71": false
+        },
+        "item114": 1,
+        "money": 1011,
+        "hp": 36,
+        "playtime": 2160
+      },
+      "saves_unchanged": {
+        "bkmo2.dat": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84",
+        "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+      },
+      "prefix": {
+        "compared_attempt_frames": [
+          1,
+          15815
+        ],
+        "v5_completed": [
+          1,
+          15814
+        ],
+        "v6_completed_through_at_least": 17520,
+        "differences": []
+      },
+      "captures": [
+        {
+          "name": "after-set17",
+          "frame": 15859,
+          "event_running": true,
+          "values": {
+            "story": 3,
+            "flags": {
+              "40": true,
+              "41": true,
+              "42": false,
+              "71": false
+            },
+            "item114": 1,
+            "money": 1011,
+            "hp": 36,
+            "playtime": 2402
+          },
+          "hero_position": [
+            8.270000457763672,
+            -35.0099983215332,
+            246.2100067138672,
+            1.0
+          ],
+          "changed_saved_payload_bytes": [
+            {
+              "offset": "0x11",
+              "saved": 0,
+              "current": 7
+            },
+            {
+              "offset": "0x12",
+              "saved": 0,
+              "current": 224
+            },
+            {
+              "offset": "0x115",
+              "saved": 128,
+              "current": 192
+            },
+            {
+              "offset": "0x210",
+              "saved": 2,
+              "current": 3
+            },
+            {
+              "offset": "0x510",
+              "saved": 74,
+              "current": 0
+            },
+            {
+              "offset": "0x514",
+              "saved": 1,
+              "current": 11
+            },
+            {
+              "offset": "0x518",
+              "saved": 0,
+              "current": 1
+            },
+            {
+              "offset": "0x520",
+              "saved": 112,
+              "current": 98
+            },
+            {
+              "offset": "0x521",
+              "saved": 8,
+              "current": 9
+            }
+          ]
+        },
+        {
+          "name": "village-complete",
+          "frame": 17499,
+          "event_running": false,
+          "values": {
+            "story": 3,
+            "flags": {
+              "40": true,
+              "41": true,
+              "42": true,
+              "71": true
+            },
+            "item114": 1,
+            "money": 1011,
+            "hp": 36,
+            "playtime": 2429
+          },
+          "hero_position": [
+            10.619999885559082,
+            -35.0099983215332,
+            244.47999572753906,
+            1.0
+          ],
+          "changed_saved_payload_bytes": [
+            {
+              "offset": "0x115",
+              "saved": 128,
+              "current": 224
+            },
+            {
+              "offset": "0x118",
+              "saved": 0,
+              "current": 1
+            },
+            {
+              "offset": "0x16c",
+              "saved": 0,
+              "current": 12
+            },
+            {
+              "offset": "0x210",
+              "saved": 2,
+              "current": 3
+            },
+            {
+              "offset": "0x510",
+              "saved": 74,
+              "current": 0
+            },
+            {
+              "offset": "0x514",
+              "saved": 1,
+              "current": 18
+            },
+            {
+              "offset": "0x520",
+              "saved": 112,
+              "current": 125
+            },
+            {
+              "offset": "0x521",
+              "saved": 8,
+              "current": 9
+            },
+            {
+              "offset": "0x538",
+              "saved": 58,
+              "current": 5
+            },
+            {
+              "offset": "0x55c",
+              "saved": 2,
+              "current": 4
+            }
+          ]
+        },
+        {
+          "name": "village-moving",
+          "frame": 17520,
+          "event_running": false,
+          "values": {
+            "story": 3,
+            "flags": {
+              "40": true,
+              "41": true,
+              "42": true,
+              "71": true
+            },
+            "item114": 1,
+            "money": 1011,
+            "hp": 36,
+            "playtime": 2430
+          },
+          "hero_position": [
+            0.6876728534698486,
+            -35.001007080078125,
+            239.7516632080078,
+            1.0
+          ],
+          "changed_saved_payload_bytes": [
+            {
+              "offset": "0x115",
+              "saved": 128,
+              "current": 224
+            },
+            {
+              "offset": "0x118",
+              "saved": 0,
+              "current": 1
+            },
+            {
+              "offset": "0x16c",
+              "saved": 0,
+              "current": 12
+            },
+            {
+              "offset": "0x210",
+              "saved": 2,
+              "current": 3
+            },
+            {
+              "offset": "0x510",
+              "saved": 74,
+              "current": 0
+            },
+            {
+              "offset": "0x514",
+              "saved": 1,
+              "current": 18
+            },
+            {
+              "offset": "0x520",
+              "saved": 112,
+              "current": 126
+            },
+            {
+              "offset": "0x521",
+              "saved": 8,
+              "current": 9
+            },
+            {
+              "offset": "0x538",
+              "saved": 58,
+              "current": 5
+            },
+            {
+              "offset": "0x55c",
+              "saved": 2,
+              "current": 4
+            }
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "local/research/progressed-church-v1/native-v5/control/inputs.jsonl",
+          "bytes": 1561660,
+          "sha256": "8783852859505a194bf1f0aa07fe4276f83f15d8545989db9b30de4824c7afea",
+          "hash_scope": "recorded byte prefix; live file may grow"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v6/control/inputs.jsonl",
+          "bytes": 1730295,
+          "sha256": "4cc0ad45b66a10bc48ca5f264d9095988909372b0cf493531b6b6fedf3e3d12e",
+          "hash_scope": "recorded byte prefix; live file may grow"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v6/pending.json",
+          "bytes": 999,
+          "sha256": "3fc08174ea5be7e3f07c78014b3fb6df70239464f309182845134b6f7cef1932",
+          "hash_scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v6/saves/bkmo2.dat",
+          "bytes": 3460,
+          "sha256": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84",
+          "hash_scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v6/saves/bkmo0.dat",
+          "bytes": 3460,
+          "sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+          "hash_scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v6/saves/bkmo1.dat",
+          "bytes": 3460,
+          "sha256": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795",
+          "hash_scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v6/control/after-set17.png.json",
+          "bytes": 1081,
+          "sha256": "869d6bc855191ac1d55f1f87e1b6fe830ffe894fdf2f3e9c29b6a3547e59f84d",
+          "hash_scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v6/control/after-set17.png.variables.bin",
+          "bytes": 4096,
+          "sha256": "94a8187a182963cd3706f6b98f55df93a6171af4f13ee398cb036f520b5d85bd",
+          "hash_scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v6/control/after-set17.png.actors-state.json",
+          "bytes": 57975,
+          "sha256": "84ea7b6160e2e31e5ed03f0ef3690cee57ec58ec05a005464da3f9c0d6be24eb",
+          "hash_scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v6/control/after-set17.png",
+          "bytes": 257160,
+          "sha256": "24ec27172ce1a56402b0f55c561a17def92c7e0857416716f36db53dd24e490c",
+          "hash_scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v6/control/village-complete.png.json",
+          "bytes": 1089,
+          "sha256": "d130ea2ea9566af03553cb99bb66f7e91e9e424ab0b2e7220f7dc4bf21c2883a",
+          "hash_scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v6/control/village-complete.png.variables.bin",
+          "bytes": 4096,
+          "sha256": "3889769ae8cbab61331983703cdbd89a68665715290dfe2f831fb2c785f32a22",
+          "hash_scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v6/control/village-complete.png.actors-state.json",
+          "bytes": 61386,
+          "sha256": "7ca7817feb927dc46bc0cd7d88cdada2f054581c73c93e558d60b2fb62f19a7d",
+          "hash_scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v6/control/village-complete.png",
+          "bytes": 279991,
+          "sha256": "454933b680099ad0b4b0c56866356f0a3bc7729674a06fa46ea6148de66b5b61",
+          "hash_scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v6/control/village-moving.png.json",
+          "bytes": 1090,
+          "sha256": "7d5fb6c3e476ce370cfd885be384ba401bf13a83f8f54edf75b5f31529deefe6",
+          "hash_scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v6/control/village-moving.png.variables.bin",
+          "bytes": 4096,
+          "sha256": "d60c436730200aa4db9126da8b4dfe2bd15647f0c354cf7cf4c8055d9d81780f",
+          "hash_scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v6/control/village-moving.png.actors-state.json",
+          "bytes": 57800,
+          "sha256": "d08f9a0485d5bd4125d203af64fd88d1839136de5c2f2548b3ff9583b7aaa25a",
+          "hash_scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v6/control/village-moving.png",
+          "bytes": 276012,
+          "sha256": "5004bc82fd37344dfb7d6c2a8151b06be01135f4d48075a261e39502463bcf72",
+          "hash_scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v6/control/village-event-ending-display.view.png",
+          "bytes": 291237,
+          "sha256": "6cab238ebf5704944d23ca724c95c5f78676a01acec51ab8c9ab19391281c086",
+          "hash_scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v6/control/village-controls-restored-display.view.png",
+          "bytes": 287827,
+          "sha256": "5a9408d86130debe84bd3ffb22665ab2ef220e77f96bff0bd66b6b77b833910c",
+          "hash_scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v6/control/commands.txt",
+          "bytes": 8011,
+          "sha256": "2715e7425a9158e84795beaadc741d8eb754880218b26fcc0705722ed76d94fb",
+          "hash_scope": "recorded byte prefix; live file may grow"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v6/run.log",
+          "bytes": 26939,
+          "sha256": "99c860cce132ccbe5e8b916add60b3b4b8277555940bf98b6c3ef81641d2c16b",
+          "hash_scope": "recorded byte prefix; live file may grow"
+        },
+        {
+          "path": "local/research/village-return-v1/native-completion-audit.py",
+          "bytes": 3441,
+          "sha256": "4fcbcad6fa8f54859a1850030adaf865004c0b2b2579babb6d4939ab09725bfb",
+          "hash_scope": "whole immutable file"
+        }
+      ]
+    }
+  },
+  "original_comparison_status": "The field_shadow_roster review pass is still running, source1\u2192native9259; immutable cap-only research oracle fed8db17b1e4a70ec18ec252fda11f6cac66c053a4e697ce70b9f99b050ab4fb. No result yet."
+}
