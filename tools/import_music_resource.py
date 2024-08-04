@@ -28,6 +28,10 @@ RESOURCES = {
         'EVN_TQS.XSQ': 'c1f95490f927c72cc87780498a5c67694c4d608c1a3b0abbbceb7c96648e7e28',
         'EVN_TQS0.XV': '661e309bf8d51ded18c4bf730dcb1a520d31aedd05c594f4cbc553b4441a8beb',
     }),
+    44: ('EVN_ACM', {
+        'EVN_ACM.XSQ': '9e7b7406f294ee12207a54f7131ca34ee1f80fe507abb953ab30f209e68abe74',
+        'EVN_ACM0.XV': 'adfbb69211bfb82a121b8a9f72efb67abca3f53c9e66f2b135a0a2539a2a1027',
+    }),
     46: ('EVS_BMJ', {
         'EVS_BMJ.XSQ': '323677313c9ea431f1c2fdf0cf280d4a58c3b595c977e47dd9029fbf19da9818',
         'EVS_BMJ0.XV': 'c5405c6f2a1c0c082e6972e45b890ff32e1267f295866f723abe91f8606596b8',
