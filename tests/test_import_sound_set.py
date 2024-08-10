@@ -25,7 +25,7 @@ class FakeDisc:
 
 class ImportSoundSetTests(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory()
+        self.tmp = tempfile.TemporaryDirectory(dir=Path.cwd())
         self.root = Path(self.tmp.name)
         self.report = self.root / 'disc-report.json'
         self.asset_root = self.root / 'audio-input'
@@ -87,6 +87,49 @@ class ImportSoundSetTests(unittest.TestCase):
         self.assertFalse((second.parent / 'SET1.XWS').exists())
         self.assertFalse(self.output.exists())
         self.assertEqual(second.read_bytes(), b'user-edited bytes')
+
+    def test_changed_manifest_prevents_any_asset_write(self):
+        self.output.write_bytes(b'user-edited manifest')
+        with self.assertRaisesRegex(RuntimeError, 'Refusing changed output'):
+            self.run_bulk()
+        self.assertFalse(self.asset_root.exists())
+        self.assertEqual(self.output.read_bytes(), b'user-edited manifest')
+
+    def test_normalized_manifest_asset_alias_is_rejected_before_writes(self):
+        alias = self.asset_root / 'SNDDATA/SE/../SE/SET1.XWS'
+        with self.assertRaisesRegex(RuntimeError, 'duplicate output path'):
+            mod.import_sets((1, 2), alias, all_sets=True,
+                            entries_path=self.report, disc_path=self.root / 'disc.bin',
+                            asset_root=self.asset_root)
+        self.assertFalse(self.asset_root.exists())
+
+    def test_output_ancestor_of_asset_is_rejected_before_writes(self):
+        with self.assertRaisesRegex(RuntimeError, 'ancestor conflict'):
+            mod.import_sets((1, 2), self.asset_root, all_sets=True,
+                            entries_path=self.report, disc_path=self.root / 'disc.bin',
+                            asset_root=self.asset_root)
+        self.assertFalse(self.asset_root.exists())
+
+    def test_symlink_manifest_output_prevents_any_asset_write(self):
+        target = self.root / 'manifest-target.json'
+        target.write_bytes(b'keep target unchanged')
+        self.output.symlink_to(target)
+        with self.assertRaisesRegex(RuntimeError, 'symlink output path component'):
+            self.run_bulk()
+        self.assertFalse(self.asset_root.exists())
+        self.assertEqual(target.read_bytes(), b'keep target unchanged')
+
+    def test_symlink_asset_ancestor_prevents_any_manifest_or_asset_write(self):
+        target = self.root / 'redirect-target'
+        target.mkdir()
+        link = self.root / 'redirected-assets'
+        link.symlink_to(target, target_is_directory=True)
+        with self.assertRaisesRegex(RuntimeError, 'symlink output path component'):
+            mod.import_sets((1, 2), self.output, all_sets=True,
+                            entries_path=self.report, disc_path=self.root / 'disc.bin',
+                            asset_root=link)
+        self.assertEqual(list(target.iterdir()), [])
+        self.assertFalse(self.output.exists())
 
     def test_single_set_manifest_shape_remains_compatible(self):
         records = mod.import_sets((1,), self.output, entries_path=self.report,

@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 from inspect_disc import Disc
 from verify_event import write_exact
@@ -82,15 +83,32 @@ def manifest_item(name, entry, data, sha, destination):
                 destination=str(destination))
 
 def preflight(outputs):
-    """Reject every differing, duplicate, or symlink output before the first write."""
-    seen = set()
+    """Reject conflicts and symlink paths before the first output is written."""
+    normalized = []
     for path, payload in outputs:
-        if path in seen:
-            raise RuntimeError('Refusing duplicate output path: ' + str(path))
-        seen.add(path)
-        if path.is_symlink():
-            raise RuntimeError('Refusing symlink output: ' + str(path))
-        if path.exists() and path.read_bytes() != payload:
+        path = Path(path)
+        raw_absolute = path if path.is_absolute() else Path.cwd() / path
+        current = Path(raw_absolute.anchor)
+        for part in raw_absolute.parts[1:]:
+            if part == '..':
+                current = current.parent
+            elif part != '.':
+                current /= part
+                if current.is_symlink():
+                    raise RuntimeError('Refusing symlink output path component: ' + str(current))
+
+        absolute = Path(os.path.abspath(path))
+        normalized.append((absolute, path, payload))
+
+    for index, (absolute, path, _) in enumerate(normalized):
+        for other, _, _ in normalized[index + 1:]:
+            if absolute == other:
+                raise RuntimeError('Refusing duplicate output path: ' + str(path))
+            if absolute in other.parents or other in absolute.parents:
+                raise RuntimeError('Refusing output path ancestor conflict: ' + str(path))
+
+    for absolute, path, payload in normalized:
+        if absolute.exists() and absolute.read_bytes() != payload:
             raise RuntimeError('Refusing changed output: ' + str(path))
 
 def import_sets(sound_sets, output, all_sets=False, entries_path=REPORT_PATH,
