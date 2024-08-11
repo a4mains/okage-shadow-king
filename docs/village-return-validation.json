@@ -1,6 +1,6 @@
 {
   "schema": "okage-village-return-validation-v1",
-  "date": "2024-08-04",
+  "date": "2024-08-11",
   "runtime_commit": "77c430a",
   "runtime_sha256": "8df077dc846a4ec43157323270a0876d1e3906c196311037a8eeb65b5a4cebad",
   "objective_complete": false,
@@ -297,6 +297,41 @@
       "path": "local/research/village-return-v1/set17-original-v1/SET17-0.reference.pcm",
       "bytes": 1120000,
       "sha256": "be3264e45cdc45d4c3ec85e62f087f71e151cf8a34fef061375b6d3a02165320"
+    },
+    {
+      "path": "local/research/village-return-v1/numbered-sound-pin-audit-v1.json",
+      "bytes": 10145,
+      "sha256": "fc8ec4e8f62c1b1b5e147569c8cc0b68a055ed6c431759c5f5be25fa7192fb80"
+    },
+    {
+      "path": "local/research/village-return-v1/numbered-sound-import-v2.json",
+      "bytes": 8686,
+      "sha256": "2f1e73e3147e40ba27b3eee3a972d716f2ceef6d0a02c1946607abb5908b4546"
+    },
+    {
+      "path": "local/research/village-return-v1/numbered-sound-import-v2.log",
+      "bytes": 3087,
+      "sha256": "30c39ab7becec9d512b1b8f425108a52227d5bd8611422f57f6fc354b8bd3b0f"
+    },
+    {
+      "path": "local/research/village-return-v1/stage-v5.log",
+      "bytes": 269,
+      "sha256": "aef93644f487d82c8cbc516512c073e622a92186ddf87abaf360d958f2bb8116"
+    },
+    {
+      "path": "local/research/village-return-v1/stage-v6.log",
+      "bytes": 269,
+      "sha256": "f26c790d133d3bac1bf0ac88e4b41501c03ebd26804bf677a3d8d50ec5eed9e6"
+    },
+    {
+      "path": "local/research/village-return-v1/python-numbered-sounds-v1.log",
+      "bytes": 54796,
+      "sha256": "4aa00986495bb79033e799f87abde29c3e9b3ccb3db165259cd7ec84928ce9d2"
+    },
+    {
+      "path": "local/game-data-stage-v6/.owned-game-data-manifest.json",
+      "bytes": 5428967,
+      "sha256": "310e1c801e580a7d9598e701e3650b2bd9d59c9ddf107ea762a0062c503acf46"
     }
   ],
   "native_completion_audit": {
@@ -702,5 +737,22 @@
       ]
     }
   },
-  "original_comparison_status": "The field_shadow_roster review pass is still running, source1\u2192native9259; immutable cap-only research oracle fed8db17b1e4a70ec18ec252fda11f6cac66c053a4e697ce70b9f99b050ab4fb. No result yet."
+  "original_comparison_status": "The field_shadow_roster review pass is still running, source1\u2192native9259; immutable cap-only research oracle fed8db17b1e4a70ec18ec252fda11f6cac66c053a4e697ce70b9f99b050ab4fb. No result yet.",
+  "numbered_sound_import": {
+    "run_commits": [
+      "52cede8",
+      "1b974c8"
+    ],
+    "integrated_commits": [
+      "52cede8",
+      "1b974c8"
+    ],
+    "parent_correction": "SET29 pin lacked final hexadecimal0; first import refused before writes. All36 extents independently checked, corrected import/stage compared byte-for-byte to disc.",
+    "sets": 36,
+    "bytes": 12741952,
+    "stage": "local/game-data-stage-v6",
+    "stage_v5": "Created after failed import; lacks bulk bank additions and retained as unused negative.",
+    "tests": "515 Python tests, exit0; parent log retained.",
+    "scope": "Exact owned numberedRXWS bytes; does not imply all cues/codecs/runtime paths supported."
+  }
 }

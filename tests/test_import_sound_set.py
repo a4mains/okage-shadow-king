@@ -23,6 +23,12 @@ class FakeDisc:
     def close(self):
         self.closed = True
 
+class SoundSetPinTests(unittest.TestCase):
+    def test_complete_inventory_and_valid_sha256_pins(self):
+        self.assertEqual(set(mod.HASHES), set(range(1, 37)))
+        for digest in mod.HASHES.values():
+            self.assertRegex(digest, r'^[0-9a-f]{64}$')
+
 class ImportSoundSetTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(dir=Path.cwd())
