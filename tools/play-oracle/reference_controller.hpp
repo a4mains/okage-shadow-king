@@ -33,7 +33,7 @@ public:
             if(uint32(cpu.nGPR[CMIPS::RA].nD0)!=0x11ff38)throw std::runtime_error("Unknown controller caller");
             message=cpu.nGPR[CMIPS::A0].nD0;pending=true;
         } else {if(!pending)return;pending=false;}
-        if(++count>4000)throw std::runtime_error("Controller observation limit");
+        if(++count>40000)throw std::runtime_error("Controller observation limit");
         const auto layer=word(message+0xe48),stage=word(message+0xe8c);
         if(layer>=16 || stage>=16)throw std::runtime_error("Controller layer/stage bounds");
         const auto p=message+0x40+layer*0xe0,handle=word(p);

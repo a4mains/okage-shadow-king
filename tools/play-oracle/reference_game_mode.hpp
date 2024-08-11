@@ -22,7 +22,7 @@ public:
             throw std::runtime_error("Refusing existing game-mode trace");
         output.open(path);if(!output)throw std::runtime_error("Cannot create game-mode trace");
         output<<"{\"schema\":\"okage-game-mode-observer-v1\",\"format\":\"JSONL; hex values are strings\","
-              <<"\"results_extension\":\"source-results-entry-v1\",\"row_limit\":8000,"
+              <<"\"results_extension\":\"source-results-entry-v1\",\"row_limit\":40000,"
               <<"\"mode8_extension\":\"12c8f8 callback snapshots child+24/+30/+3c/+40/+44, device words2597a8/ac/b0, continuation2597ca and pointed thread context control/pending/result words. Only emitted for the linked current child.\","
               <<"\"results_timing\":\"124818 is global-parent entry before descendants;169900 constructor entry;16b8f8 first handler entry before1c0160(0);16b6c8 second handler entry before16a0c0 copies command. No completed-callback claim.\","
               <<"\"pad_source\":\"1c0160(0) reads unsignedhalf33958e;16b8f8 masks with word1f85dc. Parent samples are not consumed-input observations.\","
@@ -32,10 +32,10 @@ public:
     }
     void finish() const {
         if(!count)throw std::runtime_error("Game-mode capture observed no requested callbacks");
-        if(count>8000)throw std::runtime_error("Game-mode capture exceeded observation limit");
+        if(count>40000)throw std::runtime_error("Game-mode capture exceeded observation limit");
     }
     void observe(Ee::CSubSystem& ee,unsigned frame) {
-        if(++count>8000)throw std::runtime_error("Game-mode observation limit exceeded");
+        if(++count>40000)throw std::runtime_error("Game-mode observation limit exceeded");
         const auto& cpu=ee.m_EE.m_State;const auto pc=cpu.nPC;
         auto valid=[](uint32 at,unsigned size){return at>=0x100000&&size<=PS2::EE_RAM_SIZE&&at<=PS2::EE_RAM_SIZE-size;};
         auto word=[&](uint32 at)->uint32 {if(!valid(at,4))throw std::runtime_error("Game-mode trace read outside EE RAM");uint32 v;std::memcpy(&v,ee.m_ram+at,4);return v;};

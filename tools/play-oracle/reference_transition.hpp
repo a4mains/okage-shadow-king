@@ -16,7 +16,7 @@ public:
         const auto& cpu=ee.m_EE.m_State;
         auto valid=[](uint32 at,unsigned size){return at>=0x100000&&at<=PS2::EE_RAM_SIZE-size;};
         auto word=[&](uint32 at){if(at>PS2::EE_RAM_SIZE-4)throw std::runtime_error("Transition trace bounds");uint32 v;std::memcpy(&v,ee.m_ram+at,4);return v;};
-        if(++count>5000)throw std::runtime_error("Transition observation limit");
+        if(++count>200000)throw std::runtime_error("Transition observation limit");
         std::array<uint32,128> row={frame,cpu.nPC,uint32(cpu.nGPR[CMIPS::RA].nD0)};
         for(unsigned i=0;i<4;++i)row[3+i]=uint32(cpu.nGPR[CMIPS::A0+i].nD0);
         const auto field=word(0x2d9bf4),variables=word(0x24f788);row[7]=field;
