@@ -255,13 +255,45 @@ class SparseNativeObservationTests(unittest.TestCase):
         self.assertEqual(result['difference_frames']['choice'], [1])
         self.assertEqual(result['compared_observable_frames']['choice'], [1])
 
-    def test_sparse_mode_retains_real_controller_pad_invariant(self):
+    def test_controller_manager_pad_gate_mismatch_is_retained_as_difference(self):
         args = fixture()
         args['controller'] = [record(64, 1, {1: 0x148dc8}), record(64, 1, {1: 0x11ff38})]
         args['original_choices'] = [record(16, 1, {1: 0x148dc8}), record(16, 1, {1: 0x11ff38})]
         args['managers'][2] = record(8, 3, {1: 42})
-        with self.assertRaisesRegex(ValueError, 'Controller/manager pad disagreement'):
-            compare_observations(**args, sparse_native=True)
+        result = compare_observations(**args, sparse_native=True)
+        self.assertEqual(result['difference_frames']['controller_manager_pad_gate'], [1])
+        self.assertEqual(result['compared_observable_frames']['controller_manager_pad_gate'], [1])
+        self.assertEqual(result['missing_native_observable_frames']['controller_manager_pad_gate'], [])
+        self.assertEqual(result['observable_coverage']['controller_manager_pad_gate'], dict(
+            expected_observations=1, compared_observations=1, missing_native_observations=0))
+        self.assertFalse(result['compared_observables_agree'])
+
+    def test_controller_manager_pad_gate_matches_and_missing_samples_are_counted(self):
+        args = fixture()
+        args['controller'] = []
+        args['original_choices'] = []
+        for frame, pad in ((1, 7), (2, 9)):
+            before = record(64, frame, {1: 0x148dc8})
+            after = record(64, frame, {1: 0x11ff38, 9: pad})
+            args['controller'].extend((before, after))
+            args['original_choices'].extend((
+                record(16, frame, {1: 0x148dc8}),
+                record(16, frame, {1: 0x11ff38})))
+            args['managers'][frame + 1] = record(8, frame + 2, {1: pad})
+            args['transitions'][frame] = record(128, frame, {
+                1: 0x133a98, 28: 1, 33: pad << 16, 44: word(frame)})
+        args['managers'] = [r for r in args['managers'] if r[0] != 4]
+
+        result = compare_observations(**args, sparse_native=True)
+        self.assertEqual(result['controller_samples'], 2)
+        self.assertEqual(result['difference_frames']['controller_manager_pad_gate'], [])
+        self.assertEqual(result['compared_observable_frames']['controller_manager_pad_gate'], [1])
+        self.assertEqual(result['missing_native_observable_frames']['controller_manager_pad_gate'], [2])
+        self.assertEqual(result['missing_native_dependencies']['controller_manager_pad_gate'], [
+            dict(original_frame=2, dependencies=[dict(channel='manager', native_frame=4)])])
+        self.assertEqual(result['observable_coverage']['controller_manager_pad_gate'], dict(
+            expected_observations=2, compared_observations=1, missing_native_observations=1))
+        self.assertTrue(result['compared_observables_agree'])
 
 if __name__ == '__main__':
     unittest.main()

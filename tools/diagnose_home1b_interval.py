@@ -76,7 +76,8 @@ def compare_observations(*, total, first_frame, managers, movement, dialogue, ch
     camera_by_frame, missing_camera = indexed_observations(camera, total, 'Original camera')
     require(all(0 <= f < total for f in dispatch_frames), 'Original dispatch frame outside interval')
     require(len(controller) % 2 == 0 and len(controller) == len(original_choices), 'Controller extent')
-    differences = {key: [] for key in ('controller', 'choice', 'manager_running_pc_gate',
+    differences = {key: [] for key in ('controller', 'choice', 'controller_manager_pad_gate',
+                   'manager_running_pc_gate',
                    'pad_latch', 'direction_latch', 'player_mask', 'hero_facing_w', 'hero_position',
                    'camera_rotation', 'camera_mode_phase', 'camera_position', 'camera_unblended_target')}
     compared = {key: [] for key in differences}
@@ -118,7 +119,8 @@ def compare_observations(*, total, first_frame, managers, movement, dialogue, ch
         records = need('controller_manager_pad_gate', f, ('manager', current))
         if records is not None:
             checked('controller_manager_pad_gate', f)
-            require(records[0][1] == after[9], 'Controller/manager pad disagreement')
+            if records[0][1] != after[9]:
+                differences['controller_manager_pad_gate'].append(f)
 
     def error(words_a, words_b):
         decode = lambda w: struct.unpack('<' + 'f' * len(w), struct.pack('<' + 'I' * len(w), *w))
