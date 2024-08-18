@@ -1,0 +1,1313 @@
+{
+  "schema": "okage-native-map-home-v1",
+  "date": "2024-08-18",
+  "objective_complete": false,
+  "runtime_commit": "ffb9d77",
+  "runtime_sha256": "db88d3a9ad1999f924914c1f0b86a845a561f73ea0c56fc8ccc2ec910ab81b3f",
+  "scope": "Native ordinary inputs earn the map, finish bar/Julia/morning events, save story4, and cold-Restore with movement.",
+  "save": {
+    "values": {
+      "story": 4,
+      "flags": {
+        "41": true,
+        "42": true,
+        "43": true,
+        "46": true,
+        "47": true,
+        "49": true,
+        "50": true,
+        "51": true,
+        "52": false,
+        "53": false,
+        "71": true
+      },
+      "map_item71": 1,
+      "odd_glass_tube_item114": 1,
+      "hp": 36,
+      "money": 1011,
+      "scene": 74,
+      "entrance": 1,
+      "playtime": 2830
+    },
+    "bytes": 3460,
+    "checksum_verified": true,
+    "sha256": "dda3ee0c0a745c20e3c7ba3de2710bd5fb3b5a0202eb2379bc65205818df725f"
+  },
+  "writer": {
+    "command": [
+      "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+      "--game-data",
+      "local/game-data-stage-v7",
+      "--save-directory",
+      "local/research/village-return-v1/native-v7/saves",
+      "--frames",
+      "1200",
+      "--buttons",
+      "local/research/village-return-v1/native-v7/buttons.txt",
+      "--capture",
+      "local/research/village-return-v1/native-v7/prelude.png",
+      "--headless-control",
+      "local/research/village-return-v1/native-v7/control"
+    ],
+    "binary_sha256": "db88d3a9ad1999f924914c1f0b86a845a561f73ea0c56fc8ccc2ec910ab81b3f",
+    "saves_before": {
+      "bkmo2.dat": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84",
+      "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+      "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    },
+    "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+    "exit_code": 0,
+    "seconds_including_control_waits": 2246.222535792,
+    "saves_after": {
+      "bkmo2.dat": "dda3ee0c0a745c20e3c7ba3de2710bd5fb3b5a0202eb2379bc65205818df725f",
+      "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+      "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    }
+  },
+  "restore_command": {
+    "command": [
+      "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+      "--game-data",
+      "local/game-data-stage-v7",
+      "--save-directory",
+      "local/research/village-return-v1/story-four-restore-v1/saves",
+      "--frames",
+      "1200",
+      "--buttons",
+      "local/research/village-return-v1/story-four-restore-v1/buttons.txt",
+      "--capture",
+      "local/research/village-return-v1/story-four-restore-v1/prelude.png",
+      "--headless-control",
+      "local/research/village-return-v1/story-four-restore-v1/control"
+    ],
+    "binary_sha256": "db88d3a9ad1999f924914c1f0b86a845a561f73ea0c56fc8ccc2ec910ab81b3f",
+    "saves_before": {
+      "bkmo2.dat": "dda3ee0c0a745c20e3c7ba3de2710bd5fb3b5a0202eb2379bc65205818df725f",
+      "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+      "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    },
+    "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput."
+  },
+  "saved_payload_comparison": {
+    "bytes_compared": 3448,
+    "changes": [
+      {
+        "offset": "0x520",
+        "saved": 14,
+        "restored": 30
+      }
+    ],
+    "playtime_delta": 16
+  },
+  "traces": {
+    "writer": {
+      "completed_ticks": [
+        1,
+        41921
+      ]
+    },
+    "restore": {
+      "completed_ticks": [
+        1,
+        2351
+      ]
+    }
+  },
+  "checkpoints": [
+    {
+      "name": "ringmaster-open",
+      "frame": 23200,
+      "values": {
+        "story": 3,
+        "flags": {
+          "41": true,
+          "42": true,
+          "43": false,
+          "46": true,
+          "47": false,
+          "49": false,
+          "50": false,
+          "51": false,
+          "52": false,
+          "53": false,
+          "71": true
+        },
+        "map_item71": 0,
+        "odd_glass_tube_item114": 1,
+        "hp": 36,
+        "money": 1011,
+        "scene": 59,
+        "entrance": 0,
+        "playtime": 2524
+      },
+      "event_running": true,
+      "hero_position": [
+        -10.180000305175781,
+        -2.5,
+        -1.6100000143051147,
+        1.0
+      ]
+    },
+    {
+      "name": "ringmaster-map-acquisition",
+      "frame": 26040,
+      "values": {
+        "story": 3,
+        "flags": {
+          "41": true,
+          "42": true,
+          "43": false,
+          "46": true,
+          "47": false,
+          "49": false,
+          "50": false,
+          "51": false,
+          "52": false,
+          "53": false,
+          "71": true
+        },
+        "map_item71": 0,
+        "odd_glass_tube_item114": 1,
+        "hp": 36,
+        "money": 1011,
+        "scene": 59,
+        "entrance": 0,
+        "playtime": 2572
+      },
+      "event_running": true,
+      "hero_position": [
+        -10.180000305175781,
+        -2.5,
+        -1.6100000143051147,
+        1.0
+      ]
+    },
+    {
+      "name": "ringmaster-controls-restored",
+      "frame": 26820,
+      "values": {
+        "story": 3,
+        "flags": {
+          "41": true,
+          "42": true,
+          "43": true,
+          "46": true,
+          "47": true,
+          "49": false,
+          "50": false,
+          "51": false,
+          "52": false,
+          "53": false,
+          "71": true
+        },
+        "map_item71": 1,
+        "odd_glass_tube_item114": 1,
+        "hp": 36,
+        "money": 1011,
+        "scene": 59,
+        "entrance": 0,
+        "playtime": 2585
+      },
+      "event_running": true,
+      "hero_position": [
+        6.880000114440918,
+        -0.0,
+        -3.950000047683716,
+        1.0
+      ]
+    },
+    {
+      "name": "bar-departure",
+      "frame": 34980,
+      "values": {
+        "story": 3,
+        "flags": {
+          "41": true,
+          "42": true,
+          "43": true,
+          "46": true,
+          "47": true,
+          "49": true,
+          "50": true,
+          "51": true,
+          "52": false,
+          "53": false,
+          "71": true
+        },
+        "map_item71": 1,
+        "odd_glass_tube_item114": 1,
+        "hp": 36,
+        "money": 1011,
+        "scene": 59,
+        "entrance": 0,
+        "playtime": 2721
+      },
+      "event_running": false,
+      "hero_position": [
+        6.880000114440918,
+        -0.0,
+        -3.950000047683716,
+        1.0
+      ]
+    },
+    {
+      "name": "village-after-map",
+      "frame": 35218,
+      "values": {
+        "story": 3,
+        "flags": {
+          "41": true,
+          "42": true,
+          "43": true,
+          "46": true,
+          "47": true,
+          "49": true,
+          "50": true,
+          "51": true,
+          "52": false,
+          "53": false,
+          "71": true
+        },
+        "map_item71": 1,
+        "odd_glass_tube_item114": 1,
+        "hp": 36,
+        "money": 1011,
+        "scene": 0,
+        "entrance": 6,
+        "playtime": 2724
+      },
+      "event_running": false,
+      "hero_position": [
+        2.0569770336151123,
+        -0.01099999900907278,
+        0.7170839905738831,
+        1.0
+      ]
+    },
+    {
+      "name": "julia-conversation",
+      "frame": 35812,
+      "values": {
+        "story": 3,
+        "flags": {
+          "41": true,
+          "42": true,
+          "43": true,
+          "46": true,
+          "47": true,
+          "49": true,
+          "50": true,
+          "51": true,
+          "52": false,
+          "53": false,
+          "71": true
+        },
+        "map_item71": 1,
+        "odd_glass_tube_item114": 1,
+        "hp": 36,
+        "money": 1011,
+        "scene": 0,
+        "entrance": 6,
+        "playtime": 2734
+      },
+      "event_running": true,
+      "hero_position": [
+        4.583311080932617,
+        2.498999834060669,
+        -117.10692596435547,
+        1.0
+      ]
+    },
+    {
+      "name": "homeward-transition",
+      "frame": 38732,
+      "values": {
+        "story": 4,
+        "flags": {
+          "41": true,
+          "42": true,
+          "43": true,
+          "46": true,
+          "47": true,
+          "49": true,
+          "50": true,
+          "51": true,
+          "52": false,
+          "53": false,
+          "71": true
+        },
+        "map_item71": 1,
+        "odd_glass_tube_item114": 1,
+        "hp": 36,
+        "money": 1011,
+        "scene": 73,
+        "entrance": 0,
+        "playtime": 2783
+      },
+      "event_running": true,
+      "hero_position": [
+        18.210451126098633,
+        -0.0010000000474974513,
+        -0.7009853720664978,
+        1.0
+      ]
+    },
+    {
+      "name": "home-morning-event-end",
+      "frame": 40432,
+      "values": {
+        "story": 4,
+        "flags": {
+          "41": true,
+          "42": true,
+          "43": true,
+          "46": true,
+          "47": true,
+          "49": true,
+          "50": true,
+          "51": true,
+          "52": false,
+          "53": false,
+          "71": true
+        },
+        "map_item71": 1,
+        "odd_glass_tube_item114": 1,
+        "hp": 36,
+        "money": 1011,
+        "scene": 74,
+        "entrance": 0,
+        "playtime": 2811
+      },
+      "event_running": false,
+      "hero_position": [
+        -0.6600000262260437,
+        0.0,
+        2.4800000190734863,
+        1.0
+      ]
+    },
+    {
+      "name": "story-four-save-slots",
+      "frame": 41406,
+      "values": {
+        "story": 4,
+        "flags": {
+          "41": true,
+          "42": true,
+          "43": true,
+          "46": true,
+          "47": true,
+          "49": true,
+          "50": true,
+          "51": true,
+          "52": false,
+          "53": false,
+          "71": true
+        },
+        "map_item71": 1,
+        "odd_glass_tube_item114": 1,
+        "hp": 36,
+        "money": 1011,
+        "scene": 74,
+        "entrance": 1,
+        "playtime": 2828
+      },
+      "event_running": false,
+      "hero_position": [
+        4.420000076293945,
+        0.0,
+        0.3199999928474426,
+        1.0
+      ]
+    },
+    {
+      "name": "story-four-saved",
+      "frame": 41921,
+      "values": {
+        "story": 4,
+        "flags": {
+          "41": true,
+          "42": true,
+          "43": true,
+          "46": true,
+          "47": true,
+          "49": true,
+          "50": true,
+          "51": true,
+          "52": false,
+          "53": false,
+          "71": true
+        },
+        "map_item71": 1,
+        "odd_glass_tube_item114": 1,
+        "hp": 36,
+        "money": 1011,
+        "scene": 74,
+        "entrance": 1,
+        "playtime": 2836
+      },
+      "event_running": false,
+      "hero_position": [
+        4.420000076293945,
+        0.0,
+        0.3199999928474426,
+        1.0
+      ]
+    }
+  ],
+  "restored": {
+    "name": "story-four-restored",
+    "frame": 2335,
+    "state": {
+      "frames": 2335,
+      "message_id": 0,
+      "rng_state": 3630235380,
+      "messages_started": 0,
+      "text_progress": 0,
+      "advance_count": 0,
+      "wait_release_frame": 0,
+      "controller_stage": 5,
+      "unimplemented_service_requests": 0,
+      "message_flags": 0,
+      "window_type": 0,
+      "scene_brightness": 1,
+      "narration_cues": 0,
+      "progression_flag_2": 0,
+      "progression_flag_3": 0,
+      "kitchen_flag_7": 1,
+      "progression_flag_4": 0,
+      "progression_flag_5": 0,
+      "field_event_running": false,
+      "field_present": true,
+      "game_mode": 2,
+      "game_mode_parent_phase": 0,
+      "game_mode_dead_allocation": false,
+      "game_over_resource_live": false,
+      "game_over_state": 0,
+      "game_over_ticks": 0,
+      "game_over_image_alpha_bits": 0,
+      "field_camera_mode": 2,
+      "interaction_alias": 0,
+      "interaction_event": 0,
+      "loaded_stream_banks": 1,
+      "choice_cursor": 0,
+      "choice_result": 0,
+      "choice_armed": false,
+      "battle_capture_frame": 0,
+      "battle_followers_saved": false,
+      "battle_capture_alpha": 0,
+      "battle_capture_target": 0,
+      "close_frame": 0,
+      "close_wait_release_frame": 0
+    },
+    "values": {
+      "story": 4,
+      "flags": {
+        "41": true,
+        "42": true,
+        "43": true,
+        "46": true,
+        "47": true,
+        "49": true,
+        "50": true,
+        "51": true,
+        "52": false,
+        "53": false,
+        "71": true
+      },
+      "map_item71": 1,
+      "odd_glass_tube_item114": 1,
+      "hp": 36,
+      "money": 1011,
+      "scene": 74,
+      "entrance": 1,
+      "playtime": 2846
+    },
+    "hero_position": [
+      0.04029613733291626,
+      -0.0010000000474974513,
+      2.201119899749756,
+      1.0
+    ]
+  },
+  "live": {
+    "name": "story-four-restored-moving",
+    "frame": 2351,
+    "state": {
+      "frames": 2351,
+      "message_id": 0,
+      "rng_state": 1288636244,
+      "messages_started": 0,
+      "text_progress": 0,
+      "advance_count": 0,
+      "wait_release_frame": 0,
+      "controller_stage": 5,
+      "unimplemented_service_requests": 0,
+      "message_flags": 0,
+      "window_type": 0,
+      "scene_brightness": 1,
+      "narration_cues": 0,
+      "progression_flag_2": 0,
+      "progression_flag_3": 0,
+      "kitchen_flag_7": 1,
+      "progression_flag_4": 0,
+      "progression_flag_5": 0,
+      "field_event_running": false,
+      "field_present": true,
+      "game_mode": 2,
+      "game_mode_parent_phase": 0,
+      "game_mode_dead_allocation": false,
+      "game_over_resource_live": false,
+      "game_over_state": 0,
+      "game_over_ticks": 0,
+      "game_over_image_alpha_bits": 0,
+      "field_camera_mode": 2,
+      "interaction_alias": 0,
+      "interaction_event": 0,
+      "loaded_stream_banks": 1,
+      "choice_cursor": 0,
+      "choice_result": 0,
+      "choice_armed": false,
+      "battle_capture_frame": 0,
+      "battle_followers_saved": false,
+      "battle_capture_alpha": 0,
+      "battle_capture_target": 0,
+      "close_frame": 0,
+      "close_wait_release_frame": 0
+    },
+    "values": {
+      "story": 4,
+      "flags": {
+        "41": true,
+        "42": true,
+        "43": true,
+        "46": true,
+        "47": true,
+        "49": true,
+        "50": true,
+        "51": true,
+        "52": false,
+        "53": false,
+        "71": true
+      },
+      "map_item71": 1,
+      "odd_glass_tube_item114": 1,
+      "hp": 36,
+      "money": 1011,
+      "scene": 74,
+      "entrance": 1,
+      "playtime": 2847
+    },
+    "hero_position": [
+      6.2564377784729,
+      -0.0010000000474974513,
+      6.348429203033447,
+      1.0
+    ]
+  },
+  "misleading_capture_name": "ringmaster-controls-restored at26820 is event-active follow-on, despite its speculative label; actual bar control returns34980.",
+  "source_healed_save_unchanged": true,
+  "save_slots1_2_unchanged": true,
+  "restore_save_files_unchanged": true,
+  "source_provenance_correction": "Full terminal v6 inputs.jsonl now pinned by story-four audit; earlier rumor report omitted its full identity. Exact held/pressed attempts1..18980 still pass.",
+  "original_celebration_progression": {
+    "scope": "Independent original-only ordinary-input progression from exact failed-pair endpoint.",
+    "final": {
+      "snapshot": "/Users/user/src/okage-shadow-king/local/research/village-return-v1/original-celebration-close-v1/endpoint.state.zip",
+      "sha256": "876434b04bff1cb53e41e9bf6f82ce235265bd089b66717b5a0477dee3104343",
+      "scene": 0,
+      "manager_mode": 0,
+      "hero": [
+        10.619999885559082,
+        -35.0099983215332,
+        244.47999572753906,
+        1.0
+      ],
+      "camera_yaw": 0.17919921875,
+      "item114": 1,
+      "flag40": true,
+      "flag41": true,
+      "story": 3,
+      "hp": 2,
+      "flags": {
+        "40": true,
+        "41": true,
+        "42": true,
+        "43": false,
+        "46": false,
+        "47": false,
+        "71": true
+      },
+      "context_flags": 1,
+      "event_active": false,
+      "retained_pc": 11652,
+      "player_mask": 0,
+      "objective_bank4_index10": 5,
+      "variables_sha256": "3a0d725adb87ffa2663954663c41ce7855c24d67d742383fab7b8dc5a725ffc7"
+    },
+    "total_requested_vblanks": 960,
+    "jobs": [
+      {
+        "session": 99135,
+        "exit_code": 0
+      },
+      {
+        "session": 34060,
+        "exit_code": 0
+      },
+      {
+        "session": 47986,
+        "exit_code": 0
+      },
+      {
+        "session": 61023,
+        "exit_code": 0
+      }
+    ],
+    "reference_lease": "Returned after61023 terminal; no reference VM live."
+  },
+  "checks": {
+    "python_tests": 516,
+    "seconds": 23.94,
+    "exit_code": 0,
+    "session": 73686
+  },
+  "comparison_limits": [
+    "Map/bar/Julia/home new segment has no original paired state, image or audio comparison yet.",
+    "Prior fixed-anchor village comparison remains failed, unmodified.",
+    "Native new route is Release only; prior cross-build music43/SET17 evidence has narrower scope.",
+    "No new listening, physical controller, performance or full-playthrough proof.",
+    "Stagev7 is development overlay, not a fresh-disc shipping import."
+  ],
+  "artifacts": [
+    {
+      "path": "local/research/village-return-v1/native-v7/control/ringmaster-open.png",
+      "bytes": 181605,
+      "sha256": "00a21e84ef19204a4eacc8d5e7be6cc96394439f95e4edbd95cca2553af9f920",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/ringmaster-open.png.json",
+      "bytes": 1083,
+      "sha256": "37bb6465e8188df3617d78a927e89256beff53d7729a038f947dabe15d878823",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/ringmaster-open.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "b72b8398767e47ae950457afd860b4bc27885a68ea45613931e7c4f5c11b7f28",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/ringmaster-open.png.actors-state.json",
+      "bytes": 26160,
+      "sha256": "5ce9a62fa06ec8a7da740cd0e104435acbd548cf5e2829fbfcc73f52f08e96e5",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/ringmaster-map-acquisition.png",
+      "bytes": 272053,
+      "sha256": "70a85ab677cfe4f51d935d334527c2bab97a816d3189cdf4bda748c7ff4a924c",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/ringmaster-map-acquisition.png.json",
+      "bytes": 1085,
+      "sha256": "b78e50057d65829d237ae9bbef630966a52887a24608601971fae0f290aebaf1",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/ringmaster-map-acquisition.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "dfd38e21c5472c78791fd811b1cd0d8a52b68b7a0189bae1f80d3070fc2bd30b",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/ringmaster-map-acquisition.png.actors-state.json",
+      "bytes": 26612,
+      "sha256": "74473040724aa5894f551abad8b62878d14182e0b220cfa2770c07b337714252",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/ringmaster-map-acquisition-display.view.png",
+      "bytes": 270534,
+      "sha256": "55ce7d4a1b66488f0e3bf5eb917c790c36af47af3c0bee2821a07a36d31e9c83",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/ringmaster-controls-restored.png",
+      "bytes": 229773,
+      "sha256": "e66bd964ff49b1077cac39f118080273cfa8275fa2ef40c59fcabfe3e71643eb",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/ringmaster-controls-restored.png.json",
+      "bytes": 1082,
+      "sha256": "0892fd78e43618160c102f99622b1e97b3dc671837b6875e4164eb5059f9954e",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/ringmaster-controls-restored.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "46c610e71efe8894df4e277fa9c6e5814fa1f84d15b82bbc1ab04e056a030aba",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/ringmaster-controls-restored.png.actors-state.json",
+      "bytes": 26505,
+      "sha256": "973b3b59b3a1a0c2aacd72d27c0319de226695a5bde8f4888c9e5925e9a6a7a4",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/ringmaster-controls-restored-display.view.png",
+      "bytes": 235113,
+      "sha256": "cd8257f4003923cf87d14c66559713a81c83e82b71f65bd869eb009e084dd92c",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/bar-departure.png",
+      "bytes": 275053,
+      "sha256": "dc9f0b95b02d5628b9a285cda4f19be9f94b969205751d642fadc84d16ede76f",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/bar-departure.png.json",
+      "bytes": 1096,
+      "sha256": "8ffe20d07376b45da208c07ea778a98f9243c5c92a4f605e5c6f6cc42ecefe21",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/bar-departure.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "bd66a31ef151faa8cf2bfa7a4fe371c15a4e168cf0000be9c47d4f62a0a34250",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/bar-departure.png.actors-state.json",
+      "bytes": 26303,
+      "sha256": "b357f71a77e0aa15facd75cff76c2ff0d0bb7af98ab41cf2a6c66b11bc39a3a5",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/bar-departure-display.view.png",
+      "bytes": 285736,
+      "sha256": "b3c3aae2aa46456dd3d9650ba2b5852c5806bd6fbfbed9d88cd45d8d4a7b580a",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/village-after-map.png",
+      "bytes": 264986,
+      "sha256": "635e32dfd1296010ed2c68aea7654d70d24f8bc9716a97de9d10b92aaefc1ba4",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/village-after-map.png.json",
+      "bytes": 1093,
+      "sha256": "5548e161990caf767871a896c2482ebb76d9585e64f8f1af625ef823fa032eb6",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/village-after-map.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "59beabc8a82f4b7ae5eb669b9b0072b7e07eb67e98063dc93d061f0b6c0d927b",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/village-after-map.png.actors-state.json",
+      "bytes": 32757,
+      "sha256": "5ebf7b9fd856b318bc8911ad6a99331693856d5f25f2b8f5574849c294899720",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/village-after-map-display.view.png",
+      "bytes": 273749,
+      "sha256": "9b06f5818db33551f09e43484ee31cdaf11b42c5b3aaa5c0d02821bc6f7c6547",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/julia-conversation.png",
+      "bytes": 277958,
+      "sha256": "806cd4f9b730c2a2e3644b0fca40d4c6966749873f4e77427ab7f94f2b5fe119",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/julia-conversation.png.json",
+      "bytes": 1084,
+      "sha256": "c210070e05bab01801733b9f92e5d50c47d4b650c1247f2b1ec0edd8b3055932",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/julia-conversation.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "11334e0284e3c9f754b3d249f7673f8468c696a3e228921ae7905ef1dc1881c3",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/julia-conversation.png.actors-state.json",
+      "bytes": 32765,
+      "sha256": "ab648d8374057fb9f66fc323527c9e55382b562cbf74f2e0dd4910a6970a01d2",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/julia-conversation-display.view.png",
+      "bytes": 278665,
+      "sha256": "7dfd20add787104b1ffadd3b399c3b414ecebcbda6187a5ddb4e9a95be58004a",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/homeward-transition.png",
+      "bytes": 198491,
+      "sha256": "774ac6c6a6d17495bba4b696a7a5cc39027d94045d99db4316f0ed84fa9468d3",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/homeward-transition.png.json",
+      "bytes": 1082,
+      "sha256": "b9883579b93a680e8e88c0d06e373620ab85d5b1937c90b65fb05908ff069ddb",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/homeward-transition.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "bbbf4b67e005425ac870e6d4c1bc31cd8d308afda2861788dd746a5141ad0a8b",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/homeward-transition.png.actors-state.json",
+      "bytes": 17290,
+      "sha256": "efde4ab2eb0446d2c6d96cf39235b182f3d74b1453368d2e0579968beb0b159d",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/homeward-transition-display.view.png",
+      "bytes": 191795,
+      "sha256": "4cba3c450ce326151791a5f62a40835330391d2f4af4af56e6ac43a3fab5e3ef",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/home-morning-event-end.png",
+      "bytes": 289056,
+      "sha256": "8741588f9be3eb7d4114491d74cf3a725ce88a8773a200b078dfdf428c0b538e",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/home-morning-event-end.png.json",
+      "bytes": 1091,
+      "sha256": "7f855e234fd411671496a128dfc15b188a150f5bac45796da386c9bdaa47ac52",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/home-morning-event-end.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "4cc6f867f70cbd8bca7fd16fd10a45d536350e248cd6ddca4e77f846e2297a85",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/home-morning-event-end.png.actors-state.json",
+      "bytes": 17519,
+      "sha256": "ed8caaa9dfe9eb3cb337c98a8512f373e834904ef1fdf46bf5ca9d979a9b57d3",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/home-morning-event-end-display.view.png",
+      "bytes": 300081,
+      "sha256": "95b52dcfa1a877e24ee3f2d09493fa568712aade98ba63007b64b9e0a5d91d17",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/story-four-save-slots.png",
+      "bytes": 243449,
+      "sha256": "363bc0c984903c959fcc04d0cde1a890fdd6aa58ad8d9d544a3a232839468908",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/story-four-save-slots.png.json",
+      "bytes": 1093,
+      "sha256": "067a2424c0ae42200cadb9fbb1c79932bfedfb642456e0b252ee1bd428a436c8",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/story-four-save-slots.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "057c1b5e41bad502a904d84cf1f6afd4c7898d4e2572aeffc4a93f397a750eb9",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/story-four-save-slots.png.actors-state.json",
+      "bytes": 12744,
+      "sha256": "c390fce145c339fb198dd1bf13eab10ff13a0727eda8d31d28bd7d783ee3dd9b",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/story-four-save-slots-display.view.png",
+      "bytes": 240416,
+      "sha256": "90d2418c68ec6b5324439c280260365232a4dea17c1d8da4dbdfa2585db60269",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/story-four-saved.png",
+      "bytes": 275878,
+      "sha256": "34f60b8458a2a4fb7b76a44b9e43ed064258bed7bbb2227c64ff25896b46d04f",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/story-four-saved.png.json",
+      "bytes": 1092,
+      "sha256": "3d7bc36043f616876bc20dd719b966a1f81b82c16d55ef9dbb0d36cf21fdb772",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/story-four-saved.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "42aca2f3a5e4ca4566118561f85365e21611282d10385972b715a4aae6011e6c",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/story-four-saved.png.actors-state.json",
+      "bytes": 12783,
+      "sha256": "7bcf3ab680d5d85ce6b975dd13ecd55debfd342e180eb8c440ebd92683d7e5a9",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/story-four-saved-display.view.png",
+      "bytes": 286916,
+      "sha256": "7a60698e8f631feabebcd0af55460f31c88ca15a7db47bd6d070da58ce9c23d1",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/run.json",
+      "bytes": 1348,
+      "sha256": "d06394816651d5d60aed8acd90a4e0900a1d6bc1c692fc940eb1383d0f21346d",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/saves/bkmo2.dat",
+      "bytes": 3460,
+      "sha256": "dda3ee0c0a745c20e3c7ba3de2710bd5fb3b5a0202eb2379bc65205818df725f",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/story-four-restored.png",
+      "bytes": 288159,
+      "sha256": "be2ec5868be6b192b9ec26fa145b72a38ca56557960a0daa28680caed7871f29",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/story-four-restored.png.json",
+      "bytes": 1062,
+      "sha256": "4341d3e102bdd7a63a369c4c905d2e8f2d1e78ee771052380d31363f37b56a7a",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/story-four-restored.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "8db57f7cc202f6626deb1401dfc8bbd93c781daa9ff26f4e4b6548a5aaae1be3",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/story-four-restored.png.actors-state.json",
+      "bytes": 12747,
+      "sha256": "5382a8953a0789b9288fb1b3d9b71291d05049fa67bc4badb3f122e7c5460ceb",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/story-four-restored-display.view.png",
+      "bytes": 299324,
+      "sha256": "9d63c2c8a82b29f0a85c095dc9c5e300e07dc4ef2a4ba7774e5e810088d35986",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/story-four-restored-moving.png",
+      "bytes": 233883,
+      "sha256": "dfc21c9572353708f6a49953f17987262d16b3e22a2753a7e6d09ca346a9fa2a",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/story-four-restored-moving.png.json",
+      "bytes": 1062,
+      "sha256": "bab17de538297217321c83cbba29bc7aca69b40f376a46b868abef99a7d2d46b",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/story-four-restored-moving.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "dff45a999ffa60f9bbb214edb36baa7f091249ab4da02fdf39ae78c92ac42d42",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/story-four-restored-moving.png.actors-state.json",
+      "bytes": 13149,
+      "sha256": "0e5a29bcfcfc020fd2bfd720361f2eaf7b64475eb8407a0df2b843d5746feb7c",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/story-four-restored-moving-display.view.png",
+      "bytes": 241913,
+      "sha256": "c2995a43f5f5b23dcb3c7c6aac7364bf0139de68dfa24bfeec52ad747c1091b6",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/pending.json",
+      "bytes": 1047,
+      "sha256": "d5f8d5bd97776d24d1331c57791db188270aa3d7a8f9083a0ccd19cfde5f47bb",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/saves/bkmo2.dat",
+      "bytes": 3460,
+      "sha256": "dda3ee0c0a745c20e3c7ba3de2710bd5fb3b5a0202eb2379bc65205818df725f",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/saves/bkmo0.dat",
+      "bytes": 3460,
+      "sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/saves/bkmo1.dat",
+      "bytes": 3460,
+      "sha256": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/post-chest-story-v1/native-v5/saves/bkmo2.dat",
+      "bytes": 3460,
+      "sha256": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/inputs.jsonl",
+      "bytes": 4156918,
+      "sha256": "14de0d7e9142d9963c98d5305c309aa606ada4be6ead40425198a9623877cf65",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/commands.txt",
+      "bytes": 19667,
+      "sha256": "7189f163ecc47054e9e7eb5b63e60c597280b9e630f8621098e3037bb41b644d",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/run.log",
+      "bytes": 73787,
+      "sha256": "5d5489f124135231b0622cee4eb1c3790e7701b0460b31da9d5cf76c4e485668",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/inputs.jsonl",
+      "bytes": 224395,
+      "sha256": "94504d6c95ebade587de42c1d07748ee2219351665de48c6b3f2f9845d8f4573",
+      "scope": "recorded byte prefix; live file may grow"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/commands.txt",
+      "bytes": 614,
+      "sha256": "b03df26cd09c18ebf482049f16bb0894a3f5001bbe5067f8950a5c0592f3915c",
+      "scope": "recorded byte prefix; live file may grow"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/run.log",
+      "bytes": 2284,
+      "sha256": "604da67ea78748b872eb1c3eaa1795cc3437a48b0494ea28926a06236c017303",
+      "scope": "recorded byte prefix; live file may grow"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v6/control/inputs.jsonl",
+      "bytes": 1881254,
+      "sha256": "785b8514a40c8388a4a9cf1271009286ad04071196eb812b5a76d7f171b89094",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-audit-v1.py",
+      "bytes": 6606,
+      "sha256": "4f717bf97c3be58fc8f035c3f6a8bafabf38d589c70eaad0ea1948230707fb65",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/run-native-v7.py",
+      "bytes": 1550,
+      "sha256": "355910d50f5da75c8aa6b4ec528883f6565238ef0f4a755722d46cdcd69f1c5f",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/run-story-four-restore-v1.py",
+      "bytes": 1560,
+      "sha256": "2674372ffb698381cbf204f103bea04a0575a8882f3678974e54c3a9c936bb76",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/post-map-route-review-v1.md",
+      "bytes": 6803,
+      "sha256": "a763b68a66f6a2d3de7ea79de30c5987ebe3db574ac8f4ab249e3a34dc0af39a",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/checkpoint-review-v1.json",
+      "bytes": 3278,
+      "sha256": "d49075af27577706509d863379f51c53ac54bc77dea153234d22498e1372aa11",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/original-celebration-progression-v1/report.json",
+      "bytes": 10616,
+      "sha256": "e4140516213f71ed3ddd127254a95ec14049d8e67d5c29816344237b1455e4ae",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "src/save_store.cpp",
+      "bytes": 10266,
+      "sha256": "161e4f6f899efde267cfe1aa27127c135b7bd43b0c00bf67912f1ff9d6f75a59",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "src/native_runtime.mm",
+      "bytes": 191019,
+      "sha256": "8c96897af76b822b90ea8e81e56c861dda6a705fbbde4b41d69d6326ecffa784",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "src/field.cpp",
+      "bytes": 81605,
+      "sha256": "4953a2125c78df796bd26362cc800dd313ec56e143652fb726a46ead2453170c",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_vil.xmt",
+      "bytes": 16010,
+      "sha256": "b8031d37a50f488e030035b9b1bc4ffa57fde8a02bebab355f269263be89c7d3",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_ssak1a.xmt",
+      "bytes": 3596,
+      "sha256": "c05e64214912e7fddf965f2ad4031c87599f41c857376863f107822106ba2f8e",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home2a.xmt",
+      "bytes": 1164,
+      "sha256": "b5c8ac77ace9f3291501c27045820bcac35d127afdb7c93f8ce5f22cb74af51a",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home2b.xmt",
+      "bytes": 4666,
+      "sha256": "3a770ac6de7ec7d870ace84b663ef904d12941e0e12faba2507e1f7771f2af63",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/xpf-decoded/FLDDATA/FLDSET.XDB",
+      "bytes": 59140,
+      "sha256": "e1085fc18788d42b10b11d6fdbf8e8bcb3de67ef11003669b4de9e4b30d1f0ba",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-audit-v1.json",
+      "bytes": 50266,
+      "sha256": "981fffe8930813742fc36b9a1b5d54e4cc80822d906be05f3e722c36ef0be2b6"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-python-tests-v1.log",
+      "bytes": 54947,
+      "sha256": "4444cd9783469c6fc89d0f48cdece160ac4da7491ca9a48d9806923188b71da6"
+    },
+    {
+      "path": "local/research/village-return-v1/original-celebration-progression-v1/combined-input.pad",
+      "bytes": 158,
+      "sha256": "c95ff59b95cd9bfb24d6df79da8a84664ff7f1485717c9dbad75d836cf88307d"
+    },
+    {
+      "path": "local/research/village-return-v1/original-celebration-continue-v1/run.json",
+      "bytes": 9459,
+      "sha256": "e5bcd115dbbfb9878ed7190f212fafa85d7784a9d22c414f6cd2a5d73e4aaefa"
+    },
+    {
+      "path": "local/research/village-return-v1/original-celebration-continue-v1/input.pad",
+      "bytes": 68,
+      "sha256": "c8951196a9183d97c6a970e076ad666b2463025b5140802bfd0aa57352e5dc2a"
+    },
+    {
+      "path": "local/research/village-return-v1/original-celebration-continue-v1/endpoint.state.zip",
+      "bytes": 11509386,
+      "sha256": "6f42e408f52f84999419a41ed0ef08b280858329a34a9fece020efa7130b8d69"
+    },
+    {
+      "path": "local/research/village-return-v1/original-celebration-continue-v1/events/instructions.tsv",
+      "bytes": 45897,
+      "sha256": "20d8f39dbf626a80231eb926022d02bfebd5d294f2bcab6e61649beefeba7cf0"
+    },
+    {
+      "path": "local/research/village-return-v1/original-celebration-choice-v1/run.json",
+      "bytes": 8393,
+      "sha256": "d5dbb1df54342efa910ce9e295c5b729571293893c138a2df44a61b753a03f42"
+    },
+    {
+      "path": "local/research/village-return-v1/original-celebration-choice-v1/input.pad",
+      "bytes": 36,
+      "sha256": "3b1935075b1a4c5b6e373b1cda447f3ea81fe6a57ee64137060360e22e6c7161"
+    },
+    {
+      "path": "local/research/village-return-v1/original-celebration-choice-v1/endpoint.state.zip",
+      "bytes": 11501409,
+      "sha256": "781bac5b69626b625947206dbd626c42efee0be4d7afc01ede8c5929a6febf28"
+    },
+    {
+      "path": "local/research/village-return-v1/original-celebration-choice-v1/events/instructions.tsv",
+      "bytes": 17450,
+      "sha256": "407d3b7185c9bc7b3a6c8022ce16601c120686236fbb7faa222b95a6a3656bf0"
+    },
+    {
+      "path": "local/research/village-return-v1/original-celebration-finish-v1/run.json",
+      "bytes": 9123,
+      "sha256": "c7d333fc91115da3c94cd4e675fc78857ff6022b3c8d3de6b41d5fcedc2c3402"
+    },
+    {
+      "path": "local/research/village-return-v1/original-celebration-finish-v1/input.pad",
+      "bytes": 20,
+      "sha256": "e5f842e30f8e7b4bde0238de7fcadf112cde03baac7f27dbdadf45f62bdf3378"
+    },
+    {
+      "path": "local/research/village-return-v1/original-celebration-finish-v1/endpoint.state.zip",
+      "bytes": 11508790,
+      "sha256": "d7899d5f822ecc71d77e0e5ad6d3e29aaa5ccf8ccd891431c2542050ddd70ba5"
+    },
+    {
+      "path": "local/research/village-return-v1/original-celebration-finish-v1/events/instructions.tsv",
+      "bytes": 11009,
+      "sha256": "abbf7a07b7587f2073f2d4e6c6479a90dd2f1ef86005df474095da4ba6722c69"
+    },
+    {
+      "path": "local/research/village-return-v1/original-celebration-close-v1/run.json",
+      "bytes": 9266,
+      "sha256": "53f30e47ec5e29cf6905e276b03208d8b72502d068d141635b28c9e9391c619a"
+    },
+    {
+      "path": "local/research/village-return-v1/original-celebration-close-v1/input.pad",
+      "bytes": 20,
+      "sha256": "e5f842e30f8e7b4bde0238de7fcadf112cde03baac7f27dbdadf45f62bdf3378"
+    },
+    {
+      "path": "local/research/village-return-v1/original-celebration-close-v1/endpoint.state.zip",
+      "bytes": 11562788,
+      "sha256": "876434b04bff1cb53e41e9bf6f82ce235265bd089b66717b5a0477dee3104343"
+    },
+    {
+      "path": "local/research/village-return-v1/original-celebration-close-v1/events/instructions.tsv",
+      "bytes": 27038,
+      "sha256": "5127e5a1b1266b2079d586fe4385986bbcc600e41b4719f6aef2afee51a4e981"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/historical-input-save/bkmo2.dat",
+      "bytes": 3460,
+      "sha256": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84"
+    }
+  ],
+  "historical_save_note": "The immutable rumor audit retains its original save pathname/hash. Later ordinary Save replaced that copied File3. Manifest artifact resolves to a hash-identical preserved input copy, made from the unchanged original healed checkpoint. It is evidence only and not a new runtime input.",
+  "runs": {
+    "field_shadow_roster": "Completed original-only progression; all four sessions terminal0, VM lease returned.",
+    "sound_import_coverage": "Completed prior evidence review; missing full v6 input hash supplied by root audit.",
+    "mode_observer": "Corrected Julia/home route completed and reviewed. Optional next-family read-only follow-up interrupted; no completed result accepted."
+  },
+  "next_family_scope": "Ordinary bedroom/hall/downstairs contact route known; exact family event/next unsupported service not established by this checkpoint."
+}

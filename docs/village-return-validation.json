@@ -359,11 +359,6 @@
       "sha256": "edd5b7f42f65f65117f15be5d8bb68391655ff6eebf118d3911eaec0d0c461c6"
     },
     {
-      "path": "local/research/village-return-v1/next-story-review.md",
-      "bytes": 6030,
-      "sha256": "b4c4d9b74f09278d4ce6c88410c496d815aa13af3d821c0b0bd16e4c142d2444"
-    },
-    {
       "path": "local/research/village-return-v1/music43-review.md",
       "bytes": 3754,
       "sha256": "39e5573c5570eeab0721f2ec84b0d8059ec314411193611dd73af0293b6a266c"
@@ -487,6 +482,36 @@
       "path": "build/model-sanitize/okage-assets",
       "bytes": 15646128,
       "sha256": "5982ff5b1231d4a49d8f09abaf0689721c648cdc85e048aba2e0a15370eca7e8"
+    },
+    {
+      "path": "local/research/village-return-v1/bar-entry-native-v7-audit.json",
+      "bytes": 5003,
+      "sha256": "34e4ba4080d048312203af135aeadd1b189c22525318ff5a5e6a8828f2a79008"
+    },
+    {
+      "path": "local/research/village-return-v1/next-story-review.md",
+      "bytes": 7115,
+      "sha256": "67dee0695b0c816a60678589f66db975bef72a7feea7b9df9dc103e49573daca"
+    },
+    {
+      "path": "local/research/village-return-v1/rumor-route-contact-inventory.json",
+      "bytes": 4926,
+      "sha256": "653945f28b71e548b72e8338eef98f2b144d9b8fc423c687dc2458da6ab24487"
+    },
+    {
+      "path": "local/research/village-return-v1/message15119-tree.json",
+      "bytes": 7321,
+      "sha256": "1c992760efaa559701beb63f6fc9b2a858e766fff0bc8f53bbeed86996284032"
+    },
+    {
+      "path": "local/research/village-return-v1/rumor-completion-audit.py",
+      "bytes": 3341,
+      "sha256": "33d7654ed287fe3680f8008dead2443897fbbd7e864430ab65509f4bfb03f1bf"
+    },
+    {
+      "path": "local/research/village-return-v1/rumor-completion-audit.json",
+      "bytes": 16785,
+      "sha256": "73c1e258ea4ab09983144fac2425a3c07fc129d32f78b8dd89276b63134289f2"
     }
   ],
   "native_completion_audit": {
@@ -1859,7 +1884,7 @@
       ]
     },
     "runtime_sha256": "db88d3a9ad1999f924914c1f0b86a845a561f73ea0c56fc8ccc2ec910ab81b3f",
-    "native_v7": "live76045 replay running, stagev7, no endpoint claim yet",
+    "native_v7": "Live session76045 at22169. Cold replay completes barentry19073, returns outside, earns rumor flag46 through15118 at22148, moves normally22169. No process-exit or post-event Save claim.",
     "scope": "Register verified resource43; existing loader/synth semantics.",
     "dry_checks": [
       {
@@ -1917,6 +1942,701 @@
         "pcm_sha256": "b8c68e8b7cd8f736b0e916b7f0a80dc7840f7b4325bd7877924429d8149f92d2"
       }
     ],
-    "tests": "All3music CTests pass;516Python tests pass after music importer and comparator integration."
-  }
+    "tests": "All3music CTests pass;516Python tests pass after music importer and comparator integration.",
+    "bar_entry_audit": {
+      "command": [
+        "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+        "--game-data",
+        "local/game-data-stage-v7",
+        "--save-directory",
+        "local/research/village-return-v1/native-v7/saves",
+        "--frames",
+        "1200",
+        "--buttons",
+        "local/research/village-return-v1/native-v7/buttons.txt",
+        "--capture",
+        "local/research/village-return-v1/native-v7/prelude.png",
+        "--headless-control",
+        "local/research/village-return-v1/native-v7/control"
+      ],
+      "binary_sha256": "db88d3a9ad1999f924914c1f0b86a845a561f73ea0c56fc8ccc2ec910ab81b3f",
+      "saves_before": {
+        "bkmo2.dat": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84",
+        "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+      },
+      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+      "status": "Live76045; barentry19073 completed; later native traversal remains live. No process-exit claim.",
+      "prefix_validation": {
+        "attempt_frames": [
+          1,
+          18980
+        ],
+        "held_pressed_exact_against_v6": true,
+        "completed_prefix": [
+          1,
+          19073
+        ],
+        "save_files_unchanged": true
+      },
+      "bar_entry_capture": {
+        "frames": 19073,
+        "message_id": 15101,
+        "rng_state": 866334146,
+        "messages_started": 9,
+        "text_progress": 7,
+        "advance_count": 13,
+        "wait_release_frame": 6654,
+        "controller_stage": 9,
+        "unimplemented_service_requests": 4242,
+        "message_flags": 2147483648,
+        "window_type": 0,
+        "scene_brightness": 1,
+        "narration_cues": 108,
+        "progression_flag_2": 0,
+        "progression_flag_3": 0,
+        "kitchen_flag_7": 1,
+        "progression_flag_4": 0,
+        "progression_flag_5": 0,
+        "field_event_running": false,
+        "field_present": true,
+        "game_mode": 2,
+        "game_mode_parent_phase": 0,
+        "game_mode_dead_allocation": false,
+        "game_over_resource_live": false,
+        "game_over_state": 0,
+        "game_over_ticks": 0,
+        "game_over_image_alpha_bits": 0,
+        "field_camera_mode": 2,
+        "interaction_alias": 0,
+        "interaction_event": 0,
+        "loaded_stream_banks": 1,
+        "choice_cursor": 0,
+        "choice_result": 0,
+        "choice_armed": false,
+        "battle_capture_frame": 0,
+        "battle_followers_saved": false,
+        "battle_capture_alpha": 0,
+        "battle_capture_target": 0,
+        "close_frame": 7959,
+        "close_wait_release_frame": 7962
+      },
+      "artifacts": [
+        {
+          "path": "local/research/village-return-v1/native-v7/pending.json",
+          "bytes": 999,
+          "sha256": "6e7056a4cf50eecc10995fded70ed0ec567b5ffce7f188828f89ba3a9fbd35ce",
+          "scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v7/buttons.txt",
+          "bytes": 36,
+          "sha256": "52a6eb3d46bb6c66d5e65fca754212e1293bfb671e274ebc6b9638e3889e5dac",
+          "scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v7/control/bar-arrived.png",
+          "bytes": 233969,
+          "sha256": "c9a99d007f8bb019d35bf8d333fa7165eeeb435ca850714426ab0c4d0819b3b5",
+          "scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v7/control/bar-arrived-display.view.png",
+          "bytes": 244480,
+          "sha256": "7ca005e9e0a8226a79cb7b16a6a2daad8888baa86a386fc9425a25bb30248449",
+          "scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v7/control/bar-arrived.png.json",
+          "bytes": 1090,
+          "sha256": "7bff5ee12c46ee4e58804f59ec858d72c4dd6ffcff4a068e6e3532f17a8a51f0",
+          "scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v7/control/bar-arrived.png.variables.bin",
+          "bytes": 4096,
+          "sha256": "4d9c256893229bbd9d8f46d4dee1b815e63670c7846698bffb709e0d8d4f31f1",
+          "scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v7/control/bar-arrived.png.music.bin",
+          "bytes": 381460,
+          "sha256": "b9b71e4a73ebb67d40f2d7a3dd9c0419c0fd0eb8006941827682378f3705a353",
+          "scope": "whole immutable file"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v7/control/inputs.jsonl",
+          "bytes": 1988936,
+          "sha256": "ba30d99952d5ba34a9096ecae6ea57a3bed23c113e886bb5465705881459797f",
+          "scope": "recorded byte prefix; live file may grow"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v7/control/commands.txt",
+          "bytes": 9532,
+          "sha256": "8792b600fd1a9a9c34ee49b5e24d213f8da840640d3f5f63fac4709b0075c38f",
+          "scope": "recorded byte prefix; live file may grow"
+        },
+        {
+          "path": "local/research/village-return-v1/native-v7/run.log",
+          "bytes": 33018,
+          "sha256": "3b69d0b29f87ba0207a98006b4ffa6e8cdd68f33b1c37abda6226d118520744a",
+          "scope": "recorded byte prefix; live file may grow"
+        }
+      ]
+    }
+  },
+  "next_story_correction": "Flag47false alone is insufficient for granting15119: FFF(46/1/47/1) takes short branch when both clear. First finish15118 from scene0contact12 to set46; then Ringmastergrantsmap71/flags43/47, then village\u221230/event52.",
+  "rumor_completion": {
+    "scope": "Native earned rumor flag46 through ordinary contact12/15118; all3448 saved payload bytes compared to prior bar arrival, no original interval/parity claim.",
+    "prefix": {
+      "v6_v7_attempts_exact": [
+        1,
+        18980
+      ],
+      "v7_all_ticks_complete": [
+        1,
+        22169
+      ]
+    },
+    "saves_unchanged": {
+      "bkmo2.dat": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84",
+      "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+      "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    },
+    "captures": [
+      {
+        "frame": 19867,
+        "name": "village-rumor-open",
+        "state": {
+          "frames": 19867,
+          "message_id": 15101,
+          "rng_state": 2727938309,
+          "messages_started": 9,
+          "text_progress": 7,
+          "advance_count": 13,
+          "wait_release_frame": 6654,
+          "controller_stage": 9,
+          "unimplemented_service_requests": 4242,
+          "message_flags": 2147483648,
+          "window_type": 0,
+          "scene_brightness": 1,
+          "narration_cues": 124,
+          "progression_flag_2": 0,
+          "progression_flag_3": 0,
+          "kitchen_flag_7": 1,
+          "progression_flag_4": 0,
+          "progression_flag_5": 0,
+          "field_event_running": false,
+          "field_present": true,
+          "game_mode": 2,
+          "game_mode_parent_phase": 0,
+          "game_mode_dead_allocation": false,
+          "game_over_resource_live": false,
+          "game_over_state": 0,
+          "game_over_ticks": 0,
+          "game_over_image_alpha_bits": 0,
+          "field_camera_mode": 2,
+          "interaction_alias": 0,
+          "interaction_event": 0,
+          "loaded_stream_banks": 1,
+          "choice_cursor": 0,
+          "choice_result": 0,
+          "choice_armed": false,
+          "battle_capture_frame": 0,
+          "battle_followers_saved": false,
+          "battle_capture_alpha": 0,
+          "battle_capture_target": 0,
+          "close_frame": 7959,
+          "close_wait_release_frame": 7962
+        },
+        "values": {
+          "story": 3,
+          "flags": {
+            "41": true,
+            "42": true,
+            "43": false,
+            "46": false,
+            "47": false,
+            "71": true
+          },
+          "item71": 0,
+          "item114": 1,
+          "hp": 36,
+          "money": 1011,
+          "bank4_index10": 5
+        },
+        "hero_position": [
+          4.318114757537842,
+          2.498999834060669,
+          -123.09534454345703,
+          1.0
+        ],
+        "changed_payload_bytes_from_bar_arrival": [
+          {
+            "offset": "0x510",
+            "before": 59,
+            "after": 0
+          },
+          {
+            "offset": "0x514",
+            "before": 0,
+            "after": 6
+          },
+          {
+            "offset": "0x520",
+            "before": 151,
+            "after": 165
+          }
+        ]
+      },
+      {
+        "frame": 20048,
+        "name": "village-rumor-dialogue",
+        "state": {
+          "frames": 20048,
+          "message_id": 15118,
+          "rng_state": 3747016983,
+          "messages_started": 10,
+          "text_progress": 0,
+          "advance_count": 0,
+          "wait_release_frame": 6654,
+          "controller_stage": 5,
+          "unimplemented_service_requests": 4244,
+          "message_flags": 0,
+          "window_type": 0,
+          "scene_brightness": 1,
+          "narration_cues": 124,
+          "progression_flag_2": 0,
+          "progression_flag_3": 0,
+          "kitchen_flag_7": 1,
+          "progression_flag_4": 0,
+          "progression_flag_5": 0,
+          "field_event_running": true,
+          "field_present": true,
+          "game_mode": 2,
+          "game_mode_parent_phase": 0,
+          "game_mode_dead_allocation": false,
+          "game_over_resource_live": false,
+          "game_over_state": 0,
+          "game_over_ticks": 0,
+          "game_over_image_alpha_bits": 0,
+          "field_camera_mode": 2,
+          "interaction_alias": 0,
+          "interaction_event": 12,
+          "loaded_stream_banks": 1,
+          "choice_cursor": 0,
+          "choice_result": 0,
+          "choice_armed": false,
+          "battle_capture_frame": 0,
+          "battle_followers_saved": false,
+          "battle_capture_alpha": 0,
+          "battle_capture_target": 0,
+          "close_frame": 7959,
+          "close_wait_release_frame": 7962
+        },
+        "values": {
+          "story": 3,
+          "flags": {
+            "41": true,
+            "42": true,
+            "43": false,
+            "46": false,
+            "47": false,
+            "71": true
+          },
+          "item71": 0,
+          "item114": 1,
+          "hp": 36,
+          "money": 1011,
+          "bank4_index10": 5
+        },
+        "hero_position": [
+          5.300000190734863,
+          2.5,
+          -114.4000015258789,
+          1.0
+        ],
+        "changed_payload_bytes_from_bar_arrival": [
+          {
+            "offset": "0x510",
+            "before": 59,
+            "after": 0
+          },
+          {
+            "offset": "0x514",
+            "before": 0,
+            "after": 6
+          },
+          {
+            "offset": "0x520",
+            "before": 151,
+            "after": 168
+          }
+        ]
+      },
+      {
+        "frame": 22148,
+        "name": "village-rumor-finish",
+        "state": {
+          "frames": 22148,
+          "message_id": 15118,
+          "rng_state": 1077380636,
+          "messages_started": 10,
+          "text_progress": 8,
+          "advance_count": 22,
+          "wait_release_frame": 6654,
+          "controller_stage": 9,
+          "unimplemented_service_requests": 5223,
+          "message_flags": 2147483648,
+          "window_type": 0,
+          "scene_brightness": 1,
+          "narration_cues": 126,
+          "progression_flag_2": 0,
+          "progression_flag_3": 0,
+          "kitchen_flag_7": 1,
+          "progression_flag_4": 0,
+          "progression_flag_5": 0,
+          "field_event_running": false,
+          "field_present": true,
+          "game_mode": 2,
+          "game_mode_parent_phase": 0,
+          "game_mode_dead_allocation": false,
+          "game_over_resource_live": false,
+          "game_over_state": 0,
+          "game_over_ticks": 0,
+          "game_over_image_alpha_bits": 0,
+          "field_camera_mode": 2,
+          "interaction_alias": 0,
+          "interaction_event": 12,
+          "loaded_stream_banks": 1,
+          "choice_cursor": 0,
+          "choice_result": 0,
+          "choice_armed": false,
+          "battle_capture_frame": 0,
+          "battle_followers_saved": false,
+          "battle_capture_alpha": 0,
+          "battle_capture_target": 0,
+          "close_frame": 7959,
+          "close_wait_release_frame": 7962
+        },
+        "values": {
+          "story": 3,
+          "flags": {
+            "41": true,
+            "42": true,
+            "43": false,
+            "46": true,
+            "47": false,
+            "71": true
+          },
+          "item71": 0,
+          "item114": 1,
+          "hp": 36,
+          "money": 1011,
+          "bank4_index10": 6
+        },
+        "hero_position": [
+          5.300000190734863,
+          2.5,
+          -114.4000015258789,
+          1.0
+        ],
+        "changed_payload_bytes_from_bar_arrival": [
+          {
+            "offset": "0x115",
+            "before": 224,
+            "after": 226
+          },
+          {
+            "offset": "0x510",
+            "before": 59,
+            "after": 0
+          },
+          {
+            "offset": "0x514",
+            "before": 0,
+            "after": 6
+          },
+          {
+            "offset": "0x520",
+            "before": 151,
+            "after": 203
+          },
+          {
+            "offset": "0x538",
+            "before": 5,
+            "after": 6
+          }
+        ]
+      },
+      {
+        "frame": 22169,
+        "name": "rumor-controls-restored",
+        "state": {
+          "frames": 22169,
+          "message_id": 15118,
+          "rng_state": 2252545996,
+          "messages_started": 10,
+          "text_progress": 8,
+          "advance_count": 22,
+          "wait_release_frame": 6654,
+          "controller_stage": 9,
+          "unimplemented_service_requests": 5223,
+          "message_flags": 2147483648,
+          "window_type": 0,
+          "scene_brightness": 1,
+          "narration_cues": 126,
+          "progression_flag_2": 0,
+          "progression_flag_3": 0,
+          "kitchen_flag_7": 1,
+          "progression_flag_4": 0,
+          "progression_flag_5": 0,
+          "field_event_running": false,
+          "field_present": true,
+          "game_mode": 2,
+          "game_mode_parent_phase": 0,
+          "game_mode_dead_allocation": false,
+          "game_over_resource_live": false,
+          "game_over_state": 0,
+          "game_over_ticks": 0,
+          "game_over_image_alpha_bits": 0,
+          "field_camera_mode": 2,
+          "interaction_alias": 0,
+          "interaction_event": 12,
+          "loaded_stream_banks": 1,
+          "choice_cursor": 0,
+          "choice_result": 0,
+          "choice_armed": false,
+          "battle_capture_frame": 0,
+          "battle_followers_saved": false,
+          "battle_capture_alpha": 0,
+          "battle_capture_target": 0,
+          "close_frame": 7959,
+          "close_wait_release_frame": 7962
+        },
+        "values": {
+          "story": 3,
+          "flags": {
+            "41": true,
+            "42": true,
+            "43": false,
+            "46": true,
+            "47": false,
+            "71": true
+          },
+          "item71": 0,
+          "item114": 1,
+          "hp": 36,
+          "money": 1011,
+          "bank4_index10": 6
+        },
+        "hero_position": [
+          7.093213081359863,
+          2.498999834060669,
+          -103.5467300415039,
+          1.0
+        ],
+        "changed_payload_bytes_from_bar_arrival": [
+          {
+            "offset": "0x115",
+            "before": 224,
+            "after": 226
+          },
+          {
+            "offset": "0x510",
+            "before": 59,
+            "after": 0
+          },
+          {
+            "offset": "0x514",
+            "before": 0,
+            "after": 6
+          },
+          {
+            "offset": "0x520",
+            "before": 151,
+            "after": 203
+          },
+          {
+            "offset": "0x538",
+            "before": 5,
+            "after": 6
+          }
+        ]
+      }
+    ],
+    "artifacts": [
+      {
+        "path": "local/research/village-return-v1/native-v7/control/bar-arrived.png.variables.bin",
+        "bytes": 4096,
+        "sha256": "4d9c256893229bbd9d8f46d4dee1b815e63670c7846698bffb709e0d8d4f31f1",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/control/village-rumor-open.png",
+        "bytes": 269704,
+        "sha256": "618e2be5f691c90d14c58089257a15740304c178a6c6655154ac52c938c3c4ca",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/control/village-rumor-open.png.json",
+        "bytes": 1091,
+        "sha256": "e1ce5afdfbde2113a73a4c6691f27f19855c2c1a958fae7065c5f90eb73d9430",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/control/village-rumor-open.png.variables.bin",
+        "bytes": 4096,
+        "sha256": "48464b3db390a9b4ff463b95177cf62370974ba4a957343cef469db70341b992",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/control/village-rumor-open.png.actors-state.json",
+        "bytes": 33353,
+        "sha256": "dd7f689fbd852fc5ee5be0b08a7dc6d6319e17110229f1f8c77d973d6c19ad35",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/control/village-rumor-dialogue.png",
+        "bytes": 213197,
+        "sha256": "2ee79569be6238ebfe1e9b5b1f1cc9af0fbe39c1dc1d3c9fd4a7b3e6eb6799d5",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/control/village-rumor-dialogue.png.json",
+        "bytes": 1082,
+        "sha256": "c7afb2c9b7984fa64e94d1ba2c4adff6691525533e28bf5355a9dff2dbbecb51",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/control/village-rumor-dialogue.png.variables.bin",
+        "bytes": 4096,
+        "sha256": "54cea114b199aa5f27c169502d4899d066fd7ff483d7bab1c7a2642f9009aaeb",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/control/village-rumor-dialogue.png.actors-state.json",
+        "bytes": 33379,
+        "sha256": "30a7367f856e1c7a48e22818158b41f5b625709f1625716e5adf4027703018a5",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/control/village-rumor-finish.png",
+        "bytes": 222013,
+        "sha256": "f90f9b0e62f46f45382b5d1f5d8b95abf13edb2f7244511e70ed4f78fd0bb5a9",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/control/village-rumor-finish.png.json",
+        "bytes": 1093,
+        "sha256": "cdb906a07625f56c139018bea14936638031f7043e7da1a321ce262707db5a45",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/control/village-rumor-finish.png.variables.bin",
+        "bytes": 4096,
+        "sha256": "e543a3f190946ea4b2d154c05e18abb47ee2b7e018c509488f17d59f8c42fb9d",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/control/village-rumor-finish.png.actors-state.json",
+        "bytes": 33760,
+        "sha256": "b619a02c384d4949c803bc8839977aa4328667dfca72eb38913a2f15fbb22f6a",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/control/rumor-controls-restored.png",
+        "bytes": 266556,
+        "sha256": "d37ebbb73584291ba0f2ad9b6eaa357b75c9c7183c04fd3f643c826f13c8fb24",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/control/rumor-controls-restored.png.json",
+        "bytes": 1093,
+        "sha256": "90f04711608dcb38255cc3e7a9cffd489e0f118f27a25f19475e4c829a652833",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/control/rumor-controls-restored.png.variables.bin",
+        "bytes": 4096,
+        "sha256": "e543a3f190946ea4b2d154c05e18abb47ee2b7e018c509488f17d59f8c42fb9d",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/control/rumor-controls-restored.png.actors-state.json",
+        "bytes": 34168,
+        "sha256": "a71e89b8672439b485ec3d9d74154d32feab1e414673bf0217b8088faada3eef",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/pending.json",
+        "bytes": 999,
+        "sha256": "6e7056a4cf50eecc10995fded70ed0ec567b5ffce7f188828f89ba3a9fbd35ce",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/historical-input-save/bkmo2.dat",
+        "bytes": 3460,
+        "sha256": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84",
+        "scope": "immutable matching copy of original native input Save; live path replaced by ordinary later Save",
+        "historical_path": "local/research/village-return-v1/native-v7/saves/bkmo2.dat",
+        "preserved_source": "local/research/post-chest-story-v1/native-v5/saves/bkmo2.dat"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/saves/bkmo0.dat",
+        "bytes": 3460,
+        "sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/saves/bkmo1.dat",
+        "bytes": 3460,
+        "sha256": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/control/inputs.jsonl",
+        "bytes": 2199079,
+        "sha256": "b8af5c54859a19bf86a3b86c0cebc739954988335e407e9d5ef84306a1dbb9e1",
+        "scope": "recorded byte prefix; live file may grow"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/control/commands.txt",
+        "bytes": 10701,
+        "sha256": "d1d5a06820d99e4f123dc7e3e9073e8b12956a28a39f3bd42eb7bcfdb0771c56",
+        "scope": "recorded byte prefix; live file may grow"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/run.log",
+        "bytes": 38087,
+        "sha256": "98469d91b427a0c61cb67153cbbdf84ddc466931ee53ce12cea4c5b29d1ec68a",
+        "scope": "recorded byte prefix; live file may grow"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/control/rumor-controls-restored-display.view.png",
+        "bytes": 274822,
+        "sha256": "0edd2e3e068fcac6c0e29dc3027bd88060e7ef516cb78e51603634247170fcc0",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/native-v7/control/village-rumor-finish-display.view.png",
+        "bytes": 228761,
+        "sha256": "ff27d287f27a4a67e79c21a29a865c2128bcaf1c8a510305c44dd8fbe210b5b5",
+        "scope": "whole immutable file"
+      },
+      {
+        "path": "local/research/village-return-v1/rumor-completion-audit.py",
+        "bytes": 3341,
+        "sha256": "33d7654ed287fe3680f8008dead2443897fbbd7e864430ab65509f4bfb03f1bf",
+        "scope": "whole immutable file"
+      }
+    ]
+  },
+  "later_checkpoint": "map-home-validation.json: native76045 exits0 at41921; real Save and cold Restore complete. Earlier capture and byte-prefix evidence remains historical.",
+  "full_v6_input_provenance_supplement": {
+    "path": "local/research/village-return-v1/native-v6/control/inputs.jsonl",
+    "bytes": 1881254,
+    "sha256": "785b8514a40c8388a4a9cf1271009286ad04071196eb812b5a76d7f171b89094"
+  },
+  "historical_save_note": "The immutable rumor audit retains its original save pathname/hash. Later ordinary Save replaced that copied File3. Manifest artifact resolves to a hash-identical preserved input copy, made from the unchanged original healed checkpoint. It is evidence only and not a new runtime input."
 }
