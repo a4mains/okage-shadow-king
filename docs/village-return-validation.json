@@ -1,6 +1,6 @@
 {
   "schema": "okage-village-return-validation-v1",
-  "date": "2024-08-11",
+  "date": "2024-08-18",
   "runtime_commit": "77c430a",
   "runtime_sha256": "8df077dc846a4ec43157323270a0876d1e3906c196311037a8eeb65b5a4cebad",
   "objective_complete": false,
@@ -216,7 +216,7 @@
     },
     "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput."
   },
-  "native_v6_status": "Live session20803 independently queried at17520; celebration complete17499 and normal movement17520; no process exit or post-event Save claim.",
+  "native_v6_status": "Terminal exit1 at attempted18980 on destination59/0 unreviewedmusic43; celebration complete17499, movement17520, ordinary bar contactConfirm18873. No post-event Save; all3savesunchanged.",
   "artifacts": [
     {
       "path": "local/research/village-return-v1/set17-import-v1.json",
@@ -332,6 +332,161 @@
       "path": "local/game-data-stage-v6/.owned-game-data-manifest.json",
       "bytes": 5428967,
       "sha256": "310e1c801e580a7d9598e701e3650b2bd9d59c9ddf107ea762a0062c503acf46"
+    },
+    {
+      "path": "local/research/village-return-v1/village-paired-audit.py",
+      "bytes": 5292,
+      "sha256": "669e9b22009830979d6092cd670cfbccff14193753b92ebf1dafc45667a24fc9"
+    },
+    {
+      "path": "local/research/village-return-v1/village-paired-audit.json",
+      "bytes": 1775340,
+      "sha256": "920f88c8f93f0ccfe69322884ef46ac4dc61de0e54e41a9b52d4cae475240abd"
+    },
+    {
+      "path": "local/research/village-return-v1/village-paired-audit.log",
+      "bytes": 579,
+      "sha256": "687971f18494a193308d51b482ef7a9cd105a7c387463a4145f9b598872c2ce2"
+    },
+    {
+      "path": "local/research/village-return-v1/village-paired-audit-v2.log",
+      "bytes": 1867,
+      "sha256": "43963400129534ed58f906d5345ad4e315c594d748cf5bc870e8c2ed9cb528c0"
+    },
+    {
+      "path": "local/research/village-return-v1/village-audio-boundaries-v1.json",
+      "bytes": 4743,
+      "sha256": "edd5b7f42f65f65117f15be5d8bb68391655ff6eebf118d3911eaec0d0c461c6"
+    },
+    {
+      "path": "local/research/village-return-v1/next-story-review.md",
+      "bytes": 6030,
+      "sha256": "b4c4d9b74f09278d4ce6c88410c496d815aa13af3d821c0b0bd16e4c142d2444"
+    },
+    {
+      "path": "local/research/village-return-v1/music43-review.md",
+      "bytes": 3754,
+      "sha256": "39e5573c5570eeab0721f2ec84b0d8059ec314411193611dd73af0293b6a266c"
+    },
+    {
+      "path": "local/research/village-return-v1/music43-import-v1.json",
+      "bytes": 1132,
+      "sha256": "637396670614ecb96ab89e42219064ab34a47ca85a5f2bab930f6804ce6897f2"
+    },
+    {
+      "path": "local/research/village-return-v1/python-music43-comparator-v1.log",
+      "bytes": 54947,
+      "sha256": "dc092f364b7dacc61b209f2df6ff6a1c2e3407d0cfdb9c68630a16f34efb8623"
+    },
+    {
+      "path": "local/research/village-return-v1/python-observer-caps-v1.log",
+      "bytes": 54796,
+      "sha256": "2205e46390e8606464405c91e511ac762c18ec3c47ec1c70643b3a9f9c9649da"
+    },
+    {
+      "path": "local/research/village-return-v1/oracle-caps-v1.diff",
+      "bytes": 4158,
+      "sha256": "d47c96fbf195f4f0232de9b634dfb6f3427e730ac085197a36e7832203e55d79"
+    },
+    {
+      "path": "local/research/village-return-v1/run-native-v7.py",
+      "bytes": 1550,
+      "sha256": "355910d50f5da75c8aa6b4ec528883f6565238ef0f4a755722d46cdcd69f1c5f"
+    },
+    {
+      "path": "local/research/village-return-v1/replay-through-bar-entry-v1.txt",
+      "bytes": 5845,
+      "sha256": "9992d085009b0750ba1d493d82eff3f45ea2d6ed45f217caad7a628689e65eaa"
+    },
+    {
+      "path": "local/research/village-return-v1/stage-v7.log",
+      "bytes": 269,
+      "sha256": "dd6c32e7c9f871cfe9ee1a5d217d10c2f985f3de4ec5e98766bb1c6269e3ffeb"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v6/run.json",
+      "bytes": 1345,
+      "sha256": "9debbaf47c6b5d4828f85f65ab72abe10198d396d7083590976978e2d386d5a5"
+    },
+    {
+      "path": "local/game-data-stage-v7/.owned-game-data-manifest.json",
+      "bytes": 5429765,
+      "sha256": "511260660e00cc24bb3c4e11c279cd22d1ae2dcfba04dd6734e741b3bef7e1f0"
+    },
+    {
+      "path": "local/research/village-return-v1/music43-dry-release-v1.pcm",
+      "bytes": 38400000,
+      "sha256": "b8c68e8b7cd8f736b0e916b7f0a80dc7840f7b4325bd7877924429d8149f92d2"
+    },
+    {
+      "path": "local/research/village-return-v1/music43-dry-release-v1.log",
+      "bytes": 100,
+      "sha256": "ef0a20e387f78072db3f965277c90b11f3069b7b2ade22ed62913a0a9e911b78"
+    },
+    {
+      "path": "local/research/village-return-v1/music43-build-release.log",
+      "bytes": 5658,
+      "sha256": "8483f28c32b1b119a3f411a95ffc89ca73cb87c499d878fe12395ac5d548c839"
+    },
+    {
+      "path": "local/research/village-return-v1/music43-ctest-release.log",
+      "bytes": 340,
+      "sha256": "b2b8bb92caa69066c0926c4aec40b3caac9bc0810b60958bea047b9bc2b07d0b"
+    },
+    {
+      "path": "build/native-release/okage-assets",
+      "bytes": 1231312,
+      "sha256": "5b7f8a1b8a079468bde96d278bd64a30504c17ba3733ebb63e0c41c42a4de1f7"
+    },
+    {
+      "path": "local/research/village-return-v1/music43-dry-debug-v1.pcm",
+      "bytes": 38400000,
+      "sha256": "b8c68e8b7cd8f736b0e916b7f0a80dc7840f7b4325bd7877924429d8149f92d2"
+    },
+    {
+      "path": "local/research/village-return-v1/music43-dry-debug-v1.log",
+      "bytes": 100,
+      "sha256": "ef0a20e387f78072db3f965277c90b11f3069b7b2ade22ed62913a0a9e911b78"
+    },
+    {
+      "path": "local/research/village-return-v1/music43-build-debug.log",
+      "bytes": 5658,
+      "sha256": "a388754b7d28867c0a9457e88d70a35800490c652e239070892b8d1c1740c6a1"
+    },
+    {
+      "path": "local/research/village-return-v1/music43-ctest-debug.log",
+      "bytes": 324,
+      "sha256": "2a1ecb05fb30befdd358358a4f9db82a6d3538ad53705b022e0c6320c50abf51"
+    },
+    {
+      "path": "build/native/okage-assets",
+      "bytes": 4880832,
+      "sha256": "b6928920815d3d55fb4afd685ac0eb9ed31f0cd75bdc35d2b74d80bc562c74fa"
+    },
+    {
+      "path": "local/research/village-return-v1/music43-dry-sanitize-v1.pcm",
+      "bytes": 38400000,
+      "sha256": "b8c68e8b7cd8f736b0e916b7f0a80dc7840f7b4325bd7877924429d8149f92d2"
+    },
+    {
+      "path": "local/research/village-return-v1/music43-dry-sanitize-v1.log",
+      "bytes": 100,
+      "sha256": "ef0a20e387f78072db3f965277c90b11f3069b7b2ade22ed62913a0a9e911b78"
+    },
+    {
+      "path": "local/research/village-return-v1/music43-build-sanitize.log",
+      "bytes": 5658,
+      "sha256": "5865fc7e5d00b44fd2fe227b85c3c67165c18d4e85ce5bd737dc7ad0adcd02cd"
+    },
+    {
+      "path": "local/research/village-return-v1/music43-ctest-sanitize.log",
+      "bytes": 340,
+      "sha256": "6eff7641da05207cbc78e93a756162934e051a9272a00dcfb16854fe15b38ea1"
+    },
+    {
+      "path": "build/model-sanitize/okage-assets",
+      "bytes": 15646128,
+      "sha256": "5982ff5b1231d4a49d8f09abaf0689721c648cdc85e048aba2e0a15370eca7e8"
     }
   ],
   "native_completion_audit": {
@@ -737,7 +892,7 @@
       ]
     }
   },
-  "original_comparison_status": "The field_shadow_roster review pass is still running, source1\u2192native9259; immutable cap-only research oracle fed8db17b1e4a70ec18ec252fda11f6cac66c053a4e697ce70b9f99b050ab4fb. No result yet.",
+  "original_comparison_status": "Full8262 fixed-anchor interval audited; failure retained. Comparatorb1062d3 reports controller-manager pad mismatch as observable rather than aborting.",
   "numbered_sound_import": {
     "run_commits": [
       "52cede8",
@@ -754,5 +909,1014 @@
     "stage_v5": "Created after failed import; lacks bulk bank additions and retained as unused negative.",
     "tests": "515 Python tests, exit0; parent log retained.",
     "scope": "Exact owned numberedRXWS bytes; does not imply all cues/codecs/runtime paths supported."
+  },
+  "native_v6_run": {
+    "command": [
+      "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+      "--game-data",
+      "local/game-data-stage-v4",
+      "--save-directory",
+      "local/research/village-return-v1/native-v6/saves",
+      "--frames",
+      "1200",
+      "--buttons",
+      "local/research/village-return-v1/native-v6/buttons.txt",
+      "--capture",
+      "local/research/village-return-v1/native-v6/prelude.png",
+      "--headless-control",
+      "local/research/village-return-v1/native-v6/control"
+    ],
+    "binary_sha256": "8df077dc846a4ec43157323270a0876d1e3906c196311037a8eeb65b5a4cebad",
+    "saves_before": {
+      "bkmo2.dat": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84",
+      "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+      "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    },
+    "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+    "exit_code": 1,
+    "seconds_including_control_waits": 1476.726369,
+    "saves_after": {
+      "bkmo2.dat": "f15db3132b944de811252c84d4185e9d9df8a5c922e76d02ab742ac033bf1e84",
+      "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+      "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    }
+  },
+  "paired_comparison": {
+    "scope": [
+      "Whole source1..8262/native9259..17520 fixed+9258. No fitted alignment or cropped failing interval. Source raw0 retained but pre-anchor.",
+      "Unmodified state comparator. Source managers precede update and comparator uses preceding completed native tick where specified. Missing observations explicitly retained.",
+      "Initial sourceHP2/nativeHP36 and prior spatial/RNG/audio histories differ. Integer/state comparison is not universal equivalence. Unblended camera target, other actor/RNG channels unsupported by this comparator.",
+      "Original image OnNewFrame is before EE update; native capture after completed tick. Exact declared frame numbers; no adjacent-frame fitting. Region covers entire game surface; lower diagnostic text panel excluded because it is not a game framebuffer.",
+      "Audio retained, separate boundary extraction pending; no PCM parity claim."
+    ],
+    "mapping": {
+      "source": [
+        1,
+        8262
+      ],
+      "native": [
+        9259,
+        17520
+      ],
+      "offset": 9258,
+      "requested_original_vblanks": 8263
+    },
+    "difference_summary": {
+      "controller": {
+        "count": 7104,
+        "first_source": 380,
+        "first_native": 9638
+      },
+      "choice": {
+        "count": 7103,
+        "first_source": 380,
+        "first_native": 9638
+      },
+      "controller_manager_pad_gate": {
+        "count": 28,
+        "first_source": 722,
+        "first_native": 9980
+      },
+      "manager_running_pc_gate": {
+        "count": 5135,
+        "first_source": 7,
+        "first_native": 9265
+      },
+      "pad_latch": {
+        "count": 28,
+        "first_source": 722,
+        "first_native": 9980
+      },
+      "direction_latch": {
+        "count": 0,
+        "first_source": null,
+        "first_native": null
+      },
+      "player_mask": {
+        "count": 56,
+        "first_source": 8207,
+        "first_native": 17465
+      },
+      "hero_facing_w": {
+        "count": 706,
+        "first_source": 195,
+        "first_native": 9453
+      },
+      "hero_position": {
+        "count": 1895,
+        "first_source": 195,
+        "first_native": 9453
+      },
+      "camera_rotation": {
+        "count": 2855,
+        "first_source": 4,
+        "first_native": 9262
+      },
+      "camera_mode_phase": {
+        "count": 1945,
+        "first_source": 7,
+        "first_native": 9265
+      },
+      "camera_position": {
+        "count": 2856,
+        "first_source": 4,
+        "first_native": 9262
+      },
+      "camera_unblended_target": {
+        "count": 0,
+        "first_source": null,
+        "first_native": null
+      }
+    },
+    "input": {
+      "all8262_attempts_and_completions_present": true,
+      "held_pressed_differences": []
+    },
+    "images": [
+      {
+        "source_frame": 6601,
+        "native_frame": 15859,
+        "source": {
+          "path": "local/research/village-return-v1/original-village-paired-v1/image.frames/vblank-006601.layer0.png",
+          "bytes": 308183,
+          "sha256": "c7c5955ce87d11d947a6d7703436402168a3f8e71d2913b1db9b42e72548c37b",
+          "scope": "whole immutable file"
+        },
+        "native": {
+          "path": "local/research/village-return-v1/native-v6/control/after-set17.png",
+          "bytes": 257160,
+          "sha256": "24ec27172ce1a56402b0f55c561a17def92c7e0857416716f36db53dd24e490c",
+          "scope": "whole immutable file"
+        },
+        "native_full_extent": [
+          640,
+          448
+        ],
+        "compared_region": [
+          0,
+          0,
+          640,
+          224
+        ],
+        "metrics": {
+          "width": 640,
+          "height": 224,
+          "exact_different_pixel_count": 143360,
+          "rgb_mae": 52.02723911830357,
+          "rgb_max_absolute_difference": 254,
+          "alpha_different_pixel_count": 143360,
+          "alpha_mae": 191.0,
+          "alpha_max_absolute_difference": 191,
+          "rgb_different_pixel_count": 143113,
+          "original_alpha_values": [
+            255
+          ],
+          "native_alpha_values": [
+            64
+          ]
+        }
+      },
+      {
+        "source_frame": 8241,
+        "native_frame": 17499,
+        "source": {
+          "path": "local/research/village-return-v1/original-village-paired-v1/image.frames/vblank-008241.layer0.png",
+          "bytes": 233442,
+          "sha256": "d47a133cef74b3d3c22c278c0732f3c8e42dcd2d661284684ad1244a52d49e56",
+          "scope": "whole immutable file"
+        },
+        "native": {
+          "path": "local/research/village-return-v1/native-v6/control/village-complete.png",
+          "bytes": 279991,
+          "sha256": "454933b680099ad0b4b0c56866356f0a3bc7729674a06fa46ea6148de66b5b61",
+          "scope": "whole immutable file"
+        },
+        "native_full_extent": [
+          640,
+          448
+        ],
+        "compared_region": [
+          0,
+          0,
+          640,
+          224
+        ],
+        "metrics": {
+          "width": 640,
+          "height": 224,
+          "exact_different_pixel_count": 143359,
+          "rgb_mae": 66.186181640625,
+          "rgb_max_absolute_difference": 254,
+          "alpha_different_pixel_count": 0,
+          "alpha_mae": 0.0,
+          "alpha_max_absolute_difference": 0,
+          "rgb_different_pixel_count": 143359,
+          "original_alpha_values": [
+            255
+          ],
+          "native_alpha_values": [
+            255
+          ]
+        }
+      },
+      {
+        "source_frame": 8262,
+        "native_frame": 17520,
+        "source": {
+          "path": "local/research/village-return-v1/original-village-paired-v1/image.frames/vblank-008262.layer0.png",
+          "bytes": 232492,
+          "sha256": "197249dd161a5cba38fd3ea10743ff2e97f616522fa70a5658bea92d71a48bfe",
+          "scope": "whole immutable file"
+        },
+        "native": {
+          "path": "local/research/village-return-v1/native-v6/control/village-moving.png",
+          "bytes": 276012,
+          "sha256": "5004bc82fd37344dfb7d6c2a8151b06be01135f4d48075a261e39502463bcf72",
+          "scope": "whole immutable file"
+        },
+        "native_full_extent": [
+          640,
+          448
+        ],
+        "compared_region": [
+          0,
+          0,
+          640,
+          224
+        ],
+        "metrics": {
+          "width": 640,
+          "height": 224,
+          "exact_different_pixel_count": 143360,
+          "rgb_mae": 68.76031901041667,
+          "rgb_max_absolute_difference": 255,
+          "alpha_different_pixel_count": 0,
+          "alpha_mae": 0.0,
+          "alpha_max_absolute_difference": 0,
+          "rgb_different_pixel_count": 143360,
+          "original_alpha_values": [
+            255
+          ],
+          "native_alpha_values": [
+            255
+          ]
+        }
+      }
+    ],
+    "report_path": "local/research/village-return-v1/village-paired-audit.json",
+    "original_coverage": {
+      "manager": {
+        "expected_frames": 8262,
+        "observed_frames": 8256
+      },
+      "camera": {
+        "expected_frames": 8262,
+        "observed_frames": 8256
+      },
+      "player": {
+        "expected_frames": 8262,
+        "observed_frames": 7867
+      }
+    },
+    "native_missing": {
+      "manager": [],
+      "movement": [],
+      "dialogue": [],
+      "choice": [],
+      "camera": [],
+      "camera-state": [],
+      "actor": []
+    },
+    "original_execution": {
+      "scope": "Complete8263-VBlank original execution with source callback labels0..8262; compare requested1..8262 to native9259..17520 by predeclared offset9258.",
+      "run": {
+        "exit_code": 0,
+        "seconds": 530.1970210410001,
+        "run_sha256": "46853efa60b967e9b173c6d2811d2e381a5b97dde3c92c3cce16ce725ec33d5e",
+        "binary_sha256": "fed8db17b1e4a70ec18ec252fda11f6cac66c053a4e697ce70b9f99b050ab4fb",
+        "endpoint_sha256": "752e3ccb434c69207c86268a87c2665d01e24558a85ddcf579aa716eb6363dc7"
+      },
+      "build": {
+        "cap_commit": "f72b932",
+        "result": "/Users/user/src/okage-shadow-king/local/worktrees/village-oracle-caps-v1/local/oracle-build/build-result.json",
+        "result_sha256": "31fdd02c8d55fb28a4be3a105bed5844569fbfeb297644d6d151635046a9b240",
+        "compile_link_exits": [
+          0,
+          0
+        ],
+        "seconds": 2.011170167,
+        "python_tests": 504,
+        "python_exit_code": 0,
+        "python_log_sha256": "06edb03c30e0087c0eb107860457514b73d3760cbc168a0d41a66e96632ea403",
+        "pinned_old_oracle_sha256": "b23638e133f0ba6e783b616fae6cc1376ba756774eb1fe815ddc09700523b8ac",
+        "cap_diff_sha256": "d47c96fbf195f4f0232de9b634dfb6f3427e730ac085197a36e7832203e55d79"
+      },
+      "input": {
+        "evidence_sha256": "529842cb85c0c1573d117a41ad2526916ca7d076503c94a7dbde472a0d7ef604",
+        "pad_sha256": "08d04437ca6f32df84467b5daf7b0b9e52d398b9b4209930b8cb100549486b8a",
+        "edge_count": 120,
+        "logged_changed_frames": 120,
+        "all_edge_masks_exact": true
+      },
+      "captures": [
+        {
+          "source_capture_vblank": 1,
+          "native_index_by_predeclared_offset": 9259,
+          "sha256": "fb8f438213e2f82ea6b54b7cf4de9cdff0a0dbd997d971e65af18e05c7a5a758",
+          "bytes": 181671
+        },
+        {
+          "source_capture_vblank": 6601,
+          "native_index_by_predeclared_offset": 15859,
+          "sha256": "c7c5955ce87d11d947a6d7703436402168a3f8e71d2913b1db9b42e72548c37b",
+          "bytes": 308183
+        },
+        {
+          "source_capture_vblank": 7821,
+          "native_index_by_predeclared_offset": 17079,
+          "sha256": "a8c67156aa5cae608f4fd818f6cf825abf63fde2adad6cf8fb17a5584d57b08a",
+          "bytes": 233961
+        },
+        {
+          "source_capture_vblank": 8241,
+          "native_index_by_predeclared_offset": 17499,
+          "sha256": "d47a133cef74b3d3c22c278c0732f3c8e42dcd2d661284684ad1244a52d49e56",
+          "bytes": 233442
+        },
+        {
+          "source_capture_vblank": 8262,
+          "native_index_by_predeclared_offset": 17520,
+          "sha256": "197249dd161a5cba38fd3ea10743ff2e97f616522fa70a5658bea92d71a48bfe",
+          "bytes": 232492
+        },
+        {
+          "source_capture_vblank": 8263,
+          "native_index_by_predeclared_offset": null,
+          "sha256": "1b77e17b27fd90b7a679707d6e4607324d55d3f44787a9d23a7222e8294ed30a",
+          "bytes": 231563
+        }
+      ],
+      "coverage": {
+        "transition.bin": {
+          "bytes": 4861440,
+          "row_bytes": 512,
+          "rows": 9495,
+          "sha256": "142b5c39ee4bf8fbf21b0c2e344e39258989ee5fb7fecca5e2b78bf49758fb3c",
+          "by_pc": {
+            "0x101118": {
+              "rows": 1224,
+              "first": 0,
+              "last": 7813,
+              "raw_zero_rows": 1,
+              "unique_requested_frames": 1223,
+              "missing_requested_intervals": [
+                [
+                  5,
+                  2023
+                ],
+                [
+                  2105,
+                  4746
+                ],
+                [
+                  5287,
+                  5526
+                ],
+                [
+                  6044,
+                  7731
+                ],
+                [
+                  7733,
+                  7733
+                ],
+                [
+                  7814,
+                  8262
+                ]
+              ]
+            },
+            "0x124930": {
+              "rows": 2,
+              "first": 4,
+              "last": 7563,
+              "raw_zero_rows": 0,
+              "unique_requested_frames": 2,
+              "missing_requested_intervals": [
+                [
+                  1,
+                  3
+                ],
+                [
+                  5,
+                  7562
+                ],
+                [
+                  7564,
+                  8262
+                ]
+              ]
+            },
+            "0x1305e0": {
+              "rows": 2,
+              "first": 1,
+              "last": 7560,
+              "raw_zero_rows": 0,
+              "unique_requested_frames": 2,
+              "missing_requested_intervals": [
+                [
+                  2,
+                  7559
+                ],
+                [
+                  7561,
+                  8262
+                ]
+              ]
+            },
+            "0x131d28": {
+              "rows": 2,
+              "first": 7,
+              "last": 7566,
+              "raw_zero_rows": 0,
+              "unique_requested_frames": 2,
+              "missing_requested_intervals": [
+                [
+                  1,
+                  6
+                ],
+                [
+                  8,
+                  7565
+                ],
+                [
+                  7567,
+                  8262
+                ]
+              ]
+            },
+            "0x133a98": {
+              "rows": 8257,
+              "first": 0,
+              "last": 8262,
+              "raw_zero_rows": 1,
+              "unique_requested_frames": 8256,
+              "missing_requested_intervals": [
+                [
+                  5,
+                  6
+                ],
+                [
+                  194,
+                  194
+                ],
+                [
+                  7564,
+                  7565
+                ],
+                [
+                  7733,
+                  7733
+                ]
+              ]
+            },
+            "0x134c18": {
+              "rows": 5,
+              "first": 0,
+              "last": 4,
+              "raw_zero_rows": 1,
+              "unique_requested_frames": 4,
+              "missing_requested_intervals": [
+                [
+                  5,
+                  8262
+                ]
+              ]
+            },
+            "0x1bb7e0": {
+              "rows": 3,
+              "first": 1,
+              "last": 7732,
+              "raw_zero_rows": 0,
+              "unique_requested_frames": 3,
+              "missing_requested_intervals": [
+                [
+                  2,
+                  192
+                ],
+                [
+                  194,
+                  7731
+                ],
+                [
+                  7733,
+                  8262
+                ]
+              ]
+            }
+          }
+        },
+        "camera.bin": {
+          "bytes": 1056896,
+          "row_bytes": 128,
+          "rows": 8257,
+          "sha256": "52d367074c8548e3dddcdbe512cdedf2ac0010bb1b9220c803d7c25088ddfef9",
+          "by_pc": {
+            "0x1b9c74": {
+              "rows": 8257,
+              "first": 0,
+              "last": 8262,
+              "raw_zero_rows": 1,
+              "unique_requested_frames": 8256,
+              "missing_requested_intervals": [
+                [
+                  5,
+                  6
+                ],
+                [
+                  194,
+                  194
+                ],
+                [
+                  7564,
+                  7565
+                ],
+                [
+                  7733,
+                  7733
+                ]
+              ]
+            }
+          }
+        },
+        "controller.bin": {
+          "bytes": 3637248,
+          "row_bytes": 256,
+          "rows": 14208,
+          "sha256": "eb6f3e3bc7255d9948fef06e620a4daa37010b8c172c6ada470d2ef80398626c",
+          "by_pc": {
+            "0x11ff38": {
+              "rows": 7104,
+              "first": 380,
+              "last": 8262,
+              "raw_zero_rows": 0,
+              "unique_requested_frames": 7104,
+              "missing_requested_intervals": [
+                [
+                  1,
+                  379
+                ],
+                [
+                  1122,
+                  1170
+                ],
+                [
+                  2022,
+                  2247
+                ],
+                [
+                  4063,
+                  4298
+                ],
+                [
+                  6042,
+                  6043
+                ],
+                [
+                  7122,
+                  7161
+                ],
+                [
+                  7507,
+                  7731
+                ],
+                [
+                  7733,
+                  7733
+                ]
+              ]
+            },
+            "0x148dc8": {
+              "rows": 7104,
+              "first": 380,
+              "last": 8262,
+              "raw_zero_rows": 0,
+              "unique_requested_frames": 7104,
+              "missing_requested_intervals": [
+                [
+                  1,
+                  379
+                ],
+                [
+                  1122,
+                  1170
+                ],
+                [
+                  2022,
+                  2247
+                ],
+                [
+                  4063,
+                  4298
+                ],
+                [
+                  6042,
+                  6043
+                ],
+                [
+                  7122,
+                  7161
+                ],
+                [
+                  7507,
+                  7731
+                ],
+                [
+                  7733,
+                  7733
+                ]
+              ]
+            }
+          }
+        },
+        "controller.bin.choices.bin": {
+          "bytes": 909312,
+          "row_bytes": 64,
+          "rows": 14208,
+          "sha256": "9ef7f93766f7916e192202a6a21bf407127dabada55bd776af6356865c12b763",
+          "by_pc": {
+            "0x11ff38": {
+              "rows": 7104,
+              "first": 380,
+              "last": 8262,
+              "raw_zero_rows": 0,
+              "unique_requested_frames": 7104,
+              "missing_requested_intervals": [
+                [
+                  1,
+                  379
+                ],
+                [
+                  1122,
+                  1170
+                ],
+                [
+                  2022,
+                  2247
+                ],
+                [
+                  4063,
+                  4298
+                ],
+                [
+                  6042,
+                  6043
+                ],
+                [
+                  7122,
+                  7161
+                ],
+                [
+                  7507,
+                  7731
+                ],
+                [
+                  7733,
+                  7733
+                ]
+              ]
+            },
+            "0x148dc8": {
+              "rows": 7104,
+              "first": 380,
+              "last": 8262,
+              "raw_zero_rows": 0,
+              "unique_requested_frames": 7104,
+              "missing_requested_intervals": [
+                [
+                  1,
+                  379
+                ],
+                [
+                  1122,
+                  1170
+                ],
+                [
+                  2022,
+                  2247
+                ],
+                [
+                  4063,
+                  4298
+                ],
+                [
+                  6042,
+                  6043
+                ],
+                [
+                  7122,
+                  7161
+                ],
+                [
+                  7507,
+                  7731
+                ],
+                [
+                  7733,
+                  7733
+                ]
+              ]
+            }
+          }
+        },
+        "mode.jsonl": {
+          "rows": 8269,
+          "first": 0,
+          "last": 8262,
+          "sha256": "d1b20787a1b4d376406065c5c22c2d32add803d0e7722e7ce5556a50cdda95f8",
+          "by_pc_counts": {
+            "0x00124818": 8261,
+            "0x00101058": 2,
+            "0x001354b8": 2,
+            "0x00133a38": 2,
+            "0x0012e018": 2
+          }
+        },
+        "events": {
+          "rows": 24276,
+          "last": "24275\t8262\t0\t4881c0\t0\t0\t2d40\t50000a\t130458",
+          "sha256": "49ff08c6d18f342bf964795030612d45f14922dcb96609d75a39c32ae807413a"
+        }
+      },
+      "endpoint": {
+        "snapshot": "/Users/user/src/okage-shadow-king/local/research/village-return-v1/original-village-paired-v1/endpoint.state.zip",
+        "sha256": "752e3ccb434c69207c86268a87c2665d01e24558a85ddcf579aa716eb6363dc7",
+        "scene": 0,
+        "manager_mode": 5,
+        "hero": [
+          10.8273286819458,
+          -37.0,
+          245.56106567382812,
+          1.0
+        ],
+        "camera_yaw": 0.17169189453125,
+        "item114": 1,
+        "flag40": true,
+        "flag41": true,
+        "story": 3,
+        "hp": 2,
+        "flags": {
+          "40": true,
+          "41": true,
+          "42": false,
+          "71": false
+        },
+        "context_flags": 257,
+        "context_active": true,
+        "context_pc_offset": 11584,
+        "variables_3448_sha256": "30466d5d6aa25776302e361ade91d2c2ad227a46268c7ccc9b1a874ea342f314"
+      },
+      "limits": [
+        "Native endpoint completed the event; original endpoint remains manager5/context active at script offset2d40. Retain this timing/choice divergence; no additional Confirm performed.",
+        "Original HP2 versus native36 and prior scene/input/mix histories differ.",
+        "Raw callback label0 is retained separately; screenshot VBlank naming follows existing boot capture convention, not a new state-alignment claim.",
+        "Audio retained with6070500 stereo sample frames at44100Hz; no audio equivalence claim.",
+        "Actual scene0 endpoint screenshot shows Stan dialogue: They even laugh at me! I am so humiliated!",
+        "No full state/image comparison performed in this execution report."
+      ],
+      "audit_sha256": "74281aebd2784e5892f0e9cc36e8be6c90df9d569f5807f92f5ee101ce65bb11"
+    }
+  },
+  "audio_boundaries": {
+    "schema_version": 1,
+    "status": "captured_unpaired_duration_mismatch",
+    "scope": "Source-boundary PCM extraction and per-channel descriptive statistics only.",
+    "alignment": {
+      "temporal_alignment_proven": false,
+      "sample_to_vblank_alignment_proven": false,
+      "waveform_alignment_performed": false,
+      "resampling_performed": false,
+      "padding_performed": false,
+      "trimming_performed": false,
+      "waveform_equivalence_asserted": false,
+      "duration_mismatch": true,
+      "original_duration_seconds": 137.6530612244898,
+      "native_duration_seconds": 137.7,
+      "duration_difference_seconds": 0.04693877551020408,
+      "duration_difference_rational_seconds": {
+        "numerator": 23,
+        "denominator": 490
+      },
+      "segment_frame_count_difference": 539100,
+      "segment_frame_count_difference_unit": "sample frames; not a duration"
+    },
+    "original_boundary": {
+      "index": "local/research/village-return-v1/original-village-paired-v1/audio-index.json",
+      "index_sha256": "f37c1926d5360dec4a9ae0f1d4c811d210449641d24de60d0243553879d58587",
+      "index_boundary": "OnNewFrame after GS SetVBlank and PadHandler Update, before this iteration's EE/IOP update",
+      "start_vblank": 1,
+      "start_sample_frame": 0,
+      "end_boundary": "vblank_start_8263",
+      "end_sample_frame_exclusive": 6070500,
+      "total_sample_frames": 6070500,
+      "post_stop_endpoint_used": false
+    },
+    "native_boundary": {
+      "scope": "explicit_fixed_tick_sample_rate_arithmetic",
+      "frame_index_boundary": null,
+      "start_tick": 9259,
+      "start_label": "fixed_tick_interval_start_9259",
+      "start_sample_frame": 7406400,
+      "end_tick": 17520,
+      "end_label": "fixed_tick_interval_end_17520",
+      "end_sample_frame_exclusive": 14016000,
+      "total_sample_frames": 14016000
+    },
+    "sources": {
+      "original_wav": {
+        "path": "local/research/village-return-v1/original-village-paired-v1/audio.wav",
+        "sha256": "6f8b093ae1c52ebe04de66af61cb1d1822fd40f8316ad8fa3a4ce483b1fa50e6",
+        "sample_rate_hz": 44100,
+        "total_sample_frames": 6070500,
+        "segment_frames": 6070500,
+        "statistics": {
+          "left": {
+            "peak_abs": 32768,
+            "rms": 8573.181341026448,
+            "nonzero_samples": 5844386,
+            "sample_frames": 6070500
+          },
+          "right": {
+            "peak_abs": 32768,
+            "rms": 7480.760162346385,
+            "nonzero_samples": 5844843,
+            "sample_frames": 6070500
+          }
+        }
+      },
+      "native_pcm": {
+        "path": "local/research/village-return-v1/native-v6/control/village-moving.png.audio.pcm",
+        "sha256": "8f2c1656dcbd15ff5e75f06dd0d4cff74cf4b1b4f4823ef377329d54e86e284e",
+        "sample_rate_hz": 48000,
+        "total_sample_frames": 14016000,
+        "segment_frames": 6609600,
+        "statistics": {
+          "left": {
+            "peak_abs": 32768,
+            "rms": 7796.28284531879,
+            "nonzero_samples": 6284721,
+            "sample_frames": 6609600
+          },
+          "right": {
+            "peak_abs": 32768,
+            "rms": 6897.708519294249,
+            "nonzero_samples": 6284769,
+            "sample_frames": 6609600
+          }
+        }
+      },
+      "manifests": {
+        "native_audio": {
+          "path": "local/research/village-return-v1/native-v6/control/village-moving.png.audio.json",
+          "sha256": "437d0d403cb96f895911aed95257667008cce95be61fbf5ee7397a2de80209db"
+        }
+      }
+    },
+    "segments": {
+      "original": {
+        "path": "local/research/village-return-v1/village-audio-boundaries-v1.original.wav",
+        "sample_rate_hz": 44100,
+        "sample_frames": 6070500,
+        "sha256": "6f8b093ae1c52ebe04de66af61cb1d1822fd40f8316ad8fa3a4ce483b1fa50e6",
+        "statistics": {
+          "left": {
+            "peak_abs": 32768,
+            "rms": 8573.181341026448,
+            "nonzero_samples": 5844386,
+            "sample_frames": 6070500
+          },
+          "right": {
+            "peak_abs": 32768,
+            "rms": 7480.760162346385,
+            "nonzero_samples": 5844843,
+            "sample_frames": 6070500
+          }
+        }
+      },
+      "native": {
+        "path": "local/research/village-return-v1/village-audio-boundaries-v1.native.wav",
+        "sample_rate_hz": 48000,
+        "sample_frames": 6609600,
+        "sha256": "3cd79c0d74949e709b7f7dd8886bd994ec6e116f4af1283217f1d59cac435ad5",
+        "statistics": {
+          "left": {
+            "peak_abs": 32768,
+            "rms": 7796.28284531879,
+            "nonzero_samples": 6284721,
+            "sample_frames": 6609600
+          },
+          "right": {
+            "peak_abs": 32768,
+            "rms": 6897.708519294249,
+            "nonzero_samples": 6284769,
+            "sample_frames": 6609600
+          }
+        }
+      }
+    }
+  },
+  "music43": {
+    "mapping": "EVN_APT ordinary class1, primaryEVN_APT0, optionalEVN_APT1 present, no alternateXSQ",
+    "import": {
+      "scope": "Import reviewed ordinary music resources from the owned USA disc.",
+      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+      "music_id": 43,
+      "table_address": 2078344,
+      "name_pointer": 2259600,
+      "class_pointer": 2259792,
+      "sequence": "EVN_APT",
+      "primary_bank": "EVN_APT0",
+      "secondary_bank_present": true,
+      "imported": [
+        {
+          "path": "local/audio-input/SNDDATA/BGM/EVN_APT.XSQ",
+          "lba": 186810,
+          "size": 8040,
+          "sha256": "1597f13da214b539272931ccd4b52619d77b284846e5cb300531276f7fbdf0bb"
+        },
+        {
+          "path": "local/audio-input/SNDDATA/BGM/EVN_APT0.XV",
+          "lba": 186814,
+          "size": 143376,
+          "sha256": "bc95d27745d615b9e7daf580b35386ccd955f9dab4dc59e1706dac0f7605fdb1"
+        },
+        {
+          "path": "local/audio-input/SNDDATA/BGM/EVN_APT1.XV",
+          "lba": 186885,
+          "size": 336880,
+          "sha256": "3eedd2298273a15ac0c31e1587b359fb0e88179fb62f5760ce23117287ff9f62"
+        }
+      ]
+    },
+    "runtime_sha256": "db88d3a9ad1999f924914c1f0b86a845a561f73ea0c56fc8ccc2ec910ab81b3f",
+    "native_v7": "live76045 replay running, stagev7, no endpoint claim yet",
+    "scope": "Register verified resource43; existing loader/synth semantics.",
+    "dry_checks": [
+      {
+        "build": "release",
+        "command": [
+          "build/native-release/okage-assets",
+          "music-dry",
+          "local/audio-input/SNDDATA/BGM/EVN_APT.XSQ",
+          "local/audio-input/SNDDATA/BGM/EVN_APT0.XV",
+          "12000",
+          "local/research/village-return-v1/music43-dry-release-v1.pcm",
+          "local/audio-input/SNDDATA/BGM/EVN_APT1.XV"
+        ],
+        "exit_code": 0,
+        "driver_ticks": 12000,
+        "peak_voices": 24,
+        "stolen": 0,
+        "sample_loops": 42958,
+        "pcm_sha256": "b8c68e8b7cd8f736b0e916b7f0a80dc7840f7b4325bd7877924429d8149f92d2"
+      },
+      {
+        "build": "debug",
+        "command": [
+          "build/native/okage-assets",
+          "music-dry",
+          "local/audio-input/SNDDATA/BGM/EVN_APT.XSQ",
+          "local/audio-input/SNDDATA/BGM/EVN_APT0.XV",
+          "12000",
+          "local/research/village-return-v1/music43-dry-debug-v1.pcm",
+          "local/audio-input/SNDDATA/BGM/EVN_APT1.XV"
+        ],
+        "exit_code": 0,
+        "driver_ticks": 12000,
+        "peak_voices": 24,
+        "stolen": 0,
+        "sample_loops": 42958,
+        "pcm_sha256": "b8c68e8b7cd8f736b0e916b7f0a80dc7840f7b4325bd7877924429d8149f92d2"
+      },
+      {
+        "build": "sanitize",
+        "command": [
+          "build/model-sanitize/okage-assets",
+          "music-dry",
+          "local/audio-input/SNDDATA/BGM/EVN_APT.XSQ",
+          "local/audio-input/SNDDATA/BGM/EVN_APT0.XV",
+          "12000",
+          "local/research/village-return-v1/music43-dry-sanitize-v1.pcm",
+          "local/audio-input/SNDDATA/BGM/EVN_APT1.XV"
+        ],
+        "exit_code": 0,
+        "driver_ticks": 12000,
+        "peak_voices": 24,
+        "stolen": 0,
+        "sample_loops": 42958,
+        "pcm_sha256": "b8c68e8b7cd8f736b0e916b7f0a80dc7840f7b4325bd7877924429d8149f92d2"
+      }
+    ],
+    "tests": "All3music CTests pass;516Python tests pass after music importer and comparator integration."
   }
 }
