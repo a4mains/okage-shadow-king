@@ -593,7 +593,7 @@ int main(int argc,char** argv) {
                     throw std::runtime_error(error.str());
                 }
                 const auto traceLimit=nameEntryTrace ? NameEntryTrace::maxRows+200000u : battleLiveTrace ? BattleLiveTrace::maxRows+200000u : !uiDraw.empty() ? UiLayoutTrace::maxDrawEvents+1024u :
-                    (battleConstructionTrace ? BattleConstructionTrace::maxRngCalls+200000u : (rngTrace ? RngTrace::maxRows+10000u : (eventTrace||loaderWindowsTrace||gameModeTrace ? 200000u : 10000u)));
+                    (battleConstructionTrace ? BattleConstructionTrace::maxRngCalls+200000u : (rngTrace ? RngTrace::maxRows+10000u : (eventTrace||loaderWindowsTrace||gameModeTrace ? 400000u : 10000u)));
                 if (++tracedCalls>traceLimit) throw std::runtime_error("Reference trace limit exceeded");
                 if(nameEntryTrace&&std::find(NameEntryTrace::breakpoints.begin(),NameEntryTrace::breakpoints.end(),pc)!=NameEntryTrace::breakpoints.end()) {
                     nameEntryTrace->observe(*vm.m_ee,frames);vm.Resume();continue;
