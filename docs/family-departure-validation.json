@@ -1,0 +1,1445 @@
+{
+  "schema": "okage-family-departure-validation-v1",
+  "acceptance_met": false,
+  "runtime_revision": "ffb9d77",
+  "research_change": "17402f4",
+  "runtime_sha256": "db88d3a9ad1999f924914c1f0b86a845a561f73ea0c56fc8ccc2ec910ab81b3f",
+  "native": {
+    "terminal_exit_code": 1,
+    "completed_ticks": [
+      1,
+      18635
+    ],
+    "failed_tick": 18636,
+    "failure": {
+      "kind": "error",
+      "frame": 18636,
+      "message": "Native frame=18636 destination scene=1 entrance=1: Unrecovered map effect update program",
+      "attempted_tick_frame": 18636,
+      "tick_status": "failed"
+    },
+    "saves_unchanged": true,
+    "checkpoints": [
+      {
+        "name": "family-downstairs",
+        "frame": 2873,
+        "event_running": false,
+        "message": 0,
+        "values": {
+          "story": 4,
+          "flags": {
+            "59": false,
+            "66": false,
+            "67": false,
+            "68": false
+          },
+          "items": {
+            "71": 1,
+            "77": 0,
+            "80": 0,
+            "112": 0,
+            "114": 1
+          },
+          "scene": 70,
+          "entrance": 5,
+          "money": 1011,
+          "playtime": 2855,
+          "hp": 36
+        }
+      },
+      {
+        "name": "family-floor",
+        "frame": 3102,
+        "event_running": true,
+        "message": 0,
+        "values": {
+          "story": 4,
+          "flags": {
+            "59": false,
+            "66": false,
+            "67": false,
+            "68": false
+          },
+          "items": {
+            "71": 1,
+            "77": 0,
+            "80": 0,
+            "112": 0,
+            "114": 1
+          },
+          "scene": 70,
+          "entrance": 5,
+          "money": 1011,
+          "playtime": 2859,
+          "hp": 36
+        }
+      },
+      {
+        "name": "family-event-open",
+        "frame": 3342,
+        "event_running": true,
+        "message": 16009,
+        "values": {
+          "story": 4,
+          "flags": {
+            "59": false,
+            "66": false,
+            "67": false,
+            "68": false
+          },
+          "items": {
+            "71": 1,
+            "77": 0,
+            "80": 0,
+            "112": 0,
+            "114": 1
+          },
+          "scene": 70,
+          "entrance": 5,
+          "money": 1011,
+          "playtime": 2863,
+          "hp": 36
+        }
+      },
+      {
+        "name": "family-intro-finished",
+        "frame": 7002,
+        "event_running": false,
+        "message": 16009,
+        "values": {
+          "story": 4,
+          "flags": {
+            "59": true,
+            "66": false,
+            "67": false,
+            "68": false
+          },
+          "items": {
+            "71": 1,
+            "77": 0,
+            "80": 0,
+            "112": 0,
+            "114": 1
+          },
+          "scene": 70,
+          "entrance": 5,
+          "money": 1011,
+          "playtime": 2924,
+          "hp": 36
+        }
+      },
+      {
+        "name": "mother-goodbye-finished",
+        "frame": 8274,
+        "event_running": true,
+        "message": 16011,
+        "values": {
+          "story": 4,
+          "flags": {
+            "59": true,
+            "66": false,
+            "67": false,
+            "68": false
+          },
+          "items": {
+            "71": 1,
+            "77": 0,
+            "80": 0,
+            "112": 0,
+            "114": 1
+          },
+          "scene": 70,
+          "entrance": 5,
+          "money": 1011,
+          "playtime": 2945,
+          "hp": 36
+        }
+      },
+      {
+        "name": "mother-idle",
+        "frame": 9354,
+        "event_running": false,
+        "message": 16011,
+        "values": {
+          "story": 4,
+          "flags": {
+            "59": true,
+            "66": false,
+            "67": true,
+            "68": false
+          },
+          "items": {
+            "71": 1,
+            "77": 0,
+            "80": 0,
+            "112": 1,
+            "114": 1
+          },
+          "scene": 70,
+          "entrance": 5,
+          "money": 1011,
+          "playtime": 2963,
+          "hp": 36
+        }
+      },
+      {
+        "name": "grandfather-idle",
+        "frame": 10640,
+        "event_running": false,
+        "message": 16012,
+        "values": {
+          "story": 4,
+          "flags": {
+            "59": true,
+            "66": false,
+            "67": true,
+            "68": false
+          },
+          "items": {
+            "71": 1,
+            "77": 0,
+            "80": 0,
+            "112": 1,
+            "114": 1
+          },
+          "scene": 70,
+          "entrance": 5,
+          "money": 1011,
+          "playtime": 2985,
+          "hp": 36
+        }
+      },
+      {
+        "name": "grandmother-idle-check",
+        "frame": 11915,
+        "event_running": false,
+        "message": 16013,
+        "values": {
+          "story": 4,
+          "flags": {
+            "59": true,
+            "66": true,
+            "67": true,
+            "68": false
+          },
+          "items": {
+            "71": 1,
+            "77": 0,
+            "80": 1,
+            "112": 1,
+            "114": 1
+          },
+          "scene": 70,
+          "entrance": 5,
+          "money": 1011,
+          "playtime": 3006,
+          "hp": 36
+        }
+      },
+      {
+        "name": "annie-idle-check",
+        "frame": 12660,
+        "event_running": false,
+        "message": 16014,
+        "values": {
+          "story": 4,
+          "flags": {
+            "59": true,
+            "66": true,
+            "67": true,
+            "68": false
+          },
+          "items": {
+            "71": 1,
+            "77": 0,
+            "80": 1,
+            "112": 1,
+            "114": 1
+          },
+          "scene": 70,
+          "entrance": 5,
+          "money": 1011,
+          "playtime": 3019,
+          "hp": 36
+        }
+      },
+      {
+        "name": "james-idle-check",
+        "frame": 14112,
+        "event_running": false,
+        "message": 16015,
+        "values": {
+          "story": 4,
+          "flags": {
+            "59": true,
+            "66": true,
+            "67": true,
+            "68": false
+          },
+          "items": {
+            "71": 1,
+            "77": 0,
+            "80": 1,
+            "112": 1,
+            "114": 1
+          },
+          "scene": 70,
+          "entrance": 5,
+          "money": 1011,
+          "playtime": 3043,
+          "hp": 36
+        }
+      },
+      {
+        "name": "father-idle",
+        "frame": 17430,
+        "event_running": false,
+        "message": 16017,
+        "values": {
+          "story": 4,
+          "flags": {
+            "59": true,
+            "66": true,
+            "67": true,
+            "68": true
+          },
+          "items": {
+            "71": 1,
+            "77": 1,
+            "80": 1,
+            "112": 1,
+            "114": 1
+          },
+          "scene": 70,
+          "entrance": 5,
+          "money": 1011,
+          "playtime": 3098,
+          "hp": 36
+        }
+      },
+      {
+        "name": "departure-transition",
+        "frame": 18350,
+        "event_running": true,
+        "message": 16018,
+        "values": {
+          "story": 4,
+          "flags": {
+            "59": true,
+            "66": true,
+            "67": true,
+            "68": true
+          },
+          "items": {
+            "71": 1,
+            "77": 1,
+            "80": 1,
+            "112": 1,
+            "114": 1
+          },
+          "scene": 70,
+          "entrance": 5,
+          "money": 1011,
+          "playtime": 3113,
+          "hp": 36
+        }
+      }
+    ]
+  },
+  "paired": {
+    "mapping": {
+      "source": [
+        1,
+        11961
+      ],
+      "native": [
+        23020,
+        34980
+      ],
+      "offset": 23019,
+      "requested_original_vblanks": 11962
+    },
+    "status": "failed",
+    "differences": {
+      "controller": {
+        "count": 10638,
+        "first_source": 662,
+        "first_native": 23681
+      },
+      "choice": {
+        "count": 10601,
+        "first_source": 664,
+        "first_native": 23683
+      },
+      "controller_manager_pad_gate": {
+        "count": 41,
+        "first_source": 662,
+        "first_native": 23681
+      },
+      "manager_running_pc_gate": {
+        "count": 10734,
+        "first_source": 668,
+        "first_native": 23687
+      },
+      "pad_latch": {
+        "count": 41,
+        "first_source": 662,
+        "first_native": 23681
+      },
+      "direction_latch": {
+        "count": 3,
+        "first_source": 1202,
+        "first_native": 24221
+      },
+      "player_mask": {
+        "count": 72,
+        "first_source": 11890,
+        "first_native": 34909
+      },
+      "hero_facing_w": {
+        "count": 7012,
+        "first_source": 3605,
+        "first_native": 26624
+      },
+      "hero_position": {
+        "count": 7063,
+        "first_source": 3605,
+        "first_native": 26624
+      },
+      "camera_rotation": {
+        "count": 10433,
+        "first_source": 1029,
+        "first_native": 24048
+      },
+      "camera_mode_phase": {
+        "count": 1112,
+        "first_source": 1027,
+        "first_native": 24046
+      },
+      "camera_position": {
+        "count": 10434,
+        "first_source": 1028,
+        "first_native": 24047
+      },
+      "camera_unblended_target": {
+        "count": 0,
+        "first_source": null,
+        "first_native": null
+      }
+    },
+    "coverage": {
+      "manager": {
+        "expected_frames": 11961,
+        "observed_frames": 11961
+      },
+      "camera": {
+        "expected_frames": 11961,
+        "observed_frames": 11961
+      },
+      "player": {
+        "expected_frames": 11961,
+        "observed_frames": 11946
+      }
+    },
+    "controller_samples": 11817,
+    "native_missing": {
+      "manager": [],
+      "movement": [],
+      "dialogue": [],
+      "choice": [],
+      "camera": [],
+      "camera-state": [],
+      "actor": []
+    },
+    "hero_max_error": 17.0600004196167,
+    "camera_max_error": 24.800000190734863,
+    "unblended_camera_target_compared": false,
+    "other_actor_rng_comparison": false,
+    "images": [
+      {
+        "source_frame": 3021,
+        "native_frame": 26040,
+        "metrics": {
+          "width": 640,
+          "height": 224,
+          "exact_different_pixel_count": 143298,
+          "rgb_mae": 60.256754557291664,
+          "rgb_max_absolute_difference": 254,
+          "alpha_different_pixel_count": 0,
+          "alpha_mae": 0.0,
+          "alpha_max_absolute_difference": 0,
+          "rgb_different_pixel_count": 143298,
+          "original_alpha_values": [
+            255
+          ],
+          "native_alpha_values": [
+            255
+          ]
+        }
+      },
+      {
+        "source_frame": 3801,
+        "native_frame": 26820,
+        "metrics": {
+          "width": 640,
+          "height": 224,
+          "exact_different_pixel_count": 143352,
+          "rgb_mae": 63.99456845238095,
+          "rgb_max_absolute_difference": 255,
+          "alpha_different_pixel_count": 0,
+          "alpha_mae": 0.0,
+          "alpha_max_absolute_difference": 0,
+          "rgb_different_pixel_count": 143352,
+          "original_alpha_values": [
+            255
+          ],
+          "native_alpha_values": [
+            255
+          ]
+        }
+      },
+      {
+        "source_frame": 11961,
+        "native_frame": 34980,
+        "metrics": {
+          "width": 640,
+          "height": 224,
+          "exact_different_pixel_count": 141238,
+          "rgb_mae": 36.44374534970238,
+          "rgb_max_absolute_difference": 255,
+          "alpha_different_pixel_count": 0,
+          "alpha_mae": 0.0,
+          "alpha_max_absolute_difference": 0,
+          "rgb_different_pixel_count": 141238,
+          "original_alpha_values": [
+            255
+          ],
+          "native_alpha_values": [
+            255
+          ]
+        }
+      }
+    ],
+    "audio_status": "captured_unpaired_duration_mismatch",
+    "audio_alignment": {
+      "temporal_alignment_proven": false,
+      "sample_to_vblank_alignment_proven": false,
+      "waveform_alignment_performed": false,
+      "resampling_performed": false,
+      "padding_performed": false,
+      "trimming_performed": false,
+      "waveform_equivalence_asserted": false,
+      "duration_mismatch": true,
+      "original_duration_seconds": 199.28571428571428,
+      "native_duration_seconds": 199.35,
+      "duration_difference_seconds": 0.06428571428571428,
+      "duration_difference_rational_seconds": {
+        "numerator": 9,
+        "denominator": 140
+      },
+      "segment_frame_count_difference": 780300,
+      "segment_frame_count_difference_unit": "sample frames; not a duration"
+    }
+  },
+  "next_dependency": {
+    "message": "Unrecovered map effect update program",
+    "candidate_template": 34,
+    "identity_scope": "Static constructor/update guards and FIELD_1D placements; exception text lacks ID",
+    "original_updates": 450,
+    "original_records": 452,
+    "original_sha256": "61251f987d6519892366f86254d24ac498387065acd373d64c3da3aa79e7de75",
+    "native_support": false,
+    "geometry_parity": false
+  },
+  "tests": {
+    "python": 516,
+    "seconds": 22.753,
+    "exit_code": 0
+  },
+  "limits": [
+    "New native route is Release-only; no new runtime build or live performance measurement.",
+    "Native stops during scene1 initialization; no completed destination scene or new gameplay Save.",
+    "Paired interval fails, missing source observations retained, initial HP and prior histories differ.",
+    "Audio captured with unequal duration; no waveform comparison or fitting.",
+    "Original isolated effect34 state probe is not geometry/raster or integrated scene parity.",
+    "Full playthrough, shipping import/build, dependency audit, controls/listening/performance and prior fidelity debt remain incomplete."
+  ],
+  "artifacts": [
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/story-four-restored.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "8db57f7cc202f6626deb1401dfc8bbd93c781daa9ff26f4e4b6548a5aaae1be3",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/family-downstairs.png",
+      "bytes": 262555,
+      "sha256": "b45a9a9b6a63028c3768c00060f055b3b288593707d348ab8a14caef09446431",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/family-downstairs.png.json",
+      "bytes": 1062,
+      "sha256": "1c8363029856249f54028ffcdaec01497e69b6bc922909df98ab1a31a2470b3d",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/family-downstairs.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "e5fb8def331905f341bc067dfca888abf0b7cc27703d6cd22f0a0a7f29cf078e",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/family-downstairs.png.actors-state.json",
+      "bytes": 51111,
+      "sha256": "420425e7a970e95d3fa5c7db9ad0f6a13bd9c594b7beaa4518f8c6781fe068d3",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/family-downstairs-display.view.png",
+      "bytes": 273099,
+      "sha256": "cd76c5b671736d2d0541e285ca703f6e4c18cf88626346539018fa1e13d4baa6",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/family-floor.png",
+      "bytes": 315295,
+      "sha256": "f4103e6f9e72c61d1858b53db1efd44389006968f197e1f7e0ae57591e10b4b8",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/family-floor.png.json",
+      "bytes": 1062,
+      "sha256": "01e2480dff6ae05bf0f04400ae025088a49b3857b0235ec0f8a1b2fe4be5d1d9",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/family-floor.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "a89c57dce613c58828c8a238faa0498a72003e4bccf11d48df58e5068371ca08",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/family-floor.png.actors-state.json",
+      "bytes": 52723,
+      "sha256": "9c5f50b985b159de12e314588e91e65a095bdf330872d831c5d96bfb0951576d",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/family-floor-display.view.png",
+      "bytes": 326051,
+      "sha256": "285e538a46a0c8b03e912f08cf1406fccd36abc84a1bc0ba2f5b21ff6b431115",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/family-event-open.png",
+      "bytes": 283642,
+      "sha256": "b01f238a3a3a8ad0d71967c1355d3214c274c8dda7f67d269336f3d149939337",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/family-event-open.png.json",
+      "bytes": 1067,
+      "sha256": "ff3eeb058546a0d5984a6cb61a79289f5b2eebcf172bcec88d50f7ddd1a31893",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/family-event-open.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "40fe59c47c6c4ab9b2bdec35f94c043509fbeeea4dc93a91e55672785f58cda9",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/family-event-open.png.actors-state.json",
+      "bytes": 52227,
+      "sha256": "eb63f3b67082fa2bd5b63a1d2de8b6b90337a9f53fea2bfa755fd8e55dbd951f",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/family-event-open-display.view.png",
+      "bytes": 282122,
+      "sha256": "cf42e48b900b5abd71dce4808e176137f4a92897ff383a4749de1fcbb1950d36",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/family-intro-finished.png",
+      "bytes": 317320,
+      "sha256": "042edee3837d2fabb6587ac2e317f831d03c3309c426585c9b60ed926d094f05",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/family-intro-finished.png.json",
+      "bytes": 1090,
+      "sha256": "0e00afa2acca8d15ec4921078dec34e354dd4fd339a161cd94083fcf06d9b9a5",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/family-intro-finished.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "3751b0bf0dd9a38d6b8d9c11c2ca432a8c26f1cc847cefa81e6cc5ff67246402",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/family-intro-finished.png.actors-state.json",
+      "bytes": 52649,
+      "sha256": "29aadcd43b3c2071f5acc084a07bf32bc7abf4d8313c86b4423cea9e57a71ba6",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/family-intro-finished-display.view.png",
+      "bytes": 328264,
+      "sha256": "cbf248654ff98b0d8da8c8d2beca2c6e583c63e1b785dd1627200c76a3d4dc20",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/mother-goodbye-finished.png",
+      "bytes": 329672,
+      "sha256": "399011d94605d2f88b7d16231645904b31318aade7b65dcf2834993d9ff90b41",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/mother-goodbye-finished.png.json",
+      "bytes": 1080,
+      "sha256": "57865b71670da2c9ef41f514dd934298bd1ada5ba932c1deaabd1f8059a80ba3",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/mother-goodbye-finished.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "5dd8322dcf31d03b5e6bd187855e3eaec3ff38d50eaa1e854a1f5d4ade3b6fd9",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/mother-goodbye-finished.png.actors-state.json",
+      "bytes": 52686,
+      "sha256": "72cc4b90687451650344d298183e56cfca2005e4b182e67ef97931d626da0bc0",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/mother-goodbye-finished-display.view.png",
+      "bytes": 334005,
+      "sha256": "9b487614d43ce7cb7a4271fd940629072d40eaa3677d4290d31b020b6ffc8f96",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/mother-idle.png",
+      "bytes": 322662,
+      "sha256": "0947dadb68c1e3ad39daa7bd3815cf51332e51e5313e18c3c035252cd6f62c94",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/mother-idle.png.json",
+      "bytes": 1089,
+      "sha256": "f89468cf5b76885ced9586848633b13fa3fbcb42778e17bcb5a4f3a78f0cb053",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/mother-idle.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "af3e3a417d7496b19af30a26256a48c663e9eafe38b9c35a82bc3f3135c4c58d",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/mother-idle.png.actors-state.json",
+      "bytes": 52637,
+      "sha256": "7e37334ee4c1c0b36b7bcd3c1448f4e52cdfd6b4ace1e37d47f139cfc0b9ea38",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/grandfather-idle.png",
+      "bytes": 290364,
+      "sha256": "f2b71e78d2991dbb3bc172222a52a0c816b6ba2e5770257e0e97b734fb09cd4a",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/grandfather-idle.png.json",
+      "bytes": 1093,
+      "sha256": "7d4ceae1cc519e185cb3cd554074a4821a710a56bb8648665bcb316e632f12f6",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/grandfather-idle.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "0714218d0d4cc3c632f94ee5694ccf2b8ea13a9aba12ae7793cb4d1b310424d1",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/grandfather-idle.png.actors-state.json",
+      "bytes": 52637,
+      "sha256": "3a6375d84658aa03f5ec10010e865ffe89775eb9c19296195aed64ea08b10e82",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/grandmother-idle-check.png",
+      "bytes": 239396,
+      "sha256": "cce94e8a646fde7290e4c1ec316f783027d6d7f02ccba3b22f6f5b72bc8ae30e",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/grandmother-idle-check.png.json",
+      "bytes": 1093,
+      "sha256": "76fae409c167d96d49b8e763595687596264c1142e81d020ebe785ba6a12164a",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/grandmother-idle-check.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "65007bf116ed5d894adacc16473c0cf0891893f2b6efb6915c770735f481e360",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/grandmother-idle-check.png.actors-state.json",
+      "bytes": 52519,
+      "sha256": "bd9c0769d3509388108765b24af716daebfdfaa4c4de135b4c311a2f5ca2d161",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/annie-idle-check.png",
+      "bytes": 290524,
+      "sha256": "1445918ca4288fcfa2975c7360156752dcf69eca653e369e871000508741350d",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/annie-idle-check.png.json",
+      "bytes": 1091,
+      "sha256": "5514523571e0ff0b34944cb08da7556601a5037aa73f90e77034a06ba70ec425",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/annie-idle-check.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "ed888568e888b2b44ee5d20690c72543b84c8b44d7babbf56ec96b9ed60509e1",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/annie-idle-check.png.actors-state.json",
+      "bytes": 52553,
+      "sha256": "79c91c9e25c667e3bf83571f1f6975eb7b8461f8c90a9bf864af0c994b9f8d45",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/james-idle-check.png",
+      "bytes": 297574,
+      "sha256": "b36745e4ef1317eba81a8c94d6f6c0afee1ce1e10e8289f1249b5f54818c7031",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/james-idle-check.png.json",
+      "bytes": 1093,
+      "sha256": "76d99c3dfc6d3be58bbc6bab7afef53eb034baa7df2221ba14efcf62072cf7c8",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/james-idle-check.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "2b048d14a5419f69b7a49beb16bfe11aa927a3944f6e2cf3ed966b7e4256124f",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/james-idle-check.png.actors-state.json",
+      "bytes": 52514,
+      "sha256": "f8a9f987218398c2910a4ac0db5c32af5c853c2e5ff1dc632a52f64f6b5d97bf",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/father-idle.png",
+      "bytes": 243492,
+      "sha256": "06885d039db7864d7fd6c3af76e025dcd7f33bb95bacb6b58d2b00d698e4a3d6",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/father-idle.png.json",
+      "bytes": 1093,
+      "sha256": "bba6f5ff2ed79ce2d16696a1ee4a0dd835e012a8c65a06793a072f0c91ed8140",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/father-idle.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "aff1f36d55c9c9fa34e0ff1a9b1e7f92117f90a06c21782af6a652f86998612d",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/father-idle.png.actors-state.json",
+      "bytes": 52601,
+      "sha256": "c5c007d06605f53e5fa10903dff792766fe6a7b4492219bbd523ac29ee4b8b1b",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/departure-transition.png",
+      "bytes": 268925,
+      "sha256": "affc074e5be2f8a0e36fb6357ccda310c3b8cc7245387ae864dccd3730245b80",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/departure-transition.png.json",
+      "bytes": 1079,
+      "sha256": "af293a6c7c4f1537641804c3a86726534f2eee70ef585b3e7d73411d1a24a5c4",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/departure-transition.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "6a7f37f1870913e9caa7493e115e0209d73f9b9f446f5448509263aa7c7f5402",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/departure-transition.png.actors-state.json",
+      "bytes": 52268,
+      "sha256": "a53779ce718872f83fb8c203a97155f40cbc99adf854e1a0549527ea94ba4bc1",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/departure-transition-display.view.png",
+      "bytes": 266103,
+      "sha256": "95750ccc824df274d09585374088c31fcdecbc0f23a871b26ac0d3d2029f9d13",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/run.json",
+      "bytes": 1395,
+      "sha256": "6332dc4709df9346101746f4faf8622a781bd0ec36c96581cc13fce953f2a255",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/saves/bkmo2.dat",
+      "bytes": 3460,
+      "sha256": "dda3ee0c0a745c20e3c7ba3de2710bd5fb3b5a0202eb2379bc65205818df725f",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/saves/bkmo0.dat",
+      "bytes": 3460,
+      "sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/saves/bkmo1.dat",
+      "bytes": 3460,
+      "sha256": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/inputs.jsonl",
+      "bytes": 1821174,
+      "sha256": "8522aad9019b19b9ca44b0af00f9a2e60aea58bbe2e208bed04bc772e97def2c",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/control/commands.txt",
+      "bytes": 8154,
+      "sha256": "05d1f13c8f9bff845f1a3280ffffa840c1f55f513a0cee3c998a19f313c2ff6d",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/run.log",
+      "bytes": 33434,
+      "sha256": "1bb48c789809f5ec636f5cca2ab682924c1b397fb94d6bfc7a136f86d6d823c8",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/pending.json",
+      "bytes": 1047,
+      "sha256": "d5f8d5bd97776d24d1331c57791db188270aa3d7a8f9083a0ccd19cfde5f47bb",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/story-four-restore-v1/buttons.txt",
+      "bytes": 36,
+      "sha256": "52a6eb3d46bb6c66d5e65fca754212e1293bfb671e274ebc6b9638e3889e5dac",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/native-audit-worker-v1.json",
+      "bytes": 27970,
+      "sha256": "87d0add0e92a8001cd14b25bf57a7ad7b89dd03f5895705bec19a64833faf6e2",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/native-audit-worker-v2.json",
+      "bytes": 19139,
+      "sha256": "f5e40ab849253cdee33a3212f966e83207c09ccf890f0c25dbdbfaf5672490d8",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/source-review/report.md",
+      "bytes": 6490,
+      "sha256": "a293bd78cd18b6bb9126557d704014fc4e19a621003d466de8772c4c666f3816",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/source-review/next-field.md",
+      "bytes": 4039,
+      "sha256": "56068a083f8b3c2d91457d554b8e25fa6472de3f9a477db28251a78042471a97",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/native-route-audit-v1.py",
+      "bytes": 4056,
+      "sha256": "93e882cddcf2c2b17915a87a88d3e6deeae7751135ccedecb56efd28bdd5c2f1",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/run-story-four-restore-v1.py",
+      "bytes": 1560,
+      "sha256": "2674372ffb698381cbf204f103bea04a0575a8882f3678974e54c3a9c936bb76",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "src/effect.cpp",
+      "bytes": 60114,
+      "sha256": "c2fc47fb2c8296a73a0a020863673a5352d590d481b3745ef8ce6ee161e7b536",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "src/field.cpp",
+      "bytes": 81605,
+      "sha256": "4953a2125c78df796bd26362cc800dd313ec56e143652fb726a46ead2453170c",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "src/dialogue.cpp",
+      "bytes": 21643,
+      "sha256": "ecefb0447ac2c5c1c75c9dd1e637d9efb56684032613f7a8e86523da28a23a02",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-map-paired-v2/run.json",
+      "bytes": 10915,
+      "sha256": "bbea84cdd69562bcae50a08b5dac25cbab06ff3e2bdf8bd74a4dde28fac61445",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-map-paired-v2/transition.bin",
+      "bytes": 6383616,
+      "sha256": "91e3661da2b8be303e375ca00df7ef34286f3a7b2fcb396b929a721002ca55a1",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-map-paired-v2/camera.bin",
+      "bytes": 1531136,
+      "sha256": "187219d1f6eaf9d2e2b2982773356453fd5d1363288c25eafe3ab1c94ff47fd2",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-map-paired-v2/controller.bin",
+      "bytes": 6050304,
+      "sha256": "e40018378899d260b2fecc85e424ae996ce2961b0e713dc2de6ccbd242317be2",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-map-paired-v2/controller.bin.choices.bin",
+      "bytes": 1512576,
+      "sha256": "21657a5fc741bf3221e57117028c7551d794ad903b2268f19d7cf5536af15063",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/bar-departure.png.actor-1.bin",
+      "bytes": 126605072,
+      "sha256": "08db7a1399ff7d9638aee5df5d1b67e5f429a777b3074f0f4d6d2f174128346e",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/bar-departure.png.interaction.bin",
+      "bytes": 1070656,
+      "sha256": "34efb0c830612702bce1064d1182c9533ca27bad2b37ec70df52c605fa12b4bf",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/bar-departure.png.movement.bin",
+      "bytes": 2141312,
+      "sha256": "60ce7c891429dc381dcd46e5110aff18e0a3c70f43ad5c657000d5017d798e50",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/bar-departure.png.dialogue.bin",
+      "bytes": 1605984,
+      "sha256": "0c0b76cb1e75029533ed3837c0772f5895de79bb5bb2ad98b98dee118716fbee",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/bar-departure.png.choices.bin",
+      "bytes": 1605984,
+      "sha256": "37241df5a948fd966ea19765ab8972b3869b7a0e484d9cdc4475c0b36e755002",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/bar-departure.png.camera.bin",
+      "bytes": 2141312,
+      "sha256": "bde91d5a5c910ea7940b5ca60625e47157a76bd90f9040f3ae218036ef4ae964",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/bar-departure.png.camera-state.bin",
+      "bytes": 669160,
+      "sha256": "141e2e9741f15bd564fd86306117bb8ea47d85f644d6188cff09826745000be4",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/inputs.jsonl",
+      "bytes": 4156918,
+      "sha256": "14de0d7e9142d9963c98d5305c309aa606ada4be6ead40425198a9623877cf65",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-map-paired-v2/image.frames/vblank-003021.layer0.png",
+      "bytes": 268765,
+      "sha256": "09d32f8fa2410857c4f543889a5a7cb0e6036717c8d51ff898f4f3380afa522b",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/ringmaster-map-acquisition.png",
+      "bytes": 272053,
+      "sha256": "70a85ab677cfe4f51d935d334527c2bab97a816d3189cdf4bda748c7ff4a924c",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-map-paired-v2/image.frames/vblank-003801.layer0.png",
+      "bytes": 268279,
+      "sha256": "8da4a038946c3e84c7152c0a027fd47cc540b97409315d2b3ffa4aa67a7b8409",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/ringmaster-controls-restored.png",
+      "bytes": 229773,
+      "sha256": "e66bd964ff49b1077cac39f118080273cfa8275fa2ef40c59fcabfe3e71643eb",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-map-paired-v2/image.frames/vblank-011961.layer0.png",
+      "bytes": 250617,
+      "sha256": "814a92bc26b7032dff8467aa5c9ee7d80090f0c6b8f0758e42d0ebb3da830555",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/bar-departure.png",
+      "bytes": 275053,
+      "sha256": "dc9f0b95b02d5628b9a285cda4f19be9f94b969205751d642fadc84d16ede76f",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-map-paired-v2/input.pad",
+      "bytes": 1824,
+      "sha256": "5cdc8cd644a7c0e92c0f8e70d15fc754dca0b288113070c63d7443f7a97024b9",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-map-paired-v2/input-evidence.json",
+      "bytes": 886,
+      "sha256": "d8d93afd8546081ab1e50acfbe0d44ffe1b8b8b0f9cc38264eadcae2202559a4",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-map-paired-v2/run.log",
+      "bytes": 40061,
+      "sha256": "1c14484498d98742e64f47552e42cba18afdf922d875f5250e95fde7a3e80ef7",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-map-paired-v2/mode.jsonl",
+      "bytes": 38487356,
+      "sha256": "71618d1a36c2826d7f4b2d4d5dea2ad29ca19a2f98a4177262308d05a43a033b",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-map-paired-v2/events/instructions.tsv",
+      "bytes": 919689,
+      "sha256": "9c762d1d964ae06f8fa7f8be0e99ee1fe292aeaf57783247d29106afacec0c5c",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-map-paired-v2/audio.wav",
+      "bytes": 35154044,
+      "sha256": "258c2da8720d4be6221006130b56c00c51d405833d05a92fd0ca2c8d6ea366c2",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-map-paired-v2/audio-index.json",
+      "bytes": 717394,
+      "sha256": "f60391f097afae28ebb20678b372a569a88f5cfce6fa2f0a5f54760389d46602",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/bar-departure.png.audio.pcm",
+      "bytes": 111936000,
+      "sha256": "1f0509ed4b212d4f1a1d8dc3050a8106d7ace7387ec595bd86a1e3c0f0aea98d",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/village-return-v1/native-v7/control/bar-departure.png.audio.json",
+      "bytes": 164,
+      "sha256": "65a8596099935c127c73501046b78bef2645f70e286bdaa9fdbaa93716ff766c",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "tools/diagnose_home1b_interval.py",
+      "bytes": 18840,
+      "sha256": "3545056cfda730fa4f02f1d51c648e2e3536e5335696a61cbb63ce30d1aedd8b",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/map-paired-audit-v1.py",
+      "bytes": 5471,
+      "sha256": "c2e3400ce186d899f129b5fa8e550beebb1703bcd0f1082f5ba88a7ec8d31ba6",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/native-route-audit-v1.json",
+      "bytes": 51985,
+      "sha256": "b97bf5138356c1ccb674bcb1fc44da1e9a1b2dde947fb5ac6f971f200d0ceda3",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/map-paired-audit-v1.json",
+      "bytes": 3010297,
+      "sha256": "59cab380e5999726b3a00f35cfec985cce7bce07507d94e67be5241c367fb9de",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/map-audio-boundaries-v1.json",
+      "bytes": 4742,
+      "sha256": "41f07c448d43ec27fa5bf4b1a9e4e9a6286ab966f08fdbbfa29887205c68e3c0",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/map-audio-boundaries-v1.original.wav",
+      "bytes": 35154044,
+      "sha256": "258c2da8720d4be6221006130b56c00c51d405833d05a92fd0ca2c8d6ea366c2",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/map-audio-boundaries-v1.native.wav",
+      "bytes": 38275244,
+      "sha256": "aa53fd82b21b6d0dc9371dc1d63c4a240c76c23320fcc148cd1653e95033062a",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/first-divergence-v1.md",
+      "bytes": 5108,
+      "sha256": "6111b39c950cb2cfd9c30070eb09fef2751141817267cd0a1fbe81a05e748878",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/first-divergence-v1.json",
+      "bytes": 3124,
+      "sha256": "e33f7bb06ff6d8920a9b6f7f72122bda52e1d00e805817c23b6b56924e3c03fa",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/python-tests-v1.log",
+      "bytes": 54947,
+      "sha256": "033aa6a7429ff5148d2811935f29f52fdff11555f0aff69c7f9372a7ebb10469",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/python-tests-v2.log",
+      "bytes": 54947,
+      "sha256": "3e8efe88742d7dd96b9ac852448e1231d5ccdc010e9b45acfc8d883d60bbd831",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/native-route-audit-v1.log",
+      "bytes": 277,
+      "sha256": "df36117b03ec4f4cd061218325952956dedcbb21c2b7bf403a4fca5cd026c38d",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/native-route-audit-v2.log",
+      "bytes": 611,
+      "sha256": "b871b9142a33bda9a72503cd00607e2a56b1a5f22417c41f530d3bfdae79c99f",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/map-endpoint-images-v1/comparison.json",
+      "bytes": 1638,
+      "sha256": "50d808081d6042675ccc3d96007a4ee9467b99fed8b179b2d43448b6a49640e4",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/map-endpoint-images-v1/side-by-side.png",
+      "bytes": 562396,
+      "sha256": "8fb344135e876a2e8468ef800ee23a1114e1cecd557b0cf58591a46d468a8b15",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/map-endpoint-images-v1/absolute-rgb-difference.png",
+      "bytes": 363588,
+      "sha256": "e14fa5e2dd7bed3b390c6bb5f20abbdbb7b276b3fb143c3b7ae45d4719c190dd",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/pre-ringmaster-progression-evidence-v1.json",
+      "bytes": 33598,
+      "sha256": "0746e00b97247c297a08402a31a4b0a6c6a34042bb9c532272d35e4e1270c2e4",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/aggregate-cap-v2.diff",
+      "bytes": 1213,
+      "sha256": "d252a773a2a74daaa0a63b8d917a2fc6ae32848c3055505d099b02a3d81d6ce0",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-map-paired-v1/run.json",
+      "bytes": 8305,
+      "sha256": "5dd80a2dd9eca9ca16ee9123186d572aeb6fb632f6dfad8495f1728cc014c429",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-map-paired-v1/run.log",
+      "bytes": 31823,
+      "sha256": "a2d510fd2f88ddca9cccfff709ff2784f2785ce560845d5c1898bba07489db0f",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-map-paired-v2/execution-evidence.json",
+      "bytes": 22224,
+      "sha256": "916d87ffc5c4d638bd11bcdd43bfb7718f0b19bd16be9bd234b62ef281ab05b2",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-map-paired-v2/projection.bin",
+      "bytes": 216974400,
+      "sha256": "a8c51c2fcd9c89f2b3df58b1416ee5d1f5c4fad8b34b90541560220f941d01bf",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-map-paired-v2/endpoint.state.zip",
+      "bytes": 12152920,
+      "sha256": "40ecd8e20cc03ad39d9660ec724fdb5d8e1a140352851343f6e1dfb2c7d02eb6",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-map-paired-v2/pending.json",
+      "bytes": 3329,
+      "sha256": "9d5082fcf472947511d11257d6d7cdc6aaff4032853b1fdbdce79fa87f862958",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/map-home-original-v1/original-ringmaster-approach-v2/endpoint.state.zip",
+      "bytes": 11875444,
+      "sha256": "55cbc4821556787d5518d95902d3e2a2b712f0faf59ab73061d364df22f99bb7",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "tools/play-oracle/boot.cpp",
+      "bytes": 60571,
+      "sha256": "9e62c706358c38d578fb213cc6a955eaf253f1ec79e880add9f86defa1ae1736",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "tools/compare_frame_images.py",
+      "bytes": 16487,
+      "sha256": "593d49f51ee579de311ec4c9c2e0fc64e4c357b596676a923006a05da672fe06",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "tools/compare_route_audio.py",
+      "bytes": 36484,
+      "sha256": "c788c814f325efab050a766748ecafa4cbf8f0d6bc6a81319ac32b6de27c6df4",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-original-v1/original.bin",
+      "bytes": 1166160,
+      "sha256": "61251f987d6519892366f86254d24ac498387065acd373d64c3da3aa79e7de75",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-original-v1/audit.py",
+      "bytes": 3611,
+      "sha256": "781848157001d414590cf7937ed8ddf8a97467d29f5fe7f828196398477fc598",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-original-v1/run.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-original-v1/input.bin",
+      "bytes": 80,
+      "sha256": "769c8ec963c03f97f47d6a38fe15e6edb88dd5d88a812f596f0496de3be3aa10",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-original-v1/coverage.json",
+      "bytes": 23754,
+      "sha256": "6c672fbab891369f602c6e7088bfbb7fe43236c5ac1a64e44c9e87c953baabfd",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-original-v1/pending.json",
+      "bytes": 2073,
+      "sha256": "7408ac99f7552b5c9757a72ae8577ee80f6c667ecc8002eb0679ad38ea45cd8d",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-original-v1/run.json",
+      "bytes": 2940,
+      "sha256": "7ed69a6cb85b169693df607e79baafc2dce856c17216c3cc6435e0681b99bd4d",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/run-effect34-original-v1.py",
+      "bytes": 1803,
+      "sha256": "824329a381ce246cff6c157788788eb018e0c5ec484e1c3df32892916eb87f02",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/map-effect-probe-v1/34.original.bin",
+      "bytes": 5160,
+      "sha256": "d166e6ba19585cf02826346cd500ef2171ff2a961195baf82e290b440b576c41",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/map-effect-probe-v1/34.input.bin",
+      "bytes": 80,
+      "sha256": "769c8ec963c03f97f47d6a38fe15e6edb88dd5d88a812f596f0496de3be3aa10",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/effect-input/CMNDATA/2D/TES.EFD",
+      "bytes": 98972,
+      "sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_home1a.xmt",
+      "bytes": 6616,
+      "sha256": "866a7ec9a996e5da65ad6ee9d375d7d6d8368e01ef3448a94485ad81fe3465ed",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_field.xmt",
+      "bytes": 35082,
+      "sha256": "f844e662fcebb09c8ea4ab2497bf7b392d33b4844037004f27d998c11d4ac0f2",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/text-input/FLDDATA/MES/FIELD.PME",
+      "bytes": 408628,
+      "sha256": "8b19ec0074e962214ece631f97d4cc8497374e4dd23301df512ac4d978993de4",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-inventory.md",
+      "bytes": 4537,
+      "sha256": "d96a957e5551dcaf949542b7cb87f29a0a9f27b89a715bbe2830d34b1b7e17e5",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-inventory.json",
+      "bytes": 30900,
+      "sha256": "e6dedf0074d2fd8346fc2adfcb7e790bf88b1ff9d41a56aa9276a9a76a7c749c",
+      "scope": "whole immutable file"
+    },
+    {
+      "path": "local/xpf-decoded/FLDDATA/MAP/FIELD/FIELD_1D.XPF/a.xmp",
+      "bytes": 52128,
+      "sha256": "19e42b385e03ffab7be7b57f8607ebc40591a0331c2e7f24586f9d01f42f7815",
+      "scope": "whole immutable file"
+    }
+  ]
+}
