@@ -566,7 +566,7 @@ struct SceneRenderer::Impl {
         EffectSubmissions previewSubmissions;
         if(!effectSubmissions)for(unsigned slot=0;slot<84;++slot) {
             if(mapEffects&&(*mapEffects)[slot]&&((*mapEffects)[slot]->id!=17||((*mapEffects)[slot]->flags&0x20)))
-                previewSubmissions.push_back({slot,*(*mapEffects)[slot]});
+                previewSubmissions.push_back({slot,(*mapEffects)[slot]->snapshot()});
             if(effects&&(*effects)[slot])previewSubmissions.push_back({slot,*(*effects)[slot]});
         }
         for(const auto& submission:effectSubmissions?*effectSubmissions:previewSubmissions){

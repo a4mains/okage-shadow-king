@@ -51,6 +51,11 @@ struct EffectWaterSurface {
     unsigned active=0,rate=0,rate_counter=0,period=0,period_counter=0;
     bool initialized=false;
 };
+using EffectQuadPositions=std::array<std::array<std::int16_t,3>,4>;
+// Shape28 factory packet: template34 retains its shared mutable XYZ storage.
+struct EffectFlameGeometry {
+    EffectQuadPositions positions{{{32,-64,0},{-32,-64,0},{32,0,0},{-32,0,0}}};
+};
 struct MapEffectElement {
     Float4 position{},rotation{},scale{},color{},interval{};
     std::uint32_t id=0,shape=0,flags=0,primitive_flags=0,program=0,next_program=0;
@@ -62,7 +67,7 @@ struct MapEffectElement {
     std::vector<std::uint16_t> cylinder_t;
     std::optional<std::uint32_t> cylinder_source_id;
     // Torch91 uses independent mutable flame quads and atlas coordinates.
-    std::array<std::array<std::int16_t,3>,4> quad_positions{};
+    EffectQuadPositions quad_positions{};
     std::array<std::array<std::uint16_t,2>,4> quad_uv{};
     std::vector<std::array<std::int16_t,3>> strip_positions;
     std::vector<std::uint8_t> strip_tags;
@@ -86,6 +91,7 @@ struct ProceduralEffectGeometry {
 ProceduralEffectGeometry make_procedural_effect_shape(unsigned shape,const SineTable&,
     const std::function<std::uint32_t()>& random,const std::array<std::uint32_t,2>& texture_size={});
 struct EffectTemplatePreparation {
+    std::shared_ptr<EffectFlameGeometry> flame=std::make_shared<EffectFlameGeometry>();
     EffectNoiseGrid noise;
     std::array<std::array<std::uint32_t,2>,66> cache_owners{};
     std::array<std::shared_ptr<const ProceduralEffectGeometry>,66> geometry{};
@@ -104,6 +110,9 @@ public:
     MapEffect(const EffectDefinition&,const Float4& position,const Float4& rotation,
               const Float4& scale,const EffectTextureSizes&,
               const std::function<std::uint32_t()>& random,EffectStart start=EffectStart::RandomPhase);
+    void bind_flame_geometry(std::shared_ptr<EffectFlameGeometry>);
+    const EffectQuadPositions& flame_positions(const MapEffectElement&) const;
+    MapEffect snapshot() const;
     void set_parameter(unsigned selector,const Float4& payload);
     //0x1016a8 writes signed integer -> float into job parameters+50..5f.
     void set_numeric_parameter(std::int32_t);
@@ -126,6 +135,7 @@ public:
     std::optional<int> actor_alias;
     std::vector<MapEffectElement> elements;
     std::shared_ptr<const std::vector<MapEffectVertex>> shape55_geometry;
+    std::shared_ptr<EffectFlameGeometry> flame_geometry;
 private:
     void set_texture(MapEffectElement&,unsigned);
     EffectTextureSizes texture_sizes_;

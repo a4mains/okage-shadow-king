@@ -364,6 +364,44 @@ int main(int argc,char** argv){try{
     deferred.elements[0].primitive_flags=8;
     deferred.elements[0].shape=40;deferred.elements[0].texture=0xffffffffu;
     rejects(deferred_draw);
+    {
+        okage::EffectDefinition smoke;smoke.id=34;smoke.duration=140;smoke.flags=0x8000;
+        smoke.elements.resize(14);
+        for(unsigned i=0;i<14;++i) {
+            auto& e=smoke.elements[i];e.id=i+1;e.shape=i<3?28:31;
+            e.flags=i<3?0x400148:0x400401;e.primitive_flags=i<3?0x201:0x41;
+            e.change_time=1.1f;e.program=i==0?5u<<6:0;
+        }
+        auto factory=std::make_shared<okage::EffectFlameGeometry>();
+        auto create=[&] {
+            okage::MapEffect value(smoke,{},{},{1,1,1,1},sizes,[]{return 0u;});
+            value.bind_flame_geometry(factory);value.flags|=0x20;
+            value.elements[0].interval[2]=1;return value;
+        };
+        auto a=create(),b=create();const auto initial=factory->positions;
+        const auto uv=a.elements[1].quad_uv;
+        const auto queued=a.snapshot();unsigned draws=0;
+        auto flip=[&]{++draws;return 0u;};
+        a.tick(flip);check(draws==1&&factory->positions[0][0]==-32);
+        for(unsigned i=0;i<3;++i) {
+            check(a.flame_positions(a.elements[i])==factory->positions);
+            check(b.flame_positions(b.elements[i])==factory->positions);
+            check(queued.flame_positions(queued.elements[i])==initial);
+        }
+        check(a.elements[1].quad_uv==uv);
+        okage::MapEffect private_job(torch,{},{},{1,1,1,1},sizes,[]{return 0u;});
+        private_job.bind_flame_geometry(factory);
+        check(private_job.elements[0].quad_positions[0][0]==-32);
+        private_job.flags|=0x20;private_job.elements[0].program=5u<<6;
+        private_job.elements[0].interval[2]=1;private_job.tick(flip);
+        check(draws==2&&private_job.elements[0].quad_positions[0][0]==32);
+        check(factory->positions[0][0]==-32);
+        b.tick(flip);check(draws==3&&factory->positions==initial);
+        check(a.flame_positions(a.elements[0])==initial);
+        //A later spawn sees the persistent factory, without consuming RNG.
+        a.elements[0].interval[2]=1;a.tick(flip);
+        const auto later=create();check(later.flame_positions(later.elements[0])[0][0]==-32);
+    }
     okage::EffectDefinition overlay;overlay.id=115;overlay.duration=500;overlay.flags=0x400;
     overlay.elements.resize(5);
     for(unsigned i=0;i<5;++i){auto& e=overlay.elements[i];e.shape=i?31:32;

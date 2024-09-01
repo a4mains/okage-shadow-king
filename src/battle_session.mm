@@ -331,6 +331,7 @@ struct BattleSession::Impl {
             effect->shape55_geometry=std::shared_ptr<const std::vector<MapEffectVertex>>(geometry,&geometry->vertices);
             break;
         }
+        if(effect->flame_geometry&&effect_preparation)effect->bind_flame_geometry(effect_preparation->flame);
         effect->source_position_w_available=source_w_available;
         effects[slot]=std::move(effect);return slot;
     }
@@ -345,6 +346,7 @@ struct BattleSession::Impl {
         try {effect=std::make_unique<MapEffect>(*definition,definition->position,definition->rotation,definition->scale,
             renderer->effect_texture_sizes(),[&]{return random.next();},EffectStart::FirstFrame);}
         catch(const std::exception& error){throw std::runtime_error("Battle attached effect"+std::to_string(id)+": "+error.what());}
+        if(effect->flame_geometry&&effect_preparation)effect->bind_flame_geometry(effect_preparation->flame);
         effect->actor_alias=int(actor.entity_id);effects[slot]=std::move(effect);return slot;
     }
     void advance_effects(FieldProjection& projection,GameRandom& random,const SineTable& sine) {
@@ -368,7 +370,7 @@ struct BattleSession::Impl {
             effect.tick([&]{return random.next();},true,&resource_camera_position,&screen);
             if(!(effect.flags&0x100)) {
                 projection.select_effect_near(effect.near_clip);
-                effect_submissions.push_back({slot,effect});
+                effect_submissions.push_back({slot,effect.snapshot()});
             }
         };
         for(unsigned slot=0;slot<effects.size();++slot)if(auto& effect=effects[slot]) {

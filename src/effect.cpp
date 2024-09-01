@@ -144,6 +144,7 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
             "Unrecovered map effect template");
     require(duration>0&&duration<=0x7fffffff,"Invalid map effect duration");
     Rounding rounding;inverse_duration=1.0f/float(duration);
+    if(id==16||id==34||id==91)flame_geometry=std::make_shared<EffectFlameGeometry>();
     const std::array<Float4,5> defaults={Float4{1,1,1,1},Float4{},Float4{},
                                        Float4{1,1,1,1},Float4{0,1,1,0}};
     for(const auto& source:d.elements) {
@@ -255,6 +256,27 @@ void MapEffect::set_parameter(unsigned selector,const Float4& payload) {
         if(target)*target={payload[0],payload[1],payload[2],1};
     }
 }
+void MapEffect::bind_flame_geometry(std::shared_ptr<EffectFlameGeometry> geometry) {
+    require((id==16||id==34||id==91)&&bool(geometry),"Invalid flame factory binding");
+    flame_geometry=std::move(geometry);
+    for(auto& e:elements)if(e.shape==28)e.quad_positions=flame_geometry->positions;
+}
+const EffectQuadPositions& MapEffect::flame_positions(const MapEffectElement& e) const {
+    if(id==34&&e.shape==28) {
+        require(bool(flame_geometry),"Missing shared flame factory");
+        return flame_geometry->positions;
+    }
+    return e.quad_positions;
+}
+MapEffect MapEffect::snapshot() const {
+    auto copy=*this;
+    if(flame_geometry) {
+        copy.flame_geometry=std::make_shared<EffectFlameGeometry>(*flame_geometry);
+        if(id==34)for(auto& e:copy.elements)if(e.shape==28)e.quad_positions=copy.flame_geometry->positions;
+    }
+    return copy;
+}
+
 std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix4& view,
         const Float4& camera,float far_clip,const SineTable& sine,const Float4* light_tint,EffectDrawPass pass,const EffectTextureSizeResolver& texture_size) {
     if(effect.flags&0x4300)return {};
@@ -378,10 +400,10 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
         }
         if(effect.id==91||effect.id==16||(effect.id==34&&e.shape==28)||e.shape==40) {
             if(e.shape==28) {
-                require(e.texture==(effect.id==34?11u:4u),"Unrecovered flame texture");
+                require(e.texture==4||(effect.id==34&&e.texture==11),"Unrecovered flame texture");
                 // Stored geometry already has original strip order B,A,C,D.
                 for(unsigned v:{0u,1u,2u,1u,2u,3u}) {
-                    const auto& p=e.quad_positions[v];const auto& uv=e.quad_uv[v];
+                    const auto& p=effect.flame_positions(e)[v];const auto& uv=e.quad_uv[v];
                     draw.vertices.push_back({{p[0]/64.f,p[1]/64.f,p[2]/64.f,1},white,
                                              {uv[0]/32768.f,uv[1]/32768.f,0,0}});
                 }
@@ -818,8 +840,16 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
             require((id==91||id==16||id==34)&&e.shape==28,"Unrecovered effect flip geometry");
             if(t<e.interval[2]) {
                 const int sign=((random()%10+10)&4)?1:-1;
-                e.quad_positions={{{std::int16_t(sign*32),-64,0},{std::int16_t(sign*-32),-64,0},
-                                  {std::int16_t(sign*32),0,0},{std::int16_t(sign*-32),0,0}}};
+                require(bool(flame_geometry),"Missing flame factory storage");
+                //101960 copies XYZ only for job bit1/element bit0x10.
+                //34 keeps the factory packet itself;105200 reads and writes
+                //that shared packet, so repeated half-turns accumulate.
+                auto next=flame_geometry->positions;
+                for(auto& point:next)point[0]=std::int16_t(sign*point[0]);
+                if(id==34) {
+                    flame_geometry->positions=next;
+                    for(auto& other:elements)if(other.shape==28)other.quad_positions=next;
+                } else e.quad_positions=next;
             }
             break;
                               default:throw std::runtime_error("Unrecovered map effect rotation program");}

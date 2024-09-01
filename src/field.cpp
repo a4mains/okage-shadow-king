@@ -415,6 +415,7 @@ void OpeningField::load_effects(Bytes bytes,std::shared_ptr<const EffectTemplate
     effect_preparation_=std::move(prepared);
 }
 void OpeningField::bind_effect_geometry(MapEffect& effect) const {
+    if(effect.flame_geometry&&effect_preparation_)effect.bind_flame_geometry(effect_preparation_->flame);
     for(const auto& e:effect.elements)if(e.shape==55) {
         if(!effect_preparation_||!effect_preparation_->geometry[55])
             throw std::runtime_error("Field shape55 requires shared template preparation");
@@ -1224,7 +1225,7 @@ void OpeningField::advance_effects() {
             effect->tick(random_value,true,&position);
             if(!(effect->flags&0x100)) {
                 if(render_projection)render_projection->select_effect_near(effect->near_clip);
-                effect_submissions_.push_back({slot,*effect});
+                effect_submissions_.push_back({slot,effect->snapshot()});
             }
         } else if(auto& effect=effects_[slot]) {
             Rounding rounding;
