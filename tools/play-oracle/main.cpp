@@ -1210,9 +1210,10 @@ public:
     }
     void mapEffectGeometry(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output,unsigned templateId=25,const std::vector<uint8>& efd={}) {
         const bool church=templateId==14,shadow=templateId==24,dark=templateId==6,summon=templateId==33||templateId==115,deferred=church||dark||templateId==16||summon;
+        const bool effect34=templateId==34;
         const bool torch=templateId==91,flame=templateId==16||torch,cylinder=templateId==26;
-        const unsigned count=church?7:dark?4:cylinder?2:templateId==33?9:templateId==115?5:templateId==16?3:torch?4:8;
-        const unsigned stride=(38+count*20+(flame?36:shadow?90:templateId==33?30:cylinder?34:0))*4,sp=0x1ff0000,slot=church||shadow||dark||flame||summon||cylinder?0:2;
+        const unsigned count=effect34?14:church?7:dark?4:cylinder?2:templateId==33?9:templateId==115?5:templateId==16?3:torch?4:8;
+        const unsigned stride=(38+count*20+(effect34?208:flame?36:shadow?90:templateId==33?30:cylinder?34:0))*4,sp=0x1ff0000,slot=effect34||church||shadow||dark||flame||summon||cylinder?0:2;
         if(ram.size()!=32*1024*1024||input.empty()||input.size()%stride||input.size()>stride*64)
             throw std::runtime_error("Effect geometry fixture bounds");
         std::vector<uint32> result,packets;
@@ -1220,7 +1221,7 @@ public:
             ee->m_EE.m_executor->Reset();
             std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
             loadMicro();const auto table=get(0x1f849c);
-            if(shadow||deferred||cylinder) {
+            if(effect34||shadow||deferred||cylinder) {
                 effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
                     ee->m_gs,ee->m_sif,*dynamic_cast<CIopBios*>(iop->m_bios.get()));
                 for(unsigned i=0;i<84;++i)put(table+4*i,0xffffffff);
@@ -1247,6 +1248,11 @@ public:
                 else call(0x101440,{templateId,0x81000,0x81010,0x81020});
                 if(uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0)!=slot)
                     throw std::runtime_error("Deferred geometry allocation order");
+            }
+            if(effect34) {
+                const auto lighting=input.data()+at+152+count*80+14*48;
+                std::memcpy(ee->m_ram+0x83000,lighting,48);
+                call(0x183d68,{0x83000});call(0x183d30,{0x83010});call(0x183ce0,{0,0x83020});call(0x1020e0);
             }
             const auto job=get(table+slot*4);
             if(get(job)!=templateId||get(job+8)!=count)throw std::runtime_error("Unexpected captured map effect");
@@ -1280,10 +1286,24 @@ public:
                 std::array<uint32,4> meta;std::memcpy(meta.data(),source+64,16);
                 unsigned texture=0;for(;texture<31;++texture)if(get(get(0x24e780)+texture*4)==(get(e+0x5c)&65535))break;
                 if((church||shadow||dark||summon||(torch&&i==3))&&(get(e+0x5c)&65535)==65535)texture=0xffffffff;
-                const unsigned shape=church?(i==0?25:i==1?40:35):shadow?(i<3?25:i==3?3:i==4?55:31):dark?(i%2?9:7):cylinder?24:summon?(templateId==115?(i?31:32):i==0?40:i==1?25:i==2?59:29):flame?(i<3?28:40):(i<3?24:29);
-                if(meta[0]!=shape||meta[1]!=get(e+0x54)||meta[2]!=get(e+0x58)||meta[3]!=texture)
+                const unsigned shape=effect34?(i<3?28:31):church?(i==0?25:i==1?40:35):shadow?(i<3?25:i==3?3:i==4?55:31):dark?(i%2?9:7):cylinder?24:summon?(templateId==115?(i?31:32):i==0?40:i==1?25:i==2?59:29):flame?(i<3?28:40):(i<3?24:29);
+                if(meta[0]!=shape||meta[1]!=get(e+0x54)||meta[2]!=get(e+0x58)||(!effect34&&meta[3]!=texture)||(effect34&&meta[3]>=31))
                     throw std::runtime_error("Effect geometry input metadata mismatch");
                 std::memcpy(ee->m_ram+r,source,64);
+                if(effect34) {
+                    const auto handle=get(get(0x24e780)+meta[3]*4);
+                    put(e+0x5c,(get(e+0x5c)&0xffff0000)|(handle&0xffff));
+                    std::memcpy(ee->m_ram+e+0x68,input.data()+at+152+count*80+14*48+48+i*8,8);
+                    if(get(g)||(get(g+0x1c)&65535)!=4||(get(g+0x1c)>>16)!=4)
+                        throw std::runtime_error("Effect34 quad fixture extent");
+                    for(unsigned v=0;v<4;++v) {
+                        call(0x113690,{g,v});const auto point=uint32(cpu.m_State.nGPR[CMIPS::V0].nD0);
+                        call(0x113720,{g,0});const auto uv=uint32(cpu.m_State.nGPR[CMIPS::V0].nD0)+v*4;
+                        if(point>ram.size()-6||uv>ram.size()-4)throw std::runtime_error("Effect34 quad address");
+                        const auto packed=input.data()+at+152+count*80+i*48+v*12;
+                        std::memcpy(ee->m_ram+point,packed,6);std::memcpy(ee->m_ram+uv,packed+8,4);
+                    }
+                }
                 if(flame&&i<3) {
                     const auto xyz=get(g+4)+48,uv=get(g+8)+48;
                     if(xyz>ram.size()-24||uv>ram.size()-16)throw std::runtime_error("Torch geometry extent");
@@ -1319,7 +1339,8 @@ public:
                 block(deferred?0x103370:0x102a20,0x1ad3c8);
                 for(unsigned k=0;k<16;++k)result.push_back(get(sp+0x10+k*4));
                 for(unsigned k=0;k<4;++k)result.push_back(get(sp+0x90+k*4));
-                if(at==0) {
+                if(at==0||effect34) {
+                    if(effect34&&i==0)packets.push_back(identity);
                     packets.insert(packets.end(),{i,meta[0],get(e+0x68),get(e+0x6c)});
                     for(unsigned k=0;k<6;++k)packets.push_back(get(r+0x40+k*4));
                     std::vector<uint32> pieces;
@@ -1415,9 +1436,10 @@ public:
         else {call(0x101440,{request[0],0x80000,0x80010,0x80020});handle=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);}
         if(handle!=0)throw std::runtime_error("Map effect allocation order");
         put(0x1f85a4,1);
-        std::vector<uint32> result,geometry,torchGeometry,uvGeometry,shadowUV;
+        std::vector<uint32> result,geometry,torchGeometry,uvGeometry,shadowUV,effect34Geometry,effect34Aliases,effect34Storage;
         auto capture=[&](unsigned step){
             if(flame)torchGeometry.push_back(step);
+            if(request[0]==34){effect34Geometry.push_back(step);effect34Aliases.push_back(step);effect34Storage.push_back(step);}
             const auto job=get(table+4*handle);
             if(job>ram.size()-128||get(job+8)>32)throw std::runtime_error("Map effect job extent");
             result.insert(result.end(),{step,handle,get(job),get(job+4),get(job+8),get(job+0x60),get(job+0x64),get(random)});
@@ -1436,6 +1458,34 @@ public:
                     else throw std::runtime_error("Map effect texture identity");
                 }
                 result.insert(result.end(),{texture,get(element+0x68),get(element+0x6c),get(render+0x58)});
+                if(request[0]==34) {
+                    const auto g=get(element+0x64);
+                    if(g>ram.size()-48||get(g)||(get(g+0x1c)&65535)!=4||(get(g+0x1c)>>16)!=4)
+                        throw std::runtime_error("Effect34 quad extent");
+                    unsigned owner=i;
+                    for(unsigned j=0;j<i;++j)if(get(get(job+12)+j*128+0x64)==g){owner=j;break;}
+                    effect34Aliases.push_back(owner);
+                    const auto originalJob=get(table+(84+34)*4);
+                    if(originalJob>ram.size()-128||get(originalJob+8)!=14)throw std::runtime_error("Effect34 template extent");
+                    const auto originalElement=get(originalJob+12)+i*128;
+                    if(originalElement>ram.size()-128)throw std::runtime_error("Effect34 template element extent");
+                    const auto originalGeometry=get(originalElement+0x64);
+                    if(originalGeometry>ram.size()-48||get(originalGeometry)||(get(originalGeometry+0x1c)&65535)!=4)
+                        throw std::runtime_error("Effect34 template quad extent");
+                    effect34Storage.insert(effect34Storage.end(),{g,get(g+4),get(g+8),originalGeometry,get(originalGeometry+4),get(originalGeometry+8)});
+                    for(unsigned v=0;v<4;++v){
+                        call(0x113690,{originalGeometry,v});const auto point=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+                        if(point>ram.size()-6)throw std::runtime_error("Effect34 template XYZ extent");
+                        effect34Storage.insert(effect34Storage.end(),{get(point),get(point+4)&65535});
+                    }
+                    effect34Geometry.insert(effect34Geometry.end(),{i,i<3?28u:31u});
+                    for(unsigned v=0;v<4;++v){
+                        call(0x113690,{g,v});const auto point=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0);
+                        call(0x113720,{g,0});const auto uv=uint32(ee->m_EE.m_State.nGPR[CMIPS::V0].nD0)+v*4;
+                        if(point>ram.size()-6||uv>ram.size()-4)throw std::runtime_error("Effect34 quad data extent");
+                        effect34Geometry.insert(effect34Geometry.end(),{get(point),get(point+4)&65535,get(uv)});
+                    }
+                }
                 if(flame&&i<3) {
                     const auto g=get(element+0x64);
                     if(g>ram.size()-48||get(g)||(get(g+0x1c)&0xffff)!=4)
@@ -1520,6 +1570,11 @@ public:
             }
             writeFile((std::string(output)+".packets.bin").c_str(),packets.data(),packets.size()*4);
             writeFile((std::string(output)+".tint.bin").c_str(),ee->m_ram+0x24e620,16);
+        }
+        if(request[0]==34){
+            writeFile((std::string(output)+".effect34-quads.bin").c_str(),effect34Geometry.data(),effect34Geometry.size()*4);
+            writeFile((std::string(output)+".effect34-aliases.bin").c_str(),effect34Aliases.data(),effect34Aliases.size()*4);
+            writeFile((std::string(output)+".effect34-storage.bin").c_str(),effect34Storage.data(),effect34Storage.size()*4);
         }
         if(flame)writeFile((std::string(output)+".torch-geometry.bin").c_str(),torchGeometry.data(),torchGeometry.size()*4);
         if(!geometry.empty())writeFile((std::string(output)+".geometry.bin").c_str(),geometry.data(),geometry.size()*4);
@@ -3545,8 +3600,8 @@ int main(int argc,char** argv) {
             reference.effectShape(readFile(argv[3]),readFile(argv[4]),argv[5],true);
         } else if(command=="effect-shape" && argc==6) {
             reference.effectShape(readFile(argv[3]),readFile(argv[4]),argv[5]);
-        } else if((command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry"||command=="summon33-effect-geometry"||command=="summon115-effect-geometry"||command=="cylinder26-effect-geometry"||command=="dark6-effect-geometry"||command=="church14-effect-geometry") && argc==6) {
-            reference.mapEffectGeometry(readFile(argv[3]),readFile(argv[4]),argv[5],command=="church14-effect-geometry"?14:command=="dark6-effect-geometry"?6:command=="cylinder26-effect-geometry"?26:command=="summon33-effect-geometry"?33:command=="summon115-effect-geometry"?115:command=="flame16-effect-geometry"?16:command=="torch-effect-geometry"?91:25);
+        } else if((command=="effect34-geometry"||command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry"||command=="summon33-effect-geometry"||command=="summon115-effect-geometry"||command=="cylinder26-effect-geometry"||command=="dark6-effect-geometry"||command=="church14-effect-geometry") && argc==6) {
+            reference.mapEffectGeometry(readFile(argv[3]),readFile(argv[4]),argv[5],command=="effect34-geometry"?34:command=="church14-effect-geometry"?14:command=="dark6-effect-geometry"?6:command=="cylinder26-effect-geometry"?26:command=="summon33-effect-geometry"?33:command=="summon115-effect-geometry"?115:command=="flame16-effect-geometry"?16:command=="torch-effect-geometry"?91:25);
         } else if(command=="effect-reference-probe" && argc==6) {
             reference.effectReferenceProbe(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="stream-loop-source" && argc==6) {

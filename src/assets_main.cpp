@@ -951,13 +951,13 @@ int main(int argc, char** argv) {
             }
             write(argv[3],output);return 0;
         }
-        if((command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry"||command=="summon33-effect-geometry"||command=="summon115-effect-geometry"||command=="cylinder26-effect-geometry"||command=="dark6-effect-geometry"||command=="shadow24-effect-geometry"||command=="church14-effect-geometry")&&argc==6) {
+        if((command=="effect34-geometry"||command=="map-effect-geometry"||command=="torch-effect-geometry"||command=="flame16-effect-geometry"||command=="summon33-effect-geometry"||command=="summon115-effect-geometry"||command=="cylinder26-effect-geometry"||command=="dark6-effect-geometry"||command=="shadow24-effect-geometry"||command=="church14-effect-geometry")&&argc==6) {
             const bool summon=command=="summon33-effect-geometry"||command=="summon115-effect-geometry";
-            const unsigned id=command=="church14-effect-geometry"?14:command=="shadow24-effect-geometry"?24:command=="dark6-effect-geometry"?6:command=="cylinder26-effect-geometry"?26:command=="summon33-effect-geometry"?33:command=="summon115-effect-geometry"?115:command=="flame16-effect-geometry"?16:command=="torch-effect-geometry"?91:25;
+            const unsigned id=command=="effect34-geometry"?34:command=="church14-effect-geometry"?14:command=="shadow24-effect-geometry"?24:command=="dark6-effect-geometry"?6:command=="cylinder26-effect-geometry"?26:command=="summon33-effect-geometry"?33:command=="summon115-effect-geometry"?115:command=="flame16-effect-geometry"?16:command=="torch-effect-geometry"?91:25;
             const bool torch=id==91,deferred=id==14||id==6||id==16||summon,flame=torch||id==16;
-            const unsigned count=id==14?7:id==6?4:id==26?2:id==33?9:id==115?5:id==16?3:torch?4:8;
+            const unsigned count=id==34?14:id==14?7:id==6?4:id==26?2:id==33?9:id==115?5:id==16?3:torch?4:8;
             const auto bank=okage::read_efd(read(argv[2]));const auto input=read(argv[4]);
-            const unsigned stride=(38+count*20+(flame?36:id==24?90:id==33?30:id==26?34:0))*4;
+            const unsigned stride=(38+count*20+(id==34?208:flame?36:id==24?90:id==33?30:id==26?34:0))*4;
             if(input.empty()||input.size()%stride||input.size()>stride*64)throw std::runtime_error("Map geometry fixture bounds");
             const auto found=std::find_if(bank.begin(),bank.end(),[&](const auto& d){return d.id==id;});
             if(found==bank.end())throw std::runtime_error("Missing geometry effect template");
@@ -986,6 +986,24 @@ int main(int argc, char** argv) {
                         throw std::runtime_error("Native geometry fixture metadata mismatch");
                     std::memcpy(e.rendered.data(),source,64);e.texture=meta[3];
                     if(e.texture!=0xffffffffu)e.uv={0,0,std::uint16_t(sizes[e.texture][0]-1),std::uint16_t(sizes[e.texture][1]-1)};
+                    if(id==34) {
+                        for(unsigned v=0;v<4;++v){
+                            const auto packed=input.data()+at+152+count*80+i*48+v*12;
+                            const unsigned dest=i<3?v:std::array<unsigned,4>{1,0,2,3}[v];
+                            if(i<3){
+                                std::memcpy(e.quad_positions[dest].data(),packed,6);
+                                if(i==0)effect.flame_geometry->positions[dest]=e.quad_positions[dest];
+                                else if(effect.flame_geometry->positions[dest]!=e.quad_positions[dest])
+                                    throw std::runtime_error("Effect34 shared XYZ fixture mismatch");
+                            }
+                            else {
+                                const std::array<std::int16_t,3> expected={std::int16_t(dest==1||dest==2?32:-32),std::int16_t(dest<2?-32:32),0};
+                                if(std::memcmp(expected.data(),packed,6))throw std::runtime_error("Effect34 static quad XYZ fixture mismatch");
+                            }
+                            std::memcpy(e.quad_uv[dest].data(),packed+8,4);
+                        }
+                        std::memcpy(e.uv.data(),input.data()+at+152+count*80+14*48+48+i*8,8);
+                    }
                     if(flame&&i<3)for(unsigned v=0;v<4;++v) {
                         const auto packed=input.data()+at+152+count*80+i*48+v*12;
                         std::memcpy(e.quad_positions[v].data(),packed,6);
@@ -1003,17 +1021,20 @@ int main(int argc, char** argv) {
                     }
                 }
                 out.push_back(identity);
-                const auto draws=okage::map_effect_draws(effect,view,channels[4],far,sine,nullptr,deferred?okage::EffectDrawPass::Deferred:okage::EffectDrawPass::Ordinary);
+                okage::Float4 tint{};
+                if(id==34){std::array<okage::Float4,3> lighting;std::memcpy(lighting.data(),input.data()+at+152+count*80+14*48,48);
+                    tint=okage::effect_light_tint(lighting[0],lighting[1],lighting[2]);geometry.push_back(identity);materials.push_back(identity);}
+                const auto draws=okage::map_effect_draws(effect,view,channels[4],far,sine,id==34?&tint:nullptr,deferred?okage::EffectDrawPass::Deferred:okage::EffectDrawPass::Ordinary);
                 if(draws.size()!=count)throw std::runtime_error("Missing map effect geometry");
                 for(unsigned i=0;i<draws.size();++i){
                     const auto& d=draws[i];for(const auto& v:d.matrix)append(out,v);append(out,d.color);
-                    if(at==0){geometry.insert(geometry.end(),{i,unsigned(d.vertices.size()),d.texture});
-                        if(summon||id==14||id==24||id==26||id==6)materials.insert(materials.end(),{i,d.subtractive?2u:unsigned(d.additive),unsigned(d.depth_test)});
+                    if(at==0||id==34){geometry.insert(geometry.end(),{i,unsigned(d.vertices.size()),d.texture});
+                        if(id==34||summon||id==14||id==24||id==26||id==6)materials.insert(materials.end(),{i,d.subtractive?2u:unsigned(d.additive),unsigned(d.depth_test)});
                         for(const auto& v:d.vertices){append(geometry,v.position);append(geometry,v.color);append(geometry,v.uv);}}
                 }
             }
             write(argv[5],{reinterpret_cast<const std::uint8_t*>(out.data()),out.size()*4});
-            if(summon||id==14||id==24||id==26||id==6)write(std::string(argv[5])+".materials.bin",{reinterpret_cast<const std::uint8_t*>(materials.data()),materials.size()*4});
+            if(id==34||summon||id==14||id==24||id==26||id==6)write(std::string(argv[5])+".materials.bin",{reinterpret_cast<const std::uint8_t*>(materials.data()),materials.size()*4});
             write(std::string(argv[5])+".vertices.bin",{reinterpret_cast<const std::uint8_t*>(geometry.data()),geometry.size()*4});return 0;
         }
         if(command=="effect-reference-probe"&&argc==4) {
@@ -1051,9 +1072,23 @@ int main(int argc, char** argv) {
             okage::MapEffect effect(*found,position,attached?found->rotation:positioned?okage::Float4{}:vectors[1],
                 attached?found->scale:positioned?okage::Float4{1,1,1,1}:vectors[2],sizes,random,
                 positioned?okage::EffectStart::FirstFrame:okage::EffectStart::RandomPhase);
-            std::vector<std::uint32_t> out,deformation,torchGeometry,cylinderUV,shadowUV,stripGeometry,stripUV,waterGeometry;
+            std::vector<std::uint32_t> out,deformation,torchGeometry,cylinderUV,shadowUV,stripGeometry,stripUV,waterGeometry,effect34Geometry;
             const auto vector=[&](const okage::Float4& v){for(float f:v)out.push_back(std::bit_cast<std::uint32_t>(f));};
             const auto capture=[&](unsigned step){
+                if(request[0]==34){
+                    effect34Geometry.push_back(step);
+                    for(unsigned i=0;i<effect.elements.size();++i){const auto& e=effect.elements[i];
+                        effect34Geometry.insert(effect34Geometry.end(),{i,e.shape});
+                        for(unsigned v=0;v<4;++v){
+                            const unsigned source=i<3?v:std::array<unsigned,4>{1,0,2,3}[v];
+                            const std::array<std::int16_t,3> p=i<3?effect.flame_positions(e)[source]:
+                                std::array<std::int16_t,3>{std::int16_t(source==1||source==2?32:-32),std::int16_t(source<2?-32:32),0};
+                            const auto& uv=e.quad_uv[source];
+                            effect34Geometry.insert(effect34Geometry.end(),{std::uint16_t(p[0])|(std::uint32_t(std::uint16_t(p[1]))<<16),
+                                std::uint16_t(p[2]),uv[0]|(std::uint32_t(uv[1])<<16)});
+                        }
+                    }
+                }
                 if(request[0]==106) {
                     const auto& water=effect.elements.at(0).water;
                     if(!water)throw std::runtime_error("Missing water probe geometry");
@@ -1147,6 +1182,7 @@ int main(int argc, char** argv) {
                 if(attached){effect.position=vectors[0];effect.rotation=vectors[1];}
                 effect.tick(random,true,cameraGlow?&eye:nullptr);
             }capture(i+2);}
+            if(request[0]==34)write(std::string(argv[6])+".effect34-quads.bin",{reinterpret_cast<const std::uint8_t*>(effect34Geometry.data()),effect34Geometry.size()*4});
             if(request[0]==24||request[0]==105)write(std::string(argv[6])+".shadow-uv.bin",{reinterpret_cast<const std::uint8_t*>(shadowUV.data()),shadowUV.size()*4});
             if(request[0]==106)write(std::string(argv[6])+".water.bin",{reinterpret_cast<const std::uint8_t*>(waterGeometry.data()),waterGeometry.size()*4});
             if(request[0]==14){
