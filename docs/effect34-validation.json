@@ -1,0 +1,2139 @@
+{
+  "schema": "okage-effect34-validation-v1",
+  "runtime_commits": [
+    "1456aee",
+    "0c29b48"
+  ],
+  "tooling_commit": "7b4a0dc",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "source_comparison": {
+    "builds": [
+      "Release",
+      "Debug",
+      "ASan/UBSan"
+    ],
+    "state_words_exact": 291540,
+    "packed_xyz_uv_words_exact": 75936,
+    "draw_cases": 16,
+    "draw_matrices_colors": 224,
+    "vertices_exact": 1344,
+    "float_tolerance": 0,
+    "raster_pixels": "not compared",
+    "whole_scene_departure": "not captured"
+  },
+  "native_progress": {
+    "run": "local/research/effect34-integration-v1/native-release-v3/run.json",
+    "complete_ticks": [
+      1,
+      20153
+    ],
+    "failure_frame": 20154,
+    "failure": "Unrecovered field mode request 14",
+    "pc": "0x3ef4",
+    "snapshot_frame": 18800,
+    "story": 5,
+    "scene": 1,
+    "hp": 36,
+    "gifts": [
+      77,
+      80,
+      112
+    ],
+    "saves_unchanged": true,
+    "new_gameplay_save": false
+  },
+  "limits": [
+    "Different asynchronous startup readiness; equal pad inputs do not imply equal state histories.",
+    "Original draw fixtures use explicit synthetic camera/job/lighting with source output data in diagnostics only.",
+    "Original multi-job/cross-scene mutation not executed; source recovery and unit coverage support shared preparation lifetime.",
+    "Prior original/native whole-interval failures remain unresolved.",
+    "No performance, listening, physical-controller, physical-PS2 or complete-playthrough claim."
+  ],
+  "artifacts": [
+    {
+      "path": "build/model-sanitize/effect-tests",
+      "bytes": 5068976,
+      "sha256": "848cdade22eb82942454bf62e9025b03f06d22019da10566e4a15d27067d086c"
+    },
+    {
+      "path": "build/model-sanitize/field-tests",
+      "bytes": 12862536,
+      "sha256": "c83789914c9c10fef7c4113ac05f8859de41b9beb46ab00fba9d01536567dbb8"
+    },
+    {
+      "path": "build/model-sanitize/okage-assets",
+      "bytes": 15711648,
+      "sha256": "0373bdeadeb674d5a622ef19ec00ac687110ba8d2707d5b4496db1570a84568a"
+    },
+    {
+      "path": "build/native/effect-tests",
+      "bytes": 1676416,
+      "sha256": "5a403fd2b0fe09db8adb29d48d3f2d1168dc331c8440c9a66611e4895dfd2985"
+    },
+    {
+      "path": "build/native/field-tests",
+      "bytes": 4226184,
+      "sha256": "c9adbfdaad8b51d545d0981689f60d6faff32aa6a6e06d8fe75a4fa167483166"
+    },
+    {
+      "path": "build/native/okage-assets",
+      "bytes": 4895328,
+      "sha256": "3c58e738b5a4e4a286cf6acee91aec273bc9c95c14e4864013e76d37b43f1e9c"
+    },
+    {
+      "path": "build/native-release/effect-tests",
+      "bytes": 569328,
+      "sha256": "50cc6e0f37f6003fac5be3f77e1bccf2be5e152b873110288f2fd46c5afcd8e0"
+    },
+    {
+      "path": "build/native-release/field-tests",
+      "bytes": 1173944,
+      "sha256": "d89f8719b939527c24934755764e47d659384e7f0f680724d78af177ce8e5620"
+    },
+    {
+      "path": "build/native-release/okage-assets",
+      "bytes": 1232928,
+      "sha256": "2c47f352c34697fd2400ba9dd07174928b3a7cbfc4bbd0610cfa3592bb9f2ccb"
+    },
+    {
+      "path": "build/native-release/okage-native.app/Contents/MacOS/okage-native",
+      "bytes": 3163696,
+      "sha256": "b57929467535a0c46333d56adbd03170b675c847fc8b53f1cefc19bbf6d626d1"
+    },
+    {
+      "path": "local/effect-input/CMNDATA/2D/TES.EFD",
+      "bytes": 98972,
+      "sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c"
+    },
+    {
+      "path": "local/extracted/SCUS_971.29",
+      "bytes": 1374220,
+      "sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/build-debug-v1.json",
+      "bytes": 208,
+      "sha256": "a07d6329fa73d100811525a0783fafe4e6d07fd6b6779504fa803cebe9e64aed"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/build-debug-v1.log",
+      "bytes": 280,
+      "sha256": "53288621768f9db7f8357c3050f48bff8f5542615532893a5fec7fc996f2663d"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/build-field-release-v1.log",
+      "bytes": 118,
+      "sha256": "53485d309e84411d4fc00363dbac13da53bc224bbe0b1987bc867d2fa6abbabb"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/build-release-v1.log",
+      "bytes": 206,
+      "sha256": "2baf0f9f6fdc58333efa607e97ec9982874ac079dbc427fb43cf7c7f6be0532a"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/build-release-v2.json",
+      "bytes": 216,
+      "sha256": "edac34bc7fb11288a7a841778928ebdadd70e4b6a7e1b86926d6d4296066f604"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/build-release-v2.log",
+      "bytes": 280,
+      "sha256": "53288621768f9db7f8357c3050f48bff8f5542615532893a5fec7fc996f2663d"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/build-sanitize-v1.json",
+      "bytes": 209,
+      "sha256": "c7cdead793c68efac3bd45f4e89a56a900c797dbf3aff8265ea9e885ad8547d4"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/build-sanitize-v1.log",
+      "bytes": 280,
+      "sha256": "53288621768f9db7f8357c3050f48bff8f5542615532893a5fec7fc996f2663d"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/build-shared-debug-v1.log",
+      "bytes": 2477,
+      "sha256": "4647fa9c813b47876a3752bf7a2d78a96a87aca414e1383c262de45a6b6acbab"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/build-shared-release-v1.log",
+      "bytes": 2477,
+      "sha256": "4f6357b5653568675d860825fed9ffd0d897cc5d57369fd8754588cfc1bf1105"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/build-shared-sanitize-v1.log",
+      "bytes": 2477,
+      "sha256": "609128d14be943e9d5eee9d6d0ab77857980ca3301d5c24beafafebf1f5fdeb9"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/build-tools-debug-v1.log",
+      "bytes": 118,
+      "sha256": "16ebcb23f370c270c79b25efb6210924c3943e7966d4c8b9794b7c1d1288aa10"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/build-tools-release-v1.log",
+      "bytes": 118,
+      "sha256": "16ebcb23f370c270c79b25efb6210924c3943e7966d4c8b9794b7c1d1288aa10"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/build-tools-sanitize-v1.log",
+      "bytes": 118,
+      "sha256": "16ebcb23f370c270c79b25efb6210924c3943e7966d4c8b9794b7c1d1288aa10"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/ctest-debug-v1.log",
+      "bytes": 325,
+      "sha256": "ca501fbdf26ca8983c7e37f5e8e6f91862d119dd6db424fdbab75a72838322a6"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/ctest-release-v2.log",
+      "bytes": 341,
+      "sha256": "2df3cbed71531e6ce322a424550d9b3dc29bba536013931ab278c50ff2f03e5a"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/ctest-sanitize-v1.log",
+      "bytes": 341,
+      "sha256": "dcd2770ced60e79dd61d5263315e4e143dd8870e3473d9e54ea5efb8f46d5a09"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/ctest-shared-debug-v1.log",
+      "bytes": 421,
+      "sha256": "4444d94250ab8466a729a703731a75d01b24d50c6cd0a06ee1023cdc6e72be01"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/ctest-shared-sanitize-v1.log",
+      "bytes": 437,
+      "sha256": "7804393a6ae6bae0eac53107ae3412d319970b878b213d29c15de1c32f62507c"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/field-final-debug.log",
+      "bytes": 442,
+      "sha256": "276bfab24ee8d67a335ca6aef2affbff3e2fcd586a02de7989c4601a34803545"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/field-final-sanitize.log",
+      "bytes": 458,
+      "sha256": "2c11f16e4c2f08e97be35cb285cb68b4b4fa48d5eaff9f877e4672b37330e7b5"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-debug-v1/draw.bin",
+      "bytes": 17984,
+      "sha256": "046ac5550fc403fc327d227db755d7a5f7c7d76e2d6550ec2873c701c2dde381"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-debug-v1/draw.bin.materials.bin",
+      "bytes": 2752,
+      "sha256": "5bbf6bb77e71990445a42627cb22123e3364e4a18a922878d6158f607d267207"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-debug-v1/draw.bin.vertices.bin",
+      "bytes": 67264,
+      "sha256": "30f2baea92fc849de763fa4a11ae481fbe5600955a2b8956291c7beeaa49eeb7"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-debug-v1/draw.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-debug-v1/draw.run.json",
+      "bytes": 342,
+      "sha256": "9ea33dccc366eaeaddfba63ab40cdbca9358748440b465961e4c5c07eddd6d52"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-debug-v1/report.json",
+      "bytes": 9889,
+      "sha256": "a486246c536ec8ccbf5ef29a6d67a97cd7b0dc61fb0ca10caf5689c9d34c21b1"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-debug-v1/state.bin",
+      "bytes": 1166160,
+      "sha256": "61251f987d6519892366f86254d24ac498387065acd373d64c3da3aa79e7de75"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-debug-v1/state.bin.effect34-quads.bin",
+      "bytes": 356176,
+      "sha256": "14f05fe9482a20eecb92b389363c1c7566972ef717e74f53a4e9eb7269995cee"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-debug-v1/state.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-debug-v1/state.run.json",
+      "bytes": 348,
+      "sha256": "0271e002bc7b66f658c63bfd60e39c5e7a704705c5045ce2f5e50a07296691e6"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-debug-v1.log",
+      "bytes": 57,
+      "sha256": "e41ce7e8074822af39e3b52b55de1562c391be00817a878c8b5047135cdbc2ac"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-release-v1/draw.bin",
+      "bytes": 17984,
+      "sha256": "046ac5550fc403fc327d227db755d7a5f7c7d76e2d6550ec2873c701c2dde381"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-release-v1/draw.bin.materials.bin",
+      "bytes": 2752,
+      "sha256": "5bbf6bb77e71990445a42627cb22123e3364e4a18a922878d6158f607d267207"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-release-v1/draw.bin.vertices.bin",
+      "bytes": 67264,
+      "sha256": "30f2baea92fc849de763fa4a11ae481fbe5600955a2b8956291c7beeaa49eeb7"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-release-v1/draw.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-release-v1/draw.run.json",
+      "bytes": 352,
+      "sha256": "7654bef87a060f05ce6e567df5145c18370d6bc1a6bc53fac5ce1429d27f2818"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-release-v1/report.json",
+      "bytes": 9909,
+      "sha256": "cd480aff6131d4f760e1bc77237dbecc7e3d19ddb9c40623ef97b412f88b7f30"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-release-v1/state.bin",
+      "bytes": 1166160,
+      "sha256": "61251f987d6519892366f86254d24ac498387065acd373d64c3da3aa79e7de75"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-release-v1/state.bin.effect34-quads.bin",
+      "bytes": 356176,
+      "sha256": "14f05fe9482a20eecb92b389363c1c7566972ef717e74f53a4e9eb7269995cee"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-release-v1/state.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-release-v1/state.run.json",
+      "bytes": 358,
+      "sha256": "878320f846dd5bb164a933dafa974958f6afa9fa0a7c105db664eb5f06ff4bd2"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-release-v1.log",
+      "bytes": 57,
+      "sha256": "e41ce7e8074822af39e3b52b55de1562c391be00817a878c8b5047135cdbc2ac"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-sanitize-v1/draw.bin",
+      "bytes": 17984,
+      "sha256": "046ac5550fc403fc327d227db755d7a5f7c7d76e2d6550ec2873c701c2dde381"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-sanitize-v1/draw.bin.materials.bin",
+      "bytes": 2752,
+      "sha256": "5bbf6bb77e71990445a42627cb22123e3364e4a18a922878d6158f607d267207"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-sanitize-v1/draw.bin.vertices.bin",
+      "bytes": 67264,
+      "sha256": "30f2baea92fc849de763fa4a11ae481fbe5600955a2b8956291c7beeaa49eeb7"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-sanitize-v1/draw.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-sanitize-v1/draw.run.json",
+      "bytes": 353,
+      "sha256": "2505f704a52ebb2286c4c557078400e8d769162933e39e24dd447807ec82c535"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-sanitize-v1/report.json",
+      "bytes": 9911,
+      "sha256": "4cfe4c9e2a269cb14b386fef94d2d98c3f21489d29515fe350f68b497e341f51"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-sanitize-v1/state.bin",
+      "bytes": 1166160,
+      "sha256": "61251f987d6519892366f86254d24ac498387065acd373d64c3da3aa79e7de75"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-sanitize-v1/state.bin.effect34-quads.bin",
+      "bytes": 356176,
+      "sha256": "14f05fe9482a20eecb92b389363c1c7566972ef717e74f53a4e9eb7269995cee"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-sanitize-v1/state.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-sanitize-v1/state.run.json",
+      "bytes": 359,
+      "sha256": "a32abac251c4e916b5d36ef082703e9dfb2024a2fa824b8811afeca312e44b95"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/geometry-sanitize-v1.log",
+      "bytes": 57,
+      "sha256": "e41ce7e8074822af39e3b52b55de1562c391be00817a878c8b5047135cdbc2ac"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-before-effect34",
+      "bytes": 3162176,
+      "sha256": "db88d3a9ad1999f924914c1f0b86a845a561f73ea0c56fc8ccc2ec910ab81b3f"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v1/README.md",
+      "bytes": 724,
+      "sha256": "76e58c14b0eb70f83be108a5228652e3d9b54c7ef4d93f75dfe483c3388b5d7e"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v1/buttons.txt",
+      "bytes": 1875,
+      "sha256": "d3634e33dea4e9c1a1b2abe4864061e1dec56ddb8095a8ff26d92762b2ec5a6b"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v1/directions.txt",
+      "bytes": 617,
+      "sha256": "9fa913bfe55e931703d3b90b5bcb1798b8facbca64c4b568b26ea926771bc479"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v1/launch-command.json",
+      "bytes": 1118,
+      "sha256": "f9ccf92d0288c546270c11a5f4f6ca6532184dd57f8c9e31b727d9f340f2c3cb"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v1/pending.json",
+      "bytes": 1635,
+      "sha256": "105b721f7f9f3cd0bbd9f5f113b52121b2de071ef4fd9ef0b44696b808afc888"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v1/preparation.json",
+      "bytes": 6383,
+      "sha256": "c69da567a9d118406aa6ff4d12822eaf65276a7c9ef5f7e1b58f52225218e41b"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v1/run.json",
+      "bytes": 1990,
+      "sha256": "b64f90f2dc35f6578e8ac252ba9e2ea02e4894c5454067cfd2f35ce2379c9981"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v1/run.log",
+      "bytes": 44,
+      "sha256": "d5ff8600b5d49a6e4f13fca06b0959135f3db77015bdef23382fd700913749a0"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v1/saves/bkmo0.dat",
+      "bytes": 3460,
+      "sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v1/saves/bkmo1.dat",
+      "bytes": 3460,
+      "sha256": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v1/saves/bkmo2.dat",
+      "bytes": 3460,
+      "sha256": "dda3ee0c0a745c20e3c7ba3de2710bd5fb3b5a0202eb2379bc65205818df725f"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/README.md",
+      "bytes": 785,
+      "sha256": "42f11a6a5035fdce25095dff4210d93119b8976d604097af5a997beef650cb5a"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/buttons.txt",
+      "bytes": 1875,
+      "sha256": "d3634e33dea4e9c1a1b2abe4864061e1dec56ddb8095a8ff26d92762b2ec5a6b"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/commands.txt",
+      "bytes": 218,
+      "sha256": "234e154bc4a82b8ee2b19f86a9cdff34d096af4f17c297a7577c8fc81d2244cd"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png",
+      "bytes": 337182,
+      "sha256": "d5daca5374ddc93052d00ca5d230961e6a1251128fece0a9cb395b6448e5dc91"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor-1.bin",
+      "bytes": 62356536,
+      "sha256": "64406ce5e41553e23704a777157240b4df198632c5177e9e882501d253f3d735"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor-10.bin",
+      "bytes": 35200000,
+      "sha256": "e8d28a4fc75be9c44581501b76b2dd044b0adce3b95a61882696d345c2519b51"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor-11.bin",
+      "bytes": 31872000,
+      "sha256": "f21ad57b7760a945e69df502fdf21db19cd7748e5cd0d1fe99300cc530cb9bd0"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor-12.bin",
+      "bytes": 46464000,
+      "sha256": "a282031bc864dbb4d36161d315bbd20c3a408fea1ae0b37b9e61a9937f04aa55"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor-13.bin",
+      "bytes": 44416000,
+      "sha256": "dfbe1f96f4e15f49d21a3ba0057e16530478c56753ae50e5121a23813dd78211"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor-14.bin",
+      "bytes": 55360000,
+      "sha256": "4f44bb9d0b7de5002e09bf9c8126b7724127b242533424a4b6867e7ab6e39132"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor-15.bin",
+      "bytes": 24420,
+      "sha256": "8984f13302b7def8ac1d08b2b65478c60ca2d272cf6de3736ed8b0c5a4785b43"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor-16.bin",
+      "bytes": 24420,
+      "sha256": "1d0cb982d57eb4110e38cb06f16bb40e960165cc6e067d42d31372421b4142da"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor-17.bin",
+      "bytes": 24420,
+      "sha256": "27955838c8a3edfc6a741baaf50bdc8f257fad688f52f9d68a9b9508ef13f2a6"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor-18.bin",
+      "bytes": 24420,
+      "sha256": "27955838c8a3edfc6a741baaf50bdc8f257fad688f52f9d68a9b9508ef13f2a6"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor-24.bin",
+      "bytes": 82944000,
+      "sha256": "89e4eb1185b7c49eea638a939343c36ebe6a6a924d8a41d56e409a7590d1d9c3"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor-3.bin",
+      "bytes": 52403220,
+      "sha256": "a9a637ef3f3e3c288dfc28f4f438c9d3360d2cf32c1217d76e6806ce760f6c7b"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor-30.bin",
+      "bytes": 451440,
+      "sha256": "e39de64f757cf33e24e48bf61735ac978f9cade347424775b1aabd85a714a4d2"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor-31.bin",
+      "bytes": 442860,
+      "sha256": "2595346c5817a2efa1ce7b15500cb2d2fa78bc0e041eddd6616c5a80d7c30454"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor-32.bin",
+      "bytes": 394020,
+      "sha256": "2940ed940a5cf7c6ab4d206ce84c1ece20fcd686e035bcda2c3851e259712a51"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor-33.bin",
+      "bytes": 479160,
+      "sha256": "e9e0387dd4fa1b8fb9ec671e1ef6b1788d684486329574f9231c9cd64ffa6a51"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor-34.bin",
+      "bytes": 363000,
+      "sha256": "ae881bc7364e2bd56f4c844a434ad7b465738cb57f858656277ddaa27134af53"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor-35.bin",
+      "bytes": 328680,
+      "sha256": "87895737e205447ee326fd5d6242913ff2f84ca754df8eb88ba5c830a995b52e"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor-36.bin",
+      "bytes": 24420,
+      "sha256": "9b1ccbc72a431208353f533d31de9c86870d7dd459f4f7a5ae7a539406b87c73"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor-37.bin",
+      "bytes": 24420,
+      "sha256": "aae40a8502a83b2e8a0c2086d31c6ec86ead6a4dae8212abd35c75ef6922ba0e"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor-9.bin",
+      "bytes": 42944000,
+      "sha256": "4fdac2316c12f62c3ee447ce7d82717065117652c2914862e59e4bed913fd254"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actor.bin",
+      "bytes": 38208000,
+      "sha256": "e06980f2d8e68c88ed7e64adee6c891c9b1cd5ff49498c7f46e32488166835f7"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.actors-state.json",
+      "bytes": 40340,
+      "sha256": "ad917f0d53e267151300834712ac5f40463cbf750e517909acd4b179994ae01c"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.audio.json",
+      "bytes": 163,
+      "sha256": "19e37e5e7acfa8db23ad70d850b963c3b864399f67657f24b59dab2e90550177"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.audio.pcm",
+      "bytes": 60160000,
+      "sha256": "f4952f48c6c3303b29995b488799d7c41e96aee6dbdbba5ad14c1edbeaa94d77"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.battle-capture.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.battle-loading.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.battle-transition.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.camera-state.bin",
+      "bytes": 329580,
+      "sha256": "fc547f57f9528d45b6c979e45aecd3156a58915a6a2afdcf2b7acbcb99c8295d"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.camera.bin",
+      "bytes": 1054656,
+      "sha256": "dbcbd311376b54940abfea91ccd250371c2ffcce506c5b19b3f0c24a8b153271"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.chapter-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.choices.bin",
+      "bytes": 790992,
+      "sha256": "6eee56655006b405cc36bf0eb2a3dfdd857f6ccf66edaf4d42cee50fdde778db"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.dialogue.bin",
+      "bytes": 790992,
+      "sha256": "1e57f610061c71da8c374a6cce8b8301bce1b0fcf0aa85b56ee2ca7fc683be8e"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.effect-submissions.bin",
+      "bytes": 9124664,
+      "sha256": "300d84e9bdaa85823fdf4af011159f00b0c37f57eeb8d9c001609982e0697add"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.effects.bin",
+      "bytes": 251028,
+      "sha256": "0fc6768480f598568bc86be1ad933e9ef8661b1736d0166fd28ef58db9996ffc"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.game-mode.bin",
+      "bytes": 298700,
+      "sha256": "662af0e5d74a81b3f995717fe4c0b6c04df53a01376653ef9299c0dd32a525f9"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.interaction.bin",
+      "bytes": 527328,
+      "sha256": "2fff41d9937012dd5302b7497c6153647b222772994c5fd5d2e1d1eacc26e015"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.json",
+      "bytes": 1088,
+      "sha256": "b06e56f4f67844b1def138771ec03979a0557cee45dba04edd886414f098303e"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.map-effects.bin",
+      "bytes": 229567096,
+      "sha256": "1fa1c7d08e00a765c51c6715fedb190f7ea2f410d64067ab533121b8a4192673"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.movement.bin",
+      "bytes": 1054656,
+      "sha256": "141c43259ec4e9fa0c211934323546fb51d6ec554cfce14324bdbc7a2b250dc0"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.music.bin",
+      "bytes": 376000,
+      "sha256": "16a7cf5701b4fbb48b4c77fff219a2d04649058e75e9ed6c707e1c8d69945da3"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.name-entry-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.ordinary-load.bin",
+      "bytes": 29844,
+      "sha256": "1977f9520c0e3f33eb7a8b32fad80e6a827d277a07c07b2f22223e86f423e1b3"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.projection.bin",
+      "bytes": 6196104,
+      "sha256": "457dc9215cdf4a014ac106e972b6a02c2badf22fe5f1446db6c4ce3025507ae4"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.restore-state.bin",
+      "bytes": 1736928,
+      "sha256": "b0cf4a42af3882521f4fb4768dbfed2b6d64243e196cf57f79fc92ad95b9c7b8"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.results.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.retiring-effects.bin",
+      "bytes": 308224,
+      "sha256": "c5151533aa723cbfd6feed467d58d5e469731e457c6f93045971f55340c9682e"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.save-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.screen-filter.bin",
+      "bytes": 263664,
+      "sha256": "1c14eadf086ed89fa0bfc47b7dd3d153347587b187cd6100f30fe7142a6a2e00"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.shadow-submissions.json",
+      "bytes": 816,
+      "sha256": "8d0ffcf0ed25c02d7042662990370e0000e59af64e61caa56732fa855791b4f7"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.shadow.bin",
+      "bytes": 1977480,
+      "sha256": "203dbe4da321b2609ef38f2de628f2ccda9a9306bba6d021881f1e2fff98f6d1"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.sound.bin",
+      "bytes": 360,
+      "sha256": "bccfc0d5bd51101a9851106edc01a8c63a1197832b5ec24cacd32cd7de1838d0"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.startup.bin",
+      "bytes": 29040,
+      "sha256": "f6926de34d0ad9f2dc326e82364e160eef1874b163d69d01a4abdda4d6dec5c2"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.title-state.bin",
+      "bytes": 74820,
+      "sha256": "f74921ce24fb3460c720687f609eef3614de9481b8b850624cb210deed198641"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.transition.bin",
+      "bytes": 527328,
+      "sha256": "814a0fc644c011b0a8f7f30d1fd2a29b945cef8e12e8874b3ea79caf223d4aab"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.ui-party.bin",
+      "bytes": 288,
+      "sha256": "2d5565fb483d8ea4525a7a9229677d1038ad34b6e22c8d5152e1d7f7b9817597"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/control/outdoor-entry.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "e28f7bd841ccbf7bdb180cd113824b3b858be0b928d37c7b96a6595315319756"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/directions.txt",
+      "bytes": 617,
+      "sha256": "9fa913bfe55e931703d3b90b5bcb1798b8facbca64c4b568b26ea926771bc479"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/inputs.jsonl",
+      "bytes": 1822656,
+      "sha256": "9ea8639cf1362414e46e619eb0958dcdc891325153dc40df1a21cf993de6f52d"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/launch-command.json",
+      "bytes": 1118,
+      "sha256": "55a16d6120f916d5939f75fc517a0fad2f3750f1e13a9210c1ecefbe6a631b68"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/pending.json",
+      "bytes": 1635,
+      "sha256": "a9d4410bd8d205674aab741dba6aa9ba98b68e49896ca81a5815ae5c665b273e"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/preparation.json",
+      "bytes": 7282,
+      "sha256": "02693a95b8ee5aea64a4cd78c560f0a573c33b03d5d4df8f16684fd1fde835db"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png",
+      "bytes": 337182,
+      "sha256": "d5daca5374ddc93052d00ca5d230961e6a1251128fece0a9cb395b6448e5dc91"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor-1.bin",
+      "bytes": 62356536,
+      "sha256": "64406ce5e41553e23704a777157240b4df198632c5177e9e882501d253f3d735"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor-10.bin",
+      "bytes": 35200000,
+      "sha256": "e8d28a4fc75be9c44581501b76b2dd044b0adce3b95a61882696d345c2519b51"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor-11.bin",
+      "bytes": 31872000,
+      "sha256": "f21ad57b7760a945e69df502fdf21db19cd7748e5cd0d1fe99300cc530cb9bd0"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor-12.bin",
+      "bytes": 46464000,
+      "sha256": "a282031bc864dbb4d36161d315bbd20c3a408fea1ae0b37b9e61a9937f04aa55"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor-13.bin",
+      "bytes": 44416000,
+      "sha256": "dfbe1f96f4e15f49d21a3ba0057e16530478c56753ae50e5121a23813dd78211"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor-14.bin",
+      "bytes": 55360000,
+      "sha256": "4f44bb9d0b7de5002e09bf9c8126b7724127b242533424a4b6867e7ab6e39132"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor-15.bin",
+      "bytes": 24420,
+      "sha256": "8984f13302b7def8ac1d08b2b65478c60ca2d272cf6de3736ed8b0c5a4785b43"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor-16.bin",
+      "bytes": 24420,
+      "sha256": "1d0cb982d57eb4110e38cb06f16bb40e960165cc6e067d42d31372421b4142da"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor-17.bin",
+      "bytes": 24420,
+      "sha256": "27955838c8a3edfc6a741baaf50bdc8f257fad688f52f9d68a9b9508ef13f2a6"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor-18.bin",
+      "bytes": 24420,
+      "sha256": "27955838c8a3edfc6a741baaf50bdc8f257fad688f52f9d68a9b9508ef13f2a6"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor-24.bin",
+      "bytes": 82944000,
+      "sha256": "89e4eb1185b7c49eea638a939343c36ebe6a6a924d8a41d56e409a7590d1d9c3"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor-3.bin",
+      "bytes": 52403220,
+      "sha256": "a9a637ef3f3e3c288dfc28f4f438c9d3360d2cf32c1217d76e6806ce760f6c7b"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor-30.bin",
+      "bytes": 451440,
+      "sha256": "e39de64f757cf33e24e48bf61735ac978f9cade347424775b1aabd85a714a4d2"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor-31.bin",
+      "bytes": 442860,
+      "sha256": "2595346c5817a2efa1ce7b15500cb2d2fa78bc0e041eddd6616c5a80d7c30454"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor-32.bin",
+      "bytes": 394020,
+      "sha256": "2940ed940a5cf7c6ab4d206ce84c1ece20fcd686e035bcda2c3851e259712a51"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor-33.bin",
+      "bytes": 479160,
+      "sha256": "e9e0387dd4fa1b8fb9ec671e1ef6b1788d684486329574f9231c9cd64ffa6a51"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor-34.bin",
+      "bytes": 363000,
+      "sha256": "ae881bc7364e2bd56f4c844a434ad7b465738cb57f858656277ddaa27134af53"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor-35.bin",
+      "bytes": 328680,
+      "sha256": "87895737e205447ee326fd5d6242913ff2f84ca754df8eb88ba5c830a995b52e"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor-36.bin",
+      "bytes": 24420,
+      "sha256": "9b1ccbc72a431208353f533d31de9c86870d7dd459f4f7a5ae7a539406b87c73"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor-37.bin",
+      "bytes": 24420,
+      "sha256": "aae40a8502a83b2e8a0c2086d31c6ec86ead6a4dae8212abd35c75ef6922ba0e"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor-9.bin",
+      "bytes": 42944000,
+      "sha256": "4fdac2316c12f62c3ee447ce7d82717065117652c2914862e59e4bed913fd254"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actor.bin",
+      "bytes": 38208000,
+      "sha256": "e06980f2d8e68c88ed7e64adee6c891c9b1cd5ff49498c7f46e32488166835f7"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.actors-state.json",
+      "bytes": 40340,
+      "sha256": "ad917f0d53e267151300834712ac5f40463cbf750e517909acd4b179994ae01c"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.audio.json",
+      "bytes": 163,
+      "sha256": "19e37e5e7acfa8db23ad70d850b963c3b864399f67657f24b59dab2e90550177"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.audio.pcm",
+      "bytes": 60160000,
+      "sha256": "f4952f48c6c3303b29995b488799d7c41e96aee6dbdbba5ad14c1edbeaa94d77"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.battle-capture.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.battle-loading.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.battle-transition.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.camera-state.bin",
+      "bytes": 329580,
+      "sha256": "fc547f57f9528d45b6c979e45aecd3156a58915a6a2afdcf2b7acbcb99c8295d"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.camera.bin",
+      "bytes": 1054656,
+      "sha256": "dbcbd311376b54940abfea91ccd250371c2ffcce506c5b19b3f0c24a8b153271"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.chapter-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.choices.bin",
+      "bytes": 790992,
+      "sha256": "6eee56655006b405cc36bf0eb2a3dfdd857f6ccf66edaf4d42cee50fdde778db"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.dialogue.bin",
+      "bytes": 790992,
+      "sha256": "1e57f610061c71da8c374a6cce8b8301bce1b0fcf0aa85b56ee2ca7fc683be8e"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.effect-submissions.bin",
+      "bytes": 9124664,
+      "sha256": "300d84e9bdaa85823fdf4af011159f00b0c37f57eeb8d9c001609982e0697add"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.effects.bin",
+      "bytes": 251028,
+      "sha256": "0fc6768480f598568bc86be1ad933e9ef8661b1736d0166fd28ef58db9996ffc"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.frames/manifest.json",
+      "bytes": 472,
+      "sha256": "c6d29e6be02f0952557e4e03d01fd514d3203afa6efb1f67cc9d24b90d46dfbf"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.frames/tick-18350.png",
+      "bytes": 268917,
+      "sha256": "ea4d5f1d423e1dd5137d2d54e7771c5deeda25797035d309a357aaecb6ff6d55"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.frames/tick-18635.png",
+      "bytes": 267923,
+      "sha256": "9eb57f90fc4ae42338eb0d06676995c2e105b38112ee249a883237a424e7774c"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.frames/tick-18800.png",
+      "bytes": 337182,
+      "sha256": "d5daca5374ddc93052d00ca5d230961e6a1251128fece0a9cb395b6448e5dc91"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.game-mode.bin",
+      "bytes": 298700,
+      "sha256": "662af0e5d74a81b3f995717fe4c0b6c04df53a01376653ef9299c0dd32a525f9"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.interaction.bin",
+      "bytes": 527328,
+      "sha256": "2fff41d9937012dd5302b7497c6153647b222772994c5fd5d2e1d1eacc26e015"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.json",
+      "bytes": 1088,
+      "sha256": "b06e56f4f67844b1def138771ec03979a0557cee45dba04edd886414f098303e"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.map-effects.bin",
+      "bytes": 229567096,
+      "sha256": "1fa1c7d08e00a765c51c6715fedb190f7ea2f410d64067ab533121b8a4192673"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.movement.bin",
+      "bytes": 1054656,
+      "sha256": "141c43259ec4e9fa0c211934323546fb51d6ec554cfce14324bdbc7a2b250dc0"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.music.bin",
+      "bytes": 376000,
+      "sha256": "16a7cf5701b4fbb48b4c77fff219a2d04649058e75e9ed6c707e1c8d69945da3"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.name-entry-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.ordinary-load.bin",
+      "bytes": 29844,
+      "sha256": "1977f9520c0e3f33eb7a8b32fad80e6a827d277a07c07b2f22223e86f423e1b3"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.projection.bin",
+      "bytes": 6196104,
+      "sha256": "457dc9215cdf4a014ac106e972b6a02c2badf22fe5f1446db6c4ce3025507ae4"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.restore-state.bin",
+      "bytes": 1736928,
+      "sha256": "b0cf4a42af3882521f4fb4768dbfed2b6d64243e196cf57f79fc92ad95b9c7b8"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.results.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.retiring-effects.bin",
+      "bytes": 308224,
+      "sha256": "c5151533aa723cbfd6feed467d58d5e469731e457c6f93045971f55340c9682e"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.save-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.screen-filter.bin",
+      "bytes": 263664,
+      "sha256": "1c14eadf086ed89fa0bfc47b7dd3d153347587b187cd6100f30fe7142a6a2e00"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.shadow-submissions.json",
+      "bytes": 816,
+      "sha256": "8d0ffcf0ed25c02d7042662990370e0000e59af64e61caa56732fa855791b4f7"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.shadow.bin",
+      "bytes": 1977480,
+      "sha256": "203dbe4da321b2609ef38f2de628f2ccda9a9306bba6d021881f1e2fff98f6d1"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.sound.bin",
+      "bytes": 360,
+      "sha256": "bccfc0d5bd51101a9851106edc01a8c63a1197832b5ec24cacd32cd7de1838d0"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.startup.bin",
+      "bytes": 29040,
+      "sha256": "f6926de34d0ad9f2dc326e82364e160eef1874b163d69d01a4abdda4d6dec5c2"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.title-state.bin",
+      "bytes": 74820,
+      "sha256": "f74921ce24fb3460c720687f609eef3614de9481b8b850624cb210deed198641"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.transition.bin",
+      "bytes": 527328,
+      "sha256": "814a0fc644c011b0a8f7f30d1fd2a29b945cef8e12e8874b3ea79caf223d4aab"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.ui-party.bin",
+      "bytes": 288,
+      "sha256": "2d5565fb483d8ea4525a7a9229677d1038ad34b6e22c8d5152e1d7f7b9817597"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/replay.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "e28f7bd841ccbf7bdb180cd113824b3b858be0b928d37c7b96a6595315319756"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/run.json",
+      "bytes": 1982,
+      "sha256": "9f9e11f91a233c2519abef719f3624b1eac251f774926bb804a3e36d5bf4c521"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/run.log",
+      "bytes": 1405,
+      "sha256": "3cd718e4d4a5e23cccd7bacf2b9800a98e52d8b0dc9277bd2e0c4eb4345e3e14"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/saves/bkmo0.dat",
+      "bytes": 3460,
+      "sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/saves/bkmo1.dat",
+      "bytes": 3460,
+      "sha256": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v2/saves/bkmo2.dat",
+      "bytes": 3460,
+      "sha256": "dda3ee0c0a745c20e3c7ba3de2710bd5fb3b5a0202eb2379bc65205818df725f"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/README.md",
+      "bytes": 785,
+      "sha256": "42f11a6a5035fdce25095dff4210d93119b8976d604097af5a997beef650cb5a"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/buttons.txt",
+      "bytes": 1875,
+      "sha256": "d3634e33dea4e9c1a1b2abe4864061e1dec56ddb8095a8ff26d92762b2ec5a6b"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/control/commands.txt",
+      "bytes": 377,
+      "sha256": "c81a68546d39488b7e86a4efba9f69effe485739355be4e402db60d59662dcab"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/control/outdoor-after-wait.view.png",
+      "bytes": 295840,
+      "sha256": "1cf67dbe862fe6db2084894ef50744ba06d4d765b41d09df44af08bad9436507"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/control/outdoor-full.view.png",
+      "bytes": 348984,
+      "sha256": "bcae9eec22ab738d36697b7d96b5b2c447865f503b296dcfcc9f6895676bbef4"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/control/road-narration.view.png",
+      "bytes": 268321,
+      "sha256": "5228fa591f56498eba7b2dcba62b228c23645f54c9f918c245e5c6b22e14267f"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/directions.txt",
+      "bytes": 617,
+      "sha256": "9fa913bfe55e931703d3b90b5bcb1798b8facbca64c4b568b26ea926771bc479"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/inputs.jsonl",
+      "bytes": 1955609,
+      "sha256": "903a018b53137d33884f9f43b009940846d1029f1ccbd3356965a17b0f283719"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/launch-command.json",
+      "bytes": 1118,
+      "sha256": "e8f3cd5fa00a6380aad0e2d2b2de008e5e2e43ed79fb2dbf4b962325b261c00b"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/pending.json",
+      "bytes": 1635,
+      "sha256": "bfca8edac7a572dbb237792a586d5059bc2722782688c168328cdab7b52ffb03"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/preparation.json",
+      "bytes": 7282,
+      "sha256": "7ff116b52fb529d7997bdbec8a97fbea0db9fb1a23102cb8ce090edcdfe71baa"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png",
+      "bytes": 337317,
+      "sha256": "ec5f85484fffa0e41459679fc6aa4416ea5005ec5bf015c3f8e2841a1cc69a98"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor-1.bin",
+      "bytes": 63185232,
+      "sha256": "9cf804ef8048a90690777b8e527dfaa1775fc717689b9638609176d341567e81"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor-10.bin",
+      "bytes": 35200000,
+      "sha256": "e8d28a4fc75be9c44581501b76b2dd044b0adce3b95a61882696d345c2519b51"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor-11.bin",
+      "bytes": 31872000,
+      "sha256": "f21ad57b7760a945e69df502fdf21db19cd7748e5cd0d1fe99300cc530cb9bd0"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor-12.bin",
+      "bytes": 46464000,
+      "sha256": "a282031bc864dbb4d36161d315bbd20c3a408fea1ae0b37b9e61a9937f04aa55"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor-13.bin",
+      "bytes": 44416000,
+      "sha256": "dfbe1f96f4e15f49d21a3ba0057e16530478c56753ae50e5121a23813dd78211"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor-14.bin",
+      "bytes": 55360000,
+      "sha256": "4f44bb9d0b7de5002e09bf9c8126b7724127b242533424a4b6867e7ab6e39132"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor-15.bin",
+      "bytes": 24420,
+      "sha256": "8984f13302b7def8ac1d08b2b65478c60ca2d272cf6de3736ed8b0c5a4785b43"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor-16.bin",
+      "bytes": 24420,
+      "sha256": "1d0cb982d57eb4110e38cb06f16bb40e960165cc6e067d42d31372421b4142da"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor-17.bin",
+      "bytes": 24420,
+      "sha256": "27955838c8a3edfc6a741baaf50bdc8f257fad688f52f9d68a9b9508ef13f2a6"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor-18.bin",
+      "bytes": 24420,
+      "sha256": "27955838c8a3edfc6a741baaf50bdc8f257fad688f52f9d68a9b9508ef13f2a6"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor-24.bin",
+      "bytes": 82944000,
+      "sha256": "89e4eb1185b7c49eea638a939343c36ebe6a6a924d8a41d56e409a7590d1d9c3"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor-3.bin",
+      "bytes": 53099640,
+      "sha256": "38ef02fa254bc99f5c2f7fbc2bd167dae6fcc28ba966ab99770e475f79803b87"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor-30.bin",
+      "bytes": 451440,
+      "sha256": "e39de64f757cf33e24e48bf61735ac978f9cade347424775b1aabd85a714a4d2"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor-31.bin",
+      "bytes": 442860,
+      "sha256": "2595346c5817a2efa1ce7b15500cb2d2fa78bc0e041eddd6616c5a80d7c30454"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor-32.bin",
+      "bytes": 394020,
+      "sha256": "2940ed940a5cf7c6ab4d206ce84c1ece20fcd686e035bcda2c3851e259712a51"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor-33.bin",
+      "bytes": 479160,
+      "sha256": "e9e0387dd4fa1b8fb9ec671e1ef6b1788d684486329574f9231c9cd64ffa6a51"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor-34.bin",
+      "bytes": 363000,
+      "sha256": "ae881bc7364e2bd56f4c844a434ad7b465738cb57f858656277ddaa27134af53"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor-35.bin",
+      "bytes": 328680,
+      "sha256": "87895737e205447ee326fd5d6242913ff2f84ca754df8eb88ba5c830a995b52e"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor-36.bin",
+      "bytes": 24420,
+      "sha256": "9b1ccbc72a431208353f533d31de9c86870d7dd459f4f7a5ae7a539406b87c73"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor-37.bin",
+      "bytes": 24420,
+      "sha256": "aae40a8502a83b2e8a0c2086d31c6ec86ead6a4dae8212abd35c75ef6922ba0e"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor-9.bin",
+      "bytes": 42944000,
+      "sha256": "4fdac2316c12f62c3ee447ce7d82717065117652c2914862e59e4bed913fd254"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actor.bin",
+      "bytes": 38208000,
+      "sha256": "e06980f2d8e68c88ed7e64adee6c891c9b1cd5ff49498c7f46e32488166835f7"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.actors-state.json",
+      "bytes": 40340,
+      "sha256": "ad917f0d53e267151300834712ac5f40463cbf750e517909acd4b179994ae01c"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.audio.json",
+      "bytes": 163,
+      "sha256": "19e37e5e7acfa8db23ad70d850b963c3b864399f67657f24b59dab2e90550177"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.audio.pcm",
+      "bytes": 60160000,
+      "sha256": "9cd2305af0b392d7a496066794c73a826ca4d61cc72dc5a2a27436915e93aad1"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.battle-capture.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.battle-loading.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.battle-transition.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.camera-state.bin",
+      "bytes": 333960,
+      "sha256": "65290c45aceb071f8d3deb2d4178df1b481f1a1e443fedf6a1509bc9e11eb2b1"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.camera.bin",
+      "bytes": 1068672,
+      "sha256": "2cdc7d8b0097b6358383b3a2d7b57a6717ed7b12c6d9d8eb16221e73ce4d0c7b"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.chapter-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.choices.bin",
+      "bytes": 801504,
+      "sha256": "bdd32e8bd47443f1f271d8903edf4b8fdd3ba0c5823017fa8997f5c9f26d0c2e"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.dialogue.bin",
+      "bytes": 801504,
+      "sha256": "2a48ea8ca791ad8772eab02257e39cbaa7131bc1035ea80f02c356c4efc55cfe"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.effect-submissions.bin",
+      "bytes": 9175472,
+      "sha256": "8b3a3c0ec169d9d1ae04c5ef8ea3e66a2e8306a47969a46065e2bed626301bb1"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.effects.bin",
+      "bytes": 253656,
+      "sha256": "9214b0a9e33f040349afae5cccce4e97ba1ff48c77b99112b994405cc1fd9822"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.frames/manifest.json",
+      "bytes": 472,
+      "sha256": "c6d29e6be02f0952557e4e03d01fd514d3203afa6efb1f67cc9d24b90d46dfbf"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.frames/tick-18350.png",
+      "bytes": 268898,
+      "sha256": "4784791efe71af41f8a3b4c411cfe9b02c48a6e2bde15638ef75ea9dcef7365a"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.frames/tick-18635.png",
+      "bytes": 267910,
+      "sha256": "faa0ff631e034b94d98b54612d7cb0a19cb23c4b3a0b31c81bbab0226c9a7256"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.frames/tick-18800.png",
+      "bytes": 337317,
+      "sha256": "ec5f85484fffa0e41459679fc6aa4416ea5005ec5bf015c3f8e2841a1cc69a98"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.game-mode.bin",
+      "bytes": 298700,
+      "sha256": "f65bafa7b41b3790ed92820af5b49e2e84d2da883f14799551729e8d988e2f72"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.interaction.bin",
+      "bytes": 534336,
+      "sha256": "a4e842b81740d34bbcec2b98d5f2289ed6597b2f1400bab1abedc3a58366ca0d"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.json",
+      "bytes": 1088,
+      "sha256": "cac3d3d271d94fae4820f66c06ee345fda5b21117fb739bdc4418531a9dec323"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.map-effects.bin",
+      "bytes": 230819776,
+      "sha256": "925e1005dcbdf1f040abd94685250e3ac3c53bfac68e57f75040289b84287572"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.movement.bin",
+      "bytes": 1068672,
+      "sha256": "cd33e033e6b8629ee76c3bc1d6e547d1b2728cdf7980802e807ef00ee129bb21"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.music.bin",
+      "bytes": 376000,
+      "sha256": "7216235e507e42a1f04ff0c3df51ceeb36074be3f02eb88d0a73d08feff1122e"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.name-entry-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.ordinary-load.bin",
+      "bytes": 21960,
+      "sha256": "deb6d230b661579f4c8a44c217fbe0cc069a41ac2b74b7c7a795d38a7f5253a3"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.projection.bin",
+      "bytes": 6278448,
+      "sha256": "dce0a295756094fd573bc6aa26ae7a0a1ec46c85153623a52d7a90e914a5f2d9"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.restore-state.bin",
+      "bytes": 1736928,
+      "sha256": "b0cf4a42af3882521f4fb4768dbfed2b6d64243e196cf57f79fc92ad95b9c7b8"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.results.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.retiring-effects.bin",
+      "bytes": 308224,
+      "sha256": "c5151533aa723cbfd6feed467d58d5e469731e457c6f93045971f55340c9682e"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.save-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.screen-filter.bin",
+      "bytes": 267168,
+      "sha256": "24eec491ebc456f12bfdf268ec426308309a3a29d139c105bd2de69c5fa9ae2a"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.shadow-submissions.json",
+      "bytes": 816,
+      "sha256": "8d0ffcf0ed25c02d7042662990370e0000e59af64e61caa56732fa855791b4f7"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.shadow.bin",
+      "bytes": 2003760,
+      "sha256": "9a1da4f5b7a233992d752154356702a979400a58c40b7508349bc9781c2f704c"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.sound.bin",
+      "bytes": 360,
+      "sha256": "bccfc0d5bd51101a9851106edc01a8c63a1197832b5ec24cacd32cd7de1838d0"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.startup.bin",
+      "bytes": 29136,
+      "sha256": "019d8968b5d5c0f09ad36abf03d843c8b4c2820275074b770c9033fd88ef4632"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.title-state.bin",
+      "bytes": 74476,
+      "sha256": "c6c937026e6d272a770afe0118ffa83dcacd3d7f51783c93b4f9691231baae9f"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.transition.bin",
+      "bytes": 534336,
+      "sha256": "52c5a2526e0aa7ffd5341f562b10f8496430fc13b05e88c7daef293e2e783010"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.ui-party.bin",
+      "bytes": 288,
+      "sha256": "2d5565fb483d8ea4525a7a9229677d1038ad34b6e22c8d5152e1d7f7b9817597"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/replay.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "e28f7bd841ccbf7bdb180cd113824b3b858be0b928d37c7b96a6595315319756"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/run.json",
+      "bytes": 1983,
+      "sha256": "960cb1da201190b4423dec26bb1e068fcab6ad222013e814ada18f1042823c8e"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/run.log",
+      "bytes": 2441,
+      "sha256": "06f897b54a4a801a017f778b2a32a06a73f45486e700f8942e880d9ab929b7cd"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/saves/bkmo0.dat",
+      "bytes": 3460,
+      "sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/saves/bkmo1.dat",
+      "bytes": 3460,
+      "sha256": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/native-release-v3/saves/bkmo2.dat",
+      "bytes": 3460,
+      "sha256": "dda3ee0c0a745c20e3c7ba3de2710bd5fb3b5a0202eb2379bc65205818df725f"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/prepare-replay.py",
+      "bytes": 12556,
+      "sha256": "8c49003cb8a02f49d2b54da1928717925229909e9d567eacdb731dc0ea4bf1b2"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/prepare-v3.log",
+      "bytes": 1239,
+      "sha256": "a65e3a603579204ddd7e8c0858c8c697cd8e46f5c52fa519ac9e5fdb72ac2def"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/python-tests-v1.log",
+      "bytes": 55490,
+      "sha256": "e5e7789ba07171da6d3467e53f5bf46077121e772a8eb83f0a53c514625be7b8"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/python-tests-v2.log",
+      "bytes": 55490,
+      "sha256": "8eb2ed5fcf1437f9f6bf80ae1d9474fe3b514077c5596f7da9f83694f5b33716"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/replay-preparation-v1/README.md",
+      "bytes": 724,
+      "sha256": "76e58c14b0eb70f83be108a5228652e3d9b54c7ef4d93f75dfe483c3388b5d7e"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/replay-preparation-v1/buttons.txt",
+      "bytes": 1875,
+      "sha256": "d3634e33dea4e9c1a1b2abe4864061e1dec56ddb8095a8ff26d92762b2ec5a6b"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/replay-preparation-v1/directions.txt",
+      "bytes": 617,
+      "sha256": "9fa913bfe55e931703d3b90b5bcb1798b8facbca64c4b568b26ea926771bc479"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/replay-preparation-v1/launch-command.json",
+      "bytes": 1142,
+      "sha256": "d37c962ba5bc8b7537ea11104c5f00205903ccf8ce748db974869982308973b2"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/replay-preparation-v1/preparation.json",
+      "bytes": 6706,
+      "sha256": "c3bb12633e51476d9ebdf398ebc3f0ae633659e3d03a9e4899320fc3210e7d0c"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/replay-preparation-v1/saves/bkmo0.dat",
+      "bytes": 3460,
+      "sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/replay-preparation-v1/saves/bkmo1.dat",
+      "bytes": 3460,
+      "sha256": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/replay-preparation-v1/saves/bkmo2.dat",
+      "bytes": 3460,
+      "sha256": "dda3ee0c0a745c20e3c7ba3de2710bd5fb3b5a0202eb2379bc65205818df725f"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/route-audit-v1.json",
+      "bytes": 27008,
+      "sha256": "839ea2c980d133aef4b55fdad700e977e84d456784adc2c49f5c6e5c399df099"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/route-audit-v1.py",
+      "bytes": 12223,
+      "sha256": "370cc92fe3aab92a39236e5bb3a1f097879b6718e46b84af5561cfbef4580678"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/route-root-check-v1.json",
+      "bytes": 822,
+      "sha256": "02607d51428655d54cc57f6cad66d7f8b3f8e90738fa239da5318e979dacf974"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/run-prepared.py",
+      "bytes": 1315,
+      "sha256": "a7d95706a10cf5abbe582c052393221430f341afd7df1407be6983688465cb02"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/source-review/effect34-programs.md",
+      "bytes": 7768,
+      "sha256": "c2cd867d05449dc162de6ba612cd6f7022b5e566c062fb56ab35fa378355a6b1"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/source-review/shape28-alias-review.md",
+      "bytes": 6356,
+      "sha256": "3787876ec96eddc10e9b3ccf7f0525e59d40cafc6aa29a1fbb38cd2ee8fe8daf"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/state-debug-v1.bin",
+      "bytes": 1166160,
+      "sha256": "61251f987d6519892366f86254d24ac498387065acd373d64c3da3aa79e7de75"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/state-debug-v1.json",
+      "bytes": 656,
+      "sha256": "7ccddc62f2a282ac97de85da61d4b665a7106d66b2bc141475968a2ddd3afc13"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/state-debug-v1.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/state-release-v1.bin",
+      "bytes": 1166160,
+      "sha256": "61251f987d6519892366f86254d24ac498387065acd373d64c3da3aa79e7de75"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/state-release-v1.json",
+      "bytes": 666,
+      "sha256": "69e13baa757125ace88447145ecd2f32a253243b20fd4097ebb638688c00b9b1"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/state-release-v1.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/state-release-v2.bin",
+      "bytes": 1166160,
+      "sha256": "61251f987d6519892366f86254d24ac498387065acd373d64c3da3aa79e7de75"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/state-release-v2.json",
+      "bytes": 666,
+      "sha256": "040e2e2293216fcf68a9ceebb48032e7eacf18dd9d4c1d055db63cb010b3d93b"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/state-release-v2.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/state-sanitize-v1.bin",
+      "bytes": 1166160,
+      "sha256": "61251f987d6519892366f86254d24ac498387065acd373d64c3da3aa79e7de75"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/state-sanitize-v1.json",
+      "bytes": 667,
+      "sha256": "4fc1a9f57de2835578eeb3c4ded1b27deefd6471095f19684ca8999e79c78114"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/state-sanitize-v1.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-debug/report.json",
+      "bytes": 6582,
+      "sha256": "b051d906a6e85fb456f08537527bb733cd0160b068b0b194660f15218ee1327d"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-debug/torch-axis.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-debug/torch-axis.native.bin",
+      "bytes": 821640,
+      "sha256": "8803458be9ff9e50a95003b30e9082f3064ffa57fa0bcbb662d252a828bca17a"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-debug/torch-axis.native.bin.torch-geometry.bin",
+      "bytes": 160320,
+      "sha256": "f515bca754910c387c941b7dbbc1e3c9c45bde441fec565b9e1f34bdb91bbb5b"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-debug/torch-axis.run.json",
+      "bytes": 438,
+      "sha256": "25530609de352912ce7cb0a8a59064b0b7ddfa245189ee4c4ae6eface7fbe8ab"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-debug/torch-coincident.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-debug/torch-coincident.native.bin",
+      "bytes": 821640,
+      "sha256": "f5fc629e1b3a5ab77dc2974d1f367ed12828dbe0831b715c9a6da26d97a42c2d"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-debug/torch-coincident.native.bin.torch-geometry.bin",
+      "bytes": 160320,
+      "sha256": "f515bca754910c387c941b7dbbc1e3c9c45bde441fec565b9e1f34bdb91bbb5b"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-debug/torch-coincident.run.json",
+      "bytes": 450,
+      "sha256": "087cd362871aff79850131f16f41611bc840c9e584ac39e12d7a9fac32a17b42"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-debug/torch-offset.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-debug/torch-offset.native.bin",
+      "bytes": 821640,
+      "sha256": "ff5bbbd23a42c7ec97bc6ae6c61a04717ab111e03520552a4f06e10809a58704"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-debug/torch-offset.native.bin.torch-geometry.bin",
+      "bytes": 160320,
+      "sha256": "fd767a14fb46ce2c2e6161bf90547c8349a46e03f156a9770f6fa14d111cedf0"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-debug/torch-offset.run.json",
+      "bytes": 442,
+      "sha256": "bb6e8c4a6146ca89991a2c4164b01d2a96a3547538b087a5daefc53ead4bbf28"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-debug/torch.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-debug/torch.native.bin",
+      "bytes": 8201640,
+      "sha256": "afba159d83dd537b6446bb441d9c62f66cefdd371ae1b88705ac4f091828ec07"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-debug/torch.native.bin.torch-geometry.bin",
+      "bytes": 1600320,
+      "sha256": "8f116c812d254b111538e102fdb6851137b5dc8b6d4087ddd668d08230ed6e92"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-debug/torch.run.json",
+      "bytes": 429,
+      "sha256": "858aec76260d9671f31e2b53d00b0680e15e7f6765b3c204436361ff4ec27eee"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-debug.log",
+      "bytes": 71,
+      "sha256": "62457cda343c0620d4ab9185748ed6008bb1ba3032ee1a0b7264174673fb76a9"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-release/report.json",
+      "bytes": 6622,
+      "sha256": "c116dec73d787277ea31736d763fac7a99f2bb6341c3a447b41f67f16f63b499"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-release/torch-axis.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-release/torch-axis.native.bin",
+      "bytes": 821640,
+      "sha256": "8803458be9ff9e50a95003b30e9082f3064ffa57fa0bcbb662d252a828bca17a"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-release/torch-axis.native.bin.torch-geometry.bin",
+      "bytes": 160320,
+      "sha256": "f515bca754910c387c941b7dbbc1e3c9c45bde441fec565b9e1f34bdb91bbb5b"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-release/torch-axis.run.json",
+      "bytes": 448,
+      "sha256": "c9d512dc1a0bb81da5e790f3df0f7d28137663a24e4a54125d5b1665d230c68a"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-release/torch-coincident.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-release/torch-coincident.native.bin",
+      "bytes": 821640,
+      "sha256": "f5fc629e1b3a5ab77dc2974d1f367ed12828dbe0831b715c9a6da26d97a42c2d"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-release/torch-coincident.native.bin.torch-geometry.bin",
+      "bytes": 160320,
+      "sha256": "f515bca754910c387c941b7dbbc1e3c9c45bde441fec565b9e1f34bdb91bbb5b"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-release/torch-coincident.run.json",
+      "bytes": 460,
+      "sha256": "da9e4c7aeba9e09f22056559c8d0a33e30d72ce7403720aa2c6c71dde437001f"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-release/torch-offset.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-release/torch-offset.native.bin",
+      "bytes": 821640,
+      "sha256": "ff5bbbd23a42c7ec97bc6ae6c61a04717ab111e03520552a4f06e10809a58704"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-release/torch-offset.native.bin.torch-geometry.bin",
+      "bytes": 160320,
+      "sha256": "fd767a14fb46ce2c2e6161bf90547c8349a46e03f156a9770f6fa14d111cedf0"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-release/torch-offset.run.json",
+      "bytes": 452,
+      "sha256": "6f5ee53bcf616f935f98285e293927c06bd07fecd6e9efacb909770966133162"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-release/torch.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-release/torch.native.bin",
+      "bytes": 8201640,
+      "sha256": "afba159d83dd537b6446bb441d9c62f66cefdd371ae1b88705ac4f091828ec07"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-release/torch.native.bin.torch-geometry.bin",
+      "bytes": 1600320,
+      "sha256": "8f116c812d254b111538e102fdb6851137b5dc8b6d4087ddd668d08230ed6e92"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-release/torch.run.json",
+      "bytes": 439,
+      "sha256": "629e6c9b7231c6ae63f58818e976df0cbfae77ed2702a4d17708765422e687c9"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-release.log",
+      "bytes": 71,
+      "sha256": "62457cda343c0620d4ab9185748ed6008bb1ba3032ee1a0b7264174673fb76a9"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-sanitize/report.json",
+      "bytes": 6626,
+      "sha256": "6d46b461ffb0e9f18de201fd6d8198c1ceb89e266a4a82d792bc9048e5de0c83"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-sanitize/torch-axis.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-sanitize/torch-axis.native.bin",
+      "bytes": 821640,
+      "sha256": "8803458be9ff9e50a95003b30e9082f3064ffa57fa0bcbb662d252a828bca17a"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-sanitize/torch-axis.native.bin.torch-geometry.bin",
+      "bytes": 160320,
+      "sha256": "f515bca754910c387c941b7dbbc1e3c9c45bde441fec565b9e1f34bdb91bbb5b"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-sanitize/torch-axis.run.json",
+      "bytes": 449,
+      "sha256": "c6327d3cb385910ccd75616e394ef8666a752504ccf35de0cd4a9adf40e60729"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-sanitize/torch-coincident.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-sanitize/torch-coincident.native.bin",
+      "bytes": 821640,
+      "sha256": "f5fc629e1b3a5ab77dc2974d1f367ed12828dbe0831b715c9a6da26d97a42c2d"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-sanitize/torch-coincident.native.bin.torch-geometry.bin",
+      "bytes": 160320,
+      "sha256": "f515bca754910c387c941b7dbbc1e3c9c45bde441fec565b9e1f34bdb91bbb5b"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-sanitize/torch-coincident.run.json",
+      "bytes": 461,
+      "sha256": "75378d3790fc84072128222d824d7be9426f8897bd283fdd721badaa49e0b19f"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-sanitize/torch-offset.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-sanitize/torch-offset.native.bin",
+      "bytes": 821640,
+      "sha256": "ff5bbbd23a42c7ec97bc6ae6c61a04717ab111e03520552a4f06e10809a58704"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-sanitize/torch-offset.native.bin.torch-geometry.bin",
+      "bytes": 160320,
+      "sha256": "fd767a14fb46ce2c2e6161bf90547c8349a46e03f156a9770f6fa14d111cedf0"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-sanitize/torch-offset.run.json",
+      "bytes": 453,
+      "sha256": "165a9c616fee5241e6e2b0389125ca8a1af3bab093a27b9c2b8175f3cb96d301"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-sanitize/torch.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-sanitize/torch.native.bin",
+      "bytes": 8201640,
+      "sha256": "afba159d83dd537b6446bb441d9c62f66cefdd371ae1b88705ac4f091828ec07"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-sanitize/torch.native.bin.torch-geometry.bin",
+      "bytes": 1600320,
+      "sha256": "8f116c812d254b111538e102fdb6851137b5dc8b6d4087ddd668d08230ed6e92"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-sanitize/torch.run.json",
+      "bytes": 440,
+      "sha256": "def7268b7023fb0384c05ab1d5d981f60af9f24b611217c93527861ab2a8943c"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-final-sanitize.log",
+      "bytes": 71,
+      "sha256": "62457cda343c0620d4ab9185748ed6008bb1ba3032ee1a0b7264174673fb76a9"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-regression-v1/report.json",
+      "bytes": 6622,
+      "sha256": "8bac38bf3cade2dff12a19ace61a375d572f3cd33ba1f641a67e47d1a4156f8b"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-regression-v1/torch-axis.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-regression-v1/torch-axis.native.bin",
+      "bytes": 821640,
+      "sha256": "8803458be9ff9e50a95003b30e9082f3064ffa57fa0bcbb662d252a828bca17a"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-regression-v1/torch-axis.native.bin.torch-geometry.bin",
+      "bytes": 160320,
+      "sha256": "f515bca754910c387c941b7dbbc1e3c9c45bde441fec565b9e1f34bdb91bbb5b"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-regression-v1/torch-axis.run.json",
+      "bytes": 448,
+      "sha256": "e391b6f5f79988e0176f3008ea5ae4977dd19714e813f8e7d457ae64327a8a47"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-regression-v1/torch-coincident.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-regression-v1/torch-coincident.native.bin",
+      "bytes": 821640,
+      "sha256": "f5fc629e1b3a5ab77dc2974d1f367ed12828dbe0831b715c9a6da26d97a42c2d"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-regression-v1/torch-coincident.native.bin.torch-geometry.bin",
+      "bytes": 160320,
+      "sha256": "f515bca754910c387c941b7dbbc1e3c9c45bde441fec565b9e1f34bdb91bbb5b"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-regression-v1/torch-coincident.run.json",
+      "bytes": 460,
+      "sha256": "e53691fdf0df238ff44108927a0eb0cab88b3fc3c05d899ef7a8bfd2ee0ab5ed"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-regression-v1/torch-offset.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-regression-v1/torch-offset.native.bin",
+      "bytes": 821640,
+      "sha256": "ff5bbbd23a42c7ec97bc6ae6c61a04717ab111e03520552a4f06e10809a58704"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-regression-v1/torch-offset.native.bin.torch-geometry.bin",
+      "bytes": 160320,
+      "sha256": "fd767a14fb46ce2c2e6161bf90547c8349a46e03f156a9770f6fa14d111cedf0"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-regression-v1/torch-offset.run.json",
+      "bytes": 452,
+      "sha256": "09a6cfcd8dfd55dbc2ac3825fc33c3565fbdf12ffebb80a9a5d99e6ba2008ff3"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-regression-v1/torch.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-regression-v1/torch.native.bin",
+      "bytes": 8201640,
+      "sha256": "afba159d83dd537b6446bb441d9c62f66cefdd371ae1b88705ac4f091828ec07"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-regression-v1/torch.native.bin.torch-geometry.bin",
+      "bytes": 1600320,
+      "sha256": "8f116c812d254b111538e102fdb6851137b5dc8b6d4087ddd668d08230ed6e92"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/torch-regression-v1/torch.run.json",
+      "bytes": 439,
+      "sha256": "e5dc08bbe61c0e104a529bfe2197ac3f0285446b081ac7b8c70dc03ca8b29db6"
+    },
+    {
+      "path": "local/research/effect34-integration-v1/write-manifest.py",
+      "bytes": 2514,
+      "sha256": "6bdef30dab729d6a9acd96b13c5e0757ba3c0c27f6fec16372b1f823af78e34f"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-evidence-v1.json",
+      "bytes": 5293,
+      "sha256": "dc75c92ea56e736cd586e5bb2dd322d4bd9a76bfa1f9fdf2d09fb32097cd6da4"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v1/draw/cases.bin",
+      "bytes": 33664,
+      "sha256": "48638d6b84201013541efab9d12aff7def2cae7ea68511543d714001f8105de5"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v1/draw/cases.json",
+      "bytes": 901,
+      "sha256": "a1e36bbdc2c6a666522f6db0eb08bee21bd49ee48cca2c7d90c98c13f8e2f572"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v1/draw/original.bin",
+      "bytes": 17984,
+      "sha256": "046ac5550fc403fc327d227db755d7a5f7c7d76e2d6550ec2873c701c2dde381"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v1/draw/original.bin.packets.bin",
+      "bytes": 95040,
+      "sha256": "85e7adea19fbc5fab16d1e1a405a3a6f4f71912ff6a21260f6e6f723388bbe0b"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v1/draw/pending.json",
+      "bytes": 1348,
+      "sha256": "aa6b52f0b4a4ea34d8fa545628d64aa5fb92a5a3a8c3db6645ffec52dcecfd4c"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v1/draw/run.json",
+      "bytes": 1948,
+      "sha256": "fd927bc299fb2f69f425c2966aa358ab0d46607d1d3e396df11286cb5d7983ee"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v1/draw/run.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v1/first-flip-mismatch.json",
+      "bytes": 5940,
+      "sha256": "cc4ddff9bb0cb69539b48db6f0e6ba907889371ed3edef8b3b6d765c3ef92cf7"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v1/input.bin",
+      "bytes": 80,
+      "sha256": "769c8ec963c03f97f47d6a38fe15e6edb88dd5d88a812f596f0496de3be3aa10"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v1/original.bin",
+      "bytes": 1166160,
+      "sha256": "61251f987d6519892366f86254d24ac498387065acd373d64c3da3aa79e7de75"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v1/original.bin.effect34-aliases.bin",
+      "bytes": 27120,
+      "sha256": "2909aa06ac1a921508fdcda544ae53c2fb853a35fd1f1207040d7eb130983180"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v1/original.bin.effect34-quads.bin",
+      "bytes": 356176,
+      "sha256": "14f05fe9482a20eecb92b389363c1c7566972ef717e74f53a4e9eb7269995cee"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v1/pending.json",
+      "bytes": 1289,
+      "sha256": "bce52e6b20ff2dd8c23fad269ebf708f3cb6b12b3ae347694787e72e3a9d3965"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v1/run.json",
+      "bytes": 1834,
+      "sha256": "e46ecc93b3ef882004d2efe97e282fdb74785b83e149870d9c5d43510557e02c"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v1/run.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v2/input.bin",
+      "bytes": 80,
+      "sha256": "769c8ec963c03f97f47d6a38fe15e6edb88dd5d88a812f596f0496de3be3aa10"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v2/original.bin",
+      "bytes": 1166160,
+      "sha256": "61251f987d6519892366f86254d24ac498387065acd373d64c3da3aa79e7de75"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v2/original.bin.effect34-aliases.bin",
+      "bytes": 27120,
+      "sha256": "2909aa06ac1a921508fdcda544ae53c2fb853a35fd1f1207040d7eb130983180"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v2/original.bin.effect34-quads.bin",
+      "bytes": 356176,
+      "sha256": "14f05fe9482a20eecb92b389363c1c7566972ef717e74f53a4e9eb7269995cee"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v2/original.bin.effect34-storage.bin",
+      "bytes": 356176,
+      "sha256": "f1c5b586a962bf3689b84a2b4baaf8931e85a19911f2fddd8d17bfca1979d7b6"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v2/pending.json",
+      "bytes": 1289,
+      "sha256": "462b07c6073e649dbddbd31d82cfba870104d4cda85de441ae5be5213746c3c6"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v2/run.json",
+      "bytes": 1936,
+      "sha256": "71dc11789c2e3a065df13669631d8ac1d00ff755a1407bdf948c4a083ec9f174"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v2/run.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/family-departure-v1/effect34-geometry-v2/storage-selected.json",
+      "bytes": 6045,
+      "sha256": "7d3c18baea7cb011ec3dc5bf84f974e6d74d0b457e950892066d09c3bfe10493"
+    },
+    {
+      "path": "local/xpf-decoded/FLDDATA/EVENT/EVDATA.XPF/e_field.xmt",
+      "bytes": 35082,
+      "sha256": "f844e662fcebb09c8ea4ab2497bf7b392d33b4844037004f27d998c11d4ac0f2"
+    }
+  ]
+}
