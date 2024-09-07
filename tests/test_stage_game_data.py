@@ -18,6 +18,10 @@ class StageGameDataTests(unittest.TestCase):
         self.repo.mkdir()
         for source, _, _ in SOURCE_LAYOUT:
             (self.repo / source).mkdir(parents=True)
+        self.chapter_inputs = {}
+        for number in range(1, 8):
+            name = f"CHP_{number:02}.XIM"
+            self.chapter_inputs[name] = self.put("local/chapter-input", name, name.encode())
 
     def put(self, source_root, relative, content):
         path = self.repo / source_root / relative
@@ -48,6 +52,8 @@ class StageGameDataTests(unittest.TestCase):
             "NATIVE_UI/NAME_ENTRY.bin": native_ui,
             "NATIVE_UI/RESTORE.bin": restore_ui,
         }
+        expected.update({f"CMNDATA/2D/{name}": source
+                         for name, source in self.chapter_inputs.items()})
         for relative, source in expected.items():
             staged = result / relative
             self.assertTrue(staged.is_symlink(), relative)
@@ -101,6 +107,31 @@ class StageGameDataTests(unittest.TestCase):
     def test_destination_inside_input_tree_is_rejected(self):
         destination = self.repo / "local/xpf-decoded/staged"
         with self.assertRaisesRegex(ValueError, "overlaps a source tree"):
+            stage_game_data(self.repo, destination)
+        self.assertFalse(destination.exists())
+
+    def test_chapter_images_are_staged_without_import_manifest(self):
+        expected = {}
+        expected = self.chapter_inputs
+        self.put("local/chapter-input", "manifest.json", b"provenance stays local")
+        destination = Path(self.temp.name) / "game-data"
+
+        stage_game_data(self.repo, destination)
+
+        manifest = json.loads((destination / MANIFEST_NAME).read_text())
+        records = {item["path"]: item for item in manifest["files"]}
+        for name, source in expected.items():
+            relative = f"CMNDATA/2D/{name}"
+            self.assertTrue((destination / relative).is_symlink())
+            self.assertEqual((destination / relative).resolve(), source.resolve())
+            self.assertEqual(records[relative]["source_label"], "owned_chapter_images")
+        self.assertFalse((destination / "CMNDATA/2D/manifest.json").exists())
+
+    def test_unexpected_chapter_input_file_fails_closed(self):
+        self.put("local/chapter-input", "extra.XIM", b"unexpected")
+        destination = Path(self.temp.name) / "game-data"
+
+        with self.assertRaisesRegex(ValueError, "unexpected chapter input file"):
             stage_game_data(self.repo, destination)
         self.assertFalse(destination.exists())
 

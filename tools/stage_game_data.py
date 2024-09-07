@@ -24,10 +24,15 @@ SOURCE_LAYOUT = (
     ("local/text-input/CMNDATA/XDB", "CMNDATA/XDB", "owned_tables"),
     ("local/text-input/FLDDATA/MES", "FLDDATA/MES", "owned_messages"),
     ("local/effect-input/CMNDATA/2D", "CMNDATA/2D", "owned_effect_data"),
+    ("local/chapter-input", "CMNDATA/2D", "owned_chapter_images"),
     ("local/audio-input/SNDDATA", "SNDDATA", "owned_audio"),
     ("local/battle-input-v6", "NATIVE_UI", "owned_native_ui"),
     ("local/restore-data-v1", "NATIVE_UI", "owned_restore_ui"),
 )
+
+SOURCE_FILE_ALLOWLIST = {
+    "local/chapter-input": frozenset(f"CHP_{number:02}.XIM" for number in range(1, 8)),
+}
 
 def _sha256(path: Path) -> str:
     digest = hashlib.sha256()
@@ -61,8 +66,17 @@ def build_plan(repo_root: Path) -> tuple[dict[str, dict], dict[str, str]]:
         if not source_root.is_dir() or source_root.is_symlink():
             raise FileNotFoundError(f"required source directory is missing or not a directory: {source_root}")
         source_roots[label] = relative_source
+        allowlist = SOURCE_FILE_ALLOWLIST.get(relative_source)
+        selected_sources: set[str] = set()
         for source in _source_files(source_root):
             tail = source.relative_to(source_root)
+            relative_tail = tail.as_posix()
+            if allowlist is not None and relative_tail not in allowlist:
+                if relative_tail == "manifest.json":
+                    continue
+                raise ValueError(f"unexpected chapter input file: {source}")
+            if allowlist is not None:
+                selected_sources.add(relative_tail)
             target_relative = Path(prefix, tail) if prefix else tail
             target = target_relative.as_posix()
             if target == MANIFEST_NAME or target.startswith("../"):
@@ -87,6 +101,9 @@ def build_plan(repo_root: Path) -> tuple[dict[str, dict], dict[str, str]]:
                     "path": source_relative,
                     "label": label,
                 })
+        if allowlist is not None and selected_sources != allowlist:
+            missing = sorted(allowlist - selected_sources)
+            raise ValueError(f"chapter input is missing reviewed images: {', '.join(missing)}")
     return planned, source_roots
 
 def stage_game_data(repo_root: Path, destination: Path) -> Path:
