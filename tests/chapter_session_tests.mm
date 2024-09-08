@@ -17,22 +17,24 @@ std::vector<std::uint8_t> image_bytes(){
 }
 }
 int main(){@autoreleasepool{try{
+    for(unsigned chapter_id:{1u,2u,7u}) {
+    const GameModeSelection destination{2,chapter_id==1?72u:1u,0};
     SceneClearColor clear;SceneFade fade;BattleUiShared ui;
-    std::vector<std::uint8_t> variables(0x1000,0xa5);std::array<std::uint32_t,3> command{14,1,0};
+    std::vector<std::uint8_t> variables(0x1000,0xa5);std::array<std::uint32_t,3> command{14,chapter_id,0};
     const auto bytes=image_bytes();unsigned loaded=0;
-    ChapterSession chapter(variables,command,{2,72,0},clear,fade,ui,[&](unsigned id){
-        check(id==1&&fade.current==0&&fade.target==0);++loaded;return bytes;
+    ChapterSession chapter(variables,command,destination,clear,fade,ui,[&](unsigned id){
+        check(id==chapter_id&&fade.current==0&&fade.target==0);++loaded;return bytes;
     });
     check(loaded==1&&chapter.resource_live()&&!chapter.rendered_image());
     for(unsigned i=0;i<variables.size();++i)check(variables[i]==(i>=0x10&&i<0x110?0:0xa5));
-    check(command==std::array<std::uint32_t,3>{14,1,0}&&fade.current==0&&fade.target==1);
+    check(command==std::array<std::uint32_t,3>{14,chapter_id,0}&&fade.current==0&&fade.target==1);
     Animation camera(3);reset_scene_camera(camera);FieldProjection projection;GameRandom random{1234};
-    const auto sine=make_sine_table();GameModeParent parent({2,72,0});unsigned ticks=0,destroys=0,frees=0,constructs=0;
+    const auto sine=make_sine_table();GameModeParent parent(destination);unsigned ticks=0,destroys=0,frees=0,constructs=0;
     std::uint32_t image_frames=42;
     auto tick=[&]{
         fade.tick();
         parent.tick([&]{chapter.retire(camera,projection,nullptr,ui,fade);++destroys;},[&]{++frees;},
-            [&](auto selection){check(selection==GameModeSelection{2,72,0});++constructs;});
+            [&](auto selection){check(selection==destination);++constructs;});
         if(chapter.resource_live()){
             chapter.tick(command,fade,camera,projection,nullptr,ui,{},sine,random,image_frames,
                 [&](auto selection){check(command==std::array<std::uint32_t,3>{});parent.request(selection);});++ticks;
@@ -49,10 +51,11 @@ int main(){@autoreleasepool{try{
     check(chapter.state().counter==239&&fade.current==1&&fade.target==1&&!parent.requested());
     tick();check(chapter.state().counter==240&&fade.target==0&&fade.current==1&&!parent.requested());
     while(!parent.requested()&&ticks<400)tick();
-    check(parent.requested()==GameModeSelection{2,72,0}&&fade.current==0&&command[0]==0);
+    check(parent.requested()==destination&&fade.current==0&&command[0]==0);
     check(random.state==1234&&image_frames==42+ticks);const auto active_ticks=ticks;
     tick();check(destroys==1&&!chapter.resource_live()&&!chapter.rendered_image()&&ticks==active_ticks);
     check(std::bit_cast<std::uint32_t>(fade.step)==0x3ca3d70a);
     tick();check(frees==1&&constructs==0);tick();check(constructs==1);
+    }
     std::cout<<"Chapter resource, raw image, fade and parent handoff tests passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}}

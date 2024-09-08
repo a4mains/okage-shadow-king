@@ -506,6 +506,10 @@ struct Session {
             }
             else if(countdown==0){transition_alpha=transition_target=128;}
         };
+        field->request_chapter=[this](unsigned chapter_id,std::uint32_t payload) {
+            if(!game_mode)throw std::runtime_error("Chapter request requires global mode owner");
+            pending_game_command={14,chapter_id,payload}; //1248d8; constructor consumes later.
+        };
         field->set_save_caption=[this](std::string_view caption) {
             if(caption.size()>=0x14)throw std::runtime_error("Save location caption extent");
             std::copy(caption.begin(),caption.end(),variables.begin()+0x864);
@@ -962,8 +966,11 @@ struct Session {
         return false;
     }
     void retire_field() {
-        if(!field||!renderer||!battle_return||!battle_capture_layer)
-            throw std::runtime_error("Field retirement requires a complete battle handoff");
+        const bool chapter_handoff=field&&field->transition()&&field->transition()->ready&&
+            field->chapter_selector()>=0&&pending_game_command[0]==14&&
+            pending_game_command[1]==unsigned(field->chapter_selector());
+        if(!field||!renderer||(!chapter_handoff&&(!battle_return||!battle_capture_layer)))
+            throw std::runtime_error("Field retirement requires a complete mode handoff");
         if(retiring_effects) {
             const auto flags=retiring_effects->flags();
             if(std::any_of(flags.begin(),flags.end(),[](auto f){return f!=0;}))
@@ -1139,8 +1146,9 @@ struct Session {
                 if(selection[0]==2&&pending_game_command[0]==14) {
                     chapter=std::make_unique<okage::ChapterSession>(variables,pending_game_command,selection,
                         scene_clear,scene_fade,ui_shared,[this](unsigned id){
-                            if(id!=1)throw std::runtime_error("Unrecovered chapter image selection");
-                            return readData(field_root.parent_path()/"CMNDATA/2D/CHP_01.XIM");
+                            if(id<1||id>7)throw std::runtime_error("Unrecovered chapter image selection");
+                            return readData(field_root.parent_path()/"CMNDATA/2D"/(
+                                "CHP_0"+std::to_string(id)+".XIM"));
                         });
                     std::cout<<"Native chapter constructed frame="<<frame<<'\n';return;
                 }
@@ -1383,7 +1391,13 @@ struct Session {
                 request?unsigned(request->scene):0xffffffffu,request?request->entrance:0,
                 request?request->countdown:0,request&&request->ready?1u:0u,field->pc()});
             if(request&&request->ready) {
-                try {load_destination(*request,{input.held,128,128,input.pressed});}
+                try {
+                    if(pending_game_command[0]==14) {
+                        if(!game_mode||request->scene<0||field->persistent_map_index()!=-1)
+                            throw std::runtime_error("Chapter transition requires recovered destination/minimap state");
+                        game_mode->request({2,std::uint32_t(request->scene),request->entrance});
+                    } else load_destination(*request,{input.held,128,128,input.pressed});
+                }
                 catch(const std::exception& e) {
                     throw std::runtime_error("Native frame="+std::to_string(frame)+" destination scene="+
                         std::to_string(request->scene)+" entrance="+std::to_string(request->entrance)+": "+e.what());

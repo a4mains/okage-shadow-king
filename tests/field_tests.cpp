@@ -584,6 +584,35 @@ int main(){try {
         rejects([&]{unavailable.enter(entry,stage,empty_map,0);});
     }
     {
+        auto event=startup;event.resize(60);put(event,4,28);
+        put(event,40,0x00e00262);put(event,44,0);put(event,48,0x00200002);
+        put(event,52,0x00100043);put(event,56,0);
+        okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
+        const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
+        okage::OpeningField scene(event,[](int){},[](int){return true;},player,false);
+        std::array<std::uint8_t,0x1000> vars{};
+        scene.get_variable=[&](auto s){return okage::event_variable(vars,s);};
+        scene.set_variable=[&](auto i,auto b,auto v){okage::set_event_variable(vars,i,b,v);};
+        std::array<std::uint32_t,3> command{};unsigned requests=0,fades=0;
+        scene.request_chapter=[&](unsigned chapter,std::uint32_t payload){command={14,chapter,payload};++requests;};
+        scene.transition_service=[&](unsigned){++fades;};
+        okage::FieldDefinition entry;entry.scene=1;entry.type=1;entry.startup=1;
+        scene.enter(entry,stage,empty_map,0);
+        require(requests==1&&scene.chapter_selector()==2&&!scene.transition());
+        require(command==std::array<std::uint32_t,3>{14,2,0});
+        for(unsigned i=0;i<4&&!scene.transition();++i)scene.tick();
+        require(scene.transition()&&scene.transition()->scene==1&&scene.transition()->entrance==0);
+        require(scene.transition()->countdown==2&&!scene.transition()->ready);
+        scene.tick();require(scene.transition()->countdown==1&&!scene.transition()->ready);
+        scene.tick();require(scene.transition()->countdown==0&&!scene.transition()->ready);
+        scene.tick();require(scene.transition()->ready&&requests==1&&fades==0);
+        require(command==std::array<std::uint32_t,3>{14,2,0});
+        rejects([&]{scene.tick();});
+        okage::OpeningField unavailable(event,[](int){},[](int){return true;},player,false);
+        unavailable.get_variable=scene.get_variable;unavailable.set_variable=scene.set_variable;
+        rejects([&]{unavailable.enter(entry,stage,empty_map,0);});
+    }
+    {
         auto event=startup;
         put(event,40,0x00700162);put(event,44,17);put(event,48,0x00200002);put(event,52,0);
         auto hero_motion=idle;hero_motion.resize(76);put(hero_motion,4,44);

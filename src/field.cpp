@@ -736,6 +736,15 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
             pending_opcode=0;return {pc+8};
         }
         case 0x62:
+            if(b==14) {
+                if(!request_chapter||!definition_)
+                    throw std::runtime_error("Chapter request needs field mode owner");
+                if(rest_requested_||save_requested_||save_menu_active_||battle_request_||transition_||encounter_)
+                    throw std::runtime_error("Overlapping chapter field request");
+                request_chapter(a,word(pc+4));
+                chapter_selector_=a;
+                pending_opcode=0;return {pc+8};
+            }
             if(b==10) {
                 if(!recover_party||!definition_)throw std::runtime_error("Rest request needs field party service");
                 if(rest_requested_||save_requested_||save_menu_active_||battle_request_||transition_||encounter_)
@@ -1080,8 +1089,11 @@ void OpeningField::tick(ExplorationInput input) {
         if(transition_->ready)throw std::runtime_error("Destination loader did not consume field transition");
         if(transition_->countdown) {
             --transition_->countdown;
-            if(!transition_service)throw std::runtime_error("Field transition requires fade services");
-            transition_service(transition_->countdown);
+            //134278/134294 skip both capture and overlay for request14.
+            if(chapter_selector_<0) {
+                if(!transition_service)throw std::runtime_error("Field transition requires fade services");
+                transition_service(transition_->countdown);
+            }
         } else transition_->ready=true;
     }
     if(!was_transitioning&&exterior&&!exploration_handoff_&&exterior_camera_enabled_)update_exterior_camera();

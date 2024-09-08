@@ -111,7 +111,6 @@ class StageGameDataTests(unittest.TestCase):
         self.assertFalse(destination.exists())
 
     def test_chapter_images_are_staged_without_import_manifest(self):
-        expected = {}
         expected = self.chapter_inputs
         self.put("local/chapter-input", "manifest.json", b"provenance stays local")
         destination = Path(self.temp.name) / "game-data"

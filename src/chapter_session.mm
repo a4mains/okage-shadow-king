@@ -9,8 +9,8 @@ void check(bool value,const char* why){if(!value)throw std::runtime_error(why);}
 SceneClearColor& initialize(std::span<std::uint8_t> variables,
     const std::array<std::uint32_t,3>& command,GameModeSelection destination,
     SceneClearColor& clear,SceneFade& fade) {
-    check(command[0]==14&&command[1]==1&&command[2]==0&&destination[0]==2,
-        "Chapter constructor requires recovered command14 chapter1");
+    check(command[0]==14&&command[1]>=1&&command[1]<=7&&command[2]==0&&destination[0]==2,
+        "Chapter constructor requires command14 and owned chapter1..7");
     check(variables.size()>=0x110,"Chapter constructor variable bank0 extent");
     //125ad0 precedes114c80 and allocation of resource221980.
     std::fill(variables.begin()+0x10,variables.begin()+0x110,0);
@@ -36,7 +36,7 @@ struct ChapterSession::Impl {
         check(bool(load),"Chapter image loader missing");
         const auto bytes=load(command[1]);const auto image=decode_xim_gs32(bytes);
         check(image.width==512&&image.height==192&&image.pixel_format==19&&image.palette_format==0,
-            "Chapter1 requires authored512x192 PSMT8/PSMCT32 image");
+            "Chapter requires authored512x192 PSMT8/PSMCT32 image");
         quad=axis_aligned_image_quad(image.width,image.height,{0,0,0x3f800000,0x3f800000,0,0x3f800000});
         device=MTLCreateSystemDefaultDevice();check(device,"Chapter Metal device");
         commands=[device newCommandQueue];check(commands,"Chapter command queue");

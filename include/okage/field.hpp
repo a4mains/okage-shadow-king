@@ -112,6 +112,8 @@ public:
     ExteriorCamera* exterior_camera=nullptr;
     CollisionMask* collision_mask=&local_collision_mask_;
     std::function<void(unsigned)> transition_service;
+    std::function<void(unsigned,std::uint32_t)> request_chapter;
+    std::int32_t chapter_selector() const {return chapter_selector_;}
     const PlayerMovement& player_movement() const {return player_;}
     const std::optional<ShadowTransition>& player_shadow() const {return shadow_;}
     // 0x1300d0 -> 0x1346e0: dialogue SHADOW requests use the transition
@@ -193,6 +195,7 @@ private:
     bool input_gate_saved_=false;
     void restore_event_gate();
     std::optional<FieldTransition> transition_;
+    std::int32_t chapter_selector_=-1;
     std::optional<FieldEncounter> encounter_;
     std::optional<FieldBattleRequest> battle_request_;
     // Task member+28, distinct from the parent's scene argument. Ordinary
