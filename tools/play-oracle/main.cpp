@@ -1973,6 +1973,77 @@ public:
         }
         writeFile(output,result.data(),result.size()*4);
     }
+    void dialogueAdd(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
+        constexpr unsigned commandBytes=128,rowBytes=32+commandBytes,variableBytes=0x1000;
+        if(ram.size()!=32*1024*1024||input.empty()||input.size()%rowBytes||input.size()>rowBytes*64)
+            throw std::runtime_error("Dialogue ADD fixture extent");
+        std::vector<uint8> result;
+        std::vector<uint32> handlerReturns;
+        const auto appendWord=[&](uint32 value){for(unsigned i=0;i<4;++i)result.push_back(value>>(8*i));};
+        for(unsigned at=0;at<input.size();at+=rowBytes) {
+            uint32 row[8];std::memcpy(row,input.data()+at,32);
+            if(row[1]>2||row[2]>15||row[3]>0xffff||row[5]||row[6]||row[7])
+                throw std::runtime_error("Dialogue ADD fixture selector/reserved words");
+            if((row[2]<2&&row[3]>=0x800)||((row[2]==2||row[2]==3)&&row[3]>=0x200)||
+               (row[2]==4&&row[3]>=((variableBytes-0x510)/4))||(row[2]>=8&&row[3]>=40))
+                throw std::runtime_error("Dialogue ADD fixture bank index bounds");
+            const auto* command=reinterpret_cast<const char*>(input.data()+at+32);
+            const auto terminator=static_cast<const char*>(std::memchr(command,0,commandBytes));
+            if(!terminator||terminator==command)throw std::runtime_error("Dialogue ADD fixture command string");
+            const auto setup=[&] {
+                ee->m_EE.m_executor->Reset();
+                std::memcpy(ee->m_ram,ram.data(),ram.size());put(stop,0x08000000|(stop>>2));put(stop+4,0);
+                effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
+                    ee->m_gs,ee->m_sif,*dynamic_cast<CIopBios*>(iop->m_bios.get()));
+                const auto field=get(0x2d9bf4),object=get(0x20068c),vars=get(0x24f788);
+                if(!field||field>ram.size()-0x800||!object||object>ram.size()-0x7000||
+                   !vars||vars>ram.size()-variableBytes)
+                    throw std::runtime_error("Dialogue ADD fixture pointers");
+                const auto message=get(field+0x50);
+                if(!message||get(message+0x8c)!=10001)
+                    throw std::runtime_error("Dialogue ADD fixture message identity");
+                std::memset(ee->m_ram+vars,0xa5,variableBytes);
+                if(row[2]==4) {
+                    put(vars+0x510+row[3]*4,row[4]);
+                } else if(row[2]==2||row[2]==3) {
+                    const auto offset=(row[2]==2?0x210u:0x410u)+row[3];
+                    ee->m_ram[vars+offset]=static_cast<uint8>(row[4]);
+                } else if(row[2]<2) {
+                    const auto offset=0x10u+row[2]*0x100u+(row[3]>>3);
+                    const auto mask=static_cast<uint8>(0x80u>>(row[3]&7));
+                    if(row[4]&1)ee->m_ram[vars+offset]|=mask;else ee->m_ram[vars+offset]&=static_cast<uint8>(~mask);
+                } else if(row[2]>=8) {
+                    const auto offset=0x5c4u+(row[2]&7u)*0x50u+row[3]*2u;
+                    const auto value=static_cast<uint16>(row[4]);
+                    ee->m_ram[vars+offset]=static_cast<uint8>(value);
+                    ee->m_ram[vars+offset+1]=static_cast<uint8>(value>>8);
+                } else throw std::runtime_error("Dialogue ADD fixture bank unsupported");
+                put(message+0xe48,1);put(message+0xe8c,0);put(message+0xe4c,5);put(message+0xed8,1);
+                put(message+0xed4,4);put(message+0xedc,1);put(message+0x170,0x50);put(message+0x1f0,4);
+                put(0x1fcb60,1);put(0x1fcb64,0);put(0x33958c,0);put(0x339590,0);
+                put(object+0x1e70,row[1]);put(object+0x1970,255);
+                put(object+0x1900,0x8910);put(object+0xcd0,9);put(object+0xcd4,0xfffffffe);
+                put(object+0xcd8,7);put(object+0x3d08,5);
+                std::memcpy(ee->m_ram+object+0x1c70,command,static_cast<std::size_t>(terminator-command)+1);
+                return std::array<uint32,3>{message,object,vars};
+            };
+            const auto handlerState=setup();
+            call(0x148240,{handlerState[0],handlerState[1]+0x1c70,1});
+            const auto handlerReturn=ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0];
+            handlerReturns.insert(handlerReturns.end(),{row[0],handlerReturn});
+            const auto controllerState=setup();
+            const auto message=controllerState[0],object=controllerState[1],vars=controllerState[2];
+            call(0x148dc8,{message});
+            appendWord(row[0]);
+            result.insert(result.end(),ee->m_ram+vars,ee->m_ram+vars+variableBytes);
+            for(auto offset:{0xe48,0xe8c,0xe4c,0xed4,0xed8,0xedc,0x170,0x1f0})
+                appendWord(get(message+offset));
+            for(auto offset:{0x1e70,0x1900,0xcd0,0xcd4,0xcd8})appendWord(get(object+offset));
+        }
+        writeFile(output,result.data(),result.size());
+        const auto handlerPath=std::string(output)+".handler-returns.bin";
+        writeFile(handlerPath.c_str(),handlerReturns.data(),handlerReturns.size()*sizeof(uint32));
+    }
     void comparisonOptions(const std::vector<uint8>& ram,const std::vector<uint8>& input,const char* output) {
         if(ram.size()!=32*1024*1024||input.empty()||input.size()%16||input.size()>16*512)
             throw std::runtime_error("Comparison option fixture extent");
@@ -3584,6 +3655,8 @@ int main(int argc,char** argv) {
             reference.materialColors(readFile(argv[3]),argv[4]);
         } else if(command=="relationship" && argc==6) {
             reference.relationship(readFile(argv[3]),readFile(argv[4]),argv[5]);
+        } else if(command=="dialogue-add" && argc==6) {
+            reference.dialogueAdd(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="comparison-options" && argc==6) {
             reference.comparisonOptions(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if(command=="message-init" && argc==6) {
