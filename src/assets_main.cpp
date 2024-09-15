@@ -810,6 +810,37 @@ int main(int argc, char** argv) {
             }
             write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*4});return 0;
         }
+        if(command=="dialogue-add"&&argc==4) {
+            constexpr unsigned row_bytes=160;
+            const auto input=read(argv[2]);std::vector<std::uint8_t> output;
+            if(input.empty()||input.size()%row_bytes||input.size()>row_bytes*64)
+                throw std::runtime_error("Dialogue ADD fixture extent");
+            auto append=[&](std::uint32_t value){for(unsigned i=0;i<4;++i)output.push_back(value>>(i*8));};
+            for(unsigned at=0;at<input.size();at+=row_bytes) {
+                std::uint32_t row[8];std::memcpy(row,input.data()+at,32);
+                if(row[1]>2||row[2]>15||row[3]>0xffff||row[5]||row[6]||row[7])
+                    throw std::runtime_error("Dialogue ADD fixture selector/reserved words");
+                const auto* start=reinterpret_cast<const char*>(input.data()+at+32);
+                const auto* end=static_cast<const char*>(std::memchr(start,0,128));
+                if(!end||end==start||std::any_of(end,start+128,[](char c){return c!=0;}))
+                    throw std::runtime_error("Dialogue ADD fixture command string");
+                std::array<std::uint8_t,4096> variables;variables.fill(0xa5);
+                okage::set_event_variable(variables,row[3],row[2],std::bit_cast<std::int32_t>(row[4]));
+                okage::DialogueText text({""});okage::DialogueController controller;
+                controller.window_type=1;controller.advance_count=controller.layer_advance=4;
+                text.choice_result=std::bit_cast<std::int32_t>(row[1]);
+                text.state.flags=0x8910;text.state.phase=9;text.state.period=0xfffffffe;
+                text.state.delay=7;text.state.progress=5;text.state.window.assign(start,end);
+                controller.get_variable=[&](unsigned index,unsigned bank){return okage::event_variable(variables,(bank<<16)|index);};
+                controller.set_variable=[&](unsigned index,unsigned bank,std::int32_t value){okage::set_event_variable(variables,index,bank,value);};
+                controller.update(text,{});
+                append(row[0]);output.insert(output.end(),variables.begin(),variables.end());
+                for(auto value:{controller.stage,controller.advance_count,unsigned(controller.window_type),
+                    controller.layer_flags,controller.layer_advance,unsigned(text.choice_result),
+                    text.state.flags,text.state.phase,text.state.period,text.state.delay})append(value);
+            }
+            write(argv[3],output);return 0;
+        }
         if(command=="relationship"&&argc==4) {
             const auto input=read(argv[2]);std::vector<std::uint32_t> output;
             if(input.empty()||input.size()%40||input.size()>40*256)throw std::runtime_error("Relationship fixture extent");

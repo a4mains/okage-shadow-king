@@ -1,4 +1,6 @@
 #include "okage/dialogue.hpp"
+#include "okage/event.hpp"
+#include <bit>
 #include <cfenv>
 #include <iostream>
 #include <stdexcept>
@@ -57,6 +59,40 @@ int main() {try {
     text.state.window="FADE(100)";effect=c.update(text,{});require(effect.scene_fade==1 && effect.resume_calls==1);
     text.state.window="SET(2/0/)";rejects([&]{c.update(text,{});});
     text.state.window="WINTYPE(3)";rejects([&]{c.update(text,{});});
+    {
+        okage::DialogueText t({""});okage::DialogueController control;
+        std::array<std::uint8_t,4096> vars{};
+        t.state.flags=0x8910;t.state.delay=7;t.state.phase=9;t.state.period=0xfffffffe;
+        t.state.window="ADD(101/3/1)";
+        rejects([&]{control.update(t,{});});require(t.state.window=="ADD(101/3/1)");
+        unsigned writes=0,reads=0;
+        control.get_variable=[&](unsigned index,unsigned bank){++reads;return okage::event_variable(vars,(bank<<16)|index);};
+        control.set_variable=[&](unsigned index,unsigned bank,int value){++writes;okage::set_event_variable(vars,index,bank,value);};
+        okage::set_event_variable(vars,101,3,127);
+        auto result=control.update(t,{});
+        require(okage::event_variable(vars,0x30065)==-128 && writes==1 && reads==1);
+        require(!result.resume_calls && result.cue==-1 && t.state.delay==7 && t.state.phase==9);
+        control.update(t,{});require(writes==1 && reads==1);
+        t.state.window="ADD(101/3/-1)ADD(101/3/256)";control.update(t,{});
+        require(okage::event_variable(vars,0x30065)==127 && writes==3);
+        okage::set_event_variable(vars,16,4,0x7fffffff);
+        okage::set_event_variable(vars,39,15,32767);
+        t.state.window="ADD(16/4/1)ADD(39/15/1)";control.update(t,{});
+        require(okage::event_variable(vars,0x40010)==std::bit_cast<int>(0x80000000u));
+        require(okage::event_variable(vars,0xf0027)==-32768);
+        const auto before=vars;const auto previous_reads=reads,previous_writes=writes;
+        t.state.window="ADD(2/0/1)ADD(2/1/-1)";control.update(t,{});
+        require(vars==before && reads==previous_reads && writes==previous_writes);
+        t.state.window="WINTYPE(1)ADD(101/3/1)";result=control.update(t,{});
+        require(result.resume_calls==1 && t.state.delay==0 && control.window_type==1);
+        t.state.delay=7;t.state.window="WINTYPE(0)SET(101/3/0)ADD(101/3/1)";
+        result=control.update(t,{});require(!result.resume_calls && t.state.delay==7 && result.cue==-1);
+        require(okage::event_variable(vars,0x30065)==1);
+        for(auto command:{"ADD()","ADD(101/3)","ADD(101/3/1/2)","ADD(101/3/x)",
+                          "ADD(-1/3/1)","ADD(65536/3/1)","ADD(0/5/1)","ADD(40/8/1)"}) {
+            t.state.window=command;rejects([&]{control.update(t,{});});
+        }
+    }
     {
         okage::DialogueText t({""});okage::DialogueController control;
         t.state.flags=0x8910;t.state.delay=7;t.state.phase=9;

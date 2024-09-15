@@ -66,6 +66,21 @@ DialogueInputEffects DialogueController::update(DialogueText& text,DialogueButto
                 const auto values=arguments(part,"SET(",3);
                 if(values[0]<0 || values[1]<0 || !set_variable)throw std::runtime_error("Dialogue variable service unavailable");
                 set_variable(values[0],values[1],values[2]);handler=12;
+            } else if(part.starts_with("ADD(")) {
+                const auto values=arguments(part,"ADD(",3);
+                const auto index=values[0],bank=values[1];
+                if(index<0 || index>0xffff || bank<0 || (bank>4 && (bank<8 || bank>15)) ||
+                   (bank>=8 && index>=0x28))
+                    throw std::runtime_error("Dialogue variable addition storage unavailable");
+                // 0x148240 case13 ->0x1259d0: bit banks are unchanged;
+                // byte/short/word storage wraps. The shared setter truncates
+                // to the selected storage width after unsigned addition.
+                if(bank>1) {
+                    if(!get_variable || !set_variable)throw std::runtime_error("Dialogue variable addition service unavailable");
+                    const auto sum=std::bit_cast<std::uint32_t>(get_variable(index,bank))+
+                        std::bit_cast<std::uint32_t>(values[2]);
+                    set_variable(index,bank,std::bit_cast<std::int32_t>(sum));
+                }
             } else if(part.starts_with("SHADOW(")) {
                 const auto value=arguments(part,"SHADOW(",1)[0];
                 if(!shadow_request)throw std::runtime_error("Dialogue shadow service unavailable");
