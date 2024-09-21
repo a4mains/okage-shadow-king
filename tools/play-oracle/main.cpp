@@ -1984,7 +1984,8 @@ public:
             uint32 row[8];std::memcpy(row,input.data()+at,32);
             if(row[1]>2||row[2]>15||row[3]>0xffff||row[5]||row[6]||row[7])
                 throw std::runtime_error("Dialogue ADD fixture selector/reserved words");
-            if((row[2]<2&&row[3]>=0x800)||((row[2]==2||row[2]==3)&&row[3]>=0x200)||
+            if((row[2]<2&&row[3]>=0x800)||(row[2]==2&&row[3]>=0x200)||
+               (row[2]==3&&row[3]>=0x100)||
                (row[2]==4&&row[3]>=((variableBytes-0x510)/4))||(row[2]>=8&&row[3]>=40))
                 throw std::runtime_error("Dialogue ADD fixture bank index bounds");
             const auto* command=reinterpret_cast<const char*>(input.data()+at+32);

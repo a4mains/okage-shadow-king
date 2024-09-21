@@ -53,8 +53,10 @@ def fixture() -> bytes:
 def valid_selector(bank: int, index: int) -> bool:
     if bank in (0, 1):
         return 0 <= index < 0x800
-    if bank in (2, 3):
+    if bank == 2:
         return 0 <= index < 0x200
+    if bank == 3:
+        return 0 <= index < 0x100
     if bank == 4:
         return 0 <= index < (VARIABLE_BYTES - 0x510) // 4
     if 8 <= bank <= 15:

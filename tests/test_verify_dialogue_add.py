@@ -77,7 +77,7 @@ class DialogueAddProbeTests(unittest.TestCase):
 
     def test_fixture_rejects_out_of_scope_indices(self):
         inputs = bytearray(probe.fixture())
-        struct.pack_into("<I", inputs, 12, 0x200)
+        struct.pack_into("<I", inputs, 12, 0x100)
         with self.assertRaisesRegex(ValueError, "invalid selectors"):
             probe.parse_cases(bytes(inputs))
 
