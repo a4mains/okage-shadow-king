@@ -126,6 +126,14 @@ int main(){try{
     router.install(0,51,loader(51));require(router.current_id()==-1,"Replacing primary must stop even an active secondary");
     for(int id:{20,23,25,27,30,32,33,34})rejects([&]{router.select(id);});
     rejects([&]{router.install(2,10,loader(10));});rejects([&]{okage::music_resource_names(52);});
+    {
+        const auto names=okage::music_resource_names(24);
+        require(std::string(names.sequence)=="SNT_FNM"&&std::string(names.primary_bank)=="SNT_FNM0"&&
+                std::string(names.alternate)=="SNT_FNM2","Music24 retail class2 mapping");
+        auto class2=loader(24);class2.alternate=score;
+        okage::MusicRouter verified;verified.install(0,24,std::move(class2));verified.select(24);
+        require(verified.current_id()==24,"Music24 class2 resource installation");
+    }
     auto malformed=loader(26);malformed.alternate={1};rejects([&]{router.install(1,26,std::move(malformed));});
     {
         okage::MusicRouter event;unsigned resource_loads=0;

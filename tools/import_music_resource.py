@@ -15,6 +15,12 @@ from prepare_assets import ELF_HASH
 from verify_event import write_exact
 
 RESOURCES = {
+    24: ('SNT_FNM', {
+        'SNT_FNM.XSQ': 'ba83d356a3d94abb6ff73285818cd8b9c349567c77d55a895c6596aaf79e36eb',
+        'SNT_FNM0.XV': 'e15650ba1a0eef74aae185983d48b9911c3039f1093335afcc638faecc230003',
+        'SNT_FNM1.XV': '77e2065deb638dba9543c70f84dec37f6f5b958dfce6af16133af4a120dd74d6',
+        'SNT_FNM2.XSQ': 'b91402747e87deefddbbe538a358a557eb24aee8cb7a84457e8b8600d341a7ec',
+    }),
     36: ('EVN_TSR', {
         'EVN_TSR.XSQ': 'c736aceca4929863c9f8e8c3c27c17a153f78eeb2a36305e94f100b538269ad9',
         'EVN_TSR0.XV': 'd380fdb3eebc89a3159b5f8e7c7ada063b4188eb5e0e33dfd6beb937bd4c47da',
@@ -54,6 +60,31 @@ RESOURCES = {
         'EVS_MPS0.XV': 'cd6b32d56e0a60d3e8732e4b132c512aaf04b8ea24067691aa33d9f85a1adada',
     }),
 }
+RESOURCE_CLASSES = {24: '2'}
+ALTERNATE_SEQUENCES = {24: 'SNT_FNM2'}
+
+def address_bytes(elf, segments, at, size):
+    for segment in segments:
+        base = int(segment['vaddr'], 16)
+        if segment['type'] == 1 and base <= at and at + size <= base + segment['filesz']:
+            offset = segment['offset'] + at - base
+            return elf[offset:offset + size]
+    raise ValueError('ELF address outside file-backed load segments')
+
+def music_table_entry(elf, segments, resource_id):
+    table = 0x1fb530 + resource_id * 8
+    name_pointer, class_pointer = struct.unpack('<2I', address_bytes(elf, segments, table, 8))
+
+    def c_string(pointer):
+        value = bytearray()
+        for offset in range(128):
+            byte = address_bytes(elf, segments, pointer + offset, 1)
+            if byte == b'\0':
+                return bytes(value).decode('ascii')
+            value.extend(byte)
+        raise ValueError('Unterminated music table string')
+
+    return table, name_pointer, class_pointer, c_string(name_pointer), c_string(class_pointer)
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
@@ -65,25 +96,21 @@ def main():
         raise ValueError('Different owned ELF')
     segments = inspect_elf(elf)['segments']
 
-    def address(at, size):
-        for s in segments:
-            base = int(s['vaddr'], 16)
-            if s['type'] == 1 and base <= at and at + size <= base + s['filesz']:
-                offset = s['offset'] + at - base
-                return elf[offset:offset + size]
-        raise ValueError('ELF address outside file-backed load segments')
-
     name, hashes = RESOURCES[a.id]
-    table = 0x1fb530 + a.id * 8
-    name_pointer, class_pointer = struct.unpack('<2I', address(table, 8))
-    if address(name_pointer, len(name) + 1) != name.lower().encode() + b'\0':
+    table, name_pointer, class_pointer, table_name, table_class = music_table_entry(elf, segments, a.id)
+    expected_class = RESOURCE_CLASSES.get(a.id, '1')
+    if table_name != name.lower():
         raise ValueError('Music name table changed')
-    if address(class_pointer, 2) != b'1\0':
+    if table_class != expected_class:
         raise ValueError('Music class differs from reviewed ordinary sequence route')
     entries = {e['path']: e for e in json.loads(Path('docs/disc-report.json').read_text())['files']}
     second = name + '1.XV'
     if ('SNDDATA/BGM/' + second in entries) != (second in hashes):
         raise ValueError('Secondary bank differs from reviewed resources')
+    alternate = ALTERNATE_SEQUENCES.get(a.id, '')
+    alternate_filename = alternate + '.XSQ' if alternate else ''
+    if ('SNDDATA/BGM/' + alternate_filename in entries) != (alternate_filename in hashes):
+        raise ValueError('Alternate sequence differs from reviewed class mapping')
     disc = Disc('local/disc/Okage - Shadow King (USA).bin')
     imported = []
     try:
@@ -101,7 +128,8 @@ def main():
         disc.close()
     report = dict(scope=__doc__, elf_sha256=ELF_HASH, music_id=a.id, table_address=table,
                   name_pointer=name_pointer, class_pointer=class_pointer, sequence=name,
-                  primary_bank=name + '0', secondary_bank_present=second in hashes, imported=imported)
+                  table_class=table_class, primary_bank=name + '0', secondary_bank_present=second in hashes,
+                  alternate_sequence=alternate, imported=imported)
     write_exact(a.output, (json.dumps(report, indent=2) + '\n').encode())
     print('Imported reviewed music', a.id, name)
 
