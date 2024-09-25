@@ -128,12 +128,13 @@ MusicResourceNames music_resource_names(int id) {
         return {names[*jingle],"JGL_BSC0",""};
     }
     switch(id) {
-        // USA ELF table0x1fb530 entry24; class2 preloads SNT_FNM2.XSQ while
-        // the ordinary loader binds SNT_FNM0.XV and optional SNT_FNM1.XV.
-        case 24:return {"SNT_FNM","SNT_FNM0","SNT_FNM2"};
+        // USA ELF table0x1fb530 entry24; 0x12d898 preloads the next row's
+        // sequence SNT_FPC.XSQ through 0x12d378, sharing SNT_FNM0/1 banks.
+        case 24:return {"SNT_FNM","SNT_FNM0","SNT_FPC"};
         case 2:return {"CTY_TNB","CTY_TNB0",""};
         case 10:return {"FLD_NMA","FLD_NMA0",""};
-        case 26:return {"SNT_DNM","SNT_DNM0","SNT_DNM2"};
+        // Entry26 uses row27's SNT_DPC.XSQ as its companion, sharing DNM banks.
+        case 26:return {"SNT_DNM","SNT_DNM0","SNT_DPC"};
         // USA ELF table0x1fb530 entry28; loader also binds SNT_LDF1.XV.
         case 28:return {"SNT_LDF","SNT_LDF0",""};
         // USA ELF table0x1fb530 entry36; ordinary sequence with one bank.

@@ -189,9 +189,13 @@ struct Session {
         // The supplied primary bank can differ (the original jingles share one).
         music_directory=sequence.parent_path();music=std::make_unique<okage::MusicRouter>();
         int id=0;
-        for(int candidate:{10,26,51})if(sequence.stem()==okage::music_resource_names(candidate).sequence &&
+        for(int candidate:{10,24,26,51})if(sequence.stem()==okage::music_resource_names(candidate).sequence &&
                                       bank.stem()==okage::music_resource_names(candidate).primary_bank)id=candidate;
-        const auto alternate=id==26?music_directory/"SNT_DNM2.XSQ":fs::path{};
+        fs::path alternate;
+        if(id>0) {
+            const auto names=okage::music_resource_names(id);
+            if(*names.alternate)alternate=music_directory/(std::string(names.alternate)+".XSQ");
+        }
         music->install(0,id,read_music_resource(sequence,bank,alternate));music->select(id);
         for(int jingle:{20,21,22,23,33,34})
             music->install_jingle(*okage::music_jingle_index(jingle),read_music_resource(jingle));

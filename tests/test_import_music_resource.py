@@ -27,9 +27,14 @@ class MusicResourceImportTests(unittest.TestCase):
     def test_music24_binds_exact_primary_and_class2_companion_files(self):
         self.assertEqual(resources.RESOURCES[24][0], "SNT_FNM")
         self.assertEqual(set(resources.RESOURCES[24][1]), {
-            "SNT_FNM.XSQ", "SNT_FNM0.XV", "SNT_FNM1.XV", "SNT_FNM2.XSQ"})
+            "SNT_FNM.XSQ", "SNT_FNM0.XV", "SNT_FNM1.XV", "SNT_FPC.XSQ"})
         self.assertEqual(resources.RESOURCE_CLASSES[24], "2")
-        self.assertEqual(resources.ALTERNATE_SEQUENCES[24], "SNT_FNM2")
+        self.assertEqual(resources.ALTERNATE_SEQUENCES[24], "SNT_FPC")
+        self.assertEqual(resources.RESOURCES[26][0], "SNT_DNM")
+        self.assertEqual(set(resources.RESOURCES[26][1]), {
+            "SNT_DNM.XSQ", "SNT_DNM0.XV", "SNT_DNM1.XV", "SNT_DPC.XSQ"})
+        self.assertEqual(resources.RESOURCE_CLASSES[26], "2")
+        self.assertEqual(resources.ALTERNATE_SEQUENCES[26], "SNT_DPC")
 
     def test_table_strings_must_be_file_backed_and_terminated(self):
         elf = bytearray(16)

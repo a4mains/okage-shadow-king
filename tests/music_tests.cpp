@@ -129,10 +129,15 @@ int main(){try{
     {
         const auto names=okage::music_resource_names(24);
         require(std::string(names.sequence)=="SNT_FNM"&&std::string(names.primary_bank)=="SNT_FNM0"&&
-                std::string(names.alternate)=="SNT_FNM2","Music24 retail class2 mapping");
+                std::string(names.alternate)=="SNT_FPC","Music24 retail class2 mapping");
         auto class2=loader(24);class2.alternate=score;
         okage::MusicRouter verified;verified.install(0,24,std::move(class2));verified.select(24);
         require(verified.current_id()==24,"Music24 class2 resource installation");
+    }
+    {
+        const auto names=okage::music_resource_names(26);
+        require(std::string(names.sequence)=="SNT_DNM"&&std::string(names.primary_bank)=="SNT_DNM0"&&
+                std::string(names.alternate)=="SNT_DPC","Music26 retail class2 companion mapping");
     }
     auto malformed=loader(26);malformed.alternate={1};rejects([&]{router.install(1,26,std::move(malformed));});
     {

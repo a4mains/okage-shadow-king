@@ -19,7 +19,13 @@ RESOURCES = {
         'SNT_FNM.XSQ': 'ba83d356a3d94abb6ff73285818cd8b9c349567c77d55a895c6596aaf79e36eb',
         'SNT_FNM0.XV': 'e15650ba1a0eef74aae185983d48b9911c3039f1093335afcc638faecc230003',
         'SNT_FNM1.XV': '77e2065deb638dba9543c70f84dec37f6f5b958dfce6af16133af4a120dd74d6',
-        'SNT_FNM2.XSQ': 'b91402747e87deefddbbe538a358a557eb24aee8cb7a84457e8b8600d341a7ec',
+        'SNT_FPC.XSQ': '5cb238d2ad8a6eb7021c1dff27e0580d34d8693e5b9b45d21422828045945f30',
+    }),
+    26: ('SNT_DNM', {
+        'SNT_DNM.XSQ': '23fe656a52ea7609d99730a130b938d168e1d5e3737ece90e3511407719ba635',
+        'SNT_DNM0.XV': '66af95774d616ee50d04387dcc072407cd28650675877f0b17a7e952622d292e',
+        'SNT_DNM1.XV': 'd0a53fab59690cfc167eaa0c9d3a2f36cd1998ed6f3ae21b32ecb47a50f12c6c',
+        'SNT_DPC.XSQ': 'a1501bd96c7394fde0c0fe9d68c6f4f477a6d08fc17644ba1637ebae51cc6141',
     }),
     36: ('EVN_TSR', {
         'EVN_TSR.XSQ': 'c736aceca4929863c9f8e8c3c27c17a153f78eeb2a36305e94f100b538269ad9',
@@ -60,8 +66,8 @@ RESOURCES = {
         'EVS_MPS0.XV': 'cd6b32d56e0a60d3e8732e4b132c512aaf04b8ea24067691aa33d9f85a1adada',
     }),
 }
-RESOURCE_CLASSES = {24: '2'}
-ALTERNATE_SEQUENCES = {24: 'SNT_FNM2'}
+RESOURCE_CLASSES = {24: '2', 26: '2'}
+ALTERNATE_SEQUENCES = {24: 'SNT_FPC', 26: 'SNT_DPC'}
 
 def address_bytes(elf, segments, at, size):
     for segment in segments:
