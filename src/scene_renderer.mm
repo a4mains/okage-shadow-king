@@ -446,7 +446,10 @@ struct SceneRenderer::Impl {
                             material=&block.materials.at(polygon.material);
                             const float transparency=std::bit_cast<float>(material->words[5]);
                             if((ordinaryInstance ? transparency!=0 : !(transparency>0)) || material->words[7])
-                                throw std::runtime_error("Unrecovered special-actor material class");
+                                throw std::runtime_error("Unrecovered special-actor material class: "+input.path.string()+
+                                    " block="+std::to_string(blockIndex-1)+" material="+std::to_string(polygon.material)+
+                                    " transparency="+std::to_string(transparency)+" flags="+std::to_string(material->words[7])+
+                                    " render_flags="+std::to_string(input.actor->render_flags));
                             draw.materialBlend=material_blend_register(*material);
                         }
                         const okage::TextureState* state=nullptr;
