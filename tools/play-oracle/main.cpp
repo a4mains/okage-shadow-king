@@ -646,6 +646,63 @@ public:
         expectedStop=stop;ee->m_EE.ToggleBreakpoint(0x185a98);ee->m_EE.ToggleBreakpoint(0x185c1c);
         writeFile(output,result.data(),result.size()*4);
     }
+    void ordinaryVisibility(const std::vector<uint8>& input,const char* output) {
+        std::size_t at=0;
+        auto word=[&]() {if(at+4>input.size())throw std::runtime_error("Truncated ordinary visibility fixture");
+            uint32 value;std::memcpy(&value,input.data()+at,4);at+=4;return value;};
+        constexpr unsigned table=0x800000,poses=0x900000,bounds=0xa00000,pointers=0xb00000,selected=0xc00000;
+        const unsigned settingsAddresses[]={0x1fe2ec,0x1fe2e4,0x1fe2e8,0x1fe2b4,0x1fe2b8,
+            0x1fe2d4,0x1fe2d8,0x1fe2c4,0x1fe2c8,0x1fe2cc,0x1fe2d0,0x1fe2dc,0x1fe2e0,0x1fe2bc,0x1fe2c0};
+        std::vector<uint32> result;
+        auto& cpu=ee->m_EE;
+        while(at<input.size()) {
+            const auto id=word(),culling=word(),count=word(),nodes=word();
+            if(culling!=1||!count||count>256||!nodes||nodes>4096)
+                throw std::runtime_error("Ordinary visibility requires bounded, forced-culling fixtures");
+            for(auto address:settingsAddresses)put(address,word());
+            for(unsigned i=0;i<nodes*16;++i)put(poses+i*4,word());
+            unsigned cursor=bounds;
+            for(unsigned block=0;block<count;++block) {
+                const auto n=word();
+                if(!n||n>4096||cursor+16+n*32>pointers)
+                    throw std::runtime_error("Ordinary visibility bound capacity");
+                put(pointers+block*4,cursor);put(cursor,n);
+                for(unsigned i=0;i<n;++i)for(unsigned j=0;j<6;++j) {
+                    const auto value=word();
+                    if(j==5&&value>=nodes)throw std::runtime_error("Ordinary visibility hierarchy index");
+                    put(cursor+16+i*32+j*4,value);
+                }
+                cursor+=16+n*32;
+            }
+            std::memset(ee->m_ram+selected,0,count*16);
+            put(table+12,pointers);
+            cpu.m_State.nGPR[CMIPS::S1].nD0=0;
+            cpu.m_State.nGPR[CMIPS::S2].nD0=selected;
+            cpu.m_State.nGPR[CMIPS::S3].nD0=0;
+            cpu.m_State.nGPR[CMIPS::S4].nD0=table;
+            cpu.m_State.nGPR[CMIPS::S6].nD0=poses;
+            cpu.m_State.nGPR[CMIPS::S7].nD0=count;
+            expectedStop=0x1862e8;cpu.ToggleBreakpoint(expectedStop);
+            try {call(0x18606c);}catch(...) {cpu.ToggleBreakpoint(0x1862e8);expectedStop=stop;throw;}
+            cpu.ToggleBreakpoint(0x1862e8);
+            const auto size=cpu.m_State.nGPR[CMIPS::S3].nV[0];
+            if(size>count||cpu.m_State.nGPR[CMIPS::S2].nV[0]!=selected)
+                throw std::runtime_error("Ordinary visibility selection extent");
+            if(size) {
+                cpu.m_State.nGPR[CMIPS::A2].nD0=1;
+                expectedStop=0x1863b8;cpu.ToggleBreakpoint(expectedStop);
+                try {call(0x1862fc);}catch(...) {cpu.ToggleBreakpoint(0x1863b8);expectedStop=stop;throw;}
+                cpu.ToggleBreakpoint(0x1863b8);
+            }
+            result.insert(result.end(),{id,size});
+            for(unsigned i=0;i<size;++i) {
+                result.push_back(get(selected+i*16));
+                result.push_back(get(selected+i*16+4));
+            }
+        }
+        expectedStop=stop;
+        writeFile(output,result.data(),result.size()*4);
+    }
     void shadowBounds(const std::vector<uint8>& main,const std::vector<uint8>& shadow,const char* output) {
         shadowBind(main,shadow,nullptr);
         const auto decoded=okage::read_xmd(shadow);const auto hierarchy=get(0x800038);
@@ -3772,6 +3829,8 @@ int main(int argc,char** argv) {
             reference.uv(readFile(argv[3]),argv[4],command=="texture-clamp");
         } else if (command=="shadow-visibility" && argc==5) {
             reference.shadowVisibility(readFile(argv[3]),argv[4]);
+        } else if (command=="ordinary-visibility" && argc==5) {
+            reference.ordinaryVisibility(readFile(argv[3]),argv[4]);
         } else if (command=="shadow-bounds" && argc==6) {
             reference.shadowBounds(readFile(argv[3]),readFile(argv[4]),argv[5]);
         } else if (command=="shadow-assembled" && argc==7) {
