@@ -92,6 +92,24 @@ def music_table_entry(elf, segments, resource_id):
 
     return table, name_pointer, class_pointer, c_string(name_pointer), c_string(class_pointer)
 
+def validate_table_mapping(elf, segments, resource_id):
+    """Validate primary and companion names against the pinned retail table."""
+    name, _ = RESOURCES[resource_id]
+    expected_class = RESOURCE_CLASSES.get(resource_id, '1')
+    primary = music_table_entry(elf, segments, resource_id)
+    if primary[3] != name.lower():
+        raise ValueError('Music name table changed')
+    if primary[4] != expected_class:
+        raise ValueError('Music class differs from reviewed ordinary sequence route')
+
+    alternate = ALTERNATE_SEQUENCES.get(resource_id, '')
+    companion = None
+    if expected_class == '2':
+        companion = music_table_entry(elf, segments, resource_id + 1)
+        if companion[3] != alternate.lower():
+            raise ValueError('Music class-2 companion differs from next table row')
+    return primary, companion
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--id', type=int, choices=RESOURCES, required=True)
@@ -103,12 +121,9 @@ def main():
     segments = inspect_elf(elf)['segments']
 
     name, hashes = RESOURCES[a.id]
-    table, name_pointer, class_pointer, table_name, table_class = music_table_entry(elf, segments, a.id)
+    primary, companion = validate_table_mapping(elf, segments, a.id)
+    table, name_pointer, class_pointer, table_name, table_class = primary
     expected_class = RESOURCE_CLASSES.get(a.id, '1')
-    if table_name != name.lower():
-        raise ValueError('Music name table changed')
-    if table_class != expected_class:
-        raise ValueError('Music class differs from reviewed ordinary sequence route')
     entries = {e['path']: e for e in json.loads(Path('docs/disc-report.json').read_text())['files']}
     second = name + '1.XV'
     if ('SNDDATA/BGM/' + second in entries) != (second in hashes):
@@ -135,7 +150,14 @@ def main():
     report = dict(scope=__doc__, elf_sha256=ELF_HASH, music_id=a.id, table_address=table,
                   name_pointer=name_pointer, class_pointer=class_pointer, sequence=name,
                   table_class=table_class, primary_bank=name + '0', secondary_bank_present=second in hashes,
-                  alternate_sequence=alternate, imported=imported)
+                  alternate_sequence=alternate,
+                  companion_table_entry=(dict(music_id=a.id + 1,
+                                              table_address=companion[0],
+                                              name_pointer=companion[1],
+                                              class_pointer=companion[2],
+                                              sequence=companion[3],
+                                              table_class=companion[4]) if companion else None),
+                  imported=imported)
     write_exact(a.output, (json.dumps(report, indent=2) + '\n').encode())
     print('Imported reviewed music', a.id, name)
 

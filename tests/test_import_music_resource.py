@@ -24,6 +24,25 @@ class MusicResourceImportTests(unittest.TestCase):
         entry = resources.music_table_entry(bytes(elf), segments, 24)
         self.assertEqual(entry, (0x1fb5f0, 0x2000, 0x2010, "snt_fnm", "2"))
 
+    def test_class2_mapping_requires_companion_in_next_table_row(self):
+        elf = bytearray(96)
+        struct.pack_into("<2I", elf, 0, 0x2000, 0x2010)
+        struct.pack_into("<2I", elf, 8, 0x2020, 0x2010)
+        elf[16:24] = b"snt_fnm\0"
+        elf[32:34] = b"2\0"
+        elf[48:56] = b"snt_fpc\0"
+        segments = [
+            {"type": 1, "vaddr": "0x001fb5f0", "offset": 0, "filesz": 16},
+            {"type": 1, "vaddr": "0x00002000", "offset": 16, "filesz": 64},
+        ]
+        primary, companion = resources.validate_table_mapping(bytes(elf), segments, 24)
+        self.assertEqual(primary[3:], ("snt_fnm", "2"))
+        self.assertEqual(companion, (0x1fb5f8, 0x2020, 0x2010, "snt_fpc", "2"))
+
+        elf[48:56] = b"snt_bad\0"
+        with self.assertRaisesRegex(ValueError, "companion differs from next table row"):
+            resources.validate_table_mapping(bytes(elf), segments, 24)
+
     def test_music24_binds_exact_primary_and_class2_companion_files(self):
         self.assertEqual(resources.RESOURCES[24][0], "SNT_FNM")
         self.assertEqual(set(resources.RESOURCES[24][1]), {
