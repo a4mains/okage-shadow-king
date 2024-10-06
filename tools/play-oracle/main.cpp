@@ -106,6 +106,7 @@ public:
     uint32 expectedStop=stop;
     unsigned callIterationLimit=1000000;
     std::function<bool(uint32)> boundedInstructionProbe;
+    std::vector<uint32> allowedStops;
     Reference(const std::vector<uint8>& elf) {
         if (hash(elf)!="2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5")
             throw std::runtime_error("Oracle requires the pinned USA ELF");
@@ -193,7 +194,8 @@ public:
                     cpu.m_State.nDelayedJumpAddr=MIPS_INVALID_PC;
                     continue;
                 }
-                if (cpu.m_State.nPC!=expectedStop) {
+                if (cpu.m_State.nPC!=expectedStop &&
+                    std::find(allowedStops.begin(),allowedStops.end(),cpu.m_State.nPC)==allowedStops.end()) {
                     std::ostringstream error;error<<"Unexpected oracle breakpoint at "<<std::hex<<cpu.m_State.nPC
                         <<", wanted "<<expectedStop;throw std::runtime_error(error.str());
                 }
@@ -688,13 +690,18 @@ public:
             const auto size=cpu.m_State.nGPR[CMIPS::S3].nV[0];
             if(size>count||cpu.m_State.nGPR[CMIPS::S2].nV[0]!=selected)
                 throw std::runtime_error("Ordinary visibility selection extent");
+            uint32 sortStop=0xffffffff;
             if(size) {
                 cpu.m_State.nGPR[CMIPS::A2].nD0=1;
-                expectedStop=0x1863b8;cpu.ToggleBreakpoint(expectedStop);
-                try {call(0x1862fc);}catch(...) {cpu.ToggleBreakpoint(0x1863b8);expectedStop=stop;throw;}
+                expectedStop=0x1863b0;allowedStops={0x1863b8};cpu.ToggleBreakpoint(0x1863b8);
+                try {call(0x1862fc);}catch(...) {cpu.ToggleBreakpoint(0x1863b8);allowedStops.clear();expectedStop=stop;throw;}
+                sortStop=cpu.m_State.nPC;
                 cpu.ToggleBreakpoint(0x1863b8);
+                allowedStops.clear();expectedStop=stop;
+                if(sortStop!=0x1863b0&&sortStop!=0x1863b8)
+                    throw std::runtime_error("Ordinary sort stopped outside source continuations");
             }
-            result.insert(result.end(),{id,size});
+            result.insert(result.end(),{id,size,sortStop});
             for(unsigned i=0;i<size;++i) {
                 result.push_back(get(selected+i*16));
                 result.push_back(get(selected+i*16+4));
