@@ -77,16 +77,20 @@ void Animation::run() {
             if (b<0 || !texture_callback_) throw std::runtime_error("XMT texture callback requires a valid XTA binding");
             texture_callback_(static_cast<std::size_t>(b),a); pc_=p; continue;
         }
-        if(op!=0x2e && op!=0x30 && op!=0x31 && op!=0x33 && op!=0x40 && op!=0x42 && op!=0x27 && op!=8 && service_) {
+        if(op!=0x25 && op!=0x2e && op!=0x30 && op!=0x31 && op!=0x33 && op!=0x40 && op!=0x42 && op!=0x27 && op!=8 && service_) {
             const auto result=service_(op,a,b,pc_);
             if(result.next_pc<code_ || result.next_pc+4ull>samples_ || (result.next_pc&3))
                 throw std::runtime_error("XMT service continuation bounds");
             pc_=result.next_pc;if(result.yield)return;continue;
         }
-        const auto index=(op==0x30 || op==0x2e || op==8 ? b : static_cast<int>(a))>>2;
+        const auto index=(op==0x25 || op==0x30 || op==0x2e || op==8 ? b : static_cast<int>(a))>>2;
         auto& target=channel_target_ ? *channel_target_ : *this;
         if(index<0 || std::size_t(index)>=target.channels_.size())throw std::runtime_error("XMT channel out of bounds");
         auto& ch=target.channels_[index];
+        if(op==0x25) {
+            if(p+4ull>samples_)throw std::runtime_error("Truncated XMT channel mode");
+            target.set_channel_mode(index,word(p)&0xffff);pc_=p+4;continue;
+        }
         if(op==8) {if(target.moving(index,b&3))return;pc_=p;continue;}
         if((op==0x2e || op==0x31 || op==0x40) && p+4ull>samples_)throw std::runtime_error("Truncated scalar instruction");
         if(op==0x2e) {target.set_component(index,b&3,number(p));pc_=p+4;continue;}

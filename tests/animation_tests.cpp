@@ -5,10 +5,11 @@
 #include <cfenv>
 #include <iostream>
 #include <limits>
+#include <source_location>
 #include <stdexcept>
 
-void require(bool value,unsigned at=__builtin_LINE()) {
-    if (!value) throw std::runtime_error("animation test assertion failed at line "+std::to_string(at));
+void require(bool value,const std::source_location at=std::source_location::current()) {
+    if (!value) throw std::runtime_error("animation test assertion failed at line "+std::to_string(at.line()));
 }
 void put(std::vector<std::uint8_t>& bytes,std::size_t at,std::uint32_t value) {
     for (unsigned i=0;i<4;++i) bytes.at(at+i)=value>>(i*8);
@@ -76,6 +77,29 @@ int main() {
             require(invalid_index);
         }
         auto data=fixture(); okage::Animation animation(data,1); animation.start(0);
+        {
+            //0x25 consumes a mode word (not an opcode2 wait), indexes by B,
+            //ignores A and routes through the currently selected group.
+            auto script=fixture();put(script,32,0x004abc25);put(script,36,0x12340010);
+            put(script,40,0x00200431);put(script,44,std::bit_cast<std::uint32_t>(8.f));
+            put(script,48,0x00100002);put(script,52,0);
+            okage::Animation owner(script,2),target(2);
+            target.set_channel(1,{0,0,0,1});target.values();owner.set_channel_target(&target);
+            owner.set_service_callback([](auto,auto,auto,auto)->okage::Animation::ServiceResult {
+                throw std::runtime_error("Channel mode must not dispatch a field service");
+            });
+            owner.start(0);require(owner.pc()==52 && owner.script_state()==0x10101);
+            target.tick_channels();require(target.value(1)[0]==5.f);
+            require(owner.value(1)[0]==1.f && target.value(0)[0]==1.f);
+            auto linear=script;put(linear,36,2);
+            okage::Animation own(linear,2);own.set_channel(1,{0,0,0,1});own.start(0);
+            own.tick_channels();require(own.value(1)[0]==4.f);
+            auto invalid=script;put(invalid,36,3);
+            rejects([&]{okage::Animation bad(invalid,2);bad.start(0);});
+            auto short_mode=std::vector<std::uint8_t>(script.begin(),script.begin()+36);
+            put(short_mode,4,4);put(short_mode,32,0x25);
+            rejects([&]{okage::Animation bad(short_mode,2);bad.start(0);});
+        }
         {
             //Bone consumers must not evaluate a pending world transform.
             okage::ModelFile model;model.models.emplace_back().bones.resize(1);
