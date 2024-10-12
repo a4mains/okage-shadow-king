@@ -61,7 +61,7 @@ static Data stage(const Float4& base,const Float4& ambient,bool zeroDirections) 
     return b;
 }
 static Texture sample(const fs::path& dir,std::span<const Surface> surfaces,bool selected,bool textured,
-                      bool animated,const Float4& base={1,1,1,1},const Float4& ambient={.25f,.25f,.25f,1},bool zeroDirections=false,bool reverse=false) {
+                      bool animated,const Float4& base={1,1,1,1},const Float4& ambient={.25f,.25f,.25f,1},bool zeroDirections=false,bool reverse=false,unsigned renderFlags=0) {
     fs::create_directory(dir);
     write(dir/"m.xmd",model(surfaces,selected,textured,reverse));write(dir/"a.xmp",map(animated));
     const auto stg=stage(base,ambient,zeroDirections);write(dir/"a.stg",stg);
@@ -70,6 +70,8 @@ static Texture sample(const fs::path& dir,std::span<const Surface> surfaces,bool
     MapObjects objects(dir/"a.xmp");
     for(const auto& binding:objects.bindings()) {
         require(binding.actor->render_flags==0);
+        binding.actor->render_flags=renderFlags;
+        if(renderFlags)binding.actor->animation().set_channel(3,ambient);
         binding.actor->animation().set_channel(4,{0,0,0,1});binding.actor->animation().set_channel(5,{0,0,0,1});binding.actor->evaluate();
     }
     SceneRenderer renderer(dir/"a.xmp",{},&objects);renderer.set_clear_rgb({14,18,24});
@@ -138,19 +140,57 @@ static Texture battle_actor_sample(const fs::path& dir,std::span<const Surface> 
 }
 static Texture ordinary_field_actor_sample(const fs::path& dir,std::span<const Surface> surfaces,
         bool textured=false,const Float4& base={1,1,1,1},const Float4& ambient={.125f,.25f,.375f,1},
-        const Float4& channel3={.9f,.8f,.7f,.6f},const std::array<std::uint8_t,3>& clear={14,18,24}) {
+        const Float4& channel3={.9f,.8f,.7f,.6f},const std::array<std::uint8_t,3>& clear={14,18,24},
+        unsigned renderFlags=0) {
     fs::create_directory(dir);
     auto hidden=map(false);put(hidden,64+12,0x10000);write(dir/"a.xmp",hidden);
-    write(dir/"m.xmd",model(surfaces,true,textured,false));
+    const auto modelData=model(surfaces,true,textured,renderFlags==0x100000);
+    write(dir/"m.xmd",modelData);
     const auto stg=stage(base,ambient,false);write(dir/"a.stg",stg);
     Data xim(36);put(xim,24,1);put(xim,28,1);xim[32]=32;xim[33]=64;xim[34]=96;xim[35]=128;
     write(dir/"t.xim",xim);
-    auto owner=std::make_unique<FieldActor>(read_xmd(model(surfaces,true,textured,false)));
+    auto owner=std::make_unique<FieldActor>(read_xmd(modelData));
     auto& actor=*owner;
     require(actor.render_flags==0&&!actor.has_motion());
+    actor.render_flags=renderFlags;
     actor.animation().set_channel(3,channel3);actor.evaluate();
     SceneActor binding{&actor,dir/"m.xmd",2};
     SceneRenderer renderer(dir/"a.xmp",std::span(&binding,1));renderer.set_clear_rgb(clear);
+    FieldProjection projection;projection.load_stage(stg);projection.begin_field();
+    projection.begin_effects();projection.begin_deferred();projection.end_effects();
+    const Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
+    return renderer.render(identity,field_clip_projection(projection.frame().ordinary),nullptr,{},1024,{},&projection.frame());
+}
+static Texture sorted_field_actor_sample(const fs::path& dir,bool farFirst,unsigned renderFlags) {
+    fs::create_directory(dir);
+    constexpr float channel=128.5f/255.f;
+    const std::array<Surface,1> white{{{{channel,channel,channel,1},.5f,true}}};
+    auto single=model(white,true,true,renderFlags==0x100000);
+    const auto decoded=read_xmd(single);
+    Data data(32);put(data,0,28);put(data,4,12);put(data,12,2);
+    std::memcpy(data.data()+16,"t.xim\0u.xim",12);put(data,28,1);
+    data.insert(data.end(),single.begin()+28,single.begin()+112);put(data,32+80,2);
+    for(unsigned order=0;order<2;++order) {
+        const unsigned index=farFirst?1-order:order;
+        Data block(single.begin()+112,single.end());
+        put(block,20,index);
+        for(const auto& command:decoded.models[0].blocks[0].commands)if(command.opcode==5) {
+            for(unsigned i=0;i<4;++i)put(block,command.offset-112+12+i*16+8,
+                std::bit_cast<unsigned>(index?12.f:10.f));
+        }
+        data.insert(data.end(),block.begin(),block.end());
+    }
+    put(data,32+4,data.size()-32);write(dir/"m.xmd",data);
+    auto hidden=map(false);put(hidden,64+12,0x10000);write(dir/"a.xmp",hidden);
+    const auto stg=stage({1,1,1,1},{1,1,1,1},false);write(dir/"a.stg",stg);
+    for(unsigned i=0;i<2;++i) {
+        Data xim(36);put(xim,24,1);put(xim,28,1);xim[32+(i?2:0)]=128;xim[35]=128;
+        write(dir/(i?"u.xim":"t.xim"),xim);
+    }
+    FieldActor actor(read_xmd(data));actor.render_flags=renderFlags;
+    actor.animation().set_channel(3,{1,1,1,1});actor.evaluate();
+    SceneActor binding{&actor,dir/"m.xmd",2};
+    SceneRenderer renderer(dir/"a.xmp",std::span(&binding,1));renderer.set_clear_rgb({0,0,0});
     FieldProjection projection;projection.load_stage(stg);projection.begin_field();
     projection.begin_effects();projection.begin_deferred();projection.end_effects();
     const Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
@@ -416,6 +456,7 @@ int main(int argc,const char** argv){@autoreleasepool {try {
     const auto normal=sample(out/"normal-static",one,false,false,false,base,ambient);
     const auto animated=sample(out/"normal-animated",one,false,false,true,base,ambient);
     require(normal.rgba==animated.rgba);require(center(normal)==std::array<unsigned,3>{23,47,71});
+    require(sample(out/"mode2-map-placement",one,false,false,true,base,ambient,false,false,0x100000).rgba==normal.rgba);
     require(sample(out/"normal-zero-directions",one,false,false,true,base,ambient,true).rgba==normal.rgba);
     one[0].bypass=true;
     require(sample(out/"normal-bypass",one,false,false,true,base,ambient).rgba==untextured.rgba);
@@ -429,6 +470,7 @@ int main(int argc,const char** argv){@autoreleasepool {try {
     battle_actor_sample(out/"battle-base",one,0x200080,base,ambient);
     battle_actor_sample(out/"battle-static",one,0x200080,base,ambient,false,true);
     one[0].normal=true;
+    battle_actor_sample(out/"explicit-zero-flags-normal",one,0,base,ambient);
     battle_actor_sample(out/"battle-normal",one,0x2000a0,base,ambient);
     battle_actor_sample(out/"battle-textured",one,0x200080,base,ambient,true);
     battle_actor_sample(out/"battle-static-textured",one,0x200080,base,ambient,true,true);
@@ -484,6 +526,29 @@ int main(int argc,const char** argv){@autoreleasepool {try {
         {1,1,1,1},{.125f,.25f,.375f,1},{1,1,1,1},{10,20,30});
     const auto addCenter=center(actorAdd);
     require(addCenter==std::array<unsigned,3>{57,115,173});
+
+    const std::array<Surface,1> fadingNormal{{{{.75f,.75f,.75f,1},.002f,true}}};
+    const auto faded=ordinary_field_actor_sample(out/"mode2-positive-transparency",fadingNormal,false,
+        {.5f,1,.25f,1},{.125f,.25f,.375f,1},{1,.5f,.25f,.75f},{40,80,120},0x100000);
+    require(center(faded)==std::array<unsigned,3>{153,91,65});
+    const auto transparent=ordinary_field_actor_sample(out/"mode2-transparent",fadingNormal,false,
+        {.5f,1,.25f,1},{.125f,.25f,.375f,1},{1,.5f,.25f,0},{40,80,120},0x100000);
+    require(center(transparent)==std::array<unsigned,3>{40,80,120});
+    const auto mode2Base=ordinary_field_actor_sample(out/"mode2-base-independent",ghostBlack,false,
+        {1,1,1,1},{.125f,.25f,.375f,1},{0,0,0,0},{40,80,120},0x100000);
+    require(center(mode2Base)==std::array<unsigned,3>{10,20,30});
+    auto mode2Ordering=tinyTransparency;for(auto& surface:mode2Ordering)surface.normal=true;
+    const auto mode2Ordered=ordinary_field_actor_sample(out/"mode2-material-order",mode2Ordering,false,
+        {1,1,1,1},{.125f,.25f,.375f,1},{1,1,1,1},{40,80,120},0x100000);
+    require(center(mode2Ordered)==std::array<unsigned,3>{255,0,0});
+    for(unsigned flags:{0u,0x100000u}) {
+        const auto sorted=sorted_field_actor_sample(out/("sorted-near-first-"+std::to_string(flags)),false,flags);
+        const auto authored=sorted_field_actor_sample(out/("sorted-far-first-"+std::to_string(flags)),true,flags);
+        require(sorted.rgba==authored.rgba);
+        const auto rgb=center(sorted);
+        if(rgb!=std::array<unsigned,3>{64,0,32})throw std::runtime_error("Sorted material RGB "+
+            std::to_string(rgb[0])+","+std::to_string(rgb[1])+","+std::to_string(rgb[2]));
+    }
     ui_bridge(out/"ui-bridge");
     submitted_frame_tickets();
     retired_instances(out/"retired-instances");
