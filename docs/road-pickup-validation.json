@@ -1,0 +1,220 @@
+{
+  "schema": "road-pickup-validation-v1",
+  "objective": "active; incomplete",
+  "runtime_commits": [
+    "5206831",
+    "3dfd5d1",
+    "88dccc4",
+    "6b2534e",
+    "8eff2e1",
+    "680d328"
+  ],
+  "observer_commit": "9a25ebc",
+  "scope": "Native real-save Chapter2 Tiny Gear, music24, Rosalyn material/sort and opcode25 integration; bounded component reference checks.",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "source": [
+    {
+      "path": "src/animation.cpp",
+      "sha256": "7dfb727ea4e8aad2299c1a50ae9bce86ac0eec3b9c6affd00e08f3caf7da14a4"
+    },
+    {
+      "path": "src/scene_renderer.mm",
+      "sha256": "d468efd2a3e871938c1d8405e24c6108283f9c1a2e4c9c19c9b13317c6d20ceb"
+    },
+    {
+      "path": "src/native_runtime.mm",
+      "sha256": "79f4d5ac30756323d9bd17a8b1c74365ca4757321f83017440fa5eddc49457f1"
+    },
+    {
+      "path": "tests/animation_tests.cpp",
+      "sha256": "a3a72b4eb5d4f8ffcab5b0fe6d3da79a42bed3304bd071c5321577be252ccfd8"
+    },
+    {
+      "path": "tests/scene_map_material_tests.mm",
+      "sha256": "d2a915e17aaa01bc08997c6107526cd9ea2e9e62213781a0b4dc2e0463687460"
+    },
+    {
+      "path": "tools/import_music_resource.py",
+      "sha256": "d78bc9e730c1c0fda1bc0657cf34f6eceb3f670ded0ef8e7d5c98914d74ef4b5"
+    },
+    {
+      "path": "tools/verify_ordinary_visibility.py",
+      "sha256": "70c453fb438fb31e0f2216c2be1481bdd1e451712d216d836e2553ea7dda2cf4"
+    },
+    {
+      "path": "tools/play-oracle/main.cpp",
+      "sha256": "3e9f5f16818ccda5254cc4ae6a1bddc8fb640e66d227e612e05b181318717847"
+    }
+  ],
+  "stage": {
+    "path": "local/game-data-stage-v10/.owned-game-data-manifest.json",
+    "sha256": "36bf23be7296fdcd4da9bb3022cf898decdf4b3f42ded9db157b2185b200958d"
+  },
+  "imports": [
+    {
+      "path": "local/music24-import-v11.json",
+      "sha256": "c376edb63c79107f9edc39cbb2f249b4a84070586ed209740e2e8c34415773c6"
+    },
+    {
+      "path": "local/music26-import-v11.json",
+      "sha256": "469d2fbba01d4b51247143f0b48dae3aacb220421d9e22ed275cf1d169905b82"
+    }
+  ],
+  "native_route": {
+    "path": "local/research/chapter-two-road-v1/root-roz-route-check-v1.json",
+    "sha256": "45b8aa7751332fb9553d8ad1685c7e4a808a1010d8880fe705a3a3e6447c99f3"
+  },
+  "native_terminal": {
+    "session_id": 97233,
+    "exit_code": 1,
+    "completed_frame": 29423,
+    "attempted_frame": 29424,
+    "field_pc": "0x84e8",
+    "instruction": "0x00f0002e",
+    "error": "XMT channel out of bounds",
+    "next": "Recover shared pool ownership/lifetime at camera base+3; do not pad camera or bypass write."
+  },
+  "native_evidence": [
+    {
+      "path": "local/research/chapter-two-road-v1/native-roz-release-v3/run.json",
+      "sha256": "6807e85d4c4185011bae677ee6caa51fc5d5f01207706b30fb10664a31faa18b"
+    },
+    {
+      "path": "local/research/chapter-two-road-v1/native-roz-release-v3/preparation.json",
+      "sha256": "660412eea2ef98c59583d6c444546f8448acf8ea5872ac935d51c125958b6c4c"
+    },
+    {
+      "path": "local/research/chapter-two-road-v1/native-roz-release-v3/control/commands.txt",
+      "sha256": "a990bd569355a2f3eea7ffdf0c5a5bc35717bbbd5dced2436154294ea08b47a4"
+    },
+    {
+      "path": "local/research/chapter-two-road-v1/native-roz-release-v3/control/next-event.view.png",
+      "sha256": "18e406a3be8493de590caa98b4e50bc19a1914d0a2b9d1d5e5f5d83955c5db59"
+    },
+    {
+      "path": "local/research/chapter-two-road-v1/native-roz-release-v3/control/next-event-state.png.variables.bin",
+      "sha256": "55d4b912d5aa5dadd0a9ca7e59d65f5a04aca62e8b702c2393ccabd61be618d1"
+    }
+  ],
+  "channel_mode": {
+    "path": "local/research/channel-mode-v1/report.json",
+    "sha256": "7f20c0d47604422a562be4ceff3a7742b8fb8896cef7182a00615d5207ba5ec4"
+  },
+  "channel_mode_scope": {
+    "synthetic_cases": 3,
+    "samples_per_case": 21,
+    "state_channel_words_exact_per_build": 630,
+    "script": {
+      "path": "local/research/channel-mode-v1/check.py",
+      "sha256": "2584f6e2250858cd6a89a48bf5c813a0a0d43f84fcd7a8ef3f8f649aa5d4d2f4"
+    }
+  },
+  "ordinary_visibility": [
+    {
+      "path": "local/research/ordinary-visibility-v4/root-native-release-v1/report.json",
+      "sha256": "c7424f04511932ed46c3d0687134073d5ecac4fc239f4299a68fc8030eb9219a"
+    },
+    {
+      "path": "local/research/ordinary-visibility-v4/root-native-v1/report.json",
+      "sha256": "fe8875d5e178fbe3a318364c9493a3c8b9cd9b3608ee3de81ac969bc29db85e5"
+    },
+    {
+      "path": "local/research/ordinary-visibility-v4/root-model-sanitize-v1/report.json",
+      "sha256": "ff64066bd58be6093bc436d6fe4fc870deda5fd8e89a1b2e17476ad4f1b6ad09"
+    }
+  ],
+  "ordinary_original": {
+    "path": "local/research/ordinary-visibility-v4/ordinary-visibility-original-v4.run.json",
+    "sha256": "fbb173b9b7c6d4c93fe543e76d9ff8a4b6d8fa36dd5a1ffa08035dc8d176f9c8"
+  },
+  "ordinary_scope": "Synthetic posed bound selection and stable float depth ordering:90cases/105selected blocks/36empty cases/390words per build. Not model-bound generation, packet compiler or GS raster parity.",
+  "dialogue_add": [
+    {
+      "path": "local/research/dialogue-add-v4/release-report.json",
+      "sha256": "316a88d9485b276995da7473f88f62f72cabfdc964eda16f29e8931e927d62d9"
+    },
+    {
+      "path": "local/research/dialogue-add-v4/debug-report.json",
+      "sha256": "8ba15b7df70b575dec241f2633bad5ed05391d5a1ec619e2d89f2f0bdd5bdcb9"
+    },
+    {
+      "path": "local/research/dialogue-add-v4/sanitize-report.json",
+      "sha256": "d93f40fe314d1b9fff62919dbea060e1527899feff55e2dcfff5d5ecc8446610"
+    }
+  ],
+  "tests": [
+    {
+      "path": "local/research/music24-v1/root-final-release-tests.log",
+      "sha256": "28b46d8f55586366a21496b9775410157b2f07ac54af345ea036cba331c32ad7"
+    },
+    {
+      "path": "local/research/music24-v1/root-final-debug-tests.log",
+      "sha256": "76191de38738d628a1ad9c46061a377dfb0b1efea992376d3cc979b40921aca7"
+    },
+    {
+      "path": "local/research/music24-v1/root-final-sanitize-tests.log",
+      "sha256": "e5eda52d9625fa970061320a78a495e1551bf2b036b25dcf1633bdb07d5588bd"
+    }
+  ],
+  "python_tests": {
+    "path": "local/research/music24-v1/root-python-tests-v4.log",
+    "sha256": "c631653851679d09daad382f9e21bb678a992fcbde351c09d8312499732db1b4",
+    "tests": 543,
+    "exit_code": 0,
+    "terminal": 60074
+  },
+  "original_home_chain": [
+    {
+      "path": "local/research/chapter-two-road-v1/original-home-gifts-evidence-v1.json",
+      "sha256": "b9d2662bdb11a90639d59af49c4e69baa02d1e54db53a1abff27fc3fd404bdd1"
+    },
+    {
+      "path": "local/research/chapter-two-road-v1/original-home-gifts-root-check-v1/report.json",
+      "sha256": "97ea9c68e71380ef07ef3c384168ab2966684a9401339aef2bf10d1fb7fc3458"
+    }
+  ],
+  "retained_negatives": [
+    {
+      "path": "local/research/ordinary-visibility-v1/ordinary-visibility-original-v1.run.json",
+      "sha256": "71acf03d3862650a98b4c68c19c2a9d24454c09c11793268f3a1b2680985eae8"
+    },
+    {
+      "path": "local/research/ordinary-visibility-v3/ordinary-visibility-original-v3.run.json",
+      "sha256": "206e08c6f6b7a238995da88c3e0247a08f734513d075d710a8c4849e45dea77b"
+    },
+    {
+      "path": "local/research/chapter-two-road-v1/service25-review-v1/service25-source-review.md",
+      "sha256": "c0231bc04322caf3fdd9e09ec2b64b938adb41b69ab665be0bf80f33dc006270"
+    },
+    {
+      "path": "local/research/chapter-two-road-v1/service25-review-v1/service25-source-review-v2.md",
+      "sha256": "2433dc09934ac3f101b4ebb29f99c34b9d8d496b0afd9e86c27e9bff8c4dad28"
+    },
+    {
+      "path": "local/research/music24-v1/renderer-fixture-negatives-v1.json",
+      "sha256": "9a36a8104daeac865a9b3f21d612027d1051a346f3b9064c38c76c99c2e2c427"
+    }
+  ],
+  "missing_provenance": [
+    "The direct ordinary-visibility v2 instruction-budget failure has no retained log/command/manifest or executed binary hash; handoff-only report cannot serve as reproducible evidence.",
+    "Historical FPC/DPC dry PCM checks lack executed command/binary hash binding; excluded from parity claims."
+  ],
+  "limitations": [
+    "Whole road/Rosalyn paired state/image/audio comparison missing; old village/Ringmaster failures remain.",
+    "Alternate score switching guarded; native primary dry PCM does not prove original audio fidelity.",
+    "No new gameplay save after pickup/encounter.",
+    "No FPS, listening, physical-controller or complete-playthrough claim.",
+    "Stagev10 is a development overlay, not a completed fresh owned-disc import acceptance test."
+  ],
+  "user_window": {
+    "pid": 63851,
+    "bundle": "local/demos/results-108575-v1/okage-native.app",
+    "paused_frame": 116648,
+    "preserved_unsaved_session": true,
+    "additional_windows_opened": 0
+  },
+  "writer": {
+    "path": "/Users/user/src/okage-shadow-king/local/research/chapter-two-road-v1/write-checkpoint-v1.py",
+    "sha256": "3ed86ba4e5c0b25b3787265da8b5d4caece4f05b94461f5a3575ba9398647795"
+  }
+}
