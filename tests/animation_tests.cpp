@@ -5,6 +5,7 @@
 #include <cfenv>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <source_location>
 #include <stdexcept>
 
@@ -47,6 +48,69 @@ int main() {
             movement.set_channel_mode(0,0x10);movement.set_channel(0,{0,0,0,1});
             movement.move_channel(0,{8,16,24,5},2);movement.tick_channels();
             require(movement.value(0)==okage::Float4({5,10,15,3.5f}));
+        }
+        {
+            auto pool=std::make_shared<okage::AnimationChannelPool>();
+            require(pool->free_channels()==okage::AnimationChannelPool::capacity);
+            okage::Animation camera(3),model(2);
+            camera.bind_channels(pool);model.bind_channels(pool);
+            require(camera.channel_base()==0&&camera.channel_count()==3);
+            require(model.channel_base()==3&&model.channel_count()==2);
+            require(pool->free_channels()==okage::AnimationChannelPool::capacity-5);
+
+            okage::Animation moving(1);moving.set_channel_mode(0,0x10);
+            moving.set_channel(0,{0,0,0,1});moving.value(0);
+            moving.move_channel(0,{8,4,2,1},4);moving.tick_channels();
+            const auto pending=moving.value(0);
+            moving.bind_channels(pool);
+            require(moving.channel_base()==5&&moving.value(0)==pending);
+            require(moving.moving(0,0));
+            moving.tick_channels();require(moving.value(0)[0]==5.f);
+
+            auto script=fixture();put(script,32,0x00d0002e);
+            put(script,36,std::bit_cast<std::uint32_t>(.75f));
+            put(script,40,0x00100002);put(script,44,0);
+            okage::Animation event(script,1);event.set_channel_target(&camera);event.start(0);
+            require(camera.channel_outputs().size()==3);
+            require(model.value(0)[1]==.75f);
+            require(model.channel_outputs()[0][1]==.75f);
+            okage::Animation standalone(3),bad_event(script,1);
+            bad_event.set_channel_target(&standalone);
+            rejects([&]{bad_event.start(0);});
+        }
+        {
+            auto pool=std::make_shared<okage::AnimationChannelPool>();
+            auto old=std::make_unique<okage::Animation>(2);old->bind_channels(pool);
+            auto neighbor=std::make_unique<okage::Animation>(2);neighbor->bind_channels(pool);
+            require(old->channel_base()==0&&neighbor->channel_base()==2);
+            old->release_channel(1);
+            auto reused=std::make_unique<okage::Animation>(1);reused->bind_channels(pool);
+            require(reused->channel_base()==1);
+            old.reset();
+            require(pool->free_channels()==okage::AnimationChannelPool::capacity-2);
+            auto first_fit=std::make_unique<okage::Animation>(1);first_fit->bind_channels(pool);
+            require(first_fit->channel_base()==0);
+            auto moved=std::make_unique<okage::Animation>(std::move(*neighbor));
+            neighbor.reset();
+            require(moved->channel_base()==2&&moved->channel_count()==2);
+            reused.reset();first_fit.reset();moved.reset();
+            require(pool->free_channels()==okage::AnimationChannelPool::capacity);
+        }
+        {
+            auto pool=std::make_shared<okage::AnimationChannelPool>();
+            okage::Animation full(okage::AnimationChannelPool::capacity);full.bind_channels(pool);
+            require(full.channel_base()==0&&pool->free_channels()==0);
+            rejects([&]{okage::Animation extra(1);extra.bind_channels(pool);});
+        }
+        {
+            auto pool=std::make_shared<okage::AnimationChannelPool>();
+            okage::Animation destination(1),source(2);
+            destination.bind_channels(pool);source.bind_channels(pool);
+            require(destination.channel_base()==0&&source.channel_base()==1);
+            destination=std::move(source);
+            require(destination.channel_base()==1&&destination.channel_count()==2);
+            require(pool->free_channels()==okage::AnimationChannelPool::capacity-2);
+            require(source.channel_count()==0);
         }
         {
             auto two_channel=fixture();

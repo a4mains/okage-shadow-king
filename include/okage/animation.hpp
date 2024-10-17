@@ -1,14 +1,28 @@
 #pragma once
 #include "okage/model.hpp"
+#include <array>
+#include <memory>
 #include <functional>
 #include <utility>
 
 namespace okage {
+class AnimationChannelPool;
 class Animation {
 public:
     // Native channel group with no XMT script, as allocated by0x1b5d10.
     explicit Animation(std::size_t channel_count);
     Animation(Bytes bytes, std::size_t channel_count);
+    Animation(const Animation&) = delete;
+    Animation& operator=(const Animation&) = delete;
+    Animation(Animation&&) noexcept;
+    Animation& operator=(Animation&&) noexcept;
+    ~Animation();
+    // 0x1b4c90 allocates a contiguous first-fit range via 0x1b47e8. Bind this
+    // initialized group into that shared pool; copy its local state into the
+    // allocated range before subsequent accesses become shared.
+    void bind_channels(std::shared_ptr<AnimationChannelPool> pool);
+    std::size_t channel_count() const { return channel_count_; }
+    std::size_t channel_base() const { return pool_ ? pool_base_ : 0; }
     void start(std::size_t entry);
     void select(std::size_t entry); // Select for the next script dispatch (0x1b4da8).
     void set_channel(std::size_t index,const Float4& value);
@@ -44,6 +58,7 @@ public:
         texture_callback_=std::move(callback);
     }
 private:
+    friend class AnimationChannelPool;
     struct Channel {
         std::uint16_t flags=0x201, mode=2;
         std::array<std::uint16_t,4> component{};
@@ -53,6 +68,8 @@ private:
     };
     std::vector<std::uint8_t> bytes_;
     std::vector<Channel> channels_;
+    std::shared_ptr<AnimationChannelPool> pool_;
+    std::size_t channel_count_=0, pool_base_=0;
     std::uint32_t code_=0, samples_=0, sample_end_=0, pc_=0;
     std::uint16_t flags_=1, wait_=0;
     bool wide_tracks_=false, scale_channels_=false;
@@ -64,8 +81,25 @@ private:
     float sample(std::uint64_t index) const;
     std::uint32_t relative(std::uint32_t at) const;
     void run();
+    Channel& channel(std::size_t index);
+    const Channel& channel(std::size_t index) const;
+    Channel& script_channel(std::size_t index);
+    const Channel& script_channel(std::size_t index) const;
     void advance(Channel& channel);
     void read_track(Channel& channel);
     void evaluate(Channel& channel);
+};
+
+class AnimationChannelPool {
+public:
+    static constexpr std::size_t capacity=5120;
+    AnimationChannelPool();
+    AnimationChannelPool(const AnimationChannelPool&) = delete;
+    AnimationChannelPool& operator=(const AnimationChannelPool&) = delete;
+    std::size_t free_channels() const;
+private:
+    friend class Animation;
+    std::array<Animation::Channel,capacity> slots_{};
+    void release(std::size_t base,std::size_t count) noexcept;
 };
 }

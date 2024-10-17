@@ -39,7 +39,7 @@ std::uint32_t Animation::relative(std::uint32_t at) const {
 }
 Animation::Animation(std::size_t count) {
     if(!count||count>5120)throw std::runtime_error("Invalid native channel count");
-    channels_.resize(count);
+    channel_count_=count;channels_.resize(count);
 }
 Animation::Animation(Bytes bytes,std::size_t count):bytes_(bytes.begin(),bytes.end()) {
     if (!count || count>5120 || bytes.size()>0x700000 || word(0)!=0x544d58)
@@ -50,7 +50,78 @@ Animation::Animation(Bytes bytes,std::size_t count):bytes_(bytes.begin(),bytes.e
     if (end+word(12)!=bytes.size() || (samples&3) || (end&3)) throw std::runtime_error("Invalid XMT section sizes");
     samples_=samples; sample_end_=end; wide_tracks_=word(24)!=0;
     scale_channels_=word(20)!=0;
-    channels_.resize(count);
+    channel_count_=count;channels_.resize(count);
+}
+Animation::Animation(Animation&& other) noexcept
+    :bytes_(std::move(other.bytes_)),channels_(std::move(other.channels_)),pool_(std::move(other.pool_)),
+     channel_count_(other.channel_count_),pool_base_(other.pool_base_),code_(other.code_),samples_(other.samples_),
+     sample_end_(other.sample_end_),pc_(other.pc_),flags_(other.flags_),wait_(other.wait_),wide_tracks_(other.wide_tracks_),
+     scale_channels_(other.scale_channels_),texture_callback_(std::move(other.texture_callback_)),
+     service_(std::move(other.service_)),channel_target_(other.channel_target_) {
+    other.channel_count_=0;other.pool_base_=0;other.channel_target_=nullptr;
+}
+Animation& Animation::operator=(Animation&& other) noexcept {
+    if(this==&other)return *this;
+    if(pool_)pool_->release(pool_base_,channel_count_);
+    bytes_=std::move(other.bytes_);channels_=std::move(other.channels_);pool_=std::move(other.pool_);
+    channel_count_=other.channel_count_;pool_base_=other.pool_base_;code_=other.code_;samples_=other.samples_;
+    sample_end_=other.sample_end_;pc_=other.pc_;flags_=other.flags_;wait_=other.wait_;wide_tracks_=other.wide_tracks_;
+    scale_channels_=other.scale_channels_;texture_callback_=std::move(other.texture_callback_);
+    service_=std::move(other.service_);channel_target_=other.channel_target_;
+    other.channel_count_=0;other.pool_base_=0;other.channel_target_=nullptr;
+    return *this;
+}
+Animation::~Animation() {if(pool_)pool_->release(pool_base_,channel_count_);}
+Animation::Channel& Animation::channel(std::size_t index) {
+    if(index>=channel_count_)throw std::out_of_range("Animation channel index");
+    return pool_?pool_->slots_.at(pool_base_+index):channels_.at(index);
+}
+const Animation::Channel& Animation::channel(std::size_t index) const {
+    if(index>=channel_count_)throw std::out_of_range("Animation channel index");
+    return pool_?pool_->slots_.at(pool_base_+index):channels_.at(index);
+}
+Animation::Channel& Animation::script_channel(std::size_t index) {
+    if(pool_) {
+        if(index>=AnimationChannelPool::capacity-pool_base_)throw std::runtime_error("XMT shared channel pool overflow");
+        return pool_->slots_[pool_base_+index];
+    }
+    if(index>=channel_count_)throw std::runtime_error("XMT channel out of bounds");
+    return channels_[index];
+}
+const Animation::Channel& Animation::script_channel(std::size_t index) const {
+    if(pool_) {
+        if(index>=AnimationChannelPool::capacity-pool_base_)throw std::runtime_error("XMT shared channel pool overflow");
+        return pool_->slots_[pool_base_+index];
+    }
+    if(index>=channel_count_)throw std::runtime_error("XMT channel out of bounds");
+    return channels_[index];
+}
+void Animation::bind_channels(std::shared_ptr<AnimationChannelPool> pool) {
+    if(!pool)throw std::runtime_error("Animation channel pool is null");
+    if(pool_)throw std::runtime_error("Animation channels already bound to a pool");
+    if(!channel_count_||channels_.size()!=channel_count_)throw std::runtime_error("Animation local channels unavailable");
+    std::size_t base=AnimationChannelPool::capacity;
+    for(std::size_t first=0;first+channel_count_<=AnimationChannelPool::capacity;++first) {
+        bool free=true;
+        for(std::size_t i=0;i<channel_count_;++i)if(pool->slots_[first+i].flags!=0){free=false;break;}
+        if(free){base=first;break;}
+    }
+    if(base==AnimationChannelPool::capacity)throw std::runtime_error("Animation channel pool exhausted");
+    for(std::size_t i=0;i<channel_count_;++i)pool->slots_[base+i]=channels_[i];
+    pool_=std::move(pool);pool_base_=base;channels_.clear();
+}
+std::size_t AnimationChannelPool::free_channels() const {
+    std::size_t count=0;for(const auto& slot:slots_)if(slot.flags==0)++count;return count;
+}
+AnimationChannelPool::AnimationChannelPool() {
+    for(auto& slot:slots_) {
+        slot.flags=0;slot.mode=0;slot.component={};slot.output={};slot.a={};slot.b={};slot.c={};
+        slot.t={};slot.step={};slot.next_step={};slot.track=0;
+    }
+}
+void AnimationChannelPool::release(std::size_t base,std::size_t count) noexcept {
+    if(base>capacity||count>capacity-base)return;
+    for(std::size_t i=0;i<count;++i)slots_[base+i].flags=0;
 }
 void Animation::start(std::size_t entry) {select(entry);Rounding rounding;run();}
 void Animation::select(std::size_t entry) {
@@ -85,16 +156,27 @@ void Animation::run() {
         }
         const auto index=(op==0x25 || op==0x30 || op==0x2e || op==8 ? b : static_cast<int>(a))>>2;
         auto& target=channel_target_ ? *channel_target_ : *this;
-        if(index<0 || std::size_t(index)>=target.channels_.size())throw std::runtime_error("XMT channel out of bounds");
-        auto& ch=target.channels_[index];
+        if(index<0)throw std::runtime_error("XMT channel out of bounds");
+        auto& ch=target.script_channel(static_cast<std::size_t>(index));
         if(op==0x25) {
             if(p+4ull>samples_)throw std::runtime_error("Truncated XMT channel mode");
-            target.set_channel_mode(index,word(p)&0xffff);pc_=p+4;continue;
+            const auto mode=word(p)&0xffff;
+            if(mode!=1&&mode!=2&&mode!=0x10)throw std::runtime_error("Unrecovered channel mode");
+            ch.mode=std::uint16_t(mode);pc_=p+4;continue;
         }
-        if(op==8) {if(target.moving(index,b&3))return;pc_=p;continue;}
+        if(op==8) {if(ch.step[b&3]!=0)return;pc_=p;continue;}
         if((op==0x2e || op==0x31 || op==0x40) && p+4ull>samples_)throw std::runtime_error("Truncated scalar instruction");
-        if(op==0x2e) {target.set_component(index,b&3,number(p));pc_=p+4;continue;}
-        if(op==0x40) {target.turn_component(index,a&3,number(p),b);pc_=p+4;continue;}
+        if(op==0x2e) {ch.a[b&3]=number(p);ch.flags=0x201;pc_=p+4;continue;}
+        if(op==0x40) {
+            const unsigned component=a&3;const float value=number(p);
+            if(!std::isfinite(value)||b<=0)throw std::runtime_error("Invalid turn transition");
+            auto& from=ch.a[component];
+            if(value<from){if((value+1.f)-from<from-value)from-=1.f;}
+            else if((from+1.f)-value<value-from)from+=1.f;
+            ch.b[component]=value;ch.step[component]=1.f/static_cast<float>(b);ch.c[component]=value;
+            ch.next_step[component]=1;ch.component[component]&=~0x400;ch.flags=ch.mode|0x100;
+            pc_=p+4;continue;
+        }
         if(op==0x27 && channel_target_ && channel_target_!=this)throw std::runtime_error("Cross-script sampled tracks unsupported");
         unsigned payload=0;
         if (op==0x30 || op==0x33 || op==0x42) payload=12;
@@ -139,27 +221,27 @@ void Animation::run() {
 }
 void Animation::set_channel(std::size_t index,const Float4& value) {
     for(float v:value)if(!std::isfinite(v))throw std::runtime_error("Non-finite channel value");
-    auto& ch=channels_.at(index);ch.a=value;ch.step={};ch.flags=0x201;
+    auto& ch=channel(index);ch.a=value;ch.step={};ch.flags=0x201;
 }
 void Animation::release_channel(std::size_t index) {
-    channels_.at(index).flags=0;
+    channel(index).flags=0;
 }
 void Animation::set_channel_mode(std::size_t index,unsigned mode) {
     if(mode!=1&&mode!=2&&mode!=0x10)throw std::runtime_error("Unrecovered channel mode");
-    channels_.at(index).mode=std::uint16_t(mode);
+    channel(index).mode=std::uint16_t(mode);
 }
 void Animation::write_channel_output(std::size_t index,const Float4& value) {
     for(float v:value)if(!std::isfinite(v))throw std::runtime_error("Non-finite channel output");
-    channels_.at(index).output=value;
+    channel(index).output=value;
 }
 void Animation::set_component(std::size_t index,unsigned component,float value) {
     if(component>=4 || !std::isfinite(value))throw std::runtime_error("Invalid channel component");
-    auto& ch=channels_.at(index);ch.a[component]=value;ch.flags=0x201;
+    auto& ch=channel(index);ch.a[component]=value;ch.flags=0x201;
 }
 void Animation::turn_component(std::size_t index,unsigned component,float value,int duration) {
     Rounding rounding;
     if(component>=4 || !std::isfinite(value) || duration<=0)throw std::runtime_error("Invalid turn transition");
-    auto& ch=channels_.at(index);auto& from=ch.a[component];
+    auto& ch=channel(index);auto& from=ch.a[component];
     if(value<from){if((value+1.f)-from<from-value)from-=1.f;}
     else if((from+1.f)-value<value-from)from+=1.f;
     ch.b[component]=value;ch.step[component]=1.f/float(duration);ch.c[component]=value;ch.next_step[component]=1;
@@ -167,13 +249,13 @@ void Animation::turn_component(std::size_t index,unsigned component,float value,
 }
 bool Animation::moving(std::size_t index,unsigned component) const {
     if(component>=4)throw std::runtime_error("Invalid channel component");
-    return channels_.at(index).step[component]!=0;
+    return channel(index).step[component]!=0;
 }
 void Animation::move_channel(std::size_t index,const Float4& target,int duration) {
     Rounding rounding;
     if(duration<=0)throw std::runtime_error("Unsupported nonpositive channel movement duration");
     for(float value:target)if(!std::isfinite(value))throw std::runtime_error("Non-finite channel movement");
-    auto& ch=channels_.at(index);
+    auto& ch=channel(index);
     const float rate=1.f/static_cast<float>(duration);
     for(unsigned i=0;i<4;++i) {
         if(ch.step[i]==0) {ch.b[i]=target[i];ch.step[i]=rate;ch.c[i]=target[i];ch.next_step[i]=1;}
@@ -244,21 +326,21 @@ void Animation::evaluate(Channel& ch) {
     }
     ch.flags&=~0x200;
 }
-void Animation::tick_channels() {Rounding rounding;for(auto& ch:channels_)advance(ch);}
+void Animation::tick_channels() {Rounding rounding;for(std::size_t i=0;i<channel_count_;++i)advance(channel(i));}
 void Animation::tick_script() {Rounding rounding;if(flags_&0x100){if(wait_)--wait_;else run();}}
 void Animation::tick() {tick_channels();tick_script();}
 std::vector<Float4> Animation::values() {
     Rounding rounding;
-    std::vector<Float4> result; result.reserve(channels_.size());
-    for (auto& ch:channels_) { evaluate(ch); result.push_back(ch.output); }
+    std::vector<Float4> result; result.reserve(channel_count_);
+    for(std::size_t i=0;i<channel_count_;++i) {auto& ch=channel(i);evaluate(ch);result.push_back(ch.output);}
     return result;
 }
 Float4 Animation::value(std::size_t index) {
-    Rounding rounding;auto& ch=channels_.at(index);evaluate(ch);return ch.output;
+    Rounding rounding;auto& ch=channel(index);evaluate(ch);return ch.output;
 }
 std::vector<Float4> Animation::channel_outputs() const {
-    std::vector<Float4> result;result.reserve(channels_.size());
-    for(const auto& ch:channels_)result.push_back(ch.output);
+    std::vector<Float4> result;result.reserve(channel_count_);
+    for(std::size_t i=0;i<channel_count_;++i)result.push_back(channel(i).output);
     return result;
 }
 }
