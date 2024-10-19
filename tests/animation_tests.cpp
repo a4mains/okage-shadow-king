@@ -77,6 +77,12 @@ int main() {
             okage::Animation standalone(3),bad_event(script,1);
             bad_event.set_channel_target(&standalone);
             rejects([&]{bad_event.start(0);});
+
+            auto sampled=fixture();put(sampled,32,0x000c0027);put(sampled,36,0);
+            auto track_pool=std::make_shared<okage::AnimationChannelPool>();
+            okage::Animation sampled_owner(sampled,3),sampled_neighbor(1);
+            sampled_owner.bind_channels(track_pool);sampled_neighbor.bind_channels(track_pool);
+            rejects([&]{sampled_owner.start(0);});
         }
         {
             auto pool=std::make_shared<okage::AnimationChannelPool>();
@@ -101,6 +107,20 @@ int main() {
             okage::Animation full(okage::AnimationChannelPool::capacity);full.bind_channels(pool);
             require(full.channel_base()==0&&pool->free_channels()==0);
             rejects([&]{okage::Animation extra(1);extra.bind_channels(pool);});
+        }
+        {
+            auto pool=std::make_shared<okage::AnimationChannelPool>();
+            okage::Animation prefix(okage::AnimationChannelPool::capacity-1),last(1);
+            prefix.bind_channels(pool);last.bind_channels(pool);
+            require(prefix.channel_base()==0&&last.channel_base()==okage::AnimationChannelPool::capacity-1);
+            auto at_end=fixture();put(at_end,32,0x0000002e);
+            put(at_end,36,std::bit_cast<std::uint32_t>(.625f));
+            put(at_end,40,0x00100002);put(at_end,44,0);
+            okage::Animation valid(at_end,1);valid.set_channel_target(&last);valid.start(0);
+            require(last.value(0)[0]==.625f);
+            auto past_end=at_end;put(past_end,32,0x0040002e);
+            okage::Animation invalid(past_end,1);invalid.set_channel_target(&last);
+            rejects([&]{invalid.start(0);});
         }
         {
             auto pool=std::make_shared<okage::AnimationChannelPool>();

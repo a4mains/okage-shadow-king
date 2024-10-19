@@ -58,6 +58,7 @@ Animation::Animation(Animation&& other) noexcept
      sample_end_(other.sample_end_),pc_(other.pc_),flags_(other.flags_),wait_(other.wait_),wide_tracks_(other.wide_tracks_),
      scale_channels_(other.scale_channels_),texture_callback_(std::move(other.texture_callback_)),
      service_(std::move(other.service_)),channel_target_(other.channel_target_) {
+    if(channel_target_==&other)channel_target_=this;
     other.channel_count_=0;other.pool_base_=0;other.channel_target_=nullptr;
 }
 Animation& Animation::operator=(Animation&& other) noexcept {
@@ -68,6 +69,7 @@ Animation& Animation::operator=(Animation&& other) noexcept {
     sample_end_=other.sample_end_;pc_=other.pc_;flags_=other.flags_;wait_=other.wait_;wide_tracks_=other.wide_tracks_;
     scale_channels_=other.scale_channels_;texture_callback_=std::move(other.texture_callback_);
     service_=std::move(other.service_);channel_target_=other.channel_target_;
+    if(channel_target_==&other)channel_target_=this;
     other.channel_count_=0;other.pool_base_=0;other.channel_target_=nullptr;
     return *this;
 }
@@ -166,7 +168,11 @@ void Animation::run() {
         }
         if(op==8) {if(ch.step[b&3]!=0)return;pc_=p;continue;}
         if((op==0x2e || op==0x31 || op==0x40) && p+4ull>samples_)throw std::runtime_error("Truncated scalar instruction");
-        if(op==0x2e) {ch.a[b&3]=number(p);ch.flags=0x201;pc_=p+4;continue;}
+        if(op==0x2e) {
+            const float value=number(p);
+            if(!std::isfinite(value))throw std::runtime_error("Invalid channel component value");
+            ch.a[b&3]=value;ch.flags=0x201;pc_=p+4;continue;
+        }
         if(op==0x40) {
             const unsigned component=a&3;const float value=number(p);
             if(!std::isfinite(value)||b<=0)throw std::runtime_error("Invalid turn transition");
@@ -177,7 +183,8 @@ void Animation::run() {
             ch.next_step[component]=1;ch.component[component]&=~0x400;ch.flags=ch.mode|0x100;
             pc_=p+4;continue;
         }
-        if(op==0x27 && channel_target_ && channel_target_!=this)throw std::runtime_error("Cross-script sampled tracks unsupported");
+        if(op==0x27 && (&target!=this || std::size_t(index)>=target.channel_count_))
+            throw std::runtime_error("Cross-group sampled tracks unsupported");
         unsigned payload=0;
         if (op==0x30 || op==0x33 || op==0x42) payload=12;
         else if (op==0x27 || op==0x31) payload=4;
