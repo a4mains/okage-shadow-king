@@ -22,13 +22,19 @@ public:
     std::optional<unsigned> collision_index(int instance) const;
     Float4 position(std::size_t placement) const;
     void write_position(std::size_t placement,const Float4&);
+    MapTransform transform(std::size_t placement) const;
+    Animation* channel_group(int instance) const;
+    void bind_channels(const std::shared_ptr<AnimationChannelPool>&);
+    void tick_static_channels();
 private:
-    struct State {int instance=-1;bool visible=true;Float4 position{};};
+    struct State {int instance=-1;bool visible=true;MapTransform transform{};bool advance=false;};
     std::vector<State> states_;
     std::vector<MapCollisionBinding> collisions_;
     std::vector<std::unique_ptr<FieldActor>> objects_;
     std::vector<ActorBinding> bindings_;
     std::vector<FieldActor*> placements_;
+    // Unanimated instances still own four real world/color channels (1b64d8).
+    std::vector<std::unique_ptr<Animation>> static_channels_;
     int front_=0,back_=640;
 };
 }

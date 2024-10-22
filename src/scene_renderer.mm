@@ -394,7 +394,8 @@ struct SceneRenderer::Impl {
             std::vector<Draw> translucent;
             auto world=input.actor ? input.actor->world(sine) : input.world;
             if(input.facing)world=map_instance_matrix(*input.facing,{-camera[0],-camera[1],0,1},sine);
-            if(input.placement&&mapObjects&&!input.actor)world[3]=mapObjects->position(*input.placement);
+            if(input.placement&&mapObjects&&!input.actor)
+                world=map_instance_matrix(mapObjects->transform(*input.placement),{-camera[0],-camera[1],0,1},sine);
             if(sky_input&&inputIndex==*sky_input){
                 const auto position=sky_follow_position(cameraPosition,sky_factors);
                 world[3]={position[0],position[1],position[2],1};

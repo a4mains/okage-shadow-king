@@ -1974,7 +1974,26 @@ static void capture(Session& session,const fs::path& path) {
         }
         actors<<"]}";firstActor=false;
     }
-    actors<<"\n  ],\n  \"next_front_instance\": "<<session.next_instance
+    actors<<"\n  ],\n  \"map_channel_groups\": [";
+    bool firstGroup=true;
+    if(session.map_objects)for(int instance=0;instance<640;++instance) {
+        const auto* group=session.map_objects->channel_group(instance);
+        if(!group)continue;
+        actors<<(firstGroup?"\n":",\n")<<"    {\"instance\": "<<instance
+              <<", \"base\": "<<group->channel_base()<<", \"count\": "<<group->channel_count()
+              <<", \"output_words\": [";
+        bool first=true;
+        for(const auto& channel:group->channel_outputs())for(float value:channel) {
+            if(!first)actors<<',';
+            actors<<std::bit_cast<std::uint32_t>(value);first=false;
+        }
+        actors<<"]}";firstGroup=false;
+    }
+    actors<<"\n  ],\n  \"camera_channel_group\": ";
+    if(session.field)actors<<"{\"base\": "<<session.field->camera_channels().channel_base()
+        <<", \"count\": "<<session.field->camera_channels().channel_count()<<"}";
+    else actors<<"null";
+    actors<<",\n  \"next_front_instance\": "<<session.next_instance
           <<",\n  \"first_back_instance\": "<<session.instance_limit
           <<",\n  \"instance_aliases\": [";
     for(unsigned i=0;i<session.instance_aliases.size();++i) {

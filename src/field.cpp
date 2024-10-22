@@ -117,6 +117,10 @@ void OpeningField::bind_map_objects(std::span<const ActorBinding> bindings) {
 void OpeningField::bind_map_scene(MapObjects& scene) {
     if(map_scene_||collision_)throw std::runtime_error("Map scene binding lifecycle");
     bind_map_objects(scene.bindings());map_scene_=&scene;
+    channel_pool_=std::make_shared<AnimationChannelPool>();
+    script_.bind_channels(channel_pool_);
+    scene.bind_channels(channel_pool_);
+    for(const auto& binding:actors_)binding.actor->animation().bind_channels(channel_pool_);
     map_visibility=[this](int id,bool value) {
         const auto index=map_scene_->collision_index(id);
         if(!index)return false;
@@ -805,7 +809,13 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
         case 7:
             if(b==-2)script_.set_channel_target(nullptr);
             else if(auto* target=actor(b))script_.set_channel_target(&target->animation());
-            else return pending();
+            else {
+                const auto instance=b>=0?std::optional<int>(b):
+                    (resolve_instance_alias?resolve_instance_alias(b):std::nullopt);
+                auto* channels=instance&&map_scene_?map_scene_->channel_group(*instance):nullptr;
+                if(!channels)return pending();
+                script_.set_channel_target(channels);
+            }
             group_=b;return {pc+4};
         case 9:
             // 0x1b5830 -> 0x1bb608 waits for the selected object's motion
@@ -1102,7 +1112,9 @@ void OpeningField::tick(ExplorationInput input) {
             throw std::runtime_error("Hat scene requires its manager and owned resource loader");
         auto resources=create_hat_scene();
         if(!resources.actor)throw std::runtime_error("Hat scene loader returned no actor");
+        if(channel_pool_)resources.actor->animation().bind_channels(channel_pool_);
         auto motion=std::make_unique<Animation>(resources.camera_motion,2);
+        if(channel_pool_)motion->bind_channels(channel_pool_);
         motion->start(0); //0x1b5c38 ->0x1b5bd8 initializes the separate context.
         camera_motion_=std::move(motion);camera_mode_=0; //0x1baf50(-1).
         hat_actor_=resources.actor;alias7_actor_=hat_actor_;
@@ -1164,6 +1176,7 @@ void OpeningField::tick_callbacks(ExplorationInput input,bool interior_camera,bo
     screen_filter.tick(script_.values().at(2)[0]);
     // Actor groups have flag1 (not global-advance flag2). Original 0x1b9be0
     // calls 0x1b70a0 only for visible instances; hidden motion scripts still run.
+    if(map_scene_)map_scene_->tick_static_channels();
     for(const auto& binding:map_objects_)if(binding.actor->visible){binding.actor->tick_channels();binding.actor->evaluate();}
     for(const auto& binding:actors_)if(binding.actor->visible){binding.actor->tick_channels();binding.actor->evaluate();}
     if(hat_actor_&&hat_actor_->visible){hat_actor_->tick_channels();hat_actor_->evaluate();}

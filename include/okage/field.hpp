@@ -115,6 +115,7 @@ public:
     std::function<void(unsigned,std::uint32_t)> request_chapter;
     std::int32_t chapter_selector() const {return chapter_selector_;}
     const PlayerMovement& player_movement() const {return player_;}
+    const Animation& camera_channels() const {return script_;}
     const std::optional<ShadowTransition>& player_shadow() const {return shadow_;}
     // 0x1300d0 -> 0x1346e0: dialogue SHADOW requests use the transition
     // switch directly, without event54's bit0x100 selector override.
@@ -156,6 +157,7 @@ private:
     CollisionMask local_collision_mask_;
     std::vector<std::uint8_t> bytes_;
     Animation script_;
+    std::shared_ptr<AnimationChannelPool> channel_pool_;
     SineTable sine_=make_sine_table();
     AtanTable angles_=make_atan_table();
     Float4 requested_target_{};

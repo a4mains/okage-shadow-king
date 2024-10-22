@@ -1,0 +1,43 @@
+{
+  "schema": "native-animation-channel-pool-validation-v1",
+  "status": "native29811_complete_next_music7_guard_original_road_comparison_fails",
+  "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "components": [
+    "cf98ed3",
+    "5e1c4f4"
+  ],
+  "scope": "Shared field channel integration.",
+  "affected_ctests_per_build": 8,
+  "python_tests": 543,
+  "retained_mode_words_per_build": 630,
+  "completed_native_ticks": 29811,
+  "next_failed_attempt": 29812,
+  "paired_interval": {
+    "first_native": 22245,
+    "frames": 7180,
+    "passed": false,
+    "missing_manager_camera_player_frames": 0,
+    "original_controller_callbacks": 499,
+    "full_actor_bones_and_rng_compared": false
+  },
+  "evidence": {
+    "local/research/channel-pool-v1/root-native-audit-v1.json": "c49aefc2d55b605075c94fc3504ac475964230988bf52e1cc0764d0d3e4cba50",
+    "local/research/channel-pool-v1/root-map-layout-check-v1.json": "764dcbd16c28d751495febb7c24c81967fa967f441f01409cc1cd063682f6a8f",
+    "local/research/channel-pool-v1/mode-regression-v2/summary.json": "e45ca1a4c7224d8c2749a227c0789798f52175eec08c46bda662a30f9133ada0",
+    "local/research/channel-pool-v1/mode-regression-v2/audit.json": "ffa00f016d2c94753854b3518de5fc8108a6712c04e794869113f7d6f0df1bb1",
+    "local/research/channel-pool-v1/integration-review.md": "6342a0ccd8a577259a49e36039fbf44efd2577eca4302dbd23b0bfcf8777af2e",
+    "local/research/channel-pool-v1/road-endpoint-images-v1/comparison.json": "226a1166f5591572410d768e32575fbff8894846ff0c6e793d1e7fbd9c31da4f",
+    "local/research/channel-pool-v1/road-audio-v1.json": "516ca2c30d0d4516202ce5576a5ab969ebdc38acadc8ca0d12f7848de792e3bc",
+    "local/research/channel-pool-v1/root-python-tests-v1.log": "e01e1e77520b11f412f13b6825b1dc8989b5c8be0f0dc6aecede95d9ea99adfb",
+    "local/research/chapter-two-road-v1/road-fixed-comparison-v2.json": "4c648266b627b2cc5bb828b98c18e535a8510948697c4f00b9773a32ceed9117",
+    "local/research/chapter-two-road-v1/road-fixed-comparison-v2.json.summary.json": "a086d214c2e32e64f0f05661d43c3b344caa5dc78179e764706510d6bd4e948a",
+    "local/research/chapter-two-road-v1/original-departure-root-check-v1.json": "798b517dd00e861f2761884056becc283683b94b72358cb8b301a750f59ee3f7",
+    "local/research/chapter-two-road-v1/original-departure-evidence-v1.json": "2cb5132cbad97be6b59fb9e15ed33989ff50cf4c15691d33aedb8c368181f79b",
+    "local/research/chapter-two-road-v1/original-chapter2-channel-ownership-v1.json": "f9158f5a4c9bb21e84d3fb3c194ba1a41c2c9023e04be824ab8c4cb4d1eaad97",
+    "local/research/chapter-two-road-v1/original-road-matched-input-v1/execution-evidence.json": "1b68b53d94148f51379debba48e45164b19d7281d6487b2a7d9a5023174931c8",
+    "local/research/chapter-two-road-v1/native-pool-release-v2/run.json": "cb8a2a5c22aba7b4b151d01ac51f82d9f170aafa4f4cb141e589e8e5eee3213d",
+    "local/research/channel-pool-v1/root-debug-tests-v2.log": "9a78186fb223bc99acb1bd9fded5ef67db6992e1b68c513c5c687b0911fd61cf",
+    "local/research/channel-pool-v1/root-release-tests-v2.log": "ffbd723e40db81e29c07bbbf6b63a13fe649fe312c446f5b53740b5e267368a5",
+    "local/research/channel-pool-v1/root-sanitize-tests-v2.log": "67ce414baabc394c6884e6f70934a287f66611f5b0a21b98cd45dd46437880a0"
+  }
+}

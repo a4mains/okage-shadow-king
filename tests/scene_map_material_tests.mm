@@ -89,6 +89,34 @@ static Texture sample(const fs::path& dir,std::span<const Surface> surfaces,bool
     return cold;
 }
 static std::array<unsigned,3> center(const Texture& t){const auto n=(112*640+320)*4;return {t.rgba[n],t.rgba[n+1],t.rgba[n+2]};}
+static void shared_static_channels(const fs::path& dir) {
+    const std::array<Surface,1> surfaces{{{{1,1,1,1},0,false}}};
+    const auto baseline=sample(dir,surfaces,true,false,false);
+    MapObjects objects(dir/"a.xmp");
+    require(objects.bindings().empty());
+    auto* placement=objects.channel_group(0);require(placement&&placement->channel_count()==4);
+    Data script(52);put(script,0,0x544d58);put(script,4,20);put(script,16,0xffffffff);put(script,24,1);
+    put(script,32,0x00f0002e);put(script,36,0x3f800000); //Camera+3: map rotation.W.
+    put(script,40,0x0100002e);put(script,44,0x41200000); //Camera+4: map position.X.
+    Animation camera(script,3);auto pool=std::make_shared<AnimationChannelPool>();
+    camera.bind_channels(pool);objects.bind_channels(pool);
+    require(camera.channel_base()==0&&placement->channel_base()==3);
+    require(placement->value(0)[3]==0);
+    camera.start(0);
+    require(camera.channel_outputs().size()==3&&placement->value(0)[3]==1);
+    require(objects.position(0)[0]==10&&objects.transform(0).position[0]==10);
+    SceneRenderer renderer(dir/"a.xmp",{},&objects);renderer.set_clear_rgb({14,18,24});
+    FieldProjection projection;projection.load_stage(stage({1,1,1,1},{.25f,.25f,.25f,1},false));
+    projection.begin_field();projection.begin_effects();projection.begin_deferred();projection.end_effects();
+    const Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
+    const auto moved=renderer.render(identity,field_clip_projection(projection.frame().ordinary),nullptr,{},1024,{},&projection.frame());
+    require(moved.rgba!=baseline.rgba&&center(moved)==std::array<unsigned,3>{14,18,24});
+    //No-motion selection enables visible static channel advancement (1b6fb8).
+    placement->move_channel(1,{14,0,0,1},2);
+    objects.tick_static_channels();require(objects.position(0)[0]==10);
+    require(objects.select_motion(0,9));objects.tick_static_channels();require(objects.position(0)[0]==12);
+    objects.set_visible(0,false);objects.tick_static_channels();require(objects.position(0)[0]==12);
+}
 static Texture battle_actor_sample(const fs::path& dir,std::span<const Surface> surfaces,unsigned flags,
         const Float4& base,const Float4& ambient,bool textured=false,bool no_motion=false) {
     const auto expected=sample(dir,surfaces,true,textured,false,base,ambient);
@@ -550,6 +578,7 @@ int main(int argc,const char** argv){@autoreleasepool {try {
             std::to_string(rgb[0])+","+std::to_string(rgb[1])+","+std::to_string(rgb[2]));
     }
     ui_bridge(out/"ui-bridge");
+    shared_static_channels(out/"shared-static-channels");
     submitted_frame_tickets();
     retired_instances(out/"retired-instances");
     if(argc==1)fs::remove_all(out);

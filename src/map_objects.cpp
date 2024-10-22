@@ -30,7 +30,7 @@ std::vector<MapCollisionBinding> map_collision_bodies(const MapFile& map) {
         if(!type)continue;
         if(type>2||i>=map.placements.size())throw std::runtime_error("Map model collision construction is unrecovered");
         const auto& p=map.placements[i];
-        auto value=[](std::uint32_t word){const float f=__builtin_bit_cast(float, (word));
+        auto value=[](std::uint32_t word){const float f=std::bit_cast<float>(word);
             if(!std::isfinite(f))throw std::runtime_error("Nonfinite map collision geometry");return f;};
         auto f=[&](unsigned n){return value(d.words[n]);};
         const float sx=value(p.words[12]),sy=value(p.words[13]),sz=value(p.words[14]);
@@ -58,6 +58,7 @@ MapObjects::MapObjects(const std::filesystem::path& path) {
     const auto map=read_xmp(read(path));const auto ids=map_instance_ids(map);
     collisions_=map_collision_bodies(map);
     placements_.resize(map.placements.size());
+    static_channels_.resize(map.placements.size());
     states_.resize(map.placements.size());
     for(std::size_t i=0;i<map.placements.size();++i) {
         const auto& p=map.placements[i];const auto& d=map.definitions.at(p.definition());
@@ -66,8 +67,18 @@ MapObjects::MapObjects(const std::filesystem::path& path) {
             if(transform.flags&0x100000)back_=std::min(back_,ids[i]);
             else front_=std::max(front_,ids[i]+1);
         }
-        states_[i]={ids[i],(transform.flags&0x10000)==0,transform.position};
-        if(p.handler()||!(d.flags()&8))continue;
+        states_[i]={ids[i],(transform.flags&0x10000)==0,transform};
+        if(p.handler())continue;
+        if(!(d.flags()&8)) {
+            auto channels=std::make_unique<Animation>(4);
+            channels->set_channel(0,transform.rotation);
+            channels->set_channel(1,transform.position);
+            channels->set_channel(2,transform.scale);
+            //1bba88 evaluates placement rotation and scale at construction.
+            channels->value(0);channels->value(2);
+            static_channels_[i]=std::move(channels);
+            continue;
+        }
         auto model=path.parent_path()/d.name,motion=model,xta=model;
         motion.replace_extension(".xmt");xta.replace_extension(".xta");
         TextureAnimation textures;
@@ -103,6 +114,8 @@ bool MapObjects::select_motion(int instance,unsigned entry) {
     if(instance<0)return false;
     for(std::size_t i=0;i<states_.size();++i)if(states_[i].instance==instance) {
         if(auto* object=placements_[i])object->select_motion(entry);
+        //1b6fb8 with context=-1 enables channel advancement without a script.
+        else states_[i].advance=true;
         return true;
     }
     return false;
@@ -115,10 +128,37 @@ std::optional<unsigned> MapObjects::collision_index(int instance) const {
 }
 Float4 MapObjects::position(std::size_t index) const {
     auto* object=placements_.at(index);
-    return object?object->animation().values().at(1):states_.at(index).position;
+    if(object)return object->animation().value(1);
+    const auto& channels=static_channels_.at(index);
+    return channels?channels->value(1):states_.at(index).transform.position;
 }
 void MapObjects::write_position(std::size_t index,const Float4& position) {
     if(auto* object=placements_.at(index))object->animation().write_channel_output(1,position);
-    states_.at(index).position=position;
+    else if(auto& channels=static_channels_.at(index))channels->write_channel_output(1,position);
+    states_.at(index).transform.position=position;
+}
+MapTransform MapObjects::transform(std::size_t index) const {
+    auto result=states_.at(index).transform;
+    auto* channels=placements_.at(index)?&placements_[index]->animation():static_channels_.at(index).get();
+    if(channels) {
+        result.rotation=channels->value(0);result.position=channels->value(1);result.scale=channels->value(2);
+    }
+    return result;
+}
+Animation* MapObjects::channel_group(int instance) const {
+    if(instance<0)return nullptr;
+    for(std::size_t i=0;i<states_.size();++i)if(states_[i].instance==instance)
+        return placements_[i]?&placements_[i]->animation():static_channels_[i].get();
+    return nullptr;
+}
+void MapObjects::bind_channels(const std::shared_ptr<AnimationChannelPool>& pool) {
+    for(std::size_t i=0;i<states_.size();++i) {
+        auto* channels=placements_[i]?&placements_[i]->animation():static_channels_[i].get();
+        if(channels)channels->bind_channels(pool);
+    }
+}
+void MapObjects::tick_static_channels() {
+    for(std::size_t i=0;i<states_.size();++i)
+        if(static_channels_[i]&&states_[i].visible&&states_[i].advance)static_channels_[i]->tick_channels();
 }
 }
