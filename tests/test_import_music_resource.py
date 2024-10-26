@@ -12,6 +12,26 @@ resources = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(resources)
 
 class MusicResourceImportTests(unittest.TestCase):
+    def test_music7_table_is_class0_with_no_next_row_companion(self):
+        elf = bytearray(80)
+        struct.pack_into("<2I", elf, 0, 0x2000, 0x2010)
+        elf[8:16] = b"cty_mgt\0"
+        elf[24:26] = b"0\0"
+        segments = [
+            {"type": 1, "vaddr": "0x001fb568", "offset": 0, "filesz": 8},
+            {"type": 1, "vaddr": "0x00002000", "offset": 8, "filesz": 64},
+        ]
+        primary, companion = resources.validate_table_mapping(bytes(elf), segments, 7)
+        self.assertEqual(primary, (0x1fb568, 0x2000, 0x2010, "cty_mgt", "0"))
+        self.assertIsNone(companion)
+
+    def test_music7_mapping_imports_both_available_banks_not_a_companion_score(self):
+        self.assertEqual(resources.RESOURCES[7][0], "CTY_MGT")
+        self.assertEqual(set(resources.RESOURCES[7][1]), {
+            "CTY_MGT.XSQ", "CTY_MGT0.XV", "CTY_MGT1.XV"})
+        self.assertEqual(resources.RESOURCE_CLASSES[7], "0")
+        self.assertNotIn(7, resources.ALTERNATE_SEQUENCES)
+
     def test_music24_table_decodes_class2_entry(self):
         elf = bytearray(80)
         struct.pack_into("<2I", elf, 0, 0x2000, 0x2010)

@@ -15,6 +15,11 @@ from prepare_assets import ELF_HASH
 from verify_event import write_exact
 
 RESOURCES = {
+    7: ('CTY_MGT', {
+        'CTY_MGT.XSQ': 'b345dce7a96352521014b7b421b3a3fd67f62455818a9ee785def86d1d76759a',
+        'CTY_MGT0.XV': 'def66a022062d542522413ed748f3b6d6df359b82af401f93baa242eaf96a430',
+        'CTY_MGT1.XV': 'a9c3a3f409745ac17e03c4b2872fde69540ba21d257911350e1a667c067af694',
+    }),
     24: ('SNT_FNM', {
         'SNT_FNM.XSQ': 'ba83d356a3d94abb6ff73285818cd8b9c349567c77d55a895c6596aaf79e36eb',
         'SNT_FNM0.XV': 'e15650ba1a0eef74aae185983d48b9911c3039f1093335afcc638faecc230003',
@@ -66,7 +71,7 @@ RESOURCES = {
         'EVS_MPS0.XV': 'cd6b32d56e0a60d3e8732e4b132c512aaf04b8ea24067691aa33d9f85a1adada',
     }),
 }
-RESOURCE_CLASSES = {24: '2', 26: '2'}
+RESOURCE_CLASSES = {7: '0', 24: '2', 26: '2'}
 ALTERNATE_SEQUENCES = {24: 'SNT_FPC', 26: 'SNT_DPC'}
 
 def address_bytes(elf, segments, at, size):
@@ -114,6 +119,8 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--id', type=int, choices=RESOURCES, required=True)
     p.add_argument('--output', type=Path, required=True)
+    p.add_argument('--output-root', type=Path, default=Path('local/audio-input'),
+                   help='Ignored destination root for imported retail files (default: local/audio-input)')
     a = p.parse_args()
     elf = Path('local/extracted/SCUS_971.29').read_bytes()
     if hashlib.sha256(elf).hexdigest() != ELF_HASH:
@@ -141,7 +148,7 @@ def main():
             data = disc.read(entry['lba'], entry['size'])
             if hashlib.sha256(data).hexdigest() != expected:
                 raise ValueError('Different owned music resource: ' + source)
-            target = Path('local/audio-input') / source
+            target = a.output_root / source
             target.parent.mkdir(parents=True, exist_ok=True)
             write_exact(target, data)
             imported.append(dict(path=str(target), lba=entry['lba'], size=entry['size'], sha256=expected))
@@ -149,7 +156,8 @@ def main():
         disc.close()
     report = dict(scope=__doc__, elf_sha256=ELF_HASH, music_id=a.id, table_address=table,
                   name_pointer=name_pointer, class_pointer=class_pointer, sequence=name,
-                  table_class=table_class, primary_bank=name + '0', secondary_bank_present=second in hashes,
+                  table_class=table_class, primary_bank=name + '0', secondary_bank=name + '1' if second in hashes else '',
+                  secondary_bank_present=second in hashes,
                   alternate_sequence=alternate,
                   companion_table_entry=(dict(music_id=a.id + 1,
                                               table_address=companion[0],

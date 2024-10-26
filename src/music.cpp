@@ -128,6 +128,9 @@ MusicResourceNames music_resource_names(int id) {
         return {names[*jingle],"JGL_BSC0",""};
     }
     switch(id) {
+        // USA ELF table0x1fb530 entry7; its row class is0 and the retail loader
+        // independently probes CTY_MGT0.XV and CTY_MGT1.XV.
+        case 7:return {"CTY_MGT","CTY_MGT0",""};
         // USA ELF table0x1fb530 entry24; 0x12d898 preloads the next row's
         // sequence SNT_FPC.XSQ through 0x12d378, sharing SNT_FNM0/1 banks.
         case 24:return {"SNT_FNM","SNT_FNM0","SNT_FPC"};
