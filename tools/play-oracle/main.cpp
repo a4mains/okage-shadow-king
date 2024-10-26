@@ -3685,6 +3685,63 @@ int main(int argc,char** argv) {
             }
             writeFile(argv[4],output.data(),output.size()*4);return 0;
         }
+        if(std::string(argv[1])=="iop-music-reject"&&argc==4) {
+            const auto driver=readFile(argv[2]);
+            if(hash(driver)!="7fe8b5a33c2f8700d1f964cf5ce2f66942f8f97d952e86e6dc0ad5d4f74becb2")
+                throw std::runtime_error("RX driver hash");
+            uint32 loadSize;std::memcpy(&loadSize,driver.data()+100,4);
+            if(loadSize>driver.size()-176||loadSize>=0x180000)throw std::runtime_error("RX driver LOAD extent");
+            constexpr uint32 stop=0x1ff000,header=0x1c0000,node=0x1d0000,toneNode=0x1d1000;
+            std::vector<uint32> output;
+            for(uint32 bank=0;bank<2;++bank)for(uint32 count:{4u,10u})for(uint32 program:{count,count+2,127u}) {
+                auto iop=std::make_unique<Iop::CSubSystem>(true);iop->Reset();
+                std::memcpy(iop->m_ram,driver.data()+176,loadSize);
+                constexpr uint32 iopRamSize=0x200000;
+                auto put=[&](uint32 at,uint32 value){if(at>iopRamSize||iopRamSize-at<4)throw std::runtime_error("RX fixture address");std::memcpy(iop->m_ram+at,&value,4);};
+                auto get=[&](uint32 at){uint32 value;if(at>iopRamSize||iopRamSize-at<4)throw std::runtime_error("RX fixture address");std::memcpy(&value,iop->m_ram+at,4);return value;};
+                auto call=[&](uint32 address,std::initializer_list<uint32> args){
+                    auto& cpu=iop->m_cpu;cpu.m_State.nPC=address;cpu.m_State.nHasException=0;cpu.m_State.nDelayedJumpAddr=MIPS_INVALID_PC;
+                    cpu.m_State.nGPR[CMIPS::RA].nD0=stop;cpu.m_State.nGPR[CMIPS::SP].nD0=0x1fe000;
+                    unsigned reg=CMIPS::A0;for(auto value:args)cpu.m_State.nGPR[reg++].nD0=value;
+                    for(unsigned step=0;step<1000;++step){
+                        cpu.m_executor->Execute(1000);
+                        if(cpu.m_State.nHasException==MIPS_EXCEPTION_SYSCALL){
+                            const auto epc=cpu.m_State.nCOP0[CCOP_SCU::EPC],pc=cpu.m_State.nPC;
+                            if(epc!=0xbd20&&epc!=0xbd28)throw std::runtime_error("Unexpected RX music syscall");
+                            iop->m_bios->HandleException();
+                            if(cpu.m_State.nHasException||cpu.m_State.nPC!=pc)throw std::runtime_error("RX music syscall rescheduled");
+                        } else if(cpu.m_State.nHasException){
+                            std::ostringstream error;error<<"RX music exception "<<cpu.m_State.nHasException<<" at "<<std::hex<<cpu.m_State.nPC;throw std::runtime_error(error.str());
+                        }
+                        if(cpu.m_executor->MustBreak()){
+                            if(cpu.m_State.nPC!=stop)throw std::runtime_error("Unexpected RX music breakpoint");
+                            return cpu.m_State.nGPR[CMIPS::V0].nD0;
+                        }
+                    }
+                    throw std::runtime_error("RX music instruction budget");
+                };
+                const uint32 jump=0x08000000|(stop>>2);std::memcpy(iop->m_ram+stop,&jump,4);
+                const uint32 nop=0;std::memcpy(iop->m_ram+stop+4,&nop,4);iop->m_cpu.ToggleBreakpoint(stop);
+                const auto record=0x184c0+bank*0x20,selectorRecord=0x194c0+bank*0x20;
+                put(record,1);put(record+4,header);put(record+8,0);put(record+12,0);put(record+16,0);put(record+20,0);put(record+24,0);put(record+28,7);
+                std::memset(iop->m_ram+header,0,4+count*4);const uint16 count16=static_cast<uint16>(count);std::memcpy(iop->m_ram+header,&count16,2);
+                put(0x2b758,node);put(0x2ac50,toneNode);
+                std::memset(iop->m_ram+node,0,0x40);std::memset(iop->m_ram+toneNode,0,0x40);
+                const uint32 nodeMarker=0x51a7cafe;put(node+4,nodeMarker);put(node+8,0x12345678);put(node+12,0x89abcdef);
+                const uint32 refBefore=get(record+28),poolBefore=get(0x2b758),toneBefore=get(0x2ac50);
+                std::array<uint8,0x40> nodeBefore{};std::memcpy(nodeBefore.data(),iop->m_ram+node,nodeBefore.size());
+                const uint32 selector0=0x3400+bank*0x10,selector1=0x5600+bank*0x10;
+                put(selectorRecord,1);call(0x312c,{bank,0,selector0});call(0x312c,{bank,1,selector1});
+                const auto selector0Read=call(0x3164,{bank,0}),selector1Read=call(0x3164,{bank,1});
+                if(selector0Read!=selector0||selector1Read!=selector1)throw std::runtime_error("RX music bank selector roundtrip");
+                const auto result=call(0x7f70,{bank,program,60});
+                const auto refAfter=get(record+28),poolAfter=get(0x2b758),toneAfter=get(0x2ac50);
+                if(static_cast<int32>(result)!=-1||refAfter!=refBefore||poolAfter!=poolBefore||toneAfter!=toneBefore||std::memcmp(nodeBefore.data(),iop->m_ram+node,nodeBefore.size()))
+                    throw std::runtime_error("RX invalid program rejection invariants");
+                output.insert(output.end(),{bank,count,program,static_cast<uint32>(static_cast<int32>(result)),refBefore,refAfter,poolBefore,poolAfter,toneBefore,toneAfter,static_cast<uint32>(selector0Read),static_cast<uint32>(selector1Read),1});
+            }
+            writeFile(argv[3],output.data(),output.size()*4);return 0;
+        }
         const auto elf=readFile(argv[2]);
         Reference reference(elf);
         const std::string command=argv[1];
