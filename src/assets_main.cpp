@@ -1320,7 +1320,7 @@ int main(int argc, char** argv) {
             okage::DryMusicPlayer player(read(argv[2]),okage::read_music_bank(read(argv[3])),std::move(second));
             std::vector<std::int16_t> pcm(ticks*800*2);player.render(pcm);
             write(argv[5],okage::Bytes(reinterpret_cast<const std::uint8_t*>(pcm.data()),pcm.size()*2));
-            std::cout<<"Native dry music: ticks="<<player.driver_ticks()<<" peak_voices="<<player.peak_voices()<<" stolen="<<player.stolen_voices()<<" sample_loops="<<player.sample_loops()<<"; reverb/SFX/device pending\n";return 0;
+            std::cout<<"Native dry music: ticks="<<player.driver_ticks()<<" peak_voices="<<player.peak_voices()<<" stolen="<<player.stolen_voices()<<" sample_loops="<<player.sample_loops()<<" rejected_program_notes="<<player.rejected_program_notes()<<"; reverb/SFX/device pending\n";return 0;
         }
         if(command=="voice-table" && argc==3) {
             const auto& t=okage::gaussian_table();write(argv[2],okage::Bytes(reinterpret_cast<const std::uint8_t*>(t.data()),sizeof(t)));return 0;

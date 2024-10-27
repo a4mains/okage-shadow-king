@@ -44,6 +44,19 @@ int main(){try{
     rejects([&]{okage::DryMusicPlayer missing(secondScore,bank());missing.render(dualOutput);});
     secondScore[55]=2;
     rejects([&]{okage::DryMusicPlayer invalid(secondScore,bank(),bank());invalid.render(dualOutput);});
+    {
+        auto extra=score;
+        extra.insert(extra.begin()+56,{0,0xc0,6,0,0x90,60,100,0,0xc0,0});
+        put(extra,8,extra.size());put(extra,48,extra.size()-52);
+        auto primary=bank(),secondary=bank();primary.programs.resize(4);
+        secondary.programs.resize(10,secondary.programs.front());
+        okage::DryMusicPlayer refused(extra,std::move(primary),std::move(secondary));
+        std::vector<std::int16_t> rendered(expected.size());refused.render(rendered);
+        require(refused.rejected_program_notes()==1&&refused.peak_voices()==whole.peak_voices(),
+            "Absent program allocated or redirected a voice");
+        require(rendered==expected&&refused.sample_loops()==whole.sample_loops(),
+            "Refused note changed an existing voice or sequence timing");
+    }
     okage::DryMusicPlayer muted(score,bank());muted.volume(0,0);std::vector<std::int16_t> zeros(6000);muted.render(zeros);
     require(std::all_of(zeros.begin(),zeros.end(),[](auto x){return x==0;}) && muted.sample_loops()>0,"Mute must preserve sample progression");
     rejects([&]{muted.render(std::span(zeros).first(3));});rejects([&]{muted.volume(129,0);});

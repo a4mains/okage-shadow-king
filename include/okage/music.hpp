@@ -37,6 +37,7 @@ public:
     unsigned driver_ticks() const{return ticks_;}
     unsigned peak_voices() const{return peak_;}
     unsigned stolen_voices() const{return stolen_;}
+    unsigned rejected_program_notes() const{return rejected_program_notes_;}
     std::uint64_t sample_loops() const;
     bool finished() const;
     void driver_tick();
@@ -56,6 +57,7 @@ private:
     std::optional<std::array<std::uint32_t,16>> pending_channels_;
     std::shared_ptr<VoicePool> pool_;
     unsigned ticks_=0,peak_=0,stolen_=0,left_=128,right_=128;
+    unsigned rejected_program_notes_=0;
     std::uint64_t retired_loops_=0;
     void update(Voice&);
     void note(const MusicEvent&);

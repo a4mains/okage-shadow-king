@@ -62,6 +62,7 @@ void DryMusicPlayer::note(const MusicEvent& e){
     if(e.parameters.bank>=banks_.size()||!banks_[e.parameters.bank])
         throw std::runtime_error("Music note requests an unbound bank");
     const auto& bank=*banks_[e.parameters.bank];
+    if(e.parameters.program>=bank.programs.size()){++rejected_program_notes_;return;}
     const auto& program=bank.programs.at(e.parameters.program);
     for(const auto& tone:program){
         if(e.key<tone.key_low || e.key>tone.key_high)continue;
