@@ -202,6 +202,23 @@ class IntervalSummaryTests(unittest.TestCase):
         self.assertEqual(result['divergence']['missing_native_observable_counts']['hero_position'], 1)
         self.assertFalse(result['comparison']['complete_native_observation_coverage'])
 
+    def test_sparse_native_allows_first_frame_prior_dependency(self):
+        source = sparse_native_report()
+        name = 'camera_unblended_target'
+        source['missing_native_observable_frames'][name] = [0, 19]
+        source['compared_observable_frames'][name] = list(range(1, 19))
+        source['missing_native_dependencies'][name] = [
+            dict(original_frame=0, dependencies=[dict(channel='camera', native_frame=99)]),
+            dict(original_frame=19, dependencies=[dict(channel='camera', native_frame=119)]),
+        ]
+        source['observable_coverage'][name] = dict(
+            expected_observations=20, compared_observations=18,
+            missing_native_observations=2)
+
+        result = module.summarize(source)
+        self.assertEqual(result['divergence']['matching_tail']['first_original_frame'], 20)
+        self.assertEqual(result['divergence']['missing_native_observable_counts'][name], 2)
+
     def test_sparse_native_corrupted_tail_and_dependencies_are_rejected(self):
         source = sparse_native_report()
         source['matching_tail'] = dict(first_original_frame=19, frames=1, controller_samples=0)
@@ -211,6 +228,14 @@ class IntervalSummaryTests(unittest.TestCase):
         source = sparse_native_report()
         source['missing_native_dependencies']['hero_position'][0]['dependencies'][0]['native_frame'] = 118
         with self.assertRaisesRegex(ValueError, 'does not point to a missing native channel frame'):
+            module.summarize(source)
+
+        source = sparse_native_report()
+        source['missing_native_frames_by_channel']['actor'] = [17, 19]
+        source['native_observation_coverage']['actor'] = dict(
+            expected_frames=20, observed_frames=18, missing_frames=2)
+        source['missing_native_dependencies']['hero_position'][0]['dependencies'][0]['native_frame'] = 117
+        with self.assertRaisesRegex(ValueError, 'not the current or prior native frame'):
             module.summarize(source)
 
     def test_cli_refuses_existing_and_dangling_symlink_outputs(self):

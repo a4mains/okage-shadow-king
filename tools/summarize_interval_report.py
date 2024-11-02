@@ -140,7 +140,11 @@ def _sparse_native_missing(report, total, anchor):
                     raise ValueError(f'{dep_prefix}.channel is not a native channel')
                 native_frame = _integer(dep['native_frame'], f'{dep_prefix}.native_frame', minimum=1)
                 mapped_frame = native_frame-anchor
-                if mapped_frame not in channel_frames[channel]:
+                if native_frame not in (anchor + frame, anchor + frame - 1):
+                    raise ValueError(f'{dep_prefix} is not the current or prior native frame')
+                if mapped_frame == -1 and frame == 0:
+                    pass
+                elif mapped_frame not in channel_frames[channel]:
                     raise ValueError(f'{dep_prefix} does not point to a missing native channel frame')
                 identity = (channel, native_frame)
                 if identity in seen:
