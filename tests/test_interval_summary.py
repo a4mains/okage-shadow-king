@@ -42,6 +42,44 @@ def sample_report():
         'sha256': {'native.trace': 'trace-hash', 'reference.trace': 'reference-hash'},
     }
 
+def sparse_native_report():
+    source = sample_report()
+    source['sparse_native'] = True
+    source['native_frame_mapping'] = dict(
+        current='first_frame + original_frame',
+        prior='first_frame + original_frame - 1')
+    channels = ('manager', 'movement', 'dialogue', 'choice', 'camera',
+                'camera-state', 'actor')
+    source['missing_native_frames_by_channel'] = {name: [19] for name in channels}
+    source['native_observation_coverage'] = {
+        name: dict(expected_frames=20, observed_frames=19, missing_frames=1)
+        for name in channels}
+    observables = ('controller', 'choice', 'controller_manager_pad_gate',
+                   'manager_running_pc_gate', 'pad_latch', 'direction_latch',
+                   'player_mask', 'hero_facing_w', 'hero_position',
+                   'camera_rotation', 'camera_mode_phase', 'camera_position',
+                   'camera_unblended_target')
+    dependencies = dict(
+        controller='dialogue', choice='choice', controller_manager_pad_gate='manager',
+        manager_running_pc_gate='manager', pad_latch='manager', direction_latch='movement',
+        player_mask='manager', hero_facing_w='actor', hero_position='actor',
+        camera_rotation='camera', camera_mode_phase='camera-state', camera_position='camera',
+        camera_unblended_target='camera')
+    source['missing_native_observable_frames'] = {name: [19] for name in observables}
+    source['compared_observable_frames'] = {name: list(range(19)) for name in observables}
+    source['missing_native_dependencies'] = {
+        name: [dict(original_frame=19, dependencies=[
+            dict(channel=dependencies[name], native_frame=119)])]
+        for name in observables}
+    source['observable_coverage'] = {
+        name: dict(expected_observations=20, compared_observations=19,
+                   missing_native_observations=1)
+        for name in observables}
+    source['complete_native_observation_coverage'] = False
+    source['complete_observation_coverage'] = False
+    source['matching_tail'] = dict(first_original_frame=20, frames=0, controller_samples=0)
+    return source
+
 class IntervalSummaryTests(unittest.TestCase):
     def test_summarizes_first_difference_missing_ranges_and_provenance(self):
         source = sample_report()
@@ -148,6 +186,31 @@ class IntervalSummaryTests(unittest.TestCase):
         source = sample_report()
         source['matching_tail']['controller_samples'] = 6
         with self.assertRaisesRegex(ValueError, 'too few pre-tail frames'):
+            module.summarize(source)
+
+    def test_sparse_native_missing_tail_and_original_counts_are_preserved(self):
+        result = module.summarize(sparse_native_report())
+        self.assertEqual(result['divergence']['matching_tail'], {
+            'first_original_frame': 20, 'first_native_tick': 120,
+            'frames': 0, 'controller_samples': 0,
+        })
+        self.assertEqual(result['divergence']['unique_missing_observation_frames'], 3)
+        self.assertEqual(sum(row['frames'] for row in result['divergence']['missing_player_ranges']), 3)
+        self.assertEqual(result['divergence']['missing_native_channel_counts'], {
+            name: 1 for name in ('manager', 'movement', 'dialogue', 'choice',
+                                 'camera', 'camera-state', 'actor')})
+        self.assertEqual(result['divergence']['missing_native_observable_counts']['hero_position'], 1)
+        self.assertFalse(result['comparison']['complete_native_observation_coverage'])
+
+    def test_sparse_native_corrupted_tail_and_dependencies_are_rejected(self):
+        source = sparse_native_report()
+        source['matching_tail'] = dict(first_original_frame=19, frames=1, controller_samples=0)
+        with self.assertRaisesRegex(ValueError, 'last difference/missing'):
+            module.summarize(source)
+
+        source = sparse_native_report()
+        source['missing_native_dependencies']['hero_position'][0]['dependencies'][0]['native_frame'] = 118
+        with self.assertRaisesRegex(ValueError, 'does not point to a missing native channel frame'):
             module.summarize(source)
 
     def test_cli_refuses_existing_and_dangling_symlink_outputs(self):
