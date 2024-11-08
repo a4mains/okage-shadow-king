@@ -24,6 +24,28 @@ std::vector<std::uint8_t> fixture() {
     put(b,64,0x00100002); put(b,68,0);
     return b;
 }
+std::vector<std::uint8_t> sampled_fixture(bool source_wide_header,bool destination_wide,
+                                          unsigned destination_channel=0) {
+    constexpr std::size_t samples=120;
+    std::vector<std::uint8_t> b(samples+24*4);
+    put(b,0,0x544d58);put(b,4,88);put(b,8,24*4);put(b,12,0);
+    put(b,16,0xffffffff);put(b,24,source_wide_header?1:0);
+    put(b,32,0x00f00027|(destination_channel<<10));
+    put(b,36,12);
+    put(b,40,0x00100002);
+    put(b,48,0);put(b,52,0);put(b,56,4);
+    put(b,60,std::bit_cast<std::uint32_t>(1.f));
+    put(b,64,8);put(b,68,std::bit_cast<std::uint32_t>(1.f));
+    put(b,72,12);put(b,76,std::bit_cast<std::uint32_t>(.5f));
+    put(b,80,destination_wide?0x10000000:0x00010000);
+    put(b,84,4);
+    put(b,88,16);put(b,92,std::bit_cast<std::uint32_t>(.5f));
+    put(b,96,20);put(b,100,std::bit_cast<std::uint32_t>(.5f));
+    put(b,104,destination_wide?0x20000000:0x00020000); // end marker
+    for(unsigned i=0;i<24;++i)
+        put(b,samples+i*4,std::bit_cast<std::uint32_t>(i<12?float(i%4):float(i)));
+    return b;
+}
 template<class F> void rejects(F action) {
     bool failed=false;
     try { action(); } catch (const std::runtime_error&) { failed=true; }
@@ -78,11 +100,60 @@ int main() {
             bad_event.set_channel_target(&standalone);
             rejects([&]{bad_event.start(0);});
 
-            auto sampled=fixture();put(sampled,32,0x000c0027);put(sampled,36,0);
             auto track_pool=std::make_shared<okage::AnimationChannelPool>();
-            okage::Animation sampled_owner(sampled,3),sampled_neighbor(1);
-            sampled_owner.bind_channels(track_pool);sampled_neighbor.bind_channels(track_pool);
-            rejects([&]{sampled_owner.start(0);});
+            okage::Animation narrow_destination(1);
+            auto wide_source=std::make_unique<okage::Animation>(
+                sampled_fixture(true,false),1);
+            wide_source->set_channel_target(&narrow_destination);
+            wide_source->start(0);
+            auto moved_source=std::make_unique<okage::Animation>(std::move(*wide_source));
+            wide_source->tick();wide_source->tick();
+            require(wide_source->script_state()==1&&wide_source->pc()==0);
+            wide_source.reset();
+            narrow_destination.bind_channels(track_pool);
+            moved_source.reset();
+            for(unsigned i=0;i<3;++i)narrow_destination.tick_channels();
+            require(narrow_destination.value(0)[0]==6.f);
+            for(unsigned i=0;i<2;++i)narrow_destination.tick_channels();
+            require(narrow_destination.value(0)[0]==14.f);
+
+            auto wide_destination_bytes=fixture();put(wide_destination_bytes,24,1);
+            okage::Animation wide_destination(wide_destination_bytes,1);
+            auto narrow_source=std::make_unique<okage::Animation>(
+                sampled_fixture(false,true),1);
+            narrow_source->set_channel_target(&wide_destination);
+            narrow_source->start(0);
+            narrow_source.reset();
+            for(unsigned i=0;i<3;++i)wide_destination.tick_channels();
+            require(wide_destination.value(0)[0]==6.f);
+            for(unsigned i=0;i<2;++i)wide_destination.tick_channels();
+            require(wide_destination.value(0)[0]==14.f);
+
+            auto alias_pool=std::make_shared<okage::AnimationChannelPool>();
+            okage::Animation prefix(1),logical_target(1);
+            prefix.bind_channels(alias_pool);logical_target.bind_channels(alias_pool);
+            auto old_owner=std::make_unique<okage::Animation>(fixture(),1);
+            old_owner->bind_channels(alias_pool);
+            require(prefix.channel_base()==0&&logical_target.channel_base()==1&&
+                    old_owner->channel_base()==2);
+            old_owner->release_channel(0);
+            auto reused_bytes=fixture();put(reused_bytes,24,1);
+            okage::Animation reused_wide(reused_bytes,1);
+            reused_wide.bind_channels(alias_pool);
+            require(reused_wide.channel_base()==2);
+            old_owner.reset();
+            require(alias_pool->free_channels()==okage::AnimationChannelPool::capacity-2);
+
+            auto alias_source=std::make_unique<okage::Animation>(
+                sampled_fixture(false,true,1),1);
+            alias_source->set_channel_target(&logical_target);
+            alias_source->start(0);
+            alias_source.reset();
+            for(unsigned i=0;i<3;++i)reused_wide.tick_channels();
+            require(reused_wide.value(0)[0]==6.f);
+            require(logical_target.channel_outputs()[0]==okage::Float4({1,1,1,1}));
+            for(unsigned i=0;i<2;++i)reused_wide.tick_channels();
+            require(reused_wide.value(0)[0]==14.f);
         }
         {
             auto pool=std::make_shared<okage::AnimationChannelPool>();
