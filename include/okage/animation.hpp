@@ -59,20 +59,23 @@ public:
     }
 private:
     friend class AnimationChannelPool;
+    struct Program;
     struct Channel {
         std::uint16_t flags=0x201, mode=2;
         std::array<std::uint16_t,4> component{};
         Float4 output{1,1,1,1}, a{1,1,1,1}, b{1,1,1,1}, c{1,1,1,1};
         Float4 t{}, step{}, next_step{};
         std::uint32_t track=0;
+        std::shared_ptr<const Program> track_source;
+        bool wide_tracks=false;
     };
-    std::vector<std::uint8_t> bytes_;
+    std::shared_ptr<const Program> program_;
     std::vector<Channel> channels_;
     std::shared_ptr<AnimationChannelPool> pool_;
     std::size_t channel_count_=0, pool_base_=0;
-    std::uint32_t code_=0, samples_=0, sample_end_=0, pc_=0;
+    std::uint32_t pc_=0;
     std::uint16_t flags_=1, wait_=0;
-    bool wide_tracks_=false, scale_channels_=false;
+    bool scale_channels_=false;
     std::function<void(std::size_t,std::size_t)> texture_callback_;
     Service service_;
     Animation* channel_target_=nullptr;

@@ -16,61 +16,81 @@ struct Rounding {
     ~Rounding() { std::fesetround(previous); }
 };
 }
-std::uint32_t Animation::word(std::size_t at) const {
-    if (at>bytes_.size() || bytes_.size()-at<4) throw std::runtime_error("Truncated XMT word");
-    return std::uint32_t(bytes_[at])|(std::uint32_t(bytes_[at+1])<<8)|
-        (std::uint32_t(bytes_[at+2])<<16)|(std::uint32_t(bytes_[at+3])<<24);
+struct Animation::Program {
+    std::vector<std::uint8_t> bytes;
+    std::uint32_t code=0,samples=0,sample_end=0;
+    explicit Program(Bytes input);
+    std::uint32_t word(std::size_t at) const;
+    float number(std::size_t at) const;
+    float sample(std::uint64_t index) const;
+    std::uint32_t relative(std::uint32_t at) const;
+};
+std::uint32_t Animation::Program::word(std::size_t at) const {
+    if (at>bytes.size() || bytes.size()-at<4) throw std::runtime_error("Truncated XMT word");
+    return std::uint32_t(bytes[at])|(std::uint32_t(bytes[at+1])<<8)|
+        (std::uint32_t(bytes[at+2])<<16)|(std::uint32_t(bytes[at+3])<<24);
 }
-float Animation::number(std::size_t at) const {
+float Animation::Program::number(std::size_t at) const {
     const auto value=std::bit_cast<float>(word(at));
     if (!std::isfinite(value)) throw std::runtime_error("Non-finite XMT sample");
     return value;
 }
-float Animation::sample(std::uint64_t index) const {
-    const auto at=std::uint64_t(samples_)+std::uint64_t(index)*4;
-    if (at+4>sample_end_) throw std::runtime_error("XMT sample index out of bounds");
+float Animation::Program::sample(std::uint64_t index) const {
+    const auto at=std::uint64_t(samples)+std::uint64_t(index)*4;
+    if (at+4>sample_end) throw std::runtime_error("XMT sample index out of bounds");
     return number(at);
 }
-std::uint32_t Animation::relative(std::uint32_t at) const {
-    if (at<code_ || std::uint64_t(at)+4>samples_) throw std::runtime_error("Truncated XMT relative offset");
+std::uint32_t Animation::Program::relative(std::uint32_t at) const {
+    if (at<code || std::uint64_t(at)+4>samples) throw std::runtime_error("Truncated XMT relative offset");
     const auto target=std::int64_t(at)+std::bit_cast<std::int32_t>(word(at));
-    if (target<code_ || target>=samples_ || (target&3)) throw std::runtime_error("XMT relative target out of code bounds");
+    if (target<code || target>=samples || (target&3)) throw std::runtime_error("XMT relative target out of code bounds");
     return static_cast<std::uint32_t>(target);
 }
+Animation::Program::Program(Bytes input):bytes(input.begin(),input.end()) {
+    if(input.size()>0x700000 || word(0)!=0x544d58)
+        throw std::runtime_error("Invalid XMT input");
+    code=word(16)==0xffffffff ? 32 : 16;
+    if(code!=32)throw std::runtime_error("Legacy XMT header not yet validated");
+    const auto begin=std::uint64_t(code)+word(4),end=begin+word(8);
+    if(end+word(12)!=bytes.size() || (begin&3) || (end&3))
+        throw std::runtime_error("Invalid XMT section sizes");
+    samples=begin;sample_end=end;
+}
+std::uint32_t Animation::word(std::size_t at) const {return program_->word(at);}
+float Animation::number(std::size_t at) const {return program_->number(at);}
+float Animation::sample(std::uint64_t index) const {return program_->sample(index);}
+std::uint32_t Animation::relative(std::uint32_t at) const {return program_->relative(at);}
 Animation::Animation(std::size_t count) {
     if(!count||count>5120)throw std::runtime_error("Invalid native channel count");
     channel_count_=count;channels_.resize(count);
 }
-Animation::Animation(Bytes bytes,std::size_t count):bytes_(bytes.begin(),bytes.end()) {
-    if (!count || count>5120 || bytes.size()>0x700000 || word(0)!=0x544d58)
-        throw std::runtime_error("Invalid XMT input/count");
-    code_=word(16)==0xffffffff ? 32 : 16;
-    if (code_!=32) throw std::runtime_error("Legacy XMT header not yet validated");
-    const auto samples=std::uint64_t(code_)+word(4), end=samples+word(8);
-    if (end+word(12)!=bytes.size() || (samples&3) || (end&3)) throw std::runtime_error("Invalid XMT section sizes");
-    samples_=samples; sample_end_=end; wide_tracks_=word(24)!=0;
+Animation::Animation(Bytes bytes,std::size_t count):Animation(count) {
+    program_=std::make_shared<const Program>(bytes);
+    const bool wide=word(24)!=0;
+    for(auto& ch:channels_)ch.wide_tracks=wide;
     scale_channels_=word(20)!=0;
-    channel_count_=count;channels_.resize(count);
 }
 Animation::Animation(Animation&& other) noexcept
-    :bytes_(std::move(other.bytes_)),channels_(std::move(other.channels_)),pool_(std::move(other.pool_)),
-     channel_count_(other.channel_count_),pool_base_(other.pool_base_),code_(other.code_),samples_(other.samples_),
-     sample_end_(other.sample_end_),pc_(other.pc_),flags_(other.flags_),wait_(other.wait_),wide_tracks_(other.wide_tracks_),
+    :program_(std::move(other.program_)),channels_(std::move(other.channels_)),pool_(std::move(other.pool_)),
+     channel_count_(other.channel_count_),pool_base_(other.pool_base_),
+     pc_(other.pc_),flags_(other.flags_),wait_(other.wait_),
      scale_channels_(other.scale_channels_),texture_callback_(std::move(other.texture_callback_)),
      service_(std::move(other.service_)),channel_target_(other.channel_target_) {
     if(channel_target_==&other)channel_target_=this;
     other.channel_count_=0;other.pool_base_=0;other.channel_target_=nullptr;
+    other.flags_=1;other.wait_=0;other.pc_=0;
 }
 Animation& Animation::operator=(Animation&& other) noexcept {
     if(this==&other)return *this;
     if(pool_)pool_->release(pool_base_,channel_count_);
-    bytes_=std::move(other.bytes_);channels_=std::move(other.channels_);pool_=std::move(other.pool_);
-    channel_count_=other.channel_count_;pool_base_=other.pool_base_;code_=other.code_;samples_=other.samples_;
-    sample_end_=other.sample_end_;pc_=other.pc_;flags_=other.flags_;wait_=other.wait_;wide_tracks_=other.wide_tracks_;
+    program_=std::move(other.program_);channels_=std::move(other.channels_);pool_=std::move(other.pool_);
+    channel_count_=other.channel_count_;pool_base_=other.pool_base_;
+    pc_=other.pc_;flags_=other.flags_;wait_=other.wait_;
     scale_channels_=other.scale_channels_;texture_callback_=std::move(other.texture_callback_);
     service_=std::move(other.service_);channel_target_=other.channel_target_;
     if(channel_target_==&other)channel_target_=this;
     other.channel_count_=0;other.pool_base_=0;other.channel_target_=nullptr;
+    other.flags_=1;other.wait_=0;other.pc_=0;
     return *this;
 }
 Animation::~Animation() {if(pool_)pool_->release(pool_base_,channel_count_);}
@@ -127,19 +147,21 @@ void AnimationChannelPool::release(std::size_t base,std::size_t count) noexcept 
 }
 void Animation::start(std::size_t entry) {select(entry);Rounding rounding;run();}
 void Animation::select(std::size_t entry) {
-    const auto at=std::uint64_t(code_)+entry*8;
-    if (entry>(samples_-code_)/8 || at+8>samples_) throw std::runtime_error("XMT entry out of bounds");
+    if(!program_)throw std::runtime_error("Animation has no XMT script");
+    const auto at=std::uint64_t(program_->code)+entry*8;
+    if (entry>(program_->samples-program_->code)/8 || at+8>program_->samples) throw std::runtime_error("XMT entry out of bounds");
     pc_=static_cast<std::uint32_t>(at);wait_=0;flags_|=0x100;
 }
 void Animation::start_at(std::uint32_t at) {
-    if(at<code_ || at+4ull>samples_ || (at&3))throw std::runtime_error("XMT start PC bounds");
+    if(!program_)throw std::runtime_error("Animation has no XMT script");
+    if(at<program_->code || at+4ull>program_->samples || (at&3))throw std::runtime_error("XMT start PC bounds");
     pc_=at;wait_=0;flags_|=0x100;
     Rounding rounding;run();
 }
 void Animation::run() {
     const auto resume_pc=pc_;
     for (unsigned instructions=0;instructions<100000;++instructions) {
-        if (pc_<code_ || pc_+4>samples_ || (pc_&3)) throw std::runtime_error("XMT PC out of bounds");
+        if (pc_<program_->code || pc_+4>program_->samples || (pc_&3)) throw std::runtime_error("XMT PC out of bounds");
         const auto w=word(pc_), op=w&255, a=(w>>8)&0xfff;
         const auto b=std::bit_cast<std::int32_t>(w)>>20;
         const auto p=pc_+4;
@@ -152,7 +174,7 @@ void Animation::run() {
         }
         if(op!=0x25 && op!=0x2e && op!=0x30 && op!=0x31 && op!=0x33 && op!=0x40 && op!=0x42 && op!=0x27 && op!=8 && service_) {
             const auto result=service_(op,a,b,pc_);
-            if(result.next_pc<code_ || result.next_pc+4ull>samples_ || (result.next_pc&3))
+            if(result.next_pc<program_->code || result.next_pc+4ull>program_->samples || (result.next_pc&3))
                 throw std::runtime_error("XMT service continuation bounds");
             pc_=result.next_pc;if(result.yield)return;continue;
         }
@@ -161,13 +183,13 @@ void Animation::run() {
         if(index<0)throw std::runtime_error("XMT channel out of bounds");
         auto& ch=target.script_channel(static_cast<std::size_t>(index));
         if(op==0x25) {
-            if(p+4ull>samples_)throw std::runtime_error("Truncated XMT channel mode");
+            if(p+4ull>program_->samples)throw std::runtime_error("Truncated XMT channel mode");
             const auto mode=word(p)&0xffff;
             if(mode!=1&&mode!=2&&mode!=0x10)throw std::runtime_error("Unrecovered channel mode");
             ch.mode=std::uint16_t(mode);pc_=p+4;continue;
         }
         if(op==8) {if(ch.step[b&3]!=0)return;pc_=p;continue;}
-        if((op==0x2e || op==0x31 || op==0x40) && p+4ull>samples_)throw std::runtime_error("Truncated scalar instruction");
+        if((op==0x2e || op==0x31 || op==0x40) && p+4ull>program_->samples)throw std::runtime_error("Truncated scalar instruction");
         if(op==0x2e) {
             const float value=number(p);
             if(!std::isfinite(value))throw std::runtime_error("Invalid channel component value");
@@ -183,19 +205,18 @@ void Animation::run() {
             ch.next_step[component]=1;ch.component[component]&=~0x400;ch.flags=ch.mode|0x100;
             pc_=p+4;continue;
         }
-        if(op==0x27 && (&target!=this || std::size_t(index)>=target.channel_count_))
-            throw std::runtime_error("Cross-group sampled tracks unsupported");
         unsigned payload=0;
         if (op==0x30 || op==0x33 || op==0x42) payload=12;
         else if (op==0x27 || op==0x31) payload=4;
         else throw std::runtime_error("Unrecovered XMT opcode "+std::to_string(op)+" at "+std::to_string(pc_));
-        if (std::uint64_t(p)+payload>samples_) throw std::runtime_error("Truncated XMT instruction payload");
+        if (std::uint64_t(p)+payload>program_->samples) throw std::runtime_error("Truncated XMT instruction payload");
         if (op==0x30) {
             for (unsigned i=0;i<3;++i) ch.a[i]=number(p+i*4);
             ch.step={}; ch.flags=0x201;
         } else if (op==0x27) {
             const auto track=relative(p);
-            if (std::uint64_t(track)+24>samples_) throw std::runtime_error("Truncated XMT track header");
+            if (std::uint64_t(track)+24>program_->samples) throw std::runtime_error("Truncated XMT track header");
+            ch.track_source=program_;
             ch.track=track+24; ch.mode|=0x400; ch.flags=ch.mode+0x100;
             for (unsigned i=0;i<4;++i) if ((b>>i)&1) {
                 ch.component[i]|=0x400;
@@ -272,16 +293,18 @@ void Animation::move_channel(std::size_t index,const Float4& target,int duration
     ch.flags=ch.mode|0x100;
 }
 void Animation::read_track(Channel& ch) {
+    if(!ch.track_source)throw std::runtime_error("Sampled channel has no source XMT");
+    const auto& source=*ch.track_source;
     for (unsigned instructions=0;instructions<100000;++instructions) {
-        if (ch.track<code_ || std::uint64_t(ch.track)+8>samples_) throw std::runtime_error("XMT track PC out of bounds");
-        const auto w=word(ch.track), tag=wide_tracks_ ? w : w>>16;
-        if ((wide_tracks_ && w<0x10000000) || (!wide_tracks_ && tag==0)) {
-            const auto index=wide_tracks_ ? w : w&0xffff;
-            const auto step=number(ch.track+4);
-            for (unsigned i=0;i<4;++i) if (ch.component[i]&0x400) { ch.c[i]=sample(std::uint64_t(index)+i); ch.next_step[i]=step; }
+        if (ch.track<source.code || std::uint64_t(ch.track)+8>source.samples) throw std::runtime_error("XMT track PC out of bounds");
+        const auto w=source.word(ch.track), tag=ch.wide_tracks ? w : w>>16;
+        if ((ch.wide_tracks && w<0x10000000) || (!ch.wide_tracks && tag==0)) {
+            const auto index=ch.wide_tracks ? w : w&0xffff;
+            const auto step=source.number(ch.track+4);
+            for (unsigned i=0;i<4;++i) if (ch.component[i]&0x400) { ch.c[i]=source.sample(std::uint64_t(index)+i); ch.next_step[i]=step; }
             ch.track+=8; return;
         }
-        if ((wide_tracks_ && (w&0x10000000)) || (!wide_tracks_ && tag==1)) { ch.track=relative(ch.track+4); continue; }
+        if ((ch.wide_tracks && (w&0x10000000)) || (!ch.wide_tracks && tag==1)) { ch.track=source.relative(ch.track+4); continue; }
         ch.flags=0; return;
     }
     throw std::runtime_error("XMT track instruction budget exhausted");

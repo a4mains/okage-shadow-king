@@ -132,7 +132,8 @@ int main() {
             auto alias_pool=std::make_shared<okage::AnimationChannelPool>();
             okage::Animation prefix(1),logical_target(1);
             prefix.bind_channels(alias_pool);logical_target.bind_channels(alias_pool);
-            auto old_owner=std::make_unique<okage::Animation>(fixture(),1);
+            auto old_bytes=fixture();put(old_bytes,24,0);
+            auto old_owner=std::make_unique<okage::Animation>(old_bytes,1);
             old_owner->bind_channels(alias_pool);
             require(prefix.channel_base()==0&&logical_target.channel_base()==1&&
                     old_owner->channel_base()==2);
