@@ -1,0 +1,113 @@
+{
+  "schema": "native-sampled-track-ownership-validation-v1",
+  "status": "native_roz_departure_and_stan_dialogue_reached_encounter_RGB_guard",
+  "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "runtime_commit": "6a1b5e318df063c3aa867c9fbe672bbaf817a3ce",
+  "native_binary_sha256": "efc8956c11e589abd2e0e0b400356aa584fc83eaaf3b393473112cc49febea1d",
+  "affected_ctests_per_build": 9,
+  "python_tests": 548,
+  "retained_mode_words_per_build": 630,
+  "retained_hero_entries": [
+    3,
+    20,
+    21
+  ],
+  "hero_samples_per_entry": 601,
+  "native": {
+    "completed_ticks": 37065,
+    "failed_attempt": 37066,
+    "error": "Actor instance ambient RGB is unrecovered",
+    "departure_checkpoint": 35628,
+    "last_full_capture": 36968,
+    "return_to_field_control_demonstrated": false,
+    "saves_unchanged": {
+      "bkmo2.dat": "dda3ee0c0a745c20e3c7ba3de2710bd5fb3b5a0202eb2379bc65205818df725f",
+      "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+      "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    }
+  },
+  "fixed_comparison": {
+    "first_native": 29781,
+    "ticks": 5407,
+    "passed": false,
+    "native_missing": 0,
+    "original_missing_player": 34,
+    "eligible_HERO_observations": 5373,
+    "max_HERO_XYZ_error": 0,
+    "differences": {
+      "controller": 347,
+      "choice": 215,
+      "controller_manager_pad_gate": 12,
+      "manager_running_pc_gate": 50,
+      "pad_latch": 12,
+      "direction_latch": 3,
+      "player_mask": 0,
+      "hero_facing_w": 0,
+      "hero_position": 0,
+      "camera_rotation": 42,
+      "camera_mode_phase": 0,
+      "camera_position": 42,
+      "camera_unblended_target": 0
+    },
+    "matching_tail": {
+      "first_original_frame": 5407,
+      "frames": 0,
+      "controller_samples": 0
+    },
+    "full_actor_bones_and_rng_compared": false,
+    "departure_after35187_compared": false
+  },
+  "media": {
+    "image_rgb_mae": [
+      39.29749348958333,
+      45.796630859375,
+      31.10127418154762,
+      33.67202613467262
+    ],
+    "audio_ticks": 5407,
+    "audio_uncovered_tail": 0,
+    "audio_alignment": {
+      "temporal_alignment_proven": false,
+      "sample_to_vblank_alignment_proven": false,
+      "waveform_alignment_performed": false,
+      "resampling_performed": false,
+      "padding_performed": false,
+      "trimming_performed": false,
+      "waveform_equivalence_asserted": false,
+      "duration_mismatch": true,
+      "original_duration_seconds": 90.10204081632654,
+      "native_duration_seconds": 90.11666666666666,
+      "duration_difference_seconds": 0.014625850340136054,
+      "duration_difference_rational_seconds": {
+        "numerator": 43,
+        "denominator": 2940
+      },
+      "segment_frame_count_difference": 352100,
+      "segment_frame_count_difference_unit": "sample frames; not a duration"
+    }
+  },
+  "evidence": {
+    "local/research/chapter-two-road-v1/sampled-track-owner-v1/implementation-review.json": "bf03427359d8d06f88790925261025bc14e4719ca1f3b8a2b16293b2ec51b169",
+    "local/research/chapter-two-road-v1/sampled-track-owner-v1/route-audit-v1.json": "bad130a540439670248fea0ecda466e4872750007a8db9237be5149f6e311014",
+    "local/research/chapter-two-road-v1/sampled-track-owner-v1/compare-fixed-v1.json": "ae199874e05172090079d79a64e2da0f76ad10808a1dec6a5ef2045004e412bf",
+    "local/research/chapter-two-road-v1/sampled-track-owner-v1/compare-fixed-v1.json.summary.json": "2b3b0489e3e2170300b50ee59a672d01e51aad1713c5c741e7f8e9e19b82838d",
+    "local/research/chapter-two-road-v1/sampled-track-owner-v1/compare-fixed-audit-v1.json": "05b7d1fd61145a8d1de3b0b61a005041f57253f64caf7cd645ed2d1f0af40132",
+    "local/research/chapter-two-road-v1/sampled-track-owner-v1/paired-media-v1.json": "6c32744a347cdee81370df5a13be8ebda7c5c0eec1b86ae458368e80c1d996b2",
+    "local/research/chapter-two-road-v1/sampled-track-owner-v1/paired-audio-v1.json": "32c0e005fbdd2cd0147f3809cc80a896990130cd1b772627f54a1d101ac461a2",
+    "local/research/chapter-two-road-v1/sampled-track-owner-v1/final-regressions/report.json": "aec8baad856dfe9ca104b93294aeddb29a030300c2b12a20514f59958d11bd3d",
+    "local/research/chapter-two-road-v1/sampled-track-owner-v1/tests-release.log": "6cf60e07641908034bc5e4574f7aa753d95947f849cead2a1e3accab13c8f00d",
+    "local/research/chapter-two-road-v1/sampled-track-owner-v1/tests-debug.log": "9cd4654951ec95fcf211ef820c245ebe34e832ba9ffe87fd6d17cf2468273696",
+    "local/research/chapter-two-road-v1/sampled-track-owner-v1/tests-sanitize.log": "afcf0b344c5cc1c99dbd1575307174b9a296a3f140d34223ca532cead63ecf19",
+    "local/research/chapter-two-road-v1/sampled-track-owner-v1/python-tests.log": "b21da8ef1ef8344200c6aa6f2d06ba57e2a9f1f848009e5909306a8a287cebce",
+    "local/research/chapter-two-road-v1/sampled-track-owner-v1/build-release-v2.log": "f440c85682883d4c0487a0cf906dbe81972708b3679dcfd646e41e14457bfcf3",
+    "local/research/chapter-two-road-v1/sampled-track-owner-v1/build-debug-v2.log": "82bbfd842495422a9eb9f42574aa541e63f5287d6cc0a3d8340ec1015c559c17",
+    "local/research/chapter-two-road-v1/sampled-track-owner-v1/build-sanitize-v2.log": "214929247fa07c0f1762ee35038405842898a17ebc55a4ca5127bb756b42ec73",
+    "local/research/chapter-two-road-v1/music7-resource-v1/next-track-source-review-v1.json": "04181024e0c745c98534590893b3b1c7b8bc55502c512e625ca7ec0604e4dc47",
+    "local/research/chapter-two-road-v1/native-sampled-track-release-v1/review-stop.json": "66301f1a1383a486088fa74c2564eb205538ce8b2e3c5ae8466ef464df0617d6",
+    "local/research/chapter-two-road-v1/sampled-track-owner-v1/paired-images-v1/29944/comparison.json": "3eab8ab69a1d8723486755e3e16e896bafbf1ef872d56b4aecbcf0788d55a234",
+    "local/research/chapter-two-road-v1/sampled-track-owner-v1/paired-images-v1/30944/comparison.json": "489937c0f5b97d5c4cc7aebbfa7747a9d86ce92b234ce4118cecc8b83c9e4ea6",
+    "local/research/chapter-two-road-v1/sampled-track-owner-v1/paired-images-v1/33352/comparison.json": "e009a451bda4afdb8f06392dc37f113c9118313edc48a8a96acd20304c2ca2b8",
+    "local/research/chapter-two-road-v1/sampled-track-owner-v1/paired-images-v1/35144/comparison.json": "f729e8929e0258db2a57c47f10d8b67cb629d9a1a4642146705c07d66d15f3d6"
+  },
+  "full_acceptance_met": false
+}
