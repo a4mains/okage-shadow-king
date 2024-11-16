@@ -279,11 +279,11 @@ struct SceneRenderer::Impl {
             auto& prepared=parts.emplace_back();
             for(const auto& block:part.blocks) {
                 prepared.textureBases.push_back(textureBase);textureBase+=block.textures.size();
-                if(input.actor&&!input.placement&&!input.descriptor&&!input.actor->encounter_model)
+                if(input.actor&&!input.placement&&!input.descriptor)
                     prepared.fieldBounds.push_back(model_block_bounds(block,false));
                 prepared.blocks.push_back({std::vector<std::optional<PreparedTextureState>>(block.textures.size()),
                     std::vector<std::optional<PolygonTextureCoordinates>>(block.polygons.size()),
-                    (input.placement||input.descriptor||(input.actor&&!input.actor->encounter_model))?
+                    (input.placement||input.descriptor||input.actor)?
                         std::vector<std::array<PreparedMapBaseColor,4>>(block.polygons.size()):std::vector<std::array<PreparedMapBaseColor,4>>{}});
             }
         }
@@ -373,25 +373,18 @@ struct SceneRenderer::Impl {
             const bool explicitActor=input.descriptor.has_value();
             if(explicitActor&&((input.actor->render_flags^input.descriptor->flags)&~0x100000u))
                 throw std::runtime_error("Explicit actor flags changed after binding");
-            const bool fieldMode0=input.actor&&!mapMaterial&&!explicitActor&&!input.actor->encounter_model&&input.actor->render_flags==0;
-            const bool ordinaryInstance=input.actor && !input.actor->encounter_model && input.actor->render_flags==0x100000;
+            const bool fieldActor=input.actor&&!mapMaterial&&!explicitActor;
+            const bool fieldMode0=fieldActor&&input.actor->render_flags==0;
+            const bool ordinaryInstance=input.actor&&input.actor->render_flags==0x100000;
+            if(fieldActor&&!fieldMode0&&!ordinaryInstance)
+                throw std::runtime_error("Actor instance render mode is unrecovered: "+input.path.string()+
+                    " flags="+std::to_string(input.actor->render_flags));
             const bool ordinaryMaterial=mapMaterial||explicitActor||fieldMode0||ordinaryInstance;
-            const bool materialActor=input.actor && (input.actor->encounter_model || ordinaryInstance);
-            float instanceAlpha=1;
-            if(input.actor && input.actor->render_flags && !explicitActor) {
-                if(!materialActor || input.actor->render_flags!=0x100000)
-                    throw std::runtime_error("Actor instance render mode is unrecovered");
-                const auto& ambient=input.actor->channels().at(3);
-                if(!ordinaryInstance && (ambient[0]!=1 || ambient[1]!=1 || ambient[2]!=1))
-                    throw std::runtime_error("Actor instance ambient RGB is unrecovered");
-                instanceAlpha=ambient[3];
-            }
             std::optional<Matrix4> directionMatrix;
             auto lightColors=ordinaryLighting.colors;
             if(ordinaryInstance||(explicitActor&&(input.actor->render_flags&0x100000))) {
                 lightColors[3]=input.actor->channels().at(3);
             }
-            std::vector<Draw> translucent;
             auto world=input.actor ? input.actor->world(sine) : input.world;
             if(input.facing)world=map_instance_matrix(*input.facing,{-camera[0],-camera[1],0,1},sine);
             if(input.placement&&mapObjects&&!input.actor)
@@ -419,7 +412,7 @@ struct SceneRenderer::Impl {
                     const auto& block=part.blocks.at(selection.block);
                     auto& prepared=preparedPart.blocks.at(selection.block);
                     const auto textureBase=preparedPart.textureBases.at(selection.block);
-                    const auto firstVertex=vertices.size(),firstDraw=draws.size(),firstTranslucent=translucent.size(),firstMapTranslucent=mapTranslucent.size();
+                    const auto firstVertex=vertices.size(),firstDraw=draws.size(),firstMapTranslucent=mapTranslucent.size();
                     const auto positions=okage::posed_positions(block,pose);
                     std::optional<OrdinaryNormalCache> normals;
                     std::vector<Float4> lights;std::vector<bool> lightDefined;
@@ -441,7 +434,7 @@ struct SceneRenderer::Impl {
                         std::array<std::array<float,2>,4> polygonUV{};
                         Draw draw{std::uint32_t(vertices.size()),0,-1,{}};
                         draw.bucket=sort;draw.ordinal=input.ordinal;draw.phase=sort>517?1:0;draw.mapMaterial=mapMaterial||explicitActor;
-                        draw.unculledFieldActor=fieldMode0;
+                        draw.unculledFieldActor=fieldMode0&&!input.actor->encounter_model;
                         const Material* material=nullptr;
                         bool mapTransparent=false;
                         if(ordinaryMaterial) {
@@ -449,16 +442,6 @@ struct SceneRenderer::Impl {
                             material=&block.materials.at(polygon.material);
                             mapTransparent=map_material_class(*material,-1).translucent;
                             validate_map_material_extra_pass(*material,mapNormalBlock);
-                            draw.materialBlend=material_blend_register(*material);
-                        } else if(materialActor) {
-                            if(polygon.material<0)throw std::runtime_error("Special actor has no material");
-                            material=&block.materials.at(polygon.material);
-                            const float transparency=std::bit_cast<float>(material->words[5]);
-                            if(!(transparency>0) || material->words[7])
-                                throw std::runtime_error("Unrecovered special-actor material class: "+input.path.string()+
-                                    " block="+std::to_string(blockIndex-1)+" material="+std::to_string(polygon.material)+
-                                    " transparency="+std::to_string(transparency)+" flags="+std::to_string(material->words[7])+
-                                    " render_flags="+std::to_string(input.actor->render_flags));
                             draw.materialBlend=material_blend_register(*material);
                         }
                         const okage::TextureState* state=nullptr;
@@ -524,7 +507,7 @@ struct SceneRenderer::Impl {
                                         light=&lights[normal];
                                     }
                                     vertex.color=fieldProjection?ordinary_material_modulation(vertex.color,*light):ordinary_material_color(vertex.color,*light);
-                                } else vertex.color[3]=material_instance_alpha(vertex.color[3],instanceAlpha);
+                                }
                             }
                             if (state) {
                                 const auto& value=polygonUV[index];
@@ -539,21 +522,17 @@ struct SceneRenderer::Impl {
                         if(ordinaryMaterial) {
                             if(mapTransparent)mapTranslucent.push_back(draw);
                             else {draw.state[7]=3;draws.push_back(draw);}
-                        } else if(material) {
-                            draw.state[7]=1;draws.push_back(draw);
-                            draw.state[7]=2;translucent.push_back(draw);
                         } else draws.push_back(draw);
                     }
                     hadOrdinaryGeometry=hadOrdinaryGeometry||vertices.size()!=firstVertex;
                     if(fieldProjection&&field_raster_block_rejected(std::span(vertices).subspan(firstVertex),fieldProjection->ordinary)) {
-                        vertices.resize(firstVertex);draws.resize(firstDraw);translucent.resize(firstTranslucent);mapTranslucent.resize(firstMapTranslucent);
+                        vertices.resize(firstVertex);draws.resize(firstDraw);mapTranslucent.resize(firstMapTranslucent);
                     }
                 }
                 map_translucent_passes(std::span<const Draw>(mapTranslucent),[&](Draw draw,unsigned alpha_test){
                     draw.state[7]=alpha_test;draws.push_back(draw);
                 });
             }
-            draws.insert(draws.end(),translucent.begin(),translucent.end());
         }
         if(fieldProjection)std::stable_sort(draws.begin(),draws.end(),[](const Draw& a,const Draw& b){
             return a.bucket!=b.bucket?a.bucket<b.bucket:a.ordinal>b.ordinal;

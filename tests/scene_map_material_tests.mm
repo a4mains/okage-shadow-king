@@ -169,18 +169,24 @@ static Texture battle_actor_sample(const fs::path& dir,std::span<const Surface> 
 static Texture ordinary_field_actor_sample(const fs::path& dir,std::span<const Surface> surfaces,
         bool textured=false,const Float4& base={1,1,1,1},const Float4& ambient={.125f,.25f,.375f,1},
         const Float4& channel3={.9f,.8f,.7f,.6f},const std::array<std::uint8_t,3>& clear={14,18,24},
-        unsigned renderFlags=0) {
-    fs::create_directory(dir);
+        unsigned renderFlags=0,bool encounter=false,bool directional=false) {
+    fs::create_directories(dir);
     auto hidden=map(false);put(hidden,64+12,0x10000);write(dir/"a.xmp",hidden);
-    const auto modelData=model(surfaces,true,textured,renderFlags==0x100000);
+    const auto modelData=model(surfaces,true,textured,renderFlags==0x100000||encounter);
     write(dir/"m.xmd",modelData);
-    const auto stg=stage(base,ambient,false);write(dir/"a.stg",stg);
+    auto stg=stage(base,ambient,false);
+    if(directional) {
+        put(stg,12,8);
+        word(stg,1);floats(stg,{.25f,.125f,.0625f,0});
+        word(stg,0x11);floats(stg,{0,0,1,0});
+    }
+    write(dir/"a.stg",stg);
     Data xim(36);put(xim,24,1);put(xim,28,1);xim[32]=32;xim[33]=64;xim[34]=96;xim[35]=128;
     write(dir/"t.xim",xim);
     auto owner=std::make_unique<FieldActor>(read_xmd(modelData));
     auto& actor=*owner;
     require(actor.render_flags==0&&!actor.has_motion());
-    actor.render_flags=renderFlags;
+    actor.render_flags=renderFlags;actor.encounter_model=encounter;
     actor.animation().set_channel(3,channel3);actor.evaluate();
     SceneActor binding{&actor,dir/"m.xmd",2};
     SceneRenderer renderer(dir/"a.xmp",std::span(&binding,1));renderer.set_clear_rgb(clear);
@@ -569,6 +575,22 @@ int main(int argc,const char** argv){@autoreleasepool {try {
     const auto mode2Ordered=ordinary_field_actor_sample(out/"mode2-material-order",mode2Ordering,false,
         {1,1,1,1},{.125f,.25f,.375f,1},{1,1,1,1},{40,80,120},0x100000);
     require(center(mode2Ordered)==std::array<unsigned,3>{255,0,0});
+    for(const auto* name:{"RKUMO.XPF","WKUMO.XPF","BKUMO.XPF"}) {
+        const auto ghost=ordinary_field_actor_sample(out/name/"rgb"/name,fadingNormal,false,
+            {.5f,1,.25f,1},{.125f,.25f,.375f,1},{1,.5f,.25f,.75f},{40,80,120},0x100000,true);
+        require(center(ghost)==std::array<unsigned,3>{153,91,65});
+        const auto invisible=ordinary_field_actor_sample(out/name/"alpha0"/name,fadingNormal,false,
+            {.5f,1,.25f,1},{.125f,.25f,.375f,1},{1,.5f,.25f,0},{40,80,120},0x100000,true);
+        require(center(invisible)==std::array<unsigned,3>{40,80,120});
+        const auto base=ordinary_field_actor_sample(out/name/"base"/name,ghostBlack,false,
+            {1,1,1,1},{.125f,.25f,.375f,1},{0,0,0,0},{40,80,120},0x100000,true);
+        require(center(base)==std::array<unsigned,3>{10,20,30});
+        const auto lit=ordinary_field_actor_sample(out/name/"directional"/name,fadingNormal,true,
+            {.5f,1,.25f,1},{.125f,.25f,.375f,1},{.25f,.5f,.75f,.5f},{40,80,120},0x100000,true,true);
+        const auto ordinary=ordinary_field_actor_sample(out/name/"directional-ordinary",fadingNormal,true,
+            {.5f,1,.25f,1},{.125f,.25f,.375f,1},{.25f,.5f,.75f,.5f},{40,80,120},0x100000,false,true);
+        require(lit.rgba==ordinary.rgba);
+    }
     for(unsigned flags:{0u,0x100000u}) {
         const auto sorted=sorted_field_actor_sample(out/("sorted-near-first-"+std::to_string(flags)),false,flags);
         const auto authored=sorted_field_actor_sample(out/("sorted-far-first-"+std::to_string(flags)),true,flags);
