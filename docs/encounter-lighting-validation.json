@@ -1,0 +1,398 @@
+{
+  "schema": "native-encounter-lighting-validation-v1",
+  "runtime_commit": "c5361b203ac423fe4c4fffc023f7c1c82aa1b60c",
+  "native_binary_sha256": "f313251b98afd1dbc51e4ed6799bebd6c5929f4adaef5010429b76002c9c3255",
+  "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "status": "encounter_material_lighting_integrated_default_music_command_pending",
+  "builds": [
+    "native-release",
+    "native",
+    "model-sanitize"
+  ],
+  "affected_ctests_each": 7,
+  "python_tests": 548,
+  "native": {
+    "application_exit": 0,
+    "attempted_ticks": 37452,
+    "completed_ticks": 37452,
+    "old_guard_frame_completed": 37066,
+    "previous_inputs_compared": 37066,
+    "input_differences": 0,
+    "last_full_capture": 37452,
+    "saves_unchanged": {
+      "bkmo2.dat": "dda3ee0c0a745c20e3c7ba3de2710bd5fb3b5a0202eb2379bc65205818df725f",
+      "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+      "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
+    }
+  },
+  "next_dependency": {
+    "first_pending_frame": 37076,
+    "last_pending_frame": 37452,
+    "frames": 377,
+    "pc": "0x87bc",
+    "opcode": "0x45",
+    "operation": 0,
+    "argument": 0,
+    "description": "Source default field music fallback through field offsets400/404; current native audio callback accepts operation0 only for positive explicit IDs.",
+    "event_active": true,
+    "return_to_control_demonstrated": false
+  },
+  "tail_comparison": {
+    "interval": {
+      "source_local": [
+        1,
+        1878
+      ],
+      "source_global": [
+        5409,
+        7286
+      ],
+      "native": [
+        35189,
+        37066
+      ],
+      "global_fixed_offset": 29780,
+      "local0_residual_phase": "Resume prior global5408 after initialEE/IOP slice; not complete-native35188 equivalence."
+    },
+    "state_counts": {
+      "controller": {
+        "different": 394,
+        "compared": 1639,
+        "first_source_local": 183,
+        "first_source_global": 5591,
+        "first_native": 35371
+      },
+      "choice": {
+        "different": 148,
+        "compared": 1639,
+        "first_source_local": 184,
+        "first_source_global": 5592,
+        "first_native": 35372
+      },
+      "controller_manager_pad_gate": {
+        "different": 4,
+        "compared": 1639,
+        "first_source_local": 1173,
+        "first_source_global": 6581,
+        "first_native": 36361
+      },
+      "manager_running_pc_gate": {
+        "different": 4,
+        "compared": 1878,
+        "first_source_local": 31,
+        "first_source_global": 5439,
+        "first_native": 35219
+      },
+      "pad_latch": {
+        "different": 4,
+        "compared": 1878,
+        "first_source_local": 1173,
+        "first_source_global": 6581,
+        "first_native": 36361
+      },
+      "direction_latch": {
+        "different": 0,
+        "compared": 1878,
+        "first_source_local": null,
+        "first_source_global": null,
+        "first_native": null
+      },
+      "player_mask": {
+        "different": 0,
+        "compared": 1878,
+        "first_source_local": null,
+        "first_source_global": null,
+        "first_native": null
+      },
+      "hero_facing_w": {
+        "different": 8,
+        "compared": 1878,
+        "first_source_local": 132,
+        "first_source_global": 5540,
+        "first_native": 35320
+      },
+      "hero_position": {
+        "different": 29,
+        "compared": 1878,
+        "first_source_local": 1,
+        "first_source_global": 5409,
+        "first_native": 35189
+      },
+      "camera_rotation": {
+        "different": 0,
+        "compared": 1878,
+        "first_source_local": null,
+        "first_source_global": null,
+        "first_native": null
+      },
+      "camera_mode_phase": {
+        "different": 0,
+        "compared": 1878,
+        "first_source_local": null,
+        "first_source_global": null,
+        "first_native": null
+      },
+      "camera_position": {
+        "different": 0,
+        "compared": 1878,
+        "first_source_local": null,
+        "first_source_global": null,
+        "first_native": null
+      },
+      "camera_unblended_target": {
+        "different": 0,
+        "compared": 0,
+        "first_source_local": null,
+        "first_source_global": null,
+        "first_native": null
+      }
+    },
+    "source_coverage": {
+      "manager": {
+        "expected_frames": 1878,
+        "observed_frames": 1878
+      },
+      "camera": {
+        "expected_frames": 1878,
+        "observed_frames": 1878
+      },
+      "player": {
+        "expected_frames": 1878,
+        "observed_frames": 1878
+      }
+    },
+    "native_coverage": {
+      "manager": {
+        "expected_frames": 1878,
+        "observed_frames": 1878,
+        "missing_frames": 0
+      },
+      "movement": {
+        "expected_frames": 1878,
+        "observed_frames": 1878,
+        "missing_frames": 0
+      },
+      "dialogue": {
+        "expected_frames": 1878,
+        "observed_frames": 1878,
+        "missing_frames": 0
+      },
+      "choice": {
+        "expected_frames": 1878,
+        "observed_frames": 1878,
+        "missing_frames": 0
+      },
+      "camera": {
+        "expected_frames": 1878,
+        "observed_frames": 1878,
+        "missing_frames": 0
+      },
+      "camera-state": {
+        "expected_frames": 1878,
+        "observed_frames": 1878,
+        "missing_frames": 0
+      },
+      "actor": {
+        "expected_frames": 1878,
+        "observed_frames": 1878,
+        "missing_frames": 0
+      }
+    },
+    "controller_samples": 1639,
+    "matching_tail": {
+      "first_original_frame": 1824,
+      "frames": 54,
+      "controller_samples": 0
+    },
+    "hero_xyz_maximum_error": 0.190338134765625,
+    "camera_xyz_maximum_error": 0.0,
+    "image_pairs": [
+      {
+        "source_local_vblank": 1,
+        "source_global_boundary": 5409,
+        "native_fixed_frame": 35189,
+        "status": "missing_exact_native_capture",
+        "original_sha256": "b1561c8718934698db0bfd3d2e061349587d61b3e1a5a3dcd68ca12f56efee23"
+      },
+      {
+        "source_local_vblank": 440,
+        "source_global_boundary": 5848,
+        "native_fixed_frame": 35628,
+        "status": "compared_descriptive_only",
+        "chosen_capture": "/Users/user/src/okage-shadow-king/local/research/chapter-two-road-v1/native-encounter-lighting-release-v1/control/sampled-departure-state.png",
+        "other_exact_frame_capture_metadata": [],
+        "command": [
+          "python3",
+          "tools/compare_frame_images.py",
+          "--original",
+          "/Users/user/src/okage-shadow-king/local/research/chapter-two-road-v1/original-roz-departure-tail-v1/image.frames/vblank-000440.layer0.png",
+          "--native",
+          "/Users/user/src/okage-shadow-king/local/research/chapter-two-road-v1/native-encounter-lighting-release-v1/control/sampled-departure-state.png",
+          "--native-region",
+          "0,0,640,224",
+          "--output",
+          "/Users/user/src/okage-shadow-king/local/research/encounter-lighting-v1/paired-media-v1/image-35628"
+        ],
+        "exit": 0,
+        "report_sha256": "f9a607fca11b472ea1ac798e74b9e4d9f8718191c51557b299ff6f3dce826075",
+        "metrics": {
+          "width": 640,
+          "height": 224,
+          "exact_different_pixel_count": 142682,
+          "rgb_mae": 33.15641043526786,
+          "rgb_max_absolute_difference": 248,
+          "alpha_different_pixel_count": 0,
+          "alpha_mae": 0.0,
+          "alpha_max_absolute_difference": 0
+        }
+      },
+      {
+        "source_local_vblank": 600,
+        "source_global_boundary": 6008,
+        "native_fixed_frame": 35788,
+        "status": "missing_exact_native_capture",
+        "original_sha256": "b3c9e2a72dbab8c3ead0587978e935d97a5522e633b76cc2e21012e33b26be4a"
+      },
+      {
+        "source_local_vblank": 1200,
+        "source_global_boundary": 6608,
+        "native_fixed_frame": 36388,
+        "status": "missing_exact_native_capture",
+        "original_sha256": "085ac4a10aeebe6082f3aa2e584a69f65b4cdb5323eac58b58b6298a29ddf7a9"
+      },
+      {
+        "source_local_vblank": 1780,
+        "source_global_boundary": 7188,
+        "native_fixed_frame": 36968,
+        "status": "compared_descriptive_only",
+        "chosen_capture": "/Users/user/src/okage-shadow-king/local/research/chapter-two-road-v1/native-encounter-lighting-release-v1/control/stan-after-roz-state-5.png",
+        "other_exact_frame_capture_metadata": [],
+        "command": [
+          "python3",
+          "tools/compare_frame_images.py",
+          "--original",
+          "/Users/user/src/okage-shadow-king/local/research/chapter-two-road-v1/original-roz-departure-tail-v1/image.frames/vblank-001780.layer0.png",
+          "--native",
+          "/Users/user/src/okage-shadow-king/local/research/chapter-two-road-v1/native-encounter-lighting-release-v1/control/stan-after-roz-state-5.png",
+          "--native-region",
+          "0,0,640,224",
+          "--output",
+          "/Users/user/src/okage-shadow-king/local/research/encounter-lighting-v1/paired-media-v1/image-36968"
+        ],
+        "exit": 0,
+        "report_sha256": "83f7e463d6f458dd3634bb179843a140ad71daba035ae3fb88e124b7c231321f",
+        "metrics": {
+          "width": 640,
+          "height": 224,
+          "exact_different_pixel_count": 142685,
+          "rgb_mae": 34.34774925595238,
+          "rgb_max_absolute_difference": 246,
+          "alpha_different_pixel_count": 0,
+          "alpha_mae": 0.0,
+          "alpha_max_absolute_difference": 0
+        }
+      },
+      {
+        "source_local_vblank": 1878,
+        "source_global_boundary": 7286,
+        "native_fixed_frame": 37066,
+        "status": "missing_exact_native_capture",
+        "original_sha256": "e34953e709f2b0b646727ad4a02d15ffa2abee19537f2b936d0b62dca42a7fdd"
+      }
+    ],
+    "audio_alignment": {
+      "temporal_alignment_proven": false,
+      "sample_to_vblank_alignment_proven": false,
+      "waveform_alignment_performed": false,
+      "resampling_performed": false,
+      "padding_performed": false,
+      "trimming_performed": false,
+      "waveform_equivalence_asserted": false,
+      "duration_mismatch": true,
+      "original_duration_seconds": 31.224489795918366,
+      "native_duration_seconds": 31.3,
+      "duration_difference_seconds": 0.07551020408163266,
+      "duration_difference_rational_seconds": {
+        "numerator": 37,
+        "denominator": 490
+      },
+      "segment_frame_count_difference": 125400,
+      "segment_frame_count_difference_unit": "sample frames; not a duration"
+    }
+  },
+  "prior_full5407": {
+    "difference_frames_unchanged": true,
+    "differences": {
+      "controller": 347,
+      "choice": 215,
+      "controller_manager_pad_gate": 12,
+      "manager_running_pc_gate": 50,
+      "pad_latch": 12,
+      "direction_latch": 3,
+      "player_mask": 0,
+      "hero_facing_w": 0,
+      "hero_position": 0,
+      "camera_rotation": 42,
+      "camera_mode_phase": 0,
+      "camera_position": 42,
+      "camera_unblended_target": 0
+    },
+    "images_rgb_mae": [
+      39.29749348958333,
+      45.796630859375,
+      31.10127418154762,
+      33.67202613467262
+    ],
+    "audio_alignment": {
+      "temporal_alignment_proven": false,
+      "sample_to_vblank_alignment_proven": false,
+      "waveform_alignment_performed": false,
+      "resampling_performed": false,
+      "padding_performed": false,
+      "trimming_performed": false,
+      "waveform_equivalence_asserted": false,
+      "duration_mismatch": true,
+      "original_duration_seconds": 90.10204081632654,
+      "native_duration_seconds": 90.11666666666666,
+      "duration_difference_seconds": 0.014625850340136054,
+      "duration_difference_rational_seconds": {
+        "numerator": 43,
+        "denominator": 2940
+      },
+      "segment_frame_count_difference": 352100,
+      "segment_frame_count_difference_unit": "sample frames; not a duration"
+    }
+  },
+  "native_prior_image_regression": {
+    "pairs": 58,
+    "identical": 47,
+    "changed": 11,
+    "review_pending": false,
+    "review_result": "Camera, projection parameters and all559 map groups match at28998/29424; effect phases and rendered effect payloads differ. RNG already differs at21644. Pixel attribution remains unresolved."
+  },
+  "evidence": {
+    "local/research/encounter-lighting-v1/asset-inventory.json": "130aa299ff0e61eaa008f9e90298cb5f8578dbbee4a209a5a3b578408b89b900",
+    "local/research/encounter-lighting-v1/next-event-static-v1.json": "61defcdc403e3ef4efe29ac2df7299afffd84516298da52f48264d52b573cd7f",
+    "local/research/encounter-lighting-v1/native-audit-v1.json": "6b3a682021d707b611ceda7a78fa9a2c2227784f8151da8517019bdd7cee99c6",
+    "local/research/encounter-lighting-v1/compare-fixed-v1.json": "d7d9993ffcd9248c8d04ada92a6c81c8d2e75febd018fe056939735f5fbfaba8",
+    "local/research/encounter-lighting-v1/compare-fixed-v1.json.summary.json": "4f8beaa77c2b2194f395e7dbaf4684946fb45670f5c5c0f8287592481e664733",
+    "local/research/encounter-lighting-v1/integration-audit-v1.json": "5f744160f707444cc481a7609ebbd0e46e696b39b4babb880dada39ab5ee5eff",
+    "local/research/encounter-lighting-v1/prior-cutscene-fixed-v1.json": "86012464167618c837754fa616b87e8c50ab182e1f78dffd17ecd3121929c7be",
+    "local/research/encounter-lighting-v1/tail-audit-v1.json": "7a7a0bf5ef2999abc6bd6c66ff6daf2b9d339adad323df784956a44ef6f7731b",
+    "local/research/encounter-lighting-v1/prior-cutscene-fixed-v1.json.summary.json": "5d3ccf5619b047665abddce73fc13b00bc55f482db2a0fffc0c55857a8014e6d",
+    "local/research/encounter-lighting-v1/root-sanitize-build-v1.log": "bf6e1205a2a901f19f4fc31f5eca0dca2ae216605d815111c19509724330c99e",
+    "local/research/encounter-lighting-v1/root-debug-build-v1.log": "51d281f7ae1c22474e10454f06efa096f734056f4f78663853f941b58216f229",
+    "local/research/encounter-lighting-v1/root-native-tests-v1.log": "449c1eefac24bb583d76360ef86bbbedb962d18fef1e992958c22cb2ee895153",
+    "local/research/encounter-lighting-v1/root-python-tests-v1.log": "2cc27ef41bcdbc45fbe80f33d6dca47dc710b73b9349f9f38fbe663159aef5a6",
+    "local/research/encounter-lighting-v1/root-model-sanitize-tests-v1.log": "67f6e21671cd318e236f12f30326c9a9fdd728407db8467fb1629f8da2d5f209",
+    "local/research/encounter-lighting-v1/root-release-build-v1.log": "eef69def3b14f885dce4cedacb460e45e578263ea825c383cbc06810832407ee",
+    "local/research/encounter-lighting-v1/root-release-tests-v1.log": "681a82ca8d2223f2bd3a28eb21cb76015bc028431ec0666386eba5ccbdceb5d9",
+    "local/research/encounter-lighting-v1/paired-media-v1/report.json": "5d4141cb20a6f4f5df737139472204c36a6677a30095ab9dc4a76b5a2540e94f",
+    "local/research/encounter-lighting-v1/prior-media-v1/paired-media-v1.json": "f06cb6d1282d102e160ddd2d9f1fb5468d89da99b9528de693a2dc35baf3b03a",
+    "local/research/encounter-lighting-v1/prior-media-v1/paired-audio-v1.json": "4ae660ceab023a879932e7da3b1274f105ddf9b641443fabdb48cfeed6f608cc",
+    "local/research/encounter-lighting-v1/integration-state-audit-v1.json": "e263a6ada5983494b9baa6b9e4fc38dc7944b417a86e1bebf525842113d6ac5b",
+    "local/research/encounter-lighting-v1/pair-before-music24/comparison.json": "35ea9fdf478f06d7971060f23720635df613af898607f140b87c5ce2987c1c1b",
+    "local/research/encounter-lighting-v1/pair-after-alias/comparison.json": "bdf41794a195f75d5dd5958acc649d433c77dcaf4a595744856bacdc584042d8"
+  },
+  "full_acceptance_met": false
+}
