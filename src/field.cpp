@@ -933,9 +933,23 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
         case 0x5f:
             if(music_channels&&music_channels(b,a,word(pc+4))){pending_opcode=0;return {pc+8};}
             return pending();
-        case 0x45:
-            if(audio_service && audio_service(a,b)){pending_opcode=0;return {pc+4};}
+        case 0x45: {
+            FieldAudioRequest request{a,b,{}};
+            if(a<1||a>5) {
+                request.operation=0;
+                if(b<=0) {
+                    if(!definition_)return pending();
+                    if(definition_->music>0)request.primary_music=definition_->music;
+                    request.argument=definition_->secondary_music;
+                }
+                //No primary selection and no secondary load is a source no-op.
+                if(!request.primary_music&&request.argument==0) {
+                    pending_opcode=0;return {pc+4};
+                }
+            }
+            if(audio_service && audio_service(request)){pending_opcode=0;return {pc+4};}
             return pending();
+        }
         case 0x68:
             if(sound_cue && sound_cue(a,b,std::bit_cast<float>(word(pc+4)),word(pc+8))){pending_opcode=0;return {pc+12};}
             return pending();

@@ -207,8 +207,12 @@ struct Session {
     }
 
     void bind_audio_services() {
-        if(field)field->audio_service=[this](unsigned operation,int argument){
-            if(operation==0 && argument>0 && music){
+        if(field)field->audio_service=[this](const okage::FieldAudioRequest& request){
+            const auto operation=request.operation;
+            const auto argument=request.argument;
+            if(operation==0 && music){
+                if(request.primary_music)music->select(*request.primary_music);
+                if(argument==0)return true;
                 wait.mode=15;wait.active=0;
                 music->load_secondary(argument,[this](int id){return read_music_resource(id);});
                 // Original0x12fec8 signals field+0x30 after both sample banks

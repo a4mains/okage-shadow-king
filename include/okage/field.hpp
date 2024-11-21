@@ -59,6 +59,11 @@ struct FieldBattleReturnSnapshot {
     std::int32_t battle_record_selection=-1;
 };
 struct FieldEventActor {FieldActor* actor=nullptr;std::vector<std::uint8_t> camera_motion;};
+struct FieldAudioRequest {
+    unsigned operation=0;
+    std::int32_t argument=0;
+    std::optional<std::int32_t> primary_music;
+};
 struct FieldCameraSetting {int id=0;float height=0,scale=0,target=0,mode=0;};
 std::vector<FieldCameraSetting> field_camera_settings(Bytes stg);
 struct PlayerMovement {
@@ -128,7 +133,7 @@ public:
     Float4 position{},target{},rotation{};
     CameraBlend blend;
     ScreenFilter screen_filter;
-    std::function<bool(unsigned,std::int32_t)> audio_service;
+    std::function<bool(const FieldAudioRequest&)> audio_service;
     std::function<bool(std::int32_t,bool)> music_service;
     std::function<bool(int,unsigned,unsigned)> music_channels;
     std::function<void(bool)> dialogue_input;

@@ -946,6 +946,58 @@ int main(){try {
         rejects([&]{unsupported.enter(entry,stage,empty_map,0);});
     }
     {
+        struct Case {unsigned selector;int argument,primary,secondary;unsigned operation;int resolved;bool select_primary;};
+        const Case cases[]={
+            {0,0,10,26,0,26,true}, {0,-7,10,26,0,26,true},
+            {0,38,10,26,0,38,false}, {6,0,10,26,0,26,true},
+            {0xabc,38,10,26,0,38,false},
+            {0,0,0,26,0,26,false}, {0,0,-1,26,0,26,false},
+            {0,0,10,0,0,0,true}, {0,0,0,0,0,0,false},
+            {0,0,-1,0,0,0,false}, {0,0,10,-1,0,-1,true},
+            {1,0,10,26,1,0,false}, {2,1,10,26,2,1,false},
+            {3,32,10,26,3,32,false}, {4,8,10,26,4,8,false},
+            {5,8,10,26,5,8,false}
+        };
+        for(const auto& c:cases) {
+            auto script=startup;put(script,40,(std::uint32_t(c.argument)<<20)|(c.selector<<8)|0x45);put(script,44,0);
+            okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
+            const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
+            okage::OpeningField scene(script,[](int){},[](int){return true;},player,false);
+            std::array<std::uint8_t,0x1000> vars{};
+            scene.get_variable=[&](auto selector){return okage::event_variable(vars,selector);};
+            scene.set_variable=[&](auto index,auto bank,auto value){okage::set_event_variable(vars,index,bank,value);};
+            okage::FieldDefinition entry;entry.type=1;entry.startup=1;entry.music=c.primary;entry.secondary_music=c.secondary;
+            scene.enter(entry,stage,empty_map,0);
+            const bool noop=c.operation==0&&c.resolved==0&&!c.select_primary;
+            if(noop) {require(!scene.event_running()&&scene.pending_opcode==0);continue;}
+            require(scene.pending_opcode==0x45&&scene.pc()==40&&scene.event_running());
+            require(scene.pending_actor==c.argument&&scene.pending_animation==int(c.selector));
+            unsigned calls=0;
+            scene.audio_service=[&](const okage::FieldAudioRequest& request){
+                require(request.operation==c.operation&&request.argument==c.resolved);
+                require(request.primary_music==(c.select_primary?std::optional<std::int32_t>(c.primary):std::nullopt));
+                ++calls;return true;
+            };
+            scene.tick();require(calls==1&&!scene.event_running()&&scene.pending_opcode==0);
+            scene.tick();require(calls==1);
+        }
+        for(int argument:{0,-7,38}) {
+            std::vector<std::uint8_t> script(0xc00);
+            put(script,0,0x544d58);put(script,4,script.size()-32);put(script,16,0xffffffff);
+            put(script,0xb88,0xffe00007);put(script,0xb8c,0x30);put(script,0xbb8,0x20000a);
+            put(script,0xb9c,(std::uint32_t(argument)<<20)|0x45);put(script,0xba0,0xff800236);
+            okage::OpeningField scene(script,[](int){},[](int){return true;});
+            unsigned calls=0;
+            scene.audio_service=[&](const okage::FieldAudioRequest& request){
+                require(request.operation==0&&request.argument==38&&!request.primary_music);++calls;return true;
+            };
+            scene.tick();scene.tick();
+            require(calls==(argument>0?1u:0u));
+            require(scene.pc()==(argument>0?0xba0u:0xb9cu));
+            require(scene.pending_opcode==(argument>0?0x36u:0x45u));
+        }
+    }
+    {
         // Opcode5f consumes one payload word and waits for an audio binding.
         auto script=startup;script.resize(52);put(script,4,script.size()-32);
         put(script,40,0x75f);put(script,44,128);put(script,48,0);
