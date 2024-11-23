@@ -1,0 +1,68 @@
+{
+  "schema": "default-field-music-validation-v1",
+  "runtime_commit": "e68663c1fb60394b6b10d8566e8795f0086d045e",
+  "retail_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "native_run": "local/research/chapter-two-road-v1/native-default-music-release-v1",
+  "native_binary_sha256": "fe2be591b83170b4142cc6422f0df611ece9a686d35f597085ae3cfd45abc8fc",
+  "completed_ticks": 38442,
+  "failed_attempt": 38443,
+  "application_exit_code": 1,
+  "last_full_capture": 38387,
+  "saves_unchanged": true,
+  "previous_attempted_inputs_equal": 37452,
+  "tests": {
+    "builds": [
+      "native-release",
+      "native",
+      "model-sanitize"
+    ],
+    "ctests": [
+      "music-tests",
+      "field-tests",
+      "dialogue-tests"
+    ],
+    "each_passed": 3,
+    "python_passed": 548
+  },
+  "comparisons": {
+    "prior_intervals": [
+      5407,
+      1878
+    ],
+    "current_interval": [
+      37068,
+      37667
+    ],
+    "state": "fail",
+    "images": "fail",
+    "audio": "captured, unaligned",
+    "no_native_gaps": true,
+    "missing_original_player_current": 33,
+    "original_controller_callbacks_current": 0
+  },
+  "next_dependency": "Natural encounter bunpu formation lookup and field-manager lifecycle, not raw column as formation.",
+  "evidence": {
+    "local/research/default-field-music-v1/native-audit-v1.json": "3aa626e68a69cd03af54d970127e10712c3cb810b1379e194964a20b2939a8fb",
+    "local/research/default-field-music-v1/audit-native-v1.py": "52bad5a1d6370b84a164acbe3f8899deb162f07dc4419847a7c05bda1817c964",
+    "local/research/default-field-music-v1/comparison-audit-v1.json": "565adcb37090da122309908bf04d72140d01d1f22a2ec88052d09c3bacd57896",
+    "local/research/default-field-music-v1/prior-intervals-audit-v1.json": "aef0337a3c55d54092cc3a0f61d52a616142ecaf060d25a075631d67815803b8",
+    "local/research/default-field-music-v1/music-assets-inventory.json": "e536cbb901230a82023fe7cae171ad13a9e7b03ae6ae16ce870b61c2012aaf3a",
+    "local/research/default-field-music-v1/source-review.md": "68d5ab581c60db438ace7e18b71238df1b78dd38cbaf0a90bb7ee27973027f98",
+    "local/research/default-field-music-v1/original-continuation-v1/execution-evidence-v1.json": "859d4ff72b5dacea16812180e7e243e0b898862cb2ca4d4173c403fe4b2fda6d",
+    "local/research/default-field-music-v1/natural-encounter-source-review-v1.md": "3436c9a1e63744745bf5329bc1aaadea5e2a3ae621dc209364ce94c09b7f4bb7",
+    "local/research/default-field-music-v1/prior-cutscene-fixed-v1.log": "0998fd9ff96183cedaef5d2b516205c0242ba2920c0e36c110f6ede963190d0f",
+    "local/research/default-field-music-v1/build-native-v2.log": "be29cc692a742497ef108a4ccfbf394da5ba3c3e06b80ef7f98464a0075c81cf",
+    "local/research/default-field-music-v1/tests-native-release-v1.log": "9ad36c117f1a2933693e01b45702aee7891953789c9dd80f40222d34fa2963f5",
+    "local/research/default-field-music-v1/tests-model-sanitize-v1.log": "8f7fb8f0f42f070c8fdfdb3b1ee35e9583cc7ee9f024be05825377b7f4b87456",
+    "local/research/default-field-music-v1/build-release-v1.log": "d1fcfce69307a0dc81fd3a4c41b8c8caecba11f377168c4f9ed96037d0907c36",
+    "local/research/default-field-music-v1/prior-departure-media-v1.log": "3ae2e14b6af41388f6cb2756824fa409b928f304f07d9faee58b33e4e94f4a94",
+    "local/research/default-field-music-v1/prior-departure-fixed-v1.log": "2a7a584d9f3486bb68c20b875dc5e4801f5d7cb48db81d9f31e21c878e2f6d57",
+    "local/research/default-field-music-v1/build-native-release-v2.log": "53485d309e84411d4fc00363dbac13da53bc224bbe0b1987bc867d2fa6abbabb",
+    "local/research/default-field-music-v1/build-model-sanitize-v2.log": "6270e7e717f5c9823faffd8db8f614fcb199b09624fc4ae2d0304c7e56620939",
+    "local/research/default-field-music-v1/tests-native-v1.log": "4017e6f0f6370a6e1a789ec4974689d87a6a07684485f2b16b06395a16169418",
+    "local/research/default-field-music-v1/python-tests-v1.log": "bb75dc3cc48c686be3b6b84f116ce5416292acfc27eb68b897f62a4270c5d5b7",
+    "local/research/default-field-music-v1/compare-fixed-v1.log": "f892da64867ea81b16077ec4dd6b16f7d7dfa714969e20a9a6ef13f3b3666fa8",
+    "local/research/default-field-music-v1/compare-media-v1.log": "cd46c4a762cbad9dc14a80349f68868417db2643ac5a4296ea187e3527ad95f6"
+  },
+  "scope": "Bounded implementation and ordinary movement proof."
+}
