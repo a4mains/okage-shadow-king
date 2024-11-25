@@ -17,6 +17,8 @@ struct FieldNpcDefinition {
     Float4 position{};float facing=0;unsigned flags=1;
 };
 struct FieldDefinition {
+    // party is source manager+0x80: both follower enable and bunpu row.
+    // Keep its full authored value; it is not a boolean or roster count.
     int scene=-1;std::uint32_t type=0,party=0,startup=0,field_flags=0;
     std::int32_t music=0,secondary_music=0;
     std::int32_t battle_record_selection=-1;
@@ -43,7 +45,10 @@ FieldDefinition prepare_field_return(Bytes script,std::span<std::uint8_t> variab
 struct FieldEntrance {Float4 position{},rotation{};};
 FieldEntrance field_entrance(Bytes stg,unsigned entrance);
 struct FieldTransition {int scene;unsigned entrance,countdown=2;bool ready=false;};
-struct FieldEncounter {unsigned column,mode;bool rear_attack;};
+struct FieldEncounter {
+    unsigned column,mode;bool rear_attack;
+    unsigned row;std::int32_t formation;
+};
 // Script mode7 queues a formation/stage request. Phase0 waits for the ordinary
 // event-to-exploration handoff; phases11..13 belong to field manager0x133a98.
 struct FieldBattleRequest {
@@ -110,6 +115,7 @@ public:
     void close_save_menu();
     std::int32_t persistent_map_index() const {return definition_?definition_->battle_record_selection:-1;}
     std::function<void(unsigned,const FieldBattleRequest&)> battle_transition_service;
+    std::function<std::int32_t(unsigned,unsigned)> resolve_encounter_formation;
     std::function<std::uint32_t()> random_value;
     // Optional read-only research observer, before/after a state-1 callback.
     std::function<void(int,bool,const WanderingNpc&,const Animation&)> observe_wander;

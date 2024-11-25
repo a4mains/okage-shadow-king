@@ -496,6 +496,10 @@ struct Session {
         };
         if(map_objects)field->bind_map_scene(*map_objects);
         field->random_value=[this]{return random.next();};
+        field->resolve_encounter_formation=[this](unsigned row,unsigned column) {
+            if(!game_data)throw std::runtime_error("Natural encounter requires owned BKDATA");
+            return game_data->encounter_formation(row,column);
+        };
         field->observe_wander=[this](int alias,bool after,const okage::WanderingNpc& npc,const okage::Animation& animation) {
             const auto channels=animation.channel_outputs();
             wander_trace.insert(wander_trace.end(),{frame,std::uint32_t(okage::event_variable(variables,0x40000)),
@@ -1386,8 +1390,10 @@ struct Session {
                 throw std::runtime_error("Native frame="+std::to_string(frame)+" field PC="+
                     std::to_string(field->pc())+": "+e.what());
             }
-            if(field->encounter())throw std::runtime_error("Native battle dispatch is unrecovered (encounter column "+
-                std::to_string(field->encounter()->column)+")");
+            if(const auto& encounter=field->encounter())throw std::runtime_error(
+                "Native battle dispatch is unrecovered (encounter row "+std::to_string(encounter->row)+
+                " column "+std::to_string(encounter->column)+" formation "+std::to_string(encounter->formation)+
+                " phase "+std::to_string(encounter->mode)+" rear "+std::to_string(encounter->rear_attack)+")");
             if(const auto& battle=field->battle_request()) {
                 const unsigned phase=battle->phase?battle->phase:(field->exploration_ready()?0u:5u);
                 battle_transition_trace.insert(battle_transition_trace.end(),{frame,phase,battle->formation,

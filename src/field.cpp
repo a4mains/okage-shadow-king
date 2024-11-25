@@ -346,7 +346,10 @@ void OpeningField::update_npcs() {
         }
         rear_attack_|=action.rear_attack;
         if(action.encounter_column) {
-            encounter_=FieldEncounter{*action.encounter_column,action.field_mode,rear_attack_};
+            if(!resolve_encounter_formation)
+                throw std::runtime_error("Natural encounter requires owned bunpu table service");
+            const auto formation=resolve_encounter_formation(definition_->party,*action.encounter_column);
+            encounter_=FieldEncounter{*action.encounter_column,action.field_mode,rear_attack_,definition_->party,formation};
             return;
         }
     }

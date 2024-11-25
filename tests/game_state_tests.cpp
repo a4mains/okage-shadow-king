@@ -261,6 +261,28 @@ void snapshot_at_temporary_level() {
     auto last_short=std::span<std::uint8_t>(vars).first(last_at+0x51);
     rejects([&]{(void)okage::snapshot_game_character_at_level(last_short,data,last_slot,2);});
 }
+void encounter_table() {
+    auto items=make_xdb("item",make_items(1),{0,14});
+    std::vector<std::vector<std::uint32_t>> rows(3,std::vector<std::uint32_t>(24));
+    for(unsigned row=0;row<3;++row)for(unsigned col=0;col<24;++col)rows[row][col]=100*row+col;
+    rows[1][20]=0xffffffffu;
+    auto battle=make_xdb_multi({{"unit",make_units(1),{0,1}},{"bunpu",rows,{}}});
+    okage::GameDataTables tables(battle,items);
+    for(unsigned row=0;row<3;++row)for(unsigned col=0;col<24;++col)
+        require(tables.encounter_formation(row,col)==(row==1&&col==20?-1:int(100*row+col)));
+    for(auto [row,col]:std::array<std::array<unsigned,2>,4>{{{3,0},{0,24},{0xffffffffu,0},{0,0xffffffffu}}})
+        rejects([&]{(void)tables.encounter_formation(row,col);});
+    // Truncated rows and data extending into the string pool must not pass.
+    auto malformed=battle;put32(malformed,56,71);
+    rejects([&]{okage::GameDataTables invalid(malformed,items);});
+    malformed=battle;put32(malformed,56,96);
+    rejects([&]{okage::GameDataTables invalid(malformed,items);});
+    std::fill(battle.begin(),battle.end(),0);
+    require(tables.encounter_formation(2,23)==223); // Owns the selected data.
+    auto minimal=make_xdb("unit",make_units(1),{0,1});
+    okage::GameDataTables absent(minimal,items);
+    require(absent.encounter_formation(1,20)==-1);
+}
 void ui_records() {
     auto item=make_xdb("item",make_items(1),{0,14});
     auto prefix=make_units(1);prefix[0][2]=0xaabbccddu;prefix[0][26]=0xffffffffu;
@@ -312,6 +334,12 @@ std::vector<std::uint8_t> read(const char* path) {
 }
 void diagnostic(const char* battle_path,const char* item_path) {
     auto b=read(battle_path),i=read(item_path);okage::GameDataTables tables(b,i);
+    // Source1255b8's exact24-word row layout, independently decoded owned row1.
+    const std::array<int,24> road={2,2,2,3,3,4,4,5,4,5,6,6,6,7,7,9,7,8,8,9,9,10,10,11};
+    for(unsigned column=0;column<24;++column)require(tables.encounter_formation(1,column)==road[column]);
+    for(unsigned row=0;row<14;++row)for(unsigned column=0;column<24;++column)
+        require(std::uint32_t(tables.encounter_formation(row,column))==get32(b,0xa984+(row*24+column)*4));
+    rejects([&]{(void)tables.encounter_formation(14,0);});
     const std::array<std::uint32_t,27> preceding={0,6885,0,3502,27540,3328,0,12738,40852,
         600,0,12744,43252,336,0,12750,44596,24,0,13940,44692,263,0,19494,45744,222,0};
     require(tables.ui_unit(0).words==preceding&&tables.ui_unit(0).name=="unit");
@@ -333,7 +361,7 @@ int main(int argc,char** argv) {
         if(argc==4&&std::string_view(argv[1])=="--diagnostic") {
             diagnostic(argv[2],argv[3]);return 0;
         }
-        require(argc==1);ui_records();refresh_one_record();owned_item_names();learned_skill_table();snapshot_at_temporary_level();
+        require(argc==1);encounter_table();ui_records();refresh_one_record();owned_item_names();learned_skill_table();snapshot_at_temporary_level();
         {
             auto b=make_xdb_multi({
                 SectionFixture{"unit",make_units(1),{0,1}},
