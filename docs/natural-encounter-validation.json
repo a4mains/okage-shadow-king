@@ -1,0 +1,84 @@
+{
+  "schema": "natural-encounter-validation-v1",
+  "runtime_commit": "3bff9d7",
+  "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "native": {
+    "run": "local/research/chapter-two-road-v1/native-encounter-table-release-v1",
+    "binary_sha256": "b2fba6e81204ccefaa825d941fb2f8f676aed5d779e8b68795a605f336bbcda7",
+    "exit_code": 1,
+    "completed_ticks": 37296,
+    "failed_attempt": 37297,
+    "last_full_capture": 36968,
+    "uncaptured_completed_tail": 328,
+    "input_prefix_equal_ticks": 37297,
+    "saves_unchanged": true,
+    "contact": {
+      "row": 1,
+      "column": 3,
+      "formation": 3,
+      "phase": 11,
+      "rear_attack": false
+    },
+    "battle_dispatched": false
+  },
+  "tests": {
+    "builds": [
+      "native-release",
+      "native",
+      "model-sanitize"
+    ],
+    "affected_ctests": [
+      "game-state-tests",
+      "field-tests",
+      "battle-entry-tests"
+    ],
+    "passed_each": 3,
+    "owned_bunpu_words_checked_each": 336,
+    "command": "build/BUILD/game-state-tests --diagnostic local/game-data-stage-v11/CMNDATA/XDB/BKDATA.XDB local/game-data-stage-v11/CMNDATA/XDB/ITEM.XDB",
+    "python_tests": "not rerun: no inspection-tool change; prior default-music suite548 passes"
+  },
+  "original": {
+    "exit_code": 0,
+    "requested_vblanks": 776,
+    "comparison_frames": 775,
+    "native_fixed_interval": [
+      37669,
+      38443
+    ],
+    "omitted_native_initial_press": 37668,
+    "first_pressed_latch_mismatch": 37669,
+    "formation": 4,
+    "stage": 2,
+    "root_rehashed_outputs": 81
+  },
+  "comparison": {
+    "native_run": "native-default-music-release-v1 (previous music binary)",
+    "capture_frame": 38387,
+    "captured_native_frames": 719,
+    "missing_native_snapshots": 56,
+    "state": "fail",
+    "images": "fail",
+    "audio": "719 ticks, unaligned,56missingtail",
+    "root_rehashed_artifacts": 62,
+    "new_table_replay_coverage_in_this_interval": 0
+  },
+  "evidence": {
+    "local/research/natural-encounter-v1/native-audit-v1.json": "8be90e5fdd68aff50a452b4645a1db4fb63f0b675a83dc6abb7dd4c038d24f88",
+    "local/research/natural-encounter-v1/audit-native-table-v1.py": "dfdb966e9223ee62694fd85e70a0d72c2fd65cbbbc0ca8a284ced47c839b12ce",
+    "local/research/natural-encounter-v1/comparison-audit-v1.json": "bb66830bde53fcc23f270e329b2fb3dcc6f4dda3675a5f475d061267567a331d",
+    "local/research/natural-encounter-v1/original-movement-v1/execution-evidence-v1.json": "06c6c9f807a117dc2ce2921583e0cdd0a0ff0168cd43d0b6899dd9cc2beade34",
+    "local/research/natural-encounter-v1/compare-fixed-v1.py": "817dc52283b71887e3263c66b29bc9e1fb236d3548dd579c32a4a990a11e7ce3",
+    "local/research/default-field-music-v1/natural-encounter-source-review-v1.md": "3436c9a1e63744745bf5329bc1aaadea5e2a3ae621dc209364ce94c09b7f4bb7",
+    "local/research/default-field-music-v1/natural-encounter-lifecycle-review-v1.md": "e16369f9fd96543ba74cfcf9e7d4a91314de7a74ad8170f3546f03735d74ea0b",
+    "local/research/default-field-music-v1/natural-encounter-inventory-v1.md": "9e619dbd01984d0b9596b41d043280443a291f0ede93198c9085e7f377d288df",
+    "local/research/default-field-music-v1/tests-encounter-table-release-v1.log": "0c55ea01637e1a51b265207278dc78b4c347b5b5ff3605df1021c834609bc076",
+    "local/research/default-field-music-v1/tests-encounter-table-model-sanitize-v1.log": "d5cca7d4f149210733440ef6feedb8fb025a90d2896a082434866ad2bd270e0d",
+    "local/research/default-field-music-v1/build-encounter-table-release-v1.log": "dccd60929afa0344ab17f557b13a1ae350fec0470d44ecdf9102364d2097d3f4",
+    "local/research/default-field-music-v1/build-encounter-table-model-sanitize-v1.log": "a6ea39c0a621cae03f8ef961d3a703a83fd93ae14665790e0c5823fa1ac293d8",
+    "local/research/default-field-music-v1/tests-encounter-table-native-v1.log": "9f9aa3811bfb0a410213baf8c80e40338f1198693bd94a490a26fddffcd96acd",
+    "local/research/default-field-music-v1/build-encounter-table-native-v1.log": "808c25205bac27416ccb424cb38b7ec3fa7fce21fac8b9380556c7296df94a42",
+    "local/research/natural-encounter-v1/contact-order-review-v1.md": "8abcf5e43c069a3b55268a32a6cb9769226f4c53d06723e397a43e01c2e1a695"
+  },
+  "next": "Implement source phase11/12/13 admission, preserving contact-frame remaining NPC/player callbacks, natural entry zero token, live rear state and phase13 implicit stage. Retain guards for unrecovered phase8/rear children; continue them as reached.",
+  "scope": "Owned table lookup executed."
+}
