@@ -3,6 +3,7 @@
 #include <bit>
 #include <cfenv>
 #include <iostream>
+#include <limits>
 #include <source_location>
 #include <stdexcept>
 void require(bool value,const std::source_location& where=std::source_location::current()){
@@ -530,6 +531,78 @@ int main(){try {
     put(stage,64,std::bit_cast<std::uint32_t>(10.f));put(stage,76,std::bit_cast<std::uint32_t>(1.f));
     for(unsigned i=0;i<3;++i)put(empty_map,i*4,1);put(empty_map,65,64);
     for(auto* data:{&idle,&startup}){put(*data,0,0x544d58);put(*data,4,24);put(*data,16,0xffffffff);}
+    for(unsigned scenario=0;scenario<5;++scenario) {
+        auto floor=std::vector<std::uint8_t>(164);
+        auto half=[&](unsigned at,unsigned value){floor.at(at)=value;floor.at(at+1)=value>>8;};
+        for(unsigned k=0;k<3;++k){put(floor,k*4,128);put(floor,12+k*4,7);put(floor,48+k*4,1);}
+        put(floor,60,64);put(floor,64,68);put(floor,68,72);put(floor,72,76);
+        half(76,3);half(78,1);put(floor,80,96);put(floor,84,144);
+        for(unsigned k=0;k<3;++k)put(floor,108+k*16,std::bit_cast<unsigned>(1.f));
+        put(floor,112,std::bit_cast<unsigned>(100.f));put(floor,136,std::bit_cast<unsigned>(100.f));
+        half(146,0x4000);half(148,0xc000);half(154,0);half(156,1);half(158,2);
+        floor.insert(floor.end(),{0xc4,60,0,0,0,2,0,0,0,164,0,0,0});
+        auto entered_stage=stage;
+        put(entered_stage,92,std::bit_cast<unsigned>(10.f));
+        put(entered_stage,96,std::bit_cast<unsigned>(-1.f));
+        put(entered_stage,100,std::bit_cast<unsigned>(10.f));
+        auto motions=idle;motions.resize(80);put(motions,4,48);
+        okage::ModelFile hm,am,bm;hm.models.emplace_back();am.models.emplace_back();bm.models.emplace_back();
+        okage::FieldActor hero(std::move(hm),motions,{}),first(std::move(am),motions,{}),second(std::move(bm),motions,{});
+        const std::array<okage::ActorBinding,3> actors={{{-8,&first},{-9,&second},{-1,&hero}}};
+        okage::OpeningField scene(idle,[](int){},[](int){return true;},actors,false);
+        std::array<std::uint8_t,0x1000> vars{};
+        okage::set_event_variable(vars,4,4,scenario==2?20:1);
+        scene.get_variable=[&](auto s){return okage::event_variable(vars,s);};
+        scene.set_variable=[&](auto i,auto b,auto v){okage::set_event_variable(vars,i,b,v);};
+        unsigned draws=0,lookups=0;scene.random_value=[&]{++draws;return 0u;};
+        scene.resolve_encounter_formation=[&](unsigned row,unsigned column){
+            require(row==7&&column==0);++lookups;return 42;
+        };
+        scene.sound_cue=[](auto,auto,auto,auto){return true;};
+        std::vector<unsigned> phases;
+        scene.battle_transition_service=[&](unsigned phase,okage::FieldBattleRequest& request){
+            require(request.formation==42&&request.return_token==0&&request.entry_parameter==0);
+            require(request.stage==-1);
+            if(phase==13) {
+                require(request.rear_attack==(scenario==3));
+                request.stage=scene.default_battle_stage();
+                require(request.stage==(scenario==4?std::numeric_limits<std::int32_t>::min():2));
+            }
+            phases.push_back(phase);
+        };
+        okage::FieldDefinition entry;entry.scene=1;entry.type=1;entry.party=7;
+        entry.field_flags=scenario==4?0x7fffffffu:1u;
+        entry.npcs={{-8,"enemy",5,0,0,{20,0,20,1},0,1},{-9,"enemy",5,0,0,{25,0,25,1},0,1}};
+        scene.prepare(entry,entered_stage,floor);scene.activate(0);
+        rejects([&]{(void)scene.default_battle_stage();}); // No player callback yet.
+        for(unsigned i=0;i<241;++i)scene.tick();
+        require(!first.visible&&!second.visible&&!scene.encounter());
+        const okage::ExplorationInput walk{0,200,128};
+        scene.tick(walk);scene.tick(walk);
+        require(first.visible&&second.visible);
+        auto position_enemies=[&](bool rear){
+            const auto p=hero.animation().values()[1];hero.animation().set_channel(0,{0,.125f,0,1});
+            auto a=p,b=p;a[0]-=1;a[2]-=1;b[0]+=rear?1:-2;b[2]+=rear?1:-1;
+            first.animation().set_channel(1,a);second.animation().set_channel(1,b);
+        };
+        position_enemies(scenario==1);
+        const auto before=hero.animation().values()[1];const auto draws_before=draws;
+        scene.tick(walk);
+        require(scene.encounter()&&scene.battle_request()&&lookups==1&&draws==draws_before+1);
+        require(scene.encounter()->rear_attack==(scenario==1));
+        require(scene.battle_request()->rear_attack==(scenario==1));
+        require(scene.battle_request()->phase==(scenario==2?8u:11u)&&phases.empty());
+        require(hero.animation().values()[1]!=before); // Player still runs on contact.
+        if(scenario==1||scenario==2) {
+            rejects([&]{scene.tick(walk);});require(phases.empty());continue;
+        }
+        scene.tick(walk);require(phases==std::vector<unsigned>{11});
+        if(scenario==3)position_enemies(true); // fc can change after phase11's check.
+        scene.tick(walk);require(phases==std::vector<unsigned>({11,12}));
+        scene.tick(walk);require(phases==std::vector<unsigned>({11,12,13}));
+        require(scene.battle_request()->dispatched&&lookups==1);
+        rejects([&]{scene.tick(walk);});
+    }
     {
         okage::ModelFile hero_model,npc_model;hero_model.models.emplace_back();npc_model.models.emplace_back();
         okage::FieldActor hero(std::move(hero_model),idle,{}),npc(std::move(npc_model),idle,{});

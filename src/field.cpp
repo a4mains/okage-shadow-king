@@ -84,6 +84,12 @@ FieldBattleReturnSnapshot OpeningField::battle_return_snapshot() {
     return {player[1],player[0],camera[0],definition_->scene,definition_->secondary_music,
         definition_->battle_record_selection};
 }
+std::int32_t OpeningField::default_battle_stage() const {
+    if(!definition_||!upper_material_known_)
+        throw std::runtime_error("Implicit battle stage requires a sampled player floor contact");
+    //1341ec..1341fc: 32-bit wrapping addition. The battle wrapper clamps later.
+    return std::bit_cast<std::int32_t>(definition_->field_flags+player_.upper_material);
+}
 RetiringSceneEffects OpeningField::retire_effects() {
     RetiringSceneEffects retired{std::move(map_effects_),std::move(effects_)};
     retired.mark();effect_submissions_.clear();
@@ -350,9 +356,11 @@ void OpeningField::update_npcs() {
                 throw std::runtime_error("Natural encounter requires owned bunpu table service");
             const auto formation=resolve_encounter_formation(definition_->party,*action.encounter_column);
             encounter_=FieldEncounter{*action.encounter_column,action.field_mode,rear_attack_,definition_->party,formation};
-            return;
+            battle_request_=FieldBattleRequest{std::bit_cast<unsigned>(formation),-1,0,action.field_mode};
         }
     }
+    if(encounter_)encounter_->rear_attack=rear_attack_;
+    if(battle_request_)battle_request_->rear_attack=rear_attack_;
 }
 void OpeningField::clear_contact() {
     player_.floor_contact=0;player_.trigger_kind=player_.trigger_index=0;
@@ -682,7 +690,7 @@ void OpeningField::move_player(ExplorationInput input) {
     }
     if(state.floor_contact>=0) {
         const auto contact=std::uint32_t(state.floor_contact),kind=contact&0x83;
-        state.upper_material=contact>>14;state.camera_area=(contact&0x38)>>3;
+        state.upper_material=contact>>14;upper_material_known_=true;state.camera_area=(contact&0x38)>>3;
         if(!kind) {if(state.trigger_index){state.trigger_kind=0;state.trigger_index=0;}}
         else if(state.trigger_index!=(contact>>8)){state.trigger_kind=kind;state.trigger_index=(contact>>8)&0x3f;}
         if(!kind||kind==0x81) {
@@ -1083,10 +1091,9 @@ void OpeningField::tick(ExplorationInput input) {
     if(save_menu_active_) {
         tick_callbacks(input,false,true,true);return;
     }
-    if(encounter_)throw std::runtime_error("Pending native battle request was not consumed");
     // Field manager 0x133a98 runs before the event pass. Case 5 detects the
     // ended script and selects the room camera; case 0 updates it next frame.
-    const bool battle_transitioning=battle_request_&&battle_request_->phase>=11;
+    const bool battle_transitioning=battle_request_&&battle_request_->phase>=8;
     const bool was_transitioning=bool(transition_)||battle_transitioning;
     const bool exterior=definition_&&definition_->type==0;
     auto update_exterior_camera=[&] {
@@ -1108,6 +1115,13 @@ void OpeningField::tick(ExplorationInput input) {
             throw std::runtime_error("Global manager did not consume native battle request");
         if(!definition_||!definition_->followers.empty())
             throw std::runtime_error("Battle transition requires recovered follower return state");
+        if(battle_request_->phase<11)
+            throw std::runtime_error("Natural encounter dialogue child lifecycle is unrecovered (phase "+
+                std::to_string(battle_request_->phase)+")");
+        if(battle_request_->phase==11&&rear_attack_)
+            throw std::runtime_error("Rear encounter child/window lifecycle is unrecovered");
+        if(!battle_transition_service)
+            throw std::runtime_error("Battle transition requires capture and mode services");
         battle_transition_service(battle_request_->phase,*battle_request_);
         if(battle_request_->phase==13)battle_request_->dispatched=true;
         else ++battle_request_->phase;
@@ -1205,7 +1219,6 @@ void OpeningField::tick_callbacks(ExplorationInput input,bool interior_camera,bo
     }
     if(pause_actors)return;
     update_npcs();
-    if(encounter_)return;
     move_player(input);
     update_player_shadow();
     if(collision_)remember_player();

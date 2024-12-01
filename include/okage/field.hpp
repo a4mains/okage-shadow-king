@@ -49,11 +49,10 @@ struct FieldEncounter {
     unsigned column,mode;bool rear_attack;
     unsigned row;std::int32_t formation;
 };
-// Script mode7 queues a formation/stage request. Phase0 waits for the ordinary
-// event-to-exploration handoff; phases11..13 belong to field manager0x133a98.
 struct FieldBattleRequest {
     unsigned formation;std::int32_t stage;unsigned return_token;
     unsigned phase=0;bool dispatched=false;
+    std::uint32_t entry_parameter=0;bool rear_attack=false;
 };
 // 0x1301a8 return pose plus the entered field's phase13 music selection.
 // The camera value is channel0 before CameraBlend, not the rendered position.
@@ -104,6 +103,8 @@ public:
     // Call during the phase13 manager callback, before later script/channel
     // updates. Like0x1b43c0, reads evaluate dirty channels without advancing them.
     FieldBattleReturnSnapshot battle_return_snapshot();
+    // Phase13 samples these live values only for the source stage -1 sentinel.
+    std::int32_t default_battle_stage() const;
     void validate_retirement() const;
     RetiringSceneEffects retire_effects();
     bool exploration_ready() const {return exploration_handoff_;}
@@ -114,7 +115,7 @@ public:
     bool save_menu_active() const {return save_menu_active_;}
     void close_save_menu();
     std::int32_t persistent_map_index() const {return definition_?definition_->battle_record_selection:-1;}
-    std::function<void(unsigned,const FieldBattleRequest&)> battle_transition_service;
+    std::function<void(unsigned,FieldBattleRequest&)> battle_transition_service;
     std::function<std::int32_t(unsigned,unsigned)> resolve_encounter_formation;
     std::function<std::uint32_t()> random_value;
     // Optional read-only research observer, before/after a state-1 callback.
@@ -210,6 +211,7 @@ private:
     std::optional<FieldTransition> transition_;
     std::int32_t chapter_selector_=-1;
     std::optional<FieldEncounter> encounter_;
+    bool upper_material_known_=false;
     std::optional<FieldBattleRequest> battle_request_;
     // Task member+28, distinct from the parent's scene argument. Ordinary
     // field entry starts at zero; pending mode0xe entry is not implemented.

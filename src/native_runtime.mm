@@ -550,7 +550,7 @@ struct Session {
             okage::refresh_game_characters(variables,*game_data,15);
             std::cout<<"Native field Rest recovered party frame="<<frame<<'\n';
         };
-        field->battle_transition_service=[this](unsigned phase,const okage::FieldBattleRequest& request) {
+        field->battle_transition_service=[this](unsigned phase,okage::FieldBattleRequest& request) {
             if(phase==11) {
                 // 0x192bf0 copies the other framebuffer, completed last tick.
                 // Never render this partially updated phase11 frame to get it.
@@ -575,8 +575,8 @@ struct Session {
                 return;
             }
             if(phase==13) {
-                if(!battle_followers_saved||!battle_capture_layer||!music||request.stage<0||!game_mode||game_mode->requested())
-                    throw std::runtime_error("Battle return requires saved field state, music and explicit stage");
+                if(!battle_followers_saved||!battle_capture_layer||!music||!game_mode||game_mode->requested())
+                    throw std::runtime_error("Battle return requires saved field state, music and mode owner");
                 auto saved=field->battle_return_snapshot(); // 0x1301a8, before later callbacks.
                 if(saved.battle_record_selection!=-1)
                     throw std::runtime_error("Battle return character-record selection is unrecovered");
@@ -584,7 +584,9 @@ struct Session {
                 music->select(battle_return->secondary_music,false); // 0x12d768 -> 0x12d580.
                 retain_field_music=battle_return->secondary_music!=28; // 0x12da78.
                 pending_game_command={13,0,0}; // 0x1248d8; persists for field return.
-                battle_entry.reset(0,0,okage::event_variable(variables,0x80010)==0x83,request.return_token);
+                if(request.stage==-1)request.stage=field->default_battle_stage();
+                battle_entry.reset(request.entry_parameter,unsigned(request.rear_attack),
+                    okage::event_variable(variables,0x80010)==0x83,request.return_token);
                 game_mode->request({3,request.formation,std::bit_cast<std::uint32_t>(request.stage)});
                 return; // 0x124930 queues only; do not destroy the field here.
             }
@@ -1390,10 +1392,11 @@ struct Session {
                 throw std::runtime_error("Native frame="+std::to_string(frame)+" field PC="+
                     std::to_string(field->pc())+": "+e.what());
             }
-            if(const auto& encounter=field->encounter())throw std::runtime_error(
-                "Native battle dispatch is unrecovered (encounter row "+std::to_string(encounter->row)+
-                " column "+std::to_string(encounter->column)+" formation "+std::to_string(encounter->formation)+
-                " phase "+std::to_string(encounter->mode)+" rear "+std::to_string(encounter->rear_attack)+")");
+            if(const auto& encounter=field->encounter();encounter&&field->battle_request()&&
+               field->battle_request()->phase==encounter->mode)
+                std::cout<<"Native natural encounter frame="<<frame<<" row="<<encounter->row
+                    <<" column="<<encounter->column<<" formation="<<encounter->formation
+                    <<" phase="<<encounter->mode<<" rear="<<encounter->rear_attack<<'\n';
             if(const auto& battle=field->battle_request()) {
                 const unsigned phase=battle->phase?battle->phase:(field->exploration_ready()?0u:5u);
                 battle_transition_trace.insert(battle_transition_trace.end(),{frame,phase,battle->formation,
