@@ -304,7 +304,10 @@ struct BattleSession::Impl {
             renderer->load_effect_textures(effect_textures);
             renderer->bind_effect_submissions(&effect_submissions);
             held_stage=read(package/"a.stg");
-            collision=read_xcl(read(package/"a.xcl"));
+            const auto collision_path=package/"a.xcl";
+            if(fs::exists(collision_path)||fs::is_symlink(collision_path))
+                collision=read_xcl(read(collision_path));
+            else std::cout<<"Native battle stage has no collision member stage="<<stage<<'\n';
             load_step.store(3);
             if(!jobs.checkpoint())return;
             camera_data.emplace(read(input/"battle-camera.bin"));
