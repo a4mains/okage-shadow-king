@@ -36,8 +36,8 @@ StageRecord28 record28(Bytes bytes, std::size_t at) {
 }
 
 StageData StageData::parse(Bytes input) {
-    if (input.size() < original_header_size)
-        throw std::runtime_error("STG is shorter than original 0x278-byte header copy");
+    if (input.size() < 0x20)
+        throw std::runtime_error("STG is shorter than its table directory");
     if (read32(input, 0) != stage_magic)
         throw std::runtime_error("Invalid STG magic");
 

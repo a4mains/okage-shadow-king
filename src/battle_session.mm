@@ -460,7 +460,8 @@ struct BattleSession::Impl {
             out<<"{\"schema\":\"okage-native-battle-stage-v1\",\"frame\":"<<frame
                <<",\"complete\":"<<(stage_committed?"true":"false")<<",\"error\":"<<std::quoted(error)
                <<",\"owned_stage_hex\":"<<std::quoted(hex(stage_data?stage_data->bytes():Bytes(held_stage)))
-               <<",\"header_hex\":"<<std::quoted(stage_data?hex(scratch.first):"");
+               <<",\"header_defined_bytes\":"<<(stage_data?stage_data->header().size():0)
+               <<",\"header_hex\":"<<std::quoted(stage_data?hex(Bytes(scratch.first).first(stage_data->header().size())):"");
             const auto records=[&](const char* name,const auto& values){
                 out<<",\""<<name<<"\":[";bool comma=false;
                 for(const auto& r:values){if(comma)out<<',';comma=true;array(out,r.words);}out<<']';

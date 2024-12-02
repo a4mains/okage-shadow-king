@@ -69,7 +69,15 @@ int main(int argc,char** argv) {
         source[0]=0;source[0x20]=0;source.clear();
         require(get32(stage.bytes(),0)==0x00475453&&stage.settings()[0].kind==0x44,"stage ownership depends on source buffer");
 
-        auto bad=original; bad.resize(0x277); rejects([&]{(void)okage::StageData::parse(bad);});
+        auto short_source=original;short_source.resize(0x120);
+        const auto short_stage=okage::StageData::parse(short_source);
+        require(short_stage.bytes().size()==0x120&&short_stage.header().size()==0x120,"short STG was padded");
+        require(std::equal(short_stage.header().begin(),short_stage.header().end(),original.begin()),"short header differs");
+        require(short_stage.settings().size()==3&&short_stage.camera_records().size()==2&&
+                short_stage.camera_settings().size()==3&&short_stage.entrances().size()==2,"short STG records lost");
+        require(short_stage.entrances().back().words==stage.entrances().back().words,"last short STG record differs");
+        auto bad=short_source;bad.pop_back();rejects([&]{(void)okage::StageData::parse(bad);});
+        bad=original; bad.resize(0x1f); rejects([&]{(void)okage::StageData::parse(bad);});
         bad=original; put32(bad,0,0); rejects([&]{(void)okage::StageData::parse(bad);});
         bad=original; put32(bad,8,0x21); rejects([&]{(void)okage::StageData::parse(bad);});
         bad=original; put32(bad,16,0x40); rejects([&]{(void)okage::StageData::parse(bad);});

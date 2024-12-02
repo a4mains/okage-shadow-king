@@ -1,5 +1,6 @@
 #pragma once
 #include "okage/assets.hpp"
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <vector>
@@ -25,7 +26,7 @@ public:
     static StageData parse(Bytes input);
 
     Bytes bytes() const noexcept { return owned_; }
-    Bytes header() const noexcept { return Bytes(owned_).first(original_header_size); }
+    Bytes header() const noexcept { return Bytes(owned_).first(std::min(owned_.size(),original_header_size)); }
     const std::vector<StageSettingRecord>& settings() const noexcept { return settings_; }
     const std::vector<StageRecord28>& camera_records() const noexcept { return camera_records_; }
     const std::vector<StageRecord28>& camera_settings() const noexcept { return camera_settings_; }
