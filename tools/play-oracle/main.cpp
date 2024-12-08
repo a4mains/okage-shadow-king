@@ -648,6 +648,159 @@ public:
         expectedStop=stop;ee->m_EE.ToggleBreakpoint(0x185a98);ee->m_EE.ToggleBreakpoint(0x185c1c);
         writeFile(output,result.data(),result.size()*4);
     }
+    void materialExtraPredicates(const std::vector<uint8>& input,const char* output) {
+        constexpr uint32 maximum=1024,wordsPerCase=7,table=0x80000,guard=16;
+        constexpr uint32 tableBytes=3*0x20;
+        if(std::filesystem::exists(output)||std::filesystem::is_symlink(output))
+            throw std::runtime_error("Material predicates require fresh output");
+        auto word=[&](size_t i) {
+            if(i>=input.size()/4)throw std::runtime_error("Truncated material predicate fixture");
+            const auto* b=input.data()+i*4;
+            return uint32(b[0])|(uint32(b[1])<<8)|(uint32(b[2])<<16)|(uint32(b[3])<<24);
+        };
+        if(input.size()<16||input.size()%4||word(0)!=0x5058454d||word(1)!=1||
+           !word(2)||word(2)>maximum||word(3)!=wordsPerCase||
+           input.size()!=16+size_t(word(2))*wordsPerCase*4)
+            throw std::runtime_error("Material predicate fixture header/extent");
+        const auto count=word(2);
+        auto selector=[](uint32 value){return value==0xffffffffU||value<=1;};
+        // Validate the entire finite fixture before executing any source call.
+        for(uint32 i=0;i<count;++i) {
+            const auto at=4+i*wordsPerCase;
+            if(word(at)!=i||word(at+1)>1||word(at+2)>=3||word(at+3)>7||
+               !selector(word(at+5))||!selector(word(at+6)))
+                throw std::runtime_error("Material predicate case bounds/id");
+            float value;const auto bits=word(at+4);std::memcpy(&value,&bits,4);
+            if(!std::isfinite(value))throw std::runtime_error("Material predicate word4 must be finite");
+        }
+        const auto initialFcsr=ee->m_EE.m_State.nFCSR;
+        const auto oldLimit=callIterationLimit;callIterationLimit=32;
+        std::ostringstream out;
+        out<<"{\"schema\":\"okage-material-extra-predicates-v1\",\"elf_sha256\":\""
+           <<"2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
+           <<"\",\"input_sha256\":\""<<hash(input)<<"\",\"cases\":"<<count
+           <<",\"calls_per_case\":3,\"initial_fcsr\":"<<initialFcsr
+           <<",\"table_fixture_address\":524288,\"table_records\":3,\"table_stride\":32,"
+           <<"\"scope\":\"Unchanged retail leaf helpers179ea0/17f338/17f798; explicit synthetic material table and selectors. No draw, lighting, timing or natural global-state parity claim. V0 and FCSR observed, not replaced by host predicates.\"}\n";
+        constexpr std::array<uint32,3> helpers={0x179ea0,0x17f338,0x17f798};
+        for(uint32 i=0;i<count;++i) {
+            const auto at=4+i*wordsPerCase,present=word(at+1),index=word(at+2);
+            const auto flags=word(at+3),word4=word(at+4),first=word(at+5),second=word(at+6);
+            std::memset(ee->m_ram+table-guard,0xa5,tableBytes+2*guard);
+            for(unsigned j=0;j<3;++j) {
+                put(table+j*0x20+0x1c,flags^7U);
+                put(table+j*0x20+0x10,word4==0x428e0000U?0x41c80000U:0x428e0000U);
+            }
+            put(table+index*0x20+0x1c,flags);put(table+index*0x20+0x10,word4);
+            put(0x3301a0,present?table:0);put(0x1fe25c,first);put(0x1fe260,second);
+            std::array<uint8,tableBytes+2*guard> before{};
+            std::memcpy(before.data(),ee->m_ram+table-guard,before.size());
+            std::array<uint32,3> result{},fcsr{};
+            for(unsigned k=0;k<helpers.size();++k) {
+                ee->m_EE.m_State.nFCSR=initialFcsr;
+                ee->m_EE.m_State.nGPR[CMIPS::V0].nD0=0xa5a5a5a5;
+                call(helpers[k],{index});
+                result[k]=ee->m_EE.m_State.nGPR[CMIPS::V0].nV[0];
+                fcsr[k]=ee->m_EE.m_State.nFCSR;
+                if(result[k]>1||get(0x3301a0)!=(present?table:0)||
+                   get(0x1fe25c)!=first||get(0x1fe260)!=second||
+                   std::memcmp(before.data(),ee->m_ram+table-guard,before.size()))
+                    throw std::runtime_error("Material predicate return/input mutation at case "+std::to_string(i)+
+                                             " helper "+std::to_string(helpers[k]));
+            }
+            out<<"{\"id\":"<<i<<",\"table_present\":"<<present<<",\"index\":"<<index
+               <<",\"flags\":"<<flags<<",\"word4_bits\":"<<word4
+               <<",\"selector1fe25c_bits\":"<<first<<",\"selector1fe260_bits\":"<<second
+               <<",\"v0_179ea0\":"<<result[0]<<",\"v0_17f338\":"<<result[1]
+               <<",\"v0_17f798\":"<<result[2]<<",\"fcsr_after\":["<<fcsr[0]<<','<<fcsr[1]<<','<<fcsr[2]
+               <<"],\"input_and_canaries_unchanged\":true}\n";
+        }
+        callIterationLimit=oldLimit;
+        const auto text=out.str();writeFile(output,text.data(),text.size());
+    }
+    void materialExtraUv(const std::vector<uint8>& input,const char* output) {
+        constexpr unsigned stride=20,top=0x350,packet=0x80000;
+        if(std::filesystem::exists(output)||std::filesystem::is_symlink(output))
+            throw std::runtime_error("Material extra UV requires fresh output");
+        auto word=[&](size_t i) {
+            if(i>=input.size()/4)throw std::runtime_error("Truncated material extra UV fixture");
+            const auto* b=input.data()+i*4;
+            return uint32(b[0])|(uint32(b[1])<<8)|(uint32(b[2])<<16)|(uint32(b[3])<<24);
+        };
+        if(input.size()<16||input.size()%4||word(0)!=0x5655454d||word(1)!=1||
+           !word(2)||word(2)>256||word(3)!=stride||input.size()!=16+size_t(word(2))*stride*4)
+            throw std::runtime_error("Material extra UV header/extent");
+        for(unsigned i=0;i<word(2);++i) {
+            const auto at=4+i*stride;
+            if(word(at)!=i||word(at+1)!=3||word(at+2)||word(at+3))
+                throw std::runtime_error("Material extra UV fixture indices");
+            for(unsigned j=4;j<stride;++j)if((word(at+j)&0x7f800000)==0x7f800000)
+                throw std::runtime_error("Nonfinite material extra UV fixture");
+        }
+        std::memcpy(ee->m_microMem1,ee->m_ram+0x215900,0x3d98);
+        auto& cpu=ee->m_VU1;
+        auto feed=[&](unsigned address,unsigned qwc) {
+            if(ee->m_vpu1->GetVif().ReceiveDMA(address,qwc,1,false)!=qwc||
+               !ee->m_vpu1->IsVuReady()||cpu.m_State.nHasException!=MIPS_EXCEPTION_VU_EBIT)
+                throw std::runtime_error("Material extra UV VIF/VU did not complete");
+        };
+        auto run=[&](unsigned entry) {
+            put(0x1900000,0x03000000|top);put(0x1900004,0x02000000);
+            put(0x1900008,0x04000000);put(0x190000c,0x14000000|entry);
+            feed(0x1900000,1);
+        };
+        auto words=[&](std::ostream& out,const void* data,unsigned count) {
+            const auto* bytes=static_cast<const uint8*>(data);out<<'[';
+            for(unsigned i=0;i<count;++i){uint32 value;std::memcpy(&value,bytes+i*4,4);out<<(i?",":"")<<value;}
+            out<<']';
+        };
+        const auto initialFcsr=ee->m_EE.m_State.nFCSR;
+        std::ostringstream out;
+        out<<"{\"schema\":\"okage-material-extra-uv-v1\",\"elf_sha256\":\"2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5\",\"input_sha256\":\""
+           <<hash(input)<<"\",\"cases\":"<<word(2)<<",\"initial_fcsr\":"<<initialFcsr
+           <<",\"scope\":\"Explicit normalized normal cache, unclipped VI11=0; actual EE1ae290 emitter and VU116 execution. First extra pass only; no normal generation, raster or natural selector claim.\"}\n";
+        for(unsigned i=0;i<word(2);++i) {
+            const auto at=4+i*stride;
+            std::memset(ee->m_vuMem1,0,0x4000);run(0);
+            // Explicit transport state: STCYCL1/1 and STMOD0, followed by NOPs.
+            put(packet-16,0x01000101);put(packet-12,0x05000000);put(packet-8,0);put(packet-4,0);
+            std::memset(ee->m_ram+packet,0xa5,48);
+            put(0x2138b4,packet);put(0x333be0,0xa5a5a5a5);
+            ee->m_EE.m_State.nFCSR=initialFcsr;
+            for(unsigned j=0;j<4;++j)ee->m_EE.m_State.nCOP1[12+j]=word(at+4+j);
+            call(0x1ae290);
+            if(get(0x2138b4)!=packet+24||get(0x333be0)||get(packet)!=0x64028000||get(packet+20)!=0x1400007b)
+                throw std::runtime_error("Material extra UV emitted packet shape");
+            for(unsigned j=24;j<48;++j)if(ee->m_ram[packet+j]!=0xa5)
+                throw std::runtime_error("Material extra UV packet overflow");
+            // Two final NOP words align the source24byte packet to DMA32bytes.
+            put(packet+24,0);put(packet+28,0);
+            feed(packet-16,3);
+            const uint32 header[]={3,0,0,0};
+            std::memcpy(ee->m_vuMem1+top*16,header,16);
+            const uint32 prefetch[]={0,0,0x3f800000,0};
+            for(unsigned j=0;j<6;++j)std::memcpy(ee->m_vuMem1+(0xe8+j)*16,prefetch,16);
+            for(unsigned j=0;j<12;++j){auto value=word(at+8+j);std::memcpy(ee->m_vuMem1+0xe8*16+j*4,&value,4);}
+            std::array<uint8,80> uvBefore{};
+            std::memcpy(uvBefore.data(),ee->m_vuMem1+0x1a9*16,80);
+            cpu.m_State.nCOP2VI[11]=0;run(0x116);
+            if(std::memcmp(uvBefore.data(),ee->m_vuMem1+0x1a9*16,16)||
+               std::memcmp(uvBefore.data()+64,ee->m_vuMem1+0x1ad*16,16))
+                throw std::runtime_error("Material extra UV cache escaped three vectors");
+            for(unsigned j=0;j<3;++j)if(std::memcmp(uvBefore.data()+(j+1)*16+8,ee->m_vuMem1+(0x1aa+j)*16+8,8))
+                throw std::runtime_error("Material extra UV overwrote preserved ZW");
+            for(unsigned j=0;j<12;++j){uint32 value;std::memcpy(&value,ee->m_vuMem1+0xe8*16+j*4,4);
+                if(value!=word(at+8+j))throw std::runtime_error("Material extra UV changed input normals");}
+            out<<"{\"id\":"<<i<<",\"input_words\":";words(out,input.data()+at*4,stride);
+            out<<",\"packet_words\":";words(out,ee->m_ram+packet,6);
+            out<<",\"config_words\":";words(out,ee->m_vuMem1+0x14*16,8);
+            out<<",\"uv_xyzw_words\":";words(out,ee->m_vuMem1+0x1aa*16,12);
+            out<<",\"neighbors_and_zw_preserved\":true,\"normals_preserved\":true}\n";
+        }
+        if(std::memcmp(ee->m_microMem1,ee->m_ram+0x215900,0x3d98))
+            throw std::runtime_error("Material extra UV original microcode changed");
+        const auto text=out.str();writeFile(output,text.data(),text.size());
+    }
     void ordinaryVisibility(const std::vector<uint8>& input,const char* output) {
         std::size_t at=0;
         auto word=[&]() {if(at+4>input.size())throw std::runtime_error("Truncated ordinary visibility fixture");
@@ -3616,7 +3769,7 @@ public:
 
 int main(int argc,char** argv) {
     try {
-        if (argc<4) throw std::runtime_error("Usage: okage-pose-oracle sine ELF OUTPUT | vu-asm ELF OUTPUT | pose ELF XMD OUTPUT | pose-corpus ELF DIRECTORY OUTDIR | save-checksum ELF INPUT OUTPUT");
+        if (argc<4) throw std::runtime_error("Usage: okage-pose-oracle sine ELF OUTPUT | vu-asm ELF OUTPUT | pose ELF XMD OUTPUT | pose-corpus ELF DIRECTORY OUTDIR | save-checksum ELF INPUT OUTPUT | material-extra-predicates ELF INPUT FRESH.jsonl | material-extra-uv ELF INPUT FRESH.jsonl");
         if(std::string(argv[1])=="iop-pitch" && argc==5) {
             const auto lib=readFile(argv[2]),input=readFile(argv[3]);
             if(hash(lib)!="71596ef4029f672205e1523dedbd8dacfe5dfa50132c8a747b81289cd24f1db6" || input.empty() || input.size()%16)
@@ -3893,6 +4046,10 @@ int main(int argc,char** argv) {
             reference.uv(readFile(argv[3]),argv[4],command=="texture-clamp");
         } else if (command=="shadow-visibility" && argc==5) {
             reference.shadowVisibility(readFile(argv[3]),argv[4]);
+        } else if (command=="material-extra-uv" && argc==5) {
+            reference.materialExtraUv(readFileBounded(argv[3],16+256*20*4),argv[4]);
+        } else if (command=="material-extra-predicates" && argc==5) {
+            reference.materialExtraPredicates(readFileBounded(argv[3],16+1024*7*4),argv[4]);
         } else if (command=="ordinary-visibility" && argc==5) {
             reference.ordinaryVisibility(readFile(argv[3]),argv[4]);
         } else if (command=="shadow-bounds" && argc==6) {
