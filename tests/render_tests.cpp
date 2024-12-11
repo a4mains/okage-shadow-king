@@ -28,7 +28,7 @@ void rounding_batches() {
         {2,3},{1,4},{4,1},{-32768,32767}}};
     const std::array<std::array<float,2>,8> source{{{0,0},{1,1},{-1,2},{.1f,.3f},
         {0x1.fffffep-1f,0x1.000002p0f},{-0.f,0.f},
-        {__builtin_bit_cast(float, (1u)),__builtin_bit_cast(float, (0x80000001u))},
+        {std::bit_cast<float>(1u),std::bit_cast<float>(0x80000001u)},
         {1e20f,-1e20f}}};
     for(const auto& dims:dimensions)for(const auto& region:regions)for(const auto& axis:axis_modes) {
         const okage::TextureState state{0,0,axis[0],axis[1],region};
@@ -44,7 +44,7 @@ void rounding_batches() {
                 const auto coordinates=prepared.coordinates(std::span(source).first(count));
                 require(std::fegetround()==mode);
                 for(std::size_t i=0;i<count;++i)for(unsigned c=0;c<2;++c)
-                    require(__builtin_bit_cast(std::uint32_t, (coordinates[i][c]))==__builtin_bit_cast(std::uint32_t, (expected[i][c])));
+                    require(std::bit_cast<std::uint32_t>(coordinates[i][c])==std::bit_cast<std::uint32_t>(expected[i][c]));
                 if(count==3)require(coordinates[3]==std::array<float,2>{});
             }
             // Includes the actual triangle/quad batch sizes and an empty batch.
@@ -56,14 +56,14 @@ void rounding_batches() {
                     const auto scalar=okage::texture_coordinates(state,dims[0],dims[1],source[i]);
                     require(std::fegetround()==mode);
                     for(unsigned c=0;c<2;++c) {
-                        const auto bits=__builtin_bit_cast(std::uint32_t, (expected[i][c]));
-                        require(__builtin_bit_cast(std::uint32_t, (batch[i][c]))==bits);
-                        require(__builtin_bit_cast(std::uint32_t, (scalar[c]))==bits);
+                        const auto bits=std::bit_cast<std::uint32_t>(expected[i][c]);
+                        require(std::bit_cast<std::uint32_t>(batch[i][c])==bits);
+                        require(std::bit_cast<std::uint32_t>(scalar[c])==bits);
                     }
                 }
                 for(std::size_t i=count;i<source.size();++i)
                     for(unsigned c=0;c<2;++c)
-                        require(__builtin_bit_cast(std::uint32_t, (batch[i][c]))==__builtin_bit_cast(std::uint32_t, (source[i][c])));
+                        require(std::bit_cast<std::uint32_t>(batch[i][c])==std::bit_cast<std::uint32_t>(source[i][c]));
             }
         }
     }
@@ -81,13 +81,13 @@ void rounding_batches() {
         const auto actual_parameters=okage::shadow_screen_parameters(settings);
         require(std::fegetround()==mode);
         for(unsigned i=0;i<parameters.size();++i)for(unsigned c=0;c<4;++c)
-            require(__builtin_bit_cast(std::uint32_t, (parameters[i][c]))==__builtin_bit_cast(std::uint32_t, (actual_parameters[i][c])));
+            require(std::bit_cast<std::uint32_t>(parameters[i][c])==std::bit_cast<std::uint32_t>(actual_parameters[i][c]));
         const auto actual_raster=okage::field_raster_triangles(triangle,settings);
         require(std::fegetround()==mode && actual_raster.size()==raster.size());
         for(unsigned i=0;i<raster.size();++i)for(unsigned c=0;c<4;++c) {
-            require(__builtin_bit_cast(std::uint32_t, (actual_raster[i].position[c]))==__builtin_bit_cast(std::uint32_t, (raster[i].position[c])));
-            require(__builtin_bit_cast(std::uint32_t, (actual_raster[i].uv[c]))==__builtin_bit_cast(std::uint32_t, (raster[i].uv[c])));
-            require(__builtin_bit_cast(std::uint32_t, (actual_raster[i].color[c]))==__builtin_bit_cast(std::uint32_t, (raster[i].color[c])));
+            require(std::bit_cast<std::uint32_t>(actual_raster[i].position[c])==std::bit_cast<std::uint32_t>(raster[i].position[c]));
+            require(std::bit_cast<std::uint32_t>(actual_raster[i].uv[c])==std::bit_cast<std::uint32_t>(raster[i].uv[c]));
+            require(std::bit_cast<std::uint32_t>(actual_raster[i].color[c])==std::bit_cast<std::uint32_t>(raster[i].color[c]));
         }
         require(okage::field_pack_xyzf({1.f/16.f,15.f/16.f,1.0625f,-1.0625f})==
             std::array<std::uint32_t,4>{1,15,17,std::uint32_t(-17)});
@@ -169,26 +169,26 @@ int main() {
         require(okage::material_instance_alpha(77,.5f)==38 && std::fegetround()==FE_UPWARD);
         std::fesetround(before);
         okage::Material material{};
-        material.words[5]=__builtin_bit_cast(unsigned, (.4f));
+        material.words[5]=std::bit_cast<unsigned>(.4f);
         require(okage::material_source_color(material,{1,.5f,0,1})==okage::Float4({255,127.5f,0,77}));
-        material.words[5]=__builtin_bit_cast(unsigned, (.41f));
+        material.words[5]=std::bit_cast<unsigned>(.41f);
         require(okage::material_source_color(material,{.5f,.5f,.5f,1})==okage::Float4({127.5f,127.5f,127.5f,76}));
         require(okage::material_blend_register(material)==0x44);
         material.words[6]=1;require(okage::material_blend_register(material)==0x48);
         material.words[6]=2;require(okage::material_blend_register(material)==0x42);
         material.words[6]=3;rejects([&]{okage::material_blend_register(material);});
-        material.words[5]=__builtin_bit_cast(unsigned, (1.f));
+        material.words[5]=std::bit_cast<unsigned>(1.f);
         require(okage::material_source_color(material,{-1,2,0,1})==okage::Float4({0,255,0,0}));
         material.words[5]=0;
         std::fesetround(FE_UPWARD);
         require(okage::material_source_color(material,{1,1,1,.5f})[3]==64);
         require(std::fegetround()==FE_UPWARD);std::fesetround(before);
-        material.words[5]=__builtin_bit_cast(unsigned, (-1.f));
+        material.words[5]=std::bit_cast<unsigned>(-1.f);
         rejects([&]{okage::material_source_color(material,{1,1,1,1});});
         material.words[5]=0;
         rejects([&]{okage::material_source_color(material,{1,1,1,std::numeric_limits<float>::quiet_NaN()});});
         okage::Material mapMaterial{};
-        mapMaterial.words[0]=__builtin_bit_cast(unsigned, (.125f)); // Not a source RGB multiplier.
+        mapMaterial.words[0]=std::bit_cast<unsigned>(.125f); // Not a source RGB multiplier.
         for(int rounding:{FE_TONEAREST,FE_DOWNWARD,FE_UPWARD,FE_TOWARDZERO}) {
             std::fesetround(rounding);
             for(const auto& sample:std::array{
@@ -209,15 +209,15 @@ int main() {
         require(okage::map_material_class(mapMaterial,-1).base_lighting);
         require(!okage::map_material_class(mapMaterial,0).base_lighting);
         mapMaterial.words[7]=1;require(okage::map_material_class(mapMaterial,0).base_lighting);
-        mapMaterial.words[7]=2;rejects([&]{okage::map_material_class(mapMaterial,-1);});mapMaterial.words[7]=0;
+        mapMaterial.words[7]=8;rejects([&]{okage::map_material_class(mapMaterial,-1);});mapMaterial.words[7]=0;
         require(!okage::map_material_class(mapMaterial,-1).translucent);
-        mapMaterial.words[5]=__builtin_bit_cast(unsigned, (.001f));
+        mapMaterial.words[5]=std::bit_cast<unsigned>(.001f);
         require(okage::map_material_class(mapMaterial,-1).translucent);
         require(okage::material_source_color(mapMaterial,{1,1,1,1})[3]==128);
-        mapMaterial.words[5]=__builtin_bit_cast(unsigned, (.009f));
+        mapMaterial.words[5]=std::bit_cast<unsigned>(.009f);
         require(okage::map_material_class(mapMaterial,-1).translucent);
         require(okage::material_source_color(mapMaterial,{1,1,1,1})[3]==127);
-        mapMaterial.words[5]=__builtin_bit_cast(unsigned, (-.001f));rejects([&]{okage::map_material_class(mapMaterial,-1);});
+        mapMaterial.words[5]=std::bit_cast<unsigned>(-.001f);rejects([&]{okage::map_material_class(mapMaterial,-1);});
         for(unsigned blend=0;blend<3;++blend) {
             mapMaterial.words[6]=blend;mapMaterial.words[5]=0;
             require(!okage::map_material_class(mapMaterial,-1).translucent);
@@ -238,18 +238,33 @@ int main() {
         normalBlock.materials.resize(2);normalBlock.polygons.resize(2);
         normalBlock.polygons[0].material=0;normalBlock.polygons[0].corners.push_back({0,-1,0,-1});
         normalBlock.polygons[1].material=1;normalBlock.polygons[1].corners.push_back({0,0,0,-1});
-        normalBlock.materials[0].words[4]=__builtin_bit_cast(unsigned, (71.f));
+        normalBlock.materials[0].words[4]=std::bit_cast<unsigned>(71.f);
         require(okage::map_material_block_uses_normals(normalBlock));
         rejects([&]{okage::validate_map_material_extra_pass(normalBlock.materials[0],true);});
         normalBlock.materials[1].words[7]=1;
         require(!okage::map_material_block_uses_normals(normalBlock));
         okage::validate_map_material_extra_pass(normalBlock.materials[0],false);
-        normalBlock.materials[0].words[4]=__builtin_bit_cast(unsigned, (70.f));
+        normalBlock.materials[0].words[4]=std::bit_cast<unsigned>(70.f);
         okage::validate_map_material_extra_pass(normalBlock.materials[0],true);
+        auto& extra=normalBlock.materials[0];extra.words[7]=2;
+        extra.words[4]=std::bit_cast<unsigned>(25.f);
+        require(okage::map_material_extra_passes(extra,true).first);
+        require(!okage::map_material_extra_passes(extra,true).second);
+        require(okage::map_material_class(extra,-1).base_lighting);
+        require(!okage::map_material_class(extra,0).base_lighting);
+        rejects([&]{okage::validate_map_material_extra_pass(extra,true);});
+        okage::validate_map_material_extra_pass(extra,false);
+        extra.words[4]=std::bit_cast<unsigned>(71.f);
+        require(okage::map_material_extra_passes(extra,true).first&&okage::map_material_extra_passes(extra,true).second);
+        extra.words[7]=6;okage::validate_map_material_extra_pass(extra,true);
+        extra.words[4]=std::bit_cast<unsigned>(std::numeric_limits<float>::quiet_NaN());
+        okage::validate_map_material_extra_pass(extra,true); // Suppression precedes the exponent read.
+        extra.words[7]=5;require(okage::map_material_class(extra,0).base_lighting);
+        extra.words[7]=8;rejects([&]{okage::map_material_extra_passes(extra,false);});
         for(int rounding:{FE_TONEAREST,FE_DOWNWARD,FE_UPWARD,FE_TOWARDZERO}) {
             std::fesetround(rounding);
             for(float transparency:{0.f,.001f,.009f,.4f,1.f}) {
-                okage::Material m{};m.words[5]=__builtin_bit_cast(unsigned, (transparency));
+                okage::Material m{};m.words[5]=std::bit_cast<unsigned>(transparency);
                 for(const auto& input:std::array{okage::Float4{.59375f,.625f,.65625f,1},
                         okage::Float4{0,1,2,.5f},okage::Float4{.1234567f,.9876543f,.3333333f,.77f}})
                     for(const auto& base:std::array{okage::Float4{1,1,1,1},okage::Float4{.5f,1,2,.25f},okage::Float4{0,.31f,.99f,1.25f}}) {
@@ -258,13 +273,13 @@ int main() {
                             const auto source=okage::material_source_color(m,input);
                             const auto expected=packed?okage::ordinary_material_color(source,base):okage::ordinary_material_modulation(source,base);
                             const auto actual=cache.get(m,input,base,packed);
-                            require(__builtin_bit_cast(std::array<unsigned,4>, (actual))==__builtin_bit_cast(std::array<unsigned,4>, (expected)));
+                            require(std::bit_cast<std::array<unsigned,4>>(actual)==std::bit_cast<std::array<unsigned,4>>(expected));
                             require(std::fegetround()==rounding);
                         }
                     }
             }
             okage::PreparedMapBaseColor failed;okage::Material invalid{};
-            invalid.words[5]=__builtin_bit_cast(unsigned, (-1.f));
+            invalid.words[5]=std::bit_cast<unsigned>(-1.f);
             rejects([&]{failed.get(invalid,{1,1,1,1},{1,1,1,1},false);});
             invalid.words[5]=0;
             rejects([&]{failed.get(invalid,{1,1,1,1},{-1,1,1,1},false);});

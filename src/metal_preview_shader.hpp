@@ -26,20 +26,34 @@ float4 preview_color(Varying v, texture2d<float> image,
     return float4(color.rgb,1);
 }
 float4 material_color(Varying v, texture2d<float> image,
-                                 constant State& state) {
+                                 constant State& state, device atomic_uint* invalidAddress=nullptr) {
     float4 color=v.color;
     if(state.mode.z) {
-        int2 p=int2(floor(v.uv*1024.0f));
-        p.x=state.mode.x==2 ? clamp(p.x,int(state.region.x),int(state.region.y)) :
-                             ((p.x & int(state.region.x)) | int(state.region.y));
-        p.y=state.mode.y==2 ? clamp(p.y,int(state.region.z),int(state.region.w)) :
-                             ((p.y & int(state.region.z)) | int(state.region.w));
-        if(any(p<0)||p.x>=int(image.get_width())||p.y>=int(image.get_height()))
-            return float4(1,0,1,1);
-        float4 t=image.read(uint2(p));
-        float a=floor(t.a*127.5f+0.5f);
-        if(state.mode.z&2u)a=all(t.rgb==float3(0))?0.0f:128.0f;
-        t=float4(t.rgb*255.0f,a);
+        //First extra pass uses the preamble's TEX1=0x60. Preserve the
+        //existing ordinary nearest path until its filtering debt is closed.
+        const bool linear=(state.mode.z&4u)!=0;
+        const float2 xy=v.uv*1024.0f-(linear?0.5f:0.0f);
+        const int2 origin=int2(floor(xy));const float2 f=fract(xy);
+        float4 t=0;
+        for(unsigned tap=0;tap<(linear?4u:1u);++tap) {
+            const int2 offset=int2(tap&1u,tap>>1);
+            const float weight=linear?(offset.x?f.x:1-f.x)*(offset.y?f.y:1-f.y):1;
+            if(weight==0)continue;
+            int2 p=origin+offset;
+            p.x=state.mode.x==2 ? clamp(p.x,int(state.region.x),int(state.region.y)) :
+                                 ((p.x & int(state.region.x)) | int(state.region.y));
+            p.y=state.mode.y==2 ? clamp(p.y,int(state.region.z),int(state.region.w)) :
+                                 ((p.y & int(state.region.z)) | int(state.region.w));
+            if(any(p<0)||p.x>=int(image.get_width())||p.y>=int(image.get_height())) {
+                if(invalidAddress)atomic_fetch_min_explicit(invalidAddress,
+                    uint(p.x)|(uint(p.y)<<16),memory_order_relaxed);
+                return float4(1,0,1,1);
+            }
+            const float4 sample=image.read(uint2(p));
+            float a=floor(sample.a*127.5f+0.5f);
+            if(state.mode.z&2u)a=all(sample.rgb==float3(0))?0.0f:128.0f;
+            t+=float4(sample.rgb*255.0f,a)*weight;
+        }
         color=floor(t*color/128.0f);
     }
     color=clamp(floor(color),0.0f,255.0f);
@@ -114,6 +128,11 @@ fragment float4 material_fragment(Varying v [[stage_in]],texture2d<float> image 
 fragment FieldOutput field_material_fragment(FieldVarying v [[stage_in]],texture2d<float> image [[texture(0)]],
     constant State& state [[buffer(0)]]) {
     return {material_color(Varying{v.position,v.color,v.uv.xy/v.uv.z},image,state),v.field>0?1.0f-floor(v.z)/16777216.0f:v.position.z};
+}
+
+fragment FieldOutput field_environment_fragment(FieldVarying v [[stage_in]],texture2d<float> image [[texture(0)]],
+    constant State& state [[buffer(0)]],device atomic_uint* invalidAddress [[buffer(1)]]) {
+    return {material_color(Varying{v.position,v.color,v.uv.xy/v.uv.z},image,state,invalidAddress),v.field>0?1.0f-floor(v.z)/16777216.0f:v.position.z};
 }
 
 fragment float4 effect_fragment(Varying v [[stage_in]],texture2d<float> image [[texture(0)]],

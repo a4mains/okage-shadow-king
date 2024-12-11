@@ -2,6 +2,10 @@
 #include "okage/pose.hpp"
 
 namespace okage {
+// First extra material pass: 0x183ff0/0x1ae290 and VU1 entry0x116.
+// Region stores authored offsetX/Y and extentX/Y in 1/1024 texture units.
+std::array<float,2> ordinary_environment_uv(const Float4& normalized_normal,const Float4& region);
+Float4 ordinary_environment_source(float coefficient);
 enum class OrdinaryNormalOperation { direct, overwrite, accumulate };
 enum class OrdinaryLightingPath { direct, deferred };
 

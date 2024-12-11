@@ -28,7 +28,7 @@ std::vector<std::uint8_t> read(const fs::path& path) {
 }
 struct SceneBackend {
     id<MTLDevice> device;
-    id<MTLRenderPipelineState> pipeline,effectPipeline,mapEffectPipeline,dustPipeline,darkEffectPipeline,materialPipeline,materialAddPipeline,materialSubtractPipeline;
+    id<MTLRenderPipelineState> pipeline,effectPipeline,mapEffectPipeline,dustPipeline,darkEffectPipeline,materialPipeline,materialAddPipeline,materialSubtractPipeline,environmentPipeline;
     id<MTLDepthStencilState> depth,effectDepth,mapEffectDepth,materialDepth;
     id<MTLLibrary> library;
     explicit SceneBackend(id<MTLDevice> value):device(value) {
@@ -74,6 +74,10 @@ struct SceneBackend {
         descriptor.colorAttachments[0].destinationAlphaBlendFactor=MTLBlendFactorOne;
         materialPipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
         if(!materialPipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
+        descriptor.fragmentFunction=[library newFunctionWithName:@"field_environment_fragment"];
+        environmentPipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
+        if(!environmentPipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
+        descriptor.fragmentFunction=[library newFunctionWithName:@"field_material_fragment"];
         descriptor.colorAttachments[0].destinationRGBBlendFactor=MTLBlendFactorOne;
         materialAddPipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
         if(!materialAddPipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
@@ -165,6 +169,8 @@ struct SceneRenderer::Impl {
     Float4 sky_factors{.5f,0,.5f,0};
     std::vector<Texture> textures;
     std::vector<std::size_t> textureOffsets;
+    std::optional<std::size_t> materialEnvironment;
+    Float4 materialEnvironmentRegion{};
     std::size_t omittedEffects=0,actorCount=0;
     unsigned nextFrontOrdinal=0;
     unsigned sortDepthShift=19;
@@ -178,7 +184,7 @@ struct SceneRenderer::Impl {
     std::array<std::uint8_t,3> clearRGB{64,64,64};
     std::shared_ptr<const SceneBackend> backend;
     id<MTLDevice> device;
-    id<MTLRenderPipelineState> pipeline,effectPipeline,mapEffectPipeline,dustPipeline,darkEffectPipeline,materialPipeline,materialAddPipeline,materialSubtractPipeline;
+    id<MTLRenderPipelineState> pipeline,effectPipeline,mapEffectPipeline,dustPipeline,darkEffectPipeline,materialPipeline,materialAddPipeline,materialSubtractPipeline,environmentPipeline;
     id<MTLDepthStencilState> depth,effectDepth,mapEffectDepth,materialDepth;
     NSMutableArray<id<MTLTexture>>* gpuTextures;
     id<MTLCommandQueue> queue;
@@ -229,6 +235,7 @@ struct SceneRenderer::Impl {
         pipeline=backend->pipeline;effectPipeline=backend->effectPipeline;
         mapEffectPipeline=backend->mapEffectPipeline;dustPipeline=backend->dustPipeline;
         darkEffectPipeline=backend->darkEffectPipeline;materialPipeline=backend->materialPipeline;
+        environmentPipeline=backend->environmentPipeline;
         materialAddPipeline=backend->materialAddPipeline;materialSubtractPipeline=backend->materialSubtractPipeline;
         depth=backend->depth;effectDepth=backend->effectDepth;
         mapEffectDepth=backend->mapEffectDepth;materialDepth=backend->materialDepth;
@@ -427,6 +434,7 @@ struct SceneRenderer::Impl {
                         }
                     }
                     const bool mapNormalBlock=ordinaryMaterial&&map_material_block_uses_normals(block);
+                    std::vector<Draw> extraOpaque,extraTranslucent;
                     std::size_t polygonIndex=0;
                     for (const auto& polygon:block.polygons) {
                         auto& preparedUV=prepared.coordinates.at(polygonIndex++);
@@ -437,12 +445,21 @@ struct SceneRenderer::Impl {
                         draw.unculledFieldActor=fieldMode0&&!input.actor->encounter_model;
                         const Material* material=nullptr;
                         bool mapTransparent=false;
+                        MapMaterialExtraPasses extraPasses;
                         if(ordinaryMaterial) {
                             if(polygon.material<0)throw std::runtime_error("Map polygon has no material");
                             material=&block.materials.at(polygon.material);
-                            mapTransparent=map_material_class(*material,-1).translucent;
-                            validate_map_material_extra_pass(*material,mapNormalBlock);
-                            draw.materialBlend=material_blend_register(*material);
+                            try {
+                                mapTransparent=map_material_class(*material,-1).translucent;
+                                extraPasses=map_material_extra_passes(*material,mapNormalBlock);
+                                if(extraPasses.second)throw std::runtime_error("Unrecovered map material second extra lighting pass");
+                                if(extraPasses.first&&!materialEnvironment)throw std::runtime_error("Material first extra pass has no owned environment texture");
+                                draw.materialBlend=material_blend_register(*material);
+                            } catch(const std::exception& e) {
+                                throw std::runtime_error("Material "+input.path.string()+" model "+std::to_string(partIndex-1)+
+                                    " block "+std::to_string(selection.block)+" material "+std::to_string(polygon.material)+
+                                    " flags="+std::to_string(material->words[7])+": "+e.what());
+                            }
                         }
                         const okage::TextureState* state=nullptr;
                         const bool textureEnabled=ordinaryMaterial?map_material_textured(polygon):polygon.texture_state>=0;
@@ -523,7 +540,29 @@ struct SceneRenderer::Impl {
                             if(mapTransparent)mapTranslucent.push_back(draw);
                             else {draw.state[7]=3;draws.push_back(draw);}
                         } else draws.push_back(draw);
+                        if(extraPasses.first) {
+                            Draw extra=draw;extra.first=std::uint32_t(vertices.size());extra.count=0;
+                            extra.image=std::int32_t(*materialEnvironment);extra.materialBlend=0x44;
+                            extra.state={0,1023,0,1023,2,2,5,3};
+                            if(textures.at(*materialEnvironment).pixel_format==1)extra.state[6]|=2;
+                            const auto source=ordinary_environment_source(std::bit_cast<float>(material->words[3]));
+                            for(auto triangle:triangles)for(auto index:triangle) {
+                                const auto normal=polygon.corners.at(index)[1];
+                                //183720's base-slot sentinel has no generated normal UV.
+                                if(normal<0||(material->words[7]&1)||!normals||!normals->defined.at(normal))
+                                    throw std::runtime_error("Unrecovered base-slot environment UV: "+input.path.string());
+                                const auto lit=ordinary_light_normal(normals->normals.at(normal),*directionMatrix,lightColors,normals->path);
+                                const auto uv=ordinary_environment_uv(lit.normalized_normal,materialEnvironmentRegion);
+                                Vertex vertex{positions.at(polygon.corners.at(index)[0]),
+                                    fieldProjection?ordinary_material_modulation(source,lit.lighting_cache):ordinary_material_color(source,lit.lighting_cache),
+                                    {uv[0],uv[1],0,0}};
+                                vertices.push_back(vertex);++extra.count;
+                            }
+                            (mapTransparent?extraTranslucent:extraOpaque).push_back(extra);
+                        }
                     }
+                    draws.insert(draws.end(),extraOpaque.begin(),extraOpaque.end());
+                    mapTranslucent.insert(mapTranslucent.end(),extraTranslucent.begin(),extraTranslucent.end());
                     hadOrdinaryGeometry=hadOrdinaryGeometry||vertices.size()!=firstVertex;
                     if(fieldProjection&&field_raster_block_rejected(std::span(vertices).subspan(firstVertex),fieldProjection->ordinary)) {
                         vertices.resize(firstVertex);draws.resize(firstDraw);mapTranslucent.resize(firstMapTranslucent);
@@ -669,10 +708,18 @@ struct SceneRenderer::Impl {
         id<MTLCommandBuffer> command=[queue commandBuffer];
         if(!command||!command.retainedReferences)throw std::runtime_error("Scene frame requires a retaining Metal command buffer");
         id<MTLBuffer> vertexBuffer=vertices.empty()?nil:[device newBufferWithBytes:vertices.data() length:vertices.size()*sizeof(Vertex) options:MTLResourceStorageModeShared];
+        const bool hasEnvironment=std::any_of(draws.begin(),draws.end(),[](const auto& draw){return draw.count&&draw.materialBlend&&(draw.state[6]&4u);});
+        id<MTLBuffer> invalidEnvironment=nil;
+        if(hasEnvironment) {
+            const std::uint32_t untouched=UINT32_MAX;
+            invalidEnvironment=[device newBufferWithBytes:&untouched length:sizeof(untouched) options:MTLResourceStorageModeShared];
+            if(!invalidEnvironment)throw std::runtime_error("Environment validation allocation failed");
+        }
         auto encode=[&](unsigned stage){
         id<MTLRenderCommandEncoder> encoder=[command renderCommandEncoderWithDescriptor:pass];
         [encoder setRenderPipelineState:pipeline]; [encoder setDepthStencilState:depth]; [encoder setCullMode:MTLCullModeNone];
         if(vertexBuffer)[encoder setVertexBuffer:vertexBuffer offset:0 atIndex:0];
+        if(invalidEnvironment)[encoder setFragmentBuffer:invalidEnvironment offset:0 atIndex:1];
         for (const auto& draw:draws) {
             if(data.field_projection) {
                 if(stage==0&&draw.phase!=0)continue;
@@ -682,7 +729,7 @@ struct SceneRenderer::Impl {
             if(!draw.count)continue;
             [encoder setFrontFacingWinding:draw.mapMaterial?MTLWindingCounterClockwise:MTLWindingClockwise];
             [encoder setCullMode:draw.materialBlend&&!draw.unculledFieldActor?MTLCullModeBack:MTLCullModeNone];
-            [encoder setRenderPipelineState:draw.materialBlend?(draw.materialBlend==0x48?materialAddPipeline:draw.materialBlend==0x42?materialSubtractPipeline:materialPipeline):draw.subtractive?darkEffectPipeline:draw.dust?dustPipeline:draw.additive?mapEffectPipeline:draw.effect?effectPipeline:pipeline];
+            [encoder setRenderPipelineState:draw.materialBlend?((draw.state[6]&4u)?environmentPipeline:draw.materialBlend==0x48?materialAddPipeline:draw.materialBlend==0x42?materialSubtractPipeline:materialPipeline):draw.subtractive?darkEffectPipeline:draw.dust?dustPipeline:draw.additive?mapEffectPipeline:draw.effect?effectPipeline:pipeline];
             [encoder setDepthStencilState:draw.depthAlways?effectDepth:draw.materialBlend?(draw.state[7]!=2?materialDepth:mapEffectDepth):(draw.additive||draw.dust||draw.subtractive)?mapEffectDepth:draw.effect?effectDepth:depth];
             [encoder setFragmentTexture:data.textures[draw.image<0 ? data.white_texture : draw.image] atIndex:0];
             [encoder setFragmentBytes:draw.state.data() length:sizeof(draw.state) atIndex:0];
@@ -722,6 +769,11 @@ struct SceneRenderer::Impl {
         state->color=ticketColor;state->depth=ticketDepth;state->vertices=vertexBuffer;
         state->backend=backend;state->shadow_metal=shadowMetal;state->ui_metal=uiMetal;
         state->prepared_owner=frame.data_;state->ui_owners=std::move(uiOwners);
+        if(invalidEnvironment)state->validators.push_back([invalidEnvironment]{
+            const auto address=*static_cast<const std::uint32_t*>(invalidEnvironment.contents);
+            if(address!=UINT32_MAX)throw std::runtime_error("Unrecovered environment sampled texture address outside owned image: x="+
+                std::to_string(address&0xffffu)+", y="+std::to_string(address>>16));
+        });
         if(validatePass)state->validators.push_back(std::move(validatePass));
         if(uiValidation)state->validators.push_back([validation=std::move(*uiValidation),command]{
             validation.validate_completed(command);
@@ -808,6 +860,20 @@ void SceneRenderer::set_stage_environment(const FieldOrdinaryLighting& light,con
         for(auto& input:impl_->preparation)for(auto& part:input)for(auto& block:part.blocks)
             for(auto& polygon:block.mapBaseColors)polygon={};
     impl_->ordinaryLighting=light;impl_->shadowSettings=shadow;impl_->sky_factors=sky;
+}
+void SceneRenderer::set_material_environment(const Texture& image) {
+    if(!image.width||!image.height||image.width>1024||image.height>1024||
+       image.rgba.size()!=std::size_t(image.width)*image.height*4)
+        throw std::runtime_error("Invalid owned material environment image");
+    impl_->materialEnvironmentRegion={.5f/1024,.5f/1024,(float(image.width)+.5f)/1024,(float(image.height)+.5f)/1024};
+    auto gpu=impl_->uploadTexture(image);
+    if(impl_->materialEnvironment) {
+        const auto index=*impl_->materialEnvironment;
+        impl_->textures.at(index)=image;impl_->gpuTextures[index]=gpu;
+    } else {
+        impl_->materialEnvironment=impl_->textures.size();impl_->textures.push_back(image);
+        [impl_->gpuTextures addObject:gpu];
+    }
 }
 void SceneRenderer::bind_map_effects(const MapEffects* effects){impl_->mapEffects=effects;}
 void SceneRenderer::bind_effect_submissions(const EffectSubmissions* effects){impl_->effectSubmissions=effects;}

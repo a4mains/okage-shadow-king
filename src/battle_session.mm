@@ -300,6 +300,7 @@ struct BattleSession::Impl {
             objects=std::make_unique<MapObjects>(map);
             if(!jobs.checkpoint())return;
             renderer=std::make_shared<SceneRenderer>(map,std::span<const SceneActor>{},objects.get());
+            renderer->set_material_environment(env_image);
             if(!jobs.checkpoint())return;
             renderer->load_effect_textures(effect_textures);
             renderer->bind_effect_submissions(&effect_submissions);

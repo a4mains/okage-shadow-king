@@ -439,7 +439,11 @@
     "local/research/natural-encounter-admission-v1/inspect-owned-stg.cpp": "4e38696acb16e591c5c7b568e421813955e2206f061a8154aeb927414f37e79f",
     "local/research/natural-encounter-admission-v1/native-audit-v2.json": "a2d6daeb9ab6f2b6369d8f81dccc355c8e7934186ca3788fe9303b2d9f4a61d4",
     "local/research/natural-encounter-admission-v1/comparison-audit-v2.json": "9a5b0c3c11c8518653ce966a961b5f1a0eaa635c24f23ea08b49134d8653b4c5",
-    "local/research/natural-encounter-admission-v1/root-verification-v2.json": "9ddc35147e189b7e86cfa9f0d9adc12e6d6706f54de85efe805cae80d46f0838"
+    "local/research/natural-encounter-admission-v1/root-verification-v2.json": "9ddc35147e189b7e86cfa9f0d9adc12e6d6706f54de85efe805cae80d46f0838",
+    "local/research/natural-encounter-admission-v1/native-audit-v3.json": "75ab95a5bcdd5b8517127a755e2fb763293a563840c581dc7034c47502b06392",
+    "local/research/natural-encounter-admission-v1/comparison-audit-v3.json": "f9ff388f7274f72a2e079812a048b4359465da1667d6f54f098c652868bc600a",
+    "local/research/natural-encounter-admission-v1/root-verification-v3.json": "9e8ecf61edbb309a822dac8067802145ee5d6e6e16105eefff4b2b8e2219f646",
+    "local/research/natural-encounter-admission-v1/stage-collision-review.md": "77e3cfe24756ca3bd8d280163aed12ab707a21b8760d3d273ae38cb61b606ab0"
   },
   "scope": "Ordinary natural transition executes through native battle construction.",
   "v2": {
@@ -472,6 +476,38 @@
     "passed_each_build": 3,
     "actual_parser_sanitizer_owned_files_passed": 23,
     "independent_inventory_lengths_and_counts_matched": 23,
-    "runtime_replay": "native-encounter-admission-release-v3 pending session16047"
+    "runtime_replay": "native-encounter-admission-release-v3 terminal session16047/application/wrapper exit1",
+    "runtime_outcome": "v3 passes stage resource/filter completion37334, fails37335 on actual LUCAN first extra material pass; full battle progression unproved."
+  },
+  "v3": {
+    "runtime_commit": "0a125bb",
+    "run": "local/research/chapter-two-road-v1/native-encounter-admission-release-v3",
+    "binary_sha256": "ca4f6faa5dc12d154854f69f87a20e72ec86275ec2b9ede743bd87c1b25a0f7b",
+    "application_exit": 1,
+    "completed_ticks": 37334,
+    "failed_attempt": 37335,
+    "last_capture": 37332,
+    "uncaptured_completed_tail": 2,
+    "contact": {
+      "frame": 37297,
+      "row": 1,
+      "column": 3,
+      "formation": 3,
+      "phase": 11,
+      "rear": 0
+    },
+    "stage": 1,
+    "error": "Unrecovered map material flags",
+    "source_asset_diagnosis": "LUCAN.XPF/a.xmd model0/block1/material2 flags2, eight sword triangles; forest stage referenced materials have supported flags. First extra lighting pass required.",
+    "saves_unchanged": true,
+    "prior_inputs_compared": 37335,
+    "input_differences": 0,
+    "comparison": "state-v4/media-v3",
+    "field_rows_music600": 233,
+    "missing_field_rows_music600": 367,
+    "audio_ticks_music600": 265,
+    "missing_audio_ticks_music600": 335,
+    "missing_movement775": 775,
+    "full_parity": false
   }
 }

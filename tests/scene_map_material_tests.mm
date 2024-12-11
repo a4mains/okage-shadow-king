@@ -19,8 +19,8 @@ static void put(Data& b,std::size_t at,std::uint32_t v){for(unsigned i=0;i<4;++i
 static void word(Data& b,std::uint32_t v){const auto at=b.size();b.resize(at+4);put(b,at,v);}
 static void floats(Data& b,const Float4& v){for(float f:v)word(b,std::bit_cast<unsigned>(f));}
 static void write(const fs::path& p,const Data& b){std::ofstream f(p,std::ios::binary);f.write(reinterpret_cast<const char*>(b.data()),b.size());if(!f)throw std::runtime_error("Fixture write");}
-struct Surface {Float4 color;float transparency=0;bool normal=false,bypass=false;unsigned blend=0;};
-static Data model(std::span<const Surface> surfaces,bool selected,bool textured,bool reverse) {
+struct Surface {Float4 color;float transparency=0;bool normal=false,bypass=false;unsigned blend=0,extra_flags=0;float environment_coefficient=0;};
+static Data model(std::span<const Surface> surfaces,bool selected,bool textured,bool reverse,const Float4& normal={0,0,1,0}) {
     // One identity bone/node; source color and normal independent per surface.
     Data prefix(28);put(prefix,0,24);put(prefix,4,12);put(prefix,12,1);
     std::memcpy(prefix.data()+16,"t.xim",6);put(prefix,24,1);
@@ -29,11 +29,11 @@ static Data model(std::span<const Surface> surfaces,bool selected,bool textured,
     put(b,72,1);put(b,76,0xffff0000);put(b,80,1);
     word(b,0x0200001c);word(b,0xffff0000);word(b,0x00010001);floats(b,{0,0,1,1});
     word(b,0x03000000|unsigned(4+32*surfaces.size()));
-    for(const auto& s:surfaces){floats(b,{0,0,0,0});word(b,0);word(b,std::bit_cast<unsigned>(s.transparency));word(b,s.blend);word(b,s.bypass?1:0);}
+    for(const auto& s:surfaces){floats(b,{0,0,0,s.environment_coefficient});word(b,0);word(b,std::bit_cast<unsigned>(s.transparency));word(b,s.blend);word(b,s.extra_flags|(s.bypass?1:0));}
     word(b,0x04000008);word(b,0);
     word(b,0x0500004c);word(b,1);word(b,4<<16);
     for(const auto& p:std::array{Float4{-2,-2,10,1},Float4{2,-2,10,1},Float4{2,2,10,1},Float4{-2,2,10,1}})floats(b,p);
-    word(b,0x0600001c);word(b,1);word(b,1<<16);floats(b,{0,0,1,0});
+    word(b,0x0600001c);word(b,1);word(b,1<<16);floats(b,normal);
     word(b,0x07000000|unsigned(12+16*surfaces.size()));word(b,0);word(b,unsigned(surfaces.size())<<16);
     for(const auto& s:surfaces)floats(b,s.color);
     word(b,0x0800002c);word(b,0);word(b,4<<16);
@@ -61,9 +61,9 @@ static Data stage(const Float4& base,const Float4& ambient,bool zeroDirections) 
     return b;
 }
 static Texture sample(const fs::path& dir,std::span<const Surface> surfaces,bool selected,bool textured,
-                      bool animated,const Float4& base={1,1,1,1},const Float4& ambient={.25f,.25f,.25f,1},bool zeroDirections=false,bool reverse=false,unsigned renderFlags=0) {
+                      bool animated,const Float4& base={1,1,1,1},const Float4& ambient={.25f,.25f,.25f,1},bool zeroDirections=false,bool reverse=false,unsigned renderFlags=0,bool environment=false,const Float4& normal={0,0,1,0}) {
     fs::create_directory(dir);
-    write(dir/"m.xmd",model(surfaces,selected,textured,reverse));write(dir/"a.xmp",map(animated));
+    write(dir/"m.xmd",model(surfaces,selected,textured,reverse,normal));write(dir/"a.xmp",map(animated));
     const auto stg=stage(base,ambient,zeroDirections);write(dir/"a.stg",stg);
     Data xim(36);put(xim,24,1);put(xim,28,1);xim[32]=32;xim[33]=64;xim[34]=96;xim[35]=128;write(dir/"t.xim",xim);
     Data motion(56);put(motion,0,0x544d58);put(motion,4,24);put(motion,16,0xffffffff);write(dir/"m.xmt",motion);
@@ -75,6 +75,9 @@ static Texture sample(const fs::path& dir,std::span<const Surface> surfaces,bool
         binding.actor->animation().set_channel(4,{0,0,0,1});binding.actor->animation().set_channel(5,{0,0,0,1});binding.actor->evaluate();
     }
     SceneRenderer renderer(dir/"a.xmp",{},&objects);renderer.set_clear_rgb({14,18,24});
+    Texture env{64,64,0,0,std::vector<std::uint8_t>(64*64*4)};
+    for(std::size_t i=0;i<env.rgba.size();i+=4){const unsigned offset=(i/4)%64>=33?64:0;env.rgba[i]=32+offset;env.rgba[i+1]=64+offset;env.rgba[i+2]=96+offset;env.rgba[i+3]=255;}
+    if(environment)renderer.set_material_environment(env);
     require(renderer.actors()==0&&renderer.placements()==1);
     FieldProjection projection;projection.load_stage(stg);projection.begin_field();projection.begin_effects();projection.begin_deferred();projection.end_effects();
     const Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
@@ -84,6 +87,7 @@ static Texture sample(const fs::path& dir,std::span<const Surface> surfaces,bool
     require(cold.rgba==warm.rgba);
     const auto standalone=renderer.render(identity,clip);
     SceneRenderer fresh(dir/"a.xmp",{},&objects);fresh.set_clear_rgb({14,18,24});
+    if(environment)fresh.set_material_environment(env);
     require(standalone.rgba==fresh.render(identity,clip).rgba);
     require(cold.rgba==renderer.render(identity,clip,nullptr,{},1024,{},&projection.frame()).rgba);
     return cold;
@@ -490,6 +494,22 @@ int main(int argc,const char** argv){@autoreleasepool {try {
     const auto normal=sample(out/"normal-static",one,false,false,false,base,ambient);
     const auto animated=sample(out/"normal-animated",one,false,false,true,base,ambient);
     require(normal.rgba==animated.rgba);require(center(normal)==std::array<unsigned,3>{23,47,71});
+    std::array<Surface,1> reflective{{{{1,0,0,1},0,true,false,0,2,1}}};
+    const auto reflected=sample(out/"normal-environment",reflective,false,false,false,base,{1,1,1,1},false,false,0,true);
+    require(center(reflected)==std::array<unsigned,3>{48,80,112});
+    bool invalidEnvironment=false;
+    try{(void)sample(out/"invalid-environment",reflective,false,false,false,base,{1,1,1,1},false,false,0,true,{1,0,0,0});}
+    catch(const std::runtime_error& e){invalidEnvironment=std::string(e.what()).find("Unrecovered environment sampled texture address outside owned image: x=64, y=32")==0;}
+    require(invalidEnvironment);
+    const auto culledEnvironment=sample(out/"culled-environment",reflective,false,false,false,base,{1,1,1,1},false,true,0,true,{1,0,0,0});
+    require(center(culledEnvironment)==std::array<unsigned,3>{14,18,24});
+    reflective[0].extra_flags=6;
+    const auto suppressed=sample(out/"suppressed-environment",reflective,false,false,false,base,{1,1,1,1},false,false,0,true);
+    require(center(suppressed)==std::array<unsigned,3>{255,0,0});
+    reflective[0].extra_flags=2;
+    bool missingEnvironment=false;
+    try{(void)sample(out/"missing-environment",reflective,false,false,false);}catch(const std::runtime_error& e){missingEnvironment=std::string(e.what()).find("no owned environment texture")!=std::string::npos;}
+    require(missingEnvironment);
     require(sample(out/"mode2-map-placement",one,false,false,true,base,ambient,false,false,0x100000).rgba==normal.rgba);
     require(sample(out/"normal-zero-directions",one,false,false,true,base,ambient,true).rgba==normal.rgba);
     one[0].bypass=true;

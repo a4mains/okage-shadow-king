@@ -117,6 +117,14 @@ void rounding_and_failures() {
         require(same(ordinary_transform_normal(direction, n, OrdinaryNormalOperation::accumulate, n), expected_transform));
         require(same(ordinary_material_color({123.1f,43.2f,65.3f,76.4f}, actual.lighting_cache), expected_color));
         require(std::fegetround() == mode);
+        require(ordinary_environment_uv({0,0,1,0},{.5f/1024,.5f/1024,64.5f/1024,64.5f/1024})==
+            std::array<float,2>{32.75f/1024,32.75f/1024});
+        require(ordinary_environment_uv({-1,1,0,0},{.5f/1024,.5f/1024,64.5f/1024,64.5f/1024})==
+            std::array<float,2>{.5f/1024,65.f/1024});
+        require(ordinary_environment_source(.25f)==Float4{128,128,128,32});
+        require(ordinary_environment_source(-1)==Float4{128,128,128,0});
+        require(ordinary_environment_source(2)==Float4{128,128,128,255});
+        require(std::fegetround()==mode);
         Matrix4 zero_colors=identity;zero_colors[3]={.5f,.25f,.75f,1};
         for(const auto path:{OrdinaryLightingPath::direct,OrdinaryLightingPath::deferred}) {
             const auto zero=ordinary_light_normal({-0.f,0,-0.f,1},identity,zero_colors,path);

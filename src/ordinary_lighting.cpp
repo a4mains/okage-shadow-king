@@ -65,6 +65,22 @@ Float4 ordinary_transform_normal(const Matrix4& matrix, const Float4& source,
     return transform(matrix, source, operation, initial_cache);
 }
 
+std::array<float,2> ordinary_environment_uv(const Float4& normal,const Float4& region) {
+    validate(normal);validate(region);Rounding rounding;
+    std::array<float,2> result{};
+    for(unsigned i=0;i<2;++i) {
+        const float scale=mul(region[i+2],.5f);
+        const float bias=add(region[i],scale);
+        result[i]=add(mul(1.f,bias),mul(normal[i],scale));
+    }
+    return result;
+}
+Float4 ordinary_environment_source(float coefficient) {
+    checked(coefficient);Rounding rounding;
+    //0x17f480 defaults RGB to128, then clamps every component through17dfe8.
+    return {128,128,128,std::clamp(mul(coefficient,128.f),0.f,255.f)};
+}
+
 OrdinaryLightingResult ordinary_light_normal(const Float4& normal_cache,
     const Matrix4& direction_matrix, const Matrix4& light_colors, OrdinaryLightingPath path) {
     if (path != OrdinaryLightingPath::direct && path != OrdinaryLightingPath::deferred)

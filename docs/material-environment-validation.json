@@ -1,0 +1,122 @@
+{
+  "schema": "okage-material-environment-validation-v1",
+  "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "base_commit": "d00c7a5f0c2f64a20d561f6fc2ad7fd0261a448d",
+  "scope": "First extra material implementation with owned environment image, linear filtering and fragment footprint validation.",
+  "probes": {
+    "native-release": {
+      "default_selector_predicate_cases": 32,
+      "uv_vectors": 30,
+      "compared_words": 156,
+      "differences": []
+    },
+    "native": {
+      "default_selector_predicate_cases": 32,
+      "uv_vectors": 30,
+      "compared_words": 156,
+      "differences": []
+    },
+    "model-sanitize": {
+      "default_selector_predicate_cases": 32,
+      "uv_vectors": 30,
+      "compared_words": 156,
+      "differences": []
+    }
+  },
+  "tests": {
+    "builds": [
+      "native-release",
+      "native",
+      "model-sanitize"
+    ],
+    "ctest_regex": "^(render|ordinary-lighting|scene-map-material)-tests$",
+    "passed_per_build": 3,
+    "terminal_sessions": [
+      32678,
+      57896,
+      14500
+    ],
+    "python": "548 passed for oracle change, the prior run's retained log; no subsequent inspection-tool change"
+  },
+  "negative_v4": {
+    "completed_ticks": 38599,
+    "failure_tick": 38600,
+    "reason": "Nearest implementation CPU per-vertex environment address guard; not corrected linear runtime",
+    "native_evidence_root_verified": 151,
+    "comparison_artifacts_root_verified": 304
+  },
+  "v5": {
+    "status": "terminal",
+    "session": 9038,
+    "readiness": 21644,
+    "initial_activation": 2005,
+    "ordinary_field_activation": 21646,
+    "run_directory": "local/research/chapter-two-road-v1/native-encounter-admission-release-v5",
+    "binary_sha256": "688e5fa13e0316dc727578f95fa6bb29bc90ddbdd06b82e77e6b5e66e91ab1ad",
+    "exit_code": 1,
+    "completed_ticks": 37296,
+    "failed_tick": 37297,
+    "primary_error": "Unrecovered environment sampled texture address outside owned image: x=36, y=64",
+    "last_capture_frame": 36968,
+    "uncaptured_completed": 328,
+    "native_artifacts_root_verified": 124,
+    "comparison_artifacts_root_verified": 241
+  },
+  "sha256": {
+    "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "local/research/map-material-flags-v1/runtime-v2.patch": "0c6bc71a27b4ce421d6ddcd683b11c9f87ec7a5b22f15fb0d53a9278e9d127b3",
+    "local/research/map-material-flags-v1/probe-comparison-v1.json": "41a4582d8b7ab8c02d9a79c05c8af26612840a6a0d1944e85047392fd47b40f2",
+    "local/research/map-material-flags-v1/inventory.json": "86f448d2a98227e8f027adc3237956d0a7250d1ad1f271ac79b508d0e423da07",
+    "local/research/map-material-flags-v1/battle-actor-assets.json": "9a1ba1dbac7e3f72eebb0aacf40758a03c5a41930770bb0e36619010f508ec98",
+    "local/research/map-material-flags-v1/first-extra-review-v1.md": "85a9bedc85bcc5aeca26257c70ad33ffb0aa7e5c75675c15d271824f5201ea8b",
+    "local/research/map-material-flags-v1/first-extra-footprint-review-v1.md": "c3b8e30dcce5e2df6d9bfc58c6b5a098fa87469ac29a345663fd81440dd8d67e",
+    "local/research/natural-encounter-admission-v1/native-audit-v3.json": "75ab95a5bcdd5b8517127a755e2fb763293a563840c581dc7034c47502b06392",
+    "local/research/natural-encounter-admission-v1/comparison-audit-v3.json": "f9ff388f7274f72a2e079812a048b4359465da1667d6f54f098c652868bc600a",
+    "local/research/natural-encounter-admission-v1/root-verification-v3.json": "9e8ecf61edbb309a822dac8067802145ee5d6e6e16105eefff4b2b8e2219f646",
+    "local/research/natural-encounter-admission-v1/native-audit-v4.json": "8b690da49afe451b3d944ec69d693fe5cb61fe03073f2f3e835125eb7034993b",
+    "local/research/natural-encounter-admission-v1/comparison-audit-v4.json": "f2b7a2eb23a82203a867ea38863948a97377209da976c79386d7747bb9e419f7",
+    "local/research/natural-encounter-admission-v1/root-verification-v4.json": "5201def5a8e07c879315bf063ab85a8e3ac7172429cf9bf684b53942cc79f989",
+    "local/research/map-material-flags-v1/runtime-v1.app/Contents/MacOS/okage-native": "271c6b7be434308a489d44c75a51660050b9202d62fd0daac2a0c9a10a77740d",
+    "local/research/map-material-flags-v1/runtime-v2.app/Contents/MacOS/okage-native": "688e5fa13e0316dc727578f95fa6bb29bc90ddbdd06b82e77e6b5e66e91ab1ad",
+    "include/okage/map_material.hpp": "c8825dfcaeeca5e4b81399e701abe3533676fc50dc85bdfffb6c101be2938880",
+    "include/okage/ordinary_lighting.hpp": "2216b57bc6c69de5743c1609b3ad6ac4f48c46b53840354aa59c6056e385fe11",
+    "include/okage/scene_renderer.hpp": "cd4da8bb851549aa9fef2cd29ad6fcb8269a2e65b6950dd6f43a490a84c4f817",
+    "src/battle_session.mm": "3bc6558f6c6a4563490432e434d0b4db8d2386c4f061623953d3bc657227bced",
+    "src/metal_preview_shader.hpp": "9c4d3db4794a027eb7c4bc2fcb00f50d81314616a2514164d6aadf3ff1fda8fe",
+    "src/ordinary_lighting.cpp": "4a8f34f2e7053578f18b20efd1f983b0eb9897161f98b857a3345b2cb235fb89",
+    "src/scene_renderer.mm": "dda6b2b58e605c45560f301b01a7ef9e44ac8009a5d16d2df9cdf33a5e699a3b",
+    "tests/ordinary_lighting_tests.cpp": "05857c4e255121913967d0703f94196fda7a07d11048d2e318e81f3f9cc06603",
+    "tests/render_tests.cpp": "76a194c8ef4c6c5f4ed99ba36d9dfb7972def3de011c975eb4e2cb56142b5ce7",
+    "tests/scene_map_material_tests.mm": "b2e0a426873f5a9b1df386b8d558fc07cce55fcd4814a258e09c1b713c47618a",
+    "local/research/map-material-flags-v1/build-release-footprint-v1.log": "9942bf7da25bca5276126c68dd9dc7cab0496cc18b0a628210fce44dddda0aa7",
+    "local/research/map-material-flags-v1/tests-release-footprint-v1.log": "8a5a5a5e396d186227a755b62b93191ad0fbc8a1277f6a7d8426d2d36a2e735f",
+    "build/native-release/render-tests": "8c17160fe41924e6632dc2596a8c18720fc7dbc3f8320fbf130b610ee8f70eef",
+    "build/native-release/ordinary-lighting-tests": "814acd1e831d905d47754e55df7658adb7f9be160350719b0190c3a685654046",
+    "build/native-release/scene-map-material-tests": "7b1ec4a045e009057cd6120eb813b7dbb235d9a75ec583b72df927d9735d4ae4",
+    "local/research/map-material-flags-v1/build-native-footprint-v1.log": "dafebfb68340b1d95dbc843d753507e5ec6bf0acd035ca610a75c6d20d609fcd",
+    "local/research/map-material-flags-v1/tests-native-footprint-v1.log": "27345fd7c30b0b47d619b8aac087471b24e4557386c1d3bad6f889c3c0afc36a",
+    "build/native/render-tests": "241e6922b86bf8fc5844c0a41b223b74c77a98cd5de7f619578a6038b8ddcc23",
+    "build/native/ordinary-lighting-tests": "ff0950bb860089b4ba65020647feee7492373461e7e521bca29ba7222b77771e",
+    "build/native/scene-map-material-tests": "a81d147d0d4e0477221877cd0e3fd095269b4fec3e682cf31302edab99a2c458",
+    "local/research/map-material-flags-v1/build-model-sanitize-footprint-v1.log": "e3c8a12f6fcdd03705a13a5c2a4b98419a212b8ed86535c1183ed3d59fe055e6",
+    "local/research/map-material-flags-v1/tests-model-sanitize-footprint-v1.log": "be9a82ef62894a43c1bcdf151720c32ac69fdfcc6c03cf62aef51150fb26b03a",
+    "build/model-sanitize/render-tests": "4f2ef739285b6d435157c9ab2329c55a223f48dc3409e5b0702586e8a947f210",
+    "build/model-sanitize/ordinary-lighting-tests": "ca9708e093ba1f26be0ebbdfc5a711ecb550e50d70399b288a1c6d825cd4b8af",
+    "build/model-sanitize/scene-map-material-tests": "55e4cab7d8aafda4d29c8b804b72364f165009fd89f56bf88d6d1686afb3730e",
+    "local/research/chapter-two-road-v1/native-encounter-admission-release-v5/preparation.json": "1f47289709fd8b8e86267e3105b3e1dc80175eb909ce679801b05a6f582929d9",
+    "local/research/chapter-two-road-v1/native-encounter-admission-release-v5/launch-command.json": "fff1cf9d27af8ed15d409e93282c5ddd4c6466584364dbae9e973474525b9ece",
+    "local/research/chapter-two-road-v1/native-encounter-admission-release-v5/pending.json": "1ec1b77f0c63bc8449fd1d4f88fd846adf046d3ebbcf15a7fb248a0b2bb61059",
+    "local/research/natural-encounter-admission-v1/native-audit-v5.json": "28d225a29eda42524e6d797a2e14d69ee7e77d8174e0c13db06773acf6b001e9",
+    "local/research/natural-encounter-admission-v1/comparison-audit-v5.json": "e427b12c32f4682ada6ad47d9304e8d02d98593794b22c3481c2524a9ae260d4",
+    "local/research/natural-encounter-admission-v1/root-verification-v5.json": "638f67417b3cd771e28f7a0dfe15985e69f13112950c55ddc320ff6dc4218b2b",
+    "local/research/chapter-two-road-v1/native-encounter-admission-release-v5/run.json": "0df6edcf26493b857f3de7cbdff191aaa1cec55138edace6735f559c0c214f05",
+    "local/research/chapter-two-road-v1/native-encounter-admission-release-v5/run.log": "3054cf4db3959322ff0bf35c747fa327cac25f506bee797d102e2ba05cee8c0c",
+    "local/research/chapter-two-road-v1/native-encounter-admission-release-v5/inputs.jsonl": "1947b21fff8af29dcc6427dc0b0c4adf0c5df751c5fbfac841bf4e0fbfdaddb3",
+    "local/research/map-material-flags-v1/environment-upload-review-v1.md": "b4787572bc130a2f9536021df61e50053fa065b55ee436b5e48906b05e3200c3",
+    "local/research/map-material-flags-v1/environment-upload-review-v2.md": "c8bd220a9bd563d2a27c773c76330c96af69354ffdb14632bb5c3318996c0227",
+    "local/research/map-material-flags-v1/first-extra-packet-review-v1.md": "9d93a6b41b51c68863c9a4675631423c5a26ad6af4b483f52a3c472208d1cc7a",
+    "local/research/map-material-flags-v1/upload-export-v1.log": "53ea683379f4d7316288bfb11d3ac098915dd57c24e28831d3b3404a47f6833c",
+    "local/research/map-material-flags-v1/upload-export-v2.log": "fe06ee8f4149b4dcd3a6de4fd9502f4de8faea9e73de22ca323794c05bd74c1e",
+    "local/research/map-material-flags-v1/upload-export-v3.log": "bd1bde530e1ec68d4141b3e15ca851af12eaaf7e564c8d47896298e6e8f8ff9d"
+  }
+}
