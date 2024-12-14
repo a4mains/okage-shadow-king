@@ -117,6 +117,27 @@
     "local/research/map-material-flags-v1/first-extra-packet-review-v1.md": "9d93a6b41b51c68863c9a4675631423c5a26ad6af4b483f52a3c472208d1cc7a",
     "local/research/map-material-flags-v1/upload-export-v1.log": "53ea683379f4d7316288bfb11d3ac098915dd57c24e28831d3b3404a47f6833c",
     "local/research/map-material-flags-v1/upload-export-v2.log": "fe06ee8f4149b4dcd3a6de4fd9502f4de8faea9e73de22ca323794c05bd74c1e",
-    "local/research/map-material-flags-v1/upload-export-v3.log": "bd1bde530e1ec68d4141b3e15ca851af12eaaf7e564c8d47896298e6e8f8ff9d"
+    "local/research/map-material-flags-v1/upload-export-v3.log": "bd1bde530e1ec68d4141b3e15ca851af12eaaf7e564c8d47896298e6e8f8ff9d",
+    "local/research/map-material-flags-v1/snapshot-environment-v1.py": "ff59ff95a69e724cd6d537be6c990d49190dfe46ccc783057cb41287729442d8",
+    "local/research/map-material-flags-v1/snapshot-environment-v1.json": "4601a5f914f6422914874cd3c91d009f514988f080fcc913b1a6bb790c3637ed",
+    "local/research/map-material-flags-v1/snapshot-environment-root-verification-v1.json": "4f55ac2e77c737ed3c8647739a1eaeaf2b5a84b34b8ae60afd9968c74fccc52c"
+  },
+  "runtime_commit": "d45c663",
+  "snapshot_research": {
+    "report": "local/research/map-material-flags-v1/snapshot-environment-v1.json",
+    "environment_indices_matched": 4096,
+    "neighbor_indices_matched": 16384,
+    "query": [
+      36,
+      64
+    ],
+    "gs_address": 2647584,
+    "index": 187,
+    "neighbor_handle": 36,
+    "neighbor_relative_xy": [
+      36,
+      0
+    ],
+    "scope": "Snapshot formation4/stage2 only."
   }
 }
