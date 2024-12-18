@@ -3,6 +3,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <deque>
 #include <optional>
 #include <span>
 #include <vector>
@@ -26,6 +27,7 @@ const GsTextureFormat& gs_texture_format(GsPixelStorage psm);
 
 struct GsTextureAllocation {
     TextureAllocationId id{};
+    std::uint64_t descriptor{};
     GsPixelStorage psm{};
     std::uint16_t base_block{};
     std::uint16_t width{};
@@ -56,11 +58,17 @@ public:
     Ps2TextureMemory();
     void initialize_empty_allocator();
     bool allocator_initialized() const noexcept;
+    std::uint32_t available_count() const noexcept;
+    std::array<std::uint8_t, 8192> occupancy_bytes() const;
+    const std::array<std::uint16_t, 64>& search_cursors() const noexcept;
+    std::vector<TextureAllocationId> free_queue_ids() const;
 
     std::optional<GsTextureAllocation> allocate(
         std::uint8_t allocation_class, GsPixelStorage psm,
         std::uint16_t width, std::uint16_t height);
     bool retain(TextureAllocationId id);
+    bool adjust_references(TextureAllocationId id, std::int32_t delta);
+    bool free_allocation(TextureAllocationId id);
     bool release(TextureAllocationId id);
     std::optional<GsTextureAllocation> allocation(TextureAllocationId id) const;
 
@@ -77,10 +85,10 @@ private:
         std::optional<TextureAllocationId> owner;
     };
     bool initialized_{};
-    std::uint32_t next_id_{1};
     std::array<Block, block_count> blocks_{};
     std::array<std::uint16_t, 64> next_candidate_{};
-    std::vector<GsTextureAllocation> allocations_;
+    std::array<std::optional<GsTextureAllocation>, 4096> allocations_{};
+    std::deque<TextureAllocationId> free_ids_;
     std::vector<std::uint8_t> bytes_;
     std::vector<std::uint8_t> defined_;
 

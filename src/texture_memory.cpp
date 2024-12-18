@@ -1,6 +1,7 @@
 #include "okage/texture_memory.hpp"
 
 #include <algorithm>
+#include <bit>
 #include <limits>
 #include <stdexcept>
 
@@ -43,10 +44,36 @@ void Ps2TextureMemory::initialize_empty_allocator() {
     if (initialized_) throw std::logic_error("GS allocator already initialized");
     blocks_.fill(Block{});
     next_candidate_.fill(0);
+    free_ids_.clear();
+    for (TextureAllocationId id = 0; id < allocations_.size(); ++id) {
+        allocations_[id].reset();
+        free_ids_.push_back(id);
+    }
     initialized_ = true;
 }
 
 bool Ps2TextureMemory::allocator_initialized() const noexcept { return initialized_; }
+
+std::uint32_t Ps2TextureMemory::available_count() const noexcept {
+    return static_cast<std::uint32_t>(free_ids_.size());
+}
+
+std::array<std::uint8_t, 8192> Ps2TextureMemory::occupancy_bytes() const {
+    std::array<std::uint8_t, 8192> result{};
+    for (std::uint32_t slot = 0; slot < block_count; ++slot) {
+        const auto nibble = static_cast<std::uint8_t>(blocks_[slot].mask & 0x0f);
+        result[slot / 2] |= static_cast<std::uint8_t>(nibble << ((slot & 1) * 4));
+    }
+    return result;
+}
+
+const std::array<std::uint16_t, 64>& Ps2TextureMemory::search_cursors() const noexcept {
+    return next_candidate_;
+}
+
+std::vector<TextureAllocationId> Ps2TextureMemory::free_queue_ids() const {
+    return {free_ids_.begin(), free_ids_.end()};
+}
 
 std::optional<GsTextureAllocation> Ps2TextureMemory::allocate(
     std::uint8_t allocation_class, GsPixelStorage psm,
@@ -72,26 +99,33 @@ std::optional<GsTextureAllocation> Ps2TextureMemory::allocate(
 
     std::uint32_t base = 0;
     bool found = false;
+    while (candidate < block_count &&
+           (blocks_[candidate].mask & f.occupancy_mask)) ++candidate;
+    next_candidate_[std::uint8_t(psm)] = static_cast<std::uint16_t>(candidate);
     while (candidate < block_count) {
-        while (candidate < block_count &&
-               (blocks_[candidate].mask & f.occupancy_mask)) ++candidate;
-        if (candidate >= block_count) break;
         base = candidate & ~alignment_mask;
         if (footprint_free(base)) { found = true; break; }
         candidate = base + alignment;
+        while (candidate < block_count &&
+               (blocks_[candidate].mask & f.occupancy_mask)) ++candidate;
     }
-    if (!found) return std::nullopt;
+    if (!found || free_ids_.empty()) return std::nullopt;
 
-    if (next_id_ == 0) throw std::overflow_error("Texture allocation id exhausted");
-    const auto id = next_id_++;
     const auto tbw_pixels = ceil_div(blocks_wide, f.allocator_blocks_per_row) *
                              f.allocator_blocks_per_row * f.block_width;
-    const auto bytes_per_pixel = psm == GsPixelStorage::Psmct32 ? 4u : 1u;
-    const auto row_bytes = tbw_pixels * bytes_per_pixel;
-    const auto buffer_width_64 = ceil_div(row_bytes, 64) & 0x3fu;
-    GsTextureAllocation allocation{id, psm, static_cast<std::uint16_t>(base), width, height,
+    const auto buffer_width_64 = ceil_div(tbw_pixels, 64) & 0x3fu;
+    const auto id = free_ids_.front();
+    free_ids_.pop_front();
+    const auto descriptor =
+        (std::uint64_t(base & 0x3fff) << 0) |
+        (std::uint64_t(buffer_width_64 & 0x3f) << 14) |
+        (std::uint64_t(id & 0x0fff) << 20) |
+        (std::uint64_t(static_cast<std::uint8_t>(psm) & 0x3f) << 32) |
+        (std::uint64_t(width & 0x0fff) << 38) |
+        (std::uint64_t(height & 0x0fff) << 50);
+    GsTextureAllocation allocation{id, descriptor, psm, static_cast<std::uint16_t>(base), width, height,
         static_cast<std::uint8_t>(buffer_width_64), allocation_class, 0};
-    allocations_.push_back(allocation);
+    allocations_[id] = allocation;
     for (std::uint32_t y = 0; y < blocks_high; ++y) {
         for (std::uint32_t x = 0; x < blocks_wide; ++x) {
             auto& block = blocks_[base + block_offset(f, blocks_wide, x, y)];
@@ -99,35 +133,38 @@ std::optional<GsTextureAllocation> Ps2TextureMemory::allocate(
             block.owner = id;
         }
     }
-    next_candidate_[std::uint8_t(psm)] = static_cast<std::uint16_t>(candidate);
     return allocation;
 }
 
 GsTextureAllocation& Ps2TextureMemory::require_live(TextureAllocationId id) {
-    auto it = std::find_if(allocations_.begin(), allocations_.end(),
-        [=](const auto& a) { return a.id == id; });
-    if (it == allocations_.end()) throw std::out_of_range("Unknown GS texture allocation");
-    return *it;
+    if (id >= allocations_.size() || !allocations_[id])
+        throw std::out_of_range("Unknown GS texture allocation");
+    return *allocations_[id];
 }
 const GsTextureAllocation& Ps2TextureMemory::require_live(TextureAllocationId id) const {
-    auto it = std::find_if(allocations_.begin(), allocations_.end(),
-        [=](const auto& a) { return a.id == id; });
-    if (it == allocations_.end()) throw std::out_of_range("Unknown GS texture allocation");
-    return *it;
+    if (id >= allocations_.size() || !allocations_[id])
+        throw std::out_of_range("Unknown GS texture allocation");
+    return *allocations_[id];
 }
 
 bool Ps2TextureMemory::retain(TextureAllocationId id) {
     if (!initialized_) throw std::logic_error("GS allocator state is unknown");
+    return adjust_references(id, 1);
+}
+
+bool Ps2TextureMemory::adjust_references(TextureAllocationId id, std::int32_t delta) {
+    if (!initialized_) throw std::logic_error("GS allocator state is unknown");
     auto& a = require_live(id);
-    if (a.references < 0x7fff) ++a.references;
+    const auto sum_bits = std::uint32_t(a.references) + static_cast<std::uint32_t>(delta);
+    const auto signed_sum = std::bit_cast<std::int32_t>(sum_bits);
+    a.references = static_cast<std::uint16_t>(std::clamp(signed_sum, 0, 0x7fff));
     return true;
 }
 
-bool Ps2TextureMemory::release(TextureAllocationId id) {
+bool Ps2TextureMemory::free_allocation(TextureAllocationId id) {
     if (!initialized_) throw std::logic_error("GS allocator state is unknown");
     auto& a = require_live(id);
-    if (a.references) --a.references;
-    if (a.references) return false;
+    if (a.references > 0) return false;
     const auto& f = gs_texture_format(a.psm);
     const auto blocks_wide = ceil_div(a.width, f.block_width);
     const auto blocks_high = ceil_div(a.height, f.block_height);
@@ -140,17 +177,21 @@ bool Ps2TextureMemory::release(TextureAllocationId id) {
     }
     for (auto& cursor : next_candidate_)
         if (a.base_block < cursor) cursor = a.base_block;
-    allocations_.erase(std::remove_if(allocations_.begin(), allocations_.end(),
-        [=](const auto& item) { return item.id == id; }), allocations_.end());
+    allocations_[id].reset();
+    free_ids_.push_back(id);
     return true;
+}
+
+bool Ps2TextureMemory::release(TextureAllocationId id) {
+    if (!initialized_) throw std::logic_error("GS allocator state is unknown");
+    adjust_references(id, -1);
+    return free_allocation(id);
 }
 
 std::optional<GsTextureAllocation> Ps2TextureMemory::allocation(TextureAllocationId id) const {
     if (!initialized_) throw std::logic_error("GS allocator state is unknown");
-    auto it = std::find_if(allocations_.begin(), allocations_.end(),
-        [=](const auto& a) { return a.id == id; });
-    if (it == allocations_.end()) return std::nullopt;
-    return *it;
+    if (id >= allocations_.size()) return std::nullopt;
+    return allocations_[id];
 }
 
 GsBlockAddress Ps2TextureMemory::block_address(TextureAllocationId id,
