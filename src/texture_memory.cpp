@@ -79,6 +79,7 @@ std::optional<GsTextureAllocation> Ps2TextureMemory::allocate(
     std::uint8_t allocation_class, GsPixelStorage psm,
     std::uint16_t width, std::uint16_t height) {
     if (!initialized_) throw std::logic_error("GS allocator state is unknown");
+    if (free_ids_.empty()) return std::nullopt;
     if (allocation_class >= 4 || width == 0 || height == 0) return std::nullopt;
     const auto& f = gs_texture_format(psm);
     const auto blocks_wide = ceil_div(width, f.block_width);
@@ -106,10 +107,8 @@ std::optional<GsTextureAllocation> Ps2TextureMemory::allocate(
         base = candidate & ~alignment_mask;
         if (footprint_free(base)) { found = true; break; }
         candidate = base + alignment;
-        while (candidate < block_count &&
-               (blocks_[candidate].mask & f.occupancy_mask)) ++candidate;
     }
-    if (!found || free_ids_.empty()) return std::nullopt;
+    if (!found) return std::nullopt;
 
     const auto tbw_pixels = ceil_div(blocks_wide, f.allocator_blocks_per_row) *
                              f.allocator_blocks_per_row * f.block_width;

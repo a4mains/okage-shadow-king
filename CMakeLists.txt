@@ -61,6 +61,8 @@ add_executable(okage-ui-binding tools/ui_binding_diagnostic.cpp)
 target_link_libraries(okage-ui-binding PRIVATE okage_assets)
 add_executable(okage-ui-projection-check tools/ui_projection_check.cpp)
 target_link_libraries(okage-ui-projection-check PRIVATE okage_assets)
+add_executable(okage-texture-memory-corpus tools/texture_memory_corpus.cpp)
+target_link_libraries(okage-texture-memory-corpus PRIVATE okage_assets)
 
 if(APPLE)
     enable_language(OBJCXX)
