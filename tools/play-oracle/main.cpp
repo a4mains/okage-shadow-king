@@ -10,6 +10,7 @@
 #include "Ps2Const.h"
 #include "FpUtils.h"
 #include "gs/GSH_Null.h"
+#include "gs/GsPixelFormats.h"
 #include "FrameDump.h"
 #ifdef OKAGE_REFERENCE_VULKAN
 #include "reference_graphics.hpp"
@@ -101,6 +102,7 @@ public:
     std::unique_ptr<CPS2OS> effectOs;
     bool streamTransferProbe=false;
     bool templateLoadProbe=false;
+    bool textureAllocatorProbe=false;
     std::vector<uint32> templateRandomLog;
     static constexpr uint32 stop=0x007ff000;
     uint32 expectedStop=stop;
@@ -148,9 +150,10 @@ public:
             } else if(effectOs && cpu.m_State.nHasException==MIPS_EXCEPTION_SYSCALL) {
                 auto function=cpu.m_State.nGPR[CMIPS::V1].nV[0];
                 if(function&0x80000000)function=0-function;
-                if(function!=0x2f&&function!=0x48&&function!=0x44&&function!=0x42&&function!=0x45)
+                if(function!=0x2f&&function!=0x48&&function!=0x44&&function!=0x42&&function!=0x45&&
+                   !(textureAllocatorProbe&&function==0x40))
                     throw std::runtime_error("Unexpected effect OS syscall "+std::to_string(function));
-                if(function!=0x2f) {
+                if(function!=0x2f&&function!=0x40) {
                     const auto id=cpu.m_State.nGPR[CMIPS::A0].nV[0];
                     if(id>=256||!get(0xe000+id*24)||get(0xe000+id*24+12)||
                        (function==0x44&&!get(0xe000+id*24+4)))
@@ -647,6 +650,103 @@ public:
         }
         expectedStop=stop;ee->m_EE.ToggleBreakpoint(0x185a98);ee->m_EE.ToggleBreakpoint(0x185c1c);
         writeFile(output,result.data(),result.size()*4);
+    }
+    void gsAddresses(const std::vector<uint8>& input,const char* output) {
+        const auto require=[](bool ok,const char* why){if(!ok)throw std::runtime_error(why);};
+        require(!std::filesystem::exists(output)&&!std::filesystem::is_symlink(output),"GS address output must be fresh");
+        auto word=[&](size_t i){require(i<input.size()/4,"GS address truncated word");
+            uint32 w;std::memcpy(&w,input.data()+i*4,4);return w;};
+        require(input.size()>=16&&input.size()%4==0&&word(0)==0x52444147&&word(1)==1&&
+            word(2)>0&&word(2)<=1000000&&word(3)==5&&input.size()==16+size_t(word(2))*20,
+            "GS address fixture header/extent");
+        for(uint32 i=0;i<word(2);++i){const auto at=4+i*5;
+            require((word(at)==0||word(at)==19)&&word(at+1)<0x4000&&word(at+2)<64&&
+                word(at+3)<2048&&word(at+4)<2048,"GS address fixture row bounds");}
+        std::vector<uint8> memory(CGSHandler::RAMSIZE);
+        std::vector<uint32> addresses;addresses.reserve(word(2));
+        for(uint32 i=0;i<word(2);++i){const auto at=4+i*5;const uint8* p;
+            if(word(at)==0){CGsPixelFormats::CPixelIndexorPSMCT32 index(memory.data(),word(at+1)*256,word(at+2));
+                p=reinterpret_cast<const uint8*>(index.GetPixelAddress(word(at+3),word(at+4)));}
+            else {CGsPixelFormats::CPixelIndexorPSMT8 index(memory.data(),word(at+1)*256,word(at+2));
+                p=index.GetPixelAddress(word(at+3),word(at+4));}
+            require(p>=memory.data()&&p<memory.data()+memory.size(),"GS indexor address outside memory");
+            addresses.push_back(static_cast<uint32>(p-memory.data()));
+        }
+        writeFile(output,addresses.data(),addresses.size()*4);
+    }
+    void textureAllocator(const std::vector<uint8>& input,const char* output) {
+        const auto require=[](bool ok,const char* why){if(!ok)throw std::runtime_error(why);};
+        require(!std::filesystem::exists(output)&&!std::filesystem::is_symlink(output),"Texture allocator output must be fresh");
+        auto word=[&](size_t i){require(i<input.size()/4,"Texture allocator truncated word");
+            uint32 w;std::memcpy(&w,input.data()+i*4,4);return w;};
+        require(input.size()>=16&&input.size()%4==0&&word(0)==0x4c415854&&word(1)==1&&
+            word(2)>0&&word(2)<=8192&&word(3)==6&&input.size()==16+size_t(word(2))*24,
+            "Texture allocator fixture header/extent");
+        std::array<bool,8192> declared{};
+        const auto supportedPsm=[](uint32 psm){switch(psm){
+            case 0:case 1:case 2:case 10:case 19:case 20:case 27:
+            case 36:case 44:case 48:case 49:case 50:case 58:return true;
+            default:return false;}};
+        for(uint32 i=0;i<word(2);++i){const auto at=4+i*6,op=word(at),slot=word(at+1);
+            require(op<=4&&slot<8192,"Texture allocator operation/slot");
+            if(op==0){require(slot==0&&word(at+2)==0&&word(at+3)==0&&word(at+4)==0&&word(at+5)==0,
+                "Texture allocator reset operands");declared.fill(false);}
+            else {require(i>0,"Texture allocator must initialize first");
+                if(op==1){require(word(at+2)<4&&supportedPsm(word(at+3))&&
+                    word(at+4)>0&&word(at+4)<=1024&&word(at+5)>0&&word(at+5)<=1024,
+                    "Texture allocator dimensions/format/class");declared[slot]=true;}
+                else {require(declared[slot],"Texture allocator slot has no allocation attempt");
+                    require(word(at+3)==0&&word(at+4)==0&&word(at+5)==0&&
+                        (op==2||word(at+2)==0),"Texture allocator trailing operands");
+                    if(op==2)require(int32(word(at+2))>=-65535&&int32(word(at+2))<=65535,
+                        "Texture allocator ref delta bound");}
+            }
+        }
+        const std::vector<uint8> code(ee->m_ram+0x100000,ee->m_ram+0x1f2000);
+        const std::vector<uint8> tables(ee->m_ram+0x2138d0,ee->m_ram+0x214020);
+        std::memset(ee->m_ram+0x3abb08,0xa7,16);
+        std::memset(ee->m_ram+0x3b3c38,0xa7,16);
+        put(0x31fa50,0xffffffff);put(0x2138c8,0);
+        effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
+            ee->m_gs,ee->m_sif,*dynamic_cast<CIopBios*>(iop->m_bios.get()));
+        textureAllocatorProbe=true;callIterationLimit=10000;
+        std::array<uint64,8192> descriptors{};std::array<bool,8192> live{};
+        auto memoryHash=[&](uint32 a,uint32 n){return hash(std::vector<uint8>(ee->m_ram+a,ee->m_ram+a+n));};
+        auto invoke=[&](uint32 pc,uint64 descriptor,int32 delta=0){
+            ee->m_EE.m_State.nGPR[CMIPS::A0].nD0=descriptor;
+            ee->m_EE.m_State.nGPR[CMIPS::A1].nD0=static_cast<int64>(delta);call(pc);};
+        std::ostringstream out;out<<"{\"schema\":\"okage-texture-allocator-v1\",\"input_sha256\":\""<<hash(input)
+            <<"\",\"elf_sha256\":\"2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5\","
+            <<"\"scope\":\"Original ce940/cf008/cee50/cf728, synthetic sequence and uncontended non-render research thread; no GS transfers or retail allocation lifecycle proof\",\"rows\":"<<word(2)<<"}\n";
+        for(uint32 i=0;i<word(2);++i){const auto at=4+i*6,op=word(at),slot=word(at+1);
+            if(op==0){
+                // Dispose prior harness semaphores before another initializer.
+                std::memset(ee->m_ram+0xe000,0,256*24);
+                call(0x1ce940);descriptors.fill(0);live.fill(false);
+            }else if(op==1){require(!live[slot],"Texture allocator overwrites a live slot");
+                call(0x1cf008,{word(at+2),word(at+3),word(at+4),word(at+5)});
+                descriptors[slot]=ee->m_EE.m_State.nGPR[CMIPS::V0].nD0;live[slot]=descriptors[slot]!=0;
+            }else {require(live[slot]||descriptors[slot]==0,"Texture allocator stale freed handle");
+                if(op==2)invoke(0x1cee50,descriptors[slot],int32(word(at+2)));
+                else if(op==3){const auto before=get(0x3adc1c);invoke(0x1cf728,descriptors[slot]);
+                    if(get(0x3adc1c)>before)live[slot]=false;}
+            }
+            const auto descriptor=descriptors[slot];
+            out<<"{\"row\":"<<i<<",\"op\":"<<op<<",\"slot\":"<<slot
+                <<",\"descriptor\":["<<uint32(descriptor)<<','<<uint32(descriptor>>32)
+                <<"],\"live\":"<<(live[slot]?"true":"false")<<",\"available\":"<<get(0x3adc1c)
+                <<",\"references\":"<<(descriptor?(get(0x3adc20+((descriptor>>20)&0xfff)*6)&0xffff):0)
+                <<",\"occupancy_sha256\":\""<<memoryHash(0x3abb18,8192)
+                <<"\",\"nodes_sha256\":\""<<memoryHash(0x3adc20,4096*6+24)<<"\",\"cursors\":[";
+            for(unsigned j=0;j<64;++j)out<<(j?",":"")<<get(0x3adb18+j*4);
+            out<<"]}\n";
+            for(unsigned j=0;j<16;++j)require(ee->m_ram[0x3abb08+j]==0xa7&&ee->m_ram[0x3b3c38+j]==0xa7,
+                "Texture allocator memory canary");
+        }
+        require(!std::memcmp(code.data(),ee->m_ram+0x100000,code.size())&&
+            !std::memcmp(tables.data(),ee->m_ram+0x2138d0,tables.size()),"Texture allocator changed source code/tables");
+        out<<"{\"code_tables_preserved\":true,\"canaries_preserved\":true}\n";
+        textureAllocatorProbe=false;const auto report=out.str();writeFile(output,report.data(),report.size());
     }
     void materialExtraPredicates(const std::vector<uint8>& input,const char* output) {
         constexpr uint32 maximum=1024,wordsPerCase=7,table=0x80000,guard=16;
@@ -4046,6 +4146,10 @@ int main(int argc,char** argv) {
             reference.uv(readFile(argv[3]),argv[4],command=="texture-clamp");
         } else if (command=="shadow-visibility" && argc==5) {
             reference.shadowVisibility(readFile(argv[3]),argv[4]);
+        } else if (command=="gs-addresses" && argc==5) {
+            reference.gsAddresses(readFileBounded(argv[3],16+1000000*20),argv[4]);
+        } else if (command=="texture-allocator" && argc==5) {
+            reference.textureAllocator(readFileBounded(argv[3],16+8192*24),argv[4]);
         } else if (command=="material-extra-uv" && argc==5) {
             reference.materialExtraUv(readFileBounded(argv[3],16+256*20*4),argv[4]);
         } else if (command=="material-extra-predicates" && argc==5) {
