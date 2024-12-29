@@ -7,13 +7,48 @@
 
 namespace okage {
 namespace {
-constexpr std::array<std::uint8_t, 32> block_order{
+constexpr std::array<std::uint8_t, 32> order_0_4_11{
     0,1,4,5,16,17,20,21,2,3,6,7,18,19,22,23,
     8,9,12,13,24,25,28,29,10,11,14,15,26,27,30,31
 };
+constexpr std::array<std::uint8_t, 32> order_5_6{
+    16,17,20,21,0,1,4,5,18,19,22,23,2,3,6,7,
+    24,25,28,29,8,9,12,13,26,27,30,31,10,11,14,15
+};
+constexpr std::array<std::uint8_t, 32> order_7{
+    0,2,8,10,1,3,9,11,4,6,12,14,5,7,13,15,
+    16,18,24,26,17,19,25,27,20,22,28,30,21,23,29,31
+};
+constexpr std::array<std::uint8_t, 32> order_8{
+    16,18,24,26,17,19,25,27,20,22,28,30,21,23,29,31,
+    0,2,8,10,1,3,9,11,4,6,12,14,5,7,13,15
+};
+constexpr std::array<std::uint8_t, 32> order_9{
+    0,2,16,18,1,3,17,19,8,10,24,26,9,11,25,27,
+    4,6,20,22,5,7,21,23,12,14,28,30,13,15,29,31
+};
+constexpr std::array<std::uint8_t, 32> order_10{
+    16,18,0,2,17,19,1,3,24,26,8,10,25,27,9,11,
+    20,22,4,6,21,23,5,7,28,30,12,14,29,31,13,15
+};
+constexpr std::array<std::uint8_t, 32> order_12{
+    0,2,8,10,1,3,9,11,4,6,12,14,5,7,13,15,
+    16,18,24,26,17,19,25,27,20,22,28,30,21,23,29,31
+};
 constexpr GsTextureFormat formats[]{
-    {GsPixelStorage::Psmct32, 8, 8, 8, 4, 0x0f, block_order},
-    {GsPixelStorage::Psmt8, 16, 16, 8, 4, 0x0f, block_order}
+    {GsPixelStorage::Psmct32, 8,8,8,4,0x0f,order_0_4_11},
+    {GsPixelStorage::Psmct24, 8,8,8,4,0x03,order_0_4_11},
+    {GsPixelStorage::Psmt8H,  8,8,8,4,0x0c,order_0_4_11},
+    {GsPixelStorage::Psmt4Hl, 8,8,8,4,0x04,order_0_4_11},
+    {GsPixelStorage::Psmt4Hh, 8,8,8,4,0x08,order_0_4_11},
+    {GsPixelStorage::Psmz32, 8,8,8,4,0x0f,order_5_6},
+    {GsPixelStorage::Psmz24, 8,8,8,4,0x03,order_5_6},
+    {GsPixelStorage::Psmct16,16,8,4,8,0x0f,order_7},
+    {GsPixelStorage::Psmz16, 16,8,4,8,0x0f,order_8},
+    {GsPixelStorage::Psmct16S,16,8,4,8,0x0f,order_9},
+    {GsPixelStorage::Psmz16S,16,8,4,8,0x0f,order_10},
+    {GsPixelStorage::Psmt8,  16,16,8,4,0x0f,order_0_4_11},
+    {GsPixelStorage::Psmt4,  32,16,4,8,0x0f,order_12}
 };
 
 std::uint32_t ceil_div(std::uint32_t n, std::uint32_t d) {
@@ -35,6 +70,12 @@ std::uint32_t block_offset(const GsTextureFormat& f, std::uint32_t blocks_wide,
 const GsTextureFormat& gs_texture_format(GsPixelStorage psm) {
     for (const auto& f : formats) if (f.psm == psm) return f;
     throw std::invalid_argument("Unsupported GS pixel storage format");
+}
+
+bool is_supported_gs_texture_format(std::uint32_t psm) noexcept {
+    for (const auto& f : formats)
+        if (static_cast<std::uint32_t>(f.psm) == psm) return true;
+    return false;
 }
 
 Ps2TextureMemory::Ps2TextureMemory()
@@ -129,7 +170,8 @@ std::optional<GsTextureAllocation> Ps2TextureMemory::allocate(
         for (std::uint32_t x = 0; x < blocks_wide; ++x) {
             auto& block = blocks_[base + block_offset(f, blocks_wide, x, y)];
             block.mask |= f.occupancy_mask;
-            block.owner = id;
+            for (std::uint8_t lane = 0; lane < 4; ++lane)
+                if (f.occupancy_mask & (1u << lane)) block.owners[lane] = id;
         }
     }
     return allocation;
@@ -171,7 +213,8 @@ bool Ps2TextureMemory::free_allocation(TextureAllocationId id) {
         for (std::uint32_t x = 0; x < blocks_wide; ++x) {
             auto& block = blocks_[a.base_block + block_offset(f, blocks_wide, x, y)];
             block.mask &= static_cast<std::uint8_t>(~f.occupancy_mask);
-            if (block.mask == 0) block.owner.reset();
+            for (std::uint8_t lane = 0; lane < 4; ++lane)
+                if (f.occupancy_mask & (1u << lane)) block.owners[lane].reset();
         }
     }
     for (auto& cursor : next_candidate_)
@@ -212,7 +255,25 @@ GsBlockAddress Ps2TextureMemory::block_address(TextureAllocationId id,
 std::optional<TextureAllocationId> Ps2TextureMemory::owner_of_byte(std::uint32_t address) const {
     if (!initialized_) throw std::logic_error("GS allocator state is unknown");
     if (address >= vram_bytes) throw std::out_of_range("GS byte address outside VRAM");
-    return blocks_[address / block_bytes].owner;
+    const auto first_lane = address % 4 < 3 ? 0 : 2;
+    const auto last_lane = address % 4 < 3 ? 1 : 3;
+    std::optional<TextureAllocationId> owner;
+    for (auto lane = first_lane; lane <= last_lane; ++lane) {
+        const auto candidate = blocks_[address / block_bytes].owners[lane];
+        if (!candidate) continue;
+        if (owner && owner != candidate)
+            throw std::logic_error("GS byte has distinct sub-byte allocation owners");
+        owner = candidate;
+    }
+    return owner;
+}
+
+std::optional<TextureAllocationId> Ps2TextureMemory::owner_of_nibble(
+    std::uint32_t address, std::uint8_t lane) const {
+    if (!initialized_) throw std::logic_error("GS allocator state is unknown");
+    if (address >= vram_bytes) throw std::out_of_range("GS byte address outside VRAM");
+    if (lane >= 4) throw std::out_of_range("GS occupancy lane must be 0..3");
+    return blocks_[address / block_bytes].owners[lane];
 }
 
 void Ps2TextureMemory::write_bytes(std::uint32_t address, std::span<const std::uint8_t> bytes) {
@@ -224,9 +285,8 @@ void Ps2TextureMemory::write_bytes(std::uint32_t address, std::span<const std::u
 
 GsByteObservation Ps2TextureMemory::observe_byte(std::uint32_t address) const {
     if (address >= vram_bytes) throw std::out_of_range("GS byte read outside VRAM");
-    const auto block = address / block_bytes;
     const auto value = defined_[address] ? std::optional<std::uint8_t>(bytes_[address]) : std::nullopt;
-    return {value, initialized_ ? blocks_[block].owner : std::nullopt, initialized_};
+    return {value, initialized_ ? owner_of_byte(address) : std::nullopt, initialized_};
 }
 
 } // namespace okage

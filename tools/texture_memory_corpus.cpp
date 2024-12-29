@@ -88,11 +88,12 @@ void run(const std::filesystem::path& input_path,
             memory->initialize_empty_allocator();
             descriptors.fill(0);
             live.fill(false);
+            declared.fill(false);
         } else {
             require(memory != nullptr, "TXAL operation before initialize");
             if (op == 1) {
                 require(word(bytes, at + 2) < 4 &&
-                        (word(bytes, at + 3) == 0 || word(bytes, at + 3) == 19) &&
+                        okage::is_supported_gs_texture_format(word(bytes, at + 3)) &&
                         word(bytes, at + 4) > 0 && word(bytes, at + 4) <= 1024 &&
                         word(bytes, at + 5) > 0 && word(bytes, at + 5) <= 1024,
                         "TXAL allocation arguments");

@@ -10,11 +10,19 @@
 
 namespace okage {
 
-enum class GsPixelStorage : std::uint8_t { Psmct32 = 0x00, Psmt8 = 0x13 };
+enum class GsPixelStorage : std::uint8_t {
+    Psmct32 = 0x00, Psmct24 = 0x01, Psmt8H = 0x1b,
+    Psmt4Hl = 0x24, Psmt4Hh = 0x2c, Psmz32 = 0x30,
+    Psmz24 = 0x31, Psmt8 = 0x13, Psmct16 = 0x02,
+    Psmz16 = 0x32, Psmt4 = 0x14, Psmct16S = 0x0a,
+    Psmz16S = 0x3a
+};
 using TextureAllocationId = std::uint32_t;
 
 struct GsTextureFormat {
     GsPixelStorage psm{};
+    // Source record fields +8/+0xc are texel dimensions of one allocator
+    // footprint block; +0/+4 are allocator packing dimensions.
     std::uint8_t block_width{};
     std::uint8_t block_height{};
     std::uint8_t allocator_blocks_per_row{};
@@ -24,6 +32,7 @@ struct GsTextureFormat {
 };
 
 const GsTextureFormat& gs_texture_format(GsPixelStorage psm);
+bool is_supported_gs_texture_format(std::uint32_t psm) noexcept;
 
 struct GsTextureAllocation {
     TextureAllocationId id{};
@@ -75,6 +84,8 @@ public:
     GsBlockAddress block_address(TextureAllocationId id,
                                  std::uint32_t x, std::uint32_t y) const;
     std::optional<TextureAllocationId> owner_of_byte(std::uint32_t address) const;
+    std::optional<TextureAllocationId> owner_of_nibble(std::uint32_t address,
+                                                         std::uint8_t lane) const;
 
     void write_bytes(std::uint32_t address, std::span<const std::uint8_t> bytes);
     GsByteObservation observe_byte(std::uint32_t address) const;
@@ -82,7 +93,7 @@ public:
 private:
     struct Block {
         std::uint8_t mask{};
-        std::optional<TextureAllocationId> owner;
+        std::array<std::optional<TextureAllocationId>, 4> owners{};
     };
     bool initialized_{};
     std::array<Block, block_count> blocks_{};

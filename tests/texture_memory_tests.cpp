@@ -14,6 +14,14 @@ int main() {
     try {
         const auto& ct32=okage::gs_texture_format(okage::GsPixelStorage::Psmct32);
         const auto& t8=okage::gs_texture_format(okage::GsPixelStorage::Psmt8);
+        const std::array<std::uint32_t,13> source_psms{
+            0,1,0x1b,0x24,0x2c,0x30,0x31,2,0x32,0x0a,0x3a,0x13,0x14};
+        for(auto psm:source_psms)
+            require(okage::is_supported_gs_texture_format(psm),
+                    "Every source-accepted PSM selector is recognized");
+        require(!okage::is_supported_gs_texture_format(0x12),
+                "Unsupported selector is rejected rather than mapped by enum order");
+
         require(ct32.block_width==8&&ct32.block_height==8&&ct32.occupancy_mask==0xf,
                 "PSMCT32 format record");
         require(t8.block_width==16&&t8.block_height==16&&t8.occupancy_mask==0xf,
@@ -106,6 +114,52 @@ int main() {
         require(full&&memory.block_address(full->id,1023,1023).block_index==0x3fff,
                 "1024x1024 PSMCT32 reaches final 256-byte VRAM block");
         require(memory.release(full->id),"Release full-VRAM test allocation");
+
+        okage::Ps2TextureMemory lane_memory;
+        lane_memory.initialize_empty_allocator();
+        auto psm31=lane_memory.allocate(0,okage::GsPixelStorage::Psmz24,64,32);
+        auto psm8h=lane_memory.allocate(0,okage::GsPixelStorage::Psmt8H,64,32);
+        require(psm31&&psm8h&&psm31->base_block==psm8h->base_block&&
+                psm31->base_block==0,
+                "PSM31 mask3 and PSM1B mask12 can share one block");
+        const auto base_address=std::uint32_t(psm31->base_block)*256;
+        require(lane_memory.owner_of_nibble(base_address,0)==psm31->id&&
+                lane_memory.owner_of_nibble(base_address,1)==psm31->id&&
+                lane_memory.owner_of_nibble(base_address,2)==psm8h->id&&
+                lane_memory.owner_of_nibble(base_address,3)==psm8h->id&&
+                lane_memory.owner_of_byte(base_address)==psm31->id&&
+                lane_memory.owner_of_byte(base_address+3)==psm8h->id,
+                "PSM31/8H owners map to distinct source byte lanes");
+        require(lane_memory.occupancy_bytes()[0]==0xff,
+                "Lane-sharing occupancy combines masks without conflating owners");
+        require(lane_memory.free_allocation(psm31->id)&&
+                lane_memory.occupancy_bytes()[0]==0xcc&&
+                !lane_memory.owner_of_nibble(base_address,0)&&
+                lane_memory.owner_of_nibble(base_address,2)==psm8h->id,
+                "Freeing mask3 preserves mask12 occupancy and owner");
+        require(lane_memory.free_allocation(psm8h->id)&&
+                lane_memory.occupancy_bytes()[0]==0,
+                "Freeing final shared lane clears the combined mask");
+
+        okage::Ps2TextureMemory nibble_memory;
+        nibble_memory.initialize_empty_allocator();
+        auto low= nibble_memory.allocate(0,okage::GsPixelStorage::Psmt4Hl,8,8);
+        auto high=nibble_memory.allocate(0,okage::GsPixelStorage::Psmt4Hh,8,8);
+        require(low&&high&&low->base_block==high->base_block&&
+                nibble_memory.owner_of_nibble(3,2)==low->id&&
+                nibble_memory.owner_of_nibble(3,3)==high->id,
+                "PSM24 and PSM2C allocate independent half-byte lanes");
+        bool ambiguous_byte_owner=false;
+        try { (void)nibble_memory.owner_of_byte(3); }
+        catch(const std::logic_error&) { ambiguous_byte_owner=true; }
+        require(ambiguous_byte_owner,
+                "Byte-level ownership rejects distinct low/high nibble owners");
+        require(nibble_memory.occupancy_bytes()[0]==0x0c&&
+                nibble_memory.free_allocation(low->id)&&
+                nibble_memory.occupancy_bytes()[0]==0x08&&
+                nibble_memory.free_allocation(high->id)&&
+                nibble_memory.occupancy_bytes()[0]==0,
+                "Half-byte allocation release preserves the other lane");
 
         okage::Ps2TextureMemory records;
         records.initialize_empty_allocator();
