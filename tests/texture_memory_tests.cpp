@@ -123,10 +123,10 @@ int main() {
                 psm31->base_block==0,
                 "PSM31 mask3 and PSM1B mask12 can share one block");
         const auto base_address=std::uint32_t(psm31->base_block)*256;
-        require(lane_memory.owner_of_nibble(base_address,0)==psm31->id&&
-                lane_memory.owner_of_nibble(base_address,1)==psm31->id&&
-                lane_memory.owner_of_nibble(base_address,2)==psm8h->id&&
-                lane_memory.owner_of_nibble(base_address,3)==psm8h->id&&
+        require(lane_memory.owner_of_lane(base_address,0)==psm31->id&&
+                lane_memory.owner_of_lane(base_address,1)==psm31->id&&
+                lane_memory.owner_of_lane(base_address,2)==psm8h->id&&
+                lane_memory.owner_of_lane(base_address,3)==psm8h->id&&
                 lane_memory.owner_of_byte(base_address)==psm31->id&&
                 lane_memory.owner_of_byte(base_address+3)==psm8h->id,
                 "PSM31/8H owners map to distinct source byte lanes");
@@ -134,8 +134,8 @@ int main() {
                 "Lane-sharing occupancy combines masks without conflating owners");
         require(lane_memory.free_allocation(psm31->id)&&
                 lane_memory.occupancy_bytes()[0]==0xcc&&
-                !lane_memory.owner_of_nibble(base_address,0)&&
-                lane_memory.owner_of_nibble(base_address,2)==psm8h->id,
+                !lane_memory.owner_of_lane(base_address,0)&&
+                lane_memory.owner_of_lane(base_address,2)==psm8h->id,
                 "Freeing mask3 preserves mask12 occupancy and owner");
         require(lane_memory.free_allocation(psm8h->id)&&
                 lane_memory.occupancy_bytes()[0]==0,
@@ -144,10 +144,14 @@ int main() {
         okage::Ps2TextureMemory nibble_memory;
         nibble_memory.initialize_empty_allocator();
         auto low= nibble_memory.allocate(0,okage::GsPixelStorage::Psmt4Hl,8,8);
+        bool partial_byte_owner=false;
+        try { (void)nibble_memory.owner_of_byte(3); }
+        catch(const std::logic_error&) { partial_byte_owner=true; }
+        require(partial_byte_owner,"A single owned nibble is not whole-byte ownership");
         auto high=nibble_memory.allocate(0,okage::GsPixelStorage::Psmt4Hh,8,8);
         require(low&&high&&low->base_block==high->base_block&&
-                nibble_memory.owner_of_nibble(3,2)==low->id&&
-                nibble_memory.owner_of_nibble(3,3)==high->id,
+                nibble_memory.owner_of_lane(3,2)==low->id&&
+                nibble_memory.owner_of_lane(3,3)==high->id,
                 "PSM24 and PSM2C allocate independent half-byte lanes");
         bool ambiguous_byte_owner=false;
         try { (void)nibble_memory.owner_of_byte(3); }

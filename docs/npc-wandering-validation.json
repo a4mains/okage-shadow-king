@@ -257,19 +257,19 @@
   },
   "source_sha256": {
     "include/okage/enemy.hpp": "213381c21b9d171289e0846cbb00f6a52d540388b72136e235127fd0c097d14c",
-    "include/okage/field.hpp": "f7c1f76641a9e821e534a2e8202fc8c346e94132ff4d599de07a25c6a29de5f4",
+    "include/okage/field.hpp": "adc37357952c56baa3cc59b7fe327d6651447945ca5038136062efc1c299fe08",
     "src/enemy.cpp": "1bc7fe3a61c31f6e4024d7d2e915bcfca73aff7f24acf33850ac7a54f3255588",
-    "src/field.cpp": "1d699b1a3962a41af8c5f1c1013a11fcb4e001fada9e25b390187b71ce5e7129",
-    "src/native_runtime.mm": "914c94329fe33b9b884b040a55924f8f955c3e87ce091b6f169c206c56594a91",
-    "tests/field_tests.cpp": "109a5162b9caa27ef6e4849f08c66cbcb5753e79ed789fc81516dfc3cd2a328b",
-    "tools/play-oracle/boot.cpp": "cf6cbc15462958ee0cb9df146636eeb8eb3f4125aaead16b3e44a6740db67b26",
+    "src/field.cpp": "5c5e745cade9c2199cae610a01403f5fa966fee26610356d72b9d872b94475e7",
+    "src/native_runtime.mm": "e19e2521a3c62a5c7aad11ce4eff3fb753e8df2ca3193e84e3b8072b401731a0",
+    "tests/field_tests.cpp": "dd7e6ece9a3496661c661fa3747d2610bb50fce543c61cef5d4d394c1e0fe699",
+    "tools/play-oracle/boot.cpp": "9e62c706358c38d578fb213cc6a955eaf253f1ec79e880add9f86defa1ae1736",
     "tools/play-oracle/reference_wander.hpp": "7692fafb879e07e9aa1c6b8bbde482074dc0ae18ed35058c8d1b24e4aacdce8c",
     "tools/verify_wander.py": "ca7a4cfd74e2a02b6dc79406f6b659dfb337a847997ea42185fa6692b12bbf66",
     "tests/test_verify_wander.py": "2e4eb2f76306ee5e59b5585c87e57916527336f57811ad130b5545a238381445",
-    "src/dialogue.cpp": "ecefb0447ac2c5c1c75c9dd1e637d9efb56684032613f7a8e86523da28a23a02",
+    "src/dialogue.cpp": "b2ac9aabbb8b317b3f38372def5295c8d517063387f0bb76c606f316fadfab0a",
     "src/text.cpp": "6185eb5b1320909557993f10549fed71896887e12329520d7502049b778bbb0f",
     "include/okage/text.hpp": "2eef4c013a52ee72df289cc989ee9e9f465a7245a5c6da4d2e04552a073474f5",
-    "tests/dialogue_tests.cpp": "911af2bf0dc206f2135ec7e60b368d359b25f9c54a8eb2431011e36ee118a049",
+    "tests/dialogue_tests.cpp": "429ca07691add002a5f47e0e61f56087b3cf667015b0efddce33fcd2830a10d8",
     "tools/play-oracle/capture_argument_tests.py": "f494309515915e1b484581a5b6c33a17abd8131ad25b9b40c906cd7944938858"
   },
   "artifacts_sha256": {
@@ -1292,6 +1292,6 @@
       "log": "local/research/tenel-office-v1/primary-oracle-cli-tests-v1.log"
     }
   },
-  "research_play_commit": "cf579172517ede5ae8cee7bb07594766e620a56e",
+  "research_play_commit": "4403687dc8d505911980b8a96b13701a10f91b70",
   "fff_source_commit": "fc0df3c"
 }

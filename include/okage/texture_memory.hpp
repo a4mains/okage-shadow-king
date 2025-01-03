@@ -84,8 +84,8 @@ public:
     GsBlockAddress block_address(TextureAllocationId id,
                                  std::uint32_t x, std::uint32_t y) const;
     std::optional<TextureAllocationId> owner_of_byte(std::uint32_t address) const;
-    std::optional<TextureAllocationId> owner_of_nibble(std::uint32_t address,
-                                                         std::uint8_t lane) const;
+    std::optional<TextureAllocationId> owner_of_lane(std::uint32_t address,
+                                                    std::uint8_t lane) const;
 
     void write_bytes(std::uint32_t address, std::span<const std::uint8_t> bytes);
     GsByteObservation observe_byte(std::uint32_t address) const;

@@ -257,18 +257,13 @@ std::optional<TextureAllocationId> Ps2TextureMemory::owner_of_byte(std::uint32_t
     if (address >= vram_bytes) throw std::out_of_range("GS byte address outside VRAM");
     const auto first_lane = address % 4 < 3 ? 0 : 2;
     const auto last_lane = address % 4 < 3 ? 1 : 3;
-    std::optional<TextureAllocationId> owner;
-    for (auto lane = first_lane; lane <= last_lane; ++lane) {
-        const auto candidate = blocks_[address / block_bytes].owners[lane];
-        if (!candidate) continue;
-        if (owner && owner != candidate)
-            throw std::logic_error("GS byte has distinct sub-byte allocation owners");
-        owner = candidate;
-    }
+    const auto owner = blocks_[address / block_bytes].owners[first_lane];
+    if (owner != blocks_[address / block_bytes].owners[last_lane])
+        throw std::logic_error("GS byte has partial or distinct sub-byte allocation owners");
     return owner;
 }
 
-std::optional<TextureAllocationId> Ps2TextureMemory::owner_of_nibble(
+std::optional<TextureAllocationId> Ps2TextureMemory::owner_of_lane(
     std::uint32_t address, std::uint8_t lane) const {
     if (!initialized_) throw std::logic_error("GS allocator state is unknown");
     if (address >= vram_bytes) throw std::out_of_range("GS byte address outside VRAM");
