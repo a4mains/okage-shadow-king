@@ -1,0 +1,162 @@
+{
+  "schema": "okage-texture-memory-validation-v1",
+  "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "native_commit": "7c1c29d",
+  "oracle_commit": "ad1801d",
+  "runtime_environment_commit": "d45c663",
+  "scope": "Native allocator and byte addresses plus original LUCAN packet observer; runtime shared uploads/sampling not integrated.",
+  "allocator": {
+    "formats": [
+      0,
+      1,
+      2,
+      10,
+      19,
+      20,
+      27,
+      36,
+      44,
+      48,
+      49,
+      50,
+      58
+    ],
+    "rows_per_build": 10559,
+    "compared_fields": [
+      "descriptor",
+      "live",
+      "available",
+      "references",
+      "occupancy_sha256",
+      "cursors"
+    ],
+    "all_compared_rows_equal": true,
+    "original_nodes_hashes_retained_not_native_compared": true
+  },
+  "addresses": {
+    "psm": [
+      0,
+      19
+    ],
+    "cases_per_build": 356160,
+    "different_bytes": 0,
+    "reference": "Play4403687dc8d505911980b8a96b13701a10f91b70 CGsPixelFormats indexor",
+    "physical_hardware_proof": false
+  },
+  "lucan": {
+    "original_helper_exits": [
+      0,
+      0
+    ],
+    "dma_segments": 377,
+    "gs_packets": 2,
+    "target_payload_cache_observations": 414,
+    "compact_uvs_per_build": 31,
+    "exact_uv_words_per_build": 62,
+    "emitted_environment_vertices": 6,
+    "emitted_environment_triangles": 2,
+    "emitted_environment_vertices_outside64": 0,
+    "matches_native_failure_pose": false,
+    "raster_claim": false,
+    "source_compact_normal_mapping_proven": false
+  },
+  "builds": [
+    "native-release",
+    "native",
+    "model-sanitize"
+  ],
+  "tests": {
+    "ctest_regex": "^(texture-memory|gs-texture-address)-tests$",
+    "passed_per_build": 2,
+    "build_test_sessions": [
+      78533,
+      74525,
+      26776
+    ],
+    "python_count": 548,
+    "python_session": 35982,
+    "cross_build_session": 62836,
+    "all_exit_code": 0
+  },
+  "reference_sessions": {
+    "allocator_two_formats": 62587,
+    "address_indexor": 49093,
+    "allocator_all_formats": 22017,
+    "lucan_worker": 59283,
+    "lucan_integrated": 57685,
+    "allocator_integrated_regression": 74925,
+    "all_exit_code": 0
+  },
+  "negative": "Retained allocator-corpus-v1/native-v1: record-exhaustion row4097 cursor0 original4095/native4096; corrected early record-exhaustion return. Earlier material gameplay failures preserved.",
+  "limitations": [
+    "No new gameplay route execution or frames after37296",
+    "Shared image/CLUT upload/free lifecycle not connected to runtime",
+    "Byte writes currently explicit; per-nibble transfer/definedness and framebuffer writes not modeled",
+    "Exact texel addressing supports PSM0/19 only, despite all13 allocator formats",
+    "Source LUCAN snapshot formation4/stage2 differs native v5formation10/stage1",
+    "No raster/CLUT cache/full-scheduler equivalence",
+    "Earlier state/image/audio differences and missing intervals remain"
+  ],
+  "evidence": {
+    "local/research/material-texture-ownership-v1/cross-build-v1/comparison.json": "29a9bb19aa5181c91d38bc307055a757ebf4c8f8aff43d62bff2c9727b1b7061",
+    "local/research/material-texture-ownership-v1/lucan-integrated-v1/packet.json": "0a69ed28407feba741d72da5a2d444fd2cdedce44abe8a516636b544aac449c7",
+    "local/worktrees/lucan-material-packet-v1/local/checks/lucan-v1/analysis.json": "5b5cc69ff70af66c7529bf15e27e30eaa4d8e4e45a4eb457e30e84a27bea5a65",
+    "local/worktrees/lucan-material-packet-v1/local/checks/lucan-v1/review.json": "8aeea053e1d8aaca294de066e217d2bb9e34063ce2996cc301adaff458599871",
+    "local/research/material-texture-ownership-v1/lifecycle-review.md": "b46e9419d3f1ca18af8bd88269b054ac445b920497262355e8d2eb3a06c91168",
+    "local/research/material-texture-ownership-v1/lucan-packet-bindings.json": "d877407348b736be247310338433947bc54946c468a7a0610b7388cac210efca",
+    "local/research/material-texture-ownership-v1/integrated-reference-regression-v1/runs.json": "2c9158ed5e4ccda3239fb3feaa0e525b1088020c7b35c344d8b498aa5071c240",
+    "local/research/material-texture-ownership-v1/allocator-all-formats-v1/original-v1.jsonl": "d746179c6f72c7c2aac0b0c4c12a586646c11c4dc6aa304773425161fc7f224d",
+    "local/research/material-texture-ownership-v1/okage-pose-oracle-ad1801d": "9430a4e4e54bc0acfc2162903811836f4f4977713fcf079d0bb8dededc9dd4b5"
+  },
+  "root_audit": {
+    "path": "local/research/material-texture-ownership-v1/root-verification-v1.json",
+    "sha256": "b566c3498f061c8e568aa82f55fc38e2f6fc4fae2c0e2dad4bd51f4e7673ebd7"
+  },
+  "hashes": {
+    "CMakeLists.txt": "93936d1222a93724cba3b6112829307fac268a4aa6c38e2f96f511213fbbed50",
+    "include/okage/texture_memory.hpp": "f08cefc74385e85cb0e9e9cffae5f170c4a8b9f9cf04411a065e726fe1a25ead",
+    "src/texture_memory.cpp": "f1f7164d17d80fbc7ccfb7aadb18dce7bc592f4a2970dd35a9e643a87c0e44b5",
+    "tests/texture_memory_tests.cpp": "4f51ff681cd07ace2d27a9727d0c5ef8a6a1deb2b58b21409ba85f1e4de84de0",
+    "tools/texture_memory_corpus.cpp": "f8b8c9a4f1d835cd8a6999037a3a8e7c0545a822129b06f3b020ff17657b8ca4",
+    "include/okage/gs_texture_address.hpp": "fdf69686b3b61c12d2ffff5dfe0f1236dbaefff817800ac2de88e40d0149ed14",
+    "src/gs_texture_address.cpp": "a0ef7fe94149722cb6b9c678bf7339394c5efbe6373fde5dd8713aad7400897c",
+    "tests/gs_texture_address_tests.cpp": "084ffcdea08d875f32b7810b21e54590061447ab6e8b45377cd8cfc4428132dd",
+    "tools/gs_texture_address_corpus.cpp": "906ea2e9f8a463f67a195a16af57b58fb389a08ad21e766dac52fb34a1e2efc1",
+    "tools/play-oracle/main.cpp": "0878fc6d31737b3e694b8a07f50735779f2d8d6e6aac29b33957928567de147b",
+    "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+    "local/research/material-texture-ownership-v1/python-tests-final-v1.log": "9ce34c40c876ec3ffef3e18b6df14f2f7c065043f6be0a2930ede04b758e3106",
+    "local/research/material-texture-ownership-v1/native-release-tests-final-v1.log": "f0de443ca997b8fb745cc8ce77dd835fa38010055053382fe32fa9b7faa87c33",
+    "local/research/material-texture-ownership-v1/native-release-build-final-v1.log": "ef080fb8c673b2fc73b1fb782ffa90d146562860deb05b0d664385a16c6fe309",
+    "local/research/material-texture-ownership-v1/native-tests-final-v1.log": "41606d80e313376368493d46fdc51f3246fec99679cc5f452f2841c9f78c915d",
+    "local/research/material-texture-ownership-v1/native-build-final-v1.log": "196a88c835a249d3aaaf7182d290f6c58776d18f3757057a062cc665888564ee",
+    "local/research/material-texture-ownership-v1/model-sanitize-tests-final-v1.log": "db340c66ad2348ee8a8173000468c895fd0b875321b57e0700f629d3be9b23a3",
+    "local/research/material-texture-ownership-v1/model-sanitize-build-final-v1.log": "055f3f0eaa7261c7be123ac280e43be4ad5812b2706ff9949af96fc5f58f9873",
+    "local/research/material-texture-ownership-v1/initializer-exports/functions.tsv": "029360c9e8eedb14327281de8a435ca48320ea32819f559a8026e9a0cb93a9b2",
+    "local/research/material-texture-ownership-v1/initializer-exports/001ce940.c": "0d0c104fbb7db70acc9190bc4dca7fd669e59beae4b144a1f086c32cdb12de7e",
+    "local/research/material-texture-ownership-v1/initializer-exports/001ce8c8.asm": "bdedc256df3751d40131665ed56ec109edd1f1ae568a38233b132ebde377c71b",
+    "local/research/material-texture-ownership-v1/initializer-exports/001ce930.asm": "51a4fa737188968d08c32b6f515e9324498a72476db8f5530fec2f840a2449d8",
+    "local/research/material-texture-ownership-v1/initializer-exports/001ce930.c": "d1dd5a3ae46742f491b617608872ecc52a557d130a453c3f2365bcbae30b2eec",
+    "local/research/material-texture-ownership-v1/initializer-exports/001ce8c8.c": "52ef44da0b2345944a814d3c3e7895f371541acdbb906bbe64431c8a7000252a",
+    "local/research/material-texture-ownership-v1/initializer-exports/001ce940.asm": "fbbbac0b43d306c251f0f5507b5b9ff14facac2a66a6e550efa8eb5013eec143",
+    "local/research/material-texture-ownership-v1/startup-exports/00178a70.asm": "860f61c11c5b840885876a363484e8db5260f4d0400670c25865e02c7fb7e1f2",
+    "local/research/material-texture-ownership-v1/startup-exports/functions.tsv": "029360c9e8eedb14327281de8a435ca48320ea32819f559a8026e9a0cb93a9b2",
+    "local/research/material-texture-ownership-v1/startup-exports/001ce898.asm": "5984f174d2d9131e861299cf031e763bccb92a688e585934cc10e9298c9b5c81",
+    "local/research/material-texture-ownership-v1/startup-exports/001cb088.asm": "8c3ab86ecb4ad34f0e5a62aa8078711c4bc34630771013ea7049e46f7c859bc9",
+    "local/research/material-texture-ownership-v1/startup-exports/001ce898.c": "8f56665d9aba605cd8b0d58730cdf3c814eaf4a7b37d3353fa8b1cf5b23cbd00",
+    "local/research/material-texture-ownership-v1/startup-exports/00178a70.c": "fdc16023686ac9e914b6331afb8f1531c7fe01f3074dce2b56a8cb8a23d11963",
+    "local/research/material-texture-ownership-v1/startup-exports/00178b18.asm": "fba9804c1e84d11ef78018b84c34e587897107a8b2e4cf908ad9a628ead49987",
+    "local/research/material-texture-ownership-v1/startup-exports/00178b18.c": "e1bb074d2a9d2c7de76c0ccaecf24d5725cd378d9a0136afcce005b7715e3688",
+    "local/research/material-texture-ownership-v1/startup-exports/001cb088.c": "513a514539597301f1d481247aa014b6793ee47de70a7af58d0a32a6dee16cce",
+    "local/research/material-texture-ownership-v1/transfer-exports/001cca30.c": "8eca0ab6fa95ed019ad9e43a6ddb5f8afaf34151881ef54730b4b878fc0d501f",
+    "local/research/material-texture-ownership-v1/transfer-exports/001cd928.c": "ca0a00dacda956dbfde99897e33bc6d363ea98b7a2de4ab4f93fcfb519eae2e3",
+    "local/research/material-texture-ownership-v1/transfer-exports/0018f7a8.c": "ac624e7d69e70c08b8d7b3db93ea733bf411d024138435704c1aac98225b46af",
+    "local/research/material-texture-ownership-v1/transfer-exports/functions.tsv": "029360c9e8eedb14327281de8a435ca48320ea32819f559a8026e9a0cb93a9b2",
+    "local/research/material-texture-ownership-v1/transfer-exports/001cd1e0.c": "8435f7ff7090e2700ddda12dbdbcc534b4c23ec77dda2dd1debd7db61ebe35b6",
+    "local/research/material-texture-ownership-v1/transfer-exports/001cb538.asm": "e38f65e289ffab75b53233e4fbec53ebbbb24fa30deb9a81c2a094907892c13a",
+    "local/research/material-texture-ownership-v1/transfer-exports/001cca30.asm": "5f2fb93555c49e294577ce615f5beb7a7486b9e69be17416212e092701e80f0b",
+    "local/research/material-texture-ownership-v1/transfer-exports/001cb538.c": "182eb304819ff804a07f2c03230b0943fedead2f4a8a2915166789c4da9b4b1e",
+    "local/research/material-texture-ownership-v1/transfer-exports/0018f7a8.asm": "5b15cfa381334fa1fd829307a8ced8299bddfc0fc8b1966c403120b50fa4ceba",
+    "local/research/material-texture-ownership-v1/transfer-exports/001cd928.asm": "59c1578aaea16ccb7ea65f2abebb80c358f3987064d4abda9725b89d6a7c44ad",
+    "local/research/material-texture-ownership-v1/transfer-exports/001cd1e0.asm": "0bce25a9fda57ead48ec197f23282d552778d5964a7386fb507a2edc16363025"
+  }
+}

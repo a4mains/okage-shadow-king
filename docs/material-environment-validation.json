@@ -2,7 +2,7 @@
   "schema": "okage-material-environment-validation-v1",
   "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "base_commit": "d00c7a5f0c2f64a20d561f6fc2ad7fd0261a448d",
-  "scope": "First extra material implementation with owned environment image, linear filtering and fragment footprint validation.",
+  "scope": "First extra material implementation with owned image, linear filtering and fragment guard.",
   "probes": {
     "native-release": {
       "default_selector_predicate_cases": 32,
@@ -139,5 +139,12 @@
       0
     ],
     "scope": "Snapshot formation4/stage2 only."
+  },
+  "shared_texture_memory": {
+    "report": "native-texture-memory.md",
+    "validation": "texture-memory-validation.json",
+    "runtime_integrated": false,
+    "compiled_lucan_packet_observed": true,
+    "same_native_failure_pose": false
   }
 }
