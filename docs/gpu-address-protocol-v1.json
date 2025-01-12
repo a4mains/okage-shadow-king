@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "contract": "five uint32 input words (20 bytes), address/valid uint32 output (8 bytes); invalid={0,0}; synchronous CPU-readable caller-owned output; maximum 1048576; no overlapping spans",
+  "warmups": 10,
+  "pairs": 31,
+  "trials": 5,
+  "calls_per_sample": 1,
+  "cpu_threads": 1,
+  "cpu_baseline": "verified inline batch; compare scalar pilot and retain it; if scalar is faster, resolve before official trials",
+  "counts": [0, 1, 31, 33, 4096, 16384, 143360, 356160, 1048576],
+  "workloads": "0/1/31/33 mixed valid PSM0/19 at TBP16320 TBW3 x=i%64 y=i/64; 4096/16384/143360/1048576 each separately PSM0 and PSM19, synthetic rectangles width64/128/640/1024 TBP16320 TBW=width/64; 356160 retained mixed GADR corpus",
+  "timing": "steady_clock around one complete call; CPU preallocated caller output, GPU preallocated shared staging and output buffers plus caller output; GPU staging, encode, submit, wait, status and output memcpy charged; validation/full output consumption outside timing symmetrically",
+  "ordering": "CPU then GPU on even sample+trial, GPU then CPU on odd; trial0 starts CPU; independent process per trial",
+  "cold": "CPU caller allocation and Metal factory/device/library/pipeline/max-capacity buffers plus first full-capacity execution reported separately",
+  "gpu_threadgroup": "primary min(256,pipeline max), execution-width aligned; no refinement selected",
+  "success": {"minimum_speedup": 1.20, "minimum_passing_trials": 4, "aggregate": "median of five per-trial median CPU / median GPU e2e ratios", "eligible_counts": [4096,16384,143360,356160,1048576]},
+  "exclusions": "retain all trials; exclude an entire trial on observed user interaction, thermal warning, build/profiler/VM or heavy worker overlap; explain reason, rerun same trial index; no exclusion solely for unfavorable latency. Preflight: ten seconds HID input idle, no other observed process at >=50% CPU, no known build/VM/profiler. Before/after HID reset or those load conditions invalidate the trial. Snapshot monitoring cannot rule out every short transient; the primary also checks live jobs.",
+  "scope": "address-only; synthetic throughput not observed gameplay distribution, loading or FPS; host sanitizers do not establish GPU memory safety"
+}

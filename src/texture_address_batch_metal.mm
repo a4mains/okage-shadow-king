@@ -118,6 +118,8 @@ public:
                 throw metal_error("Metal shared buffer allocation failed");
             const char* device_name = [device_.name UTF8String];
             name_ = std::string("Metal: ") + (device_name == nullptr ? "unnamed device" : device_name);
+            name_ += "; threads=" + std::to_string(threads_) + "; execution_width=" +
+                std::to_string(width) + "; maximum_threads=" + std::to_string(maximum);
         }
     }
 
