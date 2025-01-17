@@ -27,8 +27,8 @@ class VerdictTests(unittest.TestCase):
                     rows.append({"type": "sample", "trial": trial, "workload": name, "count": count,
                                  "input_bytes": count * 20, "output_bytes": count * 8, "pair": pair,
                                  "cpu_first": (pair + trial) % 2 == 0,
-                                 "cpu_s": (ratio if count == 4096 else .5) * (100 if trial == 4 else 1),
-                                 "gpu_e2e_s": float(100 if trial == 4 else 1), "gpu_command_s": None})
+                                 "cpu_s": (ratio if count == 4096 else .5) * (1000 if trial == 4 else 1),
+                                 "gpu_e2e_s": float(1000 if trial == 4 else 1), "gpu_command_s": None})
             (directory / f"trial-{trial}.jsonl").write_text("\n".join(map(json.dumps, rows)))
             (directory / f"trial-{trial}-eligibility.json").write_text(json.dumps({"eligible": True, "reasons": [],
                 "identity": identity, "raw_sha256": poc.sha(directory / f"trial-{trial}.jsonl")}))
@@ -75,6 +75,15 @@ class VerdictTests(unittest.TestCase):
             (directory / "fake-binary").write_text("different executable")
             with self.assertRaisesRegex(RuntimeError, "executable changed"):
                 poc.summarize(directory)
+
+    def test_execution_override_must_match_prepared_binary(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            self.fixture(directory, [2] * 5)
+            other = directory / "other-binary"
+            other.write_text("unbound executable")
+            with self.assertRaisesRegex(RuntimeError, "requested executable differs"):
+                poc.prepared_identity(directory, other)
 
     def test_missing_trial_cannot_be_synthesized(self):
         with tempfile.TemporaryDirectory() as temporary:

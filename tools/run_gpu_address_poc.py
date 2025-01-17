@@ -58,13 +58,15 @@ def load_reasons(observation):
         reasons.append("thermal warning state requires review")
     return reasons
 
-def prepared_identity(directory):
+def prepared_identity(directory, execution_binary=None):
     path = directory / "build-metadata.json"
     metadata = json.loads(path.read_text())
     if metadata["protocol_sha256"] != sha(PROTOCOL):
         raise RuntimeError("prepared protocol changed")
     if metadata["binary_sha256"] != sha(ROOT / metadata["binary"]):
         raise RuntimeError("prepared benchmark executable changed")
+    if execution_binary is not None and sha(execution_binary) != metadata["binary_sha256"]:
+        raise RuntimeError("requested executable differs from prepared binary")
     for field in ("input_hashes", "source_hashes"):
         for name, expected in metadata[field].items():
             if sha(ROOT / name) != expected:
@@ -184,7 +186,7 @@ def main():
     elif args.action == "measure":
         if list(directory.glob("trial-*")):
             raise RuntimeError("measurement observations already exist; use a fresh prepared attempt directory")
-        identity = prepared_identity(directory)
+        identity = prepared_identity(directory, binary)
         for trial in range(5):
             if prepared_identity(directory) != identity:
                 raise RuntimeError("prepared identity changed between trials")
