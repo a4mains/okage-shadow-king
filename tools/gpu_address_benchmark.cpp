@@ -138,6 +138,14 @@ int main(int argc,char** argv) {
             std::fill(gpu.begin(),gpu.end(),Result{0xdeadbeef,0xdeadbeef});
             backend->execute(input,gpu); check(gpu,expected,"Metal changed-order reuse");
             std::cout<<"{\"type\":\"correctness_reuse\",\"rows\":"<<input.size()<<",\"different_results\":0}\n";
+            for(const auto& w:ws) {
+                std::vector<Result> a(w.input.size()),b(w.input.size()),exp(w.input.size());
+                okage::texture_address_batch_scalar(w.input,exp);
+                okage::texture_address_batch_cpu(w.input,a); check(a,exp,"synthetic inline/scalar");
+                std::fill(b.begin(),b.end(),Result{0xdeadbeef,0xdeadbeef});
+                backend->execute(w.input,b); check(b,exp,"synthetic Metal/scalar");
+                std::cout<<"{\"type\":\"workload_correctness\",\"workload\":\""<<w.name<<"\",\"count\":"<<w.input.size()<<",\"different_results\":0}\n";
+            }
             return 0;
         }
         // Separate first maximum-capacity execution/allocation observation.
