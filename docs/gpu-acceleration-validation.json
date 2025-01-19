@@ -1,0 +1,334 @@
+{
+  "schema_version": 1,
+  "updated": "2025-01-19",
+  "status": "correctness_passed_performance_pending",
+  "acceptance_met": false,
+  "verdict": {
+    "actual_metal_compute": true,
+    "exact_supported_semantics_match": true,
+    "end_to_end_speedup_demonstrated": null,
+    "performance_verdict": "pending; no official samples or CPU pilot",
+    "gameplay_acceleration_claim": false
+  },
+  "source_revision": "79a33a02a06fd82a013202e5fb404f74e11157f0",
+  "source_sha256": {
+    "CMakeLists.txt": "14b76ef9f3c5375fb595c6679dc96f2bad6e0b50a6293a39d7d534247a78ea27",
+    "include/okage/texture_address_batch.hpp": "dd2d66169447986e75ecbd321f6980114d783202b334b317dd1a4732780e6e6c",
+    "include/okage/gs_texture_address.hpp": "fdf69686b3b61c12d2ffff5dfe0f1236dbaefff817800ac2de88e40d0149ed14",
+    "src/gs_texture_address.cpp": "a0ef7fe94149722cb6b9c678bf7339394c5efbe6373fde5dd8713aad7400897c",
+    "src/texture_address_batch.cpp": "8428a0fc32c49e9d78e86ddf3896a5784c8c2cc41ca8bedef85f0176e97808e4",
+    "src/texture_address_batch_metal.mm": "1485d5092de7089288c0e064e5f5dac718a6a7b16bc81c1a629ed88a9cd966f9",
+    "tools/gpu_address_benchmark.cpp": "9f87daa3791f22b258792036abcc70451359643afd3b010ac90b0233bc278fd6",
+    "tools/run_gpu_address_poc.py": "1108674646f226ff5aa8ed268928b8c91eaf1b7c36d401185bcd4e8d12502a39",
+    "tests/texture_address_batch_cases.hpp": "f68d6853135ef8db38d099781cb9f01d225e965d592c8ad9a9284dc87ae0997a",
+    "tests/texture_address_batch_tests.cpp": "cdc75c59153525d72635b20f5872170961a5d8695f6ebc476720eda4e131fd92",
+    "tests/test_gpu_address_poc.py": "cfae835a8645b2ee31bedc911678884904c7edf4817ae73114f38819ee49400b",
+    "docs/gpu-address-protocol-v1.json": "6fd040c7186650730d660d36229ffaf0adcb92b4b06ee3097b57bd070256795f"
+  },
+  "hardware": {
+    "cpu": "Apple M3 Max",
+    "cpu_cores": 16,
+    "gpu_cores": 40,
+    "ram_bytes": 137438953472,
+    "os": "macOS15.2 build24C101",
+    "sdk": "15.2",
+    "compiler": "Apple clang16.0.0 clang-1600.0.26.6",
+    "cpu_baseline_threads": 1,
+    "metal_threadgroup": 256,
+    "metal_execution_width": 32,
+    "metal_max_threads": 1024
+  },
+  "build_flags": {
+    "release": [
+      {
+        "directory": "./build/gpu-address-release",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -O3 -DNDEBUG -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -Wall -Wextra -Wpedantic -o CMakeFiles/okage_gs_texture_address.dir/src/gs_texture_address.cpp.o -c ./src/gs_texture_address.cpp",
+        "file": "./src/gs_texture_address.cpp",
+        "output": "CMakeFiles/okage_gs_texture_address.dir/src/gs_texture_address.cpp.o"
+      },
+      {
+        "directory": "./build/gpu-address-release",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -O3 -DNDEBUG -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -Wall -Wextra -Wpedantic -o CMakeFiles/okage_texture_address_batch.dir/src/texture_address_batch.cpp.o -c ./src/texture_address_batch.cpp",
+        "file": "./src/texture_address_batch.cpp",
+        "output": "CMakeFiles/okage_texture_address_batch.dir/src/texture_address_batch.cpp.o"
+      },
+      {
+        "directory": "./build/gpu-address-release",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -x objective-c++ -O3 -DNDEBUG -std=c++2a -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -fobjc-arc -Wall -Wextra -o CMakeFiles/okage_texture_address_batch_metal.dir/src/texture_address_batch_metal.mm.o -c ./src/texture_address_batch_metal.mm",
+        "file": "./src/texture_address_batch_metal.mm",
+        "output": "CMakeFiles/okage_texture_address_batch_metal.dir/src/texture_address_batch_metal.mm.o"
+      },
+      {
+        "directory": "./build/gpu-address-release",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -O3 -DNDEBUG -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -o CMakeFiles/okage-gpu-address-benchmark.dir/tools/gpu_address_benchmark.cpp.o -c ./tools/gpu_address_benchmark.cpp",
+        "file": "./tools/gpu_address_benchmark.cpp",
+        "output": "CMakeFiles/okage-gpu-address-benchmark.dir/tools/gpu_address_benchmark.cpp.o"
+      }
+    ],
+    "debug": [
+      {
+        "directory": "./build/gpu-address-debug",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -g -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -Wall -Wextra -Wpedantic -o CMakeFiles/okage_gs_texture_address.dir/src/gs_texture_address.cpp.o -c ./src/gs_texture_address.cpp",
+        "file": "./src/gs_texture_address.cpp",
+        "output": "CMakeFiles/okage_gs_texture_address.dir/src/gs_texture_address.cpp.o"
+      },
+      {
+        "directory": "./build/gpu-address-debug",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -g -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -Wall -Wextra -Wpedantic -o CMakeFiles/okage_texture_address_batch.dir/src/texture_address_batch.cpp.o -c ./src/texture_address_batch.cpp",
+        "file": "./src/texture_address_batch.cpp",
+        "output": "CMakeFiles/okage_texture_address_batch.dir/src/texture_address_batch.cpp.o"
+      },
+      {
+        "directory": "./build/gpu-address-debug",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -x objective-c++ -g -std=c++2a -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -fobjc-arc -Wall -Wextra -o CMakeFiles/okage_texture_address_batch_metal.dir/src/texture_address_batch_metal.mm.o -c ./src/texture_address_batch_metal.mm",
+        "file": "./src/texture_address_batch_metal.mm",
+        "output": "CMakeFiles/okage_texture_address_batch_metal.dir/src/texture_address_batch_metal.mm.o"
+      },
+      {
+        "directory": "./build/gpu-address-debug",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -g -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -o CMakeFiles/okage-gpu-address-benchmark.dir/tools/gpu_address_benchmark.cpp.o -c ./tools/gpu_address_benchmark.cpp",
+        "file": "./tools/gpu_address_benchmark.cpp",
+        "output": "CMakeFiles/okage-gpu-address-benchmark.dir/tools/gpu_address_benchmark.cpp.o"
+      }
+    ],
+    "sanitize": [
+      {
+        "directory": "./build/gpu-address-sanitize",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -fsanitize=address,undefined -fno-omit-frame-pointer -g -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -Wall -Wextra -Wpedantic -o CMakeFiles/okage_gs_texture_address.dir/src/gs_texture_address.cpp.o -c ./src/gs_texture_address.cpp",
+        "file": "./src/gs_texture_address.cpp",
+        "output": "CMakeFiles/okage_gs_texture_address.dir/src/gs_texture_address.cpp.o"
+      },
+      {
+        "directory": "./build/gpu-address-sanitize",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -fsanitize=address,undefined -fno-omit-frame-pointer -g -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -Wall -Wextra -Wpedantic -o CMakeFiles/okage_texture_address_batch.dir/src/texture_address_batch.cpp.o -c ./src/texture_address_batch.cpp",
+        "file": "./src/texture_address_batch.cpp",
+        "output": "CMakeFiles/okage_texture_address_batch.dir/src/texture_address_batch.cpp.o"
+      },
+      {
+        "directory": "./build/gpu-address-sanitize",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -x objective-c++ -fsanitize=address,undefined -fno-omit-frame-pointer -g -std=c++2a -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -fobjc-arc -Wall -Wextra -o CMakeFiles/okage_texture_address_batch_metal.dir/src/texture_address_batch_metal.mm.o -c ./src/texture_address_batch_metal.mm",
+        "file": "./src/texture_address_batch_metal.mm",
+        "output": "CMakeFiles/okage_texture_address_batch_metal.dir/src/texture_address_batch_metal.mm.o"
+      },
+      {
+        "directory": "./build/gpu-address-sanitize",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -fsanitize=address,undefined -fno-omit-frame-pointer -g -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -o CMakeFiles/okage-gpu-address-benchmark.dir/tools/gpu_address_benchmark.cpp.o -c ./tools/gpu_address_benchmark.cpp",
+        "file": "./tools/gpu_address_benchmark.cpp",
+        "output": "CMakeFiles/okage-gpu-address-benchmark.dir/tools/gpu_address_benchmark.cpp.o"
+      }
+    ]
+  },
+  "binary_sha256": {
+    "release": "c35da8d9b1b793209aa39dd43a2b47b78c1a616733aa791523811b596449ddb4",
+    "debug": "42d947ad65d7f0e11b3241e3f0f940faf08cce770d9c84375466977dc7d6ad00",
+    "sanitize": "e265ab892032be9c557119d93c83cf38e942688ba9cc9566b0b3e4021fdad9cd"
+  },
+  "shader_sha256": "e20f6d7e2d73f9b66f4fe4782327e54488b3eddf22ee938cf88a4445e3645531",
+  "corpus": {
+    "rows": 356160,
+    "input": "local/research/material-texture-ownership-v1/address-corpus-v1/addresses.bin",
+    "input_sha256": "db66ea293331e34f852690f8fcf74443141366206db75833537e3be2d6fe8b0d",
+    "reference": "local/research/material-texture-ownership-v1/address-corpus-v1/play-addresses-v1.bin",
+    "reference_sha256": "6c6c7e468d988ca9d5abb27897d965eb49761d1edcd5a8de2ec8585b2e2c124e",
+    "comparison_manifest_sha256": "29a9bb19aa5181c91d38bc307055a757ebf4c8f8aff43d62bff2c9727b1b7061",
+    "play_revision": "4403687dc8d505911980b8a96b13701a10f91b70",
+    "scope": "synthetic pinned-indexor reference; historical reference log empty; validation/source/binary bindings retained"
+  },
+  "correctness": {
+    "builds": [
+      "Release",
+      "Debug",
+      "ASan+UBSan"
+    ],
+    "ctests_per_build": 3,
+    "focused_cpu_checks_per_test": 617868,
+    "additional_metal_checks_per_test": 308934,
+    "corpus_rows_per_build": 356160,
+    "changed_order_reuse_rows_per_build": 356160,
+    "preselected_workloads_verified_per_build": 13,
+    "maximum_batch_each_psm": 1048576,
+    "metal_api_and_shader_validation": "enabled separate diagnostic runs, passed",
+    "python_tests": 555,
+    "python_log": "local/research/gpu-address-poc-v1/python-tests-final3.log",
+    "host_sanitizer_limit": "does not establish GPU memory safety"
+  },
+  "protocol": "docs/gpu-address-protocol-v1.json",
+  "raw_directory": "local/research/gpu-address-poc-v1",
+  "commands": "local/research/gpu-address-poc-v1/commands-executed.txt",
+  "performance": {
+    "official_trials": 0,
+    "samples": 0,
+    "cpu_selection_pilot": "pending",
+    "statistics": null,
+    "crossover": null,
+    "optional_refinements_used": 0,
+    "attempts": [
+      {
+        "directory": "local/research/gpu-address-poc-v1",
+        "result": "deferred at preflight; external heavy load/recent input"
+      },
+      {
+        "directory": "local/research/gpu-address-poc-v1/attempt-2",
+        "result": "deferred at preflight; external Git load/recent input"
+      },
+      {
+        "directory": "local/research/gpu-address-poc-v1/attempt-3",
+        "result": "deferred at preflight; recent input"
+      }
+    ]
+  },
+  "review": {
+    "run": "second-pass review",
+    "implementation_and_correctness": "independent read-only review; material fixes applied",
+    "timing_and_final_claims": "pending official measurements"
+  },
+  "preservation": {
+    "gameplay_runtime_unchanged_against": "c12804b",
+    "verified_paths": [
+      "src/texture_memory.cpp",
+      "include/okage/texture_memory.hpp",
+      "src/scene_renderer.mm"
+    ],
+    "preview_pid": 63851,
+    "preview": "present idle, no process/window/executable changes",
+    "partial_worktrees": [
+      "local/worktrees/texture-upload-v1",
+      "local/worktrees/xim-raw-v1"
+    ],
+    "next_full_port_task": "runtime texture ownership; tick37297 guard unchanged"
+  },
+  "remaining": [
+    "Uncontended alternating inline/scalar CPU pilot and honest baseline confirmation",
+    "Five serial independent process trials under frozen protocol; retain/replace contaminated attempts",
+    "Complete latency/p95/command/startup/ratio table and evidence-based scoped verdict",
+    "Second-pass review of final timing evidence and claims",
+    "Update report/spec/roadmap/handoff/full-goal priority with actual final result, commit locally, and stop there"
+  ],
+  "raw_artifact_sha256": {
+    "local/research/gpu-address-poc-v1/attempt-2/build-metadata.json": "4b24cff30c7b3bac7a8da2b6a33176e5d11031e041f8e8c999a0261c11015536",
+    "local/research/gpu-address-poc-v1/attempt-2/commands.jsonl": "617fa4cc1079601372a7b34ca4fbc4577e50246cb6abb938049474045962f104",
+    "local/research/gpu-address-poc-v1/attempt-2/dump-inputs.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/attempt-2/dump-inputs.jsonl.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/attempt-2/inputs/mixed-0.queries": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/attempt-2/inputs/mixed-1.queries": "c68706149396f8a3da3bfde776a15a8db52e91ec45561963b06a61a680b88ec4",
+    "local/research/gpu-address-poc-v1/attempt-2/inputs/mixed-31.queries": "543fb0ce93d69c983e457d9c2fe44be69756cf8d41c0d71c1e3fa97f311010cc",
+    "local/research/gpu-address-poc-v1/attempt-2/inputs/mixed-33.queries": "f90865de74d1a46db7b9bdd816afcca4f00b1cc84f8a8ce741595180bf09b70c",
+    "local/research/gpu-address-poc-v1/attempt-2/inputs/retained-corpus-356160.queries": "11e126cd9ce2337c7e919c28ba3f7b6b730a5d3baa21c2a534624b4ecbd7aa2a",
+    "local/research/gpu-address-poc-v1/attempt-2/inputs/synthetic-psm0-1048576.queries": "920f4ee6dfb13c0abe4fa8f40db59481db03c7522d0ce26fe1405b58f125c222",
+    "local/research/gpu-address-poc-v1/attempt-2/inputs/synthetic-psm0-143360.queries": "9677dd0db85818d94b6e76d90a733052e406211e63d463fd6f291ab1e0565858",
+    "local/research/gpu-address-poc-v1/attempt-2/inputs/synthetic-psm0-16384.queries": "7fdb901c5ef3872109287aa2a6f877b4d37705631095fae62ed0049c706f2450",
+    "local/research/gpu-address-poc-v1/attempt-2/inputs/synthetic-psm0-4096.queries": "46e84c5efaf3cfab41bbd6df6819cfa8149f0f54a2265dfba7d853cad4c69100",
+    "local/research/gpu-address-poc-v1/attempt-2/inputs/synthetic-psm19-1048576.queries": "68514e02ead484947fa6810c871e50187247f779fedfa2cd431e3d502619d78a",
+    "local/research/gpu-address-poc-v1/attempt-2/inputs/synthetic-psm19-143360.queries": "b4856071c18fa435e805172554c36330912787ffd94ffc7eccc6f5c200fe8d0a",
+    "local/research/gpu-address-poc-v1/attempt-2/inputs/synthetic-psm19-16384.queries": "2d0f53a4c823cfdc0c9e540e10b4ea7f23c5ef28ee70e28ad6ecab7dbf9e6b2a",
+    "local/research/gpu-address-poc-v1/attempt-2/inputs/synthetic-psm19-4096.queries": "1c686e2923b4fc5900720bf119d6efbb22d51f1efc854d9630e0f885ff25be12",
+    "local/research/gpu-address-poc-v1/attempt-2/shader.metal": "e20f6d7e2d73f9b66f4fe4782327e54488b3eddf22ee938cf88a4445e3645531",
+    "local/research/gpu-address-poc-v1/attempt-2/trial-0-before.json": "e47425ef0337cd7d45bdcb553f5781fd4e6ef8bed6e9f71dbdefe40185ce2e60",
+    "local/research/gpu-address-poc-v1/attempt-2/trial-0-preflight-rejection.json": "216abd60e04971f9a6717b491c287f440d042b6ab8888eb61898feccad1bf2d9",
+    "local/research/gpu-address-poc-v1/attempt-3/build-metadata.json": "166e392c2688e5b95a646b87a2f925ed5cbaae9d6b5d05c62b413c2d8875c6f1",
+    "local/research/gpu-address-poc-v1/attempt-3/commands.jsonl": "3d1a729bdb0149935a53d834651fb60473c7024b5d021210289e600602b65350",
+    "local/research/gpu-address-poc-v1/attempt-3/dump-inputs.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/attempt-3/dump-inputs.jsonl.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/attempt-3/inputs/mixed-0.queries": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/attempt-3/inputs/mixed-1.queries": "c68706149396f8a3da3bfde776a15a8db52e91ec45561963b06a61a680b88ec4",
+    "local/research/gpu-address-poc-v1/attempt-3/inputs/mixed-31.queries": "543fb0ce93d69c983e457d9c2fe44be69756cf8d41c0d71c1e3fa97f311010cc",
+    "local/research/gpu-address-poc-v1/attempt-3/inputs/mixed-33.queries": "f90865de74d1a46db7b9bdd816afcca4f00b1cc84f8a8ce741595180bf09b70c",
+    "local/research/gpu-address-poc-v1/attempt-3/inputs/retained-corpus-356160.queries": "11e126cd9ce2337c7e919c28ba3f7b6b730a5d3baa21c2a534624b4ecbd7aa2a",
+    "local/research/gpu-address-poc-v1/attempt-3/inputs/synthetic-psm0-1048576.queries": "920f4ee6dfb13c0abe4fa8f40db59481db03c7522d0ce26fe1405b58f125c222",
+    "local/research/gpu-address-poc-v1/attempt-3/inputs/synthetic-psm0-143360.queries": "9677dd0db85818d94b6e76d90a733052e406211e63d463fd6f291ab1e0565858",
+    "local/research/gpu-address-poc-v1/attempt-3/inputs/synthetic-psm0-16384.queries": "7fdb901c5ef3872109287aa2a6f877b4d37705631095fae62ed0049c706f2450",
+    "local/research/gpu-address-poc-v1/attempt-3/inputs/synthetic-psm0-4096.queries": "46e84c5efaf3cfab41bbd6df6819cfa8149f0f54a2265dfba7d853cad4c69100",
+    "local/research/gpu-address-poc-v1/attempt-3/inputs/synthetic-psm19-1048576.queries": "68514e02ead484947fa6810c871e50187247f779fedfa2cd431e3d502619d78a",
+    "local/research/gpu-address-poc-v1/attempt-3/inputs/synthetic-psm19-143360.queries": "b4856071c18fa435e805172554c36330912787ffd94ffc7eccc6f5c200fe8d0a",
+    "local/research/gpu-address-poc-v1/attempt-3/inputs/synthetic-psm19-16384.queries": "2d0f53a4c823cfdc0c9e540e10b4ea7f23c5ef28ee70e28ad6ecab7dbf9e6b2a",
+    "local/research/gpu-address-poc-v1/attempt-3/inputs/synthetic-psm19-4096.queries": "1c686e2923b4fc5900720bf119d6efbb22d51f1efc854d9630e0f885ff25be12",
+    "local/research/gpu-address-poc-v1/attempt-3/shader.metal": "e20f6d7e2d73f9b66f4fe4782327e54488b3eddf22ee938cf88a4445e3645531",
+    "local/research/gpu-address-poc-v1/attempt-3/trial-0-before.json": "c9d243832ed6d5fef4012d4c035e9dbaf1ea66e1a13234d73335fedf9611d80a",
+    "local/research/gpu-address-poc-v1/attempt-3/trial-0-preflight-rejection.json": "c624684adeef88dd111cd368c059517c065a72ebba39e683e9b5a2cd3461ed7a",
+    "local/research/gpu-address-poc-v1/build-debug-full-workloads.log": "ffbc0915c96d19b66d544973a85d9e1031704cb090ac2f2c14f626f0466faa5a",
+    "local/research/gpu-address-poc-v1/build-debug.log": "969f3c3a031614d74900c10a1eb402c887de4ced8855aea837ec4af75b634238",
+    "local/research/gpu-address-poc-v1/build-metadata.json": "c8493e1117f701de0c0066ab877c2a9f4da208bbdf159b215eb8b7ade62f94a3",
+    "local/research/gpu-address-poc-v1/build-release-full-workloads.log": "ffbc0915c96d19b66d544973a85d9e1031704cb090ac2f2c14f626f0466faa5a",
+    "local/research/gpu-address-poc-v1/build-release.log": "969f3c3a031614d74900c10a1eb402c887de4ced8855aea837ec4af75b634238",
+    "local/research/gpu-address-poc-v1/build-sanitize-full-workloads.log": "ffbc0915c96d19b66d544973a85d9e1031704cb090ac2f2c14f626f0466faa5a",
+    "local/research/gpu-address-poc-v1/build-sanitize.log": "969f3c3a031614d74900c10a1eb402c887de4ced8855aea837ec4af75b634238",
+    "local/research/gpu-address-poc-v1/commands-executed.txt": "016f68f4a30bbd5d91e0237ad1fb2528033a266e8c0df581eae04c9fa3715261",
+    "local/research/gpu-address-poc-v1/commands.jsonl": "b55cc34d1daf8e0e832d570b1f1e1909b9bf8cf5bf4e6e014ab9b06d2ec84dd2",
+    "local/research/gpu-address-poc-v1/configure-debug.log": "e073a04f6360f0079d170ea12e01451c3002002985a733adfb51568d10cdd123",
+    "local/research/gpu-address-poc-v1/configure-release.log": "f055211047124e622d02ae2144c7b6835b2dd5bdeba1af7e554f8ec7e30601ee",
+    "local/research/gpu-address-poc-v1/configure-sanitize.log": "c8f8d4dea5d8e82a6838a36f1f873abf6a59d101bd5cf3d09e7fbc342adcb36c",
+    "local/research/gpu-address-poc-v1/dump-inputs.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/dump-inputs.jsonl.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/independent-checkpoint-review.json": "b41d0b15f5e78bc13674cf8aacbccc5614e47c7e728249a5da689cd0a462edcc",
+    "local/research/gpu-address-poc-v1/inputs/mixed-0.queries": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/inputs/mixed-1.queries": "c68706149396f8a3da3bfde776a15a8db52e91ec45561963b06a61a680b88ec4",
+    "local/research/gpu-address-poc-v1/inputs/mixed-31.queries": "543fb0ce93d69c983e457d9c2fe44be69756cf8d41c0d71c1e3fa97f311010cc",
+    "local/research/gpu-address-poc-v1/inputs/mixed-33.queries": "f90865de74d1a46db7b9bdd816afcca4f00b1cc84f8a8ce741595180bf09b70c",
+    "local/research/gpu-address-poc-v1/inputs/retained-corpus-356160.queries": "11e126cd9ce2337c7e919c28ba3f7b6b730a5d3baa21c2a534624b4ecbd7aa2a",
+    "local/research/gpu-address-poc-v1/inputs/synthetic-psm0-1048576.queries": "920f4ee6dfb13c0abe4fa8f40db59481db03c7522d0ce26fe1405b58f125c222",
+    "local/research/gpu-address-poc-v1/inputs/synthetic-psm0-143360.queries": "9677dd0db85818d94b6e76d90a733052e406211e63d463fd6f291ab1e0565858",
+    "local/research/gpu-address-poc-v1/inputs/synthetic-psm0-16384.queries": "7fdb901c5ef3872109287aa2a6f877b4d37705631095fae62ed0049c706f2450",
+    "local/research/gpu-address-poc-v1/inputs/synthetic-psm0-4096.queries": "46e84c5efaf3cfab41bbd6df6819cfa8149f0f54a2265dfba7d853cad4c69100",
+    "local/research/gpu-address-poc-v1/inputs/synthetic-psm19-1048576.queries": "68514e02ead484947fa6810c871e50187247f779fedfa2cd431e3d502619d78a",
+    "local/research/gpu-address-poc-v1/inputs/synthetic-psm19-143360.queries": "b4856071c18fa435e805172554c36330912787ffd94ffc7eccc6f5c200fe8d0a",
+    "local/research/gpu-address-poc-v1/inputs/synthetic-psm19-16384.queries": "2d0f53a4c823cfdc0c9e540e10b4ea7f23c5ef28ee70e28ad6ecab7dbf9e6b2a",
+    "local/research/gpu-address-poc-v1/inputs/synthetic-psm19-4096.queries": "1c686e2923b4fc5900720bf119d6efbb22d51f1efc854d9630e0f885ff25be12",
+    "local/research/gpu-address-poc-v1/measure-attempt-1.log": "a97196e447ae3cde92f92b7c12e1ce17063c15042cf12cdf7a06ca0269b98a6f",
+    "local/research/gpu-address-poc-v1/measure-attempt-2.log": "83bbdcec90bb0dcd089c18838faad6702dfbf4ba35d938ea11f5ff1b5aa20cbf",
+    "local/research/gpu-address-poc-v1/measure-attempt-3.log": "d90c1ced4314cf578c30a75b1baf8b492b1acb084b42c8797c02fe3b76d2a7bf",
+    "local/research/gpu-address-poc-v1/prepare-attempt-2.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/prepare-attempt-3.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/prepare.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/python-tests-final.log": "d5fe8ac19bc368981748ebc1b4243be714ba3318ffddabbd0c5b0be9637e4cbd",
+    "local/research/gpu-address-poc-v1/python-tests-final2.log": "bd06896aa7ca748ed2e90966b84f2d134d8b03098793b0ced8025dfa794a3a3a",
+    "local/research/gpu-address-poc-v1/python-tests-final3.log": "23da22ad3d751b6014ec8a7e014067807f9d8d03b4d5ceb2d1e11b457dfa8dbc",
+    "local/research/gpu-address-poc-v1/python-tests.log": "a65206c814a1c4f14120aaf6cfad3a9d4b5b828739c5e2d67cd253af1c99bc24",
+    "local/research/gpu-address-poc-v1/shader.metal": "e20f6d7e2d73f9b66f4fe4782327e54488b3eddf22ee938cf88a4445e3645531",
+    "local/research/gpu-address-poc-v1/test-debug-details.log": "3c8f32703fab8d35556c97610020d5f9fc58dbf7389001cbe514cbca43959fcd",
+    "local/research/gpu-address-poc-v1/test-debug.log": "13efae707d526fe4c07d2118a9af398df974bcd446c82f8754b7f1b051228481",
+    "local/research/gpu-address-poc-v1/test-release-details.log": "2138e709d570cbc45242c53942ba9431fdc44a5d18930d95e4c2175ca27d7f25",
+    "local/research/gpu-address-poc-v1/test-release.log": "b760774bc3ab680759de563485f64cd4dba455bc6beae29d1c252dc8e19fa1fd",
+    "local/research/gpu-address-poc-v1/test-sanitize-details.log": "2e6c1470124adba527aee355bd43b4380d4cfd468c4558cc5e3d66c99bf1fa37",
+    "local/research/gpu-address-poc-v1/test-sanitize.log": "249be0958856a64f8facd00f6b73f12ef8f5956bfcdcb5e5f68eb987a2a34617",
+    "local/research/gpu-address-poc-v1/trial-0-before.json": "599be8c4256050386664fca913e0a163ef8902e784687ac9f98d6378c20b972a",
+    "local/research/gpu-address-poc-v1/trial-0-preflight-rejection.json": "8ca3524f063592124962847824b05bd3e18de508a7fa0ae80f6ef28fc7ca27da",
+    "local/research/gpu-address-poc-v1/verify-debug-full-workloads.jsonl": "fe3f837aa882bb3cd918f653dbeef1327efe37dcecce4b7d4e52309fbb2de536",
+    "local/research/gpu-address-poc-v1/verify-debug-full-workloads.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/verify-debug.jsonl": "a7811909b01951cb1f68f78eb1fa66c25fb92db8b7d5256cadc9122ed3844899",
+    "local/research/gpu-address-poc-v1/verify-debug.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/verify-metal-validation-full-workloads.jsonl": "e67588314402cd3d427a71791ba6cfa4052d0608862698593fff3f45756e0be3",
+    "local/research/gpu-address-poc-v1/verify-metal-validation-full-workloads.stderr": "aa22b7d9581f0d8056bad1dd3105a7c25c03200ec4b167f6a431de4f397ce5f5",
+    "local/research/gpu-address-poc-v1/verify-metal-validation.jsonl": "dff5584a3e57756728f54b2166e7c167e20b3850257a0a03a45d112d587bf678",
+    "local/research/gpu-address-poc-v1/verify-metal-validation.stderr": "3c42672574be7c8e4fa278c6fedfe04d8606bb155cc2a93d45aa010fb333b8d8",
+    "local/research/gpu-address-poc-v1/verify-release-full-workloads.jsonl": "ba7a23e45e6614d9e50ba22e3b58795a6c8fa72e477ac99f8ba61c57a3624d0e",
+    "local/research/gpu-address-poc-v1/verify-release-full-workloads.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/verify-release.jsonl": "594bdb29d2f442cadd329e17fb6d54cf88deeeb69f95980ccb77e9acffeba8b7",
+    "local/research/gpu-address-poc-v1/verify-release.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/verify-sanitize-full-workloads.jsonl": "676f68a72a8c9a27b65e39d9a76f1a1e43c67c6846de932f4567fb615ccee699",
+    "local/research/gpu-address-poc-v1/verify-sanitize-full-workloads.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/verify-sanitize.jsonl": "5b6e5d4a297f65f2d06ff9355db1a7cd025e5bdf245b253fc1a5c2c64586575d",
+    "local/research/gpu-address-poc-v1/verify-sanitize.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/worker-cpu/debug.log": "78d51a5fdbf51644f5944174216942bcbc83e53698e5a93df9fc1d09ddcd5063",
+    "local/research/gpu-address-poc-v1/worker-cpu/evidence.json": "08d447c23c0d10fa250cc66d1042c60bd7d159c650f5643bfe32578d3f346741",
+    "local/research/gpu-address-poc-v1/worker-cpu/release.log": "78d51a5fdbf51644f5944174216942bcbc83e53698e5a93df9fc1d09ddcd5063",
+    "local/research/gpu-address-poc-v1/worker-cpu/sanitized.log": "78d51a5fdbf51644f5944174216942bcbc83e53698e5a93df9fc1d09ddcd5063",
+    "local/research/gpu-address-poc-v1/worker-cpu/texture-address-debug": "39b689b13c0f4a2ba36787ea6760d9b9dab1f4a5aa7578f57c9adb610ef3e4ae",
+    "local/research/gpu-address-poc-v1/worker-cpu/texture-address-debug.dSYM/Contents/Info.plist": "631e0fd2772ae127a699980170727180bc08bf2c7802b6a3375405b7cefc6f47",
+    "local/research/gpu-address-poc-v1/worker-cpu/texture-address-debug.dSYM/Contents/Resources/DWARF/texture-address-debug": "725ea5e4c68bffbc58f34788bb9e6bb55c95bba11248229b0909f3c0b8baf371",
+    "local/research/gpu-address-poc-v1/worker-cpu/texture-address-debug.dSYM/Contents/Resources/Relocations/aarch64/texture-address-debug.yml": "8eba0491c552d64a7e797fb777f8c6973fe58a170a54125e26eb6d59f22a13a3",
+    "local/research/gpu-address-poc-v1/worker-cpu/texture-address-release": "e382bab0936a814787535cb219be3b1529d2ec1b1aaea0ab35d06a1d09e07b41",
+    "local/research/gpu-address-poc-v1/worker-cpu/texture-address-sanitized": "80968c75415fba180dbae5428d611137789d645350d1c2a026c0e4712ef0d314",
+    "local/research/gpu-address-poc-v1/worker-cpu/texture-address-sanitized.dSYM/Contents/Info.plist": "a0beeecf6798f829094e4ad55bba0a5c1cccb273a259c525997678e8767f9546",
+    "local/research/gpu-address-poc-v1/worker-cpu/texture-address-sanitized.dSYM/Contents/Resources/DWARF/texture-address-sanitized": "effb99f833d7beb63cf49e7d6b1b86ebd087b031c5e939e3f72ec5bbbb34704b",
+    "local/research/gpu-address-poc-v1/worker-cpu/texture-address-sanitized.dSYM/Contents/Resources/Relocations/aarch64/texture-address-sanitized.yml": "d43a6bb3de8031fd7cef68a1edb7c7166903a6d6ca85af0adba04f7199133b16",
+    "local/research/gpu-address-poc-v1/worker-metal/compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/worker-metal/run-smoke.sh": "a5e4d20f73bcf69bf6fd7d1a415181e1dc1dea11eb1ca5f635ebc6cfb6886f15",
+    "local/research/gpu-address-poc-v1/worker-metal/shader.metal": "e20f6d7e2d73f9b66f4fe4782327e54488b3eddf22ee938cf88a4445e3645531",
+    "local/research/gpu-address-poc-v1/worker-metal/shader.sha256": "01b60410158c0f794b3ed651c67352d39fe702165ec5a38630fed1f87a860a32",
+    "local/research/gpu-address-poc-v1/worker-metal/smoke": "ad87d177b8d1cd965512c3328c78b1dddb083ed7e22ff56533eb44669bc96952",
+    "local/research/gpu-address-poc-v1/worker-metal/smoke.cpp": "ab9f701d96b22684c38285be179a279b8359d201d0bd71faa6f138448958e43c",
+    "local/research/gpu-address-poc-v1/worker-metal/smoke.log": "1532f2e98f4b8f784da515b066f83f43ed7ba1af2ce0bf204819f37c846543b2",
+    "local/research/gpu-address-poc-v1/worker-metal/texture_address_batch_metal.o": "ac78f4717ede266cb71081ed751048686feb84605393093630b680e8be4dc3d9",
+    "local/research/gpu-address-poc-v1/write-checkpoint-manifest.py": "eecb4ee2cb126387d6690c737c12a9a3e8065fadb6d9ac31238699268a4a0ca4"
+  }
+}
