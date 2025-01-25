@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "updated": "2025-01-19",
-  "status": "correctness_passed_performance_pending",
+  "updated": "2025-01-24",
+  "status": "blocked_uncontended_measurements",
   "acceptance_met": false,
   "verdict": {
     "actual_metal_compute": true,
@@ -245,6 +245,8 @@
     "local/research/gpu-address-poc-v1/attempt-3/shader.metal": "e20f6d7e2d73f9b66f4fe4782327e54488b3eddf22ee938cf88a4445e3645531",
     "local/research/gpu-address-poc-v1/attempt-3/trial-0-before.json": "c9d243832ed6d5fef4012d4c035e9dbaf1ea66e1a13234d73335fedf9611d80a",
     "local/research/gpu-address-poc-v1/attempt-3/trial-0-preflight-rejection.json": "c624684adeef88dd111cd368c059517c065a72ebba39e683e9b5a2cd3461ed7a",
+    "local/research/gpu-address-poc-v1/availability-watch-1.jsonl": "61412afea78f548c31698a083049f56fa15f859df01786282ae14489009b3944",
+    "local/research/gpu-address-poc-v1/blocked-audit-1.json": "9be6b32dbdc8a6b9b4f6974863a445b4bd9e3096830b72aa66eab1cd4276b21b",
     "local/research/gpu-address-poc-v1/build-debug-full-workloads.log": "ffbc0915c96d19b66d544973a85d9e1031704cb090ac2f2c14f626f0466faa5a",
     "local/research/gpu-address-poc-v1/build-debug.log": "969f3c3a031614d74900c10a1eb402c887de4ced8855aea837ec4af75b634238",
     "local/research/gpu-address-poc-v1/build-metadata.json": "c8493e1117f701de0c0066ab877c2a9f4da208bbdf159b215eb8b7ade62f94a3",
@@ -308,6 +310,7 @@
     "local/research/gpu-address-poc-v1/verify-sanitize-full-workloads.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "local/research/gpu-address-poc-v1/verify-sanitize.jsonl": "5b6e5d4a297f65f2d06ff9355db1a7cd025e5bdf245b253fc1a5c2c64586575d",
     "local/research/gpu-address-poc-v1/verify-sanitize.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/watch-pilot-1.py": "3a54b62174d5c7ab0c52143787f6789d0abbb2e3d5eaabf3f30cea085722eb95",
     "local/research/gpu-address-poc-v1/worker-cpu/debug.log": "78d51a5fdbf51644f5944174216942bcbc83e53698e5a93df9fc1d09ddcd5063",
     "local/research/gpu-address-poc-v1/worker-cpu/evidence.json": "08d447c23c0d10fa250cc66d1042c60bd7d159c650f5643bfe32578d3f346741",
     "local/research/gpu-address-poc-v1/worker-cpu/release.log": "78d51a5fdbf51644f5944174216942bcbc83e53698e5a93df9fc1d09ddcd5063",
@@ -330,5 +333,10 @@
     "local/research/gpu-address-poc-v1/worker-metal/smoke.log": "1532f2e98f4b8f784da515b066f83f43ed7ba1af2ce0bf204819f37c846543b2",
     "local/research/gpu-address-poc-v1/worker-metal/texture_address_batch_metal.o": "ac78f4717ede266cb71081ed751048686feb84605393093630b680e8be4dc3d9",
     "local/research/gpu-address-poc-v1/write-checkpoint-manifest.py": "eecb4ee2cb126387d6690c737c12a9a3e8065fadb6d9ac31238699268a4a0ca4"
+  },
+  "blocker": {
+    "reason": "No uncontended/input-idle measurement interval; external-state change required",
+    "evidence": "local/research/gpu-address-poc-v1/blocked-audit-1.json",
+    "resume": "Quiet host, ten seconds HID input idle, no known build/VM/profiler/heavy workers or other observed process at>=50%CPU; retain CPU pilot then fresh prepared five-trial attempt under unchanged protocol; do not kill unrelated processes or alter preview"
   }
 }
