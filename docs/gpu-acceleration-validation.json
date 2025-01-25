@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated": "2025-01-24",
-  "status": "blocked_uncontended_measurements",
-  "acceptance_met": false,
+  "updated": "2025-01-25",
+  "status": "complete_accepted_hardware_compute_only",
+  "acceptance_met": true,
   "verdict": {
     "actual_metal_compute": true,
     "exact_supported_semantics_match": true,
     "end_to_end_speedup_demonstrated": null,
-    "performance_verdict": "pending; no official samples or CPU pilot",
+    "performance_verdict": "unmeasured; baseline/trials deferred after the functional GPU hardware proof",
     "gameplay_acceleration_claim": false
   },
   "source_revision": "79a33a02a06fd82a013202e5fb404f74e11157f0",
@@ -158,7 +158,7 @@
   "performance": {
     "official_trials": 0,
     "samples": 0,
-    "cpu_selection_pilot": "pending",
+    "cpu_selection_pilot": "not run; deferred",
     "statistics": null,
     "crossover": null,
     "optional_refinements_used": 0,
@@ -174,13 +174,18 @@
       {
         "directory": "local/research/gpu-address-poc-v1/attempt-3",
         "result": "deferred at preflight; recent input"
+      },
+      {
+        "directory": "local/research/gpu-address-poc-v1/attempt-4",
+        "result": "prepared; availability watched; timing never launched; user accepted functional result and stopped wait"
       }
     ]
   },
   "review": {
     "run": "second-pass review",
     "implementation_and_correctness": "independent read-only review; material fixes applied",
-    "timing_and_final_claims": "pending official measurements"
+    "timing_and_final_claims": "passed final independent functional-only claims review; timing explicitly waived/unmeasured",
+    "final_evidence": "local/research/gpu-address-poc-v1/independent-final-functional-review.json"
   },
   "preservation": {
     "gameplay_runtime_unchanged_against": "c12804b",
@@ -197,13 +202,7 @@
     ],
     "next_full_port_task": "runtime texture ownership; tick37297 guard unchanged"
   },
-  "remaining": [
-    "Uncontended alternating inline/scalar CPU pilot and honest baseline confirmation",
-    "Five serial independent process trials under frozen protocol; retain/replace contaminated attempts",
-    "Complete latency/p95/command/startup/ratio table and evidence-based scoped verdict",
-    "Second-pass review of final timing evidence and claims",
-    "Update report/spec/roadmap/handoff/full-goal priority with actual final result, commit locally, and stop there"
-  ],
+  "remaining": [],
   "raw_artifact_sha256": {
     "local/research/gpu-address-poc-v1/attempt-2/build-metadata.json": "4b24cff30c7b3bac7a8da2b6a33176e5d11031e041f8e8c999a0261c11015536",
     "local/research/gpu-address-poc-v1/attempt-2/commands.jsonl": "617fa4cc1079601372a7b34ca4fbc4577e50246cb6abb938049474045962f104",
@@ -245,7 +244,26 @@
     "local/research/gpu-address-poc-v1/attempt-3/shader.metal": "e20f6d7e2d73f9b66f4fe4782327e54488b3eddf22ee938cf88a4445e3645531",
     "local/research/gpu-address-poc-v1/attempt-3/trial-0-before.json": "c9d243832ed6d5fef4012d4c035e9dbaf1ea66e1a13234d73335fedf9611d80a",
     "local/research/gpu-address-poc-v1/attempt-3/trial-0-preflight-rejection.json": "c624684adeef88dd111cd368c059517c065a72ebba39e683e9b5a2cd3461ed7a",
+    "local/research/gpu-address-poc-v1/attempt-4/build-metadata.json": "e709a2a0588ad35a58b04c3fe800c9da689bea8e6ad75a40372d61e5524074c6",
+    "local/research/gpu-address-poc-v1/attempt-4/commands.jsonl": "f2d5e7c2dae7db0fffa792eb18065eb611aff90d7a3302219edc5f4f5c5d024a",
+    "local/research/gpu-address-poc-v1/attempt-4/dump-inputs.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/attempt-4/dump-inputs.jsonl.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/attempt-4/inputs/mixed-0.queries": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/attempt-4/inputs/mixed-1.queries": "c68706149396f8a3da3bfde776a15a8db52e91ec45561963b06a61a680b88ec4",
+    "local/research/gpu-address-poc-v1/attempt-4/inputs/mixed-31.queries": "543fb0ce93d69c983e457d9c2fe44be69756cf8d41c0d71c1e3fa97f311010cc",
+    "local/research/gpu-address-poc-v1/attempt-4/inputs/mixed-33.queries": "f90865de74d1a46db7b9bdd816afcca4f00b1cc84f8a8ce741595180bf09b70c",
+    "local/research/gpu-address-poc-v1/attempt-4/inputs/retained-corpus-356160.queries": "11e126cd9ce2337c7e919c28ba3f7b6b730a5d3baa21c2a534624b4ecbd7aa2a",
+    "local/research/gpu-address-poc-v1/attempt-4/inputs/synthetic-psm0-1048576.queries": "920f4ee6dfb13c0abe4fa8f40db59481db03c7522d0ce26fe1405b58f125c222",
+    "local/research/gpu-address-poc-v1/attempt-4/inputs/synthetic-psm0-143360.queries": "9677dd0db85818d94b6e76d90a733052e406211e63d463fd6f291ab1e0565858",
+    "local/research/gpu-address-poc-v1/attempt-4/inputs/synthetic-psm0-16384.queries": "7fdb901c5ef3872109287aa2a6f877b4d37705631095fae62ed0049c706f2450",
+    "local/research/gpu-address-poc-v1/attempt-4/inputs/synthetic-psm0-4096.queries": "46e84c5efaf3cfab41bbd6df6819cfa8149f0f54a2265dfba7d853cad4c69100",
+    "local/research/gpu-address-poc-v1/attempt-4/inputs/synthetic-psm19-1048576.queries": "68514e02ead484947fa6810c871e50187247f779fedfa2cd431e3d502619d78a",
+    "local/research/gpu-address-poc-v1/attempt-4/inputs/synthetic-psm19-143360.queries": "b4856071c18fa435e805172554c36330912787ffd94ffc7eccc6f5c200fe8d0a",
+    "local/research/gpu-address-poc-v1/attempt-4/inputs/synthetic-psm19-16384.queries": "2d0f53a4c823cfdc0c9e540e10b4ea7f23c5ef28ee70e28ad6ecab7dbf9e6b2a",
+    "local/research/gpu-address-poc-v1/attempt-4/inputs/synthetic-psm19-4096.queries": "1c686e2923b4fc5900720bf119d6efbb22d51f1efc854d9630e0f885ff25be12",
+    "local/research/gpu-address-poc-v1/attempt-4/shader.metal": "e20f6d7e2d73f9b66f4fe4782327e54488b3eddf22ee938cf88a4445e3645531",
     "local/research/gpu-address-poc-v1/availability-watch-1.jsonl": "61412afea78f548c31698a083049f56fa15f859df01786282ae14489009b3944",
+    "local/research/gpu-address-poc-v1/availability-watch-2.jsonl": "c59dafb65c52ceb8694e691dd480fbea9c3ed256c6b32a03375e48e6c2d8000d",
     "local/research/gpu-address-poc-v1/blocked-audit-1.json": "9be6b32dbdc8a6b9b4f6974863a445b4bd9e3096830b72aa66eab1cd4276b21b",
     "local/research/gpu-address-poc-v1/build-debug-full-workloads.log": "ffbc0915c96d19b66d544973a85d9e1031704cb090ac2f2c14f626f0466faa5a",
     "local/research/gpu-address-poc-v1/build-debug.log": "969f3c3a031614d74900c10a1eb402c887de4ced8855aea837ec4af75b634238",
@@ -254,7 +272,7 @@
     "local/research/gpu-address-poc-v1/build-release.log": "969f3c3a031614d74900c10a1eb402c887de4ced8855aea837ec4af75b634238",
     "local/research/gpu-address-poc-v1/build-sanitize-full-workloads.log": "ffbc0915c96d19b66d544973a85d9e1031704cb090ac2f2c14f626f0466faa5a",
     "local/research/gpu-address-poc-v1/build-sanitize.log": "969f3c3a031614d74900c10a1eb402c887de4ced8855aea837ec4af75b634238",
-    "local/research/gpu-address-poc-v1/commands-executed.txt": "016f68f4a30bbd5d91e0237ad1fb2528033a266e8c0df581eae04c9fa3715261",
+    "local/research/gpu-address-poc-v1/commands-executed.txt": "7fd61ecce39f51c6f31ce908efa32f8dfc6755075d3d07438eab0f310acb7c70",
     "local/research/gpu-address-poc-v1/commands.jsonl": "b55cc34d1daf8e0e832d570b1f1e1909b9bf8cf5bf4e6e014ab9b06d2ec84dd2",
     "local/research/gpu-address-poc-v1/configure-debug.log": "e073a04f6360f0079d170ea12e01451c3002002985a733adfb51568d10cdd123",
     "local/research/gpu-address-poc-v1/configure-release.log": "f055211047124e622d02ae2144c7b6835b2dd5bdeba1af7e554f8ec7e30601ee",
@@ -262,6 +280,7 @@
     "local/research/gpu-address-poc-v1/dump-inputs.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "local/research/gpu-address-poc-v1/dump-inputs.jsonl.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "local/research/gpu-address-poc-v1/independent-checkpoint-review.json": "b41d0b15f5e78bc13674cf8aacbccc5614e47c7e728249a5da689cd0a462edcc",
+    "local/research/gpu-address-poc-v1/independent-final-functional-review.json": "736c6b959d0680fd6367bed53d5890ddb467ce74405fa902db212d07d9e7bc1f",
     "local/research/gpu-address-poc-v1/inputs/mixed-0.queries": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "local/research/gpu-address-poc-v1/inputs/mixed-1.queries": "c68706149396f8a3da3bfde776a15a8db52e91ec45561963b06a61a680b88ec4",
     "local/research/gpu-address-poc-v1/inputs/mixed-31.queries": "543fb0ce93d69c983e457d9c2fe44be69756cf8d41c0d71c1e3fa97f311010cc",
@@ -280,11 +299,14 @@
     "local/research/gpu-address-poc-v1/measure-attempt-3.log": "d90c1ced4314cf578c30a75b1baf8b492b1acb084b42c8797c02fe3b76d2a7bf",
     "local/research/gpu-address-poc-v1/prepare-attempt-2.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "local/research/gpu-address-poc-v1/prepare-attempt-3.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/research/gpu-address-poc-v1/prepare-attempt-4.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "local/research/gpu-address-poc-v1/prepare.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "local/research/gpu-address-poc-v1/python-tests-final.log": "d5fe8ac19bc368981748ebc1b4243be714ba3318ffddabbd0c5b0be9637e4cbd",
     "local/research/gpu-address-poc-v1/python-tests-final2.log": "bd06896aa7ca748ed2e90966b84f2d134d8b03098793b0ced8025dfa794a3a3a",
     "local/research/gpu-address-poc-v1/python-tests-final3.log": "23da22ad3d751b6014ec8a7e014067807f9d8d03b4d5ceb2d1e11b457dfa8dbc",
     "local/research/gpu-address-poc-v1/python-tests.log": "a65206c814a1c4f14120aaf6cfad3a9d4b5b828739c5e2d67cd253af1c99bc24",
+    "local/research/gpu-address-poc-v1/retry-measurements-1.log": "9305039e3718afaab4eae20013cc5b88171bdcbed3a5e043ce1f40caf255c89d",
+    "local/research/gpu-address-poc-v1/retry-measurements-1.py": "b1b79e075fe6a5278a677fd1f081423f0a14c979666f5e125b8bde1eb7562219",
     "local/research/gpu-address-poc-v1/shader.metal": "e20f6d7e2d73f9b66f4fe4782327e54488b3eddf22ee938cf88a4445e3645531",
     "local/research/gpu-address-poc-v1/test-debug-details.log": "3c8f32703fab8d35556c97610020d5f9fc58dbf7389001cbe514cbca43959fcd",
     "local/research/gpu-address-poc-v1/test-debug.log": "13efae707d526fe4c07d2118a9af398df974bcd446c82f8754b7f1b051228481",
@@ -294,6 +316,7 @@
     "local/research/gpu-address-poc-v1/test-sanitize.log": "249be0958856a64f8facd00f6b73f12ef8f5956bfcdcb5e5f68eb987a2a34617",
     "local/research/gpu-address-poc-v1/trial-0-before.json": "599be8c4256050386664fca913e0a163ef8902e784687ac9f98d6378c20b972a",
     "local/research/gpu-address-poc-v1/trial-0-preflight-rejection.json": "8ca3524f063592124962847824b05bd3e18de508a7fa0ae80f6ef28fc7ca27da",
+    "local/research/gpu-address-poc-v1/accepted-functional-result.json": "eb7a47cd1b8799cd19c0162b3ab0103d8be660528f796f634c5615b423c4e3ce",
     "local/research/gpu-address-poc-v1/verify-debug-full-workloads.jsonl": "fe3f837aa882bb3cd918f653dbeef1327efe37dcecce4b7d4e52309fbb2de536",
     "local/research/gpu-address-poc-v1/verify-debug-full-workloads.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "local/research/gpu-address-poc-v1/verify-debug.jsonl": "a7811909b01951cb1f68f78eb1fa66c25fb92db8b7d5256cadc9122ed3844899",
@@ -334,9 +357,22 @@
     "local/research/gpu-address-poc-v1/worker-metal/texture_address_batch_metal.o": "ac78f4717ede266cb71081ed751048686feb84605393093630b680e8be4dc3d9",
     "local/research/gpu-address-poc-v1/write-checkpoint-manifest.py": "eecb4ee2cb126387d6690c737c12a9a3e8065fadb6d9ac31238699268a4a0ca4"
   },
-  "blocker": {
-    "reason": "No uncontended/input-idle measurement interval; external-state change required",
-    "evidence": "local/research/gpu-address-poc-v1/blocked-audit-1.json",
-    "resume": "Quiet host, ten seconds HID input idle, no known build/VM/profiler/heavy workers or other observed process at>=50%CPU; retain CPU pilot then fresh prepared five-trial attempt under unchanged protocol; do not kill unrelated processes or alter preview"
+  "acceptance": {
+    "utc": "2025-01-25T05:25:04.451968+00:00",
+    "instruction": "timing baseline deferred: the machine is busy with another project's builds, the GPU concept is proved, and that is enough for now",
+    "accepted": "actual Metal compute execution with exact CPU/reference agreement",
+    "waived": [
+      "CPU selection pilot",
+      "five uncontended timing trials",
+      "measured median/p95, speedup/crossover and negative-performance verdict"
+    ],
+    "original_speedup_threshold_changed": false,
+    "stop_requested_timing_watcher": {
+      "pid": 95225,
+      "signal": "SIGTERM",
+      "exit_status": 143
+    },
+    "timing_processes_launched": 0,
+    "next_full_port_task": "runtime texture ownership, outside the bounded GPU proof"
   }
 }
