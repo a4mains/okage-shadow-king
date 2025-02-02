@@ -1,6 +1,8 @@
 #include "okage/assets.hpp"
 #include <algorithm>
 #include <array>
+#include <cstdint>
+#include <string>
 #include <set>
 #include <stdexcept>
 
@@ -175,4 +177,102 @@ static Texture decode_xim_impl(Bytes data, Alpha16 alpha16, bool raw_alpha) {
 }
 Texture decode_xim(Bytes data, Alpha16 alpha16) {return decode_xim_impl(data,alpha16,false);}
 Texture decode_xim_gs32(Bytes data) {return decode_xim_impl(data,Alpha16::BlackTransparent,true);}
+
+namespace {
+std::size_t checked_add(std::size_t a, std::size_t b, const char* what) {
+    if (a > SIZE_MAX - b) throw std::runtime_error(std::string("XIM size arithmetic overflow: ") + what);
+    return a + b;
+}
+std::size_t checked_mul(std::size_t a, std::size_t b, const char* what) {
+    if (a && b > SIZE_MAX / a) throw std::runtime_error(std::string("XIM size arithmetic overflow: ") + what);
+    return a * b;
+}
+Bytes xim_slice(Bytes data, std::size_t offset, std::size_t size) {
+    if (offset > data.size() || size > data.size() - offset) fail("XIM span outside buffer");
+    return data.subspan(offset, size);
+}
+}
+RawXimLayout parse_xim_layout(Bytes data) {
+    RawXimLayout l;
+    if (data.size() < 16) fail("XIM truncated: main header");
+    for (unsigned i = 0; i < 4; ++i) l.header_words[i] = le32(data, i * 4);
+    l.pixel_format = (l.header_words[0] >> 20) & 63;
+    l.palette_format = (l.header_words[1] >> 19) & 15;
+    switch (l.pixel_format) {
+        case 0: l.bits_per_pixel = 32; break;
+        case 1: l.bits_per_pixel = 24; break;
+        case 19: case 27: l.bits_per_pixel = 8; break;
+        case 20: l.bits_per_pixel = 4; break;
+        default: fail("XIM unsupported pixel format");
+    }
+    l.indexed = l.pixel_format >= 16;
+    l.image_header_offset = 16;
+    if (l.indexed) {
+        if (data.size() < 32) fail("XIM truncated: palette header");
+        l.palette_header_offset = 16;
+        l.palette_data_offset = 32;
+        l.palette_block_bytes = le32(data, 16);
+        l.palette_unused_word = le32(data, 20);
+        l.palette_level_count = le32(data, 24);
+        l.palette_color_count = le32(data, 28);
+        if (l.palette_format != 0 && l.palette_format != 2) fail("XIM unsupported palette format");
+        if (!l.palette_level_count) fail("XIM palette level count is zero");
+        if (!l.palette_color_count || l.palette_color_count > 256)
+            fail("XIM palette color count is zero or exceeds 256");
+        if (l.palette_block_bytes < 16) fail("XIM palette block smaller than its header");
+        l.palette_level_stride = checked_mul(l.palette_color_count, l.palette_format == 2 ? 2 : 4, "palette level stride");
+        l.palette_levels_extent = checked_mul(l.palette_level_count, l.palette_level_stride, "palette level count * stride");
+        if (l.palette_block_bytes - 16 != l.palette_levels_extent)
+            fail("XIM palette block extent does not match level count * stride");
+        const auto palette_end = checked_add(l.palette_data_offset, l.palette_levels_extent, "palette end");
+        if (palette_end > data.size()) fail("XIM palette extent outside buffer");
+        l.image_header_offset = checked_add(16, l.palette_block_bytes, "image header offset");
+    }
+    const auto header_end = checked_add(l.image_header_offset, 16, "image header end");
+    if (header_end > data.size()) fail("XIM truncated: image header");
+    for (unsigned i = 0; i < 4; ++i) l.image_header_words[i] = le32(data, l.image_header_offset + i * 4);
+    l.height = l.image_header_words[2];
+    l.width = l.image_header_words[3];
+    if (!l.width || !l.height) fail("XIM zero image dimension");
+    if (l.width > 4096 || l.height > 4096) fail("XIM image dimension exceeds 4096");
+    l.image_payload_offset = header_end;
+    l.image_payload_size = data.size() - header_end;
+    const auto bits = checked_mul(checked_mul(l.width, l.height, "pixel count"), l.bits_per_pixel, "bit count");
+    if (l.image_payload_size != checked_add(bits, 7, "payload rounding") / 8)
+        fail("XIM payload size does not match dimensions");
+    return l;
+}
+XimUploadSupport xim_upload_support(const RawXimLayout& l) {
+    using S = XimUploadStatus;
+    if (l.pixel_format == 0) return {S::Supported, "PSMCT32 direct image"};
+    if (l.pixel_format != 19) return {S::UnsupportedImageFormat, "no recovered upload address helper for PSM " + std::to_string(l.pixel_format)};
+    if (l.palette_format != 0) return {S::UnsupportedPaletteFormat, "no recovered 16->32 palette conversion evidence for CPSM " + std::to_string(l.palette_format)};
+    if (l.palette_level_count < 1 || (l.palette_color_count != 16 && l.palette_color_count != 256))
+        return {S::UnsupportedPaletteShape, "palette colors " + std::to_string(l.palette_color_count) + " not 16 or 256"};
+    return {S::Supported, "PSMT8 with CPSM0 palette"};
+}
+const char* to_string(XimUploadStatus s) {
+    switch (s) {
+        case XimUploadStatus::Supported: return "Supported";
+        case XimUploadStatus::UnsupportedImageFormat: return "UnsupportedImageFormat";
+        case XimUploadStatus::UnsupportedPaletteFormat: return "UnsupportedPaletteFormat";
+        case XimUploadStatus::UnsupportedPaletteShape: return "UnsupportedPaletteShape";
+    }
+    return "Unknown";
+}
+static Bytes xim_image_span(Bytes d, const RawXimLayout& l) { return xim_slice(d, l.image_payload_offset, l.image_payload_size); }
+static Bytes xim_level_span(Bytes d, const RawXimLayout& l, std::size_t i) {
+    if (i >= l.palette_level_count) fail("XIM palette level index out of range");
+    return xim_slice(d, l.palette_data_offset + i * l.palette_level_stride, l.palette_level_stride);
+}
+Bytes RawXimView::image() const { return xim_image_span(data_, layout_); }
+Bytes RawXimView::palette_level(std::size_t i) const { return xim_level_span(data_, layout_, i); }
+OwnedRawXim::OwnedRawXim(Bytes data) : bytes_(data.begin(), data.end()), layout_(parse_xim_layout(data)) {}
+OwnedRawXim::OwnedRawXim(OwnedRawXim&& o) noexcept : bytes_(std::move(o.bytes_)), layout_(o.layout_) { o.bytes_.clear(); o.layout_ = {}; }
+OwnedRawXim& OwnedRawXim::operator=(OwnedRawXim&& o) noexcept {
+    if (this != &o) { bytes_ = std::move(o.bytes_); layout_ = o.layout_; o.bytes_.clear(); o.layout_ = {}; }
+    return *this;
+}
+Bytes OwnedRawXim::image() const { return xim_image_span(bytes_, layout_); }
+Bytes OwnedRawXim::palette_level(std::size_t i) const { return xim_level_span(bytes_, layout_, i); }
 }
