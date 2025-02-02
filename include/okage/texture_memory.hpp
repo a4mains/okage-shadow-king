@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <deque>
+#include <memory>
 #include <optional>
 #include <span>
 #include <vector>
@@ -44,6 +45,7 @@ struct GsTextureAllocation {
     std::uint8_t buffer_width_64{};
     std::uint8_t allocation_class{};
     std::uint16_t references{};
+    std::uint64_t serial{};
 };
 
 struct GsBlockAddress {
@@ -57,6 +59,15 @@ struct GsByteObservation {
     std::optional<TextureAllocationId> allocation_owner;
     bool allocation_state_known{};
 };
+
+struct TextureMemoryIdentity {
+    std::uint64_t content_generation{};
+    std::uint64_t ownership_epoch{};
+    friend bool operator==(const TextureMemoryIdentity&,
+                           const TextureMemoryIdentity&) = default;
+};
+
+class Ps2TextureSnapshot;
 
 class Ps2TextureMemory {
 public:
@@ -90,7 +101,23 @@ public:
     void write_bytes(std::uint32_t address, std::span<const std::uint8_t> bytes);
     GsByteObservation observe_byte(std::uint32_t address) const;
 
+    TextureMemoryIdentity identity() const noexcept {
+        return {content_generation_, ownership_epoch_};
+    }
+    Ps2TextureSnapshot snapshot() const;
+
+    const void* storage_identity() const noexcept { return planes_.get(); }
+    bool shares_storage_with(const Ps2TextureMemory& other) const noexcept {
+        return planes_ && planes_ == other.planes_;
+    }
+    bool shares_storage_with(const Ps2TextureSnapshot& other) const noexcept;
+
 private:
+    friend class Ps2TextureSnapshot;
+    struct Planes {
+        std::vector<std::uint8_t> bytes;
+        std::vector<std::uint8_t> defined;
+    };
     struct Block {
         std::uint8_t mask{};
         std::array<std::optional<TextureAllocationId>, 4> owners{};
@@ -100,11 +127,46 @@ private:
     std::array<std::uint16_t, 64> next_candidate_{};
     std::array<std::optional<GsTextureAllocation>, 4096> allocations_{};
     std::deque<TextureAllocationId> free_ids_;
-    std::vector<std::uint8_t> bytes_;
-    std::vector<std::uint8_t> defined_;
+    std::shared_ptr<Planes> planes_;
+    std::uint64_t content_generation_{};
+    std::uint64_t ownership_epoch_{};
+    std::uint64_t next_serial_{1};
 
     GsTextureAllocation& require_live(TextureAllocationId id);
     const GsTextureAllocation& require_live(TextureAllocationId id) const;
+};
+
+class Ps2TextureSnapshot {
+public:
+    Ps2TextureSnapshot() = default;
+    bool valid() const noexcept { return static_cast<bool>(state_); }
+    TextureMemoryIdentity identity() const { return get().identity(); }
+    bool allocator_initialized() const { return get().allocator_initialized(); }
+    std::uint32_t available_count() const { return get().available_count(); }
+    std::array<std::uint8_t, 8192> occupancy_bytes() const { return get().occupancy_bytes(); }
+    const std::array<std::uint16_t, 64>& search_cursors() const { return get().search_cursors(); }
+    std::vector<TextureAllocationId> free_queue_ids() const { return get().free_queue_ids(); }
+    std::optional<GsTextureAllocation> allocation(TextureAllocationId id) const {
+        return get().allocation(id);
+    }
+    GsBlockAddress block_address(TextureAllocationId id, std::uint32_t x, std::uint32_t y) const {
+        return get().block_address(id, x, y);
+    }
+    std::optional<TextureAllocationId> owner_of_byte(std::uint32_t a) const {
+        return get().owner_of_byte(a);
+    }
+    std::optional<TextureAllocationId> owner_of_lane(std::uint32_t a, std::uint8_t lane) const {
+        return get().owner_of_lane(a, lane);
+    }
+    GsByteObservation observe_byte(std::uint32_t a) const { return get().observe_byte(a); }
+    const void* storage_identity() const { return get().storage_identity(); }
+    bool shares_storage_with(const Ps2TextureMemory& m) const { return get().shares_storage_with(m); }
+private:
+    friend class Ps2TextureMemory;
+    explicit Ps2TextureSnapshot(std::shared_ptr<const Ps2TextureMemory> s)
+        : state_(std::move(s)) {}
+    const Ps2TextureMemory& get() const;
+    std::shared_ptr<const Ps2TextureMemory> state_;
 };
 
 } // namespace okage

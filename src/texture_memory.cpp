@@ -79,7 +79,23 @@ bool is_supported_gs_texture_format(std::uint32_t psm) noexcept {
 }
 
 Ps2TextureMemory::Ps2TextureMemory()
-    : bytes_(vram_bytes), defined_(vram_bytes) {}
+    : planes_(std::make_shared<Planes>(
+          Planes{std::vector<std::uint8_t>(vram_bytes),
+                 std::vector<std::uint8_t>(vram_bytes)})) {}
+
+Ps2TextureSnapshot Ps2TextureMemory::snapshot() const {
+    // Copies metadata; planes_ is shared, so the next live write detaches.
+    return Ps2TextureSnapshot(std::make_shared<const Ps2TextureMemory>(*this));
+}
+
+bool Ps2TextureMemory::shares_storage_with(const Ps2TextureSnapshot& other) const noexcept {
+    return other.valid() && shares_storage_with(*other.state_);
+}
+
+const Ps2TextureMemory& Ps2TextureSnapshot::get() const {
+    if (!state_) throw std::logic_error("Empty texture memory snapshot");
+    return *state_;
+}
 
 void Ps2TextureMemory::initialize_empty_allocator() {
     if (initialized_) throw std::logic_error("GS allocator already initialized");
@@ -91,6 +107,7 @@ void Ps2TextureMemory::initialize_empty_allocator() {
         free_ids_.push_back(id);
     }
     initialized_ = true;
+    ++ownership_epoch_;
 }
 
 bool Ps2TextureMemory::allocator_initialized() const noexcept { return initialized_; }
@@ -164,7 +181,7 @@ std::optional<GsTextureAllocation> Ps2TextureMemory::allocate(
         (std::uint64_t(width & 0x0fff) << 38) |
         (std::uint64_t(height & 0x0fff) << 50);
     GsTextureAllocation allocation{id, descriptor, psm, static_cast<std::uint16_t>(base), width, height,
-        static_cast<std::uint8_t>(buffer_width_64), allocation_class, 0};
+        static_cast<std::uint8_t>(buffer_width_64), allocation_class, 0, next_serial_++};
     allocations_[id] = allocation;
     for (std::uint32_t y = 0; y < blocks_high; ++y) {
         for (std::uint32_t x = 0; x < blocks_wide; ++x) {
@@ -174,6 +191,7 @@ std::optional<GsTextureAllocation> Ps2TextureMemory::allocate(
                 if (f.occupancy_mask & (1u << lane)) block.owners[lane] = id;
         }
     }
+    ++ownership_epoch_;
     return allocation;
 }
 
@@ -199,6 +217,7 @@ bool Ps2TextureMemory::adjust_references(TextureAllocationId id, std::int32_t de
     const auto sum_bits = std::uint32_t(a.references) + static_cast<std::uint32_t>(delta);
     const auto signed_sum = std::bit_cast<std::int32_t>(sum_bits);
     a.references = static_cast<std::uint16_t>(std::clamp(signed_sum, 0, 0x7fff));
+    ++ownership_epoch_;
     return true;
 }
 
@@ -221,6 +240,7 @@ bool Ps2TextureMemory::free_allocation(TextureAllocationId id) {
         if (a.base_block < cursor) cursor = a.base_block;
     allocations_[id].reset();
     free_ids_.push_back(id);
+    ++ownership_epoch_;
     return true;
 }
 
@@ -274,13 +294,23 @@ std::optional<TextureAllocationId> Ps2TextureMemory::owner_of_lane(
 void Ps2TextureMemory::write_bytes(std::uint32_t address, std::span<const std::uint8_t> bytes) {
     if (address > vram_bytes || bytes.size() > vram_bytes - address)
         throw std::out_of_range("GS byte write outside VRAM");
-    std::copy(bytes.begin(), bytes.end(), bytes_.begin() + address);
-    std::fill(defined_.begin() + address, defined_.begin() + address + bytes.size(), 1);
+    if (bytes.empty()) return;
+    if (!planes_) {  // moved-from instance being reused
+        planes_ = std::make_shared<Planes>(Planes{std::vector<std::uint8_t>(vram_bytes),
+                                                  std::vector<std::uint8_t>(vram_bytes)});
+    } else if (planes_.use_count() != 1) {
+        planes_ = std::make_shared<Planes>(*planes_);
+    }
+    std::copy(bytes.begin(), bytes.end(), planes_->bytes.begin() + address);
+    std::fill(planes_->defined.begin() + address,
+              planes_->defined.begin() + address + bytes.size(), 1);
+    ++content_generation_;
 }
 
 GsByteObservation Ps2TextureMemory::observe_byte(std::uint32_t address) const {
     if (address >= vram_bytes) throw std::out_of_range("GS byte read outside VRAM");
-    const auto value = defined_[address] ? std::optional<std::uint8_t>(bytes_[address]) : std::nullopt;
+    const bool defined = planes_ && planes_->defined[address];
+    const auto value = defined ? std::optional<std::uint8_t>(planes_->bytes[address]) : std::nullopt;
     return {value, initialized_ ? owner_of_byte(address) : std::nullopt, initialized_};
 }
 
