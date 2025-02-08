@@ -2,9 +2,11 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <span>
 #include <vector>
 
+#include "okage/assets.hpp"
 #include "okage/texture_memory.hpp"
 
 namespace okage {
@@ -41,6 +43,12 @@ GsTransferResult upload_allocation_image(Ps2TextureMemory& memory,
 GsTransferResult upload_clut(Ps2TextureMemory& memory, TextureAllocationId id,
                              std::uint32_t entry_count,
                              std::span<const std::uint8_t> palette);
+
+struct XimUploadResult {
+    TextureAllocationId image{};
+    std::vector<TextureAllocationId> palettes;
+};
+std::optional<XimUploadResult> upload_xim(Ps2TextureMemory& memory, const OwnedRawXim& xim);
 
 // Pieces of the above, exposed for source-fidelity tests.
 std::uint32_t clut_scratch_word_index(std::uint32_t entry);

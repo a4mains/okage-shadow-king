@@ -1,6 +1,7 @@
 #include "okage/texture_transfer.hpp"
 
 #include <array>
+#include "okage/gs_texture_address.hpp"
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
@@ -29,6 +30,29 @@ std::size_t defined_count(const Ps2TextureMemory& m) {
     std::size_t n = 0;
     for (std::uint32_t a = 0; a < Ps2TextureMemory::vram_bytes; ++a) n += m.observe_byte(a).value.has_value();
     return n;
+}
+void put32(std::vector<std::uint8_t>& v, std::size_t at, std::uint32_t x) {
+    for (int k = 0; k < 4; ++k) v[at + k] = static_cast<std::uint8_t>(x >> (8 * k));
+}
+std::vector<std::uint8_t> build_xim(std::uint32_t psm, std::uint32_t cpsm, std::uint32_t colors,
+                                    std::uint32_t w, std::uint32_t h, std::uint8_t seed) {
+    const bool indexed = psm >= 16;
+    const std::size_t pal = indexed ? 16 + colors * (cpsm == 2 ? 2 : 4) : 0;
+    const std::size_t bytes = psm == 0 ? std::size_t(w) * h * 4 : psm == 1 ? std::size_t(w) * h * 3 : std::size_t(w) * h;
+    std::vector<std::uint8_t> v(16 + pal + 16 + bytes, 0);
+    put32(v, 0, psm << 20);
+    put32(v, 4, cpsm << 19);
+    if (indexed) {
+        put32(v, 0x10, static_cast<std::uint32_t>(pal));
+        put32(v, 0x18, 1);
+        put32(v, 0x1c, colors);
+        for (std::size_t i = 0; i < colors * 4; ++i) v[0x20 + i] = static_cast<std::uint8_t>(seed + i * 5);
+    }
+    const auto ih = 16 + pal;
+    put32(v, ih + 8, h);
+    put32(v, ih + 12, w);
+    for (std::size_t i = 0; i < bytes; ++i) v[ih + 16 + i] = static_cast<std::uint8_t>(seed * 3 + i * 11);
+    return v;
 }
 }
 
@@ -205,6 +229,47 @@ int main() {
             const auto a = m.allocate(0, GsPixelStorage::Psmct32, 16, 16);
             const auto r = upload_clut(m, a->id, 256, sequence(1024));
             require(r.pixels_written == 256 && defined_count(m) == 1024, "256-entry CLUT fills 16x16");
+        }
+        {
+            Ps2TextureMemory m;
+            m.initialize_empty_allocator();
+            const auto raw = build_xim(19, 0, 256, 64, 64, 5);
+            const OwnedRawXim xim(raw);
+            const auto r = upload_xim(m, xim);
+            require(r && r->palettes.size() == 1, "xim upload allocates image and one CLUT");
+            const auto img = m.allocation(r->image);
+            const auto pal = m.allocation(r->palettes[0]);
+            require(img->psm == GsPixelStorage::Psmt8 && img->width == 64 && img->height == 64, "image alloc");
+            require(pal->width == 16 && pal->height == 16 && pal->allocation_class == 0, "clut alloc 16x16");
+            require(defined_count(m) == 4096 + 1024, "image bytes and CLUT bytes only");
+            for (std::uint32_t y : {0u, 1u, 17u, 63u})
+                for (std::uint32_t x : {0u, 1u, 9u, 63u}) {
+                    const auto a = gs_texture_byte_address(19, img->base_block, img->buffer_width_64, x, y);
+                    require(a && byte_is(m, *a, xim.image()[y * 64 + x]), "texel placement");
+                }
+            const OwnedRawXim bad(build_xim(19, 2, 256, 8, 8, 1));
+            rejects("cpsm2", [&] { upload_xim(m, bad); });
+            const OwnedRawXim ct24(build_xim(1, 0, 0, 8, 8, 1));
+            rejects("psm1", [&] { upload_xim(m, ct24); });
+            // PSM0 direct image has no CLUT.
+            const OwnedRawXim direct(build_xim(0, 0, 0, 8, 8, 2));
+            const auto d = upload_xim(m, direct);
+            require(d && d->palettes.empty(), "direct image");
+        }
+        {
+            // Image fits, CLUT does not: the image allocation is rolled back.
+            Ps2TextureMemory m;
+            m.initialize_empty_allocator();
+            // Leave exactly one free allocation record: the image takes it,
+            // the CLUT allocation then fails.
+            while (m.available_count() > 1)
+                require(m.allocate(0, GsPixelStorage::Psmct32, 8, 8).has_value(), "tiny filler");
+            const auto before = m.available_count();
+            const auto occupancy = m.occupancy_bytes();
+            const auto r = upload_xim(m, OwnedRawXim(build_xim(19, 0, 256, 64, 64, 1)));
+            require(!r.has_value(), "CLUT allocation fails");
+            require(m.available_count() == before && m.occupancy_bytes() == occupancy, "image allocation rolled back");
+            require(m.allocate(1, GsPixelStorage::Psmt8, 64, 64).has_value(), "image alone fits (one record left), so the CLUT was the failing allocation");
         }
         std::cout << "texture transfer tests passed\n";
         return 0;

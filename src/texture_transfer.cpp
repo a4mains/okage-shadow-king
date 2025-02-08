@@ -124,4 +124,31 @@ GsTransferResult upload_clut(Ps2TextureMemory& memory, TextureAllocationId id,
                               std::span<const std::uint8_t>(scratch).first(std::size_t(rows) * 64));
 }
 
+std::optional<XimUploadResult> upload_xim(Ps2TextureMemory& memory, const OwnedRawXim& xim) {
+    const auto& l = xim.layout();
+    const auto support = xim_upload_support(l);
+    if (support.status != XimUploadStatus::Supported)
+        reject("XIM upload unsupported: " + support.reason);
+    XimUploadResult result;
+    const auto image = memory.allocate(1, static_cast<GsPixelStorage>(l.pixel_format),
+                                       static_cast<std::uint16_t>(l.width),
+                                       static_cast<std::uint16_t>(l.height));
+    if (!image) return std::nullopt;
+    result.image = image->id;
+    upload_allocation_image(memory, image->id, xim.image());
+    const bool indexed = l.pixel_format == 19;
+    for (std::uint32_t i = 0; indexed && i < l.palette_level_count; ++i) {
+        const auto palette = memory.allocate(0, GsPixelStorage::Psmct32, 16,
+                                             static_cast<std::uint16_t>(clut_rect_rows(l.palette_color_count)));
+        if (!palette) {
+            for (auto id : result.palettes) memory.free_allocation(id);
+            memory.free_allocation(result.image);
+            return std::nullopt;
+        }
+        result.palettes.push_back(palette->id);
+        upload_clut(memory, palette->id, l.palette_color_count, xim.palette_level(i));
+    }
+    return result;
+}
+
 } // namespace okage
