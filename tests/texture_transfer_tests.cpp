@@ -125,6 +125,27 @@ int main() {
             require(byte_is(m, 0x001f00, data[0]), "x128 page offset wraps past 4 MiB to 0x1f00");
             require(defined_count(m) == 16, "wrapped bytes still all defined");
         }
+        // Source fidelity: literal transcription of 0x1cd858's per-entry
+        // instruction sequence (slt/movn/sra/sll form), independent of the
+        // closed form in clut_scratch_word_index. Checked for all i in 0..511.
+        for (int t1 = 0; t1 < 512; ++t1) {
+            int v1 = t1 + 0x1f; int a2 = t1 & 8; int a3 = t1 & 0x10;
+            int a1 = a2 + 7; int a0 = a3 + 0xf;
+            if (-1 < t1) v1 = t1;
+            if (-1 < a2) a1 = a2;
+            if (-1 < a3) a0 = a3;
+            v1 >>= 5; a1 >>= 3; v1 <<= 1; a0 >>= 4;
+            int v0 = t1 & 7; v1 += a1; a0 <<= 3; a0 += v0; v1 <<= 4; v1 += a0;
+            require(static_cast<std::uint32_t>(v1) == clut_scratch_word_index(t1), "0x1cd858 transcription");
+        }
+        // Values pinned from local/research/upload-transfer-evidence-v1/derive_transfer.out.txt
+        // (re-derived from 0x1c9b48/0x1cd928 assembly; floor vs ceil columns).
+        struct Q { std::uint32_t psm, w, h, qwc; };
+        for (const Q q : {Q{0, 64, 64, 1024}, Q{0, 16, 2, 8}, Q{0, 5, 5, 6}, Q{0, 3, 7, 5}, Q{0, 17, 17, 72},
+                          Q{0, 1, 1, 0}, Q{0, 100, 3, 75}, Q{19, 64, 64, 256}, Q{19, 16, 2, 2},
+                          Q{19, 5, 5, 1}, Q{19, 3, 7, 1}, Q{19, 17, 17, 18}, Q{19, 1, 1, 0}})
+            require(retail_transfer_qwc(q.psm, q.w, q.h) == q.qwc, "pinned QWC");
+        require(clut_rect_rows(16) == 2 && clut_rect_rows(32) == 2 && clut_rect_rows(256) == 16, "cd928 rectangle rows");
         // Rejections are atomic and explicit.
         {
             Ps2TextureMemory m;
