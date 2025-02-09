@@ -46,7 +46,7 @@ std::vector<std::uint8_t> build_xim(std::uint32_t psm, std::uint32_t cpsm, std::
         put32(v, 0x10, static_cast<std::uint32_t>(pal));
         put32(v, 0x18, 1);
         put32(v, 0x1c, colors);
-        for (std::size_t i = 0; i < colors * 4; ++i) v[0x20 + i] = static_cast<std::uint8_t>(seed + i * 5);
+        for (std::size_t i = 0; i < colors * (cpsm == 2 ? 2 : 4); ++i) v[0x20 + i] = static_cast<std::uint8_t>(seed + i * 5);
     }
     const auto ih = 16 + pal;
     put32(v, ih + 8, h);
@@ -55,6 +55,8 @@ std::vector<std::uint8_t> build_xim(std::uint32_t psm, std::uint32_t cpsm, std::
     return v;
 }
 }
+
+template <class F> void scenario(F&& f) { f(); }
 
 int main() {
     try {
@@ -71,7 +73,7 @@ int main() {
 
         // Generic PSMCT32 transfer to hand-derived addresses
         // (x1->+4, x2->+0x10, y1->+8, y2->+0x40, x8->+0x100, y8->+0x200).
-        {
+        scenario([&] {
             Ps2TextureMemory m;
             const auto data = sequence(16 * 4);  // 4 quadwords = 16 pixels
             GsHostToLocal t{0, 0, 1, 0, 0, 16, 1};
@@ -83,9 +85,9 @@ int main() {
             for (int k = 0; k < 4; ++k) require(byte_is(m, 0x100 + k, data[32 + k]), "pixel 8 at +0x100");
             require(defined_count(m) == 64, "only the 64 transferred bytes are defined");
             require(byte_is(m, 8, -1), "row-1 position 0,1 untouched: y1 is +8");
-        }
+        });
         // Row wrap uses rrw but stride comes from TBW: 2x2 at TBW1.
-        {
+        scenario([&] {
             Ps2TextureMemory m;
             const auto data = sequence(16);
             transfer_host_to_local(m, {0, 0, 1, 0, 0, 2, 2}, data);
@@ -96,18 +98,18 @@ int main() {
             transfer_host_to_local(n, {0, 0, 1, 8, 0, 2, 2}, data);
             require(byte_is(n, 0x100, data[0]) && byte_is(n, 0x104, data[4]) &&
                     byte_is(n, 0x108, data[8]), "dsax 8 -> block column +0x100");
-        }
+        });
         // PSMT8 bytes at hand-derived addresses: x8->+2, x1->+4, y1->+8.
-        {
+        scenario([&] {
             Ps2TextureMemory m;
             const auto data = sequence(16);
             transfer_host_to_local(m, {19, 0, 2, 0, 0, 16, 1}, data);
             require(byte_is(m, 0, data[0]) && byte_is(m, 4, data[1]) && byte_is(m, 2, data[8]),
                     "t8 x1=+4, x8=+2");
             require(defined_count(m) == 16, "16 bytes defined");
-        }
+        });
         // Partial payload: only leading pixels written; later ones untouched.
-        {
+        scenario([&] {
             Ps2TextureMemory m;
             const auto pre = sequence(4, 200);
             m.write_bytes(0x08, pre);  // pixel (0,1) pre-existing
@@ -116,15 +118,15 @@ int main() {
             // 4 pixels cover (0..3,0); (0,1) stays at the old value.
             require(byte_is(m, 0x08, pre[0]) && byte_is(m, 0x0b, pre[3]), "untouched byte keeps value");
             require(byte_is(m, 0x10, data[8]), "pixel 2 written");
-        }
+        });
         // Wrap at the 4 MiB top: PSMT8 tbp 0x3fff, x128 is page +0x2000 -> wraps.
-        {
+        scenario([&] {
             Ps2TextureMemory m;
             const auto data = sequence(16);
             transfer_host_to_local(m, {19, 0x3fff, 2, 128, 0, 16, 1}, data);
             require(byte_is(m, 0x001f00, data[0]), "x128 page offset wraps past 4 MiB to 0x1f00");
             require(defined_count(m) == 16, "wrapped bytes still all defined");
-        }
+        });
         // Source fidelity: literal transcription of 0x1cd858's per-entry
         // instruction sequence (slt/movn/sra/sll form), independent of the
         // closed form in clut_scratch_word_index. Checked for all i in 0..511.
@@ -147,7 +149,7 @@ int main() {
             require(retail_transfer_qwc(q.psm, q.w, q.h) == q.qwc, "pinned QWC");
         require(clut_rect_rows(16) == 2 && clut_rect_rows(32) == 2 && clut_rect_rows(256) == 16, "cd928 rectangle rows");
         // Rejections are atomic and explicit.
-        {
+        scenario([&] {
             Ps2TextureMemory m;
             const auto data = sequence(32);
             rejects("psm 1", [&] { transfer_host_to_local(m, {1, 0, 1, 0, 0, 4, 4}, data); });
@@ -160,9 +162,9 @@ int main() {
             // Rect leaves coordinate range on a later row: nothing written.
             rejects("coordinate range", [&] { transfer_host_to_local(m, {0, 0, 1, 0, 2047, 4, 2}, data); });
             require(defined_count(m) == 0, "failed transfers wrote nothing");
-        }
+        });
         // Retail floor: 3x3 PSMCT32 sends 2 qwc = 8 pixels; pixel 9 untouched.
-        {
+        scenario([&] {
             Ps2TextureMemory m;
             const auto data = sequence(48);  // more source than sent
             const auto r = upload_retail_rect(m, {0, 0, 1, 0, 0, 3, 3}, data);
@@ -172,10 +174,10 @@ int main() {
             require(byte_is(m, 0x44, data[28]), "pixel 7 = (1,2) at +0x44");
             rejects("short source", [&] { upload_retail_rect(m, {0, 0, 1, 0, 0, 3, 3}, sequence(16)); });
             rejects("zero qwc", [&] { upload_retail_rect(m, {19, 0, 1, 0, 0, 3, 5}, sequence(16)); });
-        }
+        });
 
         // Allocation image upload: 64x64 PSM0 environment-style, TBW 2 stride rounding.
-        {
+        scenario([&] {
             Ps2TextureMemory m;
             m.initialize_empty_allocator();
             const auto a = m.allocate(1, GsPixelStorage::Psmct32, 64, 64);
@@ -197,7 +199,7 @@ int main() {
             rejects("psm1 upload", [&] { upload_allocation_image(m, z->id, sequence(8 * 8 * 3)); });
             const auto t4 = m.allocate(1, GsPixelStorage::Psmt4, 64, 64);
             rejects("psm t4 upload", [&] { upload_allocation_image(m, t4->id, sequence(2048)); });
-        }
+        });
 
         // CLUT permutation derived from 0x1cd858: swap index bits 3 and 4.
         require(clut_scratch_word_index(0) == 0 && clut_scratch_word_index(7) == 7, "0..7 identity");
@@ -206,12 +208,12 @@ int main() {
         require(clut_scratch_word_index(255) == 255, "255 fixed");
         require(clut_rect_rows(16) == 2 && clut_rect_rows(32) == 2 && clut_rect_rows(33) == 4 &&
                 clut_rect_rows(256) == 16, "rect rows");
-        {
+        scenario([&] {
             std::array<bool, 256> seen{};
             for (std::uint32_t i = 0; i < 256; ++i) seen[clut_scratch_word_index(i)] = true;
             for (bool b : seen) require(b, "n=256 permutation is a bijection");
-        }
-        {
+        });
+        scenario([&] {
             const auto pal = sequence(16 * 4, 9);
             const auto s = clut_scratch(16, pal);
             require(s.size() == 2048, "scratch is 2048 bytes");
@@ -220,9 +222,9 @@ int main() {
             for (int k = 0; k < 4; ++k) require(s[8 * 4 + k] == 0, "word 8 stays zero");
             for (int k = 0; k < 4; ++k) require(s[23 * 4 + k] == pal[15 * 4 + k], "entry 15 at word 23");
             for (std::size_t i = 24 * 4; i < s.size(); ++i) require(s[i] == 0, "tail zero");
-        }
+        });
         // CLUT upload: 16-entry palette zero-pads its 2x16 rectangle (proved writes).
-        {
+        scenario([&] {
             Ps2TextureMemory m;
             m.initialize_empty_allocator();
             const auto a = m.allocate(0, GsPixelStorage::Psmct32, 16, 2);
@@ -243,15 +245,15 @@ int main() {
             rejects("wrong width", [&] { upload_clut(m, wide->id, 16, pal); });
             const auto small = m.allocate(0, GsPixelStorage::Psmct32, 16, 2);
             rejects("too few rows", [&] { upload_clut(m, small->id, 256, sequence(1024)); });
-        }
-        {
+        });
+        scenario([&] {
             Ps2TextureMemory m;
             m.initialize_empty_allocator();
             const auto a = m.allocate(0, GsPixelStorage::Psmct32, 16, 16);
             const auto r = upload_clut(m, a->id, 256, sequence(1024));
             require(r.pixels_written == 256 && defined_count(m) == 1024, "256-entry CLUT fills 16x16");
-        }
-        {
+        });
+        scenario([&] {
             Ps2TextureMemory m;
             m.initialize_empty_allocator();
             const auto raw = build_xim(19, 0, 256, 64, 64, 5);
@@ -276,8 +278,8 @@ int main() {
             const OwnedRawXim direct(build_xim(0, 0, 0, 8, 8, 2));
             const auto d = upload_xim(m, direct);
             require(d && d->palettes.empty(), "direct image");
-        }
-        {
+        });
+        scenario([&] {
             // Image fits, CLUT does not: the image allocation is rolled back.
             Ps2TextureMemory m;
             m.initialize_empty_allocator();
@@ -291,7 +293,7 @@ int main() {
             require(!r.has_value(), "CLUT allocation fails");
             require(m.available_count() == before && m.occupancy_bytes() == occupancy, "image allocation rolled back");
             require(m.allocate(1, GsPixelStorage::Psmt8, 64, 64).has_value(), "image alone fits (one record left), so the CLUT was the failing allocation");
-        }
+        });
         std::cout << "texture transfer tests passed\n";
         return 0;
     } catch (const std::exception& e) {
