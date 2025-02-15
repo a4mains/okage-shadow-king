@@ -91,6 +91,21 @@ private:
     void ReleaseImpl() override {}
 };
 
+class TransferGs final : public CGSHandler {
+public:
+    TransferGs():CGSHandler(false) {}
+    void drain() {SendGSCall([this]{m_flipped=true;});ProcessSingleFrame();}
+    void begin() {drain();m_frameDump=std::make_unique<CFrameDump>();}
+    const CFrameDump::PacketArray& packets() const {return m_frameDump->GetPackets();}
+    void ProcessHostToLocalTransfer() override {}
+    void ProcessLocalToHostTransfer() override {throw std::runtime_error("Unexpected transfer readback");}
+    void ProcessLocalToLocalTransfer() override {throw std::runtime_error("Unexpected local transfer");}
+    void ProcessClutTransfer(uint32,uint32) override {}
+private:
+    void InitializeImpl() override {}
+    void ReleaseImpl() override {}
+};
+
 class Reference {
 public:
     std::unique_ptr<Iop::CSubSystem> iop;
@@ -103,6 +118,7 @@ public:
     bool streamTransferProbe=false;
     bool templateLoadProbe=false;
     bool textureAllocatorProbe=false;
+    bool textureTransferProbe=false; // Also permits FlushCache (syscall 0x64) in texture-transfer.
     std::vector<uint32> templateRandomLog;
     static constexpr uint32 stop=0x007ff000;
     uint32 expectedStop=stop;
@@ -110,6 +126,7 @@ public:
     uint32 callStack=0x01ff0000,callReturn=stop;
     unsigned callIterationLimit=1000000;
     std::function<bool(uint32)> boundedInstructionProbe;
+    std::function<void()> pumpHook;
     std::vector<uint32> allowedStops;
     Reference(const std::vector<uint8>& elf) {
         if (hash(elf)!="2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5")
@@ -153,9 +170,9 @@ public:
                 auto function=cpu.m_State.nGPR[CMIPS::V1].nV[0];
                 if(function&0x80000000)function=0-function;
                 if(function!=0x2f&&function!=0x48&&function!=0x44&&function!=0x42&&function!=0x45&&
-                   !(textureAllocatorProbe&&function==0x40))
+                   !(textureAllocatorProbe&&function==0x40)&&!(textureTransferProbe&&function==0x64))
                     throw std::runtime_error("Unexpected effect OS syscall "+std::to_string(function));
-                if(function!=0x2f&&function!=0x40) {
+                if(function!=0x2f&&function!=0x40&&function!=0x64) {
                     const auto id=cpu.m_State.nGPR[CMIPS::A0].nV[0];
                     if(id>=256||!get(0xe000+id*24)||get(0xe000+id*24+12)||
                        (function==0x44&&!get(0xe000+id*24+4)))
@@ -171,6 +188,7 @@ public:
                 throw std::runtime_error(error.str());
             }
             ee->m_vpu0->Execute(1000);
+            if(pumpHook)pumpHook();
             if (cpu.m_State.callMsEnabled && ee->m_vpu0->IsVuReady()) {
                 cpu.m_State.callMsAddr=ee->m_VU0.m_State.nPC;
                 cpu.m_State.callMsEnabled=0;
@@ -749,6 +767,94 @@ public:
             !std::memcmp(tables.data(),ee->m_ram+0x2138d0,tables.size()),"Texture allocator changed source code/tables");
         out<<"{\"code_tables_preserved\":true,\"canaries_preserved\":true}\n";
         textureAllocatorProbe=false;const auto report=out.str();writeFile(output,report.data(),report.size());
+    }
+    void textureTransfer(const std::vector<uint8>& input,const char* output) {
+        const auto require=[](bool ok,const char* why){if(!ok)throw std::runtime_error(why);};
+        require(!std::filesystem::exists(output)&&!std::filesystem::is_symlink(output),"Texture transfer output must be fresh");
+        auto word=[&](size_t i){require(i<input.size()/4,"Texture transfer truncated word");
+            uint32 w;std::memcpy(&w,input.data()+i*4,4);return w;};
+        require(input.size()>=16&&input.size()%4==0&&word(0)==0x54545854&&word(1)==1&&
+            word(2)>0&&word(2)<=64&&word(3)==4&&input.size()==16+size_t(word(2))*16,
+            "Texture transfer fixture header/extent");
+        for(uint32 i=0;i<word(2);++i){const auto at=4+i*4,kind=word(at),psm=word(at+1),a=word(at+2),b=word(at+3);
+            if(kind==0)require((psm==0||psm==19)&&a>0&&a<=256&&b>0&&b<=256,"Texture transfer image row");
+            else require(kind==1&&psm==0&&a>0&&a<=256&&b==0,"Texture transfer CLUT row");}
+        constexpr uint8 sentinel=0xa5;constexpr uint32 source=0x1a00000,sourceSpan=0x20000;
+        const std::vector<uint8> code(ee->m_ram+0x100000,ee->m_ram+0x1f2000);
+        const std::vector<uint8> tables(ee->m_ram+0x2138d0,ee->m_ram+0x214020);
+        std::memset(ee->m_ram+0x3abb08,0xa7,16);std::memset(ee->m_ram+0x3b3c38,0xa7,16);
+        put(0x31fa50,0xffffffff);put(0x2138c8,0);
+        effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
+            ee->m_gs,ee->m_sif,*dynamic_cast<CIopBios*>(iop->m_bios.get()));
+        auto sink=std::make_unique<TransferGs>();auto* gs=sink.get();
+        researchGs=std::move(sink);researchGs->Initialize();researchGs->Reset();ee->m_gs=researchGs.get();
+        textureAllocatorProbe=true;textureTransferProbe=true;callIterationLimit=10000;
+        unsigned pumps=0;
+        pumpHook=[&]{ee->m_dmac.ResumeDMA2();ee->m_gif.CountTicks(1000);++pumps;};
+        std::ostringstream out;
+        out<<"{\"schema\":\"okage-texture-transfer-v1\",\"input_sha256\":\""<<hash(input)
+           <<"\",\"elf_sha256\":\"2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5\","
+           <<"\"play_revision\":\"4403687dc8d505911980b8a96b13701a10f91b70\",\"sentinel\":"<<unsigned(sentinel)
+           <<",\"payload_rule\":\"v=(k*167+case*29)%250+1; v>=165?v+1:v (never 0 or sentinel)\","
+           <<"\"scope\":\"Unchanged retail 1ce940/1cf008/1cba48/1cd928 under Play EE DMAC/GIF with a CGSHandler sink; synthetic allocator state; Play GS transfer semantics, not hardware proof\",\"cases\":[\n";
+        for(uint32 i=0;i<word(2);++i){
+            const auto at=4+i*4,kind=word(at),psm=word(at+1),a=word(at+2),b=word(at+3);
+            std::memset(ee->m_ram+0xe000,0,256*24);call(0x1ce940);
+            uint32 clutRows=0;
+            if(kind==0)call(0x1cf008,{1,psm,a,b});
+            else {clutRows=((a+31)/32)*2;call(0x1cf008,{0,0,16,clutRows});}
+            const uint64 descriptor=ee->m_EE.m_State.nGPR[CMIPS::V0].nD0;
+            require(descriptor!=0,"Texture transfer allocation failed");
+            const uint32 tbp=descriptor&0x3fff,tbw=(descriptor>>14)&0x3f,dpsm=(descriptor>>32)&0x3f;
+            const uint32 dw=(descriptor>>(32+6))&0xfff,dh=(descriptor>>(32+18))&0xfff;
+            const uint32 bytes=kind==0?a*b*(psm==0?4:1):a*4;
+            require(bytes<=sourceSpan-0x1000,"Texture transfer payload extent");
+            std::memset(ee->m_ram+source-0x1000,0xee,sourceSpan);
+            std::vector<uint8> payload(bytes);
+            for(uint32 k=0;k<bytes;++k){uint32 v=(k*167+i*29)%250+1;if(v>=165)++v;payload[k]=uint8(v);}
+            std::memcpy(ee->m_ram+source,payload.data(),bytes);
+            gs->drain();researchGs->Reset();ee->m_gif.Reset();
+            std::memset(researchGs->GetRam(),sentinel,CGSHandler::RAMSIZE);gs->begin();
+            const std::vector<uint8> before(researchGs->GetRam(),researchGs->GetRam()+CGSHandler::RAMSIZE);
+            auto& cpu=ee->m_EE;pumps=0;
+            cpu.m_State.nGPR[CMIPS::A0].nD0=descriptor;
+            if(kind==0){
+                cpu.m_State.nGPR[CMIPS::A1].nD0=0;cpu.m_State.nGPR[CMIPS::A2].nD0=0;
+                cpu.m_State.nGPR[CMIPS::A3].nD0=a;cpu.m_State.nGPR[CMIPS::T0].nD0=b;
+                cpu.m_State.nGPR[CMIPS::T1].nD0=source;call(0x1cba48);
+            } else {
+                cpu.m_State.nGPR[CMIPS::A1].nD0=a;cpu.m_State.nGPR[CMIPS::A2].nD0=source;call(0x1cd928);
+            }
+            for(unsigned k=0;k<8;++k)ee->m_dmac.ResumeDMA2(); // flush anything still queued after return
+            gs->drain();
+            require(ee->m_gif.GetActivePath()==0,"Texture transfer left an active GIF path");
+            const uint8* vram=researchGs->GetRam();
+            std::vector<uint8> after(vram,vram+CGSHandler::RAMSIZE);
+            out<<"{\"case\":"<<i<<",\"kind\":\""<<(kind?"clut":"image")<<"\",\"psm\":"<<psm<<",\"w_or_n\":"<<a<<",\"h\":"<<b
+               <<",\"clut_alloc_rows\":"<<clutRows<<",\"descriptor\":["<<uint32(descriptor)<<','<<uint32(descriptor>>32)
+               <<"],\"tbp\":"<<tbp<<",\"tbw\":"<<tbw<<",\"desc_psm\":"<<dpsm<<",\"desc_w\":"<<dw<<",\"desc_h\":"<<dh
+               <<",\"source_bytes\":"<<bytes<<",\"payload_sha256\":\""<<hash(payload)<<"\",\"pump_calls\":"<<pumps
+               <<",\"vram_before_sha256\":\""<<hash(before)<<"\",\"vram_after_sha256\":\""<<hash(after)<<"\",\"packets\":[";
+            const auto& packets=gs->packets();
+            for(size_t p=0;p<packets.size();++p){const auto& pk=packets[p];
+                out<<(p?",":"")<<"{\"path\":"<<pk.metadata.pathIndex<<",\"image_bytes\":"<<pk.imageData.size()
+                   <<",\"image_sha256\":\""<<hash(pk.imageData)<<"\",\"register_writes\":[";
+                for(size_t j=0;j<pk.registerWrites.size();++j){const auto& w=pk.registerWrites[j];
+                    out<<(j?",":"")<<'['<<unsigned(w.first)<<','<<uint32(w.second)<<','<<uint32(w.second>>32)<<']';}
+                out<<"]}";}
+            out<<"],\"touched\":[";
+            uint32 count=0,first=0,last=0;
+            // Payload bytes never equal the sentinel, so every changed byte is a write.
+            for(uint32 addr=0;addr<CGSHandler::RAMSIZE;++addr)if(after[addr]!=sentinel){
+                if(!count)first=addr;last=addr;
+                out<<(count?",":"")<<'['<<addr<<','<<unsigned(after[addr])<<']';++count;}
+            out<<"],\"touched_count\":"<<count<<",\"touched_first\":"<<first<<",\"touched_last\":"<<last<<"}"
+               <<(i+1<word(2)?",":"")<<"\n";
+        }
+        out<<"],\"code_tables_preserved\":"<<((!std::memcmp(code.data(),ee->m_ram+0x100000,code.size())&&
+            !std::memcmp(tables.data(),ee->m_ram+0x2138d0,tables.size()))?"true":"false")<<"}\n";
+        pumpHook=nullptr;textureAllocatorProbe=false;textureTransferProbe=false;
+        const auto report=out.str();writeFile(output,report.data(),report.size());
     }
     void materialExtraPredicates(const std::vector<uint8>& input,const char* output) {
         constexpr uint32 maximum=1024,wordsPerCase=7,table=0x80000,guard=16;
@@ -4455,6 +4561,8 @@ int main(int argc,char** argv) {
             reference.gsAddresses(readFileBounded(argv[3],16+1000000*20),argv[4]);
         } else if (command=="texture-allocator" && argc==5) {
             reference.textureAllocator(readFileBounded(argv[3],16+8192*24),argv[4]);
+        } else if (command=="texture-transfer" && argc==5) {
+            reference.textureTransfer(readFileBounded(argv[3],16+64*16),argv[4]);
         } else if (command=="material-extra-uv" && argc==5) {
             reference.materialExtraUv(readFileBounded(argv[3],16+256*20*4),argv[4]);
         } else if (command=="material-extra-predicates" && argc==5) {
