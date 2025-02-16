@@ -16,10 +16,12 @@ const std::array<std::uint8_t, 4> A{1, 2, 3, 4};
 const std::array<std::uint8_t, 4> B{9, 8, 7, 6};
 }
 
+template <class F> void scenario(F&& f) { f(); }
+
 int main() {
     try {
         // Write after snapshot.
-        {
+        scenario([&] {
             auto m = fresh();
             m.write_bytes(100, A);
             auto s = m.snapshot();
@@ -32,9 +34,9 @@ int main() {
             require(!s.observe_byte(500).value, "Snapshot definedness unchanged");
             require(m.observe_byte(100).value == 9 && m.observe_byte(500).value == 1,
                     "Live updated");
-        }
+        });
         // Multiple snapshots at different generations.
-        {
+        scenario([&] {
             auto m = fresh();
             auto s0 = m.snapshot();
             m.write_bytes(0, A);
@@ -48,9 +50,9 @@ int main() {
             require(s0.identity().content_generation == 0 && s1.identity().content_generation == 1 &&
                     s2.identity().content_generation == 2 && m.identity().content_generation == 3,
                     "Snapshot identity at capture");
-        }
+        });
         // Identity semantics.
-        {
+        scenario([&] {
             auto m = fresh();
             auto id0 = m.identity();
             require(id0.ownership_epoch == 1 && id0.content_generation == 0, "init advances epoch only");
@@ -77,9 +79,9 @@ int main() {
             try { m.adjust_references(3000, 1); } catch (const std::out_of_range&) { threw = true; }
             require(threw && m.identity() == before, "failed adjust: no advance");
             require(!m.allocate(9, C32, 8, 8) && m.identity() == before, "failed allocate: no advance");
-        }
+        });
         // FIFO id reuse at same base: snapshot keeps old incarnation.
-        {
+        scenario([&] {
             auto m = fresh();
             std::optional<GsTextureAllocation> old;
             for (int i = 0; i < 4096; ++i) {
@@ -107,9 +109,9 @@ int main() {
             require(s.available_count() == 0 && m.available_count() == 0, "free state");
             require(s.observe_byte(addr).value == 1, "bytes");
             require(s.identity().ownership_epoch < m.identity().ownership_epoch, "epoch differs");
-        }
+        });
         // Free after snapshot: snapshot still sees allocation; bytes preserved.
-        {
+        scenario([&] {
             auto m = fresh();
             auto a = m.allocate(0, C32, 8, 8);
             m.write_bytes(a->base_block * 256u, A);
@@ -124,9 +126,9 @@ int main() {
             require(s.available_count() == 4095 && m.available_count() == 4096, "queue state");
             require(s.free_queue_ids().size() == 4095 && s.occupancy_bytes()[0] == 0x0f &&
                     m.occupancy_bytes()[0] == 0, "occupancy snapshot");
-        }
+        });
         // Uninitialised allocator.
-        {
+        scenario([&] {
             Ps2TextureMemory m;
             m.write_bytes(5, A);
             auto s = m.snapshot();
@@ -138,9 +140,9 @@ int main() {
             try { (void)s.allocation(0); } catch (const std::logic_error&) { threw = true; }
             require(threw, "allocation() on unknown state throws as live does");
             require(s.identity().ownership_epoch == 0 && m.identity().ownership_epoch == 1, "epoch");
-        }
+        });
         // Outlive the original.
-        {
+        scenario([&] {
             Ps2TextureSnapshot s;
             require(!s.valid(), "default empty");
             {
@@ -156,9 +158,9 @@ int main() {
             bool threw = false;
             try { (void)Ps2TextureSnapshot{}.identity(); } catch (const std::logic_error&) { threw = true; }
             require(threw, "empty snapshot throws");
-        }
+        });
         // Copy / move semantics.
-        {
+        scenario([&] {
             auto m = fresh();
             m.write_bytes(0, A);
             Ps2TextureMemory c = m;
@@ -184,9 +186,9 @@ int main() {
             auto& alias = m;
             m = alias;  // self-assign harmless
             require(m.observe_byte(0).value == 1, "self assign");
-        }
+        });
         // Deferred consumption.
-        {
+        scenario([&] {
             auto m = fresh();
             (void)m.allocate(0, C32, 8, 8);
             m.write_bytes(0, A);
@@ -209,9 +211,9 @@ int main() {
             m.write_bytes(0, B);
             require(deferred() == 1000 + 10 + 0, "Deferred snapshot read is as captured");
             require(m.identity() != cap, "identity moved");
-        }
+        });
         // Storage not copied when no snapshot outstanding.
-        {
+        scenario([&] {
             auto m = fresh();
             m.write_bytes(0, A);
             const void* p0 = m.storage_identity();
@@ -227,7 +229,7 @@ int main() {
             m.write_bytes(40, A);
             require(m.storage_identity() == p1, "Detached once only");
             require(!s.observe_byte(30).value, "snapshot clean");
-        }
+        });
         std::cout << "texture snapshot tests passed\n";
         return EXIT_SUCCESS;
     } catch (const std::exception& e) {

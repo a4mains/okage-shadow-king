@@ -283,16 +283,32 @@ int main() {
             // Image fits, CLUT does not: the image allocation is rolled back.
             Ps2TextureMemory m;
             m.initialize_empty_allocator();
-            // Leave exactly one free allocation record: the image takes it,
-            // the CLUT allocation then fails.
             while (m.available_count() > 1)
                 require(m.allocate(0, GsPixelStorage::Psmct32, 8, 8).has_value(), "tiny filler");
             const auto before = m.available_count();
-            const auto occupancy = m.occupancy_bytes();
             const auto r = upload_xim(m, OwnedRawXim(build_xim(19, 0, 256, 64, 64, 1)));
-            require(!r.has_value(), "CLUT allocation fails");
-            require(m.available_count() == before && m.occupancy_bytes() == occupancy, "image allocation rolled back");
-            require(m.allocate(1, GsPixelStorage::Psmt8, 64, 64).has_value(), "image alone fits (one record left), so the CLUT was the failing allocation");
+            require(r.has_value() && !r->complete && r->palettes.empty(), "CLUT allocation fails, result incomplete");
+            require(m.available_count() == before - 1 && m.allocation(r->image).has_value(), "image stays allocated");
+            require(defined_count(m) == 4096, "image bytes uploaded, no CLUT bytes");
+            // Image allocation failure: nullopt, no state change.
+            const auto occupancy = m.occupancy_bytes();
+            require(!upload_xim(m, OwnedRawXim(build_xim(19, 0, 256, 64, 64, 1))).has_value(), "no record left");
+            require(m.occupancy_bytes() == occupancy, "failed image allocation changes nothing");
+        });
+        scenario([&] {
+            Ps2TextureMemory m;
+            m.initialize_empty_allocator();
+            const auto before = m.available_count();
+            rejects("1x1 psm0", [&] { upload_xim(m, OwnedRawXim(build_xim(0, 0, 0, 1, 1, 1))); });
+            rejects("3x3 psm19 qwc 0", [&] { upload_xim(m, OwnedRawXim(build_xim(19, 0, 16, 3, 3, 1))); });
+            rejects("4096x1", [&] { upload_xim(m, OwnedRawXim(build_xim(19, 0, 16, 4096, 1, 1))); });
+            rejects("2049x1", [&] { upload_xim(m, OwnedRawXim(build_xim(19, 0, 16, 2049, 1, 1))); });
+            require(m.available_count() == before, "pre-check rejections allocate nothing");
+            // Floor truncation through the full XIM path: 5x5 PSMT8 sends one quadword.
+            const OwnedRawXim xim(build_xim(19, 0, 16, 5, 5, 3));
+            const auto r = upload_xim(m, xim);
+            require(r && r->complete && r->palettes.size() == 1, "16-colour 5x5");
+            require(defined_count(m) == 16 + 128, "16 image bytes (not 25) plus the 16x2 CLUT rectangle");
         });
         std::cout << "texture transfer tests passed\n";
         return 0;

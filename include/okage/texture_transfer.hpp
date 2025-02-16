@@ -47,6 +47,7 @@ GsTransferResult upload_clut(Ps2TextureMemory& memory, TextureAllocationId id,
 struct XimUploadResult {
     TextureAllocationId image{};
     std::vector<TextureAllocationId> palettes;
+    bool complete{};
 };
 std::optional<XimUploadResult> upload_xim(Ps2TextureMemory& memory, const OwnedRawXim& xim);
 
