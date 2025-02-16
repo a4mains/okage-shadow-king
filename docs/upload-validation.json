@@ -1,0 +1,98 @@
+{
+ "base_commit": "6ba4c6b",
+ "cases": [
+  "PSM0 64x64 tbw1",
+  "PSM19 64x64 tbw2",
+  "PSM19 5x5 (floor 1 qwc, 16 of 25 bytes)",
+  "PSM19 100x3 (288 of 300)",
+  "PSM0 3x3 (32 of 36)",
+  "CLUT n=16 (16x2, 64 zero padding bytes proved)",
+  "CLUT n=256 16x16"
+ ],
+ "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+ "evidence_dir": "local/research/upload-* (ignored; not tracked)",
+ "evidence_sha256": {
+  "derive_transfer.out.txt": "6055826793b440b469ca3cf742fb2ac750c6f7ff6ede608009654fcdbd76d74a",
+  "derive_transfer.py": "d2d6881c1106472c6ed204496c0fe5c07ec9ad023b59cb25cd7348fce37c59c9",
+  "fixture-negative.txt": "363a3fc0fc3c0ae3a6b0b206298c3cf3e9fc9a08d08c196687eb3f3a7a182109",
+  "fixture.txt": "8ac95b1b92de0f5452a24300d102003ebe5fee8255ece01bb2353e350e99566e",
+  "inventory": "8d2c12e37ed572f23a217ed0884062a9f00b11f3ed467d1ac620c2f0b7b88a31",
+  "native-compare.out": "6fe4f8d5a73170725421c6fdcd7b1b6adbb692b2c30fa043ee92da6cb3140412",
+  "observer_input.bin": "15811bf7ec56dc282732ce16654a42d199c563510caf46d64cda1ce2d284e815",
+  "observer_transfer.json": "244bde5364b8af6cffd6c1284e4a8db4bf589996024b0ea5a7171438db699db4"
+ },
+ "head_commit": "6ec02d817970aabadf277cf207118d831fe12735",
+ "original_comparison": "7/7 cases byte- and definedness-exact (touched byte sets equal, values equal, descriptor placement equal) between native and unchanged retail 1cba48/1cd928 under Play DMAC/GIF; negative control (fixture-negative.txt) detects a 1-byte difference. Research-backend evidence, not physical PS2 proof. Allocator state is synthetic per case.",
+ "play_revision": "4403687dc8d505911980b8a96b13701a10f91b70",
+ "residual": [
+  "Snapshot identities are per-lineage; a by-value copy forks counters; moved-from memory is not a valid snapshot source",
+  "failed allocate() moves search cursors without advancing ownership_epoch (documented)",
+  "upload_xim leaves image+earlier palettes live on later palette-allocation failure (retail binds null; unmodeled)",
+  "Per-snapshot cost ~1 MiB metadata copy; byte planes shared copy-on-write"
+ ],
+ "results": {
+  "asan_ubsan": "6/6; 7/7",
+  "debug": "6/6; 7/7",
+  "python": "555 OK",
+  "release": "6/6 ctest pass; 7/7 compare"
+ },
+ "retained_failures": [
+  "First ASan run: texture-transfer-tests stack overflow (many ~768 KiB Ps2TextureMemory in main frame) and a test-builder heap overflow for CPSM2; fixed in tests (ae195f7).",
+  "Second-pass review found texture-snapshot-tests stack-overflows under ASan at 8 MB stack; invented upload_xim rollback; throw-after-allocate for tiny/oversize images; fixed in the review-response commit.",
+  "First rollback test geometry failed (image did not fit because 32-block permuted groups); replaced by record-exhaustion construction."
+ ],
+ "schema": "okage-upload-validation-v1",
+ "scope": "Early raw-transfer phases and immutable snapshot groundwork only.",
+ "source_sha256": {
+  "include/okage/assets.hpp": "75285f482e81a139c5871b3ca9d64f35acbe47deff966b8b4b636826cd310e7f",
+  "include/okage/texture_memory.hpp": "6e3e865e1b371342abcd565f965ff2f2208c159f1dd0f8b5e155a4db84827450",
+  "include/okage/texture_transfer.hpp": "ee79b678d7c15fb83c22e5132bb89339d1190815c3ada8a23bac51315e513c0d",
+  "src/assets.cpp": "3a3cc600fa268fe1645b7fa9e744c1a289ed1d954793ace08845e526bd8f1035",
+  "src/texture_memory.cpp": "20fa4188a4f3d79c6f0e13652ccfdfe2f204763bf48901787a2b3ce8a2487525",
+  "src/texture_transfer.cpp": "bc6d0cee5ab86f754b630444e8824691cd4552b021e0bf281a39155116d689b6",
+  "tests/texture_snapshot_tests.cpp": "b481a1bc1d305ef1b21c1c52c20e0f3647a2f3060c66ab9e9b4550a7a5cff551",
+  "tests/texture_transfer_tests.cpp": "c9a1fb933c97520422b37b3bdd83582cfd6d27b6448c74f8296317ef65ee1227",
+  "tests/xim_raw_tests.cpp": "3d7d13468d8488abf5c5475f9f5afd613455c08289f1d4185a5318cfec6e9620",
+  "tools/play-oracle/main.cpp": "29685aa6d06dcc247f04609a563f2cd9a80d736d78d4385bd1ff9d64f87b2e88",
+  "tools/texture_transfer_compare.cpp": "53b47d996dbfb6739d9f51f271261c421615075ead5865be19c7f913b2b6f497",
+  "tools/texture_transfer_fixture.py": "7dc8eb4964902cae07a130dbdfb1d1daf980253e5e0b3cf74fbfd9d21a808cd9",
+  "tools/xim_inventory.cpp": "5d6f9e84783b41970745d42ddb69502c0faa39b4b02e558fa4e2bef8586f315c"
+ },
+ "test_commands": [
+  "cmake -S . -B build/t1-transfer-{release,debug,sanitize} -G Ninja (Release / Debug / Debug+-fsanitize=address,undefined)",
+  "cmake --build <dir> --target texture-transfer-tests texture-snapshot-tests texture-memory-tests xim-raw-tests asset-tests gs-texture-address-tests okage-xim-inventory okage-texture-memory-corpus okage-texture-transfer-compare",
+  "OKAGE_LOCAL_ROOT=$PWD/local ctest --test-dir <dir> -R \"texture-(transfer|snapshot|memory)|xim-raw|asset-tests|gs-texture\"",
+  "<dir>/okage-texture-transfer-compare local/research/upload-original-transfer-v1/fixture.txt",
+  "python3 -m unittest discover -s tests  (555 tests OK)"
+ ],
+ "unsupported": [
+  "Image PSM 1 (375 corpus files), 20 (135), 27 (none in corpus): no address helper",
+  "CPSM 2 palettes (2 files): 0x1cda18 conversion exists in local/research/001cda18.asm and was re-derived in a side worktree but is not implemented",
+  "Palette color counts other than 16/256 and multi-level palettes: parsed, not corpus-present, upload only for 16/256",
+  "PSM19 images with dimension >2048 or QWC 0: rejected explicitly (retail would send header-only)",
+  "Palette-handle binding, XMD cache/refcount, Session ownership, sampling: later"
+ ],
+ "xim_inventory": {
+  "by_classification": {
+   "Supported": 9092,
+   "UnsupportedImageFormat": 510,
+   "UnsupportedPaletteFormat": 2
+  },
+  "by_format": {
+   "psm0/cpsm0": 6,
+   "psm1/cpsm0": 375,
+   "psm19/cpsm0": 9086,
+   "psm19/cpsm2": 2,
+   "psm20/cpsm0": 135
+  },
+  "by_palette_levels": {
+   "0": 381,
+   "1": 9223
+  },
+  "decode_xim_accepts": 9604,
+  "parsed": 9604,
+  "parser_decoder_disagreements": 0,
+  "total": 9604,
+  "unique_sha256": 2768
+ }
+}
