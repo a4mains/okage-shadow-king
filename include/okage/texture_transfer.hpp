@@ -44,10 +44,19 @@ GsTransferResult upload_clut(Ps2TextureMemory& memory, TextureAllocationId id,
                              std::uint32_t entry_count,
                              std::span<const std::uint8_t> palette);
 
+struct XimPaletteAttempt {
+    std::uint32_t level{};
+    // nullopt: allocation failed (retail null descriptor); no upload happened.
+    std::optional<TextureAllocationId> palette;
+    bool uploaded{};
+};
 struct XimUploadResult {
     TextureAllocationId image{};
-    std::vector<TextureAllocationId> palettes;
-    bool complete{};
+    std::vector<XimPaletteAttempt> palette_attempts;
+    bool all_palettes_allocated() const {
+        for (const auto& a : palette_attempts) if (!a.palette) return false;
+        return true;
+    }
 };
 std::optional<XimUploadResult> upload_xim(Ps2TextureMemory& memory, const OwnedRawXim& xim);
 

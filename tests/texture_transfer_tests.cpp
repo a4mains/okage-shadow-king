@@ -4,6 +4,8 @@
 #include "okage/gs_texture_address.hpp"
 #include <cstdlib>
 #include <iostream>
+#include <limits>
+#include <set>
 #include <stdexcept>
 #include <string>
 
@@ -35,18 +37,19 @@ void put32(std::vector<std::uint8_t>& v, std::size_t at, std::uint32_t x) {
     for (int k = 0; k < 4; ++k) v[at + k] = static_cast<std::uint8_t>(x >> (8 * k));
 }
 std::vector<std::uint8_t> build_xim(std::uint32_t psm, std::uint32_t cpsm, std::uint32_t colors,
-                                    std::uint32_t w, std::uint32_t h, std::uint8_t seed) {
+                                    std::uint32_t w, std::uint32_t h, std::uint8_t seed,
+                                    std::uint32_t levels = 1) {
     const bool indexed = psm >= 16;
-    const std::size_t pal = indexed ? 16 + colors * (cpsm == 2 ? 2 : 4) : 0;
+    const std::size_t pal = indexed ? 16 + levels * colors * (cpsm == 2 ? 2 : 4) : 0;
     const std::size_t bytes = psm == 0 ? std::size_t(w) * h * 4 : psm == 1 ? std::size_t(w) * h * 3 : std::size_t(w) * h;
     std::vector<std::uint8_t> v(16 + pal + 16 + bytes, 0);
     put32(v, 0, psm << 20);
     put32(v, 4, cpsm << 19);
     if (indexed) {
         put32(v, 0x10, static_cast<std::uint32_t>(pal));
-        put32(v, 0x18, 1);
+        put32(v, 0x18, levels);
         put32(v, 0x1c, colors);
-        for (std::size_t i = 0; i < colors * (cpsm == 2 ? 2 : 4); ++i) v[0x20 + i] = static_cast<std::uint8_t>(seed + i * 5);
+        for (std::size_t i = 0; i < levels * colors * (cpsm == 2 ? 2 : 4); ++i) v[0x20 + i] = static_cast<std::uint8_t>(seed + i * 5);
     }
     const auto ih = 16 + pal;
     put32(v, ih + 8, h);
@@ -259,9 +262,9 @@ int main() {
             const auto raw = build_xim(19, 0, 256, 64, 64, 5);
             const OwnedRawXim xim(raw);
             const auto r = upload_xim(m, xim);
-            require(r && r->palettes.size() == 1, "xim upload allocates image and one CLUT");
+            require(r && r->palette_attempts.size() == 1 && r->palette_attempts[0].palette && r->palette_attempts[0].uploaded, "xim upload allocates image and one CLUT");
             const auto img = m.allocation(r->image);
-            const auto pal = m.allocation(r->palettes[0]);
+            const auto pal = m.allocation(*r->palette_attempts[0].palette);
             require(img->psm == GsPixelStorage::Psmt8 && img->width == 64 && img->height == 64, "image alloc");
             require(pal->width == 16 && pal->height == 16 && pal->allocation_class == 0, "clut alloc 16x16");
             require(defined_count(m) == 4096 + 1024, "image bytes and CLUT bytes only");
@@ -277,7 +280,7 @@ int main() {
             // PSM0 direct image has no CLUT.
             const OwnedRawXim direct(build_xim(0, 0, 0, 8, 8, 2));
             const auto d = upload_xim(m, direct);
-            require(d && d->palettes.empty(), "direct image");
+            require(d && d->palette_attempts.empty(), "direct image");
         });
         scenario([&] {
             // Image fits, CLUT does not: the image allocation is rolled back.
@@ -287,13 +290,18 @@ int main() {
                 require(m.allocate(0, GsPixelStorage::Psmct32, 8, 8).has_value(), "tiny filler");
             const auto before = m.available_count();
             const auto r = upload_xim(m, OwnedRawXim(build_xim(19, 0, 256, 64, 64, 1)));
-            require(r.has_value() && !r->complete && r->palettes.empty(), "CLUT allocation fails, result incomplete");
+            require(r.has_value() && !r->all_palettes_allocated() && r->palette_attempts.size() == 1 &&
+                    !r->palette_attempts[0].palette && !r->palette_attempts[0].uploaded,
+                    "CLUT allocation fails, attempt recorded as null");
             require(m.available_count() == before - 1 && m.allocation(r->image).has_value(), "image stays allocated");
             require(defined_count(m) == 4096, "image bytes uploaded, no CLUT bytes");
-            // Image allocation failure: nullopt, no state change.
+            // Image allocation failure with no free record: the search is not entered.
             const auto occupancy = m.occupancy_bytes();
+            const auto cursors = m.search_cursors();
+            const auto epoch = m.identity();
             require(!upload_xim(m, OwnedRawXim(build_xim(19, 0, 256, 64, 64, 1))).has_value(), "no record left");
-            require(m.occupancy_bytes() == occupancy, "failed image allocation changes nothing");
+            require(m.occupancy_bytes() == occupancy && m.search_cursors() == cursors && m.identity() == epoch,
+                    "record-exhausted image failure changes nothing");
         });
         scenario([&] {
             Ps2TextureMemory m;
@@ -307,8 +315,137 @@ int main() {
             // Floor truncation through the full XIM path: 5x5 PSMT8 sends one quadword.
             const OwnedRawXim xim(build_xim(19, 0, 16, 5, 5, 3));
             const auto r = upload_xim(m, xim);
-            require(r && r->complete && r->palettes.size() == 1, "16-colour 5x5");
+            require(r && r->all_palettes_allocated() && r->palette_attempts.size() == 1, "16-colour 5x5");
             require(defined_count(m) == 16 + 128, "16 image bytes (not 25) plus the 16x2 CLUT rectangle");
+        });
+
+        // A2 boundaries. n = w*h; qwc = n>>2 (PSM0/0x30), n*3>>4 (1/0x31), n>>3, n>>4, n>>5.
+        scenario([&] {
+            const std::int32_t big = std::numeric_limits<std::int32_t>::max();
+            const std::uint32_t listed[] = {0x00, 0x30, 0x01, 0x31, 0x02, 0x0a, 0x32, 0x3a,
+                                            0x13, 0x1b, 0x14, 0x24, 0x2c};
+            for (const auto psm : listed) {
+                rejects("INT_MAX x INT_MAX", [&] { retail_transfer_qwc(psm, big, big); });
+                rejects("negative height", [&] { retail_transfer_qwc(psm, big, -1); });
+                rejects("negative width", [&] { retail_transfer_qwc(psm, -1, 4); });
+                rejects("INT_MIN", [&] { retail_transfer_qwc(psm, std::numeric_limits<std::int32_t>::min(), 1); });
+                require(retail_transfer_qwc(psm, 0, 0) == 0 && retail_transfer_qwc(psm, big, 0) == 0 &&
+                        retail_transfer_qwc(psm, 0, big) == 0, "zero dimension");
+                require(retail_transfer_qwc(psm, 1, 1) == 0, "1x1 floors to zero");
+                const bool ct24 = psm == 1 || psm == 0x31;
+                std::uint32_t shift = 5;
+                switch (psm) {
+                    case 0: case 0x30: shift = 2; break;
+                    case 2: case 0xa: case 0x32: case 0x3a: shift = 3; break;
+                    case 0x13: case 0x1b: shift = 4; break;
+                    default: break;
+                }
+                const std::int32_t h = 1 << 16;
+                // Bisect the largest accepted width at this height.
+                std::int64_t lo = 0, hi = big;
+                const auto accepted = [&](std::int64_t w) {
+                    try { retail_transfer_qwc(psm, static_cast<std::int32_t>(w), h); return true; }
+                    catch (const std::invalid_argument&) { return false; } };
+                require(accepted(lo) && !accepted(hi), "bisect endpoints");
+                while (hi - lo > 1) { const auto mid = (lo + hi) / 2; (accepted(mid) ? lo : hi) = mid; }
+                const auto count = [&](std::int64_t w) {
+                    const unsigned __int128 n = (unsigned __int128)w * h;
+                    return ct24 ? (n * 3) >> 4 : n >> shift; };
+                require(count(lo) <= 0xffffffffu && count(hi) > 0xffffffffu,
+                        "boundary is exactly the 32-bit count limit");
+                require(retail_transfer_qwc(psm, static_cast<std::int32_t>(lo), h) == count(lo), "max accepted value exact");
+            }
+            require(retail_transfer_qwc(0, 131071, 131072) == 0xffffffffu - 0x7fff, "PSM0 accepted near limit");
+            rejects("PSM0 2^32 qwc", [] { retail_transfer_qwc(0, 131072, 131072); });
+            rejects("PSM1 INT_MAX^2", [&] { retail_transfer_qwc(1, big, big); });
+            rejects("PSM49 INT_MAX^2", [&] { retail_transfer_qwc(49, big, big); });
+            rejects("PSM1 INT_MAX x 1<<31-ish", [&] { retail_transfer_qwc(1, big, big - 1); });
+            require(retail_transfer_qwc(1, 16, 16) == 48 && retail_transfer_qwc(49, 4095, 4095) == (4095u * 4095u * 3) >> 4,
+                    "PSM1/49 small and 12-bit-descriptor sized inputs unchanged");
+            require(retail_transfer_qwc(0x12, big, big) == 0, "unlisted PSM stays 0 with no arithmetic");
+            for (const auto psm : listed) retail_transfer_qwc(psm, 4095, 4095);
+        });
+
+        scenario([&] {
+            Ps2TextureMemory m;
+            m.initialize_empty_allocator();
+            const auto a = m.allocate(0, GsPixelStorage::Psmct32, 8, 8);
+            const auto b = m.allocate(0, GsPixelStorage::Psmct32, 8, 8);
+            const auto c = m.allocate(0, GsPixelStorage::Psmct32, 8, 8);
+            require(a && b && c && a->base_block == 0 && b->base_block == 1 && c->base_block == 2, "fragment setup");
+            require(m.free_allocation(b->id), "free the middle block");
+            const auto cursors = m.search_cursors();
+            require(cursors[19] == 0, "PSMT8 cursor starts at 0");
+            const auto identity = m.identity();
+            const auto occupancy = m.occupancy_bytes();
+            const auto available = m.available_count();
+            const auto queue = m.free_queue_ids();
+            const auto snap = m.snapshot();
+            const auto bytes_before = defined_count(m);
+            const auto r = upload_xim(m, OwnedRawXim(build_xim(19, 0, 16, 2048, 2048, 1)));
+            require(!r.has_value(), "2048x2048 PSMT8 cannot fit the fragmented allocator");
+            auto expect = cursors;
+            expect[19] = 1;
+            require(m.search_cursors() == expect, "only the PSMT8 cursor moved, 0 -> 1");
+            require(m.search_cursors() != cursors, "cursor observably changed");
+            require(snap.search_cursors() == cursors, "older snapshot keeps the old cursors");
+            require(m.identity() == identity, "ownership_epoch/content_generation unchanged");
+            require(m.occupancy_bytes() == occupancy && m.available_count() == available &&
+                    m.free_queue_ids() == queue && defined_count(m) == bytes_before, "no ownership or byte change");
+        });
+
+        // Multi-level palettes (3 levels x 16 colours): all succeed.
+        scenario([&] {
+            Ps2TextureMemory m;
+            m.initialize_empty_allocator();
+            const OwnedRawXim xim(build_xim(19, 0, 16, 32, 32, 7, 3));
+            const auto r = upload_xim(m, xim);
+            require(r && r->palette_attempts.size() == 3 && r->all_palettes_allocated(), "three levels");
+            std::set<TextureAllocationId> ids{r->image};
+            for (std::uint32_t i = 0; i < 3; ++i) {
+                const auto& at = r->palette_attempts[i];
+                require(at.level == i && at.palette && at.uploaded, "level in order, uploaded");
+                ids.insert(*at.palette);
+                const auto pal = m.allocation(*at.palette);
+                require(pal && pal->width == 16 && pal->height == 2, "clut shape");
+                const auto scratch = clut_scratch(16, xim.palette_level(i));
+                for (std::uint32_t w = 0; w < 32; ++w) {
+                    const auto a = gs_texture_byte_address(0, pal->base_block, pal->buffer_width_64, w % 16, w / 16);
+                    require(a.has_value(), "address");
+                    for (int k = 0; k < 4; ++k) require(byte_is(m, *a + k, scratch[w * 4 + k]), "level data placed");
+                }
+            }
+            require(ids.size() == 4, "distinct allocations");
+            require(defined_count(m) == 32 * 32 + 3 * 128, "image plus three 16x2 CLUT rectangles");
+            require(xim.palette_level(0)[0] != xim.palette_level(1)[0], "levels carry distinct data");
+        });
+        // Record exhaustion partway: image + 2 palettes succeed, level 2 fails (deterministic via ids).
+        scenario([&] {
+            Ps2TextureMemory m;
+            m.initialize_empty_allocator();
+            while (m.available_count() > 3) require(m.allocate(0, GsPixelStorage::Psmct32, 8, 8).has_value(), "filler");
+            const OwnedRawXim xim(build_xim(19, 0, 16, 32, 32, 9, 3));
+            const auto r = upload_xim(m, xim);
+            require(r && r->palette_attempts.size() == 3 && !r->all_palettes_allocated(), "all three levels attempted");
+            require(r->palette_attempts[0].palette && r->palette_attempts[0].uploaded &&
+                    r->palette_attempts[1].palette && r->palette_attempts[1].uploaded &&
+                    !r->palette_attempts[2].palette && !r->palette_attempts[2].uploaded &&
+                    r->palette_attempts[2].level == 2, "levels 0,1 succeed; level 2 null, not uploaded");
+            require(m.available_count() == 0 && m.allocation(r->image), "nothing rolled back");
+            require(defined_count(m) == 32 * 32 + 2 * 128, "uploads only for successful levels");
+        });
+        // Failure on every level: image live, all attempts null, only image bytes defined.
+        scenario([&] {
+            Ps2TextureMemory m;
+            m.initialize_empty_allocator();
+            while (m.available_count() > 1) require(m.allocate(0, GsPixelStorage::Psmct32, 8, 8).has_value(), "filler");
+            const auto r = upload_xim(m, OwnedRawXim(build_xim(19, 0, 256, 64, 64, 2, 3)));
+            require(r && r->palette_attempts.size() == 3 && !r->all_palettes_allocated(), "three attempts");
+            for (std::uint32_t i = 0; i < 3; ++i)
+                require(r->palette_attempts[i].level == i && !r->palette_attempts[i].palette &&
+                        !r->palette_attempts[i].uploaded, "null attempt");
+            require(m.allocation(r->image).has_value() && m.available_count() == 0, "image live, ids exhausted");
+            require(defined_count(m) == 4096, "only image bytes uploaded");
         });
         std::cout << "texture transfer tests passed\n";
         return 0;

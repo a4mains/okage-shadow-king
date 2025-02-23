@@ -53,15 +53,20 @@ GsTransferResult transfer_host_to_local(Ps2TextureMemory& memory,
 
 std::uint32_t retail_transfer_qwc(std::uint32_t psm, std::int32_t width, std::int32_t height) {
     if (width < 0 || height < 0) reject("negative dimension");
-    const std::int64_t n = std::int64_t(width) * height;
+    // Unsigned 64-bit: n <= (2^31-1)^2 < 2^62, so n*3 < 2^64 cannot wrap.
+    const std::uint64_t n = std::uint64_t(static_cast<std::uint32_t>(width)) *
+                            static_cast<std::uint32_t>(height);
+    std::uint64_t qwc = 0;
     switch (psm) {
-        case 0x00: case 0x30: return static_cast<std::uint32_t>(n >> 2);
-        case 0x01: case 0x31: return static_cast<std::uint32_t>(n * 3 >> 4);
-        case 0x02: case 0x0a: case 0x32: case 0x3a: return static_cast<std::uint32_t>(n >> 3);
-        case 0x13: case 0x1b: return static_cast<std::uint32_t>(n >> 4);
-        case 0x14: case 0x24: case 0x2c: return static_cast<std::uint32_t>(n >> 5);
+        case 0x00: case 0x30: qwc = n >> 2; break;
+        case 0x01: case 0x31: qwc = (n * 3) >> 4; break;
+        case 0x02: case 0x0a: case 0x32: case 0x3a: qwc = n >> 3; break;
+        case 0x13: case 0x1b: qwc = n >> 4; break;
+        case 0x14: case 0x24: case 0x2c: qwc = n >> 5; break;
         default: return 0;
     }
+    if (qwc > 0xffffffffull) reject("quadword count does not fit the 32-bit count");
+    return static_cast<std::uint32_t>(qwc);
 }
 
 GsTransferResult upload_retail_rect(Ps2TextureMemory& memory, const GsHostToLocal& rect,
@@ -141,16 +146,16 @@ std::optional<XimUploadResult> upload_xim(Ps2TextureMemory& memory, const OwnedR
     result.image = image->id;
     upload_allocation_image(memory, image->id, xim.image());
     const bool indexed = l.pixel_format == 19;
-    result.complete = true;
     for (std::uint32_t i = 0; indexed && i < l.palette_level_count; ++i) {
+        XimPaletteAttempt attempt{i, std::nullopt, false};
         const auto palette = memory.allocate(0, GsPixelStorage::Psmct32, 16,
                                              static_cast<std::uint16_t>(clut_rect_rows(l.palette_color_count)));
-        if (!palette) {
-            result.complete = false;
-            break;
+        if (palette) {
+            attempt.palette = palette->id;
+            upload_clut(memory, palette->id, l.palette_color_count, xim.palette_level(i));
+            attempt.uploaded = true;
         }
-        result.palettes.push_back(palette->id);
-        upload_clut(memory, palette->id, l.palette_color_count, xim.palette_level(i));
+        result.palette_attempts.push_back(attempt);
     }
     return result;
 }
