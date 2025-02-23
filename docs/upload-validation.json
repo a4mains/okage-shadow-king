@@ -9,8 +9,712 @@
   "CLUT n=16 (16x2, 64 zero padding bytes proved)",
   "CLUT n=256 16x16"
  ],
+ "commands": [
+  {
+   "command": "(HEAD efe9863, before edits) cmake -S . -B build/handle-cmp-old -G Ninja -DCMAKE_BUILD_TYPE=Release && ninja -C build/handle-cmp-old okage-texture-transfer-compare",
+   "exit": 0
+  },
+  {
+   "command": "cmake -S . -B build/handle-cmp-release -G Ninja -DCMAKE_BUILD_TYPE=Release && ninja -C build/handle-cmp-release okage-texture-transfer-compare",
+   "exit": 0
+  },
+  {
+   "command": "cmake -S . -B build/handle-cmp-asan -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS=-fsanitize=address,undefined -DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined && ninja -C build/handle-cmp-asan okage-texture-transfer-compare",
+   "exit": 0
+  },
+  {
+   "command": "build/handle-cmp-release/okage-texture-transfer-compare <fixture.txt>  # control 'new-valid'",
+   "exit": 0,
+   "label": "new-valid"
+  },
+  {
+   "command": "build/handle-cmp-release/okage-texture-transfer-compare <fixture-negative.txt>  # control 'new-byte-negative'",
+   "exit": 2,
+   "label": "new-byte-negative"
+  },
+  {
+   "command": "build/handle-cmp-release/okage-texture-transfer-compare <descriptor-negative.txt>  # control 'new-descriptor-negative-width'",
+   "exit": 1,
+   "label": "new-descriptor-negative-width"
+  },
+  {
+   "command": "build/handle-cmp-asan/okage-texture-transfer-compare <fixture.txt>  # control 'asan-valid'",
+   "exit": 0,
+   "label": "asan-valid"
+  },
+  {
+   "command": "build/handle-cmp-asan/okage-texture-transfer-compare <fixture-negative.txt>  # control 'asan-byte-negative'",
+   "exit": 2,
+   "label": "asan-byte-negative"
+  },
+  {
+   "command": "build/handle-cmp-asan/okage-texture-transfer-compare <descriptor-negative.txt>  # control 'asan-descriptor-negative-width'",
+   "exit": 1,
+   "label": "asan-descriptor-negative-width"
+  },
+  {
+   "command": "build/handle-cmp-release/okage-texture-transfer-compare <psm-negative.txt>  # control 'new-psm-negative'",
+   "exit": 1,
+   "label": "new-psm-negative"
+  },
+  {
+   "command": "build/handle-cmp-release/okage-texture-transfer-compare <height-negative.txt>  # control 'new-height-negative'",
+   "exit": 1,
+   "label": "new-height-negative"
+  },
+  {
+   "command": "build/handle-cmp-release/okage-texture-transfer-compare <id-negative.txt>  # control 'new-id-negative'",
+   "exit": 1,
+   "label": "new-id-negative"
+  },
+  {
+   "command": "build/handle-cmp-release/okage-texture-transfer-compare <truncated.txt>  # control 'new-truncated'",
+   "exit": 2,
+   "label": "new-truncated"
+  },
+  {
+   "command": "build/handle-cmp-release/okage-texture-transfer-compare <bad-kind.txt>  # control 'new-bad-kind'",
+   "exit": 2,
+   "label": "new-bad-kind"
+  },
+  {
+   "command": "build/handle-cmp-release/okage-texture-transfer-compare <duplicate-address.txt>  # control 'new-duplicate-address'",
+   "exit": 2,
+   "label": "new-duplicate-address"
+  },
+  {
+   "command": "build/handle-cmp-release/okage-texture-transfer-compare <oversize-count.txt>  # control 'new-oversize-count'",
+   "exit": 2,
+   "label": "new-oversize-count"
+  },
+  {
+   "command": "build/handle-cmp-release/okage-texture-transfer-compare <junk.txt>  # control 'new-junk'",
+   "exit": 2,
+   "label": "new-junk"
+  },
+  {
+   "command": "build/handle-cmp-old/okage-texture-transfer-compare <fixture.txt>  # control 'old-valid'",
+   "exit": 0,
+   "label": "old-valid"
+  },
+  {
+   "command": "build/handle-cmp-old/okage-texture-transfer-compare <fixture-negative.txt>  # control 'old-byte-negative'",
+   "exit": 1,
+   "label": "old-byte-negative"
+  },
+  {
+   "command": "build/handle-cmp-old/okage-texture-transfer-compare <descriptor-negative.txt>  # control 'old-descriptor-negative-width'",
+   "exit": 0,
+   "label": "old-descriptor-negative-width"
+  },
+  {
+   "command": "build/handle-cmp-old/okage-texture-transfer-compare <psm-negative.txt>  # control 'old-psm-negative'",
+   "exit": 0,
+   "label": "old-psm-negative"
+  },
+  {
+   "command": "build/handle-cmp-old/okage-texture-transfer-compare <height-negative.txt>  # control 'old-height-negative'",
+   "exit": 0,
+   "label": "old-height-negative"
+  },
+  {
+   "command": "build/handle-cmp-old/okage-texture-transfer-compare <id-negative.txt>  # control 'old-id-negative'",
+   "exit": 0,
+   "label": "old-id-negative"
+  },
+  {
+   "command": "build/handle-cmp-old/okage-texture-transfer-compare <truncated.txt>  # control 'old-truncated'",
+   "exit": 1,
+   "label": "old-truncated"
+  },
+  {
+   "command": "build/handle-cmp-old/okage-texture-transfer-compare <bad-kind.txt>  # control 'old-bad-kind'",
+   "exit": 1,
+   "label": "old-bad-kind"
+  },
+  {
+   "command": "build/handle-cmp-old/okage-texture-transfer-compare <duplicate-address.txt>  # control 'old-duplicate-address'",
+   "exit": 1,
+   "label": "old-duplicate-address"
+  },
+  {
+   "command": "build/handle-cmp-old/okage-texture-transfer-compare <oversize-count.txt>  # control 'old-oversize-count'",
+   "exit": 1,
+   "label": "old-oversize-count"
+  },
+  {
+   "command": "build/handle-cmp-old/okage-texture-transfer-compare <junk.txt>  # control 'old-junk'",
+   "exit": 2,
+   "label": "old-junk"
+  },
+  {
+   "command": "build/handle-cmp-release/okage-texture-transfer-compare <byte-value-negative.txt>  # control 'new-byte-value-negative'",
+   "exit": 1,
+   "label": "new-byte-value-negative"
+  },
+  {
+   "command": "build/handle-cmp-old/okage-texture-transfer-compare <byte-value-negative.txt>  # control 'old-byte-value-negative'",
+   "exit": 1,
+   "label": "old-byte-value-negative"
+  },
+  {
+   "command": "build/handle-cmp-release/okage-texture-transfer-compare <byte-address-moved-negative.txt>  # control 'new-byte-address-moved-negative'",
+   "exit": 1,
+   "label": "new-byte-address-moved-negative"
+  },
+  {
+   "command": "build/handle-cmp-old/okage-texture-transfer-compare <byte-address-moved-negative.txt>  # control 'old-byte-address-moved-negative'",
+   "exit": 1,
+   "label": "old-byte-address-moved-negative"
+  },
+  {
+   "command": "OKAGE_TRANSFER_COMPARE=<old-binary binary> python3 -m unittest discover -s tests -p test_texture_transfer_compare.py -v (OKAGE_TRANSFER_TIMEOUT=15)",
+   "exit": 1,
+   "label": "old-binary unittest"
+  },
+  {
+   "command": "OKAGE_TRANSFER_COMPARE=<new-release binary> python3 -m unittest discover -s tests -p test_texture_transfer_compare.py -v",
+   "exit": 0,
+   "label": "new-release unittest"
+  },
+  {
+   "command": "OKAGE_TRANSFER_COMPARE=<new-asan binary> python3 -m unittest discover -s tests -p test_texture_transfer_compare.py -v",
+   "exit": 0,
+   "label": "new-asan unittest"
+  }
+ ],
+ "commands_note": "Control inputs are in local/research/handle-transfer-compare-v1 (generated by the programmatic mutations in tests/test_texture_transfer_compare.py semantics); stdout/stderr per control are the <label>.out/.err files listed in evidence_files. Exit 0 match, 1 difference, 2 malformed/usage.",
  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
- "evidence_dir": "local/research/upload-* (ignored; not tracked)",
+ "evidence_dir": [
+  "local/research/upload-xim-inventory-v1",
+  "local/research/upload-transfer-evidence-v1",
+  "local/research/upload-original-transfer-v1",
+  "local/research/upload-review-v1",
+  "local/research/handle-transfer-compare-v1"
+ ],
+ "evidence_dir_note": "Ignored, untracked, retained in the primary checkout. Previously the wildcard 'local/research/upload-*'; explicit per-file paths and hashes are in evidence_files.",
+ "evidence_files": [
+  {
+   "path": "local/research/upload-xim-inventory-v1/command.txt",
+   "role": "xim inventory",
+   "sha256": "c8007a3b6ed9a042e53f7b8b56a5a80974294043472aea33619668560e498412"
+  },
+  {
+   "path": "local/research/upload-xim-inventory-v1/hashes.txt",
+   "role": "xim inventory",
+   "sha256": "ef41acb6b7b92c6373b57ba95fbccf5869a2c0349cfe338c1d01906914279c0a"
+  },
+  {
+   "path": "local/research/upload-xim-inventory-v1/inventory.json",
+   "role": "xim inventory",
+   "sha256": "8d2c12e37ed572f23a217ed0884062a9f00b11f3ed467d1ac620c2f0b7b88a31"
+  },
+  {
+   "path": "local/research/upload-xim-inventory-v1/stderr.txt",
+   "role": "xim inventory",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/upload-transfer-evidence-v1/derive_transfer.py",
+   "role": "derive outputs",
+   "sha256": "d2d6881c1106472c6ed204496c0fe5c07ec9ad023b59cb25cd7348fce37c59c9"
+  },
+  {
+   "path": "local/research/upload-transfer-evidence-v1/derive_transfer.out.txt",
+   "role": "derive outputs",
+   "sha256": "6055826793b440b469ca3cf742fb2ac750c6f7ff6ede608009654fcdbd76d74a"
+  },
+  {
+   "path": "local/research/upload-original-transfer-v1/make_input.py",
+   "role": "observer input/output, fixtures, compare output (Upload)",
+   "sha256": "3cbb6c92df3a5fac25be2f894363a59adccbe4e77cc2b227be5b4fbf7fe2b804"
+  },
+  {
+   "path": "local/research/upload-original-transfer-v1/input.bin",
+   "role": "observer input/output, fixtures, compare output (Upload)",
+   "sha256": "15811bf7ec56dc282732ce16654a42d199c563510caf46d64cda1ce2d284e815"
+  },
+  {
+   "path": "local/research/upload-original-transfer-v1/transfer.json",
+   "role": "observer input/output, fixtures, compare output (Upload)",
+   "sha256": "244bde5364b8af6cffd6c1284e4a8db4bf589996024b0ea5a7171438db699db4"
+  },
+  {
+   "path": "local/research/upload-original-transfer-v1/transfer-rerun.json",
+   "role": "observer input/output, fixtures, compare output (Upload)",
+   "sha256": "244bde5364b8af6cffd6c1284e4a8db4bf589996024b0ea5a7171438db699db4"
+  },
+  {
+   "path": "local/research/upload-original-transfer-v1/analyze.py",
+   "role": "observer input/output, fixtures, compare output (Upload)",
+   "sha256": "df9bc5e2a235806cdb59448e0c4f7f5e77fa263f006b981a20b6e93f187830ab"
+  },
+  {
+   "path": "local/research/upload-original-transfer-v1/analysis.txt",
+   "role": "observer input/output, fixtures, compare output (Upload)",
+   "sha256": "fd7e29c773afa92566a9967077f22feb614b9959517adf0a84c10528372cf9e1"
+  },
+  {
+   "path": "local/research/upload-original-transfer-v1/commands.txt",
+   "role": "observer input/output, fixtures, compare output (Upload)",
+   "sha256": "d8043bd6e6bc7ad903dba62707df5545083d521f00b1d669b0cfca5c2bc1177a"
+  },
+  {
+   "path": "local/research/upload-original-transfer-v1/sha256.txt",
+   "role": "observer input/output, fixtures, compare output (Upload)",
+   "sha256": "41254090b09ee2b2546b6b11c4753e7455f7cf9c79d3ac13a6de121997107733"
+  },
+  {
+   "path": "local/research/upload-original-transfer-v1/fixture.txt",
+   "role": "observer input/output, fixtures, compare output (Upload)",
+   "sha256": "8ac95b1b92de0f5452a24300d102003ebe5fee8255ece01bb2353e350e99566e"
+  },
+  {
+   "path": "local/research/upload-original-transfer-v1/fixture-negative.txt",
+   "role": "observer input/output, fixtures, compare output (Upload)",
+   "sha256": "363a3fc0fc3c0ae3a6b0b206298c3cf3e9fc9a08d08c196687eb3f3a7a182109"
+  },
+  {
+   "path": "local/research/upload-original-transfer-v1/native-compare.out",
+   "role": "observer input/output, fixtures, compare output (Upload)",
+   "sha256": "6fe4f8d5a73170725421c6fdcd7b1b6adbb692b2c30fa043ee92da6cb3140412"
+  },
+  {
+   "path": "local/research/upload-original-transfer-v1/native-compare-sha256.txt",
+   "role": "observer input/output, fixtures, compare output (Upload)",
+   "sha256": "72b14e394d55be8cc44b629f6a210816c8ba5c082f37b24c418e4c157d370c17"
+  },
+  {
+   "path": "local/research/upload-original-transfer-v1/configure.log",
+   "role": "observer input/output, fixtures, compare output (Upload)",
+   "sha256": "069d9d4bd5cfc8168167eb9eb9272a73855c74c5865c3b1880c01868f4da44c7"
+  },
+  {
+   "path": "local/research/upload-original-transfer-v1/build1.log",
+   "role": "observer input/output, fixtures, compare output (Upload)",
+   "sha256": "08d5e4efaffaa336aab5dff15982f65a681c24d2feb95b09c9b0b4da09ef1dd9"
+  },
+  {
+   "path": "local/research/upload-original-transfer-v1/build2.log",
+   "role": "observer input/output, fixtures, compare output (Upload)",
+   "sha256": "1838950fbfd157816f75b4a2944019c867199f89fff621af4eb61b4426705a32"
+  },
+  {
+   "path": "local/research/upload-original-transfer-v1/run1.log",
+   "role": "observer input/output, fixtures, compare output (Upload)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/upload-original-transfer-v1/run2.log",
+   "role": "observer input/output, fixtures, compare output (Upload)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/upload-review-v1/descriptor-negative.txt",
+   "role": "Upload review reproductions",
+   "sha256": "a4009c684fc6bf9f04f29025112a8d03714634240a4d6376986eae1d77d39353"
+  },
+  {
+   "path": "local/research/upload-review-v1/descriptor-negative.out",
+   "role": "Upload review reproductions",
+   "sha256": "6fe4f8d5a73170725421c6fdcd7b1b6adbb692b2c30fa043ee92da6cb3140412"
+  },
+  {
+   "path": "local/research/upload-review-v1/qwc-overflow.cpp",
+   "role": "Upload review reproductions",
+   "sha256": "66b2cbd84361121fca678e84a96ca62ff3e8fa3f480f4ba919253751bf21b0aa"
+  },
+  {
+   "path": "local/research/upload-review-v1/qwc-overflow",
+   "role": "Upload review reproductions",
+   "sha256": "a84fcfd953db8005aa1d165bcc05a4a205b5e6233bfea57c1ddd451c9dd9feab"
+  },
+  {
+   "path": "local/research/upload-review-v1/qwc-overflow.out",
+   "role": "Upload review reproductions",
+   "sha256": "72042b9214ae2ad5b9412e66f13beba69331d5eb129072e560c1c9df69463c09"
+  },
+  {
+   "path": "local/research/upload-review-v1/review.json",
+   "role": "Upload review reproductions",
+   "sha256": "e0177025f020f1b2e7d605e0f9df936e0116146fb6204409cf69945c93e443ee"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/asan-byte-negative.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "60b8865258465d80f7b6c26fa3ee5f72af740dbc63c5021e5d9b045076029ce4"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/asan-byte-negative.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/asan-descriptor-negative-width.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/asan-descriptor-negative-width.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "790eba5171c25e6b373b2bc40d9a335bdbbeec4559241c11d62d9b0c1325f83b"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/asan-valid.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/asan-valid.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "6fe4f8d5a73170725421c6fdcd7b1b6adbb692b2c30fa043ee92da6cb3140412"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/bad-kind.txt",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "693dcb2bf1dff16352b6159f1ea12c6a33db4cd21fd9f60004d166d37bae8717"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/byte-address-moved-negative.txt",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "5191cba0e160dff8d28ef38aba72ed1ef17ab91728ced686add7108edb50b313"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/byte-value-negative.txt",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "36d1bed8f7bcf689a22f3aa500d76955f2e922b4f574d60f59bc4b7a38d2222e"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/duplicate-address.txt",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "cbf2b5b4ee734df98ce1dbb049fa1ef29bb3508fa592c46d5a2e6a6a9c15c171"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/exit-codes.txt",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "5736fc601520597ed23ba892995c4b7d0ce54c89bf6094ef58bbd98ccd81e219"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/height-negative.txt",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "593e64fdeeb2944dc06da184876d7b078ee8b0f8534d4d77eea80188b824bd32"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/id-negative.txt",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "73bcdedf47c98bf03a227d08661d51b305806e19a5f1b7739d819ffbc98cf85f"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/junk.txt",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "38c9df933a5681698ab77a26dcf6659aadcda8e0513a216642f85fa26db8cb4a"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-bad-kind.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "9432679af1e0f093f2e61d95ad593cb8a051a06aed6d9b94be734a9af5dc3e2e"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-bad-kind.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-byte-address-moved-negative.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-byte-address-moved-negative.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "a11ac1e6599ee54fb5aa9e5e6b21b7b3ed2a830c5920cfe1557b2532a78a2193"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-byte-negative.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "60b8865258465d80f7b6c26fa3ee5f72af740dbc63c5021e5d9b045076029ce4"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-byte-negative.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-byte-value-negative.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-byte-value-negative.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "a935d0ca8b45c946ec5f1271537f8cefee93467dce1c2ae4ce729068bd2dc045"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-descriptor-negative-width.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-descriptor-negative-width.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "790eba5171c25e6b373b2bc40d9a335bdbbeec4559241c11d62d9b0c1325f83b"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-duplicate-address.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "f568c01a3e3436c5232b94e7957c4a1237c7e930875f4dd414e8d3a277d9b231"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-duplicate-address.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-height-negative.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-height-negative.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "76616f75d64705edd394ef6ad09d429424ce33471cea623d7e5c89597d3d77f1"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-id-negative.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-id-negative.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "3e642008efc061fa2c891c737a97e47463f07c161dec128955b025d6913f9e4e"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-junk.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e4b832e584151e770ab1c2acd5a73e710a3f428bd1ec3ea80982fabc2183546a"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-junk.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-oversize-count.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "46a233b128f58e1860dbda39e59cfb61e0ef94591cd054ad3d7cf99108244ca8"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-oversize-count.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-psm-negative.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-psm-negative.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "0347dfa94d13bf79708026446430cc87a2b1f4116af5878f53f3df9e0c8d01ac"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-truncated.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "582848f16a357931e328533570a403ceb0afb4bcc57fea17443657bea486ba61"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-truncated.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-valid.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/new-valid.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "6fe4f8d5a73170725421c6fdcd7b1b6adbb692b2c30fa043ee92da6cb3140412"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-bad-kind.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-bad-kind.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "9d349b2f0d9df6d13585e0c8c664f38c0b68e36d52fb2c61c945d4ae8e3fecc8"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-byte-address-moved-negative.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-byte-address-moved-negative.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "a11ac1e6599ee54fb5aa9e5e6b21b7b3ed2a830c5920cfe1557b2532a78a2193"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-byte-negative.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-byte-negative.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "a935d0ca8b45c946ec5f1271537f8cefee93467dce1c2ae4ce729068bd2dc045"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-byte-value-negative.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-byte-value-negative.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "a935d0ca8b45c946ec5f1271537f8cefee93467dce1c2ae4ce729068bd2dc045"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-descriptor-negative-width.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-descriptor-negative-width.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "6fe4f8d5a73170725421c6fdcd7b1b6adbb692b2c30fa043ee92da6cb3140412"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-duplicate-address.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-duplicate-address.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "0aaa76d5cba0e576728958feabadfbbe29c7452098937542985b8ad4e6303062"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-height-negative.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-height-negative.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "6fe4f8d5a73170725421c6fdcd7b1b6adbb692b2c30fa043ee92da6cb3140412"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-id-negative.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-id-negative.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "6fe4f8d5a73170725421c6fdcd7b1b6adbb692b2c30fa043ee92da6cb3140412"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-junk.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "0e0dcc91e7beb75b0a4a6961f6c9b6f7eda5c634753852c434eb9bdfc722a5b4"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-junk.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "06d133bf3f68ad093d9717cf463e667c368877bc0dc2d73c2aca480f2b4eb6d1"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-oversize-count.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-oversize-count.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "0aaa76d5cba0e576728958feabadfbbe29c7452098937542985b8ad4e6303062"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-psm-negative.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-psm-negative.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "6fe4f8d5a73170725421c6fdcd7b1b6adbb692b2c30fa043ee92da6cb3140412"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-truncated.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-truncated.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "93c51b1f93b39dd636abf84b8ecee5a1d05283680e98e13be2ab6e9605eb8d5b"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-valid.err",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/old-valid.out",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "6fe4f8d5a73170725421c6fdcd7b1b6adbb692b2c30fa043ee92da6cb3140412"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/oversize-count.txt",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "1d614cd90ec5709a5d9ce8df47c2158db92b487d6530fe4466239f1b7701d1f6"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/psm-negative.txt",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "c743d0add964d19c30325c811e351d1a71700b4652c8521babf476846832cbb4"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/run_controls.sh",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "bfb5ae6e06ac67e42acc003daf2c0b8b2f0166c9f1d15b6bf00d0ebc7413721e"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/run_controls2.sh",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "2d4f176e73ce01631e5b63250b9c9fe36c388aaa2fffde0dfb5a1265b4c638bb"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/run_tests.sh",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "61b56f78a5458dc747004f4e9758d4e9680eeb192a7185e6919772b4a7169f5d"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/truncated.txt",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "318a299b9cc501b59c7c2f90579f79f1c06947e793fe99e9983c534501bc104d"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/unittest-new-asan.log",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "14be7298cb9cc5f526457320c0fbef37de7df1b98772e59b9063483a73d1f426"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/unittest-new-release.log",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "613e443f874dfb95e35321c6821d40edddfc85ee80e74437bd84ca35937d2588"
+  },
+  {
+   "path": "local/research/handle-transfer-compare-v1/unittest-old-binary.log",
+   "role": "Handle comparator controls (generated negatives, outputs, exit codes, unittest logs)",
+   "sha256": "5225d476da43fccd39e4ab3797dd5fcf7818eaab8a2afe9683f5e973c6463da9"
+  }
+ ],
  "evidence_sha256": {
   "derive_transfer.out.txt": "6055826793b440b469ca3cf742fb2ac750c6f7ff6ede608009654fcdbd76d74a",
   "derive_transfer.py": "d2d6881c1106472c6ed204496c0fe5c07ec9ad023b59cb25cd7348fce37c59c9",
@@ -20,6 +724,16 @@
   "native-compare.out": "6fe4f8d5a73170725421c6fdcd7b1b6adbb692b2c30fa043ee92da6cb3140412",
   "observer_input.bin": "15811bf7ec56dc282732ce16654a42d199c563510caf46d64cda1ce2d284e815",
   "observer_transfer.json": "244bde5364b8af6cffd6c1284e4a8db4bf589996024b0ea5a7171438db699db4"
+ },
+ "evidence_sha256_paths": {
+  "derive_transfer.out.txt": "local/research/upload-transfer-evidence-v1/derive_transfer.out.txt",
+  "derive_transfer.py": "local/research/upload-transfer-evidence-v1/derive_transfer.py",
+  "fixture-negative.txt": "local/research/upload-original-transfer-v1/fixture-negative.txt",
+  "fixture.txt": "local/research/upload-original-transfer-v1/fixture.txt",
+  "inventory": "local/research/upload-xim-inventory-v1/inventory.json",
+  "native-compare.out": "local/research/upload-original-transfer-v1/native-compare.out",
+  "observer_input.bin": "local/research/upload-original-transfer-v1/input.bin",
+  "observer_transfer.json": "local/research/upload-original-transfer-v1/transfer.json"
  },
  "head_commit": "6ec02d817970aabadf277cf207118d831fe12735",
  "original_comparison": "7/7 cases byte- and definedness-exact (touched byte sets equal, values equal, descriptor placement equal) between native and unchanged retail 1cba48/1cd928 under Play DMAC/GIF; negative control (fixture-negative.txt) detects a 1-byte difference. Research-backend evidence, not physical PS2 proof. Allocator state is synthetic per case.",
@@ -34,29 +748,56 @@
   "asan_ubsan": "6/6; 7/7",
   "debug": "6/6; 7/7",
   "python": "555 OK",
-  "release": "6/6 ctest pass; 7/7 compare"
+  "release": "6/6 ctest pass; 7/7 compare",
+  "handle_comparator": "see commands/exit codes: new valid 0, descriptor/psm/height/id/byte negatives 1, malformed 2; old binary returns 0 for descriptor/psm/height/id negatives"
  },
  "retained_failures": [
   "First ASan run: texture-transfer-tests stack overflow (many ~768 KiB Ps2TextureMemory in main frame) and a test-builder heap overflow for CPSM2; fixed in tests (ae195f7).",
   "Second-pass review found texture-snapshot-tests stack-overflows under ASan at 8 MB stack; invented upload_xim rollback; throw-after-allocate for tiny/oversize images; fixed in the review-response commit.",
-  "First rollback test geometry failed (image did not fit because 32-block permuted groups); replaced by record-exhaustion construction."
+  "First rollback test geometry failed (image did not fit because 32-block permuted groups); replaced by record-exhaustion construction.",
+  "Handle A3 review finding (efe9863): comparator ignored descriptor words (width bit flip reported 7 MATCH, exit 0); constructed descriptor then discarded it, fixture reads were unchecked.",
+  "Handle: retained fixture-negative.txt turned out to be an out-of-range-address substitution (9999999); the strict reader now rejects it as malformed (exit 2) instead of DIFF; in-range byte negatives were added.",
+  "Handle: first unittest run of the old comparator binary against malformed inputs drove it to ~56 GB RSS (uninitialised fields); killed, bounded with OKAGE_TRANSFER_TIMEOUT."
  ],
  "schema": "okage-upload-validation-v1",
  "scope": "Early raw-transfer phases and immutable snapshot groundwork only.",
  "source_sha256": {
   "include/okage/assets.hpp": "75285f482e81a139c5871b3ca9d64f35acbe47deff966b8b4b636826cd310e7f",
   "include/okage/texture_memory.hpp": "6e3e865e1b371342abcd565f965ff2f2208c159f1dd0f8b5e155a4db84827450",
-  "include/okage/texture_transfer.hpp": "ee79b678d7c15fb83c22e5132bb89339d1190815c3ada8a23bac51315e513c0d",
+  "include/okage/texture_transfer.hpp": "e7a4d147918b442cde1bef520bc02603c7c0436babf5d0d4b9a06db21ddbb470",
   "src/assets.cpp": "3a3cc600fa268fe1645b7fa9e744c1a289ed1d954793ace08845e526bd8f1035",
   "src/texture_memory.cpp": "20fa4188a4f3d79c6f0e13652ccfdfe2f204763bf48901787a2b3ce8a2487525",
-  "src/texture_transfer.cpp": "bc6d0cee5ab86f754b630444e8824691cd4552b021e0bf281a39155116d689b6",
+  "src/texture_transfer.cpp": "73e699e62807f5cea9af4c20dbff247b5e3320a7691fdcc2e4947c70439e5bbc",
+  "tests/test_texture_transfer_compare.py": "3ee25b9c41116f2696fb55491b0d220cb52b0797042d2a5f267a3391a692b8ce",
   "tests/texture_snapshot_tests.cpp": "b481a1bc1d305ef1b21c1c52c20e0f3647a2f3060c66ab9e9b4550a7a5cff551",
-  "tests/texture_transfer_tests.cpp": "c9a1fb933c97520422b37b3bdd83582cfd6d27b6448c74f8296317ef65ee1227",
+  "tests/texture_transfer_tests.cpp": "1ac9ead0a13b3f073309f1e09c2a12f6fc50826a295892e562db29e2f2bd478b",
   "tests/xim_raw_tests.cpp": "3d7d13468d8488abf5c5475f9f5afd613455c08289f1d4185a5318cfec6e9620",
   "tools/play-oracle/main.cpp": "29685aa6d06dcc247f04609a563f2cd9a80d736d78d4385bd1ff9d64f87b2e88",
-  "tools/texture_transfer_compare.cpp": "53b47d996dbfb6739d9f51f271261c421615075ead5865be19c7f913b2b6f497",
-  "tools/texture_transfer_fixture.py": "7dc8eb4964902cae07a130dbdfb1d1daf980253e5e0b3cf74fbfd9d21a808cd9",
+  "tools/texture_transfer_compare.cpp": "6000314fb7ffe331d4c023e61b0b22d4e13e86f1809038ae981dc55e6f2d549b",
+  "tools/texture_transfer_fixture.py": "c296523821fc48389b534429c9cb99e8f7aca8a28628457d85ac301fc2ead317",
   "tools/xim_inventory.cpp": "5d6f9e84783b41970745d42ddb69502c0faa39b4b02e558fa4e2bef8586f315c"
+ },
+ "handle_comparator": {
+  "base_commit": "efe9863",
+  "binaries": {
+   "new_asan_ubsan": {
+    "path": "build/handle-cmp-asan/okage-texture-transfer-compare",
+    "sha256": "54b46b4e4ac915f4464c17c747eba04cdf4bcf4fbdd47a30a7020f6a5bfbd714"
+   },
+   "new_release": {
+    "path": "build/handle-cmp-release/okage-texture-transfer-compare",
+    "sha256": "9df4ef22304af477a32df09a2188de5d498a4fdf1dbfa9f9559a487cc5760468"
+   },
+   "old_release_5956de2": {
+    "path": "build/handle-cmp-old/okage-texture-transfer-compare",
+    "sha256": "8abf83c163ce4ba794ab94468449524a67e3941d26c310a7cbc0533a56ec8f8f"
+   }
+  },
+  "binary_note": "build/ is untracked; binaries are bound by hash only and are not byte-reproducible across toolchains.",
+  "descriptor_semantics": "observer emits two 32-bit words [lo,hi]; lo tbp 0-13 tbw 14-19 id 20-31; hi psm 0-5 width 6-17 height 18-29; compared with native allocate() 64-bit descriptor. id is comparable only because both sides start from an empty/reset allocator FIFO.",
+  "old_binary_malformed_behaviour": "On truncated/non-numeric headers the old comparator reads uninitialised fields; during the unittest run one such input drove it to ~56 GB RSS before it was killed (OKAGE_TRANSFER_TIMEOUT bounds this in the tests).",
+  "old_source_sha256_5956de2": "53b47d996dbfb6739d9f51f271261c421615075ead5865be19c7f913b2b6f497",
+  "retained_byte_negative_note": "fixture-negative.txt substitutes address 9 with 9999999 (>= 4 MiB). The old comparator reported case 5 DIFF (exit 1); the strict comparator rejects it as malformed (exit 2, 'address out of range'). In-range byte negatives are generated: byte-value-negative.txt, byte-address-moved-negative.txt (exit 1, case 5 DIFF)."
  },
  "test_commands": [
   "cmake -S . -B build/t1-transfer-{release,debug,sanitize} -G Ninja (Release / Debug / Debug+-fsanitize=address,undefined)",
