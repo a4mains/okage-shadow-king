@@ -473,3 +473,8 @@ if(APPLE)
     add_executable(okage-xim-inventory tools/xim_inventory.cpp)
     target_link_libraries(okage-xim-inventory PRIVATE okage_assets)
 endif()
+# Handle lifecycle trace tool (native side of the original-vs-native differential).
+if(APPLE)
+    add_executable(okage-texture-handle-trace tools/texture_handle_trace.cpp)
+    target_link_libraries(okage-texture-handle-trace PRIVATE okage_assets)
+endif()
