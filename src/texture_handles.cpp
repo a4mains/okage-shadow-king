@@ -309,6 +309,13 @@ OptDescriptor TextureHandleOwner::image(int handle) const {
     return records_[map_[handle]].image;
 }
 
+int TextureHandleOwner::extra_chain_length(int handle) const {
+    if (handle < 0 || handle >= handle_capacity || map_[handle] < 0) return 0;
+    int n = 0;
+    for (int e = records_[map_[handle]].extra_head; e != -1; e = extra_next_[e]) ++n;
+    return n;
+}
+
 XmdLoadResult TextureHandleOwner::load_xmd_names(std::span<const std::string> names,
                                                  const FileReader& read_file) {
     XmdLoadResult result;

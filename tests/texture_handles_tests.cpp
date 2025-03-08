@@ -197,6 +197,7 @@ int main() {
             const auto p3 = pal(3);
             require(o.bind_palette(h, 3, p3) == PaletteBindResult::Bound && o.palette(h, 3) == p3 &&
                     !o.palette(h, 1) && !o.palette(h, 2), "level 3 creates a 3-link chain");
+            require(o.extra_chain_length(h) == 3, "chain length counts null-bound links");
             require(o.free_extra_count() == TextureHandleOwner::extra_palette_capacity - 3, "three nodes in use");
             rejects("negative level", [&] { o.bind_palette(h, -1, p3); });
             o.retire(h);

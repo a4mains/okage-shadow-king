@@ -101,6 +101,7 @@ public:
     PaletteBindResult bind_palette(int handle, int level, OptDescriptor palette);
     OptDescriptor palette(int handle, int level) const;
     OptDescriptor image(int handle) const;
+    int extra_chain_length(int handle) const;
 
     // 0x186a50(1): the cache switch only ever turns on (never cleared).
     void enable_name_cache() noexcept { cache_enabled_ = true; }
