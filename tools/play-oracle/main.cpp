@@ -128,6 +128,7 @@ public:
     std::function<bool(uint32)> boundedInstructionProbe;
     std::function<void()> pumpHook;
     std::vector<uint32> allowedStops;
+    int64 wideArgs[8]{};unsigned wideArgCount=0;
     Reference(const std::vector<uint8>& elf) {
         if (hash(elf)!="2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5")
             throw std::runtime_error("Oracle requires the pinned USA ELF");
@@ -158,6 +159,9 @@ public:
         cpu.m_State.nGPR[CMIPS::GP].nD0=0x002564f0;
         unsigned reg=CMIPS::A0;
         for (auto arg:args) cpu.m_State.nGPR[reg++].nD0=arg;
+        // Research-only: sign-extended/64-bit argument override used by texture-handles.
+        for (unsigned k=0;k<wideArgCount;++k) cpu.m_State.nGPR[CMIPS::A0+k].nD0=wideArgs[k];
+        wideArgCount=0;
         for (unsigned step=0;step<callIterationLimit;++step) {
             bool executed=false;
             if (!cpu.m_State.callMsEnabled) {
@@ -854,6 +858,183 @@ public:
         out<<"],\"code_tables_preserved\":"<<((!std::memcmp(code.data(),ee->m_ram+0x100000,code.size())&&
             !std::memcmp(tables.data(),ee->m_ram+0x2138d0,tables.size()))?"true":"false")<<"}\n";
         pumpHook=nullptr;textureAllocatorProbe=false;textureTransferProbe=false;
+        const auto report=out.str();writeFile(output,report.data(),report.size());
+    }
+    void textureHandles(const std::vector<uint8>& scriptBytes,const char* output) {
+        const auto require=[](bool ok,const char* why){if(!ok)throw std::runtime_error(why);};
+        require(!std::filesystem::exists(output)&&!std::filesystem::is_symlink(output),"Texture handles output must be fresh");
+        struct Op{std::string text;std::vector<std::string> tok;};
+        std::vector<Op> ops;
+        {std::istringstream in(std::string(scriptBytes.begin(),scriptBytes.end()));std::string line;
+         while(std::getline(in,line)){
+            const auto hashAt=line.find('#');if(hashAt!=std::string::npos)line.resize(hashAt);
+            std::istringstream ls(line);Op op;std::string t;while(ls>>t)op.tok.push_back(t);
+            if(op.tok.empty())continue;
+            for(size_t i=0;i<op.tok.size();++i)op.text+=(i?" ":"")+op.tok[i];
+            ops.push_back(std::move(op));}}
+        require(!ops.empty()&&ops.size()<=20000,"Texture handles script op count");
+        constexpr uint8 sentinel=0xa5;
+        constexpr uint32 staging=0x1a00000,stringStage=0x1a60000,xmdStage=0x1a40000,heapBase=0x1000000,heapEnd=0x1900000;
+        constexpr uint32 allocStub=0x7ff100,freeStub=0x7ff200;
+        const std::vector<uint8> code(ee->m_ram+0x100000,ee->m_ram+0x1f2000);
+        const std::vector<uint8> tables(ee->m_ram+0x2138d0,ee->m_ram+0x214020);
+        std::memset(ee->m_ram+0x3b3c38,0xa7,16);
+        put(0x31fa50,0xffffffff);put(0x2138c8,0);
+        effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
+            ee->m_gs,ee->m_sif,*dynamic_cast<CIopBios*>(iop->m_bios.get()));
+        auto sink=std::make_unique<TransferGs>();auto* gs=sink.get();
+        researchGs=std::move(sink);researchGs->Initialize();researchGs->Reset();ee->m_gs=researchGs.get();
+        textureAllocatorProbe=true;textureTransferProbe=true;callIterationLimit=200000;
+        pumpHook=[&]{ee->m_dmac.ResumeDMA2();ee->m_gif.CountTicks(1000);};
+        // Host stubs. The planted jr ra keeps the JIT scan bounded; execution never reaches it.
+        for(auto a:{allocStub,freeStub}){put(a,0x03e00008);put(a+4,0);}
+        uint32 heap=heapBase;std::vector<std::string> fileRequests;
+        auto cstr=[&](uint32 address){std::string s;address&=0x1ffffff;
+            while(s.size()<512&&ee->m_ram[address])s.push_back(char(ee->m_ram[address++]));return s;};
+        auto bump=[&](uint32 size){size=(size+15u)&~15u;if(size>heapEnd-heap)throw std::runtime_error("Host heap exhausted");
+            const auto at=heap;heap+=size;return at;};
+        auto payloadByte=[](uint32 k,uint32 seed){uint32 v=(k*167+seed*29)%250+1;if(v>=165)++v;return uint8(v);};
+        auto buildXim=[&](uint32 psm,uint32 w,uint32 h,uint32 levels,uint32 colors,uint32 seed,std::vector<uint8>& x){
+            const uint32 pal=psm>=16?16+levels*colors*4:0;const uint32 px=w*h*(psm==0?4:1);
+            x.assign(16+pal+16+px,0);uint64 head=uint64(psm)<<20;std::memcpy(x.data(),&head,8);
+            if(psm>=16){uint32 f[4]={pal,0,levels,colors};std::memcpy(x.data()+16,f,16);
+                for(uint32 l=0;l<levels;++l)for(uint32 c=0;c<colors*4;++c)x[32+l*colors*4+c]=payloadByte(c,seed+1000+l);}
+            uint32 hh[4]={0,0,h,w};std::memcpy(x.data()+16+pal,hh,16);
+            for(uint32 k=0;k<px;++k)x[16+pal+16+k]=payloadByte(k,seed);};
+        boundedInstructionProbe=[&](uint32 pc){
+            auto& cpu=ee->m_EE;const uint32 ra=cpu.m_State.nGPR[CMIPS::RA].nV[0];
+            if(pc==0x1c7910){cpu.m_State.nGPR[CMIPS::V0].nD0=0;}
+            else if(pc==allocStub){cpu.m_State.nGPR[CMIPS::V0].nD0=bump(cpu.m_State.nGPR[CMIPS::A0].nV[0]);}
+            else if(pc==freeStub){cpu.m_State.nGPR[CMIPS::V0].nD0=0;}
+            else if(pc==0x1c2e68){
+                const auto name=cstr(cpu.m_State.nGPR[CMIPS::A0].nV[0]);fileRequests.push_back(name);
+                if(name.rfind("fail",0)==0)cpu.m_State.nGPR[CMIPS::V0].nD0=0;
+                else{uint32 seed=0;for(unsigned char c:name)seed+=c;std::vector<uint8> x;buildXim(19,32,32,1,16,seed,x);
+                    const auto at=bump(uint32(x.size()));std::memcpy(ee->m_ram+at,x.data(),x.size());
+                    cpu.m_State.nGPR[CMIPS::V0].nD0=at;}
+            } else return false;
+            cpu.m_State.nPC=ra;cpu.m_State.nDelayedJumpAddr=MIPS_INVALID_PC;return true;};
+        const uint32 stubs[]={0x1c7910,0x1c2e68,allocStub,freeStub};
+        for(auto a:stubs)ee->m_EE.ToggleBreakpoint(a);
+        for(auto a:{0x213574u,0x213578u,0x21357cu})put(a,allocStub);
+        put(0x213580,freeStub);
+        std::memset(ee->m_ram+0xe000,0,256*24);
+        gs->drain();researchGs->Reset();ee->m_gif.Reset();
+        std::memset(researchGs->GetRam(),sentinel,CGSHandler::RAMSIZE);gs->begin();
+        call(0x1ce940);call(0x1cbdf8,{0x200,0x80});
+        auto s16at=[&](uint32 a){int16 v;std::memcpy(&v,ee->m_ram+a,2);return int(v);};
+        auto u64at=[&](uint32 a){uint64 v;std::memcpy(&v,ee->m_ram+a,8);return v;};
+        auto allocId=[](uint64 d){return d?int((d>>20)&0xfff):-1;};
+        auto esc=[](const std::string& s){std::string o;for(unsigned char c:s){
+            if(c=='"'||c=='\\'){o+='\\';o+=char(c);}else if(c<0x20||c>=0x7f){char b[8];std::snprintf(b,sizeof b,"\\u%04x",c);o+=b;}else o+=char(c);}return o;};
+        std::ostringstream out;
+        auto state=[&](long opIndex,const std::string& text,const std::string& result){
+            const uint32 R=get(0x3a5af0),X=get(0x3a5af4),rec=get(0x3a7b00),extraDesc=get(0x3a7b04),extraNext=get(0x3a7b08),hashT=get(0x3a7b0c);
+            const int hsize=int(get(0x2138c0));
+            out<<"{\"op\":"<<opIndex<<",\"text\":\""<<esc(text)<<"\",\"result\":"<<result<<",\"handles\":[";
+            bool first=true;
+            for(int id=0;id<0x1000;++id){const int r=s16at(0x3a5b00+id*2);if(r>=0){out<<(first?"":",")<<'['<<id<<','<<r<<']';first=false;}}
+            out<<"],\"records\":[";
+            std::vector<int> live;
+            if(R){int e=s16at(R+2);for(int n=0;e!=1&&n<=0x208;++n){require(e>=8&&e<0x208,"record list node");live.push_back(e-8);e=s16at(R+e*4+2);}}
+            std::sort(live.begin(),live.end());first=true;
+            for(int r:live){const uint32 b=rec+r*0x30;const std::string name=cstr(b+0x10);
+                out<<(first?"":",")<<"{\"r\":"<<r<<",\"image\":"<<allocId(u64at(b))<<",\"pal0\":"<<allocId(u64at(b+8))
+                   <<",\"name\":\""<<esc(name)<<"\",\"hash_slot\":"<<s16at(b+0x24)<<",\"handles\":"<<(get(b+0x2c)&0xffff)<<",\"extra\":[";
+                first=false;bool f2=true;int e=s16at(b+0x2e);
+                for(int n=0;e!=-1;++n){require(n<=0x80&&e>=0&&e<0x80,"extra chain");
+                    out<<(f2?"":",")<<allocId(u64at(extraDesc+e*8));f2=false;e=s16at(extraNext+e*2);}
+                out<<"]}";}
+            out<<"],\"hash\":[";first=true;
+            for(int i=0;hashT&&i<hsize;++i){const int v=s16at(hashT+i*2);if(v){out<<(first?"":",")<<'['<<i<<','<<v<<']';first=false;}}
+            out<<"],\"live_handles\":"<<int(get(0x3a5af8))<<",\"reserved\":[";
+            {first=true;int e=s16at(0x3a1ad0+2*4+2);for(int n=0;e!=4;++n){require(n<=0x1008&&e>=8&&e<0x1008,"reserved queue node");
+                out<<(first?"":",")<<(e-8);first=false;e=s16at(0x3a1ad0+e*4+2);}}
+            auto freeCount=[&](uint32 pool,int limit){int c=0;if(!pool)return 0;int e=s16at(pool+6*4+2);
+                while(e!=7){require(c<=limit&&e>=8&&e<limit+8,"free list node");++c;e=s16at(pool+e*4+2);}return c;};
+            out<<"],\"free_records\":"<<freeCount(R,0x200)<<",\"free_extras\":"<<freeCount(X,0x80)<<",\"descriptors\":[";
+            {std::vector<std::pair<int,int>> d;int e=s16at(0x3adc20+0x1000*6+4);
+                for(int n=0;e!=0x1001;++n){require(n<=0x1000&&e>=0&&e<0x1000,"descriptor ring node");d.push_back({e,s16at(0x3adc20+e*6)});e=s16at(0x3adc20+e*6+4);}
+                std::sort(d.begin(),d.end());first=true;
+                for(auto& p:d){out<<(first?"":",")<<'['<<p.first<<','<<p.second<<']';first=false;}}
+            const uint8* vram=researchGs->GetRam();std::vector<uint8> touched;uint32 count=0;
+            for(uint32 a=0;a<CGSHandler::RAMSIZE;++a)if(vram[a]!=sentinel){
+                touched.insert(touched.end(),{uint8(a),uint8(a>>8),uint8(a>>16),uint8(a>>24),vram[a]});++count;}
+            out<<"],\"vram\":{\"available\":"<<get(0x3adc1c)<<",\"cursors\":[";
+            for(unsigned j=0;j<64;++j)out<<(j?",":"")<<get(0x3adb18+j*4);
+            out<<"],\"occupancy_sha256\":\""<<hash(std::vector<uint8>(ee->m_ram+0x3abb18,ee->m_ram+0x3abb18+8192))
+               <<"\",\"touched\":"<<count<<",\"touched_sha256\":\""<<hash(touched)<<"\"},\"file_requests\":[";
+            for(size_t i=0;i<fileRequests.size();++i)out<<(i?",":"")<<'"'<<esc(fileRequests[i])<<'"';
+            out<<"]}\n";};
+        state(-1,"init","null");
+        std::vector<int32> hl;std::vector<std::pair<bool,uint64>> pl,fl;
+        auto num=[&](const std::string& t){size_t used=0;long v=0;try{v=std::stol(t,&used,0);}catch(...){used=0;}
+            require(used==t.size(),"Texture handles numeric operand");return v;};
+        auto label=[&](const std::string& t,char kind)->size_t{require(t.size()>1&&t[0]==kind,"Texture handles label kind");
+            size_t used=0;unsigned long v=0;try{v=std::stoul(t.substr(1),&used);}catch(...){used=0;}
+            require(used==t.size()-1,"Texture handles label number");return v;};
+        auto handleOf=[&](const std::string& t)->int32{const auto n=label(t,'h');require(n<hl.size(),"Texture handles unknown handle label");return hl[n];};
+        auto descOf=[&](const std::string& t,char kind)->uint64{const auto n=label(t,kind);auto& v=kind=='p'?pl:fl;
+            require(n<v.size(),"Texture handles unknown descriptor label");require(v[n].first,"Texture handles null descriptor label");return v[n].second;};
+        auto& cpu=ee->m_EE;
+        auto v0=[&]{return int32(cpu.m_State.nGPR[CMIPS::V0].nV[0]);};
+        // Arguments are passed as sign-extended 64-bit values (retail tests s32 args with 64-bit bltz/slt).
+        auto invoke=[&](uint32 pc,std::initializer_list<int64> args){
+            wideArgCount=0;for(auto a:args)wideArgs[wideArgCount++]=a;call(pc);};
+        for(size_t i=0;i<ops.size();++i){
+            const auto& t=ops[i].tok;const std::string& o=t[0];
+            fileRequests.clear();gs->begin();std::string result="null";
+            if(o=="cache"){require(t.size()==2,"cache operands");put(0x1fe310,uint32(num(t[1])));}
+            else if(o=="lower"){require(t.size()==2,"lower operands");put(0x1fe30c,uint32(num(t[1])));}
+            else if(o=="reserve"){require(t.size()==2,"reserve operands");invoke(0x1cd5c8,{num(t[1])});result=std::to_string(v0());}
+            else if(o=="image"){require(t.size()==4,"image operands");
+                const uint32 psm=uint32(num(t[1])),w=uint32(num(t[2])),h=uint32(num(t[3]));
+                require((psm==0||psm==19)&&w>0&&w<=256&&h>0&&h<=256,"image operands range");
+                const uint32 bytes=w*h*(psm==0?4:1);for(uint32 k=0;k<bytes;++k)ee->m_ram[staging+k]=payloadByte(k,uint32(i));
+                invoke(0x1cd1e0,{psm,w,h,staging});hl.push_back(v0());result=std::to_string(hl.back());}
+            else if(o=="xim"){require(t.size()==6,"xim operands");
+                const uint32 psm=uint32(num(t[1])),w=uint32(num(t[2])),h=uint32(num(t[3])),lv=uint32(num(t[4])),co=uint32(num(t[5]));
+                require((psm==0||psm==19)&&w>0&&w<=256&&h>0&&h<=256&&(psm==0||(lv>0&&lv<=16&&co>0&&co<=256)),"xim operands range");
+                std::vector<uint8> x;buildXim(psm,w,h,lv,co,uint32(i),x);std::memcpy(ee->m_ram+staging,x.data(),x.size());
+                invoke(0x18f7a8,{staging});hl.push_back(v0());result=std::to_string(hl.back());}
+            else if(o=="name"){require(t.size()==3,"name operands");uint32 p=0;
+                if(t[2]!="-"){require(t[2].size()<120,"name length");std::memcpy(ee->m_ram+stringStage,t[2].c_str(),t[2].size()+1);p=stringStage;}
+                invoke(0x1cc4e0,{handleOf(t[1]),p});}
+            else if(o=="lookup"){require(t.size()==2&&t[1].size()<120,"lookup operands");
+                std::memcpy(ee->m_ram+stringStage,t[1].c_str(),t[1].size()+1);
+                invoke(0x1cce78,{stringStage});hl.push_back(v0());result=std::to_string(hl.back());}
+            else if(o=="retire"){require(t.size()==2,"retire operands");invoke(0x1cca30,{handleOf(t[1])});}
+            else if(o=="palette"){require(t.size()==2,"palette operands");const uint32 n=uint32(num(t[1]));
+                require(n>0&&n<=256,"palette colors range");
+                for(uint32 k=0;k<n*4;++k)ee->m_ram[staging+k]=payloadByte(k,uint32(i));
+                invoke(0x1cd7d0,{n,staging});const uint64 d=cpu.m_State.nGPR[CMIPS::V0].nD0;
+                pl.push_back({d!=0,d});result=d?std::to_string(allocId(d)):"null";}
+            else if(o=="bind"){require(t.size()==4,"bind operands");
+                const uint64 d=t[3]=="null"?0:descOf(t[3],'p');
+                invoke(0x1cd298,{handleOf(t[1]),num(t[2]),int64(d)});}
+            else if(o=="xmd"){require(t.size()>=2,"xmd names");
+                std::vector<uint8> x(16,0);const uint32 off=16;std::memcpy(x.data()+4,&off,4);
+                const uint32 n=uint32(t.size()-1);x.insert(x.end(),reinterpret_cast<const uint8*>(&n),reinterpret_cast<const uint8*>(&n)+4);
+                for(size_t k=1;k<t.size();++k){require(t[k].size()<100,"xmd name length");x.insert(x.end(),t[k].begin(),t[k].end());x.push_back(0);}
+                std::memcpy(ee->m_ram+xmdStage,x.data(),x.size());
+                invoke(0x186aa8,{xmdStage});result=std::to_string(v0());}
+            else if(o=="filler"){require(t.size()==5,"filler operands");
+                invoke(0x1cf008,{num(t[1]),num(t[2]),num(t[3]),num(t[4])});
+                const uint64 d=cpu.m_State.nGPR[CMIPS::V0].nD0;fl.push_back({d!=0,d});result=d?std::to_string(allocId(d)):"null";}
+            else if(o=="free"){require(t.size()==2,"free operands");invoke(0x1cf728,{int64(descOf(t[1],'f'))});}
+            else if(o=="retain"){require(t.size()==3,"retain operands");invoke(0x1cee50,{int64(descOf(t[1],'f')),num(t[2])});}
+            else throw std::runtime_error("Texture handles unknown op: "+o);
+            for(unsigned k=0;k<8;++k)ee->m_dmac.ResumeDMA2();
+            gs->drain();
+            require(ee->m_gif.GetActivePath()==0,"Texture handles left an active GIF path");
+            state(long(i),ops[i].text,result);
+        }
+        for(unsigned j=0;j<16;++j)require(ee->m_ram[0x3b3c38+j]==0xa7,"Texture handles memory canary");
+        if(get(0x3abb14)!=0)std::cerr<<"WARNING: cls word 0x3abb14 changed to "<<get(0x3abb14)<<'\n';
+        require(!std::memcmp(code.data(),ee->m_ram+0x100000,code.size())&&
+            !std::memcmp(tables.data(),ee->m_ram+0x2138d0,tables.size()),"Texture handles changed retail code/tables");
+        for(auto a:stubs)ee->m_EE.ToggleBreakpoint(a);
+        boundedInstructionProbe=nullptr;pumpHook=nullptr;textureAllocatorProbe=false;textureTransferProbe=false;
         const auto report=out.str();writeFile(output,report.data(),report.size());
     }
     void materialExtraPredicates(const std::vector<uint8>& input,const char* output) {
@@ -4561,6 +4742,8 @@ int main(int argc,char** argv) {
             reference.gsAddresses(readFileBounded(argv[3],16+1000000*20),argv[4]);
         } else if (command=="texture-allocator" && argc==5) {
             reference.textureAllocator(readFileBounded(argv[3],16+8192*24),argv[4]);
+        } else if (command=="texture-handles" && argc==5) {
+            reference.textureHandles(readFileBounded(argv[3],1<<20),argv[4]);
         } else if (command=="texture-transfer" && argc==5) {
             reference.textureTransfer(readFileBounded(argv[3],16+64*16),argv[4]);
         } else if (command=="material-extra-uv" && argc==5) {
