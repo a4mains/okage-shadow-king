@@ -128,7 +128,7 @@ std::vector<Line> parse_script(const std::string& path) {
         } else if (name == "reserve") {
             l.op = Op::Reserve;
             arity(1);
-            l.n[0] = parse_number(l.args[0], 1, 4096, false, "reserve count", lineno);
+            l.n[0] = parse_number(l.args[0], 1, 8192, false, "reserve count", lineno);
         } else if (name == "image") {
             l.op = Op::Image;
             arity(3);
@@ -142,8 +142,12 @@ std::vector<Line> parse_script(const std::string& path) {
             l.n[0] = psm_image(l.args[0]);
             l.n[1] = parse_number(l.args[1], 1, 2048, false, "width", lineno);
             l.n[2] = parse_number(l.args[2], 1, 2048, false, "height", lineno);
-            l.n[3] = parse_number(l.args[3], 1, 64, false, "levels", lineno);
-            l.n[4] = parse_number(l.args[4], 1, 256, false, "colors", lineno);
+            l.n[3] = parse_number(l.args[3], 0, 64, false, "levels", lineno);
+            l.n[4] = parse_number(l.args[4], 0, 256, false, "colors", lineno);
+            if (l.n[0] == 19 && l.n[3] < 1)
+                die(where + "PSM 19 XIM needs at least one palette level");
+            if (l.n[0] == 0 && (l.n[3] != 0 || l.n[4] != 0))
+                die(where + "PSM 0 XIM has no palette: levels and colors must be 0");
             if (l.n[0] == 19 && l.n[4] != 16 && l.n[4] != 256)
                 die(where + "PSM 19 XIM colors must be 16 or 256 (native upload support)");
             ++hn;
@@ -342,8 +346,6 @@ struct Tracer {
     }
 };
 
-std::string num_or_null(int v) { return v < 0 ? "null" : std::to_string(v); }
-
 }  // namespace
 
 int main(int argc, char** argv) {
@@ -386,7 +388,7 @@ int main(int argc, char** argv) {
                     const auto px = synth_bytes(std::size_t(w) * h * (l.n[0] == 0 ? 4 : 1), seed);
                     const int hd = owner.create_image(static_cast<GsPixelStorage>(l.n[0]), w, h, px);
                     hl.push_back(hd);
-                    result = num_or_null(hd);
+                    result = std::to_string(hd);
                     if (hd >= 0) tr.chain_len[owner.record_of(hd)] = 0;
                     break;
                 }
@@ -396,7 +398,7 @@ int main(int argc, char** argv) {
                                                     static_cast<std::uint32_t>(l.n[4]), seed));
                     const auto rep = owner.load_xim(xim);
                     hl.push_back(rep.handle);
-                    result = num_or_null(rep.handle);
+                    result = std::to_string(rep.handle);
                     if (rep.handle >= 0)
                         tr.chain_len[owner.record_of(rep.handle)] = int(extras_before - owner.free_extra_count());
                     break;
@@ -405,7 +407,7 @@ int main(int argc, char** argv) {
                 case Op::Lookup: {
                     const int hd = owner.lookup_alias(l.str);
                     hl.push_back(hd);
-                    result = num_or_null(hd);
+                    result = std::to_string(hd);
                     break;
                 }
                 case Op::Retire: owner.retire(hl[l.label]); break;

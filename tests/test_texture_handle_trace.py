@@ -227,9 +227,9 @@ class NativeTraceTests(unittest.TestCase):
         self.assertEqual(lines[6]["records"], [])
         self.assertEqual(lines[6]["descriptors"], [])
 
-    def test_lookup_miss_returns_null_but_consumes_label(self):
+    def test_lookup_miss_returns_minus_one_but_consumes_label(self):
         _, lines, _ = self.run_script("lookup nothing\nimage 19 32 32\nretire h1\n")
-        self.assertIsNone(lines[1]["result"])
+        self.assertEqual(lines[1]["result"], -1)
         self.assertEqual(lines[3]["handles"], [])
 
     def test_xmd_requests_and_abort(self):
@@ -318,13 +318,13 @@ class NativeTraceTests(unittest.TestCase):
         self.assertIn("cannot read script", proc.stderr)
 
     def test_native_trace_against_itself_through_differ(self):
-        script = "image 19 32 32\nxim 0 16 16 1 16\nretire h0\n"
+        script = "image 19 32 32\nxim 0 16 16 0 0\nretire h0\n"
         _, _, a = self.run_script(script)
         _, _, b = self.run_script(script)
         out = io.StringIO()
         with redirect_stdout(out):
             self.assertEqual(differ.main([str(a), str(b)]), 0)
-        _, _, c = self.run_script("image 19 32 32\nxim 0 16 16 1 16\nretire h1\n")
+        _, _, c = self.run_script("image 19 32 32\nxim 0 16 16 0 0\nretire h1\n")
         with redirect_stdout(out):
             self.assertEqual(differ.main([str(a), str(c)]), 1)
 
