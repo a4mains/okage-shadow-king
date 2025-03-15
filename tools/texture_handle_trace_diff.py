@@ -22,6 +22,10 @@ import sys
 class MalformedTrace(Exception):
     pass
 
+def canon(value):
+    """Type-strict canonical form: 0, false and 0.0 must not compare equal."""
+    return json.dumps(value, sort_keys=True, separators=(',', ':'))
+
 def load_trace(path):
     try:
         with open(path, "r", encoding="utf-8") as handle:
@@ -67,7 +71,7 @@ def list_detail(a, b):
     else:
         head = ""
     for index in range(min(len(a), len(b))):
-        if a[index] != b[index]:
+        if canon(a[index]) != canon(b[index]):
             return (head + "; " if head else "") + f"first differing element [{index}]: {short(a[index])} vs {short(b[index])}"
     if len(a) != len(b):
         longer = a if len(a) > len(b) else b
@@ -84,7 +88,7 @@ def compare_records(a, b, ignores):
             continue
         in_a, in_b = field in fa, field in fb
         if in_a and in_b:
-            if fa[field] != fb[field]:
+            if canon(fa[field]) != canon(fb[field]):
                 diffs.append((field, fa[field], fb[field], list_detail(fa[field], fb[field])))
         else:
             diffs.append((field, fa.get(field, "<missing>"), fb.get(field, "<missing>"), "field present in only one trace"))

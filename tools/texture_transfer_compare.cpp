@@ -116,6 +116,8 @@ std::vector<Case> read_fixture(const char* path) {
         if (*tag != "case") fail("bad header tag '" + tag->substr(0, 24) + "' (trailing junk or corrupt fixture)");
         if (cases.size() >= max_cases) fail("too many cases");
         cases.push_back(read_case(r));
+        for (std::size_t i = 0; i + 1 < cases.size(); ++i)
+            if (cases[i].n == cases.back().n) fail("duplicate case number " + std::to_string(cases.back().n));
     }
     if (cases.empty()) fail("fixture contains no cases");
     return cases;

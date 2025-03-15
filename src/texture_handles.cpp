@@ -34,6 +34,12 @@ TextureHandleOwner::TextureHandleOwner(Ps2TextureMemory& memory) : memory_(&memo
     for (auto& r : records_) r.name[0] = 0;
 }
 
+void TextureHandleOwner::validate(const OptDescriptor& d) const {
+    if (!d) return;
+    const auto a = memory_->allocation(d->id);
+    if (!a || a->serial != d->serial) throw std::logic_error("texture descriptor is stale");
+}
+
 OptDescriptor TextureHandleOwner::retain(OptDescriptor d) {
     if (!d) return std::nullopt;
     const auto a = memory_->allocation(d->id);
@@ -190,7 +196,7 @@ int TextureHandleOwner::lookup_slot(const std::string& lowered, int* first_free)
     int i = static_cast<int>(sum % hash_size);
     const int step = static_cast<int>(((~sum) & 0xfu) << 1) + 1;
     if (first_free) *first_free = -1;
-    for (;;) {
+    for (int probes = 0; probes < hash_size; ++probes) {
         const int e = hash_[i];
         if (e > 0) {
             const auto& stored = records_[e - 8].name;
@@ -201,6 +207,7 @@ int TextureHandleOwner::lookup_slot(const std::string& lowered, int* first_free)
         }
         i = (i + step) % hash_size;
     }
+    throw std::logic_error("texture name hash table has no empty slot");
 }
 
 void TextureHandleOwner::set_name(int handle, const char* name) {
@@ -239,6 +246,11 @@ void TextureHandleOwner::retire(int handle) {
     if (handle < 0 || handle >= handle_capacity || map_[handle] < 0) return;
     const int r = map_[handle];
     auto& rec = records_[r];
+    if (rec.handles == 1) {
+        validate(rec.image);
+        validate(rec.palette0);
+        for (int e = rec.extra_head; e != -1; e = extra_next_[e]) validate(extra_desc_[e]);
+    }
     --rec.handles;
     if (static_cast<std::int16_t>(rec.handles) <= 0) {
         if (rec.hash_slot >= 0) hash_[rec.hash_slot] = -1;  // slot field stays stale
@@ -269,6 +281,7 @@ PaletteBindResult TextureHandleOwner::bind_palette(int handle, int level, OptDes
     if (handle < 0 || handle >= handle_capacity || map_[handle] < 0) return PaletteBindResult::InvalidHandle;
     if (level < 0) throw std::invalid_argument("texture handle: negative palette level is undefined in retail");
     auto& rec = records_[map_[handle]];
+    validate(palette);
     if (level == 0) {
         if (rec.palette0 == palette) return PaletteBindResult::Unchanged;
         release(rec.palette0);

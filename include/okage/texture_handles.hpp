@@ -73,6 +73,8 @@ public:
     static constexpr std::size_t name_chars = 19;
 
     explicit TextureHandleOwner(Ps2TextureMemory& memory);
+    TextureHandleOwner(const TextureHandleOwner&) = delete;
+    TextureHandleOwner& operator=(const TextureHandleOwner&) = delete;
     Ps2TextureMemory& memory() noexcept { return *memory_; }
     const Ps2TextureMemory& memory() const noexcept { return *memory_; }
 
@@ -153,6 +155,7 @@ private:
     bool lower_file_names_{};
     std::vector<HandleEvent> events_;
 
+    void validate(const OptDescriptor& d) const;  // throws std::logic_error when stale
     OptDescriptor retain(OptDescriptor d);   // 1cee50(+1)
     void release(OptDescriptor d);           // 1cee50(-1) + 1cf728
     int pick_handle_id();                    // 1cc808 (no pop of reserved head)

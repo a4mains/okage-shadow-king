@@ -73,7 +73,6 @@ int main() {
             require(o.record_of(a) == 0 && o.record_of(b) == 1, "records are allocated FIFO");
             const auto da = o.image(a);
             require(da && refs(m, da) == 1, "record holds exactly one descriptor reference");
-            require(da->id != static_cast<TextureAllocationId>(a) || true, "ids distinct spaces");
             require(o.live_handle_count() == 2 && o.record_handle_count(0) == 1, "counts");
             require(defined_count(m) == 2 * 256, "two 8x8 PSM0 uploads");
             const int nu = o.create_image(C32, 8, 8, {});
@@ -345,6 +344,48 @@ int main() {
             const int g = o2.create_image(C32, 8, 8, sequence(256));
             require(g == h && o2.image(g)->id == d.id && o2.image(g)->serial == d.serial,
                     "equal ids/serials across separate memories: never a cross-owner key");
+        });
+        // Review findings: stale descriptor leaves a bind untouched; saturated hash fails explicitly.
+        scenario([&] {
+            Ps2TextureMemory m; m.initialize_empty_allocator();
+            TextureHandleOwner o(m);
+            const int h = o.create_image(T8, 16, 16, sequence(256));
+            const auto a = m.allocate(0, C32, 16, 2), b = m.allocate(0, C32, 16, 2);
+            const TextureDescriptor p1{a->id, a->serial}, p2{b->id, b->serial};
+            o.bind_palette(h, 0, p1);
+            m.free_allocation(p2.id);
+            bool threw = false;
+            try { o.bind_palette(h, 0, p2); } catch (const std::logic_error&) { threw = true; }
+            require(threw && o.palette(h, 0) == OptDescriptor(p1) && m.allocation(p1.id), "bind validated before releasing");
+            o.retire(h);  // still retireable
+            require(o.live_handle_count() == 0 && !m.allocation(p1.id), "retire works after the failed bind");
+        });
+        scenario([&] {
+            // Saturate every slot with tombstones: one name per byte-sum residue, each registered then retired.
+            Ps2TextureMemory m; m.initialize_empty_allocator();
+            TextureHandleOwner o(m);
+            auto name_for_sum = [](int target) {
+                std::string n;
+                while (target > 0) {
+                    int c = std::min(122, target);
+                    while (c >= 65 && c <= 90) --c;  // uppercase would be folded
+                    n.push_back(static_cast<char>(c));
+                    target -= c;
+                }
+                return n;
+            };
+            for (int residue = 0; residue < TextureHandleOwner::hash_size; ++residue) {
+                const int h = o.create_image(C32, 2, 2, sequence(16));
+                const auto name = name_for_sum(residue + 1024);
+                require(name.size() <= 19, "name fits the 19-character field");
+                o.set_name(h, name.c_str());
+                o.retire(h);
+            }
+            require(o.hash_entries().size() == TextureHandleOwner::hash_size, "every slot is a tombstone");
+            const int h = o.create_image(C32, 2, 2, sequence(16));
+            bool threw = false;
+            try { o.set_name(h, "anything"); } catch (const std::logic_error&) { threw = true; }
+            require(threw, "retail would spin forever; native fails explicitly");
         });
         std::cout << "texture handle tests passed\n";
         return 0;
