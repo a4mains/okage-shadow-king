@@ -1,4 +1,10 @@
 {
+ "asan_ubsan_lifecycle": {
+  "command": "OKAGE_HANDLE_TRACE=build/t1-transfer-sanitize/okage-texture-handle-trace python3 -m unittest tests.test_texture_handle_lifecycle",
+  "output": "local/research/handle-lifecycle-v1/asan-lifecycle-test.out",
+  "result": "2 tests OK in 4273.99 s (19 original + 21 review scripts identical to retail traces, no sanitizer error)",
+  "sha256": "0f7260b23027d41cf904f9f596cbcc0f6e2bad34eeb6bff4daebca6982227545"
+ },
  "base_commit": "efe9863",
  "commands": [
   "cmake -S . -B build/t1-transfer-{release,debug,sanitize} -G Ninja",
