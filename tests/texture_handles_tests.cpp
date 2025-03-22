@@ -86,6 +86,7 @@ int main() {
         scenario([&] {
             Ps2TextureMemory m; m.initialize_empty_allocator();
             TextureHandleOwner o(m);
+            o.set_event_log_limit(1 << 16);
             for (int i = 0; i < TextureHandleOwner::record_capacity; ++i)
                 require(o.create_image(C32, 2, 2, sequence(16)) == i, "fill records");
             const auto before_avail = m.available_count();
@@ -104,6 +105,7 @@ int main() {
         scenario([&] {
             Ps2TextureMemory m; m.initialize_empty_allocator();
             TextureHandleOwner o(m);
+            o.set_event_log_limit(1 << 16);
             const int h = o.create_image(C32, 8, 8, sequence(256));
             o.set_name(h, "ABCDEFGHIJKLMNOPQRSTUVWXYZ.xim");
             require(o.record_name(o.record_of(h)) == "abcdefghijklmnopqrs", "lower-cased, 19 chars");
@@ -172,6 +174,7 @@ int main() {
         scenario([&] {
             Ps2TextureMemory m; m.initialize_empty_allocator();
             TextureHandleOwner o(m);
+            o.set_event_log_limit(1 << 16);
             const int h = o.create_image(T8, 16, 16, sequence(256));
             auto pal = [&](int n) {
                 const auto a = m.allocate(0, C32, 16, 2);
@@ -386,6 +389,58 @@ int main() {
             bool threw = false;
             try { o.set_name(h, "anything"); } catch (const std::logic_error&) { threw = true; }
             require(threw, "retail would spin forever; native fails explicitly");
+        });
+        // Unsupported name domain (high-bit / NUL) is rejected before any mutation; ASCII is untouched.
+        scenario([&] {
+            Ps2TextureMemory m; m.initialize_empty_allocator();
+            TextureHandleOwner o(m);
+            const int h = o.create_image(C32, 2, 2, sequence(16));
+            o.set_name(h, "Keep");
+            const auto before_hash = o.hash_entries();
+            const auto before_epoch = m.identity();
+            const std::string high = "caf\xc3\xa9", nul(std::string("a\0b", 3));
+            auto invalid = [&](const char* what, auto&& call) {
+                bool threw = false;
+                try { call(); } catch (const std::invalid_argument&) { threw = true; }
+                require(threw, what);
+            };
+            invalid("set_name high", [&] { o.set_name(h, high.c_str()); });
+            invalid("lookup high", [&] { o.lookup_alias(high); });
+            invalid("lookup nul", [&] { o.lookup_alias(nul); });
+            auto reader = [&](const std::string&) -> std::optional<std::vector<std::uint8_t>> {
+                throw std::logic_error("reader must not run");
+            };
+            const std::vector<std::string> names{"fine", high};
+            invalid("xmd high", [&] { o.load_xmd_names(names, reader); });
+            require(o.hash_entries() == before_hash && o.record_name(o.record_of(h)) == "keep", "name state intact");
+            require(o.live_handle_count() == 1 && o.reserved_handles().empty() && m.identity() == before_epoch,
+                    "no reservation, handle or allocation after rejected names");
+            require(o.lookup_alias("KEEP") >= 0, "ASCII lookup still folds case");
+            o.set_name(h, nullptr);  // null name clears
+            require(o.record_name(o.record_of(h)).empty(), "null clears");
+        });
+        // Event log is bounded/disabled; retire_all tears down without touching the memory.
+        scenario([&] {
+            Ps2TextureMemory m; m.initialize_empty_allocator();
+            TextureHandleOwner o(m);
+            o.create_image(C32, 2, 2, sequence(16));
+            require(o.events().empty() && o.event_log_limit() == 0, "logging disabled by default");
+            o.set_event_log_limit(3);
+            for (int i = 0; i < 5; ++i) o.create_handle(std::nullopt);
+            require(o.events().size() == 3 && o.events_dropped() == 2, "keeps the newest N, counts the rest");
+            o.set_event_log_limit(1);
+            require(o.events().size() == 1 && o.events_dropped() == 4, "shrinking drops the oldest");
+            o.set_event_log_limit(0);
+            for (int i = 0; i < 100; ++i) o.retire(o.create_handle(std::nullopt));
+            require(o.events().empty(), "disabled log stays empty");
+            o.reserve_handles(8);
+            o.create_image(T8, 16, 16, sequence(256));
+            o.load_xim(OwnedRawXim(build_xim(16, 16, 3, 16, 7)));
+            o.retire_all();
+            require(o.live_handle_count() == 0 && o.live_record_count() == 0 && o.reserved_handles().empty(),
+                    "retire_all empties handles, records and the reserved queue");
+            require(m.available_count() == 4096, "every descriptor reference released");
+            o.retire_all();  // idempotent
         });
         std::cout << "texture handle tests passed\n";
         return 0;

@@ -44,7 +44,8 @@ class LifecycleTests(unittest.TestCase):
                     run = subprocess.run([str(TOOL), str(script), str(out)], capture_output=True, text=True)
                     self.assertEqual(run.returncode, 0, run.stderr)
                     diff = subprocess.run([sys.executable, "-I", str(DIFF),
-                                           str(evidence / "original" / (script.stem + ".jsonl")), str(out)],
+                                           str(evidence / "original" / (script.stem + ".jsonl")), str(out),
+                                           "--accept", str(script)],
                                           capture_output=True, text=True)
                     self.assertEqual(diff.returncode, 0, diff.stdout[-2000:])
 

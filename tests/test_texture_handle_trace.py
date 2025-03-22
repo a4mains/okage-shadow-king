@@ -142,6 +142,145 @@ class DifferTests(unittest.TestCase):
         with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
             self.assertEqual(differ.main(["only-one"]), 2)
 
+HEX_A, HEX_B = "a" * 64, "b" * 64
+
+def accept_line(op, text):
+    line = base_line(op, text)
+    line["vram"] = {"available": 4000, "cursors": [0] * 64, "occupancy_sha256": HEX_A,
+                    "touched": 4, "touched_sha256": HEX_B}
+    return line
+
+class AcceptModeTests(unittest.TestCase):
+    """--accept SCRIPT: schema, sequence and length gate (negative controls)."""
+
+    SCRIPT = "# comment\ncache 0\n\n  lower 1  \n"
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.dir = Path(self.tmp.name)
+        (self.dir / "s.txt").write_text(self.SCRIPT)
+        self.good = [accept_line(-1, "init"), accept_line(0, "cache 0"), accept_line(1, "lower 1")]
+
+    def run_accept(self, a, b, script=None, raw_a=None, raw_b=None, extra=()):
+        pa, pb = self.dir / "a.jsonl", self.dir / "b.jsonl"
+        pa.write_text(raw_a if raw_a is not None else "".join(json.dumps(x) + "\n" for x in a))
+        pb.write_text(raw_b if raw_b is not None else "".join(json.dumps(x) + "\n" for x in b))
+        out, err = io.StringIO(), io.StringIO()
+        with redirect_stdout(out), redirect_stderr(err):
+            code = differ.main([str(pa), str(pb), "--accept", str(script or self.dir / "s.txt"), *extra])
+        return code, out.getvalue(), err.getvalue()
+
+    def mutated(self, fn):
+        lines = copy.deepcopy(self.good)
+        fn(lines)
+        return lines
+
+    def test_identical_schema_valid_traces_pass(self):
+        code, out, _ = self.run_accept(self.good, copy.deepcopy(self.good))
+        self.assertEqual(code, 0)
+        self.assertIn("script operations: 2", out)
+
+    def test_real_value_mutation_is_different_not_malformed(self):
+        for name, fn in {
+            "result": lambda L: L[2].update(result=5),
+            "vram.touched": lambda L: L[2]["vram"].update(touched=5),
+            "vram.hash": lambda L: L[1]["vram"].update(touched_sha256=HEX_A),
+            "cursor": lambda L: L[2]["vram"]["cursors"].__setitem__(3, 1),
+            "descriptor": lambda L: L[2].update(descriptors=[[0, 2]]),
+        }.items():
+            with self.subTest(name):
+                code, out, _ = self.run_accept(self.good, self.mutated(fn))
+                self.assertEqual(code, 1, out)
+                self.assertIn("DIFFERENT", out)
+
+    def test_empty_and_truncated_captures_are_malformed(self):
+        for name, lines in {"empty": [], "init-only": self.good[:1], "prefix": self.good[:2]}.items():
+            with self.subTest(name):
+                # Two equally truncated captures must not pass.
+                self.assertEqual(self.run_accept(lines, copy.deepcopy(lines))[0], 2)
+                self.assertEqual(self.run_accept(self.good, lines)[0], 2)
+                self.assertEqual(self.run_accept(lines, self.good)[0], 2)
+
+    def test_extra_lines_are_malformed(self):
+        longer = self.good + [accept_line(2, "cache 0")]
+        self.assertEqual(self.run_accept(longer, copy.deepcopy(longer))[0], 2)
+
+    def test_empty_objects_are_malformed(self):
+        self.assertEqual(self.run_accept([{}, {}, {}], [{}, {}, {}])[0], 2)
+
+    def test_missing_field_on_both_sides_is_malformed(self):
+        for key in ("handles", "vram", "file_requests", "result"):
+            with self.subTest(key):
+                broken = self.mutated(lambda L, k=key: L[2].pop(k))
+                self.assertEqual(self.run_accept(broken, copy.deepcopy(broken))[0], 2)
+                self.assertEqual(self.run_accept(self.good, broken)[0], 2)
+
+    def test_unknown_and_dotted_keys_are_malformed(self):
+        for key in ("extra", "vram.available"):
+            with self.subTest(key):
+                broken = self.mutated(lambda L, k=key: L[2].update({k: 1}))
+                self.assertEqual(self.run_accept(broken, copy.deepcopy(broken))[0], 2)
+        nested = self.mutated(lambda L: L[2]["vram"].update(extra=1))
+        self.assertEqual(self.run_accept(nested, copy.deepcopy(nested))[0], 2)
+
+    def test_wrong_types_are_malformed(self):
+        cases = {
+            "bool op": lambda L: L[1].update(op=False),
+            "float result": lambda L: L[2].update(result=1.5),
+            "bool result": lambda L: L[2].update(result=True),
+            "string live_handles": lambda L: L[2].update(live_handles="1"),
+            "bool in cursors": lambda L: L[2]["vram"]["cursors"].__setitem__(0, False),
+            "short cursors": lambda L: L[2]["vram"].update(cursors=[0] * 63),
+            "bad hash": lambda L: L[2]["vram"].update(occupancy_sha256="AA" * 32),
+            "pair arity": lambda L: L[2].update(handles=[[1, 2, 3]]),
+            "unsorted handles": lambda L: L[2].update(handles=[[2, 0], [1, 1]]),
+            "file_requests ints": lambda L: L[2].update(file_requests=[1]),
+        }
+        for name, fn in cases.items():
+            with self.subTest(name):
+                broken = self.mutated(fn)
+                self.assertEqual(self.run_accept(broken, copy.deepcopy(broken))[0], 2)
+
+    def test_sequence_and_text_must_follow_script(self):
+        for name, fn in {
+            "reordered": lambda L: L.__setitem__(slice(1, 3), [L[2], L[1]]),
+            "duplicate op": lambda L: L[2].update(op=0),
+            "skipped op": lambda L: L[2].update(op=2),
+            "wrong text": lambda L: L[2].update(text="lower 0"),
+            "init not first": lambda L: L[0].update(op=0),
+        }.items():
+            with self.subTest(name):
+                broken = self.mutated(fn)
+                self.assertEqual(self.run_accept(broken, copy.deepcopy(broken))[0], 2)
+
+    def test_duplicate_keys_and_nonfinite_numbers_are_malformed(self):
+        good_text = "".join(json.dumps(x) + "\n" for x in self.good)
+        dup = good_text.replace('"op": 1,', '"op": 1, "op": 1,')
+        self.assertNotEqual(dup, good_text)
+        self.assertEqual(self.run_accept(None, None, raw_a=dup, raw_b=good_text)[0], 2)
+        self.assertEqual(self.run_accept(None, None, raw_a=good_text, raw_b=dup)[0], 2)
+        for token in ("NaN", "Infinity", "-Infinity"):
+            with self.subTest(token):
+                bad = good_text.replace('"result": 0', f'"result": {token}', 1)
+                self.assertNotEqual(bad, good_text)
+                self.assertEqual(self.run_accept(None, None, raw_a=bad, raw_b=bad)[0], 2)
+
+    def test_ignore_is_refused_and_empty_script_is_malformed(self):
+        self.assertEqual(self.run_accept(self.good, copy.deepcopy(self.good), extra=("--ignore", "vram"))[0], 2)
+        (self.dir / "empty.txt").write_text("# nothing\n\n")
+        self.assertEqual(self.run_accept(self.good, self.good, script=self.dir / "empty.txt")[0], 2)
+
+    def test_generic_mode_unchanged(self):
+        # Generic mode still reports (not rejects) schema-less traces.
+        code, _, _ = self.run_accept([], [], extra=())
+        self.assertEqual(code, 2)  # accept mode
+        out, err = io.StringIO(), io.StringIO()
+        pa = self.dir / "g.jsonl"
+        pa.write_text("{}\n")
+        with redirect_stdout(out), redirect_stderr(err):
+            self.assertEqual(differ.main([str(pa), str(pa)]), 0)
+
 def find_binary():
     env = os.environ.get("OKAGE_HANDLE_TRACE")
     if env:

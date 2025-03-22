@@ -127,8 +127,13 @@ public:
     std::size_t free_record_count() const noexcept { return free_records_.size(); }
     std::size_t free_extra_count() const noexcept { return free_extras_.size(); }
     std::vector<std::pair<int, int>> hash_entries() const;  // (slot, value)
-    const std::vector<HandleEvent>& events() const noexcept { return events_; }
-    void clear_events() { events_.clear(); }
+    void set_event_log_limit(std::size_t limit);
+    std::size_t event_log_limit() const noexcept { return event_limit_; }
+    std::size_t events_dropped() const noexcept { return events_dropped_; }
+    const std::deque<HandleEvent>& events() const noexcept { return events_; }
+    void clear_events() { events_.clear(); events_dropped_ = 0; }
+
+    void retire_all();
 
 private:
     struct Record {
@@ -153,7 +158,10 @@ private:
     int live_handles_{};
     bool cache_enabled_{};
     bool lower_file_names_{};
-    std::vector<HandleEvent> events_;
+    std::deque<HandleEvent> events_;
+    std::size_t event_limit_{};
+    std::size_t events_dropped_{};
+    void log_event(const HandleEvent& e);
 
     void validate(const OptDescriptor& d) const;  // throws std::logic_error when stale
     OptDescriptor retain(OptDescriptor d);   // 1cee50(+1)

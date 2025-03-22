@@ -17,6 +17,12 @@ std::string lower_ascii(std::string_view s, std::size_t limit = std::string::npo
     return out;
 }
 
+void require_supported_name(std::string_view s) {
+    for (unsigned char c : s)
+        if (c == 0 || c >= 0x80)
+            throw std::invalid_argument("texture name contains a NUL or non-ASCII byte (unsupported domain)");
+}
+
 std::uint32_t byte_sum(const std::string& s) {
     std::uint32_t sum = 0;
     for (unsigned char c : s) sum += c;
@@ -45,7 +51,7 @@ OptDescriptor TextureHandleOwner::retain(OptDescriptor d) {
     const auto a = memory_->allocation(d->id);
     if (!a || a->serial != d->serial) throw std::logic_error("texture descriptor is stale");
     memory_->adjust_references(d->id, 1);
-    events_.push_back({HandleEvent::Kind::DescriptorRetain, d->id, 0});
+    log_event({HandleEvent::Kind::DescriptorRetain, d->id, 0});
     return d;
 }
 
@@ -54,9 +60,9 @@ void TextureHandleOwner::release(OptDescriptor d) {
     const auto a = memory_->allocation(d->id);
     if (!a || a->serial != d->serial) throw std::logic_error("texture descriptor is stale");
     memory_->adjust_references(d->id, -1);
-    events_.push_back({HandleEvent::Kind::DescriptorRelease, d->id, 0});
+    log_event({HandleEvent::Kind::DescriptorRelease, d->id, 0});
     if (memory_->free_allocation(d->id))
-        events_.push_back({HandleEvent::Kind::DescriptorFree, d->id, 0});
+        log_event({HandleEvent::Kind::DescriptorFree, d->id, 0});
 }
 
 int TextureHandleOwner::alloc_range(int count) {
@@ -107,7 +113,7 @@ int TextureHandleOwner::create_handle(OptDescriptor image) {
     r.handles = 1;
     r.image = retain(image);
     ++live_handles_;
-    events_.push_back({HandleEvent::Kind::HandleCreated, id, record});
+    log_event({HandleEvent::Kind::HandleCreated, id, record});
     return id;
 }
 
@@ -117,7 +123,7 @@ int TextureHandleOwner::create_alias(int record) {
     map_[id] = static_cast<std::int16_t>(record);
     ++records_[record].handles;
     ++live_handles_;
-    events_.push_back({HandleEvent::Kind::AliasCreated, id, record});
+    log_event({HandleEvent::Kind::AliasCreated, id, record});
     return id;
 }
 
@@ -137,12 +143,12 @@ int TextureHandleOwner::create_image(GsPixelStorage psm, std::uint16_t width, st
     const int handle = create_handle(d);
     if (handle < 0) {
         if (memory_->free_allocation(a->id))
-            events_.push_back({HandleEvent::Kind::DescriptorFree, a->id, 0});
+            log_event({HandleEvent::Kind::DescriptorFree, a->id, 0});
         return -1;
     }
     if (!pixels.empty()) {
         upload_allocation_image(*memory_, a->id, pixels);
-        events_.push_back({HandleEvent::Kind::Upload, a->id, std::int64_t(qwc) * 16});
+        log_event({HandleEvent::Kind::Upload, a->id, std::int64_t(qwc) * 16});
     }
     return handle;
 }
@@ -156,7 +162,7 @@ OptDescriptor TextureHandleOwner::make_palette(std::uint32_t count,
     if (!a) return std::nullopt;  // 1cd7d0 returns 0 and uploads nothing
     upload_clut(*memory_, a->id, count, level_bytes);
     uploaded = true;
-    events_.push_back({HandleEvent::Kind::Upload, a->id, std::int64_t(clut_rect_rows(count)) * 64});
+    log_event({HandleEvent::Kind::Upload, a->id, std::int64_t(clut_rect_rows(count)) * 64});
     return TextureDescriptor{a->id, a->serial};
 }
 
@@ -211,6 +217,7 @@ int TextureHandleOwner::lookup_slot(const std::string& lowered, int* first_free)
 }
 
 void TextureHandleOwner::set_name(int handle, const char* name) {
+    if (name) require_supported_name(name);
     if (handle < 0 || handle >= handle_capacity || map_[handle] < 0) return;
     const int r = map_[handle];
     auto& rec = records_[r];
@@ -236,6 +243,7 @@ void TextureHandleOwner::set_name(int handle, const char* name) {
 }
 
 int TextureHandleOwner::lookup_alias(std::string_view name) {
+    require_supported_name(name);
     const auto lowered = lower_ascii(name, name_chars);
     const int slot = lookup_slot(lowered, nullptr);
     if (slot < 0) return -1;
@@ -260,7 +268,7 @@ void TextureHandleOwner::retire(int handle) {
             release(extra_desc_[e]);
             extra_desc_[e] = std::nullopt;
             free_extras_.push_back(e);
-            events_.push_back({HandleEvent::Kind::ExtraFreed, e, 0});
+            log_event({HandleEvent::Kind::ExtraFreed, e, 0});
             const int next = extra_next_[e];
             extra_next_[e] = -1;
             e = next;
@@ -269,12 +277,12 @@ void TextureHandleOwner::retire(int handle) {
         release(rec.palette0);
         rec.live = false;
         free_records_.push_back(r);
-        events_.push_back({HandleEvent::Kind::RecordFreed, r, 0});
+        log_event({HandleEvent::Kind::RecordFreed, r, 0});
     }
     map_[handle] = -1;
     free_id(handle);
     --live_handles_;
-    events_.push_back({HandleEvent::Kind::HandleFreed, handle, r});
+    log_event({HandleEvent::Kind::HandleFreed, handle, r});
 }
 
 PaletteBindResult TextureHandleOwner::bind_palette(int handle, int level, OptDescriptor palette) {
@@ -331,6 +339,7 @@ int TextureHandleOwner::extra_chain_length(int handle) const {
 
 XmdLoadResult TextureHandleOwner::load_xmd_names(std::span<const std::string> names,
                                                  const FileReader& read_file) {
+    for (const auto& name : names) require_supported_name(name);  // before the reservation
     XmdLoadResult result;
     if (names.empty()) {
         result.first = 0;  // 186af8: no reservation, returns 0
@@ -362,6 +371,30 @@ XmdLoadResult TextureHandleOwner::load_xmd_names(std::span<const std::string> na
         result.names.push_back(std::move(outcome));
     }
     return result;
+}
+
+void TextureHandleOwner::log_event(const HandleEvent& e) {
+    if (event_limit_ == 0) return;
+    if (events_.size() >= event_limit_) {
+        events_.pop_front();
+        ++events_dropped_;
+    }
+    events_.push_back(e);
+}
+
+void TextureHandleOwner::set_event_log_limit(std::size_t limit) {
+    event_limit_ = limit;
+    while (events_.size() > event_limit_) {
+        events_.pop_front();
+        ++events_dropped_;
+    }
+}
+
+void TextureHandleOwner::retire_all() {
+    for (int id : reserved_) free_id(id);
+    reserved_.clear();
+    for (int h = 0; h < handle_capacity; ++h)
+        if (map_[h] >= 0) retire(h);
 }
 
 bool TextureHandleOwner::handle_live(int handle) const {
