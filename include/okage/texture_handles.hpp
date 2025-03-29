@@ -88,6 +88,8 @@ public:
     // before any state change.
     XimLoadReport load_xim(const OwnedRawXim& xim);
 
+    OptDescriptor create_palette(std::uint32_t count, std::span<const std::uint8_t> entries, bool& uploaded);
+
     // 0x1cd5c8. Releases the still-unused reserved ids, first-fit allocates n
     // contiguous ids, queues them FIFO. -1 on failure (releases persist).
     // n <= 0 is unguarded in retail and rejected here.

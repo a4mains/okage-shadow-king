@@ -195,7 +195,7 @@ std::optional<XimUploadResult> upload_xim(Ps2TextureMemory& memory, const OwnedR
     if (!image) return std::nullopt;
     result.image = image->id;
     upload_allocation_image(memory, image->id, xim.image());
-    const bool indexed = l.pixel_format == 19;
+    const bool indexed = l.pixel_format == 19 || l.pixel_format == 20;
     for (std::uint32_t i = 0; indexed && i < l.palette_level_count; ++i) {
         XimPaletteAttempt attempt{i, std::nullopt, false};
         const auto palette = memory.allocate(0, GsPixelStorage::Psmct32, 16,

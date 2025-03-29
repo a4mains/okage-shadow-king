@@ -129,7 +129,8 @@ int TextureHandleOwner::create_alias(int record) {
 
 int TextureHandleOwner::create_image(GsPixelStorage psm, std::uint16_t width, std::uint16_t height,
                                      std::span<const std::uint8_t> pixels) {
-    if (psm != GsPixelStorage::Psmct32 && psm != GsPixelStorage::Psmt8)
+    if (psm != GsPixelStorage::Psmct32 && psm != GsPixelStorage::Psmt8 && psm != GsPixelStorage::Psmt4 &&
+        psm != GsPixelStorage::Psmt4Hl && psm != GsPixelStorage::Psmt4Hh)
         throw std::invalid_argument("texture handle: unsupported pixel storage");
     if (!width || !height || width > 2048 || height > 2048)
         throw std::invalid_argument("texture handle: dimension outside 1..2048");
@@ -151,6 +152,22 @@ int TextureHandleOwner::create_image(GsPixelStorage psm, std::uint16_t width, st
         log_event({HandleEvent::Kind::Upload, a->id, std::int64_t(qwc) * 16});
     }
     return handle;
+}
+
+OptDescriptor TextureHandleOwner::create_palette(std::uint32_t count,
+                                                 std::span<const std::uint8_t> entries,
+                                                 bool& uploaded) {
+    uploaded = false;
+    if (count == 0 || count > 512) throw std::invalid_argument("texture handle: palette entry count outside 1..512");
+    if (entries.empty()) {
+        const auto a = memory_->allocate(0, GsPixelStorage::Psmct32, 16,
+                                         static_cast<std::uint16_t>(clut_rect_rows(count)));
+        if (!a) return std::nullopt;
+        return TextureDescriptor{a->id, a->serial};
+    }
+    if (entries.size() < std::size_t(count) * 4)
+        throw std::invalid_argument("texture handle: palette source shorter than 4 bytes per entry");
+    return make_palette(count, entries, uploaded);
 }
 
 OptDescriptor TextureHandleOwner::make_palette(std::uint32_t count,
@@ -176,7 +193,7 @@ XimLoadReport TextureHandleOwner::load_xim(const OwnedRawXim& xim) {
                                  static_cast<std::uint16_t>(l.width),
                                  static_cast<std::uint16_t>(l.height), xim.image());
     if (report.handle < 0) return report;
-    const bool indexed = l.pixel_format == 19;
+    const bool indexed = l.pixel_format == 19 || l.pixel_format == 20;
     for (std::uint32_t i = 0; indexed && i < l.palette_level_count; ++i) {
         PaletteLevelOutcome outcome;
         outcome.level = i;

@@ -34,6 +34,7 @@
 #include "shadow_metal.hpp"
 #include "ui_metal.hpp"
 #include "okage/battle_entry.hpp"
+#include "okage/startup_textures.hpp"
 #include <bit>
 #include <algorithm>
 #include <array>
@@ -162,6 +163,9 @@ struct Session {
     std::vector<std::uint32_t> filter_trace;
     std::vector<std::uint32_t> wander_trace;
     std::unique_ptr<okage::MusicRouter> music;
+    std::unique_ptr<okage::StartupTextureOwner> startup_textures;
+    std::string startup_textures_status="not initialized (no cold startup)";
+    fs::path startup_texture_report;
     std::unique_ptr<okage::AudioOutput> audio_output;
     std::vector<std::int16_t> audio_capture;
     std::vector<std::uint32_t> music_trace;
@@ -597,7 +601,7 @@ struct Session {
     }
     fs::path scene_map;
     void initialize_cold_start(const fs::path& root,const fs::path& saves,bool record) {
-        if(game_data||game_mode||field||effect_preparation)throw std::runtime_error("Cold startup ownership already exists");
+        if(game_data||game_mode||field||effect_preparation||startup_textures)throw std::runtime_error("Cold startup ownership already exists");
         field_root=root/"FLDDATA";event_directory=field_root/"EVENT/EVDATA.XPF";
         message_directory=field_root/"MES";message_bank.clear();messages={};
         game_data.emplace(readData(root/"CMNDATA/XDB/BKDATA.XDB"),readData(root/"CMNDATA/XDB/ITEM.XDB"));
@@ -609,10 +613,35 @@ struct Session {
         battle_input=root/"NATIVE_UI";save_directory=saves;reset_scene_camera();
         prepare_effects(root/"CMNDATA/2D/TES.EFD",root/"CMNDATA/2D/ENV_TEX.XPF");
         effects_loaded=true;
+        initialize_startup_textures(root);
         game_mode.emplace(okage::GameModeParent::startup());
         sound_banks.emplace(0,std::make_unique<okage::StreamPlayer>(
             okage::read_stream_bank(readData(sound_directory/"ALL.XWS"))));
         std::cout<<"Native cold startup queued mode8 selector3\n";
+    }
+    void initialize_startup_textures(const fs::path& root) {
+        const auto elf_path=root/"SCUS_971.29";
+        if(!fs::exists(elf_path)) {
+            startup_textures_status="unavailable: no SCUS_971.29 beside the game data; startup texture ownership NOT established";
+            std::cout<<"Native startup textures "<<startup_textures_status<<'\n';
+            return;
+        }
+        okage::StartupTextureInputs inputs;
+        inputs.font_palette=okage::read_elf_va(readData(elf_path),0x2003f8,64);
+        const char* font_files[3]={"IQ24.FNT","BMUI.FNT","BM.FNT"};
+        for(int i=0;i<3;++i)inputs.fonts[i]=readData(root/"CMNDATA/FONT"/font_files[i]);
+        const auto effect_dir=root/"CMNDATA/2D/ENV_TEX.XPF";
+        inputs.read_effect=[effect_dir](const std::string& name)->std::optional<std::vector<std::uint8_t>> {
+            const auto path=effect_dir/name;
+            if(!fs::exists(path))return std::nullopt;
+            return readData(path);
+        };
+        auto owner=std::make_unique<okage::StartupTextureOwner>();
+        owner->run_startup(inputs);
+        startup_textures=std::move(owner);
+        startup_textures_status="pre-scheduler startup textures established; later history unmodeled";
+        std::cout<<"Native startup textures: "<<startup_textures_status<<'\n';
+        if(!startup_texture_report.empty())okage::write_startup_texture_report(*startup_textures,startup_texture_report);
     }
     void initialize_startup_audio_and_cache() {
         if(startup_audio_initialized||!music)throw std::runtime_error("Startup shared service lifecycle");
@@ -2454,7 +2483,7 @@ int main(int argc,const char** argv) {
     try {
         if(argc<3)throw std::runtime_error("Usage: okage-native --game-data DIRECTORY [--save-directory DIRECTORY] OR okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --buttons INPUT (held non-directional masks; bounded replay only) --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--load-observation FRESH.jsonl (bounded replay; host scheduling diagnostics)] [--battle-readback synchronous|deferred (replay policy; live always deferred)] [--replay-loading continuous|cooperative (cooperative requires deferred readback)] [--replay-display-from N (bounded cooperative replay; real host display callbacks and full rendering from N)] [--performance-report FRESH.jsonl (interactive/preview/UI test)] [--input-journal FRESH.jsonl] [--pause-captures FRESH_DIRECTORY (interactive diagnostics, not saved games)] [--headless-control FRESH_DIRECTORY (stdin controller steps after --frames; no window)]");
         const bool coldStart=std::string_view(argv[1])=="--game-data";
-        fs::path gameDataRoot,saveDirectory;
+        fs::path gameDataRoot,saveDirectory,startupTextureReport;
         fs::path fontDirectory=coldStart?fs::path{}:fs::path(argv[1]),messagePath=coldStart?fs::path{}:fs::path(argv[2]);
         unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions,buttons;bool hasButtons=false;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures,battleInput;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         std::optional<fs::path> performancePath,inputJournalPath,pauseCapturePath,headlessControlPath;
@@ -2471,6 +2500,7 @@ int main(int argc,const char** argv) {
                 gameDataRoot=argv[i];
             }
             else if(arg=="--save-directory")saveDirectory=argv[i];
+            else if(arg=="--startup-texture-report")startupTextureReport=argv[i];
             else if(arg=="--frames")frames=std::stoul(argv[i]);
             else if(arg=="--headless-control") {
                 if(headlessControlPath||!argv[i][0])throw std::runtime_error("Headless control requires one fresh directory");
@@ -2706,6 +2736,7 @@ int main(int argc,const char** argv) {
             if(!output.empty())session.battle_stage_report=output.string()+".battle-stage.json";
             session.live_presentation_enabled=previewAt!=0||cooperativeReplay.value_or(false)||bool(headlessControlPath);
             session.save_directory=saveDirectory;
+            session.startup_texture_report=startupTextureReport;
             if(coldStart)session.initialize_cold_start(gameDataRoot,saveDirectory,!output.empty());
             if(!effectData.empty())session.prepare_effects(effectData,effectTextures);
             if(!map.empty())session.load_scene(map,event,actors);
@@ -2850,7 +2881,7 @@ int main(int argc,const char** argv) {
         if(!output.empty())app->session->battle_construction_report=output.string()+".battle-construction.json";
         if(!output.empty())app->session->battle_stage_report=output.string()+".battle-stage.json";
         app->session->live_presentation_enabled=true;
-        app->session->save_directory=saveDirectory;
+        app->session->save_directory=saveDirectory;app->session->startup_texture_report=startupTextureReport;
         if(coldStart)app->session->initialize_cold_start(gameDataRoot,saveDirectory,!output.empty());
         if(!effectData.empty())app->session->prepare_effects(effectData,effectTextures);
         if(!map.empty())app->session->load_scene(map,event,actors);
