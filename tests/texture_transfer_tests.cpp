@@ -156,7 +156,9 @@ int main() {
             Ps2TextureMemory m;
             const auto data = sequence(32);
             rejects("psm 1", [&] { transfer_host_to_local(m, {1, 0, 1, 0, 0, 4, 4}, data); });
-            rejects("psm 20", [&] { transfer_host_to_local(m, {20, 0, 1, 0, 0, 8, 8}, data); });
+            rejects("psm 27", [&] { transfer_host_to_local(m, {27, 0, 1, 0, 0, 8, 8}, data); });
+            rejects("psm 2", [&] { transfer_host_to_local(m, {2, 0, 1, 0, 0, 8, 8}, data); });
+            rejects("psm 18", [&] { transfer_host_to_local(m, {18, 0, 1, 0, 0, 8, 8}, data); });
             rejects("tbp", [&] { transfer_host_to_local(m, {0, 0x4000, 1, 0, 0, 4, 4}, data); });
             rejects("tbw", [&] { transfer_host_to_local(m, {0, 0, 64, 0, 0, 4, 4}, data); });
             rejects("empty", [&] { transfer_host_to_local(m, {0, 0, 1, 0, 0, 0, 4}, data); });
@@ -200,8 +202,13 @@ int main() {
             const auto z = m.allocate(1, GsPixelStorage::Psmct24, 8, 8);
             require(z.has_value(), "ct24 allocation exists");
             rejects("psm1 upload", [&] { upload_allocation_image(m, z->id, sequence(8 * 8 * 3)); });
+            // Startup: PSMT4 (0x14) is now a supported transfer format; PSMCT16 stays a guard.
             const auto t4 = m.allocate(1, GsPixelStorage::Psmt4, 64, 64);
-            rejects("psm t4 upload", [&] { upload_allocation_image(m, t4->id, sequence(2048)); });
+            require(t4.has_value(), "t4 allocation");
+            require(upload_allocation_image(m, t4->id, sequence(2048)).pixels_written == 4096, "t4 upload");
+            const auto c16 = m.allocate(1, GsPixelStorage::Psmct16, 16, 16);
+            require(c16.has_value(), "ct16 allocation");
+            rejects("psm2 upload", [&] { upload_allocation_image(m, c16->id, sequence(512)); });
         });
 
         // CLUT permutation derived from 0x1cd858: swap index bits 3 and 4.

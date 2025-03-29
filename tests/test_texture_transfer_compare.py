@@ -6,6 +6,8 @@ okage-texture-transfer-compare; skipped when missing.
 Valid 7-case fixture (retained research evidence, not tracked):
 $OKAGE_TRANSFER_FIXTURE, else local/research/upload-original-transfer-v1/fixture.txt
 in this checkout or in the primary checkout; those tests skip when absent.
+Startup: $OKAGE_TRANSFER_FIXTURE_V2, else local/research/startup-format-transfer-v1/run1/fixture.txt
+(122-case PSM20/36/44 + PSM0/19 regression fixture, two complementary-fill original runs).
 """
 import json
 import os
@@ -25,9 +27,9 @@ def find_binary():
     cands = [Path(env)] if env else [ROOT / "build/handle-cmp-release/okage-texture-transfer-compare"]
     return next((c for c in cands if c.is_file()), None)
 
-def find_fixture():
-    env = os.environ.get("OKAGE_TRANSFER_FIXTURE")
-    rel = Path("local/research/upload-original-transfer-v1/fixture.txt")
+def find_fixture(env_name="OKAGE_TRANSFER_FIXTURE", rel_path="local/research/upload-original-transfer-v1/fixture.txt"):
+    env = os.environ.get(env_name)
+    rel = Path(rel_path)
     cands = [Path(env)] if env else [ROOT / rel]
     if not env:
         try:
@@ -40,6 +42,7 @@ def find_fixture():
 
 BIN = find_binary()
 FIXTURE = find_fixture()
+FIXTURE_V2 = find_fixture("OKAGE_TRANSFER_FIXTURE_V2", "local/research/startup-format-transfer-v1/run1/fixture.txt")
 
 class CompareBase(unittest.TestCase):
     def setUp(self):
@@ -218,6 +221,197 @@ class MalformedFixtures(CompareBase):
         # Case 0 is structurally fine; case 1 is truncated. Nothing may be compared.
         self.reject(self.head(1) + "0 1\n" + self.head(5, case=1) + "0 1\n", "truncated")
 
+def a32_row0(x):
+    """PSMCT32 byte address of pixel (x, 0), TBP 0 / TBW 1, x < 32 (hand-derivable: x1 +4, x2 +0x10, x4 +0x20,
+    x8 -> next block +0x100, x16 -> +0x400)."""
+    ix = x % 8
+    word = (ix & 1) | ((ix & 2) << 1) | ((ix & 4) << 1)
+    return [0, 0x100, 0x400, 0x500][x // 8] + word * 4
+
+def a4_row0(x):
+    """PSMT4 (byte, low nibble) of pixel (x, 0), TBP 0 / TBW 1, x < 32: block 0, column 0, sub 0."""
+    ix = x % 8
+    word = (ix & 1) | ((ix & 2) << 1) | ((ix & 4) << 1)
+    return word * 4 + (x >> 3)
+
+def nibble_f0_0f(i):
+    """Pixel i of the 'f0/0f' payload (bytes F0, 0F, F0, ...; low nibble is the first pixel)."""
+    return (0, 15, 15, 0)[i % 4]
+
+def v2_header(n, psm, w, h, count, x=0, y=0, tbp=0, tbw=1, pattern=3, seed=1, pre_lo=0, pre_len=0):
+    lo = tbp | (tbw << 14)
+    hi = psm | (w << 6) | (h << 18)
+    return f"case2 {n} 2 {psm} {w} {h} {x} {y} {tbp} {tbw} {pattern} {seed} {pre_lo} {pre_len} {lo} {hi} {count}\n"
+
+def small_v2(psm):
+    """Hand-derived expectation: a 32x1 transfer of the f0/0f payload (one quadword)."""
+    entries = []
+    for x in range(32):
+        v = nibble_f0_0f(x)
+        if psm == 36:
+            entries.append((a32_row0(x) + 3, v, 1))
+        elif psm == 44:
+            entries.append((a32_row0(x) + 3, v << 4, 2))
+        else:
+            entries.append((a4_row0(x), v, 1))
+    return entries
+
+def v2_text(psm, entries):
+    return v2_header(0, psm, 32, 1, len(entries)) + "".join(f"{a} {v} {m}\n" for a, v, m in entries)
+
+class FormatMaskControls(CompareBase):
+    """Self-contained PSM20/36/44 controls (no retained evidence needed): hand-derived expectations for a
+    one-quadword transfer, and negative controls the comparator must report as DIFF with exit code 1."""
+
+    def run_psm(self, psm, entries):
+        return self.run_text(v2_text(psm, entries))
+
+    def test_hand_derived_match(self):
+        for psm in (20, 36, 44):
+            with self.subTest(psm=psm):
+                code, out, err = self.run_psm(psm, small_v2(psm))
+                self.assertEqual(code, 0, (out, err))
+                self.assertIn("1 cases, 0 differences", out)
+
+    def expect_diff(self, psm, entries, needle):
+        code, out, _ = self.run_psm(psm, entries)
+        self.assertEqual(code, 1, out)
+        self.assertIn("DIFF", out)
+        self.assertIn(needle, out)
+
+    def test_nibble_flipped(self):
+        for psm in (20, 36, 44):
+            with self.subTest(psm=psm):
+                e = small_v2(psm)
+                a, v, m = e[1]  # a nonzero pixel
+                e[1] = (a, v ^ (1 if m == 1 else 0x10), m)
+                self.expect_diff(psm, e, "written values differ in 1 bytes")
+
+    def test_mask_bit_dropped(self):
+        for psm in (20, 36, 44):
+            with self.subTest(psm=psm):
+                e = small_v2(psm)
+                del e[5]
+                self.expect_diff(psm, e, "write-mask differs")
+
+    def test_mask_bit_added(self):
+        for psm in (36, 44):
+            with self.subTest(psm=psm):
+                e = small_v2(psm)
+                a, v, m = e[0]
+                e[0] = (a, v | (0xF0 if m == 1 else 0x0F), 3)  # claims the other nibble was written too
+                self.expect_diff(psm, e, "write-mask differs")
+
+    def test_wrong_lane(self):
+        # HL data attributed to the HH lane (and vice versa) is a mask difference, not a value difference.
+        for psm, shift, mask in ((36, 4, 2), (44, -4, 1)):
+            with self.subTest(psm=psm):
+                e = small_v2(psm)
+                a, v, m = e[1]
+                e[1] = (a, v << 4 if shift > 0 else v >> 4, mask)
+                self.expect_diff(psm, e, "write-mask differs in 1 bytes")
+
+    def test_wrong_address_lane_same_nibble(self):
+        e = small_v2(36)
+        a, v, m = e[1]
+        e[1] = (a - 1, v, m)
+        self.expect_diff(36, e, "write-mask differs")
+
+    def test_unsupported_psm_fixture_is_malformed(self):
+        for psm in (1, 27, 2, 18):
+            with self.subTest(psm=psm):
+                code, out, err = self.run_text(v2_header(0, psm, 32, 1, 0))
+                self.assertEqual((code, out), (2, ""))
+                self.assertIn("unsupported psm", err)
+
+    def test_malformed_v2(self):
+        bad = {
+            "empty mask": v2_header(0, 36, 32, 1, 1) + "3 5 0\n",
+            "value in unwritten nibble": v2_header(0, 36, 32, 1, 1) + "3 16 1\n",
+            "duplicate": v2_header(0, 36, 32, 1, 2) + "3 5 1\n3 6 1\n",
+            "no quadword": v2_header(0, 36, 3, 3, 0),
+            "truncated": v2_header(0, 36, 32, 1, 2) + "3 5 1\n",
+            "window outside vram": v2_header(0, 36, 32, 1, 0, pre_lo=4194304, pre_len=1),
+            "bad descriptor": v2_header(0, 36, 32, 1, 0).replace(" 16384 ", " 0 ", 1),
+        }
+        for name, text in bad.items():
+            with self.subTest(name=name):
+                code, out, err = self.run_text(text)
+                self.assertEqual((code, out), (2, ""), (name, err))
+                self.assertIn("fixture error:", err)
+
+    def test_native_rejection_is_diff_not_crash(self):
+        # x origin 2047 + 32 pixels leaves the guarded coordinate range: native throws, original did not.
+        text = v2_header(0, 36, 32, 1, 0, x=2040)
+        code, out, _ = self.run_text(text)
+        self.assertEqual(code, 1, out)
+        self.assertIn("native fresh run threw", out)
+
+class RetainedV2Controls(CompareBase):
+    """Controls against the retained 122-case original-execution fixture (skipped when absent)."""
+
+    def setUp(self):
+        super().setUp()
+        if FIXTURE_V2 is None:
+            self.skipTest("retained v2 fixture absent (set OKAGE_TRANSFER_FIXTURE_V2)")
+        self.lines = FIXTURE_V2.read_text().split("\n")
+        self.heads = [i for i, l in enumerate(self.lines) if l.startswith("case2 ")]
+
+    def head_for(self, psm, kind="2", pre=False):
+        for i in self.heads:
+            t = self.lines[i].split()
+            if t[3] == str(psm) and t[2] == kind and (int(t[13]) > 0) == pre and int(t[16]) > 8:
+                return i
+        self.fail("no suitable case")
+
+    def one_diff(self, lines, head, needle):
+        code, out, _ = self.run_text("\n".join(lines))
+        self.assertEqual(code, 1, out)
+        diff = [l for l in out.splitlines() if "DIFF" in l]
+        self.assertEqual(len(diff), 1, out)
+        self.assertTrue(diff[0].startswith(f"case2 {self.lines[head].split()[1]} "), diff[0])
+        self.assertIn(needle, diff[0])
+
+    def test_valid_all_match(self):
+        code, out, _ = self.run_text("\n".join(self.lines))
+        self.assertEqual(code, 0, out)
+        self.assertEqual(out.count("MATCH"), len(self.heads))
+        self.assertIn(f"{len(self.heads)} cases, 0 differences", out)
+
+    def test_nibble_flip_each_format(self):
+        for psm in (20, 36, 44):
+            with self.subTest(psm=psm):
+                h = self.head_for(psm)
+                lines = list(self.lines)
+                a, v, m = map(int, lines[h + 3].split())
+                lines[h + 3] = f"{a} {v ^ (0x10 if m & 2 else 1)} {m}"
+                self.one_diff(lines, h, "written values differ")
+
+    def test_mask_bit_flip_psm36_44(self):
+        for psm in (36, 44):
+            with self.subTest(psm=psm):
+                h = self.head_for(psm)
+                lines = list(self.lines)
+                a, v, m = map(int, lines[h + 2].split())
+                lines[h + 2] = f"{a} {v | (0xF0 if m == 1 else 0x0F)} 3"
+                self.one_diff(lines, h, "write-mask differs")
+
+    def test_wrong_lane_psm36(self):
+        h = self.head_for(36)
+        lines = list(self.lines)
+        a, v, m = map(int, lines[h + 2].split())
+        self.assertEqual(m, 1)
+        lines[h + 2] = f"{a} {v << 4} 2"
+        self.one_diff(lines, h, "write-mask differs")
+
+    def test_preload_case_value_negative(self):
+        # A case with a pre-existing window: corrupt one written nibble; the fresh-run value check catches it.
+        h = self.head_for(36, pre=True)
+        lines = list(self.lines)
+        a, v, m = map(int, lines[h + 2].split())
+        lines[h + 2] = f"{a} {v ^ 1} {m}"
+        self.one_diff(lines, h, "written values differ")
+
 class FixtureGenerator(unittest.TestCase):
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp(prefix="handle-gen-"))
@@ -284,6 +478,39 @@ class FixtureGenerator(unittest.TestCase):
     def test_clut(self):
         r = self.run_gen(self.doc(kind="clut", w_or_n=16, h=0, clut_alloc_rows=2))
         self.assertEqual(r.returncode, 0, r.stderr)
+
+    # ---- observer version 2 (Startup) ----
+    def doc2(self, **over):
+        case = {"case": 0, "kind": "descriptor", "psm": 36, "w": 32, "h": 1, "x": 0, "y": 0, "tbp": 0, "tbw": 1,
+                "pattern": 3, "seed": 1, "pre_lo": 0, "pre_len": 0, "descriptor": [16384, 36 | (32 << 6) | (1 << 18)],
+                "anomalies": 0, "written_count": 2, "written": [[3, 0, 1], [7, 15, 1]]}
+        top = {"schema": "okage-texture-transfer-v2", "fills": [0, 255], "code_tables_preserved": True}
+        for k in [k for k in over if k.startswith("top_")]:
+            top[k[4:]] = over.pop(k)
+        case.update(over)
+        top["cases"] = [case]
+        return top
+
+    def test_v2_valid(self):
+        r = self.run_gen(self.doc2())
+        self.assertEqual(r.returncode, 0, r.stderr)
+        lines = (self.tmp / "out.txt").read_text().split("\n")
+        self.assertEqual(lines[0], f"case2 0 2 36 32 1 0 0 0 1 3 1 0 0 16384 {36 | (32 << 6) | (1 << 18)} 2")
+        self.assertEqual(lines[1:3], ["3 0 1", "7 15 1"])
+
+    def test_v2_rejections(self):
+        bad = [
+            {"anomalies": 1}, {"psm": 1}, {"psm": 27}, {"kind": "image"}, {"w": 513}, {"pattern": 4},
+            {"top_fills": [165, 90]}, {"top_code_tables_preserved": False}, {"written_count": 3},
+            {"written": [[3, 0, 0], [7, 15, 1]]}, {"written": [[3, 16, 1], [7, 15, 1]]},
+            {"written": [[3, 0, 1], [3, 1, 1]]}, {"written": [[4194304, 0, 1], [7, 15, 1]]},
+            {"pre_lo": 4194304, "pre_len": 1}, {"descriptor": [0, 36 | (32 << 6) | (1 << 18)]},
+        ]
+        for over in bad:
+            with self.subTest(over=over):
+                r = self.run_gen(self.doc2(**over), out="bad.txt")
+                self.assertEqual(r.returncode, 1, r.stdout)
+                self.assertFalse((self.tmp / "bad.txt").exists())
 
 if __name__ == "__main__":
     unittest.main()

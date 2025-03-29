@@ -772,11 +772,125 @@ public:
         out<<"{\"code_tables_preserved\":true,\"canaries_preserved\":true}\n";
         textureAllocatorProbe=false;const auto report=out.str();writeFile(output,report.data(),report.size());
     }
+    void textureTransfer2(const std::vector<uint8>& input,const char* output) {
+        const auto require=[](bool ok,const char* why){if(!ok)throw std::runtime_error(why);};
+        require(!std::filesystem::exists(output)&&!std::filesystem::is_symlink(output),"Texture transfer output must be fresh");
+        auto word=[&](size_t i){require(i<input.size()/4,"Texture transfer truncated word");
+            uint32 w;std::memcpy(&w,input.data()+i*4,4);return w;};
+        constexpr uint32 rowWords=12;
+        require(input.size()>=16&&input.size()%4==0&&word(0)==0x54545854&&word(1)==2&&word(2)>0&&word(2)<=256&&
+            word(3)==rowWords&&input.size()==16+size_t(word(2))*rowWords*4,"Texture transfer v2 header/extent");
+        const auto bitsOf=[](uint32 psm)->uint32{switch(psm){case 0:return 32;case 19:return 8;case 20:case 36:case 44:return 4;default:return 0;}};
+        constexpr uint32 sourceSpan=0x20000,vramBytes=0x400000;
+        for(uint32 i=0;i<word(2);++i){const auto at=4+i*rowWords;
+            const uint32 kind=word(at),psm=word(at+1),w=word(at+2),h=word(at+3),x=word(at+4),y=word(at+5),tbp=word(at+6),tbw=word(at+7);
+            const uint32 pattern=word(at+8),preLo=word(at+10),preLen=word(at+11);
+            require((kind==0||kind==2)&&bitsOf(psm)&&w>=1&&w<=512&&h>=1&&h<=512&&x<2048&&y<2048&&tbp<=0x3fff&&tbw<=63&&pattern<=3&&
+                preLen<=vramBytes&&preLo<=vramBytes-preLen,"Texture transfer v2 row");
+            require(kind==2||(x==0&&y==0&&tbp==0&&tbw==0),"Texture transfer v2 allocated row takes TBP/TBW from the allocation");
+            require((uint64(w)*h*bitsOf(psm))/128>0,"Texture transfer v2 row sends no quadword");
+            require((uint64(w)*h*bitsOf(psm)+7)/8<=sourceSpan-0x1000,"Texture transfer v2 payload extent");}
+        constexpr uint32 source=0x1a00000;
+        const std::vector<uint8> code(ee->m_ram+0x100000,ee->m_ram+0x1f2000);
+        const std::vector<uint8> tables(ee->m_ram+0x2138d0,ee->m_ram+0x214020);
+        std::memset(ee->m_ram+0x3abb08,0xa7,16);std::memset(ee->m_ram+0x3b3c38,0xa7,16);
+        put(0x31fa50,0xffffffff);put(0x2138c8,0);
+        effectOs=std::make_unique<CPS2OS>(ee->m_EE,ee->m_ram,ee->m_bios,ee->m_spr,
+            ee->m_gs,ee->m_sif,*dynamic_cast<CIopBios*>(iop->m_bios.get()));
+        auto sink=std::make_unique<TransferGs>();auto* gs=sink.get();
+        researchGs=std::move(sink);researchGs->Initialize();researchGs->Reset();ee->m_gs=researchGs.get();
+        textureAllocatorProbe=true;textureTransferProbe=true;callIterationLimit=10000;
+        unsigned pumps=0;
+        pumpHook=[&]{ee->m_dmac.ResumeDMA2();ee->m_gif.CountTicks(1000);++pumps;};
+        const auto payloadByte=[](uint32 pattern,uint32 seed,uint32 k)->uint8{
+            switch(pattern){case 0:return uint8(k*167+seed*29+5);case 1:return 0x00;case 2:return 0xff;default:return (k&1)?0x0f:0xf0;}};
+        const auto preByte=[](uint32 seed,uint32 addr)->uint8{return uint8(addr*131+seed*17+11);};
+        std::ostringstream out;
+        out<<"{\"schema\":\"okage-texture-transfer-v2\",\"input_sha256\":\""<<hash(input)
+           <<"\",\"elf_sha256\":\"2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5\","
+           <<"\"play_revision\":\"4403687dc8d505911980b8a96b13701a10f91b70\",\"fills\":[0,255],"
+           <<"\"payload_rule\":\"pattern0: v=(k*167+seed*29+5)&255; 1: 0x00; 2: 0xff; 3: k odd 0x0f else 0xf0\","
+           <<"\"preload_rule\":\"run A: P(a)=(a*131+seed*17+11)&255 on [pre_lo,pre_lo+pre_len); run B: ~P(a)\","
+           <<"\"mask_rule\":\"nibble written iff run A and run B agree on all 4 bits; known bit0=low nibble, bit1=high nibble; sub-nibble disagreement is counted in anomalies\","
+           <<"\"scope\":\"Unchanged retail 1ce940/1cf008/1cba48 under Play EE DMAC/GIF with a CGSHandler sink; synthetic allocator state; Play GS transfer semantics, not hardware proof\",\"cases\":[\n";
+        for(uint32 i=0;i<word(2);++i){
+            const auto at=4+i*rowWords;
+            const uint32 kind=word(at),psm=word(at+1),w=word(at+2),h=word(at+3),x=word(at+4),y=word(at+5);
+            uint32 tbp=word(at+6),tbw=word(at+7);
+            const uint32 pattern=word(at+8),seed=word(at+9),preLo=word(at+10),preLen=word(at+11);
+            uint64 descriptor;
+            if(kind==0){
+                std::memset(ee->m_ram+0xe000,0,256*24);call(0x1ce940);call(0x1cf008,{1,psm,w,h});
+                descriptor=ee->m_EE.m_State.nGPR[CMIPS::V0].nD0;
+                require(descriptor!=0,"Texture transfer allocation failed");
+                tbp=descriptor&0x3fff;tbw=(descriptor>>14)&0x3f;
+            } else descriptor=uint64(tbp)|(uint64(tbw)<<14)|(uint64(psm)<<32)|(uint64(w)<<38)|(uint64(h)<<50);
+            const uint32 bytes=uint32((uint64(w)*h*bitsOf(psm)+7)/8);
+            std::vector<uint8> payload(bytes);
+            for(uint32 k=0;k<bytes;++k)payload[k]=payloadByte(pattern,seed,k);
+            std::vector<uint8> afters[2],befores[2];std::vector<std::string> imageHashes[2];
+            std::string packetsJson;uint32 pumpCalls[2]{};
+            for(unsigned run=0;run<2;++run){
+                std::memset(ee->m_ram+source-0x1000,0xee,sourceSpan);
+                std::memcpy(ee->m_ram+source,payload.data(),bytes);
+                gs->drain();researchGs->Reset();ee->m_gif.Reset();
+                uint8* vramw=researchGs->GetRam();
+                std::memset(vramw,run?0xff:0x00,CGSHandler::RAMSIZE);
+                for(uint32 a=preLo;a<preLo+preLen;++a){const uint8 p=preByte(seed,a);vramw[a]=run?uint8(~p):p;}
+                gs->begin();
+                befores[run].assign(vramw,vramw+CGSHandler::RAMSIZE);
+                auto& cpu=ee->m_EE;pumps=0;
+                cpu.m_State.nGPR[CMIPS::A0].nD0=descriptor;
+                cpu.m_State.nGPR[CMIPS::A1].nD0=x;cpu.m_State.nGPR[CMIPS::A2].nD0=y;
+                cpu.m_State.nGPR[CMIPS::A3].nD0=w;cpu.m_State.nGPR[CMIPS::T0].nD0=h;
+                cpu.m_State.nGPR[CMIPS::T1].nD0=source;call(0x1cba48);
+                for(unsigned k=0;k<8;++k)ee->m_dmac.ResumeDMA2();
+                gs->drain();
+                require(ee->m_gif.GetActivePath()==0,"Texture transfer left an active GIF path");
+                afters[run].assign(researchGs->GetRam(),researchGs->GetRam()+CGSHandler::RAMSIZE);
+                pumpCalls[run]=pumps;
+                std::ostringstream pj;const auto& packets=gs->packets();
+                for(size_t p=0;p<packets.size();++p){const auto& pk=packets[p];
+                    imageHashes[run].push_back(hash(pk.imageData));
+                    pj<<(p?",":"")<<"{\"path\":"<<pk.metadata.pathIndex<<",\"image_bytes\":"<<pk.imageData.size()
+                      <<",\"image_sha256\":\""<<imageHashes[run].back()<<"\",\"register_writes\":[";
+                    for(size_t j=0;j<pk.registerWrites.size();++j){const auto& rw=pk.registerWrites[j];
+                        pj<<(j?",":"")<<'['<<unsigned(rw.first)<<','<<uint32(rw.second)<<','<<uint32(rw.second>>32)<<']';}
+                    pj<<"]}";}
+                if(run==0)packetsJson=pj.str();
+                else require(pj.str()==packetsJson,"Texture transfer packets differ between complementary runs");
+            }
+            std::ostringstream touched;uint32 count=0,anomalies=0,first=0,last=0;
+            for(uint32 a=0;a<CGSHandler::RAMSIZE;++a){
+                const uint8 agree=uint8(~(afters[0][a]^afters[1][a]));
+                const bool lo=(agree&0x0f)==0x0f,hi=(agree&0xf0)==0xf0;
+                if(((agree&0x0f)!=0&&!lo)||((agree&0xf0)!=0&&!hi))++anomalies;
+                const unsigned mask=(lo?1u:0u)|(hi?2u:0u);
+                if(!mask)continue;
+                if(!count)first=a;last=a;
+                const uint8 keep=uint8((lo?0x0f:0)|(hi?0xf0:0));
+                touched<<(count?",":"")<<'['<<a<<','<<unsigned(afters[0][a]&keep)<<','<<mask<<']';++count;}
+            out<<"{\"case\":"<<i<<",\"kind\":\""<<(kind?"descriptor":"allocated")<<"\",\"psm\":"<<psm<<",\"w\":"<<w<<",\"h\":"<<h
+               <<",\"x\":"<<x<<",\"y\":"<<y<<",\"tbp\":"<<tbp<<",\"tbw\":"<<tbw<<",\"pattern\":"<<pattern<<",\"seed\":"<<seed
+               <<",\"pre_lo\":"<<preLo<<",\"pre_len\":"<<preLen
+               <<",\"descriptor\":["<<uint32(descriptor)<<','<<uint32(descriptor>>32)<<"],\"source_bytes\":"<<bytes
+               <<",\"payload_sha256\":\""<<hash(payload)<<"\",\"pump_calls\":["<<pumpCalls[0]<<','<<pumpCalls[1]
+               <<"],\"vram_before_sha256\":[\""<<hash(befores[0])<<"\",\""<<hash(befores[1])<<"\"],\"vram_after_sha256\":[\""
+               <<hash(afters[0])<<"\",\""<<hash(afters[1])<<"\"],\"packets\":["<<packetsJson<<"],\"anomalies\":"<<anomalies
+               <<",\"written_count\":"<<count<<",\"written_first\":"<<first<<",\"written_last\":"<<last<<",\"written\":["<<touched.str()<<"]}"
+               <<(i+1<word(2)?",":"")<<"\n";
+        }
+        out<<"],\"code_tables_preserved\":"<<((!std::memcmp(code.data(),ee->m_ram+0x100000,code.size())&&
+            !std::memcmp(tables.data(),ee->m_ram+0x2138d0,tables.size()))?"true":"false")<<"}\n";
+        pumpHook=nullptr;textureAllocatorProbe=false;textureTransferProbe=false;
+        const auto report=out.str();writeFile(output,report.data(),report.size());
+    }
     void textureTransfer(const std::vector<uint8>& input,const char* output) {
         const auto require=[](bool ok,const char* why){if(!ok)throw std::runtime_error(why);};
         require(!std::filesystem::exists(output)&&!std::filesystem::is_symlink(output),"Texture transfer output must be fresh");
         auto word=[&](size_t i){require(i<input.size()/4,"Texture transfer truncated word");
             uint32 w;std::memcpy(&w,input.data()+i*4,4);return w;};
+        if(input.size()>=8&&word(0)==0x54545854&&word(1)==2){textureTransfer2(input,output);return;}
         require(input.size()>=16&&input.size()%4==0&&word(0)==0x54545854&&word(1)==1&&
             word(2)>0&&word(2)<=64&&word(3)==4&&input.size()==16+size_t(word(2))*16,
             "Texture transfer fixture header/extent");
@@ -4745,7 +4859,7 @@ int main(int argc,char** argv) {
         } else if (command=="texture-handles" && argc==5) {
             reference.textureHandles(readFileBounded(argv[3],1<<20),argv[4]);
         } else if (command=="texture-transfer" && argc==5) {
-            reference.textureTransfer(readFileBounded(argv[3],16+64*16),argv[4]);
+            reference.textureTransfer(readFileBounded(argv[3],16+256*12*4),argv[4]);
         } else if (command=="material-extra-uv" && argc==5) {
             reference.materialExtraUv(readFileBounded(argv[3],16+256*20*4),argv[4]);
         } else if (command=="material-extra-predicates" && argc==5) {

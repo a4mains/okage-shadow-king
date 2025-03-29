@@ -58,6 +58,28 @@ struct GsByteObservation {
     std::optional<std::uint8_t> value;
     std::optional<TextureAllocationId> allocation_owner;
     bool allocation_state_known{};
+    bool owner_split{};
+};
+
+struct GsNibbleObservation {
+    bool known{};
+    std::uint8_t value{};  // 0..15; 0 and meaningless when !known
+    std::optional<TextureAllocationId> allocation_owner;
+    bool allocation_state_known{};
+};
+
+struct GsMaskedByteObservation {
+    // bit0: low nibble known, bit1: high nibble known.
+    std::uint8_t known_mask{};
+    // Known nibbles in place; the bits of an unknown nibble are 0.
+    std::uint8_t value{};
+    std::array<std::optional<TextureAllocationId>, 2> nibble_owner{};
+    // Engaged only when both nibbles have the same engaged owner.
+    std::optional<TextureAllocationId> whole_byte_owner;
+    // True when the nibbles' owner states differ (different ids, or one owned
+    // and one free).
+    bool owner_split{};
+    bool allocation_state_known{};
 };
 
 struct TextureMemoryIdentity {
@@ -99,7 +121,13 @@ public:
                                                     std::uint8_t lane) const;
 
     void write_bytes(std::uint32_t address, std::span<const std::uint8_t> bytes);
+    void write_nibble(std::uint32_t address, std::uint8_t nibble, std::uint8_t value);
     GsByteObservation observe_byte(std::uint32_t address) const;
+    GsNibbleObservation observe_nibble(std::uint32_t address, std::uint8_t nibble) const;
+    GsMaskedByteObservation observe_byte_masked(std::uint32_t address) const;
+    std::vector<std::uint32_t> known_byte_addresses() const;
+    std::optional<TextureAllocationId> owner_of_nibble(std::uint32_t address,
+                                                       std::uint8_t nibble) const;
 
     TextureMemoryIdentity identity() const noexcept {
         return {content_generation_, ownership_epoch_};
@@ -116,8 +144,10 @@ private:
     friend class Ps2TextureSnapshot;
     struct Planes {
         std::vector<std::uint8_t> bytes;
+        // Per-byte nibble definedness: bit0 low nibble, bit1 high nibble.
         std::vector<std::uint8_t> defined;
     };
+    Planes& writable_planes();
     struct Block {
         std::uint8_t mask{};
         std::array<std::optional<TextureAllocationId>, 4> owners{};
@@ -159,6 +189,16 @@ public:
         return get().owner_of_lane(a, lane);
     }
     GsByteObservation observe_byte(std::uint32_t a) const { return get().observe_byte(a); }
+    GsNibbleObservation observe_nibble(std::uint32_t a, std::uint8_t nibble) const {
+        return get().observe_nibble(a, nibble);
+    }
+    GsMaskedByteObservation observe_byte_masked(std::uint32_t a) const {
+        return get().observe_byte_masked(a);
+    }
+    std::optional<TextureAllocationId> owner_of_nibble(std::uint32_t a, std::uint8_t nibble) const {
+        return get().owner_of_nibble(a, nibble);
+    }
+    std::vector<std::uint32_t> known_byte_addresses() const { return get().known_byte_addresses(); }
     const void* storage_identity() const { return get().storage_identity(); }
     bool shares_storage_with(const Ps2TextureMemory& m) const { return get().shares_storage_with(m); }
 private:

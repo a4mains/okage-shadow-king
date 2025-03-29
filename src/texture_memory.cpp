@@ -295,23 +295,91 @@ void Ps2TextureMemory::write_bytes(std::uint32_t address, std::span<const std::u
     if (address > vram_bytes || bytes.size() > vram_bytes - address)
         throw std::out_of_range("GS byte write outside VRAM");
     if (bytes.empty()) return;
+    auto& planes = writable_planes();
+    std::copy(bytes.begin(), bytes.end(), planes.bytes.begin() + address);
+    std::fill(planes.defined.begin() + address,
+              planes.defined.begin() + address + bytes.size(), 3);
+    ++content_generation_;
+}
+
+Ps2TextureMemory::Planes& Ps2TextureMemory::writable_planes() {
     if (!planes_) {  // moved-from instance being reused
         planes_ = std::make_shared<Planes>(Planes{std::vector<std::uint8_t>(vram_bytes),
                                                   std::vector<std::uint8_t>(vram_bytes)});
     } else if (planes_.use_count() != 1) {
         planes_ = std::make_shared<Planes>(*planes_);
     }
-    std::copy(bytes.begin(), bytes.end(), planes_->bytes.begin() + address);
-    std::fill(planes_->defined.begin() + address,
-              planes_->defined.begin() + address + bytes.size(), 1);
+    return *planes_;
+}
+
+void Ps2TextureMemory::write_nibble(std::uint32_t address, std::uint8_t nibble, std::uint8_t value) {
+    if (address >= vram_bytes) throw std::out_of_range("GS nibble write outside VRAM");
+    if (nibble > 1) throw std::out_of_range("GS nibble selector must be 0 or 1");
+    auto& planes = writable_planes();
+    const unsigned shift = nibble * 4u;
+    planes.bytes[address] = static_cast<std::uint8_t>(
+        (planes.bytes[address] & ~(0x0fu << shift)) | ((value & 0x0fu) << shift));
+    planes.defined[address] |= static_cast<std::uint8_t>(1u << nibble);
     ++content_generation_;
+}
+
+std::optional<TextureAllocationId> Ps2TextureMemory::owner_of_nibble(
+    std::uint32_t address, std::uint8_t nibble) const {
+    if (!initialized_) throw std::logic_error("GS allocator state is unknown");
+    if (address >= vram_bytes) throw std::out_of_range("GS byte address outside VRAM");
+    if (nibble > 1) throw std::out_of_range("GS nibble selector must be 0 or 1");
+    const auto& owners = blocks_[address / block_bytes].owners;
+    if (address % 4 == 3) return owners[2 + nibble];
+    if (owners[0] != owners[1]) throw std::logic_error("GS occupancy lanes 0/1 disagree");
+    return owners[0];
 }
 
 GsByteObservation Ps2TextureMemory::observe_byte(std::uint32_t address) const {
     if (address >= vram_bytes) throw std::out_of_range("GS byte read outside VRAM");
-    const bool defined = planes_ && planes_->defined[address];
+    const bool defined = planes_ && planes_->defined[address] == 3;
     const auto value = defined ? std::optional<std::uint8_t>(planes_->bytes[address]) : std::nullopt;
-    return {value, initialized_ ? owner_of_byte(address) : std::nullopt, initialized_};
+    if (!initialized_) return {value, std::nullopt, false, false};
+    const auto lo = owner_of_nibble(address, 0);
+    const auto hi = owner_of_nibble(address, 1);
+    if (lo != hi) return {value, std::nullopt, true, true};
+    return {value, lo, true, false};
+}
+
+std::vector<std::uint32_t> Ps2TextureMemory::known_byte_addresses() const {
+    std::vector<std::uint32_t> result;
+    if (!planes_) return result;
+    for (std::uint32_t a = 0; a < vram_bytes; ++a)
+        if (planes_->defined[a] & 3u) result.push_back(a);
+    return result;
+}
+
+GsNibbleObservation Ps2TextureMemory::observe_nibble(std::uint32_t address, std::uint8_t nibble) const {
+    if (address >= vram_bytes) throw std::out_of_range("GS byte read outside VRAM");
+    if (nibble > 1) throw std::out_of_range("GS nibble selector must be 0 or 1");
+    GsNibbleObservation r;
+    r.known = planes_ && ((planes_->defined[address] >> nibble) & 1u);
+    if (r.known) r.value = static_cast<std::uint8_t>((planes_->bytes[address] >> (nibble * 4u)) & 0x0fu);
+    r.allocation_state_known = initialized_;
+    if (initialized_) r.allocation_owner = owner_of_nibble(address, nibble);
+    return r;
+}
+
+GsMaskedByteObservation Ps2TextureMemory::observe_byte_masked(std::uint32_t address) const {
+    if (address >= vram_bytes) throw std::out_of_range("GS byte read outside VRAM");
+    GsMaskedByteObservation r;
+    const unsigned known = planes_ ? planes_->defined[address] & 3u : 0u;
+    r.known_mask = static_cast<std::uint8_t>(known);
+    if (planes_) {
+        const unsigned mask = ((known & 1u) ? 0x0fu : 0u) | ((known & 2u) ? 0xf0u : 0u);
+        r.value = static_cast<std::uint8_t>(planes_->bytes[address] & mask);
+    }
+    r.allocation_state_known = initialized_;
+    if (initialized_) {
+        r.nibble_owner = {owner_of_nibble(address, 0), owner_of_nibble(address, 1)};
+        r.owner_split = r.nibble_owner[0] != r.nibble_owner[1];
+        if (!r.owner_split) r.whole_byte_owner = r.nibble_owner[0];
+    }
+    return r;
 }
 
 } // namespace okage
