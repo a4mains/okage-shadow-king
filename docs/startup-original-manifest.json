@@ -1,0 +1,272 @@
+{
+ "schema": "okage.startup-original-manifest.v1",
+ "scope": "Independent original-execution reference of the startup texture-resource prefix: unchanged retail SCUS_971.29 run from cold boot under the Play research backend (full VM, disc mounted, research HLE services) and stopped BEFORE EE PC 0x100618.",
+ "source_commit": "1584dfc",
+ "base_commit": "588a94a",
+ "play": {
+  "revision": "4403687dc8d505911980b8a96b13701a10f91b70",
+  "path": "references/Play (main checkout, ignored)",
+  "tree_cleanliness": "not verified"
+ },
+ "oracle": {
+  "binary": "build/startup-oracle/okage-oracle/okage-startup-oracle",
+  "binary_sha256": "14d0a30b2d8602538965551c9f263a864c94ec8c59c11c4c0c4eb059b56cb5cc",
+  "retained_copy": "local/research/startup-original-v1/bin/okage-startup-oracle",
+  "retained_copy_sha256": "14d0a30b2d8602538965551c9f263a864c94ec8c59c11c4c0c4eb059b56cb5cc",
+  "build_dir": "build/startup-oracle (fresh; configured and built from scratch)",
+  "configure": "cmake -S <main>/references/Play -B build/startup-oracle -G Ninja -DCMAKE_BUILD_TYPE=Debug -DBUILD_PLAY=OFF -DBUILD_TESTS=ON -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_PROJECT_Play_INCLUDE=<worktree>/tools/play-oracle/Attach.cmake -DDEBUGGER_INCLUDED=ON -DOKAGE_REFERENCE_VULKAN=OFF",
+  "build": "ninja -C build/startup-oracle okage-startup-oracle",
+  "cmake_build_type": "Debug",
+  "cxx_compiler": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++",
+  "osx_architectures": "arm64",
+  "osx_sysroot": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk",
+  "cxx_version": "Apple clang version 16.0.0 (clang-1600.0.26.6), target arm64-apple-darwin24.1.0"
+ },
+ "tracked_sources_sha256": {
+  "tools/play-oracle/startup.cpp": "e5222b71a4b6ef5cd48fa4ec055c83a1baf063c3ace2adce6532ce192a14721d",
+  "tools/play-oracle/CMakeLists.txt": "1de73e43e976adb2ce82f125a0028eeed1969f68163f616b2f1104e6aba05430",
+  "tools/play-oracle/Attach.cmake": "70a48b491406f04c4a8e28f49f6c04886888c22f017fb4868d365b4c17dd4819",
+  "tools/startup_capture.sh": "94792d8193bfafa3132c7d2a8114a64d337c0d6af753e72989bca7bd058f993e",
+  "tools/startup_original_report.py": "725c16e76472547c522fd72f0ad3ae6f517b4fe293d322fca118138b1dd5239c",
+  "tools/startup_make_manifest.py": "4a93b26be682fca5493a0addaacec7d49b1c9096c76dce0856b72b1f4cd9ce6b",
+  "tests/test_startup_original.py": "6bf7636c994e64fc0b4cdddaa7545274ffd203a5e31116ca6a329ade29503f04"
+ },
+ "inputs": {
+  "elf": {
+   "path": "local/extracted/SCUS_971.29",
+   "sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
+  },
+  "disc_cue": {
+   "path": "local/disc/Okage - Shadow King (USA).cue",
+   "sha256": "b8bde56b092efe1d704c1be8cdb7c139478fafbb234b713bd06d2cd1afe7d69a"
+  },
+  "disc_bin": {
+   "path": "local/disc/Okage - Shadow King (USA).bin",
+   "sha256": "08623a1400e2610aecd0247ae7440c97501495c6f819f675494e44de20b62d2a",
+   "bytes": 524481888,
+   "docs_disc_report_sha256": "08623a1400e2610aecd0247ae7440c97501495c6f819f675494e44de20b62d2a"
+  },
+  "contract_json": {
+   "path": "docs/startup-contract.json",
+   "sha256": "e4a189b4704f5262bea4ea874bc0e9fd731734b16761a2a7de8c239e1cf2cfcb"
+  },
+  "play_config": "fresh default configuration created in <cwd>/local/play-boot-config (no saved state, no pad input, no sound handler)"
+ },
+ "fixed_settings": {
+  "pad": "RecordedPad with no input rows (neutral sticks)",
+  "sound_handler": "none",
+  "gs": "null renderer sink with host-to-local writes + ledger",
+  "stop": "EE PC 0x100618 (jal 0x114f50), reached as a block start; the instruction has not executed",
+  "vram_initial_fill": "applied before the first guest instruction (EE PC 0x100008); run pairs use 0x00 and 0xff",
+  "deadline_seconds": 1500
+ },
+ "commands": [
+  "tools/startup_capture.sh <oracle> \"<main>/local/disc/Okage - Shadow King (USA).cue\" <main>/local/extracted/SCUS_971.29 <main>/local/research/startup-original-v1/runs",
+  "python3 -I tools/startup_original_report.py <evidence>/runs --contract docs/startup-contract.json --out <evidence>/analysis",
+  "python3 -I tools/startup_make_manifest.py <evidence> <worktree> <main> <source_commit> docs/startup-original-manifest.json",
+  "python3 -m unittest discover -s tests -v"
+ ],
+ "evidence_dir": "local/research/startup-original-v1 (read-only after capture)",
+ "outputs": {
+  "analysis/analysis.json": {
+   "sha256": "4ff1cebeecc0c3e40faa70ad254ceba7e180096c401d709b899f244f00f5e30b",
+   "bytes": 36974
+  },
+  "analysis/final-state.jsonl": {
+   "sha256": "3e0df35b132f675eeb77c517b21792599975cfff9aedef7464f0dd2d4bb2996e",
+   "bytes": 20597
+  },
+  "analysis/vram-written-mask.bin": {
+   "sha256": "6034fc2fe26307cba39e47af1f72bd10b8eebe734184bd99c779dde2a82b269d",
+   "bytes": 4194304
+  },
+  "analysis/vram-written-values.bin": {
+   "sha256": "3d61f88d55f22717a482392a7c4931dc8ee9db4f2c539053c595b31ae007b29c",
+   "bytes": 4194304
+  },
+  "bin/okage-startup-oracle": {
+   "sha256": "14d0a30b2d8602538965551c9f263a864c94ec8c59c11c4c0c4eb059b56cb5cc",
+   "bytes": 14470296
+  },
+  "runs/control-minimal-fill00.log": {
+   "sha256": "1d2ac31f6833f3064be9599b8f6fb44e25efc853b859279465e6f4d3be51b0f7",
+   "bytes": 635
+  },
+  "runs/fill00-a.log": {
+   "sha256": "563d6b99d5b71323dabbda381b774fb69835518c44b583bcbbcde49f24ef3ac5",
+   "bytes": 643
+  },
+  "runs/fill00-b.log": {
+   "sha256": "de095b89e4d3e09ddc96995d36e1b405baa9b92718fb234b2134bf7eac5e6f77",
+   "bytes": 642
+  },
+  "runs/fillff-a.log": {
+   "sha256": "396833d462858e436b0cbae5b5b83f8b44c6f0514fde9587c029c3e970cc29f6",
+   "bytes": 643
+  },
+  "runs/fillff-b.log": {
+   "sha256": "2a85d1867a0c0d521ff0a680059c1209cf25fe3d22da6ceb2a6a0ec278751374",
+   "bytes": 643
+  },
+  "runs/control-minimal-fill00/disc-opens.jsonl": {
+   "sha256": "854e9b1493c1dd2077076d59f0bc76704f77902807202e0ba43d599fbd56a202",
+   "bytes": 3115
+  },
+  "runs/control-minimal-fill00/ee-ram-32mb.bin": {
+   "sha256": "6b1143795320767919655959c554ea43e22f05483f11f987cb6900e15b7ec193",
+   "bytes": 33554432
+  },
+  "runs/control-minimal-fill00/events.jsonl": {
+   "sha256": "dcea5dbd391427e9670885fd3f7e2aa23615d881ff1f672b1114c50529edb033",
+   "bytes": 203
+  },
+  "runs/control-minimal-fill00/final-state.jsonl": {
+   "sha256": "a9a8ef644ec964e12b34e3b84a039d84d6c1a8904ab488165212b619a70d2175",
+   "bytes": 4522
+  },
+  "runs/control-minimal-fill00/gs-ledger.jsonl": {
+   "sha256": "ea4e24aa0294a1e0d5b0cff0e42c8f2acc30c9d88b4016211e16ffce9b5c4b17",
+   "bytes": 23295
+  },
+  "runs/control-minimal-fill00/run-meta.json": {
+   "sha256": "25ea7ef1c9349bbaa946b3e5849f296282929e31cfb5ae96bdc942d6d8b9a0cf",
+   "bytes": 404
+  },
+  "runs/control-minimal-fill00/vram.bin": {
+   "sha256": "3d61f88d55f22717a482392a7c4931dc8ee9db4f2c539053c595b31ae007b29c",
+   "bytes": 4194304
+  },
+  "runs/fill00-a/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "runs/fill00-a/ee-ram-32mb.bin": {
+   "sha256": "be139d4fd6ebd9c509b9811cbc32846b65eebf7f1037a140058942554b3bf4fa",
+   "bytes": 33554432
+  },
+  "runs/fill00-a/events.jsonl": {
+   "sha256": "03cd09bcf8a29a3e8fed44c5b8339c1f9d1846c098533e42d1dfcb77f31151c6",
+   "bytes": 1046167
+  },
+  "runs/fill00-a/final-state.jsonl": {
+   "sha256": "d8c1ca03b6c0ad5eeb57c01c783353c950b2638fb41ee63ecf7c6aee2a0d7956",
+   "bytes": 17084
+  },
+  "runs/fill00-a/gs-ledger.jsonl": {
+   "sha256": "ea4e24aa0294a1e0d5b0cff0e42c8f2acc30c9d88b4016211e16ffce9b5c4b17",
+   "bytes": 23295
+  },
+  "runs/fill00-a/run-meta.json": {
+   "sha256": "257e150c2658987662053de758dbe3f688b65dc068b9d90f3315db7583d93702",
+   "bytes": 422
+  },
+  "runs/fill00-a/vram.bin": {
+   "sha256": "3d61f88d55f22717a482392a7c4931dc8ee9db4f2c539053c595b31ae007b29c",
+   "bytes": 4194304
+  },
+  "runs/fill00-b/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "runs/fill00-b/ee-ram-32mb.bin": {
+   "sha256": "be139d4fd6ebd9c509b9811cbc32846b65eebf7f1037a140058942554b3bf4fa",
+   "bytes": 33554432
+  },
+  "runs/fill00-b/events.jsonl": {
+   "sha256": "03cd09bcf8a29a3e8fed44c5b8339c1f9d1846c098533e42d1dfcb77f31151c6",
+   "bytes": 1046167
+  },
+  "runs/fill00-b/final-state.jsonl": {
+   "sha256": "d8c1ca03b6c0ad5eeb57c01c783353c950b2638fb41ee63ecf7c6aee2a0d7956",
+   "bytes": 17084
+  },
+  "runs/fill00-b/gs-ledger.jsonl": {
+   "sha256": "ea4e24aa0294a1e0d5b0cff0e42c8f2acc30c9d88b4016211e16ffce9b5c4b17",
+   "bytes": 23295
+  },
+  "runs/fill00-b/run-meta.json": {
+   "sha256": "a388c4a2390f8b51398ac423ddde06ddabaeb018199e414fabd99cac2e6dfb4e",
+   "bytes": 422
+  },
+  "runs/fill00-b/vram.bin": {
+   "sha256": "3d61f88d55f22717a482392a7c4931dc8ee9db4f2c539053c595b31ae007b29c",
+   "bytes": 4194304
+  },
+  "runs/fillff-a/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "runs/fillff-a/ee-ram-32mb.bin": {
+   "sha256": "be139d4fd6ebd9c509b9811cbc32846b65eebf7f1037a140058942554b3bf4fa",
+   "bytes": 33554432
+  },
+  "runs/fillff-a/events.jsonl": {
+   "sha256": "03cd09bcf8a29a3e8fed44c5b8339c1f9d1846c098533e42d1dfcb77f31151c6",
+   "bytes": 1046167
+  },
+  "runs/fillff-a/final-state.jsonl": {
+   "sha256": "5831ceceb639316162712f4f70c74f7b8afd506fb8d01eece4f68c65fee57797",
+   "bytes": 17086
+  },
+  "runs/fillff-a/gs-ledger.jsonl": {
+   "sha256": "ea4e24aa0294a1e0d5b0cff0e42c8f2acc30c9d88b4016211e16ffce9b5c4b17",
+   "bytes": 23295
+  },
+  "runs/fillff-a/run-meta.json": {
+   "sha256": "7c8b30217db62508936a4984a242e7855a706a3065ccb36d838ec8bf41093989",
+   "bytes": 426
+  },
+  "runs/fillff-a/vram.bin": {
+   "sha256": "a3a43441eeb45ad5d9203f725fa40c0a6ee1803cda47504287b4b16a4496db92",
+   "bytes": 4194304
+  },
+  "runs/fillff-b/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "runs/fillff-b/ee-ram-32mb.bin": {
+   "sha256": "be139d4fd6ebd9c509b9811cbc32846b65eebf7f1037a140058942554b3bf4fa",
+   "bytes": 33554432
+  },
+  "runs/fillff-b/events.jsonl": {
+   "sha256": "03cd09bcf8a29a3e8fed44c5b8339c1f9d1846c098533e42d1dfcb77f31151c6",
+   "bytes": 1046167
+  },
+  "runs/fillff-b/final-state.jsonl": {
+   "sha256": "5831ceceb639316162712f4f70c74f7b8afd506fb8d01eece4f68c65fee57797",
+   "bytes": 17086
+  },
+  "runs/fillff-b/gs-ledger.jsonl": {
+   "sha256": "ea4e24aa0294a1e0d5b0cff0e42c8f2acc30c9d88b4016211e16ffce9b5c4b17",
+   "bytes": 23295
+  },
+  "runs/fillff-b/run-meta.json": {
+   "sha256": "77d0c9b326b324d8eeb080314c574884f492d9c167852fb0eb2ff87bbc748fa5",
+   "bytes": 426
+  },
+  "runs/fillff-b/vram.bin": {
+   "sha256": "a3a43441eeb45ad5d9203f725fa40c0a6ee1803cda47504287b4b16a4496db92",
+   "bytes": 4194304
+  }
+ },
+ "result_digest": {
+  "byte_identical_trace_runs": true,
+  "ee_ram_identical_across_fill_runs": true,
+  "top_level_call_sequence_identical_to_contract": true,
+  "contract_field_differences": 0,
+  "contract_global_order_differences": 0,
+  "written_nibbles": 444160,
+  "written_stream_sha256": "1f0ee12f77575bf536302f44f189fed358179b8b179fe39a70d99ba7f989b425",
+  "gs_vertex_kicks": 0,
+  "rand_calls_total": 9504
+ },
+ "limitations": [
+  "Play research backend, Debug build; not a physical PS2 proof. Play tree cleanliness not verified.",
+  "Breakpoints are block-start breakpoints (Play compiles the check at the start of any basic block containing a breakpoint address): function entries and jal+8 return sites are exact; top-level call-site markers are emitted at the containing block start before the jal executes.",
+  "Observed run reaches the stop after 84 vblanks, the unhooked control run after 75; allocator/handle/descriptor/VRAM state is identical, EE RAM differs in 9 4 KiB pages (timing/stack).",
+  "Written-lane mask comes from complementary-fill runs of the null-renderer GS, not from a log of local-memory writes. Draws, local-to-local copies and CLUT loads are counted (none observed) but not rendered; privileged-register writes are not ledgered.",
+  "DMA channel CHCR read-back at the stop is the raw register value and is not used as evidence; all 72 host-to-local transfers completed in the GS ledger.",
+  "IOP-level disc opens (ioman) only show module loads; CMNDATA/FONT reads go through the CDVD RPC path and are observed at the EE wrapper 0x1c2e68/0x1c29d8.",
+  "ee-ram-32mb.bin is the first 32 MiB of EE RAM only."
+ ]
+}
