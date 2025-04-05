@@ -1,0 +1,157 @@
+{
+ "schema": "okage.startup.validation.v1",
+ "scope": "Startup: Session-owned startup texture lifetime through effects and fonts, pre-scheduler only.",
+ "base_commit": "a4d807d",
+ "head_commit_at_generation": "d9a742b7e7c736613d17e57a430dd7c16894789d",
+ "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+ "tracked_sources": {
+  "include/okage/startup_textures.hpp": "2f9e59bbd9438c3be4128371fde4a525cb8896cbb00618d2442e659fb195ac7c",
+  "src/startup_textures.cpp": "543608b955529ec91e8913c3b061453e7e7718cbaf7a9e70a6147a274b817aec",
+  "include/okage/texture_handles.hpp": "9623fb8b43efa13977e6f6a64dad3c6a2cf5c1d290cdf0fb264b51bcf63c9323",
+  "src/texture_handles.cpp": "17682041d43867607bb497d0d6cda3519059787ac7fd90c760c2dcb17b312719",
+  "include/okage/texture_memory.hpp": "bed6ce424ff04f90e9012639acb493c48b039cf4f7b341fb5746f137c5e0e7c7",
+  "src/texture_memory.cpp": "7b2b606cdaadab16ea80ab84308ffe1d2acc6b3f313e3c0dd905ec1458f968de",
+  "include/okage/texture_transfer.hpp": "e7a4d147918b442cde1bef520bc02603c7c0436babf5d0d4b9a06db21ddbb470",
+  "src/texture_transfer.cpp": "7b494523bf19e7aef3546ae1fd0ab73aa482dfe8f789f1a3e9251d2d9b6548e3",
+  "src/assets.cpp": "ab3b0131796263250f8ff0c1f25c9b8c9786ff78e90f3d2a42f24db5e3b58972",
+  "src/native_runtime.mm": "8f143bca4b0a5f44da5b9a07e237cd49de1a68333942bba5e828e63dadca89ac",
+  "tools/startup_compare.py": "d411f1acf564e60b3cfca2f43cfce1b0a1ee3eac157666759a9ffa019c5923a7",
+  "tools/texture_handle_trace_diff.py": "c058594e2128404107b6ea645cf57e20c1c0f140e2b33ab0d15b1949e50aac7d",
+  "tools/texture_transfer_compare.cpp": "d239bf48a0b8c66df423c4b4d9a5b0d32b9ce52209d596576a374f0d696c4334",
+  "tests/startup_textures_tests.cpp": "8dce6c7cd1b0be9b30f61275193967f9e8260e69a4524c81bb220863e3419ce8",
+  "tests/test_startup_compare.py": "971858a3b87be5192494c71ad503108650bed2085faa10c259a3981ff2dd42f4",
+  "tests/test_texture_handle_trace.py": "63672b203d9d4f59c0fbb1a070e30d215cc7d7deafeac1273ab985d318ccc01c",
+  "tests/texture_handles_tests.cpp": "16d325f08a01404879f8f01b33617ddbc5188503ff9b4162c1c79609ba2b7dff",
+  "tests/texture_format_tests.cpp": "2e21e1ee73ecc627f643c9c6a4615b3417f23b295e4398ca17384fbe1bd98264",
+  "docs/startup-contract.json": "e4a189b4704f5262bea4ea874bc0e9fd731734b16761a2a7de8c239e1cf2cfcb",
+  "docs/startup-original-manifest.json": "86312a81396b0bf03e6f09c59a2efae78dfeb47a9fc42a1d2e9fd3d8f5af54cc",
+  "docs/startup-format-validation.json": "7b41155a27c056b393f01552e96ab7fe17761319749dbfbda1c9b31689bb4556"
+ },
+ "binaries": {
+  "build/startup-release/okage-native.app/Contents/MacOS/okage-native": "5932aed94933f244f8cecfbae220a836f1e561e4860897604b2a07eb3773c176",
+  "build/native-release/okage-native.app/Contents/MacOS/okage-native": "688e5fa13e0316dc727578f95fa6bb29bc90ddbdd06b82e77e6b5e66e91ab1ad",
+  "build/startup-release/okage-texture-handle-trace": "106ac44d473b852a83b3aee030481cb61b549f05c6537e2a052445281b8eea0b",
+  "build/startup-sanitize/okage-texture-handle-trace": "9d92f13aa49878cf69bd83420fbab103a32af0fd3eb95d9e44de55719c8ca07a",
+  "build/startup-release/okage-texture-transfer-compare": "b849249494312fa846e8505768302c60ed9105aca3be200ad6b7491c79729cf5"
+ },
+ "evidence": [
+  {
+   "path": "local/research/startup-original-v1/analysis/final-state.jsonl",
+   "sha256": "3e0df35b132f675eeb77c517b21792599975cfff9aedef7464f0dd2d4bb2996e",
+   "bytes": 20597
+  },
+  {
+   "path": "local/research/startup-original-v1/analysis/vram-written-mask.bin",
+   "sha256": "6034fc2fe26307cba39e47af1f72bd10b8eebe734184bd99c779dde2a82b269d",
+   "bytes": 4194304
+  },
+  {
+   "path": "local/research/startup-original-v1/analysis/vram-written-values.bin",
+   "sha256": "3d61f88d55f22717a482392a7c4931dc8ee9db4f2c539053c595b31ae007b29c",
+   "bytes": 4194304
+  },
+  {
+   "path": "local/research/startup-session-native-v1/final/report/state.json",
+   "sha256": "f4bd1bdfda0aace139f1cd383c174b6ae6cff91b6a0f53d848d1db3ab7b9f622",
+   "bytes": 51462
+  },
+  {
+   "path": "local/research/startup-session-native-v1/final/report/vram.bytes",
+   "sha256": "3d61f88d55f22717a482392a7c4931dc8ee9db4f2c539053c595b31ae007b29c",
+   "bytes": 4194304
+  },
+  {
+   "path": "local/research/startup-session-native-v1/final/report/vram.known",
+   "sha256": "6034fc2fe26307cba39e47af1f72bd10b8eebe734184bd99c779dde2a82b269d",
+   "bytes": 4194304
+  },
+  {
+   "path": "local/research/startup-session-native-v1/final/compare.out",
+   "sha256": "c38f6673379c24709f555ff49b5590c2d3b7661e503b8530c477be3e7fa306cb",
+   "bytes": 646
+  },
+  {
+   "path": "local/research/startup-session-native-v1/final/frame.png",
+   "sha256": "6a3988ce27f723ca6f6316ee876d6592aea8ad51647fee8eeade7c1691550bc5",
+   "bytes": 6031
+  },
+  {
+   "path": "local/research/startup-session-native-v1/final/oldrerun/o1.png",
+   "sha256": "6a3988ce27f723ca6f6316ee876d6592aea8ad51647fee8eeade7c1691550bc5",
+   "bytes": 6031
+  },
+  {
+   "path": "local/research/startup-validation-v1/ctest-final.out",
+   "sha256": "70a36a11a12db52c421f5b21a24122756e8aaa8edc540782e34f894c53a6e710",
+   "bytes": 161
+  },
+  {
+   "path": "local/research/startup-validation-v1/python-suite.out",
+   "sha256": "27efe0af9c71ddfb7fd03765a3c40f9b000d3311d80621c992eae9bc6400a1e5",
+   "bytes": 29
+  },
+  {
+   "path": "local/research/startup-validation-v1/release-lifecycle.out",
+   "sha256": "5c39f7940fbddebc6338f02bfdafa46b13f5767ff69e93d93e460169537fe46a",
+   "bytes": 99
+  },
+  {
+   "path": "local/research/startup-xim-inventory-v1/inventory.json",
+   "sha256": "4d2865f1a5ae9460b56b1b4372521aad47f7a95d2fe15fb4d221b04b17bc5495",
+   "bytes": 3596757
+  },
+  {
+   "path": "local/research/startup-validation-v1/asan-lifecycle.out",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  }
+ ],
+ "commands": [
+  "cmake -S . -B build/startup-{release,debug} -G Ninja -DCMAKE_BUILD_TYPE={Release,Debug}; build/startup-sanitize: Debug with -fsanitize=address,undefined -fno-omit-frame-pointer",
+  "ctest -R '^(startup-textures-tests|texture-(transfer|snapshot|memory|handles|format)-tests|xim-raw-tests|asset-tests|gs-texture-address-tests)$' in each build (9 tests)",
+  "okage-native --game-data local/game-data-stage-v12-moved --save-directory <fresh> --startup-texture-report <fresh dir> --frames 600 --capture <fresh png>",
+  "python3 tools/startup_compare.py local/research/startup-original-v1/analysis local/research/startup-session-native-v1/final/report",
+  "OKAGE_HANDLE_TRACE=build/startup-{release,sanitize}/okage-texture-handle-trace python3 -m unittest tests.test_texture_handle_lifecycle",
+  "OKAGE_HANDLE_TRACE=... OKAGE_TRANSFER_COMPARE=... python3 -m unittest discover -s tests"
+ ],
+ "results": {
+  "focused_ctest": [
+   "== release",
+   "100% tests passed, 0 tests failed out of 9",
+   "== debug",
+   "100% tests passed, 0 tests failed out of 9",
+   "== sanitize",
+   "100% tests passed, 0 tests failed out of 9"
+  ],
+  "python_suite": [
+   "Ran 675 tests in 249.885s",
+   "OK"
+  ],
+  "release_lifecycle": [
+   "Ran 2 tests in 196.144s",
+   "",
+   "OK"
+  ],
+  "asan_lifecycle": [],
+  "startup_state_compare": [
+   "  records: identical",
+   "  vram: 444160 written nibbles in the original; mask differences 0, value differences 0",
+   "not compared (no native counterpart): rand state after the prefix (native stops its generator after the noise texture; 10bc78/10e098 draws are unmodeled), free-queue node order, recorded-but-unkicked display lists",
+   "result: IDENTICAL"
+  ]
+ },
+ "retained_failures_and_findings": [
+  "review: startup_compare accepted empty/hand-made input (fixed: manifest pins, exact counts, strict keys); --accept accepted a trace compared with itself (fixed: same-file refusal, cross-field checks)",
+  "review: ELF-missing path skipped the owner silently (fixed: hard error with --startup-texture-report; documented fallback)",
+  "my null-CLUT test first over-read 8 blocks into the neighbour CLUT (test bug, fixed: 4 blocks)",
+  "pre-change binary run-to-run: startup frame 279 vs 280 (wall-clock loading windows) in both old and new binaries"
+ ],
+ "unresolved": [
+  "post-grid rand draws (160 in 10bc78) and effect-template grid not modeled; Session::random starts at 1",
+  "written-lane masks are paired-fill derived, not a GS write log; Play research backend only",
+  "input identity (ELF/FNT/XIM hashes) not checked at run time",
+  "no original frame/audio exists at the boundary; no native-vs-original image/audio comparison",
+  "free-queue node order and recorded display lists not compared",
+  "PSM1/27/CPSM2, XTA, title/model/field/battle history, snapshots in prepared frames, sampling: later milestones"
+ ]
+}
