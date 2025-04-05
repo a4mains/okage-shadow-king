@@ -1,5 +1,6 @@
 #include "okage/startup_textures.hpp"
 
+#include <cstdio>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -74,7 +75,11 @@ StartupTextureOwner::~StartupTextureOwner() {
             if (l.color.serial) memory_.release(l.color.id);
             if (l.depth) memory_.release(l.depth->id);
         }
+    } catch (const std::exception& e) {
+        // Destructors cannot throw; surface the leak instead of hiding it.
+        std::fprintf(stderr, "StartupTextureOwner teardown failed: %s (references may leak)\n", e.what());
     } catch (...) {
+        std::fprintf(stderr, "StartupTextureOwner teardown failed (references may leak)\n");
     }
 }
 
@@ -202,7 +207,11 @@ void StartupTextureOwner::run_startup(const StartupTextureInputs& in) {
     }
     checkpoint("fonts");
 
-    require(memory_.available_count() != 0, "startup: allocator exhausted");
+    // The frozen contract totals; any deviation means the inputs are not the verified retail ones.
+    std::uint32_t live = 0;
+    for (TextureAllocationId id = 0; id < 4096; ++id) live += memory_.allocation(id).has_value();
+    require(live == expected_allocations && std::uint32_t(handles_.live_handle_count()) == expected_handles,
+            "startup: allocation/handle totals differ from the frozen contract");
     coverage_ = StartupCoverage::PreSchedulerOnly;
 }
 

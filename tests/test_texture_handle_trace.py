@@ -266,6 +266,20 @@ class AcceptModeTests(unittest.TestCase):
                 self.assertNotEqual(bad, good_text)
                 self.assertEqual(self.run_accept(None, None, raw_a=bad, raw_b=bad)[0], 2)
 
+    def test_same_file_and_inconsistent_cross_fields_are_malformed(self):
+        p = self.dir / "same.jsonl"
+        p.write_text("".join(json.dumps(x) + "\n" for x in self.good))
+        out, err = io.StringIO(), io.StringIO()
+        with redirect_stdout(out), redirect_stderr(err):
+            self.assertEqual(differ.main([str(p), str(p), "--accept", str(self.dir / "s.txt")]), 2)
+        for name, fn in {
+            "live_handles": lambda L: L[2].update(live_handles=2),
+            "free_records": lambda L: L[2].update(free_records=100),
+        }.items():
+            with self.subTest(name):
+                broken = self.mutated(fn)
+                self.assertEqual(self.run_accept(broken, copy.deepcopy(broken))[0], 2)
+
     def test_ignore_is_refused_and_empty_script_is_malformed(self):
         self.assertEqual(self.run_accept(self.good, copy.deepcopy(self.good), extra=("--ignore", "vram"))[0], 2)
         (self.dir / "empty.txt").write_text("# nothing\n\n")

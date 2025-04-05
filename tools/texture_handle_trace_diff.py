@@ -32,6 +32,7 @@ import argparse
 import json
 import re
 import sys
+from pathlib import Path
 
 class MalformedTrace(Exception):
     pass
@@ -157,6 +158,10 @@ def validate_record(record, expected_op, expected_text, where):
         if last is not None and item["r"] <= last:
             bad("records are not strictly ascending by r")
         last = item["r"]
+    if record["live_handles"] != len(record["handles"]):
+        bad("live_handles does not equal the number of mapped handles")
+    if record["free_records"] + len(recs) != 512:
+        bad("free_records + live records != 512")
     vram = record["vram"]
     if not isinstance(vram, dict) or set(vram) != VRAM_KEYS:
         bad("vram key set mismatch")
@@ -180,6 +185,8 @@ def accept(original_path, native_path, script_path, out=None):
     """Acceptance comparison. Returns 0 identical, 1 different; raises MalformedTrace."""
     out = out or sys.stdout
     ops = script_operations(script_path)
+    if Path(original_path).resolve() == Path(native_path).resolve():
+        raise MalformedTrace("original and native captures are the same file: acceptance needs two captures")
     original = load_trace(original_path, strict=True)
     native = load_trace(native_path, strict=True)
     validate_trace(original, ops, original_path)

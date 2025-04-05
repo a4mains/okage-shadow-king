@@ -621,6 +621,10 @@ struct Session {
     }
     void initialize_startup_textures(const fs::path& root) {
         const auto elf_path=root/"SCUS_971.29";
+        if(!startup_texture_report.empty()&&fs::exists(startup_texture_report))
+            throw std::runtime_error("Startup texture report directory must be fresh");
+        if(!fs::exists(elf_path)&&!startup_texture_report.empty())
+            throw std::runtime_error("Startup texture report requested but SCUS_971.29 is absent beside the game data");
         if(!fs::exists(elf_path)) {
             startup_textures_status="unavailable: no SCUS_971.29 beside the game data; startup texture ownership NOT established";
             std::cout<<"Native startup textures "<<startup_textures_status<<'\n';
