@@ -2,7 +2,7 @@
  "schema": "okage.startup.validation.v1",
  "scope": "Startup: Session-owned startup texture lifetime through effects and fonts, pre-scheduler only.",
  "base_commit": "a4d807d",
- "head_commit_at_generation": "d9a742b7e7c736613d17e57a430dd7c16894789d",
+ "head_commit_at_generation": "116e2083135a2e25b9f62082f1bce238bcb257c4",
  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
  "tracked_sources": {
   "include/okage/startup_textures.hpp": "2f9e59bbd9438c3be4128371fde4a525cb8896cbb00618d2442e659fb195ac7c",
@@ -102,8 +102,8 @@
   },
   {
    "path": "local/research/startup-validation-v1/asan-lifecycle.out",
-   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-   "bytes": 0
+   "sha256": "94f1bfa1a7ea3efe5cac974255b7f903042a6fa386f006e9a8a8ea68cdde8b9b",
+   "bytes": 103
   }
  ],
  "commands": [
@@ -132,7 +132,12 @@
    "",
    "OK"
   ],
-  "asan_lifecycle": [],
+  "asan_lifecycle": [
+   "----------------------------------------------------------------------",
+   "Ran 2 tests in 5880.302s",
+   "",
+   "OK"
+  ],
   "startup_state_compare": [
    "  records: identical",
    "  vram: 444160 written nibbles in the original; mask differences 0, value differences 0",
