@@ -28,10 +28,16 @@ SOURCE_LAYOUT = (
     ("local/audio-input/SNDDATA", "SNDDATA", "owned_audio"),
     ("local/battle-input-v6", "NATIVE_UI", "owned_native_ui"),
     ("local/restore-data-v1", "NATIVE_UI", "owned_restore_ui"),
+    ("local/startup-input-v1/NATIVE_STARTUP", "NATIVE_STARTUP", "owned_startup_inputs"),
 )
 
 SOURCE_FILE_ALLOWLIST = {
     "local/chapter-input": frozenset(f"CHP_{number:02}.XIM" for number in range(1, 8)),
+    "local/startup-input-v1/NATIVE_STARTUP": frozenset({"FONTCLUT.BIN", "startup-inputs.json"}),
+}
+_ALLOWLIST_KIND = {
+    "local/chapter-input": "chapter",
+    "local/startup-input-v1/NATIVE_STARTUP": "startup",
 }
 
 def _sha256(path: Path) -> str:
@@ -72,9 +78,9 @@ def build_plan(repo_root: Path) -> tuple[dict[str, dict], dict[str, str]]:
             tail = source.relative_to(source_root)
             relative_tail = tail.as_posix()
             if allowlist is not None and relative_tail not in allowlist:
-                if relative_tail == "manifest.json":
+                if relative_source == "local/chapter-input" and relative_tail == "manifest.json":
                     continue
-                raise ValueError(f"unexpected chapter input file: {source}")
+                raise ValueError(f"unexpected {_ALLOWLIST_KIND[relative_source]} input file: {source}")
             if allowlist is not None:
                 selected_sources.add(relative_tail)
             target_relative = Path(prefix, tail) if prefix else tail
@@ -103,7 +109,9 @@ def build_plan(repo_root: Path) -> tuple[dict[str, dict], dict[str, str]]:
                 })
         if allowlist is not None and selected_sources != allowlist:
             missing = sorted(allowlist - selected_sources)
-            raise ValueError(f"chapter input is missing reviewed images: {', '.join(missing)}")
+            kind = _ALLOWLIST_KIND[relative_source]
+            noun = "reviewed images" if kind == "chapter" else "required files"
+            raise ValueError(f"{kind} input is missing {noun}: {', '.join(missing)}")
     return planned, source_roots
 
 def stage_game_data(repo_root: Path, destination: Path) -> Path:

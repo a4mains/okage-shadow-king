@@ -10,6 +10,8 @@ from tools.stage_game_data import (
     stage_game_data,
 )
 
+STARTUP_ROOT = "local/startup-input-v1/NATIVE_STARTUP"
+
 class StageGameDataTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -22,6 +24,10 @@ class StageGameDataTests(unittest.TestCase):
         for number in range(1, 8):
             name = f"CHP_{number:02}.XIM"
             self.chapter_inputs[name] = self.put("local/chapter-input", name, name.encode())
+        self.startup_inputs = {
+            name: self.put(STARTUP_ROOT, name, name.encode())
+            for name in ("FONTCLUT.BIN", "startup-inputs.json")
+        }
 
     def put(self, source_root, relative, content):
         path = self.repo / source_root / relative
@@ -54,6 +60,8 @@ class StageGameDataTests(unittest.TestCase):
         }
         expected.update({f"CMNDATA/2D/{name}": source
                          for name, source in self.chapter_inputs.items()})
+        expected.update({f"NATIVE_STARTUP/{name}": source
+                         for name, source in self.startup_inputs.items()})
         for relative, source in expected.items():
             staged = result / relative
             self.assertTrue(staged.is_symlink(), relative)
@@ -131,6 +139,37 @@ class StageGameDataTests(unittest.TestCase):
         destination = Path(self.temp.name) / "game-data"
 
         with self.assertRaisesRegex(ValueError, "unexpected chapter input file"):
+            stage_game_data(self.repo, destination)
+        self.assertFalse(destination.exists())
+
+    def test_startup_inputs_are_staged_exactly_and_never_include_the_elf(self):
+        destination = Path(self.temp.name) / "game-data"
+
+        stage_game_data(self.repo, destination)
+
+        manifest = json.loads((destination / MANIFEST_NAME).read_text())
+        records = {item["path"]: item for item in manifest["files"]}
+        for name, source in self.startup_inputs.items():
+            relative = f"NATIVE_STARTUP/{name}"
+            self.assertEqual((destination / relative).resolve(), source.resolve())
+            self.assertEqual(records[relative]["source_label"], "owned_startup_inputs")
+        self.assertEqual(sorted(p.name for p in (destination / "NATIVE_STARTUP").iterdir()),
+                         ["FONTCLUT.BIN", "startup-inputs.json"])
+        self.assertFalse(any(path.endswith("SCUS_971.29") for path in records))
+
+    def test_unexpected_startup_input_file_fails_closed(self):
+        self.put(STARTUP_ROOT, "SCUS_971.29", b"elf must never be staged")
+        destination = Path(self.temp.name) / "game-data"
+
+        with self.assertRaisesRegex(ValueError, "unexpected startup input file"):
+            stage_game_data(self.repo, destination)
+        self.assertFalse(destination.exists())
+
+    def test_missing_startup_input_file_fails_closed(self):
+        self.startup_inputs["FONTCLUT.BIN"].unlink()
+        destination = Path(self.temp.name) / "game-data"
+
+        with self.assertRaisesRegex(ValueError, "startup input is missing required files: FONTCLUT.BIN"):
             stage_game_data(self.repo, destination)
         self.assertFalse(destination.exists())
 
