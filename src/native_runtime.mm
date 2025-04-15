@@ -35,6 +35,7 @@
 #include "ui_metal.hpp"
 #include "okage/battle_entry.hpp"
 #include "okage/startup_textures.hpp"
+#include "okage/startup_inputs.hpp"
 #include <bit>
 #include <algorithm>
 #include <array>
@@ -611,41 +612,50 @@ struct Session {
         music_directory=root/"SNDDATA/BGM";sound_directory=root/"SNDDATA/SE";
         music=std::make_unique<okage::MusicRouter>();record_audio=record;
         battle_input=root/"NATIVE_UI";save_directory=saves;reset_scene_camera();
-        prepare_effects(root/"CMNDATA/2D/TES.EFD",root/"CMNDATA/2D/ENV_TEX.XPF");
-        effects_loaded=true;
         initialize_startup_textures(root);
+        effects_loaded=true;
         game_mode.emplace(okage::GameModeParent::startup());
         sound_banks.emplace(0,std::make_unique<okage::StreamPlayer>(
             okage::read_stream_bank(readData(sound_directory/"ALL.XWS"))));
         std::cout<<"Native cold startup queued mode8 selector3\n";
     }
     void initialize_startup_textures(const fs::path& root) {
-        const auto elf_path=root/"SCUS_971.29";
+        if(startup_textures||effect_preparation)throw std::runtime_error("Startup textures already initialized");
         if(!startup_texture_report.empty()&&fs::exists(startup_texture_report))
             throw std::runtime_error("Startup texture report directory must be fresh");
-        if(!fs::exists(elf_path)&&!startup_texture_report.empty())
-            throw std::runtime_error("Startup texture report requested but SCUS_971.29 is absent beside the game data");
-        if(!fs::exists(elf_path)) {
-            startup_textures_status="unavailable: no SCUS_971.29 beside the game data; startup texture ownership NOT established";
-            std::cout<<"Native startup textures "<<startup_textures_status<<'\n';
-            return;
-        }
+        const auto owned=okage::load_startup_inputs(root);
         okage::StartupTextureInputs inputs;
-        inputs.font_palette=okage::read_elf_va(readData(elf_path),0x2003f8,64);
-        const char* font_files[3]={"IQ24.FNT","BMUI.FNT","BM.FNT"};
-        for(int i=0;i<3;++i)inputs.fonts[i]=readData(root/"CMNDATA/FONT"/font_files[i]);
-        const auto effect_dir=root/"CMNDATA/2D/ENV_TEX.XPF";
-        inputs.read_effect=[effect_dir](const std::string& name)->std::optional<std::vector<std::uint8_t>> {
-            const auto path=effect_dir/name;
-            if(!fs::exists(path))return std::nullopt;
-            return readData(path);
+        inputs.font_palette=owned.font_palette;inputs.fonts=owned.fonts;
+        inputs.record_observations=!startup_texture_report.empty();
+        const auto& names=okage::startup_effect_names();
+        inputs.read_effect=[&owned,&names](const std::string& name)->std::optional<std::vector<std::uint8_t>> {
+            for(unsigned i=0;i<names.size();++i)if(name==names[i])return owned.effects[i];
+            return std::nullopt;
+        };
+        okage::EffectPreparationTrace trace;
+        std::shared_ptr<const okage::EffectTemplatePreparation> prepared;
+        auto prepare=[&](okage::StartupRandomStream& stream) {
+            //10bc78: sizes are the owned XIM dimensions (CPU decode, no allocation event).
+            okage::EffectTextureSizes sizes;
+            for(unsigned i=0;i<sizes.size();++i) {
+                if(okage::effect_texture_names[i]!=std::string(names[i]))throw std::runtime_error("Effect name tables disagree");
+                const auto image=okage::decode_xim(owned.effects[i]);sizes[i]={image.width,image.height};
+            }
+            trace.grid_complete=[&stream]{stream.enter(okage::StartupRngPhase::EffectTemplate);};
+            prepared=std::make_shared<const okage::EffectTemplatePreparation>(okage::read_efd(owned.efd),sizes,
+                okage::make_sine_table(),[&stream]{return stream.draw();},&trace);
         };
         auto owner=std::make_unique<okage::StartupTextureOwner>();
-        owner->run_startup(inputs);
+        owner->run_startup(inputs,random,prepare);
+        effect_bytes=owned.efd;effect_preparation=std::move(prepared);
+        effect_data=root/"CMNDATA/2D/TES.EFD";effect_textures=root/"CMNDATA/2D/ENV_TEX.XPF";
         startup_textures=std::move(owner);
-        startup_textures_status="pre-scheduler startup textures established; later history unmodeled";
-        std::cout<<"Native startup textures: "<<startup_textures_status<<'\n';
-        if(!startup_texture_report.empty())okage::write_startup_texture_report(*startup_textures,startup_texture_report);
+        startup_textures_status="pre-scheduler startup textures and RNG established; later history unmodeled";
+        std::cout<<"Native startup textures: "<<startup_textures_status<<" rng_draws="<<startup_textures->rng_draws()<<'\n';
+        if(!startup_texture_report.empty()) {
+            okage::write_startup_texture_report(*startup_textures,startup_texture_report);
+            okage::write_effect_preparation_report(*effect_preparation,trace,startup_texture_report);
+        }
     }
     void initialize_startup_audio_and_cache() {
         if(startup_audio_initialized||!music)throw std::runtime_error("Startup shared service lifecycle");

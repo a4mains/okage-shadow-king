@@ -90,13 +90,24 @@ struct ProceduralEffectGeometry {
 // First-use ray/surface/spray factories. Texture dimensions are owned XIM data.
 ProceduralEffectGeometry make_procedural_effect_shape(unsigned shape,const SineTable&,
     const std::function<std::uint32_t()>& random,const std::array<std::uint32_t,2>& texture_size={});
+// Optional observation of one preparation (0x10bc78 -> 0x10e098 grid, then the
+// 0x10ba38 template pass). Never changes what is prepared or drawn.
+struct EffectPreparationTrace {
+    struct Request {std::uint32_t definition,element,shape;bool constructed;};
+    // Called once after the 384-cell grid, before the first template request.
+    std::function<void()> grid_complete;
+    std::vector<Request> requests;                // template requests in pass order
+    std::vector<std::uint32_t> construction_order;   // shapes in first-construction order
+    std::array<std::uint32_t,66> construction_draws{};
+    std::uint32_t grid_draws=0;
+};
 struct EffectTemplatePreparation {
     std::shared_ptr<EffectFlameGeometry> flame=std::make_shared<EffectFlameGeometry>();
     EffectNoiseGrid noise;
     std::array<std::array<std::uint32_t,2>,66> cache_owners{};
     std::array<std::shared_ptr<const ProceduralEffectGeometry>,66> geometry{};
     EffectTemplatePreparation(const std::vector<EffectDefinition>&,const EffectTextureSizes&,
-        const SineTable&,const std::function<std::uint32_t()>& random);
+        const SineTable&,const std::function<std::uint32_t()>& random,EffectPreparationTrace* trace=nullptr);
 };
 //0x1086c4: actual live view and1842a0 projection parameter records.
 //The caller supplies the current resource state before the job near setter.

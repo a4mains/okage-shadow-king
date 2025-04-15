@@ -72,6 +72,23 @@ std::size_t live_allocations(const Ps2TextureMemory& m) {
     for (TextureAllocationId id = 0; id < 4096; ++id) n += m.allocation(id).has_value();
     return n;
 }
+// Stand-in for the 10bc78 preparation: 384 grid draws, then 160 template draws.
+struct Hook {
+    int calls = 0;
+    std::size_t allocations_at_call = 0;
+    StartupTextureOwner* owner = nullptr;
+    void operator()(StartupRandomStream& s) {
+        ++calls;
+        allocations_at_call = live_allocations(owner->memory());
+        for (int i = 0; i < 384; ++i) s.draw();
+        s.enter(StartupRngPhase::EffectTemplate);
+        for (int i = 0; i < 160; ++i) s.draw();
+    }
+};
+void run(StartupTextureOwner& o, const StartupTextureInputs& in, GameRandom& r, Hook& h) {
+    h.owner = &o;
+    o.run_startup(in, r, [&h](StartupRandomStream& s) { h(s); });
+}
 } // namespace
 
 int main() {
@@ -79,7 +96,27 @@ int main() {
         scenario([&] {
             StartupTextureOwner o;
             require(o.coverage() == StartupCoverage::NotRun && !o.started(), "fresh owner has no history");
-            o.run_startup(inputs());
+            GameRandom r{1};
+            Hook h;
+            auto in = inputs();
+            in.record_observations = true;
+            run(o, in, r, h);
+            require(h.calls == 1 && h.allocations_at_call == 73, "effect preparation runs once between uploads and fonts");
+            require(o.rng_draws() == 8960 + 544 && o.rng_log().size() == 9504, "all draws through the Session stream");
+            require(o.rand_state_after_noise() == 0xceeb6501u, "observed state after the 8960 noise draws (assertion only)");
+            require(r.state == 0x412c25e1u, "observed state after 9504 draws (assertion only)");
+            require(o.rng_log()[8959].phase == StartupRngPhase::Noise && o.rng_log()[8960].phase == StartupRngPhase::EffectGrid &&
+                    o.rng_log()[9343].phase == StartupRngPhase::EffectGrid && o.rng_log()[9344].phase == StartupRngPhase::EffectTemplate,
+                    "phase labels at the source boundaries");
+            require(o.rng_log()[8960 + 383].state == 0x728e2781u, "observed state after the grid (assertion only)");
+            // Noise draws are interleaved with the CLUT/image allocations exactly as in 192ea0.
+            std::vector<std::pair<std::uint32_t, std::uint64_t>> allocs;
+            for (const auto& e : o.timeline())
+                if (e.kind == StartupTimelineEvent::Kind::Allocation) allocs.push_back({e.allocation, e.draws});
+            require(allocs.size() == 79, "79 allocation events");
+            require(allocs[5].second == 512 && allocs[6].second == 768 && allocs[7].second == 8960 && allocs[4].second == 0,
+                    "CLUT A after 512 draws, CLUT B after 768, image after 8960");
+            require(allocs[72].second == 8960 && allocs[73].second == 9504, "effects before preparation, fonts after");
             require(o.coverage() == StartupCoverage::PreSchedulerOnly, "coverage is pre-scheduler only");
             const auto& m = o.memory();
             require(live_allocations(m) == StartupTextureOwner::expected_allocations, "79 allocations");
@@ -130,10 +167,14 @@ int main() {
         // Re-initialization is rejected and does not disturb state.
         scenario([&] {
             StartupTextureOwner o;
-            o.run_startup(inputs());
+            GameRandom r{1};
+            Hook h;
+            run(o, inputs(), r, h);
             const auto id = o.memory().identity();
+            const auto state = r.state;
             bool threw = false;
-            try { o.run_startup(inputs()); } catch (const std::logic_error&) { threw = true; }
+            try { run(o, inputs(), r, h); } catch (const std::logic_error&) { threw = true; }
+            require(r.state == state && h.calls == 1, "rejected run draws nothing and calls no hook");
             require(threw && o.memory().identity() == id && o.handles().live_handle_count() == 36, "second run rejected");
         });
         // A failing input leaves the owner unusable, not half-announced.
@@ -141,17 +182,66 @@ int main() {
             StartupTextureOwner o;
             auto in = inputs();
             in.read_effect = [](const std::string&) { return std::optional<std::vector<std::uint8_t>>{}; };
+            GameRandom r{1};
+            Hook h;
             bool threw = false;
-            try { o.run_startup(in); } catch (const std::runtime_error&) { threw = true; }
+            try { run(o, in, r, h); } catch (const std::runtime_error&) { threw = true; }
             require(threw && o.coverage() == StartupCoverage::NotRun && o.started(), "failed startup never claims coverage");
+            require(std::string(o.failed_phase()) == "effect-uploads" && o.rng_draws() == 8960 && h.calls == 0,
+                    "failure phase and the draws already made are retained");
             threw = false;
-            try { o.run_startup(inputs()); } catch (const std::logic_error&) { threw = true; }
+            try { run(o, inputs(), r, h); } catch (const std::logic_error&) { threw = true; }
             require(threw, "no retry on a partially built owner");
+        });
+        // The preparation hook failing or re-entering is a failed prefix, never coverage.
+        scenario([&] {
+            StartupTextureOwner o;
+            GameRandom r{1};
+            bool reentered = false;
+            bool threw = false;
+            try {
+                o.run_startup(inputs(), r, [&](StartupRandomStream& s) {
+                    s.draw();
+                    try { o.run_startup(inputs(), r, [](StartupRandomStream&) {}); } catch (const std::logic_error&) { reentered = true; }
+                    throw std::runtime_error("template factory failed");
+                });
+            } catch (const std::runtime_error&) { threw = true; }
+            require(threw && reentered && o.coverage() == StartupCoverage::NotRun, "hook failure leaves no coverage");
+            require(std::string(o.failed_phase()) == "effect-preparation" && o.rng_draws() == 8961, "failure in preparation retained");
+            require(o.handles().live_handle_count() == 33, "fonts never created after a failed preparation");
+            StartupTextureOwner n;
+            threw = false;
+            try { n.run_startup(inputs(), r, {}); } catch (const std::invalid_argument&) { threw = true; }
+            require(threw && n.coverage() == StartupCoverage::NotRun, "missing hook rejected");
+        });
+        // Invalid font ranges and extents are rejected before any allocation or draw.
+        scenario([&] {
+            auto broken = [&](auto mutate) {
+                StartupTextureOwner o;
+                auto in = inputs();
+                mutate(in);
+                GameRandom r{1};
+                Hook h;
+                bool threw = false;
+                try { run(o, in, r, h); } catch (const std::runtime_error&) { threw = true; }
+                require(threw && r.state == 1 && h.calls == 0 && !o.memory().allocator_initialized(),
+                        "font rejected before any state or draw");
+            };
+            broken([](StartupTextureInputs& in) { std::swap(in.fonts[0][4], in.fonts[0][5]); in.fonts[0][4] = 9; in.fonts[0][5] = 3; });
+            broken([](StartupTextureInputs& in) { in.fonts[1].resize(7); });
+            broken([](StartupTextureInputs& in) { in.fonts[2].resize(in.fonts[2].size() - 1); });
+            broken([](StartupTextureInputs& in) { in.fonts[2][5] = 255; in.fonts[2][4] = 0; in.fonts[2].resize(8 + 0x14 * 200); });
+            broken([](StartupTextureInputs& in) {
+                const std::size_t header = 8 + 0x14u * 139;
+                in.fonts[0][header] = 0; in.fonts[0][header + 1] = 0;  // zero height
+            });
         });
         // Snapshots taken at the boundary survive later writes, frees and reuse.
         scenario([&] {
             StartupTextureOwner o;
-            o.run_startup(inputs());
+            GameRandom r{1};
+            Hook h;
+            run(o, inputs(), r, h);
             const auto snap = o.memory().snapshot();
             const auto id = o.layers()[2].color.id;
             const auto before_ref = snap.allocation(id)->references;
@@ -172,7 +262,9 @@ int main() {
         // Teardown releases every reference; memory is reusable only through a new aggregate.
         scenario([&] {
             auto* o = new StartupTextureOwner;
-            o->run_startup(inputs());
+            GameRandom r{1};
+            Hook h;
+            run(*o, inputs(), r, h);
             const auto snap = o->memory().snapshot();
             delete o;
             require(snap.valid() && snap.allocation(2)->references == 3, "snapshot outlives the aggregate");

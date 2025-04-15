@@ -114,7 +114,13 @@ def normalise_original(o):
 def normalise_native(n):
     need(n, ["coverage", "later_history", "rand_state_after_noise", "checkpoints", "allocations", "layers",
              "filter_cluts", "handles", "records", "hash", "reserved", "free_records", "free_extras", "available",
-             "cursors", "free_queue_ids", "occupancy_hex"], "native", exact=True)
+             "cursors", "free_queue_ids", "occupancy_hex"], "native")
+    optional = {"rng_draws"}
+    unknown = set(n) - {"coverage", "later_history", "rand_state_after_noise", "checkpoints", "allocations", "layers",
+                        "filter_cluts", "handles", "records", "hash", "reserved", "free_records", "free_extras",
+                        "available", "cursors", "free_queue_ids", "occupancy_hex"} - optional
+    if unknown:
+        raise Malformed(f"native: unknown keys {sorted(unknown)}")
     if not (is_int(n["free_records"]) and is_int(n["free_extras"]) and is_int(n["available"])):
         raise Malformed("native counters are not integers")
     check_ints(n["cursors"], "native cursors", 64)
@@ -225,8 +231,8 @@ def run(orig_dir, nat_dir, out=None, manifest=MANIFEST):
         raise Malformed("manifest result digest does not carry the expected written-nibble count")
     print("startup texture state, original vs native:", file=out)
     diffs = compare(orig, nat, out) + compare_vram(orig_dir, nat_dir, out)
-    print("not compared (no native counterpart): rand state after the prefix (native stops its generator after the noise "
-          "texture; 10bc78/10e098 draws are unmodeled), free-queue node order, recorded-but-unkicked display lists", file=out)
+    print("not compared here: RNG draws/products (tools/rng_compare.py) and the ordered timeline "
+          "(tools/rng_startup_timeline_compare.py); free-queue node order and recorded-but-unkicked display lists (no observation)", file=out)
     print("result: " + ("IDENTICAL" if not diffs else f"DIFFERENT ({diffs} section(s))"), file=out)
     return 1 if diffs else 0
 

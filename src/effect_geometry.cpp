@@ -161,9 +161,15 @@ ProceduralEffectGeometry make_procedural_effect_shape(unsigned shape,const SineT
     return result;
 }
 EffectTemplatePreparation::EffectTemplatePreparation(const std::vector<EffectDefinition>& bank,
-        const EffectTextureSizes& sizes,const SineTable& sine,const std::function<std::uint32_t()>& random):
-    noise(make_effect_noise_grid(random)) {
+        const EffectTextureSizes& sizes,const SineTable& sine,const std::function<std::uint32_t()>& source,
+        EffectPreparationTrace* trace) {
+    if(!source)throw std::runtime_error("Effect noise grid requires template RNG");
+    std::uint32_t draws=0;
+    const std::function<std::uint32_t()> random=[&]{++draws;return source();};
+    noise=make_effect_noise_grid(random);
+    if(trace){trace->grid_draws=draws;if(trace->grid_complete)trace->grid_complete();}
     const auto request=[&](const EffectDefinition& definition,const EffectElement& e) {
+        const auto before=draws;bool constructed=false;
         if(!e.shape||e.shape>=geometry.size()||e.shape==44||e.shape==46)
             throw std::runtime_error("Unrecovered template preparation shape");
         if(!cache_owners[e.shape][0]) {
@@ -171,7 +177,7 @@ EffectTemplatePreparation::EffectTemplatePreparation(const std::vector<EffectDef
                 auto g=std::make_shared<ProceduralEffectGeometry>();
                 g->vertices=make_effect_noise_shape(e.shape,noise);
                 g->position_tags.resize(g->vertices.size());g->uv_tags.resize(g->vertices.size());
-                geometry[e.shape]=std::move(g);
+                geometry[e.shape]=std::move(g);constructed=true;
             } else if(e.shape==43||e.shape==45||e.shape==55||e.shape==56||e.shape==62) {
                 std::array<std::uint32_t,2> size{};
                 if(e.shape==56||e.shape==62) {
@@ -179,9 +185,14 @@ EffectTemplatePreparation::EffectTemplatePreparation(const std::vector<EffectDef
                     size=sizes[unsigned(e.texture)];
                 }
                 geometry[e.shape]=std::make_shared<const ProceduralEffectGeometry>(make_procedural_effect_shape(e.shape,sine,random,size));
+                constructed=true;
             }
         }
         cache_owners[e.shape]={definition.id,e.id};
+        if(trace) {
+            trace->requests.push_back({definition.id,e.id,e.shape,constructed});
+            if(constructed){trace->construction_order.push_back(e.shape);trace->construction_draws[e.shape]=draws-before;}
+        }
     };
     //0x10ba38 ordinary pass, including0x10b318 range expansion. References
     //copy existing jobs in the second pass and do not construct new geometry.
