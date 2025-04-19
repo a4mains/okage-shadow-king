@@ -181,6 +181,17 @@ const HookDef hookDefs[]={
     {0x1cf910,"occupancy_probe"},{0x10bc78,"effect_script_init"},
 };
 constexpr uint32 randPc=0x1f14b0;
+const HookDef rngHookDefs[]={
+    {0x10ba38,"efd_import"},{0x10b7a0,"efd_define"},{0x10b5e8,"efd_reference"},{0x10b318,"efd_range"},
+    {0x10a970,"template_request"},{0x113508,"template_share"},
+    {0x10e138,"factory_noise_shape"},{0x10dbc0,"factory_rays"},{0x111768,"factory_surface"},{0x10e918,"factory_spray"},
+    {0x10ec68,"factory_10ec68"},{0x10faa0,"factory_10faa0"},{0x110b28,"factory_110b28"},{0x10fe28,"factory_10fe28"},
+    {0x110070,"factory_110070"},{0x1106b8,"factory_1106b8"},{0x110528,"factory_110528"},{0x110908,"factory_110908"},
+    {0x1107e8,"factory_1107e8"},{0x10fca8,"factory_10fca8"},{0x10f1b8,"factory_10f1b8"},{0x1111d0,"factory_1111d0"},
+    {0x10e4e0,"factory_10e4e0"},{0x110db8,"factory_110db8"},{0x110c88,"factory_110c88"},{0x10e5f8,"factory_10e5f8"},
+    {0x110298,"factory_110298"},{0x10f690,"factory_10f690"},{0x10e690,"factory_10e690"},
+};
+constexpr uint32 cacheDefTable=0x24e790,cacheElemTable=0x24e898,gridPtr=0x24e9fc,templateTablePtr=0x1f849c,currentSlot=0x24ea24;
 
 struct Frame{uint32 fn;const char* name;uint32 ra;uint64 sp;uint64 enterIndex;bool dynamicBp;
              std::string pendingName;uint64 a[8];uint32 fileBuf=0;};
@@ -192,18 +203,20 @@ int bitsPerPixel(uint32 psm){switch(psm){case 0:return 32;case 19:return 8;case 
 
 int main(int argc,char** argv) {
     try {
-        if(argc<5)throw std::runtime_error("Usage: okage-startup-oracle DISC.cue ELF OUTDIR FILL(00|ff) [--deadline-seconds N]");
+        if(argc<5)throw std::runtime_error("Usage: okage-startup-oracle DISC.cue ELF OUTDIR FILL(00|ff) [--deadline-seconds N] [--minimal | --rng-products]");
         const auto disc=std::filesystem::absolute(argv[1]);
         const std::filesystem::path elfPath=argv[2],outDir=argv[3];
         const std::string fillText=argv[4];
         if(fillText!="00"&&fillText!="ff")throw std::runtime_error("FILL must be 00 or ff");
         const uint8 fill=fillText=="ff"?0xff:0x00;
-        unsigned deadlineSeconds=1800;bool minimal=false;
+        unsigned deadlineSeconds=1800;bool minimal=false,rngProducts=false;
         for(int i=5;i<argc;++i){
             if(std::string(argv[i])=="--deadline-seconds"&&i+1<argc)deadlineSeconds=unsigned(std::stoul(argv[++i]));
             else if(std::string(argv[i])=="--minimal")minimal=true;
+            else if(std::string(argv[i])=="--rng-products")rngProducts=true;
             else throw std::runtime_error("Unknown argument");
         }
+        if(minimal&&rngProducts)throw std::runtime_error("--minimal and --rng-products are exclusive");
         if(!std::filesystem::is_regular_file(disc))throw std::runtime_error("Disc input missing");
         if(std::filesystem::exists(outDir)||std::filesystem::is_symlink(outDir))throw std::runtime_error("Output directory must be fresh");
         std::vector<uint8> elf;
@@ -218,6 +231,10 @@ int main(int argc,char** argv) {
             const uint32 off=vaddr-0x100000+4096;uint32 w;std::memcpy(&w,elf.data()+off,4);return w;};
         std::map<uint32,std::string> entryName;
         for(const auto& h:hookDefs)if(h.name)entryName[h.addr]=h.name;
+        if(rngProducts)for(const auto& h:rngHookDefs){
+            if(entryName.count(h.addr))throw std::runtime_error("Duplicate RNG hook");
+            entryName[h.addr]=h.name;
+        }
         std::set<uint32> returnSites;
         for(uint32 a=0x100000;a+8<0x1f8434;a+=4) {
             const auto w=elfWord(a);
@@ -300,6 +317,22 @@ int main(int argc,char** argv) {
              <<",\"psm\":"<<(hi&0x3f)<<",\"w\":"<<((hi>>6)&0xfff)<<",\"h\":"<<((hi>>18)&0xfff)<<"}";
             return o.str();
         };
+        // RNG helpers. EFD definition record (0x30 header + n*0x74 elements): +0 id, +8 flags, +0x10 n,
+        // +0x14 elements (relocated by 0x10ba38 before 0x10b7a0). Template table at *0x1f849c, slot = def id + 0x54.
+        auto defJson=[&](uint64 p){
+            const uint32 d=uint32(norm(p));std::ostringstream q;
+            if(plausiblePtr(d,0x30))q<<"{\"ptr\":"<<hx(d)<<",\"id\":"<<get32(d)<<",\"flags\":"<<hx(get32(d+8))
+                <<",\"elements\":"<<get32(d+0x10)<<",\"element_ptr\":"<<hx(get32(d+0x14))<<"}";
+            else q<<"null";
+            return q.str();
+        };
+        auto slotJob=[&](uint32 slot)->uint32{const uint32 t=get32(templateTablePtr);
+            return slot<0x1000&&plausiblePtr(t,(slot+1)*4)?get32(t+slot*4):0xffffffffu;};
+        auto jobJson=[&](uint32 slot){
+            const uint32 j=slotJob(slot);std::ostringstream q;q<<"{\"slot\":"<<slot<<",\"job\":"<<hx(j);
+            if(j!=0xffffffffu&&plausiblePtr(j,16))q<<",\"count\":"<<get32(j+8)<<",\"elements_ptr\":"<<hx(get32(j+12));
+            q<<"}";return q.str();
+        };
         auto emit=[&](const std::string& body){
             std::string line="{\"i\":"+std::to_string(evCount++)+",\"top\":"+std::to_string(topStep.load())+","+body+"}\n";
             events.write(line.data(),std::streamsize(line.size()));
@@ -363,6 +396,20 @@ int main(int argc,char** argv) {
             }
             else if(name=="color_depth_init") o<<",\"layers_w\":"<<int32(a[1])<<",\"layers_h\":"<<int32(a[2]);
             else if(name=="font_load") o<<",\"index\":"<<int32(a[0])<<",\"buf\":"<<hx(a[1])<<",\"flags\":"<<hx(a[2]);
+            else if(rngProducts) {
+                if(name=="efd_import") o<<",\"efd\":"<<hx(norm(a[0]))<<",\"efd_magic\":"<<hx(get32(uint32(norm(a[0]))))<<",\"efd_count\":"<<get32(uint32(norm(a[0]))+4);
+                else if(name=="efd_define"||name=="efd_reference") o<<",\"def\":"<<defJson(a[0]);
+                else if(name=="efd_range") o<<",\"start\":"<<int32(a[0])<<",\"end\":"<<int32(a[1])<<",\"base\":"<<int32(a[2])<<",\"def\":"<<defJson(a[3]);
+                else if(name=="template_request") {
+                    const uint32 shape=uint32(a[0]);
+                    o<<",\"shape\":"<<int32(a[0])<<",\"elem\":"<<int32(a[1])<<",\"texture\":"<<hx(a[2])
+                     <<",\"current_slot\":"<<get32(currentSlot)<<",\"current\":"<<jobJson(get32(currentSlot));
+                    if(shape<66)o<<",\"cache_def_before\":"<<get32(cacheDefTable+shape*4)<<",\"cache_elem_before\":"<<get32(cacheElemTable+shape*4);
+                }
+                else if(name=="template_share") o<<",\"owner_slot\":"<<int32(a[0])<<",\"owner_elem\":"<<int32(a[1])<<",\"elem\":"<<int32(a[2])
+                    <<",\"owner\":"<<jobJson(uint32(a[0]))<<",\"current\":"<<jobJson(get32(currentSlot));
+                else if(name.rfind("factory_",0)==0) o<<",\"current\":"<<jobJson(get32(currentSlot));
+            }
             if(name=="main"||name=="noise_texture"||name=="effect_noise_grid"||name=="effects_load"||name=="fonts_init"||name=="capture_filter_init"||name=="glyph_cache"||name=="effect_script_init")
                 o<<","<<randState();
             f.enterIndex=evCount;
@@ -402,6 +449,20 @@ int main(int argc,char** argv) {
             }
             if(name=="main"||name=="noise_texture"||name=="effect_noise_grid"||name=="effects_load"||name=="fonts_init"||name=="capture_filter_init"||name=="glyph_cache"||name=="effect_script_init")
                 o<<","<<randState();
+            if(rngProducts) {
+                if(name=="effect_noise_grid") {
+                    const uint32 g=get32(gridPtr);
+                    o<<",\"grid_ptr\":"<<hx(g);
+                    if(g==uint32(v0)&&plausiblePtr(g,384*4)){o<<",\"grid\":[";for(uint32 k=0;k<384;++k)o<<(k?",":"")<<get32(g+k*4);o<<"]";}
+                    else o<<",\"grid\":null";
+                } else if(name=="template_request"||name=="template_share"||name.rfind("factory_",0)==0)
+                    o<<",\"current\":"<<jobJson(get32(currentSlot));
+                else if(name=="effect_script_init") {
+                    // Products of the whole 0x10bc78 pass, before anything later in startup can touch them.
+                    writeFresh(outDir/"ee-ram-after-10bc78.bin",ram,0x2000000);
+                    o<<",\"snapshot\":\"ee-ram-after-10bc78.bin\",\"snapshot_sha256\":\""<<sha(ram,0x2000000)<<"\"";
+                }
+            }
             emit(o.str());
             if(f.dynamicBp)delBp(f.ra);
         };
@@ -438,11 +499,19 @@ int main(int argc,char** argv) {
         vm.Resume();
         const auto deadline=startTime+std::chrono::seconds(deadlineSeconds);
         uint64 stops=0,benignBlockStops=0,randCalls=0;std::vector<uint32> history;
+        bool randPending=false;uint32 randPendingRa=0;uint64 randPendingSp=0;
         while(!stopped&&!exited&&std::chrono::steady_clock::now()<deadline) {
             if(stateChanged.exchange(false)&&vm.GetStatus()==CVirtualMachine::PAUSED) {
                 const uint32 pc=cpu.nPC;++stops;if(history.size()<100000)history.push_back(pc);
                 const uint64 sp=reg(CMIPS::SP);
                 bool explained=false;
+                // RNG: rand() return (leaf; one pending call at most) before everything else at this pc.
+                if(randPending&&pc==randPendingRa&&sp==randPendingSp) {
+                    emit("\"ev\":\"rand_exit\",\"n\":"+std::to_string(randCalls-1)+",\"ra\":"+hx(pc)+",\"v0\":"+std::to_string(uint32(reg(CMIPS::V0)))
+                         +",\"v0_hi\":"+std::to_string(uint32(reg(CMIPS::V0)>>32))+",\"state\":"+std::to_string(get32(0x214ec8+0x58))
+                         +",\"rand_ptr_2151b4\":"+std::to_string(get32(0x2151b4)));
+                    randPending=false;delBp(randPendingRa);explained=true;
+                }
                 // exits first (return addresses), then entries, then top-level call sites
                 for(;;) {
                     bool any=false;
@@ -451,7 +520,17 @@ int main(int argc,char** argv) {
                     if(!any)break;
                 }
                 if(pc==randPc){
-                    emit("\"ev\":\"rand\",\"ra\":"+hx(reg(CMIPS::RA))+",\"state\":"+std::to_string(get32(0x214ec8+0x58)));
+                    if(!rngProducts) emit("\"ev\":\"rand\",\"ra\":"+hx(reg(CMIPS::RA))+",\"state\":"+std::to_string(get32(0x214ec8+0x58)));
+                    else {
+                        if(randPending)throw std::runtime_error("Nested rand() call");
+                        std::string frames="[";
+                        for(size_t k=0;k<stack.size();++k)frames+=std::string(k?",":"")+"\""+stack[k].name+"\"";
+                        frames+="]";
+                        emit("\"ev\":\"rand\",\"n\":"+std::to_string(randCalls)+",\"ra\":"+hx(reg(CMIPS::RA))+",\"sp\":"+hx(sp)
+                             +",\"state\":"+std::to_string(get32(0x214ec8+0x58))+",\"rand_ptr_2151b4\":"+std::to_string(get32(0x2151b4))
+                             +",\"parent\":"+(stack.empty()?std::string("null"):"\""+std::string(stack.back().name)+"\"")+",\"frames\":"+frames);
+                        randPending=true;randPendingRa=uint32(reg(CMIPS::RA));randPendingSp=sp;addBp(randPendingRa);
+                    }
                     ++randCalls;explained=true;
                 }
                 if(entryName.count(pc)){onEnter(pc);explained=true;}
@@ -571,7 +650,7 @@ int main(int argc,char** argv) {
         events.flush();events.close();
         {
             std::ostringstream o;
-            o<<"{\"fill\":"<<unsigned(fill)<<",\"fill_report\":"<<fillReport<<",\"events\":"<<evCount<<",\"breakpoint_stops\":"<<stops<<",\"benign_block_start_stops\":"<<benignBlockStops<<",\"rand_calls\":"<<randCalls<<",\"minimal\":"<<(minimal?"true":"false")
+            o<<"{\"fill\":"<<unsigned(fill)<<",\"fill_report\":"<<fillReport<<",\"events\":"<<evCount<<",\"breakpoint_stops\":"<<stops<<",\"benign_block_start_stops\":"<<benignBlockStops<<",\"rand_calls\":"<<randCalls<<",\"minimal\":"<<(minimal?"true":"false")<<",\"rng_products\":"<<(rngProducts?"true":"false")<<",\"rand_pending_at_stop\":"<<(randPending?"true":"false")
              <<",\"vblanks\":"<<frames.load()<<",\"wall_seconds\":"<<std::fixed<<std::setprecision(2)<<seconds
              <<",\"open_frames_at_stop\":[";
             for(size_t i=0;i<stack.size();++i)o<<(i?",":"")<<"\""<<stack[i].name<<"\"";
