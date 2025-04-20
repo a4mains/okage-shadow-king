@@ -1,0 +1,461 @@
+{
+ "schema": "okage.rng-original-manifest.v1",
+ "scope": "Independent original-execution reference of every libc rand() call (0x1f14b0) in the cold-start prefix up to (not executing) EE PC 0x100618, and of its products (noise-grid cells, procedural template geometry, shape-cache owners, template request order).",
+ "source_commit": "e6467f1",
+ "base_commit": "e709f21",
+ "play": {
+  "revision": "4403687dc8d505911980b8a96b13701a10f91b70",
+  "path": "references/Play (main checkout, ignored)",
+  "tree_cleanliness": "not verified (git on the Play checkout was not run from this isolated worktree)"
+ },
+ "oracle": {
+  "binary": "build/rng-oracle/okage-oracle/okage-startup-oracle (worktree)",
+  "binary_sha256": "e4b550b2409d470f6730d1e5eb87ec4219dc8bdb61be405d75aa8cfc49ddd77b",
+  "retained_copy": "local/research/rng-original-v1/bin/okage-startup-oracle",
+  "retained_copy_sha256": "e4b550b2409d470f6730d1e5eb87ec4219dc8bdb61be405d75aa8cfc49ddd77b",
+  "build_dir": "build/rng-oracle (fresh; configured and built from scratch in the worktree)",
+  "configure": "cmake -S <main>/references/Play -B build/rng-oracle -G Ninja -DCMAKE_BUILD_TYPE=Debug -DBUILD_PLAY=OFF -DBUILD_TESTS=ON -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_PROJECT_Play_INCLUDE=<worktree>/tools/play-oracle/Attach.cmake -DDEBUGGER_INCLUDED=ON -DOKAGE_REFERENCE_VULKAN=OFF",
+  "build": "ninja -C build/rng-oracle okage-startup-oracle",
+  "cmake_build_type": "Debug",
+  "cxx_compiler": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++",
+  "osx_architectures": "arm64",
+  "osx_sysroot": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk",
+  "mode": "--rng-products (default Startup behaviour unchanged without the flag)"
+ },
+ "tracked_sources_sha256": {
+  "tools/play-oracle/startup.cpp": "8be042337aef6ca8225c1e5c5989dfbcf39281149c9ba0f97804b4d8edb9b8af",
+  "tools/play-oracle/CMakeLists.txt": "1de73e43e976adb2ce82f125a0028eeed1969f68163f616b2f1104e6aba05430",
+  "tools/play-oracle/Attach.cmake": "70a48b491406f04c4a8e28f49f6c04886888c22f017fb4868d365b4c17dd4819",
+  "tools/rng_capture.sh": "a521a572e576147dfcb3a2e6368f03b555ac9e6d7d452492c7730f1d4010970b",
+  "tools/rng_original_extract.py": "3815bb7d5153e2ff51128b9e58432c707920c4580914b5f8cc4459eaef7bbb9b",
+  "tools/rng_compare.py": "59289fd275e911aeee377ff59d4ba50cf7ae7b9b8be3150f4c02fd3e594bba69",
+  "tools/rng_make_manifest.py": "9a307c0ca67f193cde3c3a4b5dc96427270a615a0f6fe0a5277458b57965192d",
+  "tests/test_rng_compare.py": "36ecba011de2f9e2bc12d13572be25d0c9a3260211a5cb466d2c219e71e153a7"
+ },
+ "inputs": {
+  "elf": {
+   "path": "local/extracted/SCUS_971.29",
+   "sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
+  },
+  "disc_cue": {
+   "path": "local/disc/Okage - Shadow King (USA).cue",
+   "sha256": "b8bde56b092efe1d704c1be8cdb7c139478fafbb234b713bd06d2cd1afe7d69a"
+  },
+  "disc_bin": {
+   "path": "local/disc/Okage - Shadow King (USA).bin",
+   "sha256": "08623a1400e2610aecd0247ae7440c97501495c6f819f675494e44de20b62d2a",
+   "bytes": 524481888,
+   "docs_disc_report_sha256": "08623a1400e2610aecd0247ae7440c97501495c6f819f675494e44de20b62d2a"
+  },
+  "contract_json": {
+   "path": "docs/startup-contract.json",
+   "sha256": "e4a189b4704f5262bea4ea874bc0e9fd731734b16761a2a7de8c239e1cf2cfcb",
+   "use": "top-level step pcs only"
+  },
+  "functions_tsv": {
+   "path": "local/research/effect-template-v1/functions.tsv",
+   "sha256": "d17bf2849f395625cd2b07bd78fd398f55c5adb6179186b7c3bf7d20769a0836",
+   "use": "caller-function spans of rand() call sites (Ghidra export of the pinned ELF)"
+  },
+  "tes_efd_as_read_by_original": [
+   {
+    "sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+    "bytes": 162156,
+    "buf": "0x5e9790"
+   }
+  ],
+  "tes_efd_owned_copy": {
+   "path": "local/effect-input/CMNDATA/2D/TES.EFD",
+   "sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
+   "use": "diagnostic native run only"
+  },
+  "startup_cross_check_run": {
+   "path": "local/research/startup-original-v1/runs/fill00-a",
+   "events_sha256": "03cd09bcf8a29a3e8fed44c5b8339c1f9d1846c098533e42d1dfcb77f31151c6",
+   "gs_ledger_sha256": "ea4e24aa0294a1e0d5b0cff0e42c8f2acc30c9d88b4016211e16ffce9b5c4b17",
+   "vram_sha256": "3d61f88d55f22717a482392a7c4931dc8ee9db4f2c539053c595b31ae007b29c"
+  },
+  "play_config": "fresh default configuration created by Play in <evidence>/cwd/rng-{a,b}/local/play-boot-config"
+ },
+ "fixed_settings": {
+  "pad": "RecordedPad with no input rows (neutral sticks)",
+  "sound_handler": "none",
+  "gs": "null renderer sink with host-to-local writes + ledger",
+  "vram_initial_fill": "0x00 (both runs)",
+  "stop": "EE PC 0x100618 (jal 0x114f50), reached as a block start; the instruction has not executed",
+  "deadline_seconds": 1500
+ },
+ "commands": [
+  "tools/rng_capture.sh <evidence>/bin/okage-startup-oracle \"<main>/local/disc/Okage - Shadow King (USA).cue\" <main>/local/extracted/SCUS_971.29 <evidence>   # as executed: bin/run_oracle-as-executed.sh <cwd> <out> <log>, rng-a then rng-b, identical oracle arguments",
+  "python3 -I tools/rng_original_extract.py <evidence>/runs/rng-a <evidence>/runs/rng-b --contract docs/startup-contract.json --functions <main>/local/research/effect-template-v1/functions.tsv --startup <main>/local/research/startup-original-v1/runs/fill00-a --out <evidence>/analysis",
+  "python3 -I tools/rng_compare.py <evidence>/analysis NATIVE_DIR [--json REPORT] [--noise-triangle-order multiset]",
+  "diagnostic: build/rng-native-diag/okage-assets prepare-effect-templates <main>/local/effect-input/CMNDATA/2D/TES.EFD <main>/local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF 0xceeb6501 <evidence>/diagnostics/native-prep.bin (Release build of e709f21 native sources; copy retained as diagnostics/okage-assets-e709f21-release)",
+  "diagnostic: cd <evidence> && python3 -I diagnostics/native_diag.py analysis diagnostics/native-prep.bin > diagnostics/native-diag.txt; python3 -I diagnostics/signed_zero_diag.py analysis diagnostics/native-prep.bin > diagnostics/signed-zero-diag.txt; python3 -I diagnostics/noise_diag.py analysis > diagnostics/noise-diag.txt",
+  "python3 -I tools/rng_make_manifest.py <evidence> <worktree> <main> <source_commit> docs/rng-original-manifest.json",
+  "OKAGE_MAIN_CHECKOUT=<main> python3 -m unittest discover -s tests"
+ ],
+ "evidence_dir": "local/research/rng-original-v1 (read-only after capture)",
+ "outputs": {
+  "analysis/effects.json": {
+   "sha256": "9af52fa6b222fd59008391a2eec5de561d6d01b5ef19aae9e8ae557ec05a2f8e",
+   "bytes": 464030
+  },
+  "analysis/reference.json": {
+   "sha256": "24747a40dff7bde617db907ab66853afe311bbb54a857dfcad87d40e673195c0",
+   "bytes": 565613
+  },
+  "analysis/rng-detail.jsonl": {
+   "sha256": "f64b25b1f626cb6ed3fd1292221a8fd2e1980d357d80bd0f823cb50f57d44c01",
+   "bytes": 3160073
+  },
+  "analysis/rng.jsonl": {
+   "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb",
+   "bytes": 613171
+  },
+  "bin/okage-startup-oracle": {
+   "sha256": "e4b550b2409d470f6730d1e5eb87ec4219dc8bdb61be405d75aa8cfc49ddd77b",
+   "bytes": 14488376
+  },
+  "bin/run_oracle-as-executed.sh": {
+   "sha256": "fc20ca6a531a47abfe64fe1ea81269445204b798d18571928ab24a8c6bced2d7",
+   "bytes": 505
+  },
+  "diagnostics/native-diag.txt": {
+   "sha256": "28e7008f61e2fae498c091523b8150c3cbff0616ac3a91d6b50dd13b29d7e894",
+   "bytes": 1926
+  },
+  "diagnostics/native-prep.bin": {
+   "sha256": "57c95750ba22010d008341c596395330b48d2907fb6202b783596b1feaf1558a",
+   "bytes": 37224
+  },
+  "diagnostics/native_diag.py": {
+   "sha256": "42a7db42a8f4fbf893b89332e14b1fa7384a1a90c7b3c390dde94f58b0fedacf",
+   "bytes": 2275
+  },
+  "diagnostics/noise-diag.txt": {
+   "sha256": "5f3e2e7388e3cf90dee0037a30801186f3c36e810533e3be9d2daf695e57b12b",
+   "bytes": 550
+  },
+  "diagnostics/noise_diag.py": {
+   "sha256": "a7e636836d53e70f45a1d34b167a2d36f113f6cc8d3390b3875dcbe9aae6af73",
+   "bytes": 1782
+  },
+  "diagnostics/okage-assets-e709f21-release": {
+   "sha256": "3b9f9d2cf795618c9fecf63b4688241850ce398fd52aba7080f0f40b9f558fc8",
+   "bytes": 1277120
+  },
+  "diagnostics/signed-zero-diag.txt": {
+   "sha256": "d187f8cb8270f5c0013b54299fd8d050310e927fa6f49a3d129f10e7c5a45604",
+   "bytes": 673
+  },
+  "diagnostics/signed_zero_diag.py": {
+   "sha256": "b13722366b017672820f904e2d76d0f35c3aaf1efb15be5f765bc6e3dbcbf5bf",
+   "bytes": 1167
+  },
+  "runs/rng-a.log": {
+   "sha256": "463837072b7d61935a5ff9a4b0e4d3cc41c46502d77e226ab68bd1b9b1f73988",
+   "bytes": 643
+  },
+  "runs/rng-b.log": {
+   "sha256": "9ce8b2f77cfd3091798f4cc2daded266b2ebbd6cba3e66d7b9bafaad0d4f3042",
+   "bytes": 643
+  },
+  "runs/rng-a/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "runs/rng-a/ee-ram-32mb.bin": {
+   "sha256": "e207f9f5e8d2c60e6c417cced0b5550cf78375fcb15ada469539b7311b48c50f",
+   "bytes": 33554432
+  },
+  "runs/rng-a/ee-ram-after-10bc78.bin": {
+   "sha256": "88e3e1428f11746708af8f18ec6046bdafac02e039ca00d64eb2fbf6bc907767",
+   "bytes": 33554432
+  },
+  "runs/rng-a/events.jsonl": {
+   "sha256": "0d7437e83072b38c11d5529a24ddca6cfc7e2e79a8230a820d524383d03c6ae0",
+   "bytes": 5019122
+  },
+  "runs/rng-a/final-state.jsonl": {
+   "sha256": "13d4e11c964fbfebe2865404642eba5835b3bb6c8aa8c4474b0b05432029a065",
+   "bytes": 17084
+  },
+  "runs/rng-a/gs-ledger.jsonl": {
+   "sha256": "ea4e24aa0294a1e0d5b0cff0e42c8f2acc30c9d88b4016211e16ffce9b5c4b17",
+   "bytes": 23295
+  },
+  "runs/rng-a/run-meta.json": {
+   "sha256": "a2069ecfbda8491c0e34e278cbe87ada4bc9afb9d5f05ff1054b59c20f7691d5",
+   "bytes": 472
+  },
+  "runs/rng-a/vram.bin": {
+   "sha256": "3d61f88d55f22717a482392a7c4931dc8ee9db4f2c539053c595b31ae007b29c",
+   "bytes": 4194304
+  },
+  "runs/rng-b/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "runs/rng-b/ee-ram-32mb.bin": {
+   "sha256": "e207f9f5e8d2c60e6c417cced0b5550cf78375fcb15ada469539b7311b48c50f",
+   "bytes": 33554432
+  },
+  "runs/rng-b/ee-ram-after-10bc78.bin": {
+   "sha256": "88e3e1428f11746708af8f18ec6046bdafac02e039ca00d64eb2fbf6bc907767",
+   "bytes": 33554432
+  },
+  "runs/rng-b/events.jsonl": {
+   "sha256": "0d7437e83072b38c11d5529a24ddca6cfc7e2e79a8230a820d524383d03c6ae0",
+   "bytes": 5019122
+  },
+  "runs/rng-b/final-state.jsonl": {
+   "sha256": "13d4e11c964fbfebe2865404642eba5835b3bb6c8aa8c4474b0b05432029a065",
+   "bytes": 17084
+  },
+  "runs/rng-b/gs-ledger.jsonl": {
+   "sha256": "ea4e24aa0294a1e0d5b0cff0e42c8f2acc30c9d88b4016211e16ffce9b5c4b17",
+   "bytes": 23295
+  },
+  "runs/rng-b/run-meta.json": {
+   "sha256": "39679393ece3804dcd71f3846559d9a24cfd6e0d5e5da18dc70efd3c1db93e3d",
+   "bytes": 472
+  },
+  "runs/rng-b/vram.bin": {
+   "sha256": "3d61f88d55f22717a482392a7c4931dc8ee9db4f2c539053c595b31ae007b29c",
+   "bytes": 4194304
+  }
+ },
+ "auxiliary_play_config_files": {
+  "rng-a/local/play-boot-config/config.xml": {
+   "sha256": "0227229e3318aff7ae93844bff89f1ce0202f6ff172427d7ade1525d60b3bce5",
+   "bytes": 1993
+  },
+  "rng-a/local/play-boot-config/ps2_stderr.txt": {
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  "rng-a/local/play-boot-config/ps2_stdout.txt": {
+   "sha256": "7327a788c884b35a77ce09d65acbdf04862a3250989d97a6350f8fd71266638a",
+   "bytes": 1173
+  },
+  "rng-a/local/play-boot-config/logs/GameConfig.log": {
+   "sha256": "9af8372912a28576e4e3ef2975c3eaa90faad385e35c7aab3d580ab13a6f6e6a",
+   "bytes": 56
+  },
+  "rng-a/local/play-boot-config/logs/ee_dmac.log": {
+   "sha256": "8dd6baf8652df721ab95549907e91280e18b997ffcdfbab3f4ea4315edee4ba3",
+   "bytes": 1605
+  },
+  "rng-a/local/play-boot-config/logs/ee_gif.log": {
+   "sha256": "9ba68b450b33f1c7975eab93c544ed139c69f197ed717c5740ce40a4912a46d6",
+   "bytes": 50
+  },
+  "rng-a/local/play-boot-config/logs/ee_timer.log": {
+   "sha256": "b4421dc83a0d2edc4ca795e7203b362bbdd97a8a0006b2851f81f16210dfc9b4",
+   "bytes": 492
+  },
+  "rng-a/local/play-boot-config/logs/iop_ioman.log": {
+   "sha256": "48c8bce8169fb85e943d0194902b54900c9bb5b6eba2451b0e293a2fe374000d",
+   "bytes": 87
+  },
+  "rng-a/local/play-boot-config/logs/iop_loadcore.log": {
+   "sha256": "8d10ad6909d17933e741795692838c5b7687705fdb02db0d9e1fadda9a4783b9",
+   "bytes": 38
+  },
+  "rng-a/local/play-boot-config/logs/iop_modload.log": {
+   "sha256": "910396d2d71923372e1197960d9837128750abce59dd0b7f86d21f66d13895c7",
+   "bytes": 43
+  },
+  "rng-a/local/play-boot-config/logs/iop_sifman.log": {
+   "sha256": "d5dbcc7c3c58912a6a7e305c16bf3685ebc3b2c5c2ac5264b3d298154023d379",
+   "bytes": 3645
+  },
+  "rng-a/local/play-boot-config/logs/iop_spu2.log": {
+   "sha256": "5955f7ad11be780be6af3a8b2904697d4e38bfa4a25f417369fd13277754a855",
+   "bytes": 150
+  },
+  "rng-a/local/play-boot-config/logs/iop_spu2_core_0.log": {
+   "sha256": "dca7b70cfc62c01462616f90cc4bb48091180cb5bd4b472d07f39ea5fc0905f7",
+   "bytes": 2842
+  },
+  "rng-a/local/play-boot-config/logs/iop_spu2_core_1.log": {
+   "sha256": "56f152407a4fe4b920f088c03481a9553519a888708a3f750ee26642d712cd0f",
+   "bytes": 2994
+  },
+  "rng-a/local/play-boot-config/logs/ps2os.log": {
+   "sha256": "33b684cff6d7a77e7b97fa1f95adc5c4a79e04b0245387f597a3185371cf8b76",
+   "bytes": 52
+  },
+  "rng-a/local/play-boot-config/logs/sif.log": {
+   "sha256": "b3cc926be3fdb873a748923893a6051d5a131d8a2a5657fae68494c094a31cae",
+   "bytes": 297
+  },
+  "rng-b/local/play-boot-config/config.xml": {
+   "sha256": "d28878cfa07fe203dd3fad6e4e434a92569aa04327aed439ed36eb26441f8958",
+   "bytes": 1993
+  },
+  "rng-b/local/play-boot-config/ps2_stderr.txt": {
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  "rng-b/local/play-boot-config/ps2_stdout.txt": {
+   "sha256": "7327a788c884b35a77ce09d65acbdf04862a3250989d97a6350f8fd71266638a",
+   "bytes": 1173
+  },
+  "rng-b/local/play-boot-config/logs/GameConfig.log": {
+   "sha256": "9af8372912a28576e4e3ef2975c3eaa90faad385e35c7aab3d580ab13a6f6e6a",
+   "bytes": 56
+  },
+  "rng-b/local/play-boot-config/logs/ee_dmac.log": {
+   "sha256": "8dd6baf8652df721ab95549907e91280e18b997ffcdfbab3f4ea4315edee4ba3",
+   "bytes": 1605
+  },
+  "rng-b/local/play-boot-config/logs/ee_gif.log": {
+   "sha256": "9ba68b450b33f1c7975eab93c544ed139c69f197ed717c5740ce40a4912a46d6",
+   "bytes": 50
+  },
+  "rng-b/local/play-boot-config/logs/ee_timer.log": {
+   "sha256": "b4421dc83a0d2edc4ca795e7203b362bbdd97a8a0006b2851f81f16210dfc9b4",
+   "bytes": 492
+  },
+  "rng-b/local/play-boot-config/logs/iop_ioman.log": {
+   "sha256": "48c8bce8169fb85e943d0194902b54900c9bb5b6eba2451b0e293a2fe374000d",
+   "bytes": 87
+  },
+  "rng-b/local/play-boot-config/logs/iop_loadcore.log": {
+   "sha256": "8d10ad6909d17933e741795692838c5b7687705fdb02db0d9e1fadda9a4783b9",
+   "bytes": 38
+  },
+  "rng-b/local/play-boot-config/logs/iop_modload.log": {
+   "sha256": "910396d2d71923372e1197960d9837128750abce59dd0b7f86d21f66d13895c7",
+   "bytes": 43
+  },
+  "rng-b/local/play-boot-config/logs/iop_sifman.log": {
+   "sha256": "d5dbcc7c3c58912a6a7e305c16bf3685ebc3b2c5c2ac5264b3d298154023d379",
+   "bytes": 3645
+  },
+  "rng-b/local/play-boot-config/logs/iop_spu2.log": {
+   "sha256": "5955f7ad11be780be6af3a8b2904697d4e38bfa4a25f417369fd13277754a855",
+   "bytes": 150
+  },
+  "rng-b/local/play-boot-config/logs/iop_spu2_core_0.log": {
+   "sha256": "dca7b70cfc62c01462616f90cc4bb48091180cb5bd4b472d07f39ea5fc0905f7",
+   "bytes": 2842
+  },
+  "rng-b/local/play-boot-config/logs/iop_spu2_core_1.log": {
+   "sha256": "56f152407a4fe4b920f088c03481a9553519a888708a3f750ee26642d712cd0f",
+   "bytes": 2994
+  },
+  "rng-b/local/play-boot-config/logs/ps2os.log": {
+   "sha256": "33b684cff6d7a77e7b97fa1f95adc5c4a79e04b0245387f597a3185371cf8b76",
+   "bytes": 52
+  },
+  "rng-b/local/play-boot-config/logs/sif.log": {
+   "sha256": "b3cc926be3fdb873a748923893a6051d5a131d8a2a5657fae68494c094a31cae",
+   "bytes": 297
+  }
+ },
+ "result_digest": {
+  "total_draws": 9504,
+  "phases": [
+   {
+    "phase": "noise",
+    "first": 0,
+    "last": 8959,
+    "count": 8960,
+    "state_in": 1,
+    "state_out": 3471533313
+   },
+   {
+    "phase": "effect-grid",
+    "first": 8960,
+    "last": 9343,
+    "count": 384,
+    "state_in": 3471533313,
+    "state_out": 1921918849
+   },
+   {
+    "phase": "effect-template",
+    "first": 9344,
+    "last": 9503,
+    "count": 160,
+    "state_in": 1921918849,
+    "state_out": 1093412321
+   }
+  ],
+  "final_state": "0x412c25e1",
+  "template_runs": [
+   {
+    "def_id": 116,
+    "source_elem": 1,
+    "shape": 55,
+    "factory": "factory_surface",
+    "factory_address": "0x111768",
+    "first": 9344,
+    "draws": 20,
+    "state_in": 1921918849,
+    "state_out": 3694054701
+   },
+   {
+    "def_id": 114,
+    "source_elem": 1,
+    "shape": 43,
+    "factory": "factory_rays",
+    "factory_address": "0x10dbc0",
+    "first": 9364,
+    "draws": 40,
+    "state_in": 3694054701,
+    "state_out": 216484293
+   },
+   {
+    "def_id": 66,
+    "source_elem": 4,
+    "shape": 56,
+    "factory": "factory_surface",
+    "factory_address": "0x111768",
+    "first": 9404,
+    "draws": 20,
+    "state_in": 216484293,
+    "state_out": 1636399281
+   },
+   {
+    "def_id": 51,
+    "source_elem": 23,
+    "shape": 62,
+    "factory": "factory_spray",
+    "factory_address": "0x10e918",
+    "first": 9424,
+    "draws": 80,
+    "state_in": 1636399281,
+    "state_out": 1093412321
+   }
+  ],
+  "requests_total": 886,
+  "constructions": 44,
+  "procedural_templates": 11,
+  "determinism": {
+   "events.jsonl": true,
+   "ee-ram-after-10bc78.bin": true,
+   "ee-ram-32mb.bin": true,
+   "final-state.jsonl": true,
+   "gs-ledger.jsonl": true,
+   "disc-opens.jsonl": true,
+   "vram.bin": true
+  },
+  "startup_cross_check": {
+   "startup_run": "/Users/user/src/okage/okage-shadow-king/local/research/startup-original-v1/runs/fill00-a",
+   "startup_events_sha256": "03cd09bcf8a29a3e8fed44c5b8339c1f9d1846c098533e42d1dfcb77f31151c6",
+   "rand_entries_identical": true,
+   "gs-ledger.jsonl_identical": true,
+   "vram.bin_identical": true,
+   "disc-opens.jsonl_identical": true
+  }
+ },
+ "limitations": [
+  "Play research backend, Debug build; not a physical PS2 proof. Play tree cleanliness not verified.",
+  "Both runs use fill 0x00 and the same hooks; determinism is run-to-run equality under the same observer, plus equality of all 9,504 rand() entry states/return addresses, the GS ledger and VRAM with the earlier Startup capture (fewer hooks).",
+  "Hooks perturb timing (96 vblanks at the stop vs 84 in Startup and 75 unhooked); the final EE RAM differs from Startup. No RNG value, product or resource state was observed to depend on it.",
+  "Vertex floats are a documented mapping of the stored int16/u16/u8 packet data and strip order, not stored floats.",
+  "ee-ram snapshots are the first 32 MiB of EE RAM only."
+ ]
+}
