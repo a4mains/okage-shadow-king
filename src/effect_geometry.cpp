@@ -158,6 +158,12 @@ ProceduralEffectGeometry make_procedural_effect_shape(unsigned shape,const SineT
             }
         }
     }
+    for(auto& v:result.vertices)for(unsigned axis=0;axis<3;++axis) {
+        const float scaled=v.position[axis]*64;
+        if(!(scaled>=-32768.f&&scaled<=32767.f)||float(int(scaled))!=scaled)
+            throw std::runtime_error("Procedural template position is not a packed int16/64 value");
+        v.position[axis]=float(std::int16_t(int(scaled)))/64;
+    }
     return result;
 }
 EffectTemplatePreparation::EffectTemplatePreparation(const std::vector<EffectDefinition>& bank,
@@ -170,6 +176,7 @@ EffectTemplatePreparation::EffectTemplatePreparation(const std::vector<EffectDef
     if(trace){trace->grid_draws=draws;if(trace->grid_complete)trace->grid_complete();}
     const auto request=[&](const EffectDefinition& definition,const EffectElement& e) {
         const auto before=draws;bool constructed=false;
+        const bool miss=!cache_owners[e.shape][0];
         if(!e.shape||e.shape>=geometry.size()||e.shape==44||e.shape==46)
             throw std::runtime_error("Unrecovered template preparation shape");
         if(!cache_owners[e.shape][0]) {
@@ -190,7 +197,7 @@ EffectTemplatePreparation::EffectTemplatePreparation(const std::vector<EffectDef
         }
         cache_owners[e.shape]={definition.id,e.id};
         if(trace) {
-            trace->requests.push_back({definition.id,e.id,e.shape,constructed});
+            trace->requests.push_back({definition.id,e.id,e.shape,miss});
             if(constructed){trace->construction_order.push_back(e.shape);trace->construction_draws[e.shape]=draws-before;}
         }
     };
