@@ -187,6 +187,14 @@ int main(int argc,char** argv){try{
     for(unsigned shape=10;shape<=16;++shape)noise_vertices+=okage::make_effect_noise_shape(shape,noise).size();
     check(noise_vertices==6*8*8*6&&shape_rng==384);
     check(okage::make_effect_noise_shape(17,noise).empty());
+    {   //0x111b70 chains (row1,col0) onto (row0,col0) before (row0,col1) is emitted.
+        okage::EffectNoiseGrid merge{};merge.fill(1);merge[0]=merge[1]=merge[8]=0;
+        const auto strips=okage::make_effect_noise_shape(10,merge);
+        const auto at=[&](unsigned i,float x,float y){const auto& p=strips[i].position;return p[0]==x&&p[1]==y&&p[2]==1&&p[3]==1;};
+        check(strips.size()==18&&at(0,-1,-1)&&at(1,-.75f,-1)&&at(2,-1,-.75f)&&at(6,-1,-.75f)&&at(7,-.75f,-.75f)
+            &&at(8,-1,-.5f)&&at(11,-.75f,-.5f)&&at(12,-.75f,-1)&&at(13,-.5f,-1));
+        merge.fill(0);check(okage::make_effect_noise_shape(10,merge).size()==384*6);
+    }
     rejects([&]{okage::make_effect_noise_grid({});});
     rejects([&]{okage::make_effect_noise_shape(9,noise);});
     auto bad_noise=noise;bad_noise[0]=7;

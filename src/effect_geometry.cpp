@@ -17,6 +17,27 @@ std::vector<MapEffectVertex> make_effect_noise_shape(unsigned shape,const Effect
     if(shape<10||shape>17)throw std::runtime_error("Unrecovered effect noise shape");
     for(auto group:grid)if(group>6)throw std::runtime_error("Invalid effect noise group");
     std::vector<MapEffectVertex> result;
+    struct Record{std::array<unsigned,4> corner;unsigned total=4;int link=-1;};
+    std::vector<Float4> pool;
+    std::vector<Record> records;
+    const auto flush=[&]{
+        for(const auto& head:records) {
+            if(head.total!=4)continue;
+            std::vector<unsigned> strip{head.corner[0],head.corner[1]};
+            for(const Record* r=&head;;r=&records[unsigned(r->link)]) {
+                strip.push_back(r->corner[2]);strip.push_back(r->corner[3]);
+                if(r->link<0)break;
+            }
+            for(std::size_t i=0;i+2<strip.size();++i)
+                for(std::size_t k=i;k<i+3;++k)result.push_back({pool[strip[k]],{255,255,255,255},{}});
+        }
+        pool.clear();records.clear();
+    };
+    const auto position=[&](const Float4& p){
+        for(unsigned i=0;i<pool.size();++i)
+            if(pool[i][0]==p[0]&&pool[i][1]==p[1]&&pool[i][2]==p[2])return i;
+        pool.push_back(p);return unsigned(pool.size()-1);
+    };
     //0x10e138 walks Z+/Z-, X+/X-, Y+/Y-, rows then columns. Coordinates
     //are exact multiples of1/4, so no host rounding-mode dependency remains.
     for(unsigned face=0;face<6;++face)for(unsigned row=0;row<8;++row)for(unsigned column=0;column<8;++column) {
@@ -29,8 +50,16 @@ std::vector<MapEffectVertex> make_effect_noise_shape(unsigned shape,const Effect
             case 1:points={Float4{side,d,a,1},Float4{side,c,a,1},Float4{side,c,b,1},Float4{side,d,b,1}};break;
             default:points={Float4{b,side,c,1},Float4{a,side,c,1},Float4{a,side,d,1},Float4{b,side,d,1}};break;
         }
-        for(unsigned i:{1u,0u,2u,0u,2u,3u})result.push_back({points[i],{255,255,255,255},{}});
+        if(pool.size()>97-4)flush();
+        //0x112d20 emits B,A,C,D, preserving the A-C diagonal.
+        Record next;
+        for(unsigned i=0;i<4;++i)next.corner[i]=position(points[i==0?1:i==1?0:i]);
+        for(auto& r:records)if(r.link<0&&r.corner[2]==next.corner[0]&&r.corner[3]==next.corner[1]&&r.total<0x30-2) {
+            r.link=int(records.size());next.total=r.total+2;break;
+        }
+        records.push_back(next);
     }
+    flush();
     return result;
 }
 std::vector<MapEffectVertex> make_shadow_effect_shape(unsigned shape,const SineTable& sine,
