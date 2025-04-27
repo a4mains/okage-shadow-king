@@ -74,7 +74,7 @@ class CompareControls(unittest.TestCase):
         out, err = io.StringIO(), io.StringIO()
         report = self.base / f'report{self.n}.json'
         with redirect_stdout(out), redirect_stderr(err):
-            code = cmp.main([str(self.base / 'orig'), str(nat), '--json', str(report), *extra])
+            code = cmp.main([str(self.base / 'orig'), str(nat), '--json', str(report), *extra], _acceptance=False)
         data = json.loads(report.read_text()) if report.exists() else None
         return code, out.getvalue(), err.getvalue(), data
 
@@ -280,7 +280,7 @@ class CompareControls(unittest.TestCase):
         nat = self.base / 'nat-ow'
         write_dir(nat, self.draws, self.effects)
         with redirect_stdout(out), redirect_stderr(err):
-            self.assertEqual(cmp.main([str(self.base / 'orig'), str(nat), '--json', str(existing)]), 2)
+            self.assertEqual(cmp.main([str(self.base / 'orig'), str(nat), '--json', str(existing)], _acceptance=False), 2)
         self.assertEqual(existing.read_text(), '{}')
 
 class ExtractorUnits(unittest.TestCase):
@@ -319,6 +319,27 @@ class EvidenceChecks(unittest.TestCase):
         self.assertEqual(sum(t['draws'] for t in fx['templates']), 160)
         r = cmp.compare(str(EVIDENCE), str(EVIDENCE))
         self.assertTrue(r['identical'])
+
+    def cli(self, *args):
+        out, err = io.StringIO(), io.StringIO()
+        with redirect_stdout(out), redirect_stderr(err):
+            return cmp.main([str(a) for a in args])
+
+    def test_cli_gate_refuses_self_unpinned_and_fabricated_inputs(self):
+        import shutil
+        self.assertEqual(self.cli(EVIDENCE, EVIDENCE), 2)  # self-comparison
+        with tempfile.TemporaryDirectory() as tmp:
+            tampered = Path(tmp) / 'orig'
+            shutil.copytree(EVIDENCE, tampered)
+            (tampered / 'rng.jsonl').chmod(0o644)
+            lines = (tampered / 'rng.jsonl').read_text().splitlines()
+            (tampered / 'rng.jsonl').write_text('\n'.join(lines[:1]) + '\n')
+            native = Path(tmp) / 'native'
+            native.mkdir()
+            (native / 'rng.jsonl').write_text(lines[0] + '\n')
+            shutil.copy(EVIDENCE / 'effects.json', native / 'effects.json')
+            self.assertEqual(self.cli(tampered, native), 2)  # original not the pinned capture
+            self.assertEqual(self.cli(EVIDENCE, native), 2)  # truncated native: totals enforced
 
 if __name__ == '__main__':
     unittest.main()

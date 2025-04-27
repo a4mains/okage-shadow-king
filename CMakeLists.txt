@@ -167,6 +167,21 @@ if(BUILD_TESTING)
     add_executable(startup-inputs-tests tests/startup_inputs_tests.cpp)
     target_link_libraries(startup-inputs-tests PRIVATE okage_assets)
     add_test(NAME startup-inputs-tests COMMAND startup-inputs-tests)
+    # The real-data negatives need the staged root; when it exists they are required, not skipped.
+    set(OKAGE_STARTUP_STAGE "${CMAKE_SOURCE_DIR}/local/game-data-stage-v13")
+    if(EXISTS "${OKAGE_STARTUP_STAGE}/NATIVE_STARTUP/startup-inputs.json")
+        set_tests_properties(startup-inputs-tests PROPERTIES ENVIRONMENT "OKAGE_STARTUP_ROOT=${OKAGE_STARTUP_STAGE}")
+        if(TARGET okage-native)
+            find_package(Python3 COMPONENTS Interpreter)
+            if(Python3_FOUND)
+                add_test(NAME rng-cold-start-inputs
+                    COMMAND ${Python3_EXECUTABLE} -m unittest tests.test_rng_cold_start_inputs
+                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+                set_tests_properties(rng-cold-start-inputs PROPERTIES
+                    ENVIRONMENT "OKAGE_NATIVE=$<TARGET_FILE:okage-native>;OKAGE_REQUIRE_STARTUP_TESTS=1")
+            endif()
+        endif()
+    endif()
     add_executable(texture-handles-tests tests/texture_handles_tests.cpp)
     target_link_libraries(texture-handles-tests PRIVATE okage_assets)
     add_test(NAME texture-handles-tests COMMAND texture-handles-tests)

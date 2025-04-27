@@ -27,6 +27,9 @@ def overlay(src, dst, replace):
                 continue
             os.symlink(os.path.realpath(Path(root) / name), dst / r)
 
+if os.environ.get("OKAGE_REQUIRE_STARTUP_TESTS") and not (NATIVE and STAGE.is_dir()):
+    raise RuntimeError("required RNG cold-start input tests cannot run: OKAGE_NATIVE or staged root missing")
+
 @unittest.skipUnless(NATIVE and STAGE.is_dir(), "OKAGE_NATIVE or staged root absent")
 class ColdStartInputTests(unittest.TestCase):
     def run_cold(self, replace, report=False):

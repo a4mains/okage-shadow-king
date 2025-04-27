@@ -338,7 +338,39 @@ def summary_lines(r):
         ('' if q['identical'] else f"  DIFFERENT; first {json.dumps(q['first'])}")
     yield 'IDENTICAL' if r['identical'] else 'DIFFERENT'
 
-def main(argv=None):
+MANIFEST = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'docs', 'rng-original-manifest.json')
+EXPECTED_TOTALS = {'draws': 9504, 'templates': 11, 'requests': 886}
+
+def acceptance_gate(original_dir, native_dir, manifest=MANIFEST):
+    """The CLI is an acceptance gate: the original side must be the pinned capture and the two sides distinct."""
+    if os.path.realpath(original_dir) == os.path.realpath(native_dir):
+        raise Malformed('original and native are the same directory')
+    import hashlib
+    with open(manifest, encoding='utf-8') as f:
+        outputs = json.load(f).get('outputs', {})
+    needed = [k for k in outputs if k.startswith('analysis/')]
+    if not needed:
+        raise Malformed('manifest pins no analysis outputs')
+    for key in needed:
+        path = os.path.join(original_dir, key[len('analysis/'):])
+        if not os.path.isfile(path):
+            raise Malformed(f'{path}: pinned original file missing')
+        with open(path, 'rb') as f:
+            data = f.read()
+        if hashlib.sha256(data).hexdigest() != outputs[key]['sha256'] or len(data) != outputs[key]['bytes']:
+            raise Malformed(f'{path}: does not match the pinned capture in {os.path.basename(manifest)}')
+
+def check_totals(report):
+    s = report['sections']
+    seen = {'draws': (s['draws']['original_count'], s['draws']['native_count']),
+            'templates': (s['templates']['original_count'], s['templates']['native_count']),
+            'requests': (s['requests']['original_count'], s['requests']['native_count'])}
+    for name, (o, n) in seen.items():
+        if o != EXPECTED_TOTALS[name] or n != EXPECTED_TOTALS[name]:
+            raise Malformed(f'{name}: original {o}, native {n}; the startup prefix has {EXPECTED_TOTALS[name]}')
+
+def main(argv=None, _acceptance=True):
+    """_acceptance=False is for synthetic unit fixtures only; the command line always gates."""
     p = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     p.add_argument('original_dir')
     p.add_argument('native_dir')
@@ -352,7 +384,11 @@ def main(argv=None):
         for d in (a.original_dir, a.native_dir):
             if not os.path.isdir(d):
                 raise Malformed(f'{d}: not a directory')
+        if _acceptance:
+            acceptance_gate(a.original_dir, a.native_dir)
         report = compare(a.original_dir, a.native_dir, a.noise_triangle_order)
+        if _acceptance:
+            check_totals(report)
     except Malformed as e:
         print(f'MALFORMED: {e}', file=sys.stderr)
         return 2

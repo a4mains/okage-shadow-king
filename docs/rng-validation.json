@@ -1,0 +1,269 @@
+{
+ "schema": "okage.rng.validation.v1",
+ "scope": "RNG: one Session RNG stream and required imported inputs through the startup prefix before executing 0x100618.",
+ "base_commit": "e709f21",
+ "head_commit_at_generation": "18869247f2d5a281bb75c9f9db20e09233d57b50",
+ "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+ "tracked_sources": {
+  "include/okage/startup_textures.hpp": "bc1a1499f910546c59686ba53ad861470ff89ef66204de08ca34ddeadcb748a2",
+  "src/startup_textures.cpp": "30f60ef3add43ce19ed1a120f4105ed6fabf5f447d2b689cfd3d51ccdeec88c2",
+  "include/okage/startup_inputs.hpp": "fab990cecb1bc7c138ceff633ba5b93547ba02047a697fd3d35079d4ef968f95",
+  "src/startup_inputs.cpp": "31b6316546e1740afe5e4fa4e6dee0b8a76f7a03330653f74326cab33b1d050e",
+  "include/okage/sha256.hpp": "00014773b486717e8382878b95ca9c217c57c0f4cf8b6f40777431da88f3f3d5",
+  "src/sha256.cpp": "f1acb42ae16436f34d5072dae41c0a5956e2161929320319ceec475b71f22c0f",
+  "include/okage/effect.hpp": "4a2ddb56cad31fa4f1c3ce3437c5c02346a148e554792316c0e84b74945ba84e",
+  "src/effect_geometry.cpp": "b51ee865f5201fa95e0d21ec50a86a2946651db9da446659a613ee64d0fc9bfe",
+  "src/native_runtime.mm": "ebe61885e5cf59c420ec9f97ffd5a7d30c89d5baa916d493322c164765a016bf",
+  "CMakeLists.txt": "f77fa87b899aa3e57b66ed7aab834cfa5b584db57d872bdfa55bf5539c8e5c42",
+  "tools/import_startup_inputs.py": "afb136af6369d8224b89d03bedd387338a640cf8993c376e74af9383dfb43c53",
+  "tools/stage_game_data.py": "854be1c79b7d3098013ea74c976e90e78e1935ee224efc618496a25715c7884c",
+  "tools/rng_compare.py": "2de0331e1f82e54f226101688a19b4f4259ae8a31a78956ce6b2074f14ebfce9",
+  "tools/rng_original_extract.py": "3815bb7d5153e2ff51128b9e58432c707920c4580914b5f8cc4459eaef7bbb9b",
+  "tools/rng_startup_timeline_compare.py": "002428ae623abc86b401974a8c67d6883149ea5c1e598d52c319f6a29e20063b",
+  "tools/startup_compare.py": "c6d498f3986c3a9f7a5bc9691a2b15292a9041ace168a440f0df5fac85cf0947",
+  "tools/rng_cold_start_regression.sh": "547205a196af6ce82b4860364c93f8049d2c0695af455ae5861ab5c1d3ff42a1",
+  "tests/startup_textures_tests.cpp": "252f060177140b39edddffdc49def0d2d02e34a222903b4037c3eea4731c6283",
+  "tests/startup_inputs_tests.cpp": "d270841b62881b9aa4ab77337c77d6aa8ea626bb3eb05aeefdefc76b966a989f",
+  "tests/effect_tests.cpp": "eb38d9aa2723043073f413ed6464a3f9669455ffb3f8d45ab00ae72c0bd7de8c",
+  "tests/test_rng_compare.py": "71c9bf7939d564973491f0006d660eecc83fc2c59f9758dfe9f5848781cf5c55",
+  "tests/test_rng_startup_timeline_compare.py": "001932a2b7aae0a47134e679b8e6be889d8091fb3ce48052aded620ad40ce21e",
+  "tests/test_rng_cold_start_inputs.py": "2022cd3080b74666fa7257030dca333445941b95c5102a69ae284943d5a2772e",
+  "tests/test_import_startup_inputs.py": "b4af326b97282e99e84823fb478ece8441cef11342e8f3f16c9a7b3b6d06cf17",
+  "docs/rng-original-manifest.json": "9c5697297ee8c5725e34e0e50f18c3f3f4ed8fe324e8de81efc75648036758e5",
+  "docs/startup-original-manifest.json": "86312a81396b0bf03e6f09c59a2efae78dfeb47a9fc42a1d2e9fd3d8f5af54cc"
+ },
+ "binaries": {
+  "build/rng-release/okage-native.app/Contents/MacOS/okage-native": "55439ab5461154832ffd5d521e4fdc7c4d1fb4921256dd62c8d8842aea3741b7",
+  "build/rng-sanitize/okage-native.app/Contents/MacOS/okage-native": "d2912bb53d78ce9287a2751b71499a3f31f66b833760610d695e613778db3e6a",
+  "build/startup-release/okage-native.app/Contents/MacOS/okage-native": "5932aed94933f244f8cecfbae220a836f1e561e4860897604b2a07eb3773c176"
+ },
+ "evidence": [
+  {
+   "path": "local/startup-input-v1/NATIVE_STARTUP/FONTCLUT.BIN",
+   "sha256": "2ea415986ee6ffc70ebf023d6324670a18967408615dd04455a23cf49cd9a31c",
+   "bytes": 64
+  },
+  {
+   "path": "local/startup-input-v1/NATIVE_STARTUP/startup-inputs.json",
+   "sha256": "4548a5e10804882c78f332770a9cac8679d23978f17d3092a809fa06d2d133bd",
+   "bytes": 4425
+  },
+  {
+   "path": "local/game-data-stage-v13/.owned-game-data-manifest.json",
+   "sha256": "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
+   "bytes": 5434570
+  },
+  {
+   "path": "local/research/rng-session-native-v1/final/command.txt",
+   "sha256": "5018fc10a0c8ff04b15faea6e294406622b31da4e2afa79e74e709dd0470f4ca",
+   "bytes": 512
+  },
+  {
+   "path": "local/research/rng-session-native-v1/final/stdout.txt",
+   "sha256": "63de154477f8e061b5d226880425cf02de3aaee8145b72bf81bcf161828a416d",
+   "bytes": 201
+  },
+  {
+   "path": "local/research/rng-session-native-v1/final/report/state.json",
+   "sha256": "e1d4cb42425f67ddeef7d76cbbef2c7527ddceb2495ae1c9a28a520d0174bc6e",
+   "bytes": 51481
+  },
+  {
+   "path": "local/research/rng-session-native-v1/final/report/rng.jsonl",
+   "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb",
+   "bytes": 613171
+  },
+  {
+   "path": "local/research/rng-session-native-v1/final/report/effects.json",
+   "sha256": "9ddfb648312b274e678cb324bbed88cc4061db1ef06e6efd756c3fc781903539",
+   "bytes": 464044
+  },
+  {
+   "path": "local/research/rng-session-native-v1/final/report/timeline.jsonl",
+   "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617",
+   "bytes": 12148
+  },
+  {
+   "path": "local/research/rng-session-native-v1/final/report/vram.bytes",
+   "sha256": "3d61f88d55f22717a482392a7c4931dc8ee9db4f2c539053c595b31ae007b29c",
+   "bytes": 4194304
+  },
+  {
+   "path": "local/research/rng-session-native-v1/final/report/vram.known",
+   "sha256": "6034fc2fe26307cba39e47af1f72bd10b8eebe734184bd99c779dde2a82b269d",
+   "bytes": 4194304
+  },
+  {
+   "path": "local/research/rng-session-native-v1/final/rng-compare.out",
+   "sha256": "a2aa1f17f530f5d9de2cfa802affeb371a9a41da2f0587eb5453f62502e46a79",
+   "bytes": 261
+  },
+  {
+   "path": "local/research/rng-session-native-v1/final/timeline-compare.out",
+   "sha256": "54f1c4cac23d95402567e7150e837c2673e49772dedd48365cc48f5df80a00be",
+   "bytes": 321
+  },
+  {
+   "path": "local/research/rng-session-native-v1/final/state-compare.out",
+   "sha256": "e962f3e5e58385b59d2202170b3e8ff5bf65aaa34e4312e72c0fa8b632a8f435",
+   "bytes": 642
+  },
+  {
+   "path": "local/research/rng-session-native-v1/asan-final/stdout.txt",
+   "sha256": "2c5199c614066445a60a9ce3eb410a2ed8873a93a1b6f7c4d3c35e7220945ac9",
+   "bytes": 338
+  },
+  {
+   "path": "local/research/rng-regression-v1/final-1800/binaries.sha256",
+   "sha256": "0d394b40d2f9f1922db53e0da1602d255d6b43989668de3b5fd2ec4f8955c8bb",
+   "bytes": 338
+  },
+  {
+   "path": "local/research/rng-regression-v1/final-1800/source-head.txt",
+   "sha256": "39ab992abe2dae3f5135de5914c6e2b8093b0d4fdfabf500390f8afd0f60520d",
+   "bytes": 41
+  },
+  {
+   "path": "local/research/rng-regression-v1/ctest-focused-final2.out",
+   "sha256": "ae0aa6d430e6fdec691f208123c215fcd2f3ecef43e75262e73755f926bd3d1e",
+   "bytes": 164
+  },
+  {
+   "path": "local/research/rng-regression-v1/ctest-release-all-final.out",
+   "sha256": "8282f5437fd02abdfe88c39a46b4294cf4d1397697100941a3849c8577e4c3f7",
+   "bytes": 45
+  },
+  {
+   "path": "local/research/rng-regression-v1/python-suite-final2.out",
+   "sha256": "b02648235b96984f600cc49aa3ecc5ab48fd93fe58487b9fdc58f0b954cc0304",
+   "bytes": 29
+  },
+  {
+   "path": "local/research/rng-regression-v1/final-1800/old-a/command.txt",
+   "sha256": "7ac1586147124e48eabaf86626dd869b8398551b499d8ccc8d909971ad1a0499",
+   "bytes": 414
+  },
+  {
+   "path": "local/research/rng-regression-v1/final-1800/old-a/outputs.sha256",
+   "sha256": "723a1acaeac522db21e503fbc195a881b3207cfc73d6bbfe313bbdd5e8f29b0b",
+   "bytes": 2513
+  },
+  {
+   "path": "local/research/rng-regression-v1/final-1800/old-a/stdout.txt",
+   "sha256": "bf49d45d4192aaab923cabc4a9b617a07a0fd6fb023e3758ddb45b51906db0ff",
+   "bytes": 476
+  },
+  {
+   "path": "local/research/rng-regression-v1/final-1800/old-b/command.txt",
+   "sha256": "4ce49fdc0eaa2819bdb5de14101011fcde41a9352d756d49a7747d30a6bce236",
+   "bytes": 414
+  },
+  {
+   "path": "local/research/rng-regression-v1/final-1800/old-b/outputs.sha256",
+   "sha256": "68a3dca5084ae0513bf068855a57d0317dda36ba76df4b2bb9d28d4e8dc61cc8",
+   "bytes": 2513
+  },
+  {
+   "path": "local/research/rng-regression-v1/final-1800/old-b/stdout.txt",
+   "sha256": "3d8bad308e45de1221f6c8872145d1fbcab73dd74787cb334f5154d108fa71da",
+   "bytes": 476
+  },
+  {
+   "path": "local/research/rng-regression-v1/final-1800/new-a/command.txt",
+   "sha256": "33dae1cf983c34d98b617b4bd9ac7dccb8447e563ac356c3f576e0b2a04c0e09",
+   "bytes": 414
+  },
+  {
+   "path": "local/research/rng-regression-v1/final-1800/new-a/outputs.sha256",
+   "sha256": "5d9af9fd5e8c61773503a02819c77ff6f9993864377c10df7dcfeec453b718c3",
+   "bytes": 2513
+  },
+  {
+   "path": "local/research/rng-regression-v1/final-1800/new-a/stdout.txt",
+   "sha256": "aebd65a18ad70aabf6f710bd9a7268ffa2a4e85285aae9dbc86df38a97460494",
+   "bytes": 476
+  },
+  {
+   "path": "local/research/rng-regression-v1/final-1800/new-b/command.txt",
+   "sha256": "abafbf275c69d58b3f72cba80a4b44f7dc04e4338bb0ffdd0b26d030c1755f34",
+   "bytes": 414
+  },
+  {
+   "path": "local/research/rng-regression-v1/final-1800/new-b/outputs.sha256",
+   "sha256": "50937c31a01be79e5478d040a0bccf5c26091d1b1f80ab37e5b9b76fab7976b6",
+   "bytes": 2513
+  },
+  {
+   "path": "local/research/rng-regression-v1/final-1800/new-b/stdout.txt",
+   "sha256": "aebd65a18ad70aabf6f710bd9a7268ffa2a4e85285aae9dbc86df38a97460494",
+   "bytes": 476
+  }
+ ],
+ "commands": {
+  "import": "python3 tools/import_startup_inputs.py --elf local/extracted/SCUS_971.29 --fonts local/font-input/CMNDATA/FONT --effects local/xpf-decoded/CMNDATA/2D/ENV_TEX.XPF --efd local/effect-input/CMNDATA/2D/TES.EFD --out local/startup-input-v1",
+  "stage": "python3 tools/stage_game_data.py local/game-data-stage-v13",
+  "cold_session": "/Users/user/src/okage/okage-shadow-king/build/rng-release/okage-native.app/Contents/MacOS/okage-native --game-data /Users/user/src/okage/okage-shadow-king/local/game-data-stage-v13 --save-directory /Users/user/src/okage/okage-shadow-king/local/research/rng-session-native-v1/final/saves --startup-texture-report /Users/user/src/okage/okage-shadow-king/local/research/rng-session-native-v1/final/report --frames 1 --capture /Users/user/src/okage/okage-shadow-king/local/research/rng-session-native-v1/final/f.png",
+  "compare_rng": "python3 tools/rng_compare.py local/research/rng-original-v1/analysis local/research/rng-session-native-v1/final/report",
+  "compare_timeline": "python3 tools/rng_startup_timeline_compare.py local/research/startup-original-v1/runs/fill00-a/events.jsonl local/research/rng-session-native-v1/final/report",
+  "compare_state": "python3 tools/startup_compare.py local/research/startup-original-v1/analysis local/research/rng-session-native-v1/final/report",
+  "regression": "tools/rng_cold_start_regression.sh <build/startup-release okage-native> <build/rng-release okage-native> local/game-data-stage-v13 local/research/rng-regression-v1/final-1800 1800",
+  "focused_ctest": "ctest -R '^(startup-inputs-tests|rng-cold-start-inputs|effect-tests|field-tests|startup-textures-tests|texture-(transfer|snapshot|memory|handles|format)-tests|xim-raw-tests|asset-tests|gs-texture-address-tests)$' in build/rng-{release,debug,sanitize}",
+  "python": "OKAGE_MAIN_CHECKOUT=$PWD OKAGE_NATIVE=... OKAGE_HANDLE_TRACE=... OKAGE_TRANSFER_COMPARE=... python3 -m unittest discover -s tests"
+ },
+ "results": {
+  "rng_compare": [
+   "draws: original 9504, native 9504, differing 0",
+   "phase boundaries: identical noise[0..8959] effect-grid[8960..9343] effect-template[9344..9503]",
+   "grid: identical",
+   "templates: original 11, native 11",
+   "cache owners: identical",
+   "requests: original 886, native 886",
+   "IDENTICAL"
+  ],
+  "timeline_compare": [
+   "  events: 151 each; draws: original 9504, native 9504",
+   "result: IDENTICAL"
+  ],
+  "state_compare": [
+   "result: IDENTICAL"
+  ],
+  "focused_ctest": [
+   "== release",
+   "100% tests passed, 0 tests failed out of 13",
+   "== debug",
+   "100% tests passed, 0 tests failed out of 13",
+   "== sanitize",
+   "100% tests passed, 0 tests failed out of 13"
+  ],
+  "full_release_ctest": [
+   "100% tests passed, 0 tests failed out of 105"
+  ],
+  "python_suite": [
+   "Ran 732 tests in 285.028s",
+   "OK"
+  ],
+  "asan_ubsan_session": "exit 0, no sanitizer reports; rng/timeline/state comparisons IDENTICAL (30 frames)",
+  "regression": "old-b vs new-b (equal startup timing): PNG, audio and sidecars identical except f.png.json rng_state (0x6f4240e1 -> 0x412c25e1) and startup.bin (random.state column; async storage-probe column varies between same-binary runs)"
+ },
+ "reused_unchanged_evidence": [
+  "Startup original startup capture and manifest (docs/startup-original-manifest.json)",
+  "Startup format transfer comparisons (texture transfer code unchanged in RNG)",
+  "Handle/Startup handle lifecycle comparisons incl. the 5,880 s ASan run (handle code unchanged in RNG)"
+ ],
+ "review_findings_fixed": [
+  "rng_compare accepted self/unpinned/truncated input: CLI now pins the original to the manifest, refuses same dir, enforces 9504/11/886",
+  "required-input negatives were opt-in: ctest now runs startup-inputs-tests with the staged root and rng-cold-start-inputs with the real binary",
+  "docs: RNG doc tracked, startup.bin and post-boundary RNG wording corrected, stale importer note replaced"
+ ],
+ "source_corrections_found_by_comparison": [
+  "procedural template positions stored as int16/64 (signed zero)",
+  "noise shapes emitted in the 0x111b70 strip-chaining order (the recovered 0x111b70 strip-chaining order)",
+  "request trace marks construction on cache miss"
+ ],
+ "unresolved": [
+  "shape 10 never constructed (requests reuse shape 9 cache entry); native draw resolution unverified (outside prefix)",
+  "later field effect textures reloaded from disk, not from verified startup bytes (outside prefix)",
+  "written-lane masks paired-fill derived; Play research backend, not hardware",
+  "no original frame/audio at the boundary; nothing compared beyond 0x100618"
+ ]
+}
