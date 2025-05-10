@@ -229,6 +229,24 @@ int main(int argc,char** argv){try{
     check(prepared.geometry[43]->vertices.size()==24&&prepared.geometry[56]->vertices.size()==240&&
           prepared.geometry[62]->vertices.size()==60&&prepared.geometry[55]->position_tags.size()==240);
     check(std::fegetround()==rounding_before);
+    for(std::uint32_t bad:{66u,0xffffffffu})for(bool ranged:{false,true})for(bool observed:{false,true}) {
+        okage::EffectDefinition d;d.id=7;
+        okage::EffectElement e;e.id=1;
+        if(ranged) {
+            okage::EffectElement range;range.id=1;range.flags=0x10000;range.shape=2;range.primitive_flags=3;
+            e.id=2;e.shape=bad;d.elements={range,e};
+        } else {e.shape=bad;d.elements={e};}
+        unsigned bad_draws=0;okage::EffectPreparationTrace trace;
+        bool threw=false;
+        try {okage::EffectTemplatePreparation p({d},sizes,sine,[&]{++bad_draws;return 1u;},observed?&trace:nullptr);}
+        catch(const std::runtime_error&){threw=true;}
+        check(threw&&bad_draws==384&&trace.requests.empty());
+        okage::EffectDefinition r;r.id=8;okage::EffectElement re;re.id=1;re.flags=0x10000;re.shape=bad;re.primitive_flags=0xffffffffu;
+        r.elements={re};threw=false;bad_draws=0;
+        try {okage::EffectTemplatePreparation p({r},sizes,sine,[&]{++bad_draws;return 1u;},observed?&trace:nullptr);}
+        catch(const std::runtime_error&){threw=true;}
+        check(threw&&bad_draws==384);
+    }
     rejects([&]{okage::make_procedural_effect_shape(62,sine,preparation_random,{});});
     rejects([&]{okage::make_procedural_effect_shape(43,sine,{},{});});
     okage::EffectDefinition cylinder;cylinder.id=26;cylinder.duration=160;cylinder.flags=0x8000;

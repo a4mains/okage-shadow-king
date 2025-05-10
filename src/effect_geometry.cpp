@@ -204,10 +204,10 @@ EffectTemplatePreparation::EffectTemplatePreparation(const std::vector<EffectDef
     noise=make_effect_noise_grid(random);
     if(trace){trace->grid_draws=draws;if(trace->grid_complete)trace->grid_complete();}
     const auto request=[&](const EffectDefinition& definition,const EffectElement& e) {
-        const auto before=draws;bool constructed=false;
-        const bool miss=!cache_owners[e.shape][0];
         if(!e.shape||e.shape>=geometry.size()||e.shape==44||e.shape==46)
             throw std::runtime_error("Unrecovered template preparation shape");
+        const auto before=draws;bool constructed=false;
+        const bool miss=!cache_owners[e.shape][0];
         if(!cache_owners[e.shape][0]) {
             if(e.shape>=10&&e.shape<=17) {
                 auto g=std::make_shared<ProceduralEffectGeometry>();
