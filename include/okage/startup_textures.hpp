@@ -125,12 +125,19 @@ public:
     const std::vector<StartupRandomDraw>& rng_log() const noexcept { return rng_log_; }
     const std::vector<StartupTimelineEvent>& timeline() const noexcept { return timeline_; }
     std::uint64_t rng_draws() const noexcept { return rng_draws_; }
+    static constexpr std::size_t lifecycle_limit = 1u << 20;
+    const std::vector<std::string>& lifecycle() const noexcept { return lifecycle_; }
+    std::uint64_t lifecycle_dropped() const noexcept { return lifecycle_dropped_; }
 
 private:
     void checkpoint(const char* step);
     void note_allocation(TextureAllocationId id);
     void note_upload(TextureAllocationId id);
     void note_phase(StartupTimelineEvent::Kind kind, const char* phase);
+    void sync();
+    void lifecycle_push(std::string json);
+    void lifecycle_alloc(const GsTextureAllocation& a);
+    void lifecycle_ref(TextureAllocationId id, int delta);
     TextureDescriptor allocate_layer_buffer(std::uint8_t cls, GsPixelStorage psm);
 
     Ps2TextureMemory memory_;
@@ -151,6 +158,8 @@ private:
     std::vector<StartupRandomDraw> rng_log_;
     std::vector<StartupTimelineEvent> timeline_;
     std::uint64_t rng_draws_{};
+    std::vector<std::string> lifecycle_;
+    std::uint64_t lifecycle_dropped_{};
 };
 
 void write_startup_texture_report(const StartupTextureOwner& owner, const std::filesystem::path& dir);

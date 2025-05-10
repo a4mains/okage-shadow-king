@@ -51,7 +51,7 @@ OptDescriptor TextureHandleOwner::retain(OptDescriptor d) {
     const auto a = memory_->allocation(d->id);
     if (!a || a->serial != d->serial) throw std::logic_error("texture descriptor is stale");
     memory_->adjust_references(d->id, 1);
-    log_event({HandleEvent::Kind::DescriptorRetain, d->id, 0});
+    log_event({HandleEvent::Kind::DescriptorRetain, d->id, memory_->allocation(d->id)->references});
     return d;
 }
 
@@ -60,7 +60,7 @@ void TextureHandleOwner::release(OptDescriptor d) {
     const auto a = memory_->allocation(d->id);
     if (!a || a->serial != d->serial) throw std::logic_error("texture descriptor is stale");
     memory_->adjust_references(d->id, -1);
-    log_event({HandleEvent::Kind::DescriptorRelease, d->id, 0});
+    log_event({HandleEvent::Kind::DescriptorRelease, d->id, memory_->allocation(d->id)->references});
     if (memory_->free_allocation(d->id))
         log_event({HandleEvent::Kind::DescriptorFree, d->id, 0});
 }
@@ -140,6 +140,7 @@ int TextureHandleOwner::create_image(GsPixelStorage psm, std::uint16_t width, st
         throw std::invalid_argument("texture handle: pixel data shorter than the quadwords sent");
     const auto a = memory_->allocate(1, psm, width, height);
     if (!a) return -1;
+    log_allocation(*a);
     const TextureDescriptor d{a->id, a->serial};
     const int handle = create_handle(d);
     if (handle < 0) {
@@ -163,6 +164,7 @@ OptDescriptor TextureHandleOwner::create_palette(std::uint32_t count,
         const auto a = memory_->allocate(0, GsPixelStorage::Psmct32, 16,
                                          static_cast<std::uint16_t>(clut_rect_rows(count)));
         if (!a) return std::nullopt;
+        log_allocation(*a);
         return TextureDescriptor{a->id, a->serial};
     }
     if (entries.size() < std::size_t(count) * 4)
@@ -177,6 +179,7 @@ OptDescriptor TextureHandleOwner::make_palette(std::uint32_t count,
     const auto a = memory_->allocate(0, GsPixelStorage::Psmct32, 16,
                                      static_cast<std::uint16_t>(clut_rect_rows(count)));
     if (!a) return std::nullopt;  // 1cd7d0 returns 0 and uploads nothing
+    log_allocation(*a);
     upload_clut(*memory_, a->id, count, level_bytes);
     uploaded = true;
     log_event({HandleEvent::Kind::Upload, a->id, std::int64_t(clut_rect_rows(count)) * 64});
@@ -209,6 +212,7 @@ int TextureHandleOwner::reserve_handles(int count) {
     for (int id : reserved_) free_id(id);  // phase 1; not undone on failure
     reserved_.clear();
     const int first = alloc_range(count);
+    log_event({HandleEvent::Kind::Reserved, count, first});
     if (first < 0) return -1;
     for (int i = 0; i < count; ++i) reserved_.push_back(first + i);
     return first;
@@ -236,6 +240,11 @@ int TextureHandleOwner::lookup_slot(const std::string& lowered, int* first_free)
 void TextureHandleOwner::set_name(int handle, const char* name) {
     if (name) require_supported_name(name);
     if (handle < 0 || handle >= handle_capacity || map_[handle] < 0) return;
+    {
+        HandleEvent named{HandleEvent::Kind::Named, handle, name ? 1 : 0};
+        if (name) named.text = name;
+        log_event(named);
+    }
     const int r = map_[handle];
     auto& rec = records_[r];
     if (rec.hash_slot >= 0) {
@@ -269,6 +278,7 @@ int TextureHandleOwner::lookup_alias(std::string_view name) {
 
 void TextureHandleOwner::retire(int handle) {
     if (handle < 0 || handle >= handle_capacity || map_[handle] < 0) return;
+    log_event({HandleEvent::Kind::RetireCalled, handle, 0});
     const int r = map_[handle];
     auto& rec = records_[r];
     if (rec.handles == 1) {
@@ -307,6 +317,7 @@ PaletteBindResult TextureHandleOwner::bind_palette(int handle, int level, OptDes
     if (level < 0) throw std::invalid_argument("texture handle: negative palette level is undefined in retail");
     auto& rec = records_[map_[handle]];
     validate(palette);
+    log_event({HandleEvent::Kind::PaletteBind, handle, level, palette ? std::int64_t(palette->id) : -1});
     if (level == 0) {
         if (rec.palette0 == palette) return PaletteBindResult::Unchanged;
         release(rec.palette0);
@@ -388,6 +399,12 @@ XmdLoadResult TextureHandleOwner::load_xmd_names(std::span<const std::string> na
         result.names.push_back(std::move(outcome));
     }
     return result;
+}
+
+void TextureHandleOwner::log_allocation(const GsTextureAllocation& a) {
+    log_event({HandleEvent::Kind::Allocate, a.id, a.base_block,
+               std::int64_t(a.allocation_class) << 56 | std::int64_t(a.psm) << 48 |
+                   std::int64_t(a.width) << 24 | std::int64_t(a.height)});
 }
 
 void TextureHandleOwner::log_event(const HandleEvent& e) {

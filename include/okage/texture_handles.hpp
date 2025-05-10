@@ -35,9 +35,12 @@ struct HandleEvent {
     enum class Kind : std::uint8_t {
         DescriptorRetain, DescriptorRelease, DescriptorFree, RecordFreed,
         ExtraFreed, HandleFreed, HandleCreated, AliasCreated, Upload,
+        Allocate, PaletteBind, Named, Reserved, RetireCalled,
     } kind{};
     std::int64_t a{};
     std::int64_t b{};
+    std::int64_t c{};
+    std::string text;
     friend bool operator==(const HandleEvent&, const HandleEvent&) = default;
 };
 
@@ -164,6 +167,7 @@ private:
     std::size_t event_limit_{};
     std::size_t events_dropped_{};
     void log_event(const HandleEvent& e);
+    void log_allocation(const GsTextureAllocation& a);
 
     void validate(const OptDescriptor& d) const;  // throws std::logic_error when stale
     OptDescriptor retain(OptDescriptor d);   // 1cee50(+1)

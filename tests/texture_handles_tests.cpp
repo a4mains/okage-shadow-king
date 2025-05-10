@@ -190,8 +190,9 @@ int main() {
             require(o.bind_palette(h, 0, p2) == PaletteBindResult::Bound, "replace");
             require(!m.allocation(p1->id) && refs(m, p2) == 1, "old freed (last reference), new retained");
             const auto& ev = o.events();
-            require(ev.size() == 3 && ev[0].kind == K::DescriptorRelease && ev[1].kind == K::DescriptorFree &&
-                    ev[2].kind == K::DescriptorRetain, "release old (and free) BEFORE retaining new");
+            require(ev.size() == 4 && ev[0].kind == K::PaletteBind && ev[0].a == h && ev[0].c == p2->id &&
+                    ev[1].kind == K::DescriptorRelease && ev[1].b == 0 && ev[2].kind == K::DescriptorFree &&
+                    ev[3].kind == K::DescriptorRetain && ev[3].b == 1, "release old (and free) BEFORE retaining new");
             require(o.bind_palette(h, 0, std::nullopt) == PaletteBindResult::Bound && !o.palette(h, 0) &&
                     !m.allocation(p2->id), "null releases the old and stores null");
             require(o.bind_palette(99, 0, p1) == PaletteBindResult::InvalidHandle, "bad handle");

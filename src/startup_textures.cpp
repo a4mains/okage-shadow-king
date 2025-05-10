@@ -101,6 +101,79 @@ void StartupTextureOwner::checkpoint(const char* step) {
                             memory_.available_count(), memory_.identity()});
 }
 
+void StartupTextureOwner::lifecycle_push(std::string json) {
+    if (!record_) return;
+    if (lifecycle_.size() < lifecycle_limit) lifecycle_.push_back(std::move(json));
+    else ++lifecycle_dropped_;
+}
+
+namespace {
+std::string json_string(const std::string& s) {
+    std::string o = "\"";
+    for (unsigned char c : s) {
+        if (c == '"' || c == '\\') { o += '\\'; o += char(c); }
+        else if (c < 0x20) { char b[8]; std::snprintf(b, sizeof b, "\\u%04x", c); o += b; }
+        else o += char(c);
+    }
+    return o + "\"";
+}
+} // namespace
+
+void StartupTextureOwner::lifecycle_alloc(const GsTextureAllocation& a) {
+    lifecycle_push("{\"kind\":\"alloc\",\"alloc\":" + std::to_string(a.id) + ",\"class\":" +
+                   std::to_string(a.allocation_class) + ",\"psm\":" + std::to_string(unsigned(a.psm)) +
+                   ",\"w\":" + std::to_string(a.width) + ",\"h\":" + std::to_string(a.height) +
+                   ",\"tbp\":" + std::to_string(a.base_block) + "}");
+}
+
+void StartupTextureOwner::lifecycle_ref(TextureAllocationId id, int delta) {
+    lifecycle_push("{\"kind\":\"ref\",\"alloc\":" + std::to_string(id) + ",\"delta\":" + std::to_string(delta) +
+                   ",\"refs\":" + std::to_string(memory_.allocation(id)->references) + "}");
+}
+
+void StartupTextureOwner::sync() {
+    if (!record_) return;
+    using K = HandleEvent::Kind;
+    for (const auto& e : handles_.events()) {
+        const auto n = [](std::int64_t v) { return std::to_string(v); };
+        switch (e.kind) {
+            case K::Allocate:
+                lifecycle_push("{\"kind\":\"alloc\",\"alloc\":" + n(e.a) + ",\"class\":" + n(e.c >> 56 & 0xff) +
+                               ",\"psm\":" + n(e.c >> 48 & 0xff) + ",\"w\":" + n(e.c >> 24 & 0xffffff) +
+                               ",\"h\":" + n(e.c & 0xffffff) + ",\"tbp\":" + n(e.b) + "}");
+                break;
+            case K::Upload: lifecycle_push("{\"kind\":\"upload\",\"alloc\":" + n(e.a) + "}"); break;
+            case K::DescriptorRetain:
+                lifecycle_push("{\"kind\":\"ref\",\"alloc\":" + n(e.a) + ",\"delta\":1,\"refs\":" + n(e.b) + "}");
+                break;
+            case K::DescriptorRelease:
+                lifecycle_push("{\"kind\":\"ref\",\"alloc\":" + n(e.a) + ",\"delta\":-1,\"refs\":" + n(e.b) + "}");
+                break;
+            case K::DescriptorFree: lifecycle_push("{\"kind\":\"free\",\"alloc\":" + n(e.a) + "}"); break;
+            case K::HandleCreated:
+            case K::AliasCreated:
+                lifecycle_push("{\"kind\":\"handle\",\"handle\":" + n(e.a) + ",\"record\":" + n(e.b) +
+                               ",\"alias\":" + (e.kind == K::AliasCreated ? "true" : "false") + "}");
+                break;
+            case K::RetireCalled: lifecycle_push("{\"kind\":\"retire\",\"handle\":" + n(e.a) + "}"); break;
+            case K::PaletteBind:
+                lifecycle_push("{\"kind\":\"bind\",\"handle\":" + n(e.a) + ",\"level\":" + n(e.b) +
+                               ",\"alloc\":" + n(e.c) + "}");
+                break;
+            case K::Named:
+                lifecycle_push("{\"kind\":\"name\",\"handle\":" + n(e.a) + ",\"name\":" +
+                               (e.b ? json_string(e.text) : std::string("null")) + "}");
+                break;
+            case K::Reserved:
+                lifecycle_push("{\"kind\":\"reserve\",\"count\":" + n(e.a) + ",\"first\":" + n(e.b) +
+                               ",\"class\":0}");
+                break;
+            default: break;
+        }
+    }
+    handles_.clear_events();
+}
+
 void StartupTextureOwner::note_allocation(TextureAllocationId id) {
     if (!record_) return;
     timeline_.push_back({StartupTimelineEvent::Kind::Allocation, id, memory_.allocation(id)->base_block, nullptr,
@@ -115,6 +188,9 @@ void StartupTextureOwner::note_upload(TextureAllocationId id) {
 
 void StartupTextureOwner::note_phase(StartupTimelineEvent::Kind kind, const char* phase) {
     if (kind == StartupTimelineEvent::Kind::PhaseBegin) phase_ = phase;
+    sync();
+    if (kind == StartupTimelineEvent::Kind::PhaseBegin)
+        lifecycle_push(std::string("{\"kind\":\"phase\",\"name\":\"") + phase + "\"}");
     if (!record_) return;
     timeline_.push_back({kind, 0, 0, phase, stream_->draws(), stream_->state()});
 }
@@ -122,8 +198,10 @@ void StartupTextureOwner::note_phase(StartupTimelineEvent::Kind kind, const char
 TextureDescriptor StartupTextureOwner::allocate_layer_buffer(std::uint8_t cls, GsPixelStorage psm) {
     // 0x1cf008(class, psm, 640, 224); a failure here is a hard error: the
     // retail startup assumes success and no failure path is modeled (U11).
+    sync();
     const auto a = memory_.allocate(cls, psm, 640, 224);
     if (!a) throw std::runtime_error("startup: colour/depth allocation failed");
+    lifecycle_alloc(*a);
     note_allocation(a->id);
     return {a->id, a->serial};
 }
@@ -161,6 +239,7 @@ void StartupTextureOwner::run_startup(const StartupTextureInputs& in, GameRandom
     StartupRandomStream stream(random, in.record_observations);
     stream_ = &stream;
     record_ = in.record_observations;
+    if (record_) handles_.set_event_log_limit(lifecycle_limit);
     try {
         if (in.font_palette.size() != 64) throw std::invalid_argument("startup: font palette must be 64 bytes");
         if (!in.read_effect) throw std::invalid_argument("startup: effect reader missing");
@@ -169,7 +248,11 @@ void StartupTextureOwner::run_startup(const StartupTextureInputs& in, GameRandom
         for (std::size_t i = 0; i < 3; ++i) fonts[i] = parse_font_atlas(in.fonts[i]);  // validated before any state
 
         auto require = [](bool ok, const char* what) { if (!ok) throw std::runtime_error(what); };
-        auto retain = [&](const TextureDescriptor& d) { require(memory_.retain(d.id), "startup: retain failed"); };
+        auto retain = [&](const TextureDescriptor& d) {
+            sync();
+            require(memory_.retain(d.id), "startup: retain failed");
+            lifecycle_ref(d.id, 1);
+        };
         auto image = [&](GsPixelStorage psm, std::uint16_t w, std::uint16_t h, std::span<const std::uint8_t> px) {
             const int handle = handles_.create_image(psm, w, h, px);
             require(handle >= 0, "startup: image creation failed");
@@ -288,10 +371,12 @@ void StartupTextureOwner::run_startup(const StartupTextureInputs& in, GameRandom
                 "startup: allocation/handle totals differ from the frozen contract");
         rng_draws_ = stream.draws();
         rng_log_ = stream.log();
+        sync();
         stream_ = nullptr;
         coverage_ = StartupCoverage::PreSchedulerOnly;
     } catch (...) {
         failed_phase_ = phase_;
+        sync();
         rng_draws_ = stream.draws();
         rng_log_ = stream.log();
         stream_ = nullptr;
@@ -437,6 +522,8 @@ void write_startup_texture_report(const StartupTextureOwner& owner, const std::f
         for (const auto& d : owner.rng_log())
             rng << "{\"i\":" << i++ << ",\"phase\":\"" << to_string(d.phase) << "\",\"state\":" << d.state
                 << ",\"value\":" << d.value << "}\n";
+        std::ofstream lc(dir / "lifecycle.jsonl", std::ios::binary);
+        for (const auto& line : owner.lifecycle()) lc << line << "\n";
         std::ofstream tl(dir / "timeline.jsonl", std::ios::binary);
         for (const auto& e : owner.timeline()) {
             using K = StartupTimelineEvent::Kind;
