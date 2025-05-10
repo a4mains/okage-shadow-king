@@ -348,13 +348,17 @@ struct SceneRenderer::Impl {
         return slot;
     }
     void loadEffects(const fs::path& directory) {
+        loadEffectsFrom([&](unsigned i){return read(directory/effect_texture_names[i]);});
+    }
+    //Host upload of already verified owned bytes (no file reread, not a logical allocation).
+    void loadEffectsFrom(const std::function<std::vector<std::uint8_t>(unsigned)>& bytes) {
         if(effectTexturesLoaded)throw std::runtime_error("Effect textures already loaded");
         std::vector<Texture> images;
         std::vector<std::size_t> slots;
         images.reserve(effect_texture_names.size());slots.reserve(effect_texture_names.size());
         auto nextGpu=[gpuTextures mutableCopy];
-        for(const auto name:effect_texture_names) {
-            auto image=decode_xim(read(directory/name));
+        for(unsigned index=0;index<effect_texture_names.size();++index) {
+            auto image=decode_xim(bytes(index));
             validateEffectTexture(image);
             slots.push_back(textures.size()+images.size());
             [nextGpu addObject:uploadTexture(image)];
@@ -842,6 +846,12 @@ SceneRenderer::~SceneRenderer()=default;
 void SceneRenderer::add_actor(const SceneActor& actor){impl_->addActor(actor);}
 void SceneRenderer::retire_instances(){impl_->retireInstances();}
 void SceneRenderer::load_effect_textures(const fs::path& path){impl_->loadEffects(path);}
+void SceneRenderer::load_effect_textures(const EffectTextureBytes& bytes) {
+    impl_->loadEffectsFrom([&](unsigned i){
+        if(bytes[i].empty())throw std::runtime_error("Verified effect texture bytes missing");
+        return bytes[i];
+    });
+}
 std::uint32_t SceneRenderer::add_effect_texture(const Texture& image){return impl_->addEffectTexture(image);}
 EffectTextureSizes SceneRenderer::effect_texture_sizes() const {
     if(!impl_->effectTexturesLoaded)throw std::runtime_error("Effect textures are unavailable");

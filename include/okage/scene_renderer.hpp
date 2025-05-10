@@ -65,6 +65,9 @@ public:
     void add_actor(const SceneActor&);
     void retire_instances();
     void load_effect_textures(const std::filesystem::path&);
+    // Same textures from verified owned bytes (effect_texture_names order).
+    using EffectTextureBytes = std::array<std::vector<std::uint8_t>, 31>;
+    void load_effect_textures(const EffectTextureBytes&);
     std::uint32_t add_effect_texture(const Texture&);
     EffectTextureSizes effect_texture_sizes() const;
     void bind_map_effects(const MapEffects*);

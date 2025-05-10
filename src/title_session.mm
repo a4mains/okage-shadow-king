@@ -54,7 +54,9 @@ struct TitleSession::Impl {
             images[i]=image(read(construction.common_root/"2D/SCR.XPF"/names[i]));
             image_textures[i]=upload_image_gs_texture(device,images[i],ImageMetalPreviewAlpha::SourceAtMost128);
         }
-        renderer=std::make_unique<SceneRenderer>();renderer->load_effect_textures(construction.effect_textures);
+        renderer=std::make_unique<SceneRenderer>();
+        if(construction.verified_effect_textures)renderer->load_effect_textures(*construction.verified_effect_textures);
+        else renderer->load_effect_textures(construction.effect_textures);
         task.texture=renderer->add_effect_texture(images[7]);
         const auto model_path=construction.common_root/"2D/NIGHT_V.XPF/a.xmd";
         model=std::make_unique<FieldActor>(read_xmd(read(model_path)));

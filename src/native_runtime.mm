@@ -165,6 +165,8 @@ struct Session {
     std::vector<std::uint32_t> wander_trace;
     std::unique_ptr<okage::MusicRouter> music;
     std::unique_ptr<okage::StartupTextureOwner> startup_textures;
+    std::shared_ptr<const okage::StartupInputs> startup_inputs;
+    std::shared_ptr<const okage::SceneRenderer::EffectTextureBytes> verified_effect_textures;
     std::string startup_textures_status="not initialized (no cold startup)";
     fs::path startup_texture_report;
     std::unique_ptr<okage::AudioOutput> audio_output;
@@ -623,7 +625,8 @@ struct Session {
         if(startup_textures||effect_preparation)throw std::runtime_error("Startup textures already initialized");
         if(!startup_texture_report.empty()&&fs::exists(startup_texture_report))
             throw std::runtime_error("Startup texture report directory must be fresh");
-        const auto owned=okage::load_startup_inputs(root);
+        const auto owned_inputs=std::make_shared<const okage::StartupInputs>(okage::load_startup_inputs(root));
+        const auto& owned=*owned_inputs;
         okage::StartupTextureInputs inputs;
         inputs.font_palette=owned.font_palette;inputs.fonts=owned.fonts;
         inputs.record_observations=!startup_texture_report.empty();
@@ -650,6 +653,16 @@ struct Session {
         effect_bytes=owned.efd;effect_preparation=std::move(prepared);
         effect_data=root/"CMNDATA/2D/TES.EFD";effect_textures=root/"CMNDATA/2D/ENV_TEX.XPF";
         startup_textures=std::move(owner);
+        startup_inputs=owned_inputs;
+        {
+            okage::SceneRenderer::EffectTextureBytes bytes;
+            for(unsigned i=0;i<bytes.size();++i) {
+                const auto at=std::find(names.begin(),names.end(),std::string(okage::effect_texture_names[i]));
+                if(at==names.end())throw std::runtime_error("Effect name tables disagree");
+                bytes[i]=owned.effects[unsigned(at-names.begin())];
+            }
+            verified_effect_textures=std::make_shared<const okage::SceneRenderer::EffectTextureBytes>(std::move(bytes));
+        }
         startup_textures_status="pre-scheduler startup textures and RNG established; later history unmodeled";
         std::cout<<"Native startup textures: "<<startup_textures_status<<" rng_draws="<<startup_textures->rng_draws()<<'\n';
         if(!startup_texture_report.empty()) {
@@ -1235,7 +1248,7 @@ struct Session {
                 }
                 if(selection==okage::GameModeSelection{8,1,0}) {
                     title=std::make_unique<okage::TitleSession>(scene_clear,scene_fade,ui_shared,game_over_shared,
-                        okage::TitleConstruction{field_root.parent_path()/"CMNDATA",effect_textures,effect_bytes,
+                        okage::TitleConstruction{field_root.parent_path()/"CMNDATA",effect_textures,verified_effect_textures,effect_bytes,
                         [this]{if(music)music->stop();},[this]{
                             if(music_directory.empty())throw std::runtime_error("Title theme needs imported SNDDATA directory");
                             const auto root=music_directory.parent_path()/"STR";

@@ -6,6 +6,7 @@
 namespace okage {
 struct TitleConstruction {
     std::filesystem::path common_root,effect_textures;
+    std::shared_ptr<const SceneRenderer::EffectTextureBytes> verified_effect_textures;
     Bytes effect_data;
     std::function<void()> stop_music,start_theme;
 };
