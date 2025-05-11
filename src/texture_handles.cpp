@@ -34,6 +34,8 @@ std::uint32_t byte_sum(const std::string& s) {
 TextureHandleOwner::TextureHandleOwner(Ps2TextureMemory& memory) : memory_(&memory) {
     map_.fill(-1);
     extra_next_.fill(-1);
+    live_next_.fill(-1);
+    live_prev_.fill(-1);
     hash_.fill(0);
     for (int i = 0; i < record_capacity; ++i) free_records_.push_back(i);
     for (int i = 0; i < extra_palette_capacity; ++i) free_extras_.push_back(i);
@@ -107,6 +109,7 @@ int TextureHandleOwner::create_handle(OptDescriptor image) {
     free_records_.pop_front();
     const int id = take_handle_id();
     map_[id] = static_cast<std::int16_t>(record);
+    link_live(id);
     auto& r = records_[record];
     r = Record{};
     r.live = true;
@@ -121,6 +124,7 @@ int TextureHandleOwner::create_alias(int record) {
     if (pick_handle_id() < 0) return -1;
     const int id = take_handle_id();
     map_[id] = static_cast<std::int16_t>(record);
+    link_live(id);
     ++records_[record].handles;
     ++live_handles_;
     log_event({HandleEvent::Kind::AliasCreated, id, record});
@@ -307,6 +311,7 @@ void TextureHandleOwner::retire(int handle) {
         log_event({HandleEvent::Kind::RecordFreed, r, 0});
     }
     map_[handle] = -1;
+    unlink_live(handle);
     free_id(handle);
     --live_handles_;
     log_event({HandleEvent::Kind::HandleFreed, handle, r});
@@ -429,6 +434,35 @@ void TextureHandleOwner::retire_all() {
     reserved_.clear();
     for (int h = 0; h < handle_capacity; ++h)
         if (map_[h] >= 0) retire(h);
+}
+
+// 0x1cc778 walks the in-use handle node list: creation order of live handles
+// (a new handle node is appended at the tail; a freed one is unlinked).
+void TextureHandleOwner::link_live(int id) {
+    live_prev_[id] = static_cast<std::int16_t>(live_tail_);
+    live_next_[id] = -1;
+    if (live_tail_ >= 0) live_next_[live_tail_] = static_cast<std::int16_t>(id);
+    else live_head_ = id;
+    live_tail_ = id;
+}
+
+void TextureHandleOwner::unlink_live(int id) {
+    const int p = live_prev_[id], n = live_next_[id];
+    if (p >= 0) live_next_[p] = static_cast<std::int16_t>(n); else live_head_ = n;
+    if (n >= 0) live_prev_[n] = static_cast<std::int16_t>(p); else live_tail_ = p;
+    live_prev_[id] = live_next_[id] = -1;
+}
+
+int TextureHandleOwner::live_successor(int handle) const {
+    if (handle < 0 || handle >= handle_capacity || map_[handle] < 0) return -1;
+    const int n = live_next_[handle];
+    return n < 0 ? -7 : n;
+}
+
+std::vector<int> TextureHandleOwner::live_order() const {
+    std::vector<int> out;
+    for (int h = live_head_; h >= 0; h = live_next_[h]) out.push_back(h);
+    return out;
 }
 
 bool TextureHandleOwner::handle_live(int handle) const {

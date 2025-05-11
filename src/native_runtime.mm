@@ -168,7 +168,7 @@ struct Session {
     std::shared_ptr<const okage::StartupInputs> startup_inputs;
     std::shared_ptr<const okage::SceneRenderer::EffectTextureBytes> verified_effect_textures;
     std::string startup_textures_status="not initialized (no cold startup)";
-    fs::path startup_texture_report;
+    fs::path startup_texture_report,resource_report;
     std::unique_ptr<okage::AudioOutput> audio_output;
     std::vector<std::int16_t> audio_capture;
     std::vector<std::uint32_t> music_trace;
@@ -629,7 +629,7 @@ struct Session {
         const auto& owned=*owned_inputs;
         okage::StartupTextureInputs inputs;
         inputs.font_palette=owned.font_palette;inputs.fonts=owned.fonts;
-        inputs.record_observations=!startup_texture_report.empty();
+        inputs.record_observations=!startup_texture_report.empty()||!resource_report.empty();
         const auto& names=okage::startup_effect_names();
         inputs.read_effect=[&owned,&names](const std::string& name)->std::optional<std::vector<std::uint8_t>> {
             for(unsigned i=0;i<names.size();++i)if(name==names[i])return owned.effects[i];
@@ -1136,12 +1136,18 @@ struct Session {
             if(!transition_alpha){transition_image.reset();transition_live_image.reset();}
         }
         scene_fade.tick();
+        //0x100618: the first scheduler traversal starts the per-frame clear/draw kicks
+        //into the colour buffers and depth Z24 lanes (the title rendering contract).
+        if(startup_textures&&startup_textures->stage()==okage::ResourceStage::PreScheduler)
+            startup_textures->begin_scheduled_frames();
         if(game_mode) {
             observe_game_mode(0);
             game_mode->tick([this]{
                 if(battle)retire_battle();
                 else if(startup) {
                     startup->retire(*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,ui_shared);
+                    if(startup_textures&&startup_textures->stage()==okage::ResourceStage::LogosConstructed)
+                        startup_textures->retire_image_list();
                 }
                 else if(chapter) {
                     chapter->retire(*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,ui_shared,scene_fade);
@@ -1239,16 +1245,41 @@ struct Session {
                     std::cout<<"Native name entry constructed frame="<<frame<<'\n';return;
                 }
                 if(selection==okage::GameModeSelection{8,3,0}||selection==okage::GameModeSelection{8,0,0}) {
+                    if(selection[1]==0&&startup_textures)startup_textures->begin_logo_construction();
                     startup=std::make_unique<okage::StartupSession>(scene_clear,scene_fade,ui_shared,game_over_shared,
                         okage::StartupConstruction{selection[1],save_directory,[this]{if(music)music->stop();},
                         [this]{initialize_startup_audio_and_cache();},[this](unsigned index){
-                            return readData(field_root.parent_path()/"CMNDATA/2D/SCR.XPF"/(index==0?"scea.xim":"zener.xim"));
+                            auto bytes=readData(field_root.parent_path()/"CMNDATA/2D/SCR.XPF"/(index==0?"scea.xim":"zener.xim"));
+                            //1009e0 -> 1b2348: the same bytes become the source image-list entry.
+                            if(startup_textures)startup_textures->append_image(bytes);
+                            return bytes;
                         }});
                     std::cout<<"Native startup constructed selector="<<selection[1]<<" frame="<<frame<<'\n';return;
                 }
                 if(selection==okage::GameModeSelection{8,1,0}) {
+                    std::shared_ptr<const std::array<std::vector<std::uint8_t>,8>> title_images;
+                    if(startup_textures) {
+                        //12c350(1): eight SCR images through 1009e0/1b2348, then 186c48("a.xmd").
+                        startup_textures->begin_title_construction();
+                        auto images=std::make_shared<std::array<std::vector<std::uint8_t>,8>>();
+                        const auto scr=field_root.parent_path()/"CMNDATA/2D/SCR.XPF";
+                        for(unsigned i=0;i<images->size();++i) {
+                            (*images)[i]=readData(scr/okage::title_image_names[i]);
+                            startup_textures->append_image((*images)[i]);
+                        }
+                        title_images=images;
+                        const auto night_v=field_root.parent_path()/"CMNDATA/2D/NIGHT_V.XPF";
+                        const auto model=okage::read_xmd(readData(night_v/"a.xmd"));
+                        startup_textures->load_and_bind_model("NIGHT_V/a.xmd",model.textures,
+                            [night_v](const std::string& name)->std::optional<std::vector<std::uint8_t>> {
+                                std::string lower=name;   //archive member lookup ignores case
+                                std::transform(lower.begin(),lower.end(),lower.begin(),[](unsigned char c){return char(std::tolower(c));});
+                                if(!fs::exists(night_v/lower))return std::nullopt;
+                                return readData(night_v/lower);
+                            });
+                    }
                     title=std::make_unique<okage::TitleSession>(scene_clear,scene_fade,ui_shared,game_over_shared,
-                        okage::TitleConstruction{field_root.parent_path()/"CMNDATA",effect_textures,verified_effect_textures,effect_bytes,
+                        okage::TitleConstruction{field_root.parent_path()/"CMNDATA",effect_textures,verified_effect_textures,title_images,effect_bytes,
                         [this]{if(music)music->stop();},[this]{
                             if(music_directory.empty())throw std::runtime_error("Title theme needs imported SNDDATA directory");
                             const auto root=music_directory.parent_path()/"STR";
@@ -1258,6 +1289,11 @@ struct Session {
                             for(unsigned i=0;i<gain.size();++i)gain[i]=std::bit_cast<std::int16_t>(std::uint16_t(table[i*2]|unsigned(table[i*2+1])<<8));
                             title_stream.start(1,header,body,gain);
                         }});
+                    if(startup_textures) {
+                        startup_textures->finish_title_construction();
+                        //Observation stop: right after 12c350(1) returns, before the first 1296f8 update.
+                        if(!resource_report.empty())okage::write_session_resource_report(*startup_textures,resource_report);
+                    }
                     std::cout<<"Native title constructed frame="<<frame<<'\n';return;
                 }
                 if(selection==okage::GameModeSelection{8,4,0}) {
@@ -2510,7 +2546,7 @@ int main(int argc,const char** argv) {
     try {
         if(argc<3)throw std::runtime_error("Usage: okage-native --game-data DIRECTORY [--save-directory DIRECTORY] OR okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --buttons INPUT (held non-directional masks; bounded replay only) --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--load-observation FRESH.jsonl (bounded replay; host scheduling diagnostics)] [--battle-readback synchronous|deferred (replay policy; live always deferred)] [--replay-loading continuous|cooperative (cooperative requires deferred readback)] [--replay-display-from N (bounded cooperative replay; real host display callbacks and full rendering from N)] [--performance-report FRESH.jsonl (interactive/preview/UI test)] [--input-journal FRESH.jsonl] [--pause-captures FRESH_DIRECTORY (interactive diagnostics, not saved games)] [--headless-control FRESH_DIRECTORY (stdin controller steps after --frames; no window)]");
         const bool coldStart=std::string_view(argv[1])=="--game-data";
-        fs::path gameDataRoot,saveDirectory,startupTextureReport;
+        fs::path gameDataRoot,saveDirectory,startupTextureReport,titleResourceReport;
         fs::path fontDirectory=coldStart?fs::path{}:fs::path(argv[1]),messagePath=coldStart?fs::path{}:fs::path(argv[2]);
         unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions,buttons;bool hasButtons=false;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures,battleInput;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         std::optional<fs::path> performancePath,inputJournalPath,pauseCapturePath,headlessControlPath;
@@ -2528,6 +2564,7 @@ int main(int argc,const char** argv) {
             }
             else if(arg=="--save-directory")saveDirectory=argv[i];
             else if(arg=="--startup-texture-report")startupTextureReport=argv[i];
+            else if(arg=="--title-resource-report")titleResourceReport=argv[i];
             else if(arg=="--frames")frames=std::stoul(argv[i]);
             else if(arg=="--headless-control") {
                 if(headlessControlPath||!argv[i][0])throw std::runtime_error("Headless control requires one fresh directory");
@@ -2763,7 +2800,8 @@ int main(int argc,const char** argv) {
             if(!output.empty())session.battle_stage_report=output.string()+".battle-stage.json";
             session.live_presentation_enabled=previewAt!=0||cooperativeReplay.value_or(false)||bool(headlessControlPath);
             session.save_directory=saveDirectory;
-            session.startup_texture_report=startupTextureReport;
+            session.startup_texture_report=startupTextureReport;session.resource_report=titleResourceReport;
+            if(!titleResourceReport.empty()&&fs::exists(titleResourceReport))throw std::runtime_error("Title resource report directory must be fresh");
             if(coldStart)session.initialize_cold_start(gameDataRoot,saveDirectory,!output.empty());
             if(!effectData.empty())session.prepare_effects(effectData,effectTextures);
             if(!map.empty())session.load_scene(map,event,actors);
@@ -2908,7 +2946,7 @@ int main(int argc,const char** argv) {
         if(!output.empty())app->session->battle_construction_report=output.string()+".battle-construction.json";
         if(!output.empty())app->session->battle_stage_report=output.string()+".battle-stage.json";
         app->session->live_presentation_enabled=true;
-        app->session->save_directory=saveDirectory;app->session->startup_texture_report=startupTextureReport;
+        app->session->save_directory=saveDirectory;app->session->startup_texture_report=startupTextureReport;app->session->resource_report=titleResourceReport;
         if(coldStart)app->session->initialize_cold_start(gameDataRoot,saveDirectory,!output.empty());
         if(!effectData.empty())app->session->prepare_effects(effectData,effectTextures);
         if(!map.empty())app->session->load_scene(map,event,actors);

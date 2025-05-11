@@ -323,6 +323,24 @@ void Ps2TextureMemory::write_nibble(std::uint32_t address, std::uint8_t nibble, 
     ++content_generation_;
 }
 
+std::size_t Ps2TextureMemory::invalidate_owned_nibbles(TextureAllocationId id) {
+    require_live(id);
+    std::size_t changed = 0;
+    for (std::uint32_t block = 0; block < block_count; ++block) {
+        const auto& owners = blocks_[block].owners;
+        if (owners[0] != id && owners[2] != id && owners[3] != id) continue;
+        for (std::uint32_t a = block * block_bytes; a < (block + 1) * block_bytes; ++a)
+            for (std::uint8_t n = 0; n < 2; ++n) {
+                if (owner_of_nibble(a, n) != id) continue;
+                if (!planes_ || !((planes_->defined[a] >> n) & 1u)) continue;
+                writable_planes().defined[a] &= static_cast<std::uint8_t>(~(1u << n));
+                ++changed;
+            }
+    }
+    if (changed) ++content_generation_;
+    return changed;
+}
+
 std::optional<TextureAllocationId> Ps2TextureMemory::owner_of_nibble(
     std::uint32_t address, std::uint8_t nibble) const {
     if (!initialized_) throw std::logic_error("GS allocator state is unknown");

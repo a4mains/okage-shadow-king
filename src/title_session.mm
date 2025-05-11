@@ -25,7 +25,7 @@ Texture image(Bytes bytes) {
     return result;
 }
 constexpr ImageMetalBaseline baseline{0x6c00,0x7900,0,639,0,223,0,1,0,1};
-constexpr std::array<const char*,8> names{"title_sample4.xim","push.xim","new.xim","restore.xim","maru_w.xim","maru_b.xim","sp.xim","hanten.xim"};
+constexpr const auto& names=title_image_names;
 }
 struct TitleSession::Impl {
     TitleTaskState task{};
@@ -51,7 +51,7 @@ struct TitleSession::Impl {
         image_renderer=std::make_unique<ImageMetal>(device);
         fade_texture=upload_image_gs_texture(device,Texture{1,1,0,0,{128,128,128,255}},ImageMetalPreviewAlpha::SourceAtMost128);
         for(unsigned i=0;i<names.size();++i){
-            images[i]=image(read(construction.common_root/"2D/SCR.XPF"/names[i]));
+            images[i]=image(construction.images?Bytes((*construction.images)[i]):Bytes(read(construction.common_root/"2D/SCR.XPF"/names[i])));
             image_textures[i]=upload_image_gs_texture(device,images[i],ImageMetalPreviewAlpha::SourceAtMost128);
         }
         renderer=std::make_unique<SceneRenderer>();

@@ -124,6 +124,7 @@ public:
     void write_nibble(std::uint32_t address, std::uint8_t nibble, std::uint8_t value);
     GsByteObservation observe_byte(std::uint32_t address) const;
     GsNibbleObservation observe_nibble(std::uint32_t address, std::uint8_t nibble) const;
+    std::size_t invalidate_owned_nibbles(TextureAllocationId id);
     GsMaskedByteObservation observe_byte_masked(std::uint32_t address) const;
     std::vector<std::uint32_t> known_byte_addresses() const;
     std::optional<TextureAllocationId> owner_of_nibble(std::uint32_t address,

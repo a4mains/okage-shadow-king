@@ -4,9 +4,14 @@
 #include "okage/scene_renderer.hpp"
 
 namespace okage {
+// 12c350(1) image order (0x12c430..0x12c4a0).
+inline constexpr std::array<const char*,8> title_image_names{"title_sample4.xim","push.xim","new.xim","restore.xim",
+    "maru_w.xim","maru_b.xim","sp.xim","hanten.xim"};
 struct TitleConstruction {
     std::filesystem::path common_root,effect_textures;
     std::shared_ptr<const SceneRenderer::EffectTextureBytes> verified_effect_textures;
+    // Cold startup: the SCR bytes the Session already loaded logically (title_image_names order).
+    std::shared_ptr<const std::array<std::vector<std::uint8_t>,8>> images;
     Bytes effect_data;
     std::function<void()> stop_music,start_theme;
 };

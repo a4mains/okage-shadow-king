@@ -120,6 +120,9 @@ public:
     using FileReader = std::function<std::optional<std::vector<std::uint8_t>>(const std::string&)>;
     XmdLoadResult load_xmd_names(std::span<const std::string> names, const FileReader& read_file);
 
+    int live_successor(int handle) const;
+    std::vector<int> live_order() const;
+
     // Inspection.
     bool handle_live(int handle) const;
     int record_of(int handle) const;  // -1 if unmapped
@@ -163,6 +166,10 @@ private:
     int live_handles_{};
     bool cache_enabled_{};
     bool lower_file_names_{};
+    std::array<std::int16_t, handle_capacity> live_next_, live_prev_;
+    int live_head_{-1}, live_tail_{-1};
+    void link_live(int id);
+    void unlink_live(int id);
     std::deque<HandleEvent> events_;
     std::size_t event_limit_{};
     std::size_t events_dropped_{};

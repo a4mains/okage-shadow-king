@@ -22,6 +22,22 @@ enum class StartupCoverage : std::uint8_t {
     PreSchedulerOnly,
 };
 
+enum class ResourceStage : std::uint8_t {
+    PreScheduler,       // Startup/RNG prefix complete (before the call at 0x100618)
+    Scheduled,
+    LogosConstructed,
+    LogosRetired,
+    TitleConstructed,
+};
+const char* to_string(ResourceStage);
+// What the memory bytes/masks mean, separate from the lifecycle above.
+enum class MemoryContentCoverage : std::uint8_t {
+    UploadsExact,
+    DrawTargetsInvalidated,
+                              // unknown; every other known nibble is an accounted upload
+};
+const char* to_string(MemoryContentCoverage);
+
 // Inputs are owned game data supplied by the caller (never captured VRAM).
 struct StartupTextureInputs {
     // 64 bytes at ELF 0x2003f8 (the 16-entry font/glyph CLUT).
@@ -104,6 +120,25 @@ public:
                      const StartupEffectPreparation& prepare_effects);
 
     StartupCoverage coverage() const noexcept { return coverage_; }
+
+    // ---- Title lifecycle after the prefix (same memory and handle owner) ----
+    ResourceStage stage() const noexcept { return stage_; }
+    MemoryContentCoverage memory_coverage() const noexcept { return memory_coverage_; }
+    void begin_scheduled_frames();
+    // 12c350(0): logo construction may begin (stage check only).
+    void begin_logo_construction();
+    // 0x1b2348: a file-read failure (nullopt) appends nothing and returns -1; an
+    // 18f7a8 load failure appends -1. Returns the handle (or -1).
+    int append_image(const std::optional<std::vector<std::uint8_t>>& file);
+    // 0x1b2240: retire every image-list handle in insertion order, then reset.
+    void retire_image_list();
+    void begin_title_construction();
+    XmdLoadResult load_and_bind_model(const std::string& model, std::span<const std::string> names,
+                                      const TextureHandleOwner::FileReader& reader);
+    void finish_title_construction();
+    const std::vector<int>& image_list() const noexcept { return image_list_; }
+    // Binding table of the last bound model (handles[i] for name index i; -7/-1 past the tail).
+    const std::vector<int>& model_binding() const noexcept { return model_binding_; }
     bool started() const noexcept { return started_; }
     Ps2TextureMemory& memory() noexcept { return memory_; }
     const Ps2TextureMemory& memory() const noexcept { return memory_; }
@@ -160,9 +195,16 @@ private:
     std::uint64_t rng_draws_{};
     std::vector<std::string> lifecycle_;
     std::uint64_t lifecycle_dropped_{};
+    ResourceStage stage_{ResourceStage::PreScheduler};
+    MemoryContentCoverage memory_coverage_{MemoryContentCoverage::UploadsExact};
+    std::vector<int> image_list_;
+    std::vector<int> model_binding_;
+    void require_stage(ResourceStage expected, const char* operation) const;
+    void advance(ResourceStage next);
 };
 
 void write_startup_texture_report(const StartupTextureOwner& owner, const std::filesystem::path& dir);
+void write_session_resource_report(const StartupTextureOwner& owner, const std::filesystem::path& dir);
 
 void write_effect_preparation_report(const EffectTemplatePreparation& prepared, const EffectPreparationTrace& trace,
                                      const std::filesystem::path& dir);

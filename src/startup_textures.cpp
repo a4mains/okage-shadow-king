@@ -384,6 +384,95 @@ void StartupTextureOwner::run_startup(const StartupTextureInputs& in, GameRandom
     }
 }
 
+const char* to_string(ResourceStage s) {
+    switch (s) {
+        case ResourceStage::PreScheduler: return "pre-scheduler";
+        case ResourceStage::Scheduled: return "scheduled";
+        case ResourceStage::LogosConstructed: return "logos-constructed";
+        case ResourceStage::LogosRetired: return "logos-retired";
+        case ResourceStage::TitleConstructed: return "title-constructed";
+    }
+    return "unknown";
+}
+
+const char* to_string(MemoryContentCoverage c) {
+    return c == MemoryContentCoverage::UploadsExact ? "uploads-exact" : "draw-targets-invalidated";
+}
+
+void StartupTextureOwner::require_stage(ResourceStage expected, const char* operation) const {
+    if (coverage_ != StartupCoverage::PreSchedulerOnly)
+        throw std::logic_error(std::string(operation) + ": the startup prefix did not complete");
+    if (stage_ != expected)
+        throw std::logic_error(std::string(operation) + " out of source order (stage " + to_string(stage_) + ")");
+}
+
+void StartupTextureOwner::advance(ResourceStage next) {
+    stage_ = next;
+    sync();
+    lifecycle_push(std::string("{\"kind\":\"phase\",\"name\":\"") + to_string(next) + "\"}");
+}
+
+void StartupTextureOwner::begin_scheduled_frames() {
+    require_stage(ResourceStage::PreScheduler, "begin_scheduled_frames");
+    for (std::size_t i = 0; i < 2; ++i) memory_.invalidate_owned_nibbles(layers_[i].color.id);
+    memory_.invalidate_owned_nibbles(layers_[0].depth->id);  // Z24 lanes only; font top-byte lanes stay
+    memory_coverage_ = MemoryContentCoverage::DrawTargetsInvalidated;
+    advance(ResourceStage::Scheduled);
+}
+
+void StartupTextureOwner::begin_logo_construction() {
+    require_stage(ResourceStage::Scheduled, "logo construction");
+    if (!image_list_.empty()) throw std::logic_error("logo construction with a live image list");
+    advance(ResourceStage::LogosConstructed);
+}
+
+int StartupTextureOwner::append_image(const std::optional<std::vector<std::uint8_t>>& file) {
+    if (stage_ != ResourceStage::LogosConstructed && stage_ != ResourceStage::LogosRetired)
+        throw std::logic_error("image-list append outside a logo/title constructor");
+    if (!file) return -1;  // 1b2348: read failure, no append
+    if (image_list_.size() >= 0x40) throw std::runtime_error("image list overflow (source has no bound check)");
+    const auto report = handles_.load_xim(OwnedRawXim(*file));
+    image_list_.push_back(report.handle);  // an 18f7a8 failure appends -1
+    sync();
+    return report.handle;
+}
+
+void StartupTextureOwner::retire_image_list() {
+    require_stage(ResourceStage::LogosConstructed, "logo resource retirement");
+    for (int handle : image_list_) handles_.retire(handle);  // 1cca30(-1) is a no-op
+    image_list_.clear();
+    advance(ResourceStage::LogosRetired);
+}
+
+void StartupTextureOwner::begin_title_construction() {
+    require_stage(ResourceStage::LogosRetired, "title construction");
+    sync();
+    lifecycle_push("{\"kind\":\"phase\",\"name\":\"title-construction\"}");
+}
+
+XmdLoadResult StartupTextureOwner::load_and_bind_model(const std::string& model, std::span<const std::string> names,
+                                                       const TextureHandleOwner::FileReader& reader) {
+    require_stage(ResourceStage::LogosRetired, "model load");
+    auto result = handles_.load_xmd_names(names, reader);
+    sync();
+    model_binding_.clear();
+    if (result.first < 0) return result;  // 12c350 returns early; no binding
+    // 0x182e28: count = name count; handles[i] = h; h = 0x1cc778(h).
+    int h = result.first;
+    for (std::size_t i = 0; i < names.size(); ++i) {
+        model_binding_.push_back(h);
+        lifecycle_push("{\"kind\":\"material\",\"model\":" + json_string(model) + ",\"slot\":" +
+                       std::to_string(i) + ",\"handle\":" + std::to_string(h) + "}");
+        h = handles_.live_successor(h);
+    }
+    return result;
+}
+
+void StartupTextureOwner::finish_title_construction() {
+    require_stage(ResourceStage::LogosRetired, "title construction return");
+    advance(ResourceStage::TitleConstructed);
+}
+
 void write_effect_preparation_report(const EffectTemplatePreparation& prepared, const EffectPreparationTrace& trace,
                                      const std::filesystem::path& dir) {
     std::ostringstream o;
@@ -436,7 +525,20 @@ void write_effect_preparation_report(const EffectTemplatePreparation& prepared, 
     std::ofstream(dir / "effects.json", std::ios::binary) << o.str();
 }
 
+namespace {
+void write_report(const StartupTextureOwner& owner, const std::filesystem::path& dir, bool session_schema);
+}
+
 void write_startup_texture_report(const StartupTextureOwner& owner, const std::filesystem::path& dir) {
+    write_report(owner, dir, false);
+}
+
+void write_session_resource_report(const StartupTextureOwner& owner, const std::filesystem::path& dir) {
+    write_report(owner, dir, true);
+}
+
+namespace {
+void write_report(const StartupTextureOwner& owner, const std::filesystem::path& dir, bool session_schema) {
     namespace fs = std::filesystem;
     if (fs::exists(dir)) throw std::runtime_error("startup texture report directory already exists");
     fs::create_directories(dir);
@@ -446,8 +548,20 @@ void write_startup_texture_report(const StartupTextureOwner& owner, const std::f
     auto desc = [](const OptDescriptor& d) {
         return d ? std::string("[") + std::to_string(d->id) + "," + std::to_string(d->serial) + "]" : std::string("null");
     };
-    o << "{\n \"coverage\":\"" << (owner.coverage() == StartupCoverage::PreSchedulerOnly ? "pre-scheduler-only" : "not-run")
-      << "\",\n \"later_history\":\"unmodeled: title, models, field, battle, XTA, frees, filter display-list kicks\",";
+    if (session_schema) {
+        o << "{\n \"coverage\":{\"lifecycle\":\"" << to_string(owner.stage()) << "\",\"memory\":\""
+          << to_string(owner.memory_coverage()) << "\"},\n \"later_history\":\"unmodeled after "
+          << to_string(owner.stage()) << ": title updates/retirement, New Game/Restore, XTA, field, battle\",";
+        o << "\n \"image_list\":[";
+        for (std::size_t i = 0; i < owner.image_list().size(); ++i) o << (i ? "," : "") << owner.image_list()[i];
+        o << "],\n \"materials\":[";
+        for (std::size_t i = 0; i < owner.model_binding().size(); ++i)
+            o << (i ? "," : "") << "[" << i << "," << owner.model_binding()[i] << "]";
+        o << "],";
+    } else {
+        o << "{\n \"coverage\":\"" << (owner.coverage() == StartupCoverage::PreSchedulerOnly ? "pre-scheduler-only" : "not-run")
+          << "\",\n \"later_history\":\"unmodeled: title, models, field, battle, XTA, frees, filter display-list kicks\",";
+    }
     o << "\n \"rand_state_after_noise\":" << owner.rand_state_after_noise() << ",";
     o << "\n \"rng_draws\":" << owner.rng_draws() << ",";
     o << "\n \"checkpoints\":[";
@@ -524,7 +638,11 @@ void write_startup_texture_report(const StartupTextureOwner& owner, const std::f
                 << ",\"value\":" << d.value << "}\n";
         std::ofstream lc(dir / "lifecycle.jsonl", std::ios::binary);
         for (const auto& line : owner.lifecycle()) lc << line << "\n";
-        std::ofstream tl(dir / "timeline.jsonl", std::ios::binary);
+        if (session_schema) {
+            std::ofstream tl(dir / "timeline.jsonl", std::ios::binary);
+            for (const auto& line : owner.lifecycle()) tl << line << "\n";
+        }
+        std::ofstream tl(dir / (session_schema ? "startup-timeline.jsonl" : "timeline.jsonl"), std::ios::binary);
         for (const auto& e : owner.timeline()) {
             using K = StartupTimelineEvent::Kind;
             tl << "{\"kind\":\"" << (e.kind == K::Allocation ? "alloc" : e.kind == K::Upload ? "upload"
@@ -545,5 +663,6 @@ void write_startup_texture_report(const StartupTextureOwner& owner, const std::f
     std::ofstream(dir / "vram.bytes", std::ios::binary).write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
     std::ofstream(dir / "vram.known", std::ios::binary).write(reinterpret_cast<const char*>(known.data()), known.size());
 }
+} // namespace
 
 } // namespace okage
