@@ -2,10 +2,12 @@
 #include "PS2VM_Preferences.h"
 #include "AppConfig.h"
 #include "gs/GSH_Null.h"
+#include "gs/GsPixelFormats.h"
 #include "iop/IopBios.h"
 #include "iop/ioman/OpticalMediaDevice.h"
 #include "reference_input.hpp"
 #include <CommonCrypto/CommonDigest.h>
+#include <array>
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
@@ -53,13 +55,26 @@ public:
     struct Transfer {
         uint64 seq=0,bitbltbuf=0,trxpos=0,trxreg=0,trxdir=0;uint32 total=0,received=0;
         CC_SHA256_CTX ctx;bool open=false;
+        uint64 chunks=0,ct24Unaligned=0,nibbles=0,eeEvent=0,gsOp=0,flip=0;
     };
+    // Per-nibble last-writer codes (title mode). 0 = never written since the fill.
+    enum WriterCode:uint8{W_NONE=0,W_UPLOAD=1,W_DRAW=2,W_LOCAL=3};
+    struct DrawClass{uint64 count=0,firstOp=0,lastOp=0,firstFlip=0,lastFlip=0,firstEe=0,lastEe=0;
+                     int x0=4096,y0=4096,x1=-1,y1=-1;bool frame=false,z=false;uint64 nibblesMarked=0;};
     std::mutex mutex;
     std::vector<std::string> lines;
     uint64 regWrites=0,kicks=0,transfers=0,resets=0,localToHost=0,localToLocal=0,clutTransfers=0,hostToLocalDone=0;
     std::map<uint8,uint64> regHistogram;
     Transfer current;
     bool armed=false; // true once the initial fill was applied
+    bool title=false;
+    std::atomic<uint64>* eeEventCounter=nullptr;
+    std::vector<uint8> writer,uploadEver;
+    uint64 gsOps=0,flips=0,primitives=0,primitivesSkippedNoWrite=0,unsupportedTargets=0,dedupSkips=0,
+           xyz3=0,invalidPrimKicks=0,ct24UnalignedChunks=0;
+    std::map<std::array<uint64,10>,DrawClass> drawClasses;
+    std::map<std::array<uint64,5>,uint64> clutClasses;
+    uint64 drawDetailLines=0,clutDetailLines=0;
     // Called on the GS thread only (or after a full sync).
     void flushTransfer() {
         if(!current.open)return;
@@ -72,8 +87,148 @@ public:
          <<",\"trxreg\":"<<hx(current.trxreg)<<",\"rrw\":"<<(current.trxreg&0xfff)<<",\"rrh\":"<<(current.trxreg>>32&0xfff)
          <<",\"trxdir\":"<<(current.trxdir&3)<<",\"expected_bytes\":"<<current.total<<",\"received_bytes\":"<<current.received
          <<",\"complete\":"<<(current.received==current.total?"true":"false")
-         <<",\"image_sha256\":\""<<hex(digest,sizeof digest)<<"\"}";
+         <<",\"image_sha256\":\""<<hex(digest,sizeof digest)<<"\"";
+        if(title)o<<",\"gs_op\":"<<current.gsOp<<",\"flip\":"<<current.flip<<",\"ee_event\":"<<current.eeEvent
+                   <<",\"chunks\":"<<current.chunks<<",\"ct24_chunks_not_multiple_of_3\":"<<current.ct24Unaligned
+                   <<",\"nibbles_marked\":"<<current.nibbles;
+        o<<"}";
         lines.push_back(o.str());current.open=false;
+    }
+private:
+    // ---- Title nibble marking -------------------------------------------------------------
+    std::set<std::array<uint32,9>> drawDedup;
+    uint64 vq[3]={0,0,0};unsigned vqCount=0;
+    uint64 pendingTex0=0;
+    uint64 eeNow()const{return eeEventCounter?eeEventCounter->load():0;}
+    void markNibble(uint32 nib,uint8 code){
+        nib&=(CGSHandler::RAMSIZE*2-1);
+        uint8& b=writer[nib>>1];
+        if(nib&1)b=uint8((b&0x0f)|(code<<4));else b=uint8((b&0xf0)|code);
+        if(code==W_UPLOAD)uploadEver[nib>>1]|=uint8(1u<<(nib&1));
+    }
+    // nibble mask bit k = nibble k of the unit at byte offset `byteAddr` (unit of 1, 2 or 4 bytes)
+    uint64 markUnit(uint32 byteAddr,uint32 nibMask,uint8 code){
+        uint64 n=0;for(uint32 k=0;k<8;++k)if(nibMask>>k&1){markNibble(byteAddr*2+k,code);++n;}return n;
+    }
+    template<typename Storage>
+    uint32 pixelByte(uint32 base,uint32 bw,uint32 x,uint32 y){
+        CGsPixelFormats::CPixelIndexor<Storage> ix(writer.data(),base,bw);
+        return uint32(reinterpret_cast<uint8*>(ix.GetPixelAddress(x,y))-writer.data());
+    }
+    uint32 t4Nibble(uint32 base,uint32 bw,uint32 x,uint32 y){
+        const uint32* offs=CGsPixelFormats::CPixelIndexorPSMT4::GetPageOffsets(); // nibble offsets in a page [128][128]
+        const uint32 page=(x/128)+(y/128)*(bw*64)/128;
+        return ((base+page*CGsPixelFormats::PAGESIZE)*2+offs[(y%128)*128+(x%128)])&(CGSHandler::RAMSIZE*2-1);
+    }
+    // Mark one pixel of storage format psm at (x,y): returns marked nibble count, or ~0 if unsupported.
+    uint64 markPixel(uint32 psm,uint32 base,uint32 bw,uint32 x,uint32 y,uint32 mask32,uint8 code){
+        using F=CGsPixelFormats;
+        switch(psm){
+        case PSMCT32:case PSMZ32:  return markUnit(psm==PSMCT32?pixelByte<F::STORAGEPSMCT32>(base,bw,x,y):pixelByte<F::STORAGEPSMZ32>(base,bw,x,y),mask32&0xff,code);
+        case PSMCT24:case PSMZ24:  return markUnit(psm==PSMCT24?pixelByte<F::STORAGEPSMCT32>(base,bw,x,y):pixelByte<F::STORAGEPSMZ32>(base,bw,x,y),mask32&0x3f,code);
+        case PSMCT16:  return markUnit(pixelByte<F::STORAGEPSMCT16>(base,bw,x,y),mask32&0xf,code);
+        case PSMCT16S: return markUnit(pixelByte<F::STORAGEPSMCT16S>(base,bw,x,y),mask32&0xf,code);
+        case PSMZ16:   return markUnit(pixelByte<F::STORAGEPSMZ16>(base,bw,x,y),mask32&0xf,code);
+        case PSMZ16S:  return markUnit(pixelByte<F::STORAGEPSMZ16S>(base,bw,x,y),mask32&0xf,code);
+        case PSMT8:    return markUnit(pixelByte<F::STORAGEPSMT8>(base,bw,x,y),0x3,code);
+        case PSMT8H:   return markUnit(pixelByte<F::STORAGEPSMCT32>(base,bw,x,y),0xc0,code);
+        case PSMT4HL:  return markUnit(pixelByte<F::STORAGEPSMCT32>(base,bw,x,y),0x40,code);
+        case PSMT4HH:  return markUnit(pixelByte<F::STORAGEPSMCT32>(base,bw,x,y),0x80,code);
+        case PSMT4:    markNibble(t4Nibble(base,bw,x,y),code);return 1;
+        default: return ~uint64(0);
+        }
+    }
+    // Rectangle [x0,x1]x[y0,y1] (inclusive) of a draw target. Returns marked nibbles.
+    uint64 markRect(uint32 psm,uint32 base,uint32 bw,int x0,int y0,int x1,int y1,uint32 mask32){
+        std::array<uint32,9> key{W_DRAW,psm,base,bw,uint32(x0),uint32(y0),uint32(x1),uint32(y1),mask32};
+        if(!drawDedup.insert(key).second){++dedupSkips;return 0;}
+        uint64 n=0;
+        for(int y=y0;y<=y1;++y)for(int x=x0;x<=x1;++x){
+            const uint64 m=markPixel(psm,base,bw,uint32(x),uint32(y),mask32,W_DRAW);
+            if(m==~uint64(0)){++unsupportedTargets;return n;}
+            n+=m;
+        }
+        return n;
+    }
+    // Nibble mask of a frame-buffer pixel actually writable under FBMSK (conservative for 16-bit formats).
+    static uint32 frameNibbles(uint32 psm,uint32 fbmsk,bool rgbOnly){
+        uint32 m=0;
+        if(psm==PSMCT16||psm==PSMCT16S||psm==PSMZ16||psm==PSMZ16S)return fbmsk==0xffffffffu?0:0xf;
+        const unsigned n=(psm==PSMCT24||psm==PSMZ24||rgbOnly)?6:8;
+        for(unsigned k=0;k<n;++k)if(((fbmsk>>(4*k))&0xf)!=0xf)m|=1u<<k;
+        return m;
+    }
+    void drawPrimitive(const uint64* v,unsigned nv,uint32 type){
+        ++primitives;
+        const uint64 prmodecont=m_nReg[GS_REG_PRMODECONT];
+        const uint64 prim=m_nReg[GS_REG_PRIM];
+        const unsigned ctxt=unsigned(((prmodecont&1)?prim:m_nReg[GS_REG_PRMODE])>>9&1);
+        const uint64 frame=m_nReg[GS_REG_FRAME_1+ctxt],zbuf=m_nReg[GS_REG_ZBUF_1+ctxt],test=m_nReg[GS_REG_TEST_1+ctxt];
+        const uint64 scissor=m_nReg[GS_REG_SCISSOR_1+ctxt],xyoff=m_nReg[GS_REG_XYOFFSET_1+ctxt];
+        const bool tme=((prmodecont&1)?prim:m_nReg[GS_REG_PRMODE])>>4&1;
+        const uint64 tex0=tme?m_nReg[GS_REG_TEX0_1+ctxt]:0;
+        // Write enables (exact "nothing written" cases; everything else conservatively both).
+        bool fw=true,zw=!((zbuf>>32)&1),rgbOnly=false;
+        const bool ate=test&1;const uint32 atst=uint32(test>>1&7),afail=uint32(test>>12&3);
+        const bool zte=test>>16&1;const uint32 ztst=uint32(test>>17&3);
+        if(zte&&ztst==0){fw=false;zw=false;}
+        if(ate&&atst==0){
+            if(afail==0){fw=false;zw=false;}else if(afail==1)zw=false;else if(afail==2)fw=false;else{zw=false;rgbOnly=true;}
+        }
+        // Bounding box in window pixels (12.4 fixed point minus XYOFFSET), clipped to SCISSOR.
+        const int ofx=int(xyoff&0xffff),ofy=int(xyoff>>32&0xffff);
+        int minx=1<<30,miny=1<<30,maxx=-(1<<30),maxy=-(1<<30);
+        for(unsigned i=0;i<nv;++i){
+            const int x=int(v[i]&0xffff)-ofx,y=int(v[i]>>16&0xffff)-ofy;
+            minx=std::min(minx,x);maxx=std::max(maxx,x);miny=std::min(miny,y);maxy=std::max(maxy,y);
+        }
+        auto floorDiv=[](int a){return a>=0?a/16:-((-a+15)/16);};
+        auto ceilDiv=[](int a){return a>=0?(a+15)/16:-((-a)/16);};
+        int x0=floorDiv(minx),x1=ceilDiv(maxx),y0=floorDiv(miny),y1=ceilDiv(maxy);
+        const int sx0=int(scissor&0x7ff),sx1=int(scissor>>16&0x7ff),sy0=int(scissor>>32&0x7ff),sy1=int(scissor>>48&0x7ff);
+        x0=std::max(x0,sx0);y0=std::max(y0,sy0);x1=std::min(x1,sx1);y1=std::min(y1,sy1);
+        const uint32 fpsm=uint32(frame>>24&0x3f),fbp=uint32(frame&0x1ff)*8192,fbw=uint32(frame>>16&0x3f),fbmsk=uint32(frame>>32);
+        const uint32 zpsm=uint32(0x30|(zbuf>>24&0xf)),zbp=uint32(zbuf&0x1ff)*8192;
+        const uint32 fmask=fw?frameNibbles(fpsm,fbmsk,rgbOnly):0;
+        if(!fmask)fw=false;
+        uint64 marked=0;
+        const bool empty=x0>x1||y0>y1;
+        if(!empty){
+            if(fw)marked+=markRect(fpsm,fbp,fbw,x0,y0,x1,y1,fmask);
+            if(zw)marked+=markRect(zpsm,zbp,fbw,x0,y0,x1,y1,0xff);
+        }
+        if(empty||(!fw&&!zw))++primitivesSkippedNoWrite;
+        std::array<uint64,10> key{ctxt,type,uint64(tme),frame,zbuf,test,tex0,scissor,xyoff,uint64(fw)|uint64(zw)<<1};
+        auto& c=drawClasses[key];
+        if(!c.count){c.firstOp=gsOps;c.firstFlip=flips;c.firstEe=eeNow();}
+        ++c.count;c.lastOp=gsOps;c.lastFlip=flips;c.lastEe=eeNow();c.frame|=fw;c.z|=zw;c.nibblesMarked+=marked;
+        if(!empty){c.x0=std::min(c.x0,x0);c.y0=std::min(c.y0,y0);c.x1=std::max(c.x1,x1);c.y1=std::max(c.y1,y1);}
+        if(drawDetailLines<256){
+            ++drawDetailLines;std::ostringstream o;
+            o<<"{\"kind\":\"gs_draw\",\"gs_op\":"<<gsOps<<",\"flip\":"<<flips<<",\"ee_event\":"<<eeNow()<<",\"prim_type\":"<<type
+             <<",\"ctxt\":"<<ctxt<<",\"tme\":"<<(tme?"true":"false")<<",\"frame\":"<<hx(frame)<<",\"zbuf\":"<<hx(zbuf)<<",\"test\":"<<hx(test)
+             <<",\"tex0\":"<<hx(tex0)<<",\"scissor\":"<<hx(scissor)<<",\"xyoffset\":"<<hx(xyoff)<<",\"rect\":"
+             <<(empty?std::string("null"):"["+std::to_string(x0)+","+std::to_string(y0)+","+std::to_string(x1)+","+std::to_string(y1)+"]")
+             <<",\"writes_frame\":"<<(fw?"true":"false")<<",\"writes_z\":"<<(zw?"true":"false")<<",\"nibbles_marked\":"<<marked<<"}";
+            lines.push_back(o.str());
+        }
+    }
+    void vertex(uint64 value,bool kick){
+        const uint32 type=uint32(m_nReg[GS_REG_PRIM]&7);
+        static const unsigned need[8]={1,2,2,3,3,3,2,0};
+        if(type==7){if(kick)++invalidPrimKicks;return;}
+        if(vqCount<3)vq[vqCount++]=value;else{vq[0]=vq[1];vq[1]=vq[2];vq[2]=value;}
+        if(vqCount<need[type])return;
+        if(kick){
+            if(type==5){const uint64 fan[3]={vq[0],vq[vqCount-2],vq[vqCount-1]};drawPrimitive(fan,3,type);}
+            else drawPrimitive(vq+(vqCount-need[type]),need[type],type);
+        }
+        switch(type){
+        case 0:case 1:case 3:case 6: vqCount=0;break;
+        case 2: vq[0]=vq[vqCount-1];vqCount=1;break;
+        case 4: {const uint64 a=vq[vqCount-2],b=vq[vqCount-1];vq[0]=a;vq[1]=b;vqCount=2;break;}
+        case 5: {const uint64 a=vq[0],b=vq[vqCount-1];vq[0]=a;vq[1]=b;vqCount=2;break;}
+        }
     }
 protected:
     void WriteRegisterImpl(uint8 reg,uint64 value) override {
@@ -90,6 +245,17 @@ protected:
                     lines.push_back(o.str());
                 }
             }
+            if(title) {
+                const uint8 r=reg&0x7f;++gsOps;
+                if(r==GS_REG_PRIM)vqCount=0;
+                else if(r==GS_REG_XYZ2||r==GS_REG_XYZF2)vertex(value,true);
+                else if(r==GS_REG_XYZ3||r==GS_REG_XYZF3){++xyz3;vertex(value,false);}
+                else if(r==GS_REG_TEX0_1||r==GS_REG_TEX0_2)pendingTex0=value;
+                else if(r==GS_REG_TEX2_1||r==GS_REG_TEX2_2){
+                    const uint64 mask=0xFFFFFFE003F00000ULL;
+                    pendingTex0=(m_nReg[GS_REG_TEX0_1+(r-GS_REG_TEX2_1)]&~mask)|(value&mask);
+                }
+            }
         }
         CGSH_Null::WriteRegisterImpl(reg,value);
     }
@@ -100,6 +266,7 @@ protected:
         current.bitbltbuf=m_nReg[GS_REG_BITBLTBUF];current.trxpos=m_nReg[GS_REG_TRXPOS];
         current.trxreg=m_nReg[GS_REG_TRXREG];current.trxdir=m_nReg[GS_REG_TRXDIR];
         current.total=m_trxCtx.nSize;CC_SHA256_Init(&current.ctx);
+        if(title){current.gsOp=gsOps;current.flip=flips;current.eeEvent=eeNow();}
         CGSH_Null::BeginTransferWrite();
     }
     void TransferWrite(const uint8* data,uint32 length) override {
@@ -109,15 +276,94 @@ protected:
                 const uint32 take=std::min<uint32>(length,m_trxCtx.nSize);
                 CC_SHA256_Update(&current.ctx,data,take);current.received+=take;
             }
+            if(title) {
+                ++current.chunks;drawDedup.clear();
+                const uint32 dpsm=uint32(m_nReg[GS_REG_BITBLTBUF]>>56&0x3f);
+                const uint32 dbp=uint32(m_nReg[GS_REG_BITBLTBUF]>>32&0x3fff)*256,dbw=uint32(m_nReg[GS_REG_BITBLTBUF]>>48&0x3f);
+                const uint32 dsax=uint32(m_nReg[GS_REG_TRXPOS]>>32&0x7ff),dsay=uint32(m_nReg[GS_REG_TRXPOS]>>48&0x7ff);
+                const uint32 rrw=uint32(m_nReg[GS_REG_TRXREG]&0xfff);
+                const uint32 len=std::min<uint32>(length,m_trxCtx.nSize);
+                uint64 pixels=0;
+                switch(dpsm){
+                case PSMCT32:pixels=len/4;break;
+                case PSMCT24:pixels=(len+2)/3;if(len%3){++current.ct24Unaligned;++ct24UnalignedChunks;}break;
+                case PSMCT16:case PSMCT16S:pixels=len/2;break;
+                case PSMT8:case PSMT8H:pixels=len;break;
+                case PSMT4:case PSMT4HL:case PSMT4HH:pixels=uint64(len)*2;break;
+                default:++unsupportedTargets;break;
+                }
+                uint32 rrx=m_trxCtx.nRRX,rry=m_trxCtx.nRRY;
+                for(uint64 i=0;i<pixels;++i){
+                    const uint32 x=(rrx+dsax)%2048,y=(rry+dsay)%2048;
+                    const uint64 m=markPixel(dpsm,dbp,dbw,x,y,0xff,W_UPLOAD);
+                    if(m!=~uint64(0))current.nibbles+=m;
+                    if(++rrx==rrw){rrx=0;++rry;}
+                }
+            }
         }
         CGSH_Null::TransferWrite(data,length);
     }
     void ProcessHostToLocalTransfer() override {std::lock_guard lock(mutex);++hostToLocalDone;}
     void ProcessLocalToHostTransfer() override {std::lock_guard lock(mutex);++localToHost;lines.push_back("{\"kind\":\"gs_local_to_host\"}");}
-    void ProcessLocalToLocalTransfer() override {std::lock_guard lock(mutex);++localToLocal;lines.push_back("{\"kind\":\"gs_local_to_local\"}");}
+    void ProcessLocalToLocalTransfer() override {
+        std::lock_guard lock(mutex);++localToLocal;
+        if(!title){lines.push_back("{\"kind\":\"gs_local_to_local\"}");return;}
+        // Not executed by the null renderer: the destination is marked as written by an unmodelled writer.
+        drawDedup.clear();
+        const uint64 bb=m_nReg[GS_REG_BITBLTBUF],tp=m_nReg[GS_REG_TRXPOS],tr=m_nReg[GS_REG_TRXREG];
+        const uint32 dpsm=uint32(bb>>56&0x3f),dbp=uint32(bb>>32&0x3fff)*256,dbw=uint32(bb>>48&0x3f);
+        const uint32 dsax=uint32(tp>>32&0x7ff),dsay=uint32(tp>>48&0x7ff),rrw=uint32(tr&0xfff),rrh=uint32(tr>>32&0xfff);
+        uint64 n=0;bool unsupported=false;
+        for(uint32 y=0;y<rrh&&!unsupported;++y)for(uint32 x=0;x<rrw;++x){
+            const uint64 m=markPixel(dpsm,dbp,dbw,(dsax+x)%2048,(dsay+y)%2048,0xff,W_LOCAL);
+            if(m==~uint64(0)){unsupported=true;++unsupportedTargets;break;}
+            n+=m;
+        }
+        std::ostringstream o;
+        o<<"{\"kind\":\"gs_local_to_local\",\"gs_op\":"<<gsOps<<",\"flip\":"<<flips<<",\"ee_event\":"<<eeNow()<<",\"bitbltbuf\":"<<hx(bb)
+         <<",\"trxpos\":"<<hx(tp)<<",\"trxreg\":"<<hx(tr)<<",\"dpsm\":"<<dpsm<<",\"dbp\":"<<(dbp/256)<<",\"dbw\":"<<dbw
+         <<",\"sbp\":"<<(bb&0x3fff)<<",\"sbw\":"<<(bb>>16&0x3f)<<",\"spsm\":"<<(bb>>24&0x3f)
+         <<",\"rrw\":"<<rrw<<",\"rrh\":"<<rrh<<",\"nibbles_marked\":"<<n<<",\"unsupported\":"<<(unsupported?"true":"false")<<"}";
+        lines.push_back(o.str());
+    }
     void ProcessClutTransfer(uint32 a,uint32 b) override {
         std::lock_guard lock(mutex);++clutTransfers;
-        lines.push_back("{\"kind\":\"gs_clut_transfer\",\"a\":"+std::to_string(a)+",\"b\":"+std::to_string(b)+"}");
+        if(!title){lines.push_back("{\"kind\":\"gs_clut_transfer\",\"a\":"+std::to_string(a)+",\"b\":"+std::to_string(b)+"}");return;}
+        // CLUT loads read local memory into the CLUT buffer; they do not write local memory.
+        const uint64 t=pendingTex0;
+        std::array<uint64,5> key{t>>37&0x3fff,t>>51&0xf,t>>55&1,t>>56&0x1f,t>>61&7};
+        ++clutClasses[key];
+        if(clutDetailLines<64){
+            ++clutDetailLines;
+            lines.push_back("{\"kind\":\"gs_clut_transfer\",\"gs_op\":"+std::to_string(gsOps)+",\"flip\":"+std::to_string(flips)
+                            +",\"a\":"+std::to_string(a)+",\"b\":"+std::to_string(b)+",\"tex0\":"+hx(t)+",\"cbp\":"+std::to_string(key[0])
+                            +",\"cpsm\":"+std::to_string(key[1])+",\"csm\":"+std::to_string(key[2])+",\"csa\":"+std::to_string(key[3])
+                            +",\"cld\":"+std::to_string(key[4])+"}");
+        }
+    }
+    void MarkNewFrame() override {{std::lock_guard lock(mutex);++flips;}CGSH_Null::MarkNewFrame();}
+public:
+    // Title-mode summary lines (after a full GS sync).
+    void writeTitleSummary(std::ostream& o){
+        for(const auto& kv:drawClasses){
+            const auto& k=kv.first;const auto& c=kv.second;
+            o<<"{\"kind\":\"gs_draw_class\",\"ctxt\":"<<k[0]<<",\"prim_type\":"<<k[1]<<",\"tme\":"<<(k[2]?"true":"false")
+             <<",\"frame\":"<<hx(k[3])<<",\"fbp\":"<<(k[3]&0x1ff)<<",\"fbw\":"<<(k[3]>>16&0x3f)<<",\"fpsm\":"<<(k[3]>>24&0x3f)<<",\"fbmsk\":"<<hx(k[3]>>32)
+             <<",\"zbuf\":"<<hx(k[4])<<",\"zbp\":"<<(k[4]&0x1ff)<<",\"zpsm\":"<<(0x30|(k[4]>>24&0xf))<<",\"zmsk\":"<<(k[4]>>32&1)
+             <<",\"test\":"<<hx(k[5])<<",\"tex0\":"<<hx(k[6])<<",\"tbp0\":"<<(k[6]&0x3fff)<<",\"tbw\":"<<(k[6]>>14&0x3f)<<",\"tpsm\":"<<(k[6]>>20&0x3f)
+             <<",\"scissor\":"<<hx(k[7])<<",\"xyoffset\":"<<hx(k[8])<<",\"writes_frame\":"<<(c.frame?"true":"false")<<",\"writes_z\":"<<(c.z?"true":"false")
+             <<",\"count\":"<<c.count<<",\"first_gs_op\":"<<c.firstOp<<",\"last_gs_op\":"<<c.lastOp<<",\"first_flip\":"<<c.firstFlip<<",\"last_flip\":"<<c.lastFlip
+             <<",\"first_ee_event\":"<<c.firstEe<<",\"last_ee_event\":"<<c.lastEe
+             <<",\"rect_union\":"<<(c.x1<0?std::string("null"):"["+std::to_string(c.x0)+","+std::to_string(c.y0)+","+std::to_string(c.x1)+","+std::to_string(c.y1)+"]")
+             <<",\"nibbles_marked\":"<<c.nibblesMarked<<"}\n";
+        }
+        for(const auto& kv:clutClasses)
+            o<<"{\"kind\":\"gs_clut_class\",\"cbp\":"<<kv.first[0]<<",\"cpsm\":"<<kv.first[1]<<",\"csm\":"<<kv.first[2]<<",\"csa\":"<<kv.first[3]
+             <<",\"cld\":"<<kv.first[4]<<",\"count\":"<<kv.second<<"}\n";
+        o<<"{\"kind\":\"gs_title_summary\",\"gs_ops\":"<<gsOps<<",\"flips\":"<<flips<<",\"primitives\":"<<primitives
+         <<",\"primitives_without_write\":"<<primitivesSkippedNoWrite<<",\"xyz3\":"<<xyz3<<",\"invalid_prim_kicks\":"<<invalidPrimKicks
+         <<",\"draw_rect_dedup_skips\":"<<dedupSkips<<",\"unsupported_targets\":"<<unsupportedTargets
+         <<",\"ct24_chunks_not_multiple_of_3\":"<<ct24UnalignedChunks<<",\"draw_classes\":"<<drawClasses.size()<<",\"clut_classes\":"<<clutClasses.size()<<"}\n";
     }
     void ResetImpl() override {
         {std::lock_guard lock(mutex);++resets;lines.push_back("{\"kind\":\"gs_reset\",\"armed\":"+std::string(armed?"true":"false")+"}");}
@@ -192,31 +438,49 @@ const HookDef rngHookDefs[]={
     {0x110298,"factory_110298"},{0x10f690,"factory_10f690"},{0x10e690,"factory_10e690"},
 };
 constexpr uint32 cacheDefTable=0x24e790,cacheElemTable=0x24e898,gridPtr=0x24e9fc,templateTablePtr=0x1f849c,currentSlot=0x24ea24;
+const HookDef titleHookDefs[]={
+    {0x12c350,"mode8_construct"},{0x12bfc8,"mode8_update"},{0x129570,"logo_tick"},{0x1296f8,"title_update"},
+    {0x124930,"mode_request"},{0x16c3c8,"storage_init"},{0x16c490,"storage_probe"},
+    {0x100a60,"image_list_load"},{0x1009e0,"image_list_append"},{0x1b2348,"image_load_append"},
+    {0x101058,"resource_retire"},{0x1b5fd0,"image_slots_retire"},{0x1b2240,"image_list_retire"},
+    {0x186c48,"xmd_load_path"},{0x183450,"xmd_bind"},{0x182f08,"xmd_model_build"},{0x182e28,"material_table"},
+    {0x1cc778,"handle_successor"},{0x1c2e90,"file_load"},{0x1c9b48,"upload_qwc"},{0x1cbdd8,"reserve_class_set"},
+    {0x186a50,"cache_enable_set"},{0x186a40,"lower_enable_set"},{0x1bba88,"cached_model_loader"},
+    {0x1cfc00,"range_alloc"},
+};
+constexpr uint32 imageListBase=0x337508,imageListCount=0x337608,reserveClass=0x3abb14,cacheSwitch=0x1fe310,lowerSwitch=0x1fe30c,
+                 materialListHead=0x330144,storageState=0x2597a8;
 
 struct Frame{uint32 fn;const char* name;uint32 ra;uint64 sp;uint64 enterIndex;bool dynamicBp;
-             std::string pendingName;uint64 a[8];uint32 fileBuf=0;};
+             std::string pendingName;uint64 a[8];uint32 fileBuf=0;int32 aux=0;uint32 aux2=0;};
 
-struct Alloc{int cls,psm,w,h;uint64 desc;};
+struct Alloc{int cls,psm,w,h;uint64 desc;uint64 serial=0;};
 
 int bitsPerPixel(uint32 psm){switch(psm){case 0:return 32;case 19:return 8;case 20:case 36:case 44:return 4;default:return 0;}}
+// Title mode also hashes PSMCT24/PSMCT16/PSMCT16S sources (Startup/RNG output unchanged without --title).
+int bitsPerPixelTitle(uint32 psm){switch(psm){case 1:return 24;case 2:case 10:return 16;default:return bitsPerPixel(psm);}}
 } // namespace
 
 int main(int argc,char** argv) {
     try {
-        if(argc<5)throw std::runtime_error("Usage: okage-startup-oracle DISC.cue ELF OUTDIR FILL(00|ff) [--deadline-seconds N] [--minimal | --rng-products]");
+        if(argc<5)throw std::runtime_error("Usage: okage-startup-oracle DISC.cue ELF OUTDIR FILL(00|ff) [--deadline-seconds N] [--minimal | --rng-products | --title [--minimal]]");
         const auto disc=std::filesystem::absolute(argv[1]);
         const std::filesystem::path elfPath=argv[2],outDir=argv[3];
         const std::string fillText=argv[4];
         if(fillText!="00"&&fillText!="ff")throw std::runtime_error("FILL must be 00 or ff");
         const uint8 fill=fillText=="ff"?0xff:0x00;
-        unsigned deadlineSeconds=1800;bool minimal=false,rngProducts=false;
+        unsigned deadlineSeconds=1800;bool minimal=false,rngProducts=false,title=false;
         for(int i=5;i<argc;++i){
             if(std::string(argv[i])=="--deadline-seconds"&&i+1<argc)deadlineSeconds=unsigned(std::stoul(argv[++i]));
             else if(std::string(argv[i])=="--minimal")minimal=true;
             else if(std::string(argv[i])=="--rng-products")rngProducts=true;
+            else if(std::string(argv[i])=="--title")title=true;
             else throw std::runtime_error("Unknown argument");
         }
         if(minimal&&rngProducts)throw std::runtime_error("--minimal and --rng-products are exclusive");
+        if(title&&rngProducts)throw std::runtime_error("--title already includes the --rng-products observations");
+        if(title&&!minimal)rngProducts=true;
+        auto bpp=[&](uint32 psm){return title?bitsPerPixelTitle(psm):bitsPerPixel(psm);};
         if(!std::filesystem::is_regular_file(disc))throw std::runtime_error("Disc input missing");
         if(std::filesystem::exists(outDir)||std::filesystem::is_symlink(outDir))throw std::runtime_error("Output directory must be fresh");
         std::vector<uint8> elf;
@@ -230,18 +494,27 @@ int main(int argc,char** argv) {
             // .text: file offset 0x1000 -> vaddr 0x100000, size 0xf8434-0x100000
             const uint32 off=vaddr-0x100000+4096;uint32 w;std::memcpy(&w,elf.data()+off,4);return w;};
         std::map<uint32,std::string> entryName;
-        for(const auto& h:hookDefs)if(h.name)entryName[h.addr]=h.name;
-        if(rngProducts)for(const auto& h:rngHookDefs){
-            if(entryName.count(h.addr))throw std::runtime_error("Duplicate RNG hook");
-            entryName[h.addr]=h.name;
+        if(title&&minimal) entryName[0x12c350]="mode8_construct";
+        else {
+            for(const auto& h:hookDefs)if(h.name)entryName[h.addr]=h.name;
+            if(rngProducts)for(const auto& h:rngHookDefs){
+                if(entryName.count(h.addr))throw std::runtime_error("Duplicate RNG hook");
+                entryName[h.addr]=h.name;
+            }
+            if(title)for(const auto& h:titleHookDefs){
+                if(entryName.count(h.addr))throw std::runtime_error("Duplicate Title hook");
+                entryName[h.addr]=h.name;
+            }
         }
         std::set<uint32> returnSites;
         for(uint32 a=0x100000;a+8<0x1f8434;a+=4) {
             const auto w=elfWord(a);
             if((w>>26)==3&&entryName.count((w&0x03ffffff)<<2))returnSites.insert(a+8);
         }
+        // Top-level call sites of 0x1002f8. Title mode extends the range over the main loop body
+        // (0x1005e0..0x1006c4) so every event carries the loop call that is current.
         std::map<uint32,uint32> topSites; // pc -> callee
-        for(uint32 a=mainPc;a<=0x100618;a+=4) {
+        for(uint32 a=mainPc;a<=(title?0x1006c4u:0x100618u);a+=4) {
             const auto w=elfWord(a);if((w>>26)==3)topSites[a]=(w&0x03ffffff)<<2;
         }
         if(!topSites.count(stopPc))throw std::runtime_error("Stop PC is not a jal in this ELF");
@@ -277,6 +550,8 @@ int main(int argc,char** argv) {
             for(const auto& kv:entryName)addBp(kv.first);
             for(auto a:returnSites)addBp(a);
             for(const auto& kv:topSites)addBp(kv.first);
+        } else if(title) {
+            for(const auto& kv:entryName)addBp(kv.first); // 0x12c350 only; its return is a dynamic breakpoint
         }
 
         std::atomic<bool> stateChanged{false},finishing{false};
@@ -300,8 +575,8 @@ int main(int argc,char** argv) {
         std::vector<Frame> stack;
         std::map<uint64,Alloc> allocs; // by allocation id
         std::vector<std::string> evLines;
-        uint64 evCount=0;
-        bool stopped=false;
+        uint64 evCount=0,allocSerial=0;
+        bool stopped=false,titleStopped=false,prefixPassed=false;uint32 titleStopRa=0;uint64 titleStopSp=0;
         std::string fillReport="null";
         struct FileInfo{std::string name;uint32 ptr=0;uint64 size=0;std::string sha;};
         FileInfo lastFile;
@@ -333,10 +608,46 @@ int main(int argc,char** argv) {
             if(j!=0xffffffffu&&plausiblePtr(j,16))q<<",\"count\":"<<get32(j+8)<<",\"elements_ptr\":"<<hx(get32(j+12));
             q<<"}";return q.str();
         };
+        std::atomic<uint64> evAtomic{0};
         auto emit=[&](const std::string& body){
-            std::string line="{\"i\":"+std::to_string(evCount++)+",\"top\":"+std::to_string(topStep.load())+","+body+"}\n";
+            std::string line="{\"i\":"+std::to_string(evCount++)+",\"top\":"+std::to_string(topStep.load())+","
+                             +(title?"\"vb\":"+std::to_string(frames.load())+",":std::string())+body+"}\n";
+            evAtomic.store(evCount);
             events.write(line.data(),std::streamsize(line.size()));
         };
+        // ---- Title helpers (title mode) ----------------------------------------------------
+        auto s16=[&](uint32 a){int16 v;std::memcpy(&v,ram+(a&0x1ffffff),2);return int(v);};
+        auto handleRecord=[&](int h){return (h>=0&&h<0x1000)?s16(0x3a5b00+h*2):-1;};
+        auto descRefs=[&](uint64 d){return d?s16(0x3adc20+uint32((d>>20)&0xfff)*6):0;};
+        auto queueIds=[&](int head,int tail){ // handle node pool H lists (node = id+8)
+            std::vector<int> ids;int e=s16(0x3a1ad0+head*4+2);
+            for(int n=0;e!=tail&&n<=0x1008;++n){if(e<8||e>=0x1008)throw std::runtime_error("reserved queue node");ids.push_back(e-8);e=s16(0x3a1ad0+e*4+2);}
+            return ids;};
+        auto intList=[](const std::vector<int>& v){std::string s="[";for(size_t i=0;i<v.size();++i)s+=(i?",":"")+std::to_string(v[i]);return s+"]";};
+        auto imageList=[&]{std::vector<int> v;const int n=int(get32(imageListCount));
+            for(int i=0;i<n&&i<64;++i)v.push_back(int32(get32(imageListBase+i*4)));return v;};
+        auto queueContext=[&]{
+            // Before 0x1cbdf8 has built the handle node pool the queues are not lists yet: reported as null.
+            auto q=[&](int h,int t){try{return intList(queueIds(h,t));}catch(const std::runtime_error&){return std::string("null");}};
+            std::ostringstream o;o<<",\"reserve_class\":"<<int32(get32(reserveClass))<<",\"reserved0\":"<<q(2,4)
+                                  <<",\"reserved1\":"<<q(3,5)<<",\"cache_switch\":"<<int32(get32(cacheSwitch))
+                                  <<",\"lower_switch\":"<<int32(get32(lowerSwitch));
+            return o.str();};
+        auto storageJson=[&]{std::ostringstream o;o<<",\"storage_words\":[";
+            for(int i=0;i<10;++i)o<<(i?",":"")<<int32(get32(storageState+i*4));
+            o<<"],\"storage_bytes_2597c8\":["<<unsigned(ram[0x2597c8])<<","<<unsigned(ram[0x2597c9])<<","<<unsigned(ram[0x2597ca])<<"]";return o.str();};
+        auto materialTable=[&](uint32 t){std::ostringstream o;
+            if(!plausiblePtr(t,0x10)){o<<"null";return o.str();}
+            const int n=int32(get32(t+0xc));
+            o<<"{\"ptr\":"<<hx(t)<<",\"next\":"<<hx(get32(t))<<",\"word1\":"<<int32(get32(t+4))<<",\"word2\":"<<int32(get32(t+8))<<",\"count\":"<<n<<",\"handles\":[";
+            for(int i=0;i<n&&i<256&&plausiblePtr(t+0x10+i*4,4);++i)o<<(i?",":"")<<int32(get32(t+0x10+i*4));
+            o<<"]}";return o.str();};
+        auto xmdNames=[&](uint32 x){std::ostringstream o;
+            if(!plausiblePtr(x,8)){o<<"null";return o.str();}
+            const int32 off=int32(get32(x+4));if(off<=0||!plausiblePtr(x+off,4)){o<<"[]";return o.str();}
+            const int n=int32(get32(x+off));uint32 p=x+off+4;o<<"[";
+            for(int i=0;i<n&&i<1024;++i){const std::string s=cstr(p);o<<(i?",":"")<<"\""<<esc(s)<<"\"";p+=uint32(s.size())+1;}
+            o<<"]";return o.str();};
         auto argsJson=[&](const uint64* a){
             std::ostringstream o;o<<"\"args\":[";
             for(int i=0;i<8;++i)o<<(i?",":"")<<hx(a[i]);o<<"]";return o.str();
@@ -361,7 +672,7 @@ int main(int argc,char** argv) {
             else if(name=="upload") {
                 const uint32 psm=uint32(a[0]>>32)&0x3f;const uint64 w=uint32(a[3]),h=uint32(a[4]),src=norm(a[5]);
                 o<<",\"desc\":"<<descJson(a[0])<<",\"x\":"<<int32(a[1])<<",\"y\":"<<int32(a[2])<<",\"w\":"<<w<<",\"h\":"<<h<<",\"src\":"<<hx(src);
-                const int bits=bitsPerPixel(psm);
+                const int bits=bpp(psm);
                 if(bits&&src) {
                     const uint64 qwc=w*h*bits/128,bytes=qwc*16;
                     o<<",\"qwc\":"<<qwc<<",\"src_bytes\":"<<bytes;
@@ -372,7 +683,7 @@ int main(int argc,char** argv) {
             else if(name=="image_alloc_handle_upload") {
                 const uint32 psm=uint32(a[0]),src=uint32(norm(a[3]));const uint64 w=uint32(a[1]),h=uint32(a[2]);
                 o<<",\"psm\":"<<psm<<",\"w\":"<<w<<",\"h\":"<<h<<",\"src\":"<<hx(src);
-                const int bits=bitsPerPixel(psm);
+                const int bits=bpp(psm);
                 if(bits&&src&&plausiblePtr(src,w*h*bits/8))o<<",\"src_nominal_bytes\":"<<w*h*bits/8<<",\"src_nominal_sha256\":\""<<sha(ram+src,w*h*bits/8)<<"\"";
                 else o<<",\"src_nominal_sha256\":null,\"src_note\":\""<<(src?"unsupported psm or range":"null source (no upload)")<<"\"";
             }
@@ -410,6 +721,45 @@ int main(int argc,char** argv) {
                     <<",\"owner\":"<<jobJson(uint32(a[0]))<<",\"current\":"<<jobJson(get32(currentSlot));
                 else if(name.rfind("factory_",0)==0) o<<",\"current\":"<<jobJson(get32(currentSlot));
             }
+            if(title) {
+                auto str0=[&](uint64 p){return p&&plausiblePtr(uint32(p),1)?"\""+esc(cstr(uint32(p)))+"\"":std::string("null");};
+                if(name=="mode8_construct"){
+                    const uint32 obj=uint32(a[0]),parent=get32(obj+0x14);
+                    const int32 sel=plausiblePtr(parent,0x48)?int32(get32(parent+0x44)):-1;
+                    f.aux=sel;
+                    o<<",\"selector\":"<<sel<<",\"image_list\":"<<intList(imageList())<<storageJson()<<queueContext();
+                }
+                else if(name=="logo_tick"){f.aux=int32(get32(uint32(a[0])+0x30))+1;o<<",\"tick\":"<<f.aux;}
+                else if(name=="title_update")throw std::runtime_error("0x1296f8 (first title update) reached before the 0x12c350(selector 1) return stop");
+                else if(name=="mode_request")o<<",\"mode\":"<<int32(a[1])<<",\"selector\":"<<int32(a[2])<<",\"arg3\":"<<int32(a[3]);
+                else if(name=="storage_init"||name=="storage_probe"){f.aux2=uint32(a[0]);o<<",\"param\":"<<hx(a[0])<<storageJson();}
+                else if(name=="image_list_load"||name=="image_list_append")
+                    o<<",\"image_name\":"<<str0(a[1])<<",\"image_list\":"<<intList(imageList());
+                else if(name=="image_load_append")o<<",\"image_name\":"<<str0(a[0])<<",\"palette_arg\":"<<int32(a[1])<<",\"image_list\":"<<intList(imageList());
+                else if(name=="image_list_retire"||name=="image_slots_retire"||name=="resource_retire")
+                    o<<",\"image_list\":"<<intList(imageList())<<",\"slots_337610\":"<<int32(get32(0x337610))<<",\"count_337920\":"<<int32(get32(0x337920));
+                else if(name=="xmd_load_path"||name=="file_load")o<<",\"str\":"<<str0(a[0])<<queueContext();
+                else if(name=="xmd_load")o<<",\"xmd\":"<<hx(norm(a[0]))<<",\"xmd_names\":"<<xmdNames(uint32(norm(a[0])))<<queueContext();
+                else if(name=="xmd_bind"||name=="xmd_model_build")o<<",\"xmd\":"<<hx(norm(a[0]))<<",\"first_handle\":"<<int32(a[1]);
+                else if(name=="material_table"){f.aux2=uint32(norm(a[0]));
+                    o<<",\"table\":"<<hx(f.aux2)<<",\"xmd\":"<<hx(norm(a[1]))<<",\"first_handle\":"<<int32(a[2])<<",\"slot\":"<<int32(a[3])<<",\"models\":"<<int32(a[4])
+                     <<",\"material_list_head\":"<<hx(get32(materialListHead));}
+                else if(name=="handle_successor")o<<",\"handle\":"<<int32(a[0])<<",\"record\":"<<handleRecord(int32(a[0]));
+                else if(name=="upload_qwc")o<<",\"psm\":"<<int32(a[0])<<",\"w\":"<<int32(a[3])<<",\"h\":"<<int32(a[4]);
+                else if(name=="reserve_class_set"||name=="cache_enable_set"||name=="lower_enable_set")o<<",\"value\":"<<int32(a[0])<<queueContext();
+                else if(name=="range_alloc")o<<",\"pool\":"<<hx(norm(a[0]))<<",\"units\":"<<int32(a[1]);
+                else if(name=="handle_reserve")o<<",\"count\":"<<int32(a[0])<<queueContext();
+                else if(name=="handle_create"||name=="handle_alias"||name=="handle_lookup")o<<queueContext();
+                else if(name=="handle_retire"){
+                    const int h=int32(a[0]),r=handleRecord(h);
+                    o<<",\"record\":"<<r<<",\"record_handles_before\":"<<(r>=0?int(get32(get32(0x3a7b00)+r*0x30+0x2c)&0xffff):-1);
+                }
+                else if(name=="retain")o<<",\"refs_before\":"<<descRefs(a[0]);
+                else if(name=="free"){f.aux=descRefs(a[0]);f.aux2=get32(0x3adc1c);o<<",\"refs_before\":"<<f.aux<<",\"available_before\":"<<f.aux2;}
+                else if(name=="xim_load")o<<",\"xim\":"<<hx(norm(a[0]))<<",\"last_raw_read\":{\"name\":\""<<esc(lastFile.name)<<"\",\"size\":"<<lastFile.size
+                                           <<",\"sha256\":"<<(lastFile.sha.empty()?std::string("null"):"\""+lastFile.sha+"\"")<<"}";
+                else if(name=="palette_bind")o<<",\"record\":"<<handleRecord(int32(a[0]));
+            }
             if(name=="main"||name=="noise_texture"||name=="effect_noise_grid"||name=="effects_load"||name=="fonts_init"||name=="capture_filter_init"||name=="glyph_cache"||name=="effect_script_init")
                 o<<","<<randState();
             f.enterIndex=evCount;
@@ -430,7 +780,8 @@ int main(int argc,char** argv) {
             if(name=="alloc") {
                 if(v0) {
                     o<<",\"result\":"<<descJson(v0);
-                    allocs[(v0>>20)&0xfff]=Alloc{int32(f.a[0]),int32(f.a[1]),int32(f.a[2]),int32(f.a[3]),v0};
+                    allocs[(v0>>20)&0xfff]=Alloc{int32(f.a[0]),int32(f.a[1]),int32(f.a[2]),int32(f.a[3]),v0,++allocSerial};
+                    if(title)o<<",\"serial\":"<<allocSerial;
                 } else o<<",\"result\":null";
             } else if(name=="clut_alloc_upload") {
                 o<<",\"result\":"<<(v0?descJson(v0):std::string("null"));
@@ -463,7 +814,57 @@ int main(int argc,char** argv) {
                     o<<",\"snapshot\":\"ee-ram-after-10bc78.bin\",\"snapshot_sha256\":\""<<sha(ram,0x2000000)<<"\"";
                 }
             }
+            bool stopHere=false;
+            if(title) {
+                if(name=="mode8_construct"){
+                    const int32 sel=int32(get32(uint32(f.a[0])+0x24));
+                    o<<",\"selector_entry\":"<<f.aux<<",\"selector\":"<<sel<<",\"image_list\":"<<intList(imageList())<<storageJson()<<queueContext();
+                    if(sel!=f.aux)throw std::runtime_error("0x12c350 selector changed between entry and return");
+                    stopHere=sel==1;
+                }
+                else if(name=="logo_tick")o<<",\"tick\":"<<f.aux<<",\"counter_after\":"<<int32(get32(uint32(f.a[0])+0x30));
+                else if(name=="storage_probe"||name=="storage_init"){
+                    o<<",\"result\":"<<int64(v0)<<",\"param_words\":["<<int32(get32(f.aux2))<<","<<int32(get32(f.aux2+4))<<","<<int32(get32(f.aux2+8))<<"]"<<storageJson();
+                }
+                else if(name=="image_list_load"||name=="image_list_append"||name=="image_load_append"||name=="image_list_retire"
+                        ||name=="image_slots_retire"||name=="resource_retire")
+                    o<<",\"result\":"<<int32(v0)<<",\"image_list\":"<<intList(imageList());
+                else if(name=="xmd_load_path"||name=="xmd_load"||name=="xmd_bind"||name=="xmd_model_build")
+                    o<<",\"result\":"<<int32(v0)<<queueContext()<<",\"material_list_head\":"<<hx(get32(materialListHead));
+                else if(name=="material_table")o<<",\"table\":"<<materialTable(f.aux2)<<",\"return_ptr\":"<<hx(v0);
+                else if(name=="handle_successor")o<<",\"successor\":"<<int32(v0);
+                else if(name=="upload_qwc"){
+                    o<<",\"qwc\":"<<int32(v0);
+                    // When called from 0x1c9bb8 (upload), hash exactly the qwc*16 bytes the upload DMA sends.
+                    if(!stack.empty()&&std::string(stack.back().name)=="upload"){
+                        const uint32 src=uint32(norm(stack.back().a[5]));const uint64 bytes=uint64(uint32(v0))*16;
+                        o<<",\"upload_src\":"<<hx(src)<<",\"upload_bytes\":"<<bytes<<",\"upload_desc\":"<<descJson(stack.back().a[0]);
+                        if(src&&plausiblePtr(src,bytes))o<<",\"upload_sha256\":\""<<sha(ram+src,bytes)<<"\"";else o<<",\"upload_sha256\":null";
+                    }
+                }
+                else if(name=="range_alloc"||name=="reserve_class_set"||name=="cache_enable_set"||name=="lower_enable_set")o<<",\"result\":"<<int32(v0);
+                else if(name=="handle_reserve")o<<",\"first\":"<<int32(v0)<<queueContext();
+                else if(name=="handle_create"||name=="handle_alias"||name=="handle_lookup"){
+                    const int h=int32(v0);o<<",\"record\":"<<handleRecord(h)<<queueContext();
+                }
+                else if(name=="xim_load"||name=="image_alloc_handle_upload")o<<",\"record\":"<<handleRecord(int32(v0));
+                else if(name=="handle_retire")o<<",\"record_after\":"<<handleRecord(int32(f.a[0]));
+                else if(name=="retain")o<<",\"refs_after\":"<<descRefs(f.a[0]);
+                else if(name=="free"){
+                    const uint32 av=get32(0x3adc1c);
+                    o<<",\"available_after\":"<<av<<",\"freed\":"<<(av==f.aux2+1?"true":"false");
+                    if(av!=f.aux2&&av!=f.aux2+1)throw std::runtime_error("0x1cf728 changed the available count by more than one");
+                }
+                else if(name=="palette_bind"||name=="palette_bind_desc")o<<",\"refs_after\":"<<descRefs(f.a[name=="palette_bind"?2:1]);
+                else if(name=="file_load")o<<",\"buf\":"<<hx(v0)<<",\"last_raw_read\":{\"name\":\""<<esc(lastFile.name)<<"\",\"size\":"<<lastFile.size<<",\"sha256\":"
+                                              <<(lastFile.sha.empty()?std::string("null"):"\""+lastFile.sha+"\"")<<"}";
+            }
             emit(o.str());
+            if(stopHere){
+                titleStopped=true;titleStopRa=f.ra;titleStopSp=f.sp;
+                // The return breakpoint stays armed: the VM is paused AT the return address, before 0x1296f8.
+                return;
+            }
             if(f.dynamicBp)delBp(f.ra);
         };
 
@@ -474,7 +875,14 @@ int main(int argc,char** argv) {
             const uint8* vram=gs->GetRam();bool zero=true;for(uint32 i=0;i<CGSHandler::RAMSIZE;++i)if(vram[i]){zero=false;break;}
             uint64 regs,kicks,tr,res;
             {std::lock_guard lock(gs->mutex);regs=gs->regWrites;kicks=gs->kicks;tr=gs->transfers;res=gs->resets;}
-            gs->SendGSCall([&]{std::memset(gs->GetRam(),fill,CGSHandler::RAMSIZE);gs->armed=true;},true);
+            gs->SendGSCall([&]{
+                std::memset(gs->GetRam(),fill,CGSHandler::RAMSIZE);gs->armed=true;
+                if(title&&!minimal){
+                    std::lock_guard lock(gs->mutex);
+                    gs->title=true;gs->eeEventCounter=&evAtomic;
+                    gs->writer.assign(CGSHandler::RAMSIZE,0);gs->uploadEver.assign(CGSHandler::RAMSIZE,0);
+                }
+            },true);
             std::ostringstream o;
             o<<"{\"fill\":"<<unsigned(fill)<<",\"ee_pc\":"<<hx(cpu.nPC)<<",\"vram_all_zero_before_fill\":"<<(zero?"true":"false")
              <<",\"gs_reg_writes_before_fill\":"<<regs<<",\"gs_vertex_kicks_before_fill\":"<<kicks
@@ -494,92 +902,8 @@ int main(int argc,char** argv) {
             return 0;
         };
 
-        fillGs();
-        const auto startTime=std::chrono::steady_clock::now();
-        vm.Resume();
-        const auto deadline=startTime+std::chrono::seconds(deadlineSeconds);
-        uint64 stops=0,benignBlockStops=0,randCalls=0;std::vector<uint32> history;
-        bool randPending=false;uint32 randPendingRa=0;uint64 randPendingSp=0;
-        while(!stopped&&!exited&&std::chrono::steady_clock::now()<deadline) {
-            if(stateChanged.exchange(false)&&vm.GetStatus()==CVirtualMachine::PAUSED) {
-                const uint32 pc=cpu.nPC;++stops;if(history.size()<100000)history.push_back(pc);
-                const uint64 sp=reg(CMIPS::SP);
-                bool explained=false;
-                // RNG: rand() return (leaf; one pending call at most) before everything else at this pc.
-                if(randPending&&pc==randPendingRa&&sp==randPendingSp) {
-                    emit("\"ev\":\"rand_exit\",\"n\":"+std::to_string(randCalls-1)+",\"ra\":"+hx(pc)+",\"v0\":"+std::to_string(uint32(reg(CMIPS::V0)))
-                         +",\"v0_hi\":"+std::to_string(uint32(reg(CMIPS::V0)>>32))+",\"state\":"+std::to_string(get32(0x214ec8+0x58))
-                         +",\"rand_ptr_2151b4\":"+std::to_string(get32(0x2151b4)));
-                    randPending=false;delBp(randPendingRa);explained=true;
-                }
-                // exits first (return addresses), then entries, then top-level call sites
-                for(;;) {
-                    bool any=false;
-                    for(size_t i=stack.size();i-->0;)
-                        if(stack[i].ra==pc&&stack[i].sp==sp){onExitAt(i);any=true;explained=true;break;}
-                    if(!any)break;
-                }
-                if(pc==randPc){
-                    if(!rngProducts) emit("\"ev\":\"rand\",\"ra\":"+hx(reg(CMIPS::RA))+",\"state\":"+std::to_string(get32(0x214ec8+0x58)));
-                    else {
-                        if(randPending)throw std::runtime_error("Nested rand() call");
-                        std::string frames="[";
-                        for(size_t k=0;k<stack.size();++k)frames+=std::string(k?",":"")+"\""+stack[k].name+"\"";
-                        frames+="]";
-                        emit("\"ev\":\"rand\",\"n\":"+std::to_string(randCalls)+",\"ra\":"+hx(reg(CMIPS::RA))+",\"sp\":"+hx(sp)
-                             +",\"state\":"+std::to_string(get32(0x214ec8+0x58))+",\"rand_ptr_2151b4\":"+std::to_string(get32(0x2151b4))
-                             +",\"parent\":"+(stack.empty()?std::string("null"):"\""+std::string(stack.back().name)+"\"")+",\"frames\":"+frames);
-                        randPending=true;randPendingRa=uint32(reg(CMIPS::RA));randPendingSp=sp;addBp(randPendingRa);
-                    }
-                    ++randCalls;explained=true;
-                }
-                if(entryName.count(pc)){onEnter(pc);explained=true;}
-                const uint32 ct=firstControlTransfer(pc);
-                auto top=ct?topSites.find(ct):topSites.end();
-                if(top!=topSites.end()) {
-                    topStep.store(int(ct));explained=true;
-                    if(ct==stopPc) {
-                        emit("\"ev\":\"stop\",\"block_start\":"+hx(pc)+",\"pc\":"+hx(ct)+",\"callee\":"+hx(top->second)+",\"stack_depth\":"+std::to_string(stack.size())+","+randState());
-                        stopped=true;break; // stay paused: the jal at 0x100618 has NOT executed
-                    }
-                    emit("\"ev\":\"top\",\"block_start\":"+hx(pc)+",\"pc\":"+hx(ct)+",\"callee\":"+hx(top->second));
-                }
-                if(!explained) {
-                    // A block start that contains some breakpoint address but no event we model.
-                    bool contains=false;
-                    if(ct)for(const auto& kv:bpRef)if(kv.second>0&&kv.first>=pc&&kv.first<=ct+4){contains=true;break;}
-                    if(!contains) {
-                        std::ostringstream d;d<<"Unexplained stop at EE PC "<<hx(pc)<<" ct="<<hx(ct)<<" ra="<<hx(reg(CMIPS::RA))
-                            <<" stops="<<stops<<" stack="<<stack.size()<<" exc="<<cpu.nHasException;
-                        throw std::runtime_error(d.str());
-                    }
-                    ++benignBlockStops;
-                }
-                vm.Resume();continue;
-            }
-            std::unique_lock lock(stateMutex);
-            stateWake.wait_for(lock,std::chrono::milliseconds(50),[&]{return stateChanged.load()||exited.load();});
-        }
-        if(!stopped)throw std::runtime_error("Startup did not reach the stop PC (exit="+std::to_string(exited.load())+" stops="+std::to_string(stops)+")");
-        if(vm.GetStatus()!=CVirtualMachine::PAUSED)throw std::runtime_error("VM not paused at stop");
-        const double seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-startTime).count();
-        if(uint32(cpu.nPC)!=stopPc)throw std::runtime_error("Stop PC mismatch");
-
-        // ---- final state (VM paused, GS drained) -----------------------------------------
-        // Finish: flush any buffered GS register writes, then wait for the GS thread.
-        std::string dmaReport;
-        {
-            std::ostringstream o;
-            o<<"{\"dma2_chcr\":"<<vm.m_ee->m_dmac.GetRegister(CDMAC::D2_CHCR)<<",\"dma1_chcr\":"<<vm.m_ee->m_dmac.GetRegister(CDMAC::D1_CHCR)
-             <<",\"gif_active_path\":"<<vm.m_ee->m_gif.GetActivePath()<<"}";dmaReport=o.str();
-        }
-        gs->FlushWriteBuffer();
-        gs->SendGSCall([]{},true);
-        {std::lock_guard lock(gs->mutex);gs->flushTransfer();}
-        const uint8* vram=gs->GetRam();
-        writeFresh(outDir/"vram.bin",vram,CGSHandler::RAMSIZE);
-        writeFresh(outDir/"ee-ram-32mb.bin",ram,0x2000000);
-
+        // Allocator/handle state snapshot (reads only). vram == nullptr: no VRAM digest (prefix snapshot).
+        auto buildState=[&](const uint8* vram)->std::string{
         auto s16at=[&](uint32 a){int16 v;std::memcpy(&v,ram+(a&0x1ffffff),2);return int(v);};
         auto u64at=[&](uint32 a){uint64 v;std::memcpy(&v,ram+(a&0x1ffffff),8);return v;};
         auto require=[](bool ok,const char* why){if(!ok)throw std::runtime_error(why);};
@@ -624,17 +948,149 @@ int main(int argc,char** argv) {
             out<<"],\"vram\":{\"available\":"<<get32(0x3adc1c)<<",\"cursors\":[";
             for(unsigned j=0;j<64;++j)out<<(j?",":"")<<get32(0x3adb18+j*4);
             out<<"],\"occupancy_sha256\":\""<<sha(ram+0x3abb18,8192)<<"\",\"nodes_sha256\":\""<<sha(ram+0x3adc20,4096*6+24)
-               <<"\",\"run_fill\":"<<unsigned(fill)<<",\"run_vram_sha256\":\""<<sha(vram,CGSHandler::RAMSIZE)<<"\"},"
+               <<"\",\"run_fill\":"<<unsigned(fill)<<",\"run_vram_sha256\":"<<(vram?"\""+sha(vram,CGSHandler::RAMSIZE)+"\"":std::string("null"))<<"},"
                <<randState()<<",\"free_count_0x3adc1c\":"<<get32(0x3adc1c)<<",\"ee_ram_32mb_sha256\":\""<<sha(ram,0x2000000)
-               <<"\",\"ee_code_sha256\":\""<<sha(ram+0x100000,0x1f8434-0x100000)<<"\"}\n";
+               <<"\",\"ee_code_sha256\":\""<<sha(ram+0x100000,0x1f8434-0x100000)<<"\"";
+            if(title) {
+                // Title: complete native-comparable allocator/handle state, read from guest RAM.
+                auto ring=[&](int head,int tail){std::vector<int> v;int e=s16at(0x3adc20+head*6+4);
+                    for(int n=0;e!=tail;++n){require(n<=0x1000&&e>=0&&e<0x1000,"descriptor ring node");v.push_back(e);e=s16at(0x3adc20+e*6+4);}return v;};
+                auto poolOrder=[&](uint32 pool,int head,int tail,int limit){std::vector<int> v;if(!pool)return v;int e=s16at(pool+head*4+2);
+                    for(int n=0;e!=tail;++n){require(n<=limit&&e>=8&&e<limit+8,"pool list node");v.push_back(e-8);e=s16at(pool+e*4+2);}return v;};
+                out<<",\"allocation_serials\":[";first=true;
+                for(const auto& kv:allocs){out<<(first?"":",")<<'['<<kv.first<<','<<kv.second.serial<<']';first=false;}
+                out<<"],\"free_queue_ids\":"<<intList(ring(0x1002,0x1003))<<",\"inuse_ring_ids\":"<<intList(ring(0x1000,0x1001))
+                   <<",\"reserved1\":"<<intList(queueIds(3,5))<<",\"reserve_class\":"<<int32(get32(reserveClass))
+                   <<",\"cache_switch\":"<<int32(get32(cacheSwitch))<<",\"lower_switch\":"<<int32(get32(lowerSwitch))
+                   <<",\"image_list_count\":"<<int32(get32(imageListCount))<<",\"image_list\":"<<intList(imageList())
+                   <<",\"record_free_order\":"<<intList(poolOrder(R,6,7,0x200))<<",\"extra_free_order\":"<<intList(poolOrder(X,6,7,0x80))
+                   <<",\"handle_ids_free_order\":"<<intList(queueIds(6,7))
+                   <<",\"handle_range_sha256\":\""<<sha(ram+0x3a7b10,0x1001*4)<<"\",\"handle_nodes_sha256\":\""<<sha(ram+0x3a1ad0,0x1008*4)<<"\""
+                   <<",\"material_tables\":[";
+                {uint32 t=get32(materialListHead);for(int n=0;t&&n<64;++n){out<<(n?",":"")<<materialTable(t);if(!plausiblePtr(t,4))break;t=get32(t);}}
+                static const char* hexd="0123456789abcdef";
+                out<<"],\"occupancy_hex\":\"";
+                for(uint32 k=0;k<8192;++k){const uint8 b=ram[0x3abb18+k];out<<hexd[b>>4]<<hexd[b&15];}
+                out<<"\"";
+            }
+            out<<"}\n";
         }
-        writeFresh(outDir/"final-state.jsonl",out.str().data(),out.str().size());
+        return out.str();
+        };
+        fillGs();
+        const auto startTime=std::chrono::steady_clock::now();
+        vm.Resume();
+        const auto deadline=startTime+std::chrono::seconds(deadlineSeconds);
+        uint64 stops=0,benignBlockStops=0,randCalls=0;std::vector<uint32> history;
+        bool randPending=false;uint32 randPendingRa=0;uint64 randPendingSp=0;
+        while(!stopped&&!exited&&std::chrono::steady_clock::now()<deadline) {
+            if(stateChanged.exchange(false)&&vm.GetStatus()==CVirtualMachine::PAUSED) {
+                const uint32 pc=cpu.nPC;++stops;if(history.size()<100000)history.push_back(pc);
+                const uint64 sp=reg(CMIPS::SP);
+                bool explained=false;
+                // RNG: rand() return (leaf; one pending call at most) before everything else at this pc.
+                if(randPending&&pc==randPendingRa&&sp==randPendingSp) {
+                    emit("\"ev\":\"rand_exit\",\"n\":"+std::to_string(randCalls-1)+",\"ra\":"+hx(pc)+",\"v0\":"+std::to_string(uint32(reg(CMIPS::V0)))
+                         +",\"v0_hi\":"+std::to_string(uint32(reg(CMIPS::V0)>>32))+",\"state\":"+std::to_string(get32(0x214ec8+0x58))
+                         +",\"rand_ptr_2151b4\":"+std::to_string(get32(0x2151b4)));
+                    randPending=false;delBp(randPendingRa);explained=true;
+                }
+                // exits first (return addresses), then entries, then top-level call sites
+                for(;;) {
+                    bool any=false;
+                    for(size_t i=stack.size();i-->0;)
+                        if(stack[i].ra==pc&&stack[i].sp==sp){onExitAt(i);any=true;explained=true;break;}
+                    if(!any||titleStopped)break;
+                }
+                if(titleStopped) {
+                    // Title stop: paused AT the return address of 0x12c350(selector 1); nothing after the
+                    // constructor's return has executed (in particular no 0x1296f8 title update).
+                    emit("\"ev\":\"stop\",\"kind\":\"title_constructor_return\",\"pc\":"+hx(pc)+",\"sp\":"+hx(sp)
+                         +",\"stack_depth\":"+std::to_string(stack.size())+","+randState());
+                    stopped=true;break;
+                }
+                if(pc==randPc){
+                    if(!rngProducts) emit("\"ev\":\"rand\",\"ra\":"+hx(reg(CMIPS::RA))+",\"state\":"+std::to_string(get32(0x214ec8+0x58)));
+                    else {
+                        if(randPending)throw std::runtime_error("Nested rand() call");
+                        std::string frames="[";
+                        for(size_t k=0;k<stack.size();++k)frames+=std::string(k?",":"")+"\""+stack[k].name+"\"";
+                        frames+="]";
+                        emit("\"ev\":\"rand\",\"n\":"+std::to_string(randCalls)+",\"ra\":"+hx(reg(CMIPS::RA))+",\"sp\":"+hx(sp)
+                             +",\"state\":"+std::to_string(get32(0x214ec8+0x58))+",\"rand_ptr_2151b4\":"+std::to_string(get32(0x2151b4))
+                             +",\"parent\":"+(stack.empty()?std::string("null"):"\""+std::string(stack.back().name)+"\"")+",\"frames\":"+frames);
+                        randPending=true;randPendingRa=uint32(reg(CMIPS::RA));randPendingSp=sp;addBp(randPendingRa);
+                    }
+                    ++randCalls;explained=true;
+                }
+                if(entryName.count(pc)){onEnter(pc);explained=true;}
+                const uint32 ct=firstControlTransfer(pc);
+                auto top=ct?topSites.find(ct):topSites.end();
+                if(top!=topSites.end()) {
+                    topStep.store(int(ct));explained=true;
+                    if(title&&ct==stopPc&&!prefixPassed) {
+                        // First arrival at the Startup/RNG boundary: record it (and a state snapshot) and continue.
+                        prefixPassed=true;
+                        emit("\"ev\":\"prefix_end\",\"block_start\":"+hx(pc)+",\"pc\":"+hx(ct)+",\"callee\":"+hx(top->second)+",\"stack_depth\":"+std::to_string(stack.size())+","+randState());
+                        const std::string s=buildState(nullptr);
+                        writeFresh(outDir/"state-at-100618.jsonl",s.data(),s.size());
+                    }
+                    else if(!title&&ct==stopPc) {
+                        emit("\"ev\":\"stop\",\"block_start\":"+hx(pc)+",\"pc\":"+hx(ct)+",\"callee\":"+hx(top->second)+",\"stack_depth\":"+std::to_string(stack.size())+","+randState());
+                        stopped=true;break; // stay paused: the jal at 0x100618 has NOT executed
+                    }
+                    emit("\"ev\":\"top\",\"block_start\":"+hx(pc)+",\"pc\":"+hx(ct)+",\"callee\":"+hx(top->second));
+                }
+                if(!explained) {
+                    // A block start that contains some breakpoint address but no event we model.
+                    bool contains=false;
+                    if(ct)for(const auto& kv:bpRef)if(kv.second>0&&kv.first>=pc&&kv.first<=ct+4){contains=true;break;}
+                    if(!contains) {
+                        std::ostringstream d;d<<"Unexplained stop at EE PC "<<hx(pc)<<" ct="<<hx(ct)<<" ra="<<hx(reg(CMIPS::RA))
+                            <<" stops="<<stops<<" stack="<<stack.size()<<" exc="<<cpu.nHasException;
+                        throw std::runtime_error(d.str());
+                    }
+                    ++benignBlockStops;
+                }
+                vm.Resume();continue;
+            }
+            std::unique_lock lock(stateMutex);
+            stateWake.wait_for(lock,std::chrono::milliseconds(50),[&]{return stateChanged.load()||exited.load();});
+        }
+        if(!stopped)throw std::runtime_error("Startup did not reach the stop PC (exit="+std::to_string(exited.load())+" stops="+std::to_string(stops)+")");
+        if(vm.GetStatus()!=CVirtualMachine::PAUSED)throw std::runtime_error("VM not paused at stop");
+        const double seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-startTime).count();
+        if(uint32(cpu.nPC)!=(title?titleStopRa:stopPc))throw std::runtime_error("Stop PC mismatch");
+        if(title&&!prefixPassed)throw std::runtime_error("Title stop reached without passing 0x100618");
+
+        // ---- final state (VM paused, GS drained) -----------------------------------------
+        // Finish: flush any buffered GS register writes, then wait for the GS thread.
+        std::string dmaReport;
+        {
+            std::ostringstream o;
+            o<<"{\"dma2_chcr\":"<<vm.m_ee->m_dmac.GetRegister(CDMAC::D2_CHCR)<<",\"dma1_chcr\":"<<vm.m_ee->m_dmac.GetRegister(CDMAC::D1_CHCR)
+             <<",\"gif_active_path\":"<<vm.m_ee->m_gif.GetActivePath()<<"}";dmaReport=o.str();
+        }
+        gs->FlushWriteBuffer();
+        gs->SendGSCall([]{},true);
+        {std::lock_guard lock(gs->mutex);gs->flushTransfer();}
+        const uint8* vram=gs->GetRam();
+        writeFresh(outDir/"vram.bin",vram,CGSHandler::RAMSIZE);
+        writeFresh(outDir/"ee-ram-32mb.bin",ram,0x2000000);
+        if(title&&!minimal){
+            std::lock_guard lock(gs->mutex);
+            writeFresh(outDir/"vram-last-writer.bin",gs->writer.data(),gs->writer.size());
+            writeFresh(outDir/"vram-upload-ever.bin",gs->uploadEver.data(),gs->uploadEver.size());
+        }
+        const std::string out=buildState(vram);
+        writeFresh(outDir/"final-state.jsonl",out.data(),out.size());
 
         // GS ledger
         {
             std::ostringstream o;
             {std::lock_guard lock(gs->mutex);
              for(const auto& l:gs->lines)o<<l<<'\n';
+             if(title)gs->writeTitleSummary(o);
              o<<"{\"kind\":\"gs_summary\",\"register_writes\":"<<gs->regWrites<<",\"vertex_kicks\":"<<gs->kicks<<",\"host_to_local_transfers\":"<<gs->transfers
               <<",\"host_to_local_completed\":"<<gs->hostToLocalDone<<",\"local_to_host\":"<<gs->localToHost<<",\"local_to_local\":"<<gs->localToLocal
               <<",\"clut_transfers\":"<<gs->clutTransfers<<",\"resets\":"<<gs->resets<<",\"register_histogram\":{";
@@ -654,7 +1110,9 @@ int main(int argc,char** argv) {
              <<",\"vblanks\":"<<frames.load()<<",\"wall_seconds\":"<<std::fixed<<std::setprecision(2)<<seconds
              <<",\"open_frames_at_stop\":[";
             for(size_t i=0;i<stack.size();++i)o<<(i?",":"")<<"\""<<stack[i].name<<"\"";
-            o<<"],\"stack_depth_at_stop\":"<<stack.size()<<",\"static_return_sites\":"<<returnSites.size()<<"}\n";
+            o<<"],\"stack_depth_at_stop\":"<<stack.size()<<",\"static_return_sites\":"<<returnSites.size();
+            if(title)o<<",\"title\":true,\"stop_pc\":"<<hx(cpu.nPC)<<",\"stop_sp\":"<<hx(titleStopSp)<<",\"prefix_passed\":"<<(prefixPassed?"true":"false");
+            o<<"}\n";
             writeFresh(outDir/"run-meta.json",o.str().data(),o.str().size());
         }
         finishing=true;
