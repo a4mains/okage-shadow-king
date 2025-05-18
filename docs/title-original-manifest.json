@@ -1,0 +1,1715 @@
+{
+ "schema": "okage.title-original-manifest.v1",
+ "scope": "Independent original-execution reference of the cold-boot texture/handle lifecycle from power-on through storage readiness, both logos, logo resource retirement and title construction, stopping at the RETURN of 0x12c350 with selector 1 (paused at its return address, before the first 0x1296f8 title update).",
+ "oracle_source_commit": "b9fede5",
+ "base_commit": "5badd42",
+ "play": {
+  "revision": "4403687dc8d505911980b8a96b13701a10f91b70",
+  "path": "references/Play (main checkout, ignored)",
+  "tree_cleanliness": "not verified (git on the Play checkout was not run from the isolated worktree)"
+ },
+ "oracle": {
+  "binary": "build/title-oracle/okage-oracle/okage-startup-oracle (worktree)",
+  "binary_sha256": "00e900a207891cc8ec2d300097ace1c4a9bf3ecb31544c13ffaf01c1ae7836ff",
+  "retained_copy": "local/research/title-original-v1/bin/okage-startup-oracle (the binary that ran)",
+  "retained_copy_sha256": "00e900a207891cc8ec2d300097ace1c4a9bf3ecb31544c13ffaf01c1ae7836ff",
+  "build_dir": "build/title-oracle (fresh; configured and built from scratch in the worktree)",
+  "configure": "cmake -S <main>/references/Play -B build/title-oracle -G Ninja -DCMAKE_BUILD_TYPE=Debug -DBUILD_PLAY=OFF -DBUILD_TESTS=ON -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_PROJECT_Play_INCLUDE=<worktree>/tools/play-oracle/Attach.cmake -DDEBUGGER_INCLUDED=ON -DOKAGE_REFERENCE_VULKAN=OFF",
+  "build": "ninja -C build/title-oracle okage-startup-oracle",
+  "cmake_build_type": "Debug",
+  "cxx_compiler": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++",
+  "osx_architectures": "arm64",
+  "osx_sysroot": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk",
+  "mode": "--title (implies the RNG --rng-products observations); --title --minimal for the control run. Default Startup mode re-verified byte-identical to local/research/startup-original-v1/runs/fill00-a (events, GS ledger, disc opens, VRAM, final state, EE RAM) with this source."
+ },
+ "tracked_sources_sha256": {
+  "tools/play-oracle/startup.cpp": "b804c30261f63346fb70779ede65233523104a013896e416c6b90b1ea063d057",
+  "tools/play-oracle/CMakeLists.txt": "1de73e43e976adb2ce82f125a0028eeed1969f68163f616b2f1104e6aba05430",
+  "tools/play-oracle/Attach.cmake": "70a48b491406f04c4a8e28f49f6c04886888c22f017fb4868d365b4c17dd4819",
+  "tools/title_capture.sh": "fc1b78471472e2d1df44e71e5079c694dc1140f74ea93fa80ce20cb009a04e65",
+  "tools/title_original_extract.py": "3b297913b99fe37d4f5021935bdbb92a9fc397146823d7abcc41fee1fdadaeac",
+  "tools/title_compare.py": "9e8d471fb83dab30e61f3f330cf61ffefe926322c6d415e305426a97dd6494d3",
+  "tools/title_make_manifest.py": "58fd040afee579b3c4ef91dad77e3230ce0fa803a01b248aa276df1703e085ee",
+  "tests/test_title_compare.py": "5089e94a9d922a5a8f8e0042065f573943f128164cc335bd3dddfc3a0fd34a9d"
+ },
+ "inputs": {
+  "elf": {
+   "path": "local/extracted/SCUS_971.29",
+   "sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
+  },
+  "disc_cue": {
+   "path": "local/disc/Okage - Shadow King (USA).cue",
+   "sha256": "b8bde56b092efe1d704c1be8cdb7c139478fafbb234b713bd06d2cd1afe7d69a"
+  },
+  "disc_bin": {
+   "path": "local/disc/Okage - Shadow King (USA).bin",
+   "sha256": "08623a1400e2610aecd0247ae7440c97501495c6f819f675494e44de20b62d2a",
+   "bytes": 524481888,
+   "docs_disc_report_sha256": "08623a1400e2610aecd0247ae7440c97501495c6f819f675494e44de20b62d2a"
+  },
+  "files_read_by_the_original": [
+   {
+    "i": 18195,
+    "file": "bkdata.xdb",
+    "bytes": 66278,
+    "sha256": "973964019ddb24d033b0e10f4f3e2cf72fafdee9bdb25ee143ee87c832b0aff4"
+   },
+   {
+    "i": 18203,
+    "file": "item.xdb",
+    "bytes": 27796,
+    "sha256": "d3c0af83a4f47a8e5960f9181bdd72649692b80dafeb387395307130804c7cce"
+   },
+   {
+    "i": 18211,
+    "file": "fldset.xdb",
+    "bytes": 59140,
+    "sha256": "e1085fc18788d42b10b11d6fdbf8e8bcb3de67ef11003669b4de9e4b30d1f0ba"
+   },
+   {
+    "i": 18232,
+    "file": "env_tex.xpf",
+    "bytes": 85604,
+    "sha256": "a5d1b209c235fada29b05fef62cfbfdc3329308629cf1c91b87e0046a8d1c3ad"
+   },
+   {
+    "i": 18237,
+    "file": "niji.xim",
+    "bytes": 624,
+    "sha256": "b86509274c38f73e3c811402fd43ce1a434a5a9687ff8bc0b00f5a8511eb6b03"
+   },
+   {
+    "i": 18281,
+    "file": "splash_a.xim",
+    "bytes": 5168,
+    "sha256": "b133efc1b4a928478d573ea79b3f78db6c0c9298e0d323337aaa01846997d6af"
+   },
+   {
+    "i": 18325,
+    "file": "wat_4.xim",
+    "bytes": 2160,
+    "sha256": "90acd2d41837a60b50773a694fd60c3dfc828b4241dc636d3f8f348d52ad1ae6"
+   },
+   {
+    "i": 18369,
+    "file": "exp9.xim",
+    "bytes": 6960,
+    "sha256": "0f75f7b7bd0b3c218cdaaeb482bdaafe6ff7e999c6b7d986e1fbdbbc2da3df46"
+   },
+   {
+    "i": 18413,
+    "file": "f2.xim",
+    "bytes": 7216,
+    "sha256": "bea1730e29afffe4f97f9f229fc679f85148e57b91e74a96870c404f93aa7a3e"
+   },
+   {
+    "i": 18457,
+    "file": "h29_4.xim",
+    "bytes": 496,
+    "sha256": "a683d6bfbe5fef31a398cb762443520271367ef14509dcae0dbdf2d706ae9717"
+   },
+   {
+    "i": 18501,
+    "file": "hit!.xim",
+    "bytes": 5168,
+    "sha256": "4ca368c7882ba6c67fb31b77fd2abc8ef48c6ca991c93f658a618b9dadabcb26"
+   },
+   {
+    "i": 18545,
+    "file": "spark.xim",
+    "bytes": 5488,
+    "sha256": "b8d181a1157a6aaa1ddf7653a959eb82ebfab3dad1fbb6c905ba1b3d22240e24"
+   },
+   {
+    "i": 18589,
+    "file": "smoke_4.xim",
+    "bytes": 8304,
+    "sha256": "52f59a2114feab46c535f56d729e33194b748fbaeb08ce3b8a3c1c29d3629a63"
+   },
+   {
+    "i": 18633,
+    "file": "thunder.xim",
+    "bytes": 9264,
+    "sha256": "82283a13f1cfaf107d740540f84d8c48b7e3bfb9de7c4a182ae51b8f67d39e80"
+   },
+   {
+    "i": 18677,
+    "file": "oldskilt4.xim",
+    "bytes": 1136,
+    "sha256": "473ab019281a39cba4b43e1043010d6cf6c02f21af658974902943da392fd6ad"
+   },
+   {
+    "i": 18721,
+    "file": "water.xim",
+    "bytes": 7216,
+    "sha256": "a550cb4932f2bc8a5406361c42ec90467b2689d143126e927479338785d0bd3b"
+   },
+   {
+    "i": 18765,
+    "file": "suuji.xim",
+    "bytes": 4912,
+    "sha256": "83e0896ecca63c95ea69858d7e93ce9ada5a5198880ae8e0c29ae2148e9d4fef"
+   },
+   {
+    "i": 18809,
+    "file": "lgtballm4.xim",
+    "bytes": 624,
+    "sha256": "81d1ee7bddd13c218cf3a85672e76b5e673c895acf44b1251a52ba64accc7b5b"
+   },
+   {
+    "i": 18853,
+    "file": "fuki32b.xim",
+    "bytes": 624,
+    "sha256": "f4362dc85edeb174ba4d012d2cad6b666bfef3f420e05366352a8b08306195a4"
+   },
+   {
+    "i": 18897,
+    "file": "all.xim",
+    "bytes": 3120,
+    "sha256": "e35e6d02436cde092dc26cffd3340cdfa5119173ffe02f080797b288d9fd1947"
+   },
+   {
+    "i": 18941,
+    "file": "all2.xim",
+    "bytes": 3120,
+    "sha256": "af4d452b82ceec1e21a01aa2885aedab6453b281e3005fd44b92c299e5ae0e6a"
+   },
+   {
+    "i": 18985,
+    "file": "kemuri.xim",
+    "bytes": 624,
+    "sha256": "c04b3c2219b95ce79b524afa5c2d7cf9f363b4d51d6459bfadb00a118c4ccb4a"
+   },
+   {
+    "i": 19029,
+    "file": "thunderball.xim",
+    "bytes": 10288,
+    "sha256": "ec934adf9c3e0fcfa3365e1e1af1f404471d2a6266df582f1d9352ad41b39086"
+   },
+   {
+    "i": 19073,
+    "file": "6eff01.xim",
+    "bytes": 5168,
+    "sha256": "57fc8e2e47a985d35ba5531058bd5b490a5d268498122393525f56caa94ac61d"
+   },
+   {
+    "i": 19117,
+    "file": "6eff02.xim",
+    "bytes": 2160,
+    "sha256": "f67a1bdd275a54284539246e89cfb2f138bcd9f59c12fb3343867aec5c648d33"
+   },
+   {
+    "i": 19161,
+    "file": "5sen.xim",
+    "bytes": 12400,
+    "sha256": "a6f4aabe8909a195ff37735efaf72001287c37958f5c68fd4d6cd498b42a775b"
+   },
+   {
+    "i": 19205,
+    "file": "exp_c.xim",
+    "bytes": 7216,
+    "sha256": "bf48faf54ce36ea1af13844e715c4b0123e713675e2cb5e56610924a3c3cd724"
+   },
+   {
+    "i": 19249,
+    "file": "heart.xim",
+    "bytes": 624,
+    "sha256": "821a7e98c4774c2bc00f8a0786072032bab3967100c3136279797d3506de15a0"
+   },
+   {
+    "i": 19293,
+    "file": "onnpu.xim",
+    "bytes": 9328,
+    "sha256": "b9294c102f58b85d552145aedada0ffffdad90abffdfb0a14d344ccbb2e58a1c"
+   },
+   {
+    "i": 19337,
+    "file": "wind.xim",
+    "bytes": 2160,
+    "sha256": "16354ff48e492e46dec87ba99d85295c210efe7ea7daac63ec6a0f7423d0eab5"
+   },
+   {
+    "i": 19381,
+    "file": "treasure.xim",
+    "bytes": 5168,
+    "sha256": "e9ccaa79db2df0a8c6b0858ee41415c8b0e81be45c3d034622f5947d51710af1"
+   },
+   {
+    "i": 19425,
+    "file": "page.xim",
+    "bytes": 5872,
+    "sha256": "869aae415f2ec8ed6a18b7b874dbf3e5054b57cb1fba7630403da35da5bc641b"
+   },
+   {
+    "i": 19469,
+    "file": "odoro.xim",
+    "bytes": 2672,
+    "sha256": "1b19fb7af3dab17670a9873ea0d70902a40e9e2bb374e0d5ebc53f02667b5503"
+   },
+   {
+    "i": 19513,
+    "file": "aura.xim",
+    "bytes": 9328,
+    "sha256": "9b789518dc328b3462e3bc406e66ce61c18d639ae6c4464450e0d79d2daece4a"
+   },
+   {
+    "i": 19557,
+    "file": "kyusyu16.xim",
+    "bytes": 1136,
+    "sha256": "fc34044f98269d70c193a38bdbaad4ceef3e221ce3f351b69d6ff78699cc883a"
+   },
+   {
+    "i": 20379,
+    "file": "tes.efd",
+    "bytes": 98972,
+    "sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c"
+   },
+   {
+    "i": 24593,
+    "file": "iq24.fnt",
+    "bytes": 27368,
+    "sha256": "f38eb6266c02315dda5b6a4f97d1dab347ef67c7b262f23deb4a3575d4cadc7a"
+   },
+   {
+    "i": 24639,
+    "file": "bmui.fnt",
+    "bytes": 29816,
+    "sha256": "ebf4eb1f157638baf3ad9002e9990acb24b3807f54653a8c34a8d4e2ef5df356"
+   },
+   {
+    "i": 24685,
+    "file": "bm.fnt",
+    "bytes": 21752,
+    "sha256": "7bc478129d2e46991cab24b563ff02af0e0c5b32294f70bb475cf5a31e5241fb"
+   },
+   {
+    "i": 24742,
+    "file": "all.xws",
+    "bytes": 1351504,
+    "sha256": "a422f83c70125c775cf234fdb195a4590253bcebf87d0fcf65727eaa5d5fea1a"
+   },
+   {
+    "i": 24752,
+    "file": "main.xpf",
+    "bytes": 95303,
+    "sha256": "57c1f4fc83ad2a24a51cd664def4f5a83d6407606241a1174c9ee38c9a667456"
+   },
+   {
+    "i": 24807,
+    "file": "scr.xpf",
+    "bytes": 156526,
+    "sha256": "e25938d013faf19427bbafa629c27891806af817f600114c3f902eb29343a1f1"
+   },
+   {
+    "i": 24981,
+    "file": "scr.xpf",
+    "bytes": 156526,
+    "sha256": "e25938d013faf19427bbafa629c27891806af817f600114c3f902eb29343a1f1"
+   },
+   {
+    "i": 24989,
+    "file": "scea.xim",
+    "bytes": 308272,
+    "sha256": "3420fe4bae44ad729606dbf548d81988846b36b2264aa8c0143534daee524eb9"
+   },
+   {
+    "i": 25039,
+    "file": "zener.xim",
+    "bytes": 287792,
+    "sha256": "806cc5f8e9f6cfba972b5e199df81aabe7791da0646b2a8d3860a5c00450e825"
+   },
+   {
+    "i": 35863,
+    "file": "jgl_bsc0.xv",
+    "bytes": 77888,
+    "sha256": "a2c11debcde59c737fe9217821d4cbaf27f42a83eb4c202c2ea7a97ab654df85"
+   },
+   {
+    "i": 35871,
+    "file": "jgl_flg.xsq",
+    "bytes": 640,
+    "sha256": "5cbfdeda457005fc4dea89774c5477c4bd25af0306cde566c50ef51afe3368a8"
+   },
+   {
+    "i": 35879,
+    "file": "jgl_stn.xsq",
+    "bytes": 916,
+    "sha256": "b9c66914a98995a4b428298f3f99b8c566257d02210957e02d3360a97a00f2e3"
+   },
+   {
+    "i": 35887,
+    "file": "jgl_get.xsq",
+    "bytes": 476,
+    "sha256": "b15448498b8a4738cb98d72fda4a595daf6fdc8bee644d732633f631f9e2f407"
+   },
+   {
+    "i": 35895,
+    "file": "jgl_spl.xsq",
+    "bytes": 288,
+    "sha256": "80bf7d5c0fdbd10d968a1c2f68fdd4728c4db042dffe18937347cf7c77834bc4"
+   },
+   {
+    "i": 35903,
+    "file": "jgl_fvc.xsq",
+    "bytes": 1848,
+    "sha256": "4fc3e1cab7b36a11bd69c7ee7da64b837259fa1e4179c7644fa0316cc16ebaaf"
+   },
+   {
+    "i": 35911,
+    "file": "jgl_lup.xsq",
+    "bytes": 1732,
+    "sha256": "4845f7a0c48040a1bdb3058055b32e284fffca5fc91b10aeff7480192a5fb5be"
+   },
+   {
+    "i": 35918,
+    "file": "evdata.xpf",
+    "bytes": 319690,
+    "sha256": "50d72154d5a77e8ef41024d87060402f0431f08172073ccd123f5b5a953236ef"
+   },
+   {
+    "i": 35924,
+    "file": "hero.xpf",
+    "bytes": 332864,
+    "sha256": "03d7ba783fb53686895171e8e6c6c0b9e308fa509f1819bf86296048a9cbbd72"
+   },
+   {
+    "i": 35926,
+    "file": "stun.xpf",
+    "bytes": 172827,
+    "sha256": "94f2426b29b1ae35bf6c9168762bab58c61fff9d6548e9607600998304dda795"
+   },
+   {
+    "i": 35928,
+    "file": "rkumo.xpf",
+    "bytes": 11013,
+    "sha256": "f96adffa8caa6433cf7a26b17067723d428517860588be1174990bd9a98df333"
+   },
+   {
+    "i": 35930,
+    "file": "wkumo.xpf",
+    "bytes": 11000,
+    "sha256": "4d28d8fa7cbb0fc82c4b57dfa4eeb7b530dfe87e5d3c90a8add6482b894315b4"
+   },
+   {
+    "i": 35932,
+    "file": "bkumo.xpf",
+    "bytes": 11144,
+    "sha256": "15c578d6228a83ef1a3cbdbe01123b472aa515164704fe6089794915e8a6d76c"
+   },
+   {
+    "i": 49290,
+    "file": "scr.xpf",
+    "bytes": 156526,
+    "sha256": "e25938d013faf19427bbafa629c27891806af817f600114c3f902eb29343a1f1"
+   },
+   {
+    "i": 49298,
+    "file": "title_sample4.xim",
+    "bytes": 313392,
+    "sha256": "6accf8e52612c27a71e3e0802651d15d645c2ea4adcf19d60f5ddc42135910f1"
+   },
+   {
+    "i": 49348,
+    "file": "push.xim",
+    "bytes": 4528,
+    "sha256": "765fe72e8c1c7fbdc88e768bcf740fee71a07ed2bfa0f3ccc9528b4ebe116dfd"
+   },
+   {
+    "i": 49398,
+    "file": "new.xim",
+    "bytes": 2864,
+    "sha256": "d3d28db8ecbee71fcdbaa2ba518385d8d18b4d6364db4e9665ccc7858678c84a"
+   },
+   {
+    "i": 49448,
+    "file": "restore.xim",
+    "bytes": 3632,
+    "sha256": "ddfa4684d506dc8f9b6bc8c4f9c3cb62a128ca5adda7a5774d17d8220553c0a4"
+   },
+   {
+    "i": 49498,
+    "file": "maru_w.xim",
+    "bytes": 1328,
+    "sha256": "cc174203e85424515a59435fbcdc81e899f64bcf712d56365a7caa7c62a986be"
+   },
+   {
+    "i": 49548,
+    "file": "maru_b.xim",
+    "bytes": 1328,
+    "sha256": "2a44c8f9c350dd52713423dc9b96d9bfb0924388f7ea05e9b9bbcb4504d33dbe"
+   },
+   {
+    "i": 49598,
+    "file": "sp.xim",
+    "bytes": 2480,
+    "sha256": "7ca4a33a628d2290a933fffbbff1506dfb1c9fbc180c458558c67479fcf4f0c9"
+   },
+   {
+    "i": 49648,
+    "file": "hanten.xim",
+    "bytes": 38960,
+    "sha256": "3f7abd54b29abd252cad43b98126ff43a42d07cd3cac2cf40879f002e81aec46"
+   },
+   {
+    "i": 49702,
+    "file": "night_v.xpf",
+    "bytes": 1164035,
+    "sha256": "fbe63964dda339bce19dea73d56bee95d53251b00aef376babaac5cb57eba8a8"
+   },
+   {
+    "i": 49708,
+    "file": "a.xmd",
+    "bytes": 1396704,
+    "sha256": "34d378efccdfc6ec0af9bce8123d0fbe9e137e9a867b44332728f3457f5d5657"
+   },
+   {
+    "i": 49717,
+    "file": "5wod_g00.xim",
+    "bytes": 12320,
+    "sha256": "11118d20ba98a3a7913b4949313f8e73739a26b9b838934fe71084919b8700f5"
+   },
+   {
+    "i": 49742,
+    "file": "5wod_a03.xim",
+    "bytes": 3104,
+    "sha256": "ccbbb7e945ffe1147b1725af902849200ce5ef4ac61ec0e458648bfd82b99ccc"
+   },
+   {
+    "i": 49767,
+    "file": "5stn_b00.xim",
+    "bytes": 3104,
+    "sha256": "2feb3c790e49e2ce486a6505e19b53636762818b53b4b0393ba05a1d56e88617"
+   },
+   {
+    "i": 49792,
+    "file": "5wod_a02.xim",
+    "bytes": 3104,
+    "sha256": "61fc06416338468d8059c8878c06408b91905092705c275ee814c41accd0e9b6"
+   },
+   {
+    "i": 49817,
+    "file": "5rof_g00.xim",
+    "bytes": 24608,
+    "sha256": "260ef6e83757323145f829d0fda9a87b09bd781be31966716d81749ec94012ad"
+   },
+   {
+    "i": 49842,
+    "file": "5wal_w00.xim",
+    "bytes": 12320,
+    "sha256": "31d866625141767db2dc586b2d361f2ab4cfb748f7934b27f199c6de4bba8a75"
+   },
+   {
+    "i": 49867,
+    "file": "5wal_a03.xim",
+    "bytes": 3104,
+    "sha256": "e0b066ccef7bdba81a8efda14013b655b0f69e4147ddf69fd19b029e96c8d756"
+   },
+   {
+    "i": 49892,
+    "file": "5wal_a00.xim",
+    "bytes": 12320,
+    "sha256": "c4876225b40b1be973db7078db783890789c1d7ab989ecc0c8a380b72f5f81f3"
+   },
+   {
+    "i": 49917,
+    "file": "5wal_a02.xim",
+    "bytes": 3104,
+    "sha256": "fa4a0b0936dff9f5c0eb570e34914c473a59054788f8170d15b579e2ed2402f0"
+   },
+   {
+    "i": 49942,
+    "file": "5wal_g10.xim",
+    "bytes": 12320,
+    "sha256": "dc9bee91cf97749de09d00eb0206403f98020603d4d5247d0766300023d44fbc"
+   },
+   {
+    "i": 49967,
+    "file": "5kab_a00.xim",
+    "bytes": 800,
+    "sha256": "f3f40879662bd28bcf383bfff92012b6052bfd7d08c01b27cf67ea09a54747f5"
+   },
+   {
+    "i": 49992,
+    "file": "5wod_a00.xim",
+    "bytes": 3104,
+    "sha256": "b872825f511ba841bf380140f3cefae836a35fef7a95591e22d9187fb511a4b3"
+   },
+   {
+    "i": 50017,
+    "file": "5has_w00.xim",
+    "bytes": 6176,
+    "sha256": "6aaac4624ba8d55a44e34ef83b19fb66ba8c74d26e6ded024b5ed118af56da04"
+   },
+   {
+    "i": 50042,
+    "file": "5wal_t10.xim",
+    "bytes": 12320,
+    "sha256": "698364b9291a5dcc4d9c278926d7247546d432060f8c1eee66bb1171c4f2edeb"
+   },
+   {
+    "i": 50067,
+    "file": "5irn_03.xim",
+    "bytes": 3104,
+    "sha256": "5ce2dae000ec5bfe321d1987420616f50a6b446b919b2c443f7f3a549a8d9cbd"
+   },
+   {
+    "i": 50092,
+    "file": "5dor_g01.xim",
+    "bytes": 6176,
+    "sha256": "2b13270e2abe135a07cc4af540366d803cdb43ef9d90f23ac43e3fa2fd91f4ff"
+   },
+   {
+    "i": 50117,
+    "file": "5dor903e.xim",
+    "bytes": 3104,
+    "sha256": "4e58a6401ca0677f90161e6fd3ca95b631c5836b95821bf4257ec4a5faf6d90e"
+   },
+   {
+    "i": 50142,
+    "file": "5irn_05.xim",
+    "bytes": 3104,
+    "sha256": "c975677a54faefa0a34dc99dd9909257af9ef5a5b559e4a183302274f53f0499"
+   },
+   {
+    "i": 50167,
+    "file": "5grs_00.xim",
+    "bytes": 3104,
+    "sha256": "d2ffa1b4b539bba9854b66c3237e34afe68d455b2acbe4b507aade1d8e03fc92"
+   },
+   {
+    "i": 50192,
+    "file": "5cry_00.xim",
+    "bytes": 3104,
+    "sha256": "54843b402a0d0259bd2fcfe6763922d15b0131c8af31b5e3a047763e58e5f141"
+   },
+   {
+    "i": 50217,
+    "file": "5cli_g01.xim",
+    "bytes": 98336,
+    "sha256": "4ac1670a3740f1b784d1fc415176527dda1c010d3cffd954e48fded802177fe7"
+   },
+   {
+    "i": 50242,
+    "file": "5grs_n00.xim",
+    "bytes": 3104,
+    "sha256": "162c1ea4577ea959229fa7bcb42904f75339a4cb4322594a2825f80bd5ae2441"
+   },
+   {
+    "i": 50267,
+    "file": "5grs_33.xim",
+    "bytes": 6176,
+    "sha256": "2897cf861019518b3e3782cfe854a4b347c4ca266dbef1357b5a905acca80d36"
+   },
+   {
+    "i": 50292,
+    "file": "5grs_32.xim",
+    "bytes": 6176,
+    "sha256": "193427ebe3ebd6ae0134f974b4f35773d4ef78021f4f2ce1c55d0c3a2fbfb595"
+   },
+   {
+    "i": 50317,
+    "file": "5grs_21.xim",
+    "bytes": 3104,
+    "sha256": "28c5b385dda6f432801fc060b6d6e576bdcba53704dbcbf5482714304cc07bcd"
+   },
+   {
+    "i": 50342,
+    "file": "5grs_20.xim",
+    "bytes": 3104,
+    "sha256": "62c8f10ff2bcdb1d9c43fad85a6b12f5bb18052db7d97a568321f919817799de"
+   },
+   {
+    "i": 50367,
+    "file": "5rof_g01.xim",
+    "bytes": 24608,
+    "sha256": "c50cebe31c61c21e10e07448f14e20d904bd6d8fb68210489079302cd6c445e1"
+   },
+   {
+    "i": 50392,
+    "file": "5wal_g20.xim",
+    "bytes": 12320,
+    "sha256": "4beb84c27fa5ba13f861b8e156d3f30a5b5c2b7d6e2605fe9408a1139f75bdaa"
+   },
+   {
+    "i": 50417,
+    "file": "5irf_g00.xim",
+    "bytes": 12320,
+    "sha256": "60986cd0c9b9429142e4fb1c1a86d21b0d9b3759397458571f3b3a5783dfff1c"
+   },
+   {
+    "i": 50442,
+    "file": "5tes_01.xim",
+    "bytes": 6176,
+    "sha256": "b27915e6f31f6e6355be04ebc3a63e13b19114406533eea9758e734db18539de"
+   },
+   {
+    "i": 50467,
+    "file": "5dor903e.xim",
+    "bytes": 3104,
+    "sha256": "4e58a6401ca0677f90161e6fd3ca95b631c5836b95821bf4257ec4a5faf6d90e"
+   },
+   {
+    "i": 50492,
+    "file": "5wal_a02.xim",
+    "bytes": 3104,
+    "sha256": "fa4a0b0936dff9f5c0eb570e34914c473a59054788f8170d15b579e2ed2402f0"
+   },
+   {
+    "i": 50517,
+    "file": "5stn_01a.xim",
+    "bytes": 3104,
+    "sha256": "6f1d4bde52bd70229a3f819a1632599a7b0f9816953c3c50ff3b5ea433973f18"
+   },
+   {
+    "i": 50542,
+    "file": "5wal_g02.xim",
+    "bytes": 12320,
+    "sha256": "5801476508c7be83be58e9977ad1737f26079741864610cc9839d27baee4a782"
+   },
+   {
+    "i": 50567,
+    "file": "5wal_g02.xim",
+    "bytes": 12320,
+    "sha256": "5801476508c7be83be58e9977ad1737f26079741864610cc9839d27baee4a782"
+   },
+   {
+    "i": 50592,
+    "file": "5wal_g01.xim",
+    "bytes": 12320,
+    "sha256": "ca0bf978d1b1869ca93242b924532b7cb22e5d16b4e739c11cb3c82fb386bf61"
+   },
+   {
+    "i": 50617,
+    "file": "5dor_g02.xim",
+    "bytes": 12320,
+    "sha256": "fc695e7871ab7d2e6d504249bfbaba7f00968a8a660deda2532af03a34210cb3"
+   },
+   {
+    "i": 50642,
+    "file": "5stn_02a.xim",
+    "bytes": 6176,
+    "sha256": "e8c94f57392b194c68ab9ae36f3bb2e6ecf53ef40898dcd3d81be1f52169c1fb"
+   },
+   {
+    "i": 50667,
+    "file": "5stn_02b.xim",
+    "bytes": 3104,
+    "sha256": "abd0e442847dcca0805bd943ba7243f4a0939b5b13078b9bea3db9b456383cda"
+   },
+   {
+    "i": 50692,
+    "file": "5stn_02c.xim",
+    "bytes": 3104,
+    "sha256": "74c0ce8816672e7b109ee237ce7b23064c2c6a270b413503e53385fa81070aea"
+   },
+   {
+    "i": 50717,
+    "file": "5wal_g01.xim",
+    "bytes": 12320,
+    "sha256": "ca0bf978d1b1869ca93242b924532b7cb22e5d16b4e739c11cb3c82fb386bf61"
+   },
+   {
+    "i": 50742,
+    "file": "5wal_g03.xim",
+    "bytes": 12320,
+    "sha256": "2007eeba124e766ff607ce0a735635c2b711385c734727a6fa861a49ccc63c91"
+   },
+   {
+    "i": 50767,
+    "file": "5rof_g02.xim",
+    "bytes": 24608,
+    "sha256": "15be4df6bbc30394f9c84194bd0937db9f66d38d9a3d7e0fa7310bc85bbafd0e"
+   },
+   {
+    "i": 50792,
+    "file": "5irn_01.xim",
+    "bytes": 3104,
+    "sha256": "c7c74e59cd81c3ca0437d191e03e535be2d220591bc17b7bb0626b7445ca2ecc"
+   },
+   {
+    "i": 50817,
+    "file": "5irn_13.xim",
+    "bytes": 12320,
+    "sha256": "e1579ccd4f844506c9b4b8798b2fec2826e3eb13c436fdc8b4548935dbc853f8"
+   },
+   {
+    "i": 50842,
+    "file": "5tes_00.xim",
+    "bytes": 6176,
+    "sha256": "bb737de6d3f3d87d50b8494dd4a435d7664117aa48f22c7607750944fd78b49b"
+   },
+   {
+    "i": 50867,
+    "file": "5dor_g00.xim",
+    "bytes": 12320,
+    "sha256": "52f572293beb4d0d9a74c467dbe1ea9d553062e7a5aa3261381225a3e5c12f6a"
+   },
+   {
+    "i": 50892,
+    "file": "5irn_04.xim",
+    "bytes": 3104,
+    "sha256": "6b9c51a3095f2aa736f0dd3d75c154f530839740002becf7902956d53f6d39c9"
+   },
+   {
+    "i": 50917,
+    "file": "5lop_00.xim",
+    "bytes": 800,
+    "sha256": "fe8460d8117bb2a58dc11575e8f05bc6c9d3c733434bc293a28f21a3fcd53dcf"
+   },
+   {
+    "i": 50942,
+    "file": "5has_w10.xim",
+    "bytes": 6176,
+    "sha256": "4abee20a557b819fde1ede0fcf39c8bf777f31be386278f140a92da11fe33235"
+   },
+   {
+    "i": 50967,
+    "file": "5has_w20.xim",
+    "bytes": 6176,
+    "sha256": "41aa48ce90ddfbf1e7ce58d9e22cde44e03a2fce665e6fcb40c659c51a4de91d"
+   },
+   {
+    "i": 50992,
+    "file": "5gra_00.xim",
+    "bytes": 1568,
+    "sha256": "2554e65cdcfd39da0c382fc4c69ec2de7d0f18ae3171cead9b5d6a0d6d50c7d9"
+   },
+   {
+    "i": 51017,
+    "file": "5cli_g00.xim",
+    "bytes": 98336,
+    "sha256": "754821c4c86880ed502ef127d98857ed2a44fd3924146b3d0341e5391c843e61"
+   },
+   {
+    "i": 51042,
+    "file": "5grs_10.xim",
+    "bytes": 3104,
+    "sha256": "743c87164ac570a5f8b6c060a3348dd35ee9b6218c6163e18000d67d2ea897b6"
+   },
+   {
+    "i": 51067,
+    "file": "5grs_00b.xim",
+    "bytes": 12320,
+    "sha256": "d24b946fbd396715a8c6c2d87fb599a7767870f580c0ff08c865bcfdddd25600"
+   },
+   {
+    "i": 51092,
+    "file": "5grs_23.xim",
+    "bytes": 3104,
+    "sha256": "dbef779c451bff354544d7cad91ecc8ef694b464eea23c8e8c5fd06c2f6a10fc"
+   },
+   {
+    "i": 51117,
+    "file": "5grs_30.xim",
+    "bytes": 6176,
+    "sha256": "f4278b0af030def0746283d6131f02572ca99a6a79814c3d101b6357bb7f5aac"
+   },
+   {
+    "i": 51142,
+    "file": "5grs_31.xim",
+    "bytes": 6176,
+    "sha256": "f60c7755bc5b13d3fa50608ea11cebc9941840bbf3155f383eca0a559be65c0f"
+   },
+   {
+    "i": 51167,
+    "file": "5grs_11.xim",
+    "bytes": 3104,
+    "sha256": "c5c92a5fddd10e33152e684c6f0951293d703d6d1eea5eac41e978c0e965c1f5"
+   },
+   {
+    "i": 51192,
+    "file": "5grs12.xim",
+    "bytes": 3104,
+    "sha256": "5b87b24733a88e56e1f657f734781ff9446bf859272fcddd6871a7ff7928acb2"
+   },
+   {
+    "i": 51217,
+    "file": "5grs_22.xim",
+    "bytes": 3104,
+    "sha256": "4732b3e2be849cfef3ec8c4cf52da248f413143af591fd2d58f5c4c8701f4da9"
+   },
+   {
+    "i": 51242,
+    "file": "5grs_13.xim",
+    "bytes": 3104,
+    "sha256": "2d09ce6ca8fc97318c88083d484f3892191fc1c9deb3497d1e9ebaa79c9895cb"
+   },
+   {
+    "i": 51267,
+    "file": "5stn_03c.xim",
+    "bytes": 3104,
+    "sha256": "3e4aea5a288cb5f2a1a38d551d2658847fef9263be3b00078bad124fa8fe4c33"
+   },
+   {
+    "i": 51292,
+    "file": "5stn_03b.xim",
+    "bytes": 3104,
+    "sha256": "8aba9e496dbaecd8bea06a228180935c931159dc8a20284ebdb23bdc748a07e1"
+   },
+   {
+    "i": 51317,
+    "file": "5stn_04a.xim",
+    "bytes": 6176,
+    "sha256": "96057ef8c6923ebaa4b58f4d2587b38254f3ef526d6c584d5e856c177f4d887f"
+   },
+   {
+    "i": 51342,
+    "file": "5grs_12.xim",
+    "bytes": 3104,
+    "sha256": "6f6d6268372ca9553fe2af3fd4f75d4ae9c4f26837306b00d4c09b44ee4b6f98"
+   },
+   {
+    "i": 51367,
+    "file": "5wod_a03.xim",
+    "bytes": 3104,
+    "sha256": "ccbbb7e945ffe1147b1725af902849200ce5ef4ac61ec0e458648bfd82b99ccc"
+   },
+   {
+    "i": 51539,
+    "file": "snddata/str/thema_1.xwh",
+    "bytes": 112,
+    "sha256": "2d1b34eb6b5aabd7f7d14dd91a0e7abab8228d08f719bbfdc8a2ee1b6845c177"
+   }
+  ],
+  "startup_cross_check_run": {
+   "path": "local/research/startup-original-v1/runs/fill00-a",
+   "final_state_sha256": "d8c1ca03b6c0ad5eeb57c01c783353c950b2638fb41ee63ecf7c6aee2a0d7956",
+   "events_sha256": "03cd09bcf8a29a3e8fed44c5b8339c1f9d1846c098533e42d1dfcb77f31151c6"
+  },
+  "rng_cross_check_run": {
+   "path": "local/research/rng-original-v1/runs/rng-a",
+   "events_sha256": "0d7437e83072b38c11d5529a24ddca6cfc7e2e79a8230a820d524383d03c6ae0"
+  },
+  "play_config": "fresh default configuration (and memory card directory) created by Play in <evidence>/cwd/<run>/local/play-boot-config"
+ },
+ "fixed_settings": {
+  "pad": "RecordedPad with no input rows (neutral sticks, no buttons)",
+  "sound_handler": "none",
+  "gs": "null renderer (no rasterisation) + ledger: host-to-local writes performed by Play; primitives, local-to-local and CLUT loads classified, never executed",
+  "vram_initial_fill": "0x00 (fill00-a/b, control) and 0xff (fillff-a/b), applied before the first guest instruction",
+  "stop": "return address of 0x12c350 when its selector (obj+0x24) is 1; the VM stays paused there (EE PC 0x11528c)",
+  "deadline_seconds": 5400
+ },
+ "commands": [
+  "OKAGE_PLAY_VM_LOCK=<main>/local/research/.play-vm.lock tools/title_capture.sh <evidence>/bin/okage-startup-oracle \"<main>/local/disc/Okage - Shadow King (USA).cue\" <main>/local/extracted/SCUS_971.29 <evidence>   # as executed: the same five oracle invocations issued one at a time under the lock (cd <evidence>/cwd/<run> && <oracle> DISC ELF <evidence>/runs/<run> 00|ff --deadline-seconds 5400 --title [--minimal] > <evidence>/runs/<run>.log 2>&1)",
+  "python3 -I tools/title_original_extract.py <evidence>/runs --out <evidence>/analysis --startup <main>/local/research/startup-original-v1/runs/fill00-a --rng <main>/local/research/rng-original-v1/runs/rng-a > <evidence>/analysis.log",
+  "python3 -I tools/title_compare.py <evidence>/analysis NATIVE_REPORT_DIR [--json OUT]",
+  "python3 -I tools/title_make_manifest.py <evidence> <worktree> <main> <oracle_source_commit> docs/title-original-manifest.json",
+  "OKAGE_MAIN_CHECKOUT=<main> python3 -m unittest discover -s tests"
+ ],
+ "evidence_dir": "local/research/title-original-v1 (read-only after capture)",
+ "outputs": {
+  "analysis.log": {
+   "sha256": "540ccd073567e43c9c61bc64ea5f6566fbeb987877771710a7f09574dafe9c08",
+   "bytes": 374
+  },
+  "analysis/events-detail.jsonl": {
+   "sha256": "090b1651a1f8d0ed59f7b0c38b4bc1cfb85e377003367cf96863a8519b4f9ac6",
+   "bytes": 127254
+  },
+  "analysis/events.jsonl": {
+   "sha256": "9f341005091744034c8f7952013ee397ca21ef2c2382ae5a2f17a12b0194ed35",
+   "bytes": 41702
+  },
+  "analysis/final-state.json": {
+   "sha256": "65653b4e31713ec66ddc0bbb913d6fd42d5dd4babdf3ec8ffd528a39a752fe60",
+   "bytes": 71166
+  },
+  "analysis/gs-writers.json": {
+   "sha256": "56f5a0b5cd3c139e619cc171344d47b07bea0b91078b4705a6ff6284b1ad5f3e",
+   "bytes": 11014
+  },
+  "analysis/reference.json": {
+   "sha256": "9aa988901a8d4c382f8a5b5fbdcc5b730e5726e155010c777a74dc9d93fa05cf",
+   "bytes": 46566
+  },
+  "analysis/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/vram-written-values.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "bin/okage-startup-oracle": {
+   "sha256": "00e900a207891cc8ec2d300097ace1c4a9bf3ecb31544c13ffaf01c1ae7836ff",
+   "bytes": 14685512
+  },
+  "runs/control-minimal-fill00.log": {
+   "sha256": "4e20e2dfe6ff73cee8123421f3dbe2dbbcbfe752026befdbe3de4db9d394ae90",
+   "bytes": 640
+  },
+  "runs/fill00-a.log": {
+   "sha256": "8511e688fd457d7c239b110b7c66d3c88547ca7ca41a2454e99a9746c8ee673d",
+   "bytes": 644
+  },
+  "runs/fill00-b.log": {
+   "sha256": "b45a5d892237455b064b8ae801e79d715a0198ea62d801c015443fefa95494f1",
+   "bytes": 643
+  },
+  "runs/fillff-a.log": {
+   "sha256": "f306bbf9959161857841d4c7312e2236d3ee7a964484affc8fc56fbc03e52ae1",
+   "bytes": 644
+  },
+  "runs/fillff-b.log": {
+   "sha256": "d0f2d4ab57b1fb65ed7a0b094d3ac9ce8cfeea609854810ef61a6d0c677c9b8f",
+   "bytes": 644
+  },
+  "runs/control-minimal-fill00/disc-opens.jsonl": {
+   "sha256": "854e9b1493c1dd2077076d59f0bc76704f77902807202e0ba43d599fbd56a202",
+   "bytes": 3115
+  },
+  "runs/control-minimal-fill00/ee-ram-32mb.bin": {
+   "sha256": "410994845e3366572315558763e6111843d7a081febe77f0efc9f9f1b66d38b8",
+   "bytes": 33554432
+  },
+  "runs/control-minimal-fill00/events.jsonl": {
+   "sha256": "c85a4d4dfb0043594700b6e430336cc5d672624095f9095ff9d6dd1549f34292",
+   "bytes": 66899
+  },
+  "runs/control-minimal-fill00/final-state.jsonl": {
+   "sha256": "deb9a57be38ec408ddfc8cb346f1f8d053a67a6d12b249bc87256560cfe975f1",
+   "bytes": 70793
+  },
+  "runs/control-minimal-fill00/gs-ledger.jsonl": {
+   "sha256": "0eda5a270b443f4ff3ce099ff512236d8b645b05a45e2976487f04e59054861c",
+   "bytes": 108404
+  },
+  "runs/control-minimal-fill00/run-meta.json": {
+   "sha256": "6923eed96391eea886b44a6765f9eed832daf996f2dcb029a0505e30f4c9fd51",
+   "bytes": 535
+  },
+  "runs/control-minimal-fill00/state-at-100618.jsonl": {
+   "sha256": "3d4dfb9f24e15ecc65666a7e5daf656b2ec3956c9ca836b6a0ffbc17f32466b7",
+   "bytes": 62333
+  },
+  "runs/control-minimal-fill00/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/fill00-a/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "runs/fill00-a/ee-ram-32mb.bin": {
+   "sha256": "a933ed73032be132a4e89c2fe6bbff9e20163d51e914e26a9c1ea37b6f9e014b",
+   "bytes": 33554432
+  },
+  "runs/fill00-a/ee-ram-after-10bc78.bin": {
+   "sha256": "3f89a42e0ea6f80033bda9ebab6cfee95097346de9306283bdb2b659b57765a1",
+   "bytes": 33554432
+  },
+  "runs/fill00-a/events.jsonl": {
+   "sha256": "10b3d769b57084bb79a452c132245cbbb66748c58609db5bb27bcb300c341ef8",
+   "bytes": 9693357
+  },
+  "runs/fill00-a/final-state.jsonl": {
+   "sha256": "a4479a5055e4feabf05220f7d36e461584d0aaf07e57a2d3c2276bfeff2cf177",
+   "bytes": 98851
+  },
+  "runs/fill00-a/gs-ledger.jsonl": {
+   "sha256": "8d96f6e1e4efe88ec199096c155fe0ec73dcfc972eb9ee8e79e7fffe87755089",
+   "bytes": 169845
+  },
+  "runs/fill00-a/run-meta.json": {
+   "sha256": "b451d2ff0d25a67752fd51de4bdfe5d96e66e07c51b13fca9b19dabf948cdcec",
+   "bytes": 550
+  },
+  "runs/fill00-a/state-at-100618.jsonl": {
+   "sha256": "09a9c8757bfc3c3684489d9f408443fac84fa0dda4e97610d342da722cf008dd",
+   "bytes": 75507
+  },
+  "runs/fill00-a/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/fill00-a/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/fill00-a/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/fill00-b/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "runs/fill00-b/ee-ram-32mb.bin": {
+   "sha256": "a933ed73032be132a4e89c2fe6bbff9e20163d51e914e26a9c1ea37b6f9e014b",
+   "bytes": 33554432
+  },
+  "runs/fill00-b/ee-ram-after-10bc78.bin": {
+   "sha256": "3f89a42e0ea6f80033bda9ebab6cfee95097346de9306283bdb2b659b57765a1",
+   "bytes": 33554432
+  },
+  "runs/fill00-b/events.jsonl": {
+   "sha256": "10b3d769b57084bb79a452c132245cbbb66748c58609db5bb27bcb300c341ef8",
+   "bytes": 9693357
+  },
+  "runs/fill00-b/final-state.jsonl": {
+   "sha256": "a4479a5055e4feabf05220f7d36e461584d0aaf07e57a2d3c2276bfeff2cf177",
+   "bytes": 98851
+  },
+  "runs/fill00-b/gs-ledger.jsonl": {
+   "sha256": "04282931128617a3d7cc506a335512664e9449557023e988cf8499e39da2b355",
+   "bytes": 169845
+  },
+  "runs/fill00-b/run-meta.json": {
+   "sha256": "c9ba9aeba5150742150fe5c3dcd1fd4e96a0ae81d590a0ba189de38c6dd05afd",
+   "bytes": 550
+  },
+  "runs/fill00-b/state-at-100618.jsonl": {
+   "sha256": "09a9c8757bfc3c3684489d9f408443fac84fa0dda4e97610d342da722cf008dd",
+   "bytes": 75507
+  },
+  "runs/fill00-b/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/fill00-b/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/fill00-b/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/fillff-a/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "runs/fillff-a/ee-ram-32mb.bin": {
+   "sha256": "a933ed73032be132a4e89c2fe6bbff9e20163d51e914e26a9c1ea37b6f9e014b",
+   "bytes": 33554432
+  },
+  "runs/fillff-a/ee-ram-after-10bc78.bin": {
+   "sha256": "3f89a42e0ea6f80033bda9ebab6cfee95097346de9306283bdb2b659b57765a1",
+   "bytes": 33554432
+  },
+  "runs/fillff-a/events.jsonl": {
+   "sha256": "10b3d769b57084bb79a452c132245cbbb66748c58609db5bb27bcb300c341ef8",
+   "bytes": 9693357
+  },
+  "runs/fillff-a/final-state.jsonl": {
+   "sha256": "c0dd5144abc29ad8b74ac884debfaf798c06b5850baeecca923be99a980c54f3",
+   "bytes": 98853
+  },
+  "runs/fillff-a/gs-ledger.jsonl": {
+   "sha256": "1242e47006c477c1def3b41a04eae370de422e06537af64386f1e3fbf74aab7a",
+   "bytes": 169845
+  },
+  "runs/fillff-a/run-meta.json": {
+   "sha256": "541b45568fac489c5d923a91bb1a717d8c7665fcfcbf7131abbe9153a5a972b4",
+   "bytes": 554
+  },
+  "runs/fillff-a/state-at-100618.jsonl": {
+   "sha256": "3a1e2c283c19f0a2b256d0aa7057b0dd429621dc04bd295300c695025429dbba",
+   "bytes": 75509
+  },
+  "runs/fillff-a/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/fillff-a/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/fillff-a/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/fillff-b/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "runs/fillff-b/ee-ram-32mb.bin": {
+   "sha256": "a933ed73032be132a4e89c2fe6bbff9e20163d51e914e26a9c1ea37b6f9e014b",
+   "bytes": 33554432
+  },
+  "runs/fillff-b/ee-ram-after-10bc78.bin": {
+   "sha256": "3f89a42e0ea6f80033bda9ebab6cfee95097346de9306283bdb2b659b57765a1",
+   "bytes": 33554432
+  },
+  "runs/fillff-b/events.jsonl": {
+   "sha256": "10b3d769b57084bb79a452c132245cbbb66748c58609db5bb27bcb300c341ef8",
+   "bytes": 9693357
+  },
+  "runs/fillff-b/final-state.jsonl": {
+   "sha256": "c0dd5144abc29ad8b74ac884debfaf798c06b5850baeecca923be99a980c54f3",
+   "bytes": 98853
+  },
+  "runs/fillff-b/gs-ledger.jsonl": {
+   "sha256": "84eac9dbf33339ec0017468186c9722be3da56c0d7cc75e999789737e558b272",
+   "bytes": 169845
+  },
+  "runs/fillff-b/run-meta.json": {
+   "sha256": "2f79531bf74fbe600e93f8e8088b42f4c89683c1817701e1e4e460205569fd85",
+   "bytes": 554
+  },
+  "runs/fillff-b/state-at-100618.jsonl": {
+   "sha256": "3a1e2c283c19f0a2b256d0aa7057b0dd429621dc04bd295300c695025429dbba",
+   "bytes": 75509
+  },
+  "runs/fillff-b/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/fillff-b/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/fillff-b/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  }
+ },
+ "auxiliary_play_config_files": {
+  "control-minimal-fill00/local/play-boot-config/config.xml": {
+   "sha256": "4cf1dc14044defb26d29e7ec19bbd56f0ac0a3ad4dba1ff0c55e819aac464b87",
+   "bytes": 2107
+  },
+  "control-minimal-fill00/local/play-boot-config/ps2_stderr.txt": {
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  "control-minimal-fill00/local/play-boot-config/ps2_stdout.txt": {
+   "sha256": "7327a788c884b35a77ce09d65acbdf04862a3250989d97a6350f8fd71266638a",
+   "bytes": 1173
+  },
+  "control-minimal-fill00/local/play-boot-config/logs/GameConfig.log": {
+   "sha256": "9af8372912a28576e4e3ef2975c3eaa90faad385e35c7aab3d580ab13a6f6e6a",
+   "bytes": 56
+  },
+  "control-minimal-fill00/local/play-boot-config/logs/ee_dmac.log": {
+   "sha256": "8dd6baf8652df721ab95549907e91280e18b997ffcdfbab3f4ea4315edee4ba3",
+   "bytes": 1605
+  },
+  "control-minimal-fill00/local/play-boot-config/logs/ee_gif.log": {
+   "sha256": "9ba68b450b33f1c7975eab93c544ed139c69f197ed717c5740ce40a4912a46d6",
+   "bytes": 50
+  },
+  "control-minimal-fill00/local/play-boot-config/logs/ee_timer.log": {
+   "sha256": "b4421dc83a0d2edc4ca795e7203b362bbdd97a8a0006b2851f81f16210dfc9b4",
+   "bytes": 492
+  },
+  "control-minimal-fill00/local/play-boot-config/logs/gs.log": {
+   "sha256": "49016252799ed7221abd27efe3bf010451423569b904b8cd202168dac441caca",
+   "bytes": 84980
+  },
+  "control-minimal-fill00/local/play-boot-config/logs/iop_ioman.log": {
+   "sha256": "48c8bce8169fb85e943d0194902b54900c9bb5b6eba2451b0e293a2fe374000d",
+   "bytes": 87
+  },
+  "control-minimal-fill00/local/play-boot-config/logs/iop_loadcore.log": {
+   "sha256": "8d10ad6909d17933e741795692838c5b7687705fdb02db0d9e1fadda9a4783b9",
+   "bytes": 38
+  },
+  "control-minimal-fill00/local/play-boot-config/logs/iop_modload.log": {
+   "sha256": "910396d2d71923372e1197960d9837128750abce59dd0b7f86d21f66d13895c7",
+   "bytes": 43
+  },
+  "control-minimal-fill00/local/play-boot-config/logs/iop_sifman.log": {
+   "sha256": "20e6e127b3a59661461c5a4a29ffb3a76557b77acd94ab68067dbeb96e4e5c9c",
+   "bytes": 3420
+  },
+  "control-minimal-fill00/local/play-boot-config/logs/iop_spu2.log": {
+   "sha256": "5955f7ad11be780be6af3a8b2904697d4e38bfa4a25f417369fd13277754a855",
+   "bytes": 150
+  },
+  "control-minimal-fill00/local/play-boot-config/logs/iop_spu2_core_0.log": {
+   "sha256": "6788eef4a2c4846c555a2cb218f52e1ac747c1a732b6e403f0b69e7174e11236",
+   "bytes": 18718
+  },
+  "control-minimal-fill00/local/play-boot-config/logs/iop_spu2_core_1.log": {
+   "sha256": "8eb0a7e7957bc205c700101d115638610b5cd77c6de4c676950e3c2221857573",
+   "bytes": 18870
+  },
+  "control-minimal-fill00/local/play-boot-config/logs/ps2os.log": {
+   "sha256": "33b684cff6d7a77e7b97fa1f95adc5c4a79e04b0245387f597a3185371cf8b76",
+   "bytes": 52
+  },
+  "control-minimal-fill00/local/play-boot-config/logs/sif.log": {
+   "sha256": "b3cc926be3fdb873a748923893a6051d5a131d8a2a5657fae68494c094a31cae",
+   "bytes": 297
+  },
+  "fill00-a/local/play-boot-config/config.xml": {
+   "sha256": "08f6dbf27fb0c875c57a4a7ebc4d23e2678da27602a8bc4151c6c26631a25494",
+   "bytes": 2023
+  },
+  "fill00-a/local/play-boot-config/ps2_stderr.txt": {
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  "fill00-a/local/play-boot-config/ps2_stdout.txt": {
+   "sha256": "7327a788c884b35a77ce09d65acbdf04862a3250989d97a6350f8fd71266638a",
+   "bytes": 1173
+  },
+  "fill00-a/local/play-boot-config/logs/GameConfig.log": {
+   "sha256": "9af8372912a28576e4e3ef2975c3eaa90faad385e35c7aab3d580ab13a6f6e6a",
+   "bytes": 56
+  },
+  "fill00-a/local/play-boot-config/logs/ee_dmac.log": {
+   "sha256": "8dd6baf8652df721ab95549907e91280e18b997ffcdfbab3f4ea4315edee4ba3",
+   "bytes": 1605
+  },
+  "fill00-a/local/play-boot-config/logs/ee_gif.log": {
+   "sha256": "9ba68b450b33f1c7975eab93c544ed139c69f197ed717c5740ce40a4912a46d6",
+   "bytes": 50
+  },
+  "fill00-a/local/play-boot-config/logs/ee_timer.log": {
+   "sha256": "b4421dc83a0d2edc4ca795e7203b362bbdd97a8a0006b2851f81f16210dfc9b4",
+   "bytes": 492
+  },
+  "fill00-a/local/play-boot-config/logs/gs.log": {
+   "sha256": "49016252799ed7221abd27efe3bf010451423569b904b8cd202168dac441caca",
+   "bytes": 84980
+  },
+  "fill00-a/local/play-boot-config/logs/iop_ioman.log": {
+   "sha256": "48c8bce8169fb85e943d0194902b54900c9bb5b6eba2451b0e293a2fe374000d",
+   "bytes": 87
+  },
+  "fill00-a/local/play-boot-config/logs/iop_loadcore.log": {
+   "sha256": "8d10ad6909d17933e741795692838c5b7687705fdb02db0d9e1fadda9a4783b9",
+   "bytes": 38
+  },
+  "fill00-a/local/play-boot-config/logs/iop_modload.log": {
+   "sha256": "910396d2d71923372e1197960d9837128750abce59dd0b7f86d21f66d13895c7",
+   "bytes": 43
+  },
+  "fill00-a/local/play-boot-config/logs/iop_sifman.log": {
+   "sha256": "2f863c600917f482bbaccf68828038056f7ccc12bea4ecc465fff5c78ef3570a",
+   "bytes": 3600
+  },
+  "fill00-a/local/play-boot-config/logs/iop_spu2.log": {
+   "sha256": "5955f7ad11be780be6af3a8b2904697d4e38bfa4a25f417369fd13277754a855",
+   "bytes": 150
+  },
+  "fill00-a/local/play-boot-config/logs/iop_spu2_core_0.log": {
+   "sha256": "6788eef4a2c4846c555a2cb218f52e1ac747c1a732b6e403f0b69e7174e11236",
+   "bytes": 18718
+  },
+  "fill00-a/local/play-boot-config/logs/iop_spu2_core_1.log": {
+   "sha256": "8eb0a7e7957bc205c700101d115638610b5cd77c6de4c676950e3c2221857573",
+   "bytes": 18870
+  },
+  "fill00-a/local/play-boot-config/logs/ps2os.log": {
+   "sha256": "33b684cff6d7a77e7b97fa1f95adc5c4a79e04b0245387f597a3185371cf8b76",
+   "bytes": 52
+  },
+  "fill00-a/local/play-boot-config/logs/sif.log": {
+   "sha256": "b3cc926be3fdb873a748923893a6051d5a131d8a2a5657fae68494c094a31cae",
+   "bytes": 297
+  },
+  "fill00-b/local/play-boot-config/config.xml": {
+   "sha256": "938783ad0930e2228488d8bc34ceae52f7d5d4628e22ba812ad6a1387030105c",
+   "bytes": 2023
+  },
+  "fill00-b/local/play-boot-config/ps2_stderr.txt": {
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  "fill00-b/local/play-boot-config/ps2_stdout.txt": {
+   "sha256": "7327a788c884b35a77ce09d65acbdf04862a3250989d97a6350f8fd71266638a",
+   "bytes": 1173
+  },
+  "fill00-b/local/play-boot-config/logs/GameConfig.log": {
+   "sha256": "9af8372912a28576e4e3ef2975c3eaa90faad385e35c7aab3d580ab13a6f6e6a",
+   "bytes": 56
+  },
+  "fill00-b/local/play-boot-config/logs/ee_dmac.log": {
+   "sha256": "8dd6baf8652df721ab95549907e91280e18b997ffcdfbab3f4ea4315edee4ba3",
+   "bytes": 1605
+  },
+  "fill00-b/local/play-boot-config/logs/ee_gif.log": {
+   "sha256": "9ba68b450b33f1c7975eab93c544ed139c69f197ed717c5740ce40a4912a46d6",
+   "bytes": 50
+  },
+  "fill00-b/local/play-boot-config/logs/ee_timer.log": {
+   "sha256": "b4421dc83a0d2edc4ca795e7203b362bbdd97a8a0006b2851f81f16210dfc9b4",
+   "bytes": 492
+  },
+  "fill00-b/local/play-boot-config/logs/gs.log": {
+   "sha256": "49016252799ed7221abd27efe3bf010451423569b904b8cd202168dac441caca",
+   "bytes": 84980
+  },
+  "fill00-b/local/play-boot-config/logs/iop_ioman.log": {
+   "sha256": "48c8bce8169fb85e943d0194902b54900c9bb5b6eba2451b0e293a2fe374000d",
+   "bytes": 87
+  },
+  "fill00-b/local/play-boot-config/logs/iop_loadcore.log": {
+   "sha256": "8d10ad6909d17933e741795692838c5b7687705fdb02db0d9e1fadda9a4783b9",
+   "bytes": 38
+  },
+  "fill00-b/local/play-boot-config/logs/iop_modload.log": {
+   "sha256": "910396d2d71923372e1197960d9837128750abce59dd0b7f86d21f66d13895c7",
+   "bytes": 43
+  },
+  "fill00-b/local/play-boot-config/logs/iop_sifman.log": {
+   "sha256": "2f863c600917f482bbaccf68828038056f7ccc12bea4ecc465fff5c78ef3570a",
+   "bytes": 3600
+  },
+  "fill00-b/local/play-boot-config/logs/iop_spu2.log": {
+   "sha256": "5955f7ad11be780be6af3a8b2904697d4e38bfa4a25f417369fd13277754a855",
+   "bytes": 150
+  },
+  "fill00-b/local/play-boot-config/logs/iop_spu2_core_0.log": {
+   "sha256": "6788eef4a2c4846c555a2cb218f52e1ac747c1a732b6e403f0b69e7174e11236",
+   "bytes": 18718
+  },
+  "fill00-b/local/play-boot-config/logs/iop_spu2_core_1.log": {
+   "sha256": "8eb0a7e7957bc205c700101d115638610b5cd77c6de4c676950e3c2221857573",
+   "bytes": 18870
+  },
+  "fill00-b/local/play-boot-config/logs/ps2os.log": {
+   "sha256": "33b684cff6d7a77e7b97fa1f95adc5c4a79e04b0245387f597a3185371cf8b76",
+   "bytes": 52
+  },
+  "fill00-b/local/play-boot-config/logs/sif.log": {
+   "sha256": "b3cc926be3fdb873a748923893a6051d5a131d8a2a5657fae68494c094a31cae",
+   "bytes": 297
+  },
+  "fillff-a/local/play-boot-config/config.xml": {
+   "sha256": "2cc66519dd8f04f32b0b7b4552089800e324def837fdc99c70ad48de3b4a3065",
+   "bytes": 2023
+  },
+  "fillff-a/local/play-boot-config/ps2_stderr.txt": {
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  "fillff-a/local/play-boot-config/ps2_stdout.txt": {
+   "sha256": "7327a788c884b35a77ce09d65acbdf04862a3250989d97a6350f8fd71266638a",
+   "bytes": 1173
+  },
+  "fillff-a/local/play-boot-config/logs/GameConfig.log": {
+   "sha256": "9af8372912a28576e4e3ef2975c3eaa90faad385e35c7aab3d580ab13a6f6e6a",
+   "bytes": 56
+  },
+  "fillff-a/local/play-boot-config/logs/ee_dmac.log": {
+   "sha256": "8dd6baf8652df721ab95549907e91280e18b997ffcdfbab3f4ea4315edee4ba3",
+   "bytes": 1605
+  },
+  "fillff-a/local/play-boot-config/logs/ee_gif.log": {
+   "sha256": "9ba68b450b33f1c7975eab93c544ed139c69f197ed717c5740ce40a4912a46d6",
+   "bytes": 50
+  },
+  "fillff-a/local/play-boot-config/logs/ee_timer.log": {
+   "sha256": "b4421dc83a0d2edc4ca795e7203b362bbdd97a8a0006b2851f81f16210dfc9b4",
+   "bytes": 492
+  },
+  "fillff-a/local/play-boot-config/logs/gs.log": {
+   "sha256": "49016252799ed7221abd27efe3bf010451423569b904b8cd202168dac441caca",
+   "bytes": 84980
+  },
+  "fillff-a/local/play-boot-config/logs/iop_ioman.log": {
+   "sha256": "48c8bce8169fb85e943d0194902b54900c9bb5b6eba2451b0e293a2fe374000d",
+   "bytes": 87
+  },
+  "fillff-a/local/play-boot-config/logs/iop_loadcore.log": {
+   "sha256": "8d10ad6909d17933e741795692838c5b7687705fdb02db0d9e1fadda9a4783b9",
+   "bytes": 38
+  },
+  "fillff-a/local/play-boot-config/logs/iop_modload.log": {
+   "sha256": "910396d2d71923372e1197960d9837128750abce59dd0b7f86d21f66d13895c7",
+   "bytes": 43
+  },
+  "fillff-a/local/play-boot-config/logs/iop_sifman.log": {
+   "sha256": "2f863c600917f482bbaccf68828038056f7ccc12bea4ecc465fff5c78ef3570a",
+   "bytes": 3600
+  },
+  "fillff-a/local/play-boot-config/logs/iop_spu2.log": {
+   "sha256": "5955f7ad11be780be6af3a8b2904697d4e38bfa4a25f417369fd13277754a855",
+   "bytes": 150
+  },
+  "fillff-a/local/play-boot-config/logs/iop_spu2_core_0.log": {
+   "sha256": "6788eef4a2c4846c555a2cb218f52e1ac747c1a732b6e403f0b69e7174e11236",
+   "bytes": 18718
+  },
+  "fillff-a/local/play-boot-config/logs/iop_spu2_core_1.log": {
+   "sha256": "8eb0a7e7957bc205c700101d115638610b5cd77c6de4c676950e3c2221857573",
+   "bytes": 18870
+  },
+  "fillff-a/local/play-boot-config/logs/ps2os.log": {
+   "sha256": "33b684cff6d7a77e7b97fa1f95adc5c4a79e04b0245387f597a3185371cf8b76",
+   "bytes": 52
+  },
+  "fillff-a/local/play-boot-config/logs/sif.log": {
+   "sha256": "b3cc926be3fdb873a748923893a6051d5a131d8a2a5657fae68494c094a31cae",
+   "bytes": 297
+  },
+  "fillff-b/local/play-boot-config/config.xml": {
+   "sha256": "77dd3b1261d8d29b34b0c30ad11f56bcc961ee702f1ce2344c5b1215f4350007",
+   "bytes": 2023
+  },
+  "fillff-b/local/play-boot-config/ps2_stderr.txt": {
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  "fillff-b/local/play-boot-config/ps2_stdout.txt": {
+   "sha256": "7327a788c884b35a77ce09d65acbdf04862a3250989d97a6350f8fd71266638a",
+   "bytes": 1173
+  },
+  "fillff-b/local/play-boot-config/logs/GameConfig.log": {
+   "sha256": "9af8372912a28576e4e3ef2975c3eaa90faad385e35c7aab3d580ab13a6f6e6a",
+   "bytes": 56
+  },
+  "fillff-b/local/play-boot-config/logs/ee_dmac.log": {
+   "sha256": "8dd6baf8652df721ab95549907e91280e18b997ffcdfbab3f4ea4315edee4ba3",
+   "bytes": 1605
+  },
+  "fillff-b/local/play-boot-config/logs/ee_gif.log": {
+   "sha256": "9ba68b450b33f1c7975eab93c544ed139c69f197ed717c5740ce40a4912a46d6",
+   "bytes": 50
+  },
+  "fillff-b/local/play-boot-config/logs/ee_timer.log": {
+   "sha256": "b4421dc83a0d2edc4ca795e7203b362bbdd97a8a0006b2851f81f16210dfc9b4",
+   "bytes": 492
+  },
+  "fillff-b/local/play-boot-config/logs/gs.log": {
+   "sha256": "49016252799ed7221abd27efe3bf010451423569b904b8cd202168dac441caca",
+   "bytes": 84980
+  },
+  "fillff-b/local/play-boot-config/logs/iop_ioman.log": {
+   "sha256": "48c8bce8169fb85e943d0194902b54900c9bb5b6eba2451b0e293a2fe374000d",
+   "bytes": 87
+  },
+  "fillff-b/local/play-boot-config/logs/iop_loadcore.log": {
+   "sha256": "8d10ad6909d17933e741795692838c5b7687705fdb02db0d9e1fadda9a4783b9",
+   "bytes": 38
+  },
+  "fillff-b/local/play-boot-config/logs/iop_modload.log": {
+   "sha256": "910396d2d71923372e1197960d9837128750abce59dd0b7f86d21f66d13895c7",
+   "bytes": 43
+  },
+  "fillff-b/local/play-boot-config/logs/iop_sifman.log": {
+   "sha256": "2f863c600917f482bbaccf68828038056f7ccc12bea4ecc465fff5c78ef3570a",
+   "bytes": 3600
+  },
+  "fillff-b/local/play-boot-config/logs/iop_spu2.log": {
+   "sha256": "5955f7ad11be780be6af3a8b2904697d4e38bfa4a25f417369fd13277754a855",
+   "bytes": 150
+  },
+  "fillff-b/local/play-boot-config/logs/iop_spu2_core_0.log": {
+   "sha256": "6788eef4a2c4846c555a2cb218f52e1ac747c1a732b6e403f0b69e7174e11236",
+   "bytes": 18718
+  },
+  "fillff-b/local/play-boot-config/logs/iop_spu2_core_1.log": {
+   "sha256": "8eb0a7e7957bc205c700101d115638610b5cd77c6de4c676950e3c2221857573",
+   "bytes": 18870
+  },
+  "fillff-b/local/play-boot-config/logs/ps2os.log": {
+   "sha256": "33b684cff6d7a77e7b97fa1f95adc5c4a79e04b0245387f597a3185371cf8b76",
+   "bytes": 52
+  },
+  "fillff-b/local/play-boot-config/logs/sif.log": {
+   "sha256": "b3cc926be3fdb873a748923893a6051d5a131d8a2a5657fae68494c094a31cae",
+   "bytes": 297
+  }
+ },
+ "result_digest": {
+  "resource_events": 796,
+  "resource_events_by_kind": {
+   "alloc": 166,
+   "bind": 47,
+   "free": 4,
+   "handle": 113,
+   "material": 67,
+   "name": 67,
+   "ref": 170,
+   "reserve": 1,
+   "retire": 2,
+   "upload": 159
+  },
+  "live_allocations": 162,
+  "handles": 111,
+  "records": 111,
+  "image_list": [
+   36,
+   37,
+   38,
+   39,
+   40,
+   41,
+   42,
+   43
+  ],
+  "materials": 67,
+  "vram_known_nibbles": 2586752,
+  "vram_unknown_nibbles": 3153920,
+  "vram_stats": {
+   "last_draw": 3153920,
+   "last_upload": 2586752,
+   "never": 2647936
+  },
+  "gs": {
+   "host_to_local": 159,
+   "draw_classes": 11,
+   "primitives": 44687,
+   "local_to_local": 0,
+   "clut_loads": 1199,
+   "flips": 843
+  },
+  "mode8_constructions": [
+   {
+    "selector": 3,
+    "enter_vb": 97,
+    "return_vb": 102
+   },
+   {
+    "selector": 0,
+    "enter_vb": 106,
+    "return_vb": 112
+   },
+   {
+    "selector": 1,
+    "enter_vb": 764,
+    "return_vb": 843
+   }
+  ],
+  "logo_ticks": [
+   {
+    "tick": 1,
+    "vb": 112,
+    "i": 25093
+   },
+   {
+    "tick": 180,
+    "vb": 291,
+    "i": 32256
+   },
+   {
+    "tick": 270,
+    "vb": 381,
+    "i": 35857
+   },
+   {
+    "tick": 480,
+    "vb": 641,
+    "i": 44337
+   },
+   {
+    "tick": 600,
+    "vb": 761,
+    "i": 49139
+   }
+  ],
+  "storage_events": [
+   {
+    "fn": "storage_init",
+    "i": 24811,
+    "vb": 102,
+    "result": 8192,
+    "param_words": [
+     0,
+     0,
+     8192
+    ],
+    "storage_words": [
+     0,
+     0,
+     8192,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1536,
+     0
+    ]
+   },
+   {
+    "fn": "storage_probe",
+    "i": 24840,
+    "vb": 102,
+    "result": 0,
+    "param_words": [
+     2,
+     8192,
+     1024
+    ],
+    "storage_words": [
+     2,
+     8192,
+     1024,
+     0,
+     0,
+     0,
+     0,
+     0,
+     109511936,
+     0
+    ]
+   }
+  ],
+  "rand_calls_after_prefix": 0,
+  "determinism": {
+   "events.jsonl": true,
+   "disc-opens.jsonl": true,
+   "vram-last-writer.bin": true,
+   "vram-upload-ever.bin": true,
+   "ee-ram-32mb.bin": true,
+   "ee-ram-after-10bc78.bin": true,
+   "gs-ledger.jsonl (ee_event cross-reference removed)": true,
+   "final-state.jsonl (fill fields removed)": true,
+   "state-at-100618.jsonl (fill field removed)": true,
+   "vram.bin within fill": true
+  },
+  "startup_cross_check": {
+   "prefix_state": {
+    "handles": true,
+    "records": true,
+    "hash": true,
+    "live_handles": true,
+    "reserved": true,
+    "free_records": true,
+    "free_extras": true,
+    "descriptors": true,
+    "allocations": true,
+    "vram.available": true,
+    "vram.cursors": true,
+    "vram.occupancy_sha256": true,
+    "vram.nodes_sha256": true,
+    "rand_state": true
+   },
+   "prefix_uploads_equal": true
+  },
+  "rng_cross_check": {
+   "prefix_rand_entries_equal": true,
+   "prefix_rand_entries": 9504
+  },
+  "control_minimal": {
+   "mode8_selectors": [
+    3,
+    0,
+    1
+   ],
+   "vblanks": 822,
+   "state_equal": {
+    "handles": true,
+    "records": true,
+    "hash": true,
+    "live_handles": true,
+    "reserved": true,
+    "free_records": true,
+    "free_extras": true,
+    "descriptors": true
+   },
+   "vram_cursors_occupancy_equal": true,
+   "vram_equal_to_fill00": true,
+   "rand_state_equal": true
+  }
+ },
+ "limitations": [
+  "Play research backend, Debug build; not a physical PS2 proof. Play tree cleanliness not verified.",
+  "The null renderer rasterises nothing: draw/local-to-local \"writes\" are ledger classifications (conservative rectangles), not observed memory contents. The required-unknown set is therefore a conservative superset of real coverage (vertex bounding boxes clipped to SCISSOR, FBMSK/ZMSK/TEST-NEVER honoured).",
+  "Written-lane masks are paired-fill derived and cross-checked against the ledger upload footprint (equal).",
+  "Play PSMCT24 host-to-local transfers read 3-byte pixels per chunk; every PSMCT24 chunk here was a multiple of 3 bytes (ledger ct24_chunks_not_multiple_of_3 = 0), so no chunk-boundary artefact applies.",
+  "ee_event fields in gs-ledger.jsonl are an approximate host-thread cross-reference and are excluded from determinism; every other ledger field is identical across the four runs.",
+  "Hooks perturb timing (stop at 843 vblanks hooked, 822 in the minimal control); state, VRAM and selectors agree.",
+  "ee-ram snapshots are the first 32 MiB of EE RAM only."
+ ]
+}
