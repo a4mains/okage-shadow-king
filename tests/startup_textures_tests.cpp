@@ -269,6 +269,97 @@ int main() {
             delete o;
             require(snap.valid() && snap.allocation(2)->references == 3, "snapshot outlives the aggregate");
         });
+        // Title lifecycle: scheduled invalidation, logo image list, retirement, title model binding.
+        scenario([&] {
+            StartupTextureOwner o;
+            GameRandom r{1};
+            Hook h;
+            auto in = inputs();
+            in.record_observations = true;
+            run(o, in, r, h);
+            auto& m = o.memory();
+            const auto logo = effect_xim({19, 256, 64, 32}, 50);
+            bool threw = false;
+            try { o.begin_logo_construction(); } catch (const std::logic_error&) { threw = true; }
+            require(threw, "logos before the first scheduler traversal are rejected");
+            // Font high lanes inside the depth words: known before and after invalidation.
+            const auto depth = *m.allocation(2);
+            std::size_t font_lanes = 0, depth_low_known = 0;
+            for (std::uint32_t a = depth.base_block * 256u; a < (depth.base_block + 0x700u) * 256u; ++a) {
+                if (a % 4 == 3 && m.observe_nibble(a, 0).known) ++font_lanes;
+                if (a % 4 != 3 && m.observe_byte(a).value) ++depth_low_known;
+            }
+            require(font_lanes > 0 && depth_low_known == 0, "fixture: font lanes known, Z24 lanes never written");
+            const auto before = m.snapshot();
+            // Pretend an earlier writer made a colour byte known, then invalidate.
+            m.write_bytes(m.allocation(o.layers()[0].color.id)->base_block * 256u, std::array<std::uint8_t, 4>{1, 2, 3, 4});
+            const auto with_write = m.snapshot();
+            o.begin_scheduled_frames();
+            require(o.memory_coverage() == MemoryContentCoverage::DrawTargetsInvalidated, "memory coverage separated");
+            require(!m.observe_byte(0).value && with_write.observe_byte(0).value == std::optional<std::uint8_t>(1),
+                    "colour buffer unknown now; the older snapshot keeps its bytes");
+            std::size_t font_after = 0;
+            for (std::uint32_t a = depth.base_block * 256u; a < (depth.base_block + 0x700u) * 256u; a += 4)
+                font_after += m.observe_nibble(a + 3, 0).known;
+            require(font_after == font_lanes, "font lanes in the depth top byte stay known");
+            (void)before;
+            // Logos: append in order, retire in insertion order, frees reused by the title.
+            o.begin_logo_construction();
+            const int h1 = o.append_image(logo), h2 = o.append_image(effect_xim({19, 256, 64, 32}, 51));
+            require(h1 == 36 && h2 == 37 && o.image_list() == std::vector<int>({36, 37}), "image list in order");
+            require(o.append_image(std::nullopt) == -1 && o.image_list().size() == 2, "read failure appends nothing");
+            const auto logo_alloc = o.handles().image(h1)->id;
+            const auto available = m.available_count();
+            o.retire_image_list();
+            require(o.image_list().empty() && !m.allocation(logo_alloc) && m.available_count() == available + 4,
+                    "both logo images and CLUTs freed at retirement");
+            threw = false;
+            try { o.retire_image_list(); } catch (const std::logic_error&) { threw = true; }
+            require(threw, "double retirement rejected");
+            o.begin_title_construction();
+            const int t0 = o.append_image(effect_xim({19, 256, 64, 32}, 52));
+            require(t0 == 36 && o.handles().image(t0)->serial > 79, "handle id reused, new allocation incarnation");
+            // A hole in the live list (retired handle) and a failed load shift the successor binding.
+            const int stray = o.handles().create_handle(std::nullopt);
+            std::vector<std::string> names{"Tex_A", "tex_b", "TEX_A", "missing", "tex_c"};
+            int reads = 0;
+            const auto result = o.load_and_bind_model("MODEL/a.xmd", names, [&](const std::string& f) -> std::optional<std::vector<std::uint8_t>> {
+                ++reads;
+                if (f == "missing.xim") return effect_xim({19, 256, 64, 32}, 99);  // loads fine
+                return effect_xim({19, 256, 32, 32}, static_cast<unsigned>(f.size()));
+            });
+            require(reads == 5 && result.first >= 0, "cache off: every name read, duplicates load again");
+            const auto& binding = o.model_binding();
+            require(binding.size() == 5 && binding[0] == result.first, "binding starts at the first handle");
+            for (std::size_t i = 1; i < binding.size(); ++i)
+                require(binding[i] == o.handles().live_successor(binding[i - 1]), "successor walk, not first+i");
+            require(o.handles().live_successor(binding.back()) == -7 && o.handles().live_successor(-7) == -1,
+                    "past the tail: -7 then -1");
+            (void)stray;
+            o.finish_title_construction();
+            require(o.stage() == ResourceStage::TitleConstructed, "title stage");
+            threw = false;
+            try { o.begin_title_construction(); } catch (const std::logic_error&) { threw = true; }
+            require(threw, "no second title construction");
+            int phases = 0, materials = 0, frees = 0;
+            for (const auto& line : o.lifecycle()) {
+                phases += line.find("\"phase\"") != std::string::npos;
+                materials += line.find("\"material\"") != std::string::npos;
+                frees += line.find("\"kind\":\"free\"") != std::string::npos;
+            }
+            require(materials == 5 && frees == 4 && phases > 0, "material and free events recorded");
+        });
+        // Successor walk with a retired handle between loads (hole) and a failed load (-1 skipped).
+        scenario([&] {
+            Ps2TextureMemory mem; mem.initialize_empty_allocator();
+            TextureHandleOwner t(mem);
+            const int a = t.create_handle(std::nullopt), b = t.create_handle(std::nullopt), c = t.create_handle(std::nullopt);
+            t.retire(b);
+            require(t.live_successor(a) == c && t.live_order() == std::vector<int>({a, c}), "retired handle leaves the list");
+            const int d = t.create_handle(std::nullopt);
+            require(d == b && t.live_successor(c) == d && t.live_successor(d) == -7,
+                    "reused id is appended at the tail, not at its old position");
+        });
         std::cout << "startup texture tests passed\n";
         return 0;
     } catch (const std::exception& e) {

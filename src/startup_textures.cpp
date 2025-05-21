@@ -549,8 +549,11 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
         return d ? std::string("[") + std::to_string(d->id) + "," + std::to_string(d->serial) + "]" : std::string("null");
     };
     if (session_schema) {
-        o << "{\n \"coverage\":{\"lifecycle\":\"" << to_string(owner.stage()) << "\",\"memory\":\""
-          << to_string(owner.memory_coverage()) << "\"},\n \"later_history\":\"unmodeled after "
+        // the title original-reference contract fixed labels for the title-constructor boundary.
+        if (owner.stage() != ResourceStage::TitleConstructed ||
+            owner.memory_coverage() != MemoryContentCoverage::DrawTargetsInvalidated)
+            throw std::logic_error("session resource report is defined only at the title-constructor return");
+        o << "{\n \"coverage\":{\"lifecycle\":\"title-constructor-return\",\"memory\":\"host-uploads-known-draw-writes-unknown\"},\n \"later_history\":\"unmodeled after "
           << to_string(owner.stage()) << ": title updates/retirement, New Game/Restore, XTA, field, battle\",";
         o << "\n \"image_list\":[";
         for (std::size_t i = 0; i < owner.image_list().size(); ++i) o << (i ? "," : "") << owner.image_list()[i];
