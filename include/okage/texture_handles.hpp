@@ -117,7 +117,7 @@ public:
     // always lower-cased inside lookup/registration).
     void set_lower_case_file_names(bool on) noexcept { lower_file_names_ = on; }
 
-    using FileReader = std::function<std::optional<std::vector<std::uint8_t>>(const std::string&)>;
+    using FileReader = std::function<std::optional<std::vector<std::uint8_t>>(std::string&)>;
     XmdLoadResult load_xmd_names(std::span<const std::string> names, const FileReader& read_file);
 
     int live_successor(int handle) const;

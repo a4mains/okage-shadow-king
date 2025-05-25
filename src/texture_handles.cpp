@@ -133,7 +133,7 @@ int TextureHandleOwner::create_alias(int record) {
 
 int TextureHandleOwner::create_image(GsPixelStorage psm, std::uint16_t width, std::uint16_t height,
                                      std::span<const std::uint8_t> pixels) {
-    if (psm != GsPixelStorage::Psmct32 && psm != GsPixelStorage::Psmt8 && psm != GsPixelStorage::Psmt4 &&
+    if (psm != GsPixelStorage::Psmct32 && psm != GsPixelStorage::Psmct24 && psm != GsPixelStorage::Psmt8 && psm != GsPixelStorage::Psmt4 &&
         psm != GsPixelStorage::Psmt4Hl && psm != GsPixelStorage::Psmt4Hh)
         throw std::invalid_argument("texture handle: unsupported pixel storage");
     if (!width || !height || width > 2048 || height > 2048)
@@ -388,7 +388,7 @@ XmdLoadResult TextureHandleOwner::load_xmd_names(std::span<const std::string> na
         if (handle >= 0) {
             outcome.kind = XmdNameOutcome::Kind::CacheHit;
         } else {
-            const auto bytes = read_file(outcome.file_name);
+            const auto bytes = read_file(outcome.file_name);  // may rewrite the buffer (see FileReader)
             if (!bytes) {
                 result.aborted = true;
                 result.first = -1;

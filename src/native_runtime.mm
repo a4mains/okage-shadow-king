@@ -1271,11 +1271,13 @@ struct Session {
                         const auto night_v=field_root.parent_path()/"CMNDATA/2D/NIGHT_V.XPF";
                         const auto model=okage::read_xmd(readData(night_v/"a.xmd"));
                         startup_textures->load_and_bind_model("NIGHT_V/a.xmd",model.textures,
-                            [night_v](const std::string& name)->std::optional<std::vector<std::uint8_t>> {
-                                std::string lower=name;   //archive member lookup ignores case
-                                std::transform(lower.begin(),lower.end(),lower.begin(),[](unsigned char c){return char(std::tolower(c));});
-                                if(!fs::exists(night_v/lower))return std::nullopt;
-                                return readData(night_v/lower);
+                            [night_v](std::string& name)->std::optional<std::vector<std::uint8_t>> {
+                                //1c2e68 -> 0x1bc700 lower-cases the mounted-archive query IN PLACE
+                                //(ASCII 'A'..'Z' via the ctype table); 1cc4e0 then names the handle with it.
+                                std::transform(name.begin(),name.end(),name.begin(),[](unsigned char c){
+                                    return char(c>='A'&&c<='Z'?c+32:c);});
+                                if(!fs::exists(night_v/name))return std::nullopt;
+                                return readData(night_v/name);
                             });
                     }
                     title=std::make_unique<okage::TitleSession>(scene_clear,scene_fade,ui_shared,game_over_shared,
