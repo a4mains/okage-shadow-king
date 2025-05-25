@@ -780,16 +780,21 @@ public:
         constexpr uint32 rowWords=12;
         require(input.size()>=16&&input.size()%4==0&&word(0)==0x54545854&&word(1)==2&&word(2)>0&&word(2)<=256&&
             word(3)==rowWords&&input.size()==16+size_t(word(2))*rowWords*4,"Texture transfer v2 header/extent");
-        const auto bitsOf=[](uint32 psm)->uint32{switch(psm){case 0:return 32;case 19:return 8;case 20:case 36:case 44:return 4;default:return 0;}};
+        const auto bitsOf=[](uint32 psm)->uint32{switch(psm){case 0:return 32;case 1:return 24;case 19:return 8;case 20:case 36:case 44:return 4;default:return 0;}};
         constexpr uint32 sourceSpan=0x20000,vramBytes=0x400000;
         for(uint32 i=0;i<word(2);++i){const auto at=4+i*rowWords;
             const uint32 kind=word(at),psm=word(at+1),w=word(at+2),h=word(at+3),x=word(at+4),y=word(at+5),tbp=word(at+6),tbw=word(at+7);
             const uint32 pattern=word(at+8),preLo=word(at+10),preLen=word(at+11);
-            require((kind==0||kind==2)&&bitsOf(psm)&&w>=1&&w<=512&&h>=1&&h<=512&&x<2048&&y<2048&&tbp<=0x3fff&&tbw<=63&&pattern<=3&&
-                preLen<=vramBytes&&preLo<=vramBytes-preLen,"Texture transfer v2 row");
-            require(kind==2||(x==0&&y==0&&tbp==0&&tbw==0),"Texture transfer v2 allocated row takes TBP/TBW from the allocation");
+            const bool stagedRow=kind==3||kind==4;
+            require((kind==0||kind==2||stagedRow)&&bitsOf(psm)&&w>=1&&w<=512&&h>=1&&h<=512&&x<2048&&y<2048&&tbp<=0x3fff&&tbw<=63&&pattern<=3&&
+                (stagedRow||(preLen<=vramBytes&&preLo<=vramBytes-preLen)),"Texture transfer v2 row");
+            require(kind==2||kind==3||(x==0&&y==0&&tbp==0&&tbw==0),"Texture transfer v2 allocated row takes TBP/TBW from the allocation");
+            require(kind!=4||(x==0&&y==0&&tbp==0&&tbw==0),"Texture transfer v2 allocated pair takes TBP/TBW from the allocations");
             require((uint64(w)*h*bitsOf(psm))/128>0,"Texture transfer v2 row sends no quadword");
-            require((uint64(w)*h*bitsOf(psm)+7)/8<=sourceSpan-0x1000,"Texture transfer v2 payload extent");}
+            require((uint64(w)*h*bitsOf(psm)+7)/8<=sourceSpan-0x1000,"Texture transfer v2 payload extent");
+            if(stagedRow){const uint32 pw=preLen&0xffff,ph=preLen>>16;
+                require(bitsOf(preLo)&&pw>=1&&pw<=512&&ph>=1&&ph<=512&&(uint64(pw)*ph*bitsOf(preLo))/128>0&&
+                    (uint64(pw)*ph*bitsOf(preLo)+7)/8<=sourceSpan-0x1000,"Texture transfer v2 staged pre-upload");}}
         constexpr uint32 source=0x1a00000;
         const std::vector<uint8> code(ee->m_ram+0x100000,ee->m_ram+0x1f2000);
         const std::vector<uint8> tables(ee->m_ram+0x2138d0,ee->m_ram+0x214020);
@@ -818,35 +823,51 @@ public:
             const uint32 kind=word(at),psm=word(at+1),w=word(at+2),h=word(at+3),x=word(at+4),y=word(at+5);
             uint32 tbp=word(at+6),tbw=word(at+7);
             const uint32 pattern=word(at+8),seed=word(at+9),preLo=word(at+10),preLen=word(at+11);
-            uint64 descriptor;
-            if(kind==0){
+            uint64 descriptor,preDescriptor=0;
+            const bool staged=kind==3||kind==4;
+            const uint32 prePsm=staged?preLo:0,preW=staged?(preLen&0xffff):0,preH=staged?(preLen>>16):0;
+            if(kind==4){
+                std::memset(ee->m_ram+0xe000,0,256*24);call(0x1ce940);
+                call(0x1cf008,{1,prePsm,preW,preH});preDescriptor=ee->m_EE.m_State.nGPR[CMIPS::V0].nD0;
+                require(preDescriptor!=0,"Texture transfer pre allocation failed");
+                call(0x1cf008,{1,psm,w,h});descriptor=ee->m_EE.m_State.nGPR[CMIPS::V0].nD0;
+                require(descriptor!=0,"Texture transfer allocation failed");
+                tbp=descriptor&0x3fff;tbw=(descriptor>>14)&0x3f;
+            } else if(kind==0){
                 std::memset(ee->m_ram+0xe000,0,256*24);call(0x1ce940);call(0x1cf008,{1,psm,w,h});
                 descriptor=ee->m_EE.m_State.nGPR[CMIPS::V0].nD0;
                 require(descriptor!=0,"Texture transfer allocation failed");
                 tbp=descriptor&0x3fff;tbw=(descriptor>>14)&0x3f;
             } else descriptor=uint64(tbp)|(uint64(tbw)<<14)|(uint64(psm)<<32)|(uint64(w)<<38)|(uint64(h)<<50);
+            if(kind==3)preDescriptor=uint64(tbp)|(uint64(tbw)<<14)|(uint64(prePsm)<<32)|(uint64(preW)<<38)|(uint64(preH)<<50);
+            std::vector<uint8> prePayload;
+            if(staged){prePayload.resize(uint32((uint64(preW)*preH*bitsOf(prePsm)+7)/8));
+                for(uint32 k=0;k<prePayload.size();++k)prePayload[k]=payloadByte(0,seed+1000,k);}
             const uint32 bytes=uint32((uint64(w)*h*bitsOf(psm)+7)/8);
             std::vector<uint8> payload(bytes);
             for(uint32 k=0;k<bytes;++k)payload[k]=payloadByte(pattern,seed,k);
             std::vector<uint8> afters[2],befores[2];std::vector<std::string> imageHashes[2];
             std::string packetsJson;uint32 pumpCalls[2]{};
             for(unsigned run=0;run<2;++run){
-                std::memset(ee->m_ram+source-0x1000,0xee,sourceSpan);
-                std::memcpy(ee->m_ram+source,payload.data(),bytes);
                 gs->drain();researchGs->Reset();ee->m_gif.Reset();
                 uint8* vramw=researchGs->GetRam();
                 std::memset(vramw,run?0xff:0x00,CGSHandler::RAMSIZE);
-                for(uint32 a=preLo;a<preLo+preLen;++a){const uint8 p=preByte(seed,a);vramw[a]=run?uint8(~p):p;}
+                if(!staged)for(uint32 a=preLo;a<preLo+preLen;++a){const uint8 p=preByte(seed,a);vramw[a]=run?uint8(~p):p;}
                 gs->begin();
                 befores[run].assign(vramw,vramw+CGSHandler::RAMSIZE);
                 auto& cpu=ee->m_EE;pumps=0;
-                cpu.m_State.nGPR[CMIPS::A0].nD0=descriptor;
-                cpu.m_State.nGPR[CMIPS::A1].nD0=x;cpu.m_State.nGPR[CMIPS::A2].nD0=y;
-                cpu.m_State.nGPR[CMIPS::A3].nD0=w;cpu.m_State.nGPR[CMIPS::T0].nD0=h;
-                cpu.m_State.nGPR[CMIPS::T1].nD0=source;call(0x1cba48);
-                for(unsigned k=0;k<8;++k)ee->m_dmac.ResumeDMA2();
-                gs->drain();
-                require(ee->m_gif.GetActivePath()==0,"Texture transfer left an active GIF path");
+                const auto upload=[&](uint64 d,uint32 ux,uint32 uy,uint32 uw,uint32 uh,const std::vector<uint8>& data){
+                    std::memset(ee->m_ram+source-0x1000,0xee,sourceSpan);
+                    std::memcpy(ee->m_ram+source,data.data(),data.size());
+                    cpu.m_State.nGPR[CMIPS::A0].nD0=d;
+                    cpu.m_State.nGPR[CMIPS::A1].nD0=ux;cpu.m_State.nGPR[CMIPS::A2].nD0=uy;
+                    cpu.m_State.nGPR[CMIPS::A3].nD0=uw;cpu.m_State.nGPR[CMIPS::T0].nD0=uh;
+                    cpu.m_State.nGPR[CMIPS::T1].nD0=source;call(0x1cba48);
+                    for(unsigned k=0;k<8;++k)ee->m_dmac.ResumeDMA2();
+                    gs->drain();
+                    require(ee->m_gif.GetActivePath()==0,"Texture transfer left an active GIF path");};
+                if(staged)upload(preDescriptor,0,0,preW,preH,prePayload);
+                upload(descriptor,x,y,w,h,payload);
                 afters[run].assign(researchGs->GetRam(),researchGs->GetRam()+CGSHandler::RAMSIZE);
                 pumpCalls[run]=pumps;
                 std::ostringstream pj;const auto& packets=gs->packets();
@@ -870,10 +891,10 @@ public:
                 if(!count)first=a;last=a;
                 const uint8 keep=uint8((lo?0x0f:0)|(hi?0xf0:0));
                 touched<<(count?",":"")<<'['<<a<<','<<unsigned(afters[0][a]&keep)<<','<<mask<<']';++count;}
-            out<<"{\"case\":"<<i<<",\"kind\":\""<<(kind?"descriptor":"allocated")<<"\",\"psm\":"<<psm<<",\"w\":"<<w<<",\"h\":"<<h
+            out<<"{\"case\":"<<i<<",\"kind\":\""<<(kind==0?"allocated":kind==2?"descriptor":kind==3?"staged":"allocated-pair")<<"\",\"psm\":"<<psm<<",\"w\":"<<w<<",\"h\":"<<h
                <<",\"x\":"<<x<<",\"y\":"<<y<<",\"tbp\":"<<tbp<<",\"tbw\":"<<tbw<<",\"pattern\":"<<pattern<<",\"seed\":"<<seed
                <<",\"pre_lo\":"<<preLo<<",\"pre_len\":"<<preLen
-               <<",\"descriptor\":["<<uint32(descriptor)<<','<<uint32(descriptor>>32)<<"],\"source_bytes\":"<<bytes
+               <<",\"descriptor\":["<<uint32(descriptor)<<','<<uint32(descriptor>>32)<<"],\"pre_descriptor\":["<<uint32(preDescriptor)<<','<<uint32(preDescriptor>>32)<<"],\"source_bytes\":"<<bytes
                <<",\"payload_sha256\":\""<<hash(payload)<<"\",\"pump_calls\":["<<pumpCalls[0]<<','<<pumpCalls[1]
                <<"],\"vram_before_sha256\":[\""<<hash(befores[0])<<"\",\""<<hash(befores[1])<<"\"],\"vram_after_sha256\":[\""
                <<hash(afters[0])<<"\",\""<<hash(afters[1])<<"\"],\"packets\":["<<packetsJson<<"],\"anomalies\":"<<anomalies

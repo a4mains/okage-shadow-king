@@ -1,0 +1,267 @@
+{
+ "base_commit": "5badd42",
+ "binaries_sha256": {
+  "build/title-psm1-debug/okage-texture-transfer-compare": "534792c75fe9ee1e8d3eaf167f95e970dd2412af93c5de6d6a158c6b7e34ac83",
+  "build/title-psm1-debug/texture-format-tests": "3b0c580327c0ee9091e380d51a14079302f1952e873e7be94eccfddba0d01def",
+  "build/title-psm1-debug/texture-memory-tests": "250fbf1bbb8d4bb07c4523f7d2b462370b6afc747a0148b1b5870e4b808545a2",
+  "build/title-psm1-debug/texture-psm1-tests": "31eb63260e2825235553f7487840361eff36773c3461a6ddc0ff5bda660a32c2",
+  "build/title-psm1-debug/texture-snapshot-tests": "4ca7cedbb5191c40352cad084e7fe5603f70f4e280485fb2a4a4f21a798c6904",
+  "build/title-psm1-debug/texture-transfer-tests": "efc83baaee7094e92ab5127926d94c3289be4a71fa6f2636dcdd099dcc60dd21",
+  "build/title-psm1-oracle/okage-oracle/okage-pose-oracle": "50b34dbf1ce031b8465171cd424f58dbf45945f643129f30ed6db9b4b4e2affe",
+  "build/title-psm1-release/okage-texture-transfer-compare": "8bd56d56cccb20bb6f8d52fd3af26a9a816efe13a342293d5c478345c8cc7a9b",
+  "build/title-psm1-release/texture-format-tests": "e10124de102c26a82cf1612bbbf62ce8ab7bc9a3c0c78cade3354e986d2fc541",
+  "build/title-psm1-release/texture-memory-tests": "b3b4ad79f54fcf426fdab23e46bda3b428222f7a86ecac74509e94ac5ff7bf9e",
+  "build/title-psm1-release/texture-psm1-tests": "bb4e9516497d5216ea995c4b49450f7bc2f3acf9fce9d3e3c60fde7842080fab",
+  "build/title-psm1-release/texture-snapshot-tests": "aa166841e393767f8df94f1c52e40516fee7a0975535c49f791efe9fe47c9eca",
+  "build/title-psm1-release/texture-transfer-tests": "0db0631fe0c6b995335655400880ac011e4541a24f21d554b2db213a838a9181",
+  "build/title-psm1-sanitize/okage-texture-transfer-compare": "9d818eaca2e7faa78b8468337756bf81f2dd0c72672972e4cb253b9339ffb500",
+  "build/title-psm1-sanitize/texture-format-tests": "2c8a2def239f47889ce9d53b16c5b61c639bfc4e028f3da2abbbc8e1080b6f9b",
+  "build/title-psm1-sanitize/texture-memory-tests": "4ef022b0bb9406c531e673a38a73c73014a19bf1ad16c42c943428b9bfe0489c",
+  "build/title-psm1-sanitize/texture-psm1-tests": "698bf6e0b7ab954786567e6d353576f0260a35db8b0dbed24e08ca4ad598703a",
+  "build/title-psm1-sanitize/texture-snapshot-tests": "9d8520668e6ebb77cdff93064c699ea027edae60c6b04115521715d4da8c50a8",
+  "build/title-psm1-sanitize/texture-transfer-tests": "4191414d0550135c60195cbd33f0c88c308b3b1441949268825ffdfbfb9c4279"
+ },
+ "case_counts": {
+  "PSM0 PSMCT32": {
+   "by_kind": {
+    "allocated": 3,
+    "descriptor": 19
+   },
+   "total": 22
+  },
+  "PSM1 PSMCT24": {
+   "by_kind": {
+    "allocated": 21,
+    "allocated-pair": 8,
+    "descriptor": 22,
+    "staged": 13
+   },
+   "total": 64
+  },
+  "PSM19 PSMT8": {
+   "by_kind": {
+    "allocated": 3,
+    "descriptor": 19
+   },
+   "total": 22
+  },
+  "PSM20 PSMT4": {
+   "by_kind": {
+    "allocated": 7,
+    "descriptor": 19
+   },
+   "total": 26
+  },
+  "PSM36 PSMT4HL": {
+   "by_kind": {
+    "allocated": 7,
+    "descriptor": 19
+   },
+   "total": 26
+  },
+  "PSM44 PSMT4HH": {
+   "by_kind": {
+    "allocated": 7,
+    "descriptor": 19
+   },
+   "total": 26
+  },
+  "regression_cases_startup_unchanged": 122,
+  "total": 186
+ },
+ "commands": [
+  "cmake -S references/Play -B build/title-psm1-oracle -G Ninja -DCMAKE_BUILD_TYPE=Debug -DBUILD_PLAY=OFF -DBUILD_TESTS=ON -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_PROJECT_Play_INCLUDE=$PWD/tools/play-oracle/Attach.cmake -DDEBUGGER_INCLUDED=ON -DOKAGE_REFERENCE_VULKAN=OFF",
+  "ninja -C build/title-psm1-oracle okage-pose-oracle",
+  "python3 tools/texture_transfer_cases_v2.py run2/input.bin run2/catalogue.json",
+  "build/title-psm1-oracle/okage-oracle/okage-pose-oracle texture-transfer local/extracted/SCUS_971.29 run2/input.bin run2/transfer.json (twice; second output transfer-rerun.json)",
+  "python3 tools/texture_transfer_fixture.py run2/transfer.json run2/fixture.txt",
+  "python3 tools/texture_transfer_regcheck.py run2/transfer.json",
+  "build/title-psm1-{release,debug,sanitize}/okage-texture-transfer-compare run2/fixture.txt",
+  "cmake -S . -B build/title-psm1-{release,debug,sanitize} -G Ninja (Release / Debug / Debug with -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' and matching linker flags)",
+  "OKAGE_NIGHT_V_XIM_DIR=local/xpf-decoded/CMNDATA/2D/NIGHT_V.XPF build/title-psm1-<cfg>/{texture-psm1-tests,texture-transfer-tests,texture-format-tests,texture-memory-tests,texture-snapshot-tests}",
+  "ctest --test-dir build/title-psm1-release",
+  "OKAGE_TRANSFER_COMPARE=<bin> OKAGE_TRANSFER_FIXTURE_PSM1=run2/fixture.txt OKAGE_TRANSFER_FIXTURE_V2=<startup run1 fixture> OKAGE_TRANSFER_FIXTURE=<upload fixture> python3 -m unittest -v tests.test_texture_transfer_compare (release and sanitizer comparator)",
+  "same environment: python3 -m unittest discover -s tests",
+  "python3 -I local/research/startup-format-transfer-v1/elf_qwc_jumptable.py > elf-qwc-jumptable.out"
+ ],
+ "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+ "evidence_sha256": {
+  "local/research/title-psm1-v1/elf-qwc-jumptable.out": "283c683b8f9925a283a61fac964187d94ccf6082800ca6b566daf5a25b98fd84",
+  "local/research/title-psm1-v1/elf-qwc-psm1-path.out": "3d11de698bff74bb1183b760962fab8cee670aecca3a16847fd8a7f92e64d2be",
+  "local/research/title-psm1-v1/run2/catalogue.json": "07b649288eb0205cfd65a113cb31f676c722e0ce4cf8d537e8d56182367342de",
+  "local/research/title-psm1-v1/run2/compare-debug.out": "7d31b1f65f33292200194648f098028d5f21d5f82919832d3badc4fc02108191",
+  "local/research/title-psm1-v1/run2/compare-release.out": "7d31b1f65f33292200194648f098028d5f21d5f82919832d3badc4fc02108191",
+  "local/research/title-psm1-v1/run2/compare-sanitize.out": "7d31b1f65f33292200194648f098028d5f21d5f82919832d3badc4fc02108191",
+  "local/research/title-psm1-v1/run2/ctest-release.out": "f4877e7a17fc6f1811a6a7f81de9c4f10bb49c4a58039f49a0eac7182951ac3d",
+  "local/research/title-psm1-v1/run2/fixture.txt": "e2fb93c61c3b685fd7f971b81027dd184d3be4ab1b6902ea07682afac865014d",
+  "local/research/title-psm1-v1/run2/input.bin": "cd111b28eb3a90bdd12fdb082c5a985779826065c9554dff2d687a42c81ec343",
+  "local/research/title-psm1-v1/run2/negative-controls-release.log": "2af12bcd3c463cff736b6802b6b13ddf2e31f73282ab6b41f8f66bf73251fb20",
+  "local/research/title-psm1-v1/run2/negative-controls-sanitize.log": "e5dcf58b8a69018ef840cc467a81a6b181aaf454a6480b8ac470bb82bba6cb6d",
+  "local/research/title-psm1-v1/run2/python-unittest.out": "aa6669e0ccd76d7e3977af2e3b552e28ac822615ef1dc16e7e376c9d05129f32",
+  "local/research/title-psm1-v1/run2/regcheck.out": "6896d4ba5f654837fd66374f72331a6f162c1bd20e45f8e35e7f4f6c43cfad22",
+  "local/research/title-psm1-v1/run2/tests-debug.out": "a174389abf4bde5a52db6ce4b64bed4098d59f6a4913599e9602aaca95f935d3",
+  "local/research/title-psm1-v1/run2/tests-release.out": "a174389abf4bde5a52db6ce4b64bed4098d59f6a4913599e9602aaca95f935d3",
+  "local/research/title-psm1-v1/run2/tests-sanitize.out": "a174389abf4bde5a52db6ce4b64bed4098d59f6a4913599e9602aaca95f935d3",
+  "local/research/title-psm1-v1/run2/transfer-rerun.json": "ed95c2e608ad75f380607ac24ffbb70e1b555944ca42e1da577859a18a0b871d",
+  "local/research/title-psm1-v1/run2/transfer.json": "ed95c2e608ad75f380607ac24ffbb70e1b555944ca42e1da577859a18a0b871d"
+ },
+ "input_sha256": "cd111b28eb3a90bdd12fdb082c5a985779826065c9554dff2d687a42c81ec343",
+ "negative_control_tests": [
+  "MalformedFixtures.test_address_out_of_range",
+  "RetainedPsm1Controls.test_all_match",
+  "MalformedFixtures.test_bad_kind",
+  "MalformedFixtures.test_bad_tag",
+  "ValidFixtureControls.test_byte_negative",
+  "ValidFixtureControls.test_byte_negative_address_moved",
+  "FixtureGenerator.test_clut",
+  "MalformedFixtures.test_clut_rows_inconsistent",
+  "RetainedPsm1Controls.test_counts",
+  "ValidFixtureControls.test_descriptor_height_negative",
+  "ValidFixtureControls.test_descriptor_id_negative",
+  "ValidFixtureControls.test_descriptor_psm_negative",
+  "ValidFixtureControls.test_descriptor_tbp_negative",
+  "ValidFixtureControls.test_descriptor_width_negative",
+  "Psm1MaskControls.test_dropped_pixel_and_partial_pixel_tail",
+  "MalformedFixtures.test_duplicate_address",
+  "MalformedFixtures.test_empty",
+  "MalformedFixtures.test_error_in_late_case_prints_no_verdict",
+  "Psm1MaskControls.test_flipped_byte",
+  "RetainedPsm1Controls.test_flipped_byte_every_kind",
+  "FormatMaskControls.test_hand_derived_match",
+  "Psm1MaskControls.test_hand_derived_match",
+  "Psm1MaskControls.test_high_byte_overwritten",
+  "RetainedPsm1Controls.test_high_byte_overwritten_every_kind",
+  "MalformedFixtures.test_huge_count_without_data",
+  "MalformedFixtures.test_huge_integer",
+  "MalformedFixtures.test_image_rows_nonzero",
+  "FixtureGenerator.test_malformed_json",
+  "Psm1MaskControls.test_malformed_staged",
+  "FormatMaskControls.test_malformed_v2",
+  "FormatMaskControls.test_mask_bit_added",
+  "Psm1MaskControls.test_mask_bit_added",
+  "FormatMaskControls.test_mask_bit_dropped",
+  "Psm1MaskControls.test_mask_bit_dropped",
+  "RetainedPsm1Controls.test_mask_bit_dropped_and_added",
+  "RetainedV2Controls.test_mask_bit_flip_psm36_44",
+  "Psm1MaskControls.test_mask_nibble_dropped",
+  "MalformedFixtures.test_missing_file",
+  "FixtureGenerator.test_missing_key",
+  "FormatMaskControls.test_native_rejection_is_diff_not_crash",
+  "Psm1MaskControls.test_native_rejection_is_diff_not_crash",
+  "MalformedFixtures.test_negative_number",
+  "RetainedV2Controls.test_nibble_flip_each_format",
+  "FormatMaskControls.test_nibble_flipped",
+  "FixtureGenerator.test_no_cases",
+  "MalformedFixtures.test_non_numeric",
+  "MalformedFixtures.test_oversize_count",
+  "MalformedFixtures.test_oversize_dimension",
+  "RetainedV2Controls.test_preload_case_value_negative",
+  "FixtureGenerator.test_refuses_overwrite",
+  "FixtureGenerator.test_rejections",
+  "ValidFixtureControls.test_retained_negative_with_out_of_range_address_is_malformed",
+  "RetainedPsm1Controls.test_staged_high_lane_preserved_vs_overwritten",
+  "RetainedPsm1Controls.test_staged_high_nibble_widened_to_whole_byte",
+  "MalformedFixtures.test_tbp_tbw_disagree_with_lo",
+  "MalformedFixtures.test_trailing_junk",
+  "MalformedFixtures.test_truncated_header",
+  "MalformedFixtures.test_truncated_pair",
+  "MalformedFixtures.test_truncated_touched",
+  "MalformedFixtures.test_unsupported_psm",
+  "FormatMaskControls.test_unsupported_psm_fixture_is_malformed",
+  "Psm1MaskControls.test_unsupported_sibling_psm_is_malformed",
+  "FixtureGenerator.test_v2_psm1_and_staged_valid",
+  "FixtureGenerator.test_v2_rejections",
+  "FixtureGenerator.test_v2_staged_rejections",
+  "FixtureGenerator.test_v2_valid",
+  "FixtureGenerator.test_valid",
+  "RetainedV2Controls.test_valid_all_match",
+  "ValidFixtureControls.test_valid_seven_cases_match",
+  "MalformedFixtures.test_value_out_of_range",
+  "FormatMaskControls.test_wrong_address_lane_same_nibble",
+  "Psm1MaskControls.test_wrong_byte_lane",
+  "FormatMaskControls.test_wrong_lane",
+  "RetainedV2Controls.test_wrong_lane_psm36",
+  "RetainedPsm1Controls.test_wrong_stride",
+  "MalformedFixtures.test_zero_dimension"
+ ],
+ "oracle_binary_sha256": "50b34dbf1ce031b8465171cd424f58dbf45945f643129f30ed6db9b4b4e2affe",
+ "play_revision": "4403687dc8d505911980b8a96b13701a10f91b70",
+ "results": {
+  "code_tables_preserved": true,
+  "compare": {
+   "debug": "186 cases, 0 differences",
+   "release": "186 cases, 0 differences",
+   "sanitize": "186 cases, 0 differences"
+  },
+  "ctest_release": "100% tests passed, 0 tests failed out of 106",
+  "focused_tests": {
+   "debug": {
+    "all_exit_0": true,
+    "tests_run": [
+     "texture-psm1-tests",
+     "texture-transfer-tests",
+     "texture-format-tests",
+     "texture-memory-tests",
+     "texture-snapshot-tests"
+    ]
+   },
+   "release": {
+    "all_exit_0": true,
+    "tests_run": [
+     "texture-psm1-tests",
+     "texture-transfer-tests",
+     "texture-format-tests",
+     "texture-memory-tests",
+     "texture-snapshot-tests"
+    ]
+   },
+   "sanitize": {
+    "all_exit_0": true,
+    "tests_run": [
+     "texture-psm1-tests",
+     "texture-transfer-tests",
+     "texture-format-tests",
+     "texture-memory-tests",
+     "texture-snapshot-tests"
+    ]
+   }
+  },
+  "negative_controls": {
+   "release": {
+    "ran": 76,
+    "result": "OK"
+   },
+   "sanitize": {
+    "ran": 76,
+    "result": "OK"
+   }
+  },
+  "oracle_runs_byte_identical": true,
+  "python_discover": {
+   "ran": 753,
+   "result": "OK (skipped=31)"
+  },
+  "regcheck": "186 cases, 0 register/QWC differences",
+  "sub_nibble_anomalies": 0
+ },
+ "scope": "PSM1 (PSMCT24) host-to-local transfer and raw XIM support; native compared with unchanged retail 1ce940/1cf008/1cba48 under the Play research backend.",
+ "sources_sha256": {
+  "CMakeLists.txt": "c51fde3fddaf429d3f22711c9d950e624ca937f880e5f7bdb23bf0b61b131dcc",
+  "": "cc94e09b9b5a88a6709b181cf404b178d7a481a0ebd10c433d7bd34ffe6d35b6",
+  "include/okage/texture_memory.hpp": "9021fe89829927030dde8d707ec52a17a5c5dde16e2e0d491977811418d9cd5b",
+  "include/okage/texture_transfer.hpp": "b6977ca0976d198523fe2c81d44e156f78382ba7a14fb9d0f924b8328814f6f6",
+  "src/assets.cpp": "a1b2fc3bdddbbed0e623466a76d56646bfb1392eb51f8eeb4131326b750421e3",
+  "src/texture_memory.cpp": "5cbedd953e524a1590898c7b8840407dc85afc2ca43b46a0db28e232b9cbf61a",
+  "src/texture_transfer.cpp": "1e1b560413e8902e6c044b05a0990ab77c514b6583090853a156388c2edc880f",
+  "tests/test_texture_transfer_compare.py": "a39345b8b4c147764fdce70f6af7b3f4b5b3fe560d2efffa464a378328e2e4fc",
+  "tests/texture_format_tests.cpp": "33f4972b2348e9685aea2205176ccb299d9cbd668624c8379824320bfc430343",
+  "tests/texture_psm1_tests.cpp": "aca9a29d48c708c3a3e2f0c09c24fef4f768e21e1b072f8da44f552abf4e47ac",
+  "tests/texture_transfer_tests.cpp": "ae058f6c7a5fd423b61cb142e132107efbc0dfc3bb67b629288e0e0f9edc8cf6",
+  "tests/xim_raw_tests.cpp": "54f6bbbdc199afc155cd23575e97f6518989ab8c96b8c9c47f810bd701efb7fc",
+  "tools/play-oracle/main.cpp": "160a088967611cebfa3b3a182c9f1809f1eaec55b26b514913d409608177032c",
+  "tools/texture_transfer_cases_v2.py": "fbac7592555058a1f09e8bdebc18f8ab2bce68daa7254c30983c4959b6268e00",
+  "tools/texture_transfer_compare.cpp": "84a45941b976a4ba0c8f3c0a50cf36d8a0411f299e0cbc51ad65287d9bafb9ad",
+  "tools/texture_transfer_fixture.py": "d1cf9976216a32a8ec83f099c491dd4f855de2eff490110f162942990c6327a8",
+  "tools/texture_transfer_regcheck.py": "db9e5cb0c35bed55ddf0d8df2615bfc2161ea26e4a1877014920d3d369340515"
+ }
+}

@@ -34,6 +34,8 @@ struct Case2 {
     std::map<std::uint32_t, std::pair<unsigned, unsigned>> written;  // address -> (value, nibble mask)
 };
 
+bool staged(const Case2& c) { return c.kind == 3 || c.kind == 4; }
+
 struct FixtureError {
     std::string message;
 };
@@ -112,13 +114,16 @@ Case read_case(Reader& r) {
     return c;
 }
 
-bool supported_v2_psm(unsigned psm) { return psm == 0 || psm == 19 || psm == 20 || psm == 36 || psm == 44; }
-unsigned bits_v2(unsigned psm) { return psm == 0 ? 32 : psm == 19 ? 8 : 4; }
+bool supported_v2_psm(unsigned psm) {
+    return psm == 0 || psm == 1 || psm == 19 || psm == 20 || psm == 36 || psm == 44;
+}
+bool supported_pre_psm(unsigned psm) { return psm != 1 && supported_v2_psm(psm); }
+unsigned bits_v2(unsigned psm) { return psm == 0 ? 32 : psm == 1 ? 24 : psm == 19 ? 8 : 4; }
 
 Case2 read_case2(Reader& r) {
     Case2 c;
     c.n = static_cast<unsigned>(r.number("case2 number", 1000000));
-    c.kind = static_cast<unsigned>(r.number("kind", 2));
+    c.kind = static_cast<unsigned>(r.number("kind", 4));
     c.psm = static_cast<unsigned>(r.number("psm", 255));
     c.w = static_cast<unsigned>(r.number("w", 512));
     c.h = static_cast<unsigned>(r.number("h", 512));
@@ -129,16 +134,23 @@ Case2 read_case2(Reader& r) {
     c.pattern = static_cast<unsigned>(r.number("pattern", 3));
     c.seed = static_cast<unsigned>(r.number("seed", 0xffffffffull));
     c.pre_lo = static_cast<unsigned>(r.number("pre_lo", Ps2TextureMemory::vram_bytes));
-    c.pre_len = static_cast<unsigned>(r.number("pre_len", Ps2TextureMemory::vram_bytes));
+    c.pre_len = static_cast<unsigned>(r.number("pre_len", 0xffffffffull));
     c.lo = static_cast<std::uint32_t>(r.number("descriptor lo", 0xffffffffull));
     c.hi = static_cast<std::uint32_t>(r.number("descriptor hi", 0xffffffffull));
     const auto count = r.number("written count", Ps2TextureMemory::vram_bytes);
     const std::string id = "case2 " + std::to_string(c.n) + ": ";
-    if (c.kind != 0 && c.kind != 2) fail(id + "kind must be 0 or 2");
+    if (c.kind > 4 || c.kind == 1) fail(id + "kind must be 0, 2, 3 or 4");
     if (!supported_v2_psm(c.psm)) fail(id + "unsupported psm " + std::to_string(c.psm));
     if (c.w == 0 || c.h == 0) fail(id + "zero dimension");
-    if (std::uint64_t(c.pre_lo) + c.pre_len > Ps2TextureMemory::vram_bytes) fail(id + "preload window outside VRAM");
-    if (c.kind == 0 && (c.x || c.y)) fail(id + "allocated row has an origin");
+    if (c.kind == 3 || c.kind == 4) {
+        if (!supported_pre_psm(c.pre_lo)) fail(id + "unsupported staged pre-upload psm " + std::to_string(c.pre_lo));
+        const unsigned pw = c.pre_len & 0xffffu, ph = c.pre_len >> 16;
+        if (pw < 1 || pw > 512 || ph < 1 || ph > 512) fail(id + "staged pre-upload dimension outside 1..512");
+        if (std::uint64_t(pw) * ph * bits_v2(c.pre_lo) < 128) fail(id + "staged pre-upload sends no quadword");
+    } else if (std::uint64_t(c.pre_lo) + c.pre_len > Ps2TextureMemory::vram_bytes) {
+        fail(id + "preload window outside VRAM");
+    }
+    if ((c.kind == 0 || c.kind == 4) && (c.x || c.y)) fail(id + "allocated row has an origin");
     if ((c.lo & 0x3fffu) != c.tbp || ((c.lo >> 14) & 0x3fu) != c.tbw || (c.hi & 0x3fu) != c.psm)
         fail(id + "tbp/tbw/psm columns disagree with the descriptor words");
     if (std::uint64_t(c.w) * c.h * bits_v2(c.psm) < 128) fail(id + "rectangle sends no quadword");
@@ -175,13 +187,42 @@ std::uint8_t preload_byte(const Case2& c, std::uint32_t a) {
 // Runs the native transfer into `memory` (optionally preloaded). Throws on a native rejection.
 void run_native_v2(const Case2& c, Ps2TextureMemory& memory, bool preload, std::string& descriptor_diff) {
     memory.initialize_empty_allocator();
-    if (preload) {
+    if (preload && !staged(c)) {
         std::vector<std::uint8_t> window(c.pre_len);
         for (std::uint32_t i = 0; i < c.pre_len; ++i) window[i] = preload_byte(c, c.pre_lo + i);
         if (!window.empty()) memory.write_bytes(c.pre_lo, window);
     }
     const auto payload = payload_v2(c);
-    if (c.kind == 0) {
+    if (staged(c)) {
+        const unsigned pre_psm = c.pre_lo, pw = c.pre_len & 0xffffu, ph = c.pre_len >> 16;
+        std::vector<std::uint8_t> pre((std::size_t(pw) * ph * bits_v2(pre_psm) + 7) / 8);
+        for (std::uint32_t k = 0; k < pre.size(); ++k)
+            pre[k] = static_cast<std::uint8_t>(k * 167u + (c.seed + 1000u) * 29u + 5u);
+        if (c.kind == 3) {
+            upload_retail_rect(memory, GsHostToLocal{pre_psm, c.tbp, c.tbw, 0, 0, pw, ph}, pre);
+            upload_retail_rect(memory, GsHostToLocal{c.psm, c.tbp, c.tbw, c.x, c.y, c.w, c.h}, payload);
+        } else {
+            const auto first = memory.allocate(1, static_cast<GsPixelStorage>(pre_psm), static_cast<std::uint16_t>(pw),
+                                               static_cast<std::uint16_t>(ph));
+            if (!first) throw std::runtime_error("native pre allocation failed");
+            const auto alloc = memory.allocate(1, static_cast<GsPixelStorage>(c.psm), static_cast<std::uint16_t>(c.w),
+                                               static_cast<std::uint16_t>(c.h));
+            if (!alloc) throw std::runtime_error("native allocation failed");
+            auto field = [&](const char* name, unsigned orig, unsigned nat) {
+                if (orig != nat)
+                    descriptor_diff += std::string(descriptor_diff.empty() ? "" : ", ") + name + " original " +
+                                       std::to_string(orig) + " native " + std::to_string(nat);
+            };
+            field("psm", c.hi & 0x3f, static_cast<unsigned>(alloc->psm));
+            field("width", (c.hi >> 6) & 0xfff, alloc->width);
+            field("height", (c.hi >> 18) & 0xfff, alloc->height);
+            field("tbp", c.tbp, alloc->base_block);
+            field("tbw", c.tbw, alloc->buffer_width_64);
+            field("id", c.lo >> 20, alloc->id);
+            upload_allocation_image(memory, first->id, pre);
+            upload_allocation_image(memory, alloc->id, payload);
+        }
+    } else if (c.kind == 0) {
         const auto alloc = memory.allocate(1, static_cast<GsPixelStorage>(c.psm), static_cast<std::uint16_t>(c.w),
                                            static_cast<std::uint16_t>(c.h));
         if (!alloc) throw std::runtime_error("native allocation failed");
@@ -262,6 +303,7 @@ bool run_case2(const Case2& c, std::string& why) {
         add(std::string("native fresh run threw: ") + e.what());
         return ok;
     }
+    if (staged(c)) return ok;
     try {
         auto pre = std::make_unique<Ps2TextureMemory>();
         std::string ignored;
@@ -327,7 +369,7 @@ int main(int argc, char** argv) {
     for (const Case2& c : fixture2) {
         std::string why;
         const bool ok = run_case2(c, why);
-        std::printf("case2 %u %s psm%u %ux%u: %s%s%s\n", c.n, c.kind == 0 ? "allocated" : "descriptor", c.psm, c.w, c.h,
+        std::printf("case2 %u %s psm%u %ux%u: %s%s%s\n", c.n, c.kind == 0 ? "allocated" : c.kind == 2 ? "descriptor" : c.kind == 3 ? "staged" : "allocated-pair", c.psm, c.w, c.h,
                     ok ? "MATCH" : "DIFF", ok ? "" : " - ", why.c_str());
         failures += !ok;
         ++cases;

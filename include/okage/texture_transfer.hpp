@@ -24,6 +24,7 @@ struct GsHostToLocal {
 struct GsTransferResult {
     std::size_t bytes_written{};
     std::uint32_t pixels_written{};
+    std::uint8_t partial_pixel_bytes{};
 };
 
 GsTransferResult transfer_host_to_local(Ps2TextureMemory& memory,

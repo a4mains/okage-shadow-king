@@ -155,7 +155,8 @@ int main() {
         scenario([&] {
             Ps2TextureMemory m;
             const auto data = sequence(32);
-            rejects("psm 1", [&] { transfer_host_to_local(m, {1, 0, 1, 0, 0, 4, 4}, data); });
+            // PSM1 became supported in Title (tests/texture_psm1_tests.cpp); its sibling selectors stay guards.
+            rejects("psm 0x31", [&] { transfer_host_to_local(m, {0x31, 0, 1, 0, 0, 4, 4}, data); });
             rejects("psm 27", [&] { transfer_host_to_local(m, {27, 0, 1, 0, 0, 8, 8}, data); });
             rejects("psm 2", [&] { transfer_host_to_local(m, {2, 0, 1, 0, 0, 8, 8}, data); });
             rejects("psm 18", [&] { transfer_host_to_local(m, {18, 0, 1, 0, 0, 8, 8}, data); });
@@ -201,7 +202,8 @@ int main() {
             upload_allocation_image(m, t8->id, sequence(64 * 64));
             const auto z = m.allocate(1, GsPixelStorage::Psmct24, 8, 8);
             require(z.has_value(), "ct24 allocation exists");
-            rejects("psm1 upload", [&] { upload_allocation_image(m, z->id, sequence(8 * 8 * 3)); });
+            // Title: PSMCT24 is a supported transfer format (8x8x3 = 192 bytes = 12 qwc exactly).
+            require(upload_allocation_image(m, z->id, sequence(8 * 8 * 3)).pixels_written == 64, "ct24 upload");
             // Startup: PSMT4 (0x14) is now a supported transfer format; PSMCT16 stays a guard.
             const auto t4 = m.allocate(1, GsPixelStorage::Psmt4, 64, 64);
             require(t4.has_value(), "t4 allocation");
@@ -283,7 +285,8 @@ int main() {
             const OwnedRawXim bad(build_xim(19, 2, 256, 8, 8, 1));
             rejects("cpsm2", [&] { upload_xim(m, bad); });
             const OwnedRawXim ct24(build_xim(1, 0, 0, 8, 8, 1));
-            rejects("psm1", [&] { upload_xim(m, ct24); });
+            const auto z = upload_xim(m, ct24);
+            require(z && z->palette_attempts.empty(), "psm1 direct xim");
             // PSM0 direct image has no CLUT.
             const OwnedRawXim direct(build_xim(0, 0, 0, 8, 8, 2));
             const auto d = upload_xim(m, direct);

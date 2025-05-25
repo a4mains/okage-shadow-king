@@ -16,6 +16,7 @@ namespace {
 
 std::uint32_t bits_per_pixel(std::uint32_t psm) {
     if (psm == 0) return 32;
+    if (psm == 1) return 24;
     if (psm == 19) return 8;
     if (psm == 0x14 || psm == 0x24 || psm == 0x2c) return 4;
     reject("unsupported pixel storage format " + std::to_string(psm));
@@ -68,7 +69,8 @@ GsTransferResult transfer_host_to_local(Ps2TextureMemory& memory,
     if (t.dsax > 2047 || t.dsay > 2047) reject("destination origin exceeds 2047");
     if (data.size() % 16) reject("payload is not a whole number of quadwords");
     const std::uint64_t rect_pixels = std::uint64_t(t.rrw) * t.rrh;
-    const std::uint64_t pixels64 = std::uint64_t(data.size()) * 8 / bits;
+    // PSMCT24: a final pixel with only 1..2 payload bytes still counts (see below).
+    const std::uint64_t pixels64 = (std::uint64_t(data.size()) * 8 + bits - 1) / bits;
     if (pixels64 > rect_pixels) reject("payload exceeds the transfer rectangle");
     const auto pixels = static_cast<std::uint32_t>(pixels64);
 
@@ -87,18 +89,29 @@ GsTransferResult transfer_host_to_local(Ps2TextureMemory& memory,
         return {data.size(), pixels};
     }
 
+    const std::uint32_t address_psm = t.psm == 1 ? 0 : t.psm;
     const std::uint32_t bpp = bits / 8;
     // Resolve every address first so a rejected pixel leaves memory untouched.
     std::vector<std::uint32_t> addresses(pixels);
     for (std::uint32_t i = 0; i < pixels; ++i) {
         const auto address = gs_texture_byte_address(
-            t.psm, t.tbp, t.tbw, t.dsax + i % t.rrw, t.dsay + i / t.rrw);
+            address_psm, t.tbp, t.tbw, t.dsax + i % t.rrw, t.dsay + i / t.rrw);
         if (!address) reject("pixel address outside the supported coordinate range");
         addresses[i] = *address;
     }
-    for (std::uint32_t i = 0; i < pixels; ++i)
-        memory.write_bytes(addresses[i], data.subspan(std::size_t(i) * bpp, bpp));
-    return {data.size(), pixels};
+    std::uint8_t partial = 0;
+    for (std::uint32_t i = 0; i < pixels; ++i) {
+        const auto pixel = data.subspan(std::size_t(i) * bpp);
+        if (pixel.size() >= bpp) {
+            memory.write_bytes(addresses[i], pixel.first(bpp));
+        } else {
+            std::uint8_t padded[3] = {};
+            std::copy(pixel.begin(), pixel.end(), padded);
+            memory.write_bytes(addresses[i], padded);
+            partial = static_cast<std::uint8_t>(pixel.size());
+        }
+    }
+    return {data.size(), pixels, partial};
 }
 
 std::uint32_t retail_transfer_qwc(std::uint32_t psm, std::int32_t width, std::int32_t height) {

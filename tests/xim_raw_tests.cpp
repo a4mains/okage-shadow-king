@@ -62,7 +62,7 @@ static void formats() {
     struct Row { unsigned psm, cpsm, colors; okage::XimUploadStatus status; };
     using S = okage::XimUploadStatus;
     const Row rows[] = {
-        {0, 0, 0, S::Supported}, {1, 0, 0, S::UnsupportedImageFormat},
+        {0, 0, 0, S::Supported}, {1, 0, 0, S::Supported},  // Title: direct PSMCT24
         {19, 0, 16, S::Supported}, {19, 0, 256, S::Supported},
         {19, 0, 32, S::UnsupportedPaletteShape}, {19, 2, 256, S::UnsupportedPaletteFormat},
         {20, 0, 16, S::Supported}, {20, 0, 256, S::Supported}, {20, 2, 16, S::UnsupportedPaletteFormat},

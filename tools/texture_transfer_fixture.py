@@ -30,7 +30,9 @@ def _int(c, key, lo, hi, where):
         raise FixtureError(f"{where}: '{key}'={v} outside [{lo}, {hi}]")
     return v
 
-V2_PSMS = (0, 19, 20, 36, 44)
+V2_PSMS = (0, 1, 19, 20, 36, 44)  # PSM1 (PSMCT24) added in Title
+V2_KINDS = {"allocated": 0, "descriptor": 2, "staged": 3, "allocated-pair": 4}
+V2_PRE_PSMS = (0, 19, 20, 36, 44)
 
 def render_v2(doc):
     """Observer version 2 (Startup): two complementary-fill runs per case, written
@@ -48,7 +50,7 @@ def render_v2(doc):
         if not isinstance(c, dict):
             raise FixtureError(f"{where}: not an object")
         n = _int(c, "case", 0, 1000000, where)
-        kind = {"allocated": 0, "descriptor": 2}.get(c.get("kind"))
+        kind = V2_KINDS.get(c.get("kind"))
         if kind is None:
             raise FixtureError(f"{where}: unknown kind {c.get('kind')!r}")
         psm = _int(c, "psm", 0, 255, where)
@@ -63,8 +65,12 @@ def render_v2(doc):
         pattern = _int(c, "pattern", 0, 3, where)
         seed = _int(c, "seed", 0, 0xFFFFFFFF, where)
         pre_lo = _int(c, "pre_lo", 0, VRAM_BYTES, where)
-        pre_len = _int(c, "pre_len", 0, VRAM_BYTES, where)
-        if pre_lo + pre_len > VRAM_BYTES:
+        pre_len = _int(c, "pre_len", 0, 0xFFFFFFFF, where)
+        if kind in (3, 4):
+            # staged kinds: pre_lo is the pre-upload PSM, pre_len = pre_w | pre_h << 16
+            if pre_lo not in V2_PRE_PSMS or not 1 <= (pre_len & 0xFFFF) <= 512 or not 1 <= (pre_len >> 16) <= 512:
+                raise FixtureError(f"{where}: invalid staged pre-upload psm/dimensions")
+        elif pre_lo + pre_len > VRAM_BYTES:
             raise FixtureError(f"{where}: preload window outside VRAM")
         if _int(c, "anomalies", 0, VRAM_BYTES, where) != 0:
             raise FixtureError(f"{where}: observer reported sub-nibble write-mask anomalies")

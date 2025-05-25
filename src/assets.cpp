@@ -245,6 +245,7 @@ RawXimLayout parse_xim_layout(Bytes data) {
 XimUploadSupport xim_upload_support(const RawXimLayout& l) {
     using S = XimUploadStatus;
     if (l.pixel_format == 0) return {S::Supported, "PSMCT32 direct image"};
+    if (l.pixel_format == 1) return {S::Supported, "PSMCT24 direct image"};
     if (l.pixel_format != 19 && l.pixel_format != 20) return {S::UnsupportedImageFormat, "no recovered upload address helper for PSM " + std::to_string(l.pixel_format)};
     if (l.palette_format != 0) return {S::UnsupportedPaletteFormat, "no recovered 16->32 palette conversion evidence for CPSM " + std::to_string(l.palette_format)};
     if (l.palette_level_count < 1 || (l.palette_color_count != 16 && l.palette_color_count != 256))

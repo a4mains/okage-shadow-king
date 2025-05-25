@@ -8,6 +8,8 @@ $OKAGE_TRANSFER_FIXTURE, else local/research/upload-original-transfer-v1/fixture
 in this checkout or in the primary checkout; those tests skip when absent.
 Startup: $OKAGE_TRANSFER_FIXTURE_V2, else local/research/startup-format-transfer-v1/run1/fixture.txt
 (122-case PSM20/36/44 + PSM0/19 regression fixture, two complementary-fill original runs).
+Title: $OKAGE_TRANSFER_FIXTURE_PSM1, else local/research/title-psm1-v1/run2/fixture.txt (186 cases: the
+122 regression cases plus 64 PSM1 cases including staged high-byte-lane cases).
 """
 import json
 import os
@@ -43,6 +45,7 @@ def find_fixture(env_name="OKAGE_TRANSFER_FIXTURE", rel_path="local/research/upl
 BIN = find_binary()
 FIXTURE = find_fixture()
 FIXTURE_V2 = find_fixture("OKAGE_TRANSFER_FIXTURE_V2", "local/research/startup-format-transfer-v1/run1/fixture.txt")
+FIXTURE_PSM1 = find_fixture("OKAGE_TRANSFER_FIXTURE_PSM1", "local/research/title-psm1-v1/run2/fixture.txt")
 
 class CompareBase(unittest.TestCase):
     def setUp(self):
@@ -318,7 +321,7 @@ class FormatMaskControls(CompareBase):
         self.expect_diff(36, e, "write-mask differs")
 
     def test_unsupported_psm_fixture_is_malformed(self):
-        for psm in (1, 27, 2, 18):
+        for psm in (27, 2, 18, 3):
             with self.subTest(psm=psm):
                 code, out, err = self.run_text(v2_header(0, psm, 32, 1, 0))
                 self.assertEqual((code, out), (2, ""))
@@ -412,6 +415,248 @@ class RetainedV2Controls(CompareBase):
         lines[h + 2] = f"{a} {v ^ 1} {m}"
         self.one_diff(lines, h, "written values differ")
 
+def a32(x, y):
+    """PSMCT32 byte address of pixel (x, y), TBP 0 / TBW 1, x < 8, y < 8 (block 0: 64-byte column per two rows,
+    row parity +8 bytes, x as in a32_row0)."""
+    return a32_row0(x) + (y & 1) * 8 + (y >> 1) * 0x40
+
+def small_psm1():
+    """Hand-derived expectation: a 32x1 PSM1 transfer of the f0/0f payload (96 bytes = 6 quadwords). Pixel x is
+    bytes 3x..3x+2 of the stream (F0 at even stream offsets, 0F at odd), stored in bytes 0..2 of its PSMCT32 word;
+    byte 3 of every word is not written."""
+    entries = []
+    for x in range(32):
+        for k in range(3):
+            entries.append((a32_row0(x) + k, 0xF0 if (3 * x + k) % 2 == 0 else 0x0F, 3))
+    return entries
+
+def tail_psm1():
+    """3x3 PSM1: 27 payload bytes, floor QWC 1 = 16 bytes = 5 whole pixels and byte 15 of the sixth; the sixth
+    pixel is written zero-extended (Play GS), pixels 6..8 are not written."""
+    entries = []
+    for i in range(6):
+        x, y = i % 3, i // 3
+        for k in range(3):
+            stream = 3 * i + k
+            v = 0 if stream > 15 else (0xF0 if stream % 2 == 0 else 0x0F)
+            entries.append((a32(x, y) + k, v, 3))
+    return entries
+
+class Psm1MaskControls(CompareBase):
+    """Self-contained PSM1 controls: hand-derived match and the negative controls that must report DIFF."""
+
+    def run_entries(self, entries, w=32, h=1, **kw):
+        header = v2_header(0, 1, w, h, len(entries), **kw)
+        return self.run_text(header + "".join(f"{a} {v} {m}\n" for a, v, m in entries))
+
+    def expect_diff(self, entries, needle, **kw):
+        code, out, _ = self.run_entries(entries, **kw)
+        self.assertEqual(code, 1, out)
+        self.assertIn("DIFF", out)
+        self.assertIn(needle, out)
+
+    def test_hand_derived_match(self):
+        code, out, err = self.run_entries(small_psm1())
+        self.assertEqual(code, 0, (out, err))
+        self.assertIn("1 cases, 0 differences", out)
+
+    def test_dropped_pixel_and_partial_pixel_tail(self):
+        code, out, err = self.run_entries(tail_psm1(), w=3, h=3)
+        self.assertEqual(code, 0, (out, err))
+        e = tail_psm1()
+        # Control: the zero padding is part of the claim; a nonzero padding byte is a value DIFF.
+        a, v, m = e[-1]
+        e[-1] = (a, 0x11, m)
+        self.expect_diff(e, "written values differ in 1 bytes", w=3, h=3)
+        # Control: claiming the seventh pixel was written is a mask DIFF.
+        self.expect_diff(tail_psm1() + [(a32(0, 2) + k, 0, 3) for k in range(3)], "write-mask differs in 3 bytes", w=3, h=3)
+        # Control: dropping the partial pixel's zero bytes from the claim is a mask DIFF.
+        self.expect_diff(tail_psm1()[:-2], "write-mask differs in 2 bytes", w=3, h=3)
+
+    def test_flipped_byte(self):
+        e = small_psm1()
+        a, v, m = e[4]
+        e[4] = (a, v ^ 1, m)
+        self.expect_diff(e, "written values differ in 1 bytes")
+
+    def test_high_byte_overwritten(self):
+        # The original claims byte 3 of word 0 was written; native leaves it untouched (unknown).
+        e = small_psm1() + [(a32_row0(0) + 3, 0x5A, 3)]
+        self.expect_diff(e, "write-mask differs in 1 bytes")
+
+    def test_mask_bit_dropped(self):
+        e = small_psm1()
+        del e[10]
+        self.expect_diff(e, "write-mask differs in 1 bytes")
+
+    def test_mask_nibble_dropped(self):
+        e = small_psm1()
+        a, v, m = e[10]
+        e[10] = (a, v & 0x0F, 1)
+        self.expect_diff(e, "write-mask differs in 1 bytes")
+
+    def test_mask_bit_added(self):
+        e = small_psm1() + [(a32_row0(31) + 3, 0, 1)]
+        self.expect_diff(e, "write-mask differs in 1 bytes")
+
+    def test_wrong_byte_lane(self):
+        e = small_psm1()
+        a, v, m = e[0]
+        e[0] = (a + 3, v, m)  # right value, high byte instead of byte 0
+        self.expect_diff(e, "write-mask differs in 2 bytes")
+
+    def test_unsupported_sibling_psm_is_malformed(self):
+        for psm in (3, 10, 27, 49):
+            code, out, err = self.run_text(v2_header(0, psm, 32, 1, 0))
+            self.assertEqual((code, out), (2, ""))
+            self.assertIn("unsupported psm", err)
+
+    def test_malformed_staged(self):
+        base = "case2 0 {kind} 1 32 1 0 0 0 1 3 1 {pre_lo} {pre_len} 16384 {hi} 0\n"
+        hi = 1 | (32 << 6) | (1 << 18)
+        bad = {
+            "staged pre psm 1": base.format(kind=3, pre_lo=1, pre_len=32 | (1 << 16), hi=hi),
+            "staged pre psm 27": base.format(kind=3, pre_lo=27, pre_len=32 | (1 << 16), hi=hi),
+            "staged zero pre width": base.format(kind=3, pre_lo=36, pre_len=1 << 16, hi=hi),
+            "staged huge pre height": base.format(kind=4, pre_lo=36, pre_len=32 | (513 << 16), hi=hi),
+            "staged pre no quadword": base.format(kind=3, pre_lo=36, pre_len=3 | (3 << 16), hi=hi),
+            "kind 5": base.format(kind=5, pre_lo=36, pre_len=32 | (1 << 16), hi=hi),
+            "pair with origin": "case2 0 4 1 32 1 5 0 0 1 3 1 36 %d 16384 %d 0\n" % (32 | (1 << 16), hi),
+        }
+        for name, text in bad.items():
+            with self.subTest(name=name):
+                code, out, err = self.run_text(text)
+                self.assertEqual((code, out), (2, ""), (name, err))
+                self.assertIn("fixture error:", err)
+
+    def test_native_rejection_is_diff_not_crash(self):
+        # x origin 2040 + 32 pixels leaves the guarded coordinate range: native throws, original did not.
+        code, out, _ = self.run_text(v2_header(0, 1, 32, 1, 0, x=2040))
+        self.assertEqual(code, 1, out)
+        self.assertIn("native fresh run threw", out)
+
+class RetainedPsm1Controls(CompareBase):
+    """Controls against the retained 186-case original-execution fixture (skipped when absent)."""
+
+    def setUp(self):
+        super().setUp()
+        if FIXTURE_PSM1 is None:
+            self.skipTest("retained PSM1 fixture absent (set OKAGE_TRANSFER_FIXTURE_PSM1)")
+        self.lines = FIXTURE_PSM1.read_text().split("\n")
+        self.heads = [i for i, l in enumerate(self.lines) if l.startswith("case2 ")]
+
+    def heads_for(self, psm=1, kind="2"):
+        return [i for i in self.heads if self.lines[i].split()[3] == str(psm) and self.lines[i].split()[2] == kind]
+
+    def one_diff(self, lines, head, needle):
+        code, out, _ = self.run_text("\n".join(lines))
+        self.assertEqual(code, 1, out)
+        diff = [l for l in out.splitlines() if "DIFF" in l]
+        self.assertEqual(len(diff), 1, out)
+        self.assertTrue(diff[0].startswith(f"case2 {self.lines[head].split()[1]} "), diff[0])
+        self.assertIn(needle, diff[0])
+
+    def test_counts(self):
+        counts = {}
+        for i in self.heads:
+            t = self.lines[i].split()
+            counts[(t[3], t[2])] = counts.get((t[3], t[2]), 0) + 1
+        self.assertEqual(sum(v for (p, _), v in counts.items() if p == "1"), 64, counts)
+        self.assertEqual(len(self.heads), 186)
+        self.assertGreaterEqual(counts[("1", "3")], 10)
+        self.assertGreaterEqual(counts[("1", "4")], 8)
+
+    def test_all_match(self):
+        code, out, _ = self.run_text("\n".join(self.lines))
+        self.assertEqual(code, 0, out)
+        self.assertEqual(out.count("MATCH"), len(self.heads))
+        self.assertIn("186 cases, 0 differences", out)
+
+    def test_flipped_byte_every_kind(self):
+        for kind in ("0", "2", "3", "4"):
+            with self.subTest(kind=kind):
+                h = self.heads_for(1, kind)[0]
+                lines = list(self.lines)
+                a, v, m = map(int, lines[h + 5].split())
+                lines[h + 5] = f"{a} {v ^ 0x10} {m}"
+                self.one_diff(lines, h, "written values differ")
+
+    def test_high_byte_overwritten_every_kind(self):
+        for kind in ("0", "2"):
+            with self.subTest(kind=kind):
+                h = self.heads_for(1, kind)[0]
+                lines = list(self.lines)
+                n = int(lines[h].split()[16])
+                j = next(j for j in range(h + 1, h + 1 + n) if int(lines[j].split()[0]) & 3 == 0 and lines[j].split()[2] == "3")
+                a, v, m = map(int, lines[j].split())
+                lines[j] = f"{a + 3} {v} {m}"
+                code, out, _ = self.run_text("\n".join(lines))
+                self.assertEqual(code, 1, out)
+                self.assertEqual(sum("DIFF" in l for l in out.splitlines()), 1, out)
+
+    def test_mask_bit_dropped_and_added(self):
+        h = self.heads_for(1, "2")[0]
+        lines = list(self.lines)
+        a, v, m = map(int, lines[h + 3].split())
+        lines[h + 3] = f"{a} {v & 0x0F} 1"
+        self.one_diff(lines, h, "write-mask differs")
+        lines = list(self.lines)
+        t = lines[h].split()
+        n = int(t[16])
+        lines[h] = " ".join(t[:16] + [str(n + 1)])
+        lines.insert(h + 1, "4194300 0 1")  # a byte nothing wrote
+        self.one_diff(lines, h, "write-mask differs")
+
+    def test_staged_high_nibble_widened_to_whole_byte(self):
+        for kind in ("3", "4"):
+            with self.subTest(kind=kind):
+                h = self.heads_for(1, kind)[0]
+                lines = list(self.lines)
+                n = int(lines[h].split()[16])
+                for j in range(h + 1, h + 1 + n):
+                    a, v, m = map(int, lines[j].split())
+                    if a & 3 == 3 and m in (1, 2):
+                        lines[j] = f"{a} {v} 3" if m == 1 else f"{a} {v} 3"
+                        break
+                else:
+                    self.fail("no half-known high byte")
+                self.one_diff(lines, h, "write-mask differs")
+
+    def test_staged_high_lane_preserved_vs_overwritten(self):
+        for kind in ("3", "4"):
+            with self.subTest(kind=kind):
+                h = self.heads_for(1, kind)[0]
+                lines = list(self.lines)
+                n = int(lines[h].split()[16])
+                for j in range(h + 1, h + 1 + n):
+                    a, v, m = map(int, lines[j].split())
+                    if a & 3 == 3:
+                        lines[j] = f"{a} {v ^ 0x0F} {m}"
+                        break
+                else:
+                    self.fail("no high byte written")
+                self.one_diff(lines, h, "written values differ")
+
+    def test_wrong_stride(self):
+        # Change TBW (and the descriptor word that must agree) on wide synthetic cases: the page rows move.
+        hit = 0
+        for h in self.heads_for(1, "2"):
+            t = self.lines[h].split()
+            tbw = int(t[9])
+            if tbw > 5 or int(t[7]) + int(t[5]) <= 128:
+                continue
+            lines = list(self.lines)
+            new_tbw = tbw + 1
+            t[9] = str(new_tbw)
+            t[14] = str((int(t[14]) & ~(0x3F << 14)) | (new_tbw << 14))
+            lines[h] = " ".join(t)
+            with self.subTest(case=t[1]):
+                code, out, _ = self.run_text("\n".join(lines))
+                self.assertEqual(code, 1, out)
+                self.assertTrue(any(l.startswith(f"case2 {t[1]} ") and "DIFF" in l for l in out.splitlines()), out)
+                hit += 1
+        self.assertGreaterEqual(hit, 5)
+
 class FixtureGenerator(unittest.TestCase):
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp(prefix="handle-gen-"))
@@ -498,9 +743,33 @@ class FixtureGenerator(unittest.TestCase):
         self.assertEqual(lines[0], f"case2 0 2 36 32 1 0 0 0 1 3 1 0 0 16384 {36 | (32 << 6) | (1 << 18)} 2")
         self.assertEqual(lines[1:3], ["3 0 1", "7 15 1"])
 
+    def test_v2_psm1_and_staged_valid(self):
+        r = self.run_gen(self.doc2(psm=1, w=32, h=1, descriptor=[16384, 1 | (32 << 6) | (1 << 18)]))
+        self.assertEqual(r.returncode, 0, r.stderr)
+        r = self.run_gen(self.doc2(kind="staged", psm=1, w=32, h=1, pre_lo=36, pre_len=64 | (64 << 16),
+                                   descriptor=[16384, 1 | (32 << 6) | (1 << 18)]), out="staged.txt")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertTrue((self.tmp / "staged.txt").read_text().startswith("case2 0 3 1 32 1 0 0 0 1 3 1 36 4194368 "))
+        r = self.run_gen(self.doc2(kind="allocated-pair", psm=1, w=32, h=1, pre_lo=44, pre_len=32 | (32 << 16),
+                                   descriptor=[16384, 1 | (32 << 6) | (1 << 18)]), out="pair.txt")
+        self.assertEqual(r.returncode, 0, r.stderr)
+
+    def test_v2_staged_rejections(self):
+        base = dict(kind="staged", psm=1, w=32, h=1, descriptor=[16384, 1 | (32 << 6) | (1 << 18)])
+        bad = [
+            dict(pre_lo=1, pre_len=64 | (64 << 16)), dict(pre_lo=27, pre_len=64 | (64 << 16)),
+            dict(pre_lo=36, pre_len=0), dict(pre_lo=36, pre_len=64 | (513 << 16)),
+            dict(pre_lo=36, pre_len=513 | (64 << 16)),
+        ]
+        for over in bad:
+            with self.subTest(over=over):
+                r = self.run_gen(self.doc2(**{**base, **over}), out="bad.txt")
+                self.assertEqual(r.returncode, 1, r.stdout)
+                self.assertFalse((self.tmp / "bad.txt").exists())
+
     def test_v2_rejections(self):
         bad = [
-            {"anomalies": 1}, {"psm": 1}, {"psm": 27}, {"kind": "image"}, {"w": 513}, {"pattern": 4},
+            {"anomalies": 1}, {"psm": 27}, {"psm": 2}, {"kind": "image"}, {"w": 513}, {"pattern": 4},
             {"top_fills": [165, 90]}, {"top_code_tables_preserved": False}, {"written_count": 3},
             {"written": [[3, 0, 0], [7, 15, 1]]}, {"written": [[3, 16, 1], [7, 15, 1]]},
             {"written": [[3, 0, 1], [3, 1, 1]]}, {"written": [[4194304, 0, 1], [7, 15, 1]]},

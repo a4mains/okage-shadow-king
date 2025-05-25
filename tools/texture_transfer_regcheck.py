@@ -12,12 +12,16 @@ For every case it requires, independently of the native transfer code:
   TRXDIR    (0x53): 0 (host to local)
   IMAGE data      : exactly floor(w*h*bits/128) quadwords, equal (SHA-256) to the first
                     qwc*16 bytes of the regenerated payload
+Title: PSM1 uses 24 bits/pixel. Staged cases (kinds "staged"/"allocated-pair") issue two
+uploads: the first register set / IMAGE packet is the pre-upload (psm pre_lo, pre_len =
+w | h << 16, pattern 0, seed + 1000, origin 0,0, tbp/tbw from pre_descriptor), the second
+the main transfer.
 Exit 0 when every case agrees, 1 otherwise, 2 on usage/malformed input."""
 import hashlib
 import json
 import sys
 
-BITS = {0: 32, 19: 8, 20: 4, 36: 4, 44: 4}
+BITS = {0: 32, 1: 24, 19: 8, 20: 4, 36: 4, 44: 4}
 
 def payload(pattern, seed, n):
     out = bytearray(n)
@@ -32,46 +36,64 @@ def payload(pattern, seed, n):
             out[k] = 0x0F if k & 1 else 0xF0
     return bytes(out)
 
+def check_upload(regs, image_total, image_hashes, psm, tbp, tbw, x, y, w, h, pattern, seed, idx, tag, problems):
+    bits = BITS[psm]
+    nbytes = (w * h * bits + 7) // 8
+    qwc = (w * h * bits) // 128
+
+    def one(reg):
+        v = regs.get(reg, [])
+        if len(v) <= idx:
+            problems.append(f"{tag}register {reg:#x} written {len(v)} times")
+            return 0, 0
+        return v[idx]
+    lo, hi = one(0x50)
+    if lo != 0:
+        problems.append(f"{tag}BITBLTBUF source fields {lo:#x} not zero")
+    if (hi & 0x3FFF, (hi >> 16) & 0x3F, (hi >> 24) & 0x3F, hi >> 30) != (tbp, tbw, psm, 0):
+        problems.append(f"{tag}BITBLTBUF dst {hi:#x} != tbp {tbp} tbw {tbw} psm {psm}")
+    lo, hi = one(0x51)
+    if lo != 0 or (hi & 0x7FF, (hi >> 16) & 0x7FF, hi >> 27) != (x, y, 0):
+        problems.append(f"{tag}TRXPOS {lo:#x}/{hi:#x} != x {x} y {y}")
+    lo, hi = one(0x52)
+    if (lo, hi) != (w, h):
+        problems.append(f"{tag}TRXREG {lo}/{hi} != {w}x{h}")
+    lo, hi = one(0x53)
+    if (lo, hi) != (0, 0):
+        problems.append(f"{tag}TRXDIR {lo}/{hi} != 0")
+    if image_total[idx] != qwc * 16:
+        problems.append(f"{tag}IMAGE bytes {image_total[idx]} != floor qwc {qwc} * 16")
+    expect = hashlib.sha256(payload(pattern, seed, nbytes)[: qwc * 16]).hexdigest()
+    if image_hashes[idx] != expect:
+        problems.append(f"{tag}IMAGE data is not the first qwc*16 payload bytes")
+
 def check(c):
     problems = []
-    bits = BITS[c["psm"]]
-    nbytes = (c["w"] * c["h"] * bits + 7) // 8
-    qwc = (c["w"] * c["h"] * bits) // 128
-    packets = c["packets"]
+    staged = c.get("kind") in ("staged", "allocated-pair")
     regs = {}
-    image_total = 0
+    image_total = []
     image_hashes = []
-    for p in packets:
+    for p in c["packets"]:
         for r, lo, hi in p["register_writes"]:
             regs.setdefault(r, []).append((lo, hi))
         if p["image_bytes"]:
-            image_total += p["image_bytes"]
+            image_total.append(p["image_bytes"])
             image_hashes.append(p["image_sha256"])
-    def one(reg):
-        v = regs.get(reg, [])
-        if len(v) != 1:
-            problems.append(f"register {reg:#x} written {len(v)} times")
-            return 0, 0
-        return v[0]
-    lo, hi = one(0x50)
-    if lo != 0:
-        problems.append(f"BITBLTBUF source fields {lo:#x} not zero")
-    if (hi & 0x3FFF, (hi >> 16) & 0x3F, (hi >> 24) & 0x3F, hi >> 30) != (c["tbp"], c["tbw"], c["psm"], 0):
-        problems.append(f"BITBLTBUF dst {hi:#x} != tbp {c['tbp']} tbw {c['tbw']} psm {c['psm']}")
-    lo, hi = one(0x51)
-    if lo != 0 or (hi & 0x7FF, (hi >> 16) & 0x7FF, hi >> 27) != (c["x"], c["y"], 0):
-        problems.append(f"TRXPOS {lo:#x}/{hi:#x} != x {c['x']} y {c['y']}")
-    lo, hi = one(0x52)
-    if (lo, hi) != (c["w"], c["h"]):
-        problems.append(f"TRXREG {lo}/{hi} != {c['w']}x{c['h']}")
-    lo, hi = one(0x53)
-    if (lo, hi) != (0, 0):
-        problems.append(f"TRXDIR {lo}/{hi} != 0")
-    if image_total != qwc * 16:
-        problems.append(f"IMAGE bytes {image_total} != floor qwc {qwc} * 16")
-    expect = hashlib.sha256(payload(c["pattern"], c["seed"], nbytes)[: qwc * 16]).hexdigest()
-    if image_hashes != [expect]:
-        problems.append("IMAGE data is not the first qwc*16 payload bytes")
+    expected_uploads = 2 if staged else 1
+    if len(image_total) != expected_uploads:
+        problems.append(f"{len(image_total)} IMAGE packets, expected {expected_uploads}")
+        return problems
+    idx = 0
+    if staged:
+        pd = c["pre_descriptor"]
+        ptbp, ptbw, ppsm = pd[0] & 0x3FFF, (pd[0] >> 14) & 0x3F, pd[1] & 0x3F
+        if ppsm != c["pre_lo"]:
+            problems.append(f"pre descriptor psm {ppsm} != pre_lo {c['pre_lo']}")
+        check_upload(regs, image_total, image_hashes, ppsm, ptbp, ptbw, 0, 0, c["pre_len"] & 0xFFFF,
+                     c["pre_len"] >> 16, 0, c["seed"] + 1000, 0, "pre: ", problems)
+        idx = 1
+    check_upload(regs, image_total, image_hashes, c["psm"], c["tbp"], c["tbw"], c["x"], c["y"], c["w"], c["h"],
+                 c["pattern"], c["seed"], idx, "", problems)
     return problems
 
 def main(argv):
