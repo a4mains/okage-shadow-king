@@ -77,7 +77,15 @@ int main() {
             require(defined_count(m) == 2 * 256, "two 8x8 PSM0 uploads");
             const int nu = o.create_image(C32, 8, 8, {});
             require(nu == 2 && defined_count(m) == 2 * 256, "no pixel pointer: no upload");
-            rejects("psm1", [&] { o.create_image(GsPixelStorage::Psmct24, 8, 8, {}); });
+            rejects("psm27", [&] { o.create_image(GsPixelStorage::Psmt8H, 8, 8, {}); });
+            {
+                const int h24 = o.create_image(GsPixelStorage::Psmct24, 8, 8, sequence(8 * 8 * 3));
+                require(h24 >= 0, "psm1 image created");
+                const auto base = m.allocation(o.image(h24)->id)->base_block * 256u;
+                require(m.observe_byte(base).value.has_value() && !m.observe_byte(base + 3).value.has_value(),
+                        "psm1 writes bytes 0..2 only");
+                o.retire(h24);
+            }
             rejects("qwc 0", [&] { o.create_image(C32, 1, 1, {}); });
             rejects("short pixels", [&] { o.create_image(C32, 8, 8, sequence(16)); });
             require(o.live_handle_count() == 3, "rejections changed nothing");
