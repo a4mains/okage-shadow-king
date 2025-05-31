@@ -342,6 +342,8 @@ class PinnedEvidence(unittest.TestCase):
         shutil.copy(EVIDENCE / 'final-state.json', self.nat / 'state.json')
         shutil.copy(EVIDENCE / 'vram-written-values.bin', self.nat / 'vram.bytes')
         shutil.copy(EVIDENCE / 'vram-written-mask.bin', self.nat / 'vram.known')
+        for f in self.nat.iterdir():
+            f.chmod(0o644)
 
     def tearDown(self):
         self._tmp.cleanup()
@@ -389,6 +391,18 @@ class PinnedEvidence(unittest.TestCase):
         self.assertEqual([t['handle'] for t in trav], list(range(44, 111)))
         self.assertEqual(trav[-1]['successor'], -7)
         self.assertEqual(ref['reserve_class_windows']['handle_operations_with_class_1'], 0)
+
+NATIVE_REPORT = MAIN / 'local/research/title-session-native-v1/release/title-report'
+
+@unittest.skipUnless((EVIDENCE / 'events.jsonl').is_file() and (NATIVE_REPORT / 'state.json').is_file(),
+                     'Title native Session title report absent')
+class RetainedNativeSession(unittest.TestCase):
+    def test_retained_native_title_report_is_identical(self):
+        out, err = io.StringIO(), io.StringIO()
+        from contextlib import redirect_stderr, redirect_stdout
+        with redirect_stdout(out), redirect_stderr(err):
+            code = cmp.main([str(EVIDENCE), str(NATIVE_REPORT)])
+        self.assertEqual(code, 0, out.getvalue()[-3000:] + err.getvalue())
 
 if __name__ == '__main__':
     unittest.main()
