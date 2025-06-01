@@ -28,6 +28,7 @@ enum class ResourceStage : std::uint8_t {
     LogosConstructed,
     LogosRetired,
     TitleConstructed,
+    Unmodeled,
 };
 const char* to_string(ResourceStage);
 // What the memory bytes/masks mean, separate from the lifecycle above.
@@ -136,6 +137,8 @@ public:
     XmdLoadResult load_and_bind_model(const std::string& model, std::span<const std::string> names,
                                       const TextureHandleOwner::FileReader& reader);
     void finish_title_construction();
+    void mark_unmodeled(const char* reason);
+    const std::string& unmodeled_reason() const noexcept { return unmodeled_reason_; }
     const std::vector<int>& image_list() const noexcept { return image_list_; }
     // Binding table of the last bound model (handles[i] for name index i; -7/-1 past the tail).
     const std::vector<int>& model_binding() const noexcept { return model_binding_; }
@@ -199,6 +202,7 @@ private:
     MemoryContentCoverage memory_coverage_{MemoryContentCoverage::UploadsExact};
     std::vector<int> image_list_;
     std::vector<int> model_binding_;
+    std::string unmodeled_reason_;
     void require_stage(ResourceStage expected, const char* operation) const;
     void advance(ResourceStage next);
 };

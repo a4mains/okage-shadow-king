@@ -1140,6 +1140,9 @@ struct Session {
         //into the colour buffers and depth Z24 lanes (the title rendering contract).
         if(startup_textures&&startup_textures->stage()==okage::ResourceStage::PreScheduler)
             startup_textures->begin_scheduled_frames();
+        //The first 1296f8 title update (this tick) is past the modeled boundary.
+        if(startup_textures&&startup_textures->stage()==okage::ResourceStage::TitleConstructed)
+            startup_textures->mark_unmodeled("title updates are not modeled (first 1296f8)");
         if(game_mode) {
             observe_game_mode(0);
             game_mode->tick([this]{
@@ -1245,20 +1248,26 @@ struct Session {
                     std::cout<<"Native name entry constructed frame="<<frame<<'\n';return;
                 }
                 if(selection==okage::GameModeSelection{8,3,0}||selection==okage::GameModeSelection{8,0,0}) {
-                    if(selection[1]==0&&startup_textures)startup_textures->begin_logo_construction();
+                    if(selection[1]==0&&startup_textures) {
+                        if(startup_textures->stage()==okage::ResourceStage::Scheduled)startup_textures->begin_logo_construction();
+                        else startup_textures->mark_unmodeled("logo construction outside the cold-start order");
+                    }
                     startup=std::make_unique<okage::StartupSession>(scene_clear,scene_fade,ui_shared,game_over_shared,
                         okage::StartupConstruction{selection[1],save_directory,[this]{if(music)music->stop();},
                         [this]{initialize_startup_audio_and_cache();},[this](unsigned index){
                             auto bytes=readData(field_root.parent_path()/"CMNDATA/2D/SCR.XPF"/(index==0?"scea.xim":"zener.xim"));
                             //1009e0 -> 1b2348: the same bytes become the source image-list entry.
-                            if(startup_textures)startup_textures->append_image(bytes);
+                            if(startup_textures&&startup_textures->stage()==okage::ResourceStage::LogosConstructed)
+                                startup_textures->append_image(bytes);
                             return bytes;
                         }});
                     std::cout<<"Native startup constructed selector="<<selection[1]<<" frame="<<frame<<'\n';return;
                 }
                 if(selection==okage::GameModeSelection{8,1,0}) {
                     std::shared_ptr<const std::array<std::vector<std::uint8_t>,8>> title_images;
-                    if(startup_textures) {
+                    if(startup_textures&&startup_textures->stage()!=okage::ResourceStage::LogosRetired)
+                        startup_textures->mark_unmodeled("title constructed again after unmodeled history");
+                    if(startup_textures&&startup_textures->stage()==okage::ResourceStage::LogosRetired) {
                         //12c350(1): eight SCR images through 1009e0/1b2348, then 186c48("a.xmd").
                         startup_textures->begin_title_construction();
                         auto images=std::make_shared<std::array<std::vector<std::uint8_t>,8>>();
@@ -1291,7 +1300,7 @@ struct Session {
                             for(unsigned i=0;i<gain.size();++i)gain[i]=std::bit_cast<std::int16_t>(std::uint16_t(table[i*2]|unsigned(table[i*2+1])<<8));
                             title_stream.start(1,header,body,gain);
                         }});
-                    if(startup_textures) {
+                    if(startup_textures&&startup_textures->stage()==okage::ResourceStage::LogosRetired) {
                         startup_textures->finish_title_construction();
                         //Observation stop: right after 12c350(1) returns, before the first 1296f8 update.
                         if(!resource_report.empty())okage::write_session_resource_report(*startup_textures,resource_report);

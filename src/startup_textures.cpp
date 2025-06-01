@@ -391,6 +391,7 @@ const char* to_string(ResourceStage s) {
         case ResourceStage::LogosConstructed: return "logos-constructed";
         case ResourceStage::LogosRetired: return "logos-retired";
         case ResourceStage::TitleConstructed: return "title-constructed";
+        case ResourceStage::Unmodeled: return "unmodeled";
     }
     return "unknown";
 }
@@ -466,6 +467,12 @@ XmdLoadResult StartupTextureOwner::load_and_bind_model(const std::string& model,
         h = handles_.live_successor(h);
     }
     return result;
+}
+
+void StartupTextureOwner::mark_unmodeled(const char* reason) {
+    if (stage_ == ResourceStage::Unmodeled) return;
+    unmodeled_reason_ = reason;
+    advance(ResourceStage::Unmodeled);
 }
 
 void StartupTextureOwner::finish_title_construction() {

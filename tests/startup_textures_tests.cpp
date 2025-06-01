@@ -341,6 +341,11 @@ int main() {
             threw = false;
             try { o.begin_title_construction(); } catch (const std::logic_error&) { threw = true; }
             require(threw, "no second title construction");
+            o.mark_unmodeled("first title update");
+            require(o.stage() == ResourceStage::Unmodeled && o.unmodeled_reason() == "first title update",
+                    "history past the boundary is recorded as unmodeled, without throwing");
+            o.mark_unmodeled("again");  // idempotent; keeps the first reason
+            require(o.unmodeled_reason() == "first title update", "first reason kept");
             int phases = 0, materials = 0, frees = 0;
             for (const auto& line : o.lifecycle()) {
                 phases += line.find("\"phase\"") != std::string::npos;
