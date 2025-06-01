@@ -59,7 +59,7 @@ struct TitleSession::Impl {
         else renderer->load_effect_textures(construction.effect_textures);
         task.texture=renderer->add_effect_texture(images[7]);
         const auto model_path=construction.common_root/"2D/NIGHT_V.XPF/a.xmd";
-        model=std::make_unique<FieldActor>(read_xmd(read(model_path)));
+        model=std::make_unique<FieldActor>(read_xmd(construction.model?Bytes(*construction.model):Bytes(read(model_path))));
         renderer->add_actor({model.get(),model_path,0,SceneActorDescriptor{0,false}});
         renderer->set_stage_environment(settings.lighting,settings.shadows,settings.sky);
         renderer->set_sort_depth_shift(settings.bucket_base);renderer->set_clear_rgb(clear.rgb);

@@ -1265,6 +1265,7 @@ struct Session {
                 }
                 if(selection==okage::GameModeSelection{8,1,0}) {
                     std::shared_ptr<const std::array<std::vector<std::uint8_t>,8>> title_images;
+                    std::shared_ptr<const std::vector<std::uint8_t>> title_model;
                     if(startup_textures&&startup_textures->stage()!=okage::ResourceStage::LogosRetired)
                         startup_textures->mark_unmodeled("title constructed again after unmodeled history");
                     if(startup_textures&&startup_textures->stage()==okage::ResourceStage::LogosRetired) {
@@ -1278,7 +1279,9 @@ struct Session {
                         }
                         title_images=images;
                         const auto night_v=field_root.parent_path()/"CMNDATA/2D/NIGHT_V.XPF";
-                        const auto model=okage::read_xmd(readData(night_v/"a.xmd"));
+                        auto model_bytes=std::make_shared<const std::vector<std::uint8_t>>(readData(night_v/"a.xmd"));
+                        title_model=model_bytes;
+                        const auto model=okage::read_xmd(*model_bytes);
                         startup_textures->load_and_bind_model("NIGHT_V/a.xmd",model.textures,
                             [night_v](std::string& name)->std::optional<std::vector<std::uint8_t>> {
                                 //1c2e68 -> 0x1bc700 lower-cases the mounted-archive query IN PLACE
@@ -1290,7 +1293,7 @@ struct Session {
                             });
                     }
                     title=std::make_unique<okage::TitleSession>(scene_clear,scene_fade,ui_shared,game_over_shared,
-                        okage::TitleConstruction{field_root.parent_path()/"CMNDATA",effect_textures,verified_effect_textures,title_images,effect_bytes,
+                        okage::TitleConstruction{field_root.parent_path()/"CMNDATA",effect_textures,verified_effect_textures,title_images,title_model,effect_bytes,
                         [this]{if(music)music->stop();},[this]{
                             if(music_directory.empty())throw std::runtime_error("Title theme needs imported SNDDATA directory");
                             const auto root=music_directory.parent_path()/"STR";

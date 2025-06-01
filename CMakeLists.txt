@@ -187,6 +187,13 @@ if(BUILD_TESTING)
                     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
                 set_tests_properties(rng-cold-start-inputs PROPERTIES
                     ENVIRONMENT "OKAGE_NATIVE=$<TARGET_FILE:okage-native>;OKAGE_REQUIRE_STARTUP_TESTS=1")
+                if(EXISTS "${CMAKE_SOURCE_DIR}/local/research/title-lifecycle-validation-v1/title-again-input/buttons.txt")
+                    add_test(NAME title-again
+                        COMMAND ${Python3_EXECUTABLE} -m unittest tests.test_title_again
+                        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+                    set_tests_properties(title-again PROPERTIES
+                        ENVIRONMENT "OKAGE_NATIVE=$<TARGET_FILE:okage-native>;OKAGE_REQUIRE_STARTUP_TESTS=1")
+                endif()
             endif()
         endif()
     endif()
