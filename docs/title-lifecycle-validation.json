@@ -2,7 +2,7 @@
  "schema": "okage.title.validation.v1",
  "scope": "Title: shape-guard fix; persistent Session texture owner through storage, logos, logo retirement and title construction up to the cold-start 12c350(selector=1) return, before the first 1296f8 update.",
  "base_commit": "7a93d87",
- "head_commit_at_generation": "b8c59ce9e835b9590cae960c5735efa4e23b1c0b",
+ "head_commit_at_generation": "437523d95cd98a2b7f12ae653d64647604e92a00",
  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
  "tracked_sources": {
   "src/effect_geometry.cpp": "2db351b381f63f63fff68c503a10fc484fccd4be8bff59a91d0335d7b87fbe62",
@@ -94,8 +94,8 @@
   },
   {
    "path": "local/research/title-lifecycle-validation-v1/asan-lifecycle.out",
-   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-   "bytes": 0
+   "sha256": "ecefad201980274b4c6a907616faa3af67d65a2d04b5fe1fa54ee54fed09f1da",
+   "bytes": 103
   },
   {
    "path": "local/research/title-session-native-v1/final-release/command.txt",
@@ -330,7 +330,11 @@
    "",
    "OK"
   ],
-  "asan_lifecycle_handle": [],
+  "asan_lifecycle_handle": [
+   "Ran 2 tests in 5903.210s",
+   "",
+   "OK"
+  ],
   "regression_alignment": [
    "== old-a old-b",
    "anchors: logos 13/11, title 615/613 (offsets -2, -2); frames 1800",
