@@ -1,0 +1,387 @@
+{
+ "schema": "okage.title.validation.v1",
+ "scope": "Title: shape-guard fix; persistent Session texture owner through storage, logos, logo retirement and title construction up to the cold-start 12c350(selector=1) return, before the first 1296f8 update.",
+ "base_commit": "7a93d87",
+ "head_commit_at_generation": "b8c59ce9e835b9590cae960c5735efa4e23b1c0b",
+ "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+ "tracked_sources": {
+  "src/effect_geometry.cpp": "2db351b381f63f63fff68c503a10fc484fccd4be8bff59a91d0335d7b87fbe62",
+  "tests/effect_tests.cpp": "3aa9381232cd82fa1ec707059efba163378bc205c788f45efb28ba69be22959f",
+  "include/okage/startup_textures.hpp": "114d085e862b646cf7b86863b4ca53b4c806c0827f4a8a37bfa0f076a823e519",
+  "src/startup_textures.cpp": "fba87e4b6cbfddb0ef8e694ce8ba1ece13aa4a015d268b221a5db4c9a6542e65",
+  "include/okage/texture_handles.hpp": "514d2dfbecb739463076dbad315264477831e2711441890dc9cf8f3b6dcc09cb",
+  "src/texture_handles.cpp": "c5c45f919a0c144ff7e47951f0bc41d8069b4c3acdec338f7e9811a040d38d1d",
+  "include/okage/texture_memory.hpp": "9021fe89829927030dde8d707ec52a17a5c5dde16e2e0d491977811418d9cd5b",
+  "src/texture_memory.cpp": "5cbedd953e524a1590898c7b8840407dc85afc2ca43b46a0db28e232b9cbf61a",
+  "include/okage/texture_transfer.hpp": "b6977ca0976d198523fe2c81d44e156f78382ba7a14fb9d0f924b8328814f6f6",
+  "src/texture_transfer.cpp": "1e1b560413e8902e6c044b05a0990ab77c514b6583090853a156388c2edc880f",
+  "src/assets.cpp": "a1b2fc3bdddbbed0e623466a76d56646bfb1392eb51f8eeb4131326b750421e3",
+  "src/native_runtime.mm": "1057df69fa9f456d601f2cdcb014d1a6a9293d9474ba391f10471b7d4ab34e21",
+  "src/title_session.hpp": "f2c2ad243069e2607d1fa8439e0fb37a0775a9bbd4bde8194eefc104d8532e24",
+  "src/title_session.mm": "3ae5360ea2724ccf9f4b610f354bfb7c6e35610269c19cfd580801809dd18b7d",
+  "src/scene_renderer.mm": "68a05b5041673b3c40382bc639b1b8b083f15045a5a9c42527d526f574177980",
+  "include/okage/scene_renderer.hpp": "7dac98b5b3a0af7492623d2e759c254074ba279be80d3d263ba4a564522c6813",
+  "CMakeLists.txt": "d35185937a616c00291085cb5b803cefea203516b70024c41112237ca4a4bf10",
+  "tools/title_compare.py": "9e8d471fb83dab30e61f3f330cf61ffefe926322c6d415e305426a97dd6494d3",
+  "tools/title_original_extract.py": "3b297913b99fe37d4f5021935bdbb92a9fc397146823d7abcc41fee1fdadaeac",
+  "tools/title_regression_align.py": "4fd1e9d6662d1d744917e7737f238253ca97e2ab3180e9944bb136705de15acc",
+  "tools/title_contract.py": "d3a2a2ed7f9b73cec6dce96401ee6be8f5f257976043c3441c1d451c81d1910a",
+  "tests/startup_textures_tests.cpp": "4407506491932d91a72b7973a9e78a73ebaadf2ddd7e9c24f74c523c71a29c2a",
+  "tests/texture_handles_tests.cpp": "747c0c204929b0df1c06bc389eb41a3afd715a0a104c78946fa4f37ab7bc51a0",
+  "tests/texture_psm1_tests.cpp": "aca9a29d48c708c3a3e2f0c09c24fef4f768e21e1b072f8da44f552abf4e47ac",
+  "tests/test_title_compare.py": "d56d5c24f271cb35456c7b1cdfcebf92ff0eb87d744ecbc5bd43bab01977e960",
+  "tests/test_title_again.py": "eac0ca044258874785249894cef43d9b44811df132f1e89be1edc246fbe2d8cb",
+  "tests/test_title_regression_align.py": "566d2981ae9eea631e863c40c185bf5c53da953f14f26132712b9a7acb7a0c04",
+  "docs/title-original-manifest.json": "1790795955112c90e1123eea92c4eaf5ed0de2ae8cee6c23bf4a6e875e589b6a",
+  "docs/title-psm1-validation.json": "4fb0d569295c7625dc84c626cf168ca0250d482aab8bf562eb5f6931e3351a55",
+  "docs/title-contract.json": "c3e3e296bd2eef2a0c4218659318fd61dd17a669574c1a410123dc7bc6a65f50"
+ },
+ "evidence": [
+  {
+   "path": "local/research/title-shape-guard-v1/invalid-shape.out",
+   "sha256": "19e69b20ac88176967df19ca972b3d05f3404625065bf7e9856b08195da22752",
+   "bytes": 70
+  },
+  {
+   "path": "local/research/title-lifecycle-validation-v1/bin/binaries.sha256",
+   "sha256": "20b29a41a3c300f0d69d2e13b29ec883c81b2b88e3156464f248e4be742b55e4",
+   "bytes": 438
+  },
+  {
+   "path": "local/research/title-lifecycle-validation-v1/bin/source-head.txt",
+   "sha256": "03df30e3fc5c518748494953f79195e95a1cd36ca3c67ec5884522af4f2e6aa9",
+   "bytes": 41
+  },
+  {
+   "path": "local/research/title-lifecycle-validation-v1/ctest-focused.out",
+   "sha256": "08805bb3b631e7d7d5a5adc4aefe3160d4380550b4678d6310ee5e374c6096a8",
+   "bytes": 164
+  },
+  {
+   "path": "local/research/title-lifecycle-validation-v1/ctest-release-all.out",
+   "sha256": "0a68184f1e6f8e6651f05394bf395463cd33b6f993b3263029d20a4a82150ead",
+   "bytes": 45
+  },
+  {
+   "path": "local/research/title-lifecycle-validation-v1/python-suite.out",
+   "sha256": "0ba68edc5ab6d6f71166e516b60d49c8e09399c5914e087d0175469da5c6fd44",
+   "bytes": 29
+  },
+  {
+   "path": "local/research/title-lifecycle-validation-v1/release-lifecycle.out",
+   "sha256": "1775c12ae1f29d38a9e78e4696604966b013feae84138e8abd481e51fe214127",
+   "bytes": 28
+  },
+  {
+   "path": "local/research/title-lifecycle-validation-v1/title-again-input/buttons.txt",
+   "sha256": "9cfd4aeb3685ce0c29db4ca83cffadc125eea97e8c10b9993b588490b0fba6d1",
+   "bytes": 96
+  },
+  {
+   "path": "local/research/title-lifecycle-validation-v1/title-again-input/bkmo0.dat",
+   "sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
+   "bytes": 3460
+  },
+  {
+   "path": "local/research/title-regression-v1/final2-1800/binaries.sha256",
+   "sha256": "5b135061b7de4f4c6fbace2dee72af669454f10f98c7e14cb3644031c15e724d",
+   "bytes": 370
+  },
+  {
+   "path": "local/research/title-regression-v1/final2-1800/align.txt",
+   "sha256": "c18ed2f839a1c5fe44ebca0016cb9caa4a602f000e7c72a6d449cad312fa13a5",
+   "bytes": 1742
+  },
+  {
+   "path": "local/research/title-lifecycle-validation-v1/asan-lifecycle.out",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-release/command.txt",
+   "sha256": "bfd182b1ca12d36e4d3ebc7b3e0b1bf2f729a087e31d745364ad0521209822bd",
+   "bytes": 692
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-release/stdout.txt",
+   "sha256": "f2cdfc0b8a351088b865c5f6834d177d3dcb93010a03b49894b8dd9a1bb55e7a",
+   "bytes": 475
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-release/rng-compare.out",
+   "sha256": "a2aa1f17f530f5d9de2cfa802affeb371a9a41da2f0587eb5453f62502e46a79",
+   "bytes": 261
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-release/timeline-compare.out",
+   "sha256": "54f1c4cac23d95402567e7150e837c2673e49772dedd48365cc48f5df80a00be",
+   "bytes": 321
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-release/state-compare.out",
+   "sha256": "e962f3e5e58385b59d2202170b3e8ff5bf65aaa34e4312e72c0fa8b632a8f435",
+   "bytes": 642
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-release/title-compare.out",
+   "sha256": "002f307902e26d2b5b01606de64218c026cd0b87cdeafe3524eccb928ea9e447",
+   "bytes": 1205
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-release/title-report/state.json",
+   "sha256": "7c2980e34eaa3d415297cd6fbd4bcb883ed00818504cb38517e39a050142e163",
+   "bytes": 73060
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-release/title-report/timeline.jsonl",
+   "sha256": "1f7543b3577a96592fdb5758085bbfb8283b0d7ca3634934fa2b7cd0b286dafa",
+   "bytes": 41529
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-release/title-report/vram.bytes",
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-release/title-report/vram.known",
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-release/startup-report/state.json",
+   "sha256": "e1d4cb42425f67ddeef7d76cbbef2c7527ddceb2495ae1c9a28a520d0174bc6e",
+   "bytes": 51481
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-sanitize/command.txt",
+   "sha256": "772eba9205318789995d91a18171fb99f898e4322ee44810ba08736c22b1fae3",
+   "bytes": 697
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-sanitize/stdout.txt",
+   "sha256": "b679bae105c060be471925295752f8b1f8e4bb87ed82882707e10bd421a6136e",
+   "bytes": 474
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-sanitize/rng-compare.out",
+   "sha256": "a2aa1f17f530f5d9de2cfa802affeb371a9a41da2f0587eb5453f62502e46a79",
+   "bytes": 261
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-sanitize/timeline-compare.out",
+   "sha256": "54f1c4cac23d95402567e7150e837c2673e49772dedd48365cc48f5df80a00be",
+   "bytes": 321
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-sanitize/state-compare.out",
+   "sha256": "e962f3e5e58385b59d2202170b3e8ff5bf65aaa34e4312e72c0fa8b632a8f435",
+   "bytes": 642
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-sanitize/title-compare.out",
+   "sha256": "002f307902e26d2b5b01606de64218c026cd0b87cdeafe3524eccb928ea9e447",
+   "bytes": 1205
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-sanitize/title-report/state.json",
+   "sha256": "7c2980e34eaa3d415297cd6fbd4bcb883ed00818504cb38517e39a050142e163",
+   "bytes": 73060
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-sanitize/title-report/timeline.jsonl",
+   "sha256": "1f7543b3577a96592fdb5758085bbfb8283b0d7ca3634934fa2b7cd0b286dafa",
+   "bytes": 41529
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-sanitize/title-report/vram.bytes",
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-sanitize/title-report/vram.known",
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  {
+   "path": "local/research/title-session-native-v1/final-sanitize/startup-report/state.json",
+   "sha256": "e1d4cb42425f67ddeef7d76cbbef2c7527ddceb2495ae1c9a28a520d0174bc6e",
+   "bytes": 51481
+  },
+  {
+   "path": "local/research/title-regression-v1/final2-1800/old-a/command.txt",
+   "sha256": "e8d7731fda113c3bc9417375b06da581a4dfdd6865a4bab7791e4d9c8fe93935",
+   "bytes": 430
+  },
+  {
+   "path": "local/research/title-regression-v1/final2-1800/old-a/outputs.sha256",
+   "sha256": "629e186e06c20cc105dee751246d1507c090b964ee4c43ccee2c18f68bfbc828",
+   "bytes": 2513
+  },
+  {
+   "path": "local/research/title-regression-v1/final2-1800/old-a/stdout.txt",
+   "sha256": "d8d9d487d85aaf4da7a3b45873aa987e4ed65db0e301dd8ced6918c502712f6b",
+   "bytes": 477
+  },
+  {
+   "path": "local/research/title-regression-v1/final2-1800/old-b/command.txt",
+   "sha256": "a3136fd9a0cbe2d8c0b348960ef412ae44c5a1406206f9536adfade75c62deb9",
+   "bytes": 430
+  },
+  {
+   "path": "local/research/title-regression-v1/final2-1800/old-b/outputs.sha256",
+   "sha256": "e98fc0f12ce130a4c36bc59024be457ffe40e3a2e196f5dfe73d485187d5abd5",
+   "bytes": 2513
+  },
+  {
+   "path": "local/research/title-regression-v1/final2-1800/old-b/stdout.txt",
+   "sha256": "aebd65a18ad70aabf6f710bd9a7268ffa2a4e85285aae9dbc86df38a97460494",
+   "bytes": 476
+  },
+  {
+   "path": "local/research/title-regression-v1/final2-1800/new-a/command.txt",
+   "sha256": "dd54e091ef6737086c5755a789a0858f205fb04113be31fc13cbe468ca044c95",
+   "bytes": 434
+  },
+  {
+   "path": "local/research/title-regression-v1/final2-1800/new-a/outputs.sha256",
+   "sha256": "903f5ce2f48a7a4adac04f1a3bf530359d84c7ee13b60df9276011a707571fcd",
+   "bytes": 2513
+  },
+  {
+   "path": "local/research/title-regression-v1/final2-1800/new-a/stdout.txt",
+   "sha256": "d8d9d487d85aaf4da7a3b45873aa987e4ed65db0e301dd8ced6918c502712f6b",
+   "bytes": 477
+  },
+  {
+   "path": "local/research/title-regression-v1/final2-1800/new-b/command.txt",
+   "sha256": "cee23162af0823b6f56dc3a983a44e864d7959564365666e3a4c84fb6b10b8ce",
+   "bytes": 434
+  },
+  {
+   "path": "local/research/title-regression-v1/final2-1800/new-b/outputs.sha256",
+   "sha256": "c89b86c2f4ab2387f6a2d46c0df8046b952236532547c01c51cb73858ad02bd9",
+   "bytes": 2513
+  },
+  {
+   "path": "local/research/title-regression-v1/final2-1800/new-b/stdout.txt",
+   "sha256": "d8d9d487d85aaf4da7a3b45873aa987e4ed65db0e301dd8ced6918c502712f6b",
+   "bytes": 477
+  }
+ ],
+ "commands": {
+  "session": "/Users/user/src/okage/okage-shadow-king/local/research/title-lifecycle-validation-v1/bin/new-release.app/Contents/MacOS/okage-native --game-data /Users/user/src/okage/okage-shadow-king/local/game-data-stage-v13 --save-directory /Users/user/src/okage/okage-shadow-king/local/research/title-session-native-v1/final-release/saves --startup-texture-report /Users/user/src/okage/okage-shadow-king/local/research/title-session-native-v1/final-release/startup-report --title-resource-report /Users/user/src/okage/okage-shadow-king/local/research/title-session-native-v1/final-release/title-report --frames 700 --capture /Users/user/src/okage/okage-shadow-king/local/research/title-session-native-v1/final-release/f.png",
+  "compare_title": "python3 tools/title_compare.py local/research/title-original-v1/analysis local/research/title-session-native-v1/final-<v>/title-report",
+  "compare_rng": "tools/rng_compare.py, tools/rng_startup_timeline_compare.py, tools/startup_compare.py on <run>/startup-report",
+  "regression": "tools/rng_cold_start_regression.sh local/research/title-lifecycle-validation-v1/bin/old-rng.app/... local/research/title-lifecycle-validation-v1/bin/new-release.app/... local/game-data-stage-v13 local/research/title-regression-v1/final2-1800 1800",
+  "align": "python3 tools/title_regression_align.py RUN_A RUN_B (every pair; see align.txt)",
+  "focused_ctest": "build/rng-{release,debug,sanitize}: startup-inputs, rng-cold-start-inputs, title-again, effect, field, startup-textures, texture-(transfer|psm1|snapshot|memory|handles|format), xim-raw, asset, gs-texture-address",
+  "python": "OKAGE_MAIN_CHECKOUT=$PWD OKAGE_NATIVE=... OKAGE_HANDLE_TRACE=... OKAGE_TRANSFER_COMPARE=... python3 -m unittest discover -s tests"
+ },
+ "results": {
+  "title_compare_release": [
+   "  event counts native:   alloc=166, bind=47, free=4, handle=113, material=67, name=67, ref=170, reserve=1, retire=2, upload=159",
+   "  timeline: identical (796 resource events in order)",
+   "  state.allocations: identical (162)",
+   "  state.handles: identical (111)",
+   "  state.records: identical (111)",
+   "  state.hash: identical (62)",
+   "  state.reserved: identical (0)",
+   "  state.free_records: identical",
+   "  state.free_extras: identical",
+   "  state.available: identical",
+   "  state.cursors: identical (64)",
+   "  state.free_queue_ids: identical (3934)",
+   "  state.occupancy_hex: identical",
+   "  state.image_list: identical (8)",
+   "  state.materials: identical (67)",
+   "  vram: required_known=2586752, required_unknown=3153920, missing_knowledge=0, value_mismatch=0, stale_known=0, invented_knowledge=0",
+   "  not compared: phase markers (informational); ignored native keys ['checkpoints', 'filter_cluts', 'later_history', 'layers', 'rand_state_after_noise', 'rng_draws']; RNG (tools/rng_compare.py: no rand() call occurs after 0x100618 up to the stop in the original)",
+   "RESULT: IDENTICAL"
+  ],
+  "title_compare_sanitize": [
+   "  not compared: phase markers (informational); ignored native keys ['checkpoints', 'filter_cluts', 'later_history', 'layers', 'rand_state_after_noise', 'rng_draws']; RNG (tools/rng_compare.py: no rand() call occurs after 0x100618 up to the stop in the original)",
+   "RESULT: IDENTICAL"
+  ],
+  "rng_preserved": [
+   "IDENTICAL",
+   "result: IDENTICAL",
+   "result: IDENTICAL",
+   "IDENTICAL",
+   "result: IDENTICAL",
+   "result: IDENTICAL"
+  ],
+  "focused_ctest": [
+   "== release",
+   "100% tests passed, 0 tests failed out of 15",
+   "== debug",
+   "100% tests passed, 0 tests failed out of 15",
+   "== sanitize",
+   "100% tests passed, 0 tests failed out of 15"
+  ],
+  "full_release_ctest": [
+   "100% tests passed, 0 tests failed out of 108"
+  ],
+  "python_suite": [
+   "Ran 833 tests in 336.080s",
+   "OK"
+  ],
+  "release_lifecycle_handle": [
+   "Ran 2 tests in 198.142s",
+   "",
+   "OK"
+  ],
+  "asan_lifecycle_handle": [],
+  "regression_alignment": [
+   "== old-a old-b",
+   "anchors: logos 13/11, title 615/613 (offsets -2, -2); frames 1800",
+   "logo phase (startup.bin): 602 aligned frames, identical",
+   "title phase (title-state.bin): 1185 aligned frames, identical",
+   "audio after title construction: 1896000 aligned samples, identical",
+   "result: ALIGNED-IDENTICAL",
+   "== new-a new-b",
+   "anchors: logos 13/13, title 615/615 (offsets 0, 0); frames 1800",
+   "logo phase (startup.bin): 602 aligned frames, identical",
+   "title phase (title-state.bin): 1185 aligned frames, identical",
+   "audio after title construction: 1896000 aligned samples, identical",
+   "result: ALIGNED-IDENTICAL",
+   "== old-a new-a",
+   "anchors: logos 13/13, title 615/615 (offsets 0, 0); frames 1800",
+   "logo phase (startup.bin): 602 aligned frames, identical",
+   "title phase (title-state.bin): 1185 aligned frames, identical",
+   "audio after title construction: 1896000 aligned samples, identical",
+   "result: ALIGNED-IDENTICAL",
+   "== old-b new-b",
+   "anchors: logos 11/13, title 613/615 (offsets 2, 2); frames 1800",
+   "logo phase (startup.bin): 602 aligned frames, identical",
+   "title phase (title-state.bin): 1185 aligned frames, identical",
+   "audio after title construction: 1896000 aligned samples, identical",
+   "result: ALIGNED-IDENTICAL",
+   "== old-a new-b",
+   "anchors: logos 13/13, title 615/615 (offsets 0, 0); frames 1800",
+   "logo phase (startup.bin): 602 aligned frames, identical",
+   "title phase (title-state.bin): 1185 aligned frames, identical",
+   "audio after title construction: 1896000 aligned samples, identical",
+   "result: ALIGNED-IDENTICAL",
+   "== old-b new-a",
+   "anchors: logos 11/13, title 613/615 (offsets 2, 2); frames 1800",
+   "logo phase (startup.bin): 602 aligned frames, identical",
+   "title phase (title-state.bin): 1185 aligned frames, identical",
+   "audio after title construction: 1896000 aligned samples, identical",
+   "result: ALIGNED-IDENTICAL"
+  ]
+ },
+ "review_findings": [
+  "HIGH second title construction threw (fixed 85515df; runtime replay test title-again)",
+  "regression alignment could pass truncated runs (fixed: counts, explicit record lengths, logo phase, controls)",
+  "regression binaries not pinned (fixed: copies in title-lifecycle-validation-v1/bin, rerun final2-1800)",
+  "sanitize session comparisons not retained (fixed: final-sanitize/*-compare.out)",
+  "PSM1 comment/doc stale (fixed); NIGHT_V a.xmd now passed through (XIM host decode still path-based)"
+ ],
+ "unresolved": [
+  "game over -> title has no runtime replay (same guarded branch as Restore -> title)",
+  "NIGHT_V XIM host decode still reads the archive path (logical upload uses the 186aa8 bytes)",
+  "PSM1 final partial pixel follows Play zero-extension (unverified on hardware; unreached)",
+  "draw invalidation is a conservative owner-lane superset, not a raster; A03 glyph cache unknown",
+  "Play research backend, not hardware"
+ ]
+}
