@@ -1,0 +1,967 @@
+{
+  "schema": "okage.title.followup-review.v1",
+  "review_date": "2025-06-08",
+  "reviewed_commit": "962cf6fb201f2ea1f5f17665df31d78777def3f6",
+  "scope": "Read-only implementation/evidence review and Retire handoff; no runtime/tool edits.",
+  "commands": [
+    {
+      "command": "ctest --test-dir build/rng-release -R '^(startup-inputs-tests|rng-cold-start-inputs|title-again|effect-tests|field-tests|startup-textures-tests|texture-(transfer|psm1|snapshot|memory|handles|format)-tests|xim-raw-tests|asset-tests|gs-texture-address-tests)$' --output-on-failure",
+      "output": "ctest-release.txt",
+      "returncode": 0,
+      "tests_passed": 15
+    },
+    {
+      "command": "ctest --test-dir build/rng-sanitize -R '^(effect-tests|startup-textures-tests|texture-(transfer|psm1|snapshot|memory|handles|format)-tests|xim-raw-tests|asset-tests|gs-texture-address-tests)$' --output-on-failure",
+      "output": "ctest-sanitize.txt",
+      "returncode": 0,
+      "tests_passed": 11
+    },
+    {
+      "command": "python3 -m unittest tests.test_title_compare tests.test_title_regression_align",
+      "output": "python.txt",
+      "returncode": 0,
+      "tests_passed": 45
+    },
+    {
+      "command": "python3 tools/title_compare.py local/research/title-original-v1/analysis local/research/title-session-native-v1/final-release/title-report",
+      "output": "title-compare-release.txt",
+      "returncode": 0
+    },
+    {
+      "command": "python3 tools/title_compare.py local/research/title-original-v1/analysis local/research/title-session-native-v1/final-sanitize/title-report",
+      "output": "title-compare-sanitize.txt",
+      "returncode": 0
+    }
+  ],
+  "fresh_session": {
+    "command": [
+      "/Users/user/src/okage/okage-shadow-king/local/research/title-lifecycle-validation-v1/bin/new-release.app/Contents/MacOS/okage-native",
+      "--game-data",
+      "/Users/user/src/okage/okage-shadow-king/local/game-data-stage-v13",
+      "--save-directory",
+      "/Users/user/src/okage/okage-shadow-king/local/research/title-followup-review-v1/session/saves",
+      "--startup-texture-report",
+      "/Users/user/src/okage/okage-shadow-king/local/research/title-followup-review-v1/session/startup-report",
+      "--title-resource-report",
+      "/Users/user/src/okage/okage-shadow-king/local/research/title-followup-review-v1/session/title-report",
+      "--frames",
+      "700",
+      "--capture",
+      "/Users/user/src/okage/okage-shadow-king/local/research/title-followup-review-v1/session/f.png"
+    ],
+    "binary_sha256": "ce1f62b1296946be63355e3623a8d0ab74f765e2371dba7c789a8b0a4a9fa26f",
+    "source_commit": "962cf6fb201f2ea1f5f17665df31d78777def3f6",
+    "returncode": 0
+  },
+  "fresh_comparisons": [
+    {
+      "name": "fresh-title",
+      "command": [
+        "python3",
+        "tools/title_compare.py",
+        "local/research/title-original-v1/analysis",
+        "/Users/user/src/okage/okage-shadow-king/local/research/title-followup-review-v1/session/title-report"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "fresh-rng",
+      "command": [
+        "python3",
+        "tools/rng_compare.py",
+        "local/research/rng-original-v1/analysis",
+        "/Users/user/src/okage/okage-shadow-king/local/research/title-followup-review-v1/session/startup-report"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "fresh-timeline",
+      "command": [
+        "python3",
+        "tools/rng_startup_timeline_compare.py",
+        "local/research/startup-original-v1/runs/fill00-a/events.jsonl",
+        "/Users/user/src/okage/okage-shadow-king/local/research/title-followup-review-v1/session/startup-report"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "fresh-startup",
+      "command": [
+        "python3",
+        "tools/startup_compare.py",
+        "local/research/startup-original-v1/analysis",
+        "/Users/user/src/okage/okage-shadow-king/local/research/title-followup-review-v1/session/startup-report"
+      ],
+      "returncode": 0
+    }
+  ],
+  "title_manifest_audit": [
+    {
+      "path": "src/effect_geometry.cpp",
+      "matches": true,
+      "sha256": "2db351b381f63f63fff68c503a10fc484fccd4be8bff59a91d0335d7b87fbe62"
+    },
+    {
+      "path": "tests/effect_tests.cpp",
+      "matches": true,
+      "sha256": "3aa9381232cd82fa1ec707059efba163378bc205c788f45efb28ba69be22959f"
+    },
+    {
+      "path": "include/okage/startup_textures.hpp",
+      "matches": true,
+      "sha256": "114d085e862b646cf7b86863b4ca53b4c806c0827f4a8a37bfa0f076a823e519"
+    },
+    {
+      "path": "src/startup_textures.cpp",
+      "matches": true,
+      "sha256": "fba87e4b6cbfddb0ef8e694ce8ba1ece13aa4a015d268b221a5db4c9a6542e65"
+    },
+    {
+      "path": "include/okage/texture_handles.hpp",
+      "matches": true,
+      "sha256": "514d2dfbecb739463076dbad315264477831e2711441890dc9cf8f3b6dcc09cb"
+    },
+    {
+      "path": "src/texture_handles.cpp",
+      "matches": true,
+      "sha256": "c5c45f919a0c144ff7e47951f0bc41d8069b4c3acdec338f7e9811a040d38d1d"
+    },
+    {
+      "path": "include/okage/texture_memory.hpp",
+      "matches": true,
+      "sha256": "9021fe89829927030dde8d707ec52a17a5c5dde16e2e0d491977811418d9cd5b"
+    },
+    {
+      "path": "src/texture_memory.cpp",
+      "matches": true,
+      "sha256": "5cbedd953e524a1590898c7b8840407dc85afc2ca43b46a0db28e232b9cbf61a"
+    },
+    {
+      "path": "include/okage/texture_transfer.hpp",
+      "matches": true,
+      "sha256": "b6977ca0976d198523fe2c81d44e156f78382ba7a14fb9d0f924b8328814f6f6"
+    },
+    {
+      "path": "src/texture_transfer.cpp",
+      "matches": true,
+      "sha256": "1e1b560413e8902e6c044b05a0990ab77c514b6583090853a156388c2edc880f"
+    },
+    {
+      "path": "src/assets.cpp",
+      "matches": true,
+      "sha256": "a1b2fc3bdddbbed0e623466a76d56646bfb1392eb51f8eeb4131326b750421e3"
+    },
+    {
+      "path": "src/native_runtime.mm",
+      "matches": true,
+      "sha256": "1057df69fa9f456d601f2cdcb014d1a6a9293d9474ba391f10471b7d4ab34e21"
+    },
+    {
+      "path": "src/title_session.hpp",
+      "matches": true,
+      "sha256": "f2c2ad243069e2607d1fa8439e0fb37a0775a9bbd4bde8194eefc104d8532e24"
+    },
+    {
+      "path": "src/title_session.mm",
+      "matches": true,
+      "sha256": "3ae5360ea2724ccf9f4b610f354bfb7c6e35610269c19cfd580801809dd18b7d"
+    },
+    {
+      "path": "src/scene_renderer.mm",
+      "matches": true,
+      "sha256": "68a05b5041673b3c40382bc639b1b8b083f15045a5a9c42527d526f574177980"
+    },
+    {
+      "path": "include/okage/scene_renderer.hpp",
+      "matches": true,
+      "sha256": "7dac98b5b3a0af7492623d2e759c254074ba279be80d3d263ba4a564522c6813"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "matches": true,
+      "sha256": "d35185937a616c00291085cb5b803cefea203516b70024c41112237ca4a4bf10"
+    },
+    {
+      "path": "tools/title_compare.py",
+      "matches": true,
+      "sha256": "9e8d471fb83dab30e61f3f330cf61ffefe926322c6d415e305426a97dd6494d3"
+    },
+    {
+      "path": "tools/title_original_extract.py",
+      "matches": true,
+      "sha256": "3b297913b99fe37d4f5021935bdbb92a9fc397146823d7abcc41fee1fdadaeac"
+    },
+    {
+      "path": "tools/title_regression_align.py",
+      "matches": true,
+      "sha256": "4fd1e9d6662d1d744917e7737f238253ca97e2ab3180e9944bb136705de15acc"
+    },
+    {
+      "path": "tools/title_contract.py",
+      "matches": true,
+      "sha256": "d3a2a2ed7f9b73cec6dce96401ee6be8f5f257976043c3441c1d451c81d1910a"
+    },
+    {
+      "path": "tests/startup_textures_tests.cpp",
+      "matches": true,
+      "sha256": "4407506491932d91a72b7973a9e78a73ebaadf2ddd7e9c24f74c523c71a29c2a"
+    },
+    {
+      "path": "tests/texture_handles_tests.cpp",
+      "matches": true,
+      "sha256": "747c0c204929b0df1c06bc389eb41a3afd715a0a104c78946fa4f37ab7bc51a0"
+    },
+    {
+      "path": "tests/texture_psm1_tests.cpp",
+      "matches": true,
+      "sha256": "aca9a29d48c708c3a3e2f0c09c24fef4f768e21e1b072f8da44f552abf4e47ac"
+    },
+    {
+      "path": "tests/test_title_compare.py",
+      "matches": true,
+      "sha256": "d56d5c24f271cb35456c7b1cdfcebf92ff0eb87d744ecbc5bd43bab01977e960"
+    },
+    {
+      "path": "tests/test_title_again.py",
+      "matches": true,
+      "sha256": "eac0ca044258874785249894cef43d9b44811df132f1e89be1edc246fbe2d8cb"
+    },
+    {
+      "path": "tests/test_title_regression_align.py",
+      "matches": true,
+      "sha256": "566d2981ae9eea631e863c40c185bf5c53da953f14f26132712b9a7acb7a0c04"
+    },
+    {
+      "path": "docs/title-original-manifest.json",
+      "matches": true,
+      "sha256": "1790795955112c90e1123eea92c4eaf5ed0de2ae8cee6c23bf4a6e875e589b6a"
+    },
+    {
+      "path": "docs/title-psm1-validation.json",
+      "matches": true,
+      "sha256": "4fb0d569295c7625dc84c626cf168ca0250d482aab8bf562eb5f6931e3351a55"
+    },
+    {
+      "path": "docs/title-contract.json",
+      "matches": true,
+      "sha256": "c3e3e296bd2eef2a0c4218659318fd61dd17a669574c1a410123dc7bc6a65f50"
+    },
+    {
+      "path": "local/research/title-shape-guard-v1/invalid-shape.out",
+      "matches": true,
+      "sha256": "19e69b20ac88176967df19ca972b3d05f3404625065bf7e9856b08195da22752"
+    },
+    {
+      "path": "local/research/title-lifecycle-validation-v1/bin/binaries.sha256",
+      "matches": true,
+      "sha256": "20b29a41a3c300f0d69d2e13b29ec883c81b2b88e3156464f248e4be742b55e4"
+    },
+    {
+      "path": "local/research/title-lifecycle-validation-v1/bin/source-head.txt",
+      "matches": true,
+      "sha256": "03df30e3fc5c518748494953f79195e95a1cd36ca3c67ec5884522af4f2e6aa9"
+    },
+    {
+      "path": "local/research/title-lifecycle-validation-v1/ctest-focused.out",
+      "matches": true,
+      "sha256": "08805bb3b631e7d7d5a5adc4aefe3160d4380550b4678d6310ee5e374c6096a8"
+    },
+    {
+      "path": "local/research/title-lifecycle-validation-v1/ctest-release-all.out",
+      "matches": true,
+      "sha256": "0a68184f1e6f8e6651f05394bf395463cd33b6f993b3263029d20a4a82150ead"
+    },
+    {
+      "path": "local/research/title-lifecycle-validation-v1/python-suite.out",
+      "matches": true,
+      "sha256": "0ba68edc5ab6d6f71166e516b60d49c8e09399c5914e087d0175469da5c6fd44"
+    },
+    {
+      "path": "local/research/title-lifecycle-validation-v1/release-lifecycle.out",
+      "matches": true,
+      "sha256": "1775c12ae1f29d38a9e78e4696604966b013feae84138e8abd481e51fe214127"
+    },
+    {
+      "path": "local/research/title-lifecycle-validation-v1/title-again-input/buttons.txt",
+      "matches": true,
+      "sha256": "9cfd4aeb3685ce0c29db4ca83cffadc125eea97e8c10b9993b588490b0fba6d1"
+    },
+    {
+      "path": "local/research/title-lifecycle-validation-v1/title-again-input/bkmo0.dat",
+      "matches": true,
+      "sha256": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
+    },
+    {
+      "path": "local/research/title-regression-v1/final2-1800/binaries.sha256",
+      "matches": true,
+      "sha256": "5b135061b7de4f4c6fbace2dee72af669454f10f98c7e14cb3644031c15e724d"
+    },
+    {
+      "path": "local/research/title-regression-v1/final2-1800/align.txt",
+      "matches": true,
+      "sha256": "c18ed2f839a1c5fe44ebca0016cb9caa4a602f000e7c72a6d449cad312fa13a5"
+    },
+    {
+      "path": "local/research/title-lifecycle-validation-v1/asan-lifecycle.out",
+      "matches": true,
+      "sha256": "ecefad201980274b4c6a907616faa3af67d65a2d04b5fe1fa54ee54fed09f1da"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-release/command.txt",
+      "matches": true,
+      "sha256": "bfd182b1ca12d36e4d3ebc7b3e0b1bf2f729a087e31d745364ad0521209822bd"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-release/stdout.txt",
+      "matches": true,
+      "sha256": "f2cdfc0b8a351088b865c5f6834d177d3dcb93010a03b49894b8dd9a1bb55e7a"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-release/rng-compare.out",
+      "matches": true,
+      "sha256": "a2aa1f17f530f5d9de2cfa802affeb371a9a41da2f0587eb5453f62502e46a79"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-release/timeline-compare.out",
+      "matches": true,
+      "sha256": "54f1c4cac23d95402567e7150e837c2673e49772dedd48365cc48f5df80a00be"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-release/state-compare.out",
+      "matches": true,
+      "sha256": "e962f3e5e58385b59d2202170b3e8ff5bf65aaa34e4312e72c0fa8b632a8f435"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-release/title-compare.out",
+      "matches": true,
+      "sha256": "002f307902e26d2b5b01606de64218c026cd0b87cdeafe3524eccb928ea9e447"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-release/title-report/state.json",
+      "matches": true,
+      "sha256": "7c2980e34eaa3d415297cd6fbd4bcb883ed00818504cb38517e39a050142e163"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-release/title-report/timeline.jsonl",
+      "matches": true,
+      "sha256": "1f7543b3577a96592fdb5758085bbfb8283b0d7ca3634934fa2b7cd0b286dafa"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-release/title-report/vram.bytes",
+      "matches": true,
+      "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-release/title-report/vram.known",
+      "matches": true,
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-release/startup-report/state.json",
+      "matches": true,
+      "sha256": "e1d4cb42425f67ddeef7d76cbbef2c7527ddceb2495ae1c9a28a520d0174bc6e"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-sanitize/command.txt",
+      "matches": true,
+      "sha256": "772eba9205318789995d91a18171fb99f898e4322ee44810ba08736c22b1fae3"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-sanitize/stdout.txt",
+      "matches": true,
+      "sha256": "b679bae105c060be471925295752f8b1f8e4bb87ed82882707e10bd421a6136e"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-sanitize/rng-compare.out",
+      "matches": true,
+      "sha256": "a2aa1f17f530f5d9de2cfa802affeb371a9a41da2f0587eb5453f62502e46a79"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-sanitize/timeline-compare.out",
+      "matches": true,
+      "sha256": "54f1c4cac23d95402567e7150e837c2673e49772dedd48365cc48f5df80a00be"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-sanitize/state-compare.out",
+      "matches": true,
+      "sha256": "e962f3e5e58385b59d2202170b3e8ff5bf65aaa34e4312e72c0fa8b632a8f435"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-sanitize/title-compare.out",
+      "matches": true,
+      "sha256": "002f307902e26d2b5b01606de64218c026cd0b87cdeafe3524eccb928ea9e447"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-sanitize/title-report/state.json",
+      "matches": true,
+      "sha256": "7c2980e34eaa3d415297cd6fbd4bcb883ed00818504cb38517e39a050142e163"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-sanitize/title-report/timeline.jsonl",
+      "matches": true,
+      "sha256": "1f7543b3577a96592fdb5758085bbfb8283b0d7ca3634934fa2b7cd0b286dafa"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-sanitize/title-report/vram.bytes",
+      "matches": true,
+      "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-sanitize/title-report/vram.known",
+      "matches": true,
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f"
+    },
+    {
+      "path": "local/research/title-session-native-v1/final-sanitize/startup-report/state.json",
+      "matches": true,
+      "sha256": "e1d4cb42425f67ddeef7d76cbbef2c7527ddceb2495ae1c9a28a520d0174bc6e"
+    },
+    {
+      "path": "local/research/title-regression-v1/final2-1800/old-a/command.txt",
+      "matches": true,
+      "sha256": "e8d7731fda113c3bc9417375b06da581a4dfdd6865a4bab7791e4d9c8fe93935"
+    },
+    {
+      "path": "local/research/title-regression-v1/final2-1800/old-a/outputs.sha256",
+      "matches": true,
+      "sha256": "629e186e06c20cc105dee751246d1507c090b964ee4c43ccee2c18f68bfbc828"
+    },
+    {
+      "path": "local/research/title-regression-v1/final2-1800/old-a/stdout.txt",
+      "matches": true,
+      "sha256": "d8d9d487d85aaf4da7a3b45873aa987e4ed65db0e301dd8ced6918c502712f6b"
+    },
+    {
+      "path": "local/research/title-regression-v1/final2-1800/old-b/command.txt",
+      "matches": true,
+      "sha256": "a3136fd9a0cbe2d8c0b348960ef412ae44c5a1406206f9536adfade75c62deb9"
+    },
+    {
+      "path": "local/research/title-regression-v1/final2-1800/old-b/outputs.sha256",
+      "matches": true,
+      "sha256": "e98fc0f12ce130a4c36bc59024be457ffe40e3a2e196f5dfe73d485187d5abd5"
+    },
+    {
+      "path": "local/research/title-regression-v1/final2-1800/old-b/stdout.txt",
+      "matches": true,
+      "sha256": "aebd65a18ad70aabf6f710bd9a7268ffa2a4e85285aae9dbc86df38a97460494"
+    },
+    {
+      "path": "local/research/title-regression-v1/final2-1800/new-a/command.txt",
+      "matches": true,
+      "sha256": "dd54e091ef6737086c5755a789a0858f205fb04113be31fc13cbe468ca044c95"
+    },
+    {
+      "path": "local/research/title-regression-v1/final2-1800/new-a/outputs.sha256",
+      "matches": true,
+      "sha256": "903f5ce2f48a7a4adac04f1a3bf530359d84c7ee13b60df9276011a707571fcd"
+    },
+    {
+      "path": "local/research/title-regression-v1/final2-1800/new-a/stdout.txt",
+      "matches": true,
+      "sha256": "d8d9d487d85aaf4da7a3b45873aa987e4ed65db0e301dd8ced6918c502712f6b"
+    },
+    {
+      "path": "local/research/title-regression-v1/final2-1800/new-b/command.txt",
+      "matches": true,
+      "sha256": "cee23162af0823b6f56dc3a983a44e864d7959564365666e3a4c84fb6b10b8ce"
+    },
+    {
+      "path": "local/research/title-regression-v1/final2-1800/new-b/outputs.sha256",
+      "matches": true,
+      "sha256": "c89b86c2f4ab2387f6a2d46c0df8046b952236532547c01c51cb73858ad02bd9"
+    },
+    {
+      "path": "local/research/title-regression-v1/final2-1800/new-b/stdout.txt",
+      "matches": true,
+      "sha256": "d8d9d487d85aaf4da7a3b45873aa987e4ed65db0e301dd8ced6918c502712f6b"
+    }
+  ],
+  "test_binaries": [
+    {
+      "path": "build/rng-release/texture-memory-tests",
+      "bytes": 81448,
+      "sha256": "35f99123b7a0286c144f76d289c55c96a7d6730fac813bfbfc4ffa5869a261bc"
+    },
+    {
+      "path": "build/rng-release/texture-transfer-tests",
+      "bytes": 139176,
+      "sha256": "b16aa1d450ee511b005994e6432af2ac1315644ee7ef0395326dbb4212a2abaf"
+    },
+    {
+      "path": "build/rng-release/texture-format-tests",
+      "bytes": 122296,
+      "sha256": "0b5c188cd2289b881936845618f09744a2c16755fb2afd264204d0bb1ef61b13"
+    },
+    {
+      "path": "build/rng-release/texture-psm1-tests",
+      "bytes": 127840,
+      "sha256": "37206324314efd97155b6d7a751760e383827711c0645ae9ec9e8d1aff814f0b"
+    },
+    {
+      "path": "build/rng-release/texture-snapshot-tests",
+      "bytes": 84072,
+      "sha256": "fe9fcf0df9bdbddd29fa0b56bae7a1bd64a6ed42c912a04e431519794e41da61"
+    },
+    {
+      "path": "build/rng-release/startup-textures-tests",
+      "bytes": 433160,
+      "sha256": "9ace7f736caada380fac6c9c5b8ed9a741d9d5fdd92da6509debfa15584762a5"
+    },
+    {
+      "path": "build/rng-release/startup-inputs-tests",
+      "bytes": 461112,
+      "sha256": "2019b4ade209430d7fb682fc9481fc26ca61277fb2df1747de3a030f138ce32f"
+    },
+    {
+      "path": "build/rng-release/texture-handles-tests",
+      "bytes": 192616,
+      "sha256": "1744a1fb0b8dbe792bb512591cc1809b8cbf3b6341b784a06ebaf7f3f5333ebe"
+    },
+    {
+      "path": "build/rng-release/gs-texture-address-tests",
+      "bytes": 37096,
+      "sha256": "c4612320338d4b2c988c00404cb74a00a81ad2e39e82f3eb11252bb56c9d4141"
+    },
+    {
+      "path": "build/rng-release/effect-tests",
+      "bytes": 578048,
+      "sha256": "c9e5481cf0480a7355ac8dee5b5dced6208ebdec4b22bd500421046d2fb98b89"
+    },
+    {
+      "path": "build/rng-release/field-tests",
+      "bytes": 1244440,
+      "sha256": "f3c9279065fa76c4c7f304081ac855c040c020ae76cf67a92fd7d8e1dd87d390"
+    },
+    {
+      "path": "build/rng-release/asset-tests",
+      "bytes": 58744,
+      "sha256": "59cd6503d1943f594da33ce18634509a164347de885dcf4e0e91563dc7f5105e"
+    },
+    {
+      "path": "build/rng-release/xim-raw-tests",
+      "bytes": 98752,
+      "sha256": "f15f15b6cb364d3ab601f8f7818c57a6d785cb612069fd895b7887c014bc52b9"
+    },
+    {
+      "path": "build/rng-release/okage-native.app/Contents/MacOS/okage-native",
+      "bytes": 3446672,
+      "sha256": "ce1f62b1296946be63355e3623a8d0ab74f765e2371dba7c789a8b0a4a9fa26f"
+    },
+    {
+      "path": "build/rng-sanitize/texture-memory-tests",
+      "bytes": 721704,
+      "sha256": "f6921afd5c6768dfda1f649e30e0072c69f89f7d1470d354edeec58ac6107b77"
+    },
+    {
+      "path": "build/rng-sanitize/texture-transfer-tests",
+      "bytes": 1624120,
+      "sha256": "f097b9eab406b40ca6bb54b47fbff50fd07a9ab57b6a78b30232945b47ff0728"
+    },
+    {
+      "path": "build/rng-sanitize/texture-format-tests",
+      "bytes": 1381848,
+      "sha256": "894f76179788183e4403e1b42b3e647968df84b25588c5d0fbc4148a584b26cc"
+    },
+    {
+      "path": "build/rng-sanitize/texture-psm1-tests",
+      "bytes": 1682032,
+      "sha256": "f0e839f8239cebf2bfbf11d9836314bed269f9a48731819ecc9422b249c75e12"
+    },
+    {
+      "path": "build/rng-sanitize/texture-snapshot-tests",
+      "bytes": 890456,
+      "sha256": "68c70d925efb7dfb0144f053528359184c58362a0b49ea1682d720f2155ab70b"
+    },
+    {
+      "path": "build/rng-sanitize/startup-textures-tests",
+      "bytes": 3765672,
+      "sha256": "b19b5ca15f870fd32cf677452b781f05e87865b3296b2725e336b91ea961cd3a"
+    },
+    {
+      "path": "build/rng-sanitize/texture-handles-tests",
+      "bytes": 2548488,
+      "sha256": "5d426d511e66f97368e3492264e3798d7add4118b962d2f1a81846e3535e8e39"
+    },
+    {
+      "path": "build/rng-sanitize/gs-texture-address-tests",
+      "bytes": 105688,
+      "sha256": "e43fe582201aabd7a05827d69754e3cd0daae69902075b3c31bbfc0cc77581ed"
+    },
+    {
+      "path": "build/rng-sanitize/effect-tests",
+      "bytes": 5420016,
+      "sha256": "3d30405d91d1a769c18f5e5dbbc542f623d3f7e2fc6a59add09c14a5560d81cc"
+    },
+    {
+      "path": "build/rng-sanitize/asset-tests",
+      "bytes": 596232,
+      "sha256": "05f1fec6bc03f51ceb4b3cb0ed29f68f27493bb5679d92ea1f667a0db81ebb43"
+    },
+    {
+      "path": "build/rng-sanitize/xim-raw-tests",
+      "bytes": 993936,
+      "sha256": "7eeb5eff2f486f6fb729349f6871766bd360f93dbda6db492d3c9569f7c56f70"
+    },
+    {
+      "path": "build/rng-sanitize/okage-native.app/Contents/MacOS/okage-native",
+      "bytes": 26378624,
+      "sha256": "2b86396572217157506511a3fcbf84f5875d61700f7413c6ae4fead3ccec5aae"
+    }
+  ],
+  "retained_native_binary_source_head": "b8c59ce9e835b9590cae960c5735efa4e23b1c0b",
+  "evidence": [
+    {
+      "path": "local/research/title-followup-review-v1/alignment-audit/alignment-audit.out",
+      "bytes": 358,
+      "sha256": "beeeacfd528cbf36d0e63af41c31deba89f86975e113451e265b5e03b9c2bf8b"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/alignment-audit/manifest.json",
+      "bytes": 8053,
+      "sha256": "8b5a87d4955d2dbbaaf69473da11adf37424421f8792dabc8b241a151f99dc9f"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/alignment-audit/reproduce_alignment_gap.py",
+      "bytes": 7768,
+      "sha256": "d7b2fea923fb9a97bc79a24b24e58a25ec2a06d0ecbfab011ec7b3af1c5361a5"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/alignment-audit/synthetic-a/command.txt",
+      "bytes": 19,
+      "sha256": "3b8b9f7881f0fa7d4bfb3d78b0629ddd1bdf8c721befe679647f2b03515bae17"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/alignment-audit/synthetic-a/f.png.audio.pcm",
+      "bytes": 80,
+      "sha256": "c2afb8ad6afa2d544712d07755d910737816c8703102c20d2a956f65ce8392a9"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/alignment-audit/synthetic-a/f.png.startup.bin",
+      "bytes": 432,
+      "sha256": "a2e9fbe23171ae3513ae50b018a8405d3b97e5f8aeeefb5f6365daf1167e4f3b"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/alignment-audit/synthetic-a/f.png.title-state.bin",
+      "bytes": 96,
+      "sha256": "5ff250ad0fa454dc948c05ce86d0dbfd888af4a6fa04f77b06e6ed45cc1ed978"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/alignment-audit/synthetic-a/stdout.txt",
+      "bytes": 79,
+      "sha256": "0e191a01f94c1a13bf9e6c072be4cce194ae031378a011af6fed7af5bc4e37b5"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/alignment-audit/synthetic-b/command.txt",
+      "bytes": 19,
+      "sha256": "3b8b9f7881f0fa7d4bfb3d78b0629ddd1bdf8c721befe679647f2b03515bae17"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/alignment-audit/synthetic-b/f.png.audio.pcm",
+      "bytes": 80,
+      "sha256": "c2afb8ad6afa2d544712d07755d910737816c8703102c20d2a956f65ce8392a9"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/alignment-audit/synthetic-b/f.png.startup.bin",
+      "bytes": 432,
+      "sha256": "a2e9fbe23171ae3513ae50b018a8405d3b97e5f8aeeefb5f6365daf1167e4f3b"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/alignment-audit/synthetic-b/f.png.title-state.bin",
+      "bytes": 96,
+      "sha256": "5ff250ad0fa454dc948c05ce86d0dbfd888af4a6fa04f77b06e6ed45cc1ed978"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/alignment-audit/synthetic-b/stdout.txt",
+      "bytes": 79,
+      "sha256": "0e191a01f94c1a13bf9e6c072be4cce194ae031378a011af6fed7af5bc4e37b5"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/ctest-release.txt",
+      "bytes": 1888,
+      "sha256": "1481978be20a90f0928e3e52dddd86df7c695ac7c4c19f1b747a21947f989210"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/ctest-sanitize.txt",
+      "bytes": 1459,
+      "sha256": "467e0171085a893be21fd82a19c11a9baa63c3eff6e7fb2ea6a325f3842f40fa"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/fresh-comparisons.json",
+      "bytes": 1223,
+      "sha256": "bb2afb1aebdffb8558e2f6444e3cd5541b89a5acfe72b1a05a126d34291488e2"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/fresh-rng.txt",
+      "bytes": 261,
+      "sha256": "a2aa1f17f530f5d9de2cfa802affeb371a9a41da2f0587eb5453f62502e46a79"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/fresh-session-command.json",
+      "bytes": 954,
+      "sha256": "d9e3213c6a92a734fd648bc3d3be236ebb7ce49a1ca5682b94573a4b86c9ab13"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/fresh-startup.txt",
+      "bytes": 642,
+      "sha256": "e962f3e5e58385b59d2202170b3e8ff5bf65aaa34e4312e72c0fa8b632a8f435"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/fresh-timeline.txt",
+      "bytes": 321,
+      "sha256": "54f1c4cac23d95402567e7150e837c2673e49772dedd48365cc48f5df80a00be"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/fresh-title.txt",
+      "bytes": 1205,
+      "sha256": "002f307902e26d2b5b01606de64218c026cd0b87cdeafe3524eccb928ea9e447"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/python.txt",
+      "bytes": 145,
+      "sha256": "f22ff9ca53d3d5cb00a58f4dc1e40194c9b88380a24b72cff46afb13dc9dd699"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png",
+      "bytes": 143685,
+      "sha256": "ee98b4a1dd0cbe3037376c16f8d92edb526732406c3ffd37edd37291fab32031"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.actors-state.json",
+      "bytes": 459,
+      "sha256": "5117fe6dd11d474971d59d39543a218687a63eb0d316ac8ed07fde452cd8aa8e"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.audio.json",
+      "bytes": 159,
+      "sha256": "b6d9889afaa71c38192a446ce49cc065d016582422f4d995d6918df32fd67760"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.audio.pcm",
+      "bytes": 2240000,
+      "sha256": "fec94f5a01912482f2e51599b32762bd9aa3ef779c3ae6f009d04ddf02feb3dc"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.battle-capture.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.battle-loading.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.battle-transition.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.chapter-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.choices.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.dialogue.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.effect-submissions.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.effects.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.game-mode.bin",
+      "bytes": 140000,
+      "sha256": "efb1418f7f5c13b228d0a649f7ea2e1ecacb7cf6a7b4887b4fb66d14ce8adc14"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.json",
+      "bytes": 1066,
+      "sha256": "43b0446045a08ffe0f73158b2caa9e3f6abec613e93ccaf2d76b0ab3e0d4a8ac"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.map-effects.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.music.bin",
+      "bytes": 14000,
+      "sha256": "411c4c3fa136d9e9e678f6aeabb8da2e0ede9d2bb1154cd75e01b9b07ae1af89"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.name-entry-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.ordinary-load.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.restore-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.results.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.retiring-effects.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.save-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.screen-filter.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.sound.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.startup.bin",
+      "bytes": 29136,
+      "sha256": "5299a5ba9b39e120a2bd04f45e4d90471fc147417f850a0184c6ecb9ca99c11b"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.title-state.bin",
+      "bytes": 15136,
+      "sha256": "d6e40959b39b3f968ccaf300708c692f3663f499e710ebc57257be3663d4a9d0"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.transition.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.ui-party.bin",
+      "bytes": 288,
+      "sha256": "2d5565fb483d8ea4525a7a9229677d1038ad34b6e22c8d5152e1d7f7b9817597"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/f.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "e60c9a02a5d238320d7847cdff651113f48a0322b8735b19983fe0044ac3a1d6"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/startup-report/effects.json",
+      "bytes": 464044,
+      "sha256": "9ddfb648312b274e678cb324bbed88cc4061db1ef06e6efd756c3fc781903539"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/startup-report/lifecycle.jsonl",
+      "bytes": 15414,
+      "sha256": "9325f3fc54c31e3e9dff5ae981afd4af2172f975da68384c8c437acb9f53ec8f"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/startup-report/rng.jsonl",
+      "bytes": 613171,
+      "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/startup-report/state.json",
+      "bytes": 51481,
+      "sha256": "e1d4cb42425f67ddeef7d76cbbef2c7527ddceb2495ae1c9a28a520d0174bc6e"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/startup-report/timeline.jsonl",
+      "bytes": 12148,
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/startup-report/vram.bytes",
+      "bytes": 4194304,
+      "sha256": "3d61f88d55f22717a482392a7c4931dc8ee9db4f2c539053c595b31ae007b29c"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/startup-report/vram.known",
+      "bytes": 4194304,
+      "sha256": "6034fc2fe26307cba39e47af1f72bd10b8eebe734184bd99c779dde2a82b269d"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/stdout.txt",
+      "bytes": 475,
+      "sha256": "c276d24201e9cf97106c7989e31aef67722619e2b41f8766f74d2cb3cbf7e454"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/title-report/lifecycle.jsonl",
+      "bytes": 41529,
+      "sha256": "1f7543b3577a96592fdb5758085bbfb8283b0d7ca3634934fa2b7cd0b286dafa"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/title-report/rng.jsonl",
+      "bytes": 613171,
+      "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/title-report/startup-timeline.jsonl",
+      "bytes": 12148,
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/title-report/state.json",
+      "bytes": 73060,
+      "sha256": "7c2980e34eaa3d415297cd6fbd4bcb883ed00818504cb38517e39a050142e163"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/title-report/timeline.jsonl",
+      "bytes": 41529,
+      "sha256": "1f7543b3577a96592fdb5758085bbfb8283b0d7ca3634934fa2b7cd0b286dafa"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/title-report/vram.bytes",
+      "bytes": 4194304,
+      "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/session/title-report/vram.known",
+      "bytes": 4194304,
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/title-compare-release.txt",
+      "bytes": 1205,
+      "sha256": "002f307902e26d2b5b01606de64218c026cd0b87cdeafe3524eccb928ea9e447"
+    },
+    {
+      "path": "local/research/title-followup-review-v1/title-compare-sanitize.txt",
+      "bytes": 1205,
+      "sha256": "002f307902e26d2b5b01606de64218c026cd0b87cdeafe3524eccb928ea9e447"
+    }
+  ],
+  "not_rerun": [
+    "Full Release/Debug suites",
+    "Full Python suite",
+    "5903-second sanitizer lifecycle",
+    "Original Play VM capture"
+  ],
+  "findings": [
+    "Alignment comparator accepts common missing phase records; synthetic 5/6 passes; historical logos600/602 in each pair. Fix assigned before Retire expansion.",
+    "Stage manifest not pinned in historical Title run evidence; all17668 listed files validate now. Current audit is not retrospective provenance.",
+    "Logical and Metal NIGHT_V XIM reads remain separate; reuse owned bytes in Retire."
+  ],
+  "preservation": "No preview/process/save/worktree action and no visible game window; headless review Session used separate saves/output."
+}
