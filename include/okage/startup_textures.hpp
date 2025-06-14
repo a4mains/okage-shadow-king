@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <functional>
+#include <memory>
 #include <optional>
 #include <span>
 #include <string>
@@ -142,6 +143,8 @@ public:
     const std::vector<int>& image_list() const noexcept { return image_list_; }
     // Binding table of the last bound model (handles[i] for name index i; -7/-1 past the tail).
     const std::vector<int>& model_binding() const noexcept { return model_binding_; }
+    using OwnedBytes = std::shared_ptr<const std::vector<std::uint8_t>>;
+    const std::vector<OwnedBytes>& model_slot_bytes() const noexcept { return model_slot_bytes_; }
     bool started() const noexcept { return started_; }
     Ps2TextureMemory& memory() noexcept { return memory_; }
     const Ps2TextureMemory& memory() const noexcept { return memory_; }
@@ -202,6 +205,7 @@ private:
     MemoryContentCoverage memory_coverage_{MemoryContentCoverage::UploadsExact};
     std::vector<int> image_list_;
     std::vector<int> model_binding_;
+    std::vector<OwnedBytes> model_slot_bytes_;
     std::string unmodeled_reason_;
     void require_stage(ResourceStage expected, const char* operation) const;
     void advance(ResourceStage next);

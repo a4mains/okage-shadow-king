@@ -1,4 +1,5 @@
 #import <AppKit/AppKit.h>
+#include "okage/input_log.hpp"
 #include "okage/dialogue.hpp"
 #include "okage/event.hpp"
 #include "okage/game_state.hpp"
@@ -56,7 +57,8 @@ static constexpr unsigned diagnosticFrameLimit=120000;
 static std::vector<std::uint8_t> readData(const fs::path& path) {
     const auto n=fs::file_size(path);if(n>128*1024*1024)throw std::runtime_error("Runtime input limit");
     std::vector<std::uint8_t> b(n);std::ifstream in(path,std::ios::binary);
-    if(!in.read(reinterpret_cast<char*>(b.data()),b.size()))throw std::runtime_error("Cannot read runtime input");return b;
+    if(!in.read(reinterpret_cast<char*>(b.data()),b.size()))throw std::runtime_error("Cannot read runtime input");
+    okage::record_input_read(path,b);return b;
 }
 static okage::TextureAnimation readActorTextures(const fs::path& path) {
     // 0x1b6a18 initializes empty bindings and ignores 0x1b6848's missing-XTA
@@ -1266,6 +1268,16 @@ struct Session {
                 if(selection==okage::GameModeSelection{8,1,0}) {
                     std::shared_ptr<const std::array<std::vector<std::uint8_t>,8>> title_images;
                     std::shared_ptr<const std::vector<std::uint8_t>> title_model;
+                    std::vector<std::shared_ptr<const std::vector<std::uint8_t>>> title_model_textures;
+                    const auto night_v=field_root.parent_path()/"CMNDATA/2D/NIGHT_V.XPF";
+                    //1c2e68 -> 0x1bc700 lower-cases the mounted-archive query IN PLACE
+                    //(ASCII 'A'..'Z' via the ctype table); 1cc4e0 then names the handle with it.
+                    const auto night_v_reader=[night_v](std::string& name)->std::optional<std::vector<std::uint8_t>> {
+                        std::transform(name.begin(),name.end(),name.begin(),[](unsigned char c){
+                            return char(c>='A'&&c<='Z'?c+32:c);});
+                        if(!fs::exists(night_v/name))return std::nullopt;
+                        return readData(night_v/name);
+                    };
                     if(startup_textures&&startup_textures->stage()!=okage::ResourceStage::LogosRetired)
                         startup_textures->mark_unmodeled("title constructed again after unmodeled history");
                     if(startup_textures&&startup_textures->stage()==okage::ResourceStage::LogosRetired) {
@@ -1278,22 +1290,22 @@ struct Session {
                             startup_textures->append_image((*images)[i]);
                         }
                         title_images=images;
-                        const auto night_v=field_root.parent_path()/"CMNDATA/2D/NIGHT_V.XPF";
                         auto model_bytes=std::make_shared<const std::vector<std::uint8_t>>(readData(night_v/"a.xmd"));
                         title_model=model_bytes;
                         const auto model=okage::read_xmd(*model_bytes);
-                        startup_textures->load_and_bind_model("NIGHT_V/a.xmd",model.textures,
-                            [night_v](std::string& name)->std::optional<std::vector<std::uint8_t>> {
-                                //1c2e68 -> 0x1bc700 lower-cases the mounted-archive query IN PLACE
-                                //(ASCII 'A'..'Z' via the ctype table); 1cc4e0 then names the handle with it.
-                                std::transform(name.begin(),name.end(),name.begin(),[](unsigned char c){
-                                    return char(c>='A'&&c<='Z'?c+32:c);});
-                                if(!fs::exists(night_v/name))return std::nullopt;
-                                return readData(night_v/name);
-                            });
+                        startup_textures->load_and_bind_model("NIGHT_V/a.xmd",model.textures,night_v_reader);
+                        title_model_textures=startup_textures->model_slot_bytes();
+                    } else {
+                        auto model_bytes=std::make_shared<const std::vector<std::uint8_t>>(readData(night_v/"a.xmd"));
+                        title_model=model_bytes;
+                        for(auto name:okage::read_xmd(*model_bytes).textures) {
+                            name+=".xim";auto bytes=night_v_reader(name);
+                            if(!bytes)throw std::runtime_error("Title model texture unavailable: "+name);
+                            title_model_textures.push_back(std::make_shared<const std::vector<std::uint8_t>>(std::move(*bytes)));
+                        }
                     }
                     title=std::make_unique<okage::TitleSession>(scene_clear,scene_fade,ui_shared,game_over_shared,
-                        okage::TitleConstruction{field_root.parent_path()/"CMNDATA",effect_textures,verified_effect_textures,title_images,title_model,effect_bytes,
+                        okage::TitleConstruction{field_root.parent_path()/"CMNDATA",effect_textures,verified_effect_textures,title_images,title_model,title_model_textures,effect_bytes,
                         [this]{if(music)music->stop();},[this]{
                             if(music_directory.empty())throw std::runtime_error("Title theme needs imported SNDDATA directory");
                             const auto root=music_directory.parent_path()/"STR";
@@ -2558,7 +2570,7 @@ int main(int argc,const char** argv) {
     @autoreleasepool {
     std::unique_ptr<okage::InputJournal> inputJournal;
     try {
-        if(argc<3)throw std::runtime_error("Usage: okage-native --game-data DIRECTORY [--save-directory DIRECTORY] OR okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --buttons INPUT (held non-directional masks; bounded replay only) --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--load-observation FRESH.jsonl (bounded replay; host scheduling diagnostics)] [--battle-readback synchronous|deferred (replay policy; live always deferred)] [--replay-loading continuous|cooperative (cooperative requires deferred readback)] [--replay-display-from N (bounded cooperative replay; real host display callbacks and full rendering from N)] [--performance-report FRESH.jsonl (interactive/preview/UI test)] [--input-journal FRESH.jsonl] [--pause-captures FRESH_DIRECTORY (interactive diagnostics, not saved games)] [--headless-control FRESH_DIRECTORY (stdin controller steps after --frames; no window)]");
+        if(argc<3)throw std::runtime_error("Usage: okage-native --game-data DIRECTORY [--save-directory DIRECTORY] OR okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --buttons INPUT (held non-directional masks; bounded replay only) --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--load-observation FRESH.jsonl (bounded replay; host scheduling diagnostics)] [--battle-readback synchronous|deferred (replay policy; live always deferred)] [--replay-loading continuous|cooperative (cooperative requires deferred readback)] [--replay-display-from N (bounded cooperative replay; real host display callbacks and full rendering from N)] [--performance-report FRESH.jsonl (interactive/preview/UI test)] [--input-journal FRESH.jsonl] [--input-log FRESH.jsonl (path/sha256 of every asset read)] [--pause-captures FRESH_DIRECTORY (interactive diagnostics, not saved games)] [--headless-control FRESH_DIRECTORY (stdin controller steps after --frames; no window)]");
         const bool coldStart=std::string_view(argv[1])=="--game-data";
         fs::path gameDataRoot,saveDirectory,startupTextureReport,titleResourceReport;
         fs::path fontDirectory=coldStart?fs::path{}:fs::path(argv[1]),messagePath=coldStart?fs::path{}:fs::path(argv[2]);
@@ -2579,6 +2591,10 @@ int main(int argc,const char** argv) {
             else if(arg=="--save-directory")saveDirectory=argv[i];
             else if(arg=="--startup-texture-report")startupTextureReport=argv[i];
             else if(arg=="--title-resource-report")titleResourceReport=argv[i];
+            else if(arg=="--input-log") {
+                if(okage::input_log_enabled()||fs::exists(argv[i]))throw std::runtime_error("Input log requires one fresh file");
+                okage::enable_input_log(argv[i]);
+            }
             else if(arg=="--frames")frames=std::stoul(argv[i]);
             else if(arg=="--headless-control") {
                 if(headlessControlPath||!argv[i][0])throw std::runtime_error("Headless control requires one fresh directory");

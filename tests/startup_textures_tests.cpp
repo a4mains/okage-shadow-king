@@ -323,10 +323,13 @@ int main() {
             const int stray = o.handles().create_handle(std::nullopt);
             std::vector<std::string> names{"Tex_A", "tex_b", "TEX_A", "missing", "tex_c"};
             int reads = 0;
+            std::vector<std::vector<std::uint8_t>> returned;
             const auto result = o.load_and_bind_model("MODEL/a.xmd", names, [&](const std::string& f) -> std::optional<std::vector<std::uint8_t>> {
                 ++reads;
-                if (f == "missing.xim") return effect_xim({19, 256, 64, 32}, 99);  // loads fine
-                return effect_xim({19, 256, 32, 32}, static_cast<unsigned>(f.size()));
+                auto bytes = f == "missing.xim" ? effect_xim({19, 256, 64, 32}, 99)  // loads fine
+                                                : effect_xim({19, 256, 32, 32}, static_cast<unsigned>(f.size()) + reads);
+                returned.push_back(bytes);
+                return bytes;
             });
             require(reads == 5 && result.first >= 0, "cache off: every name read, duplicates load again");
             const auto& binding = o.model_binding();
@@ -335,6 +338,16 @@ int main() {
                 require(binding[i] == o.handles().live_successor(binding[i - 1]), "successor walk, not first+i");
             require(o.handles().live_successor(binding.back()) == -7 && o.handles().live_successor(-7) == -1,
                     "past the tail: -7 then -1");
+            const auto& slot_bytes = o.model_slot_bytes();
+            require(slot_bytes.size() == binding.size(), "one owned-byte entry per slot");
+            for (std::size_t i = 0; i < binding.size(); ++i) {
+                std::size_t name = result.names.size();
+                for (std::size_t j = 0; j < result.names.size(); ++j)
+                    if (result.names[j].handle == binding[i]) name = j;
+                require(name < result.names.size() && slot_bytes[i] && *slot_bytes[i] == returned[name],
+                        "slot bytes are the bytes read for the handle bound there");
+            }
+            require(*slot_bytes[0] != *slot_bytes[2], "case-variant duplicate keeps its own read");
             (void)stray;
             o.finish_title_construction();
             require(o.stage() == ResourceStage::TitleConstructed, "title stage");

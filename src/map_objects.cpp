@@ -1,3 +1,4 @@
+#include "okage/input_log.hpp"
 #include "okage/map_objects.hpp"
 #include "okage/map.hpp"
 #include <fstream>
@@ -15,7 +16,7 @@ std::vector<std::uint8_t> read(const std::filesystem::path& path) {
     std::vector<std::uint8_t> bytes(size);std::ifstream input(path,std::ios::binary);
     if(!input.read(reinterpret_cast<char*>(bytes.data()),bytes.size()))
         throw std::runtime_error("Cannot read map object asset");
-    return bytes;
+    record_input_read(path,bytes);return bytes;
 }
 }
 std::vector<MapCollisionBinding> map_collision_bodies(const MapFile& map) {

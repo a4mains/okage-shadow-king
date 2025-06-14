@@ -1,3 +1,4 @@
+#include "okage/input_log.hpp"
 #include "battle_session.hpp"
 #include "battle_filter_metal.hpp"
 #include "ui_metal.hpp"
@@ -107,7 +108,7 @@ std::vector<std::uint8_t> read(const fs::path& path) {
     std::vector<std::uint8_t> result(size);std::ifstream in(path,std::ios::binary);
     if(!in.read(reinterpret_cast<char*>(result.data()),result.size()))
         throw std::runtime_error("Cannot read battle asset: "+path.string());
-    return result;
+    record_input_read(path,result);return result;
 }
 std::uint32_t word(Bytes b,unsigned at) {
     if(at>b.size()||b.size()-at<4)throw std::runtime_error("Battle asset word bounds");

@@ -12,7 +12,9 @@ struct TitleConstruction {
     std::shared_ptr<const SceneRenderer::EffectTextureBytes> verified_effect_textures;
     // Cold startup: the SCR bytes the Session already loaded logically (title_image_names order).
     std::shared_ptr<const std::array<std::vector<std::uint8_t>,8>> images;
+    // Cold startup: the NIGHT_V a.xmd bytes the Session loaded logically.
     std::shared_ptr<const std::vector<std::uint8_t>> model;
+    std::vector<std::shared_ptr<const std::vector<std::uint8_t>>> model_textures;
     Bytes effect_data;
     std::function<void()> stop_music,start_theme;
 };

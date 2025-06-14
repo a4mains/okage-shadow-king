@@ -1,3 +1,4 @@
+#include "okage/input_log.hpp"
 #include "title_session.hpp"
 #include "image_metal.hpp"
 #include <algorithm>
@@ -12,7 +13,7 @@ std::vector<std::uint8_t> read(const std::filesystem::path& path) {
     const auto n=std::filesystem::file_size(path);
     check(n<=64*1024*1024,"Title asset extent");
     std::vector<std::uint8_t> data(n);std::ifstream in(path,std::ios::binary);
-    check(bool(in.read(reinterpret_cast<char*>(data.data()),n)),"Title asset read");return data;
+    check(bool(in.read(reinterpret_cast<char*>(data.data()),n)),"Title asset read");record_input_read(path,data);return data;
 }
 Float4 floats(const TitleVector& words){Float4 result;for(unsigned i=0;i<4;++i)result[i]=std::bit_cast<float>(words[i]);return result;}
 TitleVector words(const Float4& value){TitleVector result;for(unsigned i=0;i<4;++i)result[i]=std::bit_cast<std::uint32_t>(value[i]);return result;}
@@ -60,7 +61,7 @@ struct TitleSession::Impl {
         task.texture=renderer->add_effect_texture(images[7]);
         const auto model_path=construction.common_root/"2D/NIGHT_V.XPF/a.xmd";
         model=std::make_unique<FieldActor>(read_xmd(construction.model?Bytes(*construction.model):Bytes(read(model_path))));
-        renderer->add_actor({model.get(),model_path,0,SceneActorDescriptor{0,false}});
+        renderer->add_actor({model.get(),model_path,0,SceneActorDescriptor{0,false},construction.model_textures});
         renderer->set_stage_environment(settings.lighting,settings.shadows,settings.sky);
         renderer->set_sort_depth_shift(settings.bucket_base);renderer->set_clear_rgb(clear.rgb);
         renderer->bind_effect_submissions(&submissions);

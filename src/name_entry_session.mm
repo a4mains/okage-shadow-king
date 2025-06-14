@@ -1,3 +1,4 @@
+#include "okage/input_log.hpp"
 #include "name_entry_session.hpp"
 #include "results_renderer.hpp"
 #include "okage/ui_geometry.hpp"
@@ -5,7 +6,7 @@
 #include <stdexcept>
 namespace okage {
 namespace {
-std::vector<std::uint8_t> read(const std::filesystem::path& path){const auto n=std::filesystem::file_size(path);if(n>64*1024*1024)throw std::runtime_error("Name asset extent");std::vector<std::uint8_t> b(n);std::ifstream in(path,std::ios::binary);if(!in.read(reinterpret_cast<char*>(b.data()),n))throw std::runtime_error("Name asset read");return b;}
+std::vector<std::uint8_t> read(const std::filesystem::path& path){const auto n=std::filesystem::file_size(path);if(n>64*1024*1024)throw std::runtime_error("Name asset extent");std::vector<std::uint8_t> b(n);std::ifstream in(path,std::ios::binary);if(!in.read(reinterpret_cast<char*>(b.data()),n))throw std::runtime_error("Name asset read");record_input_read(path,b);return b;}
 }
 struct NameEntrySession::Impl {
     bool live=true;unsigned phase=0;

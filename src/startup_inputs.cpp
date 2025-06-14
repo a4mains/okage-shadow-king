@@ -1,3 +1,4 @@
+#include "okage/input_log.hpp"
 #include "okage/startup_inputs.hpp"
 
 #include <algorithm>
@@ -230,6 +231,7 @@ std::vector<std::uint8_t> read_file(const std::filesystem::path& root, const std
     if (!bytes.empty()) stream.read(reinterpret_cast<char*>(bytes.data()), static_cast<std::streamsize>(size));
     if (!stream || static_cast<std::uintmax_t>(stream.gcount()) != size)
         fail(relative, "file could not be read completely");
+    record_input_read(path, bytes);
     return bytes;
 }
 

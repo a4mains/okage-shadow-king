@@ -1,4 +1,5 @@
 #import <Metal/Metal.h>
+#include "okage/input_log.hpp"
 #include "okage/scene_renderer.hpp"
 #include <optional>
 #include "okage/map.hpp"
@@ -24,7 +25,8 @@ namespace {
 std::vector<std::uint8_t> read(const fs::path& path) {
     const auto n=fs::file_size(path);if(n>128*1024*1024)throw std::runtime_error("Scene input limit");
     std::vector<std::uint8_t> b(n);std::ifstream in(path,std::ios::binary);
-    if(!in.read(reinterpret_cast<char*>(b.data()),b.size()))throw std::runtime_error("Cannot read scene input");return b;
+    if(!in.read(reinterpret_cast<char*>(b.data()),b.size()))throw std::runtime_error("Cannot read scene input");
+    okage::record_input_read(path,b);return b;
 }
 struct SceneBackend {
     id<MTLDevice> device;
@@ -154,7 +156,8 @@ struct SceneRenderer::Impl {
         std::vector<std::vector<ModelBlockBound>> fieldBounds;
         std::vector<std::size_t> textureBases;
     };
-    struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;std::optional<MapTransform> facing;std::optional<std::size_t> placement;bool visible=true;bool afterShadows=false;std::uint32_t flags=0;unsigned ordinal=0;bool special=false;std::optional<SceneActorDescriptor> descriptor{};};
+    struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;std::optional<MapTransform> facing;std::optional<std::size_t> placement;bool visible=true;bool afterShadows=false;std::uint32_t flags=0;unsigned ordinal=0;bool special=false;std::optional<SceneActorDescriptor> descriptor{};
+        std::vector<std::shared_ptr<const std::vector<std::uint8_t>>> textureBytes{};};
     const MapObjects* mapObjects=nullptr;
     SineTable sine=make_sine_table();
     std::vector<Input> inputs;
@@ -266,12 +269,22 @@ struct SceneRenderer::Impl {
         Input input{binding.model_path,binding.actor->model(),{},binding.actor,{},{},true,shadow.ordinary_after_shadows()};
         input.flags=shadow.flags;input.ordinal=nextFrontOrdinal;
         input.special=!binding.descriptor&&(name=="wkumo"||name=="rkumo"||name=="bkumo");
-        input.descriptor=binding.descriptor;
+        input.descriptor=binding.descriptor;input.textureBytes=binding.texture_bytes;
         return {std::move(input),std::move(shadow)};
     }
     static std::vector<Texture> inputTextures(const Input& input) {
         std::vector<Texture> images;
-        for(auto name:input.actor ? input.actor->textures().names() : input.model.textures) {
+        const auto& names=input.actor ? input.actor->textures().names() : input.model.textures;
+        if(!input.textureBytes.empty()) {
+            //Owned bytes from the caller's source-order load: no second file read.
+            if(input.textureBytes.size()!=names.size())throw std::runtime_error("Owned model texture count");
+            for(const auto& bytes:input.textureBytes) {
+                if(!bytes)throw std::runtime_error("Owned model texture unavailable");
+                images.push_back(decode_xim(*bytes));
+            }
+            return images;
+        }
+        for(auto name:names) {
             const fs::path relative=name;
             if(relative.is_absolute() || relative.has_parent_path())throw std::runtime_error("Unsafe scene texture path");
             if(relative.extension().empty())name+=".xim";

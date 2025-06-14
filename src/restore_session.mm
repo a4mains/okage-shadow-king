@@ -1,3 +1,4 @@
+#include "okage/input_log.hpp"
 #include "restore_session.hpp"
 #include "results_renderer.hpp"
 #include "okage/restore_data.hpp"
@@ -20,7 +21,7 @@ void check(bool value,const char* why){if(!value)throw std::runtime_error(why);}
 std::vector<std::uint8_t> read(const std::filesystem::path& path) {
     const auto n=std::filesystem::file_size(path);check(n<=64*1024*1024,"Restore asset extent");
     std::vector<std::uint8_t> b(n);std::ifstream in(path,std::ios::binary);
-    check(bool(in.read(reinterpret_cast<char*>(b.data()),n)),"Restore asset read");return b;
+    check(bool(in.read(reinterpret_cast<char*>(b.data()),n)),"Restore asset read");record_input_read(path,b);return b;
 }
 std::uint32_t word(Bytes b,unsigned at){check(at+4<=b.size(),"Restore payload word");return unsigned(b[at])|unsigned(b[at+1])<<8|unsigned(b[at+2])<<16|unsigned(b[at+3])<<24;}
 int signed_word(Bytes b,unsigned at){return std::bit_cast<std::int32_t>(word(b,at));}

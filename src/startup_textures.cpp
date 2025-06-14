@@ -1,5 +1,6 @@
 #include "okage/startup_textures.hpp"
 
+#include <map>
 #include <cstdio>
 #include <bit>
 #include <fstream>
@@ -454,14 +455,30 @@ void StartupTextureOwner::begin_title_construction() {
 XmdLoadResult StartupTextureOwner::load_and_bind_model(const std::string& model, std::span<const std::string> names,
                                                        const TextureHandleOwner::FileReader& reader) {
     require_stage(ResourceStage::LogosRetired, "model load");
-    auto result = handles_.load_xmd_names(names, reader);
+    std::vector<OwnedBytes> read_bytes;  // one entry per file read, in read order
+    const TextureHandleOwner::FileReader capture = [&](std::string& name) {
+        auto bytes = reader(name);
+        read_bytes.push_back(bytes ? std::make_shared<const std::vector<std::uint8_t>>(*bytes) : nullptr);
+        return bytes;
+    };
+    auto result = handles_.load_xmd_names(names, capture);
     sync();
     model_binding_.clear();
+    model_slot_bytes_.clear();
     if (result.first < 0) return result;  // 12c350 returns early; no binding
+    std::map<int, OwnedBytes> created;
+    std::size_t read_index = 0;
+    for (const auto& outcome : result.names) {
+        if (outcome.kind == XmdNameOutcome::Kind::CacheHit) continue;  // no read
+        const auto& bytes = read_bytes.at(read_index++);
+        if (outcome.kind == XmdNameOutcome::Kind::Loaded && outcome.handle >= 0) created[outcome.handle] = bytes;
+    }
     // 0x182e28: count = name count; handles[i] = h; h = 0x1cc778(h).
     int h = result.first;
     for (std::size_t i = 0; i < names.size(); ++i) {
         model_binding_.push_back(h);
+        const auto found = created.find(h);
+        model_slot_bytes_.push_back(found == created.end() ? nullptr : found->second);
         lifecycle_push("{\"kind\":\"material\",\"model\":" + json_string(model) + ",\"slot\":" +
                        std::to_string(i) + ",\"handle\":" + std::to_string(h) + "}");
         h = handles_.live_successor(h);

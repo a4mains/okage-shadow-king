@@ -31,7 +31,8 @@ struct SceneGpuPass {
 #endif
 struct FieldOrdinaryLighting;
 struct SceneActorDescriptor {std::uint32_t flags;bool height_enabled;};
-struct SceneActor {const FieldActor* actor;std::filesystem::path model_path;int alias=0;std::optional<SceneActorDescriptor> descriptor{};};
+struct SceneActor {const FieldActor* actor;std::filesystem::path model_path;int alias=0;std::optional<SceneActorDescriptor> descriptor{};
+    std::vector<std::shared_ptr<const std::vector<std::uint8_t>>> texture_bytes{};};
 class SceneRenderer {
     struct Impl;
 public:

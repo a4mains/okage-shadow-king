@@ -11,7 +11,7 @@ target_sources(okage_assets PRIVATE src/game_mode.cpp)
 target_sources(okage_assets PRIVATE src/scene_resource.cpp)
 target_sources(okage_assets PRIVATE src/game_over.cpp src/title.cpp src/image_quad.cpp src/pcm_stream.cpp src/title_stream.cpp)
 target_sources(okage_assets PRIVATE src/chapter.cpp src/startup.cpp)
-target_sources(okage_assets PRIVATE src/sha256.cpp src/startup_inputs.cpp)
+target_sources(okage_assets PRIVATE src/sha256.cpp src/startup_inputs.cpp src/input_log.cpp)
 target_sources(okage_assets PRIVATE src/texture_memory.cpp src/texture_transfer.cpp src/texture_handles.cpp
     src/startup_textures.cpp)
 target_link_libraries(okage_assets PUBLIC okage_gs_texture_address)

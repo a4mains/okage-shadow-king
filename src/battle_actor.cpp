@@ -1,3 +1,4 @@
+#include "okage/input_log.hpp"
 #include "okage/battle_actor.hpp"
 #include "okage/battle_actor_math.hpp"
 #include "okage/event.hpp"
@@ -35,7 +36,7 @@ std::vector<std::uint8_t> read(const std::filesystem::path& path) {
     if(size>128*1024*1024)throw std::runtime_error("Battle model asset size");
     std::vector<std::uint8_t> b(size);std::ifstream in(path,std::ios::binary);
     if(!in.read(reinterpret_cast<char*>(b.data()),b.size()))throw std::runtime_error("Cannot read battle model asset");
-    return b;
+    record_input_read(path,b);return b;
 }
 std::filesystem::path model_path(const std::filesystem::path& decoded,std::string name,bool effect=false) {
     if(name.empty()||std::any_of(name.begin(),name.end(),[](unsigned char c){return !std::isalnum(c)&&c!='_'&&c!='-';}))
