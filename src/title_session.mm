@@ -97,11 +97,14 @@ void TitleSession::tick(GameOverPadSample pad,std::uint32_t confirm_mask,GameOve
         check(slot<p.effects.size(),"Title effect pool exhausted");
         p.effects[slot]=std::make_unique<MapEffect>(p.water_definition,floats(call.position),floats(call.rotation),floats(call.scale),
             p.renderer->effect_texture_sizes(),[&]{return random.next();},EffectStart::FirstFrame);
-        p.effects[slot]->source_position_w_available=false;p.first_water_color=true;return slot;
+        p.effects[slot]->source_position_w_available=false;p.first_water_color=true;
+        if(actions.observe_effect)actions.observe_effect({TitleEffectEvent::Op::Create,slot,call.definition,0,0});
+        return slot;
     };
     services.rebind_water=[&](unsigned slot,unsigned element,unsigned texture){
         check(slot<p.effects.size()&&p.effects[slot]&&texture==p.task.texture,"Title water texture owner");
         p.effects[slot]->rebind_water_texture(element,texture,p.images[7].width,p.images[7].height);
+        if(actions.observe_effect)actions.observe_effect({TitleEffectEvent::Op::Bind,slot,106,element,7});
     };
     services.set_water_color=[&](unsigned slot,const TitleVector& value){
         if(slot>=p.effects.size()||!p.effects[slot])return;
@@ -109,7 +112,10 @@ void TitleSession::tick(GameOverPadSample pad,std::uint32_t confirm_mask,GameOve
         effect.source_color_rgb_available=!p.first_water_color;p.first_water_color=false;
     };
     services.set_water_clamp=[&](unsigned slot,unsigned mode){if(slot<p.effects.size()&&p.effects[slot])p.effects[slot]->clamp_mode=mode;};
-    services.stop_water=[&](unsigned slot){if(slot<p.effects.size()&&p.effects[slot])p.effects[slot]->request_removal();};
+    services.stop_water=[&](unsigned slot){
+        if(slot<p.effects.size()&&p.effects[slot])p.effects[slot]->request_removal();
+        if(actions.observe_effect)actions.observe_effect({TitleEffectEvent::Op::RemovalRequest,slot,0,0,0});
+    };
     services.play_sound=actions.sound;services.reset_game=actions.reset_game;services.reset_progress=actions.reset_progress;
     services.select_saved_field=actions.select_saved_field;services.read_saved_field=actions.read_saved_field;
     title_update(p.task,shared.input,pad,confirm_mask,scratch,services);

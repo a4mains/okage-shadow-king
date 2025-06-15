@@ -18,12 +18,17 @@ struct TitleConstruction {
     Bytes effect_data;
     std::function<void()> stop_music,start_theme;
 };
+struct TitleEffectEvent {
+    enum class Op : std::uint8_t {Create,Bind,RemovalRequest} op;
+    unsigned slot{},definition{},element{},image_index{};
+};
 struct TitleActions {
     std::function<void(GameModeSelection)> request;
     std::function<void(unsigned)> sound;
     std::function<void()> reset_game,reset_progress;
     std::function<void(unsigned)> select_saved_field;
     std::function<std::array<std::uint32_t,2>(unsigned)> read_saved_field;
+    std::function<void(const TitleEffectEvent&)> observe_effect{}; // optional, observational only
 };
 class TitleSession {
 public:

@@ -29,6 +29,13 @@ enum class ResourceStage : std::uint8_t {
     LogosConstructed,
     LogosRetired,
     TitleConstructed,
+    // Retire (the title-retirement input contract): the title from the first 1296f8 to entry of 124548.
+    TitleActive,
+    TitleRemovalRequested,
+    TitleResourcesRetired,
+                            // image list (1b5fd0 -> 1b2240); then the mode-8 destructor 12c8d8 ran
+    TitleWrappersFreed,
+    SuccessorEntry,
     Unmodeled,
 };
 const char* to_string(ResourceStage);
@@ -138,6 +145,22 @@ public:
     XmdLoadResult load_and_bind_model(const std::string& model, std::span<const std::string> names,
                                       const TextureHandleOwner::FileReader& reader);
     void finish_title_construction();
+    void begin_title_updates();
+    // A named observation point inside a title stage (e.g. "stable-menu"); no state change.
+    void note_checkpoint(const char* name);
+    void note_effect_create(int slot, unsigned definition);
+    void note_effect_bind(int slot, unsigned element, int handle);
+    void note_effect_removal_request(int slot);
+    // 0x12a2d4 -> 124930(root, mode): the mode request in the frame the fade reaches zero.
+    void request_title_successor(unsigned mode);
+    void retire_title_resources();
+    // N+1 after 101058: the mode-8 destructor (12c8d8 -> 12dd50(1), a deferred theme fade).
+    void destroy_title_mode();
+    // N+2: resource node then mode-8 node unlinked and freed.
+    void free_title_wrappers();
+    // N+3: root phase 1 allocated and linked the successor node; stop at 124548 entry.
+    void enter_successor(unsigned mode);
+    unsigned successor_mode() const noexcept { return successor_mode_; }
     void mark_unmodeled(const char* reason);
     const std::string& unmodeled_reason() const noexcept { return unmodeled_reason_; }
     const std::vector<int>& image_list() const noexcept { return image_list_; }
@@ -207,12 +230,16 @@ private:
     std::vector<int> model_binding_;
     std::vector<OwnedBytes> model_slot_bytes_;
     std::string unmodeled_reason_;
+    unsigned successor_mode_{};
+    void title_event(ResourceStage from, ResourceStage to, std::string json);
     void require_stage(ResourceStage expected, const char* operation) const;
     void advance(ResourceStage next);
 };
 
 void write_startup_texture_report(const StartupTextureOwner& owner, const std::filesystem::path& dir);
 void write_session_resource_report(const StartupTextureOwner& owner, const std::filesystem::path& dir);
+void write_title_checkpoint_report(const StartupTextureOwner& owner, const std::filesystem::path& dir,
+                                   const std::string& checkpoint, std::uint32_t session_rng_state);
 
 void write_effect_preparation_report(const EffectTemplatePreparation& prepared, const EffectPreparationTrace& trace,
                                      const std::filesystem::path& dir);

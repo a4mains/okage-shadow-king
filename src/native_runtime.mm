@@ -170,7 +170,30 @@ struct Session {
     std::shared_ptr<const okage::StartupInputs> startup_inputs;
     std::shared_ptr<const okage::SceneRenderer::EffectTextureBytes> verified_effect_textures;
     std::string startup_textures_status="not initialized (no cold startup)";
-    fs::path startup_texture_report,resource_report;
+    fs::path startup_texture_report,resource_report,retirement_report;
+    std::vector<std::pair<std::string,unsigned>> title_checkpoint_frames;
+    void title_checkpoint(const char* name) {
+        startup_textures->note_checkpoint(name);
+        title_checkpoint_frames.emplace_back(name,frame);
+        if(!retirement_report.empty())
+            okage::write_title_checkpoint_report(*startup_textures,retirement_report/name,name,random.state);
+    }
+    bool title_modeled(okage::ResourceStage stage) const {return startup_textures&&startup_textures->stage()==stage;}
+    void write_title_route() {
+        if(retirement_report.empty())return;
+        std::ofstream out(retirement_report/"route.json",std::ios::binary);
+        const auto mode=startup_textures->successor_mode();
+        out<<"{\"route\":\""<<(mode==10?"restore":"new-game")<<"\",\"successor_mode\":"<<mode<<",\"checkpoints\":{";
+        for(std::size_t i=0;i<title_checkpoint_frames.size();++i)
+            out<<(i?",":"")<<"\""<<title_checkpoint_frames[i].first<<"\":"<<title_checkpoint_frames[i].second;
+        const auto stream=title_stream.state();
+        unsigned pending_effects=0;
+        if(retiring_effects)for(auto f:retiring_effects->flags())pending_effects+=f!=0;
+        out<<"},\"session_rng_state\":"<<random.state<<",\"tails\":{\"retiring_effect_slots\":"<<pending_effects
+           <<",\"theme_registered\":"<<(stream.registered?"true":"false")<<",\"theme_stop_pending\":"
+           <<(stream.stop_pending?"true":"false")<<",\"theme_stop_countdown\":"<<stream.stop_countdown<<"}}\n";
+        if(!out)throw std::runtime_error("Title route report write failed");
+    }
     std::unique_ptr<okage::AudioOutput> audio_output;
     std::vector<std::int16_t> audio_capture;
     std::vector<std::uint32_t> music_trace;
@@ -631,7 +654,7 @@ struct Session {
         const auto& owned=*owned_inputs;
         okage::StartupTextureInputs inputs;
         inputs.font_palette=owned.font_palette;inputs.fonts=owned.fonts;
-        inputs.record_observations=!startup_texture_report.empty()||!resource_report.empty();
+        inputs.record_observations=!startup_texture_report.empty()||!resource_report.empty()||!retirement_report.empty();
         const auto& names=okage::startup_effect_names();
         inputs.read_effect=[&owned,&names](const std::string& name)->std::optional<std::vector<std::uint8_t>> {
             for(unsigned i=0;i<names.size();++i)if(name==names[i])return owned.effects[i];
@@ -1142,9 +1165,6 @@ struct Session {
         //into the colour buffers and depth Z24 lanes (the title rendering contract).
         if(startup_textures&&startup_textures->stage()==okage::ResourceStage::PreScheduler)
             startup_textures->begin_scheduled_frames();
-        //The first 1296f8 title update (this tick) is past the modeled boundary.
-        if(startup_textures&&startup_textures->stage()==okage::ResourceStage::TitleConstructed)
-            startup_textures->mark_unmodeled("title updates are not modeled (first 1296f8)");
         if(game_mode) {
             observe_game_mode(0);
             game_mode->tick([this]{
@@ -1168,6 +1188,12 @@ struct Session {
                 }
                 else if(title) {
                     retiring_effects.emplace(title->retire(*reset_camera,projection,ui_shared));
+                    //N+1: 101058 resource destructor, then the mode-8 destructor 12c8d8 -> 12dd50(1).
+                    if(title_modeled(okage::ResourceStage::TitleRemovalRequested)) {
+                        startup_textures->retire_title_resources();
+                        title_checkpoint("resource-retirement");
+                        startup_textures->destroy_title_mode();
+                    } else if(startup_textures)startup_textures->mark_unmodeled("title retired outside the modeled order");
                     title_stream.request_stop(1);
                     std::cout<<"Native title resource/task destroyed frame="<<frame<<'\n';
                 }
@@ -1211,6 +1237,8 @@ struct Session {
                 if(title) {
                     if(title->resource_live())throw std::runtime_error("Title freed before resource retirement");
                     title.reset();
+                    //N+2: resource node, then mode-8 node freed.
+                    if(title_modeled(okage::ResourceStage::TitleResourcesRetired))startup_textures->free_title_wrappers();
                 }
                 if(game_over) {
                     if(game_over->resource_live())throw std::runtime_error("Game-over task freed before resource destructor");
@@ -1222,6 +1250,15 @@ struct Session {
             },[this](okage::GameModeSelection selection){
                 if(battle||field||field_return||defeat_return||game_over||title||name_entry||restore||chapter||startup||!reset_camera)
                     throw std::runtime_error("Native mode construction has surviving scene owners");
+                if(title_modeled(okage::ResourceStage::TitleWrappersFreed)) {
+                    if(selection==okage::GameModeSelection{startup_textures->successor_mode(),0,0}) {
+                        startup_textures->enter_successor(selection[0]);
+                        title_checkpoint("successor-entry");
+                        write_title_route();
+                        startup_textures->mark_unmodeled(selection[0]==10?"Restore constructor body (124548) is not modeled":
+                            "New Game constructor body (124548) is not modeled");
+                    } else startup_textures->mark_unmodeled("title successor differs from the requested mode");
+                }
                 if(selection[0]==2&&pending_game_command[0]==13) {begin_field_return();return;}
                 if(selection[0]==2&&(pending_game_command[0]==0||pending_game_command[0]==3)) {begin_ordinary_field(selection);return;}
                 if(selection[0]==2&&pending_game_command[0]==14) {
@@ -1425,10 +1462,24 @@ struct Session {
             name_entry_trace.insert(name_entry_trace.end(),observation.begin(),observation.end());
         }
         if(title&&title->resource_live()) {
+            if(title_modeled(okage::ResourceStage::TitleConstructed)) {
+                startup_textures->begin_title_updates();
+                title_checkpoint("first-update");
+            }
+            if(title_modeled(okage::ResourceStage::TitleActive)&&title->state().common.mode_state==30&&
+               std::none_of(title_checkpoint_frames.begin(),title_checkpoint_frames.end(),[](const auto& c){return c.first=="stable-menu";}))
+                title_checkpoint("stable-menu");
             title->tick({input.repeat,input.pressed,{128,128,128,128}},0x40,
                 game_over_shared,scene_fade,*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,
                 ui_shared,ui_fonts,battle_capture_sine,random,okage::TitleActions{
-                    [this](auto selection){game_mode->request(selection);},
+                    [this](auto selection){
+                        //12a2d4 -> 124930: only Restore/New Game are modeled successors.
+                        if(title_modeled(okage::ResourceStage::TitleActive)) {
+                            if(selection==okage::GameModeSelection{10,0,0}||selection==okage::GameModeSelection{9,0,0})
+                                startup_textures->request_title_successor(selection[0]);
+                            else startup_textures->mark_unmodeled("title successor mode is not modeled");
+                        }
+                        game_mode->request(selection);},
                     [this](unsigned sound){
                         if(sound!=3&&sound!=7)throw std::runtime_error("Unrecovered title sound ID");
                         const auto bank=sound_banks.find(0);
@@ -1440,8 +1491,20 @@ struct Session {
                         okage::refresh_game_characters(variables,*game_data,15);
                         okage::grant_and_equip_game_character(variables,*game_data,0,{131,174,240});},
                     [](unsigned){throw std::runtime_error("Native title saved-field selection is unrecovered");},
-                    [](unsigned)->std::array<std::uint32_t,2>{throw std::runtime_error("Native title saved-field lookup is unrecovered");}
+                    [](unsigned)->std::array<std::uint32_t,2>{throw std::runtime_error("Native title saved-field lookup is unrecovered");},
+                    [this](const okage::TitleEffectEvent& e){
+                        if(!title_modeled(okage::ResourceStage::TitleActive))return;
+                        using Op=okage::TitleEffectEvent::Op;
+                        if(e.op==Op::Create)startup_textures->note_effect_create(int(e.slot),e.definition);
+                        //10c188: descriptor-only rebind of the title's image-list entry (hanten).
+                        else if(e.op==Op::Bind)startup_textures->note_effect_bind(int(e.slot),e.element,
+                            startup_textures->image_list().at(e.image_index));
+                        else startup_textures->note_effect_removal_request(int(e.slot));
+                    }
                 });
+            if(title_modeled(okage::ResourceStage::TitleRemovalRequested)&&
+               std::none_of(title_checkpoint_frames.begin(),title_checkpoint_frames.end(),[](const auto& c){return c.first=="removal-request";}))
+                title_checkpoint("removal-request");
         }
         if(battle&&battle->resource_live()) {
             try {battle->tick(retiring_effects?&*retiring_effects:nullptr,projection,scene_clear,
@@ -2570,9 +2633,9 @@ int main(int argc,const char** argv) {
     @autoreleasepool {
     std::unique_ptr<okage::InputJournal> inputJournal;
     try {
-        if(argc<3)throw std::runtime_error("Usage: okage-native --game-data DIRECTORY [--save-directory DIRECTORY] OR okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --buttons INPUT (held non-directional masks; bounded replay only) --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--load-observation FRESH.jsonl (bounded replay; host scheduling diagnostics)] [--battle-readback synchronous|deferred (replay policy; live always deferred)] [--replay-loading continuous|cooperative (cooperative requires deferred readback)] [--replay-display-from N (bounded cooperative replay; real host display callbacks and full rendering from N)] [--performance-report FRESH.jsonl (interactive/preview/UI test)] [--input-journal FRESH.jsonl] [--input-log FRESH.jsonl (path/sha256 of every asset read)] [--pause-captures FRESH_DIRECTORY (interactive diagnostics, not saved games)] [--headless-control FRESH_DIRECTORY (stdin controller steps after --frames; no window)]");
+        if(argc<3)throw std::runtime_error("Usage: okage-native --game-data DIRECTORY [--save-directory DIRECTORY] OR okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --buttons INPUT (held non-directional masks; bounded replay only) --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--load-observation FRESH.jsonl (bounded replay; host scheduling diagnostics)] [--battle-readback synchronous|deferred (replay policy; live always deferred)] [--replay-loading continuous|cooperative (cooperative requires deferred readback)] [--replay-display-from N (bounded cooperative replay; real host display callbacks and full rendering from N)] [--performance-report FRESH.jsonl (interactive/preview/UI test)] [--input-journal FRESH.jsonl] [--input-log FRESH.jsonl (path/sha256 of every asset read)] [--title-retirement-report FRESH_DIRECTORY (Retire title checkpoints)] [--pause-captures FRESH_DIRECTORY (interactive diagnostics, not saved games)] [--headless-control FRESH_DIRECTORY (stdin controller steps after --frames; no window)]");
         const bool coldStart=std::string_view(argv[1])=="--game-data";
-        fs::path gameDataRoot,saveDirectory,startupTextureReport,titleResourceReport;
+        fs::path gameDataRoot,saveDirectory,startupTextureReport,titleResourceReport,titleRetirementReport;
         fs::path fontDirectory=coldStart?fs::path{}:fs::path(argv[1]),messagePath=coldStart?fs::path{}:fs::path(argv[2]);
         unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions,buttons;bool hasButtons=false;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures,battleInput;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         std::optional<fs::path> performancePath,inputJournalPath,pauseCapturePath,headlessControlPath;
@@ -2591,6 +2654,7 @@ int main(int argc,const char** argv) {
             else if(arg=="--save-directory")saveDirectory=argv[i];
             else if(arg=="--startup-texture-report")startupTextureReport=argv[i];
             else if(arg=="--title-resource-report")titleResourceReport=argv[i];
+            else if(arg=="--title-retirement-report")titleRetirementReport=argv[i];
             else if(arg=="--input-log") {
                 if(okage::input_log_enabled()||fs::exists(argv[i]))throw std::runtime_error("Input log requires one fresh file");
                 okage::enable_input_log(argv[i]);
@@ -2831,6 +2895,8 @@ int main(int argc,const char** argv) {
             session.live_presentation_enabled=previewAt!=0||cooperativeReplay.value_or(false)||bool(headlessControlPath);
             session.save_directory=saveDirectory;
             session.startup_texture_report=startupTextureReport;session.resource_report=titleResourceReport;
+            session.retirement_report=titleRetirementReport;
+            if(!titleRetirementReport.empty()&&fs::exists(titleRetirementReport))throw std::runtime_error("Title retirement report directory must be fresh");
             if(!titleResourceReport.empty()&&fs::exists(titleResourceReport))throw std::runtime_error("Title resource report directory must be fresh");
             if(coldStart)session.initialize_cold_start(gameDataRoot,saveDirectory,!output.empty());
             if(!effectData.empty())session.prepare_effects(effectData,effectTextures);
@@ -2976,7 +3042,7 @@ int main(int argc,const char** argv) {
         if(!output.empty())app->session->battle_construction_report=output.string()+".battle-construction.json";
         if(!output.empty())app->session->battle_stage_report=output.string()+".battle-stage.json";
         app->session->live_presentation_enabled=true;
-        app->session->save_directory=saveDirectory;app->session->startup_texture_report=startupTextureReport;app->session->resource_report=titleResourceReport;
+        app->session->save_directory=saveDirectory;app->session->startup_texture_report=startupTextureReport;app->session->resource_report=titleResourceReport;app->session->retirement_report=titleRetirementReport;
         if(coldStart)app->session->initialize_cold_start(gameDataRoot,saveDirectory,!output.empty());
         if(!effectData.empty())app->session->prepare_effects(effectData,effectTextures);
         if(!map.empty())app->session->load_scene(map,event,actors);

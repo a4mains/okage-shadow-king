@@ -392,6 +392,11 @@ const char* to_string(ResourceStage s) {
         case ResourceStage::LogosConstructed: return "logos-constructed";
         case ResourceStage::LogosRetired: return "logos-retired";
         case ResourceStage::TitleConstructed: return "title-constructed";
+        case ResourceStage::TitleActive: return "title-active";
+        case ResourceStage::TitleRemovalRequested: return "title-removal-requested";
+        case ResourceStage::TitleResourcesRetired: return "title-resources-retired";
+        case ResourceStage::TitleWrappersFreed: return "title-wrappers-freed";
+        case ResourceStage::SuccessorEntry: return "successor-entered";
         case ResourceStage::Unmodeled: return "unmodeled";
     }
     return "unknown";
@@ -497,6 +502,83 @@ void StartupTextureOwner::finish_title_construction() {
     advance(ResourceStage::TitleConstructed);
 }
 
+void StartupTextureOwner::begin_title_updates() {
+    require_stage(ResourceStage::TitleConstructed, "first title update");
+    advance(ResourceStage::TitleActive);
+}
+
+void StartupTextureOwner::note_checkpoint(const char* name) {
+    if (stage_ < ResourceStage::TitleActive || stage_ > ResourceStage::SuccessorEntry)
+        throw std::logic_error("title checkpoint outside the title stages");
+    sync();
+    lifecycle_push(std::string("{\"kind\":\"phase\",\"name\":\"") + name + "\"}");
+}
+
+void StartupTextureOwner::title_event(ResourceStage from, ResourceStage to, std::string json) {
+    require_stage(from, "title lifecycle event");
+    sync();
+    lifecycle_push(std::move(json));
+    if (to != from) advance(to);
+}
+
+void StartupTextureOwner::note_effect_create(int slot, unsigned definition) {
+    title_event(ResourceStage::TitleActive, ResourceStage::TitleActive,
+                "{\"kind\":\"effect\",\"op\":\"create\",\"slot\":" + std::to_string(slot) +
+                    ",\"definition\":" + std::to_string(definition) + "}");
+}
+
+void StartupTextureOwner::note_effect_bind(int slot, unsigned element, int handle) {
+    // 0x10c188 reads the descriptor through 0x1cc2b0 only: the handle must be live, and
+    // nothing (reference, allocation, record) changes.
+    if (handles_.record_of(handle) < 0) throw std::logic_error("effect bind: handle is not live");
+    title_event(ResourceStage::TitleActive, ResourceStage::TitleActive,
+                "{\"kind\":\"effect\",\"op\":\"bind\",\"slot\":" + std::to_string(slot) + ",\"element\":" +
+                    std::to_string(element) + ",\"handle\":" + std::to_string(handle) + "}");
+}
+
+void StartupTextureOwner::note_effect_removal_request(int slot) {
+    const auto at = stage_ == ResourceStage::TitleRemovalRequested ? stage_ : ResourceStage::TitleActive;
+    title_event(at, at,
+                "{\"kind\":\"effect\",\"op\":\"remove-request\",\"slot\":" + std::to_string(slot) + "}");
+}
+
+void StartupTextureOwner::request_title_successor(unsigned mode) {
+    if (mode != 9 && mode != 10) throw std::logic_error("title successor other than New Game/Restore is not modeled");
+    successor_mode_ = mode;
+    title_event(ResourceStage::TitleActive, ResourceStage::TitleRemovalRequested,
+                "{\"kind\":\"mode\",\"op\":\"request\",\"mode\":" + std::to_string(mode) + "}");
+}
+
+void StartupTextureOwner::retire_title_resources() {
+    title_event(ResourceStage::TitleRemovalRequested, ResourceStage::TitleRemovalRequested,
+                "{\"kind\":\"mode\",\"op\":\"resource-retire\"}");
+    lifecycle_push("{\"kind\":\"effect\",\"op\":\"remove-request\",\"slot\":-2}");  // 101240 -> 103640(-2)
+    // 1b6f50 -> 1b6400 -> 1797b8 -> 179650: 1cca30(handles[i]) for every binding slot in order.
+    for (int handle : model_binding_) handles_.retire(handle);  // 1cca30 of -7/-1 is a no-op
+    model_binding_.clear();
+    model_slot_bytes_.clear();
+    // 1b5fd0 -> 1b2240: the image list in insertion order, then count = 0.
+    for (int handle : image_list_) handles_.retire(handle);
+    image_list_.clear();
+    advance(ResourceStage::TitleResourcesRetired);
+}
+
+void StartupTextureOwner::destroy_title_mode() {
+    title_event(ResourceStage::TitleResourcesRetired, ResourceStage::TitleResourcesRetired,
+                "{\"kind\":\"mode\",\"op\":\"destroy\"}");
+}
+
+void StartupTextureOwner::free_title_wrappers() {
+    title_event(ResourceStage::TitleResourcesRetired, ResourceStage::TitleWrappersFreed,
+                "{\"kind\":\"mode\",\"op\":\"wrapper-free\"}");
+}
+
+void StartupTextureOwner::enter_successor(unsigned mode) {
+    if (mode != successor_mode_) throw std::logic_error("successor differs from the requested mode");
+    title_event(ResourceStage::TitleWrappersFreed, ResourceStage::SuccessorEntry,
+                "{\"kind\":\"mode\",\"op\":\"construct\",\"mode\":" + std::to_string(mode) + "}");
+}
+
 void write_effect_preparation_report(const EffectTemplatePreparation& prepared, const EffectPreparationTrace& trace,
                                      const std::filesystem::path& dir) {
     std::ostringstream o;
@@ -550,7 +632,8 @@ void write_effect_preparation_report(const EffectTemplatePreparation& prepared, 
 }
 
 namespace {
-void write_report(const StartupTextureOwner& owner, const std::filesystem::path& dir, bool session_schema);
+void write_report(const StartupTextureOwner& owner, const std::filesystem::path& dir, bool session_schema,
+                  const std::string& checkpoint = {}, std::uint32_t session_rng_state = 0);
 }
 
 void write_startup_texture_report(const StartupTextureOwner& owner, const std::filesystem::path& dir) {
@@ -561,8 +644,15 @@ void write_session_resource_report(const StartupTextureOwner& owner, const std::
     write_report(owner, dir, true);
 }
 
+void write_title_checkpoint_report(const StartupTextureOwner& owner, const std::filesystem::path& dir,
+                                   const std::string& checkpoint, std::uint32_t session_rng_state) {
+    if (checkpoint.empty()) throw std::logic_error("title checkpoint report needs a checkpoint name");
+    write_report(owner, dir, true, checkpoint, session_rng_state);
+}
+
 namespace {
-void write_report(const StartupTextureOwner& owner, const std::filesystem::path& dir, bool session_schema) {
+void write_report(const StartupTextureOwner& owner, const std::filesystem::path& dir, bool session_schema,
+                  const std::string& checkpoint, std::uint32_t session_rng_state) {
     namespace fs = std::filesystem;
     if (fs::exists(dir)) throw std::runtime_error("startup texture report directory already exists");
     fs::create_directories(dir);
@@ -572,22 +662,34 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
     auto desc = [](const OptDescriptor& d) {
         return d ? std::string("[") + std::to_string(d->id) + "," + std::to_string(d->serial) + "]" : std::string("null");
     };
-    if (session_schema) {
+    if (session_schema && !checkpoint.empty()) {
+        // Retire: a title checkpoint between the first 1296f8 and entry of 124548.
+        if (owner.stage() < ResourceStage::TitleActive || owner.stage() > ResourceStage::SuccessorEntry ||
+            owner.memory_coverage() != MemoryContentCoverage::DrawTargetsInvalidated)
+            throw std::logic_error("title checkpoint report outside the modeled title stages");
+        o << "{\n \"coverage\":{\"lifecycle\":\"" << checkpoint << "\",\"stage\":\"" << to_string(owner.stage())
+          << "\",\"memory\":\"host-uploads-known-draw-writes-unknown\"},\n \"later_history\":\"unmodeled after "
+             "entry of 124548: the successor constructor body, Restore/name entry, field, battle, XTA\",";
+        o << "\n \"session_rng_state\":" << session_rng_state << ",";
+        o << "\n \"successor_mode\":" << owner.successor_mode() << ",";
+    } else if (session_schema) {
         // the title original-reference contract fixed labels for the title-constructor boundary.
         if (owner.stage() != ResourceStage::TitleConstructed ||
             owner.memory_coverage() != MemoryContentCoverage::DrawTargetsInvalidated)
             throw std::logic_error("session resource report is defined only at the title-constructor return");
         o << "{\n \"coverage\":{\"lifecycle\":\"title-constructor-return\",\"memory\":\"host-uploads-known-draw-writes-unknown\"},\n \"later_history\":\"unmodeled after "
           << to_string(owner.stage()) << ": title updates/retirement, New Game/Restore, XTA, field, battle\",";
+    } else {
+        o << "{\n \"coverage\":\"" << (owner.coverage() == StartupCoverage::PreSchedulerOnly ? "pre-scheduler-only" : "not-run")
+          << "\",\n \"later_history\":\"unmodeled: title, models, field, battle, XTA, frees, filter display-list kicks\",";
+    }
+    if (session_schema) {
         o << "\n \"image_list\":[";
         for (std::size_t i = 0; i < owner.image_list().size(); ++i) o << (i ? "," : "") << owner.image_list()[i];
         o << "],\n \"materials\":[";
         for (std::size_t i = 0; i < owner.model_binding().size(); ++i)
             o << (i ? "," : "") << "[" << i << "," << owner.model_binding()[i] << "]";
         o << "],";
-    } else {
-        o << "{\n \"coverage\":\"" << (owner.coverage() == StartupCoverage::PreSchedulerOnly ? "pre-scheduler-only" : "not-run")
-          << "\",\n \"later_history\":\"unmodeled: title, models, field, battle, XTA, frees, filter display-list kicks\",";
     }
     o << "\n \"rand_state_after_noise\":" << owner.rand_state_after_noise() << ",";
     o << "\n \"rng_draws\":" << owner.rng_draws() << ",";

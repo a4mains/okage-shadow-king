@@ -367,6 +367,95 @@ int main() {
             }
             require(materials == 5 && frees == 4 && phases > 0, "material and free events recorded");
         });
+        scenario([&] {
+            StartupTextureOwner o;
+            GameRandom r{1};
+            Hook h;
+            auto in = inputs();
+            in.record_observations = true;
+            run(o, in, r, h);
+            o.begin_scheduled_frames();
+            o.begin_logo_construction();
+            o.append_image(effect_xim({19, 256, 64, 32}, 50));
+            o.retire_image_list();
+            o.begin_title_construction();
+            for (unsigned i = 0; i < 3; ++i) o.append_image(effect_xim({19, 256, 64, 32}, 60 + i));
+            const int hanten = o.image_list().back();
+            std::vector<std::string> names{"Wat_A", "wat_b", "WAT_A", "wat_c"};  // case-variant duplicate
+            o.load_and_bind_model("M/a.xmd", names, [](std::string& f) -> std::optional<std::vector<std::uint8_t>> {
+                for (auto& c : f) c = char(c >= 'A' && c <= 'Z' ? c + 32 : c);
+                return effect_xim({19, 256, 32, 32}, static_cast<unsigned>(f.size()));
+            });
+            o.finish_title_construction();
+            auto& m = o.memory();
+            const auto survivors_alloc = [&] { std::vector<TextureAllocationId> v;
+                for (TextureAllocationId id = 0; id < 79; ++id) if (m.allocation(id)) v.push_back(id); return v; }();
+            require(survivors_alloc.size() == 79, "fixture: the 79 startup allocations");
+            std::vector<std::uint32_t> startup_refs;
+            for (auto id : survivors_alloc) startup_refs.push_back(m.allocation(id)->references);
+            const auto binding = o.model_binding();
+            const auto hanten_alloc = o.handles().image(hanten)->id;
+            const auto hanten_refs = m.allocation(hanten_alloc)->references;
+            bool threw = false;
+            try { o.note_effect_create(0, 106); } catch (const std::logic_error&) { threw = true; }
+            require(threw, "effect events before the first update are rejected");
+            o.begin_title_updates();
+            o.note_effect_create(0, 106);
+            const auto identity = m.identity();
+            o.note_effect_bind(0, 0, hanten);
+            require(m.allocation(hanten_alloc)->references == hanten_refs && m.identity() == identity,
+                    "descriptor-only rebind: no reference, allocation or memory change");
+            threw = false;
+            try { o.note_effect_bind(0, 0, 4000); } catch (const std::logic_error&) { threw = true; }
+            require(threw, "rebinding a dead handle is rejected");
+            o.note_checkpoint("stable-menu");
+            threw = false;
+            try { o.retire_title_resources(); } catch (const std::logic_error&) { threw = true; }
+            require(threw, "retirement before the mode request is rejected");
+            threw = false;
+            try { o.request_title_successor(11); } catch (const std::logic_error&) { threw = true; }
+            require(threw, "only Restore/New Game successors are modeled");
+            o.note_effect_removal_request(0);
+            o.request_title_successor(10);
+            o.note_effect_removal_request(0);  // a repeated request changes nothing
+            const auto free_before = m.free_queue_ids().size();
+            const auto lifecycle_before = o.lifecycle().size();
+            o.retire_title_resources();
+            require(o.model_binding().empty() && o.image_list().empty() && o.model_slot_bytes().empty(),
+                    "bindings and image list released");
+            for (int handle : binding) require(o.handles().record_of(handle) < 0, "every bound handle retired");
+            require(!m.allocation(hanten_alloc), "hanten freed by the image list, not by the effect");
+            for (std::size_t i = 0; i < survivors_alloc.size(); ++i)
+                require(m.allocation(survivors_alloc[i]) && m.allocation(survivors_alloc[i])->references == startup_refs[i],
+                        "startup allocations survive with unchanged references");
+            require(o.handles().live_order().size() == 36, "startup handles 0..35 survive");
+            for (const auto& [slot, value] : o.handles().hash_entries()) require(value == -1, "no live name-hash entry");
+            require(m.free_queue_ids().size() > free_before, "frees reach the allocator queue");
+            // Source order: model slots first (binding order), then image list (insertion order).
+            std::vector<int> retired;
+            for (std::size_t i = lifecycle_before; i < o.lifecycle().size(); ++i) {
+                const auto& line = o.lifecycle()[i];
+                const std::string key = "\"kind\":\"retire\",\"handle\":";
+                const auto at = line.find(key);
+                if (at != std::string::npos) retired.push_back(std::stoi(line.substr(at + key.size())));
+            }
+            std::vector<int> expected = binding;
+            expected.insert(expected.end(), {36, 37, hanten});
+            require(retired == expected, "retire order: binding order, then insertion order");
+            o.destroy_title_mode();
+            threw = false;
+            try { o.enter_successor(10); } catch (const std::logic_error&) { threw = true; }
+            require(threw, "successor entry before the wrappers are freed is rejected");
+            o.free_title_wrappers();
+            threw = false;
+            try { o.enter_successor(9); } catch (const std::logic_error&) { threw = true; }
+            require(threw, "successor must be the requested mode");
+            o.enter_successor(10);
+            require(o.stage() == ResourceStage::SuccessorEntry && r.state == o.rng_log().back().state,
+                    "successor entry reached with no RNG draw after the prefix");
+            o.mark_unmodeled("successor constructor body");
+            require(o.stage() == ResourceStage::Unmodeled, "past the stop: unmodeled");
+        });
         // Successor walk with a retired handle between loads (hole) and a failed load (-1 skipped).
         scenario([&] {
             Ps2TextureMemory mem; mem.initialize_empty_allocator();
