@@ -113,7 +113,6 @@ class RouteCompare(unittest.TestCase):
         self.assertIn("result: TIMING-DIFFERENT", self.out.getvalue())
         self.assertIn("anchors differ", self.out.getvalue())
 
-    @unittest.expectedFailure
     def test_anchors_differ_alone_is_timing_different(self):
         b = {"anchors": (("Native title constructed", 6), ("Native game-mode entered", 12))}
         self.assertEqual(self.run_pair({}, b), 3)

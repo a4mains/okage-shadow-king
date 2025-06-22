@@ -109,7 +109,7 @@ def compare(a, b):
     png_equal = (Path(a) / "f.png").read_bytes() == (Path(b) / "f.png").read_bytes()
     result["final_png_identical"] = png_equal
     differs |= not png_equal
-    result["verdict"] = ("IDENTICAL" if not differs else "DIFFERENT" if result["anchors_equal"] else "TIMING-DIFFERENT")
+    result["verdict"] = ("TIMING-DIFFERENT" if not result["anchors_equal"] else "DIFFERENT" if differs else "IDENTICAL")
     return result
 
 def main(argv=None):
