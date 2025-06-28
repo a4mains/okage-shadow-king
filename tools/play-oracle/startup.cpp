@@ -450,6 +450,45 @@ const HookDef titleHookDefs[]={
 };
 constexpr uint32 imageListBase=0x337508,imageListCount=0x337608,reserveClass=0x3abb14,cacheSwitch=0x1fe310,lowerSwitch=0x1fe30c,
                  materialListHead=0x330144,storageState=0x2597a8;
+const HookDef titleRetireHookDefs[]={
+    {0x1c0160,"pad_pressed"},{0x1c01d0,"pad_repeat"},{0x1c0330,"pad_analog"},
+    {0x101960,"effect_alloc"},{0x1294b0,"effect_create_title"},{0x10c188,"effect_bind"},{0x10bec0,"effect_rebind"},
+    {0x103640,"effect_remove_request"},{0x101648,"effect_remove_checked"},{0x102218,"effect_service"},
+    {0x103bf8,"effect_free"},
+    {0x124548,"successor_construct"},{0x124818,"mode_parent_tick"},{0x1246b0,"mode_child_create"},{0x1151b8,"node_create"},
+    {0x12c8d8,"mode8_destroy"},{0x12dd50,"theme_retire_request"},{0x1bdaf0,"host_free"},
+    {0x179650,"model_table_retire"},{0x1797b8,"model_group_retire"},{0x1b84b0,"scene_retire"},{0x1cfca8,"range_free"},
+    {0x1b5fc8,"resource_slot_retire"},{0x12df80,"title_sound"},{0x124f10,"reset_game"},{0x1251d8,"reset_progress"},
+    {0x12db50,"theme_start"},
+};
+constexpr uint32 effectTablePtr=0x1f849c,effectSlots=0x54,padMaskTable=0x1f85c8,dirFlags=0x259964,dirRepeat=0x259960;
+// PS2::CControllerInfo::BUTTON indices used by the fixed Retire pad scripts.
+constexpr uint32 btnLeft=6,btnStart=9,btnCross=13;
+
+class ScriptedPad final : public CPadHandler {
+public:
+    std::atomic<uint32> buttons{0};
+    std::atomic<unsigned>* vblanks=nullptr;
+    std::mutex mutex;std::vector<std::string> rows;
+    void Update(uint8* ram) override {
+        ++frame;const uint32 b=buttons.load();
+        for(auto* listener:m_interfaces)for(unsigned i=0;i<PS2::CControllerInfo::MAX_BUTTONS;++i){
+            const auto button=static_cast<PS2::CControllerInfo::BUTTON>(i);
+            if(PS2::CControllerInfo::IsAxis(button))listener->SetAxisState(0,button,128,ram);
+            else listener->SetButtonState(0,button,(b>>i)&1,ram);
+        }
+        if(frame==1||b!=last){
+            unsigned mask=0;
+            for(unsigned i=4;i<PS2::CControllerInfo::MAX_BUTTONS;++i)if(b>>i&1)mask|=CPadInterface::GetButtonMask(static_cast<PS2::CControllerInfo::BUTTON>(i));
+            std::lock_guard lock(mutex);
+            rows.push_back("{\"kind\":\"pad_update\",\"update\":"+std::to_string(frame)+",\"vb\":"+std::to_string(vblanks?vblanks->load():0)
+                           +",\"buttons\":"+std::to_string(b)+",\"play_mask\":"+std::to_string(mask)+"}");
+            last=b;
+        }
+    }
+private:
+    unsigned frame=0;uint32 last=~0u;
+};
 
 struct Frame{uint32 fn;const char* name;uint32 ra;uint64 sp;uint64 enterIndex;bool dynamicBp;
              std::string pendingName;uint64 a[8];uint32 fileBuf=0;int32 aux=0;uint32 aux2=0;};
@@ -469,16 +508,25 @@ int main(int argc,char** argv) {
         const std::string fillText=argv[4];
         if(fillText!="00"&&fillText!="ff")throw std::runtime_error("FILL must be 00 or ff");
         const uint8 fill=fillText=="ff"?0xff:0x00;
-        unsigned deadlineSeconds=1800;bool minimal=false,rngProducts=false,title=false;
+        unsigned deadlineSeconds=1800;bool minimal=false,rngProducts=false,title=false,retire=false;std::string route;
         for(int i=5;i<argc;++i){
             if(std::string(argv[i])=="--deadline-seconds"&&i+1<argc)deadlineSeconds=unsigned(std::stoul(argv[++i]));
             else if(std::string(argv[i])=="--minimal")minimal=true;
             else if(std::string(argv[i])=="--rng-products")rngProducts=true;
             else if(std::string(argv[i])=="--title")title=true;
+            else if(std::string(argv[i])=="--title-retire"&&i+1<argc){retire=true;route=argv[++i];}
             else throw std::runtime_error("Unknown argument");
         }
         if(minimal&&rngProducts)throw std::runtime_error("--minimal and --rng-products are exclusive");
         if(title&&rngProducts)throw std::runtime_error("--title already includes the --rng-products observations");
+        // --title-retire restore|newgame (Retire): the --title observations, continued past the Title stop with a
+        // fixed state-driven pad script, to the ENTRY of 0x124548 with mode10 (restore) or mode9 (newgame).
+        if(retire){
+            if(title||rngProducts)throw std::runtime_error("--title-retire is exclusive with --title/--rng-products");
+            if(route!="restore"&&route!="newgame")throw std::runtime_error("--title-retire takes restore or newgame");
+            title=true;
+        }
+        const int32 routeMode=route=="restore"?10:9;
         if(title&&!minimal)rngProducts=true;
         auto bpp=[&](uint32 psm){return title?bitsPerPixelTitle(psm):bitsPerPixel(psm);};
         if(!std::filesystem::is_regular_file(disc))throw std::runtime_error("Disc input missing");
@@ -494,7 +542,8 @@ int main(int argc,char** argv) {
             // .text: file offset 0x1000 -> vaddr 0x100000, size 0xf8434-0x100000
             const uint32 off=vaddr-0x100000+4096;uint32 w;std::memcpy(&w,elf.data()+off,4);return w;};
         std::map<uint32,std::string> entryName;
-        if(title&&minimal) entryName[0x12c350]="mode8_construct";
+        if(retire&&minimal){entryName[0x1296f8]="title_update";entryName[0x124548]="successor_construct";}
+        else if(title&&minimal) entryName[0x12c350]="mode8_construct";
         else {
             for(const auto& h:hookDefs)if(h.name)entryName[h.addr]=h.name;
             if(rngProducts)for(const auto& h:rngHookDefs){
@@ -503,6 +552,10 @@ int main(int argc,char** argv) {
             }
             if(title)for(const auto& h:titleHookDefs){
                 if(entryName.count(h.addr))throw std::runtime_error("Duplicate Title hook");
+                entryName[h.addr]=h.name;
+            }
+            if(retire)for(const auto& h:titleRetireHookDefs){
+                if(entryName.count(h.addr))throw std::runtime_error("Duplicate Retire hook");
                 entryName[h.addr]=h.name;
             }
         }
@@ -527,7 +580,9 @@ int main(int argc,char** argv) {
         vm.Initialize();
         struct Cleanup { CPS2VM& vm; ~Cleanup(){vm.Pause();vm.DestroySoundHandler();vm.DestroyPadHandler();vm.DestroyGSHandler();vm.Destroy();} } cleanup{vm};
         vm.CreateGSHandler([&](){gs=new LedgerGS();return gs;});
-        vm.CreatePadHandler([&](){return new RecordedPad(std::filesystem::path(),36000);});
+        ScriptedPad* scriptedPad=nullptr;
+        if(retire)vm.CreatePadHandler([&](){scriptedPad=new ScriptedPad();return scriptedPad;});
+        else vm.CreatePadHandler([&](){return new RecordedPad(std::filesystem::path(),36000);});
         if(!vm.m_cdrom0)throw std::runtime_error("VM did not mount the disc");
         auto* bios=dynamic_cast<CIopBios*>(vm.m_iop->m_bios.get());
         if(!bios)throw std::runtime_error("IOP BIOS missing");
@@ -535,6 +590,7 @@ int main(int argc,char** argv) {
         for(const auto* name:{"cdrom","cdrom0","cdrom1"})bios->GetIoman()->RegisterDevice(name,traced);
         std::atomic<unsigned> frames{0};
         auto onFrame=vm.OnNewFrame.Connect([&](){++frames;});
+        if(retire){if(!scriptedPad)throw std::runtime_error("scripted pad missing");scriptedPad->vblanks=&frames;}
         std::atomic<bool> exited{false};
         auto onExit=vm.m_ee->m_os->OnRequestExit.Connect([&](){exited=true;});
         vm.m_ee->m_os->BootFromCDROM();
@@ -653,6 +709,64 @@ int main(int argc,char** argv) {
             for(int i=0;i<8;++i)o<<(i?",":"")<<hx(a[i]);o<<"]";return o.str();
         };
         static const unsigned argRegs[8]={CMIPS::A0,CMIPS::A1,CMIPS::A2,CMIPS::A3,CMIPS::T0,CMIPS::T1,CMIPS::T2,CMIPS::T3};
+        // ---- Retire helpers (--title-retire) ------------------------------------------------
+        bool retireStopped=false;
+        int32 titleEffectSlot=-1;uint64 titleUpdates=0;int padStep=0;uint32 confirmMask=0;
+        std::vector<std::string> checkpointsTaken;
+        std::function<void(const std::string&)> checkpoint; // assigned after buildState
+        auto effectJob=[&](int32 slot)->uint32{
+            const uint32 t=get32(effectTablePtr);
+            return slot>=0&&uint32(slot)<effectSlots&&plausiblePtr(t,effectSlots*4)?get32(t+uint32(slot)*4):0xffffffffu;};
+        auto effectSlotOf=[&](uint32 job)->int32{
+            const uint32 t=get32(effectTablePtr);if(!plausiblePtr(t,effectSlots*4))return -1;
+            for(uint32 s=0;s<effectSlots;++s)if(get32(t+s*4)==job)return int32(s);return -1;};
+        auto effectJson=[&](int32 slot){
+            std::ostringstream q;
+            if(slot<0||uint32(slot)>=effectSlots){q<<"null";return q.str();}
+            const uint32 j=effectJob(slot);
+            q<<"{\"slot\":"<<slot<<",\"job\":";
+            if(j==0xffffffffu||!plausiblePtr(j,0x80)){q<<(j==0xffffffffu?"-1":hx(j))<<"}";return q.str();}
+            q<<hx(j)<<",\"type\":"<<unsigned(ram[j&0x1ffffff])<<",\"flags\":"<<hx(get32(j+4))<<",\"elements\":"<<int32(get32(j+8))
+             <<",\"rgba_40\":["<<hx(get32(j+0x40))<<","<<hx(get32(j+0x44))<<","<<hx(get32(j+0x48))<<","<<hx(get32(j+0x4c))<<"]"
+             <<",\"w74\":"<<int32(get32(j+0x74));
+            const uint32 e=get32(j+0xc);const int n=int32(get32(j+8));
+            q<<",\"element_handles\":[";
+            for(int k=0;k<n&&k<64&&plausiblePtr(e+uint32(k)*0x80,0x80);++k)q<<(k?",":"")<<s16(e+uint32(k)*0x80+0x5c);
+            q<<"]}";return q.str();};
+        auto nodeKind=[&](uint32 node)->std::string{
+            const uint32 d=get32(node+8);
+            return d==0x12c8d8?"mode8":d==0x101058?"resource":d==0x124628?"mode9_10":"other";};
+        auto setPad=[&](uint32 buttons,const std::string& why){
+            scriptedPad->buttons.store(buttons);
+            emit("\"ev\":\"pad_script\",\"step\":"+std::to_string(padStep)+",\"buttons\":"+std::to_string(buttons)
+                 +",\"title_n\":"+std::to_string(titleUpdates)+",\"why\":\""+why+"\"");
+        };
+        auto titleScript=[&](uint32 obj){
+            const int32 sub=int32(get32(obj+0x2c)),sel=int32(get32(obj+0x38));const uint32 p=get32(obj+0x28)&0xffff;
+            if(sub==0xc||sub==0xd)throw std::runtime_error("title timed out to attract (submode 0xc/0xd): pad script failed");
+            if(titleUpdates==0){
+                confirmMask=get32(padMaskTable+0x14);
+                if(confirmMask!=0x40)throw std::runtime_error("confirm mask 0x1f85dc is not 0x40 (cross): fixed script does not apply");
+                if(get32(padMaskTable+0x3c)!=0x8000)throw std::runtime_error("0x1f8604 (selection-decrement key) is not 0x8000 (left)");
+                checkpoint("first-update");
+            }
+            switch(padStep){
+            case 0: if(sub==10){padStep=1;setPad(1u<<btnStart,"submode 10 accepts Start: press Start");}break;
+            case 1: if(sub==10&&(p&0x800)){checkpoint("stable-menu");padStep=2;setPad(0,"Start consumed by submode 10: release");}break;
+            case 2: if(sub==0x1e){
+                        if(sel!=1)throw std::runtime_error("menu default selection is not 1 (Restore)");
+                        if(route=="restore"){padStep=4;setPad(1u<<btnCross,"menu submode 0x1e, selection 1: press confirm");}
+                        else{padStep=3;setPad(1u<<btnLeft,"menu submode 0x1e, selection 1: press Left");}
+                    }break;
+            case 3: if(sub==0x1e&&get32(dirFlags+0xc)==1){padStep=5;setPad(0,"Left consumed (0x259970=1): release");}break;
+            case 5: if(sub==0x1e&&sel==0&&get32(dirFlags+0xc)==0){padStep=4;setPad(1u<<btnCross,"selection 0 (New Game): press confirm");}break;
+            case 4: if(sub==0x1e&&(p&confirmMask)){
+                        if(sel!=(route=="restore"?1:0))throw std::runtime_error("confirm consumed with the wrong selection");
+                        padStep=6;setPad(0,"confirm consumed by submode 0x1e: release");}break;
+            default: break;
+            }
+            ++titleUpdates;
+        };
 
         // Entry-side decoding of hooked functions (reads only).
         auto onEnter=[&](uint32 pc){
@@ -730,7 +844,59 @@ int main(int argc,char** argv) {
                     o<<",\"selector\":"<<sel<<",\"image_list\":"<<intList(imageList())<<storageJson()<<queueContext();
                 }
                 else if(name=="logo_tick"){f.aux=int32(get32(uint32(a[0])+0x30))+1;o<<",\"tick\":"<<f.aux;}
-                else if(name=="title_update")throw std::runtime_error("0x1296f8 (first title update) reached before the 0x12c350(selector 1) return stop");
+                else if(name=="title_update"&&!retire)throw std::runtime_error("0x1296f8 (first title update) reached before the 0x12c350(selector 1) return stop");
+                else if(name=="title_update"){
+                    const uint32 obj=uint32(a[0]);
+                    o<<",\"title_n\":"<<titleUpdates<<",\"submode\":"<<int32(get32(obj+0x2c))<<",\"counter\":"<<int32(get32(obj+0x30))
+                     <<",\"selection\":"<<int32(get32(obj+0x38))<<",\"pressed_word\":"<<(get32(obj+0x28)&0xffff)
+                     <<",\"fade_b8\":"<<hx(get32(obj+0xb8))<<",\"effect_slot_c8\":"<<int32(get32(obj+0xc8))<<",\"hanten_cc\":"<<int32(get32(obj+0xcc))
+                     <<",\"dir_flags\":["<<int32(get32(dirFlags))<<","<<int32(get32(dirFlags+4))<<","<<int32(get32(dirFlags+8))<<","<<int32(get32(dirFlags+0xc))
+                     <<"],\"dir_repeat\":"<<int32(get32(dirRepeat))<<",\"effect\":"<<effectJson(titleEffectSlot)
+                     <<",\"host_buttons\":"<<(scriptedPad?scriptedPad->buttons.load():0);
+                    if(titleUpdates==0){o<<",\"pad_mask_table_1f85c8\":[";for(int k=0;k<16;++k)o<<(k?",":"")<<hx(get32(padMaskTable+k*4));o<<"]";}
+                }
+                else if(name=="successor_construct"){
+                    const uint32 node=uint32(a[0]),parent=get32(node+0x14);
+                    o<<",\"node\":"<<hx(node)<<",\"descriptor_ctor\":"<<hx(get32(node+0))<<",\"parent\":"<<hx(parent)
+                     <<",\"parent_40_mode\":"<<int32(get32(parent+0x40))<<",\"parent_44\":"<<int32(get32(parent+0x44))
+                     <<",\"parent_48\":"<<int32(get32(parent+0x48))<<",\"parent_4c\":"<<int32(get32(parent+0x4c))<<",\"parent_50\":"<<int32(get32(parent+0x50))
+                     <<",\"mode_24f738\":"<<int32(get32(0x24f738))<<",\"effect\":"<<effectJson(titleEffectSlot);
+                    f.aux=int32(get32(parent+0x4c));
+                }
+                else if(name=="pad_pressed"||name=="pad_repeat")o<<",\"port\":"<<int32(a[0]);
+                else if(name=="effect_alloc"||name=="effect_create_title")o<<",\"shape\":"<<int32(a[0]);
+                else if(name=="effect_bind")o<<",\"slot\":"<<int32(a[0])<<",\"element\":"<<int32(a[1])<<",\"handle\":"<<int32(a[2])
+                                             <<",\"record\":"<<handleRecord(int32(a[2]))<<",\"effect\":"<<effectJson(int32(a[0]));
+                else if(name=="effect_rebind")o<<",\"slot\":"<<int32(a[0])<<",\"element\":"<<int32(a[1])<<",\"which\":"<<int32(a[2]);
+                else if(name=="effect_remove_request"||name=="effect_remove_checked")o<<",\"slot\":"<<int32(a[0])<<",\"effect\":"<<effectJson(int32(a[0]));
+                else if(name=="effect_service")o<<",\"effect\":"<<effectJson(titleEffectSlot);
+                else if(name=="effect_free"){const uint32 p=uint32(norm(a[0]));o<<",\"ptr\":"<<hx(p)<<",\"job_slot\":"<<effectSlotOf(p);}
+                else if(name=="mode_parent_tick"){const uint32 p=uint32(a[0]);
+                    o<<",\"parent\":"<<hx(p)<<",\"phase\":"<<int32(get32(p+0x20))<<",\"child\":"<<hx(get32(p+0x38))<<",\"request\":"<<int32(get32(p+0x3c))
+                     <<",\"current\":"<<int32(get32(p+0x40))<<",\"w44\":"<<int32(get32(p+0x44))<<",\"w48\":"<<int32(get32(p+0x48))
+                     <<",\"w4c\":"<<int32(get32(p+0x4c))<<",\"w50\":"<<int32(get32(p+0x50));}
+                else if(name=="mode_child_create")o<<",\"parent\":"<<hx(uint32(a[0]))<<",\"mode\":"<<int32(a[1]);
+                else if(name=="node_create"){const uint32 d=uint32(a[1]);
+                    o<<",\"parent\":"<<hx(uint32(a[0]))<<",\"descriptor\":"<<hx(d)<<",\"size\":"<<int32(a[2])
+                     <<",\"ctor\":"<<hx(get32(d))<<",\"cb0\":"<<hx(get32(d+4))<<",\"cb1\":"<<hx(get32(d+8))<<",\"dtor\":"<<hx(get32(d+12));}
+                else if(name=="mode8_destroy"){const uint32 n=uint32(a[0]);
+                    o<<",\"node\":"<<hx(n)<<",\"selector\":"<<int32(get32(n+0x24))<<",\"flags\":"<<hx(get32(n+0x1c))<<",\"first_child\":"<<hx(get32(n+0x18))
+                     <<",\"effect\":"<<effectJson(titleEffectSlot);}
+                else if(name=="theme_retire_request")o<<",\"value\":"<<int32(a[0])<<",\"theme_words\":["<<int32(get32(0x2d9a60))<<","<<int32(get32(0x2d9a64))<<","<<int32(get32(0x2d9a68))<<"]";
+                else if(name=="host_free"){const uint32 p=uint32(norm(a[0]));const uint32 ra=f.ra;
+                    o<<",\"ptr\":"<<hx(p);
+                    if((ra==0x1150d4||ra==0x1150f0)&&plausiblePtr(p,0x20)){
+                        const uint32 par=get32(p+0x14);
+                        const int32 selp=nodeKind(p)=="mode8"?int32(get32(p+0x24)):(plausiblePtr(par,0x28)&&nodeKind(par)=="mode8"?int32(get32(par+0x24)):-1);
+                        o<<",\"scheduler_node\":{\"kind\":\""<<nodeKind(p)<<"\",\"dtor\":"<<hx(get32(p+8))<<",\"cb1\":"<<hx(get32(p+4))<<",\"parent\":"<<hx(par)
+                         <<",\"flags\":"<<hx(get32(p+0x1c))<<",\"mode8_selector\":"<<selp<<"}";
+                    }
+                }
+                else if(name=="model_table_retire")o<<",\"holder\":"<<hx(norm(a[0]))<<",\"table\":"<<materialTable(get32(uint32(norm(a[0]))))
+                                                    <<",\"material_list_head\":"<<hx(get32(materialListHead));
+                else if(name=="model_group_retire"||name=="resource_slot_retire"||name=="title_sound")o<<",\"value\":"<<int32(a[0]);
+                else if(name=="range_free")o<<",\"pool\":"<<hx(norm(a[0]))<<",\"arg1\":"<<int32(a[1]);
+                else if(name=="theme_start")o<<",\"value\":"<<int32(a[0])<<",\"str\":"<<str0(a[1]);
                 else if(name=="mode_request")o<<",\"mode\":"<<int32(a[1])<<",\"selector\":"<<int32(a[2])<<",\"arg3\":"<<int32(a[3]);
                 else if(name=="storage_init"||name=="storage_probe"){f.aux2=uint32(a[0]);o<<",\"param\":"<<hx(a[0])<<storageJson();}
                 else if(name=="image_list_load"||name=="image_list_append")
@@ -762,8 +928,29 @@ int main(int argc,char** argv) {
             }
             if(name=="main"||name=="noise_texture"||name=="effect_noise_grid"||name=="effects_load"||name=="fonts_init"||name=="capture_filter_init"||name=="glyph_cache"||name=="effect_script_init")
                 o<<","<<randState();
+            if(retire&&name=="resource_retire"){
+                const uint32 n=uint32(f.a[0]),par=get32(n+0x14);
+                o<<",\"node\":"<<hx(n)<<",\"parent\":"<<hx(par)<<",\"mode8_selector\":"<<(plausiblePtr(par,0x28)?int32(get32(par+0x24)):-1)
+                 <<",\"w20\":"<<int32(get32(n+0x20))<<",\"w34\":"<<int32(get32(n+0x34))<<",\"w48\":"<<int32(get32(n+0x48))
+                 <<",\"effect\":"<<effectJson(titleEffectSlot);
+            }
             f.enterIndex=evCount;
             emit(o.str());
+            if(retire){
+                // Retire checkpoints and the state-driven pad script run after the entry event is logged, while paused.
+                if(name=="title_update")titleScript(uint32(f.a[0]));
+                else if(name=="effect_remove_request"&&int32(f.a[0])==titleEffectSlot&&titleEffectSlot>=0
+                        &&f.ra>=0x1296f8&&f.ra<0x12a330
+                        &&std::find(checkpointsTaken.begin(),checkpointsTaken.end(),"removal-request")==checkpointsTaken.end())
+                    checkpoint("removal-request");
+                else if(name=="mode8_destroy"&&int32(get32(uint32(f.a[0])+0x24))==1)checkpoint("resource-retirement");
+                else if(name=="successor_construct"){
+                    if(f.aux!=routeMode)throw std::runtime_error("0x124548 entered with mode "+std::to_string(f.aux)+", route expects "+std::to_string(routeMode));
+                    checkpoint("successor-entry");
+                    retireStopped=true;
+                    return; // paused AT the 0x124548 entry: nothing of the successor constructor body has executed
+                }
+            }
             if(!returnSites.count(f.ra)) {
                 f.dynamicBp=true;addBp(f.ra);
                 emit("\"ev\":\"note\",\"note\":\"dynamic return breakpoint (indirect call)\",\"fn\":"+hx(pc)+",\"ra\":"+hx(f.ra));
@@ -820,8 +1007,27 @@ int main(int argc,char** argv) {
                     const int32 sel=int32(get32(uint32(f.a[0])+0x24));
                     o<<",\"selector_entry\":"<<f.aux<<",\"selector\":"<<sel<<",\"image_list\":"<<intList(imageList())<<storageJson()<<queueContext();
                     if(sel!=f.aux)throw std::runtime_error("0x12c350 selector changed between entry and return");
-                    stopHere=sel==1;
+                    stopHere=sel==1&&!retire;
                 }
+                else if(name=="pad_pressed"||name=="pad_repeat")o<<",\"word\":"<<(uint32(v0)&0xffff)<<",\"caller_ra\":"<<hx(f.ra);
+                else if(name=="pad_analog"){
+                    o<<",\"caller_ra\":"<<hx(f.ra)<<",\"outputs\":[";
+                    for(int k=0;k<4;++k)o<<(k?",":"")<<(plausiblePtr(norm(f.a[k]),4)?std::to_string(int32(get32(uint32(norm(f.a[k]))))):std::string("null"));
+                    o<<"]";
+                }
+                else if(name=="effect_alloc")o<<",\"slot\":"<<int32(v0)<<",\"effect\":"<<effectJson(int32(v0));
+                else if(name=="effect_create_title"){
+                    titleEffectSlot=int32(v0);o<<",\"slot\":"<<int32(v0)<<",\"effect\":"<<effectJson(int32(v0));
+                }
+                else if(name=="effect_bind"||name=="effect_rebind"||name=="effect_remove_request"||name=="effect_remove_checked")
+                    o<<",\"effect\":"<<effectJson(int32(f.a[0]));
+                else if(name=="effect_service")o<<",\"effect\":"<<effectJson(titleEffectSlot);
+                else if(name=="mode_parent_tick"){const uint32 p=uint32(f.a[0]);
+                    o<<",\"phase\":"<<int32(get32(p+0x20))<<",\"child\":"<<hx(get32(p+0x38))<<",\"request\":"<<int32(get32(p+0x3c))
+                     <<",\"current\":"<<int32(get32(p+0x40));}
+                else if(name=="mode_child_create"||name=="node_create")o<<",\"node\":"<<hx(uint32(v0));
+                else if(name=="theme_retire_request")o<<",\"theme_words\":["<<int32(get32(0x2d9a60))<<","<<int32(get32(0x2d9a64))<<","<<int32(get32(0x2d9a68))<<"]";
+                else if(name=="model_table_retire")o<<",\"material_list_head\":"<<hx(get32(materialListHead));
                 else if(name=="logo_tick")o<<",\"tick\":"<<f.aux<<",\"counter_after\":"<<int32(get32(uint32(f.a[0])+0x30));
                 else if(name=="storage_probe"||name=="storage_init"){
                     o<<",\"result\":"<<int64(v0)<<",\"param_words\":["<<int32(get32(f.aux2))<<","<<int32(get32(f.aux2+4))<<","<<int32(get32(f.aux2+8))<<"]"<<storageJson();
@@ -860,6 +1066,8 @@ int main(int argc,char** argv) {
                                               <<(lastFile.sha.empty()?std::string("null"):"\""+lastFile.sha+"\"")<<"}";
             }
             emit(o.str());
+            if(retire&&name=="mode8_construct"&&int32(get32(uint32(f.a[0])+0x24))==1)
+                checkpoint("title-constructed"); // the Title stop point (paused at the 0x12c350 return address); continue
             if(stopHere){
                 titleStopped=true;titleStopRa=f.ra;titleStopSp=f.sp;
                 // The return breakpoint stays armed: the VM is paused AT the return address, before 0x1296f8.
@@ -973,9 +1181,46 @@ int main(int argc,char** argv) {
                 for(uint32 k=0;k<8192;++k){const uint8 b=ram[0x3abb18+k];out<<hexd[b>>4]<<hexd[b&15];}
                 out<<"\"";
             }
+            if(retire) {
+                // Retire: effect slot table (live jobs) and the tracked title water effect.
+                out<<",\"effect_slots\":[";first=true;
+                for(int32 s=0;s<int32(effectSlots);++s){const uint32 j=effectJob(s);if(j==0xffffffffu)continue;
+                    out<<(first?"":",")<<effectJson(s);first=false;}
+                out<<"],\"title_effect_slot\":"<<titleEffectSlot<<",\"title_effect\":"<<effectJson(titleEffectSlot)
+                   <<",\"theme_words_2d9a60\":["<<int32(get32(0x2d9a60))<<","<<int32(get32(0x2d9a64))<<","<<int32(get32(0x2d9a68))<<"]";
+            }
             out<<"}\n";
         }
         return out.str();
+        };
+        checkpoint=[&](const std::string& cp){
+            if(std::find(checkpointsTaken.begin(),checkpointsTaken.end(),cp)!=checkpointsTaken.end())throw std::runtime_error("checkpoint repeated: "+cp);
+            checkpointsTaken.push_back(cp);
+            const auto dir=outDir/"checkpoints"/cp;
+            if(std::filesystem::exists(dir))throw std::runtime_error("checkpoint directory exists");
+            std::filesystem::create_directories(dir);
+            // Submit already-processed GS register writes and wait for the GS thread. No write-buffer rotation and no
+            // ledger transfer split (an open transfer is reported, not flushed).
+            gs->SubmitWriteBuffer();
+            gs->SendGSCall([]{},true);
+            const uint8* vram=gs->GetRam();
+            writeFresh(dir/"vram.bin",vram,CGSHandler::RAMSIZE);
+            std::string transfer="null";
+            {
+                std::lock_guard lock(gs->mutex);
+                if(!minimal){
+                    writeFresh(dir/"vram-last-writer.bin",gs->writer.data(),gs->writer.size());
+                    writeFresh(dir/"vram-upload-ever.bin",gs->uploadEver.data(),gs->uploadEver.size());
+                }
+                std::ostringstream t;
+                t<<"{\"open\":"<<(gs->current.open?"true":"false")<<",\"seq\":"<<gs->current.seq<<",\"expected\":"<<gs->current.total
+                 <<",\"received\":"<<gs->current.received<<",\"transfers\":"<<gs->transfers<<",\"flips\":"<<gs->flips<<",\"gs_ops\":"<<gs->gsOps<<"}";
+                transfer=t.str();
+            }
+            const std::string s=buildState(vram);
+            writeFresh(dir/"state.jsonl",s.data(),s.size());
+            emit("\"ev\":\"checkpoint\",\"name\":\""+cp+"\",\"pc\":"+hx(cpu.nPC)+",\"title_n\":"+std::to_string(titleUpdates)
+                 +",\"stack_depth\":"+std::to_string(stack.size())+",\"gs\":"+transfer+","+randState());
         };
         fillGs();
         const auto startTime=std::chrono::steady_clock::now();
@@ -1024,6 +1269,11 @@ int main(int argc,char** argv) {
                     ++randCalls;explained=true;
                 }
                 if(entryName.count(pc)){onEnter(pc);explained=true;}
+                if(retireStopped) {
+                    emit("\"ev\":\"stop\",\"kind\":\"successor_constructor_entry\",\"pc\":"+hx(pc)+",\"sp\":"+hx(sp)
+                         +",\"route\":\""+route+"\",\"mode\":"+std::to_string(routeMode)+",\"stack_depth\":"+std::to_string(stack.size())+","+randState());
+                    titleStopSp=sp;stopped=true;break;
+                }
                 const uint32 ct=firstControlTransfer(pc);
                 auto top=ct?topSites.find(ct):topSites.end();
                 if(top!=topSites.end()) {
@@ -1060,7 +1310,7 @@ int main(int argc,char** argv) {
         if(!stopped)throw std::runtime_error("Startup did not reach the stop PC (exit="+std::to_string(exited.load())+" stops="+std::to_string(stops)+")");
         if(vm.GetStatus()!=CVirtualMachine::PAUSED)throw std::runtime_error("VM not paused at stop");
         const double seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-startTime).count();
-        if(uint32(cpu.nPC)!=(title?titleStopRa:stopPc))throw std::runtime_error("Stop PC mismatch");
+        if(uint32(cpu.nPC)!=(retire?0x124548u:title?titleStopRa:stopPc))throw std::runtime_error("Stop PC mismatch");
         if(title&&!prefixPassed)throw std::runtime_error("Title stop reached without passing 0x100618");
 
         // ---- final state (VM paused, GS drained) -----------------------------------------
@@ -1103,6 +1353,10 @@ int main(int argc,char** argv) {
             std::ostringstream o;{std::lock_guard lock(traced->mutex);for(const auto& r:traced->rows)o<<r<<'\n';}
             writeFresh(outDir/"disc-opens.jsonl",o.str().data(),o.str().size());
         }
+        if(retire){
+            std::ostringstream o;{std::lock_guard lock(scriptedPad->mutex);for(const auto& r:scriptedPad->rows)o<<r<<'\n';}
+            writeFresh(outDir/"pad-host.jsonl",o.str().data(),o.str().size());
+        }
         events.flush();events.close();
         {
             std::ostringstream o;
@@ -1112,6 +1366,12 @@ int main(int argc,char** argv) {
             for(size_t i=0;i<stack.size();++i)o<<(i?",":"")<<"\""<<stack[i].name<<"\"";
             o<<"],\"stack_depth_at_stop\":"<<stack.size()<<",\"static_return_sites\":"<<returnSites.size();
             if(title)o<<",\"title\":true,\"stop_pc\":"<<hx(cpu.nPC)<<",\"stop_sp\":"<<hx(titleStopSp)<<",\"prefix_passed\":"<<(prefixPassed?"true":"false");
+            if(retire){
+                o<<",\"title_retire\":\""<<route<<"\",\"route_mode\":"<<routeMode<<",\"title_updates\":"<<titleUpdates<<",\"pad_step\":"<<padStep
+                 <<",\"title_effect_slot\":"<<titleEffectSlot<<",\"checkpoints\":[";
+                for(size_t i=0;i<checkpointsTaken.size();++i)o<<(i?",":"")<<"\""<<checkpointsTaken[i]<<"\"";
+                o<<"]";
+            }
             o<<"}\n";
             writeFresh(outDir/"run-meta.json",o.str().data(),o.str().size());
         }
