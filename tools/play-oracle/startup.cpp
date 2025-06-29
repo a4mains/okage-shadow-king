@@ -460,6 +460,14 @@ const HookDef titleRetireHookDefs[]={
     {0x179650,"model_table_retire"},{0x1797b8,"model_group_retire"},{0x1b84b0,"scene_retire"},{0x1cfca8,"range_free"},
     {0x1b5fc8,"resource_slot_retire"},{0x12df80,"title_sound"},{0x124f10,"reset_game"},{0x1251d8,"reset_progress"},
     {0x12db50,"theme_start"},
+    // Open questions O01..O12 of the title-retirement input contract (static source contract).
+    {0x1cede8,"desc_refs_query"},{0x10c7b8,"effect_template_bind"},{0x1b8a80,"title_instance_create"},
+    {0x1b6f08,"instance_retire"},{0x1b6400,"instance_release"},{0x1b4c18,"image_slot_release"},
+    {0x1b4b00,"image_list_release_tail"},{0x1976f0,"glyph_cache_transfer"},
+};
+const HookDef titleRetireProbeDefs[]={
+    {0x1024d0,"effect_service_callback_return"},{0x102e4c,"effect_render_callback_return"},
+    {0x103ba8,"effect_heap_alloc_return"},{0x103c28,"effect_heap_free_return"},{0x103c70,"effect_heap_realloc_return"},
 };
 constexpr uint32 effectTablePtr=0x1f849c,effectSlots=0x54,padMaskTable=0x1f85c8,dirFlags=0x259964,dirRepeat=0x259960;
 // PS2::CControllerInfo::BUTTON indices used by the fixed Retire pad scripts.
@@ -606,6 +614,7 @@ int main(int argc,char** argv) {
             for(const auto& kv:entryName)addBp(kv.first);
             for(auto a:returnSites)addBp(a);
             for(const auto& kv:topSites)addBp(kv.first);
+            if(retire)for(const auto& pr:titleRetireProbeDefs)addBp(pr.addr);
         } else if(title) {
             for(const auto& kv:entryName)addBp(kv.first); // 0x12c350 only; its return is a dynamic breakpoint
         }
@@ -733,6 +742,11 @@ int main(int argc,char** argv) {
             q<<",\"element_handles\":[";
             for(int k=0;k<n&&k<64&&plausiblePtr(e+uint32(k)*0x80,0x80);++k)q<<(k?",":"")<<s16(e+uint32(k)*0x80+0x5c);
             q<<"]}";return q.str();};
+        auto instanceJson=[&](int32 idx){ // title instance table *0x21301c, 0x3c-byte entries
+            std::ostringstream q;const uint32 b=get32(0x21301c);
+            if(idx<0||!plausiblePtr(b+uint32(idx)*0x3c,0x3c)){q<<"null";return q.str();}
+            const uint32 e=b+uint32(idx)*0x3c;
+            q<<"{\"entry\":"<<hx(e)<<",\"h0\":"<<s16(e)<<",\"h2\":"<<s16(e+2)<<",\"w30\":"<<hx(get32(e+0x30))<<"}";return q.str();};
         auto nodeKind=[&](uint32 node)->std::string{
             const uint32 d=get32(node+8);
             return d==0x12c8d8?"mode8":d==0x101058?"resource":d==0x124628?"mode9_10":"other";};
@@ -897,6 +911,25 @@ int main(int argc,char** argv) {
                 else if(name=="model_group_retire"||name=="resource_slot_retire"||name=="title_sound")o<<",\"value\":"<<int32(a[0]);
                 else if(name=="range_free")o<<",\"pool\":"<<hx(norm(a[0]))<<",\"arg1\":"<<int32(a[1]);
                 else if(name=="theme_start")o<<",\"value\":"<<int32(a[0])<<",\"str\":"<<str0(a[1]);
+                else if(name=="desc_refs_query")o<<",\"desc\":"<<descJson(a[0]);
+                else if(name=="effect_template_bind")o<<",\"slot\":"<<int32(a[0])<<",\"element\":"<<int32(a[1])<<",\"a2\":"<<int32(a[2])<<",\"a3\":"<<int32(a[3]);
+                else if(name=="instance_retire")o<<",\"index\":"<<int32(a[0])<<",\"instance\":"<<instanceJson(int32(a[0]));
+                else if(name=="instance_release"||name=="image_slot_release")o<<",\"index\":"<<int32(a[0]);
+                else if(name=="image_list_release_tail")o<<",\"w_337610\":"<<int32(get32(0x337610))<<",\"w_337920\":"<<int32(get32(0x337920))
+                                                         <<",\"image_list\":"<<intList(imageList());
+                if(retire&&name=="scene_retire")o<<",\"w_337ef0\":"<<int32(get32(0x337ef0));
+                if(retire&&name=="handle_retire"){const int r=handleRecord(int32(a[0]));
+                    o<<",\"record_hash_slot\":"<<(r>=0?s16(get32(0x3a7b00)+uint32(r)*0x30+0x24):-1);}
+                if(retire&&name=="effect_bind"){const uint32 j=effectJob(int32(a[0]));
+                    o<<",\"element_7c\":"<<(j!=0xffffffffu&&plausiblePtr(j,0x10)?hx(get32(get32(j+0xc)+uint32(a[1])*0x80+0x7c)):std::string("null"));}
+                if(retire&&name=="successor_construct"){
+                    o<<",\"root\":"<<hx(get32(0x1f85c0))<<",\"root_children\":[";
+                    const uint32 root=get32(0x1f85c0);uint32 c=plausiblePtr(root,0x20)?get32(root+0x18):0;
+                    for(int k=0;c&&k<64&&plausiblePtr(c,0x20);++k,c=get32(c+0x10))
+                        o<<(k?",":"")<<"{\"node\":"<<hx(c)<<",\"cb0\":"<<hx(get32(c))<<",\"cb1\":"<<hx(get32(c+4))<<",\"dtor\":"<<hx(get32(c+8))
+                         <<",\"flags\":"<<hx(get32(c+0x1c))<<",\"first_child\":"<<hx(get32(c+0x18))<<",\"prev\":"<<hx(get32(c+0xc))<<"}";
+                    o<<"]";
+                }
                 else if(name=="mode_request")o<<",\"mode\":"<<int32(a[1])<<",\"selector\":"<<int32(a[2])<<",\"arg3\":"<<int32(a[3]);
                 else if(name=="storage_init"||name=="storage_probe"){f.aux2=uint32(a[0]);o<<",\"param\":"<<hx(a[0])<<storageJson();}
                 else if(name=="image_list_load"||name=="image_list_append")
@@ -1015,7 +1048,17 @@ int main(int argc,char** argv) {
                     for(int k=0;k<4;++k)o<<(k?",":"")<<(plausiblePtr(norm(f.a[k]),4)?std::to_string(int32(get32(uint32(norm(f.a[k]))))):std::string("null"));
                     o<<"]";
                 }
-                else if(name=="effect_alloc")o<<",\"slot\":"<<int32(v0)<<",\"effect\":"<<effectJson(int32(v0));
+                else if(name=="title_instance_create")o<<",\"index\":"<<int32(v0)<<",\"instance\":"<<instanceJson(int32(v0));
+                else if(name=="desc_refs_query")o<<",\"result\":"<<int32(v0);
+                else if(name=="effect_alloc"){
+                    o<<",\"slot\":"<<int32(v0)<<",\"effect\":"<<effectJson(int32(v0));
+                    const uint32 j=effectJob(int32(v0));
+                    if(j!=0xffffffffu&&plausiblePtr(j,0x80)){
+                        o<<",\"job_50_5f\":["<<hx(get32(j+0x50))<<","<<hx(get32(j+0x54))<<","<<hx(get32(j+0x58))<<","<<hx(get32(j+0x5c))
+                         <<"],\"job_68\":"<<hx(get32(j+0x68));
+                        const uint32 e=get32(j+0xc);if(plausiblePtr(e,0x80))o<<",\"element0_7c\":"<<hx(get32(e+0x7c));
+                    }
+                }
                 else if(name=="effect_create_title"){
                     titleEffectSlot=int32(v0);o<<",\"slot\":"<<int32(v0)<<",\"effect\":"<<effectJson(int32(v0));
                 }
@@ -1269,6 +1312,23 @@ int main(int argc,char** argv) {
                     ++randCalls;explained=true;
                 }
                 if(entryName.count(pc)){onEnter(pc);explained=true;}
+                if(retire&&!minimal){
+                    for(const auto& pr:titleRetireProbeDefs)if(pr.addr==pc){
+                        // Retire probe at an exact jalr+8 block start: indirect-call target sources and job words.
+                        std::ostringstream o;o<<"\"ev\":\"probe\",\"pc\":"<<hx(pc)<<",\"name\":\""<<pr.name<<"\"";
+                        // 0x102218: s6 = slot index (0x1024d4 passes it to 0x1131d0); 0x102cf8: slot index at sp+0xc0 (0x102e20).
+                        if(pc==0x1024d0){const int32 sl=int32(reg(CMIPS::S6));const uint32 j=effectJob(sl);
+                            o<<",\"slot\":"<<sl<<",\"job\":"<<hx(j)<<",\"target_job_68\":"<<(plausiblePtr(j,0x80)?hx(get32(j+0x68)):std::string("null"));}
+                        else if(pc==0x102e4c){const int32 sl=int32(get32(uint32(sp)+0xc0));const uint32 j=effectJob(sl);
+                            o<<",\"slot\":"<<sl<<",\"job\":"<<hx(j);
+                            if(plausiblePtr(j,0x80))o<<",\"target_job_68\":"<<hx(get32(j+0x68))<<",\"rgba_40\":["<<hx(get32(j+0x40))<<","<<hx(get32(j+0x44))
+                                                  <<","<<hx(get32(j+0x48))<<","<<hx(get32(j+0x4c))<<"],\"flags\":"<<hx(get32(j+4));}
+                        else if(pc==0x103ba8)o<<",\"target_213574\":"<<hx(get32(0x213574))<<",\"size_s0\":"<<int32(reg(CMIPS::S0))<<",\"v0\":"<<hx(uint32(reg(CMIPS::V0)));
+                        else if(pc==0x103c28)o<<",\"target_213580\":"<<hx(get32(0x213580))<<",\"ptr_s0\":"<<hx(uint32(reg(CMIPS::S0)));
+                        else if(pc==0x103c70)o<<",\"target_21357c\":"<<hx(get32(0x21357c))<<",\"ptr_s1\":"<<hx(uint32(reg(CMIPS::S1)))<<",\"arg_s0\":"<<hx(uint32(reg(CMIPS::S0)));
+                        emit(o.str());explained=true;
+                    }
+                }
                 if(retireStopped) {
                     emit("\"ev\":\"stop\",\"kind\":\"successor_constructor_entry\",\"pc\":"+hx(pc)+",\"sp\":"+hx(sp)
                          +",\"route\":\""+route+"\",\"mode\":"+std::to_string(routeMode)+",\"stack_depth\":"+std::to_string(stack.size())+","+randState());
