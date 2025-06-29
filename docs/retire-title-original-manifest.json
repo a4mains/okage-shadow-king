@@ -1,0 +1,4852 @@
+{
+ "schema": "okage.retire.title-original-manifest.v1",
+ "scope": "Independent original-execution reference of the cold-boot title lifecycle continued past the Title stop (0x12c350 selector-1 return) through title updates, the Start/menu interaction, effect106 (water) creation/binding/removal request, title resource retirement, mode-8 destruction and wrapper frees, stopping at the ENTRY of 0x124548 (mode9/mode10 successor constructor) before its body executes, for the routes restore (Start, confirm default Restore) and newgame (Start, Left, confirm New Game).",
+ "oracle_source_commit": "76c4c30",
+ "play": {
+  "revision": "4403687dc8d505911980b8a96b13701a10f91b70",
+  "path": "references/Play (main checkout, ignored)",
+  "tree_cleanliness": "not verified (git on the Play checkout is outside the isolated worktree)"
+ },
+ "oracle": {
+  "binary": "build/retire-title-oracle/okage-oracle/okage-startup-oracle (worktree)",
+  "retained_copy": "local/research/retire-title-original-v1/bin/okage-startup-oracle (the binary that ran every final run)",
+  "retained_copy_sha256": "ae68379f3ff46637eda5d6436893d7b785ba546d7c223aedccfb9b55d1498fa5",
+  "configure": "cmake -S <main>/references/Play -B build/retire-title-oracle -G Ninja -DCMAKE_BUILD_TYPE=Debug -DBUILD_PLAY=OFF -DBUILD_TESTS=ON -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_PROJECT_Play_INCLUDE=<worktree>/tools/play-oracle/Attach.cmake -DDEBUGGER_INCLUDED=ON -DOKAGE_REFERENCE_VULKAN=OFF",
+  "build": "ninja -C build/retire-title-oracle okage-startup-oracle",
+  "cmake_build_type": "Debug",
+  "mode": "--title-retire restore|newgame (implies the --title and RNG --rng-products observations plus the Retire hooks); --title-retire ROUTE --minimal for the control (only 0x1296f8 and 0x124548 entries). Default and --title modes unchanged: see regression."
+ },
+ "tracked_sources_sha256": {
+  "tools/play-oracle/startup.cpp": "800482143c77459ceb89d4ffe97732c0fd6c0f39c0d5b01c326e28876bcca3d5",
+  "tools/play-oracle/CMakeLists.txt": "1de73e43e976adb2ce82f125a0028eeed1969f68163f616b2f1104e6aba05430",
+  "tools/play-oracle/Attach.cmake": "70a48b491406f04c4a8e28f49f6c04886888c22f017fb4868d365b4c17dd4819",
+  "tools/play-oracle/reference_input.hpp": "9a9bf23c9cd29dee438632693f649bf09a161abbb082589a0319d8ffbccd5e9e",
+  "tools/retire_title_capture.sh": "b89790ff6bd56ecd46bba3e94f2c6d8a32086d96706fd3e4979db3cf7733001e",
+  "tools/retire_title_original_extract.py": "b711add205f4e7f7590a89689ef42eb7464ae06b142359e2019dba5d4285761b",
+  "tools/title_original_extract.py": "3b297913b99fe37d4f5021935bdbb92a9fc397146823d7abcc41fee1fdadaeac",
+  "tools/retire_title_compare.py": "617d199c0116d7b46f6869189bf5f5f4e6f5f4b4505965e1af9a4aa92423e291",
+  "tools/retire_title_make_manifest.py": "089f0b230a7ce80ff4cb1a0bf26cddf89192ac1a1ec3d6a53fbe5c21f3850d5b",
+  "tests/test_retire_title_compare.py": "b48d8c239e25ccba2e0bf93058f356c39f50a8e6458c6279812f3402addbf642"
+ },
+ "inputs": {
+  "elf": {
+   "path": "local/extracted/SCUS_971.29",
+   "sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
+  },
+  "disc_cue": {
+   "path": "local/disc/Okage - Shadow King (USA).cue"
+  },
+  "disc_bin": {
+   "path": "local/disc/Okage - Shadow King (USA).bin"
+  },
+  "rng": {
+   "path": "local/research/rng-original-v1/analysis/rng.jsonl"
+  },
+  "title_runs": "local/research/title-original-v1/runs",
+  "title_analysis": "local/research/title-original-v1/analysis",
+  "startup_run": "local/research/startup-original-v1/runs/fill00-a"
+ },
+ "current_time_audit": {
+  "note": "recomputed when this manifest was written; establishes the files present now, not historical reads",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "disc_cue": {
+   "sha256": "b8bde56b092efe1d704c1be8cdb7c139478fafbb234b713bd06d2cd1afe7d69a",
+   "bytes": 91
+  },
+  "disc_bin": {
+   "sha256": "08623a1400e2610aecd0247ae7440c97501495c6f819f675494e44de20b62d2a",
+   "bytes": 524481888
+  },
+  "rng_jsonl": {
+   "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb",
+   "bytes": 613171
+  },
+  "title_fill00_a_final_state": {
+   "sha256": "a4479a5055e4feabf05220f7d36e461584d0aaf07e57a2d3c2276bfeff2cf177",
+   "bytes": 98851
+  },
+  "title_analysis_events": {
+   "sha256": "9f341005091744034c8f7952013ee397ca21ef2c2382ae5a2f17a12b0194ed35",
+   "bytes": 41702
+  },
+  "startup_fill00_a_events": {
+   "sha256": "03cd09bcf8a29a3e8fed44c5b8339c1f9d1846c098533e42d1dfcb77f31151c6",
+   "bytes": 1046167
+  }
+ },
+ "run_time_provenance": {
+  "note": "from the runs themselves (run-meta.json, logs, disc-opens.jsonl with the sha256 of every file the guest opened, as read by the VM at run time)",
+  "run_meta": {
+   "restore/fill00-a": {
+    "fill": 0,
+    "fill_report": {
+     "fill": 0,
+     "ee_pc": "0x100008",
+     "vram_all_zero_before_fill": true,
+     "gs_reg_writes_before_fill": 0,
+     "gs_vertex_kicks_before_fill": 0,
+     "gs_transfers_before_fill": 0,
+     "gs_resets_before_fill": 0
+    },
+    "events": 79744,
+    "breakpoint_stops": 76163,
+    "benign_block_start_stops": 4420,
+    "rand_calls": 9504,
+    "minimal": false,
+    "rng_products": true,
+    "rand_pending_at_stop": false,
+    "vblanks": 1043,
+    "wall_seconds": 70.5,
+    "open_frames_at_stop": [
+     "main",
+     "mode_parent_tick",
+     "mode_child_create",
+     "node_create"
+    ],
+    "stack_depth_at_stop": 4,
+    "static_return_sites": 940,
+    "title": true,
+    "stop_pc": "0x124548",
+    "stop_sp": "0x1ffebf0",
+    "prefix_passed": true,
+    "title_retire": "restore",
+    "route_mode": 10,
+    "title_updates": 189,
+    "pad_step": 6,
+    "title_effect_slot": 0,
+    "checkpoints": [
+     "title-constructed",
+     "first-update",
+     "stable-menu",
+     "removal-request",
+     "resource-retirement",
+     "successor-entry"
+    ]
+   },
+   "restore/fill00-b": {
+    "fill": 0,
+    "fill_report": {
+     "fill": 0,
+     "ee_pc": "0x100008",
+     "vram_all_zero_before_fill": true,
+     "gs_reg_writes_before_fill": 0,
+     "gs_vertex_kicks_before_fill": 0,
+     "gs_transfers_before_fill": 0,
+     "gs_resets_before_fill": 0
+    },
+    "events": 79744,
+    "breakpoint_stops": 76163,
+    "benign_block_start_stops": 4420,
+    "rand_calls": 9504,
+    "minimal": false,
+    "rng_products": true,
+    "rand_pending_at_stop": false,
+    "vblanks": 1043,
+    "wall_seconds": 69.29,
+    "open_frames_at_stop": [
+     "main",
+     "mode_parent_tick",
+     "mode_child_create",
+     "node_create"
+    ],
+    "stack_depth_at_stop": 4,
+    "static_return_sites": 940,
+    "title": true,
+    "stop_pc": "0x124548",
+    "stop_sp": "0x1ffebf0",
+    "prefix_passed": true,
+    "title_retire": "restore",
+    "route_mode": 10,
+    "title_updates": 189,
+    "pad_step": 6,
+    "title_effect_slot": 0,
+    "checkpoints": [
+     "title-constructed",
+     "first-update",
+     "stable-menu",
+     "removal-request",
+     "resource-retirement",
+     "successor-entry"
+    ]
+   },
+   "restore/fillff-a": {
+    "fill": 255,
+    "fill_report": {
+     "fill": 255,
+     "ee_pc": "0x100008",
+     "vram_all_zero_before_fill": true,
+     "gs_reg_writes_before_fill": 0,
+     "gs_vertex_kicks_before_fill": 0,
+     "gs_transfers_before_fill": 0,
+     "gs_resets_before_fill": 0
+    },
+    "events": 79744,
+    "breakpoint_stops": 76163,
+    "benign_block_start_stops": 4420,
+    "rand_calls": 9504,
+    "minimal": false,
+    "rng_products": true,
+    "rand_pending_at_stop": false,
+    "vblanks": 1043,
+    "wall_seconds": 72.99,
+    "open_frames_at_stop": [
+     "main",
+     "mode_parent_tick",
+     "mode_child_create",
+     "node_create"
+    ],
+    "stack_depth_at_stop": 4,
+    "static_return_sites": 940,
+    "title": true,
+    "stop_pc": "0x124548",
+    "stop_sp": "0x1ffebf0",
+    "prefix_passed": true,
+    "title_retire": "restore",
+    "route_mode": 10,
+    "title_updates": 189,
+    "pad_step": 6,
+    "title_effect_slot": 0,
+    "checkpoints": [
+     "title-constructed",
+     "first-update",
+     "stable-menu",
+     "removal-request",
+     "resource-retirement",
+     "successor-entry"
+    ]
+   },
+   "restore/fillff-b": {
+    "fill": 255,
+    "fill_report": {
+     "fill": 255,
+     "ee_pc": "0x100008",
+     "vram_all_zero_before_fill": true,
+     "gs_reg_writes_before_fill": 0,
+     "gs_vertex_kicks_before_fill": 0,
+     "gs_transfers_before_fill": 0,
+     "gs_resets_before_fill": 0
+    },
+    "events": 79744,
+    "breakpoint_stops": 76163,
+    "benign_block_start_stops": 4420,
+    "rand_calls": 9504,
+    "minimal": false,
+    "rng_products": true,
+    "rand_pending_at_stop": false,
+    "vblanks": 1043,
+    "wall_seconds": 67.68,
+    "open_frames_at_stop": [
+     "main",
+     "mode_parent_tick",
+     "mode_child_create",
+     "node_create"
+    ],
+    "stack_depth_at_stop": 4,
+    "static_return_sites": 940,
+    "title": true,
+    "stop_pc": "0x124548",
+    "stop_sp": "0x1ffebf0",
+    "prefix_passed": true,
+    "title_retire": "restore",
+    "route_mode": 10,
+    "title_updates": 189,
+    "pad_step": 6,
+    "title_effect_slot": 0,
+    "checkpoints": [
+     "title-constructed",
+     "first-update",
+     "stable-menu",
+     "removal-request",
+     "resource-retirement",
+     "successor-entry"
+    ]
+   },
+   "restore/control-minimal-fill00": {
+    "fill": 0,
+    "fill_report": {
+     "fill": 0,
+     "ee_pc": "0x100008",
+     "vram_all_zero_before_fill": true,
+     "gs_reg_writes_before_fill": 0,
+     "gs_vertex_kicks_before_fill": 0,
+     "gs_transfers_before_fill": 0,
+     "gs_resets_before_fill": 0
+    },
+    "events": 1376,
+    "breakpoint_stops": 1178,
+    "benign_block_start_stops": 0,
+    "rand_calls": 0,
+    "minimal": true,
+    "rng_products": false,
+    "rand_pending_at_stop": false,
+    "vblanks": 1013,
+    "wall_seconds": 34.43,
+    "open_frames_at_stop": [],
+    "stack_depth_at_stop": 0,
+    "static_return_sites": 0,
+    "title": true,
+    "stop_pc": "0x124548",
+    "stop_sp": "0x1ffebf0",
+    "prefix_passed": true,
+    "title_retire": "restore",
+    "route_mode": 10,
+    "title_updates": 189,
+    "pad_step": 6,
+    "title_effect_slot": -1,
+    "checkpoints": [
+     "first-update",
+     "stable-menu",
+     "successor-entry"
+    ]
+   },
+   "newgame/fill00-a": {
+    "fill": 0,
+    "fill_report": {
+     "fill": 0,
+     "ee_pc": "0x100008",
+     "vram_all_zero_before_fill": true,
+     "gs_reg_writes_before_fill": 0,
+     "gs_vertex_kicks_before_fill": 0,
+     "gs_transfers_before_fill": 0,
+     "gs_resets_before_fill": 0
+    },
+    "events": 79914,
+    "breakpoint_stops": 76314,
+    "benign_block_start_stops": 4430,
+    "rand_calls": 9504,
+    "minimal": false,
+    "rng_products": true,
+    "rand_pending_at_stop": false,
+    "vblanks": 1046,
+    "wall_seconds": 68.45,
+    "open_frames_at_stop": [
+     "main",
+     "mode_parent_tick",
+     "mode_child_create",
+     "node_create"
+    ],
+    "stack_depth_at_stop": 4,
+    "static_return_sites": 940,
+    "title": true,
+    "stop_pc": "0x124548",
+    "stop_sp": "0x1ffebf0",
+    "prefix_passed": true,
+    "title_retire": "newgame",
+    "route_mode": 9,
+    "title_updates": 192,
+    "pad_step": 6,
+    "title_effect_slot": 0,
+    "checkpoints": [
+     "title-constructed",
+     "first-update",
+     "stable-menu",
+     "removal-request",
+     "resource-retirement",
+     "successor-entry"
+    ]
+   },
+   "newgame/fill00-b": {
+    "fill": 0,
+    "fill_report": {
+     "fill": 0,
+     "ee_pc": "0x100008",
+     "vram_all_zero_before_fill": true,
+     "gs_reg_writes_before_fill": 0,
+     "gs_vertex_kicks_before_fill": 0,
+     "gs_transfers_before_fill": 0,
+     "gs_resets_before_fill": 0
+    },
+    "events": 79914,
+    "breakpoint_stops": 76314,
+    "benign_block_start_stops": 4430,
+    "rand_calls": 9504,
+    "minimal": false,
+    "rng_products": true,
+    "rand_pending_at_stop": false,
+    "vblanks": 1046,
+    "wall_seconds": 66.99,
+    "open_frames_at_stop": [
+     "main",
+     "mode_parent_tick",
+     "mode_child_create",
+     "node_create"
+    ],
+    "stack_depth_at_stop": 4,
+    "static_return_sites": 940,
+    "title": true,
+    "stop_pc": "0x124548",
+    "stop_sp": "0x1ffebf0",
+    "prefix_passed": true,
+    "title_retire": "newgame",
+    "route_mode": 9,
+    "title_updates": 192,
+    "pad_step": 6,
+    "title_effect_slot": 0,
+    "checkpoints": [
+     "title-constructed",
+     "first-update",
+     "stable-menu",
+     "removal-request",
+     "resource-retirement",
+     "successor-entry"
+    ]
+   },
+   "newgame/fillff-a": {
+    "fill": 255,
+    "fill_report": {
+     "fill": 255,
+     "ee_pc": "0x100008",
+     "vram_all_zero_before_fill": true,
+     "gs_reg_writes_before_fill": 0,
+     "gs_vertex_kicks_before_fill": 0,
+     "gs_transfers_before_fill": 0,
+     "gs_resets_before_fill": 0
+    },
+    "events": 79914,
+    "breakpoint_stops": 76314,
+    "benign_block_start_stops": 4430,
+    "rand_calls": 9504,
+    "minimal": false,
+    "rng_products": true,
+    "rand_pending_at_stop": false,
+    "vblanks": 1046,
+    "wall_seconds": 67.46,
+    "open_frames_at_stop": [
+     "main",
+     "mode_parent_tick",
+     "mode_child_create",
+     "node_create"
+    ],
+    "stack_depth_at_stop": 4,
+    "static_return_sites": 940,
+    "title": true,
+    "stop_pc": "0x124548",
+    "stop_sp": "0x1ffebf0",
+    "prefix_passed": true,
+    "title_retire": "newgame",
+    "route_mode": 9,
+    "title_updates": 192,
+    "pad_step": 6,
+    "title_effect_slot": 0,
+    "checkpoints": [
+     "title-constructed",
+     "first-update",
+     "stable-menu",
+     "removal-request",
+     "resource-retirement",
+     "successor-entry"
+    ]
+   },
+   "newgame/fillff-b": {
+    "fill": 255,
+    "fill_report": {
+     "fill": 255,
+     "ee_pc": "0x100008",
+     "vram_all_zero_before_fill": true,
+     "gs_reg_writes_before_fill": 0,
+     "gs_vertex_kicks_before_fill": 0,
+     "gs_transfers_before_fill": 0,
+     "gs_resets_before_fill": 0
+    },
+    "events": 79914,
+    "breakpoint_stops": 76314,
+    "benign_block_start_stops": 4430,
+    "rand_calls": 9504,
+    "minimal": false,
+    "rng_products": true,
+    "rand_pending_at_stop": false,
+    "vblanks": 1046,
+    "wall_seconds": 68.08,
+    "open_frames_at_stop": [
+     "main",
+     "mode_parent_tick",
+     "mode_child_create",
+     "node_create"
+    ],
+    "stack_depth_at_stop": 4,
+    "static_return_sites": 940,
+    "title": true,
+    "stop_pc": "0x124548",
+    "stop_sp": "0x1ffebf0",
+    "prefix_passed": true,
+    "title_retire": "newgame",
+    "route_mode": 9,
+    "title_updates": 192,
+    "pad_step": 6,
+    "title_effect_slot": 0,
+    "checkpoints": [
+     "title-constructed",
+     "first-update",
+     "stable-menu",
+     "removal-request",
+     "resource-retirement",
+     "successor-entry"
+    ]
+   },
+   "newgame/control-minimal-fill00": {
+    "fill": 0,
+    "fill_report": {
+     "fill": 0,
+     "ee_pc": "0x100008",
+     "vram_all_zero_before_fill": true,
+     "gs_reg_writes_before_fill": 0,
+     "gs_vertex_kicks_before_fill": 0,
+     "gs_transfers_before_fill": 0,
+     "gs_resets_before_fill": 0
+    },
+    "events": 1390,
+    "breakpoint_stops": 1187,
+    "benign_block_start_stops": 0,
+    "rand_calls": 0,
+    "minimal": true,
+    "rng_products": false,
+    "rand_pending_at_stop": false,
+    "vblanks": 1016,
+    "wall_seconds": 35.03,
+    "open_frames_at_stop": [],
+    "stack_depth_at_stop": 0,
+    "static_return_sites": 0,
+    "title": true,
+    "stop_pc": "0x124548",
+    "stop_sp": "0x1ffebf0",
+    "prefix_passed": true,
+    "title_retire": "newgame",
+    "route_mode": 9,
+    "title_updates": 192,
+    "pad_step": 6,
+    "title_effect_slot": -1,
+    "checkpoints": [
+     "first-update",
+     "stable-menu",
+     "successor-entry"
+    ]
+   }
+  },
+  "regression_run_meta": {
+   "title-fill00": {
+    "fill": 0,
+    "fill_report": {
+     "fill": 0,
+     "ee_pc": "0x100008",
+     "vram_all_zero_before_fill": true,
+     "gs_reg_writes_before_fill": 0,
+     "gs_vertex_kicks_before_fill": 0,
+     "gs_transfers_before_fill": 0,
+     "gs_resets_before_fill": 0
+    },
+    "events": 51546,
+    "breakpoint_stops": 46618,
+    "benign_block_start_stops": 9,
+    "rand_calls": 9504,
+    "minimal": false,
+    "rng_products": true,
+    "rand_pending_at_stop": false,
+    "vblanks": 843,
+    "wall_seconds": 28.61,
+    "open_frames_at_stop": [
+     "main"
+    ],
+    "stack_depth_at_stop": 1,
+    "static_return_sites": 463,
+    "title": true,
+    "stop_pc": "0x11528c",
+    "stop_sp": "0x1ffebf0",
+    "prefix_passed": true
+   },
+   "default-fill00": {
+    "fill": 0,
+    "fill_report": {
+     "fill": 0,
+     "ee_pc": "0x100008",
+     "vram_all_zero_before_fill": true,
+     "gs_reg_writes_before_fill": 0,
+     "gs_vertex_kicks_before_fill": 0,
+     "gs_transfers_before_fill": 0,
+     "gs_resets_before_fill": 0
+    },
+    "events": 11146,
+    "breakpoint_stops": 11125,
+    "benign_block_start_stops": 1,
+    "rand_calls": 9504,
+    "minimal": false,
+    "rng_products": false,
+    "rand_pending_at_stop": false,
+    "vblanks": 84,
+    "wall_seconds": 7.12,
+    "open_frames_at_stop": [
+     "main"
+    ],
+    "stack_depth_at_stop": 1,
+    "static_return_sites": 323
+   }
+  }
+ },
+ "fixed_settings": {
+  "pad": "ScriptedPad (tools/play-oracle/startup.cpp): neutral sticks (128), buttons set by the observer only while paused at a 0x1296f8 entry, from guest state; applied at the next PadHandler::Update like RecordedPad",
+  "pad_script_restore": "submode 10 -> press Start; Start consumed (pressed word & 0x800 at a submode-10 entry) -> release; first submode-0x1e entry (selection 1) -> press Cross (0x1f85dc = 0x40); confirm consumed -> release",
+  "pad_script_newgame": "as restore until the first submode-0x1e entry -> press Left (0x1f8604 = 0x8000 sets 0x259970, which decrements the selection; Down sets 0x25996c, which this menu does not read); Left consumed (0x259970 = 1) -> release; selection 0 and 0x259970 = 0 -> press Cross; confirm consumed -> release",
+  "sound_handler": "none",
+  "gs": "null renderer + Title ledger",
+  "vram_initial_fill": "0x00 (fill00-a/b, control) and 0xff (fillff-a/b), before the first guest instruction",
+  "stop": "ENTRY of 0x124548 with parent+0x4c = 10 (restore) / 9 (newgame); VM paused there",
+  "checkpoints": "title-constructed (0x12c350 selector-1 return = the Title stop), first-update (entry of the first 0x1296f8), stable-menu (the 0x1296f8 entry whose pressed word carries the consumed Start), removal-request (entry of 0x103640 for the water slot from 0x1296f8), resource-retirement (entry of 0x12c8d8 = after the title resource child 0x101058 returned, before the mode-8 destructor body), successor-entry (entry of 0x124548)",
+  "deadline_seconds": 3600
+ },
+ "commands": [
+  "OKAGE_PLAY_VM_LOCK=<main>/local/research/.play-vm.lock tools/retire_title_capture.sh <evidence>/bin/okage-startup-oracle \"<main>/local/disc/Okage - Shadow King (USA).cue\" <main>/local/extracted/SCUS_971.29 <evidence>",
+  "sh <evidence>/regress-as-executed.sh   # one --title and one default-mode run of the same binary, fill 00, under the lock",
+  "python3 -I tools/retire_title_original_extract.py <evidence> --out <evidence>/analysis --rng <main>/local/research/rng-original-v1/analysis/rng.jsonl --title-runs <main>/local/research/title-original-v1/runs --title-analysis <main>/local/research/title-original-v1/analysis --startup-run <main>/local/research/startup-original-v1/runs/fill00-a --regress-title <evidence>/runs/regression/title-fill00 --regress-default <evidence>/runs/regression/default-fill00 > <evidence>/analysis.log",
+  "python3 -I tools/retire_title_compare.py <evidence>/analysis NATIVE_DIR [--json OUT]",
+  "python3 -I tools/retire_title_make_manifest.py <evidence> <worktree> <main> <oracle_source_commit> docs/retire-title-original-manifest.json",
+  "OKAGE_MAIN_CHECKOUT=<main> python3 -m unittest discover -s tests"
+ ],
+ "evidence_dir": "local/research/retire-title-original-v1 (read-only after capture; trials/ and bin-trial*/ retained development runs of earlier observer builds, not used by the analysis)",
+ "regression": {
+  "title_mode_vs_title_fill00_a": {
+   "events.jsonl": true,
+   "disc-opens.jsonl": true,
+   "vram.bin": true,
+   "vram-last-writer.bin": true,
+   "vram-upload-ever.bin": true,
+   "ee-ram-32mb.bin": true,
+   "ee-ram-after-10bc78.bin": true,
+   "final-state.jsonl": true,
+   "state-at-100618.jsonl": true,
+   "gs-ledger.jsonl (ee_event removed)": true,
+   "run-meta.json (wall_seconds removed)": true
+  },
+  "default_mode_run_meta_keys_added_since_startup_binary": {
+   "rand_pending_at_stop": false,
+   "rng_products": false
+  },
+  "default_mode_vs_startup_fill00_a": {
+   "events.jsonl": true,
+   "disc-opens.jsonl": true,
+   "gs-ledger.jsonl": true,
+   "vram.bin": true,
+   "ee-ram-32mb.bin": true,
+   "final-state.jsonl": true,
+   "run-meta.json (keys common to both, wall_seconds removed)": true
+  }
+ },
+ "outputs": {
+  "analysis/regression.json": {
+   "sha256": "4afa77090c810dc68b79b1162154fe2000bd53045addac1e07b1b4fa836f66ff",
+   "bytes": 782
+  },
+  "analysis/newgame/events-detail.jsonl": {
+   "sha256": "0aa0a9ea9db22922d18e217ebf9cbd975e6284e084731661dfbda7ef084c3196",
+   "bytes": 182665
+  },
+  "analysis/newgame/pad-consumption.jsonl": {
+   "sha256": "e5c190e492d0a3a2d706c7e08c6304ca40f39e473f1ab696b093886f8eb78edb",
+   "bytes": 91859
+  },
+  "analysis/newgame/reference.json": {
+   "sha256": "fb8a194bb66c2019ba8d5545655d1b1ac998fc40b0f69c7c4bb0230508a766f1",
+   "bytes": 98707
+  },
+  "analysis/newgame/rng-detail.jsonl": {
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  "analysis/newgame/title-frames.jsonl": {
+   "sha256": "4613aa37cd82235483a22c1ad8d0cd5cae69915b288e11a515bbcbf1869fd511",
+   "bytes": 66189
+  },
+  "analysis/newgame/first-update/effects.json": {
+   "sha256": "c0d95e285b616803fe0841a7baaa2eba3ea9358783166c8ce1f0b38c90e4997c",
+   "bytes": 19
+  },
+  "analysis/newgame/first-update/events.jsonl": {
+   "sha256": "b3f9bafe7b032cc2f5f5acc5b6804ca50cd230c918b13b67d6660168109bc6cc",
+   "bytes": 42402
+  },
+  "analysis/newgame/first-update/rng.jsonl": {
+   "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb",
+   "bytes": 613171
+  },
+  "analysis/newgame/first-update/state.json": {
+   "sha256": "f74dfa6cef435239a90b9ecf38db79511b5498af683666a11da0f036eb4cdb3c",
+   "bytes": 71182
+  },
+  "analysis/newgame/first-update/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/newgame/first-update/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/newgame/first-update/vram-written-values.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "analysis/newgame/removal-request/effects.json": {
+   "sha256": "be2eeec75179d4e23a5095488b990028d938512fea2a00c259057f6483f0203d",
+   "bytes": 77
+  },
+  "analysis/newgame/removal-request/events.jsonl": {
+   "sha256": "cd9174ead0af2623fce1fbebaed29243874945bb23a35158d2485b512f863485",
+   "bytes": 42917
+  },
+  "analysis/newgame/removal-request/rng.jsonl": {
+   "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb",
+   "bytes": 613171
+  },
+  "analysis/newgame/removal-request/state.json": {
+   "sha256": "9ef3604a0961b2576c45245ec3185cd3796a4bc0b0d46ae63f440ccef92a9281",
+   "bytes": 71185
+  },
+  "analysis/newgame/removal-request/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/newgame/removal-request/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/newgame/removal-request/vram-written-values.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "analysis/newgame/resource-retirement/effects.json": {
+   "sha256": "c54acb1126ea841213da3c7ddf3cb4c608dd6d669969f0ff1c3dc354865f259d",
+   "bytes": 86
+  },
+  "analysis/newgame/resource-retirement/events.jsonl": {
+   "sha256": "b24cf4b2a51f822d7c9c60b088a62e217b9b2efe8789d7be46a276a1b3015079",
+   "bytes": 51643
+  },
+  "analysis/newgame/resource-retirement/rng.jsonl": {
+   "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb",
+   "bytes": 613171
+  },
+  "analysis/newgame/resource-retirement/state.json": {
+   "sha256": "41ffab3429f95ab7f5efc20129ce9488a55c22bf831729a57af27f9f06ce3c1c",
+   "bytes": 50735
+  },
+  "analysis/newgame/resource-retirement/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/newgame/resource-retirement/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/newgame/resource-retirement/vram-written-values.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "analysis/newgame/stable-menu/effects.json": {
+   "sha256": "be2eeec75179d4e23a5095488b990028d938512fea2a00c259057f6483f0203d",
+   "bytes": 77
+  },
+  "analysis/newgame/stable-menu/events.jsonl": {
+   "sha256": "883540edd6ff789afb500ebdc9ad1d5a44584b8e64d1d21e096358749463eb8e",
+   "bytes": 42653
+  },
+  "analysis/newgame/stable-menu/rng.jsonl": {
+   "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb",
+   "bytes": 613171
+  },
+  "analysis/newgame/stable-menu/state.json": {
+   "sha256": "8e70606ee94183eedab9ad9ef93b7f1966baa4b5a6ff56b036acfd447cb10cec",
+   "bytes": 71181
+  },
+  "analysis/newgame/stable-menu/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/newgame/stable-menu/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/newgame/stable-menu/vram-written-values.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "analysis/newgame/successor-entry/effects.json": {
+   "sha256": "c54acb1126ea841213da3c7ddf3cb4c608dd6d669969f0ff1c3dc354865f259d",
+   "bytes": 86
+  },
+  "analysis/newgame/successor-entry/events.jsonl": {
+   "sha256": "d66af8add94c638a67287a77192ea69d4e6449f24d40139965e5f27537be7384",
+   "bytes": 51902
+  },
+  "analysis/newgame/successor-entry/rng.jsonl": {
+   "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb",
+   "bytes": 613171
+  },
+  "analysis/newgame/successor-entry/state.json": {
+   "sha256": "d117fb4ecfa3e72b24371c21762f641cf763f1083aa3aab6fea46f430bbddecf",
+   "bytes": 50731
+  },
+  "analysis/newgame/successor-entry/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/newgame/successor-entry/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/newgame/successor-entry/vram-written-values.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "analysis/restore/events-detail.jsonl": {
+   "sha256": "d4f7077fba49cc1211ad4e9dfda833eaa6d3bf1cbb6b5954e4c21e0763b6bb62",
+   "bytes": 182667
+  },
+  "analysis/restore/pad-consumption.jsonl": {
+   "sha256": "66af0d8f16064b52b0ba8c40df088515b05b4bcb0b9516a44d215cc474cff4d1",
+   "bytes": 91503
+  },
+  "analysis/restore/reference.json": {
+   "sha256": "499bb768edbbb730b30d12c4d65251483e7fc6ba92547c8739a5e9569b73587b",
+   "bytes": 97945
+  },
+  "analysis/restore/rng-detail.jsonl": {
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  "analysis/restore/title-frames.jsonl": {
+   "sha256": "6dd77670f009333f3e540ad25941b883c3a7afe9c633007d16fabd1209201ba7",
+   "bytes": 65145
+  },
+  "analysis/restore/first-update/effects.json": {
+   "sha256": "c0d95e285b616803fe0841a7baaa2eba3ea9358783166c8ce1f0b38c90e4997c",
+   "bytes": 19
+  },
+  "analysis/restore/first-update/events.jsonl": {
+   "sha256": "b3f9bafe7b032cc2f5f5acc5b6804ca50cd230c918b13b67d6660168109bc6cc",
+   "bytes": 42402
+  },
+  "analysis/restore/first-update/rng.jsonl": {
+   "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb",
+   "bytes": 613171
+  },
+  "analysis/restore/first-update/state.json": {
+   "sha256": "f74dfa6cef435239a90b9ecf38db79511b5498af683666a11da0f036eb4cdb3c",
+   "bytes": 71182
+  },
+  "analysis/restore/first-update/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/restore/first-update/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/restore/first-update/vram-written-values.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "analysis/restore/removal-request/effects.json": {
+   "sha256": "be2eeec75179d4e23a5095488b990028d938512fea2a00c259057f6483f0203d",
+   "bytes": 77
+  },
+  "analysis/restore/removal-request/events.jsonl": {
+   "sha256": "68449775dce1acc8e14bf4a629327051b98841d1b33af2beb9ebd9f25e988858",
+   "bytes": 42917
+  },
+  "analysis/restore/removal-request/rng.jsonl": {
+   "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb",
+   "bytes": 613171
+  },
+  "analysis/restore/removal-request/state.json": {
+   "sha256": "9ef3604a0961b2576c45245ec3185cd3796a4bc0b0d46ae63f440ccef92a9281",
+   "bytes": 71185
+  },
+  "analysis/restore/removal-request/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/restore/removal-request/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/restore/removal-request/vram-written-values.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "analysis/restore/resource-retirement/effects.json": {
+   "sha256": "c54acb1126ea841213da3c7ddf3cb4c608dd6d669969f0ff1c3dc354865f259d",
+   "bytes": 86
+  },
+  "analysis/restore/resource-retirement/events.jsonl": {
+   "sha256": "1e98cd373d22d6017030789311f2ddefeecf787178d7fe123c950d72151d8b00",
+   "bytes": 51644
+  },
+  "analysis/restore/resource-retirement/rng.jsonl": {
+   "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb",
+   "bytes": 613171
+  },
+  "analysis/restore/resource-retirement/state.json": {
+   "sha256": "41ffab3429f95ab7f5efc20129ce9488a55c22bf831729a57af27f9f06ce3c1c",
+   "bytes": 50735
+  },
+  "analysis/restore/resource-retirement/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/restore/resource-retirement/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/restore/resource-retirement/vram-written-values.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "analysis/restore/stable-menu/effects.json": {
+   "sha256": "be2eeec75179d4e23a5095488b990028d938512fea2a00c259057f6483f0203d",
+   "bytes": 77
+  },
+  "analysis/restore/stable-menu/events.jsonl": {
+   "sha256": "883540edd6ff789afb500ebdc9ad1d5a44584b8e64d1d21e096358749463eb8e",
+   "bytes": 42653
+  },
+  "analysis/restore/stable-menu/rng.jsonl": {
+   "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb",
+   "bytes": 613171
+  },
+  "analysis/restore/stable-menu/state.json": {
+   "sha256": "8e70606ee94183eedab9ad9ef93b7f1966baa4b5a6ff56b036acfd447cb10cec",
+   "bytes": 71181
+  },
+  "analysis/restore/stable-menu/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/restore/stable-menu/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/restore/stable-menu/vram-written-values.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "analysis/restore/successor-entry/effects.json": {
+   "sha256": "c54acb1126ea841213da3c7ddf3cb4c608dd6d669969f0ff1c3dc354865f259d",
+   "bytes": 86
+  },
+  "analysis/restore/successor-entry/events.jsonl": {
+   "sha256": "6f01066c29f3fd831f630d874daf87a74b2ffc2ac39af8f4480ce127da90c6fe",
+   "bytes": 51903
+  },
+  "analysis/restore/successor-entry/rng.jsonl": {
+   "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb",
+   "bytes": 613171
+  },
+  "analysis/restore/successor-entry/state.json": {
+   "sha256": "d117fb4ecfa3e72b24371c21762f641cf763f1083aa3aab6fea46f430bbddecf",
+   "bytes": 50731
+  },
+  "analysis/restore/successor-entry/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/restore/successor-entry/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/restore/successor-entry/vram-written-values.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  }
+ },
+ "runs": {
+  "runs/newgame/control-minimal-fill00.log": {
+   "sha256": "5eac6b7d424b79a971155464bffb0e213814517a0069c406d7259ffd815ae0c0",
+   "bytes": 592
+  },
+  "runs/newgame/fill00-a.log": {
+   "sha256": "c9a9ac92b35556e935f8f4e5b593f909782801e1d93fe925f918ee040e2252f1",
+   "bytes": 594
+  },
+  "runs/newgame/fill00-b.log": {
+   "sha256": "a4caf0a7d138db81792189eacd9316e38b3c9faedfde90291c3c20b5ec130ec0",
+   "bytes": 594
+  },
+  "runs/newgame/fillff-a.log": {
+   "sha256": "1b1a9e4c2f1965a358c5545614e6e17bba6cd7d5cec2784932c385fcc9eeab0f",
+   "bytes": 594
+  },
+  "runs/newgame/fillff-b.log": {
+   "sha256": "3de7ddeec53bcaab7e00cd4db2e9838244af8e26726536ef6fa3759476ad93d9",
+   "bytes": 594
+  },
+  "runs/newgame/control-minimal-fill00/disc-opens.jsonl": {
+   "sha256": "854e9b1493c1dd2077076d59f0bc76704f77902807202e0ba43d599fbd56a202",
+   "bytes": 3115
+  },
+  "runs/newgame/control-minimal-fill00/ee-ram-32mb.bin": {
+   "sha256": "e732022cabb853aa7e77dfb4685a7ecabedf1ce5265b98e5dc2e956643b6b701",
+   "bytes": 33554432
+  },
+  "runs/newgame/control-minimal-fill00/events.jsonl": {
+   "sha256": "4c3f1b067ab4e7398910f0aa7d60ac3c22d89d38cfcf2890981847dee18f7b43",
+   "bytes": 219337
+  },
+  "runs/newgame/control-minimal-fill00/final-state.jsonl": {
+   "sha256": "beb60b6c580cf1306412b2a6ab73209c7a1a34488578c4d4f63d9afa8c7e634a",
+   "bytes": 63177
+  },
+  "runs/newgame/control-minimal-fill00/gs-ledger.jsonl": {
+   "sha256": "e4cfd58e9174d4eb6aae2234e6b6b8fbe4ed111b469b10c8a20dce61f399a919",
+   "bytes": 142583
+  },
+  "runs/newgame/control-minimal-fill00/pad-host.jsonl": {
+   "sha256": "3a84724c42fca21711fd64cc756a71f8db990fc21fee6cfb57c548e5991ebd7c",
+   "bytes": 500
+  },
+  "runs/newgame/control-minimal-fill00/run-meta.json": {
+   "sha256": "4b751ade99719119ee8fd6bf66a94fd7d1f203a80517d4f633a597c7c568c6a8",
+   "bytes": 697
+  },
+  "runs/newgame/control-minimal-fill00/state-at-100618.jsonl": {
+   "sha256": "2093ed2eb3f556c8ff3f1669630c35aa37bb4494f427b3b7815bc0855211c4c0",
+   "bytes": 62423
+  },
+  "runs/newgame/control-minimal-fill00/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/newgame/control-minimal-fill00/checkpoints/first-update/state.jsonl": {
+   "sha256": "46889d81145f3a5a5c4b5e1a7542b44b9354b730ca660afcfcde505aa341fc3b",
+   "bytes": 70883
+  },
+  "runs/newgame/control-minimal-fill00/checkpoints/first-update/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/newgame/control-minimal-fill00/checkpoints/stable-menu/state.jsonl": {
+   "sha256": "7e9e69cdec804ee42f85e39a9be87b2865745ab870c4bbf6066fccfd4877edcf",
+   "bytes": 71046
+  },
+  "runs/newgame/control-minimal-fill00/checkpoints/stable-menu/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/newgame/control-minimal-fill00/checkpoints/successor-entry/state.jsonl": {
+   "sha256": "beb60b6c580cf1306412b2a6ab73209c7a1a34488578c4d4f63d9afa8c7e634a",
+   "bytes": 63177
+  },
+  "runs/newgame/control-minimal-fill00/checkpoints/successor-entry/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-a/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "runs/newgame/fill00-a/ee-ram-32mb.bin": {
+   "sha256": "a5ddf02bcc509d1bfcaf9881eb2296bdf7980e19ef604d77cfac64cc3bb8829d",
+   "bytes": 33554432
+  },
+  "runs/newgame/fill00-a/ee-ram-after-10bc78.bin": {
+   "sha256": "b1708a93abea2728959b63662964086d62bba3568e76af8c26b818829047b3e2",
+   "bytes": 33554432
+  },
+  "runs/newgame/fill00-a/events.jsonl": {
+   "sha256": "fcded45da7b2a88a973e8cec05760cf77f4de59651e91cfa4224ac8b82439b45",
+   "bytes": 15362150
+  },
+  "runs/newgame/fill00-a/final-state.jsonl": {
+   "sha256": "f5ddcc577c748bc6cd59dc6acbc6d72474906717fac7f70c85d5c8a01784d9f5",
+   "bytes": 91559
+  },
+  "runs/newgame/fill00-a/gs-ledger.jsonl": {
+   "sha256": "7031a7e89ab78ab0ea5cb52b0f4509f9fbcbfce6a2751257bc73e5421eb9fe52",
+   "bytes": 250162
+  },
+  "runs/newgame/fill00-a/pad-host.jsonl": {
+   "sha256": "2c48263f5313cf83838ee1f6903b907f5b2c55e027ec5b0a57f0c2215715e4a2",
+   "bytes": 500
+  },
+  "runs/newgame/fill00-a/run-meta.json": {
+   "sha256": "c30377c5a97d124b77a2c3660f53c0aef9836abfd79b6650a7e11eaceb4dabd5",
+   "bytes": 825
+  },
+  "runs/newgame/fill00-a/state-at-100618.jsonl": {
+   "sha256": "3dcf6b61ccfa69c4e009541c82937bbad002b3d2de550942f2214dd1a3b4627a",
+   "bytes": 75597
+  },
+  "runs/newgame/fill00-a/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-a/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-a/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-a/checkpoints/first-update/state.jsonl": {
+   "sha256": "8fea9c51c496662037be42545dd89f64684a8831f1abd14537159603f27550f7",
+   "bytes": 98941
+  },
+  "runs/newgame/fill00-a/checkpoints/first-update/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-a/checkpoints/first-update/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-a/checkpoints/first-update/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-a/checkpoints/removal-request/state.jsonl": {
+   "sha256": "b78d3606988cc2d4d33b1a05bc7c386a5689fc03649dddc3ec4c05271a2138d5",
+   "bytes": 99262
+  },
+  "runs/newgame/fill00-a/checkpoints/removal-request/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-a/checkpoints/removal-request/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-a/checkpoints/removal-request/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-a/checkpoints/resource-retirement/state.jsonl": {
+   "sha256": "d7d49c052e44f634cd5860cd1884d2197550094badb3cd047fe498a40ff79657",
+   "bytes": 91557
+  },
+  "runs/newgame/fill00-a/checkpoints/resource-retirement/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-a/checkpoints/resource-retirement/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-a/checkpoints/resource-retirement/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-a/checkpoints/stable-menu/state.jsonl": {
+   "sha256": "c6c41a2710e99197a8a509e3932bab2cff4ff24e1037830d096162ed6d236879",
+   "bytes": 99262
+  },
+  "runs/newgame/fill00-a/checkpoints/stable-menu/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-a/checkpoints/stable-menu/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-a/checkpoints/stable-menu/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-a/checkpoints/successor-entry/state.jsonl": {
+   "sha256": "f5ddcc577c748bc6cd59dc6acbc6d72474906717fac7f70c85d5c8a01784d9f5",
+   "bytes": 91559
+  },
+  "runs/newgame/fill00-a/checkpoints/successor-entry/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-a/checkpoints/successor-entry/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-a/checkpoints/successor-entry/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-a/checkpoints/title-constructed/state.jsonl": {
+   "sha256": "24caea163c4e777426a73b80652233ffa3b4d59a3060856cfedcb4a470d740e3",
+   "bytes": 98941
+  },
+  "runs/newgame/fill00-a/checkpoints/title-constructed/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-a/checkpoints/title-constructed/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-a/checkpoints/title-constructed/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-b/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "runs/newgame/fill00-b/ee-ram-32mb.bin": {
+   "sha256": "a5ddf02bcc509d1bfcaf9881eb2296bdf7980e19ef604d77cfac64cc3bb8829d",
+   "bytes": 33554432
+  },
+  "runs/newgame/fill00-b/ee-ram-after-10bc78.bin": {
+   "sha256": "b1708a93abea2728959b63662964086d62bba3568e76af8c26b818829047b3e2",
+   "bytes": 33554432
+  },
+  "runs/newgame/fill00-b/events.jsonl": {
+   "sha256": "fcded45da7b2a88a973e8cec05760cf77f4de59651e91cfa4224ac8b82439b45",
+   "bytes": 15362150
+  },
+  "runs/newgame/fill00-b/final-state.jsonl": {
+   "sha256": "f5ddcc577c748bc6cd59dc6acbc6d72474906717fac7f70c85d5c8a01784d9f5",
+   "bytes": 91559
+  },
+  "runs/newgame/fill00-b/gs-ledger.jsonl": {
+   "sha256": "4ce23346aabc31dbb40f10bc3c1a85dbbf40f65dea473b8da7772d1f9ef5bd9c",
+   "bytes": 250162
+  },
+  "runs/newgame/fill00-b/pad-host.jsonl": {
+   "sha256": "2c48263f5313cf83838ee1f6903b907f5b2c55e027ec5b0a57f0c2215715e4a2",
+   "bytes": 500
+  },
+  "runs/newgame/fill00-b/run-meta.json": {
+   "sha256": "1a07d00ec81d2be78fd71a35ac0bca3ceb18ef9123204437c087b58b64368716",
+   "bytes": 825
+  },
+  "runs/newgame/fill00-b/state-at-100618.jsonl": {
+   "sha256": "3dcf6b61ccfa69c4e009541c82937bbad002b3d2de550942f2214dd1a3b4627a",
+   "bytes": 75597
+  },
+  "runs/newgame/fill00-b/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-b/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-b/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-b/checkpoints/first-update/state.jsonl": {
+   "sha256": "8fea9c51c496662037be42545dd89f64684a8831f1abd14537159603f27550f7",
+   "bytes": 98941
+  },
+  "runs/newgame/fill00-b/checkpoints/first-update/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-b/checkpoints/first-update/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-b/checkpoints/first-update/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-b/checkpoints/removal-request/state.jsonl": {
+   "sha256": "b78d3606988cc2d4d33b1a05bc7c386a5689fc03649dddc3ec4c05271a2138d5",
+   "bytes": 99262
+  },
+  "runs/newgame/fill00-b/checkpoints/removal-request/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-b/checkpoints/removal-request/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-b/checkpoints/removal-request/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-b/checkpoints/resource-retirement/state.jsonl": {
+   "sha256": "d7d49c052e44f634cd5860cd1884d2197550094badb3cd047fe498a40ff79657",
+   "bytes": 91557
+  },
+  "runs/newgame/fill00-b/checkpoints/resource-retirement/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-b/checkpoints/resource-retirement/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-b/checkpoints/resource-retirement/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-b/checkpoints/stable-menu/state.jsonl": {
+   "sha256": "c6c41a2710e99197a8a509e3932bab2cff4ff24e1037830d096162ed6d236879",
+   "bytes": 99262
+  },
+  "runs/newgame/fill00-b/checkpoints/stable-menu/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-b/checkpoints/stable-menu/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-b/checkpoints/stable-menu/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-b/checkpoints/successor-entry/state.jsonl": {
+   "sha256": "f5ddcc577c748bc6cd59dc6acbc6d72474906717fac7f70c85d5c8a01784d9f5",
+   "bytes": 91559
+  },
+  "runs/newgame/fill00-b/checkpoints/successor-entry/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-b/checkpoints/successor-entry/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-b/checkpoints/successor-entry/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-b/checkpoints/title-constructed/state.jsonl": {
+   "sha256": "24caea163c4e777426a73b80652233ffa3b4d59a3060856cfedcb4a470d740e3",
+   "bytes": 98941
+  },
+  "runs/newgame/fill00-b/checkpoints/title-constructed/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-b/checkpoints/title-constructed/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fill00-b/checkpoints/title-constructed/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-a/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "runs/newgame/fillff-a/ee-ram-32mb.bin": {
+   "sha256": "a5ddf02bcc509d1bfcaf9881eb2296bdf7980e19ef604d77cfac64cc3bb8829d",
+   "bytes": 33554432
+  },
+  "runs/newgame/fillff-a/ee-ram-after-10bc78.bin": {
+   "sha256": "b1708a93abea2728959b63662964086d62bba3568e76af8c26b818829047b3e2",
+   "bytes": 33554432
+  },
+  "runs/newgame/fillff-a/events.jsonl": {
+   "sha256": "fcded45da7b2a88a973e8cec05760cf77f4de59651e91cfa4224ac8b82439b45",
+   "bytes": 15362150
+  },
+  "runs/newgame/fillff-a/final-state.jsonl": {
+   "sha256": "55c36c0f616f621dc93d9179b7695d13af20ff8ae3c571a58fe37991b7b9d7ee",
+   "bytes": 91561
+  },
+  "runs/newgame/fillff-a/gs-ledger.jsonl": {
+   "sha256": "5cc2c72585fbbf2ef1febcc4d8feb26ea0c5cf0ab0f86607eea7f90911be40cf",
+   "bytes": 250162
+  },
+  "runs/newgame/fillff-a/pad-host.jsonl": {
+   "sha256": "2c48263f5313cf83838ee1f6903b907f5b2c55e027ec5b0a57f0c2215715e4a2",
+   "bytes": 500
+  },
+  "runs/newgame/fillff-a/run-meta.json": {
+   "sha256": "9f6a85b1e10f1fce5906cf40b044bb7a1c90535c614ac70f11058fcc14fbec5c",
+   "bytes": 829
+  },
+  "runs/newgame/fillff-a/state-at-100618.jsonl": {
+   "sha256": "94c4db747123536d8f3462142c663c8eb5c0bdf6300cb061e0eaa28460d10374",
+   "bytes": 75599
+  },
+  "runs/newgame/fillff-a/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-a/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-a/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-a/checkpoints/first-update/state.jsonl": {
+   "sha256": "72b60f60b9efa8471fead3c5437577c1c1185d7b871fb4076fac6e4c5f004380",
+   "bytes": 98943
+  },
+  "runs/newgame/fillff-a/checkpoints/first-update/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-a/checkpoints/first-update/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-a/checkpoints/first-update/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-a/checkpoints/removal-request/state.jsonl": {
+   "sha256": "009955a854e3edceff1a8f1e75a3d532fba0598477be9b42ec8775850108e989",
+   "bytes": 99264
+  },
+  "runs/newgame/fillff-a/checkpoints/removal-request/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-a/checkpoints/removal-request/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-a/checkpoints/removal-request/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-a/checkpoints/resource-retirement/state.jsonl": {
+   "sha256": "adb90e96ac444681e7e23c0ba74efa687ef130d87656988085b2ed4a1135b459",
+   "bytes": 91559
+  },
+  "runs/newgame/fillff-a/checkpoints/resource-retirement/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-a/checkpoints/resource-retirement/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-a/checkpoints/resource-retirement/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-a/checkpoints/stable-menu/state.jsonl": {
+   "sha256": "4b8334b86fec5885b47540c32bb73045d669f213d3cdada42f399c1a1b7ad38b",
+   "bytes": 99264
+  },
+  "runs/newgame/fillff-a/checkpoints/stable-menu/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-a/checkpoints/stable-menu/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-a/checkpoints/stable-menu/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-a/checkpoints/successor-entry/state.jsonl": {
+   "sha256": "55c36c0f616f621dc93d9179b7695d13af20ff8ae3c571a58fe37991b7b9d7ee",
+   "bytes": 91561
+  },
+  "runs/newgame/fillff-a/checkpoints/successor-entry/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-a/checkpoints/successor-entry/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-a/checkpoints/successor-entry/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-a/checkpoints/title-constructed/state.jsonl": {
+   "sha256": "b2884a498c58049616a81f20adfaf934482e2c70c8b4b7c556fcecf3188f1182",
+   "bytes": 98943
+  },
+  "runs/newgame/fillff-a/checkpoints/title-constructed/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-a/checkpoints/title-constructed/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-a/checkpoints/title-constructed/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-b/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "runs/newgame/fillff-b/ee-ram-32mb.bin": {
+   "sha256": "a5ddf02bcc509d1bfcaf9881eb2296bdf7980e19ef604d77cfac64cc3bb8829d",
+   "bytes": 33554432
+  },
+  "runs/newgame/fillff-b/ee-ram-after-10bc78.bin": {
+   "sha256": "b1708a93abea2728959b63662964086d62bba3568e76af8c26b818829047b3e2",
+   "bytes": 33554432
+  },
+  "runs/newgame/fillff-b/events.jsonl": {
+   "sha256": "fcded45da7b2a88a973e8cec05760cf77f4de59651e91cfa4224ac8b82439b45",
+   "bytes": 15362150
+  },
+  "runs/newgame/fillff-b/final-state.jsonl": {
+   "sha256": "55c36c0f616f621dc93d9179b7695d13af20ff8ae3c571a58fe37991b7b9d7ee",
+   "bytes": 91561
+  },
+  "runs/newgame/fillff-b/gs-ledger.jsonl": {
+   "sha256": "96918f5a2fe2dfd30121a315d123c8dd8c3d021e0d5c574ad00da83b291edb62",
+   "bytes": 250162
+  },
+  "runs/newgame/fillff-b/pad-host.jsonl": {
+   "sha256": "2c48263f5313cf83838ee1f6903b907f5b2c55e027ec5b0a57f0c2215715e4a2",
+   "bytes": 500
+  },
+  "runs/newgame/fillff-b/run-meta.json": {
+   "sha256": "a64dabb5f1922d5f1de60888961108641ecfdddd03dc55321a1fa8f0ac694b0c",
+   "bytes": 829
+  },
+  "runs/newgame/fillff-b/state-at-100618.jsonl": {
+   "sha256": "94c4db747123536d8f3462142c663c8eb5c0bdf6300cb061e0eaa28460d10374",
+   "bytes": 75599
+  },
+  "runs/newgame/fillff-b/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-b/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-b/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-b/checkpoints/first-update/state.jsonl": {
+   "sha256": "72b60f60b9efa8471fead3c5437577c1c1185d7b871fb4076fac6e4c5f004380",
+   "bytes": 98943
+  },
+  "runs/newgame/fillff-b/checkpoints/first-update/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-b/checkpoints/first-update/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-b/checkpoints/first-update/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-b/checkpoints/removal-request/state.jsonl": {
+   "sha256": "009955a854e3edceff1a8f1e75a3d532fba0598477be9b42ec8775850108e989",
+   "bytes": 99264
+  },
+  "runs/newgame/fillff-b/checkpoints/removal-request/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-b/checkpoints/removal-request/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-b/checkpoints/removal-request/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-b/checkpoints/resource-retirement/state.jsonl": {
+   "sha256": "adb90e96ac444681e7e23c0ba74efa687ef130d87656988085b2ed4a1135b459",
+   "bytes": 91559
+  },
+  "runs/newgame/fillff-b/checkpoints/resource-retirement/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-b/checkpoints/resource-retirement/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-b/checkpoints/resource-retirement/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-b/checkpoints/stable-menu/state.jsonl": {
+   "sha256": "4b8334b86fec5885b47540c32bb73045d669f213d3cdada42f399c1a1b7ad38b",
+   "bytes": 99264
+  },
+  "runs/newgame/fillff-b/checkpoints/stable-menu/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-b/checkpoints/stable-menu/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-b/checkpoints/stable-menu/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-b/checkpoints/successor-entry/state.jsonl": {
+   "sha256": "55c36c0f616f621dc93d9179b7695d13af20ff8ae3c571a58fe37991b7b9d7ee",
+   "bytes": 91561
+  },
+  "runs/newgame/fillff-b/checkpoints/successor-entry/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-b/checkpoints/successor-entry/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-b/checkpoints/successor-entry/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-b/checkpoints/title-constructed/state.jsonl": {
+   "sha256": "b2884a498c58049616a81f20adfaf934482e2c70c8b4b7c556fcecf3188f1182",
+   "bytes": 98943
+  },
+  "runs/newgame/fillff-b/checkpoints/title-constructed/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-b/checkpoints/title-constructed/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/newgame/fillff-b/checkpoints/title-constructed/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/regression/default-fill00.log": {
+   "sha256": "8044d3070a0b0fa560d7cac25de8dae982971deef8c6b166ef1319f127b46277",
+   "bytes": 643
+  },
+  "runs/regression/title-fill00.log": {
+   "sha256": "c2ad99a951dbc51023e0f5593ac77dd60532e2f3095db332758e4e344dca6b06",
+   "bytes": 644
+  },
+  "runs/regression/default-fill00/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "runs/regression/default-fill00/ee-ram-32mb.bin": {
+   "sha256": "be139d4fd6ebd9c509b9811cbc32846b65eebf7f1037a140058942554b3bf4fa",
+   "bytes": 33554432
+  },
+  "runs/regression/default-fill00/events.jsonl": {
+   "sha256": "03cd09bcf8a29a3e8fed44c5b8339c1f9d1846c098533e42d1dfcb77f31151c6",
+   "bytes": 1046167
+  },
+  "runs/regression/default-fill00/final-state.jsonl": {
+   "sha256": "d8c1ca03b6c0ad5eeb57c01c783353c950b2638fb41ee63ecf7c6aee2a0d7956",
+   "bytes": 17084
+  },
+  "runs/regression/default-fill00/gs-ledger.jsonl": {
+   "sha256": "ea4e24aa0294a1e0d5b0cff0e42c8f2acc30c9d88b4016211e16ffce9b5c4b17",
+   "bytes": 23295
+  },
+  "runs/regression/default-fill00/run-meta.json": {
+   "sha256": "b5c9b80cda6b60af1887af4e0439157c442c7579c9c73188efa231eaf408dc65",
+   "bytes": 472
+  },
+  "runs/regression/default-fill00/vram.bin": {
+   "sha256": "3d61f88d55f22717a482392a7c4931dc8ee9db4f2c539053c595b31ae007b29c",
+   "bytes": 4194304
+  },
+  "runs/regression/title-fill00/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "runs/regression/title-fill00/ee-ram-32mb.bin": {
+   "sha256": "a933ed73032be132a4e89c2fe6bbff9e20163d51e914e26a9c1ea37b6f9e014b",
+   "bytes": 33554432
+  },
+  "runs/regression/title-fill00/ee-ram-after-10bc78.bin": {
+   "sha256": "3f89a42e0ea6f80033bda9ebab6cfee95097346de9306283bdb2b659b57765a1",
+   "bytes": 33554432
+  },
+  "runs/regression/title-fill00/events.jsonl": {
+   "sha256": "10b3d769b57084bb79a452c132245cbbb66748c58609db5bb27bcb300c341ef8",
+   "bytes": 9693357
+  },
+  "runs/regression/title-fill00/final-state.jsonl": {
+   "sha256": "a4479a5055e4feabf05220f7d36e461584d0aaf07e57a2d3c2276bfeff2cf177",
+   "bytes": 98851
+  },
+  "runs/regression/title-fill00/gs-ledger.jsonl": {
+   "sha256": "004212207db19cedafb99e74050ca2a27401d21b7453d398df4c9124692e3e7e",
+   "bytes": 169845
+  },
+  "runs/regression/title-fill00/run-meta.json": {
+   "sha256": "c2da35a227cc41f34c5ffb942f7f0299861e66ba59a1e81ae4320ae11043ec6f",
+   "bytes": 550
+  },
+  "runs/regression/title-fill00/state-at-100618.jsonl": {
+   "sha256": "09a9c8757bfc3c3684489d9f408443fac84fa0dda4e97610d342da722cf008dd",
+   "bytes": 75507
+  },
+  "runs/regression/title-fill00/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/regression/title-fill00/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/regression/title-fill00/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/restore/control-minimal-fill00.log": {
+   "sha256": "ff02f93a6528cc78a2bf73ebf98291a0c634037fb175d2dda16dd9b63e989124",
+   "bytes": 592
+  },
+  "runs/restore/fill00-a.log": {
+   "sha256": "483c6240cadd6d4ba72af2702258217495675aa0d5f2b17d0ac175f00f5c051b",
+   "bytes": 594
+  },
+  "runs/restore/fill00-b.log": {
+   "sha256": "ba6af675a68c3a6b18d26e92e7155699641635b56a57009982a1d6eef188e97a",
+   "bytes": 594
+  },
+  "runs/restore/fillff-a.log": {
+   "sha256": "d7a4afadcf3df2f95655d955afe57cf7979e74f64cfe5822b88121bfbb4177ac",
+   "bytes": 594
+  },
+  "runs/restore/fillff-b.log": {
+   "sha256": "f4ded8ce784f375e4b34aa25f672e8034824aba94202477b2a576e07291ac871",
+   "bytes": 593
+  },
+  "runs/restore/control-minimal-fill00/disc-opens.jsonl": {
+   "sha256": "854e9b1493c1dd2077076d59f0bc76704f77902807202e0ba43d599fbd56a202",
+   "bytes": 3115
+  },
+  "runs/restore/control-minimal-fill00/ee-ram-32mb.bin": {
+   "sha256": "3f8a446ca7034e4a641b185fc89a5d01090f6c985edd629dbbb783c74a1e4676",
+   "bytes": 33554432
+  },
+  "runs/restore/control-minimal-fill00/events.jsonl": {
+   "sha256": "54d00daacd058ea9d9321cfd9cbf2fc58dd1fe818300f443515aa8ede03cc721",
+   "bytes": 216664
+  },
+  "runs/restore/control-minimal-fill00/final-state.jsonl": {
+   "sha256": "eed51edfafeb98ed149ca263bef364db4e185184d05a05d9fc23a3b73fb2df29",
+   "bytes": 63177
+  },
+  "runs/restore/control-minimal-fill00/gs-ledger.jsonl": {
+   "sha256": "d91d8e2fbf0e1cbb652dd2e88510d6aac079d0915e74d415121ca10379cc31b1",
+   "bytes": 141943
+  },
+  "runs/restore/control-minimal-fill00/pad-host.jsonl": {
+   "sha256": "ba9b59459992e1a5406e025f40afc4673fb3f477e29fc6a4da36dd5c9555cb3d",
+   "bytes": 355
+  },
+  "runs/restore/control-minimal-fill00/run-meta.json": {
+   "sha256": "655fb60de3d8769dd3f455cb78f6b98081fb8dfb1b5c2147be40abb020b275d2",
+   "bytes": 698
+  },
+  "runs/restore/control-minimal-fill00/state-at-100618.jsonl": {
+   "sha256": "2093ed2eb3f556c8ff3f1669630c35aa37bb4494f427b3b7815bc0855211c4c0",
+   "bytes": 62423
+  },
+  "runs/restore/control-minimal-fill00/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/restore/control-minimal-fill00/checkpoints/first-update/state.jsonl": {
+   "sha256": "46889d81145f3a5a5c4b5e1a7542b44b9354b730ca660afcfcde505aa341fc3b",
+   "bytes": 70883
+  },
+  "runs/restore/control-minimal-fill00/checkpoints/first-update/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/restore/control-minimal-fill00/checkpoints/stable-menu/state.jsonl": {
+   "sha256": "7e9e69cdec804ee42f85e39a9be87b2865745ab870c4bbf6066fccfd4877edcf",
+   "bytes": 71046
+  },
+  "runs/restore/control-minimal-fill00/checkpoints/stable-menu/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/restore/control-minimal-fill00/checkpoints/successor-entry/state.jsonl": {
+   "sha256": "eed51edfafeb98ed149ca263bef364db4e185184d05a05d9fc23a3b73fb2df29",
+   "bytes": 63177
+  },
+  "runs/restore/control-minimal-fill00/checkpoints/successor-entry/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-a/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "runs/restore/fill00-a/ee-ram-32mb.bin": {
+   "sha256": "995e83d62696593f6e1c59105333c6868e5aa934f1e957ba6667d173b190b604",
+   "bytes": 33554432
+  },
+  "runs/restore/fill00-a/ee-ram-after-10bc78.bin": {
+   "sha256": "b1708a93abea2728959b63662964086d62bba3568e76af8c26b818829047b3e2",
+   "bytes": 33554432
+  },
+  "runs/restore/fill00-a/events.jsonl": {
+   "sha256": "87b771d02b9a0a26858cdbd32799669fa20b719d4e033cc737c163afedd07ff2",
+   "bytes": 15331298
+  },
+  "runs/restore/fill00-a/final-state.jsonl": {
+   "sha256": "706223df3ed228e67af48480f43cd4fbe4d42c873b23ac9af57f24d3fbd2a03c",
+   "bytes": 91559
+  },
+  "runs/restore/fill00-a/gs-ledger.jsonl": {
+   "sha256": "159d7b4c966c5007c8412e0e397f3cdcadab31b99cf31fabf7cf4c63a1ff0f05",
+   "bytes": 250161
+  },
+  "runs/restore/fill00-a/pad-host.jsonl": {
+   "sha256": "5613ced192bc85a8ba1fc5e445c825b4d9dbf3cf9bcc2c1a679899cbb4c6b338",
+   "bytes": 355
+  },
+  "runs/restore/fill00-a/run-meta.json": {
+   "sha256": "2e7382adf5538032fee875ef9bbbb83db22923ec9eb1e480742d1201c3417682",
+   "bytes": 826
+  },
+  "runs/restore/fill00-a/state-at-100618.jsonl": {
+   "sha256": "3dcf6b61ccfa69c4e009541c82937bbad002b3d2de550942f2214dd1a3b4627a",
+   "bytes": 75597
+  },
+  "runs/restore/fill00-a/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-a/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-a/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-a/checkpoints/first-update/state.jsonl": {
+   "sha256": "8fea9c51c496662037be42545dd89f64684a8831f1abd14537159603f27550f7",
+   "bytes": 98941
+  },
+  "runs/restore/fill00-a/checkpoints/first-update/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-a/checkpoints/first-update/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-a/checkpoints/first-update/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-a/checkpoints/removal-request/state.jsonl": {
+   "sha256": "7c5a003d834ce50c1fd7a88ec905f7923aef7832c49ac2e860ab03c662e39205",
+   "bytes": 99262
+  },
+  "runs/restore/fill00-a/checkpoints/removal-request/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-a/checkpoints/removal-request/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-a/checkpoints/removal-request/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-a/checkpoints/resource-retirement/state.jsonl": {
+   "sha256": "9bc7779b47a8f73aaf5e64360fcfd90719fe88c1ae5c6a7eb9da72a89d7d4959",
+   "bytes": 91557
+  },
+  "runs/restore/fill00-a/checkpoints/resource-retirement/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-a/checkpoints/resource-retirement/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-a/checkpoints/resource-retirement/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-a/checkpoints/stable-menu/state.jsonl": {
+   "sha256": "c6c41a2710e99197a8a509e3932bab2cff4ff24e1037830d096162ed6d236879",
+   "bytes": 99262
+  },
+  "runs/restore/fill00-a/checkpoints/stable-menu/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-a/checkpoints/stable-menu/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-a/checkpoints/stable-menu/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-a/checkpoints/successor-entry/state.jsonl": {
+   "sha256": "706223df3ed228e67af48480f43cd4fbe4d42c873b23ac9af57f24d3fbd2a03c",
+   "bytes": 91559
+  },
+  "runs/restore/fill00-a/checkpoints/successor-entry/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-a/checkpoints/successor-entry/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-a/checkpoints/successor-entry/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-a/checkpoints/title-constructed/state.jsonl": {
+   "sha256": "24caea163c4e777426a73b80652233ffa3b4d59a3060856cfedcb4a470d740e3",
+   "bytes": 98941
+  },
+  "runs/restore/fill00-a/checkpoints/title-constructed/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-a/checkpoints/title-constructed/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-a/checkpoints/title-constructed/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-b/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "runs/restore/fill00-b/ee-ram-32mb.bin": {
+   "sha256": "995e83d62696593f6e1c59105333c6868e5aa934f1e957ba6667d173b190b604",
+   "bytes": 33554432
+  },
+  "runs/restore/fill00-b/ee-ram-after-10bc78.bin": {
+   "sha256": "b1708a93abea2728959b63662964086d62bba3568e76af8c26b818829047b3e2",
+   "bytes": 33554432
+  },
+  "runs/restore/fill00-b/events.jsonl": {
+   "sha256": "87b771d02b9a0a26858cdbd32799669fa20b719d4e033cc737c163afedd07ff2",
+   "bytes": 15331298
+  },
+  "runs/restore/fill00-b/final-state.jsonl": {
+   "sha256": "706223df3ed228e67af48480f43cd4fbe4d42c873b23ac9af57f24d3fbd2a03c",
+   "bytes": 91559
+  },
+  "runs/restore/fill00-b/gs-ledger.jsonl": {
+   "sha256": "8e44d76ceee9b68a7eb8ffaf01ac32405d0ee9aaba54695ca4de329045f2e859",
+   "bytes": 250161
+  },
+  "runs/restore/fill00-b/pad-host.jsonl": {
+   "sha256": "5613ced192bc85a8ba1fc5e445c825b4d9dbf3cf9bcc2c1a679899cbb4c6b338",
+   "bytes": 355
+  },
+  "runs/restore/fill00-b/run-meta.json": {
+   "sha256": "f82b25b724314e785d5c1fd53b49433dd02a3be57c2f44dd3139ea4ee256b141",
+   "bytes": 826
+  },
+  "runs/restore/fill00-b/state-at-100618.jsonl": {
+   "sha256": "3dcf6b61ccfa69c4e009541c82937bbad002b3d2de550942f2214dd1a3b4627a",
+   "bytes": 75597
+  },
+  "runs/restore/fill00-b/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-b/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-b/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-b/checkpoints/first-update/state.jsonl": {
+   "sha256": "8fea9c51c496662037be42545dd89f64684a8831f1abd14537159603f27550f7",
+   "bytes": 98941
+  },
+  "runs/restore/fill00-b/checkpoints/first-update/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-b/checkpoints/first-update/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-b/checkpoints/first-update/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-b/checkpoints/removal-request/state.jsonl": {
+   "sha256": "7c5a003d834ce50c1fd7a88ec905f7923aef7832c49ac2e860ab03c662e39205",
+   "bytes": 99262
+  },
+  "runs/restore/fill00-b/checkpoints/removal-request/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-b/checkpoints/removal-request/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-b/checkpoints/removal-request/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-b/checkpoints/resource-retirement/state.jsonl": {
+   "sha256": "9bc7779b47a8f73aaf5e64360fcfd90719fe88c1ae5c6a7eb9da72a89d7d4959",
+   "bytes": 91557
+  },
+  "runs/restore/fill00-b/checkpoints/resource-retirement/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-b/checkpoints/resource-retirement/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-b/checkpoints/resource-retirement/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-b/checkpoints/stable-menu/state.jsonl": {
+   "sha256": "c6c41a2710e99197a8a509e3932bab2cff4ff24e1037830d096162ed6d236879",
+   "bytes": 99262
+  },
+  "runs/restore/fill00-b/checkpoints/stable-menu/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-b/checkpoints/stable-menu/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-b/checkpoints/stable-menu/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-b/checkpoints/successor-entry/state.jsonl": {
+   "sha256": "706223df3ed228e67af48480f43cd4fbe4d42c873b23ac9af57f24d3fbd2a03c",
+   "bytes": 91559
+  },
+  "runs/restore/fill00-b/checkpoints/successor-entry/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-b/checkpoints/successor-entry/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-b/checkpoints/successor-entry/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-b/checkpoints/title-constructed/state.jsonl": {
+   "sha256": "24caea163c4e777426a73b80652233ffa3b4d59a3060856cfedcb4a470d740e3",
+   "bytes": 98941
+  },
+  "runs/restore/fill00-b/checkpoints/title-constructed/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-b/checkpoints/title-constructed/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fill00-b/checkpoints/title-constructed/vram.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-a/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "runs/restore/fillff-a/ee-ram-32mb.bin": {
+   "sha256": "995e83d62696593f6e1c59105333c6868e5aa934f1e957ba6667d173b190b604",
+   "bytes": 33554432
+  },
+  "runs/restore/fillff-a/ee-ram-after-10bc78.bin": {
+   "sha256": "b1708a93abea2728959b63662964086d62bba3568e76af8c26b818829047b3e2",
+   "bytes": 33554432
+  },
+  "runs/restore/fillff-a/events.jsonl": {
+   "sha256": "87b771d02b9a0a26858cdbd32799669fa20b719d4e033cc737c163afedd07ff2",
+   "bytes": 15331298
+  },
+  "runs/restore/fillff-a/final-state.jsonl": {
+   "sha256": "ddcce10020bb53054b024e0b318c7e2c9f2ca07dec0eddfdca531d481eb24e63",
+   "bytes": 91561
+  },
+  "runs/restore/fillff-a/gs-ledger.jsonl": {
+   "sha256": "fbcf9868e25bb02dff1f154a16867725343ba225a8b62c25c9b31dafd0ced77b",
+   "bytes": 250161
+  },
+  "runs/restore/fillff-a/pad-host.jsonl": {
+   "sha256": "5613ced192bc85a8ba1fc5e445c825b4d9dbf3cf9bcc2c1a679899cbb4c6b338",
+   "bytes": 355
+  },
+  "runs/restore/fillff-a/run-meta.json": {
+   "sha256": "0d020bc1ddc2ba05d049e1843cb8e9341c9c32d85efdf5191e3641d169fa82cb",
+   "bytes": 830
+  },
+  "runs/restore/fillff-a/state-at-100618.jsonl": {
+   "sha256": "94c4db747123536d8f3462142c663c8eb5c0bdf6300cb061e0eaa28460d10374",
+   "bytes": 75599
+  },
+  "runs/restore/fillff-a/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-a/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-a/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-a/checkpoints/first-update/state.jsonl": {
+   "sha256": "72b60f60b9efa8471fead3c5437577c1c1185d7b871fb4076fac6e4c5f004380",
+   "bytes": 98943
+  },
+  "runs/restore/fillff-a/checkpoints/first-update/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-a/checkpoints/first-update/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-a/checkpoints/first-update/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-a/checkpoints/removal-request/state.jsonl": {
+   "sha256": "122436ea77bb6dc1925e8abb525abcd388b0351f3fd17a1fc5e95503ad756023",
+   "bytes": 99264
+  },
+  "runs/restore/fillff-a/checkpoints/removal-request/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-a/checkpoints/removal-request/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-a/checkpoints/removal-request/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-a/checkpoints/resource-retirement/state.jsonl": {
+   "sha256": "cfe773c4242fc8f7b5110966fb941b2209ccecf9668b8019e5b65dd90795a4be",
+   "bytes": 91559
+  },
+  "runs/restore/fillff-a/checkpoints/resource-retirement/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-a/checkpoints/resource-retirement/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-a/checkpoints/resource-retirement/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-a/checkpoints/stable-menu/state.jsonl": {
+   "sha256": "4b8334b86fec5885b47540c32bb73045d669f213d3cdada42f399c1a1b7ad38b",
+   "bytes": 99264
+  },
+  "runs/restore/fillff-a/checkpoints/stable-menu/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-a/checkpoints/stable-menu/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-a/checkpoints/stable-menu/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-a/checkpoints/successor-entry/state.jsonl": {
+   "sha256": "ddcce10020bb53054b024e0b318c7e2c9f2ca07dec0eddfdca531d481eb24e63",
+   "bytes": 91561
+  },
+  "runs/restore/fillff-a/checkpoints/successor-entry/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-a/checkpoints/successor-entry/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-a/checkpoints/successor-entry/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-a/checkpoints/title-constructed/state.jsonl": {
+   "sha256": "b2884a498c58049616a81f20adfaf934482e2c70c8b4b7c556fcecf3188f1182",
+   "bytes": 98943
+  },
+  "runs/restore/fillff-a/checkpoints/title-constructed/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-a/checkpoints/title-constructed/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-a/checkpoints/title-constructed/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-b/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "runs/restore/fillff-b/ee-ram-32mb.bin": {
+   "sha256": "995e83d62696593f6e1c59105333c6868e5aa934f1e957ba6667d173b190b604",
+   "bytes": 33554432
+  },
+  "runs/restore/fillff-b/ee-ram-after-10bc78.bin": {
+   "sha256": "b1708a93abea2728959b63662964086d62bba3568e76af8c26b818829047b3e2",
+   "bytes": 33554432
+  },
+  "runs/restore/fillff-b/events.jsonl": {
+   "sha256": "87b771d02b9a0a26858cdbd32799669fa20b719d4e033cc737c163afedd07ff2",
+   "bytes": 15331298
+  },
+  "runs/restore/fillff-b/final-state.jsonl": {
+   "sha256": "ddcce10020bb53054b024e0b318c7e2c9f2ca07dec0eddfdca531d481eb24e63",
+   "bytes": 91561
+  },
+  "runs/restore/fillff-b/gs-ledger.jsonl": {
+   "sha256": "39f7cf9148ef597412c09aab3cb5f549c52be8ad0234f1c0d9f3a0c9058f0712",
+   "bytes": 250161
+  },
+  "runs/restore/fillff-b/pad-host.jsonl": {
+   "sha256": "5613ced192bc85a8ba1fc5e445c825b4d9dbf3cf9bcc2c1a679899cbb4c6b338",
+   "bytes": 355
+  },
+  "runs/restore/fillff-b/run-meta.json": {
+   "sha256": "f24942e451ac7a66cedad42cf3b2468fba7df69baa413738f05422e3490d1b98",
+   "bytes": 830
+  },
+  "runs/restore/fillff-b/state-at-100618.jsonl": {
+   "sha256": "94c4db747123536d8f3462142c663c8eb5c0bdf6300cb061e0eaa28460d10374",
+   "bytes": 75599
+  },
+  "runs/restore/fillff-b/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-b/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-b/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-b/checkpoints/first-update/state.jsonl": {
+   "sha256": "72b60f60b9efa8471fead3c5437577c1c1185d7b871fb4076fac6e4c5f004380",
+   "bytes": 98943
+  },
+  "runs/restore/fillff-b/checkpoints/first-update/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-b/checkpoints/first-update/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-b/checkpoints/first-update/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-b/checkpoints/removal-request/state.jsonl": {
+   "sha256": "122436ea77bb6dc1925e8abb525abcd388b0351f3fd17a1fc5e95503ad756023",
+   "bytes": 99264
+  },
+  "runs/restore/fillff-b/checkpoints/removal-request/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-b/checkpoints/removal-request/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-b/checkpoints/removal-request/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-b/checkpoints/resource-retirement/state.jsonl": {
+   "sha256": "cfe773c4242fc8f7b5110966fb941b2209ccecf9668b8019e5b65dd90795a4be",
+   "bytes": 91559
+  },
+  "runs/restore/fillff-b/checkpoints/resource-retirement/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-b/checkpoints/resource-retirement/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-b/checkpoints/resource-retirement/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-b/checkpoints/stable-menu/state.jsonl": {
+   "sha256": "4b8334b86fec5885b47540c32bb73045d669f213d3cdada42f399c1a1b7ad38b",
+   "bytes": 99264
+  },
+  "runs/restore/fillff-b/checkpoints/stable-menu/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-b/checkpoints/stable-menu/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-b/checkpoints/stable-menu/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-b/checkpoints/successor-entry/state.jsonl": {
+   "sha256": "ddcce10020bb53054b024e0b318c7e2c9f2ca07dec0eddfdca531d481eb24e63",
+   "bytes": 91561
+  },
+  "runs/restore/fillff-b/checkpoints/successor-entry/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-b/checkpoints/successor-entry/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-b/checkpoints/successor-entry/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-b/checkpoints/title-constructed/state.jsonl": {
+   "sha256": "b2884a498c58049616a81f20adfaf934482e2c70c8b4b7c556fcecf3188f1182",
+   "bytes": 98943
+  },
+  "runs/restore/fillff-b/checkpoints/title-constructed/vram-last-writer.bin": {
+   "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-b/checkpoints/title-constructed/vram-upload-ever.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "runs/restore/fillff-b/checkpoints/title-constructed/vram.bin": {
+   "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+   "bytes": 4194304
+  }
+ },
+ "retained_other": {
+  "trials/t1/cwd/restore/fill00-a/local/play-boot-config/config.xml": {
+   "sha256": "73a4cf53c5925e9d6d0a0ea07bd1fb9f90e762864946de643e057f9f84da2a96",
+   "bytes": 2131
+  },
+  "trials/t1/cwd/restore/fill00-a/local/play-boot-config/ps2_stderr.txt": {
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  "trials/t1/cwd/restore/fill00-a/local/play-boot-config/ps2_stdout.txt": {
+   "sha256": "7327a788c884b35a77ce09d65acbdf04862a3250989d97a6350f8fd71266638a",
+   "bytes": 1173
+  },
+  "trials/t1/cwd/restore/fill00-a/local/play-boot-config/logs/GameConfig.log": {
+   "sha256": "9af8372912a28576e4e3ef2975c3eaa90faad385e35c7aab3d580ab13a6f6e6a",
+   "bytes": 56
+  },
+  "trials/t1/cwd/restore/fill00-a/local/play-boot-config/logs/ee_dmac.log": {
+   "sha256": "8dd6baf8652df721ab95549907e91280e18b997ffcdfbab3f4ea4315edee4ba3",
+   "bytes": 1605
+  },
+  "trials/t1/cwd/restore/fill00-a/local/play-boot-config/logs/ee_gif.log": {
+   "sha256": "9ba68b450b33f1c7975eab93c544ed139c69f197ed717c5740ce40a4912a46d6",
+   "bytes": 50
+  },
+  "trials/t1/cwd/restore/fill00-a/local/play-boot-config/logs/ee_timer.log": {
+   "sha256": "b4421dc83a0d2edc4ca795e7203b362bbdd97a8a0006b2851f81f16210dfc9b4",
+   "bytes": 492
+  },
+  "trials/t1/cwd/restore/fill00-a/local/play-boot-config/logs/gs.log": {
+   "sha256": "d7f26a54dc442326d79df27dc67385165cae90b6a61a75b05772f96ab5e9af87",
+   "bytes": 111720
+  },
+  "trials/t1/cwd/restore/fill00-a/local/play-boot-config/logs/iop_ioman.log": {
+   "sha256": "48c8bce8169fb85e943d0194902b54900c9bb5b6eba2451b0e293a2fe374000d",
+   "bytes": 87
+  },
+  "trials/t1/cwd/restore/fill00-a/local/play-boot-config/logs/iop_loadcore.log": {
+   "sha256": "8d10ad6909d17933e741795692838c5b7687705fdb02db0d9e1fadda9a4783b9",
+   "bytes": 38
+  },
+  "trials/t1/cwd/restore/fill00-a/local/play-boot-config/logs/iop_modload.log": {
+   "sha256": "910396d2d71923372e1197960d9837128750abce59dd0b7f86d21f66d13895c7",
+   "bytes": 43
+  },
+  "trials/t1/cwd/restore/fill00-a/local/play-boot-config/logs/iop_sifman.log": {
+   "sha256": "ba388971f44e5d3cce5a374c7fef62c086f47106e0f2ea90809f71b9d957fb7c",
+   "bytes": 3690
+  },
+  "trials/t1/cwd/restore/fill00-a/local/play-boot-config/logs/iop_spu2.log": {
+   "sha256": "5955f7ad11be780be6af3a8b2904697d4e38bfa4a25f417369fd13277754a855",
+   "bytes": 150
+  },
+  "trials/t1/cwd/restore/fill00-a/local/play-boot-config/logs/iop_spu2_core_0.log": {
+   "sha256": "6788eef4a2c4846c555a2cb218f52e1ac747c1a732b6e403f0b69e7174e11236",
+   "bytes": 18718
+  },
+  "trials/t1/cwd/restore/fill00-a/local/play-boot-config/logs/iop_spu2_core_1.log": {
+   "sha256": "8eb0a7e7957bc205c700101d115638610b5cd77c6de4c676950e3c2221857573",
+   "bytes": 18870
+  },
+  "trials/t1/cwd/restore/fill00-a/local/play-boot-config/logs/ps2os.log": {
+   "sha256": "33b684cff6d7a77e7b97fa1f95adc5c4a79e04b0245387f597a3185371cf8b76",
+   "bytes": 52
+  },
+  "trials/t1/cwd/restore/fill00-a/local/play-boot-config/logs/sif.log": {
+   "sha256": "b3cc926be3fdb873a748923893a6051d5a131d8a2a5657fae68494c094a31cae",
+   "bytes": 297
+  },
+  "trials/t1/runs/restore/fill00-a.log": {
+   "sha256": "49798773811c0db5fb0a50663309b9237437a2c8c725427b6e75fc9fc239222c",
+   "bytes": 593
+  },
+  "trials/t1/runs/restore/fill00-a/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "trials/t1/runs/restore/fill00-a/events.jsonl": {
+   "sha256": "04693e2a05942d2deb5c0c575e37544cd95ac73b41ea3b494a115294b321d71a",
+   "bytes": 13433178
+  },
+  "trials/t1/runs/restore/fill00-a/final-state.jsonl": {
+   "sha256": "5da999e7b2c67b9b0a9973acc98eda1ffebb72b1c6a2e507de7d8b25cf1fec03",
+   "bytes": 91528
+  },
+  "trials/t1/runs/restore/fill00-a/gs-ledger.jsonl": {
+   "sha256": "a68bda6daddd08538b104d3a4d8dff920745fc80ab84db0cdef8939ea78fef0c",
+   "bytes": 252208
+  },
+  "trials/t1/runs/restore/fill00-a/pad-host.jsonl": {
+   "sha256": "c81b2a749ae749979e71c66857d2b111a113cc62a2777307df45f72a6d76dece",
+   "bytes": 355
+  },
+  "trials/t1/runs/restore/fill00-a/run-meta.json": {
+   "sha256": "f8c8729eeea1c64e31bebbdac81bcd5f77e7449fa93576c63ac9100f6a271531",
+   "bytes": 820
+  },
+  "trials/t1/runs/restore/fill00-a/state-at-100618.jsonl": {
+   "sha256": "94402f0b0278f060434aedb7dbd124f09f053e49ab74dce9e60c332071803cf3",
+   "bytes": 75568
+  },
+  "trials/t1/runs/restore/fill00-a/checkpoints/first-update/state.jsonl": {
+   "sha256": "e4251e8fc4609ffaff01079681f2eecfcc1ba4960e43ee73546cd30a831750db",
+   "bytes": 98912
+  },
+  "trials/t1/runs/restore/fill00-a/checkpoints/removal-request/state.jsonl": {
+   "sha256": "206fa5894290f0177d834fb0f9eb3a5f0d9d4b072b6f68a9229483edee729118",
+   "bytes": 99233
+  },
+  "trials/t1/runs/restore/fill00-a/checkpoints/resource-retirement/state.jsonl": {
+   "sha256": "185f2c3441c43b01f3a5b3c16036571709a6d55dba8b9a1b8b93b2674f79d68b",
+   "bytes": 91528
+  },
+  "trials/t1/runs/restore/fill00-a/checkpoints/stable-menu/state.jsonl": {
+   "sha256": "6b779b43d5cc3bea1f376616709e2635489f2059d00b9767fa24dff9588c4569",
+   "bytes": 99233
+  },
+  "trials/t1/runs/restore/fill00-a/checkpoints/successor-entry/state.jsonl": {
+   "sha256": "5da999e7b2c67b9b0a9973acc98eda1ffebb72b1c6a2e507de7d8b25cf1fec03",
+   "bytes": 91528
+  },
+  "trials/t1/runs/restore/fill00-a/checkpoints/title-constructed/state.jsonl": {
+   "sha256": "933246e62e2fa0248b6c1a0d77b7cc80fc76d7e72994c4c2db5819db3a81375a",
+   "bytes": 98912
+  },
+  "trials/t2/cwd/newgame/fill00-a/local/play-boot-config/config.xml": {
+   "sha256": "f92bd6b43e6d54fd6d9e35ed4b521f1fa1a6882584d32ccdd9bdd50ff7d2bcc4",
+   "bytes": 2131
+  },
+  "trials/t2/cwd/newgame/fill00-a/local/play-boot-config/ps2_stderr.txt": {
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  "trials/t2/cwd/newgame/fill00-a/local/play-boot-config/ps2_stdout.txt": {
+   "sha256": "7327a788c884b35a77ce09d65acbdf04862a3250989d97a6350f8fd71266638a",
+   "bytes": 1173
+  },
+  "trials/t2/cwd/newgame/fill00-a/local/play-boot-config/logs/GameConfig.log": {
+   "sha256": "9af8372912a28576e4e3ef2975c3eaa90faad385e35c7aab3d580ab13a6f6e6a",
+   "bytes": 56
+  },
+  "trials/t2/cwd/newgame/fill00-a/local/play-boot-config/logs/ee_dmac.log": {
+   "sha256": "8dd6baf8652df721ab95549907e91280e18b997ffcdfbab3f4ea4315edee4ba3",
+   "bytes": 1605
+  },
+  "trials/t2/cwd/newgame/fill00-a/local/play-boot-config/logs/ee_gif.log": {
+   "sha256": "9ba68b450b33f1c7975eab93c544ed139c69f197ed717c5740ce40a4912a46d6",
+   "bytes": 50
+  },
+  "trials/t2/cwd/newgame/fill00-a/local/play-boot-config/logs/ee_timer.log": {
+   "sha256": "b4421dc83a0d2edc4ca795e7203b362bbdd97a8a0006b2851f81f16210dfc9b4",
+   "bytes": 492
+  },
+  "trials/t2/cwd/newgame/fill00-a/local/play-boot-config/logs/gs.log": {
+   "sha256": "cba1437079a1792711a3cd8491526c7633305718513f8f6457c554389281d0ee",
+   "bytes": 112140
+  },
+  "trials/t2/cwd/newgame/fill00-a/local/play-boot-config/logs/iop_ioman.log": {
+   "sha256": "48c8bce8169fb85e943d0194902b54900c9bb5b6eba2451b0e293a2fe374000d",
+   "bytes": 87
+  },
+  "trials/t2/cwd/newgame/fill00-a/local/play-boot-config/logs/iop_loadcore.log": {
+   "sha256": "8d10ad6909d17933e741795692838c5b7687705fdb02db0d9e1fadda9a4783b9",
+   "bytes": 38
+  },
+  "trials/t2/cwd/newgame/fill00-a/local/play-boot-config/logs/iop_modload.log": {
+   "sha256": "910396d2d71923372e1197960d9837128750abce59dd0b7f86d21f66d13895c7",
+   "bytes": 43
+  },
+  "trials/t2/cwd/newgame/fill00-a/local/play-boot-config/logs/iop_sifman.log": {
+   "sha256": "ba388971f44e5d3cce5a374c7fef62c086f47106e0f2ea90809f71b9d957fb7c",
+   "bytes": 3690
+  },
+  "trials/t2/cwd/newgame/fill00-a/local/play-boot-config/logs/iop_spu2.log": {
+   "sha256": "5955f7ad11be780be6af3a8b2904697d4e38bfa4a25f417369fd13277754a855",
+   "bytes": 150
+  },
+  "trials/t2/cwd/newgame/fill00-a/local/play-boot-config/logs/iop_spu2_core_0.log": {
+   "sha256": "6788eef4a2c4846c555a2cb218f52e1ac747c1a732b6e403f0b69e7174e11236",
+   "bytes": 18718
+  },
+  "trials/t2/cwd/newgame/fill00-a/local/play-boot-config/logs/iop_spu2_core_1.log": {
+   "sha256": "8eb0a7e7957bc205c700101d115638610b5cd77c6de4c676950e3c2221857573",
+   "bytes": 18870
+  },
+  "trials/t2/cwd/newgame/fill00-a/local/play-boot-config/logs/ps2os.log": {
+   "sha256": "33b684cff6d7a77e7b97fa1f95adc5c4a79e04b0245387f597a3185371cf8b76",
+   "bytes": 52
+  },
+  "trials/t2/cwd/newgame/fill00-a/local/play-boot-config/logs/sif.log": {
+   "sha256": "b3cc926be3fdb873a748923893a6051d5a131d8a2a5657fae68494c094a31cae",
+   "bytes": 297
+  },
+  "trials/t2/cwd/restore/control-minimal-fill00/local/play-boot-config/config.xml": {
+   "sha256": "6a5e77ede21bd2683dd2a0dcaab93fce57d883b39f6a13693233fafa46a0e55e",
+   "bytes": 2215
+  },
+  "trials/t2/cwd/restore/control-minimal-fill00/local/play-boot-config/ps2_stderr.txt": {
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  "trials/t2/cwd/restore/control-minimal-fill00/local/play-boot-config/ps2_stdout.txt": {
+   "sha256": "7327a788c884b35a77ce09d65acbdf04862a3250989d97a6350f8fd71266638a",
+   "bytes": 1173
+  },
+  "trials/t2/cwd/restore/control-minimal-fill00/local/play-boot-config/logs/GameConfig.log": {
+   "sha256": "9af8372912a28576e4e3ef2975c3eaa90faad385e35c7aab3d580ab13a6f6e6a",
+   "bytes": 56
+  },
+  "trials/t2/cwd/restore/control-minimal-fill00/local/play-boot-config/logs/ee_dmac.log": {
+   "sha256": "8dd6baf8652df721ab95549907e91280e18b997ffcdfbab3f4ea4315edee4ba3",
+   "bytes": 1605
+  },
+  "trials/t2/cwd/restore/control-minimal-fill00/local/play-boot-config/logs/ee_gif.log": {
+   "sha256": "9ba68b450b33f1c7975eab93c544ed139c69f197ed717c5740ce40a4912a46d6",
+   "bytes": 50
+  },
+  "trials/t2/cwd/restore/control-minimal-fill00/local/play-boot-config/logs/ee_timer.log": {
+   "sha256": "b4421dc83a0d2edc4ca795e7203b362bbdd97a8a0006b2851f81f16210dfc9b4",
+   "bytes": 492
+  },
+  "trials/t2/cwd/restore/control-minimal-fill00/local/play-boot-config/logs/gs.log": {
+   "sha256": "d7f26a54dc442326d79df27dc67385165cae90b6a61a75b05772f96ab5e9af87",
+   "bytes": 111720
+  },
+  "trials/t2/cwd/restore/control-minimal-fill00/local/play-boot-config/logs/iop_ioman.log": {
+   "sha256": "48c8bce8169fb85e943d0194902b54900c9bb5b6eba2451b0e293a2fe374000d",
+   "bytes": 87
+  },
+  "trials/t2/cwd/restore/control-minimal-fill00/local/play-boot-config/logs/iop_loadcore.log": {
+   "sha256": "8d10ad6909d17933e741795692838c5b7687705fdb02db0d9e1fadda9a4783b9",
+   "bytes": 38
+  },
+  "trials/t2/cwd/restore/control-minimal-fill00/local/play-boot-config/logs/iop_modload.log": {
+   "sha256": "910396d2d71923372e1197960d9837128750abce59dd0b7f86d21f66d13895c7",
+   "bytes": 43
+  },
+  "trials/t2/cwd/restore/control-minimal-fill00/local/play-boot-config/logs/iop_sifman.log": {
+   "sha256": "20e6e127b3a59661461c5a4a29ffb3a76557b77acd94ab68067dbeb96e4e5c9c",
+   "bytes": 3420
+  },
+  "trials/t2/cwd/restore/control-minimal-fill00/local/play-boot-config/logs/iop_spu2.log": {
+   "sha256": "5955f7ad11be780be6af3a8b2904697d4e38bfa4a25f417369fd13277754a855",
+   "bytes": 150
+  },
+  "trials/t2/cwd/restore/control-minimal-fill00/local/play-boot-config/logs/iop_spu2_core_0.log": {
+   "sha256": "6788eef4a2c4846c555a2cb218f52e1ac747c1a732b6e403f0b69e7174e11236",
+   "bytes": 18718
+  },
+  "trials/t2/cwd/restore/control-minimal-fill00/local/play-boot-config/logs/iop_spu2_core_1.log": {
+   "sha256": "8eb0a7e7957bc205c700101d115638610b5cd77c6de4c676950e3c2221857573",
+   "bytes": 18870
+  },
+  "trials/t2/cwd/restore/control-minimal-fill00/local/play-boot-config/logs/ps2os.log": {
+   "sha256": "33b684cff6d7a77e7b97fa1f95adc5c4a79e04b0245387f597a3185371cf8b76",
+   "bytes": 52
+  },
+  "trials/t2/cwd/restore/control-minimal-fill00/local/play-boot-config/logs/sif.log": {
+   "sha256": "b3cc926be3fdb873a748923893a6051d5a131d8a2a5657fae68494c094a31cae",
+   "bytes": 297
+  },
+  "trials/t2/runs/newgame/fill00-a.log": {
+   "sha256": "a1af53651c15f8aaefd721b0d4e9b523c39858ac47a3bd16965743d1d1798ef6",
+   "bytes": 593
+  },
+  "trials/t2/runs/newgame/fill00-a/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "trials/t2/runs/newgame/fill00-a/events.jsonl": {
+   "sha256": "3c41d8e15dcc7ea12332cc82c4ed5acb851daeee2ac36d4f28d3d55c7ff82424",
+   "bytes": 13462101
+  },
+  "trials/t2/runs/newgame/fill00-a/final-state.jsonl": {
+   "sha256": "9b5ec43afa06803fbc128cca84b982ed6ea9ced5419b5598f7b9ed84f1c92feb",
+   "bytes": 91559
+  },
+  "trials/t2/runs/newgame/fill00-a/gs-ledger.jsonl": {
+   "sha256": "d9c890ae9cc1ec011fc8d04286594fda192460da1b81cbb941a5d736af65ac70",
+   "bytes": 252209
+  },
+  "trials/t2/runs/newgame/fill00-a/pad-host.jsonl": {
+   "sha256": "8819520b60a301d9407fa0e5c52682651f5f6fefb4a1f37bf3478b3c0e644a07",
+   "bytes": 500
+  },
+  "trials/t2/runs/newgame/fill00-a/run-meta.json": {
+   "sha256": "b15475a099e0004c19a1935f7fe8bd46d7f0a78627df800284ffc68df415c29f",
+   "bytes": 825
+  },
+  "trials/t2/runs/newgame/fill00-a/state-at-100618.jsonl": {
+   "sha256": "e7b5a3a1bb3e1200b873c7ff34f44ff4edac8ed2e5c8274d8080fe2e391a7107",
+   "bytes": 75597
+  },
+  "trials/t2/runs/newgame/fill00-a/checkpoints/first-update/state.jsonl": {
+   "sha256": "b0ae041ea321415ae8266beb9a8856e9d31c0a2217ec1dd9fdb149018cb533b3",
+   "bytes": 98941
+  },
+  "trials/t2/runs/newgame/fill00-a/checkpoints/removal-request/state.jsonl": {
+   "sha256": "bab9c455a8768643a96fb1111911c53bfac2afcbb003147911e95bdf883b97a5",
+   "bytes": 99262
+  },
+  "trials/t2/runs/newgame/fill00-a/checkpoints/resource-retirement/state.jsonl": {
+   "sha256": "bc94ed867cd3cdadf9e8af8e48b43959ec597519ca10be3ba1864d8a90d92177",
+   "bytes": 91557
+  },
+  "trials/t2/runs/newgame/fill00-a/checkpoints/stable-menu/state.jsonl": {
+   "sha256": "facf4d340aa78787216c1308ce1dd137e99dd6658f64cda319da05c2767c9c54",
+   "bytes": 99262
+  },
+  "trials/t2/runs/newgame/fill00-a/checkpoints/successor-entry/state.jsonl": {
+   "sha256": "9b5ec43afa06803fbc128cca84b982ed6ea9ced5419b5598f7b9ed84f1c92feb",
+   "bytes": 91559
+  },
+  "trials/t2/runs/newgame/fill00-a/checkpoints/title-constructed/state.jsonl": {
+   "sha256": "aaf4783546304584db85a97dd9fa8fc74cf2f1d2004e1972a973088fb1fcd7d3",
+   "bytes": 98941
+  },
+  "trials/t2/runs/restore/control-minimal-fill00.log": {
+   "sha256": "25c1bd38cc74ae440a6c21a89bf2fa3e6d2ea2467e5d0a946af9ae55f4df00ae",
+   "bytes": 592
+  },
+  "trials/t2/runs/restore/control-minimal-fill00/disc-opens.jsonl": {
+   "sha256": "854e9b1493c1dd2077076d59f0bc76704f77902807202e0ba43d599fbd56a202",
+   "bytes": 3115
+  },
+  "trials/t2/runs/restore/control-minimal-fill00/events.jsonl": {
+   "sha256": "09a7f3e5ebaf57f9ad01efabd73fa4661f618b0ab294ed6f3f5ae88960702134",
+   "bytes": 216512
+  },
+  "trials/t2/runs/restore/control-minimal-fill00/final-state.jsonl": {
+   "sha256": "eed51edfafeb98ed149ca263bef364db4e185184d05a05d9fc23a3b73fb2df29",
+   "bytes": 63177
+  },
+  "trials/t2/runs/restore/control-minimal-fill00/gs-ledger.jsonl": {
+   "sha256": "d91d8e2fbf0e1cbb652dd2e88510d6aac079d0915e74d415121ca10379cc31b1",
+   "bytes": 141943
+  },
+  "trials/t2/runs/restore/control-minimal-fill00/pad-host.jsonl": {
+   "sha256": "ba9b59459992e1a5406e025f40afc4673fb3f477e29fc6a4da36dd5c9555cb3d",
+   "bytes": 355
+  },
+  "trials/t2/runs/restore/control-minimal-fill00/run-meta.json": {
+   "sha256": "b0269c7445811b363b5db62e5c971a55a25d7abb96340ce28931d0230a0aa970",
+   "bytes": 698
+  },
+  "trials/t2/runs/restore/control-minimal-fill00/state-at-100618.jsonl": {
+   "sha256": "2093ed2eb3f556c8ff3f1669630c35aa37bb4494f427b3b7815bc0855211c4c0",
+   "bytes": 62423
+  },
+  "trials/t2/runs/restore/control-minimal-fill00/checkpoints/first-update/state.jsonl": {
+   "sha256": "46889d81145f3a5a5c4b5e1a7542b44b9354b730ca660afcfcde505aa341fc3b",
+   "bytes": 70883
+  },
+  "trials/t2/runs/restore/control-minimal-fill00/checkpoints/stable-menu/state.jsonl": {
+   "sha256": "7e9e69cdec804ee42f85e39a9be87b2865745ab870c4bbf6066fccfd4877edcf",
+   "bytes": 71046
+  },
+  "trials/t2/runs/restore/control-minimal-fill00/checkpoints/successor-entry/state.jsonl": {
+   "sha256": "eed51edfafeb98ed149ca263bef364db4e185184d05a05d9fc23a3b73fb2df29",
+   "bytes": 63177
+  },
+  "trials/t3/cwd/newgame/fill00-a/local/play-boot-config/config.xml": {
+   "sha256": "19ee7635515853534622e365eb32f632e5ff77e45d2fda6bc0b253f9207ce389",
+   "bytes": 2131
+  },
+  "trials/t3/cwd/newgame/fill00-a/local/play-boot-config/ps2_stderr.txt": {
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  "trials/t3/cwd/newgame/fill00-a/local/play-boot-config/ps2_stdout.txt": {
+   "sha256": "ac339e7ce33005fc8d41c3ec673bd7a44c3a4e0146c1764fa5e1fa31c7f723a3",
+   "bytes": 1266
+  },
+  "trials/t3/cwd/newgame/fill00-a/local/play-boot-config/logs/GameConfig.log": {
+   "sha256": "9af8372912a28576e4e3ef2975c3eaa90faad385e35c7aab3d580ab13a6f6e6a",
+   "bytes": 56
+  },
+  "trials/t3/cwd/newgame/fill00-a/local/play-boot-config/logs/ee_dmac.log": {
+   "sha256": "8dd6baf8652df721ab95549907e91280e18b997ffcdfbab3f4ea4315edee4ba3",
+   "bytes": 1605
+  },
+  "trials/t3/cwd/newgame/fill00-a/local/play-boot-config/logs/ee_gif.log": {
+   "sha256": "9ba68b450b33f1c7975eab93c544ed139c69f197ed717c5740ce40a4912a46d6",
+   "bytes": 50
+  },
+  "trials/t3/cwd/newgame/fill00-a/local/play-boot-config/logs/ee_timer.log": {
+   "sha256": "b4421dc83a0d2edc4ca795e7203b362bbdd97a8a0006b2851f81f16210dfc9b4",
+   "bytes": 492
+  },
+  "trials/t3/cwd/newgame/fill00-a/local/play-boot-config/logs/gs.log": {
+   "sha256": "cba1437079a1792711a3cd8491526c7633305718513f8f6457c554389281d0ee",
+   "bytes": 112140
+  },
+  "trials/t3/cwd/newgame/fill00-a/local/play-boot-config/logs/iop_ioman.log": {
+   "sha256": "48c8bce8169fb85e943d0194902b54900c9bb5b6eba2451b0e293a2fe374000d",
+   "bytes": 87
+  },
+  "trials/t3/cwd/newgame/fill00-a/local/play-boot-config/logs/iop_loadcore.log": {
+   "sha256": "8d10ad6909d17933e741795692838c5b7687705fdb02db0d9e1fadda9a4783b9",
+   "bytes": 38
+  },
+  "trials/t3/cwd/newgame/fill00-a/local/play-boot-config/logs/iop_modload.log": {
+   "sha256": "910396d2d71923372e1197960d9837128750abce59dd0b7f86d21f66d13895c7",
+   "bytes": 43
+  },
+  "trials/t3/cwd/newgame/fill00-a/local/play-boot-config/logs/iop_sifman.log": {
+   "sha256": "d5dbcc7c3c58912a6a7e305c16bf3685ebc3b2c5c2ac5264b3d298154023d379",
+   "bytes": 3645
+  },
+  "trials/t3/cwd/newgame/fill00-a/local/play-boot-config/logs/iop_spu2.log": {
+   "sha256": "5955f7ad11be780be6af3a8b2904697d4e38bfa4a25f417369fd13277754a855",
+   "bytes": 150
+  },
+  "trials/t3/cwd/newgame/fill00-a/local/play-boot-config/logs/iop_spu2_core_0.log": {
+   "sha256": "6788eef4a2c4846c555a2cb218f52e1ac747c1a732b6e403f0b69e7174e11236",
+   "bytes": 18718
+  },
+  "trials/t3/cwd/newgame/fill00-a/local/play-boot-config/logs/iop_spu2_core_1.log": {
+   "sha256": "8eb0a7e7957bc205c700101d115638610b5cd77c6de4c676950e3c2221857573",
+   "bytes": 18870
+  },
+  "trials/t3/cwd/newgame/fill00-a/local/play-boot-config/logs/ps2os.log": {
+   "sha256": "33b684cff6d7a77e7b97fa1f95adc5c4a79e04b0245387f597a3185371cf8b76",
+   "bytes": 52
+  },
+  "trials/t3/cwd/newgame/fill00-a/local/play-boot-config/logs/sif.log": {
+   "sha256": "b3cc926be3fdb873a748923893a6051d5a131d8a2a5657fae68494c094a31cae",
+   "bytes": 297
+  },
+  "trials/t3/runs/newgame/fill00-a.log": {
+   "sha256": "ebb5763cfb3010b7d851ea1f4484b8a418b849591bc112bbb8eb70ee391bccdf",
+   "bytes": 594
+  },
+  "trials/t3/runs/newgame/fill00-a/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "trials/t3/runs/newgame/fill00-a/events.jsonl": {
+   "sha256": "39d8241b070d59c7b3ed84c03bd4a3e4050f0a28a15f413da85b1c789868b8ef",
+   "bytes": 15342880
+  },
+  "trials/t3/runs/newgame/fill00-a/final-state.jsonl": {
+   "sha256": "f5ddcc577c748bc6cd59dc6acbc6d72474906717fac7f70c85d5c8a01784d9f5",
+   "bytes": 91559
+  },
+  "trials/t3/runs/newgame/fill00-a/gs-ledger.jsonl": {
+   "sha256": "721bb971b6fd8c8b6cb3f2df0e787b1733b2845147e56994e785db69e91b1380",
+   "bytes": 250162
+  },
+  "trials/t3/runs/newgame/fill00-a/pad-host.jsonl": {
+   "sha256": "2c48263f5313cf83838ee1f6903b907f5b2c55e027ec5b0a57f0c2215715e4a2",
+   "bytes": 500
+  },
+  "trials/t3/runs/newgame/fill00-a/run-meta.json": {
+   "sha256": "22f1e266af4c0d66bec32d9475f24379ec524f781072527ea0aaa8d8917971f0",
+   "bytes": 825
+  },
+  "trials/t3/runs/newgame/fill00-a/state-at-100618.jsonl": {
+   "sha256": "3dcf6b61ccfa69c4e009541c82937bbad002b3d2de550942f2214dd1a3b4627a",
+   "bytes": 75597
+  },
+  "trials/t3/runs/newgame/fill00-a/checkpoints/first-update/state.jsonl": {
+   "sha256": "8fea9c51c496662037be42545dd89f64684a8831f1abd14537159603f27550f7",
+   "bytes": 98941
+  },
+  "trials/t3/runs/newgame/fill00-a/checkpoints/removal-request/state.jsonl": {
+   "sha256": "b78d3606988cc2d4d33b1a05bc7c386a5689fc03649dddc3ec4c05271a2138d5",
+   "bytes": 99262
+  },
+  "trials/t3/runs/newgame/fill00-a/checkpoints/resource-retirement/state.jsonl": {
+   "sha256": "d7d49c052e44f634cd5860cd1884d2197550094badb3cd047fe498a40ff79657",
+   "bytes": 91557
+  },
+  "trials/t3/runs/newgame/fill00-a/checkpoints/stable-menu/state.jsonl": {
+   "sha256": "c6c41a2710e99197a8a509e3932bab2cff4ff24e1037830d096162ed6d236879",
+   "bytes": 99262
+  },
+  "trials/t3/runs/newgame/fill00-a/checkpoints/successor-entry/state.jsonl": {
+   "sha256": "f5ddcc577c748bc6cd59dc6acbc6d72474906717fac7f70c85d5c8a01784d9f5",
+   "bytes": 91559
+  },
+  "trials/t3/runs/newgame/fill00-a/checkpoints/title-constructed/state.jsonl": {
+   "sha256": "24caea163c4e777426a73b80652233ffa3b4d59a3060856cfedcb4a470d740e3",
+   "bytes": 98941
+  },
+  "trials/t4/cwd/restore/fill00-a/local/play-boot-config/config.xml": {
+   "sha256": "4f0c8fb09a2e80e27972c5ebc6742b4561eb1db38482c571ce4768d7d1eb0473",
+   "bytes": 2131
+  },
+  "trials/t4/cwd/restore/fill00-a/local/play-boot-config/ps2_stderr.txt": {
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  "trials/t4/cwd/restore/fill00-a/local/play-boot-config/ps2_stdout.txt": {
+   "sha256": "ac339e7ce33005fc8d41c3ec673bd7a44c3a4e0146c1764fa5e1fa31c7f723a3",
+   "bytes": 1266
+  },
+  "trials/t4/cwd/restore/fill00-a/local/play-boot-config/logs/GameConfig.log": {
+   "sha256": "9af8372912a28576e4e3ef2975c3eaa90faad385e35c7aab3d580ab13a6f6e6a",
+   "bytes": 56
+  },
+  "trials/t4/cwd/restore/fill00-a/local/play-boot-config/logs/ee_dmac.log": {
+   "sha256": "8dd6baf8652df721ab95549907e91280e18b997ffcdfbab3f4ea4315edee4ba3",
+   "bytes": 1605
+  },
+  "trials/t4/cwd/restore/fill00-a/local/play-boot-config/logs/ee_gif.log": {
+   "sha256": "9ba68b450b33f1c7975eab93c544ed139c69f197ed717c5740ce40a4912a46d6",
+   "bytes": 50
+  },
+  "trials/t4/cwd/restore/fill00-a/local/play-boot-config/logs/ee_timer.log": {
+   "sha256": "b4421dc83a0d2edc4ca795e7203b362bbdd97a8a0006b2851f81f16210dfc9b4",
+   "bytes": 492
+  },
+  "trials/t4/cwd/restore/fill00-a/local/play-boot-config/logs/gs.log": {
+   "sha256": "d7f26a54dc442326d79df27dc67385165cae90b6a61a75b05772f96ab5e9af87",
+   "bytes": 111720
+  },
+  "trials/t4/cwd/restore/fill00-a/local/play-boot-config/logs/iop_ioman.log": {
+   "sha256": "48c8bce8169fb85e943d0194902b54900c9bb5b6eba2451b0e293a2fe374000d",
+   "bytes": 87
+  },
+  "trials/t4/cwd/restore/fill00-a/local/play-boot-config/logs/iop_loadcore.log": {
+   "sha256": "8d10ad6909d17933e741795692838c5b7687705fdb02db0d9e1fadda9a4783b9",
+   "bytes": 38
+  },
+  "trials/t4/cwd/restore/fill00-a/local/play-boot-config/logs/iop_modload.log": {
+   "sha256": "910396d2d71923372e1197960d9837128750abce59dd0b7f86d21f66d13895c7",
+   "bytes": 43
+  },
+  "trials/t4/cwd/restore/fill00-a/local/play-boot-config/logs/iop_sifman.log": {
+   "sha256": "d5dbcc7c3c58912a6a7e305c16bf3685ebc3b2c5c2ac5264b3d298154023d379",
+   "bytes": 3645
+  },
+  "trials/t4/cwd/restore/fill00-a/local/play-boot-config/logs/iop_spu2.log": {
+   "sha256": "5955f7ad11be780be6af3a8b2904697d4e38bfa4a25f417369fd13277754a855",
+   "bytes": 150
+  },
+  "trials/t4/cwd/restore/fill00-a/local/play-boot-config/logs/iop_spu2_core_0.log": {
+   "sha256": "6788eef4a2c4846c555a2cb218f52e1ac747c1a732b6e403f0b69e7174e11236",
+   "bytes": 18718
+  },
+  "trials/t4/cwd/restore/fill00-a/local/play-boot-config/logs/iop_spu2_core_1.log": {
+   "sha256": "8eb0a7e7957bc205c700101d115638610b5cd77c6de4c676950e3c2221857573",
+   "bytes": 18870
+  },
+  "trials/t4/cwd/restore/fill00-a/local/play-boot-config/logs/ps2os.log": {
+   "sha256": "33b684cff6d7a77e7b97fa1f95adc5c4a79e04b0245387f597a3185371cf8b76",
+   "bytes": 52
+  },
+  "trials/t4/cwd/restore/fill00-a/local/play-boot-config/logs/sif.log": {
+   "sha256": "b3cc926be3fdb873a748923893a6051d5a131d8a2a5657fae68494c094a31cae",
+   "bytes": 297
+  },
+  "trials/t4/runs/restore/fill00-a.log": {
+   "sha256": "3e47eaf6182a737e2f167bb715040f8a9f3a1fc337168b995a79b921a962abb7",
+   "bytes": 594
+  },
+  "trials/t4/runs/restore/fill00-a/disc-opens.jsonl": {
+   "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+   "bytes": 3190
+  },
+  "trials/t4/runs/restore/fill00-a/events.jsonl": {
+   "sha256": "87b771d02b9a0a26858cdbd32799669fa20b719d4e033cc737c163afedd07ff2",
+   "bytes": 15331298
+  },
+  "trials/t4/runs/restore/fill00-a/final-state.jsonl": {
+   "sha256": "706223df3ed228e67af48480f43cd4fbe4d42c873b23ac9af57f24d3fbd2a03c",
+   "bytes": 91559
+  },
+  "trials/t4/runs/restore/fill00-a/gs-ledger.jsonl": {
+   "sha256": "36954bb1662e4a0387941e7bc683632cb57e5976be50071af97c13a9f4d94d96",
+   "bytes": 250161
+  },
+  "trials/t4/runs/restore/fill00-a/pad-host.jsonl": {
+   "sha256": "5613ced192bc85a8ba1fc5e445c825b4d9dbf3cf9bcc2c1a679899cbb4c6b338",
+   "bytes": 355
+  },
+  "trials/t4/runs/restore/fill00-a/run-meta.json": {
+   "sha256": "2b17377ba3c91ee6b68cd9cdad243c350624017a2989441505753e3297c81741",
+   "bytes": 826
+  },
+  "trials/t4/runs/restore/fill00-a/state-at-100618.jsonl": {
+   "sha256": "3dcf6b61ccfa69c4e009541c82937bbad002b3d2de550942f2214dd1a3b4627a",
+   "bytes": 75597
+  },
+  "trials/t4/runs/restore/fill00-a/checkpoints/first-update/state.jsonl": {
+   "sha256": "8fea9c51c496662037be42545dd89f64684a8831f1abd14537159603f27550f7",
+   "bytes": 98941
+  },
+  "trials/t4/runs/restore/fill00-a/checkpoints/removal-request/state.jsonl": {
+   "sha256": "7c5a003d834ce50c1fd7a88ec905f7923aef7832c49ac2e860ab03c662e39205",
+   "bytes": 99262
+  },
+  "trials/t4/runs/restore/fill00-a/checkpoints/resource-retirement/state.jsonl": {
+   "sha256": "9bc7779b47a8f73aaf5e64360fcfd90719fe88c1ae5c6a7eb9da72a89d7d4959",
+   "bytes": 91557
+  },
+  "trials/t4/runs/restore/fill00-a/checkpoints/stable-menu/state.jsonl": {
+   "sha256": "c6c41a2710e99197a8a509e3932bab2cff4ff24e1037830d096162ed6d236879",
+   "bytes": 99262
+  },
+  "trials/t4/runs/restore/fill00-a/checkpoints/successor-entry/state.jsonl": {
+   "sha256": "706223df3ed228e67af48480f43cd4fbe4d42c873b23ac9af57f24d3fbd2a03c",
+   "bytes": 91559
+  },
+  "trials/t4/runs/restore/fill00-a/checkpoints/title-constructed/state.jsonl": {
+   "sha256": "24caea163c4e777426a73b80652233ffa3b4d59a3060856cfedcb4a470d740e3",
+   "bytes": 98941
+  },
+  "bin-trial1/okage-startup-oracle": {
+   "sha256": "671ac6ffd21d0b8639b7eb7a159293eace52f800450e4c134915c593a484e1f1",
+   "bytes": 14743208
+  },
+  "bin-trial2/okage-startup-oracle": {
+   "sha256": "a47c34fc0669a52c3d578d9faaaab5c247e58141803bd6b75d93f79ec43dd6b1",
+   "bytes": 14743208
+  }
+ },
+ "result_digest": {
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "routes": {
+   "restore": {
+    "first-update": {
+     "resource_events": 809,
+     "rng_draws": 9504,
+     "vram_known_nibbles": 2586752,
+     "vram_unknown_nibbles": 3153920,
+     "events_by_kind": {
+      "alloc": 166,
+      "bind": 47,
+      "effect:remove-request": 2,
+      "free": 4,
+      "handle": 113,
+      "material": 67,
+      "mode:destroy": 2,
+      "mode:request": 3,
+      "mode:resource-retire": 2,
+      "mode:wrapper-free": 4,
+      "name": 67,
+      "ref": 170,
+      "reserve": 1,
+      "retire": 2,
+      "upload": 159
+     },
+     "vb": 849,
+     "title_n": 0,
+     "state": {
+      "allocations": 162,
+      "handles": 111,
+      "records": 111,
+      "hash": 62,
+      "image_list": [
+       36,
+       37,
+       38,
+       39,
+       40,
+       41,
+       42,
+       43
+      ],
+      "materials": 67,
+      "available": 3934,
+      "reserved": 0
+     },
+     "effect106": null
+    },
+    "stable-menu": {
+     "resource_events": 811,
+     "rng_draws": 9504,
+     "vram_known_nibbles": 2586752,
+     "vram_unknown_nibbles": 3153920,
+     "events_by_kind": {
+      "alloc": 166,
+      "bind": 47,
+      "effect:bind": 1,
+      "effect:create": 1,
+      "effect:remove-request": 2,
+      "free": 4,
+      "handle": 113,
+      "material": 67,
+      "mode:destroy": 2,
+      "mode:request": 3,
+      "mode:resource-retire": 2,
+      "mode:wrapper-free": 4,
+      "name": 67,
+      "ref": 170,
+      "reserve": 1,
+      "retire": 2,
+      "upload": 159
+     },
+     "vb": 851,
+     "title_n": 2,
+     "state": {
+      "allocations": 162,
+      "handles": 111,
+      "records": 111,
+      "hash": 62,
+      "image_list": [
+       36,
+       37,
+       38,
+       39,
+       40,
+       41,
+       42,
+       43
+      ],
+      "materials": 67,
+      "available": 3934,
+      "reserved": 0
+     },
+     "effect106": {
+      "slot": 0,
+      "shape": 106,
+      "state": "active",
+      "element_handles": [
+       43
+      ]
+     }
+    },
+    "removal-request": {
+     "resource_events": 811,
+     "rng_draws": 9504,
+     "vram_known_nibbles": 2586752,
+     "vram_unknown_nibbles": 3153920,
+     "events_by_kind": {
+      "alloc": 166,
+      "bind": 47,
+      "effect:bind": 1,
+      "effect:create": 1,
+      "effect:remove-request": 2,
+      "free": 4,
+      "handle": 113,
+      "material": 67,
+      "mode:destroy": 2,
+      "mode:request": 3,
+      "mode:resource-retire": 2,
+      "mode:wrapper-free": 4,
+      "name": 67,
+      "ref": 170,
+      "reserve": 1,
+      "retire": 2,
+      "upload": 159
+     },
+     "vb": 1037,
+     "title_n": 188,
+     "state": {
+      "allocations": 162,
+      "handles": 111,
+      "records": 111,
+      "hash": 62,
+      "image_list": [
+       36,
+       37,
+       38,
+       39,
+       40,
+       41,
+       42,
+       43
+      ],
+      "materials": 67,
+      "available": 3934,
+      "reserved": 0
+     },
+     "effect106": {
+      "slot": 0,
+      "shape": 106,
+      "state": "active",
+      "element_handles": [
+       43
+      ]
+     }
+    },
+    "resource-retirement": {
+     "resource_events": 1056,
+     "rng_draws": 9504,
+     "vram_known_nibbles": 2586752,
+     "vram_unknown_nibbles": 3153920,
+     "events_by_kind": {
+      "alloc": 166,
+      "bind": 47,
+      "effect:bind": 1,
+      "effect:create": 1,
+      "effect:remove-request": 4,
+      "free": 87,
+      "handle": 113,
+      "material": 67,
+      "mode:destroy": 2,
+      "mode:request": 4,
+      "mode:resource-retire": 3,
+      "mode:wrapper-free": 4,
+      "name": 67,
+      "ref": 253,
+      "reserve": 1,
+      "retire": 77,
+      "upload": 159
+     },
+     "vb": 1038,
+     "title_n": 188,
+     "state": {
+      "allocations": 79,
+      "handles": 36,
+      "records": 36,
+      "hash": 62,
+      "image_list": [],
+      "materials": 0,
+      "available": 4017,
+      "reserved": 0
+     },
+     "effect106": {
+      "slot": 0,
+      "shape": 106,
+      "state": "reclaim-pending",
+      "element_handles": [
+       43
+      ]
+     }
+    },
+    "successor-entry": {
+     "resource_events": 1059,
+     "rng_draws": 9504,
+     "vram_known_nibbles": 2586752,
+     "vram_unknown_nibbles": 3153920,
+     "events_by_kind": {
+      "alloc": 166,
+      "bind": 47,
+      "effect:bind": 1,
+      "effect:create": 1,
+      "effect:remove-request": 4,
+      "free": 87,
+      "handle": 113,
+      "material": 67,
+      "mode:destroy": 3,
+      "mode:request": 4,
+      "mode:resource-retire": 3,
+      "mode:wrapper-free": 6,
+      "name": 67,
+      "ref": 253,
+      "reserve": 1,
+      "retire": 77,
+      "upload": 159
+     },
+     "vb": 1043,
+     "title_n": 188,
+     "state": {
+      "allocations": 79,
+      "handles": 36,
+      "records": 36,
+      "hash": 62,
+      "image_list": [],
+      "materials": 0,
+      "available": 4017,
+      "reserved": 0
+     },
+     "effect106": {
+      "slot": 0,
+      "shape": 106,
+      "state": "reclaim-pending",
+      "element_handles": [
+       43
+      ]
+     }
+    },
+    "title-constructed": {
+     "vb": 848,
+     "title_n": null,
+     "resource_events": 809,
+     "events_by_kind": {
+      "alloc": 166,
+      "bind": 47,
+      "effect:remove-request": 2,
+      "free": 4,
+      "handle": 113,
+      "material": 67,
+      "mode:destroy": 2,
+      "mode:request": 3,
+      "mode:resource-retire": 2,
+      "mode:wrapper-free": 4,
+      "name": 67,
+      "ref": 170,
+      "reserve": 1,
+      "retire": 2,
+      "upload": 159
+     }
+    },
+    "pad_script": [
+     {
+      "i": 65663,
+      "vb": 850,
+      "step": 1,
+      "buttons": 512,
+      "title_n": 1,
+      "why": "submode 10 accepts Start: press Start"
+     },
+     {
+      "i": 65719,
+      "vb": 851,
+      "step": 2,
+      "buttons": 0,
+      "title_n": 2,
+      "why": "Start consumed by submode 10: release"
+     },
+     {
+      "i": 70097,
+      "vb": 932,
+      "step": 4,
+      "buttons": 8192,
+      "title_n": 83,
+      "why": "menu submode 0x1e, selection 1: press confirm"
+     },
+     {
+      "i": 70152,
+      "vb": 933,
+      "step": 6,
+      "buttons": 0,
+      "title_n": 84,
+      "why": "confirm consumed by submode 0x1e: release"
+     }
+    ],
+    "nonneutral_pad_reads": [
+     {
+      "mode8_update_oracle_i": 65709,
+      "vb": 851,
+      "repeat_word": 2048,
+      "analog": [
+       128,
+       128,
+       128,
+       128
+      ],
+      "pressed_word": 2048,
+      "title_n": 2
+     },
+     {
+      "mode8_update_oracle_i": 70143,
+      "vb": 933,
+      "repeat_word": 64,
+      "analog": [
+       128,
+       128,
+       128,
+       128
+      ],
+      "pressed_word": 64,
+      "title_n": 84
+     }
+    ],
+    "title_submode_changes": [
+     {
+      "submode": 0,
+      "title_n": 0,
+      "vb": 849
+     },
+     {
+      "submode": 10,
+      "title_n": 1,
+      "vb": 850
+     },
+     {
+      "submode": 15,
+      "title_n": 3,
+      "vb": 852
+     },
+     {
+      "submode": 20,
+      "title_n": 43,
+      "vb": 892
+     },
+     {
+      "submode": 30,
+      "title_n": 83,
+      "vb": 932
+     },
+     {
+      "submode": 55,
+      "title_n": 85,
+      "vb": 934
+     },
+     {
+      "submode": 60,
+      "title_n": 178,
+      "vb": 1027
+     }
+    ],
+    "title_selection_changes": [
+     {
+      "selection": 0,
+      "title_n": 0,
+      "vb": 849
+     },
+     {
+      "selection": 1,
+      "title_n": 83,
+      "vb": 932
+     }
+    ],
+    "effect106_events": [
+     {
+      "op": "remove-request",
+      "slot": -2,
+      "vb": 105,
+      "caller_ra": "0x101250",
+      "title_n": null
+     },
+     {
+      "op": "remove-request",
+      "slot": -2,
+      "vb": 765,
+      "caller_ra": "0x101250",
+      "title_n": null
+     },
+     {
+      "op": "create",
+      "shape": 106,
+      "slot": 0,
+      "vb": 849,
+      "caller_ra": "0x1294d4",
+      "title_n": 0
+     },
+     {
+      "op": "bind",
+      "slot": 0,
+      "element": 0,
+      "handle": 43,
+      "vb": 849,
+      "caller_ra": "0x129b6c",
+      "title_n": 0
+     },
+     {
+      "op": "remove-request",
+      "slot": 0,
+      "vb": 1037,
+      "caller_ra": "0x12a274",
+      "title_n": 188
+     },
+     {
+      "op": "remove-request",
+      "slot": -2,
+      "vb": 1038,
+      "caller_ra": "0x101250",
+      "title_n": 188
+     }
+    ],
+    "mode_events": [
+     {
+      "op": "request",
+      "mode": 8,
+      "selector": 3,
+      "arg": 0,
+      "vb": 68,
+      "title_n": null
+     },
+     {
+      "op": "request",
+      "mode": 8,
+      "selector": 0,
+      "arg": 0,
+      "vb": 104,
+      "title_n": null
+     },
+     {
+      "op": "resource-retire",
+      "mode": 8,
+      "selector": 3,
+      "vb": 105,
+      "title_n": null
+     },
+     {
+      "op": "destroy",
+      "mode": 8,
+      "selector": 3,
+      "vb": 105,
+      "title_n": null
+     },
+     {
+      "op": "wrapper-free",
+      "node": "resource",
+      "mode": 8,
+      "selector": 3,
+      "vb": 108,
+      "title_n": null
+     },
+     {
+      "op": "wrapper-free",
+      "node": "mode8",
+      "mode": 8,
+      "selector": 3,
+      "vb": 108,
+      "title_n": null
+     },
+     {
+      "op": "request",
+      "mode": 8,
+      "selector": 1,
+      "arg": 0,
+      "vb": 764,
+      "title_n": null
+     },
+     {
+      "op": "resource-retire",
+      "mode": 8,
+      "selector": 0,
+      "vb": 765,
+      "title_n": null
+     },
+     {
+      "op": "destroy",
+      "mode": 8,
+      "selector": 0,
+      "vb": 765,
+      "title_n": null
+     },
+     {
+      "op": "wrapper-free",
+      "node": "resource",
+      "mode": 8,
+      "selector": 0,
+      "vb": 768,
+      "title_n": null
+     },
+     {
+      "op": "wrapper-free",
+      "node": "mode8",
+      "mode": 8,
+      "selector": 0,
+      "vb": 768,
+      "title_n": null
+     },
+     {
+      "op": "request",
+      "mode": 10,
+      "selector": 0,
+      "arg": 0,
+      "vb": 1037,
+      "title_n": 188
+     },
+     {
+      "op": "resource-retire",
+      "mode": 8,
+      "selector": 1,
+      "vb": 1038,
+      "title_n": 188
+     },
+     {
+      "op": "destroy",
+      "mode": 8,
+      "selector": 1,
+      "vb": 1038,
+      "title_n": 188
+     },
+     {
+      "op": "wrapper-free",
+      "node": "resource",
+      "mode": 8,
+      "selector": 1,
+      "vb": 1042,
+      "title_n": 188
+     },
+     {
+      "op": "wrapper-free",
+      "node": "mode8",
+      "mode": 8,
+      "selector": 1,
+      "vb": 1042,
+      "title_n": 188
+     }
+    ],
+    "rng": {
+     "draws_total": 9504,
+     "startup_draws_rng": 9504,
+     "state_at_stop": 1093412321,
+     "draws_after_prefix": 0
+    },
+    "survivors_at_successor_entry": {
+     "equal_to_state_at_0x100618": {
+      "handles": true,
+      "records": true,
+      "hash": false,
+      "live_handles": true,
+      "reserved": true,
+      "free_records": true,
+      "free_extras": true
+     },
+     "live_allocations": 79,
+     "live_allocation_ids_equal_prefix": true,
+     "descriptor_refs_equal_prefix": true,
+     "available": 4017,
+     "available_at_prefix": 4017,
+     "cursors_equal_prefix": false,
+     "occupancy_equal_prefix": true,
+     "free_queue_ids_head": [
+      166,
+      167,
+      168,
+      169,
+      170,
+      171,
+      172,
+      173,
+      174,
+      175,
+      176,
+      177
+     ],
+     "image_list": [],
+     "material_tables": [
+      {
+       "ptr": "0x59faf0",
+       "count": 0
+      },
+      {
+       "ptr": "0x59ece0",
+       "count": 0
+      }
+     ]
+    },
+    "pending_at_stop": {
+     "effect106": {
+      "slot": 0,
+      "shape": 106,
+      "state": "reclaim-pending",
+      "element_handles": [
+       43
+      ]
+     },
+     "effect106_job": {
+      "slot": 0,
+      "job": "0xb53f20",
+      "type": 106,
+      "flags": "0x8720",
+      "elements": 1,
+      "rgba_40": [
+       "0x3b9370fc",
+       "0x3b9370fc",
+       "0x3b9370fc",
+       "0x3b75bc50"
+      ],
+      "w74": 2,
+      "element_handles": [
+       43
+      ]
+     },
+     "effect106_note": "flags 0x200 = reclaim pending: 0x102218 frees the job on its next service; the title resource child that ran 0x102218 (0x100f90) is retired, so no service has run since; the job still names the retired hanten handle",
+     "effect_slots_live": [
+      0
+     ],
+     "theme_words_2d9a60": [
+      1,
+      1,
+      126
+     ],
+     "theme_note": "0x12dd50(1) at 0x12c8d8 set [request 1, stream 1, countdown 0x80]; the countdown has advanced to the value shown; stream destruction has not happened (deferred audio tail)",
+     "host_buttons_at_stop": 0,
+     "successor_entry": {
+      "node": "0x1dbd000",
+      "parent": "0x1dbcf50",
+      "parent_40_mode": 10,
+      "parent_44": 0,
+      "parent_4c": 10,
+      "mode_24f738": 10,
+      "descriptor_ctor": "0x0"
+     }
+    },
+    "retirement": {
+     "retire_callers": {
+      "retire@0x1796f8": 67,
+      "retire@0x1b2284": 8
+     },
+     "model_table_retire_order": [
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110
+     ],
+     "image_list_retire_order": [
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43
+     ],
+     "nightv_table_ptr": "0x9acc10",
+     "texture_events_after_resource_child_return": 0,
+     "vb": 1038
+    },
+    "determinism_all_identical": true,
+    "control_minimal": {
+     "vblanks": 1013,
+     "title_updates": 189,
+     "checkpoints": [
+      "first-update",
+      "stable-menu",
+      "successor-entry"
+     ],
+     "title_frames_equal": true,
+     "pad_host_equal_modulo_vb": true,
+     "checkpoints_compared": {
+      "first-update": {
+       "resource_state_equal": {
+        "handles": true,
+        "records": true,
+        "hash": true,
+        "live_handles": true,
+        "reserved": true,
+        "free_records": true,
+        "free_extras": true,
+        "descriptors": true,
+        "free_queue_ids": true,
+        "inuse_ring_ids": true,
+        "reserved1": true,
+        "reserve_class": true,
+        "cache_switch": true,
+        "lower_switch": true,
+        "image_list_count": true,
+        "image_list": true,
+        "record_free_order": true,
+        "extra_free_order": true,
+        "handle_ids_free_order": true,
+        "handle_range_sha256": true,
+        "handle_nodes_sha256": true,
+        "material_tables": true,
+        "occupancy_hex": true,
+        "rand_state_214ec8_58": true,
+        "vram.available": true,
+        "vram.cursors": true,
+        "vram.occupancy_sha256": true,
+        "vram.nodes_sha256": true
+       },
+       "title_n_equal": true,
+       "vram_fill00_equal": true,
+       "vb_control": 822,
+       "vb_hooked": 849
+      },
+      "stable-menu": {
+       "resource_state_equal": {
+        "handles": true,
+        "records": true,
+        "hash": true,
+        "live_handles": true,
+        "reserved": true,
+        "free_records": true,
+        "free_extras": true,
+        "descriptors": true,
+        "free_queue_ids": true,
+        "inuse_ring_ids": true,
+        "reserved1": true,
+        "reserve_class": true,
+        "cache_switch": true,
+        "lower_switch": true,
+        "image_list_count": true,
+        "image_list": true,
+        "record_free_order": true,
+        "extra_free_order": true,
+        "handle_ids_free_order": true,
+        "handle_range_sha256": true,
+        "handle_nodes_sha256": true,
+        "material_tables": true,
+        "occupancy_hex": true,
+        "rand_state_214ec8_58": true,
+        "vram.available": true,
+        "vram.cursors": true,
+        "vram.occupancy_sha256": true,
+        "vram.nodes_sha256": true
+       },
+       "title_n_equal": true,
+       "vram_fill00_equal": true,
+       "vb_control": 824,
+       "vb_hooked": 851
+      },
+      "successor-entry": {
+       "resource_state_equal": {
+        "handles": true,
+        "records": true,
+        "hash": true,
+        "live_handles": true,
+        "reserved": true,
+        "free_records": true,
+        "free_extras": true,
+        "descriptors": true,
+        "free_queue_ids": true,
+        "inuse_ring_ids": true,
+        "reserved1": true,
+        "reserve_class": true,
+        "cache_switch": true,
+        "lower_switch": true,
+        "image_list_count": true,
+        "image_list": true,
+        "record_free_order": true,
+        "extra_free_order": true,
+        "handle_ids_free_order": true,
+        "handle_range_sha256": true,
+        "handle_nodes_sha256": true,
+        "material_tables": true,
+        "occupancy_hex": true,
+        "rand_state_214ec8_58": true,
+        "vram.available": true,
+        "vram.cursors": true,
+        "vram.occupancy_sha256": true,
+        "vram.nodes_sha256": true
+       },
+       "title_n_equal": true,
+       "vram_fill00_equal": true,
+       "vb_control": 1013,
+       "vb_hooked": 1043
+      }
+     },
+     "final_vram_equal": true
+    },
+    "title_neutrality": {
+     "state_equal_to_title_fill00_a_final_state": {
+      "handles": true,
+      "records": true,
+      "hash": true,
+      "live_handles": true,
+      "reserved": true,
+      "free_records": true,
+      "free_extras": true,
+      "descriptors": true,
+      "allocations": true,
+      "allocation_serials": true,
+      "free_queue_ids": true,
+      "inuse_ring_ids": true,
+      "reserved1": true,
+      "reserve_class": true,
+      "cache_switch": true,
+      "lower_switch": true,
+      "image_list_count": true,
+      "image_list": true,
+      "record_free_order": true,
+      "extra_free_order": true,
+      "handle_ids_free_order": true,
+      "handle_range_sha256": true,
+      "handle_nodes_sha256": true,
+      "material_tables": true,
+      "occupancy_hex": true,
+      "rand_state_214ec8_58": true,
+      "vram.available": true,
+      "vram.cursors": true,
+      "vram.occupancy_sha256": true,
+      "vram.nodes_sha256": true
+     },
+     "pc_equal": true,
+     "vram_fill00_equal": true,
+     "vram_fillff_equal": true,
+     "last_writer_equal": true,
+     "upload_ever_equal": true,
+     "texture_timeline_equal_to_title_analysis": true,
+     "texture_events": 796,
+     "vb_title": 843,
+     "vb_retire": 848,
+     "failures": []
+    }
+   },
+   "newgame": {
+    "first-update": {
+     "resource_events": 809,
+     "rng_draws": 9504,
+     "vram_known_nibbles": 2586752,
+     "vram_unknown_nibbles": 3153920,
+     "events_by_kind": {
+      "alloc": 166,
+      "bind": 47,
+      "effect:remove-request": 2,
+      "free": 4,
+      "handle": 113,
+      "material": 67,
+      "mode:destroy": 2,
+      "mode:request": 3,
+      "mode:resource-retire": 2,
+      "mode:wrapper-free": 4,
+      "name": 67,
+      "ref": 170,
+      "reserve": 1,
+      "retire": 2,
+      "upload": 159
+     },
+     "vb": 849,
+     "title_n": 0,
+     "state": {
+      "allocations": 162,
+      "handles": 111,
+      "records": 111,
+      "hash": 62,
+      "image_list": [
+       36,
+       37,
+       38,
+       39,
+       40,
+       41,
+       42,
+       43
+      ],
+      "materials": 67,
+      "available": 3934,
+      "reserved": 0
+     },
+     "effect106": null
+    },
+    "stable-menu": {
+     "resource_events": 811,
+     "rng_draws": 9504,
+     "vram_known_nibbles": 2586752,
+     "vram_unknown_nibbles": 3153920,
+     "events_by_kind": {
+      "alloc": 166,
+      "bind": 47,
+      "effect:bind": 1,
+      "effect:create": 1,
+      "effect:remove-request": 2,
+      "free": 4,
+      "handle": 113,
+      "material": 67,
+      "mode:destroy": 2,
+      "mode:request": 3,
+      "mode:resource-retire": 2,
+      "mode:wrapper-free": 4,
+      "name": 67,
+      "ref": 170,
+      "reserve": 1,
+      "retire": 2,
+      "upload": 159
+     },
+     "vb": 851,
+     "title_n": 2,
+     "state": {
+      "allocations": 162,
+      "handles": 111,
+      "records": 111,
+      "hash": 62,
+      "image_list": [
+       36,
+       37,
+       38,
+       39,
+       40,
+       41,
+       42,
+       43
+      ],
+      "materials": 67,
+      "available": 3934,
+      "reserved": 0
+     },
+     "effect106": {
+      "slot": 0,
+      "shape": 106,
+      "state": "active",
+      "element_handles": [
+       43
+      ]
+     }
+    },
+    "removal-request": {
+     "resource_events": 811,
+     "rng_draws": 9504,
+     "vram_known_nibbles": 2586752,
+     "vram_unknown_nibbles": 3153920,
+     "events_by_kind": {
+      "alloc": 166,
+      "bind": 47,
+      "effect:bind": 1,
+      "effect:create": 1,
+      "effect:remove-request": 2,
+      "free": 4,
+      "handle": 113,
+      "material": 67,
+      "mode:destroy": 2,
+      "mode:request": 3,
+      "mode:resource-retire": 2,
+      "mode:wrapper-free": 4,
+      "name": 67,
+      "ref": 170,
+      "reserve": 1,
+      "retire": 2,
+      "upload": 159
+     },
+     "vb": 1040,
+     "title_n": 191,
+     "state": {
+      "allocations": 162,
+      "handles": 111,
+      "records": 111,
+      "hash": 62,
+      "image_list": [
+       36,
+       37,
+       38,
+       39,
+       40,
+       41,
+       42,
+       43
+      ],
+      "materials": 67,
+      "available": 3934,
+      "reserved": 0
+     },
+     "effect106": {
+      "slot": 0,
+      "shape": 106,
+      "state": "active",
+      "element_handles": [
+       43
+      ]
+     }
+    },
+    "resource-retirement": {
+     "resource_events": 1056,
+     "rng_draws": 9504,
+     "vram_known_nibbles": 2586752,
+     "vram_unknown_nibbles": 3153920,
+     "events_by_kind": {
+      "alloc": 166,
+      "bind": 47,
+      "effect:bind": 1,
+      "effect:create": 1,
+      "effect:remove-request": 4,
+      "free": 87,
+      "handle": 113,
+      "material": 67,
+      "mode:destroy": 2,
+      "mode:request": 4,
+      "mode:resource-retire": 3,
+      "mode:wrapper-free": 4,
+      "name": 67,
+      "ref": 253,
+      "reserve": 1,
+      "retire": 77,
+      "upload": 159
+     },
+     "vb": 1041,
+     "title_n": 191,
+     "state": {
+      "allocations": 79,
+      "handles": 36,
+      "records": 36,
+      "hash": 62,
+      "image_list": [],
+      "materials": 0,
+      "available": 4017,
+      "reserved": 0
+     },
+     "effect106": {
+      "slot": 0,
+      "shape": 106,
+      "state": "reclaim-pending",
+      "element_handles": [
+       43
+      ]
+     }
+    },
+    "successor-entry": {
+     "resource_events": 1059,
+     "rng_draws": 9504,
+     "vram_known_nibbles": 2586752,
+     "vram_unknown_nibbles": 3153920,
+     "events_by_kind": {
+      "alloc": 166,
+      "bind": 47,
+      "effect:bind": 1,
+      "effect:create": 1,
+      "effect:remove-request": 4,
+      "free": 87,
+      "handle": 113,
+      "material": 67,
+      "mode:destroy": 3,
+      "mode:request": 4,
+      "mode:resource-retire": 3,
+      "mode:wrapper-free": 6,
+      "name": 67,
+      "ref": 253,
+      "reserve": 1,
+      "retire": 77,
+      "upload": 159
+     },
+     "vb": 1046,
+     "title_n": 191,
+     "state": {
+      "allocations": 79,
+      "handles": 36,
+      "records": 36,
+      "hash": 62,
+      "image_list": [],
+      "materials": 0,
+      "available": 4017,
+      "reserved": 0
+     },
+     "effect106": {
+      "slot": 0,
+      "shape": 106,
+      "state": "reclaim-pending",
+      "element_handles": [
+       43
+      ]
+     }
+    },
+    "title-constructed": {
+     "vb": 848,
+     "title_n": null,
+     "resource_events": 809,
+     "events_by_kind": {
+      "alloc": 166,
+      "bind": 47,
+      "effect:remove-request": 2,
+      "free": 4,
+      "handle": 113,
+      "material": 67,
+      "mode:destroy": 2,
+      "mode:request": 3,
+      "mode:resource-retire": 2,
+      "mode:wrapper-free": 4,
+      "name": 67,
+      "ref": 170,
+      "reserve": 1,
+      "retire": 2,
+      "upload": 159
+     }
+    },
+    "pad_script": [
+     {
+      "i": 65663,
+      "vb": 850,
+      "step": 1,
+      "buttons": 512,
+      "title_n": 1,
+      "why": "submode 10 accepts Start: press Start"
+     },
+     {
+      "i": 65719,
+      "vb": 851,
+      "step": 2,
+      "buttons": 0,
+      "title_n": 2,
+      "why": "Start consumed by submode 10: release"
+     },
+     {
+      "i": 70097,
+      "vb": 932,
+      "step": 3,
+      "buttons": 64,
+      "title_n": 83,
+      "why": "menu submode 0x1e, selection 1: press Left"
+     },
+     {
+      "i": 70152,
+      "vb": 933,
+      "step": 5,
+      "buttons": 0,
+      "title_n": 84,
+      "why": "Left consumed (0x259970=1): release"
+     },
+     {
+      "i": 70209,
+      "vb": 934,
+      "step": 4,
+      "buttons": 8192,
+      "title_n": 85,
+      "why": "selection 0 (New Game): press confirm"
+     },
+     {
+      "i": 70264,
+      "vb": 935,
+      "step": 6,
+      "buttons": 0,
+      "title_n": 86,
+      "why": "confirm consumed by submode 0x1e: release"
+     }
+    ],
+    "nonneutral_pad_reads": [
+     {
+      "mode8_update_oracle_i": 65709,
+      "vb": 851,
+      "repeat_word": 2048,
+      "analog": [
+       128,
+       128,
+       128,
+       128
+      ],
+      "pressed_word": 2048,
+      "title_n": 2
+     },
+     {
+      "mode8_update_oracle_i": 70143,
+      "vb": 933,
+      "repeat_word": 32768,
+      "analog": [
+       128,
+       128,
+       128,
+       128
+      ],
+      "pressed_word": 32768,
+      "title_n": 84
+     },
+     {
+      "mode8_update_oracle_i": 70255,
+      "vb": 935,
+      "repeat_word": 64,
+      "analog": [
+       128,
+       128,
+       128,
+       128
+      ],
+      "pressed_word": 64,
+      "title_n": 86
+     }
+    ],
+    "title_submode_changes": [
+     {
+      "submode": 0,
+      "title_n": 0,
+      "vb": 849
+     },
+     {
+      "submode": 10,
+      "title_n": 1,
+      "vb": 850
+     },
+     {
+      "submode": 15,
+      "title_n": 3,
+      "vb": 852
+     },
+     {
+      "submode": 20,
+      "title_n": 43,
+      "vb": 892
+     },
+     {
+      "submode": 30,
+      "title_n": 83,
+      "vb": 932
+     },
+     {
+      "submode": 50,
+      "title_n": 87,
+      "vb": 936
+     },
+     {
+      "submode": 60,
+      "title_n": 181,
+      "vb": 1030
+     }
+    ],
+    "title_selection_changes": [
+     {
+      "selection": 0,
+      "title_n": 0,
+      "vb": 849
+     },
+     {
+      "selection": 1,
+      "title_n": 83,
+      "vb": 932
+     },
+     {
+      "selection": 0,
+      "title_n": 85,
+      "vb": 934
+     }
+    ],
+    "effect106_events": [
+     {
+      "op": "remove-request",
+      "slot": -2,
+      "vb": 105,
+      "caller_ra": "0x101250",
+      "title_n": null
+     },
+     {
+      "op": "remove-request",
+      "slot": -2,
+      "vb": 765,
+      "caller_ra": "0x101250",
+      "title_n": null
+     },
+     {
+      "op": "create",
+      "shape": 106,
+      "slot": 0,
+      "vb": 849,
+      "caller_ra": "0x1294d4",
+      "title_n": 0
+     },
+     {
+      "op": "bind",
+      "slot": 0,
+      "element": 0,
+      "handle": 43,
+      "vb": 849,
+      "caller_ra": "0x129b6c",
+      "title_n": 0
+     },
+     {
+      "op": "remove-request",
+      "slot": 0,
+      "vb": 1040,
+      "caller_ra": "0x12a274",
+      "title_n": 191
+     },
+     {
+      "op": "remove-request",
+      "slot": -2,
+      "vb": 1041,
+      "caller_ra": "0x101250",
+      "title_n": 191
+     }
+    ],
+    "mode_events": [
+     {
+      "op": "request",
+      "mode": 8,
+      "selector": 3,
+      "arg": 0,
+      "vb": 68,
+      "title_n": null
+     },
+     {
+      "op": "request",
+      "mode": 8,
+      "selector": 0,
+      "arg": 0,
+      "vb": 104,
+      "title_n": null
+     },
+     {
+      "op": "resource-retire",
+      "mode": 8,
+      "selector": 3,
+      "vb": 105,
+      "title_n": null
+     },
+     {
+      "op": "destroy",
+      "mode": 8,
+      "selector": 3,
+      "vb": 105,
+      "title_n": null
+     },
+     {
+      "op": "wrapper-free",
+      "node": "resource",
+      "mode": 8,
+      "selector": 3,
+      "vb": 108,
+      "title_n": null
+     },
+     {
+      "op": "wrapper-free",
+      "node": "mode8",
+      "mode": 8,
+      "selector": 3,
+      "vb": 108,
+      "title_n": null
+     },
+     {
+      "op": "request",
+      "mode": 8,
+      "selector": 1,
+      "arg": 0,
+      "vb": 764,
+      "title_n": null
+     },
+     {
+      "op": "resource-retire",
+      "mode": 8,
+      "selector": 0,
+      "vb": 765,
+      "title_n": null
+     },
+     {
+      "op": "destroy",
+      "mode": 8,
+      "selector": 0,
+      "vb": 765,
+      "title_n": null
+     },
+     {
+      "op": "wrapper-free",
+      "node": "resource",
+      "mode": 8,
+      "selector": 0,
+      "vb": 768,
+      "title_n": null
+     },
+     {
+      "op": "wrapper-free",
+      "node": "mode8",
+      "mode": 8,
+      "selector": 0,
+      "vb": 768,
+      "title_n": null
+     },
+     {
+      "op": "request",
+      "mode": 9,
+      "selector": 0,
+      "arg": 0,
+      "vb": 1040,
+      "title_n": 191
+     },
+     {
+      "op": "resource-retire",
+      "mode": 8,
+      "selector": 1,
+      "vb": 1041,
+      "title_n": 191
+     },
+     {
+      "op": "destroy",
+      "mode": 8,
+      "selector": 1,
+      "vb": 1041,
+      "title_n": 191
+     },
+     {
+      "op": "wrapper-free",
+      "node": "resource",
+      "mode": 8,
+      "selector": 1,
+      "vb": 1045,
+      "title_n": 191
+     },
+     {
+      "op": "wrapper-free",
+      "node": "mode8",
+      "mode": 8,
+      "selector": 1,
+      "vb": 1045,
+      "title_n": 191
+     }
+    ],
+    "rng": {
+     "draws_total": 9504,
+     "startup_draws_rng": 9504,
+     "state_at_stop": 1093412321,
+     "draws_after_prefix": 0
+    },
+    "survivors_at_successor_entry": {
+     "equal_to_state_at_0x100618": {
+      "handles": true,
+      "records": true,
+      "hash": false,
+      "live_handles": true,
+      "reserved": true,
+      "free_records": true,
+      "free_extras": true
+     },
+     "live_allocations": 79,
+     "live_allocation_ids_equal_prefix": true,
+     "descriptor_refs_equal_prefix": true,
+     "available": 4017,
+     "available_at_prefix": 4017,
+     "cursors_equal_prefix": false,
+     "occupancy_equal_prefix": true,
+     "free_queue_ids_head": [
+      166,
+      167,
+      168,
+      169,
+      170,
+      171,
+      172,
+      173,
+      174,
+      175,
+      176,
+      177
+     ],
+     "image_list": [],
+     "material_tables": [
+      {
+       "ptr": "0x59faf0",
+       "count": 0
+      },
+      {
+       "ptr": "0x59ece0",
+       "count": 0
+      }
+     ]
+    },
+    "pending_at_stop": {
+     "effect106": {
+      "slot": 0,
+      "shape": 106,
+      "state": "reclaim-pending",
+      "element_handles": [
+       43
+      ]
+     },
+     "effect106_job": {
+      "slot": 0,
+      "job": "0xb53f20",
+      "type": 106,
+      "flags": "0x8720",
+      "elements": 1,
+      "rgba_40": [
+       "0x3c2231a9",
+       "0x3c2231a9",
+       "0x3c2231a9",
+       "0x3c072962"
+      ],
+      "w74": 2,
+      "element_handles": [
+       43
+      ]
+     },
+     "effect106_note": "flags 0x200 = reclaim pending: 0x102218 frees the job on its next service; the title resource child that ran 0x102218 (0x100f90) is retired, so no service has run since; the job still names the retired hanten handle",
+     "effect_slots_live": [
+      0
+     ],
+     "theme_words_2d9a60": [
+      1,
+      1,
+      126
+     ],
+     "theme_note": "0x12dd50(1) at 0x12c8d8 set [request 1, stream 1, countdown 0x80]; the countdown has advanced to the value shown; stream destruction has not happened (deferred audio tail)",
+     "host_buttons_at_stop": 0,
+     "successor_entry": {
+      "node": "0x1dbd000",
+      "parent": "0x1dbcf50",
+      "parent_40_mode": 9,
+      "parent_44": 0,
+      "parent_4c": 9,
+      "mode_24f738": 9,
+      "descriptor_ctor": "0x0"
+     }
+    },
+    "retirement": {
+     "retire_callers": {
+      "retire@0x1796f8": 67,
+      "retire@0x1b2284": 8
+     },
+     "model_table_retire_order": [
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110
+     ],
+     "image_list_retire_order": [
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43
+     ],
+     "nightv_table_ptr": "0x9acc10",
+     "texture_events_after_resource_child_return": 0,
+     "vb": 1041
+    },
+    "determinism_all_identical": true,
+    "control_minimal": {
+     "vblanks": 1016,
+     "title_updates": 192,
+     "checkpoints": [
+      "first-update",
+      "stable-menu",
+      "successor-entry"
+     ],
+     "title_frames_equal": true,
+     "pad_host_equal_modulo_vb": true,
+     "checkpoints_compared": {
+      "first-update": {
+       "resource_state_equal": {
+        "handles": true,
+        "records": true,
+        "hash": true,
+        "live_handles": true,
+        "reserved": true,
+        "free_records": true,
+        "free_extras": true,
+        "descriptors": true,
+        "free_queue_ids": true,
+        "inuse_ring_ids": true,
+        "reserved1": true,
+        "reserve_class": true,
+        "cache_switch": true,
+        "lower_switch": true,
+        "image_list_count": true,
+        "image_list": true,
+        "record_free_order": true,
+        "extra_free_order": true,
+        "handle_ids_free_order": true,
+        "handle_range_sha256": true,
+        "handle_nodes_sha256": true,
+        "material_tables": true,
+        "occupancy_hex": true,
+        "rand_state_214ec8_58": true,
+        "vram.available": true,
+        "vram.cursors": true,
+        "vram.occupancy_sha256": true,
+        "vram.nodes_sha256": true
+       },
+       "title_n_equal": true,
+       "vram_fill00_equal": true,
+       "vb_control": 822,
+       "vb_hooked": 849
+      },
+      "stable-menu": {
+       "resource_state_equal": {
+        "handles": true,
+        "records": true,
+        "hash": true,
+        "live_handles": true,
+        "reserved": true,
+        "free_records": true,
+        "free_extras": true,
+        "descriptors": true,
+        "free_queue_ids": true,
+        "inuse_ring_ids": true,
+        "reserved1": true,
+        "reserve_class": true,
+        "cache_switch": true,
+        "lower_switch": true,
+        "image_list_count": true,
+        "image_list": true,
+        "record_free_order": true,
+        "extra_free_order": true,
+        "handle_ids_free_order": true,
+        "handle_range_sha256": true,
+        "handle_nodes_sha256": true,
+        "material_tables": true,
+        "occupancy_hex": true,
+        "rand_state_214ec8_58": true,
+        "vram.available": true,
+        "vram.cursors": true,
+        "vram.occupancy_sha256": true,
+        "vram.nodes_sha256": true
+       },
+       "title_n_equal": true,
+       "vram_fill00_equal": true,
+       "vb_control": 824,
+       "vb_hooked": 851
+      },
+      "successor-entry": {
+       "resource_state_equal": {
+        "handles": true,
+        "records": true,
+        "hash": true,
+        "live_handles": true,
+        "reserved": true,
+        "free_records": true,
+        "free_extras": true,
+        "descriptors": true,
+        "free_queue_ids": true,
+        "inuse_ring_ids": true,
+        "reserved1": true,
+        "reserve_class": true,
+        "cache_switch": true,
+        "lower_switch": true,
+        "image_list_count": true,
+        "image_list": true,
+        "record_free_order": true,
+        "extra_free_order": true,
+        "handle_ids_free_order": true,
+        "handle_range_sha256": true,
+        "handle_nodes_sha256": true,
+        "material_tables": true,
+        "occupancy_hex": true,
+        "rand_state_214ec8_58": true,
+        "vram.available": true,
+        "vram.cursors": true,
+        "vram.occupancy_sha256": true,
+        "vram.nodes_sha256": true
+       },
+       "title_n_equal": true,
+       "vram_fill00_equal": true,
+       "vb_control": 1016,
+       "vb_hooked": 1046
+      }
+     },
+     "final_vram_equal": true
+    },
+    "title_neutrality": {
+     "state_equal_to_title_fill00_a_final_state": {
+      "handles": true,
+      "records": true,
+      "hash": true,
+      "live_handles": true,
+      "reserved": true,
+      "free_records": true,
+      "free_extras": true,
+      "descriptors": true,
+      "allocations": true,
+      "allocation_serials": true,
+      "free_queue_ids": true,
+      "inuse_ring_ids": true,
+      "reserved1": true,
+      "reserve_class": true,
+      "cache_switch": true,
+      "lower_switch": true,
+      "image_list_count": true,
+      "image_list": true,
+      "record_free_order": true,
+      "extra_free_order": true,
+      "handle_ids_free_order": true,
+      "handle_range_sha256": true,
+      "handle_nodes_sha256": true,
+      "material_tables": true,
+      "occupancy_hex": true,
+      "rand_state_214ec8_58": true,
+      "vram.available": true,
+      "vram.cursors": true,
+      "vram.occupancy_sha256": true,
+      "vram.nodes_sha256": true
+     },
+     "pc_equal": true,
+     "vram_fill00_equal": true,
+     "vram_fillff_equal": true,
+     "last_writer_equal": true,
+     "upload_ever_equal": true,
+     "texture_timeline_equal_to_title_analysis": true,
+     "texture_events": 796,
+     "vb_title": 843,
+     "vb_retire": 848,
+     "failures": []
+    }
+   }
+  }
+ },
+ "expected_coverage": {
+  "checkpoints": [
+   "first-update",
+   "stable-menu",
+   "removal-request",
+   "resource-retirement",
+   "successor-entry"
+  ],
+  "event_kinds": [
+   "alloc",
+   "upload",
+   "ref",
+   "free",
+   "handle",
+   "retire",
+   "bind",
+   "name",
+   "reserve",
+   "material",
+   "effect:create",
+   "effect:bind",
+   "effect:remove-request",
+   "effect:reclaim",
+   "mode:request",
+   "mode:resource-retire",
+   "mode:destroy",
+   "mode:wrapper-free"
+  ],
+  "not_reached_in_this_window": [
+   "effect:reclaim (0x102218 never services the water job after the resource child is retired; pending at the stop)",
+   "texture allocation or upload after the Title stop",
+   "rand() draws after 0x100618",
+   "local-to-local GS transfers"
+  ]
+ },
+ "limitations": [
+  "Play research backend, Debug build; not a physical PS2 proof. Play tree cleanliness not verified.",
+  "Vblank numbers are observer-dependent (hooked successor entry vb 1036 restore / 1039 newgame vs 1013 in the minimal restore control); title-update ordinals, pad words and resource state are not.",
+  "The null renderer rasterises nothing: draw-written nibbles are ledger classifications (conservative rectangles).",
+  "Checkpoint VRAM is read after submitting the processed GS register writes and waiting for the GS thread; the last host-to-local transfer record stays open in the ledger (complete: received == expected).",
+  "The pad script is state-driven: Start is pressed at the first accepting title update, so the title fade-in has barely begun at stable-menu; idle title behaviour (attract timeout 1500 updates) is not exercised.",
+  "ee-ram snapshots are the first 32 MiB of EE RAM only and only at the stop."
+ ]
+}
