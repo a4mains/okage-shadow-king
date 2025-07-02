@@ -416,8 +416,12 @@ int main() {
             try { o.request_title_successor(11); } catch (const std::logic_error&) { threw = true; }
             require(threw, "only Restore/New Game successors are modeled");
             o.note_effect_removal_request(0);
+            o.note_effect_removal_request(0);
+            require(o.effect106() && std::string(o.effect106()->state) == "removal-requested" &&
+                    o.effect106()->element_handles == std::vector<int>({hanten}), "effect106 observation");
             o.request_title_successor(10);
-            o.note_effect_removal_request(0);  // a repeated request changes nothing
+            o.note_effect_reclaim_armed(0);
+            require(std::string(o.effect106()->state) == "reclaim-pending", "reclaim armed, not reclaimed");
             const auto free_before = m.free_queue_ids().size();
             const auto lifecycle_before = o.lifecycle().size();
             o.retire_title_resources();

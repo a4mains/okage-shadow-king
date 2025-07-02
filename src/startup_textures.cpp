@@ -1,5 +1,6 @@
 #include "okage/startup_textures.hpp"
 
+#include <algorithm>
 #include <map>
 #include <cstdio>
 #include <bit>
@@ -521,10 +522,45 @@ void StartupTextureOwner::title_event(ResourceStage from, ResourceStage to, std:
     if (to != from) advance(to);
 }
 
-void StartupTextureOwner::note_effect_create(int slot, unsigned definition) {
+void StartupTextureOwner::require_modeled(const char* operation) const {
+    if (coverage_ != StartupCoverage::PreSchedulerOnly)
+        throw std::logic_error(std::string(operation) + ": the startup prefix did not complete");
+    if (stage_ == ResourceStage::Unmodeled) throw std::logic_error(std::string(operation) + " after unmodeled history");
+}
+
+void StartupTextureOwner::note_mode_request(unsigned mode, unsigned selector, unsigned arg) {
+    require_modeled("mode request");
+    sync();
+    lifecycle_push("{\"kind\":\"mode\",\"op\":\"request\",\"mode\":" + std::to_string(mode) + ",\"selector\":" +
+                   std::to_string(selector) + ",\"arg\":" + std::to_string(arg) + "}");
+}
+
+void StartupTextureOwner::note_mode_resource_retire(unsigned selector) {
+    require_modeled("resource destructor");
+    sync();
+    lifecycle_push("{\"kind\":\"mode\",\"op\":\"resource-retire\",\"mode\":8,\"selector\":" + std::to_string(selector) + "}");
+    lifecycle_push("{\"kind\":\"effect\",\"op\":\"remove-request\",\"slot\":-2}");  // 101240 -> 103640(-2)
+}
+
+void StartupTextureOwner::note_mode_destroy(unsigned selector) {
+    require_modeled("mode-8 destructor");
+    sync();
+    lifecycle_push("{\"kind\":\"mode\",\"op\":\"destroy\",\"mode\":8,\"selector\":" + std::to_string(selector) + "}");
+}
+
+void StartupTextureOwner::note_mode_wrapper_free(unsigned selector) {
+    require_modeled("wrapper free");
+    sync();
+    for (const char* node : {"resource", "mode8"})
+        lifecycle_push(std::string("{\"kind\":\"mode\",\"op\":\"wrapper-free\",\"node\":\"") + node +
+                       "\",\"mode\":8,\"selector\":" + std::to_string(selector) + "}");
+}
+
+void StartupTextureOwner::note_effect_create(int slot, unsigned shape) {
     title_event(ResourceStage::TitleActive, ResourceStage::TitleActive,
-                "{\"kind\":\"effect\",\"op\":\"create\",\"slot\":" + std::to_string(slot) +
-                    ",\"definition\":" + std::to_string(definition) + "}");
+                "{\"kind\":\"effect\",\"op\":\"create\",\"shape\":" + std::to_string(shape) +
+                    ",\"slot\":" + std::to_string(slot) + "}");
+    if (shape == 106) effect106_ = EffectObservation{slot, "active", {}};
 }
 
 void StartupTextureOwner::note_effect_bind(int slot, unsigned element, int handle) {
@@ -534,25 +570,34 @@ void StartupTextureOwner::note_effect_bind(int slot, unsigned element, int handl
     title_event(ResourceStage::TitleActive, ResourceStage::TitleActive,
                 "{\"kind\":\"effect\",\"op\":\"bind\",\"slot\":" + std::to_string(slot) + ",\"element\":" +
                     std::to_string(element) + ",\"handle\":" + std::to_string(handle) + "}");
+    if (effect106_ && effect106_->slot == slot) {
+        if (effect106_->element_handles.size() <= element) effect106_->element_handles.resize(element + 1, -1);
+        effect106_->element_handles[element] = handle;
+    }
 }
 
 void StartupTextureOwner::note_effect_removal_request(int slot) {
-    const auto at = stage_ == ResourceStage::TitleRemovalRequested ? stage_ : ResourceStage::TitleActive;
-    title_event(at, at,
+    title_event(ResourceStage::TitleActive, ResourceStage::TitleActive,
                 "{\"kind\":\"effect\",\"op\":\"remove-request\",\"slot\":" + std::to_string(slot) + "}");
+    if (effect106_ && effect106_->slot == slot && std::string(effect106_->state) == "active")
+        effect106_->state = "removal-requested";
+}
+
+void StartupTextureOwner::note_effect_reclaim_armed(int slot) {
+    require_modeled("effect reclaim arm");
+    if (effect106_ && effect106_->slot == slot) effect106_->state = "reclaim-pending";
 }
 
 void StartupTextureOwner::request_title_successor(unsigned mode) {
     if (mode != 9 && mode != 10) throw std::logic_error("title successor other than New Game/Restore is not modeled");
     successor_mode_ = mode;
     title_event(ResourceStage::TitleActive, ResourceStage::TitleRemovalRequested,
-                "{\"kind\":\"mode\",\"op\":\"request\",\"mode\":" + std::to_string(mode) + "}");
+                "{\"kind\":\"mode\",\"op\":\"request\",\"mode\":" + std::to_string(mode) + ",\"selector\":0,\"arg\":0}");
 }
 
 void StartupTextureOwner::retire_title_resources() {
-    title_event(ResourceStage::TitleRemovalRequested, ResourceStage::TitleRemovalRequested,
-                "{\"kind\":\"mode\",\"op\":\"resource-retire\"}");
-    lifecycle_push("{\"kind\":\"effect\",\"op\":\"remove-request\",\"slot\":-2}");  // 101240 -> 103640(-2)
+    require_stage(ResourceStage::TitleRemovalRequested, "title resource destructor");
+    note_mode_resource_retire(1);
     // 1b6f50 -> 1b6400 -> 1797b8 -> 179650: 1cca30(handles[i]) for every binding slot in order.
     for (int handle : model_binding_) handles_.retire(handle);  // 1cca30 of -7/-1 is a no-op
     model_binding_.clear();
@@ -564,19 +609,20 @@ void StartupTextureOwner::retire_title_resources() {
 }
 
 void StartupTextureOwner::destroy_title_mode() {
-    title_event(ResourceStage::TitleResourcesRetired, ResourceStage::TitleResourcesRetired,
-                "{\"kind\":\"mode\",\"op\":\"destroy\"}");
+    require_stage(ResourceStage::TitleResourcesRetired, "title mode-8 destructor");
+    note_mode_destroy(1);
 }
 
 void StartupTextureOwner::free_title_wrappers() {
-    title_event(ResourceStage::TitleResourcesRetired, ResourceStage::TitleWrappersFreed,
-                "{\"kind\":\"mode\",\"op\":\"wrapper-free\"}");
+    require_stage(ResourceStage::TitleResourcesRetired, "title wrapper free");
+    note_mode_wrapper_free(1);
+    advance(ResourceStage::TitleWrappersFreed);
 }
 
 void StartupTextureOwner::enter_successor(unsigned mode) {
+    require_stage(ResourceStage::TitleWrappersFreed, "successor entry");
     if (mode != successor_mode_) throw std::logic_error("successor differs from the requested mode");
-    title_event(ResourceStage::TitleWrappersFreed, ResourceStage::SuccessorEntry,
-                "{\"kind\":\"mode\",\"op\":\"construct\",\"mode\":" + std::to_string(mode) + "}");
+    advance(ResourceStage::SuccessorEntry);
 }
 
 void write_effect_preparation_report(const EffectTemplatePreparation& prepared, const EffectPreparationTrace& trace,
@@ -667,11 +713,12 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
         if (owner.stage() < ResourceStage::TitleActive || owner.stage() > ResourceStage::SuccessorEntry ||
             owner.memory_coverage() != MemoryContentCoverage::DrawTargetsInvalidated)
             throw std::logic_error("title checkpoint report outside the modeled title stages");
-        o << "{\n \"coverage\":{\"lifecycle\":\"" << checkpoint << "\",\"stage\":\"" << to_string(owner.stage())
-          << "\",\"memory\":\"host-uploads-known-draw-writes-unknown\"},\n \"later_history\":\"unmodeled after "
-             "entry of 124548: the successor constructor body, Restore/name entry, field, battle, XTA\",";
-        o << "\n \"session_rng_state\":" << session_rng_state << ",";
-        o << "\n \"successor_mode\":" << owner.successor_mode() << ",";
+        if (owner.rng_log().empty() || owner.rng_log().back().state != session_rng_state)
+            throw std::runtime_error("title checkpoint: Session RNG drew after 0x100618; draws are not logged");
+        o << "{\n \"coverage\":{\"lifecycle\":\"retire-title\",\"checkpoint\":\"" << checkpoint
+          << "\",\"memory\":\"host-uploads-known-draw-writes-unknown\"},\n \"later_history\":\"stage "
+          << to_string(owner.stage()) << "; unmodeled after entry of 124548: the successor constructor body, "
+             "Restore/name entry, field, battle, XTA\",";
     } else if (session_schema) {
         // the title original-reference contract fixed labels for the title-constructor boundary.
         if (owner.stage() != ResourceStage::TitleConstructed ||
@@ -769,7 +816,10 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
         for (const auto& line : owner.lifecycle()) lc << line << "\n";
         if (session_schema) {
             std::ofstream tl(dir / "timeline.jsonl", std::ios::binary);
-            for (const auto& line : owner.lifecycle()) tl << line << "\n";
+            for (const auto& line : owner.lifecycle())
+                if (!checkpoint.empty() || (line.rfind("{\"kind\":\"mode\"", 0) != 0 &&
+                                            line.rfind("{\"kind\":\"effect\"", 0) != 0))
+                    tl << line << "\n";
         }
         std::ofstream tl(dir / (session_schema ? "startup-timeline.jsonl" : "timeline.jsonl"), std::ios::binary);
         for (const auto& e : owner.timeline()) {
@@ -791,6 +841,29 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
     }
     std::ofstream(dir / "vram.bytes", std::ios::binary).write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
     std::ofstream(dir / "vram.known", std::ios::binary).write(reinterpret_cast<const char*>(known.data()), known.size());
+    if (!checkpoint.empty()) {
+        std::vector<TextureAllocationId> targets;
+        for (std::size_t i = 0; i < 2; ++i) targets.push_back(owner.layers()[i].color.id);
+        targets.push_back(owner.layers()[0].depth->id);
+        std::vector<std::uint8_t> invalidated(Ps2TextureMemory::vram_bytes);
+        for (std::uint32_t a = 0; a < Ps2TextureMemory::vram_bytes; ++a)
+            for (std::uint8_t n = 0; n < 2; ++n) {
+                if (known[a] & (1u << n)) continue;
+                const auto o = m.owner_of_nibble(a, n);
+                if (o && std::find(targets.begin(), targets.end(), *o) != targets.end()) invalidated[a] |= 1u << n;
+            }
+        std::ofstream(dir / "vram.invalidated", std::ios::binary)
+            .write(reinterpret_cast<const char*>(invalidated.data()), invalidated.size());
+        std::ostringstream e;
+        e << "{\"effect106\":";
+        if (const auto& w = owner.effect106()) {
+            e << "{\"slot\":" << w->slot << ",\"shape\":106,\"state\":\"" << w->state << "\",\"element_handles\":[";
+            for (std::size_t i = 0; i < w->element_handles.size(); ++i) e << (i ? "," : "") << w->element_handles[i];
+            e << "]}";
+        } else e << "null";
+        e << "}\n";
+        std::ofstream(dir / "effects.json", std::ios::binary) << e.str();
+    }
 }
 } // namespace
 

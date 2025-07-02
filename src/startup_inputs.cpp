@@ -336,4 +336,6 @@ StartupInputs load_startup_inputs(const std::filesystem::path& root) {
     return out;
 }
 
+const char* startup_input_elf_sha256() noexcept { return kElfSha256; }
+
 } // namespace okage

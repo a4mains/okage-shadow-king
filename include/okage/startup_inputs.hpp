@@ -27,4 +27,5 @@ public:
 
 StartupInputs load_startup_inputs(const std::filesystem::path& game_data_root);
 
+const char* startup_input_elf_sha256() noexcept;
 } // namespace okage

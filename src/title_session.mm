@@ -129,7 +129,11 @@ void TitleSession::tick(GameOverPadSample pad,std::uint32_t confirm_mask,GameOve
     std::array<unsigned,84> deferred{};unsigned count=0;
     for(unsigned slot=0;slot<p.effects.size();++slot)if(auto& effect=p.effects[slot]) {
         if(effect->flags&0x200){effect.reset();continue;}
-        if(effect->flags&0x100){effect->flags|=0x200;continue;}
+        if(effect->flags&0x100){
+            effect->flags|=0x200; //0x102468: reclaim pending; reclamation follows on a later tick.
+            if(actions.observe_effect)actions.observe_effect({TitleEffectEvent::Op::ReclaimArmed,slot,0,0,0});
+            continue;
+        }
         check((effect->flags&0x400)&&!(effect->flags&0x4000),"Unexpected ordinary/disabled title effect");
         deferred[count++]=slot;
     }

@@ -171,6 +171,7 @@ struct Session {
     std::shared_ptr<const okage::SceneRenderer::EffectTextureBytes> verified_effect_textures;
     std::string startup_textures_status="not initialized (no cold startup)";
     fs::path startup_texture_report,resource_report,retirement_report;
+    unsigned startup_selector=0;
     std::vector<std::pair<std::string,unsigned>> title_checkpoint_frames;
     void title_checkpoint(const char* name) {
         startup_textures->note_checkpoint(name);
@@ -183,16 +184,21 @@ struct Session {
         if(retirement_report.empty())return;
         std::ofstream out(retirement_report/"route.json",std::ios::binary);
         const auto mode=startup_textures->successor_mode();
-        out<<"{\"route\":\""<<(mode==10?"restore":"new-game")<<"\",\"successor_mode\":"<<mode<<",\"checkpoints\":{";
+        out<<"{\"route\":\""<<(mode==10?"restore":"newgame")<<"\",\"elf_sha256\":\""<<okage::startup_input_elf_sha256()
+           <<"\",\"checkpoints\":{";
         for(std::size_t i=0;i<title_checkpoint_frames.size();++i)
             out<<(i?",":"")<<"\""<<title_checkpoint_frames[i].first<<"\":"<<title_checkpoint_frames[i].second;
+        out<<"}}\n";
+        if(!out)throw std::runtime_error("Title route report write failed");
+        //Native-only observations at the stop (not part of the original comparison): pending tails.
+        std::ofstream tails(retirement_report/"native-tails.json",std::ios::binary);
         const auto stream=title_stream.state();
         unsigned pending_effects=0;
         if(retiring_effects)for(auto f:retiring_effects->flags())pending_effects+=f!=0;
-        out<<"},\"session_rng_state\":"<<random.state<<",\"tails\":{\"retiring_effect_slots\":"<<pending_effects
-           <<",\"theme_registered\":"<<(stream.registered?"true":"false")<<",\"theme_stop_pending\":"
-           <<(stream.stop_pending?"true":"false")<<",\"theme_stop_countdown\":"<<stream.stop_countdown<<"}}\n";
-        if(!out)throw std::runtime_error("Title route report write failed");
+        tails<<"{\"session_rng_state\":"<<random.state<<",\"retiring_effect_slots\":"<<pending_effects
+             <<",\"theme_registered\":"<<(stream.registered?"true":"false")<<",\"theme_stop_pending\":"
+             <<(stream.stop_pending?"true":"false")<<",\"theme_stop_countdown\":"<<stream.stop_countdown<<"}\n";
+        if(!tails)throw std::runtime_error("Title tails report write failed");
     }
     std::unique_ptr<okage::AudioOutput> audio_output;
     std::vector<std::int16_t> audio_capture;
@@ -642,6 +648,8 @@ struct Session {
         initialize_startup_textures(root);
         effects_loaded=true;
         game_mode.emplace(okage::GameModeParent::startup());
+        //124940: the empty parent queues {8,3,0} (logged before the 0x100618 boundary).
+        if(startup_textures)startup_textures->note_mode_request(8,3,0);
         sound_banks.emplace(0,std::make_unique<okage::StreamPlayer>(
             okage::read_stream_bank(readData(sound_directory/"ALL.XWS"))));
         std::cout<<"Native cold startup queued mode8 selector3\n";
@@ -1170,9 +1178,12 @@ struct Session {
             game_mode->tick([this]{
                 if(battle)retire_battle();
                 else if(startup) {
+                    const bool modeled=startup_textures&&startup_textures->stage()!=okage::ResourceStage::Unmodeled;
+                    if(modeled)startup_textures->note_mode_resource_retire(startup_selector); //101058 entry
                     startup->retire(*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,ui_shared);
                     if(startup_textures&&startup_textures->stage()==okage::ResourceStage::LogosConstructed)
                         startup_textures->retire_image_list();
+                    if(modeled)startup_textures->note_mode_destroy(startup_selector); //12c8d8
                 }
                 else if(chapter) {
                     chapter->retire(*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,ui_shared,scene_fade);
@@ -1191,7 +1202,7 @@ struct Session {
                     //N+1: 101058 resource destructor, then the mode-8 destructor 12c8d8 -> 12dd50(1).
                     if(title_modeled(okage::ResourceStage::TitleRemovalRequested)) {
                         startup_textures->retire_title_resources();
-                        title_checkpoint("resource-retirement");
+                        title_checkpoint("resource-retirement"); //entry of 12c8d8, after 101058 returned
                         startup_textures->destroy_title_mode();
                     } else if(startup_textures)startup_textures->mark_unmodeled("title retired outside the modeled order");
                     title_stream.request_stop(1);
@@ -1233,6 +1244,8 @@ struct Session {
                 if(startup) {
                     if(startup->resource_live())throw std::runtime_error("Startup freed before resource retirement");
                     startup.reset();
+                    if(startup_textures&&startup_textures->stage()!=okage::ResourceStage::Unmodeled)
+                        startup_textures->note_mode_wrapper_free(startup_selector);
                 }
                 if(title) {
                     if(title->resource_live())throw std::runtime_error("Title freed before resource retirement");
@@ -1291,6 +1304,7 @@ struct Session {
                         if(startup_textures->stage()==okage::ResourceStage::Scheduled)startup_textures->begin_logo_construction();
                         else startup_textures->mark_unmodeled("logo construction outside the cold-start order");
                     }
+                    startup_selector=selection[1];
                     startup=std::make_unique<okage::StartupSession>(scene_clear,scene_fade,ui_shared,game_over_shared,
                         okage::StartupConstruction{selection[1],save_directory,[this]{if(music)music->stop();},
                         [this]{initialize_startup_audio_and_cache();},[this](unsigned index){
@@ -1387,6 +1401,8 @@ struct Session {
             startup->tick({input.repeat,input.pressed,{128,128,128,128}},game_over_shared,scene_fade,*reset_camera,projection,
                 retiring_effects?&*retiring_effects:nullptr,ui_shared,ui_fonts,battle_capture_sine,random,
                 [this](auto selection){game_mode->request(selection);
+                    if(startup_textures&&startup_textures->stage()!=okage::ResourceStage::Unmodeled)
+                        startup_textures->note_mode_request(selection[0],selection[1],selection[2]);
                     std::cout<<"Native startup requested selector="<<selection[1]<<" frame="<<frame<<'\n';});
             const auto& s=startup->state();const auto storage=startup->storage_observation();
             startup_trace.insert(startup_trace.end(),{frame,s.common.submode,s.common.tick_counter,
@@ -1466,7 +1482,7 @@ struct Session {
                 startup_textures->begin_title_updates();
                 title_checkpoint("first-update");
             }
-            if(title_modeled(okage::ResourceStage::TitleActive)&&title->state().common.mode_state==30&&
+            if(title_modeled(okage::ResourceStage::TitleActive)&&title->state().common.mode_state==10&&
                std::none_of(title_checkpoint_frames.begin(),title_checkpoint_frames.end(),[](const auto& c){return c.first=="stable-menu";}))
                 title_checkpoint("stable-menu");
             title->tick({input.repeat,input.pressed,{128,128,128,128}},0x40,
@@ -1493,18 +1509,23 @@ struct Session {
                     [](unsigned){throw std::runtime_error("Native title saved-field selection is unrecovered");},
                     [](unsigned)->std::array<std::uint32_t,2>{throw std::runtime_error("Native title saved-field lookup is unrecovered");},
                     [this](const okage::TitleEffectEvent& e){
-                        if(!title_modeled(okage::ResourceStage::TitleActive))return;
                         using Op=okage::TitleEffectEvent::Op;
+                        if(e.op==Op::ReclaimArmed) {
+                            if(title_modeled(okage::ResourceStage::TitleRemovalRequested))
+                                startup_textures->note_effect_reclaim_armed(int(e.slot));
+                            return;
+                        }
+                        if(!title_modeled(okage::ResourceStage::TitleActive))return;
                         if(e.op==Op::Create)startup_textures->note_effect_create(int(e.slot),e.definition);
                         //10c188: descriptor-only rebind of the title's image-list entry (hanten).
                         else if(e.op==Op::Bind)startup_textures->note_effect_bind(int(e.slot),e.element,
                             startup_textures->image_list().at(e.image_index));
-                        else startup_textures->note_effect_removal_request(int(e.slot));
+                        else if(e.op==Op::RemovalRequest) {
+                            title_checkpoint("removal-request");
+                            startup_textures->note_effect_removal_request(int(e.slot));
+                        } else startup_textures->note_effect_reclaim_armed(int(e.slot));
                     }
                 });
-            if(title_modeled(okage::ResourceStage::TitleRemovalRequested)&&
-               std::none_of(title_checkpoint_frames.begin(),title_checkpoint_frames.end(),[](const auto& c){return c.first=="removal-request";}))
-                title_checkpoint("removal-request");
         }
         if(battle&&battle->resource_live()) {
             try {battle->tick(retiring_effects?&*retiring_effects:nullptr,projection,scene_clear,

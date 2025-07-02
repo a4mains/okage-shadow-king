@@ -19,7 +19,7 @@ struct TitleConstruction {
     std::function<void()> stop_music,start_theme;
 };
 struct TitleEffectEvent {
-    enum class Op : std::uint8_t {Create,Bind,RemovalRequest} op;
+    enum class Op : std::uint8_t {Create,Bind,RemovalRequest,ReclaimArmed} op;
     unsigned slot{},definition{},element{},image_index{};
 };
 struct TitleActions {

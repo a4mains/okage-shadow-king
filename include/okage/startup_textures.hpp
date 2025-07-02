@@ -148,9 +148,17 @@ public:
     void begin_title_updates();
     // A named observation point inside a title stage (e.g. "stable-menu"); no state change.
     void note_checkpoint(const char* name);
-    void note_effect_create(int slot, unsigned definition);
+    void note_effect_create(int slot, unsigned shape);
     void note_effect_bind(int slot, unsigned element, int handle);
     void note_effect_removal_request(int slot);
+    // 0x102218 armed 0x200 on the requested job (same traversal): reclaim pending. State only.
+    void note_effect_reclaim_armed(int slot);
+    struct EffectObservation { int slot{-1}; const char* state{}; std::vector<int> element_handles; };
+    const std::optional<EffectObservation>& effect106() const noexcept { return effect106_; }
+    void note_mode_request(unsigned mode, unsigned selector, unsigned arg);
+    void note_mode_resource_retire(unsigned selector);  // also logs 101240 -> 103640(-2)
+    void note_mode_destroy(unsigned selector);
+    void note_mode_wrapper_free(unsigned selector);
     // 0x12a2d4 -> 124930(root, mode): the mode request in the frame the fade reaches zero.
     void request_title_successor(unsigned mode);
     void retire_title_resources();
@@ -231,6 +239,8 @@ private:
     std::vector<OwnedBytes> model_slot_bytes_;
     std::string unmodeled_reason_;
     unsigned successor_mode_{};
+    std::optional<EffectObservation> effect106_;
+    void require_modeled(const char* operation) const;
     void title_event(ResourceStage from, ResourceStage to, std::string json);
     void require_stage(ResourceStage expected, const char* operation) const;
     void advance(ResourceStage next);
