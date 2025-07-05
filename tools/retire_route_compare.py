@@ -71,8 +71,10 @@ def compare(a, b):
     if frames_of(b) != n:
         raise Malformed("runs have different --frames")
     for d in (a, b):
-        if (Path(d) / "exit.txt").exists() and (Path(d) / "exit.txt").read_text().strip() != "0":
-            raise Malformed(f"{d}: run exit status is not 0")
+        if not (Path(d) / "exit.txt").exists() or (Path(d) / "exit.txt").read_text().strip() != "0":
+            raise Malformed(f"{d}: run exit status is missing or not 0")
+    if (Path(a) / "command.txt").read_text() == (Path(b) / "command.txt").read_text():
+        raise Malformed("identical command.txt (output paths included): a copy of one run, not two runs")
     result = {"frames": n, "anchors_a": anchors(a), "anchors_b": anchors(b), "streams": {}}
     result["anchors_equal"] = result["anchors_a"] == result["anchors_b"]
     if not result["anchors_a"]:
@@ -92,6 +94,8 @@ def compare(a, b):
                                      "frames_b": ranges(rb), "first_difference_frame": first,
                                      "last_difference_frame": diff[-1] if diff else None}
         differs |= first is not None
+    if not result["streams"]["title-state.bin"]["records_a"] or not result["streams"]["title-state.bin"]["records_b"]:
+        raise Malformed("a route run without title-state records observed nothing of the title")
     pa, pb = array("h"), array("h")
     pa.frombytes((Path(a) / "f.png.audio.pcm").read_bytes())
     pb.frombytes((Path(b) / "f.png.audio.pcm").read_bytes())

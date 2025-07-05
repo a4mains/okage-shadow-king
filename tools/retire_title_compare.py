@@ -437,6 +437,38 @@ def verify_original(orig_dir, route, manifest):
             if hashlib.sha256(data).hexdigest() != pin.get('sha256') or len(data) != pin.get('bytes'):
                 raise Malformed(f'{rel} does not match the pinned original capture in the manifest')
 
+TITLE_UPDATE_KEYS = ('title_n', 'submode', 'counter', 'selection', 'pressed_word', 'fade_b8')
+
+def compare_title_updates(orig_dir, route, nat_dir, manifest, out):
+    """Per title update (entry of each 1296f8 up to the removal-request update): original
+    title-frames.jsonl (pinned) vs native title-updates.jsonl. Both runs must use the same
+    title-relative pad script; equality then covers phase, counter, selection, consumed pad word
+    and the exact fade float bits, and the removal-request update ordinal (record count)."""
+    rel = f'analysis/{route}/title-frames.jsonl'
+    pin = manifest['outputs'].get(rel)
+    data = (Path(orig_dir) / route / 'title-frames.jsonl').read_bytes()
+    if not isinstance(pin, dict) or hashlib.sha256(data).hexdigest() != pin.get('sha256'):
+        raise Malformed(f'{rel} does not match the pinned original capture in the manifest')
+    orig = [json.loads(l) for l in data.decode().splitlines() if l.strip()]
+    nat = []
+    for i, line in enumerate((Path(nat_dir) / 'title-updates.jsonl').read_text().splitlines()):
+        row = json.loads(line)
+        if set(row) != set(TITLE_UPDATE_KEYS) or row['title_n'] != i:
+            raise Malformed(f'title-updates.jsonl:{i + 1}: keys must be {TITLE_UPDATE_KEYS} with title_n = {i}')
+        nat.append(row)
+    if not orig or not nat:
+        raise Malformed('empty title update log')
+    first = next((i for i in range(max(len(orig), len(nat)))
+                  if i >= len(orig) or i >= len(nat) or any(orig[i][k] != nat[i][k] for k in TITLE_UPDATE_KEYS)), None)
+    if first is None:
+        print(f'  title updates: identical ({len(orig)} updates, removal at update {len(orig) - 1})', file=out)
+    else:
+        o = {k: orig[first][k] for k in TITLE_UPDATE_KEYS} if first < len(orig) else '<absent>'
+        n = {k: nat[first][k] for k in TITLE_UPDATE_KEYS} if first < len(nat) else '<absent>'
+        print(f'  title updates: DIFFERENT at update {first} ({len(orig)} original / {len(nat)} native): '
+              f'original {o} | native {n}', file=out)
+    return first
+
 def load_route(nat_dir, elf):
     r = parse_json(read_text(Path(nat_dir) / 'route.json'), 'route.json')
     if not isinstance(r, dict) or set(r) != {'route', 'elf_sha256', 'checkpoints'}:
@@ -467,7 +499,7 @@ def refuse_self_compare(orig_dir, nat_dir):
                 if os.path.samefile(p, q):
                     raise Malformed(f'refusing self-comparison: native {cp}/{nn} is the original {q.relative_to(o)}')
 
-def run(orig_dir, nat_dir, out=None, manifest=MANIFEST):
+def run(orig_dir, nat_dir, out=None, manifest=MANIFEST, strict=False):
     out = out or sys.stdout
     refuse_self_compare(orig_dir, nat_dir)
     m, elf = load_manifest(manifest)
@@ -527,6 +559,18 @@ def run(orig_dir, nat_dir, out=None, manifest=MANIFEST):
                                      'identical': ok}
         prev = cp
     gaps = sum(c['vram']['coverage_gap_invalidated'] for c in result['checkpoints'].values())
+    updates_path = Path(nat_dir) / 'title-updates.jsonl'
+    if not strict:
+        print('  title updates: not compared (needs --strict and the original title-relative pad script)', file=out)
+    else:
+        if not updates_path.exists():
+            raise Malformed('--strict needs the native title-updates.jsonl (same title-relative pad script)')
+        first = compare_title_updates(orig_dir, rname, nat_dir, m, out)
+        result['title_updates_first_difference'] = first
+        failed |= first is not None
+    if strict and gaps:
+        print(f'  strict: {gaps} coverage gaps are not accepted', file=out)
+        failed = True
     print(f'  not compared: phase rows (informational), native frame numbers vs original vblanks (observer-dependent); '
           f'coverage gaps (original-written nibbles the native report marks draw-invalidated): {gaps}', file=out)
     result['identical'] = not failed
@@ -539,9 +583,11 @@ def main(argv=None):
     p.add_argument('native')
     p.add_argument('--manifest', default=str(MANIFEST))
     p.add_argument('--json')
+    p.add_argument('--strict', action='store_true',
+                   help='require the per-update title log (same title-relative pad script) and zero coverage gaps')
     a = p.parse_args(argv)
     try:
-        code, result = run(a.original, a.native, manifest=a.manifest)
+        code, result = run(a.original, a.native, manifest=a.manifest, strict=a.strict)
     except Malformed as exc:
         print('MALFORMED: ' + str(exc), file=sys.stderr)
         return 2

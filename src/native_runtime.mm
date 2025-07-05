@@ -172,6 +172,11 @@ struct Session {
     std::string startup_textures_status="not initialized (no cold startup)";
     fs::path startup_texture_report,resource_report,retirement_report;
     unsigned startup_selector=0;
+    unsigned title_updates=0;bool first_title=false;
+    std::vector<std::string> title_update_log;
+    std::optional<unsigned> next_first_title_update() const {
+        return first_title&&title&&title->resource_live()?std::optional<unsigned>(title_updates):std::nullopt;
+    }
     std::vector<std::pair<std::string,unsigned>> title_checkpoint_frames;
     void title_checkpoint(const char* name) {
         startup_textures->note_checkpoint(name);
@@ -190,6 +195,9 @@ struct Session {
             out<<(i?",":"")<<"\""<<title_checkpoint_frames[i].first<<"\":"<<title_checkpoint_frames[i].second;
         out<<"}}\n";
         if(!out)throw std::runtime_error("Title route report write failed");
+        std::ofstream updates(retirement_report/"title-updates.jsonl",std::ios::binary);
+        for(const auto& line:title_update_log)updates<<line<<'\n';
+        if(!updates)throw std::runtime_error("Title update log write failed");
         //Native-only observations at the stop (not part of the original comparison): pending tails.
         std::ofstream tails(retirement_report/"native-tails.json",std::ios::binary);
         const auto stream=title_stream.state();
@@ -1249,7 +1257,7 @@ struct Session {
                 }
                 if(title) {
                     if(title->resource_live())throw std::runtime_error("Title freed before resource retirement");
-                    title.reset();
+                    title.reset();first_title=false;
                     //N+2: resource node, then mode-8 node freed.
                     if(title_modeled(okage::ResourceStage::TitleResourcesRetired))startup_textures->free_title_wrappers();
                 }
@@ -1344,7 +1352,8 @@ struct Session {
                         auto model_bytes=std::make_shared<const std::vector<std::uint8_t>>(readData(night_v/"a.xmd"));
                         title_model=model_bytes;
                         const auto model=okage::read_xmd(*model_bytes);
-                        startup_textures->load_and_bind_model("NIGHT_V/a.xmd",model.textures,night_v_reader);
+                        const auto loaded=startup_textures->load_and_bind_model("NIGHT_V/a.xmd",model.textures,night_v_reader);
+                        if(loaded.first<0)throw std::runtime_error("Title NIGHT_V texture load failed; the model-less title is unrecovered");
                         title_model_textures=startup_textures->model_slot_bytes();
                     } else {
                         auto model_bytes=std::make_shared<const std::vector<std::uint8_t>>(readData(night_v/"a.xmd"));
@@ -1480,11 +1489,22 @@ struct Session {
         if(title&&title->resource_live()) {
             if(title_modeled(okage::ResourceStage::TitleConstructed)) {
                 startup_textures->begin_title_updates();
+                first_title=true;title_updates=0;
                 title_checkpoint("first-update");
             }
-            if(title_modeled(okage::ResourceStage::TitleActive)&&title->state().common.mode_state==10&&
-               std::none_of(title_checkpoint_frames.begin(),title_checkpoint_frames.end(),[](const auto& c){return c.first=="stable-menu";}))
-                title_checkpoint("stable-menu");
+            if(title_modeled(okage::ResourceStage::TitleActive)) {
+                const auto& t=title->state();
+                //Entry of the update that consumes Start in phase 10 (the original's stable-menu).
+                if(t.common.mode_state==10&&(input.pressed&0x800)&&
+                   std::none_of(title_checkpoint_frames.begin(),title_checkpoint_frames.end(),[](const auto& c){return c.first=="stable-menu";}))
+                    title_checkpoint("stable-menu");
+                char fade[11];std::snprintf(fade,sizeof fade,"0x%x",t.common.image_alpha_bits);
+                title_update_log.push_back("{\"title_n\":"+std::to_string(title_updates)+",\"submode\":"+
+                    std::to_string(t.common.mode_state)+",\"counter\":"+std::to_string(t.common.tick_counter)+
+                    ",\"selection\":"+std::to_string(t.selection)+",\"pressed_word\":"+std::to_string(input.pressed)+
+                    ",\"fade_b8\":\""+fade+"\"}");
+            }
+            if(first_title)++title_updates;
             title->tick({input.repeat,input.pressed,{128,128,128,128}},0x40,
                 game_over_shared,scene_fade,*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,
                 ui_shared,ui_fonts,battle_capture_sine,random,okage::TitleActions{
@@ -2658,7 +2678,7 @@ int main(int argc,const char** argv) {
         const bool coldStart=std::string_view(argv[1])=="--game-data";
         fs::path gameDataRoot,saveDirectory,startupTextureReport,titleResourceReport,titleRetirementReport;
         fs::path fontDirectory=coldStart?fs::path{}:fs::path(argv[1]),messagePath=coldStart?fs::path{}:fs::path(argv[2]);
-        unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions,buttons;bool hasButtons=false;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures,battleInput;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
+        unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions,buttons,titleScript;bool hasButtons=false;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures,battleInput;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         std::optional<fs::path> performancePath,inputJournalPath,pauseCapturePath,headlessControlPath;
         fs::path uiUpdateReport,battleLivePath,loadObservationPath;
         bool deferredBattleReadback=false;
@@ -2676,6 +2696,18 @@ int main(int argc,const char** argv) {
             else if(arg=="--startup-texture-report")startupTextureReport=argv[i];
             else if(arg=="--title-resource-report")titleResourceReport=argv[i];
             else if(arg=="--title-retirement-report")titleRetirementReport=argv[i];
+            else if(arg=="--title-pad-script") {
+                if(!titleScript.entries.empty())throw std::runtime_error("Duplicate title pad script");
+                titleScript.load(argv[i],0xffffu);
+                std::vector<std::pair<unsigned,std::uint16_t>> pulses;
+                for(const auto& [n,mask]:titleScript.entries){pulses.push_back({n,mask});pulses.push_back({n+1,0});}
+                titleScript.entries.clear();
+                for(const auto& e:pulses){
+                    if(!titleScript.entries.empty()&&titleScript.entries.back().first>=e.first)
+                        throw std::runtime_error("Title pad script presses must be at least two updates apart");
+                    titleScript.entries.push_back(e);
+                }
+            }
             else if(arg=="--input-log") {
                 if(okage::input_log_enabled()||fs::exists(argv[i]))throw std::runtime_error("Input log requires one fresh file");
                 okage::enable_input_log(argv[i]);
@@ -2929,7 +2961,8 @@ int main(int argc,const char** argv) {
                 if(replayDisplayFrom&&i==*replayDisplayFrom)
                     session.display_link=std::make_unique<okage::DisplayLink>();
                 const std::uint16_t mask=std::find(presses.begin(),presses.end(),i)!=presses.end()?0x40:0;
-                const auto held=std::uint16_t(directions.held(i)|buttons.held(i));
+                auto held=std::uint16_t(directions.held(i)|buttons.held(i));
+                if(const auto n=session.next_first_title_update())held|=titleScript.held(*n);
                 const bool completed=session.tick({std::uint16_t(mask|held),std::uint16_t(mask|(held&~previous))},
                     !cooperativeReplay.value_or(false));
                 previous=held;
@@ -3064,6 +3097,8 @@ int main(int argc,const char** argv) {
         if(!output.empty())app->session->battle_stage_report=output.string()+".battle-stage.json";
         app->session->live_presentation_enabled=true;
         app->session->save_directory=saveDirectory;app->session->startup_texture_report=startupTextureReport;app->session->resource_report=titleResourceReport;app->session->retirement_report=titleRetirementReport;
+        for(const auto& report:{titleResourceReport,titleRetirementReport})
+            if(!report.empty()&&fs::exists(report))throw std::runtime_error("Title report directory must be fresh");
         if(coldStart)app->session->initialize_cold_start(gameDataRoot,saveDirectory,!output.empty());
         if(!effectData.empty())app->session->prepare_effects(effectData,effectTextures);
         if(!map.empty())app->session->load_scene(map,event,actors);

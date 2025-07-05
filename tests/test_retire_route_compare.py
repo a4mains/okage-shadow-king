@@ -21,7 +21,7 @@ def make_run(d, frames=FRAMES, anchors=ANCHORS, tweak=None, drop=None, omit=(), 
              png=b"png", exit_text="0", skip=(), partial=(), dup=None, audio_len=None, empty=()):
     """tweak/drop: {suffix: frame}; omit: frames omitted from every stream; records cover frames 2..frames-1."""
     d.mkdir()
-    (d / "command.txt").write_text(f"okage-native --frames {frames} --capture f.png\n")
+    (d / "command.txt").write_text(f"okage-native --frames {frames} --capture {d}/f.png\n")
     (d / "stdout.txt").write_text("".join(f"{t} frame={f}\n" for t, f in anchors) or "nothing here\n")
     if exit_text is not None:
         (d / "exit.txt").write_text(exit_text + "\n")
@@ -169,10 +169,21 @@ class RouteCompare(unittest.TestCase):
 
     def test_nonzero_exit_malformed(self):
         self.assertEqual(self.run_pair({}, {"exit_text": "139"}), 2)
-        self.assertIn("exit status is not 0", self.out.getvalue())
+        self.assertIn("exit status is missing or not 0", self.out.getvalue())
 
-    def test_missing_exit_file_tolerated(self):
-        self.assertEqual(self.run_pair({"exit_text": None}, {"exit_text": None}), 0)
+    def test_missing_exit_file_malformed(self):
+        self.assertEqual(self.run_pair({"exit_text": None}, {"exit_text": None}), 2)
+
+    def test_copied_run_is_refused(self):
+        import shutil
+        a, b = self.base / "a", self.base / "b"
+        make_run(a)
+        shutil.copytree(a, b)
+        with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+            self.assertEqual(rc.main([str(a), str(b)]), 2)
+
+    def test_runs_without_title_records_are_malformed(self):
+        self.assertEqual(self.run_pair({"empty": ("title-state",)}, {"empty": ("title-state",)}), 2)
 
     def test_empty_anchors_malformed(self):
         self.assertEqual(self.run_pair({"anchors": ()}, {"anchors": ()}), 2)

@@ -478,6 +478,100 @@ class OriginalDerivedControls(unittest.TestCase):
             self.assertEqual(code, 0, out)
             self.assertIn('RESULT: IDENTICAL', out)
 
+    def write_updates(self, nat, route, fn=lambda rows: rows):
+        rows = [json.loads(l) for l in (EVIDENCE / route / 'title-frames.jsonl').read_text().splitlines()]
+        rows = [{k: r[k] for k in cmp.TITLE_UPDATE_KEYS} for r in rows]
+        p = nat / 'title-updates.jsonl'
+        if p.exists():
+            p.unlink()
+        p.write_text(jl(fn(rows)))
+
+    def run_strict(self, nat):
+        out, err = io.StringIO(), io.StringIO()
+        with redirect_stdout(out), redirect_stderr(err):
+            code = cmp.main([str(EVIDENCE), str(nat), '--strict'])
+        return code, out.getvalue() + err.getvalue()
+
+    def test_strict_title_updates_identical_both_routes(self):
+        for route in cmp.ROUTES:
+            nat = self.fresh(route)
+            self.write_updates(nat, route)
+            code, out = self.run_strict(nat)
+            self.assertEqual(code, 0, out)
+            self.assertIn('title updates: identical', out)
+
+    def test_strict_requires_title_updates(self):
+        code, out = self.run_strict(self.fresh())
+        self.assertEqual(code, 2, out)
+
+    def test_title_updates_not_compared_without_strict(self):
+        nat = self.fresh()
+        self.write_updates(nat, 'restore', lambda r: r[:5])
+        code, out = self.run_cmp(nat)
+        self.assertEqual(code, 0, out)
+        self.assertIn('title updates: not compared', out)
+
+    def test_strict_changed_fade_bits_fail(self):
+        nat = self.fresh()
+
+        def f(rows):
+            rows[50]['fade_b8'] = '0x3f000001'
+            return rows
+        self.write_updates(nat, 'restore', f)
+        code, out = self.run_strict(nat)
+        self.assertEqual(code, 1, out)
+        self.assertIn('DIFFERENT at update 50', out)
+
+    def test_strict_late_removal_fails(self):
+        nat = self.fresh()
+
+        def f(rows):
+            extra = dict(rows[-1])
+            extra['title_n'] = len(rows)
+            return rows + [extra]
+        self.write_updates(nat, 'restore', f)
+        code, out = self.run_strict(nat)
+        self.assertEqual(code, 1, out)
+
+    def test_strict_truncated_updates_fail(self):
+        nat = self.fresh()
+        self.write_updates(nat, 'restore', lambda r: r[:-1])
+        code, out = self.run_strict(nat)
+        self.assertEqual(code, 1, out)
+
+    def test_strict_renumbered_or_extra_key_is_malformed(self):
+        nat = self.fresh()
+
+        def f(rows):
+            rows[3]['title_n'] = 7
+            return rows
+        self.write_updates(nat, 'restore', f)
+        self.assertEqual(self.run_strict(nat)[0], 2)
+        nat = self.fresh()
+
+        def g(rows):
+            rows[3]['extra'] = 1
+            return rows
+        self.write_updates(nat, 'restore', g)
+        self.assertEqual(self.run_strict(nat)[0], 2)
+
+    def test_strict_rejects_coverage_gaps(self):
+        nat = self.fresh()
+        self.write_updates(nat, 'restore')
+        cp = nat / 'first-update'
+        known = bytearray((cp / 'vram.known').read_bytes())
+        inval = bytearray((cp / 'vram.invalidated').read_bytes())
+        i = next(k for k, v in enumerate(known) if v & 1 and not inval[k])
+        known[i] &= ~1
+        inval[i] |= 1
+        for name, data in (('vram.known', known), ('vram.invalidated', inval)):
+            (cp / name).unlink()
+            (cp / name).write_bytes(bytes(data))
+        code, out = self.run_cmp(nat)
+        self.assertEqual(code, 0, out)
+        code, out = self.run_strict(nat)
+        self.assertEqual(code, 1, out)
+
     def test_route_swap_fails(self):
         nat = self.fresh('newgame')
         r = json.loads((nat / 'route.json').read_text())

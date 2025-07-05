@@ -2,8 +2,10 @@
 retirement to entry of 124548, and onward as normal (unmodeled) play.
 
 Needs OKAGE_NATIVE and the staged root. Each route writes --title-retirement-report and an input log;
-the report must compare IDENTICAL with the pinned original (tools/retire_title_compare.py) when the
-ignored evidence is present, and every consumed input must match the pinned stage manifest.
+every consumed input must be a stage file matching the pinned manifest. With the ignored original
+evidence present: the *scripted* routes (--title-pad-script, the original observer's presses relative
+to title updates) must compare IDENTICAL under --strict (per-update state and timing too); the
+fixed-frame routes (different press timing) must compare IDENTICAL in resource history only.
 """
 import io
 import json
@@ -28,14 +30,17 @@ if os.environ.get("OKAGE_REQUIRE_STARTUP_TESTS") and not (NATIVE and STAGE.is_di
 
 @unittest.skipUnless(NATIVE and STAGE.is_dir(), "OKAGE_NATIVE or staged root absent")
 class TitleRoutes(unittest.TestCase):
-    def run_route(self, route, successor_line, mode):
+    def run_route(self, route, successor_line, mode, scripted=False):
         with tempfile.TemporaryDirectory() as tmp:
             tmp = Path(tmp)
             (tmp / "saves").mkdir()
-            cmd = [NATIVE, "--game-data", str(STAGE), "--save-directory", str(tmp / "saves"),
-                   "--buttons", str(ROUTES / route / "buttons.txt")]
-            if (ROUTES / route / "directions.txt").exists():
-                cmd += ["--directions", str(ROUTES / route / "directions.txt")]
+            cmd = [NATIVE, "--game-data", str(STAGE), "--save-directory", str(tmp / "saves")]
+            if scripted:
+                cmd += ["--title-pad-script", str(ROUTES / f"{route}-scripted" / "title-pad.txt")]
+            else:
+                cmd += ["--buttons", str(ROUTES / route / "buttons.txt")]
+                if (ROUTES / route / "directions.txt").exists():
+                    cmd += ["--directions", str(ROUTES / route / "directions.txt")]
             cmd += ["--input-log", str(tmp / "reads.jsonl"), "--title-retirement-report", str(tmp / "report"),
                     "--frames", "1200", "--capture", str(tmp / "f.png")]
             run = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
@@ -57,12 +62,12 @@ class TitleRoutes(unittest.TestCase):
             import retire_input_provenance as prov
             with redirect_stdout(io.StringIO()):
                 self.assertEqual(prov.main(["check-reads", str(STAGE), str(tmp / "reads.jsonl"),
-                                            "--manifest-sha256", MANIFEST_SHA256]), 0)
+                                            "--manifest-sha256", MANIFEST_SHA256, "--strict-stage"]), 0)
             if ORIGINAL.is_dir():
                 import retire_title_compare as cmp
                 buf = io.StringIO()
                 with redirect_stdout(buf):
-                    code = cmp.main([str(ORIGINAL), str(tmp / "report")])
+                    code = cmp.main([str(ORIGINAL), str(tmp / "report")] + (["--strict"] if scripted else []))
                 self.assertEqual(code, 0, buf.getvalue()[-4000:])
 
     def test_restore(self):
@@ -70,6 +75,12 @@ class TitleRoutes(unittest.TestCase):
 
     def test_newgame(self):
         self.run_route("newgame", "Native name entry constructed", 9)
+
+    def test_restore_scripted_strict(self):
+        self.run_route("restore", "Native Restore constructed", 10, scripted=True)
+
+    def test_newgame_scripted_strict(self):
+        self.run_route("newgame", "Native name entry constructed", 9, scripted=True)
 
 if __name__ == "__main__":
     unittest.main()
