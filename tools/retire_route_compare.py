@@ -20,6 +20,7 @@ STREAMS = {
     "startup.bin": 12, "title-state.bin": None, "restore-state.bin": None, "name-entry-state.bin": None,
     "game-mode.bin": None,
 }
+EXCLUDED_WORDS = {"startup.bin": (9,)}
 EVENT = re.compile(r"^(Native [^\n]*?) frame=(\d+)$", re.M)
 
 class Malformed(Exception):
@@ -52,7 +53,7 @@ def stream_records(path, length):
     for i in range(0, len(words), length):
         if words[i] in out:
             raise Malformed(f"{path}: duplicate frame {words[i]}")
-        out[words[i]] = words[i:i + length].tobytes()
+        out[words[i]] = words[i:i + length]
     return out, length
 
 def ranges(frames):
@@ -88,11 +89,16 @@ def compare(a, b):
         rb, lb = stream_records(pb, length)
         if ra and rb and la != lb:
             raise Malformed(f"{suffix}: record lengths differ ({la}/{lb})")
-        diff = [f for f in sorted(set(ra) | set(rb)) if ra.get(f) != rb.get(f)]
+        skip = EXCLUDED_WORDS.get(suffix, ())
+
+        def key(rec):
+            return None if rec is None else [v for i, v in enumerate(rec) if i not in skip]
+        diff = [f for f in sorted(set(ra) | set(rb)) if key(ra.get(f)) != key(rb.get(f))]
         first = diff[0] if diff else None
         result["streams"][suffix] = {"records_a": len(ra), "records_b": len(rb), "frames_a": ranges(ra),
                                      "frames_b": ranges(rb), "first_difference_frame": first,
-                                     "last_difference_frame": diff[-1] if diff else None}
+                                     "last_difference_frame": diff[-1] if diff else None,
+                                     "excluded_words": list(skip)}
         differs |= first is not None
     if not result["streams"]["title-state.bin"]["records_a"] or not result["streams"]["title-state.bin"]["records_b"]:
         raise Malformed("a route run without title-state records observed nothing of the title")
@@ -136,7 +142,8 @@ def main(argv=None):
     print(f"anchors {'equal' if r['anchors_equal'] else 'differ'}: " +
           "; ".join(f"{t.replace('Native ', '')}={fa}/{fb}" for (t, fa), (_, fb) in zip(r["anchors_a"], r["anchors_b"])))
     for s, v in r["streams"].items():
-        print(f"{s}: {v['records_a']}/{v['records_b']} records, frames {v['frames_a']} / {v['frames_b']}, "
+        excl = f" (word {','.join(map(str, v['excluded_words']))} excluded: asynchronous storage probe)" if v["excluded_words"] else ""
+        print(f"{s}{excl}: {v['records_a']}/{v['records_b']} records, frames {v['frames_a']} / {v['frames_b']}, "
               + ("identical" if v["first_difference_frame"] is None else
                f"differences at raw frames {v['first_difference_frame']}..{v['last_difference_frame']}"))
     au = r["audio"]

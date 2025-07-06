@@ -85,7 +85,7 @@ class RouteCompare(unittest.TestCase):
 
     def test_single_record_difference(self):
         self.assertEqual(self.run_pair({"tweak": {"startup": 6}}), 1)
-        self.assertIn("startup.bin: 18/18 records, frames 2-19 / 2-19, differences at raw frames 6..6",
+        self.assertIn("startup.bin (word 9 excluded: asynchronous storage probe): 18/18 records, frames 2-19 / 2-19, differences at raw frames 6..6",
                       self.out.getvalue())
 
     def test_frame_on_one_side_only(self):
@@ -170,6 +170,23 @@ class RouteCompare(unittest.TestCase):
     def test_nonzero_exit_malformed(self):
         self.assertEqual(self.run_pair({}, {"exit_text": "139"}), 2)
         self.assertIn("exit status is missing or not 0", self.out.getvalue())
+
+    def test_storage_probe_word_excluded_but_reported(self):
+        a, b = self.base / "a", self.base / "b"
+        make_run(a)
+        make_run(b)
+        w = array("I")
+        w.frombytes((b / "f.png.startup.bin").read_bytes())
+        w[9] += 1
+        (b / "f.png.startup.bin").write_bytes(w.tobytes())
+        out = io.StringIO()
+        with redirect_stdout(out), redirect_stderr(out):
+            self.assertEqual(rc.main([str(a), str(b)]), 0)
+        self.assertIn("word 9 excluded", out.getvalue())
+        w[8] += 1  # any other word still counts
+        (b / "f.png.startup.bin").write_bytes(w.tobytes())
+        with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+            self.assertEqual(rc.main([str(a), str(b)]), 1)
 
     def test_missing_exit_file_malformed(self):
         self.assertEqual(self.run_pair({"exit_text": None}, {"exit_text": None}), 2)
