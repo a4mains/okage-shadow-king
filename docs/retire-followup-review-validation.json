@@ -1,0 +1,2505 @@
+{
+  "schema": "okage.retire.followup-review.v1",
+  "date": "2025-07-17",
+  "reviewed_commit": "d1fcb051987f66ae2ebaa13a25525ef26c176f32",
+  "scope": "Read-only runtime/tool review and Restore assignment; no runtime/tool edits, no new build, no original VM run.",
+  "commands": [
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/retire-release",
+        "-R",
+        "^(startup-inputs-tests|rng-cold-start-inputs|title-again|retire-title-routes|effect-tests|title-tests|game-mode-tests|field-tests|startup-textures-tests|texture-(transfer|psm1|snapshot|memory|handles|format)-tests|xim-raw-tests|asset-tests|gs-texture-address-tests)$",
+        "--output-on-failure"
+      ],
+      "returncode": 0,
+      "passed": 18,
+      "output": "local/research/retire-followup-review-v1/ctest-retire-release.txt"
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/retire-sanitize",
+        "-R",
+        "^(effect-tests|title-tests|game-mode-tests|startup-textures-tests|texture-(transfer|psm1|snapshot|memory|handles|format)-tests|xim-raw-tests|asset-tests|gs-texture-address-tests)$",
+        "--output-on-failure"
+      ],
+      "returncode": 0,
+      "passed": 13,
+      "output": "local/research/retire-followup-review-v1/ctest-retire-sanitize.txt"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.test_title_regression_align",
+        "tests.test_retire_input_provenance",
+        "tests.test_retire_route_compare",
+        "tests.test_retire_title_compare"
+      ],
+      "returncode": 0,
+      "passed": 127,
+      "output": "local/research/retire-followup-review-v1/python.txt"
+    }
+  ],
+  "fresh_routes": {
+    "binary_sha256": "1cdd6ca0382e44176dbfb4b420824ed15784ff8a663c6cdddd9a5c47166d9243",
+    "runs": [
+      {
+        "route": "restore",
+        "name": "session",
+        "command": [
+          "/Users/user/src/okage/okage-shadow-king/local/research/retire-validation-v1/bin/new-release.app/Contents/MacOS/okage-native",
+          "--game-data",
+          "/Users/user/src/okage/okage-shadow-king/local/game-data-stage-v13",
+          "--save-directory",
+          "/Users/user/src/okage/okage-shadow-king/local/research/retire-followup-review-v1/fresh-routes/restore/saves",
+          "--title-pad-script",
+          "/Users/user/src/okage/okage-shadow-king/tests/data/retire-routes/restore-scripted/title-pad.txt",
+          "--input-log",
+          "/Users/user/src/okage/okage-shadow-king/local/research/retire-followup-review-v1/fresh-routes/restore/reads.jsonl",
+          "--title-retirement-report",
+          "/Users/user/src/okage/okage-shadow-king/local/research/retire-followup-review-v1/fresh-routes/restore/report",
+          "--frames",
+          "1200",
+          "--capture",
+          "/Users/user/src/okage/okage-shadow-king/local/research/retire-followup-review-v1/fresh-routes/restore/f.png"
+        ],
+        "returncode": 0
+      },
+      {
+        "route": "restore",
+        "name": "compare",
+        "command": [
+          "python3",
+          "tools/retire_title_compare.py",
+          "local/research/retire-title-original-v1/analysis",
+          "/Users/user/src/okage/okage-shadow-king/local/research/retire-followup-review-v1/fresh-routes/restore/report",
+          "--strict",
+          "--json",
+          "/Users/user/src/okage/okage-shadow-king/local/research/retire-followup-review-v1/fresh-routes/restore/compare.json"
+        ],
+        "returncode": 0
+      },
+      {
+        "route": "restore",
+        "name": "provenance",
+        "command": [
+          "python3",
+          "tools/retire_input_provenance.py",
+          "check-reads",
+          "/Users/user/src/okage/okage-shadow-king/local/game-data-stage-v13",
+          "/Users/user/src/okage/okage-shadow-king/local/research/retire-followup-review-v1/fresh-routes/restore/reads.jsonl",
+          "--manifest-sha256",
+          "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
+          "--strict-stage",
+          "--out",
+          "/Users/user/src/okage/okage-shadow-king/local/research/retire-followup-review-v1/fresh-routes/restore/provenance.json"
+        ],
+        "returncode": 0
+      },
+      {
+        "route": "newgame",
+        "name": "session",
+        "command": [
+          "/Users/user/src/okage/okage-shadow-king/local/research/retire-validation-v1/bin/new-release.app/Contents/MacOS/okage-native",
+          "--game-data",
+          "/Users/user/src/okage/okage-shadow-king/local/game-data-stage-v13",
+          "--save-directory",
+          "/Users/user/src/okage/okage-shadow-king/local/research/retire-followup-review-v1/fresh-routes/newgame/saves",
+          "--title-pad-script",
+          "/Users/user/src/okage/okage-shadow-king/tests/data/retire-routes/newgame-scripted/title-pad.txt",
+          "--input-log",
+          "/Users/user/src/okage/okage-shadow-king/local/research/retire-followup-review-v1/fresh-routes/newgame/reads.jsonl",
+          "--title-retirement-report",
+          "/Users/user/src/okage/okage-shadow-king/local/research/retire-followup-review-v1/fresh-routes/newgame/report",
+          "--frames",
+          "1200",
+          "--capture",
+          "/Users/user/src/okage/okage-shadow-king/local/research/retire-followup-review-v1/fresh-routes/newgame/f.png"
+        ],
+        "returncode": 0
+      },
+      {
+        "route": "newgame",
+        "name": "compare",
+        "command": [
+          "python3",
+          "tools/retire_title_compare.py",
+          "local/research/retire-title-original-v1/analysis",
+          "/Users/user/src/okage/okage-shadow-king/local/research/retire-followup-review-v1/fresh-routes/newgame/report",
+          "--strict",
+          "--json",
+          "/Users/user/src/okage/okage-shadow-king/local/research/retire-followup-review-v1/fresh-routes/newgame/compare.json"
+        ],
+        "returncode": 0
+      },
+      {
+        "route": "newgame",
+        "name": "provenance",
+        "command": [
+          "python3",
+          "tools/retire_input_provenance.py",
+          "check-reads",
+          "/Users/user/src/okage/okage-shadow-king/local/game-data-stage-v13",
+          "/Users/user/src/okage/okage-shadow-king/local/research/retire-followup-review-v1/fresh-routes/newgame/reads.jsonl",
+          "--manifest-sha256",
+          "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
+          "--strict-stage",
+          "--out",
+          "/Users/user/src/okage/okage-shadow-king/local/research/retire-followup-review-v1/fresh-routes/newgame/provenance.json"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  "test_binaries": [
+    {
+      "path": "build/retire-release/texture-memory-tests",
+      "bytes": 81448,
+      "sha256": "35f99123b7a0286c144f76d289c55c96a7d6730fac813bfbfc4ffa5869a261bc"
+    },
+    {
+      "path": "build/retire-release/texture-transfer-tests",
+      "bytes": 139176,
+      "sha256": "b16aa1d450ee511b005994e6432af2ac1315644ee7ef0395326dbb4212a2abaf"
+    },
+    {
+      "path": "build/retire-release/texture-format-tests",
+      "bytes": 122296,
+      "sha256": "0b5c188cd2289b881936845618f09744a2c16755fb2afd264204d0bb1ef61b13"
+    },
+    {
+      "path": "build/retire-release/texture-psm1-tests",
+      "bytes": 127840,
+      "sha256": "37206324314efd97155b6d7a751760e383827711c0645ae9ec9e8d1aff814f0b"
+    },
+    {
+      "path": "build/retire-release/texture-snapshot-tests",
+      "bytes": 84072,
+      "sha256": "fe9fcf0df9bdbddd29fa0b56bae7a1bd64a6ed42c912a04e431519794e41da61"
+    },
+    {
+      "path": "build/retire-release/startup-textures-tests",
+      "bytes": 479144,
+      "sha256": "178733fa23ede6ac6924c5e6030db2729be183b3d9aa25052b30a682b33f0aa4"
+    },
+    {
+      "path": "build/retire-release/startup-inputs-tests",
+      "bytes": 505960,
+      "sha256": "b7b2fe76798c5ff09ea214bf33566e1c7adef655855fb863b8e149c0eaccd9c2"
+    },
+    {
+      "path": "build/retire-release/texture-handles-tests",
+      "bytes": 192616,
+      "sha256": "1744a1fb0b8dbe792bb512591cc1809b8cbf3b6341b784a06ebaf7f3f5333ebe"
+    },
+    {
+      "path": "build/retire-release/gs-texture-address-tests",
+      "bytes": 37096,
+      "sha256": "c4612320338d4b2c988c00404cb74a00a81ad2e39e82f3eb11252bb56c9d4141"
+    },
+    {
+      "path": "build/retire-release/title-tests",
+      "bytes": 107544,
+      "sha256": "6a8dd1686347ed41dbaface265a83de265d26e30ccf2d2225888a37e7391797b"
+    },
+    {
+      "path": "build/retire-release/game-mode-tests",
+      "bytes": 74384,
+      "sha256": "ba91fee9e672dd3c95dc0208749dc218ae7bccc28bcf553d4026dd927e943ef3"
+    },
+    {
+      "path": "build/retire-release/effect-tests",
+      "bytes": 578048,
+      "sha256": "c9e5481cf0480a7355ac8dee5b5dced6208ebdec4b22bd500421046d2fb98b89"
+    },
+    {
+      "path": "build/retire-release/field-tests",
+      "bytes": 1264344,
+      "sha256": "ea237adaaaf8867b3f2c679e567b0edf0b7d45628ebc7d97d658daa926116611"
+    },
+    {
+      "path": "build/retire-release/asset-tests",
+      "bytes": 58744,
+      "sha256": "59cd6503d1943f594da33ce18634509a164347de885dcf4e0e91563dc7f5105e"
+    },
+    {
+      "path": "build/retire-release/xim-raw-tests",
+      "bytes": 98752,
+      "sha256": "f15f15b6cb364d3ab601f8f7818c57a6d785cb612069fd895b7887c014bc52b9"
+    },
+    {
+      "path": "build/retire-release/okage-native.app/Contents/MacOS/okage-native",
+      "bytes": 3510256,
+      "sha256": "1cdd6ca0382e44176dbfb4b420824ed15784ff8a663c6cdddd9a5c47166d9243"
+    },
+    {
+      "path": "build/retire-sanitize/texture-memory-tests",
+      "bytes": 721704,
+      "sha256": "9748065e317337bf090ebd196174fcaccb8000aa13ae3a620f3acb1d0bb30770"
+    },
+    {
+      "path": "build/retire-sanitize/texture-transfer-tests",
+      "bytes": 1624120,
+      "sha256": "5893afe4bf16a76c0d5271f9062b5e2f41f4630308813b4d86a045542c4d8be8"
+    },
+    {
+      "path": "build/retire-sanitize/texture-format-tests",
+      "bytes": 1381848,
+      "sha256": "23a381fc6c185028898c8d1b99095829cbabf3741ad9c26a88edf3596b949b48"
+    },
+    {
+      "path": "build/retire-sanitize/texture-psm1-tests",
+      "bytes": 1682032,
+      "sha256": "2a29950463e1dc497d702add176ae994a5384817a67daeced75bfb02ab8eae10"
+    },
+    {
+      "path": "build/retire-sanitize/texture-snapshot-tests",
+      "bytes": 890456,
+      "sha256": "f8560dd1ca3fdd2cb179ca95ba806a1fbfe69bfcbfa1b26e7194a1e43b7392e6"
+    },
+    {
+      "path": "build/retire-sanitize/startup-textures-tests",
+      "bytes": 4307304,
+      "sha256": "29b5f72b0f62028b6e0466010d3a75f748b5edc7719c439d40ed403f377d7c62"
+    },
+    {
+      "path": "build/retire-sanitize/texture-handles-tests",
+      "bytes": 2548488,
+      "sha256": "735c37d1314876691f4285e5603a48aa83cc6ee8dd652648861425a96a4af37b"
+    },
+    {
+      "path": "build/retire-sanitize/gs-texture-address-tests",
+      "bytes": 105688,
+      "sha256": "8e1600c4a438bd956fa5cd94ecf04eb3563a38ac3574bf08f5ff06063d824634"
+    },
+    {
+      "path": "build/retire-sanitize/title-tests",
+      "bytes": 1258120,
+      "sha256": "8947c420058f58b6a9b194c87fed3b5da46498c55a3ba6d1f1545240fdc1fb60"
+    },
+    {
+      "path": "build/retire-sanitize/game-mode-tests",
+      "bytes": 504496,
+      "sha256": "47f4c77f14fd3176a0c1ef1517f23f09eb2b9b608c67cbe2303366ee9b6195b9"
+    },
+    {
+      "path": "build/retire-sanitize/effect-tests",
+      "bytes": 5420016,
+      "sha256": "5dde9790cd72dceb0c99ee1a34b5704575935a31ae603a69daa019b084a9af13"
+    },
+    {
+      "path": "build/retire-sanitize/asset-tests",
+      "bytes": 596232,
+      "sha256": "811663e9d8ad633fc2189c4c6b94adc6cfd0c394fa9db64c792cd8448540ec7c"
+    },
+    {
+      "path": "build/retire-sanitize/xim-raw-tests",
+      "bytes": 993936,
+      "sha256": "eda204fbc9aec937bbc77154ffeabad607acc690c85c7c7b8eb1c824f050453c"
+    },
+    {
+      "path": "build/retire-sanitize/okage-native.app/Contents/MacOS/okage-native",
+      "bytes": 37750304,
+      "sha256": "a70122f9974ade0d73eed597e4f825782ae919010ddb2cec5093ce9b4add3227"
+    }
+  ],
+  "original_manifest_hash_audit": [
+    {
+      "path": "include/okage/startup_textures.hpp",
+      "sha256": "eea8843c034fcd072a87c8ca4b5f6e571ca29c6d4eccbc055fffd6e0b6461b2b",
+      "matches": true
+    },
+    {
+      "path": "src/startup_textures.cpp",
+      "sha256": "c870d66845b412f627308d030df4b9e924de542bc95ad6b5807879de0123be0d",
+      "matches": true
+    },
+    {
+      "path": "include/okage/texture_handles.hpp",
+      "sha256": "514d2dfbecb739463076dbad315264477831e2711441890dc9cf8f3b6dcc09cb",
+      "matches": true
+    },
+    {
+      "path": "src/texture_handles.cpp",
+      "sha256": "c5c45f919a0c144ff7e47951f0bc41d8069b4c3acdec338f7e9811a040d38d1d",
+      "matches": true
+    },
+    {
+      "path": "include/okage/scene_renderer.hpp",
+      "sha256": "39d8f05d6a3a853495ff1408d1380d72bdc7f9e534038c6fd795715a4ca82f7b",
+      "matches": true
+    },
+    {
+      "path": "src/scene_renderer.mm",
+      "sha256": "e6cfaac04c2907340f395970553e4a9892f58bd9e4d95bed237793d802fac64e",
+      "matches": true
+    },
+    {
+      "path": "src/native_runtime.mm",
+      "sha256": "a867231d693c21905c475126634fff8a641e8d41023db4db7e2522a38a45d8a6",
+      "matches": true
+    },
+    {
+      "path": "src/title_session.hpp",
+      "sha256": "eb0559173236f5bf5d33ae659ea2a0a4adf270d62cb7c536db301f4b8ec4b0f2",
+      "matches": true
+    },
+    {
+      "path": "src/title_session.mm",
+      "sha256": "52cf641c373dd4a8ad44cc365c1d9f9eacaa6682d434329fc15d34bac6d085cd",
+      "matches": true
+    },
+    {
+      "path": "src/title.cpp",
+      "sha256": "224491253d4fa53eebfaa20d0b5a45607942dd822c7d7202464772a5f56d386a",
+      "matches": true
+    },
+    {
+      "path": "include/okage/input_log.hpp",
+      "sha256": "a8894d55d1d2d89d683ef1ed14b11e8ac5f0245ec084fc3eaead189deb6f473e",
+      "matches": true
+    },
+    {
+      "path": "src/input_log.cpp",
+      "sha256": "71119acd32a21a03924fe5ed6444a07e00815e8acb738065a9f5bd5a00a5dd70",
+      "matches": true
+    },
+    {
+      "path": "include/okage/startup_inputs.hpp",
+      "sha256": "6745df0d251cab5bccacc5bdcd1a4ce36013cf328359f07f62e82a54946e6713",
+      "matches": true
+    },
+    {
+      "path": "src/startup_inputs.cpp",
+      "sha256": "c3b57115baa59936158eea61f5ef3a50bebeb610ff037e237b395d4629876c6e",
+      "matches": true
+    },
+    {
+      "path": "CMakeLists.txt",
+      "sha256": "09aefab05dabc338e33baa8038f870e5ec55cb7a37837adfe6c9144c01f20323",
+      "matches": true
+    },
+    {
+      "path": "tools/title_regression_align.py",
+      "sha256": "c563ce58f07726b6aae8ec2d29bd7c62f35f5afe1e55f2718abd1d3ca32ddf7a",
+      "matches": true
+    },
+    {
+      "path": "tools/retire_input_provenance.py",
+      "sha256": "4407407b806d49cba124058f370b480ccf708c327eb44d6cf2f603c3aa9d96d6",
+      "matches": true
+    },
+    {
+      "path": "tools/retire_title_contract.py",
+      "sha256": "14ef81df46ce64c3ff12070e272fbd74675ec7a1b199484d32021ccc3adf532f",
+      "matches": true
+    },
+    {
+      "path": "tools/retire_title_capture.sh",
+      "sha256": "b89790ff6bd56ecd46bba3e94f2c6d8a32086d96706fd3e4979db3cf7733001e",
+      "matches": true
+    },
+    {
+      "path": "tools/retire_title_original_extract.py",
+      "sha256": "b711add205f4e7f7590a89689ef42eb7464ae06b142359e2019dba5d4285761b",
+      "matches": true
+    },
+    {
+      "path": "tools/retire_title_compare.py",
+      "sha256": "1cc64c806c36ba98cbd774c1f65f637127b7b49db4e4b639ecc2841d45005494",
+      "matches": true
+    },
+    {
+      "path": "tools/retire_title_make_manifest.py",
+      "sha256": "089f0b230a7ce80ff4cb1a0bf26cddf89192ac1a1ec3d6a53fbe5c21f3850d5b",
+      "matches": true
+    },
+    {
+      "path": "tools/retire_route_compare.py",
+      "sha256": "e7d62d9e9bcf32c269115ebd8282c28b4c28b5960a383209eef471051f7724c1",
+      "matches": true
+    },
+    {
+      "path": "tools/retire_route_regression.sh",
+      "sha256": "8768890a9e091054229b07722e97607235e23697fc1b399eebb052b05366821a",
+      "matches": true
+    },
+    {
+      "path": "tools/retire_validation_run.sh",
+      "sha256": "4933ac93f0f9e6a75fa2b46dc135f45d8d7f23eaa8f6953aa1ae5eba318bf1a4",
+      "matches": true
+    },
+    {
+      "path": "tools/play-oracle/startup.cpp",
+      "sha256": "800482143c77459ceb89d4ffe97732c0fd6c0f39c0d5b01c326e28876bcca3d5",
+      "matches": true
+    },
+    {
+      "path": "tools/rng_cold_start_regression.sh",
+      "sha256": "547205a196af6ce82b4860364c93f8049d2c0695af455ae5861ab5c1d3ff42a1",
+      "matches": true
+    },
+    {
+      "path": "tests/startup_textures_tests.cpp",
+      "sha256": "ed0ddd7db9a790ad1af1bb69875e4d924accecf8534c12c305ef6409c46280fd",
+      "matches": true
+    },
+    {
+      "path": "tests/test_title_regression_align.py",
+      "sha256": "5947cedbdb5d9136850fdf03f303b8ad75697085ee875e88f24ae5d9b0b77a13",
+      "matches": true
+    },
+    {
+      "path": "tests/test_retire_input_provenance.py",
+      "sha256": "ef1fd1230e110b66f753f642e10c22764e1fe05572054554287419e05a4d9789",
+      "matches": true
+    },
+    {
+      "path": "tests/test_retire_title_contract.py",
+      "sha256": "12e800da66af17592d9ea172c0112517f39ab349455e3ab78eaffcd380295a8e",
+      "matches": true
+    },
+    {
+      "path": "tests/test_retire_title_compare.py",
+      "sha256": "d338c1e53a5d7485d5b7f9d0a74ed819679124e444ea92f3b9d2ef9e2e2509f9",
+      "matches": true
+    },
+    {
+      "path": "tests/test_retire_route_compare.py",
+      "sha256": "3eec5748082647fe66010f210ceee6cdd0aa16a8e4308f95e3de0590bdf4c0a0",
+      "matches": true
+    },
+    {
+      "path": "tests/test_retire_routes.py",
+      "sha256": "c0566150722f023e18b8b96f66c59595a96b4fca8a2b63f7b489e450c605f67e",
+      "matches": true
+    },
+    {
+      "path": "tests/data/retire-routes/restore/buttons.txt",
+      "sha256": "52a6eb3d46bb6c66d5e65fca754212e1293bfb671e274ebc6b9638e3889e5dac",
+      "matches": true
+    },
+    {
+      "path": "tests/data/retire-routes/newgame/buttons.txt",
+      "sha256": "3ed7e35f25c028e564eb71b31a4b4fc7b975f3bd3dd993694887217336e2d9fa",
+      "matches": true
+    },
+    {
+      "path": "tests/data/retire-routes/newgame/directions.txt",
+      "sha256": "7b7b2101f3a4d75d4b1ec196f2c95b2cd964b304498d1b028dc07af3d73bca12",
+      "matches": true
+    },
+    {
+      "path": "tests/data/retire-routes/restore-scripted/title-pad.txt",
+      "sha256": "dbc1be12cadd0fb16653609c0366b3de9c88d0e9d6c1b1dd5a3b442be430abcc",
+      "matches": true
+    },
+    {
+      "path": "tests/data/retire-routes/newgame-scripted/title-pad.txt",
+      "sha256": "ea45458de47c2f09596f75c410ca3a5d7ebe590aefe13cc2060d61e4c798a689",
+      "matches": true
+    },
+    {
+      "path": "docs/retire-title-contract.json",
+      "sha256": "dbfedfb97675d393fd23f292460cbe1814279b7d045f846a01c99c42ea2aa081",
+      "matches": true
+    },
+    {
+      "path": "docs/retire-title-original-manifest.json",
+      "sha256": "6670bea2d76860450893f747d758da2c4a5510c393ce291055298862d2065f53",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/bin/binaries.sha256",
+      "sha256": "7cd09740b0443311b327be1e8ecb0deae43bcedc23a3afc41f17345636832bb8",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/bin/source-head.txt",
+      "sha256": "df1405f19affac15b80e3c29b4eb612b5d06482866c7eecf4a0ebe8bffd3c173",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/ctest-release-all.out",
+      "sha256": "5eb3d281e2799b6241b0588359480396172a20fc757a1d89a183965d09ec22e8",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/ctest-debug-focused.out",
+      "sha256": "7b21963e4b12f2610e139949aa13cd7556a39c8697deba4c6a8f36ce7cb42f05",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/ctest-sanitize-focused.out",
+      "sha256": "538b099615358f6997f6b2806bdbd5f5655a6588d2020689d04b3fdfc96a99d7",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/python-suite.out",
+      "sha256": "e380239e1e27230e867669f7cfb1c2635bca2f2e9172367b358c89961a1b15f6",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/binaries-check.txt",
+      "sha256": "e33d92a22b19225532915f8cf51525e9e3e08c91c7dfe2f9d1fa9ab8f9415294",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/commands.txt",
+      "sha256": "394c6ca85a3c1caa7e9aa372b7d512915717905486259a5ab6f65d7e7a7ceb6c",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/source-head.txt",
+      "sha256": "f30c0ecd03d6df098ae3882c60c32ddf40a5a161ac583cadbc896877423ff0be",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-alignment-v1/final-1800.out",
+      "sha256": "e42587d7c7bddc3c7edce489df5220ccebb4b6661dbff01d76cf463222f7019d",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-alignment-v1/final2-1800.out",
+      "sha256": "d5a330df91baa177a6786dfbf30fad100c7cdb0a236127923a3419bf5845093b",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-alignment-v1/synthetic.out",
+      "sha256": "68f4288de1c3a1ada647913978eb92bb51806029992955581f5ea8431f6ab5b2",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-alignment-v1/sha256.txt",
+      "sha256": "a48c1c3a72ded238143c2a6a8488a0c8f73e3cc90e3d9dfbe51d1e069c233ca4",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-fixed/command.txt",
+      "sha256": "3cdd693f2e9ef9fedaadbe3ab7fdce33e9dd899cf0e1900e998c5a4b64cc298e",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-fixed/stdout.txt",
+      "sha256": "6ea950163dc7953f5f7ea4569322d68599d198ae0c3771d80d444dc9116b5ed6",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-fixed/reads.jsonl",
+      "sha256": "2cb847098b67c4321589a17d4c7541b0e38549a258da2605ae994aefb1a3bfd0",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-fixed/reads-check.json",
+      "sha256": "4ede9f1e965777e02e1b9ec5b954193c4553729ee8964f03b1de47515dd8a79f",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-fixed/compare.txt",
+      "sha256": "d50a12dd05849ba3f41c57a29d321ee5d672ee0f4f0c7b1d10a749d384f43e87",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-fixed/compare.json",
+      "sha256": "bd343209ae8eca528c62c740477c7ecb7a54cfd80005870e69111b04b5eb504c",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-fixed/report/route.json",
+      "sha256": "e372381bea709dd9de0a2a3d8ec7aecd9f30dd6cd27039fdfefe38e8ff31cfeb",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-fixed/report/title-updates.jsonl",
+      "sha256": "39fbb96782555f3f41d9125bdccd8abfd5fef5acee14afcfb5b7934c89e492b1",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-fixed/report/native-tails.json",
+      "sha256": "045aa71656499865424f3b18df5d1fc26e1a5f2c16890bbdae1ae36111319833",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-fixed/report/successor-entry/state.json",
+      "sha256": "f02f681e1b199fad9f1e6f0c976e54f7547b9be0fd6269c9e717e82df2881ab8",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-fixed/report/successor-entry/lifecycle.jsonl",
+      "sha256": "00816d54011819014dd657587d7dcf7ed9c822346daaf15bea774afabb58a382",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-scripted/command.txt",
+      "sha256": "4c733f5d66a7012944394c49f7e75ebf7fc10b0c4bd6323dc45333392a807743",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-scripted/stdout.txt",
+      "sha256": "441156228c9848a9bbb8b8a64667af483dfd7f53d439a2fa3691f2f05b0b4c06",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-scripted/reads.jsonl",
+      "sha256": "2cb847098b67c4321589a17d4c7541b0e38549a258da2605ae994aefb1a3bfd0",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-scripted/reads-check.json",
+      "sha256": "4ede9f1e965777e02e1b9ec5b954193c4553729ee8964f03b1de47515dd8a79f",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-scripted/compare.txt",
+      "sha256": "fa355bb185b45b0533278455c2a707677dc8fce98abbf564bc568bd1e4c1a9c6",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-scripted/compare.json",
+      "sha256": "9e1cb6e1a5f66f55de2c5a3c0186e67f6917af800e946c197a63d4fe1c001b15",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-scripted/report/route.json",
+      "sha256": "27f88826d89e419e2450e70ba2472aadf49dacc7ee9a6331484104257351e43e",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-scripted/report/title-updates.jsonl",
+      "sha256": "8010a6dd5da5414589d282557c01cf69a0faf304741fc7caad00e6e5fb38e7e4",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-scripted/report/native-tails.json",
+      "sha256": "045aa71656499865424f3b18df5d1fc26e1a5f2c16890bbdae1ae36111319833",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-scripted/report/successor-entry/state.json",
+      "sha256": "f02f681e1b199fad9f1e6f0c976e54f7547b9be0fd6269c9e717e82df2881ab8",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-newgame-scripted/report/successor-entry/lifecycle.jsonl",
+      "sha256": "00816d54011819014dd657587d7dcf7ed9c822346daaf15bea774afabb58a382",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-fixed/command.txt",
+      "sha256": "851b874f20bd8358a4a9d270397bd6713ef06cf8cec59b5bef74f0dfc09352f2",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-fixed/stdout.txt",
+      "sha256": "680e0a69a388fd850871f6b12a71c86fed471adee9854e2c15b2dea9f35b34a8",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-fixed/reads.jsonl",
+      "sha256": "e1ab3365f1a8d18e9d599e07220122c9924d65d5fb7bc9421eb7f24526e64de2",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-fixed/reads-check.json",
+      "sha256": "abc9b982d50fb2b2e38d1dc89a84cb30012698a7c57616d31ee8d14f8f54eae6",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-fixed/compare.txt",
+      "sha256": "cd53dab80cd1051ae7719daea42e016b640b5b64327a8d7056230e8f556b231a",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-fixed/compare.json",
+      "sha256": "9d503d74a01755db5a94ce4e8b0cf8181640deaca16ca35a56a989ab45e040c6",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-fixed/report/route.json",
+      "sha256": "97079cf45fdf4953d3b526d761dd677e198b5a71eb6160c695a13cbe8dc19f8b",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-fixed/report/title-updates.jsonl",
+      "sha256": "43679c607253cc23a16aa6c3c4fbc2daca14ca9d9219446a02115342f99f426d",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-fixed/report/native-tails.json",
+      "sha256": "045aa71656499865424f3b18df5d1fc26e1a5f2c16890bbdae1ae36111319833",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-fixed/report/successor-entry/state.json",
+      "sha256": "f02f681e1b199fad9f1e6f0c976e54f7547b9be0fd6269c9e717e82df2881ab8",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-fixed/report/successor-entry/lifecycle.jsonl",
+      "sha256": "c4a5b967e4d80ab40d38e4679d9793ece406878d5661addbace127d9353e959e",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-scripted/command.txt",
+      "sha256": "c63d938614a7ea35870421f89d0f6350d4031b368b580b8c9f0e225687499061",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-scripted/stdout.txt",
+      "sha256": "15fb75a397ba1a2534fa21475eee34dc701f5ccfba87f1392b048dd2c6b1f813",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-scripted/reads.jsonl",
+      "sha256": "e1ab3365f1a8d18e9d599e07220122c9924d65d5fb7bc9421eb7f24526e64de2",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-scripted/reads-check.json",
+      "sha256": "abc9b982d50fb2b2e38d1dc89a84cb30012698a7c57616d31ee8d14f8f54eae6",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-scripted/compare.txt",
+      "sha256": "1ef25bf08e3d779d7c2cf0dc03166c449391bbcb9544ffce29ae7a1d4a7c8d2b",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-scripted/compare.json",
+      "sha256": "0d5101ce7d433ca804bf26dc1f7bdb24fb57eb2f7aa507d66bf1f4ddbd6ac697",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-scripted/report/route.json",
+      "sha256": "cfe48c398cf025bb8a618b00e35c5b40a96568dcd2b3d4e026d0dac1fef8cbbf",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-scripted/report/title-updates.jsonl",
+      "sha256": "afc37dee07b32440d0caf26fe26d0a9e48fb900af6613c33df8aab7d85af8814",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-scripted/report/native-tails.json",
+      "sha256": "045aa71656499865424f3b18df5d1fc26e1a5f2c16890bbdae1ae36111319833",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-scripted/report/successor-entry/state.json",
+      "sha256": "f02f681e1b199fad9f1e6f0c976e54f7547b9be0fd6269c9e717e82df2881ab8",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/release-restore-scripted/report/successor-entry/lifecycle.jsonl",
+      "sha256": "c4a5b967e4d80ab40d38e4679d9793ece406878d5661addbace127d9353e959e",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-fixed/command.txt",
+      "sha256": "d2f22490a90b2df22f5efd139e42ce287e026d5cab5eb1764d81c84adfbc788d",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-fixed/stdout.txt",
+      "sha256": "e97e672bbae2704c5f46bafea7e7e855d992be79eb05971165feabe96b4db0d2",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-fixed/reads.jsonl",
+      "sha256": "2cb847098b67c4321589a17d4c7541b0e38549a258da2605ae994aefb1a3bfd0",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-fixed/reads-check.json",
+      "sha256": "4ede9f1e965777e02e1b9ec5b954193c4553729ee8964f03b1de47515dd8a79f",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-fixed/compare.txt",
+      "sha256": "622f7d5e3f381ef7d26f8924775a11dafa48e6ff8dc0b172cdbfca1e75e3c76f",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-fixed/compare.json",
+      "sha256": "8e2c6f18343a4fd75718b56b7825a7cd6ce54fc5b645983e5faf7516bd282e10",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-fixed/report/route.json",
+      "sha256": "1cc2254db6980445e1e10e103e93ed860d89755d3907f16a172f1aec544943f0",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-fixed/report/title-updates.jsonl",
+      "sha256": "39ae9cf0c108c13d7200bef4db5c8595cdb35d2ae21f3bef671855c072ec2d5d",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-fixed/report/native-tails.json",
+      "sha256": "045aa71656499865424f3b18df5d1fc26e1a5f2c16890bbdae1ae36111319833",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-fixed/report/successor-entry/state.json",
+      "sha256": "f02f681e1b199fad9f1e6f0c976e54f7547b9be0fd6269c9e717e82df2881ab8",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-fixed/report/successor-entry/lifecycle.jsonl",
+      "sha256": "00816d54011819014dd657587d7dcf7ed9c822346daaf15bea774afabb58a382",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-scripted/command.txt",
+      "sha256": "bb1a64047da04a873bdcf7aeeb61d851db810e6f8f575347984dd7f139f07af9",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-scripted/stdout.txt",
+      "sha256": "9b876d88d29d9e879149a0fd29fb7d2b1bdbf49a15861f89156037719f02f23e",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-scripted/reads.jsonl",
+      "sha256": "2cb847098b67c4321589a17d4c7541b0e38549a258da2605ae994aefb1a3bfd0",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-scripted/reads-check.json",
+      "sha256": "4ede9f1e965777e02e1b9ec5b954193c4553729ee8964f03b1de47515dd8a79f",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-scripted/compare.txt",
+      "sha256": "8ebb35614ada49ea03ba30a48ef4e9f21bab65741f81edb6298a1a39e5b5ebef",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-scripted/compare.json",
+      "sha256": "de1171680fafdca1f461e24a7e62661b6bc4691db59380e1717c3628939bd795",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-scripted/report/route.json",
+      "sha256": "6ef5f29ae19a5cfd71e853fcf0b3be43c7752759ccfe6b3460e355e625c2fb0e",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-scripted/report/title-updates.jsonl",
+      "sha256": "8010a6dd5da5414589d282557c01cf69a0faf304741fc7caad00e6e5fb38e7e4",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-scripted/report/native-tails.json",
+      "sha256": "045aa71656499865424f3b18df5d1fc26e1a5f2c16890bbdae1ae36111319833",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-scripted/report/successor-entry/state.json",
+      "sha256": "f02f681e1b199fad9f1e6f0c976e54f7547b9be0fd6269c9e717e82df2881ab8",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-newgame-scripted/report/successor-entry/lifecycle.jsonl",
+      "sha256": "00816d54011819014dd657587d7dcf7ed9c822346daaf15bea774afabb58a382",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-fixed/command.txt",
+      "sha256": "d7763ae545da43f25e444f16a9d69943a98c54d596e0f9385ae88d04855d88fe",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-fixed/stdout.txt",
+      "sha256": "5c6818c0f3bbb7bc289d551400aa76d6db46d838f2b3b3be9d6ad34cceeda1d0",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-fixed/reads.jsonl",
+      "sha256": "e1ab3365f1a8d18e9d599e07220122c9924d65d5fb7bc9421eb7f24526e64de2",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-fixed/reads-check.json",
+      "sha256": "abc9b982d50fb2b2e38d1dc89a84cb30012698a7c57616d31ee8d14f8f54eae6",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-fixed/compare.txt",
+      "sha256": "23f363df8a6b8470dad5c5e574c6675d2b3140863d814e594bd5490bf9cc404e",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-fixed/compare.json",
+      "sha256": "dcf015b3d38e52f9d7f33bf84291d28e683a9cfd3e84190cb48d2aed323045a7",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-fixed/report/route.json",
+      "sha256": "4df740fd0609f56786d45cd51c085e5b6d5f30f2b268bbdabd3f37f04680bcd8",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-fixed/report/title-updates.jsonl",
+      "sha256": "3391cd2c14064e81ef7871a42da98a6bbc58a1597abe841c07e9c1a762288b8b",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-fixed/report/native-tails.json",
+      "sha256": "045aa71656499865424f3b18df5d1fc26e1a5f2c16890bbdae1ae36111319833",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-fixed/report/successor-entry/state.json",
+      "sha256": "f02f681e1b199fad9f1e6f0c976e54f7547b9be0fd6269c9e717e82df2881ab8",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-fixed/report/successor-entry/lifecycle.jsonl",
+      "sha256": "c4a5b967e4d80ab40d38e4679d9793ece406878d5661addbace127d9353e959e",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-scripted/command.txt",
+      "sha256": "73c8d4dba3b62162bef92e2bad727428f2797b9ae45ba5f87f7abed29493d7a1",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-scripted/stdout.txt",
+      "sha256": "98443a2233c8aca7b1bcb8ef39b9f536e9f1195618b8deb5f2429413f123d03b",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-scripted/reads.jsonl",
+      "sha256": "e1ab3365f1a8d18e9d599e07220122c9924d65d5fb7bc9421eb7f24526e64de2",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-scripted/reads-check.json",
+      "sha256": "abc9b982d50fb2b2e38d1dc89a84cb30012698a7c57616d31ee8d14f8f54eae6",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-scripted/compare.txt",
+      "sha256": "e4ab2a2d355b665694b3449c6b50d489d6f4b11b7d603b54c13b72cc6dd20865",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-scripted/compare.json",
+      "sha256": "8a3a1be97fcf81675140f43a882d9cab189a40b2898252f2c84538e6c5e36386",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-scripted/report/route.json",
+      "sha256": "c89df5591d756910a92884880e3ffbd7b510d0e5d6dda08d60f19bfca044eb64",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-scripted/report/title-updates.jsonl",
+      "sha256": "afc37dee07b32440d0caf26fe26d0a9e48fb900af6613c33df8aab7d85af8814",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-scripted/report/native-tails.json",
+      "sha256": "045aa71656499865424f3b18df5d1fc26e1a5f2c16890bbdae1ae36111319833",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-scripted/report/successor-entry/state.json",
+      "sha256": "f02f681e1b199fad9f1e6f0c976e54f7547b9be0fd6269c9e717e82df2881ab8",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/sessions/sanitize-restore-scripted/report/successor-entry/lifecycle.jsonl",
+      "sha256": "c4a5b967e4d80ab40d38e4679d9793ece406878d5661addbace127d9353e959e",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/gates-release/rng.txt",
+      "sha256": "8a0eea4e6bd0b1df73b4e3d6bc986c2c23a3728e6b0719a35270808af9155418",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/gates-release/timeline.txt",
+      "sha256": "b68e117c5efaf3cea364a86ea8e7c91f348582b82a833646ed8cd2af56b49508",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/gates-release/startup.txt",
+      "sha256": "565eb330b28e8109d7d3f3f5a25170784a1455c5dd23c058514638e4a8b76413",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/gates-release/title.txt",
+      "sha256": "dbbef9a4db20a1987a70d6da12a0e824f1baf22132d66d30f7e1c1218ac6fce3",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/gates-release/stdout.txt",
+      "sha256": "86c89daf19c9854912ef8dc65b8f44b21119bd6b3a41873fd18bb0835b463882",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/gates-sanitize/rng.txt",
+      "sha256": "8a0eea4e6bd0b1df73b4e3d6bc986c2c23a3728e6b0719a35270808af9155418",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/gates-sanitize/timeline.txt",
+      "sha256": "b68e117c5efaf3cea364a86ea8e7c91f348582b82a833646ed8cd2af56b49508",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/gates-sanitize/startup.txt",
+      "sha256": "565eb330b28e8109d7d3f3f5a25170784a1455c5dd23c058514638e4a8b76413",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/gates-sanitize/title.txt",
+      "sha256": "dbbef9a4db20a1987a70d6da12a0e824f1baf22132d66d30f7e1c1218ac6fce3",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/gates-sanitize/stdout.txt",
+      "sha256": "b679bae105c060be471925295752f8b1f8e4bb87ed82882707e10bd421a6136e",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/compare.txt",
+      "sha256": "95dd91dc25954a43771c1452886c6bf0b07a4f5b3d827791eea1f9dee48e81ff",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/compare-v2.txt",
+      "sha256": "1783c48432e01a7983a322d18e4e592261918d6099385fd422a48dfd2f3c9ffb",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/binaries.sha256",
+      "sha256": "ea04b5de3b8a009bdacc4b2c514f4e65d42b8d4c24ca0d15f352ebf92144f767",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/stage-manifest.sha256",
+      "sha256": "e2a014add1be76955e1e92807e87b19eaf0851ae1df94493248c87ca2d4c64f2",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/input/sha256.txt",
+      "sha256": "af48a128aceeb9029a483e05cb19f09faf74987d042f6ed4913ba7afce3685b9",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/new-a/command.txt",
+      "sha256": "4cf0789651e3bf332303d7bb9b4c023499ba1e835b8241c5d493b0ebd1373ece",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/new-a/outputs.sha256",
+      "sha256": "4557593eeb5a393eddadaebb2be597413b68b0b17c7528e49c5f6e28e0f43d92",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/new-a/stdout.txt",
+      "sha256": "020b74c1a158f3c63fcdc4ac6d3a699017f1819be17b1926f24da2d27560f796",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/new-b/command.txt",
+      "sha256": "ddae58f4bab1695080015ed9b324ed8765f7b45fe680da0506559a9a608619d9",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/new-b/outputs.sha256",
+      "sha256": "6d7997566db7d106474538d0bc5aa8f394d60529d601bd875a38bbafe34220fc",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/new-b/stdout.txt",
+      "sha256": "34454d2cd7f5056da14e46e967879293ddda0cdd02d53c58116d7368ce1bf361",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/new-c/command.txt",
+      "sha256": "e3365340e91214added63bc8876491f155e4ca2c638d70cc7ab5f9db1cd69755",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/new-c/outputs.sha256",
+      "sha256": "f38d7b3254487a27f969d3888f227b6dc1ef494cdc423e7732624ad1cfa79bc5",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/new-c/stdout.txt",
+      "sha256": "020b74c1a158f3c63fcdc4ac6d3a699017f1819be17b1926f24da2d27560f796",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/new-d/command.txt",
+      "sha256": "b2467fbf3ac93942b582a55fc75c0b060c1ec0cba58e816cc51d5102804844c9",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/new-d/outputs.sha256",
+      "sha256": "f459360aff9b7d9ad52a207b0acbe1f58e1d91d59da013a4852d9c52ab1d3efc",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/new-d/stdout.txt",
+      "sha256": "36f0076bf5d6750e04cca190c5386b0c0753cf7438f2bd7c4bde7532c6c0c7ca",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/old-a/command.txt",
+      "sha256": "32b27c2189920159f3b154994023271d9ac083e671af440b2a4f4156975bb5fc",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/old-a/outputs.sha256",
+      "sha256": "32a8dd142aa89a9bdd0aa43fd9c7e9066f34e5091014d06065761d931644362e",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/old-a/stdout.txt",
+      "sha256": "36f0076bf5d6750e04cca190c5386b0c0753cf7438f2bd7c4bde7532c6c0c7ca",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/old-b/command.txt",
+      "sha256": "770525d7f5352dd5c2843239686028f78a659fd158ebb81c612974944286189b",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/old-b/outputs.sha256",
+      "sha256": "c92b87d926b65a05ded07d16990fa522b90b469ce8b6700ad099a994eeb0d8e7",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/old-b/stdout.txt",
+      "sha256": "020b74c1a158f3c63fcdc4ac6d3a699017f1819be17b1926f24da2d27560f796",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/old-c/command.txt",
+      "sha256": "3973d4fef18595436e05804f84a62196d33536172a13d5479c41968a5647f6b4",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/old-c/outputs.sha256",
+      "sha256": "5480472b31d2c04ae0577598befdf9f969068a257d1208fa58f8fc6d31f57769",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/old-c/stdout.txt",
+      "sha256": "020b74c1a158f3c63fcdc4ac6d3a699017f1819be17b1926f24da2d27560f796",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/old-d/command.txt",
+      "sha256": "7433e994d004c4a1f596648232d4cc577005f68db82a942e1ba9c30e517a577b",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/old-d/outputs.sha256",
+      "sha256": "8ad897224349ac0f388b678e9c79a5b63315370a5b3dd37d6db75f18c9b4b898",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-restore/old-d/stdout.txt",
+      "sha256": "34454d2cd7f5056da14e46e967879293ddda0cdd02d53c58116d7368ce1bf361",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/compare.txt",
+      "sha256": "fe98b7fdaa857055d11cd53fb095fe699656adf2ee8521697d7167ea46a028a5",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/compare-v2.txt",
+      "sha256": "509c6f7c220aede3859b656257ebbca603c15f0dc9c65c0705b8f892008344f3",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/binaries.sha256",
+      "sha256": "ea04b5de3b8a009bdacc4b2c514f4e65d42b8d4c24ca0d15f352ebf92144f767",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/stage-manifest.sha256",
+      "sha256": "e2a014add1be76955e1e92807e87b19eaf0851ae1df94493248c87ca2d4c64f2",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/input/sha256.txt",
+      "sha256": "f80ff504c1e20084133b06fabdaf78200aa2c859c1f353d21b73b089659272d7",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/new-a/command.txt",
+      "sha256": "bcfb9cea124479c7d85825c52beab54be397aaa4b3ff97a3cc46ce66f06d24dc",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/new-a/outputs.sha256",
+      "sha256": "737b41dfbdf4a174f433535f556a02ace598dfdef0981025819693024f34e0ec",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/new-a/stdout.txt",
+      "sha256": "a606ea6455af719ab8f226c3a262e678bd0fe1ebe28505cab6ee5fe554dacbc9",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/new-b/command.txt",
+      "sha256": "b0996b4ed084c4aa9cc879ce10e81c9c79f415d5b17aa5b54ff18231aef3f520",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/new-b/outputs.sha256",
+      "sha256": "f736fded9e5c4290539795bd9d3e0367ccce52016af748bab22f86c77b20eb54",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/new-b/stdout.txt",
+      "sha256": "6ea950163dc7953f5f7ea4569322d68599d198ae0c3771d80d444dc9116b5ed6",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/new-c/command.txt",
+      "sha256": "c0529b3e293cdeaa45ba3808066809d7223be470a3750d779d016102de1a8f20",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/new-c/outputs.sha256",
+      "sha256": "eefd9694b910498da260d4b4592a9548654d100f6885527c6cfa739a4193a9df",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/new-c/stdout.txt",
+      "sha256": "a606ea6455af719ab8f226c3a262e678bd0fe1ebe28505cab6ee5fe554dacbc9",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/new-d/command.txt",
+      "sha256": "4362c59cf5c2d01f5830a8e5094002b8a2d02beff9b19c969c2ef4358ff0ea07",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/new-d/outputs.sha256",
+      "sha256": "05d4e601d536927eff03c2c0b2196c5f32dd223055d13e7c1164c026318d7ddf",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/new-d/stdout.txt",
+      "sha256": "6ea950163dc7953f5f7ea4569322d68599d198ae0c3771d80d444dc9116b5ed6",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/old-a/command.txt",
+      "sha256": "65a6a18d2c0190d92f83bc79ffcb3634821b7c21c9600df88848b494c3036075",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/old-a/outputs.sha256",
+      "sha256": "dccf329ffdfeaf8f9b921fa06ad33e1dbf37f9b19decbea9c6683dcdab0cc4e6",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/old-a/stdout.txt",
+      "sha256": "028a4888ff83d55dd5bc24001a99ae6ba27abf03b1f5f377021a19753275f65e",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/old-b/command.txt",
+      "sha256": "4d1b195a504375805c7a819a3d2a637e6af3bdbe03bdec89957cf0ec291f4201",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/old-b/outputs.sha256",
+      "sha256": "9d9f98b2fc9bf950e77c85af906536b26e9a3be132cfe897542ac4bf72efa944",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/old-b/stdout.txt",
+      "sha256": "011f50847b8a8b931a49bdf74d7e036083dd3a04996e68a718bf7e6d2c5afa72",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/old-c/command.txt",
+      "sha256": "9741b2b9fb224a8facec22c095f8b95dca1c9fd89a37d5e6f1b71535f6113405",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/old-c/outputs.sha256",
+      "sha256": "984d92a5af345082599b9d8c547412b6adeebb47c2ae565f91749fe14609f0e4",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/old-c/stdout.txt",
+      "sha256": "6ea950163dc7953f5f7ea4569322d68599d198ae0c3771d80d444dc9116b5ed6",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/old-d/command.txt",
+      "sha256": "8c181a1bac081ba51a3313e8b713f4ce83d4c99292661d3501e49d4f8264ad13",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/old-d/outputs.sha256",
+      "sha256": "ad88bc3ca51fb10b18b63f0d0e71e29c1c8680616e607cee90c1337aefc31b89",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-newgame/old-d/stdout.txt",
+      "sha256": "011f50847b8a8b931a49bdf74d7e036083dd3a04996e68a718bf7e6d2c5afa72",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-cold/align.txt",
+      "sha256": "fddce5b8072350bbb437c519e17a1d91cf39d4136e7cbf124fcfa28e964d76e2",
+      "matches": true
+    },
+    {
+      "path": "local/research/retire-validation-v1/final/regression-cold/binaries.sha256",
+      "sha256": "ea04b5de3b8a009bdacc4b2c514f4e65d42b8d4c24ca0d15f352ebf92144f767",
+      "matches": true
+    }
+  ],
+  "evidence": [
+    {
+      "path": "local/research/retire-followup-review-v1/ctest-release.txt",
+      "bytes": 2096,
+      "sha256": "ad314d23ce595fcf11213fac6eb8cc2b7beb1eb1c8700170abe328748df39e60"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/ctest-sanitize.txt",
+      "bytes": 6810,
+      "sha256": "b375a03b293d8c41888b5d03cef633ca6fba0357ce0f9744e5950bd8cb49aa03"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/ctest-retire-release.txt",
+      "bytes": 2203,
+      "sha256": "1bab0a2942035fe0d2b04dd5abfa2a521f359da2c9d745f61addd72797f4d710"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/ctest-retire-sanitize.txt",
+      "bytes": 1667,
+      "sha256": "6b5fb2c278f901c67abec70f9938aee867573d9d430d0325f825d091060d26c0"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission-a/command.txt",
+      "bytes": 146,
+      "sha256": "20840a332861641f579bcc7613a13710eb22dcb89fb58da3198dad302571ab24"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission-a/exit.txt",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission-a/f.png",
+      "bytes": 13,
+      "sha256": "294ad7145322ec19f8250cca8480a933f1ce8c9e2ad1038e7ae8930d55a6598a"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission-a/f.png.audio.pcm",
+      "bytes": 80,
+      "sha256": "cf45151a779e400f0171a22a3293d5bf448cbfa906d58d6b2e49a4bd79fce423"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission-a/f.png.game-mode.bin",
+      "bytes": 340,
+      "sha256": "b2dea31c03fe0dc03f46c57d5e9e38ad4b6e85e00429ec1aeb3c543f1e753993"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission-a/f.png.name-entry-state.bin",
+      "bytes": 340,
+      "sha256": "b2dea31c03fe0dc03f46c57d5e9e38ad4b6e85e00429ec1aeb3c543f1e753993"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission-a/f.png.restore-state.bin",
+      "bytes": 340,
+      "sha256": "b2dea31c03fe0dc03f46c57d5e9e38ad4b6e85e00429ec1aeb3c543f1e753993"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission-a/f.png.startup.bin",
+      "bytes": 816,
+      "sha256": "574a02762277f06e3e830ab290b13a281c493428c48f714cc7e47cd0e4cadb8f"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission-a/f.png.title-state.bin",
+      "bytes": 340,
+      "sha256": "b2dea31c03fe0dc03f46c57d5e9e38ad4b6e85e00429ec1aeb3c543f1e753993"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission-a/stdout.txt",
+      "bytes": 67,
+      "sha256": "6a464c8d09b9412c548eb442ea62a823b78c621719eafe13e0c1ebd3b89fc567"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission-b/command.txt",
+      "bytes": 146,
+      "sha256": "a5f344c752530230fa60f7962b6326dc0b74d02a65559dc3fe47d3a4b76132c6"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission-b/exit.txt",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission-b/f.png",
+      "bytes": 13,
+      "sha256": "294ad7145322ec19f8250cca8480a933f1ce8c9e2ad1038e7ae8930d55a6598a"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission-b/f.png.audio.pcm",
+      "bytes": 80,
+      "sha256": "cf45151a779e400f0171a22a3293d5bf448cbfa906d58d6b2e49a4bd79fce423"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission-b/f.png.game-mode.bin",
+      "bytes": 340,
+      "sha256": "b2dea31c03fe0dc03f46c57d5e9e38ad4b6e85e00429ec1aeb3c543f1e753993"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission-b/f.png.name-entry-state.bin",
+      "bytes": 340,
+      "sha256": "b2dea31c03fe0dc03f46c57d5e9e38ad4b6e85e00429ec1aeb3c543f1e753993"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission-b/f.png.restore-state.bin",
+      "bytes": 340,
+      "sha256": "b2dea31c03fe0dc03f46c57d5e9e38ad4b6e85e00429ec1aeb3c543f1e753993"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission-b/f.png.startup.bin",
+      "bytes": 816,
+      "sha256": "574a02762277f06e3e830ab290b13a281c493428c48f714cc7e47cd0e4cadb8f"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission-b/f.png.title-state.bin",
+      "bytes": 340,
+      "sha256": "b2dea31c03fe0dc03f46c57d5e9e38ad4b6e85e00429ec1aeb3c543f1e753993"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission-b/stdout.txt",
+      "bytes": 67,
+      "sha256": "6a464c8d09b9412c548eb442ea62a823b78c621719eafe13e0c1ebd3b89fc567"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission.json",
+      "bytes": 1555,
+      "sha256": "b5ea1c28039256bc49c89896daa3bf50146e54a54b6a3afb83d9f09fbc533833"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/common-omission.out",
+      "bytes": 544,
+      "sha256": "0cf5c8991c4b58b9518cb9e1bc776c1c56bec0ad88e060cd8b8267dcccd326a4"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/manifest.json",
+      "bytes": 12196,
+      "sha256": "23431a0faed253c0183faf0a012f0aac017f7d456558a7b645ce0980e86f0ac3"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/reproduce_route_compare_gaps.py",
+      "bytes": 4712,
+      "sha256": "8ca43363cd81514e54774419ca2b40ac9b99d4ae9fb75d44ef733ddb43037a87"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change-a/command.txt",
+      "bytes": 160,
+      "sha256": "ce822def02985ea6ff29576a50102dc341e7e7faf8d5dc84e76aa9c007f9594e"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change-a/exit.txt",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change-a/f.png",
+      "bytes": 13,
+      "sha256": "294ad7145322ec19f8250cca8480a933f1ce8c9e2ad1038e7ae8930d55a6598a"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change-a/f.png.audio.pcm",
+      "bytes": 80,
+      "sha256": "cf45151a779e400f0171a22a3293d5bf448cbfa906d58d6b2e49a4bd79fce423"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change-a/f.png.game-mode.bin",
+      "bytes": 360,
+      "sha256": "4315088f788ece4c1406e737741f99f692e046cc46b7d6067ac9de3008745911"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change-a/f.png.name-entry-state.bin",
+      "bytes": 360,
+      "sha256": "4315088f788ece4c1406e737741f99f692e046cc46b7d6067ac9de3008745911"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change-a/f.png.restore-state.bin",
+      "bytes": 360,
+      "sha256": "4315088f788ece4c1406e737741f99f692e046cc46b7d6067ac9de3008745911"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change-a/f.png.startup.bin",
+      "bytes": 864,
+      "sha256": "cdecb2180dee253651331246c093826f86416bcddc8d477b6baa67a12eb4ab9c"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change-a/f.png.title-state.bin",
+      "bytes": 360,
+      "sha256": "4315088f788ece4c1406e737741f99f692e046cc46b7d6067ac9de3008745911"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change-a/stdout.txt",
+      "bytes": 67,
+      "sha256": "6a464c8d09b9412c548eb442ea62a823b78c621719eafe13e0c1ebd3b89fc567"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change-b/command.txt",
+      "bytes": 160,
+      "sha256": "32f10997474adad85260d70ef59f6048646a73a38d554647721a96c970490acc"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change-b/exit.txt",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change-b/f.png",
+      "bytes": 13,
+      "sha256": "294ad7145322ec19f8250cca8480a933f1ce8c9e2ad1038e7ae8930d55a6598a"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change-b/f.png.audio.pcm",
+      "bytes": 80,
+      "sha256": "cf45151a779e400f0171a22a3293d5bf448cbfa906d58d6b2e49a4bd79fce423"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change-b/f.png.game-mode.bin",
+      "bytes": 360,
+      "sha256": "357d1a32f891e0bf1f26db6bca2b2e396e49946545771743fc943f3313d3e004"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change-b/f.png.name-entry-state.bin",
+      "bytes": 360,
+      "sha256": "4315088f788ece4c1406e737741f99f692e046cc46b7d6067ac9de3008745911"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change-b/f.png.restore-state.bin",
+      "bytes": 360,
+      "sha256": "4315088f788ece4c1406e737741f99f692e046cc46b7d6067ac9de3008745911"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change-b/f.png.startup.bin",
+      "bytes": 864,
+      "sha256": "cdecb2180dee253651331246c093826f86416bcddc8d477b6baa67a12eb4ab9c"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change-b/f.png.title-state.bin",
+      "bytes": 360,
+      "sha256": "4315088f788ece4c1406e737741f99f692e046cc46b7d6067ac9de3008745911"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change-b/stdout.txt",
+      "bytes": 67,
+      "sha256": "33e14aa3f377ec67be8056adaef049a760d60b2a90df9c596508d1d4799534ec"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change.json",
+      "bytes": 1507,
+      "sha256": "332beb06c0996eb7464e5bc13344c29ea75ec1f75f9a7ca1d08d191dfa9ed8af"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/evidence-audit/shifted-anchor-payload-change.out",
+      "bytes": 523,
+      "sha256": "5afb6519ebe12690bcfcd24ffc8ef4bb6f59fdbf82b144b9269366f633daa50c"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/commands.json",
+      "bytes": 4650,
+      "sha256": "d40188f7abd4ef463363513f62214888a165b3ba5e78e69d9e84b228020ad353"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/compare.json",
+      "bytes": 3088,
+      "sha256": "9e1cb6e1a5f66f55de2c5a3c0186e67f6917af800e946c197a63d4fe1c001b15"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/compare.txt",
+      "bytes": 4367,
+      "sha256": "fa355bb185b45b0533278455c2a707677dc8fce98abbf564bc568bd1e4c1a9c6"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png",
+      "bytes": 41956,
+      "sha256": "7169758ffc447b1e77065e61db51435fbdc6b64507f44955198d34e97275e756"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.actors-state.json",
+      "bytes": 460,
+      "sha256": "3d5c7ad623a0365a66a33c459b0f9d90da54b759f8afc9712921dd0da8e3e617"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.audio.json",
+      "bytes": 159,
+      "sha256": "f04c05c0bef4590d0e2216857c1d6eb774852a795819f4c91b4be185f17b9cf7"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.audio.pcm",
+      "bytes": 3840000,
+      "sha256": "e82f87c5d81375314f617a97cf737203563da0ac86660ef8e22c42fe1f6648a2"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.battle-capture.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.battle-loading.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.battle-transition.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.chapter-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.choices.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.dialogue.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.effect-submissions.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.effects.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.game-mode.bin",
+      "bytes": 240000,
+      "sha256": "1a4f3837750618a866e2658b1f15f09f1c1e8f8066ca0df1176b3e2d4f90b4be"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.json",
+      "bytes": 1063,
+      "sha256": "7cb0bac3c5f531c56669a1c0a4adf2b744491df0a6c9b4ca5f72f8516dfeb1f4"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.map-effects.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.music.bin",
+      "bytes": 24000,
+      "sha256": "1ce97f05569adfc39ee15e59ffbd52c3651e0395ed307c023d0dbb6279986d44"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.name-entry-state.bin",
+      "bytes": 1523992,
+      "sha256": "6c0764dbd11b779dc7c6255e8d5a86d0a5c404e594b0832d62136fb844e1637e"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.ordinary-load.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.restore-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.results.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.retiring-effects.bin",
+      "bytes": 272104,
+      "sha256": "7fa07249c0bf0105ecc9630cbdba7c86a78323190fd1eb5264856c20cae49b8d"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.save-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.screen-filter.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.sound.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.startup.bin",
+      "bytes": 29136,
+      "sha256": "f4907d96e7096c85d60ab4241fb2e71ab47bbfe77d0c2a87bd09ee990893b9e2"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.title-state.bin",
+      "bytes": 33024,
+      "sha256": "9476bef4853b66fea30c11e9a5490326fb8b4f57fc2981d4c137f2adc6e75bbc"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.transition.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.ui-party.bin",
+      "bytes": 288,
+      "sha256": "2d5565fb483d8ea4525a7a9229677d1038ad34b6e22c8d5152e1d7f7b9817597"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/f.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "137e90be9390af187643f505541da72f5296de8f2dab3629dede01f7cc0c7753"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/provenance.json",
+      "bytes": 19867,
+      "sha256": "4ede9f1e965777e02e1b9ec5b954193c4553729ee8964f03b1de47515dd8a79f"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/provenance.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/reads.jsonl",
+      "bytes": 43959,
+      "sha256": "2cb847098b67c4321589a17d4c7541b0e38549a258da2605ae994aefb1a3bfd0"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/first-update/effects.json",
+      "bytes": 19,
+      "sha256": "c0d95e285b616803fe0841a7baaa2eba3ea9358783166c8ce1f0b38c90e4997c"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/first-update/lifecycle.jsonl",
+      "bytes": 42416,
+      "sha256": "f00ca3f9effe7b0f5fd9f40d6e27895aa9e081d1b969326925f5216fefada69f"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/first-update/rng.jsonl",
+      "bytes": 613171,
+      "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/first-update/startup-timeline.jsonl",
+      "bytes": 12148,
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/first-update/state.json",
+      "bytes": 73099,
+      "sha256": "9e51633ceaa944cda902477c9df96f9600f9e579f51ae04516671cb90cf14a79"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/first-update/timeline.jsonl",
+      "bytes": 42416,
+      "sha256": "f00ca3f9effe7b0f5fd9f40d6e27895aa9e081d1b969326925f5216fefada69f"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/first-update/vram.bytes",
+      "bytes": 4194304,
+      "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/first-update/vram.invalidated",
+      "bytes": 4194304,
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/first-update/vram.known",
+      "bytes": 4194304,
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/native-tails.json",
+      "bytes": 136,
+      "sha256": "045aa71656499865424f3b18df5d1fc26e1a5f2c16890bbdae1ae36111319833"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/removal-request/effects.json",
+      "bytes": 77,
+      "sha256": "be2eeec75179d4e23a5095488b990028d938512fea2a00c259057f6483f0203d"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/removal-request/lifecycle.jsonl",
+      "bytes": 42612,
+      "sha256": "9c403b8298e9087be6e6de75c8b50717ebc0eb2b5cdd42efbe8858d03a09cf27"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/removal-request/rng.jsonl",
+      "bytes": 613171,
+      "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/removal-request/startup-timeline.jsonl",
+      "bytes": 12148,
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/removal-request/state.json",
+      "bytes": 73102,
+      "sha256": "022e92facd6c4f34f8927a0165b55ea4f579c8f798568cb8566d52a1f4e4fc88"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/removal-request/timeline.jsonl",
+      "bytes": 42612,
+      "sha256": "9c403b8298e9087be6e6de75c8b50717ebc0eb2b5cdd42efbe8858d03a09cf27"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/removal-request/vram.bytes",
+      "bytes": 4194304,
+      "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/removal-request/vram.invalidated",
+      "bytes": 4194304,
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/removal-request/vram.known",
+      "bytes": 4194304,
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/resource-retirement/effects.json",
+      "bytes": 86,
+      "sha256": "c54acb1126ea841213da3c7ddf3cb4c608dd6d669969f0ff1c3dc354865f259d"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/resource-retirement/lifecycle.jsonl",
+      "bytes": 51431,
+      "sha256": "61d478f6a1ea5e2485f81bc3d0bd6ffcc188abc37dfb684e0d2d124b005dd375"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/resource-retirement/rng.jsonl",
+      "bytes": 613171,
+      "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/resource-retirement/startup-timeline.jsonl",
+      "bytes": 12148,
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/resource-retirement/state.json",
+      "bytes": 52189,
+      "sha256": "47726d38f7032479a560b4cf6cd5d5014c9934328fec811f2fda9df2cfe79732"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/resource-retirement/timeline.jsonl",
+      "bytes": 51431,
+      "sha256": "61d478f6a1ea5e2485f81bc3d0bd6ffcc188abc37dfb684e0d2d124b005dd375"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/resource-retirement/vram.bytes",
+      "bytes": 4194304,
+      "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/resource-retirement/vram.invalidated",
+      "bytes": 4194304,
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/resource-retirement/vram.known",
+      "bytes": 4194304,
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/route.json",
+      "bytes": 223,
+      "sha256": "27f88826d89e419e2450e70ba2472aadf49dacc7ee9a6331484104257351e43e"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/stable-menu/effects.json",
+      "bytes": 77,
+      "sha256": "be2eeec75179d4e23a5095488b990028d938512fea2a00c259057f6483f0203d"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/stable-menu/lifecycle.jsonl",
+      "bytes": 42570,
+      "sha256": "99f4c1ed122819b2376a5962f6a5f71991114e43bcdcb157c2cb04ada9f1aca6"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/stable-menu/rng.jsonl",
+      "bytes": 613171,
+      "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/stable-menu/startup-timeline.jsonl",
+      "bytes": 12148,
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/stable-menu/state.json",
+      "bytes": 73098,
+      "sha256": "0186c8f7a78e46df86bd0be7d6b0605b4096a37baa9fb7cca592f3b0d7806957"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/stable-menu/timeline.jsonl",
+      "bytes": 42570,
+      "sha256": "99f4c1ed122819b2376a5962f6a5f71991114e43bcdcb157c2cb04ada9f1aca6"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/stable-menu/vram.bytes",
+      "bytes": 4194304,
+      "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/stable-menu/vram.invalidated",
+      "bytes": 4194304,
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/stable-menu/vram.known",
+      "bytes": 4194304,
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/successor-entry/effects.json",
+      "bytes": 86,
+      "sha256": "c54acb1126ea841213da3c7ddf3cb4c608dd6d669969f0ff1c3dc354865f259d"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/successor-entry/lifecycle.jsonl",
+      "bytes": 51766,
+      "sha256": "00816d54011819014dd657587d7dcf7ed9c822346daaf15bea774afabb58a382"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/successor-entry/rng.jsonl",
+      "bytes": 613171,
+      "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/successor-entry/startup-timeline.jsonl",
+      "bytes": 12148,
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/successor-entry/state.json",
+      "bytes": 52179,
+      "sha256": "f02f681e1b199fad9f1e6f0c976e54f7547b9be0fd6269c9e717e82df2881ab8"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/successor-entry/timeline.jsonl",
+      "bytes": 51766,
+      "sha256": "00816d54011819014dd657587d7dcf7ed9c822346daaf15bea774afabb58a382"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/successor-entry/vram.bytes",
+      "bytes": 4194304,
+      "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/successor-entry/vram.invalidated",
+      "bytes": 4194304,
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/successor-entry/vram.known",
+      "bytes": 4194304,
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/report/title-updates.jsonl",
+      "bytes": 18274,
+      "sha256": "8010a6dd5da5414589d282557c01cf69a0faf304741fc7caad00e6e5fb38e7e4"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/newgame/session.txt",
+      "bytes": 563,
+      "sha256": "441156228c9848a9bbb8b8a64667af483dfd7f53d439a2fa3691f2f05b0b4c06"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/compare.json",
+      "bytes": 3088,
+      "sha256": "db0ff8542638a4cd7e3c3d118671ceac13090c95b9e0eb8e21b43f3a7eb1641f"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/compare.txt",
+      "bytes": 4367,
+      "sha256": "b5fe69e8e1a6b85fe8c96c40a19dc863b5382ff78691eed7079be4265e7b552c"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png",
+      "bytes": 27211,
+      "sha256": "3bfb73c9f061004a39f4335f45114ae8569b7d315d24e1ee2f4c837e8031ff01"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.actors-state.json",
+      "bytes": 460,
+      "sha256": "3d5c7ad623a0365a66a33c459b0f9d90da54b759f8afc9712921dd0da8e3e617"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.audio.json",
+      "bytes": 159,
+      "sha256": "f04c05c0bef4590d0e2216857c1d6eb774852a795819f4c91b4be185f17b9cf7"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.audio.pcm",
+      "bytes": 3840000,
+      "sha256": "e10c465fe7cc10797c43bd87774934afdfd46e2dea7d3e555888ca8adb898c73"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.battle-capture.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.battle-loading.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.battle-transition.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.chapter-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.choices.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.dialogue.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.effect-submissions.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.effects.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.game-mode.bin",
+      "bytes": 240000,
+      "sha256": "c1123d0ec48a6a34957023b7ae4d9ba851e4f60aa90f2b759854501bc3bcb728"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.json",
+      "bytes": 1064,
+      "sha256": "c75fe7960ff77d81987ead193893da54323adbdb6a5dc0ad84594b563b5a9cad"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.map-effects.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.music.bin",
+      "bytes": 24000,
+      "sha256": "1ce97f05569adfc39ee15e59ffbd52c3651e0395ed307c023d0dbb6279986d44"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.name-entry-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.ordinary-load.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.restore-state.bin",
+      "bytes": 1553064,
+      "sha256": "8afa38048b87b44efcd31d0573de170be35238d640fa00b7c2140c0136afdb59"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.results.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.retiring-effects.bin",
+      "bytes": 274168,
+      "sha256": "62f487c7394d07796ca115ad9ba8ee958c3abcf961fb0fcb3965ef642ea0c265"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.save-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.screen-filter.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.sound.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.startup.bin",
+      "bytes": 29136,
+      "sha256": "441bb4e222fa721eed2176d87de8c7aa5423fe32d5326a2ee50e56260dff5e34"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.title-state.bin",
+      "bytes": 32508,
+      "sha256": "3c3d03df0078271069598959c0fa3ec4417c0e7309be3f19314a42841bb11e46"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.transition.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.ui-party.bin",
+      "bytes": 288,
+      "sha256": "2d5565fb483d8ea4525a7a9229677d1038ad34b6e22c8d5152e1d7f7b9817597"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/f.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "749b847646a2d7d2dce036848af79769c2f4449bbe5608d6c9416f33d2201bb0"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/provenance.json",
+      "bytes": 20004,
+      "sha256": "abc9b982d50fb2b2e38d1dc89a84cb30012698a7c57616d31ee8d14f8f54eae6"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/provenance.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/reads.jsonl",
+      "bytes": 44238,
+      "sha256": "e1ab3365f1a8d18e9d599e07220122c9924d65d5fb7bc9421eb7f24526e64de2"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/first-update/effects.json",
+      "bytes": 19,
+      "sha256": "c0d95e285b616803fe0841a7baaa2eba3ea9358783166c8ce1f0b38c90e4997c"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/first-update/lifecycle.jsonl",
+      "bytes": 42416,
+      "sha256": "f00ca3f9effe7b0f5fd9f40d6e27895aa9e081d1b969326925f5216fefada69f"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/first-update/rng.jsonl",
+      "bytes": 613171,
+      "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/first-update/startup-timeline.jsonl",
+      "bytes": 12148,
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/first-update/state.json",
+      "bytes": 73099,
+      "sha256": "9e51633ceaa944cda902477c9df96f9600f9e579f51ae04516671cb90cf14a79"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/first-update/timeline.jsonl",
+      "bytes": 42416,
+      "sha256": "f00ca3f9effe7b0f5fd9f40d6e27895aa9e081d1b969326925f5216fefada69f"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/first-update/vram.bytes",
+      "bytes": 4194304,
+      "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/first-update/vram.invalidated",
+      "bytes": 4194304,
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/first-update/vram.known",
+      "bytes": 4194304,
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/native-tails.json",
+      "bytes": 136,
+      "sha256": "045aa71656499865424f3b18df5d1fc26e1a5f2c16890bbdae1ae36111319833"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/removal-request/effects.json",
+      "bytes": 77,
+      "sha256": "be2eeec75179d4e23a5095488b990028d938512fea2a00c259057f6483f0203d"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/removal-request/lifecycle.jsonl",
+      "bytes": 42612,
+      "sha256": "9c403b8298e9087be6e6de75c8b50717ebc0eb2b5cdd42efbe8858d03a09cf27"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/removal-request/rng.jsonl",
+      "bytes": 613171,
+      "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/removal-request/startup-timeline.jsonl",
+      "bytes": 12148,
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/removal-request/state.json",
+      "bytes": 73102,
+      "sha256": "022e92facd6c4f34f8927a0165b55ea4f579c8f798568cb8566d52a1f4e4fc88"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/removal-request/timeline.jsonl",
+      "bytes": 42612,
+      "sha256": "9c403b8298e9087be6e6de75c8b50717ebc0eb2b5cdd42efbe8858d03a09cf27"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/removal-request/vram.bytes",
+      "bytes": 4194304,
+      "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/removal-request/vram.invalidated",
+      "bytes": 4194304,
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/removal-request/vram.known",
+      "bytes": 4194304,
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/resource-retirement/effects.json",
+      "bytes": 86,
+      "sha256": "c54acb1126ea841213da3c7ddf3cb4c608dd6d669969f0ff1c3dc354865f259d"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/resource-retirement/lifecycle.jsonl",
+      "bytes": 51432,
+      "sha256": "9fcc37cfad0ab863c9f6256c5da919a0ccd6655c9d0974020fd75c55e9669d38"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/resource-retirement/rng.jsonl",
+      "bytes": 613171,
+      "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/resource-retirement/startup-timeline.jsonl",
+      "bytes": 12148,
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/resource-retirement/state.json",
+      "bytes": 52189,
+      "sha256": "47726d38f7032479a560b4cf6cd5d5014c9934328fec811f2fda9df2cfe79732"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/resource-retirement/timeline.jsonl",
+      "bytes": 51432,
+      "sha256": "9fcc37cfad0ab863c9f6256c5da919a0ccd6655c9d0974020fd75c55e9669d38"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/resource-retirement/vram.bytes",
+      "bytes": 4194304,
+      "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/resource-retirement/vram.invalidated",
+      "bytes": 4194304,
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/resource-retirement/vram.known",
+      "bytes": 4194304,
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/route.json",
+      "bytes": 223,
+      "sha256": "5bf7943830974aa184571477f3702c09b7bc8bad2a69743d3f7416ed657dae4d"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/stable-menu/effects.json",
+      "bytes": 77,
+      "sha256": "be2eeec75179d4e23a5095488b990028d938512fea2a00c259057f6483f0203d"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/stable-menu/lifecycle.jsonl",
+      "bytes": 42570,
+      "sha256": "99f4c1ed122819b2376a5962f6a5f71991114e43bcdcb157c2cb04ada9f1aca6"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/stable-menu/rng.jsonl",
+      "bytes": 613171,
+      "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/stable-menu/startup-timeline.jsonl",
+      "bytes": 12148,
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/stable-menu/state.json",
+      "bytes": 73098,
+      "sha256": "0186c8f7a78e46df86bd0be7d6b0605b4096a37baa9fb7cca592f3b0d7806957"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/stable-menu/timeline.jsonl",
+      "bytes": 42570,
+      "sha256": "99f4c1ed122819b2376a5962f6a5f71991114e43bcdcb157c2cb04ada9f1aca6"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/stable-menu/vram.bytes",
+      "bytes": 4194304,
+      "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/stable-menu/vram.invalidated",
+      "bytes": 4194304,
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/stable-menu/vram.known",
+      "bytes": 4194304,
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/successor-entry/effects.json",
+      "bytes": 86,
+      "sha256": "c54acb1126ea841213da3c7ddf3cb4c608dd6d669969f0ff1c3dc354865f259d"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/successor-entry/lifecycle.jsonl",
+      "bytes": 51767,
+      "sha256": "c4a5b967e4d80ab40d38e4679d9793ece406878d5661addbace127d9353e959e"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/successor-entry/rng.jsonl",
+      "bytes": 613171,
+      "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/successor-entry/startup-timeline.jsonl",
+      "bytes": 12148,
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/successor-entry/state.json",
+      "bytes": 52179,
+      "sha256": "f02f681e1b199fad9f1e6f0c976e54f7547b9be0fd6269c9e717e82df2881ab8"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/successor-entry/timeline.jsonl",
+      "bytes": 51767,
+      "sha256": "c4a5b967e4d80ab40d38e4679d9793ece406878d5661addbace127d9353e959e"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/successor-entry/vram.bytes",
+      "bytes": 4194304,
+      "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/successor-entry/vram.invalidated",
+      "bytes": 4194304,
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/successor-entry/vram.known",
+      "bytes": 4194304,
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/report/title-updates.jsonl",
+      "bytes": 17984,
+      "sha256": "afc37dee07b32440d0caf26fe26d0a9e48fb900af6613c33df8aab7d85af8814"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/fresh-routes/restore/session.txt",
+      "bytes": 560,
+      "sha256": "aaedce424c9e5f02b747ce361b9ae8c77b9135f5f43513aabd9d081ccce49eb8"
+    },
+    {
+      "path": "local/research/retire-followup-review-v1/python.txt",
+      "bytes": 228,
+      "sha256": "a74735f3905b1b79b745d7e374d5959b9b586b08dfb4cd79584220ae3b7bffae"
+    }
+  ],
+  "excluded_attempts": [
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/rng-release",
+        "-R",
+        "^(startup-inputs-tests|rng-cold-start-inputs|title-again|retire-title-routes|effect-tests|title-tests|game-mode-tests|field-tests|startup-textures-tests|texture-(transfer|psm1|snapshot|memory|handles|format)-tests|xim-raw-tests|asset-tests|gs-texture-address-tests)$",
+        "--output-on-failure"
+      ],
+      "output": "local/research/retire-followup-review-v1/ctest-release.txt",
+      "returncode": 0,
+      "reason": "Mistaken older build selection; 17 passed, not Retire coverage."
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/rng-sanitize",
+        "-R",
+        "^(effect-tests|title-tests|game-mode-tests|startup-textures-tests|texture-(transfer|psm1|snapshot|memory|handles|format)-tests|xim-raw-tests|asset-tests|gs-texture-address-tests)$",
+        "--output-on-failure"
+      ],
+      "output": "local/research/retire-followup-review-v1/ctest-sanitize.txt",
+      "returncode": 8,
+      "reason": "Mistaken older build selection; 11 passed, title/game-mode executables absent (2 Not Run). Not a current-source failure; current Retire sanitizer13/13 passes."
+    }
+  ],
+  "findings": [
+    "retire_route_compare accepts common omitted interior records as IDENTICAL; repro retained. Archived route runs have no such common gaps.",
+    "TIMING-DIFFERENT classifies anchors only; corrupted payload plus shifted anchors produces same verdict. Does not prove storage timing is sole cause.",
+    "No substantive runtime/owner defect found within successor-entry boundary; owner-asserted scheduler events remain scoped."
+  ],
+  "not_rerun": [
+    "Full109-test Release suite",
+    "Full987-test Python suite",
+    "Debug suite",
+    "Original research captures"
+  ],
+  "preservation": "No preview, user save, draft worktree, UI window or VM action. Fresh Sessions headless with separate save directories."
+}
