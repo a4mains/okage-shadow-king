@@ -47,7 +47,7 @@ for route in restore newgame; do
   tools/retire_route_regression.sh $OLD $NEW $STAGE $SHA tests/data/retire-routes/$route $out/regression-$route 1200 4 > $out/regression-$route.log 2>&1
   r=$out/regression-$route; : > $r/compare.txt
   for a in $r/old-? $r/new-?; do for b in $r/old-? $r/new-?; do [[ $a < $b ]] || continue
-    echo "== ${a:t} ${b:t}" >> $r/compare.txt; python3 tools/retire_route_compare.py $a $b >> $r/compare.txt 2>&1; echo "exit=$?" >> $r/compare.txt; done; done
+    echo "== ${a:t} ${b:t}" >> $r/compare.txt; python3 tools/retire_route_compare.py $a $b --route $route >> $r/compare.txt 2>&1; echo "exit=$?" >> $r/compare.txt; done; done
 done
 log tools/rng_cold_start_regression.sh $OLD $NEW $STAGE $out/regression-cold 1800
 tools/rng_cold_start_regression.sh $OLD $NEW $STAGE $out/regression-cold 1800 > $out/regression-cold.log 2>&1
