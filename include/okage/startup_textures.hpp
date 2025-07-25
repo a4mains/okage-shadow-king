@@ -36,6 +36,11 @@ enum class ResourceStage : std::uint8_t {
                             // image list (1b5fd0 -> 1b2240); then the mode-8 destructor 12c8d8 ran
     TitleWrappersFreed,
     SuccessorEntry,
+    // Restore (the Restore input contract): empty-card Restore, Cancel, back to the title.
+    RestoreActive,          // 124548(mode 10) ran: 1243c8 -> 11fb78 bm_if atlas owned by wrapper+0x30
+    RestoreManagerDead,
+    RestoreResourcesRetired,// D+3: 101058 (releases nothing) then wrapper dtor 124448 -> 1cca30(wrapper+0x30)
+    RestoreWrappersFreed,
     Unmodeled,
 };
 const char* to_string(ResourceStage);
@@ -58,7 +63,7 @@ struct StartupTextureInputs {
     bool record_observations{};
 };
 
-enum class StartupRngPhase : std::uint8_t { Noise, EffectGrid, EffectTemplate };
+enum class StartupRngPhase : std::uint8_t { Noise, EffectGrid, EffectTemplate, Session };  // Session: after 0x100618
 const char* to_string(StartupRngPhase);
 struct StartupRandomDraw {
     StartupRngPhase phase{};
@@ -156,9 +161,23 @@ public:
     struct EffectObservation { int slot{-1}; const char* state{}; std::vector<int> element_handles; };
     const std::optional<EffectObservation>& effect106() const noexcept { return effect106_; }
     void note_mode_request(unsigned mode, unsigned selector, unsigned arg);
-    void note_mode_resource_retire(unsigned selector);  // also logs 101240 -> 103640(-2)
-    void note_mode_destroy(unsigned selector);
-    void note_mode_wrapper_free(unsigned selector);
+    void note_mode_resource_retire(unsigned selector, unsigned mode = 8);  // also logs 101240 -> 103640(-2)
+    void note_mode_destroy(unsigned selector, unsigned mode = 8);
+    void note_mode_wrapper_free(unsigned selector, unsigned mode = 8);
+    // Session generator draws after the prefix (GameRandom::observe), in order, with the native frame.
+    void note_session_draw(std::uint32_t state, std::uint32_t frame);
+    const std::vector<std::uint32_t>& session_draw_frames() const noexcept { return session_draw_frames_; }
+    int construct_restore(const std::vector<std::uint8_t>& atlas);
+    int restore_atlas() const noexcept { return restore_atlas_; }
+    // Restore resource child's first tick: 0x102218 frees the reclaim-pending water job (host only).
+    void note_effect_reclaim(int slot);
+    // D: 11e690 state -2, 1248d8(4,0,0), manager dead; window destroyed (fonts are not freed).
+    void restore_manager_death();
+    // D+3: resource child 101058, then wrapper dtor 124448: 1a9888(0), 199e88(0), 1cca30(+0x30).
+    void retire_restore_resources();
+    // D+4: resource node then wrapper node freed.
+    void free_restore_wrappers();
+    bool second_title() const noexcept { return second_title_; }
     // 0x12a2d4 -> 124930(root, mode): the mode request in the frame the fade reaches zero.
     void request_title_successor(unsigned mode);
     void retire_title_resources();
@@ -239,6 +258,9 @@ private:
     std::vector<OwnedBytes> model_slot_bytes_;
     std::string unmodeled_reason_;
     unsigned successor_mode_{};
+    int restore_atlas_{-1};
+    bool second_title_{};
+    std::vector<std::uint32_t> session_draw_frames_;
     std::optional<EffectObservation> effect106_;
     void require_modeled(const char* operation) const;
     void title_event(ResourceStage from, ResourceStage to, std::string json);

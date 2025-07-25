@@ -976,12 +976,13 @@ void RetiringSceneEffects::mark() {
     }
 }
 void RetiringSceneEffects::tick() {
+    last_reclaimed.clear();
     for(unsigned i=0;i<84;++i) {
         require(!(map[i]&&attached[i]),"Retiring effect slot has two owners");
         if(!map[i]&&!attached[i])continue;
         auto& f=map[i]?map[i]->flags:attached[i]->animation.flags;
         require(f&0x100,"Unmarked retiring effect");
-        if(f&0x200){map[i].reset();attached[i].reset();}
+        if(f&0x200){map[i].reset();attached[i].reset();last_reclaimed.push_back(i);}
         else f|=0x200;
     }
 }

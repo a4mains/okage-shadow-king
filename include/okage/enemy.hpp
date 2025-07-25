@@ -8,7 +8,10 @@ namespace okage {
 // Initial seed and other callers belong to game initialization, not NPCs.
 struct GameRandom {
     std::uint32_t state;
-    std::uint32_t next(){state=state*0x41c64e6du+0x3039u;return state&0x7fffffffu;}
+    // Optional observation of every draw (state after the draw); never changes values.
+    void (*observe)(void* context,std::uint32_t state)=nullptr;
+    void* observe_context=nullptr;
+    std::uint32_t next(){state=state*0x41c64e6du+0x3039u;if(observe)observe(observe_context,state);return state&0x7fffffffu;}
 };
 struct EnemyObservation {
     Float4 position{},rotation{},color{},player_position{},player_rotation{},camera_rotation{};

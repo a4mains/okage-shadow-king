@@ -15,6 +15,7 @@ struct RestoreConstruction {
     bool save=false;
     std::shared_ptr<RuwResource> field_ruw;
     std::shared_ptr<const Texture> field_atlas;
+    std::shared_ptr<const std::vector<std::uint8_t>> atlas_bytes;
 };
 class RestoreSession {
 public:
@@ -28,6 +29,8 @@ public:
         SceneFade&,const Texture& captured_background,const SineTable&,GameRandom&,
         const std::function<void(unsigned)>& sound,const std::function<void(bool)>& publish_result);
     bool dead() const;
+    // Any saved slot was found (saved-slot display; not part of the empty-card Restore route).
+    bool saved_slots_present() const;
     void retire(Animation&,FieldProjection&,RetiringSceneEffects*,BattleUiShared&);
     bool resource_live() const;
     const Texture* rendered_image() const;

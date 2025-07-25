@@ -89,7 +89,7 @@ struct RestoreSession::Impl {
         } else {
             clear.rgb={0,0,0};fade.color=0;initialize_scene_ui(ui);fade.immediate(0);
             check(bool(c.stop_music),"Restore music owner");c.stop_music();
-            atlas=std::make_shared<const Texture>(decode_xim(read(c.common_root/"2D/MAIN.XPF/bm_if.xim")));
+            atlas=std::make_shared<const Texture>(decode_xim(c.atlas_bytes?Bytes(*c.atlas_bytes):Bytes(read(c.common_root/"2D/MAIN.XPF/bm_if.xim"))));
             ruw=std::make_shared<RuwResource>(read(c.ui_root/"FLD.RUW"));
         }
         renderer=std::make_unique<ResultsRenderer>(fonts,atlas);
@@ -244,7 +244,9 @@ struct RestoreSession::Impl {
             slots={};slot_errors={};pending_slots={};pending_errors={};loaded.reset();load_error.clear();io=None;
         }
         if(io==None) {
-            empty_slots();status=text(Text::CheckingCardNotice);
+            //Restore: 11b518 leaves the status (*0x24ed80) empty; 0x11dc84 sets "Checking" at state
+            //0x212 (the Restore state contract). The Save path is unchanged (not re-verified).
+            empty_slots();if(save)status=text(Text::CheckingCardNotice);else status.clear();
             jobs.enqueue([this]{
                 if(save)std::filesystem::create_directories(save_directory);
                 check(std::filesystem::is_directory(save_directory),"Restore storage directory unavailable");
@@ -255,6 +257,7 @@ struct RestoreSession::Impl {
         if(io==Checking) {
             jobs.check();if(jobs.pending()||dead||shared.state<0)return;
             shared.state=save?30:530;
+            if(!save)status=text(Text::CheckingCardNotice);
             jobs.enqueue([this]{for(unsigned i=0;i<3;++i){try{pending_slots[i]=store.read(i);}catch(const std::exception& e){pending_errors[i]=e.what();}}},{0x16cdb8,0x11c2c8});
             jobs.resume();io=Scanning;
         }
@@ -343,6 +346,8 @@ void RestoreSession::tick_save(BattleUiPadInput input,std::span<std::uint8_t> va
     if(p.dead)p.destroy_window();
 }
 bool RestoreSession::dead() const{return impl_->dead;}
+bool RestoreSession::saved_slots_present() const{
+    return std::any_of(impl_->slots.begin(),impl_->slots.end(),[](const auto& s){return bool(s);});}
 void RestoreSession::retire(Animation& camera,FieldProjection& projection,RetiringSceneEffects* effects,BattleUiShared& ui) {
     auto& p=*impl_;check(p.live,"Restore retired twice");if(effects)effects->mark();
     p.destroy_window();for(auto& w:ui.registry)w.reset();projection.reset_scene();reset_scene_camera(camera);

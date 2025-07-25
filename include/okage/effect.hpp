@@ -208,6 +208,8 @@ struct RetiringSceneEffects {
     void mark();
     void tick();
     std::array<std::uint32_t,84> flags() const;
+    // Slots the last tick() reclaimed (0x102218 0x1023c4..0x102460); observation only.
+    std::vector<unsigned> last_reclaimed;
 };
 struct EffectSubmission {
     unsigned handle;
