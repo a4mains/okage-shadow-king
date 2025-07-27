@@ -188,7 +188,7 @@ struct Session {
         for(std::size_t i=0;i<frames.size();++i)draws<<"{\"session_draw\":"<<i<<",\"frame\":"<<frames[i]<<"}\n";
         if(!out||!draws)throw std::runtime_error("Restore route report write failed");
     }
-    unsigned startup_selector=0;
+    unsigned startup_selector=0,restore_storage_latency_ms=0;
     unsigned title_updates=0;bool first_title=false;
     std::vector<std::string> title_update_log;
     std::optional<unsigned> next_first_title_update() const {
@@ -1330,6 +1330,7 @@ struct Session {
                 }
                 if(selection==okage::GameModeSelection{10,0,0}) {
                     okage::RestoreConstruction construction{field_root.parent_path()/"CMNDATA",battle_input,save_directory,ui_fonts,[this]{if(music)music->stop();}};
+                    construction.storage_latency_ms=restore_storage_latency_ms;
                     if(title_modeled(okage::ResourceStage::SuccessorEntry)) {
                         //1243c8 -> 11fb78: one read of bm_if.xim for the logical 18f7a8 load (wrapper+0x30)
                         //and the host atlas decode.
@@ -2736,7 +2737,7 @@ int main(int argc,const char** argv) {
     try {
         if(argc<3)throw std::runtime_error("Usage: okage-native --game-data DIRECTORY [--save-directory DIRECTORY] OR okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --buttons INPUT (held non-directional masks; bounded replay only) --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--load-observation FRESH.jsonl (bounded replay; host scheduling diagnostics)] [--battle-readback synchronous|deferred (replay policy; live always deferred)] [--replay-loading continuous|cooperative (cooperative requires deferred readback)] [--replay-display-from N (bounded cooperative replay; real host display callbacks and full rendering from N)] [--performance-report FRESH.jsonl (interactive/preview/UI test)] [--input-journal FRESH.jsonl] [--input-log FRESH.jsonl (path/sha256 of every asset read)] [--title-retirement-report FRESH_DIRECTORY (Retire title checkpoints)] [--restore-cancel-report FRESH_DIRECTORY (Restore checkpoints)] [--pause-captures FRESH_DIRECTORY (interactive diagnostics, not saved games)] [--headless-control FRESH_DIRECTORY (stdin controller steps after --frames; no window)]");
         const bool coldStart=std::string_view(argv[1])=="--game-data";
-        fs::path gameDataRoot,saveDirectory,startupTextureReport,titleResourceReport,titleRetirementReport,restoreCancelReport;
+        fs::path gameDataRoot,saveDirectory,startupTextureReport,titleResourceReport,titleRetirementReport,restoreCancelReport;unsigned restoreStorageLatency=0;
         fs::path fontDirectory=coldStart?fs::path{}:fs::path(argv[1]),messagePath=coldStart?fs::path{}:fs::path(argv[2]);
         unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions,buttons,titleScript;bool hasButtons=false;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures,battleInput;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         std::optional<fs::path> performancePath,inputJournalPath,pauseCapturePath,headlessControlPath;
@@ -2757,6 +2758,7 @@ int main(int argc,const char** argv) {
             else if(arg=="--title-resource-report")titleResourceReport=argv[i];
             else if(arg=="--title-retirement-report")titleRetirementReport=argv[i];
             else if(arg=="--restore-cancel-report")restoreCancelReport=argv[i];
+            else if(arg=="--restore-storage-latency-ms")restoreStorageLatency=unsigned(std::stoul(argv[i])); //research regression
             else if(arg=="--title-pad-script") {
                 if(!titleScript.entries.empty())throw std::runtime_error("Duplicate title pad script");
                 titleScript.load(argv[i],0xffffu);
@@ -3010,6 +3012,7 @@ int main(int argc,const char** argv) {
             session.save_directory=saveDirectory;
             session.startup_texture_report=startupTextureReport;session.resource_report=titleResourceReport;
             session.retirement_report=titleRetirementReport;session.restore_report=restoreCancelReport;
+            session.restore_storage_latency_ms=restoreStorageLatency;
             if(!restoreCancelReport.empty()&&fs::exists(restoreCancelReport))throw std::runtime_error("Restore report directory must be fresh");
             if(!titleRetirementReport.empty()&&fs::exists(titleRetirementReport))throw std::runtime_error("Title retirement report directory must be fresh");
             if(!titleResourceReport.empty()&&fs::exists(titleResourceReport))throw std::runtime_error("Title resource report directory must be fresh");

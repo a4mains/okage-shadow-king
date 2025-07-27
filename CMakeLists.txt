@@ -194,6 +194,11 @@ if(BUILD_TESTING)
                     set_tests_properties(title-again PROPERTIES
                         ENVIRONMENT "OKAGE_NATIVE=$<TARGET_FILE:okage-native>;OKAGE_REQUIRE_STARTUP_TESTS=1")
                 endif()
+                add_test(NAME restore-routes
+                    COMMAND ${Python3_EXECUTABLE} -m unittest tests.test_restore_routes
+                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+                set_tests_properties(restore-routes PROPERTIES
+                    ENVIRONMENT "OKAGE_NATIVE=$<TARGET_FILE:okage-native>;OKAGE_REQUIRE_STARTUP_TESTS=1")
                 add_test(NAME retire-title-routes
                     COMMAND ${Python3_EXECUTABLE} -m unittest tests.test_retire_routes
                     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

@@ -16,6 +16,7 @@ struct RestoreConstruction {
     std::shared_ptr<RuwResource> field_ruw;
     std::shared_ptr<const Texture> field_atlas;
     std::shared_ptr<const std::vector<std::uint8_t>> atlas_bytes;
+    unsigned storage_latency_ms=0;
 };
 class RestoreSession {
 public:

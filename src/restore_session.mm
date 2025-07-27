@@ -11,6 +11,8 @@
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
+#include <thread>
+#include <chrono>
 #pragma STDC FENV_ACCESS ON
 #pragma STDC FP_CONTRACT OFF
 namespace okage {
@@ -58,6 +60,7 @@ std::string format(std::string_view source,std::initializer_list<std::string> va
 struct RestoreSession::Impl {
     enum Io : unsigned {None,Checking,Scanning,Ready,Reading,Loaded,Failed,Writing,Written};
     bool live=true,manager=true,dead=false,completed=false,save=false;
+    unsigned storage_latency_ms=0;
     unsigned phase=0,confirmation=0,success_ticks=0;
     Io io=None;
     RestoreShared& shared;BattleUiShared& ui;
@@ -82,7 +85,7 @@ struct RestoreSession::Impl {
     Impl(SceneClearColor& clear,SceneFade& fade,BattleUiShared& u,RestoreShared& s,RestoreConstruction c)
         :shared(s),ui(u),fonts(std::move(c.fonts)),data(read(c.ui_root/"RESTORE.bin")),
          numbers(read(c.ui_root/"results-text.bin")),store(c.save_directory),save_directory(c.save_directory) {
-        save=c.save;
+        save=c.save;storage_latency_ms=c.storage_latency_ms;
         if(save) {
             check(c.field_ruw&&c.field_atlas,"Save requires live field UI resources");
             ruw=std::move(c.field_ruw);atlas=std::move(c.field_atlas);
@@ -248,6 +251,7 @@ struct RestoreSession::Impl {
             //0x212 (the Restore state contract). The Save path is unchanged (not re-verified).
             empty_slots();if(save)status=text(Text::CheckingCardNotice);else status.clear();
             jobs.enqueue([this]{
+                if(storage_latency_ms)std::this_thread::sleep_for(std::chrono::milliseconds(storage_latency_ms));
                 if(save)std::filesystem::create_directories(save_directory);
                 check(std::filesystem::is_directory(save_directory),"Restore storage directory unavailable");
                 check(std::filesystem::space(save_directory).available!=std::uintmax_t(-1),"Restore storage capacity unavailable");

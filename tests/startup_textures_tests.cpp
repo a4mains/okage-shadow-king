@@ -457,7 +457,40 @@ int main() {
             o.enter_successor(10);
             require(o.stage() == ResourceStage::SuccessorEntry && r.state == o.rng_log().back().state,
                     "successor entry reached with no RNG draw after the prefix");
-            o.mark_unmodeled("successor constructor body");
+            // Restore: Restore owns its atlas through the wrapper, not the image list.
+            threw = false;
+            try { o.note_effect_reclaim(0); } catch (const std::logic_error&) { threw = true; }
+            require(threw, "reclaim before Restore construction is rejected");
+            const auto records_before = o.handles().free_record_count();
+            const int atlas = o.construct_restore(effect_xim({19, 256, 64, 32}, 77));
+            require(atlas >= 0 && o.restore_atlas() == atlas && o.image_list().empty(), "wrapper-owned atlas");
+            const auto atlas_alloc = o.handles().image(atlas)->id;
+            o.note_effect_reclaim(0);
+            require(std::string(o.effect106()->state) == "reclaimed", "water job reclaimed by the Restore resource tick");
+            r.next();
+            o.note_session_draw(r.state, 1);  // a layout draw is logged after the prefix
+            require(o.rng_log().back().phase == StartupRngPhase::Session && o.rng_log().back().state == r.state,
+                    "session draw logged in order");
+            threw = false;
+            try { o.retire_restore_resources(); } catch (const std::logic_error&) { threw = true; }
+            require(threw, "retirement before manager death is rejected");
+            o.restore_manager_death();
+            require(m.allocation(atlas_alloc).has_value(), "window death does not release the atlas");
+            o.note_mode_request(8, 1, 0);
+            o.retire_restore_resources();
+            require(!m.allocation(atlas_alloc) && o.restore_atlas() == -1 && o.handles().record_of(atlas) < 0,
+                    "wrapper dtor releases the atlas (1cca30)");
+            o.free_restore_wrappers();
+            // The second title starts from the live state: no reset, records continue from the free list.
+            const auto live_before = o.handles().live_order().size();
+            o.begin_title_construction();
+            require(o.second_title() && live_before == 36, "second title from the live state");
+            const int img = o.append_image(effect_xim({19, 256, 64, 32}, 78));
+            require(o.handles().record_of(img) >= 0 && o.handles().free_record_count() + 1 < records_before + 2,
+                    "a fresh record from the free list");
+            o.finish_title_construction();
+            require(o.stage() == ResourceStage::TitleConstructed, "second title constructed");
+            o.mark_unmodeled("second title updates");
             require(o.stage() == ResourceStage::Unmodeled, "past the stop: unmodeled");
         });
         // Successor walk with a retired handle between loads (hole) and a failed load (-1 skipped).
