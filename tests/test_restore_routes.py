@@ -75,7 +75,7 @@ class RestoreRoutes(unittest.TestCase):
             self.assertTrue(c["events_identical"] and not c["state_differences"] and c["effect106_identical"]
                             and not c["stream_inconsistent"], cp)
         if code == 3:
-            self.assertTrue(result["timing_diagnostic"]["lcg_same"] and result["timing_diagnostic"]["pass_model_same"])
+            self.assertTrue(all(result["timing_diagnostic"].values()), result["timing_diagnostic"])
 
     def test_restore_cancel_original_pad_rule(self):
         # The original observer's inputs: title presses at title updates 2/84, Cancel on the traversal
@@ -94,6 +94,10 @@ class RestoreRoutes(unittest.TestCase):
             tmp = Path(tmp)
             out, route = self.run_route(tmp, "pending-cancel", ["--restore-storage-latency-ms", "3000"])
             self.assertEqual(route["checkpoints"]["cancel-death"] - 1070, 32)
+            frames = [json.loads(x) for x in (tmp / "report/manager-frames.jsonl").read_text().splitlines()]
+            cancel = next(f for f in frames if f["pressed"] == 0x20)
+            self.assertEqual(cancel["state_in"], 510, "Cancel must arrive while the card-info scan is pending (0x1fe)")
+            self.assertNotIn("empty-ready", route["checkpoints"])
 
 if __name__ == "__main__":
     unittest.main()

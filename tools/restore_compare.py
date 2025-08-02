@@ -47,8 +47,8 @@ incomplete coverage, or per-traversal/RNG differences with equal timing anchors)
 mismatch/self-comparison; 3 TIMING-DIFFERENT (every checkpoint's lifecycle/state/effect/VRAM is identical, but the
 Restore timing anchors (empty-ready, Cancel or death traversal, number of traversals, or the card-readiness
 traversals card_info_t/card_ready_t, which are IO/observer dependent) differ, AND the timing diagnostic holds: the
-same LCG states/values over the common prefix and one status -> call-site-label pass pattern per displayed status,
-identical on both sides. Per-traversal and RNG parity are then UNRESOLVED: the label is inconclusive about other
+RNG through first-layout identical, no draw after the window dies, manager-frame draw counts accounting for every
+post-stop draw, and the same set of displayed statuses with ONE identical call-site-label pass per status. Per-traversal and RNG parity are then UNRESOLVED: the label is inconclusive about other
 behaviour and never a fixed-frame equality. If the diagnostic fails the result is DIFFERENT);
 4 UNPROVEN (identical only through asserted rows). Research tool; never product input.
 """
@@ -312,6 +312,22 @@ def pass_model(rows, rng_rows):
             return None
     return model
 
+def timing_diagnostic(rng_at, o_fr, n_fr):
+    """rng_at: {checkpoint: (original rng rows, native rng rows)}. Returns (checks, original pass model)."""
+    fixed_cps = CHECKPOINTS[:CHECKPOINTS.index('first-layout') + 1]
+    fixed_same = all(o == n for o, n in (rng_at[cp] for cp in fixed_cps))
+    death = CHECKPOINTS.index('cancel-death')
+    no_late = all(len(rng_at[cp][s]) == len(rng_at['cancel-death'][s]) for cp in CHECKPOINTS[death:] for s in (0, 1))
+    o_all, n_all = rng_at[CHECKPOINTS[-1]]
+    prefix = len(rng_at[CHECKPOINTS[0]][0])
+    accounted = (sum(r['draws'] for r in o_fr) == len(o_all) - prefix and
+                 sum(r['draws'] for r in n_fr) == len(n_all) - len(rng_at[CHECKPOINTS[0]][1]))
+    mo, mn = pass_model(o_fr, o_all[prefix:]), pass_model(n_fr, n_all[prefix:])
+    model_same = mo is not None and mn is not None and mo.keys() == mn.keys() and all(mo[k] == mn[k] for k in mo)
+    diagnostic = {'fixed_checkpoints_rng_identical': fixed_same, 'no_draws_after_death': no_late,
+                  'frame_draws_account_for_all': accounted, 'pass_model_identical': model_same}
+    return diagnostic, mo
+
 def compare_frames(orig, nat, out):
     first = next((i for i in range(max(len(orig), len(nat)))
                   if i >= len(orig) or i >= len(nat) or orig[i] != nat[i]), None)
@@ -466,13 +482,10 @@ def run(orig_dir, nat_dir, out=None, manifest=MANIFEST, strict=False):
     ro, rn = readiness(o_fr), readiness(n_fr)
     timing_differs = ao != an or ro != rn
     print(f'  timing anchors: original {ao} {ro} | native {an} {rn}' + (' (DIFFERENT)' if timing_differs else ''), file=out)
-    o_all, n_all = loaded[CHECKPOINTS[-1]]['o_rng'], loaded[CHECKPOINTS[-1]]['n_rng']
-    lcg_same = all(a['state'] == b['state'] and a['value'] == b['value'] for a, b in zip(o_all, n_all))
-    prefix = len(loaded[CHECKPOINTS[0]]['o_rng'])
-    mo, mn = pass_model(o_fr, o_all[prefix:]), pass_model(n_fr, n_all[prefix:])
-    model_same = mo is not None and mn is not None and all(mo[k] == mn[k] for k in mo.keys() & mn.keys())
-    print(f'  timing diagnostic: LCG states/values equal over the common prefix: {lcg_same}; one pass pattern per '
-          f'displayed status on both sides and identical where shared: {model_same}'
+    rng_at = {cp: (loaded[cp]['o_rng'], loaded[cp]['n_rng']) for cp in CHECKPOINTS}
+    diagnostic, mo = timing_diagnostic(rng_at, o_fr, n_fr)
+    diagnostic_ok = all(diagnostic.values())
+    print(f'  timing diagnostic: {diagnostic}'
           + (f' (draws per pass: {dict((str(k), len(v)) for k, v in mo.items())})' if mo else ''), file=out)
     gaps = sum(c['vram']['coverage_gap_invalidated'] for c in result['checkpoints'].values())
     if strict and gaps:
@@ -486,7 +499,7 @@ def run(orig_dir, nat_dir, out=None, manifest=MANIFEST, strict=False):
     per_frame_bad = rng_bad or ffirst is not None
     if payload_bad:
         label, code = 'DIFFERENT', 1
-    elif per_frame_bad and timing_differs and lcg_same and model_same:
+    elif per_frame_bad and timing_differs and diagnostic_ok:
         label, code = 'TIMING-DIFFERENT', 3
         print('  lifecycle/state/effect/VRAM are identical at every checkpoint; the Restore timing anchors differ, so '
               'per-traversal and RNG parity are UNRESOLVED (inconclusive about any other behaviour; not an equality)',
@@ -500,7 +513,7 @@ def run(orig_dir, nat_dir, out=None, manifest=MANIFEST, strict=False):
         label, code = 'IDENTICAL', 0
     result.update({'manager_frames_first_difference': ffirst, 'manager_frames_coverage': cov, 'anchors_original': ao,
                    'anchors_native': an, 'readiness_original': ro, 'readiness_native': rn,
-                   'timing_diagnostic': {'lcg_same': lcg_same, 'pass_model_same': model_same}, 'timing_differs': timing_differs, 'asserted': asserted_total,
+                   'timing_diagnostic': diagnostic, 'timing_differs': timing_differs, 'asserted': asserted_total,
                    'coverage_gaps': gaps, 'result': label})
     print('RESULT: ' + label, file=out)
     return code, result

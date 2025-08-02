@@ -20,7 +20,9 @@ construction/retirement events. A missing expected record, or a record in an ina
 side makes the result INCOMPLETE (exit 4), listed per stream and side; payload differences are still
 reported. startup.bin word 9 (storage[3], the asynchronous host storage probe) is excluded and reported.
 
-Verdicts: IDENTICAL (0): anchors equal, coverage complete, every payload, the audio and the final PNG
+Compared: the five per-frame record streams above, the audio PCM and the final PNG. Other capture sidecars
+(sound/music/variables/transition/save-state, ...) are NOT compared.
+Verdicts: IDENTICAL (0): anchors equal, coverage complete, those five streams, the audio and the final PNG
 equal. DIFFERENT (1): anchors equal and something differs. ANCHORS-DIFFER (3): the runs' source-event
 frames differ, so a fixed-frame comparison is INCONCLUSIVE; the payload differences are listed but are
 NOT attributed to timing (the Retire label TIMING-DIFFERENT overclaimed this). INCOMPLETE (4). 2: malformed.

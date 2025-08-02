@@ -511,6 +511,57 @@ class TimingDiagnosticUnits(unittest.TestCase):
         self.assertIsNotNone(mn)
         self.assertTrue(all(mo[k] == mn[k] for k in mo.keys() & mn.keys()))
 
+    def diag_fixture(self):
+        """A consistent timing shift: original card info at t2, native at t1; 3-draw prefix per checkpoint."""
+        P = {'c': ['g'], 510: ['g', 'i'], 530: ['g', 'g', 'i'], 540: ['i']}
+        def run(updates):
+            f = self.frames(updates, [0] * len(updates))
+            labels = []
+            for r in f:
+                key = 'c' if r['t'] == 0 else f[max(r['t'] - 2, 0)]['update_state_out']
+                r['draws'] = len(P[key]); labels += P[key]
+            return f, [{'i': i, 'phase': 'restore-ui-' + x, 'state': 100 + i, 'value': 100 + i}
+                       for i, x in enumerate(['n', 'n', 'n'] + labels)]
+        (of, orng), (nf, nrng) = run([510, 510, 530, 540, 540, 540]), run([510, 530, 540, 540, 540, 540])
+        for rows in (orng, nrng):
+            for k in range(3):
+                rows[k]['phase'] = 'noise'
+        def at(rows, frames, upto_t):
+            return rows[:3 + sum(r['draws'] for r in frames if r['t'] <= upto_t)]
+        rng_at = {}
+        for cp in cmp.CHECKPOINTS:
+            t = {'retire-successor-entry': -1, 'restore-constructor-return': -1, 'first-layout': 0}.get(cp, 5)
+            rng_at[cp] = (orng[:3] if t < 0 else at(orng, of, t), nrng[:3] if t < 0 else at(nrng, nf, t))
+        return rng_at, of, nf
+
+    def test_consistent_shift_passes_the_diagnostic(self):
+        d, _ = cmp.timing_diagnostic(*self.diag_fixture())
+        self.assertTrue(all(d.values()), d)
+
+    def test_prefix_relabel_fails_the_diagnostic(self):
+        rng_at, of, nf = self.diag_fixture()
+        for cp in cmp.CHECKPOINTS:
+            n = [dict(r) for r in rng_at[cp][1]]
+            n[1]['phase'] = 'effect-grid'  # before Restore: timing cannot explain it
+            rng_at[cp] = (rng_at[cp][0], n)
+        d, _ = cmp.timing_diagnostic(rng_at, of, nf)
+        self.assertFalse(d['fixed_checkpoints_rng_identical'])
+
+    def test_draw_after_death_fails_the_diagnostic(self):
+        rng_at, of, nf = self.diag_fixture()
+        o, n = rng_at['second-title-return']
+        rng_at['second-title-return'] = (o, n + [{'i': len(n), 'phase': 'session', 'state': 1, 'value': 1}])
+        d, _ = cmp.timing_diagnostic(rng_at, of, nf)
+        self.assertFalse(d['no_draws_after_death'])
+        self.assertFalse(d['frame_draws_account_for_all'])
+
+    def test_unshared_status_fails_the_diagnostic(self):
+        rng_at, of, nf = self.diag_fixture()
+        nf = [dict(r) for r in nf]
+        nf[1]['update_state_out'] = 999  # a status the original never shows
+        d, _ = cmp.timing_diagnostic(rng_at, of, nf)
+        self.assertFalse(d['pass_model_identical'])
+
     def test_relabelled_pass_breaks_the_model(self):
         f = self.frames([510, 510, 510, 510], [2, 2, 2, 2])
         r = self.rng(['g', 'g', 'g', 'i', 'g', 'i', 'i', 'g'])  # status 510 shows two different patterns

@@ -196,6 +196,7 @@ struct Session {
     //Restore per-traversal Restore observation (t = 0 at the construction traversal S).
     unsigned restore_traversal=0;bool restore_manager_alive=false;std::size_t restore_draws_seen=0;
     std::optional<unsigned> restore_ready_frame;
+    int restore_window=-1;
     std::vector<std::string> restore_frames;
     void observe_restore_tick() {
         auto& o=*startup_textures;
@@ -228,7 +229,7 @@ struct Session {
             o.restore_manager_death();
             restore_checkpoint("cancel-death"); //entry of 120b48, before its rows
             o.note_ui("manager-destroy",10);
-            o.note_ui("window-death",0);
+            o.note_ui("window-death",restore_window);
         }
         ++restore_traversal;
     }
@@ -722,7 +723,8 @@ struct Session {
         effects_loaded=true;
         game_mode.emplace(okage::GameModeParent::startup());
         //124940: the empty parent queues {8,3,0} (logged before the 0x100618 boundary).
-        if(startup_textures)startup_textures->note_mode_request(8,3,0);
+        //Observed: the request the native parent actually queued.
+        if(startup_textures&&game_mode->requested()){const auto r=*game_mode->requested();startup_textures->note_mode_request(r[0],r[1],r[2]);}
         sound_banks.emplace(0,std::make_unique<okage::StreamPlayer>(
             okage::read_stream_bank(readData(sound_directory/"ALL.XWS"))));
         std::cout<<"Native cold startup queued mode8 selector3\n";
@@ -1389,7 +1391,8 @@ struct Session {
                     if(title_modeled(okage::ResourceStage::RestoreActive)) {
                         //11f5f8 -> 11f668: the manager and its single window, then 124548 returns.
                         startup_textures->note_ui("manager-create",10);
-                        startup_textures->note_ui("window-create",restore->ui_window());
+                        restore_window=restore->ui_window();
+                        startup_textures->note_ui("window-create",restore_window);
                         restore_checkpoint("restore-constructor-return");
                         restore_traversal=0;restore_manager_alive=true;restore_draws_seen=startup_textures->session_draw_frames().size();
                         restore_frames.clear();
@@ -1561,8 +1564,10 @@ struct Session {
                     } else game_mode->request({8,1,0});
                     if(startup_textures&&startup_textures->stage()!=okage::ResourceStage::Unmodeled) {
                         //Wrapper phase 1 (D+2): 124930(root, 8, 1, 0). A loaded save is not modeled.
-                        if(!loaded&&title_modeled(okage::ResourceStage::RestoreManagerDead))
-                            startup_textures->note_mode_request(8,1,0);
+                        if(!loaded&&title_modeled(okage::ResourceStage::RestoreManagerDead)&&game_mode->requested()) {
+                            const auto r=*game_mode->requested(); //observed: what native queued
+                            startup_textures->note_mode_request(r[0],r[1],r[2]);
+                        }
                         else startup_textures->mark_unmodeled("Restore result other than the empty-card Cancel");
                     }
                     std::cout<<"Native Restore requested "<<(loaded?"saved field":"title")<<" frame="<<frame<<'\n';

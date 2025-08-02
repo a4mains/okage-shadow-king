@@ -10,6 +10,9 @@
 
 namespace okage {
 namespace {
+constexpr const char* kAsserted = ",\"asserted\":true}";
+}  // namespace
+namespace {
 
 // 0x221bf8: 31 names then 0, copied to the stack by 0x103718.
 const std::array<const char*, 31> effect_names{
@@ -557,15 +560,15 @@ void StartupTextureOwner::note_mode_resource_retire(unsigned selector, unsigned 
     require_modeled("resource destructor");
     sync();
     lifecycle_push("{\"kind\":\"mode\",\"op\":\"resource-retire\",\"mode\":" + std::to_string(mode) +
-                   ",\"selector\":" + std::to_string(selector) + "}");
-    lifecycle_push("{\"kind\":\"effect\",\"op\":\"remove-request\",\"slot\":-2}");  // 101240 -> 103640(-2)
+                   ",\"selector\":" + std::to_string(selector) + kAsserted);
+    lifecycle_push(std::string("{\"kind\":\"effect\",\"op\":\"remove-request\",\"slot\":-2") + kAsserted);  // 101240 -> 103640(-2)
 }
 
 void StartupTextureOwner::note_mode_destroy(unsigned selector, unsigned mode) {
     require_modeled("mode destructor");
     sync();
     lifecycle_push("{\"kind\":\"mode\",\"op\":\"destroy\",\"mode\":" + std::to_string(mode) +
-                   ",\"selector\":" + std::to_string(selector) + "}");
+                   ",\"selector\":" + std::to_string(selector) + kAsserted);
 }
 
 void StartupTextureOwner::note_mode_wrapper_free(unsigned selector, unsigned mode) {
@@ -573,12 +576,15 @@ void StartupTextureOwner::note_mode_wrapper_free(unsigned selector, unsigned mod
     sync();
     for (const char* node : {"resource", mode == 8 ? "mode8" : "mode10"})
         lifecycle_push(std::string("{\"kind\":\"mode\",\"op\":\"wrapper-free\",\"node\":\"") + node +
-                       "\",\"mode\":" + std::to_string(mode) + ",\"selector\":" + std::to_string(selector) + "}");
+                       "\",\"mode\":" + std::to_string(mode) + ",\"selector\":" + std::to_string(selector) + kAsserted);
 }
 
 void StartupTextureOwner::note_session_draw(std::uint32_t state, std::uint32_t frame, unsigned site) {
     if (!record_ || stage_ == ResourceStage::Unmodeled || coverage_ != StartupCoverage::PreSchedulerOnly) return;
-    if (rng_log_.size() >= StartupRandomStream::log_limit) throw std::runtime_error("session RNG log limit");
+    if (rng_log_.size() >= StartupRandomStream::log_limit) {
+        mark_unmodeled("session RNG log limit reached (draws past it are not logged)");
+        return;
+    }
     const bool restore = stage_ >= ResourceStage::RestoreActive && stage_ <= ResourceStage::RestoreWrappersFreed;
     const auto phase = !restore || site == 0 ? StartupRngPhase::Session
                        : site == 1 ? StartupRngPhase::RestoreUiGlyph
@@ -636,25 +642,26 @@ void StartupTextureOwner::note_ui(const std::string& op, int value) {
     const char* key = op == "state" ? "state" : op == "window-create" || op == "window-death" ? "window" : "mode";
     std::string row = "{\"kind\":\"ui\",\"op\":\"" + op + "\",\"" + key + "\":" + std::to_string(value);
     if (op == "manager-create") row += ",\"windows\":1";
-    lifecycle_push(row + "}");
+    lifecycle_push(row + (op == "manager-create" || op == "manager-destroy" ? kAsserted : "}"));
 }
 
 void StartupTextureOwner::note_manager_free() {
     require_stage(ResourceStage::RestoreManagerDead, "Restore manager free");
     sync();
+    // Observed: native's own manager unlink traversal (D+1).
     lifecycle_push("{\"kind\":\"mode\",\"op\":\"wrapper-free\",\"node\":\"manager\",\"mode\":10,\"selector\":0}");
 }
 
 void StartupTextureOwner::free_restore_resource_node() {
     require_stage(ResourceStage::RestoreResourcesRetired, "Restore resource node free");
     sync();
-    lifecycle_push("{\"kind\":\"mode\",\"op\":\"wrapper-free\",\"node\":\"resource\",\"mode\":10,\"selector\":0}");
+    lifecycle_push(std::string("{\"kind\":\"mode\",\"op\":\"wrapper-free\",\"node\":\"resource\",\"mode\":10,\"selector\":0") + kAsserted);
 }
 
 void StartupTextureOwner::free_restore_wrappers() {
     require_stage(ResourceStage::RestoreResourcesRetired, "Restore wrapper free");
     sync();
-    lifecycle_push("{\"kind\":\"mode\",\"op\":\"wrapper-free\",\"node\":\"mode10\",\"mode\":10,\"selector\":0}");
+    lifecycle_push(std::string("{\"kind\":\"mode\",\"op\":\"wrapper-free\",\"node\":\"mode10\",\"mode\":10,\"selector\":0") + kAsserted);
     advance(ResourceStage::RestoreWrappersFreed);
 }
 
@@ -921,16 +928,22 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
             return line.rfind("{\"kind\":\"upload-bytes\"", 0) == 0 || line.rfind("{\"kind\":\"ui\"", 0) == 0 ||
                    line.rfind("{\"kind\":\"glyph\"", 0) == 0;
         };
+        const auto plain = [&](const std::string& line) {  // earlier schemas have no provenance key
+            if (restore_rows) return line;
+            const std::string key = ",\"asserted\":true}";
+            return line.size() >= key.size() && line.compare(line.size() - key.size(), key.size(), key) == 0
+                       ? line.substr(0, line.size() - key.size()) + "}" : line;
+        };
         std::ofstream lc(dir / "lifecycle.jsonl", std::ios::binary);
         for (const auto& line : owner.lifecycle())
-            if (restore_rows || !restore_only(line)) lc << line << "\n";
+            if (restore_rows || !restore_only(line)) lc << plain(line) << "\n";
         if (session_schema) {
             std::ofstream tl(dir / "timeline.jsonl", std::ios::binary);
             for (const auto& line : owner.lifecycle())
                 if ((!checkpoint.empty() && (restore_rows || !restore_only(line))) ||
                     (checkpoint.empty() && line.rfind("{\"kind\":\"mode\"", 0) != 0 &&
                      line.rfind("{\"kind\":\"effect\"", 0) != 0 && !restore_only(line)))
-                    tl << line << "\n";
+                    tl << plain(line) << "\n";
         }
         std::ofstream tl(dir / (session_schema ? "startup-timeline.jsonl" : "timeline.jsonl"), std::ios::binary);
         for (const auto& e : owner.timeline()) {
