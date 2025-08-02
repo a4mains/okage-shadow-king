@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include "okage/texture_transfer.hpp"
+#include "okage/sha256.hpp"
 
 namespace okage {
 namespace {
@@ -154,7 +155,9 @@ int TextureHandleOwner::create_image(GsPixelStorage psm, std::uint16_t width, st
     }
     if (!pixels.empty()) {
         upload_allocation_image(*memory_, a->id, pixels);
-        log_event({HandleEvent::Kind::Upload, a->id, std::int64_t(qwc) * 16});
+        // b = bytes the transfer sends (qwc*16 from the start), text = their SHA-256.
+        const auto sent = pixels.first(std::size_t(qwc) * 16);
+        log_event({HandleEvent::Kind::Upload, a->id, std::int64_t(sent.size()), 0, sha256_hex(sent)});
     }
     return handle;
 }
@@ -186,7 +189,10 @@ OptDescriptor TextureHandleOwner::make_palette(std::uint32_t count,
     log_allocation(*a);
     upload_clut(*memory_, a->id, count, level_bytes);
     uploaded = true;
-    log_event({HandleEvent::Kind::Upload, a->id, std::int64_t(clut_rect_rows(count)) * 64});
+    // The rows*16-pixel PSMCT32 rectangle of the zero-filled scratch is what the transfer sends.
+    const auto scratch = clut_scratch(count, level_bytes);
+    const auto sent = std::span<const std::uint8_t>(scratch).first(std::size_t(clut_rect_rows(count)) * 64);
+    log_event({HandleEvent::Kind::Upload, a->id, std::int64_t(sent.size()), 0, sha256_hex(sent)});
     return TextureDescriptor{a->id, a->serial};
 }
 

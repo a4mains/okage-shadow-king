@@ -80,6 +80,7 @@ struct RestoreSession::Impl {
     std::array<std::string,3> pending_errors;
     std::optional<SavePayload> loaded;
     std::string load_error,status;
+    RestoreSession::FrameObservation frame;
     const Texture* output=nullptr;
     NativeLoadQueue jobs;
     Impl(SceneClearColor& clear,SceneFade& fade,BattleUiShared& u,RestoreShared& s,RestoreConstruction c)
@@ -140,6 +141,7 @@ struct RestoreSession::Impl {
         if(shared.state>0&&shared.previous_opacity!=window().opacity()) {
             shared.previous_opacity=window().opacity();++words[0xe8c/4];return;
         }
+        if(shared.state>0) {frame.gate_open=true;frame.pressed=input.pressed;}
         const bool buttons_centered=x>=-99&&x<=99&&y>=-99&&y<=99&&(input.held==0x20||input.held==0x40);
         switch(shared.state) {
         case 0:
@@ -334,9 +336,16 @@ void RestoreSession::tick(BattleUiPadInput input,std::span<std::uint8_t> variabl
     if(p.manager&&!p.dead)bindings.push_back({unsigned(p.handle),0});
     const auto draw=ui.resource.advance_resource(ui.registry,bindings,ui.resource_accumulators,p.fonts,sine,random,p.ui_projection);
     p.output=&p.renderer->render(draw,fade);
-    if(unlink)p.manager=false;
-    else if(p.manager){p.first(input,sound);p.second(variables,tables);if(p.dead)p.destroy_window();}
+    if(unlink){p.manager=false;p.frame={};}
+    else if(p.manager){
+        p.frame={};p.frame.manager_ran=true;p.frame.state_in=p.shared.state;
+        p.first(input,sound);p.frame.state_out=p.shared.state;
+        p.second(variables,tables);p.frame.update_state_out=p.shared.state;
+        if(p.dead)p.destroy_window();
+    } else p.frame={};
 }
+const RestoreSession::FrameObservation& RestoreSession::last_frame() const{return impl_->frame;}
+int RestoreSession::ui_window() const{return impl_->handle;}
 void RestoreSession::tick_save(BattleUiPadInput input,std::span<std::uint8_t> variables,const GameDataTables& tables,
     SceneFade& fade,const Texture& background,const SineTable& sine,GameRandom& random,
     const std::function<void(unsigned)>& sound,const std::function<void(bool)>& publish_result) {

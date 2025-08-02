@@ -15,6 +15,7 @@
 #include "chapter_session.hpp"
 #include "startup_session.hpp"
 #include "okage/title_stream.hpp"
+#include "okage/rng_site.hpp"
 #include "results_renderer.hpp"
 #include "okage/results_interface.hpp"
 #include "okage/load_queue.hpp"
@@ -172,23 +173,65 @@ struct Session {
     std::string startup_textures_status="not initialized (no cold startup)";
     fs::path startup_texture_report,resource_report,retirement_report,restore_report;
     std::vector<std::pair<std::string,unsigned>> restore_checkpoint_frames;
-    void restore_checkpoint(const char* name) {
-        startup_textures->note_checkpoint(name);
+    void restore_checkpoint(const char* name,bool marker=true) {
+        if(marker)startup_textures->note_checkpoint(name);
         restore_checkpoint_frames.emplace_back(name,frame);
         if(restore_report.empty())return;
-        okage::write_title_checkpoint_report(*startup_textures,restore_report/name,name,random.state);
+        okage::write_title_checkpoint_report(*startup_textures,restore_report/name,name,random.state,true);
         if(std::string_view(name)!="second-title-return")return;
         std::ofstream out(restore_report/"route.json",std::ios::binary);
         out<<"{\"route\":\"restore-cancel\",\"elf_sha256\":\""<<okage::startup_input_elf_sha256()<<"\",\"checkpoints\":{";
         for(std::size_t i=0;i<restore_checkpoint_frames.size();++i)
             out<<(i?",":"")<<"\""<<restore_checkpoint_frames[i].first<<"\":"<<restore_checkpoint_frames[i].second;
         out<<"}}\n";
+        std::ofstream frames_out(restore_report/"manager-frames.jsonl",std::ios::binary);
+        for(const auto& row:restore_frames)frames_out<<row<<'\n';
+        if(!frames_out)throw std::runtime_error("Restore manager frames write failed");
         std::ofstream draws(restore_report/"session-draw-frames.jsonl",std::ios::binary);
         const auto& frames=startup_textures->session_draw_frames();
         for(std::size_t i=0;i<frames.size();++i)draws<<"{\"session_draw\":"<<i<<",\"frame\":"<<frames[i]<<"}\n";
         if(!out||!draws)throw std::runtime_error("Restore route report write failed");
     }
     unsigned startup_selector=0,restore_storage_latency_ms=0;
+    //Restore per-traversal Restore observation (t = 0 at the construction traversal S).
+    unsigned restore_traversal=0;bool restore_manager_alive=false;std::size_t restore_draws_seen=0;
+    std::optional<unsigned> restore_ready_frame;
+    std::vector<std::string> restore_frames;
+    void observe_restore_tick() {
+        auto& o=*startup_textures;
+        const auto& draws=o.session_draw_frames();
+        const auto drawn=draws.size()-restore_draws_seen;restore_draws_seen=draws.size();
+        if(o.stage()==okage::ResourceStage::RestoreActive) {
+            //0x102218 in the Restore resource child's first tick frees the reclaim-pending water job.
+            if(retiring_effects)for(const unsigned slot:retiring_effects->last_reclaimed)o.note_effect_reclaim(int(slot));
+            if(restore_traversal==0)restore_checkpoint("first-layout"); //return of S's 0x100f90 (layout ran)
+            if(restore->saved_slots_present()){o.mark_unmodeled("saved-slot display is not modeled");return;}
+        }
+        const auto& f=restore->last_frame();
+        if(!f.manager_ran) {
+            //D+1: the dead manager node is unlinked and freed (0x1bdaf0 from the scheduler).
+            if(restore_manager_alive&&o.stage()==okage::ResourceStage::RestoreManagerDead)o.note_manager_free();
+            restore_manager_alive=false;++restore_traversal;return;
+        }
+        //Entry of the first 0x11e480 with state 0x21c and the fade-in gate open.
+        if(f.gate_open&&f.state_in==540&&std::none_of(restore_checkpoint_frames.begin(),restore_checkpoint_frames.end(),
+            [](const auto& c){return c.first=="empty-ready";}))
+            {restore_checkpoint("empty-ready");restore_ready_frame=frame;}
+        if(f.state_out!=f.state_in)o.note_ui("state",f.state_out);
+        if(f.update_state_out!=f.state_out)o.note_ui("state",f.update_state_out);
+        restore_frames.push_back("{\"t\":"+std::to_string(restore_traversal)+",\"state_in\":"+std::to_string(f.state_in)+
+            ",\"state_out\":"+std::to_string(f.state_out)+",\"update_state_out\":"+std::to_string(f.update_state_out)+
+            ",\"gate_open\":"+(f.gate_open?"true":"false")+",\"pressed\":"+(f.pressed?std::to_string(*f.pressed):"null")+
+            ",\"draws\":"+std::to_string(drawn)+"}");
+        if(restore->dead()) {
+            //D: 11e480 published (4,0,0); 120b48 (manager-destroy), then 199458 window death.
+            o.restore_manager_death();
+            restore_checkpoint("cancel-death"); //entry of 120b48, before its rows
+            o.note_ui("manager-destroy",10);
+            o.note_ui("window-death",0);
+        }
+        ++restore_traversal;
+    }
     unsigned title_updates=0;bool first_title=false;
     std::vector<std::string> title_update_log;
     std::optional<unsigned> next_first_title_update() const {
@@ -673,7 +716,7 @@ struct Session {
         initialize_startup_textures(root);
         random.observe=[](void* self,std::uint32_t state){
             auto& s=*static_cast<decltype(this)>(self);
-            if(s.startup_textures)s.startup_textures->note_session_draw(state,s.frame);
+            if(s.startup_textures)s.startup_textures->note_session_draw(state,s.frame,unsigned(okage::current_rng_site));
         };
         random.observe_context=this;
         effects_loaded=true;
@@ -1224,7 +1267,8 @@ struct Session {
                     //D+3: 101058, then wrapper dtor 124448 -> 1cca30(wrapper+0x30).
                     if(title_modeled(okage::ResourceStage::RestoreManagerDead)) {
                         startup_textures->retire_restore_resources();
-                        restore_checkpoint("resource-retirement");
+                        restore_checkpoint("resource-retirement"); //entry of 124628, after 101058 returned
+                        startup_textures->release_restore_atlas();
                     } else if(startup_textures)startup_textures->mark_unmodeled("Restore retired outside the modeled route");
                     std::cout<<"Native Restore retired frame="<<frame<<'\n';
                 }
@@ -1268,8 +1312,9 @@ struct Session {
                     if(restore->resource_live())throw std::runtime_error("Restore free before retirement");
                     restore.reset();
                     if(title_modeled(okage::ResourceStage::RestoreResourcesRetired)) {
-                        startup_textures->free_restore_wrappers();
+                        startup_textures->free_restore_resource_node();
                         restore_checkpoint("wrapper-free");
+                        startup_textures->free_restore_wrappers();
                     }
                 }
                 if(name_entry) {
@@ -1306,6 +1351,7 @@ struct Session {
                     if(selection==okage::GameModeSelection{startup_textures->successor_mode(),0,0}) {
                         startup_textures->enter_successor(selection[0]);
                         title_checkpoint("successor-entry");
+                        if(selection[0]==10)restore_checkpoint("retire-successor-entry",false); //same instant, Restore report
                         write_title_route();
                         //Restore continues Restore (mode 10) on the same owner; New Game stays unmodeled.
                         if(selection[0]!=10)startup_textures->mark_unmodeled("New Game constructor body (124548) is not modeled");
@@ -1340,7 +1386,14 @@ struct Session {
                         construction.atlas_bytes=atlas;
                     } else if(startup_textures)startup_textures->mark_unmodeled("Restore constructed outside the modeled route");
                     restore=std::make_unique<okage::RestoreSession>(scene_clear,scene_fade,ui_shared,restore_shared,std::move(construction));
-                    if(title_modeled(okage::ResourceStage::RestoreActive))restore_checkpoint("restore-constructor-return");
+                    if(title_modeled(okage::ResourceStage::RestoreActive)) {
+                        //11f5f8 -> 11f668: the manager and its single window, then 124548 returns.
+                        startup_textures->note_ui("manager-create",10);
+                        startup_textures->note_ui("window-create",restore->ui_window());
+                        restore_checkpoint("restore-constructor-return");
+                        restore_traversal=0;restore_manager_alive=true;restore_draws_seen=startup_textures->session_draw_frames().size();
+                        restore_frames.clear();
+                    }
                     std::cout<<"Native Restore constructed frame="<<frame<<'\n';return;
                 }
                 if(selection==okage::GameModeSelection{9,0,0}) {
@@ -1514,15 +1567,8 @@ struct Session {
                     }
                     std::cout<<"Native Restore requested "<<(loaded?"saved field":"title")<<" frame="<<frame<<'\n';
                 });
-            if(title_modeled(okage::ResourceStage::RestoreActive)) {
-                //0x102218 in the Restore resource child's first tick frees the reclaim-pending water job.
-                if(retiring_effects)for(const unsigned slot:retiring_effects->last_reclaimed)startup_textures->note_effect_reclaim(int(slot));
-                if(restore->saved_slots_present())startup_textures->mark_unmodeled("saved-slot display is not modeled");
-                else if(restore->dead()) {
-                    startup_textures->restore_manager_death();
-                    restore_checkpoint("cancel-death");
-                }
-            }
+            if(title_modeled(okage::ResourceStage::RestoreActive)||title_modeled(okage::ResourceStage::RestoreManagerDead))
+                observe_restore_tick();
             const auto observation=restore->observation();restore_trace.push_back(frame);
             restore_trace.insert(restore_trace.end(),observation.begin(),observation.end());
         }
@@ -2737,7 +2783,7 @@ int main(int argc,const char** argv) {
     try {
         if(argc<3)throw std::runtime_error("Usage: okage-native --game-data DIRECTORY [--save-directory DIRECTORY] OR okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --buttons INPUT (held non-directional masks; bounded replay only) --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--load-observation FRESH.jsonl (bounded replay; host scheduling diagnostics)] [--battle-readback synchronous|deferred (replay policy; live always deferred)] [--replay-loading continuous|cooperative (cooperative requires deferred readback)] [--replay-display-from N (bounded cooperative replay; real host display callbacks and full rendering from N)] [--performance-report FRESH.jsonl (interactive/preview/UI test)] [--input-journal FRESH.jsonl] [--input-log FRESH.jsonl (path/sha256 of every asset read)] [--title-retirement-report FRESH_DIRECTORY (Retire title checkpoints)] [--restore-cancel-report FRESH_DIRECTORY (Restore checkpoints)] [--pause-captures FRESH_DIRECTORY (interactive diagnostics, not saved games)] [--headless-control FRESH_DIRECTORY (stdin controller steps after --frames; no window)]");
         const bool coldStart=std::string_view(argv[1])=="--game-data";
-        fs::path gameDataRoot,saveDirectory,startupTextureReport,titleResourceReport,titleRetirementReport,restoreCancelReport;unsigned restoreStorageLatency=0;
+        fs::path gameDataRoot,saveDirectory,startupTextureReport,titleResourceReport,titleRetirementReport,restoreCancelReport;unsigned restoreStorageLatency=0;bool cancelAfterReady=false;
         fs::path fontDirectory=coldStart?fs::path{}:fs::path(argv[1]),messagePath=coldStart?fs::path{}:fs::path(argv[2]);
         unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions,buttons,titleScript;bool hasButtons=false;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures,battleInput;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         std::optional<fs::path> performancePath,inputJournalPath,pauseCapturePath,headlessControlPath;
@@ -2758,6 +2804,10 @@ int main(int argc,const char** argv) {
             else if(arg=="--title-resource-report")titleResourceReport=argv[i];
             else if(arg=="--title-retirement-report")titleRetirementReport=argv[i];
             else if(arg=="--restore-cancel-report")restoreCancelReport=argv[i];
+            else if(arg=="--restore-cancel-after-ready") {
+                const std::string v=argv[i];if(v!="1")throw std::runtime_error("--restore-cancel-after-ready takes 1");
+                cancelAfterReady=true;
+            }
             else if(arg=="--restore-storage-latency-ms")restoreStorageLatency=unsigned(std::stoul(argv[i])); //research regression
             else if(arg=="--title-pad-script") {
                 if(!titleScript.entries.empty())throw std::runtime_error("Duplicate title pad script");
@@ -3028,6 +3078,9 @@ int main(int argc,const char** argv) {
                 const std::uint16_t mask=std::find(presses.begin(),presses.end(),i)!=presses.end()?0x40:0;
                 auto held=std::uint16_t(directions.held(i)|buttons.held(i));
                 if(const auto n=session.next_first_title_update())held|=titleScript.held(*n);
+                //Research replay (the original observer's Restore rule): Cancel held for the one traversal
+                //after the first input-accepting 0x21c traversal, released after it is consumed.
+                if(cancelAfterReady&&session.restore_ready_frame&&*session.restore_ready_frame+1==i)held|=0x20;
                 const bool completed=session.tick({std::uint16_t(mask|held),std::uint16_t(mask|(held&~previous))},
                     !cooperativeReplay.value_or(false));
                 previous=held;

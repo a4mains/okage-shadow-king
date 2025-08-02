@@ -63,7 +63,8 @@ struct StartupTextureInputs {
     bool record_observations{};
 };
 
-enum class StartupRngPhase : std::uint8_t { Noise, EffectGrid, EffectTemplate, Session };  // Session: after 0x100618
+enum class StartupRngPhase : std::uint8_t { Noise, EffectGrid, EffectTemplate, Session,
+                                            RestoreUiGlyph, RestoreUiIcon, RestoreUiSelect };
 const char* to_string(StartupRngPhase);
 struct StartupRandomDraw {
     StartupRngPhase phase{};
@@ -158,14 +159,15 @@ public:
     void note_effect_removal_request(int slot);
     // 0x102218 armed 0x200 on the requested job (same traversal): reclaim pending. State only.
     void note_effect_reclaim_armed(int slot);
-    struct EffectObservation { int slot{-1}; const char* state{}; std::vector<int> element_handles; };
+    // After reclamation the job memory is gone: shape unknown (null) and no element handles.
+    struct EffectObservation { int slot{-1}; const char* state{}; std::vector<int> element_handles; bool shape_known{true}; };
     const std::optional<EffectObservation>& effect106() const noexcept { return effect106_; }
     void note_mode_request(unsigned mode, unsigned selector, unsigned arg);
     void note_mode_resource_retire(unsigned selector, unsigned mode = 8);  // also logs 101240 -> 103640(-2)
     void note_mode_destroy(unsigned selector, unsigned mode = 8);
     void note_mode_wrapper_free(unsigned selector, unsigned mode = 8);
     // Session generator draws after the prefix (GameRandom::observe), in order, with the native frame.
-    void note_session_draw(std::uint32_t state, std::uint32_t frame);
+    void note_session_draw(std::uint32_t state, std::uint32_t frame, unsigned site = 0);  // site: RngSite value
     const std::vector<std::uint32_t>& session_draw_frames() const noexcept { return session_draw_frames_; }
     int construct_restore(const std::vector<std::uint8_t>& atlas);
     int restore_atlas() const noexcept { return restore_atlas_; }
@@ -173,8 +175,15 @@ public:
     void note_effect_reclaim(int slot);
     // D: 11e690 state -2, 1248d8(4,0,0), manager dead; window destroyed (fonts are not freed).
     void restore_manager_death();
-    // D+3: resource child 101058, then wrapper dtor 124448: 1a9888(0), 199e88(0), 1cca30(+0x30).
+    // D+3: resource child 101058 (resource-retire, 103640(-2)), then entry of the wrapper dtor
+    // 124628/124448 (destroy row); release_restore_atlas() is its 1cca30(+0x30) tail.
     void retire_restore_resources();
+    void release_restore_atlas();  // logs the 124628 destroy row (entry), then 1cca30(+0x30)
+    void note_ui(const std::string& op, int value);
+    void note_manager_free();
+    // free_restore_wrappers() in two steps around the wrapper-free checkpoint (entry of the
+    // 0x1bdaf0 that frees the wrapper node): the resource node row, then the wrapper node row.
+    void free_restore_resource_node();
     // D+4: resource node then wrapper node freed.
     void free_restore_wrappers();
     bool second_title() const noexcept { return second_title_; }
@@ -271,7 +280,8 @@ private:
 void write_startup_texture_report(const StartupTextureOwner& owner, const std::filesystem::path& dir);
 void write_session_resource_report(const StartupTextureOwner& owner, const std::filesystem::path& dir);
 void write_title_checkpoint_report(const StartupTextureOwner& owner, const std::filesystem::path& dir,
-                                   const std::string& checkpoint, std::uint32_t session_rng_state);
+                                   const std::string& checkpoint, std::uint32_t session_rng_state,
+                                   bool restore_schema = false);
 
 void write_effect_preparation_report(const EffectTemplatePreparation& prepared, const EffectPreparationTrace& trace,
                                      const std::filesystem::path& dir);

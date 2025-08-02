@@ -45,8 +45,11 @@ NATIVE_DIR (the Retire layout, extended minimally; the Restore native report lay
 Result (exit status): 0 IDENTICAL; 1 DIFFERENT (any lifecycle/state/effect/VRAM difference, stream inconsistency or
 incomplete coverage, or per-traversal/RNG differences with equal timing anchors); 2 MALFORMED/unpinned/identity
 mismatch/self-comparison; 3 TIMING-DIFFERENT (every checkpoint's lifecycle/state/effect/VRAM is identical, but the
-Restore timing anchors (empty-ready, Cancel or death traversal, or the number of traversals) differ, so per-traversal
-and RNG parity are UNRESOLVED: the label is inconclusive about other behaviour and never a fixed-frame equality);
+Restore timing anchors (empty-ready, Cancel or death traversal, number of traversals, or the card-readiness
+traversals card_info_t/card_ready_t, which are IO/observer dependent) differ, AND the timing diagnostic holds: the
+same LCG states/values over the common prefix and one status -> call-site-label pass pattern per displayed status,
+identical on both sides. Per-traversal and RNG parity are then UNRESOLVED: the label is inconclusive about other
+behaviour and never a fixed-frame equality. If the diagnostic fails the result is DIFFERENT);
 4 UNPROVEN (identical only through asserted rows). Research tool; never product input.
 """
 import argparse
@@ -288,6 +291,27 @@ def anchors(rows):
     death = next((r['t'] for r in rows if r['state_in'] is not None and r['state_in'] < 0 and r['state_out'] == 0), None)
     return {'empty_ready_t': ready, 'cancel_t': cancel, 'death_t': death, 'traversals': len(rows)}
 
+def readiness(rows):
+    """Card readiness traversals (Restore lead): first 11c2c8 return in 0x212 (card info done) and in 0x21c
+    (slot scan done). Observer/IO dependent in the original as well (report section 2.1)."""
+    info = next((r['t'] for r in rows if r['update_state_out'] == 0x212), None)
+    ready = next((r['t'] for r in rows if r['update_state_out'] == 0x21c), None)
+    return {'card_info_t': info, 'card_ready_t': ready}
+
+def pass_model(rows, rng_rows):
+    """Map each traversal's RNG pass (call-site label sequence) to the status the layout shows: the
+    constructor pass at t=0, else the 11c2c8 state two traversals earlier (text published by 11c2c8 is
+    laid out two traversals later). Returns {status: labels} or None if one status has two patterns."""
+    model, i = {}, 0
+    for r in rows:
+        t = r['t']
+        key = 'constructor' if t == 0 else rows[max(t - 2, 0)]['update_state_out']
+        labels = tuple(x['phase'] for x in rng_rows[i:i + r['draws']])
+        i += r['draws']
+        if model.setdefault(key, labels) != labels:
+            return None
+    return model
+
 def compare_frames(orig, nat, out):
     first = next((i for i in range(max(len(orig), len(nat)))
                   if i >= len(orig) or i >= len(nat) or orig[i] != nat[i]), None)
@@ -439,8 +463,17 @@ def run(orig_dir, nat_dir, out=None, manifest=MANIFEST, strict=False):
         payload_bad = True
     ffirst = compare_frames(o_fr, n_fr, out)
     ao, an = anchors(o_fr), anchors(n_fr)
-    timing_differs = ao != an
-    print(f'  timing anchors: original {ao} | native {an}' + (' (DIFFERENT)' if timing_differs else ''), file=out)
+    ro, rn = readiness(o_fr), readiness(n_fr)
+    timing_differs = ao != an or ro != rn
+    print(f'  timing anchors: original {ao} {ro} | native {an} {rn}' + (' (DIFFERENT)' if timing_differs else ''), file=out)
+    o_all, n_all = loaded[CHECKPOINTS[-1]]['o_rng'], loaded[CHECKPOINTS[-1]]['n_rng']
+    lcg_same = all(a['state'] == b['state'] and a['value'] == b['value'] for a, b in zip(o_all, n_all))
+    prefix = len(loaded[CHECKPOINTS[0]]['o_rng'])
+    mo, mn = pass_model(o_fr, o_all[prefix:]), pass_model(n_fr, n_all[prefix:])
+    model_same = mo is not None and mn is not None and all(mo[k] == mn[k] for k in mo.keys() & mn.keys())
+    print(f'  timing diagnostic: LCG states/values equal over the common prefix: {lcg_same}; one pass pattern per '
+          f'displayed status on both sides and identical where shared: {model_same}'
+          + (f' (draws per pass: {dict((str(k), len(v)) for k, v in mo.items())})' if mo else ''), file=out)
     gaps = sum(c['vram']['coverage_gap_invalidated'] for c in result['checkpoints'].values())
     if strict and gaps:
         print(f'  strict: {gaps} coverage gaps are not accepted', file=out)
@@ -453,7 +486,7 @@ def run(orig_dir, nat_dir, out=None, manifest=MANIFEST, strict=False):
     per_frame_bad = rng_bad or ffirst is not None
     if payload_bad:
         label, code = 'DIFFERENT', 1
-    elif per_frame_bad and timing_differs:
+    elif per_frame_bad and timing_differs and lcg_same and model_same:
         label, code = 'TIMING-DIFFERENT', 3
         print('  lifecycle/state/effect/VRAM are identical at every checkpoint; the Restore timing anchors differ, so '
               'per-traversal and RNG parity are UNRESOLVED (inconclusive about any other behaviour; not an equality)',
@@ -466,7 +499,8 @@ def run(orig_dir, nat_dir, out=None, manifest=MANIFEST, strict=False):
     else:
         label, code = 'IDENTICAL', 0
     result.update({'manager_frames_first_difference': ffirst, 'manager_frames_coverage': cov, 'anchors_original': ao,
-                   'anchors_native': an, 'timing_differs': timing_differs, 'asserted': asserted_total,
+                   'anchors_native': an, 'readiness_original': ro, 'readiness_native': rn,
+                   'timing_diagnostic': {'lcg_same': lcg_same, 'pass_model_same': model_same}, 'timing_differs': timing_differs, 'asserted': asserted_total,
                    'coverage_gaps': gaps, 'result': label})
     print('RESULT: ' + label, file=out)
     return code, result

@@ -478,8 +478,11 @@ int main() {
             require(m.allocation(atlas_alloc).has_value(), "window death does not release the atlas");
             o.note_mode_request(8, 1, 0);
             o.retire_restore_resources();
+            require(m.allocation(atlas_alloc).has_value(), "the resource child (101058) releases nothing");
+            o.release_restore_atlas();
             require(!m.allocation(atlas_alloc) && o.restore_atlas() == -1 && o.handles().record_of(atlas) < 0,
                     "wrapper dtor releases the atlas (1cca30)");
+            o.free_restore_resource_node();
             o.free_restore_wrappers();
             // The second title starts from the live state: no reset, records continue from the free list.
             const auto live_before = o.handles().live_order().size();

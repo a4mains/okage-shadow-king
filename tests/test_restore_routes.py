@@ -33,8 +33,8 @@ class RestoreRoutes(unittest.TestCase):
     def run_route(self, tmp, route, extra=()):
         saves = tmp / "saves"
         saves.mkdir()
-        cmd = [NATIVE, "--game-data", str(STAGE), "--save-directory", str(saves),
-               "--buttons", str(ROUTES / route / "buttons.txt"), "--input-log", str(tmp / "reads.jsonl"),
+        pad = (["--buttons", str(ROUTES / route / "buttons.txt")] if (ROUTES / route / "buttons.txt").exists() else [])
+        cmd = [NATIVE, "--game-data", str(STAGE), "--save-directory", str(saves), *pad, "--input-log", str(tmp / "reads.jsonl"),
                "--restore-cancel-report", str(tmp / "report"), *extra, "--frames", "1300", "--capture", str(tmp / "f.png")]
         run = subprocess.run(cmd, capture_output=True, text=True, timeout=1800)
         out = run.stdout + run.stderr
@@ -57,12 +57,37 @@ class RestoreRoutes(unittest.TestCase):
             tmp = Path(tmp)
             out, route = self.run_route(tmp, "restore-cancel")
             self.assertEqual(route["checkpoints"]["cancel-death"] - 1210, 32)  # Cancel consumed at 1210
-            if ORIGINAL.is_dir() and (ROOT / "tools/restore_compare.py").exists():
-                import restore_compare as cmp
-                buf = io.StringIO()
-                with redirect_stdout(buf):
-                    code = cmp.main([str(ORIGINAL), str(tmp / "report")])
-                self.assertEqual(code, 0, buf.getvalue()[-4000:])
+            self.compare_original(tmp)
+
+    def compare_original(self, tmp):
+        """Every checkpoint's lifecycle/state/effect/VRAM must equal the original. Native card readiness
+        is earlier than the original's (host IO), so per-traversal/RNG parity is expected to be UNRESOLVED
+        (TIMING-DIFFERENT, exit 3) with the timing diagnostic holding; anything else fails."""
+        if not ORIGINAL.is_dir():
+            return
+        import restore_compare as cmp
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            code = cmp.main([str(ORIGINAL), str(tmp / "report"), "--json", str(tmp / "compare.json")])
+        self.assertIn(code, (0, 3), buf.getvalue()[-4000:])
+        result = json.loads((tmp / "compare.json").read_text())
+        for cp, c in result["checkpoints"].items():
+            self.assertTrue(c["events_identical"] and not c["state_differences"] and c["effect106_identical"]
+                            and not c["stream_inconsistent"], cp)
+        if code == 3:
+            self.assertTrue(result["timing_diagnostic"]["lcg_same"] and result["timing_diagnostic"]["pass_model_same"])
+
+    def test_restore_cancel_original_pad_rule(self):
+        # The original observer's inputs: title presses at title updates 2/84, Cancel on the traversal
+        # after the first input-accepting 0x21c traversal.
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            out, route = self.run_route(tmp, "scripted", [
+                "--title-pad-script", str(ROOT / "tests/data/retire-routes/restore-scripted/title-pad.txt"),
+                "--restore-cancel-after-ready", "1"])
+            c = route["checkpoints"]
+            self.assertEqual(c["cancel-death"] - c["empty-ready"], 33)  # Cancel read at ready+1, death 32 later
+            self.compare_original(tmp)
 
     def test_pending_scan_cancel(self):
         with tempfile.TemporaryDirectory() as tmp:

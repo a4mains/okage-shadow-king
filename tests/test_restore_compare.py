@@ -396,15 +396,14 @@ class SyntheticControls(unittest.TestCase):
         self.f.set_frames([dict(r, extra=1) for r in FRAMES])
         self.expect(2)
 
-    def test_timing_different(self):
-        # one more fade/scan traversal before readiness: anchors move, RNG differs; lifecycle/state/VRAM equal
+    def test_timing_difference_with_unexplained_rng_is_different(self):
         rows = [FRAMES[0], FRAMES[1], dict(FRAMES[1], t=2)] + [dict(r, t=r['t'] + 1) for r in FRAMES[2:]]
         self.f.set_frames(rows)
         for cp in CPS:
             if RNG_AT[cp] == 3:
                 self.f.rewrite(cp, 'rng.jsonl', RNG + [{'i': 3, 'phase': 'restore-ui-glyph', 'state': 1, 'value': 1}])
-        out = self.expect(3, 'RESULT: TIMING-DIFFERENT')
-        self.assertIn('UNRESOLVED', out)
+        out = self.expect(1, 'RESULT: DIFFERENT')
+        self.assertIn('timing diagnostic', out)
 
     def test_timing_different_with_corrupt_state_is_different(self):
         rows = [FRAMES[0], FRAMES[1], dict(FRAMES[1], t=2)] + [dict(r, t=r['t'] + 1) for r in FRAMES[2:]]
@@ -480,6 +479,42 @@ class SyntheticControls(unittest.TestCase):
             (self.f.nat / cp / 'vram.invalidated').write_bytes(bytes(inv))
         self.expect(0)
         self.expect(1, 'strict', strict=True)
+
+class TimingDiagnosticUnits(unittest.TestCase):
+    """readiness() and pass_model(): the card-readiness anchors and the status -> pass-label model."""
+
+    @staticmethod
+    def frames(updates, draws):
+        return [{'t': t, 'update_state_out': u, 'draws': d} for t, (u, d) in enumerate(zip(updates, draws))]
+
+    @staticmethod
+    def rng(labels):
+        return [{'phase': x} for x in labels]
+
+    def test_readiness(self):
+        f = self.frames([510, 530, 530, 540], [1, 1, 1, 1])
+        self.assertEqual(cmp.readiness(f), {'card_info_t': 1, 'card_ready_t': 3})
+
+    def test_consistent_shift_has_the_same_model(self):
+        # original: info at t2; native: info at t1 -> its 530 pass appears one traversal earlier
+        P = {'c': ['g'], 510: ['g', 'i'], 530: ['g', 'g', 'i'], 540: ['i']}
+        def run(updates):
+            f = self.frames(updates, [0] * len(updates))
+            labels = []
+            for r in f:
+                key = 'c' if r['t'] == 0 else f[max(r['t'] - 2, 0)]['update_state_out']
+                r['draws'] = len(P[key]); labels += P[key]
+            return f, self.rng(labels)
+        o, n = run([510, 510, 530, 540, 540, 540]), run([510, 530, 540, 540, 540, 540])
+        mo, mn = cmp.pass_model(*o), cmp.pass_model(*n)
+        self.assertIsNotNone(mo)
+        self.assertIsNotNone(mn)
+        self.assertTrue(all(mo[k] == mn[k] for k in mo.keys() & mn.keys()))
+
+    def test_relabelled_pass_breaks_the_model(self):
+        f = self.frames([510, 510, 510, 510], [2, 2, 2, 2])
+        r = self.rng(['g', 'g', 'g', 'i', 'g', 'i', 'i', 'g'])  # status 510 shows two different patterns
+        self.assertIsNone(cmp.pass_model(f, r))
 
 class OriginalDerivedControls(unittest.TestCase):
     """SYNTHETIC native-like fixture from the ORIGINAL extract; not native output."""

@@ -83,6 +83,9 @@ const char* to_string(StartupRngPhase p) {
         case StartupRngPhase::EffectGrid: return "effect-grid";
         case StartupRngPhase::EffectTemplate: return "effect-template";
         case StartupRngPhase::Session: return "session";
+        case StartupRngPhase::RestoreUiGlyph: return "restore-ui-glyph";
+        case StartupRngPhase::RestoreUiIcon: return "restore-ui-icon";
+        case StartupRngPhase::RestoreUiSelect: return "restore-ui-select";
     }
     return "unknown";
 }
@@ -145,7 +148,12 @@ void StartupTextureOwner::sync() {
                                ",\"psm\":" + n(e.c >> 48 & 0xff) + ",\"w\":" + n(e.c >> 24 & 0xffffff) +
                                ",\"h\":" + n(e.c & 0xffffff) + ",\"tbp\":" + n(e.b) + "}");
                 break;
-            case K::Upload: lifecycle_push("{\"kind\":\"upload\",\"alloc\":" + n(e.a) + "}"); break;
+            case K::Upload:
+                lifecycle_push("{\"kind\":\"upload\",\"alloc\":" + n(e.a) + "}");
+                if (!e.text.empty())  // Restore: the exact transmitted bytes (original 0x1c9b48 qwc*16 hash)
+                    lifecycle_push("{\"kind\":\"upload-bytes\",\"alloc\":" + n(e.a) + ",\"bytes\":" + n(e.b) +
+                                   ",\"sha256\":\"" + e.text + "\"}");
+                break;
             case K::DescriptorRetain:
                 lifecycle_push("{\"kind\":\"ref\",\"alloc\":" + n(e.a) + ",\"delta\":1,\"refs\":" + n(e.b) + "}");
                 break;
@@ -563,15 +571,19 @@ void StartupTextureOwner::note_mode_destroy(unsigned selector, unsigned mode) {
 void StartupTextureOwner::note_mode_wrapper_free(unsigned selector, unsigned mode) {
     require_modeled("wrapper free");
     sync();
-    for (const char* node : {"resource", "mode8"})
+    for (const char* node : {"resource", mode == 8 ? "mode8" : "mode10"})
         lifecycle_push(std::string("{\"kind\":\"mode\",\"op\":\"wrapper-free\",\"node\":\"") + node +
                        "\",\"mode\":" + std::to_string(mode) + ",\"selector\":" + std::to_string(selector) + "}");
 }
 
-void StartupTextureOwner::note_session_draw(std::uint32_t state, std::uint32_t frame) {
+void StartupTextureOwner::note_session_draw(std::uint32_t state, std::uint32_t frame, unsigned site) {
     if (!record_ || stage_ == ResourceStage::Unmodeled || coverage_ != StartupCoverage::PreSchedulerOnly) return;
     if (rng_log_.size() >= StartupRandomStream::log_limit) throw std::runtime_error("session RNG log limit");
-    rng_log_.push_back({StartupRngPhase::Session, state, state & 0x7fffffffu});
+    const bool restore = stage_ >= ResourceStage::RestoreActive && stage_ <= ResourceStage::RestoreWrappersFreed;
+    const auto phase = !restore || site == 0 ? StartupRngPhase::Session
+                       : site == 1 ? StartupRngPhase::RestoreUiGlyph
+                       : site == 2 ? StartupRngPhase::RestoreUiIcon : StartupRngPhase::RestoreUiSelect;
+    rng_log_.push_back({phase, state, state & 0x7fffffffu});
     session_draw_frames_.push_back(frame);
     ++rng_draws_;
 }
@@ -591,7 +603,11 @@ void StartupTextureOwner::note_effect_reclaim(int slot) {
     if (stage_ != ResourceStage::RestoreActive) throw std::logic_error("effect reclaim outside the Restore resource tick");
     sync();
     lifecycle_push("{\"kind\":\"effect\",\"op\":\"reclaim\",\"slot\":" + std::to_string(slot) + "}");
-    if (effect106_ && effect106_->slot == slot) effect106_->state = "reclaimed";
+    if (effect106_ && effect106_->slot == slot) {
+        effect106_->state = "reclaimed";
+        effect106_->shape_known = false;
+        effect106_->element_handles.clear();
+    }
 }
 
 void StartupTextureOwner::restore_manager_death() {
@@ -602,15 +618,43 @@ void StartupTextureOwner::restore_manager_death() {
 void StartupTextureOwner::retire_restore_resources() {
     require_stage(ResourceStage::RestoreManagerDead, "Restore resource retirement");
     note_mode_resource_retire(0, 10);
+}
+
+void StartupTextureOwner::release_restore_atlas() {
+    require_stage(ResourceStage::RestoreManagerDead, "Restore atlas release");
     note_mode_destroy(0, 10);
-    handles_.retire(restore_atlas_);   // 1cca30(wrapper+0x30): image then CLUT freed, never hashed
+    sync();
+    handles_.retire(restore_atlas_);   // 124448 tail 1cca30(wrapper+0x30): image then CLUT freed, never hashed
     restore_atlas_ = -1;
     advance(ResourceStage::RestoreResourcesRetired);
 }
 
+void StartupTextureOwner::note_ui(const std::string& op, int value) {
+    if (stage_ != ResourceStage::RestoreActive && stage_ != ResourceStage::RestoreManagerDead)
+        throw std::logic_error("Restore UI row outside the Restore stages");
+    sync();
+    const char* key = op == "state" ? "state" : op == "window-create" || op == "window-death" ? "window" : "mode";
+    std::string row = "{\"kind\":\"ui\",\"op\":\"" + op + "\",\"" + key + "\":" + std::to_string(value);
+    if (op == "manager-create") row += ",\"windows\":1";
+    lifecycle_push(row + "}");
+}
+
+void StartupTextureOwner::note_manager_free() {
+    require_stage(ResourceStage::RestoreManagerDead, "Restore manager free");
+    sync();
+    lifecycle_push("{\"kind\":\"mode\",\"op\":\"wrapper-free\",\"node\":\"manager\",\"mode\":10,\"selector\":0}");
+}
+
+void StartupTextureOwner::free_restore_resource_node() {
+    require_stage(ResourceStage::RestoreResourcesRetired, "Restore resource node free");
+    sync();
+    lifecycle_push("{\"kind\":\"mode\",\"op\":\"wrapper-free\",\"node\":\"resource\",\"mode\":10,\"selector\":0}");
+}
+
 void StartupTextureOwner::free_restore_wrappers() {
     require_stage(ResourceStage::RestoreResourcesRetired, "Restore wrapper free");
-    note_mode_wrapper_free(0, 10);
+    sync();
+    lifecycle_push("{\"kind\":\"mode\",\"op\":\"wrapper-free\",\"node\":\"mode10\",\"mode\":10,\"selector\":0}");
     advance(ResourceStage::RestoreWrappersFreed);
 }
 
@@ -737,7 +781,7 @@ void write_effect_preparation_report(const EffectTemplatePreparation& prepared, 
 
 namespace {
 void write_report(const StartupTextureOwner& owner, const std::filesystem::path& dir, bool session_schema,
-                  const std::string& checkpoint = {}, std::uint32_t session_rng_state = 0);
+                  const std::string& checkpoint = {}, std::uint32_t session_rng_state = 0, bool restore_schema = false);
 }
 
 void write_startup_texture_report(const StartupTextureOwner& owner, const std::filesystem::path& dir) {
@@ -749,14 +793,14 @@ void write_session_resource_report(const StartupTextureOwner& owner, const std::
 }
 
 void write_title_checkpoint_report(const StartupTextureOwner& owner, const std::filesystem::path& dir,
-                                   const std::string& checkpoint, std::uint32_t session_rng_state) {
+                                   const std::string& checkpoint, std::uint32_t session_rng_state, bool restore_schema) {
     if (checkpoint.empty()) throw std::logic_error("title checkpoint report needs a checkpoint name");
-    write_report(owner, dir, true, checkpoint, session_rng_state);
+    write_report(owner, dir, true, checkpoint, session_rng_state, restore_schema);
 }
 
 namespace {
 void write_report(const StartupTextureOwner& owner, const std::filesystem::path& dir, bool session_schema,
-                  const std::string& checkpoint, std::uint32_t session_rng_state) {
+                  const std::string& checkpoint, std::uint32_t session_rng_state, bool restore_schema) {
     namespace fs = std::filesystem;
     if (fs::exists(dir)) throw std::runtime_error("startup texture report directory already exists");
     fs::create_directories(dir);
@@ -768,7 +812,7 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
     };
     if (session_schema && !checkpoint.empty()) {
         // Retire: a title checkpoint between the first 1296f8 and entry of 124548.
-        const bool restore = owner.stage() >= ResourceStage::RestoreActive || owner.second_title();
+        const bool restore = restore_schema;
         const bool second_return = owner.second_title() && owner.stage() == ResourceStage::TitleConstructed;
         if ((!second_return && (owner.stage() < ResourceStage::TitleActive || owner.stage() == ResourceStage::Unmodeled)) ||
             owner.memory_coverage() != MemoryContentCoverage::DrawTargetsInvalidated)
@@ -872,13 +916,20 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
         for (const auto& d : owner.rng_log())
             rng << "{\"i\":" << i++ << ",\"phase\":\"" << to_string(d.phase) << "\",\"state\":" << d.state
                 << ",\"value\":" << d.value << "}\n";
+        const bool restore_rows = session_schema && !checkpoint.empty() && restore_schema;
+        const auto restore_only = [](const std::string& line) {
+            return line.rfind("{\"kind\":\"upload-bytes\"", 0) == 0 || line.rfind("{\"kind\":\"ui\"", 0) == 0 ||
+                   line.rfind("{\"kind\":\"glyph\"", 0) == 0;
+        };
         std::ofstream lc(dir / "lifecycle.jsonl", std::ios::binary);
-        for (const auto& line : owner.lifecycle()) lc << line << "\n";
+        for (const auto& line : owner.lifecycle())
+            if (restore_rows || !restore_only(line)) lc << line << "\n";
         if (session_schema) {
             std::ofstream tl(dir / "timeline.jsonl", std::ios::binary);
             for (const auto& line : owner.lifecycle())
-                if (!checkpoint.empty() || (line.rfind("{\"kind\":\"mode\"", 0) != 0 &&
-                                            line.rfind("{\"kind\":\"effect\"", 0) != 0))
+                if ((!checkpoint.empty() && (restore_rows || !restore_only(line))) ||
+                    (checkpoint.empty() && line.rfind("{\"kind\":\"mode\"", 0) != 0 &&
+                     line.rfind("{\"kind\":\"effect\"", 0) != 0 && !restore_only(line)))
                     tl << line << "\n";
         }
         std::ofstream tl(dir / (session_schema ? "startup-timeline.jsonl" : "timeline.jsonl"), std::ios::binary);
@@ -917,7 +968,8 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
         std::ostringstream e;
         e << "{\"effect106\":";
         if (const auto& w = owner.effect106()) {
-            e << "{\"slot\":" << w->slot << ",\"shape\":106,\"state\":\"" << w->state << "\",\"element_handles\":[";
+            e << "{\"slot\":" << w->slot << ",\"shape\":" << (w->shape_known ? "106" : "null") << ",\"state\":\""
+              << w->state << "\",\"element_handles\":[";
             for (std::size_t i = 0; i < w->element_handles.size(); ++i) e << (i ? "," : "") << w->element_handles[i];
             e << "]}";
         } else e << "null";

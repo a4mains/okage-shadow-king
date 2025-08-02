@@ -1,4 +1,5 @@
 #pragma once
+#include <optional>
 #include "okage/scene_resource.hpp"
 #include "okage/battle_ui_pad.hpp"
 #include <filesystem>
@@ -32,6 +33,12 @@ public:
     bool dead() const;
     // Any saved slot was found (saved-slot display; not part of the empty-card Restore route).
     bool saved_slots_present() const;
+    struct FrameObservation {
+        bool manager_ran=false;int state_in=0,state_out=0,update_state_out=0;bool gate_open=false;
+        std::optional<unsigned> pressed;
+    };
+    const FrameObservation& last_frame() const;
+    int ui_window() const;
     void retire(Animation&,FieldProjection&,RetiringSceneEffects*,BattleUiShared&);
     bool resource_live() const;
     const Texture* rendered_image() const;
