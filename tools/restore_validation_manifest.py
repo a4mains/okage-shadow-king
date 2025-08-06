@@ -57,7 +57,15 @@ def main(out):
                 f"{F}/binaries-check.txt", f"{F}/commands.txt", f"{F}/source-head.txt",
                 "local/research/restore-route-recheck-v1/regression-restore.out",
                 "local/research/restore-route-recheck-v1/regression-newgame.out",
-                "local/research/restore-route-recheck-v1/sha256.txt"]
+                "local/research/restore-route-recheck-v1/sha256.txt",
+                "local/research/restore-ownership-validation-v1/conditional-parity/sha256.txt"]
+    conditional = {}
+    for s in ("release-scripted", "release-fixed", "sanitize-scripted", "sanitize-fixed"):
+        rel = f"{V}/conditional-parity/{s}"
+        evidence += [f"{rel}.json", f"{rel}.txt"]
+        c = json.loads(text(f"{rel}.json"))
+        conditional[s] = {"result": c["result"], "conditional_parity": c["conditional_parity"],
+                          "timing_diagnostic": c["timing_diagnostic"]}
     sessions = {}
     for d in sorted((ROOT / F / "sessions").iterdir()):
         rel = f"{F}/sessions/{d.name}"
@@ -111,7 +119,7 @@ def main(out):
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "stage_manifest_sha256_pinned": "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
         "run_time_evidence": {
-            "sessions": sessions, "retire_routes_strict": retire, "gates": gates, "regressions": regressions,
+            "sessions": sessions, "conditional_parity": conditional, "retire_routes_strict": retire, "gates": gates, "regressions": regressions,
             "ctest": {k: text(f"{V}/ctest-{k}.out").splitlines()[-3] for k in ("release-all", "debug-focused", "sanitize-focused")},
             "python_suite": [l for l in text(f"{V}/python-suite.out").splitlines() if l.startswith(("Ran ", "OK", "FAILED"))],
         },

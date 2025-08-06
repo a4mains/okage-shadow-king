@@ -88,6 +88,10 @@ class RestoreRoutes(unittest.TestCase):
             c = route["checkpoints"]
             self.assertEqual(c["cancel-death"] - c["empty-ready"], 33)  # Cancel read at ready+1, death 32 later
             self.compare_original(tmp)
+            if ORIGINAL.is_dir():
+                result = json.loads((tmp / "compare.json").read_text())
+                if result["result"] == "TIMING-DIFFERENT":
+                    self.assertTrue(result["conditional_parity"]["ok"], result["conditional_parity"])
 
     def test_pending_scan_cancel(self):
         with tempfile.TemporaryDirectory() as tmp:

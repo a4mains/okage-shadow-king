@@ -328,6 +328,40 @@ def timing_diagnostic(rng_at, o_fr, n_fr):
                   'frame_draws_account_for_all': accounted, 'pass_model_identical': model_same}
     return diagnostic, mo
 
+CARD_STATES = (510, 530, 540)  # 0x1fe/0x212/0x21c: set by storage completion (an IO input)
+
+def reconstruct(o_fr, o_post, n_fr, n_post):
+    """Counterfactual check of per-traversal parity given the ORIGINAL's IO completion traversals.
+    The native run's own layout passes (status -> call-site labels) are applied to the original's
+    per-traversal status timeline; the result must equal the original's per-traversal draw counts and
+    its whole post-stop RNG label stream draw for draw. Every non-IO manager-frame field (fade gate,
+    pad word read, Cancel/death states) must also match per traversal. A native run is still required
+    to supply every pattern; nothing is filled in."""
+    mn = pass_model(n_fr, n_post)
+    if mn is None:
+        return {'ok': False, 'why': 'native pass model inconsistent'}
+    predicted, per_t = [], []
+    for r in o_fr:
+        t = r['t']
+        key = 'constructor' if t == 0 else o_fr[max(t - 2, 0)]['update_state_out']
+        if key not in mn:
+            return {'ok': False, 'why': f'native never laid out status {key}'}
+        predicted += mn[key]
+        per_t.append(len(mn[key]))
+    want = [r['draws'] for r in o_fr]
+    draws_ok = per_t == want
+    labels = [x['phase'] for x in o_post]
+    first = next((i for i in range(max(len(labels), len(predicted)))
+                  if i >= len(labels) or i >= len(predicted) or labels[i] != predicted[i]), None)
+    def non_io(r):
+        return (r['t'], r['gate_open'], r['pressed'],
+                *(None if s in CARD_STATES else s for s in (r['state_in'], r['state_out'], r['update_state_out'])))
+    frames_first = next((i for i in range(max(len(o_fr), len(n_fr)))
+                         if i >= len(o_fr) or i >= len(n_fr) or non_io(o_fr[i]) != non_io(n_fr[i])), None)
+    return {'ok': draws_ok and first is None and frames_first is None, 'per_traversal_draws_equal': draws_ok,
+            'first_draw_label_difference': first, 'predicted_draws': len(predicted), 'original_draws': len(labels),
+            'first_non_io_frame_difference': frames_first}
+
 def compare_frames(orig, nat, out):
     first = next((i for i in range(max(len(orig), len(nat)))
                   if i >= len(orig) or i >= len(nat) or orig[i] != nat[i]), None)
@@ -484,6 +518,10 @@ def run(orig_dir, nat_dir, out=None, manifest=MANIFEST, strict=False):
     print(f'  timing anchors: original {ao} {ro} | native {an} {rn}' + (' (DIFFERENT)' if timing_differs else ''), file=out)
     rng_at = {cp: (loaded[cp]['o_rng'], loaded[cp]['n_rng']) for cp in CHECKPOINTS}
     diagnostic, mo = timing_diagnostic(rng_at, o_fr, n_fr)
+    o_post = rng_at[CHECKPOINTS[-1]][0][len(rng_at[CHECKPOINTS[0]][0]):]
+    n_post = rng_at[CHECKPOINTS[-1]][1][len(rng_at[CHECKPOINTS[0]][1]):]
+    recon = reconstruct(o_fr, o_post, n_fr, n_post)
+    print(f'  conditional per-traversal parity (native passes on the original IO timeline): {recon}', file=out)
     diagnostic_ok = all(diagnostic.values())
     print(f'  timing diagnostic: {diagnostic}'
           + (f' (draws per pass: {dict((str(k), len(v)) for k, v in mo.items())})' if mo else ''), file=out)
@@ -502,8 +540,12 @@ def run(orig_dir, nat_dir, out=None, manifest=MANIFEST, strict=False):
     elif per_frame_bad and timing_differs and diagnostic_ok:
         label, code = 'TIMING-DIFFERENT', 3
         print('  lifecycle/state/effect/VRAM are identical at every checkpoint; the Restore timing anchors differ, so '
-              'per-traversal and RNG parity are UNRESOLVED (inconclusive about any other behaviour; not an equality)',
+              'fixed-traversal RNG parity is UNRESOLVED (inconclusive about any other behaviour; not an equality)',
               file=out)
+        if recon['ok']:
+            print('  conditional per-traversal parity PROVEN: on the original\'s IO completion traversals the native '
+                  'layout passes reproduce every post-stop draw (labels, counts per traversal) and every non-IO '
+                  'manager-frame field; the only divergence is when storage completes (an IO input)', file=out)
     elif per_frame_bad:
         label, code = 'DIFFERENT', 1
     elif n_assert:
@@ -513,7 +555,7 @@ def run(orig_dir, nat_dir, out=None, manifest=MANIFEST, strict=False):
         label, code = 'IDENTICAL', 0
     result.update({'manager_frames_first_difference': ffirst, 'manager_frames_coverage': cov, 'anchors_original': ao,
                    'anchors_native': an, 'readiness_original': ro, 'readiness_native': rn,
-                   'timing_diagnostic': diagnostic, 'timing_differs': timing_differs, 'asserted': asserted_total,
+                   'timing_diagnostic': diagnostic, 'conditional_parity': recon, 'timing_differs': timing_differs, 'asserted': asserted_total,
                    'coverage_gaps': gaps, 'result': label})
     print('RESULT: ' + label, file=out)
     return code, result

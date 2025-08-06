@@ -562,6 +562,32 @@ class TimingDiagnosticUnits(unittest.TestCase):
         d, _ = cmp.timing_diagnostic(rng_at, of, nf)
         self.assertFalse(d['pass_model_identical'])
 
+    def recon_fixture(self):
+        rng_at, of, nf = self.diag_fixture()
+        for rows in (of, nf):
+            for r in rows:
+                r.update(state_in=510, state_out=510, gate_open=False, pressed=None)
+        o, n = rng_at['second-title-return']
+        return of, o[3:], nf, n[3:]
+
+    def test_reconstruction_reproduces_the_original_stream(self):
+        r = cmp.reconstruct(*self.recon_fixture())
+        self.assertTrue(r['ok'], r)
+
+    def test_reconstruction_detects_a_relabelled_original_draw(self):
+        of, o, nf, n = self.recon_fixture()
+        o = [dict(x) for x in o]
+        o[4]['phase'] = 'restore-ui-select'
+        r = cmp.reconstruct(of, o, nf, n)
+        self.assertFalse(r['ok'])
+        self.assertEqual(r['first_draw_label_difference'], 4)
+
+    def test_reconstruction_detects_a_non_io_frame_difference(self):
+        of, o, nf, n = self.recon_fixture()
+        nf = [dict(r) for r in nf]
+        nf[3]['pressed'] = 0x20  # a different input, not an IO completion
+        self.assertFalse(cmp.reconstruct(of, o, nf, n)['ok'])
+
     def test_relabelled_pass_breaks_the_model(self):
         f = self.frames([510, 510, 510, 510], [2, 2, 2, 2])
         r = self.rng(['g', 'g', 'g', 'i', 'g', 'i', 'i', 'g'])  # status 510 shows two different patterns
