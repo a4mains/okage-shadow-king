@@ -47,7 +47,8 @@ def main(out):
         "tools/retire_route_compare.py", "tools/retire_route_regression.sh", "tools/restore_validation_run.sh",
         "tools/restore_contract.py", "tools/restore_capture.sh", "tools/restore_original_extract.py",
         "tools/restore_compare.py", "tools/restore_make_manifest.py", "tools/play-oracle/startup.cpp",
-        "tools/retire_input_provenance.py", "tests/startup_textures_tests.cpp", "tests/test_retire_route_compare.py",
+        "tools/retire_input_provenance.py", "tools/restore_io_timing_evidence.py", "tests/test_restore_io_timing_evidence.py",
+        "tests/startup_textures_tests.cpp", "tests/test_retire_route_compare.py",
         "tests/test_restore_contract.py", "tests/test_restore_compare.py", "tests/test_restore_routes.py",
         "tests/data/restore-routes/restore-cancel/buttons.txt", "tests/data/restore-routes/pending-cancel/buttons.txt",
         "docs/restore-contract.json", "docs/restore-original-manifest.json",
@@ -58,7 +59,10 @@ def main(out):
                 "local/research/restore-route-recheck-v1/regression-restore.out",
                 "local/research/restore-route-recheck-v1/regression-newgame.out",
                 "local/research/restore-route-recheck-v1/sha256.txt",
-                "local/research/restore-ownership-validation-v1/conditional-parity/sha256.txt"]
+                "local/research/restore-ownership-validation-v1/conditional-parity/sha256.txt",
+                "local/research/restore-ownership-validation-v1/io-timing/sha256.txt",
+                "local/research/restore-ownership-validation-v1/io-timing/release-scripted.json",
+                "local/research/restore-ownership-validation-v1/io-timing/sanitize-scripted.json"]
     conditional = {}
     for s in ("release-scripted", "release-fixed", "sanitize-scripted", "sanitize-fixed"):
         rel = f"{V}/conditional-parity/{s}"
@@ -119,7 +123,8 @@ def main(out):
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "stage_manifest_sha256_pinned": "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
         "run_time_evidence": {
-            "sessions": sessions, "conditional_parity": conditional, "retire_routes_strict": retire, "gates": gates, "regressions": regressions,
+            "sessions": sessions, "conditional_parity": conditional,
+            "io_timing": {s: json.loads(text(f"{V}/io-timing/{s}.json")) for s in ("release-scripted", "sanitize-scripted")}, "retire_routes_strict": retire, "gates": gates, "regressions": regressions,
             "ctest": {k: text(f"{V}/ctest-{k}.out").splitlines()[-3] for k in ("release-all", "debug-focused", "sanitize-focused")},
             "python_suite": [l for l in text(f"{V}/python-suite.out").splitlines() if l.startswith(("Ran ", "OK", "FAILED"))],
         },

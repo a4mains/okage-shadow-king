@@ -3,7 +3,7 @@
  "scope": "Restore: fixes-first route-comparator coverage/causality (F1/F2); the persistent Session texture owner from entry of 124548 (mode 10) through empty-card Restore, Cancel, manager/window/resource/wrapper retirement to the return of the second 12c350(selector=1).",
  "base_commit": "82ec28a",
  "binaries_built_from": "c6264b6c4c7fcf7d80d910d21ac1b938a50417fa",
- "head_commit_at_generation": "a145bf781930a1623df882e1f6d29e6cdf476edc",
+ "head_commit_at_generation": "5fa745d61739f56f7c4da13ad4b2c3257f701184",
  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
  "stage_manifest_sha256_pinned": "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
  "run_time_evidence": {
@@ -345,6 +345,70 @@
     }
    }
   },
+  "io_timing": {
+   "release-scripted": {
+    "original-hooked": {
+     "card_info_t": 2,
+     "card_ready_t": 6,
+     "draws_to_empty_ready": 1474,
+     "draws_to_second_title": 4345,
+     "model_empty_ready": 1474,
+     "model_second_title": 4345,
+     "model_matches": true
+    },
+    "original-control": {
+     "card_info_t": 1,
+     "card_ready_t": 4,
+     "draws_to_empty_ready": 1493,
+     "draws_to_second_title": 4364,
+     "model_empty_ready": 1493,
+     "model_second_title": 4364,
+     "model_matches": true
+    },
+    "native": {
+     "card_info_t": 1,
+     "card_ready_t": 2,
+     "draws_to_empty_ready": 1453,
+     "draws_to_second_title": 4324,
+     "model_empty_ready": 1453,
+     "model_second_title": 4324,
+     "model_matches": true
+    },
+    "original_runs_agree_at_fixed_traversals": false,
+    "kind": "current-time-analysis-of-retained-runs"
+   },
+   "sanitize-scripted": {
+    "original-hooked": {
+     "card_info_t": 2,
+     "card_ready_t": 6,
+     "draws_to_empty_ready": 1474,
+     "draws_to_second_title": 4345,
+     "model_empty_ready": 1474,
+     "model_second_title": 4345,
+     "model_matches": true
+    },
+    "original-control": {
+     "card_info_t": 1,
+     "card_ready_t": 4,
+     "draws_to_empty_ready": 1493,
+     "draws_to_second_title": 4364,
+     "model_empty_ready": 1493,
+     "model_second_title": 4364,
+     "model_matches": true
+    },
+    "native": {
+     "card_info_t": 1,
+     "card_ready_t": 2,
+     "draws_to_empty_ready": 1453,
+     "draws_to_second_title": 4324,
+     "model_empty_ready": 1453,
+     "model_second_title": 4324,
+     "model_matches": true
+    },
+    "original_runs_agree_at_fixed_traversals": false,
+    "kind": "current-time-analysis-of-retained-runs"
+   }
+  },
   "retire_routes_strict": {
    "restore": {
     "exit": 0,
@@ -447,7 +511,7 @@
  },
  "current_time_audit": {
   "stage": {
-   "audited_at": "2025-08-05T09:23:32.812374+00:00",
+   "audited_at": "2025-08-09T09:23:32.812374+00:00",
    "kind": "current-time-audit",
    "listed_files": 17668,
    "manifest_sha256": "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
@@ -488,6 +552,8 @@
   "tools/restore_make_manifest.py": "5ac15fcd498c4222fd65e740faf6a22bd8fd8b567e300d967e72c54517a24d7c",
   "tools/play-oracle/startup.cpp": "fc19f0d22c364457a1b8ff9f93b649e2f1f8e5a77c2b16f63319177a695a724d",
   "tools/retire_input_provenance.py": "4407407b806d49cba124058f370b480ccf708c327eb44d6cf2f603c3aa9d96d6",
+  "tools/restore_io_timing_evidence.py": "161a0609caae69b78e90e7b47cc3c956ee2a3673d29c0c4cc92baea8eae0b0b4",
+  "tests/test_restore_io_timing_evidence.py": "8d664db2050cb757d0a3a22bff5663c9cceb62455bb0197393dc1035db25f29f",
   "tests/startup_textures_tests.cpp": "3a079627fb729d08fdf18f9db16f7b4c8ba37519326e4ad4390fafa67dfdf471",
   "tests/test_retire_route_compare.py": "a4aa9fd734ac57e35a047433ad7b917175220674506cbb42a6a68c41ea8b70a7",
   "tests/test_restore_contract.py": "8426298fd995ebc83555b6252780ae699e5561c6a6ac4fda3e27ab9e9abf34cf",
@@ -563,6 +629,21 @@
    "path": "local/research/restore-ownership-validation-v1/conditional-parity/sha256.txt",
    "sha256": "a07b58ccf07872e2fc05f50cfc39cf1d0b8f31ae79ce9961419e13b5e2353a28",
    "bytes": 692
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v1/io-timing/sha256.txt",
+   "sha256": "74eb96d24d819c53f07603045bdc11b1ba561ae84246145893c68dae31b6015d",
+   "bytes": 352
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v1/io-timing/release-scripted.json",
+   "sha256": "b7c44ef853b3cbfc0859f0bf06732c844a58a66fdebc208a04c5d00006694bb3",
+   "bytes": 742
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v1/io-timing/sanitize-scripted.json",
+   "sha256": "b7c44ef853b3cbfc0859f0bf06732c844a58a66fdebc208a04c5d00006694bb3",
+   "bytes": 742
   },
   {
    "path": "local/research/restore-ownership-validation-v1/conditional-parity/release-scripted.json",
