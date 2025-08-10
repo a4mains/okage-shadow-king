@@ -13,7 +13,9 @@ and predicts each run's counts from ONE model: the constructor pass (32 draws), 
 for the status 11c2c8 published two traversals earlier (510: 48, 530: 107, 540: 87, after Cancel: 87),
 using each run's own observed card readiness (info/ready traversals; the control's from the observer
 report, the Restore I/O timing evidence: state 530 at call 2 and 540 at call 5, hooked 3 and 7).
-Exit 0 iff every run's counts equal the model's prediction for its readiness.
+Also reports exact fixed-traversal parity: whether the native Session RNG states at empty-ready and the second title
+EQUAL those of an original execution with the same card readiness. Exit 0 iff every run's counts equal the model's
+prediction for its readiness; --require-exact also requires native to equal an original execution exactly.
 """
 import json
 import sys
@@ -72,6 +74,23 @@ def run(native, out=None):
                         "draws_to_second_title": st, "model_empty_ready": pe, "model_second_title": ps,
                         "model_matches": er == pe and st == ps}
         ok &= er == pe and st == ps
+    exact = {}
+    for orig_name in ("original-hooked", "original-control"):
+        same_ready = runs[orig_name][0] == runs["native"][0]
+        same_states = all(runs[orig_name][1][cp] == runs["native"][1][cp] for cp in ("empty-ready", "second-title-return"))
+        exact[orig_name] = {"same_card_readiness": same_ready, "rng_states_equal_at_empty_ready_and_second_title": same_states}
+    result["native_exact_rng_parity"] = exact
+    # Native known nibbles against the control run's own VRAM dumps (fill 0x00) at its captured checkpoints.
+    vram = {}
+    for cp in ("retire-successor-entry", "restore-constructor-return", "empty-ready", "second-title-return"):
+        dump = (ORIG / "runs/control-minimal-fill00/checkpoints" / cp / "vram.bin").read_bytes()
+        nb = (Path(native) / cp / "vram.bytes").read_bytes()
+        nk = (Path(native) / cp / "vram.known").read_bytes()
+        mismatch = sum(1 for a in range(len(nk)) if nk[a] and ((nb[a] ^ dump[a]) & ((0x0F if nk[a] & 1 else 0) | (0xF0 if nk[a] & 2 else 0))))
+        vram[cp] = {"known_bytes": sum(1 for k in nk if k), "known_nibble_mismatches_vs_control": mismatch}
+    result["native_known_vram_vs_control"] = vram
+    result["native_matches_an_original_execution"] = all(v["known_nibble_mismatches_vs_control"] == 0 for v in vram.values()) and any(
+        v["same_card_readiness"] and v["rng_states_equal_at_empty_ready_and_second_title"] for v in exact.values())
     result["original_runs_agree_at_fixed_traversals"] = (
         result["original-hooked"]["draws_to_second_title"] == result["original-control"]["draws_to_second_title"])
     result["kind"] = "current-time-analysis-of-retained-runs"
@@ -81,12 +100,16 @@ def run(native, out=None):
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
     out = None
+    require_exact = "--require-exact" in argv
+    argv = [a for a in argv if a != "--require-exact"]
     if "--json" in argv:
         i = argv.index("--json"); out = argv[i + 1]; argv = argv[:i] + argv[i + 2:]
     if len(argv) != 1:
         print(__doc__, file=sys.stderr)
         return 2
     code, result = run(argv[0])
+    if require_exact and not result["native_matches_an_original_execution"]:
+        code = 1
     if out:
         Path(out).write_text(json.dumps(result, indent=1) + "\n")
     return code

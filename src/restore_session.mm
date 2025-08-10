@@ -82,6 +82,12 @@ struct RestoreSession::Impl {
     std::string load_error,status;
     RestoreSession::FrameObservation frame;
     const Texture* output=nullptr;
+    unsigned scan_slot=0;
+    void enqueue_slot(unsigned slot) {
+        scan_slot=slot;
+        jobs.enqueue([this,slot]{try{pending_slots[slot]=store.read(slot);}catch(const std::exception& e){pending_errors[slot]=e.what();}},
+            {0x16ccb8,0x11dd04});
+    }
     NativeLoadQueue jobs;
     Impl(SceneClearColor& clear,SceneFade& fade,BattleUiShared& u,RestoreShared& s,RestoreConstruction c)
         :shared(s),ui(u),fonts(std::move(c.fonts)),data(read(c.ui_root/"RESTORE.bin")),
@@ -264,11 +270,15 @@ struct RestoreSession::Impl {
             jobs.check();if(jobs.pending()||dead||shared.state<0)return;
             shared.state=save?30:530;
             if(!save)status=text(Text::CheckingCardNotice);
-            jobs.enqueue([this]{for(unsigned i=0;i<3;++i){try{pending_slots[i]=store.read(i);}catch(const std::exception& e){pending_errors[i]=e.what();}}},{0x16cdb8,0x11c2c8});
+            if(save)jobs.enqueue([this]{for(unsigned i=0;i<3;++i){try{pending_slots[i]=store.read(i);}catch(const std::exception& e){pending_errors[i]=e.what();}}},{0x16cdb8,0x11c2c8});
+            else enqueue_slot(0); //0x11dd04: one 16d748 job per slot, posted after the previous completed
             jobs.resume();io=Scanning;
         }
         if(io==Scanning) {
             jobs.check();if(jobs.pending())return;
+            //Restore coroutine line 0x761: a completed slot poll (0x11dd28) advances i and posts the next slot's
+            //job in the same call; the job is polled again only on a later traversal.
+            if(!save&&scan_slot<2){enqueue_slot(scan_slot+1);jobs.resume();return;}
             slots=std::move(pending_slots);slot_errors=std::move(pending_errors);
             bool any=false;
             for(unsigned i=0;i<3;++i){if(!slot_errors[i].empty())std::cerr<<"Native Restore slot "<<i<<": "<<slot_errors[i]<<'\n';if(slots[i]){slot_layout(i,tables);any=true;}}

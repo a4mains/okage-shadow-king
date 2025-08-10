@@ -1,7 +1,7 @@
 #!/bin/zsh
 set -u
 root=${0:A:h:h}; cd $root
-V=local/research/restore-ownership-validation-v1; out=$V/$1
+V=${RESTORE_VALIDATION:-local/research/restore-ownership-validation-v1}; out=$V/$1
 [[ -e $out ]] && { echo "fresh output required: $out" >&2; exit 2; }
 mkdir -p $out
 STAGE=local/game-data-stage-v13
@@ -33,6 +33,9 @@ session() {  # tag binary kind(scripted|fixed|pending)
   python3 tools/retire_input_provenance.py check-reads $STAGE $d/reads.jsonl --manifest-sha256 $SHA --strict-stage --out $d/reads-check.json > $d/reads-check.txt 2>&1; print $? > $d/reads-check.exit
   if [[ $kind != pending ]]; then
     python3 -I tools/restore_compare.py $ORIG $d/report --json $d/compare.json > $d/compare.txt 2>&1; print $? > $d/compare.exit
+  fi
+  if [[ $kind == scripted ]]; then
+    python3 tools/restore_io_timing_evidence.py $d/report --require-exact --json $d/io-timing.json > $d/io-timing.txt 2>&1; print $? > $d/io-timing.exit
   fi
 }
 for tag bin in release $NEW sanitize $SAN; do for kind in scripted fixed pending; do session $tag $bin $kind; done; done

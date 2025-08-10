@@ -92,6 +92,12 @@ class RestoreRoutes(unittest.TestCase):
                 result = json.loads((tmp / "compare.json").read_text())
                 if result["result"] == "TIMING-DIFFERENT":
                     self.assertTrue(result["conditional_parity"]["ok"], result["conditional_parity"])
+                import restore_io_timing_evidence as ev
+                if (ev.ORIG / "runs/control-minimal-fill00").is_dir():
+                    with redirect_stdout(io.StringIO()):
+                        code, r = ev.run(str(tmp / "report"))
+                    self.assertEqual(code, 0, r)
+                    self.assertTrue(r["native_matches_an_original_execution"], r)
 
     def test_pending_scan_cancel(self):
         with tempfile.TemporaryDirectory() as tmp:
