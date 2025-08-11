@@ -2,8 +2,8 @@
  "schema": "okage.restore.validation.v1",
  "scope": "Restore: fixes-first route-comparator coverage/causality (F1/F2); the persistent Session texture owner from entry of 124548 (mode 10) through empty-card Restore, Cancel, manager/window/resource/wrapper retirement to the return of the second 12c350(selector=1).",
  "base_commit": "82ec28a",
- "binaries_built_from": "c6264b6c4c7fcf7d80d910d21ac1b938a50417fa",
- "head_commit_at_generation": "5fa745d61739f56f7c4da13ad4b2c3257f701184",
+ "binaries_built_from": "90a201e2fb0fabde3a705116622164fc738b2f7a",
+ "head_commit_at_generation": "90a201e2fb0fabde3a705116622164fc738b2f7a",
  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
  "stage_manifest_sha256_pinned": "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
  "run_time_evidence": {
@@ -19,10 +19,10 @@
      "route": "restore-cancel",
      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
      "checkpoints": {
-      "retire-successor-entry": 1047,
-      "restore-constructor-return": 1047,
-      "first-layout": 1047,
-      "empty-ready": 1064,
+      "retire-successor-entry": 1048,
+      "restore-constructor-return": 1048,
+      "first-layout": 1048,
+      "empty-ready": 1065,
       "cancel-death": 1242,
       "resource-retirement": 1245,
       "wrapper-free": 1246,
@@ -51,9 +51,9 @@
     },
     "anchors_native": {
      "empty_ready_t": 17,
-     "cancel_t": 163,
-     "death_t": 195,
-     "traversals": 196
+     "cancel_t": 162,
+     "death_t": 194,
+     "traversals": 195
     },
     "readiness_original": {
      "card_info_t": 2,
@@ -61,7 +61,15 @@
     },
     "readiness_native": {
      "card_info_t": 1,
-     "card_ready_t": 2
+     "card_ready_t": 4
+    },
+    "conditional_parity": {
+     "ok": false,
+     "per_traversal_draws_equal": true,
+     "first_draw_label_difference": null,
+     "predicted_draws": 4345,
+     "original_draws": 4345,
+     "first_non_io_frame_difference": 18
     }
    },
    "release-pending": {
@@ -96,14 +104,14 @@
      "route": "restore-cancel",
      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
      "checkpoints": {
-      "retire-successor-entry": 805,
-      "restore-constructor-return": 805,
-      "first-layout": 805,
-      "empty-ready": 822,
-      "cancel-death": 855,
-      "resource-retirement": 858,
-      "wrapper-free": 859,
-      "second-title-return": 860
+      "retire-successor-entry": 807,
+      "restore-constructor-return": 807,
+      "first-layout": 807,
+      "empty-ready": 824,
+      "cancel-death": 857,
+      "resource-retirement": 860,
+      "wrapper-free": 861,
+      "second-title-return": 862
      }
     },
     "original_compare_exit": 3,
@@ -138,7 +146,74 @@
     },
     "readiness_native": {
      "card_info_t": 1,
-     "card_ready_t": 2
+     "card_ready_t": 4
+    },
+    "conditional_parity": {
+     "ok": true,
+     "per_traversal_draws_equal": true,
+     "first_draw_label_difference": null,
+     "predicted_draws": 4345,
+     "original_draws": 4345,
+     "first_non_io_frame_difference": null
+    },
+    "exact_parity_exit": 0,
+    "native_matches_an_original_execution": true,
+    "native_exact_rng_parity": {
+     "original-hooked": {
+      "same_card_readiness": false,
+      "rng_states_equal_at_empty_ready_and_second_title": false
+     },
+     "original-control": {
+      "same_card_readiness": true,
+      "rng_states_equal_at_empty_ready_and_second_title": true
+     }
+    },
+    "native_known_vram_vs_control": {
+     "retire-successor-entry": {
+      "known_bytes": 1293760,
+      "known_nibble_mismatches_vs_control": 0
+     },
+     "restore-constructor-return": {
+      "known_bytes": 1293760,
+      "known_nibble_mismatches_vs_control": 0
+     },
+     "empty-ready": {
+      "known_bytes": 1293760,
+      "known_nibble_mismatches_vs_control": 0
+     },
+     "second-title-return": {
+      "known_bytes": 1293760,
+      "known_nibble_mismatches_vs_control": 0
+     }
+    },
+    "draw_counts": {
+     "original-hooked": {
+      "card_info_t": 2,
+      "card_ready_t": 6,
+      "draws_to_empty_ready": 1474,
+      "draws_to_second_title": 4345,
+      "model_empty_ready": 1474,
+      "model_second_title": 4345,
+      "model_matches": true
+     },
+     "original-control": {
+      "card_info_t": 1,
+      "card_ready_t": 4,
+      "draws_to_empty_ready": 1493,
+      "draws_to_second_title": 4364,
+      "model_empty_ready": 1493,
+      "model_second_title": 4364,
+      "model_matches": true
+     },
+     "native": {
+      "card_info_t": 1,
+      "card_ready_t": 4,
+      "draws_to_empty_ready": 1493,
+      "draws_to_second_title": 4364,
+      "model_empty_ready": 1493,
+      "model_second_title": 4364,
+      "model_matches": true
+     }
     }
    },
    "sanitize-fixed": {
@@ -194,7 +269,15 @@
     },
     "readiness_native": {
      "card_info_t": 1,
-     "card_ready_t": 2
+     "card_ready_t": 4
+    },
+    "conditional_parity": {
+     "ok": false,
+     "per_traversal_draws_equal": true,
+     "first_draw_label_difference": null,
+     "predicted_draws": 4345,
+     "original_draws": 4345,
+     "first_non_io_frame_difference": 18
     }
    },
    "sanitize-pending": {
@@ -271,13 +354,8 @@
     },
     "readiness_native": {
      "card_info_t": 1,
-     "card_ready_t": 2
-    }
-   }
-  },
-  "conditional_parity": {
-   "release-scripted": {
-    "result": "TIMING-DIFFERENT",
+     "card_ready_t": 4
+    },
     "conditional_parity": {
      "ok": true,
      "per_traversal_draws_equal": true,
@@ -286,127 +364,65 @@
      "original_draws": 4345,
      "first_non_io_frame_difference": null
     },
-    "timing_diagnostic": {
-     "fixed_checkpoints_rng_identical": true,
-     "no_draws_after_death": true,
-     "frame_draws_account_for_all": true,
-     "pass_model_identical": true
+    "exact_parity_exit": 0,
+    "native_matches_an_original_execution": true,
+    "native_exact_rng_parity": {
+     "original-hooked": {
+      "same_card_readiness": false,
+      "rng_states_equal_at_empty_ready_and_second_title": false
+     },
+     "original-control": {
+      "same_card_readiness": true,
+      "rng_states_equal_at_empty_ready_and_second_title": true
+     }
+    },
+    "native_known_vram_vs_control": {
+     "retire-successor-entry": {
+      "known_bytes": 1293760,
+      "known_nibble_mismatches_vs_control": 0
+     },
+     "restore-constructor-return": {
+      "known_bytes": 1293760,
+      "known_nibble_mismatches_vs_control": 0
+     },
+     "empty-ready": {
+      "known_bytes": 1293760,
+      "known_nibble_mismatches_vs_control": 0
+     },
+     "second-title-return": {
+      "known_bytes": 1293760,
+      "known_nibble_mismatches_vs_control": 0
+     }
+    },
+    "draw_counts": {
+     "original-hooked": {
+      "card_info_t": 2,
+      "card_ready_t": 6,
+      "draws_to_empty_ready": 1474,
+      "draws_to_second_title": 4345,
+      "model_empty_ready": 1474,
+      "model_second_title": 4345,
+      "model_matches": true
+     },
+     "original-control": {
+      "card_info_t": 1,
+      "card_ready_t": 4,
+      "draws_to_empty_ready": 1493,
+      "draws_to_second_title": 4364,
+      "model_empty_ready": 1493,
+      "model_second_title": 4364,
+      "model_matches": true
+     },
+     "native": {
+      "card_info_t": 1,
+      "card_ready_t": 4,
+      "draws_to_empty_ready": 1493,
+      "draws_to_second_title": 4364,
+      "model_empty_ready": 1493,
+      "model_second_title": 4364,
+      "model_matches": true
+     }
     }
-   },
-   "release-fixed": {
-    "result": "TIMING-DIFFERENT",
-    "conditional_parity": {
-     "ok": false,
-     "per_traversal_draws_equal": true,
-     "first_draw_label_difference": null,
-     "predicted_draws": 4345,
-     "original_draws": 4345,
-     "first_non_io_frame_difference": 18
-    },
-    "timing_diagnostic": {
-     "fixed_checkpoints_rng_identical": true,
-     "no_draws_after_death": true,
-     "frame_draws_account_for_all": true,
-     "pass_model_identical": true
-    }
-   },
-   "sanitize-scripted": {
-    "result": "TIMING-DIFFERENT",
-    "conditional_parity": {
-     "ok": true,
-     "per_traversal_draws_equal": true,
-     "first_draw_label_difference": null,
-     "predicted_draws": 4345,
-     "original_draws": 4345,
-     "first_non_io_frame_difference": null
-    },
-    "timing_diagnostic": {
-     "fixed_checkpoints_rng_identical": true,
-     "no_draws_after_death": true,
-     "frame_draws_account_for_all": true,
-     "pass_model_identical": true
-    }
-   },
-   "sanitize-fixed": {
-    "result": "TIMING-DIFFERENT",
-    "conditional_parity": {
-     "ok": false,
-     "per_traversal_draws_equal": true,
-     "first_draw_label_difference": null,
-     "predicted_draws": 4345,
-     "original_draws": 4345,
-     "first_non_io_frame_difference": 18
-    },
-    "timing_diagnostic": {
-     "fixed_checkpoints_rng_identical": true,
-     "no_draws_after_death": true,
-     "frame_draws_account_for_all": true,
-     "pass_model_identical": true
-    }
-   }
-  },
-  "io_timing": {
-   "release-scripted": {
-    "original-hooked": {
-     "card_info_t": 2,
-     "card_ready_t": 6,
-     "draws_to_empty_ready": 1474,
-     "draws_to_second_title": 4345,
-     "model_empty_ready": 1474,
-     "model_second_title": 4345,
-     "model_matches": true
-    },
-    "original-control": {
-     "card_info_t": 1,
-     "card_ready_t": 4,
-     "draws_to_empty_ready": 1493,
-     "draws_to_second_title": 4364,
-     "model_empty_ready": 1493,
-     "model_second_title": 4364,
-     "model_matches": true
-    },
-    "native": {
-     "card_info_t": 1,
-     "card_ready_t": 2,
-     "draws_to_empty_ready": 1453,
-     "draws_to_second_title": 4324,
-     "model_empty_ready": 1453,
-     "model_second_title": 4324,
-     "model_matches": true
-    },
-    "original_runs_agree_at_fixed_traversals": false,
-    "kind": "current-time-analysis-of-retained-runs"
-   },
-   "sanitize-scripted": {
-    "original-hooked": {
-     "card_info_t": 2,
-     "card_ready_t": 6,
-     "draws_to_empty_ready": 1474,
-     "draws_to_second_title": 4345,
-     "model_empty_ready": 1474,
-     "model_second_title": 4345,
-     "model_matches": true
-    },
-    "original-control": {
-     "card_info_t": 1,
-     "card_ready_t": 4,
-     "draws_to_empty_ready": 1493,
-     "draws_to_second_title": 4364,
-     "model_empty_ready": 1493,
-     "model_second_title": 4364,
-     "model_matches": true
-    },
-    "native": {
-     "card_info_t": 1,
-     "card_ready_t": 2,
-     "draws_to_empty_ready": 1453,
-     "draws_to_second_title": 4324,
-     "model_empty_ready": 1453,
-     "model_second_title": 4324,
-     "model_matches": true
-    },
-    "original_runs_agree_at_fixed_traversals": false,
-    "kind": "current-time-analysis-of-retained-runs"
    }
   },
   "retire_routes_strict": {
@@ -461,34 +477,34 @@
   },
   "regressions": {
    "restore-cancel": {
-    "old-a old-b": "IDENTICAL",
-    "old-a old-c": "IDENTICAL",
+    "old-a old-b": "ANCHORS-DIFFER",
+    "old-a old-c": "ANCHORS-DIFFER",
     "old-a old-d": "ANCHORS-DIFFER",
-    "old-b old-c": "IDENTICAL",
+    "old-b old-c": "ANCHORS-DIFFER",
     "old-b old-d": "ANCHORS-DIFFER",
     "old-c old-d": "ANCHORS-DIFFER",
-    "new-a old-a": "ANCHORS-DIFFER",
+    "new-a old-a": "DIFFERENT",
     "new-a old-b": "ANCHORS-DIFFER",
     "new-a old-c": "ANCHORS-DIFFER",
     "new-a old-d": "ANCHORS-DIFFER",
     "new-a new-b": "IDENTICAL",
-    "new-a new-c": "IDENTICAL",
-    "new-a new-d": "IDENTICAL",
-    "new-b old-a": "ANCHORS-DIFFER",
+    "new-a new-c": "ANCHORS-DIFFER",
+    "new-a new-d": "ANCHORS-DIFFER",
+    "new-b old-a": "DIFFERENT",
     "new-b old-b": "ANCHORS-DIFFER",
     "new-b old-c": "ANCHORS-DIFFER",
     "new-b old-d": "ANCHORS-DIFFER",
-    "new-b new-c": "IDENTICAL",
-    "new-b new-d": "IDENTICAL",
+    "new-b new-c": "ANCHORS-DIFFER",
+    "new-b new-d": "ANCHORS-DIFFER",
     "new-c old-a": "ANCHORS-DIFFER",
-    "new-c old-b": "ANCHORS-DIFFER",
+    "new-c old-b": "DIFFERENT",
     "new-c old-c": "ANCHORS-DIFFER",
     "new-c old-d": "ANCHORS-DIFFER",
-    "new-c new-d": "IDENTICAL",
+    "new-c new-d": "ANCHORS-DIFFER",
     "new-d old-a": "ANCHORS-DIFFER",
     "new-d old-b": "ANCHORS-DIFFER",
     "new-d old-c": "ANCHORS-DIFFER",
-    "new-d old-d": "ANCHORS-DIFFER"
+    "new-d old-d": "DIFFERENT"
    },
    "cold-1800": {
     "old-a old-b": "ALIGNED-IDENTICAL",
@@ -505,13 +521,13 @@
    "sanitize-focused": "100% tests passed, 0 tests failed out of 19"
   },
   "python_suite": [
-   "Ran 1086 tests in 136.935s",
+   "Ran 1092 tests in 139.535s",
    "OK (skipped=91)"
   ]
  },
  "current_time_audit": {
   "stage": {
-   "audited_at": "2025-08-09T09:23:32.812374+00:00",
+   "audited_at": "2025-08-10T10:45:39.427722+00:00",
    "kind": "current-time-audit",
    "listed_files": 17668,
    "manifest_sha256": "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
@@ -533,7 +549,7 @@
   "src/texture_handles.cpp": "b6ca2786d3cc2fcdd0074182831f0230bb830eec7e5f427024b9d25ccb8ab1a9",
   "src/native_runtime.mm": "b14d198241efb21bdc32de36e2725b14ae6429382879bdd1025ed7d1728dbc04",
   "src/restore_session.hpp": "0a03ca2af500f5cd172d878437c1efe65ec32dfe62903e36e978dd0650081efd",
-  "src/restore_session.mm": "75ccd06b8b7fbdf69949b9484894f4f0b57b5c643abe3a24927943b452d3ad1d",
+  "src/restore_session.mm": "f87c07b1d20f8dcffad06b12a22dc75fdeebae507cd20b475ebe1c870414167c",
   "src/ui_window_glyph.cpp": "edf5a75e9d4db9a17a5cc931e23b02c90fed5341eef129258e141b715529d0c2",
   "include/okage/rng_site.hpp": "c09a8a6aac1de1bd110d495c6794fb572404ca91e74340e5c60b43e4b91a674e",
   "include/okage/enemy.hpp": "648de686d24502735b7b10027859a82e0741cd8642d4bd236b7dda47d2637f45",
@@ -544,7 +560,7 @@
   "CMakeLists.txt": "9b0c3c3a3da5935fe2c6f9cd421f883af701404594fed42aa9e928f5ca30df2f",
   "tools/retire_route_compare.py": "2a7c93c864191a2f04d8f96dcccc012d09463987c0ba19480797eb757f365bca",
   "tools/retire_route_regression.sh": "8768890a9e091054229b07722e97607235e23697fc1b399eebb052b05366821a",
-  "tools/restore_validation_run.sh": "6f8c883410eb4795a075361cb2de3565be353e4da05e46d4c517ba8a1ecf32ed",
+  "tools/restore_validation_run.sh": "77bb82dbe0f8f0a4227906e737b265160eda4365056ee8dbb6975dac9dd760a8",
   "tools/restore_contract.py": "e43f108eff9b635ede7b256ee1f52d52364f5ecab04ce54dceb2ea0913651b12",
   "tools/restore_capture.sh": "2ceb87a04f8c0a5b9a689c10b6b06ea96fdb8a25d30a6b2906d836f7071aaf59",
   "tools/restore_original_extract.py": "4e83060893fc4c2682a62a552824a69271ed205caf13f97428a0e1707f7d60dc",
@@ -552,13 +568,13 @@
   "tools/restore_make_manifest.py": "5ac15fcd498c4222fd65e740faf6a22bd8fd8b567e300d967e72c54517a24d7c",
   "tools/play-oracle/startup.cpp": "fc19f0d22c364457a1b8ff9f93b649e2f1f8e5a77c2b16f63319177a695a724d",
   "tools/retire_input_provenance.py": "4407407b806d49cba124058f370b480ccf708c327eb44d6cf2f603c3aa9d96d6",
-  "tools/restore_io_timing_evidence.py": "161a0609caae69b78e90e7b47cc3c956ee2a3673d29c0c4cc92baea8eae0b0b4",
+  "tools/restore_io_timing_evidence.py": "01e8dd57d3cefa781215082c8673a155a183b3bddc0d1655f843eb7af5cea226",
   "tests/test_restore_io_timing_evidence.py": "8d664db2050cb757d0a3a22bff5663c9cceb62455bb0197393dc1035db25f29f",
   "tests/startup_textures_tests.cpp": "3a079627fb729d08fdf18f9db16f7b4c8ba37519326e4ad4390fafa67dfdf471",
   "tests/test_retire_route_compare.py": "a4aa9fd734ac57e35a047433ad7b917175220674506cbb42a6a68c41ea8b70a7",
   "tests/test_restore_contract.py": "8426298fd995ebc83555b6252780ae699e5561c6a6ac4fda3e27ab9e9abf34cf",
   "tests/test_restore_compare.py": "adf7c650eca42bf34a43a8e8084811073501170c56d1677b98e4bf9a811d741d",
-  "tests/test_restore_routes.py": "2cd67d2ddebb2170bf3943ea297ff2b72520988698c1dba3c3426a1235c246c4",
+  "tests/test_restore_routes.py": "f020810f798c10180f3644610fa0f2056a23642792da888ad7d1295f21b159b8",
   "tests/data/restore-routes/restore-cancel/buttons.txt": "12a12f219f17735fd949617a97866a6daed6156d15173e6e445373f9daab7bd8",
   "tests/data/restore-routes/pending-cancel/buttons.txt": "186facc3c345e592ce73538c20c0c133245a9f8841d220d1a680a126dec7f778",
   "docs/restore-contract.json": "080d1064a08be29736ffae26e9891f9ac6a570d9cc077c4eae32e80235d41913",
@@ -566,48 +582,48 @@
  },
  "evidence": [
   {
-   "path": "local/research/restore-ownership-validation-v1/bin/binaries.sha256",
-   "sha256": "8c7a9aa3aa96ec499801d67a69e36edc5c7d8687e928eed93c770023fa31ba97",
+   "path": "local/research/restore-ownership-validation-v2/bin/binaries.sha256",
+   "sha256": "7d8cf8772c597122b0a2e1c61f3400690606c28a664216a9ea2da55822c63093",
    "bytes": 327
   },
   {
-   "path": "local/research/restore-ownership-validation-v1/bin/source-head.txt",
-   "sha256": "dcf095d450111437a7e1ff035e4b706af8ab7213af63b4b0b7363e5165a244ec",
+   "path": "local/research/restore-ownership-validation-v2/bin/source-head.txt",
+   "sha256": "9fb5724178d49d8defcdee4251a97ae1a4a16c0a793ce09ed9c2e7ca8139349c",
    "bytes": 41
   },
   {
-   "path": "local/research/restore-ownership-validation-v1/ctest-release-all.out",
-   "sha256": "82eada9738e7327460bd8f90f86803130ae1ffc33088da8da0e0e4d7b0d05e89",
+   "path": "local/research/restore-ownership-validation-v2/ctest-release-all.out",
+   "sha256": "82374fd54f3d19fb65ca4c8e431a7cfc086d31feeb784c0869e76d730b285940",
    "bytes": 13067
   },
   {
-   "path": "local/research/restore-ownership-validation-v1/ctest-debug-focused.out",
-   "sha256": "f9e5c706fc762d33f22ea8e208d4cd24f47fa9c2881c9079396f730f08ab30c2",
+   "path": "local/research/restore-ownership-validation-v2/ctest-debug-focused.out",
+   "sha256": "cf9f79ab0015c85c2df8709bb940838231c36f981da7dd3a7f2d184b19d152d8",
    "bytes": 2411
   },
   {
-   "path": "local/research/restore-ownership-validation-v1/ctest-sanitize-focused.out",
-   "sha256": "b2d72b63f70d4d68a6ae59be97d1ff86bf90521b3dc24eb98c151e3f6e9274e7",
+   "path": "local/research/restore-ownership-validation-v2/ctest-sanitize-focused.out",
+   "sha256": "46b750cc466d51aaf06de9ffee20a8545c13e13a8bff097f0b23579ec7394d2c",
    "bytes": 2418
   },
   {
-   "path": "local/research/restore-ownership-validation-v1/python-suite.out",
-   "sha256": "601ea2d3b6e84fa80db32f6251a55517425a372b671b702151ed50f47d115758",
-   "bytes": 5784
+   "path": "local/research/restore-ownership-validation-v2/python-suite.out",
+   "sha256": "65c603558df206a9b8bc2a563027787fa9a52a44522dda5cce0f594c6a1ffb47",
+   "bytes": 5790
   },
   {
-   "path": "local/research/restore-ownership-validation-v1/final/binaries-check.txt",
+   "path": "local/research/restore-ownership-validation-v2/final/binaries-check.txt",
    "sha256": "4dd7564f633d799eea32cd258c3712954c12ebf1f1eb29a11b5ed9ae8583d5af",
    "bytes": 141
   },
   {
-   "path": "local/research/restore-ownership-validation-v1/final/commands.txt",
-   "sha256": "1f98338be2b2b04fac0acf45943f98a82f46df65c4f5f7dc898d37a7ea6b1113",
+   "path": "local/research/restore-ownership-validation-v2/final/commands.txt",
+   "sha256": "1c56b5849fd2c978cd511f84f932253f93e0c9bf68f85de9cc21a27d60075bfa",
    "bytes": 5867
   },
   {
-   "path": "local/research/restore-ownership-validation-v1/final/source-head.txt",
-   "sha256": "dcf095d450111437a7e1ff035e4b706af8ab7213af63b4b0b7363e5165a244ec",
+   "path": "local/research/restore-ownership-validation-v2/final/source-head.txt",
+   "sha256": "9fb5724178d49d8defcdee4251a97ae1a4a16c0a793ce09ed9c2e7ca8139349c",
    "bytes": 41
   },
   {
@@ -626,6 +642,11 @@
    "bytes": 5350
   },
   {
+   "path": "local/research/restore-ownership-validation-v1/bin/binaries.sha256",
+   "sha256": "8c7a9aa3aa96ec499801d67a69e36edc5c7d8687e928eed93c770023fa31ba97",
+   "bytes": 327
+  },
+  {
    "path": "local/research/restore-ownership-validation-v1/conditional-parity/sha256.txt",
    "sha256": "a07b58ccf07872e2fc05f50cfc39cf1d0b8f31ae79ce9961419e13b5e2353a28",
    "bytes": 692
@@ -636,679 +657,649 @@
    "bytes": 352
   },
   {
-   "path": "local/research/restore-ownership-validation-v1/io-timing/release-scripted.json",
-   "sha256": "b7c44ef853b3cbfc0859f0bf06732c844a58a66fdebc208a04c5d00006694bb3",
-   "bytes": 742
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/io-timing/sanitize-scripted.json",
-   "sha256": "b7c44ef853b3cbfc0859f0bf06732c844a58a66fdebc208a04c5d00006694bb3",
-   "bytes": 742
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/conditional-parity/release-scripted.json",
-   "sha256": "4e7c1491b6048b7810577c60e2cb223f623e2925786a6edb8b8a0e1e2695f5ac",
-   "bytes": 6197
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/conditional-parity/release-scripted.txt",
-   "sha256": "eee1207ce393be17036aeab626011bab046cafe3af086e5b5dc26033cf540389",
-   "bytes": 10350
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/conditional-parity/release-fixed.json",
-   "sha256": "49c1e0e5ac64c01f4e784bfecc8ba7ca269ac69cc1fee0319bda4585a97f4d0b",
-   "bytes": 6207
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/conditional-parity/release-fixed.txt",
-   "sha256": "64df51b33cf11c5cf6886b3f25bac2c4c009b662d882f37e7e2191f115af6b6d",
-   "bytes": 10090
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/conditional-parity/sanitize-scripted.json",
-   "sha256": "a9165d599f65f05a4d91a873067246051063349a2a974d6bc948de901ac14612",
-   "bytes": 6197
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/conditional-parity/sanitize-scripted.txt",
-   "sha256": "91b17cb53604bdbab2a1dcb01740c9c56c449d6b3b4048020022d9a746810f74",
-   "bytes": 10350
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/conditional-parity/sanitize-fixed.json",
-   "sha256": "7272bc8adc3213cbe1c5a9daecd642381ab4ee5aee12a200c648926f408e41e5",
-   "bytes": 6207
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/conditional-parity/sanitize-fixed.txt",
-   "sha256": "3f54d2b05c9a5295649204dc2467d2c45843081347bf1c0e82a45c16a42aebfc",
-   "bytes": 10090
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-fixed/command.txt",
-   "sha256": "935f7bd62b1cd97939d11e3b010279e72624a6f75eb77e37b2cf2ba21dfe8055",
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/command.txt",
+   "sha256": "214f41bb1961cf037e88f3a3f665679c3730b83963b07fc90f516fecb57edc81",
    "bytes": 534
   },
   {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-fixed/stdout.txt",
-   "sha256": "d80995b72a060b4d236bd075293ef01d5619929ed307d12d39c9ec59dd29e3ad",
-   "bytes": 675
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-fixed/reads.jsonl",
-   "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
-   "bytes": 68452
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-fixed/reads-check.json",
-   "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
-   "bytes": 20004
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-fixed/saves-before.txt",
-   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-   "bytes": 0
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-fixed/saves-after.txt",
-   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-   "bytes": 0
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-fixed/report/route.json",
-   "sha256": "ac2790d60828cc4edb8453b4a9e80b0f2c461afd3dfe9c7d8cf754cd0a5a6436",
-   "bytes": 317
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-fixed/report/manager-frames.jsonl",
-   "sha256": "b60b8db61b55c6b2c35e5bda55c8caf66818d1767545c79430511deb56a83feb",
-   "bytes": 20370
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-fixed/report/session-draw-frames.jsonl",
-   "sha256": "f5191a05b30d04813c99d94e62e294e0ae799574606b9f0a9690e87bb7e52aca",
-   "bytes": 598694
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-fixed/report/second-title-return/state.json",
-   "sha256": "6556f32bacd09ddccf627e309f0a66f3e253e06f42784ddccb2ff1d8373be427",
-   "bytes": 73328
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-fixed/report/second-title-return/lifecycle.jsonl",
-   "sha256": "1fde0917ecf5cae597c78556929f470aa58a0cb86048694e947ef41941e795f4",
-   "bytes": 109510
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-fixed/report/second-title-return/rng.jsonl",
-   "sha256": "1fc0b96f0008555297987045696d558d8341ce6bc29b6b45be84ce4fa5460905",
-   "bytes": 1903794
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-fixed/compare.txt",
-   "sha256": "083e52ed570b56fd192574e87c79c3623315a242d0fe1240dfa14549bc35ca4d",
-   "bytes": 9841
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-fixed/compare.json",
-   "sha256": "b0c8fd8205a02a34f00ecf5474e05975b93c552b4ade58a4e43c25f6fd19a94d",
-   "bytes": 5996
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-pending/command.txt",
-   "sha256": "68d9a1c1d9df469d6ffcfd8554a229072830656917c10da6432b841ab7e76920",
-   "bytes": 576
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-pending/stdout.txt",
-   "sha256": "7ce50e6e9c80b4419afd6cd951e82df3fe28f7be14bd58e54967fb30a1df7883",
-   "bytes": 675
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-pending/reads.jsonl",
-   "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
-   "bytes": 68452
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-pending/reads-check.json",
-   "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
-   "bytes": 20004
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-pending/saves-before.txt",
-   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-   "bytes": 0
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-pending/saves-after.txt",
-   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-   "bytes": 0
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-pending/report/route.json",
-   "sha256": "ba55c9810d60d11d99c1775068f5d913719d649ab2758356eac9a6be49bf2a6a",
-   "bytes": 298
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-pending/report/manager-frames.jsonl",
-   "sha256": "32d4e2aeb2a8aeca0397ff5435b1febcaeaecd0572d6a34bc4ff26d587792cd8",
-   "bytes": 5750
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-pending/report/session-draw-frames.jsonl",
-   "sha256": "3b4c9a44b5e5871c6f3b663744ae36a1211cebe006f19231374e140f4ec5732c",
-   "bytes": 90730
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-pending/report/second-title-return/state.json",
-   "sha256": "23bd6ec047126c853acf8752be9daa388248d5c7ff330d4ce2962cb9b6f6540f",
-   "bytes": 73328
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-pending/report/second-title-return/lifecycle.jsonl",
-   "sha256": "a216d23b40d618ea64dd8f009cef20f4d4d802064cd3186de7109fed28dcd859",
-   "bytes": 109394
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-pending/report/second-title-return/rng.jsonl",
-   "sha256": "a7570bccff1c2d0827d2ebd74f5b3ab580d29803274fa7776656ec1c779727c6",
-   "bytes": 812784
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-scripted/command.txt",
-   "sha256": "5202282f2ef01797475e9cb1b09c75fee2601134546b805623cfb086c4f590ad",
-   "bytes": 590
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-scripted/stdout.txt",
-   "sha256": "9c45d8e2feac52c293bc48f0495a749ee9e15b1bd55b86dffa96dc5de4a22978",
-   "bytes": 669
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-scripted/reads.jsonl",
-   "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
-   "bytes": 68452
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-scripted/reads-check.json",
-   "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
-   "bytes": 20004
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-scripted/saves-before.txt",
-   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-   "bytes": 0
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-scripted/saves-after.txt",
-   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-   "bytes": 0
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-scripted/report/route.json",
-   "sha256": "66bc7b92bcd7e9b9e656fa7eda4230e2e7c860a1d5ca26c210705c29fd7ea039",
-   "bytes": 309
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-scripted/report/manager-frames.jsonl",
-   "sha256": "666de256e1a2076f5da3d64cecf648ead51abbd9346af7309c307897fb88e2f9",
-   "bytes": 5339
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-scripted/report/session-draw-frames.jsonl",
-   "sha256": "2d673fd700c3cb44d157f7e0b08d37536222a4a164840eabc63a94b127cb2081",
-   "bytes": 145906
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-scripted/report/second-title-return/state.json",
-   "sha256": "a35b446356d54faf8d1ec9e1914c7823c9ab2600e4969187ff0307587f409133",
-   "bytes": 73328
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-scripted/report/second-title-return/lifecycle.jsonl",
-   "sha256": "1fde0917ecf5cae597c78556929f470aa58a0cb86048694e947ef41941e795f4",
-   "bytes": 109510
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-scripted/report/second-title-return/rng.jsonl",
-   "sha256": "c4d3b3a992dea3e45725131ff3749bfceee6814b2072aa3762430009e3604c6a",
-   "bytes": 942361
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-scripted/compare.txt",
-   "sha256": "0db64bb5fe3cf1883b4b7a78689781c534ae4cbc1acdba32987698fa05020383",
-   "bytes": 9829
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/release-scripted/compare.json",
-   "sha256": "64a525579ff674a1d017546182441935496fa4245d206186a31ea648ceec82d4",
-   "bytes": 5985
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-fixed/command.txt",
-   "sha256": "075076b0b14b224ffaff18b936ab18c15191a4ed407e2ed36939d87d375b2684",
-   "bytes": 539
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-fixed/stdout.txt",
-   "sha256": "b11947e6378f561f9071e2541a5917ff4e0107fc3ac5e2a79f7e893f47c31899",
-   "bytes": 673
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-fixed/reads.jsonl",
-   "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
-   "bytes": 68452
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-fixed/reads-check.json",
-   "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
-   "bytes": 20004
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-fixed/saves-before.txt",
-   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-   "bytes": 0
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-fixed/saves-after.txt",
-   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-   "bytes": 0
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-fixed/report/route.json",
-   "sha256": "c5262a92dc6b6cad5040558b50b63fc0fa8a1ce772986277392be9d1e2521a95",
-   "bytes": 317
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-fixed/report/manager-frames.jsonl",
-   "sha256": "4cfc703e8297030a97c3e889f00ce1f50a37c7f018529cd9ee8257c206ea5120",
-   "bytes": 20266
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-fixed/report/session-draw-frames.jsonl",
-   "sha256": "9462ee331319f59dc238ab961f379bc53d822c8c7a1697286cd707db06a13009",
-   "bytes": 595562
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-fixed/report/second-title-return/state.json",
-   "sha256": "f111dfafac27db5f5e9f6d4a5f8ffd3e4171cc1ba97698ef691f738f850cb101",
-   "bytes": 73328
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-fixed/report/second-title-return/lifecycle.jsonl",
-   "sha256": "1fde0917ecf5cae597c78556929f470aa58a0cb86048694e947ef41941e795f4",
-   "bytes": 109510
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-fixed/report/second-title-return/rng.jsonl",
-   "sha256": "f1f7b752cc0e798f5775cceb37faea66a08332d6aeab4d143b7fcb2d7c7d3255",
-   "bytes": 1897155
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-fixed/compare.txt",
-   "sha256": "ae7fa71e397f59e154520e91f19becff68fbe2310be7beb3c22e6ab0beadb1ea",
-   "bytes": 9841
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-fixed/compare.json",
-   "sha256": "f69e7dc1e3a75e17e442c26c65017c2ece7b28fc57203839d5dc3a071c9592f1",
-   "bytes": 5996
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-pending/command.txt",
-   "sha256": "d28a03a12cb137381e5ba1a7919ca8e57ef23d03cb689d8a187f9110edfdfeb9",
-   "bytes": 581
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-pending/stdout.txt",
-   "sha256": "e4d9413c868876d00c075899aa7ccaf137098f8dfe3b0fed2d7934dc3bb5678f",
-   "bytes": 673
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-pending/reads.jsonl",
-   "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
-   "bytes": 68452
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-pending/reads-check.json",
-   "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
-   "bytes": 20004
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-pending/saves-before.txt",
-   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-   "bytes": 0
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-pending/saves-after.txt",
-   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-   "bytes": 0
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-pending/report/route.json",
-   "sha256": "ba55c9810d60d11d99c1775068f5d913719d649ab2758356eac9a6be49bf2a6a",
-   "bytes": 298
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-pending/report/manager-frames.jsonl",
-   "sha256": "32d4e2aeb2a8aeca0397ff5435b1febcaeaecd0572d6a34bc4ff26d587792cd8",
-   "bytes": 5750
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-pending/report/session-draw-frames.jsonl",
-   "sha256": "3b4c9a44b5e5871c6f3b663744ae36a1211cebe006f19231374e140f4ec5732c",
-   "bytes": 90730
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-pending/report/second-title-return/state.json",
-   "sha256": "23bd6ec047126c853acf8752be9daa388248d5c7ff330d4ce2962cb9b6f6540f",
-   "bytes": 73328
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-pending/report/second-title-return/lifecycle.jsonl",
-   "sha256": "a216d23b40d618ea64dd8f009cef20f4d4d802064cd3186de7109fed28dcd859",
-   "bytes": 109394
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-pending/report/second-title-return/rng.jsonl",
-   "sha256": "a7570bccff1c2d0827d2ebd74f5b3ab580d29803274fa7776656ec1c779727c6",
-   "bytes": 812784
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-scripted/command.txt",
-   "sha256": "77b0b265e7f3c3f9829d9dab5326ac4961989e9d6e749e05ee387f05e08a96e8",
-   "bytes": 595
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-scripted/stdout.txt",
-   "sha256": "0138e04def125903e7747da95247d8810915d234378d08bfa29807d5e9f9c902",
-   "bytes": 668
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-scripted/reads.jsonl",
-   "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
-   "bytes": 68452
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-scripted/reads-check.json",
-   "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
-   "bytes": 20004
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-scripted/saves-before.txt",
-   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-   "bytes": 0
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-scripted/saves-after.txt",
-   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-   "bytes": 0
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-scripted/report/route.json",
-   "sha256": "c934ef93e7b5b70a2f7d87f34639353d5750b1d9318281483b7ee26f9b7c026b",
-   "bytes": 309
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-scripted/report/manager-frames.jsonl",
-   "sha256": "666de256e1a2076f5da3d64cecf648ead51abbd9346af7309c307897fb88e2f9",
-   "bytes": 5339
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-scripted/report/session-draw-frames.jsonl",
-   "sha256": "2ef5c84607cae068d8ba677ddb41134157731bab7f47392b7ccddd0b3e5bd2d5",
-   "bytes": 145906
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-scripted/report/second-title-return/state.json",
-   "sha256": "a35b446356d54faf8d1ec9e1914c7823c9ab2600e4969187ff0307587f409133",
-   "bytes": 73328
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-scripted/report/second-title-return/lifecycle.jsonl",
-   "sha256": "1fde0917ecf5cae597c78556929f470aa58a0cb86048694e947ef41941e795f4",
-   "bytes": 109510
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-scripted/report/second-title-return/rng.jsonl",
-   "sha256": "c4d3b3a992dea3e45725131ff3749bfceee6814b2072aa3762430009e3604c6a",
-   "bytes": 942361
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-scripted/compare.txt",
-   "sha256": "74d703c2ea963a9ab47cc9759884c9f8ddd69939096bfa7eb77c2c10e63fd74e",
-   "bytes": 9829
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/sessions/sanitize-scripted/compare.json",
-   "sha256": "cdd2436cfd2ca8cd962904334f8d262b507f5b5d35316eb12eac3abdaadc95be",
-   "bytes": 5985
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/retire-restore/compare.txt",
-   "sha256": "d99cce0276ebe9f98041bb2c1279ec550d9232ea5192900ecbf0dc9b5751e0ba",
-   "bytes": 4367
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/retire-restore/stdout.txt",
-   "sha256": "63b684af61d1ac7b5c02a9d40d81e56e26b8cb50ed459df21981a6ca229637c8",
-   "bytes": 560
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/retire-newgame/compare.txt",
-   "sha256": "e3ffa6e9dabb45adacb9c8e30371a6be6826e5840edf7545da6cc1773cf3f45f",
-   "bytes": 4367
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/retire-newgame/stdout.txt",
-   "sha256": "cfe6477e8d8ab18f6d962443517deb4b84a75f43cf050ff041ab3f8da847f1b6",
-   "bytes": 564
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/gates-release/rng.txt",
-   "sha256": "8a0eea4e6bd0b1df73b4e3d6bc986c2c23a3728e6b0719a35270808af9155418",
-   "bytes": 263
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/gates-release/timeline.txt",
-   "sha256": "b68e117c5efaf3cea364a86ea8e7c91f348582b82a833646ed8cd2af56b49508",
-   "bytes": 323
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/gates-release/startup.txt",
-   "sha256": "565eb330b28e8109d7d3f3f5a25170784a1455c5dd23c058514638e4a8b76413",
-   "bytes": 644
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/gates-release/title.txt",
-   "sha256": "dbbef9a4db20a1987a70d6da12a0e824f1baf22132d66d30f7e1c1218ac6fce3",
-   "bytes": 1207
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/gates-release/stdout.txt",
-   "sha256": "e48ee13e68da99c2a7488f89ec6946510402564e1c5ac5086a5154046c028403",
-   "bytes": 476
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/gates-sanitize/rng.txt",
-   "sha256": "8a0eea4e6bd0b1df73b4e3d6bc986c2c23a3728e6b0719a35270808af9155418",
-   "bytes": 263
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/gates-sanitize/timeline.txt",
-   "sha256": "b68e117c5efaf3cea364a86ea8e7c91f348582b82a833646ed8cd2af56b49508",
-   "bytes": 323
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/gates-sanitize/startup.txt",
-   "sha256": "565eb330b28e8109d7d3f3f5a25170784a1455c5dd23c058514638e4a8b76413",
-   "bytes": 644
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/gates-sanitize/title.txt",
-   "sha256": "dbbef9a4db20a1987a70d6da12a0e824f1baf22132d66d30f7e1c1218ac6fce3",
-   "bytes": 1207
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/gates-sanitize/stdout.txt",
-   "sha256": "b679bae105c060be471925295752f8b1f8e4bb87ed82882707e10bd421a6136e",
-   "bytes": 474
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/compare.txt",
-   "sha256": "f84a05f10594d51b919f2a94cf8b9b2b9a9098477ae9d811c5236d22fbfc6bf8",
-   "bytes": 32724
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/binaries.sha256",
-   "sha256": "53689cda34ce5af4f7c4aeb8e28bc98781e60381655f9962e6e7d3a9adf5669b",
-   "bytes": 290
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/stage-manifest.sha256",
-   "sha256": "e2a014add1be76955e1e92807e87b19eaf0851ae1df94493248c87ca2d4c64f2",
-   "bytes": 65
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/input/sha256.txt",
-   "sha256": "3f60a97e1d05dfea629a30f1af40affef70ab9d8d75c52022be9b32cd9ff9923",
-   "bytes": 78
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/new-a/command.txt",
-   "sha256": "f1317f9cc7e9257b40667e119f45852ad22e0f4db764536aeca7e73d14ef964f",
-   "bytes": 606
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/new-a/outputs.sha256",
-   "sha256": "c6aa8b0eb533184b91442203f946a38fef380713800249303a56da83ecde8c15",
-   "bytes": 2513
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/new-a/stdout.txt",
-   "sha256": "6e592793d1484361de793654ed36664bb1878523b9a3547dc8135491c9fe7153",
-   "bytes": 675
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/new-b/command.txt",
-   "sha256": "6e4f3d920b52b89faa818f2b042a9eab14f8a5dc48271160780e8e4247a4346b",
-   "bytes": 606
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/new-b/outputs.sha256",
-   "sha256": "66586c64d70c2a944f7fd23e1c8dd6c1c48cd6cc3ab09efe2ff5b114a4a03a52",
-   "bytes": 2513
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/new-b/stdout.txt",
-   "sha256": "6e592793d1484361de793654ed36664bb1878523b9a3547dc8135491c9fe7153",
-   "bytes": 675
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/new-c/command.txt",
-   "sha256": "cc2a5e536cb6e7de32dcda6d982126161aab791b9ea2c78e482beaad5216c1cd",
-   "bytes": 606
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/new-c/outputs.sha256",
-   "sha256": "1e90582f8cd06f28ad06b9d1c9d1333460ba55d37f69cee9cde7b37a11b84eba",
-   "bytes": 2513
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/new-c/stdout.txt",
-   "sha256": "6e592793d1484361de793654ed36664bb1878523b9a3547dc8135491c9fe7153",
-   "bytes": 675
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/new-d/command.txt",
-   "sha256": "a35116fe4a0223413a568ebf6ffa7fb05f82ed0ce152aefb47beb0ba18040722",
-   "bytes": 606
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/new-d/outputs.sha256",
-   "sha256": "026a5553d22d0329055d9d96a197d443f6731e9bc1b2b25ece99d292b7932032",
-   "bytes": 2513
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/new-d/stdout.txt",
-   "sha256": "6e592793d1484361de793654ed36664bb1878523b9a3547dc8135491c9fe7153",
-   "bytes": 675
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/old-a/command.txt",
-   "sha256": "45d57631b16f310cb2ba085280ff7607b9b72f83fcd6453b2bc81ab36476cc2d",
-   "bytes": 403
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/old-a/outputs.sha256",
-   "sha256": "31cbf046f91c64938a7073938a8dcb8cce98f26a14b74265f6ab42d55eb30b73",
-   "bytes": 2513
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/old-a/stdout.txt",
-   "sha256": "c61dd39aba945e2232c3321fa648e7c33357e2b15a7a4ae002e34983966d09d2",
-   "bytes": 675
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/old-b/command.txt",
-   "sha256": "79d61d1db158f6e0188ea509d6e3e4bfbe20789f1cc6b05c9df715b8f765043f",
-   "bytes": 403
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/old-b/outputs.sha256",
-   "sha256": "1f3d05e6faaf59f80025f224845493090328a69155b0a71ab258d8edb892273f",
-   "bytes": 2513
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/old-b/stdout.txt",
-   "sha256": "c61dd39aba945e2232c3321fa648e7c33357e2b15a7a4ae002e34983966d09d2",
-   "bytes": 675
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/old-c/command.txt",
-   "sha256": "8c98d890e4aea6d2236a460c65abd41a3875fdf2884bbc319f3e057fc018cf66",
-   "bytes": 403
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/old-c/outputs.sha256",
-   "sha256": "82a6ffa4442386276a593fe0aef3c3fe303fe875862ee893ec697c0d4acad4b4",
-   "bytes": 2513
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/old-c/stdout.txt",
-   "sha256": "c61dd39aba945e2232c3321fa648e7c33357e2b15a7a4ae002e34983966d09d2",
-   "bytes": 675
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/old-d/command.txt",
-   "sha256": "50c0e5042a8ce187e5d1b217b0f2d8293aa872f3d3ea653fffa80cfb1d4cfe44",
-   "bytes": 403
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/old-d/outputs.sha256",
-   "sha256": "3af44ec7f3f51e07fa04a1dabdc5485d9901bddecb0ee93df61e92664558c191",
-   "bytes": 2513
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-restore-cancel/old-d/stdout.txt",
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/stdout.txt",
    "sha256": "0885dd800d8bc0115e583d5608f06c13dc27d3ccdd3d457842051456cb99cd39",
    "bytes": 674
   },
   {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-cold/align.txt",
-   "sha256": "d247ee0ca9edd6f1d5532de5f719fd5bd7c29f4ee1158431776a4475171af226",
-   "bytes": 4160
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/reads.jsonl",
+   "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
+   "bytes": 68452
   },
   {
-   "path": "local/research/restore-ownership-validation-v1/final/regression-cold/binaries.sha256",
-   "sha256": "53689cda34ce5af4f7c4aeb8e28bc98781e60381655f9962e6e7d3a9adf5669b",
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/reads-check.json",
+   "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
+   "bytes": 20004
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/saves-before.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/saves-after.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/report/route.json",
+   "sha256": "c5262a92dc6b6cad5040558b50b63fc0fa8a1ce772986277392be9d1e2521a95",
+   "bytes": 317
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/report/manager-frames.jsonl",
+   "sha256": "93564ba0874461d8667d57e3f273e99657c04cce3f1bebdf7faed4ad522ce308",
+   "bytes": 20268
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/report/session-draw-frames.jsonl",
+   "sha256": "be36c4e7ac6d2eb2aed59e9d0cba90893593e6fd7ced7068d895fa1216f1eb95",
+   "bytes": 597002
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/report/second-title-return/state.json",
+   "sha256": "775d61efe1352019811ac0021adc75c1f0d32bc85b8f56632bf054241be0be6b",
+   "bytes": 73328
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/report/second-title-return/lifecycle.jsonl",
+   "sha256": "1fde0917ecf5cae597c78556929f470aa58a0cb86048694e947ef41941e795f4",
+   "bytes": 109510
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/report/second-title-return/rng.jsonl",
+   "sha256": "61cacada92dbcdc7f8994f59d78c68b921e3adda735d2743210127538469464d",
+   "bytes": 1900203
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/compare.txt",
+   "sha256": "49988c7c4fc2175158aec6db09bfaeb34e3526d21ed1ff38fcd94385eefbf74d",
+   "bytes": 10090
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/compare.json",
+   "sha256": "41116f884ad8f36bb0304f5d38e042fba9bfc2bb973104e971f54db0cdacc432",
+   "bytes": 6207
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/command.txt",
+   "sha256": "ce7e1776a1a355261dcf7f897377e0e4a38440c338c1dfc8a1601b88c6bbd278",
+   "bytes": 576
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/stdout.txt",
+   "sha256": "56375ac8ae680dddd0771df43e614ae46810ddc83582e33a89c5d38c19864fa5",
+   "bytes": 674
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/reads.jsonl",
+   "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
+   "bytes": 68452
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/reads-check.json",
+   "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
+   "bytes": 20004
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/saves-before.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/saves-after.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/report/route.json",
+   "sha256": "ba55c9810d60d11d99c1775068f5d913719d649ab2758356eac9a6be49bf2a6a",
+   "bytes": 298
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/report/manager-frames.jsonl",
+   "sha256": "32d4e2aeb2a8aeca0397ff5435b1febcaeaecd0572d6a34bc4ff26d587792cd8",
+   "bytes": 5750
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/report/session-draw-frames.jsonl",
+   "sha256": "3b4c9a44b5e5871c6f3b663744ae36a1211cebe006f19231374e140f4ec5732c",
+   "bytes": 90730
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/report/second-title-return/state.json",
+   "sha256": "23bd6ec047126c853acf8752be9daa388248d5c7ff330d4ce2962cb9b6f6540f",
+   "bytes": 73328
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/report/second-title-return/lifecycle.jsonl",
+   "sha256": "a216d23b40d618ea64dd8f009cef20f4d4d802064cd3186de7109fed28dcd859",
+   "bytes": 109394
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/report/second-title-return/rng.jsonl",
+   "sha256": "a7570bccff1c2d0827d2ebd74f5b3ab580d29803274fa7776656ec1c779727c6",
+   "bytes": 812784
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/command.txt",
+   "sha256": "782c3f54066f9178768aafc7a858914a3d8a3d42c9d2826af7978af0b75c7073",
+   "bytes": 590
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/stdout.txt",
+   "sha256": "f0bc6676de4a6a6873294a0cc99e59b69001ba95a4f2c95164f68af9364e98ec",
+   "bytes": 670
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/reads.jsonl",
+   "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
+   "bytes": 68452
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/reads-check.json",
+   "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
+   "bytes": 20004
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/saves-before.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/saves-after.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/report/route.json",
+   "sha256": "c62d869907ea38c46bb1b1f81213e8f3eb44d4baf60e19ecbf204cb66cf2d69d",
+   "bytes": 309
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/report/manager-frames.jsonl",
+   "sha256": "19306d81cfaf749fb8afe6a789e8a62be2716e097498fae80085e1553cc74ad9",
+   "bytes": 5341
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/report/session-draw-frames.jsonl",
+   "sha256": "17689b9d6ac31328021bd08c2c41d343bf41968819dc92c0c28bd53432a98cad",
+   "bytes": 147266
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/report/second-title-return/state.json",
+   "sha256": "4d896a5aab528435b34dec38e75e2e6beaf394293357b21297efbcdf388c5718",
+   "bytes": 73328
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/report/second-title-return/lifecycle.jsonl",
+   "sha256": "1fde0917ecf5cae597c78556929f470aa58a0cb86048694e947ef41941e795f4",
+   "bytes": 109510
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/report/second-title-return/rng.jsonl",
+   "sha256": "90536220d8e2b7fb2deda74c4b6c4122f4a03fb23125d14ea537a643176bad8e",
+   "bytes": 945413
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/compare.txt",
+   "sha256": "4207afd785a51114796059fe4bd9a685706a09b8092efcdb3f65b422fd39e456",
+   "bytes": 10350
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/compare.json",
+   "sha256": "be03770be5f57582d747d5c7a4144f2bee49c6e3ce69d20d9e9978a0fd49de82",
+   "bytes": 6197
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/io-timing.json",
+   "sha256": "f88aa30af98f33ef35e67dba978ab0b255fa2c720a71d50a9a78379b77d3234f",
+   "bytes": 1510
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/io-timing.txt",
+   "sha256": "f88aa30af98f33ef35e67dba978ab0b255fa2c720a71d50a9a78379b77d3234f",
+   "bytes": 1510
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/command.txt",
+   "sha256": "31c8fe2a931ba13c152caca5b3b3ff958fcc8f7994bc526b0d7e791ce7d8cd05",
+   "bytes": 539
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/stdout.txt",
+   "sha256": "b11947e6378f561f9071e2541a5917ff4e0107fc3ac5e2a79f7e893f47c31899",
+   "bytes": 673
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/reads.jsonl",
+   "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
+   "bytes": 68452
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/reads-check.json",
+   "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
+   "bytes": 20004
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/saves-before.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/saves-after.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/report/route.json",
+   "sha256": "c5262a92dc6b6cad5040558b50b63fc0fa8a1ce772986277392be9d1e2521a95",
+   "bytes": 317
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/report/manager-frames.jsonl",
+   "sha256": "93564ba0874461d8667d57e3f273e99657c04cce3f1bebdf7faed4ad522ce308",
+   "bytes": 20268
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/report/session-draw-frames.jsonl",
+   "sha256": "be36c4e7ac6d2eb2aed59e9d0cba90893593e6fd7ced7068d895fa1216f1eb95",
+   "bytes": 597002
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/report/second-title-return/state.json",
+   "sha256": "775d61efe1352019811ac0021adc75c1f0d32bc85b8f56632bf054241be0be6b",
+   "bytes": 73328
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/report/second-title-return/lifecycle.jsonl",
+   "sha256": "1fde0917ecf5cae597c78556929f470aa58a0cb86048694e947ef41941e795f4",
+   "bytes": 109510
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/report/second-title-return/rng.jsonl",
+   "sha256": "61cacada92dbcdc7f8994f59d78c68b921e3adda735d2743210127538469464d",
+   "bytes": 1900203
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/compare.txt",
+   "sha256": "49988c7c4fc2175158aec6db09bfaeb34e3526d21ed1ff38fcd94385eefbf74d",
+   "bytes": 10090
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/compare.json",
+   "sha256": "41116f884ad8f36bb0304f5d38e042fba9bfc2bb973104e971f54db0cdacc432",
+   "bytes": 6207
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/command.txt",
+   "sha256": "599a22599a0ab65e52a944c46fb0c4ec410e95c5a260e11a811203f217954f6d",
+   "bytes": 581
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/stdout.txt",
+   "sha256": "e4d9413c868876d00c075899aa7ccaf137098f8dfe3b0fed2d7934dc3bb5678f",
+   "bytes": 673
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/reads.jsonl",
+   "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
+   "bytes": 68452
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/reads-check.json",
+   "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
+   "bytes": 20004
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/saves-before.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/saves-after.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/report/route.json",
+   "sha256": "ba55c9810d60d11d99c1775068f5d913719d649ab2758356eac9a6be49bf2a6a",
+   "bytes": 298
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/report/manager-frames.jsonl",
+   "sha256": "32d4e2aeb2a8aeca0397ff5435b1febcaeaecd0572d6a34bc4ff26d587792cd8",
+   "bytes": 5750
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/report/session-draw-frames.jsonl",
+   "sha256": "3b4c9a44b5e5871c6f3b663744ae36a1211cebe006f19231374e140f4ec5732c",
+   "bytes": 90730
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/report/second-title-return/state.json",
+   "sha256": "23bd6ec047126c853acf8752be9daa388248d5c7ff330d4ce2962cb9b6f6540f",
+   "bytes": 73328
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/report/second-title-return/lifecycle.jsonl",
+   "sha256": "a216d23b40d618ea64dd8f009cef20f4d4d802064cd3186de7109fed28dcd859",
+   "bytes": 109394
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/report/second-title-return/rng.jsonl",
+   "sha256": "a7570bccff1c2d0827d2ebd74f5b3ab580d29803274fa7776656ec1c779727c6",
+   "bytes": 812784
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/command.txt",
+   "sha256": "3304c7a4fe4e95a3041639c3f9869a1de90004091a229935d99cd6110dc42f3e",
+   "bytes": 595
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/stdout.txt",
+   "sha256": "0138e04def125903e7747da95247d8810915d234378d08bfa29807d5e9f9c902",
+   "bytes": 668
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/reads.jsonl",
+   "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
+   "bytes": 68452
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/reads-check.json",
+   "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
+   "bytes": 20004
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/saves-before.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/saves-after.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/report/route.json",
+   "sha256": "c934ef93e7b5b70a2f7d87f34639353d5750b1d9318281483b7ee26f9b7c026b",
+   "bytes": 309
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/report/manager-frames.jsonl",
+   "sha256": "19306d81cfaf749fb8afe6a789e8a62be2716e097498fae80085e1553cc74ad9",
+   "bytes": 5341
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/report/session-draw-frames.jsonl",
+   "sha256": "c8b48d437239672f8683788a8f9df257f2e876d8f42a6f0f9b164393507f5d8f",
+   "bytes": 147266
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/report/second-title-return/state.json",
+   "sha256": "4d896a5aab528435b34dec38e75e2e6beaf394293357b21297efbcdf388c5718",
+   "bytes": 73328
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/report/second-title-return/lifecycle.jsonl",
+   "sha256": "1fde0917ecf5cae597c78556929f470aa58a0cb86048694e947ef41941e795f4",
+   "bytes": 109510
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/report/second-title-return/rng.jsonl",
+   "sha256": "90536220d8e2b7fb2deda74c4b6c4122f4a03fb23125d14ea537a643176bad8e",
+   "bytes": 945413
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/compare.txt",
+   "sha256": "d0af46e2dbd0910cf29b7b8de6e4632a4109e8e1f2a39a977df86c8476f5829f",
+   "bytes": 10350
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/compare.json",
+   "sha256": "6b3f025e9d996ce4161d6748ac427671254b1e021554b1d161c89d9c88c0f097",
+   "bytes": 6197
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/io-timing.json",
+   "sha256": "f88aa30af98f33ef35e67dba978ab0b255fa2c720a71d50a9a78379b77d3234f",
+   "bytes": 1510
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/io-timing.txt",
+   "sha256": "f88aa30af98f33ef35e67dba978ab0b255fa2c720a71d50a9a78379b77d3234f",
+   "bytes": 1510
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/retire-restore/compare.txt",
+   "sha256": "f917b5e33edf993cfae6a8ef0bb934080f370cb05b737233d8dcf3b64d7bbfba",
+   "bytes": 4367
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/retire-restore/stdout.txt",
+   "sha256": "f61426b4812bb0e7ec6fbebae73b86ed7e25ccf47538e60fee43f163f7061782",
+   "bytes": 561
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/retire-newgame/compare.txt",
+   "sha256": "fa355bb185b45b0533278455c2a707677dc8fce98abbf564bc568bd1e4c1a9c6",
+   "bytes": 4367
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/retire-newgame/stdout.txt",
+   "sha256": "441156228c9848a9bbb8b8a64667af483dfd7f53d439a2fa3691f2f05b0b4c06",
+   "bytes": 563
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/gates-release/rng.txt",
+   "sha256": "8a0eea4e6bd0b1df73b4e3d6bc986c2c23a3728e6b0719a35270808af9155418",
+   "bytes": 263
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/gates-release/timeline.txt",
+   "sha256": "b68e117c5efaf3cea364a86ea8e7c91f348582b82a833646ed8cd2af56b49508",
+   "bytes": 323
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/gates-release/startup.txt",
+   "sha256": "565eb330b28e8109d7d3f3f5a25170784a1455c5dd23c058514638e4a8b76413",
+   "bytes": 644
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/gates-release/title.txt",
+   "sha256": "dbbef9a4db20a1987a70d6da12a0e824f1baf22132d66d30f7e1c1218ac6fce3",
+   "bytes": 1207
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/gates-release/stdout.txt",
+   "sha256": "f2cdfc0b8a351088b865c5f6834d177d3dcb93010a03b49894b8dd9a1bb55e7a",
+   "bytes": 475
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/gates-sanitize/rng.txt",
+   "sha256": "8a0eea4e6bd0b1df73b4e3d6bc986c2c23a3728e6b0719a35270808af9155418",
+   "bytes": 263
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/gates-sanitize/timeline.txt",
+   "sha256": "b68e117c5efaf3cea364a86ea8e7c91f348582b82a833646ed8cd2af56b49508",
+   "bytes": 323
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/gates-sanitize/startup.txt",
+   "sha256": "565eb330b28e8109d7d3f3f5a25170784a1455c5dd23c058514638e4a8b76413",
+   "bytes": 644
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/gates-sanitize/title.txt",
+   "sha256": "dbbef9a4db20a1987a70d6da12a0e824f1baf22132d66d30f7e1c1218ac6fce3",
+   "bytes": 1207
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/gates-sanitize/stdout.txt",
+   "sha256": "b679bae105c060be471925295752f8b1f8e4bb87ed82882707e10bd421a6136e",
+   "bytes": 474
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/compare.txt",
+   "sha256": "b13486c4069f7d869a3eb14c2426864d5506a8653f89cea43ee89e1f36c452bb",
+   "bytes": 33864
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/binaries.sha256",
+   "sha256": "7e7dc1400e066283f1e6790504bad2e15a41d4017c10907d0e7a62bddd218cf6",
+   "bytes": 290
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/stage-manifest.sha256",
+   "sha256": "e2a014add1be76955e1e92807e87b19eaf0851ae1df94493248c87ca2d4c64f2",
+   "bytes": 65
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/input/sha256.txt",
+   "sha256": "3f60a97e1d05dfea629a30f1af40affef70ab9d8d75c52022be9b32cd9ff9923",
+   "bytes": 78
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-a/command.txt",
+   "sha256": "cc992f01e26cec9c4b65e485e4525072186d5edd7e984a21e03d7a178c289ee0",
+   "bytes": 606
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-a/outputs.sha256",
+   "sha256": "ca35e8949765540e0de55fc2ead46e32106b0bc59cc7463e1f4702110ba6b863",
+   "bytes": 2513
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-a/stdout.txt",
+   "sha256": "6e592793d1484361de793654ed36664bb1878523b9a3547dc8135491c9fe7153",
+   "bytes": 675
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-b/command.txt",
+   "sha256": "a0a1d799ae70b8a5f3da3676e949b23073703732d6a9f8cdde9358963f1df53a",
+   "bytes": 606
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-b/outputs.sha256",
+   "sha256": "6eb9c4a3327c4aaceb86de6206eddce9015ee6a11a0c23d3d5e6fc3e853f9cf2",
+   "bytes": 2513
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-b/stdout.txt",
+   "sha256": "6e592793d1484361de793654ed36664bb1878523b9a3547dc8135491c9fe7153",
+   "bytes": 675
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-c/command.txt",
+   "sha256": "4a6c523e5dddd0059ad1b5541561d6ea07dccdbb4dcded1339d17edac8ae2616",
+   "bytes": 606
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-c/outputs.sha256",
+   "sha256": "9217891d09927c64a66b2beb8cc289c55c7acb0be060bc5fda14d31e79ac3b5c",
+   "bytes": 2513
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-c/stdout.txt",
+   "sha256": "c8b34f6efbc341281fd4bbbd04841bdc75d8ae3f0d95c591a9c2ea4c69856ed0",
+   "bytes": 674
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-d/command.txt",
+   "sha256": "4e3015b9fcae4dd82f9eb72c09b33cb0af6cf61a666fed294fe3b360ee67b94f",
+   "bytes": 606
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-d/outputs.sha256",
+   "sha256": "2d3db031c99e86b95090b612618a25bbf08c948122b33fde8599cf2a7d7a46f7",
+   "bytes": 2513
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-d/stdout.txt",
+   "sha256": "102786cf1d3b50dfafd59a1df7dc265b00b3c9d06a6df7d948925f30d4e867e7",
+   "bytes": 674
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-a/command.txt",
+   "sha256": "f2ce19dfb658febd733c7ee7b1df71973e6d04a9a556bf2ec41d2fc7782667ad",
+   "bytes": 403
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-a/outputs.sha256",
+   "sha256": "b3586fbce794c459329d050bec40a24d8475748984156f9e705cb93e8f8dc2b9",
+   "bytes": 2513
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-a/stdout.txt",
+   "sha256": "6e592793d1484361de793654ed36664bb1878523b9a3547dc8135491c9fe7153",
+   "bytes": 675
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-b/command.txt",
+   "sha256": "da7513862a9aadc635b121e676283dd5f18bfa8f5eea41589d68d212ab9a8e42",
+   "bytes": 403
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-b/outputs.sha256",
+   "sha256": "ad9e9e71838af5d87f4856cbc46c80136427dd2d549c1628be1eab1ed250c197",
+   "bytes": 2513
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-b/stdout.txt",
+   "sha256": "c8b34f6efbc341281fd4bbbd04841bdc75d8ae3f0d95c591a9c2ea4c69856ed0",
+   "bytes": 674
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-c/command.txt",
+   "sha256": "f8d8ae3aa7bc9fb710a7ee2649eef8741282e323d5351c0fde8ed3357294a308",
+   "bytes": 403
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-c/outputs.sha256",
+   "sha256": "a28c0e629906da6778853320d0ce4c182704f8a8b79226233dae6518a8b23b23",
+   "bytes": 2513
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-c/stdout.txt",
+   "sha256": "d80995b72a060b4d236bd075293ef01d5619929ed307d12d39c9ec59dd29e3ad",
+   "bytes": 675
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-d/command.txt",
+   "sha256": "8e863007e0e2c2aaf9a400029da439b3daf265638b425e1b83cdd1792446210c",
+   "bytes": 403
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-d/outputs.sha256",
+   "sha256": "04825af92cb687ebb164b72ad02872880147278e13b30567ced895b381fd9a10",
+   "bytes": 2513
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-d/stdout.txt",
+   "sha256": "102786cf1d3b50dfafd59a1df7dc265b00b3c9d06a6df7d948925f30d4e867e7",
+   "bytes": 674
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-cold/align.txt",
+   "sha256": "081ef911f16088fe5a8455831ecb42d2cdc33f7af4cc375a37302105a0807b5d",
+   "bytes": 3990
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v2/final/regression-cold/binaries.sha256",
+   "sha256": "7e7dc1400e066283f1e6790504bad2e15a41d4017c10907d0e7a62bddd218cf6",
    "bytes": 290
   }
  ],
  "commands": {
   "driver": "tools/restore_validation_run.sh final",
-  "per_run": "local/research/restore-ownership-validation-v1/final/commands.txt",
+  "per_run": "local/research/restore-ownership-validation-v2/final/commands.txt",
   "manifest": "python3 tools/restore_validation_manifest.py docs/restore-ownership-validation.json"
  }
 }

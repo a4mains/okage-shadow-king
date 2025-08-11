@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path.cwd()
-V = "local/research/restore-ownership-validation-v1"
+V = "local/research/restore-ownership-validation-v2"
 F = f"{V}/final"
 
 def sha(path):
@@ -59,17 +59,10 @@ def main(out):
                 "local/research/restore-route-recheck-v1/regression-restore.out",
                 "local/research/restore-route-recheck-v1/regression-newgame.out",
                 "local/research/restore-route-recheck-v1/sha256.txt",
+                # superseded v1 evidence (before the per-slot storage fix), kept as history
+                "local/research/restore-ownership-validation-v1/bin/binaries.sha256",
                 "local/research/restore-ownership-validation-v1/conditional-parity/sha256.txt",
-                "local/research/restore-ownership-validation-v1/io-timing/sha256.txt",
-                "local/research/restore-ownership-validation-v1/io-timing/release-scripted.json",
-                "local/research/restore-ownership-validation-v1/io-timing/sanitize-scripted.json"]
-    conditional = {}
-    for s in ("release-scripted", "release-fixed", "sanitize-scripted", "sanitize-fixed"):
-        rel = f"{V}/conditional-parity/{s}"
-        evidence += [f"{rel}.json", f"{rel}.txt"]
-        c = json.loads(text(f"{rel}.json"))
-        conditional[s] = {"result": c["result"], "conditional_parity": c["conditional_parity"],
-                          "timing_diagnostic": c["timing_diagnostic"]}
+                "local/research/restore-ownership-validation-v1/io-timing/sha256.txt"]
     sessions = {}
     for d in sorted((ROOT / F / "sessions").iterdir()):
         rel = f"{F}/sessions/{d.name}"
@@ -80,6 +73,9 @@ def main(out):
         has_cmp = (ROOT / rel / "compare.exit").exists()
         if has_cmp:
             names += ["compare.txt", "compare.json"]
+        has_io = (ROOT / rel / "io-timing.exit").exists()
+        if has_io:
+            names += ["io-timing.json", "io-timing.txt"]
         evidence += [f"{rel}/{n}" for n in names if (ROOT / rel / n).exists()]
         entry_ = {"exit": int(text(f"{rel}/exit.txt")), "input_check_exit": int(text(f"{rel}/reads-check.exit")),
                   "saves_empty_before_after": [text(f"{rel}/saves-before.txt"), text(f"{rel}/saves-after.txt")],
@@ -92,7 +88,15 @@ def main(out):
                                and not v["stream_inconsistent"] for v in c["checkpoints"].values()),
                            "timing_diagnostic": c.get("timing_diagnostic"), "asserted": c.get("asserted"),
                            "anchors_original": c.get("anchors_original"), "anchors_native": c.get("anchors_native"),
-                           "readiness_original": c.get("readiness_original"), "readiness_native": c.get("readiness_native")})
+                           "readiness_original": c.get("readiness_original"), "readiness_native": c.get("readiness_native"),
+                           "conditional_parity": c.get("conditional_parity")})
+        if has_io:
+            io_ = json.loads(text(f"{rel}/io-timing.json"))
+            entry_.update({"exact_parity_exit": int(text(f"{rel}/io-timing.exit")),
+                           "native_matches_an_original_execution": io_["native_matches_an_original_execution"],
+                           "native_exact_rng_parity": io_["native_exact_rng_parity"],
+                           "native_known_vram_vs_control": io_["native_known_vram_vs_control"],
+                           "draw_counts": {k: io_[k] for k in ("original-hooked", "original-control", "native")}})
         sessions[d.name] = entry_
     retire = {}
     for r in ("restore", "newgame"):
@@ -123,8 +127,7 @@ def main(out):
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "stage_manifest_sha256_pinned": "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
         "run_time_evidence": {
-            "sessions": sessions, "conditional_parity": conditional,
-            "io_timing": {s: json.loads(text(f"{V}/io-timing/{s}.json")) for s in ("release-scripted", "sanitize-scripted")}, "retire_routes_strict": retire, "gates": gates, "regressions": regressions,
+            "sessions": sessions, "retire_routes_strict": retire, "gates": gates, "regressions": regressions,
             "ctest": {k: text(f"{V}/ctest-{k}.out").splitlines()[-3] for k in ("release-all", "debug-focused", "sanitize-focused")},
             "python_suite": [l for l in text(f"{V}/python-suite.out").splitlines() if l.startswith(("Ran ", "OK", "FAILED"))],
         },
