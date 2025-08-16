@@ -65,7 +65,7 @@ jl = title.jl
 write_x = retire.write_x
 effect_state = retire.effect_state
 
-def timeline(events):
+def timeline(events, light=False):
     enters = {}
     out, detail = [], []
     live = set()
@@ -161,6 +161,15 @@ def timeline(events):
                     last_sub = e['submode']
             elif n == 'successor_construct':
                 add({'kind': 'phase', 'name': 'successor-0x124548-entry-mode%d' % e['parent_4c']}, e)
+            elif n == 'restore_input' and light:
+                # light window: 0x11c2c8 is not hooked; a state it set is first seen at the next 0x11e480 entry (no
+                # lifecycle row can occur between that return and this entry)
+                s = e['restore']['state_1f89a8']
+                if ui_state is None:
+                    ui_state = s
+                elif s != ui_state:
+                    add({'kind': 'ui', 'op': 'state', 'state': s}, e)
+                    ui_state = s
             elif n == 'window_destroy':
                 add({'kind': 'ui', 'op': 'window-death', 'window': e['value']}, e)
             elif n == 'manager_destroy':
@@ -791,6 +800,232 @@ def regression(retire_run, title_run, default_run, retire_evidence, title_runs, 
         out.update(retire.regression(title_run, default_run, title_runs, startup_run))
     return out
 
+LCG_MUL, LCG_ADD = 0x41c64e6d, 0x3039
+LIGHT_PHASE = 'restore-ui'
+
+def lcg(s):
+    s = (s * LCG_MUL + LCG_ADD) & 0xffffffff
+    return s, s & 0x7fffffff
+
+def lcg_steps(a, b, limit=1 << 20):
+    n, s = 0, a
+    while s != b:
+        s, _ = lcg(s)
+        n += 1
+        need(n <= limit, f'rand state {b} not reachable from {a} within {limit} LCG steps')
+    return n
+
+def verify_lcg(rng_rows):
+    """The derivation rule must reproduce the observed RNG draws (state chain and value = state & 0x7fffffff)."""
+    for x, y in zip(rng_rows, rng_rows[1:]):
+        need(lcg(x['state']) == (y['state'], y['value']), f'LCG rule does not reproduce RNG draw {y["i"]}')
+    return len(rng_rows) - 1
+
+def light_t(ev, successor_i, end_i):
+    """Traversal ordinal in light mode: inside the window, t = 0 until the first 0x11e480 entry, then
+    (0x11e480 entries so far) - 1 (one input call per traversal from S to the death traversal D); after the window,
+    t_D + scheduler calls (0x100618) since the window end. Before the successor entry: None."""
+    out = {}
+    calls = 0
+    t_end = None
+    tops = 0
+    for e in ev:
+        if e['i'] < successor_i:
+            out[e['i']] = None
+            continue
+        if e['i'] <= end_i:
+            if e['ev'] == 'enter' and e.get('name') == 'restore_input':
+                calls += 1
+            out[e['i']] = max(0, calls - 1)
+            t_end = out[e['i']]
+        else:
+            if e['ev'] == 'top' and e['pc'] == SCHEDULER_PC:
+                tops += 1
+            out[e['i']] = t_end + tops
+    return out
+
+def analyse_light(evidence, out, rng, retire_evidence, full_analysis, control_run):
+    runs = {r: os.path.join(evidence, 'runs', r) for r in RUNS}
+    for r, p in runs.items():
+        need(os.path.isdir(p), f'missing run {p}')
+    os.makedirs(out)
+    det = retire.determinism(runs, RETIRE_CPS + CHECKPOINTS)
+    need(all(v['identical'] for k, v in det.items() if isinstance(v, dict) and 'identical' in v),
+         'light runs are not deterministic: ' + json.dumps({k: v.get('identical') for k, v in det.items() if isinstance(v, dict)}))
+    for name in ('memcards-before.json', 'memcards-after.json'):
+        for r, p in runs.items():
+            m = json.load(open(os.path.join(p, name)))
+            need(m['mc0']['entries'] == [] and m['mc1']['entries'] == [], f'{r}: research memory card not empty ({name})')
+    a = runs['fill00-a']
+    ev = read_jsonl(os.path.join(a, 'events.jsonl'))
+    meta = json.load(open(os.path.join(a, 'run-meta.json')))
+    need(meta.get('light_restore') is True and meta['pad_step'] == 8 and meta['missing_checkpoints'] == []
+         and meta['light_window_open_at_stop'] is False, 'run-meta does not describe a completed light Restore-cancel run')
+    tl, detail, counts = timeline(ev, light=True)
+    for r in RUNS[1:]:
+        need(timeline(read_jsonl(os.path.join(runs[r], 'events.jsonl')), light=True)[0] == tl, f'timeline differs in {r}')
+    cps = checkpoint_boundaries(ev)
+    need(tuple(cps) == RETIRE_CPS + CHECKPOINTS, f'checkpoints {list(cps)}')
+    successor_i = cps['retire-successor-entry'][1]
+    lw = [e for e in ev if e['ev'] == 'light_window']
+    need([e['op'] for e in lw] == ['begin', 'end'], 'light window begin/end')
+    begin_i, end_i = lw[0]['i'], lw[1]['i']
+    need(cps['retire-successor-entry'][0]['i'] < begin_i and cps['cancel-death'][0]['i'] < end_i, 'light window bounds')
+    in_window = lambda i: successor_i <= i <= end_i  # noqa: E731
+    leaked = [e for e in ev if in_window(e['i']) and (e['ev'] in ('rand', 'rand_exit', 'probe', 'top')
+                                                      or (e['ev'] == 'enter' and e['name'] in ('restore_update', 'ui_place_19c568',
+                                                          'ui_place_19ca20', 'mc_check_16d580', 'mc_sync_16c2a0',
+                                                          'storage_probe', 'pad_repeat', 'effect_service', 'theme_tick')))]
+    need(not leaked, f'non-light observations inside the light window: {leaked[:3]}')
+    rng_rows = read_jsonl(rng)
+    lcg_checked = verify_lcg(rng_rows)
+    obs_draws, obs_detail = rng_draws(ev, rng_rows, successor_i)
+    need(all(d['oracle_i'] < successor_i or d['oracle_i'] > end_i for d in obs_detail), 'observed draw inside the window')
+    # rand-state anchors inside the window, in order
+    anchors = [(successor_i, cps['retire-successor-entry'][0]['rand_state_via_ptr'])]
+    for e in ev:
+        if begin_i <= e['i'] <= end_i and 'rand_state_via_ptr' in e:
+            anchors.append((e['i'], e['rand_state_via_ptr']))
+    pre_states = [d['state'] for d, x in zip(obs_draws, obs_detail) if x['oracle_i'] < successor_i]
+    need(pre_states and anchors[0][1] == pre_states[-1], 'successor rand state is not the last observed draw')
+    tt = light_t(ev, successor_i, end_i)
+    derived, dd = [], []
+    s = anchors[0][1]
+    for (i0, s0), (i1, s1) in zip(anchors, anchors[1:]):
+        n = lcg_steps(s0, s1)
+        for _ in range(n):
+            s, v = lcg(s)
+            derived.append({'phase': LIGHT_PHASE, 'state': s, 'value': v, 'derived': 'lcg-step'})
+            dd.append({'oracle_i': i1 - 0.5, 'trav': tt[i1], 'after_anchor': i0, 'before_anchor': i1})
+        need(s == s1, 'derivation mismatch')
+    pre = [(d, x) for d, x in zip(obs_draws, obs_detail) if x['oracle_i'] < successor_i]
+    post = [(d, x) for d, x in zip(obs_draws, obs_detail) if x['oracle_i'] > end_i]
+    draws, draw_detail = [], []
+    for d, x in pre:
+        draws.append(dict(d))
+        draw_detail.append(x)
+    for d, x in zip(derived, dd):
+        draws.append(dict(d, i=len(draws)))
+        draw_detail.append(dict(x, i=len(draw_detail), phase=LIGHT_PHASE, derived='lcg-step'))
+    for d, x in post:
+        draws.append(dict(d, i=len(draws)))
+        draw_detail.append(dict(x, i=len(draw_detail)))
+    ptrs = table_ptrs(ev)
+    write_x(os.path.join(out, 'events-detail.jsonl'), jl([dict(x, t=tt.get(x['oracle_i'])) for x in detail]))
+    cp_info = {}
+    for name in RETIRE_CPS + CHECKPOINTS:
+        e, boundary = cps[name]
+        fs = read_jsonl(os.path.join(a, 'checkpoints', name, 'state.jsonl'))[0]
+        prefix_rows = prefix(detail, tl, boundary)
+        resource = [x for x in prefix_rows if x['kind'] != 'phase']
+        info = {'oracle_i': e['i'], 'boundary_oracle_i': boundary, 'vb': e['vb'], 'pc': e['pc'], 't': tt.get(e['i']),
+                'resource_events': len(resource), 'rng_draws_before': sum(1 for d in draw_detail if d['oracle_i'] < boundary),
+                'events_by_kind': dict(sorted(collections.Counter(
+                    x['kind'] if x['kind'] not in ('effect', 'mode', 'ui', 'glyph') else x['kind'] + ':' + x['op']
+                    for x in resource).items())),
+                'gs': e['gs'], 'rand_state': e['rand_state_via_ptr']}
+        cp_info[name] = info
+        if name in RETIRE_CPS:
+            continue
+        d = os.path.join(out, name)
+        os.makedirs(d)
+        write_x(os.path.join(d, 'events.jsonl'), jl(prefix_rows))
+        st = native_state(fs, name, ptrs)
+        write_x(os.path.join(d, 'state.json'), json.dumps(st, separators=(',', ':')) + '\n')
+        fx = {'effect106': effect_state(fs['title_effect']) if fs['title_effect_slot'] >= 0 else None}
+        write_x(os.path.join(d, 'effects.json'), json.dumps(fx, separators=(',', ':')) + '\n')
+        write_x(os.path.join(d, 'rng.jsonl'), jl(draws[:info['rng_draws_before']]))
+        need(not draws[:info['rng_draws_before']] or draws[info['rng_draws_before'] - 1]['state'] == e['rand_state_via_ptr'],
+             f'{name}: last draw before the checkpoint is not the checkpoint rand state')
+        cpd = {r: os.path.join(runs[r], 'checkpoints', name) for r in RUNS}
+        info['vram'] = retire.vram_analysis(os.path.join(cpd['fill00-a'], 'vram.bin'), os.path.join(cpd['fillff-a'], 'vram.bin'),
+                                         os.path.join(cpd['fill00-a'], 'vram-last-writer.bin'),
+                                         os.path.join(cpd['fill00-a'], 'vram-upload-ever.bin'), d)
+        info['state'] = {'allocations': len(st['allocations']), 'handles': len(st['handles']), 'records': len(st['records']),
+                         'hash': len(st['hash']), 'available': st['available']}
+        info['effect106'] = fx['effect106']
+    # manager frames
+    rows = {}
+    cur = None
+    for e in ev:
+        if not (successor_i <= e['i'] <= end_i):
+            continue
+        if e['ev'] == 'enter' and e['name'] == 'restore_input':
+            t = tt[e['i']]
+            need(t not in rows, f'two 0x11e480 calls in traversal {t}')
+            cur = rows[t] = {'t': t, 'state_in': e['restore']['state_1f89a8'], 'gate_open': e['input_gate_open'],
+                             'pressed': None, 'vb': e['vb'], 'rand_in': e['rand_state_via_ptr'],
+                             'opacity_bits': (e['restore'].get('ui_window') or {}).get('fields', {}).get('opacity_270')}
+        elif e['ev'] == 'exit' and e['name'] == 'pad_pressed' and cur is not None and in_input(e['caller_ra']):
+            need(cur['pressed'] is None, 'two pressed reads in one 0x11e480 call')
+            cur['pressed'] = e['word']
+        elif e['ev'] == 'exit' and e['name'] == 'restore_input':
+            cur['state_out'] = e['restore']['state_1f89a8']
+            cur['rand_out'] = e['rand_state_via_ptr']
+            need(cur['rand_out'] == cur['rand_in'], f'draw inside 0x11e480 at t {cur["t"]}')
+            cur = None
+    per_t = collections.Counter(x['trav'] for x in dd)
+    frames = []
+    ts = sorted(rows)
+    need(ts == list(range(len(ts))), 'light manager frames not contiguous')
+    for k, t in enumerate(ts):
+        r = rows[t]
+        upd = rows[t + 1]['state_in'] if t + 1 in rows else lw[1]['state_1f89a8']
+        frames.append({'t': t, 'state_in': r['state_in'], 'state_out': r['state_out'], 'update_state_out': upd,
+                       'gate_open': r['gate_open'], 'pressed': r['pressed'], 'draws': per_t.get(t, 0), 'vb': r['vb'],
+                       'opacity_bits': r['opacity_bits'], 'rand_in': r['rand_in'], 'update_state_out_source':
+                       'next 0x11e480 entry' if t + 1 in rows else 'light_window end (cancel-death)'})
+    need(sum(per_t.values()) == len(derived) and set(per_t) <= set(ts), 'derived draws outside the manager traversals')
+    write_x(os.path.join(out, 'manager-frames.jsonl'), jl(frames))
+    write_x(os.path.join(out, 'rng-detail.jsonl'), jl(draw_detail[len(rng_rows):]))
+    ready = [r['t'] for r in frames if r['update_state_out'] == 0x212][:1] + [r['t'] for r in frames if r['update_state_out'] == 0x21c][:1]
+    ref = {'schema': 'okage.restore-light-reference.v1', 'route': 'restore-cancel', 'mode': 'light',
+           'light_window': {'from': 'retire-successor-entry', 'to': 'cancel-death', 'begin_oracle_i': begin_i, 'end_oracle_i': end_i,
+                            'breakpoint_stops_in_window': lw[1]['stops_in_window'], 'armed_at_begin': lw[0]['armed'],
+                            'allowed_at_begin': lw[0]['allowed']},
+           'derivation': {'rule': 'state(n+1) = state(n)*0x41c64e6d + 0x3039 mod 2^32; value = state & 0x7fffffff',
+                          'verified_on_rng_draws': lcg_checked, 'anchors': len(anchors), 'derived_draws': len(derived),
+                          'labels': 'not observed in the light window (phase "restore-ui", "derived": "lcg-step")'},
+           'card_readiness': {'update_t_state_0x212': ready[0] if ready else None, 'update_t_state_0x21c': ready[1] if len(ready) > 1 else None},
+           'checkpoints': cp_info, 'timeline_counts': dict(sorted(counts.items())),
+           'draws_per_traversal': {str(k): v for k, v in sorted(per_t.items())},
+           'pad': {'host_pad_changes': read_jsonl(os.path.join(a, 'pad-host.jsonl')),
+                   'script_actions': [{k: e[k] for k in ('i', 'vb', 'step', 'buttons', 'why')} for e in ev if e['ev'] == 'pad_script']},
+           'determinism': det, 'rng_total': len(draws)}
+    ref['manager_frames'] = {'rows': len(frames), 'anchors': {'empty_ready_t': next((r['t'] for r in frames if r['state_in'] == 0x21c and r['gate_open']), None),
+                                                              'cancel_t': next((r['t'] for r in frames if r['pressed'] == 0x20), None),
+                                                              'death_t': frames[-1]['t']}}
+    ref['retire_neutrality'] = retire_neutrality(a, ev, tl, detail, cps, out, retire_evidence, runs)
+    # cross-checks against the full (hooked) reference and the minimal control
+    x = {}
+    if full_analysis:
+        for cp in CHECKPOINTS:
+            fa, la = os.path.join(full_analysis, cp), os.path.join(out, cp)
+            fr = [r for r in read_jsonl(os.path.join(fa, 'events.jsonl')) if r['kind'] != 'phase']
+            lr = [r for r in read_jsonl(os.path.join(la, 'events.jsonl')) if r['kind'] != 'phase']
+            x[cp] = {'lifecycle_equal_full': fr == lr,
+                     'state_equal_full': json.load(open(os.path.join(fa, 'state.json'))) == json.load(open(os.path.join(la, 'state.json'))),
+                     'effects_equal_full': fsha(os.path.join(fa, 'effects.json')) == fsha(os.path.join(la, 'effects.json')),
+                     'vram_masks_equal_full': all(fsha(os.path.join(fa, n)) == fsha(os.path.join(la, n)) for n in
+                                                  ('vram-written-mask.bin', 'vram-written-values.bin', 'vram-invalidated-mask.bin')),
+                     'rng_draws_full_vs_light': [sum(1 for _ in open(os.path.join(fa, 'rng.jsonl'))), cp_info[cp]['rng_draws_before']]}
+        ref['vs_full_reference'] = x
+    if control_run:
+        cev = read_jsonl(os.path.join(control_run, 'events.jsonl'))
+        cr = [(e['restore']['state_1f89a8'], e['input_gate_open']) for e in cev if e['ev'] == 'enter' and e.get('name') == 'restore_input']
+        lr = [(e['restore']['state_1f89a8'], e['input_gate_open']) for e in ev if e['ev'] == 'enter' and e.get('name') == 'restore_input']
+        c = {'restore_input_sequence_equal_control': cr == lr, 'calls': [len(cr), len(lr)]}
+        for name in ('empty-ready', 'second-title-return'):
+            cs = read_jsonl(os.path.join(control_run, 'checkpoints', name, 'state.jsonl'))[0]
+            ls_ = read_jsonl(os.path.join(a, 'checkpoints', name, 'state.jsonl'))[0]
+            c[name] = {'rand_state_equal_control': cs['rand_state_214ec8_58'] == ls_['rand_state_214ec8_58'],
+                       'resource_state_equal_control': all(retire.resource_equal(cs, ls_, tuple(k for k in retire.RESOURCE_STATE_KEYS
+                                                                                            if k not in ('allocations', 'allocation_serials'))).values()),
+                       'vram_fill00_equal_control': fsha(os.path.join(control_run, 'checkpoints', name, 'vram.bin'))
+                       == fsha(os.path.join(a, 'checkpoints', name, 'vram.bin'))}
+        ref['vs_minimal_control'] = c
+    return ref
+
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     p.add_argument('evidence')
@@ -802,12 +1037,28 @@ def main(argv=None):
     p.add_argument('--regress-default')
     p.add_argument('--title-runs')
     p.add_argument('--startup-run')
+    p.add_argument('--light', action='store_true', help='light reference (--restore-cancel --light-restore captures)')
+    p.add_argument('--full-analysis', help='light: the full Restore analysis, for cross-checks')
+    p.add_argument('--control', help='light: the minimal control run, for cross-checks')
     a = p.parse_args(argv)
     if os.path.exists(a.out):
         print('refusing existing output directory', file=sys.stderr)
         return 2
     OUT[0] = a.out
     try:
+        if a.light:
+            ref = analyse_light(a.evidence, a.out, a.rng, a.retire_evidence, a.full_analysis, a.control)
+            with open(os.path.join(a.out, 'reference.json'), 'x') as f:
+                json.dump(ref, f, indent=1)
+                f.write('\n')
+            for name, c in ref['checkpoints'].items():
+                print(f'  {name}: vb={c["vb"]} t={c["t"]} rows={c["resource_events"]} draws={c["rng_draws_before"]}')
+            print('readiness:', ref['card_readiness'], 'anchors:', ref['manager_frames']['anchors'])
+            print('retire neutrality failures:', ref['retire_neutrality']['failures'])
+            for k in ('vs_full_reference', 'vs_minimal_control'):
+                if k in ref:
+                    print(k, json.dumps(ref[k]))
+            return 0
         ref = analyse(a.evidence, a.out, a.rng, a.retire_evidence)
         if a.regress_retire or a.regress_title or a.regress_default:
             need(not (a.regress_title or a.regress_default) or a.title_runs, '--regress-title/default need --title-runs')

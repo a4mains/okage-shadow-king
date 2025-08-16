@@ -496,6 +496,12 @@ const HookDef restoreProbeDefs[]={
     {0x1aee04,"packet_hook_return_1aedfc"},{0x1af28c,"packet_hook_return_1af284"},{0x1af6f4,"packet_hook_return_1af6ec"},
     {0x1afa18,"packet_hook_return_1afa10"},
 };
+const uint32 lightHookPcs[]={
+    0x1cf008,0x1cee50,0x1cf728,0x1c9bb8,0x1c9b48,0x1cc880,0x1ccd48,0x1cc4e0,0x1cca30,0x1cd298,0x1cd5c8,0x182e28,
+    0x103bf8,0x103640,0x101960,0x10c188,
+    0x100ef8,0x1243c8,0x11fb78,0x11f5f8,0x11f668,
+    0x11e480,0x1c0160,0x100f90,0x120b48,
+};
 constexpr uint32 restoreState=0x1f89a8,restoreSel=0x1f89ac,restoreKind=0x1f89a0,restoreAtlasGlobal=0x24f730,cancelMaskAddr=0x1f85e0;
 
 class ScriptedPad final : public CPadHandler {
@@ -541,7 +547,7 @@ int main(int argc,char** argv) {
         const std::string fillText=argv[4];
         if(fillText!="00"&&fillText!="ff")throw std::runtime_error("FILL must be 00 or ff");
         const uint8 fill=fillText=="ff"?0xff:0x00;
-        unsigned deadlineSeconds=1800;bool minimal=false,rngProducts=false,title=false,retire=false,restoreCancel=false;std::string route;
+        unsigned deadlineSeconds=1800;bool minimal=false,rngProducts=false,title=false,retire=false,restoreCancel=false,lightRestore=false;std::string route;
         std::filesystem::path memcards;
         for(int i=5;i<argc;++i){
             if(std::string(argv[i])=="--deadline-seconds"&&i+1<argc)deadlineSeconds=unsigned(std::stoul(argv[++i]));
@@ -550,12 +556,14 @@ int main(int argc,char** argv) {
             else if(std::string(argv[i])=="--title")title=true;
             else if(std::string(argv[i])=="--title-retire"&&i+1<argc){retire=true;route=argv[++i];}
             else if(std::string(argv[i])=="--restore-cancel")restoreCancel=true;
+            else if(std::string(argv[i])=="--light-restore")lightRestore=true;
             else if(std::string(argv[i])=="--memcards"&&i+1<argc)memcards=argv[++i];
             else throw std::runtime_error("Unknown argument");
         }
         if(minimal&&rngProducts)throw std::runtime_error("--minimal and --rng-products are exclusive");
         if(title&&rngProducts)throw std::runtime_error("--title already includes the --rng-products observations");
         if(!memcards.empty()&&!restoreCancel)throw std::runtime_error("--memcards is only used with --restore-cancel");
+        if(lightRestore&&(!restoreCancel||minimal))throw std::runtime_error("--light-restore needs --restore-cancel and excludes --minimal");
         if(restoreCancel){
             if(retire||title||rngProducts)throw std::runtime_error("--restore-cancel is exclusive with --title/--title-retire/--rng-products");
             if(memcards.empty())throw std::runtime_error("--restore-cancel needs --memcards DIR (isolated, empty mc0/ and mc1/)");
@@ -686,11 +694,15 @@ int main(int argc,char** argv) {
         auto onExit=vm.m_ee->m_os->OnRequestExit.Connect([&](){exited=true;});
         vm.m_ee->m_os->BootFromCDROM();
 
-        // ---- breakpoint bookkeeping ----------------------------------------------------
-        std::map<uint32,int> bpRef;
-        auto addBp=[&](uint32 a){if(bpRef[a]++==0)vm.m_ee->m_EE.ToggleBreakpoint(a);};
+        std::map<uint32,int> bpRef;std::set<uint32> physArmed,lightAllowed;bool lightWindow=false;
+        auto syncBp=[&](uint32 a){
+            const bool want=bpRef[a]>0&&(!lightWindow||lightAllowed.count(a));
+            if(want!=bool(physArmed.count(a))){vm.m_ee->m_EE.ToggleBreakpoint(a);if(want)physArmed.insert(a);else physArmed.erase(a);}
+        };
+        auto addBp=[&](uint32 a){++bpRef[a];syncBp(a);};
         auto delBp=[&](uint32 a){auto it=bpRef.find(a);if(it==bpRef.end()||it->second<=0)throw std::runtime_error("bp refcount");
-            if(--it->second==0)vm.m_ee->m_EE.ToggleBreakpoint(a);};
+            --it->second;syncBp(a);};
+        auto syncAll=[&]{for(const auto& kv:bpRef)syncBp(kv.first);};
         addBp(stopPc);
         bool restoreArmed=false;
         std::function<void()> armRestoreHooks=[&]{
@@ -700,6 +712,16 @@ int main(int argc,char** argv) {
             for(auto a:restoreReturnSites){returnSites.insert(a);addBp(a);}
             for(const auto& pr:restoreProbeDefs)addBp(pr.addr);
         };
+        uint64 lightWindowStops=0;
+        std::function<void(uint32)> beginLight=[&](uint32 extraRa){
+            lightAllowed.clear();
+            std::set<uint32> pcs(std::begin(lightHookPcs),std::end(lightHookPcs));
+            for(auto a:pcs)lightAllowed.insert(a);
+            for(uint32 a=0x100000;a+8<0x1f8434;a+=4){const auto w=elfWord(a);if((w>>26)==3&&pcs.count((w&0x03ffffff)<<2))lightAllowed.insert(a+8);}
+            lightAllowed.insert(extraRa);
+            lightWindow=true;
+        };
+        std::function<void()> endLight=[&]{lightWindow=false;syncAll();};
         if(!minimal) {
             addBp(randPc);
             for(const auto& kv:entryName)addBp(kv.first);
@@ -878,6 +900,7 @@ int main(int argc,char** argv) {
         };
 
         // ---- Restore helpers (--restore-cancel) ------------------------------------------------------
+        auto randVia=[&]()->uint32{const uint32 p=get32(0x2151b4);return plausiblePtr(p,0x5c)?get32(p+0x58):0xffffffffu;};
         auto nodeKindRestore=[&](uint32 node)->std::string{return get32(node+8)==0x120b48?"manager":nodeKind(node);};
         // Owner of a scheduler node: mode-8 nodes own themselves (+0x24 selector); mode9/10 wrappers carry +0x24 = mode,
         // +0x28 = parent +0x44; resource and manager nodes belong to their parent.
@@ -944,7 +967,8 @@ int main(int argc,char** argv) {
         auto restoreEnterDecode=[&](const std::string& name,Frame& f,std::ostringstream& o){
             const uint64* a=f.a;
             if(name=="restore_input"||name=="restore_update"){f.aux=int32(get32(restoreState));o<<","<<restoreJson(uint32(a[0]))<<",\"call\":"<<restoreInputCalls
-                <<",\"input_gate_open\":"<<(inputGateOpen(uint32(a[0]))?"true":"false");}
+                <<",\"input_gate_open\":"<<(inputGateOpen(uint32(a[0]))?"true":"false");
+                if(lightRestore)o<<","<<randState();}
             else if(name=="manager_input_pass"||name=="manager_update_pass"||name=="manager_destroy")o<<",\"node\":"<<hx(uint32(a[0]))<<","<<managerWindows(uint32(a[0]))
                 <<",\"flags\":"<<hx(get32(uint32(a[0])+0x1c))<<",\"state_1f89a8\":"<<int32(get32(restoreState));
             else if(name=="manager_create")o<<",\"parent\":"<<hx(uint32(a[0]))<<",\"def\":"<<hx(uint32(a[1]));
@@ -954,7 +978,7 @@ int main(int argc,char** argv) {
             else if(name=="ruw_load")o<<",\"str\":"<<strArg(a[0])<<",\"a1\":"<<int32(a[1]);
             else if(name=="restore_select")o<<",\"value\":"<<int32(a[0]);
             else if(name=="resource_tick"||name=="resource_construct"){
-                f.aux2=uint32(uiPlaceCalls);
+                f.aux2=lightRestore?randVia():uint32(uiPlaceCalls);
                 o<<",\"node\":"<<hx(uint32(a[0]))<<","<<ownerJson(uint32(a[0]))<<",\"effect\":"<<effectJson(titleEffectSlot)<<","<<themeJson();}
             else if(name=="ui_place_19c568"||name=="ui_place_19ca20"){++uiPlaceCalls;o<<",\"place_n\":"<<uiPlaceCalls;}
             else if(name=="ui_pass")f.aux2=uint32(uiPlaceCalls);
@@ -970,7 +994,8 @@ int main(int argc,char** argv) {
             const uint64 v0=reg(CMIPS::V0);
             if(name=="successor_construct")o<<","<<wrapperJson(uint32(f.a[0]))<<",\"kind_1f89a0\":"<<int32(get32(restoreKind))
                 <<",\"state_1f89a8\":"<<int32(get32(restoreState));
-            else if(name=="restore_input"||name=="restore_update")o<<",\"state_entry\":"<<f.aux<<","<<restoreJson(uint32(f.a[0]));
+            else if(name=="restore_input"||name=="restore_update")o<<",\"state_entry\":"<<f.aux<<","<<restoreJson(uint32(f.a[0]))
+                <<(lightRestore?","+randState():std::string());
             else if(name=="manager_construct")o<<",\"node\":"<<hx(uint32(f.a[0]))<<","<<managerWindows(uint32(f.a[0]));
             else if(name=="manager_create"||name=="window_construct")o<<",\"result\":"<<hx(uint32(v0));
             else if(name=="atlas_load")o<<",\"handle\":"<<int32(v0)<<",\"record\":"<<handleRecord(int32(v0))<<",\"atlas_global_24f730\":"<<int32(get32(restoreAtlasGlobal));
@@ -1212,13 +1237,30 @@ int main(int argc,char** argv) {
                     if(f.aux!=routeMode)throw std::runtime_error("0x124548 entered with mode "+std::to_string(f.aux)+", route expects "+std::to_string(routeMode));
                     if(successorSeen)throw std::runtime_error("0x124548 entered twice");
                     checkpoint("retire-successor-entry");
-                    successorSeen=true;armRestoreHooks();
+                    successorSeen=true;
+                    if(lightRestore){
+                        beginLight(f.ra);
+                        for(const auto& fr:stack)lightAllowed.insert(fr.ra);
+                    }
+                    armRestoreHooks();
+                    if(lightRestore){
+                        syncAll();
+                        emit("\"ev\":\"light_window\",\"op\":\"begin\",\"state_1f89a8\":"+std::to_string(int32(get32(restoreState)))
+                             +",\"armed\":"+std::to_string(physArmed.size())+",\"allowed\":"+std::to_string(lightAllowed.size())+","+randState());
+                    }
                 }
                 else if(restoreCancel&&successorSeen){
                     if(name=="restore_input")restoreScriptEnter(uint32(f.a[0]));
                     else if(name=="manager_destroy"){
                         if(padStep!=8)throw std::runtime_error("Restore manager destroyed before the Cancel was consumed");
-                        if(!taken("cancel-death"))checkpoint("cancel-death");
+                        if(!taken("cancel-death")){
+                            checkpoint("cancel-death");
+                            if(lightRestore&&lightWindow){
+                                emit("\"ev\":\"light_window\",\"op\":\"end\",\"state_1f89a8\":"+std::to_string(int32(get32(restoreState)))
+                                     +",\"stops_in_window\":"+std::to_string(lightWindowStops)+","+randState());
+                                endLight();
+                            }
+                        }
                     }
                     else if(name=="wrapper_destroy"&&!taken("resource-retirement"))checkpoint("resource-retirement");
                     else if(name=="host_free"&&(f.ra==0x1150d4||f.ra==0x1150f0)&&nodeKind(uint32(norm(f.a[0])))=="mode9_10"){
@@ -1228,7 +1270,7 @@ int main(int argc,char** argv) {
                 }
             }
             if(!returnSites.count(f.ra)) {
-                f.dynamicBp=true;addBp(f.ra);
+                f.dynamicBp=true;if(lightWindow)lightAllowed.insert(f.ra);addBp(f.ra);
                 emit("\"ev\":\"note\",\"note\":\"dynamic return breakpoint (indirect call)\",\"fn\":"+hx(pc)+",\"ra\":"+hx(f.ra));
             }
             stack.push_back(f);
@@ -1365,10 +1407,12 @@ int main(int argc,char** argv) {
             if(restoreCancel&&successorSeen){
                 if(name=="successor_construct")checkpoint("restore-constructor-return");
                 else if(name=="restore_input")restoreScriptExit(f.aux);
-                else if(name=="resource_tick"&&!taken("first-layout")&&taken("restore-constructor-return")&&uiPlaceCalls>f.aux2){
+                else if(name=="resource_tick"&&!taken("first-layout")&&taken("restore-constructor-return")
+                        &&(lightRestore?randVia()!=f.aux2:uiPlaceCalls>f.aux2)){
                     const uint32 par=get32(uint32(f.a[0])+0x14);
                     if(nodeKind(par)!="mode9_10"||int32(get32(par+0x24))!=10)throw std::runtime_error("first UI layout outside the mode-10 wrapper");
                     checkpoint("first-layout");
+                    if(lightWindow){lightAllowed.erase(0x100f90);syncBp(0x100f90);}
                 }
             }
             if(stopHere){
@@ -1535,7 +1579,7 @@ int main(int argc,char** argv) {
         bool randPending=false;uint32 randPendingRa=0;uint64 randPendingSp=0;
         while(!stopped&&!exited&&std::chrono::steady_clock::now()<deadline) {
             if(stateChanged.exchange(false)&&vm.GetStatus()==CVirtualMachine::PAUSED) {
-                const uint32 pc=cpu.nPC;++stops;if(history.size()<100000)history.push_back(pc);
+                const uint32 pc=cpu.nPC;++stops;if(lightWindow)++lightWindowStops;if(history.size()<100000)history.push_back(pc);
                 const uint64 sp=reg(CMIPS::SP);
                 bool explained=false;
                 // RNG: rand() return (leaf; one pending call at most) before everything else at this pc.
@@ -1715,7 +1759,9 @@ int main(int argc,char** argv) {
                 o<<",\"restore_cancel\":true,\"memcard_mc0\":\""<<esc(card0.string())<<"\",\"memcard_mc1\":\""<<esc(card1.string())
                  <<"\",\"restore_hooks_armed\":"<<(restoreArmed?"true":"false")<<",\"restore_hooks\":"<<restoreEntryName.size()
                  <<",\"restore_return_sites\":"<<restoreReturnSites.size()<<",\"restore_input_calls\":"<<restoreInputCalls
-                 <<",\"ui_place_calls\":"<<uiPlaceCalls<<",\"missing_checkpoints\":[";
+                 <<",\"ui_place_calls\":"<<uiPlaceCalls;
+                if(lightRestore)o<<",\"light_restore\":true,\"light_window_stops\":"<<lightWindowStops<<",\"light_window_open_at_stop\":"<<(lightWindow?"true":"false");
+                o<<",\"missing_checkpoints\":[";
                 for(size_t i=0;i<missingCheckpoints.size();++i)o<<(i?",":"")<<"\""<<missingCheckpoints[i]<<"\"";
                 o<<"]";
             }
