@@ -50,10 +50,85 @@ def play_revision(main):
     except OSError as exc:
         return None, str(exc)
 
-PINNED_ELF = '2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5'
+LIGHT_TRACKED = TRACKED + ('tools/restore_light_compare.py', 'tests/test_restore_light_compare.py')
+LIGHT_RUNS = ('fill00-a', 'fill00-b', 'fillff-a', 'fillff-b')
+
+def light_manifest(ev, wt, main_, commit, out):
+    """Manifest of the LIGHT reference (EVIDENCE = .../restore-original-v1/light)."""
+    an = os.path.join(ev, 'analysis')
+    ref = json.load(open(os.path.join(an, 'reference.json')))
+    m = {
+        'schema': 'okage.restore-light-manifest.v1',
+        'scope': "Restore-cancel LIGHT original reference: the full route and checkpoint set of docs/restore-original-manifest.json, observed with only the light breakpoint set between retire-successor-entry and cancel-death (no rand(), card, UI placement/layout or probe breakpoints); draws in that window are derived by LCG stepping between observed rand states (labels not observed).",
+        'oracle_source_commit': commit, 'play': {'revision': play_revision(main_)[0], 'ref': play_revision(main_)[1]},
+        'oracle': {'retained_copy': 'local/research/restore-original-v1/light/bin/okage-startup-oracle',
+                   'retained_copy_sha256': fsha(os.path.join(ev, 'bin/okage-startup-oracle')),
+                   'build': 'as docs/restore-original-manifest.json (Debug, same configure)',
+                   'mode': '--restore-cancel --light-restore --memcards DIR'},
+        'tracked_sources_sha256': {p: fsha(os.path.join(wt, p)) for p in LIGHT_TRACKED if p != 'docs/restore-original-report.md' or os.path.exists(os.path.join(wt, p))},
+        'inputs': {'elf': {'path': 'local/extracted/SCUS_971.29', 'sha256': PINNED_ELF},
+                   'full_reference_manifest': {'path': 'docs/restore-original-manifest.json',
+                                               **pin(os.path.join(wt, 'docs/restore-original-manifest.json'))},
+                   'minimal_control': 'local/research/restore-original-v1/runs/control-minimal-fill00'},
+        'current_time_audit': {'note': 'recomputed when this manifest was written',
+                               'elf': pin(os.path.join(main_, 'local/extracted/SCUS_971.29')),
+                               'disc_cue': pin(os.path.join(main_, 'local/disc/Okage - Shadow King (USA).cue')),
+                               'rng_jsonl': pin(os.path.join(main_, 'local/research/rng-original-v1/analysis/rng.jsonl'))},
+        'card_setup': {'rule': 'fresh empty EVIDENCE/cards/<run>/{mc0,mc1} per run (tools/restore_capture.sh)', 'runs': {}},
+        'run_time_provenance': {'run_meta': {}},
+        'commands': [
+            'OKAGE_PLAY_VM_LOCK=<main>/local/research/.play-vm.lock tools/restore_capture.sh <light>/bin/okage-startup-oracle '
+            '"<main>/local/disc/Okage - Shadow King (USA).cue" <main>/local/extracted/SCUS_971.29 <light> '
+            'fill00-a:00:--restore-cancel+--light-restore fill00-b:00:--restore-cancel+--light-restore '
+            'fillff-a:ff:--restore-cancel+--light-restore fillff-b:ff:--restore-cancel+--light-restore',
+            'python3 -I tools/restore_original_extract.py <light> --light --out <light>/analysis --rng '
+            '<main>/local/research/rng-original-v1/analysis/rng.jsonl --retire-evidence <main>/local/research/retire-title-original-v1 '
+            '--full-analysis <main>/local/research/restore-original-v1/analysis --control '
+            '<main>/local/research/restore-original-v1/runs/control-minimal-fill00 > <light>/analysis.log',
+            'python3 -I tools/restore_light_compare.py <light>/analysis NATIVE_DIR [--json OUT]',
+            'python3 -I tools/restore_make_manifest.py <light> <worktree> <main> <commit> docs/restore-light-manifest.json light'],
+        'evidence_dir': 'local/research/restore-original-v1/light (trials: ../trials/light1)',
+        'outputs': {}, 'runs': {}, 'result_digest': {'checkpoints': {}, 'manager_frames': {}},
+        'limitations': ['draw labels (call sites) are not observed in the light window; draws there are derived, not hooked',
+                        'update_state_out is observed at the next 0x11e480 entry (0x11c2c8 not hooked), the last row at the '
+                        'cancel-death light_window end event'],
+    }
+    for r in LIGHT_RUNS:
+        p = os.path.join(ev, 'runs', r)
+        files = {}
+        for root, _, names in os.walk(p):
+            for n in sorted(names):
+                q = os.path.join(root, n)
+                files[os.path.relpath(q, ev)] = pin(q)
+        files['runs/' + r + '.log'] = pin(os.path.join(ev, 'runs', r + '.log'))
+        m['runs'][r] = files
+        m['run_time_provenance']['run_meta'][r] = json.load(open(os.path.join(p, 'run-meta.json')))
+        m['card_setup']['runs'][r] = {'before': json.load(open(os.path.join(p, 'memcards-before.json'))),
+                                      'after': json.load(open(os.path.join(p, 'memcards-after.json')))}
+    for root, _, names in os.walk(an):
+        for n in sorted(names):
+            q = os.path.join(root, n)
+            m['outputs']['analysis/' + os.path.relpath(q, an)] = pin(q)
+    m['outputs']['analysis.log'] = pin(os.path.join(ev, 'analysis.log'))
+    for cp in cmp.CHECKPOINTS:
+        c = ref['checkpoints'][cp]
+        m['result_digest']['checkpoints'][cp] = {'resource_events': c['resource_events'], 'rng_draws': c['rng_draws_before'],
+                                                 'vram_known_nibbles': c['vram']['known_nibbles_required'],
+                                                 'vram_unknown_nibbles': c['vram']['unknown_nibbles_required'],
+                                                 'vb': c['vb'], 't': c['t']}
+    rows = [json.loads(x) for x in open(os.path.join(an, 'manager-frames.jsonl'))]
+    m['result_digest']['manager_frames'] = cmp.anchors([{k: r[k] for k in cmp.FRAME_KEYS} for r in rows])
+    m['result_digest']['card_readiness'] = ref['card_readiness']
+    with open(out, 'x') as f:
+        json.dump(m, f, indent=1)
+        f.write('\n')
+    return 0
+
+PINNED_ELF ='2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5'
 
 def main(argv):
-    ev, wt, main_, commit, out = argv
+    light = len(argv) == 6 and argv[5] == 'light'
+    ev, wt, main_, commit, out = argv[:5]
     if os.path.exists(out):
         print('refusing existing manifest', file=sys.stderr)
         return 2
@@ -68,6 +143,8 @@ def main(argv):
     binf = os.path.join(main_, 'local/disc/Okage - Shadow King (USA).bin')
     rng = os.path.join(main_, 'local/research/rng-original-v1/analysis/rng.jsonl')
     retire_ev = os.path.join(main_, 'local/research/retire-title-original-v1')
+    if light:
+        return light_manifest(ev, wt, main_, commit, out)
     m = {
         'schema': 'okage.restore-original-manifest.v1',
         'scope': "Independent original-execution reference of the cold-boot Retire Restore route continued past the 0x124548 entry through Restore construction, the scan of an isolated empty research memory card, the ready empty-slot UI, one ordinary Cancel, window death, manager unlink, resource retirement, wrapper cleanup and free, the mode request back to the title and the return of the second 0x12c350(selector 1).",

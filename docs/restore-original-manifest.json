@@ -18,15 +18,15 @@
   "mode": "--restore-cancel --memcards DIR (the Retire --title-retire restore observer; Restore hooks armed at the 0x124548 entry); --restore-cancel --memcards DIR --minimal for the control"
  },
  "tracked_sources_sha256": {
-  "tools/play-oracle/startup.cpp": "fc19f0d22c364457a1b8ff9f93b649e2f1f8e5a77c2b16f63319177a695a724d",
+  "tools/play-oracle/startup.cpp": "e846329bc626154439b4b01bf12283540659d3f629460b11e18f139549038854",
   "tools/play-oracle/CMakeLists.txt": "1de73e43e976adb2ce82f125a0028eeed1969f68163f616b2f1104e6aba05430",
   "tools/play-oracle/Attach.cmake": "70a48b491406f04c4a8e28f49f6c04886888c22f017fb4868d365b4c17dd4819",
   "tools/play-oracle/reference_input.hpp": "9a9bf23c9cd29dee438632693f649bf09a161abbb082589a0319d8ffbccd5e9e",
   "tools/restore_capture.sh": "2ceb87a04f8c0a5b9a689c10b6b06ea96fdb8a25d30a6b2906d836f7071aaf59",
-  "tools/restore_original_extract.py": "4e83060893fc4c2682a62a552824a69271ed205caf13f97428a0e1707f7d60dc",
-  "tools/restore_compare.py": "f3e00284af94e47d99951ffedfefbe12a915a4eb502a8bca8aef65203fdd9db0",
-  "tools/restore_make_manifest.py": "5ac15fcd498c4222fd65e740faf6a22bd8fd8b567e300d967e72c54517a24d7c",
-  "tests/test_restore_compare.py": "b39c26c015d813afbe74b0d09d5627a61373229041edebe7119419e9ad4e7b84",
+  "tools/restore_original_extract.py": "74049d9dc54b56a87297e5aa31932ea0da488519def77ecd3e8c5fe3f761f417",
+  "tools/restore_compare.py": "5027356eba0f96967be284576e8bf2f9aa5aa925680cb9f597b6c1a95fe00420",
+  "tools/restore_make_manifest.py": "4cb9c095f13387438672019fb325c197461945f646a82d001d83ae3153b0403c",
+  "tests/test_restore_compare.py": "adf7c650eca42bf34a43a8e8084811073501170c56d1677b98e4bf9a811d741d",
   "tools/retire_title_original_extract.py": "b711add205f4e7f7590a89689ef42eb7464ae06b142359e2019dba5d4285761b",
   "tools/retire_title_compare.py": "1cc64c806c36ba98cbd774c1f65f637127b7b49db4e4b639ecc2841d45005494",
   "tools/title_original_extract.py": "3b297913b99fe37d4f5021935bdbb92a9fc397146823d7abcc41fee1fdadaeac"
