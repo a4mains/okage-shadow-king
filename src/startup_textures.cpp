@@ -10,9 +10,6 @@
 
 namespace okage {
 namespace {
-constexpr const char* kAsserted = ",\"asserted\":true}";
-}  // namespace
-namespace {
 
 // 0x221bf8: 31 names then 0, copied to the stack by 0x103718.
 const std::array<const char*, 31> effect_names{
@@ -560,23 +557,23 @@ void StartupTextureOwner::note_mode_resource_retire(unsigned selector, unsigned 
     require_modeled("resource destructor");
     sync();
     lifecycle_push("{\"kind\":\"mode\",\"op\":\"resource-retire\",\"mode\":" + std::to_string(mode) +
-                   ",\"selector\":" + std::to_string(selector) + kAsserted);
-    lifecycle_push(std::string("{\"kind\":\"effect\",\"op\":\"remove-request\",\"slot\":-2") + kAsserted);  // 101240 -> 103640(-2)
+                   ",\"selector\":" + std::to_string(selector) + "}");
+    lifecycle_push("{\"kind\":\"effect\",\"op\":\"remove-request\",\"slot\":-2}");  // 101240 -> 103640(-2)
 }
 
 void StartupTextureOwner::note_mode_destroy(unsigned selector, unsigned mode) {
     require_modeled("mode destructor");
     sync();
     lifecycle_push("{\"kind\":\"mode\",\"op\":\"destroy\",\"mode\":" + std::to_string(mode) +
-                   ",\"selector\":" + std::to_string(selector) + kAsserted);
+                   ",\"selector\":" + std::to_string(selector) + "}");
 }
 
-void StartupTextureOwner::note_mode_wrapper_free(unsigned selector, unsigned mode) {
+void StartupTextureOwner::note_mode_wrapper_free(unsigned selector, unsigned mode, bool mode_node) {
     require_modeled("wrapper free");
     sync();
-    for (const char* node : {"resource", mode == 8 ? "mode8" : "mode10"})
-        lifecycle_push(std::string("{\"kind\":\"mode\",\"op\":\"wrapper-free\",\"node\":\"") + node +
-                       "\",\"mode\":" + std::to_string(mode) + ",\"selector\":" + std::to_string(selector) + kAsserted);
+    const char* node = !mode_node ? "resource" : mode == 8 ? "mode8" : "mode10";
+    lifecycle_push(std::string("{\"kind\":\"mode\",\"op\":\"wrapper-free\",\"node\":\"") + node +
+                   "\",\"mode\":" + std::to_string(mode) + ",\"selector\":" + std::to_string(selector) + "}");
 }
 
 void StartupTextureOwner::note_session_draw(std::uint32_t state, std::uint32_t frame, unsigned site) {
@@ -642,7 +639,7 @@ void StartupTextureOwner::note_ui(const std::string& op, int value) {
     const char* key = op == "state" ? "state" : op == "window-create" || op == "window-death" ? "window" : "mode";
     std::string row = "{\"kind\":\"ui\",\"op\":\"" + op + "\",\"" + key + "\":" + std::to_string(value);
     if (op == "manager-create") row += ",\"windows\":1";
-    lifecycle_push(row + (op == "manager-create" || op == "manager-destroy" ? kAsserted : "}"));
+    lifecycle_push(row + "}");
 }
 
 void StartupTextureOwner::note_manager_free() {
@@ -655,13 +652,13 @@ void StartupTextureOwner::note_manager_free() {
 void StartupTextureOwner::free_restore_resource_node() {
     require_stage(ResourceStage::RestoreResourcesRetired, "Restore resource node free");
     sync();
-    lifecycle_push(std::string("{\"kind\":\"mode\",\"op\":\"wrapper-free\",\"node\":\"resource\",\"mode\":10,\"selector\":0") + kAsserted);
+    lifecycle_push(std::string("{\"kind\":\"mode\",\"op\":\"wrapper-free\",\"node\":\"resource\",\"mode\":10,\"selector\":0") + "}");
 }
 
 void StartupTextureOwner::free_restore_wrappers() {
     require_stage(ResourceStage::RestoreResourcesRetired, "Restore wrapper free");
     sync();
-    lifecycle_push(std::string("{\"kind\":\"mode\",\"op\":\"wrapper-free\",\"node\":\"mode10\",\"mode\":10,\"selector\":0") + kAsserted);
+    lifecycle_push(std::string("{\"kind\":\"mode\",\"op\":\"wrapper-free\",\"node\":\"mode10\",\"mode\":10,\"selector\":0") + "}");
     advance(ResourceStage::RestoreWrappersFreed);
 }
 
@@ -722,9 +719,14 @@ void StartupTextureOwner::destroy_title_mode() {
     note_mode_destroy(1);
 }
 
+void StartupTextureOwner::free_title_resource_node() {
+    require_stage(ResourceStage::TitleResourcesRetired, "title resource node free");
+    note_mode_wrapper_free(1, 8, false);
+}
+
 void StartupTextureOwner::free_title_wrappers() {
     require_stage(ResourceStage::TitleResourcesRetired, "title wrapper free");
-    note_mode_wrapper_free(1);
+    note_mode_wrapper_free(1, 8, true);
     advance(ResourceStage::TitleWrappersFreed);
 }
 

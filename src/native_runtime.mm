@@ -193,6 +193,28 @@ struct Session {
         if(!out||!draws)throw std::runtime_error("Restore route report write failed");
     }
     unsigned startup_selector=0,restore_storage_latency_ms=0;
+    //0x1bdaf0 of the mode node: GameModeParent frees its dead allocation after release_child returns.
+    enum class PendingNodeFree{None,Startup,Title,Restore} pending_node_free=PendingNodeFree::None;
+    void observe_node_free(bool dead_before) {
+        if(!dead_before||game_mode->has_dead_allocation()||pending_node_free==PendingNodeFree::None||!startup_textures)return;
+        switch(pending_node_free) {
+        case PendingNodeFree::Startup:
+            if(startup_textures->stage()!=okage::ResourceStage::Unmodeled)
+                startup_textures->note_mode_wrapper_free(startup_selector,8,true);
+            break;
+        case PendingNodeFree::Title:
+            if(title_modeled(okage::ResourceStage::TitleResourcesRetired))startup_textures->free_title_wrappers();
+            break;
+        case PendingNodeFree::Restore:
+            if(title_modeled(okage::ResourceStage::RestoreResourcesRetired)) {
+                restore_checkpoint("wrapper-free");
+                startup_textures->free_restore_wrappers();
+            }
+            break;
+        default:break;
+        }
+        pending_node_free=PendingNodeFree::None;
+    }
     //Restore per-traversal Restore observation (t = 0 at the construction traversal S).
     unsigned restore_traversal=0;bool restore_manager_alive=false;std::size_t restore_draws_seen=0;
     std::optional<unsigned> restore_ready_frame;
@@ -1250,6 +1272,8 @@ struct Session {
             startup_textures->begin_scheduled_frames();
         if(game_mode) {
             observe_game_mode(0);
+            const bool dead_before=game_mode->has_dead_allocation();
+            pending_node_free=PendingNodeFree::None;
             game_mode->tick([this]{
                 if(battle)retire_battle();
                 else if(startup) {
@@ -1315,8 +1339,7 @@ struct Session {
                     restore.reset();
                     if(title_modeled(okage::ResourceStage::RestoreResourcesRetired)) {
                         startup_textures->free_restore_resource_node();
-                        restore_checkpoint("wrapper-free");
-                        startup_textures->free_restore_wrappers();
+                        pending_node_free=PendingNodeFree::Restore;
                     }
                 }
                 if(name_entry) {
@@ -1330,14 +1353,19 @@ struct Session {
                 if(startup) {
                     if(startup->resource_live())throw std::runtime_error("Startup freed before resource retirement");
                     startup.reset();
-                    if(startup_textures&&startup_textures->stage()!=okage::ResourceStage::Unmodeled)
-                        startup_textures->note_mode_wrapper_free(startup_selector);
+                    if(startup_textures&&startup_textures->stage()!=okage::ResourceStage::Unmodeled) {
+                        startup_textures->note_mode_wrapper_free(startup_selector,8,false);
+                        pending_node_free=PendingNodeFree::Startup;
+                    }
                 }
                 if(title) {
                     if(title->resource_live())throw std::runtime_error("Title freed before resource retirement");
                     title.reset();first_title=false;
                     //N+2: resource node, then mode-8 node freed.
-                    if(title_modeled(okage::ResourceStage::TitleResourcesRetired))startup_textures->free_title_wrappers();
+                    if(title_modeled(okage::ResourceStage::TitleResourcesRetired)) {
+                        startup_textures->free_title_resource_node();
+                        pending_node_free=PendingNodeFree::Title;
+                    }
                 }
                 if(game_over) {
                     if(game_over->resource_live())throw std::runtime_error("Game-over task freed before resource destructor");
@@ -1504,6 +1532,7 @@ struct Session {
                     load_observation_trace?8192:0);
                 load_observation_written=false;
             });
+            observe_node_free(dead_before);
         }
         const bool returned_this_tick=tick_field_return(input.pressed,{input.held,128,128,input.pressed});
         if(startup&&startup->resource_live()) {

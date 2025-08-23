@@ -34,6 +34,9 @@ session() {  # tag binary kind(scripted|fixed|pending)
   if [[ $kind != pending ]]; then
     python3 -I tools/restore_compare.py $ORIG $d/report --json $d/compare.json > $d/compare.txt 2>&1; print $? > $d/compare.exit
   fi
+  if [[ $kind != pending ]]; then
+    python3 -I tools/restore_light_compare.py local/research/restore-original-v1/light/analysis $d/report --strict --json $d/light-compare.json > $d/light-compare.txt 2>&1; print $? > $d/light-compare.exit
+  fi
   if [[ $kind == scripted ]]; then
     python3 tools/restore_io_timing_evidence.py $d/report --require-exact --json $d/io-timing.json > $d/io-timing.txt 2>&1; print $? > $d/io-timing.exit
   fi

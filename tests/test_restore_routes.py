@@ -98,6 +98,14 @@ class RestoreRoutes(unittest.TestCase):
                         code, r = ev.run(str(tmp / "report"))
                     self.assertEqual(code, 0, r)
                     self.assertTrue(r["native_matches_an_original_execution"], r)
+                # The unperturbed full-checkpoint original reference (--light-restore): IDENTICAL, strict.
+                light = ROOT / "local/research/restore-original-v1/light/analysis"
+                if light.is_dir():
+                    import restore_light_compare as lcmp
+                    buf = io.StringIO()
+                    with redirect_stdout(buf):
+                        code = lcmp.main([str(light), str(tmp / "report"), "--strict"])
+                    self.assertEqual(code, 0, buf.getvalue()[-4000:])
 
     def test_pending_scan_cancel(self):
         with tempfile.TemporaryDirectory() as tmp:

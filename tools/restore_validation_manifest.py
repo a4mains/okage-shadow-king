@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path.cwd()
-V = "local/research/restore-ownership-validation-v2"
+V = "local/research/restore-ownership-validation-v3"
 F = f"{V}/final"
 
 def sha(path):
@@ -59,8 +59,9 @@ def main(out):
                 "local/research/restore-route-recheck-v1/regression-restore.out",
                 "local/research/restore-route-recheck-v1/regression-newgame.out",
                 "local/research/restore-route-recheck-v1/sha256.txt",
-                # superseded v1 evidence (before the per-slot storage fix), kept as history
                 "local/research/restore-ownership-validation-v1/bin/binaries.sha256",
+                "local/research/restore-ownership-validation-v2/bin/binaries.sha256",
+                "docs/restore-light-manifest.json",
                 "local/research/restore-ownership-validation-v1/conditional-parity/sha256.txt",
                 "local/research/restore-ownership-validation-v1/io-timing/sha256.txt"]
     sessions = {}
@@ -73,6 +74,9 @@ def main(out):
         has_cmp = (ROOT / rel / "compare.exit").exists()
         if has_cmp:
             names += ["compare.txt", "compare.json"]
+        has_light = (ROOT / rel / "light-compare.exit").exists()
+        if has_light:
+            names += ["light-compare.txt", "light-compare.json"]
         has_io = (ROOT / rel / "io-timing.exit").exists()
         if has_io:
             names += ["io-timing.json", "io-timing.txt"]
@@ -90,6 +94,10 @@ def main(out):
                            "anchors_original": c.get("anchors_original"), "anchors_native": c.get("anchors_native"),
                            "readiness_original": c.get("readiness_original"), "readiness_native": c.get("readiness_native"),
                            "conditional_parity": c.get("conditional_parity")})
+        if has_light:
+            lc = json.loads(text(f"{rel}/light-compare.json"))
+            entry_.update({"light_reference_compare_exit": int(text(f"{rel}/light-compare.exit")),
+                           "light_reference_result": lc.get("result"), "light_reference_asserted": lc.get("asserted")})
         if has_io:
             io_ = json.loads(text(f"{rel}/io-timing.json"))
             entry_.update({"exact_parity_exit": int(text(f"{rel}/io-timing.exit")),

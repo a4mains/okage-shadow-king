@@ -165,7 +165,9 @@ public:
     void note_mode_request(unsigned mode, unsigned selector, unsigned arg);
     void note_mode_resource_retire(unsigned selector, unsigned mode = 8);  // also logs 101240 -> 103640(-2)
     void note_mode_destroy(unsigned selector, unsigned mode = 8);
-    void note_mode_wrapper_free(unsigned selector, unsigned mode = 8);
+    // One 0x1bdaf0 node free: the resource node (the native session object's reset) or the mode node
+    // (GameModeParent releasing its dead allocation).
+    void note_mode_wrapper_free(unsigned selector, unsigned mode, bool mode_node);
     // Session generator draws after the prefix (GameRandom::observe), in order, with the native frame.
     void note_session_draw(std::uint32_t state, std::uint32_t frame, unsigned site = 0);  // site: RngSite value
     const std::vector<std::uint32_t>& session_draw_frames() const noexcept { return session_draw_frames_; }
@@ -193,6 +195,7 @@ public:
     // N+1 after 101058: the mode-8 destructor (12c8d8 -> 12dd50(1), a deferred theme fade).
     void destroy_title_mode();
     // N+2: resource node then mode-8 node unlinked and freed.
+    void free_title_resource_node();  // N+2, the native session object's reset
     void free_title_wrappers();
     // N+3: root phase 1 allocated and linked the successor node; stop at 124548 entry.
     void enter_successor(unsigned mode);

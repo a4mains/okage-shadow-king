@@ -450,6 +450,7 @@ int main() {
             threw = false;
             try { o.enter_successor(10); } catch (const std::logic_error&) { threw = true; }
             require(threw, "successor entry before the wrappers are freed is rejected");
+            o.free_title_resource_node();
             o.free_title_wrappers();
             threw = false;
             try { o.enter_successor(9); } catch (const std::logic_error&) { threw = true; }
