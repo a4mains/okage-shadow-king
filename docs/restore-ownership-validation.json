@@ -2,8 +2,8 @@
  "schema": "okage.restore.validation.v1",
  "scope": "Restore: fixes-first route-comparator coverage/causality (F1/F2); the persistent Session texture owner from entry of 124548 (mode 10) through empty-card Restore, Cancel, manager/window/resource/wrapper retirement to the return of the second 12c350(selector=1).",
  "base_commit": "82ec28a",
- "binaries_built_from": "90a201e2fb0fabde3a705116622164fc738b2f7a",
- "head_commit_at_generation": "90a201e2fb0fabde3a705116622164fc738b2f7a",
+ "binaries_built_from": "a0e5955e412a36ae538122e551db39f28376c0fe",
+ "head_commit_at_generation": "a0e5955e412a36ae538122e551db39f28376c0fe",
  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
  "stage_manifest_sha256_pinned": "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
  "run_time_evidence": {
@@ -39,7 +39,7 @@
      "pass_model_identical": true
     },
     "asserted": {
-     "lifecycle": 141,
+     "lifecycle": 0,
      "rng": 0,
      "manager_frames": 0
     },
@@ -70,6 +70,13 @@
      "predicted_draws": 4345,
      "original_draws": 4345,
      "first_non_io_frame_difference": 18
+    },
+    "light_reference_compare_exit": 1,
+    "light_reference_result": "DIFFERENT",
+    "light_reference_asserted": {
+     "lifecycle": 0,
+     "rng": 0,
+     "manager_frames": 0
     }
    },
    "release-pending": {
@@ -104,14 +111,14 @@
      "route": "restore-cancel",
      "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
      "checkpoints": {
-      "retire-successor-entry": 807,
-      "restore-constructor-return": 807,
-      "first-layout": 807,
-      "empty-ready": 824,
-      "cancel-death": 857,
-      "resource-retirement": 860,
-      "wrapper-free": 861,
-      "second-title-return": 862
+      "retire-successor-entry": 803,
+      "restore-constructor-return": 803,
+      "first-layout": 803,
+      "empty-ready": 820,
+      "cancel-death": 853,
+      "resource-retirement": 856,
+      "wrapper-free": 857,
+      "second-title-return": 858
      }
     },
     "original_compare_exit": 3,
@@ -124,7 +131,7 @@
      "pass_model_identical": true
     },
     "asserted": {
-     "lifecycle": 141,
+     "lifecycle": 0,
      "rng": 0,
      "manager_frames": 0
     },
@@ -155,6 +162,13 @@
      "predicted_draws": 4345,
      "original_draws": 4345,
      "first_non_io_frame_difference": null
+    },
+    "light_reference_compare_exit": 0,
+    "light_reference_result": "IDENTICAL",
+    "light_reference_asserted": {
+     "lifecycle": 0,
+     "rng": 0,
+     "manager_frames": 0
     },
     "exact_parity_exit": 0,
     "native_matches_an_original_execution": true,
@@ -247,7 +261,7 @@
      "pass_model_identical": true
     },
     "asserted": {
-     "lifecycle": 141,
+     "lifecycle": 0,
      "rng": 0,
      "manager_frames": 0
     },
@@ -278,6 +292,13 @@
      "predicted_draws": 4345,
      "original_draws": 4345,
      "first_non_io_frame_difference": 18
+    },
+    "light_reference_compare_exit": 1,
+    "light_reference_result": "DIFFERENT",
+    "light_reference_asserted": {
+     "lifecycle": 0,
+     "rng": 0,
+     "manager_frames": 0
     }
    },
    "sanitize-pending": {
@@ -332,7 +353,7 @@
      "pass_model_identical": true
     },
     "asserted": {
-     "lifecycle": 141,
+     "lifecycle": 0,
      "rng": 0,
      "manager_frames": 0
     },
@@ -363,6 +384,13 @@
      "predicted_draws": 4345,
      "original_draws": 4345,
      "first_non_io_frame_difference": null
+    },
+    "light_reference_compare_exit": 0,
+    "light_reference_result": "IDENTICAL",
+    "light_reference_asserted": {
+     "lifecycle": 0,
+     "rng": 0,
+     "manager_frames": 0
     },
     "exact_parity_exit": 0,
     "native_matches_an_original_execution": true,
@@ -478,33 +506,33 @@
   "regressions": {
    "restore-cancel": {
     "old-a old-b": "ANCHORS-DIFFER",
-    "old-a old-c": "ANCHORS-DIFFER",
-    "old-a old-d": "ANCHORS-DIFFER",
+    "old-a old-c": "IDENTICAL",
+    "old-a old-d": "IDENTICAL",
     "old-b old-c": "ANCHORS-DIFFER",
     "old-b old-d": "ANCHORS-DIFFER",
-    "old-c old-d": "ANCHORS-DIFFER",
-    "new-a old-a": "DIFFERENT",
-    "new-a old-b": "ANCHORS-DIFFER",
+    "old-c old-d": "IDENTICAL",
+    "new-a old-a": "ANCHORS-DIFFER",
+    "new-a old-b": "DIFFERENT",
     "new-a old-c": "ANCHORS-DIFFER",
     "new-a old-d": "ANCHORS-DIFFER",
-    "new-a new-b": "IDENTICAL",
+    "new-a new-b": "ANCHORS-DIFFER",
     "new-a new-c": "ANCHORS-DIFFER",
     "new-a new-d": "ANCHORS-DIFFER",
-    "new-b old-a": "DIFFERENT",
+    "new-b old-a": "ANCHORS-DIFFER",
     "new-b old-b": "ANCHORS-DIFFER",
     "new-b old-c": "ANCHORS-DIFFER",
     "new-b old-d": "ANCHORS-DIFFER",
     "new-b new-c": "ANCHORS-DIFFER",
     "new-b new-d": "ANCHORS-DIFFER",
-    "new-c old-a": "ANCHORS-DIFFER",
-    "new-c old-b": "DIFFERENT",
-    "new-c old-c": "ANCHORS-DIFFER",
-    "new-c old-d": "ANCHORS-DIFFER",
+    "new-c old-a": "DIFFERENT",
+    "new-c old-b": "ANCHORS-DIFFER",
+    "new-c old-c": "DIFFERENT",
+    "new-c old-d": "DIFFERENT",
     "new-c new-d": "ANCHORS-DIFFER",
     "new-d old-a": "ANCHORS-DIFFER",
     "new-d old-b": "ANCHORS-DIFFER",
     "new-d old-c": "ANCHORS-DIFFER",
-    "new-d old-d": "DIFFERENT"
+    "new-d old-d": "ANCHORS-DIFFER"
    },
    "cold-1800": {
     "old-a old-b": "ALIGNED-IDENTICAL",
@@ -521,13 +549,13 @@
    "sanitize-focused": "100% tests passed, 0 tests failed out of 19"
   },
   "python_suite": [
-   "Ran 1092 tests in 139.535s",
+   "Ran 1112 tests in 154.172s",
    "OK (skipped=91)"
   ]
  },
  "current_time_audit": {
   "stage": {
-   "audited_at": "2025-08-10T10:45:39.427722+00:00",
+   "audited_at": "2025-08-23T12:18:11.475359+00:00",
    "kind": "current-time-audit",
    "listed_files": 17668,
    "manifest_sha256": "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
@@ -543,11 +571,11 @@
   "note": "re-hash of the stage when the evidence driver ran; it does not prove historical reads (see sessions.*.input_check_exit for run-time reads)"
  },
  "tracked_sources": {
-  "include/okage/startup_textures.hpp": "af6492b0ad276e4be7e340701e6cb381523c97b3da38c6e898da5f2870c6689a",
-  "src/startup_textures.cpp": "d9ffa548c9dff3096a2261e71377ac4fd8e10bd5ae8344b75f5dc2600014888f",
+  "include/okage/startup_textures.hpp": "308fd3b3cdcd50b033571f9fd4ebc084e2a47a9030f2b963ab26a9dacaedd5fb",
+  "src/startup_textures.cpp": "1506627b566b40356dd428a0fa7534a38af810cbed898e84b15acc4be73a5b5c",
   "include/okage/texture_handles.hpp": "514d2dfbecb739463076dbad315264477831e2711441890dc9cf8f3b6dcc09cb",
   "src/texture_handles.cpp": "b6ca2786d3cc2fcdd0074182831f0230bb830eec7e5f427024b9d25ccb8ab1a9",
-  "src/native_runtime.mm": "b14d198241efb21bdc32de36e2725b14ae6429382879bdd1025ed7d1728dbc04",
+  "src/native_runtime.mm": "113b119ff924bf3ccd6d1958f5d712954b50981d9905ac96afc95446ba1e1e48",
   "src/restore_session.hpp": "0a03ca2af500f5cd172d878437c1efe65ec32dfe62903e36e978dd0650081efd",
   "src/restore_session.mm": "f87c07b1d20f8dcffad06b12a22dc75fdeebae507cd20b475ebe1c870414167c",
   "src/ui_window_glyph.cpp": "edf5a75e9d4db9a17a5cc931e23b02c90fed5341eef129258e141b715529d0c2",
@@ -560,70 +588,70 @@
   "CMakeLists.txt": "9b0c3c3a3da5935fe2c6f9cd421f883af701404594fed42aa9e928f5ca30df2f",
   "tools/retire_route_compare.py": "2a7c93c864191a2f04d8f96dcccc012d09463987c0ba19480797eb757f365bca",
   "tools/retire_route_regression.sh": "8768890a9e091054229b07722e97607235e23697fc1b399eebb052b05366821a",
-  "tools/restore_validation_run.sh": "77bb82dbe0f8f0a4227906e737b265160eda4365056ee8dbb6975dac9dd760a8",
+  "tools/restore_validation_run.sh": "6af34b6d21a36d0aa91e2ae632b90a716d210d8f95f507ef0732e08e56ac2299",
   "tools/restore_contract.py": "e43f108eff9b635ede7b256ee1f52d52364f5ecab04ce54dceb2ea0913651b12",
   "tools/restore_capture.sh": "2ceb87a04f8c0a5b9a689c10b6b06ea96fdb8a25d30a6b2906d836f7071aaf59",
-  "tools/restore_original_extract.py": "4e83060893fc4c2682a62a552824a69271ed205caf13f97428a0e1707f7d60dc",
+  "tools/restore_original_extract.py": "74049d9dc54b56a87297e5aa31932ea0da488519def77ecd3e8c5fe3f761f417",
   "tools/restore_compare.py": "5027356eba0f96967be284576e8bf2f9aa5aa925680cb9f597b6c1a95fe00420",
-  "tools/restore_make_manifest.py": "5ac15fcd498c4222fd65e740faf6a22bd8fd8b567e300d967e72c54517a24d7c",
-  "tools/play-oracle/startup.cpp": "fc19f0d22c364457a1b8ff9f93b649e2f1f8e5a77c2b16f63319177a695a724d",
+  "tools/restore_make_manifest.py": "4cb9c095f13387438672019fb325c197461945f646a82d001d83ae3153b0403c",
+  "tools/play-oracle/startup.cpp": "e846329bc626154439b4b01bf12283540659d3f629460b11e18f139549038854",
   "tools/retire_input_provenance.py": "4407407b806d49cba124058f370b480ccf708c327eb44d6cf2f603c3aa9d96d6",
   "tools/restore_io_timing_evidence.py": "01e8dd57d3cefa781215082c8673a155a183b3bddc0d1655f843eb7af5cea226",
   "tests/test_restore_io_timing_evidence.py": "8d664db2050cb757d0a3a22bff5663c9cceb62455bb0197393dc1035db25f29f",
-  "tests/startup_textures_tests.cpp": "3a079627fb729d08fdf18f9db16f7b4c8ba37519326e4ad4390fafa67dfdf471",
+  "tests/startup_textures_tests.cpp": "106c21c8fdbaa2ba04a1d600b12a7cd61e9e82541d18ae61e556746966822656",
   "tests/test_retire_route_compare.py": "a4aa9fd734ac57e35a047433ad7b917175220674506cbb42a6a68c41ea8b70a7",
   "tests/test_restore_contract.py": "8426298fd995ebc83555b6252780ae699e5561c6a6ac4fda3e27ab9e9abf34cf",
   "tests/test_restore_compare.py": "adf7c650eca42bf34a43a8e8084811073501170c56d1677b98e4bf9a811d741d",
-  "tests/test_restore_routes.py": "f020810f798c10180f3644610fa0f2056a23642792da888ad7d1295f21b159b8",
+  "tests/test_restore_routes.py": "fff024e58ae5493ed275fbd968397f42aafb8464b4e180c1cf615f0b2096bd4c",
   "tests/data/restore-routes/restore-cancel/buttons.txt": "12a12f219f17735fd949617a97866a6daed6156d15173e6e445373f9daab7bd8",
   "tests/data/restore-routes/pending-cancel/buttons.txt": "186facc3c345e592ce73538c20c0c133245a9f8841d220d1a680a126dec7f778",
   "docs/restore-contract.json": "080d1064a08be29736ffae26e9891f9ac6a570d9cc077c4eae32e80235d41913",
-  "docs/restore-original-manifest.json": "7e5fcc743560fd2b096fadd08812201fbf33d53a2870ffa502a7a3837b983b1e"
+  "docs/restore-original-manifest.json": "325827fdae412fe64f4cb862e1099f4f44b62b5c8cb8be761eabeedde7a4c39d"
  },
  "evidence": [
   {
-   "path": "local/research/restore-ownership-validation-v2/bin/binaries.sha256",
-   "sha256": "7d8cf8772c597122b0a2e1c61f3400690606c28a664216a9ea2da55822c63093",
+   "path": "local/research/restore-ownership-validation-v3/bin/binaries.sha256",
+   "sha256": "f54e9f72d656b0db4dc17d4a3febfaa30fe180d909273337b0950196c298c8a3",
    "bytes": 327
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/bin/source-head.txt",
-   "sha256": "9fb5724178d49d8defcdee4251a97ae1a4a16c0a793ce09ed9c2e7ca8139349c",
+   "path": "local/research/restore-ownership-validation-v3/bin/source-head.txt",
+   "sha256": "9982f190349d17b78e5b5945e2187a5335264e4c48c97ebd122236939ab6fdbf",
    "bytes": 41
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/ctest-release-all.out",
-   "sha256": "82374fd54f3d19fb65ca4c8e431a7cfc086d31feeb784c0869e76d730b285940",
+   "path": "local/research/restore-ownership-validation-v3/ctest-release-all.out",
+   "sha256": "cf34d8fba418353e13b48c52f903b6921971d99e40cc97fcff65f32b75a08b16",
    "bytes": 13067
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/ctest-debug-focused.out",
-   "sha256": "cf9f79ab0015c85c2df8709bb940838231c36f981da7dd3a7f2d184b19d152d8",
+   "path": "local/research/restore-ownership-validation-v3/ctest-debug-focused.out",
+   "sha256": "20d86dd6621c666be3752f349c7a2dbceb61a79e1fedee44c0cf28f103c8c7d8",
    "bytes": 2411
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/ctest-sanitize-focused.out",
-   "sha256": "46b750cc466d51aaf06de9ffee20a8545c13e13a8bff097f0b23579ec7394d2c",
+   "path": "local/research/restore-ownership-validation-v3/ctest-sanitize-focused.out",
+   "sha256": "40b7b83ccaf7c865ed0ceb4e47962d8ca18fd211ea4ad10596fe82f01aa86839",
    "bytes": 2418
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/python-suite.out",
-   "sha256": "65c603558df206a9b8bc2a563027787fa9a52a44522dda5cce0f594c6a1ffb47",
-   "bytes": 5790
+   "path": "local/research/restore-ownership-validation-v3/python-suite.out",
+   "sha256": "0f2360601b88dfd811dc184a2dad29fbccf5b20c078a5cc5f1545560aacf0b8a",
+   "bytes": 5810
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/binaries-check.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/binaries-check.txt",
    "sha256": "4dd7564f633d799eea32cd258c3712954c12ebf1f1eb29a11b5ed9ae8583d5af",
    "bytes": 141
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/commands.txt",
-   "sha256": "1c56b5849fd2c978cd511f84f932253f93e0c9bf68f85de9cc21a27d60075bfa",
+   "path": "local/research/restore-ownership-validation-v3/final/commands.txt",
+   "sha256": "48598a245bfcd9ad456822ba7b94786ca6c36ea17e2dab9103a0f04a1ef80cc5",
    "bytes": 5867
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/source-head.txt",
-   "sha256": "9fb5724178d49d8defcdee4251a97ae1a4a16c0a793ce09ed9c2e7ca8139349c",
+   "path": "local/research/restore-ownership-validation-v3/final/source-head.txt",
+   "sha256": "9982f190349d17b78e5b5945e2187a5335264e4c48c97ebd122236939ab6fdbf",
    "bytes": 41
   },
   {
@@ -647,6 +675,16 @@
    "bytes": 327
   },
   {
+   "path": "local/research/restore-ownership-validation-v2/bin/binaries.sha256",
+   "sha256": "7d8cf8772c597122b0a2e1c61f3400690606c28a664216a9ea2da55822c63093",
+   "bytes": 327
+  },
+  {
+   "path": "docs/restore-light-manifest.json",
+   "sha256": "311017fd649aec778e2f1bb1c7bb8cf11e65de9ddd6c63eb7350c170afeac86f",
+   "bytes": 72108
+  },
+  {
    "path": "local/research/restore-ownership-validation-v1/conditional-parity/sha256.txt",
    "sha256": "a07b58ccf07872e2fc05f50cfc39cf1d0b8f31ae79ce9961419e13b5e2353a28",
    "bytes": 692
@@ -657,649 +695,689 @@
    "bytes": 352
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/command.txt",
-   "sha256": "214f41bb1961cf037e88f3a3f665679c3730b83963b07fc90f516fecb57edc81",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/command.txt",
+   "sha256": "2f48968fc8bb4db5b4ba08a4439bfbd007f1e04d23dc1bb85387988062a4de3f",
    "bytes": 534
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/stdout.txt",
-   "sha256": "0885dd800d8bc0115e583d5608f06c13dc27d3ccdd3d457842051456cb99cd39",
-   "bytes": 674
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/stdout.txt",
+   "sha256": "c61dd39aba945e2232c3321fa648e7c33357e2b15a7a4ae002e34983966d09d2",
+   "bytes": 675
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/reads.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/reads.jsonl",
    "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
    "bytes": 68452
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/reads-check.json",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/reads-check.json",
    "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
    "bytes": 20004
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/saves-before.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/saves-before.txt",
    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
    "bytes": 0
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/saves-after.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/saves-after.txt",
    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
    "bytes": 0
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/report/route.json",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/report/route.json",
    "sha256": "c5262a92dc6b6cad5040558b50b63fc0fa8a1ce772986277392be9d1e2521a95",
    "bytes": 317
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/report/manager-frames.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/report/manager-frames.jsonl",
    "sha256": "93564ba0874461d8667d57e3f273e99657c04cce3f1bebdf7faed4ad522ce308",
    "bytes": 20268
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/report/session-draw-frames.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/report/session-draw-frames.jsonl",
    "sha256": "be36c4e7ac6d2eb2aed59e9d0cba90893593e6fd7ced7068d895fa1216f1eb95",
    "bytes": 597002
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/report/second-title-return/state.json",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/report/second-title-return/state.json",
    "sha256": "775d61efe1352019811ac0021adc75c1f0d32bc85b8f56632bf054241be0be6b",
    "bytes": 73328
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/report/second-title-return/lifecycle.jsonl",
-   "sha256": "1fde0917ecf5cae597c78556929f470aa58a0cb86048694e947ef41941e795f4",
-   "bytes": 109510
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/report/second-title-return/lifecycle.jsonl",
+   "sha256": "e076d94c47459f141f74b919e540cf094e8e6e36dc86719304aff8613e8c508d",
+   "bytes": 109158
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/report/second-title-return/rng.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/report/second-title-return/rng.jsonl",
    "sha256": "61cacada92dbcdc7f8994f59d78c68b921e3adda735d2743210127538469464d",
    "bytes": 1900203
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/compare.txt",
-   "sha256": "49988c7c4fc2175158aec6db09bfaeb34e3526d21ed1ff38fcd94385eefbf74d",
-   "bytes": 10090
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/compare.txt",
+   "sha256": "e68080e625bdf4433dc88ef183139f49445c87d8c60b0090dd41488696b2eef2",
+   "bytes": 10080
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-fixed/compare.json",
-   "sha256": "41116f884ad8f36bb0304f5d38e042fba9bfc2bb973104e971f54db0cdacc432",
-   "bytes": 6207
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/compare.json",
+   "sha256": "6973dd642947cf918179fe3f14ebe53c66858c9cf880c5af09abe37bfb540441",
+   "bytes": 6197
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/command.txt",
-   "sha256": "ce7e1776a1a355261dcf7f897377e0e4a38440c338c1dfc8a1601b88c6bbd278",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/light-compare.txt",
+   "sha256": "9ce44d05ee54e903688640f3a899f99c136a2e50b32f7a8d24e5a015d3064fa1",
+   "bytes": 9740
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/light-compare.json",
+   "sha256": "4732d5367438703cea32bed51ed8de7b2a7d8f5f743b159f7ef1ce34d873e387",
+   "bytes": 6215
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/command.txt",
+   "sha256": "b0f3b3e29e3ad8a63bac9fd07d479a49d4e3760562592269c895126793b8757d",
    "bytes": 576
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/stdout.txt",
-   "sha256": "56375ac8ae680dddd0771df43e614ae46810ddc83582e33a89c5d38c19864fa5",
-   "bytes": 674
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/stdout.txt",
+   "sha256": "7ce50e6e9c80b4419afd6cd951e82df3fe28f7be14bd58e54967fb30a1df7883",
+   "bytes": 675
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/reads.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/reads.jsonl",
    "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
    "bytes": 68452
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/reads-check.json",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/reads-check.json",
    "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
    "bytes": 20004
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/saves-before.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/saves-before.txt",
    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
    "bytes": 0
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/saves-after.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/saves-after.txt",
    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
    "bytes": 0
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/report/route.json",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/report/route.json",
    "sha256": "ba55c9810d60d11d99c1775068f5d913719d649ab2758356eac9a6be49bf2a6a",
    "bytes": 298
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/report/manager-frames.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/report/manager-frames.jsonl",
    "sha256": "32d4e2aeb2a8aeca0397ff5435b1febcaeaecd0572d6a34bc4ff26d587792cd8",
    "bytes": 5750
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/report/session-draw-frames.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/report/session-draw-frames.jsonl",
    "sha256": "3b4c9a44b5e5871c6f3b663744ae36a1211cebe006f19231374e140f4ec5732c",
    "bytes": 90730
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/report/second-title-return/state.json",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/report/second-title-return/state.json",
    "sha256": "23bd6ec047126c853acf8752be9daa388248d5c7ff330d4ce2962cb9b6f6540f",
    "bytes": 73328
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/report/second-title-return/lifecycle.jsonl",
-   "sha256": "a216d23b40d618ea64dd8f009cef20f4d4d802064cd3186de7109fed28dcd859",
-   "bytes": 109394
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/report/second-title-return/lifecycle.jsonl",
+   "sha256": "1e55193d614994d7aa0a8de1116a65db6765adfd4e66278ad79ccdd0e427e6bf",
+   "bytes": 109042
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-pending/report/second-title-return/rng.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/report/second-title-return/rng.jsonl",
    "sha256": "a7570bccff1c2d0827d2ebd74f5b3ab580d29803274fa7776656ec1c779727c6",
    "bytes": 812784
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/command.txt",
-   "sha256": "782c3f54066f9178768aafc7a858914a3d8a3d42c9d2826af7978af0b75c7073",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/command.txt",
+   "sha256": "2c6d9cbb669fab35941db8e07b912b0f97e5af235df03a145a7f1a268847b7df",
    "bytes": 590
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/stdout.txt",
-   "sha256": "f0bc6676de4a6a6873294a0cc99e59b69001ba95a4f2c95164f68af9364e98ec",
-   "bytes": 670
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/stdout.txt",
+   "sha256": "44470a0ed393a03cbf094cb8562f73ca8717a61c168ad471610759912983f207",
+   "bytes": 669
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/reads.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/reads.jsonl",
    "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
    "bytes": 68452
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/reads-check.json",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/reads-check.json",
    "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
    "bytes": 20004
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/saves-before.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/saves-before.txt",
    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
    "bytes": 0
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/saves-after.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/saves-after.txt",
    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
    "bytes": 0
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/report/route.json",
-   "sha256": "c62d869907ea38c46bb1b1f81213e8f3eb44d4baf60e19ecbf204cb66cf2d69d",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/report/route.json",
+   "sha256": "acbe41dc8f11f256f20a25aba1f76ae489476dbce71a5e0ffc35e3106fe17d56",
    "bytes": 309
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/report/manager-frames.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/report/manager-frames.jsonl",
    "sha256": "19306d81cfaf749fb8afe6a789e8a62be2716e097498fae80085e1553cc74ad9",
    "bytes": 5341
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/report/session-draw-frames.jsonl",
-   "sha256": "17689b9d6ac31328021bd08c2c41d343bf41968819dc92c0c28bd53432a98cad",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/report/session-draw-frames.jsonl",
+   "sha256": "0a76f97664c4f906341ecd4c16d61a08ac830792627420eb5b430ecb95a5b0bf",
    "bytes": 147266
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/report/second-title-return/state.json",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/report/second-title-return/state.json",
    "sha256": "4d896a5aab528435b34dec38e75e2e6beaf394293357b21297efbcdf388c5718",
    "bytes": 73328
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/report/second-title-return/lifecycle.jsonl",
-   "sha256": "1fde0917ecf5cae597c78556929f470aa58a0cb86048694e947ef41941e795f4",
-   "bytes": 109510
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/report/second-title-return/lifecycle.jsonl",
+   "sha256": "e076d94c47459f141f74b919e540cf094e8e6e36dc86719304aff8613e8c508d",
+   "bytes": 109158
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/report/second-title-return/rng.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/report/second-title-return/rng.jsonl",
    "sha256": "90536220d8e2b7fb2deda74c4b6c4122f4a03fb23125d14ea537a643176bad8e",
    "bytes": 945413
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/compare.txt",
-   "sha256": "4207afd785a51114796059fe4bd9a685706a09b8092efcdb3f65b422fd39e456",
-   "bytes": 10350
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/compare.txt",
+   "sha256": "b5a8889468fdd98ddf64a0df1ccc12b4a67e53a9a8ae1ec2526b1527382049d7",
+   "bytes": 10340
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/compare.json",
-   "sha256": "be03770be5f57582d747d5c7a4144f2bee49c6e3ce69d20d9e9978a0fd49de82",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/compare.json",
+   "sha256": "a25f0eb7715e36adea053089a7521bb9b96ecf010e746a28297416b5dd491cbb",
+   "bytes": 6187
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/light-compare.txt",
+   "sha256": "70ee96f9edcb8e546f37b97ee3a7f0b6745530ab892c91cc93d70ae0bee0fda3",
+   "bytes": 9310
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/light-compare.json",
+   "sha256": "0533bd4337c6f98204a5362611ff17d0cc7c4a14bb7363a86399729d3db14cf0",
    "bytes": 6197
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/io-timing.json",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/io-timing.json",
    "sha256": "f88aa30af98f33ef35e67dba978ab0b255fa2c720a71d50a9a78379b77d3234f",
    "bytes": 1510
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/release-scripted/io-timing.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/io-timing.txt",
    "sha256": "f88aa30af98f33ef35e67dba978ab0b255fa2c720a71d50a9a78379b77d3234f",
    "bytes": 1510
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/command.txt",
-   "sha256": "31c8fe2a931ba13c152caca5b3b3ff958fcc8f7994bc526b0d7e791ce7d8cd05",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/command.txt",
+   "sha256": "350d542ac16a434f375d4d7c73f39ed6ec50c1ce54275411591e20d093974cdd",
    "bytes": 539
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/stdout.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/stdout.txt",
    "sha256": "b11947e6378f561f9071e2541a5917ff4e0107fc3ac5e2a79f7e893f47c31899",
    "bytes": 673
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/reads.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/reads.jsonl",
    "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
    "bytes": 68452
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/reads-check.json",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/reads-check.json",
    "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
    "bytes": 20004
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/saves-before.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/saves-before.txt",
    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
    "bytes": 0
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/saves-after.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/saves-after.txt",
    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
    "bytes": 0
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/report/route.json",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/report/route.json",
    "sha256": "c5262a92dc6b6cad5040558b50b63fc0fa8a1ce772986277392be9d1e2521a95",
    "bytes": 317
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/report/manager-frames.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/report/manager-frames.jsonl",
    "sha256": "93564ba0874461d8667d57e3f273e99657c04cce3f1bebdf7faed4ad522ce308",
    "bytes": 20268
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/report/session-draw-frames.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/report/session-draw-frames.jsonl",
    "sha256": "be36c4e7ac6d2eb2aed59e9d0cba90893593e6fd7ced7068d895fa1216f1eb95",
    "bytes": 597002
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/report/second-title-return/state.json",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/report/second-title-return/state.json",
    "sha256": "775d61efe1352019811ac0021adc75c1f0d32bc85b8f56632bf054241be0be6b",
    "bytes": 73328
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/report/second-title-return/lifecycle.jsonl",
-   "sha256": "1fde0917ecf5cae597c78556929f470aa58a0cb86048694e947ef41941e795f4",
-   "bytes": 109510
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/report/second-title-return/lifecycle.jsonl",
+   "sha256": "e076d94c47459f141f74b919e540cf094e8e6e36dc86719304aff8613e8c508d",
+   "bytes": 109158
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/report/second-title-return/rng.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/report/second-title-return/rng.jsonl",
    "sha256": "61cacada92dbcdc7f8994f59d78c68b921e3adda735d2743210127538469464d",
    "bytes": 1900203
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/compare.txt",
-   "sha256": "49988c7c4fc2175158aec6db09bfaeb34e3526d21ed1ff38fcd94385eefbf74d",
-   "bytes": 10090
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/compare.txt",
+   "sha256": "e68080e625bdf4433dc88ef183139f49445c87d8c60b0090dd41488696b2eef2",
+   "bytes": 10080
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-fixed/compare.json",
-   "sha256": "41116f884ad8f36bb0304f5d38e042fba9bfc2bb973104e971f54db0cdacc432",
-   "bytes": 6207
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/compare.json",
+   "sha256": "6973dd642947cf918179fe3f14ebe53c66858c9cf880c5af09abe37bfb540441",
+   "bytes": 6197
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/command.txt",
-   "sha256": "599a22599a0ab65e52a944c46fb0c4ec410e95c5a260e11a811203f217954f6d",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/light-compare.txt",
+   "sha256": "9ce44d05ee54e903688640f3a899f99c136a2e50b32f7a8d24e5a015d3064fa1",
+   "bytes": 9740
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/light-compare.json",
+   "sha256": "4732d5367438703cea32bed51ed8de7b2a7d8f5f743b159f7ef1ce34d873e387",
+   "bytes": 6215
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/command.txt",
+   "sha256": "9bb50cb6d42c4ddf8667a3da4581b76ad14bf08d8b4f3aa11c9fec1b95e1f4ab",
    "bytes": 581
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/stdout.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/stdout.txt",
    "sha256": "e4d9413c868876d00c075899aa7ccaf137098f8dfe3b0fed2d7934dc3bb5678f",
    "bytes": 673
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/reads.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/reads.jsonl",
    "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
    "bytes": 68452
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/reads-check.json",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/reads-check.json",
    "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
    "bytes": 20004
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/saves-before.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/saves-before.txt",
    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
    "bytes": 0
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/saves-after.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/saves-after.txt",
    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
    "bytes": 0
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/report/route.json",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/report/route.json",
    "sha256": "ba55c9810d60d11d99c1775068f5d913719d649ab2758356eac9a6be49bf2a6a",
    "bytes": 298
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/report/manager-frames.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/report/manager-frames.jsonl",
    "sha256": "32d4e2aeb2a8aeca0397ff5435b1febcaeaecd0572d6a34bc4ff26d587792cd8",
    "bytes": 5750
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/report/session-draw-frames.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/report/session-draw-frames.jsonl",
    "sha256": "3b4c9a44b5e5871c6f3b663744ae36a1211cebe006f19231374e140f4ec5732c",
    "bytes": 90730
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/report/second-title-return/state.json",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/report/second-title-return/state.json",
    "sha256": "23bd6ec047126c853acf8752be9daa388248d5c7ff330d4ce2962cb9b6f6540f",
    "bytes": 73328
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/report/second-title-return/lifecycle.jsonl",
-   "sha256": "a216d23b40d618ea64dd8f009cef20f4d4d802064cd3186de7109fed28dcd859",
-   "bytes": 109394
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/report/second-title-return/lifecycle.jsonl",
+   "sha256": "1e55193d614994d7aa0a8de1116a65db6765adfd4e66278ad79ccdd0e427e6bf",
+   "bytes": 109042
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-pending/report/second-title-return/rng.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/report/second-title-return/rng.jsonl",
    "sha256": "a7570bccff1c2d0827d2ebd74f5b3ab580d29803274fa7776656ec1c779727c6",
    "bytes": 812784
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/command.txt",
-   "sha256": "3304c7a4fe4e95a3041639c3f9869a1de90004091a229935d99cd6110dc42f3e",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/command.txt",
+   "sha256": "3df95bd8a43a2329de9b2e03ad43e7bbaba4161a274deaf7e086dc2c7c3621af",
    "bytes": 595
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/stdout.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/stdout.txt",
    "sha256": "0138e04def125903e7747da95247d8810915d234378d08bfa29807d5e9f9c902",
    "bytes": 668
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/reads.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/reads.jsonl",
    "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
    "bytes": 68452
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/reads-check.json",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/reads-check.json",
    "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
    "bytes": 20004
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/saves-before.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/saves-before.txt",
    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
    "bytes": 0
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/saves-after.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/saves-after.txt",
    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
    "bytes": 0
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/report/route.json",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/report/route.json",
    "sha256": "c934ef93e7b5b70a2f7d87f34639353d5750b1d9318281483b7ee26f9b7c026b",
    "bytes": 309
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/report/manager-frames.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/report/manager-frames.jsonl",
    "sha256": "19306d81cfaf749fb8afe6a789e8a62be2716e097498fae80085e1553cc74ad9",
    "bytes": 5341
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/report/session-draw-frames.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/report/session-draw-frames.jsonl",
    "sha256": "c8b48d437239672f8683788a8f9df257f2e876d8f42a6f0f9b164393507f5d8f",
    "bytes": 147266
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/report/second-title-return/state.json",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/report/second-title-return/state.json",
    "sha256": "4d896a5aab528435b34dec38e75e2e6beaf394293357b21297efbcdf388c5718",
    "bytes": 73328
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/report/second-title-return/lifecycle.jsonl",
-   "sha256": "1fde0917ecf5cae597c78556929f470aa58a0cb86048694e947ef41941e795f4",
-   "bytes": 109510
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/report/second-title-return/lifecycle.jsonl",
+   "sha256": "e076d94c47459f141f74b919e540cf094e8e6e36dc86719304aff8613e8c508d",
+   "bytes": 109158
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/report/second-title-return/rng.jsonl",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/report/second-title-return/rng.jsonl",
    "sha256": "90536220d8e2b7fb2deda74c4b6c4122f4a03fb23125d14ea537a643176bad8e",
    "bytes": 945413
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/compare.txt",
-   "sha256": "d0af46e2dbd0910cf29b7b8de6e4632a4109e8e1f2a39a977df86c8476f5829f",
-   "bytes": 10350
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/compare.txt",
+   "sha256": "455caaf88f3ff5a963a4b2d3710a2d342d278a840b7895a6371b7373804e3f62",
+   "bytes": 10340
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/compare.json",
-   "sha256": "6b3f025e9d996ce4161d6748ac427671254b1e021554b1d161c89d9c88c0f097",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/compare.json",
+   "sha256": "4e617c62b0b7745366a320bd6c9e956101b4ee9603d4a77b0b9188f31b8ecec1",
+   "bytes": 6187
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/light-compare.txt",
+   "sha256": "e4c967d4ad6ef5f7cc1701efe2b19308e1e3405681e5ee59f01b797044b8e16b",
+   "bytes": 9310
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/light-compare.json",
+   "sha256": "505e39c093a8794187728a4d7fbd58236b99c5c3abac6b769feef34cd64c3d5f",
    "bytes": 6197
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/io-timing.json",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/io-timing.json",
    "sha256": "f88aa30af98f33ef35e67dba978ab0b255fa2c720a71d50a9a78379b77d3234f",
    "bytes": 1510
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/sessions/sanitize-scripted/io-timing.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/io-timing.txt",
    "sha256": "f88aa30af98f33ef35e67dba978ab0b255fa2c720a71d50a9a78379b77d3234f",
    "bytes": 1510
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/retire-restore/compare.txt",
-   "sha256": "f917b5e33edf993cfae6a8ef0bb934080f370cb05b737233d8dcf3b64d7bbfba",
+   "path": "local/research/restore-ownership-validation-v3/final/retire-restore/compare.txt",
+   "sha256": "d99cce0276ebe9f98041bb2c1279ec550d9232ea5192900ecbf0dc9b5751e0ba",
    "bytes": 4367
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/retire-restore/stdout.txt",
-   "sha256": "f61426b4812bb0e7ec6fbebae73b86ed7e25ccf47538e60fee43f163f7061782",
-   "bytes": 561
+   "path": "local/research/restore-ownership-validation-v3/final/retire-restore/stdout.txt",
+   "sha256": "63b684af61d1ac7b5c02a9d40d81e56e26b8cb50ed459df21981a6ca229637c8",
+   "bytes": 560
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/retire-newgame/compare.txt",
-   "sha256": "fa355bb185b45b0533278455c2a707677dc8fce98abbf564bc568bd1e4c1a9c6",
+   "path": "local/research/restore-ownership-validation-v3/final/retire-newgame/compare.txt",
+   "sha256": "1dc22ca8d656fa4ac68e07d0cd56d7365a56d25a353bccfde4009e1a8900d3eb",
    "bytes": 4367
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/retire-newgame/stdout.txt",
-   "sha256": "441156228c9848a9bbb8b8a64667af483dfd7f53d439a2fa3691f2f05b0b4c06",
+   "path": "local/research/restore-ownership-validation-v3/final/retire-newgame/stdout.txt",
+   "sha256": "fbf7e74084ee3718e2aa13d6b1d45f9eaf8046101c7f1b516ef16541d3b7aac2",
    "bytes": 563
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/gates-release/rng.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/gates-release/rng.txt",
    "sha256": "8a0eea4e6bd0b1df73b4e3d6bc986c2c23a3728e6b0719a35270808af9155418",
    "bytes": 263
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/gates-release/timeline.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/gates-release/timeline.txt",
    "sha256": "b68e117c5efaf3cea364a86ea8e7c91f348582b82a833646ed8cd2af56b49508",
    "bytes": 323
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/gates-release/startup.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/gates-release/startup.txt",
    "sha256": "565eb330b28e8109d7d3f3f5a25170784a1455c5dd23c058514638e4a8b76413",
    "bytes": 644
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/gates-release/title.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/gates-release/title.txt",
    "sha256": "dbbef9a4db20a1987a70d6da12a0e824f1baf22132d66d30f7e1c1218ac6fce3",
    "bytes": 1207
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/gates-release/stdout.txt",
-   "sha256": "f2cdfc0b8a351088b865c5f6834d177d3dcb93010a03b49894b8dd9a1bb55e7a",
-   "bytes": 475
+   "path": "local/research/restore-ownership-validation-v3/final/gates-release/stdout.txt",
+   "sha256": "e48ee13e68da99c2a7488f89ec6946510402564e1c5ac5086a5154046c028403",
+   "bytes": 476
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/gates-sanitize/rng.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/gates-sanitize/rng.txt",
    "sha256": "8a0eea4e6bd0b1df73b4e3d6bc986c2c23a3728e6b0719a35270808af9155418",
    "bytes": 263
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/gates-sanitize/timeline.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/gates-sanitize/timeline.txt",
    "sha256": "b68e117c5efaf3cea364a86ea8e7c91f348582b82a833646ed8cd2af56b49508",
    "bytes": 323
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/gates-sanitize/startup.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/gates-sanitize/startup.txt",
    "sha256": "565eb330b28e8109d7d3f3f5a25170784a1455c5dd23c058514638e4a8b76413",
    "bytes": 644
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/gates-sanitize/title.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/gates-sanitize/title.txt",
    "sha256": "dbbef9a4db20a1987a70d6da12a0e824f1baf22132d66d30f7e1c1218ac6fce3",
    "bytes": 1207
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/gates-sanitize/stdout.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/gates-sanitize/stdout.txt",
    "sha256": "b679bae105c060be471925295752f8b1f8e4bb87ed82882707e10bd421a6136e",
    "bytes": 474
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/compare.txt",
-   "sha256": "b13486c4069f7d869a3eb14c2426864d5506a8653f89cea43ee89e1f36c452bb",
-   "bytes": 33864
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/compare.txt",
+   "sha256": "d7a1291ce61a32e38a7683c03067f0d1c6186190210eab9912775dfefe81b521",
+   "bytes": 33409
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/binaries.sha256",
-   "sha256": "7e7dc1400e066283f1e6790504bad2e15a41d4017c10907d0e7a62bddd218cf6",
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/binaries.sha256",
+   "sha256": "ee8b5a82ea90888c71c96257cccd157d4c87d96fabe795095c73a4b557570e9c",
    "bytes": 290
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/stage-manifest.sha256",
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/stage-manifest.sha256",
    "sha256": "e2a014add1be76955e1e92807e87b19eaf0851ae1df94493248c87ca2d4c64f2",
    "bytes": 65
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/input/sha256.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/input/sha256.txt",
    "sha256": "3f60a97e1d05dfea629a30f1af40affef70ab9d8d75c52022be9b32cd9ff9923",
    "bytes": 78
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-a/command.txt",
-   "sha256": "cc992f01e26cec9c4b65e485e4525072186d5edd7e984a21e03d7a178c289ee0",
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-a/command.txt",
+   "sha256": "0a1f6b4c82867d95334deda728c7a9fe6b3542b276344548fdcf6c0162e21a7e",
    "bytes": 606
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-a/outputs.sha256",
-   "sha256": "ca35e8949765540e0de55fc2ead46e32106b0bc59cc7463e1f4702110ba6b863",
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-a/outputs.sha256",
+   "sha256": "7bea051105bdf6415cdf4e466f90d13dc3a467d89ab53d2b03fef793c095de95",
    "bytes": 2513
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-a/stdout.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-a/stdout.txt",
    "sha256": "6e592793d1484361de793654ed36664bb1878523b9a3547dc8135491c9fe7153",
    "bytes": 675
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-b/command.txt",
-   "sha256": "a0a1d799ae70b8a5f3da3676e949b23073703732d6a9f8cdde9358963f1df53a",
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-b/command.txt",
+   "sha256": "934f72baeec74d2b3817e0a1f580d468ee56b20b6ee3eaddd44db57a031ec623",
    "bytes": 606
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-b/outputs.sha256",
-   "sha256": "6eb9c4a3327c4aaceb86de6206eddce9015ee6a11a0c23d3d5e6fc3e853f9cf2",
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-b/outputs.sha256",
+   "sha256": "871570dc57085ab7de4fae6c1dfe8456c8a25b2097049037a9ce108177a37585",
    "bytes": 2513
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-b/stdout.txt",
-   "sha256": "6e592793d1484361de793654ed36664bb1878523b9a3547dc8135491c9fe7153",
-   "bytes": 675
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-c/command.txt",
-   "sha256": "4a6c523e5dddd0059ad1b5541561d6ea07dccdbb4dcded1339d17edac8ae2616",
-   "bytes": 606
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-c/outputs.sha256",
-   "sha256": "9217891d09927c64a66b2beb8cc289c55c7acb0be060bc5fda14d31e79ac3b5c",
-   "bytes": 2513
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-c/stdout.txt",
-   "sha256": "c8b34f6efbc341281fd4bbbd04841bdc75d8ae3f0d95c591a9c2ea4c69856ed0",
-   "bytes": 674
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-d/command.txt",
-   "sha256": "4e3015b9fcae4dd82f9eb72c09b33cb0af6cf61a666fed294fe3b360ee67b94f",
-   "bytes": 606
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-d/outputs.sha256",
-   "sha256": "2d3db031c99e86b95090b612618a25bbf08c948122b33fde8599cf2a7d7a46f7",
-   "bytes": 2513
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/new-d/stdout.txt",
-   "sha256": "102786cf1d3b50dfafd59a1df7dc265b00b3c9d06a6df7d948925f30d4e867e7",
-   "bytes": 674
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-a/command.txt",
-   "sha256": "f2ce19dfb658febd733c7ee7b1df71973e6d04a9a556bf2ec41d2fc7782667ad",
-   "bytes": 403
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-a/outputs.sha256",
-   "sha256": "b3586fbce794c459329d050bec40a24d8475748984156f9e705cb93e8f8dc2b9",
-   "bytes": 2513
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-a/stdout.txt",
-   "sha256": "6e592793d1484361de793654ed36664bb1878523b9a3547dc8135491c9fe7153",
-   "bytes": 675
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-b/command.txt",
-   "sha256": "da7513862a9aadc635b121e676283dd5f18bfa8f5eea41589d68d212ab9a8e42",
-   "bytes": 403
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-b/outputs.sha256",
-   "sha256": "ad9e9e71838af5d87f4856cbc46c80136427dd2d549c1628be1eab1ed250c197",
-   "bytes": 2513
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-b/stdout.txt",
-   "sha256": "c8b34f6efbc341281fd4bbbd04841bdc75d8ae3f0d95c591a9c2ea4c69856ed0",
-   "bytes": 674
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-c/command.txt",
-   "sha256": "f8d8ae3aa7bc9fb710a7ee2649eef8741282e323d5351c0fde8ed3357294a308",
-   "bytes": 403
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-c/outputs.sha256",
-   "sha256": "a28c0e629906da6778853320d0ce4c182704f8a8b79226233dae6518a8b23b23",
-   "bytes": 2513
-  },
-  {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-c/stdout.txt",
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-b/stdout.txt",
    "sha256": "d80995b72a060b4d236bd075293ef01d5619929ed307d12d39c9ec59dd29e3ad",
    "bytes": 675
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-d/command.txt",
-   "sha256": "8e863007e0e2c2aaf9a400029da439b3daf265638b425e1b83cdd1792446210c",
-   "bytes": 403
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-c/command.txt",
+   "sha256": "b10e1a05240bf8d9a134a6b12d35b2d696be1c54b7ef927c2d3f071456b36997",
+   "bytes": 606
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-d/outputs.sha256",
-   "sha256": "04825af92cb687ebb164b72ad02872880147278e13b30567ced895b381fd9a10",
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-c/outputs.sha256",
+   "sha256": "25f2ce6d5eab8b513c91b359a2d9f93c9f4d72dc3e749748c375bc47d6bd01d4",
    "bytes": 2513
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-restore-cancel/old-d/stdout.txt",
-   "sha256": "102786cf1d3b50dfafd59a1df7dc265b00b3c9d06a6df7d948925f30d4e867e7",
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-c/stdout.txt",
+   "sha256": "c61dd39aba945e2232c3321fa648e7c33357e2b15a7a4ae002e34983966d09d2",
+   "bytes": 675
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-d/command.txt",
+   "sha256": "cccc711339ed3ff94744ab7416c425820e66eda54af9e6a9480c3c6c38cc8cbb",
+   "bytes": 606
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-d/outputs.sha256",
+   "sha256": "f17a5565c13b4810a125065cbce2a3fb5109e5ea5fdfa4ead6c73f23c4009e69",
+   "bytes": 2513
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-d/stdout.txt",
+   "sha256": "c8b34f6efbc341281fd4bbbd04841bdc75d8ae3f0d95c591a9c2ea4c69856ed0",
    "bytes": 674
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-cold/align.txt",
-   "sha256": "081ef911f16088fe5a8455831ecb42d2cdc33f7af4cc375a37302105a0807b5d",
-   "bytes": 3990
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-a/command.txt",
+   "sha256": "4509f0ffad7cddd01797cfb87937395cc1bfe0066f6daf67672fbac6ba5fe66c",
+   "bytes": 403
   },
   {
-   "path": "local/research/restore-ownership-validation-v2/final/regression-cold/binaries.sha256",
-   "sha256": "7e7dc1400e066283f1e6790504bad2e15a41d4017c10907d0e7a62bddd218cf6",
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-a/outputs.sha256",
+   "sha256": "29b80a8f609b27d26053bdb5ca49e2a4f6ecad6d465f57c233991a79e597ded9",
+   "bytes": 2513
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-a/stdout.txt",
+   "sha256": "c61dd39aba945e2232c3321fa648e7c33357e2b15a7a4ae002e34983966d09d2",
+   "bytes": 675
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-b/command.txt",
+   "sha256": "fc3aa043347eaa39a68621a10a65def916609c51677fd37d9a8c38d8ff5083ee",
+   "bytes": 403
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-b/outputs.sha256",
+   "sha256": "7be78b13e45ef4a5ca6acd9fd8c6a47aa781b1086a307bd2e593c19b49f51a37",
+   "bytes": 2513
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-b/stdout.txt",
+   "sha256": "6e592793d1484361de793654ed36664bb1878523b9a3547dc8135491c9fe7153",
+   "bytes": 675
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-c/command.txt",
+   "sha256": "e9783fb285f4ffdc5f6f8bf6cf8138fb2730d0d32ad84baf7c198074d122cac0",
+   "bytes": 403
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-c/outputs.sha256",
+   "sha256": "883e8767d6f395a92294ed41f1963e7e951dde50745efaf78255b460a725b63d",
+   "bytes": 2513
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-c/stdout.txt",
+   "sha256": "c61dd39aba945e2232c3321fa648e7c33357e2b15a7a4ae002e34983966d09d2",
+   "bytes": 675
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-d/command.txt",
+   "sha256": "6824fe2931eaf55c9a54f7548a557d861b57b80a256892e5d6e54a3879de0cb9",
+   "bytes": 403
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-d/outputs.sha256",
+   "sha256": "6681881cdf22669c8ca9c9eaedf53025d08f2aa891dccf5ebe40e37aba331f6b",
+   "bytes": 2513
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-d/stdout.txt",
+   "sha256": "c61dd39aba945e2232c3321fa648e7c33357e2b15a7a4ae002e34983966d09d2",
+   "bytes": 675
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/regression-cold/align.txt",
+   "sha256": "8dbc40ed54532e9e7e88dd08514a5079554defa88fab15f06a0ec5ecfa24312a",
+   "bytes": 4239
+  },
+  {
+   "path": "local/research/restore-ownership-validation-v3/final/regression-cold/binaries.sha256",
+   "sha256": "ee8b5a82ea90888c71c96257cccd157d4c87d96fabe795095c73a4b557570e9c",
    "bytes": 290
   }
  ],
  "commands": {
   "driver": "tools/restore_validation_run.sh final",
-  "per_run": "local/research/restore-ownership-validation-v2/final/commands.txt",
+  "per_run": "local/research/restore-ownership-validation-v3/final/commands.txt",
   "manifest": "python3 tools/restore_validation_manifest.py docs/restore-ownership-validation.json"
  }
 }
