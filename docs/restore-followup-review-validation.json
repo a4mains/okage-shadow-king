@@ -1,0 +1,1826 @@
+{
+  "schema": "okage.restore.followup-review.v1",
+  "date": "2025-08-24",
+  "reviewed_commit": "b4fb39af33328f1af8135b0acd28701f1cdf4b26",
+  "scope": "Read-only runtime/source/evidence review, current documentation corrections and fresh-eyes Newgame assignment.",
+  "original_manifest_hash_audit": [
+    {
+      "path": "include/okage/startup_textures.hpp",
+      "sha256": "308fd3b3cdcd50b033571f9fd4ebc084e2a47a9030f2b963ab26a9dacaedd5fb",
+      "matches": true
+    },
+    {
+      "path": "src/startup_textures.cpp",
+      "sha256": "1506627b566b40356dd428a0fa7534a38af810cbed898e84b15acc4be73a5b5c",
+      "matches": true
+    },
+    {
+      "path": "include/okage/texture_handles.hpp",
+      "sha256": "514d2dfbecb739463076dbad315264477831e2711441890dc9cf8f3b6dcc09cb",
+      "matches": true
+    },
+    {
+      "path": "src/texture_handles.cpp",
+      "sha256": "b6ca2786d3cc2fcdd0074182831f0230bb830eec7e5f427024b9d25ccb8ab1a9",
+      "matches": true
+    },
+    {
+      "path": "src/native_runtime.mm",
+      "sha256": "113b119ff924bf3ccd6d1958f5d712954b50981d9905ac96afc95446ba1e1e48",
+      "matches": true
+    },
+    {
+      "path": "src/restore_session.hpp",
+      "sha256": "0a03ca2af500f5cd172d878437c1efe65ec32dfe62903e36e978dd0650081efd",
+      "matches": true
+    },
+    {
+      "path": "src/restore_session.mm",
+      "sha256": "f87c07b1d20f8dcffad06b12a22dc75fdeebae507cd20b475ebe1c870414167c",
+      "matches": true
+    },
+    {
+      "path": "src/ui_window_glyph.cpp",
+      "sha256": "edf5a75e9d4db9a17a5cc931e23b02c90fed5341eef129258e141b715529d0c2",
+      "matches": true
+    },
+    {
+      "path": "include/okage/rng_site.hpp",
+      "sha256": "c09a8a6aac1de1bd110d495c6794fb572404ca91e74340e5c60b43e4b91a674e",
+      "matches": true
+    },
+    {
+      "path": "include/okage/enemy.hpp",
+      "sha256": "648de686d24502735b7b10027859a82e0741cd8642d4bd236b7dda47d2637f45",
+      "matches": true
+    },
+    {
+      "path": "include/okage/effect.hpp",
+      "sha256": "988bba1f5462abc1e32028dcb8bbfb81d5d0b0d4937d07148aceae89eb757fe1",
+      "matches": true
+    },
+    {
+      "path": "src/effect.cpp",
+      "sha256": "287b08af795ba755605b0370e5d3001f4f3ff020cf4a6c04f83d6b9c0a121f36",
+      "matches": true
+    },
+    {
+      "path": "include/okage/startup_inputs.hpp",
+      "sha256": "6745df0d251cab5bccacc5bdcd1a4ce36013cf328359f07f62e82a54946e6713",
+      "matches": true
+    },
+    {
+      "path": "src/startup_inputs.cpp",
+      "sha256": "c3b57115baa59936158eea61f5ef3a50bebeb610ff037e237b395d4629876c6e",
+      "matches": true
+    },
+    {
+      "path": "CMakeLists.txt",
+      "sha256": "9b0c3c3a3da5935fe2c6f9cd421f883af701404594fed42aa9e928f5ca30df2f",
+      "matches": true
+    },
+    {
+      "path": "tools/retire_route_compare.py",
+      "sha256": "2a7c93c864191a2f04d8f96dcccc012d09463987c0ba19480797eb757f365bca",
+      "matches": true
+    },
+    {
+      "path": "tools/retire_route_regression.sh",
+      "sha256": "8768890a9e091054229b07722e97607235e23697fc1b399eebb052b05366821a",
+      "matches": true
+    },
+    {
+      "path": "tools/restore_validation_run.sh",
+      "sha256": "6af34b6d21a36d0aa91e2ae632b90a716d210d8f95f507ef0732e08e56ac2299",
+      "matches": true
+    },
+    {
+      "path": "tools/restore_contract.py",
+      "sha256": "e43f108eff9b635ede7b256ee1f52d52364f5ecab04ce54dceb2ea0913651b12",
+      "matches": true
+    },
+    {
+      "path": "tools/restore_capture.sh",
+      "sha256": "2ceb87a04f8c0a5b9a689c10b6b06ea96fdb8a25d30a6b2906d836f7071aaf59",
+      "matches": true
+    },
+    {
+      "path": "tools/restore_original_extract.py",
+      "sha256": "74049d9dc54b56a87297e5aa31932ea0da488519def77ecd3e8c5fe3f761f417",
+      "matches": true
+    },
+    {
+      "path": "tools/restore_compare.py",
+      "sha256": "5027356eba0f96967be284576e8bf2f9aa5aa925680cb9f597b6c1a95fe00420",
+      "matches": true
+    },
+    {
+      "path": "tools/restore_make_manifest.py",
+      "sha256": "4cb9c095f13387438672019fb325c197461945f646a82d001d83ae3153b0403c",
+      "matches": true
+    },
+    {
+      "path": "tools/play-oracle/startup.cpp",
+      "sha256": "e846329bc626154439b4b01bf12283540659d3f629460b11e18f139549038854",
+      "matches": true
+    },
+    {
+      "path": "tools/retire_input_provenance.py",
+      "sha256": "4407407b806d49cba124058f370b480ccf708c327eb44d6cf2f603c3aa9d96d6",
+      "matches": true
+    },
+    {
+      "path": "tools/restore_io_timing_evidence.py",
+      "sha256": "01e8dd57d3cefa781215082c8673a155a183b3bddc0d1655f843eb7af5cea226",
+      "matches": true
+    },
+    {
+      "path": "tests/test_restore_io_timing_evidence.py",
+      "sha256": "8d664db2050cb757d0a3a22bff5663c9cceb62455bb0197393dc1035db25f29f",
+      "matches": true
+    },
+    {
+      "path": "tests/startup_textures_tests.cpp",
+      "sha256": "106c21c8fdbaa2ba04a1d600b12a7cd61e9e82541d18ae61e556746966822656",
+      "matches": true
+    },
+    {
+      "path": "tests/test_retire_route_compare.py",
+      "sha256": "a4aa9fd734ac57e35a047433ad7b917175220674506cbb42a6a68c41ea8b70a7",
+      "matches": true
+    },
+    {
+      "path": "tests/test_restore_contract.py",
+      "sha256": "8426298fd995ebc83555b6252780ae699e5561c6a6ac4fda3e27ab9e9abf34cf",
+      "matches": true
+    },
+    {
+      "path": "tests/test_restore_compare.py",
+      "sha256": "adf7c650eca42bf34a43a8e8084811073501170c56d1677b98e4bf9a811d741d",
+      "matches": true
+    },
+    {
+      "path": "tests/test_restore_routes.py",
+      "sha256": "fff024e58ae5493ed275fbd968397f42aafb8464b4e180c1cf615f0b2096bd4c",
+      "matches": true
+    },
+    {
+      "path": "tests/data/restore-routes/restore-cancel/buttons.txt",
+      "sha256": "12a12f219f17735fd949617a97866a6daed6156d15173e6e445373f9daab7bd8",
+      "matches": true
+    },
+    {
+      "path": "tests/data/restore-routes/pending-cancel/buttons.txt",
+      "sha256": "186facc3c345e592ce73538c20c0c133245a9f8841d220d1a680a126dec7f778",
+      "matches": true
+    },
+    {
+      "path": "docs/restore-contract.json",
+      "sha256": "080d1064a08be29736ffae26e9891f9ac6a570d9cc077c4eae32e80235d41913",
+      "matches": true
+    },
+    {
+      "path": "docs/restore-original-manifest.json",
+      "sha256": "325827fdae412fe64f4cb862e1099f4f44b62b5c8cb8be761eabeedde7a4c39d",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/bin/binaries.sha256",
+      "sha256": "f54e9f72d656b0db4dc17d4a3febfaa30fe180d909273337b0950196c298c8a3",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/bin/source-head.txt",
+      "sha256": "9982f190349d17b78e5b5945e2187a5335264e4c48c97ebd122236939ab6fdbf",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/ctest-release-all.out",
+      "sha256": "cf34d8fba418353e13b48c52f903b6921971d99e40cc97fcff65f32b75a08b16",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/ctest-debug-focused.out",
+      "sha256": "20d86dd6621c666be3752f349c7a2dbceb61a79e1fedee44c0cf28f103c8c7d8",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/ctest-sanitize-focused.out",
+      "sha256": "40b7b83ccaf7c865ed0ceb4e47962d8ca18fd211ea4ad10596fe82f01aa86839",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/python-suite.out",
+      "sha256": "0f2360601b88dfd811dc184a2dad29fbccf5b20c078a5cc5f1545560aacf0b8a",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/binaries-check.txt",
+      "sha256": "4dd7564f633d799eea32cd258c3712954c12ebf1f1eb29a11b5ed9ae8583d5af",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/commands.txt",
+      "sha256": "48598a245bfcd9ad456822ba7b94786ca6c36ea17e2dab9103a0f04a1ef80cc5",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/source-head.txt",
+      "sha256": "9982f190349d17b78e5b5945e2187a5335264e4c48c97ebd122236939ab6fdbf",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-route-recheck-v1/regression-restore.out",
+      "sha256": "b73f0321ef43507d7d7d5082889047851adc9d28263653205ff717ebd7d92069",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-route-recheck-v1/regression-newgame.out",
+      "sha256": "d77e096f33ce8369ce246eaf029f4d9c97c16d16043ad58cb183a71b4c75f60c",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-route-recheck-v1/sha256.txt",
+      "sha256": "231f333d0f839addee0232ab4ddf8dd5f0f20692b3d543fe4e7192e5add9730d",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v1/bin/binaries.sha256",
+      "sha256": "8c7a9aa3aa96ec499801d67a69e36edc5c7d8687e928eed93c770023fa31ba97",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v2/bin/binaries.sha256",
+      "sha256": "7d8cf8772c597122b0a2e1c61f3400690606c28a664216a9ea2da55822c63093",
+      "matches": true
+    },
+    {
+      "path": "docs/restore-light-manifest.json",
+      "sha256": "311017fd649aec778e2f1bb1c7bb8cf11e65de9ddd6c63eb7350c170afeac86f",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v1/conditional-parity/sha256.txt",
+      "sha256": "a07b58ccf07872e2fc05f50cfc39cf1d0b8f31ae79ce9961419e13b5e2353a28",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v1/io-timing/sha256.txt",
+      "sha256": "74eb96d24d819c53f07603045bdc11b1ba561ae84246145893c68dae31b6015d",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/command.txt",
+      "sha256": "2f48968fc8bb4db5b4ba08a4439bfbd007f1e04d23dc1bb85387988062a4de3f",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/stdout.txt",
+      "sha256": "c61dd39aba945e2232c3321fa648e7c33357e2b15a7a4ae002e34983966d09d2",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/reads.jsonl",
+      "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/reads-check.json",
+      "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/saves-before.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/saves-after.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/report/route.json",
+      "sha256": "c5262a92dc6b6cad5040558b50b63fc0fa8a1ce772986277392be9d1e2521a95",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/report/manager-frames.jsonl",
+      "sha256": "93564ba0874461d8667d57e3f273e99657c04cce3f1bebdf7faed4ad522ce308",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/report/session-draw-frames.jsonl",
+      "sha256": "be36c4e7ac6d2eb2aed59e9d0cba90893593e6fd7ced7068d895fa1216f1eb95",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/report/second-title-return/state.json",
+      "sha256": "775d61efe1352019811ac0021adc75c1f0d32bc85b8f56632bf054241be0be6b",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/report/second-title-return/lifecycle.jsonl",
+      "sha256": "e076d94c47459f141f74b919e540cf094e8e6e36dc86719304aff8613e8c508d",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/report/second-title-return/rng.jsonl",
+      "sha256": "61cacada92dbcdc7f8994f59d78c68b921e3adda735d2743210127538469464d",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/compare.txt",
+      "sha256": "e68080e625bdf4433dc88ef183139f49445c87d8c60b0090dd41488696b2eef2",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/compare.json",
+      "sha256": "6973dd642947cf918179fe3f14ebe53c66858c9cf880c5af09abe37bfb540441",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/light-compare.txt",
+      "sha256": "9ce44d05ee54e903688640f3a899f99c136a2e50b32f7a8d24e5a015d3064fa1",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-fixed/light-compare.json",
+      "sha256": "4732d5367438703cea32bed51ed8de7b2a7d8f5f743b159f7ef1ce34d873e387",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/command.txt",
+      "sha256": "b0f3b3e29e3ad8a63bac9fd07d479a49d4e3760562592269c895126793b8757d",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/stdout.txt",
+      "sha256": "7ce50e6e9c80b4419afd6cd951e82df3fe28f7be14bd58e54967fb30a1df7883",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/reads.jsonl",
+      "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/reads-check.json",
+      "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/saves-before.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/saves-after.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/report/route.json",
+      "sha256": "ba55c9810d60d11d99c1775068f5d913719d649ab2758356eac9a6be49bf2a6a",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/report/manager-frames.jsonl",
+      "sha256": "32d4e2aeb2a8aeca0397ff5435b1febcaeaecd0572d6a34bc4ff26d587792cd8",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/report/session-draw-frames.jsonl",
+      "sha256": "3b4c9a44b5e5871c6f3b663744ae36a1211cebe006f19231374e140f4ec5732c",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/report/second-title-return/state.json",
+      "sha256": "23bd6ec047126c853acf8752be9daa388248d5c7ff330d4ce2962cb9b6f6540f",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/report/second-title-return/lifecycle.jsonl",
+      "sha256": "1e55193d614994d7aa0a8de1116a65db6765adfd4e66278ad79ccdd0e427e6bf",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-pending/report/second-title-return/rng.jsonl",
+      "sha256": "a7570bccff1c2d0827d2ebd74f5b3ab580d29803274fa7776656ec1c779727c6",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/command.txt",
+      "sha256": "2c6d9cbb669fab35941db8e07b912b0f97e5af235df03a145a7f1a268847b7df",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/stdout.txt",
+      "sha256": "44470a0ed393a03cbf094cb8562f73ca8717a61c168ad471610759912983f207",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/reads.jsonl",
+      "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/reads-check.json",
+      "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/saves-before.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/saves-after.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/report/route.json",
+      "sha256": "acbe41dc8f11f256f20a25aba1f76ae489476dbce71a5e0ffc35e3106fe17d56",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/report/manager-frames.jsonl",
+      "sha256": "19306d81cfaf749fb8afe6a789e8a62be2716e097498fae80085e1553cc74ad9",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/report/session-draw-frames.jsonl",
+      "sha256": "0a76f97664c4f906341ecd4c16d61a08ac830792627420eb5b430ecb95a5b0bf",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/report/second-title-return/state.json",
+      "sha256": "4d896a5aab528435b34dec38e75e2e6beaf394293357b21297efbcdf388c5718",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/report/second-title-return/lifecycle.jsonl",
+      "sha256": "e076d94c47459f141f74b919e540cf094e8e6e36dc86719304aff8613e8c508d",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/report/second-title-return/rng.jsonl",
+      "sha256": "90536220d8e2b7fb2deda74c4b6c4122f4a03fb23125d14ea537a643176bad8e",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/compare.txt",
+      "sha256": "b5a8889468fdd98ddf64a0df1ccc12b4a67e53a9a8ae1ec2526b1527382049d7",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/compare.json",
+      "sha256": "a25f0eb7715e36adea053089a7521bb9b96ecf010e746a28297416b5dd491cbb",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/light-compare.txt",
+      "sha256": "70ee96f9edcb8e546f37b97ee3a7f0b6745530ab892c91cc93d70ae0bee0fda3",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/light-compare.json",
+      "sha256": "0533bd4337c6f98204a5362611ff17d0cc7c4a14bb7363a86399729d3db14cf0",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/io-timing.json",
+      "sha256": "f88aa30af98f33ef35e67dba978ab0b255fa2c720a71d50a9a78379b77d3234f",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/release-scripted/io-timing.txt",
+      "sha256": "f88aa30af98f33ef35e67dba978ab0b255fa2c720a71d50a9a78379b77d3234f",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/command.txt",
+      "sha256": "350d542ac16a434f375d4d7c73f39ed6ec50c1ce54275411591e20d093974cdd",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/stdout.txt",
+      "sha256": "b11947e6378f561f9071e2541a5917ff4e0107fc3ac5e2a79f7e893f47c31899",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/reads.jsonl",
+      "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/reads-check.json",
+      "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/saves-before.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/saves-after.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/report/route.json",
+      "sha256": "c5262a92dc6b6cad5040558b50b63fc0fa8a1ce772986277392be9d1e2521a95",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/report/manager-frames.jsonl",
+      "sha256": "93564ba0874461d8667d57e3f273e99657c04cce3f1bebdf7faed4ad522ce308",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/report/session-draw-frames.jsonl",
+      "sha256": "be36c4e7ac6d2eb2aed59e9d0cba90893593e6fd7ced7068d895fa1216f1eb95",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/report/second-title-return/state.json",
+      "sha256": "775d61efe1352019811ac0021adc75c1f0d32bc85b8f56632bf054241be0be6b",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/report/second-title-return/lifecycle.jsonl",
+      "sha256": "e076d94c47459f141f74b919e540cf094e8e6e36dc86719304aff8613e8c508d",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/report/second-title-return/rng.jsonl",
+      "sha256": "61cacada92dbcdc7f8994f59d78c68b921e3adda735d2743210127538469464d",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/compare.txt",
+      "sha256": "e68080e625bdf4433dc88ef183139f49445c87d8c60b0090dd41488696b2eef2",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/compare.json",
+      "sha256": "6973dd642947cf918179fe3f14ebe53c66858c9cf880c5af09abe37bfb540441",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/light-compare.txt",
+      "sha256": "9ce44d05ee54e903688640f3a899f99c136a2e50b32f7a8d24e5a015d3064fa1",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-fixed/light-compare.json",
+      "sha256": "4732d5367438703cea32bed51ed8de7b2a7d8f5f743b159f7ef1ce34d873e387",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/command.txt",
+      "sha256": "9bb50cb6d42c4ddf8667a3da4581b76ad14bf08d8b4f3aa11c9fec1b95e1f4ab",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/stdout.txt",
+      "sha256": "e4d9413c868876d00c075899aa7ccaf137098f8dfe3b0fed2d7934dc3bb5678f",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/reads.jsonl",
+      "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/reads-check.json",
+      "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/saves-before.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/saves-after.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/report/route.json",
+      "sha256": "ba55c9810d60d11d99c1775068f5d913719d649ab2758356eac9a6be49bf2a6a",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/report/manager-frames.jsonl",
+      "sha256": "32d4e2aeb2a8aeca0397ff5435b1febcaeaecd0572d6a34bc4ff26d587792cd8",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/report/session-draw-frames.jsonl",
+      "sha256": "3b4c9a44b5e5871c6f3b663744ae36a1211cebe006f19231374e140f4ec5732c",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/report/second-title-return/state.json",
+      "sha256": "23bd6ec047126c853acf8752be9daa388248d5c7ff330d4ce2962cb9b6f6540f",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/report/second-title-return/lifecycle.jsonl",
+      "sha256": "1e55193d614994d7aa0a8de1116a65db6765adfd4e66278ad79ccdd0e427e6bf",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-pending/report/second-title-return/rng.jsonl",
+      "sha256": "a7570bccff1c2d0827d2ebd74f5b3ab580d29803274fa7776656ec1c779727c6",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/command.txt",
+      "sha256": "3df95bd8a43a2329de9b2e03ad43e7bbaba4161a274deaf7e086dc2c7c3621af",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/stdout.txt",
+      "sha256": "0138e04def125903e7747da95247d8810915d234378d08bfa29807d5e9f9c902",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/reads.jsonl",
+      "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/reads-check.json",
+      "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/saves-before.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/saves-after.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/report/route.json",
+      "sha256": "c934ef93e7b5b70a2f7d87f34639353d5750b1d9318281483b7ee26f9b7c026b",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/report/manager-frames.jsonl",
+      "sha256": "19306d81cfaf749fb8afe6a789e8a62be2716e097498fae80085e1553cc74ad9",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/report/session-draw-frames.jsonl",
+      "sha256": "c8b48d437239672f8683788a8f9df257f2e876d8f42a6f0f9b164393507f5d8f",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/report/second-title-return/state.json",
+      "sha256": "4d896a5aab528435b34dec38e75e2e6beaf394293357b21297efbcdf388c5718",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/report/second-title-return/lifecycle.jsonl",
+      "sha256": "e076d94c47459f141f74b919e540cf094e8e6e36dc86719304aff8613e8c508d",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/report/second-title-return/rng.jsonl",
+      "sha256": "90536220d8e2b7fb2deda74c4b6c4122f4a03fb23125d14ea537a643176bad8e",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/compare.txt",
+      "sha256": "455caaf88f3ff5a963a4b2d3710a2d342d278a840b7895a6371b7373804e3f62",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/compare.json",
+      "sha256": "4e617c62b0b7745366a320bd6c9e956101b4ee9603d4a77b0b9188f31b8ecec1",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/light-compare.txt",
+      "sha256": "e4c967d4ad6ef5f7cc1701efe2b19308e1e3405681e5ee59f01b797044b8e16b",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/light-compare.json",
+      "sha256": "505e39c093a8794187728a4d7fbd58236b99c5c3abac6b769feef34cd64c3d5f",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/io-timing.json",
+      "sha256": "f88aa30af98f33ef35e67dba978ab0b255fa2c720a71d50a9a78379b77d3234f",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/sessions/sanitize-scripted/io-timing.txt",
+      "sha256": "f88aa30af98f33ef35e67dba978ab0b255fa2c720a71d50a9a78379b77d3234f",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/retire-restore/compare.txt",
+      "sha256": "d99cce0276ebe9f98041bb2c1279ec550d9232ea5192900ecbf0dc9b5751e0ba",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/retire-restore/stdout.txt",
+      "sha256": "63b684af61d1ac7b5c02a9d40d81e56e26b8cb50ed459df21981a6ca229637c8",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/retire-newgame/compare.txt",
+      "sha256": "1dc22ca8d656fa4ac68e07d0cd56d7365a56d25a353bccfde4009e1a8900d3eb",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/retire-newgame/stdout.txt",
+      "sha256": "fbf7e74084ee3718e2aa13d6b1d45f9eaf8046101c7f1b516ef16541d3b7aac2",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/gates-release/rng.txt",
+      "sha256": "8a0eea4e6bd0b1df73b4e3d6bc986c2c23a3728e6b0719a35270808af9155418",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/gates-release/timeline.txt",
+      "sha256": "b68e117c5efaf3cea364a86ea8e7c91f348582b82a833646ed8cd2af56b49508",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/gates-release/startup.txt",
+      "sha256": "565eb330b28e8109d7d3f3f5a25170784a1455c5dd23c058514638e4a8b76413",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/gates-release/title.txt",
+      "sha256": "dbbef9a4db20a1987a70d6da12a0e824f1baf22132d66d30f7e1c1218ac6fce3",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/gates-release/stdout.txt",
+      "sha256": "e48ee13e68da99c2a7488f89ec6946510402564e1c5ac5086a5154046c028403",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/gates-sanitize/rng.txt",
+      "sha256": "8a0eea4e6bd0b1df73b4e3d6bc986c2c23a3728e6b0719a35270808af9155418",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/gates-sanitize/timeline.txt",
+      "sha256": "b68e117c5efaf3cea364a86ea8e7c91f348582b82a833646ed8cd2af56b49508",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/gates-sanitize/startup.txt",
+      "sha256": "565eb330b28e8109d7d3f3f5a25170784a1455c5dd23c058514638e4a8b76413",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/gates-sanitize/title.txt",
+      "sha256": "dbbef9a4db20a1987a70d6da12a0e824f1baf22132d66d30f7e1c1218ac6fce3",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/gates-sanitize/stdout.txt",
+      "sha256": "b679bae105c060be471925295752f8b1f8e4bb87ed82882707e10bd421a6136e",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/compare.txt",
+      "sha256": "d7a1291ce61a32e38a7683c03067f0d1c6186190210eab9912775dfefe81b521",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/binaries.sha256",
+      "sha256": "ee8b5a82ea90888c71c96257cccd157d4c87d96fabe795095c73a4b557570e9c",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/stage-manifest.sha256",
+      "sha256": "e2a014add1be76955e1e92807e87b19eaf0851ae1df94493248c87ca2d4c64f2",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/input/sha256.txt",
+      "sha256": "3f60a97e1d05dfea629a30f1af40affef70ab9d8d75c52022be9b32cd9ff9923",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-a/command.txt",
+      "sha256": "0a1f6b4c82867d95334deda728c7a9fe6b3542b276344548fdcf6c0162e21a7e",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-a/outputs.sha256",
+      "sha256": "7bea051105bdf6415cdf4e466f90d13dc3a467d89ab53d2b03fef793c095de95",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-a/stdout.txt",
+      "sha256": "6e592793d1484361de793654ed36664bb1878523b9a3547dc8135491c9fe7153",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-b/command.txt",
+      "sha256": "934f72baeec74d2b3817e0a1f580d468ee56b20b6ee3eaddd44db57a031ec623",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-b/outputs.sha256",
+      "sha256": "871570dc57085ab7de4fae6c1dfe8456c8a25b2097049037a9ce108177a37585",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-b/stdout.txt",
+      "sha256": "d80995b72a060b4d236bd075293ef01d5619929ed307d12d39c9ec59dd29e3ad",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-c/command.txt",
+      "sha256": "b10e1a05240bf8d9a134a6b12d35b2d696be1c54b7ef927c2d3f071456b36997",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-c/outputs.sha256",
+      "sha256": "25f2ce6d5eab8b513c91b359a2d9f93c9f4d72dc3e749748c375bc47d6bd01d4",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-c/stdout.txt",
+      "sha256": "c61dd39aba945e2232c3321fa648e7c33357e2b15a7a4ae002e34983966d09d2",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-d/command.txt",
+      "sha256": "cccc711339ed3ff94744ab7416c425820e66eda54af9e6a9480c3c6c38cc8cbb",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-d/outputs.sha256",
+      "sha256": "f17a5565c13b4810a125065cbce2a3fb5109e5ea5fdfa4ead6c73f23c4009e69",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/new-d/stdout.txt",
+      "sha256": "c8b34f6efbc341281fd4bbbd04841bdc75d8ae3f0d95c591a9c2ea4c69856ed0",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-a/command.txt",
+      "sha256": "4509f0ffad7cddd01797cfb87937395cc1bfe0066f6daf67672fbac6ba5fe66c",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-a/outputs.sha256",
+      "sha256": "29b80a8f609b27d26053bdb5ca49e2a4f6ecad6d465f57c233991a79e597ded9",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-a/stdout.txt",
+      "sha256": "c61dd39aba945e2232c3321fa648e7c33357e2b15a7a4ae002e34983966d09d2",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-b/command.txt",
+      "sha256": "fc3aa043347eaa39a68621a10a65def916609c51677fd37d9a8c38d8ff5083ee",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-b/outputs.sha256",
+      "sha256": "7be78b13e45ef4a5ca6acd9fd8c6a47aa781b1086a307bd2e593c19b49f51a37",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-b/stdout.txt",
+      "sha256": "6e592793d1484361de793654ed36664bb1878523b9a3547dc8135491c9fe7153",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-c/command.txt",
+      "sha256": "e9783fb285f4ffdc5f6f8bf6cf8138fb2730d0d32ad84baf7c198074d122cac0",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-c/outputs.sha256",
+      "sha256": "883e8767d6f395a92294ed41f1963e7e951dde50745efaf78255b460a725b63d",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-c/stdout.txt",
+      "sha256": "c61dd39aba945e2232c3321fa648e7c33357e2b15a7a4ae002e34983966d09d2",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-d/command.txt",
+      "sha256": "6824fe2931eaf55c9a54f7548a557d861b57b80a256892e5d6e54a3879de0cb9",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-d/outputs.sha256",
+      "sha256": "6681881cdf22669c8ca9c9eaedf53025d08f2aa891dccf5ebe40e37aba331f6b",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-restore-cancel/old-d/stdout.txt",
+      "sha256": "c61dd39aba945e2232c3321fa648e7c33357e2b15a7a4ae002e34983966d09d2",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-cold/align.txt",
+      "sha256": "8dbc40ed54532e9e7e88dd08514a5079554defa88fab15f06a0ec5ecfa24312a",
+      "matches": true
+    },
+    {
+      "path": "local/research/restore-ownership-validation-v3/final/regression-cold/binaries.sha256",
+      "sha256": "ee8b5a82ea90888c71c96257cccd157d4c87d96fabe795095c73a4b557570e9c",
+      "matches": true
+    }
+  ],
+  "additional_primary_comparator_sources": [
+    {
+      "path": "tools/restore_light_compare.py",
+      "bytes": 5262,
+      "sha256": "9d4d3952d5886688aa3592e490e0bd7690b9efb31f9eae4a0ff917d5f32c064b"
+    },
+    {
+      "path": "tests/test_restore_light_compare.py",
+      "bytes": 9704,
+      "sha256": "7ac0e6a8cadf4453846a7a83c6ae0c5210a2443ae01079f1d72159566a6c96ef"
+    },
+    {
+      "path": "tools/restore_original_extract.py",
+      "bytes": 71179,
+      "sha256": "74049d9dc54b56a87297e5aa31932ea0da488519def77ecd3e8c5fe3f761f417"
+    },
+    {
+      "path": "docs/restore-light-manifest.json",
+      "bytes": 72108,
+      "sha256": "311017fd649aec778e2f1bb1c7bb8cf11e65de9ddd6c63eb7350c170afeac86f"
+    }
+  ],
+  "commands": [
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/restore-release",
+        "-R",
+        "^(startup-inputs-tests|rng-cold-start-inputs|title-again|retire-title-routes|restore-routes|effect-tests|title-tests|game-mode-tests|field-tests|startup-textures-tests|texture-(transfer|psm1|snapshot|memory|handles|format)-tests|xim-raw-tests|asset-tests|gs-texture-address-tests)$",
+        "--output-on-failure"
+      ],
+      "returncode": 0,
+      "passed": 19,
+      "output": "local/research/restore-followup-review-v1/ctest-release.txt"
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/restore-sanitize",
+        "-R",
+        "^(effect-tests|title-tests|game-mode-tests|startup-textures-tests|texture-(transfer|psm1|snapshot|memory|handles|format)-tests|xim-raw-tests|asset-tests|gs-texture-address-tests|save-store-tests|load-queue-tests)$",
+        "--output-on-failure"
+      ],
+      "returncode": 0,
+      "passed": 15,
+      "output": "local/research/restore-followup-review-v1/ctest-sanitize.txt"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.test_retire_route_compare",
+        "tests.test_restore_compare",
+        "tests.test_restore_light_compare",
+        "tests.test_restore_io_timing_evidence"
+      ],
+      "returncode": 0,
+      "passed": 120,
+      "output": "local/research/restore-followup-review-v1/python.txt"
+    }
+  ],
+  "test_binaries": [
+    {
+      "path": "build/restore-release/texture-memory-tests",
+      "bytes": 81448,
+      "sha256": "35f99123b7a0286c144f76d289c55c96a7d6730fac813bfbfc4ffa5869a261bc"
+    },
+    {
+      "path": "build/restore-release/texture-transfer-tests",
+      "bytes": 139176,
+      "sha256": "b16aa1d450ee511b005994e6432af2ac1315644ee7ef0395326dbb4212a2abaf"
+    },
+    {
+      "path": "build/restore-release/texture-format-tests",
+      "bytes": 122296,
+      "sha256": "0b5c188cd2289b881936845618f09744a2c16755fb2afd264204d0bb1ef61b13"
+    },
+    {
+      "path": "build/restore-release/texture-psm1-tests",
+      "bytes": 127840,
+      "sha256": "37206324314efd97155b6d7a751760e383827711c0645ae9ec9e8d1aff814f0b"
+    },
+    {
+      "path": "build/restore-release/texture-snapshot-tests",
+      "bytes": 84072,
+      "sha256": "fe9fcf0df9bdbddd29fa0b56bae7a1bd64a6ed42c912a04e431519794e41da61"
+    },
+    {
+      "path": "build/restore-release/startup-textures-tests",
+      "bytes": 498952,
+      "sha256": "6ea5d5ae4c085a1b5ed44ba7940925b24b62c4b2a4a273dc65eef045efbca42e"
+    },
+    {
+      "path": "build/restore-release/startup-inputs-tests",
+      "bytes": 524888,
+      "sha256": "fde08790c6c5fade5b3704904005bbf9624629e795c9d0e0fc3632ef81a0c099"
+    },
+    {
+      "path": "build/restore-release/texture-handles-tests",
+      "bytes": 193672,
+      "sha256": "ccf629e90ca3bc6ada6b3320d2173f6ff732c9a7444eb05314837fec6ed8d40b"
+    },
+    {
+      "path": "build/restore-release/gs-texture-address-tests",
+      "bytes": 37096,
+      "sha256": "c4612320338d4b2c988c00404cb74a00a81ad2e39e82f3eb11252bb56c9d4141"
+    },
+    {
+      "path": "build/restore-release/title-tests",
+      "bytes": 107544,
+      "sha256": "6a8dd1686347ed41dbaface265a83de265d26e30ccf2d2225888a37e7391797b"
+    },
+    {
+      "path": "build/restore-release/game-mode-tests",
+      "bytes": 74384,
+      "sha256": "ba91fee9e672dd3c95dc0208749dc218ae7bccc28bcf553d4026dd927e943ef3"
+    },
+    {
+      "path": "build/restore-release/effect-tests",
+      "bytes": 578048,
+      "sha256": "3909925bcfbfc6d68db8333af27aa35c6ad36cbd1359a377e7f6a85bf582bc34"
+    },
+    {
+      "path": "build/restore-release/field-tests",
+      "bytes": 1264344,
+      "sha256": "f8c9ec7685fd02ef34afa3ce913cb1793b0d009fe765d1da65f296b0ba9408db"
+    },
+    {
+      "path": "build/restore-release/asset-tests",
+      "bytes": 58744,
+      "sha256": "59cd6503d1943f594da33ce18634509a164347de885dcf4e0e91563dc7f5105e"
+    },
+    {
+      "path": "build/restore-release/xim-raw-tests",
+      "bytes": 98752,
+      "sha256": "f15f15b6cb364d3ab601f8f7818c57a6d785cb612069fd895b7887c014bc52b9"
+    },
+    {
+      "path": "build/restore-release/okage-native.app/Contents/MacOS/okage-native",
+      "bytes": 3548640,
+      "sha256": "6588bbbc14c4bd6dd744bdae57ec28e0a3520b83e2fc6c40e69a5331d9465453"
+    },
+    {
+      "path": "build/restore-sanitize/texture-memory-tests",
+      "bytes": 721704,
+      "sha256": "7350fc0f4af54fc0747c8b38b06020ba5582afe35047663908486d4a3717a8ab"
+    },
+    {
+      "path": "build/restore-sanitize/texture-transfer-tests",
+      "bytes": 1624120,
+      "sha256": "2612a68fdafaae3eff8300d52653322882a8300d8f731f033d0484c5131171fe"
+    },
+    {
+      "path": "build/restore-sanitize/texture-format-tests",
+      "bytes": 1381848,
+      "sha256": "c701decc09db8a1ee247ce5554ad160aa3f14d994a22d4d6130f1cf03749806f"
+    },
+    {
+      "path": "build/restore-sanitize/texture-psm1-tests",
+      "bytes": 1682032,
+      "sha256": "716159a4ebaf3992874f57185ab2c3055a4127f0a13e0430cfd1d10be5c63544"
+    },
+    {
+      "path": "build/restore-sanitize/texture-snapshot-tests",
+      "bytes": 890456,
+      "sha256": "5f30746db56054eb1fa9a7b4c6cc415ffd09095e780091b6fa1ed490375fbc36"
+    },
+    {
+      "path": "build/restore-sanitize/startup-textures-tests",
+      "bytes": 4406056,
+      "sha256": "96d64b938bd6024466f468b752d5e66b7e76477d0d293317774de71ec87e24fb"
+    },
+    {
+      "path": "build/restore-sanitize/texture-handles-tests",
+      "bytes": 2588376,
+      "sha256": "2452ecac73760a50614a03d7fcedee2621d4fb64bbc2c135048aeafb291e8851"
+    },
+    {
+      "path": "build/restore-sanitize/gs-texture-address-tests",
+      "bytes": 105688,
+      "sha256": "c77c1afda5097bd8484888e1ed26f6d171b6e2133c007a67914ecffac07ae044"
+    },
+    {
+      "path": "build/restore-sanitize/save-store-tests",
+      "bytes": 597680,
+      "sha256": "2591eaded6805b91a3fe1a82a1a17f59316d307d9161d1e666f8a35949191a6c"
+    },
+    {
+      "path": "build/restore-sanitize/title-tests",
+      "bytes": 1258120,
+      "sha256": "e33fe1b6b8f509825f761c0d2a35e2f1177d231aeb2025cfda750d548cf1eeee"
+    },
+    {
+      "path": "build/restore-sanitize/load-queue-tests",
+      "bytes": 1813232,
+      "sha256": "17c33bd5b277042518f776efcf8309fa59ce7bc5029fd5246932352f006f5244"
+    },
+    {
+      "path": "build/restore-sanitize/game-mode-tests",
+      "bytes": 504496,
+      "sha256": "05097db66f05d27a587ef08ee07c0525fb1900f07f1f3a2c1ff12274b5992dcf"
+    },
+    {
+      "path": "build/restore-sanitize/effect-tests",
+      "bytes": 5436880,
+      "sha256": "97e39cb3666d0d75faa2449df8b1fd88e0b6892d00da2227596d73228bafcf3b"
+    },
+    {
+      "path": "build/restore-sanitize/asset-tests",
+      "bytes": 596232,
+      "sha256": "e63ccd5be44ca810851c0242f0ee0bd8d75ae997df4f9d9e3dc5f503d2c14a4c"
+    },
+    {
+      "path": "build/restore-sanitize/xim-raw-tests",
+      "bytes": 993936,
+      "sha256": "74a7d3bfec733ae6f01d504297c46b5c7d897197f7bed1eb79ddcf8c1f37c2e4"
+    },
+    {
+      "path": "build/restore-sanitize/okage-native.app/Contents/MacOS/okage-native",
+      "bytes": 37917568,
+      "sha256": "cbc91603e59f94426007b1fb4bba9cafcb36b94e46cb4e49c67fa6837eac07ff"
+    }
+  ],
+  "fresh_session": {
+    "binary_sha256": "6588bbbc14c4bd6dd744bdae57ec28e0a3520b83e2fc6c40e69a5331d9465453",
+    "runs": [
+      {
+        "name": "session",
+        "command": [
+          "/Users/user/src/okage/okage-shadow-king/local/research/restore-ownership-validation-v3/bin/new-release.app/Contents/MacOS/okage-native",
+          "--game-data",
+          "/Users/user/src/okage/okage-shadow-king/local/game-data-stage-v13",
+          "--save-directory",
+          "/Users/user/src/okage/okage-shadow-king/local/research/restore-followup-review-v1/fresh-session/saves",
+          "--title-pad-script",
+          "/Users/user/src/okage/okage-shadow-king/tests/data/retire-routes/restore-scripted/title-pad.txt",
+          "--restore-cancel-after-ready",
+          "1",
+          "--input-log",
+          "/Users/user/src/okage/okage-shadow-king/local/research/restore-followup-review-v1/fresh-session/reads.jsonl",
+          "--restore-cancel-report",
+          "/Users/user/src/okage/okage-shadow-king/local/research/restore-followup-review-v1/fresh-session/report",
+          "--frames",
+          "1300",
+          "--capture",
+          "/Users/user/src/okage/okage-shadow-king/local/research/restore-followup-review-v1/fresh-session/f.png"
+        ],
+        "returncode": 0
+      },
+      {
+        "name": "light-compare",
+        "command": [
+          "python3",
+          "tools/restore_light_compare.py",
+          "local/research/restore-original-v1/light/analysis",
+          "/Users/user/src/okage/okage-shadow-king/local/research/restore-followup-review-v1/fresh-session/report",
+          "--strict",
+          "--json",
+          "/Users/user/src/okage/okage-shadow-king/local/research/restore-followup-review-v1/fresh-session/light-compare.json"
+        ],
+        "returncode": 0
+      },
+      {
+        "name": "provenance",
+        "command": [
+          "python3",
+          "tools/retire_input_provenance.py",
+          "check-reads",
+          "/Users/user/src/okage/okage-shadow-king/local/game-data-stage-v13",
+          "/Users/user/src/okage/okage-shadow-king/local/research/restore-followup-review-v1/fresh-session/reads.jsonl",
+          "--manifest-sha256",
+          "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
+          "--strict-stage",
+          "--out",
+          "/Users/user/src/okage/okage-shadow-king/local/research/restore-followup-review-v1/fresh-session/provenance.json"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  "fresh_result": {
+    "light_reference": "IDENTICAL, strict",
+    "input_provenance": "pass,226 reads, no outside-stage inputs",
+    "save_directory_remains_empty": true
+  },
+  "evidence": [
+    {
+      "path": "local/research/restore-followup-review-v1/ctest-release.txt",
+      "bytes": 2312,
+      "sha256": "d6853d13f96e0ca0303f888da2d67b268636e9f39386394eda9a1daef25a8347"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/ctest-sanitize.txt",
+      "bytes": 1881,
+      "sha256": "2c8d718bc5a461e4f4d324fdc7615d9039e565cbf5b46bebcf8c19e06b5964ca"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/commands.json",
+      "bytes": 2323,
+      "sha256": "401d9654389db1121a510820b72d9a51fe09452f51fe985b618164663f050eae"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png",
+      "bytes": 144247,
+      "sha256": "5f5d28f3113058fc53d790e8b02276345763564665c591525db9c5f09cb9d64e"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.actors-state.json",
+      "bytes": 460,
+      "sha256": "d92a0ed85d1945d4c2bf57766bdbee8373948a3a26626b5baf396f5b482af4be"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.audio.json",
+      "bytes": 160,
+      "sha256": "40106cbcd4e1df0a2ec95745115f89444048415b3ff1dadc458cf8ab1b54b0df"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.audio.pcm",
+      "bytes": 4160000,
+      "sha256": "eb530cccede40df2a5a04098b3c8b6ab07e4696b00fe7d06ac5549e6c3f1ce59"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.battle-capture.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.battle-loading.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.battle-transition.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.chapter-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.choices.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.dialogue.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.effect-submissions.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.effects.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.game-mode.bin",
+      "bytes": 260000,
+      "sha256": "3a4e21069e1367a38884afd72afd1091382d447a5b1be20192fee756e9b21e9f"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.json",
+      "bytes": 1063,
+      "sha256": "842072104783aeeab18f9147f28a97ba4e8f3a621979dac0fe35f23d203d6a62"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.map-effects.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.music.bin",
+      "bytes": 26000,
+      "sha256": "7be5761cee4fd244bcca57d3c4a55dfb902d9ef146896af5d36ca06fee9e6356"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.name-entry-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.ordinary-load.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.restore-state.bin",
+      "bytes": 207336,
+      "sha256": "d38b69ab76c5b92251243e2f49550293bd0eea85426cf9c8ebe0314b2df2eb39"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.results.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.retiring-effects.bin",
+      "bytes": 342968,
+      "sha256": "18d927997d6918acb4e55ed31688d3f37ae4bf3fe2ee03a1361e17bbb63dac7f"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.save-state.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.screen-filter.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.sound.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.startup.bin",
+      "bytes": 29136,
+      "sha256": "e36dd046edc3049604560db258eed019f36fdf82f98de5bbeb440166db682d46"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.title-state.bin",
+      "bytes": 108532,
+      "sha256": "a25b398d6b26cb10e4dfbb13ffca5fc2ff5c09884d6a36618f3c1bc7527e4d10"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.transition.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.ui-party.bin",
+      "bytes": 288,
+      "sha256": "2d5565fb483d8ea4525a7a9229677d1038ad34b6e22c8d5152e1d7f7b9817597"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/f.png.variables.bin",
+      "bytes": 4096,
+      "sha256": "12572a5e41f5c792b6287c8db899d16f1e344c02436505d5c431aafc4350f21c"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/light-compare.json",
+      "bytes": 6197,
+      "sha256": "62435b5da08b849c061da819c404d1ce62f56f81c1ea3785cc9b3ea3c28cea95"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/light-compare.txt",
+      "bytes": 9310,
+      "sha256": "3f5960264e2a1e76d7f01699f7fe29aee1e46d15fd61f9ad3e82717f5dfffb11"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/provenance.json",
+      "bytes": 20004,
+      "sha256": "042b967a0a9f7322b58050d4d57f979ee08b05d6404b5860576ab997725e978c"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/provenance.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/reads.jsonl",
+      "bytes": 68452,
+      "sha256": "e100854af9589fb9e40420d27ddf546f1abe3a2e7aa92239eef7310ffef7f86b"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/cancel-death/effects.json",
+      "bytes": 79,
+      "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/cancel-death/lifecycle.jsonl",
+      "bytes": 72798,
+      "sha256": "be4cf03a290709ba4fd62122d626b4b1d9161e543518e0233804a7f6b258e46d"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/cancel-death/rng.jsonl",
+      "bytes": 945413,
+      "sha256": "90536220d8e2b7fb2deda74c4b6c4122f4a03fb23125d14ea537a643176bad8e"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/cancel-death/startup-timeline.jsonl",
+      "bytes": 12148,
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/cancel-death/state.json",
+      "bytes": 52568,
+      "sha256": "033873061582f15c4b7b6703843590c2a0d66a5066eb1c2961f903203b052f40"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/cancel-death/timeline.jsonl",
+      "bytes": 72798,
+      "sha256": "be4cf03a290709ba4fd62122d626b4b1d9161e543518e0233804a7f6b258e46d"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/cancel-death/vram.bytes",
+      "bytes": 4194304,
+      "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/cancel-death/vram.invalidated",
+      "bytes": 4194304,
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/cancel-death/vram.known",
+      "bytes": 4194304,
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/empty-ready/effects.json",
+      "bytes": 79,
+      "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/empty-ready/lifecycle.jsonl",
+      "bytes": 72637,
+      "sha256": "1401126311340792c576ffc64355534394c3be188be577d304e3cc458e0cb3c7"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/empty-ready/rng.jsonl",
+      "bytes": 726543,
+      "sha256": "66677f2c6eb18bd711de397bf16c269130b9f47ca9d8fa585a69483b5be9b1e6"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/empty-ready/startup-timeline.jsonl",
+      "bytes": 12148,
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/empty-ready/state.json",
+      "bytes": 52561,
+      "sha256": "c74965f29fd354899ae0524efe95f725c6858ec79b1110c501d49bf09dbb1abf"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/empty-ready/timeline.jsonl",
+      "bytes": 72637,
+      "sha256": "1401126311340792c576ffc64355534394c3be188be577d304e3cc458e0cb3c7"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/empty-ready/vram.bytes",
+      "bytes": 4194304,
+      "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/empty-ready/vram.invalidated",
+      "bytes": 4194304,
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/empty-ready/vram.known",
+      "bytes": 4194304,
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/first-layout/effects.json",
+      "bytes": 79,
+      "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/first-layout/lifecycle.jsonl",
+      "bytes": 72482,
+      "sha256": "5b00cc91dd063674a4ad926ceb0fd8348828041623d86e9ab118414427dc9df7"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/first-layout/rng.jsonl",
+      "bytes": 615580,
+      "sha256": "4fe91ccae337ec25218ad8ac0c7a7607297532bedd373fe4b81180d5ea1a8cad"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/first-layout/startup-timeline.jsonl",
+      "bytes": 12148,
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/first-layout/state.json",
+      "bytes": 52561,
+      "sha256": "7d326f0e0719b1f58a482219562f702be8f3787cb722b327c7813d2a5db78767"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/first-layout/timeline.jsonl",
+      "bytes": 72482,
+      "sha256": "5b00cc91dd063674a4ad926ceb0fd8348828041623d86e9ab118414427dc9df7"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/first-layout/vram.bytes",
+      "bytes": 4194304,
+      "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/first-layout/vram.invalidated",
+      "bytes": 4194304,
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/first-layout/vram.known",
+      "bytes": 4194304,
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/manager-frames.jsonl",
+      "bytes": 5341,
+      "sha256": "19306d81cfaf749fb8afe6a789e8a62be2716e097498fae80085e1553cc74ad9"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/resource-retirement/effects.json",
+      "bytes": 79,
+      "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/resource-retirement/lifecycle.jsonl",
+      "bytes": 73185,
+      "sha256": "775c58a2df74d166ba48d3161f90e1ed5a387d47d5429e93418dc0edbae6d86d"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/resource-retirement/rng.jsonl",
+      "bytes": 945413,
+      "sha256": "90536220d8e2b7fb2deda74c4b6c4122f4a03fb23125d14ea537a643176bad8e"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/resource-retirement/startup-timeline.jsonl",
+      "bytes": 12148,
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/resource-retirement/state.json",
+      "bytes": 52575,
+      "sha256": "588e155032a81d71bb9b689b992680a572fce67fd74a81aabc02c71837598aa5"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/resource-retirement/timeline.jsonl",
+      "bytes": 73185,
+      "sha256": "775c58a2df74d166ba48d3161f90e1ed5a387d47d5429e93418dc0edbae6d86d"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/resource-retirement/vram.bytes",
+      "bytes": 4194304,
+      "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/resource-retirement/vram.invalidated",
+      "bytes": 4194304,
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/resource-retirement/vram.known",
+      "bytes": 4194304,
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/restore-constructor-return/effects.json",
+      "bytes": 86,
+      "sha256": "c54acb1126ea841213da3c7ddf3cb4c608dd6d669969f0ff1c3dc354865f259d"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/restore-constructor-return/lifecycle.jsonl",
+      "bytes": 72401,
+      "sha256": "af2678faf5b52a3754ec7bca2305c4995ddb5f67ff34b0cf6043a71e360fa1db"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/restore-constructor-return/rng.jsonl",
+      "bytes": 613171,
+      "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/restore-constructor-return/startup-timeline.jsonl",
+      "bytes": 12148,
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/restore-constructor-return/state.json",
+      "bytes": 52575,
+      "sha256": "75c3f81b7f04e9d3a3b850b308922a3c99de953086485bc413f0a4ca142e4e8b"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/restore-constructor-return/timeline.jsonl",
+      "bytes": 72401,
+      "sha256": "af2678faf5b52a3754ec7bca2305c4995ddb5f67ff34b0cf6043a71e360fa1db"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/restore-constructor-return/vram.bytes",
+      "bytes": 4194304,
+      "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/restore-constructor-return/vram.invalidated",
+      "bytes": 4194304,
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/restore-constructor-return/vram.known",
+      "bytes": 4194304,
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/route.json",
+      "bytes": 309,
+      "sha256": "d16f9bd3ef67e2e93a104c543c3196bf6b68744a40c05ff5541143b9dc446e01"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/second-title-return/effects.json",
+      "bytes": 79,
+      "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/second-title-return/lifecycle.jsonl",
+      "bytes": 109158,
+      "sha256": "e076d94c47459f141f74b919e540cf094e8e6e36dc86719304aff8613e8c508d"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/second-title-return/rng.jsonl",
+      "bytes": 945413,
+      "sha256": "90536220d8e2b7fb2deda74c4b6c4122f4a03fb23125d14ea537a643176bad8e"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/second-title-return/startup-timeline.jsonl",
+      "bytes": 12148,
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/second-title-return/state.json",
+      "bytes": 73328,
+      "sha256": "4d896a5aab528435b34dec38e75e2e6beaf394293357b21297efbcdf388c5718"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/second-title-return/timeline.jsonl",
+      "bytes": 109158,
+      "sha256": "e076d94c47459f141f74b919e540cf094e8e6e36dc86719304aff8613e8c508d"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/second-title-return/vram.bytes",
+      "bytes": 4194304,
+      "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/second-title-return/vram.invalidated",
+      "bytes": 4194304,
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/second-title-return/vram.known",
+      "bytes": 4194304,
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/session-draw-frames.jsonl",
+      "bytes": 147266,
+      "sha256": "7650be0a2c1ac4cfedef47bead6c8d420515d36fc32d5596528a3c39d089e482"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/retire-successor-entry/effects.json",
+      "bytes": 86,
+      "sha256": "c54acb1126ea841213da3c7ddf3cb4c608dd6d669969f0ff1c3dc354865f259d"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/retire-successor-entry/lifecycle.jsonl",
+      "bytes": 71545,
+      "sha256": "ea3ce68f3f6e2df792f1511eb6e1dd715fc8e4f4a0ce6a3a2adfaab81c8dfc38"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/retire-successor-entry/rng.jsonl",
+      "bytes": 613171,
+      "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/retire-successor-entry/startup-timeline.jsonl",
+      "bytes": 12148,
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/retire-successor-entry/state.json",
+      "bytes": 52185,
+      "sha256": "484a46d783d519906e45acec5515203fe1718ea6b31d86dec758b1e093af0a86"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/retire-successor-entry/timeline.jsonl",
+      "bytes": 71545,
+      "sha256": "ea3ce68f3f6e2df792f1511eb6e1dd715fc8e4f4a0ce6a3a2adfaab81c8dfc38"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/retire-successor-entry/vram.bytes",
+      "bytes": 4194304,
+      "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/retire-successor-entry/vram.invalidated",
+      "bytes": 4194304,
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/retire-successor-entry/vram.known",
+      "bytes": 4194304,
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/wrapper-free/effects.json",
+      "bytes": 79,
+      "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/wrapper-free/lifecycle.jsonl",
+      "bytes": 73587,
+      "sha256": "69c1d5670c0fcddf9ae05f98ab891851abe4e1e264e93f05402960e1263426c9"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/wrapper-free/rng.jsonl",
+      "bytes": 945413,
+      "sha256": "90536220d8e2b7fb2deda74c4b6c4122f4a03fb23125d14ea537a643176bad8e"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/wrapper-free/startup-timeline.jsonl",
+      "bytes": 12148,
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/wrapper-free/state.json",
+      "bytes": 52187,
+      "sha256": "d36e975fbf8d3f73e0d174d7dc0a461070219219b27f88b916591caa4634015a"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/wrapper-free/timeline.jsonl",
+      "bytes": 73587,
+      "sha256": "69c1d5670c0fcddf9ae05f98ab891851abe4e1e264e93f05402960e1263426c9"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/wrapper-free/vram.bytes",
+      "bytes": 4194304,
+      "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/wrapper-free/vram.invalidated",
+      "bytes": 4194304,
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/report/wrapper-free/vram.known",
+      "bytes": 4194304,
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/fresh-session/session.txt",
+      "bytes": 669,
+      "sha256": "418f878a266a700b6e373586aebcb80b62682213d4e5eda3c64b3d234c1fb041"
+    },
+    {
+      "path": "local/research/restore-followup-review-v1/python.txt",
+      "bytes": 313,
+      "sha256": "5da36662f50c99a60c2f63c1223f4d0ea5392bd9a2e50bfc5f89dccba7f5a74a"
+    }
+  ],
+  "findings": [
+    "No substantive Restore runtime defect found in reviewed boundary.",
+    "RNG:9504 directly observed prefix draws plus4364 LCG-derived Restore draws between109 observed anchors; light call sites unobserved. Manager frame draw counts and next-callback update state have derived provenance.",
+    "Restore generated scope string stale; driver command omits RESTORE_VALIDATION despite defaultv1. Actual v3 paths/results retained. Cleanup assigned Newgame.",
+    "Next-route source finding: NameEntrySession increments image counter while source subsystem disabled; verify against original and fix first in Newgame. Chapter does enable it."
+  ],
+  "not_rerun": [
+    "Original Play VM",
+    "Full110 Release suite",
+    "Debug suite",
+    "Full1112 Python suite"
+  ],
+  "preservation": "Read-only v3 retained untouched. No preview, user save, draft worktree, visible game window or VM action. Separate empty saves/output for fresh headless replay."
+}
