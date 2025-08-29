@@ -22,6 +22,14 @@ target_link_libraries(okage-input-tests PRIVATE PlayCore)
 set_target_properties(okage-input-tests PROPERTIES CXX_STANDARD 20)
 add_test(NAME okage-input-tests COMMAND okage-input-tests)
 option(OKAGE_REFERENCE_VULKAN "Build the research-only offscreen Vulkan capture adapter" OFF)
+# Newgame: in a Debug research build, Play's SPU ADPCM reader asserts predictNumber < 5 on a block header the retail game
+# plays after name entry. NDEBUG for that one translation unit keeps Play's own defined behaviour (a 16-row predictor
+# table whose rows 5..15 are zero); no Play source line is edited and no EE-visible state depends on these samples.
+option(OKAGE_REFERENCE_SPU_ADPCM_NDEBUG "Compile Play's Iop_SpuBase.cpp with NDEBUG in a Debug research build" OFF)
+if(OKAGE_REFERENCE_SPU_ADPCM_NDEBUG)
+    set_source_files_properties("${CMAKE_SOURCE_DIR}/Source/iop/Iop_SpuBase.cpp" DIRECTORY "${CMAKE_SOURCE_DIR}/Source"
+        PROPERTIES COMPILE_DEFINITIONS NDEBUG)
+endif()
 option(OKAGE_REFERENCE_CAPTURE_FILTER_CORRECTIONS "Enable the reviewed research-only Play texture filter patch" OFF)
 if(OKAGE_REFERENCE_VULKAN)
     if(NOT APPLE)

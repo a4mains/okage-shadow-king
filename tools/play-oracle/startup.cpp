@@ -503,6 +503,30 @@ const uint32 lightHookPcs[]={
     0x11e480,0x1c0160,0x100f90,0x120b48,
 };
 constexpr uint32 restoreState=0x1f89a8,restoreSel=0x1f89ac,restoreKind=0x1f89a0,restoreAtlasGlobal=0x24f730,cancelMaskAddr=0x1f85e0;
+const HookDef newgameHookDefs[]={
+    {0x100ef8,"resource_construct"},{0x100f90,"resource_tick"},{0x1980f8,"ui_pass"},
+    {0x1243c8,"wrapper_resources_load"},{0x11fb78,"atlas_load"},{0x1a9190,"ruw_load"},{0x12d470,"audio_12d470"},
+    {0x11f5f8,"manager_create"},{0x11f668,"manager_construct"},{0x11f778,"window_construct"},{0x1196a0,"name_stream_init"},
+    {0x11fec8,"manager_input_pass"},{0x120ad0,"manager_update_pass"},{0x11a1c8,"name_input"},{0x119700,"name_update"},
+    {0x11faf8,"window_fade_out"},{0x11faa8,"window_fade_in"},
+    {0x120b48,"manager_destroy"},{0x199458,"window_destroy"},
+    {0x124628,"wrapper_destroy"},{0x124448,"wrapper_cleanup"},{0x1a9888,"ui_release_1a9888"},{0x199e88,"ui_release_199e88"},
+    {0x19c568,"ui_place_19c568"},{0x19ca20,"ui_place_19ca20"},
+    {0x1958e0,"text_queue_1958e0"},{0x195ad0,"text_queue_195ad0"},{0x1951e8,"font_get"},
+    {0x12ce20,"theme_tick"},{0x12de98,"theme_end_12de98"},{0x12dcb0,"theme_release_12dcb0"},
+    {0x124630,"wrapper_tick"},{0x1998a8,"window_opacity_step"},{0x1a4e50,"opacity_get"},{0x1a99e0,"window_mode_set"},
+    {0x1248d8,"mode_result_set"},{0x1cc2b0,"handle_desc_get"},
+    {0x197c68,"glyph_cache_lookup"},{0x195ff0,"glyph_path_195ff0"},{0x198390,"ui_layout"},{0x19d0c8,"ui_layout_19d0c8"},
+    {0x19eec8,"ui_layout_mode0"},{0x1a1ad8,"ui_layout_mode2"},
+    // Chapter (mode 2 command 14) and the image subsystem.
+    {0x133830,"mode2_construct"},{0x133a98,"mode2_update"},{0x133a38,"mode2_destroy"},{0x125ad0,"temp_clear"},
+    {0x114c80,"fade_immediate"},{0x114cc0,"fade_request"},{0x114d20,"fade_pending"},{0x114c90,"fade_rate_set"},
+    {0x1b3710,"image_submit"},{0x100800,"image_frame"},{0x1b5ee0,"image_frame_list"},{0x1b3450,"image_counter_step"},
+    {0x1b26a0,"image_list_link"},{0x1cb4b8,"clear_color_set"},
+};
+constexpr uint32 commandAddr=0x24f740,fadeCurrent=0x24eab0,fadeTarget=0x24eab4,fadeRate=0x24eab8,fadeColor=0x24eabc,
+                 imageCounter=0x337500,gameVarsPtr=0x24f788;
+constexpr uint32 btnUp=4,btnRight=7;
 
 class ScriptedPad final : public CPadHandler {
 public:
@@ -541,13 +565,13 @@ int bitsPerPixelTitle(uint32 psm){switch(psm){case 1:return 24;case 2:case 10:re
 
 int main(int argc,char** argv) {
     try {
-        if(argc<5)throw std::runtime_error("Usage: okage-startup-oracle DISC.cue ELF OUTDIR FILL(00|ff) [--deadline-seconds N] [--minimal | --rng-products | --title [--minimal] | --title-retire restore|newgame [--minimal] | --restore-cancel --memcards DIR [--minimal]]");
+        if(argc<5)throw std::runtime_error("Usage: okage-startup-oracle DISC.cue ELF OUTDIR FILL(00|ff) [--deadline-seconds N] [--minimal | --rng-products | --title [--minimal] | --title-retire restore|newgame [--minimal] | --restore-cancel --memcards DIR [--minimal] | --newgame-chapter [--minimal]]");
         const auto disc=std::filesystem::absolute(argv[1]);
         const std::filesystem::path elfPath=argv[2],outDir=argv[3];
         const std::string fillText=argv[4];
         if(fillText!="00"&&fillText!="ff")throw std::runtime_error("FILL must be 00 or ff");
         const uint8 fill=fillText=="ff"?0xff:0x00;
-        unsigned deadlineSeconds=1800;bool minimal=false,rngProducts=false,title=false,retire=false,restoreCancel=false,lightRestore=false;std::string route;
+        unsigned deadlineSeconds=1800;bool minimal=false,rngProducts=false,title=false,retire=false,restoreCancel=false,lightRestore=false,newgameChapter=false;std::string route;
         std::filesystem::path memcards;
         for(int i=5;i<argc;++i){
             if(std::string(argv[i])=="--deadline-seconds"&&i+1<argc)deadlineSeconds=unsigned(std::stoul(argv[++i]));
@@ -558,6 +582,7 @@ int main(int argc,char** argv) {
             else if(std::string(argv[i])=="--restore-cancel")restoreCancel=true;
             else if(std::string(argv[i])=="--light-restore")lightRestore=true;
             else if(std::string(argv[i])=="--memcards"&&i+1<argc)memcards=argv[++i];
+            else if(std::string(argv[i])=="--newgame-chapter")newgameChapter=true;
             else throw std::runtime_error("Unknown argument");
         }
         if(minimal&&rngProducts)throw std::runtime_error("--minimal and --rng-products are exclusive");
@@ -568,6 +593,11 @@ int main(int argc,char** argv) {
             if(retire||title||rngProducts)throw std::runtime_error("--restore-cancel is exclusive with --title/--title-retire/--rng-products");
             if(memcards.empty())throw std::runtime_error("--restore-cancel needs --memcards DIR (isolated, empty mc0/ and mc1/)");
             retire=true;route="restore";
+        }
+        if(newgameChapter){
+            if(retire||title||rngProducts||restoreCancel||lightRestore)
+                throw std::runtime_error("--newgame-chapter is exclusive with --title/--title-retire/--rng-products/--restore-cancel");
+            retire=true;route="newgame";
         }
         // --title-retire restore|newgame (Retire): the --title observations, continued past the Title stop with a
         // fixed state-driven pad script, to the ENTRY of 0x124548 with mode10 (restore) or mode9 (newgame).
@@ -622,7 +652,9 @@ int main(int argc,char** argv) {
         std::map<uint32,std::string> entryName;
         if(retire&&minimal){entryName[0x1296f8]="title_update";entryName[0x124548]="successor_construct";
             // Restore minimal control: plus the Restore input callback (pad script) and 0x12c350 (second-title stop).
-            if(restoreCancel){entryName[0x11e480]="restore_input";entryName[0x12c350]="mode8_construct";}}
+            if(restoreCancel){entryName[0x11e480]="restore_input";entryName[0x12c350]="mode8_construct";}
+            // Newgame minimal control: plus the name-entry first handler (pad script) and 0x133830 (chapter, stop).
+            if(newgameChapter){entryName[0x11a1c8]="name_input";entryName[0x133830]="mode2_construct";}}
         else if(title&&minimal) entryName[0x12c350]="mode8_construct";
         else {
             for(const auto& h:hookDefs)if(h.name)entryName[h.addr]=h.name;
@@ -645,8 +677,13 @@ int main(int argc,char** argv) {
             if((w>>26)==3&&entryName.count((w&0x03ffffff)<<2))returnSites.insert(a+8);
         }
         std::map<uint32,std::string> restoreEntryName;std::set<uint32> restoreReturnSites;
-        if(restoreCancel&&!minimal){
-            for(const auto& h:restoreHookDefs){
+        if((restoreCancel||newgameChapter)&&!minimal){
+            // Newgame reuses the Restore mechanism (same maps): armed at the Retire successor entry, own static return sites.
+            if(newgameChapter)for(const auto& h:newgameHookDefs){
+                if(entryName.count(h.addr)||restoreEntryName.count(h.addr))throw std::runtime_error("Duplicate Newgame hook");
+                restoreEntryName[h.addr]=h.name;
+            }
+            else for(const auto& h:restoreHookDefs){
                 if(entryName.count(h.addr)||restoreEntryName.count(h.addr))throw std::runtime_error("Duplicate Restore hook");
                 restoreEntryName[h.addr]=h.name;
             }
@@ -710,7 +747,7 @@ int main(int argc,char** argv) {
             restoreArmed=true;
             for(const auto& kv:restoreEntryName){entryName[kv.first]=kv.second;addBp(kv.first);}
             for(auto a:restoreReturnSites){returnSites.insert(a);addBp(a);}
-            for(const auto& pr:restoreProbeDefs)addBp(pr.addr);
+            if(!newgameChapter)for(const auto& pr:restoreProbeDefs)addBp(pr.addr);
         };
         uint64 lightWindowStops=0;
         std::function<void(uint32)> beginLight=[&](uint32 extraRa){
@@ -836,7 +873,7 @@ int main(int argc,char** argv) {
         int32 titleEffectSlot=-1;uint64 titleUpdates=0;int padStep=0;uint32 confirmMask=0;
         std::vector<std::string> checkpointsTaken;
         std::function<void(const std::string&)> checkpoint; // assigned after buildState
-        auto cpRetire=[&](const std::string& n){return restoreCancel?"retire-"+n:n;};
+        auto cpRetire=[&](const std::string& n){return restoreCancel||newgameChapter?"retire-"+n:n;};
         auto taken=[&](const std::string& n){return std::find(checkpointsTaken.begin(),checkpointsTaken.end(),n)!=checkpointsTaken.end();};
         bool successorSeen=false,restoreStopArmed=false;uint64 restoreInputCalls=0,uiPlaceCalls=0;
         std::vector<std::string> missingCheckpoints;
@@ -866,7 +903,7 @@ int main(int argc,char** argv) {
             q<<"{\"entry\":"<<hx(e)<<",\"h0\":"<<s16(e)<<",\"h2\":"<<s16(e+2)<<",\"w30\":"<<hx(get32(e+0x30))<<"}";return q.str();};
         auto nodeKind=[&](uint32 node)->std::string{
             const uint32 d=get32(node+8);
-            return d==0x12c8d8?"mode8":d==0x101058?"resource":d==0x124628?"mode9_10":"other";};
+            return d==0x12c8d8?"mode8":d==0x101058?"resource":d==0x124628?"mode9_10":d==0x133a38?"mode2":"other";};
         auto setPad=[&](uint32 buttons,const std::string& why){
             scriptedPad->buttons.store(buttons);
             emit("\"ev\":\"pad_script\",\"step\":"+std::to_string(padStep)+",\"buttons\":"+std::to_string(buttons)
@@ -911,6 +948,7 @@ int main(int argc,char** argv) {
             int32 mode=-1,sel=-1;
             if(ok=="mode8"){mode=8;sel=int32(get32(own+0x24));}
             else if(ok=="mode9_10"){mode=int32(get32(own+0x24));sel=int32(get32(own+0x28));}
+            else if(ok=="mode2"){mode=2;sel=int32(get32(own+0x28));} // Newgame: 0x133830 copies parent+0x44 (scene) to +0x28
             q<<"\"owner\":{\"node_kind\":\""<<k<<"\",\"owner_node\":"<<hx(own)<<",\"owner_kind\":\""<<ok<<"\",\"owner_mode\":"<<mode<<",\"owner_selector\":"<<sel<<"}";
             return q.str();};
         auto themeJson=[&]{std::ostringstream q;q<<"\"theme_words_2d9a60\":["<<int32(get32(0x2d9a60))<<","<<int32(get32(0x2d9a64))<<","<<int32(get32(0x2d9a68))<<"]";return q.str();};
@@ -1026,6 +1064,100 @@ int main(int argc,char** argv) {
         auto restoreScriptExit=[&](int32 entryState){
             const int32 st=int32(get32(restoreState));
             if(padStep==7&&entryState==0x21c&&st==-1){padStep=8;setPad(0,"Cancel consumed (0x21c -> -1 in this 0x11e480 call): release");}
+        };
+
+        // ---- Newgame helpers (--newgame-chapter) -------------------------------------------------------
+        auto words3=[&](uint32 a){std::ostringstream q;q<<"["<<int32(get32(a))<<","<<int32(get32(a+4))<<","<<int32(get32(a+8))<<"]";return q.str();};
+        auto bytesHex=[&](uint32 a,uint32 n){static const char* d="0123456789abcdef";std::string s;
+            for(uint32 k=0;k<n;++k){const uint8 b=ram[(a+k)&0x1ffffff];s+=d[b>>4];s+=d[b&15];}return s;};
+        // Game variable bank *0x24f788: published name at +0x844 (16 bytes), temporary variables +0x10..+0x10f (125ad0).
+        auto gameJson=[&]{
+            std::ostringstream q;const uint32 g=get32(gameVarsPtr);
+            q<<"\"game\":{\"vars\":"<<hx(g);
+            if(plausiblePtr(g,0x854))q<<",\"name_844\":\""<<bytesHex(g+0x844,16)<<"\",\"temp_10_sha256\":\""<<sha(ram+(g&0x1ffffff)+0x10,0x100)<<"\"";
+            q<<",\"command_24f740\":"<<words3(commandAddr)<<",\"image_counter_337500\":"<<int32(get32(imageCounter))
+             <<",\"fade\":{\"current\":"<<hx(get32(fadeCurrent))<<",\"target\":"<<hx(get32(fadeTarget))<<",\"rate\":"<<hx(get32(fadeRate))
+             <<",\"color\":"<<hx(get32(fadeColor))<<"}}";
+            return q.str();};
+        auto nameJson=[&](uint32 node){
+            std::ostringstream q;
+            q<<"\"name_entry\":{\"node\":"<<hx(node)<<",\"phase\":"<<int32(get32(node+0xe4c))<<",\"e8c\":"<<int32(get32(node+0xe8c))
+             <<",\"length_a8\":"<<int32(get32(node+0xa8))<<",\"selection_cc\":"<<int32(get32(node+0xcc))<<",\"yes_no_d8\":"<<int32(get32(node+0xd8))
+             <<",\"cursor\":["<<int32(get32(node+0xdc))<<","<<int32(get32(node+0xe0))<<","<<int32(get32(node+0xe4))<<"]"
+             <<",\"w90\":"<<hx(get32(node+0x90))<<",\"flags\":"<<hx(get32(node+0x1c))<<",\"selected_24eb98\":"<<hx(get32(0x24eb98)&0xffff)
+             <<",\"flag_1f88c0\":"<<int32(get32(0x1f88c0))<<","<<managerWindows(node)<<","<<uiWindowJson(int32(get32(node+0x40)))<<"},"<<gameJson();
+            return q.str();};
+        auto mode2Json=[&](uint32 node){
+            std::ostringstream q;const uint32 p=get32(node+0x14);
+            q<<"\"mode2\":{\"node\":"<<hx(node)<<",\"flag_20\":"<<int32(get32(node+0x20))<<",\"chapter_24\":"<<int32(get32(node+0x24))
+             <<",\"dest_28\":"<<int32(get32(node+0x28))<<",\"dest_2c\":"<<int32(get32(node+0x2c))<<",\"counter_38\":"<<int32(get32(node+0x38))
+             <<",\"resource_3c\":"<<hx(get32(node+0x3c))<<",\"phase_48\":"<<int32(get32(node+0x48))<<",\"parent\":"<<hx(p);
+            if(plausiblePtr(p,0x54))q<<",\"parent_40\":"<<int32(get32(p+0x40))<<",\"parent_44\":"<<int32(get32(p+0x44))<<",\"parent_48\":"<<int32(get32(p+0x48))
+                <<",\"parent_4c\":"<<int32(get32(p+0x4c))<<",\"parent_3c\":"<<int32(get32(p+0x3c))<<",\"parent_50\":"<<int32(get32(p+0x50));
+            q<<"},"<<gameJson()<<",\"image_list\":"<<intList(imageList());
+            return q.str();};
+        struct NameSnap{int32 phase,length,sel,yes;};
+        auto nameSnap=[&](uint32 node){return NameSnap{int32(get32(node+0xe4c)),int32(get32(node+0xa8)),int32(get32(node+0xcc)),int32(get32(node+0xd8))};};
+        NameSnap namePressSnap{};uint64 nameInputCalls=0,nameWaitCalls=0;
+        auto namePress=[&](uint32 node,int next,uint32 button,const std::string& why){
+            namePressSnap=nameSnap(node);nameWaitCalls=0;padStep=next;setPad(1u<<button,why);};
+        auto nameScriptEnter=[&](uint32 node){
+            const NameSnap s=nameSnap(node);
+            ++nameInputCalls;
+            if(int32(get32(node+0xe8c))!=0)throw std::runtime_error("0x11a1c8 entered with +0xe8c != 0");
+            switch(padStep){
+            case 6: if(s.phase==1){
+                        if(get32(cancelMaskAddr)!=0x20||get32(padMaskTable+0x14)!=0x40)throw std::runtime_error("name-entry masks are not Circle 0x20 / Cross 0x40");
+                        if(s.length<1)throw std::runtime_error("name entry opened with an empty name: the erase step does not apply");
+                        namePress(node,10,btnCircle,"name phase 1: press Circle (erase one character)");}
+                    break;
+            case 11: if(s.phase==1)namePress(node,12,btnRight,"press Right (grid selection +1)");break;
+            case 13: if(s.phase==1)namePress(node,14,btnCross,"press Cross (append the selected character)");break;
+            case 15: if(s.phase==1)namePress(node,16,btnStart,"press Start (select End)");break;
+            case 17: if(s.phase==1)namePress(node,18,btnCross,"press Cross on End (open Yes/No)");break;
+            case 19: if(s.phase==-1)namePress(node,20,btnUp,"Yes/No phase -1: press Up (select Yes)");break;
+            case 21: if(s.phase==-1)namePress(node,22,btnCross,"press Cross on Yes (accept)");break;
+            default: break;
+            }
+        };
+        auto nameScriptExit=[&](uint32 node){
+            const NameSnap s=nameSnap(node),b=namePressSnap;
+            if(padStep>=10&&padStep<=22&&padStep%2==0&&++nameWaitCalls>8)throw std::runtime_error("name-entry press not consumed within 8 calls");
+            switch(padStep){
+            case 10: if(s.length==b.length-1){padStep=11;setPad(0,"erase consumed (length -1): release");}break;
+            case 12: if(s.sel!=b.sel){padStep=13;setPad(0,"Right consumed (selection changed): release");}break;
+            case 14: if(s.length==b.length+1){padStep=15;setPad(0,"append consumed (length +1): release");checkpoint("name-edited");}break;
+            case 16: if(s.sel==-3){padStep=17;setPad(0,"Start consumed (selection -3): release");}break;
+            case 18: if(s.phase==-1){
+                         if(s.yes!=1)throw std::runtime_error("Yes/No did not open on No (+0xd8 != 1)");
+                         padStep=19;setPad(0,"End consumed (phase -1, No selected): release");}
+                     break;
+            case 20: if(s.yes==0){padStep=21;setPad(0,"Up consumed (+0xd8 = 0, Yes): release");}break;
+            case 22: if(s.phase==-2){padStep=23;setPad(0,"Yes consumed (phase -2): release");checkpoint("name-confirmed");}break;
+            default: break;
+            }
+        };
+        bool newgameStopped=false;uint64 mode2Constructs=0;uint32 modeParentNode=0; // wrapper+0x14 at the Retire successor entry
+        auto f12Bits=[&]{return hx(cpu.nCOP1[12]);};
+        auto newgameEnterDecode=[&](const std::string& name,Frame& f,std::ostringstream& o){
+            const uint64* a=f.a;
+            if(name=="name_input"||name=="name_update")o<<","<<nameJson(uint32(a[0]))<<",\"call\":"<<nameInputCalls;
+            else if(name=="mode2_construct"||name=="mode2_update"||name=="mode2_destroy")o<<","<<mode2Json(uint32(a[0]));
+            else if(name=="temp_clear"||name=="fade_pending"||name=="image_frame"||name=="image_frame_list"||name=="image_counter_step"
+                    ||name=="name_stream_init")o<<","<<gameJson();
+            // 0x114c80/0x114c90 take a float (in $f12); a0 is logged too but is not their argument.
+            else if(name=="fade_immediate"||name=="fade_rate_set")o<<",\"value\":"<<hx(uint32(a[0]))<<",\"f12_bits\":"<<f12Bits()<<","<<gameJson();
+            else if(name=="fade_request")o<<",\"f12_bits\":"<<f12Bits()<<","<<gameJson();
+            else if(name=="mode_result_set")o<<",\"command\":["<<int32(a[0])<<","<<int32(a[1])<<","<<int32(a[2])<<"],"<<gameJson();
+            else if(name=="image_submit"){o<<",\"image_args\":[";for(int k=0;k<7;++k)o<<(k?",":"")<<hx(uint32(a[k]));o<<"],"<<gameJson();}
+            else if(name=="image_list_link"||name=="clear_color_set")o<<",\"values\":["<<int32(a[0])<<","<<int32(a[1])<<","<<int32(a[2])<<","<<int32(a[3])<<"]";
+        };
+        auto newgameExitDecode=[&](const std::string& name,const Frame& f,std::ostringstream& o){
+            if(name=="name_input"||name=="name_update")o<<","<<nameJson(uint32(f.a[0]));
+            else if(name=="mode2_construct"||name=="mode2_update"||name=="mode2_destroy")o<<","<<mode2Json(uint32(f.a[0]));
+            else if(name=="temp_clear"||name=="fade_immediate"||name=="fade_request"||name=="fade_rate_set"||name=="fade_pending"
+                    ||name=="image_frame"||name=="image_frame_list"||name=="image_counter_step"||name=="mode_result_set"||name=="name_stream_init"
+                    ||name=="image_submit")o<<","<<gameJson();
         };
 
         // Entry-side decoding of hooked functions (reads only).
@@ -1150,7 +1282,7 @@ int main(int argc,char** argv) {
                         const int32 selp=nodeKind(p)=="mode8"?int32(get32(p+0x24)):(plausiblePtr(par,0x28)&&nodeKind(par)=="mode8"?int32(get32(par+0x24)):-1);
                         o<<",\"scheduler_node\":{\"kind\":\""<<nodeKind(p)<<"\",\"dtor\":"<<hx(get32(p+8))<<",\"cb1\":"<<hx(get32(p+4))<<",\"parent\":"<<hx(par)
                          <<",\"flags\":"<<hx(get32(p+0x1c))<<",\"mode8_selector\":"<<selp<<"}";
-                        if(restoreCancel&&successorSeen)o<<","<<ownerJson(p);
+                        if((restoreCancel||newgameChapter)&&successorSeen)o<<","<<ownerJson(p);
                     }
                 }
                 else if(name=="model_table_retire")o<<",\"holder\":"<<hx(norm(a[0]))<<",\"table\":"<<materialTable(get32(uint32(norm(a[0]))))
@@ -1213,9 +1345,10 @@ int main(int argc,char** argv) {
                 o<<",\"node\":"<<hx(n)<<",\"parent\":"<<hx(par)<<",\"mode8_selector\":"<<(plausiblePtr(par,0x28)?int32(get32(par+0x24)):-1)
                  <<",\"w20\":"<<int32(get32(n+0x20))<<",\"w34\":"<<int32(get32(n+0x34))<<",\"w48\":"<<int32(get32(n+0x48))
                  <<",\"effect\":"<<effectJson(titleEffectSlot);
-                if(restoreCancel&&successorSeen)o<<","<<ownerJson(n);
+                if((restoreCancel||newgameChapter)&&successorSeen)o<<","<<ownerJson(n);
             }
-            if(restoreCancel&&successorSeen)restoreEnterDecode(name,f,o);
+            if((restoreCancel||newgameChapter)&&successorSeen)restoreEnterDecode(name,f,o);
+            if(newgameChapter&&successorSeen)newgameEnterDecode(name,f,o);
             f.enterIndex=evCount;
             emit(o.str());
             if(retire){
@@ -1226,7 +1359,7 @@ int main(int argc,char** argv) {
                         &&std::find(checkpointsTaken.begin(),checkpointsTaken.end(),cpRetire("removal-request"))==checkpointsTaken.end())
                     checkpoint(cpRetire("removal-request"));
                 else if(name=="mode8_destroy"&&int32(get32(uint32(f.a[0])+0x24))==1&&!successorSeen)checkpoint(cpRetire("resource-retirement"));
-                else if(name=="successor_construct"&&!restoreCancel){
+                else if(name=="successor_construct"&&!restoreCancel&&!newgameChapter){
                     if(f.aux!=routeMode)throw std::runtime_error("0x124548 entered with mode "+std::to_string(f.aux)+", route expects "+std::to_string(routeMode));
                     checkpoint("successor-entry");
                     retireStopped=true;
@@ -1236,6 +1369,7 @@ int main(int argc,char** argv) {
                     // Restore: the Retire stop point becomes a checkpoint; arm the Restore hooks and continue into the body.
                     if(f.aux!=routeMode)throw std::runtime_error("0x124548 entered with mode "+std::to_string(f.aux)+", route expects "+std::to_string(routeMode));
                     if(successorSeen)throw std::runtime_error("0x124548 entered twice");
+                    if(newgameChapter)modeParentNode=get32(uint32(f.a[0])+0x14);
                     checkpoint("retire-successor-entry");
                     successorSeen=true;
                     if(lightRestore){
@@ -1266,6 +1400,46 @@ int main(int argc,char** argv) {
                     else if(name=="host_free"&&(f.ra==0x1150d4||f.ra==0x1150f0)&&nodeKind(uint32(norm(f.a[0])))=="mode9_10"){
                         if(!taken("resource-retirement"))throw std::runtime_error("wrapper freed before its destructor");
                         checkpoint("wrapper-free");restoreStopArmed=true;
+                    }
+                }
+                else if(newgameChapter&&successorSeen){
+                    // Newgame checkpoints at ENTRIES (before every event of the call) and the stop.
+                    const bool schedFree=name=="host_free"&&(f.ra==0x1150d4||f.ra==0x1150f0);
+                    const std::string freed=schedFree?nodeKindRestore(uint32(norm(f.a[0]))):std::string();
+                    if(name=="name_input")nameScriptEnter(uint32(f.a[0]));
+                    else if(name=="manager_destroy"){
+                        if(padStep!=23)throw std::runtime_error("name manager destroyed before Yes was consumed");
+                        if(!taken("name-death"))checkpoint("name-death");
+                    }
+                    else if(freed=="manager"&&taken("name-death")&&!taken("manager-free"))checkpoint("manager-free");
+                    else if(name=="wrapper_destroy"&&!taken("resource-retirement")){
+                        if(!taken("command-published"))throw std::runtime_error("wrapper destroyed before its command was published");
+                        checkpoint("resource-retirement");
+                    }
+                    else if(freed=="mode9_10"){
+                        if(!taken("resource-retirement"))throw std::runtime_error("wrapper freed before its destructor");
+                        checkpoint("wrapper-free");
+                    }
+                    else if(name=="mode2_destroy"){
+                        if(!taken("chapter-mode-request"))throw std::runtime_error("0x133a38 before the chapter requested mode 2");
+                        checkpoint("chapter-resource-retirement");
+                    }
+                    else if(freed=="mode2"){
+                        if(!taken("chapter-resource-retirement"))throw std::runtime_error("mode-2 node freed before 0x133a38");
+                        checkpoint("chapter-wrapper-free");
+                    }
+                    else if(name=="mode2_construct"){
+                        const int32 cmd=int32(get32(commandAddr));
+                        if(++mode2Constructs==1){
+                            if(cmd!=14)throw std::runtime_error("first 0x133830 without command 14");
+                            if(!minimal&&!taken("wrapper-free"))throw std::runtime_error("0x133830 before the name wrapper was freed");
+                        }else{
+                            if(cmd!=0)throw std::runtime_error("second 0x133830 without command 0");
+                            if(!minimal&&!taken("chapter-wrapper-free"))throw std::runtime_error("second 0x133830 before the chapter node was freed");
+                            checkpoint("field-constructor-entry");
+                            newgameStopped=true;
+                            return; // paused AT the second 0x133830 entry: nothing of its body has executed
+                        }
                     }
                 }
             }
@@ -1393,15 +1567,44 @@ int main(int argc,char** argv) {
                 else if(name=="file_load")o<<",\"buf\":"<<hx(v0)<<",\"last_raw_read\":{\"name\":\""<<esc(lastFile.name)<<"\",\"size\":"<<lastFile.size<<",\"sha256\":"
                                               <<(lastFile.sha.empty()?std::string("null"):"\""+lastFile.sha+"\"")<<"}";
             }
-            if(restoreCancel&&successorSeen)restoreExitDecode(name,f,o);
+            if((restoreCancel||newgameChapter)&&successorSeen)restoreExitDecode(name,f,o);
+            if(newgameChapter&&successorSeen)newgameExitDecode(name,f,o);
             emit(o.str());
             if(retire&&name=="mode8_construct"&&int32(get32(uint32(f.a[0])+0x24))==1){
                 if(!successorSeen)checkpoint(cpRetire("title-constructed")); // the Title stop point (paused at the 0x12c350 return address); continue
+                else if(newgameChapter)throw std::runtime_error("a second title was constructed on the New Game route");
                 else {
                     // Restore stop: the RETURN of the second 0x12c350(selector 1), before its first 0x1296f8.
                     if(padStep!=8)throw std::runtime_error("second title constructed without the Restore Cancel");
                     if(!minimal&&!restoreStopArmed)throw std::runtime_error("second title constructed before the Restore wrapper free");
                     checkpoint("second-title-return");
+                }
+            }
+            if(newgameChapter&&successorSeen){
+                // Newgame checkpoints at RETURNS (after every event of the call).
+                if(name=="successor_construct")checkpoint("name-constructor-return");
+                else if(name=="name_input")nameScriptExit(uint32(f.a[0]));
+                // first-layout: the RETURN of the first 0x100f90 of the mode-9 wrapper's resource node after the
+                // constructor returned, during which a UI placement (0x19c568/0x19ca20) was entered.
+                else if(name=="resource_tick"&&!taken("first-layout")&&taken("name-constructor-return")&&uiPlaceCalls>f.aux2){
+                    const uint32 par=get32(uint32(f.a[0])+0x14);
+                    if(nodeKind(par)!="mode9_10"||int32(get32(par+0x24))!=9)throw std::runtime_error("first UI layout outside the mode-9 wrapper");
+                    checkpoint("first-layout");
+                }
+                // command-published: the return of the 0x124630 call that ran 0x1248d8(14,1,0) and 0x124930(root,2,72,0).
+                else if(name=="wrapper_tick"&&!taken("command-published")&&int32(get32(commandAddr))==14){
+                    if(!taken("name-death"))throw std::runtime_error("command 14 published before the name manager died");
+                    checkpoint("command-published");
+                }
+                else if(name=="mode2_construct"){
+                    if(int32(get32(uint32(f.a[0])+0x48))!=0x13)throw std::runtime_error("first 0x133830 did not enter phase 19");
+                    checkpoint("chapter-constructor-return");
+                }
+                else if(name=="mode2_update"){
+                    const uint32 node=uint32(f.a[0]);
+                    if(!taken("chapter-fade-request")&&int32(get32(node+0x38))==0xf0)checkpoint("chapter-fade-request");
+                    else if(taken("chapter-fade-request")&&!taken("chapter-mode-request")&&int32(get32(commandAddr))==0)
+                        checkpoint("chapter-mode-request");
                 }
             }
             if(restoreCancel&&successorSeen){
@@ -1536,6 +1739,14 @@ int main(int argc,char** argv) {
                 out<<"],\"title_effect_slot\":"<<titleEffectSlot<<",\"title_effect\":"<<effectJson(titleEffectSlot)
                    <<",\"theme_words_2d9a60\":["<<int32(get32(0x2d9a60))<<","<<int32(get32(0x2d9a64))<<","<<int32(get32(0x2d9a68))<<"]";
             }
+            if(newgameChapter){
+                // Newgame: image counter, command, fade, published name and temporary variables, mode parent request.
+                const uint32 mp=modeParentNode;
+                out<<","<<gameJson()<<",\"mode_parent\":"<<hx(mp);
+                if(plausiblePtr(mp,0x54))out<<",\"mode_parent_fields\":{\"phase_20\":"<<int32(get32(mp+0x20))<<",\"child_38\":"<<hx(get32(mp+0x38))
+                    <<",\"request_3c\":"<<int32(get32(mp+0x3c))<<",\"current_40\":"<<int32(get32(mp+0x40))<<",\"w44\":"<<int32(get32(mp+0x44))
+                    <<",\"w48\":"<<int32(get32(mp+0x48))<<",\"w4c\":"<<int32(get32(mp+0x4c))<<",\"w50\":"<<int32(get32(mp+0x50))<<"}";
+            }
             out<<"}\n";
         }
         return out.str();
@@ -1568,7 +1779,7 @@ int main(int argc,char** argv) {
             writeFresh(dir/"state.jsonl",s.data(),s.size());
             emit("\"ev\":\"checkpoint\",\"name\":\""+cp+"\",\"pc\":"+hx(cpu.nPC)+",\"title_n\":"+std::to_string(titleUpdates)
                  +",\"stack_depth\":"+std::to_string(stack.size())+",\"gs\":"+transfer+","+randState());
-            if(restoreCancel&&(successorSeen||cp=="retire-successor-entry"))
+            if((restoreCancel||newgameChapter)&&(successorSeen||cp=="retire-successor-entry"))
                 emit("\"ev\":\"glyph_state\",\"checkpoint\":\""+cp+"\","+glyphStateJson()+","+themeJson());
         };
         fillGs();
@@ -1635,13 +1846,19 @@ int main(int argc,char** argv) {
                         emit(o.str());explained=true;
                     }
                 }
-                if(restoreArmed){
+                if(restoreArmed&&!newgameChapter){
                     for(const auto& pr:restoreProbeDefs)if(pr.addr==pc){
                         std::ostringstream o;o<<"\"ev\":\"probe\",\"pc\":"<<hx(pc)<<",\"name\":\""<<pr.name<<"\"";
                         if(pc==0x1984b0)o<<",\"window\":"<<windowFields(uint32(reg(CMIPS::S0)));
                         else if(pc>=0x1aee00)o<<",\"hook_202ddc\":"<<hx(get32(0x202ddc))<<",\"w202dd8\":"<<hx(get32(0x202dd8))<<",\"v0\":"<<hx(uint32(reg(CMIPS::V0)));
                         emit(o.str());explained=true;
                     }
+                }
+                if(newgameStopped) {
+                    // Newgame stop: paused AT the entry of the second 0x133830 (command 0); its body has not executed.
+                    emit("\"ev\":\"stop\",\"kind\":\"field_constructor_entry\",\"pc\":"+hx(pc)+",\"sp\":"+hx(sp)
+                         +",\"stack_depth\":"+std::to_string(stack.size())+","+randState());
+                    titleStopSp=sp;stopped=true;break;
                 }
                 if(retireStopped) {
                     emit("\"ev\":\"stop\",\"kind\":\"successor_constructor_entry\",\"pc\":"+hx(pc)+",\"sp\":"+hx(sp)
@@ -1684,7 +1901,7 @@ int main(int argc,char** argv) {
         if(!stopped)throw std::runtime_error("Startup did not reach the stop PC (exit="+std::to_string(exited.load())+" stops="+std::to_string(stops)+")");
         if(vm.GetStatus()!=CVirtualMachine::PAUSED)throw std::runtime_error("VM not paused at stop");
         const double seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-startTime).count();
-        if(uint32(cpu.nPC)!=(restoreCancel?titleStopRa:retire?0x124548u:title?titleStopRa:stopPc))throw std::runtime_error("Stop PC mismatch");
+        if(uint32(cpu.nPC)!=(newgameChapter?0x133830u:restoreCancel?titleStopRa:retire?0x124548u:title?titleStopRa:stopPc))throw std::runtime_error("Stop PC mismatch");
         if(restoreCancel){
             static const char* need[]={"retire-successor-entry","restore-constructor-return","first-layout","empty-ready","cancel-death",
                                        "resource-retirement","wrapper-free","second-title-return"};
@@ -1692,6 +1909,19 @@ int main(int argc,char** argv) {
                 const std::string s=n;
                 if(minimal&&s!="retire-successor-entry"&&s!="empty-ready"&&s!="second-title-return")continue; // not hooked in the control
                 if(!taken(s))missingCheckpoints.push_back(s); // reported in run-meta; exit status 1
+            }
+        }
+        if(newgameChapter){
+            static const char* need[]={"retire-successor-entry","name-constructor-return","first-layout","name-edited","name-confirmed",
+                                       "name-death","manager-free","command-published","resource-retirement","wrapper-free",
+                                       "chapter-constructor-return","chapter-fade-request","chapter-mode-request",
+                                       "chapter-resource-retirement","chapter-wrapper-free","field-constructor-entry"};
+            for(const char* n:need){
+                const std::string s=n;
+                // The minimal control hooks only the title update, 0x124548, 0x11a1c8 and 0x133830.
+                if(minimal&&s!="retire-successor-entry"&&s!="name-edited"&&s!="name-confirmed"&&s!="chapter-constructor-return"
+                   &&s!="field-constructor-entry")continue;
+                if(!taken(s))missingCheckpoints.push_back(s);
             }
         }
         if(title&&!prefixPassed)throw std::runtime_error("Title stop reached without passing 0x100618");
@@ -1755,6 +1985,13 @@ int main(int argc,char** argv) {
                 for(size_t i=0;i<checkpointsTaken.size();++i)o<<(i?",":"")<<"\""<<checkpointsTaken[i]<<"\"";
                 o<<"]";
             }
+            if(newgameChapter){
+                o<<",\"newgame_chapter\":true,\"hooks_armed\":"<<(restoreArmed?"true":"false")<<",\"hooks\":"<<restoreEntryName.size()
+                 <<",\"return_sites\":"<<restoreReturnSites.size()<<",\"name_input_calls\":"<<nameInputCalls
+                 <<",\"mode2_constructs\":"<<mode2Constructs<<",\"ui_place_calls\":"<<uiPlaceCalls<<",\"missing_checkpoints\":[";
+                for(size_t i=0;i<missingCheckpoints.size();++i)o<<(i?",":"")<<"\""<<missingCheckpoints[i]<<"\"";
+                o<<"]";
+            }
             if(restoreCancel){
                 o<<",\"restore_cancel\":true,\"memcard_mc0\":\""<<esc(card0.string())<<"\",\"memcard_mc1\":\""<<esc(card1.string())
                  <<"\",\"restore_hooks_armed\":"<<(restoreArmed?"true":"false")<<",\"restore_hooks\":"<<restoreEntryName.size()
@@ -1774,7 +2011,7 @@ int main(int argc,char** argv) {
         }
         finishing=true;
         std::cout<<"OK events="<<evCount<<" stops="<<stops<<" vblanks="<<frames.load()<<" seconds="<<seconds<<std::endl;
-        if(!missingCheckpoints.empty()){std::cerr<<"Restore checkpoints not reached: "<<missingCheckpoints.size()<<'\n';return 1;}
+        if(!missingCheckpoints.empty()){std::cerr<<(newgameChapter?"Newgame":"Restore")<<" checkpoints not reached: "<<missingCheckpoints.size()<<'\n';return 1;}
         return 0;
     } catch(const std::exception& e) {std::cerr<<e.what()<<'\n';return 1;}
 }
